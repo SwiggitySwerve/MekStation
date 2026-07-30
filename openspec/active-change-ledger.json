@@ -17,6 +17,12 @@
       "status": "in-progress",
       "reason": "Focused local-combat durability wave for authoritative event-suffix persistence and exact cold-reload recovery in PR #1084.",
       "lastReviewed": "2026-07-30"
+    },
+    {
+      "name": "establish-entity-event-journal-contract",
+      "status": "proposed",
+      "reason": "Wave 1 of the entity-history program: define typed per-entity append, ordering, identity, integrity, and receipt contracts over the existing SQLite boundary before any authority cutover.",
+      "lastReviewed": "2026-07-30"
     }
   ]
 }
