@@ -31,6 +31,12 @@
       "lastReviewed": "2026-07-30"
     },
     {
+      "name": "add-cross-stream-effect-receipts",
+      "status": "proposed",
+      "reason": "Wave 5 of the entity-history program: add transactional outbox/inbox receipts, side-effect-free replay, causal cross-stream history, and exactly-once combat-to-campaign effect application over at-least-once delivery.",
+      "lastReviewed": "2026-07-30"
+    },
+    {
       "name": "harden-gm-two-player-campaign-sessions",
       "status": "in-progress",
       "reason": "User-approved declarative-first change for one non-playing GM plus two tactical players: durable command journaling and publication, role-safe live/replay/export projection, reconnect cursors, outcome receipts, append-only correction and rewind, campaign retroactive rebuild, and a strict 80-scenario three-context acceptance program. Implementation is intentionally split into small independently verified PRs with exact-main post-merge regression audits. Its e2e-testing delta adds distinct GM/two-player requirements and does not modify the active add-subsystem-lanes-and-ci requirement names.",
