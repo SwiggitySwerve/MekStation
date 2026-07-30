@@ -20,6 +20,6 @@
 
 ## 4. Review and Handoff
 
-- [ ] 4.1 Run independent code, authority/persistence, security, and browser QA review against the exact commit; resolve every in-scope finding.
+- [x] 4.1 Run independent code, authority/persistence, security, and browser QA review against the exact commit; resolve every in-scope finding.
 - [ ] 4.2 Record the evidence paths and exact gate outcomes in the gameplay audit and wave handoff without mixing maintenance or turn-rail artifacts.
 - [ ] 4.3 Commit one focused user-visible outcome, push the dedicated `codex/` branch, open one review-ready PR, and wait for terminal `gh pr checks` before starting the next product wave.
