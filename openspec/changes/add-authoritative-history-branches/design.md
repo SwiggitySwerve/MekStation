@@ -27,7 +27,12 @@ interface IJournalBranch {
   baseRevision: number;
   baseEventId: string | null;
   baseDigest: string;
-  status: "building" | "effective" | "blocked" | "superseded";
+  status:
+    | "building"
+    | "waiting-effects"
+    | "effective"
+    | "blocked"
+    | "superseded";
   createdBy: string;
   reason: string;
 }
@@ -37,7 +42,9 @@ Branch heads are keyed by `(streamType, streamId, branchId)`. The root branch st
 
 ### D2 — Build, verify, then activate
 
-An authorized rewind/correction command records impact scope, creates a `building` branch, replays from a trusted base, applies proposed commands, and verifies authoritative plus viewer projections and external artifact manifests. Outbox rows belonging to a non-effective branch are not dispatchable. One local authority transaction marks the candidate effective, supersedes the prior branch, makes its eligible outbox rows dispatchable, and marks unreceived pending effects from the superseded branch as superseded. Failure leaves the prior head effective.
+An authorized rewind/correction command records impact scope, creates a `building` branch, replays from a trusted base, applies proposed commands, and verifies authoritative plus viewer projections and external artifact manifests. Outbox rows belonging to a non-effective branch are not dispatchable.
+
+Activation then installs a source-local fence for the prior effective generation. Fence installation serializes against lease-to-admitted delivery promotion. The fence prevents new leases/admissions and supersedes unleased pending effects. If an old-generation lease or admitted delivery is unresolved, the candidate enters `waiting-effects` and the prior branch remains effective. A fence that wins prevents a leased row from becoming admitted, so it may expire safely; an admission that wins remains durable until its idempotent target receipt exists and routes activation through the higher-version correction saga. Only after no old-generation lease can become admitted and every admitted delivery is reconciled does one local authority transaction mark the candidate effective, supersede the prior branch, increment the effective generation, and make candidate outbox rows dispatchable. Failure or unverifiable receipt state leaves the prior head effective.
 
 ### D3 — “Merge” means revalidation
 
@@ -52,6 +59,8 @@ Once a target campaign receipt exists, no cross-database transaction is claimed.
 Clients name expected branch/revision. Commands during rebuild receive `PROJECTION_REBUILDING`; superseded-head commands receive `STALE_BRANCH`. Timeline/history applies the existing viewer projector before serialization. Mobile/narrow UI keeps current status, impact, confirmation, and recovery actions visible; keyboard focus and live-region feedback are required for activation failures.
 
 ## Risks / Trade-offs
+
+- A leased old-branch effect cannot race activation because source-generation fencing serializes against delivery admission and the prior branch remains effective while the winning side resolves.
 
 - [Rebuild is expensive] → Start from verified checkpoints, expose progress, and keep the old branch effective until success.
 - [Cross-stream effects already escaped] → Require the effect-receipt boundary; post-receipt changes use a durable higher-version correction saga, not combat-only rewind or distributed atomicity.

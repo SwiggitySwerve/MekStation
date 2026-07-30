@@ -1,3 +1,4 @@
+
 ## 1. Genesis Branch and Prior-Head Resolver — PR 1
 
 - [ ] 1.1 Add additive branch, effective-head, and supersession tables with one genesis/effective branch per existing journal stream.
@@ -10,9 +11,10 @@
 
 - [ ] 2.1 Add authorized candidate creation anchored to parent branch, base revision/event/digest, actor, and reason.
 - [ ] 2.2 Gate commands with `PROJECTION_REBUILDING` while a candidate replays and validates; do not queue commands invisibly.
-- [ ] 2.3 Atomically activate a verified candidate and supersede the prior branch; leave the prior branch effective on any failure.
-- [ ] 2.4 Add deterministic replay, viewer-projection, affected-artifact, and injected activation-failure tests.
-- [ ] 2.5 After independent review and focused gates pass, merge, rerun activation/failure on exact main, and prune the branch/worktree.
+- [ ] 2.3 Fence the prior effective generation before activation; serialize the fence against lease-to-admitted promotion, stop new leases/admissions, supersede unleased pending rows, and keep the candidate waiting plus prior branch effective while an old-generation delivery is unresolved.
+- [ ] 2.4 Let fenced non-admitted leases expire and drive prior admitted deliveries through their receipts/corrections, then atomically activate the candidate, increment the generation, and supersede the prior branch; leave the prior branch effective on any failure or unknown receipt state.
+- [ ] 2.5 Add deterministic replay, viewer-projection, affected-artifact, injected activation-failure, both fence/admission serial orders, lease expiry, and receipt/reconciliation tests.
+- [ ] 2.6 After independent review and focused gates pass, merge, rerun activation/failure on exact main, and prune the branch/worktree.
 
 ## 3. Combat Rewind — PR 3
 
@@ -35,7 +37,7 @@
 - [ ] 5.1 Reject combat-only rewind after the active outcome receipt and create a higher-version source correction plus replacement outbox in one source-local transaction.
 - [ ] 5.2 Apply the target-scoped replacement receipt and deterministic campaign consequence batch in one target-local transaction; do not claim cross-store atomicity.
 - [ ] 5.3 Persist pending, retrying, blocked, and applied saga states and keep scenario progression gated until the active target receipt and projections converge.
-- [ ] 5.4 Prove retry, lost acknowledgement, source/target restart, target-scope mismatch, and blocked recovery apply replacement consequences once.
+- [ ] 5.4 Prove retry, lost acknowledgement, source/target restart, target-scope mismatch, activation-fence versus delivery-admission race, and blocked recovery apply replacement consequences once.
 - [ ] 5.5 Run focused cross-stream receipt/correction tests and independent durability/security review.
 - [ ] 5.6 After merge, rerun exact-main coordinated correction proof and prune the merged branch/worktree.
 

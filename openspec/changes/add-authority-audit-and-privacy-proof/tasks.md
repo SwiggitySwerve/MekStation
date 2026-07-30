@@ -1,10 +1,12 @@
+
 ## 1. Membership and Viewer Context — PR 1
 
-- [ ] 1.1 Add failing admission tests proving a known match/campaign ID cannot attach, replay, read history, send commands, ingest effects, or receive publication before durable active-membership resolution.
-- [ ] 1.2 Add the smallest server-derived authorized-viewer context and route socket attachment plus command/history/effect entrypoints through it; ignore client authority/role/ownership claims.
-- [ ] 1.3 Add revocation and membership-revision cache invalidation tests with a healthy authorized control.
-- [ ] 1.4 Run focused auth/admission tests, typecheck/lint/format, strict OpenSpec validation, and independent security review; keep the PR under 500 non-generated changed lines and 15 files.
-- [ ] 1.5 After merge, rerun exact-main admission/privacy receipts and prune the merged branch/worktree.
+- [ ] 1.1 Add failing admission tests proving a known match/campaign ID cannot attach, replay, read history, send human commands, or receive publication before durable active-membership resolution.
+- [ ] 1.2 Add the smallest server-derived authorized-viewer context and route socket attachment plus human command/history entrypoints through it; ignore client authority/role/ownership claims.
+- [ ] 1.3 Add a distinct non-serializable system-effect principal bound to one committed admitted outbox effect, source generation, delivery-admission token, target campaign, and binding revision, with no viewer/private/history/other-command rights; a lease alone grants none.
+- [ ] 1.4 Add revocation and membership-revision cache invalidation tests plus worker retry after human revocation, leased-but-not-admitted and cross-effect/target misuse, and a healthy authorized control.
+- [ ] 1.5 Run focused auth/admission tests, typecheck/lint/format, strict OpenSpec validation, and independent security review; keep the PR under 500 non-generated changed lines and 15 files.
+- [ ] 1.6 After merge, rerun exact-main admission/privacy receipts and prune the merged branch/worktree.
 
 ## 2. Action Audit and Private Record Lifecycle — PR 2
 

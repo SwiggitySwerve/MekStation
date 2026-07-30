@@ -23,6 +23,7 @@ The journal foundation deliberately exposes a raw server-internal persistence AP
 
 ```ts
 interface IAuthorizedViewer {
+  kind: "viewer";
   principalId: string;
   campaignId: string;
   campaignSessionId: string;
@@ -32,9 +33,23 @@ interface IAuthorizedViewer {
   ownedForceIds: readonly string[];
   membershipRevision: number;
 }
+
+interface ISystemEffectPrincipal {
+  kind: "system-effect";
+  effectId: string;
+  sourceStreamId: string;
+  sourceBranchId: string;
+  sourceEventId: string;
+  sourceEffectiveGeneration: number;
+  deliveryAdmissionToken: string;
+  targetCampaignId: string;
+  bindingRevision: number;
+}
 ```
 
-Verified identity plus durable active membership produces this context. A socket is not attached and receives no replay until the lookup succeeds. Client-supplied role, actor, authority, campaign, match, or ownership fields are never accepted as authority. Every command, history read, effect ingestion, branch operation, timeline, and export rechecks the relevant active scope.
+Verified identity plus durable active membership produces the viewer context. A socket is not attached and receives no replay until the lookup succeeds. Client-supplied role, actor, authority, campaign, match, or ownership fields are never accepted as authority. Every human command, history read, branch operation, timeline, and export rechecks the relevant active membership.
+
+Internal outcome delivery uses a distinct non-serializable system-effect principal minted only after a leased outbox row is durably promoted to `admitted` against an unfenced source generation and authoritative source-to-target binding. It authorizes one effect ingestion at one target campaign, source effective generation, and delivery-admission token. It cannot attach a socket, read or render history, access private audit, submit another command kind, or impersonate a GM/player. Human membership revocation does not invalidate a committed admitted effect; binding, generation, or admission-token mismatch does.
 
 ### D2 — Raw records never cross serialization
 
