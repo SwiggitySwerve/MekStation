@@ -2,11 +2,12 @@ Every PR in this change MUST stay under 500 non-generated changed lines and 15 f
 
 ## 1. Outbox and Inbox Storage — PR 1
 
-- [ ] 1.1 Add additive outbox, delivery-attempt, inbox, and effect-receipt tables plus typed store interfaces with immutable source match/branch/event/generation, effect type/version and canonical semantic-command digest, `pending|leased|admitted|delivered|superseded|blocked` state, lease token/expiry, durable admission token, and server-derived target campaign plus binding revision.
-- [ ] 1.2 Add transaction tests proving a source fact and outbox commit together and a target receipt and event batch commit together.
-- [ ] 1.3 Prove matching duplicate target-scoped identity/digest returns the original receipt before current-head comparison, while leased-only or mismatched identity/version/digest, source binding/generation/admission, target campaign, or target branch rejects without mutation.
-- [ ] 1.4 Run focused real-SQLite tests, typecheck/lint/format, strict OpenSpec validation, and independent durability/security review.
-- [ ] 1.5 After merge, rerun storage receipts on exact main and prune the merged branch/worktree.
+- [ ] 1.1 Add additive outbox, delivery-attempt, inbox, and effect-receipt tables plus typed store interfaces with immutable source match/branch/event/generation, effect type/version, canonicalizer version and semantic-command digest, `pending|leased|admitted|delivered|superseded|blocked` state, lease token/expiry, durable admission token, and server-derived target campaign plus binding revision.
+- [ ] 1.2 Implement the shared `EffectCommandCanonicalizer` v1 and fixed source/target fixtures proving shuffled object keys yield identical RFC 8785 UTF-8 bytes/lowercase SHA-256, every included-field mutation changes the digest, and non-finite or unsupported values reject before persistence.
+- [ ] 1.3 Add transaction tests proving a source fact and outbox commit together and a target receipt and event batch commit together.
+- [ ] 1.4 Prove matching duplicate target-scoped identity/digest returns the original receipt before current-head comparison, while leased-only or mismatched identity/version/digest/canonicalizer, source binding/generation/admission, target campaign, or target branch rejects without mutation.
+- [ ] 1.5 Run focused real-SQLite tests, typecheck/lint/format, strict OpenSpec validation, and independent durability/security review.
+- [ ] 1.6 After merge, rerun storage receipts on exact main and prune the merged branch/worktree.
 
 ## 2. Combat Outcome Delivery — PR 2
 

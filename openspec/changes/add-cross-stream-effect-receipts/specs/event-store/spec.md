@@ -28,6 +28,19 @@ A source-stream transaction SHALL persist each requested cross-stream effect in 
 - **THEN** target ingestion SHALL reject with a typed scope conflict
 - **AND** it SHALL append no inbox receipt, campaign event, or projection mutation
 
+### Requirement: Effect Command Digest Is Reproducible
+`EffectCommandCanonicalizer` v1 SHALL apply RFC 8785 JSON canonicalization to UTF-8 digest-material bytes containing `canonicalizerVersion`, effect type/version, source stream/ID/branch/event/effective-generation, target campaign and binding revision, command schema version, and the complete server-derived semantic command. It SHALL preserve command array order, perform no Unicode normalization, reject non-finite or unsupported values, and encode SHA-256 as lowercase hexadecimal. Source and target SHALL use the same implementation. The canonicalizer version SHALL persist with the outbox, admission, and receipt, and the digest SHALL remain server-internal rather than enter viewer timelines or exports.
+
+#### Scenario: Equivalent command objects hash identically
+- **WHEN** source and target canonicalize a fixed v1 effect command whose object keys are deliberately shuffled
+- **THEN** both SHALL produce the published UTF-8 fixture bytes and lowercase digest
+- **AND** reordering object keys SHALL NOT change the digest
+
+#### Scenario: Semantic command material changes
+- **WHEN** any included identity, version, binding, schema, or command field changes, or an unsupported value is supplied
+- **THEN** a valid changed input SHALL produce a different digest and an unsupported input SHALL be rejected
+- **AND** no source outbox or target receipt SHALL be written for a rejected input
+
 ### Requirement: Effect Delivery Admission Is Generation-Fenced
 Outbox delivery state SHALL be durable as `pending`, `leased`, `admitted`, `delivered`, `superseded`, or `blocked`. A lease SHALL bind an opaque token, expiry, and source effective generation but SHALL NOT authorize target mutation. Lease-to-admitted promotion and source-generation fence installation SHALL serialize in the source store. A fence SHALL stop new leases and admissions for that generation, supersede unleased pending rows, and allow non-admitted leases to expire. An admitted token SHALL remain durable until its idempotent target receipt is known. Target ingestion SHALL reject leased-only, unknown-admission, or mismatched delivery without a receipt or target mutation.
 

@@ -23,6 +23,8 @@ The source match transaction writes `CombatOutcomeFinalized` and an outbox recor
 
 The campaign receipt identity is `(targetCampaignId, effectType, sourceStreamId, sourceBranchId, sourceEventId, effectVersion)`. After admission, binding, identity, and digest verification, ingestion looks up that receipt before enforcing the current target-head precondition so a lost acknowledgement remains retryable after unrelated target progress. A matching receipt returns unchanged. Reusing the identity with a different semantic-command digest is a typed integrity conflict, never a duplicate success. For a new identity, the campaign transaction inserts the inbox receipt and resulting campaign event batch together using the normal expected-head compare-and-append.
 
+`EffectCommandCanonicalizer` v1 is a shared source/target routine. It applies RFC 8785 JSON canonicalization to UTF-8 bytes containing `canonicalizerVersion`, effect type/version, source stream/ID/branch/event/effective-generation, target campaign and binding revision, command schema version, and the complete server-derived semantic command. It preserves command array order, performs no Unicode normalization, rejects non-finite or unsupported values, and encodes SHA-256 as lowercase hexadecimal. The version is persisted in the outbox, admission, and receipt; later canonicalizer versions never reinterpret prior receipts. Its digest is server-internal integrity metadata and is not serialized into viewer timelines or exports.
+
 ### D2 — Use causation links, not duplicated events
 
 The campaign receives a distinct `BattleOutcomeReconciled` fact causally linked to the match outcome. Cross-entity history joins source, delivery attempts, target receipt, and target event range. It does not copy the combat event into the campaign stream.
@@ -42,6 +44,7 @@ The current effect is a short database-backed handoff with no long timers. DBOS 
 - [Poison effect retries forever] → Persist typed failure state, attempt count, next attempt, and an operator-visible blocked condition.
 - [Target commit succeeds but acknowledgement is lost] → Source retries; target inbox returns the prior receipt.
 - [Worker changes effect content under a stable identity] → Bind a canonical semantic-command digest through outbox, admission, and receipt; reject any collision.
+- [Source and target canonicalize differently] → Use one versioned routine and fixed cross-adapter byte/digest fixtures.
 - [Stale source generation attempts delivery] → Check the unfenced generation during lease-to-admission; the later branch/correction wave owns fence invocation and activation policy.
 - [Cross-stream query leaks private facts] → Apply viewer authorization to each owned event before composing the timeline.
 - [Misrouted effect applies to another campaign] → Bind source and target scopes in the outbox and receipt, then re-resolve the authoritative match binding at ingestion.
