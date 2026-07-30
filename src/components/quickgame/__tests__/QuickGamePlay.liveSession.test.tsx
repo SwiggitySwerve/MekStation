@@ -37,8 +37,8 @@ const mockQuickGameState = {
 };
 
 const mockGameplayState = {
-  session: null as { id: string } | null,
-  interactiveSession: null as unknown,
+  session: null as { id: string; matchId?: string } | null,
+  interactiveSession: null as { id: string } | null,
   spectatorMode: null as { enabled: boolean } | null,
 };
 
@@ -95,7 +95,10 @@ describe('QuickGamePlay live tactical session guard', () => {
   });
 
   it('does not auto-resolve over an active spectator tactical session', async () => {
-    mockGameplayState.session = { id: 'spectator-session' };
+    mockGameplayState.session = {
+      id: 'spectator-session',
+      matchId: 'spectator-match',
+    };
     mockGameplayState.spectatorMode = { enabled: true };
 
     render(<QuickGamePlay />);
@@ -104,7 +107,7 @@ describe('QuickGamePlay live tactical session guard', () => {
     await waitFor(() => {
       expect(mockStartBattle).not.toHaveBeenCalled();
       expect(mockNavigateToGameSession).toHaveBeenCalledWith(
-        'spectator-session',
+        'spectator-match',
         expect.objectContaining({ push: mockRouterPush }),
       );
     });

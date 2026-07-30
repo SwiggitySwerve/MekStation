@@ -212,18 +212,20 @@ export function QuickGameReview(): React.ReactElement {
   const isLoading = useQuickGameSelector((state) => state.isLoading);
 
   const handleWatchAIBattle = async () => {
+    const priorSession = useGameplayStore.getState().session;
     await startSpectatorMode();
     const session = useGameplayStore.getState().session;
-    if (session) {
-      navigateToGameSession(session.id, router);
+    if (session && session !== priorSession) {
+      navigateToGameSession(session.matchId ?? session.id, router);
     }
   };
 
   const handleInteractiveSkirmish = async () => {
+    const priorSession = useGameplayStore.getState().session;
     await startInteractiveSkirmish();
     const session = useGameplayStore.getState().session;
-    if (session) {
-      navigateToGameSession(session.id, router);
+    if (session && session !== priorSession) {
+      navigateToGameSession(session.matchId ?? session.id, router);
     }
   };
 

@@ -353,16 +353,20 @@ describe('useGameplayStore interactive session recovery', () => {
     const launched = useGameplayStore
       .getState()
       .interactiveSession?.getSession();
-    expect(launched).toBeDefined();
-    expect(launched?.events[0]?.type).toBe(GameEventType.GameCreated);
-    expect(launched?.units.map((unit) => unit.id)).toEqual(expectedUnitIds);
-    expect(new Set(launched?.units.map((unit) => unit.id)).size).toBe(
+    if (!launched) {
+      throw new Error(
+        'Expected interactive launch to adopt an interactive session',
+      );
+    }
+    expect(launched.events[0]?.type).toBe(GameEventType.GameCreated);
+    expect(launched.units.map((unit) => unit.id)).toEqual(expectedUnitIds);
+    expect(new Set(launched.units.map((unit) => unit.id)).size).toBe(
       expectedUnitIds.length,
     );
-    expect(Object.keys(launched?.currentState.units ?? {})).toHaveLength(
+    expect(Object.keys(launched.currentState.units)).toHaveLength(
       expectedUnitIds.length,
     );
-    expect(launched?.units.map((unit) => unit.unitRef)).toEqual([
+    expect(launched.units.map((unit) => unit.unitRef)).toEqual([
       'atlas-as7-d',
       'marauder-mad-3r',
       'marauder-mad-3r',
@@ -370,12 +374,12 @@ describe('useGameplayStore interactive session recovery', () => {
     ]);
 
     useGameplayStore.getState().reset();
-    await useGameplayStore.getState().loadSession(launched!.id);
+    await useGameplayStore.getState().loadSession(launched.id);
 
     const recovered = useGameplayStore.getState();
     expect(recovered.error).toBeNull();
-    expect(recovered.session?.id).toBe(launched?.id);
-    expect(recovered.session?.events).toEqual(launched?.events);
+    expect(recovered.session?.id).toBe(launched.id);
+    expect(recovered.session?.events).toEqual(launched.events);
     expect(recovered.interactiveSession).not.toBeNull();
     expect(recovered.session?.units.map((unit) => unit.id)).toEqual(
       expectedUnitIds,
@@ -417,19 +421,28 @@ describe('useGameplayStore interactive session recovery', () => {
     expect(quickGame.isLoading).toBe(false);
   });
 
-  it('keeps duplicate catalog variants distinct in Quick Game spectator mode', async () => {
+  it('cold-recovers the spectator session with duplicate catalog variants intact', async () => {
     const expectedUnitIds = installRecoverableQuickGame();
 
     await useQuickGameStore.getState().startSpectatorMode();
 
     const spectator = useGameplayStore.getState();
+    const launched = spectator.interactiveSession?.getSession();
+    if (!launched) {
+      throw new Error(
+        'Expected spectator launch to adopt an interactive session',
+      );
+    }
+
     expect(spectator.error).toBeNull();
-    expect(spectator.session?.units.map((unit) => unit.id)).toEqual(
-      expectedUnitIds,
+    expect(launched.events.map((event) => event.type)).toEqual([
+      GameEventType.GameCreated,
+      GameEventType.GameStarted,
+    ]);
+    expect(launched.units.map((unit) => unit.id)).toEqual(expectedUnitIds);
+    expect(Object.keys(launched.currentState.units)).toHaveLength(
+      expectedUnitIds.length,
     );
-    expect(
-      Object.keys(spectator.session?.currentState.units ?? {}),
-    ).toHaveLength(expectedUnitIds.length);
     for (const unitId of expectedUnitIds) {
       expect(
         spectator.interactiveSession?.getMovementCapability(unitId),
@@ -438,6 +451,17 @@ describe('useGameplayStore interactive session recovery', () => {
         spectator.interactiveSession?.getUnitWeapons(unitId),
       ).not.toHaveLength(0);
     }
+
+    useGameplayStore.getState().reset();
+    await useGameplayStore.getState().loadSession(launched.id);
+
+    const recovered = useGameplayStore.getState();
+    expect(recovered.error).toBeNull();
+    expect(recovered.session?.events).toEqual(launched.events);
+    expect(recovered.session?.units.map((unit) => unit.id)).toEqual(
+      expectedUnitIds,
+    );
+    expect(recovered.interactiveSession).not.toBeNull();
   });
 
   it('recovers a persisted real session id from the match log into a drivable interactive session', async () => {

@@ -60,15 +60,16 @@ export async function persistInteractiveLaunchRecoveryLog(
   session: IGameSession,
   storage: InteractiveLaunchRecoveryStorage = matchLogStorage,
 ): Promise<void> {
+  const matchId = session.matchId ?? session.id;
   const writes: Promise<unknown>[] = [];
   try {
     for (const event of session.events) {
-      writes.push(storage.appendEvent(session.id, event));
+      writes.push(storage.appendEvent(matchId, event));
     }
     await storage.flushPendingWrites();
     await Promise.all(writes);
     await storage.upsertMatchMetadata({
-      matchId: session.id,
+      matchId,
       status: 'active',
     });
   } catch (error) {

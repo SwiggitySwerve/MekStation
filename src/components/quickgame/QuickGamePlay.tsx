@@ -108,7 +108,7 @@ export function QuickGamePlay(): React.ReactElement {
   const battleStarted = useRef(false);
   const hasLiveTacticalSession =
     Boolean(interactiveSession) || spectatorMode?.enabled === true;
-  const liveTacticalSessionId = session?.id;
+  const liveTacticalSessionId = session?.matchId ?? session?.id;
   const isGameSessionRoute =
     router.asPath?.startsWith('/gameplay/games/') === true ||
     (typeof window !== 'undefined' &&

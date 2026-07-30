@@ -266,6 +266,9 @@ export function createBattleActions(
           gameUnits,
         );
 
+        await persistInteractiveLaunchRecoveryLog(
+          interactiveSession.getSession(),
+        );
         useGameplayStore.getState().setSpectatorMode(interactiveSession, {
           enabled: true,
           playing: true,
