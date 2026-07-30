@@ -18,6 +18,12 @@ An immutable log is not enough if historical payloads are interpreted by changin
 - Treating timestamps, checkpoints, or snapshots as authoritative ordering.
 - Adding branches or a user-facing rewind workflow.
 
+## Dependencies
+
+- This change is a replay-safety implementation slice of `harden-gm-two-player-campaign-sessions`.
+- It depends on `establish-entity-event-journal-contract` and validates only the fixed root branch until the later branch wave exists.
+- `add-authority-audit-and-privacy-proof`, combat adoption, and campaign adoption SHALL not cut over before this change's replay/quarantine contracts pass.
+
 ## Capabilities
 
 ### New Capabilities

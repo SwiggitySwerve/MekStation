@@ -17,6 +17,12 @@ Once linear replay, schema safety, combat/campaign authority, and cross-stream r
 - Deleting or rewriting prior events, receipts, audit facts, or externalized artifacts.
 - Content-addressing domain entity identity; hashes identify revisions and integrity, not units, pilots, campaigns, or matches.
 
+## Dependencies
+
+- This change is the branch/correction implementation slice of `harden-gm-two-player-campaign-sessions`.
+- It depends on the journal foundation, replay/schema safety, membership/projection/private-audit gates, combat authority, campaign authority, and target-scoped effect receipts.
+- It is the final entity-history wave; before archive/sync, overlapping umbrella deltas SHALL be reconciled through the program wave map.
+
 ## Capabilities
 
 ### New Capabilities

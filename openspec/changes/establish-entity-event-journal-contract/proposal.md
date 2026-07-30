@@ -16,6 +16,12 @@ MekStation has several useful event logs, but they disagree about ordering, iden
 - Adding branches, rewind, checkpoints, workflow orchestration, a broker, CRDT merging, PostgreSQL, or KurrentDB.
 - Replacing Zustand, WebSocket transport, existing reducers, or current snapshot read models.
 
+## Dependencies
+
+- This change is the foundational implementation slice of `harden-gm-two-player-campaign-sessions`; the umbrella remains the program-level acceptance contract.
+- It has no dependency on another entity-history leaf change and SHALL switch no production authority.
+- Before archive/sync, overlapping umbrella deltas SHALL be reconciled through the program wave map so requirements are not duplicated in main specs.
+
 ## Capabilities
 
 ### New Capabilities

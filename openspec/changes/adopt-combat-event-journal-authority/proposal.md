@@ -16,6 +16,12 @@ Combat already has typed events and pure projection, but the live host can advan
 - Adding campaign authority, cross-stream outcome effects, branching, or rewind.
 - Using a client-submitted event as server authority.
 
+## Dependencies
+
+- This change is the combat-authority implementation slice of `harden-gm-two-player-campaign-sessions`.
+- It depends on `establish-entity-event-journal-contract`, `add-replay-schema-and-checkpoint-safety`, and the membership/projection/private-audit gates in `add-authority-audit-and-privacy-proof`.
+- Cross-stream effects and replacement branches remain later changes; before archive/sync, overlapping umbrella deltas SHALL be reconciled through the program wave map.
+
 ## Capabilities
 
 ### New Capabilities

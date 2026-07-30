@@ -26,7 +26,7 @@
 ## 4. Shadow Cutover — PR 4
 
 - [ ] 4.1 Add a reviewed feature flag for new match journal authority and shadow state/event digest comparison without dual-authoring.
-- [ ] 4.2 Enable journal authority only for new controlled matches after shadow equality; preserve schema-compatible legacy reads.
+- [ ] 4.2 Enable journal authority only for new controlled matches after shadow equality and the active-membership, server-derived-viewer, action-audit, private-record, and pre-serialization privacy gates pass; preserve schema-compatible legacy reads.
 - [ ] 4.3 Document rollback that stops new admission and never deletes committed rows.
 - [ ] 4.4 Run applicable combat, multiplayer, replay, command-browser, and long-browser gates plus final independent visual/authority review.
 - [ ] 4.5 After merge, run the exact-main regression suite, record the merge SHA and evidence, and prune the merged branch/worktree before campaign adoption.

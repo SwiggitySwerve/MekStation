@@ -17,6 +17,12 @@ Co-op campaign events are typed but remain process-local, while campaign snapsho
 - CRDT-merging campaign funds, ownership, readiness, damage, or chronology.
 - Replacing current campaign UI or broad campaign domain behavior.
 
+## Dependencies
+
+- This change is the campaign-authority implementation slice of `harden-gm-two-player-campaign-sessions`.
+- It depends on `establish-entity-event-journal-contract`, `add-replay-schema-and-checkpoint-safety`, and the membership/projection/private-audit gates in `add-authority-audit-and-privacy-proof`.
+- Cross-stream effects and replacement branches remain later changes; before archive/sync, overlapping umbrella deltas SHALL be reconciled through the program wave map.
+
 ## Capabilities
 
 ### New Capabilities

@@ -17,6 +17,12 @@ Some committed facts must cause work in another authoritative stream, especially
 - Kafka, Redpanda, Temporal, DBOS, or a separate broker/service.
 - Branching or post-receipt rewind in this wave.
 
+## Dependencies
+
+- This change is the cross-stream-effect implementation slice of `harden-gm-two-player-campaign-sessions`.
+- It depends on journal-backed combat and campaign authority plus the membership/projection/private-audit gates.
+- It MUST merge before `add-authoritative-history-branches`; before archive/sync, overlapping umbrella deltas SHALL be reconciled through the program wave map.
+
 ## Capabilities
 
 ### New Capabilities
