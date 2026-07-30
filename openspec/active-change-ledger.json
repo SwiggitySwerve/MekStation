@@ -11,6 +11,12 @@
       "status": "in-progress",
       "reason": "User-approved declarative-first change for one non-playing GM plus two tactical players: durable command journaling and publication, role-safe live/replay/export projection, reconnect cursors, outcome receipts, append-only correction and rewind, campaign retroactive rebuild, and a strict 80-scenario three-context acceptance program. Implementation is intentionally split into small independently verified PRs with exact-main post-merge regression audits. Its e2e-testing delta adds distinct GM/two-player requirements and does not modify the active add-subsystem-lanes-and-ci requirement names.",
       "lastReviewed": "2026-07-29"
+    },
+    {
+      "name": "persist-interactive-combat-events",
+      "status": "in-progress",
+      "reason": "Focused local-combat durability wave for authoritative event-suffix persistence and exact cold-reload recovery in PR #1084.",
+      "lastReviewed": "2026-07-30"
     }
   ]
 }

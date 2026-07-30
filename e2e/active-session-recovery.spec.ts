@@ -163,19 +163,7 @@ type ExposedWindow = {
   __ZUSTAND_STORES__?: ExposedZustandStores;
 };
 
-interface InteractiveSessionAuthoritySnapshot {
-  readonly activationIndex: number | undefined;
-  readonly currentState: unknown;
-  readonly eventSummaries: readonly {
-    readonly sequence: number;
-    readonly type: string;
-  }[];
-  readonly phase: string | undefined;
-}
-
-async function readInteractiveSessionAuthoritySnapshot(
-  page: Page,
-): Promise<InteractiveSessionAuthoritySnapshot> {
+async function readInteractiveSessionAuthoritySnapshot(page: Page) {
   return page.evaluate(() => {
     const stores = (window as ExposedWindow).__ZUSTAND_STORES__;
     const interactiveSession = stores?.gameplay?.getState().interactiveSession;
