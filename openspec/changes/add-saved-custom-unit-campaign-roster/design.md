@@ -78,7 +78,7 @@ The snapshot SHALL be a runtime-only discriminated result: `loading`, `ready` wi
 
 Mission readiness SHALL keep custom or invalid-source roster instances visible, mark them non-launchable with a per-unit canonical-combat-unavailable reason, and block any selection containing them. Default selection SHALL exclude custom-blocked rows. An unselected custom row remains visible but cannot be selected; a stale or restored selected custom row remains operable only so the player can deselect it. A canonical-only selection in a mixed roster may proceed. A loading or unavailable catalog SHALL instead block the surface with honest status and retry, not misclassify every canonical ref as missing.
 
-Materializer input SHALL require the caller's snapshot and SHALL perform no catalog I/O. Preflight SHALL reject a non-ready snapshot, forged `canonical` label, stale state, or unresolved ref before its first side-effecting fetch, so direct invocation cannot bypass the UI. The blocked path SHALL NOT create or mutate an encounter, launch force, or game session and SHALL NOT replace the custom ref with a stock template. A later custom-combat wave may change this boundary only with its own adaptation and authority contract.
+Materializer input SHALL require the caller's snapshot and SHALL perform no catalog I/O. Preflight SHALL reject a non-ready snapshot, forged `canonical` label, stale state, or unresolved ref before its first side-effecting fetch, so direct invocation cannot bypass the UI. Co-op launch SHALL map every contributed force `unitId` to its source-bearing campaign roster projection and apply the same snapshot guard inside `launchCoopMission` before composition or `launchCampaignEncounter`; missing mappings SHALL block. The blocked path SHALL NOT create or mutate an encounter, launch force, or game session and SHALL NOT replace the custom ref with a stock template. A later custom-combat wave may change this boundary only with its own adaptation and authority contract.
 
 ### D7 — Creation success means accepted server persistence
 
@@ -88,14 +88,17 @@ An error or unresolved conflict SHALL keep the player on an honest recovery surf
 
 Journey fixtures SHALL be synthetic. Receipts SHALL attach allowlisted equality/boolean fields needed for authority proof rather than raw campaign, custom-unit construction, finance, narrative, or store dumps. Screenshots, traces, and videos SHALL contain no real user data.
 
-### D8 — Deliver through four dependency-ordered product waves
+### D8 — Deliver through seven dependency-ordered product waves
 
-This OpenSpec change is one CAMP-01 outcome but SHALL be implemented through four separately reviewed product PRs:
+This OpenSpec change is one CAMP-01 outcome but SHALL be implemented through seven separately reviewed PRs:
 
-1. **CAMP-00 — packaged loopback listener prerequisite:** bind the actual production HTTP listener to the configured hostname and prove the packaged `127.0.0.1` socket boundary at process level; a static environment-string check is insufficient.
-2. **CAMP-01A — custom-source combat boundary:** add persisted source provenance/legacy normalization, the typed catalog snapshot and shared combat-adaptability predicate, recoverable readiness selection, and the pre-side-effect materializer guard with direct regression coverage.
-3. **CAMP-01B — durable saved-design roster entry:** add the saved-design adapter/query and roster UI, propagate source identity into the roster/root force, and require an accepted production server commit with same-campaign recovery.
-4. **CAMP-01C — downstream resolution and journey proof:** resolve saved-custom metadata in Mech Bay and run the full cold-reload browser trust anchor through dashboard, Forces, Mech Bay, and mission readiness with desktop/390px evidence.
+1. **CAMP-00 — packaged loopback listener (budget ≤4 files/180 lines):** bind and process-test the actual `127.0.0.1` listener.
+2. **CAMP-01A — trusted catalog/readiness boundary (≤10/400):** add source provenance, typed catalog snapshot, shared guard, readiness behavior, and direct materializer protection.
+3. **CAMP-01B — launch-path enforcement (≤12/450):** inject the boundary into mission launch, dashboard, Mech Bay, fast-forward, and co-op contribution/launch paths.
+4. **CAMP-01C — saved-design picker and roster identity (≤10/450):** add the adapter/UI and propagate stable source plus fresh roster-instance identity into the root force.
+5. **CAMP-01D — durable creation commit (≤8/400):** require accepted server persistence, explicit conflict behavior, and same-campaign retry.
+6. **CAMP-01E — downstream Mech Bay resolution (≤7/350):** resolve or honestly retain saved-custom metadata after reload/deletion.
+7. **CAMP-01F — authority journey and audit receipt (≤5/300):** run the full cold-reload browser trust anchor with desktop/390px evidence and reconcile the audit.
 
 Each wave owns one user-visible outcome, stays within 15 files and 500 changed lines, runs its targeted and applicable gates, receives independent review, merges with a SHA guard, and is followed by an exact-main audit/prune before the next wave branches. A later wave SHALL NOT be bundled into an earlier PR to save time.
 

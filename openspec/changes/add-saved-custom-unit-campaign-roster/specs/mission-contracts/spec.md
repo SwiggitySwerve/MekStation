@@ -45,3 +45,10 @@ Mission readiness and materializer preflight SHALL use one shared combat-adaptab
 - **THEN** the shared guard SHALL mark it non-launchable and name the unresolved canonical record
 - **AND** materializer preflight SHALL reject it before the first side-effecting fetch
 - **AND** no force, encounter, or game session SHALL be created or mutated
+
+#### Scenario: Co-op contributions cannot bypass source validation
+
+- **GIVEN** a co-op contribution whose force contains a custom, invalid, unresolved, or roster-missing unit id
+- **WHEN** `launchCoopMission` maps contributed force ids through the campaign roster and trusted snapshot
+- **THEN** the shared guard SHALL reject the contribution before composition or campaign encounter launch
+- **AND** neither `createEncounter` nor `launchEncounter` SHALL be called
