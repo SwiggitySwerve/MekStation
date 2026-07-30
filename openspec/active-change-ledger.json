@@ -53,6 +53,12 @@
       "status": "proposed",
       "reason": "Wave 6 of the entity-history program: add target-scoped transactional outbox/inbox receipts, side-effect-free replay, causal cross-stream history, and exactly-once combat-to-campaign effect application over at-least-once delivery.",
       "lastReviewed": "2026-07-30"
+    },
+    {
+      "name": "add-authoritative-history-branches",
+      "status": "proposed",
+      "reason": "Wave 7 of the entity-history program: add immutable branch lineage, verified replacement-branch activation, domain-command revalidation instead of generic merge, and recoverable combat/campaign correction sagas after linear authority and effect receipts are proven.",
+      "lastReviewed": "2026-07-30"
     }
   ]
 }
