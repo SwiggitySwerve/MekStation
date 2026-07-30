@@ -2,7 +2,7 @@
 
 ### Requirement: Saved Custom Unit Readiness Boundary
 
-Mission readiness and materializer preflight SHALL use one shared combat-adaptability guard that requires both persisted `unitSource === canonical` and exact-`unitRef` membership in a trusted `CanonicalCombatCatalogSnapshot`. The runtime-only snapshot SHALL distinguish `loading`, `ready`, and recoverable `unavailable`; browser surfaces SHALL validate `/api/units?includeBV=true`, Node fast-forward SHALL use `NodeCanonicalUnitService`, and failures SHALL NOT become a successful empty catalog. Production call sites SHALL supply the snapshot before synchronous readiness/materializer execution, while materializer itself performs no catalog I/O. They SHALL preserve saved custom identity while treating custom, invalid, and unresolvable refs as unavailable for canonical-only combat. The system SHALL NOT trust source labels alone, infer provenance, substitute stock units, or create an encounter, force, or session for a blocked selection.
+Mission readiness and materializer preflight SHALL use one shared combat-adaptability guard that requires both persisted `unitSource === canonical` and exact-`unitRef` membership in a trusted `CanonicalCombatCatalogSnapshot`. The runtime-only snapshot SHALL distinguish `loading`, `ready`, and recoverable `unavailable`; browser surfaces SHALL validate `/api/units?includeBV=true`, Node fast-forward SHALL use `NodeCanonicalUnitService`, and failures SHALL NOT become a successful empty catalog. Production call sites SHALL supply the snapshot before synchronous readiness/materializer execution, while materializer itself performs no catalog I/O. Co-op SHALL additionally use an accepted revision-bound host snapshot containing source-bearing roster records and authoritative force membership; participation SHALL carry only minimal force choice while the server derives connection identity. The system SHALL preserve saved custom identity while treating custom, invalid, and unresolvable refs as unavailable for canonical-only combat, and SHALL NOT trust labels or client-authored forces/identity, infer provenance, substitute stock units, or create an encounter, force, or session for a blocked selection.
 
 #### Scenario: Canonical catalog failure blocks honestly
 
@@ -46,11 +46,13 @@ Mission readiness and materializer preflight SHALL use one shared combat-adaptab
 - **AND** materializer preflight SHALL reject it before the first side-effecting fetch
 - **AND** no force, encounter, or game session SHALL be created or mutated
 
-#### Scenario: Co-op contributions cannot bypass source validation
+#### Scenario: Co-op contribution cannot forge authority or source validation
 
-- **GIVEN** a co-op contribution whose force contains a custom, invalid, unresolved, or roster-missing unit id
-- **WHEN** `launchCoopMission` maps those ids through the revision-bound host CampaignSync roster snapshot and trusted catalog
-- **THEN** the shared guard SHALL reject before composition, `createEncounter`, or `launchEncounter`, without trusting provenance from the participation payload
+- **GIVEN** a client submits `{ missionId, forceId, choice }` or attempts a full force, player, role, foreign force, or stale revision
+- **WHEN** the binder validates participation and `launchCoopMission` resolves the accepted force through the revision-bound host snapshot
+- **THEN** match, player, and role SHALL come from verified connection/registry state and client-authored authority fields SHALL be rejected
+- **AND** force membership SHALL resolve to source-bearing roster records before the trusted catalog guard runs
+- **AND** blocked input SHALL make no composition, encounter lookup/create, or launch call
 
 #### Scenario: Existing encounter reuse cannot bypass validation
 

@@ -13,39 +13,40 @@
 - [ ] 1.4 Add direct loader/readiness/materializer regressions, including a persisted `scenarioIds` reuse candidate, proving custom/invalid/forged/stale/loading/unavailable inputs cause no lookup, reuse result, routing, or mutation.
 - [ ] 1.5 Run targeted/applicable gates and independent reviews; publish within 10 files/400 lines, merge with SHA guard, audit exact main, and prune before CAMP-01B.
 
-## 2. CAMP-01B — authoritative co-op source sync
+## 2. CAMP-01B — authoritative co-op snapshot
 
-- [ ] 2.1 Extend the host-authoritative CampaignSync roster projection/event snapshot with validated `unitId`/`unitRef`/`unitSource`, bind it to campaign/match/revision, build it from the real campaign roster, and hydrate the guest mirror; participation remains typed force identity only and cannot assert trusted provenance.
-- [ ] 2.2 Test host/guest canonical success, preserved custom identity, malformed force rejection, stale/mismatched snapshot rejection, and ignored forged participation provenance; run gates/reviews and publish within 14 files/480 lines, merge, audit, and prune before CAMP-01C.
+- [ ] 2.1 Extend `CampaignSync` with revision-bound source-bearing roster records and authoritative `forceId -> unitIds`; build them from real roster/forces in `CampaignCoopEntryPanel`, preserve them through match registration and `CampaignHostRegistry`, and hydrate the guest mirror.
+- [ ] 2.2 Test host/guest canonical success, custom identity, force membership, bootstrap/registration, malformed projection, and stale/mismatched snapshot rejection; run gates/reviews and publish within 14 files/480 lines, merge, audit, and prune before CAMP-01C.
 
-## 3. CAMP-01C — all launch-path enforcement
+## 3. CAMP-01C — participation authorization
 
-- [ ] 3.1 Inject the trusted snapshot into mission launch, dashboard, Mech Bay readiness, fast-forward, and every materializer caller with explicit loading/unavailable recovery.
-- [ ] 3.2 Make co-op launch map every contributed force id through the accepted host snapshot and apply the guard inside `launchCoopMission` before composition or campaign encounter launch; block missing/stale/mismatched authority.
-- [ ] 3.3 Add caller/co-op regressions proving custom, invalid, unresolved, loading, and unavailable cases make zero encounter lookup/create/launch calls while canonical launch still works.
-- [ ] 3.4 Run targeted/applicable gates and independent reviews; publish within 12 files/450 lines, merge with SHA guard, audit exact main, and prune before CAMP-01D.
+- [ ] 3.1 Replace protocol/local-runtime participation with `{ missionId, forceId, choice }`; derive match/player/role in the binder from verified connection/registry state and reject full `IForce`, client-authored identity, foreign/missing force, and stale revision.
+- [ ] 3.2 Test forged player/role, full-force payload, foreign/missing force, stale/mismatched snapshot, and canonical authorized choice; run gates/reviews and publish within 12 files/450 lines, merge, audit, and prune before CAMP-01D.
 
-## 4. CAMP-01D — saved-design picker and roster identity
+## 4. CAMP-01D — all launch-path enforcement
 
-- [ ] 4.1 Runtime-validate saved BattleMech index entries and test exact id/source/display/tonnage mapping plus honest exclusion of invalid records.
-- [ ] 4.2 Render named Stock Templates and Saved Designs groups with loading, empty, failure/retry, keyboard, feedback, desktop, and 390×844 behavior.
-- [ ] 4.3 Propagate `unitRef`/`unitSource`, mint a fresh roster-instance id per add, add that instance to the root force without stock substitution, and copy no construction payload.
-- [ ] 4.4 Test duplicate instances sharing one custom ref plus draft/root-force identity; run gates/reviews and publish within 10 files/450 lines, merge, exact-main audit, and prune before CAMP-01E.
+- [ ] 4.1 Inject the trusted snapshot into mission launch, dashboard, Mech Bay readiness, fast-forward, and every materializer caller with explicit loading/unavailable recovery.
+- [ ] 4.2 Make co-op launch resolve force membership and unit sources through the accepted host snapshot before applying the guard inside `launchCoopMission`.
+- [ ] 4.3 Prove blocked inputs make zero lookup/create/launch calls while canonical paths work; run gates/reviews and publish within 12 files/450 lines, merge, audit, and prune before CAMP-01E.
 
-## 5. CAMP-01E — durable creation commit
+## 5. CAMP-01E — saved-design picker and roster identity
 
-- [ ] 5.1 Require production wizard submit to await the accepted server record; suppress success/navigation on error/conflict, retry the same id, and never auto-overwrite a `409`.
-- [ ] 5.2 Test accepted identity, failure suppression, same-id retry, and unchanged intervening conflict state; run gates/reviews and publish within 8 files/400 lines, merge, audit, and prune before CAMP-01F.
+- [ ] 5.1 Runtime-validate saved BattleMech index entries and test exact id/source/display/tonnage mapping plus honest invalid-record exclusion.
+- [ ] 5.2 Render named Stock Templates and Saved Designs groups with loading, empty, failure/retry, keyboard, feedback, desktop, and 390×844 behavior.
+- [ ] 5.3 Propagate stable source plus fresh roster-instance identity into the root force without stock substitution or construction payload; cover duplicates, run gates/reviews, and publish within 10 files/450 lines, merge, audit, and prune before CAMP-01F.
 
-## 6. CAMP-01F — downstream Mech Bay resolution
+## 6. CAMP-01F — durable creation commit
 
-- [ ] 6.1 Resolve by `unitSource` plus `unitRef` without borrowing stock metadata or hiding unresolved/deleted custom rows; cover name/tonnage, absent BV, reload, and unavailable metadata, then run gates/reviews and publish within 7 files/350 lines, merge, audit, and prune before CAMP-01G.
+- [ ] 6.1 Require accepted production wizard persistence with honest error/conflict and same-id retry; test accepted identity, suppression, retry, and no `409` overwrite, then run gates/reviews and publish within 8 files/400 lines, merge, audit, and prune before CAMP-01G.
 
-## 7. CAMP-01G — authority journey and audit receipt
+## 7. CAMP-01G — downstream Mech Bay resolution
 
-- [ ] 7.1 Add the third production-submit handoff scenario; cold reload dashboard, Forces, Mech Bay, and readiness and reconcile exact roster/source identities with zero blocked-path mutations.
-- [ ] 7.2 Capture inspected desktop/390×844 screenshots with synthetic allowlisted authority receipts, run required QC/gates and independent exact-SHA reviews, publish within 5 files/300 lines, merge, audit, and prune.
+- [ ] 7.1 Resolve by `unitSource` plus `unitRef` without borrowing stock metadata or hiding unresolved/deleted custom rows; cover name/tonnage, absent BV, reload, and unavailable metadata, then run gates/reviews and publish within 7 files/350 lines, merge, audit, and prune before CAMP-01H.
 
-## 8. Change completion
+## 8. CAMP-01H — authority journey and audit receipt
 
-- [ ] 8.1 Reconcile all eight exact-main receipts, confirm no CAMP-01 Critical/Major remains silently pending, record tenant authentication/ownership as the remote/shared-deployment blocker, and archive only after the full authority journey is clean.
+- [ ] 8.1 Add the third production-submit handoff; cold reload dashboard, Forces, Mech Bay, and readiness; capture inspected desktop/390×844 evidence plus synthetic authority receipts; run required QC/reviews and publish within 5 files/300 lines, merge, audit, and prune.
+
+## 9. Change completion
+
+- [ ] 9.1 Reconcile all nine exact-main receipts, confirm no CAMP-01 Critical/Major remains silently pending, record tenant authentication/ownership as the remote/shared-deployment blocker, and archive only after the full authority journey is clean.
