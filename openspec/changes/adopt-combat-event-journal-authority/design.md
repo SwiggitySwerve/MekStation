@@ -19,7 +19,9 @@ Combat has the strongest existing event model, but server execution currently mu
 
 ### D1 — Separate decision from committed application
 
-`InteractiveSession` exposes a pure/isolated decision result containing the ordered `IGameEvent` batch and next-state digest. `ServerMatchHost` appends that batch with the expected revision. Only the committed envelope batch is then applied to the in-memory engine and broadcaster.
+`InteractiveSession` exposes a pure/isolated decision result containing the ordered `IGameEvent` batch and expected next-state digest. `ServerMatchHost` appends that batch with the expected revision and retains the expected digest in the commit receipt. Only the committed envelope batch is then applied to the in-memory engine. The host MUST compare the applied state digest with the committed expected digest before publication.
+
+If the post-apply digest differs, the host blocks publication, quarantines the process-local projection, and rebuilds it from the durable journal. It MUST NOT delete or compensate the committed batch.
 
 If a direct pure decision extraction is too invasive, a cloned/test-isolated engine may calculate the batch, but the authoritative live engine MUST NOT advance first.
 
@@ -42,7 +44,7 @@ Existing retained logs are imported with source identity metadata. New test sess
 ## Risks / Trade-offs
 
 - [Decision extraction changes engine behavior] → Lock existing command-to-event tests first and compare event/state digests.
-- [Commit succeeds but apply crashes] → Recover the process-local projection from the durable journal; never compensate by deleting the commit.
+- [Commit succeeds but apply crashes or diverges] → Block publication, quarantine the process-local projection, and recover it from the durable journal; never compensate by deleting the commit.
 - [Client mirror diverges] → Detect immutable-prefix mismatch, stop suffix writes, and resync.
 - [Migration invents history] → Import only retained facts and label missing-prefix sessions as legacy baselines.
 

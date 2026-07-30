@@ -12,8 +12,8 @@ Every PR in this change MUST stay under 500 non-generated changed lines and 15 f
 
 - [ ] 2.1 Lock existing command-to-`IGameEvent` and post-state digests before refactoring the engine/host boundary.
 - [ ] 2.2 Add the smallest decision seam that produces an ordered event batch without advancing the authoritative live engine.
-- [ ] 2.3 Change `ServerMatchHost` to append at the expected revision before applying the committed batch or publishing projections.
-- [ ] 2.4 Inject revision conflict and persistence failure; prove no live-engine advance, no success frame, and a typed recovery result.
+- [ ] 2.3 Change `ServerMatchHost` to append the batch and expected post-state digest at the expected revision, apply the committed batch, verify the resulting digest, and only then publish projections.
+- [ ] 2.4 Inject revision conflict, persistence failure, and post-apply digest divergence; prove no premature success frame, quarantine plus deterministic journal rebuild on divergence, and a typed recovery result without deleting the commit.
 - [ ] 2.5 Run focused engine/host/store suites plus multiplayer contracts; independently review authority ordering and scope.
 - [ ] 2.6 After merge, rerun exact-main command/restart authority proof and prune the merged branch/worktree.
 
