@@ -29,6 +29,12 @@
       "status": "proposed",
       "reason": "Wave 2 of the entity-history program: require versioned event upcasting, deterministic historical projection selection, verified checkpoints, and quarantine before any production authority adoption.",
       "lastReviewed": "2026-07-30"
+    },
+    {
+      "name": "add-authority-audit-and-privacy-proof",
+      "status": "proposed",
+      "reason": "Wave 3 of the entity-history program: require durable membership admission, server-side viewer projection, separate private audit retention, and cross-surface privacy proof before journal authority cutover.",
+      "lastReviewed": "2026-07-30"
     }
   ]
 }
