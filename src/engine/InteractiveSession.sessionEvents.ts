@@ -31,10 +31,24 @@ export function persistNewInteractiveSessionEvents(
   context: IInteractiveSessionRuntimeContext,
   sessionBeforeEvents: IGameSession,
 ): void {
+  if (typeof window === 'undefined') return;
+
   const session = context.getSession();
   const previousMatchId = sessionBeforeEvents.matchId ?? sessionBeforeEvents.id;
   const currentMatchId = session.matchId ?? session.id;
   if (currentMatchId !== previousMatchId) return;
+  const prefixIsUnchanged = sessionBeforeEvents.events.every(
+    (event, index) =>
+      session.events[index]?.id === event.id &&
+      session.events[index]?.sequence === event.sequence,
+  );
+  if (!prefixIsUnchanged) {
+    context.markMatchLogDiverged();
+    reportMatchLogDivergence(
+      new Error('Interactive session event history is not append-only'),
+    );
+    return;
+  }
 
   const newEvents = session.events.slice(sessionBeforeEvents.events.length);
   for (const event of newEvents) {

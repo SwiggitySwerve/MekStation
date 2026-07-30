@@ -65,6 +65,9 @@ const MATCH_LOG_DIVERGENCE_MESSAGE =
 
 interface IAppendAndPersistHarness {
   session: IGameSession;
+  runtimeContext: {
+    setSession: (session: IGameSession) => void;
+  };
   appendEvent: (event: IGameEvent) => void;
   hasMatchLogDiverged: () => boolean;
   isMatchLogHealthy: () => boolean;
@@ -378,6 +381,27 @@ describe('InteractiveSession match log persistence wiring', () => {
       })),
     );
   });
+
+  it.each(['truncated', 'rewritten'] as const)(
+    'rejects a %s same-match history before it can corrupt the persisted suffix',
+    (replacement) => {
+      const harness = makeAppendHarness();
+      const previous = harness.session;
+      const events =
+        replacement === 'truncated'
+          ? []
+          : [{ ...previous.events[0], id: 'rewritten-event' }];
+
+      harness.runtimeContext.setSession({ ...previous, events });
+
+      expect(mockAppendMatchEvent).not.toHaveBeenCalled();
+      expect(harness.hasMatchLogDiverged()).toBe(true);
+      expect(mockToast).toHaveBeenCalledWith({
+        message: MATCH_LOG_DIVERGENCE_MESSAGE,
+        variant: 'error',
+      });
+    },
+  );
 
   it('keeps the in-memory append when match log persistence rejects and reports the failure', async () => {
     const error = new Error('IndexedDB write failed');

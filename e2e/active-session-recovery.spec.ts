@@ -126,14 +126,27 @@ interface ExposedGameplayState {
     id?: string;
     events?: readonly { sequence?: number; type?: string }[];
     currentState?: {
+      [key: string]: unknown;
       status?: string;
       phase?: string;
       activationIndex?: number;
-      units?: Record<string, unknown>;
+      units?: Record<
+        string,
+        {
+          facing?: number;
+          position?: { q: number; r: number };
+        }
+      >;
     };
   };
   interactiveSession?: {
     advancePhase: () => void;
+    applyMovement: (
+      unitId: string,
+      to: { q: number; r: number },
+      facing: number,
+      movementType: string,
+    ) => void;
     getSession: () => ExposedGameplayState['session'];
     getMovementCapability: (unitId: string) => unknown;
   } | null;
@@ -148,6 +161,7 @@ interface ExposedZustandStores {
 
 interface InteractiveSessionAuthoritySnapshot {
   readonly activationIndex: number | undefined;
+  readonly currentState: unknown;
   readonly eventSummaries: readonly {
     readonly sequence: number;
     readonly type: string;
@@ -170,6 +184,7 @@ async function readInteractiveSessionAuthoritySnapshot(
     const session = interactiveSession.getSession();
     return {
       activationIndex: session?.currentState?.activationIndex,
+      currentState: session?.currentState,
       eventSummaries: (session?.events ?? []).map(({ sequence, type }) => ({
         sequence: sequence ?? -1,
         type: type ?? '',
@@ -532,8 +547,13 @@ test.describe('active game session recovery @game @recovery', () => {
       body: await page.screenshot({ fullPage: true }),
       contentType: 'image/png',
     });
+    const activeUnitTestId = await page
+      .locator('[data-testid^="rail-unit-"][aria-current="true"]')
+      .getAttribute('data-testid');
+    const activeUnitId = activeUnitTestId?.replace(/^rail-unit-/, '');
+    expect(activeUnitId).toBeTruthy();
 
-    const afterReload = await page.evaluate(() => {
+    const afterReload = await page.evaluate((unitId) => {
       const stores = (
         window as unknown as { __ZUSTAND_STORES__?: ExposedZustandStores }
       ).__ZUSTAND_STORES__;
@@ -546,6 +566,7 @@ test.describe('active game session recovery @game @recovery', () => {
       const recoveredSession = interactiveSession.getSession();
       const recovered = {
         activationIndex: recoveredSession?.currentState?.activationIndex,
+        currentState: recoveredSession?.currentState,
         eventSummaries: (recoveredSession?.events ?? []).map(
           ({ sequence, type }) => ({
             sequence: sequence ?? -1,
@@ -554,7 +575,16 @@ test.describe('active game session recovery @game @recovery', () => {
         ),
         phase: recoveredSession?.currentState?.phase,
       };
-      interactiveSession.advancePhase();
+      const unit = recoveredSession?.currentState?.units?.[unitId];
+      if (!unit?.position || unit.facing === undefined) {
+        throw new Error(`Active movement unit ${unitId} is unavailable`);
+      }
+      interactiveSession.applyMovement(
+        unitId,
+        unit.position,
+        unit.facing,
+        'stationary',
+      );
       const continuedSession = interactiveSession.getSession();
       gameplay.setState?.({ session: continuedSession });
 
@@ -562,12 +592,19 @@ test.describe('active game session recovery @game @recovery', () => {
         continuedEventCount: continuedSession?.events?.length ?? 0,
         recovered,
       };
-    });
+    }, activeUnitId!);
 
     expect(afterReload.recovered).toEqual(beforeReload);
     expect(afterReload.continuedEventCount).toBeGreaterThan(
       beforeReload.eventSummaries.length,
     );
+    await expect
+      .poll(() => readPersistedMatchEventSummaries(page, matchId))
+      .toEqual(
+        await readInteractiveSessionAuthoritySnapshot(page).then(
+          ({ eventSummaries }) => eventSummaries,
+        ),
+      );
     await testInfo.attach('continued-combat-state', {
       body: await page.screenshot({ fullPage: true }),
       contentType: 'image/png',
