@@ -7,16 +7,18 @@
  */
 
 import Head from 'next/head';
-import { useRouter, type NextRouter } from 'next/router';
+import { useRouter } from 'next/router';
 import React, { useEffect } from 'react';
 
-import { CombatPlanningPanel } from '@/components/gameplay/CombatPlanningPanel';
 import { GameplayLayout } from '@/components/gameplay/GameplayLayout';
-import {
-  resolveGameSessionRouteId,
-  useGameSessionLifecycle,
-} from '@/components/gameplay/pages/gameSession/GameSessionPage.lifecycle';
+import { useGameSessionLifecycle } from '@/components/gameplay/pages/gameSession/GameSessionPage.lifecycle';
 import { useGameMovementPlanning } from '@/components/gameplay/pages/gameSession/GameSessionPage.movement';
+import { GameSessionPlanningPanel } from '@/components/gameplay/pages/gameSession/GameSessionPage.planningPanel';
+import { gameSessionRouteContext } from '@/components/gameplay/pages/gameSession/GameSessionPage.route';
+import {
+  shouldBlockForSpectatorRecovery,
+  useRecoverSpectatorMode,
+} from '@/components/gameplay/pages/gameSession/GameSessionPage.spectator';
 import {
   GameError,
   GameLoading,
@@ -37,38 +39,6 @@ import {
 } from '@/pages-modules/gameplay/games/gmTacticalInterventionSurface';
 import { useGameplaySelector } from '@/stores/useGameplayStore';
 import { GamePhase, GameSide, GameStatus } from '@/types/gameplay';
-
-interface IGameSessionRouteContext {
-  readonly routeId: string | null;
-  readonly campaignId?: string;
-  readonly missionId?: string;
-  readonly matchId: string | null;
-}
-
-function gameSessionRouteContext(router: NextRouter): IGameSessionRouteContext {
-  const { id, campaignId, missionId } = router.query;
-  const routeId = resolveGameSessionRouteId(
-    id,
-    typeof window === 'undefined' ? router.asPath : window.location.pathname,
-  );
-
-  return {
-    routeId,
-    campaignId: stringQueryValue(campaignId),
-    missionId: stringQueryValue(missionId),
-    matchId: matchIdFromRouteId(routeId),
-  };
-}
-
-function stringQueryValue(
-  value: string | readonly string[] | undefined,
-): string | undefined {
-  return typeof value === 'string' ? value : undefined;
-}
-
-function matchIdFromRouteId(routeId: string | null): string | null {
-  return routeId && routeId !== 'demo' ? routeId : null;
-}
 
 function useGameplayBindings() {
   return {
@@ -119,15 +89,11 @@ function useGameplayBindings() {
     setPlannedMovement: useGameplaySelector(
       (state) => state.setPlannedMovement,
     ),
+    setSpectatorMode: useGameplaySelector((state) => state.setSpectatorMode),
   };
 }
 
 type GameplayBindings = ReturnType<typeof useGameplayBindings>;
-type GameMovementPlanning = ReturnType<typeof useGameMovementPlanning>;
-type SelectedPlanningWeapons = ReturnType<typeof useSelectedPlanningWeapons>;
-type PhysicalAttackIntentSetter = ReturnType<
-  typeof usePhysicalAttackIntentState
->[1];
 
 interface IGameSessionBlockingSurfaceProps {
   readonly isLoading: boolean;
@@ -137,16 +103,9 @@ interface IGameSessionBlockingSurfaceProps {
   readonly interactivePhase: GameplayBindings['interactivePhase'];
   readonly interactiveSession: GameplayBindings['interactiveSession'];
   readonly spectatorMode: GameplayBindings['spectatorMode'];
+  readonly isSpectatorRoute: boolean;
   readonly campaignId?: string;
   readonly missionId?: string;
-}
-
-interface IGameSessionPlanningPanelProps {
-  readonly showPlanningPanel: boolean;
-  readonly movement: GameMovementPlanning;
-  readonly selectedUnitId: string | null | undefined;
-  readonly selectedPlanningWeapons: SelectedPlanningWeapons;
-  readonly onPhysicalAttackIntentChange: PhysicalAttackIntentSetter;
 }
 
 function renderGameSessionBlockingSurface({
@@ -155,6 +114,7 @@ function renderGameSessionBlockingSurface({
   handleRetry,
   interactivePhase,
   interactiveSession,
+  isSpectatorRoute,
   isLoading,
   missionId,
   session,
@@ -163,6 +123,15 @@ function renderGameSessionBlockingSurface({
   if (isLoading) return <GameLoading />;
   if (error) return <GameError message={error} onRetry={handleRetry} />;
   if (!session) return <GameLoading />;
+  if (
+    shouldBlockForSpectatorRecovery(
+      isSpectatorRoute,
+      interactiveSession,
+      Boolean(spectatorMode?.enabled),
+    )
+  ) {
+    return <GameLoading />;
+  }
 
   const completedSession = completedSessionElement(
     session,
@@ -184,29 +153,6 @@ function renderGameSessionBlockingSurface({
   return spectatorMode?.enabled && interactiveSession ? (
     <SpectatorView />
   ) : null;
-}
-
-function GameSessionPlanningPanel({
-  movement,
-  onPhysicalAttackIntentChange,
-  selectedPlanningWeapons,
-  selectedUnitId,
-  showPlanningPanel,
-}: IGameSessionPlanningPanelProps): React.ReactElement | null {
-  if (!showPlanningPanel || movement.composerActive || !selectedUnitId) {
-    return null;
-  }
-
-  return (
-    <CombatPlanningPanel
-      walkMP={movement.effectiveMovementMps?.walkMP ?? 0}
-      runMP={movement.effectiveMovementMps?.runMP ?? 0}
-      jumpMP={movement.effectiveMovementMps?.jumpMP ?? 0}
-      movementHeatProfile={movement.capability?.movementHeatProfile}
-      weapons={selectedPlanningWeapons}
-      onPhysicalAttackIntentChange={onPhysicalAttackIntentChange}
-    />
-  );
 }
 
 export default function GameSessionPage(): React.ReactElement {
@@ -240,6 +186,7 @@ export default function GameSessionPage(): React.ReactElement {
     session,
     setPlannedMovement,
     setSession,
+    setSpectatorMode,
     skipPhase,
     spectatorMode,
     standActiveUnit,
@@ -263,6 +210,12 @@ export default function GameSessionPage(): React.ReactElement {
     isCampaignBound,
     loadSession,
     createDemoSession,
+  });
+  useRecoverSpectatorMode({
+    isSpectatorRoute: routeContext.isSpectatorMode,
+    interactiveSession,
+    isSpectatorMode: Boolean(spectatorMode?.enabled),
+    setSpectatorMode,
   });
 
   const isInteractive = Boolean(interactiveSession);
@@ -335,6 +288,7 @@ export default function GameSessionPage(): React.ReactElement {
     handleRetry,
     interactivePhase,
     interactiveSession,
+    isSpectatorRoute: routeContext.isSpectatorMode,
     isLoading,
     missionId: routeContext.missionId,
     session,
