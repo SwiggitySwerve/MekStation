@@ -23,7 +23,17 @@ Campaign synchronization derives typed event batches but uses an in-memory store
 
 ### D2 — Snapshots become materialized projections
 
-The existing campaign snapshot remains readable and is written from committed journal batches during shadow validation. Cutover is per campaign: legacy snapshots are imported as `CampaignImportedBaseline`, then all new semantic commands append to the journal. There is never dual authority.
+The existing campaign snapshot remains readable and is written from committed journal batches during shadow validation. Cutover is per campaign and persists one migration state:
+
+```ts
+type CampaignAuthorityMigrationState =
+  | "legacy"
+  | "shadowing"
+  | "journal"
+  | "blocked";
+```
+
+The cutover marker records the imported source snapshot revision/digest, root branch, baseline event/revision, projector version, and first journal-authority command if one exists. Legacy `CampaignSnapshotPublished` events remain readable for old logs but become derived checkpoint/materialization output; journal-authoritative campaigns do not append them as mutation authority. There is never dual authority.
 
 ### D3 — Batch commit before projection and fan-out
 
@@ -51,7 +61,7 @@ Viewer projection occurs before serialization. Zustand stores are disposable cli
 5. Cut over new campaigns, then eligible existing campaigns individually.
 6. Preserve a schema-compatible snapshot reader for rollback.
 
-Rollback stops new campaign command admission, leaves journal history intact, and returns affected campaigns to a compatible reader only when no ambiguous post-cutover writes exist.
+Rollback stops new campaign command admission and leaves journal history intact. Snapshot-authority rollback is permitted only while the journal head still equals the imported baseline and no journal-authority command has committed. After the first journal-authority command, the system may use a compatible journal reader or enter `blocked`, but it SHALL NOT silently fall back to a legacy snapshot that cannot reproduce the active head.
 
 ## Open Questions
 

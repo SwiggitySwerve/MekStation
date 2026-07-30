@@ -8,11 +8,12 @@
 
 ## 2. Honest Baseline and Snapshot Projection — PR 2
 
-- [ ] 2.1 Import existing snapshot-only campaigns as explicit baseline events with source revision/digest metadata and no fabricated history.
-- [ ] 2.2 Record branch, revision, projector version, and digest on materialized campaign snapshots.
-- [ ] 2.3 Shadow-project journal and snapshot paths, block cutover on any mismatch, and preserve one write authority.
-- [ ] 2.4 Add rollback-reader tests that preserve journal rows and reject ambiguous post-cutover fallback.
-- [ ] 2.5 After focused gates and independent migration review pass, merge, rerun shadow equality on exact main, and prune the branch/worktree.
+- [ ] 2.1 Add durable `legacy`, `shadowing`, `journal`, and `blocked` migration states plus a cutover marker with source snapshot revision/digest, imported baseline identity, and first journal-authority command.
+- [ ] 2.2 Import existing snapshot-only campaigns as explicit baseline events with source revision/digest metadata and no fabricated history; retain legacy `CampaignSnapshotPublished` reads while prohibiting it as post-cutover mutation authority.
+- [ ] 2.3 Record branch, revision, projector version, and digest on materialized campaign snapshots.
+- [ ] 2.4 Shadow-project journal and snapshot paths, block cutover on any mismatch, and preserve one write authority.
+- [ ] 2.5 Prove snapshot-authority rollback is allowed only before the first post-baseline journal command; afterward require a compatible journal reader or truthful blocked state.
+- [ ] 2.6 After focused gates and independent migration review pass, merge, rerun shadow equality on exact main, and prune the branch/worktree.
 
 ## 3. Entity Lineage Through Campaign Handoff — PR 3
 
@@ -22,18 +23,31 @@
 - [ ] 3.4 Run focused serialization/campaign handoff tests, `qc:ux-audit:deep`, applicable viewport/accessibility checks, and independent visual/authority review.
 - [ ] 3.5 After merge, rerun the full customizer-to-readiness journey on exact main and prune the merged branch/worktree.
 
-## 4. Gap-Free Campaign Synchronization — PR 4
+## 4. Replay/Live Server Handshake — PR 4
 
 - [ ] 4.1 Implement high-water capture plus buffered subscription before replay and bounded drain/resync afterward.
-- [ ] 4.2 Persist each participant's highest contiguous applied delivery cursor and reject gaps, identity collisions, and hidden-authority leakage.
-- [ ] 4.3 Add two-player restart, event-during-catch-up, replay/live overlap, slow-client, and healthy-client control tests.
-- [ ] 4.4 Run multiplayer/campaign sync validators, `qc:campaign-long:browser`, and independent privacy/backpressure review.
-- [ ] 4.5 After merge, run exact-main two-player campaign regression, record cursor/journal/reload evidence, and prune the merged branch/worktree.
+- [ ] 4.2 Add server contract tests for event-during-catch-up, replay/live overlap, duplicate delivery, and bounded resync without durable client cursor or UI changes.
+- [ ] 4.3 Run focused campaign server/protocol tests and independent ordering/backpressure review.
+- [ ] 4.4 After merge, rerun the handshake receipt on exact main and prune the merged branch/worktree.
 
-## 5. Per-Campaign Cutover — PR 5
+## 5. Durable Participant Cursors — PR 5
 
-- [ ] 5.1 Enable journal authority for new campaigns behind the reviewed flag only after shadow parity and synchronization gates pass.
-- [ ] 5.2 Add per-campaign migration eligibility and truthful blocked state for ambiguous ownership or inconsistent snapshots.
-- [ ] 5.3 Document cutover/rollback and prove a restart never creates a fresh empty event log.
-- [ ] 5.4 Run all applicable campaign, multiplayer, replay, deep-audit, long-browser, and exact-main gates with independent final review.
-- [ ] 5.5 Record the merge SHA/evidence and prune the merged branch/worktree before cross-stream effects.
+- [ ] 5.1 Persist each authorized participant's highest contiguous applied delivery cursor and reject gaps, identity collisions, and hidden-authority leakage.
+- [ ] 5.2 Add two-player restart, slow-client, healthy-client, revoked-membership, and cursor-resume tests without changing user-facing presentation.
+- [ ] 5.3 Run focused client/server synchronization contracts and independent privacy/backpressure review.
+- [ ] 5.4 After merge, rerun exact-main cursor/reconnect proof and prune the merged branch/worktree.
+
+## 6. Synchronization UX and Browser Proof — PR 6
+
+- [ ] 6.1 Expose persistent catching-up, retrying, behind, resyncing, and blocked states without enabling commands before authorized convergence.
+- [ ] 6.2 Add one two-player browser journey pairing UI state with journal rows, delivery cursors, navigation, cold reload, and a healthy-client control.
+- [ ] 6.3 Run multiplayer/campaign sync validators, `qc:campaign-long:browser`, viewport/accessibility checks, and independent visual/privacy review.
+- [ ] 6.4 After merge, rerun the browser journey on exact main, archive authority evidence, and prune the merged branch/worktree.
+
+## 7. Per-Campaign Cutover — PR 7
+
+- [ ] 7.1 Enable journal authority for new campaigns behind the reviewed flag only after shadow parity, membership/projection, and synchronization gates pass.
+- [ ] 7.2 Add per-campaign migration eligibility and truthful blocked state for ambiguous ownership or inconsistent snapshots.
+- [ ] 7.3 Document cutover/rollback and prove a restart never creates a fresh empty event log or falls back after a journal-authored command.
+- [ ] 7.4 Run all applicable campaign, multiplayer, replay, deep-audit, long-browser, and exact-main gates with independent final review.
+- [ ] 7.5 Record the merge SHA/evidence and prune the merged branch/worktree before cross-stream effects.
