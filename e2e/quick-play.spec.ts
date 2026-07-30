@@ -69,10 +69,7 @@ test.setTimeout(60000);
 async function waitForStoreReady(page: Page): Promise<void> {
   await page.waitForFunction(
     () => {
-      const win = window as unknown as {
-        __ZUSTAND_STORES__?: { gameplay?: unknown };
-      };
-      return win.__ZUSTAND_STORES__?.gameplay !== undefined;
+      return window.__ZUSTAND_STORES__?.gameplay !== undefined;
     },
     { timeout: 15000 },
   );
@@ -82,16 +79,7 @@ async function readQuickPlayRecoverySnapshot(
   page: Page,
 ): Promise<QuickPlayRecoverySnapshot> {
   return page.evaluate(() => {
-    const stores = (
-      window as unknown as {
-        __ZUSTAND_STORES__?: {
-          gameplay?: {
-            getState: () => QuickPlayState;
-          };
-        };
-      }
-    ).__ZUSTAND_STORES__;
-    const state = stores?.gameplay?.getState();
+    const state = window.__ZUSTAND_STORES__?.gameplay.getState();
     const units = state?.session?.units ?? [];
     const interactiveSession = state?.interactiveSession;
     const movementReady: Record<string, boolean> = {};
@@ -259,7 +247,7 @@ test.describe('Quick Play Interactive Recovery', () => {
   test(
     'should cold-recover every generated combatant with live capabilities',
     { tag: ['@game', '@recovery'] },
-    async ({ page }) => {
+    async ({ page }, testInfo) => {
       const recoveryDiagnostics: string[] = [];
       page.on('console', (message) => {
         const text = message.text();
@@ -308,16 +296,7 @@ test.describe('Quick Play Interactive Recovery', () => {
       });
       await page.waitForFunction(
         (expectedSessionId) => {
-          const stores = (
-            window as unknown as {
-              __ZUSTAND_STORES__?: {
-                gameplay?: {
-                  getState: () => QuickPlayState;
-                };
-              };
-            }
-          ).__ZUSTAND_STORES__;
-          const state = stores?.gameplay?.getState();
+          const state = window.__ZUSTAND_STORES__?.gameplay.getState();
           return (
             state?.session?.id === expectedSessionId &&
             state?.interactiveSession !== null &&
@@ -345,6 +324,52 @@ test.describe('Quick Play Interactive Recovery', () => {
       expect(Object.values(recovered.weaponsReady).every(Boolean)).toBe(true);
       expect(recoveryDiagnostics).toEqual([]);
       await expect(page.getByTestId('game-error')).toHaveCount(0);
+      await page.screenshot({
+        path: testInfo.outputPath('interactive-skirmish-cold-recovered.png'),
+        fullPage: true,
+      });
+    },
+  );
+
+  test(
+    'should preserve spectator capabilities through a cold reload',
+    { tag: ['@game', '@recovery'] },
+    async ({ page }, testInfo) => {
+      await prepareQuickGameReview(page);
+      await page.getByTestId('watch-ai-battle-btn').click();
+      await expect(page).toHaveURL(/\/gameplay\/games\/[^/?]+\?spectator=1$/);
+      const launchedUrl = page.url();
+
+      await expect(
+        page.getByRole('heading', {
+          name: /AI vs AI.*Spectator Mode/i,
+        }),
+      ).toBeVisible({ timeout: 20_000 });
+      await waitForStoreReady(page);
+      const launched = await readQuickPlayRecoverySnapshot(page);
+      expect(launched.sessionId).toBeTruthy();
+      expect(launched.unitIds.length).toBeGreaterThan(2);
+      expect(Object.values(launched.movementReady).every(Boolean)).toBe(true);
+      expect(Object.values(launched.weaponsReady).every(Boolean)).toBe(true);
+
+      await page.reload({ waitUntil: 'domcontentloaded' });
+      await expect(page).toHaveURL(launchedUrl);
+      await expect(
+        page.getByRole('heading', {
+          name: /AI vs AI.*Spectator Mode/i,
+        }),
+      ).toBeVisible({ timeout: 20_000 });
+      await waitForStoreReady(page);
+      const recovered = await readQuickPlayRecoverySnapshot(page);
+      expect(recovered.sessionId).toBe(launched.sessionId);
+      expect(recovered.unitIds).toEqual(launched.unitIds);
+      expect(Object.values(recovered.movementReady).every(Boolean)).toBe(true);
+      expect(Object.values(recovered.weaponsReady).every(Boolean)).toBe(true);
+      await expect(page.getByTestId('game-error')).toHaveCount(0);
+      await page.screenshot({
+        path: testInfo.outputPath('spectator-battle-cold-recovered.png'),
+        fullPage: true,
+      });
     },
   );
 });
@@ -423,9 +448,13 @@ test.describe('Quick Play Store State', () => {
           expect(state.session.id).toBeTruthy();
           expect(state.session.currentState.status).toBeTruthy();
         }
-      } catch {
+      } catch (error) {
+        if (!(error instanceof Error)) {
+          throw error;
+        }
         // Store may not be ready if page navigated to results
         // This is acceptable - auto-resolve may complete before store check
+        console.info('Quick Play store verification skipped:', error.message);
       }
     },
   );

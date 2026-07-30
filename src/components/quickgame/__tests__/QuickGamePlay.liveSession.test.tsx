@@ -109,6 +109,7 @@ describe('QuickGamePlay live tactical session guard', () => {
       expect(mockNavigateToGameSession).toHaveBeenCalledWith(
         'spectator-match',
         expect.objectContaining({ push: mockRouterPush }),
+        { spectator: true },
       );
     });
   });

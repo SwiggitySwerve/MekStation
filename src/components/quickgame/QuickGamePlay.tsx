@@ -133,9 +133,21 @@ export function QuickGamePlay(): React.ReactElement {
       hasLiveTacticalSession &&
       liveTacticalSessionId
     ) {
-      navigateToGameSession(liveTacticalSessionId, router);
+      if (spectatorMode?.enabled) {
+        navigateToGameSession(liveTacticalSessionId, router, {
+          spectator: true,
+        });
+      } else {
+        navigateToGameSession(liveTacticalSessionId, router);
+      }
     }
-  }, [game?.status, hasLiveTacticalSession, liveTacticalSessionId, router]);
+  }, [
+    game?.status,
+    hasLiveTacticalSession,
+    liveTacticalSessionId,
+    router,
+    spectatorMode?.enabled,
+  ]);
 
   if (!game) {
     return (

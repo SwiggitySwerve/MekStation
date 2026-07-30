@@ -216,7 +216,9 @@ export function QuickGameReview(): React.ReactElement {
     await startSpectatorMode();
     const session = useGameplayStore.getState().session;
     if (session && session !== priorSession) {
-      navigateToGameSession(session.matchId ?? session.id, router);
+      navigateToGameSession(session.matchId ?? session.id, router, {
+        spectator: true,
+      });
     }
   };
 

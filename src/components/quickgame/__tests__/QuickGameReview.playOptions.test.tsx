@@ -159,6 +159,21 @@ describe('QuickGameReview play options', () => {
     });
   });
 
+  it('preserves spectator intent in the persisted match route', async () => {
+    render(<QuickGameReview />);
+
+    fireEvent.click(screen.getByRole('button', { name: /watch ai battle/i }));
+
+    await waitFor(() => {
+      expect(mockStartSpectatorMode).toHaveBeenCalledTimes(1);
+      expect(mockNavigateToGameSession).toHaveBeenCalledWith(
+        'quick-skirmish-1',
+        expect.objectContaining({ push: mockRouterPush }),
+        { spectator: true },
+      );
+    });
+  });
+
   it.each([
     {
       buttonName: /watch ai battle/i,
