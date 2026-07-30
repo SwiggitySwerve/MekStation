@@ -72,11 +72,13 @@ Screenshots cover visual and accessibility claims only. API responses, store sna
 
 ### D6 — Stop custom identity at the canonical combat boundary
 
-A saved custom `unitRef` SHALL remain valid campaign source identity but SHALL NOT be treated as a resolvable canonical combat record. One shared combat-adaptability guard SHALL govern mission readiness and materializer preflight. The guard SHALL require both `unitSource === canonical` and successful resolution of the exact `unitRef` in the canonical catalog; a client-supplied source label alone is never sufficient. Mission readiness SHALL keep custom or invalid-source roster instances visible, mark them non-launchable with a per-unit canonical-combat-unavailable reason, and block any selection containing them.
+A saved custom `unitRef` SHALL remain valid campaign source identity but SHALL NOT be treated as a resolvable canonical combat record. One shared combat-adaptability guard SHALL govern mission readiness and materializer preflight. The guard SHALL require both `unitSource === canonical` and membership of the exact `unitRef` in a trusted `CanonicalCombatCatalogSnapshot`; a client-supplied source label alone is never sufficient.
 
-Default mission selection SHALL exclude custom-blocked rows. An unselected custom row remains visible but cannot be selected; a stale or restored selected custom row remains operable only so the player can deselect it. A canonical-only selection in a mixed roster may proceed.
+The snapshot SHALL be a runtime-only discriminated result: `loading`, `ready` with exact canonical refs, or `unavailable` with a recoverable reason. Browser surfaces SHALL build it from the authoritative `/api/units?includeBV=true` response before synchronous readiness/materializer execution; Node fast-forward SHALL build it from `NodeCanonicalUnitService`. The loader SHALL validate the response and SHALL NOT turn transport, parse, or empty-catalog failure into a successful empty snapshot. Mission launch, campaign dashboard, Mech Bay readiness, and fast-forward production call sites SHALL pass this snapshot explicitly.
 
-Materializer preflight SHALL independently apply the guard and canonical resolver before its first fetch, so a forged `canonical` label, stale state, or direct invocation cannot bypass the UI. The blocked path SHALL NOT create or mutate an encounter, launch force, or game session and SHALL NOT replace the custom ref with a stock template. A later custom-combat wave may change this boundary only with its own adaptation and authority contract.
+Mission readiness SHALL keep custom or invalid-source roster instances visible, mark them non-launchable with a per-unit canonical-combat-unavailable reason, and block any selection containing them. Default selection SHALL exclude custom-blocked rows. An unselected custom row remains visible but cannot be selected; a stale or restored selected custom row remains operable only so the player can deselect it. A canonical-only selection in a mixed roster may proceed. A loading or unavailable catalog SHALL instead block the surface with honest status and retry, not misclassify every canonical ref as missing.
+
+Materializer input SHALL require the caller's snapshot and SHALL perform no catalog I/O. Preflight SHALL reject a non-ready snapshot, forged `canonical` label, stale state, or unresolved ref before its first side-effecting fetch, so direct invocation cannot bypass the UI. The blocked path SHALL NOT create or mutate an encounter, launch force, or game session and SHALL NOT replace the custom ref with a stock template. A later custom-combat wave may change this boundary only with its own adaptation and authority contract.
 
 ### D7 — Creation success means accepted server persistence
 
@@ -91,7 +93,7 @@ Journey fixtures SHALL be synthetic. Receipts SHALL attach allowlisted equality/
 This OpenSpec change is one CAMP-01 outcome but SHALL be implemented through four separately reviewed product PRs:
 
 1. **CAMP-00 — packaged loopback listener prerequisite:** bind the actual production HTTP listener to the configured hostname and prove the packaged `127.0.0.1` socket boundary at process level; a static environment-string check is insufficient.
-2. **CAMP-01A — custom-source combat boundary:** add persisted source provenance/legacy normalization, the shared combat-adaptability predicate, recoverable readiness selection, and the pre-fetch materializer guard with direct regression coverage.
+2. **CAMP-01A — custom-source combat boundary:** add persisted source provenance/legacy normalization, the typed catalog snapshot and shared combat-adaptability predicate, recoverable readiness selection, and the pre-side-effect materializer guard with direct regression coverage.
 3. **CAMP-01B — durable saved-design roster entry:** add the saved-design adapter/query and roster UI, propagate source identity into the roster/root force, and require an accepted production server commit with same-campaign recovery.
 4. **CAMP-01C — downstream resolution and journey proof:** resolve saved-custom metadata in Mech Bay and run the full cold-reload browser trust anchor through dashboard, Forces, Mech Bay, and mission readiness with desktop/390px evidence.
 
@@ -105,7 +107,7 @@ Each wave owns one user-visible outcome, stays within 15 files and 500 changed l
 - **[Risk] A non-BattleMech custom record appears selectable** → filter at the adapter boundary and cover the exclusion with focused tests.
 - **[Risk] This wave appears to promise custom-unit combat** → require an explicit readiness blocker, prove that materialization never starts, and stop the trust anchor at that boundary.
 - **[Risk] Server persistence failure creates duplicate campaigns on retry** → retain the pending campaign id and retry only the persistence commit.
-- **[Risk] A forged source label bypasses combat safety** → require exact canonical catalog resolution in the shared guard and materializer preflight before any fetch.
+- **[Risk] Catalog failure looks like an empty catalog or forged source labels bypass combat safety** → require the typed trusted snapshot, explicit unavailable recovery, exact-ref membership, and materializer rejection before side effects.
 - **[Risk] Shared or remote hosting exposes unauthenticated local-first APIs** → keep tenant authentication/ownership outside CAMP-01 but record it as an explicit deployment blocker governed by the future `api-layer` authentication capability.
 
 ## Rollback

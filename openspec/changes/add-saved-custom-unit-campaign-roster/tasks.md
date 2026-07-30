@@ -8,9 +8,9 @@
 ## 1. CAMP-01A — custom-source combat boundary
 
 - [ ] 1.1 Add one shared `canonical | custom` roster-source type on the persisted roster projection and tests proving legacy projections with an absent field normalize to `canonical`, while present unknown values remain invalid/non-launchable without name/id-prefix inference.
-- [ ] 1.2 Add one shared combat-adaptability guard that requires `unitSource === canonical` plus exact canonical-catalog resolution, and use it in readiness and materializer preflight.
-- [ ] 1.3 Make readiness keep custom rows visible with a named blocker, exclude them from default selection, allow stale selected custom rows to be deselected, and preserve a usable canonical-only mixed-roster selection.
-- [ ] 1.4 Add direct readiness/materializer regressions proving selected custom, invalid-source, and forged-canonical/unresolvable refs are rejected before the first fetch and cause zero encounter, force, or game-session mutations.
+- [ ] 1.2 Add a runtime-only `loading | ready | unavailable` canonical-combat catalog snapshot: validated browser loading from `/api/units?includeBV=true`, Node fast-forward loading from `NodeCanonicalUnitService`, explicit retryable failure, and no silent empty-success fallback.
+- [ ] 1.3 Add one shared guard that requires `unitSource === canonical` plus exact ref membership in a ready snapshot; inject it into mission launch, dashboard, Mech Bay readiness, fast-forward, and materializer input with no catalog I/O inside materializer, while preserving recoverable canonical-only mixed-roster selection.
+- [ ] 1.4 Add direct loader/readiness/materializer regressions proving loading/unavailable state is honest, selected custom/invalid/forged/unresolved refs are rejected before side-effecting fetches, and blocked paths cause zero encounter, force, or game-session mutations.
 - [ ] 1.5 Run targeted tests plus applicable typecheck/lint/format/build/OpenSpec/QC and visual/review lanes; publish one focused PR within 15 files/500 lines, wait for green checks, merge with SHA guard, audit exact main, and prune before CAMP-01B.
 
 ## 2. CAMP-01B — durable saved-design roster entry

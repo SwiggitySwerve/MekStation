@@ -2,7 +2,15 @@
 
 ### Requirement: Saved Custom Unit Readiness Boundary
 
-Mission readiness and materializer preflight SHALL use one shared combat-adaptability guard that requires both persisted `unitSource === canonical` and successful exact-`unitRef` resolution in the canonical catalog. They SHALL preserve a saved custom roster instance and its exact custom source `unitRef` while treating `custom`, invalid provenance, and unresolvable canonical refs as unavailable for canonical-only combat adaptation. Until a separate custom-combat contract exists, every selected unavailable unit SHALL block launch with a per-unit reason. The system SHALL NOT trust a client-supplied source label by itself, infer provenance from ref text, substitute a stock unit, or create an encounter, launch force, or game session for the blocked selection.
+Mission readiness and materializer preflight SHALL use one shared combat-adaptability guard that requires both persisted `unitSource === canonical` and exact-`unitRef` membership in a trusted `CanonicalCombatCatalogSnapshot`. The runtime-only snapshot SHALL distinguish `loading`, `ready`, and recoverable `unavailable`; browser surfaces SHALL validate `/api/units?includeBV=true`, Node fast-forward SHALL use `NodeCanonicalUnitService`, and failures SHALL NOT become a successful empty catalog. Production call sites SHALL supply the snapshot before synchronous readiness/materializer execution, while materializer itself performs no catalog I/O. They SHALL preserve saved custom identity while treating custom, invalid, and unresolvable refs as unavailable for canonical-only combat. The system SHALL NOT trust source labels alone, infer provenance, substitute stock units, or create an encounter, force, or session for a blocked selection.
+
+#### Scenario: Canonical catalog failure blocks honestly
+
+- **GIVEN** the trusted canonical catalog is still loading or cannot be validated
+- **WHEN** mission readiness or materializer preflight is requested
+- **THEN** launch SHALL remain blocked with an honest loading or retryable unavailable reason
+- **AND** the system SHALL NOT classify every canonical roster ref as missing
+- **AND** materializer SHALL reject before its first side-effecting fetch
 
 #### Scenario: Saved custom roster unit remains visible but cannot launch
 
@@ -26,7 +34,7 @@ Mission readiness and materializer preflight SHALL use one shared combat-adaptab
 
 - **GIVEN** mission readiness is blocked by a saved custom roster instance
 - **WHEN** materializer preflight receives that selected roster directly or through the launch page
-- **THEN** the shared combat-adaptability guard SHALL reject it before the first fetch
+- **THEN** the shared combat-adaptability guard SHALL reject it before the first side-effecting fetch
 - **AND** no encounter, launch force, or game session SHALL be created or mutated
 - **AND** no canonical or stock fallback `unitRef` SHALL replace the saved custom `unitRef`
 
@@ -35,5 +43,5 @@ Mission readiness and materializer preflight SHALL use one shared combat-adaptab
 - **GIVEN** a roster projection whose `unitSource` says `canonical` but whose exact `unitRef` does not resolve in the canonical catalog
 - **WHEN** readiness or materializer preflight evaluates that unit
 - **THEN** the shared guard SHALL mark it non-launchable and name the unresolved canonical record
-- **AND** materializer preflight SHALL reject it before the first fetch
+- **AND** materializer preflight SHALL reject it before the first side-effecting fetch
 - **AND** no force, encounter, or game session SHALL be created or mutated
