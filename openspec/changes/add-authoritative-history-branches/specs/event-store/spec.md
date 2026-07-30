@@ -31,7 +31,7 @@ A child head SHALL resolve the immutable parent prefix through its base revision
 - **AND** it SHALL not be activated or projected as authoritative
 
 ### Requirement: Branch Activation Is Verified, Compare-and-Swap, and Atomic
-A candidate SHALL become effective only after deterministic replay, domain validation, affected-artifact validation, required viewer projections, and the prior-generation delivery fence pass. A durable correction lease SHALL bind the build to the expected effective branch, revision, digest, and generation. Fence installation SHALL serialize against lease-to-admitted promotion. While an existing lease remains unexpired or an admitted delivery lacks its reconciled receipt, the candidate SHALL remain non-effective and the prior branch SHALL remain effective. One transaction SHALL compare the expected head/generation, activate the candidate, increment the generation, supersede the prior branch, publish artifact invalidations, and enable candidate effects.
+A candidate SHALL become effective only after deterministic replay, domain validation, affected-artifact validation, required viewer projections, and the prior-generation delivery fence pass. A durable correction lease SHALL carry an opaque lease ID, owner, expiry, and monotonically increasing fencing epoch and bind the build to the expected effective branch, revision, digest, and generation. Expiry or takeover SHALL mint a higher epoch. Fence installation SHALL serialize against lease-to-admitted promotion. While an existing lease remains unexpired or an admitted delivery has an unknown target result, the candidate SHALL remain non-effective and the prior branch SHALL remain effective. If an admitted prior effect has an accepted target receipt, the source activation transaction SHALL also commit the higher-version correction, immutable replacement outbox, and `pending` saga state. The same transaction SHALL lock and verify the current unexpired lease ID, owner, and epoch while comparing the expected head/generation, then activate the candidate, increment the generation, supersede the prior branch, publish artifact invalidations, and enable new-generation effects. It SHALL NOT wait for a replacement receipt that cannot exist before activation.
 
 #### Scenario: Candidate verification fails
 - **WHEN** replay, projection, integrity, or affected-artifact validation fails
@@ -43,10 +43,20 @@ A candidate SHALL become effective only after deterministic replay, domain valid
 - **THEN** activation SHALL fail as stale without changing either branch
 - **AND** the authority SHALL require a new preview/build rather than silently rebase
 
+#### Scenario: Expired correction owner resumes after takeover
+- **WHEN** an expired owner attempts activation after another owner acquired a higher lease epoch while the expected head stayed unchanged
+- **THEN** activation SHALL reject with `STALE_CORRECTION_LEASE`
+- **AND** it SHALL append no branch, supersession, invalidation, saga, or outbox records
+
 #### Scenario: Candidate waits for leased delivery
 - **WHEN** verification passes but a prior-generation effect has an active lease
 - **THEN** the candidate SHALL enter a non-effective waiting state
-- **AND** activation SHALL wait for safe expiry or the winning admission's reconciled receipt
+- **AND** activation SHALL wait for safe expiry or a known target result for the winning admission
+
+#### Scenario: Prior receipt requires replacement after activation
+- **WHEN** the winning prior-generation admission has an accepted target receipt
+- **THEN** source activation SHALL atomically create the higher-version replacement outbox and `pending` saga on the newly effective generation
+- **AND** the replacement effect SHALL dispatch only after activation while cross-stream progression remains gated
 
 ### Requirement: Branch Promotion Revalidates Commands
 The system SHALL NOT generically merge event sets or state snapshots. Any separately approved promotion SHALL revalidate versioned semantic command bytes against the current target head and append newly authorized target events with provenance.
@@ -66,8 +76,8 @@ Outbox effects belonging to a building, waiting, blocked, or superseded branch S
 
 #### Scenario: Prior branch outcome already has a receipt
 - **WHEN** activating a replacement would supersede an outcome already accepted by the campaign
-- **THEN** activation SHALL require the coordinated higher-version correction workflow
-- **AND** it SHALL not delete or silently cancel the accepted receipt
+- **THEN** source activation SHALL atomically start the coordinated higher-version correction workflow on the new effective generation
+- **AND** it SHALL not delete, silently cancel, or wait on a pre-activation replacement receipt
 
 #### Scenario: Prior branch admission wins the fence race
 - **WHEN** old-generation delivery admission commits before the activation fence

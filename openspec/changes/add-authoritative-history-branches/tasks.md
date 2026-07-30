@@ -11,12 +11,12 @@ Every PR in this change MUST stay under 500 non-generated changed lines and 15 f
 
 ## 2. Candidate Build and Atomic Activation — PR 2
 
-- [ ] 2.1 Add authorized candidate creation plus a durable correction lease bound to expected branch/revision/digest/generation, actor, and reason.
+- [ ] 2.1 Add authorized candidate creation plus a durable correction lease with opaque ID, owner, expiry, monotonically increasing fencing epoch, expected branch/revision/digest/generation, actor, and reason.
 - [ ] 2.2 Reject commands with `PROJECTION_REBUILDING` while the live lease rebuilds; make restart recovery/expiry explicit and never queue commands invisibly.
 - [ ] 2.3 Verify replay, viewer projections, and an immutable server-derived affected-artifact manifest before activation.
-- [ ] 2.4 Fence the prior effective generation; serialize the fence against lease-to-admitted promotion, stop new leases/admissions, supersede unleased pending rows, and keep the candidate waiting plus prior branch effective while an old-generation delivery is unresolved.
-- [ ] 2.5 Compare the lease-bound expected head/generation, then atomically activate the candidate, increment generation, supersede the prior branch, publish invalidations, and enable candidate effects; stale or failed comparison leaves the prior branch effective.
-- [ ] 2.6 Prove deterministic replay, correction-lease restart/expiry, stale activation, injected activation failure, both fence/admission serial orders, lease expiry, and receipt/reconciliation behavior.
+- [ ] 2.4 Fence the prior effective generation; serialize the fence against lease-to-admitted promotion, stop new leases/admissions, supersede unleased pending rows, and keep the candidate waiting plus prior branch effective while an old-generation delivery has an unknown target result.
+- [ ] 2.5 Lock and verify the current unexpired correction lease ID, owner, and epoch with the expected-head comparison. If a prior receipt was accepted, atomically create the higher-version replacement outbox and pending saga while activating the candidate, incrementing generation, superseding the prior branch, and publishing invalidations; otherwise activate without correction. Never wait for a pre-activation replacement receipt.
+- [ ] 2.6 Prove deterministic replay, correction-lease restart/expiry/takeover, stale-owner activation rejection with an unchanged head, stale-head activation, injected activation failure, both fence/admission serial orders, accepted-prior-receipt activation, and target outage/restart at each saga boundary.
 - [ ] 2.7 After independent review and focused gates pass, merge, rerun activation/failure on exact main, and prune the branch/worktree.
 
 ## 3. Combat Rewind — PR 3
@@ -37,11 +37,11 @@ Every PR in this change MUST stay under 500 non-generated changed lines and 15 f
 
 ## 5. Coordinated Post-Receipt Correction Saga — PR 5
 
-- [ ] 5.1 Reject combat-only rewind after the active outcome receipt and create a higher-version source correction plus replacement outbox in one source-local transaction.
+- [ ] 5.1 Reject combat-only rewind after the active outcome receipt and create the new effective branch, higher-version source correction, replacement outbox, and pending saga in one source activation transaction.
 - [ ] 5.2 Persist canonical command bytes/digest/schema/canonicalizer versions; recovery never regenerates them from mutable projection state.
 - [ ] 5.3 Apply the target-scoped replacement receipt and deterministic campaign consequence batch in one target-local transaction; do not claim cross-store atomicity.
 - [ ] 5.4 Persist pending, retrying, blocked, and applied saga states and keep scenario progression gated until the active target receipt and projections converge.
-- [ ] 5.5 Prove retry, lost acknowledgement, source/target restart, unsupported stored version, target-scope mismatch, activation-fence versus delivery-admission race, and blocked recovery apply replacement consequences once.
+- [ ] 5.5 Prove accepted prior receipt → source activation → replacement dispatch → target receipt → applied saga, plus retry, lost acknowledgement, source/target restart at every boundary, unsupported stored version, target-scope mismatch, activation-fence versus delivery-admission race, and blocked recovery apply replacement consequences once.
 - [ ] 5.6 Run focused cross-stream receipt/correction tests and independent durability/security review.
 - [ ] 5.7 After merge, rerun exact-main coordinated correction proof and prune the merged branch/worktree.
 

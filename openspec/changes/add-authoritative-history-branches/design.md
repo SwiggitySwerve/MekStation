@@ -46,13 +46,13 @@ Branch status transitions are typed and monotonic. A storage constraint permits 
 
 ### D2 — Build, verify, compare, then activate
 
-An authorized rewind/correction command acquires a durable stream-scoped correction lease bound to the expected effective branch, revision, digest, and generation. While that lease is live, ordinary commands reject with `PROJECTION_REBUILDING`; they are not queued. Expiry or owner recovery is explicit and restart-safe.
+An authorized rewind/correction command acquires a durable stream-scoped correction lease with an opaque lease ID, owner identity, expiry, and monotonically increasing fencing epoch, bound to the expected effective branch, revision, digest, and generation. Renewal preserves the epoch; expiry/takeover mints a higher epoch. While that lease is live, ordinary commands reject with `PROJECTION_REBUILDING`; they are not queued. Expiry or owner recovery is explicit and restart-safe.
 
 The authority records impact scope, creates a `building` branch, replays from a trusted base, applies proposed commands, and verifies authoritative plus viewer projections and an immutable, server-derived external-artifact manifest. Outbox rows belonging to a non-effective branch are not dispatchable.
 
-Activation installs a source-local fence for the expected prior generation. Fence installation serializes against lease-to-admitted delivery promotion. The fence prevents new leases/admissions and supersedes unleased pending effects. If an old-generation lease or admitted delivery is unresolved, the candidate enters `waiting-effects` and the prior branch remains effective. A fence that wins prevents a leased row from becoming admitted, so it may expire safely; an admission that wins remains durable until its idempotent target receipt exists and routes activation through the higher-version correction saga.
+Activation installs a source-local fence for the expected prior generation. Fence installation serializes against lease-to-admitted delivery promotion. The fence prevents new leases/admissions and supersedes unleased pending effects. If an old-generation lease or admitted delivery is unresolved, the candidate enters `waiting-effects` and the prior branch remains effective. A fence that wins prevents a leased row from becoming admitted, so it may expire safely; an admission that wins remains durable until its target result is known.
 
-Only after effects reconcile does one local transaction compare the expected effective branch/revision/digest/generation, activate the candidate, supersede the prior branch, increment the generation, publish the artifact invalidation manifest, and make candidate outbox rows dispatchable. A stale comparison, failed validation, lost lease, or unverifiable receipt state leaves the prior head effective.
+If no target mutation occurred, activation can proceed normally. If the prior effect has an accepted target receipt, the source activation transaction also commits the higher-version correction fact, immutable replacement outbox, and `pending` saga state. In either case, that transaction locks and verifies the current unexpired lease ID, owner, and fencing epoch while comparing the expected effective branch/revision/digest/generation. Only then may it activate the candidate, supersede the prior branch, increment the generation, publish the artifact invalidation manifest, and make the new generation's outbox rows dispatchable. The replacement effect therefore cannot deadlock behind a non-effective candidate, and no pre-activation target mutation is introduced. A stale comparison, expired/taken-over lease, failed validation, or unknown target result leaves the prior head effective.
 
 ### D3 — “Merge” means revalidation
 
@@ -60,9 +60,9 @@ A proposed scenario branch may export versioned semantic command bytes with prov
 
 ### D4 — Post-receipt correction is a saga
 
-Once a target campaign receipt exists, no cross-database transaction is claimed. The source authority atomically commits the higher-version correction, supersession facts, invalidation manifest, and replacement outbox locally. The replacement outbox persists the canonical command bytes, digest, command schema version, and canonicalizer version required by the effect-receipt contract; a worker never regenerates them from a mutable projection.
+Once a target campaign receipt exists, no cross-database transaction is claimed. The source activation transaction atomically commits the new effective branch, higher-version correction, supersession facts, invalidation manifest, replacement outbox, and `pending` saga state locally. Only after that commit may the replacement outbox dispatch. It persists the canonical command bytes, digest, command schema version, and canonicalizer version required by the effect-receipt contract; a worker never regenerates them from a mutable projection.
 
-The target authority then idempotently commits the higher-version inbox receipt and replacement consequence batch. Durable `pending`, `retrying`, `blocked`, and `applied` reconciliation states survive restart. Unsupported stored versions block without target mutation. Scenario progression remains blocked until the active target receipt and projections are current.
+The target authority then idempotently commits the higher-version inbox receipt and replacement consequence batch. Durable `pending`, `retrying`, `blocked`, and `applied` reconciliation states survive restart. Unsupported stored versions block without target mutation. While source and target temporarily differ, scenario progression and further correction remain blocked until the active target receipt and projections are current.
 
 ### D5 — Visibility and recovery are branch-aware
 
