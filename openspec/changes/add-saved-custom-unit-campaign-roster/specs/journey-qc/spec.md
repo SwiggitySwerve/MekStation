@@ -11,7 +11,6 @@ Journey QC SHALL include a browser trust anchor that saves a customized canonica
 - **THEN** the roster step SHALL expose a named control for that exact saved design
 - **AND** selecting it SHALL create a distinct roster-instance id whose `unitRef` equals `<customId>`
 - **AND** the selected draft entry's `unitSource` SHALL equal `custom`
-
 #### Scenario: Campaign and root force persist separate identities
 
 - **WHEN** the campaign is submitted with the saved custom BattleMech through the production wizard path
@@ -19,7 +18,6 @@ Journey QC SHALL include a browser trust anchor that saves a customized canonica
 - **AND** browser roster state and server-backed campaign persistence SHALL contain the same roster-instance id, `<customId>` source ref, and `custom` source kind
 - **AND** root-force state SHALL contain the roster-instance id
 - **AND** no stock-template fallback id or copied construction payload SHALL appear
-
 #### Scenario: Cold reload preserves the handoff through playable combat
 
 - **WHEN** the journey cold reloads and visits the campaign dashboard, Forces, Mech Bay, and mission readiness before launching canonical units from the same mixed roster
@@ -29,7 +27,6 @@ Journey QC SHALL include a browser trust anchor that saves a customized canonica
 - **AND** mission readiness SHALL name that instance's canonical-combat-unavailable reason and mark the custom row non-launchable
 - **AND** the custom row SHALL remain unselected while canonical launch-capable rows remain selectable and SHALL launch through the production UI/API into one server-issued session
 - **AND** the tactical surface SHALL expose player commands, accept at least one valid command, restore the same session/authority state after navigation and cold reload, reach a terminal production result, return to the campaign, persist an accepted post-battle consequence, and reproduce that campaign/mission/session/result/consequence state after a final cold reload without altering the saved-custom identity
-
 #### Scenario: Experience evidence and positives are paired with authority proof
 
 - **WHEN** the three independent journeys inspect roster, Mech Bay, readiness, combat command, recovery, and post-battle surfaces at desktop width and 390×844
@@ -43,3 +40,6 @@ Journey QC SHALL include a browser trust anchor that saves a customized canonica
 - **THEN** detached-worktree HEAD/tree, tracked-clean and ignored/untracked-baseline-match facts, directory SHA, wave/run/command ids, the recomputed immutable command-sequence digest, declared reporter/test/status/safe-fingerprint contracts, artifact names/exact-byte digests, schema version, and every required per-wave assertion SHALL match both the staged source and the reopened durable export before the proof worktree is removed
 - **AND** every later repair/H/exact-main/archive consumer SHALL read only the durable export and SHALL reject a surviving proof-worktree dependency, export collision, partial copy, reparse/path escape, tamper, manifest drift, or digest/SHA/run-id mismatch
 - **AND** an unknown/missing key, undeclared artifact, caller command, shell chain, altered immutable sequence/digest, raw argv/environment/error/stack/reporter payload, invalid fingerprint, private dump, credential, or real-user field SHALL fail validation, while only allowlisted ids, source kinds, command ids/digests, exact test ids/statuses, writer-derived `sha256:<64-lowercase-hex>` fingerprints, equality/boolean results, route/status facts, counters, reviewed disposition codes/references, artifact names/digests, and non-sensitive versions SHALL remain
+- **AND** canonical collaboration proof SHALL bind to GitHub repository id `1014984218`, `SwiggitySwerve/MekStation`, and base `main`, with exact PR head/merge identity and a non-dismissed exact-head approval from an authorized non-author; fork, remote, base, reviewer-permission, or API-identity drift SHALL fail
+- **AND** the writer SHALL bind the target lockfile, fixed bootstrap result, verified Node/npm/executable identities, sanitized row-declared environment, and `executionEnvironmentDigest`; ambient tool, PATH, npm-config, preload, undeclared application/browser variable, bootstrap, or version drift SHALL fail
+- **AND** the receipt SHALL claim local post-publication drift detection under a trusted initiating OS user/controller rather than third-party non-repudiation, and cleanup SHALL use only creation-bound non-reparse worktree/ref/OID targets with clean-state revalidation, non-force removal, and compare-delete; any broad, forced, initiating, durable, unrecorded, dirty, raced, or identity-drifted target SHALL fail without deletion
