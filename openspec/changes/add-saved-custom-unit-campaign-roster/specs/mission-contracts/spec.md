@@ -2,7 +2,7 @@
 
 ### Requirement: Saved Custom Unit Readiness Boundary
 
-Mission readiness and materializer preflight SHALL use one shared combat-adaptability predicate over the roster projection's persisted `unitSource`. They SHALL preserve a saved custom roster instance and its exact custom source `unitRef` while treating `custom` as unavailable for canonical-only combat adaptation. Until a separate custom-combat contract exists, every selected saved custom unit SHALL block launch with a per-unit canonical-combat-unavailable reason. The system SHALL NOT infer provenance from the ref text, substitute a stock unit, or create an encounter, launch force, or game session for the blocked selection.
+Mission readiness and materializer preflight SHALL use one shared combat-adaptability guard that requires both persisted `unitSource === canonical` and successful exact-`unitRef` resolution in the canonical catalog. They SHALL preserve a saved custom roster instance and its exact custom source `unitRef` while treating `custom`, invalid provenance, and unresolvable canonical refs as unavailable for canonical-only combat adaptation. Until a separate custom-combat contract exists, every selected unavailable unit SHALL block launch with a per-unit reason. The system SHALL NOT trust a client-supplied source label by itself, infer provenance from ref text, substitute a stock unit, or create an encounter, launch force, or game session for the blocked selection.
 
 #### Scenario: Saved custom roster unit remains visible but cannot launch
 
@@ -26,6 +26,14 @@ Mission readiness and materializer preflight SHALL use one shared combat-adaptab
 
 - **GIVEN** mission readiness is blocked by a saved custom roster instance
 - **WHEN** materializer preflight receives that selected roster directly or through the launch page
-- **THEN** the shared combat-adaptability predicate SHALL reject it before the first fetch
+- **THEN** the shared combat-adaptability guard SHALL reject it before the first fetch
 - **AND** no encounter, launch force, or game session SHALL be created or mutated
 - **AND** no canonical or stock fallback `unitRef` SHALL replace the saved custom `unitRef`
+
+#### Scenario: Forged canonical label does not bypass preflight
+
+- **GIVEN** a roster projection whose `unitSource` says `canonical` but whose exact `unitRef` does not resolve in the canonical catalog
+- **WHEN** readiness or materializer preflight evaluates that unit
+- **THEN** the shared guard SHALL mark it non-launchable and name the unresolved canonical record
+- **AND** materializer preflight SHALL reject it before the first fetch
+- **AND** no force, encounter, or game session SHALL be created or mutated

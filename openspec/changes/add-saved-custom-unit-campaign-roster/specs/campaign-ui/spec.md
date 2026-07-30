@@ -63,6 +63,20 @@ The system SHALL provide a multi-step campaign creation wizard with 4 steps: cam
 - **THEN** it SHALL normalize to `canonical`
 - **AND** runtime code SHALL NOT infer source kind from unit name, tonnage, or id prefix
 
+#### Scenario: Invalid source provenance does not become canonical
+
+- **GIVEN** a persisted roster projection with a present `unitSource` value other than `canonical` or `custom`
+- **WHEN** campaign persistence loads or migrates that projection
+- **THEN** the source SHALL remain invalid and non-launchable
+- **AND** it SHALL NOT be coerced to `canonical`
+
+#### Scenario: Invalid custom index metadata is excluded
+
+- **GIVEN** a custom-unit index row with an empty identity, non-BattleMech type, non-finite tonnage, or non-positive tonnage
+- **WHEN** the campaign adapter validates Saved Designs
+- **THEN** that row SHALL NOT become selectable
+- **AND** the Saved Designs group SHALL report the unavailable/invalid record without trusting its metadata
+
 #### Scenario: Saved-design source states remain recoverable
 
 - **WHEN** saved designs are loading, absent, or fail to load

@@ -35,3 +35,11 @@ Journey QC SHALL include a browser trust anchor that saves a customized canonica
 - **WHEN** the journey inspects the roster step at desktop width and 390×844
 - **THEN** it SHALL capture the Stock Templates and Saved Designs groups, saved-unit control names, focus behavior, loading/empty/error recovery, and add/remove feedback
 - **AND** the evidence receipt SHALL pair those screenshots with route, custom-unit API, browser store, persisted campaign/force, and post-reload assertions
+
+#### Scenario: Authority evidence is synthetic and privacy-safe
+
+- **GIVEN** the journey records screenshots, traces, videos, or JSON receipts
+- **WHEN** evidence is attached
+- **THEN** all campaign, pilot, and custom-unit fixtures SHALL be synthetic
+- **AND** structured receipts SHALL contain only allowlisted ids, source kinds, equality/boolean results, route/status facts, and non-sensitive versions needed for the proof
+- **AND** raw construction payloads, finance/narrative state, private store dumps, credentials, and real user data SHALL NOT be attached

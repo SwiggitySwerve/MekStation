@@ -29,7 +29,8 @@ None.
 
 - Adapting a custom unit into a playable combat session or changing the canonical-only encounter materialization contract.
 - Reworking campaign pre-battle setup, interrupted-game recovery, or post-battle processing.
-- Changing custom-unit serialization, validation, version history, or save eligibility.
+- Changing server-side custom-unit serialization/creation validation, version history, or save eligibility; this wave validates index metadata only at the campaign adapter boundary.
+- Adding tenant authentication/ownership middleware to the local-first campaign/custom-unit APIs; the base `api-layer` specification tracks authentication middleware as a future enhancement. Remote/shared deployment of those routes remains blocked on that separate security capability.
 - Adding event-journal runtime behavior, maintenance cleanup, or a new dependency.
 
 ## Impact

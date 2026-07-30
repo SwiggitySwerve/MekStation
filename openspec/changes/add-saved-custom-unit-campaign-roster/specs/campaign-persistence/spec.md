@@ -19,3 +19,11 @@ The production campaign-creation submit path SHALL report success only after the
 - **THEN** it SHALL suppress success feedback and dashboard navigation
 - **AND** it SHALL show an actionable save failure without discarding the pending campaign
 - **AND** retry SHALL persist the same campaign id rather than creating a duplicate campaign
+
+#### Scenario: Creation conflict never auto-overwrites server state
+
+- **GIVEN** campaign creation receives `409 Conflict` for the pending campaign id
+- **WHEN** the creation persistence path handles the conflict
+- **THEN** it SHALL keep explicit conflict state and SHALL NOT automatically re-submit the full local snapshot using the server's current version
+- **AND** it SHALL NOT report success or navigate
+- **AND** an intervening server record SHALL remain unchanged until the player explicitly resolves the conflict

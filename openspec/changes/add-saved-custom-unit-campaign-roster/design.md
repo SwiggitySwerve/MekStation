@@ -2,6 +2,8 @@
 
 Custom units already have server-backed CRUD and version history. `CustomUnitApiService.list()` exposes a durable id plus lightweight chassis, variant, tonnage, type, and version metadata. The campaign wizard already distinguishes its roster-instance `SelectedUnit.id` from the source design `SelectedUnit.unitRef`, and campaign submit already writes `unitRef` onto `IRosterUnitProjection`.
 
+The current packaged desktop server is loopback-bound and the base `api-layer` specification explicitly leaves authentication middleware as a future enhancement. CAMP-01 therefore proves server persistence and gameplay authority inside the existing local-first trust boundary; it does not claim tenant isolation or authorize exposing campaign/custom-unit routes on a shared remote host.
+
 The missing seam is selection and resolution:
 
 - `CreateCampaignPage.RosterStep.tsx` renders only four representative stock choices.
@@ -36,11 +38,11 @@ Mission readiness currently treats any non-empty `unitRef` as sufficient source 
 
 The saved design's custom-unit API id SHALL become `SelectedUnit.unitRef` and then `IRosterUnitProjection.unitRef`. The draft and roster projection SHALL also carry one shared `unitSource` discriminator with `canonical` and `custom` values. Each add action SHALL still mint a new roster-instance `unitId`, so two campaign copies of the same saved design have different campaign identities but the same source-design reference and source kind.
 
-Campaign persistence SHALL NOT duplicate the saved unit's serialized construction payload. Custom-unit version history remains authoritative for the design record; this wave records only the stable reference, source kind, and cached display fields already owned by the roster projection. Legacy projections without `unitSource` normalize to `canonical` because saved custom campaign entries did not exist before this change. Runtime behavior SHALL NOT infer source kind from names, tonnage, or id prefixes.
+Campaign persistence SHALL NOT duplicate the saved unit's serialized construction payload. Custom-unit version history remains authoritative for the design record; this wave records only the stable reference, source kind, and cached display fields already owned by the roster projection. Legacy projections with an absent `unitSource` normalize to `canonical` because saved custom campaign entries did not exist before this change. A present but unrecognized source value SHALL remain invalid and non-launchable; it SHALL NOT be coerced to `canonical`. Runtime behavior SHALL NOT infer source kind from names, tonnage, or id prefixes.
 
 ### D2 — Use one saved-unit adapter at the campaign boundary
 
-A focused campaign adapter SHALL convert `ICustomUnitIndexEntry` into the wizard's selectable metadata: stable ref, display name, tonnage, unit type, and saved-design provenance. The adapter SHALL admit BattleMechs only and SHALL preserve API ids without deriving identity from names.
+A focused campaign adapter SHALL runtime-validate each `ICustomUnitIndexEntry` before converting it into wizard metadata: non-empty id/chassis/variant, exact BattleMech type, and finite positive tonnage. Invalid records SHALL be excluded with honest unavailable/error accounting. Valid records retain stable ref, display name, tonnage, unit type, and saved-design provenance. The adapter SHALL preserve API ids without deriving identity from names.
 
 The roster step SHALL render stock templates and saved designs as separate named groups. Stock controls remain available while saved designs load. Saved designs expose explicit loading, empty, and error-with-retry states.
 
@@ -70,17 +72,19 @@ Screenshots cover visual and accessibility claims only. API responses, store sna
 
 ### D6 — Stop custom identity at the canonical combat boundary
 
-A saved custom `unitRef` SHALL remain valid campaign source identity but SHALL NOT be treated as a resolvable canonical combat record. One shared predicate over persisted `unitSource` SHALL govern both mission readiness and materializer preflight. Mission readiness SHALL keep the roster instance visible, mark it non-launchable with a per-unit canonical-combat-unavailable reason, and block any selection containing it.
+A saved custom `unitRef` SHALL remain valid campaign source identity but SHALL NOT be treated as a resolvable canonical combat record. One shared combat-adaptability guard SHALL govern mission readiness and materializer preflight. The guard SHALL require both `unitSource === canonical` and successful resolution of the exact `unitRef` in the canonical catalog; a client-supplied source label alone is never sufficient. Mission readiness SHALL keep custom or invalid-source roster instances visible, mark them non-launchable with a per-unit canonical-combat-unavailable reason, and block any selection containing them.
 
 Default mission selection SHALL exclude custom-blocked rows. An unselected custom row remains visible but cannot be selected; a stale or restored selected custom row remains operable only so the player can deselect it. A canonical-only selection in a mixed roster may proceed.
 
-Materializer preflight SHALL independently apply the same predicate before its first fetch, so stale state or direct invocation cannot bypass the UI. The blocked path SHALL NOT create or mutate an encounter, launch force, or game session and SHALL NOT replace the custom ref with a stock template. A later custom-combat wave may change this boundary only with its own adaptation and authority contract.
+Materializer preflight SHALL independently apply the guard and canonical resolver before its first fetch, so a forged `canonical` label, stale state, or direct invocation cannot bypass the UI. The blocked path SHALL NOT create or mutate an encounter, launch force, or game session and SHALL NOT replace the custom ref with a stock template. A later custom-combat wave may change this boundary only with its own adaptation and authority contract.
 
 ### D7 — Creation success means accepted server persistence
 
 The production wizard submit path SHALL first commit the assembled campaign/roster/root-force state locally, then call the existing campaign persistence store and await an accepted server record. Success toast and dashboard navigation occur only after the server result is `saved` and contains the same campaign id, roster-instance id, custom `unitRef`, and `unitSource`.
 
-An error or unresolved conflict SHALL keep the player on an honest recovery surface, suppress success feedback/navigation, and offer a retry of the same campaign id rather than creating a duplicate campaign. Browser proof SHALL exercise this production path; test-only persistence helpers cannot satisfy the requirement.
+An error or unresolved conflict SHALL keep the player on an honest recovery surface, suppress success feedback/navigation, and offer a retry of the same campaign id rather than creating a duplicate campaign. Creation persistence SHALL NOT automatically re-submit the full local snapshot using a conflicting server version; a `409` remains explicit conflict state and cannot silently overwrite the intervening record. Browser proof SHALL exercise this production path; test-only persistence helpers cannot satisfy the requirement.
+
+Journey fixtures SHALL be synthetic. Receipts SHALL attach allowlisted equality/boolean fields needed for authority proof rather than raw campaign, custom-unit construction, finance, narrative, or store dumps. Screenshots, traces, and videos SHALL contain no real user data.
 
 ### D8 — Deliver through three dependency-ordered product waves
 
@@ -100,6 +104,8 @@ Each wave owns one user-visible outcome, stays within 15 files and 500 changed l
 - **[Risk] A non-BattleMech custom record appears selectable** → filter at the adapter boundary and cover the exclusion with focused tests.
 - **[Risk] This wave appears to promise custom-unit combat** → require an explicit readiness blocker, prove that materialization never starts, and stop the trust anchor at that boundary.
 - **[Risk] Server persistence failure creates duplicate campaigns on retry** → retain the pending campaign id and retry only the persistence commit.
+- **[Risk] A forged source label bypasses combat safety** → require exact canonical catalog resolution in the shared guard and materializer preflight before any fetch.
+- **[Risk] Shared or remote hosting exposes unauthenticated local-first APIs** → keep tenant authentication/ownership outside CAMP-01 but record it as an explicit deployment blocker governed by the future `api-layer` authentication capability.
 
 ## Rollback
 
