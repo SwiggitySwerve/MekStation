@@ -59,6 +59,12 @@
       "status": "proposed",
       "reason": "Wave 7 of the entity-history program: add immutable branch lineage, verified replacement-branch activation, domain-command revalidation instead of generic merge, and recoverable combat/campaign correction sagas after linear authority and effect receipts are proven.",
       "lastReviewed": "2026-07-30"
+    },
+    {
+      "name": "add-saved-custom-unit-campaign-roster",
+      "status": "proposed",
+      "reason": "CAMP-01 specification wave: select a server-saved custom BattleMech in campaign creation and preserve separate roster-instance and source-design identities through root-force persistence, cold reload, Mech Bay, and mission readiness before product implementation.",
+      "lastReviewed": "2026-07-30"
     }
   ]
 }
