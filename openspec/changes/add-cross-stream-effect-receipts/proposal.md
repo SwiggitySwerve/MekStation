@@ -4,7 +4,7 @@ Some committed facts must cause work in another authoritative stream, especially
 
 ## What Changes
 
-- Add a durable outbox row in the source-stream transaction and an idempotent inbox receipt in the target-stream transaction, bound by one versioned canonical semantic-command digest.
+- Add a durable outbox row containing immutable versioned semantic-command bytes in the source-stream transaction and an idempotent digest-bound inbox receipt in the target-stream transaction.
 - Link source fact, effect delivery, target command, and target event range through correlation and causation identities.
 - Require replay and projection paths to remain side-effect free.
 - Add an authorized cross-entity timeline that joins linked events without duplicating their authoritative records.
