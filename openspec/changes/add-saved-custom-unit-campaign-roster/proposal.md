@@ -40,4 +40,4 @@ None.
 - Affected state: campaign-wizard draft selection, roster projection mapping/provenance, root-force membership, explicit server commit, and readiness/materialization preflight.
 - Affected verification: focused component/state tests plus `e2e/campaign-customizer-handoff.spec.ts`.
 - No campaign construction-payload schema, combat engine, multiplayer protocol, or dependency change is intended.
-- Delivery is split into seven dependency-ordered focused PRs: packaged loopback repair, trusted catalog/readiness, all launch-path enforcement, saved-design picker/identity, durable server commit, Mech Bay resolution, and authority journey/audit proof. Each PR has an explicit sub-ceiling below 15 files/500 lines and SHALL merge cleanly before the next begins.
+- Delivery is split into eight dependency-ordered focused PRs: packaged loopback repair, trusted catalog/readiness, authoritative co-op source sync, all launch-path enforcement, saved-design picker/identity, durable server commit, Mech Bay resolution, and authority journey/audit proof. Each PR has an explicit sub-ceiling below 15 files/500 lines and SHALL merge cleanly before the next begins.

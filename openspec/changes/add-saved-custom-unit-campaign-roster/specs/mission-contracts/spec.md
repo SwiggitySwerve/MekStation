@@ -49,6 +49,11 @@ Mission readiness and materializer preflight SHALL use one shared combat-adaptab
 #### Scenario: Co-op contributions cannot bypass source validation
 
 - **GIVEN** a co-op contribution whose force contains a custom, invalid, unresolved, or roster-missing unit id
-- **WHEN** `launchCoopMission` maps contributed force ids through the campaign roster and trusted snapshot
-- **THEN** the shared guard SHALL reject the contribution before composition or campaign encounter launch
-- **AND** neither `createEncounter` nor `launchEncounter` SHALL be called
+- **WHEN** `launchCoopMission` maps those ids through the revision-bound host CampaignSync roster snapshot and trusted catalog
+- **THEN** the shared guard SHALL reject before composition, `createEncounter`, or `launchEncounter`, without trusting provenance from the participation payload
+
+#### Scenario: Existing encounter reuse cannot bypass validation
+
+- **GIVEN** a mission has a persisted scenario id while its selected roster contains a custom, forged, stale, loading, or unavailable source
+- **WHEN** materializer is invoked directly
+- **THEN** it SHALL reject before diagnostics, encounter lookup, reuse success, routing, or mutation
