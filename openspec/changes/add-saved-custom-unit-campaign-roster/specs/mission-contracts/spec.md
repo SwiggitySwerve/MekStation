@@ -54,8 +54,8 @@ Mission readiness and materializer preflight SHALL use one shared combat-adaptab
 - **AND** force membership SHALL resolve to source-bearing roster records before the trusted catalog guard runs
 - **AND** blocked input SHALL make no composition, encounter lookup/create, or launch call
 
-#### Scenario: Existing encounter reuse cannot bypass validation
+#### Scenario: Existing encounter reuse or downgrade cannot bypass validation
 
-- **GIVEN** a mission has a persisted scenario id while its selected roster contains a custom, forged, stale, loading, or unavailable source
-- **WHEN** materializer is invoked directly
-- **THEN** it SHALL reject before diagnostics, encounter lookup, reuse success, routing, or mutation
+- **GIVEN** a persisted scenario or downgraded runtime sees a selected custom, invalid, forged, stale, loading, or unavailable source
+- **WHEN** materializer is invoked directly or compatibility startup evaluates the campaign
+- **THEN** compatibility startup SHALL refuse the downgrade before old readiness/materialization, and direct materializer SHALL reject before diagnostics, lookup, reuse success, routing, or mutation

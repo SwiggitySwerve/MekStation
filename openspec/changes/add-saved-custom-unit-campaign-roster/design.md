@@ -88,9 +88,9 @@ An error or unresolved conflict SHALL keep the player on an honest recovery surf
 
 Journey fixtures SHALL be synthetic. Receipts SHALL attach allowlisted equality/boolean fields needed for authority proof rather than raw campaign, custom-unit construction, finance, narrative, or store dumps. Screenshots, traces, and videos SHALL contain no real user data.
 
-### D8 — Deliver through nine dependency-ordered product waves
+### D8 — Deliver through ten dependency-ordered waves
 
-This OpenSpec change is one CAMP-01 outcome but SHALL be implemented through nine separately reviewed PRs. CAMP-00 and CAMP-01A–D are prerequisite authority seams; CAMP-01E–H deliver the original saved-design campaign-selection outcome, which remains incomplete until its production journey passes. Each line names its proof command and durable receipt; `<sha>` is the reviewed head for PR proof and the receipt SHALL be regenerated under the merged exact-main SHA during the required post-merge audit:
+This OpenSpec change is one CAMP-01 outcome but SHALL be implemented through ten separately reviewed PRs. **CAMP-PROOF — receipt contract (≤4 files/280 lines)** first adds `scripts/qc/camp01-authority-receipt.mjs`, `validate-camp01-authority-receipt.mjs`, focused tests, and `qc:camp01-authority-receipt:validate`; its strict `camp01-authority-receipt/v1` producer reads repository HEAD, hashes declared bounded test/artifact inputs, enforces exact wave assertion keys, rejects unknown/missing fields or SHA/path/digest drift, and merges/audits/prunes before CAMP-00. CAMP-00 and CAMP-01A–D are the remaining prerequisite authority seams; CAMP-01E–H deliver the original outcome. Every wave SHALL use the shared producer/validator; `<sha>` is the reviewed head for PR proof and receipts are regenerated under merged exact main.
 
 1. **CAMP-00 — packaged loopback listener (budget ≤4 files/180 lines):** `npm run validate:multiplayer:packaged-socket` writes `.sisyphus/evidence/playtest/camp00-loopback-<sha>/listener-receipt.json` with only bound/expected address and unspecified-address rejection.
 2. **CAMP-01A — trusted catalog/readiness boundary (≤10/400):** `npm.cmd test -- --runTestsByPath` over `src/types/campaign/__tests__/RosterUnitSource.test.ts`, `src/lib/campaign/readiness/__tests__/missionReadinessProjection.test.ts`, and `src/lib/campaign/encounter/__tests__/materializeCampaignMissionEncounter.test.ts` writes `.sisyphus/evidence/playtest/camp01a-catalog-<sha>/authority-receipt.json` with source resolution, exact-ref result, blocker, and lookup/reuse/create/mutate counts.
@@ -102,12 +102,10 @@ This OpenSpec change is one CAMP-01 outcome but SHALL be implemented through nin
 8. **CAMP-01G — downstream Mech Bay resolution (≤7/350):** `npm run qc:command:readiness-stable:quick` plus `src/components/campaign/bays/__tests__/MechBay.test.tsx` writes `.sisyphus/evidence/playtest/camp01g-mech-bay-<sha>/authority-receipt.json` with cold-reload, instance/ref/source equality, cached name/tonnage, BV availability, and unresolved-source booleans.
 9. **CAMP-01H — authority journey and audit receipt (≤5/300):** `e2e/campaign-customizer-handoff.spec.ts` under `qc:command:browser:quick`, `qc:campaign-long:browser`, and `verify:qc:viewport-sweep` writes `.sisyphus/evidence/playtest/camp01h-journey-<sha>/authority-receipt.json` with route/API/store/persistence/reload equality and inspected desktop/390px artifact names.
 
-Each wave owns one user-visible outcome, stays within 15 files and 500 changed lines, runs its targeted and applicable gates, receives independent review, merges with a SHA guard, and is followed by an exact-main audit/prune before the next wave branches. A later wave SHALL NOT be bundled into an earlier PR to save time.
+CAMP-PROOF owns only the shared verification seam; each product wave owns one user-visible outcome. Every wave stays under 15 files/500 lines, runs targeted/applicable gates, receives independent review, merges with a SHA guard, and is followed by exact-main audit/prune before the next branch. A later wave SHALL NOT be bundled into an earlier PR.
 
 ## Risks / Trade-offs
-
 - **[Risk] Deleted sources or shared deployment create false authority** → preserve cached unresolved rows without substitution, and keep tenant authentication/ownership outside CAMP-01 as an explicit remote-deployment blocker.
-
 ## Rollback
 
-Revert the focused UI/adapter/state changes. Campaigns created during the wave retain additive custom `unitRef`, `unitSource`, and cached roster display fields; older code ignores the additive source field, treats unresolved refs honestly, and does not require a destructive migration.
+UI/adapter changes MAY be reverted, but the raw-source parser, persisted provenance, and canonical launch guard are the compatibility floor. A downgrade SHALL refuse to start or load a campaign while custom/invalid provenance exists unless a separately verified migration removes it; regression proof SHALL keep custom/invalid refs from lookup, reuse, routing, or mutation. No rollback may run current truthy-`unitRef` readiness/materialization against CAMP-01 data.

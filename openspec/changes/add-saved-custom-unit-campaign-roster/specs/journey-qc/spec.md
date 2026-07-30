@@ -2,7 +2,7 @@
 
 ### Requirement: Saved Custom Unit Campaign Handoff Trust Anchor Journey
 
-Journey QC SHALL include a browser trust anchor that saves a customized canonical BattleMech, reads its server-issued custom-unit id, selects that exact saved design during campaign creation, and proves the same source identity and source kind through production wizard submission, campaign roster/root-force server persistence, and cold-reloaded campaign surfaces. Screenshots SHALL support layout and accessibility inspection but SHALL NOT substitute for API, store, persisted campaign/force, or reload evidence.
+Journey QC SHALL include a browser trust anchor that saves a customized canonical BattleMech, reads its server-issued custom-unit id, selects that exact saved design during campaign creation, and proves the same source identity and source kind through production wizard submission, campaign roster/root-force server persistence, and cold-reloaded campaign surfaces. `camp01-authority-receipt/v1` SHALL provide one strict shared producer/validator that reads repository HEAD, hashes bounded declared inputs, enforces per-wave assertion/artifact allowlists, matches receipt-directory SHA, and rejects unknown/missing fields or digest/SHA drift; every reviewed-head receipt SHALL be regenerated and validated on merged exact main. Screenshots support layout/accessibility but SHALL NOT substitute for API, store, persistence, or reload evidence.
 
 #### Scenario: Saved custom identity enters campaign creation
 
@@ -36,10 +36,10 @@ Journey QC SHALL include a browser trust anchor that saves a customized canonica
 - **THEN** it SHALL capture the Stock Templates and Saved Designs groups, saved-unit control names, focus behavior, loading/empty/error recovery, and add/remove feedback
 - **AND** the evidence receipt SHALL pair those screenshots with route, custom-unit API, browser store, persisted campaign/force, and post-reload assertions
 
-#### Scenario: Authority evidence is synthetic and privacy-safe
+#### Scenario: Authority evidence is mechanically validated and privacy-safe
 
-- **GIVEN** the journey records screenshots, traces, videos, or JSON receipts
-- **WHEN** evidence is attached
-- **THEN** all campaign, pilot, and custom-unit fixtures SHALL be synthetic
-- **AND** each wave SHALL write its named `.sisyphus/evidence/playtest/camp01*-<exact-main-sha>/authority-receipt.json` containing only the allowlisted ids, source kinds, equality/boolean results, route/status facts, counters, artifact names, and non-sensitive versions specified by its delivery matrix
-- **AND** raw construction payloads, finance/narrative state, private store dumps, credentials, and real user data SHALL NOT be attached
+- **GIVEN** a wave produces synthetic test results, screenshots, traces, videos, or JSON receipts
+- **WHEN** the shared producer writes and the validator checks its named `.sisyphus/evidence/playtest/camp01*-<sha>/authority-receipt.json`
+- **THEN** repository HEAD, directory SHA, wave id, declared artifact names/digests, schema version, and every required per-wave assertion SHALL match
+- **AND** an unknown/missing key, undeclared artifact, mismatched digest/SHA, raw payload, private dump, credential, or real-user field SHALL fail validation
+- **AND** only allowlisted ids, source kinds, equality/boolean results, route/status facts, counters, artifact names/digests, and non-sensitive versions SHALL remain

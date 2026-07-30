@@ -1,3 +1,5 @@
+## P. CAMP-PROOF — authority receipt contract
+- [ ] P.1 Add strict `camp01-authority-receipt/v1` producer/validator in `scripts/qc/camp01-authority-receipt.mjs` and `validate-camp01-authority-receipt.mjs`, `qc:camp01-authority-receipt:validate`, and focused tests rejecting unknown/missing wave keys, unrecognized artifacts, wrong path/HEAD/exact-main SHA, and input-digest drift; publish within 4 files/280 lines, review, merge, regenerate its validator receipt on exact main, and prune before CAMP-00.
 ## 0. CAMP-00 — packaged loopback listener prerequisite
 
 - [ ] 0.1 Add a red process-level test or bounded injected listener seam proving `HOSTNAME=127.0.0.1` currently binds the unspecified address.
@@ -10,7 +12,7 @@
 - [ ] 1.1 Add `canonical | custom` plus a raw `unknown` persistence parser returning valid/legacy/invalid resolution; prove only absent normalizes to canonical, while present unknown remains invalid/non-launchable and is never auto-rewritten or inferred.
 - [ ] 1.2 Add a runtime-only `loading | ready | unavailable` canonical-combat catalog snapshot: validated browser loading from `/api/units?includeBV=true`, Node fast-forward loading from `NodeCanonicalUnitService`, explicit retryable failure, and no silent empty-success fallback.
 - [ ] 1.3 Add one shared exact-ref guard to readiness and materializer input; validation is the first materializer operation before diagnostics, scenario lookup/reuse return, catalog I/O, or mutation, while readiness preserves visible/recoverable blockers.
-- [ ] 1.4 Add direct loader/readiness/materializer regressions, including a persisted `scenarioIds` reuse candidate, proving custom/invalid/forged/stale/loading/unavailable inputs cause no lookup, reuse result, routing, or mutation.
+- [ ] 1.4 Add direct loader/readiness/materializer regressions, including persisted `scenarioIds` reuse and downgrade attempts, proving custom/invalid/forged/stale/loading/unavailable inputs cause no lookup, reuse result, routing, or mutation.
 - [ ] 1.5 Run `npm.cmd test -- --runTestsByPath` over `src/types/campaign/__tests__/RosterUnitSource.test.ts`, `src/lib/campaign/readiness/__tests__/missionReadinessProjection.test.ts`, and `src/lib/campaign/encounter/__tests__/materializeCampaignMissionEncounter.test.ts`; write `.sisyphus/evidence/playtest/camp01a-catalog-<sha>/authority-receipt.json` with source/ref/blocker and lookup/reuse/create/mutate fields; review, publish within 10 files/400 lines, merge, audit, and prune before CAMP-01B.
 
 ## 2. CAMP-01B — authoritative co-op snapshot
@@ -49,4 +51,4 @@
 
 ## 9. Change completion
 
-- [ ] 9.1 Reconcile all nine exact-main receipts, confirm no CAMP-01 Critical/Major remains silently pending, record tenant authentication/ownership as the remote/shared-deployment blocker, and archive only after the full authority journey is clean.
+- [ ] 9.1 Reconcile all ten exact-main receipts, confirm no CAMP-01 Critical/Major remains silently pending, record tenant authentication/ownership as the remote/shared-deployment blocker, and archive only after the full authority journey is clean.
