@@ -41,6 +41,12 @@
       "status": "proposed",
       "reason": "Wave 4 of the entity-history program: adopt the shared journal as combat authority through decide-append-apply-publish ordering, atomic match batches, idempotent command receipts, durable recovery, and a non-authoritative browser mirror.",
       "lastReviewed": "2026-07-30"
+    },
+    {
+      "name": "adopt-campaign-event-journal-authority",
+      "status": "proposed",
+      "reason": "Wave 5 of the entity-history program: adopt the shared journal as campaign authority through atomic commands, honest snapshot migration, durable entity lineage, gap-free replay/live handoff, participant cursors, and per-campaign cutover.",
+      "lastReviewed": "2026-07-30"
     }
   ]
 }
