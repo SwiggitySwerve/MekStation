@@ -7,6 +7,12 @@
       "lastReviewed": "2026-07-11"
     },
     {
+      "name": "establish-entity-event-journal-contract",
+      "status": "proposed",
+      "reason": "Wave 1 of the user-requested entity-history program: define an adapter-neutral TypeScript journal envelope, one owning stream plus indexed entity links, atomic expected-revision command batches, command receipts, and a SQLite conformance adapter before any production authority cutover.",
+      "lastReviewed": "2026-07-30"
+    },
+    {
       "name": "harden-gm-two-player-campaign-sessions",
       "status": "in-progress",
       "reason": "User-approved declarative-first change for one non-playing GM plus two tactical players: durable command journaling and publication, role-safe live/replay/export projection, reconnect cursors, outcome receipts, append-only correction and rewind, campaign retroactive rebuild, and a strict 80-scenario three-context acceptance program. Implementation is intentionally split into small independently verified PRs with exact-main post-merge regression audits. Its e2e-testing delta adds distinct GM/two-player requirements and does not modify the active add-subsystem-lanes-and-ci requirement names.",
