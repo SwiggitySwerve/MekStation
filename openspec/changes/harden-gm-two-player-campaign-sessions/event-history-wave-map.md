@@ -20,3 +20,4 @@ Rules:
 4. Before a leaf is archived/synced into main specs, reconcile its overlapping umbrella delta requirements in the same docs-only step so main receives one non-contradictory requirement definition.
 5. Dependencies are strict: foundation → replay safety → audit/privacy gate → combat and campaign authority → effects → branches. Combat and campaign adoption may proceed independently only after the first three gates, but effects wait for both.
 6. No leaf PR may combine the implementation work of another leaf. The umbrella remains open until the full program acceptance suite passes.
+7. Every leaf implementation PR MUST stay under 500 non-generated changed lines and 15 changed files and MUST own one user-visible or contract-visible behavior seam. If a named task group cannot fit, update and re-review its OpenSpec to split the PR before implementation; there is no size-cap exception.

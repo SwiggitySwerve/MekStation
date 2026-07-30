@@ -1,3 +1,5 @@
+Every PR in this change MUST stay under 500 non-generated changed lines and 15 files, own one behavior seam, and split through an OpenSpec update before implementation if the cap cannot be met.
+
 ## 1. Atomic Match Store Contract — PR 1
 
 - [ ] 1.1 Add failing `IMatchStore`/`DurableMatchStore` tests for multi-event atomicity, no-gap revisions, event identity, command retry, and restart.

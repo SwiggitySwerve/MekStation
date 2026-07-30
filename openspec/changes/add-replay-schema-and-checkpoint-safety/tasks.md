@@ -1,3 +1,5 @@
+Every PR in this change MUST stay under 500 non-generated changed lines and 15 files, own one behavior seam, and split through an OpenSpec update before implementation if the cap cannot be met.
+
 ## 1. Schema Registry and Upcasters — PR 1
 
 - [ ] 1.1 Inventory persisted combat/campaign event types and lock their current payloads as explicit baseline schema versions.
