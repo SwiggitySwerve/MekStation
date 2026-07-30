@@ -4,7 +4,7 @@ Every PR in this change MUST stay under 500 non-generated changed lines and 15 f
 
 - [ ] 1.1 Add focused regression tests that demonstrate the current gap-accepting, partial-batch, duplicate-command, and cross-entity-history failures without changing production behavior.
 - [ ] 1.2 Add `IStoredEvent`, `IEntityEventRef`, append/read inputs, receipts, fixed-root branch identity, versioned canonical digest metadata, and typed conflict results in a neutral event-journal module; preserve existing combat and campaign payload unions.
-- [ ] 1.3 Add Zod runtime schemas plus canonicalizer-v1 fixtures for RFC 8785 UTF-8 digest material and SHA-256 lowercase output, including shuffled object/entity-ref input, payload-array order, Unicode, finite numbers, invalid values, and the exact included/excluded field set.
+- [ ] 1.3 Add Zod runtime schemas that reject missing durable IDs, invalid versions, non-root branches, and caller-assigned final revisions or observation positions; add canonicalizer-v1 fixtures for RFC 8785 UTF-8 digest material and SHA-256 lowercase output, including shuffled object/entity-ref input, payload-array order, Unicode, finite numbers, unsupported values, and the exact included/excluded field set.
 - [ ] 1.4 Run focused TypeScript/LSP, schema, and behavior-lock tests; keep the PR under 500 non-generated changed lines and 15 files.
 - [ ] 1.5 After merge, update an exact-main worktree, rerun the focused receipt, record the merge SHA, then prune the merged branch/worktree before PR 2.
 
