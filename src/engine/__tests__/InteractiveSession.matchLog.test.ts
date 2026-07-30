@@ -319,6 +319,38 @@ describe('InteractiveSession match log persistence wiring', () => {
     consoleErrorSpy.mockRestore();
   });
 
+  it('persists post-launch phase events before a cold reload can recover stale combat state', async () => {
+    installFreshIndexedDB();
+    const storage = new MatchLogStorage({
+      dbName: 'interactive-session-phase-commit-test',
+      now: () => '2026-04-30T00:00:00.000Z',
+      scheduleFrame: () => undefined,
+    });
+    const interactiveSession = makeInteractiveSession();
+    const launchSession = interactiveSession.getSession();
+    const launchWrites = launchSession.events.map((event) =>
+      storage.appendEvent(launchSession.id, event),
+    );
+    await storage.flushPendingWrites();
+    await Promise.all(launchWrites);
+    mockAppendMatchEvent.mockImplementation(
+      (matchId: string, event: IGameEvent) =>
+        storage.appendEvent(matchId, event),
+    );
+
+    interactiveSession.advancePhase();
+    await storage.flushPendingWrites();
+
+    const liveSession = interactiveSession.getSession();
+    const storedEvents = await storage.getEventsForMatch(liveSession.id);
+    expect(
+      storedEvents.map(({ sequence, type }) => ({ sequence, type })),
+    ).toEqual(
+      liveSession.events.map(({ sequence, type }) => ({ sequence, type })),
+    );
+    storage.close();
+  });
+
   it('persists five successful in-memory appends to match log storage by match id and sequence', () => {
     const records: { matchId: string; sequence: number }[] = [];
     mockAppendMatchEvent.mockImplementation(

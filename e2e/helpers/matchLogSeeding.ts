@@ -49,6 +49,11 @@ export interface SeededGameEvent {
   readonly payload: Record<string, unknown>;
 }
 
+export interface PersistedMatchEventSummary {
+  readonly sequence: number;
+  readonly type: string;
+}
+
 export interface BuildSeededEventsOptions {
   /** Defaults to a fixed 3025 timestamp so seeded fixtures stay deterministic. */
   readonly timestamp?: string;
@@ -327,6 +332,54 @@ export async function seedMatchLog(
       hostPeerId: matchesRow.hostPeerId ?? null,
       guestPeerId: matchesRow.guestPeerId ?? null,
       status: matchesRow.status ?? 'active',
+    },
+  );
+}
+
+/**
+ * Reads the authoritative event tail from the same raw IndexedDB store used by
+ * production recovery. Callers use this to prove durability before reloading,
+ * rather than treating the live Zustand session as persistence evidence.
+ */
+export async function readPersistedMatchEventSummaries(
+  page: Page,
+  matchId: string,
+): Promise<readonly PersistedMatchEventSummary[]> {
+  return page.evaluate(
+    async ({ dbName, eventStoreName, id }) => {
+      function requestToPromise<T>(request: IDBRequest<T>): Promise<T> {
+        return new Promise<T>((resolve, reject) => {
+          request.onsuccess = () => resolve(request.result);
+          request.onerror = () => reject(request.error);
+        });
+      }
+
+      const db = await requestToPromise(indexedDB.open(dbName));
+      const transaction = db.transaction(eventStoreName, 'readonly');
+      const records = await requestToPromise(
+        transaction
+          .objectStore(eventStoreName)
+          .index('byMatchId')
+          .getAll(IDBKeyRange.only(id)),
+      );
+      db.close();
+
+      return records
+        .map((record) => {
+          const stored = record as {
+            event: { sequence: number; type: string };
+          };
+          return {
+            sequence: stored.event.sequence,
+            type: stored.event.type,
+          };
+        })
+        .sort((left, right) => left.sequence - right.sequence);
+    },
+    {
+      dbName: MATCH_LOG_DB_NAME,
+      eventStoreName: MATCH_EVENTS_STORE,
+      id: matchId,
     },
   );
 }
