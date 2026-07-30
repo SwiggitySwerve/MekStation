@@ -41,5 +41,5 @@ Journey QC SHALL include a browser trust anchor that saves a customized canonica
 - **GIVEN** the journey records screenshots, traces, videos, or JSON receipts
 - **WHEN** evidence is attached
 - **THEN** all campaign, pilot, and custom-unit fixtures SHALL be synthetic
-- **AND** structured receipts SHALL contain only allowlisted ids, source kinds, equality/boolean results, route/status facts, and non-sensitive versions needed for the proof
+- **AND** each wave SHALL write its named `.sisyphus/evidence/playtest/camp01*-<exact-main-sha>/authority-receipt.json` containing only the allowlisted ids, source kinds, equality/boolean results, route/status facts, counters, artifact names, and non-sensitive versions specified by its delivery matrix
 - **AND** raw construction payloads, finance/narrative state, private store dumps, credentials, and real user data SHALL NOT be attached
