@@ -13,6 +13,12 @@
       "lastReviewed": "2026-07-30"
     },
     {
+      "name": "add-replay-schema-and-checkpoint-safety",
+      "status": "proposed",
+      "reason": "Wave 2 of the entity-history program: add explicit event schemas, deterministic upcasters, versioned projectors, cache-only checkpoints, full-replay equivalence, and per-session quarantine before production journal adoption.",
+      "lastReviewed": "2026-07-30"
+    },
+    {
       "name": "harden-gm-two-player-campaign-sessions",
       "status": "in-progress",
       "reason": "User-approved declarative-first change for one non-playing GM plus two tactical players: durable command journaling and publication, role-safe live/replay/export projection, reconnect cursors, outcome receipts, append-only correction and rewind, campaign retroactive rebuild, and a strict 80-scenario three-context acceptance program. Implementation is intentionally split into small independently verified PRs with exact-main post-merge regression audits. Its e2e-testing delta adds distinct GM/two-player requirements and does not modify the active add-subsystem-lanes-and-ci requirement names.",
