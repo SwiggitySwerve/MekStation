@@ -37,6 +37,12 @@
       "lastReviewed": "2026-07-30"
     },
     {
+      "name": "add-authoritative-history-branches",
+      "status": "proposed",
+      "reason": "Wave 6 of the entity-history program: add immutable branch lineage, verified replacement-branch activation, domain-command revalidation instead of generic merge, and authorized combat/campaign correction timelines after linear authority and effect receipts are proven.",
+      "lastReviewed": "2026-07-30"
+    },
+    {
       "name": "harden-gm-two-player-campaign-sessions",
       "status": "in-progress",
       "reason": "User-approved declarative-first change for one non-playing GM plus two tactical players: durable command journaling and publication, role-safe live/replay/export projection, reconnect cursors, outcome receipts, append-only correction and rewind, campaign retroactive rebuild, and a strict 80-scenario three-context acceptance program. Implementation is intentionally split into small independently verified PRs with exact-main post-merge regression audits. Its e2e-testing delta adds distinct GM/two-player requirements and does not modify the active add-subsystem-lanes-and-ci requirement names.",
