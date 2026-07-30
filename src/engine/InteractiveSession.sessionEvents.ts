@@ -38,9 +38,7 @@ export function persistNewInteractiveSessionEvents(
   const currentMatchId = session.matchId ?? session.id;
   if (currentMatchId !== previousMatchId) return;
   const prefixIsUnchanged = sessionBeforeEvents.events.every(
-    (event, index) =>
-      session.events[index]?.id === event.id &&
-      session.events[index]?.sequence === event.sequence,
+    (event, index) => session.events[index] === event,
   );
   if (!prefixIsUnchanged) {
     context.markMatchLogDiverged();

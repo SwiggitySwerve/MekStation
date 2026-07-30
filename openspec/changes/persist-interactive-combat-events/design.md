@@ -22,7 +22,7 @@ The existing `auto-save-persistence` capability already requires a drivable Inde
 
 ### Persist at the authoritative session-commit boundary
 
-The browser runtime session replacement boundary SHALL verify that existing event ids and sequences remain a prefix, then enqueue only the appended suffix in `matchLogStorage`. A truncated or rewritten prefix marks divergence without writing; server-owned sessions keep their separate `IMatchStore` authority and do not use this browser mirror.
+The browser runtime session replacement boundary SHALL verify that the same immutable event instances remain a prefix, then enqueue only the appended suffix in `matchLogStorage`. A truncated, cloned, or rewritten prefix marks divergence without writing; server-owned sessions keep their separate `IMatchStore` authority and do not use this browser mirror.
 
 This boundary covers phase, movement, attack, AI, lifecycle, and future collaborators that commit event-sourced changes through the same context. Updating each command separately was rejected because it would duplicate persistence logic and remain vulnerable to new or overlooked mutation paths.
 

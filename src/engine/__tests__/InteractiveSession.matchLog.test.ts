@@ -390,7 +390,12 @@ describe('InteractiveSession match log persistence wiring', () => {
       const events =
         replacement === 'truncated'
           ? []
-          : [{ ...previous.events[0], id: 'rewritten-event' }];
+          : [
+              {
+                ...previous.events[0],
+                payload: {} as IGameEvent['payload'],
+              },
+            ];
 
       harness.runtimeContext.setSession({ ...previous, events });
 
