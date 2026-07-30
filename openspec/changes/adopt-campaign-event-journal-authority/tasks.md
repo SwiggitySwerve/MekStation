@@ -10,10 +10,10 @@ Every PR in this change MUST stay under 500 non-generated changed lines and 15 f
 
 ## 2. Honest Baseline and Snapshot Projection — PR 2
 
-- [ ] 2.1 Add durable `legacy`, `shadowing`, `journal`, and `blocked` migration states plus a cutover marker with source snapshot revision/digest, imported baseline identity, and first journal-authority command.
+- [ ] 2.1 Add durable `legacy`, `shadowing`, `journal`, and `blocked` migration states plus a cutover marker with source snapshot revision/digest, imported baseline identity, schema/upcaster-pipeline fingerprint, and first journal-authority command.
 - [ ] 2.2 Import existing snapshot-only campaigns as explicit baseline events with source revision/digest metadata and no fabricated history; retain legacy `CampaignSnapshotPublished` reads while prohibiting it as post-cutover mutation authority.
-- [ ] 2.3 Record branch, revision, projector version, and digest on materialized campaign snapshots.
-- [ ] 2.4 Shadow-project journal and snapshot paths, block cutover on any mismatch, and preserve one write authority.
+- [ ] 2.3 Record branch, revision, projector version, deterministic schema/upcaster-pipeline fingerprint, and digest on materialized campaign snapshots.
+- [ ] 2.4 Shadow-project journal and snapshot paths, block cutover on any mismatch, and add a fixture proving that a pipeline-fingerprint change invalidates a stale snapshot even when projector version and stored digest are otherwise unchanged.
 - [ ] 2.5 Prove snapshot-authority rollback is allowed only before the first post-baseline journal command; afterward require a compatible journal reader or truthful blocked state.
 - [ ] 2.6 After focused gates and independent migration review pass, merge, rerun shadow equality on exact main, and prune the branch/worktree.
 

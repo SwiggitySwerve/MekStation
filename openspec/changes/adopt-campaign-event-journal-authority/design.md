@@ -33,7 +33,9 @@ type CampaignAuthorityMigrationState =
   | "blocked";
 ```
 
-The cutover marker records the imported source snapshot revision/digest, root branch, baseline event/revision, projector version, and first journal-authority command if one exists. Legacy `CampaignSnapshotPublished` events remain readable for old logs but become derived checkpoint/materialization output; journal-authoritative campaigns do not append them as mutation authority. There is never dual authority.
+The cutover marker records the imported source snapshot revision/digest, root branch, baseline event/revision, projector version, deterministic schema/upcaster-pipeline fingerprint, and first journal-authority command if one exists. Legacy `CampaignSnapshotPublished` events remain readable for old logs but become derived checkpoint/materialization output; journal-authoritative campaigns do not append them as mutation authority. There is never dual authority.
+
+Every materialized snapshot binds the same schema-pipeline fingerprint. Recovery MUST discard and rebuild a snapshot before fan-out when its fingerprint differs from the registered replay pipeline, even if its projector version and stored digest still match.
 
 ### D3 — Batch commit and digest verification before fan-out
 
