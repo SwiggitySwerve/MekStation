@@ -311,7 +311,7 @@ describe('InteractiveSession match log persistence wiring', () => {
   beforeEach(() => {
     mockAppendMatchEvent = matchLogStorage.appendEvent as jest.Mock;
     mockToast = toast as jest.Mock;
-    mockAppendMatchEvent.mockReset();
+    mockAppendMatchEvent.mockReset().mockResolvedValue(undefined);
     mockToast.mockReset();
     consoleErrorSpy = jest
       .spyOn(console, 'error')
@@ -393,11 +393,13 @@ describe('InteractiveSession match log persistence wiring', () => {
           : [
               {
                 ...previous.events[0],
-                payload: {} as IGameEvent['payload'],
+                id: 'rewritten-event-id',
               },
             ];
 
       harness.runtimeContext.setSession({ ...previous, events });
+      const [nextEvent] = makeAppendEvents();
+      harness.appendEvent({ ...nextEvent, sequence: events.length });
 
       expect(mockAppendMatchEvent).not.toHaveBeenCalled();
       expect(harness.hasMatchLogDiverged()).toBe(true);

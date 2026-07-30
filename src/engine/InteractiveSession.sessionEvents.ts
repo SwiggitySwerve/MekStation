@@ -32,6 +32,7 @@ export function persistNewInteractiveSessionEvents(
   sessionBeforeEvents: IGameSession,
 ): void {
   if (typeof window === 'undefined') return;
+  if (context.hasMatchLogDiverged()) return;
 
   const session = context.getSession();
   const previousMatchId = sessionBeforeEvents.matchId ?? sessionBeforeEvents.id;
