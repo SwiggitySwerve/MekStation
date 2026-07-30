@@ -7,7 +7,7 @@ An immutable log is not enough if historical payloads are interpreted by changin
 - Require explicit event schema versions that are distinct from reducer/projector versions.
 - Add registered pure upcasters that leave stored payloads immutable.
 - Capture resolved randomness, time, catalog, rules, and external inputs required for deterministic replay.
-- Add immutable checkpoints keyed by stream, branch, revision, projector version, source digest, and result digest.
+- Add immutable checkpoints keyed by stream, branch, revision, schema-pipeline fingerprint, projector version, source digest, and result digest.
 - Quarantine only the affected session when replay encounters an unsupported event, broken lineage, or digest mismatch.
 - Prove full replay and compatible checkpoint-plus-tail produce identical authoritative and viewer-safe digests.
 

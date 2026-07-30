@@ -23,6 +23,9 @@ The journal foundation records `eventVersion`, but current replay paths can sile
 ```ts
 interface IEventSchemaRegistry {
   upcast(eventType: string, fromVersion: number, payload: unknown): ICurrentEventPayload;
+  fingerprintPipeline(
+    historicalVersions: readonly IHistoricalEventVersion[],
+  ): string;
 }
 
 interface IProjectorRegistration<TState> {
@@ -33,7 +36,7 @@ interface IProjectorRegistration<TState> {
 }
 ```
 
-Upcasters are pure single-step transitions composed by the registry. Stored payloads never change. Event version, projector version, and application release remain separate identities.
+Upcasters are pure single-step transitions composed by the registry. Every transition registration has an immutable ID and explicit version. The registry fingerprints the ordered transition identities and target schema versions actually required by a checkpoint prefix. Stored payloads never change. Event version, schema-pipeline fingerprint, projector version, and application release remain separate identities.
 
 ### D2 — Persist resolved nondeterminism
 
@@ -41,7 +44,7 @@ Accepted events retain RNG results and stable versioned references for catalogs/
 
 ### D3 — Checkpoints are disposable verified caches
 
-A checkpoint is keyed by stream, branch, revision, projector ID/version, source-tail digest, and state digest. Recovery uses it only after compatibility and digest checks, then proves the tail is contiguous. Full replay remains the reference implementation in contract tests.
+A checkpoint is keyed by stream, branch, revision, schema-pipeline fingerprint, projector ID/version, source-tail digest, and state digest. Recovery uses it only after compatibility and digest checks, then proves the tail is contiguous. Any changed target schema or upcaster registration invalidates the prior checkpoint even when the projector version is unchanged. Full replay remains the reference implementation in contract tests.
 
 ### D4 — Unknown history quarantines one authority scope
 
@@ -50,7 +53,7 @@ Unsupported type/version, broken fixed-root continuity, or digest mismatch yield
 ## Risks / Trade-offs
 
 - [Upcaster chains grow indefinitely] → Keep transitions pure, test every supported starting version, and permit explicit archival readers without rewriting authority.
-- [Checkpoint bugs mask replay bugs] → Run full-replay equivalence fixtures and invalidate on any version/digest mismatch.
+- [Checkpoint bugs mask replay bugs] → Run full-replay equivalence fixtures and invalidate on any schema-pipeline, projector-version, or digest mismatch.
 - [Quarantine harms availability] → Scope it to one stream/session and keep a healthy control session in every corruption test.
 
 ## Migration Plan

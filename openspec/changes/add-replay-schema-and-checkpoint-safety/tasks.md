@@ -3,16 +3,16 @@ Every PR in this change MUST stay under 500 non-generated changed lines and 15 f
 ## 1. Schema Registry and Upcasters — PR 1
 
 - [ ] 1.1 Inventory persisted combat/campaign event types and lock their current payloads as explicit baseline schema versions.
-- [ ] 1.2 Implement the event-schema registry, pure one-version-at-a-time upcaster chain, typed unsupported-history failures, and tests that stored payload bytes remain unchanged.
+- [ ] 1.2 Implement the event-schema registry, immutable/versioned transition registrations, a deterministic fingerprint of the target schemas and ordered upcaster transitions used by a history prefix, pure one-version-at-a-time upcaster chains, typed unsupported-history failures, and tests that stored payload bytes remain unchanged.
 - [ ] 1.3 Add deterministic-input validation for RNG, clock, catalog/rules, and external inputs; prove replay code has no network, clock, random, or effect access.
 - [ ] 1.4 Run focused tests, TypeScript/LSP, lint, format, strict OpenSpec validation, and independent replay-safety review.
 - [ ] 1.5 After merge, rerun the supported/unsupported replay receipt on exact main and prune the merged branch/worktree.
 
 ## 2. Projector Registry and Checkpoints — PR 2
 
-- [ ] 2.1 Add projector ID/version registration and immutable checkpoint metadata keyed by stream, branch, revision, source digest, and state digest.
+- [ ] 2.1 Add projector ID/version registration and immutable checkpoint metadata keyed by stream, branch, revision, schema-pipeline fingerprint, source digest, and state digest.
 - [ ] 2.2 Implement checkpoint compatibility checks with full replay as the reference path and no publication from an incompatible cache.
-- [ ] 2.3 Add equivalence fixtures proving full replay equals checkpoint-plus-tail for authoritative and viewer-projection digests.
+- [ ] 2.3 Add equivalence fixtures proving full replay equals checkpoint-plus-tail for authoritative and viewer-projection digests; add a fixture where a target schema/upcaster changes without a projector-version change and prove the prior checkpoint is rejected and rebuilt.
 - [ ] 2.4 Run focused tests and applicable typecheck/lint/format gates; independently review checkpoint trust boundaries.
 - [ ] 2.5 After merge, rerun equivalence on exact main and prune the merged branch/worktree.
 

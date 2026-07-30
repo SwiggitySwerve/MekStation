@@ -22,16 +22,21 @@ Accepted history SHALL retain resolved outcomes or stable versioned input refere
 - **AND** it SHALL NOT draw a new random value
 
 ### Requirement: Checkpoints Are Verified Disposable Caches
-A checkpoint SHALL identify stream, branch, revision, projector ID/version, source digest, and state digest. Recovery MAY use a compatible checkpoint plus a contiguous tail, but full replay SHALL remain authoritative and MUST produce the same result.
+A checkpoint SHALL identify stream, branch, revision, the deterministic fingerprint of every target schema and upcaster transition used for its prefix, projector ID/version, source digest, and state digest. Recovery MAY use a compatible checkpoint plus a contiguous tail, but full replay SHALL remain authoritative and MUST produce the same result.
 
 #### Scenario: Compatible checkpoint matches full replay
 - **WHEN** the checkpoint identities and digests match the requested history
 - **THEN** checkpoint-plus-tail and full replay SHALL produce identical state and viewer-projection digests
 
 #### Scenario: Checkpoint is incompatible or corrupt
-- **WHEN** a projector version, source digest, state digest, or tail continuity check fails
+- **WHEN** a schema-pipeline fingerprint, projector version, source digest, state digest, or tail continuity check fails
 - **THEN** recovery SHALL discard that checkpoint and use an earlier valid base or quarantine the affected scope
 - **AND** it SHALL NOT publish the incompatible state
+
+#### Scenario: Upcast pipeline changes without a projector change
+- **WHEN** a target schema or upcaster registration changes while the projector ID/version remains unchanged
+- **THEN** the prior checkpoint's schema-pipeline fingerprint SHALL no longer be compatible
+- **AND** recovery SHALL rebuild from an earlier compatible base or full replay
 
 ### Requirement: Corruption Isolated to One Authority Scope
 Before replacement branches exist, recovery SHALL validate event identity, the deterministic root-branch identity, contiguous stream revisions, receipt uniqueness, canonicalizer compatibility, and required predecessor/event digests before admitting commands or publication. Full parent/base/supersession lineage validation SHALL become mandatory when the authoritative-history-branches change introduces branch records.
@@ -44,7 +49,7 @@ Before replacement branches exist, recovery SHALL validate event identity, the d
 ## MODIFIED Requirements
 
 ### Requirement: Chunked Storage
-The system MAY retain mission-aligned chunks and SHALL treat checkpoints as immutable acceleration artifacts rather than authority. Every checkpoint SHALL bind its owning stream/branch revision, projector ID/version, source-tail digest, and state digest. A checkpoint that is incompatible or corrupt SHALL be discarded without changing authoritative events.
+The system MAY retain mission-aligned chunks and SHALL treat checkpoints as immutable acceleration artifacts rather than authority. Every checkpoint SHALL bind its owning stream/branch revision, schema-pipeline fingerprint, projector ID/version, source-tail digest, and state digest. A checkpoint that is incompatible or corrupt SHALL be discarded without changing authoritative events.
 
 #### Scenario: Compatible checkpoint accelerates recovery
 - **GIVEN** a checkpoint whose identities and digests match the requested root-branch history
@@ -53,7 +58,7 @@ The system MAY retain mission-aligned chunks and SHALL treat checkpoints as immu
 - **AND** the checkpoint SHALL remain replaceable without changing authority
 
 #### Scenario: Incompatible checkpoint is ignored
-- **GIVEN** a checkpoint with a mismatched projector version, source digest, state digest, or tail
+- **GIVEN** a checkpoint with a mismatched schema-pipeline fingerprint, projector version, source digest, state digest, or tail
 - **WHEN** recovery validates it
 - **THEN** recovery SHALL use an earlier valid base or full replay
 - **AND** it SHALL publish no state derived from the incompatible cache
