@@ -19,6 +19,12 @@
       "lastReviewed": "2026-07-30"
     },
     {
+      "name": "adopt-combat-event-journal-authority",
+      "status": "proposed",
+      "reason": "Wave 3 of the entity-history program: bind existing combat events to the durable journal, enforce decide-commit-apply-publish ordering, preserve the browser log as a recovery mirror, and cut over new matches only after replay/state parity.",
+      "lastReviewed": "2026-07-30"
+    },
+    {
       "name": "harden-gm-two-player-campaign-sessions",
       "status": "in-progress",
       "reason": "User-approved declarative-first change for one non-playing GM plus two tactical players: durable command journaling and publication, role-safe live/replay/export projection, reconnect cursors, outcome receipts, append-only correction and rewind, campaign retroactive rebuild, and a strict 80-scenario three-context acceptance program. Implementation is intentionally split into small independently verified PRs with exact-main post-merge regression audits. Its e2e-testing delta adds distinct GM/two-player requirements and does not modify the active add-subsystem-lanes-and-ci requirement names.",
