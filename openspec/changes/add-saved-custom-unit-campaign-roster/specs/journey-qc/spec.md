@@ -24,6 +24,8 @@ Journey QC SHALL include a browser trust anchor that saves a customized canonica
 - **THEN** each applicable surface SHALL reconcile to the same roster-instance id and `<customId>` source ref
 - **AND** the Mech Bay SHALL identify the saved design from custom metadata
 - **AND** mission readiness SHALL include the custom roster instance without replacing it with a stock unit
+- **AND** mission readiness SHALL name that instance's canonical-combat-unavailable reason and keep launch blocked
+- **AND** attempting to proceed SHALL create no encounter, launch force, or game session
 
 #### Scenario: Visual and accessibility evidence is paired with authority proof
 

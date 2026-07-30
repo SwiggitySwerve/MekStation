@@ -9,7 +9,7 @@ The missing seam is selection and resolution:
 - `addTemplateUnitToRootForce` refuses a selected unit unless its name or tonnage matches a stock template, even though the root force needs only the roster-instance id.
 - the Mech Bay enriches roster rows from the canonical index only.
 
-Mission readiness already treats a non-empty `unitRef` as source identity and does not copy construction data. Combat adaptation remains canonical-only and is deliberately outside this wave.
+Mission readiness currently treats any non-empty `unitRef` as sufficient source identity, even though encounter materialization remains canonical-only. This wave must preserve the custom ref for campaign authority while also preventing it from crossing the launch boundary.
 
 ## Goals / Non-Goals
 
@@ -18,6 +18,7 @@ Mission readiness already treats a non-empty `unitRef` as source identity and do
 - Make saved custom BattleMechs selectable without hiding or replacing the four stock templates.
 - Preserve the custom API id through draft, roster projection, root-force membership, save, and cold reload.
 - Keep roster-instance identity distinct from source-design identity.
+- Keep saved custom roster rows visible at mission readiness while blocking launch until combat adaptation exists.
 - Give loading, empty, failure, retry, keyboard, desktop, and 390px behavior explicit contracts.
 - Prove authority from API/store/server persistence rather than screenshots alone.
 
@@ -62,9 +63,15 @@ The browser trust anchor SHALL:
 2. select that exact id in campaign creation and submit;
 3. inspect browser roster/root-force state and the server-backed campaign/force representation;
 4. cold reload dashboard, Forces, Mech Bay, and mission readiness; and
-5. reconcile the same roster-instance id and custom `unitRef` throughout.
+5. reconcile the same roster-instance id and custom `unitRef` throughout while proving mission launch remains blocked.
 
 Screenshots cover visual and accessibility claims only. API responses, store snapshots, persisted campaign/force reads, and post-reload state prove identity and durability.
+
+### D6 — Stop custom identity at the canonical combat boundary
+
+A saved custom `unitRef` SHALL remain valid campaign source identity but SHALL NOT be treated as a resolvable canonical combat record. Mission readiness SHALL keep the roster instance visible, mark it non-launchable with a per-unit canonical-combat-unavailable reason, and set the launch projection to blocked.
+
+The blocked path SHALL stop before encounter materialization and SHALL NOT create or mutate an encounter, launch force, or game session. It SHALL NOT replace the custom ref with a stock template. A later custom-combat wave may change this boundary only with its own adaptation and authority contract.
 
 ## Risks / Trade-offs
 
@@ -72,7 +79,7 @@ Screenshots cover visual and accessibility claims only. API responses, store sna
 - **[Risk] Fetch latency hides the existing stock choices** → load saved designs independently while stock templates remain interactive.
 - **[Risk] Duplicate design additions collapse into one campaign unit** → mint a fresh roster-instance id per add and test two instances sharing one `unitRef`.
 - **[Risk] A non-BattleMech custom record appears selectable** → filter at the adapter boundary and cover the exclusion with focused tests.
-- **[Risk] This wave appears to promise custom-unit combat** → keep encounter adaptation explicitly out of scope and stop the trust anchor at mission readiness.
+- **[Risk] This wave appears to promise custom-unit combat** → require an explicit readiness blocker, prove that materialization never starts, and stop the trust anchor at that boundary.
 
 ## Rollback
 

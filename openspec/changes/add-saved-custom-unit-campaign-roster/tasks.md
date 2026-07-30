@@ -16,13 +16,15 @@
 - [ ] 3.1 Carry custom `unitRef` through wizard state, roster projection, campaign save/reload, and root-force membership.
 - [ ] 3.2 Merge canonical and custom metadata for Mech Bay resolution without borrowing stock metadata or hiding unresolved roster rows.
 - [ ] 3.3 Add focused Mech Bay tests for custom name/tonnage resolution, absent BV, reload input, and deleted/unavailable custom metadata.
+- [ ] 3.4 Update readiness projection and focused tests so a saved custom roster row remains visible with its exact identities but blocks launch with a per-unit canonical-combat-unavailable reason and cannot start materialization.
 
 ## 4. Authority-backed browser proof
 
 - [ ] 4.1 Extend `e2e/campaign-customizer-handoff.spec.ts` with one scenario that saves a customized canonical BattleMech and captures its custom-unit API id.
 - [ ] 4.2 Select that exact saved design during campaign creation, submit, and assert browser roster/root-force state plus server-backed campaign/force data use the same custom id.
 - [ ] 4.3 Cold reload dashboard, Forces, Mech Bay, and mission readiness; reconcile the same roster-instance id and custom `unitRef` after each navigation/reload.
-- [ ] 4.4 Capture inspected desktop and 390×844 screenshots paired with route/API/store/persistence proof.
+- [ ] 4.4 Prove mission readiness names the custom unit and canonical-combat-unavailable reason, keeps launch blocked, and creates no encounter, launch force, or game session.
+- [ ] 4.5 Capture inspected desktop and 390×844 screenshots paired with route/API/store/persistence proof.
 
 ## 5. Verification and handoff
 
