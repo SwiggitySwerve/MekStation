@@ -21,15 +21,13 @@ jest.mock('@/lib/gameplay/tacticalNavigation', () => ({
 }));
 
 const mockStartGame = jest.fn();
-const mockStartSpectatorMode = jest.fn<Promise<void>, []>(
-  async () => undefined,
-);
-const mockStartInteractiveSkirmish = jest.fn<Promise<void>, []>(
-  async () => undefined,
-);
+const mockStartSpectatorMode = jest.fn<Promise<void>, []>();
+const mockStartInteractiveSkirmish = jest.fn<Promise<void>, []>();
 const mockPreviousStep = jest.fn();
-const mockGameplayState = {
-  session: { id: 'quick-skirmish-1' },
+const mockGameplayState: {
+  session: { id: string; matchId?: string } | null;
+} = {
+  session: null,
 };
 
 jest.mock('@/stores/useGameplayStore', () => ({
@@ -110,8 +108,21 @@ describe('QuickGameReview play options', () => {
     mockRouterPush.mockReset();
     mockNavigateToGameSession.mockReset();
     mockStartGame.mockClear();
-    mockStartSpectatorMode.mockClear();
-    mockStartInteractiveSkirmish.mockClear();
+    mockStartSpectatorMode.mockReset();
+    mockStartInteractiveSkirmish.mockReset();
+    mockGameplayState.session = null;
+    mockStartSpectatorMode.mockImplementation(async () => {
+      mockGameplayState.session = {
+        id: 'quick-session-1',
+        matchId: 'quick-skirmish-1',
+      };
+    });
+    mockStartInteractiveSkirmish.mockImplementation(async () => {
+      mockGameplayState.session = {
+        id: 'quick-session-1',
+        matchId: 'quick-skirmish-1',
+      };
+    });
   });
 
   it('distinguishes Auto-Resolve, spectator, and interactive skirmish options', () => {
@@ -131,7 +142,7 @@ describe('QuickGameReview play options', () => {
     ).not.toBeInTheDocument();
   });
 
-  it('launches the interactive skirmish without entering spectator mode', async () => {
+  it('routes the interactive skirmish by its persisted match ID', async () => {
     render(<QuickGameReview />);
 
     fireEvent.click(
@@ -147,4 +158,27 @@ describe('QuickGameReview play options', () => {
       );
     });
   });
+
+  it.each([
+    {
+      buttonName: /watch ai battle/i,
+      start: mockStartSpectatorMode,
+    },
+    {
+      buttonName: /interactive skirmish/i,
+      start: mockStartInteractiveSkirmish,
+    },
+  ])(
+    'does not navigate a stale gameplay session when launch persistence fails',
+    async ({ buttonName, start }) => {
+      mockGameplayState.session = { id: 'stale-session' };
+      start.mockResolvedValueOnce(undefined);
+      render(<QuickGameReview />);
+
+      fireEvent.click(screen.getByRole('button', { name: buttonName }));
+
+      await waitFor(() => expect(start).toHaveBeenCalledTimes(1));
+      expect(mockNavigateToGameSession).not.toHaveBeenCalled();
+    },
+  );
 });
