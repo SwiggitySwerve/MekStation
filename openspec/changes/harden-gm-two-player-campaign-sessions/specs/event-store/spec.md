@@ -41,6 +41,24 @@ The event store SHALL resolve an authorized entity's history and derived state a
 - **WHEN** two events share the same timestamp
 - **THEN** point-in-time resolution SHALL use branch, stream revision, and commit position rather than timestamp ordering alone
 
+### Requirement: Event Schema Evolution Is Explicit and Replay-Safe
+Each stored event SHALL retain its original event type and schema version. Replay SHALL pass every historical payload through a registered, pure, deterministic upcast path before the current reducer consumes it, while leaving the authoritative stored payload unchanged. Event schema version and reducer version SHALL remain separate identities. Unknown, unsupported, or nondeterministic event input SHALL block and quarantine only the affected session rather than being ignored or partially projected.
+
+#### Scenario: Historical event replays after a schema upgrade
+- **WHEN** a prior-session event uses an older supported schema version
+- **THEN** the resolver SHALL deterministically upcast it without rewriting the stored event
+- **AND** full replay and compatible checkpoint-plus-tail SHALL produce the same derived state and digest
+
+#### Scenario: Unknown event version fails closed
+- **WHEN** replay encounters an unknown event type, unsupported schema version, missing version-pinned rules input, or an upcast failure
+- **THEN** the affected session SHALL enter a truthful quarantined state
+- **AND** no partial state, publication, or side effect SHALL be emitted
+
+#### Scenario: Replay does not repeat nondeterministic work
+- **WHEN** an accepted command depends on randomness, time, catalog data, rules data, or an external response
+- **THEN** its authoritative event batch SHALL retain the resolved outcome or stable versioned input reference required for deterministic replay
+- **AND** replay and upcast code SHALL perform no network access, clock read, random draw, or external side effect
+
 ### Requirement: Branching Is Explicit and Domain-Resolved
 Ordinary commands and their effects SHALL append to the current effective branch without creating forks. Only an authorized correction, rewind, or explicit simulation SHALL create a new branch from a recorded base. Branch activation SHALL use domain-specific validation and deterministic rebuild; the event store SHALL NOT perform a generic three-way merge.
 

@@ -154,6 +154,8 @@ Entity IDs identify durable instances, not display names or canonical templates.
 
 Point-in-time resolution accepts an explicit entity reference, branch, and stream revision, commit position, or event identity. It selects the nearest compatible immutable checkpoint, replays the authoritative tail through the declared reducer version, and returns the derived state together with the event range and digests that prove it. Cross-stream history is ordered by `commitPosition`, with `commandIndex` and causation identities retained for explanation. Wall-clock time is only a query aid because equal timestamps cannot define authority order.
 
+`schemaVersion` identifies the immutable stored payload shape; it is not the checkpoint reducer version. Historical payloads are converted for replay only through registered pure deterministic upcasters, and the original rows and digests are never rewritten. Reducers and upcasters perform no network access, clock reads, random draws, or external effects. Commands that depend on randomness, catalog/rules data, or an external response persist the resolved result or a stable versioned input reference needed to reproduce it. An unknown type/version, missing pinned input, or failed upcast quarantines the affected session instead of being silently ignored.
+
 The Git analogy is limited and deliberate:
 
 - immutable events and command batches resemble objects and commits;
@@ -172,6 +174,8 @@ Alternatives considered:
 - Put every domain in one global stream: rejected because unrelated sessions would serialize behind one head and privacy projection would become unnecessarily broad.
 - Use literal Git objects and generic merges: rejected because high-frequency queries, authorization, transactions, and BattleTech conflict rules need domain-specific indexes and reducers.
 - Use CRDT automatic merging for authoritative combat: rejected because illegal or hidden concurrent actions must reject or rebase explicitly, not merge silently.
+
+The append-only gameplay journal is not a universal retention mechanism. Player-safe facts and access-controlled private audit records remain separate storage classes with separate authorization and retention policy. Public integrity digests SHALL NOT hash private payload content into a player-visible chain. This change preserves full authoritative gameplay lineage but does not claim to solve legal erasure or encryption-at-rest policy.
 
 ### D2 — Session identity and participation are durable domain records
 
