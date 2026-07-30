@@ -28,6 +28,7 @@ None.
 - `event-store`: Add immutable branch, parent/base, status, activation, and supersession contracts.
 - `gm-combat-interventions`: Add authorized replacement-branch rewind, rebuild gating, stale-branch rejection, and atomic activation.
 - `gm-campaign-intervention-boundaries`: Add impact-declared campaign replacement branches and post-receipt correction boundaries.
+- `campaign-combat-loop`: Add a recoverable higher-version correction saga rather than an impossible cross-store atomic transaction.
 - `audit-timeline`: Add authorization-filtered branch lineage, supersession, impact, and prior-head inspection.
 
 ## Impact

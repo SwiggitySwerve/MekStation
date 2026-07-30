@@ -19,7 +19,7 @@ Combat and campaign are separate authority streams. A terminal match outcome mus
 
 ### D1 — Transactional outbox and idempotent inbox
 
-The source match transaction writes `CombatOutcomeFinalized` and an outbox record. A worker delivers a semantic campaign command. The campaign transaction inserts a unique `(effectType, sourceEventId, effectVersion)` inbox receipt and its resulting campaign event batch. Duplicate delivery returns the original receipt.
+The source match transaction writes `CombatOutcomeFinalized` and an outbox record. The outbox binds source match/branch/event and target campaign identity derived from the authoritative match-to-campaign binding; no client-supplied target scope is trusted. A worker delivers a semantic campaign command under a server-owned effect principal. Before append, campaign ingestion re-resolves the source binding, verifies target campaign and expected target branch/revision, and rejects any scope mismatch. The campaign transaction inserts a unique `(targetCampaignId, effectType, sourceEventId, effectVersion)` inbox receipt and its resulting campaign event batch. Duplicate delivery returns the original receipt.
 
 ### D2 — Use causation links, not duplicated events
 
@@ -38,6 +38,7 @@ The current effect is a short database-backed handoff with no long timers. DBOS 
 - [Poison effect retries forever] → Persist typed failure state, attempt count, next attempt, and an operator-visible blocked condition.
 - [Target commit succeeds but acknowledgement is lost] → Source retries; target inbox returns the prior receipt.
 - [Cross-stream query leaks private facts] → Apply viewer authorization to each owned event before composing the timeline.
+- [Misrouted effect applies to another campaign] → Bind source and target scopes in the outbox and receipt, then re-resolve the authoritative match binding at ingestion.
 - [Scenario advances before reconciliation] → Gate on the active versioned receipt and campaign projection digest.
 
 ## Migration Plan

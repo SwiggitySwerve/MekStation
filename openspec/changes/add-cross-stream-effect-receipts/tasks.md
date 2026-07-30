@@ -1,15 +1,15 @@
 ## 1. Outbox and Inbox Storage — PR 1
 
-- [ ] 1.1 Add additive outbox, delivery-attempt, inbox, and effect-receipt tables plus typed store interfaces.
+- [ ] 1.1 Add additive outbox, delivery-attempt, inbox, and effect-receipt tables plus typed store interfaces with immutable source match/branch/event and server-derived target campaign scope.
 - [ ] 1.2 Add transaction tests proving a source fact and outbox commit together and a target receipt and event batch commit together.
-- [ ] 1.3 Prove duplicate identity returns the original receipt while a mismatched identity/version/digest rejects without mutation.
+- [ ] 1.3 Prove duplicate target-scoped identity returns the original receipt while a mismatched identity/version/digest, source binding, target campaign, or target branch rejects without mutation.
 - [ ] 1.4 Run focused real-SQLite tests, typecheck/lint/format, strict OpenSpec validation, and independent durability/security review.
 - [ ] 1.5 After merge, rerun storage receipts on exact main and prune the merged branch/worktree.
 
 ## 2. Combat Outcome Delivery — PR 2
 
 - [ ] 2.1 Write `CombatOutcomeFinalized` and its outbox row in the terminal match transaction.
-- [ ] 2.2 Implement the bounded outbox dispatcher and campaign semantic command; keep projectors/replay unable to dispatch.
+- [ ] 2.2 Implement the bounded outbox dispatcher and server-owned campaign semantic command; re-resolve the authoritative match-to-campaign binding and keep projectors/replay unable to dispatch.
 - [ ] 2.3 Commit the versioned campaign outcome receipt and consequence event batch atomically.
 - [ ] 2.4 Inject crash-before-send, crash-after-target-commit, lost acknowledgement, duplicate delivery, and process restart; prove one campaign consequence.
 - [ ] 2.5 Run focused combat/campaign reconciliation suites and independent effect-authority review.

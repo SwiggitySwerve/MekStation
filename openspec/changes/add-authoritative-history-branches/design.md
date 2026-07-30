@@ -33,24 +33,28 @@ interface IJournalBranch {
 }
 ```
 
-Child reads resolve the immutable parent prefix through `baseRevision` and the child suffix. Ordinary accepted commands append to the effective branch.
+Branch heads are keyed by `(streamType, streamId, branchId)`. The root branch starts at revision 0 and its first event is revision 1. A child records `baseRevision` in the parent's revision space; its first suffix event is revision `baseRevision + 1`, so `(branchId, revision)` remains the unambiguous expected head even when sibling branches share revision numbers. Child reads verify and resolve the immutable parent prefix through `baseRevision`, then the child's contiguous suffix. Ordinary accepted commands append to the effective branch.
 
 ### D2 — Build, verify, then activate
 
-An authorized rewind/correction command records impact scope, creates a `building` branch, replays from a trusted base, applies proposed commands, and verifies authoritative plus viewer projections and external artifact manifests. One transaction marks the candidate effective and prior branch superseded. Failure leaves the prior head effective.
+An authorized rewind/correction command records impact scope, creates a `building` branch, replays from a trusted base, applies proposed commands, and verifies authoritative plus viewer projections and external artifact manifests. Outbox rows belonging to a non-effective branch are not dispatchable. One local authority transaction marks the candidate effective, supersedes the prior branch, makes its eligible outbox rows dispatchable, and marks unreceived pending effects from the superseded branch as superseded. Failure leaves the prior head effective.
 
 ### D3 — “Merge” means revalidation
 
 A proposed scenario branch may export semantic commands with provenance. Promotion re-executes those commands against the current target head and may reject them. Events and state snapshots are never mechanically interleaved.
 
-### D4 — Visibility and recovery are branch-aware
+### D4 — Post-receipt correction is a saga
+
+Once a target campaign receipt exists, no cross-database transaction is claimed. The source authority atomically commits the higher-version correction, supersession facts, invalidation manifest, and replacement outbox locally. The target authority then idempotently commits the higher-version inbox receipt and replacement consequence batch. Durable `pending`, `retrying`, `blocked`, and `applied` reconciliation states survive restart. Scenario progression remains blocked until the target receipt and projections are current.
+
+### D5 — Visibility and recovery are branch-aware
 
 Clients name expected branch/revision. Commands during rebuild receive `PROJECTION_REBUILDING`; superseded-head commands receive `STALE_BRANCH`. Timeline/history applies the existing viewer projector before serialization. Mobile/narrow UI keeps current status, impact, confirmation, and recovery actions visible; keyboard focus and live-region feedback are required for activation failures.
 
 ## Risks / Trade-offs
 
 - [Rebuild is expensive] → Start from verified checkpoints, expose progress, and keep the old branch effective until success.
-- [Cross-stream effects already escaped] → Require the effect-receipt boundary; post-receipt changes use coordinated correction, not combat-only rewind.
+- [Cross-stream effects already escaped] → Require the effect-receipt boundary; post-receipt changes use a durable higher-version correction saga, not combat-only rewind or distributed atomicity.
 - [Private history leaks through lineage] → Separate private audit references and produce gapless viewer projections.
 - [Branch proliferation confuses users] → Create branches only for explicit rewind/correction/simulation and show effective/superseded status plainly.
 

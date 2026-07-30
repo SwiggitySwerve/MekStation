@@ -28,3 +28,16 @@ The system SHALL NOT generically merge event sets or state snapshots. Promotion 
 - **WHEN** a branch command no longer satisfies current funds, ownership, chronology, damage, or readiness invariants
 - **THEN** promotion SHALL reject that command or require an explicit domain correction
 - **AND** it SHALL not silently interleave the conflicting histories
+
+### Requirement: Only the Effective Branch Dispatches Effects
+Outbox effects belonging to a building, blocked, or superseded branch SHALL NOT dispatch. Candidate activation SHALL atomically make its eligible outbox rows dispatchable and mark unreceived pending effects from the superseded branch as superseded. Effects with an accepted target receipt SHALL require a higher-version coordinated correction instead of cancellation.
+
+#### Scenario: Candidate reaches terminal combat state
+- **WHEN** a building combat branch contains a terminal outcome
+- **THEN** its outcome outbox SHALL remain non-dispatchable until branch activation
+- **AND** a failed candidate SHALL never affect the campaign
+
+#### Scenario: Prior branch outcome already has a receipt
+- **WHEN** activating a replacement would supersede an outcome already accepted by the campaign
+- **THEN** activation SHALL require the coordinated higher-version correction workflow
+- **AND** it SHALL not delete or silently cancel the accepted receipt
