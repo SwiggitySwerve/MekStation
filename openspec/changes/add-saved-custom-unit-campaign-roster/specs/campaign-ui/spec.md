@@ -67,8 +67,8 @@ The system SHALL provide a multi-step campaign creation wizard with 4 steps: cam
 
 - **GIVEN** a persisted roster projection with a present `unitSource` value other than `canonical` or `custom`
 - **WHEN** campaign persistence loads or migrates that projection
-- **THEN** the source SHALL remain invalid and non-launchable
-- **AND** it SHALL NOT be coerced to `canonical`
+- **THEN** the raw-boundary parser SHALL return an explicit invalid source resolution and the unit SHALL remain non-launchable
+- **AND** the unknown value SHALL NOT enter the typed source field, be automatically rewritten, or be coerced to `canonical`
 
 #### Scenario: Invalid custom index metadata is excluded
 

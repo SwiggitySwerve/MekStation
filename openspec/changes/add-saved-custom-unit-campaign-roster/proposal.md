@@ -38,6 +38,6 @@ None.
 
 - Affected UI: campaign creation roster step, Mech Bay metadata resolution, and mission-readiness blocking feedback.
 - Affected state: campaign-wizard draft selection, roster projection mapping/provenance, root-force membership, explicit server commit, and readiness/materialization preflight.
-- Affected verification: focused component/state tests plus `e2e/campaign-customizer-handoff.spec.ts`.
+- Affected verification: focused component/state tests, packaged-socket proof, `e2e/coop-campaign-two-browser-journey.spec.ts`, and `e2e/campaign-customizer-handoff.spec.ts`.
 - No campaign construction-payload schema, combat engine, or dependency change is intended; co-op participation narrows to verified minimal force choice.
-- Delivery is split into nine dependency-ordered focused PRs: packaged loopback repair, trusted catalog/readiness, authoritative co-op snapshot, participation authorization, all launch-path enforcement, saved-design picker/identity, durable server commit, Mech Bay resolution, and authority journey/audit proof. Each PR has an explicit sub-ceiling below 15 files/500 lines and SHALL merge cleanly before the next begins.
+- Delivery is split into five prerequisite authority PRs plus four saved-design outcome PRs: loopback, catalog/readiness, co-op snapshot, participation, launch enforcement, picker/identity, server commit, Mech Bay, and journey/audit proof. Every PR stays below 15 files/500 lines, names its test/receipt gate, and merges cleanly before the next begins.

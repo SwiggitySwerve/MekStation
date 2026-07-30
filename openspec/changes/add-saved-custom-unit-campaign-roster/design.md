@@ -38,7 +38,7 @@ Mission readiness currently treats any non-empty `unitRef` as sufficient source 
 
 The saved design's custom-unit API id SHALL become `SelectedUnit.unitRef` and then `IRosterUnitProjection.unitRef`. The draft and roster projection SHALL also carry one shared `unitSource` discriminator with `canonical` and `custom` values. Each add action SHALL still mint a new roster-instance `unitId`, so two campaign copies of the same saved design have different campaign identities but the same source-design reference and source kind.
 
-Campaign persistence SHALL NOT duplicate the saved unit's serialized construction payload. Custom-unit version history remains authoritative for the design record; this wave records only the stable reference, source kind, and cached display fields already owned by the roster projection. Legacy projections with an absent `unitSource` normalize to `canonical` because saved custom campaign entries did not exist before this change. A present but unrecognized source value SHALL remain invalid and non-launchable; it SHALL NOT be coerced to `canonical`. Runtime behavior SHALL NOT infer source kind from names, tonnage, or id prefixes.
+Campaign persistence SHALL NOT duplicate the saved unit's serialized construction payload. Custom-unit version history remains authoritative for the design record; this wave records only the stable reference, source kind, and cached display fields already owned by the roster projection. A raw persistence parser SHALL accept `unitSource` as `unknown` and produce `RosterUnitSourceResolution = valid(canonical | custom) | legacy(canonical) | invalid`; only an absent field may become legacy canonical, while a present unrecognized value remains invalid/non-launchable, never enters the typed source field, and cannot be automatically rewritten. Runtime behavior SHALL NOT infer source kind from names, tonnage, or id prefixes.
 
 ### D2 — Use one saved-unit adapter at the campaign boundary
 
@@ -90,24 +90,23 @@ Journey fixtures SHALL be synthetic. Receipts SHALL attach allowlisted equality/
 
 ### D8 — Deliver through nine dependency-ordered product waves
 
-This OpenSpec change is one CAMP-01 outcome but SHALL be implemented through nine separately reviewed PRs:
+This OpenSpec change is one CAMP-01 outcome but SHALL be implemented through nine separately reviewed PRs. CAMP-00 and CAMP-01A–D are prerequisite authority seams; CAMP-01E–H deliver the original saved-design campaign-selection outcome, which remains incomplete until its production journey passes. Each line names its proof command and durable receipt:
 
-1. **CAMP-00 — packaged loopback listener (budget ≤4 files/180 lines):** bind and process-test the actual `127.0.0.1` listener.
-2. **CAMP-01A — trusted catalog/readiness boundary (≤10/400):** add source provenance, typed catalog snapshot, shared guard, readiness behavior, and direct materializer protection.
-3. **CAMP-01B — authoritative co-op snapshot (≤14/480):** project source-bearing roster and force membership through host registration and guest hydration.
-4. **CAMP-01C — participation authorization (≤12/450):** replace client-authored forces/identity with verified minimal force choice.
-5. **CAMP-01D — launch-path enforcement (≤12/450):** inject the boundary into mission launch, dashboard, Mech Bay, fast-forward, and co-op launch paths.
-6. **CAMP-01E — saved-design picker and roster identity (≤10/450):** add the adapter/UI and propagate stable source plus fresh roster-instance identity into the root force.
-7. **CAMP-01F — durable creation commit (≤8/400):** require accepted server persistence, explicit conflict behavior, and same-campaign retry.
-8. **CAMP-01G — downstream Mech Bay resolution (≤7/350):** resolve or honestly retain saved-custom metadata after reload/deletion.
-9. **CAMP-01H — authority journey and audit receipt (≤5/300):** run the full cold-reload browser trust anchor with desktop/390px evidence and reconcile the audit.
+1. **CAMP-00 — packaged loopback listener (budget ≤4 files/180 lines):** bind/process-test `127.0.0.1`; `npm run validate:multiplayer:packaged-socket` records the inspected listener address.
+2. **CAMP-01A — trusted catalog/readiness boundary (≤10/400):** add provenance parsing, catalog snapshot, guard, readiness, and materializer protection; `npm.cmd test -- --runTestsByPath` over `src/types/campaign/__tests__/RosterUnitSource.test.ts`, `missionReadinessProjection.test.ts`, and `materializeCampaignMissionEncounter.test.ts` records invalid-source and zero-lookup/mutation results.
+3. **CAMP-01B — authoritative co-op snapshot (≤14/480):** project source roster/force membership through registration/hydration; `npm run verify:qc:coop-campaign-journey` plus `CampaignSync`, entry-panel, registry, and mirror assertions records matching revision/membership.
+4. **CAMP-01C — participation authorization (≤12/450):** replace client forces/identity with verified choice; the same co-op gate plus Protocol/binder/runtime assertions records accepted identity derivation and forged-payload rejection.
+5. **CAMP-01D — launch-path enforcement (≤12/450):** wire mission/dashboard/Mech Bay/fast-forward/co-op; the co-op gate plus readiness/materializer/launch Jest records canonical success and zero blocked-path calls.
+6. **CAMP-01E — saved-design picker and roster identity (≤10/450):** add adapter/UI and stable-source/fresh-instance propagation; focused roster-step/create tests plus `npm run qc:command:customizer-handoff:quick` records accessible selection and exact draft/root-force identity.
+7. **CAMP-01F — durable creation commit (≤8/400):** require accepted persistence/conflict recovery; persistence/create tests plus the customizer-handoff quick gate records the real PUT, accepted identity, suppressed failure, and same-id retry.
+8. **CAMP-01G — downstream Mech Bay resolution (≤7/350):** resolve/retain metadata after reload/deletion; Mech Bay tests plus the customizer-handoff quick gate records cold-reloaded identity and honest unavailable fields.
+9. **CAMP-01H — authority journey and audit receipt (≤5/300):** extend `e2e/campaign-customizer-handoff.spec.ts`; `qc:command:browser:quick`, `qc:campaign-long:browser`, and `verify:qc:viewport-sweep` record the production journey, desktop/390px inspection, and audit reconciliation.
 
 Each wave owns one user-visible outcome, stays within 15 files and 500 changed lines, runs its targeted and applicable gates, receives independent review, merges with a SHA guard, and is followed by an exact-main audit/prune before the next wave branches. A later wave SHALL NOT be bundled into an earlier PR to save time.
 
 ## Risks / Trade-offs
 
-- **[Risk] Custom-unit deletion after campaign creation leaves an unresolved reference** → preserve the roster row and cached name, show unavailable source metadata, and never silently substitute stock data.
-- **[Risk] Shared or remote hosting exposes unauthenticated local-first APIs** → keep tenant authentication/ownership outside CAMP-01 but record it as an explicit deployment blocker governed by the future `api-layer` authentication capability.
+- **[Risk] Deleted sources or shared deployment create false authority** → preserve cached unresolved rows without substitution, and keep tenant authentication/ownership outside CAMP-01 as an explicit remote-deployment blocker.
 
 ## Rollback
 

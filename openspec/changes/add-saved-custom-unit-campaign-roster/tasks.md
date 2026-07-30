@@ -7,7 +7,7 @@
 
 ## 1. CAMP-01A — trusted catalog/readiness boundary
 
-- [ ] 1.1 Add one shared `canonical | custom` roster-source type on the persisted roster projection and tests proving legacy projections with an absent field normalize to `canonical`, while present unknown values remain invalid/non-launchable without name/id-prefix inference.
+- [ ] 1.1 Add `canonical | custom` plus a raw `unknown` persistence parser returning valid/legacy/invalid resolution; prove only absent normalizes to canonical, while present unknown remains invalid/non-launchable and is never auto-rewritten or inferred.
 - [ ] 1.2 Add a runtime-only `loading | ready | unavailable` canonical-combat catalog snapshot: validated browser loading from `/api/units?includeBV=true`, Node fast-forward loading from `NodeCanonicalUnitService`, explicit retryable failure, and no silent empty-success fallback.
 - [ ] 1.3 Add one shared exact-ref guard to readiness and materializer input; validation is the first materializer operation before diagnostics, scenario lookup/reuse return, catalog I/O, or mutation, while readiness preserves visible/recoverable blockers.
 - [ ] 1.4 Add direct loader/readiness/materializer regressions, including a persisted `scenarioIds` reuse candidate, proving custom/invalid/forged/stale/loading/unavailable inputs cause no lookup, reuse result, routing, or mutation.
@@ -16,12 +16,12 @@
 ## 2. CAMP-01B — authoritative co-op snapshot
 
 - [ ] 2.1 Extend `CampaignSync` with revision-bound source-bearing roster records and authoritative `forceId -> unitIds`; build them from real roster/forces in `CampaignCoopEntryPanel`, preserve them through match registration and `CampaignHostRegistry`, and hydrate the guest mirror.
-- [ ] 2.2 Test host/guest canonical success, custom identity, force membership, bootstrap/registration, malformed projection, and stale/mismatched snapshot rejection; run gates/reviews and publish within 14 files/480 lines, merge, audit, and prune before CAMP-01C.
+- [ ] 2.2 Test host/guest canonical success, custom identity, force membership, bootstrap/registration, malformed projection, and stale/mismatched snapshot rejection through `verify:qc:coop-campaign-journey`; attach the two-browser revision/membership receipt, run reviews, publish within 14 files/480 lines, merge, audit, and prune before CAMP-01C.
 
 ## 3. CAMP-01C — participation authorization
 
 - [ ] 3.1 Replace protocol/local-runtime participation with `{ missionId, forceId, choice }`; derive match/player/role in the binder from verified connection/registry state and reject full `IForce`, client-authored identity, foreign/missing force, and stale revision.
-- [ ] 3.2 Test forged player/role, full-force payload, foreign/missing force, stale/mismatched snapshot, and canonical authorized choice; run gates/reviews and publish within 12 files/450 lines, merge, audit, and prune before CAMP-01D.
+- [ ] 3.2 Test forged player/role, full-force payload, foreign/missing force, stale/mismatched snapshot, and canonical authorized choice through Protocol/binder/runtime tests plus `verify:qc:coop-campaign-journey`; attach the authorization receipt, review, publish within 12 files/450 lines, merge, audit, and prune before CAMP-01D.
 
 ## 4. CAMP-01D — all launch-path enforcement
 
@@ -45,7 +45,7 @@
 
 ## 8. CAMP-01H — authority journey and audit receipt
 
-- [ ] 8.1 Add the third production-submit handoff; cold reload dashboard, Forces, Mech Bay, and readiness; capture inspected desktop/390×844 evidence plus synthetic authority receipts; run required QC/reviews and publish within 5 files/300 lines, merge, audit, and prune.
+- [ ] 8.1 Add the third production-submit scenario to `e2e/campaign-customizer-handoff.spec.ts`; cold reload dashboard, Forces, Mech Bay, and readiness; run `qc:command:browser:quick`, `qc:campaign-long:browser`, and `verify:qc:viewport-sweep`; attach synthetic desktop/390×844 authority receipts, review, publish within 5 files/300 lines, merge, audit, and prune.
 
 ## 9. Change completion
 
