@@ -6,7 +6,7 @@ MekStation has working multiplayer, co-op campaign, GM intervention, replay, and
 
 ## What Changes
 
-- Add one authoritative campaign-session journal and transactional outbox contract: an accepted command is persisted once before any client receives its committed result, while rejected commands create no gameplay/campaign mutation or publication. Rejections are retained only as append-once, access-controlled audit records keyed by command identity.
+- Add one authoritative campaign-session journal and transactional outbox contract: an accepted command is persisted once before any client receives its committed result, while rejected commands create no gameplay/campaign mutation or publication. Each committed fact has one owning stream plus indexed references to the exact campaign, session, match, mission, force, unit instance, pilot, and other entities it affected, so authorized history and state can be resolved at any prior head without duplicating the event. Rejections are retained only as append-once, access-controlled audit records keyed by command identity.
 - Add durable participation records for one non-playing GM authority connection and two tactical player seats, with authenticated ownership, readiness, acknowledgement cursors, idempotency keys, and reconnect/resume behavior.
 - Project every live, replayed, exported, and resynchronized event per viewer before serialization so players receive exactly the public and owned information they may see and never GM-only or opposing-player secrets.
 - Add append-only correction and rewind branches for combat and campaign time. Prior history remains immutable; superseded branches, reasons, actors, causality, and player-visible consequences remain auditable.
@@ -32,7 +32,7 @@ None. The change strengthens the existing capability boundaries rather than crea
 
 ### Modified Capabilities
 
-- `event-store`: Add atomic command batches, immutable authority sequencing, branch/supersession lineage, effective-head activation, and cache-only checkpoint/compaction rules.
+- `event-store`: Add a generalized authority-event envelope with one owning stream, stable entity-instance references, command/correlation/causation identity, atomic command batches, immutable authority sequencing, point-in-time entity resolution, branch/supersession lineage, effective-head activation, and cache-only checkpoint/compaction rules.
 - `multiplayer-server`: Add authenticated membership-before-attachment, per-session command serialization, append-before-publish outbox behavior, durable active bindings, and slow-client isolation.
 - `multiplayer-sync`: Add stable intent identity, at-least-once delivery with exactly-once client application, gapless per-viewer delivery sequences, heartbeat liveness, acknowledgement cursors, and replay/live overlap recovery.
 - `coop-campaign-sync`: Add one non-playing GM plus two tactical player memberships, per-player force ownership and readiness, process-restart recovery, explicit GM-loss pause, and scenario progression convergence gates.

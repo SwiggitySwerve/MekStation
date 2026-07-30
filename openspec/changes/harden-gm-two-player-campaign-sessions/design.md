@@ -97,6 +97,78 @@ Alternatives considered:
 - Persist fully rendered frames per recipient: rejected because membership changes and projection fixes would make replay depend on stale serialized secrets.
 - Publish first and persist asynchronously: rejected because a client could render a result that disappears after restart.
 
+### D1a — Git-inspired entity lineage uses streams and references, not Git storage
+
+Each authoritative fact is stored once in one gap-free owning stream and carries stable references to every domain entity it concerns. The owning stream defines concurrency and replay order; an indexed event-to-entity relation answers cross-session history queries without copying one event into unit, pilot, match, and campaign logs.
+
+```ts
+type AuthorityStreamKind =
+  | 'campaign'
+  | 'campaign-session'
+  | 'match'
+  | 'mission'
+  | 'force'
+  | 'unit'
+  | 'pilot';
+
+type AuthorityEntityRole =
+  | 'owner'
+  | 'subject'
+  | 'actor'
+  | 'target'
+  | 'source'
+  | 'derived';
+
+interface IAuthorityEntityRef {
+  entityKind: AuthorityStreamKind;
+  entityId: string;
+  role: AuthorityEntityRole;
+  entityRevision?: number;
+}
+
+interface IAuthorityEventEnvelope<TPayload = unknown> {
+  eventId: string;
+  eventType: string;
+  schemaVersion: number;
+  streamKind: AuthorityStreamKind;
+  streamId: string;
+  branchId: string;
+  authoritySequence: number;
+  commandId: string;
+  correlationId: string;
+  causationEventIds: string[];
+  entityRefs: IAuthorityEntityRef[];
+  occurredAt: string;
+  committedAt: string;
+  previousEventDigest: string | null;
+  eventDigest: string;
+  payload: TPayload;
+}
+```
+
+Entity IDs identify durable instances, not display names or canonical templates. A customized BattleMech instance retains its instance ID across campaign adoption, mission materialization, combat, repair, and later sessions; its canonical unit ID is a separate `source` reference. Events involving multiple units or a pilot are not duplicated. They remain owned by their command's match or campaign stream and add `actor`, `target`, or `subject` references for each affected entity.
+
+Point-in-time resolution accepts an explicit entity reference, branch, and authority head or event identity. It selects the nearest compatible immutable checkpoint, replays the authoritative tail through the declared reducer version, and returns the derived state together with the event range and digests that prove it. Wall-clock time is only a query aid because equal timestamps cannot define authority order.
+
+The Git analogy is limited and deliberate:
+
+- immutable events and command batches resemble objects and commits;
+- effective branch records resemble named refs;
+- rewind creates an explicit fork from a known head;
+- event and predecessor digests make lineage tamper-evident;
+- checkpoints resemble acceleration artifacts, never authority.
+
+Normal gameplay choices do not create branches, and branches never use a generic three-way merge. A correction or rewind creates a replacement branch whose activation requires a domain-specific deterministic rebuild and supersession record.
+
+The first implementation remains on the existing SQLite stack with additive tables, foreign keys, unique constraints, and covering indexes. The TypeScript store contract follows event-sourcing stream/expected-revision patterns so it can later be adapted to an event-native store without changing reducers. Emmett, KurrentDB, and EventSourcingDB are architectural prior art, not new dependencies in this change. Temporal-style durable workflows and NATS/Kafka-style streaming remain optional orchestration or delivery layers; neither becomes gameplay authority.
+
+Alternatives considered:
+
+- Store one physical copy in every related entity stream: rejected because cross-entity commands would create duplicated facts and atomicity ambiguity.
+- Put every domain in one global stream: rejected because unrelated sessions would serialize behind one head and privacy projection would become unnecessarily broad.
+- Use literal Git objects and generic merges: rejected because high-frequency queries, authorization, transactions, and BattleTech conflict rules need domain-specific indexes and reducers.
+- Use CRDT automatic merging for authoritative combat: rejected because illegal or hidden concurrent actions must reject or rebase explicitly, not merge silently.
+
 ### D2 — Session identity and participation are durable domain records
 
 Campaign sessions, linked matches, GM/P1/P2 memberships, owned forces, readiness, acknowledgement cursors, and host-loss policy are stored with the authoritative journal.
