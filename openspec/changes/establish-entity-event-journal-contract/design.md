@@ -81,7 +81,9 @@ Zustand remains a UI/read-model layer and never allocates authoritative revision
 
 ### D5 — Integrity starts with the first stored event
 
-Each stored event carries a versioned canonical serialization digest and the prior event digest within the same `(streamType, streamId, branchId)`. The root branch genesis event uses a null predecessor. A batch computes the chain in command order, and the adapter validates the current head digest before commit. Later replacement branches anchor their first suffix event to an explicitly verified parent/base digest; no later wave may retrofit unverifiable ancestry.
+Each stored event carries a server-computed cryptographic digest and the prior event digest within the same `(streamType, streamId, branchId)`. The root branch genesis event uses a null predecessor. A batch computes the chain in command order, and the adapter validates the current head digest before commit. Later replacement branches anchor their first suffix event to an explicitly verified parent/base digest; no later wave may retrofit unverifiable ancestry. Digests prove integrity only and never authenticate or authorize a principal.
+
+Canonicalizer v1 is RFC 8785 JSON Canonicalization Scheme applied to UTF-8 bytes of a digest material object containing every immutable envelope field except `eventDigest`. It includes `canonicalizerVersion` and `previousStreamEventDigest`; preserves payload-array order; sorts the set-like `entityRefs` by `(entityType, entityId, role)` and `causationEventIds` lexicographically before canonicalization; uses RFC 8785 property ordering, JSON string escaping, and ECMAScript finite-number serialization; performs no Unicode normalization; and rejects non-finite numbers, unsupported values, duplicate set entries, or values that cannot be represented by the version. SHA-256 over those bytes is encoded as lowercase hexadecimal. A new canonicalizer version requires new fixtures and never rewrites prior rows.
 
 ## Risks / Trade-offs
 

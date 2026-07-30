@@ -105,7 +105,7 @@ The system SHALL support server-internal queries by owning stream, explicit auth
 - **THEN** authorization and viewer projection SHALL occur before serialization
 
 ### Requirement: Chain Verification
-The system SHALL calculate a versioned canonical digest for every authority event and chain it to the prior event digest in the same stream branch. Verification SHALL report the first broken event and SHALL fail closed for authoritative replay.
+The system SHALL calculate a server-computed cryptographic digest for every authority event and chain it to the prior event digest in the same stream branch. Canonicalizer v1 SHALL apply RFC 8785 JSON canonicalization to UTF-8 digest-material bytes containing every immutable envelope field except `eventDigest`, after sorting set-like entity references by type/ID/role and causation event IDs lexicographically while preserving payload-array order. It SHALL include the canonicalizer version and predecessor digest, use SHA-256 lowercase hexadecimal, perform no Unicode normalization, and reject non-finite or unsupported values. Verification SHALL report the first broken event and SHALL fail closed for authoritative replay. Digests SHALL NOT authenticate or authorize access.
 
 #### Scenario: Verify root chain
 - **GIVEN** a root branch with committed events
@@ -117,3 +117,9 @@ The system SHALL calculate a versioned canonical digest for every authority even
 - **WHEN** recovery verifies the branch
 - **THEN** the affected authority scope SHALL be quarantined
 - **AND** no partial projection SHALL publish
+
+#### Scenario: Two adapters hash the canonical fixture
+- **GIVEN** the same fixed v1 event fixture with deliberately shuffled object keys and entity-reference input order
+- **WHEN** the in-memory and SQLite adapters compute its digest material and SHA-256
+- **THEN** both SHALL produce the published fixture bytes and lowercase digest
+- **AND** a payload array order change SHALL produce a different digest
