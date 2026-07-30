@@ -1,6 +1,6 @@
 import React from 'react';
 
-import type { IGameSession } from '@/types/gameplay';
+import type { GameSide, IGameSession } from '@/types/gameplay';
 import type { ShellMode } from '@/types/gameplay/TacticalShellInterfaces';
 
 import { MoraleIndicator } from './MoraleIndicator';
@@ -18,6 +18,7 @@ export function GameplayTopBand({
   projection,
   session,
   shellMode,
+  playerSide,
   selectedUnitId,
   onUnitSelect,
   isNarrow,
@@ -28,6 +29,7 @@ export function GameplayTopBand({
   readonly projection: PhaseQueueProjection;
   readonly session: IGameSession;
   readonly shellMode: ShellMode;
+  readonly playerSide: GameSide;
   readonly selectedUnitId: string | null;
   readonly onUnitSelect: (unitId: string | null) => void;
   readonly isNarrow: boolean;
@@ -42,6 +44,7 @@ export function GameplayTopBand({
         gameUnits={session.units}
         unitStates={session.currentState.units}
         shellMode={shellMode}
+        playerSide={playerSide}
         turn={session.currentState.turn}
         phase={session.currentState.phase}
         selectedUnitId={selectedUnitId}

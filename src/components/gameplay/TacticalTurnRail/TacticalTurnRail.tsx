@@ -39,6 +39,8 @@ import type {
   UnitRailStatus,
 } from './TacticalTurnRail.types';
 
+import { ForceGroup } from './TacticalTurnRail.forceGroup';
+
 function getPhaseBgClass(phase: GamePhase): string {
   switch (phase) {
     case GamePhase.Initiative:
@@ -83,13 +85,14 @@ function deriveUnitStatus(
 // ---------------------------------------------------------------------------
 
 const STATUS_TOKEN_CLASSES: Record<UnitRailStatus, string> = {
-  active: 'ring-2 ring-white animate-pulse bg-white/20 font-bold text-white',
+  active: 'ring-2 ring-white bg-white/20 font-bold text-white',
   upcoming: 'ring-1 ring-white/40 bg-white/10 text-white/90',
   completed: 'ring-1 ring-white/20 bg-black/30 text-white/50 line-through',
   skipped: 'ring-1 ring-white/20 bg-black/20 text-white/40 italic',
   destroyed:
-    'ring-1 ring-red-900/60 bg-red-950/60 text-red-300/60 line-through',
-  withdrawn: 'ring-1 ring-gray-500/40 bg-gray-800/40 text-gray-400/60 italic',
+    'ring-1 ring-red-800/80 bg-red-950/70 text-red-100/90 line-through',
+  withdrawn:
+    'ring-1 ring-slate-400/60 bg-slate-900/60 text-slate-100/90 italic',
 };
 
 const SIDE_BADGE_CLASSES: Record<GameSide, string> = {
@@ -102,6 +105,15 @@ const STATUS_ICON: Partial<Record<UnitRailStatus, string>> = {
   destroyed: '✕',
   withdrawn: '→',
   skipped: '~',
+};
+
+const STATUS_LABEL: Record<UnitRailStatus, string> = {
+  active: 'Active',
+  upcoming: 'Ready',
+  completed: 'Acted',
+  skipped: 'Skipped',
+  destroyed: 'Eliminated',
+  withdrawn: 'Withdrawn',
 };
 
 // ---------------------------------------------------------------------------
@@ -122,8 +134,9 @@ function RailToken({
   shellMode,
 }: RailTokenProps): React.ReactElement {
   const tokenClass = STATUS_TOKEN_CLASSES[unit.status];
-  const sideBadge = SIDE_BADGE_CLASSES[unit.side] ?? 'bg-gray-500';
+  const sideBadge = unit.side ? SIDE_BADGE_CLASSES[unit.side] : 'bg-gray-500';
   const icon = STATUS_ICON[unit.status];
+  const statusLabel = STATUS_LABEL[unit.status];
 
   // In replay / spectator mode we still allow selection for inspection
   // but active-unit pulsing is suppressed (the cursor drives focus instead).
@@ -140,7 +153,7 @@ function RailToken({
       disabled={!isInteractive}
       onClick={() => isInteractive && onClick(unit.id)}
       className={[
-        'flex min-w-[6rem] max-w-[9rem] flex-col items-start gap-0.5 rounded px-2 py-1 text-left text-xs transition-opacity',
+        'flex min-w-[6rem] max-w-[9rem] flex-col items-start gap-0.5 rounded !px-2 !py-1.5 text-left !text-xs !leading-tight transition-opacity',
         tokenClass,
         selectedRing,
         showActivePulse ? 'animate-pulse' : '',
@@ -152,8 +165,8 @@ function RailToken({
         .join(' ')}
       data-testid={`rail-unit-${unit.id}`}
       data-status={unit.status}
-      data-side={unit.side}
-      aria-label={`${unit.name} — ${unit.status}${unit.isActive ? ' (active)' : ''}`}
+      data-side={unit.side ?? 'unassigned'}
+      aria-label={`${unit.name} — ${statusLabel}`}
       aria-current={unit.isActive ? 'true' : undefined}
       aria-pressed={isSelected ? 'true' : 'false'}
     >
@@ -174,6 +187,9 @@ function RailToken({
           (re-audit DC-07/A11Y-R6); the name already carries the variant. */}
       <span className="w-full truncate leading-tight font-medium">
         {unit.name}
+      </span>
+      <span className="w-full truncate text-[11px] leading-tight opacity-90">
+        {statusLabel}
       </span>
     </button>
   );
@@ -268,6 +284,7 @@ export function TacticalTurnRail({
   gameUnits,
   unitStates,
   shellMode,
+  playerSide,
   turn,
   phase,
   selectedUnitId,
@@ -292,10 +309,9 @@ export function TacticalTurnRail({
       return {
         id: unitId,
         name: gameUnit?.name ?? unitId,
-        unitRef: gameUnit?.unitRef ?? '',
-        side: gameUnit?.side ?? GameSide.Player,
+        side: unitStates[unitId]?.side ?? gameUnit?.side ?? null,
         status,
-        isActive: unitId === projection.activeUnitId,
+        isActive: status === 'active',
       };
     });
   }, [
@@ -308,16 +324,31 @@ export function TacticalTurnRail({
   // Replay mode: show a label indicating read-only historical state.
   const isReplayMode = shellMode === 'replay';
   const isSpectatorMode = shellMode === 'spectator';
+  const useViewerRelativeLabels = shellMode === 'combat';
+  const alliedSide = useViewerRelativeLabels ? playerSide : GameSide.Player;
+  const opposingSide =
+    alliedSide === GameSide.Player ? GameSide.Opponent : GameSide.Player;
+  const alliedUnits = railUnits.filter((unit) => unit.side === alliedSide);
+  const opposingUnits = railUnits.filter((unit) => unit.side === opposingSide);
+  const unassignedUnits = railUnits.filter((unit) => unit.side === null);
+  const renderRailToken = (unit: IRailUnit): React.ReactNode => (
+    <RailToken
+      unit={unit}
+      isSelected={unit.id === selectedUnitId}
+      onClick={onUnitSelect}
+      shellMode={shellMode}
+    />
+  );
 
   return (
     <div
-      className={`${phaseBg} flex min-h-[3rem] items-center gap-3 px-3 py-1.5 text-white ${className}`}
+      className={`${phaseBg} flex min-h-[3rem] flex-col gap-2 px-3 py-2 text-white lg:flex-row lg:items-center ${className}`}
       data-testid="tactical-turn-rail"
       role="region"
       aria-label={`Turn ${turn} — ${phaseLabel} phase activation rail`}
     >
       {/* Phase / Round header */}
-      <div className="flex flex-shrink-0 items-center gap-2">
+      <div className="flex w-full flex-shrink-0 items-center justify-between gap-2 lg:w-auto lg:justify-start">
         <div className="flex flex-col items-start leading-tight">
           {/* `phase-name` testid preserved from PhaseBanner — addInteractiveCombatCoreUI
               smoke test asserts on this label, and other downstream tests + the
@@ -338,7 +369,10 @@ export function TacticalTurnRail({
       </div>
 
       {/* Divider */}
-      <div className="h-8 w-px flex-shrink-0 bg-white/20" aria-hidden="true" />
+      <div
+        className="hidden h-8 w-px flex-shrink-0 bg-white/20 lg:block"
+        aria-hidden="true"
+      />
 
       {/* Mode badge (replay / spectator) */}
       {isReplayMode && (
@@ -360,28 +394,36 @@ export function TacticalTurnRail({
         </span>
       )}
 
-      {/* Activation token strip — horizontally scrollable */}
+      {/* Force roster grid */}
       <div
-        className="flex flex-1 gap-1.5 overflow-x-auto pb-0.5"
+        className={`grid w-full min-w-0 flex-1 gap-1.5 ${
+          unassignedUnits.length > 0
+            ? 'h-48 grid-rows-3 lg:h-[8.875rem] lg:grid-cols-2 lg:grid-rows-2'
+            : 'h-32 grid-rows-2 lg:h-[4.25rem] lg:grid-cols-2 lg:grid-rows-1'
+        }`}
         data-testid="rail-token-strip"
-        role="list"
         aria-label="Unit activation order"
       >
-        {railUnits.length === 0 && (
-          <span className="self-center text-xs opacity-50" aria-live="polite">
-            No units
-          </span>
+        <ForceGroup
+          id="allied"
+          label={useViewerRelativeLabels ? 'Allied Force' : 'Player Force'}
+          units={alliedUnits}
+          renderUnit={renderRailToken}
+        />
+        <ForceGroup
+          id="opposing"
+          label={useViewerRelativeLabels ? 'Opposing Force' : 'Opponent Force'}
+          units={opposingUnits}
+          renderUnit={renderRailToken}
+        />
+        {unassignedUnits.length > 0 && (
+          <ForceGroup
+            id="unassigned"
+            label="Unassigned"
+            units={unassignedUnits}
+            renderUnit={renderRailToken}
+          />
         )}
-        {railUnits.map((unit) => (
-          <div key={unit.id} role="listitem">
-            <RailToken
-              unit={unit}
-              isSelected={unit.id === selectedUnitId}
-              onClick={onUnitSelect}
-              shellMode={shellMode}
-            />
-          </div>
-        ))}
       </div>
 
       {/* Blocker badge — only shown in combat / gm mode */}
