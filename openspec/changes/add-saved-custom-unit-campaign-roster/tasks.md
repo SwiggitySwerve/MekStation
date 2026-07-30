@@ -1,3 +1,10 @@
+## 0. CAMP-00 — packaged loopback listener prerequisite
+
+- [ ] 0.1 Add a red process-level test or bounded injected listener seam proving `HOSTNAME=127.0.0.1` currently binds the unspecified address.
+- [ ] 0.2 Pass the configured hostname to the production HTTP listener and prove the actual bound address is `127.0.0.1`, not `0.0.0.0` or `::`.
+- [ ] 0.3 Replace or supplement the packaged-security static environment assertion with the live listener-address gate.
+- [ ] 0.4 Run targeted server/desktop security tests plus applicable typecheck/lint/format/build/OpenSpec/QC and independent security/review lanes; publish one focused PR within 15 files/500 lines, wait for green checks, merge with SHA guard, audit exact main, and prune before CAMP-01A.
+
 ## 1. CAMP-01A — custom-source combat boundary
 
 - [ ] 1.1 Add one shared `canonical | custom` roster-source type on the persisted roster projection and tests proving legacy projections with an absent field normalize to `canonical`, while present unknown values remain invalid/non-launchable without name/id-prefix inference.
@@ -28,5 +35,5 @@
 
 ## 4. Change completion
 
-- [ ] 4.1 Reconcile all three merged exact-main receipts in the gameplay audit, confirm no CAMP-01 Critical/Major remains silently pending, and archive this OpenSpec change only after the full authority journey is clean.
+- [ ] 4.1 Reconcile all four merged exact-main receipts in the gameplay audit, confirm no CAMP-01 Critical/Major remains silently pending, and archive this OpenSpec change only after the full authority journey is clean.
 - [ ] 4.2 Record tenant authentication/ownership as an explicit remote/shared-deployment blocker governed by the future `api-layer` authentication capability; do not present CAMP-01's local-first server proof as tenant isolation.

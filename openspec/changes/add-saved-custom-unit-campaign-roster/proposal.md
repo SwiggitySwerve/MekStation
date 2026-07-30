@@ -19,6 +19,7 @@ None.
 
 ### Modified Capabilities
 
+- `desktop-experience`: Require the packaged local server's actual listener to bind the configured loopback hostname before CAMP-01 exposes persisted campaign/custom-unit routes.
 - `campaign-ui`: Let the campaign roster step add saved custom BattleMechs with distinct source and roster-instance identities, explicit loading/recovery UI, and durable reload behavior.
 - `campaign-bay-ui`: Resolve Mech Bay metadata from canonical or saved-custom sources while preserving the roster's stable `unitRef`.
 - `campaign-persistence`: Require the production campaign-creation submit path to receive an accepted server commit before reporting success.
@@ -39,4 +40,4 @@ None.
 - Affected state: campaign-wizard draft selection, roster projection mapping/provenance, root-force membership, explicit server commit, and readiness/materialization preflight.
 - Affected verification: focused component/state tests plus `e2e/campaign-customizer-handoff.spec.ts`.
 - No campaign construction-payload schema, combat engine, multiplayer protocol, or dependency change is intended.
-- Delivery is split into three dependency-ordered focused product PRs: combat-boundary safety first, durable roster selection/server commit second, and downstream surface/browser proof third. Each PR SHALL remain within 15 files and 500 changed lines and SHALL merge cleanly before the next begins.
+- Delivery is split into four dependency-ordered focused product PRs: packaged loopback listener repair first, combat-boundary safety second, durable roster selection/server commit third, and downstream surface/browser proof fourth. Each PR SHALL remain within 15 files and 500 changed lines and SHALL merge cleanly before the next begins.

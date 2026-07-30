@@ -2,7 +2,7 @@
 
 Custom units already have server-backed CRUD and version history. `CustomUnitApiService.list()` exposes a durable id plus lightweight chassis, variant, tonnage, type, and version metadata. The campaign wizard already distinguishes its roster-instance `SelectedUnit.id` from the source design `SelectedUnit.unitRef`, and campaign submit already writes `unitRef` onto `IRosterUnitProjection`.
 
-The current packaged desktop server is loopback-bound and the base `api-layer` specification explicitly leaves authentication middleware as a future enhancement. CAMP-01 therefore proves server persistence and gameplay authority inside the existing local-first trust boundary; it does not claim tenant isolation or authorize exposing campaign/custom-unit routes on a shared remote host.
+Electron configures the packaged server with `HOSTNAME=127.0.0.1`, but the current production listener does not pass that hostname to `listen()` and can bind an unspecified interface. CAMP-00 repairs and process-tests that boundary before CAMP-01 writes custom campaign records. The base `api-layer` specification explicitly leaves authentication middleware as a future enhancement, so CAMP-01 proves server persistence and gameplay authority only inside the repaired local-first boundary; it does not claim tenant isolation or authorize exposing campaign/custom-unit routes on a shared remote host.
 
 The missing seam is selection and resolution:
 
@@ -86,13 +86,14 @@ An error or unresolved conflict SHALL keep the player on an honest recovery surf
 
 Journey fixtures SHALL be synthetic. Receipts SHALL attach allowlisted equality/boolean fields needed for authority proof rather than raw campaign, custom-unit construction, finance, narrative, or store dumps. Screenshots, traces, and videos SHALL contain no real user data.
 
-### D8 — Deliver through three dependency-ordered product waves
+### D8 — Deliver through four dependency-ordered product waves
 
-This OpenSpec change is one CAMP-01 outcome but SHALL be implemented through three separately reviewed product PRs:
+This OpenSpec change is one CAMP-01 outcome but SHALL be implemented through four separately reviewed product PRs:
 
-1. **CAMP-01A — custom-source combat boundary:** add persisted source provenance/legacy normalization, the shared combat-adaptability predicate, recoverable readiness selection, and the pre-fetch materializer guard with direct regression coverage.
-2. **CAMP-01B — durable saved-design roster entry:** add the saved-design adapter/query and roster UI, propagate source identity into the roster/root force, and require an accepted production server commit with same-campaign recovery.
-3. **CAMP-01C — downstream resolution and journey proof:** resolve saved-custom metadata in Mech Bay and run the full cold-reload browser trust anchor through dashboard, Forces, Mech Bay, and mission readiness with desktop/390px evidence.
+1. **CAMP-00 — packaged loopback listener prerequisite:** bind the actual production HTTP listener to the configured hostname and prove the packaged `127.0.0.1` socket boundary at process level; a static environment-string check is insufficient.
+2. **CAMP-01A — custom-source combat boundary:** add persisted source provenance/legacy normalization, the shared combat-adaptability predicate, recoverable readiness selection, and the pre-fetch materializer guard with direct regression coverage.
+3. **CAMP-01B — durable saved-design roster entry:** add the saved-design adapter/query and roster UI, propagate source identity into the roster/root force, and require an accepted production server commit with same-campaign recovery.
+4. **CAMP-01C — downstream resolution and journey proof:** resolve saved-custom metadata in Mech Bay and run the full cold-reload browser trust anchor through dashboard, Forces, Mech Bay, and mission readiness with desktop/390px evidence.
 
 Each wave owns one user-visible outcome, stays within 15 files and 500 changed lines, runs its targeted and applicable gates, receives independent review, merges with a SHA guard, and is followed by an exact-main audit/prune before the next wave branches. A later wave SHALL NOT be bundled into an earlier PR to save time.
 
