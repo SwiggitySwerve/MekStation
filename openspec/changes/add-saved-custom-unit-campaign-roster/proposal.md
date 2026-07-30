@@ -38,3 +38,4 @@ None.
 - Affected state: campaign-wizard draft selection, roster projection mapping/provenance, root-force membership, explicit server commit, and readiness/materialization preflight.
 - Affected verification: focused component/state tests plus `e2e/campaign-customizer-handoff.spec.ts`.
 - No campaign construction-payload schema, combat engine, multiplayer protocol, or dependency change is intended.
+- Delivery is split into three dependency-ordered focused product PRs: combat-boundary safety first, durable roster selection/server commit second, and downstream surface/browser proof third. Each PR SHALL remain within 15 files and 500 changed lines and SHALL merge cleanly before the next begins.

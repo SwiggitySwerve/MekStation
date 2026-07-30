@@ -82,6 +82,16 @@ The production wizard submit path SHALL first commit the assembled campaign/rost
 
 An error or unresolved conflict SHALL keep the player on an honest recovery surface, suppress success feedback/navigation, and offer a retry of the same campaign id rather than creating a duplicate campaign. Browser proof SHALL exercise this production path; test-only persistence helpers cannot satisfy the requirement.
 
+### D8 — Deliver through three dependency-ordered product waves
+
+This OpenSpec change is one CAMP-01 outcome but SHALL be implemented through three separately reviewed product PRs:
+
+1. **CAMP-01A — custom-source combat boundary:** add persisted source provenance/legacy normalization, the shared combat-adaptability predicate, recoverable readiness selection, and the pre-fetch materializer guard with direct regression coverage.
+2. **CAMP-01B — durable saved-design roster entry:** add the saved-design adapter/query and roster UI, propagate source identity into the roster/root force, and require an accepted production server commit with same-campaign recovery.
+3. **CAMP-01C — downstream resolution and journey proof:** resolve saved-custom metadata in Mech Bay and run the full cold-reload browser trust anchor through dashboard, Forces, Mech Bay, and mission readiness with desktop/390px evidence.
+
+Each wave owns one user-visible outcome, stays within 15 files and 500 changed lines, runs its targeted and applicable gates, receives independent review, merges with a SHA guard, and is followed by an exact-main audit/prune before the next wave branches. A later wave SHALL NOT be bundled into an earlier PR to save time.
+
 ## Risks / Trade-offs
 
 - **[Risk] Custom-unit deletion after campaign creation leaves an unresolved reference** → preserve the roster row and cached name, show unavailable source metadata, and never silently substitute stock data.
