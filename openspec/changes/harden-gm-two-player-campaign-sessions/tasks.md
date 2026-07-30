@@ -1,6 +1,6 @@
 # Tasks: Harden GM + Two-Player Live Campaign Sessions
 
-The PR order, dependency graph, ownership boundaries, exact-main regression cadence, and review evidence are maintained in `implementation-plan.md`. Each implementation PR MUST reference the requirement names and task IDs it closes.
+The PR order, dependency graph, ownership boundaries, exact-main regression cadence, and review evidence are maintained in `implementation-plan.md`. The event-history implementation sections are decomposed and frozen according to `event-history-wave-map.md`; execute their leaf-change tasks rather than implementing a duplicate umbrella seam. Each implementation PR MUST reference the requirement names, leaf task IDs, and umbrella acceptance IDs it closes.
 
 ## 1. Durable-Baseline Preflight
 
@@ -123,7 +123,7 @@ The PR order, dependency graph, ownership boundaries, exact-main regression cade
 ## 17. Coordinated Post-Receipt Outcome Correction
 
 - [ ] 17.1 Implement a distinct higher-version coordinated outcome-correction command for the post-campaign-receipt boundary, satisfying `Coordinated Outcome Correction Supersedes Across Journals`.
-- [ ] 17.2 Atomically record combat supersession, replacement outcome outbox, campaign replacement receipt, invalidation manifest, and deterministic replacement consequence batch.
+- [ ] 17.2 Execute coordinated correction as a durable saga: atomically record combat supersession, invalidation manifest, and replacement outcome outbox in the source authority, then idempotently record the target-scoped campaign replacement receipt and deterministic consequence batch in the target authority; expose pending/blocked state and do not claim a cross-store transaction.
 - [ ] 17.3 Gate scenario N+1 on the active outcome receipt, replacement artifacts, active branch, and convergence of every retained participant.
 - [ ] 17.4 Prove retry, reconnect, and restart cannot apply the coordinated correction twice and preserve cross-journal audit causality.
 
