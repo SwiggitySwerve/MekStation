@@ -39,8 +39,7 @@ export type UnitRailStatus =
 export interface IRailUnit {
   readonly id: string;
   readonly name: string;
-  readonly unitRef: string;
-  readonly side: GameSide;
+  readonly side: GameSide | null;
   readonly status: UnitRailStatus;
   /** True when this is the currently-active unit (same as status === 'active'
    *  but explicit for clarity in template expressions). */
@@ -67,6 +66,8 @@ export interface TacticalTurnRailProps {
   readonly unitStates: Record<string, IUnitGameState>;
   /** Current shell rendering mode. */
   readonly shellMode: ShellMode;
+  /** Side controlled by the current player, used for viewer-relative labels. */
+  readonly playerSide: GameSide;
   /** Current turn number (displayed in the header). */
   readonly turn: number;
   /** Current phase (displayed in the header). */

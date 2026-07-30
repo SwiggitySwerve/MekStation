@@ -141,6 +141,33 @@ describe('usePhaseQueueProjection', () => {
     expect(result.current.initiativeOrder).toEqual(['p1', 'o1']);
   });
 
+  it('retains terminal units in display order but excludes them from action debt', () => {
+    const session = buildSession({
+      phase: GamePhase.Movement,
+      unitLockStates: { p1: LockState.Pending, o1: LockState.Pending },
+    });
+    act(() => {
+      useGameplayStore.setState({
+        session: {
+          ...session,
+          currentState: {
+            ...session.currentState,
+            units: {
+              p1: { ...session.currentState.units.p1, destroyed: true },
+              o1: { ...session.currentState.units.o1, hasRetreated: true },
+            },
+          },
+        },
+      });
+    });
+
+    const { result } = renderHook(() => usePhaseQueueProjection());
+
+    expect(result.current.initiativeOrder).toEqual(['p1', 'o1']);
+    expect(result.current.unresolvedUnits).toEqual([]);
+    expect(result.current.blockers).toEqual([]);
+  });
+
   it('hands control to the player after the active opponent locks movement', () => {
     act(() => {
       useGameplayStore.setState({

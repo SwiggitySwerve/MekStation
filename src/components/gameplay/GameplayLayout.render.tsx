@@ -198,6 +198,7 @@ export function GameplayLayoutView({
           projection={phaseQueueProjection}
           session={session}
           shellMode={shellMode}
+          playerSide={playerSide}
           selectedUnitId={selectedUnitId}
           onUnitSelect={onUnitSelect}
           isNarrow={isNarrow}
