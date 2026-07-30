@@ -19,27 +19,33 @@
       "lastReviewed": "2026-07-30"
     },
     {
+      "name": "add-authority-audit-and-privacy-proof",
+      "status": "proposed",
+      "reason": "Wave 3 of the entity-history program and a hard cutover gate: require durable active membership, server-derived viewer authority, separate action/private audit lifecycles, pre-serialization projection, and raw-to-rendered privacy proof before combat or campaign journal authority.",
+      "lastReviewed": "2026-07-30"
+    },
+    {
       "name": "adopt-combat-event-journal-authority",
       "status": "proposed",
-      "reason": "Wave 3 of the entity-history program: bind existing combat events to the durable journal, enforce decide-commit-apply-publish ordering, preserve the browser log as a recovery mirror, and cut over new matches only after replay/state parity.",
+      "reason": "Wave 4 of the entity-history program: bind existing combat events to the durable journal, enforce decide-commit-apply-publish ordering, preserve the browser log as a recovery mirror, and cut over new matches only after membership, privacy, replay, and state parity.",
       "lastReviewed": "2026-07-30"
     },
     {
       "name": "adopt-campaign-event-journal-authority",
       "status": "proposed",
-      "reason": "Wave 4 of the entity-history program: replace process-local campaign history with atomic durable batches, preserve customized-unit and campaign entity lineage, make snapshots materialized projections, and close replay/live synchronization gaps.",
+      "reason": "Wave 5 of the entity-history program: replace process-local campaign history with atomic durable batches, preserve customized-unit and campaign entity lineage, make snapshots materialized projections, and close replay/live synchronization gaps after membership/privacy gates.",
       "lastReviewed": "2026-07-30"
     },
     {
       "name": "add-cross-stream-effect-receipts",
       "status": "proposed",
-      "reason": "Wave 5 of the entity-history program: add transactional outbox/inbox receipts, side-effect-free replay, causal cross-stream history, and exactly-once combat-to-campaign effect application over at-least-once delivery.",
+      "reason": "Wave 6 of the entity-history program: add target-scoped transactional outbox/inbox receipts, side-effect-free replay, causal cross-stream history, and exactly-once combat-to-campaign effect application over at-least-once delivery.",
       "lastReviewed": "2026-07-30"
     },
     {
       "name": "add-authoritative-history-branches",
       "status": "proposed",
-      "reason": "Wave 6 of the entity-history program: add immutable branch lineage, verified replacement-branch activation, domain-command revalidation instead of generic merge, and authorized combat/campaign correction timelines after linear authority and effect receipts are proven.",
+      "reason": "Wave 7 of the entity-history program: add immutable branch lineage, verified replacement-branch activation, domain-command revalidation instead of generic merge, and recoverable combat/campaign correction sagas after linear authority and effect receipts are proven.",
       "lastReviewed": "2026-07-30"
     },
     {
