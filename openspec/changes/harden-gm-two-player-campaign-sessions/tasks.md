@@ -11,9 +11,9 @@ The PR order, dependency graph, ownership boundaries, exact-main regression cade
 
 ## 2. Additive Authority Schema and Store Contracts
 
-- [ ] 2.1 Add additive SQLite migrations and TypeScript records for generalized authority-event envelopes, owning streams, stable entity-instance references and roles, command receipts, command batches, recipient-neutral outbox, campaign sessions, participants, viewer cursors, branches, supersession, checkpoints, outcome inbox/receipts, private GM audit references, and append-once private rejection-audit records keyed by session/command identity, implementing `Authority Events Have One Owning Stream and Explicit Entity References`, `Atomic Command Event Batches`, `Campaign Journal Migration Is Additive and Idempotent`, and `Branches Preserve Immutable Supersession Lineage`.
-- [ ] 2.2 Extend `IMatchStore.ts` and the campaign event-store boundary with expected-head append, atomic batch, entity-history and point-in-time resolution, receipt lookup, outbox claim/acknowledgement, branch, participant, and cursor operations; update `InMemoryMatchStore.ts` only as a contract-compatible test/dev adapter.
-- [ ] 2.3 Implement the additive schema and atomic operations in `DurableMatchStore.ts` and the selected campaign persistence adapter with uniqueness, foreign-key, append-only, and covering-index constraints for owning stream/branch sequence, stable entity references, session-scoped idempotency, outcome versions, integrity lineage, authority sequence, and branch activation.
+- [ ] 2.1 Add additive SQLite migrations and TypeScript records for generalized authority-event envelopes, owning streams, stream-local revisions and predecessor digests, global commit positions, command indexes, stable entity-instance references and roles, command receipts, command batches, recipient-neutral outbox, campaign sessions, participants, viewer cursors, branches, supersession, checkpoints, outcome inbox/receipts, private GM audit references, and append-once private rejection-audit records keyed by session/command identity, implementing `Authority Events Have One Owning Stream and Explicit Entity References`, `Atomic Command Event Batches`, `Campaign Journal Migration Is Additive and Idempotent`, and `Branches Preserve Immutable Supersession Lineage`.
+- [ ] 2.2 Extend `IMatchStore.ts` and the campaign event-store boundary with expected-stream-revision append, atomic batch, entity-history and point-in-time resolution by stream revision, commit position, or event identity, receipt lookup, outbox claim/acknowledgement, branch, participant, and cursor operations; update `InMemoryMatchStore.ts` only as a contract-compatible test/dev adapter.
+- [ ] 2.3 Implement the additive schema and atomic operations in `DurableMatchStore.ts` and the selected campaign persistence adapter with uniqueness, foreign-key, append-only, and covering-index constraints for owning stream/branch revision, stable entity references, session-scoped idempotency, outcome versions, stream-scoped integrity lineage, unique commit position, command index, and branch activation.
 - [ ] 2.4 Add migration/entity-history/idempotency/rollback contract tests, including one-record multi-entity references, customized-unit instance lineage across sessions, explicit point-in-time replay proof, repeated backfill, ambiguous ownership fail-closed behavior, and a schema reader compatible with preserved materialized snapshots; run `npm.cmd test -- --runInBand src/lib/multiplayer/server/__tests__/DurableMatchStore.test.ts src/lib/campaign/persistence/__tests__/campaignMigration.test.ts`.
 
 ## 3. Atomic Batch Append API
@@ -76,10 +76,10 @@ The PR order, dependency graph, ownership boundaries, exact-main regression cade
 
 ## 11. Pre-Serialization Viewer Projection
 
-- [ ] 11.1 Introduce one server-side viewer projector used before `JSON.stringify` for live match and campaign frames, implementing `Viewer Projection Occurs Before Serialization` and private authority-sequence separation.
+- [ ] 11.1 Introduce one server-side viewer projector used before `JSON.stringify` for live match and campaign frames, implementing `Viewer Projection Occurs Before Serialization` and private stream-revision/commit-position separation.
 - [ ] 11.2 Store GM previews and private reasons in separately authorized server-only records; ensure player-safe facts contain no private fields or correlatable private identifiers.
 - [ ] 11.3 Implement sealed Player 1/Player 2 choices and authoritative reveal while keeping ordinary public combat facts on immediate committed publication.
-- [ ] 11.4 Add schema/object tests and raw-frame negative tests for GM-private reason, hidden metadata, private IDs, authority sequences, and inferable gaps; fail closed on any projection error.
+- [ ] 11.4 Add schema/object tests and raw-frame negative tests for GM-private reason, hidden metadata, private IDs, stream revisions, commit positions, and inferable gaps; fail closed on any projection error.
 - [ ] 11.5 Verify with `npm.cmd test -- --runInBand src/lib/multiplayer/server/__tests__/ServerMatchHost.fogOfWarIntegration.test.ts src/lib/multiplayer/server/__tests__/CampaignSyncSession.test.ts src/lib/multiplayer/server/__tests__/ServerMatchHost.test.ts`.
 
 ## 12. Replay Snapshot Timeline and Export Parity
@@ -107,10 +107,10 @@ The PR order, dependency graph, ownership boundaries, exact-main regression cade
 
 ## 15. Cache-Only Checkpoints and Branch Recovery
 
-- [ ] 15.1 Implement immutable checkpoints keyed by branch, authority head, reducer version, and digest, satisfying `Checkpoints and Compaction Are Cache-Only`.
+- [ ] 15.1 Implement immutable checkpoints keyed by stream, branch, stream revision, reducer version, and digest, satisfying `Checkpoints and Compaction Are Cache-Only`.
 - [ ] 15.2 Prove compatible checkpoint-plus-tail equals full replay for authoritative state and all three viewer digests.
 - [ ] 15.3 Prove reducer-version or digest mismatch rebuilds from an earlier base or blocks truthfully without publishing partial recovery.
-- [ ] 15.4 Add per-session corruption quarantine for broken sequence, lineage, receipt, or digest while a healthy control session remains available.
+- [ ] 15.4 Add per-session corruption quarantine for broken stream revision, commit position, lineage, receipt, or digest while a healthy control session remains available.
 
 ## 16. Retroactive Campaign Rebuild
 
@@ -181,5 +181,5 @@ The PR order, dependency graph, ownership boundaries, exact-main regression cade
 
 - [ ] 25.1 Run focused changed-area Jest and Playwright suites, then `npm.cmd run typecheck`, `npm.cmd run lint`, `npm.cmd run format:check`, `npm.cmd run verify:qc:multiplayer:contracts`, `npm.cmd run verify:qc:multiplayer:browser`, `npm.cmd run verify:qc:coop-campaign-journey`, `npm.cmd run verify:qc:encounter-combat-continuity`, `npm.cmd run verify:qc:replay-recovery`, and the complete GM/two-player command.
 - [ ] 25.2 Run `openspec validate harden-gm-two-player-campaign-sessions --strict --no-interactive`, `npm.cmd run qc:openspec-ci:validate`, and LSP diagnostics for every modified TypeScript/TSX file.
-- [ ] 25.3 Update operator and contributor documentation for authority versus delivery sequence, membership/reauthentication, host loss, rewind boundary, recovery/quarantine, evidence bundle, performance methodology, and exact-main post-merge audit.
+- [ ] 25.3 Update operator and contributor documentation for stream revision versus commit position versus viewer delivery sequence, membership/reauthentication, host loss, rewind boundary, recovery/quarantine, evidence bundle, performance methodology, and exact-main post-merge audit.
 - [ ] 25.4 Reconcile all 80 acceptance scenarios to test identifiers and evidence paths, leave no unchecked implementation task without a linked blocker, and archive the change only after every applicable strict gate passes.

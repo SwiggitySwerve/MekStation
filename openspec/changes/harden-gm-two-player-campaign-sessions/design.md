@@ -72,8 +72,8 @@ interface ILiveCampaignCommand {
 interface ICommittedCommandBatch {
   commandId: string;
   branchId: string;
-  firstSequence: number;
-  lastSequence: number;
+  firstCommitPosition: number;
+  lastCommitPosition: number;
   eventIds: string[];
   committedAt: string;
 }
@@ -82,7 +82,7 @@ interface IOutboxRecord {
   outboxId: string;
   campaignSessionId: string;
   branchId: string;
-  sequence: number;
+  commitPosition: number;
   eventId: string;
   payload: unknown;
   committedAt: string;
@@ -133,14 +133,16 @@ interface IAuthorityEventEnvelope<TPayload = unknown> {
   streamKind: AuthorityStreamKind;
   streamId: string;
   branchId: string;
-  authoritySequence: number;
+  streamRevision: number;
+  commitPosition: number;
+  commandIndex: number;
   commandId: string;
   correlationId: string;
   causationEventIds: string[];
   entityRefs: IAuthorityEntityRef[];
   occurredAt: string;
   committedAt: string;
-  previousEventDigest: string | null;
+  previousStreamEventDigest: string | null;
   eventDigest: string;
   payload: TPayload;
 }
@@ -148,7 +150,9 @@ interface IAuthorityEventEnvelope<TPayload = unknown> {
 
 Entity IDs identify durable instances, not display names or canonical templates. A customized BattleMech instance retains its instance ID across campaign adoption, mission materialization, combat, repair, and later sessions; its canonical unit ID is a separate `source` reference. Events involving multiple units or a pilot are not duplicated. They remain owned by their command's match or campaign stream and add `actor`, `target`, or `subject` references for each affected entity.
 
-Point-in-time resolution accepts an explicit entity reference, branch, and authority head or event identity. It selects the nearest compatible immutable checkpoint, replays the authoritative tail through the declared reducer version, and returns the derived state together with the event range and digests that prove it. Wall-clock time is only a query aid because equal timestamps cannot define authority order.
+`streamRevision` is contiguous within one `(streamKind, streamId, branchId)` and is the expected-head concurrency token. `commitPosition` is a server-only monotonically increasing database receipt used to order queries that span owning streams; it is not a shared optimistic-lock head, so unrelated streams do not contend on an expected global revision. `commandIndex` preserves deterministic order inside one atomic command batch. `previousStreamEventDigest` chains only the owning stream and branch. A future global commit digest MAY be added for whole-database tamper evidence, but it is not required for stream replay and SHALL NOT replace stream-local integrity.
+
+Point-in-time resolution accepts an explicit entity reference, branch, and stream revision, commit position, or event identity. It selects the nearest compatible immutable checkpoint, replays the authoritative tail through the declared reducer version, and returns the derived state together with the event range and digests that prove it. Cross-stream history is ordered by `commitPosition`, with `commandIndex` and causation identities retained for explanation. Wall-clock time is only a query aid because equal timestamps cannot define authority order.
 
 The Git analogy is limited and deliberate:
 
@@ -211,11 +215,11 @@ Alternatives considered:
 - Extend the current undifferentiated `guest` model: rejected because it cannot prove P1/P2 ownership, readiness, privacy, or attribution.
 - Store participant state only in auth tokens: rejected because token expiry and process restart would erase session membership.
 
-### D3 — Stable command identity, authority sequence, delivery sequences, and replay/live deduplication
+### D3 — Stable command identity, authority ordering, delivery sequences, and replay/live deduplication
 
 Production intent envelopes MUST carry `commandId`/`intentId` and an idempotency key generated before the first send and reused across retries. The store maintains uniqueness on session plus idempotency identity for the authoritative match/campaign lifetime. Clients track both the active branch and a contiguous applied delivery sequence, not only a maximum high-water mark.
 
-The server-only journal uses a monotonic `authoritySequence`. Each viewer projection stream uses its own gapless `deliverySequence`. Players never receive hidden authority identifiers or inferable sequence gaps.
+The server-only journal uses a stream-local `streamRevision` for authority and a database-wide `commitPosition` for deterministic cross-stream queries. Neither identity is a viewer delivery cursor. Each viewer projection stream uses its own gapless `deliverySequence`. Players never receive hidden authority identifiers or inferable sequence gaps.
 
 Delivery behavior:
 
@@ -265,15 +269,15 @@ The same projection function and contract tests are reused for live, replay, sna
 
 ### D5 — Rewind is append-only branch supersession
 
-No event is deleted or edited. A rewind commit selects a trusted checkpoint and creates a new branch whose base references the old branch and cutoff sequence.
+No event is deleted or edited. A rewind commit selects a trusted checkpoint and creates a new branch whose base references the old branch and cutoff stream revision.
 
 ```ts
 interface ISessionBranch {
   branchId: string;
   campaignSessionId: string;
   parentBranchId: string | null;
-  baseSequence: number;
-  effectiveHeadSequence: number;
+  baseStreamRevision: number;
+  effectiveHeadStreamRevision: number;
   status: 'effective' | 'superseded' | 'building' | 'blocked';
   createdByParticipantId: string;
   reasonCode: string;
@@ -285,7 +289,7 @@ interface ISupersessionRecord {
   supersessionId: string;
   oldBranchId: string;
   newBranchId: string;
-  cutoffSequence: number;
+  cutoffStreamRevision: number;
   invalidatedEventIds: string[];
   invalidatedArtifactIds: string[];
   committedByParticipantId: string;
@@ -297,7 +301,7 @@ Only the GM may commit a rewind. A player may create a rewind request, which is 
 
 Old-branch commands receive a typed `STALE_BRANCH` rejection and no append. Offline clients resync to the active branch from their durable cursor. Prior branches remain visible only through authorized audit views.
 
-Trusted checkpoints are immutable projection caches keyed by authority head, branch, reducer version, and digest. Compaction may prune or regenerate caches, but it never removes command receipts, authoritative events, branch lineage, supersession, or audit facts.
+Trusted checkpoints are immutable projection caches keyed by stream, branch, stream revision, reducer version, and digest. Compaction may prune or regenerate caches, but it never removes command receipts, authoritative events, branch lineage, supersession, or audit facts.
 
 Alternatives considered:
 

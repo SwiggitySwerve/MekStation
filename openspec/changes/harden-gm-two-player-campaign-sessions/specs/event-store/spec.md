@@ -1,7 +1,7 @@
 ## ADDED Requirements
 
 ### Requirement: Authority Events Have One Owning Stream and Explicit Entity References
-Every authoritative event SHALL be stored once in one owning stream with stable event, stream, branch, command, correlation, causation, schema-version, sequence, and integrity identities. The event SHALL carry indexed references to every durable entity instance it owns, affects, derives from, targets, or acts through. Canonical templates, display names, and route parameters SHALL NOT substitute for durable entity-instance identity.
+Every authoritative event SHALL be stored once in one owning stream with stable event, stream, branch, command, correlation, causation, schema-version, stream-revision, commit-position, command-index, and integrity identities. The event SHALL carry indexed references to every durable entity instance it owns, affects, derives from, targets, or acts through. Canonical templates, display names, and route parameters SHALL NOT substitute for durable entity-instance identity.
 
 #### Scenario: Multi-entity combat fact is stored once
 - **WHEN** one combat command affects an attacker unit, target unit, both pilots, a match, and its campaign session
@@ -16,13 +16,19 @@ Every authoritative event SHALL be stored once in one owning stream with stable 
 #### Scenario: Unrelated sessions do not share one write head
 - **WHEN** commands commit concurrently in two unrelated campaign sessions or standalone matches
 - **THEN** each owning stream SHALL advance independently
-- **AND** neither command SHALL serialize behind a global cross-session stream head
+- **AND** neither command SHALL compare against or serialize behind a global cross-session expected head
+
+#### Scenario: Stream and database ordering remain distinct
+- **WHEN** one query spans events from more than one owning stream
+- **THEN** each event's stream revision SHALL identify its position and predecessor inside its owning stream and branch
+- **AND** its server-only commit position SHALL provide deterministic cross-stream query order without becoming a shared concurrency head
+- **AND** command index SHALL preserve order among events committed by the same command
 
 ### Requirement: Entity History Resolves at an Explicit Authority Point
-The event store SHALL resolve an authorized entity's history and derived state at an explicit branch plus authority head, event identity, or sequence. Resolution SHALL use the nearest compatible immutable checkpoint plus authoritative tail and SHALL return proof metadata identifying the applied event range, reducer version, and integrity digests.
+The event store SHALL resolve an authorized entity's history and derived state at an explicit branch plus stream revision, commit position, or event identity. Resolution SHALL use the nearest compatible immutable checkpoint plus authoritative tail and SHALL return proof metadata identifying the applied event range, reducer version, and integrity digests.
 
 #### Scenario: Previous-session state is reconstructed
-- **WHEN** an authorized viewer requests a unit instance at the head recorded before a prior session ended
+- **WHEN** an authorized viewer requests a unit instance at the branch and stream revision recorded before a prior session ended
 - **THEN** the resolver SHALL return the state derived only from authorized events effective at that head
 - **AND** the response SHALL identify the branch, event range, checkpoint if used, reducer version, and resulting digest
 
@@ -33,7 +39,7 @@ The event store SHALL resolve an authorized entity's history and derived state a
 
 #### Scenario: Wall-clock collision does not change authority
 - **WHEN** two events share the same timestamp
-- **THEN** point-in-time resolution SHALL use branch and authority identity rather than timestamp ordering alone
+- **THEN** point-in-time resolution SHALL use branch, stream revision, and commit position rather than timestamp ordering alone
 
 ### Requirement: Branching Is Explicit and Domain-Resolved
 Ordinary commands and their effects SHALL append to the current effective branch without creating forks. Only an authorized correction, rewind, or explicit simulation SHALL create a new branch from a recorded base. Branch activation SHALL use domain-specific validation and deterministic rebuild; the event store SHALL NOT perform a generic three-way merge.
@@ -53,11 +59,12 @@ Ordinary commands and their effects SHALL append to the current effective branch
 - **AND** no CRDT or generic Git-style merge SHALL silently combine the histories
 
 ### Requirement: Atomic Command Event Batches
-The event store SHALL commit a command receipt, every event derived by that command, the resulting effective-head metadata, and recipient-neutral publication records in one transaction with a contiguous server-only authority sequence.
+The event store SHALL commit a command receipt, every event derived by that command, the resulting effective-head metadata, and recipient-neutral publication records in one transaction. Every event SHALL receive a contiguous revision in its owning stream and branch, a unique monotonically increasing server-only commit position, and a zero-based command index within the batch.
 
 #### Scenario: Batch commit succeeds completely
 - **WHEN** a command derives multiple combat or campaign events
-- **THEN** the receipt, events, head update, and publication records SHALL become durable together with no interleaving from another command
+- **THEN** the receipt, events, head update, and publication records SHALL become durable together with no interleaving from another command in the same owning stream
+- **AND** the batch SHALL preserve command-index order without requiring an expected global database head
 
 #### Scenario: Batch commit fails completely
 - **WHEN** any write in the command batch fails or collides
@@ -75,7 +82,7 @@ The event store SHALL retain stable command and idempotency receipts for the aut
 - **THEN** the store SHALL return an integrity conflict and SHALL not mutate the journal
 
 ### Requirement: Branches Preserve Immutable Supersession Lineage
-The event store SHALL represent correction and rewind as append-only branches with parent, base authority sequence, effective head, status, actor, reason, and supersession records. It SHALL NOT delete or rewrite prior authoritative events.
+The event store SHALL represent correction and rewind as append-only branches with parent, base stream revision, effective stream head, status, actor, reason, and supersession records. It SHALL NOT delete or rewrite prior authoritative events.
 
 #### Scenario: Replacement branch preserves prior history
 - **WHEN** the GM commits an authorized rewind
@@ -90,10 +97,10 @@ The event store SHALL represent correction and rewind as append-only branches wi
 - **THEN** the candidate branch SHALL remain blocked and the prior effective branch SHALL remain authoritative
 
 ### Requirement: Checkpoints and Compaction Are Cache-Only
-Trusted checkpoints SHALL be immutable projection caches keyed by branch, authority head, reducer version, and digest. Compaction SHALL NOT remove command receipts, authoritative events, branch lineage, supersession, outcome receipts, or audit facts.
+Trusted checkpoints SHALL be immutable projection caches keyed by stream, branch, stream revision, reducer version, and digest. Compaction SHALL NOT remove command receipts, authoritative events, branch lineage, supersession, outcome receipts, or audit facts.
 
 #### Scenario: Compatible checkpoint accelerates rebuild
-- **WHEN** a checkpoint's branch, head, reducer version, and digest match the requested replay base
+- **WHEN** a checkpoint's stream, branch, stream revision, reducer version, and digest match the requested replay base
 - **THEN** the system MAY resume projection from the checkpoint and SHALL produce the same state and audience digests as full replay
 
 #### Scenario: Incompatible checkpoint is not trusted
@@ -101,7 +108,7 @@ Trusted checkpoints SHALL be immutable projection caches keyed by branch, author
 - **THEN** recovery SHALL rebuild from an earlier trusted base or enter a truthful blocked state
 
 ### Requirement: Corrupt Authority Data Is Quarantined Per Session
-Recovery SHALL validate authority-sequence continuity, branch lineage, receipt uniqueness, and required digests before admitting commands or publication.
+Recovery SHALL validate stream-revision continuity, commit-position uniqueness, stream-scoped predecessor lineage, branch lineage, receipt uniqueness, and required digests before admitting commands or publication.
 
 #### Scenario: One corrupt session is isolated
 - **WHEN** validation fails for one match or campaign session
