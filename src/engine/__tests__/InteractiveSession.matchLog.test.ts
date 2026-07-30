@@ -65,6 +65,9 @@ const MATCH_LOG_DIVERGENCE_MESSAGE =
 
 interface IAppendAndPersistHarness {
   session: IGameSession;
+  runtimeContext: {
+    setSession: (session: IGameSession) => void;
+  };
   appendEvent: (event: IGameEvent) => void;
   hasMatchLogDiverged: () => boolean;
   isMatchLogHealthy: () => boolean;
@@ -308,7 +311,7 @@ describe('InteractiveSession match log persistence wiring', () => {
   beforeEach(() => {
     mockAppendMatchEvent = matchLogStorage.appendEvent as jest.Mock;
     mockToast = toast as jest.Mock;
-    mockAppendMatchEvent.mockReset();
+    mockAppendMatchEvent.mockReset().mockResolvedValue(undefined);
     mockToast.mockReset();
     consoleErrorSpy = jest
       .spyOn(console, 'error')
@@ -317,6 +320,38 @@ describe('InteractiveSession match log persistence wiring', () => {
 
   afterEach(() => {
     consoleErrorSpy.mockRestore();
+  });
+
+  it('persists post-launch phase events before a cold reload can recover stale combat state', async () => {
+    installFreshIndexedDB();
+    const storage = new MatchLogStorage({
+      dbName: 'interactive-session-phase-commit-test',
+      now: () => '2026-04-30T00:00:00.000Z',
+      scheduleFrame: () => undefined,
+    });
+    const interactiveSession = makeInteractiveSession();
+    const launchSession = interactiveSession.getSession();
+    const launchWrites = launchSession.events.map((event) =>
+      storage.appendEvent(launchSession.id, event),
+    );
+    await storage.flushPendingWrites();
+    await Promise.all(launchWrites);
+    mockAppendMatchEvent.mockImplementation(
+      (matchId: string, event: IGameEvent) =>
+        storage.appendEvent(matchId, event),
+    );
+
+    interactiveSession.advancePhase();
+    await storage.flushPendingWrites();
+
+    const liveSession = interactiveSession.getSession();
+    const storedEvents = await storage.getEventsForMatch(liveSession.id);
+    expect(
+      storedEvents.map(({ sequence, type }) => ({ sequence, type })),
+    ).toEqual(
+      liveSession.events.map(({ sequence, type }) => ({ sequence, type })),
+    );
+    storage.close();
   });
 
   it('persists five successful in-memory appends to match log storage by match id and sequence', () => {
@@ -346,6 +381,34 @@ describe('InteractiveSession match log persistence wiring', () => {
       })),
     );
   });
+
+  it.each(['truncated', 'rewritten'] as const)(
+    'rejects a %s same-match history before it can corrupt the persisted suffix',
+    (replacement) => {
+      const harness = makeAppendHarness();
+      const previous = harness.session;
+      const events =
+        replacement === 'truncated'
+          ? []
+          : [
+              {
+                ...previous.events[0],
+                id: 'rewritten-event-id',
+              },
+            ];
+
+      harness.runtimeContext.setSession({ ...previous, events });
+      const [nextEvent] = makeAppendEvents();
+      harness.appendEvent({ ...nextEvent, sequence: events.length });
+
+      expect(mockAppendMatchEvent).not.toHaveBeenCalled();
+      expect(harness.hasMatchLogDiverged()).toBe(true);
+      expect(mockToast).toHaveBeenCalledWith({
+        message: MATCH_LOG_DIVERGENCE_MESSAGE,
+        variant: 'error',
+      });
+    },
+  );
 
   it('keeps the in-memory append when match log persistence rejects and reports the failure', async () => {
     const error = new Error('IndexedDB write failed');

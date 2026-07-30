@@ -95,7 +95,10 @@ import {
   createRecoveredGridFromSession,
   deriveAdaptedUnitsFromSession,
 } from './InteractiveSession.recovery';
-import { appendAndPersistInteractiveSessionEvent } from './InteractiveSession.sessionEvents';
+import {
+  appendAndPersistInteractiveSessionEvent,
+  persistNewInteractiveSessionEvents,
+} from './InteractiveSession.sessionEvents';
 import {
   buildInteractiveSessionGameConfig,
   buildInteractiveSessionUnitMaps,
@@ -257,7 +260,12 @@ export class InteractiveSession {
       linkage: this.linkage,
       getSession: () => this.session,
       setSession: (session) => {
+        const previousSession = this.session;
         this.session = session;
+        persistNewInteractiveSessionEvents(
+          this.runtimeContext,
+          previousSession,
+        );
       },
       getOutcomePublished: () => this.outcomePublished,
       setOutcomePublished: (published) => {

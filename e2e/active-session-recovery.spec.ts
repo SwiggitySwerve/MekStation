@@ -34,6 +34,7 @@ import { test, expect, type Page } from '@playwright/test';
 
 import {
   buildGameCreatedAndStartedEvents,
+  readPersistedMatchEventSummaries,
   seedMatchLog,
   type SeededGameUnit,
 } from './helpers/matchLogSeeding';
@@ -123,13 +124,30 @@ interface ExposedGameplayState {
   error?: string | null;
   session?: {
     id?: string;
-    events?: readonly { type?: string }[];
+    events?: readonly { sequence?: number; type?: string }[];
     currentState?: {
+      [key: string]: unknown;
       status?: string;
-      units?: Record<string, unknown>;
+      phase?: string;
+      activationIndex?: number;
+      units?: Record<
+        string,
+        {
+          facing?: number;
+          position?: { q: number; r: number };
+        }
+      >;
     };
   };
   interactiveSession?: {
+    advancePhase: () => void;
+    applyMovement: (
+      unitId: string,
+      to: { q: number; r: number },
+      facing: number,
+      movementType: string,
+    ) => void;
+    getSession: () => ExposedGameplayState['session'];
     getMovementCapability: (unitId: string) => unknown;
   } | null;
 }
@@ -137,12 +155,39 @@ interface ExposedGameplayState {
 interface ExposedZustandStores {
   gameplay?: {
     getState: () => ExposedGameplayState;
+    setState?: (partial: { session?: unknown }) => void;
   };
+}
+
+type ExposedWindow = {
+  __ZUSTAND_STORES__?: ExposedZustandStores;
+};
+
+async function readInteractiveSessionAuthoritySnapshot(page: Page) {
+  return page.evaluate(() => {
+    const stores = (window as ExposedWindow).__ZUSTAND_STORES__;
+    const interactiveSession = stores?.gameplay?.getState().interactiveSession;
+    if (!interactiveSession) {
+      throw new Error('Interactive session not available on gameplay store');
+    }
+
+    const session = interactiveSession.getSession();
+    return {
+      activationIndex: session?.currentState?.activationIndex,
+      currentState: session?.currentState,
+      eventSummaries: (session?.events ?? []).map(({ sequence, type }) => ({
+        sequence: sequence ?? -1,
+        type: type ?? '',
+      })),
+      phase: session?.currentState?.phase,
+    };
+  });
 }
 
 async function expectRecoveredInteractiveSession(
   page: Page,
   matchId: string,
+  expectedEventCount = 2,
 ): Promise<void> {
   await expect(page.getByTestId('game-session')).toBeVisible({
     timeout: 20_000,
@@ -168,7 +213,9 @@ async function expectRecoveredInteractiveSession(
 
   await expect(page.getByTestId('game-error')).toHaveCount(0);
   await expect(page.getByTestId('tactical-turn-rail')).toBeVisible();
-  await expect(page.getByTestId('event-log-count')).toContainText('2');
+  await expect(page.getByTestId('event-log-count')).toContainText(
+    String(expectedEventCount),
+  );
 }
 
 /**
@@ -425,7 +472,7 @@ function normalizeContinuationEvents(
 test.describe('active game session recovery @game @recovery', () => {
   test('deep-links and refreshes a generated match from local match-log storage', async ({
     page,
-  }) => {
+  }, testInfo) => {
     test.setTimeout(120_000);
 
     const matchId = `e2e-recovery-${Date.now()}`;
@@ -441,9 +488,125 @@ test.describe('active game session recovery @game @recovery', () => {
     await expect(page).toHaveURL(new RegExp(`/gameplay/games/${matchId}$`));
     await expectRecoveredInteractiveSession(page, matchId);
 
+    await page.evaluate(() => {
+      const stores = (window as ExposedWindow).__ZUSTAND_STORES__;
+      const gameplay = stores?.gameplay;
+      const interactiveSession = gameplay?.getState().interactiveSession;
+      if (!gameplay || !interactiveSession) {
+        throw new Error('Interactive session not available on gameplay store');
+      }
+
+      interactiveSession.advancePhase();
+      const session = interactiveSession.getSession();
+      gameplay.setState?.({ session });
+    });
+
+    await expect
+      .poll(async () => {
+        const live = await readInteractiveSessionAuthoritySnapshot(page);
+        const persisted = await readPersistedMatchEventSummaries(page, matchId);
+        return (
+          JSON.stringify(persisted) === JSON.stringify(live.eventSummaries)
+        );
+      })
+      .toBe(true);
+    const beforeReload = await readInteractiveSessionAuthoritySnapshot(page);
+    const persistedBeforeReload = await readPersistedMatchEventSummaries(
+      page,
+      matchId,
+    );
+
+    expect(beforeReload.phase).toBe('movement');
+    expect(persistedBeforeReload).toEqual(beforeReload.eventSummaries);
+    await testInfo.attach('pre-reload-combat-state', {
+      body: await page.screenshot({ fullPage: true }),
+      contentType: 'image/png',
+    });
+
     await page.reload({ waitUntil: 'domcontentloaded', timeout: 60_000 });
     await expect(page).toHaveURL(new RegExp(`/gameplay/games/${matchId}$`));
-    await expectRecoveredInteractiveSession(page, matchId);
+    await expectRecoveredInteractiveSession(
+      page,
+      matchId,
+      beforeReload.eventSummaries.length,
+    );
+    await testInfo.attach('recovered-combat-state', {
+      body: await page.screenshot({ fullPage: true }),
+      contentType: 'image/png',
+    });
+    const activeUnitTestId = await page
+      .locator('[data-testid^="rail-unit-"][aria-current="true"]')
+      .getAttribute('data-testid');
+    const activeUnitId = activeUnitTestId?.replace(/^rail-unit-/, '');
+    if (!activeUnitId) throw new Error('Active rail unit is unavailable');
+
+    const afterReload = await page.evaluate((unitId) => {
+      const stores = (window as ExposedWindow).__ZUSTAND_STORES__;
+      const gameplay = stores?.gameplay;
+      const interactiveSession = gameplay?.getState().interactiveSession;
+      if (!gameplay || !interactiveSession) {
+        throw new Error('Interactive session not available on gameplay store');
+      }
+
+      const recoveredSession = interactiveSession.getSession();
+      const recovered = {
+        activationIndex: recoveredSession?.currentState?.activationIndex,
+        currentState: recoveredSession?.currentState,
+        eventSummaries: (recoveredSession?.events ?? []).map(
+          ({ sequence, type }) => ({
+            sequence: sequence ?? -1,
+            type: type ?? '',
+          }),
+        ),
+        phase: recoveredSession?.currentState?.phase,
+      };
+      const unit = recoveredSession?.currentState?.units?.[unitId];
+      if (!unit?.position || unit.facing === undefined) {
+        throw new Error(`Active movement unit ${unitId} is unavailable`);
+      }
+      interactiveSession.applyMovement(
+        unitId,
+        unit.position,
+        unit.facing,
+        'stationary',
+      );
+      const continuedSession = interactiveSession.getSession();
+      gameplay.setState?.({ session: continuedSession });
+
+      return {
+        continuedEventCount: continuedSession?.events?.length ?? 0,
+        recovered,
+      };
+    }, activeUnitId);
+
+    expect(afterReload.recovered).toEqual(beforeReload);
+    expect(afterReload.continuedEventCount).toBeGreaterThan(
+      beforeReload.eventSummaries.length,
+    );
+    await expect
+      .poll(() => readPersistedMatchEventSummaries(page, matchId))
+      .toEqual(
+        await readInteractiveSessionAuthoritySnapshot(page).then(
+          ({ eventSummaries }) => eventSummaries,
+        ),
+      );
+    await testInfo.attach('continued-combat-state', {
+      body: await page.screenshot({ fullPage: true }),
+      contentType: 'image/png',
+    });
+    await testInfo.attach('combat-event-durability-proof', {
+      body: JSON.stringify(
+        {
+          afterReload,
+          beforeReload,
+          matchId,
+          persistedBeforeReload,
+        },
+        null,
+        2,
+      ),
+      contentType: 'application/json',
+    });
   });
 
   test('recovers a mirrored-canonical-ref roster without id collision', async ({

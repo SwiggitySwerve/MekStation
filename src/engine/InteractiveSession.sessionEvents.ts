@@ -21,11 +21,38 @@ export function appendAndPersistInteractiveSessionEvent(
 ): void {
   const sessionBeforeEvent = context.getSession();
   context.setSession(appendEvent(sessionBeforeEvent, event));
-  persistInteractiveSessionMatchLogEvent(context, event);
   applyBattlefieldWreckTerrainForNewInteractiveSessionEvents(
     context,
     sessionBeforeEvent,
   );
+}
+
+export function persistNewInteractiveSessionEvents(
+  context: IInteractiveSessionRuntimeContext,
+  sessionBeforeEvents: IGameSession,
+): void {
+  if (typeof window === 'undefined') return;
+  if (context.hasMatchLogDiverged()) return;
+
+  const session = context.getSession();
+  const previousMatchId = sessionBeforeEvents.matchId ?? sessionBeforeEvents.id;
+  const currentMatchId = session.matchId ?? session.id;
+  if (currentMatchId !== previousMatchId) return;
+  const prefixIsUnchanged = sessionBeforeEvents.events.every(
+    (event, index) => session.events[index] === event,
+  );
+  if (!prefixIsUnchanged) {
+    context.markMatchLogDiverged();
+    reportMatchLogDivergence(
+      new Error('Interactive session event history is not append-only'),
+    );
+    return;
+  }
+
+  const newEvents = session.events.slice(sessionBeforeEvents.events.length);
+  for (const event of newEvents) {
+    persistInteractiveSessionMatchLogEvent(context, event);
+  }
 }
 
 export function applyBattlefieldWreckTerrainForNewInteractiveSessionEvents(
@@ -53,7 +80,6 @@ export function applyBattlefieldWreckTerrainForNewInteractiveSessionEvents(
       payload,
     );
     context.setSession(appendEvent(current, event));
-    persistInteractiveSessionMatchLogEvent(context, event);
   }
 }
 
