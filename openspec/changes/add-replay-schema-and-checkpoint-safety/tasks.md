@@ -16,7 +16,7 @@
 
 ## 3. Quarantine and Replay Library Integration — PR 3
 
-- [ ] 3.1 Add per-authority-scope quarantine for unknown type/version, invalid payload, broken lineage, or digest mismatch; keep a healthy control scope available.
+- [ ] 3.1 Add per-authority-scope quarantine for unknown type/version, invalid payload, broken fixed-root continuity, canonicalizer mismatch, or digest mismatch; keep a healthy control scope available and defer parent/supersession lineage checks until branch records exist.
 - [ ] 3.2 Route Replay Library, cold recovery, snapshot hydration, and catch-up through the same validation/upcast/projector registrations.
 - [ ] 3.3 Add truthful blocked/recovery UI state with persistent text and accessible announcement; do not present partial replay as complete.
 - [ ] 3.4 Run focused replay/recovery/browser checks, `verify:qc:replay-recovery`, viewport/accessibility checks for the blocked state, and independent review.

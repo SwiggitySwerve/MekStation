@@ -45,7 +45,7 @@ A checkpoint is keyed by stream, branch, revision, projector ID/version, source-
 
 ### D4 — Unknown history quarantines one authority scope
 
-Unsupported type/version, broken lineage, or digest mismatch yields a typed blocked result and no partial baseline/publication. A session registry records the quarantine reason and recovery action. Zustand surfaces may render the typed blocked state but cannot bypass it.
+Unsupported type/version, broken fixed-root continuity, or digest mismatch yields a typed blocked result and no partial baseline/publication. Before the later branching wave, recovery validates the deterministic root branch, contiguous revisions, and predecessor/event digests only. Full parent/base/supersession lineage validation begins when branch records exist. A session registry records the quarantine reason and recovery action. Zustand surfaces may render the typed blocked state but cannot bypass it.
 
 ## Risks / Trade-offs
 
