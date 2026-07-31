@@ -2,34 +2,34 @@
 
 ### Requirement: Campaign Creation Wizard
 
-The system SHALL provide a multi-step campaign creation wizard with 4 steps: campaign type selection, preset selection, option customization, and summary/confirmation. The roster step SHALL expose the four representative canonical BattleMech templates and saved custom BattleMechs as separate named groups. Every selected roster instance SHALL carry a distinct campaign `unitId`, a stable source-design `unitRef`, and a persisted `unitSource` discriminator; a representative template SHALL use `canonical` and a canonical-dataset ref, while a saved design SHALL use `custom` and its exact custom-unit API id. Wizard-created pilots SHALL be registered in the pilot vault with distinct default names.
+The system SHALL provide a multi-step campaign creation wizard with 5 steps: Basic Info, Type, Preset, Roster, and Review. The roster step SHALL expose the four representative canonical BattleMech templates and saved custom BattleMechs as separate named groups. Every selected roster instance SHALL carry a distinct campaign `unitId`, a stable source-design `unitRef`, and a persisted `unitSource` discriminator; a representative template SHALL use `canonical` and a canonical-dataset ref, while a saved design SHALL use `custom` and its exact custom-unit API id. Wizard-created pilots SHALL be registered in the pilot vault with distinct default names.
 
-#### Scenario: Wizard step 1 - Campaign type selection
+#### Scenario: Wizard step 1 - Basic Info
 
 - **WHEN** the user opens the campaign creation wizard
+- **THEN** a required campaign name input and optional description input are displayed
+
+#### Scenario: Wizard step 2 - Type
+
+- **WHEN** the user completes Basic Info and proceeds
 - **THEN** 5 campaign types are displayed as selectable cards with name, icon, and description
 
-#### Scenario: Wizard step 2 - Preset selection
+#### Scenario: Wizard step 3 - Preset
 
 - **WHEN** the user selects a campaign type and proceeds
 - **THEN** 4 presets (Casual, Standard, Full, Custom) are displayed with feature comparison highlights
 
-#### Scenario: Wizard step 3 - Option customization
+#### Scenario: Wizard step 4 - Roster
 
 - **WHEN** the user selects a preset and proceeds
-- **THEN** all campaign options are displayed grouped by OptionGroupId in collapsible panels, pre-filled with the selected preset's values
+- **THEN** Stock Templates with four representative canonical BattleMechs and Saved Designs are displayed as separate named groups
 
-#### Scenario: Wizard step 4 - Summary
+#### Scenario: Wizard step 5 - Review
 
-- **WHEN** the user completes customization and proceeds
-- **THEN** a summary of all selected options is displayed with campaign name input and a create button
-
-#### Scenario: Representative roster units are canonical-backed
-
-- **WHEN** the user adds a representative weight-class unit in the wizard roster step and creates the campaign
-- **THEN** the stored roster entry SHALL carry a `unitRef` that resolves in the canonical unit dataset
-- **AND** the stored roster entry's `unitSource` SHALL equal `canonical`
-- **AND** campaign surfaces SHALL show that unit's real name, weight, and available Battle Value
+- **WHEN** the user completes the roster and proceeds
+- **THEN** the summary SHALL display the campaign details, type, preset, roster assignments, and create action
+- **AND** every representative roster row SHALL retain a canonical-dataset `unitRef` and `canonical` source
+- **AND** the summary SHALL show each representative unit's real name, weight, and available Battle Value
 
 #### Scenario: Saved custom BattleMech is added by stable reference
 
