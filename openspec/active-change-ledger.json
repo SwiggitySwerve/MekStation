@@ -65,6 +65,12 @@
       "status": "proposed",
       "reason": "CAMP-01 specification wave: select a server-saved custom BattleMech in campaign creation and preserve separate roster-instance and source-design identities through root-force persistence, cold reload, Mech Bay, and mission readiness before product implementation.",
       "lastReviewed": "2026-07-30"
+    },
+    {
+      "name": "add-camp01-authority-receipts",
+      "status": "proposed",
+      "reason": "CAMP-PROOF child specification: add immutable exact-SHA authority receipts, canonical provenance, durable evidence export, reviewed PROOF-02 triage, and cleanup-gated sequencing before any CAMP product wave.",
+      "lastReviewed": "2026-07-30"
     }
   ]
 }
