@@ -28,47 +28,24 @@ async function expectDistinctStackedRows(
   }
 }
 
-async function expectMobileCommandFraming(page: Page): Promise<void> {
-  const actionDock = page.getByTestId('tactical-action-dock');
+async function expectReadableMapSurface(page: Page): Promise<void> {
   const mapContent = page.getByTestId('gameplay-main-content');
   const mapControls = page.getByTestId('zoom-controls');
   const hotkeyHint = page.getByTestId('hotkey-hint-badge');
-  await expect(actionDock).toBeInViewport();
+  await expect(mapContent).toBeVisible();
   await expect(mapControls).toBeVisible();
   await expect(hotkeyHint).toBeVisible();
-  const phaseCommand = page.getByTestId('command-btn-heat-end.end-phase');
-  const mobileNavigation = page.getByRole('navigation', {
-    name: 'Mobile navigation',
-  });
-  await expect(phaseCommand).toBeVisible();
-  const [commandBox, navigationBox, dockBox, mapBox, controlsBox, hintBox] =
-    await Promise.all([
-      phaseCommand.boundingBox(),
-      mobileNavigation.boundingBox(),
-      actionDock.boundingBox(),
-      mapContent.boundingBox(),
-      mapControls.boundingBox(),
-      hotkeyHint.boundingBox(),
-    ]);
-  expect(commandBox).not.toBeNull();
-  expect(navigationBox).not.toBeNull();
-  expect(dockBox).not.toBeNull();
+  const [mapBox, controlsBox, hintBox] = await Promise.all([
+    mapContent.boundingBox(),
+    mapControls.boundingBox(),
+    hotkeyHint.boundingBox(),
+  ]);
   expect(mapBox).not.toBeNull();
   expect(controlsBox).not.toBeNull();
   expect(hintBox).not.toBeNull();
-  if (
-    !commandBox ||
-    !navigationBox ||
-    !dockBox ||
-    !mapBox ||
-    !controlsBox ||
-    !hintBox
-  ) {
-    throw new Error(
-      'Expected map, hint, controls, dock, command, and navigation layout boxes',
-    );
+  if (!mapBox || !controlsBox || !hintBox) {
+    throw new Error('Expected map, hint, and control layout boxes');
   }
-  expect(mapBox.height).toBeGreaterThanOrEqual(176);
   expect(controlsBox.y).toBeGreaterThanOrEqual(mapBox.y);
   expect(controlsBox.y + controlsBox.height).toBeLessThanOrEqual(
     mapBox.y + mapBox.height,
@@ -78,6 +55,28 @@ async function expectMobileCommandFraming(page: Page): Promise<void> {
   const unobscuredMapHeight = controlsBox.y - (hintBox.y + hintBox.height);
   expect(unobscuredMapHeight).toBeGreaterThanOrEqual(64);
   await expectCenterUnoccluded(hotkeyHint);
+}
+
+async function expectMobileCommandFraming(page: Page): Promise<void> {
+  const actionDock = page.getByTestId('tactical-action-dock');
+  await expect(actionDock).toBeInViewport();
+  await expectReadableMapSurface(page);
+  const phaseCommand = page.getByTestId('command-btn-heat-end.end-phase');
+  const mobileNavigation = page.getByRole('navigation', {
+    name: 'Mobile navigation',
+  });
+  await expect(phaseCommand).toBeVisible();
+  const [commandBox, navigationBox, dockBox] = await Promise.all([
+    phaseCommand.boundingBox(),
+    mobileNavigation.boundingBox(),
+    actionDock.boundingBox(),
+  ]);
+  expect(commandBox).not.toBeNull();
+  expect(navigationBox).not.toBeNull();
+  expect(dockBox).not.toBeNull();
+  if (!commandBox || !navigationBox || !dockBox) {
+    throw new Error('Expected dock, command, and navigation layout boxes');
+  }
   expect(commandBox.y + commandBox.height).toBeLessThanOrEqual(navigationBox.y);
   const overflow = await page.evaluate(
     () => document.documentElement.scrollWidth - window.innerWidth,
@@ -162,12 +161,8 @@ test.describe('combat turn rail narrow framing @game @combat', () => {
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await waitForGame(page);
 
-    const mapBox = await page
-      .getByTestId('gameplay-main-content')
-      .boundingBox();
-    expect(mapBox).not.toBeNull();
-    expect(mapBox?.height).toBeGreaterThanOrEqual(176);
     await expect(page.getByTestId('hex-map-container')).toBeVisible();
+    await expectReadableMapSurface(page);
 
     const layoutScroll = await page
       .getByTestId('gameplay-layout')

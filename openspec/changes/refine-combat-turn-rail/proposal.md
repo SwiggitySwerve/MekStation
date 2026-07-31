@@ -49,7 +49,7 @@ the command-authority hardening discovered during review.
 - Affects the tactical command shell, turn-rail components, gameplay layout
   presentation threading, and focused component and projection tests.
 - Adds no API, persistence-schema, protocol, or dependency changes.
-- The implementation wave is already merged as PR #1083 at merge commit
-  `67805c8302f78c5205921cafbee9d4544783fb96`; these artifacts capture that
-  reviewed behavioral contract posthumously without expanding its product
-  diff.
+- The grouped-rail foundation is merged as PR #1083 at merge commit
+  `67805c8302f78c5205921cafbee9d4544783fb96`. Task 3.2 owns a separate focused
+  regression-hardening follow-up for narrow map and command framing within the
+  same behavioral seam.

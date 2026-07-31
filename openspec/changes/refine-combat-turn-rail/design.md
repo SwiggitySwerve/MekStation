@@ -5,10 +5,10 @@ unit, but rendered all units in a single roster strip. This wave is limited to
 presentation, projection consumption, responsive framing, and accessible force
 and status semantics.
 
-This is a posthumous design for the implementation merged through PR #1083 at
-merge commit `67805c8302f78c5205921cafbee9d4544783fb96`. It records the
-reviewed behavior without claiming that the separately discovered combat-event
-durability defect is resolved.
+This design records the grouped-rail foundation merged through PR #1083 at
+merge commit `67805c8302f78c5205921cafbee9d4544783fb96` plus the focused
+regression-hardening follow-up defined by task 3.2. It does not claim that the
+separately discovered combat-event durability defect is resolved.
 
 ## Goals / Non-Goals
 
