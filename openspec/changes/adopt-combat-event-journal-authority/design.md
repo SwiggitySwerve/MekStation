@@ -41,6 +41,8 @@ The UI/Zustand store receives only committed/replayed events. A mirror divergenc
 
 Existing retained logs are imported with source identity metadata. New test sessions dual-project the legacy and journal paths but only one writer is authoritative. State/event digests must match before journal cutover.
 
+Each match stores immutable cutover facts. The baseline fact records `(streamType, streamId, branchId, revision, digest, effectiveGeneration)`. The first journal-authority command transaction atomically appends a one-time `journal-authority-started` fact with the command identity, committed event range, and resulting head tuple; it is never updated after that transaction. Those durable facts, rather than a feature flag alone, decide which rollback reader is truthful for that match.
+
 ## Risks / Trade-offs
 
 - [Decision extraction changes engine behavior] → Lock existing command-to-event tests first and compare event/state digests.
@@ -57,7 +59,7 @@ Existing retained logs are imported with source identity metadata. New test sess
 5. Cut over newly created matches; preserve legacy completed-log reads.
 6. Run restart, reconnect, IndexedDB recovery, and exact-main combat journeys.
 
-Rollback stops new journal-authority match admission and uses the schema-compatible legacy reader for pre-cutover matches. Committed rows are never deleted.
+Rollback stops new journal-authority match admission. A pre-cutover match, or a cut-over match whose complete active head tuple is still exactly its imported baseline and has no `journal-authority-started` fact, MAY use the schema-compatible legacy reader. Once any journal-authority command batch commits, its atomic started fact makes rollback stop new command/effect admission and either use a journal-schema/upcaster/effective-generation-compatible reader that reproduces the recorded active head or enter a typed truthful blocked state. It MUST NOT substitute a legacy log or snapshot that cannot reproduce that head. Committed rows, receipts, head identity, effective generation, and projection recovery state are retained.
 
 ## Open Questions
 
