@@ -4,7 +4,7 @@ A durable journal increases the blast radius of an admission or projection mista
 
 ## What Changes
 
-- Require durable active-membership resolution before human socket, replay, history, command, or publication surfaces, while giving internal effect ingestion a separate one-effect system principal.
+- Require durable active-membership resolution before human socket, replay, history, command, or publication surfaces, and prohibit non-human work from borrowing or synthesizing human viewer authority.
 - Derive actor, authority, campaign, match, role, and owned scope on the server; client role and authority fields remain untrusted command input.
 - Keep raw journal reads server-internal and expose history only through authorization plus pre-serialization viewer projection.
 - Record accepted, rejected, vetoed, timed-out, and published action lifecycle provenance without turning rejections into gameplay events.
@@ -32,8 +32,8 @@ None.
 
 ### Modified Capabilities
 
-- `multiplayer-server`: Require active durable membership and server-derived authority scope before human attachment, replay, command handling, or publication; require a narrow server-minted principal for internal effect ingestion.
-- `gm-authority-redaction`: Require pre-serialization viewer projection, gapless viewer delivery identity, separate private-record lifecycle, and cross-surface negative privacy proof.
+- `multiplayer-server`: Require active durable membership and server-derived authority scope before human attachment, replay, command handling, or publication; prohibit client or internal non-human claims from becoming human viewer authority.
+- `gm-authority-redaction`: Require pre-serialization viewer projection, durable privacy-safe delivery epochs and cursors, separate private-record lifecycle, and cross-surface negative privacy proof.
 - `audit-timeline`: Add idempotent lifecycle provenance for accepted, rejected, vetoed, timed-out, and published actions plus audited private-record access.
 
 ## Impact

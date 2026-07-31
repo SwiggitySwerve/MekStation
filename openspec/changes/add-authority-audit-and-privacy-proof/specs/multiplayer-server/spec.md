@@ -18,15 +18,15 @@ The server SHALL resolve verified identity to active durable campaign/session/ma
 - **THEN** subsequent human reads, commands, and publications SHALL fail closed
 - **AND** cached viewer context SHALL not outlive the validated membership revision
 
-### Requirement: System Effect Principal Is Narrow and Non-Human
-Internal effect ingestion SHALL require a non-serializable server-minted principal bound to one committed outbox effect, source stream/branch/event, source effective generation, durable delivery-admission token, target campaign, and binding revision. A lease alone SHALL NOT mint this principal. It SHALL authorize only that target semantic effect ingestion and SHALL NOT attach, view/render history, access private audit, submit other commands, or impersonate a GM/player.
+### Requirement: Non-Human Work Cannot Borrow Human Viewer Authority
+`IAuthorizedViewer` construction SHALL remain server-internal and SHALL require verified identity plus active durable membership. Client input and internal non-human work SHALL NOT construct, serialize, borrow, or convert into a human viewer context. A subsystem-specific non-human capability MAY authorize only its explicitly admitted operation and SHALL grant no socket, replay, history, timeline, export, private-audit, branch, or human-command authority.
 
-#### Scenario: Worker retries after all human memberships are revoked
-- **WHEN** a committed outcome effect retries after its human participants are inactive
-- **THEN** the system principal MAY deliver only the still-valid bound effect
-- **AND** it SHALL gain no human viewer or command authority
+#### Scenario: Client claims an internal principal kind
+- **WHEN** a client submits `viewer`, `system`, or other internal-principal fields without a server-derived active membership context
+- **THEN** the server SHALL ignore those claims for authorization
+- **AND** it SHALL attach no authority recipient and disclose no protected payload
 
-#### Scenario: Worker reuses principal for another target
-- **WHEN** a worker presents the principal for a different effect, campaign, source branch generation, delivery-admission token, or binding revision
-- **THEN** ingestion SHALL reject without target mutation
-- **AND** no history or private record SHALL be disclosed
+#### Scenario: Non-human capability reaches a human surface
+- **WHEN** an internal job presents a subsystem-specific non-human capability to a socket, replay, history, timeline, export, private-audit, branch, or human-command entrypoint
+- **THEN** that surface SHALL reject it with no authority mutation
+- **AND** it SHALL disclose no viewer or private record
