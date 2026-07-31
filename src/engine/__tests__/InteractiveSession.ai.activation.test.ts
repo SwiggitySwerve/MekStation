@@ -6,7 +6,11 @@ import type {
   IGameUnit,
 } from '@/types/gameplay/GameSessionInterfaces';
 
-import { GameSide, LockState } from '@/types/gameplay/GameSessionInterfaces';
+import {
+  GamePhase,
+  GameSide,
+  LockState,
+} from '@/types/gameplay/GameSessionInterfaces';
 import {
   advancePhase,
   appendEvent,
@@ -65,30 +69,43 @@ function createMovementSession(): IGameSession {
   return advancePhase(session);
 }
 
+function createAIContext(
+  getSession: () => IGameSession,
+  setSession: (session: IGameSession) => void,
+  botPlayer: BotPlayer,
+): IInteractiveSessionAIContext {
+  return {
+    side: GameSide.Opponent,
+    getSession,
+    setSession,
+    appendAndPersistEvent: (event) => {
+      setSession(appendEvent(getSession(), event));
+    },
+    weaponsByUnit: new Map(),
+    movementByUnit: new Map(),
+    gunneryByUnit: new Map(),
+    pilotingByUnit: new Map(),
+    tonnageByUnit: new Map(),
+    grid: createHexGrid({ radius: 5 }),
+    botPlayer,
+  };
+}
+
 describe('runInteractiveSessionAITurn unit scoping', () => {
-  it('locks only the requested opponent activation', () => {
+  it('locks the requested opponent when recovered state side is missing', () => {
     let session = createMovementSession();
+    Reflect.deleteProperty(session.currentState.units['opponent-1'], 'side');
     const botPlayer = {
       evaluateRetreat: jest.fn(() => null),
       playMovementPhase: jest.fn(() => null),
     } as unknown as BotPlayer;
-    const context: IInteractiveSessionAIContext = {
-      side: GameSide.Opponent,
-      getSession: () => session,
-      setSession: (next) => {
+    const context = createAIContext(
+      () => session,
+      (next) => {
         session = next;
       },
-      appendAndPersistEvent: (event) => {
-        session = appendEvent(session, event);
-      },
-      weaponsByUnit: new Map(),
-      movementByUnit: new Map(),
-      gunneryByUnit: new Map(),
-      pilotingByUnit: new Map(),
-      tonnageByUnit: new Map(),
-      grid: createHexGrid({ radius: 5 }),
       botPlayer,
-    };
+    );
 
     runInteractiveSessionAITurn(context, 'opponent-1');
 
@@ -102,5 +119,36 @@ describe('runInteractiveSessionAITurn unit scoping', () => {
       LockState.Pending,
     );
     expect(session.currentState.activationIndex).toBe(1);
+  });
+
+  it('excludes recovered same-side and unassigned units from targets', () => {
+    let session = createMovementSession();
+    session = {
+      ...session,
+      currentState: {
+        ...session.currentState,
+        phase: GamePhase.WeaponAttack,
+      },
+    };
+    Reflect.deleteProperty(session.currentState.units['opponent-1'], 'side');
+    Reflect.deleteProperty(session.currentState.units['opponent-2'], 'side');
+    Reflect.deleteProperty(session.units[2], 'side');
+    const playAttackPhase = jest.fn(() => null);
+    const context = createAIContext(
+      () => session,
+      (next) => {
+        session = next;
+      },
+      {
+        evaluateRetreat: jest.fn(() => null),
+        playAttackPhase,
+      } as unknown as BotPlayer,
+    );
+
+    runInteractiveSessionAITurn(context, 'opponent-1');
+
+    expect(playAttackPhase).toHaveBeenCalledWith(expect.anything(), [
+      expect.objectContaining({ unitId: 'player-1' }),
+    ]);
   });
 });

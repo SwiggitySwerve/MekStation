@@ -168,6 +168,73 @@ describe('usePhaseQueueProjection', () => {
     expect(result.current.blockers).toEqual([]);
   });
 
+  it('keeps side-less units visible but excludes them from action ownership', () => {
+    const session = buildSession({
+      phase: GamePhase.Movement,
+      unitLockStates: { p1: LockState.Pending, o1: LockState.Pending },
+    });
+    Reflect.deleteProperty(session.units[1], 'side');
+    Reflect.deleteProperty(session.currentState.units.o1, 'side');
+
+    act(() => {
+      useGameplayStore.setState({ session });
+    });
+
+    const { result } = renderHook(() => usePhaseQueueProjection());
+
+    expect(result.current.initiativeOrder).toEqual(['p1', 'o1']);
+    expect(result.current.activeUnitId).toBe('p1');
+    expect(result.current.unresolvedUnits).toEqual(['p1']);
+    expect(result.current.blockers.map((blocker) => blocker.unitId)).toEqual([
+      'p1',
+    ]);
+  });
+
+  it('uses authoritative unit state when game-unit side metadata is missing', () => {
+    const session = buildSession({
+      phase: GamePhase.Movement,
+      unitLockStates: { p1: LockState.Pending, o1: LockState.Pending },
+    });
+    Reflect.deleteProperty(session.units[1], 'side');
+
+    act(() => {
+      useGameplayStore.setState({ session });
+    });
+
+    const { result } = renderHook(() => usePhaseQueueProjection());
+
+    expect(result.current.initiativeOrder).toEqual(['p1', 'o1']);
+    expect(result.current.unresolvedUnits).toEqual(['p1', 'o1']);
+    expect(result.current.blockers.map((blocker) => blocker.unitId)).toEqual([
+      'p1',
+      'o1',
+    ]);
+  });
+
+  it('uses game-unit side metadata for active ownership when state side is missing', () => {
+    const session = buildSession({
+      phase: GamePhase.Movement,
+      activationIndex: 1,
+      unitLockStates: { p1: LockState.Pending, o1: LockState.Pending },
+    });
+    Reflect.deleteProperty(session.currentState.units.o1, 'side');
+
+    act(() => {
+      useGameplayStore.setState({ session });
+    });
+
+    const { result } = renderHook(() => usePhaseQueueProjection());
+
+    expect(result.current.activeUnitId).toBe('o1');
+    expect(result.current.activeSide).toBe(GameSide.Opponent);
+    expect(result.current.blockers).toContainEqual(
+      expect.objectContaining({
+        unitId: 'o1',
+        side: GameSide.Opponent,
+      }),
+    );
+  });
+
   it('hands control to the player after the active opponent locks movement', () => {
     act(() => {
       useGameplayStore.setState({
