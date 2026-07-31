@@ -29,7 +29,25 @@ interface IEventJournal {
   append(input: IAppendEventBatch): Promise<ICommittedEventBatch>;
   readStream(query: IReadStreamQuery): Promise<IStoredEvent[]>;
   readEntityHistory(query: IReadEntityHistoryQuery): Promise<IStoredEvent[]>;
+  captureHighWater(): Promise<IJournalHighWater>;
+  readCommitted(query: IReadCommittedQuery): Promise<ICommittedReadPage>;
   getCommandReceipt(commandId: string): Promise<ICommandReceipt | null>;
+}
+
+interface IJournalHighWater {
+  commitPosition: number;
+}
+
+interface IReadCommittedQuery {
+  afterCommitPosition: number; // non-negative safe integer
+  throughCommitPosition: number; // safe integer >= afterCommitPosition
+  limit: number; // safe integer in [1, 500]
+}
+
+interface ICommittedReadPage {
+  events: readonly IStoredEvent[];
+  nextAfterCommitPosition: number;
+  exhausted: boolean;
 }
 
 interface IStoredEvent<TPayload = unknown> {
@@ -45,7 +63,9 @@ interface IStoredEvent<TPayload = unknown> {
   eventVersion: number;
   correlationId: string;
   causationEventIds: readonly string[];
+  actorKind: "human" | "system" | "migration";
   actorId: string;
+  authorityType: string;
   authorityId: string;
   occurredAt: string;
   recordedAt: string;
@@ -59,13 +79,15 @@ interface IStoredEvent<TPayload = unknown> {
 
 Domain reducers keep their current payload unions. The envelope owns storage and provenance concerns. This avoids forcing combat, campaign, vault, and audit semantics into one reducer.
 
+`actorKind` and `actorId` identify the human, admitted server process, or migration principal that initiated the accepted command. `authorityType` and `authorityId` identify the server-owned command-authority instance that performed admission and committed the batch, such as a match host, campaign host, or migration importer. Authority identity is provenance, not a role, membership, owning entity, or authorization token. Append callers receive a resolved server-internal principal; transport/client DTOs never assign the stored actor/authority fields. Later privacy and effect waves define how human membership and admitted system effects mint those principals.
+
 `IEventJournal` is a server-internal/raw persistence boundary. Transport, timeline, replay UI, snapshot, and export code must use a separate authorization and viewer-projection service introduced before production cutover; they may not serialize raw journal rows.
 
 ### D2 — SQLite is the first adapter; PostgreSQL and KurrentDB are triggers
 
 The SQLite adapter uses one database transaction, `BEGIN IMMEDIATE` where required by the existing driver boundary, unique constraints for event/command identity, and a head row updated with expected revision. SQLite matches the current embedded/Electron/server topology and supports concurrent readers with one writer. PostgreSQL becomes the next adapter only when multiple server processes must write the same aggregate. KurrentDB is reconsidered only when durable subscription fleets, high event throughput, or separate event-store operations justify another service.
 
-`commitPosition` is a unique monotonically increasing observation cursor assigned through a deliberately short store-level coordination point. It may contain allocation or rollback gaps and is not an optimistic-lock head. An adapter must not expose a high-water cursor that can skip an in-flight lower position. This small ordering seam is accepted because a reliable cross-stream catch-up cursor cannot also be coordination-free. Stream validation and domain decisions remain independent.
+`commitPosition` is a unique monotonically increasing, store-local observation cursor assigned through a deliberately short store-level coordination point. It may contain allocation or rollback gaps and is not an optimistic-lock head, domain chronology, or causal order. `captureHighWater()` returns a boundary only after every transaction that could publish a position at or below that boundary is committed or rolled back. `readCommitted()` requires non-negative safe-integer cursors with `afterCommitPosition <= throughCommitPosition` and a safe-integer limit from 1 through 500. It returns events in ascending position greater than the exclusive prior cursor and no greater than that captured boundary. A non-exhausted page advances to its last returned position; an exhausted page advances to the requested boundary even when numeric gaps exist. A later commit can never appear at or below an already returned boundary. Invalid cursors or limits reject without reading. This small ordering seam is accepted because reliable cross-stream catch-up cannot also be coordination-free. Stream validation and domain decisions remain independent, so the system still has no global domain-authority head.
 
 Automerge/Yjs remain appropriate for collaborative vault/design documents, not funds, ownership, combat, or campaign chronology. Temporal/DBOS remain possible workflow adjuncts, and Kafka/Redpanda remain possible distribution layers; none owns game history.
 
@@ -75,7 +97,7 @@ An event is stored once. A link table indexes `(entityType, entityId, eventId, r
 
 ### D4 — Stores assign contiguous revisions atomically
 
-The expected head is keyed by `(streamType, streamId, branchId)`. Wave 1 supports only a deterministic `root` branch. The empty head is revision 0, the first event is revision 1, and callers provide `expectedBranchId`, `expectedRevision`, and an ordered event batch without final revisions. The adapter verifies the head, inserts the receipt, assigns contiguous stream revisions and unique observation positions, inserts links, and updates the head in one transaction. A retry with the same command identity and identical digest returns the prior receipt; a collision with different content fails.
+The expected head is keyed by `(streamType, streamId, branchId)`. Wave 1 supports only a deterministic `root` branch. The empty head is revision 0, the first event is revision 1, and trusted callers provide `expectedBranchId`, `expectedRevision`, a resolved server principal, and an ordered event batch without stored actor/authority fields or final revisions. The adapter verifies the head, inserts the receipt, assigns provenance, contiguous stream revisions, and unique observation positions, inserts links, and updates the head in one transaction. A retry with the same command identity and identical digest returns the prior receipt; a collision with different content fails.
 
 Zustand remains a UI/read-model layer and never allocates authoritative revisions.
 
@@ -95,11 +117,12 @@ Canonicalizer v1 is RFC 8785 JSON Canonicalization Scheme applied to UTF-8 bytes
 
 ## Migration Plan
 
-1. Add types, runtime schemas, error taxonomy, and in-memory reference adapter.
-2. Add the shared conformance suite.
-3. Add additive SQLite tables and adapter behind tests only.
-4. Prove atomicity, no-gap stream ordering, observation-cursor safety, idempotency, integrity chaining, entity queries, and restart behavior.
-5. Keep all existing production stores authoritative until a later adoption change passes shadow parity.
+1. Add contract types, provenance semantics, runtime schemas, and typed errors.
+2. Add canonicalizer v1 plus published byte/digest fixtures.
+3. Add the shared conformance suite and in-memory reference adapter.
+4. Add additive SQLite tables and adapter behind tests only.
+5. Prove atomicity, no-gap stream ordering, bounded observation-cursor safety, idempotency, integrity chaining, entity queries, and restart behavior.
+6. Keep all existing production stores authoritative until a later adoption change passes shadow parity.
 
 Rollback removes unused adapter wiring while preserving additive empty tables. No history is deleted.
 

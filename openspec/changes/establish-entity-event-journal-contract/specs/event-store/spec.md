@@ -1,7 +1,7 @@
 ## ADDED Requirements
 
 ### Requirement: Authority Events Have One Owning Stream and Explicit Entity Links
-Every authoritative event SHALL be stored once in one owning stream with stable event, stream, branch, command, correlation, causation, schema-version, stream-revision, commit-position, command-index, actor, authority, timestamp, canonicalizer-version, predecessor-digest, and event-digest identities. The journal SHALL index every affected durable entity instance by type, ID, and role without treating display names, route parameters, canonical templates, or content hashes as entity identity. Raw journal and entity-history reads SHALL remain server-internal and SHALL NOT be serialized to a transport, timeline, replay view, snapshot, or export.
+Every authoritative event SHALL be stored once in one owning stream with stable event, stream, branch, command, correlation, causation, schema-version, stream-revision, commit-position, command-index, actor-kind/ID, accepting-authority-type/ID, timestamp, canonicalizer-version, predecessor-digest, and event-digest identities. Actor identity SHALL describe the initiating `human|system|migration` principal. Accepting-authority identity SHALL describe the server-owned command-authority instance that admitted and committed the batch; it SHALL NOT be interpreted as a role, membership, owning entity, or reusable authorization token. The journal SHALL index every affected durable entity instance by type, ID, and role without treating display names, route parameters, canonical templates, or content hashes as entity identity. Raw journal and entity-history reads SHALL remain server-internal and SHALL NOT be serialized to a transport, timeline, replay view, snapshot, or export.
 
 #### Scenario: Customized unit history crosses domains
 - **WHEN** a customized unit instance is adopted into a campaign, assigned to a mission, and used in combat
@@ -11,8 +11,13 @@ Every authoritative event SHALL be stored once in one owning stream with stable 
 #### Scenario: Unrelated streams write independently
 - **WHEN** two unrelated campaign or match streams append concurrently
 - **THEN** each stream SHALL compare only its own expected revision
-- **AND** a short store-owned coordination point MAY assign unique monotonically increasing observation positions with gaps
-- **AND** the observation cursor SHALL NOT become a caller-supplied global expected head
+- **AND** a short store-owned coordination point MAY assign unique monotonically increasing store-local observation positions with gaps
+- **AND** the observation cursor SHALL NOT become a caller-supplied global expected head, domain chronology, or causal order
+
+#### Scenario: Client supplies stored provenance
+- **WHEN** a transport or client command supplies actor, accepting-authority, final revision, commit-position, recorded timestamp, receipt, or digest fields
+- **THEN** the server SHALL ignore or reject those stored-field claims
+- **AND** only a resolved server-internal principal and accepting authority SHALL populate committed provenance
 
 #### Scenario: Raw entity history is requested
 - **WHEN** an application surface needs history for a unit, pilot, mission, match, session, or campaign
@@ -92,7 +97,7 @@ The system SHALL reject modification or deletion of committed authority events. 
 - **AND** observation-position gaps SHALL NOT be treated as missing stream events
 
 ### Requirement: Event Queries
-The system SHALL support server-internal queries by owning stream, explicit authority point, affected entity identity and role, observation range, and causal identity. Raw query results SHALL NOT be exposed directly to player-facing surfaces.
+The system SHALL support server-internal queries by owning stream, accepting-authority identity, affected entity identity and role, bounded store-local observation range, and causal identity. Raw query results SHALL NOT be exposed directly to player-facing surfaces.
 
 #### Scenario: Filter by durable entity
 - **GIVEN** one event linked to a pilot as actor and a unit as subject
@@ -103,6 +108,17 @@ The system SHALL support server-internal queries by owning stream, explicit auth
 - **GIVEN** an authenticated viewer requests history
 - **WHEN** the application resolves matching raw events
 - **THEN** authorization and viewer projection SHALL occur before serialization
+
+#### Scenario: Catch-up reads through a captured boundary
+- **GIVEN** trusted code captures a store-local high-water position
+- **WHEN** it pages committed events after an exclusive prior cursor through that boundary
+- **THEN** pages SHALL be ordered by commit position and SHALL include every committed event in the bounded range exactly once
+- **AND** an exhausted page SHALL advance to the captured boundary despite numeric gaps
+- **AND** no later transaction SHALL publish an event at or below that returned boundary
+
+#### Scenario: Catch-up query has invalid bounds
+- **WHEN** a catch-up query contains a negative or unsafe cursor, `afterCommitPosition` greater than `throughCommitPosition`, or a non-integer limit outside 1 through 500
+- **THEN** the journal SHALL reject the query without reading events or advancing a consumer cursor
 
 ### Requirement: Chain Verification
 The system SHALL calculate a server-computed cryptographic digest for every authority event and chain it to the prior event digest in the same stream branch. Canonicalizer v1 SHALL apply RFC 8785 JSON canonicalization to UTF-8 digest-material bytes containing every immutable envelope field except `eventDigest`, after sorting set-like entity references by type/ID/role and causation event IDs lexicographically while preserving payload-array order. It SHALL include the canonicalizer version and predecessor digest, use SHA-256 lowercase hexadecimal, perform no Unicode normalization, and reject non-finite or unsupported values. Verification SHALL report the first broken event and SHALL fail closed for authoritative replay. Digests SHALL NOT authenticate or authorize access.
