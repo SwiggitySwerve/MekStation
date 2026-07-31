@@ -1,5 +1,7 @@
 ## Context
 
+As amended by `add-camp01-authority-receipts`, that child change's merged `WAVE_CONTRACTS`, logical-token resolver, digests, environment and transport rules, and observation/final schemas are the sole normative CAMP authority contract. Any conflicting command arrays, digests, `origin/main`, PATH-resolved executable, or complete-observation wording below is historical context and MUST NOT be executed or validated.
+
 Custom units already have server-backed CRUD and version history. `CustomUnitApiService.list()` exposes a durable id plus lightweight chassis, variant, tonnage, type, and version metadata. The campaign wizard already distinguishes its roster-instance `SelectedUnit.id` from the source design `SelectedUnit.unitRef`, and campaign submit already writes `unitRef` onto `IRosterUnitProjection`.
 
 Electron configures the packaged server with `HOSTNAME=127.0.0.1`, but the current production listener does not pass that hostname to `listen()` and can bind an unspecified interface. CAMP-00 repairs and process-tests that boundary before CAMP-01 writes custom campaign records. The base `api-layer` specification explicitly leaves authentication middleware as a future enhancement, so CAMP-01 proves server persistence and gameplay authority only inside the repaired local-first boundary; it does not claim tenant isolation or authorize exposing campaign/custom-unit routes on a shared remote host.
