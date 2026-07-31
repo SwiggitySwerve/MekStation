@@ -5,7 +5,7 @@ MekStation has several useful event logs, but they disagree about ordering, iden
 ## What Changes
 
 - Define one versioned TypeScript event envelope with one owning stream and indexed links to every affected durable entity instance.
-- Require atomic expected-revision command batches, gap-free store-assigned stream revisions, stable command receipts, causal identity, and deterministic cross-stream observation order.
+- Require atomic expected-revision command batches, gap-free store-assigned stream revisions, stable command receipts, explicit actor/accepting-authority provenance, causal identity, and a bounded store-local cross-stream observation cursor that is not a global domain head.
 - Add a SQLite journal adapter and a reusable adapter conformance suite without switching any production aggregate to the new authority yet.
 - Preserve existing typed combat and campaign event payloads inside the envelope rather than replacing their reducers.
 - Import legacy snapshot-only state only as an honest baseline; do not fabricate historical events.
@@ -36,5 +36,5 @@ None.
 
 - Types and schemas under `src/types/events/` and a neutral journal module under `src/services/events/` or `src/lib/events/`.
 - Additive SQLite migrations and repository-supported `better-sqlite3` transactions.
-- Focused contract tests for in-memory and SQLite adapters.
+- Four focused PR seams for contract/schema, canonicalization, in-memory conformance, and SQLite durability tests.
 - No new runtime dependency.
