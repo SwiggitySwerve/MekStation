@@ -23,4 +23,6 @@
 - [x] 3.6 Obtain independent exact-commit code, goal, QA, history, and security review approval for the presentation-only diff.
   - [Merged PR #1083](https://github.com/SwiggitySwerve/MekStation/pull/1083) permanently records all five review-work passes against exact source head `8d9783d0c00a73eb7684e151bcad9be62ca81c15`.
 - [x] 3.7 Open the focused product PR, wait for terminal checks, and record the exact-SHA handoff before starting command-authority hardening.
-- [ ] 3.8 Open the focused task 3.2 PR, wait for required checks, and record its merge plus exact-main regression handoff.
+- [x] 3.8 Open the focused task 3.2 PR, wait for required checks, and record its merge plus exact-main regression handoff.
+  - [PR #1098](https://github.com/SwiggitySwerve/MekStation/pull/1098) merged as `f357d4425223f3b2d2519f7bfd28c5051b7be738` after all 29 checks passed in [CI run 30661362540](https://github.com/SwiggitySwerve/MekStation/actions/runs/30661362540).
+  - Detached exact-main regression at that merge SHA passed focused Jest (17/17), focused Chromium (2/2), strict OpenSpec validation, and the viewport sweep (6/6 inventory guards, 12/12 helper tests, 51/51 route/layout cases). The in-app browser remained unavailable, so the repository-configured Chromium fallback was recorded as an environment limit rather than equivalent authority or persistence proof. An initial unsupported external `node_modules` junction was rejected by Turbopack before the test server started; the authoritative rerun used a local `npm ci` installation and passed.
