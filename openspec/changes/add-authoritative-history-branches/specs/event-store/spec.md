@@ -1,7 +1,7 @@
 ## ADDED Requirements
 
 ### Requirement: Branches Preserve Immutable Parent and Base Lineage
-Each branch SHALL identify its stream, opaque server-generated identity, parent branch, base revision, base event identity, base digest, creator, reason, and typed status. The root SHALL use a null base event and the defined genesis digest. Parent/base identity SHALL resolve in the same stream without cycles, and prior events and lineage SHALL remain immutable. Ordinary commands SHALL append only to the current effective branch.
+Each branch SHALL identify its stream, opaque server-generated identity, parent branch, base revision, base event identity, base digest, creator, reason, and typed status. The root SHALL use a null base event, the defined genesis digest, and the linear stream's persisted effective generation `1`. Parent/base identity SHALL resolve in the same stream without cycles, and prior events and lineage SHALL remain immutable. Ordinary commands SHALL append only to the current effective branch.
 
 #### Scenario: Authorized rewind creates replacement branch
 - **WHEN** an authorized rewind selects a trusted prior head
@@ -30,8 +30,26 @@ A child head SHALL resolve the immutable parent prefix through its base revision
 - **THEN** the branch SHALL be quarantined or blocked with a typed integrity error
 - **AND** it SHALL not be activated or projected as authoritative
 
+### Requirement: Effective Generation Is Positive and Monotonic
+Effective generation SHALL be a positive safe integer stored with the effective head. The root linear stream SHALL begin at generation `1`. No replay, restart, backfill, candidate build, failed activation, or revision change SHALL alter it. A verified atomic activation SHALL increment the prior effective generation by exactly one in the same transaction that installs the replacement head, and no other operation MAY increment it. If the prior generation has no next safe integer, activation SHALL reject with typed `GENERATION_EXHAUSTED` before mutation.
+
+#### Scenario: Candidate build or failed activation completes
+- **WHEN** a candidate is built, blocked, abandoned, or fails compare-and-swap activation
+- **THEN** the effective branch and generation SHALL remain unchanged
+- **AND** candidate revision or event count SHALL NOT influence the generation
+
+#### Scenario: Verified replacement activates
+- **WHEN** a candidate passes every gate and atomically replaces generation `N`
+- **THEN** the new effective head SHALL be stored at generation `N + 1`
+- **AND** the supersession, fences, and any replacement outbox SHALL bind that same transition
+
+#### Scenario: Generation range is exhausted
+- **WHEN** a verified candidate would increment beyond the maximum safe integer
+- **THEN** activation SHALL reject with `GENERATION_EXHAUSTED`
+- **AND** the effective head, generation, fences, candidate, outbox, admission, receipt, and saga state SHALL remain unchanged
+
 ### Requirement: Branch Activation Is Verified, Compare-and-Swap, and Atomic
-A candidate SHALL become effective only after deterministic replay, domain validation, affected-artifact validation, required viewer projections, and the prior-generation delivery fence pass. A durable correction lease SHALL carry an opaque lease ID, owner, expiry, and monotonically increasing fencing epoch and bind the build to the expected effective branch, revision, digest, and generation. Expiry or takeover SHALL mint a higher epoch. Fence installation SHALL serialize against lease-to-admitted promotion. While an existing lease remains unexpired or an admitted delivery has an unknown target result, the candidate SHALL remain non-effective and the prior branch SHALL remain effective. If an admitted prior effect has an accepted target receipt, the source activation transaction SHALL also commit the higher-version correction, immutable replacement outbox, and `pending` saga state. The same transaction SHALL lock and verify the current unexpired lease ID, owner, and epoch while comparing the expected head/generation, then activate the candidate, increment the generation, supersede the prior branch, publish artifact invalidations, and enable new-generation effects. It SHALL NOT wait for a replacement receipt that cannot exist before activation.
+A candidate SHALL become effective only after deterministic replay, domain validation, affected-artifact validation, required viewer projections, and the prior-generation delivery fence pass. A durable correction lease SHALL carry an opaque lease ID, owner, expiry, and monotonically increasing fencing epoch and bind the build to the expected effective branch, revision, digest, and generation. Expiry or takeover SHALL mint a higher epoch. Fence installation SHALL serialize against lease-to-admitted promotion. While an existing lease remains unexpired or an admitted delivery has an unknown target result, the candidate SHALL remain non-effective and the prior branch SHALL remain effective. If an admitted prior effect has an accepted target receipt, the source activation transaction SHALL also commit the higher-version correction, immutable replacement outbox, and `pending` saga state. The same transaction SHALL lock and verify the current unexpired lease ID, owner, and epoch while comparing the expected head/generation, then activate the candidate, increment the generation by exactly one, supersede the prior branch, publish artifact invalidations, and enable new-generation effects. It SHALL NOT wait for a replacement receipt that cannot exist before activation.
 
 #### Scenario: Candidate verification fails
 - **WHEN** replay, projection, integrity, or affected-artifact validation fails
@@ -83,3 +101,16 @@ Outbox effects belonging to a building, waiting, blocked, or superseded branch S
 - **WHEN** old-generation delivery admission commits before the activation fence
 - **THEN** the prior branch SHALL remain effective through target acceptance
 - **AND** activation SHALL route through the higher-version correction workflow before supersession
+
+### Requirement: Branch Rollback Preserves the Effective Head and Generation
+Rollback SHALL disable new branch creation and activation while preserving every branch, supersession, effective-head/generation, fence, outbox/admission/receipt, and saga row. It SHALL reopen the exact last verified effective branch, revision, digest, and generation through a reader compatible with the persisted journal schema, upcasters, canonicalizer, and branch/generation contract. A non-effective candidate MAY remain stored. Rollback SHALL NOT substitute the root, a prior or superseded branch, or generation `1`. If no compatible reader exists, command, effect, and correction admission SHALL stop and the stream SHALL expose a typed truthful blocked state.
+
+#### Scenario: Rollback restarts after a replacement activation
+- **WHEN** rollback restarts a stream whose effective generation is greater than `1`
+- **THEN** it SHALL reopen the same effective branch/revision/digest/generation and associated delivery fences
+- **AND** it SHALL not reactivate the root or any superseded branch
+
+#### Scenario: Rollback reader is incompatible
+- **WHEN** the available reader cannot interpret the persisted journal, upcasters, canonicalizer, or branch/generation metadata
+- **THEN** the stream SHALL enter a typed blocked state without command, effect, or correction admission
+- **AND** all authority, candidate, delivery, receipt, and saga records SHALL remain unchanged

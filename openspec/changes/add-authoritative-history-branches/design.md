@@ -14,7 +14,7 @@ The previous waves establish linear durable streams, deterministic replay, autho
 **Non-Goals:**
 
 - Content-addressed entity identity, automatic three-way merge, CRDT merge, history deletion, or ordinary-choice branching.
-- A second event authority, global event order, or a new storage/service dependency.
+- A second domain authority, a global causal/concurrency head, or a new storage/service dependency. The foundation's store-local `commitPosition` remains an observation/catch-up cursor only; it is never a domain concurrency token or causal order.
 
 ## Decisions
 
@@ -40,7 +40,7 @@ interface IJournalBranch {
 }
 ```
 
-The authority generates opaque branch IDs. Branch heads are keyed by `(streamType, streamId, branchId)`. The root branch starts at revision 0 with a null base event and the algorithm-defined genesis digest. A child base must resolve to an event/digest on an existing branch in the same stream, cannot form a cycle, and cannot move after creation. Its first suffix event is revision `baseRevision + 1`; reads verify the parent prefix through `baseRevision`, then the child's contiguous suffix and digest chain. Ordinary accepted commands append only to the effective branch.
+The authority generates opaque branch IDs. Branch heads are keyed by `(streamType, streamId, branchId)`. The root branch starts at revision 0 with a null base event, the algorithm-defined genesis digest, and effective generation `1` inherited from the linear stream contract. A child base must resolve to an event/digest on an existing branch in the same stream, cannot form a cycle, and cannot move after creation. Its first suffix event is revision `baseRevision + 1`; reads verify the parent prefix through `baseRevision`, then the child's contiguous suffix and digest chain. Ordinary accepted commands append only to the effective branch. Effective generation is a positive safe integer, never derived from revision, and changes only when verified activation installs a replacement branch.
 
 Branch status transitions are typed and monotonic. A storage constraint permits exactly one effective branch per stream. Superseded branches remain immutable and readable through authorization-filtered history.
 
@@ -52,7 +52,7 @@ The authority records impact scope, creates a `building` branch, replays from a 
 
 Activation installs a source-local fence for the expected prior generation. Fence installation serializes against lease-to-admitted delivery promotion. The fence prevents new leases/admissions and supersedes unleased pending effects. If an old-generation lease or admitted delivery is unresolved, the candidate enters `waiting-effects` and the prior branch remains effective. A fence that wins prevents a leased row from becoming admitted, so it may expire safely; an admission that wins remains durable until its target result is known.
 
-If no target mutation occurred, activation can proceed normally. If the prior effect has an accepted target receipt, the source activation transaction also commits the higher-version correction fact, immutable replacement outbox, and `pending` saga state. In either case, that transaction locks and verifies the current unexpired lease ID, owner, and fencing epoch while comparing the expected effective branch/revision/digest/generation. Only then may it activate the candidate, supersede the prior branch, increment the generation, publish the artifact invalidation manifest, and make the new generation's outbox rows dispatchable. The replacement effect therefore cannot deadlock behind a non-effective candidate, and no pre-activation target mutation is introduced. A stale comparison, expired/taken-over lease, failed validation, or unknown target result leaves the prior head effective.
+If no target mutation occurred, activation can proceed normally. If the prior effect has an accepted target receipt, the source activation transaction also commits the higher-version correction fact, immutable replacement outbox, and `pending` saga state. In either case, that transaction locks and verifies the current unexpired lease ID, owner, and fencing epoch while comparing the expected effective branch/revision/digest/generation and verifying that the generation can increment within the safe-integer range. Only then may it activate the candidate, supersede the prior branch, increment the generation by exactly one, publish the artifact invalidation manifest, and make the new generation's outbox rows dispatchable. `GENERATION_EXHAUSTED`, a stale comparison, expired/taken-over lease, failed validation, or unknown target result leaves the prior head and all related records unchanged.
 
 ### D3 — “Merge” means revalidation
 
@@ -87,7 +87,7 @@ Mobile/narrow UI keeps current status, impact, confirmation, and recovery action
 5. Add impact-declared campaign correction and coordinated post-receipt correction.
 6. Consider simulation branches only through a separate approved UX change.
 
-Rollback disables new branch creation and activation while retaining all branch/supersession rows. The last verified effective branch remains authoritative.
+Rollback disables new branch creation and activation while retaining all branch/supersession, effective-head/generation, fence, outbox/admission/receipt, and saga rows. It MUST reopen the exact last verified effective branch/revision/digest/generation through a reader compatible with the persisted journal schema, upcasters, canonicalizer, and branch/generation contract. A building candidate may remain non-effective, but rollback MUST NOT substitute the root, a prior/superseded branch, or generation `1`. If no compatible reader exists, command/effect/correction admission stops and the stream enters a typed truthful blocked state.
 
 ## Open Questions
 

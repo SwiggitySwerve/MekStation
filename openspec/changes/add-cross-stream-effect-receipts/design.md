@@ -58,7 +58,9 @@ The campaign receives a distinct `BattleOutcomeReconciled` fact causally linked 
 
 Projectors never call the worker or external services. Outbox rows use `pending`, `leased`, `admitted`, `delivered`, `superseded`, or `blocked` state and record the source effective generation. Only a committed pending row for the current unfenced generation may acquire a lease. Before target mutation, the worker must atomically promote that lease to durable `admitted` state while the generation is still unfenced; this transition is the only factory for the one-effect system principal. Target ingestion accepts only the capability backed by that durable admission token, never client data or a lease token.
 
-The storage contract exposes a source-generation fence for the later branch/correction wave. Fence installation and delivery admission serialize in the source store: once a generation is fenced, it can issue no new lease or admission, while an admission committed first remains durable until its idempotent target receipt is known. This wave owns that generic admission invariant and linear effect delivery; it does not own branch activation, candidate-branch lifecycle, or higher-version correction behavior. Notifications or future external effects use the same admission and receipt discipline.
+Every journal-authoritative stream persists a positive safe-integer effective generation with its effective head. A new, imported, or cut-over linear stream starts at generation `1`; restart, backfill, and repeated migration preserve that value and never derive it from stream revision. Until the later branch wave atomically activates a replacement head, every outbox row, admission, principal, and fence binds generation `1`. Only verified branch activation may increment the effective generation, and it increments by exactly one. If the current generation cannot be incremented within the safe-integer range, activation rejects with typed `GENERATION_EXHAUSTED` before any head, fence, candidate, outbox, or saga mutation.
+
+The storage contract exposes a source-generation fence keyed by `(streamType, streamId, branchId, effectiveGeneration)` for the later branch/correction wave. Fence installation and delivery admission serialize in the source store: once a generation is fenced, it can issue no new lease or admission, while an admission committed first remains durable until its idempotent target receipt is known. This wave owns root generation storage plus that generic admission invariant and linear effect delivery; it does not own branch activation, candidate-branch lifecycle, generation increments, or higher-version correction behavior. Notifications or future external effects use the same admission and receipt discipline.
 
 ### D4 — No workflow engine yet
 
@@ -78,13 +80,14 @@ The current effect is a short database-backed handoff with no long timers. DBOS 
 
 ## Migration Plan
 
-1. Add outbox/inbox tables and failure-injection tests.
-2. Write the source outbox atomically but keep legacy reconciliation authoritative in shadow mode.
-3. Compare legacy and receipt-backed campaign consequence digests.
-4. Enable receipt-backed reconciliation for new outcomes.
-5. Remove the legacy write path after exact-main restart/retry proof.
+1. Add effective-generation storage initialized idempotently to `1` for every new/imported/cut-over linear stream.
+2. Add outbox/inbox tables and failure-injection tests.
+3. Write the source outbox atomically but keep legacy reconciliation authoritative in shadow mode.
+4. Compare legacy and receipt-backed campaign consequence digests.
+5. Enable receipt-backed reconciliation for new outcomes.
+6. Remove the legacy write path after exact-main restart/retry proof.
 
-Rollback disables new dispatch, preserves pending/processed rows, and uses a compatible worker after repair. It never deletes a source fact or target receipt.
+Rollback disables new dispatch, preserves the effective head/generation plus pending/admitted/processed rows, and uses a schema- and generation-compatible worker after repair. It never resets generation to zero or one, derives it from revision, or deletes a source fact or target receipt.
 
 ## Open Questions
 

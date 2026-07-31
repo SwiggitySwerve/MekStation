@@ -4,7 +4,7 @@ Every PR in this change MUST stay under 500 non-generated changed lines and 15 f
 
 - [ ] 1.1 Add failing `IMatchStore`/`DurableMatchStore` tests for multi-event atomicity, no-gap revisions, event identity, command retry, and restart.
 - [ ] 1.2 Adapt the match store to the journal batch API while preserving current match metadata and legacy completed-log reads.
-- [ ] 1.3 Import retained legacy events with source identities and explicit baseline metadata for any missing prefix.
+- [ ] 1.3 Import retained legacy events with source identities and explicit baseline metadata for any missing prefix; persist an immutable baseline tuple containing stream/branch/revision/digest/effective-generation identity.
 - [ ] 1.4 Run focused durable-store tests on Node 22, typecheck/lint/format, strict OpenSpec validation, and independent durability/security review.
 - [ ] 1.5 After merge, rerun the real SQLite receipt on exact main and prune the merged branch/worktree.
 
@@ -12,7 +12,7 @@ Every PR in this change MUST stay under 500 non-generated changed lines and 15 f
 
 - [ ] 2.1 Lock existing command-to-`IGameEvent` and post-state digests before refactoring the engine/host boundary.
 - [ ] 2.2 Add the smallest decision seam that produces an ordered event batch without advancing the authoritative live engine.
-- [ ] 2.3 Change `ServerMatchHost` to append the batch and expected post-state digest at the expected revision, apply the committed batch, verify the resulting digest, and only then publish projections.
+- [ ] 2.3 Change `ServerMatchHost` to append the batch and expected post-state digest at the expected revision; the first journal-authority batch transaction also writes the immutable one-time started fact containing command ID, event range, and resulting head tuple. Apply only the committed batch, verify its digest, and only then publish projections.
 - [ ] 2.4 Inject revision conflict, persistence failure, and post-apply digest divergence; prove no premature success frame, quarantine plus deterministic journal rebuild on divergence, and a typed recovery result without deleting the commit.
 - [ ] 2.5 Run focused engine/host/store suites plus multiplayer contracts; independently review authority ordering and scope.
 - [ ] 2.6 After merge, rerun exact-main command/restart authority proof and prune the merged branch/worktree.
@@ -29,6 +29,7 @@ Every PR in this change MUST stay under 500 non-generated changed lines and 15 f
 
 - [ ] 4.1 Add a reviewed feature flag for new match journal authority and shadow state/event digest comparison without dual-authoring.
 - [ ] 4.2 Enable journal authority only for new controlled matches after shadow equality and the active-membership, server-derived-viewer, action-audit, private-record, and pre-serialization privacy gates pass; preserve schema-compatible legacy reads.
-- [ ] 4.3 Document rollback that stops new admission and never deletes committed rows.
-- [ ] 4.4 Run applicable combat, multiplayer, replay, command-browser, and long-browser gates plus final independent visual/authority review.
-- [ ] 4.5 After merge, run the exact-main regression suite, record the merge SHA and evidence, and prune the merged branch/worktree before campaign adoption.
+- [ ] 4.3 Implement rollback selection from the durable cutover marker: allow the compatible legacy reader only before the first journal-authored command, otherwise require a journal/upcaster/effective-generation-compatible reader or typed blocked state while preserving rows, receipts, head, generation, and recovery state.
+- [ ] 4.4 Prove pre-cutover legacy reopen, exact-tuple baseline-only cutover rollback, crash/reopen immediately after the first batch transaction, post-command compatible rollback, and post-command incompatible rollback without silent snapshot/log substitution or new command/effect admission.
+- [ ] 4.5 Run applicable combat, multiplayer, replay, command-browser, and long-browser gates plus final independent visual/authority review.
+- [ ] 4.6 After merge, run the exact-main regression suite, record the merge SHA and evidence, and prune the merged branch/worktree before campaign adoption.

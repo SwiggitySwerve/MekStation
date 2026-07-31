@@ -1,5 +1,23 @@
 ## ADDED Requirements
 
+### Requirement: Linear Journal Streams Start at Effective Generation One
+Every journal-authoritative stream SHALL persist a positive safe-integer effective generation with its effective head. A new, imported, or cut-over linear stream SHALL start at generation `1`. Restart, backfill, and repeated migration SHALL preserve the stored generation and SHALL NOT derive it from stream revision, reset it to zero, or increment it. Until verified branch activation exists, every outbox row, delivery admission, system-effect principal, and source-generation fence SHALL bind generation `1`. Only verified atomic branch activation MAY increment the generation, exactly once per activation. If no next safe integer exists, activation SHALL reject with typed `GENERATION_EXHAUSTED` before mutation.
+
+#### Scenario: Linear stream reopens after migration
+- **WHEN** a new or imported stream initialized at generation `1` is closed, reopened, or processed by the migration again
+- **THEN** its effective head and generation SHALL remain unchanged
+- **AND** subsequent linear outbox and admission records SHALL still bind generation `1`
+
+#### Scenario: Invalid or revision-derived generation is proposed
+- **WHEN** storage initialization or delivery attempts to use zero, a non-safe integer, or the current stream revision as the effective generation
+- **THEN** the operation SHALL reject without changing the effective head, outbox, admission, or fence state
+- **AND** no generation SHALL be inferred from event count or revision
+
+#### Scenario: Effective generation cannot be incremented safely
+- **WHEN** replacement activation would increment beyond the maximum safe integer
+- **THEN** activation SHALL reject with `GENERATION_EXHAUSTED` before mutation
+- **AND** the effective head, generation, fences, candidate, outbox, admission, receipt, and saga state SHALL remain unchanged
+
 ### Requirement: Cross-Stream Effects Use Durable Outbox and Inbox Receipts
 A source-stream transaction SHALL persist each requested cross-stream effect in an outbox row with server-derived effect ID/type/version, immutable canonical semantic-command UTF-8 bytes, command-schema and canonicalizer versions, digest, source stream/branch/event and effective generation, and server-derived target authority plus binding revision. A worker SHALL load those durable bytes after restart and SHALL NOT regenerate the command from current projections. Before target append, a leased row SHALL be atomically promoted to durable admitted state against the unfenced source generation; the admission SHALL bind that complete identity, both versions, and digest. Ingestion SHALL re-resolve the authoritative source-to-target binding and current active target branch, validate and re-canonicalize the delivered command under its stored versions, and verify the admitted delivery token, binding revision, canonical bytes, and digest. A caller SHALL NOT select the target branch. The target-stream transaction SHALL persist the uniquely target-scoped `(targetCampaignId, effectType, effectId, effectVersion)` inbox receipt, resolved target branch, both versions, digest, and resulting target event batch atomically. Delivery MAY retry, but the effect SHALL apply once.
 
@@ -52,7 +70,7 @@ A source-stream transaction SHALL persist each requested cross-stream effect in 
 - **AND** target authority SHALL remain unchanged until a compatible implementation handles the stored bytes
 
 ### Requirement: Effect Delivery Admission Is Generation-Fenced
-Outbox delivery state SHALL be durable as `pending`, `leased`, `admitted`, `delivered`, `superseded`, or `blocked`. A lease SHALL bind an opaque token, expiry, and source effective generation but SHALL NOT authorize target mutation. Lease-to-admitted promotion and source-generation fence installation SHALL serialize in the source store. A fence SHALL stop new leases and admissions for that generation, supersede unleased pending rows, and allow non-admitted leases to expire. An admitted token SHALL remain durable until its idempotent target receipt is known. Target ingestion SHALL reject leased-only, unknown-admission, or mismatched delivery without a receipt or target mutation.
+Outbox delivery state SHALL be durable as `pending`, `leased`, `admitted`, `delivered`, `superseded`, or `blocked`. A lease SHALL bind an opaque token, expiry, and source effective generation but SHALL NOT authorize target mutation. Lease-to-admitted promotion and source-generation fence installation keyed by `(streamType, streamId, branchId, effectiveGeneration)` SHALL serialize in the source store. A fence SHALL stop new leases and admissions for that generation, supersede unleased pending rows, and allow non-admitted leases to expire. An admitted token SHALL remain durable until its idempotent target receipt is known. Target ingestion SHALL reject leased-only, unknown-admission, or mismatched delivery without a receipt or target mutation.
 
 #### Scenario: Source generation is fenced while an effect is leased
 - **WHEN** a source-generation fence commits while one of that generation's outbox rows is leased but not admitted
