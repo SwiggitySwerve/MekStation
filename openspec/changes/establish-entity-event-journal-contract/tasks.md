@@ -2,10 +2,10 @@ Every PR in this change MUST stay under 500 non-generated changed lines and 15 f
 
 ## 1. Journal Contract Types — PR 1
 
-- [ ] 1.1 Add `IStoredEvent`, `IEntityEventRef`, append/read inputs, atomic-batch receipts, fixed-root branch identity, versioned canonical-digest metadata, store-local high-water/read-through cursor types, and typed conflict results in a neutral event-journal module; preserve existing combat and campaign payload unions.
-- [ ] 1.2 Define stored principal provenance with `human|system|migration` actor kind plus the server authority that accepted the command. Prove client DTOs cannot assign stored actor/authority identity, final stream revisions, commit positions, recorded timestamps, receipts, or digests.
-- [ ] 1.3 Add Zod schemas and focused compile/runtime boundary tests that reject missing durable IDs, invalid versions, non-root branches, caller-assigned stored fields, ambiguous actor/authority provenance, negative/unsafe/reversed catch-up cursors, and non-integer page limits outside 1 through 500 without implementing an adapter or canonicalizer.
-- [ ] 1.4 Run focused TypeScript/LSP and schema tests plus `git diff --check`; independently review the public contract and keep the PR under 500 non-generated changed lines and 15 files.
+- [x] 1.1 Add `IStoredEvent`, `IEntityEventRef`, append/read inputs, atomic-batch receipts, fixed-root branch identity, versioned canonical-digest metadata, store-local high-water/read-through cursor types, and typed conflict results in a neutral event-journal module; preserve existing combat and campaign payload unions.
+- [x] 1.2 Define stored principal provenance with `human|system|migration` actor kind plus the server authority that accepted the command. Prove client DTOs cannot assign stored actor/authority identity, final stream revisions, commit positions, recorded timestamps, receipts, or digests.
+- [x] 1.3 Add Zod schemas and focused compile/runtime boundary tests that reject missing durable IDs, invalid versions, non-root branches, caller-assigned stored fields, ambiguous actor/authority provenance, negative/unsafe/reversed catch-up cursors, and non-integer page limits outside 1 through 500 without implementing an adapter or canonicalizer.
+- [x] 1.4 Run focused TypeScript/LSP and schema tests plus `git diff --check`; independently review the public contract and keep the PR under 500 non-generated changed lines and 15 files.
 - [ ] 1.5 After merge, update an exact-main worktree, rerun the focused contract receipt, record the merge SHA, then prune the merged branch/worktree before PR 2.
 
 ## 2. Canonicalizer v1 — PR 2
