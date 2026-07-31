@@ -71,6 +71,12 @@
       "status": "proposed",
       "reason": "CAMP-PROOF child specification: add immutable exact-SHA authority receipts, canonical provenance, durable evidence export, reviewed PROOF-02 triage, and cleanup-gated sequencing before any CAMP product wave.",
       "lastReviewed": "2026-07-30"
+    },
+    {
+      "name": "bind-packaged-server-to-loopback",
+      "status": "proposed",
+      "reason": "CAMP-00 child specification: bind the packaged production HTTP/WebSocket listener to its configured loopback literal and prove the actual initial/restarted socket address before campaign product waves.",
+      "lastReviewed": "2026-07-30"
     }
   ]
 }
