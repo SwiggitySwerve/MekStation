@@ -234,11 +234,14 @@ export function HotkeyHintBadge(): React.ReactElement | null {
 
   return (
     <div
-      className="pointer-events-auto absolute bottom-4 left-1/2 flex -translate-x-1/2 items-center gap-2 rounded-full border border-slate-700 bg-slate-900/90 px-3 py-1.5 text-xs text-slate-200 shadow-lg"
+      className="pointer-events-auto absolute top-2 right-auto bottom-auto left-2 flex items-center justify-center gap-2 rounded-full border border-slate-700 bg-slate-900/90 px-2 py-1 text-[11px] whitespace-nowrap text-slate-200 shadow-lg lg:top-auto lg:right-auto lg:bottom-4 lg:left-1/2 lg:-translate-x-1/2 lg:px-3 lg:py-1.5 lg:text-xs"
       data-testid="hotkey-hint-badge"
       role="status"
     >
-      <span>
+      <span className="lg:hidden">
+        Press <KeyCap label="?" /> for shortcuts.
+      </span>
+      <span className="hidden lg:inline">
         Press <KeyCap label="?" /> for shortcuts. <KeyCap label="A" /> arcs,{' '}
         <KeyCap label="L" /> LOS.
       </span>

@@ -191,7 +191,9 @@ export function GameplayLayoutView({
       sessionId={session.id}
     >
       <div
-        className={`flex h-full flex-col bg-gray-100 ${className}`}
+        className={`flex h-full flex-col bg-gray-100 ${
+          isNarrow ? 'overflow-y-auto' : 'overflow-hidden'
+        } ${className}`}
         data-testid="gameplay-layout"
       >
         <GameplayTopBand

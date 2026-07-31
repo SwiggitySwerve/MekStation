@@ -14,7 +14,7 @@
 ## 3. Regression Coverage and Verification
 
 - [x] 3.1 Add focused `TacticalTurnRail` component coverage for force grouping, counts, terminal text, and observer labels.
-- [ ] 3.2 Add a focused regression-hardening PR that proves missing-side units remain visible under Unassigned; replay and spectator use observer labels; named regions/lists and visible counts are exposed; exactly one live non-terminal active unit receives `aria-current`; and narrow layouts retain two normal rows or a third Unassigned row without hiding the command dock.
+- [x] 3.2 Prepare a focused regression-hardening change that proves missing-side units remain visible under Unassigned; replay and spectator use observer labels; named regions/lists and visible counts are exposed; exactly one live non-terminal active unit receives `aria-current`; overflowing force lists scroll independently with pinned labels; and narrow layouts retain two normal rows or a third Unassigned row without hiding the command dock.
 - [x] 3.3 Extend phase-projection coverage to prove terminal units remain in initiative order while being excluded from unresolved and blocker collections.
 - [x] 3.4 Run focused Jest coverage, Node 22 TypeScript, changed-file lint and format checks, production build, tactical projection validation, and viewport sweep.
   - Permanently recorded by [merged PR #1083](https://github.com/SwiggitySwerve/MekStation/pull/1083) and [CI run 30516864020](https://github.com/SwiggitySwerve/MekStation/actions/runs/30516864020) at source head `8d9783d0c00a73eb7684e151bcad9be62ca81c15`: focused Jest, Node 22 TypeScript, changed-file oxlint/oxfmt, production build, tactical projection parity, and viewport sweep (6/6 inventory guards, 12/12 helper tests, 51/51 route/layout cases).
@@ -23,3 +23,4 @@
 - [x] 3.6 Obtain independent exact-commit code, goal, QA, history, and security review approval for the presentation-only diff.
   - [Merged PR #1083](https://github.com/SwiggitySwerve/MekStation/pull/1083) permanently records all five review-work passes against exact source head `8d9783d0c00a73eb7684e151bcad9be62ca81c15`.
 - [x] 3.7 Open the focused product PR, wait for terminal checks, and record the exact-SHA handoff before starting command-authority hardening.
+- [ ] 3.8 Open the focused task 3.2 PR, wait for required checks, and record its merge plus exact-main regression handoff.

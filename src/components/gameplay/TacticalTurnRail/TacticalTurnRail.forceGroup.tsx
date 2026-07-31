@@ -37,7 +37,9 @@ export function ForceGroup(props: ForceGroupProps): React.ReactElement {
         </span>
         <span className="text-[10px] leading-tight text-white/75">
           {operationalCount} operational
-          <span className="text-cyan-100/80 lg:hidden"> · Swipe →</span>
+          {units.length > 2 && (
+            <span className="text-cyan-100/80 lg:hidden"> · Swipe →</span>
+          )}
         </span>
         {(eliminatedCount > 0 || withdrawnCount > 0) && (
           <span className="truncate text-[10px] leading-tight text-white/60">
@@ -56,7 +58,7 @@ export function ForceGroup(props: ForceGroupProps): React.ReactElement {
         {units.length === 0 && (
           <span
             role="listitem"
-            className="self-center px-2 text-xs text-white/50"
+            className="self-center px-2 text-xs text-white/70"
           >
             No units
           </span>

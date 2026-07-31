@@ -426,7 +426,7 @@ export function TacticalActionDock({
 
   return (
     <div
-      className={`bg-surface-base border-border-theme flex min-h-[80px] flex-wrap items-center justify-between gap-3 border-t px-4 py-2 ${className}`}
+      className={`bg-surface-base border-border-theme flex max-h-60 min-h-[80px] flex-shrink-0 flex-wrap items-center justify-between gap-3 overflow-y-auto border-t px-4 py-2 lg:max-h-none lg:overflow-visible ${className}`}
       role="toolbar"
       aria-label="Tactical action dock"
       data-testid="tactical-action-dock"

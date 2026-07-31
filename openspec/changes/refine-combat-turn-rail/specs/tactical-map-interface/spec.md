@@ -54,4 +54,6 @@ remains owned by a separate fog-safe projection and focus change.
 - **WHEN** both force rosters exceed their available horizontal space
 - **THEN** the rail SHALL render one fixed-height row per available force group—normally two, or three when Unassigned is present—with visible pinned labels
 - **AND** each force list SHALL own its horizontal scrolling without causing document-level horizontal overflow
+- **AND** the tactical map SHALL retain a readable interaction area with its existing controls reachable
 - **AND** the primary command dock SHALL remain visible
+- **AND** on a viewport too short for every bounded band, shell-owned vertical scrolling SHALL keep phase commands reachable above fixed navigation

@@ -87,10 +87,9 @@ function deriveUnitStatus(
 const STATUS_TOKEN_CLASSES: Record<UnitRailStatus, string> = {
   active: 'ring-2 ring-white bg-white/20 font-bold text-white',
   upcoming: 'ring-1 ring-white/40 bg-white/10 text-white/90',
-  completed: 'ring-1 ring-white/20 bg-black/30 text-white/50 line-through',
+  completed: 'ring-1 ring-white/20 bg-black/30 text-white/50',
   skipped: 'ring-1 ring-white/20 bg-black/20 text-white/40 italic',
-  destroyed:
-    'ring-1 ring-red-800/80 bg-red-950/70 text-red-100/90 line-through',
+  destroyed: 'ring-1 ring-red-800/80 bg-red-950/70 text-red-100/90',
   withdrawn:
     'ring-1 ring-slate-400/60 bg-slate-900/60 text-slate-100/90 italic',
 };
@@ -185,7 +184,13 @@ function RailToken({
       {/* Name only — the raw catalog slug (`atlas-as7-d`) that used to render
           under it was an internal identifier leak at failing contrast
           (re-audit DC-07/A11Y-R6); the name already carries the variant. */}
-      <span className="w-full truncate leading-tight font-medium">
+      <span
+        className={`w-full truncate leading-tight font-medium ${
+          unit.status === 'completed' || unit.status === 'destroyed'
+            ? 'line-through'
+            : ''
+        }`}
+      >
         {unit.name}
       </span>
       <span className="w-full truncate text-[11px] leading-tight opacity-90">
@@ -342,7 +347,7 @@ export function TacticalTurnRail({
 
   return (
     <div
-      className={`${phaseBg} flex min-h-[3rem] flex-col gap-2 px-3 py-2 text-white lg:flex-row lg:items-center ${className}`}
+      className={`${phaseBg} flex min-h-[3rem] flex-shrink-0 flex-col gap-2 px-3 py-2 text-white lg:flex-row lg:items-center ${className}`}
       data-testid="tactical-turn-rail"
       role="region"
       aria-label={`Turn ${turn} — ${phaseLabel} phase activation rail`}
@@ -363,6 +368,9 @@ export function TacticalTurnRail({
             Round {turn}
           </span>
         </div>
+        {(shellMode === 'combat' || shellMode === 'gm') && (
+          <BlockerBadge count={projection.blockers.length} phase={phase} />
+        )}
         {phaseAdvanceControl && (
           <PhaseAdvanceControl control={phaseAdvanceControl} />
         )}
@@ -425,11 +433,6 @@ export function TacticalTurnRail({
           />
         )}
       </div>
-
-      {/* Blocker badge — only shown in combat / gm mode */}
-      {(shellMode === 'combat' || shellMode === 'gm') && (
-        <BlockerBadge count={projection.blockers.length} phase={phase} />
-      )}
 
       {/* Mobile drawer toggle (preserved from PhaseBanner) */}
       {drawer && (

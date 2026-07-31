@@ -5,10 +5,10 @@ unit, but rendered all units in a single roster strip. This wave is limited to
 presentation, projection consumption, responsive framing, and accessible force
 and status semantics.
 
-This is a posthumous design for the implementation merged through PR #1083 at
-merge commit `67805c8302f78c5205921cafbee9d4544783fb96`. It records the
-reviewed behavior without claiming that the separately discovered combat-event
-durability defect is resolved.
+This design records the grouped-rail foundation merged through PR #1083 at
+merge commit `67805c8302f78c5205921cafbee9d4544783fb96` plus the focused
+regression-hardening follow-up defined by task 3.2. It does not claim that the
+separately discovered combat-event durability defect is resolved.
 
 ## Goals / Non-Goals
 
@@ -19,6 +19,9 @@ durability defect is resolved.
   model in the component.
 - Keep the rail operable and readable at desktop, mobile, and zoomed narrow
   widths.
+- Preserve a readable tactical-map band and reachable existing map controls and
+  command dock when narrow or short viewports cannot fit every shell band at
+  once.
 - Preserve accessible names, list structure, status text, and current-unit
   semantics.
 
@@ -30,7 +33,9 @@ durability defect is resolved.
   store/engine authorization.
 - Resolve fog-safe rail projection, ejection status, or Locked/Revealed
   vocabulary.
-- Rework morale, map controls, or other combat-shell framing outside the rail.
+- Change morale behavior, add map-control capabilities, or rework unrelated
+  combat-shell surfaces. Responsive placement and sizing needed to preserve the
+  rail, map, and command framing are part of this wave.
 
 ## Decisions
 

@@ -104,10 +104,13 @@ export function MapControls({
       // to paint over — and intercept pointer events for — the top of this
       // column, making zoom-in unclickable (e2e triage RC12). Interactive
       // buttons must stack above the glanceable overlay where they collide.
-      className="absolute right-4 bottom-4 z-10 flex gap-2"
+      className="absolute right-2 bottom-2 left-2 z-10 flex gap-2 overflow-x-auto pb-1 lg:right-4 lg:left-auto lg:overflow-visible lg:pb-0"
       data-testid="zoom-controls"
     >
-      <div className="flex flex-col gap-1" data-testid="overlay-toggles">
+      <div
+        className="flex flex-row gap-1 lg:flex-col"
+        data-testid="overlay-toggles"
+      >
         <button
           type="button"
           onClick={() =>
@@ -320,7 +323,7 @@ export function MapControls({
           <LosIcon />
         </button>
       </div>
-      <div className="flex flex-col gap-1">
+      <div className="flex flex-row gap-1 lg:flex-col">
         <button
           type="button"
           onClick={() => interaction.setZoom((z) => Math.min(3, z * 1.2))}

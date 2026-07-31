@@ -15,6 +15,8 @@ the command-authority hardening discovered during review.
   persistent text labels.
 - Give desktop and narrow layouts stable edge framing, pinned group labels, and
   independently scrollable force lists.
+- On narrow and short viewports, retain a readable tactical-map band and compact
+  the existing hint and map-control chrome without changing control behavior.
 - Mark only the live active unit as current; terminal units never retain current
   semantics.
 
@@ -34,7 +36,8 @@ the command-authority hardening discovered during review.
 ## Non-goals
 
 - Persisting in-memory combat events or battle outcomes across a cold reload.
-- Reworking the surrounding morale or map-control chrome.
+- Changing morale behavior or adding map-control capabilities; responsive
+  placement and sizing needed to preserve the tactical framing remain in scope.
 - Changing multiplayer host authorization, fog-of-war projection, ejection
   semantics, or Locked/Revealed status vocabulary.
 - Changing rail-selection behavior, command dispatch, GM authority, attack
@@ -46,7 +49,7 @@ the command-authority hardening discovered during review.
 - Affects the tactical command shell, turn-rail components, gameplay layout
   presentation threading, and focused component and projection tests.
 - Adds no API, persistence-schema, protocol, or dependency changes.
-- The implementation wave is already merged as PR #1083 at merge commit
-  `67805c8302f78c5205921cafbee9d4544783fb96`; these artifacts capture that
-  reviewed behavioral contract posthumously without expanding its product
-  diff.
+- The grouped-rail foundation is merged as PR #1083 at merge commit
+  `67805c8302f78c5205921cafbee9d4544783fb96`. Task 3.2 owns a separate focused
+  regression-hardening follow-up for narrow map and command framing within the
+  same behavioral seam.
