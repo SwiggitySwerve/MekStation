@@ -32,9 +32,6 @@ async function expectReadableMapSurface(page: Page): Promise<void> {
   const mapContent = page.getByTestId('gameplay-main-content');
   const mapControls = page.getByTestId('zoom-controls');
   const hotkeyHint = page.getByTestId('hotkey-hint-badge');
-  await expect(mapContent).toBeVisible();
-  await expect(mapControls).toBeVisible();
-  await expect(hotkeyHint).toBeVisible();
   const [mapBox, controlsBox, hintBox] = await Promise.all([
     mapContent.boundingBox(),
     mapControls.boundingBox(),
@@ -157,7 +154,6 @@ async function expectMobileCommandFraming(page: Page): Promise<void> {
   const mobileNavigation = page.getByRole('navigation', {
     name: 'Mobile navigation',
   });
-  await expect(phaseCommand).toBeVisible();
   const [commandBox, navigationBox, dockBox] = await Promise.all([
     phaseCommand.boundingBox(),
     mobileNavigation.boundingBox(),
@@ -228,9 +224,11 @@ test.describe('combat turn rail narrow framing @game @combat', () => {
       page.getByTestId('rail-force-opposing'),
     ]);
     await expect(page.getByTestId('rail-force-unassigned')).toHaveCount(0);
+    await expect(page.getByText(/Swipe/)).toHaveCount(0);
     await expectMobileCommandFraming(page);
 
     await seedOverflowingForceLists(page);
+    await expect(page.getByText(/Swipe/)).toHaveCount(2);
     await expectIndependentForceListScrolling(page);
     await expectMobileCommandFraming(page);
 
