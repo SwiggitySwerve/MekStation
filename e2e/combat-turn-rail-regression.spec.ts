@@ -40,9 +40,6 @@ async function expectReadableMapSurface(page: Page): Promise<void> {
     mapControls.boundingBox(),
     hotkeyHint.boundingBox(),
   ]);
-  expect(mapBox).not.toBeNull();
-  expect(controlsBox).not.toBeNull();
-  expect(hintBox).not.toBeNull();
   if (!mapBox || !controlsBox || !hintBox) {
     throw new Error('Expected map, hint, and control layout boxes');
   }
@@ -55,6 +52,101 @@ async function expectReadableMapSurface(page: Page): Promise<void> {
   const unobscuredMapHeight = controlsBox.y - (hintBox.y + hintBox.height);
   expect(unobscuredMapHeight).toBeGreaterThanOrEqual(64);
   await expectCenterUnoccluded(hotkeyHint);
+}
+
+async function seedOverflowingForceLists(page: Page): Promise<void> {
+  await page.evaluate(() => {
+    const gameplay = window.__ZUSTAND_STORES__?.gameplay;
+    const session = gameplay?.getState().session;
+    if (!gameplay || !session) {
+      throw new Error('Expected the demo gameplay session');
+    }
+
+    const playerUnit = session.units.find((unit) => unit.side === 'player');
+    const opponentUnit = session.units.find((unit) => unit.side === 'opponent');
+    if (!playerUnit || !opponentUnit) {
+      throw new Error('Expected player and opponent unit templates');
+    }
+    const playerState = session.currentState.units[playerUnit.id];
+    const opponentState = session.currentState.units[opponentUnit.id];
+    if (!playerState || !opponentState) {
+      throw new Error('Expected player and opponent state templates');
+    }
+
+    const extraUnits = Array.from({ length: 10 }, (_, index) => {
+      const template = index % 2 === 0 ? playerUnit : opponentUnit;
+      const sideLabel = template.side === 'player' ? 'Allied' : 'Opposing';
+      return {
+        ...structuredClone(template),
+        id: `overflow-${template.side}-${index}`,
+        name: `${sideLabel} Overflow ${index + 1}`,
+      };
+    });
+    const extraStates = Object.fromEntries(
+      extraUnits.map((unit) => {
+        const template = unit.side === 'player' ? playerState : opponentState;
+        return [unit.id, { ...structuredClone(template), id: unit.id }];
+      }),
+    );
+
+    gameplay.setState({
+      session: {
+        ...session,
+        units: [...session.units, ...extraUnits],
+        currentState: {
+          ...session.currentState,
+          units: { ...session.currentState.units, ...extraStates },
+        },
+      },
+    });
+  });
+}
+
+async function expectIndependentForceListScrolling(page: Page): Promise<void> {
+  const alliedList = page.getByTestId('rail-force-allied-list');
+  const opposingList = page.getByTestId('rail-force-opposing-list');
+  const alliedLabel = page.getByTestId('rail-force-allied-label');
+  const opposingLabel = page.getByTestId('rail-force-opposing-label');
+  const lists = [alliedList, opposingList] as const;
+
+  for (const list of lists) {
+    const dimensions = await list.evaluate((element) => ({
+      clientWidth: element.clientWidth,
+      scrollWidth: element.scrollWidth,
+    }));
+    expect(dimensions.scrollWidth).toBeGreaterThan(dimensions.clientWidth);
+  }
+
+  const labelBoxesBefore = await Promise.all([
+    alliedLabel.boundingBox(),
+    opposingLabel.boundingBox(),
+  ]);
+  await alliedList.evaluate((element) => {
+    element.scrollLeft = element.scrollWidth;
+  });
+  const alliedScrollLeft = await alliedList.evaluate(
+    (element) => element.scrollLeft,
+  );
+  expect(alliedScrollLeft).toBeGreaterThan(0);
+  expect(await opposingList.evaluate((element) => element.scrollLeft)).toBe(0);
+
+  await opposingList.evaluate((element) => {
+    element.scrollLeft = element.scrollWidth;
+  });
+  expect(
+    await opposingList.evaluate((element) => element.scrollLeft),
+  ).toBeGreaterThan(0);
+  expect(await alliedList.evaluate((element) => element.scrollLeft)).toBe(
+    alliedScrollLeft,
+  );
+
+  const labelBoxesAfter = await Promise.all([
+    alliedLabel.boundingBox(),
+    opposingLabel.boundingBox(),
+  ]);
+  expect(labelBoxesAfter).toEqual(labelBoxesBefore);
+  await expectCenterUnoccluded(alliedLabel);
+  await expectCenterUnoccluded(opposingLabel);
 }
 
 async function expectMobileCommandFraming(page: Page): Promise<void> {
@@ -71,9 +163,6 @@ async function expectMobileCommandFraming(page: Page): Promise<void> {
     mobileNavigation.boundingBox(),
     actionDock.boundingBox(),
   ]);
-  expect(commandBox).not.toBeNull();
-  expect(navigationBox).not.toBeNull();
-  expect(dockBox).not.toBeNull();
   if (!commandBox || !navigationBox || !dockBox) {
     throw new Error('Expected dock, command, and navigation layout boxes');
   }
@@ -139,6 +228,10 @@ test.describe('combat turn rail narrow framing @game @combat', () => {
       page.getByTestId('rail-force-opposing'),
     ]);
     await expect(page.getByTestId('rail-force-unassigned')).toHaveCount(0);
+    await expectMobileCommandFraming(page);
+
+    await seedOverflowingForceLists(page);
+    await expectIndependentForceListScrolling(page);
     await expectMobileCommandFraming(page);
 
     await removeOpponentSideMetadata(page);
