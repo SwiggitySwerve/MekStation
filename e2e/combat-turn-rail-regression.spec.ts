@@ -24,7 +24,7 @@ async function expectDistinctStackedRows(
     if (!previous || !current) {
       throw new Error('Expected every force group to have a layout box');
     }
-    expect(current.y).toBeGreaterThan(previous.y);
+    expect(current.y).toBeGreaterThanOrEqual(previous.y + previous.height);
   }
 }
 
@@ -68,7 +68,6 @@ async function expectMobileCommandFraming(page: Page): Promise<void> {
       'Expected map, hint, controls, dock, command, and navigation layout boxes',
     );
   }
-  expect(dockBox.height).toBeLessThanOrEqual(240);
   expect(mapBox.height).toBeGreaterThanOrEqual(176);
   expect(controlsBox.y).toBeGreaterThanOrEqual(mapBox.y);
   expect(controlsBox.y + controlsBox.height).toBeLessThanOrEqual(

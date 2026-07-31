@@ -15,6 +15,8 @@ the command-authority hardening discovered during review.
   persistent text labels.
 - Give desktop and narrow layouts stable edge framing, pinned group labels, and
   independently scrollable force lists.
+- On narrow and short viewports, retain a readable tactical-map band and compact
+  the existing hint and map-control chrome without changing control behavior.
 - Mark only the live active unit as current; terminal units never retain current
   semantics.
 
@@ -34,7 +36,8 @@ the command-authority hardening discovered during review.
 ## Non-goals
 
 - Persisting in-memory combat events or battle outcomes across a cold reload.
-- Reworking the surrounding morale or map-control chrome.
+- Changing morale behavior or adding map-control capabilities; responsive
+  placement and sizing needed to preserve the tactical framing remain in scope.
 - Changing multiplayer host authorization, fog-of-war projection, ejection
   semantics, or Locked/Revealed status vocabulary.
 - Changing rail-selection behavior, command dispatch, GM authority, attack
