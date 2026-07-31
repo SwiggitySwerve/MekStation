@@ -29,6 +29,7 @@ interface IEventJournal {
   append(input: IAppendEventBatch): Promise<ICommittedEventBatch>;
   readStream(query: IReadStreamQuery): Promise<IStoredEvent[]>;
   readEntityHistory(query: IReadEntityHistoryQuery): Promise<IStoredEvent[]>;
+  readEventHistory(query: IReadEventHistoryQuery): Promise<IStoredEvent[]>;
   captureHighWater(): Promise<IJournalHighWater>;
   readCommitted(query: IReadCommittedQuery): Promise<ICommittedReadPage>;
   getCommandReceipt(commandId: string): Promise<ICommandReceipt | null>;
