@@ -1,7 +1,7 @@
 ## ADDED Requirements
 
 ### Requirement: Terminal Combat Outcome Reconciles Through a Versioned Receipt
-A terminal combat transaction SHALL append the finalized outcome fact and outbox record together. The outbox SHALL bind the authoritative source match, server-derived target campaign, binding revision, and canonical outcome-command digest. Campaign ingestion SHALL re-resolve that binding and append the consequence batch plus a unique target-scoped `(targetCampaignId, outcomeId, outcomeVersion)` receipt carrying the same digest together before reconciliation is acknowledged.
+A terminal combat transaction SHALL append the finalized outcome fact and outbox record together. The outbox SHALL bind the authoritative source match, server-derived target campaign, binding revision, and canonical outcome-command digest. The cross-stream identity SHALL use `effectType = combat-outcome`, the authoritative `outcomeId` as `effectId`, and the authoritative `outcomeVersion` as `effectVersion`, so campaign ingestion SHALL re-resolve that binding and append the consequence batch plus a unique target-scoped `(targetCampaignId, effectType, effectId, effectVersion)` receipt carrying the same digest together before reconciliation is acknowledged.
 
 #### Scenario: Duplicate outcome delivery
 - **WHEN** the same outcome version is delivered more than once

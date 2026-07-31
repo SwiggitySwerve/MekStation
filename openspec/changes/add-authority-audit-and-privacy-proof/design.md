@@ -33,27 +33,21 @@ interface IAuthorizedViewer {
   ownedForceIds: readonly string[];
   membershipRevision: number;
 }
-
-interface ISystemEffectPrincipal {
-  kind: "system-effect";
-  effectId: string;
-  sourceStreamId: string;
-  sourceBranchId: string;
-  sourceEventId: string;
-  sourceEffectiveGeneration: number;
-  deliveryAdmissionToken: string;
-  targetCampaignId: string;
-  bindingRevision: number;
-}
 ```
 
 Verified identity plus durable active membership produces the viewer context. A socket is not attached and receives no replay until the lookup succeeds. Client-supplied role, actor, authority, campaign, match, or ownership fields are never accepted as authority. Every human command, history read, branch operation, timeline, and export rechecks the relevant active membership.
 
-Internal outcome delivery uses a distinct non-serializable system-effect principal minted only after a leased outbox row is durably promoted to `admitted` against an unfenced source generation and authoritative source-to-target binding. It authorizes one effect ingestion at one target campaign, source effective generation, and delivery-admission token. It cannot attach a socket, read or render history, access private audit, submit another command kind, or impersonate a GM/player. Human membership revocation does not invalidate a committed admitted effect; binding, generation, or admission-token mismatch does.
+Non-human work never receives, reconstructs, serializes, or converts into `IAuthorizedViewer`. A subsystem that needs non-human authority must define and mint its own server-internal capability, bound only to that subsystem's admitted operation. Such a capability grants no socket, replay, history, timeline, export, private-audit, branch, or human-command authority. This wave owns that separation invariant; the cross-stream effect wave owns the concrete one-effect capability and admission rules.
 
 ### D2 — Raw records never cross serialization
 
-`IEventJournal` and private-audit repositories remain infrastructure-internal. Application services accept `IAuthorizedViewer`, authorize the requested entity/stream against its campaign/session, project each event, assign a gapless viewer delivery sequence, and only then serialize. Projection failure sends no raw fallback.
+`IEventJournal` and private-audit repositories remain infrastructure-internal. Application services accept `IAuthorizedViewer`, authorize the requested entity/stream against its campaign/session, project each event, and only then serialize. Projection failure sends no raw fallback and creates no delivery identity.
+
+Viewer delivery uses a durable opaque epoch keyed by `(principalId, campaignSessionId, participantId, membershipRevision, streamType, streamId, projectorVersion, effectiveGeneration)`. A cursor is `{ deliveryEpochId, afterSequence }`; `deliverySequence` starts at 1 and advances gaplessly only for events that successfully produce a visible projection in that epoch. Hidden events receive no sequence. A durable internal event-to-sequence mapping makes reconnect, retry, replay, and pagination reuse the same sequence for the same projected event.
+
+For every cursor request, the server freshly derives the complete epoch key from the current authorized viewer and requested stream, then resolves `deliveryEpochId` only within that exact key. A cursor from another principal, participant, campaign session, stream, membership revision, projector version, or effective generation fails closed without revealing whether the foreign epoch exists.
+
+Sequence assignment and the event mapping commit in one transaction with unique constraints on `(deliveryEpochId, projectedEventIdentity)` and `(deliveryEpochId, deliverySequence)`. Concurrent projection, reconnect, retry, or replay returns the already committed mapping or atomically allocates the next sequence; a failed transaction leaves no reserved gap. Changing membership revision, projector version, or effective generation creates a new epoch and explicit baseline. A cursor from another epoch fails with a typed stale-epoch result; the server never silently continues it, renumbers the old epoch, or exposes a raw journal position. Projection failure assigns no sequence and does not advance the cursor.
 
 ### D3 — Action audit is separate from gameplay history
 

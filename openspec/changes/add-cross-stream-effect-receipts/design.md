@@ -19,11 +19,36 @@ Combat and campaign are separate authority streams. A terminal match outcome mus
 
 ### D1 — Transactional outbox and idempotent inbox
 
-The source match transaction writes `CombatOutcomeFinalized` and an outbox record. The outbox persists immutable canonical semantic-command UTF-8 bytes, command-schema and canonicalizer versions, their digest, source match/branch/event/effective-generation, and target campaign plus binding revision derived from the authoritative match-to-campaign binding; no client-supplied target scope is trusted. A worker loads those durable bytes after restart rather than regenerating the command from mutable projections, and delivers them under the narrow non-human system-effect principal defined by the privacy/admission wave, which binds both versions and the digest. Before append, campaign ingestion re-resolves the source binding, validates the stored command schema, re-canonicalizes the delivered command, verifies target campaign, source generation/admission, binding revision, versions, bytes, and digest, and rejects any mismatch.
+```ts
+declare const systemEffectPrincipalBrand: unique symbol;
 
-The campaign receipt identity is `(targetCampaignId, effectType, sourceStreamId, sourceBranchId, sourceEventId, effectVersion)`. After admission, binding, identity, and digest verification, ingestion looks up that receipt before enforcing the current target-head precondition so a lost acknowledgement remains retryable after unrelated target progress. A matching receipt returns unchanged. Reusing the identity with a different semantic-command digest is a typed integrity conflict, never a duplicate success. For a new identity, the campaign transaction inserts the inbox receipt and resulting campaign event batch together using the normal expected-head compare-and-append.
+interface ISystemEffectPrincipal {
+  readonly kind: "system-effect";
+  readonly [systemEffectPrincipalBrand]: true;
+  readonly effectId: string;
+  readonly effectType: string;
+  readonly effectVersion: number;
+  readonly sourceStreamType: string;
+  readonly sourceStreamId: string;
+  readonly sourceBranchId: string;
+  readonly sourceEventId: string;
+  readonly sourceEffectiveGeneration: number;
+  readonly deliveryAdmissionToken: string;
+  readonly targetCampaignId: string;
+  readonly bindingRevision: number;
+  readonly canonicalizerVersion: number;
+  readonly commandSchemaVersion: number;
+  readonly semanticCommandDigest: string;
+}
+```
 
-`EffectCommandCanonicalizer` v1 is a shared source/target routine. It applies RFC 8785 JSON canonicalization to UTF-8 bytes containing `canonicalizerVersion`, effect type/version, source stream/ID/branch/event/effective-generation, target campaign and binding revision, command schema version, and the complete server-derived semantic command. It preserves command array order, performs no Unicode normalization, rejects non-finite or unsupported values, and encodes SHA-256 as lowercase hexadecimal. The canonical bytes and both versions are persisted with the source outbox; both versions and the digest are bound through admission and target receipt. Later canonicalizer or command-schema versions never reinterpret prior rows. Unsupported stored versions move the effect to typed `blocked` state without target mutation rather than falling back or regenerating content. Command bytes and their digest are server-internal integrity data and are not serialized into viewer timelines or exports.
+The source match transaction writes `CombatOutcomeFinalized` and an outbox record. The outbox persists a server-derived effect ID/type/version, immutable canonical semantic-command UTF-8 bytes, command-schema and canonicalizer versions, their digest, source match/branch/event/effective-generation, and target campaign plus binding revision derived from the authoritative match-to-campaign binding; no client-supplied effect or target scope is trusted. A worker loads those durable bytes after restart rather than regenerating the command from mutable projections, and delivers them under the narrow non-human system-effect principal defined and minted in this wave, which binds the complete effect identity, both versions, and digest. Before append, campaign ingestion re-resolves the source binding and current active target branch, validates the stored command schema, re-canonicalizes the delivered command, verifies target campaign, source generation/admission, binding revision, versions, bytes, and digest, and rejects any mismatch. The outbox and principal do not accept a caller-selected target branch; the receipt records the server-resolved target branch and resulting event range.
+
+`ISystemEffectPrincipal` is a server-internal nominal capability, not a wire or persistence DTO. Only the lease-to-admitted transition may mint it from the committed admission row. It cannot be constructed from client claims or a lease, converted into an authorized viewer, attached to a socket, used to read/render history or private audit, perform branch operations, or submit another command. Revoking every human membership does not invalidate a previously committed valid admission; any identity, target, generation, token, binding, version, or digest mismatch does.
+
+`(effectType, effectId, effectVersion)` is the stable server-derived domain effect identity; for `CombatOutcomeFinalized`, `effectType` is `combat-outcome`, `effectId` is the authoritative `outcomeId`, and `effectVersion` is the authoritative `outcomeVersion`. The campaign receipt identity is `(targetCampaignId, effectType, effectId, effectVersion)`. After admission, binding, identity, and digest verification, ingestion looks up that receipt before enforcing the current target-head precondition so a lost acknowledgement remains retryable after unrelated target progress. A matching receipt returns unchanged. Reusing the identity with a different source identity, command versions, canonical bytes, or semantic-command digest is a typed integrity conflict, never a duplicate success. For a new identity, the campaign transaction inserts the inbox receipt, server-resolved target branch, and resulting campaign event batch together using the normal expected-head compare-and-append.
+
+`EffectCommandCanonicalizer` v1 is a shared source/target routine. It applies RFC 8785 JSON canonicalization to UTF-8 bytes containing `canonicalizerVersion`, effect ID/type/version, source stream/ID/branch/event/effective-generation, target campaign and binding revision, command schema version, and the complete server-derived semantic command. It preserves command array order, performs no Unicode normalization, rejects non-finite or unsupported values, and encodes SHA-256 as lowercase hexadecimal. The canonical bytes and both versions are persisted with the source outbox; effect ID, both versions, and the digest are bound through admission and target receipt. Later canonicalizer or command-schema versions never reinterpret prior rows. Unsupported stored versions move the effect to typed `blocked` state without target mutation rather than falling back or regenerating content. Command bytes and their digest are server-internal integrity data and are not serialized into viewer timelines or exports.
 
 ### D2 — Use causation links, not duplicated events
 
@@ -31,7 +56,7 @@ The campaign receives a distinct `BattleOutcomeReconciled` fact causally linked 
 
 ### D3 — Dispatch is outside replay
 
-Projectors never call the worker or external services. Outbox rows use `pending`, `leased`, `admitted`, `delivered`, `superseded`, or `blocked` state and record the source effective generation. Only a committed pending row for the current unfenced generation may acquire a lease. Before target mutation, the worker must atomically promote that lease to durable `admitted` state while the generation is still unfenced; this transition mints the one-effect system principal. Target ingestion accepts only that durable admission token, never a lease token.
+Projectors never call the worker or external services. Outbox rows use `pending`, `leased`, `admitted`, `delivered`, `superseded`, or `blocked` state and record the source effective generation. Only a committed pending row for the current unfenced generation may acquire a lease. Before target mutation, the worker must atomically promote that lease to durable `admitted` state while the generation is still unfenced; this transition is the only factory for the one-effect system principal. Target ingestion accepts only the capability backed by that durable admission token, never client data or a lease token.
 
 The storage contract exposes a source-generation fence for the later branch/correction wave. Fence installation and delivery admission serialize in the source store: once a generation is fenced, it can issue no new lease or admission, while an admission committed first remains durable until its idempotent target receipt is known. This wave owns that generic admission invariant and linear effect delivery; it does not own branch activation, candidate-branch lifecycle, or higher-version correction behavior. Notifications or future external effects use the same admission and receipt discipline.
 
