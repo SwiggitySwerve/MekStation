@@ -397,11 +397,14 @@ function buildEnemyAIUnits(
         context.gunneryByUnit.get(uid) ?? 4,
       );
     })
-    .filter(
-      (unit) =>
+    .filter((unit) => {
+      const unitState = session.currentState.units[unit.unitId];
+      const unitSide = unitState.side ?? gameUnitSides.get(unit.unitId);
+      return (
         !unit.destroyed &&
-        !session.currentState.units[unit.unitId].hasEjected &&
-        (session.currentState.units[unit.unitId].side ??
-          gameUnitSides.get(unit.unitId)) !== side,
-    );
+        !unitState.hasEjected &&
+        unitSide !== undefined &&
+        unitSide !== side
+      );
+    });
 }

@@ -121,7 +121,7 @@ describe('runInteractiveSessionAITurn unit scoping', () => {
     expect(session.currentState.activationIndex).toBe(1);
   });
 
-  it('excludes recovered same-side units from weapon targets', () => {
+  it('excludes recovered same-side and unassigned units from targets', () => {
     let session = createMovementSession();
     session = {
       ...session,
@@ -132,6 +132,7 @@ describe('runInteractiveSessionAITurn unit scoping', () => {
     };
     Reflect.deleteProperty(session.currentState.units['opponent-1'], 'side');
     Reflect.deleteProperty(session.currentState.units['opponent-2'], 'side');
+    Reflect.deleteProperty(session.units[2], 'side');
     const playAttackPhase = jest.fn(() => null);
     const context = createAIContext(
       () => session,
