@@ -71,9 +71,18 @@ export function runInteractiveSessionAITurn(
 ): void {
   const session = context.getSession();
   const { phase } = session.currentState;
+  const gameUnitSides = indexGameUnitSides(session);
   const sortedEntries = Object.entries(session.currentState.units)
     .filter(([candidateId]) => unitId === undefined || candidateId === unitId)
-    .sort(([a], [b]) => a.localeCompare(b));
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(
+      ([candidateId, unit]) =>
+        [
+          candidateId,
+          unit,
+          unit.side ?? gameUnitSides.get(candidateId),
+        ] as const,
+    );
 
   if (phase === GamePhase.Movement) {
     runInteractiveSessionMovementAI(context, sortedEntries);
@@ -90,7 +99,17 @@ export function runInteractiveSessionAITurn(
   }
 }
 
-type InteractiveSessionAIUnitEntry = readonly [string, IUnitGameState];
+type InteractiveSessionAIUnitEntry = readonly [
+  string,
+  IUnitGameState,
+  GameSide?,
+];
+
+function indexGameUnitSides(
+  session: IGameSession,
+): ReadonlyMap<string, GameSide> {
+  return new Map(session.units.map((unit) => [unit.id, unit.side] as const));
+}
 
 function runInteractiveSessionMovementAI(
   context: IInteractiveSessionAIContext,
@@ -102,9 +121,9 @@ function runInteractiveSessionMovementAI(
     context.setSession(next);
   };
 
-  for (const [unitId, unit] of sortedEntries) {
+  for (const [unitId, unit, unitSide] of sortedEntries) {
     if (
-      unit.side !== context.side ||
+      unitSide !== context.side ||
       unit.destroyed ||
       isActivationComplete(unit)
     ) {
@@ -192,9 +211,9 @@ function runInteractiveSessionWeaponAI(
     context.setSession(next);
   };
 
-  for (const [unitId, unit] of sortedEntries) {
+  for (const [unitId, unit, unitSide] of sortedEntries) {
     if (
-      unit.side !== context.side ||
+      unitSide !== context.side ||
       unit.destroyed ||
       isActivationComplete(unit)
     ) {
@@ -260,8 +279,8 @@ function runInteractiveSessionPhysicalAI(
     context.setSession(next);
   };
 
-  for (const [unitId, unit] of sortedEntries) {
-    if (unit.side !== context.side || unit.destroyed) continue;
+  for (const [unitId, unit, unitSide] of sortedEntries) {
+    if (unitSide !== context.side || unit.destroyed) continue;
 
     const weapons = context.weaponsByUnit.get(unitId) ?? [];
     const gunnery = context.gunneryByUnit.get(unitId) ?? 4;
@@ -368,6 +387,7 @@ function buildEnemyAIUnits(
   side: GameSide,
 ) {
   const session = context.getSession();
+  const gameUnitSides = indexGameUnitSides(session);
   return Object.keys(session.currentState.units)
     .map((uid) => {
       const unit = session.currentState.units[uid];
@@ -381,6 +401,7 @@ function buildEnemyAIUnits(
       (unit) =>
         !unit.destroyed &&
         !session.currentState.units[unit.unitId].hasEjected &&
-        session.currentState.units[unit.unitId].side !== side,
+        (session.currentState.units[unit.unitId].side ??
+          gameUnitSides.get(unit.unitId)) !== side,
     );
 }

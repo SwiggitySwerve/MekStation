@@ -23,6 +23,7 @@
 
 import { useMemo } from 'react';
 
+import type { IGameUnit } from '@/types/gameplay/GameSessionUnitTypes';
 import type { UnitId } from '@/types/gameplay/TacticalShellInterfaces';
 
 import { getPhaseMissingActionLabel } from '@/components/gameplay/EventLogDisplay.helpers';
@@ -149,26 +150,45 @@ export function usePhaseQueueProjection(): IPhaseQueueProjection {
     // Build unit lists grouped by side (first-mover side goes first per
     // BattleTech's alternating-activation rule). Within each side we
     // preserve the canonical insertion order from `session.units`.
-    const firstMoverUnits = gameUnits.filter((u) => u.side === firstMoverSide);
-    const opposingUnits = gameUnits.filter((u) => u.side === opposingSide);
+    const firstMoverUnits: IGameUnit[] = [];
+    const opposingUnits: IGameUnit[] = [];
+    const unassignedUnits: IGameUnit[] = [];
+    const resolvedSideByUnitId = new Map<UnitId, GameSide | null>();
+    for (const gameUnit of gameUnits) {
+      const resolvedSide =
+        unitStates[gameUnit.id]?.side ?? gameUnit.side ?? null;
+      resolvedSideByUnitId.set(gameUnit.id, resolvedSide);
+      if (resolvedSide === firstMoverSide) {
+        firstMoverUnits.push(gameUnit);
+      } else if (resolvedSide === opposingSide) {
+        opposingUnits.push(gameUnit);
+      } else {
+        unassignedUnits.push(gameUnit);
+      }
+    }
 
     // For alternating phases the activation order is strictly interleaved:
     // F[0], O[0], F[1], O[1], … (BattleTech standard). For non-alternating
     // phases (Initiative, Heat, End) the full list is still meaningful
     // for display purposes but no unit "acts" individually.
-    let initiativeOrder: UnitId[];
+    let activationOrder: UnitId[];
     if (ALTERNATING_PHASES.has(phase)) {
       const maxLen = Math.max(firstMoverUnits.length, opposingUnits.length);
-      initiativeOrder = [];
+      activationOrder = [];
       for (let i = 0; i < maxLen; i++) {
         if (i < firstMoverUnits.length)
-          initiativeOrder.push(firstMoverUnits[i].id);
-        if (i < opposingUnits.length) initiativeOrder.push(opposingUnits[i].id);
+          activationOrder.push(firstMoverUnits[i].id);
+        if (i < opposingUnits.length) activationOrder.push(opposingUnits[i].id);
       }
     } else {
       // Non-alternating: show all units, first-mover side first.
-      initiativeOrder = [...firstMoverUnits, ...opposingUnits].map((u) => u.id);
+      activationOrder = [...firstMoverUnits, ...opposingUnits].map((u) => u.id);
     }
+    // Side-less units remain visible but never acquire action debt or ownership.
+    const initiativeOrder = [
+      ...activationOrder,
+      ...unassignedUnits.map((unit) => unit.id),
+    ];
 
     // Unresolved units: in play (not destroyed/retreated/withdrawn) AND
     // lockState is not Resolved.
@@ -177,7 +197,7 @@ export function usePhaseQueueProjection(): IPhaseQueueProjection {
     const unresolvedUnits: UnitId[] = [];
     const blockers: IPhaseBlocker[] = [];
 
-    for (const unitId of initiativeOrder) {
+    for (const unitId of activationOrder) {
       const state = unitStates[unitId];
       if (!state) continue;
 
@@ -189,10 +209,13 @@ export function usePhaseQueueProjection(): IPhaseQueueProjection {
       if (!ALTERNATING_PHASES.has(phase)) continue;
 
       if (!isActivationComplete(state.lockState)) {
+        const resolvedSide = resolvedSideByUnitId.get(unitId);
+        if (!resolvedSide) continue;
+
         unresolvedUnits.push(unitId);
         blockers.push({
           unitId,
-          side: state.side,
+          side: resolvedSide,
           phase,
           missingAction,
         });
@@ -203,15 +226,16 @@ export function usePhaseQueueProjection(): IPhaseQueueProjection {
     // If activationIndex is out of range (phase complete) fall back to
     // the first unresolved unit, then null.
     let activeUnitId: UnitId | null = null;
-    if (initiativeOrder.length > 0) {
-      if (activationIndex < initiativeOrder.length) {
-        activeUnitId = initiativeOrder[activationIndex] ?? null;
+    if (activationOrder.length > 0) {
+      if (activationIndex < activationOrder.length) {
+        activeUnitId = activationOrder[activationIndex] ?? null;
       } else if (unresolvedUnits.length > 0) {
         activeUnitId = unresolvedUnits[0];
       }
     }
-    const activeSide =
-      (activeUnitId && unitStates[activeUnitId]?.side) || firstMoverSide;
+    const activeSide = activeUnitId
+      ? (resolvedSideByUnitId.get(activeUnitId) ?? firstMoverSide)
+      : firstMoverSide;
 
     return {
       round: turn,
