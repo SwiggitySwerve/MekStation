@@ -310,7 +310,7 @@ export default function GameSessionPage(): React.ReactElement {
         <title>Game Session - MekStation</title>
       </Head>
       <div
-        className="flex h-screen flex-col overflow-hidden"
+        className="flex h-full flex-col overflow-hidden"
         data-testid="game-session"
       >
         <div className="flex-1 overflow-hidden">

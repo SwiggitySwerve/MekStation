@@ -56,7 +56,7 @@ export function ForceGroup(props: ForceGroupProps): React.ReactElement {
         {units.length === 0 && (
           <span
             role="listitem"
-            className="self-center px-2 text-xs text-white/50"
+            className="self-center px-2 text-xs text-white/70"
           >
             No units
           </span>

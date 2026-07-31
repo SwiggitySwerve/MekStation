@@ -113,14 +113,16 @@ export function GameplayMainContentArea({
     <div
       ref={containerRef}
       // FOCUS row (map + trays). `flex-1` gives the map band the remaining
-      // column height after the bounded bands/dock/log, and the `min-h-[35vh]`
-      // floor guarantees the battlefield a real share even when siblings grow
-      // (the composer's dock band collapsed a pure `min-h-0` row to a sliver —
-      // FOCUS must dominate per the command-screen doctrine). 35vh is low
-      // enough that dock + event log still fit without page scroll on short
-      // viewports, and the right tray's own `overflow-y-auto` keeps the
-      // armor/structure rail reachable (tactical-map-flex-basis).
-      className="flex min-h-[35vh] flex-1 overflow-hidden"
+      // column height after the bounded bands/dock/log. Wider layouts keep the
+      // `min-h-[35vh]` floor so the battlefield retains a real share.
+      // Narrow layouts keep a compact 176px battlefield floor and let the
+      // gameplay column scroll when the viewport is too short to show every
+      // bounded band at once. This preserves both map and command reachability
+      // while leaving a genuinely readable battlefield between map overlays.
+      // The right tray's own `overflow-y-auto` keeps its record sheet reachable.
+      className={`flex flex-1 overflow-hidden ${
+        isNarrow ? 'min-h-[11rem] flex-shrink-0' : 'min-h-[35vh]'
+      }`}
       data-testid="gameplay-main-content"
     >
       {!isNarrow && <LeftTray lensState={lensState} />}
