@@ -21,8 +21,9 @@
 ## 4. Review and Handoff
 
 - [x] 4.1 Run independent code, authority/persistence, security, and browser QA review against the exact commit; resolve every in-scope finding.
+  - The original review receipts were not retained in the repository or on PR #1084. This historical completion marker is therefore not independently auditable from GitHub and is not used as archive-closeout proof.
 - [x] 4.2 Record the evidence paths and exact gate outcomes in the gameplay audit and wave handoff without mixing maintenance or turn-rail artifacts.
   - The gameplay audit records the authority defect, repair, reload continuation, raw IndexedDB/live equality, and residual QC baseline in Session 17 and GAME-04: `docs/audits/2026-07-27-gameplay-customizer-campaign-ux-audit.md`.
   - Untracked local receipts remain isolated under `.sisyphus/evidence/playtest/f688582-{unit,e2e,openspec}-output.md` and `.sisyphus/evidence/playtest/f688582-manual-qa.md`; the browser receipt proves 3/3 Chromium recovery scenarios and the unit receipt proves 9/9 focused match-log tests.
 - [x] 4.3 Commit one focused user-visible outcome, push the dedicated `codex/` branch, open one review-ready PR, and wait for terminal `gh pr checks` before starting the next product wave.
-  - Posthumously verified: PR #1084 (`f688582108128e86078cf0d38000d31344328378`) merged as `5e50317b17f11594edab942a482ba5040301a9e1` after all 29 checks in Actions run `30529524306` completed successfully; final code, OpenSpec, history, browser QA, and security/authority reviews passed.
+  - Posthumously verified from GitHub: PR #1084 (`f688582108128e86078cf0d38000d31344328378`) merged as `5e50317b17f11594edab942a482ba5040301a9e1` after all 29 checks in Actions run `30529524306` completed successfully.

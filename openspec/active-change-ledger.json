@@ -13,12 +13,6 @@
       "lastReviewed": "2026-07-29"
     },
     {
-      "name": "persist-interactive-combat-events",
-      "status": "in-progress",
-      "reason": "Focused local-combat durability wave for authoritative event-suffix persistence and exact cold-reload recovery in PR #1084.",
-      "lastReviewed": "2026-07-30"
-    },
-    {
       "name": "add-replay-schema-and-checkpoint-safety",
       "status": "proposed",
       "reason": "Wave 2 of the entity-history program: require versioned event upcasting, deterministic historical projection selection, verified checkpoints, and quarantine before any production authority adoption.",
