@@ -14,21 +14,29 @@ Every PR in this change MUST stay under 500 non-generated changed lines and 15 f
 - [x] 2.2 Publish fixed byte/digest fixtures covering shuffled object keys, sorted entity-reference and causation sets, preserved payload-array order, Unicode without normalization, finite ECMAScript numbers, exact included/excluded fields, and rejection of unsupported or non-finite values.
 - [x] 2.3 Prove identical semantic input yields identical bytes and digest across repeated processes, while every included-field mutation changes the digest and excluded storage-only fields do not.
 - [x] 2.4 Run focused canonicalizer tests, typecheck/lint/format, strict OpenSpec validation, and independent integrity review.
-- [ ] 2.5 After merge, rerun the published fixtures on exact main and prune the merged branch/worktree before PR 3.
+- [x] 2.5 After merge, rerun the published fixtures on exact main and prune the merged branch/worktree before PR 3. Receipt: PR #1105 merged as `15ef2113a8aa028e4b94b8d369c894e13cc3b02f`; exact-main canonicalizer/schema tests passed 76/76 with TypeScript, strict OpenSpec, OpenSpec CI-quality, and changed-file format/lint gates; the branch and worktree were pruned.
 
-## 3. Adapter Conformance — PR 3
+## 3. In-Memory Reference Adapter Core — PR 3
 
-- [ ] 3.1 Define one adapter conformance suite for atomic expected-head append, contiguous per-branch revisions, published canonical bytes/digests, command idempotency/collision, entity history, rollback, restart, and bounded catch-up through a captured store-local high-water cursor.
-- [ ] 3.2 Implement the smallest in-memory reference adapter needed to run the conformance suite; do not make it production authority.
-- [ ] 3.3 Prove stream-revision-gap acceptance, partial-batch commit, changed-content command-identity reuse, missing/duplicated entity-history results, and invalid catch-up bounds fail the contract; prove an identical command retry returns its receipt, an interrupted observation allocation may leave a numeric gap, unrelated streams validate independent expected heads, every non-exhausted page advances to a returned position, and a captured high-water can never skip an in-flight lower position or include a later commit beyond its boundary.
-- [ ] 3.4 Run the conformance suite, typecheck, lint, format check, and `git diff --check`; independently review the contract and test soundness.
-- [ ] 3.5 After merge, rerun conformance on exact main and prune the merged branch/worktree before PR 4.
+- [x] 3.1 Implement the smallest non-production in-memory adapter for atomic expected-head append, contiguous per-stream revisions, canonical digest chaining, idempotent command receipts, entity/event queries, and bounded catch-up through a store-local high-water cursor.
+- [x] 3.2 Keep committed state immutable across every returned batch/read value, reject duplicate event IDs before publication, normalize set-like causation/entity references for command identity, and inject the recorded-time clock for deterministic tests.
+- [x] 3.3 Add focused tests for atomic rollback with an allowed observation-position gap, independent stream heads, canonical chains, exact and reordered retries, changed command reuse, duplicate event IDs, defensive copies, entity/event selectors, invalid bounds, advancing pages, and in-flight high-water capture.
+- [x] 3.4 Run focused tests, typecheck, lint, format check, strict OpenSpec validation, no-excuse analysis, and `git diff --check`; independently review the adapter and test soundness.
+- [ ] 3.5 After merge, rerun the focused adapter receipt on exact main and prune the merged branch/worktree before PR 4.
 
-## 4. SQLite Journal Adapter — PR 4
+## 4. Restart Recovery and Adapter Conformance — PR 4
 
-- [ ] 4.1 Add additive SQLite tables/indexes for fixed root-branch heads, event batches, events, entity links, command receipts, canonicalizer version, predecessor/event digests, and the store-local observation cursor using the repository migration pattern.
-- [ ] 4.2 Implement the SQLite adapter transaction so expected branch/revision/digest verification, receipt, contiguous stream events, links, observation positions, integrity chain, and head advancement succeed or roll back together.
-- [ ] 4.3 Run the shared conformance suite against a real temporary SQLite file, including process restart and injected mid-transaction failure.
-- [ ] 4.4 Add explicit imported-baseline support and prove migration never fabricates unrecorded domain history.
-- [ ] 4.5 Run focused tests, Node 22 typecheck/lint/format, strict OpenSpec validation, and independent code/security/history review.
-- [ ] 4.6 After merge, rerun SQLite conformance on exact main, archive authority rows/read-only proof, and prune the merged branch/worktree.
+- [ ] 4.1 Add a test-only serialized in-memory snapshot/restart boundary that validates canonical digests, predecessor links, contiguous per-stream revisions, unique event IDs/positions, receipts, heads, and recovered indexes before accepting a suffix; reject corrupted recovery state without partial publication.
+- [ ] 4.2 Define one reusable adapter conformance suite for stream ordering, canonical integrity, command idempotency/collision, entity/event history, rollback, restart, and bounded catch-up, then run it against the in-memory adapter.
+- [ ] 4.3 Prove fresh post-restart append continues at the next revision/digest and recovered stream/entity/event reads match; prove revision gaps, partial commits, corrupted recovery, changed command reuse, duplicate IDs/results, invalid bounds, and unsafe high-water behavior fail the contract.
+- [ ] 4.4 Run the shared conformance suite, typecheck/lint/format, strict OpenSpec validation, and independent integrity/test-soundness review.
+- [ ] 4.5 After merge, rerun conformance on exact main and prune the merged branch/worktree before PR 5.
+
+## 5. SQLite Journal Adapter — PR 5
+
+- [ ] 5.1 Add additive SQLite tables/indexes for fixed root-branch heads, event batches, events, entity links, command receipts, canonicalizer version, predecessor/event digests, and the store-local observation cursor using the repository migration pattern.
+- [ ] 5.2 Implement the SQLite adapter transaction so expected branch/revision/digest verification, receipt, contiguous stream events, links, observation positions, integrity chain, and head advancement succeed or roll back together.
+- [ ] 5.3 Run the shared conformance suite against a real temporary SQLite file, including process restart and injected mid-transaction failure.
+- [ ] 5.4 Add explicit imported-baseline support and prove migration never fabricates unrecorded domain history.
+- [ ] 5.5 Run focused tests, Node 22 typecheck/lint/format, strict OpenSpec validation, and independent code/security/history review.
+- [ ] 5.6 After merge, rerun SQLite conformance on exact main, archive authority rows/read-only proof, and prune the merged branch/worktree.
