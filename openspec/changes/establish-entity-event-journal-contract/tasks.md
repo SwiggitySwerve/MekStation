@@ -43,13 +43,13 @@ Every PR in this change MUST stay under 500 non-generated changed lines and 15 f
 - [x] S.1 Replace the oversized SQLite outcome bundle with separate command-identity, schema, writer, read-adapter, durable-conformance, and closeout PR seams, each under the standing line/file caps.
 - [x] S.2 Pin borrowed-connection ownership, transaction-local position allocation, immutable-table mutation rejection, fail-closed verified opening, and domain-owned imported baselines before implementation.
 - [x] S.3 Run strict OpenSpec/QC validation and independent architecture/consistency review; keep this PR declarative only.
-- [ ] S.4 After merge, verify the exact-main artifacts and prune the spec branch/worktree before PR 6 implementation.
+- [x] S.4 After merge, verify the exact-main artifacts and prune the spec branch/worktree before PR 6 implementation. Receipt: PR #1109 merged as `01f9d26d1db6312b353f79aeb2b46bbbb90aee51`; exact-main strict OpenSpec and CI-quality validation passed with 14/14 active changes accounted and zero errors, and the branch, worktree, junction, and stale refs were pruned.
 
 ## 6. Adapter-Neutral Command Identity — PR 6
 
-- [ ] 6.1 Extract one adapter-neutral v1 command normalizer/digest module from the in-memory adapter and snapshot validator; normalize set-like causation IDs and entity references once without changing payload-array order.
-- [ ] 6.2 Refactor the in-memory append and recovery paths to use the shared boundary and prove fixed digests, reordered semantic retries, changed-content collisions, and normalized stored set order.
-- [ ] 6.3 Run focused journal tests, Node 22 typecheck/lint/format, strict OpenSpec validation, and independent identity/integrity review.
+- [x] 6.1 Extract one adapter-neutral v1 command normalizer/digest module from the in-memory adapter and snapshot validator; normalize set-like causation IDs and entity references once without changing payload-array order.
+- [x] 6.2 Refactor the in-memory append and recovery paths to use the shared boundary and prove fixed digests, reordered semantic retries, changed-content collisions, and normalized stored set order.
+- [x] 6.3 Run focused journal tests, Node 22 typecheck/lint/format, strict OpenSpec validation, and independent identity/integrity review. Receipt: 91/91 focused tests passed with nonincremental TypeScript, changed-file lint/format, strict OpenSpec and CI-quality validation; repository lint reported zero errors and 71 unrelated warnings, and the final sequential review approved with zero findings.
 - [ ] 6.4 After merge, rerun command identity on exact main and prune the merged branch/worktree before PR 7.
 
 ## 7. Additive SQLite Schema and Storage Invariants — PR 7

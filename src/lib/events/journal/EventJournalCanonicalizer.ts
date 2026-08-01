@@ -130,7 +130,7 @@ function assertString(value: unknown, field: string): asserts value is string {
   }
 }
 
-function sortedUniqueStrings(
+export function normalizeStringSetV1(
   values: readonly string[],
   field: string,
 ): string[] {
@@ -145,7 +145,7 @@ function sortedUniqueStrings(
   return sorted;
 }
 
-function sortedUniqueEntityRefs(
+export function normalizeEntityRefsV1(
   refs: readonly IEntityEventRef[],
 ): IEntityEventRef[] {
   const sorted = refs.map(({ entityType, entityId, role }) => {
@@ -196,7 +196,7 @@ export function canonicalizeEventDigestV1<TPayload>(
     eventType: event.eventType,
     eventVersion: event.eventVersion,
     correlationId: event.correlationId,
-    causationEventIds: sortedUniqueStrings(
+    causationEventIds: normalizeStringSetV1(
       event.causationEventIds,
       'causationEventIds',
     ),
@@ -209,7 +209,7 @@ export function canonicalizeEventDigestV1<TPayload>(
     canonicalizerVersion: event.canonicalizerVersion,
     previousStreamEventDigest: event.previousStreamEventDigest,
     payload: event.payload,
-    entityRefs: sortedUniqueEntityRefs(event.entityRefs),
+    entityRefs: normalizeEntityRefsV1(event.entityRefs),
   };
   const bytes = new TextEncoder().encode(canonicalizeJsonV1(material));
   return { bytes, digest: sha256Pure(bytes) };

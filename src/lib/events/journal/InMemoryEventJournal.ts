@@ -1,11 +1,10 @@
-import { sha256 } from 'js-sha256';
-
 import type * as Journal from './EventJournalContract';
 
 import {
   canonicalizeEventDigestV1,
   canonicalizeJsonV1,
 } from './EventJournalCanonicalizer';
+import { canonicalizeCommandIdentityV1 } from './EventJournalCommandIdentity';
 import { CURRENT_EVENT_CANONICALIZER_VERSION } from './EventJournalContract';
 import * as Schemas from './EventJournalSchemas';
 import {
@@ -25,21 +24,6 @@ const ignore = (): undefined => undefined;
 
 function clone<T>(value: T): T {
   return JSON.parse(canonicalizeJsonV1(value)) as T;
-}
-
-function canonicalizeCommand<TPayload>(
-  input: Journal.IAppendEventBatch<TPayload>,
-): string {
-  const events = input.events.map((event) => ({
-    ...event,
-    causationEventIds: [...event.causationEventIds].sort(),
-    entityRefs: [...event.entityRefs].sort((left, right) => {
-      const leftKey = canonicalizeJsonV1(left);
-      const rightKey = canonicalizeJsonV1(right);
-      return leftKey < rightKey ? -1 : leftKey > rightKey ? 1 : 0;
-    }),
-  }));
-  return canonicalizeJsonV1({ ...input, events });
 }
 
 export class InMemoryEventJournal<
@@ -236,8 +220,8 @@ export class InMemoryEventJournal<
     raw: Journal.IAppendEventBatch<TPayload>,
   ): Promise<Journal.EventJournalAppendResult<TPayload>> {
     const parsed = Schemas.AppendEventBatchSchema.parse(raw) as typeof raw;
-    const input = clone(parsed);
-    const digest = sha256(new TextEncoder().encode(canonicalizeCommand(input)));
+    const identity = canonicalizeCommandIdentityV1(parsed);
+    const { command: input, digest } = identity;
     const existing = this.receipts.get(input.commandId);
     if (existing) {
       return existing.digest === digest
