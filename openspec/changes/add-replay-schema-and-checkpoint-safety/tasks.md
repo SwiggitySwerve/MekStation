@@ -8,7 +8,8 @@ Work-path trace: this leaf owns the replay/upcast/checkpoint/quarantine portions
 - [x] S.2 Replace the oversized three-PR plan with the capped registry, legacy-adapter, domain-schema, determinism, projector, checkpoint, quarantine, integration, UI, and closeout seams below; strengthen the delta requirements so placeholder validators and implicit legacy versions cannot satisfy payload locking.
 - [x] S.3 Run strict OpenSpec/QC validation, diff/size checks, and one sequential independent architecture/consistency review; keep this PR declarative only.
   - Receipt: Node 22 strict OpenSpec passed 230/230, OpenSpec QC accounted for 13/13 active changes with zero errors, the checked-in inventory matched 80 combat plus seven campaign discriminants with no missing/extra/duplicate owner, `git diff --check` passed, and the sequential independent verifier approved the seven-artifact declarative diff with no P0-P3 findings.
-- [ ] S.4 After merge, verify the exact-main artifacts and prune the spec branch/worktree before PR 1 implementation.
+- [x] S.4 After merge, verify the exact-main artifacts and prune the spec branch/worktree before PR 1 implementation.
+  - Receipt: PR #1120 merged head `d7ae5216b45f98b5b15540d982464399108c74d7` as `c0a3b0e6a0e876d3732358567089f2cf20dd1bba` with 29 successful checks. Fresh Node 22 verification on descendant exact main `9c424d108d242db91de4d91a356a4692d0d6c004` passed strict OpenSpec 228/228, accounted for 11/11 active changes with zero QC errors, and found no local or remote `codex/split-replay-schema-safety-waves` ref or registered worktree before the clean PR 1 branch was created.
 
 ## 1. Schema Registry and Upcaster Kernel — PR 1
 

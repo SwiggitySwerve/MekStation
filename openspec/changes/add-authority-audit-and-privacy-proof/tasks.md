@@ -1,5 +1,11 @@
 Every PR in this change MUST stay under 500 non-generated changed lines and 15 files, own one behavior seam, and split through an OpenSpec update before implementation if the cap cannot be met.
 
+Work-path trace: this leaf follows `add-replay-schema-and-checkpoint-safety` and precedes the independently gated combat and campaign authority leaves in `../harden-gm-two-player-campaign-sessions/event-history-wave-map.md`.
+
+## 0. Replay-Safety Admission Gate — Pre-Implementation Receipt
+
+- [ ] 0.1 Before PR 1, verify on fetched exact main that `add-replay-schema-and-checkpoint-safety` is synced and archived, its task 21.3 and separately recorded post-merge terminal evidence pass, its active ledger entry/directory are absent, and its merged branch/worktree are pruned. Record the predecessor merge SHA and fail closed on missing or contradictory evidence.
+
 ## 1. Authorized Viewer Contract and Resolver — PR 1
 
 - [ ] 1.1 Add failing unit tests proving a known campaign/match ID, client role/ownership claim, or non-human principal claim cannot construct an authorized viewer without verified identity plus active durable membership.

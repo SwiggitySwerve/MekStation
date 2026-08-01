@@ -1,5 +1,11 @@
 Every PR in this change MUST stay under 500 non-generated changed lines and 15 files, own one behavior seam, and split through an OpenSpec update before implementation if the cap cannot be met.
 
+Work-path trace: this final event-history leaf follows `add-cross-stream-effect-receipts` in `../harden-gm-two-player-campaign-sessions/event-history-wave-map.md` and activates the lineage checks explicitly deferred by replay safety.
+
+## 0. Effect-Receipt Admission — Pre-Implementation Receipt
+
+- [ ] 0.1 Before PR 1, verify on fetched exact main that `add-cross-stream-effect-receipts` is synced and archived, its task 10.4 and post-merge terminal evidence pass, its active ledger entry/directory are absent, and its merged branch/worktree are pruned. Record the predecessor merge SHA and fail closed on missing or contradictory evidence.
+
 ## 1. Genesis Branch and Prior-Head Resolver — PR 1
 
 - [ ] 1.1 Add branch, effective-head, and supersession tables with one genesis/effective branch at generation `1` per existing journal stream; preserve the linear stream's stored generation idempotently.
