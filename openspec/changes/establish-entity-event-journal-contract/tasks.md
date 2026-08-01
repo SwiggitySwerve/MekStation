@@ -29,13 +29,13 @@ Every PR in this change MUST stay under 500 non-generated changed lines and 15 f
 - [x] 4.1 Add a test-only serialized in-memory snapshot/restart boundary that validates canonical digests, predecessor links, contiguous per-stream revisions, unique event IDs/positions, receipts, heads, and recovered indexes before accepting a suffix; reject corrupted recovery state without partial publication.
 - [x] 4.2 Prove fresh post-restart append continues at the next revision/digest/position and recovered stream/entity/event/receipt reads match; prove revision gaps, partial event sets, corrupt digests/predecessors/receipts/heads, duplicate IDs/positions/receipts, and unsafe high-water behavior reject the snapshot.
 - [x] 4.3 Run focused recovery tests, typecheck/lint/format, strict OpenSpec validation, and independent integrity/test-soundness review.
-- [ ] 4.4 After merge, rerun recovery on exact main and prune the merged branch/worktree before PR 5.
+- [x] 4.4 After merge, rerun recovery on exact main and prune the merged branch/worktree before PR 5. Receipt: PR #1107 merged as `118e3aa63ea68f4fc5c1f2ecb83dfe2cc921fc09`; exact-main schema/canonicalizer/recovery tests passed 83/83 with Node 22 TypeScript, strict OpenSpec, OpenSpec CI-quality, and changed-file format/lint gates; the branch, worktree, generated caches, and stale refs were pruned.
 
 ## 5. Reusable Adapter Conformance — PR 5
 
-- [ ] 5.1 Define one reusable adapter conformance suite for stream ordering, canonical integrity, command idempotency/collision, entity/event history, rollback, restart, and bounded catch-up, then run it against the in-memory adapter.
-- [ ] 5.2 Prove restart equivalence and suffix continuation plus changed command reuse, duplicate IDs/results, invalid bounds, unsafe high-water behavior, and failure rollback across the reusable adapter boundary.
-- [ ] 5.3 Run the shared conformance suite, typecheck/lint/format, strict OpenSpec validation, and independent test-soundness review.
+- [x] 5.1 Define one reusable adapter conformance suite for stream ordering, canonical integrity, command idempotency/collision, entity/event history, rollback, restart, and bounded catch-up, then run it against the in-memory adapter.
+- [x] 5.2 Prove restart equivalence and suffix continuation plus changed command reuse, duplicate IDs/results, invalid bounds, unsafe high-water behavior, and failure rollback across the reusable adapter boundary.
+- [x] 5.3 Run the shared conformance suite, typecheck/lint/format, strict OpenSpec validation, and independent test-soundness review.
 - [ ] 5.4 After merge, rerun conformance on exact main and prune the merged branch/worktree before PR 6.
 
 ## 6. SQLite Journal Adapter — PR 6
