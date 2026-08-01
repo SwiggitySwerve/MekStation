@@ -19,12 +19,6 @@
       "lastReviewed": "2026-07-30"
     },
     {
-      "name": "refine-combat-turn-rail",
-      "status": "in-progress",
-      "reason": "Posthumous specification and archive handoff for the reviewed force-grouped combat turn rail delivered by PR #1083, without expanding its presentation-only product seam.",
-      "lastReviewed": "2026-07-30"
-    },
-    {
       "name": "add-replay-schema-and-checkpoint-safety",
       "status": "proposed",
       "reason": "Wave 2 of the entity-history program: require versioned event upcasting, deterministic historical projection selection, verified checkpoints, and quarantine before any production authority adoption.",
