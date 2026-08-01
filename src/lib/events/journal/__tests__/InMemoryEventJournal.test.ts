@@ -119,6 +119,11 @@ describe('InMemoryEventJournal', () => {
       entityRefs: refs,
     });
     const original = committed(await journal.append(input));
+    expect(original.events[0].causationEventIds).toEqual([
+      'cause-a',
+      'cause-b',
+    ]);
+    expect(original.events[0].entityRefs).toEqual(refs);
     const reordered = withEvent(input, {
       causationEventIds: ['cause-a', 'cause-b'],
       entityRefs: [...refs].reverse(),
@@ -260,12 +265,27 @@ describe('InMemoryEventJournal', () => {
   });
 
   it('rejects corrupted restart state before returning an adapter', async () => {
-    committed(await journal.append(command('alpha', 0, 2, 'test\u0000suffix')));
+    const initial = command('alpha', 0, 2, 'test\u0000suffix');
+    committed(
+      await journal.append({
+        ...initial,
+        events: initial.events.map((event) => ({
+          ...event,
+          causationEventIds: ['cause-b', 'cause-a'],
+          entityRefs: [
+            { entityType: 'unit', entityId: 'unit-2', role: 'target' },
+            { entityType: 'pilot', entityId: 'pilot-1', role: 'subject' },
+          ],
+        })),
+      }),
+    );
     await append('beta', 0);
     const serialized = await journal.exportSnapshotForTesting();
     expect(() => InMemoryEventJournal.fromSnapshotForTesting('{')).toThrow();
+    const legacy = JSON.parse(serialized) as { version: number };
+    legacy.version = 1;
     expect(() =>
-      InMemoryEventJournal.fromSnapshotForTesting('{"version":2}'),
+      InMemoryEventJournal.fromSnapshotForTesting(JSON.stringify(legacy)),
     ).toThrow();
     const corruptions: Array<(snapshot: MutableSnapshot) => void> = [
       (snapshot) => change(snapshot.events, 0, { eventDigest: '0'.repeat(64) }),
@@ -279,6 +299,21 @@ describe('InMemoryEventJournal', () => {
       (snapshot) =>
         change(snapshot.events, 1, {
           commitPosition: required(snapshot.events[0]).commitPosition,
+        }),
+      (snapshot) =>
+        change(snapshot.events, 0, {
+          causationEventIds: [
+            ...(required(snapshot.events[0]).causationEventIds as string[]),
+          ].reverse(),
+        }),
+      (snapshot) =>
+        change(snapshot.events, 0, {
+          entityRefs: [
+            ...(required(snapshot.events[0]).entityRefs as Record<
+              string,
+              unknown
+            >[]),
+          ].reverse(),
         }),
       (snapshot) => snapshot.events.pop(),
       (snapshot) =>

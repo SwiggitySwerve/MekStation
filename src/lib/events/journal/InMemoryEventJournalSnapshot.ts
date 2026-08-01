@@ -1,4 +1,3 @@
-import { sha256 } from 'js-sha256';
 import { z } from 'zod';
 
 import type * as Journal from './EventJournalContract';
@@ -7,6 +6,7 @@ import {
   canonicalizeEventDigestV1,
   canonicalizeJsonV1,
 } from './EventJournalCanonicalizer';
+import { canonicalizeCommandIdentityV1 } from './EventJournalCommandIdentity';
 import { CURRENT_EVENT_CANONICALIZER_VERSION } from './EventJournalContract';
 import * as Schemas from './EventJournalSchemas';
 
@@ -23,7 +23,7 @@ export type InMemorySnapshotState<TPayload> = Readonly<{
   heads: readonly InMemorySnapshotHead[];
 }>;
 type JournalSnapshot<TPayload> = InMemorySnapshotState<TPayload> &
-  Readonly<{ version: 1 }>;
+  Readonly<{ version: 2 }>;
 
 const SnapshotHeadSchema = z
   .object({
@@ -36,7 +36,7 @@ const SnapshotHeadSchema = z
 const EventStreamIdentitySchema = z.tuple([z.string(), z.string()]);
 const JournalSnapshotSchema = z
   .object({
-    version: z.literal(1),
+    version: z.literal(2),
     highWaterCommitPosition: z
       .number()
       .int()
@@ -58,23 +58,6 @@ export function parseEventStreamKey(key: string): readonly [string, string] {
 
 function failSnapshot(message: string): never {
   throw new Error(`Invalid in-memory journal snapshot: ${message}`);
-}
-
-export function canonicalizeCommandDigestV1<TPayload>(
-  input: Journal.IAppendEventBatch<TPayload>,
-): string {
-  const events = input.events.map((event) => ({
-    ...event,
-    causationEventIds: [...event.causationEventIds].sort(),
-    entityRefs: [...event.entityRefs].sort((left, right) => {
-      const leftKey = canonicalizeJsonV1(left);
-      const rightKey = canonicalizeJsonV1(right);
-      return leftKey < rightKey ? -1 : leftKey > rightKey ? 1 : 0;
-    }),
-  }));
-  return sha256(
-    new TextEncoder().encode(canonicalizeJsonV1({ ...input, events })),
-  );
 }
 
 function parseSnapshot<TPayload>(
@@ -180,9 +163,16 @@ function validateSnapshot<TPayload>(snapshot: JournalSnapshot<TPayload>): void {
         failSnapshot('invalid batch membership');
       }
     });
+    const reconstructed = commandFromBatch(batch);
+    const identity = canonicalizeCommandIdentityV1(reconstructed);
+    if (
+      canonicalizeJsonV1(reconstructed) !== canonicalizeJsonV1(identity.command)
+    ) {
+      failSnapshot('stored set order is not normalized');
+    }
     const expectedReceipt: Journal.ICommandReceipt = {
       commandId: first.commandId,
-      commandDigest: canonicalizeCommandDigestV1(commandFromBatch(batch)),
+      commandDigest: identity.digest,
       canonicalizerVersion: CURRENT_EVENT_CANONICALIZER_VERSION,
       streamType: first.streamType,
       streamId: first.streamId,
@@ -226,5 +216,5 @@ export function restoreInMemorySnapshot<TPayload>(
 export function serializeInMemorySnapshot<TPayload>(
   snapshot: InMemorySnapshotState<TPayload>,
 ): string {
-  return canonicalizeJsonV1({ version: 1, ...snapshot });
+  return canonicalizeJsonV1({ version: 2, ...snapshot });
 }
