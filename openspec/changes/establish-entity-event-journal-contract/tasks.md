@@ -6,14 +6,14 @@ Every PR in this change MUST stay under 500 non-generated changed lines and 15 f
 - [x] 1.2 Define stored principal provenance with `human|system|migration` actor kind plus the server authority that accepted the command. Prove client DTOs cannot assign stored actor/authority identity, final stream revisions, commit positions, recorded timestamps, receipts, or digests.
 - [x] 1.3 Add Zod schemas and focused compile/runtime boundary tests that reject missing durable IDs, invalid versions, non-root branches, caller-assigned stored fields, ambiguous actor/authority provenance, negative/unsafe/reversed catch-up cursors, and non-integer page limits outside 1 through 500 without implementing an adapter or canonicalizer.
 - [x] 1.4 Run focused TypeScript/LSP and schema tests plus `git diff --check`; independently review the public contract and keep the PR under 500 non-generated changed lines and 15 files.
-- [ ] 1.5 After merge, update an exact-main worktree, rerun the focused contract receipt, record the merge SHA, then prune the merged branch/worktree before PR 2.
+- [x] 1.5 After merge, update an exact-main worktree, rerun the focused contract receipt, record the merge SHA, then prune the merged branch/worktree before PR 2. Receipt: PR #1104 merged as `a59d6c883da63cc9507c6763900ffb4c0b09c1b7`; exact-main schema tests passed 37/37 with TypeScript, strict OpenSpec, OpenSpec CI-quality, and changed-file format/lint gates; the branch and worktree were pruned.
 
 ## 2. Canonicalizer v1 — PR 2
 
-- [ ] 2.1 Implement the smallest RFC 8785 canonicalizer-v1 boundary needed to produce UTF-8 digest material and lowercase SHA-256 for the versioned journal envelope; add no new runtime dependency unless a separate reviewed dependency decision supersedes this task.
-- [ ] 2.2 Publish fixed byte/digest fixtures covering shuffled object keys, sorted entity-reference and causation sets, preserved payload-array order, Unicode without normalization, finite ECMAScript numbers, exact included/excluded fields, and rejection of unsupported or non-finite values.
-- [ ] 2.3 Prove identical semantic input yields identical bytes and digest across repeated processes, while every included-field mutation changes the digest and excluded storage-only fields do not.
-- [ ] 2.4 Run focused canonicalizer tests, typecheck/lint/format, strict OpenSpec validation, and independent integrity review.
+- [x] 2.1 Implement the smallest RFC 8785 canonicalizer-v1 boundary needed to produce UTF-8 digest material and lowercase SHA-256 for the versioned journal envelope; add no new runtime dependency unless a separate reviewed dependency decision supersedes this task.
+- [x] 2.2 Publish fixed byte/digest fixtures covering shuffled object keys, sorted entity-reference and causation sets, preserved payload-array order, Unicode without normalization, finite ECMAScript numbers, exact included/excluded fields, and rejection of unsupported or non-finite values.
+- [x] 2.3 Prove identical semantic input yields identical bytes and digest across repeated processes, while every included-field mutation changes the digest and excluded storage-only fields do not.
+- [x] 2.4 Run focused canonicalizer tests, typecheck/lint/format, strict OpenSpec validation, and independent integrity review.
 - [ ] 2.5 After merge, rerun the published fixtures on exact main and prune the merged branch/worktree before PR 3.
 
 ## 3. Adapter Conformance — PR 3
