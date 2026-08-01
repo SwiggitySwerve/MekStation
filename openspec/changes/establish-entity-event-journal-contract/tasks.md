@@ -36,13 +36,55 @@ Every PR in this change MUST stay under 500 non-generated changed lines and 15 f
 - [x] 5.1 Define one reusable adapter conformance suite for stream ordering, canonical integrity, command idempotency/collision, entity/event history, rollback, restart, and bounded catch-up, then run it against the in-memory adapter.
 - [x] 5.2 Prove restart equivalence and suffix continuation plus changed command reuse, duplicate IDs/results, invalid bounds, unsafe high-water behavior, and failure rollback across the reusable adapter boundary.
 - [x] 5.3 Run the shared conformance suite, typecheck/lint/format, strict OpenSpec validation, and independent test-soundness review.
-- [ ] 5.4 After merge, rerun conformance on exact main and prune the merged branch/worktree before PR 6.
+- [x] 5.4 After merge, rerun conformance on exact main and prune the merged branch/worktree before PR 6. Receipt: PR #1108 merged as `a1e0435a90752da1392f9c2ce3cd6cd2b715894b`; exact-main schema/canonicalizer/in-memory/conformance tests passed 86/86 with Node 22 TypeScript, strict OpenSpec, OpenSpec CI-quality, and changed-file format/lint gates; all 29 PR checks passed, and the branch, worktree, generated cache, junction, and stale refs were pruned.
 
-## 6. SQLite Journal Adapter — PR 6
+## Remaining-Wave OpenSpec Checkpoint — Spec-Only PR
 
-- [ ] 6.1 Add additive SQLite tables/indexes for fixed root-branch heads, event batches, events, entity links, command receipts, canonicalizer version, predecessor/event digests, and the store-local observation cursor using the repository migration pattern.
-- [ ] 6.2 Implement the SQLite adapter transaction so expected branch/revision/digest verification, receipt, contiguous stream events, links, observation positions, integrity chain, and head advancement succeed or roll back together.
-- [ ] 6.3 Run the shared conformance suite against a real temporary SQLite file, including process restart and injected mid-transaction failure.
-- [ ] 6.4 Add explicit imported-baseline support and prove migration never fabricates unrecorded domain history.
-- [ ] 6.5 Run focused tests, Node 22 typecheck/lint/format, strict OpenSpec validation, and independent code/security/history review.
-- [ ] 6.6 After merge, rerun SQLite conformance on exact main, archive authority rows/read-only proof, and prune the merged branch/worktree.
+- [x] S.1 Replace the oversized SQLite outcome bundle with separate command-identity, schema, writer, read-adapter, durable-conformance, and closeout PR seams, each under the standing line/file caps.
+- [x] S.2 Pin borrowed-connection ownership, transaction-local position allocation, immutable-table mutation rejection, fail-closed verified opening, and domain-owned imported baselines before implementation.
+- [x] S.3 Run strict OpenSpec/QC validation and independent architecture/consistency review; keep this PR declarative only.
+- [ ] S.4 After merge, verify the exact-main artifacts and prune the spec branch/worktree before PR 6 implementation.
+
+## 6. Adapter-Neutral Command Identity — PR 6
+
+- [ ] 6.1 Extract one adapter-neutral v1 command normalizer/digest module from the in-memory adapter and snapshot validator; normalize set-like causation IDs and entity references once without changing payload-array order.
+- [ ] 6.2 Refactor the in-memory append and recovery paths to use the shared boundary and prove fixed digests, reordered semantic retries, changed-content collisions, and normalized stored set order.
+- [ ] 6.3 Run focused journal tests, Node 22 typecheck/lint/format, strict OpenSpec validation, and independent identity/integrity review.
+- [ ] 6.4 After merge, rerun command identity on exact main and prune the merged branch/worktree before PR 7.
+
+## 7. Additive SQLite Schema and Storage Invariants — PR 7
+
+- [ ] 7.1 Add one repository migration module for the journal store-state/high-water singleton, root stream heads, one physical command-batch/receipt row, immutable events, normalized entity references, and normalized causation links; register it through the existing SQLite migration catalog.
+- [ ] 7.2 Enforce safe-integer/range/root-branch/uniqueness constraints, `RESTRICT` foreign keys, role-aware and role-agnostic query indexes, and SQLite-local `UPDATE`/`DELETE` rejection triggers on committed batches, events, entity references, and causation links. Do not use `AUTOINCREMENT`, `INSERT OR REPLACE`, JSON1 indexes, cascading deletes, or a separately committed position reservation.
+- [ ] 7.3 Prove fresh and repeated file-backed migration, singleton preservation, constraints, indexes, foreign keys, and raw direct-mutation rejection without changing existing production authority.
+- [ ] 7.4 Run migration tests, the native SQLite ABI preflight, Node 22 typecheck/lint/format, strict OpenSpec validation, and independent schema/security review.
+- [ ] 7.5 After merge, rerun the migration receipt on exact main and prune the merged branch/worktree before PR 8.
+
+## 8. SQLite Append, Receipt, and High-Water Core — PR 8
+
+- [ ] 8.1 Implement an unwired SQLite writer component that borrows an initialized `better-sqlite3` handle and exposes only append, receipt lookup, and committed high-water capture. It SHALL own the narrow stored-command-batch hydrator needed to validate payloads and reconstruct normalized entity references/causations for exact receipts and retries, but SHALL NOT initialize, migrate, close, or claim the complete `IEventJournal` interface.
+- [ ] 8.2 Parse, clone, normalize, and compute command identity before database access. Inside `transaction.immediate()`, check an existing receipt before the expected revision, verify the root head, reserve a safe contiguous position range by updating the singleton in the same transaction, build event digests after assigning revisions/positions/predecessors/recorded time, insert the batch/events/entity references/causations, and advance the head last.
+- [ ] 8.3 Prove atomic multi-event append, exact retry reconstruction, changed-command collision, stale revision, duplicate IDs including one-batch duplicates, safe-position overflow, committed high-water, and post-write rollback using a connection-scoped test trigger rather than a production fault API.
+- [ ] 8.4 Run focused writer tests, the SQLite ABI preflight, Node 22 typecheck/lint/format, strict OpenSpec validation, and independent transaction/integrity review.
+- [ ] 8.5 After merge, rerun the writer receipt on exact main and prune the merged branch/worktree before PR 9.
+
+## 9. SQLite Reads and Complete Adapter — PR 9
+
+- [ ] 9.1 Reuse and extend PR 8's validated stored-event/batch hydrator for stream, bounded committed, entity-with-optional-role, authority, correlation, and causation reads; preserve deterministic normalized set order for every general query result.
+- [ ] 9.2 Compose the writer and reader into the complete `IEventJournal` implementation while preserving borrowed-handle ownership. Keep the adapter unwired from production authority until PR 10 adds verified opening/recovery.
+- [ ] 9.3 Prove advancing/exhausted paging through gaps, every selector, exact receipt/event reconstruction, malformed-row rejection, borrowed-handle lifetime, and no raw journal serialization to player-facing code.
+- [ ] 9.4 Run focused read/adapter tests, the SQLite ABI preflight, Node 22 typecheck/lint/format, strict OpenSpec validation, and independent query/privacy review.
+- [ ] 9.5 After merge, rerun the complete-adapter receipt on exact main and prune the merged branch/worktree before PR 10.
+
+## 10. File-Backed Recovery and Conformance Closure — PR 10
+
+- [ ] 10.1 Add a real temporary-file harness whose owner initializes/migrates/closes the SQLite service, whose adapter borrows the live handle, and whose restart closes and reopens the same file as a distinct adapter instance.
+- [ ] 10.2 Add fail-closed verified opening that rejects corruption before returning the durable adapter; verify event chains/digests, receipt-event counts and ranges, command identity, heads, normalized entity/causation membership, unique positions, and high-water safety. Domain adoption changes may map this typed failure to quarantine; this foundation SHALL NOT invent domain quarantine state.
+- [ ] 10.3 Run the unmodified shared conformance suite against the real file, including restart/suffix continuation and connection-scoped post-write failure with no orphan event, link, receipt, head, or cursor publication.
+- [ ] 10.4 Run focused recovery/conformance tests, the SQLite ABI preflight, Node 22 typecheck/lint/format, strict OpenSpec validation, and independent code/security/history review.
+- [ ] 10.5 After merge, rerun the durable conformance receipt on exact main and prune the merged branch/worktree before closeout.
+
+## 11. Exact-Main Foundation Closeout — PR 11
+
+- [ ] 11.1 Record every remaining merge SHA plus Node/module-ABI/SQLite versions, rerun all journal and migration/conformance gates on exact main, capture read-only authority-row/integrity proof, and confirm no production authority was switched.
+- [ ] 11.2 Reconcile overlapping umbrella/adoption deltas, sync the completed `event-store` delta, archive this change only when the active-change ledger remains exact, and prune the closeout branch/worktree.

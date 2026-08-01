@@ -25,7 +25,7 @@ Every authoritative event SHALL be stored once in one owning stream with stable 
 - **AND** the surface SHALL receive only an authorized viewer projection
 
 ### Requirement: Command Event Batches Append Atomically at an Expected Revision
-The journal SHALL accept an ordered event batch with an expected `(stream type, stream ID, branch ID, revision)` head and stable command identity. Wave 1 SHALL admit only the deterministic root branch. In one transaction it SHALL verify the head and predecessor digest, persist an idempotent command receipt, assign contiguous stream revisions and command indexes, assign unique monotonically increasing observation positions whose numeric values MAY contain gaps, calculate the canonical event-digest chain, insert entity links, and advance the head.
+The journal SHALL accept an ordered event batch with an expected `(stream type, stream ID, branch ID, revision)` head and stable command identity. Wave 1 SHALL admit only the deterministic root branch. In one transaction it SHALL verify the head and predecessor digest, persist exactly one physical command-batch record that is also the idempotent receipt, assign contiguous stream revisions and command indexes, assign unique monotonically increasing observation positions whose numeric values MAY contain gaps, calculate the canonical event-digest chain, insert entity links, and advance the head.
 
 #### Scenario: Multi-event command commits
 - **WHEN** a command derives more than one event and the expected revision matches
@@ -44,8 +44,8 @@ The journal SHALL accept an ordered event batch with an expected `(stream type, 
 
 #### Scenario: Stored predecessor digest disagrees
 - **WHEN** append or recovery detects that the current head digest does not match the next event predecessor
-- **THEN** the authority scope SHALL reject or quarantine the operation
-- **AND** it SHALL publish no partial state
+- **THEN** append SHALL reject the operation or verified adapter opening SHALL fail closed
+- **AND** it SHALL publish no partial state; later domain adoption MAY map the failure to quarantine
 
 ### Requirement: Journal Adapters Pass One Conformance Contract
 Every journal adapter SHALL pass the same executable contract for stream ordering, observation-cursor safety, integrity chaining, atomicity, idempotency, entity queries, restart recovery, and failure rollback. The initial durable adapter SHALL use the repository SQLite stack without adding another service.
@@ -60,10 +60,15 @@ Every journal adapter SHALL pass the same executable contract for stream orderin
 - **THEN** a later committed event MAY leave a numeric gap
 - **AND** high-water reads SHALL still return every committed event exactly once
 
-#### Scenario: Legacy snapshot has no recorded history
-- **WHEN** snapshot-only state is introduced to a journal-backed aggregate
-- **THEN** migration SHALL record an explicit imported baseline with source metadata
-- **AND** it SHALL NOT fabricate historical domain events
+#### Scenario: SQLite adapter borrows an initialized connection
+- **WHEN** trusted code constructs the SQLite journal over an initialized repository database handle
+- **THEN** the adapter SHALL NOT initialize, migrate, checkpoint, or close the borrowed handle
+- **AND** durable restart SHALL be controlled by the connection owner reopening the same file
+
+#### Scenario: Durable journal recovery detects corruption
+- **WHEN** receipt membership, command identity, event chains, heads, normalized links, observation positions, or high-water state disagree
+- **THEN** verified SQLite adapter opening SHALL fail closed before returning an adapter
+- **AND** no partial projection or production authority cutover SHALL occur
 
 ## MODIFIED Requirements
 
@@ -89,6 +94,12 @@ The system SHALL reject modification or deletion of committed authority events. 
 - **WHEN** any caller attempts to update or delete its payload, identity, links, or digest
 - **THEN** the operation SHALL be rejected
 - **AND** the original event SHALL remain unchanged
+
+#### Scenario: Raw SQLite handle attempts direct mutation
+- **GIVEN** a committed command batch, event, entity reference, or causation link
+- **WHEN** trusted repository code uses the raw SQLite handle to update or delete that immutable fact
+- **THEN** adapter-local storage enforcement SHALL abort the statement
+- **AND** mutable head and high-water projections SHALL still verify against the unchanged facts
 
 #### Scenario: Stream sequence integrity
 - **GIVEN** events committed to one root branch
@@ -121,7 +132,7 @@ The system SHALL support server-internal queries by owning stream, accepting-aut
 - **THEN** the journal SHALL reject the query without reading events or advancing a consumer cursor
 
 ### Requirement: Chain Verification
-The system SHALL calculate a server-computed cryptographic digest for every authority event and chain it to the prior event digest in the same stream branch. Canonicalizer v1 SHALL apply RFC 8785 JSON canonicalization to UTF-8 digest-material bytes containing every immutable envelope field except `eventDigest`, after sorting set-like entity references by type/ID/role and causation event IDs lexicographically while preserving payload-array order. It SHALL include the canonicalizer version and predecessor digest, use SHA-256 lowercase hexadecimal, perform no Unicode normalization, and reject non-finite or unsupported values. Verification SHALL report the first broken event and SHALL fail closed for authoritative replay. Digests SHALL NOT authenticate or authorize access.
+The system SHALL calculate a server-computed cryptographic digest for every authority event and chain it to the prior event digest in the same stream branch. Canonicalizer v1 SHALL apply RFC 8785 JSON canonicalization to UTF-8 digest-material bytes containing every immutable envelope field except `eventDigest`, after sorting set-like entity references by type/ID/role and causation event IDs lexicographically while preserving payload-array order. Adapters SHALL persist and return those set-like fields in the same normalized order. The canonicalizer SHALL include its version and predecessor digest, use SHA-256 lowercase hexadecimal, perform no Unicode normalization, and reject non-finite or unsupported values. Verification SHALL report the first broken event and SHALL fail closed for authoritative replay. Digests SHALL NOT authenticate or authorize access.
 
 #### Scenario: Verify root chain
 - **GIVEN** a root branch with committed events
@@ -131,8 +142,8 @@ The system SHALL calculate a server-computed cryptographic digest for every auth
 #### Scenario: Detect tampering
 - **GIVEN** a stored event payload, identity, or entity link differs from its canonical digest
 - **WHEN** recovery verifies the branch
-- **THEN** the affected authority scope SHALL be quarantined
-- **AND** no partial projection SHALL publish
+- **THEN** verified adapter opening SHALL fail closed before returning durable state
+- **AND** no partial projection SHALL publish; later domain adoption MAY map the failure to quarantine
 
 #### Scenario: Two adapters hash the canonical fixture
 - **GIVEN** the same fixed v1 event fixture with deliberately shuffled object keys and entity-reference input order
