@@ -1,12 +1,23 @@
 ## ADDED Requirements
 
 ### Requirement: Event Schema Evolution Is Explicit and Deterministic
-Each event SHALL retain its original event type and schema version. Replay SHALL validate the stored payload and apply a registered pure upcast path before the current projector consumes it, while leaving the stored payload unchanged. Event schema version and projector version SHALL remain separate identities.
+Each normalized replay event SHALL identify its original event type and an explicit schema version. Journal events SHALL retain their stored version; a versionless legacy event MAY receive baseline v1 only through a named source-format adapter. Replay SHALL validate the stored payload with a strict concrete schema and apply a registered pure upcast path before the current projector consumes it, while leaving the stored payload unchanged. The registered baseline set SHALL exactly cover every canonical event discriminant that the domain claims to support. Generic unknown/any payloads, unconstrained records, passthrough/catch-all objects, structural type guards, or representative-only fixtures MUST NOT establish payload support. Event schema version and projector version SHALL remain separate identities.
 
 #### Scenario: Supported historical version replays
 - **WHEN** replay reads an older supported event version
 - **THEN** registered upcasters SHALL deterministically produce the current payload
 - **AND** repeated replay SHALL produce the same result digest without changing the stored row
+
+#### Scenario: Baseline registry is exhaustive and concrete
+- **WHEN** the current campaign or combat event discriminant set is compared with its composed baseline registry
+- **THEN** every discriminant SHALL have one explicit current target schema and at least one valid and invalid payload fixture
+- **AND** a missing registration, placeholder validator, missing field, extra field, or ill-typed field SHALL fail validation rather than establish support
+
+#### Scenario: Named legacy format supplies baseline version
+- **WHEN** replay reads a versionless event from a registered legacy source-format identifier and format version
+- **THEN** that adapter MAY attribute the event to its declared baseline schema v1 after binding exact pre-parse bytes for a byte-backed source or a versioned canonical pre-normalization snapshot for an object-backed source
+- **AND** normalization or caller mutation SHALL NOT change the bound source evidence or digest
+- **AND** replay SHALL reject an unknown format/version or a missing journal `eventVersion` instead of applying a global implicit version default
 
 #### Scenario: Unsupported history fails closed
 - **WHEN** replay encounters an unknown type, unsupported version, invalid payload, or failed upcast
@@ -20,6 +31,11 @@ Accepted history SHALL retain resolved outcomes or stable versioned input refere
 - **WHEN** a combat event depended on a random roll
 - **THEN** replay SHALL consume the stored resolved result or version-pinned input
 - **AND** it SHALL NOT draw a new random value
+
+#### Scenario: Required replay input is absent
+- **WHEN** a supported event requires resolved randomness, time, catalog, rules, or external provenance that its stored payload or pinned reference does not provide
+- **THEN** replay SHALL return a typed unsupported-history result
+- **AND** it SHALL NOT recompute the input from current services or publish partial state
 
 ### Requirement: Checkpoints Are Verified Disposable Caches
 A checkpoint SHALL identify stream, branch, revision, the deterministic fingerprint of every target schema and upcaster transition used for its prefix, projector ID/version, source digest, and state digest. Recovery MAY use a compatible checkpoint plus a contiguous tail, but full replay SHALL remain authoritative and MUST produce the same result.
@@ -39,7 +55,7 @@ A checkpoint SHALL identify stream, branch, revision, the deterministic fingerpr
 - **AND** recovery SHALL rebuild from an earlier compatible base or full replay
 
 ### Requirement: Corruption Isolated to One Authority Scope
-Before replacement branches exist, recovery SHALL validate event identity, the deterministic root-branch identity, contiguous stream revisions, receipt uniqueness, canonicalizer compatibility, and required predecessor/event digests before admitting commands or publication. Full parent/base/supersession lineage validation SHALL become mandatory when the authoritative-history-branches change introduces branch records.
+Before replacement branches exist, recovery SHALL validate event identity, the deterministic root-branch identity, contiguous stream revisions, receipt uniqueness, canonicalizer compatibility, and required predecessor/event digests before admitting commands or publication. Full parent/base/supersession lineage validation SHALL become mandatory when `add-authoritative-history-branches` introduces branch records.
 
 #### Scenario: Healthy session survives another session corruption
 - **WHEN** one campaign or match fails recovery validation
@@ -83,3 +99,9 @@ The system SHALL derive authoritative and viewer state through registered event-
 - **WHEN** recovery attempts projection
 - **THEN** the affected authority scope SHALL quarantine
 - **AND** no partial state or side effect SHALL occur
+
+#### Scenario: Intentional no-state-change is explicit
+- **GIVEN** a supported event that does not change a projector's state
+- **WHEN** the projector registry processes that event
+- **THEN** it SHALL use a named, versioned, tested no-state-change registration
+- **AND** a missing projector handler SHALL fail closed rather than be interpreted as an implicit no-op
