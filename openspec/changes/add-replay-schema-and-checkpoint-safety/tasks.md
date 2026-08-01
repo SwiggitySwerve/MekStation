@@ -11,13 +11,31 @@ Work-path trace: this leaf owns the replay/upcast/checkpoint/quarantine portions
 - [x] S.4 After merge, verify the exact-main artifacts and prune the spec branch/worktree before PR 1 implementation.
   - Receipt: PR #1120 merged head `d7ae5216b45f98b5b15540d982464399108c74d7` as `c0a3b0e6a0e876d3732358567089f2cf20dd1bba` with 29 successful checks. Fresh Node 22 verification on descendant exact main `9c424d108d242db91de4d91a356a4692d0d6c004` passed strict OpenSpec 228/228, accounted for 11/11 active changes with zero QC errors, and found no local or remote `codex/split-replay-schema-safety-waves` ref or registered worktree before the clean PR 1 branch was created.
 
-## 1. Schema Registry and Upcaster Kernel — PR 1
+## S2. Registry/Fingerprint Cap Split — Spec-Only PR
 
-- [ ] 1.1 Add an adapter-neutral registry for immutable `(eventType, schemaVersion)` registrations, explicit current targets, and pure one-version-at-a-time upcasters; keep all real domain types unsupported in this PR.
-- [ ] 1.2 Reject duplicate/conflicting registrations and missing/ambiguous transition paths with typed unsupported-history failures.
-- [ ] 1.3 Fingerprint the canonical ordered target-schema and transition identities actually required by a history prefix; prove registration order does not change the fingerprint and a target/transition change does.
-- [ ] 1.4 Prove synthetic fixtures upcast deterministically without mutating input objects or stored payload bytes; run focused tests, Node 22 typecheck/lint/format, strict OpenSpec/QC, and sequential independent review.
-- [ ] 1.5 After merge, rerun the registry receipt on exact main and prune the merged branch/worktree before PR 2.
+- [x] S2.1 Record the formatted registry/upcaster/fingerprint red-green spike above the 500-line PR ceiling, discard product edits from this branch, and preserve them only as a local recovery stash outside the branch diff.
+- [x] S2.2 Split the former PR 1 into the independently reviewable registry/upcaster kernel (PR 1A) and history-prefix pipeline fingerprint (PR 1B); neither PR may introduce real campaign/combat registrations or production wiring.
+- [x] S2.3 Run strict OpenSpec/QC, purpose/terminology, diff/size checks, and sequential independent consistency review on this declarative-only split.
+  - Receipt: the formatted three-file spike was 541 lines before task receipts, so its product edits were stashed after a focused 10/10 green test run. Node 22 strict OpenSpec passed 228/228, QC accounted for 11/11 active changes, purpose lint passed 217 files, terminology passed 306 files, `git diff --check` passed, and the sequential independent reviewer approved the two-file declarative diff with no P0-P3 findings.
+
+Post-merge terminal evidence: before PR 1A implementation resumes, verify these artifacts on exact main, remove this spec worktree/branch, prune refs, and record the receipt in task 1A.0.
+
+## 1A. Schema Registry and Upcaster Kernel — PR 1A
+
+- [ ] 1A.0 Record the merged S2 spec PR, exact-main OpenSpec/QC receipt, and pruned S2 branch/worktree before restoring the kernel spike onto a fresh PR 1A branch.
+- [ ] 1A.1 Add an adapter-neutral registry for immutable event registrations with explicit current targets, strict synthetic payload schemas, and pure one-version-at-a-time upcasters; keep all real domain types unsupported.
+- [ ] 1A.2 Reject duplicate/conflicting registrations and missing/ambiguous transition paths with typed failures.
+- [ ] 1A.3 Prove synthetic fixtures upcast deterministically without mutating input objects or stored payload bytes.
+- [ ] 1A.4 Run focused tests, Node 22 typecheck/lint/format, strict OpenSpec/QC, and sequential independent review.
+- [ ] 1A.5 After merge, rerun the registry/upcaster receipt on exact main and prune the merged branch/worktree before PR 1B.
+
+## 1B. Required-History Pipeline Fingerprint — PR 1B
+
+- [ ] 1B.0 Do not begin until task 1A.5 has an exact-main merge and prune receipt.
+- [ ] 1B.1 Fingerprint the canonical ordered target-schema and transition identities actually required by a history prefix, without adding a projector or production replay integration.
+- [ ] 1B.2 Prove registration/history order does not change the fingerprint, duplicate required identities are collapsed, unused registrations do not participate, and a required target/transition identity change does change the fingerprint.
+- [ ] 1B.3 Run focused tests, Node 22 typecheck/lint/format, strict OpenSpec/QC, and sequential independent review.
+- [ ] 1B.4 After merge, rerun the fingerprint receipt on exact main and prune before PR 2.
 
 ## 2. Explicit Legacy Source Adapters — PR 2
 

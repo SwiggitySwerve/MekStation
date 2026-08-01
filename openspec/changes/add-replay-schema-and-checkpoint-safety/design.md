@@ -23,7 +23,7 @@ The journal foundation records `eventVersion`, but the live legacy surfaces do n
 
 ### D1 — Keep the registry kernel separate from domain schema packs
 
-The registry kernel owns registration identity, duplicate/conflict rejection, one-version transitions, typed failures, and deterministic pipeline fingerprints. It ships first with synthetic fixtures only and treats every unregistered domain event as unsupported. The generic journal's `payload: unknown` contract remains valid storage plumbing; a domain reader establishes support only after the selected domain registry validates the payload.
+The registry kernel owns registration identity, duplicate/conflict rejection, one-version transitions, and typed failures. It ships first with synthetic fixtures only and treats every unregistered domain event as unsupported. A following capped PR adds deterministic fingerprints over only the target-schema and transition identities required by a supplied history prefix. The generic journal's `payload: unknown` contract remains valid storage plumbing; a domain reader establishes support only after the selected domain registry validates the payload.
 
 Campaign and combat baseline registrations land in later capped PRs. Combat schemas follow the existing lifecycle, movement, ranged/indirect attack, damage/heat/critical, physical/PSR/ground-object, vehicle/represented-system-state, terrain/mission/morale/withdrawal, and battle-armor family boundaries. A final composition PR proves the registered discriminants exactly equal the canonical 80 combat and seven campaign variants. No partial pack is wired to production replay.
 
@@ -55,7 +55,7 @@ interface IProjectorRegistration<TState> {
 }
 ```
 
-Upcasters are pure single-step transitions composed by the registry. Every transition registration has an immutable ID and explicit version. The registry fingerprints the ordered transition identities and target schema versions actually required by a checkpoint prefix. Stored payloads never change. Event version, schema-pipeline fingerprint, projector version, and application release remain separate identities.
+Upcasters are pure single-step transitions composed by the registry. Every transition registration has an immutable ID and explicit version. After the registry/upcaster kernel is merged and verified on exact main, the fingerprint seam adds the canonical ordered transition identities and target schema versions actually required by a checkpoint prefix. Stored payloads never change. Event version, schema-pipeline fingerprint, projector version, and application release remain separate identities.
 
 Every supported event type also has an explicit projector decision: apply through a registered handler or perform a named, tested no-state-change transition. An absent handler is never interpreted as an implicit no-op.
 
@@ -80,7 +80,7 @@ Unsupported type/version, broken fixed-root continuity, or digest mismatch yield
 ## Migration Plan
 
 1. Merge this spec-only decomposition checkpoint.
-2. Add the adapter-neutral registry/upcaster kernel, then named legacy-source adapters.
+2. Add the adapter-neutral registry/upcaster kernel, then the required-history pipeline fingerprint, then named legacy-source adapters.
 3. Add campaign and combat baseline schema packs independently; keep integration disabled until exhaustive 87-variant composition passes.
 4. Prove deterministic input provenance and explicit projector decisions before changing replay/recovery paths.
 5. Add checkpoint compatibility and persistence behind a disabled optimization flag, then prove full-replay equality and invalidation.
