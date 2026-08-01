@@ -6,6 +6,12 @@ import { InMemoryEventJournal } from '../InMemoryEventJournal';
 interface Payload {
   readonly value: string;
 }
+type MutableSnapshot = {
+  highWaterCommitPosition: number;
+  events: Array<Record<string, unknown>>;
+  receipts: Array<Record<string, unknown>>;
+  heads: Array<Record<string, unknown>>;
+};
 const principal = {
   actorKind: 'human',
   actorId: 'player-1',
@@ -19,6 +25,17 @@ function committed(
   if (result.kind !== 'committed') throw new Error(`Expected ${result.kind}`);
   return result;
 }
+function required<T>(value: T | undefined): T {
+  if (value === undefined) throw new Error('Missing snapshot fixture value');
+  return value;
+}
+function change(
+  values: Array<Record<string, unknown>>,
+  index: number,
+  fields: Record<string, unknown>,
+): void {
+  Object.assign(required(values[index]), fields);
+}
 describe('InMemoryEventJournal', () => {
   let journal: InMemoryEventJournal<Payload>;
   let identity: number;
@@ -30,10 +47,11 @@ describe('InMemoryEventJournal', () => {
     streamId: string,
     expectedRevision: number,
     count = 1,
+    streamType = 'test',
   ): Journal.IAppendEventBatch<Payload> {
     const commandId = `command-${identity++}`;
     return {
-      streamType: 'test',
+      streamType,
       streamId,
       expectedBranchId: 'root',
       expectedRevision,
@@ -189,5 +207,103 @@ describe('InMemoryEventJournal', () => {
     const boundary = (await capture).commitPosition;
     await append('alpha', 4);
     expect((await readPage(0, boundary, 10)).events).toHaveLength(4);
+  });
+
+  it('restores validated history and appends from the recovered head', async () => {
+    const alpha = await append('alpha', 0, 2);
+    await append('beta', 0);
+    journal.failNextCommit();
+    await expect(journal.append(command('alpha', 2, 2))).rejects.toThrow();
+    const highWater = await journal.captureHighWater();
+    const before = await readPage(0, highWater.commitPosition, 10);
+    journal = InMemoryEventJournal.fromSnapshotForTesting(
+      await journal.exportSnapshotForTesting(),
+      () => recordedAt,
+    );
+
+    expect(
+      await journal.readStream({
+        streamType: 'test',
+        streamId: 'alpha',
+        branchId: 'root',
+        afterRevision: 0,
+        limit: 10,
+      }),
+    ).toEqual(alpha.events);
+    expect(
+      await journal.readEntityHistory({
+        afterCommitPosition: 0,
+        throughCommitPosition: highWater.commitPosition,
+        limit: 10,
+        entityType: 'unit',
+        entityId: 'unit-1',
+      }),
+    ).toEqual(before.events);
+    expect(
+      await journal.readEventHistory({
+        afterCommitPosition: 0,
+        throughCommitPosition: highWater.commitPosition,
+        limit: 10,
+        selector: { kind: 'correlation', id: 'correlation-alpha' },
+      }),
+    ).toEqual(alpha.events);
+    expect(await journal.getCommandReceipt(alpha.receipt.commandId)).toEqual(
+      alpha.receipt,
+    );
+
+    const suffix = await append('alpha', 2);
+    expect(suffix.events[0].streamRevision).toBe(3);
+    expect(suffix.events[0].commitPosition).toBe(6);
+    expect(suffix.events[0].previousStreamEventDigest).toBe(
+      alpha.events[1].eventDigest,
+    );
+  });
+
+  it('rejects corrupted restart state before returning an adapter', async () => {
+    committed(await journal.append(command('alpha', 0, 2, 'test\u0000suffix')));
+    await append('beta', 0);
+    const serialized = await journal.exportSnapshotForTesting();
+    expect(() => InMemoryEventJournal.fromSnapshotForTesting('{')).toThrow();
+    expect(() =>
+      InMemoryEventJournal.fromSnapshotForTesting('{"version":2}'),
+    ).toThrow();
+    const corruptions: Array<(snapshot: MutableSnapshot) => void> = [
+      (snapshot) => change(snapshot.events, 0, { eventDigest: '0'.repeat(64) }),
+      (snapshot) =>
+        change(snapshot.events, 1, { previousStreamEventDigest: null }),
+      (snapshot) => change(snapshot.events, 1, { streamRevision: 4 }),
+      (snapshot) =>
+        change(snapshot.events, 1, {
+          eventId: required(snapshot.events[0]).eventId,
+        }),
+      (snapshot) =>
+        change(snapshot.events, 1, {
+          commitPosition: required(snapshot.events[0]).commitPosition,
+        }),
+      (snapshot) => snapshot.events.pop(),
+      (snapshot) =>
+        change(snapshot.receipts, 0, { commandDigest: 'f'.repeat(64) }),
+      (snapshot) => change(snapshot.heads, 0, { revision: 99 }),
+      (snapshot) =>
+        change(snapshot.heads, 0, {
+          streamType: 'test',
+          streamId: 'suffix\u0000alpha',
+        }),
+      (snapshot) => Object.assign(snapshot, { highWaterCommitPosition: 0 }),
+      (snapshot) =>
+        snapshot.receipts.push(
+          JSON.parse(JSON.stringify(required(snapshot.receipts[0]))) as Record<
+            string,
+            unknown
+          >,
+        ),
+    ];
+    for (const corrupt of corruptions) {
+      const snapshot = JSON.parse(serialized) as MutableSnapshot;
+      corrupt(snapshot);
+      expect(() =>
+        InMemoryEventJournal.fromSnapshotForTesting(JSON.stringify(snapshot)),
+      ).toThrow();
+    }
   });
 });

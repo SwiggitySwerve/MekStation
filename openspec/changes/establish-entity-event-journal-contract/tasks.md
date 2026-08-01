@@ -22,21 +22,27 @@ Every PR in this change MUST stay under 500 non-generated changed lines and 15 f
 - [x] 3.2 Keep committed state immutable across every returned batch/read value, reject duplicate event IDs before publication, normalize set-like causation/entity references for command identity, and inject the recorded-time clock for deterministic tests.
 - [x] 3.3 Add focused tests for atomic rollback with an allowed observation-position gap, independent stream heads, canonical chains, exact and reordered retries, changed command reuse, duplicate event IDs, defensive copies, entity/event selectors, invalid bounds, advancing pages, and in-flight high-water capture.
 - [x] 3.4 Run focused tests, typecheck, lint, format check, strict OpenSpec validation, no-excuse analysis, and `git diff --check`; independently review the adapter and test soundness.
-- [ ] 3.5 After merge, rerun the focused adapter receipt on exact main and prune the merged branch/worktree before PR 4.
+- [x] 3.5 After merge, rerun the focused adapter receipt on exact main and prune the merged branch/worktree before PR 4. Receipt: PR #1106 merged as `6da0ff8606a31b72e7a88ff51d6ca79075020e4d`; exact-main schema/canonicalizer/adapter tests passed 81/81 with TypeScript, strict OpenSpec, OpenSpec CI-quality, and changed-file format/lint gates; the branch, worktree, and stale refs were pruned.
 
-## 4. Restart Recovery and Adapter Conformance — PR 4
+## 4. Restart Recovery — PR 4
 
-- [ ] 4.1 Add a test-only serialized in-memory snapshot/restart boundary that validates canonical digests, predecessor links, contiguous per-stream revisions, unique event IDs/positions, receipts, heads, and recovered indexes before accepting a suffix; reject corrupted recovery state without partial publication.
-- [ ] 4.2 Define one reusable adapter conformance suite for stream ordering, canonical integrity, command idempotency/collision, entity/event history, rollback, restart, and bounded catch-up, then run it against the in-memory adapter.
-- [ ] 4.3 Prove fresh post-restart append continues at the next revision/digest and recovered stream/entity/event reads match; prove revision gaps, partial commits, corrupted recovery, changed command reuse, duplicate IDs/results, invalid bounds, and unsafe high-water behavior fail the contract.
-- [ ] 4.4 Run the shared conformance suite, typecheck/lint/format, strict OpenSpec validation, and independent integrity/test-soundness review.
-- [ ] 4.5 After merge, rerun conformance on exact main and prune the merged branch/worktree before PR 5.
+- [x] 4.1 Add a test-only serialized in-memory snapshot/restart boundary that validates canonical digests, predecessor links, contiguous per-stream revisions, unique event IDs/positions, receipts, heads, and recovered indexes before accepting a suffix; reject corrupted recovery state without partial publication.
+- [x] 4.2 Prove fresh post-restart append continues at the next revision/digest/position and recovered stream/entity/event/receipt reads match; prove revision gaps, partial event sets, corrupt digests/predecessors/receipts/heads, duplicate IDs/positions/receipts, and unsafe high-water behavior reject the snapshot.
+- [x] 4.3 Run focused recovery tests, typecheck/lint/format, strict OpenSpec validation, and independent integrity/test-soundness review.
+- [ ] 4.4 After merge, rerun recovery on exact main and prune the merged branch/worktree before PR 5.
 
-## 5. SQLite Journal Adapter — PR 5
+## 5. Reusable Adapter Conformance — PR 5
 
-- [ ] 5.1 Add additive SQLite tables/indexes for fixed root-branch heads, event batches, events, entity links, command receipts, canonicalizer version, predecessor/event digests, and the store-local observation cursor using the repository migration pattern.
-- [ ] 5.2 Implement the SQLite adapter transaction so expected branch/revision/digest verification, receipt, contiguous stream events, links, observation positions, integrity chain, and head advancement succeed or roll back together.
-- [ ] 5.3 Run the shared conformance suite against a real temporary SQLite file, including process restart and injected mid-transaction failure.
-- [ ] 5.4 Add explicit imported-baseline support and prove migration never fabricates unrecorded domain history.
-- [ ] 5.5 Run focused tests, Node 22 typecheck/lint/format, strict OpenSpec validation, and independent code/security/history review.
-- [ ] 5.6 After merge, rerun SQLite conformance on exact main, archive authority rows/read-only proof, and prune the merged branch/worktree.
+- [ ] 5.1 Define one reusable adapter conformance suite for stream ordering, canonical integrity, command idempotency/collision, entity/event history, rollback, restart, and bounded catch-up, then run it against the in-memory adapter.
+- [ ] 5.2 Prove restart equivalence and suffix continuation plus changed command reuse, duplicate IDs/results, invalid bounds, unsafe high-water behavior, and failure rollback across the reusable adapter boundary.
+- [ ] 5.3 Run the shared conformance suite, typecheck/lint/format, strict OpenSpec validation, and independent test-soundness review.
+- [ ] 5.4 After merge, rerun conformance on exact main and prune the merged branch/worktree before PR 6.
+
+## 6. SQLite Journal Adapter — PR 6
+
+- [ ] 6.1 Add additive SQLite tables/indexes for fixed root-branch heads, event batches, events, entity links, command receipts, canonicalizer version, predecessor/event digests, and the store-local observation cursor using the repository migration pattern.
+- [ ] 6.2 Implement the SQLite adapter transaction so expected branch/revision/digest verification, receipt, contiguous stream events, links, observation positions, integrity chain, and head advancement succeed or roll back together.
+- [ ] 6.3 Run the shared conformance suite against a real temporary SQLite file, including process restart and injected mid-transaction failure.
+- [ ] 6.4 Add explicit imported-baseline support and prove migration never fabricates unrecorded domain history.
+- [ ] 6.5 Run focused tests, Node 22 typecheck/lint/format, strict OpenSpec validation, and independent code/security/history review.
+- [ ] 6.6 After merge, rerun SQLite conformance on exact main, archive authority rows/read-only proof, and prune the merged branch/worktree.
