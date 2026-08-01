@@ -21,7 +21,7 @@ An immutable log is not enough if historical payloads are interpreted by changin
 ## Dependencies
 
 - This change is a replay-safety implementation slice of `harden-gm-two-player-campaign-sessions`.
-- It depends on `establish-entity-event-journal-contract` and validates only the fixed root branch until the later branch wave exists.
+- It depends on the archived `establish-entity-event-journal-contract` foundation and `harden-sqlite-journal-coherent-verified-open`; it validates only the fixed root branch until the later branch wave exists.
 - `add-authority-audit-and-privacy-proof`, combat adoption, and campaign adoption SHALL not cut over before this change's replay/quarantine contracts pass.
 
 ## Capabilities

@@ -13,6 +13,12 @@
       "lastReviewed": "2026-07-29"
     },
     {
+      "name": "harden-sqlite-journal-coherent-verified-open",
+      "status": "proposed",
+      "reason": "Wave 1.5 of the entity-history program: make unwired SQLite verified opening resolve every integrity read from one coherent synchronous read snapshot, prove two-connection pre/post-commit behavior, and preserve fail-closed corruption detection before replay or production authority adoption.",
+      "lastReviewed": "2026-07-31"
+    },
+    {
       "name": "persist-interactive-combat-events",
       "status": "in-progress",
       "reason": "Focused local-combat durability wave for authoritative event-suffix persistence and exact cold-reload recovery in PR #1084.",
