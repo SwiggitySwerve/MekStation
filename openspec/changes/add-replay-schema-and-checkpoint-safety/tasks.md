@@ -34,11 +34,12 @@ Post-merge terminal evidence: before PR 1A implementation resumes, verify these 
 - [x] 1A.3 Prove synthetic fixtures upcast deterministically without mutating input objects or stored payload bytes.
 - [x] 1A.4 Run focused tests, Node 22 typecheck/lint/format, strict OpenSpec/QC, and sequential independent review.
   - Receipt: focused replay tests passed 15/15; Node 22 typecheck and full lint passed with zero errors (71 existing warnings), targeted oxfmt/oxlint passed with zero findings, strict OpenSpec passed 228/228, QC accounted for 11/11 active changes, purpose/terminology passed 217/306 files, and five sequential reviews approved after the line-cap, coverage, and type-safety findings were fixed; repository-wide format-check remains baseline-limited by four unrelated exact-main files.
-- [ ] 1A.5 After merge, rerun the registry/upcaster receipt on exact main and prune the merged branch/worktree before PR 1B.
+- [x] 1A.5 After merge, rerun the registry/upcaster receipt on exact main and prune the merged branch/worktree before PR 1B.
+  - Receipt: PR #1125 merged head `e3f9d471b19eab8a0a8a437a6de9dd498d80e713` as `a215ce1038018f28eb9cad41a547f54d18edd0aa` with 29/29 successful checks; clean exact main passed registry tests 15/15, Node 22 typecheck, strict OpenSpec 228/228, and QC 11/11 before the PR 1A branch/worktree were removed and refs pruned.
 
 ## 1B. Required-History Pipeline Fingerprint — PR 1B
 
-- [ ] 1B.0 Do not begin until task 1A.5 has an exact-main merge and prune receipt.
+- [x] 1B.0 Do not begin until task 1A.5 has an exact-main merge and prune receipt.
 - [ ] 1B.1 Fingerprint the canonical ordered target-schema and transition identities actually required by a history prefix, without adding a projector or production replay integration.
 - [ ] 1B.2 Prove registration/history order does not change the fingerprint, duplicate required identities are collapsed, unused registrations do not participate, and a required target/transition identity change does change the fingerprint.
 - [ ] 1B.3 Run focused tests, Node 22 typecheck/lint/format, strict OpenSpec/QC, and sequential independent review.
