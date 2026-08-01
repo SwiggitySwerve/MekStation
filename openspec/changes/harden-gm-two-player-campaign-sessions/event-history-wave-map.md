@@ -2,16 +2,16 @@
 
 `harden-gm-two-player-campaign-sessions` remains the program-level acceptance contract for the GM plus two-player experience. The leaf changes below own implementation sequencing and PR boundaries for its event-history portions. They do not create a second authority model.
 
-| Order | Leaf change | Owns implementation from umbrella task sections |
-| --- | --- | --- |
-| 1 | `establish-entity-event-journal-contract` | 2-3 foundation schema, adapter contract, integrity, receipts, entity history |
-| 1.5 | `harden-sqlite-journal-coherent-verified-open` | Coherent fail-closed SQLite verified opening before any replay or authority adoption |
-| 2 | `add-replay-schema-and-checkpoint-safety` | 12 and 15 replay/upcast/checkpoint/quarantine foundation |
-| 3 | `add-authority-audit-and-privacy-proof` | 11, 12, and 18 membership-gated projection, action/private audit, privacy evidence |
-| 4 | `adopt-combat-event-journal-authority` | 4 and combat portions of 5, 7, 14, and 24 |
-| 5 | `adopt-campaign-event-journal-authority` | 8, 10, and campaign portions of 5, 7, 9, 12, and 24 |
-| 6 | `add-cross-stream-effect-receipts` | 13 and the linear outcome/progression portions of 17 |
-| 7 | `add-authoritative-history-branches` | 14, 16, 17, and branch/correction portions of 18-19 |
+| Order | Leaf change | Status | Owns implementation from umbrella task sections |
+| --- | --- | --- | --- |
+| 1 | `establish-entity-event-journal-contract` | Archived 2026-07-31 | 2-3 foundation schema, adapter contract, integrity, receipts, entity history |
+| 1.5 | `harden-sqlite-journal-coherent-verified-open` | Archived 2026-08-01 | Coherent fail-closed SQLite verified opening before any replay or authority adoption |
+| 2 | `add-replay-schema-and-checkpoint-safety` | Proposed | 12 and 15 replay/upcast/checkpoint/quarantine foundation |
+| 3 | `add-authority-audit-and-privacy-proof` | Proposed | 11, 12, and 18 membership-gated projection, action/private audit, privacy evidence |
+| 4 | `adopt-combat-event-journal-authority` | Proposed | 4 and combat portions of 5, 7, 14, and 24 |
+| 5 | `adopt-campaign-event-journal-authority` | Proposed | 8, 10, and campaign portions of 5, 7, 9, 12, and 24 |
+| 6 | `add-cross-stream-effect-receipts` | Proposed | 13 and the linear outcome/progression portions of 17 |
+| 7 | `add-authoritative-history-branches` | Proposed | 14, 16, 17, and branch/correction portions of 18-19 |
 
 Rules:
 
