@@ -6,7 +6,7 @@
 | --- | --- | --- | --- |
 | 1 | `establish-entity-event-journal-contract` | Archived 2026-07-31 | 2-3 foundation schema, adapter contract, integrity, receipts, entity history |
 | 1.5 | `harden-sqlite-journal-coherent-verified-open` | Archived 2026-08-01 | Coherent fail-closed SQLite verified opening before any replay or authority adoption |
-| 2 | `add-replay-schema-and-checkpoint-safety` | Active; decomposition merged 2026-08-01 | 12 and 15 replay/upcast/checkpoint/quarantine foundation |
+| 2 | `add-replay-schema-and-checkpoint-safety` | In progress; spec PRs #1120/#1124 and PR 1A kernel (#1125) merged 2026-08-01; PR 1B fingerprint admitted | 12 and 15 replay/upcast/checkpoint/quarantine foundation |
 | 3 | `add-authority-audit-and-privacy-proof` | Proposed | 11, 12, and 18 membership-gated projection, action/private audit, privacy evidence |
 | 4 | `adopt-combat-event-journal-authority` | Proposed | 4 and combat portions of 5, 7, 14, and 24 |
 | 5 | `adopt-campaign-event-journal-authority` | Proposed | 8, 10, and campaign portions of 5, 7, 9, 12, and 24 |

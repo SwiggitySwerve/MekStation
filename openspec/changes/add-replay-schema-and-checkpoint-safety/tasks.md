@@ -2,6 +2,11 @@ Every PR in this change MUST stay under 500 non-generated changed lines and 15 f
 
 Work-path trace: this leaf owns the replay/upcast/checkpoint/quarantine portions of umbrella sections 12 and 15, implements `Checkpoints and Compaction Are Cache-Only` and `Corrupt Authority Data Is Quarantined Per Session`, and is the strict predecessor of `add-authority-audit-and-privacy-proof`. `schema-pack-inventory.md` is the declarative owner map for all seven campaign and 80 combat discriminants.
 
+## 0. Foundation Admission — Posthumous Receipt
+
+- [x] 0.1 Record the fail-closed predecessor admission receipt required by wave-map rule 8: verify both `establish-entity-event-journal-contract` and `harden-sqlite-journal-coherent-verified-open` are archived on exact main, absent from the active ledger, and have no surviving branch/worktree before any replay-safety PR.
+  - Receipt (recorded posthumously 2026-08-01): `openspec/changes/archive/2026-07-31-establish-entity-event-journal-contract/` and `openspec/changes/archive/2026-08-01-harden-sqlite-journal-coherent-verified-open/` both exist on exact main `a215ce1038018f28eb9cad41a547f54d18edd0aa`; neither change appears in `openspec/active-change-ledger.json`; no local or remote branch or registered worktree for either predecessor remains. Replay-safety PRs S/S2/1A merged after these conditions held.
+
 ## S. Replay-Safety Wave Decomposition — Spec-Only PR
 
 - [x] S.1 Inventory the live persistence and replay boundaries: 80 combat discriminants, seven campaign discriminants, versionless legacy envelopes, generic journal `payload: unknown`, and implicit skip/no-op projector paths; persist the exact one-pack-per-discriminant assignment in `schema-pack-inventory.md`.

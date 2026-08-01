@@ -5,6 +5,7 @@ Work-path trace: this leaf follows `add-authority-audit-and-privacy-proof`, may 
 ## 0. Privacy-Gate Admission — Pre-Implementation Receipt
 
 - [ ] 0.1 Before PR 1, verify on fetched exact main that `add-authority-audit-and-privacy-proof` is synced and archived, its task 10.4 and post-merge terminal evidence pass, its active ledger entry/directory are absent, and its merged branch/worktree are pruned. Record the predecessor merge SHA and fail closed on missing or contradictory evidence.
+- [ ] 0.2 Before PR 1, re-review every PR seam in this file against the then-current codebase for the 500-line/15-file cap and one-behavior-seam rule, and re-confirm seam ownership against `../harden-gm-two-player-campaign-sessions/event-history-wave-map.md`; if any seam no longer fits or ownership has drifted, split or reassign it through a spec-only OpenSpec update before implementation, and fail closed on unresolved ownership conflicts.
 
 ## 1. Atomic Match Store Contract — PR 1
 

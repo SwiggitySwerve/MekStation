@@ -5,6 +5,7 @@ Work-path trace: this leaf follows `add-authority-audit-and-privacy-proof`, may 
 ## 0. Privacy-Gate Admission — Pre-Implementation Receipt
 
 - [ ] 0.1 Before PR 1, verify on fetched exact main that `add-authority-audit-and-privacy-proof` is synced and archived, its task 10.4 and post-merge terminal evidence pass, its active ledger entry/directory are absent, and its merged branch/worktree are pruned. Record the predecessor merge SHA and fail closed on missing or contradictory evidence.
+- [ ] 0.2 Before PR 1, re-review every PR seam in this file against the then-current codebase for the 500-line/15-file cap and one-behavior-seam rule, and re-confirm seam ownership against `../harden-gm-two-player-campaign-sessions/event-history-wave-map.md` and the CAMP-01 gameplay path (`../add-saved-custom-unit-campaign-roster/tasks.md`); if any seam no longer fits or ownership has drifted, split or reassign it through a spec-only OpenSpec update before implementation, and fail closed on unresolved ownership conflicts.
 
 ## 1. Durable Campaign Batch Adapter — PR 1
 
@@ -23,13 +24,16 @@ Work-path trace: this leaf follows `add-authority-audit-and-privacy-proof`, may 
 - [ ] 2.5 Prove snapshot-authority rollback is allowed only before the first post-baseline journal command; afterward require a compatible journal reader or truthful blocked state.
 - [ ] 2.6 After focused gates and independent migration review pass, merge, rerun shadow equality on exact main, and prune the branch/worktree.
 
-## 3. Entity Lineage Through Campaign Handoff — PR 3
+## 3. Entity Lineage Through Campaign Handoff (Journal Lineage Only) — PR 3
 
+This PR owns journal-level lineage evidence only. UI-journey resolution of saved custom units is owned by the CAMP-01 gameplay path: Mech Bay resolution by CAMP-01G (`resolve-saved-custom-units-in-mech-bay`) and the three-session witness exclusively by CAMP-01H (`prove-saved-custom-unit-campaign-journey`). This PR MUST NOT claim, absorb, or substitute for either.
+
+- [ ] 3.0 Cross-path admission receipt: before PR 3, verify on fetched exact main that CAMP-01G (`resolve-saved-custom-units-in-mech-bay`) has its merged product PR and validated exact-main authority receipt per `../add-saved-custom-unit-campaign-roster/tasks.md` task 7.1. Record the CAMP-01G merge SHA and receipt identity, and fail closed on missing or contradictory evidence.
 - [ ] 3.1 Add durable entity links for customized unit, canonical source, campaign instance, force, pilot, mission, encounter, and session identities.
-- [ ] 3.2 Prove canonical customization save/reload and campaign adoption preserve weight, tech base, engine, gyro, armor, equipment, critical slots, and temporal metadata.
-- [ ] 3.3 Prove the same unit instance appears in mech bay and mission readiness after navigation and cold reload with journal plus snapshot evidence.
-- [ ] 3.4 Run focused serialization/campaign handoff tests, `qc:ux-audit:deep`, applicable viewport/accessibility checks, and independent visual/authority review.
-- [ ] 3.5 After merge, rerun the full customizer-to-readiness journey on exact main and prune the merged branch/worktree.
+- [ ] 3.2 Prove at the journal/store level that canonical customization save/reload and campaign adoption preserve weight, tech base, engine, gyro, armor, equipment, critical slots, and temporal metadata.
+- [ ] 3.3 Prove the same unit identity chain resolves identically in the mech-bay and mission-readiness projections after adoption and cold reload with journal plus snapshot evidence, citing the recorded CAMP-01G receipt for UI resolution instead of re-proving it; do not claim the CAMP-01H three-session witness.
+- [ ] 3.4 Run focused serialization/campaign handoff tests and independent authority review; UI-journey, viewport, and accessibility gates remain owned by the CAMP-01 gameplay path.
+- [ ] 3.5 After merge, rerun the journal lineage receipts on exact main and prune the merged branch/worktree.
 
 ## 4. Replay/Live Server Handshake — PR 4
 

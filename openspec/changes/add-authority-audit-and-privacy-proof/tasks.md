@@ -5,6 +5,7 @@ Work-path trace: this leaf follows `add-replay-schema-and-checkpoint-safety` and
 ## 0. Replay-Safety Admission Gate — Pre-Implementation Receipt
 
 - [ ] 0.1 Before PR 1, verify on fetched exact main that `add-replay-schema-and-checkpoint-safety` is synced and archived, its task 21.3 and separately recorded post-merge terminal evidence pass, its active ledger entry/directory are absent, and its merged branch/worktree are pruned. Record the predecessor merge SHA and fail closed on missing or contradictory evidence.
+- [ ] 0.2 Before PR 1, re-review every PR seam in this file against the then-current codebase for the 500-line/15-file cap and one-behavior-seam rule, and re-confirm seam ownership against `../harden-gm-two-player-campaign-sessions/event-history-wave-map.md`; if any seam no longer fits or ownership has drifted, split or reassign it through a spec-only OpenSpec update before implementation, and fail closed on unresolved ownership conflicts.
 
 ## 1. Authorized Viewer Contract and Resolver — PR 1
 
