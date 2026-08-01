@@ -1,4 +1,16 @@
 import { canonicalizeJsonV1 } from '../journal/EventJournalCanonicalizer';
+import {
+  fingerprintReplayPipeline,
+  type IHistoricalEventVersion,
+} from './ReplayPipelineFingerprint';
+import {
+  assertReplayIdentity,
+  assertReplayVersion,
+  indexReplaySchemas,
+  indexReplayTransitions,
+  type IndexedReplayEvent,
+} from './ReplaySchemaRegistryIndex';
+export type { IHistoricalEventVersion } from './ReplayPipelineFingerprint';
 export type ReplaySchemaRegistrationErrorCode =
   | 'ambiguous-transition'
   | 'conflicting-schema-registration'
@@ -61,12 +73,6 @@ export interface ICurrentReplayPayload {
   readonly schemaVersion: number;
   readonly payload: unknown;
 }
-type IndexedEvent = Readonly<{
-  eventType: string;
-  targetSchemaVersion: number;
-  schemas: ReadonlyMap<number, IReplaySchemaVersionRegistration>;
-  transitions: ReadonlyMap<number, IReplayUpcastRegistration>;
-}>;
 function registrationFailure(code: RegCode, message: string): never {
   throw new ReplaySchemaRegistrationError(code, message);
 }
@@ -85,17 +91,6 @@ function unsupported(
     cause,
   );
 }
-function assertIdentity(value: string, field: string): void {
-  if (value.trim().length === 0)
-    registrationFailure('invalid-registration', `${field} must not be empty`);
-}
-function assertVersion(value: number, field: string): void {
-  if (!Number.isSafeInteger(value) || value < 1)
-    registrationFailure(
-      'invalid-registration',
-      `${field} must be a positive safe integer`,
-    );
-}
 function deepFreeze<T>(value: T): T {
   if (value !== null && typeof value === 'object' && !Object.isFrozen(value)) {
     for (const child of Object.values(value)) deepFreeze(child);
@@ -107,11 +102,19 @@ function clonePayload(value: unknown): unknown {
   return deepFreeze(JSON.parse(canonicalizeJsonV1(value)));
 }
 export class ReplaySchemaRegistry {
-  private readonly events = new Map<string, IndexedEvent>();
+  private readonly events = new Map<string, IndexedReplayEvent>();
   public constructor(definition: IReplaySchemaRegistryDefinition) {
     for (const candidate of definition.events) {
-      assertIdentity(candidate.eventType, 'eventType');
-      assertVersion(candidate.targetSchemaVersion, 'targetSchemaVersion');
+      assertReplayIdentity(
+        candidate.eventType,
+        'eventType',
+        registrationFailure,
+      );
+      assertReplayVersion(
+        candidate.targetSchemaVersion,
+        'targetSchemaVersion',
+        registrationFailure,
+      );
       const existing = this.events.get(candidate.eventType);
       if (existing)
         registrationFailure(
@@ -121,8 +124,12 @@ export class ReplaySchemaRegistry {
           `Event registration already exists for ${candidate.eventType}`,
         );
 
-      const schemas = this.indexSchemas(candidate);
-      const transitions = this.indexTransitions(candidate, schemas);
+      const schemas = indexReplaySchemas(candidate, registrationFailure);
+      const transitions = indexReplayTransitions(
+        candidate,
+        schemas,
+        registrationFailure,
+      );
       if (!schemas.has(candidate.targetSchemaVersion))
         registrationFailure(
           'invalid-registration',
@@ -166,65 +173,21 @@ export class ReplaySchemaRegistry {
       payload: current,
     });
   }
-  private indexSchemas(
-    event: IReplayEventSchemaRegistration,
-  ): Map<number, IReplaySchemaVersionRegistration> {
-    const schemas = new Map<number, IReplaySchemaVersionRegistration>();
-    for (const schema of event.schemas) {
-      assertIdentity(schema.schemaId, 'schemaId');
-      assertVersion(schema.schemaVersion, 'schemaVersion');
-      if (schema.schemaVersion > event.targetSchemaVersion)
-        registrationFailure(
-          'invalid-registration',
-          `Schema exceeds the target for ${event.eventType}`,
-        );
-      const existing = schemas.get(schema.schemaVersion);
-      if (existing)
-        registrationFailure(
-          existing.schemaId === schema.schemaId
-            ? 'duplicate-schema-registration'
-            : 'conflicting-schema-registration',
-          `Schema v${schema.schemaVersion} already exists for ${event.eventType}`,
-        );
-      schemas.set(schema.schemaVersion, Object.freeze({ ...schema }));
-    }
-    return schemas;
-  }
-  private indexTransitions(
-    event: IReplayEventSchemaRegistration,
-    schemas: ReadonlyMap<number, IReplaySchemaVersionRegistration>,
-  ): Map<number, IReplayUpcastRegistration> {
-    const transitions = new Map<number, IReplayUpcastRegistration>();
-    for (const transition of event.transitions) {
-      assertIdentity(transition.transitionId, 'transitionId');
-      assertVersion(transition.fromVersion, 'fromVersion');
-      assertVersion(transition.toVersion, 'toVersion');
-      if (
-        transition.toVersion !== transition.fromVersion + 1 ||
-        !schemas.has(transition.fromVersion) ||
-        !schemas.has(transition.toVersion)
-      )
-        registrationFailure(
-          'invalid-transition',
-          `${transition.transitionId} must join adjacent registered schemas`,
-        );
-      const existing = transitions.get(transition.fromVersion);
-      if (existing)
-        registrationFailure(
-          existing.transitionId === transition.transitionId
-            ? 'duplicate-transition-registration'
-            : 'ambiguous-transition',
-          `Transition from v${transition.fromVersion} is not unique`,
-        );
-      transitions.set(transition.fromVersion, Object.freeze({ ...transition }));
-    }
-    return transitions;
+  public fingerprintPipeline(
+    historicalVersions: readonly IHistoricalEventVersion[],
+  ): string {
+    return fingerprintReplayPipeline(
+      historicalVersions,
+      ({ eventType, schemaVersion }) =>
+        this.resolvePath(eventType, schemaVersion),
+      registrationFailure,
+    );
   }
   private resolvePath(
     eventType: string,
     fromVersion: number,
   ): {
-    event: IndexedEvent;
+    event: IndexedReplayEvent;
     transitions: readonly IReplayUpcastRegistration[];
   } {
     const event = this.events.get(eventType);
@@ -261,7 +224,7 @@ export class ReplaySchemaRegistry {
     return { event, transitions };
   }
   private parsePayload(
-    event: IndexedEvent,
+    event: IndexedReplayEvent,
     schemaVersion: number,
     payload: unknown,
   ): unknown {

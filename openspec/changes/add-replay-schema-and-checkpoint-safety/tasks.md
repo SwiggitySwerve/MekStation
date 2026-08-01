@@ -40,9 +40,10 @@ Post-merge terminal evidence: before PR 1A implementation resumes, verify these 
 ## 1B. Required-History Pipeline Fingerprint — PR 1B
 
 - [x] 1B.0 Do not begin until task 1A.5 has an exact-main merge and prune receipt.
-- [ ] 1B.1 Fingerprint the canonical ordered target-schema and transition identities actually required by a history prefix, without adding a projector or production replay integration.
-- [ ] 1B.2 Prove registration/history order does not change the fingerprint, duplicate required identities are collapsed, unused registrations do not participate, and a required target/transition identity change does change the fingerprint.
-- [ ] 1B.3 Run focused tests, Node 22 typecheck/lint/format, strict OpenSpec/QC, and sequential independent review.
+- [x] 1B.1 Fingerprint the canonical ordered target-schema and transition identities actually required by a history prefix, without adding a projector or production replay integration.
+- [x] 1B.2 Prove registration/history order does not change the fingerprint, duplicate required identities are collapsed, unused registrations do not participate, and a required target/transition identity change does change the fingerprint.
+  - Receipt: required-path SHA-256 fingerprint implemented with the journal canonicalizer; focused replay suites pass 22/22 across empty, isolated order/duplicate, unused-schema/registration/transition, required-identity, and typed fail-closed cases; Node 22 typecheck and full lint pass with zero errors (71 existing warnings), targeted lint/format pass, strict OpenSpec passes 228/228, OpenSpec QC accounts for 11/11 active changes with zero errors, and three sequential independent reviews approve; repository-wide format remains baseline-limited by four unrelated exact-main files.
+- [x] 1B.3 Run focused tests, Node 22 typecheck/lint/format, strict OpenSpec/QC, and sequential independent review.
 - [ ] 1B.4 After merge, rerun the fingerprint receipt on exact main and prune before PR 2.
 
 ## 2. Explicit Legacy Source Adapters — PR 2
