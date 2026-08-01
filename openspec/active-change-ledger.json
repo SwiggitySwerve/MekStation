@@ -65,6 +65,18 @@
       "status": "proposed",
       "reason": "CAMP-00 child specification: bind the packaged production HTTP/WebSocket listener to its configured loopback literal and prove the actual initial/restarted socket address before campaign product waves.",
       "lastReviewed": "2026-07-30"
+    },
+    {
+      "name": "add-campaign-roster-source-readiness",
+      "status": "proposed",
+      "reason": "CAMP-01A child specification: parse roster unit source fail-closed, expose canonical catalog readiness, and reject unsupported exact references before encounter side effects.",
+      "lastReviewed": "2026-08-01"
+    },
+    {
+      "name": "add-authoritative-campaign-coop-snapshot",
+      "status": "proposed",
+      "reason": "CAMP-01B child specification: preserve revision-bound roster source identity and authoritative force membership from host registration through guest campaign mirror hydration.",
+      "lastReviewed": "2026-08-01"
     }
   ]
 }
