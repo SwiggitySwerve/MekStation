@@ -51,11 +51,21 @@ export class SQLiteEventJournalWriter<TPayload = unknown> {
   public async getCommandReceipt(
     commandId: string,
   ): Promise<Journal.ICommandReceipt | null> {
-    const row = this.findReceipt(commandId);
-    return row ? this.hydrateBatch(row).receipt : null;
+    return this.readCommittedBatch(commandId)?.receipt ?? null;
   }
 
   public async captureHighWater(): Promise<Journal.IJournalHighWater> {
+    return this.captureHighWaterSnapshot();
+  }
+
+  protected readCommittedBatch(
+    commandId: string,
+  ): Journal.ICommittedEventBatch<TPayload> | null {
+    const row = this.findReceipt(commandId);
+    return row ? this.hydrateBatch(row) : null;
+  }
+
+  protected captureHighWaterSnapshot(): Journal.IJournalHighWater {
     const row = this.db
       .prepare(
         `SELECT last_commit_position AS commitPosition FROM event_journal_store_state WHERE singleton_id = 1`,

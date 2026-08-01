@@ -4,6 +4,10 @@ import type * as Journal from './EventJournalContract';
 
 import { canonicalizeCommandIdentityV1 } from './EventJournalCommandIdentity';
 import { SQLiteEventJournal } from './SQLiteEventJournal';
+import {
+  SQLITE_EVENT_JOURNAL_EVENT_COLUMNS,
+  type SQLiteEventRow,
+} from './SQLiteEventJournalWriter';
 
 type PositionSummary = Readonly<{
   count: number;
@@ -45,7 +49,7 @@ function streamKey(
 class VerifyingSQLiteEventJournal<
   TPayload,
 > extends SQLiteEventJournal<TPayload> {
-  public async verifyStorage(): Promise<void> {
+  public verifyStorageSnapshot(): void {
     if (this.db.pragma('quick_check', { simple: true }) !== 'ok') {
       corrupt('SQLite quick check failed');
     }
@@ -53,7 +57,7 @@ class VerifyingSQLiteEventJournal<
       corrupt('SQLite foreign-key check failed');
     }
 
-    const highWater = (await this.captureHighWater()).commitPosition;
+    const highWater = this.captureHighWaterSnapshot().commitPosition;
     const positions = this.db
       .prepare(
         `SELECT COUNT(*) AS count, COUNT(DISTINCT commit_position) AS distinctPositions, COALESCE(MAX(commit_position), 0) AS maxPosition FROM event_journal_events`,
@@ -69,7 +73,7 @@ class VerifyingSQLiteEventJournal<
       corrupt('Commit positions or high-water are inconsistent');
     }
 
-    const events = await this.readAllCommitted(highWater);
+    const events = this.readAllCommittedSnapshot(highWater);
     if (events.length !== positions.count) {
       corrupt('Committed event scan is incomplete');
     }
@@ -91,27 +95,19 @@ class VerifyingSQLiteEventJournal<
     }
 
     this.verifyHeads(lastByStream);
-    await this.verifyCommandBatches(byCommand);
+    this.verifyCommandBatches(byCommand);
   }
 
-  private async readAllCommitted(
+  private readAllCommittedSnapshot(
     highWater: number,
-  ): Promise<Journal.IStoredEvent<TPayload>[]> {
-    const events: Journal.IStoredEvent<TPayload>[] = [];
-    let afterCommitPosition = 0;
-    while (true) {
-      const page = await this.readCommitted({
-        afterCommitPosition,
-        throughCommitPosition: highWater,
-        limit: 500,
-      });
-      events.push(...page.events);
-      if (page.exhausted) return events;
-      if (page.nextAfterCommitPosition <= afterCommitPosition) {
-        corrupt('Committed event scan did not advance');
-      }
-      afterCommitPosition = page.nextAfterCommitPosition;
-    }
+  ): Journal.IStoredEvent<TPayload>[] {
+    return (
+      this.db
+        .prepare(
+          `SELECT ${SQLITE_EVENT_JOURNAL_EVENT_COLUMNS} FROM event_journal_events WHERE commit_position <= ? ORDER BY commit_position`,
+        )
+        .all(highWater) as SQLiteEventRow[]
+    ).map((row) => this.hydrateEvent(row));
   }
 
   private verifyHeads(
@@ -146,16 +142,16 @@ class VerifyingSQLiteEventJournal<
     }
   }
 
-  private async verifyCommandBatches(
+  private verifyCommandBatches(
     byCommand: ReadonlyMap<string, readonly Journal.IStoredEvent<TPayload>[]>,
-  ): Promise<void> {
+  ): void {
     const rows = this.db
       .prepare(`SELECT command_id AS commandId FROM event_journal_batches`)
       .all() as Array<{ readonly commandId: unknown }>;
     if (rows.length !== byCommand.size) corrupt('Command batch count differs');
     for (const row of rows) {
       if (typeof row.commandId !== 'string') corrupt('Command ID is invalid');
-      const receipt = await this.getCommandReceipt(row.commandId);
+      const receipt = this.readCommittedBatch(row.commandId)?.receipt;
       const events = byCommand.get(row.commandId);
       if (!receipt || !events?.length) corrupt('Command batch is incomplete');
       const first = events[0];
@@ -207,9 +203,12 @@ export async function openVerifiedSQLiteEventJournal<TPayload = unknown>(
   db: Database.Database,
   now?: () => string,
 ): Promise<SQLiteEventJournal<TPayload>> {
-  const journal = new VerifyingSQLiteEventJournal<TPayload>(db, now);
   try {
-    await journal.verifyStorage();
+    if (db.inTransaction) {
+      corrupt('Verified opening requires an idle SQLite handle');
+    }
+    const journal = new VerifyingSQLiteEventJournal<TPayload>(db, now);
+    db.transaction(() => journal.verifyStorageSnapshot()).deferred();
     return journal;
   } catch (cause) {
     if (cause instanceof SQLiteEventJournalRecoveryError) throw cause;

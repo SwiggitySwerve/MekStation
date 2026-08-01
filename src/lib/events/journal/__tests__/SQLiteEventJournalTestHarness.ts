@@ -49,6 +49,12 @@ export class SQLiteEventJournalTestHarness implements IEventJournalConformanceHa
     return this.service.getDatabase();
   }
 
+  public openAdditionalService(): SQLiteService {
+    const service = this.newService();
+    service.initialize();
+    return service;
+  }
+
   public async restart(): Promise<void> {
     this.journal = null;
     this.service.close();
