@@ -25,12 +25,6 @@
       "lastReviewed": "2026-07-30"
     },
     {
-      "name": "establish-entity-event-journal-contract",
-      "status": "proposed",
-      "reason": "Wave 1 of the entity-history program: define typed per-entity append, ordering, identity, integrity, and receipt contracts over the existing SQLite boundary before any authority cutover.",
-      "lastReviewed": "2026-07-30"
-    },
-    {
       "name": "add-replay-schema-and-checkpoint-safety",
       "status": "proposed",
       "reason": "Wave 2 of the entity-history program: require versioned event upcasting, deterministic historical projection selection, verified checkpoints, and quarantine before any production authority adoption.",
