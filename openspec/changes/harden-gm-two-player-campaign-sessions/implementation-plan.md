@@ -15,7 +15,7 @@ Your next move: use the reviewed plan in an isolated task-owned worktree when im
 
 ---
 
-> TL;DR (machine): XL/high-risk, 33 independently gated implementation/refinement PRs plus one non-merge RED checkpoint and four final verifiers deliver durable GM+2 authority, role-safe projection, append-only correction/rewind, exact-once effects, 80 strict E2E scenarios, controlled latency gates, and exact-main post-merge regression.
+> TL;DR (machine): XL/high-risk, leaf-driven focused PRs plus strict final verifiers deliver durable GM+2 authority, role-safe projection, append-only correction/rewind, exactly-once effect application over at-least-once delivery, 80 strict E2E scenarios, controlled latency gates, and exact-main post-merge regression. The historical 33-todo matrix below is acceptance topology, not the current executable PR count.
 
 ## Scope
 ### Must have
@@ -30,7 +30,7 @@ Your next move: use the reviewed plan in an isolated task-owned worktree when im
 - A strict three-context Playwright sandbox implementing E2E-01 through E2E-80 with read-only SQLite evidence, raw transport/projection evidence, latency data, unique screenshots, and ownership-scoped cleanup.
 - Controlled loopback budgets: p95 at most 250 ms, p99 at most 750 ms, and 1,000-event cold catch-up at most 2 s under the committed methodology.
 - Small independently reversible PRs, focused verification before each merge, and applicable exact-main three-context regression after every major merge.
-- Normative source of truth: `openspec/changes/harden-gm-two-player-campaign-sessions/`; implementation coverage: its `tasks.md`; this plan owns PR order, file ownership, commands, and evidence.
+- Normative source of truth: `openspec/changes/harden-gm-two-player-campaign-sessions/`; implementation coverage: its `tasks.md`. `event-history-wave-map.md` plus each named leaf's `tasks.md` own event-history PR order, while this plan retains program acceptance topology, cross-track joins, commands, and evidence.
 
 ### Must NOT have (guardrails, anti-slop, scope boundaries)
 - Do not use Open Brain, Jira, Outline, or AstraBit workflow infrastructure.
@@ -60,8 +60,20 @@ Your next move: use the reviewed plan in an isolated task-owned worktree when im
 - Evidence: `.omo/evidence/gm-two-player-live-campaign-sandbox/<run-id>/task-<N>-gm-two-player-live-campaign-sandbox/` (Playwright run artifacts additionally live under `test-results/gm-two-player/<run-id>/`).
 
 ## Execution strategy
+### Current executable work path
+
+The original todo matrix remains an umbrella acceptance and dependency record. It MUST NOT be used to branch or implement a mapped event-history section when it conflicts with `event-history-wave-map.md` or a leaf task file.
+
+1. Event-history path: archived journal foundation -> archived coherent SQLite verified opening -> `add-replay-schema-and-checkpoint-safety` spec decomposition and focused PRs -> `add-authority-audit-and-privacy-proof` -> independently gated combat and campaign authority adoption -> `add-cross-stream-effect-receipts` -> `add-authoritative-history-branches`.
+2. Gameplay-evidence path: `add-saved-custom-unit-campaign-roster` owns the original custom save/reload, campaign/Mech Bay/readiness, and canonical combat/post-battle sessions. Its ten named child changes must be authored, reviewed, merged, and ledger-accounted before product implementation; the event-journal leaves do not silently absorb that work.
+3. Program join: the umbrella cannot close until both paths satisfy their exact-main gates and the three independent authority-backed gameplay witnesses pass. A passing journal track cannot substitute for the sessions, and passing sessions cannot waive replay, privacy, effect, or lineage requirements.
+4. Completed sidecars: `refine-combat-turn-rail` and `persist-interactive-combat-events` are merged product outcomes with OpenSpec archive closeout still pending. Their closeout is workflow hygiene rather than an authority dependency, and should be completed as separate docs-only PRs before the next unrelated runtime branch.
+
+Every proposed leaf receives a spec-only size/ownership review before its first implementation PR. A leaf task group that cannot fit the 500-line/15-file cap is split in that declarative review; the historical matrix supplies no waiver.
+
 Before Task 1, create `.omo/evidence/gm-two-player-live-campaign-sandbox/program-baseline-sha.txt` containing `(git rev-parse HEAD).Trim()` from freshly updated exact main; every task-owned branch and final scope diff uses that immutable baseline.
-### Parallel execution waves
+### Historical umbrella scheduling waves
+> These rows retain acceptance provenance for the original todo decomposition. The current executable event-history order is the leaf path above; the one-PR-at-a-time contract supersedes the parallel suggestions below for current work.
 > Target 3-8 todos per implementation wave. Waves 1 and 2 are intentional one-merge sequencing gates around the ABI preflight and fixture bootstrap, with the evidence-only RED checkpoint allowed in parallel.
 > Waves are staged scheduling buckets, not sets of tasks that may all launch concurrently. A task may run concurrently only with tasks listed in its `Can parallelize with` cell, and never with anything in its `Depends on` or `Blocks` cell.
 - Wave 1 — pre-harness gate: Todo 5. Todo 1 and any already-landed portions of Todos 2-4 are historical receipts; remaining work in Todos 2-4 waits for the fixture.

@@ -5,6 +5,8 @@ An immutable log is not enough if historical payloads are interpreted by changin
 ## What Changes
 
 - Require explicit event schema versions that are distinct from reducer/projector versions.
+- Register strict, concrete baseline payload schemas for every currently persisted combat and campaign event type through capped domain-family PRs; the generic journal envelope remains payload-agnostic until a domain reader selects a registry.
+- Add named legacy-source adapters that map an explicitly identified versionless source format to baseline schema v1 without rewriting the stored source. Missing versions never receive a global implicit default.
 - Add registered pure upcasters that leave stored payloads immutable.
 - Capture resolved randomness, time, catalog, rules, and external inputs required for deterministic replay.
 - Add immutable checkpoints keyed by stream, branch, revision, schema-pipeline fingerprint, projector version, source digest, and result digest.
@@ -15,6 +17,7 @@ An immutable log is not enough if historical payloads are interpreted by changin
 
 - Changing combat or campaign authority in this wave.
 - Rewriting stored historical payloads during migration.
+- Treating `unknown`, `any`, an unconstrained record, a structural type guard, or representative-only fixtures as a locked payload schema.
 - Treating timestamps, checkpoints, or snapshots as authoritative ordering.
 - Adding branches or a user-facing rewind workflow.
 
@@ -38,6 +41,9 @@ None.
 ## Impact
 
 - Event schema registry, upcasters, projector registry, replay/recovery code, and checkpoint persistence.
+- Explicit legacy format adapters for existing combat NDJSON/IndexedDB and campaign-sync event envelopes.
+- Baseline schema packs following the existing campaign and combat payload-family boundaries, with exhaustive discriminant coverage before integration.
+- A checked-in 87-discriminant ownership inventory that prevents overlapping or unowned schema-pack work and must be updated declaratively when the live unions change.
 - Zod validation and existing hashing utilities, strengthened where necessary.
 - Deterministic replay, checkpoint equivalence, and corruption-isolation tests.
 - No new runtime dependency.
