@@ -12,6 +12,8 @@
 
 import Database from 'better-sqlite3';
 
+import { EVENT_JOURNAL_MIGRATION } from './SQLiteService.eventJournal.migration';
+
 /**
  * Migration definition. `up` is either a raw SQL script or a function —
  * functions are used by migrations that must inspect live schema state
@@ -347,4 +349,5 @@ export const MIGRATIONS: readonly IMigration[] = [
       }
     },
   },
+  EVENT_JOURNAL_MIGRATION,
 ];

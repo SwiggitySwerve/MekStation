@@ -91,8 +91,8 @@ describe('SQLiteService migrations', () => {
     const db = getSQLiteService().getDatabase();
 
     const max = maxRecordedVersion(db);
-    // v7 (campaign_date rename) is the newest migration.
-    expect(max).toBeGreaterThanOrEqual(7);
+    // v8 adds the event-journal foundation without replacing authority.
+    expect(max).toBeGreaterThanOrEqual(8);
     const count = (
       db.prepare('SELECT COUNT(*) AS c FROM migrations').get() as { c: number }
     ).c;
