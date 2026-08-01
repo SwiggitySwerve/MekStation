@@ -14,11 +14,11 @@ import * as Schemas from './EventJournalSchemas';
 
 type DbRow = Readonly<Record<string, unknown>>;
 type ReceiptRow = DbRow & { readonly commandDigest: unknown };
-type EventRow = DbRow & { readonly payloadJson: unknown };
+export type SQLiteEventRow = DbRow & { readonly payloadJson: unknown };
 type HeadRow = Readonly<{ streamRevision: number; eventDigest: string }>;
 
 const RECEIPT_COLUMNS = `command_id AS commandId, command_digest AS commandDigest, canonicalizer_version AS canonicalizerVersion, stream_type AS streamType, stream_id AS streamId, branch_id AS branchId, event_count AS eventCount, first_stream_revision AS firstStreamRevision, last_stream_revision AS lastStreamRevision, first_commit_position AS firstCommitPosition, last_commit_position AS lastCommitPosition, recorded_at AS recordedAt`;
-const EVENT_COLUMNS = `event_id AS eventId, stream_type AS streamType, stream_id AS streamId, branch_id AS branchId, stream_revision AS streamRevision, commit_position AS commitPosition, command_id AS commandId, command_index AS commandIndex, event_type AS eventType, event_version AS eventVersion, correlation_id AS correlationId, actor_kind AS actorKind, actor_id AS actorId, authority_type AS authorityType, authority_id AS authorityId, occurred_at AS occurredAt, recorded_at AS recordedAt, canonicalizer_version AS canonicalizerVersion, previous_stream_event_digest AS previousStreamEventDigest, event_digest AS eventDigest, payload_json AS payloadJson`;
+export const SQLITE_EVENT_JOURNAL_EVENT_COLUMNS = `event_id AS eventId, stream_type AS streamType, stream_id AS streamId, branch_id AS branchId, stream_revision AS streamRevision, commit_position AS commitPosition, command_id AS commandId, command_index AS commandIndex, event_type AS eventType, event_version AS eventVersion, correlation_id AS correlationId, actor_kind AS actorKind, actor_id AS actorId, authority_type AS authorityType, authority_id AS authorityId, occurred_at AS occurredAt, recorded_at AS recordedAt, canonicalizer_version AS canonicalizerVersion, previous_stream_event_digest AS previousStreamEventDigest, event_digest AS eventDigest, payload_json AS payloadJson`;
 
 function integrity(message: string): never {
   throw new Error(`SQLite event journal integrity error: ${message}`);
@@ -26,7 +26,7 @@ function integrity(message: string): never {
 
 export class SQLiteEventJournalWriter<TPayload = unknown> {
   public constructor(
-    private readonly db: Database.Database,
+    protected readonly db: Database.Database,
     private readonly now: () => string = () => new Date().toISOString(),
   ) {}
 
@@ -180,9 +180,9 @@ export class SQLiteEventJournalWriter<TPayload = unknown> {
     const receipt = Schemas.CommandReceiptSchema.parse(row);
     const rows = this.db
       .prepare(
-        `SELECT ${EVENT_COLUMNS} FROM event_journal_events WHERE command_id = ? ORDER BY command_index`,
+        `SELECT ${SQLITE_EVENT_JOURNAL_EVENT_COLUMNS} FROM event_journal_events WHERE command_id = ? ORDER BY command_index`,
       )
-      .all(receipt.commandId) as EventRow[];
+      .all(receipt.commandId) as SQLiteEventRow[];
     const events = rows.map((eventRow) => this.hydrateEvent(eventRow));
     const valid =
       events.length === receipt.eventCount &&
@@ -205,7 +205,7 @@ export class SQLiteEventJournalWriter<TPayload = unknown> {
     return { kind: 'committed', receipt, events };
   }
 
-  private hydrateEvent(row: EventRow): Journal.IStoredEvent<TPayload> {
+  protected hydrateEvent(row: SQLiteEventRow): Journal.IStoredEvent<TPayload> {
     if (
       typeof row.eventId !== 'string' ||
       typeof row.payloadJson !== 'string'
@@ -256,14 +256,14 @@ export class SQLiteEventJournalWriter<TPayload = unknown> {
   ): void {
     const row = this.db
       .prepare(
-        `SELECT ${EVENT_COLUMNS} FROM event_journal_events WHERE stream_type = ? AND stream_id = ? AND branch_id = ? AND stream_revision = ?`,
+        `SELECT ${SQLITE_EVENT_JOURNAL_EVENT_COLUMNS} FROM event_journal_events WHERE stream_type = ? AND stream_id = ? AND branch_id = ? AND stream_revision = ?`,
       )
       .get(
         input.streamType,
         input.streamId,
         input.expectedBranchId,
         head.streamRevision,
-      ) as EventRow | undefined;
+      ) as SQLiteEventRow | undefined;
     if (!row) integrity('Stream head has no final committed event');
     if (this.hydrateEvent(row).eventDigest !== head.eventDigest) {
       return integrity('Stream head disagrees with its final committed event');
