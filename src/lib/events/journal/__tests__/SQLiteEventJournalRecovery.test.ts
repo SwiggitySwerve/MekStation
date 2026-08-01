@@ -3,7 +3,10 @@ import type Database from 'better-sqlite3';
 import type * as Journal from '../EventJournalContract';
 
 import { canonicalizeEventDigestV1 } from '../EventJournalCanonicalizer';
-import { SQLiteEventJournalRecoveryError } from '../SQLiteEventJournalRecovery';
+import {
+  openVerifiedSQLiteEventJournal,
+  SQLiteEventJournalRecoveryError,
+} from '../SQLiteEventJournalRecovery';
 import { SQLiteEventJournalTestHarness } from './SQLiteEventJournalTestHarness';
 
 type Payload = Readonly<{ value: string }>;
@@ -39,6 +42,24 @@ function command(): Journal.IAppendEventBatch<Payload> {
       payload: { value: `value-${index + 1}` },
       entityRefs: [{ entityType: 'unit', entityId: 'unit-1', role: 'subject' }],
     })),
+  };
+}
+
+function suffixCommand(
+  sequence: number,
+  expectedRevision: number,
+): Journal.IAppendEventBatch<Payload> {
+  return {
+    ...command(),
+    expectedRevision,
+    commandId: `command-${sequence}`,
+    events: [
+      {
+        ...command().events[0],
+        eventId: `event-${sequence + 1}`,
+        payload: { value: `value-${sequence + 1}` },
+      },
+    ],
   };
 }
 
@@ -139,9 +160,94 @@ describe('SQLite event journal verified opening', () => {
         await expect(harness.restart()).rejects.toBeInstanceOf(
           SQLiteEventJournalRecoveryError,
         );
+        expect(harness.database().inTransaction).toBe(false);
       } finally {
         await harness.dispose();
       }
     },
   );
+
+  it('keeps one pre-commit snapshot while another WAL connection commits', async () => {
+    const harness = await SQLiteEventJournalTestHarness.create();
+    const writerService = harness.openAdditionalService();
+    const readerDb = harness.database();
+    const originalPrepare = readerDb.prepare.bind(readerDb);
+    let interleavings = 0;
+    let writerCommit: Promise<
+      Journal.EventJournalAppendResult<Payload>
+    > | null = null;
+    try {
+      await harness.current().append(command());
+      const writer = await openVerifiedSQLiteEventJournal<Payload>(
+        writerService.getDatabase(),
+      );
+      readerDb.prepare = ((source: string) => {
+        const statement = originalPrepare(source);
+        if (
+          source.replace(/\s+/g, ' ').trim() !==
+          'SELECT last_commit_position AS commitPosition FROM event_journal_store_state WHERE singleton_id = 1'
+        ) {
+          return statement;
+        }
+        const originalGet = statement.get.bind(statement);
+        statement.get = ((...parameters: unknown[]) => {
+          const row = originalGet(...parameters);
+          if (interleavings === 0) {
+            interleavings += 1;
+            writerCommit = writer.append(suffixCommand(2, 2));
+          }
+          return row;
+        }) as typeof statement.get;
+        return statement;
+      }) as typeof readerDb.prepare;
+
+      await expect(
+        openVerifiedSQLiteEventJournal<Payload>(readerDb),
+      ).resolves.toBeDefined();
+      expect(interleavings).toBe(1);
+      await expect(writerCommit).resolves.toMatchObject({ kind: 'committed' });
+      expect(readerDb.inTransaction).toBe(false);
+
+      readerDb.prepare = originalPrepare;
+      const postCommit =
+        await openVerifiedSQLiteEventJournal<Payload>(readerDb);
+      await expect(postCommit.captureHighWater()).resolves.toEqual({
+        commitPosition: 3,
+      });
+      await expect(postCommit.getCommandReceipt('command-2')).resolves.toEqual(
+        expect.objectContaining({
+          commandId: 'command-2',
+          firstCommitPosition: 3,
+          lastCommitPosition: 3,
+        }),
+      );
+      await expect(writer.append(suffixCommand(3, 3))).resolves.toMatchObject({
+        kind: 'committed',
+      });
+    } finally {
+      readerDb.prepare = originalPrepare;
+      writerService.close();
+      await harness.dispose();
+    }
+  });
+
+  it('rejects an active caller transaction without ending it', async () => {
+    const harness = await SQLiteEventJournalTestHarness.create();
+    try {
+      const db = harness.database();
+      let verifiedOpen: ReturnType<typeof openVerifiedSQLiteEventJournal>;
+      db.transaction(() => {
+        expect(db.inTransaction).toBe(true);
+        verifiedOpen = openVerifiedSQLiteEventJournal(db);
+        expect(db.inTransaction).toBe(true);
+        expect(db.prepare(`SELECT 1 AS value`).pluck().get()).toBe(1);
+      })();
+      await expect(verifiedOpen!).rejects.toBeInstanceOf(
+        SQLiteEventJournalRecoveryError,
+      );
+      expect(db.inTransaction).toBe(false);
+    } finally {
+      await harness.dispose();
+    }
+  });
 });
