@@ -1,5 +1,11 @@
 Every PR in this change MUST stay under 500 non-generated changed lines and 15 files, own one behavior seam, and split through an OpenSpec update before implementation if the cap cannot be met.
 
+Work-path trace: this leaf follows both independently gated combat and campaign authority leaves and precedes `add-authoritative-history-branches` in `../harden-gm-two-player-campaign-sessions/event-history-wave-map.md`.
+
+## 0. Dual-Authority Admission — Pre-Implementation Receipt
+
+- [ ] 0.1 Before PR 1, verify on fetched exact main that both `adopt-combat-event-journal-authority` and `adopt-campaign-event-journal-authority` are synced and archived; their task 4.6 and 7.5 terminal evidence pass; both active ledger entries/directories are absent; and both merged branches/worktrees are pruned. Record both predecessor merge SHAs and fail closed on missing or contradictory evidence.
+
 ## 1. Canonical Effect Identity and Digest — PR 1
 
 - [ ] 1.1 Define the server-derived effect ID/type/version and versioned semantic-command contract; map `CombatOutcomeFinalized.outcomeId` to `effectId` and `outcomeVersion` to `effectVersion`, and reject client-supplied effect or target scope.

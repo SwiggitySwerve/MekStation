@@ -1,5 +1,11 @@
 Every PR in this change MUST stay under 500 non-generated changed lines and 15 files, own one behavior seam, and split through an OpenSpec update before implementation if the cap cannot be met.
 
+Work-path trace: this leaf follows `add-authority-audit-and-privacy-proof`, may proceed independently of combat adoption, and must finish before `add-cross-stream-effect-receipts` in `../harden-gm-two-player-campaign-sessions/event-history-wave-map.md`.
+
+## 0. Privacy-Gate Admission — Pre-Implementation Receipt
+
+- [ ] 0.1 Before PR 1, verify on fetched exact main that `add-authority-audit-and-privacy-proof` is synced and archived, its task 10.4 and post-merge terminal evidence pass, its active ledger entry/directory are absent, and its merged branch/worktree are pruned. Record the predecessor merge SHA and fail closed on missing or contradictory evidence.
+
 ## 1. Durable Campaign Batch Adapter — PR 1
 
 - [ ] 1.1 Add failing campaign-store tests for atomic multi-event commands, expected revision, retry identity, no gaps, and restart.
@@ -34,7 +40,7 @@ Every PR in this change MUST stay under 500 non-generated changed lines and 15 f
 
 ## 5. Durable Participant Cursors — PR 5
 
-- [ ] 5.1 Persist each authorized participant's highest contiguous applied delivery cursor and reject gaps, identity collisions, and hidden-authority leakage.
+- [ ] 5.1 Persist each authorized participant's highest contiguous applied acknowledgement through the privacy-owned `(deliveryEpochId, deliverySequence)` mapping and reject gaps, identity collisions, and hidden-authority leakage; do not mint a campaign-specific epoch, sequence allocator, or raw-journal cursor.
 - [ ] 5.2 Add two-player restart, slow-client, healthy-client, revoked-membership, and cursor-resume tests without changing user-facing presentation.
 - [ ] 5.3 Run focused client/server synchronization contracts and independent privacy/backpressure review.
 - [ ] 5.4 After merge, rerun exact-main cursor/reconnect proof and prune the merged branch/worktree.
