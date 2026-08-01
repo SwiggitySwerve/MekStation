@@ -8,6 +8,12 @@ import {
 } from './EventJournalCanonicalizer';
 import { CURRENT_EVENT_CANONICALIZER_VERSION } from './EventJournalContract';
 import * as Schemas from './EventJournalSchemas';
+import {
+  eventStreamKey,
+  parseEventStreamKey,
+  restoreInMemorySnapshot,
+  serializeInMemorySnapshot,
+} from './InMemoryEventJournalSnapshot';
 
 type StreamHead = readonly [revision: number, digest: string | null];
 type CommitGate = Readonly<{ enter(): void; wait: Promise<void> }>;
@@ -51,6 +57,37 @@ export class InMemoryEventJournal<
   public constructor(
     private readonly now: () => string = () => new Date().toISOString(),
   ) {}
+
+  public static fromSnapshotForTesting<TPayload = unknown>(
+    serialized: string,
+    now: () => string = () => new Date().toISOString(),
+  ): InMemoryEventJournal<TPayload> {
+    const snapshot = restoreInMemorySnapshot<TPayload>(serialized);
+    const journal = new InMemoryEventJournal<TPayload>(now);
+    journal.events.push(...clone(snapshot.events));
+    snapshot.events.forEach((event) => journal.eventIds.add(event.eventId));
+    snapshot.receipts.forEach((receipt) => {
+      const events = snapshot.events.filter(
+        (event) => event.commandId === receipt.commandId,
+      );
+      journal.receipts.set(receipt.commandId, {
+        batch: {
+          kind: 'committed',
+          receipt: clone(receipt),
+          events: clone(events),
+        },
+        digest: receipt.commandDigest,
+      });
+    });
+    snapshot.heads.forEach((head) =>
+      journal.heads.set(eventStreamKey(head.streamType, head.streamId), [
+        head.revision,
+        head.digest,
+      ]),
+    );
+    journal.nextCommitPosition = snapshot.highWaterCommitPosition + 1;
+    return journal;
+  }
 
   public append(
     input: Journal.IAppendEventBatch<TPayload>,
@@ -125,6 +162,32 @@ export class InMemoryEventJournal<
     return capture;
   }
 
+  public exportSnapshotForTesting(): Promise<string> {
+    const capture = this.writeTail.then(() => {
+      const heads = Array.from(this.heads).map(([key, [revision, digest]]) => {
+        const [streamType, streamId] = parseEventStreamKey(key);
+        if (digest === null) throw new Error('Committed head lacks a digest');
+        return {
+          streamType,
+          streamId,
+          revision,
+          digest,
+        };
+      });
+      return serializeInMemorySnapshot({
+        highWaterCommitPosition: this.nextCommitPosition - 1,
+        events: this.events,
+        receipts: Array.from(
+          this.receipts.values(),
+          ({ batch }) => batch.receipt,
+        ),
+        heads,
+      });
+    });
+    this.writeTail = capture.then(ignore, ignore);
+    return capture;
+  }
+
   public async readCommitted(
     input: Journal.IReadCommittedQuery,
   ): Promise<Journal.ICommittedReadPage<TPayload>> {
@@ -189,7 +252,7 @@ export class InMemoryEventJournal<
     ) {
       throw new Error('Duplicate eventId');
     }
-    const key = `${input.streamType}\u0000${input.streamId}`;
+    const key = eventStreamKey(input.streamType, input.streamId);
     const [revision, headDigest] = this.heads.get(key) ?? [0, null];
     if (revision !== input.expectedRevision) {
       return {
@@ -199,6 +262,12 @@ export class InMemoryEventJournal<
       };
     }
 
+    if (
+      input.events.length >
+      Number.MAX_SAFE_INTEGER - this.nextCommitPosition + 1
+    ) {
+      throw new Error('Commit position space exhausted');
+    }
     const firstPosition = this.nextCommitPosition;
     this.nextCommitPosition += input.events.length;
     const recordedAt = new Date(this.now()).toISOString();
