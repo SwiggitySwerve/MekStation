@@ -22,11 +22,13 @@ Post-merge terminal evidence: before PR 1A implementation resumes, verify these 
 
 ## 1A. Schema Registry and Upcaster Kernel — PR 1A
 
-- [ ] 1A.0 Record the merged S2 spec PR, exact-main OpenSpec/QC receipt, and pruned S2 branch/worktree before restoring the kernel spike onto a fresh PR 1A branch.
-- [ ] 1A.1 Add an adapter-neutral registry for immutable event registrations with explicit current targets, strict synthetic payload schemas, and pure one-version-at-a-time upcasters; keep all real domain types unsupported.
-- [ ] 1A.2 Reject duplicate/conflicting registrations and missing/ambiguous transition paths with typed failures.
-- [ ] 1A.3 Prove synthetic fixtures upcast deterministically without mutating input objects or stored payload bytes.
-- [ ] 1A.4 Run focused tests, Node 22 typecheck/lint/format, strict OpenSpec/QC, and sequential independent review.
+- [x] 1A.0 Record the merged S2 spec PR, exact-main OpenSpec/QC receipt, and pruned S2 branch/worktree before restoring the kernel spike onto a fresh PR 1A branch.
+  - Receipt: PR #1124 merged head `4f58107b70bd8e3178d6088104e1e9873973a410` as `551885b10a13da429c85cb785b22ec9f9bac7b22` with 29 successful checks; exact-main OpenSpec passed 228/228, QC accounted for 11/11 active changes, purpose/terminology passed 217/306 files, and the S2 branch/worktree were pruned before this clean PR 1A branch was created.
+- [x] 1A.1 Add an adapter-neutral registry for immutable event registrations with explicit current targets, strict synthetic payload schemas, and pure one-version-at-a-time upcasters; keep all real domain types unsupported.
+- [x] 1A.2 Reject duplicate/conflicting registrations and missing/ambiguous transition paths with typed failures.
+- [x] 1A.3 Prove synthetic fixtures upcast deterministically without mutating input objects or stored payload bytes.
+- [x] 1A.4 Run focused tests, Node 22 typecheck/lint/format, strict OpenSpec/QC, and sequential independent review.
+  - Receipt: focused replay tests passed 15/15; Node 22 typecheck and full lint passed with zero errors (71 existing warnings), targeted oxfmt/oxlint passed with zero findings, strict OpenSpec passed 228/228, QC accounted for 11/11 active changes, purpose/terminology passed 217/306 files, and five sequential reviews approved after the line-cap, coverage, and type-safety findings were fixed; repository-wide format-check remains baseline-limited by four unrelated exact-main files.
 - [ ] 1A.5 After merge, rerun the registry/upcaster receipt on exact main and prune the merged branch/worktree before PR 1B.
 
 ## 1B. Required-History Pipeline Fingerprint — PR 1B
