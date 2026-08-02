@@ -18,10 +18,17 @@
 
 import type { Page, TestInfo } from '@playwright/test';
 
+import { createHash } from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 
+import { FLOW_MANIFEST } from '../flows/manifest';
+
 const DEFAULT_SURFACE = 'default';
+const PUBLISHABLE_SCREENSHOT_STYLE =
+  '*,*::before,*::after{color:transparent!important;text-shadow:none!important;' +
+  'background:transparent!important;background-image:none!important;content:none!important}' +
+  'img,svg,canvas,video,iframe,object,embed{visibility:hidden!important}';
 
 export type WalkthroughFindingSeverity =
   | 'critical'
@@ -87,6 +94,177 @@ export interface WalkthroughEntityRecord {
 export interface WalkthroughHoldUrlRecord {
   readonly label: string;
   readonly url: string;
+}
+
+const ROUTE_TEMPLATES = (
+  '|gameplay|gameplay/quick|gameplay/campaigns|gameplay/campaigns/*|' +
+  'gameplay/campaigns/*/starmap|gameplay/campaigns/*/finances|gameplay/campaigns/*/contract-market|' +
+  'gameplay/campaigns/*/gm-ledger|gameplay/campaigns/*/hiring|gameplay/campaigns/*/log|gameplay/campaigns/*/mech-bay|' +
+  'gameplay/campaigns/*/missions|gameplay/campaigns/*/personnel|gameplay/campaigns/*/repair-bay|' +
+  'gameplay/encounters|gameplay/encounters/*|gameplay/encounters/*/pre-battle|' +
+  'gameplay/games|gameplay/games/*|gameplay/pilots|gameplay/pilots/create|gameplay/pilots/*|' +
+  'compendium|compendium/units|compendium/units/*|compendium/equipment|compendium/equipment/*|compendium/rules|' +
+  'customizer|customizer/*/structure|multiplayer|multiplayer/lobby|multiplayer/lobby/*|onboarding|units|replay-library|' +
+  'api/campaigns|api/campaigns/*|api/multiplayer/auth/token|api/multiplayer/matches|api/multiplayer/matches/*|api/e2e/vault-identity'
+)
+  .split('|')
+  .map((route) => route.split('/'));
+
+const SAFE_QUERY_KEYS = new Set([
+  'assignmentId',
+  'campaignId',
+  'encounterId',
+  'forceId',
+  'matchId',
+  'missionId',
+  'mode',
+  'page',
+  'pilotId',
+  'sessionId',
+  'sort',
+  'tab',
+  'view',
+]);
+
+const SAFE_SURFACES = new Set(['default', 'guest', 'host', 'player']);
+const SAFE_ENTITY_KINDS = new Set([
+  'assignment',
+  'campaign',
+  'encounter',
+  'force',
+  'match',
+  'mission',
+  'pilot',
+  'session',
+]);
+const FINDING_SEVERITIES = new Set(['critical', 'major', 'moderate', 'minor']);
+
+const SAFE_JOURNEY_LABELS = new Set([
+  ...FLOW_MANIFEST.map((flow) => flow.id),
+  '01-first-visit-navigation',
+  '02-compendium-browse',
+  '03-fresh-profile-empty-states',
+  '04-quick-game-auto-resolve',
+  '05-customizer-new-unit',
+  '06-campaign-create-to-launch',
+  '07-mobile-navigation',
+  '08-sp-campaign-deep-loop',
+  '09-coop-multiplayer-two-client',
+  '10-gm-surfaces',
+]);
+
+const SAFE_PERSONA_LABELS = new Set([
+  ...FLOW_MANIFEST.map((flow) => flow.description),
+  'first-time visitor exploring the app shell',
+  'player researching units and equipment',
+  'new player with no saved content yet',
+  'player running their first quick battle',
+  'player building their first custom BattleMech',
+  'player starting a mercenary campaign',
+  'phone user finding their way around',
+  'player pushing a campaign from creation through a battle attempt and full sweep',
+  'host and guest proving co-op campaign and 1v1 lobby handoff surfaces',
+  'campaign GM validating ledger interventions and the tactical GM dock',
+]);
+
+const SAFE_CHECKPOINT_LABELS = new Set(
+  FLOW_MANIFEST.flatMap((flow) =>
+    flow.checkpoints.map((checkpoint) => checkpoint.name),
+  ),
+);
+
+/**
+ * Canonicalize a route before it enters a publishable journey record.
+ * Static route/query shape is retained, while every dynamic value is replaced
+ * by a deterministic digest that cannot reveal the original value.
+ */
+export function canonicalizeWalkthroughRoute(rawRoute: string): string {
+  const raw = String(rawRoute ?? '');
+  if (!raw) return '';
+  try {
+    const parsed = new URL(raw, 'http://walkthrough.invalid');
+    const decodedSegments = parsed.pathname
+      .split('/')
+      .slice(1)
+      .map((segment) => decodeURIComponent(segment));
+    const template = ROUTE_TEMPLATES.find(
+      (candidate) =>
+        candidate.length === decodedSegments.length &&
+        candidate.every(
+          (part, index) =>
+            part === '*' ||
+            part.toLowerCase() === decodedSegments[index].toLowerCase(),
+        ),
+    );
+    const pathname = template
+      ? `/${template
+          .map((part, index) =>
+            part === '*' ? `<route:${digest(decodedSegments[index])}>` : part,
+          )
+          .join('/')}`
+      : `<route:${digest(parsed.pathname)}>`;
+    const query = Array.from(parsed.searchParams.entries())
+      .map(([key, value]) => {
+        const safeKey = Array.from(SAFE_QUERY_KEYS).find(
+          (candidate) => candidate.toLowerCase() === key.toLowerCase(),
+        );
+        const canonicalKey = safeKey ?? `<query-key:${digest(key)}>`;
+        return {
+          key: canonicalKey,
+          value: `<query:${digest(value)}>`,
+        };
+      })
+      .sort(
+        (left, right) =>
+          compareStrings(left.key, right.key) ||
+          compareStrings(left.value, right.value),
+      )
+      .map(({ key, value }) => `${key}=${value}`)
+      .join('&');
+    return `${pathname || '/'}${query ? `?${query}` : ''}`;
+  } catch {
+    return `<route:${digest(raw)}>`;
+  }
+}
+
+function digest(value: string): string {
+  return createHash('sha256')
+    .update(String(value ?? ''))
+    .digest('hex')
+    .slice(0, 16);
+}
+
+function compareStrings(left: string, right: string): number {
+  return left < right ? -1 : left > right ? 1 : 0;
+}
+
+function canonicalizeRuntimeText(value: string, label: string): string {
+  return `${label}:<sha256:${digest(value)}>`;
+}
+
+function canonicalizeSourceLabel(value: string, label: string): string {
+  return `${label}-${digest(String(value ?? ''))}`;
+}
+
+function canonicalizeAllowlistedLabel(
+  value: string,
+  allowlist: ReadonlySet<string>,
+  label: string,
+): string {
+  return allowlist.has(value) ? value : canonicalizeSourceLabel(value, label);
+}
+
+function canonicalizeVocabulary(
+  value: string,
+  vocabulary: ReadonlySet<string>,
+  label: string,
+): string {
+  const normalized = String(value ?? '')
+    .trim()
+    .toLowerCase();
+  return vocabulary.has(normalized)
+    ? normalized
+    : canonicalizeSourceLabel(value, label);
 }
 
 export interface WalkthroughJourneyRecord {
@@ -186,7 +364,13 @@ export function createWalkthroughRecorder(
   const holdUrls: WalkthroughHoldUrlRecord[] = [];
   const surfaces = new Map<string, WalkthroughSurface>();
   const runDir = resolveRunDir();
-  const journeyDir = path.join(runDir, journey);
+  const journeyKey = canonicalizeSourceLabel(journey, 'journey');
+  const journeyLabel = canonicalizeAllowlistedLabel(
+    journey,
+    SAFE_JOURNEY_LABELS,
+    'journey',
+  );
+  const journeyDir = path.join(runDir, journeyKey);
   const startedAt = new Date().toISOString();
   let stepCounter = 0;
   let failed = false;
@@ -226,11 +410,15 @@ export function createWalkthroughRecorder(
     // errors that surfaced while a normal user performed that step.
     page.on('console', (message) => {
       if (message.type() === 'error') {
-        surface.consoleBuffer.push(message.text().slice(0, 500));
+        surface.consoleBuffer.push(
+          canonicalizeRuntimeText(message.text().slice(0, 500), 'console'),
+        );
       }
     });
     page.on('pageerror', (error) => {
-      surface.pageErrorBuffer.push(String(error).slice(0, 500));
+      surface.pageErrorBuffer.push(
+        canonicalizeRuntimeText(String(error).slice(0, 500), 'page-error'),
+      );
     });
   }
 
@@ -281,7 +469,11 @@ export function createWalkthroughRecorder(
   ): Promise<number> {
     return recordStep(name, action, options, (step) => {
       checkpoints.push({
-        name,
+        name: canonicalizeAllowlistedLabel(
+          name,
+          SAFE_CHECKPOINT_LABELS,
+          'checkpoint',
+        ),
         stepIndex: step.index,
         status: step.status,
         viewport: resolveViewport(),
@@ -297,7 +489,11 @@ export function createWalkthroughRecorder(
    */
   function markCheckpointNotRun(name: string): void {
     checkpoints.push({
-      name,
+      name: canonicalizeAllowlistedLabel(
+        name,
+        SAFE_CHECKPOINT_LABELS,
+        'checkpoint',
+      ),
       stepIndex: null,
       status: 'not-run',
       viewport: resolveViewport(),
@@ -325,8 +521,22 @@ export function createWalkthroughRecorder(
    * instead of forcing downstream reviewers to infer it from failed steps.
    */
   function finding(finding: WalkthroughFindingRecord): void {
+    if (
+      !FINDING_SEVERITIES.has(finding.severity) ||
+      !Array.isArray(finding.steps) ||
+      finding.steps.some(
+        (ref) =>
+          !Number.isSafeInteger(ref) ||
+          ref <= 0 ||
+          !steps.some((step) => step.index === ref),
+      )
+    ) {
+      throw new Error('Walkthrough finding has invalid severity or step refs');
+    }
     findings.push({
-      ...finding,
+      id: canonicalizeSourceLabel(finding.id, 'finding'),
+      severity: finding.severity,
+      summary: canonicalizeRuntimeText(finding.summary, 'finding-summary'),
       steps: [...finding.steps],
     });
   }
@@ -336,14 +546,21 @@ export function createWalkthroughRecorder(
    * state left on the developer's server for inspection or cleanup.
    */
   function registerEntity(kind: string, id: string): void {
-    entityIds.push({ kind, id });
+    const rawId = String(id ?? '');
+    entityIds.push({
+      kind: canonicalizeVocabulary(kind, SAFE_ENTITY_KINDS, 'entity-kind'),
+      id: `<entity:${digest(rawId)}>`,
+    });
   }
 
   /**
    * Register a live URL that a hold-mode summary can present for inspection.
    */
   function registerHoldUrl(label: string, url: string): void {
-    holdUrls.push({ label, url });
+    holdUrls.push({
+      label: canonicalizeSourceLabel(label, 'hold'),
+      url: canonicalizeWalkthroughRoute(url),
+    });
   }
 
   async function recordStep(
@@ -358,19 +575,22 @@ export function createWalkthroughRecorder(
     const surface = getSurface(surfaceName);
     stepCounter += 1;
     const index = stepCounter;
-    const slug = `${String(index).padStart(2, '0')}-${slugify(title)}`;
+    const safeTitle = canonicalizeRuntimeText(title, 'step-title');
+    const slug = `${String(index).padStart(2, '0')}-step-${digest(title)}`;
     const record: MutableStep = {
       index,
       slug,
-      title,
-      surface: surfaceName,
+      title: safeTitle,
+      surface: canonicalizeVocabulary(surfaceName, SAFE_SURFACES, 'surface'),
       screenshot: null,
       route: '',
       startedAt: new Date().toISOString(),
       durationMs: 0,
       consoleErrors: [],
       pageErrors: [],
-      notes: options?.note ? [options.note] : [],
+      notes: options?.note
+        ? [canonicalizeRuntimeText(options.note, 'note')]
+        : [],
       status: 'ok',
     };
     const begin = Date.now();
@@ -380,7 +600,7 @@ export function createWalkthroughRecorder(
       record.screenshot = await capture(surface, slug);
     } catch (error) {
       record.status = 'failed';
-      record.failure = String(error).slice(0, 1000);
+      record.failure = canonicalizeRuntimeText(String(error), 'failure');
       failed = true;
       record.screenshot = await capture(surface, `${slug}-FAILED`).catch(
         () => null,
@@ -405,7 +625,7 @@ export function createWalkthroughRecorder(
   function note(text: string): void {
     const last = steps[steps.length - 1];
     if (last) {
-      last.notes.push(text);
+      last.notes.push(canonicalizeRuntimeText(text, 'note'));
     }
   }
 
@@ -415,8 +635,12 @@ export function createWalkthroughRecorder(
    */
   function finish(): void {
     const record: WalkthroughJourneyRecord = {
-      journey,
-      persona,
+      journey: journeyLabel,
+      persona: canonicalizeAllowlistedLabel(
+        persona,
+        SAFE_PERSONA_LABELS,
+        'persona',
+      ),
       viewport: resolveViewport(),
       startedAt,
       finishedAt: new Date().toISOString(),
@@ -430,7 +654,7 @@ export function createWalkthroughRecorder(
     const journeysDir = path.join(runDir, 'journeys');
     fs.mkdirSync(journeysDir, { recursive: true });
     fs.writeFileSync(
-      path.join(journeysDir, `${journey}.json`),
+      path.join(journeysDir, `${journeyKey}.json`),
       `${JSON.stringify(record, null, 2)}\n`,
       'utf8',
     );
@@ -456,10 +680,11 @@ export function createWalkthroughRecorder(
     await surface.page.screenshot({
       animations: 'disabled',
       fullPage: true,
+      style: PUBLISHABLE_SCREENSHOT_STYLE,
       path: path.join(journeyDir, file),
       timeout: 15_000,
     });
-    return `${journey}/${file}`;
+    return `${journeyKey}/${file}`;
   }
 
   /**
@@ -472,7 +697,8 @@ export function createWalkthroughRecorder(
 
   function currentRoute(surface: WalkthroughSurface): string {
     try {
-      return surface.page.url();
+      const route = surface.page.url();
+      return canonicalizeWalkthroughRoute(route);
     } catch {
       return '';
     }
@@ -507,12 +733,4 @@ function normalizeSurfaceName(name: string): string {
     throw new Error('Walkthrough surface name must not be empty');
   }
   return trimmed;
-}
-
-function slugify(title: string): string {
-  return title
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '')
-    .slice(0, 60);
 }
