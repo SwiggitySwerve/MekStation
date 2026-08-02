@@ -12,6 +12,8 @@ import {
   IGameSession,
   IGameUnit,
   IHexTerrain,
+  IUnitGameState,
+  LockState,
 } from '@/types/gameplay';
 
 /**
@@ -57,6 +59,7 @@ import {
   createInitiativeRolledEvent,
   createMovementLockedEvent,
   createPhaseChangedEvent,
+  createPhysicalAttackLockedEvent,
   createSpottingDeclaredEvent,
 } from './gameEvents';
 import { appendAttackRevealIfReady } from './gameSessionAttackReveal';
@@ -398,6 +401,90 @@ export function lockAttack(
   const event = createAttackLockedEvent(session.id, sequence, turn, unitId);
 
   return appendAttackRevealIfReady(appendEvent(session, event), unitId);
+}
+
+export function isPhaseActivationEligible(
+  unit: IUnitGameState | undefined,
+): unit is IUnitGameState {
+  return Boolean(
+    unit &&
+    !unit.destroyed &&
+    !unit.shutdown &&
+    !unit.hasRetreated &&
+    !unit.hasEjected &&
+    unit.pilotConscious,
+  );
+}
+
+function physicalAttackActivationOrder(session: IGameSession): string[] {
+  const firstMover = session.currentState.firstMover ?? GameSide.Player;
+  const opposingSide =
+    firstMover === GameSide.Player ? GameSide.Opponent : GameSide.Player;
+  const firstMoverUnits: string[] = [];
+  const opposingUnits: string[] = [];
+
+  for (const gameUnit of session.units) {
+    const unit = session.currentState.units[gameUnit.id];
+    if (!isPhaseActivationEligible(unit)) continue;
+    const side = unit.side ?? gameUnit.side ?? null;
+    if (side === firstMover) {
+      firstMoverUnits.push(gameUnit.id);
+    } else if (side === opposingSide) {
+      opposingUnits.push(gameUnit.id);
+    }
+  }
+
+  const order: string[] = [];
+  const count = Math.max(firstMoverUnits.length, opposingUnits.length);
+  for (let index = 0; index < count; index += 1) {
+    if (firstMoverUnits[index]) order.push(firstMoverUnits[index]);
+    if (opposingUnits[index]) order.push(opposingUnits[index]);
+  }
+  return order;
+}
+
+function canCompletePhysicalAttack(
+  session: IGameSession,
+  unitId: string,
+): boolean {
+  if (session.currentState.phase !== GamePhase.PhysicalAttack) return false;
+
+  const unit = session.currentState.units[unitId];
+  if (
+    !isPhaseActivationEligible(unit) ||
+    (unit.lockState !== LockState.Pending &&
+      unit.lockState !== LockState.Planning)
+  ) {
+    return false;
+  }
+
+  const order = physicalAttackActivationOrder(session);
+  const activeUnitId = order[session.currentState.activationIndex] ?? null;
+  return activeUnitId === unitId;
+}
+
+export function canActInPhysicalAttack(
+  session: IGameSession,
+  unitId: string,
+): boolean {
+  return (
+    canCompletePhysicalAttack(session, unitId) &&
+    !session.currentState.units[unitId]!.isWithdrawing
+  );
+}
+
+export function lockPhysicalAttack(
+  session: IGameSession,
+  unitId: string,
+): IGameSession {
+  if (!canCompletePhysicalAttack(session, unitId)) return session;
+
+  const sequence = session.events.length;
+  const { turn } = session.currentState;
+  return appendEvent(
+    session,
+    createPhysicalAttackLockedEvent(session.id, sequence, turn, unitId),
+  );
 }
 
 function assertCanRequestSpot(

@@ -17,12 +17,13 @@ import {
 function integrated(
   id: GameEventType,
   evidence: string,
+  sourceRefEventType: GameEventType = id,
 ): ICombatFeatureSupportEntry {
   return {
     id,
     level: 'integrated',
     evidence,
-    sourceRefs: BATTLEMECH_EVENT_SOURCE_REFS[id],
+    sourceRefs: BATTLEMECH_EVENT_SOURCE_REFS[sourceRefEventType],
   };
 }
 
@@ -202,6 +203,11 @@ export const BATTLEMECH_COMBAT_EVENT_SUPPORT = {
   [GameEventType.PhysicalAttackDeclared]: integrated(
     GameEventType.PhysicalAttackDeclared,
     'runner and interactive physical phases emit PhysicalAttackDeclared for supported attack types',
+  ),
+  [GameEventType.PhysicalAttackLocked]: integrated(
+    GameEventType.PhysicalAttackLocked,
+    'lockPhysicalAttack emits PhysicalAttackLocked and its reducer closes physical action eligibility',
+    GameEventType.PhysicalAttackDeclared,
   ),
   [GameEventType.PhysicalAttackResolved]: integrated(
     GameEventType.PhysicalAttackResolved,

@@ -9,10 +9,6 @@ import type {
   MovementType,
 } from '@/types/gameplay/HexGridInterfaces';
 import type { WeaponFireMode } from '@/types/gameplay/IndirectFireInterfaces';
-import type {
-  PhysicalAttackLimb,
-  PhysicalAttackType,
-} from '@/utils/gameplay/physicalAttacks';
 
 import { GamePhase, GameStatus } from '@/types/gameplay/GameSessionInterfaces';
 import { createUnitEjectedEvent } from '@/utils/gameplay/gameEvents';
@@ -25,7 +21,17 @@ import {
   torsoTwist as torsoTwistAction,
   type IPhysicalAttackContext,
 } from '@/utils/gameplay/gameSession';
+import {
+  canActInPhysicalAttack,
+  lockPhysicalAttack,
+} from '@/utils/gameplay/gameSessionCore';
 import { declarePlayerWithdrawal } from '@/utils/gameplay/morale';
+import {
+  getAllowedPhysicalAttackCount,
+  physicalAttackDeclarationsForTurn,
+  type PhysicalAttackLimb,
+  type PhysicalAttackType,
+} from '@/utils/gameplay/physicalAttacks';
 
 import type { IInteractiveSessionRuntimeContext } from './InteractiveSession.runtime';
 
@@ -235,6 +241,9 @@ export function applyInteractiveSessionPhysicalAttackCommand(
   limb?: PhysicalAttackLimb,
   options: IInteractiveSessionPhysicalAttackOptions = {},
 ): void {
+  const session = context.getSession();
+  if (!canActInPhysicalAttack(session, attackerId)) return;
+
   const baseContext =
     physicalContextByInteractiveSessionUnit(context).get(attackerId);
   if (!baseContext) return;
@@ -259,15 +268,46 @@ export function applyInteractiveSessionPhysicalAttackCommand(
     targetMovementComplete: true,
   };
 
-  context.setSession(
-    declarePhysicalAttack(
-      context.getSession(),
-      attackerId,
-      targetId,
-      attackType,
-      attackContext,
-    ),
+  const allowedPhysicalAttacks = getAllowedPhysicalAttackCount(
+    attackContext.pilotAbilities ??
+      session.currentState.units[attackerId]?.abilities,
   );
+  const priorDeclarations = physicalAttackDeclarationsForTurn(
+    session.events,
+    session.currentState.turn,
+    attackerId,
+  ).length;
+  if (priorDeclarations >= allowedPhysicalAttacks) {
+    context.setSession(lockPhysicalAttack(session, attackerId));
+    tryFinalizeAndPublishInteractiveSession(context);
+    return;
+  }
+
+  const declared = declarePhysicalAttack(
+    session,
+    attackerId,
+    targetId,
+    attackType,
+    attackContext,
+  );
+  const declarationCount = physicalAttackDeclarationsForTurn(
+    declared.events,
+    declared.currentState.turn,
+    attackerId,
+  ).length;
+  context.setSession(
+    declarationCount >= allowedPhysicalAttacks
+      ? lockPhysicalAttack(declared, attackerId)
+      : declared,
+  );
+  tryFinalizeAndPublishInteractiveSession(context);
+}
+
+export function completeInteractiveSessionPhysicalAttackCommand(
+  context: IInteractiveSessionRuntimeContext,
+  unitId: string,
+): void {
+  context.setSession(lockPhysicalAttack(context.getSession(), unitId));
   tryFinalizeAndPublishInteractiveSession(context);
 }
 

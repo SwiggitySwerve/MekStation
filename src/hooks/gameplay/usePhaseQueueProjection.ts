@@ -33,6 +33,7 @@ import {
   GameSide,
   LockState,
 } from '@/types/gameplay/GameSessionCoreTypes';
+import { isPhaseActivationEligible } from '@/utils/gameplay/gameSessionCore';
 
 // ---------------------------------------------------------------------------
 // Public types
@@ -184,6 +185,9 @@ export function usePhaseQueueProjection(): IPhaseQueueProjection {
       // Non-alternating: show all units, first-mover side first.
       activationOrder = [...firstMoverUnits, ...opposingUnits].map((u) => u.id);
     }
+    const actionOrder = activationOrder.filter((unitId) =>
+      isPhaseActivationEligible(unitStates[unitId]),
+    );
     // Side-less units remain visible but never acquire action debt or ownership.
     const initiativeOrder = [
       ...activationOrder,
@@ -197,13 +201,9 @@ export function usePhaseQueueProjection(): IPhaseQueueProjection {
     const unresolvedUnits: UnitId[] = [];
     const blockers: IPhaseBlocker[] = [];
 
-    for (const unitId of activationOrder) {
+    for (const unitId of actionOrder) {
       const state = unitStates[unitId];
       if (!state) continue;
-
-      // Skip units that are no longer in play.
-      if (state.destroyed || state.hasRetreated || state.isWithdrawing)
-        continue;
 
       // Only alternating phases have per-unit lock requirements.
       if (!ALTERNATING_PHASES.has(phase)) continue;
@@ -226,9 +226,9 @@ export function usePhaseQueueProjection(): IPhaseQueueProjection {
     // If activationIndex is out of range (phase complete) fall back to
     // the first unresolved unit, then null.
     let activeUnitId: UnitId | null = null;
-    if (activationOrder.length > 0) {
-      if (activationIndex < activationOrder.length) {
-        activeUnitId = activationOrder[activationIndex] ?? null;
+    if (actionOrder.length > 0) {
+      if (activationIndex < actionOrder.length) {
+        activeUnitId = actionOrder[activationIndex] ?? null;
       } else if (unresolvedUnits.length > 0) {
         activeUnitId = unresolvedUnits[0];
       }
