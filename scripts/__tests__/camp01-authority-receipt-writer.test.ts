@@ -1,0 +1,193 @@
+import { spawnSync } from 'node:child_process';
+import * as fs from 'node:fs';
+import * as os from 'node:os';
+import * as path from 'node:path';
+import { pathToFileURL } from 'node:url';
+
+const writerUrl = pathToFileURL(
+  path.resolve('scripts/qc/camp01-authority-receipt.mjs'),
+).href;
+const schemasUrl = pathToFileURL(
+  path.resolve('scripts/qc/camp01-authority-receipt.schemas.mjs'),
+).href;
+// prettier-ignore
+const contractUrl=pathToFileURL(path.resolve('scripts/qc/camp01-authority-receipt.contract.mjs')).href;
+const harness = `
+import fs from 'node:fs';
+import * as schemas from ${JSON.stringify(schemasUrl)};
+import * as writer from ${JSON.stringify(writerUrl)};
+import { WAVE_CONTRACTS } from ${JSON.stringify(contractUrl)};
+const request = JSON.parse(fs.readFileSync(0, 'utf8'));
+let commandCount = 0;
+try {
+  let value;
+  if (request.action === 'write') value = await writer.writeReceipt(request.value, {
+    randomBytes: () => Buffer.from(request.entropy, 'hex'),
+    runCommand: async (_argv, context) => {
+      commandCount += 1;
+      const waveResult = { schema: 'camp01-wave-result/v1', wave: request.value.wave,
+        runId: context.runId, status: 'passed', assertions: Object.fromEntries(
+          request.assertions.sort().map((id) => [id, request.assertionValues?.[id] ?? true])) };
+      fs.writeFileSync(context.artifactPath('wave-result.json'), schemas.canonicalBytes(waveResult));
+      return { exitCode: 0, observedTestIds: [] };
+    },
+  });
+  else if (request.action === 'validate-directory') value = writer.validateReceiptDirectory(request.value.directory, request.value.context);
+  else if (request.action === 'identities') value = writer.issueHIdentities(request.value, () => Buffer.from(request.entropy, 'hex'));
+  else if (request.action === 'h-wave') { const row=WAVE_CONTRACTS['camp-01h'], assertions=Object.fromEntries([...row.assertions].sort().map((id)=>[id,id.endsWith('===true')?true:Number(/(?:===|>=)(-?\\d+)$/.exec(id)[1])])); assertions[request.value.id]=request.value.result; value=schemas.validateArtifact({schema:'camp01-wave-result/v1',wave:row.wave,runId:'camp01-'+'1'.repeat(32),status:request.value.status,assertions},{row}); }
+  else if (request.action === 'h-bindings') { const row=WAVE_CONTRACTS['camp-01h'], runId='camp01-'+'8'.repeat(32), ids=writer.issueHIdentities(runId), observationIds=(reporter)=>schemas.H_TEST_IDS[reporter.invocationId]??[], reports=row.reporterContracts.map((reporter)=>{const identity=ids[reporter.witnessLabel]; return {schema:reporter.reportSchema,parentRunId:runId,witnessId:identity.witnessId,executionId:identity.executionId,witnessLabel:reporter.witnessLabel,invocationId:reporter.invocationId,producerId:reporter.producerId,reporterId:reporter.reporterId,sourceIds:reporter.sourceIds,complete:true,observations:observationIds(reporter).map((id)=>({id,status:'passed',failureFingerprint:null}))};}), witnesses=Object.entries(ids).map(([label,identity])=>({label,status:'observation',executionId:identity.executionId,reportDigests:Object.fromEntries(row.reporterContracts.filter((entry)=>entry.witnessLabel===label).map((entry)=>entry.normalizedPath).sort().map((name)=>[name,'sha256:'+'a'.repeat(64)])),facts:{}})), command={observedTestIds:[...new Set(reports.flatMap((report)=>report.observations.map(({id})=>id)))].sort(),identityRegistry:{entities:[]}}, receipt='receipt-'+'d'.repeat(16), reconciliation={sourceObservationReceiptIds:[receipt]}, evidence=Object.entries(ids).flatMap(([label,identity])=>[{id:identity.witnessId,sourceKind:'witness',runId,wave:'camp-01h',label},{id:identity.executionId,sourceKind:'execution',runId,wave:'camp-01h',label}]), context={registryContext:{evidence,provenance:[{id:receipt,sourceKind:'predecessor-receipt',wave:'camp-01h',subject:'product-pr'}]}}; if (request.value==='extra-digest') witnesses[0].reportDigests.extra='sha256:'+'b'.repeat(64); if (request.value==='absent-inventory') reports[0].invocationId='unmapped-invocation'; if (request.value==='source-path-only') reports[0].observations=[{id:row.reporterContracts[0].sourceIds[0],status:'passed',failureFingerprint:null}]; if (request.value==='arbitrary-observation') reports[0].observations[0].id='arbitrary'; if (request.value==='missing-observation') reports[0].observations.pop(); if (request.value==='extra-observation') reports[0].observations.push({id:'zz-extra',status:'passed',failureFingerprint:null}); if (request.value==='extra-entity') command.identityRegistry.entities.push({kind:'campaign',digest:'sha256:'+'c'.repeat(64),sourceEvidenceId:ids['custom-save-reload'].executionId}); if (request.value==='unverified-source') reconciliation.sourceObservationReceiptIds.push('receipt-'+'e'.repeat(16)); reports.forEach((report,index)=>schemas.validateArtifact(report,{reporter:request.value==='absent-inventory'&&index===0?{...row.reporterContracts[index],invocationId:report.invocationId}:row.reporterContracts[index],runId,registryContext:context.registryContext})); value=writer.validateHBindings(command,{witnesses},reports,reconciliation,context); }
+  else value = schemas[request.action](...(request.args ?? []));
+  process.stdout.write(JSON.stringify({ ok: true, value, commandCount }));
+} catch (error) {
+  process.stdout.write(JSON.stringify({ ok: false, error: error.message, commandCount,
+    runRootExists: request.value?.runRoot ? fs.existsSync(request.value.runRoot) : undefined }));
+  process.exitCode = 1;
+}`;
+
+// prettier-ignore
+type Result = { ok: boolean; value?: unknown; error?: string; commandCount?: number; runRootExists?: boolean };
+// prettier-ignore
+function invoke(request: Record<string, unknown>): Result { const result=spawnSync(process.execPath,['--input-type=module','--eval',harness],{input:JSON.stringify(request),encoding:'utf8'}); return JSON.parse(result.stdout) as Result; }
+
+const digest = `sha256:${'a'.repeat(64)}`;
+const sha = 'b'.repeat(40);
+// prettier-ignore
+const cap = { subject: 'product-pr', baseSha: sha, headSha: sha, fileCount: 4, changedLineCount: 100, binaryEntries: false, changedTreeManifestDigest: digest, reviewedHeadReceiptId: null, reviewedHeadReceiptManifestDigest: null };
+// prettier-ignore
+const registryContext = { evidence: [], provenance: [{ id: `tuple-${'2'.repeat(16)}`, sourceKind: 'spec-tuple', wave: 'camp-proof', subject: 'product-pr' }, { id: `tuple-${'3'.repeat(16)}`, sourceKind: 'owned-pr-tuple', wave: 'camp-proof', subject: 'product-pr' }], refs: [], capturePolicies: [], repairSources: [] };
+// prettier-ignore
+function baseRequest(runRoot: string) { return { wave: 'camp-proof', commandId: 'camp-proof', sha, treeSha: sha, runRoot, mode: 'reviewed-head', executionEnvironmentDigest: digest, provenance: { subject: 'product-pr', specTupleId: `tuple-${'2'.repeat(16)}`, ownedPrTupleId: `tuple-${'3'.repeat(16)}`, predecessorReceiptIds: [] }, capProvenance: { ...cap }, identityRegistry: { schema: 'camp01-identity-registry/v1', entities: [], refs: [] }, registryContext: JSON.parse(JSON.stringify(registryContext)), reviewedHead: null } as const; }
+// prettier-ignore
+const campProofAssertions=['unknownFieldsRejected===true','missingFieldsRejected===true','headShaMatched===true','pathShaMatched===true','inputDigestsMatched===true','exactMainRegenerated===true'];
+
+describe('CAMP-01 authority receipt writer and validator', () => {
+  it('emits canonical bytes and rejects missing, unknown, or unsafe fields', () => {
+    const wave = {
+      schema: 'camp01-wave-result/v1',
+      wave: 'camp-proof',
+      runId: `camp01-${'1'.repeat(32)}`,
+      status: 'passed',
+      assertions: { a: true },
+    };
+    expect(invoke({ action: 'canonicalBytes', args: [wave] }).value).toBe(
+      `${JSON.stringify(wave)}\n`,
+    );
+    for (const mutate of [
+      (value: Record<string, unknown>) => delete value.status,
+      (value: Record<string, unknown>) => (value.extra = true),
+      (value: Record<string, unknown>) => (value.localPath = 'C:\\secret'),
+    ]) {
+      const candidate = JSON.parse(JSON.stringify(wave)) as Record<
+        string,
+        unknown
+      >;
+      mutate(candidate);
+      expect(invoke({ action: 'validateArtifact', args: [candidate] }).ok).toBe(
+        false,
+      );
+    }
+  });
+
+  it('publishes one writer-owned receipt and rejects reopened byte tampering', () => {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'camp-proof2-'));
+    const runRoot = path.join(
+      root,
+      '.sisyphus',
+      'evidence',
+      'playtest',
+      `camp-proof-${sha}`,
+    );
+    const request = baseRequest(runRoot);
+    const written = invoke({
+      action: 'write',
+      value: request,
+      assertions: campProofAssertions,
+      entropy: '4'.repeat(32),
+    });
+    expect(written.error).toBeUndefined();
+    expect(written).toMatchObject({ ok: true });
+    const finalDirectory = (written.value as { finalDirectory: string })
+      .finalDirectory;
+    expect(fs.readdirSync(runRoot)).toEqual([`camp01-${'4'.repeat(32)}`]);
+    // prettier-ignore
+    const validationRequest={action:'validate-directory',value:{directory:finalDirectory,context:{registryContext:request.registryContext,reviewedHead:null}}};
+    expect(invoke(validationRequest).ok).toBe(true);
+    const command = JSON.parse(
+      fs.readFileSync(path.join(finalDirectory, 'command-result.json'), 'utf8'),
+    ) as { artifactDigests: Record<string, string> };
+    expect(command.artifactDigests['command-result.json']).toBeUndefined();
+    expect(command.artifactDigests['receipt-manifest.json']).toBeUndefined();
+    fs.appendFileSync(path.join(finalDirectory, 'wave-result.json'), ' ');
+    expect(invoke(validationRequest).ok).toBe(false);
+  });
+
+  // prettier-ignore
+  it('rejects invalid authority context before commands or filesystem publication', () => { const mutations: Array<(value: ReturnType<typeof baseRequest>) => void> = [ (value) => { (value as { mode: string }).mode = 'exact-main'; }, (value) => { (value.provenance as { specTupleId: string }).specTupleId = `tuple-${'a'.repeat(16)}`; }, (value) => { (value.capProvenance as { changedLineCount: number }).changedLineCount = 501; }, (value) => { (value.identityRegistry.entities as unknown[]).push({ kind: 'campaign', digest, sourceEvidenceId: `ev-${'b'.repeat(32)}` }); }, (value) => { (value.registryContext.evidence as unknown[]).push({sourceKind:'trace',sourceKey:'caller-minted',runId:`camp01-${'9'.repeat(32)}`,wave:'camp-proof',label:null}); } ]; for (const mutate of mutations) { const root=fs.mkdtempSync(path.join(os.tmpdir(),'camp-proof2-invalid-')), runRoot=path.join(root,'.sisyphus','evidence','playtest',`camp-proof-${sha}`), value=baseRequest(runRoot); mutate(value); const result=invoke({action:'write',value,assertions:[],entropy:'4'.repeat(32)}); expect(result).toMatchObject({ok:false,commandCount:0,runRootExists:false}); } });
+
+  // prettier-ignore
+  it('allows typed unsatisfied H observation assertions but never final predicates', () => { const booleanId='routeSequenceMatched===true', countId='threeSessionWitnessCount===3'; expect(invoke({action:'h-wave',value:{status:'failed',id:booleanId,result:false}}).ok).toBe(true); expect(invoke({action:'h-wave',value:{status:'failed',id:countId,result:2}}).ok).toBe(true); expect(invoke({action:'h-wave',value:{status:'failed',id:booleanId,result:'false'}}).ok).toBe(false); expect(invoke({action:'h-wave',value:{status:'passed',id:booleanId,result:false}}).ok).toBe(false); });
+
+  // prettier-ignore
+  it('accepts exact multi-test H inventories and rejects forged observation bindings', () => { expect(invoke({action:'h-bindings',value:'valid'}).ok).toBe(true); for (const mutation of ['absent-inventory','source-path-only','arbitrary-observation','missing-observation','extra-observation','extra-digest','extra-entity','unverified-source']) expect(invoke({action:'h-bindings',value:mutation}).ok).toBe(false); });
+
+  // prettier-ignore
+  it('reopens reviewed-head cap authority and enforces assertion semantics', () => { const root=fs.mkdtempSync(path.join(os.tmpdir(),'camp-proof2-cap-')), reviewedRequest=baseRequest(path.join(root,'.sisyphus','evidence','playtest',`camp-proof-${sha}`)), reviewed=invoke({action:'write',value:reviewedRequest,assertions:campProofAssertions,entropy:'4'.repeat(32)}), reviewedDir=(reviewed.value as {finalDirectory:string}).finalDirectory, command=JSON.parse(fs.readFileSync(path.join(reviewedDir,'command-result.json'),'utf8')), manifest=JSON.parse(fs.readFileSync(path.join(reviewedDir,'receipt-manifest.json'),'utf8')), manifestDigest=invoke({action:'artifactDigest',args:[manifest]}).value as string, receiptId=`receipt-${'d'.repeat(16)}`, exactSha='c'.repeat(40), exactRegistry={...registryContext,provenance:[...registryContext.provenance,{id:receiptId,sourceKind:'reviewed-head-receipt',wave:'camp-proof',subject:'product-pr'}].sort((a,b)=>a.id.localeCompare(b.id))}, exactRequest={...baseRequest(path.join(root,'.sisyphus','evidence','playtest',`camp-proof-${exactSha}`)),sha:exactSha,treeSha:exactSha,mode:'exact-main',capProvenance:{...cap,reviewedHeadReceiptId:receiptId,reviewedHeadReceiptManifestDigest:manifestDigest},registryContext:exactRegistry,reviewedHead:{receiptId,manifestDigest,command,manifest}}; expect(invoke({action:'write',value:exactRequest,assertions:campProofAssertions,entropy:'5'.repeat(32)}).ok).toBe(true); const failed=invoke({action:'write',value:baseRequest(path.join(root,'other','.sisyphus','evidence','playtest',`camp-proof-${sha}`)),assertions:campProofAssertions,assertionValues:{'headShaMatched===true':false},entropy:'6'.repeat(32)}); expect(failed.ok).toBe(false); });
+
+  it('derives failed observation fingerprints and enforces exact triage coverage', () => {
+    const observations = [
+      { id: 'anchor-a', status: 'passed', knownFailureCode: null },
+      {
+        id: 'anchor-b',
+        status: 'failed',
+        knownFailureCode: 'guest-badge-timing',
+      },
+    ];
+    const normalized = invoke({
+      action: 'normalizeProof02Observations',
+      args: [observations],
+    }).value as Array<{ failureFingerprint: string | null }>;
+    expect(normalized[0].failureFingerprint).toBeNull();
+    expect(normalized[1].failureFingerprint).toMatch(/^sha256:[0-9a-f]{64}$/);
+    const dispositions = [
+      {
+        observationId: 'anchor-b',
+        failureFingerprint: normalized[1].failureFingerprint,
+        severity: 'major',
+        outcome: 'external-blocker',
+        causeFingerprint: digest,
+        resolutionRef: `ref-${'5'.repeat(64)}`,
+        blockerRef: `ref-${'6'.repeat(64)}`,
+        backlogRank: 1,
+        auditAnchor: `ref-${'7'.repeat(64)}`,
+        primaryObservationId: null,
+        repairRowId: null,
+      },
+    ];
+    expect(
+      invoke({
+        action: 'validateProof02Triage',
+        args: [dispositions, normalized],
+      }).ok,
+    ).toBe(true);
+    expect(
+      invoke({ action: 'validateProof02Triage', args: [[], normalized] }).ok,
+    ).toBe(false);
+  });
+
+  it('issues exactly the three fixed H child labels with distinct identities', () => {
+    const result = invoke({
+      action: 'identities',
+      value: `camp01-${'8'.repeat(32)}`,
+      entropy: '9'.repeat(64),
+    });
+    expect(result.ok).toBe(true);
+    expect(Object.keys(result.value as object)).toEqual([
+      'custom-save-reload',
+      'campaign-mech-bay-readiness',
+      'canonical-combat-post-battle',
+    ]);
+    // prettier-ignore
+    const identities=Object.values(result.value as Record<string,Record<string,string>>), identityShape={roles:identities.every((entry)=>Object.keys(entry).join(',')==='witnessId,executionId,contextId'),count:new Set(identities.flatMap((entry)=>Object.values(entry))).size};
+    expect(identityShape).toEqual({ roles: true, count: 9 });
+  });
+});
