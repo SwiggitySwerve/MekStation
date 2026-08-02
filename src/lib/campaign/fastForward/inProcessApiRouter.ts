@@ -31,6 +31,7 @@
  * | PUT    | /api/forces/assignments/:id         | src/pages/api/forces/assignments/[id].ts         |
  * | POST   | /api/encounters                     | src/pages/api/encounters/index.ts                |
  * | GET    | /api/encounters/:id                 | src/pages/api/encounters/[id]/index.ts           |
+ * | GET    | /api/encounters/:id/validate        | src/pages/api/encounters/[id]/validate.ts        |
  * | PATCH  | /api/encounters/:id                 | src/pages/api/encounters/[id]/index.ts           |
  * | PUT    | /api/encounters/:id/player-force    | src/pages/api/encounters/[id]/player-force.ts    |
  * | PUT    | /api/encounters/:id/opponent-force  | src/pages/api/encounters/[id]/opponent-force.ts  |
@@ -45,6 +46,7 @@ import { createMocks, type RequestMethod } from 'node-mocks-http';
 import encounterByIdHandler from '@/pages/api/encounters/[id]/index';
 import opponentForceHandler from '@/pages/api/encounters/[id]/opponent-force';
 import playerForceHandler from '@/pages/api/encounters/[id]/player-force';
+import validateEncounterHandler from '@/pages/api/encounters/[id]/validate';
 import encountersHandler from '@/pages/api/encounters/index';
 import forceByIdHandler from '@/pages/api/forces/[id]';
 import assignmentHandler from '@/pages/api/forces/assignments/[id]';
@@ -102,6 +104,12 @@ const ROUTES: readonly RouteDefinition[] = [
     /^\/api\/encounters\/([^/]+)$/,
     ['id'],
     encounterByIdHandler,
+  ),
+  defineRoute(
+    'GET',
+    /^\/api\/encounters\/([^/]+)\/validate$/,
+    ['id'],
+    validateEncounterHandler,
   ),
   defineRoute(
     'PUT',

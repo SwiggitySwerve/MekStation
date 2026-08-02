@@ -273,6 +273,97 @@ test.describe('organic campaign contract acceptance', () => {
 
         const materialized = await getCampaignContractSnapshot(page);
         expect(materialized.missionScenarioIds).toContain(encounterId);
+
+        const persistedEncounterResponse = await page.request.get(
+          `/api/encounters/${encounterId}`,
+        );
+        expect(persistedEncounterResponse.ok()).toBeTruthy();
+        const persistedEncounter =
+          (await persistedEncounterResponse.json()) as {
+            readonly encounter?: {
+              readonly playerForce?: { readonly forceId?: string };
+            };
+          };
+        const playerForceId =
+          persistedEncounter.encounter?.playerForce?.forceId;
+        expect(playerForceId).toBeTruthy();
+        const deletePlayerForceResponse = await page.request.delete(
+          `/api/forces/${playerForceId}`,
+        );
+        expect(deletePlayerForceResponse.ok()).toBeTruthy();
+        const invalidValidationResponse = await page.request.get(
+          `/api/encounters/${encounterId}/validate`,
+        );
+        expect(invalidValidationResponse.ok()).toBeTruthy();
+        await expect(invalidValidationResponse.json()).resolves.toMatchObject({
+          validation: {
+            valid: false,
+            errors: expect.arrayContaining(['Player force must be selected']),
+          },
+        });
+
+        await page.goto(
+          `/gameplay/campaigns/${campaignId}/missions/${offerId}/launch`,
+        );
+        await waitForE2EHydration(page);
+        const reloadedFromAuthority = await page.evaluate(async (id) => {
+          type StoreApi = {
+            getState: () => {
+              loadCampaign?: (campaignId: string) => Promise<boolean>;
+            };
+          };
+          type ExposedStore = StoreApi | (() => StoreApi);
+          const rawStore = (
+            window as unknown as {
+              __ZUSTAND_STORES__?: { campaignPersistence?: ExposedStore };
+            }
+          ).__ZUSTAND_STORES__?.campaignPersistence;
+          if (!rawStore) {
+            throw new Error('Campaign persistence E2E store is not exposed');
+          }
+          const store = 'getState' in rawStore ? rawStore : rawStore();
+          const loadCampaign = store.getState().loadCampaign;
+          if (!loadCampaign) {
+            throw new Error(
+              'Campaign persistence E2E store cannot reload campaigns',
+            );
+          }
+          return loadCampaign(id);
+        }, campaignId);
+        expect(reloadedFromAuthority).toBe(true);
+        await page.getByTestId('launch-mission-direct').click();
+        await page.waitForURL(
+          (url) =>
+            url.pathname.startsWith('/gameplay/encounters/') &&
+            url.searchParams.get('campaignId') === campaignId &&
+            url.searchParams.get('missionId') === offerId &&
+            !url.pathname.includes(encounterId!),
+          { timeout: 30_000 },
+        );
+
+        const replacementEncounterId = page
+          .url()
+          .match(/\/gameplay\/encounters\/([^/?#]+)/)?.[1];
+        expect(replacementEncounterId).toBeTruthy();
+        expect(replacementEncounterId).not.toBe(encounterId);
+        await expect(page.getByTestId('launch-encounter-btn')).toBeEnabled({
+          timeout: 20_000,
+        });
+
+        const replacementValidationResponse = await page.request.get(
+          `/api/encounters/${replacementEncounterId}/validate`,
+        );
+        expect(replacementValidationResponse.ok()).toBeTruthy();
+        await expect(
+          replacementValidationResponse.json(),
+        ).resolves.toMatchObject({
+          validation: { valid: true, errors: [] },
+        });
+        const repaired = await getCampaignContractSnapshot(page);
+        expect(repaired.missionScenarioIds.slice(0, 2)).toEqual([
+          replacementEncounterId,
+          encounterId,
+        ]);
       }),
   );
 });

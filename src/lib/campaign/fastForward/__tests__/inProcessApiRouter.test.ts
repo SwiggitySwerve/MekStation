@@ -30,6 +30,7 @@ import {
 } from '@/services/forces/ForceService';
 import { resetSQLiteService } from '@/services/persistence/SQLiteService';
 import { resetPilotRepository } from '@/services/pilots/PilotRepository';
+import { VictoryConditionType } from '@/types/encounter';
 import { ForceType } from '@/types/force';
 
 import {
@@ -77,6 +78,13 @@ interface EncounterGetResponse {
     readonly description?: string;
     readonly playerForce?: { readonly forceId: string } | null;
     readonly opponentForce?: { readonly forceId: string } | null;
+  };
+}
+
+interface EncounterValidationResponse {
+  readonly validation: {
+    readonly valid: boolean;
+    readonly errors: readonly string[];
   };
 }
 
@@ -202,7 +210,10 @@ describe('createInProcessApiFetch', () => {
       {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ description: 'Router test description' }),
+        body: JSON.stringify({
+          description: 'Router test description',
+          victoryConditions: [{ type: VictoryConditionType.DestroyAll }],
+        }),
       },
     );
     expect(patchRes.status).toBe(200);
@@ -245,6 +256,15 @@ describe('createInProcessApiFetch', () => {
     expect(rereadEncounter.encounter.description).toBe(
       'Router test description',
     );
+
+    // ---- GET /api/encounters/:id/validate -----------------------------------
+    const validationRes = await fetchImpl(
+      `/api/encounters/${encodeURIComponent(encounterId)}/validate`,
+    );
+    expect(validationRes.status).toBe(200);
+    const validation =
+      (await validationRes.json()) as EncounterValidationResponse;
+    expect(validation.validation).toMatchObject({ valid: true, errors: [] });
 
     // `getForceService()` / `getEncounterService()` prove the singletons
     // the router bootstrapped are the same ones production code reaches —
