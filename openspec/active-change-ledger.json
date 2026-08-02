@@ -77,6 +77,18 @@
       "status": "proposed",
       "reason": "CAMP-01B child specification: preserve revision-bound roster source identity and authoritative force membership from host registration through guest campaign mirror hydration.",
       "lastReviewed": "2026-08-01"
+    },
+    {
+      "name": "authorize-campaign-coop-participation",
+      "status": "proposed",
+      "reason": "CAMP-01C child specification: derive participant identity and authorize only minimal revision-bound force choices from the server-owned campaign snapshot.",
+      "lastReviewed": "2026-08-01"
+    },
+    {
+      "name": "enforce-campaign-unit-source-launch-boundary",
+      "status": "proposed",
+      "reason": "CAMP-01D child specification: require authoritative canonical source/catalog admission and fail closed before any campaign encounter side effect.",
+      "lastReviewed": "2026-08-01"
     }
   ]
 }
