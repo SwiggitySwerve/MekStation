@@ -89,6 +89,18 @@
       "status": "proposed",
       "reason": "CAMP-01D child specification: require authoritative canonical source/catalog admission and fail closed before any campaign encounter side effect.",
       "lastReviewed": "2026-08-01"
+    },
+    {
+      "name": "add-saved-custom-unit-campaign-picker",
+      "status": "proposed",
+      "reason": "CAMP-01E child specification: validate and expose saved BattleMechs in campaign creation while preserving separate source-design, roster-instance, source-kind, and root-force identities.",
+      "lastReviewed": "2026-08-02"
+    },
+    {
+      "name": "persist-saved-custom-unit-campaign-creation",
+      "status": "proposed",
+      "reason": "CAMP-01F child specification: gate campaign creation success on accepted production server persistence with same-id retry and fail-closed conflict handling.",
+      "lastReviewed": "2026-08-02"
     }
   ]
 }
