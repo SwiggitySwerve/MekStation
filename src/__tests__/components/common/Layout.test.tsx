@@ -172,6 +172,19 @@ describe('Layout', () => {
   });
 
   describe('Responsive behavior', () => {
+    it('should reserve mobile scroll space for focused content above the bottom navigation', () => {
+      render(
+        <Layout>
+          <div>Content</div>
+        </Layout>,
+      );
+
+      expect(screen.getByRole('main')).toHaveClass(
+        'scroll-pb-[calc(5rem+env(safe-area-inset-bottom,0px))]',
+        'md:scroll-pb-0',
+      );
+    });
+
     it('should have flex layout', () => {
       const { container } = render(
         <Layout>
