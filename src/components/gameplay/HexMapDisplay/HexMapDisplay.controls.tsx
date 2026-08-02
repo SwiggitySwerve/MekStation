@@ -104,11 +104,11 @@ export function MapControls({
       // to paint over — and intercept pointer events for — the top of this
       // column, making zoom-in unclickable (e2e triage RC12). Interactive
       // buttons must stack above the glanceable overlay where they collide.
-      className="absolute right-2 bottom-2 left-2 z-10 flex gap-2 overflow-x-auto pb-1 lg:right-4 lg:left-auto lg:overflow-visible lg:pb-0"
+      className="absolute right-2 bottom-2 left-2 z-10 flex gap-2 lg:right-4 lg:left-auto"
       data-testid="zoom-controls"
     >
       <div
-        className="flex flex-row gap-1 lg:flex-col"
+        className="flex min-w-0 flex-1 gap-1 overflow-x-auto pb-1 lg:flex-none lg:flex-col lg:overflow-visible lg:pb-0"
         data-testid="overlay-toggles"
       >
         <button
@@ -144,11 +144,11 @@ export function MapControls({
         </button>
         {isIsometric && (
           <div
-            className="flex items-center gap-1"
+            className="flex flex-shrink-0 items-center gap-1"
             data-testid="isometric-rotation-controls"
           >
             <div
-              className="pointer-events-none rounded bg-slate-950/85 px-2 py-1 text-[10px] font-semibold text-slate-100 shadow"
+              className="pointer-events-none hidden rounded bg-slate-950/85 px-2 py-1 text-[10px] font-semibold text-slate-100 shadow lg:block"
               aria-label={`Isometric camera heading ${isometricRotationDegrees} degrees`}
               data-testid="isometric-rotation-heading"
               data-isometric-rotation-step={interaction.isometricRotationStep}

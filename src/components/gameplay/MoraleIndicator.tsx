@@ -72,11 +72,11 @@ export function MoraleIndicator({
 }: MoraleIndicatorProps): React.ReactElement {
   return (
     <div
-      className={`bg-surface-raised flex flex-col gap-1 rounded px-3 py-2 ${className}`}
+      className={`bg-surface-raised grid grid-cols-2 gap-x-2 rounded px-2 py-1 lg:flex lg:flex-col lg:gap-1 lg:px-3 lg:py-2 ${className}`}
       data-testid="morale-indicator"
       aria-label="Per-side combat morale"
     >
-      <span className="text-text-theme-secondary text-xs font-medium uppercase">
+      <span className="text-text-theme-secondary sr-only text-xs font-medium uppercase lg:not-sr-only">
         Morale
       </span>
       {[GameSide.Player, GameSide.Opponent].map((side) => {
@@ -84,7 +84,7 @@ export function MoraleIndicator({
         return (
           <div
             key={side}
-            className="flex items-center justify-between gap-3 text-sm"
+            className="flex min-w-0 items-center justify-between gap-2 text-xs lg:gap-3 lg:text-sm"
             data-testid={`morale-row-${side}`}
           >
             <span className="text-text-theme-secondary">{sideLabel(side)}</span>

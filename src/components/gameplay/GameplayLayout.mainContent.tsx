@@ -115,13 +115,15 @@ export function GameplayMainContentArea({
       // FOCUS row (map + trays). `flex-1` gives the map band the remaining
       // column height after the bounded bands/dock/log. Wider layouts keep the
       // `min-h-[35vh]` floor so the battlefield retains a real share.
-      // Narrow layouts keep a compact 176px battlefield floor and let the
-      // gameplay column scroll when the viewport is too short to show every
-      // bounded band at once. This preserves both map and command reachability
-      // while leaving a genuinely readable battlefield between map overlays.
+      // Narrow layouts reclaim the compact morale band's saved height for a
+      // 224px battlefield floor. Sessions without morale retain the prior
+      // 176px floor so their command dock stays above mobile navigation.
+      // The gameplay column scrolls when the viewport cannot fit every band.
       // The right tray's own `overflow-y-auto` keeps its record sheet reachable.
       className={`flex flex-1 overflow-hidden ${
-        isNarrow ? 'min-h-[11rem] flex-shrink-0' : 'min-h-[35vh]'
+        isNarrow
+          ? `${session.currentState.battleMorale ? 'min-h-56' : 'min-h-[11rem]'} flex-shrink-0`
+          : 'min-h-[35vh]'
       }`}
       data-testid="gameplay-main-content"
     >
