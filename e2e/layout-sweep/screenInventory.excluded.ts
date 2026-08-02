@@ -1,7 +1,7 @@
 import type { ExcludedScreenEntry } from './screenInventory.types';
 
 // ============================================================================
-// Excluded screens (13) -- never swept by this change, each with a
+// Excluded entries (13) -- never swept by this change, each with a
 // non-empty documented reason (design D5/D10).
 // ============================================================================
 
@@ -14,8 +14,11 @@ export const excludedEntries: readonly ExcludedScreenEntry[] = [
   {
     id: 'excluded-encounter-detail',
     class: 'excluded',
-    label: 'encounter detail',
-    manifestPaths: ['/gameplay/encounters/[id]'],
+    label: 'encounter detail and force selection',
+    manifestPaths: [
+      '/gameplay/encounters/[id]',
+      '/gameplay/encounters/[id]/select-force',
+    ],
     reason: NO_COVERING_PACK_REASON,
     followUp:
       'e2e/encounter-flow.spec.ts and e2e/encounter.spec.ts already seed encounter detail state; a future ' +
