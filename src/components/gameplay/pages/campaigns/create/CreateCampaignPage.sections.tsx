@@ -1,3 +1,5 @@
+import { useEffect, useRef } from 'react';
+
 import { CampaignTypeCard } from '@/components/campaign/CampaignTypeCard';
 import { PresetCard } from '@/components/campaign/PresetCard';
 import { Card, Input } from '@/components/ui';
@@ -21,55 +23,68 @@ export function StepIndicator({
   steps,
   currentStep,
 }: StepIndicatorProps): React.ReactElement {
+  const activeStepRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    activeStepRef.current?.scrollIntoView?.({
+      block: 'nearest',
+      inline: 'center',
+    });
+  }, [currentStep]);
+
   return (
-    <div className="mb-8 flex items-center justify-center">
-      {steps.map((step, idx) => (
-        <div key={step} className="flex items-center">
-          <div className="flex flex-col items-center">
-            <div
-              className={`flex h-10 w-10 items-center justify-center rounded-full text-sm font-bold transition-all ${
-                idx < currentStep
-                  ? 'bg-accent text-surface-deep'
-                  : idx === currentStep
-                    ? 'bg-accent/20 border-accent text-accent border-2'
-                    : 'bg-surface-raised text-text-theme-muted'
-              }`}
-            >
-              {idx < currentStep ? (
-                <svg
-                  className="h-5 w-5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M5 13l4 4L19 7"
-                  />
-                </svg>
-              ) : (
-                idx + 1
-              )}
+    <div className="mb-8 overflow-x-auto" data-testid="campaign-step-indicator">
+      <div className="flex min-w-max items-center justify-center">
+        {steps.map((step, idx) => (
+          <div key={step} className="flex items-center">
+            <div className="flex flex-col items-center">
+              <div
+                ref={idx === currentStep ? activeStepRef : undefined}
+                aria-current={idx === currentStep ? 'step' : undefined}
+                className={`flex h-10 w-10 items-center justify-center rounded-full text-sm font-bold transition-all ${
+                  idx < currentStep
+                    ? 'bg-accent text-surface-deep'
+                    : idx === currentStep
+                      ? 'bg-accent/20 border-accent text-accent border-2'
+                      : 'bg-surface-raised text-text-theme-muted'
+                }`}
+              >
+                {idx < currentStep ? (
+                  <svg
+                    className="h-5 w-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M5 13l4 4L19 7"
+                    />
+                  </svg>
+                ) : (
+                  idx + 1
+                )}
+              </div>
+              <span
+                className={`mt-2 text-xs font-medium ${
+                  idx <= currentStep ? 'text-accent' : 'text-text-theme-muted'
+                }`}
+              >
+                {step}
+              </span>
             </div>
-            <span
-              className={`mt-2 text-xs font-medium ${
-                idx <= currentStep ? 'text-accent' : 'text-text-theme-muted'
-              }`}
-            >
-              {step}
-            </span>
+            {idx < steps.length - 1 && (
+              <div
+                className={`mx-2 h-0.5 w-16 ${
+                  idx < currentStep ? 'bg-accent' : 'bg-surface-raised'
+                }`}
+              />
+            )}
           </div>
-          {idx < steps.length - 1 && (
-            <div
-              className={`mx-2 h-0.5 w-16 ${
-                idx < currentStep ? 'bg-accent' : 'bg-surface-raised'
-              }`}
-            />
-          )}
-        </div>
-      ))}
+        ))}
+      </div>
     </div>
   );
 }
