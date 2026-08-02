@@ -28,6 +28,13 @@ export enum QuickGameStep {
   Results = 'results',
 }
 
+export type QuickGameTacticalMode = 'interactive' | 'spectator';
+
+export interface IQuickGameTacticalSession {
+  readonly id: string;
+  readonly mode: QuickGameTacticalMode;
+}
+
 // =============================================================================
 // Unit Instance Interfaces
 // =============================================================================
@@ -183,6 +190,8 @@ export interface IQuickGameInstance {
   readonly startedAt: string;
   /** Session end time */
   endedAt: string | null;
+  /** Recoverable tactical launch linked to this quick game, when applicable. */
+  activeTacticalSession?: IQuickGameTacticalSession | null;
 }
 
 /**
@@ -236,8 +245,8 @@ export interface IQuickGameActions {
   nextStep: () => void;
   /** Go back to previous step */
   previousStep: () => void;
-  /** Start the game (move to playing) */
-  startGame: () => void;
+  /** Start the game (move to playing), returning whether validation passed */
+  startGame: () => boolean;
   /**
    * Set (or clear, via `null`) the debug `?seed=N` override read from the
    * quick-game page's query string (design D5). Consumed internally by the
@@ -299,6 +308,7 @@ export function createQuickGameInstance(): IQuickGameInstance {
     victoryReason: null,
     startedAt: new Date().toISOString(),
     endedAt: null,
+    activeTacticalSession: null,
   };
 }
 

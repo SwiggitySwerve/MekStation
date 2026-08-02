@@ -203,6 +203,7 @@ export function QuickGameReview(): React.ReactElement {
   const game = useQuickGameSelector((state) => state.game);
   const previousStep = useQuickGameSelector((state) => state.previousStep);
   const startGame = useQuickGameSelector((state) => state.startGame);
+  const startBattle = useQuickGameSelector((state) => state.startBattle);
   const startSpectatorMode = useQuickGameSelector(
     (state) => state.startSpectatorMode,
   );
@@ -228,6 +229,12 @@ export function QuickGameReview(): React.ReactElement {
     const session = useGameplayStore.getState().session;
     if (session && session !== priorSession) {
       navigateToGameSession(session.matchId ?? session.id, router);
+    }
+  };
+
+  const handleAutoResolve = () => {
+    if (startGame()) {
+      void startBattle();
     }
   };
 
@@ -405,7 +412,7 @@ export function QuickGameReview(): React.ReactElement {
           </Button>
           <Button
             variant="primary"
-            onClick={startGame}
+            onClick={handleAutoResolve}
             disabled={isLoading}
             data-testid="start-game-btn"
           >

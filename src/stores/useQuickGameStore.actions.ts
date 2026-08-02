@@ -265,10 +265,9 @@ export function createBattleActions(
           opponentAdapted,
           gameUnits,
         );
+        const session = interactiveSession.getSession();
 
-        await persistInteractiveLaunchRecoveryLog(
-          interactiveSession.getSession(),
-        );
+        await persistInteractiveLaunchRecoveryLog(session);
         useGameplayStore.getState().setSpectatorMode(interactiveSession, {
           enabled: true,
           playing: true,
@@ -280,6 +279,10 @@ export function createBattleActions(
             ...game,
             status: GameStatus.Active,
             step: QuickGameStep.Playing,
+            activeTacticalSession: {
+              id: session.matchId ?? session.id,
+              mode: 'spectator',
+            },
           },
           isLoading: false,
           isDirty: true,
@@ -313,10 +316,9 @@ export function createBattleActions(
           opponentAdapted,
           gameUnits,
         );
+        const session = interactiveSession.getSession();
 
-        await persistInteractiveLaunchRecoveryLog(
-          interactiveSession.getSession(),
-        );
+        await persistInteractiveLaunchRecoveryLog(session);
         useGameplayStore.getState().setInteractiveSession(interactiveSession);
 
         set({
@@ -325,6 +327,10 @@ export function createBattleActions(
             status: GameStatus.Active,
             step: QuickGameStep.Playing,
             turn: 1,
+            activeTacticalSession: {
+              id: session.matchId ?? session.id,
+              mode: 'interactive',
+            },
           },
           isLoading: false,
           isDirty: true,

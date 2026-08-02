@@ -20,7 +20,8 @@ jest.mock('@/lib/gameplay/tacticalNavigation', () => ({
   navigateToGameSession: jest.fn(),
 }));
 
-const mockStartGame = jest.fn();
+const mockStartGame = jest.fn<boolean, []>();
+const mockStartBattle = jest.fn<Promise<void>, []>();
 const mockStartSpectatorMode = jest.fn<Promise<void>, []>();
 const mockStartInteractiveSkirmish = jest.fn<Promise<void>, []>();
 const mockPreviousStep = jest.fn();
@@ -90,6 +91,7 @@ const mockQuickGameState = {
   },
   previousStep: mockPreviousStep,
   startGame: mockStartGame,
+  startBattle: mockStartBattle,
   startSpectatorMode: mockStartSpectatorMode,
   startInteractiveSkirmish: mockStartInteractiveSkirmish,
   isLoading: false,
@@ -107,7 +109,10 @@ describe('QuickGameReview play options', () => {
   beforeEach(() => {
     mockRouterPush.mockReset();
     mockNavigateToGameSession.mockReset();
-    mockStartGame.mockClear();
+    mockStartGame.mockReset();
+    mockStartGame.mockReturnValue(true);
+    mockStartBattle.mockReset();
+    mockStartBattle.mockResolvedValue(undefined);
     mockStartSpectatorMode.mockReset();
     mockStartInteractiveSkirmish.mockReset();
     mockGameplayState.session = null;
@@ -140,6 +145,27 @@ describe('QuickGameReview play options', () => {
     expect(
       screen.queryByRole('button', { name: /^start battle$/i }),
     ).not.toBeInTheDocument();
+  });
+
+  it('starts auto-resolve only from the explicit user action', () => {
+    render(<QuickGameReview />);
+
+    fireEvent.click(screen.getByRole('button', { name: /auto-resolve/i }));
+
+    expect(mockStartGame).toHaveBeenCalledTimes(1);
+    expect(mockStartBattle).toHaveBeenCalledTimes(1);
+    expect(mockStartSpectatorMode).not.toHaveBeenCalled();
+    expect(mockStartInteractiveSkirmish).not.toHaveBeenCalled();
+  });
+
+  it('does not auto-resolve when the setup transition fails validation', () => {
+    mockStartGame.mockReturnValueOnce(false);
+    render(<QuickGameReview />);
+
+    fireEvent.click(screen.getByRole('button', { name: /auto-resolve/i }));
+
+    expect(mockStartGame).toHaveBeenCalledTimes(1);
+    expect(mockStartBattle).not.toHaveBeenCalled();
   });
 
   it('routes the interactive skirmish by its persisted match ID', async () => {

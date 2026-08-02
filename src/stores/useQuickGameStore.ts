@@ -227,12 +227,12 @@ export const useQuickGameStore = create<QuickGameStore>()(
         const { game } = get();
         if (!game) {
           set({ error: 'No active game' });
-          return;
+          return false;
         }
 
         if (!canStartGame(game)) {
           set({ error: 'Cannot start game - setup incomplete' });
-          return;
+          return false;
         }
 
         set({
@@ -246,6 +246,7 @@ export const useQuickGameStore = create<QuickGameStore>()(
           isDirty: true,
           error: null,
         });
+        return true;
       },
 
       ...createBattleActions(set, get),
