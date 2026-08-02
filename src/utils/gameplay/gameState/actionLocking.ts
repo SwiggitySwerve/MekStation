@@ -379,6 +379,13 @@ export function applyAttackLocked(
   };
 }
 
+export function applyPhysicalAttackLocked(
+  state: IGameState,
+  event: IGameEvent,
+): IGameState {
+  return applyAttackLocked(state, event);
+}
+
 export function applyAttacksRevealed(
   state: IGameState,
   payload: IAttacksRevealedPayload,

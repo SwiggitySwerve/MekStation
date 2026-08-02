@@ -67,6 +67,7 @@ import {
   applyInteractiveSessionRuntimeMovementStateCommand,
   applyInteractiveSessionVolleyCommand,
   attemptInteractiveSessionStandUp,
+  completeInteractiveSessionPhysicalAttackCommand,
   declareInteractiveSessionWithdrawal,
   ejectInteractiveSessionUnit,
   goInteractiveSessionProne,
@@ -565,6 +566,14 @@ export class InteractiveSession {
       attackType,
       limb,
       options,
+    );
+  };
+
+  completePhysicalAttack = (unitId: string): void => {
+    this.assertActiveForAction();
+    completeInteractiveSessionPhysicalAttackCommand(
+      this.runtimeContext,
+      unitId,
     );
   };
 

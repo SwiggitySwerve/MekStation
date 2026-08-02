@@ -58,6 +58,7 @@ import {
   applyMovementDeclared,
   applyMovementEnhancementActivated,
   applyMovementLocked,
+  applyPhysicalAttackLocked,
   applyRuntimeMovementStateChanged,
 } from './actionLocking';
 import {
@@ -242,6 +243,7 @@ const EVENT_HANDLERS: Partial<Record<GameEventType, EventHandler>> = {
   [GameEventType.UnitStood]: withPayload<IUnitStoodPayload>(applyUnitStood),
   [GameEventType.PhysicalAttackDeclared]:
     withPayload<IPhysicalAttackDeclaredPayload>(applyPhysicalAttackDeclared),
+  [GameEventType.PhysicalAttackLocked]: applyPhysicalAttackLocked,
   [GameEventType.PhysicalAttackResolved]:
     withPayload<IPhysicalAttackResolvedPayload>(applyPhysicalAttackResolved),
   [GameEventType.GroundObjectPickedUp]:

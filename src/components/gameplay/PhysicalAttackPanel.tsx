@@ -385,11 +385,15 @@ export function PhysicalAttackPanel({
    * Keeps the committed summary (if any) so the phase banner reflects
    * the real decision.
    */
-  const handleSkip = useCallback(() => {
+  const handleSkip = (): void => {
+    if (interactiveSession && selected) {
+      interactiveSession.completePhysicalAttack(selected.unit.id);
+      setSession(interactiveSession.getSession());
+    }
     clearPhysicalAttackPlan();
     setForecastOpen(false);
     onIntentChange?.(null);
-  }, [clearPhysicalAttackPlan, onIntentChange]);
+  };
 
   // ---------------------------------------------------------------------------
   // Render

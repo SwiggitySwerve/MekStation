@@ -14,6 +14,7 @@ import {
   type IPhysicalAttackDeclaredPayload,
 } from '@/types/gameplay';
 import { TerrainType } from '@/types/gameplay/TerrainTypes';
+import { declareMovement } from '@/utils/gameplay/gameSession';
 
 import type { IAdaptedUnit } from '../types';
 
@@ -66,7 +67,7 @@ function makeAdaptedUnit(id: string, side: GameSide): IAdaptedUnit {
   };
 }
 
-function makeGameUnits(): IGameUnit[] {
+function makeGameUnits(playerAbilities: readonly string[] = []): IGameUnit[] {
   return [
     {
       id: 'unit-player',
@@ -76,6 +77,7 @@ function makeGameUnits(): IGameUnit[] {
       pilotRef: 'pilot-player',
       gunnery: 4,
       piloting: 5,
+      abilities: playerAbilities,
     },
     {
       id: 'unit-opponent',
@@ -89,7 +91,9 @@ function makeGameUnits(): IGameUnit[] {
   ];
 }
 
-function makeSession(): InteractiveSession {
+function makeSession(
+  playerAbilities: readonly string[] = [],
+): InteractiveSession {
   return new InteractiveSession(
     MAP_RADIUS,
     30,
@@ -97,7 +101,7 @@ function makeSession(): InteractiveSession {
     createMinimalGrid(MAP_RADIUS),
     [makeAdaptedUnit('unit-player', GameSide.Player)],
     [makeAdaptedUnit('unit-opponent', GameSide.Opponent)],
-    makeGameUnits(),
+    makeGameUnits(playerAbilities),
   );
 }
 
@@ -121,9 +125,50 @@ function advanceToPhysicalAttack(session: InteractiveSession): void {
   expect(session.getState().phase).toBe(GamePhase.PhysicalAttack);
 }
 
+function advanceToPlayerPhysicalActivation(session: InteractiveSession): void {
+  advanceToPhysicalAttack(session);
+  if (session.getState().firstMover === GameSide.Opponent) {
+    session.completePhysicalAttack('unit-opponent');
+  }
+}
+
+function advanceToAdjacentPlayerPhysicalActivation(
+  session: InteractiveSession,
+): InteractiveSession {
+  session.advancePhase(); // Initiative -> Movement
+  let replayableSession = session.getSession();
+  const destinations = [
+    ['unit-player', { q: -2, r: 0 }],
+    ['unit-opponent', { q: -2, r: -1 }],
+  ] as const;
+  for (const [unitId, destination] of destinations) {
+    const unit = replayableSession.currentState.units[unitId];
+    replayableSession = declareMovement(
+      replayableSession,
+      unitId,
+      unit.position,
+      destination,
+      unit.facing,
+      MovementType.Run,
+      unitId === 'unit-player' ? 5 : 4,
+      2,
+      [unit.position, destination],
+    );
+  }
+
+  const replayedSession = InteractiveSession.fromSession(replayableSession);
+  replayedSession.advancePhase();
+  replayedSession.advancePhase();
+  if (replayedSession.getState().firstMover === GameSide.Opponent) {
+    replayedSession.completePhysicalAttack('unit-opponent');
+  }
+  return replayedSession;
+}
+
 describe('InteractiveSession.applyPhysicalAttack', () => {
   it('emits a PhysicalAttackDeclared event for first-class physical wire dispatch', () => {
     const session = makeSession();
+    advanceToPlayerPhysicalActivation(session);
     placeUnitsAdjacent(session);
 
     session.applyPhysicalAttack('unit-player', 'unit-opponent', 'punch');
@@ -144,9 +189,50 @@ describe('InteractiveSession.applyPhysicalAttack', () => {
     });
   });
 
+  it('records active completion and rejects stale, unknown, or repeated requests', () => {
+    const session = makeSession();
+    advanceToPlayerPhysicalActivation(session);
+    const eventCount = session.getSession().events.length;
+    session.completePhysicalAttack('unit-opponent');
+    session.completePhysicalAttack('missing-unit');
+    expect(session.getSession().events).toHaveLength(eventCount);
+    const activationIndex = session.getState().activationIndex;
+    session.completePhysicalAttack('unit-player');
+    expect(session.getState().activationIndex).toBe(activationIndex + 1);
+    session.completePhysicalAttack('unit-player');
+    expect(session.getSession().events).toHaveLength(eventCount + 1);
+  });
+
+  it('keeps a melee master active for two declarations and locks exactly once', () => {
+    const session = advanceToAdjacentPlayerPhysicalActivation(
+      makeSession(['melee_master']),
+    );
+    const activationIndex = session.getState().activationIndex;
+    session.applyPhysicalAttack(
+      'unit-player',
+      'unit-opponent',
+      'punch',
+      'leftArm',
+    );
+    expect(session.getState().activationIndex).toBe(activationIndex);
+    session.applyPhysicalAttack(
+      'unit-player',
+      'unit-opponent',
+      'punch',
+      'rightArm',
+    );
+    expect(session.getState().activationIndex).toBe(activationIndex + 1);
+    const declarations = session
+      .getSession()
+      .events.filter(
+        (entry) => entry.type === GameEventType.PhysicalAttackDeclared,
+      );
+    expect(declarations).toHaveLength(2);
+  });
+
   it('resolves an engine-declared physical attack when advancing the PhysicalAttack phase', () => {
     const session = makeSession();
-    advanceToPhysicalAttack(session);
+    advanceToPlayerPhysicalActivation(session);
     placeUnitsAdjacent(session);
 
     session.applyPhysicalAttack('unit-player', 'unit-opponent', 'punch');
@@ -163,6 +249,7 @@ describe('InteractiveSession.applyPhysicalAttack', () => {
 
   it('hydrates Melee Specialist from unit abilities for physical declaration to-hit', () => {
     const session = makeSession();
+    advanceToPlayerPhysicalActivation(session);
     placeUnitsAdjacent(session);
     const attacker = session.getState().units['unit-player'];
     (attacker as unknown as { abilities: string[] }).abilities = [
@@ -203,6 +290,7 @@ describe('InteractiveSession.applyPhysicalAttack', () => {
       [makeAdaptedUnit('unit-opponent', GameSide.Opponent)],
       makeGameUnits(),
     );
+    advanceToPlayerPhysicalActivation(session);
     const attacker = session.getState().units['unit-player'];
     const target = session.getState().units['unit-opponent'];
     (attacker as unknown as { position: { q: number; r: number } }).position = {

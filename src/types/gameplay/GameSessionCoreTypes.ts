@@ -125,6 +125,7 @@ export enum GameEventType {
    */
   UnitStood = 'unit_stood',
   PhysicalAttackDeclared = 'physical_attack_declared',
+  PhysicalAttackLocked = 'physical_attack_locked',
   PhysicalAttackResolved = 'physical_attack_resolved',
   GroundObjectPickedUp = 'ground_object_picked_up',
   GroundObjectDropped = 'ground_object_dropped',

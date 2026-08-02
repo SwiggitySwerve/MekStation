@@ -29,10 +29,18 @@ import {
   lockMovement,
 } from '@/utils/gameplay/gameSession';
 import {
+  canActInPhysicalAttack,
+  lockPhysicalAttack,
+} from '@/utils/gameplay/gameSessionCore';
+import {
   buildMovementEventPath,
   maxMovementCostForCapability,
 } from '@/utils/gameplay/movement/eventPath';
 import { validateMovement } from '@/utils/gameplay/movement/validation';
+import {
+  getAllowedPhysicalAttackCount,
+  physicalAttackDeclarationsForTurn,
+} from '@/utils/gameplay/physicalAttacks';
 import { waterDepthAtPosition } from '@/utils/gameplay/waterDepth';
 import { buildWeaponAttacks } from '@/utils/gameplay/weaponAttackBuilder';
 
@@ -280,21 +288,46 @@ function runInteractiveSessionPhysicalAI(
   };
 
   for (const [unitId, unit, unitSide] of sortedEntries) {
-    if (unitSide !== context.side || unit.destroyed) continue;
+    if (
+      unitSide !== context.side ||
+      unit.destroyed ||
+      isActivationComplete(unit)
+    ) {
+      continue;
+    }
+    if (unit.isWithdrawing) {
+      setSession(lockPhysicalAttack(session, unitId));
+      continue;
+    }
+    if (!canActInPhysicalAttack(session, unitId)) continue;
 
     const weapons = context.weaponsByUnit.get(unitId) ?? [];
     const gunnery = context.gunneryByUnit.get(unitId) ?? 4;
     const aiUnit = toAIUnitState(unit, weapons, gunnery);
     const enemies = buildEnemyAIUnits(context, context.side);
-    const physEvt = context.botPlayer.playPhysicalAttackPhase(aiUnit, enemies);
-    if (physEvt) {
+    let declarationCount = physicalAttackDeclarationsForTurn(
+      session.events,
+      session.currentState.turn,
+      unitId,
+    ).length;
+    const attackLimit = getAllowedPhysicalAttackCount(unit.abilities);
+    while (declarationCount < attackLimit) {
+      const physEvt = context.botPlayer.playPhysicalAttackPhase(
+        aiUnit,
+        enemies,
+      );
+      if (!physEvt) break;
       const targetUnit = session.currentState.units[physEvt.payload.targetId];
       setSession(
         declarePhysicalAttack(
           session,
           physEvt.payload.attackerId,
           physEvt.payload.targetId,
-          physEvt.payload.attackType,
+          declarationCount === 0
+            ? physEvt.payload.attackType
+            : physEvt.payload.attackType === 'punch'
+              ? 'kick'
+              : 'punch',
           {
             attackerTonnage: context.tonnageByUnit.get(unitId) ?? 65,
             pilotingSkill: context.pilotingByUnit.get(unitId) ?? 5,
@@ -315,7 +348,9 @@ function runInteractiveSessionPhysicalAI(
           },
         ),
       );
+      declarationCount += 1;
     }
+    setSession(lockPhysicalAttack(session, unitId));
   }
 }
 

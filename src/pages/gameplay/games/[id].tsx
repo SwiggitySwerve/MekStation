@@ -226,7 +226,9 @@ export default function GameSessionPage(): React.ReactElement {
       isInteractive &&
       phaseQueueProjection.activeUnitId &&
       phaseQueueProjection.activeSide === GameSide.Opponent &&
-      (phase === GamePhase.Movement || phase === GamePhase.WeaponAttack)
+      (phase === GamePhase.Movement ||
+        phase === GamePhase.WeaponAttack ||
+        phase === GamePhase.PhysicalAttack)
     ) {
       runAITurn(phaseQueueProjection.activeUnitId);
     }
@@ -273,6 +275,16 @@ export default function GameSessionPage(): React.ReactElement {
       clearError,
       loadSession,
     });
+  const handleGameplayUnitSelect = (unitId: string | null): void => {
+    if (phase !== GamePhase.PhysicalAttack) return handleTokenClick(unitId);
+    if (
+      unitId === null ||
+      (unitId === phaseQueueProjection.activeUnitId &&
+        phaseQueueProjection.activeSide === GameSide.Player)
+    ) {
+      selectUnit(unitId);
+    }
+  };
   const shellMode = resolveGameSessionShellMode(router.query);
   const gmIntervention = useGmTacticalInterventionSurface({
     enabled: shellMode === 'gm',
@@ -317,7 +329,7 @@ export default function GameSessionPage(): React.ReactElement {
           <GameplayLayout
             session={session}
             selectedUnitId={ui.selectedUnitId}
-            onUnitSelect={handleTokenClick}
+            onUnitSelect={handleGameplayUnitSelect}
             onAction={handleInteractiveAction}
             onHexClick={movement.handleHexClick}
             onHexHover={movement.setHoveredHex}

@@ -1,6 +1,7 @@
 import {
   GameEventType,
   GamePhase,
+  IAttackLockedPayload,
   IGameEvent,
   IPhysicalAttackDeclaredPayload,
   IPhysicalAttackResolvedPayload,
@@ -14,6 +15,26 @@ import {
 import type { IGameplayEventContext } from './eventContext';
 
 import { createEventBase } from './base';
+
+export function createPhysicalAttackLockedEvent(
+  gameId: string,
+  sequence: number,
+  turn: number,
+  unitId: string,
+): IGameEvent {
+  const payload: IAttackLockedPayload = { unitId };
+  return {
+    ...createEventBase(
+      gameId,
+      sequence,
+      GameEventType.PhysicalAttackLocked,
+      turn,
+      GamePhase.PhysicalAttack,
+      unitId,
+    ),
+    payload,
+  };
+}
 
 /**
  * Per `implement-physical-attack-phase` task 2.4: emitted when a unit
