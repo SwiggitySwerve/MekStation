@@ -34,6 +34,12 @@ describe('SaveUnitDialog', () => {
     isOpen: true,
     initialChassis: 'Atlas',
     initialVariant: 'AS7-D',
+    constructionValidation: {
+      isValid: true,
+      isLoading: false,
+      isValidating: false,
+      errorCount: 0,
+    },
     onSave: jest.fn(),
     onCancel: jest.fn(),
   };
@@ -199,6 +205,75 @@ describe('SaveUnitDialog', () => {
     await user.click(saveButton);
 
     expect(defaultProps.onSave).toHaveBeenCalledWith('Atlas', 'AS7-D');
+  });
+
+  it('blocks save when construction has errors while preserving name validation', async () => {
+    const user = userEvent.setup();
+    (unitNameValidator.validateUnitName as jest.Mock).mockResolvedValue({
+      isValid: true,
+      isCanonicalConflict: false,
+      isCustomConflict: false,
+    });
+
+    render(
+      <SaveUnitDialog
+        {...defaultProps}
+        constructionValidation={{
+          isValid: false,
+          isLoading: false,
+          isValidating: false,
+          errorCount: 2,
+        }}
+      />,
+    );
+
+    const variantInput = screen.getByDisplayValue('AS7-D');
+    await user.type(variantInput, 'X');
+
+    await waitFor(() => {
+      expect(screen.getByText('Name is available')).toBeInTheDocument();
+    });
+
+    expect(
+      screen.getByText(
+        'Fix 2 construction errors before saving. Cancel to keep editing your draft.',
+      ),
+    ).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled();
+    expect(defaultProps.onSave).not.toHaveBeenCalled();
+  });
+
+  it('blocks save while construction validation is pending', async () => {
+    const user = userEvent.setup();
+    (unitNameValidator.validateUnitName as jest.Mock).mockResolvedValue({
+      isValid: true,
+      isCanonicalConflict: false,
+      isCustomConflict: false,
+    });
+
+    render(
+      <SaveUnitDialog
+        {...defaultProps}
+        constructionValidation={{
+          isValid: true,
+          isLoading: false,
+          isValidating: true,
+          errorCount: 0,
+        }}
+      />,
+    );
+
+    const variantInput = screen.getByDisplayValue('AS7-D');
+    await user.type(variantInput, 'X');
+
+    await waitFor(() => {
+      expect(screen.getByText('Name is available')).toBeInTheDocument();
+    });
+
+    expect(
+      screen.getByText('Checking construction readiness...'),
+    ).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled();
   });
 
   it('should handle custom conflict by allowing save with overwrite', async () => {
