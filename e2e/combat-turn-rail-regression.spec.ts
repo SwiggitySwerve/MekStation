@@ -2,6 +2,7 @@ import { expect, test, type Locator, type Page } from '@playwright/test';
 
 const MOBILE_VIEWPORT = { width: 390, height: 844 } as const;
 const SHORT_MOBILE_VIEWPORT = { width: 375, height: 667 } as const;
+const ADVERSARIAL_MOBILE_VIEWPORT = { width: 320, height: 844 } as const;
 
 async function waitForGame(page: Page): Promise<void> {
   await page.goto('/gameplay/games/demo', { waitUntil: 'domcontentloaded' });
@@ -49,6 +50,67 @@ async function expectReadableMapSurface(page: Page): Promise<void> {
   const unobscuredMapHeight = controlsBox.y - (hintBox.y + hintBox.height);
   expect(unobscuredMapHeight).toBeGreaterThanOrEqual(64);
   await expectCenterUnoccluded(hotkeyHint);
+}
+
+async function seedBattleMorale(page: Page): Promise<void> {
+  await page.evaluate(() => {
+    const gameplay = window.__ZUSTAND_STORES__?.gameplay;
+    const session = gameplay?.getState().session;
+    if (!gameplay || !session) throw new Error('Expected gameplay session');
+    gameplay.setState({
+      session: {
+        ...session,
+        currentState: {
+          ...session.currentState,
+          battleMorale: { player: 'STEADY', opponent: 'STEADY' },
+        },
+      },
+    });
+  });
+}
+
+async function expectMobileChromeContained(page: Page): Promise<void> {
+  const map = page.getByTestId('hex-map-container');
+  const controls = page.getByTestId('zoom-controls');
+  const overlays = page.getByTestId('overlay-toggles');
+  const morale = page.getByTestId('morale-indicator');
+  const [mapBox, controlsBox, overlaysBox, moraleBox] = await Promise.all([
+    map.boundingBox(),
+    controls.boundingBox(),
+    overlays.boundingBox(),
+    morale.boundingBox(),
+  ]);
+  if (!mapBox || !controlsBox || !overlaysBox || !moraleBox) {
+    throw new Error('Expected map-control and morale layout boxes');
+  }
+  for (const box of [controlsBox, overlaysBox]) {
+    expect(box.x).toBeGreaterThanOrEqual(mapBox.x);
+    expect(box.y).toBeGreaterThanOrEqual(mapBox.y);
+    expect(box.x + box.width).toBeLessThanOrEqual(mapBox.x + mapBox.width);
+    expect(box.y + box.height).toBeLessThanOrEqual(mapBox.y + mapBox.height);
+  }
+  expect(moraleBox.height).toBeLessThanOrEqual(48);
+  expect(mapBox.height).toBeGreaterThanOrEqual(220);
+  const overflow = await page.evaluate(
+    () => document.documentElement.scrollWidth - window.innerWidth,
+  );
+  expect(overflow).toBeLessThanOrEqual(1);
+}
+
+async function expectOverlayControlsReachable(page: Page): Promise<void> {
+  for (const testId of [
+    'projection-toggle',
+    'overlay-toggle-movement',
+    'overlay-toggle-elevation',
+    'overlay-toggle-cover',
+    'overlay-toggle-arcs',
+    'overlay-toggle-los',
+  ]) {
+    const control = page.getByTestId(testId);
+    await control.scrollIntoViewIfNeeded();
+    await expect(control).toBeInViewport();
+    await expectCenterUnoccluded(control);
+  }
 }
 
 async function seedOverflowingForceLists(page: Page): Promise<void> {
@@ -154,6 +216,9 @@ async function expectMobileCommandFraming(page: Page): Promise<void> {
   const mobileNavigation = page.getByRole('navigation', {
     name: 'Mobile navigation',
   });
+  await phaseCommand.scrollIntoViewIfNeeded();
+  await expect(phaseCommand).toBeInViewport();
+  await expectCenterUnoccluded(phaseCommand);
   const [commandBox, navigationBox, dockBox] = await Promise.all([
     phaseCommand.boundingBox(),
     mobileNavigation.boundingBox(),
@@ -212,6 +277,32 @@ async function removeOpponentSideMetadata(page: Page): Promise<void> {
 }
 
 test.describe('combat turn rail narrow framing @game @combat', () => {
+  test('contains mobile chrome and preserves the battlefield at 320px', async ({
+    page,
+  }) => {
+    await page.setViewportSize(ADVERSARIAL_MOBILE_VIEWPORT);
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await waitForGame(page);
+    await seedBattleMorale(page);
+
+    const projectionToggle = page.getByTestId('projection-toggle');
+    await expectMobileChromeContained(page);
+    await expectReadableMapSurface(page);
+    await expectOverlayControlsReachable(page);
+    await projectionToggle.scrollIntoViewIfNeeded();
+    await expectCenterUnoccluded(projectionToggle);
+    await expectCenterUnoccluded(page.getByTestId('reset-view-btn'));
+
+    await projectionToggle.click();
+    await expect(projectionToggle).toHaveAttribute('aria-pressed', 'true');
+    await expectMobileChromeContained(page);
+    await page.getByTestId('projection-rotate-left').scrollIntoViewIfNeeded();
+    await expectCenterUnoccluded(page.getByTestId('projection-rotate-left'));
+    await page.getByTestId('projection-rotate-right').scrollIntoViewIfNeeded();
+    await expectCenterUnoccluded(page.getByTestId('projection-rotate-right'));
+    await expectMobileCommandFraming(page);
+  });
+
   test('keeps two or three force rows framed above a visible command dock', async ({
     page,
   }) => {
