@@ -144,12 +144,14 @@ export function EncounterValidationCard({
 
 interface EncounterForcesCardProps {
   encounter: IEncounter;
-  encounterId: string;
+  playerSelectionHref: string;
+  opponentSelectionHref: string;
 }
 
 export function EncounterForcesCard({
   encounter,
-  encounterId,
+  playerSelectionHref,
+  opponentSelectionHref,
 }: EncounterForcesCardProps): React.ReactElement {
   return (
     <Card data-testid="forces-card">
@@ -189,7 +191,7 @@ export function EncounterForcesCard({
               No player force selected
             </p>
             <Link
-              href={`/gameplay/encounters/${encounterId}/select-force?type=player`}
+              href={playerSelectionHref}
               className="text-accent mt-2 inline-block text-sm hover:underline"
               data-testid="select-player-force-link"
             >
@@ -245,7 +247,7 @@ export function EncounterForcesCard({
               No opponent configured
             </p>
             <Link
-              href={`/gameplay/encounters/${encounterId}/select-force?type=opponent`}
+              href={opponentSelectionHref}
               className="text-accent mt-2 inline-block text-sm hover:underline"
               data-testid="select-opponent-force-link"
             >

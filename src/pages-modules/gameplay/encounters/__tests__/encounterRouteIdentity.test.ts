@@ -1,6 +1,11 @@
 import type { NextRouter } from 'next/router';
 
-import { encounterRouteIdentityFromRouter } from '../encounterRouteIdentity';
+import {
+  buildEncounterDetailHref,
+  buildEncounterForceSelectionHref,
+  encounterForceSelectionSideFromRouter,
+  encounterRouteIdentityFromRouter,
+} from '../encounterRouteIdentity';
 
 type EncounterRouter = Pick<NextRouter, 'asPath' | 'query'>;
 
@@ -81,5 +86,45 @@ describe('encounter route identity', () => {
       campaignId: null,
       missionId: null,
     });
+  });
+
+  it('recovers a force-selection side from the concrete browser URL', () => {
+    expect(
+      encounterForceSelectionSideFromRouter(
+        routerWith({}, '/gameplay/encounters/[id]/select-force'),
+        {
+          pathname: '/gameplay/encounters/encounter-one/select-force',
+          search: '?type=opponent',
+        },
+      ),
+    ).toBe('opponent');
+  });
+
+  it('rejects missing and unsupported force-selection sides', () => {
+    expect(
+      encounterForceSelectionSideFromRouter(
+        routerWith(
+          { type: 'spectator' },
+          '/gameplay/encounters/encounter-one/select-force?type=guest',
+        ),
+        { pathname: '', search: '?type=host' },
+      ),
+    ).toBeNull();
+  });
+
+  it('preserves campaign linkage in detail and force-selection links', () => {
+    const linkage = {
+      campaignId: 'campaign one',
+      missionId: 'mission/one',
+    };
+
+    expect(buildEncounterDetailHref('encounter/one', linkage)).toBe(
+      '/gameplay/encounters/encounter%2Fone?campaignId=campaign+one&missionId=mission%2Fone',
+    );
+    expect(
+      buildEncounterForceSelectionHref('encounter/one', 'opponent', linkage),
+    ).toBe(
+      '/gameplay/encounters/encounter%2Fone/select-force?campaignId=campaign+one&missionId=mission%2Fone&type=opponent',
+    );
   });
 });

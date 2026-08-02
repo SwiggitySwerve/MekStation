@@ -279,6 +279,7 @@ test.describe('Encounter Creation @smoke @encounter', () => {
 test.describe('Encounter Detail Page @encounter', () => {
   let listPage: EncounterListPage;
   let encounterId: string | null;
+  let forceId: string | null;
 
   test.beforeEach(async ({ page }) => {
     listPage = new EncounterListPage(page);
@@ -289,6 +290,7 @@ test.describe('Encounter Detail Page @encounter', () => {
 
     // Create an encounter for detail tests via store
     encounterId = await createSkirmishEncounter(page, 'Detail Test Encounter');
+    forceId = null;
 
     // Refresh list and wait for card to appear
     await listPage.navigate();
@@ -305,6 +307,13 @@ test.describe('Encounter Detail Page @encounter', () => {
         await deleteEncounter(page, encounterId);
       } catch {
         // Encounter may already be deleted
+      }
+    }
+    if (forceId) {
+      try {
+        await deleteForce(page, forceId);
+      } catch {
+        // Force may already be deleted
       }
     }
   });
@@ -376,6 +385,139 @@ test.describe('Encounter Detail Page @encounter', () => {
 
     // Should show link to select force
     await expect(page.getByTestId('select-opponent-force-link')).toBeVisible();
+  });
+
+  test('selects saved forces, preserves campaign linkage, and revalidates', async ({
+    page,
+  }) => {
+    const campaignId = 'nav01-campaign';
+    const missionId = 'nav01-mission';
+    forceId = await createTestForce(page, { name: 'NAV-01 Recovery Lance' });
+    expect(forceId).toBeTruthy();
+
+    await page.goto(
+      `/gameplay/encounters/${encounterId}?campaignId=${campaignId}&missionId=${missionId}`,
+    );
+    await expect(page.getByTestId('select-player-force-link')).toBeVisible();
+    await page.evaluate(() => {
+      const testWindow = window as unknown as {
+        __ZUSTAND_STORES__?: {
+          encounter?: {
+            getState: () => {
+              validateEncounter: (id: string) => Promise<unknown>;
+            };
+            setState: (partial: {
+              validateEncounter: (id: string) => Promise<unknown>;
+            }) => void;
+          };
+        };
+        __NAV01_VALIDATION_URLS__?: string[];
+      };
+      const store = testWindow.__ZUSTAND_STORES__?.encounter;
+      if (!store) throw new Error('Encounter store not exposed');
+
+      const validateEncounter = store.getState().validateEncounter;
+      testWindow.__NAV01_VALIDATION_URLS__ = [];
+      store.setState({
+        validateEncounter: async (id) => {
+          testWindow.__NAV01_VALIDATION_URLS__?.push(window.location.href);
+          return validateEncounter(id);
+        },
+      });
+    });
+
+    await page.getByTestId('select-player-force-link').click();
+    await expect(page.getByTestId('page-title')).toContainText(
+      'Select Player Force',
+    );
+    await expect(page).toHaveURL(
+      new RegExp(
+        `/gameplay/encounters/${encounterId}/select-force\\?.*campaignId=${campaignId}.*missionId=${missionId}.*type=player`,
+      ),
+    );
+
+    const playerValidation = page.waitForResponse(
+      (response) =>
+        response.request().method() === 'GET' &&
+        response.url().endsWith(`/api/encounters/${encounterId}/validate`),
+    );
+    await page.getByTestId(`select-force-${forceId}`).click();
+    expect((await playerValidation).ok()).toBe(true);
+
+    await expect(page).toHaveURL(
+      `/gameplay/encounters/${encounterId}?campaignId=${campaignId}&missionId=${missionId}`,
+    );
+    await expect(page.getByTestId('player-force-name')).toContainText(
+      'NAV-01 Recovery Lance',
+    );
+
+    await page.getByTestId('select-opponent-force-link').click();
+    await expect(page.getByTestId('page-title')).toContainText(
+      'Select Opponent Force',
+    );
+    await expect(page).toHaveURL(
+      new RegExp(
+        `/gameplay/encounters/${encounterId}/select-force\\?.*campaignId=${campaignId}.*missionId=${missionId}.*type=opponent`,
+      ),
+    );
+
+    const opponentValidation = page.waitForResponse(
+      (response) =>
+        response.request().method() === 'GET' &&
+        response.url().endsWith(`/api/encounters/${encounterId}/validate`),
+    );
+    await page.getByTestId(`select-force-${forceId}`).click();
+    expect((await opponentValidation).ok()).toBe(true);
+
+    await expect(page).toHaveURL(
+      `/gameplay/encounters/${encounterId}?campaignId=${campaignId}&missionId=${missionId}`,
+    );
+    await expect(page.getByTestId('opponent-force-name')).toContainText(
+      'NAV-01 Recovery Lance',
+    );
+
+    const encounterResponse = await page.request.get(
+      `/api/encounters/${encounterId}`,
+    );
+    expect(encounterResponse.ok()).toBe(true);
+    const encounterBody = (await encounterResponse.json()) as {
+      encounter?: {
+        playerForce?: { forceId?: string };
+        opponentForce?: { forceId?: string };
+      };
+    };
+    expect(encounterBody.encounter?.playerForce?.forceId).toBe(forceId);
+    expect(encounterBody.encounter?.opponentForce?.forceId).toBe(forceId);
+
+    const validationResponse = await page.request.get(
+      `/api/encounters/${encounterId}/validate`,
+    );
+    expect(validationResponse.ok()).toBe(true);
+    const validationBody = (await validationResponse.json()) as {
+      validation?: { errors?: readonly string[] };
+    };
+    expect(validationBody.validation?.errors ?? []).not.toEqual(
+      expect.arrayContaining([expect.stringMatching(/player|opponent force/i)]),
+    );
+
+    const validationUrls = await page.evaluate(
+      () =>
+        (window as unknown as { __NAV01_VALIDATION_URLS__?: string[] })
+          .__NAV01_VALIDATION_URLS__ ?? [],
+    );
+    const selectionValidationSides = validationUrls.flatMap((url) => {
+      const route = new URL(url);
+      return route.pathname.endsWith('/select-force')
+        ? [route.searchParams.get('type')]
+        : [];
+    });
+    expect(selectionValidationSides).toEqual(['player', 'opponent']);
+
+    await expect(page.getByTestId('launch-encounter-btn')).toBeEnabled();
+    await page.getByTestId('launch-encounter-btn').click();
+    await expect(page).toHaveURL(
+      `/gameplay/encounters/${encounterId}/pre-battle?campaignId=${campaignId}&missionId=${missionId}`,
+    );
   });
 });
 

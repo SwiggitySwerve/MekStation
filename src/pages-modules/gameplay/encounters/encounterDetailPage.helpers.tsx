@@ -135,6 +135,8 @@ export function EncounterDetailHeaderActions({
 export function EncounterDetailBody({
   encounter,
   encounterId,
+  playerSelectionHref,
+  opponentSelectionHref,
   validation,
   template,
   error,
@@ -155,6 +157,8 @@ export function EncounterDetailBody({
 }: {
   readonly encounter: IEncounter;
   readonly encounterId: string;
+  readonly playerSelectionHref: string;
+  readonly opponentSelectionHref: string;
   readonly validation: IEncounterValidationResult | null;
   readonly template: ReturnType<typeof getEncounterTemplate>;
   readonly error: string | null;
@@ -208,7 +212,11 @@ export function EncounterDetailBody({
       />
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        <EncounterForcesCard encounter={encounter} encounterId={encounterId} />
+        <EncounterForcesCard
+          encounter={encounter}
+          playerSelectionHref={playerSelectionHref}
+          opponentSelectionHref={opponentSelectionHref}
+        />
         <EncounterBattleSettingsCard
           encounter={encounter}
           template={template}

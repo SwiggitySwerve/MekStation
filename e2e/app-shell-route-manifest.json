@@ -96,6 +96,7 @@
       "patterns": [
         "/gameplay/encounters/[id]",
         "/gameplay/encounters/[id]/pre-battle",
+        "/gameplay/encounters/[id]/select-force",
         "/gameplay/encounters/[id]/sim"
       ],
       "proofCommand": "npm.cmd run verify:qc:encounter-combat-continuity && node scripts/playwright/run-playwright.mjs test --project=chromium e2e/encounter-flow.spec.ts e2e/encounter.spec.ts --workers=1",

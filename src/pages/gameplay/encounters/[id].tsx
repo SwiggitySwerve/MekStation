@@ -26,7 +26,10 @@ import {
   handleQuickResolveComplete,
   useQuickResolveEncounterPrep,
 } from '@/pages-modules/gameplay/encounters/encounterDetailPage.helpers';
-import { encounterRouteIdentityFromRouter } from '@/pages-modules/gameplay/encounters/encounterRouteIdentity';
+import {
+  buildEncounterForceSelectionHref,
+  encounterRouteIdentityFromRouter,
+} from '@/pages-modules/gameplay/encounters/encounterRouteIdentity';
 import { useEncounterSelector } from '@/stores/useEncounterStore';
 import { useForceSelector } from '@/stores/useForceStore';
 import { usePilotSelector } from '@/stores/usePilotStore';
@@ -226,6 +229,16 @@ export default function EncounterDetailPage(): React.ReactElement {
       <EncounterDetailBody
         encounter={encounter}
         encounterId={encounterId}
+        playerSelectionHref={buildEncounterForceSelectionHref(
+          encounterId,
+          'player',
+          routeIdentity,
+        )}
+        opponentSelectionHref={buildEncounterForceSelectionHref(
+          encounterId,
+          'opponent',
+          routeIdentity,
+        )}
         validation={validation}
         template={template}
         error={error}
