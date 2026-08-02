@@ -14,20 +14,21 @@ import { ForceType } from '@/types/force';
 import { logger } from '@/utils/logger';
 
 import {
+  type ApiFailurePayload,
+  apiJsonHeaders,
+  assertOperationSuccess,
+  encounterExists,
+  type FetchImpl,
+  readApiJson,
+  validateExistingEncounter,
+} from './materializeCampaignMissionEncounter.api';
+import {
   type AssignedForceUnit,
   rosterUnitsToForceUnits,
   selectOpponentUnits,
 } from './materializeCampaignMissionEncounter.forceUnits';
 
-type FetchImpl = typeof fetch;
-
 type CampaignMissionSource = Pick<ICampaign, 'id' | 'name' | 'missions'>;
-
-interface ApiFailurePayload {
-  readonly error?: string;
-  readonly message?: string;
-  readonly success?: boolean;
-}
 
 interface ForceApiResponse extends ApiFailurePayload {
   readonly id?: string;
@@ -55,54 +56,6 @@ export interface MaterializeCampaignMissionEncounterResult {
 }
 
 const MATERIALIZER_LOG_SERVICE = 'campaign-encounter-materializer';
-
-function apiJsonHeaders(): HeadersInit {
-  return { 'Content-Type': 'application/json' };
-}
-
-function messageFromPayload(payload: unknown, fallback: string): string {
-  if (!payload || typeof payload !== 'object') return fallback;
-  const candidate = payload as ApiFailurePayload;
-  return candidate.error ?? candidate.message ?? fallback;
-}
-
-async function readApiJson<T>(
-  response: Response,
-  fallback: string,
-): Promise<T> {
-  let payload: unknown = null;
-  try {
-    payload = await response.json();
-  } catch {
-    payload = null;
-  }
-  if (!response.ok) {
-    throw new Error(messageFromPayload(payload, fallback));
-  }
-  return payload as T;
-}
-
-function assertOperationSuccess(
-  payload: ApiFailurePayload,
-  fallback: string,
-): void {
-  if (payload.success === false) {
-    throw new Error(messageFromPayload(payload, fallback));
-  }
-}
-
-async function encounterExists(
-  encounterId: string,
-  fetchImpl: FetchImpl,
-): Promise<boolean> {
-  const response = await fetchImpl(
-    `/api/encounters/${encodeURIComponent(encounterId)}`,
-  );
-  if (response.ok) return true;
-  if (response.status === 404) return false;
-  await readApiJson(response, 'Failed to check existing encounter');
-  return false;
-}
 
 function assertLaunchRoster(
   rosterUnits: readonly IRosterUnitProjection[],
@@ -296,6 +249,29 @@ export async function materializeCampaignMissionEncounter({
     const mission = campaign.missions.get(missionId);
     for (const scenarioId of mission?.scenarioIds ?? []) {
       if (await encounterExists(scenarioId, fetchImpl)) {
+        const validation = await validateExistingEncounter(
+          scenarioId,
+          fetchImpl,
+        );
+        if (!validation.valid) {
+          logger.diagnostic({
+            level: 'warn',
+            service: MATERIALIZER_LOG_SERVICE,
+            event: 'campaign_mission_encounter_reuse_rejected',
+            message:
+              'Skipped an existing campaign mission encounter that is not launch-ready.',
+            entityIds: {
+              campaignId: campaign.id,
+              missionId,
+              encounterId: scenarioId,
+            },
+            metadata: {
+              validationErrors: validation.errors,
+              validationWarnings: validation.warnings,
+            },
+          });
+          continue;
+        }
         logger.diagnostic({
           level: 'info',
           service: MATERIALIZER_LOG_SERVICE,

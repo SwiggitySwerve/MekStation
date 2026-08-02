@@ -167,8 +167,17 @@ describe('materializeCampaignMissionEncounter', () => {
   it('reuses an existing mission scenario encounter when it still exists', async () => {
     const calls: FetchCall[] = [];
     const fetchImpl = jest.fn(async (input, init) => {
-      calls.push({ url: requestUrl(input), init });
-      return jsonResponse({ encounter: { id: 'enc-existing' } });
+      const call = { url: requestUrl(input), init };
+      calls.push(call);
+      if (call.url === '/api/encounters/enc-existing') {
+        return jsonResponse({ encounter: { id: 'enc-existing' } });
+      }
+      if (call.url === '/api/encounters/enc-existing/validate') {
+        return jsonResponse({
+          validation: { valid: true, errors: [], warnings: [] },
+        });
+      }
+      throw new Error(`Unexpected fetch: ${init?.method ?? 'GET'} ${call.url}`);
     }) as unknown as typeof fetch;
 
     const result = await materializeCampaignMissionEncounter({
@@ -185,6 +194,7 @@ describe('materializeCampaignMissionEncounter', () => {
     });
     expect(calls.map((call) => call.url)).toEqual([
       '/api/encounters/enc-existing',
+      '/api/encounters/enc-existing/validate',
     ]);
     expect(getCapturedDiagnostics()).toEqual(
       expect.arrayContaining([
@@ -210,6 +220,88 @@ describe('materializeCampaignMissionEncounter', () => {
         }),
       ]),
     );
+  });
+
+  it('materializes a new encounter when an existing scenario is not launch-ready', async () => {
+    const calls: FetchCall[] = [];
+    const materializeFetch = makeMaterializationFetch(calls, 'enc-replacement');
+    const fetchImpl = jest.fn(async (input, init) => {
+      const call = { url: requestUrl(input), init };
+      if (call.url === '/api/encounters/enc-existing') {
+        calls.push(call);
+        return jsonResponse({ encounter: { id: 'enc-existing' } });
+      }
+      if (call.url === '/api/encounters/enc-existing/validate') {
+        calls.push(call);
+        return jsonResponse({
+          validation: {
+            valid: false,
+            errors: ['Player force must be selected'],
+            warnings: [],
+          },
+        });
+      }
+      return materializeFetch(input, init);
+    }) as unknown as typeof fetch;
+
+    const result = await materializeCampaignMissionEncounter({
+      campaign: makeCampaign(['enc-existing']),
+      missionId: 'contract-1',
+      rosterUnits: makeRoster(),
+      fetchImpl,
+    });
+
+    expect(result).toEqual({
+      encounterId: 'enc-replacement',
+      reused: false,
+      missionScenarioIds: ['enc-replacement', 'enc-existing'],
+    });
+    expect(calls.slice(0, 2).map((call) => call.url)).toEqual([
+      '/api/encounters/enc-existing',
+      '/api/encounters/enc-existing/validate',
+    ]);
+    expect(
+      calls.map((call) => `${call.init?.method ?? 'GET'} ${call.url}`),
+    ).toEqual(expect.arrayContaining(['POST /api/encounters']));
+  });
+
+  it.each([
+    ['missing arrays', { valid: false }],
+    ['non-string errors', { valid: true, errors: [42], warnings: [] }],
+    [
+      'inconsistent valid result',
+      {
+        valid: true,
+        errors: ['Player force must be selected'],
+        warnings: [],
+      },
+    ],
+  ])('fails closed when validation has %s', async (_label, validation) => {
+    const calls: FetchCall[] = [];
+    const fetchImpl = jest.fn(async (input, init) => {
+      const call = { url: requestUrl(input), init };
+      calls.push(call);
+      if (call.url === '/api/encounters/enc-existing') {
+        return jsonResponse({ encounter: { id: 'enc-existing' } });
+      }
+      if (call.url === '/api/encounters/enc-existing/validate') {
+        return jsonResponse({ validation });
+      }
+      throw new Error(`Unexpected fetch: ${init?.method ?? 'GET'} ${call.url}`);
+    }) as unknown as typeof fetch;
+
+    await expect(
+      materializeCampaignMissionEncounter({
+        campaign: makeCampaign(['enc-existing']),
+        missionId: 'contract-1',
+        rosterUnits: makeRoster(),
+        fetchImpl,
+      }),
+    ).rejects.toThrow('Failed to validate existing encounter');
+    expect(calls.map((call) => call.url)).toEqual([
+      '/api/encounters/enc-existing',
+      '/api/encounters/enc-existing/validate',
+    ]);
   });
 
   it('creates assigned forces and a configured encounter for an organic mission', async () => {
