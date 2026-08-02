@@ -7,9 +7,9 @@
  */
 
 import { useRouter } from 'next/router';
-import { useEffect, useRef } from 'react';
+import { useEffect } from 'react';
 
-import { Card } from '@/components/ui';
+import { Button, Card } from '@/components/ui';
 import { navigateToGameSession } from '@/lib/gameplay/tacticalNavigation';
 import GameSessionPage from '@/pages/gameplay/games/[id]';
 import { useGameplaySelector } from '@/stores/useGameplayStore';
@@ -100,12 +100,12 @@ export function QuickGamePlay(): React.ReactElement {
   const isLoading = useQuickGameSelector((state) => state.isLoading);
   const error = useQuickGameSelector((state) => state.error);
   const startBattle = useQuickGameSelector((state) => state.startBattle);
+  const playAgain = useQuickGameSelector((state) => state.playAgain);
   const interactiveSession = useGameplaySelector(
     (state) => state.interactiveSession,
   );
   const session = useGameplaySelector((state) => state.session);
   const spectatorMode = useGameplaySelector((state) => state.spectatorMode);
-  const battleStarted = useRef(false);
   const hasLiveTacticalSession =
     Boolean(interactiveSession) || spectatorMode?.enabled === true;
   const liveTacticalSessionId = session?.matchId ?? session?.id;
@@ -114,18 +114,28 @@ export function QuickGamePlay(): React.ReactElement {
     (typeof window !== 'undefined' &&
       window.location.pathname.startsWith('/gameplay/games/'));
 
+  const persistedTacticalSession = game?.activeTacticalSession;
+
   useEffect(() => {
     if (
-      game &&
-      game.status === GameStatus.Active &&
+      game?.status === GameStatus.Active &&
       !isLoading &&
       !hasLiveTacticalSession &&
-      !battleStarted.current
+      persistedTacticalSession &&
+      !isGameSessionRoute
     ) {
-      battleStarted.current = true;
-      startBattle();
+      navigateToGameSession(persistedTacticalSession.id, router, {
+        spectator: persistedTacticalSession.mode === 'spectator',
+      });
     }
-  }, [game, hasLiveTacticalSession, isLoading, startBattle]);
+  }, [
+    game?.status,
+    hasLiveTacticalSession,
+    isGameSessionRoute,
+    isLoading,
+    persistedTacticalSession,
+    router,
+  ]);
 
   useEffect(() => {
     if (
@@ -199,7 +209,49 @@ export function QuickGamePlay(): React.ReactElement {
     );
   }
 
-  if (isLoading || game.status === GameStatus.Active) {
+  if (
+    game.status === GameStatus.Active &&
+    !isLoading &&
+    !persistedTacticalSession
+  ) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-gray-900">
+        <Card className="mx-4 max-w-lg border-amber-600/50 p-8 text-center">
+          <h2 className="mb-2 text-xl font-bold text-white">
+            Battle Session Unavailable
+          </h2>
+          <p className="text-sm text-gray-400">
+            This Quick Game is marked active, but no recoverable tactical
+            session is linked. No battle result has been recorded.
+          </p>
+          <div className="mt-6 flex flex-col justify-center gap-3 sm:flex-row">
+            <Button variant="primary" onClick={() => void startBattle()}>
+              Auto-Resolve Instead
+            </Button>
+            <Button variant="secondary" onClick={() => playAgain(false)}>
+              Start New Setup
+            </Button>
+          </div>
+        </Card>
+      </div>
+    );
+  }
+
+  if (
+    game.status === GameStatus.Active &&
+    !isLoading &&
+    persistedTacticalSession
+  ) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-gray-900">
+        <Card className="p-8 text-center">
+          <p className="text-gray-400">Recovering tactical battle...</p>
+        </Card>
+      </div>
+    );
+  }
+
+  if (isLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-gray-900">
         <div className="mx-4 max-w-lg text-center">

@@ -100,6 +100,24 @@ describe('useQuickGameStore', () => {
       expect(result.current.game).toBeNull();
       expect(result.current.isDirty).toBe(false);
     });
+
+    it('should reject starting an incomplete game', () => {
+      const { result } = renderHook(() => useQuickGameStore());
+
+      act(() => {
+        result.current.startNewGame();
+      });
+
+      let didStart = true;
+      act(() => {
+        didStart = result.current.startGame();
+      });
+
+      expect(didStart).toBe(false);
+      expect(result.current.error).toBe('Cannot start game - setup incomplete');
+      expect(result.current.game?.status).toBe(GameStatus.Setup);
+      expect(result.current.game?.step).toBe(QuickGameStep.SelectUnits);
+    });
   });
 
   describe('Unit Management', () => {

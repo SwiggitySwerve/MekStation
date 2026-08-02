@@ -289,7 +289,7 @@ test.describe('Quick Play Interactive Recovery', () => {
       expect(Object.values(launched.movementReady).every(Boolean)).toBe(true);
       expect(Object.values(launched.weaponsReady).every(Boolean)).toBe(true);
 
-      await page.reload({ waitUntil: 'domcontentloaded' });
+      await page.goto('/gameplay/quick', { waitUntil: 'domcontentloaded' });
       await expect(page).toHaveURL(launchedUrl);
       await expect(page.getByTestId('game-session')).toBeVisible({
         timeout: 20_000,
@@ -352,7 +352,7 @@ test.describe('Quick Play Interactive Recovery', () => {
       expect(Object.values(launched.movementReady).every(Boolean)).toBe(true);
       expect(Object.values(launched.weaponsReady).every(Boolean)).toBe(true);
 
-      await page.reload({ waitUntil: 'domcontentloaded' });
+      await page.goto('/gameplay/quick', { waitUntil: 'domcontentloaded' });
       await expect(page).toHaveURL(launchedUrl);
       await expect(
         page.getByRole('heading', {

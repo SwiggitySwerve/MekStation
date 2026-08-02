@@ -178,6 +178,10 @@ describe('useQuickGameStore bootstrap persistence', () => {
       status: 'active',
     });
     expect(mockSetInteractiveSession).toHaveBeenCalledTimes(1);
+    expect(useQuickGameStore.getState().game?.activeTacticalSession).toEqual({
+      id: MATCH_ID,
+      mode: 'interactive',
+    });
   });
 
   it('persists the spectator bootstrap before adopting the tactical session', async () => {
@@ -205,6 +209,10 @@ describe('useQuickGameStore bootstrap persistence', () => {
       status: 'active',
     });
     expect(mockSetSpectatorMode).toHaveBeenCalledTimes(1);
+    expect(useQuickGameStore.getState().game?.activeTacticalSession).toEqual({
+      id: MATCH_ID,
+      mode: 'spectator',
+    });
   });
 
   it('keeps the interactive session unadopted when bootstrap persistence rejects', async () => {

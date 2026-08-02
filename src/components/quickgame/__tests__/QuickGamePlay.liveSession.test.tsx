@@ -3,8 +3,10 @@ import React from 'react';
 
 import { navigateToGameSession } from '@/lib/gameplay/tacticalNavigation';
 import { GameStatus } from '@/types/gameplay';
+import { QuickGameStep } from '@/types/quickgame';
 
 const mockStartBattle = jest.fn();
+const mockPlayAgain = jest.fn();
 const mockNavigateToGameSession = navigateToGameSession as jest.MockedFunction<
   typeof navigateToGameSession
 >;
@@ -24,6 +26,11 @@ const mockQuickGameState = {
   game: {
     id: 'quick-game-1',
     status: GameStatus.Active,
+    step: QuickGameStep.Playing,
+    activeTacticalSession: null as {
+      id: string;
+      mode: 'interactive' | 'spectator';
+    } | null,
     scenario: {
       template: { name: 'Training Skirmish' },
       mapPreset: { name: 'Open Field', biome: 'grassland' },
@@ -34,6 +41,7 @@ const mockQuickGameState = {
   isLoading: false,
   error: null as string | null,
   startBattle: mockStartBattle,
+  playAgain: mockPlayAgain,
 };
 
 const mockGameplayState = {
@@ -63,6 +71,7 @@ import { QuickGamePlay } from '../QuickGamePlay';
 describe('QuickGamePlay live tactical session guard', () => {
   beforeEach(() => {
     mockStartBattle.mockClear();
+    mockPlayAgain.mockClear();
     mockNavigateToGameSession.mockClear();
     mockRouterPush.mockClear();
     mockQuickGameState.isLoading = false;
@@ -70,12 +79,59 @@ describe('QuickGamePlay live tactical session guard', () => {
     mockGameplayState.session = null;
     mockGameplayState.interactiveSession = null;
     mockGameplayState.spectatorMode = null;
+    mockQuickGameState.game.activeTacticalSession = null;
   });
 
-  it('auto-resolves an active quick game when no tactical session is live', async () => {
+  it('does not fabricate a result for an active game without a recoverable session', async () => {
     render(<QuickGamePlay />);
 
-    await waitFor(() => expect(mockStartBattle).toHaveBeenCalledTimes(1));
+    expect(
+      screen.getByRole('heading', { name: /battle session unavailable/i }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(/no battle result has been recorded/i),
+    ).toBeInTheDocument();
+    await waitFor(() => {
+      expect(mockStartBattle).not.toHaveBeenCalled();
+      expect(mockNavigateToGameSession).not.toHaveBeenCalled();
+    });
+  });
+
+  it('routes a persisted interactive session into recovery without auto-resolving', async () => {
+    mockQuickGameState.game.activeTacticalSession = {
+      id: 'persisted-session',
+      mode: 'interactive',
+    };
+
+    render(<QuickGamePlay />);
+
+    expect(screen.getByText(/recovering tactical battle/i)).toBeInTheDocument();
+    await waitFor(() => {
+      expect(mockNavigateToGameSession).toHaveBeenCalledWith(
+        'persisted-session',
+        expect.objectContaining({ push: mockRouterPush }),
+        { spectator: false },
+      );
+      expect(mockStartBattle).not.toHaveBeenCalled();
+    });
+  });
+
+  it('preserves spectator intent while routing a persisted session', async () => {
+    mockQuickGameState.game.activeTacticalSession = {
+      id: 'persisted-spectator-session',
+      mode: 'spectator',
+    };
+
+    render(<QuickGamePlay />);
+
+    await waitFor(() => {
+      expect(mockNavigateToGameSession).toHaveBeenCalledWith(
+        'persisted-spectator-session',
+        expect.objectContaining({ push: mockRouterPush }),
+        { spectator: true },
+      );
+      expect(mockStartBattle).not.toHaveBeenCalled();
+    });
   });
 
   it('does not auto-resolve over a live interactive tactical session', async () => {
