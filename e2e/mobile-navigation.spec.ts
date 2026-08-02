@@ -559,6 +559,39 @@ test.describe('Gameplay Navigation', () => {
     expect(buttonBox!.y + buttonBox!.height).toBeLessThanOrEqual(navBox!.y);
   });
 
+  test('should keep a focused campaign action above the mobile bottom navigation', async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.route('**/api/campaigns', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: '[]',
+      });
+    });
+    await page.goto('/gameplay/campaigns');
+    await waitForHydration(page);
+
+    const createButton = page.getByRole('button', {
+      name: 'Create First Campaign',
+    });
+    const bottomNav = page.getByRole('navigation', {
+      name: /mobile navigation/i,
+    });
+    await expect(createButton).toBeVisible();
+    await expect(bottomNav).toBeVisible();
+
+    await createButton.focus();
+    await expect(createButton).toBeFocused();
+
+    const buttonBox = await createButton.boundingBox();
+    const navBox = await bottomNav.boundingBox();
+    expect(buttonBox).not.toBeNull();
+    expect(navBox).not.toBeNull();
+    expect(buttonBox!.y + buttonBox!.height).toBeLessThanOrEqual(navBox!.y);
+  });
+
   test('should show gameplay section with all items in mobile sidebar', async ({
     page,
   }) => {
