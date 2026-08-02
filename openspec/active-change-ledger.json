@@ -101,6 +101,18 @@
       "status": "proposed",
       "reason": "CAMP-01F child specification: gate campaign creation success on accepted production server persistence with same-id retry and fail-closed conflict handling.",
       "lastReviewed": "2026-08-02"
+    },
+    {
+      "name": "resolve-saved-custom-units-in-mech-bay",
+      "status": "proposed",
+      "reason": "CAMP-01G child specification: resolve saved custom roster identity in Mech Bay after cold reload while keeping missing sources visible and launch-blocked without stock substitution.",
+      "lastReviewed": "2026-08-02"
+    },
+    {
+      "name": "prove-saved-custom-unit-campaign-journey",
+      "status": "proposed",
+      "reason": "CAMP-01H child specification: produce three independent authority witnesses for custom save/reload, campaign readiness, and canonical combat/post-battle persistence with ranked experience reconciliation.",
+      "lastReviewed": "2026-08-02"
     }
   ]
 }
