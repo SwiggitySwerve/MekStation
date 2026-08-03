@@ -6,6 +6,8 @@ import { assertNoMekStationLoading } from './helpers/wait';
 test.setTimeout(120_000);
 
 const GM_LEDGER_NAVIGATION_TIMEOUT_MS = 60_000;
+const CAMPAIGN_AUTOSAVE_NEGATIVE_PROOF_MS = 2_500;
+const GUEST_CLIENT_STALE_CAMPAIGN_NAME = '__guest-client-stale__';
 
 // The GM control plane now exposes one "Generate correction" control driven by a
 // correction-type <select>. Pick the type, then fire the single control — this
@@ -48,6 +50,10 @@ type CampaignLedgerSnapshot = {
   readonly balance: number | null;
   readonly gmInterventionEventCount: number;
   readonly playerSummaries: readonly string[];
+};
+
+type CampaignServerLedgerSnapshot = CampaignLedgerSnapshot & {
+  readonly coopSessionMode: string | null;
 };
 
 type CampaignBaseFixSnapshot = {
@@ -173,7 +179,7 @@ async function readClientLedgerSnapshot(
 async function readServerLedgerSnapshot(
   page: Page,
   campaignId: string,
-): Promise<CampaignLedgerSnapshot> {
+): Promise<CampaignServerLedgerSnapshot> {
   return page.evaluate(async (id) => {
     function readBalance(value: unknown): number | null {
       if (typeof value === 'number') return value;
@@ -187,13 +193,16 @@ async function readServerLedgerSnapshot(
       return null;
     }
 
-    const response = await fetch(`/api/campaigns/${encodeURIComponent(id)}`);
+    const response = await fetch(`/api/campaigns/${encodeURIComponent(id)}`, {
+      cache: 'no-store',
+    });
     if (!response.ok) {
       throw new Error(`server responded ${response.status}`);
     }
     const record = (await response.json()) as {
       body?: {
         finances?: { balance?: { amount?: unknown } };
+        coopSession?: { mode?: unknown };
         gmInterventionEvents?: readonly {
           publicSummary?: unknown;
         }[];
@@ -203,6 +212,10 @@ async function readServerLedgerSnapshot(
 
     return {
       balance: readBalance(record.body?.finances?.balance),
+      coopSessionMode:
+        typeof record.body?.coopSession?.mode === 'string'
+          ? record.body.coopSession.mode
+          : null,
       gmInterventionEventCount: events.length,
       playerSummaries: events
         .map((event) => event.publicSummary)
@@ -274,10 +287,11 @@ async function resolveSaveConflictKeepLocal(page: Page, campaignId: string) {
 }
 
 async function stampGuestCoopSession(page: Page): Promise<void> {
-  await page.evaluate(() => {
+  await page.evaluate((staleCampaignName) => {
     type CampaignStoreApi = {
       getState: () => {
-        updateCampaign: (updates: Record<string, unknown>) => void;
+        getCampaign: () => Record<string, unknown> | null;
+        switchCampaign: (campaign: Record<string, unknown>) => void;
       };
     };
     type ExposedCampaignStore = CampaignStoreApi | (() => CampaignStoreApi);
@@ -296,13 +310,29 @@ async function stampGuestCoopSession(page: Page): Promise<void> {
 
     const exposed = stores.campaign;
     const store = 'getState' in exposed ? exposed : exposed();
-    store.getState().updateCampaign({
+    const state = store.getState();
+    const campaign = state.getCampaign();
+    if (!campaign) {
+      throw new Error('Campaign not loaded');
+    }
+    state.switchCampaign({
+      ...campaign,
+      name: staleCampaignName,
       coopSession: {
         mode: 'guest',
         roomCode: 'GUESTGM',
         hostMatchId: 'match-gm-ledger-host',
       },
     });
+  }, GUEST_CLIENT_STALE_CAMPAIGN_NAME);
+
+  await page.waitForFunction(() => {
+    const raw = localStorage.getItem('campaign-store');
+    if (!raw) return false;
+    const persisted = JSON.parse(raw) as {
+      state?: { campaign?: { coopSession?: { mode?: unknown } } };
+    };
+    return persisted.state?.campaign?.coopSession?.mode === 'guest';
   });
 }
 
@@ -585,10 +615,11 @@ test.describe('GM campaign ledger control plane @gm-ledger', () => {
     page,
   }) => {
     let campaignId = '';
+    const campaignName = 'GM Ledger Guest Direct Proof';
 
     await page.goto('/gameplay/campaigns', { waitUntil: 'domcontentloaded' });
     campaignId = await createTestCampaign(page, {
-      name: 'GM Ledger Guest Direct Proof',
+      name: campaignName,
       cBills: 1_000_000,
       persist: true,
     });
@@ -603,11 +634,61 @@ test.describe('GM campaign ledger control plane @gm-ledger', () => {
       await expect(page.getByTestId('gm-ledger-approval-status')).toContainText(
         'Approved and applied',
       );
+      await expect
+        .poll(
+          async () =>
+            (await readServerLedgerSnapshot(page, campaignId)).playerSummaries,
+          { timeout: 20_000 },
+        )
+        .toContain('Merchant charge corrected by +2,500.00 C-bills.');
 
       await stampGuestCoopSession(page);
+      // Keep the page alive beyond AUTO_SAVE_DEBOUNCE_MS (2 seconds) so a
+      // mistakenly scheduled guest-state save cannot be cancelled by navigation.
+      await page.waitForTimeout(CAMPAIGN_AUTOSAVE_NEGATIVE_PROOF_MS);
+      expect(
+        (await readServerLedgerSnapshot(page, campaignId)).coopSessionMode,
+      ).toBeNull();
+      const refreshedCampaignResponse = page.waitForResponse((response) => {
+        const request = response.request();
+        return (
+          request.method() === 'GET' &&
+          new URL(response.url()).pathname ===
+            `/api/campaigns/${encodeURIComponent(campaignId)}` &&
+          response.status() === 200
+        );
+      });
       await page.goto(`/gameplay/campaigns/${campaignId}/gm-ledger`, {
         waitUntil: 'domcontentloaded',
       });
+      const refreshedRecord = (await (
+        await refreshedCampaignResponse
+      ).json()) as { body?: { name?: unknown } };
+      expect(refreshedRecord.body?.name).toBe(campaignName);
+      await page.waitForFunction((expectedName) => {
+        type CampaignStoreApi = {
+          getState: () => {
+            getCampaign: () => {
+              name?: unknown;
+              coopSession?: { mode?: unknown };
+            } | null;
+          };
+        };
+        const exposed = (
+          window as unknown as {
+            __ZUSTAND_STORES__?: {
+              campaign?: CampaignStoreApi | (() => CampaignStoreApi);
+            };
+          }
+        ).__ZUSTAND_STORES__?.campaign;
+        if (!exposed) return false;
+        const store = 'getState' in exposed ? exposed : exposed();
+        const campaign = store.getState().getCampaign();
+        return (
+          campaign?.name === expectedName &&
+          campaign.coopSession?.mode === 'guest'
+        );
+      }, campaignName);
       await assertNoMekStationLoading(page);
 
       await expect(page.getByTestId('page-title')).toContainText('GM Ledger');
