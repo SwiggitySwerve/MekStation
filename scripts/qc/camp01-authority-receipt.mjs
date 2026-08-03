@@ -103,7 +103,7 @@ function exactKeys(value,expected,label) { if (!value || JSON.stringify(Object.k
 function fail(message) { throw new Error(`CAMP01_WRITER_INVALID: ${message}`); }
 
 // prettier-ignore
-async function main() { const [operation,...args]=process.argv.slice(2); if (operation==='validate' && args.length===1 && args[0].startsWith('--run-dir=') && process.env.CAMP01_VALIDATION_CONTEXT) { validateReceiptDirectory(args[0].slice(10),JSON.parse(process.env.CAMP01_VALIDATION_CONTEXT)); process.stdout.write('CAMP01 receipt valid\n'); return; } if (operation==='write' && !args.length && process.env.CAMP01_CONTROLLER_CONTEXT) { await writeReceipt(JSON.parse(process.env.CAMP01_CONTROLLER_CONTEXT)); return; } fail('invalid low-level invocation'); }
+async function main() { const [operation,...args]=process.argv.slice(2); if (operation==='write' && !args.length && process.env.CAMP01_CONTROLLER_CONTEXT) { await writeReceipt(JSON.parse(process.env.CAMP01_CONTROLLER_CONTEXT)); return; } fail('invalid low-level invocation; receipt validation is owned by validate-camp01-authority-receipt.mjs'); }
 if (
   process.argv[1] &&
   path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)
