@@ -2,14 +2,24 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import { useRouter } from 'next/router';
 import React from 'react';
 
-import { MultiUnitTabs } from '@/components/customizer/tabs/MultiUnitTabs';
+import {
+  MultiUnitTabs,
+  TargetedSaveUnitDialog,
+} from '@/components/customizer/tabs/MultiUnitTabs';
 import { ToastProvider } from '@/components/shared/Toast';
 import { DEFAULT_TAB } from '@/hooks/useCustomizerRouter';
+import { useUnitValidation } from '@/hooks/useUnitValidation';
+import { getUnitStore } from '@/stores/unitStoreRegistry';
 import {
   useTabManagerStore,
   TabManagerState,
   TabInfo,
 } from '@/stores/useTabManagerStore';
+import {
+  createNewUnitStore,
+  UnitStoreContext,
+  useUnitStoreApi,
+} from '@/stores/useUnitStore';
 import { TechBase } from '@/types/enums/TechBase';
 import { UnitType } from '@/types/unit/BattleMechInterfaces';
 
@@ -20,6 +30,15 @@ jest.mock('next/router', () => ({
 
 jest.mock('@/stores/useTabManagerStore', () => ({
   useTabManagerStore: jest.fn(),
+}));
+
+jest.mock('@/hooks/useUnitValidation', () => ({
+  useUnitValidation: jest.fn(),
+}));
+
+jest.mock('@/stores/unitStoreRegistry', () => ({
+  ...jest.requireActual('@/stores/unitStoreRegistry'),
+  getUnitStore: jest.fn(),
 }));
 
 // Mock TabBar with click handlers to test tab selection
@@ -57,7 +76,31 @@ jest.mock('@/components/customizer/dialogs/UnsavedChangesDialog', () => ({
 }));
 
 jest.mock('@/components/customizer/dialogs/SaveUnitDialog', () => ({
-  SaveUnitDialog: () => <div data-testid="save-unit-dialog" />,
+  SaveUnitDialog: ({
+    constructionValidation,
+    onSave,
+  }: {
+    constructionValidation: {
+      isValid: boolean;
+      isLoading: boolean;
+      isValidating: boolean;
+    };
+    onSave: (chassis: string, variant: string) => void;
+  }) => {
+    const canSave =
+      constructionValidation.isValid &&
+      !constructionValidation.isLoading &&
+      !constructionValidation.isValidating;
+    return (
+      <button
+        data-testid="save-unit-dialog"
+        disabled={!canSave}
+        onClick={() => onSave('Test', 'TST-1')}
+      >
+        Save
+      </button>
+    );
+  },
 }));
 
 jest.mock('@/components/customizer/dialogs/UnitLoadDialog', () => ({
@@ -75,6 +118,12 @@ jest.mock('@/components/vault/ImportDialog', () => ({
 describe('MultiUnitTabs', () => {
   const mockUseTabManagerStore = useTabManagerStore as jest.MockedFunction<
     typeof useTabManagerStore
+  >;
+  const mockUseUnitValidation = useUnitValidation as jest.MockedFunction<
+    typeof useUnitValidation
+  >;
+  const mockGetUnitStore = getUnitStore as jest.MockedFunction<
+    typeof getUnitStore
   >;
   const mockRouter = {
     push: jest.fn(),
@@ -130,6 +179,17 @@ describe('MultiUnitTabs', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    mockUseUnitValidation.mockReturnValue({
+      status: 'valid',
+      isValid: true,
+      hasCriticalErrors: false,
+      isLoading: false,
+      isValidating: false,
+      errorCount: 0,
+      warningCount: 0,
+      infoCount: 0,
+      result: null,
+    });
     mockTabManager = createMockTabManager();
     (useRouter as jest.Mock).mockReturnValue(mockRouter);
     mockUseTabManagerStore.mockImplementation(
@@ -145,6 +205,78 @@ describe('MultiUnitTabs', () => {
   const renderWithToast = (ui: React.ReactElement) => {
     return render(<ToastProvider>{ui}</ToastProvider>);
   };
+
+  describe('Targeted save validation', () => {
+    it('validates the save target instead of the active unit store', () => {
+      const activeStore = createNewUnitStore({
+        name: 'Active Unit',
+        tonnage: 100,
+        techBase: TechBase.INNER_SPHERE,
+      });
+      const targetStore = createNewUnitStore({
+        name: 'Save Target',
+        tonnage: 20,
+        techBase: TechBase.INNER_SPHERE,
+      });
+      const onSave = jest.fn();
+
+      mockGetUnitStore.mockReturnValue(targetStore);
+      mockUseUnitValidation.mockImplementation(() => {
+        const validatedStore = useUnitStoreApi();
+        const isTargetStore = validatedStore === targetStore;
+        return {
+          status: isTargetStore ? 'error' : 'valid',
+          isValid: !isTargetStore,
+          hasCriticalErrors: false,
+          isLoading: false,
+          isValidating: false,
+          errorCount: isTargetStore ? 1 : 0,
+          warningCount: 0,
+          infoCount: 0,
+          result: null,
+        };
+      });
+
+      render(
+        <UnitStoreContext.Provider value={activeStore}>
+          <TargetedSaveUnitDialog
+            isOpen
+            initialChassis="Test"
+            initialVariant="TST-1"
+            currentUnitId={targetStore.getState().id}
+            onSave={onSave}
+            onCancel={jest.fn()}
+          />
+        </UnitStoreContext.Provider>,
+      );
+
+      expect(mockGetUnitStore).toHaveBeenCalledWith(targetStore.getState().id);
+      expect(screen.getByTestId('save-unit-dialog')).toBeDisabled();
+      fireEvent.click(screen.getByTestId('save-unit-dialog'));
+      expect(onSave).not.toHaveBeenCalled();
+    });
+
+    it('fails closed when the save target store is missing', () => {
+      const onSave = jest.fn();
+      mockGetUnitStore.mockReturnValue(undefined);
+
+      render(
+        <TargetedSaveUnitDialog
+          isOpen
+          initialChassis="Missing"
+          initialVariant="MISS-1"
+          currentUnitId="missing-unit"
+          onSave={onSave}
+          onCancel={jest.fn()}
+        />,
+      );
+
+      expect(screen.getByTestId('save-unit-dialog')).toBeDisabled();
+      fireEvent.click(screen.getByTestId('save-unit-dialog'));
+      expect(onSave).not.toHaveBeenCalled();
+      expect(mockUseUnitValidation).not.toHaveBeenCalled();
+    });
+  });
 
   // ===========================================================================
   // Basic Rendering Tests

@@ -12,6 +12,12 @@ const meta: Meta<typeof SaveUnitDialog> = {
   },
   tags: ['autodocs'],
   args: {
+    constructionValidation: {
+      isValid: true,
+      isLoading: false,
+      isValidating: false,
+      errorCount: 0,
+    },
     onSave: fn(),
     onCancel: fn(),
   },

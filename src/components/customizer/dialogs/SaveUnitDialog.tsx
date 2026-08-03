@@ -26,6 +26,11 @@ import {
   SpinnerIcon,
   WarningIcon,
 } from './dialogPresentation';
+import {
+  SaveUnitDialogConstructionStatus,
+  type ConstructionValidationState,
+} from './SaveUnitDialogConstructionStatus';
+import { SaveUnitDialogPreview } from './SaveUnitDialogPreview';
 
 // =============================================================================
 // Types
@@ -40,6 +45,8 @@ export interface SaveUnitDialogProps {
   initialVariant: string;
   /** Current unit ID (for excluding from conflict check during updates) */
   currentUnitId?: string;
+  /** Construction validation for the exact unit store being saved */
+  constructionValidation: ConstructionValidationState;
   /** Called when save is confirmed */
   onSave: (chassis: string, variant: string, overwriteId?: string) => void;
   /** Called when dialog is cancelled */
@@ -280,25 +287,6 @@ function SaveDialogFields({
   );
 }
 
-function UnitNamePreview({
-  chassis,
-  variant,
-}: {
-  chassis: string;
-  variant: string;
-}) {
-  if (!chassis.trim() || !variant.trim()) return null;
-
-  return (
-    <div className={cs.dialog.infoPanel}>
-      <div className="mb-1 text-xs text-slate-400">Full Unit Name:</div>
-      <div className="font-medium text-white">
-        {unitNameValidator.buildFullName(chassis.trim(), variant.trim())}
-      </div>
-    </div>
-  );
-}
-
 // =============================================================================
 // Component
 // =============================================================================
@@ -308,6 +296,7 @@ export function SaveUnitDialog({
   initialChassis,
   initialVariant,
   currentUnitId,
+  constructionValidation,
   onSave,
   onCancel,
 }: SaveUnitDialogProps): React.ReactElement {
@@ -389,6 +378,7 @@ export function SaveUnitDialog({
 
   // Handle save action
   const handleSave = () => {
+    if (!canSave) return;
     saveUnitName({ chassis, onSave, status, validationResult, variant });
   };
 
@@ -423,8 +413,14 @@ export function SaveUnitDialog({
 
   // Determine button states
   const isValidating = status === 'validating';
+  const isConstructionReady =
+    constructionValidation.isValid &&
+    !constructionValidation.isLoading &&
+    !constructionValidation.isValidating;
   const canSave =
-    (status === 'valid' || status === 'custom-conflict') && !isValidating;
+    (status === 'valid' || status === 'custom-conflict') &&
+    !isValidating &&
+    isConstructionReady;
   const hasConflict =
     status === 'custom-conflict' || status === 'canonical-conflict';
 
@@ -464,8 +460,10 @@ export function SaveUnitDialog({
         <ValidationStatusIndicator result={validationResult} status={status} />
       </div>
 
+      <SaveUnitDialogConstructionStatus {...constructionValidation} />
+
       {/* Preview */}
-      <UnitNamePreview chassis={chassis} variant={variant} />
+      <SaveUnitDialogPreview chassis={chassis} variant={variant} />
     </DialogTemplate>
   );
 }

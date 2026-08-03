@@ -5,10 +5,16 @@ import type { ExportDialogProps } from '@/components/vault/ExportDialog';
 import type { ImportDialogProps } from '@/components/vault/ImportDialog';
 import type { IExportableUnit } from '@/types/vault';
 
-import { SaveUnitDialog } from '@/components/customizer/dialogs/SaveUnitDialog';
+import {
+  SaveUnitDialog,
+  type SaveUnitDialogProps,
+} from '@/components/customizer/dialogs/SaveUnitDialog';
 import { UnitLoadDialog } from '@/components/customizer/dialogs/UnitLoadDialog';
 import { UnsavedChangesDialog } from '@/components/customizer/dialogs/UnsavedChangesDialog';
 import { useToast } from '@/components/shared/Toast';
+import { useUnitValidation } from '@/hooks/useUnitValidation';
+import { getUnitStore } from '@/stores/unitStoreRegistry';
+import { UnitStoreContext } from '@/stores/useUnitStore';
 
 // Lazy-load the two heaviest vault dialogs (~360 + ~300 LOC pulling
 // CSV/JSON parsers, Zod, and Toast plumbing). They only mount when
@@ -42,6 +48,51 @@ import { useMultiUnitTabsController } from './useMultiUnitTabsController';
 interface MultiUnitTabsProps {
   children: React.ReactNode;
   className?: string;
+}
+
+type TargetedSaveUnitDialogProps = Omit<
+  SaveUnitDialogProps,
+  'constructionValidation'
+>;
+
+function StoreValidatedSaveUnitDialog(
+  props: TargetedSaveUnitDialogProps,
+): React.ReactElement {
+  const constructionValidation = useUnitValidation();
+  return (
+    <SaveUnitDialog
+      {...props}
+      constructionValidation={constructionValidation}
+    />
+  );
+}
+
+export function TargetedSaveUnitDialog(
+  props: TargetedSaveUnitDialogProps,
+): React.ReactElement {
+  const targetStore = props.currentUnitId
+    ? getUnitStore(props.currentUnitId)
+    : undefined;
+
+  if (!targetStore) {
+    return (
+      <SaveUnitDialog
+        {...props}
+        constructionValidation={{
+          isValid: false,
+          isLoading: false,
+          isValidating: false,
+          errorCount: 1,
+        }}
+      />
+    );
+  }
+
+  return (
+    <UnitStoreContext.Provider value={targetStore}>
+      <StoreValidatedSaveUnitDialog {...props} />
+    </UnitStoreContext.Provider>
+  );
 }
 
 export function MultiUnitTabs({
@@ -138,7 +189,7 @@ export function MultiUnitTabs({
         onSave={handleCloseDialogSave}
       />
 
-      <SaveUnitDialog
+      <TargetedSaveUnitDialog
         isOpen={saveDialog.isOpen}
         initialChassis={saveDialog.chassis}
         initialVariant={saveDialog.variant}
