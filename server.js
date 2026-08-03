@@ -32,6 +32,9 @@ process.env.BROWSERSLIST_IGNORE_OLD_DATA ??= 'true';
 
 const next = require('next');
 const { WebSocketServer } = require('ws');
+const {
+  serveDevClientMiddlewareManifest,
+} = require('./src/lib/server/devClientMiddlewareManifest.js');
 
 const STANDALONE_NEXT_CONFIG_PATH = path.join(
   __dirname,
@@ -221,12 +224,13 @@ const dev =
   process.env.npm_lifecycle_event !== 'start';
 const port = parseInt(process.env.PORT ?? '3600', 10);
 const hostname = process.env.HOSTNAME ?? 'localhost';
+const appDir = isStandaloneRuntime ? __dirname : process.cwd();
 
 const app = next({
   dev,
   hostname,
   port,
-  dir: isStandaloneRuntime ? __dirname : process.cwd(),
+  dir: appDir,
   ...(standaloneNextConfig ? { conf: standaloneNextConfig } : {}),
 });
 const handle = app.getRequestHandler();
@@ -347,6 +351,17 @@ app
         }
         if (parsedUrl.pathname === WS_UPGRADE_PATH) {
           sendWebSocketUpgradeRequired(res);
+          return;
+        }
+        if (
+          serveDevClientMiddlewareManifest({
+            dev,
+            method: req.method,
+            pathname: parsedUrl.pathname,
+            response: res,
+            rootDir: appDir,
+          })
+        ) {
           return;
         }
         await handle(req, res, parsedUrl);
