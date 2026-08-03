@@ -243,17 +243,13 @@ async function saveCampaignThroughDashboard(
       (response) =>
         response.request().method() === 'PUT' &&
         response.url().includes(`/api/campaigns/${campaignId}`) &&
-        [200, 409].includes(response.status()),
+        response.status() === 200,
       { timeout: 20_000 },
     ),
     page.getByTestId('campaign-save-now-btn').click(),
   ]);
 
-  const finalSaveResponse =
-    saveResponse.status() === 409
-      ? await resolveSaveConflictKeepLocal(page, campaignId)
-      : saveResponse;
-  const saved = (await finalSaveResponse.json()) as {
+  const saved = (await saveResponse.json()) as {
     version?: unknown;
   };
 
@@ -265,25 +261,6 @@ async function saveCampaignThroughDashboard(
   return {
     version: saved.version as number,
   };
-}
-
-async function resolveSaveConflictKeepLocal(page: Page, campaignId: string) {
-  await expect(
-    page.getByTestId('campaign-conflict-keep-local-btn'),
-  ).toBeVisible({
-    timeout: 20_000,
-  });
-  const [saveResponse] = await Promise.all([
-    page.waitForResponse(
-      (response) =>
-        response.request().method() === 'PUT' &&
-        response.url().includes(`/api/campaigns/${campaignId}`) &&
-        response.status() === 200,
-      { timeout: 20_000 },
-    ),
-    page.getByTestId('campaign-conflict-keep-local-btn').click(),
-  ]);
-  return saveResponse;
 }
 
 async function stampGuestCoopSession(page: Page): Promise<void> {
