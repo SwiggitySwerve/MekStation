@@ -38,6 +38,7 @@ const environment=await import(${JSON.stringify(environmentUrl)});
 fs.mkdirSync(root,{recursive:true}); fs.writeFileSync(path.join(root,'package-lock.json'),'lock-v1');
 const runtimeRoot=path.join(path.dirname(root),'.camp01-runtime-'+path.basename(root)), calls=[];
 if(request.precreateRuntime) { fs.mkdirSync(runtimeRoot,{recursive:true}); fs.writeFileSync(path.join(runtimeRoot,'sentinel'),'owned elsewhere'); }
+if(request.precreateOwnedRuntime) { fs.mkdirSync(runtimeRoot,{recursive:true}); fs.writeFileSync(path.join(runtimeRoot,'sentinel'),'retry residue'); fs.writeFileSync(path.join(runtimeRoot,'.camp01-runtime-owner.json'),canonicalBytes({schema:'camp01-runtime-root/v1',targetDigest:digestBytes(root)})); }
 const versions={node:'22.22.0',npm:'11.6.2',git:'2.54.0.windows.1',...request.versions};
 const gitExecutable=request.gitExecutable??'C:\\\\Program Files\\\\Git\\\\mingw64\\\\bin\\\\git.exe';
 const dependencies={
@@ -55,7 +56,7 @@ try { let value;
   if(request.action==='import') value={loaded:true};
   else if(request.action==='expand') value=environment.expandLogicalCommand(request.argv,{nodeExecutable:request.toolDrift??process.execPath,npmCli:path.join(path.dirname(process.execPath),'node_modules','npm','bin','npm-cli.js')});
   else { const proofTarget={canonicalPath:root}, prepared=request.skipPrepare?undefined:await environment.prepareEnvironment({row,proofTarget},dependencies);
-    if(request.action==='prepare') value={prepared,bootstrap:calls[0]};
+    if(request.action==='prepare') value={prepared,bootstrap:calls[0],ownedResidueRemoved:request.precreateOwnedRuntime?!fs.existsSync(path.join(runtimeRoot,'sentinel')):undefined};
     else { if(!request.omitWriterContext) dependencies.resolveWriterContext=()=>writerContext; dependencies.randomBytes=()=>Buffer.from('4'.repeat(32),'hex'); value={result:await environment.executeReceipt({row,arguments:{mode:'reviewed-head',wave:'camp-proof',sha,runRoot:row.runRootTemplate.replace('<sha>',sha)},provenance:{subject:'product-pr'},environment:prepared,proofTarget},dependencies),calls,files:fs.readdirSync(path.join(root,row.runRootTemplate.replace('<sha>',sha),'camp01-'+'4'.repeat(32))).sort()}; }
   }
   process.stdout.write(JSON.stringify({ok:true,value}));
@@ -67,6 +68,7 @@ type Result = {
   value?: {
     prepared?: { executionEnvironmentDigest: string };
     bootstrap?: { options: { env: Record<string, string> } };
+    ownedResidueRemoved?: boolean;
     result?: { runId: string; phase: string; finalizedPaths: string[] };
     loaded?: boolean;
     calls?: Array<{
@@ -244,6 +246,15 @@ describe('cross-platform CAMP-01 pinned proof environment logic', () => {
       ok: false,
       error: 'CAMP01_ENVIRONMENT_INVALID: writer runtime root is not exclusive',
       runtimePreserved: true,
+    });
+  });
+
+  it('reclaims only marker-verified writer residue before a retry', () => {
+    expect(
+      invoke({ action: 'prepare', root, precreateOwnedRuntime: true }),
+    ).toMatchObject({
+      ok: true,
+      value: { ownedResidueRemoved: true },
     });
   });
 
