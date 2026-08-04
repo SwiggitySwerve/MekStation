@@ -18,6 +18,11 @@ const e2eReadyURL = `${e2eBaseURL}/__playwright_e2e_ready__?runId=${encodeURICom
 const campRuntimeRouted = /^[0-9a-f]{64}$/.test(
   process.env.CAMP01_RUNTIME_LEASE ?? '',
 );
+const campJsonCollection = Boolean(
+  campRuntimeRouted &&
+  process.env.PLAYWRIGHT_JSON_OUTPUT_DIR &&
+  process.env.PLAYWRIGHT_JSON_OUTPUT_NAME,
+);
 const playwrightResults =
   campRuntimeRouted && process.env.CAMP01_PLAYWRIGHT_OUTPUT_DIR
     ? process.env.CAMP01_PLAYWRIGHT_OUTPUT_DIR
@@ -71,6 +76,19 @@ const e2eRuntimeDir =
 export default defineConfig({
   testDir: './e2e',
 
+  ...(campJsonCollection
+    ? {
+        metadata: {
+          camp01: {
+            artifactDir: process.env.CAMP01_ARTIFACT_DIR,
+            executionId: process.env.CAMP01_EXECUTION_ID,
+            invocationId: process.env.CAMP01_INVOCATION_ID,
+            runId: process.env.CAMP01_RUN_ID,
+          },
+        },
+      }
+    : {}),
+
   /* Run tests in files in parallel */
   fullyParallel: true,
 
@@ -93,10 +111,15 @@ export default defineConfig({
 
   /* Reporter configuration */
   reporter: process.env.CI
-    ? [['github'], ['html', { open: 'never', outputFolder: playwrightHtml }]]
+    ? [
+        ['github'],
+        ['html', { open: 'never', outputFolder: playwrightHtml }],
+        ...(campJsonCollection ? ([['json']] as const) : []),
+      ]
     : [
         ['list'],
         ['html', { open: 'on-failure', outputFolder: playwrightHtml }],
+        ...(campJsonCollection ? ([['json']] as const) : []),
       ],
 
   outputDir: playwrightResults,

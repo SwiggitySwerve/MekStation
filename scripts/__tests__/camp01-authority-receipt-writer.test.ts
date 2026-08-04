@@ -31,15 +31,16 @@ try {
     randomBytes: () => Buffer.from(request.entropy, 'hex'),
     runCommand: async (_argv, context) => {
       commandCount += 1;
-      const waveResult = { schema: 'camp01-wave-result/v1', wave: request.value.wave,
+      if (request.reproduction) { const reporter=WAVE_CONTRACTS['proof-02-reproduction'].reporterContracts[0], reproduction={schema:reporter.reportSchema,parentRunId:context.runId,executionId:context.executionId,invocationId:context.invocationId,sha:request.value.sha,historicalAnchorIds:[...reporter.requiredTestIds].sort(),observations:request.reproduction}; fs.writeFileSync(context.artifactPath(reporter.normalizedPath),schemas.canonicalBytes(reproduction)); }
+      else { const waveResult = { schema: 'camp01-wave-result/v1', wave: request.value.wave,
         runId: context.runId, status: 'passed', assertions: Object.fromEntries(
           request.assertions.sort().map((id) => [id, request.assertionValues?.[id] ?? true])) };
-      fs.writeFileSync(context.artifactPath('wave-result.json'), schemas.canonicalBytes(waveResult));
+        fs.writeFileSync(context.artifactPath('wave-result.json'), schemas.canonicalBytes(waveResult)); }
       if (request.capture && context.invocationId === 'camp-01e-picker-browser') {
         const policy=capture.capturePolicyFor('camp-01e'), snapshot={fixtureIds:[...policy.fixtureIds],fixtureAliases:[...policy.fixtureAliases],nonFixtureSentinels:[],domState:{html:'fixture'},appState:{route:'/fixture'},counters:{domMutations:0,storageWrites:0,databaseWrites:0,networkWrites:0},barrierTripped:false};
         for (const artifactPath of ['mobile-390x844.png','desktop.png']) { const transaction=capture.openCaptureTransaction({wave:'camp-01e',invocationId:context.invocationId,commandSequenceIndex:1,artifactPath,artifactDirectory:path.dirname(context.artifactPath(artifactPath))},{instrumentation:{seedFixtures:async()=>undefined,arm:async()=>undefined,snapshot:async()=>snapshot}}); await transaction.prepare(); await transaction.capture(async(file)=>fs.writeFileSync(file,Buffer.from(artifactPath))); await transaction.publish(); }
       }
-      return { exitCode: 0, observedTestIds: [] };
+      return { exitCode: 0, ...(request.callerObservedTestIds ? { observedTestIds: request.callerObservedTestIds } : {}) };
     },
   });
   else if (request.action === 'validate-directory') value = writer.validateReceiptDirectory(request.value.directory, request.value.context);
@@ -67,6 +68,10 @@ const cap = { subject: 'product-pr', baseSha: sha, headSha: sha, fileCount: 4, c
 const registryContext = { evidence: [], provenance: [{ id: `tuple-${'2'.repeat(16)}`, sourceKind: 'spec-tuple', wave: 'camp-proof', subject: 'product-pr' }, { id: `tuple-${'3'.repeat(16)}`, sourceKind: 'owned-pr-tuple', wave: 'camp-proof', subject: 'product-pr' }], refs: [], capturePolicies: [], repairSources: [] };
 // prettier-ignore
 function baseRequest(runRoot: string) { return { wave: 'camp-proof', commandId: 'camp-proof', sha, treeSha: sha, runRoot, mode: 'reviewed-head', executionEnvironmentDigest: digest, provenance: { subject: 'product-pr', specTupleId: `tuple-${'2'.repeat(16)}`, ownedPrTupleId: `tuple-${'3'.repeat(16)}`, predecessorReceiptIds: [] }, capProvenance: { ...cap }, identityRegistry: { schema: 'camp01-identity-registry/v1', entities: [], refs: [] }, registryContext: JSON.parse(JSON.stringify(registryContext)), reviewedHead: null } as const; }
+// prettier-ignore
+const proofAnchors=['e2e/campaign-starmap-logistics.spec.ts::campaign starmap logistics::previews, approves, and reloads campaign travel consequences','e2e/gm-campaign-ledger-control-plane.spec.ts::GM campaign ledger control plane @gm-ledger::guest direct route shows only player-safe ledger projection','e2e/gm-campaign-ledger-control-plane.spec.ts::GM campaign ledger control plane @gm-ledger::saves and reloads a player-safe merchant reversal from the server campaign list'];
+// prettier-ignore
+function proofRequest(runRoot: string) { const specId=`tuple-${'4'.repeat(16)}`, predecessorId=`receipt-${'5'.repeat(16)}`; return {wave:'proof-02-reproduction',commandId:'proof-02-reproduction',sha,treeSha:sha,runRoot,mode:'exact-main',executionEnvironmentDigest:digest,provenance:{subject:'none',specTupleId:specId,ownedPrTupleId:null,predecessorReceiptIds:[predecessorId]},capProvenance:null,identityRegistry:{schema:'camp01-identity-registry/v1',entities:[],refs:[]},registryContext:{evidence:[],provenance:[{id:predecessorId,sourceKind:'predecessor-receipt',wave:'camp-proof',subject:'product-pr'},{id:specId,sourceKind:'spec-tuple',wave:'proof-02-reproduction',subject:'none'}],refs:[],capturePolicies:[],repairSources:[]},reviewedHead:null} as const; }
 // prettier-ignore
 const campProofAssertions=['unknownFieldsRejected===true','missingFieldsRejected===true','headShaMatched===true','pathShaMatched===true','inputDigestsMatched===true','exactMainRegenerated===true'];
 const camp01eAssertions = [
@@ -228,6 +233,87 @@ describe('CAMP-01 authority receipt writer and validator', () => {
     expect(
       invoke({ action: 'validateProof02Triage', args: [[], normalized] }).ok,
     ).toBe(false);
+  });
+
+  it('derives observed ids from the reopened report and rejects caller ids', () => {
+    const root = fs.mkdtempSync(
+      path.join(os.tmpdir(), 'camp-proof4c1-writer-'),
+    );
+    const reproduction = [
+      {
+        id: proofAnchors[0],
+        status: 'passed',
+        failureFingerprint: null,
+        knownFailureCode: 'development-mime-diagnostic',
+      },
+      {
+        id: proofAnchors[1],
+        status: 'failed',
+        failureFingerprint: null,
+        knownFailureCode: 'guest-badge-timing',
+      },
+      {
+        id: proofAnchors[2],
+        status: 'missing',
+        failureFingerprint: null,
+        knownFailureCode: 'save-conflict-timing',
+      },
+      {
+        id: 'e2e/campaign-customizer-handoff.spec.ts::campaign customizer handoff @campaign @customizer::unexpected failure',
+        status: 'failed',
+        failureFingerprint: null,
+        knownFailureCode: null,
+      },
+    ].sort((a, b) => a.id.localeCompare(b.id));
+    const request = proofRequest(
+      path.join(
+        root,
+        '.sisyphus',
+        'evidence',
+        'playtest',
+        `proof02-reproduction-${sha}`,
+      ),
+    );
+    const written = invoke({
+      action: 'write',
+      value: request,
+      reproduction,
+      entropy: '7'.repeat(32),
+    });
+    expect(written.error).toBeUndefined();
+    expect(written.ok).toBe(true);
+    const command = JSON.parse(
+      fs.readFileSync(
+        path.join(
+          (written.value as { finalDirectory: string }).finalDirectory,
+          'command-result.json',
+        ),
+        'utf8',
+      ),
+    ) as { observedTestIds: string[] };
+    expect(command.observedTestIds).toEqual(
+      reproduction.map(({ id }) => id).sort(),
+    );
+    const rejected = invoke({
+      action: 'write',
+      value: proofRequest(
+        path.join(
+          root,
+          'second',
+          '.sisyphus',
+          'evidence',
+          'playtest',
+          `proof02-reproduction-${sha}`,
+        ),
+      ),
+      reproduction,
+      callerObservedTestIds: ['caller-selected-id'],
+      entropy: '8'.repeat(32),
+    });
+    expect(rejected).toMatchObject({
+      ok: false,
+      error: 'CAMP01_WRITER_INVALID: caller observed ids rejected',
+    });
   });
 
   it('issues exactly the three fixed H child labels with distinct identities', () => {

@@ -4,6 +4,7 @@ import { fileURLToPath } from 'node:url';
 
 import { pipeFilteredOutput } from '../lib/known-validation-output.mjs';
 import { captureEnvironment } from '../qc/camp01-capture-transaction.mjs';
+import { prepareCamp01PlaywrightCollection } from '../qc/camp01-playwright-normalizer.mjs';
 import { createCamp01RunnerIsolation } from '../qc/camp01-runner-isolation.mjs';
 
 const repoRoot = path.resolve(
@@ -20,6 +21,11 @@ const playwrightCli = path.join(
 );
 const rawArgs = process.argv.slice(2);
 const campIsolation = createCamp01RunnerIsolation(process.env, { repoRoot });
+const campCollection = prepareCamp01PlaywrightCollection(
+  process.env,
+  campIsolation,
+  { repoRoot },
+);
 // Prod-evidence capture (command-screens re-audit H2): `--prod-evidence` is
 // OUR flag, stripped before forwarding to the Playwright CLI. It flips the
 // webServer to a build+start chain against the standalone production server
@@ -51,6 +57,7 @@ const child = spawn(process.execPath, [playwrightCli, ...playwrightArgs], {
   env: {
     ...process.env,
     ...campIsolation.environment,
+    ...campCollection.environment,
     BASELINE_BROWSER_MAPPING_IGNORE_OLD_DATA: 'true',
     BROWSERSLIST_IGNORE_OLD_DATA: 'true',
     ...prodEvidenceEnv,
@@ -67,7 +74,7 @@ if (!isInteractive) {
 child.on('error', async (error) => {
   console.error(error);
   try {
-    await campIsolation.finish();
+    await campIsolation.finish(campCollection.normalize);
   } catch (cleanupError) {
     console.error('[playwright] runtime cleanup failed:', cleanupError);
   }
@@ -76,7 +83,7 @@ child.on('error', async (error) => {
 
 child.on('exit', async (code, signal) => {
   try {
-    await campIsolation.finish();
+    await campIsolation.finish(campCollection.normalize);
   } catch (cleanupError) {
     console.error('[playwright] runtime cleanup failed:', cleanupError);
     process.exit(1);
