@@ -3,6 +3,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { pipeFilteredOutput } from '../lib/known-validation-output.mjs';
+import { captureEnvironment } from '../qc/camp01-capture-transaction.mjs';
 
 const repoRoot = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
@@ -37,6 +38,7 @@ const prodEvidenceEnv = prodEvidence
   : {};
 const isInteractive =
   playwrightArgs.includes('--ui') || playwrightArgs.includes('--debug');
+const campCaptureEnvironment = captureEnvironment(process.env);
 
 const child = spawn(process.execPath, [playwrightCli, ...playwrightArgs], {
   cwd: repoRoot,
@@ -45,6 +47,7 @@ const child = spawn(process.execPath, [playwrightCli, ...playwrightArgs], {
     BASELINE_BROWSER_MAPPING_IGNORE_OLD_DATA: 'true',
     BROWSERSLIST_IGNORE_OLD_DATA: 'true',
     ...prodEvidenceEnv,
+    ...campCaptureEnvironment,
   },
   stdio: isInteractive ? 'inherit' : ['inherit', 'pipe', 'pipe'],
 });

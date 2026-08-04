@@ -49,6 +49,35 @@ export interface WalkthroughStepOptions {
   readonly surface?: string;
 }
 
+export async function captureCamp01AttestedPng(
+  page: Page,
+  artifactPath: string,
+): Promise<void> {
+  const {
+    Camp01CaptureInvalidError,
+    captureRequestFromEnvironment,
+    createBrowserCaptureInstrumentation,
+    openCaptureTransaction,
+  } = await import('../../scripts/qc/camp01-capture-transaction.mjs');
+  const request = captureRequestFromEnvironment(process.env, artifactPath);
+  if (!request)
+    throw new Camp01CaptureInvalidError('CAMP capture context missing');
+  await page.addStyleTag({ content: PUBLISHABLE_SCREENSHOT_STYLE });
+  const transaction = openCaptureTransaction(request, {
+    instrumentation: createBrowserCaptureInstrumentation(page),
+  });
+  await transaction.prepare();
+  await transaction.capture((file: string) =>
+    page.screenshot({
+      animations: 'disabled',
+      fullPage: true,
+      path: file,
+      timeout: 15_000,
+    }),
+  );
+  await transaction.publish();
+}
+
 export type WalkthroughSoftStepOptions = Omit<
   WalkthroughStepOptions,
   'tolerant'

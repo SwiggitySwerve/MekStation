@@ -10,10 +10,15 @@ const writerUrl = pathToFileURL(
 const schemasUrl = pathToFileURL(
   path.resolve('scripts/qc/camp01-authority-receipt.schemas.mjs'),
 ).href;
+const captureUrl = pathToFileURL(
+  path.resolve('scripts/qc/camp01-capture-transaction.mjs'),
+).href;
 // prettier-ignore
 const contractUrl=pathToFileURL(path.resolve('scripts/qc/camp01-authority-receipt.contract.mjs')).href;
 const harness = `
 import fs from 'node:fs';
+import path from 'node:path';
+import * as capture from ${JSON.stringify(captureUrl)};
 import * as schemas from ${JSON.stringify(schemasUrl)};
 import * as writer from ${JSON.stringify(writerUrl)};
 import { WAVE_CONTRACTS } from ${JSON.stringify(contractUrl)};
@@ -21,7 +26,8 @@ const request = JSON.parse(fs.readFileSync(0, 'utf8'));
 let commandCount = 0;
 try {
   let value;
-  if (request.action === 'write') value = await writer.writeReceipt(request.value, {
+  if (request.action === 'capture-policy') value = capture.capturePolicyFor(request.value);
+  else if (request.action === 'write') value = await writer.writeReceipt(request.value, {
     randomBytes: () => Buffer.from(request.entropy, 'hex'),
     runCommand: async (_argv, context) => {
       commandCount += 1;
@@ -29,6 +35,10 @@ try {
         runId: context.runId, status: 'passed', assertions: Object.fromEntries(
           request.assertions.sort().map((id) => [id, request.assertionValues?.[id] ?? true])) };
       fs.writeFileSync(context.artifactPath('wave-result.json'), schemas.canonicalBytes(waveResult));
+      if (request.capture && context.invocationId === 'camp-01e-picker-browser') {
+        const policy=capture.capturePolicyFor('camp-01e'), snapshot={fixtureIds:[...policy.fixtureIds],fixtureAliases:[...policy.fixtureAliases],nonFixtureSentinels:[],domState:{html:'fixture'},appState:{route:'/fixture'},counters:{domMutations:0,storageWrites:0,databaseWrites:0,networkWrites:0},barrierTripped:false};
+        for (const artifactPath of ['mobile-390x844.png','desktop.png']) { const transaction=capture.openCaptureTransaction({wave:'camp-01e',invocationId:context.invocationId,commandSequenceIndex:1,artifactPath,artifactDirectory:path.dirname(context.artifactPath(artifactPath))},{instrumentation:{seedFixtures:async()=>undefined,arm:async()=>undefined,snapshot:async()=>snapshot}}); await transaction.prepare(); await transaction.capture(async(file)=>fs.writeFileSync(file,Buffer.from(artifactPath))); await transaction.publish(); }
+      }
       return { exitCode: 0, observedTestIds: [] };
     },
   });
@@ -59,6 +69,15 @@ const registryContext = { evidence: [], provenance: [{ id: `tuple-${'2'.repeat(1
 function baseRequest(runRoot: string) { return { wave: 'camp-proof', commandId: 'camp-proof', sha, treeSha: sha, runRoot, mode: 'reviewed-head', executionEnvironmentDigest: digest, provenance: { subject: 'product-pr', specTupleId: `tuple-${'2'.repeat(16)}`, ownedPrTupleId: `tuple-${'3'.repeat(16)}`, predecessorReceiptIds: [] }, capProvenance: { ...cap }, identityRegistry: { schema: 'camp01-identity-registry/v1', entities: [], refs: [] }, registryContext: JSON.parse(JSON.stringify(registryContext)), reviewedHead: null } as const; }
 // prettier-ignore
 const campProofAssertions=['unknownFieldsRejected===true','missingFieldsRejected===true','headShaMatched===true','pathShaMatched===true','inputDigestsMatched===true','exactMainRegenerated===true'];
+const camp01eAssertions = [
+  'savedDesignIdPresent===true',
+  'rosterInstanceIdPresent===true',
+  'unitRefMatched===true',
+  'unitSourceCustom===true',
+  'rootForceContainsInstance===true',
+  'programmaticNamesPresent===true',
+  'narrowViewportUsable===true',
+];
 
 describe('CAMP-01 authority receipt writer and validator', () => {
   it('emits canonical bytes and rejects missing, unknown, or unsafe fields', () => {
@@ -119,6 +138,43 @@ describe('CAMP-01 authority receipt writer and validator', () => {
     expect(command.artifactDigests['receipt-manifest.json']).toBeUndefined();
     fs.appendFileSync(path.join(finalDirectory, 'wave-result.json'), ' ');
     expect(invoke(validationRequest).ok).toBe(false);
+  });
+
+  it('accepts the guarded transaction attestation set as its capture oracle', () => {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'camp-proof4a-writer-'));
+    const runRoot = path.join(
+      root,
+      '.sisyphus',
+      'evidence',
+      'playtest',
+      `camp01e-picker-${sha}`,
+    );
+    const policy = invoke({ action: 'capture-policy', value: 'camp-01e' })
+      .value as { fixtureAllowlistDigest: string; barrierPolicyDigest: string };
+    const specId = `tuple-${'5'.repeat(16)}`,
+      productId = `tuple-${'6'.repeat(16)}`,
+      predecessorId = `receipt-${'7'.repeat(16)}`;
+    // prettier-ignore
+    const value={...baseRequest(runRoot),wave:'camp-01e',commandId:'camp-01e',provenance:{subject:'product-pr',specTupleId:specId,ownedPrTupleId:productId,predecessorReceiptIds:[predecessorId]},registryContext:{evidence:[],provenance:[{id:predecessorId,sourceKind:'predecessor-receipt',wave:'camp-01d',subject:'product-pr'},{id:specId,sourceKind:'spec-tuple',wave:'camp-01e',subject:'product-pr'},{id:productId,sourceKind:'owned-pr-tuple',wave:'camp-01e',subject:'product-pr'}],refs:[],capturePolicies:[{wave:'camp-01e',sha,fixtureAllowlistDigest:policy.fixtureAllowlistDigest,barrierPolicyDigest:policy.barrierPolicyDigest}],repairSources:[]}};
+    const written = invoke({
+      action: 'write',
+      value,
+      assertions: camp01eAssertions,
+      entropy: '8'.repeat(32),
+      capture: true,
+    });
+    expect(written).toMatchObject({ ok: true, commandCount: 2 });
+    const finalDirectory = (written.value as { finalDirectory: string })
+      .finalDirectory;
+    const command = JSON.parse(
+      fs.readFileSync(path.join(finalDirectory, 'command-result.json'), 'utf8'),
+    ) as { captureAttestations: Array<{ artifactPath: string }> };
+    expect(
+      command.captureAttestations.map(({ artifactPath }) => artifactPath),
+    ).toEqual(['desktop.png', 'mobile-390x844.png']);
+    expect(
+      fs.existsSync(path.join(finalDirectory, '.capture-attestations.json')),
+    ).toBe(false);
   });
 
   // prettier-ignore
