@@ -3,6 +3,7 @@ import type { Page, TestInfo } from '@playwright/test';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
+import * as ts from 'typescript';
 
 import type { WalkthroughFindingRecord } from '../../e2e/helpers/uxWalkthrough';
 
@@ -12,6 +13,25 @@ import {
 } from '../../e2e/helpers/uxWalkthrough';
 
 describe('UX walkthrough recorder privacy ingress', () => {
+  it('exposes no guard-bypass options at the production capture boundary', () => {
+    const source = ts.createSourceFile(
+      'uxWalkthrough.ts',
+      fs.readFileSync(path.resolve('e2e/helpers/uxWalkthrough.ts'), 'utf8'),
+      ts.ScriptTarget.Latest,
+      true,
+    );
+    const declaration = source.statements.find(
+      (statement) =>
+        ts.isFunctionDeclaration(statement) &&
+        statement.name?.text === 'captureCamp01AttestedPng',
+    );
+    expect(declaration && ts.isFunctionDeclaration(declaration)).toBe(true);
+    expect(declaration?.parameters).toHaveLength(2);
+    expect(declaration?.parameters[1]?.type?.kind).toBe(
+      ts.SyntaxKind.StringKeyword,
+    );
+  });
+
   it('keeps route shape while replacing dynamic path and query values', () => {
     const rawRoute =
       'https://localhost:3600/gameplay/campaigns/campaign-private-42/starmap?' +
@@ -68,6 +88,7 @@ describe('UX walkthrough recorder privacy ingress', () => {
       `https://localhost:3600/gameplay/campaigns/${rawId}/gm-ledger?` +
       'description=PROOF03_PRIVATE_MARKER';
     const screenshotCalls: Array<{ style?: string }> = [];
+    const screenshotBytes = Buffer.from('NON_CAMP_SCREENSHOT_BYTES');
     const listeners = new Map<string, (value: unknown) => void>();
     const page = {
       url: () => rawUrl,
@@ -76,8 +97,9 @@ describe('UX walkthrough recorder privacy ingress', () => {
       },
       waitForLoadState: async () => undefined,
       waitForTimeout: async () => undefined,
-      screenshot: async (options: { style?: string }) => {
+      screenshot: async (options: { style?: string; path: string }) => {
         screenshotCalls.push(options);
+        fs.writeFileSync(options.path, screenshotBytes);
       },
     } as unknown as Page;
     const secondaryPage = { ...page } as unknown as Page;
@@ -127,6 +149,7 @@ describe('UX walkthrough recorder privacy ingress', () => {
       const serialized = fs.readFileSync(recordPath, 'utf8');
       const record = JSON.parse(serialized) as {
         steps: Array<{
+          screenshot: string;
           route: string;
           notes: string[];
           consoleErrors: string[];
@@ -167,6 +190,12 @@ describe('UX walkthrough recorder privacy ingress', () => {
       expect(screenshotCalls[0].style).toMatch(
         /color:transparent.*content:none.*img,svg,canvas,video/,
       );
+      expect(
+        fs.readFileSync(path.join(runDir, record.steps[0].screenshot)),
+      ).toEqual(screenshotBytes);
+      expect(
+        fs.existsSync(path.join(runDir, '.capture-attestations.json')),
+      ).toBe(false);
       const reject = (finding: WalkthroughFindingRecord) =>
         expect(() => recorder.finding(finding)).toThrow();
       reject({

@@ -30,6 +30,8 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+import { captureEnvironment } from './camp01-capture-transaction.mjs';
+
 const repoRoot = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
   '..',
@@ -58,6 +60,7 @@ const isDirectRun =
 const shellSpec = 'e2e/ux-walkthrough-audit.spec.ts';
 const deepSpec = 'e2e/ux-deep-play-audit.spec.ts';
 const specArgs = deep ? [deepSpec] : [shellSpec, deepSpec];
+const campCaptureEnvironment = captureEnvironment(process.env);
 
 // Filesystem-safe local-time run id, e.g. 2026-07-04T18-22-33.
 const runId = localRunId();
@@ -95,6 +98,7 @@ function run() {
     cwd: repoRoot,
     env: {
       ...process.env,
+      ...campCaptureEnvironment,
       MEKSTATION_UX_WALKTHROUGH_RUN_DIR: runDir,
       MEKSTATION_UX_WALKTHROUGH_BUILD_MODE: prod ? 'production' : 'development',
     },
