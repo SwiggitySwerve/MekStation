@@ -15,7 +15,25 @@ process.env.BROWSERSLIST_IGNORE_OLD_DATA ??= 'true';
 const e2eReadyURL = `${e2eBaseURL}/__playwright_e2e_ready__?runId=${encodeURIComponent(
   e2eRunId,
 )}`;
-const e2eRuntimeDir = `./.sisyphus/e2e-runtime/${e2eRunId}`;
+const campRuntimeRouted = /^[0-9a-f]{64}$/.test(
+  process.env.CAMP01_RUNTIME_LEASE ?? '',
+);
+const playwrightResults =
+  campRuntimeRouted && process.env.CAMP01_PLAYWRIGHT_OUTPUT_DIR
+    ? process.env.CAMP01_PLAYWRIGHT_OUTPUT_DIR
+    : 'test-results';
+const playwrightHtml =
+  campRuntimeRouted && process.env.CAMP01_PLAYWRIGHT_HTML_DIR
+    ? process.env.CAMP01_PLAYWRIGHT_HTML_DIR
+    : 'playwright-report';
+const playwrightSnapshots =
+  campRuntimeRouted && process.env.CAMP01_PLAYWRIGHT_SNAPSHOT_DIR
+    ? process.env.CAMP01_PLAYWRIGHT_SNAPSHOT_DIR
+    : '.sisyphus/evidence/screenshots';
+const e2eRuntimeDir =
+  campRuntimeRouted && process.env.CAMP01_DATABASE_DIR
+    ? process.env.CAMP01_DATABASE_DIR
+    : `./.sisyphus/e2e-runtime/${e2eRunId}`;
 
 /**
  * Playwright configuration for MekStation E2E tests
@@ -75,11 +93,16 @@ export default defineConfig({
 
   /* Reporter configuration */
   reporter: process.env.CI
-    ? [['github'], ['html', { open: 'never' }]]
-    : [['list'], ['html', { open: 'on-failure' }]],
+    ? [['github'], ['html', { open: 'never', outputFolder: playwrightHtml }]]
+    : [
+        ['list'],
+        ['html', { open: 'on-failure', outputFolder: playwrightHtml }],
+      ],
+
+  outputDir: playwrightResults,
 
   /* Screenshot directory for audit capture suite */
-  snapshotDir: '.sisyphus/evidence/screenshots',
+  snapshotDir: playwrightSnapshots,
 
   /* Shared settings for all the projects below */
   use: {
@@ -103,6 +126,17 @@ export default defineConfig({
 
     /* Navigation timeout */
     navigationTimeout: 30 * 1000,
+
+    ...(campRuntimeRouted && process.env.CAMP01_BROWSER_STORAGE_STATE
+      ? { storageState: process.env.CAMP01_BROWSER_STORAGE_STATE }
+      : {}),
+    ...(campRuntimeRouted && process.env.CAMP01_BROWSER_DOWNLOADS_DIR
+      ? {
+          launchOptions: {
+            downloadsPath: process.env.CAMP01_BROWSER_DOWNLOADS_DIR,
+          },
+        }
+      : {}),
   },
 
   /* Configure projects for major browsers */
@@ -245,6 +279,9 @@ export default defineConfig({
       MULTIPLAYER_STORE: 'durable',
       MULTIPLAYER_DB_PATH: `${e2eRuntimeDir}/multiplayer-matches.db`,
       DATABASE_PATH: `${e2eRuntimeDir}/mekstation.db`,
+      ...(campRuntimeRouted && process.env.MEKSTATION_NEXT_DIST_DIR
+        ? { MEKSTATION_NEXT_DIST_DIR: process.env.MEKSTATION_NEXT_DIST_DIR }
+        : {}),
     },
   },
 });

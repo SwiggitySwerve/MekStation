@@ -61,6 +61,8 @@ function deriveEvidenceId(runId,wave,label,kind,key) { return `ev-${createHash('
 // prettier-ignore
 function executionIdFor(row,runId,invocationId) { const reporter=row.reporterContracts.find((entry)=>entry.invocationId===invocationId); return reporter?.witnessLabel?issueHIdentities(runId)[reporter.witnessLabel].executionId:deriveEvidenceId(runId,row.wave,null,'execution',invocationId); }
 // prettier-ignore
+export function issuedCommandIdentity(row,index,runId) { const invocationId=invocationIdFor(row,index); return Object.freeze({invocationId,executionId:executionIdFor(row,runId,invocationId)}); }
+// prettier-ignore
 function buildManifest(root,row,runId) { const entries=row.artifacts.filter((name)=>name!=='receipt-manifest.json').sort().map((name)=>{const bytes=fs.readFileSync(artifactPath(root,row,name)); return {path:name,type:'file',size:bytes.length,digest:digestBytes(bytes)};}); const value={schema:'camp01-receipt-manifest/v1',runId,wave:row.wave,entries}; validateArtifact(value,{runId,expectedPaths:entries.map(({path:name})=>name)}); return value; }
 // prettier-ignore
 function artifactContext(row,runId,sha,name) { return {row,runId,sha,reporter:row.reporterContracts.find(({normalizedPath})=>normalizedPath===name)}; }

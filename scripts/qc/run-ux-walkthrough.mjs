@@ -24,6 +24,7 @@
  * failing journey is itself an audit finding, and the reviewer needs the
  * partial catalog to see where the user path broke.
  */
+// allow: SIZE_OK - legacy runner is wiring-only here; decomposition is outside PROOF-4B's cap and ownership.
 
 import { spawn } from 'node:child_process';
 import fs from 'node:fs';
@@ -31,6 +32,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { captureEnvironment } from './camp01-capture-transaction.mjs';
+import { createCamp01RunnerIsolation } from './camp01-runner-isolation.mjs';
 
 const repoRoot = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
@@ -51,6 +53,7 @@ export const AUTHORITY_SPLIT_NOTICE =
   'remain the source of permanent authority for CI. Graded findings recorded here inform ' +
   'review and backlog triage; they never flip a PR-blocking check.';
 const rawArgs = process.argv.slice(2);
+const campIsolation = createCamp01RunnerIsolation(process.env, { repoRoot });
 const prod = rawArgs.includes('--prod');
 const deep = rawArgs.includes('--deep');
 const extraArgs = rawArgs.filter((arg) => arg !== '--prod' && arg !== '--deep');
@@ -64,13 +67,9 @@ const campCaptureEnvironment = captureEnvironment(process.env);
 
 // Filesystem-safe local-time run id, e.g. 2026-07-04T18-22-33.
 const runId = localRunId();
-const runDir = path.join(
-  repoRoot,
-  '.sisyphus',
-  'evidence',
-  'ux-walkthrough',
-  runId,
-);
+const runDir =
+  campIsolation.paths.uxWalkthrough ??
+  path.join(repoRoot, '.sisyphus', 'evidence', 'ux-walkthrough', runId);
 
 const runnerArgs = [
   path.join(repoRoot, 'scripts', 'playwright', 'run-playwright.mjs'),
@@ -98,6 +97,7 @@ function run() {
     cwd: repoRoot,
     env: {
       ...process.env,
+      ...campIsolation.environment,
       ...campCaptureEnvironment,
       MEKSTATION_UX_WALKTHROUGH_RUN_DIR: runDir,
       MEKSTATION_UX_WALKTHROUGH_BUILD_MODE: prod ? 'production' : 'development',
@@ -105,18 +105,21 @@ function run() {
     stdio: 'inherit',
   });
 
-  child.on('error', (error) => {
+  child.on('error', async (error) => {
     console.error(error);
+    await campIsolation.finish();
     process.exit(1);
   });
 
-  child.on('exit', (code, signal) => {
+  child.on('exit', async (code, signal) => {
     let exitCode = signal ? 1 : (code ?? 1);
     try {
-      const manifest = aggregateManifest();
-      writeIndexHtml(manifest);
-      writeReviewSkeleton(manifest);
-      printSummary(manifest);
+      await campIsolation.finish(() => {
+        const manifest = aggregateManifest();
+        writeIndexHtml(manifest);
+        writeReviewSkeleton(manifest);
+        printSummary(manifest);
+      });
     } catch (error) {
       console.error('[qc:ux-audit] catalog generation failed:', error);
       exitCode = exitCode || 1;
