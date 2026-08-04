@@ -9,10 +9,11 @@ import {
   environmentDigest,
   validateArtifact,
 } from './camp01-authority-receipt.schemas.mjs';
+import { CAMP01_GIT_VERSION, resolveVerifiedGit } from './camp01-git-trust.mjs';
 
 const NODE_VERSION = '22.22.0',
   NPM_VERSION = '11.6.2',
-  GIT_VERSION = '2.54.0.windows.1',
+  GIT_VERSION = CAMP01_GIT_VERSION,
   DIGEST = /^sha256:[0-9a-f]{64}$/;
 // prettier-ignore
 const BASE_NAMES=['APPDATA','ComSpec','LOCALAPPDATA','NPM_CONFIG_GLOBALCONFIG','NPM_CONFIG_USERCONFIG','PATH','SystemRoot','TEMP','TMP','USERPROFILE'];
@@ -72,7 +73,7 @@ export async function executeReceipt({row,arguments:arguments_,provenance,enviro
 
 // prettier-ignore
 async function resolveTools(dependencies,cwd) {
-  if((dependencies.platform??process.platform)!=='win32'||!path.isAbsolute(process.execPath)) fail('verified Windows Node unavailable'); const nodeExecutable=path.resolve(process.execPath), nodeRoot=path.dirname(nodeExecutable), npmCli=path.join(nodeRoot,'node_modules','npm','bin','npm-cli.js'); const systemRootResolver=dependencies.resolveSystemRoot??defaultSystemRootResolver, systemRootValue=String(systemRootResolver()); if(!/^[a-z]:\\Windows$/i.test(systemRootValue)) fail('system root drift'); const systemRoot=path.win32.resolve(systemRootValue), system32=path.win32.join(systemRoot,'System32'), cmdExecutable=path.win32.join(system32,'cmd.exe'), resolver=dependencies.resolveVerifiedGit; if(typeof resolver!=='function') fail('verified Git seam missing'); const git=await resolver(); if(!git||JSON.stringify(Object.keys(git))!==JSON.stringify(['executable'])||!path.win32.isAbsolute(git.executable)) fail('verified Git seam invalid'); const statFile=dependencies.statFile??fs.statSync; for(const file of [nodeExecutable,npmCli,cmdExecutable]) if(!statFile(file).isFile()) fail('required tool unavailable'); return {nodeExecutable,npmCli,cmdExecutable,gitExecutable:path.win32.resolve(git.executable),systemRoot,system32};
+  if((dependencies.platform??process.platform)!=='win32'||!path.isAbsolute(process.execPath)) fail('verified Windows Node unavailable'); const nodeExecutable=path.resolve(process.execPath), nodeRoot=path.dirname(nodeExecutable), npmCli=path.join(nodeRoot,'node_modules','npm','bin','npm-cli.js'); const systemRootResolver=dependencies.resolveSystemRoot??defaultSystemRootResolver, systemRootValue=String(systemRootResolver()); if(!/^[a-z]:\\Windows$/i.test(systemRootValue)) fail('system root drift'); const systemRoot=path.win32.resolve(systemRootValue), system32=path.win32.join(systemRoot,'System32'), cmdExecutable=path.win32.join(system32,'cmd.exe'), resolver=dependencies.resolveVerifiedGit??resolveVerifiedGit; const git=await resolver({cwd}); if(!git||JSON.stringify(Object.keys(git))!==JSON.stringify(['executable'])||!path.win32.isAbsolute(git.executable)) fail('verified Git seam invalid'); const statFile=dependencies.statFile??fs.statSync; for(const file of [nodeExecutable,npmCli,cmdExecutable]) if(!statFile(file).isFile()) fail('required tool unavailable'); return {nodeExecutable,npmCli,cmdExecutable,gitExecutable:path.win32.resolve(git.executable),systemRoot,system32};
 }
 // The OS-set SystemRoot is the one deliberate ambient read: the Node install drive must never select cmd.exe (review P2, non-C: installs).
 // prettier-ignore
