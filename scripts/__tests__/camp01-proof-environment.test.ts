@@ -48,7 +48,7 @@ const dependencies={
   fileDigester:request.realToolIdentity?(file)=>file===gitExecutable?digestBytes('verified-git'):digestBytes(fs.readFileSync(file)):(file)=>digestBytes('file:'+file.toLowerCase()),
   spawn:(executable,args,options)=>{ calls.push({executable,args,options:{shell:options.shell,cwd:options.cwd,env:options.env}}); if(request.bootstrap==='omitted') return undefined; if(request.bootstrap==='failed') return {status:9,stdout:'no',stderr:'failed'}; if(args.includes('ci')) { if(request.bootstrap==='mutated') options.env.NODE_OPTIONS='--inspect'; if(request.bootstrap==='config-mutated') fs.writeFileSync(options.env.NPM_CONFIG_USERCONFIG,'prefix=elsewhere'); return {status:0,stdout:'installed',stderr:''}; } if(request.breakWriterCommandEnv) options.env.CAMP01_ATTACK='1'; const artifact=options.env.CAMP01_ARTIFACT_DIR; fs.writeFileSync(path.join(artifact,'wave-result.json'),canonicalBytes({schema:'camp01-wave-result/v1',wave:'camp-proof',runId:options.env.CAMP01_RUN_ID,status:'passed',assertions:Object.fromEntries([...row.assertions].sort().map((id)=>[id,true]))})); return {status:0,stdout:'',stderr:''};},
 };
-if(request.git==='missing') delete dependencies.resolveVerifiedGit;
+if(request.git==='invalid') dependencies.resolveVerifiedGit=()=>null;
 const sha='b'.repeat(40), digest='sha256:'+'a'.repeat(64), tuple=(n)=>'tuple-'+n.repeat(16);
 const writerContext={treeSha:sha,provenance:{subject:'product-pr',specTupleId:tuple('2'),ownedPrTupleId:tuple('3'),predecessorReceiptIds:[]},capProvenance:{subject:'product-pr',baseSha:sha,headSha:sha,fileCount:2,changedLineCount:20,binaryEntries:false,changedTreeManifestDigest:digest,reviewedHeadReceiptId:null,reviewedHeadReceiptManifestDigest:null},identityRegistry:{schema:'camp01-identity-registry/v1',entities:[],refs:[]},registryContext:{evidence:[],provenance:[{id:tuple('2'),sourceKind:'spec-tuple',wave:'camp-proof',subject:'product-pr'},{id:tuple('3'),sourceKind:'owned-pr-tuple',wave:'camp-proof',subject:'product-pr'}],refs:[],capturePolicies:[],repairSources:[]},reviewedHead:null};
 try { let value;
@@ -192,9 +192,9 @@ describe('cross-platform CAMP-01 pinned proof environment logic', () => {
     ).toBe('CAMP01_ENVIRONMENT_INVALID: npm version drift; expected 11.6.2');
   });
 
-  it('fails closed without the PROOF-3C verified Git seam', () => {
-    expect(invoke({ action: 'prepare', root, git: 'missing' }).error).toBe(
-      'CAMP01_ENVIRONMENT_INVALID: verified Git seam missing',
+  it('fails closed when the PROOF-3C verified Git seam returns an invalid contract', () => {
+    expect(invoke({ action: 'prepare', root, git: 'invalid' }).error).toBe(
+      'CAMP01_ENVIRONMENT_INVALID: verified Git seam invalid',
     );
   });
 
