@@ -101,7 +101,7 @@ function parseOwnedTuple(value) { const [prNumber,headSha,approvalId,reviewer,me
 // prettier-ignore
 function parseTuple(value,count,label) { const fields=typeof value==='string'?value.split('|'):[]; if(fields.length!==count||fields.some((field)=>!bounded(field))) fail(`invalid ${label} tuple`); return fields; }
 // prettier-ignore
-function createFileStateStore(root) { const base=path.resolve(root,'.sisyphus','evidence','playtest','.camp01-controller'); return {load(wave){const file=path.join(base,wave,'state.json');return fs.existsSync(file)?JSON.parse(fs.readFileSync(file,'utf8')):null;},save(wave,value){const directory=path.join(base,wave);fs.mkdirSync(directory,{recursive:true});fs.writeFileSync(path.join(directory,'state.json'),`${JSON.stringify(value)}\n`);},remove(wave){const file=path.join(base,wave,'state.json');if(fs.existsSync(file))fs.unlinkSync(file);}}; }
+export function createFileStateStore(root) { const base=path.resolve(root,'.sisyphus','evidence','playtest','.camp01-controller'); return {load(wave){const file=path.join(base,wave,'state.json');return fs.existsSync(file)?JSON.parse(fs.readFileSync(file,'utf8')):null;},save(wave,value){const directory=path.join(base,wave);fs.mkdirSync(directory,{recursive:true});fs.writeFileSync(path.join(directory,'state.json'),`${JSON.stringify(value)}\n`);},remove(wave){const file=path.join(base,wave,'state.json');if(fs.existsSync(file))fs.unlinkSync(file);}}; }
 // prettier-ignore
 function assertStore(value) { if(!value||!['load','save','remove'].every((key)=>typeof value[key]==='function')) fail('state-store dependency unavailable'); }
 // prettier-ignore
