@@ -4,7 +4,13 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 const root = process.cwd();
-const standaloneDir = path.join(root, '.next', 'standalone');
+const nextDir = path.resolve(
+  root,
+  /^[0-9a-f]{64}$/.test(process.env.CAMP01_RUNTIME_LEASE ?? '')
+    ? (process.env.MEKSTATION_NEXT_DIST_DIR ?? '.next')
+    : '.next',
+);
+const standaloneDir = path.join(nextDir, 'standalone');
 const generatedServerPath = path.join(standaloneDir, 'server.js');
 const standaloneConfigPath = path.join(
   standaloneDir,
@@ -89,7 +95,7 @@ function copyMegaMekBVCache() {
 
 function copyNextStaticAssets() {
   copyDir(
-    path.join(root, '.next', 'static'),
+    path.join(nextDir, 'static'),
     path.join(standaloneDir, '.next', 'static'),
   );
   assertExists(
@@ -99,9 +105,12 @@ function copyNextStaticAssets() {
 }
 
 function main() {
+  if (nextDir === root || !nextDir.startsWith(`${root}${path.sep}`)) {
+    throw new Error('Next output directory escaped the repository root.');
+  }
   assertExists(standaloneDir, 'Next standalone output');
   assertExists(generatedServerPath, 'generated Next standalone server');
-  assertExists(path.join(root, '.next', 'static'), 'Next static assets');
+  assertExists(path.join(nextDir, 'static'), 'Next static assets');
   assertExists(path.join(root, 'server.js'), 'custom multiplayer server');
   assertExists(path.join(root, 'tsconfig.json'), 'TypeScript config');
   assertExists(path.join(root, 'public'), 'public assets');

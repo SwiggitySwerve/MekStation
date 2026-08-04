@@ -3,7 +3,7 @@ import type { Configuration, WebpackPluginInstance } from 'webpack';
 
 import { execSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
-import { join } from 'node:path';
+import { join, resolve, sep } from 'node:path';
 import { BundleAnalyzerPlugin } from 'webpack-bundle-analyzer';
 
 import { buildSecurityHeaders } from './desktop/electron/securityPolicy';
@@ -54,6 +54,22 @@ const buildNumber =
   FALLBACK_BUILD_NUMBER;
 const gitSha = runCommand('git rev-parse --short HEAD') || 'unknown';
 const buildVersion = `${appVersion}+${buildNumber}`;
+const campRuntimeRouted = /^[0-9a-f]{64}$/.test(
+  process.env.CAMP01_RUNTIME_LEASE ?? '',
+);
+const nextDistDir = campRuntimeRouted
+  ? process.env.MEKSTATION_NEXT_DIST_DIR
+  : undefined;
+if (nextDistDir) {
+  const repositoryRoot = resolve(process.cwd());
+  const resolvedNextDistDir = resolve(repositoryRoot, nextDistDir);
+  if (
+    resolvedNextDistDir === repositoryRoot ||
+    !resolvedNextDistDir.startsWith(`${repositoryRoot}${sep}`)
+  ) {
+    throw new Error('Next output directory escaped the repository root.');
+  }
+}
 
 interface WebpackContext {
   buildId: string;
@@ -71,6 +87,7 @@ interface WebpackContext {
 }
 
 const nextConfig: NextConfig = {
+  ...(nextDistDir ? { distDir: nextDistDir } : {}),
   // Enable React strict mode for better development experience
   reactStrictMode: true,
 
