@@ -96,16 +96,16 @@ export async function createProductionDependencies(
       'playtest',
     );
   ensureDirectory(initiatingRoot, evidenceRoot);
-  const facts = createDurableFacts(
-      { ...options, initiatingRoot },
-      dependencies,
-    ),
-    targetDeps = {
+  const targetDeps = {
       git,
       repositoryRoot: initiatingRoot,
       ...(options.proofRoot ? { proofRoot: options.proofRoot } : {}),
       ...(dependencies.targetDependencies ?? {}),
     },
+    facts = createDurableFacts(
+      { ...options, initiatingRoot },
+      { ...dependencies, targetDependencies: targetDeps },
+    ),
     stateStore = createFileStateStore(initiatingRoot),
     active = new Map(),
     writerContexts = new Map();
