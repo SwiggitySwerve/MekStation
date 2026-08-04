@@ -123,7 +123,7 @@ describe('CAMP-01 runner isolation', () => {
 
   it('routes playwright.config outputs under CAMP and keeps legacy literals without', () => {
     // prettier-ignore
-    const script="const loaded=(await import('./playwright.config.ts')).default,config=loaded.default??loaded;process.stdout.write('@@'+JSON.stringify({outputDir:config.outputDir,snapshotDir:config.snapshotDir,html:config.reporter[1][1].outputFolder,storageState:config.use.storageState??null,dbPath:config.webServer.env.MULTIPLAYER_DB_PATH}));";
+    const script="const loaded=(await import('./playwright.config.ts')).default,config=loaded.default??loaded;process.stdout.write('@@'+JSON.stringify({outputDir:config.outputDir,snapshotDir:config.snapshotDir,html:config.reporter[1][1].outputFolder,reporters:config.reporter.map(([name])=>name),metadata:config.metadata??null,storageState:config.use.storageState??null,dbPath:config.webServer.env.MULTIPLAYER_DB_PATH}));";
     // prettier-ignore
     const load = (extra: Record<string, string>) => {
       const environment={...process.env,...extra}; delete environment.CI;
@@ -131,9 +131,9 @@ describe('CAMP-01 runner isolation', () => {
       expect(result.status).toBe(0); return JSON.parse(result.stdout.slice(result.stdout.indexOf('@@')+2));
     };
     // prettier-ignore
-    expect(load({})).toEqual({outputDir:'test-results',snapshotDir:'.sisyphus/evidence/screenshots',html:'playwright-report',storageState:null,dbPath:expect.stringContaining('.sisyphus/e2e-runtime/')});
+    expect(load({})).toEqual({outputDir:'test-results',snapshotDir:'.sisyphus/evidence/screenshots',html:'playwright-report',reporters:['list','html'],metadata:null,storageState:null,dbPath:expect.stringContaining('.sisyphus/e2e-runtime/')});
     // prettier-ignore
-    expect(load({CAMP01_RUNTIME_LEASE:'8'.repeat(64),CAMP01_PLAYWRIGHT_OUTPUT_DIR:'routed-results',CAMP01_PLAYWRIGHT_HTML_DIR:'routed-html',CAMP01_PLAYWRIGHT_SNAPSHOT_DIR:'routed-snaps',CAMP01_DATABASE_DIR:'routed-db',CAMP01_BROWSER_STORAGE_STATE:'routed-state.json'})).toEqual({outputDir:'routed-results',snapshotDir:'routed-snaps',html:'routed-html',storageState:'routed-state.json',dbPath:'routed-db/multiplayer-matches.db'});
+    expect(load({CAMP01_RUNTIME_LEASE:'8'.repeat(64),CAMP01_RUN_ID:`camp01-${'1'.repeat(32)}`,CAMP01_ARTIFACT_DIR:'routed-artifacts',CAMP01_INVOCATION_ID:'proof-02-command-browser',CAMP01_EXECUTION_ID:`ev-${'2'.repeat(32)}`,CAMP01_PLAYWRIGHT_OUTPUT_DIR:'routed-results',CAMP01_PLAYWRIGHT_HTML_DIR:'routed-html',CAMP01_PLAYWRIGHT_SNAPSHOT_DIR:'routed-snaps',CAMP01_DATABASE_DIR:'routed-db',CAMP01_BROWSER_STORAGE_STATE:'routed-state.json',PLAYWRIGHT_JSON_OUTPUT_DIR:'routed-json',PLAYWRIGHT_JSON_OUTPUT_NAME:'playwright-report.json'})).toEqual({outputDir:'routed-results',snapshotDir:'routed-snaps',html:'routed-html',reporters:['list','html','json'],metadata:{camp01:{artifactDir:'routed-artifacts',executionId:`ev-${'2'.repeat(32)}`,invocationId:'proof-02-command-browser',runId:`camp01-${'1'.repeat(32)}`}},storageState:'routed-state.json',dbPath:'routed-db/multiplayer-matches.db'});
   });
 
   it('rejects a CAMP Next output directory outside the repository root', () => {
