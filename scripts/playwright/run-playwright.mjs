@@ -4,6 +4,7 @@ import { fileURLToPath } from 'node:url';
 
 import { pipeFilteredOutput } from '../lib/known-validation-output.mjs';
 import { captureEnvironment } from '../qc/camp01-capture-transaction.mjs';
+import { selectOrdinaryExitNormalizer } from '../qc/camp01-h-report-normalizer.mjs';
 import { prepareCamp01PlaywrightCollection } from '../qc/camp01-playwright-normalizer.mjs';
 import { createCamp01RunnerIsolation } from '../qc/camp01-runner-isolation.mjs';
 
@@ -74,7 +75,7 @@ if (!isInteractive) {
 child.on('error', async (error) => {
   console.error(error);
   try {
-    await campIsolation.finish(campCollection.normalize);
+    await campIsolation.finish();
   } catch (cleanupError) {
     console.error('[playwright] runtime cleanup failed:', cleanupError);
   }
@@ -83,7 +84,9 @@ child.on('error', async (error) => {
 
 child.on('exit', async (code, signal) => {
   try {
-    await campIsolation.finish(campCollection.normalize);
+    await campIsolation.finish(
+      selectOrdinaryExitNormalizer(code, signal, campCollection.normalize),
+    );
   } catch (cleanupError) {
     console.error('[playwright] runtime cleanup failed:', cleanupError);
     process.exit(1);

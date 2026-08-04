@@ -45,6 +45,7 @@ try {
   });
   else if (request.action === 'validate-directory') value = writer.validateReceiptDirectory(request.value.directory, request.value.context);
   else if (request.action === 'identities') value = writer.issueHIdentities(request.value, () => Buffer.from(request.entropy, 'hex'));
+  else if (request.action === 'h-command-identities') { const row=WAVE_CONTRACTS['camp-01h'], runId=request.value, identities=writer.issueHIdentities(runId); value=row.reporterContracts.map((reporter,index)=>({witnessLabel:reporter.witnessLabel,...writer.issuedCommandIdentity(row,index,runId),expectedExecutionId:identities[reporter.witnessLabel].executionId})); }
   else if (request.action === 'h-wave') { const row=WAVE_CONTRACTS['camp-01h'], assertions=Object.fromEntries([...row.assertions].sort().map((id)=>[id,id.endsWith('===true')?true:Number(/(?:===|>=)(-?\\d+)$/.exec(id)[1])])); assertions[request.value.id]=request.value.result; value=schemas.validateArtifact({schema:'camp01-wave-result/v1',wave:row.wave,runId:'camp01-'+'1'.repeat(32),status:request.value.status,assertions},{row}); }
   else if (request.action === 'h-bindings') { const row=WAVE_CONTRACTS['camp-01h'], runId='camp01-'+'8'.repeat(32), ids=writer.issueHIdentities(runId), observationIds=(reporter)=>schemas.H_TEST_IDS[reporter.invocationId]??[], reports=row.reporterContracts.map((reporter)=>{const identity=ids[reporter.witnessLabel]; return {schema:reporter.reportSchema,parentRunId:runId,witnessId:identity.witnessId,executionId:identity.executionId,witnessLabel:reporter.witnessLabel,invocationId:reporter.invocationId,producerId:reporter.producerId,reporterId:reporter.reporterId,sourceIds:reporter.sourceIds,complete:true,observations:observationIds(reporter).map((id)=>({id,status:'passed',failureFingerprint:null}))};}), witnesses=Object.entries(ids).map(([label,identity])=>({label,status:'observation',executionId:identity.executionId,reportDigests:Object.fromEntries(row.reporterContracts.filter((entry)=>entry.witnessLabel===label).map((entry)=>entry.normalizedPath).sort().map((name)=>[name,'sha256:'+'a'.repeat(64)])),facts:{}})), command={observedTestIds:[...new Set(reports.flatMap((report)=>report.observations.map(({id})=>id)))].sort(),identityRegistry:{entities:[]}}, receipt='receipt-'+'d'.repeat(16), reconciliation={sourceObservationReceiptIds:[receipt]}, evidence=Object.entries(ids).flatMap(([label,identity])=>[{id:identity.witnessId,sourceKind:'witness',runId,wave:'camp-01h',label},{id:identity.executionId,sourceKind:'execution',runId,wave:'camp-01h',label}]), context={registryContext:{evidence,provenance:[{id:receipt,sourceKind:'predecessor-receipt',wave:'camp-01h',subject:'product-pr'}]}}; if (request.value==='extra-digest') witnesses[0].reportDigests.extra='sha256:'+'b'.repeat(64); if (request.value==='absent-inventory') reports[0].invocationId='unmapped-invocation'; if (request.value==='source-path-only') reports[0].observations=[{id:row.reporterContracts[0].sourceIds[0],status:'passed',failureFingerprint:null}]; if (request.value==='arbitrary-observation') reports[0].observations[0].id='arbitrary'; if (request.value==='missing-observation') reports[0].observations.pop(); if (request.value==='extra-observation') reports[0].observations.push({id:'zz-extra',status:'passed',failureFingerprint:null}); if (request.value==='extra-entity') command.identityRegistry.entities.push({kind:'campaign',digest:'sha256:'+'c'.repeat(64),sourceEvidenceId:ids['custom-save-reload'].executionId}); if (request.value==='unverified-source') reconciliation.sourceObservationReceiptIds.push('receipt-'+'e'.repeat(16)); reports.forEach((report,index)=>schemas.validateArtifact(report,{reporter:request.value==='absent-inventory'&&index===0?{...row.reporterContracts[index],invocationId:report.invocationId}:row.reporterContracts[index],runId,registryContext:context.registryContext})); value=writer.validateHBindings(command,{witnesses},reports,reconciliation,context); }
   else value = schemas[request.action](...(request.args ?? []));
@@ -331,5 +332,33 @@ describe('CAMP-01 authority receipt writer and validator', () => {
     // prettier-ignore
     const identities=Object.values(result.value as Record<string,Record<string,string>>), identityShape={roles:identities.every((entry)=>Object.keys(entry).join(',')==='witnessId,executionId,contextId'),count:new Set(identities.flatMap((entry)=>Object.values(entry))).size};
     expect(identityShape).toEqual({ roles: true, count: 9 });
+  });
+
+  it('maps all six H commands to the execution id in the writer-issued witness map', () => {
+    const result = invoke({
+      action: 'h-command-identities',
+      value: `camp01-${'8'.repeat(32)}`,
+    });
+    expect(result.ok).toBe(true);
+    const commands = result.value as Array<{
+      witnessLabel: string;
+      invocationId: string;
+      executionId: string;
+      expectedExecutionId: string;
+    }>;
+    expect(commands.map(({ witnessLabel }) => witnessLabel)).toEqual([
+      'campaign-mech-bay-readiness',
+      'custom-save-reload',
+      'canonical-combat-post-battle',
+      'custom-save-reload',
+      'campaign-mech-bay-readiness',
+      'canonical-combat-post-battle',
+    ]);
+    expect(
+      commands.every(
+        ({ executionId, expectedExecutionId }) =>
+          executionId === expectedExecutionId,
+      ),
+    ).toBe(true);
   });
 });

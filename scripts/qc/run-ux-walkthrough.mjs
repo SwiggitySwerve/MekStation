@@ -32,7 +32,9 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { captureEnvironment } from './camp01-capture-transaction.mjs';
+import { selectOrdinaryExitNormalizer } from './camp01-h-report-normalizer.mjs';
 import { createCamp01RunnerIsolation } from './camp01-runner-isolation.mjs';
+import { prepareCamp01UxReport } from './camp01-ux-report-normalizer.mjs';
 
 const repoRoot = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
@@ -54,6 +56,7 @@ export const AUTHORITY_SPLIT_NOTICE =
   'review and backlog triage; they never flip a PR-blocking check.';
 const rawArgs = process.argv.slice(2);
 const campIsolation = createCamp01RunnerIsolation(process.env, { repoRoot });
+const campReport = prepareCamp01UxReport(process.env, campIsolation);
 const prod = rawArgs.includes('--prod');
 const deep = rawArgs.includes('--deep');
 const extraArgs = rawArgs.filter((arg) => arg !== '--prod' && arg !== '--deep');
@@ -114,12 +117,18 @@ function run() {
   child.on('exit', async (code, signal) => {
     let exitCode = signal ? 1 : (code ?? 1);
     try {
-      await campIsolation.finish(() => {
+      const publishCatalog = () => {
         const manifest = aggregateManifest();
         writeIndexHtml(manifest);
         writeReviewSkeleton(manifest);
         printSummary(manifest);
-      });
+        return campReport.normalize(manifest);
+      };
+      await campIsolation.finish(
+        campReport.active
+          ? selectOrdinaryExitNormalizer(code, signal, publishCatalog)
+          : publishCatalog,
+      );
     } catch (error) {
       console.error('[qc:ux-audit] catalog generation failed:', error);
       exitCode = exitCode || 1;
