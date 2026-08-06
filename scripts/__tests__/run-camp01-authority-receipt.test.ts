@@ -1,16 +1,21 @@
 import { spawnSync } from 'node:child_process';
+import * as fs from 'node:fs';
+import * as os from 'node:os';
 import * as path from 'node:path';
 import { pathToFileURL } from 'node:url';
 
 const controllerUrl = pathToFileURL(
   path.resolve('scripts/qc/run-camp01-authority-receipt.mjs'),
 ).href;
+const productionPath = path.resolve('scripts/qc/run-camp01-production.mjs');
+const productionUrl = pathToFileURL(productionPath).href;
 const contractUrl = pathToFileURL(
   path.resolve('scripts/qc/camp01-authority-receipt.contract.mjs'),
 ).href;
 const harness = `
 import path from 'node:path';
 import * as controller from ${JSON.stringify(controllerUrl)};
+import * as production from ${JSON.stringify(productionUrl)};
 import { PROGRAM_CHILD_CHANGES, WAVE_CONTRACTS, commandSequenceDigest } from ${JSON.stringify(contractUrl)};
 const request=JSON.parse(process.argv[1]);
 const sha='b'.repeat(40), exactSha='c'.repeat(40), digest='sha256:'+'a'.repeat(64), spec=(child)=>[child,'101','a'.repeat(40),'approval-1','reviewer'].join('|'), owned=(merge='pending')=>['201',sha,'approval-2','owner-reviewer',merge].join('|');
@@ -38,6 +43,7 @@ const dependencies={stateStore,inspectOwnedTarget:({subject,headSha})=>override(
 try {
   let value;
   if(request.action==='parse') value=controller.parseControllerArguments(request.argv);
+  else if(request.action==='production-adapter') value=await production.runProduction([],{initiatingRoot:request.root},{git:{executable:path.join(request.root,'injected-git.exe')}});
   else if(request.action==='provenance') { const parsed=controller.parseControllerArguments(request.argv); value=controller.buildProvenanceRecord(parsed,WAVE_CONTRACTS[parsed.wave]); }
   else if(request.action==='preflight') value=controller.validatePreflight(WAVE_CONTRACTS[request.wave],request.value);
   else if(request.action==='repair') {
@@ -51,9 +57,9 @@ try {
   else if(request.action==='malformed-dependency') { await controller.runController(['register-pr-target','--wave=camp-proof','--subject=product','--worktree='+path.resolve('owned'),'--spec='+spec('add-camp01-authority-receipts')],dependencies); if(request.breakAdapter!=='inspectOwnedTarget') { request.headSha=sha; const reviewed=await controller.runController(proofArgs('reviewed-head',sha),dependencies); if(request.breakAdapter==='cleanupTargets') { request.headSha=exactSha; const exact=await controller.runController(proofArgs('exact-main',exactSha),dependencies); const run=exact.runs.at(-1); value=await controller.runController(['cleanup','--wave=camp-proof','--run-root='+run.runRoot,'--run-id='+run.runId,'--receipt-digest='+run.receiptDigest],dependencies); } else value=reviewed; } }
   else if(request.action==='missing-dependency') value=await controller.runController(['register-pr-target','--wave=camp-proof','--subject=product','--worktree='+path.resolve('owned'),'--spec='+spec('add-camp01-authority-receipts')],{stateStore});
   process.stdout.write(JSON.stringify({ok:true,value}));
-} catch(error) { process.stdout.write(JSON.stringify({ok:false,error:error instanceof Error?error.message:String(error)})); process.exitCode=1; }`;
+} catch(error) { process.stdout.write(JSON.stringify({ok:false,error:error instanceof Error?error.message:String(error),name:error instanceof Error?error.name:null})); process.exitCode=1; }`;
 
-type Result = { ok: boolean; value?: unknown; error?: string };
+type Result = { ok: boolean; value?: unknown; error?: string; name?: string };
 function invoke(request: Record<string, unknown>): Result {
   const result = spawnSync(
     process.execPath,
@@ -80,11 +86,39 @@ const proofBase = [
 ];
 
 describe('CAMP-01 authority receipt controller core', () => {
+  it('rejects dependency-shaped arguments at the production entry boundary', () => {
+    // Given a caller adapter, when the public entry receives it, then typed rejection occurs before composition
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'camp-proof5a-entry-'));
+    try {
+      const result = invoke({ action: 'production-adapter', root });
+      expect(result).toEqual({
+        ok: false,
+        error:
+          'CAMP01_PRODUCTION_ADAPTER_REJECTED: caller dependencies forbidden',
+        name: 'Camp01ProductionAdapterError',
+      });
+    } finally {
+      fs.rmSync(root, { recursive: true, force: true });
+    }
+  });
+
+  it('never threads a caller adapter into production dependency composition', () => {
+    // Given the production source, when composition is inspected, then only public options flow inward
+    const source = fs.readFileSync(productionPath, 'utf8');
+    expect(source).not.toMatch(
+      /createProductionDependencies\s*\(\s*options\s*,/,
+    );
+    expect(source).not.toMatch(
+      /runProduction\s*\([^)]*\bdependencies\b[^)]*\)/,
+    );
+  });
+
   it('rejects every malformed or non-closed CLI argument form', () => {
     const invalid = [
       [],
       ['unknown'],
       ['proof'],
+      [proofBase[0], '--mode=merge-queue', ...proofBase.slice(2)],
       [...proofBase, '--unknown=x'],
       [...proofBase, '--wave=camp-proof'],
       [...proofBase, '--wave'],

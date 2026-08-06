@@ -16,14 +16,26 @@ import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 const request=JSON.parse(fs.readFileSync(0,'utf8')), trust=await import(${JSON.stringify(moduleUrl)}), root=request.root, calls=[];
-const fakeDependencies={resolveExecutable:()=>request.executable,statFile:()=>({isFile:()=>request.file!==false}),spawn:(executable,args,options)=>{calls.push({executable,args,options}); return request.spawnFailure?{status:9,stdout:'',stderr:'failed'}:{status:0,stdout:'git version '+(request.version??'2.54.0.windows.1')+'\\n',stderr:''};}};
+const expectedHead='a'.repeat(40), expectedMain='b'.repeat(40);
+const fakeDependencies={
+  resolveExecutable:()=>{if(request.resolverFailure)throw new Error('resolver failed');return request.executable;},
+  statFile:()=>{if(request.statFailure)throw new Error('stat failed');return {isFile:()=>request.file!==false};},
+  spawn:(executable,args,options)=>{
+    calls.push({executable,args,options}); if(request.spawnThrows)throw new Error('spawn failed'); if(request.spawnFailure)return {status:9,stdout:'',stderr:'failed'};
+    if(args.includes('--version'))return {status:0,stdout:'git version '+(request.version??'2.54.0.windows.1')+'\\n',stderr:''};
+    if(args.includes('rev-parse')){const head=String(args.at(-1)).includes('fetched-head'), oid=request.readbackMalformed?'not-an-oid':head?(request.actualHeadOid??expectedHead):(request.actualMainOid??expectedMain);return {status:0,stdout:oid+'\\n',stderr:''};}
+    return {status:0,stdout:'',stderr:''};
+  },
+};
 async function resolvedHostGit(){ return trust.resolveVerifiedGit({cwd:root},{resolveExecutable:()=>request.executable,spawn:()=>({status:0,stdout:'git version 2.54.0.windows.1\\n',stderr:''})}); }
 async function seedRemote(git){ const work=path.join(root,'source'), remote=path.join(root,'source.git'); fs.mkdirSync(work); await trust.invokeGit({git,args:['init','--initial-branch=main'],cwd:work}); fs.writeFileSync(path.join(work,'seed.txt'),'seed\\n'); await trust.invokeGit({git,args:['add','seed.txt'],cwd:work}); await trust.invokeGit({git,args:['-c','user.name=CAMP01','-c','user.email=camp01@example.invalid','commit','-m','seed'],cwd:work}); const oid=(await trust.invokeGit({git,args:['rev-parse','HEAD'],cwd:work})).stdout.trim(); await trust.createBareSession({git,directory:remote}); await trust.invokeGit({git,args:['push',remote,'HEAD:refs/heads/main'],cwd:work}); return {remote,oid}; }
 try { let value;
   if(request.action==='resolve') value=await trust.resolveVerifiedGit({cwd:root},fakeDependencies);
   else if(request.action==='production-resolve') value=await trust.resolveVerifiedGit({cwd:root});
   else if(request.action==='invoke') value=await trust.invokeGit({git:{executable:request.executable},args:['status;whoami'],cwd:root},fakeDependencies);
+  else if(request.action==='invoke-contract') value=await trust.invokeGit({git:request.git,args:request.args,cwd:request.cwd},fakeDependencies);
   else if(request.action==='existing') { const directory=path.join(root,'session.git'); fs.mkdirSync(directory); if(request.nonEmpty) fs.writeFileSync(path.join(directory,'sentinel'),'owned'); value=await trust.createBareSession({git:{executable:request.executable},directory},fakeDependencies); }
+  else if(request.action==='fetch-contract') value=await trust.fetchAndVerifyOids({session:request.session??{directory:path.join(root,'session.git'),executable:request.executable},remoteUrl:request.remoteUrl,headOid:request.headOid??expectedHead,mainOid:request.mainOid??expectedMain},fakeDependencies);
   else if(request.action==='remote-policy') value=await trust.fetchAndVerifyOids({session:{directory:path.join(root,'session.git'),executable:request.executable},remoteUrl:path.join(root,'local.git'),headOid:'a'.repeat(40),mainOid:'b'.repeat(40)},fakeDependencies);
   else if(request.action==='remote-policy-override') value=await trust.fetchAndVerifyOids({session:{directory:path.join(root,'session.git'),executable:request.executable},remoteUrl:'https://evil.example/x.git',headOid:'a'.repeat(40),mainOid:'b'.repeat(40)},{...fakeDependencies,testOnlyAllowLocalRemote:true});
   else { const git=await resolvedHostGit(), source=await seedRemote(git), session=await trust.createBareSession({git,directory:path.join(root,'session.git')}), headOid=request.headMismatch?'a'.repeat(40):source.oid, mainOid=request.mainMismatch?'b'.repeat(40):source.oid, remoteUrl=request.fetchFailure?path.join(root,'missing.git'):source.remote; value=await trust.fetchAndVerifyOids({session,remoteUrl,headOid,mainOid},{testOnlyAllowLocalRemote:true}); }
@@ -125,6 +137,109 @@ describe('cross-platform CAMP-01 Git trust foundation', () => {
         },
       },
     });
+  });
+
+  it('binds the verified executable and literal fetch URL to API-returned OIDs', () => {
+    // Given API OIDs, when injected Git fetches, then the literal hardened transport returns exact equality
+    const result = invoke({
+      action: 'fetch-contract',
+      root,
+      executable: fakeGit,
+      remoteUrl: FETCH_URL,
+    });
+    expect(result.value).toMatchObject({
+      fetchUrl: FETCH_URL,
+      headOid: 'a'.repeat(40),
+      mainOid: 'b'.repeat(40),
+    });
+    expect(
+      result.calls.every(
+        ({ executable, options }) =>
+          executable === fakeGit &&
+          options.shell === false &&
+          options.env.PATH === path.dirname(fakeGit),
+      ),
+    ).toBe(true);
+    expect(
+      result.calls.map(({ args }) => args.slice(HARDENED_PREFIX.length)),
+    ).toEqual([
+      [
+        'fetch',
+        '--no-tags',
+        '--no-recurse-submodules',
+        FETCH_URL,
+        '+HEAD:refs/camp01/fetched-head',
+        '+refs/heads/main:refs/camp01/fetched-main',
+      ],
+      ['rev-parse', '--verify', 'refs/camp01/fetched-head^{commit}'],
+      ['rev-parse', '--verify', 'refs/camp01/fetched-main^{commit}'],
+    ]);
+  });
+
+  it.each([
+    ['actualHeadOid', 'fetched head OID mismatch'],
+    ['actualMainOid', 'fetched main OID mismatch'],
+  ])('rejects API/Git OID inequality at %s', (field, message) => {
+    // Given unequal API/Git OIDs, when equality is checked, then the typed mismatch guard rejects
+    const result = invoke({
+      action: 'fetch-contract',
+      root,
+      executable: fakeGit,
+      remoteUrl: FETCH_URL,
+      [field]: 'c'.repeat(40),
+    });
+    expect(result).toMatchObject({
+      ok: false,
+      name: 'Camp01GitError',
+      error: 'CAMP01_GIT_INVALID: ' + message,
+    });
+  });
+
+  it.each(['headOid', 'mainOid'])(
+    'rejects malformed API OID input %s before Git runs',
+    (field) => {
+      // Given a malformed API OID, when pins are validated, then Git never runs
+      const result = invoke({
+        action: 'fetch-contract',
+        root,
+        executable: fakeGit,
+        remoteUrl: FETCH_URL,
+        [field]: 'ABC',
+      });
+      expect(result.error).toBe('CAMP01_GIT_INVALID: invalid pinned OIDs');
+      expect(result.calls).toEqual([]);
+    },
+  );
+
+  it.each([
+    [{ executable: fakeGit, extra: true }, ['status'], path.resolve('.')],
+    [{ executable: fakeGit }, ['status'], 'relative'],
+    [{ executable: fakeGit }, ['status', 1], path.resolve('.')],
+  ])('rejects malformed invoke contract %#', (git, args, cwd) => {
+    // Given a malformed invoke contract, when invocation starts, then injected spawn never runs
+    const result = invoke({
+      action: 'invoke-contract',
+      root,
+      executable: fakeGit,
+      git,
+      args,
+      cwd,
+    });
+    expect(result.calls).toEqual([]);
+  });
+
+  it('rejects malformed fetched OID readback', () => {
+    // Given malformed readback, when it is parsed, then it cannot satisfy the API pin
+    const result = invoke({
+      action: 'fetch-contract',
+      root,
+      executable: fakeGit,
+      remoteUrl: FETCH_URL,
+      readbackMalformed: true,
+    });
+    expect(result.error).toBe(
+      'CAMP01_GIT_INVALID: fetched OID readback failed',
+    );
   });
 
   it.each([

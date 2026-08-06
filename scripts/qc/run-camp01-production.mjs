@@ -4,11 +4,16 @@ import { fileURLToPath } from 'node:url';
 import { createProductionDependencies } from './camp01-durable-facts.mjs';
 import { runController } from './run-camp01-authority-receipt.mjs';
 
-export async function runProduction(argv, options = {}, dependencies = {}) {
-  return runController(
-    argv,
-    await createProductionDependencies(options, dependencies),
-  );
+export class Camp01ProductionAdapterError extends Error {
+  constructor() {
+    super('CAMP01_PRODUCTION_ADAPTER_REJECTED: caller dependencies forbidden');
+    this.name = 'Camp01ProductionAdapterError';
+  }
+}
+
+export async function runProduction(argv, options = {}) {
+  if (arguments.length > 2) throw new Camp01ProductionAdapterError();
+  return runController(argv, await createProductionDependencies(options));
 }
 
 if (
