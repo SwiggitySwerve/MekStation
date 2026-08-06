@@ -37,6 +37,13 @@ export function expandLogicalCommand(argv,tools) {
   fail('unsupported logical executable token');
 }
 
+// prettier-ignore
+export function resolveVerifiedLogicalCommand(argv) {
+  const nodeExecutable=path.resolve(process.execPath), npmCli=path.join(path.dirname(nodeExecutable),'node_modules','npm','bin','npm-cli.js'), expanded=expandLogicalCommand(argv,{nodeExecutable,npmCli}), required=argv[0]==='@npm'?[nodeExecutable,npmCli]:[nodeExecutable];
+  try { if(required.some((file)=>!fs.statSync(file).isFile())) fail('required tool unavailable'); } catch(error) { if(error instanceof Camp01EnvironmentError) throw error; fail('required tool unavailable'); }
+  return expanded;
+}
+
 export function createProofEnvironment(dependencies) {
   return Object.freeze({
     prepareEnvironment: (input) => prepareEnvironment(input, dependencies),
