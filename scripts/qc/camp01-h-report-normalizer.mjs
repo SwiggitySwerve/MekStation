@@ -60,7 +60,11 @@ export function prepareCamp01HReport(options) {
 function publishReport(context) {
   const { environment, identity, io, observed, realpath, reporter } = context;
   const observations = normalizeObservations(reporter, observed);
-  const artifactRoot = realpath(environment.CAMP01_ARTIFACT_DIR);
+  const artifactRoot = resolvePath(
+    environment.CAMP01_ARTIFACT_DIR,
+    realpath,
+    'normalized artifact directory resolution failed',
+  );
   const target = path.resolve(
     artifactRoot,
     ...reporter.normalizedPath.split('/'),
@@ -72,10 +76,21 @@ function publishReport(context) {
   )
     fail('normalized report path escaped writer directory');
   const existing = lstatIfPresent(reportDirectory, io);
-  if (existing === null) io.mkdirSync(reportDirectory);
-  else if (existing.isSymbolicLink() || !existing.isDirectory())
+  if (existing === null) {
+    try {
+      io.mkdirSync(reportDirectory);
+    } catch (error) {
+      fail('normalized report directory creation failed', error);
+    }
+  } else if (existing.isSymbolicLink() || !existing.isDirectory())
     fail('normalized report directory invalid');
-  if (realpath(reportDirectory) !== reportDirectory)
+  if (
+    resolvePath(
+      reportDirectory,
+      realpath,
+      'normalized report directory resolution failed',
+    ) !== reportDirectory
+  )
     fail('normalized report directory escaped writer directory');
   const value = {
     schema: reporter.reportSchema,
@@ -162,6 +177,14 @@ function lstatIfPresent(value, io) {
   } catch (error) {
     if (error?.code === 'ENOENT') return null;
     fail('normalized report directory inspection failed', error);
+  }
+}
+
+function resolvePath(value, realpath, message) {
+  try {
+    return realpath(value);
+  } catch (error) {
+    fail(message, error);
   }
 }
 
