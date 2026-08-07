@@ -16,6 +16,7 @@ import { createDurableExport } from './camp01-durable-export.mjs';
 import { invokeGit, resolveVerifiedGit } from './camp01-git-trust.mjs';
 import { createGitHubProvenance } from './camp01-github-provenance.mjs';
 import { createProofEnvironment } from './camp01-proof-environment.mjs';
+import { createRepairRegistry } from './camp01-repair-registry.mjs';
 import {
   createProofTarget,
   inspectOwnedTarget,
@@ -54,17 +55,19 @@ export function createDurableFacts(options = {}, dependencies = {}) {
     bootstrapFile =
       options.bootstrapFile ??
       path.join(evidenceRoot, '.camp01-bootstrap.json'),
-    contexts = new Map();
+    contexts = new Map(),
+    repairRegistry =
+      dependencies.repairRegistry ?? createRepairRegistry({ initiatingRoot });
   assertConfined(evidenceRoot, cleanupRoot);
   assertConfined(evidenceRoot, bootstrapFile);
   // prettier-ignore
-  async function readIndex() { try{ensureDirectory(initiatingRoot,evidenceRoot); const records=[]; for(const candidate of candidates(evidenceRoot)){const context=contextFor(candidate,records); await invokeValidator(candidate,context,dependencies); bindCandidate(candidate,records); records.push(Object.freeze({...candidate,receiptId:receiptId(candidate.manifest),manifestDigest:artifactDigest(candidate.manifest),context}));} for(const row of ROWS)for(const mode of ['reviewed-head','exact-main'])one(records,row.wave,mode); const cleanups=readCleanups(cleanupRoot,records); consumeBootstrap(bootstrapFile,records); return Object.freeze({records:Object.freeze(records),cleanups:Object.freeze(cleanups)});}catch(error){if(error instanceof Camp01FactsError)throw error;fail('durable index unreadable');} }
+  async function readIndex() { try{ensureDirectory(initiatingRoot,evidenceRoot); const registrations=repairRegistry.discover(), records=[]; for(const candidate of candidates(evidenceRoot,registrations)){const context=contextFor(candidate,records); await invokeValidator(candidate,context,dependencies); bindCandidate(candidate,records); records.push(Object.freeze({...candidate,receiptId:receiptId(candidate.manifest),manifestDigest:artifactDigest(candidate.manifest),context}));} for(const row of [...ROWS,...registrations.map((entry)=>entry.row)])for(const mode of ['reviewed-head','exact-main'])one(records,row.wave,mode); const cleanups=readCleanups(cleanupRoot,records); consumeBootstrap(bootstrapFile,records); return Object.freeze({records:Object.freeze(records),cleanups:Object.freeze(cleanups),registrations});}catch(error){if(error instanceof Camp01FactsError)throw error;fail('durable index unreadable');} }
   // prettier-ignore
   async function resolvePreflightFacts(input) { const index=await readIndex(), {row,arguments:arguments_}=input??{}; if(!row||!arguments_) fail('preflight input missing'); if(row.wave==='camp-proof'&&arguments_.mode==='reviewed-head') admitBootstrap(bootstrapFile,arguments_.sha,index.records); const concrete=row.predecessors.filter((wave)=>!wave.endsWith(VIRTUAL)); for(const wave of concrete){const record=one(index.records,wave,'exact-main'); if(!record) fail(`predecessor receipt missing: ${wave}`); if(!index.cleanups.some((entry)=>entry.wave===wave&&entry.runId===record.runId)) fail(`predecessor cleanup missing: ${wave}`);} const repairGates=row.predecessors.filter((wave)=>wave.endsWith(VIRTUAL)).map((gate)=>repairGate(gate,index)), target=row.capSubject==='none'?{treeSha:arguments_.sha,capProvenance:null}:await targetFacts(input,dependencies); contexts.set(key(row.wave,arguments_.mode,arguments_.sha),writerContext(input,index,target)); return {programSpecChanges:(arguments_.programSpecs??[]).map((value)=>String(value).split('|')[0]),predecessorReceiptWaves:concrete,predecessorCleanupWaves:concrete,repairGates,cap:target.capProvenance===null?null:{subject:target.capProvenance.subject,fileCount:target.capProvenance.fileCount,changedLineCount:target.capProvenance.changedLineCount,binaryEntries:target.capProvenance.binaryEntries}}; }
   // prettier-ignore
   async function resolveWriterInputs(input) { const index=await readIndex(), target=await targetFacts(input,dependencies), value=writerContext(input,index,target); contexts.set(key(input.row.wave,input.arguments.mode,input.arguments.sha),value); return value; }
   // prettier-ignore
-  async function resolveRepairSource({wave,declaration}) { const index=await readIndex(), sources=repairSources(index), found=sources.find((entry)=>entry.repairRowId===wave), disposition=declaration?.row?.sourceDisposition, proof=wave.startsWith('proof-02-repair-'), failedId=proof?null:found?.failedReportObservationId??null, failedFingerprint=proof?null:found?.failedReportFingerprint??null; if(!found||found.kind!==(proof?'proof':'h')||found.receiptId!==disposition?.receiptId||found.observationId!==disposition.observationId||failedId!==disposition.failedReportObservationId||failedFingerprint!==disposition.failedReportFingerprint||found.causeFingerprint!==disposition.causeFingerprint) fail('declared repair source absent from durable receipts'); const base=proof?['proof-02-triage']:['camp-01g','proof-02-triage','proof-02-required-repairs'], requiredRowIds=sources.filter((entry)=>entry.kind===(proof?'proof':'h')).map((entry)=>entry.repairRowId).sort(); return {source:{kind:proof?'proof':'h',childChange:declaration.row.childChange,causeFingerprint:found.causeFingerprint,sourceDisposition:disposition,reporterContracts:declaration.row.reporterContracts,explicitDependencies:declaration.row.predecessors.slice(base.length)},registrySet:{requiredRowIds,registeredRowIds:[declaration.row.wave]}}; }
+  async function resolveRepairSource({wave,declaration}) { const index=await readIndex(), sources=repairSources(index), found=sources.find((entry)=>entry.repairRowId===wave), disposition=declaration?.row?.sourceDisposition, proof=wave.startsWith('proof-02-repair-'), failedId=proof?null:found?.failedReportObservationId??null, failedFingerprint=proof?null:found?.failedReportFingerprint??null; if(!found||found.kind!==(proof?'proof':'h')||found.receiptId!==disposition?.receiptId||found.observationId!==disposition.observationId||failedId!==disposition.failedReportObservationId||failedFingerprint!==disposition.failedReportFingerprint||found.causeFingerprint!==disposition.causeFingerprint) fail('declared repair source absent from durable receipts'); const base=proof?['proof-02-triage']:['camp-01g','proof-02-triage','proof-02-required-repairs'], requiredRowIds=sources.filter((entry)=>entry.kind===(proof?'proof':'h')).map((entry)=>entry.repairRowId).sort(), source={kind:proof?'proof':'h',childChange:declaration.row.childChange,causeFingerprint:found.causeFingerprint,sourceDisposition:disposition,reporterContracts:declaration.row.reporterContracts,explicitDependencies:declaration.row.predecessors.slice(base.length)}; repairRegistry.register({wave,declaration,source}); return {source,registrySet:{requiredRowIds,registeredRowIds:registeredRows(repairRegistry.discover(),proof)}}; }
   return Object.freeze({
     readIndex,
     resolvePreflightFacts,
@@ -94,7 +97,9 @@ export async function createProductionDependencies(
       '.sisyphus',
       'evidence',
       'playtest',
-    );
+    ),
+    repairRegistry =
+      dependencies.repairRegistry ?? createRepairRegistry({ initiatingRoot });
   ensureDirectory(initiatingRoot, evidenceRoot);
   const targetDeps = {
       git,
@@ -104,7 +109,7 @@ export async function createProductionDependencies(
     },
     facts = createDurableFacts(
       { ...options, initiatingRoot },
-      { ...dependencies, targetDependencies: targetDeps },
+      { ...dependencies, targetDependencies: targetDeps, repairRegistry },
     ),
     stateStore = createFileStateStore(initiatingRoot),
     active = new Map(),
@@ -121,6 +126,9 @@ export async function createProductionDependencies(
   });
   const createTarget = async (input) => {
     const target = await createProofTarget(input, targetDeps),
+      registration = Object.hasOwn(WAVE_CONTRACTS, input.wave)
+        ? null
+        : repairRegistry.require(input.wave),
       exporter = createDurableExport(
         {
           initiatingRoot,
@@ -128,6 +136,7 @@ export async function createProductionDependencies(
           validationContext: (value) =>
             writerContexts.get(key(value.wave, value.mode, value.sha)) ??
             facts.validationContext(value),
+          repairRegistration: registration,
         },
         dependencies.exportDependencies ?? {},
       );
@@ -140,13 +149,29 @@ export async function createProductionDependencies(
       const state = stateStore.load(input?.row?.wave);
       if (input?.row?.capSubject !== 'none' && !state?.ownedTarget)
         fail('owned target state missing');
-      const value = await provenance.resolveWriterContext({ ...input, state });
+      const base = await provenance.resolveWriterContext({ ...input, state }),
+        registration = Object.hasOwn(WAVE_CONTRACTS, input.row.wave)
+          ? null
+          : repairRegistry.require(input.row.wave),
+        value = registration
+          ? {
+              ...base,
+              repairDeclaration: registration.declaration,
+              repairSource: registration.source,
+            }
+          : base;
       writerContexts.set(
         key(input.row.wave, input.arguments.mode, input.arguments.sha),
         {
           registryContext: value.registryContext,
-          reviewedHead: value.reviewedHead,
-          ...(value.reproduction ? { reproduction: value.reproduction } : {}),
+            reviewedHead: value.reviewedHead,
+            ...(value.reproduction ? { reproduction: value.reproduction } : {}),
+            ...(registration
+              ? {
+                  repairDeclaration: registration.declaration,
+                  repairSource: registration.source,
+                }
+              : {}),
         },
       );
       return value;
@@ -194,9 +219,9 @@ export async function createProductionDependencies(
 }
 
 // prettier-ignore
-function candidates(evidenceRoot) { const found=[], initiatingRoot=path.resolve(evidenceRoot,'..','..','..'); for(const entry of fs.readdirSync(evidenceRoot,{withFileTypes:true})){if(!entry.isDirectory()||entry.isSymbolicLink()||entry.name.startsWith('.'))continue; const matches=ROWS.filter((row)=>{const prefix=path.basename(row.runRootTemplate).replace('<sha>','');return entry.name.startsWith(prefix)&&SHA.test(entry.name.slice(prefix.length));}); if(matches.length!==1)continue; const row=matches[0], prefix=path.basename(row.runRootTemplate).replace('<sha>',''), sha=entry.name.slice(prefix.length), runRoot=row.runRootTemplate.replace('<sha>',sha), root=path.join(evidenceRoot,entry.name), children=fs.readdirSync(root,{withFileTypes:true}); if(children.length!==1||!children[0].isDirectory()||children[0].isSymbolicLink()||!RUN.test(children[0].name))fail('durable run root identity drift'); const directory=path.join(root,children[0].name), command=readJson(path.join(directory,'command-result.json')), manifest=readJson(path.join(directory,'receipt-manifest.json')); if(!command||!manifest||!Array.isArray(manifest.entries))fail('durable receipt identity drift'); const artifacts=Object.fromEntries(row.artifacts.filter((name)=>name.endsWith('.json')&&!['command-result.json','receipt-manifest.json'].includes(name)).map((name)=>[name,readCandidateJson(path.join(directory,...name.split('/')))])); if(command.wave!==row.wave||command.sha!==sha||command.runId!==children[0].name||manifest.wave!==row.wave||manifest.runId!==command.runId||!['reviewed-head','exact-main'].includes(command.mode))fail('durable receipt identity drift'); found.push({wave:row.wave,row,mode:command.mode,sha,runRoot,runId:command.runId,directory,initiatingRoot,command,manifest,artifacts});} return found.sort((a,b)=>ROWS.indexOf(a.row)-ROWS.indexOf(b.row)||(a.mode==='reviewed-head'?-1:1)); }
+function candidates(evidenceRoot,registrations) { const found=[], initiatingRoot=path.resolve(evidenceRoot,'..','..','..'), rows=[...ROWS,...registrations.map((entry)=>entry.row)]; for(const entry of fs.readdirSync(evidenceRoot,{withFileTypes:true})){if(!entry.isDirectory()||entry.isSymbolicLink()||entry.name.startsWith('.'))continue; const matches=rows.filter((row)=>{const prefix=path.basename(row.runRootTemplate).replace('<sha>','');return entry.name.startsWith(prefix)&&SHA.test(entry.name.slice(prefix.length));}); if(matches.length!==1)continue; const row=matches[0], registration=registrations.find((value)=>value.wave===row.wave)??null, prefix=path.basename(row.runRootTemplate).replace('<sha>',''), sha=entry.name.slice(prefix.length), runRoot=row.runRootTemplate.replace('<sha>',sha), root=path.join(evidenceRoot,entry.name), children=fs.readdirSync(root,{withFileTypes:true}); if(children.length!==1||!children[0].isDirectory()||children[0].isSymbolicLink()||!RUN.test(children[0].name))fail('durable run root identity drift'); const directory=path.join(root,children[0].name), command=readJson(path.join(directory,'command-result.json')), manifest=readJson(path.join(directory,'receipt-manifest.json')); if(!command||!manifest||!Array.isArray(manifest.entries))fail('durable receipt identity drift'); const artifacts=Object.fromEntries(row.artifacts.filter((name)=>name.endsWith('.json')&&!['command-result.json','receipt-manifest.json'].includes(name)).map((name)=>[name,readCandidateJson(path.join(directory,...name.split('/')))])); if(command.wave!==row.wave||command.sha!==sha||command.runId!==children[0].name||manifest.wave!==row.wave||manifest.runId!==command.runId||!['reviewed-head','exact-main'].includes(command.mode))fail('durable receipt identity drift'); found.push({wave:row.wave,row,mode:command.mode,sha,runRoot,runId:command.runId,directory,initiatingRoot,command,manifest,artifacts,registration});} return found.sort((a,b)=>rows.indexOf(a.row)-rows.indexOf(b.row)||(a.mode==='reviewed-head'?-1:1)); }
 // prettier-ignore
-function contextFor(candidate,records) { const row=candidate.row, command=candidate.command, reviewed=command.mode==='exact-main'?records.find((entry)=>entry.wave===candidate.wave&&entry.mode==='reviewed-head'&&entry.receiptId===command.capProvenance?.reviewedHeadReceiptId):null, predecessors=row.predecessors.map((wave,index)=>({wave,id:command.provenance?.predecessorReceiptIds?.[index],record:wave.endsWith(VIRTUAL)?null:one(records,wave,'exact-main')})); const provenance=[...records.flatMap((entry)=>entry.context.registryContext.provenance),{id:command.provenance.specTupleId,sourceKind:'spec-tuple',wave:row.wave,subject:row.capSubject},...command.provenance.ownedPrTupleId?[{id:command.provenance.ownedPrTupleId,sourceKind:'owned-pr-tuple',wave:row.wave,subject:row.capSubject}]:[],...predecessors.map((entry)=>({id:entry.id,sourceKind:'predecessor-receipt',wave:entry.wave,subject:WAVE_CONTRACTS[entry.wave]?.capSubject??'product-pr'})),...reviewed?[{id:reviewed.receiptId,sourceKind:'reviewed-head-receipt',wave:row.wave,subject:row.capSubject}]:[]]; const evidence=predecessors.flatMap(({record})=>record?record.row.reporterContracts.filter((entry)=>!entry.witnessLabel).map((entry)=>({sourceKind:'execution',sourceKey:entry.invocationId,runId:record.runId,wave:record.wave,label:null})):[]), refs=(command.identityRegistry?.refs??[]).map((entry)=>({...entry,sourceWave:provenance.find((value)=>value.id===entry.validationProvenanceId)?.wave??row.wave})), capturePolicies=command.captureAttestations?.length?[{wave:row.wave,sha:command.sha,fixtureAllowlistDigest:command.captureAttestations[0].fixtureAllowlistDigest,barrierPolicyDigest:command.captureAttestations[0].barrierPolicyDigest}]:[]; return {registryContext:{evidence:unique(evidence,'sourceKey'),provenance:unique(provenance,'id'),refs:unique(refs,'ref'),capturePolicies,repairSources:repairSources({records:[...records,candidate]}).map(({repairRowId,failedReportObservationId,failedReportFingerprint,causeFingerprint})=>({repairRowId,failedReportObservationId,failedReportFingerprint,causeFingerprint}))},reviewedHead:reviewed?{receiptId:reviewed.receiptId,manifestDigest:reviewed.manifestDigest,command:reviewed.command,manifest:reviewed.manifest}:null,...row.wave==='proof-02-triage'?{reproduction:readArtifact(one(records,'proof-02-reproduction','exact-main'),'proof02-reproduction.json')}:{}}; }
+function contextFor(candidate,records) { const row=candidate.row, command=candidate.command, reviewed=command.mode==='exact-main'?records.find((entry)=>entry.wave===candidate.wave&&entry.mode==='reviewed-head'&&entry.receiptId===command.capProvenance?.reviewedHeadReceiptId):null, predecessors=row.predecessors.map((wave,index)=>({wave,id:command.provenance?.predecessorReceiptIds?.[index],record:wave.endsWith(VIRTUAL)?null:one(records,wave,'exact-main')})); const provenance=[...records.flatMap((entry)=>entry.context.registryContext.provenance),{id:command.provenance.specTupleId,sourceKind:'spec-tuple',wave:row.wave,subject:row.capSubject},...command.provenance.ownedPrTupleId?[{id:command.provenance.ownedPrTupleId,sourceKind:'owned-pr-tuple',wave:row.wave,subject:row.capSubject}]:[],...predecessors.map((entry)=>({id:entry.id,sourceKind:'predecessor-receipt',wave:entry.wave,subject:WAVE_CONTRACTS[entry.wave]?.capSubject??'product-pr'})),...reviewed?[{id:reviewed.receiptId,sourceKind:'reviewed-head-receipt',wave:row.wave,subject:row.capSubject}]:[]]; const evidence=predecessors.flatMap(({record})=>record?record.row.reporterContracts.filter((entry)=>!entry.witnessLabel).map((entry)=>({sourceKind:'execution',sourceKey:entry.invocationId,runId:record.runId,wave:record.wave,label:null})):[]), refs=(command.identityRegistry?.refs??[]).map((entry)=>({...entry,sourceWave:provenance.find((value)=>value.id===entry.validationProvenanceId)?.wave??row.wave})), capturePolicies=command.captureAttestations?.length?[{wave:row.wave,sha:command.sha,fixtureAllowlistDigest:command.captureAttestations[0].fixtureAllowlistDigest,barrierPolicyDigest:command.captureAttestations[0].barrierPolicyDigest}]:[]; return {registryContext:{evidence:unique(evidence,'sourceKey'),provenance:unique(provenance,'id'),refs:unique(refs,'ref'),capturePolicies,repairSources:repairSources({records:[...records,candidate]}).map(({repairRowId,failedReportObservationId,failedReportFingerprint,causeFingerprint})=>({repairRowId,failedReportObservationId,failedReportFingerprint,causeFingerprint}))},reviewedHead:reviewed?{receiptId:reviewed.receiptId,manifestDigest:reviewed.manifestDigest,command:reviewed.command,manifest:reviewed.manifest}:null,...candidate.registration?{repairDeclaration:candidate.registration.declaration,repairSource:candidate.registration.source}:{},...row.wave==='proof-02-triage'?{reproduction:readArtifact(one(records,'proof-02-reproduction','exact-main'),'proof02-reproduction.json')}:{}}; }
 // prettier-ignore
 function bindCandidate(candidate,records) { const ids=candidate.command.provenance?.predecessorReceiptIds??[]; candidate.row.predecessors.forEach((wave,index)=>{if(wave.endsWith(VIRTUAL))return;const prior=one(records,wave,'exact-main');if(!prior||ids[index]!==prior.receiptId)fail('predecessor receipt identity drift');}); if(candidate.mode==='exact-main'&&candidate.command.capProvenance!==null){const reviewed=records.find((entry)=>entry.wave===candidate.wave&&entry.mode==='reviewed-head'&&entry.receiptId===candidate.command.capProvenance?.reviewedHeadReceiptId);if(!reviewed||candidate.command.capProvenance.reviewedHeadReceiptManifestDigest!==reviewed.manifestDigest)fail('reviewed-head receipt identity drift');} }
 // prettier-ignore
@@ -210,12 +235,13 @@ async function targetFacts(input,dependencies) { if(input.row.capSubject!=='none
 // prettier-ignore
 function repairSources(index) { const result=new Map(); for(const record of index.records??[]){if(record.wave==='proof-02-triage'){for(const entry of record.artifacts['proof02-triage.json']?.dispositions??[])if(entry.repairRowId)result.set(entry.repairRowId,{kind:'proof',repairRowId:entry.repairRowId,receiptId:record.receiptId,observationId:entry.observationId,failedReportObservationId:entry.observationId,failedReportFingerprint:entry.failureFingerprint,causeFingerprint:entry.causeFingerprint});} if(record.wave==='camp-01h')for(const [name,value] of Object.entries(record.artifacts))if(name.endsWith('/experience.json'))for(const finding of value?.findings??[])if(finding.disposition?.repairRowId){const observation=finding.failedReportObservationIds[0], report=Object.values(record.artifacts).find((entry)=>entry?.observations?.some?.((item)=>item.id===observation)), failure=report?.observations.find((entry)=>entry.id===observation);result.set(finding.disposition.repairRowId,{kind:'h',repairRowId:finding.disposition.repairRowId,receiptId:record.receiptId,observationId:finding.id,failedReportObservationId:observation,failedReportFingerprint:failure?.failureFingerprint,causeFingerprint:finding.causeFingerprint});}} return [...result.values()].sort((a,b)=>a.repairRowId.localeCompare(b.repairRowId)); }
 // prettier-ignore
-// Declarations prove only the requested row; preflight has no durable registration ledger and therefore reports none.
-function repairGate(gate,index) { const kind=gate.startsWith('proof-02-')?'proof':'h', requiredRowIds=repairSources(index).filter((entry)=>entry.kind===kind).map((entry)=>entry.repairRowId), modes=(mode)=>index.records.filter((entry)=>requiredRowIds.includes(entry.wave)&&entry.mode===mode).map((entry)=>entry.wave); return {gate,requiredRowIds,registeredRowIds:[],reviewedHeadRowIds:modes('reviewed-head'),exactMainRowIds:modes('exact-main'),cleanupRowIds:index.cleanups.filter((entry)=>requiredRowIds.includes(entry.wave)).map((entry)=>entry.wave)}; }
+function repairGate(gate,index) { const proof=gate.startsWith('proof-02-'), kind=proof?'proof':'h', requiredRowIds=repairSources(index).filter((entry)=>entry.kind===kind).map((entry)=>entry.repairRowId), modes=(mode)=>index.records.filter((entry)=>requiredRowIds.includes(entry.wave)&&entry.mode===mode).map((entry)=>entry.wave); return {gate,requiredRowIds,registeredRowIds:registeredRows(index.registrations,proof),reviewedHeadRowIds:modes('reviewed-head'),exactMainRowIds:modes('exact-main'),cleanupRowIds:index.cleanups.filter((entry)=>requiredRowIds.includes(entry.wave)).map((entry)=>entry.wave)}; }
 // prettier-ignore
 function readCleanups(root,records) { if(!fs.existsSync(root))return [];assertNonReparse(root); return fs.readdirSync(root).filter((name)=>name.endsWith('-wave-cleanup.json')).map((name)=>{const file=path.join(root,name), stat=fs.lstatSync(file);if(stat.isSymbolicLink()||!stat.isFile())fail('cleanup receipt reparse rejected');const value=readJson(file);try{validateArtifact(value);}catch{fail('cleanup receipt invalid');}const record=records.find((entry)=>entry.wave===value.wave&&entry.runId===value.runId&&entry.mode==='exact-main');if(!record||record.manifestDigest!==value.receiptDigest)fail('cleanup receipt identity drift');return value;}).sort((a,b)=>a.wave.localeCompare(b.wave)); }
 // prettier-ignore
-async function invokeValidator(candidate,context,dependencies) { const args=[VALIDATOR,`--wave=${candidate.wave}`,`--run-root=${candidate.runRoot}`,`--expected-sha=${candidate.sha}`,`--mode=${candidate.mode}`], spawn=dependencies.validatorSpawn??spawnSync, result=await spawn(process.execPath,args,{cwd:candidate.initiatingRoot,encoding:'utf8',env:{...process.env,CAMP01_VALIDATION_CONTEXT:JSON.stringify(context)},shell:false}); if(!result||result.status!==0)fail('public validator rejected durable receipt'); }
+async function invokeValidator(candidate,context,dependencies) { const args=[VALIDATOR,`--wave=${candidate.wave}`,`--run-root=${candidate.runRoot}`,`--expected-sha=${candidate.sha}`,`--mode=${candidate.mode}`,...candidate.registration?[`--repair-registration=${candidate.registration.reference}`]:[]], spawn=dependencies.validatorSpawn??spawnSync, result=await spawn(process.execPath,args,{cwd:candidate.initiatingRoot,encoding:'utf8',env:{...process.env,CAMP01_VALIDATION_CONTEXT:JSON.stringify(context),CAMP01_REPAIR_REGISTRY_ROOT:candidate.initiatingRoot},shell:false}); if(!result||result.status!==0)fail('public validator rejected durable receipt'); }
+// prettier-ignore
+function registeredRows(registrations,proof) { return registrations.filter((entry)=>entry.wave.startsWith(proof?'proof-02-repair-':'camp-01h-repair-')).map((entry)=>entry.wave).sort(); }
 // prettier-ignore
 function inspectRowRoot(root,{runRoot,row,sha}) { if(runRoot!==row.runRootTemplate.replace('<sha>',sha))fail('row root identity drift'); const target=path.resolve(root,...runRoot.split('/')), reparsePoints=[]; let current=root; for(const part of runRoot.split('/')){current=path.join(current,part);if(fs.existsSync(current)&&fs.lstatSync(current).isSymbolicLink())reparsePoints.push(path.relative(root,current).replace(/\\/g,'/'));} return {repoRelativePath:runRoot,reparsePoints}; }
 // prettier-ignore

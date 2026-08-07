@@ -2,7 +2,10 @@ import { spawnSync } from 'node:child_process';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 
-import { REPOSITORY_IDENTITY } from './camp01-authority-receipt.contract.mjs';
+import {
+  REPOSITORY_IDENTITY,
+  WAVE_CONTRACTS,
+} from './camp01-authority-receipt.contract.mjs';
 import { writeReceipt } from './camp01-authority-receipt.mjs';
 import {
   digestBytes,
@@ -72,7 +75,7 @@ export async function executeReceipt({row,arguments:arguments_,provenance,enviro
   try {
     if(state.row!==row||environment?.executionEnvironmentDigest!==state.executionEnvironmentDigest) fail('prepared environment drift'); await verifyState(state,active);
     const resolveWriterContext=active.resolveWriterContext; if(typeof resolveWriterContext!=='function') fail('verified writer context seam missing'); const writerContext=await resolveWriterContext({row,arguments:arguments_,provenance,proofTarget}); assertWriterContext(writerContext,row,provenance);
-    const runRoot=path.resolve(proofTarget.canonicalPath,...arguments_.runRoot.split('/')), request={wave:row.wave,commandId:row.commandId,sha:arguments_.sha,treeSha:writerContext.treeSha,runRoot,mode:arguments_.mode,executionEnvironmentDigest:state.executionEnvironmentDigest,provenance:writerContext.provenance,capProvenance:writerContext.capProvenance,identityRegistry:writerContext.identityRegistry,registryContext:writerContext.registryContext,reviewedHead:writerContext.reviewedHead,...row.wave==='proof-02-triage'?{reproduction:writerContext.reproduction,triage:writerContext.triage}:{}};
+    const runRoot=path.resolve(proofTarget.canonicalPath,...arguments_.runRoot.split('/')), request={wave:row.wave,commandId:row.commandId,sha:arguments_.sha,treeSha:writerContext.treeSha,runRoot,mode:arguments_.mode,executionEnvironmentDigest:state.executionEnvironmentDigest,provenance:writerContext.provenance,capProvenance:writerContext.capProvenance,identityRegistry:writerContext.identityRegistry,registryContext:writerContext.registryContext,reviewedHead:writerContext.reviewedHead,...!Object.hasOwn(WAVE_CONTRACTS,row.wave)?{repairDeclaration:writerContext.repairDeclaration,repairSource:writerContext.repairSource}:{},...row.wave==='proof-02-triage'?{reproduction:writerContext.reproduction,triage:writerContext.triage}:{}};
     const written=await writeReceipt(request,{randomBytes:active.randomBytes,runCommand:async(argv,context)=>{await verifyState(state,active); const expanded=expandLogicalCommand(argv,state.tools), childEnvironment=commandEnvironment(state,context), snapshot=JSON.stringify(childEnvironment), result=await runSpawn(expanded,{cwd:proofTarget.canonicalPath,env:childEnvironment,stdio:'inherit'},active); if(JSON.stringify(childEnvironment)!==snapshot) fail('child environment drift'); return {exitCode:result?.status??2,observedTestIds:result?.observedTestIds??[]};}});
     const phase=row.wave==='camp-01h'&&JSON.parse(fs.readFileSync(path.join(written.finalDirectory,'wave-result.json'),'utf8')).status!=='passed'?'observation':'final'; return {runId:written.runId,phase,finalizedPaths:[...row.artifacts]};
   } finally { PREPARED.delete(proofTarget); fs.rmSync(state.runtimeRoot,{recursive:true,force:true}); }
@@ -107,7 +110,7 @@ async function verifyState(state,dependencies) { await verifyInputs(state,depend
 // prettier-ignore
 function commandEnvironment(state,context) { const dynamic={CAMP01_ARTIFACT_DIR:path.dirname(context.artifactPath('command-result.json')),CAMP01_EVIDENCE_REGISTRY:JSON.stringify(context.evidenceRegistry),CAMP01_EXECUTION_ID:context.executionId,CAMP01_INVOCATION_ID:context.invocationId,CAMP01_RUN_ID:context.runId,...context.hIdentities?{CAMP01_H_IDENTITIES:JSON.stringify(context.hIdentities)}:{}}; const value=Object.fromEntries(Object.entries({...state.baseEnvironment,...dynamic}).sort(([a],[b])=>a.localeCompare(b))), allowed=state.record.allowedEnvironmentNames; if(JSON.stringify(Object.keys(value))!==JSON.stringify(allowed)) fail('child environment drift'); return value; }
 // prettier-ignore
-function assertWriterContext(value,row,controllerProvenance) { const keys=['treeSha','provenance','capProvenance','identityRegistry','registryContext','reviewedHead',...row.wave==='proof-02-triage'?['reproduction','triage']:[]]; if(!value||JSON.stringify(Object.keys(value))!==JSON.stringify(keys)||!value.provenance||value.provenance.subject!==controllerProvenance.subject) fail('verified writer context drift'); }
+function assertWriterContext(value,row,controllerProvenance) { const keys=['treeSha','provenance','capProvenance','identityRegistry','registryContext','reviewedHead',...!Object.hasOwn(WAVE_CONTRACTS,row.wave)?['repairDeclaration','repairSource']:[],...row.wave==='proof-02-triage'?['reproduction','triage']:[]]; if(!value||JSON.stringify(Object.keys(value))!==JSON.stringify(keys)||!value.provenance||value.provenance.subject!==controllerProvenance.subject) fail('verified writer context drift'); }
 // prettier-ignore
 async function runSpawn(argv,options,dependencies) { const spawn=dependencies.spawn??spawnSync; try { return await spawn(argv[0],argv.slice(1),{...options,shell:false}); } catch(error) { if(error instanceof Camp01EnvironmentError) throw error; fail('process spawn failed'); } }
 // prettier-ignore

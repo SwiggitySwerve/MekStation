@@ -3,10 +3,10 @@ import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { WAVE_CONTRACTS } from './camp01-authority-receipt.contract.mjs';
 import {
   canonicalBytes,
   digestBytes,
+  resolveReceiptRow,
 } from './camp01-authority-receipt.schemas.mjs';
 
 const VALIDATOR_ENTRY = fileURLToPath(
@@ -32,7 +32,8 @@ export function createDurableExport(options, dependencies = {}) {
       dependencies.copy ??
       ((source, target) =>
         io.copyFileSync(source, target, fs.constants.COPYFILE_EXCL)),
-    validatorSpawn = dependencies.validatorSpawn ?? spawnSync;
+    validatorSpawn = dependencies.validatorSpawn ?? spawnSync,
+    repairRegistration = options.repairRegistration ?? null;
   if (
     initiatingRoot === transientRoot ||
     initiatingRoot.startsWith(`${transientRoot}${path.sep}`)
@@ -45,6 +46,7 @@ export function createDurableExport(options, dependencies = {}) {
         initiatingRoot,
         transientRoot,
         validationContext: options.validationContext,
+        repairRegistration,
       },
       { io, validatorSpawn },
     );
@@ -56,6 +58,7 @@ export function createDurableExport(options, dependencies = {}) {
         copy,
         io,
         invokePublicValidator,
+        repairRegistration,
       }),
     invokePublicValidator,
   });
@@ -65,15 +68,15 @@ export function createDurableExport(options, dependencies = {}) {
 async function exportReceipt(input, dependencies) {
   const createdDirectories=[];
   try {
-    const {row,receipt,arguments:arguments_,proofTarget}=input??{}, expectedRoot=row?.runRootTemplate?.replace('<sha>',arguments_?.sha), contract=WAVE_CONTRACTS[row?.wave]; if(!row||!contract||JSON.stringify(row)!==JSON.stringify(contract)||arguments_?.runRoot!==expectedRoot||!RUN_ROOT.test(arguments_.runRoot)||!SHA.test(arguments_.sha)||!['reviewed-head','exact-main'].includes(arguments_.mode)||!RUN_ID.test(receipt?.runId)||!['observation','final'].includes(receipt.phase)) fail('export identity drift');
+    const {row,receipt,arguments:arguments_,proofTarget}=input??{}, registration=dependencies.repairRegistration, expectedRoot=row?.runRootTemplate?.replace('<sha>',arguments_?.sha), contract=row?resolveReceiptRow(row.wave,registration?.declaration??null,registration?.source??null):null; if(!row||JSON.stringify(row)!==JSON.stringify(contract)||registration&&registration.wave!==row.wave||arguments_?.runRoot!==expectedRoot||!RUN_ROOT.test(arguments_.runRoot)||!SHA.test(arguments_.sha)||!['reviewed-head','exact-main'].includes(arguments_.mode)||!RUN_ID.test(receipt?.runId)||!['observation','final'].includes(receipt.phase)) fail('export identity drift');
     const artifacts=[...row.artifacts]; if(!artifacts.includes('command-result.json')||!artifacts.includes('receipt-manifest.json')||!exactSet(artifacts,receipt.finalizedPaths)||artifacts.some((name)=>!validRelative(name))) fail('finalized artifact set drift');
     const proofRoot=canonicalDirectory(proofTarget?.canonicalPath,'transient',dependencies.io); if(proofRoot!==dependencies.transientRoot) fail('transient root drift'); const transientRunRoot=below(proofRoot,arguments_.runRoot), source=finalizedChild(transientRunRoot,{runId:receipt.runId,message:'source receipt is not finalized',label:'transient'},dependencies.io); assertArtifactSet(source,artifacts,dependencies.io);
-    const manifest=readManifest(source,{row,runId:receipt.runId,artifacts},dependencies.io); verifyArtifactBytes(source,manifest,{stage:'transient',io:dependencies.io}); const durableRunRoot=ensureDurableRoot(dependencies.initiatingRoot,arguments_.runRoot,dependencies.io,createdDirectories), destination=path.join(durableRunRoot,receipt.runId), validatorInput={entry:VALIDATOR_ENTRY,stage:'durable',wave:row.wave,mode:arguments_.mode,sha:arguments_.sha,runRoot:arguments_.runRoot,runId:receipt.runId}; if(destination===proofRoot||destination.startsWith(`${proofRoot}${path.sep}`)) fail('durable destination is inside proof target'); const reopened=await reopenPublished(destination,durableRunRoot,artifacts,manifest,validatorInput,dependencies); if(reopened)return exportResult(receipt,reopened); recoverStagingResidue(durableRunRoot,receipt.runId,dependencies.io); assertDestinationAvailable(destination,dependencies.io); if(dependencies.io.readdirSync(durableRunRoot).length) fail('durable destination collision');
-    const stage=dependencies.io.mkdtempSync(path.join(durableRunRoot,`.camp01-export-${receipt.runId}-`)); let published=false;
+    const manifest=readManifest(source,{row,runId:receipt.runId,artifacts},dependencies.io); verifyArtifactBytes(source,manifest,{stage:'transient',io:dependencies.io}); const durableRunRoot=ensureDurableRoot(dependencies.initiatingRoot,arguments_.runRoot,dependencies.io,createdDirectories), destination=path.join(durableRunRoot,receipt.runId), validatorInput={entry:VALIDATOR_ENTRY,stage:'durable',wave:row.wave,mode:arguments_.mode,sha:arguments_.sha,runRoot:arguments_.runRoot,runId:receipt.runId,...registration?{repairRegistration:registration.reference}:{}}; if(destination===proofRoot||destination.startsWith(`${proofRoot}${path.sep}`)) fail('durable destination is inside proof target'); const reopened=await reopenPublished(destination,durableRunRoot,artifacts,manifest,validatorInput,dependencies); if(reopened)return exportResult(receipt,reopened); recoverStagingResidue(durableRunRoot,receipt.runId,dependencies.io); const stageRoot=path.dirname(durableRunRoot), stagePrefix=`.c1e-${digestBytes(arguments_.runRoot).slice(7,23)}-`; recoverSharedStagingResidue(stageRoot,stagePrefix,dependencies.io); assertDestinationAvailable(destination,dependencies.io); if(dependencies.io.readdirSync(durableRunRoot).length) fail('durable destination collision');
+    const stage=dependencies.io.mkdtempSync(path.join(stageRoot,stagePrefix)); let published=false;
     try {
       for(const name of artifacts){const sourceFile=below(source,name), target=below(stage,name); dependencies.io.mkdirSync(path.dirname(target),{recursive:true}); try { await dependencies.copy(sourceFile,target); } catch(error) { if(error instanceof Camp01ExportError) throw error; fail('partial copy rejected'); }}
       assertNonReparse(stage,'durable',dependencies.io); assertArtifactSet(stage,artifacts,dependencies.io); const stagedManifest=dependencies.io.readFileSync(path.join(stage,'receipt-manifest.json')); if(!stagedManifest.equals(manifest.bytes)) fail('staged manifest drift'); verifyArtifactBytes(stage,manifest,{stage:'staged',io:dependencies.io});
-      assertDestinationAvailable(destination,dependencies.io); if(JSON.stringify(dependencies.io.readdirSync(durableRunRoot))!==JSON.stringify([path.basename(stage)])) fail('durable destination collision'); assertNonReparse(durableRunRoot,'durable',dependencies.io); try { dependencies.io.renameSync(stage,destination); published=true; } catch(error) { assertDestinationAvailable(destination,dependencies.io); fail('durable publication failed'); }
+      assertDestinationAvailable(destination,dependencies.io); if(dependencies.io.readdirSync(durableRunRoot).length) fail('durable destination collision'); assertNonReparse(durableRunRoot,'durable',dependencies.io); try { dependencies.io.renameSync(stage,destination); published=true; } catch(error) { assertDestinationAvailable(destination,dependencies.io); fail('durable publication failed'); }
     } finally { if(!published&&lstatIfPresent(stage,dependencies.io)!==null) dependencies.io.rmSync(stage,{recursive:true,force:true}); }
     await dependencies.invokePublicValidator(validatorInput); return exportResult(receipt,dependencies.io.readFileSync(path.join(destination,'receipt-manifest.json')));
   } catch(error) { if(error instanceof Camp01ExportError) throw error; fail('filesystem operation failed'); }
@@ -83,9 +86,9 @@ async function exportReceipt(input, dependencies) {
 // prettier-ignore
 async function invokeValidator(input, roots, dependencies) {
   try {
-    const keys=['entry','stage','wave','mode','sha','runRoot','runId']; if(!input||!exactSet(Object.keys(input),keys)||path.resolve(input.entry)!==path.resolve(VALIDATOR_ENTRY)||!['transient','durable'].includes(input.stage)||!SHA.test(input.sha)||!RUN_ID.test(input.runId)||!['reviewed-head','exact-main'].includes(input.mode)) fail('public validator input drift'); const row=WAVE_CONTRACTS[input.wave]; if(!row||input.runRoot!==row.runRootTemplate.replace('<sha>',input.sha)||!RUN_ROOT.test(input.runRoot)) fail('public validator input drift');
+    const registration=roots.repairRegistration, keys=['entry','stage','wave','mode','sha','runRoot','runId',...registration?['repairRegistration']:[]]; if(!input||!exactSet(Object.keys(input),keys)||registration&&input.repairRegistration!==registration.reference||path.resolve(input.entry)!==path.resolve(VALIDATOR_ENTRY)||!['transient','durable'].includes(input.stage)||!SHA.test(input.sha)||!RUN_ID.test(input.runId)||!['reviewed-head','exact-main'].includes(input.mode)) fail('public validator input drift'); const row=resolveReceiptRow(input.wave,registration?.declaration??null,registration?.source??null); if(input.runRoot!==row.runRootTemplate.replace('<sha>',input.sha)||!RUN_ROOT.test(input.runRoot)) fail('public validator input drift');
     let root; switch(input.stage){case 'transient':root=roots.transientRoot;break;case 'durable':root=roots.initiatingRoot;break;default:fail('public validator input drift');} finalizedChild(below(root,input.runRoot),{runId:input.runId,message:'public validator receipt identity drift',label:input.stage},dependencies.io);
-    const raw=typeof roots.validationContext==='function'?await roots.validationContext(input):roots.validationContext??process.env.CAMP01_VALIDATION_CONTEXT, context=serializeContext(raw); const args=[input.entry,`--wave=${input.wave}`,`--run-root=${input.runRoot}`,`--expected-sha=${input.sha}`,`--mode=${input.mode}`]; let result; try { result=await dependencies.validatorSpawn(process.execPath,args,{cwd:root,encoding:'utf8',env:{...process.env,CAMP01_VALIDATION_CONTEXT:context},shell:false}); } catch(error) { fail(`public validator failed for ${input.stage} stage`); } if(!result||result.status!==0) fail(`public validator failed for ${input.stage} stage`); return {validated:true};
+    const raw=typeof roots.validationContext==='function'?await roots.validationContext(input):roots.validationContext??process.env.CAMP01_VALIDATION_CONTEXT, context=serializeContext(raw); const args=[input.entry,`--wave=${input.wave}`,`--run-root=${input.runRoot}`,`--expected-sha=${input.sha}`,`--mode=${input.mode}`,...registration?[`--repair-registration=${registration.reference}`]:[]]; let result; try { result=await dependencies.validatorSpawn(process.execPath,args,{cwd:root,encoding:'utf8',env:{...process.env,CAMP01_VALIDATION_CONTEXT:context,CAMP01_REPAIR_REGISTRY_ROOT:roots.initiatingRoot},shell:false}); } catch(error) { fail(`public validator failed for ${input.stage} stage`); } if(!result||result.status!==0) fail(`public validator failed for ${input.stage} stage`); return {validated:true};
   } catch(error) { if(error instanceof Camp01ExportError) throw error; fail('public validator invocation failed'); }
 }
 
@@ -103,6 +106,8 @@ function ensureDurableRoot(root,relative,io,created) { let current=root; for(con
 async function reopenPublished(destination,runRoot,artifacts,manifest,validatorInput,dependencies) { const stat=lstatIfPresent(destination,dependencies.io); if(stat===null)return null; if(stat.isSymbolicLink())fail('reparse point present in durable path'); if(!stat.isDirectory()||JSON.stringify(dependencies.io.readdirSync(runRoot))!==JSON.stringify([path.basename(destination)]))fail('durable destination collision'); try {assertNonReparse(destination,'durable',dependencies.io);assertArtifactSet(destination,artifacts,dependencies.io);const bytes=dependencies.io.readFileSync(path.join(destination,'receipt-manifest.json'));if(!bytes.equals(manifest.bytes))fail('durable destination collision');verifyArtifactBytes(destination,manifest,{stage:'durable',io:dependencies.io});await dependencies.invokePublicValidator(validatorInput);return bytes;} catch(error) {if(error instanceof Camp01ExportError&&error.message.includes('public validator'))throw error;fail('durable destination collision');} }
 // prettier-ignore
 function recoverStagingResidue(root,runId,io) { const prefix=`.camp01-export-${runId}-`; for(const name of io.readdirSync(root)){if(!name.startsWith(prefix))fail('durable destination collision');const target=path.join(root,name),stat=io.lstatSync(target);if(stat.isSymbolicLink())fail('reparse point present in durable path');if(!stat.isDirectory())fail('durable destination collision');io.rmSync(target,{recursive:true,force:false});} }
+// prettier-ignore
+function recoverSharedStagingResidue(root,prefix,io) { for(const name of io.readdirSync(root).filter((value)=>value.startsWith(prefix))){const target=path.join(root,name),stat=io.lstatSync(target);if(stat.isSymbolicLink())fail('reparse point present in durable path');if(!stat.isDirectory())fail('durable destination collision');io.rmSync(target,{recursive:true,force:false});} }
 // prettier-ignore
 function removeEmptyAncestors(created,io) { for(const directory of [...created].reverse()){try{io.rmdirSync(directory);}catch(error){if(!['ENOENT','ENOTEMPTY'].includes(error?.code))throw error;}} }
 // prettier-ignore
