@@ -1,11 +1,11 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 
-import { WAVE_CONTRACTS } from './camp01-authority-receipt.contract.mjs';
 import { validateReceiptDirectory } from './camp01-authority-receipt.mjs';
+import { resolveReceiptRow } from './camp01-authority-receipt.schemas.mjs';
 
 // prettier-ignore
-const ARGUMENTS=['wave','run-root','expected-sha','mode'], CONTEXT_KEYS=['registryContext','reviewedHead','reproduction'], SHA=/^[0-9a-f]{40}$/, RUN_ID=/^camp01-[0-9a-f]{32}$/;
+const ARGUMENTS=['wave','run-root','expected-sha','mode'], CONTEXT_KEYS=['registryContext','reviewedHead','reproduction','repairDeclaration','repairSource'], SHA=/^[0-9a-f]{40}$/, RUN_ID=/^camp01-[0-9a-f]{32}$/;
 
 // prettier-ignore
 function parseArguments(argv) { const values={}; for (const token of argv) { const match=/^--([a-z-]+)=(.+)$/.exec(token); if (!match || !ARGUMENTS.includes(match[1]) || Object.hasOwn(values,match[1])) fail('invalid or duplicate argument'); values[match[1]]=match[2]; } if (JSON.stringify(Object.keys(values).sort())!==JSON.stringify([...ARGUMENTS].sort())) fail('missing argument'); return values; }
@@ -15,7 +15,7 @@ function parseContext(raw) { if (!raw) fail('validation context missing'); const
 function receiptChild(runRoot) { const entries=fs.readdirSync(runRoot,{withFileTypes:true}); if (entries.length!==1 || !entries[0].isDirectory() || entries[0].isSymbolicLink() || !RUN_ID.test(entries[0].name)) fail('run root must contain one finalized receipt child'); return entries[0].name; }
 
 // prettier-ignore
-function main() { const values=parseArguments(process.argv.slice(2)), row=WAVE_CONTRACTS[values.wave]; if (!row) fail('unknown wave'); if (!SHA.test(values['expected-sha'])) fail('invalid expected SHA'); if (!['reviewed-head','exact-main'].includes(values.mode)) fail('invalid mode'); const expectedRoot=row.runRootTemplate.replace('<sha>',values['expected-sha']); if (values['run-root']!==expectedRoot) fail('run root mismatch'); const root=path.resolve(values['run-root']), runId=receiptChild(root), context=parseContext(process.env.CAMP01_VALIDATION_CONTEXT); validateReceiptDirectory(path.join(root,runId),{...context,expectedWave:row.wave,expectedSha:values['expected-sha'],expectedMode:values.mode,expectedRunId:runId}); process.stdout.write('CAMP01 receipt valid\n'); }
+function main() { const values=parseArguments(process.argv.slice(2)); if (!SHA.test(values['expected-sha'])) fail('invalid expected SHA'); if (!['reviewed-head','exact-main'].includes(values.mode)) fail('invalid mode'); const context=parseContext(process.env.CAMP01_VALIDATION_CONTEXT), row=resolveReceiptRow(values.wave,context.repairDeclaration??null,context.repairSource??null), expectedRoot=row.runRootTemplate.replace('<sha>',values['expected-sha']); if (values['run-root']!==expectedRoot) fail('run root mismatch'); const root=path.resolve(values['run-root']), runId=receiptChild(root); validateReceiptDirectory(path.join(root,runId),{...context,expectedWave:row.wave,expectedSha:values['expected-sha'],expectedMode:values.mode,expectedRunId:runId}); process.stdout.write('CAMP01 receipt valid\n'); }
 // prettier-ignore
 function fail(message) { throw new Error(`CAMP01_VALIDATOR_INVALID: ${message}`); }
 
