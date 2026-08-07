@@ -42,6 +42,13 @@ try { const base=await seed(); let value;
   else if(request.action==='nonempty'){ const location=path.join(proofRoot,'camp-proof-reviewed-head-'+base); fs.mkdirSync(location); fs.writeFileSync(path.join(location,'sentinel'),'owned'); value=await create(base); }
   else if(request.action==='proof-location-reparse'){ const external=path.join(root,'external'), location=path.join(proofRoot,'camp-proof-reviewed-head-'+base); fs.mkdirSync(external); fs.symlinkSync(external,location,request.junction?'junction':'dir'); let error=null; try { await create(base); } catch(cause) { error=cause instanceof Error?cause.message:String(cause); } const listing=(await run(['worktree','list','--porcelain'])).stdout; value={error,registered:listing.includes(location),externalEntries:fs.readdirSync(external)}; }
   else if(request.action==='missing-id'){ value=await inspect(base,{gitDependencies:{spawn:(executable,args,options)=>{const result=spawnSync(executable,args,options); return args.includes('--absolute-git-dir')?{...result,stdout:''}:result;}}}); }
+  else if(request.action==='owned-detached'){ await run(['switch','--detach'],owned); value=await inspect(base); }
+  else if(request.action==='invalid-run-root'){ const proofTarget=await create(base); value=await target.observeCleanState({target:proofTarget,phase:'final',runRoot:request.runRoot},{git}); }
+  else if(request.action==='invalid-input'){ if(request.api==='inspect')value=await target.inspectOwnedTarget({wave:null,subject:'product',worktree:owned,spec:{mergeSha:base},row:WAVE_CONTRACTS['camp-proof'],headSha:base},{git}); if(request.api==='create')value=await target.createProofTarget({wave:'camp-proof',sha:'bad',mode:'reviewed-head'},{git,repositoryRoot:repo,proofRoot}); if(request.api==='observe')value=await target.observeCleanState({target:null,phase:'final',runRoot:null},{git}); if(request.api==='facts')value=await target.resolveTargetFacts({ownedTarget:null,spec:null,row:null},{git}); }
+  else if(request.action==='non-ancestor'){ const ownedTarget=await inspect(base), tree=(await run(['rev-parse','HEAD^{tree}'])).stdout.trim(), divergent=(await run(['-c','user.name=CAMP01','-c','user.email=camp01@example.invalid','commit-tree',tree,'-m','divergent'])).stdout.trim(); await run(['reset','--hard',divergent],owned); value=await target.resolveTargetFacts({ownedTarget,spec:{mergeSha:base},row:WAVE_CONTRACTS['camp-proof']},{git}); }
+  else if(request.action==='foreign-clone'){ const ownedTarget=await inspect(base); await run(['worktree','remove',owned]); await run(['clone','--branch','codex/owned',repo,owned]); value=await target.observeCleanState({target:ownedTarget,phase:'final',runRoot:null},{git}); }
+  else if(request.action==='ancestor-reparse'){ const realParent=path.join(root,'real-parent'), alias=path.join(root,'ancestor-alias'), candidate=path.join(realParent,'candidate'); fs.mkdirSync(realParent); await run(['worktree','add','-b','codex/ancestor',candidate,base]); fs.symlinkSync(realParent,alias,request.junction?'junction':'dir'); value=await target.inspectOwnedTarget({wave:'camp-proof',subject:'product',worktree:path.join(alias,'candidate'),spec:{mergeSha:base},row:WAVE_CONTRACTS['camp-proof'],headSha:base},{git}); }
+  else if(request.action==='invalid-numstat'){ const ownedTarget=await inspect(base); fs.appendFileSync(path.join(owned,'base.txt'),'next\\n'); await run(['add','.'],owned); await run(['-c','user.name=CAMP01','-c','user.email=camp01@example.invalid','commit','-m','product'],owned); value=await target.resolveTargetFacts({ownedTarget,spec:{mergeSha:base},row:WAVE_CONTRACTS['camp-proof']},{git,gitDependencies:{spawn:(executable,args,options)=>{const result=spawnSync(executable,args,options);return args.includes('diff')?{...result,stdout:request.numstat}:result;}}}); }
   else if(request.action==='dirty'){ const ownedTarget=await inspect(base); fs.appendFileSync(path.join(owned,'base.txt'),'dirty\\n'); if(request.index) await run(['add','base.txt'],owned); value=await target.observeCleanState({target:ownedTarget,phase:'final',runRoot:'allowed'},{git}); }
   else if(request.action==='reparse'){ const proofTarget=await create(base), external=path.join(root,'external'); fs.mkdirSync(external); fs.symlinkSync(external,path.join(proofTarget.canonicalPath,'escape'),request.junction?'junction':'dir'); value=await target.observeCleanState({target:proofTarget,phase:'final',runRoot:'allowed'},{git}); }
   else if(request.action==='run-root-reparse'){ const proofTarget=await create(base), external=path.join(root,'external'); fs.mkdirSync(external); fs.symlinkSync(external,path.join(proofTarget.canonicalPath,'allowed'),request.junction?'junction':'dir'); value=await target.observeCleanState({target:proofTarget,phase:'final',runRoot:'allowed'},{git}); }
@@ -167,6 +174,67 @@ describe('cross-platform CAMP-01 local target authority', () => {
     });
   });
 
+  gitIt('requires an owned target to remain branch-attached', () => {
+    expect(invoke({ action: 'owned-detached', root, git: hostGit }).error).toBe(
+      'CAMP01_TARGET_INVALID: owned worktree must have a branch',
+    );
+  });
+
+  gitIt.each(['../escape', 'allowed\\nested', 'allowed//nested'])(
+    'rejects invalid run-root input %s',
+    (runRoot) => {
+      expect(
+        invoke({ action: 'invalid-run-root', runRoot, root, git: hostGit })
+          .error,
+      ).toBe('CAMP01_TARGET_INVALID: run root invalid');
+    },
+  );
+
+  gitIt.each(['inspect', 'create', 'observe', 'facts'])(
+    'rejects the %s public input shape before repository mutation',
+    (api) => {
+      expect(
+        invoke({ action: 'invalid-input', api, root, git: hostGit }).error,
+      ).toMatch(
+        /^CAMP01_TARGET_INVALID: (owned target input invalid|proof target input invalid|clean-state input invalid|target fact input invalid)$/,
+      );
+    },
+  );
+
+  gitIt(
+    'rejects a rewritten head that no longer descends from its base',
+    () => {
+      expect(invoke({ action: 'non-ancestor', root, git: hostGit }).error).toBe(
+        'CAMP01_TARGET_INVALID: target head does not descend from base',
+      );
+    },
+  );
+
+  gitIt.each(['1\t2\t../escape\0', 'x\t2\tfile.txt\0', '1\t2\t\0'])(
+    'rejects malformed numstat output %j',
+    (numstat) => {
+      expect(
+        invoke({ action: 'invalid-numstat', numstat, root, git: hostGit })
+          .error,
+      ).toBe('CAMP01_TARGET_INVALID: target diff invalid');
+    },
+  );
+
+  gitIt('rejects a foreign clone substituted at the recorded path', () => {
+    expect(invoke({ action: 'foreign-clone', root, git: hostGit }).error).toBe(
+      'CAMP01_TARGET_INVALID: worktree identity drift',
+    );
+  });
+
+  (process.platform === 'win32' ? it.skip : gitIt)(
+    'rejects a POSIX symlink in the target ancestor chain',
+    () => {
+      expect(
+        invoke({ action: 'ancestor-reparse', root, git: hostGit }).error,
+      ).toBe('CAMP01_TARGET_INVALID: reparse point present');
+    },
+  );
+
   gitIt.each([
     [false, 'tracked worktree is dirty'],
     [true, 'index is dirty'],
@@ -281,6 +349,17 @@ describe('cross-platform CAMP-01 local target authority', () => {
         registered: false,
         externalEntries: [],
       });
+    });
+
+    gitIt('rejects a junction in the target ancestor chain', () => {
+      expect(
+        invoke({
+          action: 'ancestor-reparse',
+          junction: true,
+          root,
+          git: hostGit,
+        }).error,
+      ).toBe('CAMP01_TARGET_INVALID: reparse point present');
     });
   },
 );

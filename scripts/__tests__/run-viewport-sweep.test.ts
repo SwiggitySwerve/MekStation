@@ -93,6 +93,7 @@ const camp01TestFiles = [
   'scripts/__tests__/camp01-h-report-normalizer.test.ts',
   'scripts/__tests__/camp01-playwright-normalizer.test.ts',
   'scripts/__tests__/camp01-proof-environment.test.ts',
+  'scripts/__tests__/camp01-repository-lifecycle-adversarial.test.ts',
   'scripts/__tests__/camp01-runner-isolation.test.ts',
   'scripts/__tests__/camp01-target-authority.test.ts',
   'scripts/__tests__/run-camp01-authority-receipt.test.ts',
