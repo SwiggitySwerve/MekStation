@@ -5,6 +5,7 @@ import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { PROOF5D5_LIVE_PROBE_REGISTRATIONS } from './camp01-live-browser-adversarial.mjs';
+import { PROOF5D6_LIVE_PROBE_REGISTRATIONS } from './camp01-live-os-adversarial.mjs';
 
 const schemaVersion = 'camp01-live-adversarial/v1';
 const allHosts = Object.freeze({ gateId: 'all-hosts', platforms: [] });
@@ -77,8 +78,7 @@ export const LIVE_PROBE_REGISTRY = Object.freeze([
   { probeId: 'proof5d4-live-shell-self-check', hostGate: allHosts, run: selfCheckProbe },
   { probeId: 'proof5d4-artifact-atomicity', hostGate: allHosts, run: artifactAtomicityProbe },
   ...PROOF5D5_LIVE_PROBE_REGISTRATIONS,
-  // PROOF-5D6 registration point: OS fault, signal, ENOSPC, and race bodies land in 5D6.
-  { probeId: 'proof5d6-os-fault-and-race', hostGate: { gateId: 'linux-or-windows', platforms: ['linux', 'win32'] }, run: null, deferredTo: 'PROOF-5D6' },
+  ...PROOF5D6_LIVE_PROBE_REGISTRATIONS,
 ]);
 
 async function runProbe(probe, { clock, platform, runScratchRoot }) {
