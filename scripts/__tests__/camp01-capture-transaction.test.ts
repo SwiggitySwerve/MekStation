@@ -19,6 +19,135 @@ const root=request.root, input={wave:request.wave??'camp-01e',invocationId:reque
 if(request.inputMutation==='extra') input.extra=true;
 if(request.inputMutation==='missing') delete input.artifactDirectory;
 const clone=(value)=>JSON.parse(JSON.stringify(value));
+const installBrowserGlobals=()=>{
+  const databases=[];
+  const renderedNodes=[];
+  let observedMutation;
+  const notifyMutation=()=>observedMutation?.();
+  class BrowserElement {
+    constructor(tagName){
+      this.tagName=tagName.toLowerCase();
+      this.attributes={};
+      this.textContent='';
+    }
+    setAttribute(name,value){this.attributes[name]=String(value);}
+    getAttribute(name){
+      return Object.prototype.hasOwnProperty.call(this.attributes,name)
+        ? this.attributes[name]
+        : null;
+    }
+    get outerHTML(){
+      const attributes=Object.entries(this.attributes)
+        .map(([name,value])=>\` \${name}="\${value}"\`)
+        .join('');
+      return \`<\${this.tagName}\${attributes}>\${this.textContent}</\${this.tagName}>\`;
+    }
+  }
+  const document={
+    body:{
+      appendChild(node){
+        renderedNodes.push(node);
+        notifyMutation();
+        return node;
+      },
+      removeChild(node){
+        const index=renderedNodes.indexOf(node);
+        if(index>=0)renderedNodes.splice(index,1);
+        notifyMutation();
+        return node;
+      },
+    },
+    createElement(tagName){
+      return new BrowserElement(tagName);
+    },
+    querySelectorAll(selector){
+      const attribute=selector.slice(1,-1);
+      return renderedNodes.filter((node)=>node.getAttribute(attribute)!==null);
+    },
+    documentElement:{
+      get outerHTML(){
+        const body=renderedNodes.map((node)=>node.outerHTML).join('');
+        return \`<html><body>\${body}</body></html>\`;
+      },
+    },
+  };
+  class BrowserMutationObserver {
+    constructor(callback){this.callback=callback;}
+    observe(){observedMutation=this.callback;}
+  }
+  class BrowserStorage {
+    getItem(key){
+      const name=String(key);
+      return Object.prototype.hasOwnProperty.call(this,name)?this[name]:null;
+    }
+    setItem(key,value){this[String(key)]=String(value);}
+    removeItem(key){delete this[String(key)];}
+    clear(){
+      for(const key of Object.keys(this))delete this[key];
+    }
+    restoreItem(key){delete this[String(key)];}
+  }
+  const upsertDatabase=(name,version=1)=>{
+    const existing=databases.find((database)=>database.name===name);
+    if(existing)existing.version=version;
+    else databases.push({name,version});
+  };
+  class BrowserIDBObjectStore {
+    constructor(databaseName='camp01-browser-state'){
+      this.databaseName=databaseName;
+    }
+    add(){upsertDatabase(this.databaseName);}
+    put(){upsertDatabase(this.databaseName);}
+    delete(){
+      const index=databases.findIndex(
+        (database)=>database.name===this.databaseName,
+      );
+      if(index>=0)databases.splice(index,1);
+    }
+    clear(){databases.splice(0);}
+  }
+  class BrowserIDBCursor {update(){} delete(){}}
+  class BrowserRequest {constructor(method='GET'){this.method=method;}}
+  class BrowserXMLHttpRequest {open(){} send(){}}
+  class BrowserWebSocket {send(){}}
+  const localStorage=new BrowserStorage();
+  const sessionStorage=new BrowserStorage();
+  const indexedDB={
+    databases:async()=>databases.map((database)=>({...database})),
+    open(name,version=1){
+      upsertDatabase(String(name),version);
+      return{};
+    },
+    deleteDatabase(name){
+      const index=databases.findIndex((database)=>database.name===name);
+      if(index>=0)databases.splice(index,1);
+      return{};
+    },
+  };
+  Object.defineProperties(globalThis,{
+    document:{value:document,configurable:true},
+    MutationObserver:{value:BrowserMutationObserver,configurable:true},
+    Storage:{value:BrowserStorage,configurable:true},
+    IDBObjectStore:{value:BrowserIDBObjectStore,configurable:true},
+    IDBCursor:{value:BrowserIDBCursor,configurable:true},
+    Request:{value:BrowserRequest,configurable:true},
+    XMLHttpRequest:{value:BrowserXMLHttpRequest,configurable:true},
+    navigator:{value:{sendBeacon:()=>true},configurable:true},
+    WebSocket:{value:BrowserWebSocket,configurable:true},
+    localStorage:{value:localStorage,configurable:true},
+    sessionStorage:{value:sessionStorage,configurable:true},
+    indexedDB:{value:indexedDB,configurable:true},
+    location:{value:{pathname:'/camp01/rendered',search:'?proof=5d1'},configurable:true},
+  });
+  globalThis.fetch=async()=>({});
+  return {
+    document,
+    localStorage,
+    sessionStorage,
+    indexedDB,
+    objectStore:(name)=>new BrowserIDBObjectStore(name),
+  };
+};
 try {
   let value;
   if(request.action==='environment') value=capture.captureEnvironment(request.environment);
@@ -26,8 +155,30 @@ try {
   else if(request.action==='policy') value=capture.capturePolicyFor(request.wave);
   else if(request.action==='admission') value=capture.openCaptureTransaction(input,{instrumentation:{}}).contract;
   else if(request.action==='browser-barrier') {
-    Object.defineProperties(globalThis,{document:{value:{},configurable:true},MutationObserver:{value:class{observe(){}},configurable:true},Storage:{value:class{setItem(){} removeItem(){} clear(){}},configurable:true},IDBObjectStore:{value:class{add(){} put(){} delete(){} clear(){}},configurable:true},IDBCursor:{value:class{update(){} delete(){}},configurable:true},Request:{value:class{},configurable:true},XMLHttpRequest:{value:class{open(){} send(){}},configurable:true},navigator:{value:{sendBeacon:()=>true},configurable:true},WebSocket:{value:class{send(){}},configurable:true}}); globalThis.fetch=async()=>({});
+    installBrowserGlobals();
     const instrumentation=capture.createBrowserCaptureInstrumentation({evaluate:(callback,argument)=>callback(argument)}); await instrumentation.arm(); if(request.mutation==='cursor-update')new IDBCursor().update();else if(request.mutation==='cursor-delete')new IDBCursor().delete();else if(request.mutation==='send-beacon')navigator.sendBeacon('/write');else if(request.mutation==='websocket-send')new WebSocket().send('write');else if(request.mutation==='fetch-post')await globalThis.fetch('/write',{method:'post'});else if(request.mutation==='fetch-get')await globalThis.fetch('/read');else if(request.mutation==='storage-set')new Storage().setItem('camp01-key','value');else if(request.mutation==='objectstore-put')new IDBObjectStore().put({});else{const xhr=new XMLHttpRequest();xhr.open(request.mutation==='xhr-post'?'post':'get','/target');xhr.send();} value=globalThis.__CAMP01_CAPTURE_GUARD__;
+  }
+  else if(request.action==='rendered-sentinel') {
+    const browser=installBrowserGlobals(), instrumentation=capture.createBrowserCaptureInstrumentation({evaluate:(callback,argument)=>callback(argument)}), sentinel=\`camp01-non-fixture-\${request.mutation}\`;
+    const element=browser.document.createElement('aside');element.setAttribute('data-camp01-non-fixture',sentinel);element.textContent='rendered sentinel';
+    if(request.mutation==='pre-dom')browser.document.body.appendChild(element);
+    else if(request.mutation==='pre-local-storage')browser.localStorage.setItem(sentinel,'visible');
+    else if(request.mutation==='pre-session-storage')browser.sessionStorage.setItem(sentinel,'visible');
+    else if(request.mutation==='pre-database')browser.indexedDB.open(sentinel,7);
+    const transaction=capture.openCaptureTransaction(input,{instrumentation});
+    await transaction.prepare();
+    await transaction.capture(async(file)=>{
+      if(request.mutation==='post-dom')browser.document.body.appendChild(element);
+      else if(request.mutation==='post-local-storage')browser.localStorage.setItem(sentinel,'visible');
+      else if(request.mutation==='post-session-storage')browser.sessionStorage.setItem(sentinel,'visible');
+      else if(request.mutation==='post-database')browser.objectStore(sentinel).put({visible:true});
+      fs.writeFileSync(file,Buffer.from('CLEAN PNG BYTES'));
+      if(request.mutation==='post-dom')browser.document.body.removeChild(element);
+      else if(request.mutation==='post-local-storage')browser.localStorage.restoreItem(sentinel);
+      else if(request.mutation==='post-session-storage')browser.sessionStorage.restoreItem(sentinel);
+      else if(request.mutation==='post-database')browser.indexedDB.deleteDatabase(sentinel);
+    });
+    value=await transaction.publish();
   }
   else if(request.action==='invalidation-failure') { fs.mkdirSync(path.join(root,input.artifactPath),{recursive:true}); await capture.openCaptureTransaction(input,{instrumentation:{seedFixtures:async()=>undefined,arm:async()=>undefined,snapshot:async()=>({})}}).prepare(); }
   else if(['phase','existing-png','noop-png','duplicate-attestation','tampered-attestation','noncanonical-attestation'].includes(request.action)) {
@@ -220,6 +371,29 @@ describe('CAMP-01 guarded capture transaction', () => {
       expect(result).toMatchObject({
         ok: true,
         value: { barrierTripped: tripped, counters: { [counter]: count } },
+      });
+    },
+  );
+
+  it.each([
+    ['J0', 'pre-dom', 'non-fixture state detected'],
+    ['J1', 'pre-local-storage', 'non-fixture state detected'],
+    ['J2', 'pre-session-storage', 'non-fixture state detected'],
+    ['J3', 'pre-database', 'non-fixture state detected'],
+    ['J4', 'post-dom', 'capture mutation counter changed'],
+    ['J5', 'post-local-storage', 'capture mutation counter changed'],
+    ['J6', 'post-session-storage', 'capture mutation counter changed'],
+    ['J7', 'post-database', 'capture mutation counter changed'],
+  ])(
+    'C04-%s rejects the rendered %s sentinel without publishing capture evidence',
+    (_row, mutation, guard) => {
+      const result = invoke({ action: 'rendered-sentinel', mutation });
+      expect(result).toMatchObject({
+        ok: false,
+        name: 'Camp01CaptureInvalidError',
+        error: `CAMP01_CAPTURE_INVALID: ${guard}`,
+        pngs: [],
+        attestation: false,
       });
     },
   );
