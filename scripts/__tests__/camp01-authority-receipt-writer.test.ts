@@ -39,6 +39,9 @@ try {
       if (request.capture && context.invocationId === 'camp-01e-picker-browser') {
         const policy=capture.capturePolicyFor('camp-01e'), snapshot={fixtureIds:[...policy.fixtureIds],fixtureAliases:[...policy.fixtureAliases],nonFixtureSentinels:[],domState:{html:'fixture'},appState:{route:'/fixture'},counters:{domMutations:0,storageWrites:0,databaseWrites:0,networkWrites:0},barrierTripped:false};
         for (const artifactPath of ['mobile-390x844.png','desktop.png']) { const transaction=capture.openCaptureTransaction({wave:'camp-01e',invocationId:context.invocationId,commandSequenceIndex:1,artifactPath,artifactDirectory:path.dirname(context.artifactPath(artifactPath))},{instrumentation:{seedFixtures:async()=>undefined,arm:async()=>undefined,snapshot:async()=>snapshot}}); await transaction.prepare(); await transaction.capture(async(file)=>fs.writeFileSync(file,Buffer.from(artifactPath))); await transaction.publish(); }
+        const attestations=path.join(path.dirname(context.artifactPath('desktop.png')),'.capture-attestations.json');
+        if(request.captureMutation==='missing-source') fs.rmSync(attestations);
+        if(request.captureMutation==='tampered-source'){const value=JSON.parse(fs.readFileSync(attestations,'utf8'));value[0].pngDigest='sha256:'+'f'.repeat(64);fs.writeFileSync(attestations,schemas.canonicalBytes(value));}
       }
       return { exitCode: 0, ...(request.callerObservedTestIds ? { observedTestIds: request.callerObservedTestIds } : {}) };
     },
@@ -84,6 +87,8 @@ const camp01eAssertions = [
   'programmaticNamesPresent===true',
   'narrowViewportUsable===true',
 ];
+// prettier-ignore
+function camp01eRequest(runRoot: string) { const policy=invoke({action:'capture-policy',value:'camp-01e'}).value as {fixtureAllowlistDigest:string;barrierPolicyDigest:string}, specId=`tuple-${'5'.repeat(16)}`, productId=`tuple-${'6'.repeat(16)}`, predecessorId=`receipt-${'7'.repeat(16)}`; return {...baseRequest(runRoot),wave:'camp-01e',commandId:'camp-01e',provenance:{subject:'product-pr',specTupleId:specId,ownedPrTupleId:productId,predecessorReceiptIds:[predecessorId]},registryContext:{evidence:[],provenance:[{id:predecessorId,sourceKind:'predecessor-receipt',wave:'camp-01d',subject:'product-pr'},{id:specId,sourceKind:'spec-tuple',wave:'camp-01e',subject:'product-pr'},{id:productId,sourceKind:'owned-pr-tuple',wave:'camp-01e',subject:'product-pr'}],refs:[],capturePolicies:[{wave:'camp-01e',sha,fixtureAllowlistDigest:policy.fixtureAllowlistDigest,barrierPolicyDigest:policy.barrierPolicyDigest}],repairSources:[]}}; }
 
 describe('CAMP-01 authority receipt writer and validator', () => {
   it('emits canonical bytes and rejects missing, unknown, or unsafe fields', () => {
@@ -155,13 +160,7 @@ describe('CAMP-01 authority receipt writer and validator', () => {
       'playtest',
       `camp01e-picker-${sha}`,
     );
-    const policy = invoke({ action: 'capture-policy', value: 'camp-01e' })
-      .value as { fixtureAllowlistDigest: string; barrierPolicyDigest: string };
-    const specId = `tuple-${'5'.repeat(16)}`,
-      productId = `tuple-${'6'.repeat(16)}`,
-      predecessorId = `receipt-${'7'.repeat(16)}`;
-    // prettier-ignore
-    const value={...baseRequest(runRoot),wave:'camp-01e',commandId:'camp-01e',provenance:{subject:'product-pr',specTupleId:specId,ownedPrTupleId:productId,predecessorReceiptIds:[predecessorId]},registryContext:{evidence:[],provenance:[{id:predecessorId,sourceKind:'predecessor-receipt',wave:'camp-01d',subject:'product-pr'},{id:specId,sourceKind:'spec-tuple',wave:'camp-01e',subject:'product-pr'},{id:productId,sourceKind:'owned-pr-tuple',wave:'camp-01e',subject:'product-pr'}],refs:[],capturePolicies:[{wave:'camp-01e',sha,fixtureAllowlistDigest:policy.fixtureAllowlistDigest,barrierPolicyDigest:policy.barrierPolicyDigest}],repairSources:[]}};
+    const value = camp01eRequest(runRoot);
     const written = invoke({
       action: 'write',
       value,
@@ -182,6 +181,40 @@ describe('CAMP-01 authority receipt writer and validator', () => {
       fs.existsSync(path.join(finalDirectory, '.capture-attestations.json')),
     ).toBe(false);
   });
+
+  it.each([
+    ['missing-source', 'CAMP01_WRITER_INVALID: capture attestations missing'],
+    ['tampered-source', 'CAMP01_RECEIPT_INVALID: capture digest drift'],
+  ])(
+    'rejects %s capture attestations before writer finalization',
+    (captureMutation, error) => {
+      const root = fs.mkdtempSync(
+        path.join(os.tmpdir(), 'camp-proof5c-writer-'),
+      );
+      const runRoot = path.join(
+        root,
+        '.sisyphus',
+        'evidence',
+        'playtest',
+        `camp01e-picker-${sha}`,
+      );
+      const result = invoke({
+        action: 'write',
+        value: camp01eRequest(runRoot),
+        assertions: camp01eAssertions,
+        entropy: '9'.repeat(32),
+        capture: true,
+        captureMutation,
+      });
+      expect(result).toMatchObject({
+        ok: false,
+        commandCount: 2,
+        runRootExists: true,
+      });
+      expect(result.error).toBe(error);
+      expect(fs.readdirSync(runRoot)).toEqual([]);
+    },
+  );
 
   // prettier-ignore
   it('rejects invalid authority context before commands or filesystem publication', () => { const mutations: Array<(value: ReturnType<typeof baseRequest>) => void> = [ (value) => { (value as { mode: string }).mode = 'exact-main'; }, (value) => { (value.provenance as { specTupleId: string }).specTupleId = `tuple-${'a'.repeat(16)}`; }, (value) => { (value.capProvenance as { changedLineCount: number }).changedLineCount = 501; }, (value) => { (value.identityRegistry.entities as unknown[]).push({ kind: 'campaign', digest, sourceEvidenceId: `ev-${'b'.repeat(32)}` }); }, (value) => { (value.registryContext.evidence as unknown[]).push({sourceKind:'trace',sourceKey:'caller-minted',runId:`camp01-${'9'.repeat(32)}`,wave:'camp-proof',label:null}); } ]; for (const mutate of mutations) { const root=fs.mkdtempSync(path.join(os.tmpdir(),'camp-proof2-invalid-')), runRoot=path.join(root,'.sisyphus','evidence','playtest',`camp-proof-${sha}`), value=baseRequest(runRoot); mutate(value); const result=invoke({action:'write',value,assertions:[],entropy:'4'.repeat(32)}); expect(result).toMatchObject({ok:false,commandCount:0,runRootExists:false}); } });
