@@ -4,6 +4,8 @@ import * as os from 'node:os';
 import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+import { PROOF5D5_LIVE_PROBE_REGISTRATIONS } from './camp01-live-browser-adversarial.mjs';
+
 const schemaVersion = 'camp01-live-adversarial/v1';
 const allHosts = Object.freeze({ gateId: 'all-hosts', platforms: [] });
 
@@ -74,8 +76,7 @@ async function artifactAtomicityProbe({ scratchRoot }) {
 export const LIVE_PROBE_REGISTRY = Object.freeze([
   { probeId: 'proof5d4-live-shell-self-check', hostGate: allHosts, run: selfCheckProbe },
   { probeId: 'proof5d4-artifact-atomicity', hostGate: allHosts, run: artifactAtomicityProbe },
-  // PROOF-5D5 registration point: real-browser and production-routing bodies land in 5D5.
-  { probeId: 'proof5d5-browser-and-production-routing', hostGate: allHosts, run: null, deferredTo: 'PROOF-5D5' },
+  ...PROOF5D5_LIVE_PROBE_REGISTRATIONS,
   // PROOF-5D6 registration point: OS fault, signal, ENOSPC, and race bodies land in 5D6.
   { probeId: 'proof5d6-os-fault-and-race', hostGate: { gateId: 'linux-or-windows', platforms: ['linux', 'win32'] }, run: null, deferredTo: 'PROOF-5D6' },
 ]);
@@ -98,7 +99,24 @@ async function runProbe(probe, { clock, platform, runScratchRoot }) {
       status = 'skipped-with-reason';
       reason = { code: 'OWNED_BY_LATER_SUB_SEAM', owner: probe.deferredTo };
     } else {
-      ({ evidence } = await probe.run({ scratchRoot }));
+      const outcome = await probe.run({ scratchRoot });
+      if (outcome.status) {
+        if (
+          !['passed', 'failed', 'skipped-with-reason'].includes(outcome.status)
+        )
+          throw new Camp01LiveAdversarialError(
+            'PROBE_RESULT_INVALID',
+            'probe returned an invalid status',
+          );
+        if ((outcome.status === 'passed') === Boolean(outcome.reason))
+          throw new Camp01LiveAdversarialError(
+            'PROBE_RESULT_INVALID',
+            'probe reason did not match its status',
+          );
+        status = outcome.status;
+        reason = outcome.reason;
+      }
+      evidence = outcome.evidence ?? {};
     }
   } catch (error) {
     status = 'failed';

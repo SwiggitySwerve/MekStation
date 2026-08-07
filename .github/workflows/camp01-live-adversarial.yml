@@ -20,6 +20,9 @@ jobs:
       - uses: ./.github/actions/setup-node-and-install
         with:
           node-version: '22'
+      - name: Install Chromium and Linux browser dependencies
+        if: runner.os == 'Linux'
+        run: npx playwright install chromium --with-deps
       - name: Run live adversarial probes
         run: npm run qc:camp01-live-adversarial -- --artifact "artifacts/camp01-live-adversarial/${{ runner.os }}.json"
       - name: Upload live adversarial artifact
