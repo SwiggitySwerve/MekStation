@@ -1,118 +1,124 @@
 {
-  "allowedActiveChanges": [
-    {
-      "name": "add-subsystem-lanes-and-ci",
-      "status": "in-progress",
-      "reason": "Declarative-first change: proposal/design/specs/tasks authored ahead of implementation per Seam-First Ladder W6 council decision (openspec/council-decisions/2026-07-09-ui-audit-testability-architecture.md). Implementation starts only after the W5 (add-viewport-layout-sweep) implementation merges to main (ladder sequencing); the pack-tagging group additionally gates on the W4 (add-scenario-packs) implementation landing.",
-      "lastReviewed": "2026-07-11"
-    },
-    {
-      "name": "harden-gm-two-player-campaign-sessions",
-      "status": "in-progress",
-      "reason": "User-approved declarative-first change for one non-playing GM plus two tactical players: durable command journaling and publication, role-safe live/replay/export projection, reconnect cursors, outcome receipts, append-only correction and rewind, campaign retroactive rebuild, and a strict 80-scenario three-context acceptance program. Implementation is intentionally split into small independently verified PRs with exact-main post-merge regression audits. Its e2e-testing delta adds distinct GM/two-player requirements and does not modify the active add-subsystem-lanes-and-ci requirement names.",
-      "lastReviewed": "2026-07-29"
-    },
-    {
-      "name": "add-replay-schema-and-checkpoint-safety",
-      "status": "in-progress",
-      "reason": "Wave 2 of the entity-history program: require versioned event upcasting, deterministic historical projection selection, verified checkpoints, and quarantine before any production authority adoption. Implementation started: spec PRs #1120/#1124 and registry/upcaster kernel PR 1A (#1125) merged with exact-main receipts; PR 1B (pipeline fingerprint) is admitted and next.",
-      "lastReviewed": "2026-08-01"
-    },
-    {
-      "name": "add-authority-audit-and-privacy-proof",
-      "status": "proposed",
-      "reason": "Wave 3 of the entity-history program: require durable membership admission, server-side viewer projection, separate private audit retention, and cross-surface privacy proof before journal authority cutover.",
-      "lastReviewed": "2026-07-30"
-    },
-    {
-      "name": "adopt-combat-event-journal-authority",
-      "status": "proposed",
-      "reason": "Wave 4 of the entity-history program: adopt the shared journal as combat authority through decide-append-apply-publish ordering, atomic match batches, idempotent command receipts, durable recovery, and a non-authoritative browser mirror.",
-      "lastReviewed": "2026-07-30"
-    },
-    {
-      "name": "adopt-campaign-event-journal-authority",
-      "status": "proposed",
-      "reason": "Wave 5 of the entity-history program: adopt the shared journal as campaign authority through atomic commands, honest snapshot migration, durable entity lineage, gap-free replay/live handoff, participant cursors, and per-campaign cutover.",
-      "lastReviewed": "2026-07-30"
-    },
-    {
-      "name": "add-cross-stream-effect-receipts",
-      "status": "proposed",
-      "reason": "Wave 6 of the entity-history program: add target-scoped transactional outbox/inbox receipts, side-effect-free replay, causal cross-stream history, and exactly-once combat-to-campaign effect application over at-least-once delivery.",
-      "lastReviewed": "2026-07-30"
-    },
-    {
-      "name": "add-authoritative-history-branches",
-      "status": "proposed",
-      "reason": "Wave 7 of the entity-history program: add immutable branch lineage, verified replacement-branch activation, domain-command revalidation instead of generic merge, and recoverable combat/campaign correction sagas after linear authority and effect receipts are proven.",
-      "lastReviewed": "2026-07-30"
-    },
-    {
-      "name": "add-saved-custom-unit-campaign-roster",
-      "status": "proposed",
-      "reason": "CAMP-01 specification wave: select a server-saved custom BattleMech in campaign creation and preserve separate roster-instance and source-design identities through root-force persistence, cold reload, Mech Bay, and mission readiness before product implementation.",
-      "lastReviewed": "2026-07-30"
-    },
-    {
-      "name": "add-camp01-authority-receipts",
-      "status": "proposed",
-      "reason": "CAMP-PROOF child specification: add immutable exact-SHA authority receipts, canonical provenance, durable evidence export, reviewed PROOF-02 triage, and cleanup-gated sequencing before any CAMP product wave.",
-      "lastReviewed": "2026-07-30"
-    },
-    {
-      "name": "bind-packaged-server-to-loopback",
-      "status": "proposed",
-      "reason": "CAMP-00 child specification: bind the packaged production HTTP/WebSocket listener to its configured loopback literal and prove the actual initial/restarted socket address before campaign product waves.",
-      "lastReviewed": "2026-07-30"
-    },
-    {
-      "name": "add-campaign-roster-source-readiness",
-      "status": "proposed",
-      "reason": "CAMP-01A child specification: parse roster unit source fail-closed, expose canonical catalog readiness, and reject unsupported exact references before encounter side effects.",
-      "lastReviewed": "2026-08-01"
-    },
-    {
-      "name": "add-authoritative-campaign-coop-snapshot",
-      "status": "proposed",
-      "reason": "CAMP-01B child specification: preserve revision-bound roster source identity and authoritative force membership from host registration through guest campaign mirror hydration.",
-      "lastReviewed": "2026-08-01"
-    },
-    {
-      "name": "authorize-campaign-coop-participation",
-      "status": "proposed",
-      "reason": "CAMP-01C child specification: derive participant identity and authorize only minimal revision-bound force choices from the server-owned campaign snapshot.",
-      "lastReviewed": "2026-08-01"
-    },
-    {
-      "name": "enforce-campaign-unit-source-launch-boundary",
-      "status": "proposed",
-      "reason": "CAMP-01D child specification: require authoritative canonical source/catalog admission and fail closed before any campaign encounter side effect.",
-      "lastReviewed": "2026-08-01"
-    },
-    {
-      "name": "add-saved-custom-unit-campaign-picker",
-      "status": "proposed",
-      "reason": "CAMP-01E child specification: validate and expose saved BattleMechs in campaign creation while preserving separate source-design, roster-instance, source-kind, and root-force identities.",
-      "lastReviewed": "2026-08-02"
-    },
-    {
-      "name": "persist-saved-custom-unit-campaign-creation",
-      "status": "proposed",
-      "reason": "CAMP-01F child specification: gate campaign creation success on accepted production server persistence with same-id retry and fail-closed conflict handling.",
-      "lastReviewed": "2026-08-02"
-    },
-    {
-      "name": "resolve-saved-custom-units-in-mech-bay",
-      "status": "proposed",
-      "reason": "CAMP-01G child specification: resolve saved custom roster identity in Mech Bay after cold reload while keeping missing sources visible and launch-blocked without stock substitution.",
-      "lastReviewed": "2026-08-02"
-    },
-    {
-      "name": "prove-saved-custom-unit-campaign-journey",
-      "status": "proposed",
-      "reason": "CAMP-01H child specification: produce three independent authority witnesses for custom save/reload, campaign readiness, and canonical combat/post-battle persistence with ranked experience reconciliation.",
-      "lastReviewed": "2026-08-02"
-    }
-  ]
+ "allowedActiveChanges": [
+  {
+   "name": "add-subsystem-lanes-and-ci",
+   "status": "in-progress",
+   "reason": "Declarative-first change: proposal/design/specs/tasks authored ahead of implementation per Seam-First Ladder W6 council decision (openspec/council-decisions/2026-07-09-ui-audit-testability-architecture.md). Implementation starts only after the W5 (add-viewport-layout-sweep) implementation merges to main (ladder sequencing); the pack-tagging group additionally gates on the W4 (add-scenario-packs) implementation landing.",
+   "lastReviewed": "2026-07-11"
+  },
+  {
+   "name": "harden-gm-two-player-campaign-sessions",
+   "status": "in-progress",
+   "reason": "User-approved declarative-first change for one non-playing GM plus two tactical players: durable command journaling and publication, role-safe live/replay/export projection, reconnect cursors, outcome receipts, append-only correction and rewind, campaign retroactive rebuild, and a strict 80-scenario three-context acceptance program. Implementation is intentionally split into small independently verified PRs with exact-main post-merge regression audits. Its e2e-testing delta adds distinct GM/two-player requirements and does not modify the active add-subsystem-lanes-and-ci requirement names.",
+   "lastReviewed": "2026-07-29"
+  },
+  {
+   "name": "add-replay-schema-and-checkpoint-safety",
+   "status": "in-progress",
+   "reason": "Wave 2 of the entity-history program: require versioned event upcasting, deterministic historical projection selection, verified checkpoints, and quarantine before any production authority adoption. Implementation started: spec PRs #1120/#1124 and registry/upcaster kernel PR 1A (#1125) merged with exact-main receipts; PR 1B (pipeline fingerprint) is admitted and next.",
+   "lastReviewed": "2026-08-01"
+  },
+  {
+   "name": "add-authority-audit-and-privacy-proof",
+   "status": "proposed",
+   "reason": "Wave 3 of the entity-history program: require durable membership admission, server-side viewer projection, separate private audit retention, and cross-surface privacy proof before journal authority cutover.",
+   "lastReviewed": "2026-07-30"
+  },
+  {
+   "name": "adopt-combat-event-journal-authority",
+   "status": "proposed",
+   "reason": "Wave 4 of the entity-history program: adopt the shared journal as combat authority through decide-append-apply-publish ordering, atomic match batches, idempotent command receipts, durable recovery, and a non-authoritative browser mirror.",
+   "lastReviewed": "2026-07-30"
+  },
+  {
+   "name": "adopt-campaign-event-journal-authority",
+   "status": "proposed",
+   "reason": "Wave 5 of the entity-history program: adopt the shared journal as campaign authority through atomic commands, honest snapshot migration, durable entity lineage, gap-free replay/live handoff, participant cursors, and per-campaign cutover.",
+   "lastReviewed": "2026-07-30"
+  },
+  {
+   "name": "add-cross-stream-effect-receipts",
+   "status": "proposed",
+   "reason": "Wave 6 of the entity-history program: add target-scoped transactional outbox/inbox receipts, side-effect-free replay, causal cross-stream history, and exactly-once combat-to-campaign effect application over at-least-once delivery.",
+   "lastReviewed": "2026-07-30"
+  },
+  {
+   "name": "add-authoritative-history-branches",
+   "status": "proposed",
+   "reason": "Wave 7 of the entity-history program: add immutable branch lineage, verified replacement-branch activation, domain-command revalidation instead of generic merge, and recoverable combat/campaign correction sagas after linear authority and effect receipts are proven.",
+   "lastReviewed": "2026-07-30"
+  },
+  {
+   "name": "add-saved-custom-unit-campaign-roster",
+   "status": "proposed",
+   "reason": "CAMP-01 specification wave: select a server-saved custom BattleMech in campaign creation and preserve separate roster-instance and source-design identities through root-force persistence, cold reload, Mech Bay, and mission readiness before product implementation.",
+   "lastReviewed": "2026-07-30"
+  },
+  {
+   "name": "add-camp01-authority-receipts",
+   "status": "proposed",
+   "reason": "CAMP-PROOF child specification: add immutable exact-SHA authority receipts, canonical provenance, durable evidence export, reviewed PROOF-02 triage, and cleanup-gated sequencing before any CAMP product wave.",
+   "lastReviewed": "2026-07-30"
+  },
+  {
+   "name": "bind-packaged-server-to-loopback",
+   "status": "proposed",
+   "reason": "CAMP-00 child specification: bind the packaged production HTTP/WebSocket listener to its configured loopback literal and prove the actual initial/restarted socket address before campaign product waves.",
+   "lastReviewed": "2026-07-30"
+  },
+  {
+   "name": "add-campaign-roster-source-readiness",
+   "status": "proposed",
+   "reason": "CAMP-01A child specification: parse roster unit source fail-closed, expose canonical catalog readiness, and reject unsupported exact references before encounter side effects.",
+   "lastReviewed": "2026-08-01"
+  },
+  {
+   "name": "add-authoritative-campaign-coop-snapshot",
+   "status": "proposed",
+   "reason": "CAMP-01B child specification: preserve revision-bound roster source identity and authoritative force membership from host registration through guest campaign mirror hydration.",
+   "lastReviewed": "2026-08-01"
+  },
+  {
+   "name": "authorize-campaign-coop-participation",
+   "status": "proposed",
+   "reason": "CAMP-01C child specification: derive participant identity and authorize only minimal revision-bound force choices from the server-owned campaign snapshot.",
+   "lastReviewed": "2026-08-01"
+  },
+  {
+   "name": "enforce-campaign-unit-source-launch-boundary",
+   "status": "proposed",
+   "reason": "CAMP-01D child specification: require authoritative canonical source/catalog admission and fail closed before any campaign encounter side effect.",
+   "lastReviewed": "2026-08-01"
+  },
+  {
+   "name": "add-saved-custom-unit-campaign-picker",
+   "status": "proposed",
+   "reason": "CAMP-01E child specification: validate and expose saved BattleMechs in campaign creation while preserving separate source-design, roster-instance, source-kind, and root-force identities.",
+   "lastReviewed": "2026-08-02"
+  },
+  {
+   "name": "persist-saved-custom-unit-campaign-creation",
+   "status": "proposed",
+   "reason": "CAMP-01F child specification: gate campaign creation success on accepted production server persistence with same-id retry and fail-closed conflict handling.",
+   "lastReviewed": "2026-08-02"
+  },
+  {
+   "name": "resolve-saved-custom-units-in-mech-bay",
+   "status": "proposed",
+   "reason": "CAMP-01G child specification: resolve saved custom roster identity in Mech Bay after cold reload while keeping missing sources visible and launch-blocked without stock substitution.",
+   "lastReviewed": "2026-08-02"
+  },
+  {
+   "name": "prove-saved-custom-unit-campaign-journey",
+   "status": "proposed",
+   "reason": "CAMP-01H child specification: produce three independent authority witnesses for custom save/reload, campaign readiness, and canonical combat/post-battle persistence with ranked experience reconciliation.",
+   "lastReviewed": "2026-08-02"
+  },
+  {
+   "name": "design-vault-campaign-separation-and-maps",
+   "status": "proposed",
+   "reason": "Vault/campaign separation (immutable versioned templates to campaign instance copies per the 2026-08-06 council decision and D1), starmap travel economy with dynamic opportunities, and the isometric battlefield view; implementation sequenced after CAMP-01F/G/H per the frozen-contract constraint.",
+   "lastReviewed": "2026-08-06"
+  }
+ ]
 }
