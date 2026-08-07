@@ -119,6 +119,12 @@
    "status": "proposed",
    "reason": "Vault/campaign separation (immutable versioned templates to campaign instance copies per the 2026-08-06 council decision and D1), starmap travel economy with dynamic opportunities, and the isometric battlefield view; implementation sequenced after CAMP-01F/G/H per the frozen-contract constraint.",
    "lastReviewed": "2026-08-06"
+  },
+  {
+   "name": "design-campaign-authority-and-sync",
+   "status": "proposed",
+   "reason": "Server-authoritative campaign state with source/replica instance model, share grants, and scope-filtered event broadcast (GM full view, players receive only in-scope events) on the existing hash-chained SQLite event journal; driven by the 2026-08-07 visual-audit finding that campaigns are browser-local; implementation gated on CAMP-01F/G/H.",
+   "lastReviewed": "2026-08-07"
   }
  ]
 }
