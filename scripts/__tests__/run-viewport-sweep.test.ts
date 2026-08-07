@@ -1,5 +1,6 @@
 import { spawnSync } from 'node:child_process';
 import * as fs from 'node:fs';
+import * as os from 'node:os';
 import * as path from 'node:path';
 import { pathToFileURL } from 'node:url';
 
@@ -70,6 +71,77 @@ function invoke(request: Readonly<Record<string, unknown>>): HarnessResult {
   return result.stdout
     ? (JSON.parse(result.stdout) as HarnessResult)
     : { ok: false, error: result.stderr };
+}
+
+// prettier-ignore
+type SweepCliResult = { readonly status: number | null; readonly stdout: string; readonly stderr: string; readonly launches: readonly (readonly string[])[]; readonly remainingOutcomes: readonly number[] };
+
+function invokeSweepCli(
+  args: readonly string[],
+  outcomes: readonly number[],
+): SweepCliResult {
+  const scratchRoot = fs.mkdtempSync(
+    path.join(os.tmpdir(), 'camp01-sweep-cli-'),
+  );
+  const preloadPath = path.join(scratchRoot, 'record-playwright-launch.mjs');
+  const launchLogPath = path.join(scratchRoot, 'launches.jsonl');
+  const outcomesPath = path.join(scratchRoot, 'outcomes.json');
+  fs.writeFileSync(outcomesPath, JSON.stringify(outcomes), 'utf8');
+  fs.writeFileSync(
+    preloadPath,
+    `import * as fs from 'node:fs';
+const script = process.argv[1]?.replaceAll('\\\\', '/');
+if (script?.endsWith('/scripts/playwright/run-playwright.mjs')) {
+  const outcomes = JSON.parse(fs.readFileSync(process.env.CAMP01_SWEEP_OUTCOMES, 'utf8'));
+  fs.appendFileSync(process.env.CAMP01_SWEEP_LAUNCH_LOG, JSON.stringify(process.argv.slice(1)) + '\\n');
+  const [next, ...remaining] = outcomes;
+  fs.writeFileSync(process.env.CAMP01_SWEEP_OUTCOMES, JSON.stringify(remaining));
+  process.exit(next);
+}
+`,
+    'utf8',
+  );
+
+  try {
+    const result = spawnSync(
+      process.execPath,
+      [path.join(repoRoot, 'scripts/qc/run-viewport-sweep.mjs'), ...args],
+      {
+        cwd: repoRoot,
+        encoding: 'utf8',
+        env: {
+          ...process.env,
+          CAMP01_SWEEP_LAUNCH_LOG: launchLogPath,
+          CAMP01_SWEEP_OUTCOMES: outcomesPath,
+          NODE_OPTIONS: [
+            process.env.NODE_OPTIONS,
+            `--import=${pathToFileURL(preloadPath).href}`,
+          ]
+            .filter(Boolean)
+            .join(' '),
+        },
+      },
+    );
+    const launches = fs.existsSync(launchLogPath)
+      ? fs
+          .readFileSync(launchLogPath, 'utf8')
+          .trim()
+          .split('\n')
+          .filter(Boolean)
+          .map((line) => JSON.parse(line) as readonly string[])
+      : [];
+    return {
+      status: result.status,
+      stdout: result.stdout,
+      stderr: result.stderr,
+      launches,
+      remainingOutcomes: JSON.parse(
+        fs.readFileSync(outcomesPath, 'utf8'),
+      ) as readonly number[],
+    };
+  } finally {
+    fs.rmSync(scratchRoot, { recursive: true, force: true });
+  }
 }
 
 // prettier-ignore
@@ -204,6 +276,94 @@ describe('PROOF-4E viewport sweep orchestrator', () => {
     });
   });
 
+  it('[N14-J0] kills the direct-module main/exit guard through the real CLI result surface', () => {
+    const result = invokeSweepCli(['--list'], [0, 7, 0]);
+    expect(result).toMatchObject({ status: 7, stdout: '', stderr: '' });
+    expect(result.launches).toHaveLength(2);
+    expect(result.remainingOutcomes).toEqual([0]);
+  });
+
+  it('[N14-J1] kills the listMode invalid-argument guard before any sweep launch', () => {
+    const result = invokeSweepCli(['--unexpected'], [0, 0, 0]);
+    expect(result.status).toBe(1);
+    expect(result.stdout).toBe('');
+    expect(result.stderr.trim()).toBe(
+      'CAMP01_VIEWPORT_SWEEP_FAILED: invalid argument',
+    );
+    expect(result.launches).toEqual([]);
+    expect(result.remainingOutcomes).toEqual([0, 0, 0]);
+  });
+
+  it('[N14-J2] kills the exact --list resolver/launcher traversal guard for all three commands', () => {
+    const result = invokeSweepCli(['--list'], [0, 0, 0]);
+    expect(result).toMatchObject({ status: 0, stdout: '', stderr: '' });
+    expect(
+      result.launches.map(([script, ...args]) => [
+        path
+          .relative(repoRoot, path.resolve(repoRoot, script))
+          .replaceAll('\\', '/'),
+        ...args,
+      ]),
+    ).toEqual(
+      expectedLogicalCommands.map((command) => [...command.slice(1), '--list']),
+    );
+    expect(result.remainingOutcomes).toEqual([]);
+  });
+
+  it('[N14-J3] kills the @npm required-tool guard with an isolated copied Node executable', () => {
+    const scratchRoot = fs.mkdtempSync(
+      path.join(os.tmpdir(), 'camp01-node-without-npm-'),
+    );
+    const copiedNode = path.join(scratchRoot, path.basename(process.execPath));
+    const installedNpmCli = path.join(
+      path.dirname(process.execPath),
+      'node_modules',
+      'npm',
+      'bin',
+      'npm-cli.js',
+    );
+    // The production resolver computes npmCli beside the node executable (the
+    // Windows install layout). On POSIX hosted toolchains npm lives under
+    // lib/node_modules instead, so the non-interference stat comparison is
+    // host-gated to where that production-computed path actually exists; the
+    // copied-node kill assertion below is layout-independent and always runs.
+    const before = fs.existsSync(installedNpmCli)
+      ? fs.statSync(installedNpmCli)
+      : null;
+    fs.copyFileSync(process.execPath, copiedNode);
+    fs.chmodSync(copiedNode, 0o755);
+    const resolverEval = `
+import { resolveVerifiedLogicalCommand } from ${JSON.stringify(environmentUrl)};
+try { resolveVerifiedLogicalCommand(['@npm', '--version']); }
+catch (error) {
+  process.stderr.write(error instanceof Error ? error.message : String(error));
+  process.exit(1);
+}`;
+
+    try {
+      const result = spawnSync(
+        copiedNode,
+        ['--input-type=module', '--eval', resolverEval],
+        { cwd: repoRoot, encoding: 'utf8' },
+      );
+      expect(result.status).toBe(1);
+      expect(result.stdout).toBe('');
+      expect(result.stderr).toBe(
+        'CAMP01_ENVIRONMENT_INVALID: required tool unavailable',
+      );
+      expect(fs.existsSync(path.join(scratchRoot, 'node_modules'))).toBe(false);
+      if (before) {
+        expect(fs.statSync(installedNpmCli)).toMatchObject({
+          size: before.size,
+          mtimeMs: before.mtimeMs,
+          ctimeMs: before.ctimeMs,
+        });
+      }
+    } finally {
+      fs.rmSync(scratchRoot, { recursive: true, force: true });
+    }
+  });
+
   it('pins the package controller, writer, validator, test, and sweep surfaces', () => {
     const scripts = JSON.parse(
       fs.readFileSync(path.join(repoRoot, 'package.json'), 'utf8'),
@@ -219,6 +379,9 @@ describe('PROOF-4E viewport sweep orchestrator', () => {
     );
     expect(scripts['qc:camp01-authority-receipt:test']).toBe(
       `jest --watchAll=false --runTestsByPath ${camp01TestFiles.join(' ')} --runInBand`,
+    );
+    expect(scripts['qc:camp01-live-adversarial']).toBe(
+      'node scripts/qc/run-camp01-live-adversarial.mjs',
     );
     expect(scripts['verify:qc:viewport-sweep']).toBe(
       'node scripts/qc/run-viewport-sweep.mjs',
