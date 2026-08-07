@@ -56,7 +56,7 @@ async function cleanupTargets(input,context) {
   await revalidateDurable(state,run,context); const binding=assertLifecycle(state,run,context.initiatingRoot), receipt=cleanupReceipt(state.wave,run), publication=prepareReceipt(receipt,context);
   try {
     await audit(binding,run,context); await context.beforeMutation({operation:'cleanup-targets',state,run}); await audit(binding,run,context); if(binding.owned===null)await assertBranchAbsent(binding,context);
-    await reinspect(binding.proof,run.sha,run.cleanManifest.final,'proof',run.runRoot,context); await removeWorktree(binding.proof,'proof',context);
+    await reinspect(binding.proof,run.sha,run.cleanManifest.final,'proof',run.runRoot,context); removeTransientReceipt(binding.proof,run.runRoot,context); await removeWorktree(binding.proof,'proof',context);
     if(binding.owned!==null){await reinspect(binding.owned,binding.oldOid,binding.owned.cleanManifest,'owned',null,context); await removeWorktree(binding.owned,'owned',context); await assertBranch(binding,run.sha,context); await compareDelete(binding,context);}
     await reinspect(context.initiating,context.initiating.expectedHead,null,'initiating','.sisyphus/evidence/playtest',context); publishReceipt(publication,context); return result();
   } catch(error) { discardReceipt(publication,context); throw error; }
@@ -95,7 +95,9 @@ async function assertLiveBranch(target,role,context) { let listing; try {listing
 // prettier-ignore
 async function compareDelete(binding,context) { try {await callGit(['update-ref','-d',binding.branchRef,binding.oldOid],context);} catch(error) {if(error instanceof Camp01GitError)fail('local branch OID race');throw error;} }
 // prettier-ignore
-async function removeWorktree(target,role,context) { try {await callGit(['worktree','remove',target.canonicalPath],context);} catch(error) {if(error instanceof Camp01GitError)fail(`${role} worktree removal failed`);throw error;} }
+async function removeWorktree(target,role,context) { try {await callGit(['worktree','remove',target.canonicalPath],context);} catch(error) {if(error instanceof Camp01GitError)fail(`${role} worktree removal failed`);throw error;} if(lstatIfPresent(target.canonicalPath,context.io)!==null)fail(`${role} worktree removal incomplete`); }
+// prettier-ignore
+function removeTransientReceipt(target,runRoot,context) { let current=target.canonicalPath; const ancestors=[]; for(const segment of runRoot.split('/')){current=path.join(current,segment);const stat=lstatIfPresent(current,context.io);if(stat===null)return;if(stat.isSymbolicLink())fail('proof target reparse drift');if(!stat.isDirectory())fail('proof transient receipt drift');ancestors.push(current);} try{context.io.rmSync(current,{recursive:true,force:false});for(const directory of ancestors.slice(0,-1).reverse())try{context.io.rmdirSync(directory);}catch(error){if(['ENOENT','ENOTEMPTY'].includes(error?.code))break;throw error;}}catch{fail('proof transient cleanup failed');} }
 // prettier-ignore
 function callGit(args,context) { return context.invokeGit({git:context.git,args,cwd:context.initiatingRoot},{}); }
 
@@ -109,7 +111,7 @@ function cleanupReceipt(wave,run) { if(!WAVE.test(wave))fail('controller state d
 // prettier-ignore
 function prepareReceipt(receipt,context) { const name=`${receipt.wave}-${receipt.runId}-wave-cleanup.json`, final=path.join(context.cleanupRoot,name), stage=path.join(context.cleanupRoot,`.${name}.stage`); if(lstatIfPresent(final,context.io)!==null||lstatIfPresent(stage,context.io)!==null)fail('cleanup receipt collision'); try {context.io.writeFileSync(stage,canonicalBytes(receipt),{flag:'wx'});} catch {fail('cleanup receipt staging failed');} return {stage,final}; }
 // prettier-ignore
-function publishReceipt(value,context) { try {canonicalDirectory(context.cleanupRoot,context.io,'cleanup receipt root drift');context.io.linkSync(value.stage,value.final);context.io.unlinkSync(value.stage);} catch {fail('cleanup receipt publication failed');} }
+function publishReceipt(value,context) { let linked=false; try {canonicalDirectory(context.cleanupRoot,context.io,'cleanup receipt root drift');context.io.linkSync(value.stage,value.final);linked=true;context.io.unlinkSync(value.stage);} catch {if(linked)try{if(lstatIfPresent(value.final,context.io)?.isFile())context.io.unlinkSync(value.final);}catch{fail('cleanup receipt rollback failed');}fail('cleanup receipt publication failed');} }
 // prettier-ignore
 function discardReceipt(value,context) { try {if(lstatIfPresent(value.stage,context.io)?.isFile())context.io.unlinkSync(value.stage);} catch {fail('cleanup receipt staging cleanup failed');} }
 // prettier-ignore

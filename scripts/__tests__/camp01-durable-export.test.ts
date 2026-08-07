@@ -52,8 +52,13 @@ try { let value;
     const seams=durable.createDurableExport({initiatingRoot:initiating,transientRoot:nested,validationContext},baseDependencies); value=await seams.exportReceipt(input);
   } else if(request.action==='validator-entry-drift'){
     const seams=durable.createDurableExport(baseOptions,baseDependencies); value=await seams.invokePublicValidator({entry:path.join(root,'wrong.mjs'),stage:'transient',wave:row.wave,mode:'reviewed-head',sha,runRoot,runId});
+  } else if(request.action==='validator-stage-drift'){
+    const seams=durable.createDurableExport(baseOptions,baseDependencies), entry=path.resolve('scripts/qc/validate-camp01-authority-receipt.mjs'); value=await seams.invokePublicValidator({entry,stage:'invalid',wave:row.wave,mode:'reviewed-head',sha,runRoot,runId});
   } else if(request.action==='validator-transient-failure'){
     await write(); const seams=durable.createDurableExport(baseOptions,{validatorSpawn:()=>({status:1})}), entry=path.resolve('scripts/qc/validate-camp01-authority-receipt.mjs'); value=await seams.invokePublicValidator({entry,stage:'transient',wave:row.wave,mode:'reviewed-head',sha,runRoot,runId});
+  } else if(request.action==='published-retry'){
+    const written=await write(), input=exportInput(written), interrupted=durable.createDurableExport(baseOptions,{validatorSpawn:()=>({status:1})}); let firstError=null; try { await interrupted.exportReceipt(input); } catch(error) { firstError=error instanceof Error?error.message:String(error); }
+    const retried=await durable.createDurableExport(baseOptions,baseDependencies).exportReceipt(input), destination=path.join(initiating,...runRoot.split('/'),runId); value={firstError,retried,destinationEntries:fs.readdirSync(destination).sort()};
   } else {
     const written=await write(), input=exportInput(written), destination=path.join(initiating,...runRoot.split('/'),runId); let dependencies={...baseDependencies};
     if(request.action==='identity-drift') input.arguments={...input.arguments,sha:'c'.repeat(40)};
@@ -61,6 +66,9 @@ try { let value;
     if(request.action==='reparse'){const external=path.join(root,'external');fs.mkdirSync(external);fs.symlinkSync(external,path.join(initiating,'.sisyphus'),request.junction?'junction':'dir');}
     if(request.action==='destination-reparse'){const external=path.join(root,'external');fs.mkdirSync(external);fs.mkdirSync(path.dirname(destination),{recursive:true});fs.symlinkSync(external,destination,request.junction?'junction':'dir');}
     if(request.action==='partial') dependencies={...dependencies,copy:(source,target)=>{dependencies.copies=(dependencies.copies??0)+1;if(dependencies.copies===2)throw new Error('injected');fs.copyFileSync(source,target,fs.constants.COPYFILE_EXCL);}};
+    if(request.action==='staging-residue'){const durableRunRoot=path.dirname(destination), residue=path.join(durableRunRoot,'.camp01-export-'+runId+'-crashed');fs.mkdirSync(residue,{recursive:true});fs.writeFileSync(path.join(residue,'partial'),'crash');}
+    if(request.action==='foreign-residue'){const durableRunRoot=path.dirname(destination), residue=path.join(durableRunRoot,'.camp01-export-camp01-'+'9'.repeat(32)+'-crashed');fs.mkdirSync(residue,{recursive:true});fs.writeFileSync(path.join(residue,'keep'),'foreign');}
+    if(request.action==='concurrent-collision') dependencies={...dependencies,copy:(source,target)=>{fs.copyFileSync(source,target,fs.constants.COPYFILE_EXCL);if(!dependencies.collided){dependencies.collided=true;const collision=path.join(path.dirname(destination),'concurrent-export');fs.mkdirSync(collision);fs.writeFileSync(path.join(collision,'sentinel'),'owned');}}};
     if(request.action==='tamper') dependencies={...dependencies,copy:(source,target)=>{fs.copyFileSync(source,target,fs.constants.COPYFILE_EXCL);if(target.endsWith('wave-result.json'))fs.appendFileSync(target,'tamper');}};
     if(request.action==='validator-failure') dependencies={...dependencies,validatorSpawn:()=>({status:1})};
     if(request.action==='digest-drift') fs.appendFileSync(path.join(written.finalDirectory,'wave-result.json'),'drift');
@@ -68,10 +76,10 @@ try { let value;
     if(request.action==='extra') fs.writeFileSync(path.join(written.finalDirectory,'extra.json'),'{}\\n');
     if(request.action==='substituted') input.receipt.finalizedPaths=['command-result.json','receipt-manifest.json','substituted.json'];
     if(request.action==='non-finalized') fs.renameSync(written.finalDirectory,path.join(path.dirname(written.finalDirectory),'.stage-'+runId));
-    const seams=durable.createDurableExport(baseOptions,dependencies); value=await seams.exportReceipt(input);
+    const seams=durable.createDurableExport(baseOptions,dependencies); value=await seams.exportReceipt(input); if(request.action==='staging-residue')value={receipt:value,parentEntries:fs.readdirSync(path.dirname(destination))};
   }
   process.stdout.write(JSON.stringify({ok:true,value}));
-} catch(error) { const destination=path.join(initiating,...runRoot.split('/'),runId), parent=path.dirname(destination); process.stdout.write(JSON.stringify({ok:false,error:error instanceof Error?error.message:String(error),name:error instanceof Error?error.name:null,published:fs.existsSync(destination),parentEntries:fs.existsSync(parent)?fs.readdirSync(parent):[]})); process.exitCode=1; }`;
+} catch(error) { const destination=path.join(initiating,...runRoot.split('/'),runId), parent=path.dirname(destination), evidenceRoot=path.join(initiating,'.sisyphus'); process.stdout.write(JSON.stringify({ok:false,error:error instanceof Error?error.message:String(error),name:error instanceof Error?error.name:null,published:fs.existsSync(destination),parentEntries:fs.existsSync(parent)?fs.readdirSync(parent):[],evidenceRootExists:fs.existsSync(evidenceRoot),initiatingEntries:fs.readdirSync(initiating),collisionSentinel:fs.existsSync(path.join(parent,'concurrent-export','sentinel'))})); process.exitCode=1; }`;
 
 type Result = {
   ok: boolean;
@@ -80,6 +88,9 @@ type Result = {
   name?: string;
   published?: boolean;
   parentEntries?: string[];
+  evidenceRootExists?: boolean;
+  initiatingEntries?: string[];
+  collisionSentinel?: boolean;
 };
 let root: string;
 beforeEach(() => {
@@ -123,6 +134,71 @@ describe('CAMP-01 durable export and reopen', () => {
       },
     });
     expect(result.value?.receiptDigest).toMatch(/^sha256:[0-9a-f]{64}$/);
+  });
+
+  it('recovers an owned staging crash residue before publishing', () => {
+    // Given an interrupted export stage, when the same receipt retries, then only the reserved residue is replaced by the validated destination.
+    expect(invoke('staging-residue')).toMatchObject({
+      ok: true,
+      value: {
+        receipt: { runId: `camp01-${'4'.repeat(32)}` },
+        parentEntries: [`camp01-${'4'.repeat(32)}`],
+      },
+    });
+  });
+
+  it('rejects a foreign run staging residue without deleting it', () => {
+    // Given another run's crashed staging directory, when this export runs, then it fails closed and the foreign residue survives.
+    expect(invoke('foreign-residue')).toMatchObject({
+      ok: false,
+      error: 'CAMP01_EXPORT_INVALID: durable destination collision',
+      parentEntries: [`.camp01-export-camp01-${'9'.repeat(32)}-crashed`],
+    });
+  });
+
+  it('revalidates an already-published destination after validator interruption', () => {
+    // Given atomic publication completed before validator failure, when export retries, then byte-identical durable evidence reopens without recopying.
+    expect(invoke('published-retry')).toMatchObject({
+      ok: true,
+      value: {
+        firstError:
+          'CAMP01_EXPORT_INVALID: public validator failed for durable stage',
+        retried: { runId: `camp01-${'4'.repeat(32)}` },
+        destinationEntries: [
+          'command-result.json',
+          'receipt-manifest.json',
+          'wave-result.json',
+        ],
+      },
+    });
+  });
+
+  it('removes only newly-created empty ancestors after a failed copy', () => {
+    // Given export created the durable path chain, when copying fails, then no empty authority-looking residue remains.
+    expect(invoke('partial')).toMatchObject({
+      ok: false,
+      evidenceRootExists: false,
+    });
+  });
+
+  it('preserves a concurrent collision while discarding its own stage', () => {
+    // Given another export appears during copy, when compare-before-publish rejects, then the foreign sentinel survives and no receipt is published.
+    expect(invoke('concurrent-collision')).toMatchObject({
+      ok: false,
+      error: 'CAMP01_EXPORT_INVALID: durable destination collision',
+      published: false,
+      parentEntries: ['concurrent-export'],
+      collisionSentinel: true,
+    });
+  });
+
+  it('classifies an invalid validator stage before any durable mutation', () => {
+    // Given a stage outside transient/durable, when the public validator boundary parses it, then the initiating checkout remains byte-unmodified.
+    expect(invoke('validator-stage-drift')).toMatchObject({
+      ok: false,
+      error: 'CAMP01_EXPORT_INVALID: public validator input drift',
+      initiatingEntries: [],
+    });
   });
 
   it.each([
