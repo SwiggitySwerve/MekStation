@@ -1,0 +1,31 @@
+name: CAMP-01 Live Adversarial Evidence
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+jobs:
+  publish-live-evidence:
+    name: Publish Live Evidence (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    steps:
+      - uses: actions/checkout@v6
+      - uses: ./.github/actions/setup-node-and-install
+        with:
+          node-version: '22'
+      - name: Run live adversarial probes
+        run: npm run qc:camp01-live-adversarial -- --artifact "artifacts/camp01-live-adversarial/${{ runner.os }}.json"
+      - name: Upload live adversarial artifact
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: camp01-live-adversarial-${{ runner.os }}
+          path: artifacts/camp01-live-adversarial/${{ runner.os }}.json
+          if-no-files-found: error
