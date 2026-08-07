@@ -171,6 +171,146 @@ describe('CAMP-01 runner isolation', () => {
     });
   });
 
+  it.each(['non-buffer', 'wrong-length'])(
+    '[C06-J1] rejects %s entropy without creating or adopting a runtime',
+    (entropy) => {
+      expect(invoke({ entropy })).toMatchObject({
+        ok: false,
+        name: 'Camp01RunnerIsolationError',
+        error: 'CAMP01_RUNNER_ISOLATION_INVALID: runtime lease unavailable',
+        calls: [],
+        events: ['entropy'],
+        adopted: false,
+        runtimeExists: false,
+        writerSiblingExists: true,
+      });
+    },
+  );
+
+  it.each([
+    ['directory', 3],
+    ['storage-state', 11],
+  ])(
+    '[C06-J2] rolls back a %s creation failure without touching writer siblings',
+    (creationFailure, rollbackCount) => {
+      const result = invoke({ creationFailure });
+      expect(result).toMatchObject({
+        ok: false,
+        name: 'Camp01RunnerIsolationError',
+        error:
+          'CAMP01_RUNNER_ISOLATION_INVALID: invocation runtime creation failed',
+        runtimeExists: false,
+        sentinelExists: true,
+        writerSiblingExists: true,
+      });
+      expect(result.calls).toHaveLength(rollbackCount);
+      expect(result.calls).not.toContain('cleanup:writer-sibling.json');
+    },
+  );
+
+  it('[C06-J3] exposes rollback removal failure as a typed isolation failure', () => {
+    expect(
+      invoke({ creationFailure: 'directory', rollbackFailure: true }),
+    ).toMatchObject({
+      ok: false,
+      name: 'Camp01RunnerIsolationError',
+      error:
+        'CAMP01_RUNNER_ISOLATION_INVALID: invocation runtime rollback failed',
+      calls: ['cleanup:browser-profile'],
+      runtimeExists: true,
+      writerSiblingExists: true,
+    });
+  });
+
+  it('[C06-J4] rejects a missing normalizer before cleanup', () => {
+    expect(invoke({ action: 'finish', normalizer: 'missing' })).toMatchObject({
+      ok: false,
+      name: 'Camp01RunnerIsolationError',
+      error: 'CAMP01_RUNNER_ISOLATION_INVALID: normalizer unavailable',
+      calls: [],
+      runtimeExists: true,
+      writerSiblingExists: true,
+    });
+  });
+
+  it('[C06-J4] preserves the runtime when normalization rejects', () => {
+    expect(invoke({ action: 'finish', normalizer: 'reject' })).toMatchObject({
+      ok: false,
+      name: 'Error',
+      error: 'normalize rejected',
+      calls: ['normalize'],
+      runtimeExists: true,
+      writerSiblingExists: true,
+    });
+  });
+
+  it('[C06-J5] keeps cleanup ownership retryable after removal fails', () => {
+    const result = invoke({ action: 'cleanup-retry', cleanupFailure: true });
+    expect(result).toMatchObject({
+      ok: true,
+      value: {
+        runtimeExists: false,
+        sentinelExists: true,
+        writerSiblingExists: true,
+        failureState: {
+          firstError: {
+            name: 'Camp01RunnerIsolationError',
+            error:
+              'CAMP01_RUNNER_ISOLATION_INVALID: invocation runtime cleanup failed',
+          },
+          runtimeExists: true,
+          writerSiblingExists: true,
+          calls: ['cleanup:ux-walkthrough'],
+        },
+      },
+    });
+    expect(result.value?.calls).toHaveLength(12);
+  });
+
+  it.each(['lease', 'routing', 'storage-state', 'lease-file'])(
+    '[C06-J6] rejects adopted-runtime %s drift without transferring ownership',
+    (adoptionDrift) => {
+      expect(invoke({ action: 'adopt', adoptionDrift })).toMatchObject({
+        ok: false,
+        name: 'Camp01RunnerIsolationError',
+        error:
+          'CAMP01_RUNNER_ISOLATION_INVALID: invocation runtime already exists',
+        calls: [],
+        adopted: false,
+        runtimeExists: true,
+        writerSiblingExists: true,
+      });
+    },
+  );
+
+  it('[C06-J7] fails closed on a non-ENOENT runtime inspection error', () => {
+    expect(invoke({ inspectionFailure: true })).toMatchObject({
+      ok: false,
+      name: 'Camp01RunnerIsolationError',
+      error: 'CAMP01_RUNNER_ISOLATION_INVALID: filesystem inspection failed',
+      calls: [],
+      events: [],
+      runtimeExists: false,
+      writerSiblingExists: true,
+    });
+  });
+
+  it.each(['canonical', 'reparse'])(
+    '[C06-J7] rejects a creation-time %s path fault and rolls back its root',
+    (creationFailure) => {
+      const result = invoke({ creationFailure });
+      expect(result).toMatchObject({
+        ok: false,
+        name: 'Camp01RunnerIsolationError',
+        error: 'CAMP01_RUNNER_ISOLATION_INVALID: created runtime path invalid',
+        runtimeExists: false,
+        sentinelExists: true,
+        writerSiblingExists: true,
+      });
+      expect(result.calls).toHaveLength(1);
+    },
+  );
+
   it('lets a nested launcher adopt the exact lease without taking cleanup ownership', () => {
     const result = invoke({ action: 'adopt' });
     expect(result).toMatchObject({
