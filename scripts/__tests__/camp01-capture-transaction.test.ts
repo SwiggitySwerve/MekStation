@@ -7,21 +7,41 @@ import { pathToFileURL } from 'node:url';
 const moduleUrl = pathToFileURL(
   path.resolve('scripts/qc/camp01-capture-transaction.mjs'),
 ).href;
+const schemasUrl = pathToFileURL(
+  path.resolve('scripts/qc/camp01-authority-receipt.schemas.mjs'),
+).href;
 const harness = `
 import fs from 'node:fs';
 import * as capture from ${JSON.stringify(moduleUrl)};
+import { canonicalBytes } from ${JSON.stringify(schemasUrl)};
 const request=JSON.parse(fs.readFileSync(0,'utf8'));
 const root=request.root, input={wave:request.wave??'camp-01e',invocationId:request.invocationId??'camp-01e-picker-browser',commandSequenceIndex:request.commandSequenceIndex??1,artifactPath:request.artifactPath??'desktop.png',artifactDirectory:root};
+if(request.inputMutation==='extra') input.extra=true;
+if(request.inputMutation==='missing') delete input.artifactDirectory;
 const clone=(value)=>JSON.parse(JSON.stringify(value));
 try {
   let value;
   if(request.action==='environment') value=capture.captureEnvironment(request.environment);
+  else if(request.action==='request') value=capture.captureRequestFromEnvironment(request.environment,request.artifactPath??'desktop.png');
+  else if(request.action==='policy') value=capture.capturePolicyFor(request.wave);
   else if(request.action==='admission') value=capture.openCaptureTransaction(input,{instrumentation:{}}).contract;
   else if(request.action==='browser-barrier') {
     Object.defineProperties(globalThis,{document:{value:{},configurable:true},MutationObserver:{value:class{observe(){}},configurable:true},Storage:{value:class{setItem(){} removeItem(){} clear(){}},configurable:true},IDBObjectStore:{value:class{add(){} put(){} delete(){} clear(){}},configurable:true},IDBCursor:{value:class{update(){} delete(){}},configurable:true},Request:{value:class{},configurable:true},XMLHttpRequest:{value:class{open(){} send(){}},configurable:true},navigator:{value:{sendBeacon:()=>true},configurable:true},WebSocket:{value:class{send(){}},configurable:true}}); globalThis.fetch=async()=>({});
     const instrumentation=capture.createBrowserCaptureInstrumentation({evaluate:(callback,argument)=>callback(argument)}); await instrumentation.arm(); if(request.mutation==='cursor-update')new IDBCursor().update();else if(request.mutation==='cursor-delete')new IDBCursor().delete();else if(request.mutation==='send-beacon')navigator.sendBeacon('/write');else if(request.mutation==='websocket-send')new WebSocket().send('write');else if(request.mutation==='fetch-post')await globalThis.fetch('/write',{method:'post'});else if(request.mutation==='fetch-get')await globalThis.fetch('/read');else if(request.mutation==='storage-set')new Storage().setItem('camp01-key','value');else if(request.mutation==='objectstore-put')new IDBObjectStore().put({});else{const xhr=new XMLHttpRequest();xhr.open(request.mutation==='xhr-post'?'post':'get','/target');xhr.send();} value=globalThis.__CAMP01_CAPTURE_GUARD__;
   }
   else if(request.action==='invalidation-failure') { fs.mkdirSync(path.join(root,input.artifactPath),{recursive:true}); await capture.openCaptureTransaction(input,{instrumentation:{seedFixtures:async()=>undefined,arm:async()=>undefined,snapshot:async()=>({})}}).prepare(); }
+  else if(['phase','existing-png','noop-png','duplicate-attestation','tampered-attestation','noncanonical-attestation'].includes(request.action)) {
+    const policy=capture.capturePolicyFor(input.wave), snapshot={fixtureIds:[...policy.fixtureIds],fixtureAliases:[...policy.fixtureAliases],nonFixtureSentinels:[],domState:{html:'fixture-dom'},appState:{storage:[],databases:[],route:'/fixture'},counters:{domMutations:0,storageWrites:0,databaseWrites:0,networkWrites:0},barrierTripped:false};
+    const open=(artifactPath=input.artifactPath)=>capture.openCaptureTransaction({...input,artifactPath},{instrumentation:{seedFixtures:async()=>undefined,arm:async()=>undefined,snapshot:async()=>clone(snapshot)}});
+    const write=async(file)=>fs.writeFileSync(file,Buffer.from('PNG fixture bytes'));
+    const complete=async(artifactPath)=>{const transaction=open(artifactPath);await transaction.prepare();await transaction.capture(write);return transaction.publish();};
+    if(request.action==='phase') { const transaction=open(); if(request.mutation==='capture-before-prepare') await transaction.capture(write); else if(request.mutation==='double-capture'){await transaction.prepare();await transaction.capture(write);await transaction.capture(write);} else {await transaction.prepare();await transaction.publish();} }
+    else if(request.action==='existing-png') { fs.mkdirSync(root,{recursive:true});fs.writeFileSync(path.join(root,input.artifactPath),'pre-existing');await open().prepare(); }
+    else if(request.action==='noop-png') { const transaction=open();await transaction.prepare();await transaction.capture(async()=>undefined); }
+    else if(request.action==='duplicate-attestation') { await complete(input.artifactPath);fs.rmSync(path.join(root,input.artifactPath));value=await complete(input.artifactPath); }
+    else if(request.action==='tampered-attestation') { await complete('desktop.png');const attestation=path.join(root,'.capture-attestations.json'),entries=JSON.parse(fs.readFileSync(attestation,'utf8'));if(request.mutation==='foreign-invocation')entries[0].invocationId='camp-01e-command-99';else if(request.mutation==='foreign-path')entries[0].artifactPath='other.png';else if(request.mutation==='extra-field')entries[0].forged='x';else delete entries[0].barrierPolicyDigest;fs.writeFileSync(attestation,canonicalBytes(entries));value=await complete('mobile-390x844.png'); }
+    else { await complete('desktop.png');const attestation=path.join(root,'.capture-attestations.json');fs.writeFileSync(attestation,' '+fs.readFileSync(attestation,'utf8'));value=await complete('mobile-390x844.png'); }
+  }
   else {
     const policy=capture.capturePolicyFor(input.wave), base={fixtureIds:[...policy.fixtureIds],fixtureAliases:[...policy.fixtureAliases],nonFixtureSentinels:[],domState:{html:'fixture-dom'},appState:{storage:[],databases:[],route:'/fixture'},counters:{domMutations:0,storageWrites:0,databaseWrites:0,networkWrites:0},barrierTripped:false};
     for(const artifactPath of request.paths??[input.artifactPath]) {
@@ -98,6 +118,71 @@ describe('CAMP-01 guarded capture transaction', () => {
       { artifactPath: 'other.png' },
     ])
       expect(invoke({ action: 'admission', ...mutation }).ok).toBe(false);
+  });
+
+  it.each([
+    'capture-before-prepare',
+    'double-capture',
+    'publish-before-capture',
+  ])(
+    'rejects %s phase drift without publishing capture evidence',
+    (mutation) => {
+      expect(invoke({ action: 'phase', mutation })).toMatchObject({
+        ok: false,
+        name: 'Camp01CaptureInvalidError',
+        error: 'CAMP01_CAPTURE_INVALID: capture transaction phase drift',
+        pngs: [],
+        attestation: false,
+      });
+    },
+  );
+
+  it.each(['existing-png', 'noop-png'])(
+    'rejects the %s PNG contract violation without retaining bytes',
+    (action) => {
+      expect(invoke({ action })).toMatchObject({
+        ok: false,
+        name: 'Camp01CaptureInvalidError',
+        pngs: [],
+        attestation: false,
+      });
+    },
+  );
+
+  it('rejects a duplicate attestation and invalidates its contracted PNG', () => {
+    expect(invoke({ action: 'duplicate-attestation' })).toMatchObject({
+      ok: false,
+      error: 'CAMP01_CAPTURE_INVALID: duplicate capture attestation',
+      pngs: [],
+      attestation: false,
+    });
+  });
+
+  it('rejects noncanonical pre-existing attestations before sibling publication', () => {
+    expect(invoke({ action: 'noncanonical-attestation' })).toMatchObject({
+      ok: false,
+      error: 'CAMP01_CAPTURE_INVALID: capture invalidation failed',
+      pngs: ['desktop.png'],
+      attestation: true,
+    });
+  });
+
+  // prettier-ignore
+  it.each(['foreign-invocation','foreign-path','extra-field','missing-field'])('rejects a byte-canonical tampered attestation (%s) before sibling publication', (mutation) => {
+    // Rewritten canonically, so only readAttestations' contract-drift/exactKeys guard can reject it.
+    expect(invoke({action:'tampered-attestation',mutation})).toMatchObject({ok:false,error:'CAMP01_CAPTURE_INVALID: capture invalidation failed',pngs:['desktop.png'],attestation:true});
+  });
+
+  it('rejects unknown capture policies and non-exact capture request keys', () => {
+    expect(invoke({ action: 'policy', wave: 'camp-01f' })).toMatchObject({
+      ok: false,
+      error: 'CAMP01_CAPTURE_INVALID: capture fixture policy missing',
+    });
+    for (const inputMutation of ['extra', 'missing'])
+      expect(invoke({ action: 'admission', inputMutation })).toMatchObject({
+        ok: false,
+        error: 'CAMP01_CAPTURE_INVALID: capture request fields drift',
+      });
   });
 
   it.each([
@@ -239,5 +324,35 @@ describe('CAMP-01 guarded capture transaction', () => {
         environment: { CAMP01_INVOCATION_ID: 'camp-01e-picker-browser' },
       }).error,
     ).toBe('CAMP01_CAPTURE_INVALID: capture environment incomplete');
+  });
+
+  it('routes the direct environment request with only writer-owned fields', () => {
+    const environment = {
+      CAMP01_RUN_ID: `camp01-${'1'.repeat(32)}`,
+      CAMP01_ARTIFACT_DIR: 'fixture-artifacts',
+      CAMP01_EXECUTION_ID: `execution-${'2'.repeat(24)}`,
+      CAMP01_INVOCATION_ID: 'camp-01e-picker-browser',
+    };
+    expect(
+      invoke({ action: 'request', environment, artifactPath: 'desktop.png' })
+        .value,
+    ).toEqual({
+      wave: 'camp-01e',
+      invocationId: 'camp-01e-picker-browser',
+      commandSequenceIndex: 1,
+      artifactPath: 'desktop.png',
+      artifactDirectory: 'fixture-artifacts',
+    });
+    expect(invoke({ action: 'request', environment: {} }).value).toBeNull();
+  });
+
+  // prettier-ignore
+  it.each(['camp-01e-picker-browser','01-ux-audit-deep'])('keeps every frozen capture artifact name flat and contract-owned (%s)', (invocationId) => {
+    // The re-deferred path-escape guard stays unreachable only while every frozen contract path is a bare basename.
+    const environment = {CAMP01_RUN_ID:`camp01-${'1'.repeat(32)}`,CAMP01_ARTIFACT_DIR:'fixture-artifacts',CAMP01_EXECUTION_ID:`execution-${'2'.repeat(24)}`,CAMP01_INVOCATION_ID:invocationId};
+    const routed = invoke({action:'environment',environment}).value as {CAMP01_CAPTURE_CONTRACT:string};
+    const contract = JSON.parse(routed.CAMP01_CAPTURE_CONTRACT) as {artifactPaths:readonly string[]};
+    expect(contract.artifactPaths.length).toBeGreaterThan(0);
+    expect(contract.artifactPaths.every((artifactPath)=>path.basename(artifactPath)===artifactPath&&!artifactPath.includes('/')&&!artifactPath.includes('\\'))).toBe(true);
   });
 });
