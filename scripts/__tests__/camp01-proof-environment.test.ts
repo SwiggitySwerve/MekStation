@@ -13,6 +13,7 @@ const contractUrl = pathToFileURL(
 const schemasUrl = pathToFileURL(
   path.resolve('scripts/qc/camp01-authority-receipt.schemas.mjs'),
 ).href;
+const durableFactsPath = path.resolve('scripts/qc/camp01-durable-facts.mjs');
 const BASE_NAMES = [
   'APPDATA',
   'ComSpec',
@@ -35,19 +36,19 @@ const request=JSON.parse(fs.readFileSync(0,'utf8')), row=WAVE_CONTRACTS['camp-pr
 if(request.deleteSystemRoot) delete process.env.SystemRoot;
 Object.assign(process.env,request.ambient??{});
 const environment=await import(${JSON.stringify(environmentUrl)});
-fs.mkdirSync(root,{recursive:true}); fs.writeFileSync(path.join(root,'package-lock.json'),'lock-v1');
+fs.mkdirSync(root,{recursive:true}); if(request.packageLock!=='missing')fs.writeFileSync(path.join(root,'package-lock.json'),'lock-v1');
 const runtimeRoot=path.join(path.dirname(root),'.camp01-runtime-'+path.basename(root)), calls=[];
 if(request.precreateRuntime) { fs.mkdirSync(runtimeRoot,{recursive:true}); fs.writeFileSync(path.join(runtimeRoot,'sentinel'),'owned elsewhere'); }
 if(request.precreateOwnedRuntime) { fs.mkdirSync(runtimeRoot,{recursive:true}); fs.writeFileSync(path.join(runtimeRoot,'sentinel'),'retry residue'); fs.writeFileSync(path.join(runtimeRoot,'.camp01-runtime-owner.json'),canonicalBytes({schema:'camp01-runtime-root/v1',targetDigest:digestBytes(root)})); }
 const versions={node:'22.22.0',npm:'11.6.2',git:'2.54.0.windows.1',...request.versions};
 const gitExecutable=request.gitExecutable??'C:\\\\Program Files\\\\Git\\\\mingw64\\\\bin\\\\git.exe';
 const dependencies={
-  ...(request.realWindowsTools?{}:{platform:'win32',...(request.defaultSystemRoot?{}:{resolveSystemRoot:()=>request.systemRoot??'C:\\\\Windows'}),statFile:()=>({isFile:()=>true})}),
+  ...(request.realWindowsTools?{}:{platform:'win32',...(request.defaultSystemRoot?{}:{resolveSystemRoot:()=>request.systemRoot??'C:\\\\Windows'}),statFile:()=>({isFile:()=>request.unavailableTool!==true})}),
   rowEnvironment:request.rowEnvironment??{}, runtimeRoot,
   resolveVerifiedGit:()=>request.gitExtra?{executable:gitExecutable,unexpected:true}:{executable:gitExecutable},
   versionReporter:request.realToolIdentity?({tool,executable,args,cwd,env})=>tool==='git'?versions.git:spawnSync(executable,args,{shell:false,cwd,env,encoding:'utf8'}).stdout:({tool})=>versions[tool],
-  fileDigester:request.realToolIdentity?(file)=>file===gitExecutable?digestBytes('verified-git'):digestBytes(fs.readFileSync(file)):(file)=>digestBytes('file:'+file.toLowerCase()),
-  spawn:(executable,args,options)=>{ calls.push({executable,args,options:{shell:options.shell,cwd:options.cwd,env:options.env}}); if(request.bootstrap==='omitted') return undefined; if(request.bootstrap==='failed') return {status:9,stdout:'no',stderr:'failed'}; if(args.includes('ci')) { if(request.bootstrap==='mutated') options.env.NODE_OPTIONS='--inspect'; if(request.bootstrap==='config-mutated') fs.writeFileSync(options.env.NPM_CONFIG_USERCONFIG,'prefix=elsewhere'); return {status:0,stdout:'installed',stderr:''}; } if(request.breakWriterCommandEnv) options.env.CAMP01_ATTACK='1'; const artifact=options.env.CAMP01_ARTIFACT_DIR; fs.writeFileSync(path.join(artifact,'wave-result.json'),canonicalBytes({schema:'camp01-wave-result/v1',wave:'camp-proof',runId:options.env.CAMP01_RUN_ID,status:'passed',assertions:Object.fromEntries([...row.assertions].sort().map((id)=>[id,true]))})); return {status:0,stdout:'',stderr:''};},
+  fileDigester:request.digestDrift?()=> 'invalid':request.realToolIdentity?(file)=>file===gitExecutable?digestBytes('verified-git'):digestBytes(fs.readFileSync(file)):(file)=>request.postPrepareLockDrift&&file.endsWith('package-lock.json')?digestBytes(fs.readFileSync(file)):digestBytes('file:'+file.toLowerCase()),
+  spawn:(executable,args,options)=>{ calls.push({executable,args,options:{shell:options.shell,cwd:options.cwd,env:options.env}}); if(request.bootstrap==='omitted') return undefined; if(request.bootstrap==='statusless') return {stdout:'',stderr:''}; if(request.bootstrap==='throws') throw new Error('spawn failed'); if(request.bootstrap==='failed') return {status:9,stdout:'no',stderr:'failed'}; if(args.includes('ci')) { if(request.bootstrap==='mutated') options.env.NODE_OPTIONS='--inspect'; if(request.bootstrap==='config-mutated') fs.writeFileSync(options.env.NPM_CONFIG_USERCONFIG,'prefix=elsewhere'); return {status:0,stdout:'installed',stderr:''}; } if(request.breakWriterCommandEnv) options.env.CAMP01_ATTACK='1'; const artifact=options.env.CAMP01_ARTIFACT_DIR; fs.writeFileSync(path.join(artifact,'wave-result.json'),canonicalBytes({schema:'camp01-wave-result/v1',wave:'camp-proof',runId:options.env.CAMP01_RUN_ID,status:'passed',assertions:Object.fromEntries([...row.assertions].sort().map((id)=>[id,true]))})); return {status:0,stdout:'',stderr:''};},
 };
 if(request.git==='invalid') dependencies.resolveVerifiedGit=()=>null;
 const sha='b'.repeat(40), digest='sha256:'+'a'.repeat(64), tuple=(n)=>'tuple-'+n.repeat(16);
@@ -57,17 +58,21 @@ try { let value;
   else if(request.action==='expand') value=environment.expandLogicalCommand(request.argv,{nodeExecutable:request.toolDrift??process.execPath,npmCli:path.join(path.dirname(process.execPath),'node_modules','npm','bin','npm-cli.js')});
   else { const proofTarget={canonicalPath:root}, prepared=request.skipPrepare?undefined:await environment.prepareEnvironment({row,proofTarget},dependencies);
     if(request.action==='prepare') value={prepared,bootstrap:calls[0],ownedResidueRemoved:request.precreateOwnedRuntime?!fs.existsSync(path.join(runtimeRoot,'sentinel')):undefined};
-    else { if(!request.omitWriterContext) dependencies.resolveWriterContext=()=>writerContext; dependencies.randomBytes=()=>Buffer.from('4'.repeat(32),'hex'); value={result:await environment.executeReceipt({row,arguments:{mode:'reviewed-head',wave:'camp-proof',sha,runRoot:row.runRootTemplate.replace('<sha>',sha)},provenance:{subject:'product-pr'},environment:prepared,proofTarget},dependencies),calls,files:fs.readdirSync(path.join(root,row.runRootTemplate.replace('<sha>',sha),'camp01-'+'4'.repeat(32))).sort()}; }
+    else { if(request.postPrepareLockDrift)fs.writeFileSync(path.join(root,'package-lock.json'),'lock-v2'); if(!request.omitWriterContext) dependencies.resolveWriterContext=()=>writerContext; dependencies.randomBytes=()=>Buffer.from('4'.repeat(32),'hex'); value={result:await environment.executeReceipt({row,arguments:{mode:'reviewed-head',wave:'camp-proof',sha,runRoot:row.runRootTemplate.replace('<sha>',sha)},provenance:{subject:'product-pr'},environment:prepared,proofTarget},dependencies),calls,files:fs.readdirSync(path.join(root,row.runRootTemplate.replace('<sha>',sha),'camp01-'+'4'.repeat(32))).sort()}; }
   }
   process.stdout.write(JSON.stringify({ok:true,value}));
-} catch(error) { process.stdout.write(JSON.stringify({ok:false,error:error instanceof Error?error.message:String(error),runtimePreserved:request.precreateRuntime?fs.existsSync(path.join(runtimeRoot,'sentinel')):undefined})); process.exitCode=1; }
+} catch(error) { process.stdout.write(JSON.stringify({ok:false,error:error instanceof Error?error.message:String(error),runtimeExists:fs.existsSync(runtimeRoot),runtimePreserved:request.precreateRuntime?fs.existsSync(path.join(runtimeRoot,'sentinel')):undefined})); process.exitCode=1; }
 finally { fs.rmSync(runtimeRoot,{recursive:true,force:true}); }`;
 
 type Result = {
   ok: boolean;
   value?: {
     prepared?: { executionEnvironmentDigest: string };
-    bootstrap?: { options: { env: Record<string, string> } };
+    bootstrap?: {
+      executable: string;
+      args: string[];
+      options: { shell: boolean; cwd: string; env: Record<string, string> };
+    };
     ownedResidueRemoved?: boolean;
     result?: { runId: string; phase: string; finalizedPaths: string[] };
     loaded?: boolean;
@@ -79,6 +84,7 @@ type Result = {
     files?: string[];
   };
   error?: string;
+  runtimeExists?: boolean;
   runtimePreserved?: boolean;
 };
 function invoke(request: Record<string, unknown>): Result {
@@ -104,6 +110,12 @@ describe('cross-platform CAMP-01 pinned proof environment logic', () => {
       ok: true,
       value: { loaded: true },
     });
+  });
+
+  it('localizes transient validation to the factory-created proof target', () => {
+    // Given production dependency composition, when a target is created, then its canonical path owns transient validation
+    const source = fs.readFileSync(durableFactsPath, 'utf8');
+    expect(source).toMatch(/transientRoot:\s*target\.canonicalPath/);
   });
 
   it('pins a deterministic digest for identical inputs', () => {
@@ -157,6 +169,11 @@ describe('cross-platform CAMP-01 pinned proof environment logic', () => {
     const env = result.value?.bootstrap?.options.env ?? {};
     expect(result.ok).toBe(true);
     expect(Object.keys(env).sort()).toEqual(BASE_NAMES);
+    expect(result.value?.bootstrap).toMatchObject({
+      executable: process.execPath,
+      args: expect.arrayContaining(['ci', '--fund=false', '--audit=false']),
+      options: { shell: false, cwd: root },
+    });
   });
 
   it('rejects undeclared product environment input', () => {
@@ -194,6 +211,17 @@ describe('cross-platform CAMP-01 pinned proof environment logic', () => {
     ).toBe('CAMP01_ENVIRONMENT_INVALID: npm version drift; expected 11.6.2');
   });
 
+  it.each([
+    [{ packageLock: 'missing' }, 'environment preparation failed'],
+    [{ unavailableTool: true }, 'required tool unavailable'],
+    [{ digestDrift: true }, 'tool digest drift'],
+  ])('rejects remaining prepare guard %#', (request, message) => {
+    // Given a missing prepared input, when preparation runs, then its guard rejects
+    expect(invoke({ action: 'prepare', root, ...request }).error).toBe(
+      'CAMP01_ENVIRONMENT_INVALID: ' + message,
+    );
+  });
+
   it('fails closed when the PROOF-3C verified Git seam returns an invalid contract', () => {
     expect(invoke({ action: 'prepare', root, git: 'invalid' }).error).toBe(
       'CAMP01_ENVIRONMENT_INVALID: verified Git seam invalid',
@@ -222,9 +250,14 @@ describe('cross-platform CAMP-01 pinned proof environment logic', () => {
 
   it.each([
     ['omitted', 'CAMP01_ENVIRONMENT_INVALID: bootstrap omitted'],
+    ['statusless', 'CAMP01_ENVIRONMENT_INVALID: bootstrap omitted'],
+    ['throws', 'CAMP01_ENVIRONMENT_INVALID: process spawn failed'],
     ['failed', 'CAMP01_ENVIRONMENT_INVALID: bootstrap failed with exit code 9'],
   ])('rejects %s bootstrap', (bootstrap, message) => {
-    expect(invoke({ action: 'prepare', root, bootstrap }).error).toBe(message);
+    expect(invoke({ action: 'prepare', root, bootstrap })).toMatchObject({
+      error: message,
+      runtimeExists: false,
+    });
   });
 
   it('rejects bootstrap environment mutation as typed ambient drift', () => {
@@ -237,6 +270,13 @@ describe('cross-platform CAMP-01 pinned proof environment logic', () => {
     expect(
       invoke({ action: 'prepare', root, bootstrap: 'config-mutated' }).error,
     ).toBe('CAMP01_ENVIRONMENT_INVALID: npm config drift');
+  });
+
+  it('rejects package-lock drift after preparation', () => {
+    // Given changed lock bytes, when execution rechecks inputs, then prepared identity rejects
+    expect(
+      invoke({ action: 'execute', root, postPrepareLockDrift: true }).error,
+    ).toBe('CAMP01_ENVIRONMENT_INVALID: prepared environment drift');
   });
 
   it('preserves a pre-existing runtime path that it does not own', () => {
