@@ -54,6 +54,9 @@ function transportFixtures(specSha=head,ownedSha=head,mainSha=merge,ownedMergeSh
     if(request.drift==='wrong-head'&&resource==='pull-request') value.head.sha='e'.repeat(40);
     if(request.drift==='approval-head'&&resource==='reviews') value[0].commit_id='f'.repeat(40);
     if(request.drift==='dismissed'&&resource==='reviews') value[0].state='DISMISSED';
+    if(request.drift==='dismissed-at'&&resource==='reviews') value[0].dismissed_at='2026-01-01T00:00:00Z';
+    if(request.drift==='unknown-approval'&&resource==='reviews') value[0].id=999;
+    if(request.drift==='permission-login'&&resource==='permission') value.user.login='author';
     if(request.drift==='unauthorized-reviewer'&&resource==='reviews') value[0].user.login='intruder';
     if(request.drift==='permission-drift'&&resource==='permission') value.permission='read';
     if(request.drift==='canonical-main-name'&&resource==='branch') value.name='develop';
@@ -215,9 +218,12 @@ describe('CAMP-01 GitHub provenance', () => {
     ['wrong-head', 'pull request head SHA drift'],
     ['approval-head', 'approval head SHA drift'],
     ['dismissed', 'approval dismissed'],
+    ['dismissed-at', 'approval dismissed'],
     ['self', 'self approval rejected'],
     ['unauthorized-reviewer', 'approval reviewer drift'],
+    ['unknown-approval', 'approval reviewer drift'],
     ['permission-drift', 'reviewer permission drift'],
+    ['permission-login', 'reviewer permission drift'],
   ])('rejects P.2 drift %s with one exact message', (drift, message) => {
     // Given one named P.2 drift in an otherwise valid mock response
     const result = invoke({ action: 'citation', root, drift });

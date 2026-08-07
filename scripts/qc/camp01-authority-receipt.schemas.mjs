@@ -50,6 +50,13 @@ const SCHEMA_KEYS = Object.freeze({
   'camp01-cleanup/v1': ['schema','wave','runId','receiptDigest','productWorktreeRemoved','proofWorktreeRemoved','localWaveBranchRemoved','initiatingTrackedTreeClean','durableReceiptRevalidated'],
 });
 
+// Artifact paths are validated against their fixed schema so a genuine artifact republished at
+// another allowlisted path cannot pass on its own self-declared `schema` field alone.
+// prettier-ignore
+const ARTIFACT_PATH_SCHEMAS=Object.freeze({'command-result.json':'camp01-command-result/v1','receipt-manifest.json':'camp01-receipt-manifest/v1','wave-result.json':'camp01-wave-result/v1','listener-result.json':'camp01-listener-result/v1','proof02-reproduction.json':'camp01-proof02-reproduction/v1','proof02-triage.json':'camp01-proof02-triage/v1','proof02-repairs.json':'camp01-proof02-repairs/v1','session-authority-map.json':'camp01-session-authority-map/v1','combat-authority.json':'camp01-combat-authority/v1','audit-reconciliation.json':'camp01-audit-reconciliation/v1'});
+// prettier-ignore
+export function assertArtifactPathSchema(row, name, value) { const reporter=row.reporterContracts.find(({normalizedPath})=>normalizedPath===name), witness=/^witnesses\/[a-z0-9-]+\/(authority|experience)\.json$/.exec(name), expected=reporter?reporter.reportSchema:witness?witness[1]==='authority'?'camp01-witness-authority/v1':'camp01-experience/v1':ARTIFACT_PATH_SCHEMAS[name]??fail('unknown artifact path'); if (value?.schema!==expected) fail('artifact path schema drift'); return true; }
+
 // prettier-ignore
 export const ARTIFACT_SCHEMAS=Object.freeze(Object.fromEntries(Object.entries(SCHEMA_KEYS).map(([schema,required])=>[schema,Object.freeze({additionalProperties:false,required:Object.freeze(required)})])));
 // prettier-ignore

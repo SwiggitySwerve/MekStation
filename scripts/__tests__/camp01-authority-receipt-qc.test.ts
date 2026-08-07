@@ -197,6 +197,48 @@ describe('CAMP-01 authority receipt immutable contract', () => {
     }
   });
 
+  // prettier-ignore
+  it.each([
+    ['empty graph', [], 'empty cause graph'],
+    ['non-array graph', {}, 'empty cause graph'],
+    ['blank observation id', [proofEntry({ observationId: '' })], 'invalid cause entry'],
+    ['unknown severity', [proofEntry({ severity: 'blocker' })], 'invalid cause entry'],
+    ['non-digest cause fingerprint', [proofEntry({ causeFingerprint: 'c'.repeat(64) })], 'invalid cause fingerprint'],
+    ['self-linked root', [proofEntry({ primaryObservationId: 'observation-a' })], 'invalid cause root'],
+    ['two-entry cycle without a root', [proofEntry({ outcome: 'not-distinct-cause', primaryObservationId: 'observation-b' }), proofEntry({ observationId: 'observation-b', outcome: 'not-distinct-cause', primaryObservationId: 'observation-a' })], 'invalid cause root'],
+    ['non-terminal alias outcome', [proofEntry(), proofEntry({ observationId: 'observation-b', outcome: 'external-blocker', primaryObservationId: 'observation-a' })], 'invalid cause alias'],
+    ['nonterminal root on the non-high branch', [proofEntry({ severity: 'low', outcome: 'repair-required' })], 'nonterminal cause root'],
+  ])('rejects PROOF cause %s with one exact message', (_name, graph, message) => {
+    expect(invoke('assertProofCauseGraph', [graph])).toEqual({ ok: false, error: `CAMP01_CONTRACT_INVALID: ${message}` });
+  });
+
+  it('validates every PROOF cause group and not only the first', () => {
+    const first = `sha256:${'c'.repeat(64)}`;
+    const second = `sha256:${'e'.repeat(64)}`;
+    // prettier-ignore
+    const graph = [proofEntry({ causeFingerprint: first }), proofEntry({ observationId: 'observation-b', causeFingerprint: first, outcome: 'not-distinct-cause', primaryObservationId: 'observation-a' }), proofEntry({ observationId: 'observation-c', causeFingerprint: second }), proofEntry({ observationId: 'observation-d', causeFingerprint: second, outcome: 'not-distinct-cause', primaryObservationId: 'observation-c' })];
+    expect(invoke('assertProofCauseGraph', [graph])).toEqual({
+      ok: true,
+      value: true,
+    });
+    const drifted = clone(graph);
+    drifted[3].primaryObservationId = null;
+    expect(invoke('assertProofCauseGraph', [drifted])).toEqual({
+      ok: false,
+      error: 'CAMP01_CONTRACT_INVALID: invalid cause root',
+    });
+  });
+
+  // prettier-ignore
+  it.each([
+    ['zero', 0],
+    ['fractional', 1.5],
+    ['non-numeric', '1'],
+  ])('rejects an H %s backlog rank with one exact message', (_name, backlogRank) => {
+    const graph = [{ findingId: 'finding-a', backlogRank, causeFingerprint: `sha256:${'d'.repeat(64)}`, severity: 'major', outcome: 'repair-required', primaryFindingId: null }];
+    expect(invoke('assertHCauseGraph', [graph, 'observation'])).toEqual({ ok: false, error: 'CAMP01_CONTRACT_INVALID: invalid cause rank' });
+  });
+
   it('validates H observation/final roots and rejects phase or graph drift', () => {
     const causeFingerprint = `sha256:${'d'.repeat(64)}`;
     // prettier-ignore
@@ -246,6 +288,11 @@ function repairFixture(kind: 'proof' | 'h') {
     assertions: ['repairVerified===true'], predecessors: kind === 'proof' ? ['proof-02-triage'] : ['camp-01g', 'proof-02-triage', 'proof-02-required-repairs'],
     sourceDisposition, capSubject: 'product-pr', maxFiles: 2, maxChangedLines: 100, reporterContracts,
   }; return { declaration: { schema: 'camp01-repair-row/v1', row }, source };
+}
+
+// prettier-ignore
+function proofEntry(overrides: Record<string, unknown> = {}) {
+  return { observationId: 'observation-a', causeFingerprint: `sha256:${'c'.repeat(64)}`, severity: 'major', outcome: 'repair-required', primaryObservationId: null, ...overrides };
 }
 
 // prettier-ignore

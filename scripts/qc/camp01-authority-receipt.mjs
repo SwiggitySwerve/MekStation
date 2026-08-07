@@ -12,6 +12,7 @@ import {
 import {
   H_TEST_IDS,
   artifactDigest,
+  assertArtifactPathSchema,
   canonicalBytes,
   digestBytes,
   normalizeProof02Observations,
@@ -48,7 +49,7 @@ export async function writeReceipt(request, dependencies={}) {
 export function validateReceiptDirectory(directory, context={}) {
   const root=path.resolve(directory), commandPath=path.join(root,'command-result.json'), manifestPath=path.join(root,'receipt-manifest.json'); if (!fs.statSync(commandPath).isFile() || !fs.statSync(manifestPath).isFile()) fail('receipt envelope missing'); const command=readCanonicalArtifact(commandPath), row=resolveReceiptRow(command.wave,context.repairDeclaration??null,context.repairSource??null); if (context.expectedWave!==undefined&&command.wave!==context.expectedWave || context.expectedSha!==undefined&&command.sha!==context.expectedSha || context.expectedMode!==undefined&&command.mode!==context.expectedMode || context.expectedRunId!==undefined&&command.runId!==context.expectedRunId) fail('receipt invocation identity drift'); const receiptContext=prepareValidationContext(context,row,command.runId); validateArtifact(command,{row,runId:command.runId,sha:command.sha,...receiptContext});
   const manifest=readCanonicalArtifact(manifestPath), expectedPaths=row.artifacts.filter((name)=>name!=='receipt-manifest.json').sort(); validateArtifact(manifest,{runId:command.runId,expectedPaths}); if (manifest.wave!==row.wave || JSON.stringify(listFiles(root).filter((name)=>name!=='receipt-manifest.json'))!==JSON.stringify(expectedPaths)) fail('receipt artifact set drift');
-  for (const entry of manifest.entries) { const file=artifactPath(root,row,entry.path), bytes=fs.readFileSync(file); if (bytes.length!==entry.size || digestBytes(bytes)!==entry.digest) fail('manifest digest drift'); if (entry.path!=='command-result.json') { if (!entry.path.endsWith('.png')) validateArtifact(readCanonicalArtifact(file),{...artifactContext(row,command.runId,command.sha,entry.path),...receiptContext,command}); if (command.artifactDigests[entry.path]!==entry.digest) fail('command artifact digest drift'); } } validateCrossArtifacts(root,row,command,receiptContext); return artifactDigest(manifest);
+  for (const entry of manifest.entries) { const file=artifactPath(root,row,entry.path), bytes=fs.readFileSync(file); if (bytes.length!==entry.size || digestBytes(bytes)!==entry.digest) fail('manifest digest drift'); if (entry.path!=='command-result.json') { if (!entry.path.endsWith('.png')) { const artifact=readCanonicalArtifact(file); assertArtifactPathSchema(row,entry.path,artifact); validateArtifact(artifact,{...artifactContext(row,command.runId,command.sha,entry.path),...receiptContext,command}); } if (command.artifactDigests[entry.path]!==entry.digest) fail('command artifact digest drift'); } } validateCrossArtifacts(root,row,command,receiptContext); return artifactDigest(manifest);
 }
 
 // prettier-ignore
