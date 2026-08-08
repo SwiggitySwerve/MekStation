@@ -14,6 +14,9 @@ const validatorPath = path.resolve(
 const schemasUrl = pathToFileURL(
   path.resolve('scripts/qc/camp01-authority-receipt.schemas.mjs'),
 ).href;
+const factsUrl = pathToFileURL(
+  path.resolve('scripts/qc/camp01-durable-facts.mjs'),
+).href;
 const captureUrl = pathToFileURL(
   path.resolve('scripts/qc/camp01-capture-transaction.mjs'),
 ).href;
@@ -21,8 +24,10 @@ const captureUrl = pathToFileURL(
 const contractUrl=pathToFileURL(path.resolve('scripts/qc/camp01-authority-receipt.contract.mjs')).href;
 const harness = `
 import fs from 'node:fs';
+import { syncBuiltinESMExports } from 'node:module';
 import path from 'node:path';
 import * as capture from ${JSON.stringify(captureUrl)};
+import * as facts from ${JSON.stringify(factsUrl)};
 import * as schemas from ${JSON.stringify(schemasUrl)};
 import * as writer from ${JSON.stringify(writerUrl)};
 import { WAVE_CONTRACTS } from ${JSON.stringify(contractUrl)};
@@ -32,6 +37,8 @@ const deepFrozen = (value) => !value || typeof value !== 'object' || Object.isFr
 try {
   let value;
   if (request.action === 'capture-policy') value = capture.capturePolicyFor(request.value);
+  else if (request.action === 'compose-repairs') value = facts.repairInputs(...request.args);
+  else if (request.action === 'write-repairs') { const originalRm=fs.rmSync, staging=path.join(request.value.runRoot,'.stage-camp01-'+request.entropy); fs.rmSync=()=>undefined; syncBuiltinESMExports(); try { await writer.writeReceipt(request.value,{randomBytes:()=>Buffer.from(request.entropy,'hex'),runCommand:async()=>({exitCode:0})}); } catch(error) { const file=path.join(staging,'proof02-repairs.json'); if(!fs.existsSync(file))throw error; value=JSON.parse(fs.readFileSync(file,'utf8')); } finally { fs.rmSync=originalRm; syncBuiltinESMExports(); originalRm(request.value.runRoot,{recursive:true,force:true}); } }
   else if (request.action === 'write') value = await writer.writeReceipt(request.value, {
     randomBytes: () => Buffer.from(request.entropy, 'hex'),
     runCommand: async (_argv, context) => {
@@ -117,6 +124,17 @@ function normalizeObservations(observations: Array<Record<string,unknown>>) { co
 function triageDisposition(failureFingerprint: string|null, overrides: Record<string,unknown> = {}) { return {observationId:'anchor-b',failureFingerprint,severity:'major',outcome:'repair-required',causeFingerprint:digest,resolutionRef:`ref-${'5'.repeat(64)}`,blockerRef:null,backlogRank:1,auditAnchor:`ref-${'7'.repeat(64)}`,primaryObservationId:null,repairRowId:`proof-02-repair-${'a'.repeat(64)}`,...overrides}; }
 // prettier-ignore
 function mutateTriage(fixture: PublicFixture, mutate:(value:Record<string,unknown>)=>void|Record<string,unknown>) { const artifactPath=path.join(fixture.finalDirectory,'proof02-triage.json'), commandPath=path.join(fixture.finalDirectory,'command-result.json'), manifestPath=path.join(fixture.finalDirectory,'receipt-manifest.json'), artifact=JSON.parse(fs.readFileSync(artifactPath,'utf8')); fs.writeFileSync(artifactPath,`${JSON.stringify(mutate(artifact)??artifact)}\n`); const fileDigest=(file:string)=>`sha256:${createHash('sha256').update(fs.readFileSync(file)).digest('hex')}`, command=JSON.parse(fs.readFileSync(commandPath,'utf8')); command.artifactDigests['proof02-triage.json']=fileDigest(artifactPath); fs.writeFileSync(commandPath,`${JSON.stringify(command)}\n`); const manifest=JSON.parse(fs.readFileSync(manifestPath,'utf8')); for(const entry of manifest.entries.filter(({path:name}:{path:string})=>['proof02-triage.json','command-result.json'].includes(name))){const file=path.join(fixture.finalDirectory,entry.path);entry.size=fs.statSync(file).size;entry.digest=fileDigest(file);} fs.writeFileSync(manifestPath,`${JSON.stringify(manifest)}\n`); }
+// prettier-ignore
+const repairTuple=['test-a',digest,'major',sha,`camp01-${'1'.repeat(32)}`,digest,digest,'repair-proof-cause',`receipt-${'1'.repeat(16)}`,sha,`receipt-${'2'.repeat(16)}`,'spec-reviewer',`receipt-${'3'.repeat(16)}`,sha,sha,`receipt-${'4'.repeat(16)}`,'product-reviewer'].join('|'), repairRowId=`proof-02-repair-${'a'.repeat(64)}`;
+const fixtureReceiptId = (value: unknown) =>
+  `receipt-${createHash('sha256')
+    .update(`${JSON.stringify(value)}\n`)
+    .digest('hex')
+    .slice(0, 32)}`;
+// prettier-ignore
+function repairsFixture() { const runId=`camp01-${'8'.repeat(32)}`, parentRunId=`camp01-${'6'.repeat(32)}`, triageReceiptId=`receipt-${'4'.repeat(16)}`, repairReceiptId=`receipt-${'7'.repeat(16)}`, cleanupReceiptId=`receipt-${'8'.repeat(16)}`, tuple17=repairTuple.split('|'), repairs=[{repairRowId,repairReceiptId,cleanupReceiptId,tuple17}], provenance=[{id:triageReceiptId,sourceKind:'predecessor-receipt',wave:'proof-02-triage',subject:'audit-pr'},{id:repairReceiptId,sourceKind:'repair-receipt',wave:repairRowId,subject:'product-pr'},{id:cleanupReceiptId,sourceKind:'cleanup-receipt',wave:repairRowId,subject:'product-pr'}].sort((a,b)=>a.id.localeCompare(b.id)); return {value:{schema:'camp01-proof02-repairs/v1',runId,parentRunId,triageReceiptId,repairs},context:{row:{wave:'camp-01h'},runId,sha,repairs:{parentRunId},registryContext:{provenance}}}; }
+// prettier-ignore
+function hRepairsRequest(runRoot:string) { const fixture=repairsFixture(), predecessorReceiptIds=[`receipt-${'3'.repeat(16)}`,fixture.value.triageReceiptId,`receipt-${'5'.repeat(16)}`,`receipt-${'6'.repeat(16)}`], specTupleId=`tuple-${'1'.repeat(16)}`, ownedPrTupleId=`tuple-${'2'.repeat(16)}`, provenance=[{id:specTupleId,sourceKind:'spec-tuple',wave:'camp-01h',subject:'product-pr'},{id:ownedPrTupleId,sourceKind:'owned-pr-tuple',wave:'camp-01h',subject:'product-pr'},...predecessorReceiptIds.map((id,index)=>({id,sourceKind:'predecessor-receipt',wave:['camp-01g','proof-02-triage','proof-02-required-repairs','camp-01h-required-repairs'][index],subject:'product-pr'})),...fixture.context.registryContext.provenance.filter(({sourceKind})=>sourceKind!=='predecessor-receipt')].sort((a,b)=>a.id.localeCompare(b.id)); return {...baseRequest(runRoot),wave:'camp-01h',commandId:'camp-01h',provenance:{subject:'product-pr',specTupleId,ownedPrTupleId,predecessorReceiptIds},registryContext:{evidence:[],provenance,refs:[],capturePolicies:[],repairSources:[]},repairs:{parentRunId:fixture.value.parentRunId,triageReceiptId:fixture.value.triageReceiptId,repairs:fixture.value.repairs}}; }
 
 describe('CAMP-01 authority receipt writer and validator', () => {
   it('emits canonical bytes and rejects missing, unknown, or unsafe fields', () => {
@@ -307,6 +325,20 @@ describe('CAMP-01 authority receipt writer and validator', () => {
     ['mismatched runId',(value:Record<string,unknown>)=>{value.runId=`camp01-${'9'.repeat(32)}`;},'parent run drift'],
     ['cross-run parentRunId',(value:Record<string,unknown>)=>{value.parentRunId=`camp01-${'9'.repeat(32)}`;},'triage parent run drift'],
   ])('rejects proof-02-triage %s',(_name,mutate,message)=>{const fixture=triageFixture();mutateTriage(fixture,mutate);const result=invokePublic(fixture);expect(result.status).toBe(1);expect(result.stderr).toContain(message);});
+
+  // prettier-ignore
+  it('composes proof-02 repairs from a real repair tuple and durable receipts', () => { const fixture=repairsFixture(), cleanup={schema:'camp01-cleanup/v1',wave:repairRowId,runId:`camp01-${'5'.repeat(32)}`,receiptDigest:digest,productWorktreeRemoved:true,proofWorktreeRemoved:true,localWaveBranchRemoved:true,initiatingTrackedTreeClean:true,durableReceiptRevalidated:true}, result=invoke({action:'compose-repairs',args:[{repairs:[repairTuple]},{records:[{wave:'proof-02-triage',mode:'exact-main',runId:fixture.value.parentRunId,receiptId:fixture.value.triageReceiptId},{wave:repairRowId,mode:'exact-main',runId:cleanup.runId,receiptId:fixture.value.repairs[0].repairReceiptId}],cleanups:[cleanup]}]}); expect(result).toMatchObject({ok:true,value:{parentRunId:fixture.value.parentRunId,triageReceiptId:fixture.value.triageReceiptId,repairs:[{repairRowId,repairReceiptId:fixture.value.repairs[0].repairReceiptId,cleanupReceiptId:fixtureReceiptId(cleanup),tuple17:repairTuple.split('|')}]}}); });
+
+  // prettier-ignore
+  it('publishes writer-composed proof-02 repairs with writer entropy', () => { const workspace=fs.mkdtempSync(path.join(os.tmpdir(),'camp-proof5g0-writer-')), result=invoke({action:'write-repairs',value:hRepairsRequest(path.join(workspace,'.sisyphus','evidence','playtest',`camp01h-journey-${sha}`)),entropy:'9'.repeat(32)}); if(!result.ok)throw new Error(result.error); expect(result).toMatchObject({ok:true,value:{schema:'camp01-proof02-repairs/v1',runId:`camp01-${'9'.repeat(32)}`,parentRunId:`camp01-${'6'.repeat(32)}`,triageReceiptId:`receipt-${'4'.repeat(16)}`}}); });
+
+  // prettier-ignore
+  it('accepts a repaired artifact in the camp-01h retained-artifact context', () => { const fixture=repairsFixture(); expect(invoke({action:'validateArtifact',args:[fixture.value,fixture.context]}).ok).toBe(true); });
+
+  // prettier-ignore
+  it.each([
+    ['missing runId','fields drift'],['missing parentRunId','fields drift'],['cross-run runId','parent run drift'],['cross-run parentRunId','repairs parent run drift'],['unsorted repairRowId','repairs must be sorted and unique'],['duplicate repairRowId','repairs must be sorted and unique'],['tuple17 length drift','repair tuple drift'],['missing repair provenance','provenance registry membership drift'],['missing cleanup provenance','provenance registry membership drift'],
+  ])('rejects proof-02 repairs with %s',(mutation,message)=>{const fixture=repairsFixture(), {value,context}=JSON.parse(JSON.stringify(fixture)); if(mutation==='missing runId')delete value.runId; if(mutation==='missing parentRunId')delete value.parentRunId; if(mutation==='cross-run runId')value.runId=`camp01-${'9'.repeat(32)}`; if(mutation==='cross-run parentRunId')value.parentRunId=`camp01-${'9'.repeat(32)}`; if(mutation==='unsorted repairRowId')value.repairs=[{...value.repairs[0],repairRowId:`proof-02-repair-${'b'.repeat(64)}`},value.repairs[0]]; if(mutation==='duplicate repairRowId')value.repairs=[value.repairs[0],value.repairs[0]]; if(mutation==='tuple17 length drift')value.repairs[0].tuple17.pop(); if(mutation==='missing repair provenance')context.registryContext.provenance=context.registryContext.provenance.filter(({sourceKind}:{sourceKind:string})=>sourceKind!=='repair-receipt'); if(mutation==='missing cleanup provenance')context.registryContext.provenance=context.registryContext.provenance.filter(({sourceKind}:{sourceKind:string})=>sourceKind!=='cleanup-receipt'); const result=invoke({action:'validateArtifact',args:[value,context]}); expect(result.ok).toBe(false); expect(result.error).toContain(message);});
 
   // prettier-ignore
   it.each([
