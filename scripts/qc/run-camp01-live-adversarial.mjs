@@ -7,8 +7,11 @@ import { fileURLToPath } from 'node:url';
 import { PROOF5D5_LIVE_PROBE_REGISTRATIONS } from './camp01-live-browser-adversarial.mjs';
 import { PROOF5D6_LIVE_PROBE_REGISTRATIONS } from './camp01-live-os-adversarial.mjs';
 
-const schemaVersion = 'camp01-live-adversarial/v1';
+const schemaVersion = 'camp01-live-adversarial/v2';
 const allHosts = Object.freeze({ gateId: 'all-hosts', platforms: [] });
+// The shell's own probes exercise nothing a host can withhold, so every host is provisioned.
+// prettier-ignore
+const intrinsicCapability = Object.freeze({ gateId: 'live-shell-intrinsic', hosts: 'all' });
 
 export class Camp01LiveAdversarialError extends Error {
   constructor(code, message, options = {}) {
@@ -75,11 +78,23 @@ async function artifactAtomicityProbe({ scratchRoot }) {
 
 // prettier-ignore
 export const LIVE_PROBE_REGISTRY = Object.freeze([
-  { probeId: 'proof5d4-live-shell-self-check', hostGate: allHosts, run: selfCheckProbe },
-  { probeId: 'proof5d4-artifact-atomicity', hostGate: allHosts, run: artifactAtomicityProbe },
+  { probeId: 'proof5d4-live-shell-self-check', hostGate: allHosts, capabilityGate: intrinsicCapability, run: selfCheckProbe },
+  { probeId: 'proof5d4-artifact-atomicity', hostGate: allHosts, capabilityGate: intrinsicCapability, run: artifactAtomicityProbe },
   ...PROOF5D5_LIVE_PROBE_REGISTRATIONS,
   ...PROOF5D6_LIVE_PROBE_REGISTRATIONS,
 ]);
+
+// A host gate says where a probe is ELIGIBLE to run; a capability gate says where the
+// capability it exercises is actually provisioned (`hosts: 'all'`, or the exact host list).
+// Skipping on a provisioned host is a capability loss wearing a legitimate host difference
+// as a disguise, so it is recorded as an unexpected skip. Only a well-formed host array can
+// mark a host unprovisioned: an absent or malformed declaration fails closed to provisioned,
+// because a probe that never declared where its capability lives cannot certify its silence.
+// prettier-ignore
+function resolveCapabilityGate(probe, platform) {
+  const declared=probe.capabilityGate, hosts=declared?.hosts;
+  return Object.freeze({ gateId: declared?.gateId ?? 'capability-undeclared', platform, provisioned: !Array.isArray(hosts) || hosts.includes(platform) });
+}
 
 async function runProbe(probe, { clock, platform, runScratchRoot }) {
   const startedAt = clock();
@@ -132,12 +147,15 @@ async function runProbe(probe, { clock, platform, runScratchRoot }) {
     reason = { code: 'SCRATCH_CLEANUP_FAILED', message: error instanceof Error ? error.message : String(error) };
     evidence = { ...evidence, scratchRootRemoved: false };
   }
+  const capabilityGate = resolveCapabilityGate(probe, platform);
   // prettier-ignore
-  return Object.freeze({ probeId: probe.probeId, status, ...(reason ? { reason } : {}), hostGate, startedAt, finishedAt: clock(), evidence });
+  const skipDisposition = status === 'skipped-with-reason' ? (capabilityGate.provisioned ? 'unexpected' : 'expected') : undefined;
+  // prettier-ignore
+  return Object.freeze({ probeId: probe.probeId, status, ...(reason ? { reason } : {}), ...(skipDisposition ? { skipDisposition } : {}), hostGate, capabilityGate, startedAt, finishedAt: clock(), evidence });
 }
 
 // prettier-ignore
-export async function runCamp01LiveAdversarial({ artifactPath, clock = () => new Date().toISOString(), platform = process.platform } = {}) {
+export async function runCamp01LiveAdversarial({ artifactPath, clock = () => new Date().toISOString(), platform = process.platform, strictSkips = false } = {}) {
   // prettier-ignore
   const resolvedArtifactPath = path.resolve(artifactPath ?? 'artifacts/camp01-live-adversarial/camp01-live-adversarial.json');
   const startedAt = clock();
@@ -151,29 +169,33 @@ export async function runCamp01LiveAdversarial({ artifactPath, clock = () => new
   }
   const failed = probes.filter(({ status }) => status === 'failed').length;
   // prettier-ignore
-  const summary = Object.freeze({ passed: probes.filter(({ status }) => status === 'passed').length, failed, skippedWithReason: probes.filter(({ status }) => status === 'skipped-with-reason').length, exitCode: failed === 0 ? 0 : 1 });
+  const skipped = probes.filter(({ status }) => status === 'skipped-with-reason'), unexpectedSkips = Object.freeze(skipped.filter(({ skipDisposition }) => skipDisposition === 'unexpected').map(({ probeId }) => probeId));
+  // The default stays an evidence publisher: only failures redden it. --strict-skips is the
+  // opt-in that lets a caller treat a lost capability as the build failure it really is.
+  // prettier-ignore
+  const summary = Object.freeze({ passed: probes.filter(({ status }) => status === 'passed').length, failed, skippedWithReason: skipped.length, skippedAsExpected: skipped.length - unexpectedSkips.length, skippedUnexpectedly: unexpectedSkips.length, unexpectedSkips, strictSkips, exitCode: failed === 0 && (!strictSkips || unexpectedSkips.length === 0) ? 0 : 1 });
   // prettier-ignore
   const artifact = Object.freeze({ schemaVersion, startedAt, finishedAt: clock(), host: { platform, arch: process.arch, nodeVersion: process.version }, probes, summary });
   await publishJsonAtomic(resolvedArtifactPath, artifact);
   return Object.freeze({ artifactPath: resolvedArtifactPath, artifact, exitCode: summary.exitCode });
 }
 
-function parseArtifactPath(argv) {
-  if (argv.length === 0) return undefined;
-  if (argv.length === 2 && argv[0] === '--artifact' && argv[1]) return argv[1];
-  throw new Camp01LiveAdversarialError(
-    'INVALID_ARGUMENT',
-    'expected --artifact <path>',
-  );
+// prettier-ignore
+function parseCliOptions(argv) {
+  const options={artifactPath:undefined,strictSkips:false};
+  for (let index = 0; index < argv.length; index += 1) {
+    if(argv[index]==='--strict-skips'&&!options.strictSkips){options.strictSkips=true;continue;}
+    if(argv[index]==='--artifact'&&options.artifactPath===undefined&&argv[index+1]&&!argv[index+1].startsWith('--')){options.artifactPath=argv[index+1];index+=1;continue;}
+    throw new Camp01LiveAdversarialError('INVALID_ARGUMENT','expected [--artifact <path>] [--strict-skips]');
+  }
+  return options;
 }
 
 if (
   process.argv[1] &&
   path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)
 ) {
-  runCamp01LiveAdversarial({
-    artifactPath: parseArtifactPath(process.argv.slice(2)),
-  })
+  runCamp01LiveAdversarial(parseCliOptions(process.argv.slice(2)))
     .then(({ artifactPath, artifact, exitCode }) => {
       process.stdout.write(
         `${JSON.stringify({ artifactPath, summary: artifact.summary })}\n`,
