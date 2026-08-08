@@ -54,3 +54,39 @@ jobs:
           name: camp01-live-adversarial-${{ runner.os }}
           path: artifacts/camp01-live-adversarial/${{ runner.os }}.json
           if-no-files-found: error
+
+  # The matrix legs publish evidence; this job is the only thing that READS it.
+  # A per-leg step cannot see the other leg, cannot see a leg that died before
+  # uploading, and treats an unexpected skip as a warning on an otherwise green
+  # leg. This job reconciles both legs into one verdict and fails when the tier
+  # is not clean, so the run itself goes red on the Actions tab instead of the
+  # red depending on someone remembering to look. It has no `pull_request`
+  # trigger and is not a required status context, so it cannot block a merge.
+  live-tier-signal:
+    name: Live Tier Signal
+    needs: publish-live-evidence
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    # Read-only, deliberately. This job reports; it never writes to the repo.
+    permissions:
+      actions: read
+      contents: read
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+      # A leg that died before publishing must still be assessed as missing, so
+      # a download that finds nothing may not abort the job.
+      - name: Download live adversarial artifacts
+        continue-on-error: true
+        uses: actions/download-artifact@v8
+        with:
+          path: artifacts/camp01-live-signal
+          pattern: camp01-live-adversarial-*
+      - name: Assess both live adversarial legs
+        run: >-
+          node scripts/qc/camp01-live-signal.mjs
+          --artifacts artifacts/camp01-live-signal
+          --expect Linux,Windows
