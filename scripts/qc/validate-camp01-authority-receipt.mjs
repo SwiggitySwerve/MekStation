@@ -10,7 +10,7 @@ import {
 import { createRepairRegistry } from './camp01-repair-registry.mjs';
 
 // prettier-ignore
-const REQUIRED=['wave','run-root','expected-sha','mode'], ARGUMENTS=[...REQUIRED,'repair-registration'], CONTEXT_KEYS=['registryContext','reviewedHead','reproduction','repairDeclaration','repairSource'], SHA=/^[0-9a-f]{40}$/, DIGEST=/^sha256:[0-9a-f]{64}$/, RUN_ID=/^camp01-[0-9a-f]{32}$/;
+const REQUIRED=['wave','run-root','expected-sha','mode'], ARGUMENTS=[...REQUIRED,'repair-registration'], CONTEXT_KEYS=['registryContext','reviewedHead','reproduction','repairs','repairDeclaration','repairSource'], SHA=/^[0-9a-f]{40}$/, DIGEST=/^sha256:[0-9a-f]{64}$/, RUN_ID=/^camp01-[0-9a-f]{32}$/;
 
 // prettier-ignore
 function parseArguments(argv) { const values={}; for (const token of argv) { const match=/^--([a-z-]+)=(.+)$/.exec(token); if (!match || !ARGUMENTS.includes(match[1]) || Object.hasOwn(values,match[1])) fail('invalid or duplicate argument'); values[match[1]]=match[2]; } if (REQUIRED.some((name)=>!Object.hasOwn(values,name))) fail('missing argument'); return values; }
