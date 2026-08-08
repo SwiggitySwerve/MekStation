@@ -45,6 +45,8 @@ type ContractSnapshot = {
   captureContracts: Record<string, unknown[]>;
   waveContracts: Record<string, WaveRow>;
 };
+// prettier-ignore
+const hArtifactSet = ['command-result.json','receipt-manifest.json','wave-result.json','session-authority-map.json','combat-authority.json','proof02-repairs.json','desktop.png','mobile-390x844.png','audit-reconciliation.json','reports/01-ux-audit-deep.json','reports/02-command-browser-quick.json','reports/03-campaign-long-browser.json','reports/04-screen-inventory.json','reports/05-layout-helpers.json','reports/06-viewport-layout-sweep.json','witnesses/custom-save-reload/authority.json','witnesses/custom-save-reload/experience.json','witnesses/campaign-mech-bay-readiness/authority.json','witnesses/campaign-mech-bay-readiness/experience.json','witnesses/canonical-combat-post-battle/authority.json','witnesses/canonical-combat-post-battle/experience.json'] as const;
 
 function invoke(fn: string, args: unknown[] = []): Invocation {
   const result = spawnSync(
@@ -102,6 +104,7 @@ describe('CAMP-01 authority receipt immutable contract', () => {
     expect(contract.waveContracts['camp-01h'].reporterContracts).toHaveLength(
       6,
     );
+    expect(contract.waveContracts['camp-01h'].artifacts).toEqual(hArtifactSet);
   });
 
   // prettier-ignore

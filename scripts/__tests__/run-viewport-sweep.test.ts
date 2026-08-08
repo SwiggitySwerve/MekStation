@@ -164,6 +164,7 @@ const camp01TestFiles = [
   'scripts/__tests__/camp01-repair-registry.test.ts',
   'scripts/__tests__/camp01-github-provenance.test.ts',
   'scripts/__tests__/camp01-git-trust.test.ts',
+  'scripts/__tests__/camp01-h-composition.test.ts',
   'scripts/__tests__/camp01-h-report-normalizer.test.ts',
   'scripts/__tests__/camp01-playwright-normalizer.test.ts',
   'scripts/__tests__/camp01-proof-environment.test.ts',
