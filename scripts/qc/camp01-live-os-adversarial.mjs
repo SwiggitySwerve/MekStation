@@ -192,14 +192,21 @@ async function childSignalProbe({scratchRoot}) {
 async function twoProcessRaceProbe({scratchRoot}) {
   const fixture=await createRunnerFixture(scratchRoot,'race'), input=JSON.stringify({repoRoot:fixture.repoRoot}), workers=['worker-1','worker-2'].map((workerId)=>observeIpcWorker(workerId,spawn(process.execPath,[modulePath,'--race-worker'],{env:{...process.env,...fixture.environment,CAMP01_RACE_WORKER_INPUT:input},shell:false,stdio:['ignore','pipe','pipe','ipc']})));
   try {
+    const artifactDirectory={configured:fixture.artifactDirectory,canonical:fs.realpathSync.native(fixture.artifactDirectory)};
     const initial=await deadline(Promise.all(workers.map(({firstMessage})=>firstMessage)),15_000,'race ownership outcomes'), winner=initial.find(({kind})=>kind==='winner'), loser=initial.find(({kind})=>kind==='loser');
-    if(!winner||!loser||winner.workerId===loser.workerId)fail('RACE_ORACLE_FAILED','race did not produce one winner and one loser');
+    if(!winner||!loser||winner.workerId===loser.workerId)return raceFailure('race did not produce one winner and one loser',{row:'C09-L6',artifactDirectory,workerOutcomes:initial.map(({workerId,kind,runtimeRoot,errorName,errorMessage,causeCode})=>({workerId,kind,runtimeRoot,errorName,errorMessage,causeCode}))});
     const actualDuringOwnership=treeEntries(fixture.artifactDirectory), expectedDuringOwnership=[...winner.createdPaths.map((value)=>path.relative(fixture.artifactDirectory,value).split(path.sep).join('/')),`${path.basename(winner.runtimeRoot)}/.isolation-lease`,`${path.basename(winner.runtimeRoot)}/browser-storage/state.json`].sort();
     winner.worker.send({type:'release'}); const results=await deadline(Promise.all(workers.map(({closed})=>closed)),15_000,'race worker cleanup'), entriesAfterCleanup=treeEntries(fixture.artifactDirectory);
-    if(loser.errorName!=='Camp01RunnerIsolationError'||JSON.stringify(actualDuringOwnership)!==JSON.stringify(expectedDuringOwnership)||entriesAfterCleanup.length!==0||results.some(({exitCode,signal})=>exitCode!==0||signal!==null))fail('RACE_ORACLE_FAILED','race ownership or residue oracle failed');
-    return {evidence:{row:'C09-L6',outcomeCode:'EXACTLY_ONE_RUNTIME_OWNER',winner:{workerId:winner.workerId,outcome:'active-owner',runtimeRoot:path.basename(winner.runtimeRoot)},loser:{workerId:loser.workerId,outcome:'typed-rejection',errorName:loser.errorName,errorMessage:loser.errorMessage,causeCode:loser.causeCode},runtimeEntriesDuringOwnership:actualDuringOwnership,loserUnexpectedResidue:[],artifactEntriesAfterWinnerCleanup:entriesAfterCleanup}};
+    const observation={row:'C09-L6',artifactDirectory,winner:{workerId:winner.workerId,outcome:'active-owner',runtimeRoot:path.basename(winner.runtimeRoot),createdPaths:winner.createdPaths},loser:{workerId:loser.workerId,outcome:'typed-rejection',errorName:loser.errorName,errorMessage:loser.errorMessage,causeCode:loser.causeCode},runtimeEntriesDuringOwnership:actualDuringOwnership,expectedEntriesDuringOwnership:expectedDuringOwnership,loserUnexpectedResidue:actualDuringOwnership.filter((entry)=>!expectedDuringOwnership.includes(entry)),artifactEntriesAfterWinnerCleanup:entriesAfterCleanup,workerExits:results.map(({exitCode,signal},index)=>({workerId:workers[index].workerId,exitCode,signal}))};
+    if(loser.errorName!=='Camp01RunnerIsolationError'||JSON.stringify(actualDuringOwnership)!==JSON.stringify(expectedDuringOwnership)||entriesAfterCleanup.length!==0||results.some(({exitCode,signal})=>exitCode!==0||signal!==null))return raceFailure('race ownership or residue oracle failed',observation);
+    return {evidence:{...observation,outcomeCode:'EXACTLY_ONE_RUNTIME_OWNER'}};
   } finally {for(const {worker} of workers)if(worker.exitCode===null)worker.kill();}
 }
+
+// A failed race oracle keeps its whole observation on the probe record so the
+// published artifact explains the rejection instead of collapsing to a message.
+// prettier-ignore
+function raceFailure(message,observation) {return {status:'failed',reason:{code:'PROBE_FAILED',message:`PROOF5D6_RACE_ORACLE_FAILED: ${message}`},evidence:{...observation,outcomeCode:'RACE_ORACLE_FAILED'}};}
 
 // prettier-ignore
 async function windowsLockedHandleProbe({scratchRoot}) {
@@ -216,11 +223,16 @@ async function windowsLockedHandleProbe({scratchRoot}) {
   } finally {await lock.release();if(runtimeRoot&&pathExists(runtimeRoot))fs.rmSync(runtimeRoot,{recursive:true,force:true,maxRetries:3});}
 }
 
+// Production canonicalizes every path it is handed, so the fixture publishes the
+// canonical form too. Otherwise a host whose temporary root is an alias (Windows
+// 8.3 short name, subst drive, macOS /private/var) hands probes a base path that
+// production's returned paths are not relative to.
 // prettier-ignore
 async function createRunnerFixture(scratchRoot,name) {
-  const [{WAVE_CONTRACTS},writer,runner]=await Promise.all([import('./camp01-authority-receipt.contract.mjs'),import('./camp01-authority-receipt.mjs'),import('./camp01-runner-isolation.mjs')]), repoRoot=path.join(scratchRoot,`${name}-repository`), row=WAVE_CONTRACTS['proof-02-reproduction'], runId=`camp01-${randomBytes(16).toString('hex')}`, sha=randomBytes(20).toString('hex'), identity=writer.issuedCommandIdentity(row,0,runId), rowRoot=path.join(repoRoot,...row.runRootTemplate.replace('<sha>',sha).split('/')), artifactDirectory=path.join(rowRoot,`.stage-${runId}`); fs.mkdirSync(artifactDirectory,{recursive:true});
+  const [{WAVE_CONTRACTS},writer,runner]=await Promise.all([import('./camp01-authority-receipt.contract.mjs'),import('./camp01-authority-receipt.mjs'),import('./camp01-runner-isolation.mjs')]), repoRoot=path.join(scratchRoot,`${name}-repository`), row=WAVE_CONTRACTS['proof-02-reproduction'], runId=`camp01-${randomBytes(16).toString('hex')}`, sha=randomBytes(20).toString('hex'), identity=writer.issuedCommandIdentity(row,0,runId), rowRoot=path.join(repoRoot,...row.runRootTemplate.replace('<sha>',sha).split('/')), stageDirectory=path.join(rowRoot,`.stage-${runId}`); fs.mkdirSync(stageDirectory,{recursive:true});
+  const canonicalRepoRoot=fs.realpathSync.native(repoRoot), artifactDirectory=fs.realpathSync.native(stageDirectory);
   const environment={CAMP01_RUN_ID:runId,CAMP01_ARTIFACT_DIR:artifactDirectory,CAMP01_INVOCATION_ID:identity.invocationId,CAMP01_EXECUTION_ID:identity.executionId};
-  return {repoRoot,artifactDirectory,environment,ErrorClass:runner.Camp01RunnerIsolationError,create:(value=environment,dependencies={})=>runner.createCamp01RunnerIsolation(value,{repoRoot,...dependencies})};
+  return {repoRoot:canonicalRepoRoot,artifactDirectory,environment,ErrorClass:runner.Camp01RunnerIsolationError,create:(value=environment,dependencies={})=>runner.createCamp01RunnerIsolation(value,{repoRoot:canonicalRepoRoot,...dependencies})};
 }
 
 // prettier-ignore
