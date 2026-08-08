@@ -15,14 +15,23 @@ const modulePath = fileURLToPath(import.meta.url),
     gateId: 'windows-exclusive-handle',
     platforms: ['win32'],
   });
+// Capability gates name the hosts on which each OS mechanism is actually provisioned, so a
+// skip on a provisioned host reads as the capability loss it is. Only Linux carries an
+// ENOSPC mechanism the live workflow supplies (`/dev/full`); `CAMP01_LIVE_ENOSPC_ROOT` is
+// an operator escape hatch no leg sets, so a Windows ENOSPC skip is the declared host gap.
+// prettier-ignore
+const nodeRuntimeHosts = Object.freeze({ gateId: 'node-child-process-primitives', hosts: 'all' }),
+  permissionMechanismHosts = Object.freeze({ gateId: 'posix-chmod-or-windows-icacls', hosts: ['linux', 'win32'] }),
+  enospcMechanismHosts = Object.freeze({ gateId: 'dev-full-or-quota-root', hosts: ['linux'] }),
+  windowsHandleHosts = Object.freeze({ gateId: 'windows-exclusive-handle', hosts: ['win32'] });
 
 // prettier-ignore
 export const PROOF5D6_LIVE_PROBE_REGISTRATIONS=Object.freeze([
-  {probeId:'proof5d6-real-permission-denial',hostGate:linuxOrWindows,run:permissionDenialProbe},
-  {probeId:'proof5d6-real-enospc',hostGate:allHosts,run:enospcProbe},
-  {probeId:'proof5d6-real-child-signal',hostGate:allHosts,run:childSignalProbe},
-  {probeId:'proof5d6-two-process-isolation-race',hostGate:allHosts,run:twoProcessRaceProbe},
-  {probeId:'proof5d6-windows-locked-handle-cleanup',hostGate:windowsOnly,run:windowsLockedHandleProbe},
+  {probeId:'proof5d6-real-permission-denial',hostGate:linuxOrWindows,capabilityGate:permissionMechanismHosts,run:permissionDenialProbe},
+  {probeId:'proof5d6-real-enospc',hostGate:allHosts,capabilityGate:enospcMechanismHosts,run:enospcProbe},
+  {probeId:'proof5d6-real-child-signal',hostGate:allHosts,capabilityGate:nodeRuntimeHosts,run:childSignalProbe},
+  {probeId:'proof5d6-two-process-isolation-race',hostGate:allHosts,capabilityGate:nodeRuntimeHosts,run:twoProcessRaceProbe},
+  {probeId:'proof5d6-windows-locked-handle-cleanup',hostGate:windowsOnly,capabilityGate:windowsHandleHosts,run:windowsLockedHandleProbe},
 ]);
 
 class Proof5D6ProbeError extends Error {

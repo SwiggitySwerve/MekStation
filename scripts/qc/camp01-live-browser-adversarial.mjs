@@ -13,6 +13,17 @@ const repoRoot = path.resolve(
   '..',
 );
 const allHosts = Object.freeze({ gateId: 'all-hosts', platforms: [] });
+// Capability gates name the hosts on which each capability is actually provisioned.
+// The live workflow installs the Chromium binary on its Linux leg only, so a browser
+// skip there is a regression while the same skip on Windows is the declared host gap.
+// No leg provisions a CAMP production context yet: C09-L1 is honestly declared as
+// provisioned nowhere, and the day credentials are wired in, `hosts` gains that leg.
+// prettier-ignore
+const chromiumBinaryHosts = Object.freeze({ gateId: 'playwright-chromium-binary-installed', hosts: ['linux'] });
+// prettier-ignore
+const productionContextHosts = Object.freeze({ gateId: 'camp01-production-context-provisioned', hosts: [] });
+// prettier-ignore
+const playwrightPackageHosts = Object.freeze({ gateId: 'playwright-test-package-installed', hosts: 'all' });
 const cleanPngSentinels = [
   'CAMP01_NON_FIXTURE_SENTINEL',
   'CAMP01_PRIVATE_SENTINEL',
@@ -29,9 +40,9 @@ const sentinelRows = Object.freeze([
 
 // prettier-ignore
 export const PROOF5D5_LIVE_PROBE_REGISTRATIONS = Object.freeze([
-  { probeId: 'proof5d5-real-browser-capture-sentinels', hostGate: allHosts, run: realBrowserCaptureProbe },
-  { probeId: 'proof5d5-production-controller-routing', hostGate: allHosts, run: productionControllerRoutingProbe },
-  { probeId: 'proof5d5-playwright-failure-traversal', hostGate: allHosts, run: playwrightFailureTraversalProbe },
+  { probeId: 'proof5d5-real-browser-capture-sentinels', hostGate: allHosts, capabilityGate: chromiumBinaryHosts, run: realBrowserCaptureProbe },
+  { probeId: 'proof5d5-production-controller-routing', hostGate: allHosts, capabilityGate: productionContextHosts, run: productionControllerRoutingProbe },
+  { probeId: 'proof5d5-playwright-failure-traversal', hostGate: allHosts, capabilityGate: playwrightPackageHosts, run: playwrightFailureTraversalProbe },
 ]);
 
 async function realBrowserCaptureProbe({ scratchRoot }) {
@@ -217,9 +228,9 @@ async function setPageSentinel(page, kind, sentinel, present) {
 
 // prettier-ignore
 async function productionControllerRoutingProbe() {
-  const { REPOSITORY_IDENTITY }=await import('./camp01-authority-receipt.contract.mjs'), remote=await runProcess('git',['config','--get','remote.origin.url']), tokenName=process.env.GH_TOKEN?'GH_TOKEN':process.env.GITHUB_TOKEN?'GITHUB_TOKEN':null, parsedArguments=parseProductionArguments(process.env.CAMP01_LIVE_PRODUCTION_ARGS);
+  const { REPOSITORY_IDENTITY }=await import('./camp01-authority-receipt.contract.mjs'), remote=await runProcess('git',['config','--get','remote.origin.url']), observedRemote=remote.exitCode===0?remote.stdout.trim():'', expectedIdentity=canonicalRemoteIdentity(REPOSITORY_IDENTITY.fetchUrl), observedIdentity=canonicalRemoteIdentity(observedRemote), tokenName=process.env.GH_TOKEN?'GH_TOKEN':process.env.GITHUB_TOKEN?'GITHUB_TOKEN':null, parsedArguments=parseProductionArguments(process.env.CAMP01_LIVE_PRODUCTION_ARGS);
   const preconditions = [
-    {name:'originRemote',satisfied:remote.exitCode===0&&remote.stdout.trim()===REPOSITORY_IDENTITY.fetchUrl,expected:REPOSITORY_IDENTITY.fetchUrl,actual:remote.stdout.trim()||null},
+    {name:'originRemote',satisfied:observedIdentity!==null&&observedIdentity===expectedIdentity,expected:REPOSITORY_IDENTITY.fetchUrl,expectedIdentity,actual:observedRemote||null,actualIdentity:observedIdentity},
     {name:'githubCredentialEnvironment',satisfied:tokenName!==null,credentialVariable:tokenName},
     {name:'productionControllerArguments',satisfied:parsedArguments.valid,variable:'CAMP01_LIVE_PRODUCTION_ARGS',detail:parsedArguments.detail},
   ];
@@ -298,6 +309,23 @@ function browserUnavailable(error) { return {status:'skipped-with-reason',reason
 // prettier-ignore
 function isBrowserUnavailable(error) {
   const message=error instanceof Error?error.message:String(error); return /executable.*(?:doesn'?t exist|not found)|browser.*not installed/i.test(message);
+}
+
+// Detecting whether this checkout IS the canonical repository is not the same guard as
+// deciding where a fetch may point (`camp01-git-trust.assertRemoteUrl` owns that and stays
+// literal). Here the same repository legitimately arrives in several spellings — actions/
+// checkout writes `https://github.com/SwiggitySwerve/MekStation` with no `.git`, a local
+// clone keeps the suffix, and an SSH clone writes `git@github.com:...` — so the comparison
+// runs over host plus repository path. It narrows nothing else: a different host, owner, or
+// repository name still produces a different identity and still fails the precondition.
+// prettier-ignore
+function canonicalRemoteIdentity(value) {
+  const trimmed=typeof value==='string'?value.trim():''; if(!trimmed)return null;
+  const scp=/^(?:[^@\s/]+@)?([^\s/:]+):(?!\/)(.+)$/.exec(trimmed); let host, location;
+  if(scp)[,host,location]=scp;
+  else { try { const url=new URL(trimmed); if(!['git:','http:','https:','ssh:'].includes(url.protocol))return null; host=url.host; location=url.pathname; } catch { return null; } }
+  const segments=location.replace(/\.git$/i,'').split('/').filter(Boolean);
+  return segments.length?`${host.toLowerCase()}/${segments.join('/')}`:null;
 }
 
 // prettier-ignore

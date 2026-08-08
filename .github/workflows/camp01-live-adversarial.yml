@@ -3,6 +3,11 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
+    inputs:
+      strict-skips:
+        description: 'Fail the run when a probe skips on a host whose capability the workflow provisions'
+        type: boolean
+        default: false
 permissions:
   contents: read
 env:
@@ -24,7 +29,24 @@ jobs:
         if: runner.os == 'Linux'
         run: npx playwright install chromium --with-deps
       - name: Run live adversarial probes
-        run: npm run qc:camp01-live-adversarial -- --artifact "artifacts/camp01-live-adversarial/${{ runner.os }}.json"
+        run: npm run qc:camp01-live-adversarial -- --artifact "artifacts/camp01-live-adversarial/${{ runner.os }}.json" ${{ inputs.strict-skips == true && '--strict-skips' || '' }}
+      # The tier stays an evidence publisher, so an unexpected skip is surfaced as a warning
+      # annotation and a job summary line rather than a red run. Dispatch with strict-skips
+      # to make the same signal fail instead.
+      - name: Surface live adversarial skip disposition
+        if: always()
+        shell: bash
+        run: |
+          node -e '
+            const fs = require("fs"), artifactPath = process.argv[1];
+            if (!fs.existsSync(artifactPath)) console.log(`::warning::${artifactPath} was never published`);
+            else {
+              const summary = JSON.parse(fs.readFileSync(artifactPath, "utf8")).summary;
+              console.log(JSON.stringify(summary));
+              if (process.env.GITHUB_STEP_SUMMARY) fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, `- \`${artifactPath}\`: ${JSON.stringify(summary)}\n`);
+              if (summary.skippedUnexpectedly > 0) console.log(`::warning::CAMP-01 live adversarial lost ${summary.skippedUnexpectedly} provisioned capability probe(s): ${summary.unexpectedSkips.join(", ")}`);
+            }
+          ' "artifacts/camp01-live-adversarial/${{ runner.os }}.json"
       - name: Upload live adversarial artifact
         if: always()
         uses: actions/upload-artifact@v7
