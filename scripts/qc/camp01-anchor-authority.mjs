@@ -19,9 +19,10 @@ export class Camp01FactsError extends Error {
 
 // Creates one repository-bound authority so callers cannot swap Git per record.
 export function createAnchorAuthority(options = {}, dependencies = {}) {
-  const { git, cwd } = options;
+  const { git, cwd } = options,
+    { fetchCheckRuns } = dependencies;
   // prettier-ignore
-  if (!git||typeof git.executable!=='string'||!path.isAbsolute(git.executable)||typeof cwd!=='string'||!path.isAbsolute(cwd)) fail('anchor dependency invalid');
+  if (!git||typeof git.executable!=='string'||!path.isAbsolute(git.executable)||typeof cwd!=='string'||!path.isAbsolute(cwd)||typeof fetchCheckRuns!=='function') fail('anchor dependency invalid');
   const gitDependencies = dependencies.gitDependencies ?? {};
   // Revalidates durable declarations against repository objects before admission.
   // prettier-ignore
@@ -46,6 +47,9 @@ export function createAnchorAuthority(options = {}, dependencies = {}) {
     }
     const changedLineCount=manifest.reduce((sum,entry)=>sum+(entry.added??0)+(entry.deleted??0),0), matches=cap.fileCount===manifest.length&&cap.changedLineCount===changedLineCount&&cap.binaryEntries===manifest.some((entry)=>entry.binary)&&cap.changedTreeManifestDigest===digestBytes(canonicalBytes(manifest));
     if (!matches) fail('anchor cap recomputation drift');
+    const checkRuns = await callCheckRuns(fetchCheckRuns, cap.headSha);
+    // prettier-ignore
+    if (!Array.isArray(checkRuns?.check_runs)||!checkRuns.check_runs.some((entry)=>entry?.status==='completed'&&entry?.conclusion==='success'&&entry?.head_sha===cap.headSha)) fail('anchor ci run drift');
     return true;
   };
 }
@@ -57,6 +61,16 @@ async function callGit(input, dependencies, message) {
   } catch (error) {
     if (error instanceof Camp01GitError) fail(message);
     throw error;
+  }
+}
+
+// Maps transport and response failures onto the stable A4 anchor clause.
+async function callCheckRuns(fetchCheckRuns, sha) {
+  try {
+    return await fetchCheckRuns(sha);
+  } catch (error) {
+    if (error instanceof Camp01FactsError) throw error;
+    fail('anchor ci run drift');
   }
 }
 

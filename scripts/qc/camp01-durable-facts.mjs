@@ -242,10 +242,15 @@ function productionAnchor({ git, initiatingRoot }, dependencies) {
       fail('anchor dependency invalid');
     return dependencies.anchor;
   }
-  const authority = createAnchorAuthority(
-    { git, cwd: initiatingRoot },
-    dependencies.anchorDependencies ?? {},
-  );
+  const transport = dependencies.fetchGitHubResource ?? fetchGitHubResource,
+    authority = createAnchorAuthority(
+      { git, cwd: initiatingRoot },
+      {
+        ...(dependencies.anchorDependencies ?? {}),
+        fetchCheckRuns: (sha) =>
+          transport({ resource: 'check-runs', parameters: { sha } }),
+      },
+    );
   // Supplies freshly fetched main only to exact-main records that require A2.
   return async (candidate) =>
     authority(candidate, {
@@ -256,8 +261,8 @@ function productionAnchor({ git, initiatingRoot }, dependencies) {
     });
 }
 
-// Reuses the 3C1 fetch-equality route so the anchor consumes, but never fetches, main.
-async function resolveFetchedMainOid(candidate, git, dependencies) {
+// Exported read-only-additively so the live tier can exercise production A2.
+export async function resolveFetchedMainOid(candidate, git, dependencies) {
   try {
     const transport = dependencies.fetchGitHubResource ?? fetchGitHubResource,
       branch = await transport({

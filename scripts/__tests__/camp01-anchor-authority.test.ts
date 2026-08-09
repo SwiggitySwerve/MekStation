@@ -27,7 +27,8 @@ async function seed(){await run(['init','--initial-branch=main']);fs.writeFileSy
 function record(seeded,mode='reviewed-head',capProvenance=seeded.cap){return {initiatingRoot:repo,command:{sha:seeded.head,treeSha:seeded.tree,mode,capProvenance}};}
 // Writes a self-consistent-looking directory that bypasses the injected validator only.
 function fabricate(){const sha='f'.repeat(40),runId='camp01-'+'9'.repeat(32),directory=path.join(repo,'.sisyphus','evidence','playtest','camp-proof-'+sha,runId), command={wave:'camp-proof',sha,treeSha:sha,runId,mode:'reviewed-head',provenance:{specTupleId:'tuple-'+'1'.repeat(16),ownedPrTupleId:null,predecessorReceiptIds:[]},capProvenance:null,identityRegistry:{refs:[]}},manifest={wave:'camp-proof',runId,entries:[]};fs.mkdirSync(directory,{recursive:true});fs.writeFileSync(path.join(directory,'command-result.json'),canonicalBytes(command));fs.writeFileSync(path.join(directory,'receipt-manifest.json'),canonicalBytes(manifest));}
-try {const seeded=await seed(), anchor=createAnchorAuthority({git,cwd:repo}), candidate=record(seeded);let value;
+const fetchCheckRuns=async(sha)=>{if(q.action==='ci-throws')throw new Error('transport failed');return {check_runs:q.action==='ci-none'?[]:[{status:q.action==='ci-incomplete'?'in_progress':'completed',conclusion:'success',head_sha:q.action==='ci-wrong-sha'?'f'.repeat(40):sha}]};};
+try {const seeded=await seed(), anchor=createAnchorAuthority({git,cwd:repo},q.action==='ci-missing-dependency'?{}:{fetchCheckRuns}), candidate=record(seeded);let value;
   if(q.action==='happy-a1')value=await anchor(record(seeded,'reviewed-head',null));
   else if(q.action==='happy-a2')value=await anchor(record(seeded,'exact-main'),{fetchedMainOid:seeded.main});
   else if(q.action==='happy-a3')value=await anchor(candidate);
@@ -37,6 +38,7 @@ try {const seeded=await seed(), anchor=createAnchorAuthority({git,cwd:repo}), ca
   else if(q.action==='main')value=await anchor({...record(seeded,'exact-main',null),command:{...record(seeded,'exact-main',null).command,sha:seeded.divergent,treeSha:await output(['rev-parse',seeded.divergent+'^{tree}'])}},{fetchedMainOid:seeded.main});
   else if(q.action==='ancestry')value=await anchor({...candidate,command:{...candidate.command,capProvenance:{...seeded.cap,baseSha:seeded.divergent}}});
   else if(q.action==='cap'){const changed=q.field==='changedTreeManifestDigest'?'sha256:'+'f'.repeat(64):q.field==='binaryEntries'?!seeded.cap.binaryEntries:seeded.cap[q.field]+1;value=await anchor({...candidate,command:{...candidate.command,capProvenance:{...seeded.cap,[q.field]:changed}}});}
+  else if(q.action.startsWith('ci-'))value=await anchor(candidate);
   else if(q.action==='durable'){fabricate();value=await createDurableFacts({initiatingRoot:repo},{validatorSpawn:()=>({status:0}),anchor}).readIndex();}
   process.stdout.write(JSON.stringify({ok:true,value}));
 } catch(error){process.stdout.write(JSON.stringify({ok:false,error:error instanceof Error?error.message:String(error),name:error instanceof Error?error.name:null}));process.exitCode=1;}`;
@@ -117,6 +119,27 @@ describe('CAMP-01 validation-time Git envelope anchor', () => {
     expect(invoke('cap', field)).toEqual({
       ok: false,
       error: 'CAMP01_FACTS_INVALID: anchor cap recomputation drift',
+      name: 'Camp01FactsError',
+    });
+  });
+
+  gitIt.each(['ci-none', 'ci-incomplete', 'ci-wrong-sha', 'ci-throws'])(
+    'rejects CI-run drift %s',
+    (action) => {
+      // Given one invalid check-run outcome, when A4 runs, then CI drift fails exactly.
+      expect(invoke(action)).toEqual({
+        ok: false,
+        error: 'CAMP01_FACTS_INVALID: anchor ci run drift',
+        name: 'Camp01FactsError',
+      });
+    },
+  );
+
+  gitIt('rejects a missing check-runs dependency at construction', () => {
+    // Given no check-runs transport, when the authority is built, then it fails immediately.
+    expect(invoke('ci-missing-dependency')).toEqual({
+      ok: false,
+      error: 'CAMP01_FACTS_INVALID: anchor dependency invalid',
       name: 'Camp01FactsError',
     });
   });
