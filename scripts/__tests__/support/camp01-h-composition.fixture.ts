@@ -157,7 +157,7 @@ const witnessFor=(label,runId,phase,ids,reports,mutation)=>{
   const stage=stageFor(mutation);
   if(phase==='observation'&&stage?.label===label){
     const repair=repairFor(stage);
-    wrapped[stage.factKey]={status:'unavailable',failedReportObservationId:repair.failedReportObservationId,failureFingerprint:repair.failedReportFingerprint};
+    wrapped[stage.factKey]={status:'unavailable',failedReportObservationId:repair.failedReportObservationId,failureFingerprint:mutation?.includes('unavailable-fingerprint')?digest('wrong-failure-fingerprint'):repair.failedReportFingerprint};
   }
   const reportDigests=Object.fromEntries(row.reporterContracts.filter((entry)=>entry.witnessLabel===label).map((entry)=>entry.normalizedPath).sort().map((name)=>[name,schemas.digestBytes(fs.readFileSync(reports.get(name)))]));
   return {schema:'camp01-witness-authority/v1',parentRunId:runId,witnessId:ids[label].witnessId,executionId:ids[label].executionId,contextId:ids[label].contextId,reportDigests,status:phase,...trace,label,facts:phase==='final'?rawFacts:wrapped};
@@ -174,7 +174,7 @@ const experienceFor=(label,runId,phase,ids,reports,mutation)=>{
   const repair=stage?repairFor(stage):null;
   const dimensions={desktop:'pass',mobile:'pass',accessibility:'pass',visibility:'pass',feedback:'pass',recovery:'pass',cognitiveLoad:'pass',playability:'pass',enjoyment:'pass'};
   if(mutation?.includes('finding-dimension'))dimensions.desktop='unknown';
-  const failedReportObservationIds=mutation?.includes('repair-first-id')?[failedId,schemas.H_TEST_IDS[failedReporter.invocationId][1]]:mutation?.includes('repair-observation-missing')?['missing-'+stage.name]:[failedId];
+  const failedReportObservationIds=mutation?.includes('reconciliation-orphan-failure')?[schemas.H_TEST_IDS[failedReporter.invocationId][1]]:mutation?.includes('repair-first-id')?[failedId,schemas.H_TEST_IDS[failedReporter.invocationId][1]]:mutation?.includes('repair-observation-missing')?['missing-'+stage.name]:[failedId];
   const findings=hasFinding?[{
     id:findingId,
     category:mutation?.includes('finding-category')?'unknown':'coverage-gap',

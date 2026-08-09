@@ -249,10 +249,31 @@ describe('CAMP-01H authority repair loop', () => {
     expectFailure({ action: 'mutate', mutation }, 'H repair source drift');
   });
 
+  // The unavailable-fact wrapper's binding direction was already pinned (deleting
+  // the failures[] population reddens all six observation rows), but its rejection
+  // direction was not: a witness could declare any fact unavailable against a
+  // passed observation, and validateHIdentityRegistry drops non-observed facts
+  // from the expected entity set - which is exactly how persistence authority
+  // could be withheld with no failing test behind it.
+  it('rejects an unavailable fact whose fingerprint does not match the observed failure', () => {
+    expectFailure(
+      {
+        action: 'mutate',
+        mutation: 'observation-stage-before-save-unavailable-fingerprint',
+      },
+      'unavailable fact drift',
+    );
+  });
+
   it.each([
     [
       'backlog rank',
       'observation-stage-before-save-backlog-rank',
+      'H reconciliation drift',
+    ],
+    [
+      'orphan failed observation',
+      'observation-stage-before-save-reconciliation-orphan-failure',
       'H reconciliation drift',
     ],
     [
