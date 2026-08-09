@@ -122,12 +122,19 @@ describe('CAMP-01H composed receipt identity binding', () => {
     },
   );
 
-  it.each(['source-command', 'source-reconciliation'])(
-    'rejects %s H source set drift',
-    (mutation) => {
-      expectFailure({ action: 'bindings', mutation }, 'H source set drift');
-    },
-  );
+  it('rejects source-command H source set drift', () => {
+    expectFailure(
+      { action: 'bindings', mutation: 'source-command' },
+      'H source set drift',
+    );
+  });
+
+  it('rejects composed source-reconciliation H source set drift', () => {
+    expectFailure(
+      { action: 'mutate', mutation: 'source-reconciliation' },
+      'H source set drift',
+    );
+  });
 
   it.each(['registry-missing', 'registry-source'])(
     'rejects %s H observed identity registry drift',
@@ -138,4 +145,158 @@ describe('CAMP-01H composed receipt identity binding', () => {
       );
     },
   );
+});
+
+describe('CAMP-01H authority repair loop', () => {
+  it.each([
+    'authority-source-witness-digest',
+    'authority-fact-saved-design',
+    'authority-fact-campaign',
+    'authority-fact-post-battle',
+  ])('rejects %s H authority drift', (mutation) => {
+    expectFailure({ action: 'mutate', mutation }, 'H authority drift');
+  });
+
+  it.each([
+    'before-save',
+    'readiness',
+    'session',
+    'command',
+    'terminal',
+    'post-battle',
+  ] as const)('sources the %s partial observation repair', (stage) => {
+    expect(
+      invokeHComposition({ action: 'repair', phase: 'observation', stage }),
+    ).toMatchObject({
+      ok: true,
+      commandCount: 6,
+      value: {
+        stage,
+        mode: 'reviewed-head',
+        phase: 'observation',
+        sourceBound: true,
+        disposition: 'repair-required',
+        factState: 'unavailable',
+        reportStatus: 'failed',
+      },
+    });
+  });
+
+  it.each([
+    'before-save',
+    'readiness',
+    'session',
+    'command',
+    'terminal',
+    'post-battle',
+  ] as const)('passes the fresh complete %s final', (stage) => {
+    expect(
+      invokeHComposition({ action: 'repair', phase: 'final', stage }),
+    ).toMatchObject({
+      ok: true,
+      commandCount: 12,
+      value: {
+        stage,
+        mode: 'exact-main',
+        phase: 'final',
+        sourceBound: true,
+        disposition: 'verified-repair',
+        factState: 'complete',
+        reportStatus: 'passed',
+      },
+    });
+  });
+
+  it.each([
+    [0, 'fact version drift'],
+    [1, 'fact source drift'],
+    [2, 'fact boolean drift'],
+  ])(
+    'rejects unavailable facts from final witness %i',
+    (witnessIndex, message) => {
+      expectFailure(
+        {
+          action: 'mutate',
+          mutation: 'unavailable-final-' + witnessIndex,
+        },
+        message,
+      );
+    },
+  );
+
+  it('requires every final authority evidence list', () => {
+    expectFailure(
+      { action: 'mutate', mutation: 'final-evidence-empty' },
+      'final authority evidence missing',
+    );
+  });
+
+  it.each([
+    [
+      'observation repair fingerprint',
+      'observation-stage-before-save-repair-fingerprint',
+    ],
+    [
+      'observation repair first id',
+      'observation-stage-before-save-repair-first-id',
+    ],
+    [
+      'final repair observation',
+      'final-stage-before-save-repair-observation-missing',
+    ],
+    ['observation repair cause', 'observation-stage-before-save-repair-cause'],
+  ])('rejects %s H repair source drift', (_name, mutation) => {
+    expectFailure({ action: 'mutate', mutation }, 'H repair source drift');
+  });
+
+  // The unavailable-fact wrapper's binding direction was already pinned (deleting
+  // the failures[] population reddens all six observation rows), but its rejection
+  // direction was not: a witness could declare any fact unavailable against a
+  // passed observation, and validateHIdentityRegistry drops non-observed facts
+  // from the expected entity set - which is exactly how persistence authority
+  // could be withheld with no failing test behind it.
+  it('rejects an unavailable fact whose fingerprint does not match the observed failure', () => {
+    expectFailure(
+      {
+        action: 'mutate',
+        mutation: 'observation-stage-before-save-unavailable-fingerprint',
+      },
+      'unavailable fact drift',
+    );
+  });
+
+  it.each([
+    [
+      'backlog rank',
+      'observation-stage-before-save-backlog-rank',
+      'H reconciliation drift',
+    ],
+    [
+      'orphan failed observation',
+      'observation-stage-before-save-reconciliation-orphan-failure',
+      'H reconciliation drift',
+    ],
+    [
+      'ranked finding ids',
+      'observation-stage-before-save-ranked-findings',
+      'H reconciliation drift',
+    ],
+    [
+      'critical-major dispositions',
+      'observation-stage-before-save-critical-dispositions',
+      'H disposition reconciliation drift',
+    ],
+  ])('rejects %s reconciliation drift', (_name, mutation, message) => {
+    expectFailure({ action: 'mutate', mutation }, message);
+  });
+
+  it.each([
+    ['category', 'observation-stage-before-save-finding-category'],
+    ['severity', 'observation-stage-before-save-finding-severity'],
+    ['backlog rank floor', 'observation-stage-before-save-finding-rank'],
+    ['dimension value', 'observation-stage-before-save-finding-dimension'],
+    ['cause fingerprint', 'observation-stage-before-save-finding-cause'],
+  ])('rejects finding identity drift for %s', (_name, mutation) => {
+    expectFailure({ action: 'mutate', mutation }, 'finding identity drift');
+  });
 });
