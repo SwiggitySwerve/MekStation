@@ -5,7 +5,14 @@ import * as os from 'node:os';
 import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { WAVE_CONTRACTS } from './camp01-authority-receipt.contract.mjs';
+import {
+  Camp01FactsError,
+  createAnchorAuthority,
+} from './camp01-anchor-authority.mjs';
+import {
+  REPOSITORY_IDENTITY,
+  WAVE_CONTRACTS,
+} from './camp01-authority-receipt.contract.mjs';
 import {
   artifactDigest,
   canonicalBytes,
@@ -13,8 +20,16 @@ import {
 } from './camp01-authority-receipt.schemas.mjs';
 import { createCleanupAuthority } from './camp01-cleanup-authority.mjs';
 import { createDurableExport } from './camp01-durable-export.mjs';
-import { invokeGit, resolveVerifiedGit } from './camp01-git-trust.mjs';
-import { createGitHubProvenance } from './camp01-github-provenance.mjs';
+import {
+  createBareSession,
+  fetchAndVerifyOids,
+  invokeGit,
+  resolveVerifiedGit,
+} from './camp01-git-trust.mjs';
+import {
+  createGitHubProvenance,
+  fetchGitHubResource,
+} from './camp01-github-provenance.mjs';
 import { createProofEnvironment } from './camp01-proof-environment.mjs';
 import { createRepairRegistry } from './camp01-repair-registry.mjs';
 import {
@@ -33,12 +48,7 @@ const VALIDATOR = fileURLToPath(
 const ROWS = Object.values(WAVE_CONTRACTS),
   VIRTUAL = '-required-repairs';
 
-export class Camp01FactsError extends Error {
-  constructor(message) {
-    super(`CAMP01_FACTS_INVALID: ${message}`);
-    this.name = 'Camp01FactsError';
-  }
-}
+export { Camp01FactsError };
 
 // All JSON reads below are candidate reads only. A record enters the returned
 // index solely after the public validator accepts its exact path identity.
@@ -61,7 +71,7 @@ export function createDurableFacts(options = {}, dependencies = {}) {
   assertConfined(evidenceRoot, cleanupRoot);
   assertConfined(evidenceRoot, bootstrapFile);
   // prettier-ignore
-  async function readIndex() { try{ensureDirectory(initiatingRoot,evidenceRoot); const registrations=repairRegistry.discover(), records=[]; for(const candidate of candidates(evidenceRoot,registrations)){const context=contextFor(candidate,records); await invokeValidator(candidate,context,dependencies); bindCandidate(candidate,records); records.push(Object.freeze({...candidate,receiptId:receiptId(candidate.manifest),manifestDigest:artifactDigest(candidate.manifest),context}));} for(const row of [...ROWS,...registrations.map((entry)=>entry.row)])for(const mode of ['reviewed-head','exact-main'])one(records,row.wave,mode); const cleanups=readCleanups(cleanupRoot,records); consumeBootstrap(bootstrapFile,records); return Object.freeze({records:Object.freeze(records),cleanups:Object.freeze(cleanups),registrations});}catch(error){if(error instanceof Camp01FactsError)throw error;fail('durable index unreadable');} }
+  async function readIndex() { try{ensureDirectory(initiatingRoot,evidenceRoot); const registrations=repairRegistry.discover(), records=[]; for(const candidate of candidates(evidenceRoot,registrations)){const context=contextFor(candidate,records); await invokeValidator(candidate,context,dependencies); await invokeAnchor(candidate,dependencies); bindCandidate(candidate,records); records.push(Object.freeze({...candidate,receiptId:receiptId(candidate.manifest),manifestDigest:artifactDigest(candidate.manifest),context}));} for(const row of [...ROWS,...registrations.map((entry)=>entry.row)])for(const mode of ['reviewed-head','exact-main'])one(records,row.wave,mode); const cleanups=readCleanups(cleanupRoot,records); consumeBootstrap(bootstrapFile,records); return Object.freeze({records:Object.freeze(records),cleanups:Object.freeze(cleanups),registrations});}catch(error){if(error instanceof Camp01FactsError)throw error;fail('durable index unreadable');} }
   // prettier-ignore
   async function resolvePreflightFacts(input) { const index=await readIndex(), {row,arguments:arguments_}=input??{}; if(!row||!arguments_) fail('preflight input missing'); if(row.wave==='camp-proof'&&arguments_.mode==='reviewed-head') admitBootstrap(bootstrapFile,arguments_.sha,index.records); const concrete=row.predecessors.filter((wave)=>!wave.endsWith(VIRTUAL)); for(const wave of concrete){const record=one(index.records,wave,'exact-main'); if(!record) fail(`predecessor receipt missing: ${wave}`); if(!index.cleanups.some((entry)=>entry.wave===wave&&entry.runId===record.runId)) fail(`predecessor cleanup missing: ${wave}`);} const repairGates=row.predecessors.filter((wave)=>wave.endsWith(VIRTUAL)).map((gate)=>repairGate(gate,index)), target=row.capSubject==='none'?{treeSha:arguments_.sha,capProvenance:null}:await targetFacts(input,dependencies); contexts.set(key(row.wave,arguments_.mode,arguments_.sha),writerContext(input,index,target)); return {programSpecChanges:(arguments_.programSpecs??[]).map((value)=>String(value).split('|')[0]),predecessorReceiptWaves:concrete,predecessorCleanupWaves:concrete,repairGates,cap:target.capProvenance===null?null:{subject:target.capProvenance.subject,fileCount:target.capProvenance.fileCount,changedLineCount:target.capProvenance.changedLineCount,binaryEntries:target.capProvenance.binaryEntries}}; }
   // prettier-ignore
@@ -92,6 +102,7 @@ export async function createProductionDependencies(
         { cwd: initiatingRoot },
         dependencies.gitDependencies ?? {},
       )),
+    anchor = productionAnchor({ git, initiatingRoot }, dependencies),
     evidenceRoot = path.join(
       initiatingRoot,
       '.sisyphus',
@@ -109,7 +120,12 @@ export async function createProductionDependencies(
     },
     facts = createDurableFacts(
       { ...options, initiatingRoot },
-      { ...dependencies, targetDependencies: targetDeps, repairRegistry },
+      {
+        ...dependencies,
+        anchor,
+        targetDependencies: targetDeps,
+        repairRegistry,
+      },
     ),
     stateStore = createFileStateStore(initiatingRoot),
     active = new Map(),
@@ -217,6 +233,89 @@ export async function createProductionDependencies(
         ?.exportReceipt(input) ?? fail('proof target exporter missing'),
     cleanupTargets: cleanup.cleanupTargets,
   });
+}
+
+// Composes the mandatory production authority while preserving explicit test fakes.
+function productionAnchor({ git, initiatingRoot }, dependencies) {
+  if (Object.hasOwn(dependencies, 'anchor')) {
+    if (typeof dependencies.anchor !== 'function')
+      fail('anchor dependency invalid');
+    return dependencies.anchor;
+  }
+  const authority = createAnchorAuthority(
+    { git, cwd: initiatingRoot },
+    dependencies.anchorDependencies ?? {},
+  );
+  // Supplies freshly fetched main only to exact-main records that require A2.
+  return async (candidate) =>
+    authority(candidate, {
+      fetchedMainOid:
+        candidate.mode === 'exact-main'
+          ? await resolveFetchedMainOid(candidate, git, dependencies)
+          : null,
+    });
+}
+
+// Reuses the 3C1 fetch-equality route so the anchor consumes, but never fetches, main.
+async function resolveFetchedMainOid(candidate, git, dependencies) {
+  try {
+    const transport = dependencies.fetchGitHubResource ?? fetchGitHubResource,
+      branch = await transport({
+        resource: 'branch',
+        parameters: { branch: REPOSITORY_IDENTITY.baseRef },
+      }),
+      mainOid = branch?.commit?.sha,
+      configured = dependencies.sessionDirectory,
+      directory =
+        typeof configured === 'function'
+          ? await configured({
+              operation: `anchor-${candidate.wave}-${candidate.sha}`,
+              wave: candidate.wave,
+            })
+          : (configured ??
+            fs.mkdtempSync(
+              path.join(os.tmpdir(), 'mekstation-camp01-anchor-'),
+            )),
+      gitDependencies = {
+        ...(dependencies.gitDependencies ?? {}),
+        ...(dependencies.testOnlyAllowLocalRemote === true
+          ? { testOnlyAllowLocalRemote: true }
+          : {}),
+      };
+    if (
+      branch?.name !== REPOSITORY_IDENTITY.baseRef ||
+      !SHA.test(mainOid) ||
+      typeof directory !== 'string' ||
+      !path.isAbsolute(directory)
+    )
+      fail('anchor main reachability drift');
+    const session = await createBareSession(
+        { git, directory },
+        gitDependencies,
+      ),
+      verified = await fetchAndVerifyOids(
+        {
+          session,
+          remoteUrl:
+            dependencies.testOnlyRemoteUrl ?? REPOSITORY_IDENTITY.fetchUrl,
+          headOid: mainOid,
+          mainOid,
+        },
+        gitDependencies,
+      );
+    return verified.mainOid;
+  } catch (error) {
+    if (error instanceof Camp01FactsError) throw error;
+    fail('anchor main reachability drift');
+  }
+}
+
+// Invokes optional hermetic anchors but rejects malformed present dependencies.
+async function invokeAnchor(candidate, dependencies) {
+  if (!Object.hasOwn(dependencies, 'anchor')) return;
+  if (typeof dependencies.anchor !== 'function')
+    fail('anchor dependency invalid');
+  await dependencies.anchor(candidate);
 }
 
 // prettier-ignore

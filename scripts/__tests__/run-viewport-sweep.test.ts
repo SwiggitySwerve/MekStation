@@ -153,6 +153,7 @@ const expectedLogicalCommands = [
 
 // prettier-ignore
 const camp01TestFiles = [
+  'scripts/__tests__/camp01-anchor-authority.test.ts',
   'scripts/__tests__/camp01-authority-receipt-qc.test.ts',
   'scripts/__tests__/camp01-authority-receipt-validator.test.ts',
   'scripts/__tests__/camp01-authority-receipt-writer.test.ts',
