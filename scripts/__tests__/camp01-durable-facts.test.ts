@@ -4,6 +4,8 @@ import * as os from 'node:os';
 import * as path from 'node:path';
 import { pathToFileURL } from 'node:url';
 
+import { invokeHComposition } from './support/camp01-h-composition.fixture';
+
 const moduleUrl = (name: string) =>
   pathToFileURL(path.resolve(`scripts/qc/${name}.mjs`)).href;
 const urls = Object.fromEntries(
@@ -166,5 +168,22 @@ describe('CAMP-01 durable facts and production composition', () => {
     expect(invoke('repair-source').error).toBe(
       'CAMP01_FACTS_INVALID: declared repair source absent from durable receipts',
     );
+  });
+
+  it('reconstructs an H repair source from a durable witness experience', () => {
+    expect(
+      invokeHComposition({ action: 'durable', mutation: 'repair-sources' }),
+    ).toMatchObject({
+      ok: true,
+      value: {
+        sourceCount: 1,
+        source: {
+          repairRowId: expect.stringMatching(/^camp-01h-repair-/),
+          failedReportObservationId: expect.any(String),
+          failedReportFingerprint: expect.stringMatching(/^sha256:/),
+          causeFingerprint: expect.stringMatching(/^sha256:/),
+        },
+      },
+    });
   });
 });

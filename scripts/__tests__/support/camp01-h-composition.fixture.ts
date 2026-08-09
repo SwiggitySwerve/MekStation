@@ -16,6 +16,9 @@ const contractUrl = pathToFileURL(
 const captureUrl = pathToFileURL(
   path.resolve('scripts/qc/camp01-capture-transaction.mjs'),
 ).href;
+const durableFactsUrl = pathToFileURL(
+  path.resolve('scripts/qc/camp01-durable-facts.mjs'),
+).href;
 const validatorPath = path.resolve(
   'scripts/qc/validate-camp01-authority-receipt.mjs',
 );
@@ -26,10 +29,11 @@ import { createHash } from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 import * as capture from ${JSON.stringify(captureUrl)};
+import * as durableFacts from ${JSON.stringify(durableFactsUrl)};
 import { WAVE_CONTRACTS } from ${JSON.stringify(contractUrl)};
 import * as schemas from ${JSON.stringify(schemasUrl)};
 import * as writer from ${JSON.stringify(writerUrl)};
-const input=JSON.parse(fs.readFileSync(0,'utf8'));
+const input=JSON.parse(process.env.CAMP01_H_COMPOSITION_INPUT);
 const row=WAVE_CONTRACTS['camp-01h'];
 const labels=[
   'custom-save-reload',
@@ -128,7 +132,7 @@ const requestFor=(workspace,targetSha,entropy,phase,reviewed,mutation)=>{
     capturePolicies:[policyFor(targetSha),...includeReviewed?[policyFor(reviewed.command.sha)]:[]].sort((a,b)=>(a.wave+'\\0'+a.sha).localeCompare(b.wave+'\\0'+b.sha)),
     repairSources:repairSource?[repairSource]:[],
   };
-  return {
+  const request={
     wave:'camp-01h',
     commandId:'camp-01h',
     sha:targetSha,
@@ -143,6 +147,12 @@ const requestFor=(workspace,targetSha,entropy,phase,reviewed,mutation)=>{
     reviewedHead:reviewed,
     repairs:{parentRunId:'camp01-'+'9'.repeat(32),triageReceiptId:predIds[1],repairs:[]},
   };
+  if(mutation==='cap-reviewed-provenance')request.capProvenance.changedLineCount=301;
+  if(mutation==='cap-reviewed-linkage')request.capProvenance.reviewedHeadReceiptId=reviewedId;
+  if(mutation==='cap-exact-missing')request.reviewedHead=null;
+  if(mutation==='cap-exact-link')request.capProvenance.reviewedHeadReceiptId='receipt-'+'a'.repeat(16);
+  if(mutation==='cap-reviewed-head')request.capProvenance.fileCount=4;
+  return request;
 };
 const observation=(id,failed)=>({id,status:failed?'failed':'passed',failureFingerprint:failed?digest('failure:'+id):null});
 const reportFor=(reporter,index,runId,phase,ids,mutation)=>{
@@ -324,6 +334,103 @@ let commandCount=0;
 async function compose(workspace,phase,mutation=null,reviewed=null){writeArtifacts.reports=null;const entropy=phase==='final'?'2'.repeat(32):'1'.repeat(32), targetSha=phase==='final'?exactSha:sha, request=requestFor(workspace,targetSha,entropy,phase,reviewed,mutation), stage=stageFor(mutation), failureIndex=stage?.reportIndex??0; const result=await writer.writeReceipt(request,{randomBytes:()=>Buffer.from(entropy,'hex'),runCommand:async(_argv,context)=>{const index=commandCount%6;commandCount+=1;await writeArtifacts(context,index,phase,mutation);return {exitCode:phase==='observation'&&index===failureIndex?1:0};}}); const command=JSON.parse(fs.readFileSync(path.join(result.finalDirectory,'command-result.json'),'utf8')), manifest=JSON.parse(fs.readFileSync(path.join(result.finalDirectory,'receipt-manifest.json'),'utf8')); return {request,result,command,manifest,context:{registryContext:request.registryContext,reviewedHead:request.reviewedHead,repairs:request.repairs}};}
 const summary=(receipt,phase)=>({mode:receipt.command.mode,phase,artifacts:receipt.manifest.entries.length+1,reports:row.reporterContracts.length,witnesses:JSON.parse(fs.readFileSync(path.join(receipt.result.finalDirectory,'session-authority-map.json'),'utf8')).witnesses.length,captures:receipt.command.captureAttestations.length});
 const reviewedHeadFor=(receipt)=>({receiptId:reviewedId,manifestDigest:schemas.artifactDigest(receipt.manifest),command:receipt.command,manifest:receipt.manifest});
+const clone=(value)=>JSON.parse(JSON.stringify(value));
+async function envelopeProbe(workspace,mutation){
+  if(mutation==='cap-reviewed-head'){
+    const reviewed=await compose(workspace,'observation');
+    return compose(workspace,'final',mutation,reviewedHeadFor(reviewed));
+  }
+  if(mutation.startsWith('cap-reviewed-'))return compose(workspace,'observation',mutation);
+  if(mutation.startsWith('cap-exact-')){
+    const reviewed=await compose(workspace,'observation');
+    return compose(workspace,'final',mutation,reviewedHeadFor(reviewed));
+  }
+  const reviewed=await compose(workspace,'observation');
+  const receipt=await compose(workspace,'final',null,reviewedHeadFor(reviewed));
+  if(mutation==='envelope-manifest-report'||mutation==='envelope-manifest-witness'){
+    const suffix=mutation.endsWith('report')?'reports/01-ux-audit-deep.json':'witnesses/custom-save-reload/experience.json';
+    receipt.manifest.entries=receipt.manifest.entries.filter(({path:name})=>name!==suffix);
+    fs.writeFileSync(path.join(receipt.result.finalDirectory,'receipt-manifest.json'),schemas.canonicalBytes(receipt.manifest));
+  } else {
+    const relative=mutation.endsWith('report')?'reports/zz-extra.json':'witnesses/custom-save-reload/zz-extra.json';
+    const file=path.join(receipt.result.finalDirectory,...relative.split('/'));
+    fs.mkdirSync(path.dirname(file),{recursive:true});
+    fs.writeFileSync(file,schemas.canonicalBytes({extra:true}));
+  }
+  return writer.validateReceiptDirectory(receipt.result.finalDirectory,receipt.context);
+}
+async function schemaProbe(workspace,mutation){
+  const reviewed=await compose(workspace,'observation');
+  if(mutation.startsWith('cap-')){
+    const exact=mutation.startsWith('cap-exact-'), reviewedHead=reviewedHeadFor(reviewed);
+    const request=exact?requestFor(path.join(workspace,'schema-exact'),exactSha,'2'.repeat(32),'final',reviewedHead,null):clone(reviewed.request);
+    const reviewedEvidence=Object.entries(identities(reviewed.command.runId)).map(([label,ids])=>({id:ids.executionId,sourceKind:'execution',sourceKey:'executionId',runId:reviewed.command.runId,wave:'camp-01h',label})).sort((a,b)=>a.id.localeCompare(b.id));
+    const context={row,runId:exact?'camp01-'+'2'.repeat(32):reviewed.command.runId,registryContext:exact?{...request.registryContext,evidence:reviewedEvidence}:request.registryContext,reviewedHead:exact?reviewedHead:null,repairs:request.repairs};
+    const capMutations={
+      'cap-subject':(value)=>{value.subject='audit-pr';},
+      'cap-base-sha':(value)=>{value.baseSha='bad';},
+      'cap-head-sha':(value)=>{value.headSha='bad';},
+      'cap-file-count-type':(value)=>{value.fileCount=1.5;},
+      'cap-file-count-floor':(value)=>{value.fileCount=-1;},
+      'cap-file-count-ceiling':(value)=>{value.fileCount=6;},
+      'cap-line-count-type':(value)=>{value.changedLineCount=1.5;},
+      'cap-line-count-floor':(value)=>{value.changedLineCount=-1;},
+      'cap-line-count-ceiling':(value)=>{value.changedLineCount=301;},
+      'cap-binary-entry':(value)=>{value.binaryEntries=true;},
+      'cap-tree-digest':(value)=>{value.changedTreeManifestDigest='bad';},
+      'cap-exact-receipt':(value)=>{value.reviewedHeadReceiptId='receipt-'+'a'.repeat(16);},
+      'cap-exact-manifest':(value)=>{value.reviewedHeadReceiptManifestDigest=digest('link-drift');},
+      'cap-exact-reviewed-cap':(value)=>{value.fileCount=4;},
+    };
+    if(mutation==='cap-exact-missing')context.reviewedHead=null;
+    else if(mutation==='cap-exact-context')context.reviewedHead={...context.reviewedHead,extra:true};
+    else if(mutation==='cap-exact-manifest-bytes')context.reviewedHead.manifest={...context.reviewedHead.manifest,wave:'camp-00'};
+    else capMutations[mutation]?.(request.capProvenance);
+    return schemas.validateWriteContext(request,context);
+  }
+  if(mutation.startsWith('manifest-')){
+    const manifest=clone(reviewed.manifest), expectedPaths=row.artifacts.filter((name)=>name!=='receipt-manifest.json');
+    if(mutation==='manifest-type')manifest.entries[0].type='directory';
+    if(mutation==='manifest-size')manifest.entries[0].size=-1;
+    if(mutation==='manifest-digest')manifest.entries[0].digest='bad';
+    if(mutation==='manifest-duplicate')manifest.entries.push(clone(manifest.entries.at(-1)));
+    if(mutation==='manifest-paths')expectedPaths.pop();
+    return schemas.validateArtifact(manifest,{runId:reviewed.command.runId,expectedPaths});
+  }
+  const reporter=row.reporterContracts[0], report=JSON.parse(fs.readFileSync(path.join(reviewed.result.finalDirectory,reporter.normalizedPath),'utf8')), entry=report.observations[0];
+  if(mutation==='observation-status')entry.status='unknown';
+  if(mutation==='observation-null-failure'){entry.status='failed';entry.failureFingerprint=null;}
+  if(mutation==='observation-fingerprint'){entry.status='failed';entry.failureFingerprint='bad';}
+  const registryContext={evidence:[
+    {id:report.executionId,sourceKind:'execution',sourceKey:'executionId',runId:report.parentRunId,wave:'camp-01h',label:report.witnessLabel},
+    {id:report.witnessId,sourceKind:'witness',sourceKey:'witnessId',runId:report.parentRunId,wave:'camp-01h',label:report.witnessLabel},
+  ]};
+  return schemas.validateArtifact(report,{reporter,row,runId:report.parentRunId,registryContext});
+}
+function seedDurableStub(workspace,wave,records){
+  if(records.has(wave))return records.get(wave);
+  const stubRow=WAVE_CONTRACTS[wave], predecessors=stubRow.predecessors.filter((name)=>!name.endsWith('-required-repairs')).map((name)=>seedDurableStub(workspace,name,records)), stubSha=createHash('sha256').update('sha:'+wave).digest('hex').slice(0,40), runId='camp01-'+createHash('sha256').update('run:'+wave).digest('hex').slice(0,32), runRoot=stubRow.runRootTemplate.replace('<sha>',stubSha), directory=path.join(workspace,...runRoot.split('/'),runId), manifest={schema:'camp01-receipt-manifest/v1',runId,wave,entries:[]}, command={wave,sha:stubSha,runId,mode:'exact-main',provenance:{specTupleId:'tuple-'+createHash('sha256').update('spec:'+wave).digest('hex').slice(0,32),ownedPrTupleId:'tuple-'+createHash('sha256').update('owned:'+wave).digest('hex').slice(0,32),predecessorReceiptIds:predecessors.map(({receiptId})=>receiptId)},capProvenance:null,identityRegistry:{refs:[]},captureAttestations:[]};
+  fs.mkdirSync(directory,{recursive:true});
+  fs.writeFileSync(path.join(directory,'command-result.json'),schemas.canonicalBytes(command));
+  fs.writeFileSync(path.join(directory,'receipt-manifest.json'),schemas.canonicalBytes(manifest));
+  if(wave==='proof-02-reproduction')fs.writeFileSync(path.join(directory,'proof02-reproduction.json'),schemas.canonicalBytes({}));
+  const record={receiptId:'receipt-'+schemas.artifactDigest(manifest).slice(7,39),manifestDigest:schemas.artifactDigest(manifest)};
+  records.set(wave,record);
+  return record;
+}
+async function durableProbe(workspace,mutation){
+  const receipt=await compose(workspace,'observation','stage-before-save'), records=new Map(), predecessorIds=row.predecessors.map((wave)=>wave.endsWith('-required-repairs')?predIds[row.predecessors.indexOf(wave)]:seedDurableStub(workspace,wave,records).receiptId);
+  receipt.command.provenance.predecessorReceiptIds=predecessorIds;
+  fs.writeFileSync(path.join(receipt.result.finalDirectory,'command-result.json'),schemas.canonicalBytes(receipt.command));
+  const facts=durableFacts.createDurableFacts({initiatingRoot:workspace},{validatorSpawn:()=>({status:0}),observeCleanState:()=>({treeSha:sha})}), index=await facts.readIndex(), hRecord=index.records.find((entry)=>entry.wave==='camp-01h'), experience=Object.values(hRecord.artifacts).find((entry)=>entry?.findings?.length), finding=experience.findings[0], source=hRecord.context.registryContext.repairSources[0];
+  if(mutation==='repair-sources')return {sourceCount:hRecord.context.registryContext.repairSources.length,source};
+  if(mutation==='repair-gate'){
+    const gateRow={...WAVE_CONTRACTS['camp-00'],predecessors:['camp-01h-required-repairs'],capSubject:'none',maxFiles:null,maxChangedLines:null}, input={row:gateRow,arguments:{mode:'reviewed-head',sha,runRoot:gateRow.runRootTemplate.replace('<sha>',sha),programSpecs:[]},provenance:{},proofTarget:{canonicalPath:workspace}};
+    return (await facts.resolvePreflightFacts(input)).repairGates[0];
+  }
+  const sourceDisposition={receiptId:hRecord.receiptId,observationId:finding.id,failedReportObservationId:source.failedReportObservationId,failedReportFingerprint:source.failedReportFingerprint,causeFingerprint:source.causeFingerprint}, repairWave=source.repairRowId, commandSequence=[['@node','repair-probe.mjs']], declaration={schema:'camp01-repair-row/v1',row:{wave:repairWave,commandId:repairWave,childChange:'repair-h-durable-source',runRootTemplate:'.sisyphus/evidence/playtest/'+repairWave+'-<sha>',commandSequence,canonicalArgvDigest:createHash('sha256').update(JSON.stringify(commandSequence)).digest('hex'),artifacts:['command-result.json','receipt-manifest.json','wave-result.json'],assertions:['repairVerified===true'],predecessors:['camp-01g','proof-02-triage','proof-02-required-repairs'],sourceDisposition,capSubject:'product-pr',maxFiles:2,maxChangedLines:100,reporterContracts:[]}}, resolved=await facts.resolveRepairSource({wave:repairWave,declaration});
+  return {kind:resolved.source.kind,explicitDependencies:resolved.source.explicitDependencies,requiredRowIds:resolved.registrySet.requiredRowIds,registeredRowIds:resolved.registrySet.registeredRowIds};
+}
 const repairSummary=(receipt,phase,stage)=>{
   const experience=JSON.parse(fs.readFileSync(path.join(receipt.result.finalDirectory,'witnesses',stage.label,'experience.json'),'utf8'));
   const witness=JSON.parse(fs.readFileSync(path.join(receipt.result.finalDirectory,'witnesses',stage.label,'authority.json'),'utf8'));
@@ -335,6 +442,9 @@ const repairSummary=(receipt,phase,stage)=>{
 try{
   let value;
   if(input.action==='observation')value=summary(await compose(input.workspace,'observation'),'observation');
+  else if(input.action==='durable')value=await durableProbe(input.workspace,input.mutation);
+  else if(input.action==='envelope')value=await envelopeProbe(input.workspace,input.mutation);
+  else if(input.action==='schema')value=await schemaProbe(input.workspace,input.mutation);
   else if(input.action==='repair'){
     const stage=stages[input.stage];
     if(!stage)throw new Error('unknown repair stage');
@@ -387,13 +497,16 @@ try{
 export type HCompositionRequest = {
   readonly action:
     | 'bindings'
+    | 'durable'
+    | 'envelope'
     | 'final'
     | 'identity'
     | 'mutate'
     | 'observation'
     | 'public-validator'
     | 'repair'
-    | 'reopen';
+    | 'reopen'
+    | 'schema';
   readonly mutation?: string;
   readonly phase?: 'final' | 'observation';
   readonly role?: string;
@@ -417,15 +530,15 @@ export function invokeHComposition(
   request: HCompositionRequest,
 ): HCompositionResult {
   const workspace = fs.mkdtempSync(path.join(os.tmpdir(), 'camp-proof5g1-'));
-  const result = spawnSync(
-    process.execPath,
-    ['--input-type=module', '--eval', harness],
-    {
-      input: JSON.stringify({ workspace, ...request }),
-      encoding: 'utf8',
-      maxBuffer: 4 * 1024 * 1024,
+  const result = spawnSync(process.execPath, ['--input-type=module'], {
+    input: harness,
+    encoding: 'utf8',
+    env: {
+      ...process.env,
+      CAMP01_H_COMPOSITION_INPUT: JSON.stringify({ workspace, ...request }),
     },
-  );
+    maxBuffer: 4 * 1024 * 1024,
+  });
   const envelope = result.stdout
     ? (JSON.parse(result.stdout) as HCompositionResult)
     : { ok: false, error: result.stderr, commandCount: 0 };

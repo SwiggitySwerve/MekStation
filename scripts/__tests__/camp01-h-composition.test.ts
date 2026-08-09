@@ -300,3 +300,114 @@ describe('CAMP-01H authority repair loop', () => {
     expectFailure({ action: 'mutate', mutation }, 'finding identity drift');
   });
 });
+
+describe('CAMP-01H durable receipt envelope', () => {
+  it.each([
+    ['nested report manifest omission', 'envelope-manifest-report'],
+    ['nested witness manifest omission', 'envelope-manifest-witness'],
+  ])('rejects %s', (_name, mutation) => {
+    expectFailure({ action: 'envelope', mutation }, 'manifest paths drift');
+  });
+
+  it.each([
+    ['nested report artifact addition', 'envelope-artifact-report'],
+    ['nested witness artifact addition', 'envelope-artifact-witness'],
+  ])('rejects %s', (_name, mutation) => {
+    expectFailure(
+      { action: 'envelope', mutation },
+      'receipt artifact set drift',
+    );
+  });
+
+  it.each([
+    [
+      'reviewed cap provenance',
+      'cap-reviewed-provenance',
+      'cap provenance drift',
+    ],
+    [
+      'reviewed cap linkage',
+      'cap-reviewed-linkage',
+      'reviewed cap linkage drift',
+    ],
+    [
+      'missing exact reviewed head',
+      'cap-exact-missing',
+      'exact-main reviewed head missing',
+    ],
+    ['exact cap linkage', 'cap-exact-link', 'cap linkage drift'],
+    [
+      'reviewed head cap equality',
+      'cap-reviewed-head',
+      'reviewed head cap drift',
+    ],
+  ])('rejects %s through the real H writer', (_name, mutation, message) => {
+    expectFailure({ action: 'envelope', mutation }, message);
+  });
+});
+
+describe('CAMP-01 authority schema matrices', () => {
+  it.each([
+    ['subject', 'cap-subject'],
+    ['base SHA', 'cap-base-sha'],
+    ['head SHA', 'cap-head-sha'],
+    ['file count type', 'cap-file-count-type'],
+    ['file count floor', 'cap-file-count-floor'],
+    ['file count ceiling', 'cap-file-count-ceiling'],
+    ['changed line type', 'cap-line-count-type'],
+    ['changed line floor', 'cap-line-count-floor'],
+    ['changed line ceiling', 'cap-line-count-ceiling'],
+    ['binary entry', 'cap-binary-entry'],
+    ['tree manifest digest', 'cap-tree-digest'],
+  ])('rejects invalid cap provenance %s', (_name, mutation) => {
+    expectFailure({ action: 'schema', mutation }, 'cap provenance drift');
+  });
+
+  it.each([
+    [
+      'missing reviewed head',
+      'cap-exact-missing',
+      'exact-main reviewed head missing',
+    ],
+    [
+      'reviewed context shape',
+      'cap-exact-context',
+      'reviewed head context fields drift',
+    ],
+    ['receipt linkage', 'cap-exact-receipt', 'cap linkage drift'],
+    ['manifest linkage', 'cap-exact-manifest', 'cap linkage drift'],
+    ['manifest bytes linkage', 'cap-exact-manifest-bytes', 'cap linkage drift'],
+    [
+      'reviewed cap equality',
+      'cap-exact-reviewed-cap',
+      'reviewed head cap drift',
+    ],
+  ])('rejects exact-main %s drift', (_name, mutation, message) => {
+    expectFailure({ action: 'schema', mutation }, message);
+  });
+
+  it.each([
+    ['entry type', 'manifest-type', 'invalid manifest entry'],
+    ['entry size', 'manifest-size', 'invalid manifest entry'],
+    ['entry digest', 'manifest-digest', 'invalid manifest entry'],
+    [
+      'duplicate paths',
+      'manifest-duplicate',
+      'manifest must be sorted and unique',
+    ],
+    ['expected paths', 'manifest-paths', 'manifest paths drift'],
+  ])('rejects invalid manifest %s', (_name, mutation, message) => {
+    expectFailure({ action: 'schema', mutation }, message);
+  });
+
+  it.each([
+    ['unknown status', 'observation-status'],
+    ['failed observation without a fingerprint', 'observation-null-failure'],
+    ['non-digest failure fingerprint', 'observation-fingerprint'],
+  ])('rejects %s', (_name, mutation) => {
+    expectFailure(
+      { action: 'schema', mutation },
+      'observation fingerprint drift',
+    );
+  });
+});
