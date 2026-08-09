@@ -23,6 +23,9 @@ const schemasUrl = pathToFileURL(
 const harness = `
 import { spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
+import { EventEmitter } from 'node:events';
+import { syncBuiltinESMExports } from 'node:module';
+import https from 'node:https';
 import fs from 'node:fs'; import path from 'node:path';
 import * as provenance from ${JSON.stringify(provenanceUrl)};
 import * as trust from ${JSON.stringify(trustUrl)};
@@ -65,6 +68,7 @@ function transportFixtures(specSha=head,ownedSha=head,mainSha=merge,ownedMergeSh
     return structuredClone(value);
   };
 }
+async function captureEndpoint(resource,parameters){const original=https.request;let endpoint;https.request=(options,callback)=>{endpoint=options.path;const request=new EventEmitter(),response=new EventEmitter();response.statusCode=200;response.setEncoding=()=>{};request.destroy=()=>{};request.end=()=>{callback(response);response.emit('data','{"check_runs":[]}');response.emit('end');};return request;};syncBuiltinESMExports();try{await provenance.fetchGitHubResource({resource,parameters});return endpoint;}finally{https.request=original;syncBuiltinESMExports();}}
 const citation={kind:'owned',wave:'camp-01a',subject:'product-pr',prNumber:'201',headSha:head,mergeSha:merge,approvalId:'401',reviewer:ownedReviewer};
 async function seedRepository(child,mode){
   const git={executable:request.git}, work=path.join(root,'source'), remote=path.join(root,'remote.git'); fs.mkdirSync(work);
@@ -80,6 +84,7 @@ async function seedRepository(child,mode){
 }
 try { let value;
   if(request.action==='citation') value=await provenance.verifyGitHubCitation(citation,{fetchGitHubResource:transportFixtures()});
+  else if(request.action==='resource-endpoint') value=await captureEndpoint(request.resource,request.parameters);
   else if(request.action==='resource-guard') value=await provenance.fetchGitHubResource({resource:request.resource,parameters:request.parameters});
   else {
     const child=request.action==='repair'?'repair-child':'add-campaign-roster-source-readiness', seeded=await seedRepository(child,request.action), citedSha=request.action==='nonancestor'?seeded.divergentSha:seeded.specSha;
@@ -171,6 +176,7 @@ describe('CAMP-01 GitHub provenance', () => {
 
   it.each([
     ['unknown', {}, 'invalid GitHub resource'],
+    ['check-runs', { sha: 'invalid' }, 'invalid GitHub resource'],
     ['pull-request', { number: '0' }, 'invalid GitHub resource parameters'],
     ['permission', { login: 'bad/name' }, 'invalid GitHub resource'],
     [
@@ -195,6 +201,21 @@ describe('CAMP-01 GitHub provenance', () => {
       });
     },
   );
+
+  it('maps a valid check-runs SHA to the frozen repository endpoint', () => {
+    // Given one valid commit SHA, when routing runs, then the exact REST path is fixed.
+    const sha = 'a'.repeat(40);
+    const result = invoke({
+      action: 'resource-endpoint',
+      root,
+      resource: 'check-runs',
+      parameters: { sha },
+    });
+    expect(result).toEqual({
+      ok: true,
+      value: `/repos/SwiggitySwerve/MekStation/commits/${sha}/check-runs`,
+    });
+  });
 
   it.each([
     ['transport-failure', 'GitHub transport failed'],

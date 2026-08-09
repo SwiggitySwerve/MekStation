@@ -4,8 +4,20 @@ import * as os from 'node:os';
 import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+import {
+  Camp01FactsError,
+  createAnchorAuthority,
+} from './camp01-anchor-authority.mjs';
+import { resolveFetchedMainOid } from './camp01-durable-facts.mjs';
+import {
+  Camp01GitError,
+  invokeGit,
+  resolveVerifiedGit,
+} from './camp01-git-trust.mjs';
+import { fetchGitHubResource } from './camp01-github-provenance.mjs';
 import { PROOF5D5_LIVE_PROBE_REGISTRATIONS } from './camp01-live-browser-adversarial.mjs';
 import { PROOF5D6_LIVE_PROBE_REGISTRATIONS } from './camp01-live-os-adversarial.mjs';
+import { invokeGh as runGh } from './report-camp01-live-status.mjs';
 
 const schemaVersion = 'camp01-live-adversarial/v2';
 const allHosts = Object.freeze({ gateId: 'all-hosts', platforms: [] });
@@ -76,10 +88,90 @@ async function artifactAtomicityProbe({ scratchRoot }) {
   return { evidence: { existingBytesPreserved: (await fs.readFile(artifactPath, 'utf8')) === expectedBytes, replacementRejectedWith: rejectedWith } };
 }
 
+async function envelopeAnchorProbe({ scratchRoot }) {
+  const initiatingRoot = path.resolve(process.cwd());
+  let git;
+  try {
+    git = await resolveVerifiedGit({ cwd: initiatingRoot });
+  } catch {
+    return {
+      status: 'skipped-with-reason',
+      reason: { code: 'VERIFIED_GIT_UNAVAILABLE' },
+    };
+  }
+  // prettier-ignore
+  const gitOutput=async(args)=>(await invokeGit({git,args,cwd:initiatingRoot})).stdout.trim(), initiatingHeadSha=await gitOutput(['rev-parse','--verify','HEAD^{commit}']), initiatingTreeSha=await gitOutput(['rev-parse','--verify','HEAD^{tree}']), fetchedMainOid=await resolveFetchedMainOid({wave:'live-probe',sha:initiatingHeadSha,mode:'exact-main'},git,{sessionDirectory:path.join(scratchRoot,'fetched-main.git')}), fetchCheckRuns=(sha)=>fetchGitHubResource({resource:'check-runs',parameters:{sha}}), anchor=createAnchorAuthority({git,cwd:initiatingRoot},{fetchCheckRuns});
+  let anchorSha = initiatingHeadSha,
+    anchorTreeSha = initiatingTreeSha,
+    anchorSource = 'initiating-head';
+  // prettier-ignore
+  const candidate=()=>({command:{sha:anchorSha,treeSha:anchorTreeSha,mode:'exact-main',capProvenance:null}});
+  try {
+    await anchor(candidate(), { fetchedMainOid });
+  } catch (error) {
+    // prettier-ignore
+    if (!(error instanceof Camp01FactsError)||error.message!=='CAMP01_FACTS_INVALID: anchor main reachability drift') throw error;
+    // Dev heads may be ahead of main; prefer fetched main, then its local merge-base.
+    try {
+      anchorSha = fetchedMainOid;
+      anchorTreeSha = await gitOutput([
+        'rev-parse',
+        '--verify',
+        `${anchorSha}^{tree}`,
+      ]);
+      anchorSource = 'fetched-main';
+    } catch (fallbackError) {
+      if (!(fallbackError instanceof Camp01GitError)) throw fallbackError;
+      anchorSha = await gitOutput([
+        'merge-base',
+        initiatingHeadSha,
+        fetchedMainOid,
+      ]);
+      anchorTreeSha = await gitOutput([
+        'rev-parse',
+        '--verify',
+        `${anchorSha}^{tree}`,
+      ]);
+      anchorSource = 'merge-base';
+    }
+    await anchor(candidate(), { fetchedMainOid });
+  }
+  const priorShas = (
+    await gitOutput(['rev-list', '--first-parent', '--max-count=10', 'HEAD~1'])
+  ).split(/\r?\n/);
+  for (let index = 0; index < priorShas.length; index += 1) {
+    // prettier-ignore
+    const sha=priorShas[index], response=runGh(['api',`repos/SwiggitySwerve/MekStation/commits/${sha}/check-runs`,'--header','Accept: application/vnd.github+json','--header','X-GitHub-Api-Version: 2022-11-28']),
+      diagnostic = `${response?.error?.code ?? ''} ${response?.error?.name ?? ''} ${response?.stderr ?? ''}`;
+    if (response?.status !== 0) {
+      // prettier-ignore
+      if (/(ENOTFOUND|ETIMEDOUT|ABORT|timed out|error connecting to api\.github\.com|network is unreachable|could not resolve host)/i.test(diagnostic)) return {status:'skipped-with-reason',reason:{code:'GITHUB_API_UNAVAILABLE'}};
+      // prettier-ignore
+      return {status:'failed',reason:{code:'GITHUB_CHECK_RUNS_HTTP_FAILED'},evidence:{anchorSha,fetchedMainOid,attemptedSha:sha}};
+    }
+    let checkRuns;
+    try {
+      checkRuns = JSON.parse(response.stdout || '');
+    } catch {
+      // prettier-ignore
+      return {status:'failed',reason:{code:'GITHUB_CHECK_RUNS_RESPONSE_INVALID'},evidence:{anchorSha,fetchedMainOid,attemptedSha:sha}};
+    }
+    // prettier-ignore
+    if (!Array.isArray(checkRuns?.check_runs)) return {status:'failed',reason:{code:'GITHUB_CHECK_RUNS_RESPONSE_INVALID'},evidence:{anchorSha,fetchedMainOid,attemptedSha:sha}};
+    // prettier-ignore
+    const successfulRunCount=checkRuns.check_runs.filter((entry)=>entry?.status==='completed'&&entry?.conclusion==='success'&&entry?.head_sha===sha).length;
+    // prettier-ignore
+    if (successfulRunCount>0) return {evidence:{initiatingHeadSha,fetchedMainOid,anchorSha,anchorSource,checkRunSha:sha,checkRunCount:checkRuns.check_runs.length,successfulRunCount,walkedCommitCount:index+1}};
+  }
+  // prettier-ignore
+  return {status:'failed',reason:{code:'GITHUB_SUCCESSFUL_CHECK_RUN_NOT_FOUND'},evidence:{initiatingHeadSha,fetchedMainOid,anchorSha,anchorSource,walkedCommitCount:priorShas.length}};
+}
+
 // prettier-ignore
 export const LIVE_PROBE_REGISTRY = Object.freeze([
   { probeId: 'proof5d4-live-shell-self-check', hostGate: allHosts, capabilityGate: intrinsicCapability, run: selfCheckProbe },
   { probeId: 'proof5d4-artifact-atomicity', hostGate: allHosts, capabilityGate: intrinsicCapability, run: artifactAtomicityProbe },
+  { probeId: 'proof6a2-envelope-anchor-production', hostGate: allHosts, capabilityGate: { gateId: 'verified-git-windows', hosts: ['win32'] }, run: envelopeAnchorProbe },
   ...PROOF5D5_LIVE_PROBE_REGISTRATIONS,
   ...PROOF5D6_LIVE_PROBE_REGISTRATIONS,
 ]);
