@@ -4,6 +4,8 @@ import os from 'node:os';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 
+import { invokeHComposition } from './support/camp01-h-composition.fixture';
+
 const repoRoot = path.resolve(__dirname, '..', '..');
 const registryUrl = pathToFileURL(
   path.join(repoRoot, 'scripts/qc/camp01-repair-registry.mjs'),
@@ -143,6 +145,32 @@ describe('CAMP-01 durable repair registry', () => {
           'CAMP01_REPAIR_REGISTRY_INVALID: duplicate repair registration',
         events: 1,
         active: 1,
+      },
+    });
+  });
+
+  it('[K19 H required-repair gate] derives the required set from durable H findings', () => {
+    expect(
+      invokeHComposition({ action: 'durable', mutation: 'repair-gate' }),
+    ).toMatchObject({
+      ok: true,
+      value: {
+        gate: 'camp-01h-required-repairs',
+        requiredRowIds: [expect.stringMatching(/^camp-01h-repair-/)],
+      },
+    });
+  });
+
+  it('[K20 H repair source] resolves and registers the non-proof source arm', () => {
+    expect(
+      invokeHComposition({ action: 'durable', mutation: 'resolve-source' }),
+    ).toMatchObject({
+      ok: true,
+      value: {
+        kind: 'h',
+        explicitDependencies: [],
+        requiredRowIds: [expect.stringMatching(/^camp-01h-repair-/)],
+        registeredRowIds: [expect.stringMatching(/^camp-01h-repair-/)],
       },
     });
   });
