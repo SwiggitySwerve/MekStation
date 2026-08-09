@@ -147,6 +147,12 @@ For `capSubject=product-pr|audit-pr`, reviewed-head proof computes `ownedDiffBas
 
 Cleanup re-reads `git worktree list --porcelain -z`, validates each record independently, updates an owned record's expected HEAD/ref OID only from matching subject-specific reviewed-head/exact-main provenance, requires clean tracked/index state plus expected manifests, removes only the recorded non-initiating proof and optional owned worktree with non-force `git worktree remove`, and compare-deletes only the recorded owned ref at its verified final OID. A detached proof worktree never requires or deletes a branch ref. Initiating/durable/unrecorded/dirty/reparse/raced targets, record mixing, force flags, globs, prefixes, and recursive deletion are rejected. `wave-cleanup.json` exposes only receipt ids and the five parent-specified cleanup booleans.
 
+### D6A - Durable admission anchors the Git envelope
+
+After the public validator accepts a durable candidate and before the index admits it, `camp01-anchor-authority.mjs` reopens the declared Git envelope through the verified Git adapter. It requires `command.sha` to resolve as a commit, recomputes `command.treeSha`, and maps each failure to a stable `Camp01FactsError` clause.
+
+Exact-main admission receives the freshly fetched canonical-main OID from the existing `fetchAndVerifyOids` route and requires the command commit to be its ancestor. Cap-owning records require `baseSha` ancestry to `headSha`, then reuse exported `parseNumstat` over `git diff --numstat -z --no-renames baseSha headSha` and require exact equality for file count, changed-line count, binary presence, and `digestBytes(canonicalBytes(manifest))`. The anchor never fetches or reimplements target-fact derivation; production composition supplies verified Git plus fetched main, while hermetic `createDurableFacts` callers may inject or omit the anchor explicitly.
+
 ### D7 - PROOF-02 is publish-then-triage
 
 `proof-02-reproduction` accepts ordinary exit 0 or 1 and publishes the complete normalized reporter observation set, all three historical anchors as `passed|failed|missing`, every non-anchor failure, and safe writer-derived fingerprints. Passed observations require null fingerprint; every failed or missing observation requires a non-null fingerprint derived from its bounded id/status/known-failure fields, and any null/non-null mismatch fails. Its finalized JSON has no self-digest; the exact-byte digest lives only in `command-result.json` and is recomputed by every consumer.
