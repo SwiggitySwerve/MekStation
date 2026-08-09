@@ -32,6 +32,7 @@ try {const seeded=await seed(), anchor=createAnchorAuthority({git,cwd:repo}), ca
   else if(q.action==='happy-a2')value=await anchor(record(seeded,'exact-main'),{fetchedMainOid:seeded.main});
   else if(q.action==='happy-a3')value=await anchor(candidate);
   else if(q.action==='commit')value=await anchor({...candidate,command:{...candidate.command,sha:'f'.repeat(40)}});
+  else if(q.action==='tree-object')value=await anchor({...candidate,command:{...candidate.command,sha:seeded.tree,treeSha:seeded.tree}});
   else if(q.action==='tree')value=await anchor({...candidate,command:{...candidate.command,treeSha:'f'.repeat(40)}});
   else if(q.action==='main')value=await anchor({...record(seeded,'exact-main',null),command:{...record(seeded,'exact-main',null).command,sha:seeded.divergent,treeSha:await output(['rev-parse',seeded.divergent+'^{tree}'])}},{fetchedMainOid:seeded.main});
   else if(q.action==='ancestry')value=await anchor({...candidate,command:{...candidate.command,capProvenance:{...seeded.cap,baseSha:seeded.divergent}}});
@@ -93,6 +94,7 @@ describe('CAMP-01 validation-time Git envelope anchor', () => {
 
   gitIt.each([
     ['commit', 'anchor commit unresolvable'],
+    ['tree-object', 'anchor commit unresolvable'],
     ['tree', 'anchor tree drift'],
     ['main', 'anchor main reachability drift'],
     ['ancestry', 'anchor ancestry drift'],
