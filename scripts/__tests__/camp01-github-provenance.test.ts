@@ -69,7 +69,8 @@ function transportFixtures(specSha=head,ownedSha=head,mainSha=merge,ownedMergeSh
     return structuredClone(value);
   };
 }
-async function captureEndpoint(resource,parameters){const original=https.request;let endpoint;https.request=(options,callback)=>{endpoint=options.path;const request=new EventEmitter(),response=new EventEmitter();response.statusCode=200;response.setEncoding=()=>{};request.destroy=()=>{};request.end=()=>{callback(response);response.emit('data','{"check_runs":[]}');response.emit('end');};return request;};syncBuiltinESMExports();try{await provenance.fetchGitHubResource({resource,parameters});return endpoint;}finally{https.request=original;syncBuiltinESMExports();}}
+let capturedAgent;
+async function captureEndpoint(resource,parameters){const original=https.request;let endpoint;https.request=(options,callback)=>{endpoint=options.path;capturedAgent=options.agent;const request=new EventEmitter(),response=new EventEmitter();response.statusCode=200;response.setEncoding=()=>{};request.destroy=()=>{};request.end=()=>{callback(response);response.emit('data','{"check_runs":[]}');response.emit('end');};return request;};syncBuiltinESMExports();try{await provenance.fetchGitHubResource({resource,parameters});return endpoint;}finally{https.request=original;syncBuiltinESMExports();}}
 const citation={kind:'owned',wave:'camp-01a',subject:'product-pr',prNumber:'201',headSha:head,mergeSha:merge,approvalId:'401',reviewer:ownedReviewer};
 const soloCitation={...citation,approvalId:'solo-maintainer',reviewer:soloOwner};
 async function seedRepository(child,mode){
@@ -89,6 +90,7 @@ try { let value;
   else if(request.action==='solo-citation') value=await provenance.verifyGitHubCitation(soloCitation,{fetchGitHubResource:transportFixtures()});
   else if(request.action==='solo-transport'){await provenance.verifyGitHubCitation(soloCitation,{fetchGitHubResource:transportFixtures()}); value=apiCalls;}
   else if(request.action==='resource-endpoint') value=await captureEndpoint(request.resource,request.parameters);
+  else if(request.action==='resource-agent'){await captureEndpoint(request.resource,request.parameters);value=capturedAgent;}
   else if(request.action==='resource-guard') value=await provenance.fetchGitHubResource({resource:request.resource,parameters:request.parameters});
   else {
     const child=request.action==='repair'?'repair-child':'add-campaign-roster-source-readiness', seeded=await seedRepository(child,request.action), citedSha=request.action==='nonancestor'?seeded.divergentSha:seeded.specSha;
@@ -314,6 +316,18 @@ describe('CAMP-01 GitHub provenance', () => {
       ok: true,
       value: `/repos/SwiggitySwerve/MekStation/commits/${sha}/check-runs`,
     });
+  });
+
+  it('requests every resource on a fresh connection with no shared agent', () => {
+    // Given the production transport, when any request is issued, then agent:false
+    // prevents stale keep-alive reuse across the controller's long git gaps.
+    const result = invoke({
+      action: 'resource-agent',
+      root,
+      resource: 'repository',
+      parameters: {},
+    });
+    expect(result).toEqual({ ok: true, value: false });
   });
 
   it('maps collaborators to the frozen repository endpoint', () => {

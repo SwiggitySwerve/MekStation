@@ -36,6 +36,11 @@ export async function fetchGitHubResource({ resource, parameters = {} }) {
         hostname: 'api.github.com',
         path: endpoint,
         method: 'GET',
+        // A fresh connection per request: the controller interleaves long git
+        // fetches and subprocess spawns between API calls, and a kept-alive
+        // socket idled past the server's window dies with write ECONNABORTED
+        // (proven live by the first exact-main camp-proof run).
+        agent: false,
         signal: AbortSignal.timeout(30_000),
         headers: {
           Accept: 'application/vnd.github+json',
