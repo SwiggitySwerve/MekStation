@@ -57,14 +57,14 @@ The authority writer SHALL create a cryptographically random parent run id, an e
 
 ### Requirement: Exact-SHA and Canonical-Provenance Execution
 
-Reviewed-head and exact-main authority proof SHALL run from a new detached worktree at the verified commit with matching `HEAD`/tree, clean state, and expected outside-root manifest. The controller SHALL pin GitHub repository `1014984218`/`R_kgDOPH9uGg`/`SwiggitySwerve/MekStation`, base `main`, and literal HTTPS fetch URL; use the verified absolute Git binary plus zeroed config/environment to fetch into a writer-owned empty bare proof repository; require fetched head/main OIDs to equal canonical GitHub API OIDs; verify PR heads/merges and ancestry; and accept only a non-dismissed exact-head approval by a non-author with `WRITE|MAINTAIN|ADMIN`.
+Reviewed-head and exact-main authority proof SHALL run from a new detached worktree at the verified commit with matching `HEAD`/tree, clean state, and expected outside-root manifest. The controller SHALL pin GitHub repository `1014984218`/`R_kgDOPH9uGg`/`SwiggitySwerve/MekStation`, base `main`, and literal HTTPS fetch URL; use the verified absolute Git binary plus zeroed config/environment to fetch into a writer-owned empty bare proof repository; require fetched head/main OIDs to equal canonical GitHub API OIDs; verify PR heads/merges and ancestry; and accept only a non-dismissed exact-head approval by a non-author with `WRITE|MAINTAIN|ADMIN`, EXCEPT under the solo-maintainer reduction (amended 2026-08-09, program-owner decision): in a repository whose collaborator set is API-verified to be exactly its owner, a citation MAY carry the sentinel approval tuple `solo-maintainer|<owner-login>` and the approval leg is then REDUCED to API-verified owner-authored (and, for merged citations, owner-merged) provenance — this is a REDUCTION of the independent-review claim, not satisfaction of it; receipts produced under the sentinel attest self-reviewed provenance, the sentinel arm SHALL reject the moment more than one collaborator exists, and the strict non-author clause resumes in full at that moment.
 
 #### Scenario: Reviewed head binds spec and product provenance
 
 - **WHEN** reviewed-head proof validates
 - **THEN** the receipt SHA SHALL equal the product PR head
 - **AND** the product commit SHALL descend from the ledgered child spec merge
-- **AND** both exact PR heads SHALL have independently verified non-author approvals
+- **AND** both exact PR heads SHALL have independently verified non-author approvals, or in a verifiably solo-maintainer repository the reduced sentinel provenance defined by this requirement
 
 #### Scenario: Audit and no-PR rows use their own provenance subjects
 
