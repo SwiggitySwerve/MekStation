@@ -8,13 +8,63 @@ const contractUrl = pathToFileURL(
 ).href;
 const harness = `
 import fs from 'node:fs';
+import path from 'node:path';
 import * as contract from ${JSON.stringify(contractUrl)};
 const request = JSON.parse(fs.readFileSync(0, 'utf8'));
 const frozen = (value) => !value || typeof value !== 'object' ||
   (Object.isFrozen(value) && Object.values(value).every(frozen));
+// The camp-proof wave-result producer: re-executes each declared assertion as a
+// real check against the live contract and the proof worktree, then publishes
+// canonical bytes into the writer-issued artifact directory. Any failed check
+// throws, the suite reddens, and the writer rejects the command exit.
+const waveResult = (artifactDir, runId) => {
+  const row = contract.WAVE_CONTRACTS['camp-proof'];
+  let unknownRejected = false;
+  try { contract.assertFixedContract({ ...contract.contractSnapshot(), extra: true }); } catch { unknownRejected = true; }
+  let missingRejected = false;
+  try { const clipped = contract.contractSnapshot(); delete clipped.captureContracts; contract.assertFixedContract(clipped); } catch { missingRejected = true; }
+  const inputDigestsMatched = Object.values(contract.WAVE_CONTRACTS)
+    .every((entry) => contract.commandSequenceDigest(entry.commandSequence) === entry.canonicalArgvDigest);
+  const exactMainRegenerated = contract.assertFixedContract(contract.contractSnapshot()) === true;
+  const pathSha = /camp-proof-([0-9a-f]{40})/.exec(artifactDir)?.[1] ?? null;
+  let directory = path.resolve(artifactDir), headSha = null;
+  for (let step = 0; step < 12; step += 1) {
+    const dotGit = path.join(directory, '.git');
+    if (fs.existsSync(dotGit)) {
+      const gitdir = fs.statSync(dotGit).isFile()
+        ? path.resolve(directory, /^gitdir: (.+?)\\s*$/m.exec(fs.readFileSync(dotGit, 'utf8'))[1])
+        : dotGit;
+      const head = fs.readFileSync(path.join(gitdir, 'HEAD'), 'utf8').trim();
+      headSha = /^[0-9a-f]{40}$/.test(head) ? head : null;
+      break;
+    }
+    const parent = path.dirname(directory);
+    if (parent === directory) break;
+    directory = parent;
+  }
+  const checks = {
+    'unknownFieldsRejected===true': unknownRejected,
+    'missingFieldsRejected===true': missingRejected,
+    'headShaMatched===true': headSha !== null && headSha === pathSha,
+    'pathShaMatched===true': pathSha !== null,
+    'inputDigestsMatched===true': inputDigestsMatched,
+    'exactMainRegenerated===true': exactMainRegenerated,
+  };
+  const assertions = Object.fromEntries([...row.assertions].sort().map((id) => [id, checks[id]]));
+  if (Object.keys(assertions).length !== row.assertions.length || Object.values(assertions).some((entry) => entry !== true))
+    throw new Error('wave assertion checks failed: ' + JSON.stringify(checks));
+  fs.writeFileSync(
+    path.join(artifactDir, 'wave-result.json'),
+    JSON.stringify({ schema: 'camp01-wave-result/v1', wave: 'camp-proof', runId, status: 'passed', assertions }) + '\\n',
+    { flag: 'wx' },
+  );
+  return true;
+};
 try {
   const value = request.fn === '__frozen'
     ? [contract.WAVE_CONTRACTS, contract.CAPTURE_CONTRACTS, contract.PROGRAM_CHILD_CHANGES].every(frozen)
+    : request.fn === '__waveResult'
+    ? waveResult(...(request.args ?? []))
     : contract[request.fn](...(request.args ?? []));
   process.stdout.write(JSON.stringify({ ok: true, value }));
 } catch (error) {
@@ -274,6 +324,21 @@ describe('CAMP-01 authority receipt immutable contract', () => {
   it.each(['/home/user/.ssh/id_ed25519', '\\\\server\\share', 'github_pat_secret'])('rejects path or credential value %s', (value) => {
     expect(invoke('assertPrivacyBounded', [{ safe: value }, 'camp01-privacy-probe/v1']).ok).toBe(false);
     expect(invoke('assertPrivacyBounded', [value, 'camp01-privacy-probe/v1']).ok).toBe(false);
+  });
+
+  it('publishes the camp-proof wave result under the writer-issued artifact contract', () => {
+    // Given the writer's CAMP01 env contract, when the suite finishes its checks,
+    // then the producer publishes wave-result.json; outside the contract it is a no-op.
+    const artifactDir = process.env.CAMP01_ARTIFACT_DIR;
+    const runId = process.env.CAMP01_RUN_ID;
+    if (!artifactDir || !runId) {
+      expect(true).toBe(true);
+      return;
+    }
+    expect(invoke('__waveResult', [artifactDir, runId])).toEqual({
+      ok: true,
+      value: true,
+    });
   });
 });
 
