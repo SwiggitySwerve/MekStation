@@ -134,7 +134,7 @@ export async function createProductionDependencies(
     ...dependencies,
     sessionDirectory:
       dependencies.sessionDirectory ??
-      (() => fs.mkdtempSync(path.join(os.tmpdir(), 'mekstation-camp01-git-'))),
+      (() => freshSessionDirectory('mekstation-camp01-git-')),
     resolvePreflightFacts: facts.resolvePreflightFacts,
     resolveWriterInputs: facts.resolveWriterInputs,
     resolveRepairSource: facts.resolveRepairSource,
@@ -205,16 +205,20 @@ export async function createProductionDependencies(
         git,
         dependencies.targetDependencies ?? {},
       )),
-    cleanup = createCleanupAuthority(
-      {
-        git,
-        initiatingTarget,
-        cleanupRoot:
-          options.cleanupRoot ?? path.join(evidenceRoot, '.camp01-cleanups'),
-        failedCreationTargets: options.failedCreationTargets ?? [],
-      },
-      { ...(dependencies.cleanupDependencies ?? {}), invokePublicValidator },
-    );
+    composedCleanupRoot =
+      options.cleanupRoot ?? path.join(evidenceRoot, '.camp01-cleanups');
+  // The cleanup authority fail-closes on a missing receipt root, so the
+  // composition provisions it exactly as it already provisions the evidence root.
+  ensureDirectory(initiatingRoot, composedCleanupRoot);
+  const cleanup = createCleanupAuthority(
+    {
+      git,
+      initiatingTarget,
+      cleanupRoot: composedCleanupRoot,
+      failedCreationTargets: options.failedCreationTargets ?? [],
+    },
+    { ...(dependencies.cleanupDependencies ?? {}), invokePublicValidator },
+  );
   return Object.freeze({
     stateStore,
     inspectOwnedTarget: (input) => inspectOwnedTarget(input, targetDeps),
@@ -277,10 +281,7 @@ export async function resolveFetchedMainOid(candidate, git, dependencies) {
               operation: `anchor-${candidate.wave}-${candidate.sha}`,
               wave: candidate.wave,
             })
-          : (configured ??
-            fs.mkdtempSync(
-              path.join(os.tmpdir(), 'mekstation-camp01-anchor-'),
-            )),
+          : (configured ?? freshSessionDirectory('mekstation-camp01-anchor-')),
       gitDependencies = {
         ...(dependencies.gitDependencies ?? {}),
         ...(dependencies.testOnlyAllowLocalRemote === true
@@ -361,6 +362,11 @@ function tupleId(value) { return `tuple-${createHash('sha256').update(JSON.strin
 function triageInputs(arguments_,reproductionReceiptId,auditTupleId) { const dispositions=(arguments_.dispositions??[]).map((value)=>{const [observationId,failureFingerprint,severity,outcome,causeFingerprint,resolutionRef,blocker,rank,auditAnchor]=value.split('|');return {observationId,failureFingerprint,severity,outcome,causeFingerprint,resolutionRef,blockerRef:blocker==='none'?null:blocker,backlogRank:rank==='none'?null:Number(rank),auditAnchor,primaryObservationId:null,repairRowId:outcome==='repair-required'?`proof-02-repair-${causeFingerprint.replace(/^sha256:/,'')}`:null};}), groups=Object.groupBy(dispositions,(entry)=>entry.causeFingerprint); for(const entries of Object.values(groups)){entries.sort((a,b)=>a.observationId.localeCompare(b.observationId));for(const entry of entries.slice(1)){entry.primaryObservationId=entries[0].observationId;entry.outcome='not-distinct-cause';entry.repairRowId=null;}} return {reproductionReceiptId,auditTupleId,dispositions:dispositions.sort((a,b)=>a.observationId.localeCompare(b.observationId))}; }
 // prettier-ignore
 export function repairInputs(arguments_,index) { const triage=one(index.records,'proof-02-triage','exact-main')??fail('triage receipt missing'), repairs=(arguments_.repairs??[]).map((value)=>{const tuple17=value.split('|'), repairRowId=`proof-02-repair-${tuple17[1].replace(/^sha256:/,'')}`, repair=one(index.records,repairRowId,'exact-main')??fail('repair receipt missing'), cleanup=index.cleanups.find((entry)=>entry.wave===repairRowId&&entry.runId===repair.runId)??fail('repair cleanup missing'); return {repairRowId,repairReceiptId:repair.receiptId,cleanupReceiptId:receiptId(cleanup),tuple17};}); return {parentRunId:triage.runId,triageReceiptId:triage.receiptId,repairs:repairs.sort((a,b)=>a.repairRowId.localeCompare(b.repairRowId))}; }
+// mkdtemp yields a collision-free parent; the returned CHILD must not exist yet
+// because createBareSession fail-closes on an existing session directory. The
+// first live camp-proof run proved the prior mkdtemp-result default unusable.
+// prettier-ignore
+export function freshSessionDirectory(prefix) { return path.join(fs.mkdtempSync(path.join(os.tmpdir(),prefix)),'session.git'); }
 // prettier-ignore
 function key(wave,mode,sha) { return `${wave}\0${mode}\0${sha}`; }
 // prettier-ignore
