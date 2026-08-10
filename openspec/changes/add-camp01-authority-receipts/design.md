@@ -175,6 +175,8 @@ the production composition entry `scripts/qc/run-camp01-production.mjs` SHALL be
 
 - `register-pr-target --wave --subject=product|audit --worktree [--spec="<child>|<spec-pr>|<spec-merge-sha>|<approval>|<reviewer>"]` creates the pre-edit owned target only when the existing fixed row or verified repair declaration has the matching cap subject; product requires the ledgered spec tuple, while audit forbids it and inherits CAMP-PROOF spec provenance.
 - `proof --mode=reviewed-head|exact-main --wave --sha --run-root --spec` requires exactly one of `--product="<pr>|<head>|<approval>|<reviewer>|<merge-or-pending>"`, the same-shaped `--audit`, or neither according to `capSubject`; it accepts repeated fixed-format `--program-spec`, `--disposition`, and `--repair` only where permitted, creates the detached proof target, bootstraps CAMP-PROOF when permitted, runs bootstrap/write/validate/export/reopen, and leaves the durable receipt.
+
+The approval/reviewer tuple suffix `solo-maintainer|<owner>` is the solo-maintainer sentinel: it records reduced self-reviewed provenance and is accepted only while that owner is the repository's sole collaborator, authored the pull, merged any merged citation, and holds `ADMIN` permission.
 - `cleanup --wave --run-root --run-id --receipt-digest` requires exact-main receipt identity, removes the recorded proof and optional owned target/ref, publishes/revalidates `wave-cleanup.json`, then removes the internal target state.
 
 Unknown subcommands/options, mode-incompatible inputs, a dirty/initiating target, or direct low-level authoritative publication fail.
