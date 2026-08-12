@@ -49,6 +49,17 @@ const prodEvidenceEnv = prodEvidence
       PORT: '3600',
     }
   : {};
+// Receipt runs inherit a stripped PATH and empty npm cache. `npm run dev` is
+// `npx kill-port && node server.js`, and kill-port is not a dependency, so npx
+// hangs in npm-prefix.js until Playwright's 120s webServer timeout, then
+// Windows taskkill wedges on that tree. Start server.js with the same Node.
+const campDevServerEnv =
+  campIsolation.active && !prodEvidence
+    ? {
+        MEKSTATION_E2E_SERVER_COMMAND: `${JSON.stringify(process.execPath)} ${JSON.stringify(path.join(repoRoot, 'server.js'))}`,
+        MEKSTATION_E2E_SERVER_TIMEOUT_MS: '600000',
+      }
+    : {};
 const isInteractive =
   playwrightArgs.includes('--ui') || playwrightArgs.includes('--debug');
 const campCaptureEnvironment = captureEnvironment(process.env);
@@ -61,6 +72,7 @@ const child = spawn(process.execPath, [playwrightCli, ...playwrightArgs], {
     ...campCollection.environment,
     BASELINE_BROWSER_MAPPING_IGNORE_OLD_DATA: 'true',
     BROWSERSLIST_IGNORE_OLD_DATA: 'true',
+    ...campDevServerEnv,
     ...prodEvidenceEnv,
     ...campCaptureEnvironment,
   },
