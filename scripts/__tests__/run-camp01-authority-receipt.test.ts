@@ -52,6 +52,7 @@ try {
     value=await controller.runController(['register-pr-target','--wave='+id,'--subject=product','--worktree='+path.resolve('owned'),'--spec='+spec('repair-child')],deps);
   }
   else if(request.action==='sequence') { await controller.runController(['register-pr-target','--wave=camp-proof','--subject=product','--worktree='+path.resolve('owned'),'--spec='+spec('add-camp01-authority-receipts')],dependencies); request.headSha=sha; await controller.runController(proofArgs('reviewed-head',sha),dependencies); request.headSha=exactSha; const exact=await controller.runController(proofArgs('exact-main',exactSha),dependencies); const run=exact.runs.at(-1); await controller.runController(['cleanup','--wave=camp-proof','--run-root='+run.runRoot,'--run-id='+run.runId,'--receipt-digest='+run.receiptDigest],dependencies); value={snapshots,calls,state}; }
+  else if(request.action==='none-exact') { const head='d'.repeat(40); request.headSha=head; value=await controller.runController(['proof','--mode=exact-main','--wave=proof-02-reproduction','--sha='+head,'--run-root=.sisyphus/evidence/playtest/proof02-reproduction-'+head,'--spec='+spec('add-camp01-authority-receipts')],dependencies); }
   else if(request.action==='observation') { const child='prove-saved-custom-unit-campaign-journey', root='.sisyphus/evidence/playtest/camp01h-journey-'; await controller.runController(['register-pr-target','--wave=camp-01h','--subject=product','--worktree='+path.resolve('owned'),'--spec='+spec(child)],dependencies); request.headSha=sha; request.phase='observation'; const observed=await controller.runController(['proof','--mode=reviewed-head','--wave=camp-01h','--sha='+sha,'--run-root='+root+sha,'--spec='+spec(child),'--product='+owned()],dependencies); request.headSha=exactSha; request.phase='final'; let exactError=null; try { await controller.runController(['proof','--mode=exact-main','--wave=camp-01h','--sha='+exactSha,'--run-root='+root+exactSha,'--spec='+spec(child),'--product='+owned(exactSha)],dependencies); } catch(error) { exactError=error instanceof Error?error.message:String(error); } value={phase:observed.runs[0].phase,exactError}; }
   else if(request.action==='unbound-exact') { await controller.runController(['register-pr-target','--wave=camp-proof','--subject=product','--worktree='+path.resolve('owned'),'--spec='+spec('add-camp01-authority-receipts')],dependencies); request.headSha=sha; await controller.runController(proofArgs('reviewed-head',sha),dependencies); request.headSha=exactSha; let rejected=false; try { await controller.runController(['proof','--mode=exact-main','--wave=camp-proof','--sha='+exactSha,'--run-root=.sisyphus/evidence/playtest/camp-proof-'+exactSha,'--spec='+spec('add-camp01-authority-receipts'),'--product='+['999','e'.repeat(40),'approval-9','owner-reviewer',exactSha].join('|'),...programSpecs.map((value)=>'--program-spec='+value)],dependencies); } catch(error) { rejected=error instanceof Error&&error.message.includes('provenance-unbound'); } value={rejected}; }
   else if(request.action==='malformed-dependency') { await controller.runController(['register-pr-target','--wave=camp-proof','--subject=product','--worktree='+path.resolve('owned'),'--spec='+spec('add-camp01-authority-receipts')],dependencies); if(request.breakAdapter!=='inspectOwnedTarget') { request.headSha=sha; const reviewed=await controller.runController(proofArgs('reviewed-head',sha),dependencies); if(request.breakAdapter==='cleanupTargets') { request.headSha=exactSha; const exact=await controller.runController(proofArgs('exact-main',exactSha),dependencies); const run=exact.runs.at(-1); value=await controller.runController(['cleanup','--wave=camp-proof','--run-root='+run.runRoot,'--run-id='+run.runId,'--receipt-digest='+run.receiptDigest],dependencies); } else value=reviewed; } }
@@ -295,6 +296,17 @@ describe('CAMP-01 authority receipt controller core', () => {
     expect((result.value as { exactError: string }).exactError).toContain(
       'reviewed-head final missing',
     );
+  });
+
+  it('admits a none-subject exact-main proof with no reviewed-head predecessor', () => {
+    const result = invoke({ action: 'none-exact' });
+    expect(result.ok).toBe(true);
+    expect(result.value).toMatchObject({
+      wave: 'proof-02-reproduction',
+      lifecycle: 'receipt-validated',
+      ownedTarget: null,
+      runs: [{ mode: 'exact-main', phase: 'final' }],
+    });
   });
 
   it.each([
