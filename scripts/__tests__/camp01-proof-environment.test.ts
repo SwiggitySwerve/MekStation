@@ -32,11 +32,12 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { WAVE_CONTRACTS } from ${JSON.stringify(contractUrl)};
 import { canonicalBytes, digestBytes } from ${JSON.stringify(schemasUrl)};
-const request=JSON.parse(fs.readFileSync(0,'utf8')), row=WAVE_CONTRACTS['camp-proof'], root=request.root;
+const request=JSON.parse(fs.readFileSync(0,'utf8')), row=WAVE_CONTRACTS[request.wave??'camp-proof'], root=request.root;
 if(request.deleteSystemRoot) delete process.env.SystemRoot;
 Object.assign(process.env,request.ambient??{});
 const environment=await import(${JSON.stringify(environmentUrl)});
 fs.mkdirSync(root,{recursive:true}); if(request.packageLock!=='missing')fs.writeFileSync(path.join(root,'package-lock.json'),'lock-v1');
+if(request.wave==='proof-02-reproduction'&&request.omitPlaywrightCli!==true){ fs.mkdirSync(path.join(root,'node_modules','playwright'),{recursive:true}); fs.writeFileSync(path.join(root,'node_modules','playwright','cli.js'),''); }
 const runtimeRoot=path.join(path.dirname(root),'.camp01-runtime-'+path.basename(root)), calls=[];
 if(request.precreateRuntime) { fs.mkdirSync(runtimeRoot,{recursive:true}); fs.writeFileSync(path.join(runtimeRoot,'sentinel'),'owned elsewhere'); }
 if(request.precreateOwnedRuntime) { fs.mkdirSync(runtimeRoot,{recursive:true}); fs.writeFileSync(path.join(runtimeRoot,'sentinel'),'retry residue'); fs.writeFileSync(path.join(runtimeRoot,'.camp01-runtime-owner.json'),canonicalBytes({schema:'camp01-runtime-root/v1',targetDigest:digestBytes(root)})); }
@@ -48,7 +49,7 @@ const dependencies={
   resolveVerifiedGit:()=>request.gitExtra?{executable:gitExecutable,unexpected:true}:{executable:gitExecutable},
   versionReporter:request.realToolIdentity?({tool,executable,args,cwd,env})=>tool==='git'?versions.git:spawnSync(executable,args,{shell:false,cwd,env,encoding:'utf8'}).stdout:({tool})=>versions[tool],
   fileDigester:request.digestDrift?()=> 'invalid':request.realToolIdentity?(file)=>file===gitExecutable?digestBytes('verified-git'):digestBytes(fs.readFileSync(file)):(file)=>request.postPrepareLockDrift&&file.endsWith('package-lock.json')?digestBytes(fs.readFileSync(file)):digestBytes('file:'+file.toLowerCase()),
-  spawn:(executable,args,options)=>{ calls.push({executable,args,options:{shell:options.shell,cwd:options.cwd,env:options.env}}); if(request.bootstrap==='omitted') return undefined; if(request.bootstrap==='statusless') return {stdout:'',stderr:''}; if(request.bootstrap==='throws') throw new Error('spawn failed'); if(request.bootstrap==='failed') return {status:9,stdout:'no',stderr:'failed'}; if(args.includes('ci')) { if(request.bootstrap==='mutated') options.env.NODE_OPTIONS='--inspect'; if(request.bootstrap==='config-mutated') fs.writeFileSync(options.env.NPM_CONFIG_USERCONFIG,'prefix=elsewhere'); return {status:0,stdout:'installed',stderr:''}; } if(request.breakWriterCommandEnv) options.env.CAMP01_ATTACK='1'; const artifact=options.env.CAMP01_ARTIFACT_DIR; fs.writeFileSync(path.join(artifact,'wave-result.json'),canonicalBytes({schema:'camp01-wave-result/v1',wave:'camp-proof',runId:options.env.CAMP01_RUN_ID,status:'passed',assertions:Object.fromEntries([...row.assertions].sort().map((id)=>[id,true]))})); return {status:0,stdout:'',stderr:''};},
+  spawn:(executable,args,options)=>{ calls.push({executable,args,options:{shell:options.shell,cwd:options.cwd,env:options.env}}); if(request.bootstrap==='omitted') return undefined; if(request.bootstrap==='statusless') return {stdout:'',stderr:''}; if(request.bootstrap==='throws') throw new Error('spawn failed'); if(request.bootstrap==='failed') return {status:9,stdout:'no',stderr:'failed'}; if(args.includes('ci')) { if(request.bootstrap==='mutated') options.env.NODE_OPTIONS='--inspect'; if(request.bootstrap==='config-mutated') fs.writeFileSync(options.env.NPM_CONFIG_USERCONFIG,'prefix=elsewhere'); return {status:0,stdout:'installed',stderr:''}; } if(args.includes('install')&&args.includes('chromium')) { if(request.playwrightInstall==='omitted') return undefined; if(request.playwrightInstall==='failed') return {status:9,stdout:'',stderr:'failed'}; return {status:0,stdout:'chromium',stderr:''}; } if(request.breakWriterCommandEnv) options.env.CAMP01_ATTACK='1'; const artifact=options.env.CAMP01_ARTIFACT_DIR; fs.writeFileSync(path.join(artifact,'wave-result.json'),canonicalBytes({schema:'camp01-wave-result/v1',wave:'camp-proof',runId:options.env.CAMP01_RUN_ID,status:'passed',assertions:Object.fromEntries([...row.assertions].sort().map((id)=>[id,true]))})); return {status:0,stdout:'',stderr:''};},
 };
 if(request.git==='invalid') dependencies.resolveVerifiedGit=()=>null;
 const sha='b'.repeat(40), digest='sha256:'+'a'.repeat(64), tuple=(n)=>'tuple-'+n.repeat(16);
@@ -57,7 +58,7 @@ try { let value;
   if(request.action==='import') value={loaded:true};
   else if(request.action==='expand') value=environment.expandLogicalCommand(request.argv,{nodeExecutable:request.toolDrift??process.execPath,npmCli:path.join(path.dirname(process.execPath),'node_modules','npm','bin','npm-cli.js')});
   else { const proofTarget={canonicalPath:root}, prepared=request.skipPrepare?undefined:await environment.prepareEnvironment({row,proofTarget},dependencies);
-    if(request.action==='prepare') value={prepared,bootstrap:calls[0],ownedResidueRemoved:request.precreateOwnedRuntime?!fs.existsSync(path.join(runtimeRoot,'sentinel')):undefined};
+    if(request.action==='prepare') value={prepared,bootstrap:calls[0],calls,ownedResidueRemoved:request.precreateOwnedRuntime?!fs.existsSync(path.join(runtimeRoot,'sentinel')):undefined};
     else { if(request.postPrepareLockDrift)fs.writeFileSync(path.join(root,'package-lock.json'),'lock-v2'); if(!request.omitWriterContext) dependencies.resolveWriterContext=()=>writerContext; dependencies.randomBytes=()=>Buffer.from('4'.repeat(32),'hex'); value={result:await environment.executeReceipt({row,arguments:{mode:'reviewed-head',wave:'camp-proof',sha,runRoot:row.runRootTemplate.replace('<sha>',sha)},provenance:{subject:'product-pr'},environment:prepared,proofTarget},dependencies),calls,files:fs.readdirSync(path.join(root,row.runRootTemplate.replace('<sha>',sha),'camp01-'+'4'.repeat(32))).sort()}; }
   }
   process.stdout.write(JSON.stringify({ok:true,value}));
@@ -174,7 +175,54 @@ describe('cross-platform CAMP-01 pinned proof environment logic', () => {
       args: expect.arrayContaining(['ci', '--fund=false', '--audit=false']),
       options: { shell: false, cwd: root },
     });
+    expect(
+      result.value?.calls?.some((call) => call.args.includes('chromium')),
+    ).toBe(false);
   });
+
+  it('installs Chromium for proof-02-reproduction npm-script Playwright rows', () => {
+    const result = invoke({
+      action: 'prepare',
+      root,
+      wave: 'proof-02-reproduction',
+    });
+    expect(result.ok).toBe(true);
+    expect(result.value?.calls?.map((call) => call.args)).toEqual([
+      expect.arrayContaining(['ci', '--fund=false', '--audit=false']),
+      expect.arrayContaining(['install', 'chromium']),
+    ]);
+  });
+
+  it('rejects a missing Playwright CLI on proof-02-reproduction', () => {
+    expect(
+      invoke({
+        action: 'prepare',
+        root,
+        wave: 'proof-02-reproduction',
+        omitPlaywrightCli: true,
+      }).error,
+    ).toBe('CAMP01_ENVIRONMENT_INVALID: playwright cli missing');
+  });
+
+  it.each([
+    ['omitted', 'CAMP01_ENVIRONMENT_INVALID: playwright install omitted'],
+    [
+      'failed',
+      'CAMP01_ENVIRONMENT_INVALID: playwright install failed with exit code 9',
+    ],
+  ])(
+    'rejects %s Playwright install on proof-02-reproduction',
+    (playwrightInstall, message) => {
+      expect(
+        invoke({
+          action: 'prepare',
+          root,
+          wave: 'proof-02-reproduction',
+          playwrightInstall,
+        }).error,
+      ).toBe(message);
+    },
+  );
 
   it('rejects undeclared product environment input', () => {
     expect(

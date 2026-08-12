@@ -66,7 +66,9 @@ export async function prepareEnvironment({row,proofTarget},dependencies={}) {
     const bootstrapArgv=expandLogicalCommand(['@npm','ci','--fund=false','--audit=false'],tools), bootstrapEnvironment={...baseEnvironment}, before=JSON.stringify(bootstrapEnvironment), result=await runSpawn(bootstrapArgv,{cwd:targetRoot,env:bootstrapEnvironment},dependencies); if(result===undefined||result===null||result.status===null||result.status===undefined) fail('bootstrap omitted'); if(result.status!==0) fail(`bootstrap failed with exit code ${result.status}`); if(JSON.stringify(bootstrapEnvironment)!==before) fail('bootstrap environment drift');
     // Playwright rows: npm ci does not download browsers, and the hermetic
     // LOCALAPPDATA is an empty profile. Install Chromium into that profile.
-    if(row.commandSequence.some((argv)=>Array.isArray(argv)&&argv.includes('scripts/playwright/run-playwright.mjs'))){ const playwrightCli=path.join(targetRoot,'node_modules','playwright','cli.js'); if(!fs.existsSync(playwrightCli)) fail('playwright cli missing'); const browsers=await runSpawn([tools.nodeExecutable,playwrightCli,'install','chromium'],{cwd:targetRoot,env:bootstrapEnvironment},dependencies); if(browsers===undefined||browsers===null||browsers.status===null||browsers.status===undefined) fail('playwright install omitted'); if(browsers.status!==0) fail(`playwright install failed with exit code ${browsers.status}`); if(JSON.stringify(bootstrapEnvironment)!==before) fail('bootstrap environment drift'); }
+    // proof-02-reproduction invokes Playwright via `npm run qc:command:browser:quick`,
+    // not a commandSequence argv that names run-playwright.mjs.
+    if(needsPlaywrightBrowsers(row,targetRoot)){ const playwrightCli=path.join(targetRoot,'node_modules','playwright','cli.js'); if(!fs.existsSync(playwrightCli)) fail('playwright cli missing'); const browsers=await runSpawn([tools.nodeExecutable,playwrightCli,'install','chromium'],{cwd:targetRoot,env:bootstrapEnvironment},dependencies); if(browsers===undefined||browsers===null||browsers.status===null||browsers.status===undefined) fail('playwright install omitted'); if(browsers.status!==0) fail(`playwright install failed with exit code ${browsers.status}`); if(JSON.stringify(bootstrapEnvironment)!==before) fail('bootstrap environment drift'); }
     await verifyInputs({tools,versions,digests,packageLock,packageLockSha256,baseEnvironment,proofTarget},dependencies);
     const record=environmentRecord({tools,versions,digests,packageLockSha256,baseEnvironment,bootstrapArgv,row}), transcriptDigest=environmentDigest({exitCode:result.status,stdoutDigest:digestBytes(result.stdout??''),stderrDigest:digestBytes(result.stderr??'')}); validateArtifact(record);
     const state={row,proofTarget,runtimeRoot,tools,versions,digests,packageLock,packageLockSha256,baseEnvironment,record,transcriptDigest,dependencies,executionEnvironmentDigest:executionDigest(record,transcriptDigest,tools,targetRoot)}; PREPARED.set(proofTarget,state); return {executionEnvironmentDigest:state.executionEnvironmentDigest};
@@ -127,5 +129,14 @@ function runtimeMarker(target) { return `${JSON.stringify({schema:'camp01-runtim
 function recoverRuntimeRoot(root,target) { try { const rootStat=fs.lstatSync(root), marker=path.join(root,'.camp01-runtime-owner.json'), markerStat=fs.lstatSync(marker); if(rootStat.isSymbolicLink()||!rootStat.isDirectory()||markerStat.isSymbolicLink()||!markerStat.isFile()||fs.readFileSync(marker,'utf8')!==runtimeMarker(target)) fail('writer runtime root is not exclusive'); fs.rmSync(root,{recursive:true}); } catch(error) { if(error instanceof Camp01EnvironmentError) throw error; fail('writer runtime root is not exclusive'); } }
 // prettier-ignore
 function assertTarget(row,proofTarget) { if(!row||!Array.isArray(row.commandSequence)||!Array.isArray(row.artifacts)||!proofTarget||!path.isAbsolute(proofTarget.canonicalPath)) fail('proof target drift'); }
+// prettier-ignore
+function needsPlaywrightBrowsers(row,targetRoot) {
+  const marker='scripts/playwright/run-playwright.mjs';
+  if(Array.isArray(row.commandSequence)&&row.commandSequence.some((argv)=>Array.isArray(argv)&&argv.includes(marker))) return true;
+  if(Array.isArray(row.reporterContracts)&&row.reporterContracts.some((contract)=>contract.producerId===marker)) return true;
+  let scripts; try { scripts=JSON.parse(fs.readFileSync(path.join(targetRoot,'package.json'),'utf8')).scripts; } catch { return false; }
+  if(!scripts||typeof scripts!=='object') return false;
+  return row.commandSequence.some((argv)=>Array.isArray(argv)&&argv[0]==='@npm'&&argv[1]==='run'&&typeof argv[2]==='string'&&typeof scripts[argv[2]]==='string'&&scripts[argv[2]].includes(marker));
+}
 // prettier-ignore
 function fail(message) { throw new Camp01EnvironmentError(message); }
