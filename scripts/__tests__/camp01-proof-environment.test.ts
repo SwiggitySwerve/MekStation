@@ -206,17 +206,23 @@ describe('cross-platform CAMP-01 pinned proof environment logic', () => {
 
   it.each([
     ['omitted', 'CAMP01_ENVIRONMENT_INVALID: playwright install omitted'],
-    ['failed', 'CAMP01_ENVIRONMENT_INVALID: playwright install failed with exit code 9'],
-  ])('rejects %s Playwright install on proof-02-reproduction', (playwrightInstall, message) => {
-    expect(
-      invoke({
-        action: 'prepare',
-        root,
-        wave: 'proof-02-reproduction',
-        playwrightInstall,
-      }).error,
-    ).toBe(message);
-  });
+    [
+      'failed',
+      'CAMP01_ENVIRONMENT_INVALID: playwright install failed with exit code 9',
+    ],
+  ])(
+    'rejects %s Playwright install on proof-02-reproduction',
+    (playwrightInstall, message) => {
+      expect(
+        invoke({
+          action: 'prepare',
+          root,
+          wave: 'proof-02-reproduction',
+          playwrightInstall,
+        }).error,
+      ).toBe(message);
+    },
+  );
 
   it('rejects undeclared product environment input', () => {
     expect(
