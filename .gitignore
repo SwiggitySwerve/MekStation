@@ -189,6 +189,9 @@ storybook-static/
 !.sisyphus/evidence/playtest/*/*.md
 !.sisyphus/evidence/playtest/*/*.json
 
+# CAMP Playwright isolation runtime (short worktree path for Windows MAX_PATH)
+.c1r/
+
 # Root-level verification screenshots
 /verify-*.png
 /screenshots/
