@@ -111,9 +111,7 @@ describe('CAMP-01 runner isolation', () => {
       CAMP01_UX_WALKTHROUGH_DIR: value?.paths?.uxWalkthrough,
       CAMP01_BROWSER_STORAGE_STATE: value?.paths?.browserStorageState,
     });
-    expect(value?.environment?.MEKSTATION_NEXT_DIST_DIR).toMatch(
-      /^\.sisyphus\/evidence\/playtest\//,
-    );
+    expect(value?.environment?.MEKSTATION_NEXT_DIST_DIR).toBe('.c1r/next');
   });
 
   // prettier-ignore

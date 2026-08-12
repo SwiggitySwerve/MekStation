@@ -23,7 +23,7 @@ const request=JSON.parse(fs.readFileSync(0,'utf8'));
 const runId='camp01-'+'7'.repeat(32), row=WAVE_CONTRACTS[request.wave??'camp-01e'], index=request.index??1;
 const runRoot=path.join(request.root,...row.runRootTemplate.replace('<sha>','a'.repeat(40)).split('/'));
 const artifactDir=path.join(request.rogueParent?path.join(request.root,'rogue'):runRoot,request.stageBasename??('.stage-'+runId));
-const identity=issuedCommandIdentity(row,index,runId), runtimeRoot=path.join(artifactDir,'.runtime-'+identity.executionId);
+const identity=issuedCommandIdentity(row,index,runId), runtimeRoot=path.join(request.root,'.c1r');
 const sentinel=path.join(runRoot,'playtest-sentinel'), writerSibling=path.join(artifactDir,'writer-sibling.json');
 fs.mkdirSync(artifactDir,{recursive:true});
 fs.mkdirSync(runRoot,{recursive:true});
