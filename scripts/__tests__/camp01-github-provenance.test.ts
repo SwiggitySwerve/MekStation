@@ -100,7 +100,7 @@ try { let value;
     const source={kind:'proof',childChange:child,causeFingerprint:'sha256:'+seeded.cause,sourceDisposition:seeded.repairRow.sourceDisposition,reporterContracts:[],explicitDependencies:[]};
     const dependencies={fetchGitHubResource:transport,git:seeded.git,gitDependencies:request.action==='nonancestor'?{spawn:(executable,args,options)=>{const result=spawnSync(executable,args,options), fetchIndex=args.indexOf('fetch'); if(result.status!==0||fetchIndex<0)return result; return spawnSync(executable,[...args.slice(0,fetchIndex),'fetch','--no-tags','--no-recurse-submodules',seeded.remote,'+refs/heads/divergent:refs/camp01/divergent'],options);}}:undefined,sessionDirectory:request.drift==='missing-session'?undefined:request.drift==='relative-session'?()=>'.camp01-relative':({operation})=>path.join(root,operation+'.git'),testOnlyRemoteUrl:seeded.remote,testOnlyAllowLocalRemote:true,
       resolvePreflightFacts:()=>({predecessorReceiptWaves:['camp-00'],predecessorCleanupWaves:['camp-00'],repairGates:[],cap:{subject:'product-pr',fileCount:1,changedLineCount:2,binaryEntries:false}}),
-      resolveWriterInputs:request.action==='missing-writer-inputs'?undefined:(input)=>({treeSha:seeded.productSha,capProvenance:{subject:'product-pr',baseSha:seeded.specSha,headSha:seeded.productSha,fileCount:1,changedLineCount:2,binaryEntries:false,changedTreeManifestDigest:digest,reviewedHeadReceiptId:null,reviewedHeadReceiptManifestDigest:null},identityRegistry:{schema:'camp01-identity-registry/v1',entities:[],refs:[]},registryContext:{evidence:[],provenance:request.drift==='writer-registry-drift'?[{id:'tuple-'+createHash('sha256').update(JSON.stringify(input.provenance.spec)).digest('hex').slice(0,32),sourceKind:'drift',wave:'camp-00',subject:'none'}]:[{id:predecessor,sourceKind:'predecessor-receipt',wave:'camp-00',subject:'none'}],refs:[],capturePolicies:[],repairSources:[]},predecessorReceiptIds:request.drift==='malformed-writer-facts'?[]:[predecessor],reviewedHead:null}),
+      resolveWriterInputs:request.action==='missing-writer-inputs'?undefined:(input)=>({treeSha:seeded.productSha,capProvenance:{subject:'product-pr',baseSha:seeded.specSha,headSha:seeded.productSha,fileCount:1,changedLineCount:2,binaryEntries:false,changedTreeManifestDigest:digest,reviewedHeadReceiptId:null,reviewedHeadReceiptManifestDigest:null},identityRegistry:{schema:'camp01-identity-registry/v1',entities:[],refs:[]},registryContext:{evidence:[],provenance:request.drift==='writer-registry-drift'?[{id:'tuple-'+createHash('sha256').update(JSON.stringify({wave:input.row.wave,value:input.provenance.spec})).digest('hex').slice(0,32),sourceKind:'drift',wave:'camp-00',subject:'none'}]:request.drift==='shared-spec-predecessor'?[{id:'tuple-'+createHash('sha256').update(JSON.stringify(input.provenance.spec)).digest('hex').slice(0,32),sourceKind:'spec-tuple',wave:'proof-02-reproduction',subject:'none'},{id:predecessor,sourceKind:'predecessor-receipt',wave:'camp-00',subject:'none'}]:[{id:predecessor,sourceKind:'predecessor-receipt',wave:'camp-00',subject:'none'}],refs:[],capturePolicies:[],repairSources:[]},predecessorReceiptIds:request.drift==='malformed-writer-facts'?[]:[predecessor],reviewedHead:null}),
       resolveRepairSource:request.drift==='missing-repair-source'?undefined:()=>({source,registrySet:{requiredRowIds:[seeded.repairRow.wave],registeredRowIds:[seeded.repairRow.wave]}})};
     const seams=provenance.createGitHubProvenance(dependencies);
     if(request.action==='repair'){const registration=await seams.resolveRepairRegistration({wave:seeded.repairRow.wave,spec}); value={keys:Object.keys(registration),accepted:!!assertRepairDeclaration(registration.declaration,registration.source),registrySet:registration.registrySet};}
@@ -549,6 +549,22 @@ describe('CAMP-01 GitHub provenance', () => {
       value: { acceptedPreflight: true },
     });
   });
+
+  gitIt(
+    'scopes spec tuple ids so a predecessor citing the same spec does not drift',
+    () => {
+      const result = invoke({
+        action: 'preflight',
+        drift: 'shared-spec-predecessor',
+        root,
+        git: hostGit,
+      });
+      expect(result).toMatchObject({
+        ok: true,
+        value: { acceptedWriter: true },
+      });
+    },
+  );
 
   gitIt(
     'rejects exact-main receipt identity when the argument SHA drifts',

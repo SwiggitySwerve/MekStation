@@ -120,7 +120,7 @@ export async function resolveRepairRegistration({wave,spec},dependencies={}) {
 export async function resolveWriterContext(input,dependencies={}) {
   const context=dependencies.verifiedContext; if(!context||context.provenance!==JSON.stringify(input.provenance)) fail('verified preflight context missing'); const resolver=dependencies.resolveWriterInputs; if(typeof resolver!=='function') fail('validated writer inputs missing'); const facts=await resolver(input), triage=input.row?.wave==='proof-02-triage', keys=['treeSha','capProvenance','identityRegistry','registryContext','predecessorReceiptIds','reviewedHead',...(triage?['reproduction','triage']:[])];
   if(!facts||JSON.stringify(Object.keys(facts))!==JSON.stringify(keys)||!OID.test(facts.treeSha)||!Array.isArray(facts.predecessorReceiptIds)||facts.predecessorReceiptIds.length!==input.row.predecessors.length||!facts.identityRegistry||!facts.registryContext||!Array.isArray(facts.registryContext.provenance)) fail('validated writer inputs missing');
-  const specTupleId=tupleId(input.provenance.spec), ownedPrTupleId=input.provenance.owned===null?null:tupleId(input.provenance.owned), additions=[{id:specTupleId,sourceKind:'spec-tuple',wave:input.row.wave,subject:input.row.capSubject},...(ownedPrTupleId===null?[]:[{id:ownedPrTupleId,sourceKind:'owned-pr-tuple',wave:input.row.wave,subject:input.row.capSubject}])];
+  const specTupleId=tupleId(input.provenance.spec,input.row.wave), ownedPrTupleId=input.provenance.owned===null?null:tupleId(input.provenance.owned,input.row.wave), additions=[{id:specTupleId,sourceKind:'spec-tuple',wave:input.row.wave,subject:input.row.capSubject},...(ownedPrTupleId===null?[]:[{id:ownedPrTupleId,sourceKind:'owned-pr-tuple',wave:input.row.wave,subject:input.row.capSubject}])];
   for(const entry of additions){const prior=facts.registryContext.provenance.find(({id})=>id===entry.id); if(prior&&JSON.stringify(prior)!==JSON.stringify(entry)) fail('writer provenance registry drift');}
   const registryContext={...facts.registryContext,provenance:[...facts.registryContext.provenance.filter((entry)=>!additions.some(({id})=>id===entry.id)),...additions].sort((left,right)=>left.id.localeCompare(right.id))}, provenance={subject:input.row.capSubject,specTupleId,ownedPrTupleId,predecessorReceiptIds:facts.predecessorReceiptIds};
   return {treeSha:facts.treeSha,provenance,capProvenance:facts.capProvenance,identityRegistry:facts.identityRegistry,registryContext,reviewedHead:facts.reviewedHead,...(triage?{reproduction:facts.reproduction,triage:facts.triage}:{})};
@@ -179,8 +179,11 @@ function specCitation(value,wave) { if(!value||!CHANGE.test(value.childChange)||
 function ownedCitation(value,wave,subject) { if(!value||!/^[1-9][0-9]*$/.test(String(value.prNumber))||!OID.test(value.headSha)||value.mergeSha!==null&&!OID.test(value.mergeSha)) fail('invalid owned citation'); return {kind:'owned',wave,subject,childChange:null,prNumber:String(value.prNumber),headSha:value.headSha,mergeSha:value.mergeSha,approvalId:String(value.approvalId),reviewer:String(value.reviewer)}; }
 // prettier-ignore
 function parseSpecTuple(value) { const fields=typeof value==='string'?value.split('|'):[]; if(fields.length!==5) fail('invalid spec citation'); return {childChange:fields[0],prNumber:fields[1],mergeSha:fields[2],approvalId:fields[3],reviewer:fields[4]}; }
-function tupleId(value) {
-  return `tuple-${createHash('sha256').update(JSON.stringify(value)).digest('hex').slice(0, 32)}`;
+function tupleId(value, wave) {
+  return `tuple-${createHash('sha256')
+    .update(JSON.stringify(wave ? { wave, value } : value))
+    .digest('hex')
+    .slice(0, 32)}`;
 }
 function contextKey(input) {
   return `${input?.row?.wave}\0${input?.arguments?.mode}\0${input?.arguments?.sha}`;
