@@ -56,6 +56,7 @@ try { const base=await seed(); let value;
   else if(request.action==='audit-pre-edit'){ const ownedTarget=await target.inspectOwnedTarget({wave:'proof-02-triage',subject:'audit',worktree:owned,spec:null,row:WAVE_CONTRACTS['proof-02-triage']},{git}); value={base,ownedTarget}; }
   else if(request.action==='audit-pre-edit-head'){ value=await target.inspectOwnedTarget({wave:'proof-02-triage',subject:'audit',worktree:owned,spec:null,row:WAVE_CONTRACTS['proof-02-triage'],headSha:base},{git}); }
   else if(request.action==='audit-cap'){ fs.writeFileSync(path.join(owned,'noise.txt'),'noise\\n'); await run(['add','.'],owned); await run(['-c','user.name=CAMP01','-c','user.email=camp01@example.invalid','commit','-m','noise'],owned); const ownedTarget=await target.inspectOwnedTarget({wave:'proof-02-triage',subject:'audit',worktree:owned,spec:null,row:WAVE_CONTRACTS['proof-02-triage']},{git}); fs.writeFileSync(path.join(owned,'audit.md'),'disposition\\n'); await run(['add','.'],owned); await run(['-c','user.name=CAMP01','-c','user.email=camp01@example.invalid','commit','-m','audit'],owned); const facts=await target.resolveTargetFacts({ownedTarget,spec:{mergeSha:base},row:WAVE_CONTRACTS['proof-02-triage']},{git}); value={fileCount:facts.capProvenance.fileCount,changedLineCount:facts.capProvenance.changedLineCount,baseSha:facts.capProvenance.baseSha,oldOid:ownedTarget.oldOid,headSha:facts.capProvenance.headSha,subject:facts.capProvenance.subject,specMergeSha:base}; }
+  else if(request.action==='product-cap'){ fs.writeFileSync(path.join(owned,'noise.txt'),'noise\\n'); await run(['add','.'],owned); await run(['-c','user.name=CAMP01','-c','user.email=camp01@example.invalid','commit','-m','noise'],owned); const ownedTarget=await target.inspectOwnedTarget({wave:'camp-proof',subject:'product',worktree:owned,spec:{mergeSha:base},row:WAVE_CONTRACTS['camp-proof']},{git}); fs.writeFileSync(path.join(owned,'product.txt'),'loopback\\n'); await run(['add','.'],owned); await run(['-c','user.name=CAMP01','-c','user.email=camp01@example.invalid','commit','-m','product'],owned); const facts=await target.resolveTargetFacts({ownedTarget,spec:{mergeSha:base},row:WAVE_CONTRACTS['camp-proof']},{git}); value={fileCount:facts.capProvenance.fileCount,changedLineCount:facts.capProvenance.changedLineCount,baseSha:facts.capProvenance.baseSha,oldOid:ownedTarget.oldOid,headSha:facts.capProvenance.headSha,subject:facts.capProvenance.subject,specMergeSha:base}; }
   process.stdout.write(JSON.stringify({ok:true,value}));
 } catch(error) { process.stdout.write(JSON.stringify({ok:false,error:error instanceof Error?error.message:String(error),name:error instanceof Error?error.name:null})); process.exitCode=1; }`;
 
@@ -347,6 +348,21 @@ describe('cross-platform CAMP-01 local target authority', () => {
       expect(result.ok).toBe(true);
       expect(result.value).toMatchObject({
         subject: 'audit-pr',
+        fileCount: 1,
+        changedLineCount: 1,
+      });
+      expect(result.value?.baseSha).toBe(result.value?.oldOid);
+      expect(result.value?.baseSha).not.toBe(result.value?.specMergeSha);
+    },
+  );
+
+  gitIt(
+    'caps product-pr against pre-edit HEAD rather than the spec merge',
+    () => {
+      const result = invoke({ action: 'product-cap', root, git: hostGit });
+      expect(result.ok).toBe(true);
+      expect(result.value).toMatchObject({
+        subject: 'product-pr',
         fileCount: 1,
         changedLineCount: 1,
       });
