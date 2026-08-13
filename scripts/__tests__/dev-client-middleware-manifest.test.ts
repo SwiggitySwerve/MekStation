@@ -121,7 +121,7 @@ describe('dev client middleware manifest response', () => {
         response: createResponse(),
         rootDir: path.join(rootDir, 'missing'),
       }),
-    ).toBe(false);
+    ).toBe(true);
   });
 
   it('answers HEAD without sending the manifest body', () => {

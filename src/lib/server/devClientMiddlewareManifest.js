@@ -35,9 +35,12 @@ function serveDevClientMiddlewareManifest({
     body = fs.readFileSync(filePath);
   } catch (error) {
     if (error && error.code === 'ENOENT') {
-      return false;
+      body = Buffer.from(
+        'self.__MIDDLEWARE_MATCHERS=[];self.__MIDDLEWARE_MATCHERS_CB?.();',
+      );
+    } else {
+      throw error;
     }
-    throw error;
   }
 
   response.statusCode = 200;
