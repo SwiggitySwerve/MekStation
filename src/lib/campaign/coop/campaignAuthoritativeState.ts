@@ -19,20 +19,30 @@ export function buildCampaignAuthoritativeState(
   rosterUnits: readonly IRosterUnitProjection[] = [],
 ): ICampaignAuthoritativeState {
   const base = createEmptyCampaignState(campaign.id);
+  const projected = projectRosterUnits(campaign, rosterUnits);
   return {
     ...base,
     day: campaignDayFor(campaign),
     balance: readCampaignBalance(campaign),
-    rosterUnits: projectRosterUnits(rosterUnits),
-    forceUnits: projectForceUnits(campaign, rosterUnits),
+    rosterUnits: projected,
+    forceUnits: projectForceUnits(campaign, new Set(Object.keys(projected))),
     factionStanding: buildFactionStanding(campaign),
   };
 }
 
 function projectRosterUnits(
+  campaign: ICampaign,
   rosterUnits: readonly IRosterUnitProjection[],
 ): Readonly<Record<string, ICampaignRosterUnit>> {
   const units: Record<string, ICampaignRosterUnit> = {};
+  if (rosterUnits.length === 0) {
+    for (const force of Array.from(campaign.forces.values())) {
+      for (const unitId of force.unitIds) {
+        units[unitId] = { unitId, designation: unitId, status: 'operational' };
+      }
+    }
+    return units;
+  }
   const ordered = [...rosterUnits].sort((left, right) =>
     left.unitId.localeCompare(right.unitId),
   );
@@ -57,9 +67,8 @@ function projectRosterUnits(
 
 function projectForceUnits(
   campaign: ICampaign,
-  rosterUnits: readonly IRosterUnitProjection[],
+  rosterIds: ReadonlySet<string>,
 ): Readonly<Record<string, readonly string[]>> {
-  const rosterIds = new Set(rosterUnits.map((unit) => unit.unitId));
   const claimed = new Set<string>();
   const forceUnits: Record<string, readonly string[]> = {};
   const forces = Array.from(campaign.forces.values()).sort((left, right) =>

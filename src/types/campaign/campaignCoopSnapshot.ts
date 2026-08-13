@@ -48,7 +48,7 @@ export function parseCampaignCoopSnapshot(input: {
     if (parsed.kind === 'invalid') {
       return { ok: false, reason: 'unknown source' };
     }
-    if (!unit.unitRef) {
+    if (unit.unitSource !== undefined && !unit.unitRef) {
       return { ok: false, reason: 'unit reference missing' };
     }
   }

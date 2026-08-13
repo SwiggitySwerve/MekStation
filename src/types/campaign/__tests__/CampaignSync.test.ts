@@ -308,62 +308,43 @@ describe('parseCampaignIntent (zod boundary)', () => {
   });
 });
 
+function parseSnap(overrides: {
+  readonly campaignId?: unknown;
+  readonly matchId?: unknown;
+  readonly revision?: unknown;
+  readonly state?: unknown;
+}) {
+  return parseCampaignCoopSnapshot({
+    campaignId: CAMPAIGN_ID,
+    matchId: 'match-1',
+    revision: 0,
+    state: sampleState(),
+    ...overrides,
+  });
+}
+
 describe('campaign co-op snapshot authority', () => {
   it('rejects unknown source, missing refs, duplicates, and stale revisions', () => {
     const state = sampleState();
+    expect(parseSnap({ state }).ok).toBe(true);
+    expect(parseSnap({ campaignId: 'other', state }).ok).toBe(false);
+    expect(parseSnap({ revision: -1, state }).ok).toBe(false);
     expect(
-      parseCampaignCoopSnapshot({
-        campaignId: CAMPAIGN_ID,
-        matchId: 'match-1',
-        revision: 0,
-        state,
-      }).ok,
-    ).toBe(true);
-    expect(
-      parseCampaignCoopSnapshot({
-        campaignId: 'other',
-        matchId: 'match-1',
-        revision: 0,
-        state,
-      }).ok,
-    ).toBe(false);
-    expect(
-      parseCampaignCoopSnapshot({
-        campaignId: CAMPAIGN_ID,
-        matchId: 'match-1',
-        revision: -1,
-        state,
-      }).ok,
-    ).toBe(false);
-    const forged: unknown = {
-      ...state,
-      rosterUnits: {
-        'unit-1': {
-          unitId: 'unit-1',
-          designation: 'Atlas AS7-D',
-          status: 'operational',
-          unitRef: 'atlas-as7-d',
-          unitSource: 'stock',
-        },
-      },
-    };
-    expect(
-      parseCampaignCoopSnapshot({
-        campaignId: CAMPAIGN_ID,
-        matchId: 'match-1',
-        revision: 0,
-        state: forged,
-      }).ok,
-    ).toBe(false);
-    expect(
-      parseCampaignCoopSnapshot({
-        campaignId: CAMPAIGN_ID,
-        matchId: 'match-1',
-        revision: 0,
+      parseSnap({
         state: {
           ...state,
-          forceUnits: { a: ['unit-1'], b: ['unit-1'] },
-        },
+          rosterUnits: {
+            'unit-1': {
+              ...state.rosterUnits['unit-1'],
+              unitSource: 'stock',
+            },
+          },
+        } as unknown,
+      }).ok,
+    ).toBe(false);
+    expect(
+      parseSnap({
+        state: { ...state, forceUnits: { a: ['unit-1'], b: ['unit-1'] } },
       }).ok,
     ).toBe(false);
   });
@@ -397,6 +378,7 @@ describe('campaign co-op snapshot authority', () => {
     });
     const guest = useCampaignMirrorStore.getState().campaign;
     const hostState = entry.host.getState();
+    const unit = guest?.rosterUnits['unit-1'];
     const assertions = {
       'campaignIdMatched===true':
         entry.campaignId === CAMPAIGN_ID && guest?.campaignId === CAMPAIGN_ID,
@@ -410,8 +392,8 @@ describe('campaign co-op snapshot authority', () => {
         useCampaignMirrorStore.getState().lastSequence === entry.revision,
       'sourceIdentityMatched===true':
         hostState.rosterUnits['unit-1']?.unitSource === 'canonical' &&
-        guest?.rosterUnits['unit-1']?.unitSource === 'canonical' &&
-        guest?.rosterUnits['unit-1']?.unitRef === 'atlas-as7-d',
+        unit?.unitSource === 'canonical' &&
+        unit?.unitRef === 'atlas-as7-d',
     };
     if (Object.values(assertions).some((value) => value !== true)) {
       throw new Error(
