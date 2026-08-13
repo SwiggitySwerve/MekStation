@@ -123,7 +123,7 @@ function buildUnitProjection({
   readonly selected: boolean;
   readonly pilot: ICampaignRosterEntry | undefined;
   readonly repairTickets: readonly IRepairBayItem[];
-  readonly catalog: CanonicalCombatCatalogSnapshot;
+  readonly catalog?: CanonicalCombatCatalogSnapshot;
   readonly baseCampaignHref: string | undefined;
 }): IMissionReadinessUnitProjection {
   const reasons: IMissionReadinessReason[] = [];
