@@ -57,10 +57,11 @@ const buildVersion = `${appVersion}+${buildNumber}`;
 const campRuntimeRouted = /^[0-9a-f]{64}$/.test(
   process.env.CAMP01_RUNTIME_LEASE ?? '',
 );
-const nextDistDir = campRuntimeRouted
-  ? process.env.MEKSTATION_NEXT_DIST_DIR
-  : undefined;
-if (nextDistDir) {
+const camp00NextDistDir = process.env.CAMP01_NEXT_DIST_DIR;
+const nextDistDir =
+  camp00NextDistDir ??
+  (campRuntimeRouted ? process.env.MEKSTATION_NEXT_DIST_DIR : undefined);
+if (nextDistDir && !camp00NextDistDir) {
   const repositoryRoot = resolve(process.cwd());
   const resolvedNextDistDir = resolve(repositoryRoot, nextDistDir);
   if (

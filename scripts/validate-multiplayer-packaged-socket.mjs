@@ -1,11 +1,13 @@
 #!/usr/bin/env node
 
 import { spawn, spawnSync } from 'node:child_process';
-import { webcrypto } from 'node:crypto';
+import { createHash, webcrypto } from 'node:crypto';
 import fs from 'node:fs';
+import net from 'node:net';
 import os from 'node:os';
 import path from 'node:path';
 import { setTimeout as delay } from 'node:timers/promises';
+import { fileURLToPath } from 'node:url';
 import WebSocket from 'ws';
 
 const BASE58_ALPHABET =
@@ -208,10 +210,10 @@ async function waitForServer(child, getOutput) {
   });
 }
 
-async function createMatch(wireToken, playerId, getOutput) {
+async function createMatch(wireToken, playerId, getOutput, origin = baseUrl) {
   let response;
   try {
-    response = await fetch(`${baseUrl}/api/multiplayer/matches`, {
+    response = await fetch(`${origin}/api/multiplayer/matches`, {
       method: 'POST',
       headers: {
         authorization: `Bearer ${wireToken}`,
@@ -468,7 +470,37 @@ function stopServer(child) {
   child.kill('SIGTERM');
 }
 
+// prettier-ignore
+const READY_PREFIX='MEKSTATION_LISTENER_READY ', READY_KEYS=['schema','configuredHostname','boundAddress','family','port'], REJECT_HOSTS=['',' ','localhost','127.0.0.2','192.168.1.10','0.0.0.0','::','::1','not-an-ip'];
+// prettier-ignore
+export function createReadyParser(requestedPort) { let buf='', record=null; return {push(chunk){ const text=String(chunk); if((text.match(/MEKSTATION_LISTENER_READY /g)??[]).length>1) throw new Error('duplicate ready records'); buf+=text; for(;;){ const nl=buf.indexOf('\n'); if(nl<0){ if(Buffer.byteLength(buf)>1024&&buf.includes('MEKSTATION_LISTENER_READY')) throw new Error('ready line too long'); return record; } const line=buf.slice(0,nl); buf=buf.slice(nl+1); if(!line.includes('MEKSTATION_LISTENER_READY')) continue; if(!line.startsWith(READY_PREFIX)||Buffer.byteLength(`${line}\n`)>1024) throw new Error('malformed ready record'); const json=line.slice(READY_PREFIX.length), value=JSON.parse(json); if(JSON.stringify(value)!==json||!value||JSON.stringify(Object.keys(value))!==JSON.stringify(READY_KEYS)) throw new Error('malformed ready record'); if(value.schema!=='mekstation-packaged-listener-ready/v1'||value.configuredHostname!=='127.0.0.1'||value.boundAddress!=='127.0.0.1'||value.family!=='IPv4'||!Number.isInteger(value.port)||value.port<1||value.port>65535||value.port!==requestedPort) throw new Error('invalid ready record'); if(record) throw new Error('duplicate ready records'); record=value; } }, finish(){ if(buf.includes('MEKSTATION_LISTENER_READY')) throw new Error('malformed ready record'); if(!record) throw new Error('missing ready record'); return record; }}; }
+// prettier-ignore
+export function parseReadyChunks(chunks, requestedPort=43700) { const parser=createReadyParser(requestedPort); for(const chunk of chunks) parser.push(chunk); return parser.finish(); }
+// prettier-ignore
+export function finalizeObservation(directory, observation) { const bytes=Buffer.from(`${JSON.stringify(observation)}\n`); if(bytes.length>4096) throw new Error('observation exceeds 4096 bytes'); const temp=path.join(directory,'.listener-observation.json.tmp'), finalPath=path.join(directory,'listener-observation.json'), fd=fs.openSync(temp,'wx'); try { fs.writeSync(fd,bytes); fs.fsyncSync(fd); } finally { fs.closeSync(fd); } fs.linkSync(temp,finalPath); fs.unlinkSync(temp); }
+// prettier-ignore
+function bindPort(port=0) { return new Promise((resolve,reject)=>{ const server=net.createServer(); server.once('error',reject); server.listen(port,'127.0.0.1',()=>{ const addr=server.address(), assigned=addr&&typeof addr==='object'?addr.port:0; server.close((error)=>error?reject(error):resolve(assigned)); }); }); }
+// prettier-ignore
+function waitExit(child,ms) { return new Promise((resolve,reject)=>{ if(child.exitCode!==null){ resolve(child.exitCode??1); return; } const timer=setTimeout(()=>reject(new Error('child timeout')),ms); child.once('exit',(code)=>{ clearTimeout(timer); resolve(code??1); }); }); }
+// prettier-ignore
+async function stopChild(child,port) { if(child.pid&&process.platform==='win32') spawnSync('taskkill',['/pid',String(child.pid),'/t','/f'],{stdio:'ignore'}); else if(child.pid) child.kill('SIGTERM'); await waitExit(child,5000); await bindPort(port); }
+// prettier-ignore
+function withoutHostMode(base,overlay) { const env={...base,...overlay}; if(!Object.hasOwn(overlay,'HOSTNAME')) delete env.HOSTNAME; if(!Object.hasOwn(overlay,'NODE_ENV')) delete env.NODE_ENV; return env; }
+// prettier-ignore
+function waitReady(child,requestedPort) { const parser=createReadyParser(requestedPort); return new Promise((resolve,reject)=>{ const timer=setTimeout(()=>reject(new Error('ready timeout')),60_000); const onData=(chunk)=>{ try { const ready=parser.push(chunk); if(ready){ clearTimeout(timer); child.stdout.off('data',onData); resolve(ready); } } catch(error) { clearTimeout(timer); reject(error); } }; child.stdout.on('data',onData); child.once('exit',(code)=>{ clearTimeout(timer); reject(new Error(`exited ${code}`)); }); }); }
+// prettier-ignore
+function runCommand(args,cwd,env,timeoutMs) { return new Promise((resolve,reject)=>{ const child=spawn(process.execPath,args,{cwd,env,shell:false,stdio:'inherit'}); const timer=setTimeout(()=>{ child.kill(); reject(new Error('command timeout')); },timeoutMs); child.once('exit',(code)=>{ clearTimeout(timer); if(code===0) resolve(); else reject(new Error(`exit ${code}`)); }); }); }
+// prettier-ignore
+async function rejectHost(standalone,preload,overlay) { const port=await bindPort(0), env=withoutHostMode({...process.env,PORT:String(port),MULTIPLAYER_DB_PATH:dbPath,DATABASE_PATH:dbPath},overlay), child=spawn(process.execPath,['--require',preload,'server.js'],{cwd:standalone,env,shell:false,stdio:['ignore','pipe','pipe']}); let output=''; child.stdout.on('data',(c)=>{ output+=c; }); child.stderr.on('data',(c)=>{ output+=c; }); const code=await waitExit(child,5000); if(code===0||output.includes('NEXT_IMPORT_SENTINEL')||output.includes('MEKSTATION_LISTENER_READY')) throw new Error(`host accepted ${JSON.stringify(overlay)}`); await bindPort(port); }
+// prettier-ignore
+function processRecord(ready,requestedPort) { return {configuredHostname:ready.configuredHostname,boundAddress:ready.boundAddress,family:ready.family,requestedPort,boundPort:ready.port,readyRecordCount:1}; }
+// prettier-ignore
+function selfTest() { const rec={schema:'mekstation-packaged-listener-ready/v1',configuredHostname:'127.0.0.1',boundAddress:'127.0.0.1',family:'IPv4',port:43700}, full=`${READY_PREFIX}${JSON.stringify(rec)}\n`; parseReadyChunks([full.slice(0,20),full.slice(20)]); for(const chunks of [[],[full+full],[full,full],[`x${full}`],[`${READY_PREFIX}not-json\n`],[`${READY_PREFIX}${JSON.stringify({...rec,extra:1})}\n`],[`${READY_PREFIX}${JSON.stringify({...rec,family:'IPv6'})}\n`],[`${READY_PREFIX}${JSON.stringify({...rec,boundAddress:'0.0.0.0'})}\n`],[`${READY_PREFIX}${JSON.stringify({...rec,boundAddress:'::1'})}\n`],[`${READY_PREFIX}${JSON.stringify({...rec,port:0})}\n`],[`${READY_PREFIX}${JSON.stringify({...rec,configuredHostname:'localhost'})}\n`],[`${READY_PREFIX}${'x'.repeat(1024)}\n`],[`${READY_PREFIX}${JSON.stringify({...rec,boundAddress:'\\\\.\\pipe\\x'})}\n`]]) { let threw=false; try { parseReadyChunks(chunks); } catch { threw=true; } if(!threw) throw new Error('parser self-test missed a failure'); } }
+// prettier-ignore
+async function runCamp00Authority() { const artifactDir=process.env.CAMP01_ARTIFACT_DIR, runId=process.env.CAMP01_RUN_ID, nextDist=process.env.CAMP01_NEXT_DIST_DIR; if(!artifactDir||!runId||!nextDist) throw new Error('camp-00 environment missing'); const lease=createHash('sha256').update(runId).digest('hex'), buildEnv={...process.env,CAMP01_NEXT_DIST_DIR:nextDist,CAMP01_RUNTIME_LEASE:lease,MEKSTATION_NEXT_DIST_DIR:nextDist}, standalone=path.join(nextDist,'standalone'); await runCommand(['scripts/next/run-next.mjs','build','--webpack'],repoRoot,buildEnv,8*60_000); await runCommand(['scripts/hydrate-next-standalone-multiplayer-server.mjs'],repoRoot,buildEnv,60_000); if(!fs.existsSync(path.join(standalone,'server.js'))||!fs.existsSync(path.join(standalone,'server.next-config.json'))) throw new Error('standalone missing'); const preload=path.join(nextDist,'next-import-sentinel.cjs'); fs.writeFileSync(preload,"const M=require('module');const o=M._load;M._load=function(r,...a){if(r==='next')throw new Error('NEXT_IMPORT_SENTINEL');return o.call(this,r,...a);};\n"); const port=await bindPort(0), origin=`http://127.0.0.1:${port}`, serverEnv={...process.env,PORT:String(port),MULTIPLAYER_STORE:process.env.MULTIPLAYER_STORE??'durable',MULTIPLAYER_DB_PATH:dbPath,DATABASE_PATH:dbPath}; const start=(overlay)=>spawn(process.execPath,['server.js'],{cwd:standalone,env:withoutHostMode(serverEnv,overlay),shell:false,stdio:['ignore','pipe','pipe']}); const initial=start({}), initialReady=await waitReady(initial,port), {wireToken,playerId}=await issueWireToken(), match=await createMatch(wireToken,playerId,()=>'',origin); await openAndJoin(match.wsUrl,wireToken,playerId,match.matchId,()=>''); await stopChild(initial,port); const restarted=start({HOSTNAME:'127.0.0.1',NODE_ENV:'development'}), restartReady=await waitReady(restarted,port); await openAndJoin(match.wsUrl,wireToken,playerId,match.matchId,()=>''); await stopChild(restarted,port); for(const host of REJECT_HOSTS) await rejectHost(standalone,preload,{HOSTNAME:host}); for(const host of ['0.0.0.0','::','192.168.1.10']) await rejectHost(standalone,preload,{HOSTNAME:host,NODE_ENV:'development'}); finalizeObservation(artifactDir,{schema:'camp01-listener-observation/v1',wave:'camp-00',parentRunId:runId,initialHostnameInput:'omitted',restartHostnameInput:'127.0.0.1',packagedModeEnvironmentIndependent:true,initial:processRecord(initialReady,port),restart:processRecord(restartReady,port),ipv4UnspecifiedRejected:true,ipv6UnspecifiedRejected:true,ipv6LoopbackRejected:true,hostnameMatrixPassed:true,rejectedBeforeNextPrepare:true,standalonePreparedInArtifactDir:true,packagedSocketJourneyPassed:true,observationNoReplaceFinalized:true,portReusableAfterEachChild:true}); }
 async function main() {
+  // prettier-ignore
+  if (process.env.CAMP01_ARTIFACT_DIR && process.env.CAMP01_RUN_ID && process.env.CAMP01_NEXT_DIST_DIR) { await runCamp00Authority(); return; }
   assertHydratedStandaloneServer();
 
   const npmExecutable = process.platform === 'win32' ? 'npm.cmd' : 'npm';
@@ -538,7 +570,13 @@ async function main() {
   }
 }
 
-main().catch((error) => {
-  console.error(error);
-  process.exit(1);
-});
+if (process.argv.includes('--self-test')) selfTest();
+// prettier-ignore
+else if (
+  process.argv[1] &&
+  path.resolve(fileURLToPath(import.meta.url)) === path.resolve(process.argv[1])
+)
+  main().catch((error) => {
+    console.error(error);
+    process.exit(1);
+  });

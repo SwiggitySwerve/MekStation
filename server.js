@@ -30,19 +30,18 @@ const { parse } = require('node:url');
 process.env.BASELINE_BROWSER_MAPPING_IGNORE_OLD_DATA ??= 'true';
 process.env.BROWSERSLIST_IGNORE_OLD_DATA ??= 'true';
 
-const next = require('next');
-const { WebSocketServer } = require('ws');
-const {
-  serveDevClientMiddlewareManifest,
-} = require('./src/lib/server/devClientMiddlewareManifest.js');
-
 const STANDALONE_NEXT_CONFIG_PATH = path.join(
   __dirname,
   'server.next-config.json',
 );
-const isStandaloneRuntime =
-  fs.existsSync(path.join(__dirname, '.next')) &&
-  fs.existsSync(STANDALONE_NEXT_CONFIG_PATH);
+const nextDir = path.join(__dirname, '.next');
+const hasPackagedConfig = fs.existsSync(STANDALONE_NEXT_CONFIG_PATH);
+const hasNextDir = fs.existsSync(nextDir) && fs.statSync(nextDir).isDirectory();
+if (hasPackagedConfig && !hasNextDir) {
+  console.error('[mp-boot] packaged layout incomplete');
+  process.exit(1);
+}
+const isStandaloneRuntime = hasPackagedConfig && hasNextDir;
 let standaloneNextConfig = null;
 const traceMultiplayerSocket = process.env.MULTIPLAYER_SOCKET_TRACE === '1';
 
@@ -67,6 +66,22 @@ if (isStandaloneRuntime) {
     process.exit(1);
   }
 }
+
+function resolveListenerHostname() {
+  const raw = process.env.HOSTNAME;
+  // prettier-ignore
+  if (isStandaloneRuntime ? raw !== undefined && raw !== '127.0.0.1' : raw !== undefined && raw !== 'localhost' && raw !== '127.0.0.1') {
+    console.error(`[mp-boot] invalid HOSTNAME ${JSON.stringify(raw)}`);
+    process.exit(1);
+  }
+  return isStandaloneRuntime ? '127.0.0.1' : (raw ?? 'localhost');
+}
+const hostname = resolveListenerHostname();
+const next = require('next');
+const { WebSocketServer } = require('ws');
+const {
+  serveDevClientMiddlewareManifest,
+} = require('./src/lib/server/devClientMiddlewareManifest.js');
 
 // =============================================================================
 // Inlined Wave 2 token verification (mirror of src/lib/multiplayer/server/auth.ts)
@@ -223,7 +238,6 @@ const dev =
   !isStandaloneRuntime &&
   process.env.npm_lifecycle_event !== 'start';
 const port = parseInt(process.env.PORT ?? '3600', 10);
-const hostname = process.env.HOSTNAME ?? 'localhost';
 const appDir = isStandaloneRuntime ? __dirname : process.cwd();
 
 const app = next({
@@ -653,8 +667,19 @@ app
         }
       }
     });
-    server.listen(port, () => {
-      // eslint-disable-next-line no-console
+    server.listen({ port, host: hostname }, () => {
+      if (isStandaloneRuntime) {
+        const addr = server.address();
+        // prettier-ignore
+        if (!addr || typeof addr === 'string' || addr.address !== hostname || addr.port !== port) process.exit(1);
+        const family =
+          addr.family === 6 || addr.family === 'IPv6' ? 'IPv6' : 'IPv4';
+        // prettier-ignore
+        const line = `MEKSTATION_LISTENER_READY ${JSON.stringify({ schema: 'mekstation-packaged-listener-ready/v1', configuredHostname: hostname, boundAddress: addr.address, family, port: addr.port })}\n`;
+        if (family !== 'IPv4' || Buffer.byteLength(line) > 1024)
+          process.exit(1);
+        process.stdout.write(line);
+      }
       console.log(
         `> Ready on http://${hostname}:${port} (multiplayer socket: ${WS_UPGRADE_PATH})`,
       );
