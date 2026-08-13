@@ -79,11 +79,16 @@ export interface ICampaignResyncResult {
 
 export class CampaignSyncSession {
   private readonly host: CampaignMatchHost;
+  private readonly matchId: string;
   private roomCode: string | null = null;
   private paused = false;
 
-  constructor(host: CampaignMatchHost) {
+  constructor(
+    host: CampaignMatchHost,
+    options: { readonly matchId?: string } = {},
+  ) {
     this.host = host;
+    this.matchId = options.matchId ?? host.campaignId;
   }
 
   /**
@@ -139,23 +144,25 @@ export class CampaignSyncSession {
     }
 
     const delivered: ICampaignEvent[] = [];
-
-    // Step 1 — the baseline snapshot. Built from the host's CURRENT
-    // authoritative state and stamped as sequence -1 framing so it is
-    // unambiguously the baseline and never collides with a log event.
-    const baseline = this.buildBaselineEvent();
+    const buffered: ICampaignEvent[] = [];
+    const liveUnsub = this.host.subscribe((event) => buffered.push(event));
+    const revision = Math.max(
+      0,
+      (await this.host.getEventLog().nextSequence()) - 1,
+    );
+    const baseline = this.buildBaselineEvent(revision);
     delivered.push(baseline);
     sink(baseline);
 
-    // Step 2 — stream the campaign event log from sequence 0.
-    const log = await this.host.getEventLog().getCampaignEvents(0);
-    for (const event of log) {
+    const seen = new Set<number>();
+    const tail = await this.host.getEventLog().getCampaignEvents(revision + 1);
+    for (const event of [...tail, ...buffered]) {
+      if (event.sequence <= revision || seen.has(event.sequence)) continue;
+      seen.add(event.sequence);
       delivered.push(event);
       sink(event);
     }
-
-    // Step 3 — live subscription. Every event the host commits from now
-    // on is pushed straight to the guest's sink.
+    liveUnsub();
     const unsubscribe = this.host.subscribe((event) => {
       sink(event);
     });
@@ -192,7 +199,7 @@ export class CampaignSyncSession {
 
     if (gap > RESYNC_SNAPSHOT_GAP) {
       // Large-gap path — a fresh baseline is cheaper than the tail.
-      const baseline = this.buildBaselineEvent();
+      const baseline = this.buildBaselineEvent(Math.max(0, highest - 1));
       delivered.push(baseline);
       sink(baseline);
       const unsubscribe = this.host.subscribe(sink);
@@ -234,14 +241,20 @@ export class CampaignSyncSession {
    * (sequence 0+) — the guest's `applySnapshot` adopts the payload
    * wholesale regardless of sequence.
    */
-  private buildBaselineEvent(): ICampaignEvent<'CampaignSnapshotPublished'> {
+  private buildBaselineEvent(
+    revision: number,
+  ): ICampaignEvent<'CampaignSnapshotPublished'> {
     return {
       type: 'CampaignSnapshotPublished',
       sequence: -1,
       campaignId: this.host.campaignId,
       ts: nowIso(),
       authorPlayerId: this.host.getHostPlayerId(),
-      payload: this.host.buildSnapshotPayload(),
+      payload: {
+        ...this.host.buildSnapshotPayload(),
+        matchId: this.matchId,
+        revision,
+      },
     };
   }
 }

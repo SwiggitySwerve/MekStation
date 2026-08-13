@@ -78,12 +78,14 @@ describe('CampaignSyncSession — guest join', () => {
     expect(result.ok).toBe(true);
     // The FIRST delivered event is a baseline snapshot.
     expect(result.delivered[0].type).toBe('CampaignSnapshotPublished');
-    // The log (snapshot@0, day-advance@1) follows.
+    const baseline = result.delivered[0];
+    if (baseline.type === 'CampaignSnapshotPublished') {
+      expect(baseline.payload.matchId).toBe(CAMPAIGN_ID);
+      expect(baseline.payload.revision).toBe(1);
+      expect(baseline.payload.state.day).toBe(host.getState().day);
+    }
     const logTypes = result.delivered.slice(1).map((e) => e.type);
-    expect(logTypes).toEqual([
-      'CampaignSnapshotPublished',
-      'CampaignDayAdvanced',
-    ]);
+    expect(logTypes).toEqual([]);
     result.disconnect();
   });
 

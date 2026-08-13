@@ -16,6 +16,7 @@ import { storeCoopCampaignToken } from '@/lib/campaign/coop/coopCampaignAuthToke
 import { applyPreset } from '@/lib/campaign/presetService';
 import { useCampaignMirrorStore } from '@/lib/p2p/campaignMirrorStore';
 import { parseRoomCode } from '@/lib/p2p/roomCodes';
+import { useCampaignRosterStore } from '@/stores/campaign/useCampaignRosterStore';
 import { useCampaignStore } from '@/stores/campaign/useCampaignStore';
 import { CampaignPreset } from '@/types/campaign/CampaignPreset';
 import { CampaignType } from '@/types/campaign/CampaignType';
@@ -198,6 +199,11 @@ export function CampaignCoopEntryPanel(): React.ReactElement {
       if (!createdCampaign) {
         throw new Error('Failed to create the host campaign snapshot');
       }
+      const rosterUnits = useCampaignRosterStore.getState().units;
+      const coopState = buildCampaignAuthoritativeState(
+        createdCampaign,
+        rosterUnits,
+      );
       const res = await fetch('/api/multiplayer/matches', {
         method: 'POST',
         headers: {
@@ -210,7 +216,7 @@ export function CampaignCoopEntryPanel(): React.ReactElement {
           displayName: auth.displayName,
           coopCampaign: {
             campaignId: createdCampaign.id,
-            state: buildCampaignAuthoritativeState(createdCampaign),
+            state: coopState,
             arbitrationMode: 'host-review',
           },
         }),

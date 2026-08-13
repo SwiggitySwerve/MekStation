@@ -7,6 +7,7 @@ import type { IForce } from '@/types/campaign/Force';
 
 import { registerActiveCoopHost } from '@/lib/campaign/coop/coopHostRegistry';
 import { InMemoryCampaignEventStore } from '@/lib/campaign/sync/InMemoryCampaignEventStore';
+import { parseCampaignCoopSnapshot } from '@/types/campaign/campaignCoopSnapshot';
 
 import type { IMatchStore } from './IMatchStore';
 
@@ -22,6 +23,7 @@ export interface ICampaignHostRegistrationSnapshot {
   readonly hostPlayerId: string;
   readonly roomCode: string;
   readonly state: ICampaignAuthoritativeState;
+  readonly revision?: number;
   readonly arbitrationMode?: GmArbitrationMode;
 }
 
@@ -47,6 +49,7 @@ export interface ICampaignHostRegistryEntry {
   readonly matchId: string;
   readonly campaignId: string;
   readonly roomCode: string;
+  readonly revision: number;
   readonly hostPlayerId: string;
   readonly host: CampaignMatchHost;
   readonly syncSession: CampaignSyncSession;
@@ -68,6 +71,7 @@ class CampaignHostRegistryEntry implements ICampaignHostRegistryEntry {
   readonly matchId: string;
   readonly campaignId: string;
   readonly roomCode: string;
+  readonly revision: number;
   readonly hostPlayerId: string;
   readonly host: CampaignMatchHost;
   readonly syncSession: CampaignSyncSession;
@@ -82,6 +86,7 @@ class CampaignHostRegistryEntry implements ICampaignHostRegistryEntry {
   constructor(input: {
     readonly matchId: string;
     readonly roomCode: string;
+    readonly revision: number;
     readonly host: CampaignMatchHost;
     readonly syncSession: CampaignSyncSession;
     readonly arbiter: CampaignGmArbiter;
@@ -89,6 +94,7 @@ class CampaignHostRegistryEntry implements ICampaignHostRegistryEntry {
   }) {
     this.matchId = input.matchId;
     this.roomCode = input.roomCode;
+    this.revision = input.revision;
     this.host = input.host;
     this.syncSession = input.syncSession;
     this.arbiter = input.arbiter;
@@ -171,8 +177,22 @@ export class CampaignHostRegistry {
     matchId: string,
     snapshot: ICampaignHostRegistrationSnapshot,
   ): Promise<ICampaignHostRegistryEntry> => {
+    const parsed = parseCampaignCoopSnapshot({
+      campaignId: snapshot.campaignId,
+      matchId,
+      revision: snapshot.revision ?? 0,
+      state: snapshot.state,
+    });
+    if (!parsed.ok) {
+      throw new Error(`Campaign snapshot rejected: ${parsed.reason}`);
+    }
     const existing = this.entries.get(matchId);
-    if (existing && !existing.host.isClosed()) return existing;
+    if (existing && !existing.host.isClosed()) {
+      if (parsed.snapshot.revision < existing.revision) {
+        throw new Error('Campaign snapshot revision is stale');
+      }
+      return existing;
+    }
 
     const host = new CampaignMatchHost({
       campaignId: snapshot.campaignId,
@@ -180,8 +200,9 @@ export class CampaignHostRegistry {
       eventStore: new InMemoryCampaignEventStore(),
       initialState: snapshot.state,
     });
-    const syncSession = new CampaignSyncSession(host);
+    const syncSession = new CampaignSyncSession(host, { matchId });
     const roomCode = await syncSession.open(snapshot.roomCode);
+    const revision = Math.max(0, (await host.getEventLog().nextSequence()) - 1);
     const arbiter = new CampaignGmArbiter(
       host,
       snapshot.arbitrationMode ?? 'host-review',
@@ -191,6 +212,7 @@ export class CampaignHostRegistry {
     const entry = new CampaignHostRegistryEntry({
       matchId,
       roomCode,
+      revision,
       host,
       syncSession,
       arbiter,

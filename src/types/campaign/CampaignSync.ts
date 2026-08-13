@@ -42,6 +42,10 @@ export interface ICampaignRosterUnit {
   readonly designation: string;
   /** Coarse repair status of the unit in the campaign. */
   readonly status: 'operational' | 'damaged' | 'destroyed';
+  /** Exact canonical or saved-design catalog reference. */
+  readonly unitRef?: string;
+  /** Parsed roster source identity preserved through co-op. */
+  readonly unitSource?: 'canonical' | 'custom';
 }
 
 /**
@@ -85,6 +89,8 @@ export interface ICampaignAuthoritativeState {
   readonly balance: number;
   /** Owned roster units, keyed by `unitId`. */
   readonly rosterUnits: Readonly<Record<string, ICampaignRosterUnit>>;
+  /** Deterministic `forceId -> unitIds` membership. */
+  readonly forceUnits?: Readonly<Record<string, readonly string[]>>;
   /** Hired pilots, keyed by `pilotId`. */
   readonly pilots: Readonly<Record<string, ICampaignRosterPilot>>;
   /** Accepted contracts, keyed by `contractId`. */
@@ -119,6 +125,7 @@ export function createEmptyCampaignState(
     day: 0,
     balance: 0,
     rosterUnits: {},
+    forceUnits: {},
     pilots: {},
     contracts: {},
     factionStanding: {},
@@ -203,6 +210,10 @@ export interface ISalvageAllocatedPayload {
 export interface ICampaignSnapshotPublishedPayload {
   /** The whole authoritative campaign state at snapshot time. */
   readonly state: ICampaignAuthoritativeState;
+  /** Match id bound at co-op registration. */
+  readonly matchId?: string;
+  /** Inclusive high-water sequence represented by `state`. */
+  readonly revision?: number;
 }
 
 /**
