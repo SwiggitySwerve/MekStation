@@ -74,7 +74,9 @@ interface CampaignPersistenceState {
 
 interface CampaignPersistenceActions {
   loadCampaign: (id: string) => Promise<boolean>;
-  saveCampaign: () => Promise<CampaignPersistenceSaveResult>;
+  saveCampaign: (options?: {
+    retryOnConflict?: boolean;
+  }) => Promise<CampaignPersistenceSaveResult>;
   markDirty: () => void;
   resolveConflictKeepLocal: () => Promise<CampaignPersistenceSaveResult>;
   resolveConflictTakeServer: () => Promise<boolean>;
@@ -486,9 +488,9 @@ function saveCampaignAction(
   set: PersistenceSet,
   get: PersistenceGet,
 ): CampaignPersistenceStore['saveCampaign'] {
-  return async () => {
+  return async (options?: { retryOnConflict?: boolean }) => {
     clearAutoSaveTimer();
-    return performSave(set, get);
+    return performSave(set, get, undefined, options?.retryOnConflict ?? true);
   };
 }
 

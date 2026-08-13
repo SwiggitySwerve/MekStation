@@ -6,6 +6,7 @@ import * as path from 'node:path';
 import { createElement } from 'react';
 
 import { buildMissionReadinessProjection } from '@/lib/campaign/readiness/missionReadinessProjection';
+import { useCampaignPersistenceStore } from '@/stores/campaign/useCampaignPersistenceStore';
 import { useCampaignRosterStore } from '@/stores/campaign/useCampaignRosterStore';
 import {
   resetCampaignStore,
@@ -26,7 +27,10 @@ import type {
 
 import { useCampaignRosterDraft } from '../CreateCampaignPage.hooks';
 import { RosterStep } from '../CreateCampaignPage.RosterStep';
-import { submitCampaignCreation } from '../CreateCampaignPage.submit';
+import {
+  resetCampaignCreationSubmitState,
+  submitCampaignCreation,
+} from '../CreateCampaignPage.submit';
 
 function makeRouter(): NextRouter {
   return {
@@ -35,7 +39,9 @@ function makeRouter(): NextRouter {
 }
 
 function resetWorld(): void {
+  resetCampaignCreationSubmitState();
   resetCampaignStore();
+  useCampaignPersistenceStore.getState().reset();
   useCampaignRosterStore.getState().reset();
   usePilotStore.setState({
     pilots: [],
@@ -153,6 +159,11 @@ function installPilotVaultFetchMock(): jest.MockedFunction<typeof fetch> {
           pilots: createdPilots,
           count: createdPilots.length,
         });
+      }
+
+      if (url.startsWith('/api/campaigns/') && method === 'PUT') {
+        const body = JSON.parse(String(init?.body)) as { envelope: unknown };
+        return jsonResponse(body.envelope);
       }
 
       return jsonResponse({ success: true });
