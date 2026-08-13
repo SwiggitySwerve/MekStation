@@ -2,6 +2,7 @@ import type { ICampaign } from '@/types/campaign/Campaign';
 import type { IRosterUnitProjection } from '@/types/campaign/RosterUnitProjection';
 
 import { materializeCampaignMissionEncounter } from '@/lib/campaign/encounter/materializeCampaignMissionEncounter';
+import { readyCanonicalCatalog } from '@/lib/campaign/readiness/canonicalCatalogAdmission';
 import { MissionStatus } from '@/types/campaign/enums/MissionStatus';
 import { createContract } from '@/types/campaign/Mission';
 import {
@@ -58,6 +59,8 @@ const PLAYER_UNIT_REFS = [
   'marauder-mad-3r',
   'atlas-as7-d',
 ] as const;
+
+const readyCatalog = readyCanonicalCatalog([...PLAYER_UNIT_REFS]);
 
 function makeRoster(count = 1): readonly IRosterUnitProjection[] {
   return PLAYER_UNIT_REFS.slice(0, count).map((unitRef, index) => ({
@@ -184,6 +187,7 @@ describe('materializeCampaignMissionEncounter', () => {
       campaign: makeCampaign(['enc-existing']),
       missionId: 'contract-1',
       rosterUnits: makeRoster(),
+      catalog: readyCatalog,
       fetchImpl,
     });
 
@@ -248,6 +252,7 @@ describe('materializeCampaignMissionEncounter', () => {
       campaign: makeCampaign(['enc-existing']),
       missionId: 'contract-1',
       rosterUnits: makeRoster(),
+      catalog: readyCatalog,
       fetchImpl,
     });
 
@@ -295,6 +300,7 @@ describe('materializeCampaignMissionEncounter', () => {
         campaign: makeCampaign(['enc-existing']),
         missionId: 'contract-1',
         rosterUnits: makeRoster(),
+        catalog: readyCatalog,
         fetchImpl,
       }),
     ).rejects.toThrow('Failed to validate existing encounter');
@@ -312,6 +318,7 @@ describe('materializeCampaignMissionEncounter', () => {
       campaign: makeCampaign(),
       missionId: 'contract-1',
       rosterUnits: makeRoster(4),
+      catalog: readyCatalog,
       fetchImpl,
     });
 
@@ -390,6 +397,7 @@ describe('materializeCampaignMissionEncounter', () => {
         campaign: makeCampaign(),
         missionId: 'contract-1',
         rosterUnits: makeRoster(unitCount),
+        catalog: readyCatalog,
         fetchImpl,
       });
 
@@ -416,12 +424,14 @@ describe('materializeCampaignMissionEncounter', () => {
       campaign: makeCampaign(),
       missionId: 'contract-1',
       rosterUnits: makeRoster(4),
+      catalog: readyCatalog,
       fetchImpl: makeMaterializationFetch(firstCalls, 'enc-first'),
     });
     await materializeCampaignMissionEncounter({
       campaign: makeCampaign(),
       missionId: 'contract-1',
       rosterUnits: makeRoster(4),
+      catalog: readyCatalog,
       fetchImpl: makeMaterializationFetch(secondCalls, 'enc-second'),
     });
 
@@ -440,6 +450,7 @@ describe('materializeCampaignMissionEncounter', () => {
         campaign: makeCampaign(),
         missionId: 'contract-1',
         rosterUnits: makeRoster(),
+        catalog: readyCatalog,
         fetchImpl,
       }),
     ).rejects.toThrow('Force creation rejected');
@@ -491,6 +502,7 @@ describe('materializeCampaignMissionEncounter', () => {
         campaign: makeCampaign(),
         missionId: 'contract-1',
         rosterUnits: makeDestroyedRoster(),
+        catalog: readyCatalog,
         fetchImpl,
       }),
     ).rejects.toThrow('resolve readiness before materialization');
@@ -543,10 +555,11 @@ describe('materializeCampaignMissionEncounter', () => {
         campaign: makeCampaign(),
         missionId: 'contract-1',
         rosterUnits: makeRosterWithoutUnitRef(),
+        catalog: readyCatalog,
         fetchImpl,
       }),
     ).rejects.toThrow(
-      'Roster unit Legacy Placeholder has no canonical unitRef; cannot launch.',
+      'Legacy Placeholder has no canonical record; recreate the campaign or edit the unit in Mech Bay before launch.',
     );
 
     expect(fetchImpl).not.toHaveBeenCalled();
