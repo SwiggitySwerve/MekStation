@@ -146,6 +146,7 @@ function createRosterUnitProjection({
     unitName: unit.name,
     pilotId: pilotAssignments[unit.id],
     unitRef: unit.unitRef,
+    unitSource: unit.unitSource,
     chassisVariant: unit.name,
     readiness: 'Ready',
   };
@@ -155,10 +156,12 @@ function addTemplateUnitToRootForce({
   store,
   unit,
 }: AddSelectedUnitInput): void {
-  const template = UNIT_TEMPLATES.find(
-    (entry) => entry.name === unit.name || entry.tonnage === unit.tonnage,
-  );
-  if (!template) return;
+  if (unit.unitSource !== 'custom') {
+    const template = UNIT_TEMPLATES.find(
+      (entry) => entry.name === unit.name || entry.tonnage === unit.tonnage,
+    );
+    if (!template) return;
+  }
 
   const forcesStore = store.getState().getForcesStore();
   if (!forcesStore) return;

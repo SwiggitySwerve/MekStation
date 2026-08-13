@@ -1,8 +1,12 @@
-import type { NextRouter } from 'next/router';
+import * as fs from 'node:fs';
+import * as path from 'node:path';
 
-import { act, renderHook } from '@testing-library/react';
+import { act, render, renderHook, screen } from '@testing-library/react';
+import type { NextRouter } from 'next/router';
+import { createElement } from 'react';
 
 import { buildMissionReadinessProjection } from '@/lib/campaign/readiness/missionReadinessProjection';
+import { UnitType } from '@/types/unit/BattleMechInterfaces';
 import { useCampaignRosterStore } from '@/stores/campaign/useCampaignRosterStore';
 import {
   resetCampaignStore,
@@ -20,6 +24,7 @@ import type {
   SelectedUnit,
 } from '../CreateCampaignPage.types';
 
+import { RosterStep } from '../CreateCampaignPage.RosterStep';
 import { useCampaignRosterDraft } from '../CreateCampaignPage.hooks';
 import { submitCampaignCreation } from '../CreateCampaignPage.submit';
 
@@ -313,5 +318,85 @@ describe('CreateCampaignPage submit roster persistence', () => {
       'MechWarrior 1',
       'MechWarrior 2',
     ]);
+  });
+
+  it('preserves saved-design identity through roster submit and publishes CAMP-01E wave-result', async () => {
+    const savedDesignId = 'custom-whm-6r-saved';
+    const rosterInstanceId = 'unit-custom-1';
+    const customMech: SelectedUnit = {
+      id: rosterInstanceId,
+      name: 'Warhammer WHM-6R Custom',
+      tonnage: 70,
+      unitRef: savedDesignId,
+      unitSource: 'custom',
+    };
+    const { result } = renderHook(() => useCampaignRosterDraft());
+    act(() => {
+      result.current.handleAddTemplateUnit(
+        customMech.name,
+        customMech.tonnage,
+        savedDesignId,
+        'custom',
+      );
+      result.current.handleAddTemplateUnit(
+        customMech.name,
+        customMech.tonnage,
+        savedDesignId,
+        'custom',
+      );
+    });
+    const [first, second] = result.current.selectedUnits;
+    await submitWizardRoster({
+      selectedUnits: [customMech],
+      selectedPilots: [pilotOne],
+    });
+    const rosterUnit = useCampaignRosterStore.getState().units[0];
+    const rootIds =
+      useCampaignStore().getState().getForcesStore()?.getState().getRootForce()
+        ?.unitIds ?? [];
+    render(
+      createElement(RosterStep, {
+        selectedUnits: [customMech],
+        selectedPilots: [],
+        pilotAssignments: {},
+        onAddTemplateUnit: jest.fn(),
+        onRemoveUnit: jest.fn(),
+        onAddPilot: jest.fn(),
+        onRemovePilot: jest.fn(),
+        onAssignPilot: jest.fn(),
+        loadSavedDesignIndex: async () => [
+          { id: savedDesignId, name: customMech.name, tonnage: 70, unitType: UnitType.BATTLEMECH },
+        ],
+      }),
+    );
+    expect(await screen.findByRole('button', { name: `Add saved design ${customMech.name}` })).toBeTruthy();
+    const wrapping = Boolean(
+      document.querySelector('.grid-cols-1') && screen.getByRole('status'),
+    );
+    const assertions = {
+      'narrowViewportUsable===true': wrapping,
+      'programmaticNamesPresent===true': Boolean(
+        screen.getByText('Stock Templates') &&
+          screen.getByText('Saved Designs') &&
+          screen.getByRole('button', { name: `Remove ${customMech.name} from roster` }),
+      ),
+      'rootForceContainsInstance===true': rootIds.includes(rosterInstanceId),
+      'rosterInstanceIdPresent===true':
+        Boolean(first?.id) && first?.id !== second?.id && first?.id !== savedDesignId,
+      'savedDesignIdPresent===true': first?.unitRef === savedDesignId,
+      'unitRefMatched===true': rosterUnit?.unitRef === savedDesignId,
+      'unitSourceCustom===true': rosterUnit?.unitSource === 'custom',
+    };
+    if (Object.values(assertions).some((value) => value !== true)) {
+      throw new Error(`wave assertion checks failed: ${JSON.stringify(assertions)}`);
+    }
+    const artifactDir = process.env.CAMP01_ARTIFACT_DIR;
+    const runId = process.env.CAMP01_RUN_ID;
+    if (!artifactDir || !runId) return;
+    fs.writeFileSync(
+      path.join(artifactDir, 'wave-result.json'),
+      `${JSON.stringify({ schema: 'camp01-wave-result/v1', wave: 'camp-01e', runId, status: 'passed', assertions })}\n`,
+      { flag: 'wx' },
+    );
   });
 });
