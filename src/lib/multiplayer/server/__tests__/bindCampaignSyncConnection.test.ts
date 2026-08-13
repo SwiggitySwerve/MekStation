@@ -619,9 +619,11 @@ describe('bindCampaignSyncConnection', () => {
     }
     const artifactDir = process.env.CAMP01_ARTIFACT_DIR;
     const runId = process.env.CAMP01_RUN_ID;
-    if (artifactDir && runId) {
+    const wavePath =
+      artifactDir && runId ? path.join(artifactDir, 'wave-result.json') : null;
+    if (wavePath && !fs.existsSync(wavePath)) {
       fs.writeFileSync(
-        path.join(artifactDir, 'wave-result.json'),
+        wavePath,
         `${JSON.stringify({ schema: 'camp01-wave-result/v1', wave: 'camp-01c', runId, status: 'passed', assertions })}\n`,
         { flag: 'wx' },
       );
