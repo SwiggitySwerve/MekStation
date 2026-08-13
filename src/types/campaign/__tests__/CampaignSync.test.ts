@@ -9,6 +9,12 @@
  * @spec openspec/changes/add-shared-campaign-state/specs/coop-campaign-sync/spec.md
  */
 
+import * as fs from 'node:fs';
+import * as path from 'node:path';
+
+import { CampaignHostRegistry } from '@/lib/multiplayer/server/CampaignHostRegistry';
+import { useCampaignMirrorStore } from '@/lib/p2p/campaignMirrorStore';
+import { parseCampaignCoopSnapshot } from '@/types/campaign/campaignCoopSnapshot';
 import {
   createEmptyCampaignState,
   isCampaignEvent,
@@ -30,6 +36,8 @@ function sampleState(): ICampaignAuthoritativeState {
         unitId: 'unit-1',
         designation: 'Atlas AS7-D',
         status: 'operational',
+        unitRef: 'atlas-as7-d',
+        unitSource: 'canonical',
       },
     },
     pilots: {
@@ -44,6 +52,7 @@ function sampleState(): ICampaignAuthoritativeState {
     },
     factionStanding: { steiner: 3 },
     salvagePool: 400_000,
+    forceUnits: { 'force-alpha': ['unit-1'] },
   };
 }
 
@@ -296,5 +305,125 @@ describe('parseCampaignIntent (zod boundary)', () => {
         payload: {},
       }),
     ).toBeNull();
+  });
+});
+
+describe('campaign co-op snapshot authority', () => {
+  it('rejects unknown source, missing refs, duplicates, and stale revisions', () => {
+    const state = sampleState();
+    expect(
+      parseCampaignCoopSnapshot({
+        campaignId: CAMPAIGN_ID,
+        matchId: 'match-1',
+        revision: 0,
+        state,
+      }).ok,
+    ).toBe(true);
+    expect(
+      parseCampaignCoopSnapshot({
+        campaignId: 'other',
+        matchId: 'match-1',
+        revision: 0,
+        state,
+      }).ok,
+    ).toBe(false);
+    expect(
+      parseCampaignCoopSnapshot({
+        campaignId: CAMPAIGN_ID,
+        matchId: 'match-1',
+        revision: -1,
+        state,
+      }).ok,
+    ).toBe(false);
+    const forged: unknown = {
+      ...state,
+      rosterUnits: {
+        'unit-1': {
+          unitId: 'unit-1',
+          designation: 'Atlas AS7-D',
+          status: 'operational',
+          unitRef: 'atlas-as7-d',
+          unitSource: 'stock',
+        },
+      },
+    };
+    expect(
+      parseCampaignCoopSnapshot({
+        campaignId: CAMPAIGN_ID,
+        matchId: 'match-1',
+        revision: 0,
+        state: forged,
+      }).ok,
+    ).toBe(false);
+    expect(
+      parseCampaignCoopSnapshot({
+        campaignId: CAMPAIGN_ID,
+        matchId: 'match-1',
+        revision: 0,
+        state: {
+          ...state,
+          forceUnits: { a: ['unit-1'], b: ['unit-1'] },
+        },
+      }).ok,
+    ).toBe(false);
+  });
+
+  it('publishes CAMP-01B wave-result.json when the controller artifact dir is set', async () => {
+    const artifactDir = process.env.CAMP01_ARTIFACT_DIR;
+    const runId = process.env.CAMP01_RUN_ID;
+    if (!artifactDir || !runId) return;
+    const matchId = 'match-coop';
+    const registry = new CampaignHostRegistry();
+    const entry = await registry.register(matchId, {
+      campaignId: CAMPAIGN_ID,
+      hostPlayerId: 'host',
+      roomCode: 'ABC234',
+      state: sampleState(),
+    });
+    useCampaignMirrorStore.getState().reset();
+    useCampaignMirrorStore
+      .getState()
+      .beginMirror(
+        { hostPeerId: 'host-peer', guestPeerId: 'guest-peer' },
+        'guest-peer',
+      );
+    const join = await entry.syncSession.joinGuest('ABC234', (event) => {
+      const store = useCampaignMirrorStore.getState();
+      if (event.type === 'CampaignSnapshotPublished' && event.sequence < 0) {
+        store.applySnapshot(event);
+      } else {
+        store.applyEvent(event);
+      }
+    });
+    const guest = useCampaignMirrorStore.getState().campaign;
+    const hostState = entry.host.getState();
+    const assertions = {
+      'campaignIdMatched===true':
+        entry.campaignId === CAMPAIGN_ID && guest?.campaignId === CAMPAIGN_ID,
+      'forceMembershipMatched===true':
+        JSON.stringify(hostState.forceUnits) ===
+        JSON.stringify(guest?.forceUnits),
+      'guestMirrorHydrated===true': guest !== null && join.ok,
+      'matchIdMatched===true': entry.matchId === matchId,
+      'revisionMatched===true':
+        entry.revision === 0 &&
+        useCampaignMirrorStore.getState().lastSequence === entry.revision,
+      'sourceIdentityMatched===true':
+        hostState.rosterUnits['unit-1']?.unitSource === 'canonical' &&
+        guest?.rosterUnits['unit-1']?.unitSource === 'canonical' &&
+        guest?.rosterUnits['unit-1']?.unitRef === 'atlas-as7-d',
+    };
+    if (Object.values(assertions).some((value) => value !== true)) {
+      throw new Error(
+        `wave assertion checks failed: ${JSON.stringify(assertions)}`,
+      );
+    }
+    fs.writeFileSync(
+      path.join(artifactDir, 'wave-result.json'),
+      `${JSON.stringify({ schema: 'camp01-wave-result/v1', wave: 'camp-01b', runId, status: 'passed', assertions })}\n`,
+      { flag: 'wx' },
+    );
+    join.disconnect();
+    registry.dispose(matchId);
   });
 });

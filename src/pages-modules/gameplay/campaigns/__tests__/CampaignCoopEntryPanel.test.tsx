@@ -36,6 +36,12 @@ jest.mock('@/stores/campaign/useCampaignStore', () => ({
   }),
 }));
 
+jest.mock('@/stores/campaign/useCampaignRosterStore', () => ({
+  useCampaignRosterStore: {
+    getState: () => ({ units: [] }),
+  },
+}));
+
 jest.mock('@/lib/campaign/coop/campaignSyncTransport', () => ({
   campaignSnapshotFromMessage: jest.fn(),
   connectCampaignSyncTransport: jest.fn(),

@@ -26,8 +26,11 @@ function snapshot() {
           unitId: 'unit-1',
           designation: 'Atlas AS7-D',
           status: 'operational' as const,
+          unitRef: 'atlas-as7-d',
+          unitSource: 'canonical' as const,
         },
       },
+      forceUnits: { 'force-alpha': ['unit-1'] },
     },
   };
 }
@@ -67,11 +70,40 @@ describe('CampaignHostRegistry', () => {
 
     expect(entry.matchId).toBe('match-campaign');
     expect(entry.campaignId).toBe('campaign-registry');
+    expect(entry.revision).toBe(0);
+    expect(entry.host.getState().rosterUnits['unit-1']?.unitSource).toBe(
+      'canonical',
+    );
+    expect(entry.host.getState().forceUnits).toEqual({
+      'force-alpha': ['unit-1'],
+    });
     expect(entry.roomCode).toBe('ABC234');
     expect(entry.host.getState().balance).toBe(1_000_000);
     expect(registry.get('match-campaign')).toBe(entry);
     expect(getActiveCoopHost('campaign-registry')).toBe(entry.host);
     expect(registry.size()).toBe(1);
+  });
+
+  it('rejects a roster unit without a catalog reference before advertising', async () => {
+    const registry = new CampaignHostRegistry();
+    const snap = snapshot();
+    await expect(
+      registry.register('match-campaign', {
+        ...snap,
+        state: {
+          ...snap.state,
+          rosterUnits: {
+            'unit-1': {
+              unitId: 'unit-1',
+              designation: 'Atlas AS7-D',
+              status: 'operational',
+              unitSource: 'canonical',
+            },
+          },
+        },
+      }),
+    ).rejects.toThrow('unit reference missing');
+    expect(registry.size()).toBe(0);
   });
 
   it('is idempotent for an already-open match registration', async () => {

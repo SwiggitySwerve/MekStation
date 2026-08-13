@@ -3,20 +3,86 @@ import type {
   ICampaignAuthoritativeState,
   ICampaignRosterUnit,
 } from '@/types/campaign/CampaignSync';
+import type { IRosterUnitProjection } from '@/types/campaign/RosterUnitProjection';
 
 import { createEmptyCampaignState } from '@/types/campaign/CampaignSync';
+import { parseRosterUnitSource } from '@/types/campaign/RosterUnitSource';
+
+const READINESS_STATUS = {
+  Ready: 'operational',
+  Damaged: 'damaged',
+  Destroyed: 'destroyed',
+} as const;
 
 export function buildCampaignAuthoritativeState(
   campaign: ICampaign,
+  rosterUnits: readonly IRosterUnitProjection[] = [],
 ): ICampaignAuthoritativeState {
   const base = createEmptyCampaignState(campaign.id);
   return {
     ...base,
     day: campaignDayFor(campaign),
     balance: readCampaignBalance(campaign),
-    rosterUnits: buildRosterUnits(campaign),
+    rosterUnits: projectRosterUnits(rosterUnits),
+    forceUnits: projectForceUnits(campaign, rosterUnits),
     factionStanding: buildFactionStanding(campaign),
   };
+}
+
+function projectRosterUnits(
+  rosterUnits: readonly IRosterUnitProjection[],
+): Readonly<Record<string, ICampaignRosterUnit>> {
+  const units: Record<string, ICampaignRosterUnit> = {};
+  const ordered = [...rosterUnits].sort((left, right) =>
+    left.unitId.localeCompare(right.unitId),
+  );
+  for (const unit of ordered) {
+    const parsed = parseRosterUnitSource(unit.unitSource);
+    if (parsed.kind === 'invalid') {
+      throw new Error(`${unit.unitName} has an invalid roster source`);
+    }
+    if (!unit.unitRef) {
+      throw new Error(`${unit.unitName} is missing a catalog reference`);
+    }
+    units[unit.unitId] = {
+      unitId: unit.unitId,
+      designation: unit.unitName,
+      status: READINESS_STATUS[unit.readiness],
+      unitRef: unit.unitRef,
+      unitSource: parsed.source,
+    };
+  }
+  return units;
+}
+
+function projectForceUnits(
+  campaign: ICampaign,
+  rosterUnits: readonly IRosterUnitProjection[],
+): Readonly<Record<string, readonly string[]>> {
+  const rosterIds = new Set(rosterUnits.map((unit) => unit.unitId));
+  const claimed = new Set<string>();
+  const forceUnits: Record<string, readonly string[]> = {};
+  const forces = Array.from(campaign.forces.values()).sort((left, right) =>
+    left.id.localeCompare(right.id),
+  );
+  for (const force of forces) {
+    const unitIds = [...force.unitIds].sort((left, right) =>
+      left.localeCompare(right),
+    );
+    for (const unitId of unitIds) {
+      if (!rosterIds.has(unitId)) {
+        throw new Error(
+          `Force ${force.id} references absent roster unit ${unitId}`,
+        );
+      }
+      if (claimed.has(unitId)) {
+        throw new Error(`Roster unit ${unitId} is in more than one force`);
+      }
+      claimed.add(unitId);
+    }
+    forceUnits[force.id] = unitIds;
+  }
+  return forceUnits;
 }
 
 function campaignDayFor(campaign: ICampaign): number {
@@ -52,22 +118,6 @@ function readCampaignBalance(campaign: ICampaign): number {
     return (balance as { amount: number }).amount;
   }
   return typeof balance === 'number' && Number.isFinite(balance) ? balance : 0;
-}
-
-function buildRosterUnits(
-  campaign: ICampaign,
-): Readonly<Record<string, ICampaignRosterUnit>> {
-  const units: Record<string, ICampaignRosterUnit> = {};
-  for (const force of Array.from(campaign.forces.values())) {
-    for (const unitId of force.unitIds) {
-      units[unitId] = {
-        unitId,
-        designation: unitId,
-        status: 'operational',
-      };
-    }
-  }
-  return units;
 }
 
 function buildFactionStanding(

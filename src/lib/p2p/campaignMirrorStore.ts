@@ -32,6 +32,7 @@ import type {
 } from '@/types/campaign/CampaignSync';
 
 import { applyCampaignEvent } from '@/lib/campaign/sync/applyCampaignEvent';
+import { parseCampaignCoopSnapshot } from '@/types/campaign/campaignCoopSnapshot';
 
 // =============================================================================
 // Mirror peer identity
@@ -231,21 +232,36 @@ export const useCampaignMirrorStore = create<CampaignMirrorStore>()((set) => ({
 
   applySnapshot: (snapshot: ICampaignEvent, resumeSequence?: number): void => {
     if (snapshot.type !== 'CampaignSnapshotPublished') {
-      // A non-snapshot event cannot seed a mirror — ignore it. The
-      // sync session only ever calls `applySnapshot` with a real
-      // snapshot, but the guard keeps the contract explicit.
       return;
     }
-    set(() => ({
-      // The snapshot's payload is the whole authoritative state.
-      campaign: snapshot.payload.state,
-      // A join baseline carries `sequence: -1`, so the following log
-      // events (0+) all pass the `applyEvent` ordering guard. A
-      // large-gap resync passes `resumeSequence` so post-snapshot live
-      // events are accepted and stale tail events are rejected.
-      lastSequence: resumeSequence ?? snapshot.sequence,
-      paused: false,
-    }));
+    const parsed = parseCampaignCoopSnapshot({
+      campaignId: snapshot.campaignId,
+      matchId: snapshot.payload.matchId ?? snapshot.campaignId,
+      revision: snapshot.payload.revision ?? 0,
+      state: snapshot.payload.state,
+    });
+    if (!parsed.ok) {
+      return;
+    }
+    set((state) => {
+      const adopted =
+        resumeSequence ?? snapshot.payload.revision ?? snapshot.sequence;
+      if (state.campaign !== null && adopted < state.lastSequence) {
+        return {};
+      }
+      if (
+        state.campaign !== null &&
+        adopted === state.lastSequence &&
+        JSON.stringify(state.campaign) !== JSON.stringify(parsed.snapshot.state)
+      ) {
+        return {};
+      }
+      return {
+        campaign: parsed.snapshot.state,
+        lastSequence: adopted,
+        paused: false,
+      };
+    });
   },
 
   applyEvent: (event: ICampaignEvent): void => {
@@ -264,6 +280,7 @@ export const useCampaignMirrorStore = create<CampaignMirrorStore>()((set) => ({
                 day: 0,
                 balance: 0,
                 rosterUnits: {},
+                forceUnits: {},
                 pilots: {},
                 contracts: {},
                 factionStanding: {},
