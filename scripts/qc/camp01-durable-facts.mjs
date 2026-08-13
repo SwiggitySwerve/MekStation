@@ -378,7 +378,7 @@ function readJson(file) { try{const stat=fs.lstatSync(file);if(stat.isSymbolicLi
 // prettier-ignore
 function readCandidateJson(file) { try{const stat=fs.lstatSync(file);if(stat.isSymbolicLink()||!stat.isFile())return null;return JSON.parse(fs.readFileSync(file,'utf8'));}catch{return null;} }
 // prettier-ignore
-export function overlayIdentityRefs(inherited,overlay) { const overlayRefs=new Set((overlay??[]).map((entry)=>entry.ref)); return unique([...(inherited??[]).filter((entry)=>!overlayRefs.has(entry.ref)),...(overlay??[])],'ref'); }
+export function overlayIdentityRefs(inherited,overlay) { const inheritedRefs=new Set((inherited??[]).map((entry)=>entry.ref)); return unique([...(inherited??[]),...(overlay??[]).filter((entry)=>!inheritedRefs.has(entry.ref))],'ref'); }
 // prettier-ignore
 function unique(values,key_) { const sorted=[...values].sort((a,b)=>String(a[key_]).localeCompare(String(b[key_]))), out=[];for(const value of sorted){const prior=out.at(-1);if(prior?.[key_]===value[key_]&&JSON.stringify(prior)!==JSON.stringify(value))fail('durable registry identity drift');if(prior?.[key_]!==value[key_])out.push(value);}return out; }
 // prettier-ignore

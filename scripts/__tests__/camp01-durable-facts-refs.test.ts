@@ -51,13 +51,18 @@ try {
         }
       : action === 'keep'
         ? { inherited: [auditRef, receiptRef], overlay: [] }
-        : {
-            inherited: [
-              auditRef,
-              { ...auditRef, validationProvenanceId: mergedId },
-            ],
-            overlay: [],
-          };
+        : action === 'novel'
+          ? {
+              inherited: [receiptRef],
+              overlay: [auditRef],
+            }
+          : {
+              inherited: [
+                auditRef,
+                { ...auditRef, validationProvenanceId: mergedId },
+              ],
+              overlay: [],
+            };
   const result = spawnSync(
     process.execPath,
     ['--input-type=module', '--eval', harness],
@@ -75,11 +80,21 @@ try {
 }
 
 describe('CAMP-01 identity-ref overlay', () => {
-  it('rebinds an audit ref when exact-main owned mergeSha changes the tuple id', () => {
+  it('keeps reviewed-head audit ref binding when exact-main owned mergeSha changes', () => {
     const result = invoke('rebind');
     expect(result).toMatchObject({ ok: true });
     expect(result.value).toEqual(
-      [reboundAuditRef, receiptRef].sort((left, right) =>
+      [auditRef, receiptRef].sort((left, right) =>
+        left.ref.localeCompare(right.ref),
+      ),
+    );
+  });
+
+  it('adds overlay refs that reviewed-head did not already bind', () => {
+    const result = invoke('novel');
+    expect(result).toMatchObject({ ok: true });
+    expect(result.value).toEqual(
+      [auditRef, receiptRef].sort((left, right) =>
         left.ref.localeCompare(right.ref),
       ),
     );
