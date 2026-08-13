@@ -53,14 +53,15 @@ describe('CreateCampaignPage RosterStep', () => {
         onAssignPilot={noop}
         loadSavedDesignIndex={async () => {
           if (fail) throw new Error('unavailable');
+          const mech = UnitType.BATTLEMECH;
           return [
             {
               id: 'custom-whm-6r-saved',
               name: 'Warhammer WHM-6R Custom',
               tonnage: 70,
-              unitType: UnitType.BATTLEMECH,
+              unitType: mech,
             },
-            { id: '', name: 'Broken', tonnage: 70, unitType: UnitType.BATTLEMECH },
+            { id: '', name: 'Broken', tonnage: 70, unitType: mech },
           ];
         }}
       />,
@@ -68,7 +69,9 @@ describe('CreateCampaignPage RosterStep', () => {
     expect(await screen.findByText('Saved designs unavailable')).toBeTruthy();
     fireEvent.click(screen.getByTestId('add-unit-light-mech'));
     fail = false;
-    fireEvent.click(screen.getByRole('button', { name: 'Retry saved designs' }));
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Retry saved designs' }),
+    );
     fireEvent.click(
       await screen.findByRole('button', {
         name: 'Add saved design Warhammer WHM-6R Custom',

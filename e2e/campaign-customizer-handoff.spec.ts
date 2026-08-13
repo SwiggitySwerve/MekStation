@@ -347,13 +347,13 @@ test.describe('campaign customizer handoff @campaign @customizer', () => {
   test('selects a saved custom unit at desktop and 390x844 without collapsing identities', async ({
     page,
   }) => {
-    const savedDesignId = 'custom-whm-6r-saved';
+    const savedId = 'custom-whm-6r-saved';
     const savedName = 'Warhammer WHM-6R-Custom';
     await page.goto('/gameplay/campaigns');
     await waitForCampaignStores(page);
     await page.evaluate(
-      (unit) =>
-        new Promise<void>((resolve, reject) => {
+      (unit) => {
+        return new Promise<void>((resolve, reject) => {
           const request = indexedDB.open('mekstation', 4);
           request.onerror = () => reject(request.error ?? new Error('idb'));
           request.onsuccess = () => {
@@ -364,9 +364,10 @@ test.describe('campaign customizer handoff @campaign @customizer', () => {
             };
             tx.objectStore('custom-units').put(unit, unit.id);
           };
-        }),
+        });
+      },
       {
-        id: savedDesignId,
+        id: savedId,
         chassis: 'Warhammer',
         variant: 'WHM-6R-Custom',
         tonnage: 70,
@@ -381,17 +382,19 @@ test.describe('campaign customizer handoff @campaign @customizer', () => {
     await page.getByTestId('wizard-next-btn').click();
     await page.getByTestId('wizard-next-btn').click();
     await expect(page.getByText('Stock Templates')).toBeVisible();
-    await page.getByRole('button', { name: `Add saved design ${savedName}` }).click();
+    await page
+      .getByRole('button', { name: `Add saved design ${savedName}` })
+      .click();
     const selected = page.locator('[data-unit-source="custom"]');
-    await expect(selected).toHaveAttribute('data-unit-ref', savedDesignId);
-    expect(await selected.getAttribute('data-testid')).not.toContain(savedDesignId);
+    await expect(selected).toHaveAttribute('data-unit-ref', savedId);
+    expect(await selected.getAttribute('data-testid')).not.toContain(savedId);
     if (process.env.CAMP01_INVOCATION_ID === 'camp-01e-picker-browser') {
       await captureCamp01AttestedPng(page, 'desktop.png');
       await page.setViewportSize({ width: 390, height: 844 });
-      expect(
-        ((await page.getByRole('heading', { name: 'Configure Roster' }).boundingBox())
-          ?.width ?? 0) <= 390,
-      ).toBeTruthy();
+      const box = await page
+        .getByRole('heading', { name: 'Configure Roster' })
+        .boundingBox();
+      expect((box?.width ?? 0) <= 390).toBeTruthy();
       await captureCamp01AttestedPng(page, 'mobile-390x844.png');
     }
   });

@@ -1,6 +1,7 @@
+import type { RosterUnitSource } from '@/types/campaign/RosterUnitSource';
+
 import { CampaignPreset } from '@/types/campaign/CampaignPreset';
 import { CampaignType } from '@/types/campaign/CampaignType';
-import type { RosterUnitSource } from '@/types/campaign/RosterUnitSource';
 
 export interface SelectedUnit {
   id: string;

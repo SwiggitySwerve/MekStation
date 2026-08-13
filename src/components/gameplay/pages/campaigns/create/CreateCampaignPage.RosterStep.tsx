@@ -32,10 +32,6 @@ function getWizardTemplateOptions() {
 
 const WIZARD_TEMPLATE_OPTIONS = getWizardTemplateOptions();
 
-async function listSavedDesignIndex(): Promise<readonly unknown[]> {
-  return getCustomUnitService().list();
-}
-
 function SavedDesignsGroup({
   loadSavedDesignIndex,
   onAdd,
@@ -136,7 +132,7 @@ export function RosterStep({
   onAddPilot,
   onRemovePilot,
   onAssignPilot,
-  loadSavedDesignIndex = listSavedDesignIndex,
+  loadSavedDesignIndex = () => getCustomUnitService().list(),
 }: RosterStepProps): React.ReactElement {
   return (
     <Card className="mx-auto max-w-2xl">
@@ -154,15 +150,14 @@ export function RosterStep({
           </h3>
         </div>
 
-        <div className="mb-4">
-          <h3
-            className="text-text-theme-primary mb-2 text-sm font-medium"
-            data-camp01-fixture-alias="Stock Templates"
-            data-camp01-fixture-id="camp01-picker-stock-template"
-          >
-            Stock Templates
-          </h3>
-          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+        <h3
+          className="text-text-theme-primary mb-2 text-sm font-medium"
+          data-camp01-fixture-alias="Stock Templates"
+          data-camp01-fixture-id="camp01-picker-stock-template"
+        >
+          Stock Templates
+        </h3>
+        <div className="mb-4 grid grid-cols-1 gap-2 sm:grid-cols-2">
           {WIZARD_TEMPLATE_OPTIONS.map(({ template, representativeUnit }) => (
             <button
               key={representativeUnit.unitRef}
@@ -192,7 +187,6 @@ export function RosterStep({
               </div>
             </button>
           ))}
-          </div>
         </div>
 
         <SavedDesignsGroup
