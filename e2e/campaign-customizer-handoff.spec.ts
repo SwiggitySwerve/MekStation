@@ -5,8 +5,6 @@ import {
   type Page,
 } from '@playwright/test';
 import { createHash } from 'node:crypto';
-import * as fs from 'node:fs';
-import * as path from 'node:path';
 
 import { persistCampaignThroughDashboard } from './fixtures/campaign';
 import {
@@ -405,7 +403,7 @@ test.describe('campaign customizer handoff @campaign @customizer', () => {
 
   test('creates a saved custom unit campaign through accepted server persistence', async ({
     page,
-  }) => {
+  }, testInfo) => {
     const savedId = 'custom-whm-6r-saved';
     // prettier-ignore
     type Put = { campaignId: string; baseVersion: number; unitId?: string; unitRef?: string; unitSource?: string; constructionAbsent: boolean; rootContainsInstance: boolean };
@@ -509,14 +507,12 @@ test.describe('campaign customizer handoff @campaign @customizer', () => {
     expect(accepted?.unitId).toBeTruthy();
     expect(accepted?.unitId).not.toBe(savedId);
     // prettier-ignore
-    if (process.env.CAMP01_ARTIFACT_DIR && process.env.CAMP01_RUN_ID && process.env.CAMP01_EXECUTION_ID && process.env.CAMP01_INVOCATION_ID === 'camp-01f-persistence-browser') {
+    if (process.env.CAMP01_INVOCATION_ID === 'camp-01f-persistence-browser') {
       const digest = (kind: string, raw: string) => `sha256:${createHash('sha256').update(`camp01-entity/v1\0${kind}\0${raw}`).digest('hex')}`;
       const campaign = digest('campaign', campaignId);
       const roster = digest('roster-instance', accepted?.unitId ?? '');
       const unitRef = digest('unit-ref', savedId);
-      const target = path.join(process.env.CAMP01_ARTIFACT_DIR, 'reports', 'campaign-persistence-authority.json');
-      fs.mkdirSync(path.dirname(target), { recursive: true });
-      fs.writeFileSync(target, `${JSON.stringify({ schema: 'camp01-campaign-persistence-authority/v1', parentRunId: process.env.CAMP01_RUN_ID, executionId: process.env.CAMP01_EXECUTION_ID, invocationId: 'camp-01f-persistence-browser', producerId: 'scripts/playwright/run-playwright.mjs', reporterId: 'camp01-campaign-persistence-reporter/v1', sourceIds: ['e2e/campaign-customizer-handoff.spec.ts'], complete: true, observations: [{ id: 'e2e/campaign-customizer-handoff.spec.ts::campaign customizer handoff @campaign @customizer::creates a saved custom unit campaign through accepted server persistence', status: 'passed', failureFingerprint: null }], requestMethod: 'PUT', acceptedResult: 'saved', acceptedCampaignId: campaign, persistedCampaignId: campaign, acceptedRosterInstanceId: roster, persistedRosterInstanceId: roster, acceptedUnitRef: unitRef, persistedUnitRef: unitRef, acceptedUnitSource: 'custom', persistedUnitSource: 'custom', acceptedRootForceContainsInstance: true, persistedRootForceContainsInstance: true, acceptedConstructionPayloadAbsent: true, persistedConstructionPayloadAbsent: true, successSuppressedOnFailure: true, retryCampaignIdMatched: true, conflictRetryCampaignIdMatched: true, conflictOverwritePrevented: true })}\n`, { flag: 'wx' });
+      await testInfo.attach('camp01-campaign-persistence-authority/v1', { body: JSON.stringify({ requestMethod: 'PUT', acceptedResult: 'saved', acceptedCampaignId: campaign, persistedCampaignId: campaign, acceptedRosterInstanceId: roster, persistedRosterInstanceId: roster, acceptedUnitRef: unitRef, persistedUnitRef: unitRef, acceptedUnitSource: 'custom', persistedUnitSource: 'custom', acceptedRootForceContainsInstance: true, persistedRootForceContainsInstance: true, acceptedConstructionPayloadAbsent: true, persistedConstructionPayloadAbsent: true, successSuppressedOnFailure: true, retryCampaignIdMatched: true, conflictRetryCampaignIdMatched: true, conflictOverwritePrevented: true }), contentType: 'application/json' });
     }
   });
 });
