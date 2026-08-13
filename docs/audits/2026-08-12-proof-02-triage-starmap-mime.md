@@ -8,16 +8,16 @@ source-controlled audit anchor for the single non-passing observation from
 
 ## Disposition
 
-| Field | Value |
-| --- | --- |
-| observationId | `e2e/campaign-starmap-logistics.spec.ts::campaign starmap logistics::previews, approves, and reloads campaign travel consequences` |
-| status | failed |
-| failureFingerprint | `sha256:ce7ec763397b46091fb9e9a36c21ecda7ea255fc84b4433a8dd3601acb664144` |
-| knownFailureCode | `development-mime-diagnostic` |
-| severity | **low** |
-| outcome | **lower-severity** |
-| repairRowId | none |
-| blocker | none |
+| Field              | Value                                                                                                                              |
+| ------------------ | ---------------------------------------------------------------------------------------------------------------------------------- |
+| observationId      | `e2e/campaign-starmap-logistics.spec.ts::campaign starmap logistics::previews, approves, and reloads campaign travel consequences` |
+| status             | failed                                                                                                                             |
+| failureFingerprint | `sha256:ce7ec763397b46091fb9e9a36c21ecda7ea255fc84b4433a8dd3601acb664144`                                                          |
+| knownFailureCode   | `development-mime-diagnostic`                                                                                                      |
+| severity           | **low**                                                                                                                            |
+| outcome            | **lower-severity**                                                                                                                 |
+| repairRowId        | none                                                                                                                               |
+| blocker            | none                                                                                                                               |
 
 `validateProof02Triage` only consumes non-passing observations. The other nine
 Playwright results passed. Two of those passed with known codes
