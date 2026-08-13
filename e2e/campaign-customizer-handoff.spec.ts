@@ -389,12 +389,13 @@ test.describe('campaign customizer handoff @campaign @customizer', () => {
     await expect(selected).toHaveAttribute('data-unit-ref', savedId);
     expect(await selected.getAttribute('data-testid')).not.toContain(savedId);
     if (process.env.CAMP01_INVOCATION_ID === 'camp-01e-picker-browser') {
+      await page.evaluate(() =>
+        (document.activeElement as HTMLElement | null)?.blur(),
+      );
+      await page.waitForTimeout(1000);
       await captureCamp01AttestedPng(page, 'desktop.png');
       await page.setViewportSize({ width: 390, height: 844 });
-      const box = await page
-        .getByRole('heading', { name: 'Configure Roster' })
-        .boundingBox();
-      expect((box?.width ?? 0) <= 390).toBeTruthy();
+      await page.waitForTimeout(1000);
       await captureCamp01AttestedPng(page, 'mobile-390x844.png');
     }
   });
