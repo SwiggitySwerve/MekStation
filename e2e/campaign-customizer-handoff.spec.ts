@@ -12,6 +12,7 @@ import {
   expectCanonicalAtlasCustomizerStats,
   expectCanonicalAtlasStoredConfiguration,
 } from './fixtures/campaignUnits';
+import { captureCamp01AttestedPng } from './helpers/uxWalkthrough';
 import { assertNoMekStationLoading } from './helpers/wait';
 
 const persistedCampaignIds = new Set<string>();
@@ -341,5 +342,61 @@ test.describe('campaign customizer handoff @campaign @customizer', () => {
         }),
       ]),
     );
+  });
+
+  test('selects a saved custom unit at desktop and 390x844 without collapsing identities', async ({
+    page,
+  }) => {
+    const savedId = 'custom-whm-6r-saved';
+    const savedName = 'Warhammer WHM-6R-Custom';
+    await page.goto('/gameplay/campaigns');
+    await waitForCampaignStores(page);
+    await page.evaluate(
+      (unit) => {
+        return new Promise<void>((resolve, reject) => {
+          const request = indexedDB.open('mekstation', 4);
+          request.onerror = () => reject(request.error ?? new Error('idb'));
+          request.onsuccess = () => {
+            const tx = request.result.transaction('custom-units', 'readwrite');
+            tx.oncomplete = () => {
+              request.result.close();
+              resolve();
+            };
+            tx.objectStore('custom-units').put(unit, unit.id);
+          };
+        });
+      },
+      {
+        id: savedId,
+        chassis: 'Warhammer',
+        variant: 'WHM-6R-Custom',
+        tonnage: 70,
+        techBase: 'INNER_SPHERE',
+        era: 'LATE_SUCCESSION_WARS',
+        unitType: 'BattleMech',
+      },
+    );
+    await page.goto('/gameplay/campaigns/create');
+    await page.getByTestId('campaign-name-input').fill('CAMP-01E Saved Picker');
+    await page.getByTestId('wizard-next-btn').click();
+    await page.getByTestId('wizard-next-btn').click();
+    await page.getByTestId('wizard-next-btn').click();
+    await expect(page.getByText('Stock Templates')).toBeVisible();
+    await page
+      .getByRole('button', { name: `Add saved design ${savedName}` })
+      .click();
+    const selected = page.locator('[data-unit-source="custom"]');
+    await expect(selected).toHaveAttribute('data-unit-ref', savedId);
+    expect(await selected.getAttribute('data-testid')).not.toContain(savedId);
+    if (process.env.CAMP01_INVOCATION_ID === 'camp-01e-picker-browser') {
+      await page.evaluate(() =>
+        (document.activeElement as HTMLElement | null)?.blur(),
+      );
+      await page.waitForTimeout(1000);
+      await captureCamp01AttestedPng(page, 'desktop.png');
+      await page.setViewportSize({ width: 390, height: 844 });
+      await page.waitForTimeout(1000);
+      await captureCamp01AttestedPng(page, 'mobile-390x844.png');
+    }
   });
 });

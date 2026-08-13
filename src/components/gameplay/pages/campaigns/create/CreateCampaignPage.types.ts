@@ -1,9 +1,12 @@
+import type { RosterUnitSource } from '@/types/campaign/RosterUnitSource';
+
 import { CampaignPreset } from '@/types/campaign/CampaignPreset';
 import { CampaignType } from '@/types/campaign/CampaignType';
 
 export interface SelectedUnit {
   id: string;
   unitRef?: string;
+  unitSource?: RosterUnitSource;
   name: string;
   tonnage: number;
 }
@@ -40,7 +43,9 @@ export interface RosterStepProps {
     templateName: string,
     tonnage: number,
     unitRef: string,
+    unitSource?: RosterUnitSource,
   ) => void;
+  loadSavedDesignIndex?: () => Promise<readonly unknown[]>;
   onRemoveUnit: (unitId: string) => void;
   onAddPilot: () => void;
   onRemovePilot: (pilotId: string) => void;

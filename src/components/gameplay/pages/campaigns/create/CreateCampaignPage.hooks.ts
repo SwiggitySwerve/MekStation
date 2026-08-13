@@ -1,5 +1,7 @@
 import { useCallback, useState } from 'react';
 
+import type { RosterUnitSource } from '@/types/campaign/RosterUnitSource';
+
 import type {
   PilotAssignments,
   SelectedPilot,
@@ -34,6 +36,7 @@ interface UseCampaignRosterDraftResult {
     templateName: string,
     tonnage: number,
     unitRef: string,
+    unitSource?: RosterUnitSource,
   ) => void;
   handleRemoveUnit: (unitId: string) => void;
   handleAddPilot: () => void;
@@ -80,12 +83,23 @@ export function useCampaignRosterDraft(): UseCampaignRosterDraftResult {
   );
 
   const handleAddTemplateUnit = useCallback(
-    (templateName: string, tonnage: number, unitRef: string) => {
+    (
+      templateName: string,
+      tonnage: number,
+      unitRef: string,
+      unitSource?: RosterUnitSource,
+    ) => {
       const unitId = createEntityId('unit');
       setSelectedUnits((previous) => {
         return [
           ...previous,
-          { id: unitId, name: templateName, tonnage, unitRef },
+          {
+            id: unitId,
+            name: templateName,
+            tonnage,
+            unitRef,
+            ...(unitSource ? { unitSource } : {}),
+          },
         ];
       });
     },
