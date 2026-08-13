@@ -56,8 +56,8 @@ async function cleanupTargets(input,context) {
   await revalidateDurable(state,run,context); const binding=assertLifecycle(state,run,context.initiatingRoot), receipt=cleanupReceipt(state.wave,run), publication=prepareReceipt(receipt,context);
   try {
     await audit(binding,run,context); await context.beforeMutation({operation:'cleanup-targets',state,run}); await audit(binding,run,context); if(binding.owned===null)await assertBranchAbsent(binding,context);
-    await reinspect(binding.proof,run.sha,run.cleanManifest.final,'proof',run.runRoot,context); removeTransientReceipt(binding.proof,run.runRoot,context); await removeWorktree(binding.proof,'proof',context);
-    if(binding.owned!==null){await reinspect(binding.owned,binding.oldOid,binding.owned.cleanManifest,'owned',null,context); await removeWorktree(binding.owned,'owned',context); await assertBranch(binding,run.sha,context); await compareDelete(binding,context);}
+    await reinspect(binding.proof,run.sha,null,'proof',run.runRoot,context); removeTransientReceipt(binding.proof,run.runRoot,context); await removeWorktree(binding.proof,'proof',context);
+    if(binding.owned!==null){await reinspect(binding.owned,binding.oldOid,null,'owned',null,context); await removeWorktree(binding.owned,'owned',context); await assertBranch(binding,run.sha,context); await compareDelete(binding,context);}
     await reinspect(context.initiating,context.initiating.expectedHead,null,'initiating','.sisyphus/evidence/playtest',context); publishReceipt(publication,context); return result();
   } catch(error) { discardReceipt(publication,context); throw error; }
 }
@@ -76,7 +76,7 @@ function assertLifecycle(state,run,initiatingRoot) {
 // prettier-ignore
 async function revalidateDurable(state,run,context) { if(typeof context.invokePublicValidator!=='function') fail('durable validator unavailable'); let value; try {value=await context.invokePublicValidator({entry:VALIDATOR_ENTRY,stage:'durable',wave:state?.wave,mode:run.mode,sha:run.sha,runRoot:run.runRoot,runId:run.runId});} catch {fail('durable receipt revalidation failed');} if(!value||JSON.stringify(Object.keys(value))!==JSON.stringify(['validated'])||value.validated!==true) fail('durable receipt revalidation failed'); let bytes; try {bytes=context.io.readFileSync(path.join(context.initiatingRoot,...run.runRoot.split('/'),run.runId,'receipt-manifest.json'));} catch {fail('durable receipt digest drift');} if(digestBytes(bytes)!==run.receiptDigest)fail('durable receipt digest drift'); }
 // prettier-ignore
-async function audit(binding,run,context) { await reinspect(binding.proof,run.sha,run.cleanManifest.final,'proof',run.runRoot,context); if(binding.owned!==null){await assertBranch(binding,run.sha,context);await reinspect(binding.owned,binding.oldOid,binding.owned.cleanManifest,'owned',null,context);} await reinspect(context.initiating,context.initiating.expectedHead,null,'initiating','.sisyphus/evidence/playtest',context); }
+async function audit(binding,run,context) { await reinspect(binding.proof,run.sha,null,'proof',run.runRoot,context); if(binding.owned!==null){await assertBranch(binding,run.sha,context);await reinspect(binding.owned,binding.oldOid,null,'owned',null,context);} await reinspect(context.initiating,context.initiating.expectedHead,null,'initiating','.sisyphus/evidence/playtest',context); }
 
 // prettier-ignore
 async function reinspect(target,expectedHead,manifest,role,runRoot,context) {

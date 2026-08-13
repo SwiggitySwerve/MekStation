@@ -162,6 +162,7 @@ const camp01TestFiles = [
   'scripts/__tests__/camp01-cleanup-authority.test.ts',
   'scripts/__tests__/camp01-durable-export.test.ts',
   'scripts/__tests__/camp01-durable-facts.test.ts',
+  'scripts/__tests__/camp01-durable-facts-refs.test.ts',
   'scripts/__tests__/camp01-repair-registry.test.ts',
   'scripts/__tests__/camp01-github-provenance.test.ts',
   'scripts/__tests__/camp01-git-trust.test.ts',
