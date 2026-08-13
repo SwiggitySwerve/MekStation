@@ -494,7 +494,9 @@ test.describe('campaign customizer handoff @campaign @customizer', () => {
     ).toBeVisible();
     phase = 'conflict';
     await page.getByTestId('wizard-submit-btn').click();
-    await expect(page.getByText(/Campaign save conflict/)).toBeVisible();
+    await expect(
+      page.getByTestId('toast-container').getByText(/Campaign save conflict/),
+    ).toBeVisible();
     phase = 'pass';
     await page.getByTestId('wizard-submit-btn').click();
     await page.waitForURL(/\/gameplay\/campaigns\/(?!create).+/);
