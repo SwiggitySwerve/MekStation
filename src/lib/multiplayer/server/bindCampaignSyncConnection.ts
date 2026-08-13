@@ -16,10 +16,13 @@ import {
 import type {
   CampaignHostRegistry,
   ICampaignHostRegistryEntry,
-  ICampaignParticipationRecord,
 } from './CampaignHostRegistry';
 import type { IMatchSocket } from './ServerMatchSocketTypes';
 
+import {
+  admitBoundCampaignParticipation,
+  captureCampaignConnectionBaseline,
+} from './authorizeCampaignParticipation';
 import { getCampaignHostRegistry } from './CampaignHostRegistry';
 
 export interface IWireCampaignSocket extends IMatchSocket {
@@ -188,6 +191,7 @@ async function handleInbound({
       socket,
       entry,
       matchId,
+      verifiedPlayerId,
       cleanupFns,
     });
   } catch (error) {
@@ -207,6 +211,7 @@ interface IDispatchCampaignEnvelopeDeps {
   socket: IWireCampaignSocket;
   entry: ICampaignHostRegistryEntry;
   matchId: string;
+  verifiedPlayerId: string;
   cleanupFns: Set<() => void>;
 }
 
@@ -215,6 +220,7 @@ async function dispatchCampaignEnvelope({
   socket,
   entry,
   matchId,
+  verifiedPlayerId,
   cleanupFns,
 }: IDispatchCampaignEnvelopeDeps): Promise<void> {
   switch (envelope.kind) {
@@ -224,6 +230,7 @@ async function dispatchCampaignEnvelope({
         socket,
         entry,
         matchId,
+        verifiedPlayerId,
         cleanupFns,
       });
       return;
@@ -237,8 +244,18 @@ async function dispatchCampaignEnvelope({
       await handleCampaignHostIntent({ envelope, socket, entry, matchId });
       return;
     case 'CampaignParticipation':
-      handleCampaignParticipation({ envelope, socket, entry, matchId });
+      handleCampaignParticipation({
+        envelope,
+        socket,
+        entry,
+        matchId,
+        verifiedPlayerId,
+      });
       return;
+    default: {
+      const exhaustive: never = envelope;
+      void exhaustive;
+    }
   }
 }
 
@@ -310,17 +327,28 @@ async function handleCampaignJoin({
   socket,
   entry,
   matchId,
+  verifiedPlayerId,
   cleanupFns,
 }: {
   envelope: Extract<ICampaignClientMessage, { kind: 'CampaignJoin' }>;
   socket: IWireCampaignSocket;
   entry: ICampaignHostRegistryEntry;
   matchId: string;
+  verifiedPlayerId: string;
   cleanupFns: Set<() => void>;
 }): Promise<void> {
   addSocketToMatch(matchId, socket);
+  const role: 'host' | 'guest' =
+    verifiedPlayerId === entry.hostPlayerId ? 'host' : 'guest';
+  const acknowledge = (): void => {
+    captureCampaignConnectionBaseline(socket, {
+      playerId: verifiedPlayerId,
+      role,
+      revision: entry.revision,
+    });
+  };
 
-  if (envelope.role === 'host') {
+  if (role === 'host') {
     const eventUnsubscribe = entry.host.subscribe((event) => {
       sendCampaignEvent(socket, matchId, event);
     });
@@ -343,6 +371,7 @@ async function handleCampaignJoin({
       sendPendingProposals(socket, matchId, pending);
     });
     cleanupFns.add(pendingUnsubscribe);
+    acknowledge();
     return;
   }
 
@@ -357,6 +386,7 @@ async function handleCampaignJoin({
     return;
   }
   cleanupFns.add(join.disconnect);
+  acknowledge();
 }
 
 async function handleCampaignProposal({
@@ -423,21 +453,42 @@ function handleCampaignParticipation({
   socket,
   entry,
   matchId,
+  verifiedPlayerId,
 }: {
   envelope: Extract<ICampaignClientMessage, { kind: 'CampaignParticipation' }>;
   socket: IWireCampaignSocket;
   entry: ICampaignHostRegistryEntry;
   matchId: string;
+  verifiedPlayerId: string;
 }): void {
-  void socket;
-  const record = envelope.participation as ICampaignParticipationRecord;
-  entry.publishParticipation(record);
-  broadcast(matchId, {
-    kind: 'CampaignParticipation',
+  const admitted = admitBoundCampaignParticipation({
+    socket,
+    entry,
+    verifiedPlayerId,
+    payload: envelope.participation,
+  });
+  if (!admitted.ok) {
+    send(socket, errorFrame(matchId, admitted.code, admitted.reason));
+    return;
+  }
+  const acceptance = {
+    kind: 'CampaignParticipation' as const,
     matchId,
     ts: nowIso(),
-    participation: record,
-  });
+    playerId: admitted.record.playerId,
+    role: admitted.record.role,
+    participation: {
+      missionId: admitted.record.missionId,
+      forceId: admitted.record.force.id,
+      choice: admitted.record.choice,
+    },
+  };
+  if (admitted.idempotent) {
+    send(socket, acceptance);
+    return;
+  }
+  entry.publishParticipation(admitted.record);
+  broadcast(matchId, acceptance);
 }
 
 function sendCampaignEvent(

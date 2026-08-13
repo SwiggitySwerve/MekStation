@@ -146,7 +146,11 @@ export default function CoopMissionLaunchPage(): React.ReactElement {
       matchId,
       role: campaign.coopSession.mode,
       roomCode: campaign.coopSession.roomCode,
-    })?.sendParticipation(record);
+    })?.sendParticipation({
+      missionId: missionKey,
+      forceId: localForce.id,
+      choice: localChoice,
+    });
   }, [
     campaign?.coopSession,
     localChoice,
@@ -179,15 +183,24 @@ export default function CoopMissionLaunchPage(): React.ReactElement {
         ) {
           return;
         }
-        publishCoopParticipation(
-          message.participation as ICoopParticipationRecord,
-        );
+        const force = campaign.forces.get(message.participation.forceId);
+        if (!force) {
+          return;
+        }
+        publishCoopParticipation({
+          matchId: message.matchId,
+          missionId: message.participation.missionId,
+          playerId: message.playerId,
+          role: message.role,
+          choice: message.participation.choice,
+          force,
+        });
       }) ?? (() => undefined);
     return () => {
       unsubscribeLocal();
       unsubscribeTransport();
     };
-  }, [campaign?.coopSession, matchId, missionKey]);
+  }, [campaign, matchId, missionKey]);
 
   const otherRecord = useMemo(
     () =>

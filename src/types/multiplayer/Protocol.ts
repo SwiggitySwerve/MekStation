@@ -427,14 +427,13 @@ export const CampaignHostIntentSchema = z.object({
 });
 export type ICampaignHostIntent = z.infer<typeof CampaignHostIntentSchema>;
 
-export const CampaignParticipationPayloadSchema = z.object({
-  matchId: matchIdSchema,
-  missionId: z.string().min(1),
-  playerId: z.string().min(1),
-  role: CampaignSyncRoleSchema,
-  choice: CampaignParticipationChoiceSchema,
-  force: z.unknown(),
-});
+export const CampaignParticipationPayloadSchema = z
+  .object({
+    missionId: z.string().min(1),
+    forceId: z.string().min(1),
+    choice: CampaignParticipationChoiceSchema,
+  })
+  .strict();
 export type ICampaignParticipationPayload = z.infer<
   typeof CampaignParticipationPayloadSchema
 >;
@@ -752,6 +751,8 @@ export const CampaignParticipationMessageSchema = z.object({
   kind: z.literal('CampaignParticipation'),
   matchId: matchIdSchema,
   ts: tsSchema,
+  playerId: z.string().min(1),
+  role: CampaignSyncRoleSchema,
   participation: CampaignParticipationPayloadSchema,
 });
 export type ICampaignParticipationMessage = z.infer<

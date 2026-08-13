@@ -62,6 +62,7 @@ export interface ICampaignHostRegistryEntry {
   readonly getParticipationRecords: (
     missionId: string,
   ) => readonly ICampaignParticipationRecord[];
+  readonly advanceRevision: (next: number) => void;
   readonly hasReconciledBattle: (matchId: string) => boolean;
   readonly recordReconciledBattle: (matchId: string) => void;
   readonly close: () => void;
@@ -71,12 +72,12 @@ class CampaignHostRegistryEntry implements ICampaignHostRegistryEntry {
   readonly matchId: string;
   readonly campaignId: string;
   readonly roomCode: string;
-  readonly revision: number;
   readonly hostPlayerId: string;
   readonly host: CampaignMatchHost;
   readonly syncSession: CampaignSyncSession;
   readonly arbiter: CampaignGmArbiter;
 
+  private currentRevision: number;
   private readonly participationByMission = new Map<
     string,
     IParticipationBucket
@@ -94,13 +95,17 @@ class CampaignHostRegistryEntry implements ICampaignHostRegistryEntry {
   }) {
     this.matchId = input.matchId;
     this.roomCode = input.roomCode;
-    this.revision = input.revision;
+    this.currentRevision = input.revision;
     this.host = input.host;
     this.syncSession = input.syncSession;
     this.arbiter = input.arbiter;
     this.unregisterActiveHost = input.unregisterActiveHost;
     this.campaignId = input.host.campaignId;
     this.hostPlayerId = input.host.getHostPlayerId();
+  }
+
+  get revision(): number {
+    return this.currentRevision;
   }
 
   private readonly unregisterActiveHost: () => void;
@@ -128,6 +133,13 @@ class CampaignHostRegistryEntry implements ICampaignHostRegistryEntry {
   ): readonly ICampaignParticipationRecord[] => {
     const bucket = this.participationByMission.get(missionId);
     return bucket ? Array.from(bucket.records.values()) : [];
+  };
+
+  advanceRevision = (next: number): void => {
+    if (!Number.isInteger(next) || next <= this.currentRevision) {
+      throw new Error('Campaign snapshot revision is stale');
+    }
+    this.currentRevision = next;
   };
 
   hasReconciledBattle = (matchId: string): boolean =>
