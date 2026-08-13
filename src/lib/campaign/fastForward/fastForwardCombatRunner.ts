@@ -424,7 +424,7 @@ export async function runFastForwardBattle(
   };
 }
 
-function loadBundledCanonicalIndex(): readonly { readonly id: unknown }[] {
+function loadBundledCanonicalIndex(): readonly { readonly id?: unknown }[] {
   try {
     const parsed = JSON.parse(
       fs.readFileSync(

@@ -44,7 +44,7 @@ export function snapshotFromUnitsApiPayload(
 }
 
 export function snapshotFromNodeCatalogIndex(
-  loadIndex: () => readonly { readonly id: unknown }[],
+  loadIndex: () => readonly { readonly id?: unknown }[],
 ): CanonicalCombatCatalogSnapshot {
   try {
     return snapshotFromIndexEntries(loadIndex());
@@ -91,8 +91,8 @@ export function admitCanonicalExactReference(input: {
 }
 
 export function admitRosterUnitSource(input: {
-  readonly unitSource: unknown;
-  readonly unitRef: string | undefined;
+  readonly unitSource?: unknown;
+  readonly unitRef?: string;
   readonly catalog?: CanonicalCombatCatalogSnapshot;
   readonly unitId: string;
   readonly unitName: string;

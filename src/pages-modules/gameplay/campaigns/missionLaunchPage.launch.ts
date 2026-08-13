@@ -14,10 +14,7 @@ import {
   getCoopRuntimeSessionByMatch,
 } from '@/lib/campaign/coop/coopRuntimeSession';
 import { materializeCampaignMissionEncounter } from '@/lib/campaign/encounter/materializeCampaignMissionEncounter';
-import {
-  admitCampaignLaunch,
-  fetchCanonicalCatalogSnapshot,
-} from '@/lib/campaign/readiness/canonicalCatalogAdmission';
+import { fetchCanonicalCatalogSnapshot } from '@/lib/campaign/readiness/canonicalCatalogAdmission';
 import { selectedRosterUnitsForLaunch } from '@/lib/campaign/readiness/missionReadinessProjection';
 import {
   type CampaignPersistenceSaveResult,
@@ -263,16 +260,6 @@ async function launchSinglePlayerMissionFromPage({
 
     const rosterUnits = selectedRosterUnitsForLaunch(readinessProjection);
     const catalog = await fetchCanonicalCatalogSnapshot();
-    const launchGate = admitCampaignLaunch({
-      snapshot: { campaignId: campaign.id, catalog },
-      expected: { campaignId: campaign.id },
-      selectedUnits: rosterUnits,
-    });
-    if (!launchGate.admitted) {
-      setLaunchError(launchGate.blocker.message);
-      return;
-    }
-
     const result = await materializeCampaignMissionEncounter({
       campaign,
       missionId: missionKey,
