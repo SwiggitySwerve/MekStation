@@ -28,6 +28,12 @@
 
 import type { IEncounter } from '@/types/encounter';
 
+import {
+  type CampaignLaunchExpectedIdentity,
+  type CampaignLaunchSelectionUnit,
+  type CampaignLaunchSnapshot,
+  admitCampaignLaunch,
+} from '@/lib/campaign/readiness/canonicalCatalogAdmission';
 import { getEncounterService } from '@/services/encounter/EncounterService';
 
 import type { ICampaignEncounterLauncherService } from '../encounter/launchCampaignEncounter';
@@ -39,6 +45,12 @@ import type {
 
 import { launchCampaignEncounter } from '../encounter/launchCampaignEncounter';
 import { composeCoopEncounter } from './composeCoopEncounter';
+
+export interface LaunchCoopMissionAdmission {
+  readonly snapshot: CampaignLaunchSnapshot;
+  readonly expected: CampaignLaunchExpectedIdentity;
+  readonly selectedUnits?: readonly CampaignLaunchSelectionUnit[];
+}
 
 // =============================================================================
 // Result
@@ -86,7 +98,27 @@ export async function launchCoopMission(
   baseEncounter: IEncounter,
   contributions: readonly ICoopForceContribution[],
   service: ICampaignEncounterLauncherService = getEncounterService(),
+  admission?: LaunchCoopMissionAdmission,
 ): Promise<LaunchCoopMissionResult> {
+  const deployingUnitIds = contributions.flatMap((contribution) =>
+    contribution.participation === 'deploy' ? contribution.force.unitIds : [],
+  );
+  const selectedById = new Map(
+    (admission?.selectedUnits ?? []).map((unit) => [unit.unitId, unit]),
+  );
+  const gate = admitCampaignLaunch({
+    snapshot: admission?.snapshot,
+    expected: admission?.expected ?? {
+      campaignId: baseEncounter.campaignMeta?.campaignId ?? '',
+    },
+    selectedUnits: deployingUnitIds.map(
+      (unitId) => selectedById.get(unitId) ?? { unitId, unitName: unitId },
+    ),
+  });
+  if (!gate.admitted) {
+    return { ok: false, error: gate.blocker.message };
+  }
+
   // Step 1 — compose the co-op encounter. A zero-`deploy` launch is
   // BLOCKED here with a typed rejection; no encounter is created
   // (design D2 / spec "Mission with no deploying player is blocked").

@@ -9,13 +9,22 @@
  * @spec openspec/changes/add-coop-campaign-play/specs/coop-campaign-sync/spec.md
  */
 
+import * as fs from 'node:fs';
+import * as path from 'node:path';
+
 import type { IForce } from '@/types/campaign/Force';
 import type { IEncounter } from '@/types/encounter';
 
+import { materializeCampaignMissionEncounter } from '@/lib/campaign/encounter/materializeCampaignMissionEncounter';
+import {
+  admitCampaignLaunch,
+  readyCanonicalCatalog,
+} from '@/lib/campaign/readiness/canonicalCatalogAdmission';
 import { ForceRole, FormationLevel } from '@/types/campaign/enums';
 import { EncounterStatus, TerrainPreset } from '@/types/encounter';
 
 import type { ICampaignEncounterLauncherService } from '../../encounter/launchCampaignEncounter';
+import type { LaunchCoopMissionAdmission } from '../launchCoopMission';
 
 import { launchCoopMission } from '../launchCoopMission';
 
@@ -58,6 +67,44 @@ const BASE_ENCOUNTER: IEncounter = {
     scenarioId: 'scenario-1',
   },
 };
+
+const READY_CATALOG = readyCanonicalCatalog([
+  'locust-lct-1v',
+  'hunchback-hbk-4g',
+]);
+const LAUNCH_ID = {
+  campaignId: 'campaign-1',
+  matchId: 'match-1',
+  revision: 1,
+} as const;
+
+function unit(
+  unitId: string,
+  unitRef = 'locust-lct-1v',
+  unitSource = 'canonical',
+) {
+  return { unitId, unitName: unitId, unitRef, unitSource };
+}
+
+function launchAdmission(
+  overrides: Partial<LaunchCoopMissionAdmission> = {},
+): LaunchCoopMissionAdmission {
+  return {
+    snapshot: { ...LAUNCH_ID, catalog: READY_CATALOG },
+    expected: LAUNCH_ID,
+    selectedUnits: [
+      unit('u-h1'),
+      unit('u-h2', 'hunchback-hbk-4g'),
+      unit('u-g1'),
+    ],
+    ...overrides,
+  };
+}
+
+function hostDeploy() {
+  // oxfmt-ignore
+  return [{ playerId: 'host' as const, role: 'host' as const, force: makeForce('force-host', ['u-h1']), participation: 'deploy' as const }];
+}
 
 /**
  * A fake encounter launcher that records the calls and reports a
@@ -115,6 +162,7 @@ describe('launchCoopMission — routes through the existing launch path', () => 
         },
       ],
       service,
+      launchAdmission(),
     );
 
     expect(result.ok).toBe(true);
@@ -149,6 +197,7 @@ describe('launchCoopMission — routes through the existing launch path', () => 
         },
       ],
       service,
+      launchAdmission(),
     );
     expect(result.ok).toBe(true);
     if (!result.ok) return;
@@ -179,6 +228,7 @@ describe('launchCoopMission — blocked launch', () => {
         },
       ],
       service,
+      launchAdmission(),
     );
 
     expect(result.ok).toBe(false);
@@ -187,5 +237,77 @@ describe('launchCoopMission — blocked launch', () => {
     expect(result.error).toContain('at least one player must deploy');
     // No encounter was created — the launch path was never entered.
     expect(launched).toEqual([]);
+  });
+
+  it('publishes CAMP-01D wave-result.json when the controller artifact dir is set', async () => {
+    const canonicalRun = fakeService();
+    const blockedRun = fakeService();
+    const canonical = await launchCoopMission(
+      BASE_ENCOUNTER,
+      hostDeploy(),
+      canonicalRun.service,
+      launchAdmission(),
+    );
+    const custom = await launchCoopMission(
+      BASE_ENCOUNTER,
+      hostDeploy(),
+      blockedRun.service,
+      launchAdmission({
+        selectedUnits: [unit('u-h1', 'locust-lct-1v', 'custom')],
+      }),
+    );
+    const foreign = admitCampaignLaunch({
+      snapshot: { ...LAUNCH_ID, campaignId: 'other', catalog: READY_CATALOG },
+      expected: LAUNCH_ID,
+      selectedUnits: [unit('u-h1')],
+    });
+    const stale = admitCampaignLaunch({
+      snapshot: { ...LAUNCH_ID, revision: 0, catalog: READY_CATALOG },
+      expected: LAUNCH_ID,
+      selectedUnits: [unit('u-h1')],
+    });
+    const fetchImpl = jest.fn() as unknown as typeof fetch;
+    await expect(
+      materializeCampaignMissionEncounter({
+        campaign: { id: 'c1', name: 'Gray Dawn', missions: new Map() },
+        missionId: 'm1',
+        rosterUnits: [
+          // oxfmt-ignore
+          { unitId: 'u-custom', unitName: 'Custom', chassisVariant: 'AS7-D', unitRef: 'locust-lct-1v', unitSource: 'custom', readiness: 'Ready' },
+        ],
+        catalog: READY_CATALOG,
+        fetchImpl,
+      }),
+    ).rejects.toThrow('cannot launch yet');
+    const blockedCalls = (fetchImpl as jest.Mock).mock.calls.length;
+    const assertions = {
+      'blockedSelection.createEncounterCount===0': blockedCalls,
+      'blockedSelection.encounterLookupCount===0': blockedCalls,
+      'blockedSelection.launchEncounterCount===0': blockedRun.launched.length,
+      'blockedSelection.reuseResultCount===0': blockedCalls,
+      'canonicalSelection.launchEncounterCount===1':
+        canonicalRun.launched.length,
+      'canonicalSelection.launchSucceeded===true':
+        canonical.ok === true &&
+        custom.ok === false &&
+        foreign.admitted === false &&
+        stale.admitted === false,
+      'catalogReady===true': READY_CATALOG.status === 'ready',
+    };
+    // oxfmt-ignore
+    if (Object.values(assertions).some((value) => value !== true && value !== 0 && value !== 1)) {
+      throw new Error(`wave assertion checks failed: ${JSON.stringify(assertions)}`);
+    }
+    const artifactDir = process.env.CAMP01_ARTIFACT_DIR;
+    const runId = process.env.CAMP01_RUN_ID;
+    const wavePath =
+      artifactDir && runId ? path.join(artifactDir, 'wave-result.json') : null;
+    if (wavePath && !fs.existsSync(wavePath)) {
+      fs.writeFileSync(
+        wavePath,
+        `${JSON.stringify({ schema: 'camp01-wave-result/v1', wave: 'camp-01d', runId, status: 'passed', assertions })}\n`,
+        { flag: 'wx' },
+      );
+    }
   });
 });

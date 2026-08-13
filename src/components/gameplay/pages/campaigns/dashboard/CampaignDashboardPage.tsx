@@ -12,6 +12,11 @@ import { DayReportPanel } from '@/components/campaign/DayReportPanel';
 import { Button, PageLayout } from '@/components/ui';
 import { materializeCampaignMissionEncounter } from '@/lib/campaign/encounter/materializeCampaignMissionEncounter';
 import {
+  type CanonicalCombatCatalogSnapshot,
+  admitCampaignLaunch,
+  fetchCanonicalCatalogSnapshot,
+} from '@/lib/campaign/readiness/canonicalCatalogAdmission';
+import {
   buildMissionReadinessProjection,
   selectedRosterUnitsForLaunch,
 } from '@/lib/campaign/readiness/missionReadinessProjection';
@@ -93,12 +98,26 @@ export default function CampaignDashboardPage(): React.ReactElement {
   const pendingOutcomes = usePendingOutcomes();
   const auditEntries = useDailyBattleAudit();
   const applyErrors = useOutcomeApplyErrors();
+  const [catalog, setCatalog] = useState<CanonicalCombatCatalogSnapshot>({
+    status: 'loading',
+  });
   const [isGenerating, setIsGenerating] = useState(false);
   const [missionGenerationError, setMissionGenerationError] = useState<
     string | null
   >(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    void fetchCanonicalCatalogSnapshot().then((snapshot) => {
+      if (!cancelled) setCatalog(snapshot);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   const missionReadinessProjection = useMemo(
     () =>
       buildMissionReadinessProjection({
@@ -107,12 +126,13 @@ export default function CampaignDashboardPage(): React.ReactElement {
         units,
         pilots,
         repairBay: selectRepairBay(campaign as ICampaign | null),
+        catalog,
         maxUnits: 4,
         baseCampaignHref: campaign
           ? `/gameplay/campaigns/${encodeURIComponent(campaign.id)}`
           : undefined,
       }),
-    [campaign, pilots, units],
+    [campaign, catalog, pilots, units],
   );
   const missionReadinessSummary = missionReadinessProjection.canLaunch
     ? `${missionReadinessProjection.selectedUnits.length} roster unit${
@@ -150,6 +170,15 @@ export default function CampaignDashboardPage(): React.ReactElement {
       const deployableUnits = selectedRosterUnitsForLaunch(
         missionReadinessProjection,
       );
+      const launchGate = admitCampaignLaunch({
+        snapshot: { campaignId: currentCampaign.id, catalog },
+        expected: { campaignId: currentCampaign.id },
+        selectedUnits: deployableUnits,
+      });
+      if (!launchGate.admitted) {
+        setMissionGenerationError(launchGate.blocker.message);
+        return;
+      }
       const deployedUnitIds = deployableUnits.map((unit) => unit.unitId);
       const missionNumber = missionCount + 1;
       const missionName = `Mission ${missionNumber}`;
@@ -167,6 +196,7 @@ export default function CampaignDashboardPage(): React.ReactElement {
         campaign: launchCampaign,
         missionId,
         rosterUnits: deployableUnits,
+        catalog,
       });
       rosterStore
         .getState()
@@ -193,7 +223,14 @@ export default function CampaignDashboardPage(): React.ReactElement {
     } finally {
       setIsGenerating(false);
     }
-  }, [missionCount, missionReadinessProjection, rosterStore, router, store]);
+  }, [
+    catalog,
+    missionCount,
+    missionReadinessProjection,
+    rosterStore,
+    router,
+    store,
+  ]);
 
   const handleNavigate = useCallback(
     (href: string) => {

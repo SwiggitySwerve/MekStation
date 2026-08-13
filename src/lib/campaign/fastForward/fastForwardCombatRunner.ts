@@ -37,6 +37,9 @@
  * @module lib/campaign/fastForward/fastForwardCombatRunner
  */
 
+import fs from 'node:fs';
+import path from 'node:path';
+
 import type { IInteractiveSessionLinkage } from '@/engine/InteractiveSession.types';
 import type { FastForwardBattleRunner } from '@/lib/campaign/fastForward/fastForwardCampaign';
 import type { ICampaignWithBridgeState } from '@/lib/campaign/processors/scenarioEncounterBridgeProcessor';
@@ -50,6 +53,11 @@ import { buildPreparedBattleData } from '@/components/gameplay/pages/preBattleSe
 import { publishCombatOutcome } from '@/engine/combatOutcomeBus';
 import { GameEngine } from '@/engine/GameEngine';
 import { materializeCampaignMissionEncounter } from '@/lib/campaign/encounter/materializeCampaignMissionEncounter';
+import {
+  type CanonicalCombatCatalogSnapshot,
+  admitCampaignLaunch,
+  snapshotFromNodeCatalogIndex,
+} from '@/lib/campaign/readiness/canonicalCatalogAdmission';
 import { resolveCampaignSeed } from '@/lib/campaign/utils/campaignRng';
 import { deriveCombatOutcome } from '@/lib/combat/outcome/combatOutcome';
 import { getPilotRepository } from '@/services/pilots/PilotRepository';
@@ -70,6 +78,7 @@ type FetchImpl = typeof fetch;
 export interface FastForwardCombatRunnerOptions {
   /** Defaults to a fresh `createInProcessApiFetch()` (design D3). */
   readonly fetchImpl?: FetchImpl;
+  readonly catalog?: CanonicalCombatCatalogSnapshot;
 }
 
 /**
@@ -295,7 +304,18 @@ export async function runFastForwardBattle(
     return null;
   }
 
-  const rosterUnits = ensureRealPilotIds(resolveTeamRoster(campaign, bridged));
+  const rosterUnits = resolveTeamRoster(campaign, bridged);
+  const catalog =
+    options.catalog ?? snapshotFromNodeCatalogIndex(loadBundledCanonicalIndex);
+  const launchGate = admitCampaignLaunch({
+    snapshot: { campaignId: campaign.id, catalog },
+    expected: { campaignId: campaign.id },
+    selectedUnits: rosterUnits,
+  });
+  if (!launchGate.admitted) {
+    throw new Error(launchGate.blocker.message);
+  }
+  const launchRoster = ensureRealPilotIds(rosterUnits);
 
   // Design D2: synthesize a one-mission `CampaignMissionSource` view
   // (`Pick<ICampaign, 'id' | 'name' | 'missions'>`) keyed by the
@@ -320,7 +340,8 @@ export async function runFastForwardBattle(
   const materialized = await materializeCampaignMissionEncounter({
     campaign: campaignView,
     missionId,
-    rosterUnits,
+    rosterUnits: launchRoster,
+    catalog,
     fetchImpl,
   });
 
@@ -401,6 +422,20 @@ export async function runFastForwardBattle(
     opponentForceId,
     session,
   };
+}
+
+function loadBundledCanonicalIndex(): readonly { readonly id?: unknown }[] {
+  try {
+    const parsed = JSON.parse(
+      fs.readFileSync(
+        path.join(process.cwd(), 'public/data/units/battlemechs/index.json'),
+        'utf8',
+      ),
+    ) as { units?: readonly { readonly id?: unknown }[] };
+    return parsed.units ?? [];
+  } catch {
+    return [];
+  }
 }
 
 /**
