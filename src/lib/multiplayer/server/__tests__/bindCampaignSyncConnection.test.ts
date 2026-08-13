@@ -603,13 +603,13 @@ describe('bindCampaignSyncConnection', () => {
       }),
     ]);
     const assertions = {
-      'serverPlayerDerived===true': accepted?.playerId === 'pid_guest',
-      'serverRoleDerived===true': accepted?.role === 'guest',
       'authorizedChoiceAccepted===true':
         accepted?.choice === 'deploy' && accepted.force.id === 'force-guest',
-      'fullForceRejected===true': fullForceRejected,
-      'forgedIdentityRejected===true': forgedIdentityRejected,
       'foreignForceRejected===true': foreignForceRejected,
+      'forgedIdentityRejected===true': forgedIdentityRejected,
+      'fullForceRejected===true': fullForceRejected,
+      'serverPlayerDerived===true': accepted?.playerId === 'pid_guest',
+      'serverRoleDerived===true': accepted?.role === 'guest',
       'staleRevisionRejected===true': staleRevisionRejected,
     };
     if (Object.values(assertions).some((value) => value !== true)) {
