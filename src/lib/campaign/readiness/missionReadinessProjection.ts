@@ -2,8 +2,15 @@ import type { IRepairBayItem } from '@/types/campaign/CampaignInventory';
 import type { ICampaignRosterEntry } from '@/types/campaign/CampaignRosterEntry';
 import type { IMission } from '@/types/campaign/Mission';
 import type { IRosterUnitProjection } from '@/types/campaign/RosterUnitProjection';
+import type { ParsedRosterUnitSource } from '@/types/campaign/RosterUnitSource';
 
+import {
+  type CanonicalCombatCatalogSnapshot,
+  UNAVAILABLE_CANONICAL_CATALOG,
+  admitCanonicalExactReference,
+} from '@/lib/campaign/readiness/canonicalCatalogAdmission';
 import { CampaignPilotStatus } from '@/types/campaign/CampaignPilotStatus';
+import { parseRosterUnitSource } from '@/types/campaign/RosterUnitSource';
 
 export type MissionReadinessReasonSeverity = 'blocker' | 'warning' | 'info';
 export type MissionReadinessUnitStatus = 'eligible' | 'risky' | 'blocked';
@@ -21,6 +28,7 @@ export interface IMissionReadinessUnitProjection {
   readonly unit: IRosterUnitProjection;
   readonly status: MissionReadinessUnitStatus;
   readonly selected: boolean;
+  readonly parsedSource: ParsedRosterUnitSource;
   readonly pilotName?: string;
   readonly pilotStatus?: ICampaignRosterEntry['status'];
   readonly repairTicketCount: number;
@@ -41,6 +49,7 @@ export interface IMissionReadinessProjection {
   readonly unresolvedBlockers: readonly IMissionReadinessReason[];
   readonly warnings: readonly IMissionReadinessReason[];
   readonly canLaunch: boolean;
+  readonly catalogStatus: CanonicalCombatCatalogSnapshot['status'];
   readonly launchConsequences: readonly string[];
 }
 
@@ -51,6 +60,7 @@ export interface BuildMissionReadinessProjectionInput {
   readonly pilots?: readonly ICampaignRosterEntry[];
   readonly repairBay?: readonly IRepairBayItem[];
   readonly selectedRosterUnitIds?: readonly string[];
+  readonly catalog?: CanonicalCombatCatalogSnapshot;
   readonly minUnits?: number;
   readonly maxUnits?: number;
   readonly baseCampaignHref?: string;
@@ -107,18 +117,31 @@ function buildUnitProjection({
   selected,
   pilot,
   repairTickets,
+  catalog,
   baseCampaignHref,
 }: {
   readonly unit: IRosterUnitProjection;
   readonly selected: boolean;
   readonly pilot: ICampaignRosterEntry | undefined;
   readonly repairTickets: readonly IRepairBayItem[];
+  readonly catalog: CanonicalCombatCatalogSnapshot;
   readonly baseCampaignHref: string | undefined;
 }): IMissionReadinessUnitProjection {
   const reasons: IMissionReadinessReason[] = [];
+  const parsedSource = parseRosterUnitSource(unit.unitSource);
+  const admission = admitCanonicalExactReference({
+    parsed: parsedSource,
+    unitRef: unit.unitRef,
+    catalog,
+    unitId: unit.unitId,
+    unitName: unit.unitName,
+  });
   const blockingRepairTickets = repairTickets.filter((ticket) =>
     BLOCKING_REPAIR_STATUSES.has(ticket.status),
   );
+  if (!admission.admitted) {
+    reasons.push(admission.blocker);
+  }
 
   if (unit.readiness === 'Destroyed') {
     reasons.push({
@@ -137,15 +160,6 @@ function buildUnitProjection({
       message: 'Unit is damaged; launch is allowed but carries risk.',
       actionLabel: 'Review repair detail',
       actionHref: repairDetailHref(baseCampaignHref, unit.unitId),
-    });
-  }
-
-  if (!unit.unitRef) {
-    reasons.push({
-      code: 'unit_ref_unresolved',
-      severity: 'blocker',
-      subjectId: unit.unitId,
-      message: `${unit.unitName} has no canonical record; recreate the campaign or edit the unit in Mech Bay before launch.`,
     });
   }
 
@@ -205,6 +219,7 @@ function buildUnitProjection({
   return {
     unit,
     selected,
+    parsedSource,
     pilotName: pilot?.pilotName,
     pilotStatus: pilot?.status,
     repairTicketCount: repairTickets.length,
@@ -221,6 +236,7 @@ export function buildMissionReadinessProjection({
   pilots = [],
   repairBay = [],
   selectedRosterUnitIds,
+  catalog = UNAVAILABLE_CANONICAL_CATALOG,
   minUnits = DEFAULT_MIN_UNITS,
   maxUnits = DEFAULT_MAX_UNITS,
   baseCampaignHref,
@@ -251,6 +267,7 @@ export function buildMissionReadinessProjection({
       selected: selectedIdSet.has(unit.unitId),
       pilot: unit.pilotId ? pilotById.get(unit.pilotId) : undefined,
       repairTickets: repairTicketsByUnit.get(unit.unitId) ?? [],
+      catalog,
       baseCampaignHref,
     }),
   );
@@ -327,6 +344,7 @@ export function buildMissionReadinessProjection({
     unresolvedBlockers,
     warnings,
     canLaunch,
+    catalogStatus: catalog.status,
     launchConsequences: [
       `Deploy ${selectedUnits.length} selected unit${
         selectedUnits.length === 1 ? '' : 's'
