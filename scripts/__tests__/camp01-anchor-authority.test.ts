@@ -31,6 +31,7 @@ const fetchCheckRuns=async(sha)=>{if(q.action==='ci-throws')throw new Error('tra
 try {const seeded=await seed(), anchor=createAnchorAuthority({git,cwd:repo},q.action==='ci-missing-dependency'?{}:{fetchCheckRuns}), candidate=record(seeded);let value;
   if(q.action==='happy-a1')value=await anchor(record(seeded,'reviewed-head',null));
   else if(q.action==='happy-a2')value=await anchor(record(seeded,'exact-main'),{fetchedMainOid:seeded.main});
+  else if(q.action==='happy-a2-owned-tree')value=await anchor({initiatingRoot:repo,command:{sha:seeded.main,treeSha:seeded.tree,mode:'exact-main',capProvenance:seeded.cap}},{fetchedMainOid:seeded.main});
   else if(q.action==='happy-a3')value=await anchor(candidate);
   else if(q.action==='commit')value=await anchor({...candidate,command:{...candidate.command,sha:'f'.repeat(40)}});
   else if(q.action==='tree-object')value=await anchor({...candidate,command:{...candidate.command,sha:seeded.tree,treeSha:seeded.tree}});
@@ -86,7 +87,7 @@ const hostGit = findHostGit(),
   gitIt = hostGit ? it : it.skip;
 
 describe('CAMP-01 validation-time Git envelope anchor', () => {
-  gitIt.each(['happy-a1', 'happy-a2', 'happy-a3'])(
+  gitIt.each(['happy-a1', 'happy-a2', 'happy-a2-owned-tree', 'happy-a3'])(
     'accepts real repository authority class %s',
     (action) => {
       // Given real related commits, when the named authority class runs, then admission succeeds.

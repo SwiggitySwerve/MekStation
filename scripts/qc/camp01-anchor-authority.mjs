@@ -30,8 +30,10 @@ export function createAnchorAuthority(options = {}, dependencies = {}) {
     const command=candidate?.command, cap=command?.capProvenance;
     if (!command || !OID.test(command.sha)) fail('anchor commit unresolvable');
     await callGit({git,cwd,args:['rev-parse','--verify',`${command.sha}^{commit}`]},gitDependencies,'anchor commit unresolvable');
-    const treeSha=await callGit({git,cwd,args:['rev-parse','--verify',`${command.sha}^{tree}`]},gitDependencies,'anchor commit unresolvable');
-    if (treeSha !== command.treeSha) fail('anchor tree drift');
+    const commitTree=await callGit({git,cwd,args:['rev-parse','--verify',`${command.sha}^{tree}`]},gitDependencies,'anchor commit unresolvable');
+    // exact-main sha is the merge commit; writer treeSha is the owned product head.
+    const expectedTree=command.mode==='exact-main'&&cap!==null?await callGit({git,cwd,args:['rev-parse','--verify',`${cap.headSha}^{tree}`]},gitDependencies,'anchor tree drift'):commitTree;
+    if (expectedTree !== command.treeSha) fail('anchor tree drift');
     if (command.mode === 'exact-main') {
       if (!OID.test(inputs.fetchedMainOid)) fail('anchor main reachability drift');
       await callGit({git,cwd,args:['merge-base','--is-ancestor',command.sha,inputs.fetchedMainOid]},gitDependencies,'anchor main reachability drift');
