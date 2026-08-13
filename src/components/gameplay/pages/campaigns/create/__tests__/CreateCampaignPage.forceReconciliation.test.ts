@@ -4,6 +4,7 @@ import { waitFor } from '@testing-library/react';
 
 import type { CampaignCommitResult } from '@/stores/campaign/useCampaignStore.types';
 
+import { useCampaignPersistenceStore } from '@/stores/campaign/useCampaignPersistenceStore';
 import { useCampaignRosterStore } from '@/stores/campaign/useCampaignRosterStore';
 import {
   resetCampaignStore,
@@ -15,7 +16,12 @@ import { CampaignType } from '@/types/campaign/CampaignType';
 
 import type { SelectedUnit } from '../CreateCampaignPage.types';
 
-import { submitCampaignCreation } from '../CreateCampaignPage.submit';
+import {
+  resetCampaignCreationSubmitState,
+  submitCampaignCreation,
+} from '../CreateCampaignPage.submit';
+
+const originalFetch = global.fetch;
 
 const selectedUnit: SelectedUnit = {
   id: 'unit-light',
@@ -31,7 +37,9 @@ function makeRouter(): NextRouter {
 }
 
 function resetWorld(campaignId?: string): void {
+  resetCampaignCreationSubmitState();
   resetCampaignStore();
+  useCampaignPersistenceStore.getState().reset();
   useCampaignRosterStore.getState().reset();
   clientSafeStorage.removeItem('campaign-store');
   clientSafeStorage.removeItem('campaign-roster-store');
@@ -66,10 +74,19 @@ describe('CreateCampaignPage force reconciliation', () => {
   beforeEach(() => {
     campaignId = undefined;
     resetWorld();
+    // prettier-ignore
+    global.fetch = jest.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+      const url = typeof input === 'string' ? input : input.toString();
+      const method = (init?.method ?? 'GET').toUpperCase();
+      const parsed = init?.body ? JSON.parse(String(init.body)) : { success: true };
+      const payload = url.startsWith('/api/campaigns/') && method === 'PUT' ? parsed.envelope : { success: true };
+      return { ok: true, status: 200, json: async () => payload } as Response;
+    });
   });
 
   afterEach(() => {
     resetWorld(campaignId);
+    global.fetch = originalFetch;
   });
 
   it('reconciles selected roster units into the campaign root force before navigation', async () => {
