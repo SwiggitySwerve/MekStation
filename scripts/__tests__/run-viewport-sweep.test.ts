@@ -157,6 +157,7 @@ const camp01TestFiles = [
   'scripts/__tests__/camp01-authority-receipt-qc.test.ts',
   'scripts/__tests__/camp01-authority-receipt-validator.test.ts',
   'scripts/__tests__/camp01-authority-receipt-writer.test.ts',
+  'scripts/__tests__/camp01-camp00-listener-adapter.test.ts',
   'scripts/__tests__/camp01-capture-reopen-adversarial.test.ts',
   'scripts/__tests__/camp01-capture-transaction.test.ts',
   'scripts/__tests__/camp01-cleanup-authority.test.ts',
