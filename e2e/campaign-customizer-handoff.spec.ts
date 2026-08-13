@@ -489,7 +489,9 @@ test.describe('campaign customizer handoff @campaign @customizer', () => {
       .click();
     await page.getByTestId('wizard-next-btn').click();
     await page.getByTestId('wizard-submit-btn').click();
-    await expect(page.getByText('server responded 500')).toBeVisible();
+    await expect(
+      page.getByTestId('toast-container').getByText('server responded 500'),
+    ).toBeVisible();
     phase = 'conflict';
     await page.getByTestId('wizard-submit-btn').click();
     await expect(page.getByText(/Campaign save conflict/)).toBeVisible();
