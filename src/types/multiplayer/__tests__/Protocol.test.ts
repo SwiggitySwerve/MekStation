@@ -406,12 +406,9 @@ describe('Protocol envelope schemas', () => {
           ts: nowIso(),
           playerId: 'pid_guest',
           participation: {
-            matchId: 'match-campaign',
             missionId: 'mission-1',
-            playerId: 'pid_guest',
-            role: 'guest' as const,
+            forceId: 'force-guest',
             choice: 'deploy' as const,
-            force: { id: 'force-guest' },
           },
         },
       ];
@@ -423,6 +420,22 @@ describe('Protocol envelope schemas', () => {
       expect(CampaignParticipationSchema.safeParse(frames[4]).success).toBe(
         true,
       );
+      expect(
+        CampaignParticipationSchema.safeParse({
+          kind: 'CampaignParticipation' as const,
+          matchId: 'match-campaign',
+          ts: nowIso(),
+          playerId: 'pid_guest',
+          participation: {
+            missionId: 'mission-1',
+            forceId: 'force-guest',
+            choice: 'deploy' as const,
+            playerId: 'forged',
+            role: 'host',
+            force: { id: 'force-guest' },
+          },
+        }).success,
+      ).toBe(false);
       for (const frame of frames) {
         expect(ClientMessageSchema.safeParse(frame).success).toBe(true);
       }
@@ -507,13 +520,12 @@ describe('Protocol envelope schemas', () => {
           kind: 'CampaignParticipation' as const,
           matchId: 'm',
           ts: nowIso(),
+          playerId: 'pid_guest',
+          role: 'guest' as const,
           participation: {
-            matchId: 'm',
             missionId: 'mission-1',
-            playerId: 'pid_guest',
-            role: 'guest' as const,
+            forceId: 'force-guest',
             choice: 'deploy' as const,
-            force: { id: 'force-guest' },
           },
         },
       ];

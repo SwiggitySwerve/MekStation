@@ -1,4 +1,6 @@
 import { EventEmitter } from 'node:events';
+import * as fs from 'node:fs';
+import * as path from 'node:path';
 
 import type {
   IClientMessage,
@@ -50,6 +52,16 @@ async function makeRegistry(
     state: {
       ...createEmptyCampaignState('campaign-sync'),
       balance: 1_000_000,
+      rosterUnits: {
+        'unit-guest': {
+          unitId: 'unit-guest',
+          designation: 'Guest Mech',
+          status: 'operational' as const,
+          unitRef: 'guest-mech',
+          unitSource: 'canonical' as const,
+        },
+      },
+      forceUnits: { 'force-guest': ['unit-guest'] },
     },
   });
   return registry;
@@ -59,6 +71,32 @@ async function flushAsyncHandlers(): Promise<void> {
   for (let i = 0; i < 8; i += 1) {
     await Promise.resolve();
   }
+}
+
+function participate(
+  socket: MockWireSocket,
+  participation: Record<string, unknown>,
+): void {
+  socket.inbound({
+    kind: 'CampaignParticipation',
+    matchId: 'match-campaign',
+    ts: nowIso(),
+    playerId: 'pid_guest',
+    participation,
+  });
+}
+
+function sawError(
+  socket: MockWireSocket,
+  code: string,
+  reason?: string,
+): boolean {
+  return socket.sent.some(
+    (message) =>
+      message.kind === 'Error' &&
+      message.code === code &&
+      (reason === undefined || message.reason === reason),
+  );
 }
 
 const quietLogger = {
@@ -469,6 +507,11 @@ describe('bindCampaignSyncConnection', () => {
     const hostSocket = new MockWireSocket();
     const guestSocket = new MockWireSocket();
     const registry = await makeRegistry();
+    const choice = {
+      missionId: 'mission-alpha',
+      forceId: 'force-guest',
+      choice: 'deploy',
+    };
 
     await bindCampaignSyncConnection({
       socket: hostSocket,
@@ -501,60 +544,90 @@ describe('bindCampaignSyncConnection', () => {
       roomCode: 'ABC234',
     });
     await flushAsyncHandlers();
+    const records = () =>
+      registry
+        .get('match-campaign')
+        ?.getParticipationRecords('mission-alpha') ?? [];
 
-    guestSocket.inbound({
-      kind: 'CampaignParticipation',
-      matchId: 'match-campaign',
-      ts: nowIso(),
-      playerId: 'pid_guest',
-      participation: {
-        matchId: 'match-campaign',
-        missionId: 'mission-alpha',
-        playerId: 'pid_guest',
-        role: 'guest',
-        choice: 'deploy',
-        force: {
-          id: 'force-guest',
-          name: 'Guest Force',
-          parentForceId: undefined,
-          subForceIds: [],
-          unitIds: ['unit-guest'],
-          forceType: 'standard',
-          formationLevel: 'lance',
-          createdAt: '2026-06-21T00:00:00.000Z',
-          updatedAt: '2026-06-21T00:00:00.000Z',
-        },
-      },
+    participate(guestSocket, choice);
+    await flushAsyncHandlers();
+    const accepted = records()[0];
+    participate(guestSocket, choice);
+    await flushAsyncHandlers();
+    expect(records()).toHaveLength(1);
+
+    guestSocket.sent.length = 0;
+    participate(guestSocket, {
+      missionId: 'mission-alpha',
+      playerId: 'pid_host',
+      role: 'host',
+      choice: 'deploy',
+      force: { id: 'force-guest', unitIds: ['unit-forged'] },
     });
     await flushAsyncHandlers();
+    const forgedIdentityRejected = sawError(guestSocket, 'BAD_ENVELOPE');
+    const fullForceRejected = forgedIdentityRejected && records().length === 1;
+
+    guestSocket.sent.length = 0;
+    participate(guestSocket, { ...choice, forceId: 'foreign-force' });
+    await flushAsyncHandlers();
+    const foreignForceRejected = sawError(
+      guestSocket,
+      'INVALID_INTENT',
+      'foreign-force',
+    );
+
+    registry.get('match-campaign')?.advanceRevision(1);
+    guestSocket.sent.length = 0;
+    participate(guestSocket, choice);
+    await flushAsyncHandlers();
+    const staleRevisionRejected = sawError(
+      guestSocket,
+      'INVALID_INTENT',
+      'stale-revision',
+    );
 
     expect(hostSocket.sent).toContainEqual(
       expect.objectContaining({
         kind: 'CampaignParticipation',
-        participation: expect.objectContaining({
-          missionId: 'mission-alpha',
-          playerId: 'pid_guest',
-          choice: 'deploy',
-        }),
+        playerId: 'pid_guest',
+        role: 'guest',
+        participation: expect.objectContaining(choice),
       }),
     );
-    expect(guestSocket.sent).toContainEqual(
-      expect.objectContaining({
-        kind: 'CampaignParticipation',
-        participation: expect.objectContaining({
-          missionId: 'mission-alpha',
-          playerId: 'pid_guest',
-        }),
-      }),
-    );
-    expect(
-      registry.get('match-campaign')?.getParticipationRecords('mission-alpha'),
-    ).toEqual([
+    expect(records()).toEqual([
       expect.objectContaining({
         playerId: 'pid_guest',
+        role: 'guest',
         choice: 'deploy',
       }),
     ]);
+    const assertions = {
+      'authorizedChoiceAccepted===true':
+        accepted?.choice === 'deploy' && accepted.force.id === 'force-guest',
+      'foreignForceRejected===true': foreignForceRejected,
+      'forgedIdentityRejected===true': forgedIdentityRejected,
+      'fullForceRejected===true': fullForceRejected,
+      'serverPlayerDerived===true': accepted?.playerId === 'pid_guest',
+      'serverRoleDerived===true': accepted?.role === 'guest',
+      'staleRevisionRejected===true': staleRevisionRejected,
+    };
+    if (Object.values(assertions).some((value) => value !== true)) {
+      throw new Error(
+        `wave assertion checks failed: ${JSON.stringify(assertions)}`,
+      );
+    }
+    const artifactDir = process.env.CAMP01_ARTIFACT_DIR;
+    const runId = process.env.CAMP01_RUN_ID;
+    const wavePath =
+      artifactDir && runId ? path.join(artifactDir, 'wave-result.json') : null;
+    if (wavePath && !fs.existsSync(wavePath)) {
+      fs.writeFileSync(
+        wavePath,
+        `${JSON.stringify({ schema: 'camp01-wave-result/v1', wave: 'camp-01c', runId, status: 'passed', assertions })}\n`,
+        { flag: 'wx' },
+      );
+    }
   });
 });
 
