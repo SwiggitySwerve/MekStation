@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 
 import { Button, Card, Badge } from '@/components/ui';
 import { WIZARD_REPRESENTATIVE_UNITS } from '@/lib/campaign/wizard/representativeUnits';
-import { getCustomUnitService } from '@/services/units';
+import { getCustomUnitService } from '@/services/units/CustomUnitService';
 import { UNIT_TEMPLATES } from '@/simulation/generator';
 
 import type { RosterStepProps } from './CreateCampaignPage.types';
