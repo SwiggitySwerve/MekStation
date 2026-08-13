@@ -53,6 +53,9 @@ try { const base=await seed(); let value;
   else if(request.action==='reparse'){ const proofTarget=await create(base), external=path.join(root,'external'); fs.mkdirSync(external); fs.symlinkSync(external,path.join(proofTarget.canonicalPath,'escape'),request.junction?'junction':'dir'); value=await target.observeCleanState({target:proofTarget,phase:'final',runRoot:'allowed'},{git}); }
   else if(request.action==='run-root-reparse'){ const proofTarget=await create(base), external=path.join(root,'external'); fs.mkdirSync(external); fs.symlinkSync(external,path.join(proofTarget.canonicalPath,'allowed'),request.junction?'junction':'dir'); value=await target.observeCleanState({target:proofTarget,phase:'final',runRoot:'allowed'},{git}); }
   else if(request.action==='facts'){ const ownedTarget=await inspect(base); fs.appendFileSync(path.join(owned,'base.txt'),'next\\n'); fs.writeFileSync(path.join(owned,'jest.txt'),'one\\ntwo\\n'); fs.writeFileSync(path.join(owned,'JSONStream.dat'),Buffer.from([0,255,1])); await run(['add','.'],owned); await run(['-c','user.name=CAMP01','-c','user.email=camp01@example.invalid','commit','-m','product'],owned); const facts=await target.resolveTargetFacts({ownedTarget,spec:{mergeSha:base},row:WAVE_CONTRACTS['camp-proof']},{git}), specId='tuple-'+'1'.repeat(32), ownedId='tuple-'+'2'.repeat(32), registryContext={evidence:[],provenance:[{id:specId,sourceKind:'spec-tuple',wave:'camp-proof',subject:'product-pr'},{id:ownedId,sourceKind:'owned-pr-tuple',wave:'camp-proof',subject:'product-pr'}],refs:[],capturePolicies:[],repairSources:[]}; let directError=null; try { validateWriteContext({wave:'camp-proof',commandId:'camp-proof',sha:facts.capProvenance.headSha,treeSha:facts.treeSha,executionEnvironmentDigest:digest,mode:'reviewed-head',provenance:{subject:'product-pr',specTupleId:specId,ownedPrTupleId:ownedId,predecessorReceiptIds:[]},capProvenance:{...facts.capProvenance,binaryEntries:false},identityRegistry:{schema:'camp01-identity-registry/v1',entities:[],refs:[]}},{row:WAVE_CONTRACTS['camp-proof'],registryContext,reviewedHead:null}); } catch(error) { directError=error instanceof Error?error.message:String(error); } value={...facts,baseSha:facts.capProvenance.baseSha,headSha:facts.capProvenance.headSha,placeholderKeys:Object.keys(facts.capProvenance),placeholdersAbsent:facts.capProvenance.reviewedHeadReceiptId===undefined&&facts.capProvenance.reviewedHeadReceiptManifestDigest===undefined,directError}; }
+  else if(request.action==='audit-pre-edit'){ const ownedTarget=await target.inspectOwnedTarget({wave:'proof-02-triage',subject:'audit',worktree:owned,spec:null,row:WAVE_CONTRACTS['proof-02-triage']},{git}); value={base,ownedTarget}; }
+  else if(request.action==='audit-pre-edit-head'){ value=await target.inspectOwnedTarget({wave:'proof-02-triage',subject:'audit',worktree:owned,spec:null,row:WAVE_CONTRACTS['proof-02-triage'],headSha:base},{git}); }
+  else if(request.action==='audit-cap'){ fs.writeFileSync(path.join(owned,'noise.txt'),'noise\\n'); await run(['add','.'],owned); await run(['-c','user.name=CAMP01','-c','user.email=camp01@example.invalid','commit','-m','noise'],owned); const ownedTarget=await target.inspectOwnedTarget({wave:'proof-02-triage',subject:'audit',worktree:owned,spec:null,row:WAVE_CONTRACTS['proof-02-triage']},{git}); fs.writeFileSync(path.join(owned,'audit.md'),'disposition\\n'); await run(['add','.'],owned); await run(['-c','user.name=CAMP01','-c','user.email=camp01@example.invalid','commit','-m','audit'],owned); const facts=await target.resolveTargetFacts({ownedTarget,spec:{mergeSha:base},row:WAVE_CONTRACTS['proof-02-triage']},{git}); value={fileCount:facts.capProvenance.fileCount,changedLineCount:facts.capProvenance.changedLineCount,baseSha:facts.capProvenance.baseSha,oldOid:ownedTarget.oldOid,headSha:facts.capProvenance.headSha,subject:facts.capProvenance.subject,specMergeSha:base}; }
   process.stdout.write(JSON.stringify({ok:true,value}));
 } catch(error) { process.stdout.write(JSON.stringify({ok:false,error:error instanceof Error?error.message:String(error),name:error instanceof Error?error.name:null})); process.exitCode=1; }`;
 
@@ -312,6 +315,43 @@ describe('cross-platform CAMP-01 local target authority', () => {
       ]);
       expect(result.value?.placeholdersAbsent).toBe(true);
       expect(result.value?.directError).toContain('reviewed cap linkage drift');
+    },
+  );
+
+  gitIt('records audit pre-edit HEAD without a spec merge SHA', () => {
+    const result = invoke({ action: 'audit-pre-edit', root, git: hostGit });
+    const value = result.value as {
+      base: string;
+      ownedTarget: Record<string, unknown>;
+    };
+    expect(result.ok).toBe(true);
+    expect(value.ownedTarget).toMatchObject({
+      kind: 'owned',
+      subject: 'audit',
+      expectedHead: value.base,
+      oldOid: value.base,
+      branchRef: 'refs/heads/codex/owned',
+    });
+  });
+
+  gitIt('rejects audit inspect when a head SHA is supplied', () => {
+    expect(
+      invoke({ action: 'audit-pre-edit-head', root, git: hostGit }).error,
+    ).toBe('CAMP01_TARGET_INVALID: owned target input invalid');
+  });
+
+  gitIt(
+    'caps audit-pr against pre-edit HEAD rather than the spec merge',
+    () => {
+      const result = invoke({ action: 'audit-cap', root, git: hostGit });
+      expect(result.ok).toBe(true);
+      expect(result.value).toMatchObject({
+        subject: 'audit-pr',
+        fileCount: 1,
+        changedLineCount: 1,
+      });
+      expect(result.value?.baseSha).toBe(result.value?.oldOid);
+      expect(result.value?.baseSha).not.toBe(result.value?.specMergeSha);
     },
   );
 });
