@@ -6,7 +6,6 @@ import type { ParsedRosterUnitSource } from '@/types/campaign/RosterUnitSource';
 
 import {
   type CanonicalCombatCatalogSnapshot,
-  UNAVAILABLE_CANONICAL_CATALOG,
   admitCanonicalExactReference,
 } from '@/lib/campaign/readiness/canonicalCatalogAdmission';
 import { CampaignPilotStatus } from '@/types/campaign/CampaignPilotStatus';
@@ -49,7 +48,7 @@ export interface IMissionReadinessProjection {
   readonly unresolvedBlockers: readonly IMissionReadinessReason[];
   readonly warnings: readonly IMissionReadinessReason[];
   readonly canLaunch: boolean;
-  readonly catalogStatus: CanonicalCombatCatalogSnapshot['status'];
+  readonly catalogStatus?: CanonicalCombatCatalogSnapshot['status'];
   readonly launchConsequences: readonly string[];
 }
 
@@ -236,7 +235,7 @@ export function buildMissionReadinessProjection({
   pilots = [],
   repairBay = [],
   selectedRosterUnitIds,
-  catalog = UNAVAILABLE_CANONICAL_CATALOG,
+  catalog,
   minUnits = DEFAULT_MIN_UNITS,
   maxUnits = DEFAULT_MAX_UNITS,
   baseCampaignHref,
@@ -344,7 +343,7 @@ export function buildMissionReadinessProjection({
     unresolvedBlockers,
     warnings,
     canLaunch,
-    catalogStatus: catalog.status,
+    catalogStatus: catalog?.status,
     launchConsequences: [
       `Deploy ${selectedUnits.length} selected unit${
         selectedUnits.length === 1 ? '' : 's'

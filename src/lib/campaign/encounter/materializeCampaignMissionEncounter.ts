@@ -12,7 +12,6 @@ import {
 import {
   type CanonicalCombatCatalogSnapshot,
   admitRosterUnitSource,
-  UNAVAILABLE_CANONICAL_CATALOG,
 } from '@/lib/campaign/readiness/canonicalCatalogAdmission';
 import { TerrainPreset, VictoryConditionType } from '@/types/encounter';
 import { ForceType } from '@/types/force';
@@ -65,7 +64,7 @@ const MATERIALIZER_LOG_SERVICE = 'campaign-encounter-materializer';
 
 function assertSourceCatalogAdmission(
   rosterUnits: readonly IRosterUnitProjection[],
-  catalog: CanonicalCombatCatalogSnapshot,
+  catalog: CanonicalCombatCatalogSnapshot | undefined,
 ): void {
   for (const unit of rosterUnits) {
     const admission = admitRosterUnitSource({
@@ -265,7 +264,7 @@ export async function materializeCampaignMissionEncounter({
   campaign,
   missionId,
   rosterUnits,
-  catalog = UNAVAILABLE_CANONICAL_CATALOG,
+  catalog,
   fetchImpl = fetch,
 }: MaterializeCampaignMissionEncounterInput): Promise<MaterializeCampaignMissionEncounterResult> {
   try {

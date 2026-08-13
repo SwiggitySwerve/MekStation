@@ -56,7 +56,7 @@ export function snapshotFromNodeCatalogIndex(
 export function admitCanonicalExactReference(input: {
   readonly parsed: ParsedRosterUnitSource;
   readonly unitRef: string | undefined;
-  readonly catalog: CanonicalCombatCatalogSnapshot;
+  readonly catalog?: CanonicalCombatCatalogSnapshot;
   readonly unitId: string;
   readonly unitName: string;
 }): CanonicalAdmissionResult {
@@ -65,31 +65,35 @@ export function admitCanonicalExactReference(input: {
   if (parsed.kind === 'invalid') return deny(unitId, 'roster_source_invalid', `${unitName} has an invalid roster source and cannot launch.`);
   // oxfmt-ignore
   if (parsed.source === 'custom') return deny(unitId, 'roster_source_custom', `${unitName} is a saved custom design and cannot launch yet.`);
-  switch (catalog.status) {
-    case 'loading':
-      // oxfmt-ignore
-      return deny(unitId, 'catalog_loading', 'Canonical catalog is still loading; retry launch when it is ready.', 'Retry catalog');
-    case 'unavailable':
-      // oxfmt-ignore
-      return deny(unitId, 'catalog_unavailable', 'Canonical catalog is unavailable; retry launch after it reloads.', 'Retry catalog');
-    case 'ready':
-      break;
-    default: {
-      const exhaustive: never = catalog;
-      return exhaustive;
+  if (catalog !== undefined) {
+    switch (catalog.status) {
+      case 'loading':
+        // oxfmt-ignore
+        return deny(unitId, 'catalog_loading', 'Canonical catalog is still loading; retry launch when it is ready.', 'Retry catalog');
+      case 'unavailable':
+        // oxfmt-ignore
+        return deny(unitId, 'catalog_unavailable', 'Canonical catalog is unavailable; retry launch after it reloads.', 'Retry catalog');
+      case 'ready':
+        break;
+      default: {
+        const exhaustive: never = catalog;
+        return exhaustive;
+      }
     }
   }
   // oxfmt-ignore
   if (!unitRef) return deny(unitId, 'unit_ref_unresolved', `${unitName} has no canonical record; recreate the campaign or edit the unit in Mech Bay before launch.`);
-  // oxfmt-ignore
-  if (!catalog.unitRefs.has(unitRef)) return deny(unitId, 'canonical_ref_missing', `${unitName} does not match an exact canonical catalog reference.`);
+  if (catalog?.status === 'ready' && !catalog.unitRefs.has(unitRef)) {
+    // oxfmt-ignore
+    return deny(unitId, 'canonical_ref_missing', `${unitName} does not match an exact canonical catalog reference.`);
+  }
   return { admitted: true };
 }
 
 export function admitRosterUnitSource(input: {
   readonly unitSource: unknown;
   readonly unitRef: string | undefined;
-  readonly catalog: CanonicalCombatCatalogSnapshot;
+  readonly catalog?: CanonicalCombatCatalogSnapshot;
   readonly unitId: string;
   readonly unitName: string;
 }): CanonicalAdmissionResult {
