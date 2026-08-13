@@ -76,7 +76,12 @@ export function prepareCamp01FReport(options) {
 function publishReport(context) {
   const { environment, io, observed, realpath, reporter } = context;
   const observations = normalizeObservations(reporter, observed);
-  const facts = readFacts(observed.get(reporter.requiredTestIds[0]));
+  const requiredId = reporter.requiredTestIds[0];
+  const entry = observed.get(requiredId);
+  const facts = readFacts(entry);
+  const complete = isCompleteObservationSet(reporter, observations, entry);
+  if (reporter.completeObservationSet && !complete)
+    fail('authority observation set incomplete');
   const artifactRoot = resolvePath(
     environment.CAMP01_ARTIFACT_DIR,
     realpath,
@@ -117,7 +122,7 @@ function publishReport(context) {
     producerId: reporter.producerId,
     reporterId: reporter.reporterId,
     sourceIds: reporter.sourceIds,
-    complete: true,
+    complete,
     observations,
     ...facts,
   };
@@ -131,18 +136,41 @@ function publishReport(context) {
 
 function normalizeObservations(reporter, observed) {
   if (!(observed instanceof Map)) fail('observed report input drift');
-  const id = reporter.requiredTestIds[0];
-  const entry = observed.get(id);
-  if (!entry) fail('authority observation missing');
   if (
-    entry.id !== id ||
-    entry.status !== 'passed' ||
-    !reporter.allowedStatuses.includes(entry.status)
+    !Array.isArray(reporter.requiredTestIds) ||
+    !reporter.requiredTestIds.length
   )
-    fail('authority observation drift');
-  return Object.freeze([
-    Object.freeze({ id, status: 'passed', failureFingerprint: null }),
-  ]);
+    fail('authority observation missing');
+  return Object.freeze(
+    reporter.requiredTestIds.map((id) => {
+      const entry = observed.get(id);
+      if (!entry) fail('authority observation missing');
+      if (
+        entry.id !== id ||
+        entry.status !== 'passed' ||
+        !reporter.allowedStatuses.includes(entry.status)
+      )
+        fail('authority observation drift');
+      return Object.freeze({ id, status: 'passed', failureFingerprint: null });
+    }),
+  );
+}
+
+function isCompleteObservationSet(reporter, observations, entry) {
+  return (
+    reporter.completeObservationSet === true &&
+    observations.length === reporter.requiredTestIds.length &&
+    reporter.requiredTestIds.every(
+      (id, index) =>
+        observations[index]?.id === id &&
+        observations[index]?.status === 'passed',
+    ) &&
+    Boolean(entry) &&
+    Array.isArray(entry.attachments) &&
+    entry.attachments.length === 1 &&
+    entry.attachments[0]?.name === ATTACHMENT_NAME &&
+    !entry.attachments[0].path
+  );
 }
 
 function readFacts(entry) {
