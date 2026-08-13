@@ -32,6 +32,9 @@ function getWizardTemplateOptions() {
 
 const WIZARD_TEMPLATE_OPTIONS = getWizardTemplateOptions();
 
+const listSavedDesignIndex = (): Promise<readonly unknown[]> =>
+  getCustomUnitService().list();
+
 function SavedDesignsGroup({
   loadSavedDesignIndex,
   onAdd,
@@ -132,7 +135,7 @@ export function RosterStep({
   onAddPilot,
   onRemovePilot,
   onAssignPilot,
-  loadSavedDesignIndex = () => getCustomUnitService().list(),
+  loadSavedDesignIndex = listSavedDesignIndex,
 }: RosterStepProps): React.ReactElement {
   return (
     <Card className="mx-auto max-w-2xl">
