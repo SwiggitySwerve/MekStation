@@ -13,6 +13,7 @@ let mockSelectedRosterUnits: readonly {
   readonly unitId: string;
   readonly unitName: string;
   readonly unitRef: string;
+  readonly unitSource?: string;
   readonly pilotId: string;
   readonly readiness: 'Ready';
 }[] = [];
@@ -34,13 +35,19 @@ jest.mock(
   }),
 );
 jest.mock('@/lib/campaign/readiness/missionReadinessProjection', () => ({
-  buildMissionReadinessProjection: () => ({
-    canLaunch: mockReadinessCanLaunch,
-    selectedUnits: mockSelectedRosterUnits,
-    unresolvedBlockers: mockReadinessCanLaunch
-      ? []
-      : [{ message: 'No ready roster unit' }],
-  }),
+  buildMissionReadinessProjection: (input?: {
+    readonly catalog?: { readonly status?: string };
+  }) => {
+    const catalogReady = input?.catalog?.status === 'ready';
+    const canLaunch = mockReadinessCanLaunch && catalogReady;
+    return {
+      canLaunch,
+      selectedUnits: mockSelectedRosterUnits,
+      unresolvedBlockers: canLaunch
+        ? []
+        : [{ message: 'No ready roster unit' }],
+    };
+  },
   selectedRosterUnitsForLaunch: () => mockSelectedRosterUnits,
 }));
 
@@ -177,7 +184,17 @@ import { createCampaignStore } from '@/stores/campaign/useCampaignStore';
 
 import CampaignDashboardPage from '../CampaignDashboardPage';
 
+async function waitForLaunchReady() {
+  await waitFor(() =>
+    expect(
+      screen.getByText(/selected for generated mission/),
+    ).toBeInTheDocument(),
+  );
+}
+
 describe('CampaignDashboardPage reactivity', () => {
+  const originalFetch = global.fetch;
+
   beforeEach(() => {
     mockCampaignStore = createCampaignStore();
     mockRouterPush.mockReset();
@@ -191,11 +208,24 @@ describe('CampaignDashboardPage reactivity', () => {
     mockResetPersistence.mockReset();
     mockReadinessCanLaunch = false;
     mockSelectedRosterUnits = [];
+    global.fetch = jest.fn(async (input: RequestInfo | URL) => {
+      if (!String(input).startsWith('/api/units')) {
+        throw new Error(`unexpected fetch ${String(input)}`);
+      }
+      return {
+        ok: true,
+        json: async () => ({ success: true, data: [{ id: 'locust-lct-1v' }] }),
+      } as Response;
+    });
     act(() => {
       mockCampaignStore.getState().createCampaign('Alpha Lance', 'mercenary');
     });
     mockRouteCampaignId =
       mockCampaignStore.getState().campaign?.id ?? 'campaign-alpha';
+  });
+
+  afterEach(() => {
+    global.fetch = originalFetch;
   });
 
   it('re-renders when the active campaign changes in the store', async () => {
@@ -244,7 +274,7 @@ describe('CampaignDashboardPage reactivity', () => {
     );
     render(<CampaignDashboardPage />);
 
-    // When: the player generates a mission from the campaign dashboard.
+    await waitForLaunchReady();
     await userEvent.click(
       screen.getByRole('button', { name: 'Generate Mission' }),
     );
@@ -262,6 +292,10 @@ describe('CampaignDashboardPage reactivity', () => {
       name: 'Mission 1',
       scenarioIds: [],
     });
+    expect(
+      materializeInput?.catalog?.status === 'ready' &&
+        materializeInput?.catalog?.unitRefs?.has('locust-lct-1v'),
+    ).toBe(true);
     expect(mockRosterCreateMission).toHaveBeenCalledWith(
       'Mission 1',
       ['unit-alpha'],
@@ -305,6 +339,7 @@ describe('CampaignDashboardPage reactivity', () => {
     });
 
     render(<CampaignDashboardPage />);
+    await waitForLaunchReady();
     await userEvent.click(
       screen.getByRole('button', { name: 'Generate Mission' }),
     );
@@ -313,5 +348,28 @@ describe('CampaignDashboardPage reactivity', () => {
       await screen.findByTestId('generate-mission-error'),
     ).toHaveTextContent('disk unavailable');
     expect(mockRouterPush).not.toHaveBeenCalled();
+  });
+
+  it('blocks a custom selection before materializing a dashboard mission', async () => {
+    mockReadinessCanLaunch = true;
+    mockSelectedRosterUnits = [
+      {
+        unitId: 'unit-custom',
+        unitName: 'Custom Atlas',
+        unitRef: 'locust-lct-1v',
+        unitSource: 'custom',
+        pilotId: 'pilot-alpha',
+        readiness: 'Ready',
+      },
+    ];
+    render(<CampaignDashboardPage />);
+    await waitForLaunchReady();
+    await userEvent.click(
+      screen.getByRole('button', { name: 'Generate Mission' }),
+    );
+    expect(
+      await screen.findByTestId('generate-mission-error'),
+    ).toHaveTextContent('cannot launch yet');
+    expect(mockMaterializeCampaignMissionEncounter).not.toHaveBeenCalled();
   });
 });

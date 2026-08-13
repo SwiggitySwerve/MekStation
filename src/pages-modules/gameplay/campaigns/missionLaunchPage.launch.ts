@@ -11,8 +11,13 @@ import {
   getCoopLocalPlayerId,
   getCoopMatchId,
   getCoopOtherPlayerId,
+  getCoopRuntimeSessionByMatch,
 } from '@/lib/campaign/coop/coopRuntimeSession';
 import { materializeCampaignMissionEncounter } from '@/lib/campaign/encounter/materializeCampaignMissionEncounter';
+import {
+  admitCampaignLaunch,
+  fetchCanonicalCatalogSnapshot,
+} from '@/lib/campaign/readiness/canonicalCatalogAdmission';
 import { selectedRosterUnitsForLaunch } from '@/lib/campaign/readiness/missionReadinessProjection';
 import {
   type CampaignPersistenceSaveResult,
@@ -182,9 +187,32 @@ async function launchCoopMissionFromPage({
   try {
     const { launchCoopMission } =
       await import('@/lib/campaign/coop/launchCoopMission');
+    const catalog = await fetchCanonicalCatalogSnapshot();
+    const runtime = getCoopRuntimeSessionByMatch(matchId);
+    const revision = runtime
+      ? Math.max(0, (await runtime.host.getEventLog().nextSequence()) - 1)
+      : 0;
     const result = await launchCoopMission(
       buildLaunchEncounter(campaign, missionKey),
       contributions,
+      undefined,
+      {
+        snapshot: {
+          campaignId: campaign.id,
+          matchId,
+          revision: runtime ? revision : undefined,
+          catalog,
+        },
+        expected: { campaignId: campaign.id, matchId, revision },
+        selectedUnits: Object.values(
+          runtime?.host.getState().rosterUnits ?? {},
+        ).map((unit) => ({
+          unitId: unit.unitId,
+          unitName: unit.designation,
+          unitRef: unit.unitRef,
+          unitSource: unit.unitSource,
+        })),
+      },
     );
     if (!result.ok) {
       setLaunchError(result.error);
@@ -233,10 +261,23 @@ async function launchSinglePlayerMissionFromPage({
       return;
     }
 
+    const rosterUnits = selectedRosterUnitsForLaunch(readinessProjection);
+    const catalog = await fetchCanonicalCatalogSnapshot();
+    const launchGate = admitCampaignLaunch({
+      snapshot: { campaignId: campaign.id, catalog },
+      expected: { campaignId: campaign.id },
+      selectedUnits: rosterUnits,
+    });
+    if (!launchGate.admitted) {
+      setLaunchError(launchGate.blocker.message);
+      return;
+    }
+
     const result = await materializeCampaignMissionEncounter({
       campaign,
       missionId: missionKey,
-      rosterUnits: selectedRosterUnitsForLaunch(readinessProjection),
+      rosterUnits,
+      catalog,
     });
     await syncLaunchedMission(campaign, missionKey, result.encounterId, store);
     await router.push(

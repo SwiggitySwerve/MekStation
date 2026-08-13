@@ -405,4 +405,27 @@ describe('runFastForwardBattle', () => {
     const wired: FastForwardBattleRunner = createFastForwardCombatRunner();
     expect(typeof wired).toBe('function');
   });
+
+  it('blocks a custom roster unit before materializing a fast-forward encounter', async () => {
+    const fixture = buildFastForwardFixture({ useRoleBasedSalaries: false });
+    const store = useCampaignStore();
+    store.getState().switchCampaign(fixture.campaign);
+    const dayOneReport = await store.getState().advanceDay();
+    const afterDayOne = dayOneReport?.campaign as ICampaignWithBridgeState;
+    const scenarioId = afterDayOne.bridgedScenarioIds?.[0] ?? '';
+    const bridged = afterDayOne.bridgedEncounters?.[scenarioId];
+    useCampaignRosterStore.setState({
+      units: useCampaignRosterStore.getState().units.map((unit) => ({
+        ...unit,
+        unitSource: 'custom',
+      })),
+    });
+    await expect(
+      runFastForwardBattle({
+        scenarioId,
+        contractId: bridged?.campaignMeta?.contractId ?? '',
+        encounterId: bridged?.id ?? '',
+      }),
+    ).rejects.toThrow('cannot launch yet');
+  });
 });

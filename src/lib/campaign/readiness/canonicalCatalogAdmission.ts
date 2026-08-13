@@ -106,6 +106,73 @@ export function admitRosterUnitSource(input: {
   });
 }
 
+export interface CampaignLaunchSnapshot {
+  readonly campaignId: string;
+  readonly matchId?: string;
+  readonly revision?: number;
+  readonly catalog: CanonicalCombatCatalogSnapshot;
+}
+
+export interface CampaignLaunchSelectionUnit {
+  readonly unitId: string;
+  readonly unitName: string;
+  readonly unitRef?: string;
+  readonly unitSource?: unknown;
+}
+
+export interface CampaignLaunchExpectedIdentity {
+  readonly campaignId: string;
+  readonly matchId?: string;
+  readonly revision?: number;
+}
+
+export async function fetchCanonicalCatalogSnapshot(
+  fetchImpl: typeof fetch = fetch,
+): Promise<CanonicalCombatCatalogSnapshot> {
+  try {
+    const response = await fetchImpl('/api/units');
+    return response.ok
+      ? snapshotFromUnitsApiPayload(await response.json())
+      : UNAVAILABLE_CANONICAL_CATALOG;
+  } catch {
+    return UNAVAILABLE_CANONICAL_CATALOG;
+  }
+}
+
+export function admitCampaignLaunch(input: {
+  readonly snapshot: CampaignLaunchSnapshot | undefined;
+  readonly expected: CampaignLaunchExpectedIdentity;
+  readonly selectedUnits: readonly CampaignLaunchSelectionUnit[];
+}): CanonicalAdmissionResult {
+  const { snapshot, expected, selectedUnits } = input;
+  if (!snapshot) {
+    // oxfmt-ignore
+    return deny(expected.campaignId, 'catalog_unavailable', 'Canonical catalog is unavailable; retry launch after it reloads.', 'Retry catalog');
+  }
+  if (
+    snapshot.campaignId !== expected.campaignId ||
+    (expected.matchId !== undefined && snapshot.matchId !== expected.matchId)
+  ) {
+    // oxfmt-ignore
+    return deny(expected.campaignId, 'snapshot_foreign', 'Campaign catalog snapshot does not match this campaign.');
+  }
+  if (
+    expected.revision !== undefined &&
+    snapshot.revision !== expected.revision
+  ) {
+    // oxfmt-ignore
+    return deny(expected.campaignId, 'snapshot_stale', 'Campaign catalog snapshot revision is stale or mismatched.');
+  }
+  for (const unit of selectedUnits) {
+    const admission = admitRosterUnitSource({
+      ...unit,
+      catalog: snapshot.catalog,
+    });
+    if (!admission.admitted) return admission;
+  }
+  return { admitted: true };
+}
+
 function snapshotFromIndexEntries(
   entries: readonly unknown[],
 ): CanonicalCombatCatalogSnapshot {
