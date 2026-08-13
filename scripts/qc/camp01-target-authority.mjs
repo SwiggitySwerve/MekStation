@@ -25,10 +25,15 @@ export class Camp01TargetError extends Error {
 
 // prettier-ignore
 export async function inspectOwnedTarget({wave,subject,worktree,spec,row,headSha},dependencies={}) {
-  if(typeof wave!=='string'||!['product','audit'].includes(subject)||!row||spec?.mergeSha!==headSha||!OID.test(headSha)) fail('owned target input invalid');
+  if(typeof wave!=='string'||!['product','audit'].includes(subject)||!row) fail('owned target input invalid');
+  // Audit registration forbids --spec and records the pre-edit worktree HEAD.
+  const auditPreEdit=subject==='audit'&&(spec===null||spec===undefined);
+  if(auditPreEdit){ if(headSha!==null&&headSha!==undefined) fail('owned target input invalid'); }
+  else if(spec?.mergeSha!==headSha||!OID.test(headSha)) fail('owned target input invalid');
   const canonicalPath=canonicalDirectory(worktree,dependencies), git=await resolveGit(canonicalPath,dependencies), identity=await inspectIdentity(canonicalPath,git,dependencies);
-  if(identity.headSha!==headSha) fail('worktree HEAD mismatch'); if(!identity.branchRef) fail('owned worktree must have a branch');
-  const clean=await cleanState({root:canonicalPath,expectedHead:headSha,runRoot:null,git},dependencies); return freezeTarget({kind:'owned',subject,canonicalPath,gitWorktreeId:identity.gitWorktreeId,expectedHead:headSha,branchRef:identity.branchRef,oldOid:headSha,cleanManifest:clean.manifest,nonReparse:true,initiating:false});
+  const expectedHead=auditPreEdit?identity.headSha:headSha; if(!OID.test(expectedHead)) fail('owned target input invalid');
+  if(identity.headSha!==expectedHead) fail('worktree HEAD mismatch'); if(!identity.branchRef) fail('owned worktree must have a branch');
+  const clean=await cleanState({root:canonicalPath,expectedHead,runRoot:null,git},dependencies); return freezeTarget({kind:'owned',subject,canonicalPath,gitWorktreeId:identity.gitWorktreeId,expectedHead,branchRef:identity.branchRef,oldOid:expectedHead,cleanManifest:clean.manifest,nonReparse:true,initiating:false});
 }
 
 // prettier-ignore
@@ -52,10 +57,12 @@ export async function observeCleanState({target,phase,runRoot},dependencies={}) 
 // mode-specific null/durable values before this cap can pass the writer schema.
 // prettier-ignore
 export async function resolveTargetFacts({ownedTarget,spec,row},dependencies={}) {
-  if(ownedTarget?.kind!=='owned'||!row||row.capSubject==='none'||!OID.test(spec?.mergeSha)||ownedTarget.oldOid!==spec.mergeSha) fail('target fact input invalid'); const canonicalPath=canonicalDirectory(ownedTarget.canonicalPath,dependencies), git=await resolveGit(canonicalPath,dependencies), identity=await inspectIdentity(canonicalPath,git,dependencies);
-  if(identity.gitWorktreeId!==ownedTarget.gitWorktreeId||identity.branchRef!==ownedTarget.branchRef) fail('worktree identity drift'); const headSha=identity.headSha; await callGit({git,cwd:canonicalPath,args:['merge-base','--is-ancestor',spec.mergeSha,headSha],message:'target head does not descend from base'},dependencies); await cleanState({root:canonicalPath,expectedHead:headSha,runRoot:null,git},dependencies); const treeSha=(await callGit({git,cwd:canonicalPath,args:['rev-parse','--verify',`${headSha}^{tree}`],message:'tree identity unavailable'},dependencies)).stdout.trim(); if(!OID.test(treeSha)) fail('tree identity unavailable');
-  const raw=(await callGit({git,cwd:canonicalPath,args:['diff','--numstat','-z','--no-renames',spec.mergeSha,headSha,'--'],message:'target diff unavailable'},dependencies)).stdout, manifest=parseNumstat(raw), changedLineCount=manifest.reduce((sum,entry)=>sum+(entry.added??0)+(entry.deleted??0),0);
-  return Object.freeze({treeSha,capProvenance:Object.freeze({subject:row.capSubject,baseSha:spec.mergeSha,headSha,fileCount:manifest.length,changedLineCount,binaryEntries:manifest.some((entry)=>entry.binary),changedTreeManifestDigest:digestBytes(canonicalBytes(manifest)),reviewedHeadReceiptId:undefined,reviewedHeadReceiptManifestDigest:undefined})});
+  if(ownedTarget?.kind!=='owned'||!row||row.capSubject==='none'||!OID.test(spec?.mergeSha)||!OID.test(ownedTarget.oldOid)) fail('target fact input invalid');
+  if(row.capSubject==='product-pr'&&ownedTarget.oldOid!==spec.mergeSha||row.capSubject!=='product-pr'&&row.capSubject!=='audit-pr') fail('target fact input invalid');
+  const canonicalPath=canonicalDirectory(ownedTarget.canonicalPath,dependencies), git=await resolveGit(canonicalPath,dependencies), identity=await inspectIdentity(canonicalPath,git,dependencies);
+  if(identity.gitWorktreeId!==ownedTarget.gitWorktreeId||identity.branchRef!==ownedTarget.branchRef) fail('worktree identity drift'); const headSha=identity.headSha, baseSha=ownedTarget.oldOid; await callGit({git,cwd:canonicalPath,args:['merge-base','--is-ancestor',spec.mergeSha,headSha],message:'target head does not descend from base'},dependencies); await callGit({git,cwd:canonicalPath,args:['merge-base','--is-ancestor',baseSha,headSha],message:'target head does not descend from base'},dependencies); await cleanState({root:canonicalPath,expectedHead:headSha,runRoot:null,git},dependencies); const treeSha=(await callGit({git,cwd:canonicalPath,args:['rev-parse','--verify',`${headSha}^{tree}`],message:'tree identity unavailable'},dependencies)).stdout.trim(); if(!OID.test(treeSha)) fail('tree identity unavailable');
+  const raw=(await callGit({git,cwd:canonicalPath,args:['diff','--numstat','-z','--no-renames',baseSha,headSha,'--'],message:'target diff unavailable'},dependencies)).stdout, manifest=parseNumstat(raw), changedLineCount=manifest.reduce((sum,entry)=>sum+(entry.added??0)+(entry.deleted??0),0);
+  return Object.freeze({treeSha,capProvenance:Object.freeze({subject:row.capSubject,baseSha,headSha,fileCount:manifest.length,changedLineCount,binaryEntries:manifest.some((entry)=>entry.binary),changedTreeManifestDigest:digestBytes(canonicalBytes(manifest)),reviewedHeadReceiptId:undefined,reviewedHeadReceiptManifestDigest:undefined})});
 }
 
 // prettier-ignore
