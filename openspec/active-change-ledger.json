@@ -50,81 +50,81 @@
   },
   {
    "name": "add-saved-custom-unit-campaign-roster",
-   "status": "proposed",
-   "reason": "CAMP-01 specification wave: select a server-saved custom BattleMech in campaign creation and preserve separate roster-instance and source-design identities through root-force persistence, cold reload, Mech Bay, and mission readiness before product implementation.",
-   "lastReviewed": "2026-07-30"
+   "status": "in-progress",
+   "reason": "CAMP-01 parent specification: select a server-saved custom BattleMech in campaign creation and preserve separate roster-instance and source-design identities through root-force persistence, cold reload, Mech Bay, and mission readiness. CAMP-01H / PR 1245 landed on main at 2a8a46183. Remains active until the later parent 9.1 exact-main receipt gate. Not archived.",
+   "lastReviewed": "2026-08-14"
   },
   {
    "name": "add-camp01-authority-receipts",
-   "status": "proposed",
-   "reason": "CAMP-PROOF child specification: add immutable exact-SHA authority receipts, canonical provenance, durable evidence export, reviewed PROOF-02 triage, and cleanup-gated sequencing before any CAMP product wave.",
-   "lastReviewed": "2026-07-30"
+   "status": "in-progress",
+   "reason": "CAMP-PROOF child: immutable exact-SHA authority receipts, canonical provenance, durable evidence export, reviewed PROOF-02 triage, and cleanup-gated sequencing. CAMP-01H / PR 1245 landed on main at 2a8a46183. Remains active until the later parent 9.1 exact-main receipt gate. Not archived.",
+   "lastReviewed": "2026-08-14"
   },
   {
    "name": "bind-packaged-server-to-loopback",
-   "status": "proposed",
-   "reason": "CAMP-00 child specification: bind the packaged production HTTP/WebSocket listener to its configured loopback literal and prove the actual initial/restarted socket address before campaign product waves.",
-   "lastReviewed": "2026-07-30"
+   "status": "in-progress",
+   "reason": "CAMP-00 child: bind the packaged production HTTP/WebSocket listener to its configured loopback literal and prove the actual initial/restarted socket address. CAMP-01H / PR 1245 landed on main at 2a8a46183. Remains active until the later parent 9.1 exact-main receipt gate. Not archived.",
+   "lastReviewed": "2026-08-14"
   },
   {
    "name": "add-campaign-roster-source-readiness",
-   "status": "proposed",
-   "reason": "CAMP-01A child specification: parse roster unit source fail-closed, expose canonical catalog readiness, and reject unsupported exact references before encounter side effects.",
-   "lastReviewed": "2026-08-01"
+   "status": "in-progress",
+   "reason": "CAMP-01A child: parse roster unit source fail-closed, expose canonical catalog readiness, and reject unsupported exact references before encounter side effects. CAMP-01H / PR 1245 landed on main at 2a8a46183. Remains active until the later parent 9.1 exact-main receipt gate. Not archived.",
+   "lastReviewed": "2026-08-14"
   },
   {
    "name": "add-authoritative-campaign-coop-snapshot",
-   "status": "proposed",
-   "reason": "CAMP-01B child specification: preserve revision-bound roster source identity and authoritative force membership from host registration through guest campaign mirror hydration.",
-   "lastReviewed": "2026-08-01"
+   "status": "in-progress",
+   "reason": "CAMP-01B child: preserve revision-bound roster source identity and authoritative force membership from host registration through guest campaign mirror hydration. CAMP-01H / PR 1245 landed on main at 2a8a46183. Remains active until the later parent 9.1 exact-main receipt gate. Not archived.",
+   "lastReviewed": "2026-08-14"
   },
   {
    "name": "authorize-campaign-coop-participation",
-   "status": "proposed",
-   "reason": "CAMP-01C child specification: derive participant identity and authorize only minimal revision-bound force choices from the server-owned campaign snapshot.",
-   "lastReviewed": "2026-08-01"
+   "status": "in-progress",
+   "reason": "CAMP-01C child: derive participant identity and authorize only minimal revision-bound force choices from the server-owned campaign snapshot. CAMP-01H / PR 1245 landed on main at 2a8a46183. Remains active until the later parent 9.1 exact-main receipt gate. Not archived.",
+   "lastReviewed": "2026-08-14"
   },
   {
    "name": "enforce-campaign-unit-source-launch-boundary",
-   "status": "proposed",
-   "reason": "CAMP-01D child specification: require authoritative canonical source/catalog admission and fail closed before any campaign encounter side effect.",
-   "lastReviewed": "2026-08-01"
+   "status": "in-progress",
+   "reason": "CAMP-01D child: require authoritative canonical source/catalog admission and fail closed before any campaign encounter side effect. CAMP-01H / PR 1245 landed on main at 2a8a46183. Remains active until the later parent 9.1 exact-main receipt gate. Not archived.",
+   "lastReviewed": "2026-08-14"
   },
   {
    "name": "add-saved-custom-unit-campaign-picker",
-   "status": "proposed",
-   "reason": "CAMP-01E child specification: validate and expose saved BattleMechs in campaign creation while preserving separate source-design, roster-instance, source-kind, and root-force identities.",
-   "lastReviewed": "2026-08-02"
+   "status": "in-progress",
+   "reason": "CAMP-01E child: validate and expose saved BattleMechs in campaign creation while preserving separate source-design, roster-instance, source-kind, and root-force identities. CAMP-01H / PR 1245 landed on main at 2a8a46183. Remains active until the later parent 9.1 exact-main receipt gate. Not archived.",
+   "lastReviewed": "2026-08-14"
   },
   {
    "name": "persist-saved-custom-unit-campaign-creation",
-   "status": "proposed",
-   "reason": "CAMP-01F child specification: gate campaign creation success on accepted production server persistence with same-id retry and fail-closed conflict handling.",
-   "lastReviewed": "2026-08-02"
+   "status": "in-progress",
+   "reason": "CAMP-01F child: gate campaign creation success on accepted production server persistence with same-id retry and fail-closed conflict handling. CAMP-01H / PR 1245 landed on main at 2a8a46183. Remains active until the later parent 9.1 exact-main receipt gate. Not archived.",
+   "lastReviewed": "2026-08-14"
   },
   {
    "name": "resolve-saved-custom-units-in-mech-bay",
-   "status": "proposed",
-   "reason": "CAMP-01G child specification: resolve saved custom roster identity in Mech Bay after cold reload while keeping missing sources visible and launch-blocked without stock substitution.",
-   "lastReviewed": "2026-08-02"
+   "status": "in-progress",
+   "reason": "CAMP-01G child: resolve saved custom roster identity in Mech Bay after cold reload while keeping missing sources visible and launch-blocked without stock substitution. CAMP-01H / PR 1245 landed on main at 2a8a46183. Remains active until the later parent 9.1 exact-main receipt gate. Not archived.",
+   "lastReviewed": "2026-08-14"
   },
   {
    "name": "prove-saved-custom-unit-campaign-journey",
-   "status": "proposed",
-   "reason": "CAMP-01H child specification: produce three independent authority witnesses for custom save/reload, campaign readiness, and canonical combat/post-battle persistence with ranked experience reconciliation.",
-   "lastReviewed": "2026-08-02"
+   "status": "in-progress",
+   "reason": "CAMP-01H child: three independent authority witnesses for custom save/reload, campaign readiness, and canonical combat/post-battle persistence with ranked experience reconciliation. CAMP-01H / PR 1245 landed on main at 2a8a46183. Remains active until the later parent 9.1 exact-main receipt gate. Not archived.",
+   "lastReviewed": "2026-08-14"
   },
   {
    "name": "design-vault-campaign-separation-and-maps",
    "status": "proposed",
-   "reason": "Vault/campaign separation (immutable versioned templates to campaign instance copies per the 2026-08-06 council decision and D1), starmap travel economy with dynamic opportunities, and the isometric battlefield view; implementation sequenced after CAMP-01F/G/H per the frozen-contract constraint.",
-   "lastReviewed": "2026-08-06"
+   "reason": "Vault/campaign separation (immutable versioned templates to campaign instance copies per the 2026-08-06 council decision and D1), starmap travel economy with dynamic opportunities, and the isometric battlefield view. CAMP-01H / PR 1245 landed on main at 2a8a46183; implementation remains gated on the later parent 9.1 receipt. P1 1.1-1.5 not started.",
+   "lastReviewed": "2026-08-14"
   },
   {
    "name": "design-campaign-authority-and-sync",
    "status": "proposed",
-   "reason": "Server-authoritative campaign state with source/replica instance model, share grants, and scope-filtered event broadcast (GM full view, players receive only in-scope events) on the existing hash-chained SQLite event journal; driven by the 2026-08-07 visual-audit finding that campaigns are browser-local; implementation gated on CAMP-01F/G/H.",
-   "lastReviewed": "2026-08-07"
+   "reason": "Server-authoritative campaign state with source/replica instance model, share grants, and scope-filtered event broadcast (GM full view, players receive only in-scope events) on the existing hash-chained SQLite event journal; driven by the 2026-08-07 visual-audit finding that campaigns are browser-local. CAMP-01H / PR 1245 landed on main at 2a8a46183; implementation remains gated on the later parent 9.1 receipt.",
+   "lastReviewed": "2026-08-14"
   }
  ]
 }
