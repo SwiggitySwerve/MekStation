@@ -7,6 +7,7 @@ import {
   canonicalBytes,
   digestBytes,
 } from './camp01-authority-receipt.schemas.mjs';
+import { publishCamp01HComposition } from './camp01-h-composition-publisher.mjs';
 
 const ROW = WAVE_CONTRACTS['camp-01h'];
 const LABELS = [
@@ -110,6 +111,7 @@ function publishReport(context) {
   } catch (error) {
     fail('normalized report publication failed', error);
   }
+  publishCamp01HComposition(environment, io);
   return value;
 }
 
