@@ -313,8 +313,8 @@ describe('MechBay', () => {
 
   // prettier-ignore
   it('resolves custom saved designs without stock substitution and keeps unresolved rows visible', () => {
-    const rosterInstanceId = 'roster-whm-instance';
-    const savedId = 'custom-whm-6r-saved';
+    const rosterInstanceId: string = 'roster-whm-instance';
+    const savedId: string = 'custom-whm-6r-saved';
     const savedName = 'Warhammer WHM-6R-Custom';
     const units = [
       { unitId: rosterInstanceId, unitRef: savedId, unitSource: 'custom', unitName: savedName, chassisVariant: 'WHM-6R-Custom', readiness: 'Ready' as const, tonnage: 70 },
