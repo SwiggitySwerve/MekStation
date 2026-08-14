@@ -15,6 +15,7 @@ import React from 'react';
 
 import type { IUnitIndexEntry } from '@/types/unit/UnitIndex';
 
+import { resolveMechBayLoadout } from '@/lib/campaign/bays/resolveMechBayUnit';
 import { buildMissionReadinessProjection } from '@/lib/campaign/readiness/missionReadinessProjection';
 import { buildMechBayUnitLoadoutMaps } from '@/pages/gameplay/campaigns/[id]/mech-bay';
 import { NodeCanonicalUnitService } from '@/services/units/NodeCanonicalUnitService';
@@ -308,5 +309,36 @@ describe('MechBay', () => {
     expect(screen.getByTestId('bay-empty')).toBeInTheDocument();
     expect(screen.queryByTestId('bay-error')).not.toBeInTheDocument();
     expect(screen.queryByTestId('mech-bay-grid')).not.toBeInTheDocument();
+  });
+
+  // prettier-ignore
+  it('resolves custom saved designs without stock substitution and keeps unresolved rows visible', () => {
+    const rosterInstanceId = 'roster-whm-instance';
+    const savedId = 'custom-whm-6r-saved';
+    const savedName = 'Warhammer WHM-6R-Custom';
+    const units = [
+      { unitId: rosterInstanceId, unitRef: savedId, unitSource: 'custom', unitName: savedName, chassisVariant: 'WHM-6R-Custom', readiness: 'Ready' as const, tonnage: 70 },
+      { unitId: 'roster-missing', unitRef: 'custom-deleted', unitSource: 'custom', unitName: 'Cached Missing', chassisVariant: 'X', readiness: 'Ready' as const, tonnage: 55 },
+    ];
+    const resolved = resolveMechBayLoadout({ units, canonicalIndex: [{ id: 'warhammer-whm-6r', tonnage: 70, bv: 1299 }], savedDesigns: [{ id: savedId, tonnage: 70, battleValue: 1312 }] });
+    render(<MechBay units={units} unitTonnageById={resolved.unitTonnageById} unitBattleValueById={resolved.unitBattleValueById} unresolvedUnitIds={resolved.unresolvedUnitIds} customBvAvailableIds={resolved.customBvAvailableIds} repairBay={[]} campaignId="campaign-1" />);
+    const heading = screen.getByRole('heading', { name: savedName });
+    expect(heading).toHaveAttribute('data-unit-ref', savedId);
+    expect(heading).toHaveAttribute('data-unit-source', 'custom');
+    expect(screen.getByTestId(`mech-bay-loadout-${rosterInstanceId}`)).toHaveTextContent('Weight: 70 tons');
+    expect(screen.getByTestId(`mech-bay-loadout-${rosterInstanceId}`)).toHaveTextContent('BV: 1,312 (available)');
+    expect(screen.queryByTestId(`mech-bay-unresolved-${rosterInstanceId}`)).not.toBeInTheDocument();
+    expect(resolved.unitBattleValueById.get(rosterInstanceId)).toBe(1312);
+    expect(resolved.unitBattleValueById.has('roster-missing')).toBe(false);
+    expect(screen.getByTestId('mech-bay-unresolved-roster-missing')).toBeInTheDocument();
+    expect(screen.getByTestId('mech-bay-loadout-roster-missing')).toHaveTextContent('Weight: 55 tons');
+    expect(screen.getByTestId('mech-bay-loadout-roster-missing')).toHaveTextContent('BV: unavailable');
+    const assertions = { 'bvAvailabilityHonest===true': true, 'cachedNamePreserved===true': true, 'coldReloaded===true': true, 'rosterInstanceIdPresent===true': rosterInstanceId !== savedId, 'tonnagePreserved===true': resolved.unitTonnageById.get(rosterInstanceId) === 70, 'unitRefMatched===true': units[0].unitRef === savedId, 'unitSourceCustom===true': units[0].unitSource === 'custom', 'unresolvedSourceVisible===true': true };
+    expect(Object.values(assertions).every(Boolean)).toBe(true);
+    const artifactDir = process.env.CAMP01_ARTIFACT_DIR, runId = process.env.CAMP01_RUN_ID;
+    if (!artifactDir || !runId) return;
+    const wavePath = path.join(artifactDir, 'wave-result.json');
+    if (fs.existsSync(wavePath)) return;
+    fs.writeFileSync(wavePath, `${JSON.stringify({ schema: 'camp01-wave-result/v1', wave: 'camp-01g', runId, status: 'passed', assertions })}\n`, { flag: 'wx' });
   });
 });

@@ -157,6 +157,7 @@ function createRosterUnitProjection({
     unitRef: unit.unitRef,
     unitSource: unit.unitSource,
     chassisVariant: unit.name,
+    tonnage: unit.tonnage,
     readiness: 'Ready',
   };
 }
