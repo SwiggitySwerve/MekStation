@@ -82,8 +82,8 @@ describe('CAMP-01H normalized reports', () => {
       outsideFiles: string[];
     };
     // prettier-ignore
-    expect(value.files).toEqual(['reports/01-ux-audit-deep.json','reports/02-command-browser-quick.json','reports/03-campaign-long-browser.json','reports/04-screen-inventory.json','reports/05-layout-helpers.json','reports/06-viewport-layout-sweep.json']);
-    expect(new Set(value.digests).size).toBe(6);
+    expect(value.files).toEqual(['audit-reconciliation.json','combat-authority.json','reports/01-ux-audit-deep.json','reports/02-command-browser-quick.json','reports/03-campaign-long-browser.json','reports/04-screen-inventory.json','reports/05-layout-helpers.json','reports/06-viewport-layout-sweep.json','session-authority-map.json','wave-result.json','witnesses/campaign-mech-bay-readiness/authority.json','witnesses/campaign-mech-bay-readiness/experience.json','witnesses/canonical-combat-post-battle/authority.json','witnesses/canonical-combat-post-battle/experience.json','witnesses/custom-save-reload/authority.json','witnesses/custom-save-reload/experience.json']);
+    expect(new Set(value.digests).size).toBe(16);
     expect(value.outsideFiles).toEqual([]);
     // prettier-ignore
     expect(value.reports.map(({witnessLabel})=>witnessLabel)).toEqual(['campaign-mech-bay-readiness','custom-save-reload','canonical-combat-post-battle','custom-save-reload','campaign-mech-bay-readiness','canonical-combat-post-battle']);
