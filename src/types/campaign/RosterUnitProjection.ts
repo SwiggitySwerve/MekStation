@@ -88,8 +88,6 @@ export interface IRosterUnitProjection {
   readonly unitSource?: unknown;
   /** Display name (cached at roster-add time). */
   readonly unitName: string;
-  /** Cached at roster-add so Mech Bay can keep weight if the saved design vanishes. */
-  readonly tonnage?: number;
   /** Assigned pilot id, if any. */
   readonly pilotId?: string;
   /**
