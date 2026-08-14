@@ -158,6 +158,7 @@ function createRosterUnitProjection({
     unitSource: unit.unitSource,
     chassisVariant: unit.name,
     readiness: 'Ready',
+    ...(Number.isFinite(unit.tonnage) ? { tonnage: unit.tonnage } : {}),
   };
 }
 
