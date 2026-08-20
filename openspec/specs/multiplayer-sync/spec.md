@@ -3,7 +3,6 @@
 ## Purpose
 
 Defines Multiplayer Sync requirements for Lobby Update Broadcast, Room Code UI Contract, Redacted Event Shape, and Client Gracefully Handles Missing Events, preserving the source-of-truth scope introduced by archived change add-multiplayer-lobby-and-matchmaking-2-8.
-
 ## Requirements
 ### Requirement: Lobby Update Broadcast
 
@@ -497,3 +496,81 @@ Reconnect and replay SHALL preserve host authority, guest mirror state, command 
 #### Scenario: Guest reconnects after GM intervention
 - **WHEN** a guest reconnects after a host committed a GM intervention
 - **THEN** replay SHALL reconstruct the public resulting state and event feed without exposing private GM rationale or hidden correction details
+
+### Requirement: Campaign co-op snapshot preserves roster and force authority
+
+The authoritative server SHALL publish one JSON-safe campaign snapshot containing its campaign id, match id, non-negative integer revision, source-bearing roster units, and complete `forceId -> unitIds` membership. Every membership id SHALL resolve to exactly one projected roster unit, and all consumers SHALL preserve the same revision-bound facts.
+
+#### Scenario: Host builds the snapshot from real campaign state
+
+- **WHEN** a host opens campaign co-op from a persisted campaign roster and force tree
+- **THEN** every projected unit SHALL preserve its stable `unitId`, exact `unitRef`, and parsed `unitSource`
+- **AND** every projected force SHALL contain exactly its authoritative unit ids
+- **AND** registration SHALL fail before advertising a room if any source, reference, campaign id, or membership is invalid
+
+#### Scenario: Registry preserves the registered snapshot
+
+- **WHEN** match creation registers a valid campaign snapshot
+- **THEN** `CampaignHostRegistry` SHALL bind the exact campaign id, match id, revision, roster projection, force membership, and host identity
+- **AND** revision SHALL equal the inclusive high-water sequence of the latest committed campaign event represented by the atomic state
+- **AND** the registry SHALL replace that atomic state only with a strictly greater authoritative revision
+- **AND** later bootstrap MUST NOT reconstruct or replace those facts from local defaults
+
+#### Scenario: Guest mirror hydrates the same projection
+
+- **WHEN** an authenticated guest receives the initial campaign snapshot
+- **THEN** its revision SHALL equal the registry's current atomic snapshot revision
+- **AND** the guest mirror SHALL contain the same campaign id, match id, roster unit sources/references, and force membership as the host
+- **AND** event replay SHALL apply only contiguous events strictly after that validated baseline and advance the guest cursor once per accepted event
+
+#### Scenario: Event commits across baseline capture
+
+- **WHEN** a campaign event commits while a guest baseline is being established
+- **THEN** live buffering SHALL begin before the atomic revision/state pair is read
+- **AND** buffered and logged overlap SHALL be deduplicated while every event after the baseline is delivered exactly once in contiguous sequence
+- **AND** no event at or below the baseline revision SHALL be reapplied
+
+#### Scenario: Invalid or stale projection is rejected
+
+- **WHEN** a snapshot is malformed, stale, for a foreign campaign or match, contains an unknown source, references an absent unit, duplicates unit membership, or mixes revisions
+- **THEN** registration or guest hydration SHALL reject it before mirror creation
+- **AND** a revision below the hydrated guest revision SHALL be stale
+- **AND** the same revision SHALL be accepted only for a byte-equivalent idempotent projection
+- **AND** a replay gap, regression, event at or below the guest cursor, or non-contiguous revision SHALL be rejected before mutation
+- **AND** the client MUST NOT infer missing membership or source identity
+
+### Requirement: Co-op participation is server-authorized
+
+The participation binder SHALL derive player, role, campaign, match, and revision from verified server state and SHALL accept only `{ missionId, forceId, choice }` against the current CAMP-01B projection.
+
+#### Scenario: Authorized choice is accepted
+
+- **WHEN** a verified participant submits a valid mission, projected force, and choice at the current registry revision
+- **THEN** the server SHALL accept the choice for the derived player and role
+- **AND** the session SHALL retain the registry's roster and force projection unchanged
+
+#### Scenario: Identity and full-force fields are rejected
+
+- **WHEN** a client includes player, role, campaign, match, revision, roster, or full-force fields
+- **THEN** binding SHALL reject the payload before state mutation
+- **AND** the server SHALL never trust those fields as authority
+
+#### Scenario: Foreign or stale choice is rejected
+
+- **WHEN** a choice names a foreign campaign/match/mission, an unknown or foreign force, a stale revision, or a force outside the registered membership
+- **THEN** participation SHALL be rejected before publication or launch
+- **AND** no roster, force, role, or participant state SHALL be replaced
+
+#### Scenario: Stale connection must rebind
+
+- **WHEN** the connection's server-acknowledged baseline revision differs from the registry's current revision at atomic admission
+- **THEN** the choice SHALL be rejected before mutation
+- **AND** the connection SHALL require server-owned rebind/rehydration before a later choice
+- **AND** a client-supplied revision MUST NOT repair or advance the connection baseline
+
+#### Scenario: Duplicate choice is idempotent
+
+- **WHEN** the same derived participant repeats the identical accepted choice
+- **THEN** the server SHALL return the existing acceptance without a second mutation
+- **AND** a conflicting repeat SHALL be rejected
+
