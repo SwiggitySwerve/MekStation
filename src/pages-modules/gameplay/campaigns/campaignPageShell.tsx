@@ -106,6 +106,8 @@ interface CampaignRouteLoaderInput {
   readonly campaign: ICampaign | null;
   readonly isClient: boolean;
   readonly router: Pick<NextRouter, 'asPath' | 'query'>;
+  /** From the campaign store: id of a storage-rehydrated campaign, if any. */
+  readonly rehydratedCampaignId?: string | null;
 }
 
 interface CampaignRouteLoaderState {
@@ -118,12 +120,15 @@ export function useCampaignRouteLoader({
   campaign,
   isClient,
   router,
+  rehydratedCampaignId = null,
 }: CampaignRouteLoaderInput): CampaignRouteLoaderState {
   const routeCampaignId = campaignRouteIdFromRouter(router);
   const loadCampaign = useCampaignPersistenceStore(
     (state) => state.loadCampaign,
   );
   const saveState = useCampaignPersistenceStore((state) => state.saveState);
+  const baseVersion = useCampaignPersistenceStore((state) => state.baseVersion);
+  const dirty = useCampaignPersistenceStore((state) => state.dirty);
   const [requestedCampaignId, setRequestedCampaignId] = useState<string | null>(
     null,
   );
@@ -138,7 +143,21 @@ export function useCampaignRouteLoader({
     const routeMatches = campaign?.id === routeCampaignId;
     const guestNeedsServerRefresh =
       routeMatches && campaign?.coopSession?.mode === 'guest';
-    if (routeMatches && !guestNeedsServerRefresh) return;
+    // Per campaign-authority "Stale cache is refreshed, not trusted": a
+    // campaign that entered the store via storage rehydration and has not
+    // been validated against the server this session (baseVersion 0) is a
+    // cache of unknown freshness - refetch-replace it once. Dirty local
+    // state is exempt (the save path's conflict handling reconciles it),
+    // and in-session creations/loads never carry the rehydration mark.
+    const cacheNeedsValidation =
+      routeMatches &&
+      !dirty &&
+      baseVersion === 0 &&
+      campaign !== null &&
+      rehydratedCampaignId === campaign.id;
+    if (routeMatches && !guestNeedsServerRefresh && !cacheNeedsValidation) {
+      return;
+    }
     if (requestedCampaignId === routeCampaignId && saveState !== 'error') {
       return;
     }
@@ -146,9 +165,12 @@ export function useCampaignRouteLoader({
     setRequestedCampaignId(routeCampaignId);
     void loadCampaign(routeCampaignId);
   }, [
-    campaign?.id,
+    baseVersion,
+    campaign,
+    dirty,
     isClient,
     loadCampaign,
+    rehydratedCampaignId,
     requestedCampaignId,
     routeCampaignId,
     saveState,
@@ -172,7 +194,16 @@ export function useCampaignPageShell(pageLabel: string): CampaignPageShell {
   const store = useCampaignStore();
   const campaign = useStore(store, (state) => state.campaign);
   const [isClient, setIsClient] = useState(false);
-  const routeLoader = useCampaignRouteLoader({ campaign, isClient, router });
+  const rehydratedCampaignId = useStore(
+    store,
+    (state) => state.rehydratedCampaignId,
+  );
+  const routeLoader = useCampaignRouteLoader({
+    campaign,
+    isClient,
+    router,
+    rehydratedCampaignId,
+  });
 
   useEffect(() => {
     setIsClient(true);

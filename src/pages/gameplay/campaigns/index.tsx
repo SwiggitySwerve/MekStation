@@ -107,6 +107,7 @@ export default function CampaignsListPage(): React.ReactElement {
     null,
   );
   const [isClient, setIsClient] = useState(false);
+  const [listRetryToken, setListRetryToken] = useState(0);
   const summaryEntries = campaignSummaries.map(summaryToEntry);
   const hasStoreOnlyCampaign =
     campaign &&
@@ -147,7 +148,7 @@ export default function CampaignsListPage(): React.ReactElement {
     return () => {
       cancelled = true;
     };
-  }, [isClient]);
+  }, [isClient, listRetryToken]);
 
   const handleCreateCampaign = useCallback(() => {
     router.push('/gameplay/campaigns/create');
@@ -225,7 +226,24 @@ export default function CampaignsListPage(): React.ReactElement {
         </p>
       )}
 
-      {campaigns.length === 0 ? (
+      {campaignListError && campaigns.length === 0 ? (
+        // Per campaign-authority, "no campaigns" is a server-list claim the
+        // client cannot make when the list request failed - a failed fetch
+        // with an empty store must surface the failure, never the empty state.
+        <EmptyState
+          title="Campaign list unavailable"
+          message={`The server campaign list could not be loaded: ${campaignListError}`}
+          action={
+            <Button
+              variant="primary"
+              onClick={() => setListRetryToken((token) => token + 1)}
+            >
+              Retry
+            </Button>
+          }
+          data-testid="campaigns-list-error"
+        />
+      ) : campaigns.length === 0 ? (
         <EmptyState
           icon={
             <div className="bg-surface-raised/50 mx-auto flex h-16 w-16 items-center justify-center rounded-full">

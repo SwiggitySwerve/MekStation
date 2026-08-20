@@ -241,4 +241,80 @@ describe('CampaignsListPage multi-campaign backend list', () => {
       await screen.findByTestId('campaign-card-campaign-local'),
     ).toBeInTheDocument();
   });
+
+  it('surfaces a list-failure error state instead of the empty state, and retry refetches', async () => {
+    const campaigns: ICampaignSummary[] = [
+      {
+        id: 'campaign-recovered',
+        name: 'Recovered Command',
+        factionId: 'kurita',
+        currentDate: '3025-03-01T00:00:00.000Z',
+        balance: 2500000,
+        updatedAt: '3025-03-01T00:00:00.000Z',
+      },
+    ];
+    let call = 0;
+    (globalThis as unknown as { fetch: jest.Mock }).fetch = jest.fn(
+      async () => {
+        call += 1;
+        if (call === 1) {
+          return { ok: false, status: 500, json: async () => ({}) };
+        }
+        return { ok: true, json: async () => campaigns };
+      },
+    );
+
+    await act(async () => {
+      render(<CampaignsListPage />);
+    });
+
+    expect(
+      await screen.findByTestId('campaigns-list-error'),
+    ).toBeInTheDocument();
+    expect(screen.getByText(/server responded 500/)).toBeInTheDocument();
+    expect(
+      screen.queryByTestId('campaigns-empty-state'),
+    ).not.toBeInTheDocument();
+
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button', { name: 'Retry' }));
+    });
+
+    expect(
+      await screen.findByTestId('campaign-card-campaign-recovered'),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByTestId('campaigns-list-error'),
+    ).not.toBeInTheDocument();
+  });
+
+  it('keeps the store campaign card with the refresh warning when the list fetch fails', async () => {
+    mockCampaignStoreState.campaign = {
+      id: 'campaign-local',
+      name: 'Local Command',
+      factionId: 'kurita',
+      currentDate: new Date('3025-03-01T00:00:00.000Z'),
+      forces: new Map(),
+      missions: new Map(),
+    };
+    (globalThis as unknown as { fetch: jest.Mock }).fetch = jest.fn(
+      async () => {
+        throw new Error('network down');
+      },
+    );
+
+    await act(async () => {
+      render(<CampaignsListPage />);
+    });
+
+    expect(
+      await screen.findByTestId('campaign-card-campaign-local'),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(/Stored campaign list could not refresh/),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByTestId('campaigns-list-error'),
+    ).not.toBeInTheDocument();
+  });
 });

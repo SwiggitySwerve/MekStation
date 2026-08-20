@@ -316,6 +316,22 @@ describe('D-1 — campaign persistence round-trip (save → reload seam)', () =>
     );
   });
 
+  it('marks the rehydrated campaign id on merge and leaves in-session campaigns unmarked', () => {
+    // Per campaign-authority "Client storage is a cache, never a source":
+    // the route loader head-validates exactly the storage-rehydrated copy,
+    // so the mark must come from the persist merge() and only from there.
+    seedCampaign();
+    const created = useCampaignStore().getState();
+    expect(created.rehydratedCampaignId).toBeNull();
+    const campaignId = created.getCampaign()?.id;
+    expect(campaignId).toBeDefined();
+
+    resetCampaignStore();
+    const rehydrated = useCampaignStore().getState();
+    expect(rehydrated.getCampaign()?.id).toBe(campaignId);
+    expect(rehydrated.rehydratedCampaignId).toBe(campaignId);
+  });
+
   it('every other silently-dropped campaign field survives the round-trip (full-shape sweep)', () => {
     const id = seedCampaign();
     const store = useCampaignStore();
