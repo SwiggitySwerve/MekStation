@@ -284,11 +284,13 @@ export default function PreBattlePage(): React.ReactElement {
   });
 
   if (!isInitialized || encountersLoading) {
-    return (
-      <PreBattleLoading
-        backLink={`/gameplay/encounters/${encounterId ?? ''}`}
-      />
-    );
+    // Hydration constraint: this branch is server-rendered, where
+    // encounterRouteIdentityFromRouter resolves no id (empty query, no
+    // window), while the client's first render recovers the id from
+    // window.location. Embedding encounterId here therefore produced an
+    // SSR/client href mismatch React 19 refuses to patch. The back link
+    // must stay identity-independent until hydration completes.
+    return <PreBattleLoading backLink="/gameplay/encounters" />;
   }
 
   if (!encounter) {

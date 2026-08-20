@@ -14,7 +14,7 @@ export function PreBattleLoading({
     <PageLayout
       title="Loading..."
       backLink={backLink}
-      backLabel="Back to Encounter"
+      backLabel="Back to Encounters"
     >
       <div className="flex items-center justify-center py-16">
         <div className="text-center">
