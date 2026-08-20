@@ -46,6 +46,9 @@ try { let value;
   else if(q.action==='tamper'||q.action==='unvalidated'){const {record}=await seedReviewed();if(q.action==='tamper')fs.writeFileSync(path.join(record.directory,'wave-result.json'),'tamper');else {const command={...record.command,unexpected:true}, commandBytes=canonicalBytes(command), manifest={...record.manifest,entries:record.manifest.entries.map((entry)=>entry.path==='command-result.json'?{...entry,size:Buffer.byteLength(commandBytes),digest:digestBytes(commandBytes)}:entry)};fs.writeFileSync(path.join(record.directory,'command-result.json'),commandBytes);fs.writeFileSync(path.join(record.directory,'receipt-manifest.json'),canonicalBytes(manifest));}await factsModule.createDurableFacts({initiatingRoot:root},dependencies).readIndex();value=true;}
   else if(q.action==='missing-predecessor'){const seams=factsModule.createDurableFacts({initiatingRoot:root},dependencies), next={...WAVE_CONTRACTS['camp-01a'],predecessors:['camp-proof']};await seams.resolvePreflightFacts({...input('reviewed-head'),row:next});value=true;}
   else if(q.action==='missing-cleanup'||q.action==='cleanup'){const {seams}=await seedExact(), index=await seams.readIndex(), exact=index.records.find((entry)=>entry.mode==='exact-main');if(q.action==='cleanup'){const cleanupRoot=path.join(root,'.sisyphus','evidence','playtest','.camp01-cleanups');fs.mkdirSync(cleanupRoot,{recursive:true});const cleanup={schema:'camp01-cleanup/v1',wave:'camp-proof',runId:exact.runId,receiptDigest:exact.manifestDigest,productWorktreeRemoved:true,proofWorktreeRemoved:true,localWaveBranchRemoved:true,initiatingTrackedTreeClean:true,durableReceiptRevalidated:true};validateArtifact(cleanup);fs.writeFileSync(path.join(cleanupRoot,'camp-proof-'+exact.runId+'-wave-cleanup.json'),canonicalBytes(cleanup));}const next={...WAVE_CONTRACTS['camp-01a'],predecessors:['camp-proof']}, current=input('reviewed-head'), preflight=await seams.resolvePreflightFacts({...current,row:next,arguments:{...current.arguments,programSpecs:[]}});value=validatePreflight(next,preflight);}
+  else if(q.action==='repairs-context'||q.action==='repairs-context-missing'||q.action==='repairs-context-composed'){const triageRecord={wave:'proof-02-triage',mode:'exact-main',runId:'camp01-'+'7'.repeat(32),receiptId:'receipt-'+'2'.repeat(16),row:WAVE_CONTRACTS['proof-02-triage'],context:{registryContext:{provenance:[]}},artifacts:{}}, records=q.action==='repairs-context-missing'?[{...triageRecord,mode:'reviewed-head'}]:[triageRecord];
+    if(q.action==='repairs-context-composed'){const candidate={row:WAVE_CONTRACTS['camp-01h'],command:{mode:'reviewed-head',sha:'a'.repeat(40),provenance:{specTupleId:'tuple-'+'1'.repeat(16),ownedPrTupleId:null,predecessorReceiptIds:['receipt-'+'3'.repeat(16),'receipt-'+'2'.repeat(16),'receipt-'+'4'.repeat(16),'receipt-'+'5'.repeat(16)]},identityRegistry:{refs:[]}},artifacts:{},registration:null};value=factsModule.contextFor(candidate,records).repairs;}
+    else value=factsModule.repairsReopenContext(records);}
   else if(q.action==='session-default'){const session=factsModule.freshSessionDirectory('camp01-6b1-row-');value={childAbsent:!fs.existsSync(session),parentPresent:fs.existsSync(path.dirname(session)),secondDistinct:factsModule.freshSessionDirectory('camp01-6b1-row-')!==session};}
   else if(q.action==='composition'||q.action==='composition-fresh'){const cleanupRoot=path.join(root,'.sisyphus','evidence','playtest','.camp01-cleanups');if(q.action==='composition')fs.mkdirSync(cleanupRoot,{recursive:true});const target={kind:'owned',subject:'product',canonicalPath:root,gitWorktreeId:path.join(root,'.git'),expectedHead:reviewedSha,branchRef:'refs/heads/main',oldOid:reviewedSha,cleanManifest:[],nonReparse:true,initiating:true}, deps=await factsModule.createProductionDependencies({initiatingRoot:root,initiatingTarget:target},{git:{executable:path.join(root,'git')},fetchGitHubResource:()=>{throw new Error('network forbidden')}});value=['stateStore','inspectOwnedTarget','inspectRowRoot','verifyPreflight','resolveRepairRegistration','createProofTarget','prepareEnvironment','observeCleanState','executeReceipt','invokePublicValidator','exportReceipt','cleanupTargets'].every((name)=>name==='stateStore'?deps[name]&&typeof deps[name].load==='function':typeof deps[name]==='function');}
   else if(q.action==='registry-gate'){const wave='proof-02-repair-'+'f'.repeat(64), dynamic={...WAVE_CONTRACTS['camp-00'],wave,commandId:wave,runRootTemplate:'.sisyphus/evidence/playtest/'+wave+'-<sha>'}, repairRegistry={discover:()=>[{wave,row:dynamic}]}, seams=factsModule.createDurableFacts({initiatingRoot:root},{...dependencies,repairRegistry}), parent={...WAVE_CONTRACTS['camp-00'],predecessors:['proof-02-required-repairs'],capSubject:'none'}, current=input('reviewed-head');value=(await seams.resolvePreflightFacts({...current,row:parent,arguments:{...current.arguments,programSpecs:[]}})).repairGates[0];}
@@ -161,6 +164,32 @@ describe('CAMP-01 durable facts and production composition', () => {
   it('assembles the controller against a fresh evidence tree with no pre-created cleanup root', () => {
     // Given no .camp01-cleanups directory, when production composition runs, then it provisions the root itself.
     expect(invoke('composition-fresh')).toEqual({ ok: true, value: true });
+  });
+
+  it('composes the camp-01h repairs reopen context from the durable triage exact-main run', () => {
+    // Given a durable triage exact-main record, when the helper composes, then parentRunId binds to its run.
+    expect(invoke('repairs-context')).toEqual({
+      ok: true,
+      value: { parentRunId: `camp01-${'7'.repeat(32)}` },
+    });
+  });
+
+  it('fails closed when no durable triage exact-main record exists for the repairs context', () => {
+    // Given only a reviewed-head triage record, when the helper composes, then it rejects by exact message.
+    expect(invoke('repairs-context-missing')).toEqual({
+      ok: false,
+      error:
+        'CAMP01_FACTS_INVALID: camp-01h repairs context missing durable triage receipt',
+      name: 'Camp01FactsError',
+    });
+  });
+
+  it('routes the repairs reopen context through contextFor for camp-01h candidates', () => {
+    // Given a camp-01h candidate, when contextFor composes, then the repairs context rides the validator payload.
+    expect(invoke('repairs-context-composed')).toEqual({
+      ok: true,
+      value: { parentRunId: `camp01-${'7'.repeat(32)}` },
+    });
   });
 
   it('yields a collision-free session directory that does not exist yet', () => {
