@@ -292,6 +292,23 @@ describe('CAMP-01 authority receipt writer and validator', () => {
     ).toBe(true);
   });
 
+  it('rejects a G registry carrying fabricated entities beyond the uniqued slot set', () => {
+    // Given extra registry entities no report slot names, when the receipt validates,
+    // then exact-set equality rejects them — coverage alone must never admit extras.
+    const written = writeCamp01g((entities) => [
+      ...entities,
+      {
+        kind: 'unit-ref',
+        digest: `sha256:${'e'.repeat(64)}`,
+        sourceEvidenceId: entities[0].sourceEvidenceId,
+      },
+    ]);
+    expect(written).toMatchObject({
+      ok: false,
+      error: expect.stringContaining('authority identity registry drift'),
+    });
+  });
+
   it('rejects a G registry that omits a slot digest even when other slots unique', () => {
     const written = writeCamp01g((entities) =>
       entities.filter((entry) => entry.kind === 'roster-instance'),
