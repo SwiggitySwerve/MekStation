@@ -26,14 +26,35 @@ jest.mock('@/components/ui', () => ({
   ),
 }));
 
+const mockCreateCampaign = jest.fn(() => 'campaign-host');
+const mockGetCampaign = jest.fn<unknown, []>(() => null);
+const mockUpdateCampaign = jest.fn();
+
 jest.mock('@/stores/campaign/useCampaignStore', () => ({
   useCampaignStore: () => ({
     getState: () => ({
-      createCampaign: jest.fn(),
-      getCampaign: jest.fn(),
+      createCampaign: mockCreateCampaign,
+      getCampaign: mockGetCampaign,
+      updateCampaign: mockUpdateCampaign,
       createGuestMirrorCampaign: jest.fn(),
     }),
   }),
+}));
+
+const mockSaveCampaign = jest.fn(async () => ({
+  status: 'saved' as const,
+  record: {} as never,
+  retriedConflict: false,
+}));
+
+jest.mock('@/stores/campaign/useCampaignPersistenceStore', () => ({
+  useCampaignPersistenceStore: {
+    getState: () => ({ saveCampaign: mockSaveCampaign }),
+  },
+}));
+
+jest.mock('@/lib/campaign/coop/campaignAuthoritativeState', () => ({
+  buildCampaignAuthoritativeState: jest.fn(() => ({})),
 }));
 
 jest.mock('@/stores/campaign/useCampaignRosterStore', () => ({
@@ -61,6 +82,14 @@ describe('CampaignCoopEntryPanel onboarding affordances', () => {
   beforeEach(() => {
     mockRouterPush.mockReset();
     mockFetch.mockReset();
+    mockCreateCampaign.mockClear();
+    mockGetCampaign.mockReset().mockReturnValue(null);
+    mockUpdateCampaign.mockClear();
+    mockSaveCampaign.mockClear().mockResolvedValue({
+      status: 'saved' as const,
+      record: {} as never,
+      retriedConflict: false,
+    });
     global.fetch = mockFetch as unknown as typeof fetch;
   });
 
@@ -164,6 +193,99 @@ describe('CampaignCoopEntryPanel onboarding affordances', () => {
         name: 'Set up your vault identity in Settings',
       }),
     ).not.toBeInTheDocument();
+  });
+
+  it('persists the host campaign to the server before registering the match', async () => {
+    // Per campaign-authority "Creation lands in the server store
+    // immediately": the campaign save must be accepted before the match
+    // POST references it and before the lobby acknowledges creation.
+    mockGetCampaign.mockReturnValue({ id: 'campaign-host' });
+    mockFetch.mockImplementation(async (url: string) => {
+      if (url === '/api/multiplayer/auth/token') {
+        return {
+          ok: true,
+          status: 200,
+          json: async () => ({
+            token: 'wire-token',
+            playerId: 'pid_host',
+            displayName: 'Host',
+          }),
+        } as Response;
+      }
+      if (url === '/api/multiplayer/matches') {
+        return {
+          ok: true,
+          status: 201,
+          json: async () => ({
+            matchId: 'match-1',
+            roomCode: 'ROOMAA',
+            meta: { roomCode: 'ROOMAA' },
+          }),
+        } as Response;
+      }
+      return { ok: false, status: 404, json: async () => ({}) } as Response;
+    });
+
+    render(<CampaignCoopEntryPanel />);
+    fireEvent.change(screen.getByTestId('create-coop-password-input'), {
+      target: { value: 'vault-password' },
+    });
+    fireEvent.click(screen.getByTestId('create-coop-campaign-btn'));
+
+    await waitFor(() => {
+      expect(mockRouterPush).toHaveBeenCalledWith(
+        '/gameplay/campaigns/campaign-host',
+      );
+    });
+    expect(mockSaveCampaign).toHaveBeenCalledTimes(1);
+    const matchesCall = mockFetch.mock.calls.find(
+      ([url]) => url === '/api/multiplayer/matches',
+    );
+    expect(matchesCall).toBeDefined();
+    const saveOrder = mockSaveCampaign.mock.invocationCallOrder[0];
+    const matchesOrder =
+      mockFetch.mock.invocationCallOrder[
+        mockFetch.mock.calls.findIndex(
+          ([url]) => url === '/api/multiplayer/matches',
+        )
+      ];
+    expect(saveOrder).toBeLessThan(matchesOrder);
+  });
+
+  it('fails creation closed when the server save is not accepted', async () => {
+    mockGetCampaign.mockReturnValue({ id: 'campaign-host' });
+    mockSaveCampaign.mockResolvedValue({
+      status: 'error' as const,
+      errorMessage: 'server responded 500',
+      retriedConflict: false,
+    } as never);
+    mockFetch.mockImplementation(async (url: string) => {
+      if (url === '/api/multiplayer/auth/token') {
+        return {
+          ok: true,
+          status: 200,
+          json: async () => ({
+            token: 'wire-token',
+            playerId: 'pid_host',
+            displayName: 'Host',
+          }),
+        } as Response;
+      }
+      return { ok: false, status: 404, json: async () => ({}) } as Response;
+    });
+
+    render(<CampaignCoopEntryPanel />);
+    fireEvent.change(screen.getByTestId('create-coop-password-input'), {
+      target: { value: 'vault-password' },
+    });
+    fireEvent.click(screen.getByTestId('create-coop-campaign-btn'));
+
+    const errorNotice = await screen.findByTestId('create-coop-unavailable');
+    expect(errorNotice).toHaveTextContent('server responded 500');
+    expect(
+      mockFetch.mock.calls.some(([url]) => url === '/api/multiplayer/matches'),
+    ).toBe(false);
+    expect(mockRouterPush).not.toHaveBeenCalled();
   });
 
   it('keeps an empty create password error generic', async () => {

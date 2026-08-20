@@ -185,6 +185,25 @@ jest.mock('@/stores/campaign/useCampaignStore', () => ({
   useCampaignStore: () => mockCampaignStoreApi,
 }));
 
+// The co-op create flow persists the host campaign server-side before
+// registering the match (campaign-authority "Creation lands in the server
+// store immediately"); keep that seam mocked like the rest of the
+// persistence layer.
+const mockSaveCampaign = jest.fn(async () => ({
+  status: 'saved' as const,
+  record: {} as never,
+  retriedConflict: false,
+}));
+
+jest.mock('@/stores/campaign/useCampaignPersistenceStore', () => ({
+  useCampaignPersistenceStore: {
+    getState: () => ({
+      saveCampaign: mockSaveCampaign,
+      loadCampaign: jest.fn(async () => true),
+    }),
+  },
+}));
+
 // Import the page AFTER the mocks so they take effect.
 import CampaignsListPage from '@/pages/gameplay/campaigns/index';
 
