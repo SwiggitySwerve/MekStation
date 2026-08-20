@@ -42,6 +42,7 @@ export function createCampaignStore(): StoreApi<CampaignStore> {
     persist(
       (set, get) => ({
         campaign: null,
+        rehydratedCampaignId: null,
         pendingBattleOutcomes: [],
         processedBattleIds: [],
         reviewedBattleIds: {},
@@ -102,6 +103,7 @@ export function createCampaignStore(): StoreApi<CampaignStore> {
             return {
               ...current,
               campaign: null,
+              rehydratedCampaignId: null,
               forcesStore: null,
               missionsStore: null,
               activityLog,
@@ -116,6 +118,7 @@ export function createCampaignStore(): StoreApi<CampaignStore> {
           return {
             ...current,
             campaign,
+            rehydratedCampaignId: campaign.id,
             pendingBattleOutcomes: serialized.pendingBattleOutcomes,
             processedBattleIds: serialized.processedBattleIds,
             reviewedBattleIds: serialized.reviewedBattleIds,

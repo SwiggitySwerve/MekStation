@@ -51,6 +51,14 @@ export interface IGuestMirrorSnapshot {
 
 export interface CampaignState {
   campaign: ICampaign | null;
+  /**
+   * Id of the campaign that entered this store via storage rehydration (a
+   * browser cache of unknown freshness), or null when the current campaign
+   * was created/loaded in-session. Per campaign-authority ("Client storage
+   * is a cache, never a source"), the route loader head-validates exactly
+   * the rehydrated copy against the server before trusting it.
+   */
+  rehydratedCampaignId: string | null;
   pendingBattleOutcomes: ICombatOutcome[];
   processedBattleIds: string[];
   reviewedBattleIds: Record<string, number>;

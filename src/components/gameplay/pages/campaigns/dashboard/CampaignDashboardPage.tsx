@@ -79,10 +79,15 @@ export default function CampaignDashboardPage(): React.ReactElement {
   const missionCount = rosterStore((state) => state.missionCount);
 
   const isClient = useClientReady();
+  const rehydratedCampaignId = useStore(
+    store,
+    (state) => state.rehydratedCampaignId,
+  );
   const routeLoader = useCampaignRouteLoader({
     campaign: liveCampaign as ICampaign | null,
     isClient,
     router,
+    rehydratedCampaignId,
   });
   const campaign = routeLoader.campaign as CampaignDashboardCampaign | null;
 
