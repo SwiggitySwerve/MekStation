@@ -147,6 +147,11 @@ async function makeOneCampaignRefitChange(page: Page): Promise<void> {
   await expect(page.getByTestId('campaign-refit-save')).toBeEnabled();
 }
 
+// Cold-cache dev-server compiles can consume the whole 30s default before the
+// customizer bundle's first paint; match the widened budget the other two
+// quick-suite specs (starmap-logistics, gm-campaign-ledger) already use.
+test.setTimeout(120_000);
+
 test.describe('campaign customizer handoff @campaign @customizer', () => {
   // Runs once after the whole describe block (== whole file, single
   // describe), not after each test: intra-file tests may chain on state a
