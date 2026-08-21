@@ -13,6 +13,7 @@
 import Database from 'better-sqlite3';
 
 import { EVENT_JOURNAL_MIGRATION } from './SQLiteService.eventJournal.migration';
+import { REPLAY_CHECKPOINTS_MIGRATION } from './SQLiteService.replayCheckpoints.migration';
 
 /**
  * Migration definition. `up` is either a raw SQL script or a function —
@@ -365,4 +366,5 @@ export const MIGRATIONS: readonly IMigration[] = [
       );
     `,
   },
+  REPLAY_CHECKPOINTS_MIGRATION,
 ];
