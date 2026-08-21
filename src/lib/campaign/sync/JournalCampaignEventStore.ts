@@ -44,6 +44,7 @@ import {
   type IStoredEvent,
 } from '@/lib/events/journal/EventJournalContract';
 
+import { campaignEventEntityRefs } from './campaignEventEntityRefs';
 import {
   CampaignEventSequenceCollisionError,
   type ICampaignEventStore,
@@ -132,9 +133,9 @@ function toAppendEvent(
     causationEventIds: [],
     occurredAt: event.ts,
     payload: { campaignEvent: event, expectedPostStateDigest },
-    entityRefs: [
-      { entityType: 'campaign', entityId: campaignId, role: 'subject' },
-    ],
+    // Task 5.3: the full durable identity chain (campaign, campaign-unit,
+    // canonical/saved source, pilot, contract, session) per event type.
+    entityRefs: campaignEventEntityRefs(campaignId, event),
   };
 }
 
