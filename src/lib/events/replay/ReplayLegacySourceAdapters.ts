@@ -58,6 +58,14 @@ export const LEGACY_SOURCE_FORMATS: readonly ILegacySourceFormat[] =
       description:
         'Versionless ICampaignEvent envelopes delivered over the co-op campaign-sync transport',
     }),
+    // Registered by replay-safety PR 19B (live catch-up integration).
+    Object.freeze({
+      formatId: 'match-broadcast',
+      formatVersion: 1,
+      binding: 'object-backed' as const,
+      description:
+        'Versionless IGameEvent payloads delivered over the multiplayer match wire broadcast/replay stream',
+    }),
   ]);
 
 export type LegacySourceAttributionCode =

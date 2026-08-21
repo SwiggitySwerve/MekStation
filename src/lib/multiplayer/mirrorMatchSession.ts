@@ -29,6 +29,11 @@
  */
 
 import {
+  gateReplaySurfaceHistory,
+  type IReplaySurfaceBlockedEvent,
+  type IReplaySurfaceReport,
+} from '@/lib/events/replay/ReplaySurfaceGate';
+import {
   GameEventType,
   isGameEvent,
   type IGameEvent,
@@ -99,14 +104,65 @@ export function orderGameEvents(raw: readonly unknown[]): IGameEvent[] {
 export function buildMirrorSession(
   rawEvents: readonly unknown[],
 ): IGameSession | null {
+  const gated = buildMirrorSessionGated(rawEvents);
+  return gated.kind === 'session' ? gated.session : null;
+}
+
+export type MirrorSessionGateResult =
+  | { readonly kind: 'pending' }
+  | {
+      readonly kind: 'blocked';
+      readonly streamId: string;
+      readonly blockedEvents: readonly IReplaySurfaceBlockedEvent[];
+    }
+  | {
+      readonly kind: 'session';
+      readonly session: IGameSession;
+      readonly events: readonly IGameEvent[];
+      readonly report: IReplaySurfaceReport;
+    };
+
+/**
+ * Live catch-up through the registered replay pipeline (replay-safety
+ * PR 19B): the ordered broadcast/replay stream is gated as
+ * `match-broadcast` object-backed history - legacy attribution over
+ * each event's JSON image, composed baseline schemas, provenance,
+ * census projection - BEFORE the mirror hydrates. A blocked gate
+ * publishes NO partial mirror (the surface keeps its non-session
+ * state and receives the typed evidence); an accepted gate hydrates
+ * the GATED envelopes, and the report carries the same identity septet
+ * cold recovery reports for the same history. Fog omissions are fine -
+ * the gate validates each PRESENT event; it demands no contiguity.
+ */
+export function buildMirrorSessionGated(
+  rawEvents: readonly unknown[],
+): MirrorSessionGateResult {
   const ordered = orderGameEvents(rawEvents);
-  if (ordered.length === 0) return null;
+  if (ordered.length === 0) return { kind: 'pending' };
   // The seed event MUST be `GameCreated` for `hydrateGameSessionFromEvents`
   // to recover the config + unit roster. A fog-on stream can omit
   // mid-match events but never the public `GameCreated` seed, so the
   // mirror always has a roster to render.
-  if (ordered[0].type !== GameEventType.GameCreated) return null;
-  return hydrateGameSessionFromEvents(ordered[0].gameId, ordered);
+  if (ordered[0].type !== GameEventType.GameCreated) return { kind: 'pending' };
+  const streamId = ordered[0].gameId;
+  const gated = gateReplaySurfaceHistory(ordered, {
+    surfaceId: 'live-catch-up',
+    streamId,
+    formatId: 'match-broadcast',
+    formatVersion: 1,
+  });
+  if (gated.kind === 'blocked')
+    return {
+      kind: 'blocked',
+      streamId,
+      blockedEvents: gated.blockedEvents,
+    };
+  return {
+    kind: 'session',
+    session: hydrateGameSessionFromEvents(streamId, [...gated.events]),
+    events: gated.events,
+    report: gated.report,
+  };
 }
 
 /**

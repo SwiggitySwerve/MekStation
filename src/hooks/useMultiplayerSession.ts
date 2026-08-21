@@ -33,6 +33,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
+import type { IReplaySurfaceBlockedEvent } from '@/lib/events/replay/ReplaySurfaceGate';
 import type {
   IClientAuth,
   IConnectOptions,
@@ -50,8 +51,8 @@ import type {
 
 import { toServerIntent } from '@/lib/multiplayer/gameIntentMap';
 import {
-  buildMirrorSession,
-  mirrorEvents as deriveMirrorEvents,
+  buildMirrorSessionGated,
+  type MirrorSessionGateResult,
 } from '@/lib/multiplayer/mirrorMatchSession';
 
 import {
@@ -141,6 +142,11 @@ export interface IUseMultiplayerSessionResult {
    * to `HexMapDisplay` for animations and effect overlays.
    */
   readonly mirrorEvents: readonly IGameEvent[];
+  /**
+   * Typed per-event gate evidence when live catch-up is blocked by the
+   * replay pipeline (replay-safety PR 19B); null while healthy/pending.
+   */
+  readonly mirrorBlocked: readonly IReplaySurfaceBlockedEvent[] | null;
   /**
    * Send a player action: wraps the `IGameIntent` in an `Intent`
    * envelope and forwards it over the socket. The client does NOT
@@ -255,14 +261,21 @@ export function useMultiplayerSession(
   // Build the mirror session + its event list from the uncapped log.
   // Memoised on the log identity so a re-render that does not change
   // the event stream reuses the prior immutable session.
-  const mirrorSession = useMemo(
-    () => buildMirrorSession(mirrorLog),
+  // Replay-safety PR 19B: the mirror is gated - a blocked stream
+  // publishes NO partial session/event list; the typed evidence is
+  // exposed for the truthful blocked-state UI (PR 20).
+  const mirrorGate: MirrorSessionGateResult = useMemo(
+    () => buildMirrorSessionGated(mirrorLog),
     [mirrorLog],
   );
+  const mirrorSession =
+    mirrorGate.kind === 'session' ? mirrorGate.session : null;
   const mirrorEvents = useMemo(
-    () => deriveMirrorEvents(mirrorLog),
-    [mirrorLog],
+    () => (mirrorGate.kind === 'session' ? mirrorGate.events : []),
+    [mirrorGate],
   );
+  const mirrorBlocked =
+    mirrorGate.kind === 'blocked' ? mirrorGate.blockedEvents : null;
 
   const sendGameIntent = useCallback((intent: IGameIntent): boolean => {
     if (!clientRef.current) return false;
@@ -285,6 +298,7 @@ export function useMultiplayerSession(
     lastSeq,
     mirrorSession,
     mirrorEvents,
+    mirrorBlocked,
     sendGameIntent,
     intentError,
     clearIntentError,

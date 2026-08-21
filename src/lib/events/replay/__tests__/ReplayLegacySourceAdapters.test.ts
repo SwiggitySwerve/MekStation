@@ -51,13 +51,15 @@ const campaignEnvelope = {
 };
 
 describe('legacy source-format adapters', () => {
-  it('names exactly the three readable versionless formats', () => {
+  it('names exactly the four readable versionless formats', () => {
     expect(
       LEGACY_SOURCE_FORMATS.map((f) => `${f.formatId}@${f.formatVersion}`),
     ).toEqual([
       'simulation-report-jsonl@1',
       'match-log-idb@2',
       'campaign-sync-envelope@1',
+      // Added by replay-safety PR 19B for the live catch-up surface.
+      'match-broadcast@1',
     ]);
     expect(Object.isFrozen(LEGACY_SOURCE_FORMATS)).toBe(true);
   });

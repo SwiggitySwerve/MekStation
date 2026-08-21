@@ -166,6 +166,45 @@ export function buildReplaySurfaceReport(options: {
  * Gates one object-backed stored history (cold recovery, snapshot
  * hydration) through the registered pipeline.
  */
+/**
+ * Source formats whose payloads carry HOST STAMPS: the multiplayer
+ * server stamps each intent tick's dice capture (`rolls: number[]`)
+ * and the accepted `intentId` onto the FIRST event's payload
+ * (ServerMatchHostEvents.stampRollsOnNewEvents / stampIntentIdOnNewEvents,
+ * per harden-multiplayer-transport D7). These are transport/persistence
+ * bookkeeping, NOT canonical event payload fields - the stamp even
+ * OVERWRITES a payload's own optional `rolls` with the tick capture -
+ * so the gate extracts them uniformly before canonical validation.
+ * Consumed envelopes KEEP the stamps (intent dedup + dice display
+ * depend on them); the validated-canonical vs consumed-stamped delta
+ * is limited to exactly these two declared keys.
+ */
+const HOST_STAMPED_FORMATS: ReadonlySet<string> = new Set(['match-broadcast']);
+
+const HOST_STAMP_KEYS = ['rolls', 'intentId'] as const;
+
+function splitHostStamps(
+  formatId: string,
+  payload: unknown,
+): { canonical: unknown; stamped: boolean } {
+  if (
+    !HOST_STAMPED_FORMATS.has(formatId) ||
+    payload === null ||
+    typeof payload !== 'object' ||
+    Array.isArray(payload)
+  )
+    return { canonical: payload, stamped: false };
+  const record = payload as Record<string, unknown>;
+  if (HOST_STAMP_KEYS.every((key) => !(key in record)))
+    return { canonical: payload, stamped: false };
+  const canonical: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(record)) {
+    if (!(HOST_STAMP_KEYS as readonly string[]).includes(key))
+      canonical[key] = value;
+  }
+  return { canonical, stamped: true };
+}
+
 export function gateReplaySurfaceHistory(
   storedEvents: readonly unknown[],
   options: {
@@ -224,10 +263,11 @@ export function gateReplaySurfaceHistory(
           1,
           'Stored record is not a valid IGameEvent envelope',
         );
+      const { canonical } = splitHostStamps(options.formatId, envelope.payload);
       const upcast = REPLAY_SURFACE_REGISTRY.upcast(
         envelope.type,
         attributed.schemaVersion,
-        envelope.payload,
+        canonical,
       );
       assertReplayInputProvenance(upcast.eventType, upcast.payload);
       census = REPLAY_LIBRARY_CENSUS_PROJECTOR.project(census, upcast);
