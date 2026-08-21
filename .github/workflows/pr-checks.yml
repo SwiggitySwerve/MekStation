@@ -611,9 +611,17 @@ jobs:
         run: npm test -- --runInBand
 
   # Aggregator that preserves the "Lint and Test" required-check name
-  # from before the fan-out. Passes only if every fan-out job passed.
+  # from before the fan-out. Runs UNCONDITIONALLY (if: always()) and
+  # fails unless every needed job's result is 'success' — GitHub counts
+  # a needs-skipped required check as passing, so without the assertion
+  # a failed fan-out job skips this aggregator and the PR shows green
+  # (the run-29059132882 hole; W6 design D2.3/R10). 'skipped' and
+  # 'cancelled' results are defects too: no needed job carries a
+  # job-level `if:` (verified in W6 task 1.1), so anything other than
+  # 'success' means a real failure upstream.
   lint-and-test:
     name: Lint and Test
+    if: always()
     needs:
       [
         lint,
@@ -637,8 +645,18 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 1
     steps:
-      - name: All fan-out checks passed
-        run: echo "All fan-out checks passed"
+      - name: Assert every fan-out check succeeded
+        env:
+          NEEDS_JSON: ${{ toJSON(needs) }}
+        shell: bash
+        run: |
+          failed=$(echo "$NEEDS_JSON" | jq -r 'to_entries[] | select(.value.result != "success") | "\(.key)=\(.value.result)"')
+          if [ -n "$failed" ]; then
+            echo "Non-success needed jobs:"
+            echo "$failed"
+            exit 1
+          fi
+          echo "All fan-out checks passed"
 
   # prepare-build always runs (to satisfy branch-protection required check
   # names), but its work is gated per-step on detect-changes.outputs.code.
