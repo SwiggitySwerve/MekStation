@@ -22,42 +22,46 @@ import { gotoWithRetry } from './helpers/navigation';
 
 test.setTimeout(120_000);
 
-test.describe('Wave 6.1.C — Hiring Hall subsystem', () => {
-  test('hiring panel renders + hire flow updates store', async ({ page }) => {
-    await page.goto('/gameplay/campaigns');
-    await page.waitForLoadState('domcontentloaded');
+test.describe(
+  'Wave 6.1.C — Hiring Hall subsystem',
+  { tag: ['@subsystem:personnel'] },
+  () => {
+    test('hiring panel renders + hire flow updates store', async ({ page }) => {
+      await page.goto('/gameplay/campaigns');
+      await page.waitForLoadState('domcontentloaded');
 
-    const campaignId = await createTestCampaign(page, {
-      name: 'Subsystem Hiring',
-    });
-
-    try {
-      await gotoWithRetry(page, `/gameplay/campaigns/${campaignId}/hiring`);
-
-      // Seed the market in case the page didn't auto-seed
-      // (depends on `generatePersonnelForDay`'s rng output).
-      await seedHiringHall(page, [
-        {
-          offerId: 'hire-offer-test-1',
-          pilotName: 'Test Pilot Alpha',
-          hireBonus: 5000,
-        },
-      ]);
-
-      // The page bumps its action-tick state after a hire — re-navigate
-      // so the seeded market is read on first paint.
-      await gotoWithRetry(page, `/gameplay/campaigns/${campaignId}/hiring`);
-
-      // The primary output element is the candidate grid.
-      // The grid testid pattern is per the audit: `hiring-panel-grid`.
-      // If the existing component uses a different selector, the spec
-      // surfaces that as a real defect against the audit's claim.
-      const grid = page.getByTestId('hiring-panel-grid');
-      await expect(grid, 'hiring panel grid SHALL render').toBeVisible({
-        timeout: 10_000,
+      const campaignId = await createTestCampaign(page, {
+        name: 'Subsystem Hiring',
       });
-    } finally {
-      await deleteCampaign(page, campaignId);
-    }
-  });
-});
+
+      try {
+        await gotoWithRetry(page, `/gameplay/campaigns/${campaignId}/hiring`);
+
+        // Seed the market in case the page didn't auto-seed
+        // (depends on `generatePersonnelForDay`'s rng output).
+        await seedHiringHall(page, [
+          {
+            offerId: 'hire-offer-test-1',
+            pilotName: 'Test Pilot Alpha',
+            hireBonus: 5000,
+          },
+        ]);
+
+        // The page bumps its action-tick state after a hire — re-navigate
+        // so the seeded market is read on first paint.
+        await gotoWithRetry(page, `/gameplay/campaigns/${campaignId}/hiring`);
+
+        // The primary output element is the candidate grid.
+        // The grid testid pattern is per the audit: `hiring-panel-grid`.
+        // If the existing component uses a different selector, the spec
+        // surfaces that as a real defect against the audit's claim.
+        const grid = page.getByTestId('hiring-panel-grid');
+        await expect(grid, 'hiring panel grid SHALL render').toBeVisible({
+          timeout: 10_000,
+        });
+      } finally {
+        await deleteCampaign(page, campaignId);
+      }
+    });
+  },
+);

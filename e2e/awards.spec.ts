@@ -285,194 +285,206 @@ async function grantAward(
 // Award Store Tests
 // =============================================================================
 
-test.describe('Awards Store @awards @gameplay', () => {
-  test.beforeEach(async ({ page }) => {
-    // Navigate to any page to initialize stores
-    await page.goto('/');
-    await waitForHydration(page);
-    await waitForAwardStoreReady(page);
-  });
+test.describe(
+  'Awards Store @awards @gameplay',
+  { tag: ['@subsystem:experience'] },
+  () => {
+    test.beforeEach(async ({ page }) => {
+      // Navigate to any page to initialize stores
+      await page.goto('/');
+      await waitForHydration(page);
+      await waitForAwardStoreReady(page);
+    });
 
-  test('can get pilot stats', async ({ page }) => {
-    const pilotId = generateTestPilotId();
-    const stats = await getPilotStats(page, pilotId);
+    test('can get pilot stats', async ({ page }) => {
+      const pilotId = generateTestPilotId();
+      const stats = await getPilotStats(page, pilotId);
 
-    expect(stats).not.toBeNull();
-    expect(stats?.combat.totalKills).toBe(0);
-    expect(stats?.combat.totalDamageDealt).toBe(0);
-    expect(stats?.career.missionsCompleted).toBe(0);
-  });
+      expect(stats).not.toBeNull();
+      expect(stats?.combat.totalKills).toBe(0);
+      expect(stats?.combat.totalDamageDealt).toBe(0);
+      expect(stats?.career.missionsCompleted).toBe(0);
+    });
 
-  test('can record kills', async ({ page }) => {
-    const pilotId = generateTestPilotId();
+    test('can record kills', async ({ page }) => {
+      const pilotId = generateTestPilotId();
 
-    // Record 3 kills
-    await recordKill(page, pilotId);
-    await recordKill(page, pilotId);
-    await recordKill(page, pilotId);
+      // Record 3 kills
+      await recordKill(page, pilotId);
+      await recordKill(page, pilotId);
+      await recordKill(page, pilotId);
 
-    const stats = await getPilotStats(page, pilotId);
-    expect(stats?.combat.totalKills).toBe(3);
-  });
+      const stats = await getPilotStats(page, pilotId);
+      expect(stats?.combat.totalKills).toBe(3);
+    });
 
-  test('can record damage', async ({ page }) => {
-    const pilotId = generateTestPilotId();
+    test('can record damage', async ({ page }) => {
+      const pilotId = generateTestPilotId();
 
-    // Record 150 damage
-    await recordDamage(page, pilotId, 100);
-    await recordDamage(page, pilotId, 50);
+      // Record 150 damage
+      await recordDamage(page, pilotId, 100);
+      await recordDamage(page, pilotId, 50);
 
-    const stats = await getPilotStats(page, pilotId);
-    expect(stats?.combat.totalDamageDealt).toBe(150);
-  });
+      const stats = await getPilotStats(page, pilotId);
+      expect(stats?.combat.totalDamageDealt).toBe(150);
+    });
 
-  test('can record mission completion', async ({ page }) => {
-    const pilotId = generateTestPilotId();
+    test('can record mission completion', async ({ page }) => {
+      const pilotId = generateTestPilotId();
 
-    // Complete 2 missions
-    await recordMissionComplete(page, pilotId, true);
-    await recordMissionComplete(page, pilotId, true);
+      // Complete 2 missions
+      await recordMissionComplete(page, pilotId, true);
+      await recordMissionComplete(page, pilotId, true);
 
-    const stats = await getPilotStats(page, pilotId);
-    expect(stats?.career.missionsCompleted).toBe(2);
-  });
+      const stats = await getPilotStats(page, pilotId);
+      expect(stats?.career.missionsCompleted).toBe(2);
+    });
 
-  test('can grant award directly', async ({ page }) => {
-    const pilotId = generateTestPilotId();
+    test('can grant award directly', async ({ page }) => {
+      const pilotId = generateTestPilotId();
 
-    // Grant "First Blood" award
-    const granted = await grantAward(page, pilotId, 'first-blood');
-    expect(granted).toBe(true);
+      // Grant "First Blood" award
+      const granted = await grantAward(page, pilotId, 'first-blood');
+      expect(granted).toBe(true);
 
-    // Verify award is recorded
-    const hasAward = await hasPilotAward(page, pilotId, 'first-blood');
-    expect(hasAward).toBe(true);
-  });
+      // Verify award is recorded
+      const hasAward = await hasPilotAward(page, pilotId, 'first-blood');
+      expect(hasAward).toBe(true);
+    });
 
-  test('can get pilot awards list', async ({ page }) => {
-    const pilotId = generateTestPilotId();
+    test('can get pilot awards list', async ({ page }) => {
+      const pilotId = generateTestPilotId();
 
-    // Grant multiple awards
-    await grantAward(page, pilotId, 'first-blood');
-    await grantAward(page, pilotId, 'survivor');
+      // Grant multiple awards
+      await grantAward(page, pilotId, 'first-blood');
+      await grantAward(page, pilotId, 'survivor');
 
-    // Check awards list
-    const awards = await getPilotAwards(page, pilotId);
-    expect(awards.length).toBe(2);
+      // Check awards list
+      const awards = await getPilotAwards(page, pilotId);
+      expect(awards.length).toBe(2);
 
-    const awardIds = awards.map((a) => a.awardId);
-    expect(awardIds).toContain('first-blood');
-    expect(awardIds).toContain('survivor');
-  });
+      const awardIds = awards.map((a) => a.awardId);
+      expect(awardIds).toContain('first-blood');
+      expect(awardIds).toContain('survivor');
+    });
 
-  test('kill awards are evaluated automatically', async ({ page }) => {
-    const pilotId = generateTestPilotId();
+    test('kill awards are evaluated automatically', async ({ page }) => {
+      const pilotId = generateTestPilotId();
 
-    // Record 1 kill - should trigger "First Blood" award
-    await recordKill(page, pilotId);
+      // Record 1 kill - should trigger "First Blood" award
+      await recordKill(page, pilotId);
 
-    // Check if First Blood was automatically awarded
-    const hasFirstBlood = await hasPilotAward(page, pilotId, 'first-blood');
-    expect(hasFirstBlood).toBe(true);
-  });
+      // Check if First Blood was automatically awarded
+      const hasFirstBlood = await hasPilotAward(page, pilotId, 'first-blood');
+      expect(hasFirstBlood).toBe(true);
+    });
 
-  test('mission awards are evaluated automatically', async ({ page }) => {
-    const pilotId = generateTestPilotId();
+    test('mission awards are evaluated automatically', async ({ page }) => {
+      const pilotId = generateTestPilotId();
 
-    // Complete 1 mission - should trigger "Survivor" award
-    await recordMissionComplete(page, pilotId, true);
+      // Complete 1 mission - should trigger "Survivor" award
+      await recordMissionComplete(page, pilotId, true);
 
-    // Check if Survivor was automatically awarded
-    const hasSurvivor = await hasPilotAward(page, pilotId, 'survivor');
-    expect(hasSurvivor).toBe(true);
-  });
-});
+      // Check if Survivor was automatically awarded
+      const hasSurvivor = await hasPilotAward(page, pilotId, 'survivor');
+      expect(hasSurvivor).toBe(true);
+    });
+  },
+);
 
 // =============================================================================
 // Award UI Tests
 // =============================================================================
 
-test.describe('Awards UI @awards @gameplay', () => {
-  test.beforeEach(async ({ page }) => {
-    await page.goto('/');
-    await waitForHydration(page);
-    await waitForAwardStoreReady(page);
-  });
+test.describe(
+  'Awards UI @awards @gameplay',
+  { tag: ['@subsystem:experience'] },
+  () => {
+    test.beforeEach(async ({ page }) => {
+      await page.goto('/');
+      await waitForHydration(page);
+      await waitForAwardStoreReady(page);
+    });
 
-  test('pilots list page loads', async ({ page }) => {
-    await page.goto('/gameplay/pilots');
-    await waitForHydration(page);
+    test('pilots list page loads', async ({ page }) => {
+      await page.goto('/gameplay/pilots');
+      await waitForHydration(page);
 
-    await expect(page).toHaveURL('/gameplay/pilots');
-  });
+      await expect(page).toHaveURL('/gameplay/pilots');
+    });
 
-  test('pilot create page loads', async ({ page }) => {
-    await page.goto('/gameplay/pilots/create');
-    await waitForHydration(page);
+    test('pilot create page loads', async ({ page }) => {
+      await page.goto('/gameplay/pilots/create');
+      await waitForHydration(page);
 
-    await expect(page).toHaveURL('/gameplay/pilots/create');
-  });
-});
+      await expect(page).toHaveURL('/gameplay/pilots/create');
+    });
+  },
+);
 
 // =============================================================================
 // Award Progress Tests
 // =============================================================================
 
-test.describe('Award Progress Tracking @awards @gameplay', () => {
-  test.beforeEach(async ({ page }) => {
-    await page.goto('/');
-    await waitForHydration(page);
-    await waitForAwardStoreReady(page);
-  });
+test.describe(
+  'Award Progress Tracking @awards @gameplay',
+  { tag: ['@subsystem:experience'] },
+  () => {
+    test.beforeEach(async ({ page }) => {
+      await page.goto('/');
+      await waitForHydration(page);
+      await waitForAwardStoreReady(page);
+    });
 
-  test('stats accumulate across multiple actions', async ({ page }) => {
-    const pilotId = generateTestPilotId();
+    test('stats accumulate across multiple actions', async ({ page }) => {
+      const pilotId = generateTestPilotId();
 
-    // Accumulate various stats
-    await recordKill(page, pilotId);
-    await recordKill(page, pilotId);
-    await recordDamage(page, pilotId, 75);
-    await recordDamage(page, pilotId, 25);
-    await recordMissionComplete(page, pilotId, true);
+      // Accumulate various stats
+      await recordKill(page, pilotId);
+      await recordKill(page, pilotId);
+      await recordDamage(page, pilotId, 75);
+      await recordDamage(page, pilotId, 25);
+      await recordMissionComplete(page, pilotId, true);
 
-    const stats = await getPilotStats(page, pilotId);
-    expect(stats?.combat.totalKills).toBe(2);
-    expect(stats?.combat.totalDamageDealt).toBe(100);
-    expect(stats?.career.missionsCompleted).toBe(1);
-  });
+      const stats = await getPilotStats(page, pilotId);
+      expect(stats?.combat.totalKills).toBe(2);
+      expect(stats?.combat.totalDamageDealt).toBe(100);
+      expect(stats?.career.missionsCompleted).toBe(1);
+    });
 
-  test('multiple pilots have independent stats', async ({ page }) => {
-    const pilot1 = generateTestPilotId();
-    const pilot2 = generateTestPilotId();
+    test('multiple pilots have independent stats', async ({ page }) => {
+      const pilot1 = generateTestPilotId();
+      const pilot2 = generateTestPilotId();
 
-    // Different actions for each pilot
-    await recordKill(page, pilot1);
-    await recordKill(page, pilot1);
-    await recordKill(page, pilot2);
+      // Different actions for each pilot
+      await recordKill(page, pilot1);
+      await recordKill(page, pilot1);
+      await recordKill(page, pilot2);
 
-    const stats1 = await getPilotStats(page, pilot1);
-    const stats2 = await getPilotStats(page, pilot2);
+      const stats1 = await getPilotStats(page, pilot1);
+      const stats2 = await getPilotStats(page, pilot2);
 
-    expect(stats1?.combat.totalKills).toBe(2);
-    expect(stats2?.combat.totalKills).toBe(1);
-  });
+      expect(stats1?.combat.totalKills).toBe(2);
+      expect(stats2?.combat.totalKills).toBe(1);
+    });
 
-  test('multiple pilots have independent awards', async ({ page }) => {
-    const pilot1 = generateTestPilotId();
-    const pilot2 = generateTestPilotId();
+    test('multiple pilots have independent awards', async ({ page }) => {
+      const pilot1 = generateTestPilotId();
+      const pilot2 = generateTestPilotId();
 
-    // Grant awards to different pilots
-    await grantAward(page, pilot1, 'first-blood');
-    await grantAward(page, pilot2, 'survivor');
+      // Grant awards to different pilots
+      await grantAward(page, pilot1, 'first-blood');
+      await grantAward(page, pilot2, 'survivor');
 
-    const has1 = await hasPilotAward(page, pilot1, 'first-blood');
-    const has2 = await hasPilotAward(page, pilot1, 'survivor');
-    const has3 = await hasPilotAward(page, pilot2, 'first-blood');
-    const has4 = await hasPilotAward(page, pilot2, 'survivor');
+      const has1 = await hasPilotAward(page, pilot1, 'first-blood');
+      const has2 = await hasPilotAward(page, pilot1, 'survivor');
+      const has3 = await hasPilotAward(page, pilot2, 'first-blood');
+      const has4 = await hasPilotAward(page, pilot2, 'survivor');
 
-    expect(has1).toBe(true);
-    expect(has2).toBe(false);
-    expect(has3).toBe(false);
-    expect(has4).toBe(true);
-  });
-});
+      expect(has1).toBe(true);
+      expect(has2).toBe(false);
+      expect(has3).toBe(false);
+      expect(has4).toBe(true);
+    });
+  },
+);
