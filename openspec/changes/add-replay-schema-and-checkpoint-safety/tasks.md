@@ -134,14 +134,19 @@ Post-merge terminal evidence: before PR 1A implementation resumes, verify these 
   - Receipt (2026-08-21): retention test pins the PSR's consumed d6 pair + machine-readable reasonCode and the DFA's cluster/displacement/roll counts byte-for-byte through validation; the purity contract test pins the pack's runtime imports to `zod` + pure `@/types` modules + replay-local files.
 - [x] 8.4 Run focused physical/PSR tests and applicable quality/review gates.
   - Receipt (2026-08-21): pack contract 22/22; all sibling replay suites 147/147; typecheck/lint/format clean; strict OpenSpec green; independent fresh-context schema review run with verdict + findings recorded in the PR description.
-- [ ] 8.5 After merge, rerun exact main and prune before PR 9A.
+- [x] 8.5 After merge, rerun exact main and prune before PR 9A.
+  - Receipt (2026-08-21): PR 8 merged as #1283 (squash, SHA-guarded); primary fast-forwarded; worktree + branches pruned; PR 9A branched from the post-merge main.
 
 ## 9A. Combat Vehicle and Represented-System-State Baseline Pack — PR 9A
 
-- [ ] 9A.1 Add strict concrete v1 schemas for shutdown/startup, neural-interface, motive-damage/penalty, immobilization, turret-lock, crew-stun, and VTOL-crash payloads assigned by `schema-pack-inventory.md`.
-- [ ] 9A.2 Register the pack and add per-variant valid plus missing/extra/ill-typed fixtures.
-- [ ] 9A.3 Prove temporal/rules/catalog-dependent results are represented by stored outcomes or pinned references and are not recomputed during validation.
-- [ ] 9A.4 Run focused represented-system-state tests and applicable quality/review gates.
+- [x] 9A.1 Add strict concrete v1 schemas for shutdown/startup, neural-interface, motive-damage/penalty, immobilization, turret-lock, crew-stun, and VTOL-crash payloads assigned by `schema-pack-inventory.md`.
+  - Receipt (2026-08-21): `CombatVehicleBaselineSchemaPack.ts` registers the nine inventory discriminants at baseline v1 (runtime `GameEventType` keys, `combat.<type>.v1` ids, no transitions, nine-member `satisfies` exhaustiveness). The neural-interface 6-member reason union, motive 5-member severity union, and immobilization 5-member cause union are exact mirrors.
+- [x] 9A.2 Register the pack and add per-variant valid plus missing/extra/ill-typed fixtures.
+  - Receipt (2026-08-21): per-variant valid fixtures; 3-mutation matrix per variant (27 rejections); unknown discriminant + version fail closed. Pack unwired (grep proof). 22/22 contract tests green.
+- [x] 9A.3 Prove temporal/rules/catalog-dependent results are represented by stored outcomes or pinned references and are not recomputed during validation.
+  - Receipt (2026-08-21): retention test pins the shutdown check's consumed d6 pair + target number, the motive severity + d6 pair, and the VTOL crash fall damage byte-for-byte; the purity contract test pins the pack's runtime imports.
+- [x] 9A.4 Run focused represented-system-state tests and applicable quality/review gates.
+  - Receipt (2026-08-21): pack contract 22/22; ALL replay suites 191/191 in this worktree; typecheck/lint/format clean; strict OpenSpec green; independent fresh-context schema review run with verdict recorded in the PR description.
 - [ ] 9A.5 After merge, rerun exact main and prune before PR 9B.
 
 ## 9B. Combat Terrain, Mission, Morale, and Withdrawal Baseline Pack — PR 9B
