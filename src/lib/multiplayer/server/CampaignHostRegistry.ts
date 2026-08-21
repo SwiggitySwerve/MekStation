@@ -6,7 +6,7 @@ import type {
 import type { IForce } from '@/types/campaign/Force';
 
 import { registerActiveCoopHost } from '@/lib/campaign/coop/coopHostRegistry';
-import { InMemoryCampaignEventStore } from '@/lib/campaign/sync/InMemoryCampaignEventStore';
+import { createDefaultCampaignEventStore } from '@/lib/campaign/sync/JournalCampaignEventStore';
 import { parseCampaignCoopSnapshot } from '@/types/campaign/campaignCoopSnapshot';
 
 import type { IMatchStore } from './IMatchStore';
@@ -209,7 +209,9 @@ export class CampaignHostRegistry {
     const host = new CampaignMatchHost({
       campaignId: snapshot.campaignId,
       hostPlayerId: snapshot.hostPlayerId,
-      eventStore: new InMemoryCampaignEventStore(),
+      // The cutover-flag factory (task 5.1): identical in-memory behavior
+      // until CAMPAIGN_JOURNAL_AUTHORITY_ENABLED turns on with task 5.2.
+      eventStore: createDefaultCampaignEventStore(),
       initialState: snapshot.state,
     });
     const syncSession = new CampaignSyncSession(host, { matchId });
