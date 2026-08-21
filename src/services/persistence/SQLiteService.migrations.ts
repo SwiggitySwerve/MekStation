@@ -350,4 +350,19 @@ export const MIGRATIONS: readonly IMigration[] = [
     },
   },
   EVENT_JOURNAL_MIGRATION,
+  {
+    version: 9,
+    name: 'campaign_authority_migration_schema',
+    // Durable per-campaign authority cutover marker (design-campaign-
+    // authority-and-sync D10, task 5.2). One row per campaign; the payload
+    // is the JSON ICampaignCutoverMarker. State-machine legality lives in
+    // src/lib/campaign/authority/ - the table only guarantees identity and
+    // non-empty payload, matching the campaigns-table idiom.
+    up: `
+      CREATE TABLE IF NOT EXISTS campaign_authority_migration (
+        campaign_id TEXT PRIMARY KEY CHECK (length(trim(campaign_id)) > 0),
+        payload TEXT NOT NULL CHECK (length(payload) > 0)
+      );
+    `,
+  },
 ];

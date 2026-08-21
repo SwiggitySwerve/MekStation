@@ -157,6 +157,8 @@ export async function appendCampaignCommandBatch(
     readonly commandId: string;
     readonly events: readonly ICampaignEvent[];
     readonly expectedPostStateDigest: string | null;
+    /** Override the derived human principal (e.g. migration imports). */
+    readonly principal?: IResolvedJournalPrincipal;
   },
 ): Promise<CampaignBatchAppendResult> {
   if (input.events.length === 0) {
@@ -184,10 +186,9 @@ export async function appendCampaignCommandBatch(
           : null,
       ),
     ),
-    principal: campaignPrincipal(
-      input.campaignId,
-      input.events[0].authorPlayerId,
-    ),
+    principal:
+      input.principal ??
+      campaignPrincipal(input.campaignId, input.events[0].authorPlayerId),
   };
   const result = await journal.append(batch);
   if ('kind' in result && result.kind === 'committed') {

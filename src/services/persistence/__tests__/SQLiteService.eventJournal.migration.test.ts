@@ -153,7 +153,7 @@ describe('event journal SQLite migration', () => {
     expect(tables.map(({ name }) => name)).toEqual(expectedTables);
     expect(
       db.prepare('SELECT MAX(version) AS version FROM migrations').get(),
-    ).toEqual({ version: 8 });
+    ).toEqual({ version: 9 }); // 9 = campaign_authority_migration_schema (task 5.2)
     expect(db.prepare('SELECT * FROM event_journal_store_state').all()).toEqual(
       [{ singleton_id: 1, last_commit_position: 0 }],
     );
