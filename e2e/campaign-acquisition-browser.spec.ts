@@ -117,6 +117,34 @@ test.describe(
           await page.goto('/gameplay/campaigns');
           const seeded = await seedAcquisitionCampaign(page);
 
+          // The seed writes the campaign store directly (no markDirty), so
+          // no auto-save fires. Persist explicitly before the hard
+          // navigation: the acquisitions page shell GETs the server copy on
+          // mount, and an un-PUT-ed campaign 404s (console-error guard)
+          // while in-flight equipment fetches abort (requestfailed noise).
+          const seedSaved = page.waitForResponse(
+            (response) =>
+              response.request().method() === 'PUT' &&
+              response.url().includes(`/api/campaigns/${seeded.campaignId}`) &&
+              response.ok(),
+            { timeout: 30_000 },
+          );
+          await page.evaluate(async () => {
+            const stores = (
+              window as unknown as {
+                __ZUSTAND_STORES__?: {
+                  campaignPersistence?: {
+                    getState: () => {
+                      saveCampaign: () => Promise<unknown>;
+                    };
+                  };
+                };
+              }
+            ).__ZUSTAND_STORES__;
+            await stores?.campaignPersistence?.getState().saveCampaign();
+          });
+          await seedSaved;
+
           await page.goto(
             `/gameplay/campaigns/${seeded.campaignId}/acquisitions`,
           );
@@ -140,6 +168,17 @@ test.describe(
             page.getByTestId('acquisitions-transit-count'),
           ).toContainText('1');
 
+          // The add rides the 2s debounced auto-save; both reloads below
+          // refetch the server copy, so each mutation must be durably PUT
+          // first (the same debounce-vs-hydration race fixed suite-wide on
+          // 2026-08-21).
+          const addSaved = page.waitForResponse(
+            (response) =>
+              response.request().method() === 'PUT' &&
+              response.url().includes(`/api/campaigns/${seeded.campaignId}`) &&
+              response.ok(),
+            { timeout: 30_000 },
+          );
           await page.getByTestId('acquisition-part-name').fill('PPC');
           await page.getByTestId('acquisition-quantity').fill('2');
           await page.getByTestId('acquisition-availability').selectOption('E');
@@ -154,6 +193,7 @@ test.describe(
             page.getByTestId('acquisitions-pending-count'),
           ).toContainText('1');
 
+          await addSaved;
           await page.reload({ waitUntil: 'networkidle' });
           await waitForCampaignStoresReady(page);
           await expect(
@@ -163,6 +203,13 @@ test.describe(
             page.getByTestId(`acquisition-status-${seeded.addedRequestId}`),
           ).toContainText('pending');
 
+          const advanceSaved = page.waitForResponse(
+            (response) =>
+              response.request().method() === 'PUT' &&
+              response.url().includes(`/api/campaigns/${seeded.campaignId}`) &&
+              response.ok(),
+            { timeout: 30_000 },
+          );
           await page.getByTestId('acquisitions-advance-day').click();
           await expect(
             page.getByTestId(`acquisition-status-${seeded.dueRequestId}`),
@@ -177,6 +224,7 @@ test.describe(
             page.getByTestId('acquisition-current-date'),
           ).toContainText('3025-02-02');
 
+          await advanceSaved;
           await page.reload({ waitUntil: 'networkidle' });
           await waitForCampaignStoresReady(page);
           await expect(
