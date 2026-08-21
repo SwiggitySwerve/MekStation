@@ -10,9 +10,9 @@
  * missing discriminant, unknown event type, invalid payload, ambiguous
  * attribution) and zero events - the old skip-and-continue partial
  * success does not exist on this path; and the PR-18 stored-form
- * corrections (auto-shutdown null targetNumber, null physical
- * roll/toHitNumber, projection-enriched weaponAttacks) load as genuine
- * current history.
+ * corrections (auto-shutdown null targetNumber, the impossible
+ * physical resolution's null toHitNumber with roll 0, and
+ * projection-enriched weaponAttacks) load as genuine current history.
  *
  * @spec openspec/changes/add-replay-schema-and-checkpoint-safety/specs/replay-library/spec.md
  */

@@ -183,7 +183,8 @@ describe('combat physical/PSR/ground-object baseline schema pack', () => {
   });
 
   it('rejects a corrupt impossible resolution that claims a hit', () => {
-    expect(() =>
+    let code: string | null = null;
+    try {
       registry.upcast('physical_attack_resolved', 1, {
         attackerId: 'atlas-as7-d',
         targetId: 'locust-lct-1v',
@@ -191,8 +192,12 @@ describe('combat physical/PSR/ground-object baseline schema pack', () => {
         roll: 7,
         toHitNumber: null,
         hit: true,
-      }),
-    ).toThrow(UnsupportedReplayHistoryError);
+      });
+    } catch (error) {
+      if (error instanceof UnsupportedReplayHistoryError) code = error.code;
+      else throw error;
+    }
+    expect(code).toBe('invalid-payload');
   });
 
   it('fails closed on unknown discriminants and unknown versions', () => {
