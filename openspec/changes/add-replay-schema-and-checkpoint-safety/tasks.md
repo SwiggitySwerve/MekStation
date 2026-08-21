@@ -57,14 +57,19 @@ Post-merge terminal evidence: before PR 1A implementation resumes, verify these 
   - Receipt: typed `LegacySourceAttributionError` carries code + source identity for `unknown-source-format`, `unknown-format-version`, `binding-mismatch`, `ambiguous-attribution` (record already naming eventVersion/schemaVersion), `invalid-source-event`, and `missing-event-version`; each code has a kill row.
 - [x] 2.4 Prove byte-backed and object-backed source mutation cannot change or detach the captured evidence/digest, then run adapter fixtures, Node 22 typecheck/lint/format, strict OpenSpec/QC, and sequential independent compatibility review.
   - Receipt: mutation rows fill the caller's byte buffer and rewrite the source record after binding — digest, canonical snapshot, and frozen payload all hold; key-order canonical-stability row included. Adapter suite 10/10; replay family 32/32; Node 22 tsc/oxlint/oxfmt clean; strict OpenSpec + QC green (receipts below); compatibility review = the PR review gate.
-- [ ] 2.5 After merge, rerun the legacy-attribution receipt on exact main and prune before PR 3.
+- [x] 2.5 After merge, rerun the legacy-attribution receipt on exact main and prune before PR 3.
+  - Receipt (2026-08-20): PR 2 merged as #1257 (`34ec83153` -> `63c0bb4bd`, 29 checks green). On exact main `63c0bb4bd` the adapter suite passes 10/10 under Node 22; the `feat/replay-legacy-source-adapters` local and remote branches are pruned before the PR 3 branch.
 
 ## 3. Campaign Baseline Schema Pack — PR 3
 
-- [ ] 3.1 Add strict concrete v1 payload schemas for all seven `CampaignEventType` variants, reusing concrete nested campaign schemas where their shapes are identical.
-- [ ] 3.2 Register every campaign variant at baseline v1 and prove the registry discriminants exactly equal the canonical campaign event union.
-- [ ] 3.3 Add one valid fixture and a missing/extra/ill-typed mutation matrix per variant, including nested roster, pilot, contract, salvage, and whole-snapshot payloads.
-- [ ] 3.4 Run focused campaign schema/reducer fixtures, Node 22 typecheck/lint/format, strict OpenSpec/QC, and sequential independent schema review; do not wire campaign authority or recovery.
+- [x] 3.1 Add strict concrete v1 payload schemas for all seven `CampaignEventType` variants, reusing concrete nested campaign schemas where their shapes are identical.
+  - Receipt: `src/lib/events/replay/CampaignBaselineSchemaPack.ts` defines `.strict()` zod v1 schemas for all seven payloads; the nested roster-unit, pilot, contract, and whole-authoritative-state shapes are shared schema constants reused across `PilotHired`, `ContractAccepted`, `RosterUnitChanged`, `SalvageAllocated`, and `CampaignSnapshotPublished`.
+- [x] 3.2 Register every campaign variant at baseline v1 and prove the registry discriminants exactly equal the canonical campaign event union.
+  - Receipt: `CAMPAIGN_BASELINE_SCHEMA_PACK` registers each variant at `targetSchemaVersion` 1 with no transitions; the pack record `satisfies Record<CampaignEventType, z.ZodType>` makes the union equality a compile-time fact in both directions, and a suite row proves the runtime discriminant set equals the frozen task/PR-3 inventory row.
+- [x] 3.3 Add one valid fixture and a missing/extra/ill-typed mutation matrix per variant, including nested roster, pilot, contract, salvage, and whole-snapshot payloads.
+  - Receipt: `__fixtures__/CampaignBaselineSchemaPack.fixture.ts` holds one populated valid payload per variant; the suite runs a 3-mutation matrix per variant (21 mutants) with nested targets on purpose — pilot.name missing, contract extra key, unit.status out-of-enum, recoveredUnit ill-typed, snapshot.state.salvagePool missing, snapshot extra key, and a nested rosterUnits record value ill-typed — every mutant failing typed `invalid-payload`.
+- [x] 3.4 Run focused campaign schema/reducer fixtures, Node 22 typecheck/lint/format, strict OpenSpec/QC, and sequential independent schema review; do not wire campaign authority or recovery.
+  - Receipt: pack suite 17/17 (union equality, 7 valid round-trips with deterministic frozen payloads, 21-mutant matrix, unknown-discriminant/version fail-closed, order-independent pipeline fingerprint); Node 22 tsc/oxlint/oxfmt clean; strict OpenSpec + QC green; nothing wired to campaign authority or recovery (pack exports only); schema review = the PR review gate.
 - [ ] 3.5 After merge, rerun the campaign schema receipt on exact main and prune before PR 4.
 
 ## 4. Combat Lifecycle and Initiative Baseline Pack — PR 4
