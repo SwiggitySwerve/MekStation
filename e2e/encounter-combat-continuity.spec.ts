@@ -423,8 +423,30 @@ async function resolveInteractiveBattleByWeaponAttack(
         );
       }
 
-      const attacker = session.currentState.units[attackerId];
-      const target = session.currentState.units[targetId];
+      // Campaign launches mint side-prefixed session unit ids
+      // (`player-1-atlas-as7-d`) -- the dual-id-construction collision fix.
+      // Resolve by exact id OR side-prefixed suffix so the helper serves
+      // both quick-game (raw) and campaign (prefixed) sessions.
+      const unitEntries = Object.entries(session.currentState.units);
+      const resolveUnitId = (rawId: string, side: string): string | null => {
+        const hit = unitEntries.find(
+          ([id, unit]) =>
+            (id === rawId ||
+              (id.startsWith(`${side}-`) && id.endsWith(`-${rawId}`))) &&
+            (unit.side === undefined || unit.side === side),
+        );
+        return hit ? hit[0] : null;
+      };
+      const resolvedAttackerId = resolveUnitId(attackerId, 'player');
+      const resolvedTargetId = resolveUnitId(targetId, 'opponent');
+      const attacker = resolvedAttackerId
+        ? session.currentState.units[resolvedAttackerId]
+        : undefined;
+      const target = resolvedTargetId
+        ? session.currentState.units[resolvedTargetId]
+        : undefined;
+      if (resolvedAttackerId) attackerId = resolvedAttackerId;
+      if (resolvedTargetId) targetId = resolvedTargetId;
       if (!attacker || !target) {
         throw new Error('Expected attacker and target units to be present');
       }
@@ -1025,17 +1047,34 @@ test.describe('encounter-combat campaign continuity', () => {
         encounterId,
       });
       expect(launched.sideCounts).toEqual({ player: 2, opponent: 2 });
-      expect(launched.unitIds).toEqual(
-        expect.arrayContaining([
-          ...PLAYER_MULTI_UNIT_IDS,
-          ...OPPONENT_MULTI_UNIT_IDS,
-        ]),
+      // Session unit ids are side-prefixed (`player-1-<unitId>`) since the
+      // dual-id-construction collision fix -- assert the roster survives by
+      // suffix, tolerating either the raw or the prefixed scheme.
+      const expectSideRoster = (
+        ids: readonly string[],
+        side: 'player' | 'opponent',
+        rawIds: readonly string[],
+      ): void => {
+        expect(ids).toHaveLength(rawIds.length);
+        for (const raw of rawIds) {
+          expect(
+            ids.some(
+              (id) =>
+                id === raw ||
+                (id.startsWith(`${side}-`) && id.endsWith(`-${raw}`)),
+            ),
+            `${side} roster SHALL retain ${raw} (got: ${ids.join(', ')})`,
+          ).toBe(true);
+        }
+      };
+      expectSideRoster(launched.playerUnitIds, 'player', PLAYER_MULTI_UNIT_IDS);
+      expectSideRoster(
+        launched.opponentUnitIds,
+        'opponent',
+        OPPONENT_MULTI_UNIT_IDS,
       );
-      expect(launched.playerUnitIds).toEqual(
-        expect.arrayContaining([...PLAYER_MULTI_UNIT_IDS]),
-      );
-      expect(launched.opponentUnitIds).toEqual(
-        expect.arrayContaining([...OPPONENT_MULTI_UNIT_IDS]),
+      expect(launched.unitIds).toHaveLength(
+        PLAYER_MULTI_UNIT_IDS.length + OPPONENT_MULTI_UNIT_IDS.length,
       );
 
       await expect(page.getByTestId('concede-button')).toBeEnabled();
