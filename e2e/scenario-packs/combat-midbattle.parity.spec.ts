@@ -181,48 +181,52 @@ async function readCombatMidbattleSnapshot(
   );
 }
 
-test.describe('scenario pack parity: combat-midbattle', () => {
-  test('the recovered mid-battle session preserves every recovery-rehydration invariant', async ({
-    page,
-  }, testInfo) => {
-    const roster = readCombatMidbattleRoster();
-
-    const { matchId } = await loadEncounterPack(page, 'combat-midbattle', {
-      workerIndex: testInfo.workerIndex,
-    });
-
-    await expect(page.getByTestId('game-error')).toHaveCount(0);
-    await expect(page.getByTestId('tactical-turn-rail')).toBeVisible({
-      timeout: 20_000,
-    });
-
-    const snapshot = await readCombatMidbattleSnapshot(
+test.describe(
+  'scenario pack parity: combat-midbattle',
+  { tag: ['@subsystem:combat'] },
+  () => {
+    test('the recovered mid-battle session preserves every recovery-rehydration invariant', async ({
       page,
-      roster.deployedIds,
-      roster.bareCanonicalRef,
-    );
+    }, testInfo) => {
+      const roster = readCombatMidbattleRoster();
 
-    // Loading complete, no error (spec: "Cold route mount recovers the
-    // seeded match").
-    expect(snapshot.isLoading).toBe(false);
-    expect(snapshot.error).toBeNull();
-    expect(snapshot.sessionId).toBe(matchId);
-    // Recovery does not manufacture a terminal outcome (status stays
-    // active, not completed).
-    expect(snapshot.status).toBe('active');
-    expect(snapshot.hasInteractiveSession).toBe(true);
+      const { matchId } = await loadEncounterPack(page, 'combat-midbattle', {
+        workerIndex: testInfo.workerIndex,
+      });
 
-    // Every deployed id resolves a movement capability...
-    for (const id of roster.deployedIds) {
-      expect(snapshot.deployedCapabilityPresent[id]).toBe(true);
-    }
-    // ...while the bare canonical unitRef shared across the mirrored pair
-    // does NOT itself resolve as a deployed unit id (the #1019 collision
-    // signature).
-    expect(snapshot.bareCanonicalRefCapabilityPresent).toBe(false);
-    // Full seeded roster survives recovery with no id-collision collapse.
-    expect(snapshot.unitCount).toBe(roster.unitCount);
-    // No terminal-outcome event beyond the captured mid-battle log.
-    expect(snapshot.eventTypes).not.toContain('game_ended');
-  });
-});
+      await expect(page.getByTestId('game-error')).toHaveCount(0);
+      await expect(page.getByTestId('tactical-turn-rail')).toBeVisible({
+        timeout: 20_000,
+      });
+
+      const snapshot = await readCombatMidbattleSnapshot(
+        page,
+        roster.deployedIds,
+        roster.bareCanonicalRef,
+      );
+
+      // Loading complete, no error (spec: "Cold route mount recovers the
+      // seeded match").
+      expect(snapshot.isLoading).toBe(false);
+      expect(snapshot.error).toBeNull();
+      expect(snapshot.sessionId).toBe(matchId);
+      // Recovery does not manufacture a terminal outcome (status stays
+      // active, not completed).
+      expect(snapshot.status).toBe('active');
+      expect(snapshot.hasInteractiveSession).toBe(true);
+
+      // Every deployed id resolves a movement capability...
+      for (const id of roster.deployedIds) {
+        expect(snapshot.deployedCapabilityPresent[id]).toBe(true);
+      }
+      // ...while the bare canonical unitRef shared across the mirrored pair
+      // does NOT itself resolve as a deployed unit id (the #1019 collision
+      // signature).
+      expect(snapshot.bareCanonicalRefCapabilityPresent).toBe(false);
+      // Full seeded roster survives recovery with no id-collision collapse.
+      expect(snapshot.unitCount).toBe(roster.unitCount);
+      // No terminal-outcome event beyond the captured mid-battle log.
+      expect(snapshot.eventTypes).not.toContain('game_ended');
+    });
+  },
+);

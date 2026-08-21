@@ -14,10 +14,12 @@
  * other, or a hand-typed tag literal, fails a PR-lane unit test.
  */
 import { spawnSync } from 'node:child_process';
+import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { pathToFileURL } from 'node:url';
 
 import { FLOW_SUBSYSTEMS } from '../../e2e/flows/manifest';
+import { SCENARIO_PACK_MANIFEST } from '../../e2e/scenario-packs/manifest';
 
 const repoRoot = process.cwd();
 const validatorUrl = pathToFileURL(
@@ -51,6 +53,35 @@ describe('subsystem tag vocabulary', () => {
     // The vocabulary is closed at exactly six tags (spec: six-tag enum).
     expect(FLOW_SUBSYSTEMS).toHaveLength(6);
     expect(new Set(mjsTags).size).toBe(mjsTags.length);
+  });
+
+  it('pack parity spec tags mirror the manifest', () => {
+    // W6 task 7.1: every W4 pack's parity spec must carry exactly the
+    // native `@subsystem:<tag>` literals its manifest entry declares —
+    // a tag/manifest mismatch fails naming the pack.
+    const mismatches: string[] = [];
+    for (const entry of SCENARIO_PACK_MANIFEST) {
+      const specPath = path.join(
+        repoRoot,
+        'e2e/scenario-packs',
+        `${entry.id}.parity.spec.ts`,
+      );
+      const spec = fs.readFileSync(specPath, 'utf8');
+      for (const tag of entry.subsystems) {
+        if (!spec.includes(`'@subsystem:${tag}'`)) {
+          mismatches.push(`pack ${entry.id}: missing @subsystem:${tag}`);
+        }
+      }
+      for (const tag of FLOW_SUBSYSTEMS) {
+        if (
+          !entry.subsystems.includes(tag) &&
+          spec.includes(`'@subsystem:${tag}'`)
+        ) {
+          mismatches.push(`pack ${entry.id}: undeclared @subsystem:${tag}`);
+        }
+      }
+    }
+    expect(mismatches).toEqual([]);
   });
 
   it('derives the @subsystem: tag literals from the shared set', () => {

@@ -300,7 +300,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        subsystem: [economy, personnel, experience]
+        subsystem: [economy, personnel, experience, navigation, combat, maintenance]
 
     steps:
       - name: Checkout code

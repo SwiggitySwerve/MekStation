@@ -16,6 +16,12 @@
  * spare. No store writes anywhere — every state change flows through the
  * rendered picker (the D6 ban on faking XP via store injection).
  *
+ * PACK UPGRADE VERDICT (W6 task 7.2, 2026-08-21): the W4 experience pack
+ * (pilot-xp-progression@xp-surface-viewed) does NOT hold spendable XP --
+ * every pilot in experience-pilot.campaign.json carries xp: 0, below the
+ * cheapest SPA cost (15). Per design D6 path 3, the pack start-state
+ * upgrade is rejected and this front-door path stands.
+ *
  * Hard invariants:
  *   - the flaw grants exactly 25 XP (pilot store read)
  *   - `owned-spa-foot_cav` renders after the purchase
