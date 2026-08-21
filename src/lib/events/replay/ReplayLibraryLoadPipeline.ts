@@ -33,22 +33,23 @@ import { isGameEvent } from '@/types/gameplay/GameSessionInterfaces';
 
 import type { ReplayQuarantineReason } from './ReplayQuarantineRegistry';
 
-import {
-  REPLAY_BASELINE_CANONICAL_EVENT_TYPES,
-  createReplayBaselineDomainRegistry,
-} from './ReplayBaselineDomainRegistry';
 import { assertReplayInputProvenance } from './ReplayInputProvenanceManifest';
 import {
   LegacySourceAttributionError,
   bindLegacyByteEvent,
   type LegacySourceAttributionCode,
 } from './ReplayLegacySourceAdapters';
-import {
-  ReplayProjector,
-  assertReplayProjectorCompleteness,
-} from './ReplayProjectorRegistry';
 import { classifyReplayFailure } from './ReplayQuarantineRegistry';
 import { UnsupportedReplayHistoryError } from './ReplaySchemaRegistry';
+import {
+  REPLAY_LIBRARY_CENSUS_PROJECTOR,
+  REPLAY_SURFACE_REGISTRY,
+  buildReplaySurfaceReport,
+  type IReplayLibraryCensusState,
+  type IReplaySurfaceReport,
+} from './ReplaySurfaceGate';
+
+export type { IReplayLibraryCensusState } from './ReplaySurfaceGate';
 
 export const REPLAY_LIBRARY_SOURCE_FORMAT_ID = 'simulation-report-jsonl';
 export const REPLAY_LIBRARY_SOURCE_FORMAT_VERSION = 1;
@@ -67,10 +68,6 @@ export interface IReplayLibraryBlockedLine {
   readonly message: string;
 }
 
-export interface IReplayLibraryCensusState {
-  readonly eventsApplied: number;
-}
-
 export type ReplayLibraryLoadResult =
   | {
       readonly kind: 'loaded';
@@ -78,6 +75,8 @@ export type ReplayLibraryLoadResult =
       /** sha256 over the complete raw source bytes. */
       readonly sourceDigest: string;
       readonly census: IReplayLibraryCensusState;
+      /** The shared surface identity report (replay-safety PR 19A). */
+      readonly report: IReplaySurfaceReport;
     }
   | {
       readonly kind: 'blocked';
@@ -88,33 +87,6 @@ export type ReplayLibraryLoadResult =
       readonly sourceDigest: string;
       readonly blockedLines: readonly IReplayLibraryBlockedLine[];
     };
-
-const registry = createReplayBaselineDomainRegistry();
-
-/**
- * Library census projector: an explicit apply decision for EVERY
- * canonical discriminant (the library projection is an event census -
- * it derives no authoritative game state). Completeness is asserted at
- * module load so a new discriminant fails the pipeline until decided.
- */
-const censusProjector = new ReplayProjector<IReplayLibraryCensusState>({
-  projectorId: 'replay-library.census',
-  projectorVersion: 1,
-  initialState: () => ({ eventsApplied: 0 }),
-  decisions: REPLAY_BASELINE_CANONICAL_EVENT_TYPES.map((eventType) => ({
-    eventType,
-    decision: {
-      kind: 'apply' as const,
-      apply: (state: IReplayLibraryCensusState) => ({
-        eventsApplied: state.eventsApplied + 1,
-      }),
-    },
-  })),
-});
-assertReplayProjectorCompleteness(
-  censusProjector,
-  REPLAY_BASELINE_CANONICAL_EVENT_TYPES,
-);
 
 const encoder = new TextEncoder();
 
@@ -129,7 +101,7 @@ export function loadReplayLibraryNdjson(
   const sourceDigest = sha256(encoder.encode(rawText));
   const events: IGameEvent[] = [];
   const blockedLines: IReplayLibraryBlockedLine[] = [];
-  let census = censusProjector.initialState();
+  let census = REPLAY_LIBRARY_CENSUS_PROJECTOR.initialState();
 
   const lines = rawText.split('\n');
   for (let index = 0; index < lines.length; index += 1) {
@@ -154,13 +126,13 @@ export function loadReplayLibraryNdjson(
           1,
           'Line is not a valid IGameEvent envelope',
         );
-      const upcast = registry.upcast(
+      const upcast = REPLAY_SURFACE_REGISTRY.upcast(
         envelope.type,
         attributed.schemaVersion,
         envelope.payload,
       );
       assertReplayInputProvenance(upcast.eventType, upcast.payload);
-      census = censusProjector.project(census, upcast);
+      census = REPLAY_LIBRARY_CENSUS_PROJECTOR.project(census, upcast);
       events.push(envelope);
     } catch (error) {
       if (error instanceof LegacySourceAttributionError) {
@@ -205,5 +177,13 @@ export function loadReplayLibraryNdjson(
     events: Object.freeze(events),
     sourceDigest,
     census,
+    report: buildReplaySurfaceReport({
+      surfaceId: 'replay-library',
+      formatId: REPLAY_LIBRARY_SOURCE_FORMAT_ID,
+      formatVersion: REPLAY_LIBRARY_SOURCE_FORMAT_VERSION,
+      streamId: sourceId,
+      events,
+      census,
+    }),
   });
 }

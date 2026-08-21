@@ -1,5 +1,10 @@
 import { toast } from '@/components/shared/Toast';
 import {
+  gateReplaySurfaceHistory,
+  type IReplaySurfaceBlockedEvent,
+  type IReplaySurfaceReport,
+} from '@/lib/events/replay/ReplaySurfaceGate';
+import {
   matchLogStorage,
   type MatchLogStorage,
 } from '@/lib/p2p/matchLogStorage';
@@ -32,6 +37,8 @@ export class InteractiveSessionRecoveryCorruptError extends Error {
   constructor(
     readonly matchId: string,
     readonly originalError?: unknown,
+    /** Typed per-event gate evidence when the replay gate blocked. */
+    readonly blockedEvents?: readonly IReplaySurfaceBlockedEvent[],
   ) {
     super(INTERACTIVE_SESSION_CORRUPT_MESSAGE);
     this.name = 'InteractiveSessionRecoveryCorruptError';
@@ -95,6 +102,29 @@ export async function hydrateRecoverableSessionFromMatchLog(
   matchId: string,
   storage: MatchLogHydrationStorage = matchLogStorage,
 ): Promise<IGameSession> {
+  const { session } = await hydrateRecoverableSessionWithReport(
+    matchId,
+    storage,
+  );
+  return session;
+}
+
+/**
+ * Cold recovery through the registered replay pipeline (replay-safety
+ * PR 19A): the stored match-log events are gated as `match-log-idb`
+ * object-backed history - legacy attribution, composed baseline
+ * schemas, provenance, census projector - BEFORE any game-state
+ * hydration. A blocked gate throws the typed corrupt error carrying
+ * the gate evidence and hydrates NOTHING (no partial baseline); the
+ * snapshot derivation downstream (`createRecoveredGridFromSession`,
+ * `fromSessionAsync`) therefore only ever consumes gated history. The
+ * returned report carries the surface identity septet that must match
+ * the Replay Library's report for the same history.
+ */
+export async function hydrateRecoverableSessionWithReport(
+  matchId: string,
+  storage: MatchLogHydrationStorage = matchLogStorage,
+): Promise<{ session: IGameSession; report: IReplaySurfaceReport }> {
   const events = await storage.getEventsForMatch(matchId);
   if (events.length === 0) {
     throw new InteractiveSessionRecoveryNotFoundError(matchId);
@@ -108,10 +138,38 @@ export async function hydrateRecoverableSessionFromMatchLog(
     );
   }
 
+  const gated = gateReplaySurfaceHistory(orderedEvents, {
+    surfaceId: 'cold-recovery',
+    streamId: matchId,
+    formatId: 'match-log-idb',
+    formatVersion: 2,
+  });
+  if (gated.kind === 'blocked') {
+    throw new InteractiveSessionRecoveryCorruptError(
+      matchId,
+      new Error(
+        `Replay gate blocked ${gated.blockedEvents.length} event(s): ` +
+          gated.blockedEvents
+            .slice(0, 3)
+            .map(
+              (blocked) =>
+                `#${blocked.sequence ?? blocked.index} ${blocked.reason}` +
+                (blocked.eventType === null ? '' : ` (${blocked.eventType})`),
+            )
+            .join(', '),
+      ),
+      gated.blockedEvents,
+    );
+  }
+
   try {
-    const session = hydrateGameSessionFromEvents(matchId, orderedEvents);
+    // Hydrate the GATED envelopes, not the raw stored objects: the
+    // record replay validated is the record the reducers consume (the
+    // JSON image - undefined-valued keys absent, non-finite numbers
+    // stored as null, exactly as any byte-backed serialization).
+    const session = hydrateGameSessionFromEvents(matchId, [...gated.events]);
     await reportTailDivergenceIfNeeded(matchId, session, storage);
-    return session;
+    return { session, report: gated.report };
   } catch (error) {
     throw new InteractiveSessionRecoveryCorruptError(matchId, error);
   }
