@@ -28,7 +28,10 @@ import { sha256 } from 'js-sha256';
 
 import { canonicalizeJsonV1 } from '../journal/EventJournalCanonicalizer';
 
-export type ReplayCheckpointErrorCode = 'invalid-checkpoint-metadata';
+export type ReplayCheckpointErrorCode =
+  | 'duplicate-checkpoint'
+  | 'invalid-checkpoint-metadata'
+  | 'state-digest-mismatch';
 
 export class ReplayCheckpointError extends Error {
   public readonly name = 'ReplayCheckpointError';
