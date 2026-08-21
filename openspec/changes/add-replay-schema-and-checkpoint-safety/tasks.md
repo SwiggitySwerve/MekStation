@@ -160,14 +160,19 @@ Post-merge terminal evidence: before PR 1A implementation resumes, verify these 
   - Receipt (2026-08-21): resolved inputs (EMP roll/modifier/modified-roll triple, objective hold progress, morale from/to, terrain previous-state) are stored payload fields validated as data; the purity contract test pins the pack's runtime imports to `zod` + pure `@/types` modules + replay-local files.
 - [x] 9B.4 Run focused terrain/mission/morale/withdrawal tests and applicable quality/review gates.
   - Receipt (2026-08-21): pack contract 30/30; ALL replay suites 221/221 in this worktree; typecheck/lint/format clean; strict OpenSpec green; independent fresh-context schema review (with a dedicated producer-path audit of the command-result concretization) recorded in the PR description.
-- [ ] 9B.5 After merge, rerun exact main and prune before PR 10.
+- [x] 9B.5 After merge, rerun exact main and prune before PR 10.
+  - Receipt (2026-08-21): PR 9B merged as #1285 (squash, SHA-guarded); primary fast-forwarded; worktree + branches pruned; PR 10 branched from the post-merge main.
 
 ## 10. Combat Battle-Armor Baseline Pack — PR 10
 
-- [ ] 10.1 Add strict concrete v1 schemas for trooper/squad, swarm, leg attack, vibro-claw, mimetic, and stealth payloads.
-- [ ] 10.2 Register the pack and add per-variant valid plus missing/extra/ill-typed fixtures.
-- [ ] 10.3 Prove battle-armor attack and defense results are replayed from stored values rather than live resolvers.
-- [ ] 10.4 Run focused battle-armor tests and applicable quality/review gates.
+- [x] 10.1 Add strict concrete v1 schemas for trooper/squad, swarm, leg attack, vibro-claw, mimetic, and stealth payloads.
+  - Receipt (2026-08-21): `CombatBattleArmorBaselineSchemaPack.ts` registers the ten inventory discriminants at baseline v1 (runtime `GameEventType` keys, `combat.<type>.v1` ids, no transitions, ten-member `satisfies` exhaustiveness): trooper_killed, squad_eliminated, the three swarm variants (attach roll/target retained; dismount cause 4-member enum exact), leg_attack + leg_attack_resolved (hit location + crit modifier as stored strings/numbers), vibro_claw_attack_resolved (cluster missileHits retained), mimetic_bonus, and stealth_bonus (source 3-member enum exact). All object schemas `.strict()`, all numbers finite.
+- [x] 10.2 Register the pack and add per-variant valid plus missing/extra/ill-typed fixtures.
+  - Receipt (2026-08-21): per-variant valid fixtures keyed by runtime values; 3-mutation missing/extra/ill-typed matrix per variant (30 rejections, all `invalid-payload`); unknown discriminant (`trooper_revived`) + unknown version fail closed. Pack unwired (grep proof). 24/24 contract tests green.
+- [x] 10.3 Prove battle-armor attack and defense results are replayed from stored values rather than live resolvers.
+  - Receipt (2026-08-21): resolved battle-armor inputs (swarm rollTotal/targetNumber, leg-attack hitLocation/critModifier, vibro-claw missileHits/damage) are stored payload fields validated as data; the purity contract test pins the pack's runtime imports to `zod` + pure `@/types` modules + replay-local files — no catalog, clock, or RNG surface.
+- [x] 10.4 Run focused battle-armor tests and applicable quality/review gates.
+  - Receipt (2026-08-21): pack contract 24/24; typecheck/lint/format clean; strict OpenSpec green; independent fresh-context schema review (Grok 4.6 via cursor-agent, field-by-field vs BattleArmorCombatInterfaces) recorded in the PR description.
 - [ ] 10.5 After merge, rerun exact main and prune before PR 11.
 
 ## 11. Complete Domain Registry Composition — PR 11
