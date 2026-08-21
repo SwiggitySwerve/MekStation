@@ -170,8 +170,21 @@ export async function openContractMarketAction(
 export async function acceptFirstContractAction(page: Page): Promise<void> {
   const acceptButton = page.locator('[data-testid^="offer-accept-"]').first();
   await expect(acceptButton).toBeVisible({ timeout: 20_000 });
+  // The accept is a client-side store mutation whose debounced auto-save
+  // (AUTO_SAVE_DEBOUNCE_MS = 2s) must land BEFORE the next hard
+  // navigation: the campaign-authority hydration rules refetch-replace a
+  // rehydrated-but-unvalidated cache, so an un-PUT-ed accept is discarded
+  // on reload. Wait for the PUT to return instead of sleeping a fixed
+  // interval shorter than the debounce (the old 1s wait raced it).
+  const saved = page.waitForResponse(
+    (response) =>
+      response.request().method() === 'PUT' &&
+      response.url().includes('/api/campaigns/') &&
+      response.ok(),
+    { timeout: 30_000 },
+  );
   await acceptButton.click();
-  await page.waitForTimeout(1_000);
+  await saved;
 }
 
 /** Navigate to a campaign's mission list and wait for at least one mission card. */
