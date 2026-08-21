@@ -249,14 +249,19 @@ Post-merge terminal evidence: before PR 1A implementation resumes, verify these 
   - Receipt (2026-08-21): real-SQLite (temp-file) coverage - record/select round trip; pre-write digest refusal leaves zero rows; duplicate slot + discard/re-record; planted digest-mismatched AND torn (invalid JSON) rows skipped with an earlier valid base admitted and both ids reported; all-corrupt/absent -> full-replay with evidence; stale fingerprint and mismatched caller-supplied sourceTailDigest never select; throughRevision head cap; file reopen persistence.
 - [x] 15B.4 Run Node 22 native SQLite preflight, focused repository tests, typecheck/lint/format, strict OpenSpec/QC, and sequential integrity review.
   - Receipt (2026-08-21): Node 22 native preflight green; focused repository + full replay suites 573/573 in this worktree; typecheck/lint/format clean; strict OpenSpec green; sequential integrity review (fresh-context Grok 4.6, incl. the sourceTailDigest-default honesty probe) recorded in the PR description.
-- [ ] 15B.5 After merge, rerun exact main and prune before PR 16.
+- [x] 15B.5 After merge, rerun exact main and prune before PR 16.
+  - Receipt (2026-08-21): PR 15B merged as #1293 (squash, SHA-guarded; the independent review's REJECT->fix->re-review APPROVE cycle recorded in the PR); primary fast-forwarded; worktree + branches pruned; PR 16 branched from the post-merge main.
 
 ## 16. Full-Replay and Checkpoint Equivalence — PR 16
 
-- [ ] 16.1 Add authoritative and viewer-projection fixtures proving full replay equals compatible checkpoint-plus-contiguous-tail.
-- [ ] 16.2 Add mismatched schema pipeline, projector version, source digest, state digest, and tail fixtures that rebuild from an earlier base or full replay without publication.
-- [ ] 16.3 Run every fixture twice and prove identical state and audience-safe digests.
-- [ ] 16.4 Run focused equivalence tests and applicable quality/review gates with checkpoint use still disabled by default.
+- [x] 16.1 Add authoritative and viewer-projection fixtures proving full replay equals compatible checkpoint-plus-contiguous-tail.
+  - Receipt (2026-08-21): `ReplayEquivalenceHarness.ts` (pure composition of the merged kernels: registry upcast + projector fold + canonical digests) with contract fixtures proving checkpoint-plus-contiguous-tail EQUALS full replay - deep-equal state AND identical canonical digest - for BOTH the authoritative projector (hidden roll history retained) and an audience-safe viewer projector (no hidden data; digest proven distinct from the authoritative digest). The checkpoint fixture is built from a REAL prefix replay, never hand-typed state.
+- [x] 16.2 Add mismatched schema pipeline, projector version, source digest, state digest, and tail fixtures that rebuild from an earlier base or full replay without publication.
+  - Receipt (2026-08-21): five-class mismatch matrix - schema-pipeline fingerprint, projector version, source-tail digest, state digest (each named in the rejection evidence), and a gapped tail (tail-discontinuity) - every case rebuilds via FULL replay with the rebuilt state/digest proven equal to the reference full replay over the same history; `recoverState` parses the cached state ONLY after compatibility (digest expectations REQUIRED by type) + digestsVerified + tail continuity all pass, so incompatible-cache state is structurally unpublishable.
+- [x] 16.3 Run every fixture twice and prove identical state and audience-safe digests.
+  - Receipt (2026-08-21): double-run determinism - both projectors and the recovery path run twice with byte-identical canonical digests; the recovered state re-digests to its own claimed digest.
+- [x] 16.4 Run focused equivalence tests and applicable quality/review gates with checkpoint use still disabled by default.
+  - Receipt (2026-08-21): equivalence contract 9 tests within the full replay suite 573/573 in this worktree; typecheck/lint/format clean; harness swept by the dependency-boundary test and has no production importer - checkpoint use stays disabled by default; strict OpenSpec green; independent fresh-context review (Grok 4.6) recorded in the PR description.
 - [ ] 16.5 After merge, rerun exact main and prune before PR 17.
 
 ## 17. Per-Authority-Scope Quarantine — PR 17
