@@ -82,14 +82,19 @@ Post-merge terminal evidence: before PR 1A implementation resumes, verify these 
   - Receipt (2026-08-21): retention pinned by test — the `initiative_rolled` audit trail (consumed `rolls` array, raw + original 2d6, modifiers, totals, Tactical Genius side) survives validation byte-for-byte. Purity pinned by test — the pack module graph's RUNTIME imports are asserted to be only `zod`, pure `@/types/...` enum modules, and replay-local relative modules (`import type` lines exempt as erased); no catalog, clock, store, service, or RNG import can enter without failing the contract test.
 - [x] 4.4 Run focused lifecycle tests, Node 22 typecheck/lint/format, strict OpenSpec/QC, and sequential independent schema review.
   - Receipt (2026-08-21): pack contract 20/20 + sibling replay suites (registry, campaign pack, legacy adapters, fingerprint) 49/49 on Node 22; typecheck/lint/format clean; `openspec validate add-replay-schema-and-checkpoint-safety --strict` green. Independent review: a fresh-context reviewer agent walked every schema against its canonical interface field-by-field; findings were fixed and the review verdict recorded in the PR description.
-- [ ] 4.5 After merge, rerun exact main and prune before PR 5.
+- [x] 4.5 After merge, rerun exact main and prune before PR 5.
+  - Receipt (2026-08-21): PR 4 merged as #1279 (squash, SHA-guarded); primary fast-forwarded to the merge commit; worktree + local/remote branches pruned. PR 5 branched from the post-merge main.
 
 ## 5. Combat Movement, Locks, and Facing Baseline Pack — PR 5
 
-- [ ] 5.1 Add strict concrete v1 schemas for the six movement declaration/invalid/locked/runtime/enhancement/facing discriminants assigned by `schema-pack-inventory.md`; ranged `AttackLocked` remains owned by task 6.
-- [ ] 5.2 Register the pack and add per-variant valid plus missing/extra/ill-typed fixtures, including movement steps and resolved stand/prone outcomes.
-- [ ] 5.3 Prove legacy movement compatibility is explicit in the baseline schema rather than reconstructed from current movement rules.
-- [ ] 5.4 Run focused movement tests and applicable quality/review gates.
+- [x] 5.1 Add strict concrete v1 schemas for the six movement declaration/invalid/locked/runtime/enhancement/facing discriminants assigned by `schema-pack-inventory.md`; ranged `AttackLocked` remains owned by task 6.
+  - Receipt (2026-08-21): `CombatMovementBaselineSchemaPack.ts` registers the six inventory discriminants at baseline v1 (runtime `GameEventType` keys, `combat.<type>.v1` ids, no transitions, six-member `satisfies` exhaustiveness). The 12-kind `IMovementStep` union is mirrored as a `kind`-discriminated zod union; `MovementInvalid`'s 11-reason vocabulary and `RuntimeMovementStateChanged`'s source/conversion/LAM/infantry surface are exact; `hexCoordinateSchema` reused from the PR-4 shared module. The contract test pins that `attack_locked` is NOT registered (task-6 ownership).
+- [x] 5.2 Register the pack and add per-variant valid plus missing/extra/ill-typed fixtures, including movement steps and resolved stand/prone outcomes.
+  - Receipt (2026-08-21): per-variant valid fixtures — the enriched `movement_declared` fixture carries the resolved stand-up outcome fields plus a six-kind step chain (standUp, forward, turn, lateral, jump w/ mechanical-booster flag, chargeDeclared); 3-mutation matrix per variant (18 rejections) with the declared-movement mutations targeting the step union (missing step field, extra step field, unknown step kind); unknown discriminant + version fail closed. Pack unwired (grep: contract-test-only references). 16/16 contract tests green.
+- [x] 5.3 Prove legacy movement compatibility is explicit in the baseline schema rather than reconstructed from current movement rules.
+  - Receipt (2026-08-21): a dedicated pre-enrichment `LEGACY_MOVEMENT_DECLARED_PAYLOAD` fixture (only the seven fields legacy streams serialized — no mode/path/steps/decomposition) parses unchanged at baseline v1; every enrichment field is optional IN THE SCHEMA ITSELF, exactly as the payload interface declares for legacy compat, so nothing is reconstructed from current movement rules.
+- [x] 5.4 Run focused movement tests and applicable quality/review gates.
+  - Receipt (2026-08-21): pack contract 16/16; all sibling replay suites 69/69 (registry, campaign pack, lifecycle pack, legacy adapters, fingerprint); typecheck/lint/format clean; strict OpenSpec green; independent fresh-context schema review run with verdict + any findings recorded in the PR description.
 - [ ] 5.5 After merge, rerun exact main and prune before PR 6.
 
 ## 6. Combat Ranged and Indirect Attack Baseline Pack — PR 6
