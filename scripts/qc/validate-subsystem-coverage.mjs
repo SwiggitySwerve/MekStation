@@ -72,6 +72,8 @@ function issue(message) {
  *   - specContains(specPath, literal) → boolean
  *   - nightlyMatrixTags → string[] when the nightly `subsystem-lanes` job
  *     exists, or null when it is absent (the cross-check then stays dormant)
+ *   - laneTagTenanted(tag) -> whether any e2e spec file carries the lane
+ *     tag literal (parity specs count as tenants)
  */
 export function validateSubsystemCoverage(ledger, probes) {
   const issues = [];
@@ -142,6 +144,10 @@ export function validateSubsystemCoverage(ledger, probes) {
     }
   }
   // Lane cross-check (design D8): dormant until the nightly job exists.
+  // Direction 1 (lane -> tenant) asks whether ANY spec file carries the
+  // lane tag literal -- pack parity specs are legitimate lane tenants
+  // without being subsystem-coverage rows (W6 task 7.1). Direction 2
+  // (tenanted facet -> lane) stays ledger-based.
   if (Array.isArray(probes.nightlyMatrixTags)) {
     const tagsWithTaggedRows = new Set(
       ledger.subsystems
@@ -155,7 +161,7 @@ export function validateSubsystemCoverage(ledger, probes) {
         .map((row) => row.facet),
     );
     for (const laneTag of probes.nightlyMatrixTags) {
-      if (!tagsWithTaggedRows.has(laneTag)) {
+      if (!probes.laneTagTenanted(laneTag)) {
         issues.push(
           issue(`Nightly lane tag ${laneTag} has no tagged covering spec.`),
         );
@@ -208,7 +214,23 @@ if (isMain) {
   const nightlyMatrixTags = fs.existsSync(nightlyPath)
     ? parseNightlyMatrixTags(fs.readFileSync(nightlyPath, 'utf8'))
     : null;
+  // Direction-1 tenancy scans every e2e spec file for the tag literal --
+  // parity specs under e2e/scenario-packs/ are legitimate lane tenants.
+  const specFiles = [];
+  const walk = (dir) => {
+    for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+      const full = path.join(dir, entry.name);
+      if (entry.isDirectory()) walk(full);
+      else if (entry.name.endsWith('.spec.ts')) specFiles.push(full);
+    }
+  };
+  walk(path.join(repoRoot, 'e2e'));
+  const laneTagTenanted = (tag) =>
+    specFiles.some((file) =>
+      fs.readFileSync(file, 'utf8').includes('@subsystem:' + tag),
+    );
   const issues = validateSubsystemCoverage(ledger, {
+    laneTagTenanted,
     specExists: (specPath) => fs.existsSync(path.join(repoRoot, specPath)),
     specContains: (specPath, literal) =>
       fs.readFileSync(path.join(repoRoot, specPath), 'utf8').includes(literal),

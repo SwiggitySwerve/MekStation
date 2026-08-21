@@ -16,46 +16,50 @@ import { expect, test } from '@playwright/test';
 
 import { loadCampaignPack } from '../helpers/scenarioPackLoading';
 
-test.describe('scenario pack parity: economy-midcampaign', () => {
-  test('the finances surface agrees with the mint-time invariant summary: balance, transaction-type presence, contract status', async ({
-    page,
-  }, testInfo) => {
-    await loadCampaignPack(page, 'economy-midcampaign', {
-      workerIndex: testInfo.workerIndex,
+test.describe(
+  'scenario pack parity: economy-midcampaign',
+  { tag: ['@subsystem:economy'] },
+  () => {
+    test('the finances surface agrees with the mint-time invariant summary: balance, transaction-type presence, contract status', async ({
+      page,
+    }, testInfo) => {
+      await loadCampaignPack(page, 'economy-midcampaign', {
+        workerIndex: testInfo.workerIndex,
+      });
+
+      await expect(page.getByTestId('page-title')).toBeVisible({
+        timeout: 20_000,
+      });
+
+      // Balance (design D9: "the route-rendered economy surfaces agree with
+      // the mint-time invariant summary" — the payload's committed
+      // `body.finances.balance` is `1299600` C-bills: starting 1,000,000 +
+      // the paid contract's 300,000 closure payout - two 200 C-bill daily
+      // salary postings).
+      await expect(page.getByTestId('finances-balance')).toBeVisible({
+        timeout: 20_000,
+      });
+      await expect(page.getByTestId('finances-balance')).toContainText(
+        '1,299,600.00 C-bills',
+      );
+
+      // Mixed transaction types (design D6: "≥1 contract paid, mixed-type
+      // ledger") — exactly the three transactions the mint captured: two
+      // salary (expense) postings and one contract-closure (income) payout.
+      const ledger = page.getByTestId('finances-ledger');
+      await expect(ledger).toBeVisible({ timeout: 20_000 });
+      const rows = page.locator('[data-testid^="ledger-row-"]');
+      await expect(rows).toHaveCount(3);
+      await expect(ledger).toContainText('income');
+      await expect(ledger).toContainText('expense');
+
+      // Contract status (design D9's invariant summary includes
+      // `contractStatuses`) — the mint's committed provenance records the
+      // fixture's single contract closed `Failed` (the fixture's
+      // deterministic seed/combat outcome), still paying its (nonzero)
+      // failurePayment — proving "a contract paid" never implies "a
+      // contract won".
+      await expect(ledger).toContainText('Failed');
     });
-
-    await expect(page.getByTestId('page-title')).toBeVisible({
-      timeout: 20_000,
-    });
-
-    // Balance (design D9: "the route-rendered economy surfaces agree with
-    // the mint-time invariant summary" — the payload's committed
-    // `body.finances.balance` is `1299600` C-bills: starting 1,000,000 +
-    // the paid contract's 300,000 closure payout - two 200 C-bill daily
-    // salary postings).
-    await expect(page.getByTestId('finances-balance')).toBeVisible({
-      timeout: 20_000,
-    });
-    await expect(page.getByTestId('finances-balance')).toContainText(
-      '1,299,600.00 C-bills',
-    );
-
-    // Mixed transaction types (design D6: "≥1 contract paid, mixed-type
-    // ledger") — exactly the three transactions the mint captured: two
-    // salary (expense) postings and one contract-closure (income) payout.
-    const ledger = page.getByTestId('finances-ledger');
-    await expect(ledger).toBeVisible({ timeout: 20_000 });
-    const rows = page.locator('[data-testid^="ledger-row-"]');
-    await expect(rows).toHaveCount(3);
-    await expect(ledger).toContainText('income');
-    await expect(ledger).toContainText('expense');
-
-    // Contract status (design D9's invariant summary includes
-    // `contractStatuses`) — the mint's committed provenance records the
-    // fixture's single contract closed `Failed` (the fixture's
-    // deterministic seed/combat outcome), still paying its (nonzero)
-    // failurePayment — proving "a contract paid" never implies "a
-    // contract won".
-    await expect(ledger).toContainText('Failed');
-  });
-});
+  },
+);

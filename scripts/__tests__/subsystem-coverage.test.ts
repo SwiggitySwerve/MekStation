@@ -41,6 +41,10 @@ try {
     specExists: (p) => Object.prototype.hasOwnProperty.call(request.specFiles, p),
     specContains: (p, literal) => (request.specFiles[p] ?? '').includes(literal),
     nightlyMatrixTags: request.nightlyMatrixTags,
+    laneTagTenanted: (tag) =>
+      Object.values(request.specFiles).some((content) =>
+        content.includes('@subsystem:' + tag),
+      ),
   });
   process.stdout.write(JSON.stringify({ ok: true, messages: issues.map((i) => i.message) }));
 } catch (error) {
