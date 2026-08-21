@@ -14,19 +14,29 @@ import type { ICampaignAuthoritativeState } from '@/types/campaign/CampaignSync'
 
 import { CampaignProjectionDivergenceError } from '@/lib/campaign/sync/ICampaignEventStore';
 
-// Controllable one-shot drift around the real reducer, so the divergence
-// row can make exactly one application pass disagree while every other
-// pass — including the journal rebuild — stays faithful.
-let driftNextDayAdvance = false;
+// Controllable drift around the real reducer. The divergence row arms it
+// to corrupt the SECOND CampaignDayAdvanced application — the host's
+// verify/apply pass (the derive pass is the first) — which is exactly the
+// corruption D10 exists to catch: the expected digest is clean, the live
+// application drifts, and only a journal rebuild restores truth. Every
+// later pass, including the rebuild's replay, stays faithful.
+let armDayAdvanceApplyDrift = false;
+let dayAdvanceApplications = 0;
 jest.mock('@/lib/campaign/sync/applyCampaignEvent', () => {
   const actual = jest.requireActual('@/lib/campaign/sync/applyCampaignEvent');
   return {
     ...actual,
     applyCampaignEvent: (state: never, event: { type: string }) => {
       const next = actual.applyCampaignEvent(state, event);
-      if (driftNextDayAdvance && event.type === 'CampaignDayAdvanced') {
-        driftNextDayAdvance = false;
-        return { ...next, balance: (next as { balance: number }).balance + 1 };
+      if (armDayAdvanceApplyDrift && event.type === 'CampaignDayAdvanced') {
+        dayAdvanceApplications += 1;
+        if (dayAdvanceApplications === 2) {
+          armDayAdvanceApplyDrift = false;
+          return {
+            ...next,
+            balance: (next as { balance: number }).balance + 1,
+          };
+        }
       }
       return next;
     },
@@ -154,7 +164,8 @@ describe('CampaignMatchHost over a batch-capable journal store', () => {
   });
 
   it('on verify-after-apply divergence: no broadcast, journal-rebuilt state, batch retained', async () => {
-    driftNextDayAdvance = true;
+    armDayAdvanceApplyDrift = true;
+    dayAdvanceApplications = 0;
     const broadcastsBefore = broadcasts.length;
     await expect(
       host.applyHostIntent({
