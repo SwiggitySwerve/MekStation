@@ -32,6 +32,7 @@ export class ReplaySchemaRegistrationError extends Error {
 }
 export type UnsupportedReplayHistoryCode =
   | 'invalid-payload'
+  | 'missing-required-input'
   | 'missing-transition'
   | 'unknown-event-type'
   | 'unsupported-schema-version'
