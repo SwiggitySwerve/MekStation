@@ -422,6 +422,10 @@ async function seedCampaignWithRoster(
             unitName: 'Atlas',
             chassisVariant: 'AS7-D',
             readiness: 'Ready',
+            // The canonical-record admission gate (canonicalCatalogAdmission)
+            // denies launch for roster units without a resolvable unitRef --
+            // wizard-created rosters carry one, so the seed must too.
+            unitRef: 'atlas-as7-d',
           },
         ],
         pilots: [],

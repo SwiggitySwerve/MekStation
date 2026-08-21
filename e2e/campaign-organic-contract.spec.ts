@@ -199,8 +199,21 @@ test.describe('organic campaign contract acceptance', () => {
         expect(offerId).toBeTruthy();
         expect(offerName).toBeTruthy();
 
+        // The accept is a client-side store mutation riding the 2s debounced
+        // auto-save; the later hard navigations reload from the server, and
+        // the campaign-authority hydration rules refetch-replace an
+        // unvalidated rehydrated cache -- so the accept must be durably
+        // PUT before any reload, or it is discarded.
+        const acceptSaved = page.waitForResponse(
+          (response) =>
+            response.request().method() === 'PUT' &&
+            response.url().includes(`/api/campaigns/${campaignId}`) &&
+            response.ok(),
+          { timeout: 30_000 },
+        );
         await page.getByTestId(`offer-accept-${offerId}`).click();
         await expect(page.getByTestId(`offer-card-${offerId}`)).toHaveCount(0);
+        await acceptSaved;
 
         const accepted = await getCampaignContractSnapshot(page);
         expect(accepted.missionIds).toContain(offerId);
