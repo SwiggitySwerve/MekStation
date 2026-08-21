@@ -199,14 +199,19 @@ Post-merge terminal evidence: before PR 1A implementation resumes, verify these 
   - Receipt (2026-08-21): `ReplayDependencyBoundary.test.ts` statically proves the whole replay runtime surface (every `.ts` directly in `src/lib/events/replay/`, >= 12 files pinned) has zero clock/RNG/network/timer tokens (Math.random, Date.now, new Date, performance.now, fetch, XMLHttpRequest, WebSocket, setTimeout, setInterval, getRandomValues) and imports ONLY the pure allowlist (`zod`, `js-sha256`, the journal canonicalizer, `@/types/*`, replay-local) at runtime; `import type` exempt.
 - [x] 12.4 Run deterministic replay fixtures twice, static dependency checks, and applicable quality/review gates.
   - Receipt (2026-08-21): full-88 double-run determinism sweep (byte-identical stringified payloads run-to-run, deep-equal to fixture); full replay suite 524/524 in this worktree; typecheck/lint/format clean; strict OpenSpec green; independent fresh-context review (Grok 4.6, manifest-honesty sampling across all nine packs) recorded in the PR description.
-- [ ] 12.5 After merge, rerun exact main and prune before PR 13.
+- [x] 12.5 After merge, rerun exact main and prune before PR 13.
+  - Receipt (2026-08-21): PR 12 merged as #1289 (squash, SHA-guarded); primary fast-forwarded; worktree + branches pruned; PR 13 branched from the post-merge main.
 
 ## 13. Projector Registry and Explicit No-State-Change — PR 13
 
-- [ ] 13.1 Add immutable projector ID/version registrations separate from event schema versions and application release identity.
-- [ ] 13.2 Require every supported event to register an apply handler or a named, tested no-state-change decision; remove implicit missing-handler success from the new pipeline.
-- [ ] 13.3 Add typed missing/duplicate projector failures and prove no partial projection or side effect is returned.
-- [ ] 13.4 Run focused projector tests and applicable quality/review gates without cutting over production replay.
+- [x] 13.1 Add immutable projector ID/version registrations separate from event schema versions and application release identity.
+  - Receipt (2026-08-21): `ReplayProjectorRegistry.ts` - `ReplayProjector<TState>` carries an immutable `projectorId` + `projectorVersion` identity validated at construction (typed `invalid-projector-registration` for empty ids / non-positive / non-integer versions). The kernel never reads schema versions or release identity; the header pins that checkpoint compatibility (PR 14) binds the two identities SIDE BY SIDE, never merged. A version bump is a new registration, not a mutation.
+- [x] 13.2 Require every supported event to register an apply handler or a named, tested no-state-change decision; remove implicit missing-handler success from the new pipeline.
+  - Receipt (2026-08-21): every decision is explicit - `{kind:'apply'}` handler or `{kind:'no-state-change', reason}` with a mandatory non-blank NAMED reason (typed failure otherwise). `project()` on an undecided event type throws typed `missing-projector-decision` BEFORE any state derivation - implicit missing-handler success does not exist in this pipeline. `assertReplayProjectorCompleteness` refuses a projector that does not decide every supported discriminant, tested against the real canonical 88. EXPLICIT NON-CLAIM: production reducer bindings for the 88 land with the library-integration/recovery PRs; this kernel enforces the mechanics they must satisfy.
+- [x] 13.3 Add typed missing/duplicate projector failures and prove no partial projection or side effect is returned.
+  - Receipt (2026-08-21): four-code typed `ReplayProjectionError` union (`invalid-projector-registration` / `duplicate-projector-decision` / `missing-projector-decision` / `incomplete-projector`) each carrying a frozen `eventTypes` evidence list; the completeness failure names EVERY missing discriminant (asserted list-equal to all 88 for an near-empty projector, and to exactly the one withheld discriminant for an 87/88 projector). No-partial-projection proofs: frozen input state unchanged after a missing-decision failure; no-state-change returns the SAME state reference; apply is pure state-in/state-out (frozen-input proof).
+- [x] 13.4 Run focused projector tests and applicable quality/review gates without cutting over production replay.
+  - Receipt (2026-08-21): projector contract 11/11 within the full replay suite 535/535 in this worktree; typecheck/lint/format clean; the module is swept by the PR-12 dependency-boundary test (pure imports only) and has no importer outside `src/lib/events/replay/` - production replay untouched; strict OpenSpec green; independent fresh-context review (Grok 4.6) recorded in the PR description.
 - [ ] 13.5 After merge, rerun exact main and prune before PR 14.
 
 ## 14. Checkpoint Compatibility Core — PR 14
