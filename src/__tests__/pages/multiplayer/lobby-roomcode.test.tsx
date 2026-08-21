@@ -156,6 +156,7 @@ function baseSession(status: 'lobby' | 'active'): IUseMultiplayerSessionResult {
     lastSeq: -1,
     mirrorSession: status === 'active' ? mirror : null,
     mirrorEvents: status === 'active' ? events : [],
+    mirrorBlocked: null,
     sendGameIntent: jest.fn(() => true),
     intentError: null,
     clearIntentError: jest.fn(),
