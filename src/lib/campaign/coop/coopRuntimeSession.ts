@@ -24,7 +24,7 @@ import type {
 import type { ICoopSession } from '@/types/campaign/CoopSession';
 import type { IForce } from '@/types/campaign/Force';
 
-import { InMemoryCampaignEventStore } from '@/lib/campaign/sync/InMemoryCampaignEventStore';
+import { createDefaultCampaignEventStore } from '@/lib/campaign/sync/JournalCampaignEventStore';
 import { CampaignGmArbiter } from '@/lib/multiplayer/server/CampaignGmArbiter';
 import { CampaignMatchHost } from '@/lib/multiplayer/server/CampaignMatchHost';
 import { CampaignSyncSession } from '@/lib/multiplayer/server/CampaignSyncSession';
@@ -93,7 +93,9 @@ export async function openCoopRuntimeSession(
   const host = new CampaignMatchHost({
     campaignId: campaign.id,
     hostPlayerId: options.hostPlayerId ?? 'host',
-    eventStore: new InMemoryCampaignEventStore(),
+    // The cutover-flag factory (task 5.1): identical in-memory behavior
+    // until CAMPAIGN_JOURNAL_AUTHORITY_ENABLED turns on with task 5.2.
+    eventStore: createDefaultCampaignEventStore(),
     initialState: buildCampaignAuthoritativeState(campaign),
   });
   const syncSession = new CampaignSyncSession(host);
