@@ -20,7 +20,7 @@ import React, { useCallback, useRef, useState } from 'react';
 
 import type { IGameEvent } from '@/types/gameplay';
 
-import { isGameEvent } from '@/types/gameplay/GameSessionInterfaces';
+import { loadReplayLibraryNdjson } from '@/lib/events/replay/ReplayLibraryLoadPipeline';
 
 // =============================================================================
 // Public types
@@ -33,7 +33,12 @@ import { isGameEvent } from '@/types/gameplay/GameSessionInterfaces';
  */
 export interface JsonlLineError {
   readonly line: number;
-  readonly error: 'not valid JSON' | 'not a valid IGameEvent';
+  /**
+   * Replay-safety PR 18: the typed block reason from the load pipeline
+   * (adapter attribution code or quarantine reason), so evidence is
+   * preserved instead of the old two-string vocabulary.
+   */
+  readonly error: string;
 }
 
 export interface JsonlFileLoaderProps {
@@ -79,39 +84,24 @@ export function parseNdjsonEvents(
 ):
   | { readonly ok: true; readonly events: readonly IGameEvent[] }
   | { readonly ok: false; readonly errors: readonly JsonlLineError[] } {
-  const lines = contents.split('\n');
-  const errors: JsonlLineError[] = [];
-  const events: IGameEvent[] = [];
-
-  for (let i = 0; i < lines.length; i += 1) {
-    const raw = lines[i];
-    if (raw.length === 0) {
-      // Empty line — tolerated (covers trailing newlines and accidental
-      // blank lines). Spec rule "strip empty lines" applies before
-      // validation.
-      continue;
-    }
-
-    let parsed: unknown;
-    try {
-      parsed = JSON.parse(raw);
-    } catch {
-      errors.push({ line: i + 1, error: 'not valid JSON' });
-      continue;
-    }
-
-    if (!isGameEvent(parsed)) {
-      errors.push({ line: i + 1, error: 'not a valid IGameEvent' });
-      continue;
-    }
-
-    events.push(parsed);
+  // Replay-safety PR 18: the drop zone rides the SAME pipeline as the
+  // API read - legacy adapter byte binding, composed baseline schemas,
+  // provenance, census projector - all-or-nothing with typed per-line
+  // reasons.
+  const result = loadReplayLibraryNdjson(contents, 'uploaded-file');
+  if (result.kind === 'loaded') {
+    return { ok: true, events: result.events };
   }
-
-  if (errors.length > 0) {
-    return { ok: false, errors };
-  }
-  return { ok: true, events };
+  return {
+    ok: false,
+    errors: result.blockedLines.map((blocked) => ({
+      line: blocked.line,
+      error:
+        blocked.eventType === null
+          ? blocked.reason
+          : `${blocked.reason} (${blocked.eventType})`,
+    })),
+  };
 }
 
 // =============================================================================
@@ -162,7 +152,7 @@ export function JsonlFileLoader({
       reader.addEventListener('error', () => {
         // FileReader errors are rare (browser-level read failures);
         // surface a single line-0 error so the user still sees feedback.
-        setErrors([{ line: 0, error: 'not valid JSON' }]);
+        setErrors([{ line: 0, error: 'file could not be read' }]);
       });
       reader.readAsText(file, 'utf-8');
     },

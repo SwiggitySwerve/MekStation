@@ -137,7 +137,10 @@ describe('parseNdjsonEvents', () => {
       expect(result.ok).toBe(false);
       if (!result.ok) {
         expect(result.errors).toHaveLength(1);
-        expect(result.errors[0]).toEqual({ line: 2, error: 'not valid JSON' });
+        expect(result.errors[0]).toEqual({
+          line: 2,
+          error: 'invalid-source-event',
+        });
       }
     });
   });
@@ -153,9 +156,11 @@ describe('parseNdjsonEvents', () => {
       expect(result.ok).toBe(false);
       if (!result.ok) {
         expect(result.errors).toHaveLength(1);
+        // `{foo:'bar'}` has no string `type` discriminant, so the legacy
+        // adapter refuses attribution before the envelope guard runs.
         expect(result.errors[0]).toEqual({
           line: 2,
-          error: 'not a valid IGameEvent',
+          error: 'invalid-source-event',
         });
       }
     });
@@ -286,7 +291,7 @@ describe('JsonlFileLoader component', () => {
       });
       expect(onEventsLoaded).not.toHaveBeenCalled();
       expect(screen.getByTestId('jsonl-loader-errors')).toHaveTextContent(
-        'line 2: not valid JSON',
+        'line 2: invalid-source-event',
       );
     });
   });

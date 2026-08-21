@@ -65,12 +65,21 @@ const toHitModifierSchema = z
   })
   .strict();
 
+// STORED FORM (replay-safety PR 18): the interactive engine's
+// enrichedWeaponAttackData decorates each item with the firing mode,
+// projected range bracket, per-weapon to-hit (Infinity -> null when out
+// of range), and per-weapon modifiers - genuine current history stores
+// these beyond the bare IWeaponAttackData.
 const weaponAttackDataSchema = z
   .object({
     weaponId: z.string(),
     weaponName: z.string(),
     damage: finiteNumber,
     heat: finiteNumber,
+    mode: z.enum(['Direct', 'Indirect']).optional(),
+    rangeBracket: z.enum(['short', 'medium', 'long', 'extreme']).optional(),
+    toHitNumber: finiteNumber.nullable().optional(),
+    modifiers: z.array(toHitModifierSchema).optional(),
   })
   .strict();
 
