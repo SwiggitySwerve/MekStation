@@ -177,7 +177,7 @@ Post-merge terminal evidence: before PR 1A implementation resumes, verify these 
 
 ## 11. Complete Domain Registry Composition — PR 11
 
-- [ ] 11.1 Compose the campaign and combat packs with the registry kernel and prove exact coverage of seven campaign plus 80 combat canonical discriminants.
+- [ ] 11.1 Compose the campaign and combat packs with the registry kernel and prove exact coverage of seven campaign plus 81 combat canonical discriminants (80 frozen + `PhysicalAttackLocked` per the 2026-08-21 inventory amendment).
 - [ ] 11.2 Add compile-time and runtime completeness guards so a new discriminant fails until a concrete schema, target version, and fixtures are registered.
 - [ ] 11.3 Prove every supported starting version reaches exactly one current target and every unsupported type/version fails with typed evidence; representative sampling is insufficient.
 - [ ] 11.4 Run the full schema/upcaster fixture matrix and applicable quality/review gates; keep production replay integration disabled.
