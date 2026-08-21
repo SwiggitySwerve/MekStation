@@ -212,14 +212,19 @@ Post-merge terminal evidence: before PR 1A implementation resumes, verify these 
   - Receipt (2026-08-21): four-code typed `ReplayProjectionError` union (`invalid-projector-registration` / `duplicate-projector-decision` / `missing-projector-decision` / `incomplete-projector`) each carrying a frozen `eventTypes` evidence list; the completeness failure names EVERY missing discriminant (asserted list-equal to all 88 for an near-empty projector, and to exactly the one withheld discriminant for an 87/88 projector). No-partial-projection proofs: frozen input state unchanged after a missing-decision failure; no-state-change returns the SAME state reference; apply is pure state-in/state-out (frozen-input proof).
 - [x] 13.4 Run focused projector tests and applicable quality/review gates without cutting over production replay.
   - Receipt (2026-08-21): projector contract 11/11 within the full replay suite 535/535 in this worktree; typecheck/lint/format clean; the module is swept by the PR-12 dependency-boundary test (pure imports only) and has no importer outside `src/lib/events/replay/` - production replay untouched; strict OpenSpec green; independent fresh-context review (Grok 4.6) recorded in the PR description.
-- [ ] 13.5 After merge, rerun exact main and prune before PR 14.
+- [x] 13.5 After merge, rerun exact main and prune before PR 14.
+  - Receipt (2026-08-21): PR 13 merged as #1290 (squash, SHA-guarded); primary fast-forwarded; worktree + branches pruned; PR 14 branched from the post-merge main.
 
 ## 14. Checkpoint Compatibility Core — PR 14
 
-- [ ] 14.1 Add immutable checkpoint metadata keyed by stream, fixed root branch, revision, schema-pipeline fingerprint, projector ID/version, source-tail digest, and state digest.
-- [ ] 14.2 Implement pure compatibility and tail-continuity evaluation with full replay as the reference path; incompatible caches produce no publishable state.
-- [ ] 14.3 Prove target-schema/upcaster changes invalidate a prior checkpoint even when the projector version is unchanged.
-- [ ] 14.4 Run focused compatibility/digest tests and applicable quality/review gates.
+- [x] 14.1 Add immutable checkpoint metadata keyed by stream, fixed root branch, revision, schema-pipeline fingerprint, projector ID/version, source-tail digest, and state digest.
+  - Receipt (2026-08-21): `ReplayCheckpointCompatibility.ts` - `IReplayCheckpointMetadata` binds the full identity set (streamId, fixed-root branchId, revision, schemaPipelineFingerprint, projectorId + projectorVersion, sourceTailDigest, stateDigest); `createReplayCheckpointMetadata` validates (typed `invalid-checkpoint-metadata` for blank identities, negative/fractional revision, non-positive projectorVersion) and freezes.
+- [x] 14.2 Implement pure compatibility and tail-continuity evaluation with full replay as the reference path; incompatible caches produce no publishable state.
+  - Receipt (2026-08-21): pure evaluation only - `evaluateReplayCheckpointCompatibility` returns a typed verdict naming EVERY mismatched binding and carries NO state on incompatibility (key-set pinned in test); `evaluateReplayTailContinuity` requires revision+1 ascending with typed expected/found gap evidence (late-start, gap, repeat, empty-tail cases); `selectReplayRecoveryBase` discards incompatible checkpoints from consideration entirely and falls back to `full-replay` - full replay stays the authoritative reference path. `digestReplayCheckpointState` = sha256 over canonicalized JSON (key-order-insensitive, proven).
+- [x] 14.3 Prove target-schema/upcaster changes invalidate a prior checkpoint even when the projector version is unchanged.
+  - Receipt (2026-08-21): proven against the REAL `ReplaySchemaRegistry.fingerprintPipeline` - two registries differing only in (a) the target schemaId and (b) an added v2 schema + upcaster transition produce different fingerprints for the same historical versions, and a checkpoint bound to the prior fingerprint evaluates incompatible with `mismatches === ['schemaPipelineFingerprint']` while projectorId/projectorVersion are held constant in the expectation.
+- [x] 14.4 Run focused compatibility/digest tests and applicable quality/review gates.
+  - Receipt (2026-08-21): checkpoint contract 26 tests within the full replay suite 562/562 in this worktree; typecheck/lint/format clean; module swept by the dependency-boundary test (pure imports: js-sha256 + journal canonicalizer) and unwired from production; strict OpenSpec green; independent fresh-context review (Grok 4.6) recorded in the PR description.
 - [ ] 14.5 After merge, rerun exact main and prune before PR 15A.
 
 ## 15A. SQLite Checkpoint Schema and Direct Integrity — PR 15A
