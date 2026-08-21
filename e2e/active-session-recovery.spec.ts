@@ -690,3 +690,11 @@ test.describe('active game session recovery @game @recovery', () => {
     );
   });
 });
+
+// DELIBERATE RED-PATH PROBE (W6 task 5.5) — lives ONLY on the never-merged
+// draft branch; proves the wired gate blocks: Seam Anchors must conclude
+// failure on first attempt, the hardened aggregator must conclude failure
+// (never skipped) naming seam-anchors, and the merge box must be BLOCKED.
+test('deliberate red-path probe — never merge this branch', () => {
+  expect(1, 'forced failure for the 5.5 blocking-authority proof').toBe(2);
+});
