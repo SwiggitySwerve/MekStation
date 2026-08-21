@@ -285,6 +285,66 @@ jobs:
         run: node scripts/qc/recapture-scenario-packs.mjs
 
   # ---------------------------------------------------------------
+  # Per-subsystem nightly audit lanes (W6 design D8): one matrix leg
+  # per tenanted @subsystem: tag, selecting specs by native tag grep.
+  # fail-fast disabled so one red lane never hides another. NOT
+  # referenced by any PR workflow or required check — nightly-only.
+  # The matrix list is cross-checked against the coverage ledger by
+  # scripts/qc/validate-subsystem-coverage.mjs (both directions).
+  # ---------------------------------------------------------------
+  subsystem-lanes:
+    name: Subsystem Lane (${{ matrix.subsystem }})
+    needs: install-deps
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        subsystem: [economy, personnel, experience]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Setup Node + caches + install deps
+        uses: ./.github/actions/setup-node-and-install
+        with:
+          node-version: '22'
+
+      - name: Resolve Playwright version for browser cache key
+        id: playwright-version
+        shell: bash
+        run: echo "version=$(node -e "console.log(require('@playwright/test/package.json').version)")" >> "$GITHUB_OUTPUT"
+
+      - name: Cache Playwright chromium browser
+        id: playwright-cache
+        uses: actions/cache@v5
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ steps.playwright-version.outputs.version }}
+
+      - name: Install Playwright chromium browser
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+        run: npx playwright install --with-deps chromium
+
+      - name: Install Playwright system dependencies (browser cached)
+        if: steps.playwright-cache.outputs.cache-hit == 'true'
+        run: npx playwright install-deps chromium
+
+      - name: Run the subsystem lane
+        run: npx playwright test --grep "@subsystem:${{ matrix.subsystem }}" --project=chromium
+
+      - name: Upload Playwright report
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: subsystem-lane-${{ matrix.subsystem }}-report
+          path: |
+            playwright-report
+            test-results
+          retention-days: 7
+
+  # ---------------------------------------------------------------
   # Failure notification: a red nightly run must not scroll away
   # unseen in the Actions tab (that silence is exactly how the
   # 2026-06-09 audit findings accumulated). Opens a tracking issue on
@@ -292,7 +352,14 @@ jobs:
   # ---------------------------------------------------------------
   notify-on-failure:
     name: Notify on Failure
-    needs: [full-statistical-proofs, e2e-full, coverage, scenario-pack-recapture]
+    needs:
+      [
+        full-statistical-proofs,
+        e2e-full,
+        coverage,
+        scenario-pack-recapture,
+        subsystem-lanes,
+      ]
     if: failure()
     runs-on: ubuntu-latest
     timeout-minutes: 5
