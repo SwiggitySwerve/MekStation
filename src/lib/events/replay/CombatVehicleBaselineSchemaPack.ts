@@ -28,7 +28,7 @@ import { GameEventType } from '@/types/gameplay/GameSessionCoreTypes';
 import type { IReplayEventSchemaRegistration } from './ReplaySchemaRegistry';
 
 /** The nine vehicle/system-state discriminants this pack owns. */
-type CombatVehicleEventType =
+export type CombatVehicleEventType =
   | GameEventType.ShutdownCheck
   | GameEventType.StartupAttempt
   | GameEventType.NeuralInterfaceStateChanged

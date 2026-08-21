@@ -32,7 +32,7 @@ import { GameEventType } from '@/types/gameplay/GameSessionCoreTypes';
 import type { IReplayEventSchemaRegistration } from './ReplaySchemaRegistry';
 
 /** The twelve damage/heat/critical discriminants this pack owns. */
-type CombatDamageEventType =
+export type CombatDamageEventType =
   | GameEventType.DamageApplied
   | GameEventType.HeatGenerated
   | GameEventType.HeatDissipated

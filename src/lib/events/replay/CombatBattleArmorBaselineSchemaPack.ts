@@ -27,7 +27,7 @@ import { GameEventType } from '@/types/gameplay/GameSessionCoreTypes';
 import type { IReplayEventSchemaRegistration } from './ReplaySchemaRegistry';
 
 /** The ten battle-armor discriminants this pack owns. */
-type CombatBattleArmorEventType =
+export type CombatBattleArmorEventType =
   | GameEventType.TrooperKilled
   | GameEventType.SquadEliminated
   | GameEventType.SwarmAttached

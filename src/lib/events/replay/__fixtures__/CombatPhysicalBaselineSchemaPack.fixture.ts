@@ -53,6 +53,7 @@ export const VALID_COMBAT_PHYSICAL_EVENT_PAYLOADS: Readonly<
     targetNumber: 7,
     rolls: [5, 4],
   },
+  physical_attack_locked: { unitId: 'player-1-atlas-as7-d' },
   physical_attack_declared: {
     attackerId: 'player-1-atlas-as7-d',
     targetId: 'opponent-1-marauder-mad-3r',

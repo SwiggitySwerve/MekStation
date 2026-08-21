@@ -40,7 +40,7 @@ import {
 } from './CombatLifecycleSharedSchemas';
 
 /** The thirteen terrain/mission/morale/withdrawal discriminants. */
-type CombatMissionEventType =
+export type CombatMissionEventType =
   | GameEventType.CommandResultPublished
   | GameEventType.TerrainChanged
   | GameEventType.MinefieldChanged

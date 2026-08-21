@@ -32,7 +32,7 @@ import type { IReplayEventSchemaRegistration } from './ReplaySchemaRegistry';
 import { hexCoordinateSchema } from './CombatLifecycleSharedSchemas';
 
 /** The six movement discriminants this pack owns. */
-type CombatMovementEventType =
+export type CombatMovementEventType =
   | GameEventType.MovementDeclared
   | GameEventType.MovementInvalid
   | GameEventType.MovementLocked

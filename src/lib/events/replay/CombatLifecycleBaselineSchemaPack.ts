@@ -42,7 +42,7 @@ import {
 } from './CombatLifecycleSharedSchemas';
 
 /** The eight lifecycle/initiative discriminants this pack owns. */
-type CombatLifecycleEventType =
+export type CombatLifecycleEventType =
   | GameEventType.GameCreated
   | GameEventType.GameStarted
   | GameEventType.GameEnded
