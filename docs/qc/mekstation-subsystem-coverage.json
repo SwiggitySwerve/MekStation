@@ -7,14 +7,13 @@
       "id": "hiring",
       "facet": "personnel",
       "coveringSpecs": ["e2e/playtest-subsystem-hiring.spec.ts"],
-      "status": "render-only"
+      "status": "asserting"
     },
     {
       "id": "xp-leveling",
       "facet": "experience",
-      "coveringSpecs": [],
-      "status": "deferred",
-      "followUpRef": "openspec/changes/add-subsystem-lanes-and-ci/tasks.md (task 4.4 authors e2e/playtest-subsystem-xp-purchase.spec.ts)"
+      "coveringSpecs": ["e2e/playtest-subsystem-xp-purchase.spec.ts"],
+      "status": "asserting"
     },
     {
       "id": "medical",
@@ -48,13 +47,13 @@
       "id": "loans",
       "facet": "economy",
       "coveringSpecs": ["e2e/playtest-subsystem-loans.spec.ts"],
-      "status": "render-only"
+      "status": "asserting"
     },
     {
       "id": "contract-market",
       "facet": "economy",
       "coveringSpecs": ["e2e/playtest-subsystem-contracts.spec.ts"],
-      "status": "render-only"
+      "status": "asserting"
     },
     {
       "id": "contract-negotiation",

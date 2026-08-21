@@ -129,6 +129,7 @@
     "qc:campaign-long:browser": "node scripts/playwright/run-playwright.mjs test --project=chromium e2e/campaign-long-browser-signoff.spec.ts --workers=1",
     "qc:campaign-long:stability": "node scripts/qc/validate-long-campaign-stability.mjs",
     "qc:journeys:validate": "node scripts/qc/validate-journey-qc.mjs",
+    "qc:subsystem-lane": "node scripts/playwright/run-playwright.mjs test --project=chromium --workers=1 --grep",
     "qc:ui-flow-shell": "node scripts/qc/inspect-ui-flow-shell.mjs",
     "qc:ui-flow-shell:validate": "node scripts/qc/inspect-ui-flow-shell.mjs --validate-only",
     "qc:gm:campaign-ledger": "node scripts/qc/validate-gm-campaign-ledger.mjs --json",
