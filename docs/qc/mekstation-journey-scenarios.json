@@ -22,6 +22,7 @@
       "id": "character-build",
       "displayName": "Character build",
       "module": "roster",
+      "subsystems": ["personnel", "experience"],
       "surfaceIds": ["force-pilot-encounter-setup"],
       "tiers": ["smoke", "standard"],
       "defaultMode": "headless",
@@ -108,6 +109,7 @@
       "id": "mek-build",
       "displayName": "BattleMech build",
       "module": "construction",
+      "subsystems": [],
       "surfaceIds": ["customizer-construction-bv-export"],
       "tiers": ["smoke", "standard"],
       "defaultMode": "headless",
@@ -208,12 +210,15 @@
         "era is recorded",
         "BattleMech export artifact exists"
       ],
-      "knownLimitations": []
+      "knownLimitations": [
+        "subsystems is empty by design: construction has its own taxonomy outside the six-tag gameplay-subsystem vocabulary (design D4)."
+      ]
     },
     {
       "id": "combat-1v1",
       "displayName": "BattleMech 1v1 combat",
       "module": "combat",
+      "subsystems": ["combat"],
       "surfaceIds": [
         "gameplay-tactical-map-combat",
         "simulation-combat-validation"
@@ -338,6 +343,7 @@
       "id": "combat-4v4",
       "displayName": "BattleMech 4v4 combat",
       "module": "combat",
+      "subsystems": ["combat"],
       "surfaceIds": [
         "gameplay-tactical-map-combat",
         "simulation-combat-validation"
@@ -461,6 +467,7 @@
       "id": "contract-campaign",
       "displayName": "Contract campaign scenario",
       "module": "campaign",
+      "subsystems": ["navigation", "economy", "combat"],
       "surfaceIds": ["campaign-economy-progression"],
       "tiers": ["smoke", "standard"],
       "defaultMode": "headless",
@@ -613,6 +620,7 @@
       "id": "campaign-short",
       "displayName": "Short campaign",
       "module": "campaign",
+      "subsystems": ["navigation", "economy", "personnel"],
       "surfaceIds": ["campaign-economy-progression"],
       "tiers": ["smoke", "standard"],
       "defaultMode": "headless",
@@ -759,6 +767,13 @@
       "id": "campaign-long",
       "displayName": "Long campaign",
       "module": "campaign",
+      "subsystems": [
+        "navigation",
+        "economy",
+        "personnel",
+        "maintenance",
+        "experience"
+      ],
       "surfaceIds": ["campaign-economy-progression"],
       "tiers": ["smoke", "standard", "extended"],
       "defaultMode": "headless",

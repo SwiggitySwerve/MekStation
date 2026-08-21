@@ -22,13 +22,15 @@
  * a closed vocabulary matching the spec's literal six-tag enum exactly — do
  * not add tags here without amending the spec text first.
  */
-export type FlowSubsystem =
-  | 'navigation'
-  | 'combat'
-  | 'economy'
-  | 'maintenance'
-  | 'personnel'
-  | 'experience';
+export const FLOW_SUBSYSTEMS = [
+  'navigation',
+  'combat',
+  'economy',
+  'maintenance',
+  'personnel',
+  'experience',
+] as const;
+export type FlowSubsystem = (typeof FLOW_SUBSYSTEMS)[number];
 
 /** Named viewport presets derived from the canonical layout breakpoints. */
 export const FLOW_VIEWPORT_PRESETS = ['mobile', 'tablet', 'desktop'] as const;
