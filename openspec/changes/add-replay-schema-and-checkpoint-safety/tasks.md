@@ -44,14 +44,19 @@ Post-merge terminal evidence: before PR 1A implementation resumes, verify these 
 - [x] 1B.2 Prove registration/history order does not change the fingerprint, duplicate required identities are collapsed, unused registrations do not participate, and a required target/transition identity change does change the fingerprint.
   - Receipt: required-path SHA-256 fingerprint implemented with the journal canonicalizer; focused replay suites pass 22/22 across empty, isolated order/duplicate, unused-schema/registration/transition, required-identity, and typed fail-closed cases; Node 22 typecheck and full lint pass with zero errors (71 existing warnings), targeted lint/format pass, strict OpenSpec passes 228/228, OpenSpec QC accounts for 11/11 active changes with zero errors, and three sequential independent reviews approve; repository-wide format remains baseline-limited by four unrelated exact-main files.
 - [x] 1B.3 Run focused tests, Node 22 typecheck/lint/format, strict OpenSpec/QC, and sequential independent review.
-- [ ] 1B.4 After merge, rerun the fingerprint receipt on exact main and prune before PR 2.
+- [x] 1B.4 After merge, rerun the fingerprint receipt on exact main and prune before PR 2.
+  - Receipt (2026-08-20): PR 1B merged as #1127 (`c938641bd`). On exact main `f653187d4` the fingerprint + registry suites pass 22/22 under Node 22; no local or remote branch or registered worktree containing "replay" or "fingerprint" survives.
 
 ## 2. Explicit Legacy Source Adapters — PR 2
 
-- [ ] 2.1 Inventory and name the currently readable versionless combat NDJSON/IndexedDB and campaign-sync envelope formats, including stable format IDs and format versions.
-- [ ] 2.2 Before normalization, bind an NDJSON event to its exact raw line bytes and bind an IndexedDB/object record to an immutable snapshot using the journal's versioned canonical JSON encoding; hash that pre-normalization evidence, retain source identity, and continue requiring explicit `eventVersion` for journal envelopes.
-- [ ] 2.3 Reject unknown format/version, ambiguous attribution, and a generic missing-version fallback with typed unsupported-history evidence.
-- [ ] 2.4 Prove byte-backed and object-backed source mutation cannot change or detach the captured evidence/digest, then run adapter fixtures, Node 22 typecheck/lint/format, strict OpenSpec/QC, and sequential independent compatibility review.
+- [x] 2.1 Inventory and name the currently readable versionless combat NDJSON/IndexedDB and campaign-sync envelope formats, including stable format IDs and format versions.
+  - Receipt: `LEGACY_SOURCE_FORMATS` in `src/lib/events/replay/ReplayLegacySourceAdapters.ts` names `simulation-report-jsonl@1` (byte-backed `simulation-reports/<source>/<gameId>.jsonl` lines), `match-log-idb@2` (object-backed `mekstation-match-log` IndexedDB `matchEvents` records at `MATCH_LOG_DB_VERSION` 2), and `campaign-sync-envelope@1` (object-backed co-op transport `ICampaignEvent` envelopes); a suite row pins the exact inventory.
+- [x] 2.2 Before normalization, bind an NDJSON event to its exact raw line bytes and bind an IndexedDB/object record to an immutable snapshot using the journal's versioned canonical JSON encoding; hash that pre-normalization evidence, retain source identity, and continue requiring explicit `eventVersion` for journal envelopes.
+  - Receipt: `bindLegacyByteEvent` digests a private copy of the exact raw line bytes before parsing; `bindLegacyObjectEvent` snapshots via `canonicalizeJsonV1` and digests the snapshot bytes; both return frozen attributions carrying format id/version/binding/digest/byte-length (object-backed also the canonical snapshot); `requireJournalEventVersion` keeps journal envelopes on explicit versions.
+- [x] 2.3 Reject unknown format/version, ambiguous attribution, and a generic missing-version fallback with typed unsupported-history evidence.
+  - Receipt: typed `LegacySourceAttributionError` carries code + source identity for `unknown-source-format`, `unknown-format-version`, `binding-mismatch`, `ambiguous-attribution` (record already naming eventVersion/schemaVersion), `invalid-source-event`, and `missing-event-version`; each code has a kill row.
+- [x] 2.4 Prove byte-backed and object-backed source mutation cannot change or detach the captured evidence/digest, then run adapter fixtures, Node 22 typecheck/lint/format, strict OpenSpec/QC, and sequential independent compatibility review.
+  - Receipt: mutation rows fill the caller's byte buffer and rewrite the source record after binding — digest, canonical snapshot, and frozen payload all hold; key-order canonical-stability row included. Adapter suite 10/10; replay family 32/32; Node 22 tsc/oxlint/oxfmt clean; strict OpenSpec + QC green (receipts below); compatibility review = the PR review gate.
 - [ ] 2.5 After merge, rerun the legacy-attribution receipt on exact main and prune before PR 3.
 
 ## 3. Campaign Baseline Schema Pack — PR 3
