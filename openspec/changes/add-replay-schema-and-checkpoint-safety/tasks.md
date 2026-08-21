@@ -121,14 +121,19 @@ Post-merge terminal evidence: before PR 1A implementation resumes, verify these 
   - Receipt (2026-08-21): retention test pins armor/structure remainders, the crit resolution's consumed d6 sequence and slot index, and the dissipation breakdown's water bonus byte-for-byte through validation; the purity contract test pins the pack's runtime imports to `zod` + pure `@/types` modules + replay-local files.
 - [x] 7.4 Run focused damage/heat/critical tests and applicable quality/review gates.
   - Receipt (2026-08-21): pack contract 30/30; all sibling replay suites 117/117; typecheck/lint/format clean; strict OpenSpec green; independent fresh-context schema review run with verdict + findings recorded in the PR description.
-- [ ] 7.5 After merge, rerun exact main and prune before PR 8.
+- [x] 7.5 After merge, rerun exact main and prune before PR 8.
+  - Receipt (2026-08-21): PR 7 merged as #1282 (squash, SHA-guarded); primary fast-forwarded; worktree + branches pruned; PR 8 branched from the post-merge main.
 
 ## 8. Combat Physical, PSR, and Ground-Object Baseline Pack — PR 8
 
-- [ ] 8.1 Add strict concrete v1 schemas for physical declaration/resolution, PSR trigger/result, fall/stuck/stand, and ground-object pickup/drop payloads.
-- [ ] 8.2 Register the pack and add per-variant valid plus missing/extra/ill-typed fixtures, including domino/step-out decisions.
-- [ ] 8.3 Prove physical and PSR rolls/results are stored inputs and replay has no access to live piloting/RNG services.
-- [ ] 8.4 Run focused physical/PSR tests and applicable quality/review gates.
+- [x] 8.1 Add strict concrete v1 schemas for physical declaration/resolution, PSR trigger/result, fall/stuck/stand, and ground-object pickup/drop payloads.
+  - Receipt (2026-08-21): `CombatPhysicalBaselineSchemaPack.ts` registers the nine inventory discriminants at baseline v1 (runtime `GameEventType` keys, `combat.<type>.v1` ids, no transitions, nine-member `satisfies` exhaustiveness). The 18-member `PhysicalAttackEventType` union (core + melee-weapon variants), the 8-member displacement-reason union, the domino step-out option/context/decision chain, the iNarc pod selection intersection (team + pod type required, location optional), and `reasonCode: z.nativeEnum(PSRTrigger)` on every PSR-adjacent payload are exact mirrors.
+- [x] 8.2 Register the pack and add per-variant valid plus missing/extra/ill-typed fixtures, including domino/step-out decisions.
+  - Receipt (2026-08-21): per-variant valid fixtures — the kick declaration exercises limb/hit-table/domino-decision; the resolved DFA carries five per-cluster (damage, location) pairs, a two-entry displacement chain, and the full 12-d6 consumed sequence; ground-object pickup embeds the represented object state. 3-mutation matrix per variant (27 rejections; the physical-resolved mutations reach the nested cluster/displacement shapes); unknown discriminant + version fail closed. Pack unwired (grep proof). 22/22 contract tests green.
+- [x] 8.3 Prove physical and PSR rolls/results are stored inputs and replay has no access to live piloting/RNG services.
+  - Receipt (2026-08-21): retention test pins the PSR's consumed d6 pair + machine-readable reasonCode and the DFA's cluster/displacement/roll counts byte-for-byte through validation; the purity contract test pins the pack's runtime imports to `zod` + pure `@/types` modules + replay-local files.
+- [x] 8.4 Run focused physical/PSR tests and applicable quality/review gates.
+  - Receipt (2026-08-21): pack contract 22/22; all sibling replay suites 147/147; typecheck/lint/format clean; strict OpenSpec green; independent fresh-context schema review run with verdict + findings recorded in the PR description.
 - [ ] 8.5 After merge, rerun exact main and prune before PR 9A.
 
 ## 9A. Combat Vehicle and Represented-System-State Baseline Pack — PR 9A
