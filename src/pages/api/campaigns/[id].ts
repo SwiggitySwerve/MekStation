@@ -21,16 +21,21 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 
 import type { SerializedCampaign } from '@/types/campaign/SerializedCampaign';
 
+import { maybeAppendCampaignGenesisOnCreate } from '@/lib/campaign/authority/campaignSourceGenesis';
+import { CAMPAIGN_JOURNAL_AUTHORITY_ENABLED } from '@/lib/campaign/sync/JournalCampaignEventStore';
+import { SQLiteEventJournal } from '@/lib/events/journal/SQLiteEventJournal';
 import {
   initializeApiDatabase as initCampaignDb,
   rejectMissingQueryString as readCampaignId,
   sendCaughtApiError as sendCampaignError,
 } from '@/pages-modules/api/routeHelpers';
+import { writeCampaignMigrationMarker } from '@/services/campaignPersistence/CampaignMigrationMarkerStore';
 import {
   deleteCampaign,
   readCampaign,
   saveCampaign,
 } from '@/services/campaignPersistence/CampaignPersistenceService';
+import { getSQLiteService } from '@/services/persistence/SQLiteService';
 
 type ErrorResponse = { error: string };
 
@@ -115,6 +120,27 @@ export default async function handler(
           // Stale write — return the current record so the client can
           // offer keep-local / take-server.
           res.status(409).json(result.current);
+          return;
+        }
+        // Task 1.1 journal half: under journal authority, creation appends
+        // the genesis snapshot and journal-native marker BEFORE the create
+        // is acknowledged. Inert while the cutover flag is off (the lazy
+        // journal factory constructs nothing on the disabled path).
+        const genesis = await maybeAppendCampaignGenesisOnCreate({
+          enabled: CAMPAIGN_JOURNAL_AUTHORITY_ENABLED,
+          created: body.baseVersion === 0,
+          envelope: result.record,
+          occurredAt: new Date().toISOString(),
+          journal: () =>
+            new SQLiteEventJournal(getSQLiteService().getDatabase(), () =>
+              new Date().toISOString(),
+            ),
+          writeMarker: writeCampaignMigrationMarker,
+        });
+        if (genesis.kind === 'invalid-campaign-projection') {
+          res.status(500).json({
+            error: `campaign genesis failed: ${genesis.reason}`,
+          });
           return;
         }
         res.status(200).json(result.record);
