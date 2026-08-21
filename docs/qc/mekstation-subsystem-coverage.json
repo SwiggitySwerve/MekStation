@@ -1,0 +1,135 @@
+{
+  "version": 1,
+  "title": "MekStation campaign subsystem e2e coverage ledger",
+  "description": "One row per fine-grained campaign subsystem (the full Wave 4 + Wave 6.1 19-id set). Statuses are truthful to the current tree: asserting = the covering spec drives the primary action or seeded output and asserts observable state change; render-only = the spec proves the surface mounts and renders its primary output testids; deferred = no covering spec yet, with the deferral's provenance in followUpRef. Validated by scripts/qc/validate-subsystem-coverage.mjs in the PR unit lane. Demoting a row's status requires the PR to name what it grandfathers.",
+  "subsystems": [
+    {
+      "id": "hiring",
+      "facet": "personnel",
+      "coveringSpecs": ["e2e/playtest-subsystem-hiring.spec.ts"],
+      "status": "render-only"
+    },
+    {
+      "id": "xp-leveling",
+      "facet": "experience",
+      "coveringSpecs": [],
+      "status": "deferred",
+      "followUpRef": "openspec/changes/add-subsystem-lanes-and-ci/tasks.md (task 4.4 authors e2e/playtest-subsystem-xp-purchase.spec.ts)"
+    },
+    {
+      "id": "medical",
+      "facet": "personnel",
+      "coveringSpecs": [],
+      "status": "deferred",
+      "followUpRef": "openspec/changes/archive/2026-05-20-add-subsystem-validation-specs/tasks.md (Track B — needs seeded injured pilot)"
+    },
+    {
+      "id": "salvage",
+      "facet": "maintenance",
+      "coveringSpecs": [],
+      "status": "deferred",
+      "followUpRef": "openspec/changes/archive/2026-05-20-add-subsystem-validation-specs/tasks.md (Track B — needs seeded salvage candidates)"
+    },
+    {
+      "id": "repair",
+      "facet": "maintenance",
+      "coveringSpecs": [],
+      "status": "deferred",
+      "followUpRef": "openspec/changes/archive/2026-05-20-add-subsystem-validation-specs/tasks.md (Track B — needs seeded repair tickets)"
+    },
+    {
+      "id": "refit",
+      "facet": "maintenance",
+      "coveringSpecs": [],
+      "status": "deferred",
+      "followUpRef": "openspec/changes/archive/2026-05-20-add-subsystem-validation-specs/tasks.md (Track B — needs seeded mech-bay unit)"
+    },
+    {
+      "id": "loans",
+      "facet": "economy",
+      "coveringSpecs": ["e2e/playtest-subsystem-loans.spec.ts"],
+      "status": "render-only"
+    },
+    {
+      "id": "contract-market",
+      "facet": "economy",
+      "coveringSpecs": ["e2e/playtest-subsystem-contracts.spec.ts"],
+      "status": "render-only"
+    },
+    {
+      "id": "contract-negotiation",
+      "facet": "economy",
+      "coveringSpecs": [],
+      "status": "deferred",
+      "followUpRef": "openspec/changes/archive/2026-05-20-add-subsystem-validation-specs/tasks.md (Track C — no negotiation UI surface exists)"
+    },
+    {
+      "id": "faction-reputation",
+      "facet": "economy",
+      "coveringSpecs": [],
+      "status": "deferred",
+      "followUpRef": "openspec/changes/archive/2026-05-20-add-subsystem-validation-specs/tasks.md (Track C — standing feeds contractMarket offers; no dedicated UI surface)"
+    },
+    {
+      "id": "random-events",
+      "facet": "personnel",
+      "coveringSpecs": [],
+      "status": "deferred",
+      "followUpRef": "openspec/changes/archive/2026-05-20-add-subsystem-validation-specs/tasks.md (Track C — life events fire via the day pipeline only)"
+    },
+    {
+      "id": "morale",
+      "facet": "personnel",
+      "coveringSpecs": [],
+      "status": "deferred",
+      "followUpRef": "openspec/changes/archive/2026-05-20-add-subsystem-validation-specs/tasks.md (Track B — needs seeded morale state)"
+    },
+    {
+      "id": "force-hierarchy",
+      "facet": "personnel",
+      "coveringSpecs": [],
+      "status": "deferred",
+      "followUpRef": "openspec/changes/archive/2026-05-20-add-subsystem-validation-specs/tasks.md (Track B — ForceNode testids missing)"
+    },
+    {
+      "id": "turnover",
+      "facet": "personnel",
+      "coveringSpecs": [],
+      "status": "deferred",
+      "followUpRef": "openspec/changes/archive/2026-05-20-add-subsystem-validation-specs/tasks.md (Track B — DayReportPanel testids missing)"
+    },
+    {
+      "id": "aging",
+      "facet": "personnel",
+      "coveringSpecs": [],
+      "status": "deferred",
+      "followUpRef": "openspec/changes/archive/2026-05-20-add-subsystem-validation-specs/tasks.md (Track C — no aging UI surface exists)"
+    },
+    {
+      "id": "awards",
+      "facet": "experience",
+      "coveringSpecs": ["e2e/awards.spec.ts"],
+      "status": "asserting"
+    },
+    {
+      "id": "rank-pay",
+      "facet": "personnel",
+      "coveringSpecs": [],
+      "status": "deferred",
+      "followUpRef": "openspec/changes/archive/2026-05-20-add-subsystem-validation-specs/tasks.md (Track C — no ranks/pay UI surface exists)"
+    },
+    {
+      "id": "unit-market",
+      "facet": "economy",
+      "coveringSpecs": ["e2e/campaign-acquisition-browser.spec.ts"],
+      "status": "asserting"
+    },
+    {
+      "id": "maintenance",
+      "facet": "maintenance",
+      "coveringSpecs": [],
+      "status": "deferred",
+      "followUpRef": "openspec/changes/archive/2026-05-20-add-subsystem-validation-specs/tasks.md (Track C — maintenance checks surface only through RepairBay downstream effects)"
+    }
+  ]
+}
