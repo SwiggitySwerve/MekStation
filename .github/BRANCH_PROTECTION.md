@@ -1,6 +1,6 @@
 # Branch Protection Setup
 
-> **Seam-anchor gate (W6):** the `Seam Anchors` job rides the `Lint and Test` aggregator rather than being its own required context — designating a check as independently required is a manual GitHub settings/API action deliberately not performed by the W6 change (rollback reference: the 4-context list recorded in `add-subsystem-lanes-and-ci` task 1.1).
+> **Seam-anchor gate (W6):** the `Seam Anchors` job rides the `Lint and Test` aggregator rather than being its own required context — designating a check as independently required is a manual GitHub settings/API action deliberately not performed by the W6 change (rollback reference: the 4-context list recorded in `add-subsystem-lanes-and-ci` task 1.1). The aggregator runs unconditionally (`if: always()`) and asserts every fan-out result is `success` — a `needs`-skipped required check counts as passing on GitHub, so an unhardened aggregator lets a failed fan-out job slip through as a green PR (observed live in run 29059132882).
 
 
 This repository requires all changes to the `main` branch to go through Pull Requests with passing CI checks.
