@@ -108,14 +108,19 @@ Post-merge terminal evidence: before PR 1A implementation resumes, verify these 
   - Receipt (2026-08-21): retention test pins that the resolved payload's consumed d6 array, hit location, ammo bin reference, and Edge-superseded roll; the AMS cluster roll/modified roll and its d6 pair; and the indirect-fire basis/penalty/spotter-walked decision all survive validation byte-for-byte. The purity contract test pins the pack's runtime imports to `zod` + pure `@/types` modules + replay-local files — no catalog, clock, or RNG lookup can enter without failing.
 - [x] 6.4 Run focused attack/indirect tests and applicable quality/review gates.
   - Receipt (2026-08-21): pack contract 32/32; all sibling replay suites 85/85; full unit lane green in this worktree; typecheck/lint/format clean; strict OpenSpec green; independent fresh-context schema review run with verdict + findings recorded in the PR description.
-- [ ] 6.5 After merge, rerun exact main and prune before PR 7.
+- [x] 6.5 After merge, rerun exact main and prune before PR 7.
+  - Receipt (2026-08-21): PR 6 merged as #1281 (squash, SHA-guarded); primary fast-forwarded; worktree + branches pruned; PR 7 branched from the post-merge main.
 
 ## 7. Combat Damage, Heat, and Critical Baseline Pack — PR 7
 
-- [ ] 7.1 Add strict concrete v1 schemas for damage, heat, pilot hit, unit/location/component destruction, transfer damage, ammo explosion, and critical-hit payloads.
-- [ ] 7.2 Register the pack and add per-variant valid plus missing/extra/ill-typed fixtures, including redacted destruction variants where persisted.
-- [ ] 7.3 Prove damage/critical outcomes validate stored resolved values without invoking the live damage or critical resolver.
-- [ ] 7.4 Run focused damage/heat/critical tests and applicable quality/review gates.
+- [x] 7.1 Add strict concrete v1 schemas for damage, heat, pilot hit, unit/location/component destruction, transfer damage, ammo explosion, and critical-hit payloads.
+  - Receipt (2026-08-21): `CombatDamageBaselineSchemaPack.ts` registers the twelve inventory discriminants at baseline v1 (runtime `GameEventType` keys, `combat.<type>.v1` ids, no transitions, twelve-member `satisfies` exhaustiveness). The shared canonical `IHeatPayload` shape backs BOTH heat discriminants (including the strict dissipation `breakdown` block); `PilotHit`'s 6-member source union, `UnitDestroyed`'s 7-member cause union, `HeatEffectApplied`'s 6-member effect union, and the ammo-explosion source/CASE vocabularies are exact.
+- [x] 7.2 Register the pack and add per-variant valid plus missing/extra/ill-typed fixtures, including redacted destruction variants where persisted.
+  - Receipt (2026-08-21): `unit_destroyed` is a UNION of the public cause/killer payload and the fog-of-war redacted unit-id-only form — both fixtures parse, the redacted form carries its own 3-mutation matrix on top of the 12 x 3 per-variant matrices (36 + 3 rejections); unknown discriminant + version fail closed. Pack unwired (grep proof). 30/30 contract tests green.
+- [x] 7.3 Prove damage/critical outcomes validate stored resolved values without invoking the live damage or critical resolver.
+  - Receipt (2026-08-21): retention test pins armor/structure remainders, the crit resolution's consumed d6 sequence and slot index, and the dissipation breakdown's water bonus byte-for-byte through validation; the purity contract test pins the pack's runtime imports to `zod` + pure `@/types` modules + replay-local files.
+- [x] 7.4 Run focused damage/heat/critical tests and applicable quality/review gates.
+  - Receipt (2026-08-21): pack contract 30/30; all sibling replay suites 117/117; typecheck/lint/format clean; strict OpenSpec green; independent fresh-context schema review run with verdict + findings recorded in the PR description.
 - [ ] 7.5 After merge, rerun exact main and prune before PR 8.
 
 ## 8. Combat Physical, PSR, and Ground-Object Baseline Pack — PR 8
