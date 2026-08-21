@@ -147,14 +147,19 @@ Post-merge terminal evidence: before PR 1A implementation resumes, verify these 
   - Receipt (2026-08-21): retention test pins the shutdown check's consumed d6 pair + target number, the motive severity + d6 pair, and the VTOL crash fall damage byte-for-byte; the purity contract test pins the pack's runtime imports.
 - [x] 9A.4 Run focused represented-system-state tests and applicable quality/review gates.
   - Receipt (2026-08-21): pack contract 22/22; ALL replay suites 191/191 in this worktree; typecheck/lint/format clean; strict OpenSpec green; independent fresh-context schema review run with verdict recorded in the PR description.
-- [ ] 9A.5 After merge, rerun exact main and prune before PR 9B.
+- [x] 9A.5 After merge, rerun exact main and prune before PR 9B.
+  - Receipt (2026-08-21): PR 9A merged as #1284 (squash, SHA-guarded); primary fast-forwarded; worktree + branches pruned; PR 9B branched from the post-merge main.
 
 ## 9B. Combat Terrain, Mission, Morale, and Withdrawal Baseline Pack — PR 9B
 
-- [ ] 9B.1 Add strict concrete v1 schemas for command-result, terrain/minefield, retreat/ejection, objective, morale, and withdrawal payloads assigned by `schema-pack-inventory.md`.
-- [ ] 9B.2 Register the pack and add per-variant valid plus missing/extra/ill-typed fixtures.
-- [ ] 9B.3 Prove mission/rules-dependent results are represented by stored outcomes or pinned references and are not recomputed during validation.
-- [ ] 9B.4 Run focused terrain/mission/morale/withdrawal tests and applicable quality/review gates.
+- [x] 9B.1 Add strict concrete v1 schemas for command-result, terrain/minefield, retreat/ejection, objective, morale, and withdrawal payloads assigned by `schema-pack-inventory.md`.
+  - Receipt (2026-08-21): `CombatMissionBaselineSchemaPack.ts` registers the thirteen inventory discriminants at baseline v1 (runtime `GameEventType` keys, `combat.<type>.v1` ids, no transitions, thirteen-member `satisfies` exhaustiveness). CONCRETIZATION DECISION recorded in the pack header: `command_result_published.result` is typed `unknown` in the canonical interface, but every producer stores the projected `IPlayerCommandResult` envelope — the baseline locks that envelope field-exactly (4-member status, 9-member diagnosticEvent, 7-member reason kind, subject refs, state summary) and bounds `publicEffect` with a CLOSED recursive JSON-value grammar (no `z.unknown`, no passthrough); `domain` mirrors the interface's open string union as `z.string()`. Minefield operation (8) + reason (8), morale 7-level, and all withdrawal/objective vocabularies exact.
+- [x] 9B.2 Register the pack and add per-variant valid plus missing/extra/ill-typed fixtures.
+  - Receipt (2026-08-21): per-variant valid fixtures — the command-result fixture stores a full projected envelope with nested JSON publicEffect; the minefield fixture exercises the multi-entry map form. 3-mutation matrix per variant (39 rejections; the command-result mutations reach the envelope) PLUS a dedicated grammar-bound proof (a function inside `publicEffect` is rejected); unknown discriminant + version fail closed. Pack unwired (grep proof). 30/30 contract tests green.
+- [x] 9B.3 Prove mission/rules-dependent results are represented by stored outcomes or pinned references and are not recomputed during validation.
+  - Receipt (2026-08-21): resolved inputs (EMP roll/modifier/modified-roll triple, objective hold progress, morale from/to, terrain previous-state) are stored payload fields validated as data; the purity contract test pins the pack's runtime imports to `zod` + pure `@/types` modules + replay-local files.
+- [x] 9B.4 Run focused terrain/mission/morale/withdrawal tests and applicable quality/review gates.
+  - Receipt (2026-08-21): pack contract 30/30; ALL replay suites 221/221 in this worktree; typecheck/lint/format clean; strict OpenSpec green; independent fresh-context schema review (with a dedicated producer-path audit of the command-result concretization) recorded in the PR description.
 - [ ] 9B.5 After merge, rerun exact main and prune before PR 10.
 
 ## 10. Combat Battle-Armor Baseline Pack — PR 10
