@@ -43,7 +43,7 @@ try {
     nightlyMatrixTags: request.nightlyMatrixTags,
     laneTagTenanted: (tag) =>
       Object.values(request.specFiles).some((content) =>
-        content.includes('@subsystem:' + tag),
+        content.includes("'@subsystem:" + tag + "'"),
       ),
   });
   process.stdout.write(JSON.stringify({ ok: true, messages: issues.map((i) => i.message) }));
@@ -173,7 +173,7 @@ describe('subsystem coverage ledger', () => {
       nightlyMatrixTags: null,
     });
     expect(result.messages).toContain(
-      'awards: spec e2e/awards.spec.ts lacks the @subsystem:experience tag.',
+      "awards: spec e2e/awards.spec.ts lacks the '@subsystem:experience' tag.",
     );
   });
 
