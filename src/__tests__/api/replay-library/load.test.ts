@@ -80,23 +80,41 @@ describe('GET /api/replay-library/[source]/[gameId]', () => {
     await fs.rm(tmpDir, { recursive: true, force: true });
   });
 
+  // Replay-safety PR 18: the route now loads through the full replay
+  // pipeline, so fixtures must be genuine IGameEvent envelopes with
+  // schema-valid payloads.
+  const validEvents = [
+    {
+      id: 'evt-0',
+      gameId: 'sim-1',
+      sequence: 0,
+      timestamp: '2026-05-07T10:00:00.000Z',
+      type: 'turn_started',
+      turn: 1,
+      phase: 'initiative',
+      payload: {},
+    },
+    {
+      id: 'evt-1',
+      gameId: 'sim-1',
+      sequence: 1,
+      timestamp: '2026-05-07T10:00:01.000Z',
+      type: 'trooper_killed',
+      turn: 1,
+      phase: 'weapon_attack',
+      payload: {
+        unitId: 'elemental-squad',
+        trooperIndex: 2,
+        survivingTroopers: 4,
+      },
+    },
+  ];
+
   it('returns parsed events array for valid source+gameId', async () => {
     const swarmDir = path.join(tmpDir, 'simulation-reports', 'swarm');
     await fs.mkdir(swarmDir, { recursive: true });
-    // Two events on separate lines + a blank line that should be ignored.
-    const events = [
-      {
-        type: 'game_created',
-        payload: { units: [] },
-        timestamp: '2026-05-07T10:00:00Z',
-      },
-      {
-        type: 'turn_started',
-        payload: { turn: 1 },
-        timestamp: '2026-05-07T10:00:01Z',
-      },
-    ];
-    const ndjson = events.map((e) => JSON.stringify(e)).join('\n') + '\n\n';
+    const ndjson =
+      validEvents.map((e) => JSON.stringify(e)).join('\n') + '\n\n';
     await fs.writeFile(path.join(swarmDir, 'sim-1.jsonl'), ndjson, 'utf8');
 
     const req = createMockRequest({
@@ -109,9 +127,46 @@ describe('GET /api/replay-library/[source]/[gameId]', () => {
 
     expect(res.status).toHaveBeenCalledWith(200);
     expect(res.json).toHaveBeenCalledWith({
-      events,
+      events: validEvents,
       gameId: 'sim-1',
+      sourceDigest: expect.stringMatching(/^[0-9a-f]{64}$/),
     });
+  });
+
+  it('returns 422 REPLAY_HISTORY_BLOCKED with typed per-line evidence', async () => {
+    const swarmDir = path.join(tmpDir, 'simulation-reports', 'swarm');
+    await fs.mkdir(swarmDir, { recursive: true });
+    const ndjson = [
+      JSON.stringify(validEvents[0]),
+      '{this line is broken}',
+      JSON.stringify({ ...validEvents[1], type: 'warp_drive_engaged' }),
+    ].join('\n');
+    await fs.writeFile(path.join(swarmDir, 'sim-bad.jsonl'), ndjson, 'utf8');
+
+    const req = createMockRequest({
+      method: 'GET',
+      query: { source: 'swarm', gameId: 'sim-bad' },
+    });
+    const res = createMockResponse();
+
+    await handler(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(422);
+    const body = (res.json as jest.Mock).mock.calls[0]?.[0];
+    expect(body.code).toBe('REPLAY_HISTORY_BLOCKED');
+    expect(body.blocked.sourceId).toBe('swarm/sim-bad');
+    expect(body.blocked.formatId).toBe('simulation-report-jsonl');
+    expect(body.blocked.blockedLineCount).toBe(2);
+    expect(body.blocked.blockedLines).toEqual([
+      expect.objectContaining({ line: 2, reason: 'invalid-source-event' }),
+      expect.objectContaining({
+        line: 3,
+        reason: 'unsupported-event-type',
+        eventType: 'warp_drive_engaged',
+      }),
+    ]);
+    // No partial event list ships on a blocked history.
+    expect(body.events).toBeUndefined();
   });
 
   it('returns 400 BAD_SOURCE on unrecognized source string', async () => {
@@ -187,6 +242,7 @@ describe('GET /api/replay-library/[source]/[gameId]', () => {
     expect(res.json).toHaveBeenCalledWith({
       events: [],
       gameId: 'quick-7',
+      sourceDigest: expect.stringMatching(/^[0-9a-f]{64}$/),
     });
   });
 
@@ -211,13 +267,7 @@ describe('GET /api/replay-library/[source]/[gameId]', () => {
     // (e.g. `new Set(['swarm', 'quick', 'pvp', 'campaign'])`) trips here.
     const encounterDir = path.join(tmpDir, 'simulation-reports', 'encounter');
     await fs.mkdir(encounterDir, { recursive: true });
-    const events = [
-      {
-        type: 'game_created',
-        payload: { units: [] },
-        timestamp: '2026-05-08T10:00:00Z',
-      },
-    ];
+    const events = [{ ...validEvents[0], gameId: 'enc-1' }];
     const ndjson = events.map((e) => JSON.stringify(e)).join('\n');
     await fs.writeFile(path.join(encounterDir, 'enc-1.jsonl'), ndjson, 'utf8');
 
@@ -233,6 +283,7 @@ describe('GET /api/replay-library/[source]/[gameId]', () => {
     expect(res.json).toHaveBeenCalledWith({
       events,
       gameId: 'enc-1',
+      sourceDigest: expect.stringMatching(/^[0-9a-f]{64}$/),
     });
   });
 });

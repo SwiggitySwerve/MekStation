@@ -211,6 +211,30 @@ describe('combat ranged/indirect baseline schema pack', () => {
     },
   );
 
+  it('accepts the stored projection-enriched weaponAttacks form', () => {
+    const payload = {
+      attackerId: 'atlas-as7-d',
+      targetId: 'locust-lct-1v',
+      weapons: ['weapon-1'],
+      toHitNumber: 8,
+      modifiers: [],
+      weaponAttacks: [
+        {
+          weaponId: 'weapon-1',
+          weaponName: 'Medium Laser',
+          damage: 5,
+          heat: 3,
+          mode: 'Direct',
+          rangeBracket: 'medium',
+          toHitNumber: null,
+          modifiers: [],
+        },
+      ],
+    };
+    const upcast = registry.upcast('attack_declared', 1, payload);
+    expect(upcast.payload).toEqual(payload);
+  });
+
   it('fails closed on unknown discriminants and unknown versions', () => {
     expect(() => registry.upcast('attack_cancelled', 1, {})).toThrow(
       UnsupportedReplayHistoryError,

@@ -124,6 +124,31 @@ const physicalDisplacementSchema = z
   })
   .strict();
 
+const physicalAttackResolvedBase = z
+  .object({
+    attackerId: z.string(),
+    targetId: z.string(),
+    attackType: physicalAttackTypeSchema,
+    roll: finiteNumber,
+    // STORED FORM (replay-safety PR 18): an impossible physical
+    // resolves with toHitNumber: Infinity (JSON null), roll: 0, and
+    // hit: false (physicalAttacks/resolution.ts). A null toHitNumber
+    // with hit: true is corrupt and rejected below.
+    toHitNumber: finiteNumber.nullable(),
+    hit: z.boolean(),
+    damage: finiteNumber.optional(),
+    location: z.string().optional(),
+    clusters: z
+      .array(z.object({ damage: finiteNumber, location: z.string() }).strict())
+      .optional(),
+    displacements: z.array(physicalDisplacementSchema).optional(),
+    automaticHit: z.boolean().optional(),
+    automaticHitReason: z.string().optional(),
+    selectedINarcPod: iNarcPodSelectionSchema.optional(),
+    rolls: z.array(finiteNumber).optional(),
+  })
+  .strict();
+
 const COMBAT_PHYSICAL_PAYLOAD_SCHEMAS = {
   [GameEventType.PSRTriggered]: z
     .object({
@@ -197,28 +222,15 @@ const COMBAT_PHYSICAL_PAYLOAD_SCHEMAS = {
   [GameEventType.PhysicalAttackLocked]: z
     .object({ unitId: z.string() })
     .strict(),
-  [GameEventType.PhysicalAttackResolved]: z
-    .object({
-      attackerId: z.string(),
-      targetId: z.string(),
-      attackType: physicalAttackTypeSchema,
-      roll: finiteNumber,
-      toHitNumber: finiteNumber,
-      hit: z.boolean(),
-      damage: finiteNumber.optional(),
-      location: z.string().optional(),
-      clusters: z
-        .array(
-          z.object({ damage: finiteNumber, location: z.string() }).strict(),
-        )
-        .optional(),
-      displacements: z.array(physicalDisplacementSchema).optional(),
-      automaticHit: z.boolean().optional(),
-      automaticHitReason: z.string().optional(),
-      selectedINarcPod: iNarcPodSelectionSchema.optional(),
-      rolls: z.array(finiteNumber).optional(),
-    })
-    .strict(),
+  [GameEventType.PhysicalAttackResolved]:
+    physicalAttackResolvedBase.superRefine((value, context) => {
+      if (value.toHitNumber === null && value.hit)
+        context.addIssue({
+          code: 'custom',
+          path: ['toHitNumber'],
+          message: 'An impossible resolution (null toHitNumber) cannot hit',
+        });
+    }),
   [GameEventType.GroundObjectPickedUp]: z
     .object({
       unitId: z.string(),

@@ -46,7 +46,10 @@ const COMBAT_VEHICLE_PAYLOAD_SCHEMAS = {
     .object({
       unitId: z.string(),
       heatLevel: finiteNumber,
-      targetNumber: finiteNumber,
+      // STORED FORM (replay-safety PR 18): the live auto-shutdown path
+      // (heat >= 30) passes Infinity, which JSON-serializes to null -
+      // genuine current history stores targetNumber: null there.
+      targetNumber: finiteNumber.nullable(),
       roll: finiteNumber,
       shutdownOccurred: z.boolean(),
       automatic: z.boolean().optional(),

@@ -169,6 +169,32 @@ describe('combat physical/PSR/ground-object baseline schema pack', () => {
     },
   );
 
+  it('accepts the stored impossible-resolution form (null toHitNumber, roll 0, miss)', () => {
+    const payload = {
+      attackerId: 'atlas-as7-d',
+      targetId: 'locust-lct-1v',
+      attackType: 'dfa',
+      roll: 0,
+      toHitNumber: null,
+      hit: false,
+    };
+    const upcast = registry.upcast('physical_attack_resolved', 1, payload);
+    expect(upcast.payload).toEqual(payload);
+  });
+
+  it('rejects a corrupt impossible resolution that claims a hit', () => {
+    expect(() =>
+      registry.upcast('physical_attack_resolved', 1, {
+        attackerId: 'atlas-as7-d',
+        targetId: 'locust-lct-1v',
+        attackType: 'dfa',
+        roll: 7,
+        toHitNumber: null,
+        hit: true,
+      }),
+    ).toThrow(UnsupportedReplayHistoryError);
+  });
+
   it('fails closed on unknown discriminants and unknown versions', () => {
     expect(() => registry.upcast('unit_tackled', 1, {})).toThrow(
       UnsupportedReplayHistoryError,

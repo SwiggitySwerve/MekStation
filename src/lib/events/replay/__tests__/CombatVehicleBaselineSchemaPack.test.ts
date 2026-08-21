@@ -147,6 +147,18 @@ describe('combat vehicle/system-state baseline schema pack', () => {
     },
   );
 
+  it('accepts the stored auto-shutdown form (targetNumber null)', () => {
+    const payload = {
+      unitId: 'atlas-as7-d',
+      heatLevel: 35,
+      targetNumber: null,
+      roll: 0,
+      shutdownOccurred: true,
+    };
+    const upcast = registry.upcast('shutdown_check', 1, payload);
+    expect(upcast.payload).toEqual(payload);
+  });
+
   it('fails closed on unknown discriminants and unknown versions', () => {
     expect(() => registry.upcast('vehicle_repaired', 1, {})).toThrow(
       UnsupportedReplayHistoryError,
