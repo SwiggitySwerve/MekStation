@@ -125,7 +125,10 @@ export function validateSubsystemCoverage(ledger, probes) {
       if (row.coveringSpecs.length === 0) {
         issues.push(issue(`${id}: ${row.status} row must name coveringSpecs.`));
       }
-      const literal = `@subsystem:${row.facet}`;
+      // The QUOTED form only appears inside native `tag: [...]` arrays —
+      // a docblock comment mentioning the tag is NOT coverage (spec:
+      // "A docblock tag is not coverage").
+      const literal = `'@subsystem:${row.facet}'`;
       for (const specPath of row.coveringSpecs) {
         if (
           probes.specExists(specPath) &&
@@ -227,7 +230,7 @@ if (isMain) {
   walk(path.join(repoRoot, 'e2e'));
   const laneTagTenanted = (tag) =>
     specFiles.some((file) =>
-      fs.readFileSync(file, 'utf8').includes('@subsystem:' + tag),
+      fs.readFileSync(file, 'utf8').includes("'@subsystem:" + tag + "'"),
     );
   const issues = validateSubsystemCoverage(ledger, {
     laneTagTenanted,
