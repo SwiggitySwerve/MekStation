@@ -186,14 +186,19 @@ Post-merge terminal evidence: before PR 1A implementation resumes, verify these 
   - Receipt (2026-08-21): full iteration, no sampling - `it.each` over ALL 88 canonical discriminants proves each reaches its single current target (v1) from its valid fixture with frozen equal payload, and a second `it.each` over ALL 88 proves version target+1 fails typed `unsupported-schema-version`; unknown discriminant fails typed `unknown-event-type`; a dedicated test pins every registration at target v1 / exactly one schema / zero transitions (collect-offenders-expect-empty). Guard evidence tests cover missing (`physical_attack_locked` named), extra (named), and duplicated compositions.
 - [x] 11.4 Run the full schema/upcaster fixture matrix and applicable quality/review gates; keep production replay integration disabled.
   - Receipt (2026-08-21): full replay suite 429/429 in this worktree (all nine pack contracts + registry kernel + legacy adapters + fingerprint + composition); typecheck/lint/format clean; production replay integration still disabled - `ReplayBaselineDomainRegistry` has no importer outside `src/lib/events/replay/` (grep proof); strict OpenSpec green; independent fresh-context review (Grok 4.6) recorded in the PR description.
-- [ ] 11.5 After merge, rerun exact main and prune before PR 12.
+- [x] 11.5 After merge, rerun exact main and prune before PR 12.
+  - Receipt (2026-08-21): PR 11 merged as #1288 (squash, SHA-guarded); primary fast-forwarded; worktree + branches pruned; PR 12 branched from the post-merge main.
 
 ## 12. Deterministic Replay Input Provenance — PR 12
 
-- [ ] 12.1 Add an exhaustive manifest of which supported variants require resolved randomness, time, catalog/rules, or external-input provenance and how each requirement is satisfied.
-- [ ] 12.2 Reject a supported payload that lacks required resolved data or version-pinned references; never repair it from current services.
-- [ ] 12.3 Enforce and test a replay/upcast dependency boundary with no clock, RNG, network, or effect dispatcher access.
-- [ ] 12.4 Run deterministic replay fixtures twice, static dependency checks, and applicable quality/review gates.
+- [x] 12.1 Add an exhaustive manifest of which supported variants require resolved randomness, time, catalog/rules, or external-input provenance and how each requirement is satisfied.
+  - Receipt (2026-08-21): `ReplayInputProvenanceManifest.ts` declares, for EVERY canonical discriminant (compile-time exhaustive via `satisfies Record<CampaignEventType | GameEventType, IReplayInputProvenance>`; runtime key-set equality vs the canonical 88 pinned in test), which resolved nondeterministic inputs replay depends on and how each is satisfied across four categories (randomness / logical time / catalog+rules / external). Empty entries are positive no-nondeterministic-input claims; the two union payloads (attack_resolved, unit_destroyed) carry documented exceptions enforced by their packs' union schemas.
+- [x] 12.2 Reject a supported payload that lacks required resolved data or version-pinned references; never repair it from current services.
+  - Receipt (2026-08-21): `assertReplayInputProvenance` rejects a supported payload lacking any manifest-declared resolved field with the NEW typed `missing-required-input` code (added to `UnsupportedReplayHistoryCode`), naming every missing field; it verifies presence only - never recomputes, refetches, or mutates (fixture-unchanged assertion). Self-verifying manifest: a per-listed-field delete-mutant sweep proves each listed field is ALSO schema-required, so a listed-but-optional field cannot exist (the sweep caught and evicted two during authoring: game_created.hexTerrain, game_ended.turns).
+- [x] 12.3 Enforce and test a replay/upcast dependency boundary with no clock, RNG, network, or effect dispatcher access.
+  - Receipt (2026-08-21): `ReplayDependencyBoundary.test.ts` statically proves the whole replay runtime surface (every `.ts` directly in `src/lib/events/replay/`, >= 12 files pinned) has zero clock/RNG/network/timer tokens (Math.random, Date.now, new Date, performance.now, fetch, XMLHttpRequest, WebSocket, setTimeout, setInterval, getRandomValues) and imports ONLY the pure allowlist (`zod`, `js-sha256`, the journal canonicalizer, `@/types/*`, replay-local) at runtime; `import type` exempt.
+- [x] 12.4 Run deterministic replay fixtures twice, static dependency checks, and applicable quality/review gates.
+  - Receipt (2026-08-21): full-88 double-run determinism sweep (byte-identical stringified payloads run-to-run, deep-equal to fixture); full replay suite 524/524 in this worktree; typecheck/lint/format clean; strict OpenSpec green; independent fresh-context review (Grok 4.6, manifest-honesty sampling across all nine packs) recorded in the PR description.
 - [ ] 12.5 After merge, rerun exact main and prune before PR 13.
 
 ## 13. Projector Registry and Explicit No-State-Change — PR 13
