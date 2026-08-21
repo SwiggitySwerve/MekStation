@@ -225,13 +225,17 @@ Post-merge terminal evidence: before PR 1A implementation resumes, verify these 
   - Receipt (2026-08-21): proven against the REAL `ReplaySchemaRegistry.fingerprintPipeline` - two registries differing only in (a) the target schemaId and (b) an added v2 schema + upcaster transition produce different fingerprints for the same historical versions, and a checkpoint bound to the prior fingerprint evaluates incompatible with `mismatches === ['schemaPipelineFingerprint']` while projectorId/projectorVersion are held constant in the expectation.
 - [x] 14.4 Run focused compatibility/digest tests and applicable quality/review gates.
   - Receipt (2026-08-21): checkpoint contract 26 tests within the full replay suite 562/562 in this worktree; typecheck/lint/format clean; module swept by the dependency-boundary test (pure imports: js-sha256 + journal canonicalizer) and unwired from production; strict OpenSpec green; independent fresh-context review (Grok 4.6) recorded in the PR description.
-- [ ] 14.5 After merge, rerun exact main and prune before PR 15A.
+- [x] 14.5 After merge, rerun exact main and prune before PR 15A.
+  - Receipt (2026-08-21): PR 14 merged as #1291 (squash, SHA-guarded; one CI rerun for an unrelated EADDRINUSE fixture-port flake in gm-two-player-campaign-qc on the shared runner); primary fast-forwarded; worktree + branches pruned; PR 15A branched from the post-merge main.
 
 ## 15A. SQLite Checkpoint Schema and Direct Integrity — PR 15A
 
-- [ ] 15A.1 Add an additive immutable SQLite checkpoint schema and indexes for the PR 14 metadata without changing journal authority or event rows.
-- [ ] 15A.2 Add migration/idempotency and direct update/delete/tamper tests; prove corrupt checkpoint rows cannot alter authoritative history.
-- [ ] 15A.3 Run Node 22 native SQLite preflight, focused migration tests, typecheck/lint/format, strict OpenSpec/QC, and sequential integrity review.
+- [x] 15A.1 Add an additive immutable SQLite checkpoint schema and indexes for the PR 14 metadata without changing journal authority or event rows.
+  - Receipt (2026-08-21): migration v10 `replay_checkpoints_schema` (`SQLiteService.replayCheckpoints.migration.ts`, registered last in MIGRATIONS) - one ADDITIVE table binding exactly the PR-14 metadata (checkpoint_id PK; stream_id; branch_id pinned 'root'; safe-integer revision >= 0; sha256-hex CHECKed schema_pipeline_fingerprint / source_tail_digest / state_digest; projector_id + positive projector_version; nonempty state_json + recorded_at) with the UNIQUE identity tuple (stream, branch, projector id+version, fingerprint, revision) doubling as the selection index. Rows are WRITE-ONCE via a BEFORE UPDATE abort trigger; DELETE stays allowed (disposable cache). No foreign keys into, triggers on, or column changes to any journal table.
+- [x] 15A.2 Add migration/idempotency and direct update/delete/tamper tests; prove corrupt checkpoint rows cannot alter authoritative history.
+  - Receipt (2026-08-21): contract test - v10 applies + file-reopen idempotency (row survives, re-init clean); 13-case row-level rejection matrix (blank identities, non-root branch, negative/fractional revision, short/non-hex digests, zero version, empty state/recorded_at); UNIQUE tuple enforced; UPDATE aborts with the write-once message while DELETE succeeds; and the authority proof - journal batch+event rows byte-compared before/after checkpoint insert + full delete + tampered re-insert (unchanged), journal immutability triggers still fire on UPDATE/DELETE, PRAGMA foreign_key_list(replay_checkpoints) empty. Ledger pins in the journal migration test moved (MAX version 9 -> 10, migration row count 8 -> 9).
+- [x] 15A.3 Run Node 22 native SQLite preflight, focused migration tests, typecheck/lint/format, strict OpenSpec/QC, and sequential integrity review.
+  - Receipt (2026-08-21): Node 22 native preflight green (`scripts/qc/check-better-sqlite3-abi.mjs`: node v22.22.0, better-sqlite3 12.11.1, SQLite 3.53.2, NAPI 10); focused SQLiteService suites 31/31; typecheck/lint/format clean; strict OpenSpec green; sequential integrity review (fresh-context Grok 4.6, incl. INSERT OR REPLACE bypass probing) recorded in the PR description.
 - [ ] 15A.4 After merge, rerun exact main and prune before PR 15B.
 
 ## 15B. SQLite Checkpoint Repository and Selection — PR 15B
