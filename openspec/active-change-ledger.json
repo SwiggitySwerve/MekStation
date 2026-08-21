@@ -1,12 +1,6 @@
 {
   "allowedActiveChanges": [
     {
-      "name": "add-subsystem-lanes-and-ci",
-      "status": "in-progress",
-      "reason": "Declarative-first change: proposal/design/specs/tasks authored ahead of implementation per Seam-First Ladder W6 council decision (openspec/council-decisions/2026-07-09-ui-audit-testability-architecture.md). Implementation starts only after the W5 (add-viewport-layout-sweep) implementation merges to main (ladder sequencing); the pack-tagging group additionally gates on the W4 (add-scenario-packs) implementation landing.",
-      "lastReviewed": "2026-07-11"
-    },
-    {
       "name": "harden-gm-two-player-campaign-sessions",
       "status": "in-progress",
       "reason": "User-approved declarative-first change for one non-playing GM plus two tactical players: durable command journaling and publication, role-safe live/replay/export projection, reconnect cursors, outcome receipts, append-only correction and rewind, campaign retroactive rebuild, and a strict 80-scenario three-context acceptance program. Implementation is intentionally split into small independently verified PRs with exact-main post-merge regression audits. Its e2e-testing delta adds distinct GM/two-player requirements and does not modify the active add-subsystem-lanes-and-ci requirement names.",
