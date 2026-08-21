@@ -2,12 +2,13 @@
  * Combat physical, PSR, and ground-object baseline schema pack
  * (replay-safety PR 8).
  *
- * Strict concrete v1 payload schemas for the nine discriminants the
- * frozen schema-pack-inventory row assigns to this pack: `PSRTriggered`,
- * `PSRResolved`, `UnitFell`, `UnitStuck`, `UnitStood`,
- * `PhysicalAttackDeclared`, `PhysicalAttackResolved`,
- * `GroundObjectPickedUp`, `GroundObjectDropped` — registered at baseline
- * v1 with no transitions, keyed by the RUNTIME `GameEventType` values.
+ * Strict concrete v1 payload schemas for the ten discriminants the
+ * schema-pack-inventory row (as amended 2026-08-21) assigns to this
+ * pack: `PSRTriggered`, `PSRResolved`, `UnitFell`, `UnitStuck`,
+ * `UnitStood`, `PhysicalAttackDeclared`, `PhysicalAttackLocked`,
+ * `PhysicalAttackResolved`, `GroundObjectPickedUp`,
+ * `GroundObjectDropped` — registered at baseline v1 with no
+ * transitions, keyed by the RUNTIME `GameEventType` values.
  *
  * Resolved PSR/physical inputs are RETAINED data: PSR targets/rolls,
  * consumed d6 sequences, fall damage + facing, per-cluster charge/DFA
@@ -31,14 +32,15 @@ import type { IReplayEventSchemaRegistration } from './ReplaySchemaRegistry';
 import { hexCoordinateSchema } from './CombatLifecycleSharedSchemas';
 import { representedGroundObjectStateSchema } from './CombatLifecycleSharedSchemas';
 
-/** The nine physical/PSR/ground-object discriminants this pack owns. */
-type CombatPhysicalEventType =
+/** The ten physical/PSR/ground-object discriminants this pack owns. */
+export type CombatPhysicalEventType =
   | GameEventType.PSRTriggered
   | GameEventType.PSRResolved
   | GameEventType.UnitFell
   | GameEventType.UnitStuck
   | GameEventType.UnitStood
   | GameEventType.PhysicalAttackDeclared
+  | GameEventType.PhysicalAttackLocked
   | GameEventType.PhysicalAttackResolved
   | GameEventType.GroundObjectPickedUp
   | GameEventType.GroundObjectDropped;
@@ -192,6 +194,9 @@ const COMBAT_PHYSICAL_PAYLOAD_SCHEMAS = {
       blockerStepOutDecision: dominoStepOutDecisionSchema.optional(),
     })
     .strict(),
+  [GameEventType.PhysicalAttackLocked]: z
+    .object({ unitId: z.string() })
+    .strict(),
   [GameEventType.PhysicalAttackResolved]: z
     .object({
       attackerId: z.string(),
@@ -235,7 +240,7 @@ const COMBAT_PHYSICAL_PAYLOAD_SCHEMAS = {
     .strict(),
 } satisfies Record<CombatPhysicalEventType, z.ZodType>;
 
-/** The nine runtime discriminant values this pack registers. */
+/** The ten runtime discriminant values this pack registers. */
 export const COMBAT_PHYSICAL_EVENT_TYPES: readonly GameEventType[] =
   Object.freeze(
     Object.keys(COMBAT_PHYSICAL_PAYLOAD_SCHEMAS) as GameEventType[],

@@ -35,7 +35,7 @@ import type { IReplayEventSchemaRegistration } from './ReplaySchemaRegistry';
 import { hexCoordinateSchema } from './CombatLifecycleSharedSchemas';
 
 /** The thirteen ranged/indirect discriminants this pack owns. */
-type CombatRangedEventType =
+export type CombatRangedEventType =
   | GameEventType.AttackDeclared
   | GameEventType.AttackInvalid
   | GameEventType.AttackLocked

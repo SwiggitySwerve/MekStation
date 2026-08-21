@@ -27,7 +27,10 @@ import {
   UnsupportedReplayHistoryError,
 } from '../ReplaySchemaRegistry';
 
-/** The frozen task/PR-8 inventory row as runtime discriminant values. */
+/**
+ * The task/PR-8 inventory row (as amended 2026-08-21 to add
+ * `physical_attack_locked`) as runtime discriminant values.
+ */
 const INVENTORY_PHYSICAL_DISCRIMINANTS = [
   'psr_triggered',
   'psr_resolved',
@@ -35,6 +38,7 @@ const INVENTORY_PHYSICAL_DISCRIMINANTS = [
   'unit_stuck',
   'unit_stood',
   'physical_attack_declared',
+  'physical_attack_locked',
   'physical_attack_resolved',
   'ground_object_picked_up',
   'ground_object_dropped',
@@ -84,6 +88,11 @@ const MUTATIONS: Readonly<
       (decision['context'] as MutablePayload)['forcedDomino'] = true;
     },
     (p) => (p['limb'] = 'tail'),
+  ],
+  physical_attack_locked: [
+    (p) => delete p['unitId'],
+    (p) => (p['lockedBy'] = 'gm'),
+    (p) => (p['unitId'] = 7),
   ],
   physical_attack_resolved: [
     (p) => {
