@@ -95,14 +95,19 @@ Post-merge terminal evidence: before PR 1A implementation resumes, verify these 
   - Receipt (2026-08-21): a dedicated pre-enrichment `LEGACY_MOVEMENT_DECLARED_PAYLOAD` fixture (only the seven fields legacy streams serialized — no mode/path/steps/decomposition) parses unchanged at baseline v1; every enrichment field is optional IN THE SCHEMA ITSELF, exactly as the payload interface declares for legacy compat, so nothing is reconstructed from current movement rules.
 - [x] 5.4 Run focused movement tests and applicable quality/review gates.
   - Receipt (2026-08-21): pack contract 16/16; all sibling replay suites 69/69 (registry, campaign pack, lifecycle pack, legacy adapters, fingerprint); typecheck/lint/format clean; strict OpenSpec green; independent fresh-context schema review run with verdict + any findings recorded in the PR description.
-- [ ] 5.5 After merge, rerun exact main and prune before PR 6.
+- [x] 5.5 After merge, rerun exact main and prune before PR 6.
+  - Receipt (2026-08-21): PR 5 merged as #1280 (squash, SHA-guarded); primary fast-forwarded; worktree + branches pruned; PR 6 branched from the post-merge main.
 
 ## 6. Combat Ranged and Indirect Attack Baseline Pack — PR 6
 
-- [ ] 6.1 Add strict concrete v1 schemas for attack declaration/invalid/locked/revealed/resolved, spotting, designator, AMS, ammo-consumption, and four indirect-fire payloads.
-- [ ] 6.2 Register the pack and add per-variant valid plus missing/extra/ill-typed fixtures for public and redacted payload forms.
-- [ ] 6.3 Prove to-hit rolls, hit locations, cluster results, ammunition, and indirect-fire decisions are consumed from stored resolved data or pinned references.
-- [ ] 6.4 Run focused attack/indirect tests and applicable quality/review gates.
+- [x] 6.1 Add strict concrete v1 schemas for attack declaration/invalid/locked/revealed/resolved, spotting, designator, AMS, ammo-consumption, and four indirect-fire payloads.
+  - Receipt (2026-08-21): `CombatRangedBaselineSchemaPack.ts` registers the thirteen inventory discriminants at baseline v1 (runtime `GameEventType` keys, `combat.<type>.v1` ids, no transitions, thirteen-member `satisfies` exhaustiveness). `AttackInvalid`'s 12-reason vocabulary, the AMS mount-snapshot record, the `IToHitModifier` list, and the four indirect-fire payloads (with each payload's exact base-vs-narrowed `basis`/`spotterId` semantics — SpotterSelected pinned to `'los'` + non-null spotter, NarcOverride pinned to `'narc'|'inarc'` + `z.null()` spotter) are exact mirrors.
+- [x] 6.2 Register the pack and add per-variant valid plus missing/extra/ill-typed fixtures for public and redacted payload forms.
+  - Receipt (2026-08-21): `attack_resolved` is a UNION of the public payload (full Edge/ammo/cluster audit surface) and the fog-of-war `IRedactedAttackResolvedPayload` stored form (attacker/weapon ids intentionally absent) — both fixtures parse, and the redacted form carries its own 3-mutation matrix in addition to the per-variant matrices (13 x 3 = 39 rejections + 3 redacted rejections); unknown discriminant + version fail closed. Pack unwired (grep proof). 32/32 contract tests green.
+- [x] 6.3 Prove to-hit rolls, hit locations, cluster results, ammunition, and indirect-fire decisions are consumed from stored resolved data or pinned references.
+  - Receipt (2026-08-21): retention test pins that the resolved payload's consumed d6 array, hit location, ammo bin reference, and Edge-superseded roll; the AMS cluster roll/modified roll and its d6 pair; and the indirect-fire basis/penalty/spotter-walked decision all survive validation byte-for-byte. The purity contract test pins the pack's runtime imports to `zod` + pure `@/types` modules + replay-local files — no catalog, clock, or RNG lookup can enter without failing.
+- [x] 6.4 Run focused attack/indirect tests and applicable quality/review gates.
+  - Receipt (2026-08-21): pack contract 32/32; all sibling replay suites 85/85; full unit lane green in this worktree; typecheck/lint/format clean; strict OpenSpec green; independent fresh-context schema review run with verdict + findings recorded in the PR description.
 - [ ] 6.5 After merge, rerun exact main and prune before PR 7.
 
 ## 7. Combat Damage, Heat, and Critical Baseline Pack — PR 7
