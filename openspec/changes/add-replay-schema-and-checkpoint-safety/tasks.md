@@ -236,14 +236,19 @@ Post-merge terminal evidence: before PR 1A implementation resumes, verify these 
   - Receipt (2026-08-21): contract test - v10 applies + file-reopen idempotency (row survives, re-init clean); 13-case row-level rejection matrix (blank identities, non-root branch, negative/fractional revision, short/non-hex digests, zero version, empty state/recorded_at); UNIQUE tuple enforced; UPDATE aborts with the write-once message while DELETE succeeds; and the authority proof - journal batch+event rows byte-compared before/after checkpoint insert + full delete + tampered re-insert (unchanged), journal immutability triggers still fire on UPDATE/DELETE, PRAGMA foreign_key_list(replay_checkpoints) empty. Ledger pins in the journal migration test moved (MAX version 9 -> 10, migration row count 8 -> 9).
 - [x] 15A.3 Run Node 22 native SQLite preflight, focused migration tests, typecheck/lint/format, strict OpenSpec/QC, and sequential integrity review.
   - Receipt (2026-08-21): Node 22 native preflight green (`scripts/qc/check-better-sqlite3-abi.mjs`: node v22.22.0, better-sqlite3 12.11.1, SQLite 3.53.2, NAPI 10); focused SQLiteService suites 31/31; typecheck/lint/format clean; strict OpenSpec green; sequential integrity review (fresh-context Grok 4.6, incl. INSERT OR REPLACE bypass probing) recorded in the PR description.
-- [ ] 15A.4 After merge, rerun exact main and prune before PR 15B.
+- [x] 15A.4 After merge, rerun exact main and prune before PR 15B.
+  - Receipt (2026-08-21): PR 15A merged as #1292 (squash, SHA-guarded); primary fast-forwarded; worktree + branches pruned; PR 15B branched from the post-merge main.
 
 ## 15B. SQLite Checkpoint Repository and Selection — PR 15B
 
-- [ ] 15B.1 Add atomic checkpoint write/read selection that admits only fully written compatible records and treats checkpoints as disposable caches.
-- [ ] 15B.2 Prove selection never changes journal rows, authority high-water, or the full-replay fallback result.
-- [ ] 15B.3 Add partial-write, reopen, compatibility-selection, and corrupt-row rejection tests against real SQLite.
-- [ ] 15B.4 Run Node 22 native SQLite preflight, focused repository tests, typecheck/lint/format, strict OpenSpec/QC, and sequential integrity review.
+- [x] 15B.1 Add atomic checkpoint write/read selection that admits only fully written compatible records and treats checkpoints as disposable caches.
+  - Receipt (2026-08-21): `SQLiteReplayCheckpointRepository` (journal dir, borrowed-handle idiom; the replay dir stays pure) - `record` verifies the state bytes hash to the claimed digest BEFORE any write (typed `state-digest-mismatch`; typed non-JSON guard), then a single plain INSERT (never REPLACE, per the 15A integrity pin); slot collision is typed `duplicate-checkpoint`; re-record is explicit `discard` + `record`. `selectRecoveryBase` scans newest-revision-first for the exact pipeline identity and admits ONLY fully written, byte-vs-digest-true, kernel-compatible rows; corrupt/torn/mismatched rows are skipped and reported by id - never returned, repaired, or auto-deleted.
+- [x] 15B.2 Prove selection never changes journal rows, authority high-water, or the full-replay fallback result.
+  - Receipt (2026-08-21): selection is SELECT-only - the contract test seeds journal batch/event/high-water rows, snapshots events + batches + store_state + checkpoint rows, runs three selection shapes (match, stale fingerprint, revision-capped), and proves the snapshot byte-identical; the full-replay fallback verdict is unaffected by selection runs or corrupt rows present.
+- [x] 15B.3 Add partial-write, reopen, compatibility-selection, and corrupt-row rejection tests against real SQLite.
+  - Receipt (2026-08-21): real-SQLite (temp-file) coverage - record/select round trip; pre-write digest refusal leaves zero rows; duplicate slot + discard/re-record; planted digest-mismatched AND torn (invalid JSON) rows skipped with an earlier valid base admitted and both ids reported; all-corrupt/absent -> full-replay with evidence; stale fingerprint and mismatched caller-supplied sourceTailDigest never select; throughRevision head cap; file reopen persistence.
+- [x] 15B.4 Run Node 22 native SQLite preflight, focused repository tests, typecheck/lint/format, strict OpenSpec/QC, and sequential integrity review.
+  - Receipt (2026-08-21): Node 22 native preflight green; focused repository + full replay suites 573/573 in this worktree; typecheck/lint/format clean; strict OpenSpec green; sequential integrity review (fresh-context Grok 4.6, incl. the sourceTailDigest-default honesty probe) recorded in the PR description.
 - [ ] 15B.5 After merge, rerun exact main and prune before PR 16.
 
 ## 16. Full-Replay and Checkpoint Equivalence — PR 16
