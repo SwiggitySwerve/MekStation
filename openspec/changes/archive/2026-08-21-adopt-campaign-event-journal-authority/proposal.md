@@ -1,3 +1,5 @@
+> SUPERSEDED 2026-08-20 by `design-campaign-authority-and-sync` per the council decision at `openspec/council-decisions/2026-08-20-campaign-journal-reconciliation-and-next-work.md`. Nothing here was implemented under this change. Its content survives absorbed: design D2/D3 imported intact as the surviving change's D10, the cursor doctrine adopted into its rewritten D4, the four spec deltas absorbed into its specs/, and PR groups 1-7 carried as its Group 5. Archived with --skip-specs (no delta merged into living specs from here).
+
 ## Why
 
 Co-op campaign events are typed but remain process-local, while campaign snapshots are authoritative and multi-event commands can partially apply. Campaign adoption must make one durable stream authoritative and close the catch-up/live race before long-running shared campaigns rely on it.
