@@ -223,6 +223,29 @@ export class JournalCampaignEventStore implements ICampaignEventStore {
     private readonly journal: IEventJournal<ICampaignJournalEnvelope>,
   ) {}
 
+  /**
+   * The D10 batch capability the host's command->append pipeline detects
+   * (task 1.2): one command's whole contiguous event batch plus its
+   * expected post-state digest, committed atomically at the expected head.
+   * Absent on the in-memory store, so the host's legacy per-event path
+   * remains the flag-off behavior structurally.
+   */
+  appendCommandBatch = async (
+    campaignId: string,
+    input: {
+      readonly commandId: string;
+      readonly events: readonly ICampaignEvent[];
+      readonly expectedPostStateDigest: string;
+    },
+  ): Promise<CampaignBatchAppendResult> => {
+    return appendCampaignCommandBatch(this.journal, {
+      campaignId,
+      commandId: input.commandId,
+      events: input.events,
+      expectedPostStateDigest: input.expectedPostStateDigest,
+    });
+  };
+
   appendEvent = async (
     campaignId: string,
     event: ICampaignEvent,
