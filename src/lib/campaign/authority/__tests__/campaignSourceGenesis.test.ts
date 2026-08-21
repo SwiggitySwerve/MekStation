@@ -46,7 +46,22 @@ function disjointCampaign() {
       { ...force, unitIds: [`unit-${index}`] },
     ]),
   );
-  return { ...campaign, forces: remapped };
+  return {
+    ...campaign,
+    forces: remapped,
+    // Non-empty standing so the parity row actually exercises the
+    // factionStanding mapping (an empty record hides a dropped field).
+    factionStandings: {
+      kurita: {
+        factionId: 'kurita',
+        regard: 12,
+        level: 'neutral',
+        accoladeLevel: 0,
+        censureLevel: 0,
+        history: [],
+      } as never,
+    },
+  };
 }
 
 function rosterProjection(
