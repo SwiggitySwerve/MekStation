@@ -282,14 +282,14 @@ export function JsonlFileLoader({
       {errors.length > 0 && (
         <div
           data-testid="jsonl-loader-errors"
-          className="border-error-theme bg-error-theme/10 max-h-40 overflow-y-auto rounded-lg border px-3 py-2 text-xs"
+          className="max-h-40 overflow-y-auto rounded-lg border border-red-700 bg-red-950/40 px-3 py-2 text-xs"
           role="alert"
         >
-          <p className="text-error-theme mb-1 font-medium">
+          <p className="mb-1 font-medium text-red-300">
             File rejected ({errors.length} error{errors.length === 1 ? '' : 's'}
             ). No events were loaded.
           </p>
-          <ul className="text-error-theme/90 list-inside list-disc space-y-0.5 font-mono">
+          <ul className="list-inside list-disc space-y-0.5 font-mono text-red-200">
             {errors.slice(0, 20).map((err) => (
               <li key={err.line}>
                 line {err.line}: {err.error}
