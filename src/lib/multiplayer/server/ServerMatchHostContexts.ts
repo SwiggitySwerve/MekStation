@@ -24,6 +24,7 @@ import type {
   IServerMessage,
 } from '@/types/multiplayer/Protocol';
 
+import type { AuthorizedViewerResolver } from './authorization/AuthorizedViewer';
 import type { IMatchStore } from './IMatchStore';
 import type { AcceptedIntentTracker } from './reconnection/AcceptedIntentTracker';
 import type { IntentRateLimiter } from './reconnection/IntentRateLimiter';
@@ -69,6 +70,7 @@ export interface IServerMatchHostInternals extends IServerMatchHostCaptureContex
    */
   readonly rateLimiter: IntentRateLimiter;
   readonly acceptedIntents: AcceptedIntentTracker;
+  readonly viewerResolver: AuthorizedViewerResolver;
 }
 
 /**
@@ -137,6 +139,7 @@ export function buildIntentContext(
     tryPublishOutcome: host.tryPublishOutcome,
     rateLimiter: host.rateLimiter,
     acceptedIntents: host.acceptedIntents,
+    viewerResolver: host.viewerResolver,
   };
 }
 

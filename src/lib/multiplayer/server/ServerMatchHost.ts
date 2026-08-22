@@ -622,15 +622,23 @@ export class ServerMatchHost {
    * rate limiter (design D6) debits the right bucket. The WebSocket
    * upgrade handler passes the per-socket identity; tests may pass any
    * stable string (or omit it for a shared bucket).
+   *
+   * `verifiedPrincipalId` is required on the production socket path
+   * (the binder passes the connection's admitted player id). Direct
+   * host.handleIntent test callers may omit it; the intent module then
+   * uses SERVER_INTERNAL_INTENT_CALLER so those in-process callers keep
+   * working. That marker is not a wire grant of authority.
    */
   handleIntent = async (
     envelope: IIntent,
     connectionKey?: string,
+    verifiedPrincipalId?: string,
   ): Promise<readonly IServerMessage[]> => {
     return handleIntentWithContext(
       buildIntentContext(this.internals()),
       envelope,
       connectionKey,
+      verifiedPrincipalId,
     );
   };
 
@@ -764,6 +772,7 @@ export class ServerMatchHost {
       handleLobbyIntent: (envelope) => this.handleLobbyIntent(envelope),
       rateLimiter: this.rateLimiter,
       acceptedIntents: this.acceptedIntents,
+      viewerResolver: this.viewerResolver,
     };
   }
 

@@ -272,7 +272,9 @@ async function dispatchEnvelope({
         });
         return;
       }
-      await host.handleIntent(envelope, connectionKey);
+      // Bind the command path to this connection's admitted principal,
+      // never the envelope's client-supplied playerId.
+      await host.handleIntent(envelope, connectionKey, verifiedPlayerId);
       logger.log(
         `[mp-socket] intent dispatched matchId=${matchId} playerId=${verifiedPlayerId} intent=${envelope.intent.kind}`,
       );
