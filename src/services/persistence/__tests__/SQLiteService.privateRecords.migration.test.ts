@@ -150,7 +150,7 @@ describe('private records SQLite migration', () => {
     db.prepare(RECORD_INSERT).run(validPresent());
     resetSQLiteService();
     const raw = new Database(dbPath);
-    raw.prepare('DELETE FROM migrations WHERE version = 12').run();
+    raw.prepare('DELETE FROM migrations WHERE version >= 12').run();
     raw.close();
 
     const reopened = database();
@@ -275,6 +275,13 @@ describe('private records SQLite migration', () => {
       'action_audit_insert_not_published',
       'action_audit_no_delete',
       'action_audit_no_rewrite',
+      'delivery_epoch_no_delete',
+      'delivery_epoch_no_update',
+      'delivery_event_mapping_no_delete',
+      'delivery_event_mapping_no_update',
+      'delivery_generation_bump_only',
+      'delivery_generation_insert_baseline',
+      'delivery_generation_no_delete',
       'event_journal_batches_no_delete',
       'event_journal_batches_no_update',
       'event_journal_causations_no_delete',

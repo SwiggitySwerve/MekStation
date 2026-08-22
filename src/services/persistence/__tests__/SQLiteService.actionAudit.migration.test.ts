@@ -150,7 +150,7 @@ describe('action audit SQLite migration', () => {
     db.prepare(AUDIT_INSERT).run(validRejected());
     resetSQLiteService();
     const raw = new Database(dbPath);
-    // v12 is now latest, so deleting only v11 would leave MAX=12 and the
+    // v13 is now latest, so deleting only v11 would leave MAX=13 and the
     // runner would not re-apply v11. Drop v11+ so both re-run idempotently.
     raw.prepare('DELETE FROM migrations WHERE version >= 11').run();
     raw.close();
@@ -300,6 +300,13 @@ describe('action audit SQLite migration', () => {
       'action_audit_insert_not_published',
       'action_audit_no_delete',
       'action_audit_no_rewrite',
+      'delivery_epoch_no_delete',
+      'delivery_epoch_no_update',
+      'delivery_event_mapping_no_delete',
+      'delivery_event_mapping_no_update',
+      'delivery_generation_bump_only',
+      'delivery_generation_insert_baseline',
+      'delivery_generation_no_delete',
       'event_journal_batches_no_delete',
       'event_journal_batches_no_update',
       'event_journal_causations_no_delete',
