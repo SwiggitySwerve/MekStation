@@ -33,6 +33,8 @@
 
 import type Database from 'better-sqlite3';
 
+import { isSqliteUniqueConstraintError } from '@/services/persistence/sqliteConstraintErrors';
+
 import type {
   IReplayCheckpointExpectation,
   IReplayCheckpointMetadata,
@@ -137,10 +139,7 @@ export class SQLiteReplayCheckpointRepository {
           recordedAt,
         );
     } catch (error) {
-      if (
-        error instanceof Error &&
-        /UNIQUE constraint failed/.test(error.message)
-      )
+      if (isSqliteUniqueConstraintError(error))
         throw new ReplayCheckpointError(
           'duplicate-checkpoint',
           `A checkpoint already occupies this identity slot; discard it before re-recording`,

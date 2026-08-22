@@ -45,6 +45,7 @@ import path from 'node:path';
 import type { IGameEvent } from '@/types/gameplay/GameSessionInterfaces';
 
 import { normalizeRoomCode } from '@/lib/p2p/roomCodes';
+import { isSqliteUniqueConstraintError } from '@/services/persistence/sqliteConstraintErrors';
 
 import {
   MatchNotFoundError,
@@ -432,10 +433,8 @@ export class DurableMatchStore implements IMatchStore {
  * locally-compiled one.
  */
 function isUniqueConstraintError(e: unknown): boolean {
-  if (!(e instanceof Error)) return false;
-  const code = (e as { code?: unknown }).code;
-  if (typeof code === 'string' && code.startsWith('SQLITE_CONSTRAINT')) {
-    return true;
-  }
-  return /UNIQUE constraint failed|PRIMARY KEY/i.test(e.message);
+  // Delegates to the shared predicate, which duck-types rather than
+  // gating on `instanceof Error` - a cross-realm error object carries a
+  // usable message and code but fails the identity check.
+  return isSqliteUniqueConstraintError(e);
 }

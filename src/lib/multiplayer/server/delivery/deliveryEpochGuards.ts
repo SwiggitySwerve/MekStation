@@ -11,6 +11,10 @@ import { randomBytes } from 'node:crypto';
 import type { IAuthorizedViewer } from '@/lib/multiplayer/server/authorization/AuthorizedViewer';
 
 import { isAuthorizedViewer } from '@/lib/multiplayer/server/authorization/AuthorizedViewer';
+import {
+  isSqliteUniqueConstraintError,
+  sqliteConstraintMessage,
+} from '@/services/persistence/sqliteConstraintErrors';
 
 import {
   DELIVERY_EPOCH_ID_PATTERN,
@@ -66,11 +70,14 @@ export function isOpaqueEpochId(value: string): boolean {
   return DELIVERY_EPOCH_ID_PATTERN.test(value);
 }
 
-/** True for SQLite UNIQUE failures on this schema. */
+/**
+ * True for SQLite UNIQUE failures on this schema. Delegates to the shared
+ * realm-safe predicate: an `instanceof Error` gate lets a cross-realm
+ * constraint error escape untyped, which would surface as a raw driver
+ * error instead of the typed conflict callers handle.
+ */
 export function isUniqueViolation(error: unknown): boolean {
-  return (
-    error instanceof Error && /UNIQUE constraint failed/.test(error.message)
-  );
+  return isSqliteUniqueConstraintError(error);
 }
 
 /**
@@ -80,8 +87,7 @@ export function isUniqueViolation(error: unknown): boolean {
 export function isIdentityUniqueViolation(error: unknown): boolean {
   return (
     isUniqueViolation(error) &&
-    error instanceof Error &&
-    error.message.includes('projected_event_identity')
+    sqliteConstraintMessage(error).includes('projected_event_identity')
   );
 }
 
@@ -92,8 +98,7 @@ export function isIdentityUniqueViolation(error: unknown): boolean {
 export function isSequenceUniqueViolation(error: unknown): boolean {
   return (
     isUniqueViolation(error) &&
-    error instanceof Error &&
-    error.message.includes('delivery_sequence')
+    sqliteConstraintMessage(error).includes('delivery_sequence')
   );
 }
 
