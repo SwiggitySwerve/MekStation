@@ -13,6 +13,7 @@
 import Database from 'better-sqlite3';
 
 import { ACTION_AUDIT_MIGRATION } from './SQLiteService.actionAudit.migration';
+import { CAMPAIGN_GRANTS_MIGRATION } from './SQLiteService.campaignGrants.migration';
 import { DELIVERY_EPOCHS_MIGRATION } from './SQLiteService.deliveryEpochs.migration';
 import { EVENT_JOURNAL_MIGRATION } from './SQLiteService.eventJournal.migration';
 import { PRIVATE_RECORDS_MIGRATION } from './SQLiteService.privateRecords.migration';
@@ -373,4 +374,5 @@ export const MIGRATIONS: readonly IMigration[] = [
   ACTION_AUDIT_MIGRATION,
   PRIVATE_RECORDS_MIGRATION,
   DELIVERY_EPOCHS_MIGRATION,
+  CAMPAIGN_GRANTS_MIGRATION,
 ];
