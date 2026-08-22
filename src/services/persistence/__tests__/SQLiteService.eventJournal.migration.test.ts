@@ -153,7 +153,7 @@ describe('event journal SQLite migration', () => {
     expect(tables.map(({ name }) => name)).toEqual(expectedTables);
     expect(
       db.prepare('SELECT MAX(version) AS version FROM migrations').get(),
-    ).toEqual({ version: 12 }); // 12 = private_records_schema (authority-audit PR 5)
+    ).toEqual({ version: 13 }); // 13 = delivery_epochs_schema (authority-audit PR 7)
     expect(db.prepare('SELECT * FROM event_journal_store_state').all()).toEqual(
       [{ singleton_id: 1, last_commit_position: 0 }],
     );
@@ -172,7 +172,7 @@ describe('event journal SQLite migration', () => {
     ).toEqual([{ singleton_id: 1, last_commit_position: 7 }]);
     expect(
       reopened.prepare('SELECT COUNT(*) AS count FROM migrations').get(),
-    ).toEqual({ count: 11 });
+    ).toEqual({ count: 12 });
   });
 
   it('enforces root, safe-range, batch-range, chain, uniqueness, and foreign-key constraints', () => {

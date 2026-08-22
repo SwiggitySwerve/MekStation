@@ -7,8 +7,10 @@
  * objects. Membership failure, audience-catalog failure, or projection
  * failure yields a typed refusal with NO raw fallback.
  *
- * This service is STATELESS: it returns no cursor, epoch, or delivery
- * identity. PR 7 owns durable viewer delivery sequences.
+ * This service is STATELESS for the public project() path: it returns
+ * no cursor, epoch, or delivery sequence. projectWithIdentities pairs
+ * each visible fact with eventDigest for PR 7; those identities stay
+ * off the viewer-safe fact objects.
  *
  * @spec openspec/changes/add-authority-audit-and-privacy-proof/specs/gm-authority-redaction/spec.md
  */
@@ -42,6 +44,31 @@ import {
 export interface IViewerProjectionServiceDeps {
   readonly journal: IEventJournal;
   readonly registry: ViewerAudienceProjectorRegistry;
+}
+
+/**
+ * Server-internal pairing of a PR 6 viewer-safe fact with the durable
+ * projectedEventIdentity used by delivery epochs.
+ *
+ * Identity choice: IStoredEvent.eventDigest (content digest), not
+ * streamRevision or commitPosition. Digest is stable across reconnect,
+ * retry, replay, and a reconstruct that keeps identical event bytes at
+ * a new positional revision. A positional identity would mint a new
+ * sequence for the same projected event. The digest stays OFF the fact
+ * object so JSON of `fact` remains byte-identical to project().
+ */
+export interface IIdentifiedViewerFact {
+  readonly fact: IViewerSafeFact;
+  readonly projectedEventIdentity: string;
+}
+
+/**
+ * Wrapper returned by projectWithIdentities. `projection` is the same
+ * object project() returns; identities live only on this wrapper.
+ */
+export interface IViewerProjectionWithIdentities {
+  readonly projection: IViewerSafeProjection;
+  readonly identifiedFacts: readonly IIdentifiedViewerFact[];
 }
 
 /**
@@ -130,12 +157,26 @@ export class ViewerProjectionService {
    * (1) brand check, (2) stream scope vs viewer fields only, (3)
    * registry lookup, (4) journal read, (5) per-event audience apply.
    * Any projector throw or missing decision refuses with no partial
-   * facts and no delivery identity.
+   * facts and no delivery identity. Shape is unchanged from PR 6.
    */
   public async project(
     viewer: IAuthorizedViewer,
     request: IViewerProjectionRequest,
   ): Promise<IViewerSafeProjection> {
+    const identified = await this.projectWithIdentities(viewer, request);
+    return identified.projection;
+  }
+
+  /**
+   * Internal pairing used by delivery epochs. Returns the same
+   * viewer-safe projection as project() plus identities alongside
+   * (not inside) each fact. Hidden and failed events still produce
+   * no fact and no identity, so PR 7 assigns no sequence for them.
+   */
+  public async projectWithIdentities(
+    viewer: IAuthorizedViewer,
+    request: IViewerProjectionRequest,
+  ): Promise<IViewerProjectionWithIdentities> {
     if (!isAuthorizedViewer(viewer))
       throw new ViewerProjectionError(
         'not-a-viewer',
@@ -149,9 +190,13 @@ export class ViewerProjectionService {
 
     const projector = this.deps.registry.projectorFor(request.streamType);
     const storedEvents = await this.readAuthorizedStream(request);
-    const facts = this.projectAllOrThrow(viewer, projector, storedEvents);
-
-    return Object.freeze({
+    const identifiedFacts = this.projectAllWithIdentitiesOrThrow(
+      viewer,
+      projector,
+      storedEvents,
+    );
+    const facts = identifiedFacts.map((entry) => entry.fact);
+    const projection = Object.freeze({
       projectorVersion: projector.projectorVersion,
       streamType: request.streamType,
       streamId: request.streamId,
@@ -161,6 +206,10 @@ export class ViewerProjectionService {
         role: viewer.role,
       }),
       facts: Object.freeze(facts),
+    });
+    return Object.freeze({
+      projection,
+      identifiedFacts: Object.freeze(identifiedFacts),
     });
   }
 
@@ -193,20 +242,27 @@ export class ViewerProjectionService {
    * events are omitted with no placeholder so sequenceHint stays gapless
    * over visible facts (hidden events stay uncountable). Missing
    * decisions and projector throws discard any facts already built.
+   * Each visible fact is paired with eventDigest as projectedEventIdentity.
    */
-  private projectAllOrThrow(
+  private projectAllWithIdentitiesOrThrow(
     viewer: IAuthorizedViewer,
     projector: ViewerAudienceProjector,
     storedEvents: readonly IStoredEvent[],
-  ): IViewerSafeFact[] {
-    const facts: IViewerSafeFact[] = [];
+  ): IIdentifiedViewerFact[] {
+    const identified: IIdentifiedViewerFact[] = [];
     for (const stored of storedEvents) {
       const decision = projector.decisionFor(stored.eventType);
       if (decision === undefined) throwProjectionFailed();
       if (!isVisibleToViewer(viewer, decision, stored.payload)) continue;
       const payload = projectPayload(decision, stored.payload, viewer);
-      facts.push(freezeFact(stored.eventType, facts.length + 1, payload));
+      const fact = freezeFact(stored.eventType, identified.length + 1, payload);
+      identified.push(
+        Object.freeze({
+          fact,
+          projectedEventIdentity: stored.eventDigest,
+        }),
+      );
     }
-    return facts;
+    return identified;
   }
 }
