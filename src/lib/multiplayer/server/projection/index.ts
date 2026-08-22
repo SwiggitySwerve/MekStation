@@ -1,11 +1,33 @@
 /**
- * Public surface for the viewer projection seam (authority-audit PR 6).
+ * Public surface for the viewer projection seam (authority-audit PR 6
+ * and PR 8 publication adoption).
  *
- * PR 8 owns live/replay/history adoption. This barrel exports the
- * service, registry, and viewer-safe types only. It does not export
- * raw journal row types or anything from private-record storage.
+ * Exports the service, registry, match-wire catalog, publication
+ * boundary, and viewer-safe types only. It does not export raw journal
+ * row types or anything from private-record storage.
  */
 
+export {
+  MATCH_WIRE_PROJECTOR_VERSION,
+  MATCH_WIRE_PUBLIC_IDENTITY,
+  MATCH_WIRE_STREAM_TYPE,
+  MATCH_WIRE_V1_DECISIONS,
+  createMatchWireAudienceProjector,
+  listedMatchWireEventTypes,
+  matchWireAudienceDefinition,
+  projectMatchWirePayloadUnchanged,
+} from './MatchWireAudienceCatalog';
+export {
+  MATCH_WIRE_PUBLICATION_BOUNDARY,
+  ViewerPublicationBoundary,
+} from './ViewerPublicationBoundary';
+export type {
+  IPublicationFailure,
+  IPublicationOmit,
+  IPublicationSend,
+  PublicationGuardResult,
+  ReplayFramesGuardResult,
+} from './ViewerPublicationBoundary';
 export {
   isOwnerAudienceMatch,
   ViewerAudienceProjector,

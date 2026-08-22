@@ -127,7 +127,7 @@ async function makeActiveHost() {
  * reads — a couple of `Promise.resolve()` ticks no longer suffice.
  */
 async function flushDrop(): Promise<void> {
-  for (let i = 0; i < 8; i++) {
+  for (let i = 0; i < 32; i++) {
     await Promise.resolve();
   }
 }
