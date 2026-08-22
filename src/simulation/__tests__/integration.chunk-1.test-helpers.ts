@@ -54,9 +54,18 @@ const PROFILE_RUNNER_BUDGET_MS = readPositiveIntEnv(
   'SIMULATION_PROFILE_RUNNER_BUDGET_MS',
   2250,
 );
+// Default widened 1500 -> 2500 (3x the isolated measurement, per the repo
+// perf-budget convention used by PROFILE_RUNNER_BUDGET_MS above). Reason:
+// this assertion is explicitly a CONTENDED ceiling, but 1500 did not
+// actually accommodate contention. Measured 2026-08-22 on a current dev
+// box: 853 ms/game isolated vs 1706-1728 ms/game in the full ~32.6k-test
+// unit run (two consecutive runs), i.e. Jest worker contention doubles the
+// recorded per-game duration while the engine itself is unchanged. 2500
+// still fails on a real runaway (a 2x engine regression lands near 3400 ms
+// contended). CI lanes pin their own value via env and are unaffected.
 const PROFILE_AVG_GAME_BUDGET_MS = readPositiveIntEnv(
   'SIMULATION_PROFILE_AVG_GAME_BUDGET_MS',
-  1500,
+  2500,
 );
 const PROFILE_TIME_BUDGET_MS = readPositiveIntEnv(
   'SIMULATION_PROFILE_TIME_BUDGET_MS',
