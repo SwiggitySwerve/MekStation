@@ -150,7 +150,9 @@ describe('action audit SQLite migration', () => {
     db.prepare(AUDIT_INSERT).run(validRejected());
     resetSQLiteService();
     const raw = new Database(dbPath);
-    raw.prepare('DELETE FROM migrations WHERE version = 11').run();
+    // v12 is now latest, so deleting only v11 would leave MAX=12 and the
+    // runner would not re-apply v11. Drop v11+ so both re-run idempotently.
+    raw.prepare('DELETE FROM migrations WHERE version >= 11').run();
     raw.close();
 
     const reopened = database();
@@ -287,7 +289,7 @@ describe('action audit SQLite migration', () => {
     );
   });
 
-  it('the migration is additive - trigger catalog gains only action_audit guards', () => {
+  it('the migration is additive - trigger catalog includes later private-record guards', () => {
     const db = database();
     const allTriggers = db
       .prepare(
@@ -306,6 +308,11 @@ describe('action audit SQLite migration', () => {
       'event_journal_entity_refs_no_update',
       'event_journal_events_no_delete',
       'event_journal_events_no_update',
+      'private_access_audit_no_delete',
+      'private_access_audit_no_update',
+      'private_record_insert_present',
+      'private_record_no_delete',
+      'private_record_no_rewrite',
       'replay_checkpoints_no_update',
     ]);
   });
