@@ -258,7 +258,8 @@ describe('replay checkpoint SQLite migration', () => {
       )
       .all() as { name: string }[];
     // The complete trigger catalog: the v8 journal immutability set, the
-    // v10 write-once checkpoint trigger, and the v11 action-audit guards.
+    // v10 write-once checkpoint trigger, the v11 action-audit guards,
+    // and the v12 private-record guards.
     expect(allTriggers.map((trigger) => trigger.name)).toEqual([
       'action_audit_insert_not_published',
       'action_audit_no_delete',
@@ -271,6 +272,11 @@ describe('replay checkpoint SQLite migration', () => {
       'event_journal_entity_refs_no_update',
       'event_journal_events_no_delete',
       'event_journal_events_no_update',
+      'private_access_audit_no_delete',
+      'private_access_audit_no_update',
+      'private_record_insert_present',
+      'private_record_no_delete',
+      'private_record_no_rewrite',
       'replay_checkpoints_no_update',
     ]);
     const checkpointForeignKeys = db
