@@ -12,6 +12,7 @@
 
 import Database from 'better-sqlite3';
 
+import { ACTION_AUDIT_MIGRATION } from './SQLiteService.actionAudit.migration';
 import { EVENT_JOURNAL_MIGRATION } from './SQLiteService.eventJournal.migration';
 import { REPLAY_CHECKPOINTS_MIGRATION } from './SQLiteService.replayCheckpoints.migration';
 
@@ -367,4 +368,5 @@ export const MIGRATIONS: readonly IMigration[] = [
     `,
   },
   REPLAY_CHECKPOINTS_MIGRATION,
+  ACTION_AUDIT_MIGRATION,
 ];
