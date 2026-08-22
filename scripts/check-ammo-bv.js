@@ -1,9 +1,13 @@
 const fs = require('fs');
 const path = require('path');
-const r = JSON.parse(fs.readFileSync('validation-output/bv-validation-report.json', 'utf8'));
+const r = JSON.parse(
+  fs.readFileSync('validation-output/bv-validation-report.json', 'utf8'),
+);
 
 // Load ammo catalog
-const ammoData = JSON.parse(fs.readFileSync('public/data/equipment/official/ammunition.json', 'utf8'));
+const ammoData = JSON.parse(
+  fs.readFileSync('public/data/equipment/official/ammunition.json', 'utf8'),
+);
 const ammoMap = new Map();
 for (const item of ammoData.items || []) {
   ammoMap.set(item.id, item);
@@ -12,7 +16,7 @@ for (const item of ammoData.items || []) {
 // Also check ammunition subdirectories
 const ammoDir = 'public/data/equipment/official/ammunition';
 if (fs.existsSync(ammoDir) && fs.statSync(ammoDir).isDirectory()) {
-  for (const f of fs.readdirSync(ammoDir).filter(f => f.endsWith('.json'))) {
+  for (const f of fs.readdirSync(ammoDir).filter((f) => f.endsWith('.json'))) {
     const data = JSON.parse(fs.readFileSync(path.join(ammoDir, f), 'utf8'));
     for (const item of data.items || []) {
       ammoMap.set(item.id, { ...item, file: f });
@@ -50,10 +54,13 @@ console.log('\n=== HARDCODED STREAK AMMO IN VALIDATE-BV.TS ===');
 const lines = vbts.split('\n');
 for (let i = 0; i < lines.length; i++) {
   const line = lines[i];
-  if (line.includes('streak') && (line.includes('ammo') || line.includes('Ammo'))) {
+  if (
+    line.includes('streak') &&
+    (line.includes('ammo') || line.includes('Ammo'))
+  ) {
     if (line.includes('//')) continue; // skip comments
     if (line.trim().startsWith('//')) continue;
-    console.log(`  L${i+1}: ${line.trim().substring(0, 120)}`);
+    console.log(`  L${i + 1}: ${line.trim().substring(0, 120)}`);
   }
 }
 

@@ -25,6 +25,7 @@
 
 import type { ICampaignEvent } from '@/types/campaign/CampaignSync';
 
+import { freezeCampaignEvent } from '@/lib/campaign/sync/campaignEventScope';
 import { generateRoomCode, normalizeRoomCode } from '@/lib/p2p/roomCodes';
 import { nowIso } from '@/types/multiplayer/Protocol';
 
@@ -244,17 +245,19 @@ export class CampaignSyncSession {
   private buildBaselineEvent(
     revision: number,
   ): ICampaignEvent<'CampaignSnapshotPublished'> {
-    return {
+    return freezeCampaignEvent({
       type: 'CampaignSnapshotPublished',
       sequence: -1,
       campaignId: this.host.campaignId,
       ts: nowIso(),
       authorPlayerId: this.host.getHostPlayerId(),
+      // Delivery baseline of the shared ledger; filtered snapshots are task 3.4.
+      scope: 'campaign',
       payload: {
         ...this.host.buildSnapshotPayload(),
         matchId: this.matchId,
         revision,
       },
-    };
+    });
   }
 }

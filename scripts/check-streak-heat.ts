@@ -12,5 +12,7 @@ const tests = [
 
 for (const t of tests) {
   const r = resolveEquipmentBV(t);
-  console.log(`${t.padEnd(25)} -> BV=${String(r.battleValue).padStart(3)}, heat=${r.heat}, resolved=${r.resolved}`);
+  console.log(
+    `${t.padEnd(25)} -> BV=${String(r.battleValue).padStart(3)}, heat=${r.heat}, resolved=${r.resolved}`,
+  );
 }

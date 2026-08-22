@@ -1,18 +1,30 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import { calculateOffensiveSpeedFactor, calculateDefensiveBV, calculateTMM } from '../src/utils/construction/battleValueCalculations';
+
 import { EngineType } from '../src/types/construction/EngineType';
 import { STRUCTURE_POINTS_TABLE } from '../src/types/construction/InternalStructureType';
+import {
+  calculateOffensiveSpeedFactor,
+  calculateDefensiveBV,
+  calculateTMM,
+} from '../src/utils/construction/battleValueCalculations';
 
-const data = JSON.parse(fs.readFileSync('validation-output/bv-validation-report.json', 'utf8'));
-const mulCache = JSON.parse(fs.readFileSync('scripts/data-migration/mul-bv-cache.json', 'utf8'));
-const indexData = JSON.parse(fs.readFileSync('public/data/units/battlemechs/index.json', 'utf8'));
+const data = JSON.parse(
+  fs.readFileSync('validation-output/bv-validation-report.json', 'utf8'),
+);
+const mulCache = JSON.parse(
+  fs.readFileSync('scripts/data-migration/mul-bv-cache.json', 'utf8'),
+);
+const indexData = JSON.parse(
+  fs.readFileSync('public/data/units/battlemechs/index.json', 'utf8'),
+);
 
 function calcTotalArmor(a: any): number {
   let t = 0;
   for (const v of Object.values(a)) {
     if (typeof v === 'number') t += v;
-    else if (v && typeof v === 'object') t += ((v as any).front || 0) + ((v as any).rear || 0);
+    else if (v && typeof v === 'object')
+      t += ((v as any).front || 0) + ((v as any).rear || 0);
   }
   return t;
 }
@@ -48,8 +60,16 @@ console.log('Ratio of calculated/reference:');
 const ratios = overCalc.map((d: any) => d.calculatedBV / d.indexBV);
 console.log('  Min:', Math.min(...ratios).toFixed(3));
 console.log('  Max:', Math.max(...ratios).toFixed(3));
-console.log('  Mean:', (ratios.reduce((s: number, v: number) => s + v, 0) / ratios.length).toFixed(3));
-console.log('  Median:', ratios.sort()[Math.floor(ratios.length / 2)].toFixed(3));
+console.log(
+  '  Mean:',
+  (ratios.reduce((s: number, v: number) => s + v, 0) / ratios.length).toFixed(
+    3,
+  ),
+);
+console.log(
+  '  Median:',
+  ratios.sort()[Math.floor(ratios.length / 2)].toFixed(3),
+);
 console.log('');
 
 // Check: what if we applied a 0.95 modifier to the total?
@@ -60,13 +80,30 @@ const adjusted = overCalc.map((d: any) => ({
   ref: d.indexBV,
   adjusted: Math.round(d.calculatedBV * 0.95),
   adjustedDiff: Math.round(d.calculatedBV * 0.95) - d.indexBV,
-  adjustedPct: (Math.round(d.calculatedBV * 0.95) - d.indexBV) / d.indexBV * 100,
+  adjustedPct:
+    ((Math.round(d.calculatedBV * 0.95) - d.indexBV) / d.indexBV) * 100,
 }));
 
-const withinOneAfterAdjust = adjusted.filter(d => Math.abs(d.adjustedPct) <= 1);
+const withinOneAfterAdjust = adjusted.filter(
+  (d) => Math.abs(d.adjustedPct) <= 1,
+);
 console.log('If we multiply total by 0.95:');
-console.log('  Within 1% of reference:', withinOneAfterAdjust.length, 'of', adjusted.length);
-console.log('  Sample:', adjusted.slice(0, 10).map(d => `${d.id}: ${d.calc}→${d.adjusted} (ref ${d.ref}, diff ${d.adjustedDiff})`).join('\n  '));
+console.log(
+  '  Within 1% of reference:',
+  withinOneAfterAdjust.length,
+  'of',
+  adjusted.length,
+);
+console.log(
+  '  Sample:',
+  adjusted
+    .slice(0, 10)
+    .map(
+      (d) =>
+        `${d.id}: ${d.calc}→${d.adjusted} (ref ${d.ref}, diff ${d.adjustedDiff})`,
+    )
+    .join('\n  '),
+);
 console.log('');
 
 // Let's also check: what if we reduce only the DEFENSIVE BV by some amount?
@@ -75,22 +112,34 @@ console.log('');
 const defAdj = overCalc.map((d: any) => {
   const newDef = d.breakdown.defensiveBV * 0.95;
   const newTotal = Math.round(newDef + d.breakdown.offensiveBV);
-  return { id: d.unitId, newTotal, ref: d.indexBV, diff: newTotal - d.indexBV, pct: (newTotal - d.indexBV) / d.indexBV * 100 };
+  return {
+    id: d.unitId,
+    newTotal,
+    ref: d.indexBV,
+    diff: newTotal - d.indexBV,
+    pct: ((newTotal - d.indexBV) / d.indexBV) * 100,
+  };
 });
-const defAdjWithin1 = defAdj.filter(d => Math.abs(d.pct) <= 1);
+const defAdjWithin1 = defAdj.filter((d) => Math.abs(d.pct) <= 1);
 console.log('If we reduce defensiveBV by 5%:');
 console.log('  Within 1%:', defAdjWithin1.length);
 console.log('');
 
 // Try reducing offensiveBV by some amount
-for (const factor of [0.90, 0.92, 0.93, 0.94, 0.95, 0.96]) {
+for (const factor of [0.9, 0.92, 0.93, 0.94, 0.95, 0.96]) {
   const offAdj = overCalc.map((d: any) => {
     const newOff = d.breakdown.offensiveBV * factor;
     const newTotal = Math.round(d.breakdown.defensiveBV + newOff);
-    return { newTotal, ref: d.indexBV, pct: (newTotal - d.indexBV) / d.indexBV * 100 };
+    return {
+      newTotal,
+      ref: d.indexBV,
+      pct: ((newTotal - d.indexBV) / d.indexBV) * 100,
+    };
   });
-  const within1 = offAdj.filter(d => Math.abs(d.pct) <= 1);
-  console.log(`Reduce offensiveBV by ${((1-factor)*100).toFixed(0)}%: within 1% = ${within1.length}/${offAdj.length}`);
+  const within1 = offAdj.filter((d) => Math.abs(d.pct) <= 1);
+  console.log(
+    `Reduce offensiveBV by ${((1 - factor) * 100).toFixed(0)}%: within 1% = ${within1.length}/${offAdj.length}`,
+  );
 }
 
 // Key hypothesis: WEIGHT BONUS should NOT be multiplied by speed factor
@@ -101,11 +150,13 @@ for (const d of overCalc.slice(0, 10)) {
   const sf = d.breakdown.speedFactor;
   const wt = d.tonnage;
   const offWithWeight = d.breakdown.offensiveBV;
-  const baseWithoutWeight = offWithWeight / sf - wt;  // remove weight from base
-  const newOff = (baseWithoutWeight * sf) + wt;  // add weight outside SF
+  const baseWithoutWeight = offWithWeight / sf - wt; // remove weight from base
+  const newOff = baseWithoutWeight * sf + wt; // add weight outside SF
   const newTotal = Math.round(d.breakdown.defensiveBV + newOff);
   const newDiff = newTotal - d.indexBV;
-  console.log(`  ${d.unitId}: sf=${sf} wt=${wt} off=${offWithWeight.toFixed(0)} newOff=${newOff.toFixed(0)} total=${newTotal} ref=${d.indexBV} diff=${newDiff}`);
+  console.log(
+    `  ${d.unitId}: sf=${sf} wt=${wt} off=${offWithWeight.toFixed(0)} newOff=${newOff.toFixed(0)} total=${newTotal} ref=${d.indexBV} diff=${newDiff}`,
+  );
 }
 
 // Check: is the weight bonus doubled?
@@ -118,9 +169,11 @@ for (const d of overCalc.slice(0, 10)) {
   // current: base = weaponBV + ammoBV + physicalBV + tonnage + offEquipBV
   // current off = base * SF
   const currentBase = d.breakdown.offensiveBV / sf;
-  const newBase = currentBase - wt + wt/2;  // replace tonnage with tonnage/2
+  const newBase = currentBase - wt + wt / 2; // replace tonnage with tonnage/2
   const newOff = newBase * sf;
   const newTotal = Math.round(d.breakdown.defensiveBV + newOff);
   const newDiff = newTotal - d.indexBV;
-  console.log(`  ${d.unitId}: base=${currentBase.toFixed(0)} newBase=${newBase.toFixed(0)} off=${newOff.toFixed(0)} total=${newTotal} ref=${d.indexBV} diff=${newDiff} (${(newDiff/d.indexBV*100).toFixed(1)}%)`);
+  console.log(
+    `  ${d.unitId}: base=${currentBase.toFixed(0)} newBase=${newBase.toFixed(0)} off=${newOff.toFixed(0)} total=${newTotal} ref=${d.indexBV} diff=${newDiff} (${((newDiff / d.indexBV) * 100).toFixed(1)}%)`,
+  );
 }

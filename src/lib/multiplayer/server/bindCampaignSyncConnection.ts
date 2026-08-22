@@ -1,3 +1,4 @@
+import type { ICampaignEvent } from '@/types/campaign/CampaignSync';
 import type {
   ICampaignClientMessage,
   IClientMessage,
@@ -6,6 +7,7 @@ import type {
 } from '@/types/multiplayer/Protocol';
 
 import { reconcileCoopBattle } from '@/lib/campaign/coop/reconcileCoopBattle';
+import { freezeCampaignEvent } from '@/lib/campaign/sync/campaignEventScope';
 import {
   assertKnownCampaignSyncFrameKind,
   ClientMessageSchema,
@@ -357,14 +359,16 @@ async function handleCampaignJoin({
       kind: 'CampaignSnapshot',
       matchId,
       ts: nowIso(),
-      event: {
+      event: freezeCampaignEvent({
         type: 'CampaignSnapshotPublished',
         sequence: -1,
         campaignId: entry.campaignId,
         ts: nowIso(),
         authorPlayerId: entry.hostPlayerId,
+        // Host-join snapshot is the shared ledger projection.
+        scope: 'campaign',
         payload: entry.host.buildSnapshotPayload(),
-      },
+      }),
     });
     sendPendingProposals(socket, matchId, entry.arbiter.getPendingProposals());
     const pendingUnsubscribe = entry.arbiter.subscribePending((pending) => {
@@ -494,15 +498,11 @@ function handleCampaignParticipation({
 function sendCampaignEvent(
   socket: IMatchSocket,
   matchId: string,
-  event: unknown,
+  event: ICampaignEvent,
 ): void {
-  const type =
-    typeof event === 'object' && event !== null && 'type' in event
-      ? (event as { type?: unknown }).type
-      : null;
   send(socket, {
     kind:
-      type === 'CampaignSnapshotPublished'
+      event.type === 'CampaignSnapshotPublished'
         ? 'CampaignSnapshot'
         : 'CampaignEvent',
     matchId,

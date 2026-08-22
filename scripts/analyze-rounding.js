@@ -1,7 +1,12 @@
-const r = JSON.parse(require('fs').readFileSync('validation-output/bv-validation-report.json', 'utf8'));
+const r = JSON.parse(
+  require('fs').readFileSync(
+    'validation-output/bv-validation-report.json',
+    'utf8',
+  ),
+);
 
 // All diff=+1 units
-const plus1 = r.allResults.filter(u => u.difference === 1);
+const plus1 = r.allResults.filter((u) => u.difference === 1);
 console.log('Units with diff=+1:', plus1.length);
 
 // Analyze: if we floor the final BV instead of round, how many become exact?
@@ -29,10 +34,13 @@ for (const u of plus1) {
   const frac = raw - Math.floor(raw);
   if (frac > 0.5) above5++;
   const bucket = Math.floor(frac * 10) / 10;
-  fracDistribution[bucket.toFixed(1)] = (fracDistribution[bucket.toFixed(1)] || 0) + 1;
+  fracDistribution[bucket.toFixed(1)] =
+    (fracDistribution[bucket.toFixed(1)] || 0) + 1;
 }
 console.log('\nFractional distribution for diff=+1:');
-for (const [bucket, count] of Object.entries(fracDistribution).sort((a, b) => parseFloat(a[0]) - parseFloat(b[0]))) {
+for (const [bucket, count] of Object.entries(fracDistribution).sort(
+  (a, b) => parseFloat(a[0]) - parseFloat(b[0]),
+)) {
   console.log(`  ${bucket}: ${count}`);
 }
 console.log('Above 0.5 (rounds up):', above5, '/', plus1.length);
@@ -105,7 +113,7 @@ for (const u of plus1) {
 console.log('trunc(def+off), round final:', intCastFixes + '/' + plus1.length);
 
 // Check the -1 units too to make sure we don't break them
-const minus1 = r.allResults.filter(u => u.difference === -1);
+const minus1 = r.allResults.filter((u) => u.difference === -1);
 console.log('\n\nUnits with diff=-1:', minus1.length);
 
 let truncBreaks = 0;

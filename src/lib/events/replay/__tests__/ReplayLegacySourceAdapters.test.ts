@@ -47,6 +47,7 @@ const campaignEnvelope = {
   ts: '3025-01-03T00:00:00.000Z',
   authorPlayerId: 'pid-host',
   type: 'FundsChanged',
+  scope: 'campaign',
   payload: { delta: -1000, reason: 'repair', balance: 4_999_000 },
 };
 
@@ -126,6 +127,7 @@ describe('legacy source-format adapters', () => {
   it('object-backed digests are canonical-encoding stable, not key-order sensitive', () => {
     const reordered = {
       type: 'FundsChanged',
+      scope: 'campaign',
       payload: { balance: 4_999_000, reason: 'repair', delta: -1000 },
       authorPlayerId: 'pid-host',
       ts: '3025-01-03T00:00:00.000Z',

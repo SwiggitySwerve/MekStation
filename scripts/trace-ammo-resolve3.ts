@@ -5,13 +5,21 @@
  */
 import * as fs from 'fs';
 import * as path from 'path';
-import { resolveAmmoBV, normalizeEquipmentId } from '../src/utils/construction/equipmentBVResolver';
+
+import {
+  resolveAmmoBV,
+  normalizeEquipmentId,
+} from '../src/utils/construction/equipmentBVResolver';
 
 // Build ammo lookup (same as validator's buildAmmoLookup)
 const ammoLookup = new Map<string, { bv: number; weaponType: string }>();
 
 function normalizeWeaponKey(id: string): string {
-  return id.toLowerCase().replace(/^clan-/, '').replace(/^cl(?!uster)/, '').replace(/^\d+-/, '');
+  return id
+    .toLowerCase()
+    .replace(/^clan-/, '')
+    .replace(/^cl(?!uster)/, '')
+    .replace(/^\d+-/, '');
 }
 
 function extractWeaponTypeFromAmmoId(ammoId: string): string {
@@ -26,15 +34,22 @@ for (const item of d.items || []) {
     : extractWeaponTypeFromAmmoId(item.id);
   ammoLookup.set(item.id, { bv: item.battleValue, weaponType: wt });
   const canon = item.id.replace(/[^a-z0-9]/g, '');
-  if (!ammoLookup.has(canon)) ammoLookup.set(canon, { bv: item.battleValue, weaponType: wt });
+  if (!ammoLookup.has(canon))
+    ammoLookup.set(canon, { bv: item.battleValue, weaponType: wt });
 }
 
 // Add hardcoded entries (just a few key ones for testing)
 const hc: Array<[string, number, string]> = [
-  ['ammo-srm-2', 3, 'srm-2'], ['ammo-srm-4', 5, 'srm-4'], ['ammo-srm-6', 7, 'srm-6'],
-  ['ammo-lrm-5', 6, 'lrm-5'], ['ammo-lrm-10', 11, 'lrm-10'], ['ammo-lrm-15', 17, 'lrm-15'], ['ammo-lrm-20', 23, 'lrm-20'],
+  ['ammo-srm-2', 3, 'srm-2'],
+  ['ammo-srm-4', 5, 'srm-4'],
+  ['ammo-srm-6', 7, 'srm-6'],
+  ['ammo-lrm-5', 6, 'lrm-5'],
+  ['ammo-lrm-10', 11, 'lrm-10'],
+  ['ammo-lrm-15', 17, 'lrm-15'],
+  ['ammo-lrm-20', 23, 'lrm-20'],
   ['clan-medium-chemical-laser-ammo', 5, 'medium-chemical-laser'],
-  ['plasma-rifle-ammo', 26, 'plasma-rifle'], ['isplasmarifleammo', 26, 'plasma-rifle'],
+  ['plasma-rifle-ammo', 26, 'plasma-rifle'],
+  ['isplasmarifleammo', 26, 'plasma-rifle'],
 ];
 for (const [id, bv, wt] of hc) {
   if (!ammoLookup.has(id)) ammoLookup.set(id, { bv, weaponType: wt });
@@ -96,20 +111,35 @@ for (const rawName of testNames) {
 
   // Test just a few key rules
   const rules: Array<{ re: RegExp; ids: (m: RegExpMatchArray) => string[] }> = [
-    { re: /^(?:is\s*)?ammo\s+srm-(\d+)$/, ids: m => [`ammo-srm-${m[1]}`] },
-    { re: /^(?:is\s*)?ammo\s+lrm-(\d+)$/, ids: m => [`ammo-lrm-${m[1]}`] },
-    { re: /^(?:is\s*)?ammo\s+ac[/-](\d+)$/, ids: m => [`ac-${m[1]}-ammo`] },
-    { re: /^cl(?:an)?\s*mediumchemlaser\s*ammo$/, ids: _ => [`clan-medium-chemical-laser-ammo`] },
-    { re: /^(?:is\s*)?plasmarifle?\s*ammo$/, ids: _ => [`plasma-rifle-ammo`, `isplasmarifleammo`] },
-    { re: /^cl(?:an)?\s*gauss\s*ammo$/, ids: _ => [`gauss-ammo`] },
-    { re: /^cl(?:an)?\s*ammo\s+lrm-(\d+)$/, ids: m => [`ammo-lrm-${m[1]}`] },
-    { re: /^(?:is\s*)?gauss\s*ammo$/, ids: _ => [`gauss-ammo`] },
-    { re: /^(?:is\s*)?heavy\s*gauss\s*ammo$/, ids: _ => [`heavy-gauss-ammo`] },
-    { re: /^(?:is\s*)?ams\s*ammo$/, ids: _ => [`ams-ammo`] },
-    { re: /^hag[/-](\d+)\s*ammo$/, ids: m => [`hag-${m[1]}-ammo`, `gauss-ammo`] },
-    { re: /^(?:is\s*)?ammo\s+mg$/, ids: _ => [`mg-ammo`, `ammo-mg-full`] },
-    { re: /^(?:is\s*)?(?:light\s*)?mg\s*ammo$/, ids: _ => [`mg-ammo`, `ammo-mg-full`] },
-    { re: /^(?:is\s*)?rotaryac(\d+)\s*ammo$/, ids: m => [`rotaryac${m[1]}`] },
+    { re: /^(?:is\s*)?ammo\s+srm-(\d+)$/, ids: (m) => [`ammo-srm-${m[1]}`] },
+    { re: /^(?:is\s*)?ammo\s+lrm-(\d+)$/, ids: (m) => [`ammo-lrm-${m[1]}`] },
+    { re: /^(?:is\s*)?ammo\s+ac[/-](\d+)$/, ids: (m) => [`ac-${m[1]}-ammo`] },
+    {
+      re: /^cl(?:an)?\s*mediumchemlaser\s*ammo$/,
+      ids: (_) => [`clan-medium-chemical-laser-ammo`],
+    },
+    {
+      re: /^(?:is\s*)?plasmarifle?\s*ammo$/,
+      ids: (_) => [`plasma-rifle-ammo`, `isplasmarifleammo`],
+    },
+    { re: /^cl(?:an)?\s*gauss\s*ammo$/, ids: (_) => [`gauss-ammo`] },
+    { re: /^cl(?:an)?\s*ammo\s+lrm-(\d+)$/, ids: (m) => [`ammo-lrm-${m[1]}`] },
+    { re: /^(?:is\s*)?gauss\s*ammo$/, ids: (_) => [`gauss-ammo`] },
+    {
+      re: /^(?:is\s*)?heavy\s*gauss\s*ammo$/,
+      ids: (_) => [`heavy-gauss-ammo`],
+    },
+    { re: /^(?:is\s*)?ams\s*ammo$/, ids: (_) => [`ams-ammo`] },
+    {
+      re: /^hag[/-](\d+)\s*ammo$/,
+      ids: (m) => [`hag-${m[1]}-ammo`, `gauss-ammo`],
+    },
+    { re: /^(?:is\s*)?ammo\s+mg$/, ids: (_) => [`mg-ammo`, `ammo-mg-full`] },
+    {
+      re: /^(?:is\s*)?(?:light\s*)?mg\s*ammo$/,
+      ids: (_) => [`mg-ammo`, `ammo-mg-full`],
+    },
+    { re: /^(?:is\s*)?rotaryac(\d+)\s*ammo$/, ids: (m) => [`rotaryac${m[1]}`] },
   ];
 
   let matched = false;
@@ -120,13 +150,17 @@ for (const rawName of testNames) {
       for (const id of ids) {
         const found = ammoLookup.get(id);
         if (found) {
-          console.log(`OK "${rawName}" → stripped="${stripped}" → regex → ${id} → bv=${found.bv}`);
+          console.log(
+            `OK "${rawName}" → stripped="${stripped}" → regex → ${id} → bv=${found.bv}`,
+          );
           matched = true;
           break;
         }
       }
       if (!matched) {
-        console.log(`MISS "${rawName}" → stripped="${stripped}" → regex matched ${rule.re.source} → ids=${ids.join(',')} but NONE in lookup`);
+        console.log(
+          `MISS "${rawName}" → stripped="${stripped}" → regex matched ${rule.re.source} → ids=${ids.join(',')} but NONE in lookup`,
+        );
         matched = true;
       }
       break;
@@ -139,7 +173,9 @@ for (const rawName of testNames) {
     if (ce) {
       console.log(`OK "${rawName}" → canon="${canonKey}" → bv=${ce.bv}`);
     } else {
-      console.log(`FAIL "${rawName}" → norm="${norm}" stripped="${stripped}" canon="${canonKey}" → NOT FOUND`);
+      console.log(
+        `FAIL "${rawName}" → norm="${norm}" stripped="${stripped}" canon="${canonKey}" → NOT FOUND`,
+      );
     }
   }
 }

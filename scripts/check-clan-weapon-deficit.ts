@@ -1,10 +1,18 @@
 #!/usr/bin/env npx tsx
 import * as fs from 'fs';
 import * as path from 'path';
-import { resolveEquipmentBV, normalizeEquipmentId } from '../src/utils/construction/equipmentBVResolver';
 
-const report = JSON.parse(fs.readFileSync('validation-output/bv-validation-report.json', 'utf-8'));
-const idx = JSON.parse(fs.readFileSync('public/data/units/battlemechs/index.json', 'utf-8'));
+import {
+  resolveEquipmentBV,
+  normalizeEquipmentId,
+} from '../src/utils/construction/equipmentBVResolver';
+
+const report = JSON.parse(
+  fs.readFileSync('validation-output/bv-validation-report.json', 'utf-8'),
+);
+const idx = JSON.parse(
+  fs.readFileSync('public/data/units/battlemechs/index.json', 'utf-8'),
+);
 
 // Undercalculated 1-5% CLAN units
 const under = report.allResults
@@ -16,7 +24,9 @@ let clanUpgradeCount = 0;
 let totalUpgradeBV = 0;
 
 for (const r of under) {
-  const iu = idx.units.find((u: any) => `${u.chassis} ${u.model}` === `${r.chassis} ${r.model}`);
+  const iu = idx.units.find(
+    (u: any) => `${u.chassis} ${u.model}` === `${r.chassis} ${r.model}`,
+  );
   if (!iu) continue;
   const fp = path.resolve('public/data/units/battlemechs', iu.path);
   const ud = JSON.parse(fs.readFileSync(fp, 'utf-8'));
@@ -35,7 +45,9 @@ for (const r of under) {
     const clanRes = resolveEquipmentBV('clan-' + norm);
     if (clanRes.resolved && clanRes.battleValue > isRes.battleValue) {
       const diff = clanRes.battleValue - isRes.battleValue;
-      upgrades.push(`${eq.id}: IS=${isRes.battleValue} → Clan=${clanRes.battleValue} (+${diff})`);
+      upgrades.push(
+        `${eq.id}: IS=${isRes.battleValue} → Clan=${clanRes.battleValue} (+${diff})`,
+      );
       totalDiff += diff;
     }
   }
@@ -43,11 +55,15 @@ for (const r of under) {
   if (upgrades.length > 0) {
     clanUpgradeCount++;
     totalUpgradeBV += totalDiff;
-    console.log(`${r.chassis} ${r.model} (${ud.techBase}) ref=${r.indexBV} calc=${r.calculatedBV} diff=${r.difference} (${r.percentDiff.toFixed(2)}%)`);
+    console.log(
+      `${r.chassis} ${r.model} (${ud.techBase}) ref=${r.indexBV} calc=${r.calculatedBV} diff=${r.difference} (${r.percentDiff.toFixed(2)}%)`,
+    );
     console.log(`  Potential Clan upgrades (+${totalDiff} base BV):`);
     for (const u of upgrades) console.log(`    ${u}`);
   }
 }
 
-console.log(`\nSummary: ${clanUpgradeCount}/${under.length} units have weapons resolving as IS instead of Clan`);
+console.log(
+  `\nSummary: ${clanUpgradeCount}/${under.length} units have weapons resolving as IS instead of Clan`,
+);
 console.log(`Total potential BV upgrade: ${totalUpgradeBV}`);

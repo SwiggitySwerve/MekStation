@@ -1,12 +1,24 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import { STRUCTURE_POINTS_TABLE } from '../src/types/construction/InternalStructureType';
-import { getArmorBVMultiplier, getStructureBVMultiplier, getGyroBVMultiplier, getEngineBVMultiplier } from '../src/types/validation/BattleValue';
-import { EngineType } from '../src/types/construction/EngineType';
 
-const data = JSON.parse(fs.readFileSync('validation-output/bv-validation-report.json', 'utf8'));
-const mulCache = JSON.parse(fs.readFileSync('scripts/data-migration/mul-bv-cache.json', 'utf8'));
-const indexData = JSON.parse(fs.readFileSync('public/data/units/battlemechs/index.json', 'utf8'));
+import { EngineType } from '../src/types/construction/EngineType';
+import { STRUCTURE_POINTS_TABLE } from '../src/types/construction/InternalStructureType';
+import {
+  getArmorBVMultiplier,
+  getStructureBVMultiplier,
+  getGyroBVMultiplier,
+  getEngineBVMultiplier,
+} from '../src/types/validation/BattleValue';
+
+const data = JSON.parse(
+  fs.readFileSync('validation-output/bv-validation-report.json', 'utf8'),
+);
+const mulCache = JSON.parse(
+  fs.readFileSync('scripts/data-migration/mul-bv-cache.json', 'utf8'),
+);
+const indexData = JSON.parse(
+  fs.readFileSync('public/data/units/battlemechs/index.json', 'utf8'),
+);
 
 // In MegaMek, armor BV is NOT calculated as one global sum * 2.5.
 // Instead, MegaMek processArmor() iterates per-location:
@@ -49,7 +61,8 @@ function calcTotalArmor(a: any): number {
   let t = 0;
   for (const v of Object.values(a)) {
     if (typeof v === 'number') t += v;
-    else if (v && typeof v === 'object') t += ((v as any).front || 0) + ((v as any).rear || 0);
+    else if (v && typeof v === 'object')
+      t += ((v as any).front || 0) + ((v as any).rear || 0);
   }
   return t;
 }
@@ -72,30 +85,46 @@ function mpToTMM(mp: number): number {
 
 function mapArmorType(s: string): string {
   const u = s.toUpperCase().replace(/[_\s-]+/g, '');
-  if (u.includes('HARDENED')) return 'hardened'; if (u.includes('REACTIVE')) return 'reactive';
-  if (u.includes('REFLECTIVE') || u.includes('LASERREFLECTIVE')) return 'reflective';
-  if (u.includes('FERROLAMELLOR')) return 'ferro-lamellor'; if (u.includes('STEALTH')) return 'stealth';
+  if (u.includes('HARDENED')) return 'hardened';
+  if (u.includes('REACTIVE')) return 'reactive';
+  if (u.includes('REFLECTIVE') || u.includes('LASERREFLECTIVE'))
+    return 'reflective';
+  if (u.includes('FERROLAMELLOR')) return 'ferro-lamellor';
+  if (u.includes('STEALTH')) return 'stealth';
   return 'standard';
 }
 function mapStructureType(s: string): string {
   const u = s.toUpperCase().replace(/[_\s-]+/g, '');
-  if (u.includes('INDUSTRIAL')) return 'industrial'; if (u === 'COMPOSITE') return 'composite';
-  if (u.includes('REINFORCED')) return 'reinforced'; return 'standard';
+  if (u.includes('INDUSTRIAL')) return 'industrial';
+  if (u === 'COMPOSITE') return 'composite';
+  if (u.includes('REINFORCED')) return 'reinforced';
+  return 'standard';
 }
 function mapGyroType(s: string): string {
   const u = s.toUpperCase().replace(/[_\s-]+/g, '');
   if (u.includes('HEAVYDUTY') || u.includes('HEAVY')) return 'heavy-duty';
-  if (u.includes('XL')) return 'xl'; if (u.includes('COMPACT')) return 'compact';
+  if (u.includes('XL')) return 'xl';
+  if (u.includes('COMPACT')) return 'compact';
   return 'standard';
 }
 
 // Detailed trace for Blade BLD-XR (exact 0.95 match: calc=1159, ref=1101)
 console.log('=== BLADE BLD-XR DETAILED TRACE ===');
-const bladeResult = data.allResults.find((d: any) => d.unitId === 'blade-bld-xr');
+const bladeResult = data.allResults.find(
+  (d: any) => d.unitId === 'blade-bld-xr',
+);
 if (bladeResult) {
   console.log('Validation result:', JSON.stringify(bladeResult.breakdown));
-  console.log('Calculated:', bladeResult.calculatedBV, 'Reference:', bladeResult.indexBV);
-  console.log('Ratio:', (bladeResult.calculatedBV / bladeResult.indexBV).toFixed(4));
+  console.log(
+    'Calculated:',
+    bladeResult.calculatedBV,
+    'Reference:',
+    bladeResult.indexBV,
+  );
+  console.log(
+    'Ratio:',
+    (bladeResult.calculatedBV / bladeResult.indexBV).toFixed(4),
+  );
   console.log('');
 }
 
@@ -134,7 +163,15 @@ if (bladeIU) {
   const structMult = getStructureBVMultiplier(structureType);
   const engMult = getEngineBVMultiplier(engineType);
   const structBV = totalStructure * 1.5 * structMult * engMult;
-  console.log('StructBV:', structBV, '(structMult:', structMult, 'engMult:', engMult, ')');
+  console.log(
+    'StructBV:',
+    structBV,
+    '(structMult:',
+    structMult,
+    'engMult:',
+    engMult,
+    ')',
+  );
 
   // GyroBV
   const gyroMult = getGyroBVMultiplier(gyroType);
@@ -205,7 +242,7 @@ for (const d of overCalc) {
   try {
     const unitPath = path.resolve('public/data/units/battlemechs', iu.path);
     const unit = JSON.parse(fs.readFileSync(unitPath, 'utf8'));
-    const isOmni = unit.configuration === 'Omni' || (unit.omnimech === true);
+    const isOmni = unit.configuration === 'Omni' || unit.omnimech === true;
     if (isOmni) {
       omniCount++;
       omniUnits.push(d);
@@ -213,17 +250,59 @@ for (const d of overCalc) {
       btmCount++;
       btmUnits.push(d);
     }
-  } catch { /* skip */ }
+  } catch {
+    /* skip */
+  }
 }
 
-console.log('OmniMechs:', omniCount, '  avg overcalc:', omniUnits.length > 0 ? (omniUnits.reduce((s: number, d: any) => s + d.percentDiff, 0) / omniUnits.length).toFixed(1) + '%' : 'N/A');
-console.log('BattleMechs:', btmCount, '  avg overcalc:', btmUnits.length > 0 ? (btmUnits.reduce((s: number, d: any) => s + d.percentDiff, 0) / btmUnits.length).toFixed(1) + '%' : 'N/A');
+console.log(
+  'OmniMechs:',
+  omniCount,
+  '  avg overcalc:',
+  omniUnits.length > 0
+    ? (
+        omniUnits.reduce((s: number, d: any) => s + d.percentDiff, 0) /
+        omniUnits.length
+      ).toFixed(1) + '%'
+    : 'N/A',
+);
+console.log(
+  'BattleMechs:',
+  btmCount,
+  '  avg overcalc:',
+  btmUnits.length > 0
+    ? (
+        btmUnits.reduce((s: number, d: any) => s + d.percentDiff, 0) /
+        btmUnits.length
+      ).toFixed(1) + '%'
+    : 'N/A',
+);
 
 // Check 0.95 fix rate for each group
-const omniFixed = omniUnits.filter(d => Math.abs(Math.round(d.calculatedBV * 0.95) - d.indexBV) / d.indexBV * 100 <= 1);
-const btmFixed = btmUnits.filter(d => Math.abs(Math.round(d.calculatedBV * 0.95) - d.indexBV) / d.indexBV * 100 <= 1);
-console.log('OmniMechs fixed by 0.95:', omniFixed.length, 'of', omniUnits.length);
-console.log('BattleMechs fixed by 0.95:', btmFixed.length, 'of', btmUnits.length);
+const omniFixed = omniUnits.filter(
+  (d) =>
+    (Math.abs(Math.round(d.calculatedBV * 0.95) - d.indexBV) / d.indexBV) *
+      100 <=
+    1,
+);
+const btmFixed = btmUnits.filter(
+  (d) =>
+    (Math.abs(Math.round(d.calculatedBV * 0.95) - d.indexBV) / d.indexBV) *
+      100 <=
+    1,
+);
+console.log(
+  'OmniMechs fixed by 0.95:',
+  omniFixed.length,
+  'of',
+  omniUnits.length,
+);
+console.log(
+  'BattleMechs fixed by 0.95:',
+  btmFixed.length,
+  'of',
+  btmUnits.length,
+);
 
 // Now check: what are the UNIQUE characteristics shared by overcalculated units?
 // Maybe the overcalculated units all have CLAN tech base?
@@ -240,7 +319,9 @@ for (const d of overCalc) {
     if (unit.techBase === 'CLAN') clanCount++;
     else if (unit.techBase === 'MIXED') mixedCount++;
     else isCount++;
-  } catch { /* skip */ }
+  } catch {
+    /* skip */
+  }
 }
 
 console.log('\nTech base:');
@@ -258,10 +339,14 @@ for (const d of overCalc) {
     const unit = JSON.parse(fs.readFileSync(unitPath, 'utf8'));
     const eng = unit.engine.type;
     engineTypes[eng] = (engineTypes[eng] || 0) + 1;
-  } catch { /* skip */ }
+  } catch {
+    /* skip */
+  }
 }
 console.log('\nEngine types:');
-for (const [type, count] of Object.entries(engineTypes).sort((a, b) => b[1] - a[1])) {
+for (const [type, count] of Object.entries(engineTypes).sort(
+  (a, b) => b[1] - a[1],
+)) {
   console.log(`  ${type}: ${count}`);
 }
 
@@ -275,8 +360,11 @@ const accurate = data.allResults.filter((d: any) => {
 });
 console.log('Accurate MUL-exact units (within 1%):', accurate.length);
 
-let accClan = 0, accIS = 0, accMixed = 0;
-let accOmni = 0, accBtm = 0;
+let accClan = 0,
+  accIS = 0,
+  accMixed = 0;
+let accOmni = 0,
+  accBtm = 0;
 for (const d of accurate) {
   const iu = indexData.units.find((u: any) => u.id === d.unitId);
   if (!iu) continue;
@@ -288,7 +376,9 @@ for (const d of accurate) {
     else accIS++;
     if (unit.configuration === 'Omni' || unit.omnimech) accOmni++;
     else accBtm++;
-  } catch { /* skip */ }
+  } catch {
+    /* skip */
+  }
 }
 console.log('  CLAN:', accClan, 'IS:', accIS, 'MIXED:', accMixed);
 console.log('  OmniMech:', accOmni, 'BattleMech:', accBtm);

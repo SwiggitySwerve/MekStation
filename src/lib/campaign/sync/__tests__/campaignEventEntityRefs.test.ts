@@ -54,6 +54,7 @@ function event(
     ts: NOW,
     authorPlayerId: 'pid-host',
     type,
+    scope: 'campaign',
     payload,
   } as ICampaignEvent;
 }

@@ -33,6 +33,7 @@ function event<T extends ICampaignEvent['type']>(
     campaignId: CAMPAIGN_ID,
     ts: '3025-01-01T00:00:00.000Z',
     authorPlayerId: 'host',
+    scope: 'campaign',
     payload,
   } as ICampaignEvent;
 }

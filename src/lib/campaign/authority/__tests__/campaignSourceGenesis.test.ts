@@ -201,6 +201,7 @@ describe('appendCampaignGenesis', () => {
     expect(events[0].sequence).toBe(0);
     expect(events[0].type).toBe('CampaignSnapshotPublished');
     expect(events[0].authorPlayerId).toBe('system');
+    expect(events[0].scope).toBe('campaign');
 
     const rows = await journal.readStream({
       streamType: 'campaign',

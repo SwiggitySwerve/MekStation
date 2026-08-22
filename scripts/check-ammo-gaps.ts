@@ -74,8 +74,19 @@ interface UnitData {
 // ── Helpers ────────────────────────────────────────────────────────────────────
 
 const ROOT = path.resolve(__dirname, '..');
-const REPORT_PATH = path.join(ROOT, 'validation-output', 'bv-validation-report.json');
-const INDEX_PATH = path.join(ROOT, 'public', 'data', 'units', 'battlemechs', 'index.json');
+const REPORT_PATH = path.join(
+  ROOT,
+  'validation-output',
+  'bv-validation-report.json',
+);
+const INDEX_PATH = path.join(
+  ROOT,
+  'public',
+  'data',
+  'units',
+  'battlemechs',
+  'index.json',
+);
 const UNITS_DIR = path.join(ROOT, 'public', 'data', 'units', 'battlemechs');
 
 function isAmmoSlot(slotName: string): boolean {
@@ -105,7 +116,9 @@ function normalizeAmmoType(slotName: string): string {
 
 function main() {
   // 1. Load data
-  const report: ValidationReport = JSON.parse(fs.readFileSync(REPORT_PATH, 'utf-8'));
+  const report: ValidationReport = JSON.parse(
+    fs.readFileSync(REPORT_PATH, 'utf-8'),
+  );
   const index: UnitIndex = JSON.parse(fs.readFileSync(INDEX_PATH, 'utf-8'));
   const indexMap = new Map<string, IndexUnit>();
   for (const u of index.units) {
@@ -114,19 +127,23 @@ function main() {
 
   // 2. Gather all results (topDiscrepancies + results, deduplicated)
   const allResults = new Map<string, ValidationResult>();
-  for (const r of (report.topDiscrepancies ?? [])) {
+  for (const r of report.topDiscrepancies ?? []) {
     allResults.set(r.unitId, r);
   }
-  for (const r of (report.allResults ?? [])) {
+  for (const r of report.allResults ?? []) {
     if (!allResults.has(r.unitId)) {
       allResults.set(r.unitId, r);
     }
   }
 
   // 3. Filter: undercalculated with percentDiff < -1
-  const undercalculated = [...allResults.values()].filter(r => r.percentDiff < -1);
+  const undercalculated = [...allResults.values()].filter(
+    (r) => r.percentDiff < -1,
+  );
   console.log(`Total validated results: ${allResults.size}`);
-  console.log(`Undercalculated units (percentDiff < -1): ${undercalculated.length}\n`);
+  console.log(
+    `Undercalculated units (percentDiff < -1): ${undercalculated.length}\n`,
+  );
 
   // 4. For each undercalculated unit, load its file and check ammo in crits
   const LOW_AMMO_THRESHOLD = 10;
@@ -138,7 +155,11 @@ function main() {
     gap: number;
     percentDiff: number;
     ammoBV: number;
-    ammoSlots: Array<{ name: string; location: string; normalizedType: string }>;
+    ammoSlots: Array<{
+      name: string;
+      location: string;
+      normalizedType: string;
+    }>;
     uniqueAmmoTypes: number;
   }> = [];
 
@@ -161,7 +182,11 @@ function main() {
     if (!crits) continue;
 
     // Find all ammo entries in critical slots
-    const ammoSlots: Array<{ name: string; location: string; normalizedType: string }> = [];
+    const ammoSlots: Array<{
+      name: string;
+      location: string;
+      normalizedType: string;
+    }> = [];
     for (const [location, slots] of Object.entries(crits)) {
       for (const slot of slots) {
         if (slot && isAmmoSlot(slot)) {
@@ -184,7 +209,7 @@ function main() {
     }
 
     // This unit has ammo in crits but low ammoBV -- it's a candidate
-    const uniqueTypes = new Set(ammoSlots.map(a => a.normalizedType));
+    const uniqueTypes = new Set(ammoSlots.map((a) => a.normalizedType));
 
     affectedUnits.push({
       unitId: r.unitId,
@@ -209,22 +234,32 @@ function main() {
   console.log(`Undercalculated units examined: ${undercalculated.length}`);
   console.log(`  - No unit file found: ${noFileCount}`);
   console.log(`  - No ammo in crit slots: ${noAmmoInCritsCount}`);
-  console.log(`  - ammoBV >= ${LOW_AMMO_THRESHOLD} (not low): ${highAmmoBVCount}`);
-  console.log(`  - AFFECTED (has ammo, ammoBV < ${LOW_AMMO_THRESHOLD}): ${affectedUnits.length}`);
+  console.log(
+    `  - ammoBV >= ${LOW_AMMO_THRESHOLD} (not low): ${highAmmoBVCount}`,
+  );
+  console.log(
+    `  - AFFECTED (has ammo, ammoBV < ${LOW_AMMO_THRESHOLD}): ${affectedUnits.length}`,
+  );
   console.log();
 
   // Sort affected units by gap (most negative first)
   affectedUnits.sort((a, b) => a.gap - b.gap);
 
-  console.log(`=== AFFECTED UNITS (ammo in crits but ammoBV < ${LOW_AMMO_THRESHOLD}) ===\n`);
+  console.log(
+    `=== AFFECTED UNITS (ammo in crits but ammoBV < ${LOW_AMMO_THRESHOLD}) ===\n`,
+  );
   for (const u of affectedUnits) {
     console.log(`--- ${u.unitId} ---`);
     console.log(`  techBase: ${u.techBase}, tonnage: ${u.tonnage}`);
-    console.log(`  gap: ${u.gap} (${u.percentDiff.toFixed(1)}%), ammoBV in breakdown: ${u.ammoBV}`);
+    console.log(
+      `  gap: ${u.gap} (${u.percentDiff.toFixed(1)}%), ammoBV in breakdown: ${u.ammoBV}`,
+    );
     console.log(`  unique ammo types: ${u.uniqueAmmoTypes}`);
     console.log(`  ammo entries in crits:`);
     for (const a of u.ammoSlots) {
-      console.log(`    [${a.location}] ${a.name}  =>  normalized: "${a.normalizedType}"`);
+      console.log(
+        `    [${a.location}] ${a.name}  =>  normalized: "${a.normalizedType}"`,
+      );
     }
     console.log();
   }
@@ -232,7 +267,9 @@ function main() {
   // ── Aggregation ────────────────────────────────────────────────────────────
 
   console.log(`=== AMMO TYPE FREQUENCY (on affected units) ===\n`);
-  const sortedTypes = [...ammoTypeFrequency.entries()].sort((a, b) => b[1] - a[1]);
+  const sortedTypes = [...ammoTypeFrequency.entries()].sort(
+    (a, b) => b[1] - a[1],
+  );
   for (const [ammoType, count] of sortedTypes) {
     console.log(`  ${count.toString().padStart(4)} x  ${ammoType}`);
   }
@@ -245,7 +282,9 @@ function main() {
     techBaseCounts.set(u.techBase, (techBaseCounts.get(u.techBase) ?? 0) + 1);
   }
   console.log(`=== TECH BASE BREAKDOWN (affected units) ===`);
-  for (const [tb, count] of [...techBaseCounts.entries()].sort((a, b) => b[1] - a[1])) {
+  for (const [tb, count] of [...techBaseCounts.entries()].sort(
+    (a, b) => b[1] - a[1],
+  )) {
     console.log(`  ${tb}: ${count}`);
   }
   console.log();
@@ -253,7 +292,7 @@ function main() {
   // ── Summary statistics ─────────────────────────────────────────────────────
 
   if (affectedUnits.length > 0) {
-    const gaps = affectedUnits.map(u => u.gap);
+    const gaps = affectedUnits.map((u) => u.gap);
     const avgGap = gaps.reduce((s, v) => s + v, 0) / gaps.length;
     const minGap = Math.min(...gaps);
     const maxGap = Math.max(...gaps);
@@ -264,8 +303,10 @@ function main() {
     console.log(`  Smallest gap: ${maxGap}`);
 
     // Count units with ammoBV == 0
-    const zeroBV = affectedUnits.filter(u => u.ammoBV === 0).length;
-    const lowBV = affectedUnits.filter(u => u.ammoBV > 0 && u.ammoBV < LOW_AMMO_THRESHOLD).length;
+    const zeroBV = affectedUnits.filter((u) => u.ammoBV === 0).length;
+    const lowBV = affectedUnits.filter(
+      (u) => u.ammoBV > 0 && u.ammoBV < LOW_AMMO_THRESHOLD,
+    ).length;
     console.log(`  ammoBV == 0: ${zeroBV}`);
     console.log(`  0 < ammoBV < ${LOW_AMMO_THRESHOLD}: ${lowBV}`);
   }

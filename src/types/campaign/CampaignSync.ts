@@ -150,6 +150,46 @@ export type CampaignEventType =
   | 'SalvageAllocated'
   | 'CampaignSnapshotPublished';
 
+/**
+ * Runtime list of every `CampaignEventType` member. The two-way
+ * completeness pin below fails to compile if the union gains or loses a
+ * member without this list being updated.
+ */
+export const CAMPAIGN_EVENT_TYPES = [
+  'CampaignDayAdvanced',
+  'FundsChanged',
+  'PilotHired',
+  'ContractAccepted',
+  'RosterUnitChanged',
+  'SalvageAllocated',
+  'CampaignSnapshotPublished',
+] as const satisfies readonly CampaignEventType[];
+
+const CAMPAIGN_EVENT_TYPES_COMPLETE: Exclude<
+  CampaignEventType,
+  (typeof CAMPAIGN_EVENT_TYPES)[number]
+> extends never
+  ? true
+  : never = true;
+void CAMPAIGN_EVENT_TYPES_COMPLETE;
+
+const CAMPAIGN_EVENT_TYPE_SET: ReadonlySet<string> = new Set(
+  CAMPAIGN_EVENT_TYPES,
+);
+
+/**
+ * Closed access-scope vocabulary stamped on every campaign event at
+ * emission (design D3). Team and player forms carry a non-empty id;
+ * empty ids (`team:` / `player:` alone) are rejected by
+ * `isCampaignEventScope` even though the template-literal type cannot
+ * express that constraint.
+ */
+export type CampaignEventScope =
+  | 'gm'
+  | 'campaign'
+  | `team:${string}`
+  | `player:${string}`;
+
 /** `CampaignDayAdvanced` — the day counter moved forward. */
 export interface ICampaignDayAdvancedPayload {
   /** The new day index after the advance. */
@@ -247,6 +287,15 @@ interface ICampaignEventBase {
   readonly ts: string;
   /** Player id that committed the event (host id for host-driven events). */
   readonly authorPlayerId: string;
+  /**
+   * Access scope chosen by the emitting domain action (design D3).
+   * REQUIRED so an unstamped emission is a compile error: an optional
+   * field would let a constructor omit the classification, which task
+   * 3.1 forbids. Immutable after emission; reclassification is a new
+   * revelation event referencing the original, never an edit of this
+   * field.
+   */
+  readonly scope: CampaignEventScope;
 }
 
 /**
@@ -284,11 +333,42 @@ export type ICampaignSnapshotEvent =
   ICampaignEvent<'CampaignSnapshotPublished'>;
 
 /**
- * Structural type guard for a raw broadcast payload. The WebSocket
- * layer types inbound payloads as `unknown`; this narrows a candidate
- * to `ICampaignEvent` before it is applied to a mirror or a log.
+ * True iff `value` is a closed-vocabulary campaign event scope. Rejects
+ * empty team/player ids, unknown prefixes, non-strings, and objects.
  */
-export function isCampaignEvent(value: unknown): value is ICampaignEvent {
+export function isCampaignEventScope(
+  value: unknown,
+): value is CampaignEventScope {
+  if (typeof value !== 'string') return false;
+  if (value === 'gm' || value === 'campaign') return true;
+  return (
+    isPrefixedCampaignEventScope(value, 'team:') ||
+    isPrefixedCampaignEventScope(value, 'player:')
+  );
+}
+
+/**
+ * True for `prefix` plus a non-empty id with no leading or trailing
+ * whitespace. `team:` / `player:` alone fail because the id is empty.
+ */
+function isPrefixedCampaignEventScope(
+  value: string,
+  prefix: 'team:' | 'player:',
+): boolean {
+  if (!value.startsWith(prefix)) return false;
+  const id = value.slice(prefix.length);
+  return id.length > 0 && id.trim() === id;
+}
+
+/**
+ * Shared envelope shape check. Log events use `minSequence` 0; wire
+ * baseline frames use -1 so a `CampaignSnapshotPublished` hydration
+ * frame is accepted without being mistaken for a journal row.
+ */
+function isCampaignEventShape(
+  value: unknown,
+  minSequence: number,
+): value is ICampaignEvent {
   if (typeof value !== 'object' || value === null) return false;
   const event = value as Partial<ICampaignEvent>;
   return (
@@ -296,26 +376,36 @@ export function isCampaignEvent(value: unknown): value is ICampaignEvent {
     isCampaignEventType(event.type) &&
     typeof event.sequence === 'number' &&
     Number.isInteger(event.sequence) &&
-    event.sequence >= 0 &&
+    event.sequence >= minSequence &&
     typeof event.campaignId === 'string' &&
     typeof event.ts === 'string' &&
     typeof event.authorPlayerId === 'string' &&
+    isCampaignEventScope(event.scope) &&
     typeof event.payload === 'object' &&
     event.payload !== null
   );
 }
 
+/**
+ * Structural type guard for a raw log/broadcast payload. Sequence must
+ * be a non-negative journal position (baseline frames with sequence -1
+ * use `isCampaignWireEvent`).
+ */
+export function isCampaignEvent(value: unknown): value is ICampaignEvent {
+  return isCampaignEventShape(value, 0);
+}
+
+/**
+ * Envelope guard for campaign-sync wire frames, including the sequence
+ * -1 snapshot baseline that is never a journal row.
+ */
+export function isCampaignWireEvent(value: unknown): value is ICampaignEvent {
+  return isCampaignEventShape(value, -1);
+}
+
 /** True iff `value` is one of the seven `CampaignEventType` strings. */
 export function isCampaignEventType(value: string): value is CampaignEventType {
-  return (
-    value === 'CampaignDayAdvanced' ||
-    value === 'FundsChanged' ||
-    value === 'PilotHired' ||
-    value === 'ContractAccepted' ||
-    value === 'RosterUnitChanged' ||
-    value === 'SalvageAllocated' ||
-    value === 'CampaignSnapshotPublished'
-  );
+  return CAMPAIGN_EVENT_TYPE_SET.has(value);
 }
 
 // =============================================================================

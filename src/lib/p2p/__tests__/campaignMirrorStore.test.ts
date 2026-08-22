@@ -30,6 +30,7 @@ function snapshotEvent(sequence: number, balance: number): ICampaignEvent {
     campaignId: CAMPAIGN_ID,
     ts: '3025-01-01T00:00:00.000Z',
     authorPlayerId: 'host',
+    scope: 'campaign',
     payload: {
       state: { ...createEmptyCampaignState(CAMPAIGN_ID), balance },
     },
@@ -43,6 +44,7 @@ function dayEvent(sequence: number, newDay: number): ICampaignEvent {
     campaignId: CAMPAIGN_ID,
     ts: '3025-01-01T00:00:00.000Z',
     authorPlayerId: 'host',
+    scope: 'campaign',
     payload: { newDay },
   };
 }

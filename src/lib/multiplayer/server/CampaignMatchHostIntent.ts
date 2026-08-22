@@ -24,6 +24,7 @@
  */
 
 import type {
+  CampaignEventScope,
   CampaignIntentRejectionReason,
   CampaignIntentResult,
   ICampaignAuthoritativeState,
@@ -33,6 +34,10 @@ import type {
   ICampaignEventPayloadMap,
 } from '@/types/campaign/CampaignSync';
 
+import {
+  freezeCampaignEvent,
+  resolveCampaignEventScope,
+} from '@/lib/campaign/sync/campaignEventScope';
 import {
   CONTRACT_MIN_STANDING,
   INVALID_CAMPAIGN_INTENT,
@@ -72,11 +77,13 @@ function reject(
 }
 
 /**
- * Helper — build one unsequenced event of a given type. The return is
- * structurally exactly `Omit<ICampaignEventOf<T>, 'sequence'>`, but TS
- * cannot verify that against the deferred distributive conditional
- * while `T` is generic, so the assertion makes the (sound) intent
- * explicit at this single chokepoint.
+ * Helper — build one unsequenced event of a given type. Scope defaults
+ * from the per-type classification table and may be overridden when the
+ * call site knows a tighter audience. The return is structurally exactly
+ * `Omit<ICampaignEventOf<T>, 'sequence'>`, but TS cannot verify that
+ * against the deferred distributive conditional while `T` is generic, so
+ * the assertion makes the (sound) intent explicit at this single
+ * chokepoint. The object is frozen so scope cannot be rewritten.
  */
 function event<T extends CampaignEventType>(
   type: T,
@@ -84,6 +91,7 @@ function event<T extends CampaignEventType>(
   authorPlayerId: string,
   ts: string,
   payload: ICampaignEventPayloadMap[T],
+  scope?: CampaignEventScope,
 ): UnsequencedCampaignEvent<T> {
   const built: Omit<ICampaignEventOf<T>, 'sequence'> = {
     type,
@@ -91,8 +99,9 @@ function event<T extends CampaignEventType>(
     authorPlayerId,
     ts,
     payload,
+    scope: resolveCampaignEventScope(type, scope),
   };
-  return built as UnsequencedCampaignEvent<T>;
+  return freezeCampaignEvent(built) as UnsequencedCampaignEvent<T>;
 }
 
 /**
@@ -125,8 +134,9 @@ export function validateCampaignIntent(
   const mk = <T extends CampaignEventType>(
     type: T,
     payload: ICampaignEventPayloadMap[T],
+    scope?: CampaignEventScope,
   ): UnsequencedCampaignEvent<T> =>
-    event(type, state.campaignId, authorPlayerId, ts, payload);
+    event(type, state.campaignId, authorPlayerId, ts, payload, scope);
 
   switch (intent.kind) {
     case 'SpendFunds': {

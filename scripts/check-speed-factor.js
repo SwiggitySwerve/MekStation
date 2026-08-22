@@ -1,4 +1,9 @@
-const r = JSON.parse(require('fs').readFileSync('validation-output/bv-validation-report.json', 'utf8'));
+const r = JSON.parse(
+  require('fs').readFileSync(
+    'validation-output/bv-validation-report.json',
+    'utf8',
+  ),
+);
 
 // Check units where jumpMP > runMP
 let jumpHigher = 0;
@@ -40,7 +45,9 @@ for (const u of jumpHigherUnits) {
   if (oldSF !== newSF) {
     formulaDiff++;
     const dir = u.difference > 0 ? '+' : '';
-    console.log(`  ${u.chassis} ${u.model}: run=${b.runMP} jump=${b.jumpMP} walk=${b.walkMP} sf=${oldSF}→${newSF} diff=${dir}${u.difference} (${dir}${u.percentDiff.toFixed(1)}%)`);
+    console.log(
+      `  ${u.chassis} ${u.model}: run=${b.runMP} jump=${b.jumpMP} walk=${b.walkMP} sf=${oldSF}→${newSF} diff=${dir}${u.difference} (${dir}${u.percentDiff.toFixed(1)}%)`,
+    );
   }
 }
 console.log(`Total affected: ${formulaDiff}`);
@@ -69,8 +76,12 @@ for (const u of jumpHigherUnits) {
   if (newDiff > oldDiff) worsenedCount++;
   if (newDiff === 0) newExact++;
 
-  const dir1 = (u.calculatedBV - u.indexBV) > 0 ? '+' : '';
-  const dir2 = (newTotalBV - u.indexBV) > 0 ? '+' : '';
-  console.log(`  ${u.chassis} ${u.model}: ${dir1}${u.calculatedBV - u.indexBV} → ${dir2}${newTotalBV - u.indexBV} (${u.calculatedBV}→${newTotalBV} vs MUL ${u.indexBV})`);
+  const dir1 = u.calculatedBV - u.indexBV > 0 ? '+' : '';
+  const dir2 = newTotalBV - u.indexBV > 0 ? '+' : '';
+  console.log(
+    `  ${u.chassis} ${u.model}: ${dir1}${u.calculatedBV - u.indexBV} → ${dir2}${newTotalBV - u.indexBV} (${u.calculatedBV}→${newTotalBV} vs MUL ${u.indexBV})`,
+  );
 }
-console.log(`Improved: ${improvedCount}, Worsened: ${worsenedCount}, New exact: ${newExact}`);
+console.log(
+  `Improved: ${improvedCount}, Worsened: ${worsenedCount}, New exact: ${newExact}`,
+);

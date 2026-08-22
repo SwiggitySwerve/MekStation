@@ -33,6 +33,7 @@ import type { SerializedCampaign } from '@/types/campaign/SerializedCampaign';
 import { createEmptyCampaignState } from '@/types/campaign/CampaignSync';
 import { parseRosterUnitSource } from '@/types/campaign/RosterUnitSource';
 
+import { freezeCampaignEvent } from '../sync/campaignEventScope';
 import {
   appendCampaignCommandBatch,
   computeCampaignStateDigest,
@@ -193,14 +194,17 @@ export async function appendCampaignGenesis(
     };
   }
   const campaignId = input.envelope.campaignId;
-  const genesisEvent: ICampaignEvent = {
-    sequence: 0,
-    campaignId,
-    ts: input.occurredAt,
-    authorPlayerId: 'system',
-    type: 'CampaignSnapshotPublished',
-    payload: { state, revision: 0 },
-  } as ICampaignEvent;
+  const genesisEvent: ICampaignEvent<'CampaignSnapshotPublished'> =
+    freezeCampaignEvent({
+      sequence: 0,
+      campaignId,
+      ts: input.occurredAt,
+      authorPlayerId: 'system',
+      type: 'CampaignSnapshotPublished',
+      // Genesis is the shared source baseline, not a GM-hidden fact.
+      scope: 'campaign',
+      payload: { state, revision: 0 },
+    });
   const stateDigest = computeCampaignStateDigest(state);
 
   const result = await appendCampaignCommandBatch(journal, {
