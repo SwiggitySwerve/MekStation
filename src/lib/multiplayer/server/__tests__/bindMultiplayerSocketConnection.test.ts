@@ -37,14 +37,21 @@ class MockWireSocket extends EventEmitter implements IMatchSocket {
 }
 
 function makeHost() {
-  return {
+  const host = {
     attachSocket: jest.fn(),
+    // The mock mirrors production admission: attach on success and
+    // return a viewer-shaped object.
+    admitSocket: jest.fn(async (socket: unknown, playerId: unknown) => {
+      host.attachSocket(socket, playerId);
+      return { kind: 'viewer', principalId: playerId };
+    }),
     detachSocket: jest.fn(),
     handleSessionJoin: jest.fn().mockResolvedValue(undefined),
     handleIntent: jest.fn().mockResolvedValue([]),
     noteInbound: jest.fn(),
     releaseConnection: jest.fn(),
   };
+  return host;
 }
 
 function makeRegistry(

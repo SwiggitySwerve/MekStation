@@ -97,6 +97,20 @@ export class ServerMatchSocketLifecycle {
    * the prior heartbeat entry — callers shouldn't do that, but we
    * defensively `clearInterval` the old timer so we don't leak.
    */
+  /**
+   * Snapshot of attached sockets and their player ids (authority-audit
+   * PR 2): the host revalidates every attached viewer after a lobby
+   * mutation and detaches revoked members.
+   */
+  attachedSockets = (): readonly {
+    readonly socket: IMatchSocket;
+    readonly playerId: string;
+  }[] =>
+    Array.from(this.sockets.entries(), ([socket, state]) => ({
+      socket,
+      playerId: state.playerId,
+    }));
+
   attach = (socket: IMatchSocket, playerId: string): void => {
     const existing = this.sockets.get(socket);
     if (existing) {
