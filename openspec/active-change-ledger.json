@@ -7,12 +7,6 @@
       "lastReviewed": "2026-07-29"
     },
     {
-      "name": "add-replay-schema-and-checkpoint-safety",
-      "status": "in-progress",
-      "reason": "Wave 2 of the entity-history program: require versioned event upcasting, deterministic historical projection selection, verified checkpoints, and quarantine before any production authority adoption. Implementation started: spec PRs #1120/#1124 and registry/upcaster kernel PR 1A (#1125) merged with exact-main receipts; PR 1B (pipeline fingerprint) is admitted and next.",
-      "lastReviewed": "2026-08-01"
-    },
-    {
       "name": "add-authority-audit-and-privacy-proof",
       "status": "proposed",
       "reason": "Wave 3 of the entity-history program: require durable membership admission, server-side viewer projection, separate private audit retention, and cross-surface privacy proof before journal authority cutover.",
