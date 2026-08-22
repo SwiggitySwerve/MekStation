@@ -405,6 +405,81 @@ describe('useCampaignPersistenceStore', () => {
     expect(useCampaignPersistenceStore.getState().baseVersion).toBe(6);
   });
 
+  it('a save issued while a load is in flight writes against the loaded version', async () => {
+    // Regression: page navigation refetches the campaign head while a page
+    // surface saves. `baseVersion` resets to 0 on every page load, so a save
+    // that reads it before the load lands sends a version the server moved
+    // past - a guaranteed 409 followed by a retry, which is what filled the
+    // coop-route smoke run with conflict noise and inflated the stored
+    // version on navigation alone.
+    const serverRecord = buildSerializedCampaign(campaign, 'device-remote', 7);
+    const accepted = buildSerializedCampaign(campaign, 'device-local', 8);
+    const putBodies: { baseVersion: number }[] = [];
+    let resolveLoad!: (response: Response) => void;
+    jest
+      .spyOn(global, 'fetch')
+      .mockImplementation((_input: RequestInfo | URL, init?: RequestInit) => {
+        if (init?.method === 'PUT') {
+          putBodies.push(
+            JSON.parse(String(init.body)) as { baseVersion: number },
+          );
+          return Promise.resolve(jsonResponse(200, accepted));
+        }
+        return new Promise<Response>((resolve) => {
+          resolveLoad = resolve;
+        });
+      });
+
+    const loadPromise = useCampaignPersistenceStore
+      .getState()
+      .loadCampaign(campaign.id);
+    await flushPromises();
+    // The save starts while the GET is still outstanding.
+    const savePromise = useCampaignPersistenceStore.getState().saveCampaign();
+    await flushPromises();
+    expect(putBodies).toHaveLength(0);
+
+    resolveLoad(jsonResponse(200, serverRecord));
+    await loadPromise;
+    await savePromise;
+
+    expect(putBodies.map((body) => body.baseVersion)).toEqual([7]);
+    expect(useCampaignPersistenceStore.getState().saveState).toBe('saved');
+  });
+
+  it('concurrent saves serialize so the second writes against the first result', async () => {
+    // Regression: two overlapping writes both read the same `baseVersion`, so
+    // the later one always loses the compare-and-swap and 409s even though
+    // nothing else touched the record.
+    const putBodies: { baseVersion: number }[] = [];
+    jest
+      .spyOn(global, 'fetch')
+      .mockImplementation((_input: RequestInfo | URL, init?: RequestInit) => {
+        const body = JSON.parse(String(init?.body)) as { baseVersion: number };
+        putBodies.push(body);
+        return Promise.resolve(
+          jsonResponse(
+            200,
+            buildSerializedCampaign(
+              campaign,
+              'device-local',
+              body.baseVersion + 1,
+            ),
+          ),
+        );
+      });
+
+    const [first, second] = await Promise.all([
+      useCampaignPersistenceStore.getState().saveCampaign(),
+      useCampaignPersistenceStore.getState().saveCampaign(),
+    ]);
+
+    expect(putBodies.map((entry) => entry.baseVersion)).toEqual([0, 1]);
+    expect(first).toMatchObject({ status: 'saved', retriedConflict: false });
+    expect(second).toMatchObject({ status: 'saved', retriedConflict: false });
+    expect(useCampaignPersistenceStore.getState().baseVersion).toBe(2);
+  });
+
   it('tracks the accepted server record as last persisted even if live state changes before save resolves', async () => {
     const acceptedCampaign = {
       ...campaign,
@@ -424,6 +499,12 @@ describe('useCampaignPersistenceStore', () => {
     );
 
     const savePromise = useCampaignPersistenceStore.getState().saveCampaign();
+    // Writes are serialized behind the save chain, so the request is issued
+    // on a later microtask than the call. Flush to the in-flight request
+    // before mutating live state: the scenario under test is a live change
+    // AFTER the request is on the wire, not before it is sent.
+    await Promise.resolve();
+    await Promise.resolve();
     mockStore.getState().switchCampaign({
       ...campaign,
       name: 'Later Live Optimistic State',

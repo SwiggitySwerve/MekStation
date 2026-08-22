@@ -107,6 +107,31 @@ const INITIAL_STATE: CampaignPersistenceState = {
 
 let autoSaveTimer: ReturnType<typeof setTimeout> | null = null;
 
+/**
+ * The load currently in flight, if any. `baseVersion` is the compare-and-swap
+ * token for the next write, and a load replaces it with the server's current
+ * version. A save that reads the token while a load is running would send a
+ * version the server has already moved past, so every write waits here first.
+ */
+let inFlightLoad: Promise<boolean> | null = null;
+
+/**
+ * Tail of the serialized write chain. Two overlapping writes would both read
+ * the same `baseVersion`, so the later one is guaranteed to lose the
+ * compare-and-swap; queueing makes the second read the version the first
+ * produced.
+ */
+let saveChain: Promise<unknown> = Promise.resolve();
+
+/**
+ * Test seam: drop the module-level load/save coordination between cases.
+ * Production code never calls this - the guards live for the page's lifetime.
+ */
+export function __resetCampaignPersistenceCoordinationForTests(): void {
+  inFlightLoad = null;
+  saveChain = Promise.resolve();
+}
+
 type PersistenceSet = Parameters<StateCreator<CampaignPersistenceStore>>[0];
 type PersistenceGet = Parameters<StateCreator<CampaignPersistenceStore>>[1];
 
@@ -361,12 +386,37 @@ function notifyUnresolvedCoopSave(message: string): void {
   });
 }
 
-async function performSave(
+/**
+ * Queue one write behind any write already running. Serializing is what makes
+ * `baseVersion` a usable compare-and-swap token: concurrent callers otherwise
+ * read the same token and every caller after the first is rejected as stale.
+ */
+function performSave(
   set: PersistenceSet,
   get: PersistenceGet,
   baseVersionOverride?: number,
   retryOnConflict = true,
 ): Promise<CampaignPersistenceSaveResult> {
+  const queued = saveChain.then(() =>
+    runSave(set, get, baseVersionOverride, retryOnConflict),
+  );
+  // The chain must survive a rejected write, or one failure would wedge every
+  // later save. `runSave` resolves its own errors, so this is belt-and-braces.
+  saveChain = queued.catch(() => undefined);
+  return queued;
+}
+
+async function runSave(
+  set: PersistenceSet,
+  get: PersistenceGet,
+  baseVersionOverride?: number,
+  retryOnConflict = true,
+): Promise<CampaignPersistenceSaveResult> {
+  // A load in flight is about to replace `baseVersion`; writing before it
+  // lands sends a version the server has already superseded.
+  if (inFlightLoad !== null) {
+    await inFlightLoad;
+  }
   const campaign = readLiveCampaign();
   const campaignId = get().campaignId ?? campaign?.id ?? null;
   if (!campaign || !campaignId) {
@@ -443,7 +493,21 @@ async function performSave(
 function loadCampaignAction(
   set: PersistenceSet,
 ): CampaignPersistenceStore['loadCampaign'] {
-  return async (id: string) => {
+  return (id: string) => {
+    // Published for the duration so a concurrent write waits for the version
+    // this load establishes instead of racing it.
+    const load = runLoad(set, id);
+    inFlightLoad = load;
+    return load.finally(() => {
+      if (inFlightLoad === load) {
+        inFlightLoad = null;
+      }
+    });
+  };
+}
+
+async function runLoad(set: PersistenceSet, id: string): Promise<boolean> {
+  {
     set({ saveState: 'saving', errorMessage: null });
     try {
       const response = await fetch(`/api/campaigns/${encodeURIComponent(id)}`, {
@@ -481,7 +545,7 @@ function loadCampaignAction(
       set({ saveState: 'error', errorMessage: message });
       return false;
     }
-  };
+  }
 }
 
 function saveCampaignAction(
@@ -581,6 +645,8 @@ function createPersistenceActions(
     },
     reset: () => {
       clearAutoSaveTimer();
+      inFlightLoad = null;
+      saveChain = Promise.resolve();
       set({ ...INITIAL_STATE });
     },
   };
