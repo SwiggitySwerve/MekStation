@@ -257,9 +257,12 @@ describe('replay checkpoint SQLite migration', () => {
         `SELECT name FROM sqlite_master WHERE type = 'trigger' ORDER BY name`,
       )
       .all() as { name: string }[];
-    // The complete trigger catalog: the v8 journal immutability set plus
-    // exactly the one v10 write-once trigger - nothing else.
+    // The complete trigger catalog: the v8 journal immutability set, the
+    // v10 write-once checkpoint trigger, and the v11 action-audit guards.
     expect(allTriggers.map((trigger) => trigger.name)).toEqual([
+      'action_audit_insert_not_published',
+      'action_audit_no_delete',
+      'action_audit_no_rewrite',
       'event_journal_batches_no_delete',
       'event_journal_batches_no_update',
       'event_journal_causations_no_delete',
