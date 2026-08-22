@@ -165,7 +165,11 @@ describe('bindMultiplayerSocketConnection', () => {
     await flushAsyncHandlers();
 
     expect(host.noteInbound).toHaveBeenCalledWith(socket);
-    expect(host.handleIntent).toHaveBeenCalledWith(intent, 'conn-host');
+    expect(host.handleIntent).toHaveBeenCalledWith(
+      intent,
+      'conn-host',
+      'pid_host',
+    );
     expect(socket.closes).toEqual([]);
   });
 
