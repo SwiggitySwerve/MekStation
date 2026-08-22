@@ -153,6 +153,15 @@ export class ViewerProjectionService {
   public constructor(private readonly deps: IViewerProjectionServiceDeps) {}
 
   /**
+   * Registry projector version for a stream type, without reading the
+   * journal. projectWithCursor needs this to validate a cursor BEFORE
+   * projecting so a stale epoch never assigns delivery identity.
+   */
+  public projectorVersionFor(streamType: string): number {
+    return this.deps.registry.projectorFor(streamType).projectorVersion;
+  }
+
+  /**
    * Projects a stream for one branded viewer. Order is binding:
    * (1) brand check, (2) stream scope vs viewer fields only, (3)
    * registry lookup, (4) journal read, (5) per-event audience apply.

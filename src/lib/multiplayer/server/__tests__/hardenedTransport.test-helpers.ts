@@ -131,7 +131,7 @@ async function makeActiveHost(store: DurableMatchStore, matchId: string) {
 
 /** Drain enough microtask ticks for the chained async drop handlers. */
 async function flush(): Promise<void> {
-  for (let i = 0; i < 8; i++) {
+  for (let i = 0; i < 32; i++) {
     await Promise.resolve();
   }
 }

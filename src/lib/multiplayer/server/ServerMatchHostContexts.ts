@@ -112,6 +112,7 @@ export function buildReplayContext(
     session: host.session,
     safeSend: host.safeSend,
     maybeResume: host.maybeResume,
+    viewerResolver: host.viewerResolver,
   };
 }
 

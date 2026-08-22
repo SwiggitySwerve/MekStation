@@ -3,10 +3,7 @@ import type {
   IGameEvent,
   IGameState,
 } from '@/types/gameplay/GameSessionInterfaces';
-import type {
-  IEventMessage,
-  IServerMessage,
-} from '@/types/multiplayer/Protocol';
+import type { IEventMessage } from '@/types/multiplayer/Protocol';
 
 import type { IMatchMeta, IMatchStore } from './IMatchStore';
 import type { RollCapture } from './RollCapture';
@@ -14,11 +11,17 @@ import type { ServerMatchBroadcaster } from './ServerMatchBroadcaster';
 import type { ServerMatchSocketLifecycle } from './ServerMatchSocketLifecycle';
 
 import {
+  mintVerifiedPrincipal,
+  type AuthorizedViewerResolver,
+  type IAuthorizedViewer,
+} from './authorization/AuthorizedViewer';
+import {
   filterEventForPlayer,
   filterEventForSpectator,
   FogOfWarVisibilityCache,
 } from './fogOfWar';
 import { isSpectatorPlayer } from './lobby/spectatorSeats';
+import { MATCH_WIRE_PUBLICATION_BOUNDARY } from './projection/ViewerPublicationBoundary';
 
 export function stampRollsOnNewEvents(
   capture: RollCapture,
@@ -93,6 +96,13 @@ export async function persistInitialEvents(ctx: {
   }
 }
 
+/**
+ * Broadcast one live game event through the publication boundary.
+ * Each attached socket is resolved to its admitted viewer (cached by
+ * playerId). The v1 catalog is all-public, so every admitted member
+ * receives the identical frame; an unadmitted socket receives nothing.
+ * Fog filtering still runs first when enabled, then the guard.
+ */
 export async function broadcastEvent(ctx: {
   readonly matchId: string;
   readonly store: IMatchStore;
@@ -100,53 +110,103 @@ export async function broadcastEvent(ctx: {
   readonly lifecycle: ServerMatchSocketLifecycle;
   readonly broadcaster: ServerMatchBroadcaster;
   readonly fogVisibilityCache: FogOfWarVisibilityCache;
+  readonly viewerResolver: AuthorizedViewerResolver;
   readonly message: IEventMessage;
-  readonly broadcast: (message: IServerMessage) => void;
 }): Promise<void> {
-  let meta: IMatchMeta;
+  let meta: IMatchMeta | null = null;
   try {
     meta = await ctx.store.getMatchMeta(ctx.matchId);
   } catch {
-    ctx.broadcast(ctx.message);
-    return;
+    meta = null;
   }
 
-  if (!meta.config.fogOfWar) {
-    ctx.broadcast(ctx.message);
-    return;
-  }
-
-  const state = withVisibilityAssignments(
-    ctx.session.getSession().currentState,
-    meta,
+  const viewerCache = new Map<string, IAuthorizedViewer | null>();
+  const recipients = ctx.lifecycle.attachedSockets();
+  const uniquePlayerIds = Array.from(
+    new Set(recipients.map((recipient) => recipient.playerId)),
   );
-  const seats = meta.seats ?? [];
-  for (const recipient of ctx.lifecycle.snapshotRecipients()) {
-    // M3 design D6 — a spectator recipient is filtered through the
-    // spectator audience (most-redacted view), never through its own
-    // (non-existent) side. A participant is filtered as before.
-    const filtered = isSpectatorPlayer(seats, recipient.playerId)
-      ? filterEventForSpectator(ctx.message.event as IGameEvent, state, {
-          config: meta.config,
-          cache: ctx.fogVisibilityCache,
-        })
-      : filterEventForPlayer(
-          ctx.message.event as IGameEvent,
-          recipient.playerId,
-          state,
-          {
-            config: meta.config,
+  await Promise.all(
+    uniquePlayerIds.map((playerId) =>
+      resolveViewerForBroadcast(
+        ctx.viewerResolver,
+        ctx.matchId,
+        playerId,
+        viewerCache,
+      ),
+    ),
+  );
+
+  const fogMeta = meta !== null && meta.config.fogOfWar === true ? meta : null;
+  const state =
+    fogMeta !== null
+      ? withVisibilityAssignments(
+          ctx.session.getSession().currentState,
+          fogMeta,
+        )
+      : null;
+  const seats = fogMeta?.seats ?? [];
+
+  for (const recipient of recipients) {
+    const viewer = viewerCache.get(recipient.playerId) ?? null;
+    if (viewer === null) continue;
+
+    let frame: IEventMessage = ctx.message;
+    if (fogMeta !== null && state !== null) {
+      const filtered = isSpectatorPlayer(seats, recipient.playerId)
+        ? filterEventForSpectator(ctx.message.event as IGameEvent, state, {
+            config: fogMeta.config,
             cache: ctx.fogVisibilityCache,
-          },
-        );
-    if (!filtered) continue;
-    ctx.broadcaster.safeSend(recipient.socket, {
-      ...ctx.message,
-      event: filtered,
-    });
+          })
+        : filterEventForPlayer(
+            ctx.message.event as IGameEvent,
+            recipient.playerId,
+            state,
+            {
+              config: fogMeta.config,
+              cache: ctx.fogVisibilityCache,
+            },
+          );
+      if (!filtered) continue;
+      frame = { ...ctx.message, event: filtered };
+    }
+
+    const guarded = MATCH_WIRE_PUBLICATION_BOUNDARY.guardLiveEvent(
+      viewer,
+      frame,
+    );
+    if (guarded.kind !== 'send') continue;
+    ctx.broadcaster.safeSend(recipient.socket, guarded.value);
   }
 }
 
+/**
+ * Resolves one attached socket's viewer per broadcast, cached by
+ * playerId so a player with two sockets is looked up once.
+ * Resolve failure means the socket is not an admitted member: send
+ * nothing (no raw fallback).
+ */
+async function resolveViewerForBroadcast(
+  resolver: AuthorizedViewerResolver,
+  matchId: string,
+  playerId: string,
+  cache: Map<string, IAuthorizedViewer | null>,
+): Promise<IAuthorizedViewer | null> {
+  const cached = cache.get(playerId);
+  if (cached !== undefined) return cached;
+  try {
+    const viewer = await resolver.resolve(
+      mintVerifiedPrincipal(playerId),
+      matchId,
+    );
+    cache.set(playerId, viewer);
+    return viewer;
+  } catch {
+    cache.set(playerId, null);
+    return null;
+  }
+}
+
+/** Copies match side assignments onto engine state for fog filtering. */
 function withVisibilityAssignments(
   state: IGameState,
   meta: IMatchMeta,

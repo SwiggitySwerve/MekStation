@@ -833,9 +833,10 @@ export class ServerMatchHost {
     void this.broadcaster.broadcast(message);
 
   /**
-   * Broadcast one live game event. With fog disabled this is the same
-   * fan-out as `broadcast`; with fog enabled each recipient receives a
-   * per-player filtered/redacted envelope or no envelope at all.
+   * Broadcast one live game event. Recipient selection resolves each
+   * attached socket's admitted viewer (cached by playerId) and applies
+   * the publication boundary. Fog filtering still runs in the events
+   * module when enabled.
    */
   private async broadcastEvent(message: IEventMessage): Promise<void> {
     await broadcastEventWithContext({
@@ -845,8 +846,8 @@ export class ServerMatchHost {
       lifecycle: this.lifecycle,
       broadcaster: this.broadcaster,
       fogVisibilityCache: this.fogVisibilityCache,
+      viewerResolver: this.viewerResolver,
       message,
-      broadcast: (serverMessage) => this.broadcast(serverMessage),
     });
   }
 
