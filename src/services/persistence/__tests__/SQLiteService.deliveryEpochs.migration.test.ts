@@ -127,7 +127,7 @@ describe('delivery epochs SQLite migration', () => {
     db.prepare(EPOCH_INSERT).run(validEpoch());
     resetSQLiteService();
     const raw = new Database(dbPath);
-    raw.prepare('DELETE FROM migrations WHERE version = 13').run();
+    raw.prepare('DELETE FROM migrations WHERE version >= 13').run();
     raw.close();
 
     const reopened = database();
@@ -281,6 +281,9 @@ describe('delivery epochs SQLite migration', () => {
       'action_audit_insert_not_published',
       'action_audit_no_delete',
       'action_audit_no_rewrite',
+      'campaign_grant_insert_active',
+      'campaign_grant_no_delete',
+      'campaign_grant_revoke_only',
       'delivery_epoch_no_delete',
       'delivery_epoch_no_update',
       'delivery_event_mapping_no_delete',

@@ -259,11 +259,15 @@ describe('replay checkpoint SQLite migration', () => {
       .all() as { name: string }[];
     // The complete trigger catalog: the v8 journal immutability set, the
     // v10 write-once checkpoint trigger, the v11 action-audit guards,
-    // the v12 private-record guards, and the v13 delivery-epoch guards.
+    // the v12 private-record guards, the v13 delivery-epoch guards, and
+    // the v14 campaign-grant guards.
     expect(allTriggers.map((trigger) => trigger.name)).toEqual([
       'action_audit_insert_not_published',
       'action_audit_no_delete',
       'action_audit_no_rewrite',
+      'campaign_grant_insert_active',
+      'campaign_grant_no_delete',
+      'campaign_grant_revoke_only',
       'delivery_epoch_no_delete',
       'delivery_epoch_no_update',
       'delivery_event_mapping_no_delete',
