@@ -1,13 +1,80 @@
 #!/usr/bin/env npx tsx
 import * as fs from 'fs';
 import * as path from 'path';
-import { resolveEquipmentBV, normalizeEquipmentId } from '../src/utils/construction/equipmentBVResolver';
 
-const indexData = JSON.parse(fs.readFileSync('public/data/units/battlemechs/index.json', 'utf-8'));
+import {
+  resolveEquipmentBV,
+  normalizeEquipmentId,
+} from '../src/utils/construction/equipmentBVResolver';
+
+const indexData = JSON.parse(
+  fs.readFileSync('public/data/units/battlemechs/index.json', 'utf-8'),
+);
 const basePath = 'public/data/units/battlemechs';
 
 const unresolved = new Map<string, number>();
-const nonWeaponKeywords = ['heatsink','heat-sink','endo','ferro','case','artemis','targeting-computer','targeting computer','ecm','bap','probe','c3','masc','tsm','jump-jet','jump jet','harjel','umu','shield','sword','hatchet','mace','a-pod','b-pod','m-pod','apod','bpod','mpod','blue-shield','null-signature','chameleon','coolant-pod','coolantpod','supercharger','drone','improved-sensors','beagle','angel-ecm','guardian-ecm','light-active-probe','bloodhound','apollo','tag','machine-gun-array','light-machine-gun-array','heavy-machine-gun-array','mga','lmga','hmga','lift-hoist','lifthoist','retractable-blade','remote-sensor','partial-wing','partialwing','searchlight','tracks','cargo','spikes','minesweeper'];
+const nonWeaponKeywords = [
+  'heatsink',
+  'heat-sink',
+  'endo',
+  'ferro',
+  'case',
+  'artemis',
+  'targeting-computer',
+  'targeting computer',
+  'ecm',
+  'bap',
+  'probe',
+  'c3',
+  'masc',
+  'tsm',
+  'jump-jet',
+  'jump jet',
+  'harjel',
+  'umu',
+  'shield',
+  'sword',
+  'hatchet',
+  'mace',
+  'a-pod',
+  'b-pod',
+  'm-pod',
+  'apod',
+  'bpod',
+  'mpod',
+  'blue-shield',
+  'null-signature',
+  'chameleon',
+  'coolant-pod',
+  'coolantpod',
+  'supercharger',
+  'drone',
+  'improved-sensors',
+  'beagle',
+  'angel-ecm',
+  'guardian-ecm',
+  'light-active-probe',
+  'bloodhound',
+  'apollo',
+  'tag',
+  'machine-gun-array',
+  'light-machine-gun-array',
+  'heavy-machine-gun-array',
+  'mga',
+  'lmga',
+  'hmga',
+  'lift-hoist',
+  'lifthoist',
+  'retractable-blade',
+  'remote-sensor',
+  'partial-wing',
+  'partialwing',
+  'searchlight',
+  'tracks',
+  'cargo',
+  'spikes',
+  'minesweeper',
+];
 
 for (const iu of indexData.units) {
   const unitPath = path.join(basePath, iu.path);
@@ -19,7 +86,10 @@ for (const iu of indexData.units) {
     if (lo.includes('ammo')) continue;
     let isNonWeapon = false;
     for (const kw of nonWeaponKeywords) {
-      if (lo.includes(kw)) { isNonWeapon = true; break; }
+      if (lo.includes(kw)) {
+        isNonWeapon = true;
+        break;
+      }
     }
     if (isNonWeapon) continue;
 

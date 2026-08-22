@@ -71,18 +71,31 @@ const TARGET_UNITS = [
   'revenant-ubm-2r4',
   'tessen-tsn-c3',
   'tessen-tsn-1cr',
-  'raven-rvn-4lc'
+  'raven-rvn-4lc',
 ];
 
 function main() {
   console.log('=== C3 Slave Undercalculation Investigation ===\n');
 
   // Load validation report
-  const reportPath = path.join(process.cwd(), 'validation-output', 'bv-validation-report.json');
-  const report: ValidationReport = JSON.parse(fs.readFileSync(reportPath, 'utf-8'));
+  const reportPath = path.join(
+    process.cwd(),
+    'validation-output',
+    'bv-validation-report.json',
+  );
+  const report: ValidationReport = JSON.parse(
+    fs.readFileSync(reportPath, 'utf-8'),
+  );
 
   // Load unit index
-  const indexPath = path.join(process.cwd(), 'public', 'data', 'units', 'battlemechs', 'index.json');
+  const indexPath = path.join(
+    process.cwd(),
+    'public',
+    'data',
+    'units',
+    'battlemechs',
+    'index.json',
+  );
   const index: UnitIndex = JSON.parse(fs.readFileSync(indexPath, 'utf-8'));
 
   for (const unitId of TARGET_UNITS) {
@@ -91,21 +104,28 @@ function main() {
     console.log('='.repeat(80) + '\n');
 
     // Find in validation report
-    const validationResult = report.allResults.find(r => r.unitId === unitId);
+    const validationResult = report.allResults.find((r) => r.unitId === unitId);
     if (!validationResult) {
       console.log(`ERROR: Unit ${unitId} not found in validation report`);
       continue;
     }
 
     // Find in index
-    const indexEntry = index.units.find(u => u.id === unitId);
+    const indexEntry = index.units.find((u) => u.id === unitId);
     if (!indexEntry) {
       console.log(`ERROR: Unit ${unitId} not found in index`);
       continue;
     }
 
     // Load unit JSON
-    const unitPath = path.join(process.cwd(), 'public', 'data', 'units', 'battlemechs', indexEntry.path);
+    const unitPath = path.join(
+      process.cwd(),
+      'public',
+      'data',
+      'units',
+      'battlemechs',
+      indexEntry.path,
+    );
     let unit: Unit;
     try {
       unit = JSON.parse(fs.readFileSync(unitPath, 'utf-8'));
@@ -147,16 +167,20 @@ function main() {
     // Check equipment for C3
     console.log('--- EQUIPMENT (ALL) ---');
     if (unit.equipment && unit.equipment.length > 0) {
-      const hasC3Equipment = unit.equipment.some(eq =>
-        eq.id.toLowerCase().includes('c3') ||
-        (eq.name && eq.name.toLowerCase().includes('c3'))
+      const hasC3Equipment = unit.equipment.some(
+        (eq) =>
+          eq.id.toLowerCase().includes('c3') ||
+          (eq.name && eq.name.toLowerCase().includes('c3')),
       );
-      console.log(`Has C3 in equipment array: ${hasC3Equipment ? 'YES' : 'NO'}`);
+      console.log(
+        `Has C3 in equipment array: ${hasC3Equipment ? 'YES' : 'NO'}`,
+      );
       console.log();
 
       unit.equipment.forEach((eq, idx) => {
-        const isC3 = eq.id.toLowerCase().includes('c3') ||
-                     (eq.name && eq.name.toLowerCase().includes('c3'));
+        const isC3 =
+          eq.id.toLowerCase().includes('c3') ||
+          (eq.name && eq.name.toLowerCase().includes('c3'));
         const marker = isC3 ? ' <<< C3 EQUIPMENT' : '';
         console.log(`[${idx}] ${eq.id}${marker}`);
         console.log(`    Name: ${eq.name || 'N/A'}`);
@@ -175,13 +199,19 @@ function main() {
       headSlots.forEach((slot, idx) => {
         console.log(`  [${idx}] ${slot || 'null'}`);
       });
-      const lsCount = headSlots.filter((s: string | null) => s && s.includes('Life Support')).length;
+      const lsCount = headSlots.filter(
+        (s: string | null) => s && s.includes('Life Support'),
+      ).length;
       const slot4 = headSlots[3];
-      const hasC3 = headSlots.some((s: string | null) => s && s.toLowerCase().includes('c3'));
+      const hasC3 = headSlots.some(
+        (s: string | null) => s && s.toLowerCase().includes('c3'),
+      );
       console.log(`  Life Support count: ${lsCount}`);
       console.log(`  Slot 4 (index 3): ${slot4 || 'null'}`);
       console.log(`  Has C3: ${hasC3 ? 'YES' : 'NO'}`);
-      console.log(`  Small cockpit detection would trigger: ${slot4 && slot4.includes('Sensors') && lsCount === 1 ? 'YES' : 'NO'}`);
+      console.log(
+        `  Small cockpit detection would trigger: ${slot4 && slot4.includes('Sensors') && lsCount === 1 ? 'YES' : 'NO'}`,
+      );
     } else {
       console.log('No HEAD critical slots found');
     }
@@ -192,15 +222,17 @@ function main() {
     if (unit.criticalSlots) {
       let foundC3Crits = false;
       for (const [location, slots] of Object.entries(unit.criticalSlots)) {
-        const c3Slots = (slots as any[]).map((slot, idx) => ({idx, slot})).filter(({slot}) => {
-          if (!slot) return false;
-          return slot.toLowerCase().includes('c3');
-        });
+        const c3Slots = (slots as any[])
+          .map((slot, idx) => ({ idx, slot }))
+          .filter(({ slot }) => {
+            if (!slot) return false;
+            return slot.toLowerCase().includes('c3');
+          });
 
         if (c3Slots.length > 0) {
           foundC3Crits = true;
           console.log(`Location: ${location}`);
-          c3Slots.forEach(({idx, slot}) => {
+          c3Slots.forEach(({ idx, slot }) => {
             console.log(`  [${idx}] ${slot}`);
           });
         }

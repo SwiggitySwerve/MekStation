@@ -307,6 +307,7 @@ describe('CampaignCoopRouteSurfaceConnected runtime proposal transport', () => {
       campaignId: guest.id,
       ts: '3025-07-09T00:00:00.000Z',
       authorPlayerId: 'host-player',
+      scope: 'campaign',
       payload: {
         state: {
           ...createEmptyCampaignState(guest.id),

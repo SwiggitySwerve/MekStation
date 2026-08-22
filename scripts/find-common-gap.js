@@ -1,7 +1,9 @@
 const fs = require('fs');
-const r = JSON.parse(fs.readFileSync('validation-output/bv-validation-report.json', 'utf8'));
+const r = JSON.parse(
+  fs.readFileSync('validation-output/bv-validation-report.json', 'utf8'),
+);
 
-const outside1 = r.allResults.filter(u => Math.abs(u.percentDiff) > 1);
+const outside1 = r.allResults.filter((u) => Math.abs(u.percentDiff) > 1);
 
 // Group by exact gap value
 const gapGroups = {};
@@ -20,12 +22,21 @@ for (const [gap, units] of multiGaps) {
   console.log(`Gap = ${gap}: ${units.length} units`);
   for (const u of units) {
     const b = u.breakdown || {};
-    console.log(`  ${u.chassis} ${u.model}: ${u.percentDiff.toFixed(2)}% ref=${u.indexBV} tech=${b.techBase} cockpit=${b.cockpitType || 'std'}`);
+    console.log(
+      `  ${u.chassis} ${u.model}: ${u.percentDiff.toFixed(2)}% ref=${u.indexBV} tech=${b.techBase} cockpit=${b.cockpitType || 'std'}`,
+    );
   }
 }
 
 // Also check: cluster analysis - what gap ranges are most common?
-const gapRanges = { '1-10': 0, '11-20': 0, '21-30': 0, '31-50': 0, '51-100': 0, '>100': 0 };
+const gapRanges = {
+  '1-10': 0,
+  '11-20': 0,
+  '21-30': 0,
+  '31-50': 0,
+  '51-100': 0,
+  '>100': 0,
+};
 for (const u of outside1) {
   const ag = Math.abs(u.difference);
   if (ag <= 10) gapRanges['1-10']++;
@@ -43,7 +54,7 @@ for (const [range, count] of Object.entries(gapRanges)) {
 // Check: for overcalculated units, what is gap / speedFactor? (normalized to pre-SF value)
 console.log('\n=== Overcalculated: gap / (speedFactor * cockpitMod) ===');
 const normalizedGaps = {};
-for (const u of outside1.filter(x => x.percentDiff > 1)) {
+for (const u of outside1.filter((x) => x.percentDiff > 1)) {
   const b = u.breakdown || {};
   const sf = b.speedFactor || 1;
   const cm = b.cockpitModifier || 1;
@@ -55,13 +66,15 @@ const multiNorm = Object.entries(normalizedGaps)
   .filter(([, units]) => units.length >= 2)
   .sort((a, b) => b[1].length - a[1].length);
 for (const [norm, units] of multiNorm) {
-  console.log(`  Norm gap ~${norm}: ${units.length} units - ${units.map(u => u.chassis + ' ' + u.model).join(', ')}`);
+  console.log(
+    `  Norm gap ~${norm}: ${units.length} units - ${units.map((u) => u.chassis + ' ' + u.model).join(', ')}`,
+  );
 }
 
 // Similarly for undercalculated
 console.log('\n=== Undercalculated: gap / (speedFactor * cockpitMod) ===');
 const normUnder = {};
-for (const u of outside1.filter(x => x.percentDiff < -1)) {
+for (const u of outside1.filter((x) => x.percentDiff < -1)) {
   const b = u.breakdown || {};
   const sf = b.speedFactor || 1;
   const cm = b.cockpitModifier || 1;
@@ -73,5 +86,7 @@ const multiNormU = Object.entries(normUnder)
   .filter(([, units]) => units.length >= 2)
   .sort((a, b) => b[1].length - a[1].length);
 for (const [norm, units] of multiNormU) {
-  console.log(`  Norm gap ~${norm}: ${units.length} units - ${units.map(u => u.chassis + ' ' + u.model).join(', ')}`);
+  console.log(
+    `  Norm gap ~${norm}: ${units.length} units - ${units.map((u) => u.chassis + ' ' + u.model).join(', ')}`,
+  );
 }

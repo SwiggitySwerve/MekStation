@@ -1,5 +1,8 @@
 #!/usr/bin/env npx tsx
-import { resolveEquipmentBV, normalizeEquipmentId } from '../src/utils/construction/equipmentBVResolver';
+import {
+  resolveEquipmentBV,
+  normalizeEquipmentId,
+} from '../src/utils/construction/equipmentBVResolver';
 
 const testIds = [
   'improved-heavy-medium-laser',
@@ -44,5 +47,7 @@ console.warn = () => {};
 for (const id of testIds) {
   const result = resolveEquipmentBV(id);
   const norm = normalizeEquipmentId(id);
-  console.log(`${id.padEnd(40)} → norm="${norm.padEnd(30)}" BV=${String(result.battleValue).padStart(4)} heat=${result.heat} resolved=${result.resolved}`);
+  console.log(
+    `${id.padEnd(40)} → norm="${norm.padEnd(30)}" BV=${String(result.battleValue).padStart(4)} heat=${result.heat} resolved=${result.resolved}`,
+  );
 }

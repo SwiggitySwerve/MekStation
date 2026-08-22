@@ -15,7 +15,9 @@ for (const f of files) {
   const crits = JSON.stringify(d.criticalSlots || {}).toLowerCase();
   const equip = JSON.stringify(d.equipment || []).toLowerCase();
   const critTC = crits.includes('targeting computer');
-  const equipTC = equip.includes('targeting-computer') || equip.includes('targeting computer');
+  const equipTC =
+    equip.includes('targeting-computer') ||
+    equip.includes('targeting computer');
   if (critTC && !equipTC) console.log('CRIT ONLY TC:', d.chassis, d.model);
   if (equipTC && !critTC) console.log('EQUIP ONLY TC:', d.chassis, d.model);
 }

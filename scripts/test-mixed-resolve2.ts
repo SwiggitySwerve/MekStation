@@ -5,7 +5,10 @@
  * weapon IDs commonly found on MIXED and CLAN tech-base units.
  */
 
-import { resolveEquipmentBV, normalizeEquipmentId } from '../src/utils/construction/equipmentBVResolver';
+import {
+  resolveEquipmentBV,
+  normalizeEquipmentId,
+} from '../src/utils/construction/equipmentBVResolver';
 
 const TEST_IDS = [
   'er-large-laser',
@@ -44,10 +47,10 @@ const TEST_IDS = [
 console.log('=== Weapon Resolution Test (CLAN / MIXED units) ===\n');
 console.log(
   'ID'.padEnd(38) +
-  'Normalized'.padEnd(32) +
-  'BV'.padStart(6) +
-  'Heat'.padStart(6) +
-  '  Resolved'
+    'Normalized'.padEnd(32) +
+    'BV'.padStart(6) +
+    'Heat'.padStart(6) +
+    '  Resolved',
 );
 console.log('-'.repeat(95));
 
@@ -66,16 +69,18 @@ for (const id of TEST_IDS) {
 
   console.log(
     id.padEnd(38) +
-    normalized.padEnd(32) +
-    String(result.battleValue).padStart(6) +
-    String(result.heat).padStart(6) +
-    '  ' +
-    (result.resolved ? 'YES' : '** NO **')
+      normalized.padEnd(32) +
+      String(result.battleValue).padStart(6) +
+      String(result.heat).padStart(6) +
+      '  ' +
+      (result.resolved ? 'YES' : '** NO **'),
   );
 }
 
 console.log('-'.repeat(95));
-console.log(`\nTotal: ${TEST_IDS.length} | Resolved: ${resolvedCount} | Unresolved: ${unresolvedCount}`);
+console.log(
+  `\nTotal: ${TEST_IDS.length} | Resolved: ${resolvedCount} | Unresolved: ${unresolvedCount}`,
+);
 
 if (unresolvedCount > 0) {
   console.log('\n*** UNRESOLVED WEAPONS DETECTED ***');
@@ -84,7 +89,9 @@ if (unresolvedCount > 0) {
     const result = resolveEquipmentBV(id);
     if (!result.resolved) {
       const normalized = normalizeEquipmentId(id);
-      console.log(`  - "${id}" => normalized to "${normalized}" (not found in catalog)`);
+      console.log(
+        `  - "${id}" => normalized to "${normalized}" (not found in catalog)`,
+      );
     }
   }
 }

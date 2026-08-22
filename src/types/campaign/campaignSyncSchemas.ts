@@ -16,6 +16,13 @@ import { z } from 'zod';
 
 import type { ICampaignIntent } from './CampaignSync';
 
+import {
+  isCampaignEventScope,
+  isCampaignEventType,
+  type CampaignEventScope,
+  type CampaignEventType,
+} from './CampaignSync';
+
 // =============================================================================
 // Leaf schemas
 // =============================================================================
@@ -126,6 +133,48 @@ export function parseCampaignIntent(
   const result = CampaignIntentSchema.safeParse(candidate);
   return result.success ? (result.data as ICampaignIntent) : null;
 }
+
+/**
+ * Runtime schema for the closed scope vocabulary. Uses the type guard
+ * so empty `team:` / `player:` ids and unknown prefixes fail here too.
+ */
+export const CampaignEventScopeSchema = z.custom<CampaignEventScope>(
+  (value): value is CampaignEventScope => isCampaignEventScope(value),
+  { message: 'invalid campaign event scope' },
+);
+
+/**
+ * Runtime schema for the seven campaign event type discriminants.
+ */
+export const CampaignEventTypeSchema = z.custom<CampaignEventType>(
+  (value): value is CampaignEventType =>
+    typeof value === 'string' && isCampaignEventType(value),
+  { message: 'invalid campaign event type' },
+);
+
+/**
+ * Envelope schema for a campaign event on the wire. Validates the
+ * digest-protected fields including required `scope`; payload shape is
+ * left to the per-type baseline pack because this schema is the
+ * transport envelope, not the replay payload pack.
+ *
+ * Sequence may be -1: that is the non-journal snapshot baseline frame.
+ */
+export const CampaignEventEnvelopeSchema = z.object({
+  type: CampaignEventTypeSchema,
+  sequence: z.number().int().gte(-1),
+  campaignId: z.string().min(1),
+  ts: z.string().min(1),
+  authorPlayerId: z.string().min(1),
+  scope: CampaignEventScopeSchema,
+  payload: z
+    .unknown()
+    .refine(
+      (value) =>
+        typeof value === 'object' && value !== null && !Array.isArray(value),
+      { message: 'campaign event payload must be an object' },
+    ),
+});
 
 // Re-exported so a future campaign-event validator can reuse the leaf.
 export { cbillSchema };

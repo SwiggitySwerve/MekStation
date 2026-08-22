@@ -25,6 +25,7 @@
 import { z } from 'zod';
 
 import {
+  CampaignEventEnvelopeSchema,
   CampaignIntentSchema,
   rosterUnitSchema,
 } from '@/types/campaign/campaignSyncSchemas';
@@ -712,7 +713,7 @@ export const CampaignSnapshotMessageSchema = z.object({
   kind: z.literal('CampaignSnapshot'),
   matchId: matchIdSchema,
   ts: tsSchema,
-  event: z.unknown(),
+  event: CampaignEventEnvelopeSchema,
 });
 export type ICampaignSnapshotMessage = z.infer<
   typeof CampaignSnapshotMessageSchema
@@ -722,7 +723,7 @@ export const CampaignEventMessageSchema = z.object({
   kind: z.literal('CampaignEvent'),
   matchId: matchIdSchema,
   ts: tsSchema,
-  event: z.unknown(),
+  event: CampaignEventEnvelopeSchema,
 });
 export type ICampaignEventMessage = z.infer<typeof CampaignEventMessageSchema>;
 

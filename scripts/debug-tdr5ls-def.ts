@@ -1,5 +1,10 @@
-import { calculateDefensiveBV, calculateExplosivePenalties, type MechLocation, type ExplosiveEquipmentEntry } from '../src/utils/construction/battleValueCalculations';
 import { EngineType } from '../src/types/construction/EngineType';
+import {
+  calculateDefensiveBV,
+  calculateExplosivePenalties,
+  type MechLocation,
+  type ExplosiveEquipmentEntry,
+} from '../src/utils/construction/battleValueCalculations';
 
 // TDR-5LS: 65t, Standard Fusion, Standard Gyro, Standard Structure, Standard Armor
 // Armor: LA=20, RA=20, LT=24+6, RT=24+6, CT=30+11, HD=9, LL=29, RL=29

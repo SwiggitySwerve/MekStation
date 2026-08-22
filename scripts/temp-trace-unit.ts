@@ -3,11 +3,18 @@ import * as fs from 'fs';
 import * as path from 'path';
 
 const basePath = path.resolve(process.cwd(), 'public/data/units/battlemechs');
-const indexData = JSON.parse(fs.readFileSync(path.resolve(basePath, 'index.json'), 'utf-8'));
+const indexData = JSON.parse(
+  fs.readFileSync(path.resolve(basePath, 'index.json'), 'utf-8'),
+);
 
 const targetName = process.argv[2] || 'Albatross ALB-5U';
-const iu = indexData.units.find((u: any) => `${u.chassis} ${u.model}` === targetName);
-if (!iu) { console.log(`Unit not found: ${targetName}`); process.exit(1); }
+const iu = indexData.units.find(
+  (u: any) => `${u.chassis} ${u.model}` === targetName,
+);
+if (!iu) {
+  console.log(`Unit not found: ${targetName}`);
+  process.exit(1);
+}
 
 const unitPath = path.join(basePath, iu.path);
 const ud = JSON.parse(fs.readFileSync(unitPath, 'utf-8'));
@@ -39,11 +46,13 @@ for (const [loc, slots] of Object.entries(ud.criticalSlots || {})) {
 console.log(`\nArmor Allocation:`);
 let totalArmor = 0;
 for (const [loc, val] of Object.entries(ud.armor.allocation)) {
-  if (typeof val === 'number') { console.log(`  ${loc}: ${val}`); totalArmor += val; }
-  else if (val && typeof val === 'object') { 
+  if (typeof val === 'number') {
+    console.log(`  ${loc}: ${val}`);
+    totalArmor += val;
+  } else if (val && typeof val === 'object') {
     const v = val as { front: number; rear: number };
-    console.log(`  ${loc}: front=${v.front} rear=${v.rear}`); 
-    totalArmor += v.front + v.rear; 
+    console.log(`  ${loc}: front=${v.front} rear=${v.rear}`);
+    totalArmor += v.front + v.rear;
   }
 }
 console.log(`  Total: ${totalArmor}`);

@@ -1,11 +1,21 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import { resolveEquipmentBV, normalizeEquipmentId, resolveAmmoBV } from '../src/utils/construction/equipmentBVResolver';
-import { calculateOffensiveSpeedFactor, calculateDefensiveBV, calculateOffensiveBVWithHeatTracking, getCockpitModifier } from '../src/utils/construction/battleValueCalculations';
+
 import { EngineType } from '../src/types/construction/EngineType';
+import {
+  calculateOffensiveSpeedFactor,
+  calculateDefensiveBV,
+  calculateOffensiveBVWithHeatTracking,
+  getCockpitModifier,
+} from '../src/utils/construction/battleValueCalculations';
+import {
+  resolveEquipmentBV,
+  normalizeEquipmentId,
+  resolveAmmoBV,
+} from '../src/utils/construction/equipmentBVResolver';
 
 // === Trace Man O' War E ===
-console.log('=== Man O\' War E: Detailed BV Trace ===');
+console.log("=== Man O' War E: Detailed BV Trace ===");
 console.log('Reference BV: 1537, Our calc: 2257, Diff: +720 (46.8%)');
 console.log('');
 
@@ -28,8 +38,11 @@ for (const w of weapons) {
   const res = resolveEquipmentBV(w.id);
   // Also try with clan- prefix
   const clanRes = resolveEquipmentBV('clan-' + w.id);
-  const best = (clanRes.resolved && clanRes.battleValue > res.battleValue) ? clanRes : res;
-  console.log(`  ${w.id}: BV=${best.battleValue} heat=${best.heat} (resolved: ${best.resolved})`);
+  const best =
+    clanRes.resolved && clanRes.battleValue > res.battleValue ? clanRes : res;
+  console.log(
+    `  ${w.id}: BV=${best.battleValue} heat=${best.heat} (resolved: ${best.resolved})`,
+  );
   totalWeaponBV += best.battleValue;
 }
 console.log('Total weapon BV (before modifiers):', totalWeaponBV);
@@ -65,7 +78,8 @@ let gladTotalWeaponBV = 0;
 for (const w of gladWeapons) {
   const res = resolveEquipmentBV(w.id);
   const clanRes = resolveEquipmentBV('clan-' + w.id);
-  const best = (clanRes.resolved && clanRes.battleValue > res.battleValue) ? clanRes : res;
+  const best =
+    clanRes.resolved && clanRes.battleValue > res.battleValue ? clanRes : res;
   console.log(`  ${w.id}: BV=${best.battleValue} heat=${best.heat}`);
   gladTotalWeaponBV += best.battleValue;
 }
@@ -148,14 +162,32 @@ const bcWeapons = [
 for (const w of bcWeapons) {
   const res = resolveEquipmentBV(w.id);
   const clanRes = resolveEquipmentBV('clan-' + w.id);
-  console.log(`  ${w.id}: IS BV=${res.battleValue} Clan BV=${clanRes.battleValue}`);
+  console.log(
+    `  ${w.id}: IS BV=${res.battleValue} Clan BV=${clanRes.battleValue}`,
+  );
 }
 
 console.log('');
 console.log('=== ANALYSIS SUMMARY ===');
 console.log('');
 console.log('Looking at weapon BV totals vs reported breakdown...');
-console.log('Man O\' War E: weapons add up to', totalWeaponBV, 'breakdown shows weaponBV=727.5');
-console.log('Gladiator A: weapons add up to', gladTotalWeaponBV, 'breakdown shows weaponBV=1129');
-console.log('Jenner JR7-D: weapons add up to', jennerWeaponBV, 'breakdown shows weaponBV=276');
-console.log('Hatamoto: weapons add up to', hatWeaponBV, 'breakdown shows weaponBV=470');
+console.log(
+  "Man O' War E: weapons add up to",
+  totalWeaponBV,
+  'breakdown shows weaponBV=727.5',
+);
+console.log(
+  'Gladiator A: weapons add up to',
+  gladTotalWeaponBV,
+  'breakdown shows weaponBV=1129',
+);
+console.log(
+  'Jenner JR7-D: weapons add up to',
+  jennerWeaponBV,
+  'breakdown shows weaponBV=276',
+);
+console.log(
+  'Hatamoto: weapons add up to',
+  hatWeaponBV,
+  'breakdown shows weaponBV=470',
+);

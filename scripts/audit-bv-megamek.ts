@@ -3,10 +3,15 @@
 import * as fs from 'fs';
 import * as path from 'path';
 
-const MEGAMEK_WEAPONS = 'E:/Projects/megamek/megamek/src/megamek/common/weapons';
+const MEGAMEK_WEAPONS =
+  'E:/Projects/megamek/megamek/src/megamek/common/weapons';
 
 // Extract BV from a Java weapon file
-function extractBV(filePath: string): { bv: number | null; internalName: string | null; heat: number | null } {
+function extractBV(filePath: string): {
+  bv: number | null;
+  internalName: string | null;
+  heat: number | null;
+} {
   const content = fs.readFileSync(filePath, 'utf-8');
 
   // Find bv assignment
@@ -32,21 +37,43 @@ function walkDir(dir: string, callback: (f: string) => void) {
     const fullPath = path.join(dir, entry.name);
     if (entry.isDirectory()) {
       // Skip battle armor, infantry, unofficial
-      if (['battleArmor', 'infantry', 'unofficial', 'handlers', 'attacks', 'prototypes'].includes(entry.name)) continue;
+      if (
+        [
+          'battleArmor',
+          'infantry',
+          'unofficial',
+          'handlers',
+          'attacks',
+          'prototypes',
+        ].includes(entry.name)
+      )
+        continue;
       walkDir(fullPath, callback);
-    } else if (entry.name.endsWith('.java') && !entry.name.includes('Handler') && !entry.name.includes('Helper') && !entry.name.includes('Weapon.java')) {
+    } else if (
+      entry.name.endsWith('.java') &&
+      !entry.name.includes('Handler') &&
+      !entry.name.includes('Helper') &&
+      !entry.name.includes('Weapon.java')
+    ) {
       callback(fullPath);
     }
   }
 }
 
 // Load all MegaMek weapon BVs
-const megamekWeapons: Map<string, { bv: number; heat: number | null; file: string }> = new Map();
+const megamekWeapons: Map<
+  string,
+  { bv: number; heat: number | null; file: string }
+> = new Map();
 
 walkDir(MEGAMEK_WEAPONS, (filePath) => {
   const { bv, internalName, heat } = extractBV(filePath);
   if (bv !== null && internalName) {
-    megamekWeapons.set(internalName.toLowerCase(), { bv, heat, file: filePath });
+    megamekWeapons.set(internalName.toLowerCase(), {
+      bv,
+      heat,
+      file: filePath,
+    });
   }
 });
 
@@ -61,7 +88,12 @@ for (const cat of catalogs) {
   if (!fs.existsSync(fp)) continue;
   const data = JSON.parse(fs.readFileSync(fp, 'utf-8'));
   for (const item of data.items) {
-    ourWeapons.push({ id: item.id, bv: item.battleValue, heat: item.heat, file: cat });
+    ourWeapons.push({
+      id: item.id,
+      bv: item.battleValue,
+      heat: item.heat,
+      file: cat,
+    });
   }
 }
 
@@ -78,9 +110,9 @@ const idToMegamek: Record<string, string> = {
   'small-pulse-laser': 'issmallpulselaser',
   'medium-pulse-laser': 'ismediumpulselaser',
   'large-pulse-laser': 'islargepulselaser',
-  'ppc': 'isppc',
+  ppc: 'isppc',
   'er-ppc': 'iserppc',
-  'flamer': 'isflamer',
+  flamer: 'isflamer',
   'heavy-ppc': 'isheavyppc',
   'light-ppc': 'islightppc',
   'snub-nose-ppc': 'issnubnose ppc',
@@ -187,7 +219,9 @@ for (const w of ourWeapons) {
       continue;
     }
     if (direct.bv !== w.bv) {
-      console.log(`${w.id.padEnd(35)} ours=${w.bv} megamek=${direct.bv} diff=${direct.bv - w.bv} (${w.file})`);
+      console.log(
+        `${w.id.padEnd(35)} ours=${w.bv} megamek=${direct.bv} diff=${direct.bv - w.bv} (${w.file})`,
+      );
       mismatches++;
     } else {
       matched++;
@@ -202,11 +236,15 @@ for (const w of ourWeapons) {
   }
 
   if (mmWeapon.bv !== w.bv) {
-    console.log(`${w.id.padEnd(35)} ours=${w.bv} megamek=${mmWeapon.bv} diff=${mmWeapon.bv - w.bv} (${w.file})`);
+    console.log(
+      `${w.id.padEnd(35)} ours=${w.bv} megamek=${mmWeapon.bv} diff=${mmWeapon.bv - w.bv} (${w.file})`,
+    );
     mismatches++;
   } else {
     matched++;
   }
 }
 
-console.log(`\nMatched: ${matched}, Mismatches: ${mismatches}, Unmatched: ${unmatched}`);
+console.log(
+  `\nMatched: ${matched}, Mismatches: ${mismatches}, Unmatched: ${unmatched}`,
+);

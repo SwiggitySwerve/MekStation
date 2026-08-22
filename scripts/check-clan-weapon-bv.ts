@@ -1,11 +1,27 @@
 import * as fs from 'fs';
 
 // Load weapon catalogs
-const energy = JSON.parse(fs.readFileSync('public/data/equipment/official/weapons/energy.json', 'utf8'));
-const ballistic = JSON.parse(fs.readFileSync('public/data/equipment/official/weapons/ballistic.json', 'utf8'));
-const missile = JSON.parse(fs.readFileSync('public/data/equipment/official/weapons/missile.json', 'utf8'));
+const energy = JSON.parse(
+  fs.readFileSync('public/data/equipment/official/weapons/energy.json', 'utf8'),
+);
+const ballistic = JSON.parse(
+  fs.readFileSync(
+    'public/data/equipment/official/weapons/ballistic.json',
+    'utf8',
+  ),
+);
+const missile = JSON.parse(
+  fs.readFileSync(
+    'public/data/equipment/official/weapons/missile.json',
+    'utf8',
+  ),
+);
 
-const allWeapons = [...(energy.items || energy.weapons || []), ...(ballistic.items || ballistic.weapons || []), ...(missile.items || missile.weapons || [])];
+const allWeapons = [
+  ...(energy.items || energy.weapons || []),
+  ...(ballistic.items || ballistic.weapons || []),
+  ...(missile.items || missile.weapons || []),
+];
 
 // Known correct MegaMek BV values for Clan weapons
 const MEGAMEK_BV: Record<string, number> = {
@@ -77,7 +93,9 @@ for (const [id, expectedBV] of Object.entries(MEGAMEK_BV)) {
     continue;
   }
   if (weapon.battleValue !== expectedBV) {
-    console.log(`  ${id}: catalog=${weapon.battleValue} expected=${expectedBV} (diff=${weapon.battleValue - expectedBV})`);
+    console.log(
+      `  ${id}: catalog=${weapon.battleValue} expected=${expectedBV} (diff=${weapon.battleValue - expectedBV})`,
+    );
     mismatchCount++;
   }
 }
@@ -90,6 +108,7 @@ for (const w of clanWeapons) {
   // Find corresponding IS weapon
   const isId = w.id.replace('clan-', '');
   const isWeapon = allWeapons.find((x: any) => x.id === isId);
-  const flag = isWeapon && isWeapon.battleValue === w.battleValue ? ' [SAME AS IS]' : '';
+  const flag =
+    isWeapon && isWeapon.battleValue === w.battleValue ? ' [SAME AS IS]' : '';
   console.log(`  ${w.id}: BV=${w.battleValue} heat=${w.heat}${flag}`);
 }

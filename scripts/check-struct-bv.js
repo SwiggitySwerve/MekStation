@@ -2,7 +2,12 @@
 const fs = require('fs');
 const path = require('path');
 const r = require('../validation-output/bv-validation-report.json');
-const idx = JSON.parse(fs.readFileSync(path.join(__dirname, '../public/data/units/battlemechs/index.json'), 'utf8'));
+const idx = JSON.parse(
+  fs.readFileSync(
+    path.join(__dirname, '../public/data/units/battlemechs/index.json'),
+    'utf8',
+  ),
+);
 
 const IS_TABLE = {
   10: { head: 3, ct: 4, st: 3, arm: 1, leg: 2 },
@@ -29,21 +34,43 @@ const IS_TABLE = {
 function totalIS(ton, isQuad) {
   const t = IS_TABLE[ton];
   if (!t) return 0;
-  return t.head + t.ct + t.st * 2 + (isQuad ? t.leg * 4 : t.arm * 2 + t.leg * 2);
+  return (
+    t.head + t.ct + t.st * 2 + (isQuad ? t.leg * 4 : t.arm * 2 + t.leg * 2)
+  );
 }
 
 function loadUnit(id) {
-  const entry = idx.units.find(x => x.id === id);
+  const entry = idx.units.find((x) => x.id === id);
   if (!entry) return null;
-  try { return JSON.parse(fs.readFileSync(path.join(__dirname, '../public/data/units/battlemechs', entry.path), 'utf8')); }
-  catch (e) { return null; }
+  try {
+    return JSON.parse(
+      fs.readFileSync(
+        path.join(__dirname, '../public/data/units/battlemechs', entry.path),
+        'utf8',
+      ),
+    );
+  } catch (e) {
+    return null;
+  }
 }
 
-const ENGINE_MULTS = { FUSION: 1.0, XL: 0.5, CLAN_XL: 0.75, LIGHT: 0.75, XXL: 0.25, COMPACT: 1.0, ICE: 1.0 };
+const ENGINE_MULTS = {
+  FUSION: 1.0,
+  XL: 0.5,
+  CLAN_XL: 0.75,
+  LIGHT: 0.75,
+  XXL: 0.25,
+  COMPACT: 1.0,
+  ICE: 1.0,
+};
 
 // Check structure BV for outlier units
-const outliers = r.allResults.filter(x => x.breakdown && x.status !== 'exact' && x.status !== 'within1');
-const correct = r.allResults.filter(x => x.breakdown && (x.status === 'exact' || x.status === 'within1'));
+const outliers = r.allResults.filter(
+  (x) => x.breakdown && x.status !== 'exact' && x.status !== 'within1',
+);
+const correct = r.allResults.filter(
+  (x) => x.breakdown && (x.status === 'exact' || x.status === 'within1'),
+);
 
 function checkGroup(units, label) {
   let mismatches = 0;
@@ -67,7 +94,9 @@ function checkGroup(units, label) {
     if (Math.abs(expectedStruct - reportedStruct) > 0.5) {
       mismatches++;
       const inferredMult = reportedStruct / (tis * 1.5);
-      console.log(`  ${label} MISMATCH: ${u.unitId.padEnd(40)} expected=${expectedStruct.toFixed(2)} reported=${reportedStruct} engine=${engineType} inferredMult=${inferredMult.toFixed(3)} ton=${ton}`);
+      console.log(
+        `  ${label} MISMATCH: ${u.unitId.padEnd(40)} expected=${expectedStruct.toFixed(2)} reported=${reportedStruct} engine=${engineType} inferredMult=${inferredMult.toFixed(3)} ton=${ton}`,
+      );
     }
     total++;
   }

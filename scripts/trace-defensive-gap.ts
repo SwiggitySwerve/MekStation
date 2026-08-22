@@ -27,15 +27,32 @@ import {
 // Types (mirrored from validate-bv.ts)
 // ---------------------------------------------------------------------------
 interface IndexUnit {
-  id: string; chassis: string; model: string; tonnage: number;
-  techBase: string; path: string; bv: number;
+  id: string;
+  chassis: string;
+  model: string;
+  tonnage: number;
+  techBase: string;
+  path: string;
+  bv: number;
 }
-interface IndexFile { units: IndexUnit[]; }
-interface ArmorAllocation { [location: string]: number | { front: number; rear: number }; }
-interface Equipment { id: string; location: string; }
+interface IndexFile {
+  units: IndexUnit[];
+}
+interface ArmorAllocation {
+  [location: string]: number | { front: number; rear: number };
+}
+interface Equipment {
+  id: string;
+  location: string;
+}
 interface UnitData {
-  id: string; chassis: string; model: string; unitType: string;
-  configuration: string; techBase: string; tonnage: number;
+  id: string;
+  chassis: string;
+  model: string;
+  unitType: string;
+  configuration: string;
+  techBase: string;
+  tonnage: number;
   engine: { type: string; rating: number };
   gyro: { type: string };
   cockpit: string;
@@ -56,10 +73,18 @@ interface Breakdown {
   defensiveEquipBV: number;
 }
 interface ValidationResult {
-  unitId: string; chassis: string; model: string; tonnage: number;
-  indexBV: number; calculatedBV: number; difference: number;
-  percentDiff: number; status: string; breakdown: Breakdown;
-  issues: string[]; rootCause: string;
+  unitId: string;
+  chassis: string;
+  model: string;
+  tonnage: number;
+  indexBV: number;
+  calculatedBV: number;
+  difference: number;
+  percentDiff: number;
+  status: string;
+  breakdown: Breakdown;
+  issues: string[];
+  rootCause: string;
 }
 
 // ---------------------------------------------------------------------------
@@ -77,8 +102,17 @@ function calcTotalArmor(a: ArmorAllocation): number {
 function calcTotalStructure(ton: number): number {
   const t = STRUCTURE_POINTS_TABLE[ton];
   if (!t) {
-    const k = Object.keys(STRUCTURE_POINTS_TABLE).map(Number).sort((a, b) => a - b).filter(x => x <= ton).pop();
-    if (k) { const t2 = STRUCTURE_POINTS_TABLE[k]; return t2.head + t2.centerTorso + t2.sideTorso * 2 + t2.arm * 2 + t2.leg * 2; }
+    const k = Object.keys(STRUCTURE_POINTS_TABLE)
+      .map(Number)
+      .sort((a, b) => a - b)
+      .filter((x) => x <= ton)
+      .pop();
+    if (k) {
+      const t2 = STRUCTURE_POINTS_TABLE[k];
+      return (
+        t2.head + t2.centerTorso + t2.sideTorso * 2 + t2.arm * 2 + t2.leg * 2
+      );
+    }
     return 0;
   }
   return t.head + t.centerTorso + t.sideTorso * 2 + t.arm * 2 + t.leg * 2;
@@ -87,8 +121,10 @@ function calcTotalStructure(ton: number): number {
 function mapEngineType(engineStr: string, techBase: string): EngineType {
   // Must match validate-bv.ts exactly: exact string matches on upper+stripped
   const u = engineStr.toUpperCase().replace(/[_\s-]+/g, '');
-  if (u === 'XL' || u === 'XLENGINE') return techBase === 'CLAN' ? EngineType.XL_CLAN : EngineType.XL_IS;
-  if (u === 'CLANXL' || u === 'CLAN_XL' || u === 'XLCLAN') return EngineType.XL_CLAN;
+  if (u === 'XL' || u === 'XLENGINE')
+    return techBase === 'CLAN' ? EngineType.XL_CLAN : EngineType.XL_IS;
+  if (u === 'CLANXL' || u === 'CLAN_XL' || u === 'XLCLAN')
+    return EngineType.XL_CLAN;
   if (u === 'LIGHT' || u === 'LIGHTENGINE') return EngineType.LIGHT;
   if (u === 'XXL' || u === 'XXLENGINE') return EngineType.XXL;
   if (u === 'COMPACT' || u === 'COMPACTENGINE') return EngineType.COMPACT;
@@ -102,11 +138,13 @@ function mapArmorType(s: string): string {
   const u = s.toUpperCase().replace(/[_\s-]+/g, '');
   if (u.includes('HARDENED')) return 'hardened';
   if (u.includes('REACTIVE')) return 'reactive';
-  if (u.includes('REFLECTIVE') || u.includes('LASERREFLECTIVE')) return 'reflective';
+  if (u.includes('REFLECTIVE') || u.includes('LASERREFLECTIVE'))
+    return 'reflective';
   if (u.includes('BALLISTICREINFORCED')) return 'ballistic-reinforced';
   if (u.includes('FERROLAMELLOR')) return 'ferro-lamellor';
   if (u.includes('STEALTH')) return 'stealth';
-  if (u.includes('ANTIPENETRATIVE') || u.includes('ABLATION')) return 'anti-penetrative';
+  if (u.includes('ANTIPENETRATIVE') || u.includes('ABLATION'))
+    return 'anti-penetrative';
   if (u.includes('HEATDISSIPATING')) return 'heat-dissipating';
   return 'standard';
 }
@@ -169,29 +207,50 @@ function scanForDefensiveModifiers(unit: UnitData): {
     if (!Array.isArray(slots)) continue;
     for (const s of slots) {
       if (s && typeof s === 'string') {
-        const lo = s.replace(/\s*\(omnipod\)/gi, '').trim().toLowerCase();
+        const lo = s
+          .replace(/\s*\(omnipod\)/gi, '')
+          .trim()
+          .toLowerCase();
         allSlotsLo.push(lo);
-        if (lo.includes('chameleon') || lo.includes('clps')) result.hasChameleon = true;
-        if (lo.includes('null-signature') || lo.includes('nullsignature') || lo.includes('null signature')) result.hasNullSig = true;
-        if (lo.includes('void-signature') || lo.includes('voidsignature') || lo.includes('void signature')) result.hasVoidSig = true;
-        if (lo.includes('droneoperatingsystem') || lo.includes('drone operating system')) result.detectedDroneOS = true;
-        if (lo.includes('umu') || lo.includes('underwater maneuvering')) result.umuMP++;
+        if (lo.includes('chameleon') || lo.includes('clps'))
+          result.hasChameleon = true;
+        if (
+          lo.includes('null-signature') ||
+          lo.includes('nullsignature') ||
+          lo.includes('null signature')
+        )
+          result.hasNullSig = true;
+        if (
+          lo.includes('void-signature') ||
+          lo.includes('voidsignature') ||
+          lo.includes('void signature')
+        )
+          result.hasVoidSig = true;
+        if (
+          lo.includes('droneoperatingsystem') ||
+          lo.includes('drone operating system')
+        )
+          result.detectedDroneOS = true;
+        if (lo.includes('umu') || lo.includes('underwater maneuvering'))
+          result.umuMP++;
       }
     }
   }
 
   // Small cockpit from unit.cockpit
-  if (unit.cockpit && unit.cockpit.toUpperCase().includes('SMALL')) result.detectedSmallCockpit = true;
+  if (unit.cockpit && unit.cockpit.toUpperCase().includes('SMALL'))
+    result.detectedSmallCockpit = true;
 
   // Interface cockpit: 2 cockpit entries in HEAD and no gyro anywhere
   const headSlots = unit.criticalSlots?.HEAD;
   if (Array.isArray(headSlots)) {
     let cockpitCount = 0;
     for (const hs of headSlots) {
-      if (hs && typeof hs === 'string' && hs.toLowerCase().includes('cockpit')) cockpitCount++;
+      if (hs && typeof hs === 'string' && hs.toLowerCase().includes('cockpit'))
+        cockpitCount++;
     }
     if (cockpitCount >= 2) {
-      const hasGyroAnywhere = allSlotsLo.some(s => s.includes('gyro'));
+      const hasGyroAnywhere = allSlotsLo.some((s) => s.includes('gyro'));
       if (!hasGyroAnywhere) result.detectedInterfaceCockpit = true;
     }
   }
@@ -203,36 +262,42 @@ function scanForDefensiveModifiers(unit: UnitData): {
 // Main
 // ---------------------------------------------------------------------------
 function main() {
-  const reportPath = path.resolve(process.cwd(), 'validation-output/bv-validation-report.json');
-  const indexPath = path.resolve(process.cwd(), 'public/data/units/battlemechs/index.json');
+  const reportPath = path.resolve(
+    process.cwd(),
+    'validation-output/bv-validation-report.json',
+  );
+  const indexPath = path.resolve(
+    process.cwd(),
+    'public/data/units/battlemechs/index.json',
+  );
 
   const report = JSON.parse(fs.readFileSync(reportPath, 'utf-8'));
   const index: IndexFile = JSON.parse(fs.readFileSync(indexPath, 'utf-8'));
 
   // Pick 20 undercalculated minor-discrepancy units with varied tonnage
   const candidates = (report.allResults as ValidationResult[])
-    .filter(u => u.percentDiff < -0.5 && u.percentDiff >= -5.0 && u.breakdown)
+    .filter((u) => u.percentDiff < -0.5 && u.percentDiff >= -5.0 && u.breakdown)
     .sort((a, b) => a.percentDiff - b.percentDiff); // worst first
 
   // Pick diverse units: some light, some medium, some heavy, some assault
   const selected: ValidationResult[] = [];
   const tonnageBuckets = [
-    candidates.filter(u => u.tonnage <= 35),
-    candidates.filter(u => u.tonnage > 35 && u.tonnage <= 55),
-    candidates.filter(u => u.tonnage > 55 && u.tonnage <= 75),
-    candidates.filter(u => u.tonnage > 75),
+    candidates.filter((u) => u.tonnage <= 35),
+    candidates.filter((u) => u.tonnage > 35 && u.tonnage <= 55),
+    candidates.filter((u) => u.tonnage > 55 && u.tonnage <= 75),
+    candidates.filter((u) => u.tonnage > 75),
   ];
   for (const bucket of tonnageBuckets) {
     for (const u of bucket) {
       if (selected.length >= 20) break;
       selected.push(u);
-      if (selected.filter(s => s.tonnage === u.tonnage).length >= 3) continue;
+      if (selected.filter((s) => s.tonnage === u.tonnage).length >= 3) continue;
     }
   }
   // Fill up to 20 from worst first
   for (const u of candidates) {
     if (selected.length >= 20) break;
-    if (!selected.find(s => s.unitId === u.unitId)) selected.push(u);
+    if (!selected.find((s) => s.unitId === u.unitId)) selected.push(u);
   }
   selected.splice(20);
 
@@ -246,14 +311,28 @@ function main() {
   let totalOffGap = 0;
 
   for (const result of selected) {
-    const idxUnit = index.units.find(u => u.id === result.unitId);
-    if (!idxUnit) { console.log(`SKIP: ${result.unitId} not in index`); continue; }
+    const idxUnit = index.units.find((u) => u.id === result.unitId);
+    if (!idxUnit) {
+      console.log(`SKIP: ${result.unitId} not in index`);
+      continue;
+    }
 
-    const unitPath = path.resolve(process.cwd(), 'public/data/units/battlemechs', idxUnit.path);
-    if (!fs.existsSync(unitPath)) { console.log(`SKIP: ${result.unitId} file not found`); continue; }
+    const unitPath = path.resolve(
+      process.cwd(),
+      'public/data/units/battlemechs',
+      idxUnit.path,
+    );
+    if (!fs.existsSync(unitPath)) {
+      console.log(`SKIP: ${result.unitId} file not found`);
+      continue;
+    }
 
     let unit: UnitData;
-    try { unit = JSON.parse(fs.readFileSync(unitPath, 'utf-8')); } catch { continue; }
+    try {
+      unit = JSON.parse(fs.readFileSync(unitPath, 'utf-8'));
+    } catch {
+      continue;
+    }
 
     const engineType = mapEngineType(unit.engine.type, unit.techBase);
     const structureType = mapStructureType(unit.structure.type);
@@ -273,15 +352,18 @@ function main() {
 
     // Engine multiplier
     let engineBVMult = getEngineBVMultiplier(engineType);
-    if (engineType === EngineType.XXL && unit.techBase === 'CLAN') engineBVMult = 0.5;
+    if (engineType === EngineType.XXL && unit.techBase === 'CLAN')
+      engineBVMult = 0.5;
 
     // Compute individual components
     const armorMultiplier = getArmorBVMultiplier(calcArmorType);
     const structureMultiplier = getStructureBVMultiplier(structureType);
-    const gyroMultiplier = gyroType === 'none' ? 0 : getGyroBVMultiplier(gyroType);
+    const gyroMultiplier =
+      gyroType === 'none' ? 0 : getGyroBVMultiplier(gyroType);
 
-    const armorBV = Math.round(totalArmor * 2.5 * armorMultiplier * (10)) / 10; // BAR=10
-    const structureBV = totalStructure * 1.5 * structureMultiplier * engineBVMult;
+    const armorBV = Math.round(totalArmor * 2.5 * armorMultiplier * 10) / 10; // BAR=10
+    const structureBV =
+      totalStructure * 1.5 * structureMultiplier * engineBVMult;
     const gyroBV = unit.tonnage * gyroMultiplier;
 
     // Movement
@@ -316,7 +398,8 @@ function main() {
     const reportExplosive = result.breakdown.explosivePenalty;
 
     // Our recalculated baseDef
-    const baseDef = armorBV + structureBV + gyroBV + reportDefEquipBV - reportExplosive;
+    const baseDef =
+      armorBV + structureBV + gyroBV + reportDefEquipBV - reportExplosive;
     const recalcDefBV = baseDef * defensiveFactor;
 
     // Defensive gap: our recalc vs what validate-bv.ts computed
@@ -325,9 +408,12 @@ function main() {
     // Now: indexBV = round((defensiveBV + offensiveBV) * cockpitModifier)
     // So expected total from components = defensiveBV + offensiveBV
     // And indexBV / cockpitModifier = defensiveBV + offensiveBV (expected)
-    const effectiveCockpit = mods.detectedInterfaceCockpit && cockpitType === 'standard' ? 'interface'
-      : mods.detectedSmallCockpit && cockpitType === 'standard' ? 'small'
-      : cockpitType;
+    const effectiveCockpit =
+      mods.detectedInterfaceCockpit && cockpitType === 'standard'
+        ? 'interface'
+        : mods.detectedSmallCockpit && cockpitType === 'standard'
+          ? 'small'
+          : cockpitType;
     const cockpitMod = getCockpitModifier(effectiveCockpit);
     let droneMultiplier = 1.0;
     if (mods.detectedDroneOS) droneMultiplier = 0.95;
@@ -360,35 +446,63 @@ function main() {
     totalDefGap += defGap;
     totalOffGap += offGap;
 
-    console.log(`--- ${result.chassis} ${result.model} (${result.tonnage}t) ---`);
-    console.log(`  Index BV: ${result.indexBV}  |  Calc BV: ${result.calculatedBV}  |  Gap: ${result.difference} (${result.percentDiff.toFixed(2)}%)`);
-    console.log(`  Cockpit: ${effectiveCockpit} (mod=${cockpitMod})${mods.detectedDroneOS ? ' DRONE' : ''}`);
-    console.log(`  Engine: ${unit.engine.type} -> ${engineType} (mult=${engineBVMult})`);
-    console.log(`  Armor: ${totalArmor} pts, type=${calcArmorType}, mult=${armorMultiplier}`);
-    console.log(`  Structure: ${totalStructure} pts, type=${structureType}, mult=${structureMultiplier}`);
+    console.log(
+      `--- ${result.chassis} ${result.model} (${result.tonnage}t) ---`,
+    );
+    console.log(
+      `  Index BV: ${result.indexBV}  |  Calc BV: ${result.calculatedBV}  |  Gap: ${result.difference} (${result.percentDiff.toFixed(2)}%)`,
+    );
+    console.log(
+      `  Cockpit: ${effectiveCockpit} (mod=${cockpitMod})${mods.detectedDroneOS ? ' DRONE' : ''}`,
+    );
+    console.log(
+      `  Engine: ${unit.engine.type} -> ${engineType} (mult=${engineBVMult})`,
+    );
+    console.log(
+      `  Armor: ${totalArmor} pts, type=${calcArmorType}, mult=${armorMultiplier}`,
+    );
+    console.log(
+      `  Structure: ${totalStructure} pts, type=${structureType}, mult=${structureMultiplier}`,
+    );
     console.log(`  Gyro: type=${gyroType}, mult=${gyroMultiplier}`);
-    console.log(`  Movement: walk=${walkMP} run=${runMP} jump=${jumpMP} TMM=${tmm} defFactor=${defensiveFactor}`);
+    console.log(
+      `  Movement: walk=${walkMP} run=${runMP} jump=${jumpMP} TMM=${tmm} defFactor=${defensiveFactor}`,
+    );
     console.log(`  `);
     console.log(`  Recalculated components:`);
     console.log(`    armorBV     = ${armorBV.toFixed(2)}`);
     console.log(`    structureBV = ${structureBV.toFixed(2)}`);
     console.log(`    gyroBV      = ${gyroBV.toFixed(2)}`);
-    console.log(`    defEquipBV  = ${reportDefEquipBV.toFixed(2)} (from report)`);
-    console.log(`    explosive   = ${reportExplosive.toFixed(2)} (from report)`);
+    console.log(
+      `    defEquipBV  = ${reportDefEquipBV.toFixed(2)} (from report)`,
+    );
+    console.log(
+      `    explosive   = ${reportExplosive.toFixed(2)} (from report)`,
+    );
     console.log(`    baseDef     = ${baseDef.toFixed(2)}`);
     console.log(`    defFactor   = ${defensiveFactor}`);
     console.log(`    recalcDefBV = ${recalcDefBV.toFixed(2)}`);
     console.log(`    reportDefBV = ${reportDefBV.toFixed(2)}`);
-    console.log(`    defCalcGap  = ${defCalcGap.toFixed(2)} (recalc - report, should be ~0)`);
+    console.log(
+      `    defCalcGap  = ${defCalcGap.toFixed(2)} (recalc - report, should be ~0)`,
+    );
     console.log(`  `);
     console.log(`  Gap attribution (from indexBV):`);
     console.log(`    expectedPreCockpit = ${expectedPreCockpit.toFixed(2)}`);
     console.log(`    calcPreCockpit     = ${calcPreCockpit.toFixed(2)}`);
     console.log(`    preCockpitGap      = ${preCockpitGap.toFixed(2)}`);
-    console.log(`    expectedDefBV      = ${expectedDefBV.toFixed(2)}  (gap from report: ${defGap.toFixed(2)})`);
-    console.log(`    expectedOffBV      = ${expectedOffBV.toFixed(2)}  (gap from report: ${offGap.toFixed(2)})`);
-    console.log(`    Report defBV=${reportDefBV.toFixed(2)}, offBV=${reportOffBV.toFixed(2)}`);
-    console.log(`    => Gap primarily on: ${isDefGap && !isOffGap ? 'DEFENSIVE' : isOffGap && !isDefGap ? 'OFFENSIVE' : isDefGap && isOffGap ? 'BOTH' : 'NEITHER (rounding)'}`);
+    console.log(
+      `    expectedDefBV      = ${expectedDefBV.toFixed(2)}  (gap from report: ${defGap.toFixed(2)})`,
+    );
+    console.log(
+      `    expectedOffBV      = ${expectedOffBV.toFixed(2)}  (gap from report: ${offGap.toFixed(2)})`,
+    );
+    console.log(
+      `    Report defBV=${reportDefBV.toFixed(2)}, offBV=${reportOffBV.toFixed(2)}`,
+    );
+    console.log(
+      `    => Gap primarily on: ${isDefGap && !isOffGap ? 'DEFENSIVE' : isOffGap && !isDefGap ? 'OFFENSIVE' : isDefGap && isOffGap ? 'BOTH' : 'NEITHER (rounding)'}`,
+    );
     console.log();
   }
 
@@ -396,14 +510,22 @@ function main() {
   console.log(`Units with gap primarily on DEFENSIVE side: ${defGapCount}`);
   console.log(`Units with gap primarily on OFFENSIVE side: ${offGapCount}`);
   console.log(`Units with gap on BOTH sides: ${bothGapCount}`);
-  console.log(`Units with gap on NEITHER (rounding): ${20 - defGapCount - offGapCount - bothGapCount}`);
-  console.log(`Average defensive gap: ${(totalDefGap / selected.length).toFixed(2)}`);
-  console.log(`Average offensive gap: ${(totalOffGap / selected.length).toFixed(2)}`);
+  console.log(
+    `Units with gap on NEITHER (rounding): ${20 - defGapCount - offGapCount - bothGapCount}`,
+  );
+  console.log(
+    `Average defensive gap: ${(totalDefGap / selected.length).toFixed(2)}`,
+  );
+  console.log(
+    `Average offensive gap: ${(totalOffGap / selected.length).toFixed(2)}`,
+  );
 
   // Also check: does our recalc of defensiveBV match the report's?
   // If our recalc matches the report, the gap can't be from armor/structure/gyro miscomputation
   console.log(`\n=== DEFENSIVE RECALC VALIDATION ===`);
-  console.log(`(If defCalcGap is ~0 for all units, our armor/structure/gyro formulas match the validation script)`);
+  console.log(
+    `(If defCalcGap is ~0 for all units, our armor/structure/gyro formulas match the validation script)`,
+  );
 }
 
 main();

@@ -36,4 +36,6 @@ console.log(JSON.stringify(result, null, 2));
 // Actual offensive = result.totalOffensiveBV
 console.log(`\nMekStation offensive BV: ${result.totalOffensiveBV}`);
 console.log(`Expected MegaMek offensive BV: ${1402 - 796.2}`);
-console.log(`Difference in offensive: ${1402 - 796.2 - result.totalOffensiveBV}`);
+console.log(
+  `Difference in offensive: ${1402 - 796.2 - result.totalOffensiveBV}`,
+);

@@ -91,6 +91,7 @@ describe('campaign authority migration', () => {
     expect(events[0].sequence).toBe(0);
     expect(events[0].type).toBe('CampaignSnapshotPublished');
     expect(events[0].authorPlayerId).toBe('migration');
+    expect(events[0].scope).toBe('campaign');
 
     const rows = await journal.readStream({
       streamType: 'campaign',
@@ -212,6 +213,7 @@ describe('campaign authority migration', () => {
           ts: NOW,
           authorPlayerId: 'pid-host',
           type: 'CampaignDayAdvanced',
+          scope: 'campaign',
           payload: { newDay: 5 },
         } as never,
       ],

@@ -1,14 +1,23 @@
 import * as fs from 'fs';
-const idx = JSON.parse(fs.readFileSync('public/data/units/battlemechs/index.json', 'utf8'));
+const idx = JSON.parse(
+  fs.readFileSync('public/data/units/battlemechs/index.json', 'utf8'),
+);
 
 function showEngineSlots(unitId: string) {
   const entry = idx.units.find((u: any) => u.id === unitId);
-  if (!entry?.path) { console.log(`${unitId}: NOT FOUND`); return; }
-  const d = JSON.parse(fs.readFileSync('public/data/units/battlemechs/' + entry.path, 'utf8'));
+  if (!entry?.path) {
+    console.log(`${unitId}: NOT FOUND`);
+    return;
+  }
+  const d = JSON.parse(
+    fs.readFileSync('public/data/units/battlemechs/' + entry.path, 'utf8'),
+  );
   console.log(`\n${unitId} (${d.tonnage}t ${d.techBase} ${d.engine.type}):`);
-  for (const loc of ['LEFT_TORSO','RIGHT_TORSO','CENTER_TORSO']) {
+  for (const loc of ['LEFT_TORSO', 'RIGHT_TORSO', 'CENTER_TORSO']) {
     const slots = d.criticalSlots[loc] || [];
-    const engSlots = (slots as string[]).filter(s => s && s.toLowerCase().includes('engine'));
+    const engSlots = (slots as string[]).filter(
+      (s) => s && s.toLowerCase().includes('engine'),
+    );
     console.log(`  ${loc}: ${engSlots.length} engine slots`);
   }
 }

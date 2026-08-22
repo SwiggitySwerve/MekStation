@@ -34,6 +34,7 @@ import {
 } from '@/lib/events/replay/CampaignBaselineSchemaPack';
 import { ReplaySchemaRegistry } from '@/lib/events/replay/ReplaySchemaRegistry';
 
+import { freezeCampaignEvent } from '../sync/campaignEventScope';
 import {
   appendCampaignCommandBatch,
   computeCampaignStateDigest,
@@ -173,14 +174,17 @@ export async function importCampaignBaseline(
 ): Promise<BaselineImportResult> {
   const sourceSnapshotDigest = computeCampaignStateDigest(input.state);
   const baselineCommandId = `campaign-baseline:${input.campaignId}`;
-  const baselineEvent: ICampaignEvent = {
-    sequence: 0,
-    campaignId: input.campaignId,
-    ts: input.importedAt,
-    authorPlayerId: 'migration',
-    type: 'CampaignSnapshotPublished',
-    payload: { state: input.state, revision: 0 },
-  } as ICampaignEvent;
+  const baselineEvent: ICampaignEvent<'CampaignSnapshotPublished'> =
+    freezeCampaignEvent({
+      sequence: 0,
+      campaignId: input.campaignId,
+      ts: input.importedAt,
+      authorPlayerId: 'migration',
+      type: 'CampaignSnapshotPublished',
+      // Migration baseline is the shared imported ledger, not GM-only.
+      scope: 'campaign',
+      payload: { state: input.state, revision: 0 },
+    });
 
   const result = await appendCampaignCommandBatch(journal, {
     campaignId: input.campaignId,

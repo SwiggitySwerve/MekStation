@@ -39,7 +39,9 @@ for (const w of sortedWeapons) {
   if (heatExceeded) adjBV *= 0.5;
   weaponBV += adjBV;
   const exceeded = heatSum >= heatEfficiency;
-  console.log(`  ${w.id}: heat=${w.heat} heatSum=${heatSum} exceeded=${heatExceeded} adjBV=${adjBV} -> ${exceeded ? 'MARK EXCEEDED' : ''}`);
+  console.log(
+    `  ${w.id}: heat=${w.heat} heatSum=${heatSum} exceeded=${heatExceeded} adjBV=${adjBV} -> ${exceeded ? 'MARK EXCEEDED' : ''}`,
+  );
   if (exceeded) heatExceeded = true;
 }
 console.log('Manual weaponBV:', weaponBV);

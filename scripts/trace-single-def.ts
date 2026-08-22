@@ -1,21 +1,30 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import { calculateDefensiveBV } from '../src/utils/construction/battleValueCalculations';
+
 import { EngineType } from '../src/types/construction/EngineType';
+import { calculateDefensiveBV } from '../src/utils/construction/battleValueCalculations';
 
 const unitsDir = path.resolve(__dirname, '../public/data/units/battlemechs');
-const index = JSON.parse(fs.readFileSync(path.join(unitsDir, 'index.json'), 'utf8'));
+const index = JSON.parse(
+  fs.readFileSync(path.join(unitsDir, 'index.json'), 'utf8'),
+);
 
 const entry = index.units.find((u: any) => u.id === 'albatross-alb-5w');
-if (!entry) { console.log('Not found'); process.exit(1); }
-const unit = JSON.parse(fs.readFileSync(path.join(unitsDir, entry.path), 'utf8'));
+if (!entry) {
+  console.log('Not found');
+  process.exit(1);
+}
+const unit = JSON.parse(
+  fs.readFileSync(path.join(unitsDir, entry.path), 'utf8'),
+);
 
 // Compute inputs manually
 const armorAlloc = unit.armor.allocation;
 let totalArmor = 0;
 for (const [, val] of Object.entries(armorAlloc)) {
   if (typeof val === 'number') totalArmor += val;
-  else if (val && typeof val === 'object') totalArmor += ((val as any).front || 0) + ((val as any).rear || 0);
+  else if (val && typeof val === 'object')
+    totalArmor += ((val as any).front || 0) + ((val as any).rear || 0);
 }
 
 // Structure
@@ -39,7 +48,8 @@ const STRUCTURE_POINTS: Record<number, any> = {
   100: { head: 3, centerTorso: 31, sideTorso: 21, arm: 17, leg: 21 },
 };
 const sp = STRUCTURE_POINTS[unit.tonnage];
-const totalStructure = sp.head + sp.centerTorso + sp.sideTorso * 2 + sp.arm * 2 + sp.leg * 2;
+const totalStructure =
+  sp.head + sp.centerTorso + sp.sideTorso * 2 + sp.arm * 2 + sp.leg * 2;
 
 const walkMP = unit.movement.walk;
 const runMP = Math.ceil(walkMP * 1.5);

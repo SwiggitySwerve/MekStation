@@ -1,8 +1,12 @@
 #!/usr/bin/env npx tsx
 import * as fs from 'fs';
 
-const cache = JSON.parse(fs.readFileSync('scripts/data-migration/mul-bv-cache.json', 'utf-8'));
-const index = JSON.parse(fs.readFileSync('public/data/units/battlemechs/index.json', 'utf-8'));
+const cache = JSON.parse(
+  fs.readFileSync('scripts/data-migration/mul-bv-cache.json', 'utf-8'),
+);
+const index = JSON.parse(
+  fs.readFileSync('public/data/units/battlemechs/index.json', 'utf-8'),
+);
 
 // Check specific mechs
 const targets = [
@@ -17,17 +21,33 @@ const targets = [
 
 for (const name of targets) {
   const iu = index.units.find((u: any) => `${u.chassis} ${u.model}` === name);
-  if (!iu) { console.log(`${name}: not in index`); continue; }
+  if (!iu) {
+    console.log(`${name}: not in index`);
+    continue;
+  }
   const mulEntry = cache.entries?.[iu.id];
-  console.log(`${name}: indexBV=${iu.bv}, MUL_BV=${mulEntry?.mulBV ?? 'N/A'}, match=${mulEntry?.matchType ?? 'N/A'}`);
+  console.log(
+    `${name}: indexBV=${iu.bv}, MUL_BV=${mulEntry?.mulBV ?? 'N/A'}, match=${mulEntry?.matchType ?? 'N/A'}`,
+  );
 }
 
 // Stats: how many units have MUL BV, and how different are they from index BV?
-let exact = 0, within5 = 0, within10 = 0, over10 = 0, noMul = 0, mulDiffers = 0;
+let exact = 0,
+  within5 = 0,
+  within10 = 0,
+  over10 = 0,
+  noMul = 0,
+  mulDiffers = 0;
 let mulTotal = 0;
 for (const u of index.units) {
   const e = cache.entries?.[u.id];
-  if (!e || !e.mulBV || e.mulBV === 0 || e.matchType === 'not-found' || e.matchType === 'error') {
+  if (
+    !e ||
+    !e.mulBV ||
+    e.mulBV === 0 ||
+    e.matchType === 'not-found' ||
+    e.matchType === 'error'
+  ) {
     noMul++;
     continue;
   }
@@ -52,17 +72,31 @@ console.log(`  MUL differs from index: ${mulDiffers}`);
 
 // Show some where MUL differs most from index
 console.log('\n=== BIGGEST INDEX/MUL DIFFS ===');
-const diffs: Array<{ name: string; indexBV: number; mulBV: number; diff: number; pct: number }> = [];
+const diffs: Array<{
+  name: string;
+  indexBV: number;
+  mulBV: number;
+  diff: number;
+  pct: number;
+}> = [];
 for (const u of index.units) {
   const e = cache.entries?.[u.id];
   if (!e || !e.mulBV || e.mulBV === 0 || e.matchType !== 'exact') continue;
   const diff = u.bv - e.mulBV;
   const pct = u.bv > 0 ? (diff / u.bv) * 100 : 0;
   if (Math.abs(pct) > 5) {
-    diffs.push({ name: `${u.chassis} ${u.model}`, indexBV: u.bv, mulBV: e.mulBV, diff, pct });
+    diffs.push({
+      name: `${u.chassis} ${u.model}`,
+      indexBV: u.bv,
+      mulBV: e.mulBV,
+      diff,
+      pct,
+    });
   }
 }
 diffs.sort((a, b) => Math.abs(b.pct) - Math.abs(a.pct));
 for (const d of diffs.slice(0, 20)) {
-  console.log(`  ${d.name.padEnd(42)} index=${String(d.indexBV).padStart(5)} mul=${String(d.mulBV).padStart(5)} diff=${(d.diff >= 0 ? '+' : '') + d.diff}`);
+  console.log(
+    `  ${d.name.padEnd(42)} index=${String(d.indexBV).padStart(5)} mul=${String(d.mulBV).padStart(5)} diff=${(d.diff >= 0 ? '+' : '') + d.diff}`,
+  );
 }

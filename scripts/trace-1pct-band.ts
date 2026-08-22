@@ -5,27 +5,45 @@
 import * as fs from 'fs';
 import * as path from 'path';
 
-const report = JSON.parse(fs.readFileSync('validation-output/bv-validation-report.json', 'utf8'));
+const report = JSON.parse(
+  fs.readFileSync('validation-output/bv-validation-report.json', 'utf8'),
+);
 
-const valid = report.allResults.filter((x: any) => x.status !== 'error' && x.percentDiff !== null && x.breakdown);
-const near = valid.filter((x: any) => Math.abs(x.percentDiff) > 1 && Math.abs(x.percentDiff) <= 2);
+const valid = report.allResults.filter(
+  (x: any) => x.status !== 'error' && x.percentDiff !== null && x.breakdown,
+);
+const near = valid.filter(
+  (x: any) => Math.abs(x.percentDiff) > 1 && Math.abs(x.percentDiff) <= 2,
+);
 
 // For each unit in the 1-2% band, compute what the DEF and OFF would need to be
 console.log('=== 1-2% BAND: DEF vs OFF CONTRIBUTION ===');
-console.log('Unit                                    pctDiff  ref    calc   def    off    cockpit  defNeeded  offNeeded  defErr  offErr');
+console.log(
+  'Unit                                    pctDiff  ref    calc   def    off    cockpit  defNeeded  offNeeded  defErr  offErr',
+);
 
 // Estimate: totalBV = round((DEF + OFF) * cockpitMod)
 // So (DEF + OFF) = totalBV / cockpitMod
 // The error is: calc - ref. If DEF is too high, that contributes positively.
 // The fractional contribution: DEF/(DEF+OFF) of the total error is from DEF.
 
-let defErrSum = 0, offErrSum = 0, count = 0;
-let defOverSum = 0, offOverSum = 0, overCount = 0;
-let defUnderSum = 0, offUnderSum = 0, underCount = 0;
+let defErrSum = 0,
+  offErrSum = 0,
+  count = 0;
+let defOverSum = 0,
+  offOverSum = 0,
+  overCount = 0;
+let defUnderSum = 0,
+  offUnderSum = 0,
+  underCount = 0;
 
 // Clan vs IS breakdown
-let clanDefErr = 0, clanOffErr = 0, clanCount = 0;
-let isDefErr = 0, isOffErr = 0, isCount = 0;
+let clanDefErr = 0,
+  clanOffErr = 0,
+  clanCount = 0;
+let isDefErr = 0,
+  isOffErr = 0,
+  isCount = 0;
 
 for (const r of near.sort((a: any, b: any) => b.percentDiff - a.percentDiff)) {
   const b = r.breakdown;
@@ -63,28 +81,46 @@ for (const r of near.sort((a: any, b: any) => b.percentDiff - a.percentDiff)) {
 // Better approach: look at units where we can compare specific components
 // Focus on simple units (no halved weapons) to minimize complexity
 console.log('\n=== SIMPLE UNIT TRACES (1-2% band, no halved weapons) ===');
-const simple = near.filter((x: any) => (x.breakdown?.halvedWeaponCount || 0) === 0);
-console.log(`Simple units (no halved weapons): ${simple.length}/${near.length}`);
+const simple = near.filter(
+  (x: any) => (x.breakdown?.halvedWeaponCount || 0) === 0,
+);
+console.log(
+  `Simple units (no halved weapons): ${simple.length}/${near.length}`,
+);
 
 // For simple units, the OFF should be: weaponBV * speedFactor + ammoBV * speedFactor + physicalBV + weightBonus
 // Check if there's a consistent overcount in OFF vs DEF
-for (const r of simple.sort((a: any, b: any) => b.percentDiff - a.percentDiff).slice(0, 15)) {
+for (const r of simple
+  .sort((a: any, b: any) => b.percentDiff - a.percentDiff)
+  .slice(0, 15)) {
   const b = r.breakdown;
   const diff = r.calculatedBV - r.indexBV;
-  console.log(`  ${r.unitId.padEnd(40)} diff=${diff.toString().padStart(4)} (${r.percentDiff.toFixed(1).padStart(5)}%) def=${b.defensiveBV?.toFixed(0)} off=${b.offensiveBV?.toFixed(0)} wBV=${b.weaponBV?.toFixed(0)} aBV=${b.ammoBV} pBV=${b.physicalWeaponBV?.toFixed(0)} SF=${b.speedFactor} DF=${b.defensiveFactor} HE=${b.heatEfficiency}`);
+  console.log(
+    `  ${r.unitId.padEnd(40)} diff=${diff.toString().padStart(4)} (${r.percentDiff.toFixed(1).padStart(5)}%) def=${b.defensiveBV?.toFixed(0)} off=${b.offensiveBV?.toFixed(0)} wBV=${b.weaponBV?.toFixed(0)} aBV=${b.ammoBV} pBV=${b.physicalWeaponBV?.toFixed(0)} SF=${b.speedFactor} DF=${b.defensiveFactor} HE=${b.heatEfficiency}`,
+  );
 }
 console.log('  --- undercalculated ---');
-for (const r of simple.sort((a: any, b: any) => a.percentDiff - b.percentDiff).slice(0, 15)) {
+for (const r of simple
+  .sort((a: any, b: any) => a.percentDiff - b.percentDiff)
+  .slice(0, 15)) {
   const b = r.breakdown;
   const diff = r.calculatedBV - r.indexBV;
-  console.log(`  ${r.unitId.padEnd(40)} diff=${diff.toString().padStart(4)} (${r.percentDiff.toFixed(1).padStart(5)}%) def=${b.defensiveBV?.toFixed(0)} off=${b.offensiveBV?.toFixed(0)} wBV=${b.weaponBV?.toFixed(0)} aBV=${b.ammoBV} pBV=${b.physicalWeaponBV?.toFixed(0)} SF=${b.speedFactor} DF=${b.defensiveFactor} HE=${b.heatEfficiency}`);
+  console.log(
+    `  ${r.unitId.padEnd(40)} diff=${diff.toString().padStart(4)} (${r.percentDiff.toFixed(1).padStart(5)}%) def=${b.defensiveBV?.toFixed(0)} off=${b.offensiveBV?.toFixed(0)} wBV=${b.weaponBV?.toFixed(0)} aBV=${b.ammoBV} pBV=${b.physicalWeaponBV?.toFixed(0)} SF=${b.speedFactor} DF=${b.defensiveFactor} HE=${b.heatEfficiency}`,
+  );
 }
 
 // Also check: CLAN undercalculated pattern
 console.log('\n=== CLAN UNDERCALCULATED IN 1-2% BAND ===');
-const clanUnder = near.filter((x: any) => x.percentDiff < -1 && x.breakdown?.techBase === 'CLAN');
-for (const r of clanUnder.sort((a: any, b: any) => a.percentDiff - b.percentDiff)) {
+const clanUnder = near.filter(
+  (x: any) => x.percentDiff < -1 && x.breakdown?.techBase === 'CLAN',
+);
+for (const r of clanUnder.sort(
+  (a: any, b: any) => a.percentDiff - b.percentDiff,
+)) {
   const b = r.breakdown;
   const diff = r.calculatedBV - r.indexBV;
-  console.log(`  ${r.unitId.padEnd(40)} diff=${diff.toString().padStart(4)} (${r.percentDiff.toFixed(1).padStart(5)}%) def=${b.defensiveBV?.toFixed(0)} off=${b.offensiveBV?.toFixed(0)} wBV=${b.weaponBV?.toFixed(0)} aBV=${b.ammoBV} SF=${b.speedFactor} DF=${b.defensiveFactor} HE=${b.heatEfficiency} halved=${b.halvedWeaponCount}`);
+  console.log(
+    `  ${r.unitId.padEnd(40)} diff=${diff.toString().padStart(4)} (${r.percentDiff.toFixed(1).padStart(5)}%) def=${b.defensiveBV?.toFixed(0)} off=${b.offensiveBV?.toFixed(0)} wBV=${b.weaponBV?.toFixed(0)} aBV=${b.ammoBV} SF=${b.speedFactor} DF=${b.defensiveFactor} HE=${b.heatEfficiency} halved=${b.halvedWeaponCount}`,
+  );
 }

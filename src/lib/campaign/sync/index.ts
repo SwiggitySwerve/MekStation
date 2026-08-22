@@ -12,6 +12,12 @@
 export { applyCampaignEvent, replayCampaignEvents } from './applyCampaignEvent';
 export { CampaignEventLog, getCampaignEvents } from './campaignEventLog';
 export {
+  CAMPAIGN_EVENT_DEFAULT_SCOPE,
+  assertCampaignEventScopeTableCompleteness,
+  freezeCampaignEvent,
+  resolveCampaignEventScope,
+} from './campaignEventScope';
+export {
   CampaignEventSequenceCollisionError,
   type ICampaignEventStore,
 } from './ICampaignEventStore';

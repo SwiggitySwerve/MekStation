@@ -1,19 +1,38 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import { STRUCTURE_POINTS_TABLE } from '../src/types/construction/InternalStructureType';
-import { getArmorBVMultiplier, getStructureBVMultiplier, getGyroBVMultiplier, getEngineBVMultiplier } from '../src/types/validation/BattleValue';
-import { EngineType } from '../src/types/construction/EngineType';
-import { calculateDefensiveBV, calculateOffensiveBVWithHeatTracking, calculateOffensiveSpeedFactor, getCockpitModifier } from '../src/utils/construction/battleValueCalculations';
-import { resolveEquipmentBV, normalizeEquipmentId } from '../src/utils/construction/equipmentBVResolver';
 
-const data = JSON.parse(fs.readFileSync('validation-output/bv-validation-report.json', 'utf8'));
-const indexData = JSON.parse(fs.readFileSync('public/data/units/battlemechs/index.json', 'utf8'));
+import { EngineType } from '../src/types/construction/EngineType';
+import { STRUCTURE_POINTS_TABLE } from '../src/types/construction/InternalStructureType';
+import {
+  getArmorBVMultiplier,
+  getStructureBVMultiplier,
+  getGyroBVMultiplier,
+  getEngineBVMultiplier,
+} from '../src/types/validation/BattleValue';
+import {
+  calculateDefensiveBV,
+  calculateOffensiveBVWithHeatTracking,
+  calculateOffensiveSpeedFactor,
+  getCockpitModifier,
+} from '../src/utils/construction/battleValueCalculations';
+import {
+  resolveEquipmentBV,
+  normalizeEquipmentId,
+} from '../src/utils/construction/equipmentBVResolver';
+
+const data = JSON.parse(
+  fs.readFileSync('validation-output/bv-validation-report.json', 'utf8'),
+);
+const indexData = JSON.parse(
+  fs.readFileSync('public/data/units/battlemechs/index.json', 'utf8'),
+);
 
 function calcTotalArmor(a: any): number {
   let t = 0;
   for (const v of Object.values(a)) {
     if (typeof v === 'number') t += v;
-    else if (v && typeof v === 'object') t += ((v as any).front || 0) + ((v as any).rear || 0);
+    else if (v && typeof v === 'object')
+      t += ((v as any).front || 0) + ((v as any).rear || 0);
   }
   return t;
 }
@@ -52,7 +71,16 @@ console.log('GyroBV = 35 * 0.5 =', gyroBV);
 const explosivePenalty = 30;
 
 const baseDef = armorBV + structBV + gyroBV - explosivePenalty;
-console.log('BaseDef =', armorBV, '+', structBV, '+', gyroBV, '- 30 =', baseDef);
+console.log(
+  'BaseDef =',
+  armorBV,
+  '+',
+  structBV,
+  '+',
+  gyroBV,
+  '- 30 =',
+  baseDef,
+);
 
 // Defensive factor: walk=7, run=ceil(7*1.5)=11, jump=0
 // RunTMM: 11 -> TMM 4
@@ -91,7 +119,13 @@ console.log('Total weapon BV (before heat):', totalWeaponBV);
 // heatEfficiency = 6 + 20 - 2 = 24
 const heatEff = 6 + 20 - 2;
 console.log('Heat efficiency:', heatEff);
-console.log('Total weapon heat:', totalWeaponHeat, '<=', heatEff, '-> all weapons full BV');
+console.log(
+  'Total weapon heat:',
+  totalWeaponHeat,
+  '<=',
+  heatEff,
+  '-> all weapons full BV',
+);
 
 // WeaponBV (with modifiers): all front-facing, no rear, no TC, no AES, no Artemis
 const weaponBV = totalWeaponBV;
@@ -112,7 +146,14 @@ console.log('SpeedFactor:', sf, '(runMP=11, jumpMP=0)');
 // sf = pow(1 + (11-5)/10, 1.2) = pow(1.6, 1.2) = 1.7577 (approx)
 
 const baseOff = weaponBV + 8 + weightBonus;
-console.log('BaseOff = weaponBV + ammoBV + weightBonus =', weaponBV, '+ 8 +', weightBonus, '=', baseOff);
+console.log(
+  'BaseOff = weaponBV + ammoBV + weightBonus =',
+  weaponBV,
+  '+ 8 +',
+  weightBonus,
+  '=',
+  baseOff,
+);
 const totalOff = baseOff * sf;
 console.log('TotalOff =', baseOff, '*', sf, '=', totalOff);
 console.log('(Validation report says:', 490.3983, ')');
@@ -267,7 +308,10 @@ console.log('\n=== WHAT ARMOR MULTIPLIER GIVES REFERENCE BV? ===');
 // 610.60 / 1.4 = 436.14
 // 436.14 - 43.5 - 17.5 + 30 = 405.14
 // 405.14 / (119 * 2.5) = 1.361
-console.log('Working backward: armor multiplier =', ((1101 - 490.40) / 1.4 - 43.5 - 17.5 + 30) / (119 * 2.5));
+console.log(
+  'Working backward: armor multiplier =',
+  ((1101 - 490.4) / 1.4 - 43.5 - 17.5 + 30) / (119 * 2.5),
+);
 
 // Hmm, 1.36 doesn't match any known multiplier. Let me try with the exact validation values.
 const valResult = data.allResults.find((d: any) => d.unitId === 'blade-bld-xr');
@@ -278,17 +322,34 @@ if (valResult) {
   console.log('  total:', valResult.calculatedBV);
 
   // If we need total = 1101, and offBV stays at 490.40, defBV should be:
-  const neededDef = 1101 - 490.40;
+  const neededDef = 1101 - 490.4;
   console.log('  Needed defBV for ref 1101:', neededDef);
   console.log('  Our defBV:', valResult.breakdown.defensiveBV);
   console.log('  Excess defBV:', valResult.breakdown.defensiveBV - neededDef);
-  console.log('  Ratio:', (neededDef / valResult.breakdown.defensiveBV).toFixed(4));
+  console.log(
+    '  Ratio:',
+    (neededDef / valResult.breakdown.defensiveBV).toFixed(4),
+  );
 
   // If we need total = 1101 and apply 0.95 to both sides:
-  const neededDef2 = 1101 * valResult.breakdown.defensiveBV / valResult.calculatedBV;
-  const neededOff2 = 1101 * valResult.breakdown.offensiveBV / valResult.calculatedBV;
-  console.log('  Proportional defBV:', neededDef2.toFixed(2), '(ours:', valResult.breakdown.defensiveBV, ')');
-  console.log('  Proportional offBV:', neededOff2.toFixed(2), '(ours:', valResult.breakdown.offensiveBV, ')');
+  const neededDef2 =
+    (1101 * valResult.breakdown.defensiveBV) / valResult.calculatedBV;
+  const neededOff2 =
+    (1101 * valResult.breakdown.offensiveBV) / valResult.calculatedBV;
+  console.log(
+    '  Proportional defBV:',
+    neededDef2.toFixed(2),
+    '(ours:',
+    valResult.breakdown.defensiveBV,
+    ')',
+  );
+  console.log(
+    '  Proportional offBV:',
+    neededOff2.toFixed(2),
+    '(ours:',
+    valResult.breakdown.offensiveBV,
+    ')',
+  );
 }
 
 // Let me also check: does MegaMek round the defensive BV before adding to offensive?
@@ -381,9 +442,14 @@ const testIds = [
 
 for (const uid of testIds) {
   const iu = indexData.units.find((u: any) => u.id === uid);
-  if (!iu) { console.log(uid + ': NOT FOUND'); continue; }
+  if (!iu) {
+    console.log(uid + ': NOT FOUND');
+    continue;
+  }
   const unitPath = path.resolve('public/data/units/battlemechs', iu.path);
   const unit = JSON.parse(fs.readFileSync(unitPath, 'utf8'));
   const headCrits = unit.criticalSlots?.HEAD || [];
-  console.log(`${uid}: cockpit="${unit.cockpit}" head=[${headCrits.join(', ')}]`);
+  console.log(
+    `${uid}: cockpit="${unit.cockpit}" head=[${headCrits.join(', ')}]`,
+  );
 }

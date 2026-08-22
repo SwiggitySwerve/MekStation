@@ -1,8 +1,13 @@
 import * as fs from 'fs';
 
-const report = JSON.parse(fs.readFileSync('validation-output/bv-validation-report.json', 'utf8'));
+const report = JSON.parse(
+  fs.readFileSync('validation-output/bv-validation-report.json', 'utf8'),
+);
 const r = report.allResults.find((x: any) => x.unitId === 'albatross-alb-5w');
-if (!r) { console.log('Not found'); process.exit(1); }
+if (!r) {
+  console.log('Not found');
+  process.exit(1);
+}
 
 console.log('Full breakdown:');
 console.log(JSON.stringify(r.breakdown, null, 2));
@@ -35,6 +40,8 @@ console.log(`  defEquipBV = ${dEq}`);
 // (997.5 + dEq - ePen) = 1305.3625 / 1.4 = 932.40178...
 // dEq - ePen = 932.40 - 997.5 = -65.1
 console.log(`\n  (armorBV + structBV + gyroBV + dEq - ePen) * 1.4 = defBV`);
-console.log(`  (997.5 + ${dEq} - ${ePen}) * 1.4 = ${(997.5 + dEq - ePen) * 1.4}`);
+console.log(
+  `  (997.5 + ${dEq} - ${ePen}) * 1.4 = ${(997.5 + dEq - ePen) * 1.4}`,
+);
 console.log(`  Expected: ${defBV}`);
 console.log(`  Delta: dEq(${dEq}) - ePen(${ePen}) = ${dEq - ePen}`);

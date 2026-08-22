@@ -1,8 +1,14 @@
 #!/usr/bin/env npx tsx
-import { resolveEquipmentBV, normalizeEquipmentId } from '../src/utils/construction/equipmentBVResolver';
+import {
+  resolveEquipmentBV,
+  normalizeEquipmentId,
+} from '../src/utils/construction/equipmentBVResolver';
 console.warn = () => {};
 
-function resolveWeaponForUnit(id: string, techBase: string): { battleValue: number; heat: number; resolved: boolean } {
+function resolveWeaponForUnit(
+  id: string,
+  techBase: string,
+): { battleValue: number; heat: number; resolved: boolean } {
   const lo = id.toLowerCase().replace(/^\d+-/, '');
   const isResult = resolveEquipmentBV(id);
   if (techBase === 'CLAN' || techBase === 'MIXED') {
@@ -14,12 +20,17 @@ function resolveWeaponForUnit(id: string, techBase: string): { battleValue: numb
     if (!lo.startsWith('clan-') && lo !== normalizedIS) {
       candidates.push('clan-' + lo);
     }
-    console.log(`  [${id}] normalizedIS=${normalizedIS}, candidates=${JSON.stringify(candidates)}`);
+    console.log(
+      `  [${id}] normalizedIS=${normalizedIS}, candidates=${JSON.stringify(candidates)}`,
+    );
     for (const cid of candidates) {
       const cr = resolveEquipmentBV(cid);
-      console.log(`    trying ${cid}: BV=${cr.battleValue} resolved=${cr.resolved}`);
+      console.log(
+        `    trying ${cid}: BV=${cr.battleValue} resolved=${cr.resolved}`,
+      );
       if (cr.resolved && cr.battleValue > 0) {
-        if (!isResult.resolved || cr.battleValue > isResult.battleValue) return cr;
+        if (!isResult.resolved || cr.battleValue > isResult.battleValue)
+          return cr;
         if (isResult.battleValue === cr.battleValue) return cr;
       }
     }

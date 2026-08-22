@@ -1,7 +1,9 @@
 #!/usr/bin/env npx tsx
 import * as fs from 'fs';
 import * as path from 'path';
-const index = JSON.parse(fs.readFileSync('public/data/units/battlemechs/index.json', 'utf-8'));
+const index = JSON.parse(
+  fs.readFileSync('public/data/units/battlemechs/index.json', 'utf-8'),
+);
 const matches: string[] = [];
 for (const u of index.units) {
   const fp = path.resolve('public/data/units/battlemechs', u.path);
@@ -11,7 +13,9 @@ for (const u of index.units) {
     return id.includes('pulse') && id.includes('er-');
   });
   if (erPulse.length > 0) {
-    matches.push(`${u.chassis} ${u.model} (${ud.techBase}) equip: ${erPulse.map((e: any) => e.id).join(',')}`);
+    matches.push(
+      `${u.chassis} ${u.model} (${ud.techBase}) equip: ${erPulse.map((e: any) => e.id).join(',')}`,
+    );
   }
 }
 console.log(`Units with ER Pulse Lasers: ${matches.length}`);

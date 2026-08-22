@@ -1,8 +1,3 @@
-import type {
-  ICampaignEvent,
-  ICampaignIntent,
-  ICampaignReconcileBattleIntent,
-} from '@/types/campaign/CampaignSync';
 import type { GmDecision, IGuestProposal } from '@/types/campaign/CoopCampaign';
 import type {
   ICampaignClientMessage,
@@ -10,6 +5,12 @@ import type {
   IServerMessage,
 } from '@/types/multiplayer/Protocol';
 
+import {
+  isCampaignWireEvent,
+  type ICampaignEvent,
+  type ICampaignIntent,
+  type ICampaignReconcileBattleIntent,
+} from '@/types/campaign/CampaignSync';
 import {
   ClientMessageSchema,
   nowIso,
@@ -296,7 +297,7 @@ function updateLastSeq(
 ): void {
   if (
     (message.kind === 'CampaignSnapshot' || message.kind === 'CampaignEvent') &&
-    isCampaignSyncEvent(message.event)
+    isCampaignWireEvent(message.event)
   ) {
     setSequence(message.event.sequence);
   }
@@ -307,7 +308,7 @@ export function campaignEventFromMessage(
 ): ICampaignEvent | null {
   if (
     (message.kind === 'CampaignSnapshot' || message.kind === 'CampaignEvent') &&
-    isCampaignSyncEvent(message.event)
+    isCampaignWireEvent(message.event)
   ) {
     return message.event;
   }
@@ -324,20 +325,4 @@ export function campaignSnapshotFromMessage(
 export function _resetCampaignSyncTransportsForTest(): void {
   activeTransports.forEach((transport) => transport.close());
   activeTransports.clear();
-}
-
-function isCampaignSyncEvent(value: unknown): value is ICampaignEvent {
-  if (typeof value !== 'object' || value === null) return false;
-  const event = value as Partial<ICampaignEvent>;
-  return (
-    typeof event.type === 'string' &&
-    typeof event.sequence === 'number' &&
-    Number.isInteger(event.sequence) &&
-    event.sequence >= -1 &&
-    typeof event.campaignId === 'string' &&
-    typeof event.ts === 'string' &&
-    typeof event.authorPlayerId === 'string' &&
-    typeof event.payload === 'object' &&
-    event.payload !== null
-  );
 }

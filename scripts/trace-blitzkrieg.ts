@@ -3,15 +3,24 @@
 import * as fs from 'fs';
 import * as path from 'path';
 
-const idx = JSON.parse(fs.readFileSync('public/data/units/battlemechs/index.json', 'utf-8'));
-const report = JSON.parse(fs.readFileSync('validation-output/bv-validation-report.json', 'utf-8'));
+const idx = JSON.parse(
+  fs.readFileSync('public/data/units/battlemechs/index.json', 'utf-8'),
+);
+const report = JSON.parse(
+  fs.readFileSync('validation-output/bv-validation-report.json', 'utf-8'),
+);
 
 const target = 'Blitzkrieg BTZ-4F';
 const iu = idx.units.find((u: any) => `${u.chassis} ${u.model}` === target);
-if (!iu) { console.log('NOT FOUND'); process.exit(1); }
+if (!iu) {
+  console.log('NOT FOUND');
+  process.exit(1);
+}
 const fp = path.resolve('public/data/units/battlemechs', iu.path);
 const ud = JSON.parse(fs.readFileSync(fp, 'utf-8'));
-const rr = report.allResults.find((r: any) => `${r.chassis} ${r.model}` === target);
+const rr = report.allResults.find(
+  (r: any) => `${r.chassis} ${r.model}` === target,
+);
 
 console.log(`=== ${target} ===`);
 console.log(`Tonnage: ${ud.tonnage}, TechBase: ${ud.techBase}`);
@@ -69,7 +78,9 @@ const expectedBV = rr.indexBV;
 const cockpitMod = 1.0; // standard
 const impliedTotal = rr.breakdown.defensiveBV + rr.breakdown.offensiveBV;
 console.log(`\nTotal before cockpit: ${impliedTotal.toFixed(2)}`);
-console.log(`Total after cockpit (×${cockpitMod}): ${Math.round(impliedTotal * cockpitMod)}`);
+console.log(
+  `Total after cockpit (×${cockpitMod}): ${Math.round(impliedTotal * cockpitMod)}`,
+);
 console.log(`Expected: ${expectedBV}`);
 console.log(`Gap: ${expectedBV - Math.round(impliedTotal * cockpitMod)}`);
 
@@ -78,8 +89,10 @@ console.log(`\nArmor allocation:`);
 const aa = ud.armor.allocation;
 let totalArmor = 0;
 for (const [loc, val] of Object.entries(aa)) {
-  if (typeof val === 'number') { totalArmor += val; console.log(`  ${loc}: ${val}`); }
-  else if (typeof val === 'object' && val !== null) {
+  if (typeof val === 'number') {
+    totalArmor += val;
+    console.log(`  ${loc}: ${val}`);
+  } else if (typeof val === 'object' && val !== null) {
     const obj = val as any;
     const sum = (obj.front || 0) + (obj.rear || 0);
     totalArmor += sum;

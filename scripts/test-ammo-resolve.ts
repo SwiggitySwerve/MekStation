@@ -1,5 +1,8 @@
 #!/usr/bin/env npx tsx
-import { resolveAmmoBV, normalizeEquipmentId } from '../src/utils/construction/equipmentBVResolver';
+import {
+  resolveAmmoBV,
+  normalizeEquipmentId,
+} from '../src/utils/construction/equipmentBVResolver';
 
 // Test ammo resolution for the failing names
 const tests = [
@@ -36,6 +39,8 @@ for (const name of tests) {
   const norm = normalizeEquipmentId(name);
   console.log(`"${name}"`);
   console.log(`  normalizeId: "${norm}"`);
-  console.log(`  resolveAmmoBV: bv=${result.battleValue}, weaponType="${result.weaponType}", resolved=${result.resolved}`);
+  console.log(
+    `  resolveAmmoBV: bv=${result.battleValue}, weaponType="${result.weaponType}", resolved=${result.resolved}`,
+  );
   console.log();
 }

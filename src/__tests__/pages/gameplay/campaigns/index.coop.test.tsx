@@ -75,6 +75,7 @@ const mockConnectCampaignSyncTransport = jest.fn((_options: unknown) => ({
           campaignId: 'campaign-host-snapshot',
           ts: '2026-06-21T00:00:00.000Z',
           authorPlayerId: 'pid_host_owner',
+          scope: 'campaign',
           payload: {
             state: {
               campaignId: 'campaign-host-snapshot',

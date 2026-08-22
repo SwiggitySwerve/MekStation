@@ -21,12 +21,12 @@
  *   node scripts/generate-zod-schemas.mjs --check   # diff-only, no writes
  */
 
+import { jsonSchemaToZod } from 'json-schema-to-zod';
+import { spawnSync } from 'node:child_process';
 import { readFileSync, writeFileSync, mkdirSync, rmSync } from 'node:fs';
+import { tmpdir } from 'node:os';
 import { join, resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { tmpdir } from 'node:os';
-import { spawnSync } from 'node:child_process';
-import { jsonSchemaToZod } from 'json-schema-to-zod';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -41,14 +41,36 @@ const OUTPUT_DIR = join(REPO_ROOT, 'src', 'types', 'contracts', 'generated');
 const SHAPES = [
   { file: 'weapon-schema.json', stem: 'weapon', exportName: 'WeaponContract' },
   { file: 'unit-schema.json', stem: 'unit', exportName: 'UnitContract' },
-  { file: 'ammunition-schema.json', stem: 'ammunition', exportName: 'AmmunitionContract' },
-  { file: 'electronics-schema.json', stem: 'electronics', exportName: 'ElectronicsContract' },
-  { file: 'misc-equipment-schema.json', stem: 'misc-equipment', exportName: 'MiscEquipmentContract' },
-  { file: 'physical-weapon-schema.json', stem: 'physical-weapon', exportName: 'PhysicalWeaponContract' },
-  { file: 'name-mappings-schema.json', stem: 'name-mappings', exportName: 'NameMappingsContract' },
+  {
+    file: 'ammunition-schema.json',
+    stem: 'ammunition',
+    exportName: 'AmmunitionContract',
+  },
+  {
+    file: 'electronics-schema.json',
+    stem: 'electronics',
+    exportName: 'ElectronicsContract',
+  },
+  {
+    file: 'misc-equipment-schema.json',
+    stem: 'misc-equipment',
+    exportName: 'MiscEquipmentContract',
+  },
+  {
+    file: 'physical-weapon-schema.json',
+    stem: 'physical-weapon',
+    exportName: 'PhysicalWeaponContract',
+  },
+  {
+    file: 'name-mappings-schema.json',
+    stem: 'name-mappings',
+    exportName: 'NameMappingsContract',
+  },
 ];
 
-const HEADER = (sourceRel) => `// @generated — do not edit; run \`npm run schema:gen\` to regenerate.
+const HEADER = (
+  sourceRel,
+) => `// @generated — do not edit; run \`npm run schema:gen\` to regenerate.
 // Source: ${sourceRel}
 // Regeneration: \`node scripts/generate-zod-schemas.mjs\` (see \`scripts/generate-zod-schemas.mjs\`).
 //
@@ -123,7 +145,9 @@ function checkMode() {
       try {
         expected = readFileSync(expectedPath, 'utf-8');
       } catch {
-        console.error(`MISSING committed file: src/types/contracts/generated/${fileName}`);
+        console.error(
+          `MISSING committed file: src/types/contracts/generated/${fileName}`,
+        );
         drift++;
         continue;
       }
@@ -161,7 +185,8 @@ function checkMode() {
 function writeMode() {
   const written = writeAll(OUTPUT_DIR);
   console.log(`schema-bridge: wrote ${written.length} file(s):`);
-  for (const p of written) console.log(`  ${p.replace(REPO_ROOT, '').replace(/\\/g, '/')}`);
+  for (const p of written)
+    console.log(`  ${p.replace(REPO_ROOT, '').replace(/\\/g, '/')}`);
 }
 
 const args = process.argv.slice(2);

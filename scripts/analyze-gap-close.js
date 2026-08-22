@@ -10,7 +10,9 @@ for (const u of all) {
 console.log('Status distribution:', JSON.stringify(statuses, null, 2));
 
 // Find units that are NOT within 1%
-const outside = all.filter(x => x.status !== 'exact' && x.status !== 'within1');
+const outside = all.filter(
+  (x) => x.status !== 'exact' && x.status !== 'within1',
+);
 console.log('\nUnits outside 1%: ' + outside.length);
 
 // Sort by absolute percentage difference
@@ -22,21 +24,29 @@ outside.sort((a, b) => {
 
 // Show the closest 60 (these are easiest to flip)
 console.log('\n=== 60 Closest to within-1% threshold (easiest wins) ===');
-const overCount = outside.filter(x => x.difference > 0).length;
-const underCount = outside.filter(x => x.difference < 0).length;
-console.log('Overcalculated: ' + overCount + ', Undercalculated: ' + underCount);
+const overCount = outside.filter((x) => x.difference > 0).length;
+const underCount = outside.filter((x) => x.difference < 0).length;
+console.log(
+  'Overcalculated: ' + overCount + ', Undercalculated: ' + underCount,
+);
 
-const name = u => (u.chassis + ' ' + u.model).trim();
+const name = (u) => (u.chassis + ' ' + u.model).trim();
 for (const u of outside.slice(0, 60)) {
   const diff = u.difference;
   const pct = u.percentDiff.toFixed(2);
   const dir = diff > 0 ? 'OVER ' : 'UNDER';
   console.log(
     name(u).padEnd(44) +
-    ' calc=' + String(u.calculatedBV).padStart(5) +
-    ' exp=' + String(u.indexBV).padStart(5) +
-    ' diff=' + String(diff).padStart(5) +
-    ' (' + pct.padStart(6) + '%) ' + dir
+      ' calc=' +
+      String(u.calculatedBV).padStart(5) +
+      ' exp=' +
+      String(u.indexBV).padStart(5) +
+      ' diff=' +
+      String(diff).padStart(5) +
+      ' (' +
+      pct.padStart(6) +
+      '%) ' +
+      dir,
   );
 }
 
@@ -52,7 +62,16 @@ for (const u of outside) {
 }
 const rcSorted = Object.entries(rcDist).sort((a, b) => b[1].count - a[1].count);
 for (const [rc, counts] of rcSorted) {
-  console.log('  ' + rc.padEnd(30) + ' total=' + counts.count + ' over=' + counts.over + ' under=' + counts.under);
+  console.log(
+    '  ' +
+      rc.padEnd(30) +
+      ' total=' +
+      counts.count +
+      ' over=' +
+      counts.over +
+      ' under=' +
+      counts.under,
+  );
 }
 
 // Show issues for the closest 20
@@ -66,6 +85,13 @@ for (const u of outside.slice(0, 20)) {
   }
   if (u.breakdown) {
     const b = u.breakdown;
-    console.log('  defensive=' + b.defensiveBV + ' offensive=' + b.offensiveBV + ' cockpit=' + b.cockpitMod);
+    console.log(
+      '  defensive=' +
+        b.defensiveBV +
+        ' offensive=' +
+        b.offensiveBV +
+        ' cockpit=' +
+        b.cockpitMod,
+    );
   }
 }

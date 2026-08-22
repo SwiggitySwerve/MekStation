@@ -2,7 +2,7 @@
 // For each unit outside 1%, decompose: gap = f(armorBV, structBV, gyroBV, defEquip, defFactor, weaponBV, ammoBV, weight, speedFactor, ...)
 const report = require('../validation-output/bv-validation-report.json');
 
-const all = report.allResults.filter(x => x.breakdown);
+const all = report.allResults.filter((x) => x.breakdown);
 
 // Build feature matrix for all units (not just outliers)
 const features = [];
@@ -48,16 +48,38 @@ console.log(`Total units with breakdowns: ${features.length}`);
 
 // --- Correlation analysis ---
 // For each numeric feature, compute Pearson correlation with the gap
-const numericKeys = ['armorBV', 'structBV', 'gyroBV', 'defEquip', 'explosive', 'defFactor',
-  'defBV', 'weaponBV', 'rawWeaponBV', 'halvedBV', 'ammoBV', 'weightBonus',
-  'physBV', 'speedFactor', 'offBV', 'heatEff', 'heatDiss', 'moveHeat', 'cockpitMod',
-  'amsAmmo', 'armoredComp', 'harjel'];
+const numericKeys = [
+  'armorBV',
+  'structBV',
+  'gyroBV',
+  'defEquip',
+  'explosive',
+  'defFactor',
+  'defBV',
+  'weaponBV',
+  'rawWeaponBV',
+  'halvedBV',
+  'ammoBV',
+  'weightBonus',
+  'physBV',
+  'speedFactor',
+  'offBV',
+  'heatEff',
+  'heatDiss',
+  'moveHeat',
+  'cockpitMod',
+  'amsAmmo',
+  'armoredComp',
+  'harjel',
+];
 
 function pearson(xs, ys) {
   const n = xs.length;
   const mx = xs.reduce((s, x) => s + x, 0) / n;
   const my = ys.reduce((s, y) => s + y, 0) / n;
-  let num = 0, dx2 = 0, dy2 = 0;
+  let num = 0,
+    dx2 = 0,
+    dy2 = 0;
   for (let i = 0; i < n; i++) {
     const dx = xs[i] - mx;
     const dy = ys[i] - my;
@@ -69,13 +91,15 @@ function pearson(xs, ys) {
   return num / Math.sqrt(dx2 * dy2);
 }
 
-const gaps = features.map(f => f.gap);
+const gaps = features.map((f) => f.gap);
 
 console.log('\n=== Correlation of each component with BV gap (all units) ===');
-console.log('(Positive = feature increases when gap increases, i.e., overcalc when feature is high)');
+console.log(
+  '(Positive = feature increases when gap increases, i.e., overcalc when feature is high)',
+);
 const corrs = [];
 for (const key of numericKeys) {
-  const vals = features.map(f => f[key]);
+  const vals = features.map((f) => f[key]);
   const r = pearson(vals, gaps);
   corrs.push({ key, r });
 }
@@ -83,16 +107,22 @@ corrs.sort((a, b) => Math.abs(b.r) - Math.abs(a.r));
 for (const c of corrs) {
   const bar = '█'.repeat(Math.round(Math.abs(c.r) * 50));
   const sign = c.r > 0 ? '+' : '-';
-  console.log(`  ${c.key.padEnd(20)} r=${c.r.toFixed(4).padStart(8)} ${sign}${bar}`);
+  console.log(
+    `  ${c.key.padEnd(20)} r=${c.r.toFixed(4).padStart(8)} ${sign}${bar}`,
+  );
 }
 
 // --- Focus on outliers only (outside 1%) ---
-const outliers = features.filter(f => f.status !== 'exact' && f.status !== 'within1');
-const outGaps = outliers.map(f => f.gap);
-console.log(`\n=== Correlation with BV gap (${outliers.length} outlier units only) ===`);
+const outliers = features.filter(
+  (f) => f.status !== 'exact' && f.status !== 'within1',
+);
+const outGaps = outliers.map((f) => f.gap);
+console.log(
+  `\n=== Correlation with BV gap (${outliers.length} outlier units only) ===`,
+);
 const outcorrs = [];
 for (const key of numericKeys) {
-  const vals = outliers.map(f => f[key]);
+  const vals = outliers.map((f) => f[key]);
   const r = pearson(vals, outGaps);
   outcorrs.push({ key, r });
 }
@@ -100,30 +130,48 @@ outcorrs.sort((a, b) => Math.abs(b.r) - Math.abs(a.r));
 for (const c of outcorrs) {
   const bar = '█'.repeat(Math.round(Math.abs(c.r) * 50));
   const sign = c.r > 0 ? '+' : '-';
-  console.log(`  ${c.key.padEnd(20)} r=${c.r.toFixed(4).padStart(8)} ${sign}${bar}`);
+  console.log(
+    `  ${c.key.padEnd(20)} r=${c.r.toFixed(4).padStart(8)} ${sign}${bar}`,
+  );
 }
 
 // --- Ratio analysis: gap / component for outliers ---
 console.log('\n=== Gap as % of each component (median across outliers) ===');
-for (const key of ['defBV', 'offBV', 'weaponBV', 'rawWeaponBV', 'ammoBV', 'weightBonus', 'structBV', 'armorBV', 'gyroBV']) {
-  const ratios = outliers.filter(f => f[key] > 10).map(f => f.gap / f[key] * 100);
+for (const key of [
+  'defBV',
+  'offBV',
+  'weaponBV',
+  'rawWeaponBV',
+  'ammoBV',
+  'weightBonus',
+  'structBV',
+  'armorBV',
+  'gyroBV',
+]) {
+  const ratios = outliers
+    .filter((f) => f[key] > 10)
+    .map((f) => (f.gap / f[key]) * 100);
   ratios.sort((a, b) => a - b);
   const median = ratios[Math.floor(ratios.length / 2)];
   const mean = ratios.reduce((s, v) => s + v, 0) / ratios.length;
-  const std = Math.sqrt(ratios.reduce((s, v) => s + (v - mean) ** 2, 0) / ratios.length);
-  console.log(`  gap/${key.padEnd(15)} median=${median?.toFixed(3)}%  mean=${mean?.toFixed(3)}%  std=${std?.toFixed(3)}%  n=${ratios.length}`);
+  const std = Math.sqrt(
+    ratios.reduce((s, v) => s + (v - mean) ** 2, 0) / ratios.length,
+  );
+  console.log(
+    `  gap/${key.padEnd(15)} median=${median?.toFixed(3)}%  mean=${mean?.toFixed(3)}%  std=${std?.toFixed(3)}%  n=${ratios.length}`,
+  );
 }
 
 // --- Multivariate: simple OLS regression of gap on [defBV, offBV] ---
 // gap = a * defBV + b * offBV + c
 console.log('\n=== OLS Regression: gap = a*defBV + b*offBV + c ===');
 // Using normal equations: (X'X)^-1 X'y
-const X = outliers.map(f => [f.defBV, f.offBV, 1]);
+const X = outliers.map((f) => [f.defBV, f.offBV, 1]);
 const y = outGaps;
 // X'X
 const n = X.length;
 const k = 3;
-const XtX = Array.from({length: k}, () => Array(k).fill(0));
+const XtX = Array.from({ length: k }, () => Array(k).fill(0));
 const Xty = Array(k).fill(0);
 for (let i = 0; i < n; i++) {
   for (let j = 0; j < k; j++) {
@@ -135,12 +183,14 @@ for (let i = 0; i < n; i++) {
 }
 // Solve 3x3 system using Cramer's rule
 function det3(m) {
-  return m[0][0]*(m[1][1]*m[2][2]-m[1][2]*m[2][1])
-       - m[0][1]*(m[1][0]*m[2][2]-m[1][2]*m[2][0])
-       + m[0][2]*(m[1][0]*m[2][1]-m[1][1]*m[2][0]);
+  return (
+    m[0][0] * (m[1][1] * m[2][2] - m[1][2] * m[2][1]) -
+    m[0][1] * (m[1][0] * m[2][2] - m[1][2] * m[2][0]) +
+    m[0][2] * (m[1][0] * m[2][1] - m[1][1] * m[2][0])
+  );
 }
 function replace(m, col, v) {
-  return m.map((row, i) => row.map((val, j) => j === col ? v[i] : val));
+  return m.map((row, i) => row.map((val, j) => (j === col ? v[i] : val)));
 }
 const D = det3(XtX);
 const a = det3(replace(XtX, 0, Xty)) / D;
@@ -151,29 +201,54 @@ console.log(`  b (offBV coeff) = ${b.toFixed(6)}`);
 console.log(`  c (intercept)   = ${c.toFixed(6)}`);
 // R-squared
 const yMean = y.reduce((s, v) => s + v, 0) / n;
-let ssTot = 0, ssRes = 0;
+let ssTot = 0,
+  ssRes = 0;
 for (let i = 0; i < n; i++) {
   const pred = a * X[i][0] + b * X[i][1] + c;
   ssRes += (y[i] - pred) ** 2;
   ssTot += (y[i] - yMean) ** 2;
 }
 console.log(`  R² = ${(1 - ssRes / ssTot).toFixed(4)}`);
-console.log(`  Interpretation: gap ≈ ${(a*100).toFixed(2)}% of defBV + ${(b*100).toFixed(2)}% of offBV + ${c.toFixed(1)}`);
+console.log(
+  `  Interpretation: gap ≈ ${(a * 100).toFixed(2)}% of defBV + ${(b * 100).toFixed(2)}% of offBV + ${c.toFixed(1)}`,
+);
 
 // --- Subgroup analysis: under vs over ---
-const under = outliers.filter(f => f.gap < 0);
-const over = outliers.filter(f => f.gap > 0);
+const under = outliers.filter((f) => f.gap < 0);
+const over = outliers.filter((f) => f.gap > 0);
 
 console.log(`\n=== Subgroup: Undercalculated (${under.length} units) ===`);
-for (const key of ['defBV', 'offBV', 'weaponBV', 'rawWeaponBV', 'ammoBV', 'speedFactor', 'defFactor']) {
-  const vals = under.map(f => f[key]);
-  const r = pearson(vals, under.map(f => f.gap));
+for (const key of [
+  'defBV',
+  'offBV',
+  'weaponBV',
+  'rawWeaponBV',
+  'ammoBV',
+  'speedFactor',
+  'defFactor',
+]) {
+  const vals = under.map((f) => f[key]);
+  const r = pearson(
+    vals,
+    under.map((f) => f.gap),
+  );
   console.log(`  gap~${key.padEnd(15)} r=${r.toFixed(4)}`);
 }
 
 console.log(`\n=== Subgroup: Overcalculated (${over.length} units) ===`);
-for (const key of ['defBV', 'offBV', 'weaponBV', 'rawWeaponBV', 'ammoBV', 'speedFactor', 'defFactor']) {
-  const vals = over.map(f => f[key]);
-  const r = pearson(vals, over.map(f => f.gap));
+for (const key of [
+  'defBV',
+  'offBV',
+  'weaponBV',
+  'rawWeaponBV',
+  'ammoBV',
+  'speedFactor',
+  'defFactor',
+]) {
+  const vals = over.map((f) => f[key]);
+  const r = pearson(
+    vals,
+    over.map((f) => f.gap),
+  );
   console.log(`  gap~${key.padEnd(15)} r=${r.toFixed(4)}`);
 }

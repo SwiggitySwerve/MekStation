@@ -33,7 +33,9 @@ for (const name of ammoNames) {
   // Check IS Streak SRM intercept
   const isStreakMatch = cleaned.match(/^IS\s+Streak\s+SRM\s+(\d+)\s+Ammo$/i);
   if (isStreakMatch) {
-    console.log(`IS Streak SRM intercept matched! size=${isStreakMatch[1]}, key=is-streak-srm-${isStreakMatch[1]}-ammo`);
+    console.log(
+      `IS Streak SRM intercept matched! size=${isStreakMatch[1]}, key=is-streak-srm-${isStreakMatch[1]}-ammo`,
+    );
   }
 
   // Check patterns
@@ -45,14 +47,22 @@ for (const name of ammoNames) {
   console.log(`stripped: "${stripped}"`);
 
   // Check Clan improved LRM pattern
-  const clanImprovedLRM = stripped.match(/^cl(?:an)?\s*improved\s*lrm(\d+)\s*ammo$/);
+  const clanImprovedLRM = stripped.match(
+    /^cl(?:an)?\s*improved\s*lrm(\d+)\s*ammo$/,
+  );
   if (clanImprovedLRM) {
-    console.log(`Clan Improved LRM pattern matched! size=${clanImprovedLRM[1]}`);
+    console.log(
+      `Clan Improved LRM pattern matched! size=${clanImprovedLRM[1]}`,
+    );
   } else {
-    console.log(`Clan Improved LRM pattern: NO MATCH (tested against "${stripped}")`);
+    console.log(
+      `Clan Improved LRM pattern: NO MATCH (tested against "${stripped}")`,
+    );
   }
 
   // Check MG patterns
-  const mgHalf = stripped.match(/^(?:is\s*)?(?:light\s*)?machine\s*gun\s*ammo\s*-\s*half$/);
+  const mgHalf = stripped.match(
+    /^(?:is\s*)?(?:light\s*)?machine\s*gun\s*ammo\s*-\s*half$/,
+  );
   if (mgHalf) console.log(`MG ammo half pattern matched!`);
 }

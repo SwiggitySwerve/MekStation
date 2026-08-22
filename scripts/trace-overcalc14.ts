@@ -1,9 +1,15 @@
 import * as fs from 'fs';
 import * as path from 'path';
 
-const data = JSON.parse(fs.readFileSync('validation-output/bv-validation-report.json', 'utf8'));
-const mulCache = JSON.parse(fs.readFileSync('scripts/data-migration/mul-bv-cache.json', 'utf8'));
-const indexData = JSON.parse(fs.readFileSync('public/data/units/battlemechs/index.json', 'utf8'));
+const data = JSON.parse(
+  fs.readFileSync('validation-output/bv-validation-report.json', 'utf8'),
+);
+const mulCache = JSON.parse(
+  fs.readFileSync('scripts/data-migration/mul-bv-cache.json', 'utf8'),
+);
+const indexData = JSON.parse(
+  fs.readFileSync('public/data/units/battlemechs/index.json', 'utf8'),
+);
 
 // HYPOTHESIS: The MUL BV values are the PILOT-MODIFIED BV with gunnery 4 / piloting 5.
 // The pilot skill modifier for 4/5 is 1.0.
@@ -123,8 +129,18 @@ for (const d of overCalc) {
   if (d.indexBV === mulEntry.mulBV) refEqMul++;
   if (d.indexBV === iu.bv) refEqIdx++;
 }
-console.log('Report reference matches MUL BV:', refEqMul, 'of', overCalc.length);
-console.log('Report reference matches Index BV:', refEqIdx, 'of', overCalc.length);
+console.log(
+  'Report reference matches MUL BV:',
+  refEqMul,
+  'of',
+  overCalc.length,
+);
+console.log(
+  'Report reference matches Index BV:',
+  refEqIdx,
+  'of',
+  overCalc.length,
+);
 
 // KEY QUESTION: Is the Index BV in the unit data files ALREADY our calculated value?
 // Or is it from an external source like Sarna/MUL?

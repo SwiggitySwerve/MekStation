@@ -18,7 +18,9 @@ import { parseCampaignCoopSnapshot } from '@/types/campaign/campaignCoopSnapshot
 import {
   createEmptyCampaignState,
   isCampaignEvent,
+  isCampaignEventScope,
   isCampaignEventType,
+  isCampaignWireEvent,
   type ICampaignEvent,
   type ICampaignAuthoritativeState,
 } from '@/types/campaign/CampaignSync';
@@ -58,7 +60,11 @@ function sampleState(): ICampaignAuthoritativeState {
 
 /** One representative event per `CampaignEventType`. */
 function allEventTypes(): ICampaignEvent[] {
-  const base = { campaignId: CAMPAIGN_ID, ts: '3025-01-08T00:00:00.000Z' };
+  const base = {
+    campaignId: CAMPAIGN_ID,
+    ts: '3025-01-08T00:00:00.000Z',
+    scope: 'campaign' as const,
+  };
   return [
     {
       ...base,
@@ -159,14 +165,40 @@ describe('CampaignSync type guards', () => {
     ).toBe(false);
     expect(
       isCampaignEvent({
-        type: 'Unknown',
+        type: 'FundsChanged',
         sequence: 0,
         campaignId: 'c',
         ts: 't',
         authorPlayerId: 'a',
-        payload: {},
+        payload: { delta: 1, reason: 'r', balance: 1 },
       }),
     ).toBe(false);
+    expect(
+      isCampaignEvent({
+        type: 'FundsChanged',
+        sequence: 0,
+        campaignId: 'c',
+        ts: 't',
+        authorPlayerId: 'a',
+        scope: 'not-a-scope',
+        payload: { delta: 1, reason: 'r', balance: 1 },
+      }),
+    ).toBe(false);
+  });
+
+  it('isCampaignWireEvent accepts the sequence -1 snapshot baseline', () => {
+    const baseline = {
+      type: 'CampaignSnapshotPublished' as const,
+      sequence: -1,
+      campaignId: CAMPAIGN_ID,
+      ts: '3025-01-08T00:00:00.000Z',
+      authorPlayerId: 'host',
+      scope: 'campaign' as const,
+      payload: { state: sampleState() },
+    };
+    expect(isCampaignEvent(baseline)).toBe(false);
+    expect(isCampaignWireEvent(baseline)).toBe(true);
+    expect(isCampaignEventScope(baseline.scope)).toBe(true);
   });
 });
 

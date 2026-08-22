@@ -46,6 +46,7 @@ import type {
 
 import { applyCampaignEvent } from '@/lib/campaign/sync/applyCampaignEvent';
 import { CampaignEventLog } from '@/lib/campaign/sync/campaignEventLog';
+import { freezeCampaignEvent } from '@/lib/campaign/sync/campaignEventScope';
 import {
   CampaignEventSequenceCollisionError,
   CampaignProjectionDivergenceError,
@@ -138,6 +139,8 @@ export class CampaignMatchHost {
         campaignId: this.campaignId,
         authorPlayerId: this.hostPlayerId,
         ts: nowIso(),
+        // Shared ledger baseline for every co-op participant, not GM-only.
+        scope: 'campaign',
         payload: { state: this.state },
       },
     ]);
@@ -343,6 +346,8 @@ export class CampaignMatchHost {
         campaignId: this.campaignId,
         authorPlayerId: this.hostPlayerId,
         ts: nowIso(),
+        // Post-battle salvage is a shared ledger fact.
+        scope: 'campaign',
         payload: {
           value,
           poolRemaining: this.state.salvagePool + value,
@@ -392,6 +397,8 @@ export class CampaignMatchHost {
         campaignId: this.campaignId,
         authorPlayerId: this.hostPlayerId,
         ts: nowIso(),
+        // Roster mutations are shared ledger facts.
+        scope: 'campaign',
         payload: { change, unit },
       },
     ]);
@@ -448,7 +455,10 @@ export class CampaignMatchHost {
       // corresponding `ICampaignEvent` variant; TS cannot correlate the
       // spread across the union, so the assertion makes the (sound)
       // intent explicit at this single chokepoint.
-      const event = { ...unsequenced, sequence } as ICampaignEvent;
+      const event = freezeCampaignEvent({
+        ...unsequenced,
+        sequence,
+      } as ICampaignEvent);
       // Append FIRST — a sequence collision rejects here and the host's
       // authoritative state is left untouched (no partial commit).
       await this.log.append(event);
@@ -480,9 +490,11 @@ export class CampaignMatchHost {
     appendCommandBatch: NonNullable<ICampaignEventStore['appendCommandBatch']>,
   ): Promise<readonly ICampaignEvent[]> {
     const base = await this.log.nextSequence();
-    const sequenced = events.map(
-      (unsequenced, index) =>
-        ({ ...unsequenced, sequence: base + index }) as ICampaignEvent,
+    const sequenced = events.map((unsequenced, index) =>
+      freezeCampaignEvent({
+        ...unsequenced,
+        sequence: base + index,
+      } as ICampaignEvent),
     );
     // Derive the expected post-state on a scratch projection — the live
     // state is untouched until the batch is durably committed.

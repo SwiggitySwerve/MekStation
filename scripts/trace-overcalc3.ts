@@ -1,10 +1,20 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import { resolveEquipmentBV, normalizeEquipmentId } from '../src/utils/construction/equipmentBVResolver';
-import { calculateOffensiveSpeedFactor, calculateDefensiveBV, calculateOffensiveBVWithHeatTracking, getCockpitModifier, calculateTMM } from '../src/utils/construction/battleValueCalculations';
+
 import { EngineType } from '../src/types/construction/EngineType';
 import { STRUCTURE_POINTS_TABLE } from '../src/types/construction/InternalStructureType';
 import { getArmorBVMultiplier } from '../src/types/validation/BattleValue';
+import {
+  calculateOffensiveSpeedFactor,
+  calculateDefensiveBV,
+  calculateOffensiveBVWithHeatTracking,
+  getCockpitModifier,
+  calculateTMM,
+} from '../src/utils/construction/battleValueCalculations';
+import {
+  resolveEquipmentBV,
+  normalizeEquipmentId,
+} from '../src/utils/construction/equipmentBVResolver';
 
 function calcTotalStructure(ton: number): number {
   const t = STRUCTURE_POINTS_TABLE[ton];
@@ -20,7 +30,7 @@ console.log('Reference BV: 930, Our calc: 1085, Diff: +155 (16.7%)');
 console.log('');
 
 // Defensive BV
-const jennerArmor = 11 + 11 + (14+7) + (14+7) + (17+8) + 9 + 15 + 15; // from data file
+const jennerArmor = 11 + 11 + (14 + 7) + (14 + 7) + (17 + 8) + 9 + 15 + 15; // from data file
 const jennerStruct = calcTotalStructure(35);
 
 // walk=7, run=ceil(7*1.5)=11, jump=7
@@ -39,14 +49,26 @@ const jennerDefResult = calculateDefensiveBV({
   engineType: EngineType.STANDARD,
 });
 console.log('Defensive BV:', jennerDefResult.totalDefensiveBV.toFixed(2));
-console.log('  armorBV:', jennerDefResult.armorBV, 'structBV:', jennerDefResult.structureBV, 'gyroBV:', jennerDefResult.gyroBV);
+console.log(
+  '  armorBV:',
+  jennerDefResult.armorBV,
+  'structBV:',
+  jennerDefResult.structureBV,
+  'gyroBV:',
+  jennerDefResult.gyroBV,
+);
 console.log('  defensiveFactor:', jennerDefResult.defensiveFactor);
 
 // Offensive BV
 const jennerHeatDiss = 10 * 2; // 10 DHS
-const jennerWeapons = Array.from({length: 6}, () => ({
-  id: 'medium-laser', name: 'medium-laser', heat: 3, bv: 46,
-  rear: false, isDirectFire: true, location: 'LEFT_ARM',
+const jennerWeapons = Array.from({ length: 6 }, () => ({
+  id: 'medium-laser',
+  name: 'medium-laser',
+  heat: 3,
+  bv: 46,
+  rear: false,
+  isDirectFire: true,
+  location: 'LEFT_ARM',
 }));
 
 const jennerOffResult = calculateOffensiveBVWithHeatTracking({
@@ -59,11 +81,29 @@ const jennerOffResult = calculateOffensiveBVWithHeatTracking({
   engineType: EngineType.STANDARD,
 });
 console.log('Offensive BV:', jennerOffResult.totalOffensiveBV.toFixed(2));
-console.log('  weaponBV:', jennerOffResult.weaponBV, 'ammoBV:', jennerOffResult.ammoBV);
-console.log('  weightBonus:', jennerOffResult.weightBonus, 'speedFactor:', jennerOffResult.speedFactor);
+console.log(
+  '  weaponBV:',
+  jennerOffResult.weaponBV,
+  'ammoBV:',
+  jennerOffResult.ammoBV,
+);
+console.log(
+  '  weightBonus:',
+  jennerOffResult.weightBonus,
+  'speedFactor:',
+  jennerOffResult.speedFactor,
+);
 
-const jennerTotalBV = Math.round(jennerDefResult.totalDefensiveBV + jennerOffResult.totalOffensiveBV);
-console.log('Total BV:', jennerTotalBV, '(ref: 930, diff:', jennerTotalBV - 930, ')');
+const jennerTotalBV = Math.round(
+  jennerDefResult.totalDefensiveBV + jennerOffResult.totalOffensiveBV,
+);
+console.log(
+  'Total BV:',
+  jennerTotalBV,
+  '(ref: 930, diff:',
+  jennerTotalBV - 930,
+  ')',
+);
 console.log('');
 
 // Now let's think about what MegaMek's BV should be:
@@ -71,8 +111,11 @@ console.log('');
 // speed factor: mp = 11 + round(7/2) = 11 + 4 = 15
 // MegaMek speed factor = pow(1 + (15-5)/10, 1.2) = pow(2.0, 1.2) = 2.2974
 console.log('Checking speed factor vs MegaMek formula:');
-console.log('  mp = 11 + round(7/2) =', 11 + Math.round(7/2));
-console.log('  pow(1 + (15-5)/10, 1.2) =', Math.pow(1 + (15-5)/10, 1.2).toFixed(4));
+console.log('  mp = 11 + round(7/2) =', 11 + Math.round(7 / 2));
+console.log(
+  '  pow(1 + (15-5)/10, 1.2) =',
+  Math.pow(1 + (15 - 5) / 10, 1.2).toFixed(4),
+);
 console.log('  Our speed factor:', jennerOffResult.speedFactor);
 console.log('');
 
@@ -114,8 +157,8 @@ console.log('Checking: what if weapon BV or speed factor is different?');
 console.log('  Our calc: (276 + 35) * 2.2974 =', (276 + 35) * 2.2974);
 console.log('  For reference BV 930, defensive ~370:');
 console.log('    needed offensive = 560');
-console.log('    needed base = 560 / 2.2974 = ', (560/2.2974).toFixed(1));
-console.log('    That would need weaponBV = ' + ((560/2.2974 - 35).toFixed(1)));
+console.log('    needed base = 560 / 2.2974 = ', (560 / 2.2974).toFixed(1));
+console.log('    That would need weaponBV = ' + (560 / 2.2974 - 35).toFixed(1));
 console.log('');
 
 // =============================
@@ -142,7 +185,10 @@ console.log('');
 // speedFactor: mp = 8 + 0 = 8, pow(1 + 3/10, 1.2) = 1.37
 console.log('Hatamoto speed: walk=4, MASC run=8, jump=0');
 console.log('  mp = 8 + 0 = 8');
-console.log('  speed factor = pow(1 + (8-5)/10, 1.2) =', Math.pow(1 + 3/10, 1.2).toFixed(4));
+console.log(
+  '  speed factor = pow(1 + (8-5)/10, 1.2) =',
+  Math.pow(1 + 3 / 10, 1.2).toFixed(4),
+);
 console.log('');
 
 // Our calc: defBV=1092.65, offBV=772.68
@@ -152,7 +198,7 @@ console.log('');
 
 // Let's check what the defensive BV should be
 console.log('Hatamoto defensive:');
-const hatArmor = 26 + 26 + (25+9) + (25+9) + (34+16) + 9 + 34 + 34; // 247
+const hatArmor = 26 + 26 + (25 + 9) + (25 + 9) + (34 + 16) + 9 + 34 + 34; // 247
 console.log('  Total armor:', hatArmor);
 const hatStruct = calcTotalStructure(80);
 console.log('  Total structure:', hatStruct);
@@ -205,7 +251,10 @@ console.log('What if MASC does NOT contribute to speed factor?');
 console.log('  Normal run: ceil(4*1.5) = 6');
 const noMascSpeedFactor = calculateOffensiveSpeedFactor(6, 0);
 console.log('  speed factor with run=6:', noMascSpeedFactor);
-console.log('  offensive = (470 + 14 + 80) * ' + noMascSpeedFactor + ' =', (470 + 14 + 80) * noMascSpeedFactor);
+console.log(
+  '  offensive = (470 + 14 + 80) * ' + noMascSpeedFactor + ' =',
+  (470 + 14 + 80) * noMascSpeedFactor,
+);
 console.log('');
 
 const noMascDefResult = calculateDefensiveBV({
@@ -220,7 +269,9 @@ const noMascDefResult = calculateDefensiveBV({
   engineType: EngineType.STANDARD,
 });
 console.log('  defBV with run=6:', noMascDefResult.totalDefensiveBV.toFixed(2));
-const noMascTotal = Math.round(noMascDefResult.totalDefensiveBV + (470 + 14 + 80) * noMascSpeedFactor);
+const noMascTotal = Math.round(
+  noMascDefResult.totalDefensiveBV + (470 + 14 + 80) * noMascSpeedFactor,
+);
 console.log('  Total without MASC speed:', noMascTotal, '(ref: 1584)');
 console.log('');
 
@@ -252,7 +303,7 @@ console.log('  speed factor:', calculateOffensiveSpeedFactor(6, 4));
 // With non-MASC SF 1.37: offBV = (1129 + 1 + 95) * 1.37 = 1678.25
 // + defBV: need to check with non-MASC TMM too
 
-const gladArmor = 32+32+(20+10)+(20+10)+(37+9)+9+40+40; // 259
+const gladArmor = 32 + 32 + (20 + 10) + (20 + 10) + (37 + 9) + 9 + 40 + 40; // 259
 const gladStruct = calcTotalStructure(95);
 const gladDefNoMasc = calculateDefensiveBV({
   totalArmorPoints: gladArmor,
@@ -260,14 +311,22 @@ const gladDefNoMasc = calculateDefensiveBV({
   tonnage: 95,
   runMP: 6,
   jumpMP: 4,
-  armorType: 'standard',  // ferro fibrous clan
+  armorType: 'standard', // ferro fibrous clan
   structureType: 'standard',
   gyroType: 'standard',
   engineType: EngineType.XL_CLAN,
 });
 const gladOffNoMasc = (1129 + 1 + 95) * calculateOffensiveSpeedFactor(6, 4);
-const gladTotalNoMasc = Math.round(gladDefNoMasc.totalDefensiveBV + gladOffNoMasc);
-console.log('Gladiator without MASC speed: total =', gladTotalNoMasc, '(ref: 2194, our:', 3108, ')');
+const gladTotalNoMasc = Math.round(
+  gladDefNoMasc.totalDefensiveBV + gladOffNoMasc,
+);
+console.log(
+  'Gladiator without MASC speed: total =',
+  gladTotalNoMasc,
+  '(ref: 2194, our:',
+  3108,
+  ')',
+);
 console.log('  defBV without MASC:', gladDefNoMasc.totalDefensiveBV.toFixed(2));
 console.log('  offBV without MASC:', gladOffNoMasc.toFixed(2));
 console.log('');
@@ -277,16 +336,50 @@ console.log('');
 // =============================
 console.log('=== MASC Speed Factor Hypothesis ===');
 console.log('');
-console.log('Hypothesis: MASC/Supercharger should NOT boost runMP for offensive speed factor');
+console.log(
+  'Hypothesis: MASC/Supercharger should NOT boost runMP for offensive speed factor',
+);
 console.log('');
 
 // Test: Hatamoto with normal run
 const hatOffNoMasc = calculateOffensiveBVWithHeatTracking({
   weapons: [
-    { id: 'ppc', name: 'ppc', heat: 10, bv: 176, rear: false, isDirectFire: true, location: 'LEFT_ARM' },
-    { id: 'ppc', name: 'ppc', heat: 10, bv: 176, rear: false, isDirectFire: true, location: 'RIGHT_ARM' },
-    { id: 'srm-6', name: 'srm-6', heat: 4, bv: 59, rear: false, isDirectFire: false, location: 'LEFT_TORSO' },
-    { id: 'srm-6', name: 'srm-6', heat: 4, bv: 59, rear: false, isDirectFire: false, location: 'RIGHT_TORSO' },
+    {
+      id: 'ppc',
+      name: 'ppc',
+      heat: 10,
+      bv: 176,
+      rear: false,
+      isDirectFire: true,
+      location: 'LEFT_ARM',
+    },
+    {
+      id: 'ppc',
+      name: 'ppc',
+      heat: 10,
+      bv: 176,
+      rear: false,
+      isDirectFire: true,
+      location: 'RIGHT_ARM',
+    },
+    {
+      id: 'srm-6',
+      name: 'srm-6',
+      heat: 4,
+      bv: 59,
+      rear: false,
+      isDirectFire: false,
+      location: 'LEFT_TORSO',
+    },
+    {
+      id: 'srm-6',
+      name: 'srm-6',
+      heat: 4,
+      bv: 59,
+      rear: false,
+      isDirectFire: false,
+      location: 'RIGHT_TORSO',
+    },
   ],
   ammo: [
     { id: 'srm-6-ammo', bv: 7, weaponType: 'srm-6' },
@@ -294,20 +387,25 @@ const hatOffNoMasc = calculateOffensiveBVWithHeatTracking({
   ],
   tonnage: 80,
   walkMP: 4,
-  runMP: 6,  // Normal (no MASC)
+  runMP: 6, // Normal (no MASC)
   jumpMP: 0,
   heatDissipation: 28,
   engineType: EngineType.STANDARD,
 });
 
-console.log('Hatamoto offBV with NORMAL run=6:', hatOffNoMasc.totalOffensiveBV.toFixed(2));
+console.log(
+  'Hatamoto offBV with NORMAL run=6:',
+  hatOffNoMasc.totalOffensiveBV.toFixed(2),
+);
 console.log('  speed factor:', hatOffNoMasc.speedFactor);
 console.log('  weaponBV:', hatOffNoMasc.weaponBV);
 console.log('');
 
 // But MASC DOES affect defensive factor (TMM)
 // MegaMek: processDefensiveFactor() uses getRunMP(true, true) which INCLUDES MASC
-console.log('Key question: Does MASC affect DEFENSIVE TMM but NOT offensive speed factor?');
+console.log(
+  'Key question: Does MASC affect DEFENSIVE TMM but NOT offensive speed factor?',
+);
 console.log('');
 
 // Actually let me re-read MegaMek more carefully...
@@ -335,8 +433,12 @@ console.log('  Option B: run = ceil(walk * 1.5) + mascBonus (MegaMek style)');
 console.log('');
 console.log('MegaMek Mech.java getRunMP():');
 console.log('  baseRunMP = (int)Math.ceil(walkMP * 1.5)');
-console.log('  mascRunMP = walkMP + (int)Math.ceil(walkMP * 0.5) [i.e., same as baseRunMP]');
-console.log('  ..but with useMaxMASC=true: getRunMP returns entity.getRunMP() including MASC bonus');
+console.log(
+  '  mascRunMP = walkMP + (int)Math.ceil(walkMP * 0.5) [i.e., same as baseRunMP]',
+);
+console.log(
+  '  ..but with useMaxMASC=true: getRunMP returns entity.getRunMP() including MASC bonus',
+);
 console.log('');
 console.log('For MASC, MegaMek adds +1 to run per walk point');
 console.log('  walk=4: normal run=6, MASC run=8 (walk*2)');
@@ -352,7 +454,7 @@ const hatDefWithMasc = calculateDefensiveBV({
   totalArmorPoints: hatArmor,
   totalStructurePoints: hatStruct,
   tonnage: 80,
-  runMP: 8,  // MASC for defense
+  runMP: 8, // MASC for defense
   jumpMP: 0,
   armorType: 'standard',
   structureType: 'standard',
@@ -361,8 +463,12 @@ const hatDefWithMasc = calculateDefensiveBV({
 });
 console.log('Test: MASC for defense, no MASC for offense:');
 console.log('  defBV:', hatDefWithMasc.totalDefensiveBV.toFixed(2));
-console.log('  offBV with SF 1.1212:', ((470+14+80)*1.1212).toFixed(2));
-console.log('  total:', Math.round(hatDefWithMasc.totalDefensiveBV + (470+14+80)*1.1212), '(ref: 1584)');
+console.log('  offBV with SF 1.1212:', ((470 + 14 + 80) * 1.1212).toFixed(2));
+console.log(
+  '  total:',
+  Math.round(hatDefWithMasc.totalDefensiveBV + (470 + 14 + 80) * 1.1212),
+  '(ref: 1584)',
+);
 console.log('');
 
 // Hmm still not right. Let me calculate the Hatamoto backwards from 1584.
@@ -376,5 +482,7 @@ console.log('Working backwards from reference BV 1584 for Hatamoto:');
 for (const sf of [1.0, 1.1, 1.1212, 1.2, 1.37, 1.4]) {
   const offBV = (470 + 14 + 80) * sf;
   const defBV = 1584 - offBV;
-  console.log(`  SF=${sf}: offBV=${offBV.toFixed(0)}, needed defBV=${defBV.toFixed(0)} (our: ${hatDefWithMasc.totalDefensiveBV.toFixed(0)})`);
+  console.log(
+    `  SF=${sf}: offBV=${offBV.toFixed(0)}, needed defBV=${defBV.toFixed(0)} (our: ${hatDefWithMasc.totalDefensiveBV.toFixed(0)})`,
+  );
 }

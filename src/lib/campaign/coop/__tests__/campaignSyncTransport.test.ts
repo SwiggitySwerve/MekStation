@@ -113,6 +113,7 @@ describe('campaignSyncTransport', () => {
         campaignId: 'campaign-1',
         ts: '2026-06-21T00:00:00.000Z',
         authorPlayerId: 'pid_host',
+        scope: 'campaign',
         payload: {
           state: {
             campaignId: 'campaign-1',

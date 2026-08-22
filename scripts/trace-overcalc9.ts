@@ -1,7 +1,11 @@
 import * as fs from 'fs';
 
-const data = JSON.parse(fs.readFileSync('validation-output/bv-validation-report.json', 'utf8'));
-const mulCache = JSON.parse(fs.readFileSync('scripts/data-migration/mul-bv-cache.json', 'utf8'));
+const data = JSON.parse(
+  fs.readFileSync('validation-output/bv-validation-report.json', 'utf8'),
+);
+const mulCache = JSON.parse(
+  fs.readFileSync('scripts/data-migration/mul-bv-cache.json', 'utf8'),
+);
 
 // Exact-match MUL overcalculated
 const overCalc = data.allResults.filter((d: any) => {
@@ -101,7 +105,9 @@ console.log('=== TAG WEAPON CHECK ===');
 console.log('Checking if TAG is contributing nonzero weapon BV...');
 
 // Check TAG BV resolution
-const { resolveEquipmentBV } = require('../src/utils/construction/equipmentBVResolver');
+const {
+  resolveEquipmentBV,
+} = require('../src/utils/construction/equipmentBVResolver');
 console.log('TAG BV:', resolveEquipmentBV('tag'));
 console.log('Light TAG BV:', resolveEquipmentBV('light-tag'));
 console.log('Clan Light TAG BV:', resolveEquipmentBV('clan-light-tag'));
@@ -120,12 +126,17 @@ console.log('');
 // Take the Assassin ASN-109 (from the overcalculated list)
 // It's a simple IS unit with known MUL BV.
 console.log('=== Assassin ASN-109 detailed trace ===');
-const assassinResult = data.allResults.find((d: any) => d.unitId === 'assassin-asn-109');
+const assassinResult = data.allResults.find(
+  (d: any) => d.unitId === 'assassin-asn-109',
+);
 if (assassinResult) {
   console.log('Reference BV:', assassinResult.indexBV);
   console.log('Calculated BV:', assassinResult.calculatedBV);
   console.log('Breakdown:', JSON.stringify(assassinResult.breakdown));
-  console.log('Ratio:', (assassinResult.calculatedBV / assassinResult.indexBV).toFixed(4));
+  console.log(
+    'Ratio:',
+    (assassinResult.calculatedBV / assassinResult.indexBV).toFixed(4),
+  );
   console.log('');
   console.log('If * 0.95:', Math.round(assassinResult.calculatedBV * 0.95));
 }
@@ -133,31 +144,56 @@ if (assassinResult) {
 // Check an Archangel variant
 console.log('');
 console.log('=== Archangel C-ANG-OB Infernus ===');
-const archResult = data.allResults.find((d: any) => d.unitId === 'archangel-c-ang-ob-infernus');
+const archResult = data.allResults.find(
+  (d: any) => d.unitId === 'archangel-c-ang-ob-infernus',
+);
 if (archResult) {
   console.log('Reference BV:', archResult.indexBV);
   console.log('Calculated BV:', archResult.calculatedBV);
   console.log('Breakdown:', JSON.stringify(archResult.breakdown));
-  console.log('Ratio:', (archResult.calculatedBV / archResult.indexBV).toFixed(4));
+  console.log(
+    'Ratio:',
+    (archResult.calculatedBV / archResult.indexBV).toFixed(4),
+  );
   console.log('If * 0.95:', Math.round(archResult.calculatedBV * 0.95));
 }
 
 // Let's see if the Archangel has a special cockpit or other modifier
-const indexData = JSON.parse(fs.readFileSync('public/data/units/battlemechs/index.json', 'utf8'));
-const archIU = indexData.units.find((u: any) => u.id === 'archangel-c-ang-ob-infernus');
+const indexData = JSON.parse(
+  fs.readFileSync('public/data/units/battlemechs/index.json', 'utf8'),
+);
+const archIU = indexData.units.find(
+  (u: any) => u.id === 'archangel-c-ang-ob-infernus',
+);
 if (archIU) {
   const path2 = require('path');
-  const unit = JSON.parse(fs.readFileSync(path2.resolve('public/data/units/battlemechs', archIU.path), 'utf8'));
+  const unit = JSON.parse(
+    fs.readFileSync(
+      path2.resolve('public/data/units/battlemechs', archIU.path),
+      'utf8',
+    ),
+  );
   console.log('Cockpit:', unit.cockpit);
   console.log('Gyro:', unit.gyro?.type);
   console.log('Config:', unit.configuration);
   console.log('');
 
   // Check if cockpit is small
-  const allCrits: string[] = Object.values(unit.criticalSlots || {}).flat().filter((s: any) => s) as string[];
+  const allCrits: string[] = Object.values(unit.criticalSlots || {})
+    .flat()
+    .filter((s: any) => s) as string[];
   const allCritsLo = allCrits.map((s: string) => s.toLowerCase());
-  console.log('Has Small Cockpit:', allCritsLo.some(s => s.includes('small cockpit')));
-  console.log('Has Command Console:', allCritsLo.some(s => s.includes('command console')));
-  console.log('Has C3:', allCritsLo.some(s => s.includes('c3')));
+  console.log(
+    'Has Small Cockpit:',
+    allCritsLo.some((s) => s.includes('small cockpit')),
+  );
+  console.log(
+    'Has Command Console:',
+    allCritsLo.some((s) => s.includes('command console')),
+  );
+  console.log(
+    'Has C3:',
+    allCritsLo.some((s) => s.includes('c3')),
+  );
   console.log('Head crits:', unit.criticalSlots?.HEAD);
 }
