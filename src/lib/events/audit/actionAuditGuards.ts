@@ -6,6 +6,8 @@
  * belongs in PR 5 (design D4).
  */
 
+import { isSqliteUniqueConstraintError } from '@/services/persistence/sqliteConstraintErrors';
+
 import {
   ActionAuditError,
   isActionAuditActorRole,
@@ -45,11 +47,13 @@ export function isNonempty(value: string): boolean {
   return value.trim().length > 0;
 }
 
-/** True for SQLite UNIQUE failures on this table's primary key. */
+/**
+ * True for SQLite UNIQUE failures on this table's primary key. Delegates
+ * to the shared realm-safe predicate: an `instanceof Error` gate lets a
+ * cross-realm constraint error escape untyped.
+ */
 export function isUniqueViolation(error: unknown): boolean {
-  return (
-    error instanceof Error && /UNIQUE constraint failed/.test(error.message)
-  );
+  return isSqliteUniqueConstraintError(error);
 }
 
 /**
