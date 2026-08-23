@@ -189,6 +189,13 @@ test.describe('Wave 6.1.A — co-op campaign route smoke', () => {
         }
       }
 
+      // Task 3.6: the guest label is a guest-mode affordance, so the
+      // host walk asserts its ABSENCE here - the host sees the full
+      // stream and must never be told its view is scoped.
+      await expect(
+        page.getByTestId('guest-scoped-perspective-label'),
+      ).toHaveCount(0);
+
       const critical = errorCapture.critical();
       expect(
         critical,

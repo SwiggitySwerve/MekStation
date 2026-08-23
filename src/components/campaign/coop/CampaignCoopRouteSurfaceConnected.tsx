@@ -8,6 +8,7 @@ import React, {
 
 import type { IPendingProposal } from '@/lib/multiplayer/server/CampaignGmArbiter';
 import type { ICampaign } from '@/types/campaign/Campaign';
+import type { ICampaignEvent } from '@/types/campaign/CampaignSync';
 import type {
   GmDecision,
   GuestProposalResult,
@@ -59,6 +60,8 @@ export function CampaignCoopRouteSurfaceConnected({
   const mirrorLastSequence = useCampaignMirrorStore(
     (state) => state.lastSequence,
   );
+  // Host-side audit stream (task 3.6). Guests never populate this.
+  const [auditEvents, setAuditEvents] = useState<readonly ICampaignEvent[]>([]);
   const [pending, setPending] = useState<readonly IPendingProposal[]>([]);
   const [runtimeReady, setRuntimeReady] = useState(false);
   const latestCampaignRef = useRef<ICampaign | null>(campaign);
@@ -112,6 +115,13 @@ export function CampaignCoopRouteSurfaceConnected({
     if (!transport) return () => undefined;
 
     return transport.onFrame((message) => {
+      // Task 3.6: keep the GM's received stream so the scope audit panel
+      // can show how each event was classified at emission. Host-only -
+      // this accumulation never runs on a guest surface.
+      const auditable = campaignEventFromMessage(message);
+      if (auditable) {
+        setAuditEvents((current) => [...current, auditable]);
+      }
       if (message.kind === 'CampaignProposal') {
         const currentCampaign = latestCampaignRef.current;
         if (!currentCampaign) return;
@@ -257,6 +267,7 @@ export function CampaignCoopRouteSurfaceConnected({
       routeId={routeId}
       dashboardMount={dashboardMount}
       pendingProposals={pending}
+      auditEvents={auditEvents}
       onDecide={onDecide}
       proposalTransport={proposalTransport}
       proposingPlayerId={proposingPlayerId}

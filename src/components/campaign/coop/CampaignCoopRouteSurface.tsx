@@ -37,7 +37,10 @@ import React, { useMemo } from 'react';
 
 import type { IPendingProposal } from '@/lib/multiplayer/server/CampaignGmArbiter';
 import type { ICampaign } from '@/types/campaign/Campaign';
-import type { ICampaignIntent } from '@/types/campaign/CampaignSync';
+import type {
+  ICampaignEvent,
+  ICampaignIntent,
+} from '@/types/campaign/CampaignSync';
 import type {
   GmDecision,
   GuestProposalResult,
@@ -46,6 +49,7 @@ import type {
 import { buildCoopCampaignAuthorityProjection } from '@/lib/command-screen';
 import { INVALID_CAMPAIGN_INTENT } from '@/types/campaign/CampaignSync';
 
+import { GmScopeAuditList } from './GmScopeAuditList';
 import {
   GuestProposalSurface,
   type IGuestActionDescriptor,
@@ -204,6 +208,12 @@ export interface CampaignCoopRouteSurfaceProps {
    * Wave 6.2 replaces with the authenticated multiplayer player id.
    */
   readonly proposingPlayerId?: string;
+  /**
+   * Host-side: the campaign event stream this GM has received, rendered
+   * with per-event scope for audit (task 3.6). Omitted on guest
+   * surfaces - a guest is never handed the full stream.
+   */
+  readonly auditEvents?: readonly ICampaignEvent[];
   readonly guestMirrorSummary?: {
     readonly status: 'connecting' | 'synced' | 'missing-token' | 'paused';
     readonly balance?: number;
@@ -246,6 +256,7 @@ export function CampaignCoopRouteSurface(
     },
     proposalTransport = defaultUnavailableTransport,
     proposingPlayerId = 'co-op-guest',
+    auditEvents = [],
     guestMirrorSummary,
   } = props;
 
@@ -289,6 +300,13 @@ export function CampaignCoopRouteSurface(
           onDecide={onDecide}
           authorityProjection={authorityProjection}
         />
+        {/*
+          Per-event scope audit (task 3.6). The GM sees the full stream
+          WITH the scope each event was stamped with at emission, so a
+          misclassification - which every downstream filter would then
+          faithfully obey - is discoverable by a human.
+        */}
+        <GmScopeAuditList events={auditEvents} />
       </div>
     );
   }
@@ -307,6 +325,22 @@ export function CampaignCoopRouteSurface(
             You are joined as a guest. Mutation controls on every sub-route
             submit proposals to the host for review instead of mutating campaign
             state directly.
+          </p>
+          {/*
+            Scoped-perspective label (task 3.6). A guest view legitimately
+            omits events outside its grant, and a view that omits silently
+            is indistinguishable from a quiet campaign - so the partial
+            nature is stated outright. It deliberately reports NO count or
+            marker of what was withheld: that would rebuild exactly the
+            inference channel the scoped projection and snapshot proofs
+            exist to close.
+          */}
+          <p
+            data-testid="guest-scoped-perspective-label"
+            className="mt-3 text-xs text-sky-300/80"
+          >
+            Scoped view: you see the campaign activity shared with you. Other
+            activity in this campaign is not part of your view.
           </p>
           {guestMirrorSummary ? (
             <dl
