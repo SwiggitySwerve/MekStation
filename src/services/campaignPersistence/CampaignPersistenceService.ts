@@ -22,6 +22,10 @@
  * @spec openspec/changes/design-campaign-authority-and-sync/design.md (D2)
  */
 
+import type {
+  ICampaignListOmission,
+  ICampaignListResult,
+} from '@/lib/campaign/persistence';
 import type { ICampaignSummary } from '@/types/campaign/SerializedCampaign';
 import type { SerializedCampaign } from '@/types/campaign/SerializedCampaign';
 
@@ -189,9 +193,11 @@ export function deleteCampaign(id: string): CampaignDeleteResult {
 /**
  * List every stored campaign as a lightweight `ICampaignSummary`.
  * Corrupt JSON and unknown-authority rows are skipped so one bad
- * payload cannot kill the list or appear as a source.
+ * payload cannot kill the list or appear as a source. Skipped ids
+ * are returned in `omitted` (id and reason only) so the API can
+ * surface the gap without leaking the unreadable payload.
  */
-export function listCampaignSummaries(): readonly ICampaignSummary[] {
+export function listCampaignSummaries(): ICampaignListResult {
   const db = getSQLiteService().getDatabase();
   const hostInstanceId = getOrCreateHostInstanceId(db);
   const rows = db
@@ -199,6 +205,7 @@ export function listCampaignSummaries(): readonly ICampaignSummary[] {
     .all() as Array<{ id: string; payload: string }>;
 
   const summaries: ICampaignSummary[] = [];
+  const omitted: ICampaignListOmission[] = [];
   for (const row of rows) {
     let parsed: unknown;
     try {
@@ -208,6 +215,7 @@ export function listCampaignSummaries(): readonly ICampaignSummary[] {
         '[CampaignPersistence] skipping corrupt campaign row in list',
         { id: row.id },
       );
+      omitted.push({ id: row.id, reason: 'corrupt' });
       continue;
     }
     const hydrated = hydrateCampaignRecord(parsed, hostInstanceId);
@@ -216,11 +224,12 @@ export function listCampaignSummaries(): readonly ICampaignSummary[] {
         '[CampaignPersistence] skipping unknown-authority campaign row in list',
         { id: row.id },
       );
+      omitted.push({ id: row.id, reason: 'invalid_authority' });
       continue;
     }
     summaries.push(toCampaignSummary(hydrated.record));
   }
-  return summaries;
+  return { summaries, omitted };
 }
 
 /**

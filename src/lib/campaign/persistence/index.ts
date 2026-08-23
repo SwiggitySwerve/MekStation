@@ -18,6 +18,15 @@ export {
 } from './campaignFieldMap';
 export { buildSerializedCampaign, toCampaignSummary } from './campaignEnvelope';
 export {
+  CAMPAIGN_LIST_OMISSIONS_HEADER,
+  decodeCampaignListOmissions,
+  encodeCampaignListOmissions,
+  readCampaignListOmissionsFromResponse,
+  type CampaignListOmissionReason,
+  type ICampaignListOmission,
+  type ICampaignListResult,
+} from './campaignListOmissions';
+export {
   CURRENT_CAMPAIGN_SCHEMA_VERSION,
   migrateSerializedCampaign,
 } from './campaignMigration';

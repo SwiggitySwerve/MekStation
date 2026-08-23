@@ -21,6 +21,12 @@ import type {
   SerializedCampaign,
 } from '@/types/campaign/SerializedCampaign';
 
+import { UNKNOWN_AUTHORITY_ROLE_REASON } from '@/lib/campaign/authority/campaignAuthority';
+import {
+  CAMPAIGN_LIST_OMISSIONS_HEADER,
+  decodeCampaignListOmissions,
+  type ICampaignListOmission,
+} from '@/lib/campaign/persistence';
 import { buildPopulatedCampaign } from '@/lib/campaign/persistence/__tests__/campaignFixture';
 import { buildSerializedCampaign } from '@/lib/campaign/persistence/campaignEnvelope';
 import idHandler from '@/pages/api/campaigns/[id]';
@@ -59,6 +65,45 @@ function callIndex(): Promise<Mocks> {
 function envelopeFor(campaignId: string): SerializedCampaign {
   const campaign = { ...buildPopulatedCampaign(), id: campaignId };
   return buildSerializedCampaign(campaign, 'device-test', 1);
+}
+
+/** Overwrite a stored payload without going through saveCampaign. */
+function writeStoredPayload(id: string, payload: string): void {
+  getSQLiteService()
+    .getDatabase()
+    .prepare('UPDATE campaigns SET payload = ? WHERE id = ?')
+    .run(payload, id);
+}
+
+/** Read the raw stored payload JSON for a campaign row. */
+function readStoredPayload(id: string): string {
+  const row = getSQLiteService()
+    .getDatabase()
+    .prepare('SELECT payload FROM campaigns WHERE id = ?')
+    .get(id) as { payload: string };
+  return row.payload;
+}
+
+/**
+ * Decode the list-omissions header from a mock response. Missing
+ * headers become an empty list so healthy-list tests stay simple.
+ */
+function listOmissionsFrom(
+  res: Mocks['res'],
+): readonly ICampaignListOmission[] {
+  return decodeCampaignListOmissions(
+    res.getHeader(CAMPAIGN_LIST_OMISSIONS_HEADER),
+  );
+}
+
+/**
+ * Concatenate body JSON and the omissions header so leak assertions
+ * cover both channels the client can see.
+ */
+function listResponseWire(res: Mocks['res']): string {
+  return `${JSON.stringify(res._getJSONData())}\n${String(
+    res.getHeader(CAMPAIGN_LIST_OMISSIONS_HEADER) ?? '',
+  )}`;
 }
 
 // =============================================================================
@@ -340,5 +385,156 @@ describe('Campaign persistence API', () => {
       .prepare('SELECT campaign_date AS v FROM campaigns WHERE id = ?')
       .get('camp-date') as { v: string };
     expect(row.v).toBe(envelope.body.currentDate);
+  });
+
+  // ---------------------------------------------------------------------------
+  // Task 1.5 — list omissions visible; GET not-found vs unreadable vs replica
+  // ---------------------------------------------------------------------------
+
+  it('lists two healthy summaries and surfaces one corrupt row without leaking payload', async () => {
+    const leakToken = 'not-json{LEAK-CORRUPT-TOKEN';
+    for (const id of ['ok-alpha', 'rot-payload', 'ok-bravo']) {
+      await callId('PUT', id, { envelope: envelopeFor(id), baseVersion: 0 });
+    }
+    writeStoredPayload('rot-payload', leakToken);
+
+    const { res } = await callIndex();
+    expect(res._getStatusCode()).toBe(200);
+    const summaries = res._getJSONData() as ICampaignSummary[];
+    expect(Array.isArray(summaries)).toBe(true);
+    expect(summaries.map((row) => row.id).sort()).toEqual([
+      'ok-alpha',
+      'ok-bravo',
+    ]);
+    expect(listOmissionsFrom(res)).toEqual([
+      { id: 'rot-payload', reason: 'corrupt' },
+    ]);
+    expect(listResponseWire(res)).not.toContain(leakToken);
+  });
+
+  it('lists healthy rows and surfaces an unknown-authority row without leaking payload', async () => {
+    const leakToken = 'LEAK-AUTH-TOKEN';
+    for (const id of ['ok-delta', 'typo-role', 'ok-echo']) {
+      await callId('PUT', id, { envelope: envelopeFor(id), baseVersion: 0 });
+    }
+    const stored = JSON.parse(
+      readStoredPayload('typo-role'),
+    ) as SerializedCampaign;
+    writeStoredPayload(
+      'typo-role',
+      JSON.stringify({
+        ...stored,
+        schemaVersion: 2,
+        authority: { role: 'typo' },
+        leak: leakToken,
+      }),
+    );
+
+    const { res } = await callIndex();
+    expect(res._getStatusCode()).toBe(200);
+    const summaries = res._getJSONData() as ICampaignSummary[];
+    expect(summaries.map((row) => row.id).sort()).toEqual([
+      'ok-delta',
+      'ok-echo',
+    ]);
+    expect(listOmissionsFrom(res)).toEqual([
+      { id: 'typo-role', reason: 'invalid_authority' },
+    ]);
+    expect(listResponseWire(res)).not.toContain(leakToken);
+    expect(listResponseWire(res)).not.toContain('typo');
+  });
+
+  it('distinguishes missing, corrupt, and unknown-authority GET outcomes', async () => {
+    await callId('PUT', 'camp-rot-get', {
+      envelope: envelopeFor('camp-rot-get'),
+      baseVersion: 0,
+    });
+    writeStoredPayload('camp-rot-get', 'not-json{LEAK-GET-CORRUPT');
+
+    await callId('PUT', 'camp-typo-get', {
+      envelope: envelopeFor('camp-typo-get'),
+      baseVersion: 0,
+    });
+    const stored = JSON.parse(
+      readStoredPayload('camp-typo-get'),
+    ) as SerializedCampaign;
+    writeStoredPayload(
+      'camp-typo-get',
+      JSON.stringify({
+        ...stored,
+        schemaVersion: 2,
+        authority: { role: 'typo' },
+      }),
+    );
+
+    const missing = await callId('GET', 'no-such-campaign-id');
+    const corrupt = await callId('GET', 'camp-rot-get');
+    const invalid = await callId('GET', 'camp-typo-get');
+
+    expect(missing.res._getStatusCode()).toBe(404);
+    expect(missing.res._getJSONData()).toEqual({ error: 'not found' });
+
+    expect(corrupt.res._getStatusCode()).toBe(500);
+    expect(corrupt.res._getStatusCode()).not.toBe(404);
+    expect(corrupt.res._getJSONData()).toEqual({
+      error: 'stored campaign record is corrupt',
+    });
+    expect(JSON.stringify(corrupt.res._getJSONData())).not.toContain(
+      'LEAK-GET-CORRUPT',
+    );
+
+    expect(invalid.res._getStatusCode()).toBe(422);
+    expect(invalid.res._getStatusCode()).not.toBe(404);
+    expect(invalid.res._getJSONData()).toEqual({
+      error: 'stored campaign authority is invalid',
+      kind: 'failed',
+      reason: UNKNOWN_AUTHORITY_ROLE_REASON,
+    });
+
+    const statuses = new Set([
+      missing.res._getStatusCode(),
+      corrupt.res._getStatusCode(),
+      invalid.res._getStatusCode(),
+    ]);
+    expect(statuses.size).toBe(3);
+  });
+
+  it('GET of a replica row is 200 with replica authority, not not-found', async () => {
+    await callId('PUT', 'camp-replica-get', {
+      envelope: envelopeFor('camp-replica-get'),
+      baseVersion: 0,
+    });
+    const stored = JSON.parse(
+      readStoredPayload('camp-replica-get'),
+    ) as SerializedCampaign;
+    const replicaAuthority = {
+      role: 'replica' as const,
+      sourceInstanceId: 'source-host-zzz',
+      grantId: 'grant-zzz',
+      scopes: ['campaign'] as const,
+    };
+    writeStoredPayload(
+      'camp-replica-get',
+      JSON.stringify({
+        ...stored,
+        schemaVersion: 2,
+        authority: replicaAuthority,
+      }),
+    );
+
+    const { res } = await callId('GET', 'camp-replica-get');
+    expect(res._getStatusCode()).toBe(200);
+    expect(res._getStatusCode()).not.toBe(404);
+    const record = res._getJSONData() as SerializedCampaign;
+    expect(record.authority).toEqual(replicaAuthority);
+
+    const list = await callIndex();
+    const summaries = list.res._getJSONData() as ICampaignSummary[];
+    expect(summaries.map((row) => row.id)).toContain('camp-replica-get');
+    const replicaSummary = summaries.find(
+      (row) => row.id === 'camp-replica-get',
+    );
+    expect(replicaSummary?.authority).toEqual(replicaAuthority);
+    expect(listOmissionsFrom(list.res)).toEqual([]);
   });
 });

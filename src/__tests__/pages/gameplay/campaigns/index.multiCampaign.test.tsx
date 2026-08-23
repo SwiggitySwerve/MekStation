@@ -9,6 +9,11 @@ import React from 'react';
 
 import type { ICampaignSummary } from '@/types/campaign/SerializedCampaign';
 
+import {
+  CAMPAIGN_LIST_OMISSIONS_HEADER,
+  encodeCampaignListOmissions,
+} from '@/lib/campaign/persistence';
+
 const mockRouterPush = jest.fn();
 jest.mock('next/router', () => ({
   useRouter: () => ({
@@ -331,5 +336,60 @@ describe('CampaignsListPage multi-campaign backend list', () => {
     expect(
       screen.queryByTestId('campaigns-list-error'),
     ).not.toBeInTheDocument();
+  });
+
+  it('shows skipped campaign ids from the list-omissions header next to healthy cards', async () => {
+    const campaigns: ICampaignSummary[] = [
+      {
+        id: 'campaign-alpha',
+        name: 'Alpha Lance',
+        factionId: 'mercenary',
+        currentDate: '3025-01-01T00:00:00.000Z',
+        balance: 1000000,
+        updatedAt: '2026-06-21T12:00:00.000Z',
+        instanceId: TEST_HOST_INSTANCE_ID,
+        authority: { role: 'source' },
+      },
+      {
+        id: 'campaign-bravo',
+        name: 'Bravo Lance',
+        factionId: 'davion',
+        currentDate: '3025-02-01T00:00:00.000Z',
+        balance: 2500000,
+        updatedAt: '2026-06-21T13:00:00.000Z',
+        instanceId: TEST_HOST_INSTANCE_ID,
+        authority: { role: 'source' },
+      },
+    ];
+    const omissionsHeader = encodeCampaignListOmissions([
+      { id: 'ghost-camp', reason: 'corrupt' },
+    ]);
+    (globalThis as unknown as { fetch: jest.Mock }).fetch = jest.fn(
+      async () => ({
+        ok: true,
+        json: async () => campaigns,
+        headers: {
+          get: (name: string) =>
+            name === CAMPAIGN_LIST_OMISSIONS_HEADER ? omissionsHeader : null,
+        },
+      }),
+    );
+
+    await act(async () => {
+      render(<CampaignsListPage />);
+    });
+
+    expect(
+      await screen.findByTestId('campaigns-list-omissions'),
+    ).toBeInTheDocument();
+    expect(screen.getByText(/ghost-camp/)).toBeInTheDocument();
+    expect(screen.getByText(/unreadable record/)).toBeInTheDocument();
+    expect(
+      screen.getByTestId('campaign-card-campaign-alpha'),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByTestId('campaign-card-campaign-bravo'),
+    ).toBeInTheDocument();
+    expect(screen.queryByText('LEAK-OMISSION-PAYLOAD')).not.toBeInTheDocument();
   });
 });
