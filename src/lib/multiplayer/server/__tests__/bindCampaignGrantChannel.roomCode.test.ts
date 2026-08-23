@@ -42,6 +42,7 @@ describe('room-code CampaignJoin with grant channel present', () => {
         logger: quietLogger,
         grantChannel: harnessGrantChannel(harness),
       });
+      const __before1 = socket.sent.length;
       socket.inbound({
         kind: 'CampaignJoin',
         matchId: 'match-campaign',
@@ -50,7 +51,7 @@ describe('room-code CampaignJoin with grant channel present', () => {
         role: 'guest',
         roomCode: 'ABC234',
       });
-      await drain(() => socket.sent.length > 0);
+      await drain(() => socket.sent.length > __before1);
       expect(socket.sent).toContainEqual(
         expect.objectContaining({
           kind: 'CampaignSnapshot',

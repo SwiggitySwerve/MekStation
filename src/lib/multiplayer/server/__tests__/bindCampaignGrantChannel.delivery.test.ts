@@ -84,6 +84,7 @@ describe('grant channel delivery', () => {
     ]);
 
     const socket = await bindGrantSocket(campaignId, PARTICIPANT_PLAYER);
+    const __before1 = socket.sent.length;
     socket.inbound(
       grantJoinEnvelope({
         campaignId,
@@ -93,7 +94,7 @@ describe('grant channel delivery', () => {
         cursor: null,
       }),
     );
-    await drain(() => socket.sent.length > 0);
+    await drain(() => socket.sent.length > __before1);
 
     const delivery = framesOf(socket, 'CampaignGrantDelivery');
     expect(delivery).toHaveLength(1);
@@ -113,6 +114,7 @@ describe('grant channel delivery', () => {
     expect(leakScan(socket.sent, WITHHELD_GM_SECRET)).toEqual([]);
 
     const resume = await bindGrantSocket(campaignId, PARTICIPANT_PLAYER);
+    const __before2 = resume.sent.length;
     resume.inbound(
       grantJoinEnvelope({
         campaignId,
@@ -125,7 +127,7 @@ describe('grant channel delivery', () => {
         },
       }),
     );
-    await drain(() => resume.sent.length > 0);
+    await drain(() => resume.sent.length > __before2);
     const paged = framesOf(resume, 'CampaignGrantDelivery');
     expect(paged[0]?.items.map((row) => row.deliverySequence)).toEqual([2]);
     expect(paged[0]?.items[0]?.event.payload).toEqual({
@@ -162,6 +164,10 @@ describe('grant channel delivery', () => {
         cursor: null,
       }),
     );
+    const __before3 = gmSocket.sent.length;
+    const __before4 = gmSocket.sent.length;
+    const __before5 = gmSocket.sent.length;
+    const __before6 = gmSocket.sent.length;
     gmSocket.inbound(
       grantJoinEnvelope({
         campaignId,
@@ -171,7 +177,7 @@ describe('grant channel delivery', () => {
         cursor: null,
       }),
     );
-    await drain(() => gmSocket.sent.length > 0);
+    await drain(() => gmSocket.sent.length > __before3);
     campaignSocket.sent.length = 0;
     gmSocket.sent.length = 0;
 
@@ -180,19 +186,19 @@ describe('grant channel delivery', () => {
       fundsEvent(campaignId, 0, 'campaign', VISIBLE_ONE),
     );
     live.wake();
-    await drain(() => gmSocket.sent.length > 0);
+    await drain(() => gmSocket.sent.length > __before4);
     await appendCampaignEvent(
       harness,
       fundsEvent(campaignId, 1, 'gm', WITHHELD_GM_SECRET),
     );
     live.wake();
-    await drain(() => gmSocket.sent.length > 0);
+    await drain(() => gmSocket.sent.length > __before5);
     await appendCampaignEvent(
       harness,
       fundsEvent(campaignId, 2, 'campaign', VISIBLE_TWO),
     );
     live.wake();
-    await drain(() => gmSocket.sent.length > 0);
+    await drain(() => gmSocket.sent.length > __before6);
 
     const campaignItems = framesOf(
       campaignSocket,
@@ -232,6 +238,7 @@ describe('grant channel delivery', () => {
       { scope: 'campaign', reason: VISIBLE_ONE },
     ]);
     const socket = await bindGrantSocket(campaignId, PARTICIPANT_PLAYER);
+    const __before7 = socket.sent.length;
     socket.inbound(
       grantJoinEnvelope({
         campaignId,
@@ -244,7 +251,7 @@ describe('grant channel delivery', () => {
         },
       }),
     );
-    await drain(() => socket.sent.length > 0);
+    await drain(() => socket.sent.length > __before7);
     const rebaseline = framesOf(socket, 'CampaignGrantRebaseline');
     expect(rebaseline).toHaveLength(1);
     expect(rebaseline[0]?.baseline.deliveryEpochId).toMatch(/^[0-9a-f]{32}$/);
@@ -253,6 +260,7 @@ describe('grant channel delivery', () => {
     expect(framesOf(socket, 'CampaignGrantDelivery')).toHaveLength(0);
     expect(socket.readyState).toBe(1);
 
+    const __before8 = socket.sent.length;
     socket.inbound(
       grantJoinEnvelope({
         campaignId,
@@ -265,7 +273,7 @@ describe('grant channel delivery', () => {
         },
       }),
     );
-    await drain(() => socket.sent.length > 0);
+    await drain(() => socket.sent.length > __before8);
     const follow = framesOf(socket, 'CampaignGrantDelivery');
     expect(follow.length).toBeGreaterThanOrEqual(1);
     expect(follow[follow.length - 1]?.items[0]?.deliverySequence).toBe(1);
@@ -313,6 +321,8 @@ describe('grant channel delivery', () => {
       logger: quietLogger,
       grantChannel: harnessGrantChannel(harness),
     });
+    const __before9 = socket.sent.length;
+    const __before10 = socket.sent.length;
     socket.inbound(
       grantJoinEnvelope({
         campaignId,
@@ -322,7 +332,7 @@ describe('grant channel delivery', () => {
         cursor: null,
       }),
     );
-    await drain(() => socket.sent.length > 0);
+    await drain(() => socket.sent.length > __before9);
     const before = socket.sent.length;
     failing.failNext = true;
     await expect(
@@ -333,7 +343,7 @@ describe('grant channel delivery', () => {
         payload: { days: 1 },
       }),
     ).rejects.toThrow('forced-append-failure');
-    await drain(() => socket.sent.length > 0);
+    await drain(() => socket.sent.length > __before10);
     expect(fanoutCount).toBe(0);
     expect(socket.sent.length).toBe(before);
     expect(

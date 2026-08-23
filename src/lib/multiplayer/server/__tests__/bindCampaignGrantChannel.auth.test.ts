@@ -173,6 +173,7 @@ describe('grant channel token gate', () => {
     const { grant, token } = issued;
 
     const malformed = await bindSocket(campaignId, PARTICIPANT_PLAYER);
+    const __before1 = malformed.sent.length;
     malformed.inbound(
       grantJoinEnvelope({
         campaignId,
@@ -182,7 +183,7 @@ describe('grant channel token gate', () => {
         cursor: null,
       }),
     );
-    await drain(() => malformed.sent.length > 0);
+    await drain(() => malformed.sent.length > __before1);
     expect(malformed.sent).toContainEqual(
       expect.objectContaining({
         kind: 'Error',
@@ -195,6 +196,7 @@ describe('grant channel token gate', () => {
       ...harnessGrantChannel(harness),
       nowMs: () => Date.parse('2026-08-22T20:00:00.000Z'),
     });
+    const __before2 = expired.sent.length;
     expired.inbound(
       grantJoinEnvelope({
         campaignId,
@@ -204,7 +206,7 @@ describe('grant channel token gate', () => {
         cursor: null,
       }),
     );
-    await drain(() => expired.sent.length > 0);
+    await drain(() => expired.sent.length > __before2);
     expect(expired.sent).toContainEqual(
       expect.objectContaining({
         kind: 'Error',
@@ -219,6 +221,7 @@ describe('grant channel token gate', () => {
       privateKey: toBase64(attacker.privateKey),
     });
     const badSig = await bindSocket(campaignId, PARTICIPANT_PLAYER);
+    const __before3 = badSig.sent.length;
     badSig.inbound(
       grantJoinEnvelope({
         campaignId,
@@ -228,7 +231,7 @@ describe('grant channel token gate', () => {
         cursor: null,
       }),
     );
-    await drain(() => badSig.sent.length > 0);
+    await drain(() => badSig.sent.length > __before3);
     expect(badSig.sent).toContainEqual(
       expect.objectContaining({
         kind: 'Error',
@@ -238,6 +241,7 @@ describe('grant channel token gate', () => {
     );
 
     const unknown = await bindSocket(campaignId, PARTICIPANT_PLAYER);
+    const __before4 = unknown.sent.length;
     unknown.inbound(
       grantJoinEnvelope({
         campaignId,
@@ -247,7 +251,7 @@ describe('grant channel token gate', () => {
         cursor: null,
       }),
     );
-    await drain(() => unknown.sent.length > 0);
+    await drain(() => unknown.sent.length > __before4);
     expect(unknown.sent).toContainEqual(
       expect.objectContaining({
         kind: 'Error',
@@ -258,6 +262,7 @@ describe('grant channel token gate', () => {
 
     harness.grantStore.revokeGrant(grant.grantId, REVOKED_AT);
     const revoked = await bindSocket(campaignId, PARTICIPANT_PLAYER);
+    const __before5 = revoked.sent.length;
     revoked.inbound(
       grantJoinEnvelope({
         campaignId,
@@ -267,7 +272,7 @@ describe('grant channel token gate', () => {
         cursor: null,
       }),
     );
-    await drain(() => revoked.sent.length > 0);
+    await drain(() => revoked.sent.length > __before5);
     expect(revoked.sent).toContainEqual(
       expect.objectContaining({
         kind: 'Error',
@@ -289,6 +294,7 @@ describe('grant channel token gate', () => {
       second.signer,
     );
     const scopeSocket = await bindSocket(campaignId, 'participant-scope');
+    const __before6 = scopeSocket.sent.length;
     scopeSocket.inbound(
       grantJoinEnvelope({
         campaignId,
@@ -298,7 +304,7 @@ describe('grant channel token gate', () => {
         cursor: null,
       }),
     );
-    await drain(() => scopeSocket.sent.length > 0);
+    await drain(() => scopeSocket.sent.length > __before6);
     expect(scopeSocket.sent).toContainEqual(
       expect.objectContaining({
         kind: 'Error',
@@ -315,6 +321,7 @@ describe('grant channel token gate', () => {
       nowMs: () => Date.parse('2026-08-22T16:30:00.000Z'),
       nowIso: () => '2026-08-22T16:30:00.000Z',
     });
+    const __before7 = broken.sent.length;
     broken.inbound(
       grantJoinEnvelope({
         campaignId,
@@ -324,7 +331,7 @@ describe('grant channel token gate', () => {
         cursor: null,
       }),
     );
-    await drain(() => broken.sent.length > 0);
+    await drain(() => broken.sent.length > __before7);
     expect(broken.sent).toContainEqual(
       expect.objectContaining({
         kind: 'Error',
@@ -337,6 +344,7 @@ describe('grant channel token gate', () => {
     expect(brokenCode).not.toBe('AUTH_REJECTED');
 
     const mismatch = await bindSocket(campaignId, 'participant-scope');
+    const __before8 = mismatch.sent.length;
     mismatch.inbound(
       grantJoinEnvelope({
         campaignId: 'campaign-other',
@@ -346,7 +354,7 @@ describe('grant channel token gate', () => {
         cursor: null,
       }),
     );
-    await drain(() => mismatch.sent.length > 0);
+    await drain(() => mismatch.sent.length > __before8);
     expect(mismatch.sent).toContainEqual(
       expect.objectContaining({
         kind: 'Error',
@@ -356,6 +364,7 @@ describe('grant channel token gate', () => {
     );
 
     const unavailable = await bindSocket(campaignId, PARTICIPANT_PLAYER, null);
+    const __before9 = unavailable.sent.length;
     unavailable.inbound(
       grantJoinEnvelope({
         campaignId,
@@ -365,7 +374,7 @@ describe('grant channel token gate', () => {
         cursor: null,
       }),
     );
-    await drain(() => unavailable.sent.length > 0);
+    await drain(() => unavailable.sent.length > __before9);
     expect(unavailable.sent).toContainEqual(
       expect.objectContaining({
         kind: 'Error',
