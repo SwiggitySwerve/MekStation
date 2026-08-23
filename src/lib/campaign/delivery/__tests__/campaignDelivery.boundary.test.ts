@@ -56,6 +56,9 @@ describe('campaign delivery import boundary', () => {
     const publicFiles = [
       'campaignDeliveryTypes.ts',
       'projectCampaignStreamForGrant.ts',
+      'buildScopedCampaignSnapshot.ts',
+      'campaignGrantSnapshotTypes.ts',
+      'foldCampaignGrantDelivery.ts',
     ];
     for (const name of publicFiles) {
       const text = fs.readFileSync(
@@ -67,6 +70,15 @@ describe('campaign delivery import boundary', () => {
       }
     }
     expect(offenders).toEqual([]);
+  });
+
+  it('does not reimplement grantAllowsScope in the snapshot builder', () => {
+    const text = fs.readFileSync(
+      path.join(process.cwd(), DELIVERY_DIR, 'buildScopedCampaignSnapshot.ts'),
+      'utf8',
+    );
+    expect(text.includes('grantAllowsScope')).toBe(false);
+    expect(text.includes('projectCampaignStreamForGrant')).toBe(true);
   });
 
   it('does not mint a campaign-specific epoch table or sequence allocator', () => {

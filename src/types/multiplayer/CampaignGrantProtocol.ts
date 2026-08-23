@@ -145,3 +145,26 @@ export const CampaignGrantRebaselineSchema = z
 export type ICampaignGrantRebaseline = z.infer<
   typeof CampaignGrantRebaselineSchema
 >;
+
+/**
+ * Late-join scoped snapshot. asOfDeliverySequence is the per-grant
+ * high water the state encodes; the replica resumes the tail at the
+ * next contiguous deliverySequence. The nested event is a projected
+ * CampaignSnapshotPublished (no source sequence, no revision).
+ */
+export const CampaignGrantSnapshotSchema = z
+  .object({
+    kind: z.literal('CampaignGrantSnapshot'),
+    matchId: matchIdSchema,
+    ts: tsSchema,
+    campaignId: z.string().min(1),
+    grantId: z.string().min(1),
+    deliveryEpochId: z.string().min(1),
+    baseline: CampaignGrantEpochBaselineSchema,
+    asOfDeliverySequence: z.number().int().nonnegative(),
+    event: CampaignGrantProjectedEventSchema,
+  })
+  .strict();
+export type ICampaignGrantSnapshot = z.infer<
+  typeof CampaignGrantSnapshotSchema
+>;

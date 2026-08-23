@@ -221,6 +221,9 @@ const SERVER_MESSAGE_HANDLERS: Record<
   CampaignGrantRebaseline: ({ message, emit }) => {
     emit('event', message);
   },
+  CampaignGrantSnapshot: ({ message, emit }) => {
+    emit('event', message);
+  },
 };
 
 interface IClientRuntime {

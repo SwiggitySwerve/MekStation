@@ -16,13 +16,23 @@ import type {
 } from '@/lib/multiplayer/server/delivery/IDeliveryEpochStore';
 import type { IErrorCode, IServerMessage } from '@/types/multiplayer/Protocol';
 
-import type { ICampaignGrantDeliveryItem } from './campaignDeliveryTypes';
+import type {
+  CampaignGrantNullCursorBackfill,
+  ICampaignGrantDeliveryItem,
+} from './campaignDeliveryTypes';
+import type { IScopedCampaignSnapshot } from './campaignGrantSnapshotTypes';
 import type { IProjectCampaignStreamDeps } from './projectCampaignStreamForGrant';
 
 import {
+  buildScopedCampaignSnapshot,
+  serveScopedCampaignSnapshot,
+} from './buildScopedCampaignSnapshot';
+import {
   grantChannelInternalFrame,
   grantDeliveryRefusedFrame,
+  grantSnapshotMismatchFrame,
 } from './campaignGrantChannelAuth';
+import { scopedSnapshotWireEvent } from './foldCampaignGrantDelivery';
 import { projectCampaignStreamForGrant } from './projectCampaignStreamForGrant';
 
 /**
@@ -44,6 +54,11 @@ export interface ICampaignGrantChannelSessionDeps {
   readonly liveSource: ICampaignGrantLiveSource;
   readonly cleanupFns: Set<() => void>;
   readonly nowIso: () => string;
+  /**
+   * Null-cursor backfill policy. Required so snapshot-plus-tail cannot
+   * silently replace the full-stream join proven by task 3.3.
+   */
+  readonly nullCursorBackfill: CampaignGrantNullCursorBackfill;
 }
 
 /**
@@ -83,7 +98,11 @@ class CampaignGrantChannelSession {
    * items, then subscribes for durable-append wakeups.
    */
   public async start(): Promise<void> {
-    const first = await this.projectCurrentCursor();
+    const first =
+      this.cursor === null &&
+      this.deps.nullCursorBackfill === 'snapshot-plus-tail'
+        ? await this.deliverSnapshotJoin()
+        : await this.projectCurrentCursor();
     if (!this.active) return;
     if (first === 'closed') return;
     if (first === 'stale') return;
@@ -129,6 +148,88 @@ class CampaignGrantChannelSession {
     if (result === 'stale' || result === 'closed') {
       this.active = false;
     }
+  }
+
+  /**
+   * Null-cursor join on the snapshot path: scoped snapshot as-of the
+   * projected head, then the remaining tail (empty at a quiet head),
+   * then the cursor sits at asOf so live items continue contiguously.
+   * Does not call advanceCursor on an empty tail, which would reset a
+   * null cursor to sequence 0 and re-send the whole stream live.
+   */
+  private async deliverSnapshotJoin(): Promise<'page' | 'stale' | 'closed'> {
+    let built;
+    try {
+      built = await buildScopedCampaignSnapshot(this.deps.projectDeps, {
+        principal: this.deps.principal,
+        grantId: this.deps.grantId,
+        nowIso: this.deps.nowIso(),
+      });
+    } catch (error) {
+      this.failInternal(error);
+      return 'closed';
+    }
+
+    if (built.kind === 'refused') {
+      const frame = grantDeliveryRefusedFrame();
+      this.deps.closeTyped(frame.code, frame.reason);
+      return 'closed';
+    }
+    if (built.kind === 'stale-epoch') {
+      this.sendRebaseline(built.newBaseline);
+      return 'stale';
+    }
+    if (built.kind === 'cut-rejected') {
+      this.failInternal(new Error(built.reason));
+      return 'closed';
+    }
+
+    const served = serveScopedCampaignSnapshot(
+      built.snapshot,
+      this.deps.grantId,
+    );
+    if (served.kind === 'refused') {
+      const frame = grantSnapshotMismatchFrame();
+      this.deps.closeTyped(frame.code, frame.reason);
+      return 'closed';
+    }
+
+    this.sendSnapshot(served.snapshot);
+    this.cursor = {
+      deliveryEpochId: served.snapshot.deliveryEpochId,
+      afterSequence: served.snapshot.asOfDeliverySequence,
+    };
+    this.sendDelivery(
+      built.page.deliveryEpochId,
+      built.page.baseline,
+      built.tail,
+    );
+    this.sentJoinDelivery = true;
+    if (built.tail.length > 0) {
+      this.advanceCursor(built.page.deliveryEpochId, built.tail);
+    }
+    return 'page';
+  }
+
+  /**
+   * Sends the grant-keyed snapshot frame. asOfDeliverySequence is the
+   * per-grant high water; the nested event has no source sequence.
+   */
+  private sendSnapshot(snapshot: IScopedCampaignSnapshot): void {
+    this.deps.socketSend({
+      kind: 'CampaignGrantSnapshot',
+      matchId: this.deps.matchId,
+      ts: this.deps.nowIso(),
+      campaignId: this.deps.campaignId,
+      grantId: this.deps.grantId,
+      deliveryEpochId: snapshot.deliveryEpochId,
+      baseline: {
+        deliveryEpochId: snapshot.baseline.deliveryEpochId,
+        effectiveGeneration: snapshot.baseline.effectiveGeneration,
+      },
+      asOfDeliverySequence: snapshot.asOfDeliverySequence,
+      event: scopedSnapshotWireEvent(snapshot),
+    });
   }
 
   /**

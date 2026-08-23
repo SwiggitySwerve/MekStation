@@ -9,6 +9,7 @@
  * @spec openspec/changes/design-campaign-authority-and-sync/design.md (D5)
  */
 
+import type { CampaignGrantNullCursorBackfill } from '@/lib/campaign/delivery/campaignDeliveryTypes';
 import type { ICampaignGrantLiveSource } from '@/lib/campaign/delivery/campaignGrantChannelSession';
 import type { IProjectCampaignStreamDeps } from '@/lib/campaign/delivery/projectCampaignStreamForGrant';
 import type {
@@ -34,6 +35,12 @@ export interface ICampaignGrantChannelDeps {
   readonly projectDeps: IProjectCampaignStreamDeps;
   readonly nowMs: () => number;
   readonly nowIso: () => string;
+  /**
+   * Optional. Defaults to full-stream so existing joins keep the
+   * task-3.3 backfill. Pass snapshot-plus-tail to opt a socket into
+   * scoped snapshot hydration.
+   */
+  readonly nullCursorBackfill?: CampaignGrantNullCursorBackfill;
 }
 
 export interface IHandleCampaignGrantJoinDeps {
@@ -109,6 +116,7 @@ export async function handleCampaignGrantJoin(
       liveSource: deps.liveSource,
       cleanupFns: deps.cleanupFns,
       nowIso: deps.grantChannel.nowIso,
+      nullCursorBackfill: deps.grantChannel.nullCursorBackfill ?? 'full-stream',
     },
     deps.envelope.cursor,
   );

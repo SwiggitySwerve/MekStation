@@ -111,6 +111,23 @@ export function createGmGrantScopes(
 }
 
 /**
+ * True when the grant holds every scope class that can gate delivery,
+ * i.e. it is entitled to the full authoritative state.
+ *
+ * Used to decide whether a stored full-state `CampaignSnapshotPublished`
+ * may be delivered verbatim: folding one REPLACES state wholesale, so a
+ * partially-scoped grant receiving it would be handed everything the
+ * scope filter withheld. Membership in `gm` AND `campaign` is the test
+ * because those are the two scopes a stored baseline is ever stamped
+ * with; a `team:`/`player:` grant is by definition partial.
+ */
+export function grantHoldsEveryScope(
+  grant: Pick<ICampaignGrant, 'scopes'>,
+): boolean {
+  return grantAllowsScope(grant, 'gm') && grantAllowsScope(grant, 'campaign');
+}
+
+/**
  * Exact-string membership. A `team:` / `player:` event scope matches
  * only that exact grant member; `gm` in the set does not imply other
  * scopes, and `campaign` does not imply `gm`.
