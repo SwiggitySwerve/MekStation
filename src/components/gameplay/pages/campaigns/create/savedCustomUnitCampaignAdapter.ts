@@ -4,6 +4,7 @@ export interface SavedDesignOption {
   readonly id: string;
   readonly name: string;
   readonly tonnage: number;
+  readonly currentVersion: number;
 }
 export type SavedDesignRejection = {
   readonly reason:
@@ -31,7 +32,13 @@ function mapRow(
   ) {
     return { reason: 'invalid-tonnage' };
   }
-  return { id: row.id, name: row.name, tonnage };
+  const currentVersion =
+    typeof row.currentVersion === 'number' &&
+    Number.isInteger(row.currentVersion) &&
+    row.currentVersion > 0
+      ? row.currentVersion
+      : 1;
+  return { id: row.id, name: row.name, tonnage, currentVersion };
 }
 export function validateSavedBattleMechIndex(rows: unknown): {
   readonly options: readonly SavedDesignOption[];
