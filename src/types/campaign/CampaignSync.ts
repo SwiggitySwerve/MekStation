@@ -46,6 +46,8 @@ export interface ICampaignRosterUnit {
   readonly unitRef?: string;
   /** Parsed roster source identity preserved through co-op. */
   readonly unitSource?: 'canonical' | 'custom';
+  /** Pinned library version at enroll; omitted on legacy projections. */
+  readonly sourceVersion?: number;
 }
 
 /**

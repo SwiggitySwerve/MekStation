@@ -317,8 +317,8 @@ describe('MechBay', () => {
     const savedId: string = 'custom-whm-6r-saved';
     const savedName = 'Warhammer WHM-6R-Custom';
     const units = [
-      { unitId: rosterInstanceId, unitRef: savedId, unitSource: 'custom', unitName: savedName, chassisVariant: 'WHM-6R-Custom', readiness: 'Ready' as const, tonnage: 70 },
-      { unitId: 'roster-missing', unitRef: 'custom-deleted', unitSource: 'custom', unitName: 'Cached Missing', chassisVariant: 'X', readiness: 'Ready' as const, tonnage: 55 },
+      { unitId: rosterInstanceId, unitRef: savedId, unitSource: 'custom' as const, unitName: savedName, chassisVariant: 'WHM-6R-Custom', readiness: 'Ready' as const, tonnage: 70 },
+      { unitId: 'roster-missing', unitRef: 'custom-deleted', unitSource: 'custom' as const, unitName: 'Cached Missing', chassisVariant: 'X', readiness: 'Ready' as const, tonnage: 55 },
     ];
     const resolved = resolveMechBayLoadout({ units, canonicalIndex: [{ id: 'warhammer-whm-6r', tonnage: 70, bv: 1299 }], savedDesigns: [{ id: savedId, tonnage: 70, battleValue: 1312 }] });
     render(<MechBay units={units} unitTonnageById={resolved.unitTonnageById} unitBattleValueById={resolved.unitBattleValueById} unresolvedUnitIds={resolved.unresolvedUnitIds} customBvAvailableIds={resolved.customBvAvailableIds} repairBay={[]} campaignId="campaign-1" />);

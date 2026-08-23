@@ -218,6 +218,7 @@ describe('CreateCampaignPage submit roster persistence', () => {
       unitId: 'unit-light',
       unitName: 'Locust LCT-1V',
       unitRef: 'locust-lct-1v',
+      sourceVersion: 1,
     });
     expect(roster.pilots[0]).toMatchObject({
       pilotId: 'vault-pilot-1',
@@ -234,6 +235,30 @@ describe('CreateCampaignPage submit roster persistence', () => {
       useCampaignStore().getState().getForcesStore()?.getState().getRootForce()
         ?.unitIds,
     ).toContain('unit-light');
+  });
+
+  it('enrolls by unitRef even when name and tonnage do not match templates', async () => {
+    const oddball: SelectedUnit = {
+      id: 'unit-oddball',
+      name: 'Not A Stock Template',
+      tonnage: 17,
+      unitRef: 'locust-lct-1v',
+      unitSource: 'canonical',
+      sourceVersion: 1,
+    };
+    await submitWizardRoster({
+      selectedUnits: [oddball],
+      selectedPilots: [pilotOne],
+    });
+    expect(
+      useCampaignStore().getState().getForcesStore()?.getState().getRootForce()
+        ?.unitIds,
+    ).toContain('unit-oddball');
+    expect(useCampaignRosterStore.getState().units[0]).toMatchObject({
+      unitId: 'unit-oddball',
+      unitRef: 'locust-lct-1v',
+      sourceVersion: 1,
+    });
   });
 
   it('auto-assigns a lone wizard pilot to a lone wizard unit', async () => {
