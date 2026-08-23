@@ -150,7 +150,7 @@ describe('action audit SQLite migration', () => {
     db.prepare(AUDIT_INSERT).run(validRejected());
     resetSQLiteService();
     const raw = new Database(dbPath);
-    // v14 is now latest, so deleting only v11 would leave MAX=14 and the
+    // v15 is now latest, so deleting only v11 would leave MAX=15 and the
     // runner would not re-apply v11. Drop v11+ so later versions re-run
     // idempotently.
     raw.prepare('DELETE FROM migrations WHERE version >= 11').run();

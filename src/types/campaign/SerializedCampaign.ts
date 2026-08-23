@@ -26,6 +26,7 @@ import type {
 import type { ICampaignLoan } from './CampaignLoan';
 import type { ICampaignOptions } from './CampaignOptions';
 import type { ICampaignRosterEntry } from './CampaignRosterEntry';
+import type { CampaignEventScope } from './CampaignSync';
 import type { CampaignType } from './CampaignType';
 import type { ICoopSession } from './CoopSession';
 import type { IFactionStanding } from './factionStanding/IFactionStanding';
@@ -257,6 +258,41 @@ export interface SerializedCampaignBody {
 }
 
 // =============================================================================
+// Authority metadata (design D2)
+// =============================================================================
+
+/**
+ * Source instance: this hosting server owns command execution. The
+ * discriminant carries no extra fields so a replica cannot be inferred
+ * from an absent grant.
+ */
+export interface ISourceCampaignAuthority {
+  readonly role: 'source';
+}
+
+/**
+ * Replica instance: a stored fact that this copy is not the source.
+ * Commands must not execute here; intents forward to the source named
+ * by `sourceInstanceId` under `grantId` / `scopes`.
+ */
+export interface IReplicaCampaignAuthority {
+  readonly role: 'replica';
+  readonly sourceInstanceId: string;
+  readonly grantId: string;
+  readonly scopes: readonly CampaignEventScope[];
+  readonly revokedAt?: string;
+}
+
+/**
+ * Discriminated authority union. Switch on `role` and use `never` in
+ * the default branch so a new role is a compile error, not a silent
+ * source default.
+ */
+export type CampaignAuthority =
+  | ISourceCampaignAuthority
+  | IReplicaCampaignAuthority;
+
+// =============================================================================
 // Serialized campaign envelope
 // =============================================================================
 
@@ -264,6 +300,10 @@ export interface SerializedCampaignBody {
  * The wire and storage format for a persisted campaign. Fully
  * JSON-serializable — `JSON.parse(JSON.stringify(envelope))` reproduces
  * it without loss.
+ *
+ * `instanceId` names the hosting server (not the browser tab). `authority`
+ * is a stored fact: source or replica. Pre-field rows are backfilled by
+ * the schema ladder; they are never inferred from connection state.
  */
 export interface SerializedCampaign {
   /** Schema version of `body`; drives the migration ladder on read. */
@@ -276,6 +316,13 @@ export interface SerializedCampaign {
   readonly originDeviceId: string;
   /** Monotonic write counter — incremented on every clean server write. */
   readonly version: number;
+  /**
+   * Stable id of the hosting server that stores this envelope. Survives
+   * process restart; never minted per write.
+   */
+  readonly instanceId: string;
+  /** Stored source/replica fact. Absent on pre-D2 rows until migration. */
+  readonly authority: CampaignAuthority;
   /** The JSON-safe campaign body. */
   readonly body: SerializedCampaignBody;
 }
@@ -298,6 +345,10 @@ export interface ICampaignSummary {
   readonly balance: number;
   /** ISO 8601 timestamp of the last server write. */
   readonly updatedAt: string;
+  /** Hosting-server instance id (same value as the stored envelope). */
+  readonly instanceId: string;
+  /** Stored authority fact so list UI can state source vs replica. */
+  readonly authority: CampaignAuthority;
 }
 
 /**
@@ -313,4 +364,8 @@ export interface ICampaignSaveMetadata {
   readonly originDeviceId: string | null;
   /** Monotonic version of the last saved snapshot. */
   readonly version: number;
+  /** Hosting-server instance id of the last saved snapshot, or null. */
+  readonly instanceId: string | null;
+  /** Stored authority of the last saved snapshot, or null if never saved. */
+  readonly authority: CampaignAuthority | null;
 }

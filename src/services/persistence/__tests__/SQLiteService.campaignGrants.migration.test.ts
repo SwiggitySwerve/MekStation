@@ -106,7 +106,9 @@ describe('campaign grants SQLite migration', () => {
     db.prepare(GRANT_INSERT).run(validGrant());
     resetSQLiteService();
     const raw = new Database(dbPath);
-    raw.prepare('DELETE FROM migrations WHERE version = 14').run();
+    // Clear from 14 UPWARD: a later migration left in the table keeps
+    // MAX(version) above 14, so the ladder would never re-apply it.
+    raw.prepare('DELETE FROM migrations WHERE version >= 14').run();
     raw.close();
 
     const reopened = database();

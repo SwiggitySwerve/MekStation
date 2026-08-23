@@ -15,12 +15,17 @@
  *
  * @spec openspec/changes/add-campaign-persistence/specs/campaign-persistence/spec.md
  * @spec openspec/changes/add-campaign-persistence/design.md (D5, D8)
+ * @spec openspec/changes/design-campaign-authority-and-sync/design.md (D2)
  */
 
 import type { NextApiRequest, NextApiResponse } from 'next';
 
 import type { SerializedCampaign } from '@/types/campaign/SerializedCampaign';
 
+import {
+  REPLICA_NOT_SOURCE_REFUSAL_REASON,
+  UNKNOWN_AUTHORITY_ROLE_REASON,
+} from '@/lib/campaign/authority/campaignAuthority';
 import { maybeAppendCampaignGenesisOnCreate } from '@/lib/campaign/authority/campaignSourceGenesis';
 import { CAMPAIGN_JOURNAL_AUTHORITY_ENABLED } from '@/lib/campaign/sync/JournalCampaignEventStore';
 import { SQLiteEventJournal } from '@/lib/events/journal/SQLiteEventJournal';
@@ -37,7 +42,18 @@ import {
 } from '@/services/campaignPersistence/CampaignPersistenceService';
 import { getSQLiteService } from '@/services/persistence/SQLiteService';
 
-type ErrorResponse = { error: string };
+type ErrorResponse =
+  | { error: string }
+  | {
+      error: string;
+      kind: 'refused';
+      reason: typeof REPLICA_NOT_SOURCE_REFUSAL_REASON;
+    }
+  | {
+      error: string;
+      kind: 'failed';
+      reason: typeof UNKNOWN_AUTHORITY_ROLE_REASON;
+    };
 
 /**
  * Shape of a `PUT` body — the envelope plus the `baseVersion` the client
@@ -96,6 +112,16 @@ export default async function handler(
         res.status(500).json({ error: 'stored campaign record is corrupt' });
         return;
       }
+      if (result.kind === 'invalid_authority') {
+        // D2 fails closed: an unparseable role is not quietly read as
+        // source. Distinct from corrupt JSON (500) and from not-found.
+        res.status(422).json({
+          error: 'stored campaign authority is invalid',
+          kind: 'failed',
+          reason: result.reason,
+        });
+        return;
+      }
       res.status(200).json(result.record);
       return;
     }
@@ -120,6 +146,24 @@ export default async function handler(
           // Stale write — return the current record so the client can
           // offer keep-local / take-server.
           res.status(409).json(result.current);
+          return;
+        }
+        if (result.kind === 'refused') {
+          // Replica local mutation is a typed refusal, not a 409 and
+          // not a generic 500. The stored row is unchanged.
+          res.status(403).json({
+            error: 'replica instance cannot accept local mutation',
+            kind: 'refused',
+            reason: result.reason,
+          });
+          return;
+        }
+        if (result.kind === 'failed') {
+          res.status(422).json({
+            error: 'campaign authority is invalid',
+            kind: 'failed',
+            reason: result.reason,
+          });
           return;
         }
         // Task 1.1 journal half: under journal authority, creation appends
@@ -152,7 +196,23 @@ export default async function handler(
 
     case 'DELETE': {
       try {
-        deleteCampaign(id);
+        const result = deleteCampaign(id);
+        if (result.kind === 'refused') {
+          res.status(403).json({
+            error: 'replica instance cannot accept local mutation',
+            kind: 'refused',
+            reason: result.reason,
+          });
+          return;
+        }
+        if (result.kind === 'failed') {
+          res.status(422).json({
+            error: 'campaign authority is invalid',
+            kind: 'failed',
+            reason: result.reason,
+          });
+          return;
+        }
         res.status(204).end();
       } catch (error) {
         sendCampaignError(res, error, 'failed to delete campaign');
