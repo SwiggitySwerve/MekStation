@@ -15,7 +15,10 @@ import type {
   IDeliveryCursor,
   IDeliveryEpochBaseline,
 } from '@/lib/multiplayer/server/delivery/IDeliveryEpochStore';
-import type { ICampaignEvent } from '@/types/campaign/CampaignSync';
+import type {
+  CampaignEventType,
+  ICampaignEvent,
+} from '@/types/campaign/CampaignSync';
 
 import { DELIVERY_EPOCH_STALE_MESSAGE } from '@/lib/multiplayer/server/delivery/IDeliveryEpochStore';
 
@@ -34,12 +37,14 @@ export type CampaignGrantClock = () => string;
  * the source stream sequence. That sequence is a global journal
  * position; leaving it on the wire would let a consumer count gaps
  * from withheld events. Ordering authority is deliverySequence.
+ *
+ * Distributive Omit keeps the per-type payload discriminant so a
+ * snapshot fold can reattach deliverySequence and call
+ * applyCampaignEvent without a second payload union.
  */
-export type ICampaignGrantProjectedEvent = {
-  readonly [K in keyof ICampaignEvent as K extends 'sequence'
-    ? never
-    : K]: ICampaignEvent[K];
-};
+export type ICampaignGrantProjectedEvent<
+  T extends CampaignEventType = CampaignEventType,
+> = T extends CampaignEventType ? Omit<ICampaignEvent<T>, 'sequence'> : never;
 
 /**
  * One delivered item. This is the entire wire-visible row: sequence
@@ -91,6 +96,17 @@ export type ProjectCampaignStreamResult =
   | IProjectCampaignStreamPage
   | IProjectCampaignStreamStaleEpoch
   | IProjectCampaignStreamRefused;
+
+/**
+ * How a null-cursor grant join is backfilled. full-stream is the
+ * task-3.3 path (every in-scope item). snapshot-plus-tail is the
+ * task-3.4 compression: a scoped CampaignSnapshotPublished plus the
+ * items after its as-of deliverySequence. Callers MUST pass this
+ * explicitly on the session; a missing choice must not flip behavior.
+ */
+export type CampaignGrantNullCursorBackfill =
+  | 'full-stream'
+  | 'snapshot-plus-tail';
 
 export type { IDeliveryCursor, IDeliveryEpochBaseline };
 export { DELIVERY_EPOCH_STALE_MESSAGE };

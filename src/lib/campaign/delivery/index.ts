@@ -20,6 +20,7 @@ export {
 } from './campaignDeliveryTypes';
 export type {
   CampaignGrantClock,
+  CampaignGrantNullCursorBackfill,
   ICampaignGrantDeliveryItem,
   ICampaignGrantProjectedEvent,
   IDeliveryCursor,
@@ -42,9 +43,44 @@ export type {
 export {
   GRANT_CHANNEL_AUTH_ERROR_CODE,
   GRANT_CHANNEL_INFRA_ERROR_CODE,
+  grantSnapshotMismatchFrame,
   grantTokenFailureFrame,
 } from './campaignGrantChannelAuth';
 export type { ICampaignGrantLiveSource } from './campaignGrantChannelSession';
+export { startCampaignGrantChannelSession } from './campaignGrantChannelSession';
+export {
+  buildScopedCampaignSnapshot,
+  projectedHeadDeliverySequence,
+  scopedSnapshotFromProjectedPage,
+  serveScopedCampaignSnapshot,
+  sliceProjectedPageAtSequence,
+} from './buildScopedCampaignSnapshot';
+export type {
+  BuildScopedCampaignSnapshotResult,
+  IBuildScopedCampaignSnapshotRequest,
+  IBuiltScopedCampaignSnapshot,
+  IScopedCampaignSnapshot,
+} from './buildScopedCampaignSnapshot';
+export {
+  CAMPAIGN_GRANT_SNAPSHOT_AUTHOR,
+  SNAPSHOT_CUT_INVALID_REASON,
+  SNAPSHOT_CUT_PAST_HEAD_REASON,
+  SNAPSHOT_GRANT_MISMATCH_REASON,
+} from './campaignGrantSnapshotTypes';
+export {
+  campaignGrantItemToReplayEvent,
+  campaignJsonEquals,
+  canonicalizeCampaignJson,
+  foldCampaignGrantDeliveryItems,
+  hydrateCampaignGrantFromSnapshot,
+  scopedSnapshotHydrationEvent,
+  scopedSnapshotWireEvent,
+} from './foldCampaignGrantDelivery';
+export {
+  ScopedSnapshotEquivalenceError,
+  verifyScopedSnapshotEquivalence,
+  verifyScopedSnapshotEquivalenceAtEveryCut,
+} from './verifyScopedSnapshotEquivalence';
 export {
   projectCampaignStreamForGrant,
   type IProjectCampaignStreamDeps,

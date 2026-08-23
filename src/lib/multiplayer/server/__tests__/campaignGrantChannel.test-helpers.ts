@@ -5,6 +5,7 @@
 import { EventEmitter } from 'node:events';
 
 import type { ICampaignDeliveryHarness } from '@/lib/campaign/delivery/__tests__/grantProjectionHarness';
+import type { CampaignGrantNullCursorBackfill } from '@/lib/campaign/delivery/campaignDeliveryTypes';
 import type { ICampaignGrantLiveSource } from '@/lib/campaign/delivery/campaignGrantChannelSession';
 import type { ICampaignGrant } from '@/lib/campaign/grants/ICampaignGrantStore';
 import type { ICampaignHostRegistryLike } from '@/lib/multiplayer/server/bindCampaignSyncConnection';
@@ -118,11 +119,13 @@ export async function drain(settled?: () => boolean): Promise<void> {
 /** Frozen grant-channel deps bound to one delivery harness. */
 export function harnessGrantChannel(
   harness: ICampaignDeliveryHarness,
+  nullCursorBackfill: CampaignGrantNullCursorBackfill = 'full-stream',
 ): ICampaignGrantChannelDeps {
   return {
     projectDeps: harness.deps,
     nowMs: () => NOW_ACTIVE_MS,
     nowIso: () => EVENT_TS,
+    nullCursorBackfill,
   };
 }
 

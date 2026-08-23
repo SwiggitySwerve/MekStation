@@ -27,7 +27,10 @@ import type {
 } from '@/lib/multiplayer/server/authorization/AuthorizedViewer';
 import type { IDeliveryCursor } from '@/lib/multiplayer/server/delivery/IDeliveryEpochStore';
 import type { IDeliveryEpochStore } from '@/lib/multiplayer/server/delivery/IDeliveryEpochStore';
-import type { ICampaignEvent } from '@/types/campaign/CampaignSync';
+import type {
+  CampaignEventType,
+  ICampaignEvent,
+} from '@/types/campaign/CampaignSync';
 
 import {
   EVENT_JOURNAL_MAX_PAGE_SIZE,
@@ -52,7 +55,10 @@ import type {
   ProjectCampaignStreamResult,
 } from './campaignDeliveryTypes';
 
-import { grantAllowsScope } from '../grants/campaignGrantGuards';
+import {
+  grantAllowsScope,
+  grantHoldsEveryScope,
+} from '../grants/campaignGrantGuards';
 import { CAMPAIGN_STREAM_TYPE } from '../sync/JournalCampaignEventStore';
 import {
   CAMPAIGN_GRANT_DELIVERY_REFUSED_REASON,
@@ -128,21 +134,41 @@ async function readCampaignJournal(
 }
 
 /**
+ * Copies one narrowed campaign event without the source sequence so
+ * the discriminant and payload stay paired.
+ */
+function freezeProjected<T extends CampaignEventType>(
+  event: ICampaignEvent<T>,
+): Omit<ICampaignEvent<T>, 'sequence'> {
+  const { sequence: _sequence, ...rest } = event;
+  return Object.freeze(rest);
+}
+
+/**
  * Drops the source stream sequence so the wire event cannot reveal
  * global positions. Other envelope fields (including campaignId and
- * stamped scope) stay intact.
+ * stamped scope) stay intact. The switch keeps the per-type payload
+ * paired with `type` after sequence is omitted.
  */
 function toProjectedCampaignEvent(
   event: ICampaignEvent,
 ): ICampaignGrantProjectedEvent {
-  return Object.freeze({
-    campaignId: event.campaignId,
-    ts: event.ts,
-    authorPlayerId: event.authorPlayerId,
-    type: event.type,
-    scope: event.scope,
-    payload: event.payload,
-  });
+  switch (event.type) {
+    case 'CampaignDayAdvanced':
+      return freezeProjected(event);
+    case 'FundsChanged':
+      return freezeProjected(event);
+    case 'PilotHired':
+      return freezeProjected(event);
+    case 'ContractAccepted':
+      return freezeProjected(event);
+    case 'RosterUnitChanged':
+      return freezeProjected(event);
+    case 'SalvageAllocated':
+      return freezeProjected(event);
+    case 'CampaignSnapshotPublished':
+      return freezeProjected(event);
+  }
 }
 
 /** Stream plus projector version for the privacy-owned epoch 8-tuple. */
@@ -219,9 +245,23 @@ export async function projectCampaignStreamForGrant(
     readonly event: ICampaignEvent;
     readonly projectedEventIdentity: string;
   }[] = [];
+  const entitledToFullState = grantHoldsEveryScope(grant);
   for (const stored of storedEvents) {
     const event = stored.payload.campaignEvent;
     if (!grantAllowsScope(grant, event.scope)) continue;
+    // A stored CampaignSnapshotPublished carries the FULL authoritative
+    // state and `applyCampaignEvent` REPLACES state wholesale with it.
+    // Delivering one to a partially-scoped grant would therefore hand
+    // over everything the scope filter just withheld - genesis and
+    // migration baselines are exactly such rows and they are stamped
+    // `campaign`, so the scope check alone does not stop them. Only a
+    // grant already entitled to every scope may receive one; a
+    // restricted grant takes its baseline from the per-grant scoped
+    // snapshot instead (task 3.4), which is folded from in-scope events
+    // only and so cannot carry withheld material.
+    if (event.type === 'CampaignSnapshotPublished' && !entitledToFullState) {
+      continue;
+    }
     visible.push({
       event,
       projectedEventIdentity: stored.eventDigest,

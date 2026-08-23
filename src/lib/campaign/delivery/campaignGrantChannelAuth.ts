@@ -76,6 +76,14 @@ export function grantDeliveryRefusedFrame(): IGrantChannelFailureFrame {
   };
 }
 
+/** Snapshot built for a different grant than the socket's grantId. */
+export function grantSnapshotMismatchFrame(): IGrantChannelFailureFrame {
+  return {
+    code: GRANT_CHANNEL_AUTH_ERROR_CODE,
+    reason: 'snapshot-grant-mismatch',
+  };
+}
+
 /** Grant channel deps missing or SQLite handle unavailable. */
 export function grantChannelUnavailableFrame(): IGrantChannelFailureFrame {
   return {

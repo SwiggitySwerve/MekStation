@@ -35,6 +35,7 @@ import {
   CampaignGrantDeliverySchema,
   CampaignGrantJoinSchema,
   CampaignGrantRebaselineSchema,
+  CampaignGrantSnapshotSchema,
 } from './CampaignGrantProtocol';
 import { MatchSeatSchema } from './Lobby';
 
@@ -46,6 +47,7 @@ export {
   CampaignGrantJoinSchema,
   CampaignGrantProjectedEventSchema,
   CampaignGrantRebaselineSchema,
+  CampaignGrantSnapshotSchema,
 } from './CampaignGrantProtocol';
 export type {
   ICampaignGrantDelivery,
@@ -55,6 +57,7 @@ export type {
   ICampaignGrantJoin,
   ICampaignGrantProjectedEventWire,
   ICampaignGrantRebaseline,
+  ICampaignGrantSnapshot,
 } from './CampaignGrantProtocol';
 
 // =============================================================================
@@ -808,6 +811,7 @@ export const ServerMessageSchema = z.discriminatedUnion('kind', [
   CampaignParticipationMessageSchema,
   CampaignGrantDeliverySchema,
   CampaignGrantRebaselineSchema,
+  CampaignGrantSnapshotSchema,
 ]);
 export type IServerMessage = z.infer<typeof ServerMessageSchema>;
 
