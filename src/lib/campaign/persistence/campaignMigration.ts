@@ -2,40 +2,54 @@
  * Campaign schema migration ladder
  *
  * Per design D4: every saved campaign carries a `schemaVersion`. On read
- * an ordered ladder of `vN -> vN+1` steps runs until the snapshot matches
- * `CURRENT_CAMPAIGN_SCHEMA_VERSION`. This change ships only the `v1`
- * identity step — the ladder exists from day one so a later format change
- * (e.g. Wave 5 co-op) is an *added* step, not a breaking read.
+ * an ordered ladder of steps runs until the snapshot matches
+ * `CURRENT_CAMPAIGN_SCHEMA_VERSION`. v1 is the original envelope. v2
+ * stamps D2 `instanceId` + `authority` onto records that lack them.
  *
  * @spec openspec/changes/add-campaign-persistence/specs/campaign-persistence/spec.md
  * @spec openspec/changes/add-campaign-persistence/design.md (D4)
+ * @spec openspec/changes/design-campaign-authority-and-sync/design.md (D2)
  */
 
 import type { SerializedCampaign } from '@/types/campaign/SerializedCampaign';
 
-/**
- * The schema version every snapshot written by this build carries. Bump
- * this AND append a migration step whenever `SerializedCampaignBody`
- * changes shape.
- */
-export const CURRENT_CAMPAIGN_SCHEMA_VERSION = 1;
+import {
+  snapshotCarriesAuthority,
+  sourceCampaignAuthority,
+} from '@/lib/campaign/authority/campaignAuthority';
 
 /**
- * A single rung of the migration ladder. `fromVersion` is the version the
- * step upgrades *from*; `apply` returns the snapshot one version higher.
+ * Schema version every snapshot written by this build carries. Bump
+ * this AND append a migration step whenever the envelope shape changes.
+ */
+export const CURRENT_CAMPAIGN_SCHEMA_VERSION = 2;
+
+/**
+ * Stored envelope that may predate D2 fields. Migration fills those
+ * fields; callers must not treat this as already-valid current schema.
+ */
+export type MigratableCampaignSnapshot = Omit<
+  SerializedCampaign,
+  'instanceId' | 'authority'
+> & {
+  readonly instanceId?: string;
+  readonly authority?: unknown;
+};
+
+/**
+ * A single rung of the migration ladder. `fromVersion` is the version
+ * the step upgrades from; `apply` returns the snapshot one version higher.
  */
 interface MigrationStep {
   readonly fromVersion: number;
-  readonly apply: (snapshot: SerializedCampaign) => SerializedCampaign;
+  readonly apply: (
+    snapshot: MigratableCampaignSnapshot,
+    hostInstanceId: string,
+  ) => MigratableCampaignSnapshot;
 }
 
 /**
- * Ordered migration ladder. Each step upgrades `fromVersion -> fromVersion + 1`.
- *
- * The `v1` step is the identity migration — `v1` is the first version, so
- * there is nothing to upgrade *to v1 from*. It exists as a placeholder so
- * the ladder is non-empty and the runner's contract is exercised; a future
- * `v1 -> v2` step is appended here.
+ * Ordered migration ladder. Each step upgrades fromVersion to fromVersion+1.
  */
 const MIGRATION_LADDER: readonly MigrationStep[] = [
   {
@@ -44,22 +58,55 @@ const MIGRATION_LADDER: readonly MigrationStep[] = [
     fromVersion: 0,
     apply: (snapshot) => ({ ...snapshot, schemaVersion: 1 }),
   },
+  {
+    fromVersion: 1,
+    apply: applyAuthorityMetadata,
+  },
 ];
 
 /**
+ * Stamp D2 identity onto a v1 envelope.
+ *
+ * A campaign already living in this server's store is a source instance.
+ * That is the only safe interpretation: a replica is created only by an
+ * explicit replica flow, never by this backfill. Pre-field records
+ * therefore receive `{ role: 'source' }` and this host's stable
+ * instanceId. A record that already carries a parsed authority is left
+ * untouched aside from the version bump.
+ */
+function applyAuthorityMetadata(
+  snapshot: MigratableCampaignSnapshot,
+  hostInstanceId: string,
+): MigratableCampaignSnapshot {
+  if (snapshotCarriesAuthority(snapshot)) {
+    return { ...snapshot, schemaVersion: 2 };
+  }
+  return {
+    ...snapshot,
+    schemaVersion: 2,
+    instanceId: snapshot.instanceId ?? hostInstanceId,
+    authority: sourceCampaignAuthority(),
+  };
+}
+
+/**
  * Run the migration ladder on a snapshot read from storage. Applies
- * ordered `vN -> vN+1` steps until the snapshot's `schemaVersion` equals
+ * ordered steps until the snapshot's `schemaVersion` equals
  * `CURRENT_CAMPAIGN_SCHEMA_VERSION`.
  *
+ * `hostInstanceId` is this hosting server's durable id. It is used only
+ * when a pre-D2 record has no instanceId of its own.
+ *
  * Idempotent: a snapshot already at the current version is returned
- * unchanged (no step matches). Total: a snapshot at an unknown *future*
- * version (no applicable step) is returned as-is so a forward-compatible
- * read degrades gracefully rather than throwing.
+ * unchanged (no step matches). A snapshot at an unknown future version
+ * is returned as-is so a forward-compatible read degrades rather than
+ * throwing.
  */
 export function migrateSerializedCampaign(
-  snapshot: SerializedCampaign,
+  snapshot: MigratableCampaignSnapshot,
+  hostInstanceId: string,
 ): SerializedCampaign {
-  let current = snapshot;
+  let current: MigratableCampaignSnapshot = snapshot;
   // Bounded loop: each successful step strictly increases schemaVersion,
   // and the ladder is finite, so this terminates.
   let guard = 0;
@@ -74,8 +121,8 @@ export function migrateSerializedCampaign(
       // No step upgrades from this version — stop rather than spin.
       break;
     }
-    current = step.apply(current);
+    current = step.apply(current, hostInstanceId);
     guard += 1;
   }
-  return current;
+  return current as SerializedCampaign;
 }

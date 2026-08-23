@@ -92,6 +92,12 @@ const INITIAL_METADATA: ICampaignSaveMetadata = {
   schemaVersion: CURRENT_CAMPAIGN_SCHEMA_VERSION,
   originDeviceId: null,
   version: 0,
+  // Never saved: the hosting instance and its authority are UNKNOWN.
+  // Null rather than a source default - claiming source authority for a
+  // record that was never written is exactly the silent inference D2
+  // forbids.
+  instanceId: null,
+  authority: null,
 };
 
 const INITIAL_STATE: CampaignPersistenceState = {
@@ -283,11 +289,28 @@ function metadataFrom(record: SerializedCampaign): ICampaignSaveMetadata {
     schemaVersion: record.schemaVersion,
     originDeviceId: record.originDeviceId,
     version: record.version,
+    instanceId: record.instanceId,
+    authority: record.authority,
   };
 }
 
+/**
+ * Client-side migration.
+ *
+ * `migrateSerializedCampaign` needs a host instance id to backfill a
+ * pre-D2 record, but the BROWSER is not a hosting server and must not
+ * invent one. A record read from the server already carries its
+ * instanceId; only a legacy browser-local snapshot lacks it, and for
+ * that case the device id is a placeholder the server overwrites on the
+ * next authoritative write (the same fallback `buildSerializedCampaign`
+ * uses). Expressed once here rather than at each call site.
+ */
+function migrateClientRecord(record: SerializedCampaign): SerializedCampaign {
+  return migrateSerializedCampaign(record, record.instanceId ?? getDeviceId());
+}
+
 function deserializeCampaignRecord(record: SerializedCampaign): ICampaign {
-  return deserializeCampaignBody(migrateSerializedCampaign(record).body);
+  return deserializeCampaignBody(migrateClientRecord(record).body);
 }
 
 type SaveAttemptResult =
@@ -363,7 +386,7 @@ function rollbackCoopCampaign(
     writeLiveCampaign(rollbackCampaign);
   }
   if (fallbackServerRecord) {
-    const migrated = migrateSerializedCampaign(fallbackServerRecord);
+    const migrated = migrateClientRecord(fallbackServerRecord);
     restoreRosterProjection(
       migrated.campaignId,
       migrated.body.rosterProjection,
@@ -520,7 +543,7 @@ async function runLoad(set: PersistenceSet, id: string): Promise<boolean> {
       if (!response.ok) {
         throw new Error(`server responded ${response.status}`);
       }
-      const migrated = migrateSerializedCampaign(
+      const migrated = migrateClientRecord(
         (await response.json()) as SerializedCampaign,
       );
       const loadedCampaign = preserveGuestCoopSession(
@@ -605,7 +628,7 @@ function resolveConflictTakeServerAction(
     if (!serverRecord) {
       return false;
     }
-    const migrated = migrateSerializedCampaign(serverRecord);
+    const migrated = migrateClientRecord(serverRecord);
     const serverCampaign = deserializeCampaignRecord(migrated);
     writeLiveCampaign(serverCampaign);
     restoreRosterProjection(

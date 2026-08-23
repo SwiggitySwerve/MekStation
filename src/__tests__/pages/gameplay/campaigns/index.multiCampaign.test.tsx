@@ -69,6 +69,9 @@ jest.mock('@/stores/campaign/useCampaignPersistenceStore', () => ({
 
 import CampaignsListPage from '@/pages/gameplay/campaigns/index';
 
+/** D2: the list projection surfaces the stored authority fact. */
+const TEST_HOST_INSTANCE_ID = 'host-instance-test';
+
 describe('CampaignsListPage multi-campaign backend list', () => {
   beforeEach(() => {
     mockRouterPush.mockReset();
@@ -85,6 +88,8 @@ describe('CampaignsListPage multi-campaign backend list', () => {
         currentDate: '3025-01-01T00:00:00.000Z',
         balance: 1000000,
         updatedAt: '2026-06-21T12:00:00.000Z',
+        instanceId: TEST_HOST_INSTANCE_ID,
+        authority: { role: 'source' },
       },
       {
         id: 'campaign-bravo',
@@ -93,6 +98,8 @@ describe('CampaignsListPage multi-campaign backend list', () => {
         currentDate: '3025-02-01T00:00:00.000Z',
         balance: 2500000,
         updatedAt: '2026-06-21T13:00:00.000Z',
+        instanceId: TEST_HOST_INSTANCE_ID,
+        authority: { role: 'source' },
       },
     ];
     (globalThis as unknown as { fetch: jest.Mock }).fetch = jest.fn(
@@ -137,6 +144,8 @@ describe('CampaignsListPage multi-campaign backend list', () => {
         currentDate: '3025-01-01T00:00:00.000Z',
         balance: 1000000,
         updatedAt: '2026-06-21T12:00:00.000Z',
+        instanceId: TEST_HOST_INSTANCE_ID,
+        authority: { role: 'source' },
       },
       {
         id: 'campaign-bravo',
@@ -145,6 +154,8 @@ describe('CampaignsListPage multi-campaign backend list', () => {
         currentDate: '3025-02-01T00:00:00.000Z',
         balance: 2500000,
         updatedAt: '2026-06-21T13:00:00.000Z',
+        instanceId: TEST_HOST_INSTANCE_ID,
+        authority: { role: 'source' },
       },
     ];
     mockCampaignStoreState.campaign = {
@@ -186,6 +197,8 @@ describe('CampaignsListPage multi-campaign backend list', () => {
         currentDate: '3025-01-01T00:00:00.000Z',
         balance: 1000000,
         updatedAt: '2026-06-21T12:00:00.000Z',
+        instanceId: TEST_HOST_INSTANCE_ID,
+        authority: { role: 'source' },
       },
     ];
     mockCampaignStoreState.campaign = {
@@ -251,6 +264,8 @@ describe('CampaignsListPage multi-campaign backend list', () => {
         currentDate: '3025-03-01T00:00:00.000Z',
         balance: 2500000,
         updatedAt: '3025-03-01T00:00:00.000Z',
+        instanceId: TEST_HOST_INSTANCE_ID,
+        authority: { role: 'source' },
       },
     ];
     let call = 0;
