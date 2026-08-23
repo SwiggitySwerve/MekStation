@@ -10,6 +10,7 @@ import type { ICampaignJournalEnvelope } from '@/lib/campaign/sync/JournalCampai
 
 import { CampaignGrantMembershipSource } from '@/lib/campaign/delivery/CampaignGrantMembershipSource';
 import { SQLiteCampaignGrantStore } from '@/lib/campaign/grants/SQLiteCampaignGrantStore';
+import { SQLiteCampaignReplicaStore } from '@/lib/campaign/replica/SQLiteCampaignReplicaStore';
 import { SQLiteEventJournal } from '@/lib/events/journal/SQLiteEventJournal';
 import { AuthorizedViewerResolver } from '@/lib/multiplayer/server/authorization/AuthorizedViewer';
 import { SQLiteDeliveryEpochStore } from '@/lib/multiplayer/server/delivery/SQLiteDeliveryEpochStore';
@@ -50,4 +51,17 @@ export function createCampaignGrantChannelDepsFromSqlite(
       clock: args.clock,
     },
   };
+}
+
+/**
+ * Binds the consuming-device replica store to the same process database
+ * the grant channel uses. Throws when SQLite is not initialized.
+ */
+export function createCampaignReplicaStoreFromSqlite(
+  clock: CampaignGrantClock,
+): SQLiteCampaignReplicaStore {
+  return new SQLiteCampaignReplicaStore(
+    getSQLiteService().getDatabase(),
+    clock,
+  );
 }

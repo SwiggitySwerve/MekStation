@@ -1,4 +1,6 @@
 import type { ICampaignGrantLiveSource } from '@/lib/campaign/delivery/campaignGrantChannelSession';
+import type { ICampaignGrantSigner } from '@/lib/campaign/grants/ICampaignGrantStore';
+import type { SQLiteCampaignReplicaStore } from '@/lib/campaign/replica/SQLiteCampaignReplicaStore';
 import type { ICampaignEvent } from '@/types/campaign/CampaignSync';
 import type {
   ICampaignClientMessage,
@@ -26,12 +28,16 @@ import {
   admitBoundCampaignParticipation,
   captureCampaignConnectionBaseline,
 } from './authorizeCampaignParticipation';
-import { createCampaignGrantChannelDepsFromSqlite } from './campaignGrantChannelDeps';
+import {
+  createCampaignGrantChannelDepsFromSqlite,
+  createCampaignReplicaStoreFromSqlite,
+} from './campaignGrantChannelDeps';
 import { getCampaignHostRegistry } from './CampaignHostRegistry';
 import {
   handleCampaignGrantJoin,
   type ICampaignGrantChannelDeps,
 } from './handleCampaignGrantJoin';
+import { handleRoomCodeGuestJoin } from './handleRoomCodeGuestJoin';
 
 export interface IWireCampaignSocket extends IMatchSocket {
   on(event: 'message', listener: (data: unknown) => void): this;
@@ -64,6 +70,17 @@ export interface IBindCampaignSyncConnectionDeps {
    * post-append subscriber set so fan-out cannot precede durable write.
    */
   grantLiveSource?: ICampaignGrantLiveSource;
+  /**
+   * Durable replica for the room-code guest path. Omitted sockets try
+   * the process database; explicit null keeps joinGuest (unit tests
+   * that are not proving grant/replica plumbing).
+   */
+  replicaStore?: SQLiteCampaignReplicaStore | null;
+  /**
+   * Issuer pinned on auto-issued room-code grants. Omitted joins mint
+   * a process-local keypair once.
+   */
+  roomCodeGrantIssuer?: ICampaignGrantSigner;
 }
 
 export interface IBoundCampaignSyncConnection {
@@ -80,6 +97,8 @@ export async function bindCampaignSyncConnection({
   logger = console,
   grantChannel,
   grantLiveSource,
+  replicaStore,
+  roomCodeGrantIssuer,
 }: IBindCampaignSyncConnectionDeps): Promise<IBoundCampaignSyncConnection | null> {
   const entry = registry.getOrCreate
     ? await registry.getOrCreate(matchId)
@@ -119,6 +138,8 @@ export async function bindCampaignSyncConnection({
       logger,
       grantChannel,
       grantLiveSource,
+      replicaStore,
+      roomCodeGrantIssuer,
     });
   });
   socket.on('close', cleanup);
@@ -138,6 +159,8 @@ interface IHandleInboundDeps {
   logger: Pick<Console, 'error' | 'warn' | 'log'>;
   grantChannel?: ICampaignGrantChannelDeps | null;
   grantLiveSource?: ICampaignGrantLiveSource;
+  replicaStore?: SQLiteCampaignReplicaStore | null;
+  roomCodeGrantIssuer?: ICampaignGrantSigner;
 }
 
 async function handleInbound({
@@ -151,6 +174,8 @@ async function handleInbound({
   logger,
   grantChannel,
   grantLiveSource,
+  replicaStore,
+  roomCodeGrantIssuer,
 }: IHandleInboundDeps): Promise<void> {
   const parsedJson = parseJsonPayload(data);
   if (!parsedJson.ok) {
@@ -223,6 +248,8 @@ async function handleInbound({
       cleanupFns,
       grantChannel,
       grantLiveSource,
+      replicaStore,
+      roomCodeGrantIssuer,
     });
   } catch (error) {
     logger.error('[campaign-sync] dispatch failed', error);
@@ -246,6 +273,8 @@ interface IDispatchCampaignEnvelopeDeps {
   cleanupFns: Set<() => void>;
   grantChannel?: ICampaignGrantChannelDeps | null;
   grantLiveSource?: ICampaignGrantLiveSource;
+  replicaStore?: SQLiteCampaignReplicaStore | null;
+  roomCodeGrantIssuer?: ICampaignGrantSigner;
 }
 
 async function dispatchCampaignEnvelope({
@@ -258,6 +287,8 @@ async function dispatchCampaignEnvelope({
   cleanupFns,
   grantChannel,
   grantLiveSource,
+  replicaStore,
+  roomCodeGrantIssuer,
 }: IDispatchCampaignEnvelopeDeps): Promise<void> {
   switch (envelope.kind) {
     case 'CampaignJoin':
@@ -267,7 +298,12 @@ async function dispatchCampaignEnvelope({
         entry,
         matchId,
         verifiedPlayerId,
+        cleanup,
         cleanupFns,
+        grantChannel,
+        grantLiveSource,
+        replicaStore,
+        roomCodeGrantIssuer,
       });
       return;
     case 'CampaignGrantJoin':
@@ -384,14 +420,24 @@ async function handleCampaignJoin({
   entry,
   matchId,
   verifiedPlayerId,
+  cleanup,
   cleanupFns,
+  grantChannel,
+  grantLiveSource,
+  replicaStore,
+  roomCodeGrantIssuer,
 }: {
   envelope: Extract<ICampaignClientMessage, { kind: 'CampaignJoin' }>;
   socket: IWireCampaignSocket;
   entry: ICampaignHostRegistryEntry;
   matchId: string;
   verifiedPlayerId: string;
+  cleanup: () => void;
   cleanupFns: Set<() => void>;
+  grantChannel?: ICampaignGrantChannelDeps | null;
+  grantLiveSource?: ICampaignGrantLiveSource;
+  replicaStore?: SQLiteCampaignReplicaStore | null;
+  roomCodeGrantIssuer?: ICampaignGrantSigner;
 }): Promise<void> {
   addSocketToMatch(matchId, socket);
   const role: 'host' | 'guest' =
@@ -429,6 +475,36 @@ async function handleCampaignJoin({
       sendPendingProposals(socket, matchId, pending);
     });
     cleanupFns.add(pendingUnsubscribe);
+    acknowledge();
+    return;
+  }
+
+  const resolvedChannel = resolveGrantChannel(grantChannel);
+  const resolvedReplica = resolveReplicaStore(replicaStore, resolvedChannel);
+  const guestOutcome = await handleRoomCodeGuestJoin({
+    envelope,
+    entry,
+    matchId,
+    verifiedPlayerId,
+    cleanupFns,
+    grantChannel: resolvedChannel,
+    replicaStore: resolvedReplica,
+    liveSource: grantLiveSource ?? hostAppendLiveSource(entry),
+    send: (message) => send(socket, message),
+    closeTyped: (code, reason) =>
+      closeWithTypedError({
+        socket,
+        matchId,
+        cleanup,
+        code,
+        reason,
+      }),
+    issuer: roomCodeGrantIssuer,
+  });
+  if (guestOutcome === 'rejected') {
+    return;
+  }
+  if (guestOutcome === 'served') {
     acknowledge();
     return;
   }
@@ -641,6 +717,23 @@ function resolveGrantChannel(
       nowMs: () => Date.parse(nowIso()),
       nowIso,
     });
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Uses an injected replica when present, including explicit null.
+ * Omitted deps try the process database beside the grant channel clock.
+ */
+function resolveReplicaStore(
+  injected: SQLiteCampaignReplicaStore | null | undefined,
+  grantChannel: ICampaignGrantChannelDeps | null,
+): SQLiteCampaignReplicaStore | null {
+  if (injected !== undefined) return injected;
+  if (grantChannel == null) return null;
+  try {
+    return createCampaignReplicaStoreFromSqlite(grantChannel.nowIso);
   } catch {
     return null;
   }
