@@ -30,6 +30,22 @@ export type {
   ProjectCampaignStreamResult,
 } from './campaignDeliveryTypes';
 export {
+  applyCampaignGrantDelivery,
+  campaignGrantDeliveryIdentity,
+  emptyCampaignGrantReplicaState,
+} from './applyCampaignGrantDelivery';
+export type {
+  ApplyCampaignGrantDeliveryResult,
+  IApplyCampaignGrantDeliveryInput,
+  ICampaignGrantReplicaApplyState,
+} from './applyCampaignGrantDelivery';
+export {
+  GRANT_CHANNEL_AUTH_ERROR_CODE,
+  GRANT_CHANNEL_INFRA_ERROR_CODE,
+  grantTokenFailureFrame,
+} from './campaignGrantChannelAuth';
+export type { ICampaignGrantLiveSource } from './campaignGrantChannelSession';
+export {
   projectCampaignStreamForGrant,
   type IProjectCampaignStreamDeps,
   type IProjectCampaignStreamRequest,

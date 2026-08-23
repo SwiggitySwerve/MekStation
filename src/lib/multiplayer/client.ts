@@ -213,6 +213,14 @@ const SERVER_MESSAGE_HANDLERS: Record<
   CampaignParticipation: ({ message, emit }) => {
     emit('event', message);
   },
+  // Grant-channel frames (task 3.3): emit as events so a replica client
+  // can apply via applyCampaignGrantDelivery. No room-code lastSeq.
+  CampaignGrantDelivery: ({ message, emit }) => {
+    emit('event', message);
+  },
+  CampaignGrantRebaseline: ({ message, emit }) => {
+    emit('event', message);
+  },
 };
 
 interface IClientRuntime {

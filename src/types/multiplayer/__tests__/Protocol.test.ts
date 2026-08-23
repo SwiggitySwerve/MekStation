@@ -441,6 +441,20 @@ describe('Protocol envelope schemas', () => {
       }
     });
 
+    it('parses CampaignGrantJoin beside the room-code CampaignJoin frame', () => {
+      const env = {
+        kind: 'CampaignGrantJoin' as const,
+        matchId: 'match-campaign',
+        ts: nowIso(),
+        playerId: 'pid_replica',
+        campaignId: 'campaign-1',
+        grantId: 'a'.repeat(32),
+        token: { opaque: true },
+        cursor: null,
+      };
+      expect(ClientMessageSchema.safeParse(env).success).toBe(true);
+    });
+
     it('throws loudly for an unknown campaign-sync frame kind', () => {
       expect(() =>
         assertKnownCampaignSyncFrameKind('CampaignTimeTravel'),
