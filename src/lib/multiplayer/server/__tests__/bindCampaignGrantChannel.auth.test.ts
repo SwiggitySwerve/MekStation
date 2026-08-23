@@ -182,7 +182,7 @@ describe('grant channel token gate', () => {
         cursor: null,
       }),
     );
-    await drain();
+    await drain(() => malformed.sent.length > 0);
     expect(malformed.sent).toContainEqual(
       expect.objectContaining({
         kind: 'Error',
@@ -204,7 +204,7 @@ describe('grant channel token gate', () => {
         cursor: null,
       }),
     );
-    await drain();
+    await drain(() => expired.sent.length > 0);
     expect(expired.sent).toContainEqual(
       expect.objectContaining({
         kind: 'Error',
@@ -228,7 +228,7 @@ describe('grant channel token gate', () => {
         cursor: null,
       }),
     );
-    await drain();
+    await drain(() => badSig.sent.length > 0);
     expect(badSig.sent).toContainEqual(
       expect.objectContaining({
         kind: 'Error',
@@ -247,7 +247,7 @@ describe('grant channel token gate', () => {
         cursor: null,
       }),
     );
-    await drain();
+    await drain(() => unknown.sent.length > 0);
     expect(unknown.sent).toContainEqual(
       expect.objectContaining({
         kind: 'Error',
@@ -267,7 +267,7 @@ describe('grant channel token gate', () => {
         cursor: null,
       }),
     );
-    await drain();
+    await drain(() => revoked.sent.length > 0);
     expect(revoked.sent).toContainEqual(
       expect.objectContaining({
         kind: 'Error',
@@ -298,7 +298,7 @@ describe('grant channel token gate', () => {
         cursor: null,
       }),
     );
-    await drain();
+    await drain(() => scopeSocket.sent.length > 0);
     expect(scopeSocket.sent).toContainEqual(
       expect.objectContaining({
         kind: 'Error',
@@ -324,7 +324,7 @@ describe('grant channel token gate', () => {
         cursor: null,
       }),
     );
-    await drain();
+    await drain(() => broken.sent.length > 0);
     expect(broken.sent).toContainEqual(
       expect.objectContaining({
         kind: 'Error',
@@ -346,7 +346,7 @@ describe('grant channel token gate', () => {
         cursor: null,
       }),
     );
-    await drain();
+    await drain(() => mismatch.sent.length > 0);
     expect(mismatch.sent).toContainEqual(
       expect.objectContaining({
         kind: 'Error',
@@ -365,7 +365,7 @@ describe('grant channel token gate', () => {
         cursor: null,
       }),
     );
-    await drain();
+    await drain(() => unavailable.sent.length > 0);
     expect(unavailable.sent).toContainEqual(
       expect.objectContaining({
         kind: 'Error',

@@ -50,7 +50,7 @@ describe('room-code CampaignJoin with grant channel present', () => {
         role: 'guest',
         roomCode: 'ABC234',
       });
-      await drain();
+      await drain(() => socket.sent.length > 0);
       expect(socket.sent).toContainEqual(
         expect.objectContaining({
           kind: 'CampaignSnapshot',
