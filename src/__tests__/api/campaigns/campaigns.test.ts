@@ -441,7 +441,7 @@ describe('Campaign persistence API', () => {
       { id: 'typo-role', reason: 'invalid_authority' },
     ]);
     expect(listResponseWire(res)).not.toContain(leakToken);
-    expect(listResponseWire(res)).not.toContain('typo');
+    expect(listResponseWire(res)).not.toContain('"role":"typo"');
   });
 
   it('distinguishes missing, corrupt, and unknown-authority GET outcomes', async () => {
