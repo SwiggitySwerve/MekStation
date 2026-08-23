@@ -122,6 +122,7 @@ describe('bindCampaignSyncConnection', () => {
       matchId: 'missing-match',
       verifiedPlayerId: 'pid_guest',
       logger: quietLogger,
+      replicaStore: null,
     });
 
     expect(socket.sent).toEqual([
@@ -152,6 +153,7 @@ describe('bindCampaignSyncConnection', () => {
       matchId: 'match-campaign',
       verifiedPlayerId: 'pid_guest',
       logger: quietLogger,
+      replicaStore: null,
     });
     socket.inbound({
       kind: 'CampaignJoin',
@@ -181,6 +183,7 @@ describe('bindCampaignSyncConnection', () => {
       matchId: 'match-campaign',
       verifiedPlayerId: 'pid_guest',
       logger: quietLogger,
+      replicaStore: null,
     });
     socket.inbound({
       kind: 'CampaignJoin',
@@ -237,6 +240,7 @@ describe('bindCampaignSyncConnection', () => {
       matchId: 'match-campaign',
       verifiedPlayerId: 'pid_host',
       logger: quietLogger,
+      replicaStore: null,
     });
     await bindCampaignSyncConnection({
       socket: guestSocket,
@@ -244,6 +248,7 @@ describe('bindCampaignSyncConnection', () => {
       matchId: 'match-campaign',
       verifiedPlayerId: 'pid_guest',
       logger: quietLogger,
+      replicaStore: null,
     });
     hostSocket.inbound({
       kind: 'CampaignJoin',
@@ -299,6 +304,7 @@ describe('bindCampaignSyncConnection', () => {
       matchId: 'match-campaign',
       verifiedPlayerId: 'pid_guest',
       logger: quietLogger,
+      replicaStore: null,
     });
 
     guestSocket.inbound({
@@ -335,6 +341,7 @@ describe('bindCampaignSyncConnection', () => {
       matchId: 'match-campaign',
       verifiedPlayerId: 'pid_guest',
       logger: quietLogger,
+      replicaStore: null,
     });
     guestSocket.inbound({
       kind: 'CampaignJoin',
@@ -386,6 +393,7 @@ describe('bindCampaignSyncConnection', () => {
       matchId: 'match-campaign',
       verifiedPlayerId: 'pid_host',
       logger: quietLogger,
+      replicaStore: null,
     });
     await bindCampaignSyncConnection({
       socket: guestSocket,
@@ -393,6 +401,7 @@ describe('bindCampaignSyncConnection', () => {
       matchId: 'match-campaign',
       verifiedPlayerId: 'pid_guest',
       logger: quietLogger,
+      replicaStore: null,
     });
     hostSocket.inbound({
       kind: 'CampaignJoin',
@@ -485,6 +494,7 @@ describe('bindCampaignSyncConnection', () => {
       matchId: 'match-campaign',
       verifiedPlayerId: 'pid_guest',
       logger: quietLogger,
+      replicaStore: null,
     });
     socket.inbound({
       kind: 'CampaignTimeTravel',
@@ -519,6 +529,7 @@ describe('bindCampaignSyncConnection', () => {
       matchId: 'match-campaign',
       verifiedPlayerId: 'pid_host',
       logger: quietLogger,
+      replicaStore: null,
     });
     await bindCampaignSyncConnection({
       socket: guestSocket,
@@ -526,6 +537,7 @@ describe('bindCampaignSyncConnection', () => {
       matchId: 'match-campaign',
       verifiedPlayerId: 'pid_guest',
       logger: quietLogger,
+      replicaStore: null,
     });
     hostSocket.inbound({
       kind: 'CampaignJoin',
