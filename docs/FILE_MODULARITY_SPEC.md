@@ -19,10 +19,10 @@ Use the category that best matches the file's primary role.
 
 | Category                                                        | Target  | Soft Max | Hard Guardrail | Notes                                            |
 | --------------------------------------------------------------- | ------- | -------- | -------------- | ------------------------------------------------ |
-| Runtime logic (`services`, reducers, gameplay/simulation logic) | 250-350 | 400      | 500            | Prefer focused modules by concern                |
-| High-churn runtime logic                                        | 200-300 | 350      | 450            | Keep hot paths easier to reason about            |
+| Runtime logic (`services`, reducers, gameplay/simulation logic) | 250-350 | 500      | 500            | Prefer focused modules by concern                |
+| High-churn runtime logic                                        | 200-300 | 450      | 500            | Keep hot paths easier to reason about            |
 | React container/orchestrator components                         | 300-450 | 500      | 600            | Split UI composition from helpers/state adapters |
-| React presentational components                                 | 120-300 | 350      | 400            | Keep rendering concerns isolated                 |
+| React presentational components                                 | 120-300 | 400      | 500            | Keep rendering concerns isolated                 |
 | Type/interface files                                            | 250-500 | 700      | 900            | Split when mixed domains appear                  |
 | Declarative catalogs/constants                                  | 400-800 | 1000     | 1200           | Large data-only files are acceptable             |
 
@@ -30,6 +30,9 @@ Notes:
 
 - Tests are exempt from strict limits, but should still remain navigable.
 - Generated files are exempt.
+- oxlint `max-lines` for `src/**/*.ts` and `src/**/*.tsx` warns at 500
+  effective lines (`skipBlankLines` and `skipComments`). That is the file
+  cap; keep targeting ~300 lines and split by responsibility before the cap.
 
 ## Split Triggers
 

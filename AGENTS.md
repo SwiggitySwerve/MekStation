@@ -132,3 +132,23 @@ build; use it when the requested proof surface warrants the cost.
   proof is `npm run validate:assets:strict`.
 - This repository is often used through linked worktrees. Inspect live branch
   and status before changing Git state, and preserve unrelated worktree edits.
+
+## Learned User Preferences
+
+- Keep going until the assigned wave or task is closed or blocked with evidence; do not stop after a PR or a partial edit.
+- Split internally parallelizable work across subagents rather than running it serially.
+- Runtime files use the 500-line cap (not 400) unless a wave contract states a tighter product-pr cap; do not mix parked FILE_MODULARITY or oxlint cap bumps into CAMP PRs.
+- CAMP product PRs merge as merge commits (`gh pr merge N --merge --delete-branch`), never squash, and the product head SHA must not change after reviewed-head.
+- Do not treat CAMP controller "complete" or exit 0 as success without a real receipt; the official Windows production CLI can fake-exit with empty stdout.
+
+## Learned Workspace Facts
+
+- CAMP initiating clone is `E:/Projects/MekStation-proof`. Dirty primary `E:/Projects/MekStation` must not be used for CAMP commits, register, or controller runs.
+- CAMP product worktrees live under `E:/CodexWorktrees/MekStation-<wave>` on `codex/<wave>`; controller state and playtest receipts live under `E:/Projects/MekStation-proof/.sisyphus/evidence/playtest/`.
+- Wave close sequence is register (before product edits) → reviewed-head → merge-commit → exact-main → cleanup. Fast-forward the proof clone to GitHub main before exact-main and cleanup. Cap is `git diff --numstat` added+deleted versus register oldOid, including untracked files.
+- WAVE_CONTRACTS live in `scripts/qc/camp01-authority-receipt.contract.mjs`. Repair kinds are only `proof` and `h`; do not invent repair rows. Run `node scripts/qc/run-camp01-production.mjs` from the proof clone.
+- On Windows, use the launcher under `E:/t/` (`camp01-launch.mjs` / `camp00-launch.mjs`) with TEMP/TMP=`E:/t` and Node 22.22.0 (`C:\Users\wroll\AppData\Local\nvm\v22.22.0\node.exe`). The proof clone has no `node_modules`.
+- Product worktrees must not have a `node_modules` junction during reviewed-head (`scanReparse`). Junction for local tests, then `rmdir` (no `/S`) before reviewed-head. Windows `git worktree remove` fails on leftover `node_modules` — `cmd rmdir /S /Q` then prune; `git worktree remove` can hang.
+- Playwright CAMP authority reports must be body-only attachments (no `path` / caller file-drop). `wave-result.json` uses alphabetically sorted keys, `wx`, and skip-if-exists.
+- Capture-owning waves in `CAPTURE_CONTRACTS` need dual-SHA capturePolicies (candidate and reviewed-head). Exact-main treeSha compares to `cap.headSha^{tree}`, not merge^{tree}.
+- CAMP solo-maintainer approval is `solo-maintainer` / reviewer `SwiggitySwerve`. oxfmt printWidth is 80.

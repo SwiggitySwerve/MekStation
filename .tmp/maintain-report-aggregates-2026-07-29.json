@@ -1,0 +1,989 @@
+{
+  "funnel": {
+    "src": {
+      "detected": 390,
+      "bySev": {
+        "info": 390
+      },
+      "criticalHigh": 0,
+      "summary": {
+        "file-bloat": {
+          "critical": 0,
+          "high": 0,
+          "medium": 0,
+          "low": 0,
+          "warn": 0,
+          "info": 331
+        },
+        "near-duplicate": {
+          "critical": 0,
+          "high": 0,
+          "medium": 0,
+          "low": 0,
+          "warn": 0,
+          "info": 59
+        }
+      }
+    },
+    "scripts": {
+      "detected": 100,
+      "bySev": {
+        "info": 100
+      },
+      "criticalHigh": 0,
+      "summary": {
+        "file-bloat": {
+          "critical": 0,
+          "high": 0,
+          "medium": 0,
+          "low": 0,
+          "warn": 0,
+          "info": 34
+        },
+        "near-duplicate": {
+          "critical": 0,
+          "high": 0,
+          "medium": 0,
+          "low": 0,
+          "warn": 0,
+          "info": 66
+        }
+      }
+    },
+    "baseline": {
+      "criticalHigh": 0,
+      "fileBloatInfo": 306,
+      "nearDupeInfo": 64
+    },
+    "deltaVsBaseline": {
+      "fileBloatInfo": 25,
+      "nearDupeInfo": -5
+    },
+    "categoriesWithZero": [
+      "type-safety",
+      "dead-code",
+      "import-health",
+      "stale-todo",
+      "lint-and-build",
+      "test-gap",
+      "complexity",
+      "code-smell",
+      "design-violation",
+      "declared-vs-enforced"
+    ]
+  },
+  "topSrcBloat": [
+    {
+      "file": "src/utils/gameplay/physicalAttacks/restrictionActionValidationHelpers.ts",
+      "loc": 549,
+      "severity": "info",
+      "fileType": "validation",
+      "message": "549 LOC exceeds validation advisory"
+    },
+    {
+      "file": "src/simulation/runner/SimulationRunnerState.ts",
+      "loc": 537,
+      "severity": "info",
+      "fileType": "orchestrator",
+      "message": "537 LOC exceeds orchestrator advisory"
+    },
+    {
+      "file": "src/stores/campaign/useCampaignPersistenceStore.ts",
+      "loc": 537,
+      "severity": "info",
+      "fileType": "standard",
+      "message": "537 LOC exceeds standard advisory"
+    },
+    {
+      "file": "src/lib/multiplayer/server/bindCampaignSyncConnection.ts",
+      "loc": 535,
+      "severity": "info",
+      "fileType": "standard",
+      "message": "535 LOC exceeds standard advisory"
+    },
+    {
+      "file": "src/stores/useGameplayStore.ts",
+      "loc": 528,
+      "severity": "info",
+      "fileType": "standard",
+      "message": "528 LOC exceeds standard advisory"
+    },
+    {
+      "file": "src/utils/gameplay/physicalAttacks/displacementValidationCore.ts",
+      "loc": 517,
+      "severity": "info",
+      "fileType": "validation",
+      "message": "517 LOC exceeds validation advisory"
+    },
+    {
+      "file": "src/types/multiplayer/Protocol.ts",
+      "loc": 508,
+      "severity": "info",
+      "fileType": "standard",
+      "message": "508 LOC exceeds standard advisory"
+    },
+    {
+      "file": "src/components/gameplay/GameplayLayout.tsx",
+      "loc": 507,
+      "severity": "info",
+      "fileType": "standard",
+      "message": "507 LOC exceeds standard advisory"
+    },
+    {
+      "file": "src/components/customizer/vehicle/VehicleTurretTab.tsx",
+      "loc": 493,
+      "severity": "info",
+      "fileType": "standard",
+      "message": "493 LOC exceeds standard advisory"
+    },
+    {
+      "file": "src/pages-modules/gameplay/campaigns/CampaignCoopEntryPanel.tsx",
+      "loc": 485,
+      "severity": "info",
+      "fileType": "standard",
+      "message": "485 LOC exceeds standard advisory"
+    },
+    {
+      "file": "src/utils/gameplay/movement/validation.ts",
+      "loc": 478,
+      "severity": "info",
+      "fileType": "validation",
+      "message": "478 LOC exceeds validation advisory"
+    },
+    {
+      "file": "src/stores/campaign/useCampaignStore.dayActions.ts",
+      "loc": 471,
+      "severity": "info",
+      "fileType": "standard",
+      "message": "471 LOC exceeds standard advisory"
+    },
+    {
+      "file": "src/lib/interventions/GmCampaignInterventionPreview.ts",
+      "loc": 465,
+      "severity": "info",
+      "fileType": "standard",
+      "message": "465 LOC exceeds standard advisory"
+    },
+    {
+      "file": "src/lib/interventions/GmCombatInterventionPreview.ts",
+      "loc": 461,
+      "severity": "info",
+      "fileType": "standard",
+      "message": "461 LOC exceeds standard advisory"
+    },
+    {
+      "file": "src/components/gameplay/HexMapDisplay/HexCell.rootAttributes.ts",
+      "loc": 456,
+      "severity": "info",
+      "fileType": "standard",
+      "message": "456 LOC exceeds standard advisory"
+    },
+    {
+      "file": "src/engine/InteractiveSession.ts",
+      "loc": 447,
+      "severity": "info",
+      "fileType": "standard",
+      "message": "447 LOC exceeds standard advisory"
+    },
+    {
+      "file": "src/pages/gameplay/campaigns/[id]/starmap.tsx",
+      "loc": 442,
+      "severity": "info",
+      "fileType": "standard",
+      "message": "442 LOC exceeds standard advisory"
+    },
+    {
+      "file": "src/simulation/runner/phases/weaponAttackHitResolution.ts",
+      "loc": 442,
+      "severity": "info",
+      "fileType": "standard",
+      "message": "442 LOC exceeds standard advisory"
+    },
+    {
+      "file": "src/utils/gameplay/physicalAttacks/displacementOutcomeValidation.ts",
+      "loc": 442,
+      "severity": "info",
+      "fileType": "validation",
+      "message": "442 LOC exceeds validation advisory"
+    },
+    {
+      "file": "src/utils/construction/battleValueOffensive.ts",
+      "loc": 413,
+      "severity": "info",
+      "fileType": "standard",
+      "message": "413 LOC exceeds standard advisory"
+    },
+    {
+      "file": "src/components/audit/replay/GameReplayPage.sections.tsx",
+      "loc": 408,
+      "severity": "info",
+      "fileType": "standard",
+      "message": "408 LOC exceeds standard advisory"
+    },
+    {
+      "file": "src/components/gameplay/HexMapDisplay/HexCell.movementOptionSummaries.ts",
+      "loc": 407,
+      "severity": "info",
+      "fileType": "standard",
+      "message": "407 LOC exceeds standard advisory"
+    },
+    {
+      "file": "src/components/gameplay/TacticalActionDock/commands/physicalAttackCommands.ts",
+      "loc": 407,
+      "severity": "info",
+      "fileType": "standard",
+      "message": "407 LOC exceeds standard advisory"
+    },
+    {
+      "file": "src/components/gameplay/WeaponSelector.tsx",
+      "loc": 406,
+      "severity": "info",
+      "fileType": "standard",
+      "message": "406 LOC exceeds standard advisory"
+    },
+    {
+      "file": "src/components/campaign/gm/GmCampaignInterventionControlPlane.tsx",
+      "loc": 404,
+      "severity": "info",
+      "fileType": "standard",
+      "message": "404 LOC exceeds standard advisory"
+    },
+    {
+      "file": "src/lib/multiplayer/client.ts",
+      "loc": 402,
+      "severity": "info",
+      "fileType": "standard",
+      "message": "402 LOC exceeds standard advisory"
+    },
+    {
+      "file": "src/simulation/runner/CombatValidationCatalogTriad.ts",
+      "loc": 401,
+      "severity": "info",
+      "fileType": "validation",
+      "message": "401 LOC exceeds validation advisory"
+    },
+    {
+      "file": "src/stores/useGameplayStore.actionHandlers.ts",
+      "loc": 401,
+      "severity": "info",
+      "fileType": "standard",
+      "message": "401 LOC exceeds standard advisory"
+    },
+    {
+      "file": "src/utils/gameplay/combatProjection.rangeHex.ts",
+      "loc": 401,
+      "severity": "info",
+      "fileType": "standard",
+      "message": "401 LOC exceeds standard advisory"
+    },
+    {
+      "file": "src/components/gameplay/HexMapDisplay/HexMapDisplay.state.tsx",
+      "loc": 400,
+      "severity": "info",
+      "fileType": "standard",
+      "message": "400 LOC exceeds standard advisory"
+    }
+  ],
+  "topSrcDupes": [
+    {
+      "file": "src/components/campaign/bays/MedicalBay.tsx",
+      "line": 8,
+      "copies": 24,
+      "message": "8-line block cluster appears in 24 files",
+      "files": [
+        "src/components/campaign/bays/MedicalBay.tsx",
+        "src/components/campaign/coop/CampaignCoopRouteSurfaceConnected.tsx",
+        "src/components/force/UnitSelector.tsx",
+        "src/components/gameplay/CommitMoveButton.tsx",
+        "src/components/gameplay/HexMapDisplay/HexCell.combatBadges.tsx",
+        "src/components/gameplay/HexMapDisplay/HexCell.labels.tsx",
+        "src/components/gameplay/HexMapDisplay/HexCell.renderLabels.ts",
+        "src/components/gameplay/HexMapDisplay/HexMapDisplay.combinedTooltip.tsx"
+      ]
+    },
+    {
+      "file": "src/simulation/runner/CombatActionSupport.gameIntentSourceRefs.ts",
+      "line": 6,
+      "copies": 17,
+      "message": "8-line block cluster appears in 17 files",
+      "files": [
+        "src/simulation/runner/CombatActionSupport.gameIntentSourceRefs.ts",
+        "src/simulation/runner/CombatActionSupport.movementSourceRefs.ts",
+        "src/simulation/runner/CombatActionSupport.physicalUtilitySourceRefs.ts",
+        "src/simulation/runner/CombatAmmunitionSupport.ts",
+        "src/simulation/runner/CombatBattleMechEventSourceRefs.combat.ts",
+        "src/simulation/runner/CombatBattleMechEventSourceRefs.lifecycle.ts",
+        "src/simulation/runner/CombatBattleMechEventSourceRefs.terminal.ts",
+        "src/simulation/runner/CombatEventSourceRefs.ts"
+      ]
+    },
+    {
+      "file": "src/components/audit/diff/NestedDiff.tsx",
+      "line": 110,
+      "copies": 16,
+      "message": "8-line block cluster appears in 16 files",
+      "files": [
+        "src/components/audit/diff/NestedDiff.tsx",
+        "src/components/force/UnitSelector.tsx",
+        "src/components/gameplay/pages/campaigns/dashboard/CampaignDashboardPage.utils.ts",
+        "src/components/gameplay/pages/preBattle/usePreBattleLaunch.ts",
+        "src/components/gameplay/post-battle/RepairPreviewPanel.tsx",
+        "src/components/vault/ConflictResolution.icons.tsx",
+        "src/components/vault/SyncStatus.helpers.ts",
+        "src/components/vault/VersionListContent.tsx"
+      ]
+    },
+    {
+      "file": "src/components/common/icons/NavigationIcons.tsx",
+      "line": 243,
+      "copies": 14,
+      "message": "8-line block cluster appears in 14 files",
+      "files": [
+        "src/components/common/icons/NavigationIcons.tsx",
+        "src/components/compendium/CompendiumIcons.tsx",
+        "src/components/compendium/CompendiumLayout.tsx",
+        "src/components/contacts/ContactDeleteDialog.tsx",
+        "src/components/contacts/ContactFilters.tsx",
+        "src/components/contacts/ContactFormModal.tsx",
+        "src/components/contacts/ContactList.tsx",
+        "src/components/vault/ConflictResolution.icons.tsx"
+      ]
+    },
+    {
+      "file": "src/simulation/runner/CombatActionSupport.movementSourceRefs.ts",
+      "line": 173,
+      "copies": 13,
+      "message": "8-line block cluster appears in 13 files",
+      "files": [
+        "src/simulation/runner/CombatActionSupport.movementSourceRefs.ts",
+        "src/simulation/runner/CombatAmmunitionSupport.ts",
+        "src/simulation/runner/CombatBattleMechEventSourceRefs.combat.ts",
+        "src/simulation/runner/CombatBattleMechEventSourceRefs.lifecycle.ts",
+        "src/simulation/runner/CombatBattleMechEventSourceRefs.terminal.ts",
+        "src/simulation/runner/CombatEventSourceRefs.ts",
+        "src/simulation/runner/CombatIntegrationSupport.ts",
+        "src/simulation/runner/CombatParitySupport.ts"
+      ]
+    },
+    {
+      "file": "src/components/force/UnitSelector.tsx",
+      "line": 27,
+      "copies": 13,
+      "message": "8-line block cluster appears in 13 files",
+      "files": [
+        "src/components/force/UnitSelector.tsx",
+        "src/components/gameplay/CommitMoveButton.tsx",
+        "src/components/gameplay/MovementIntentComposer/CostLedger.tsx",
+        "src/components/gameplay/damageFeedback.ts",
+        "src/components/gameplay/post-battle/RepairPreviewPanel.tsx",
+        "src/components/vault/ConflictResolution.icons.tsx",
+        "src/components/vault/SyncStatus.helpers.ts",
+        "src/components/vault/VersionListContent.tsx"
+      ]
+    },
+    {
+      "file": "src/components/campaign/StarmapDisplay.model.ts",
+      "line": 117,
+      "copies": 12,
+      "message": "8-line block cluster appears in 12 files",
+      "files": [
+        "src/components/campaign/StarmapDisplay.model.ts",
+        "src/components/gameplay/HexMapDisplay/HexCell.combatBadges.tsx",
+        "src/components/gameplay/HexMapDisplay/HexMapDisplay.combinedTooltip.tsx",
+        "src/components/gameplay/HexMapDisplay/HexMapDisplay.projectionTooltipRows.tsx",
+        "src/components/gameplay/HexMapDisplay/HexMapDisplay.tooltipFormatters.ts",
+        "src/components/gameplay/HexMapDisplay/MovementCostOverlay.projection.ts",
+        "src/components/gameplay/overlays/LineOfSightOverlay.tsx",
+        "src/components/gameplay/pages/campaigns/dashboard/CampaignDashboardPage.utils.ts"
+      ]
+    },
+    {
+      "file": "src/components/gameplay/pages/campaigns/dashboard/CampaignDashboardPage.sections.tsx",
+      "line": 159,
+      "copies": 11,
+      "message": "8-line block cluster appears in 11 files",
+      "files": [
+        "src/components/gameplay/pages/campaigns/dashboard/CampaignDashboardPage.sections.tsx",
+        "src/components/gameplay/pages/forces/detail/ForceDetailPage.sections.tsx",
+        "src/components/gameplay/pages/repair/bay/RepairBayPage.sections.tsx",
+        "src/components/pilots/PilotAbilitiesPanel.tsx",
+        "src/components/pilots/wizard/SkillsStep.tsx",
+        "src/pages/gameplay/campaigns/index.tsx",
+        "src/pages/gameplay/encounters/index.tsx",
+        "src/pages/gameplay/forces/create.tsx"
+      ]
+    },
+    {
+      "file": "src/components/gameplay/pages/forces/detail/ForceDetailPage.sections.tsx",
+      "line": 72,
+      "copies": 10,
+      "message": "8-line block cluster appears in 10 files",
+      "files": [
+        "src/components/gameplay/pages/forces/detail/ForceDetailPage.sections.tsx",
+        "src/components/gameplay/pages/repair/bay/RepairBayPage.sections.tsx",
+        "src/components/pilots/PilotAbilitiesPanel.tsx",
+        "src/components/pilots/wizard/SkillsStep.tsx",
+        "src/pages/gameplay/campaigns/index.tsx",
+        "src/pages/gameplay/encounters/index.tsx",
+        "src/pages/gameplay/forces/create.tsx",
+        "src/pages/gameplay/forces/index.tsx"
+      ]
+    },
+    {
+      "file": "src/components/audit/diff/CheckpointSelector.tsx",
+      "line": 15,
+      "copies": 10,
+      "message": "8-line block cluster appears in 10 files",
+      "files": [
+        "src/components/audit/diff/CheckpointSelector.tsx",
+        "src/components/audit/diff/NestedDiff.tsx",
+        "src/components/audit/diff/StateDiffPanel.tsx",
+        "src/components/common/icons/NavigationIcons.tsx",
+        "src/components/compendium/CompendiumIcons.tsx",
+        "src/components/pages/compare/ComparePage.components.tsx",
+        "src/components/ui/Breadcrumb.tsx",
+        "src/pages-modules/units/detail.icons.tsx"
+      ]
+    },
+    {
+      "file": "src/components/customizer/protomech/ProtoMechArmorDiagram.tsx",
+      "line": 7,
+      "copies": 10,
+      "message": "8-line block cluster appears in 10 files",
+      "files": [
+        "src/components/customizer/protomech/ProtoMechArmorDiagram.tsx",
+        "src/services/units/handlers/VehicleUnitHandler.ts",
+        "src/types/validation/BattleValue.ts",
+        "src/types/validation/DamageSystem.ts",
+        "src/utils/construction/aerospace/engineWeightAerospace.ts",
+        "src/utils/construction/battleValueMovement.ts",
+        "src/utils/construction/engineCalculations.ts",
+        "src/utils/construction/vehicle/armor.ts"
+      ]
+    },
+    {
+      "file": "src/engine/adapters/CompendiumWeaponData.ts",
+      "line": 201,
+      "copies": 9,
+      "message": "8-line block cluster appears in 9 files",
+      "files": [
+        "src/engine/adapters/CompendiumWeaponData.ts",
+        "src/services/conversion/MTFExportHelpers.ts",
+        "src/services/conversion/MTFParser.components.ts",
+        "src/services/conversion/MTFParserHelpers.ts",
+        "src/services/conversion/ParityValidationCriticalSlots.ts",
+        "src/services/equipment/EquipmentNameMapper.ts",
+        "src/utils/construction/equipmentBV/normalizationPatterns.ts",
+        "src/utils/locationUtils.ts"
+      ]
+    },
+    {
+      "file": "src/components/award/AwardBadge.tsx",
+      "line": 78,
+      "copies": 9,
+      "message": "8-line block cluster appears in 9 files",
+      "files": [
+        "src/components/award/AwardBadge.tsx",
+        "src/components/award/AwardDetailModal.tsx",
+        "src/components/campaign/CampaignStatusHelpers.tsx",
+        "src/components/customizer/armor/ArmorDiagramQuickSettings.tsx",
+        "src/components/gameplay/pages/ModeSelection.tsx",
+        "src/components/pilots/wizard/ModeSelectionStep.tsx",
+        "src/components/quickgame/QuickGameReview.tsx",
+        "src/components/sync/RoomCodeDialog.tsx"
+      ]
+    },
+    {
+      "file": "src/components/gameplay/pages/campaigns/dashboard/CampaignDashboardPage.sections.tsx",
+      "line": 75,
+      "copies": 9,
+      "message": "8-line block cluster appears in 9 files",
+      "files": [
+        "src/components/gameplay/pages/campaigns/dashboard/CampaignDashboardPage.sections.tsx",
+        "src/components/gameplay/pages/repair/bay/RepairBayPage.sections.tsx",
+        "src/pages/gameplay/campaigns/[id]/forces.tsx",
+        "src/pages/gameplay/campaigns/[id]/missions.tsx",
+        "src/pages/gameplay/campaigns/index.tsx",
+        "src/pages/gameplay/encounters/index.tsx",
+        "src/pages/gameplay/forces/index.tsx",
+        "src/pages/gameplay/games/index.tsx"
+      ]
+    },
+    {
+      "file": "src/components/critical-slots/CriticalSlot.tsx",
+      "line": 110,
+      "copies": 8,
+      "message": "8-line block cluster appears in 8 files",
+      "files": [
+        "src/components/critical-slots/CriticalSlot.tsx",
+        "src/components/customizer/dialogs/ResetConfirmationDialog.tsx",
+        "src/components/customizer/tabs/TabBar.tsx",
+        "src/components/force/AssignmentSlot.tsx",
+        "src/components/force/ForceBuilder.tsx",
+        "src/components/repair/RepairQueueItem.tsx",
+        "src/components/spa/SPAPicker/SearchInput.tsx",
+        "src/components/ui/DialogTemplate.tsx"
+      ]
+    },
+    {
+      "file": "src/components/customizer/battlearmor/BattleArmorAPWeaponsTab.tsx",
+      "line": 10,
+      "copies": 8,
+      "message": "8-line block cluster appears in 8 files",
+      "files": [
+        "src/components/customizer/battlearmor/BattleArmorAPWeaponsTab.tsx",
+        "src/components/customizer/battlearmor/BattleArmorJumpUMUTab.tsx",
+        "src/components/customizer/battlearmor/BattleArmorManipulatorsTab.tsx",
+        "src/components/customizer/battlearmor/BattleArmorModularWeaponsTab.tsx",
+        "src/components/customizer/protomech/ProtoMechArmorTab.tsx",
+        "src/components/customizer/protomech/ProtoMechEquipmentTab.tsx",
+        "src/components/customizer/protomech/ProtoMechGliderTab.tsx",
+        "src/components/customizer/protomech/ProtoMechMainGunTab.tsx"
+      ]
+    },
+    {
+      "file": "src/components/campaign/CampaignStatusHelpers.tsx",
+      "line": 266,
+      "copies": 7,
+      "message": "8-line block cluster appears in 7 files",
+      "files": [
+        "src/components/campaign/CampaignStatusHelpers.tsx",
+        "src/components/gameplay/pages/campaigns/create/CreateCampaignPage.sections.tsx",
+        "src/components/pilots/wizard/StepIndicator.tsx",
+        "src/components/quickgame/QuickGameReview.tsx",
+        "src/components/sync/RoomCodeDialog.tsx",
+        "src/pages/gameplay/campaigns/[id]/forces.tsx",
+        "src/pages/gameplay/quick/index.tsx"
+      ]
+    },
+    {
+      "file": "src/components/campaign/MissionTreeView.tsx",
+      "line": 54,
+      "copies": 7,
+      "message": "8-line block cluster appears in 7 files",
+      "files": [
+        "src/components/campaign/MissionTreeView.tsx",
+        "src/components/customizer/tabs/CustomizerTabs.tsx",
+        "src/components/gameplay/ArmorPip.tsx",
+        "src/components/quickgame/QuickGameResultsSections.tsx",
+        "src/components/shared/Toast.tsx",
+        "src/components/sync/PeerItemList.tsx",
+        "src/components/ui/Toast.tsx"
+      ]
+    },
+    {
+      "file": "src/services/validation/rules/aerospace/AerospaceCategoryAdvancedRules.ts",
+      "line": 47,
+      "copies": 7,
+      "message": "8-line block cluster appears in 7 files",
+      "files": [
+        "src/services/validation/rules/aerospace/AerospaceCategoryAdvancedRules.ts",
+        "src/services/validation/rules/aerospace/AerospaceCategoryCoreRules.ts",
+        "src/services/validation/rules/equipment/EquipmentUnitTypeRules.ts",
+        "src/services/validation/rules/personnel/PersonnelCategoryRules.ts",
+        "src/services/validation/rules/universal/EraAvailability.ts",
+        "src/services/validation/rules/universal/RulesLevelCompliance.ts",
+        "src/services/validation/rules/vehicle/VehicleCategoryRules.ts"
+      ]
+    },
+    {
+      "file": "src/components/gameplay/HexMapDisplay/HexCell.combatBadges.tsx",
+      "line": 40,
+      "copies": 7,
+      "message": "8-line block cluster appears in 7 files",
+      "files": [
+        "src/components/gameplay/HexMapDisplay/HexCell.combatBadges.tsx",
+        "src/components/gameplay/HexMapDisplay/HexMapDisplay.combinedTooltip.tsx",
+        "src/components/gameplay/HexMapDisplay/HexMapDisplay.projectionTooltipRows.tsx",
+        "src/components/gameplay/HexMapDisplay/HexMapDisplay.tooltipFormatters.ts",
+        "src/utils/gameplay/standUpRules.ts",
+        "src/utils/gameplay/tacticalMapProjection.sourceReferenceFormatting.ts",
+        "src/utils/gameplay/vehicleHitLocation.ts"
+      ]
+    }
+  ],
+  "topScriptsBloat": [
+    {
+      "file": "scripts/validate-bv-crit-scan.ts",
+      "loc": 593,
+      "severity": "info",
+      "fileType": "standard",
+      "message": "593 LOC exceeds standard advisory"
+    },
+    {
+      "file": "scripts/validate-bv-calculator.ts",
+      "loc": 586,
+      "severity": "info",
+      "fileType": "standard",
+      "message": "586 LOC exceeds standard advisory"
+    },
+    {
+      "file": "scripts/audit-ammo-matching.ts",
+      "loc": 577,
+      "severity": "info",
+      "fileType": "standard",
+      "message": "577 LOC exceeds standard advisory"
+    },
+    {
+      "file": "scripts/validate-bv-ammo-rules.ts",
+      "loc": 490,
+      "severity": "info",
+      "fileType": "standard",
+      "message": "490 LOC exceeds standard advisory"
+    },
+    {
+      "file": "scripts/qc/validate-nonbattlemech-scope-matrix.ts",
+      "loc": 485,
+      "severity": "info",
+      "fileType": "standard",
+      "message": "485 LOC exceeds standard advisory"
+    },
+    {
+      "file": "scripts/trace-def18.ts",
+      "loc": 482,
+      "severity": "info",
+      "fileType": "standard",
+      "message": "482 LOC exceeds standard advisory"
+    },
+    {
+      "file": "scripts/validate-bv-weapon-resolution.ts",
+      "loc": 456,
+      "severity": "info",
+      "fileType": "standard",
+      "message": "456 LOC exceeds standard advisory"
+    },
+    {
+      "file": "scripts/trace-clan-underc.ts",
+      "loc": 423,
+      "severity": "info",
+      "fileType": "standard",
+      "message": "423 LOC exceeds standard advisory"
+    },
+    {
+      "file": "scripts/qc/recapture-scenario-packs-core.ts",
+      "loc": 413,
+      "severity": "info",
+      "fileType": "standard",
+      "message": "413 LOC exceeds standard advisory"
+    },
+    {
+      "file": "scripts/validate-infantry-bv.ts",
+      "loc": 397,
+      "severity": "info",
+      "fileType": "standard",
+      "message": "397 LOC exceeds standard advisory"
+    },
+    {
+      "file": "scripts/validate-bv.ts",
+      "loc": 385,
+      "severity": "info",
+      "fileType": "standard",
+      "message": "385 LOC exceeds standard advisory"
+    },
+    {
+      "file": "scripts/compare-pip-distributions.ts",
+      "loc": 372,
+      "severity": "info",
+      "fileType": "standard",
+      "message": "372 LOC exceeds standard advisory"
+    },
+    {
+      "file": "scripts/run-simulation-swarm.ts",
+      "loc": 354,
+      "severity": "info",
+      "fileType": "standard",
+      "message": "354 LOC exceeds standard advisory"
+    },
+    {
+      "file": "scripts/trace-def-components.ts",
+      "loc": 350,
+      "severity": "info",
+      "fileType": "standard",
+      "message": "350 LOC exceeds standard advisory"
+    },
+    {
+      "file": "scripts/qc/recapture-scenario-pack-stages.ts",
+      "loc": 346,
+      "severity": "info",
+      "fileType": "standard",
+      "message": "346 LOC exceeds standard advisory"
+    },
+    {
+      "file": "scripts/data-migration/import-megamek-bv.ts",
+      "loc": 337,
+      "severity": "info",
+      "fileType": "standard",
+      "message": "337 LOC exceeds standard advisory"
+    },
+    {
+      "file": "scripts/audit-megamek-board-import.ts",
+      "loc": 326,
+      "severity": "info",
+      "fileType": "standard",
+      "message": "326 LOC exceeds standard advisory"
+    },
+    {
+      "file": "scripts/check-defensive-assembly.ts",
+      "loc": 317,
+      "severity": "info",
+      "fileType": "standard",
+      "message": "317 LOC exceeds standard advisory"
+    },
+    {
+      "file": "scripts/validate-aerospace-bv.ts",
+      "loc": 315,
+      "severity": "info",
+      "fileType": "standard",
+      "message": "315 LOC exceeds standard advisory"
+    },
+    {
+      "file": "scripts/trace-defensive-gap.ts",
+      "loc": 313,
+      "severity": "info",
+      "fileType": "standard",
+      "message": "313 LOC exceeds standard advisory"
+    }
+  ],
+  "topScriptsDupes": [
+    {
+      "file": "scripts/check-defensive-assembly.ts",
+      "line": 15,
+      "copies": 17,
+      "message": "8-line block cluster appears in 17 files",
+      "files": [
+        "scripts/check-defensive-assembly.ts",
+        "scripts/check-masc-heat-impact.ts",
+        "scripts/check-mul-accuracy.ts",
+        "scripts/check-mul-bv.ts",
+        "scripts/check-mul-refs2.ts",
+        "scripts/check-ref-source.ts",
+        "scripts/check-speed-factor.ts",
+        "scripts/check-structure-gyro.ts"
+      ]
+    },
+    {
+      "file": "scripts/accurate-gap-analysis.ts",
+      "line": 1,
+      "copies": 15,
+      "message": "8-line block cluster appears in 15 files",
+      "files": [
+        "scripts/accurate-gap-analysis.ts",
+        "scripts/analyze-minor-disc.ts",
+        "scripts/analyze-minor-undercalc.ts",
+        "scripts/analyze-off-accuracy.ts",
+        "scripts/analyze-remaining-gap.ts",
+        "scripts/check-cockpit-crits.ts",
+        "scripts/check-head-pattern.ts",
+        "scripts/check-heat-efficiency.ts"
+      ]
+    },
+    {
+      "file": "scripts/analyze-outside.js",
+      "line": 6,
+      "copies": 13,
+      "message": "8-line block cluster appears in 13 files",
+      "files": [
+        "scripts/analyze-outside.js",
+        "scripts/analyze-remaining-patterns.js",
+        "scripts/check-atlas-c.js",
+        "scripts/check-magshot.js",
+        "scripts/check-tc-directfire.js",
+        "scripts/check-weapon-bv-patterns.js",
+        "scripts/find-ppcp-units.js",
+        "scripts/trace-artemis.js"
+      ]
+    },
+    {
+      "file": "scripts/analyze-def-pattern.ts",
+      "line": 112,
+      "copies": 12,
+      "message": "8-line block cluster appears in 12 files",
+      "files": [
+        "scripts/analyze-def-pattern.ts",
+        "scripts/audit-megamek-board-import.ts",
+        "scripts/check-head-pattern.ts",
+        "scripts/check-prefix-resolve.ts",
+        "scripts/deep-trace-overcalc.ts",
+        "scripts/extract-megamek-equipment.js",
+        "scripts/merge-extracted-equipment.js",
+        "scripts/qc/validate-long-campaign-stability.mjs"
+      ]
+    },
+    {
+      "file": "scripts/accurate-gap-analysis.ts",
+      "line": 47,
+      "copies": 12,
+      "message": "8-line block cluster appears in 12 files",
+      "files": [
+        "scripts/accurate-gap-analysis.ts",
+        "scripts/check-defensive-assembly.ts",
+        "scripts/check-df18.ts",
+        "scripts/exact-vs-gap.ts",
+        "scripts/run-simulation-swarm.ts",
+        "scripts/trace-1pct-detail.ts",
+        "scripts/trace-big-outliers.ts",
+        "scripts/trace-component-diffs.ts"
+      ]
+    },
+    {
+      "file": "scripts/check-gyro-hypothesis.ts",
+      "line": 28,
+      "copies": 12,
+      "message": "8-line block cluster appears in 12 files",
+      "files": [
+        "scripts/check-gyro-hypothesis.ts",
+        "scripts/check-gyro-impact.ts",
+        "scripts/check-gyro-impact2.ts",
+        "scripts/trace-def-bv.ts",
+        "scripts/trace-def18.ts",
+        "scripts/trace-overcalc11.ts",
+        "scripts/trace-overcalc15.ts",
+        "scripts/trace-tmm.ts"
+      ]
+    },
+    {
+      "file": "scripts/check-ecm-exact.ts",
+      "line": 4,
+      "copies": 10,
+      "message": "8-line block cluster appears in 10 files",
+      "files": [
+        "scripts/check-ecm-exact.ts",
+        "scripts/find-unresolved-def-equip.ts",
+        "scripts/reverse-engineer-bv.ts",
+        "scripts/trace-ammo-resolution.ts",
+        "scripts/trace-off-gap.ts",
+        "scripts/trace-overcalc-units.ts",
+        "scripts/trace-tc-units.ts",
+        "scripts/trace-under-detail.ts"
+      ]
+    },
+    {
+      "file": "scripts/analyze-underc-clusters.ts",
+      "line": 1,
+      "copies": 10,
+      "message": "8-line block cluster appears in 10 files",
+      "files": [
+        "scripts/analyze-underc-clusters.ts",
+        "scripts/deep-trace-overcalc-components.ts",
+        "scripts/reverse-engineer-bv.ts",
+        "scripts/trace-big-under.ts",
+        "scripts/trace-gt.ts",
+        "scripts/trace-off-gap.ts",
+        "scripts/trace-overcalc-units.ts",
+        "scripts/trace-overcalc.ts"
+      ]
+    },
+    {
+      "file": "scripts/check-ammo-gaps.ts",
+      "line": 149,
+      "copies": 9,
+      "message": "8-line block cluster appears in 9 files",
+      "files": [
+        "scripts/check-ammo-gaps.ts",
+        "scripts/check-masc-heat-impact.ts",
+        "scripts/check-mul-accuracy.ts",
+        "scripts/check-mul-refs2.ts",
+        "scripts/debug-overcalc-source.ts",
+        "scripts/find-common-patterns.ts",
+        "scripts/temp-sf-verify.ts",
+        "scripts/trace-ammo-detail.ts"
+      ]
+    },
+    {
+      "file": "scripts/check-defensive-assembly.ts",
+      "line": 136,
+      "copies": 9,
+      "message": "8-line block cluster appears in 9 files",
+      "files": [
+        "scripts/check-defensive-assembly.ts",
+        "scripts/check-partial-wing.js",
+        "scripts/extract-megamek-equipment.js",
+        "scripts/run-simulation-preset.ts",
+        "scripts/run-simulation-swarm.ts",
+        "scripts/trace-hag-unit.ts",
+        "scripts/trace-overcalc-2to5.ts",
+        "scripts/trace-ppc-cap.ts"
+      ]
+    },
+    {
+      "file": "scripts/analyze-gap-side.ts",
+      "line": 2,
+      "copies": 9,
+      "message": "8-line block cluster appears in 9 files",
+      "files": [
+        "scripts/analyze-gap-side.ts",
+        "scripts/analyze-minor-disc2.ts",
+        "scripts/check-xxl.ts",
+        "scripts/find-common-patterns.ts",
+        "scripts/find-simple-undercalc.ts",
+        "scripts/find-systematic-diff.ts",
+        "scripts/find-underc-pattern.ts",
+        "scripts/gap-analysis.ts"
+      ]
+    },
+    {
+      "file": "scripts/check-gyro-crits.ts",
+      "line": 1,
+      "copies": 9,
+      "message": "8-line block cluster appears in 9 files",
+      "files": [
+        "scripts/check-gyro-crits.ts",
+        "scripts/check-gyro-impact.ts",
+        "scripts/check-gyro-impact2.ts",
+        "scripts/check-gyro-mismatch.ts",
+        "scripts/check-offequip-bv.ts",
+        "scripts/find-simple-undercalc2.ts",
+        "scripts/find-truly-vanilla.ts",
+        "scripts/trace-ammo-gap.ts"
+      ]
+    },
+    {
+      "file": "scripts/check-defensive-assembly.ts",
+      "line": 286,
+      "copies": 8,
+      "message": "8-line block cluster appears in 8 files",
+      "files": [
+        "scripts/check-defensive-assembly.ts",
+        "scripts/check-unresolved.ts",
+        "scripts/find-simple-undercalc2.ts",
+        "scripts/trace-big-outliers.ts",
+        "scripts/trace-component-diffs.ts",
+        "scripts/trace-outliers.js",
+        "scripts/validate-bv-crit-scan-ammo.ts",
+        "scripts/validate-bv-weapon-resolution.ts"
+      ]
+    },
+    {
+      "file": "scripts/check-close-units.js",
+      "line": 4,
+      "copies": 8,
+      "message": "8-line block cluster appears in 8 files",
+      "files": [
+        "scripts/check-close-units.js",
+        "scripts/check-ijj-units.js",
+        "scripts/check-industrial-equip.js",
+        "scripts/check-mixed-tech.js",
+        "scripts/check-remaining-outliers.js",
+        "scripts/check-torpedo-resolution.js",
+        "scripts/check-vibroblades.js",
+        "scripts/investigate-outliers.js"
+      ]
+    },
+    {
+      "file": "scripts/analyze-def-pattern.ts",
+      "line": 1,
+      "copies": 8,
+      "message": "8-line block cluster appears in 8 files",
+      "files": [
+        "scripts/analyze-def-pattern.ts",
+        "scripts/analyze-minor-gap.ts",
+        "scripts/analyze-minor-patterns.ts",
+        "scripts/analyze-pure-defgap.ts",
+        "scripts/check-unresolved.ts",
+        "scripts/classify-minor-disc.ts",
+        "scripts/trace-penalty-issues.ts",
+        "scripts/trace-xxl-wrong.ts"
+      ]
+    }
+  ]
+}

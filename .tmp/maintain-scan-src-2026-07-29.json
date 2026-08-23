@@ -1,0 +1,3943 @@
+{
+  "criticalHigh": 0,
+  "summary": {
+    "file-bloat": {
+      "critical": 0,
+      "high": 0,
+      "medium": 0,
+      "low": 0,
+      "warn": 0,
+      "info": 331
+    },
+    "near-duplicate": {
+      "critical": 0,
+      "high": 0,
+      "medium": 0,
+      "low": 0,
+      "warn": 0,
+      "info": 59
+    }
+  },
+  "baselineRegressions": [],
+  "findings": [
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/__fixtures__/gameplay/demoSession.ts",
+      "line": 1,
+      "message": "375 LOC exceeds standard advisory",
+      "loc": 375,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/components/audit/diff/NestedDiff.tsx",
+      "line": 1,
+      "message": "381 LOC exceeds standard advisory",
+      "loc": 381,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/components/audit/query/SavedQueries.tsx",
+      "line": 1,
+      "message": "330 LOC exceeds standard advisory",
+      "loc": 330,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/components/audit/replay/GameReplayPage.sections.tsx",
+      "line": 1,
+      "message": "408 LOC exceeds standard advisory",
+      "loc": 408,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/components/award/awardIconComponents.tsx",
+      "line": 1,
+      "message": "356 LOC exceeds standard advisory",
+      "loc": 356,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/components/award/AwardProgress.tsx",
+      "line": 1,
+      "message": "337 LOC exceeds standard advisory",
+      "loc": 337,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/components/award/AwardSummary.tsx",
+      "line": 1,
+      "message": "310 LOC exceeds standard advisory",
+      "loc": 310,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/components/campaign/CampaignStatusHelpers.tsx",
+      "line": 1,
+      "message": "315 LOC exceeds standard advisory",
+      "loc": 315,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/components/campaign/coop/CampaignCoopRouteSurfaceConnected.tsx",
+      "line": 1,
+      "message": "364 LOC exceeds standard advisory",
+      "loc": 364,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/components/campaign/dashboard/CampaignDashboardActivityCards.tsx",
+      "line": 1,
+      "message": "300 LOC exceeds standard advisory",
+      "loc": 300,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/components/campaign/gm/GmCampaignInterventionControlPlane.tsx",
+      "line": 1,
+      "message": "404 LOC exceeds standard advisory",
+      "loc": 404,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/components/campaign/MissionTreeView.tsx",
+      "line": 1,
+      "message": "333 LOC exceeds standard advisory",
+      "loc": 333,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/components/common/ControlledInput.stories.tsx",
+      "line": 1,
+      "message": "319 LOC exceeds standard advisory",
+      "loc": 319,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/components/common/ControlledInput.tsx",
+      "line": 1,
+      "message": "364 LOC exceeds standard advisory",
+      "loc": 364,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/components/common/ErrorBoundary.stories.tsx",
+      "line": 1,
+      "message": "300 LOC exceeds standard advisory",
+      "loc": 300,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/components/common/icons/NavigationIcons.tsx",
+      "line": 1,
+      "message": "385 LOC exceeds standard advisory",
+      "loc": 385,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/components/contacts/ContactFormModal.tsx",
+      "line": 1,
+      "message": "317 LOC exceeds standard advisory",
+      "loc": 317,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/components/customizer/armor/ArmorDiagramPreview.tsx",
+      "line": 1,
+      "message": "346 LOC exceeds standard advisory",
+      "loc": 346,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/components/customizer/armor/shared/ArmorFills.tsx",
+      "line": 1,
+      "message": "317 LOC exceeds standard advisory",
+      "loc": 317,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/components/customizer/armor/shared/LocationInteraction.neon.tsx",
+      "line": 1,
+      "message": "343 LOC exceeds standard advisory",
+      "loc": 343,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/components/customizer/armor/variants/MegaMekDiagram.location.tsx",
+      "line": 1,
+      "message": "384 LOC exceeds standard advisory",
+      "loc": 384,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/components/customizer/armor/variants/PremiumMaterialDiagram.parts.tsx",
+      "line": 1,
+      "message": "352 LOC exceeds standard advisory",
+      "loc": 352,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/components/customizer/critical-slots/DoubleSlotRow.tsx",
+      "line": 1,
+      "message": "385 LOC exceeds standard advisory",
+      "loc": 385,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/components/customizer/critical-slots/SlotRow.tsx",
+      "line": 1,
+      "message": "378 LOC exceeds standard advisory",
+      "loc": 378,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/components/customizer/CustomizerWithRouter.tsx",
+      "line": 1,
+      "message": "358 LOC exceeds standard advisory",
+      "loc": 358,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/components/customizer/dialogs/SaveUnitDialog.tsx",
+      "line": 1,
+      "message": "392 LOC exceeds standard advisory",
+      "loc": 392,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/components/customizer/dialogs/VersionHistoryDialog.tsx",
+      "line": 1,
+      "message": "398 LOC exceeds standard advisory",
+      "loc": 398,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/components/customizer/equipment/GlobalLoadoutTray.tsx",
+      "line": 1,
+      "message": "319 LOC exceeds standard advisory",
+      "loc": 319,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/components/customizer/infantry/InfantryBuildTab.logic.ts",
+      "line": 1,
+      "message": "360 LOC exceeds standard advisory",
+      "loc": 360,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/components/customizer/mobile/MobileLoadoutList.tsx",
+      "line": 1,
+      "message": "352 LOC exceeds standard advisory",
+      "loc": 352,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/components/customizer/protomech/ProtoMechStructureTab.logic.ts",
+      "line": 1,
+      "message": "334 LOC exceeds standard advisory",
+      "loc": 334,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/components/customizer/protomech/ProtoMechStructureTab.sections.tsx",
+      "line": 1,
+      "message": "339 LOC exceeds standard advisory",
+      "loc": 339,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/components/customizer/shared/customizerTypeRegistry.tsx",
+      "line": 1,
+      "message": "315 LOC exceeds standard advisory",
+      "loc": 315,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/components/customizer/shared/tabRegistry.tsx",
+      "line": 1,
+      "message": "353 LOC exceeds standard advisory",
+      "loc": 353,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/components/customizer/tabs/ArmorTab.tsx",
+      "line": 1,
+      "message": "305 LOC exceeds standard advisory",
+      "loc": 305,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/components/customizer/tabs/OverviewTab.tsx",
+      "line": 1,
+      "message": "324 LOC exceeds standard advisory",
+      "loc": 324,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/components/customizer/tabs/StructureTab.tsx",
+      "line": 1,
+      "message": "313 LOC exceeds standard advisory",
+      "loc": 313,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/components/customizer/UnitEditorWithRoutingLoadout.ts",
+      "line": 1,
+      "message": "341 LOC exceeds standard advisory",
+      "loc": 341,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/components/customizer/UnitEditorWithRoutingStats.ts",
+      "line": 1,
+      "message": "349 LOC exceeds standard advisory",
+      "loc": 349,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/components/customizer/vehicle/VehicleStatusBar.tsx",
+      "line": 1,
+      "message": "360 LOC exceeds standard advisory",
+      "loc": 360,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/components/customizer/vehicle/VehicleStructureTab.tsx",
+      "line": 1,
+      "message": "324 LOC exceeds standard advisory",
+      "loc": 324,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/components/customizer/vehicle/VehicleTurretTab.tsx",
+      "line": 1,
+      "message": "493 LOC exceeds standard advisory",
+      "loc": 493,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/components/force/ForceBuilder.tsx",
+      "line": 1,
+      "message": "302 LOC exceeds standard advisory",
+      "loc": 302,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/components/gameplay/animation/useMovementTween.ts",
+      "line": 1,
+      "message": "311 LOC exceeds standard advisory",
+      "loc": 311,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/components/gameplay/AttackIntentComposer/AttackIntentComposer.model.ts",
+      "line": 1,
+      "message": "354 LOC exceeds standard advisory",
+      "loc": 354,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/components/gameplay/CombatPlanningPanel.sections.tsx",
+      "line": 1,
+      "message": "344 LOC exceeds standard advisory",
+      "loc": 344,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/components/gameplay/EventLogDisplay.formatters.ts",
+      "line": 1,
+      "message": "333 LOC exceeds standard advisory",
+      "loc": 333,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/components/gameplay/ForceComparisonPanel.tsx",
+      "line": 1,
+      "message": "320 LOC exceeds standard advisory",
+      "loc": 320,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/components/gameplay/GameplayLayout.commandPreview.ts",
+      "line": 1,
+      "message": "313 LOC exceeds standard advisory",
+      "loc": 313,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/components/gameplay/GameplayLayout.tsx",
+      "line": 1,
+      "message": "507 LOC exceeds standard advisory",
+      "loc": 507,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/components/gameplay/HexMapDisplay/HexCell.combatBadges.tsx",
+      "line": 1,
+      "message": "361 LOC exceeds standard advisory",
+      "loc": 361,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/components/gameplay/HexMapDisplay/HexCell.invalidBadges.tsx",
+      "line": 1,
+      "message": "306 LOC exceeds standard advisory",
+      "loc": 306,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/components/gameplay/HexMapDisplay/HexCell.movementBadges.tsx",
+      "line": 1,
+      "message": "347 LOC exceeds standard advisory",
+      "loc": 347,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/components/gameplay/HexMapDisplay/HexCell.movementOptionSummaries.ts",
+      "line": 1,
+      "message": "407 LOC exceeds standard advisory",
+      "loc": 407,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/components/gameplay/HexMapDisplay/HexCell.rootAttributes.ts",
+      "line": 1,
+      "message": "456 LOC exceeds standard advisory",
+      "loc": 456,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/components/gameplay/HexMapDisplay/HexCell.terrainBadges.tsx",
+      "line": 1,
+      "message": "336 LOC exceeds standard advisory",
+      "loc": 336,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/components/gameplay/HexMapDisplay/HexCell.tsx",
+      "line": 1,
+      "message": "323 LOC exceeds standard advisory",
+      "loc": 323,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/components/gameplay/HexMapDisplay/HexMapDisplay.controls.tsx",
+      "line": 1,
+      "message": "345 LOC exceeds standard advisory",
+      "loc": 345,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/components/gameplay/HexMapDisplay/HexMapDisplay.layers.tsx",
+      "line": 1,
+      "message": "355 LOC exceeds standard advisory",
+      "loc": 355,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/components/gameplay/HexMapDisplay/HexMapDisplay.state.tsx",
+      "line": 1,
+      "message": "400 LOC exceeds standard advisory",
+      "loc": 400,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/components/gameplay/HexMapDisplay/HexMapDisplay.stateHooks.ts",
+      "line": 1,
+      "message": "357 LOC exceeds standard advisory",
+      "loc": 357,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/components/gameplay/HexMapDisplay/HexMapDisplay.tooltips.tsx",
+      "line": 1,
+      "message": "381 LOC exceeds standard advisory",
+      "loc": 381,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/components/gameplay/HexMapDisplay/Overlays.tsx",
+      "line": 1,
+      "message": "400 LOC exceeds standard advisory",
+      "loc": 400,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/components/gameplay/overlays/FiringArcOverlay.tsx",
+      "line": 1,
+      "message": "375 LOC exceeds standard advisory",
+      "loc": 375,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/components/gameplay/pages/campaigns/dashboard/CampaignDashboardPage.sections.tsx",
+      "line": 1,
+      "message": "336 LOC exceeds standard advisory",
+      "loc": 336,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/components/gameplay/pages/campaigns/dashboard/CampaignDashboardPage.tsx",
+      "line": 1,
+      "message": "306 LOC exceeds standard advisory",
+      "loc": 306,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/components/gameplay/pages/EncounterDetailPage.sections.tsx",
+      "line": 1,
+      "message": "324 LOC exceeds standard advisory",
+      "loc": 324,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/components/gameplay/pages/forces/detail/ForceDetailPage.tsx",
+      "line": 1,
+      "message": "321 LOC exceeds standard advisory",
+      "loc": 321,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/components/gameplay/pages/gameSession/GameSessionPage.movement.helpers.ts",
+      "line": 1,
+      "message": "342 LOC exceeds standard advisory",
+      "loc": 342,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/components/gameplay/pages/gameSession/GameSessionPage.movement.ts",
+      "line": 1,
+      "message": "348 LOC exceeds standard advisory",
+      "loc": 348,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/components/gameplay/pages/gameSession/GameSessionPage.movementIntent.ts",
+      "line": 1,
+      "message": "300 LOC exceeds standard advisory",
+      "loc": 300,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/components/gameplay/pages/gameSession/GameSessionPage.movementPlanning.ts",
+      "line": 1,
+      "message": "356 LOC exceeds standard advisory",
+      "loc": 356,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/components/gameplay/pages/PreBattlePage.sections.tsx",
+      "line": 1,
+      "message": "302 LOC exceeds standard advisory",
+      "loc": 302,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/components/gameplay/pages/repair/bay/RepairBayPage.sections.tsx",
+      "line": 1,
+      "message": "315 LOC exceeds standard advisory",
+      "loc": 315,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/components/gameplay/pages/ScenarioRulesEditor.tsx",
+      "line": 1,
+      "message": "308 LOC exceeds standard advisory",
+      "loc": 308,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/components/gameplay/PhysicalAttackPanel.model.ts",
+      "line": 1,
+      "message": "379 LOC exceeds standard advisory",
+      "loc": 379,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/components/gameplay/PhysicalAttackPanel.tsx",
+      "line": 1,
+      "message": "349 LOC exceeds standard advisory",
+      "loc": 349,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/components/gameplay/QuickSimResultPanel.tsx",
+      "line": 1,
+      "message": "387 LOC exceeds standard advisory",
+      "loc": 387,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/components/gameplay/RecordSheetDisplay.tsx",
+      "line": 1,
+      "message": "352 LOC exceeds standard advisory",
+      "loc": 352,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/components/gameplay/RecordSheetPanels.tsx",
+      "line": 1,
+      "message": "364 LOC exceeds standard advisory",
+      "loc": 364,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/components/gameplay/TacticalActionDock/commands/physicalAttackCommands.ts",
+      "line": 1,
+      "message": "407 LOC exceeds standard advisory",
+      "loc": 407,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/components/gameplay/TacticalActionDock/TacticalActionDock.tsx",
+      "line": 1,
+      "message": "398 LOC exceeds standard advisory",
+      "loc": 398,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/components/gameplay/TacticalTurnRail/TacticalTurnRail.tsx",
+      "line": 1,
+      "message": "322 LOC exceeds standard advisory",
+      "loc": 322,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/components/gameplay/TacticalUnitInspector/TacticalUnitInspectorViews.tsx",
+      "line": 1,
+      "message": "397 LOC exceeds standard advisory",
+      "loc": 397,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/components/gameplay/terrain/TerrainSymbolBodies.tsx",
+      "line": 1,
+      "message": "398 LOC exceeds standard advisory",
+      "loc": 398,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/components/gameplay/WeaponSelector.tsx",
+      "line": 1,
+      "message": "406 LOC exceeds standard advisory",
+      "loc": 406,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/components/multiplayer/CreateMatchForm.tsx",
+      "line": 1,
+      "message": "364 LOC exceeds standard advisory",
+      "loc": 364,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/components/multiplayer/NetworkedGameSurface.tsx",
+      "line": 1,
+      "message": "383 LOC exceeds standard advisory",
+      "loc": 383,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/components/pages/compare/ComparePage.components.tsx",
+      "line": 1,
+      "message": "372 LOC exceeds standard advisory",
+      "loc": 372,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/components/pilot-mech-card/PilotMechCard.tsx",
+      "line": 1,
+      "message": "367 LOC exceeds standard advisory",
+      "loc": 367,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/components/pilots/PilotOverviewTab.tsx",
+      "line": 1,
+      "message": "315 LOC exceeds standard advisory",
+      "loc": 315,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/components/quickgame/QuickGameResultsSections.tsx",
+      "line": 1,
+      "message": "354 LOC exceeds standard advisory",
+      "loc": 354,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/components/quickgame/QuickGameReview.tsx",
+      "line": 1,
+      "message": "375 LOC exceeds standard advisory",
+      "loc": 375,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/components/quickgame/QuickGameSetupScenarioConfig.tsx",
+      "line": 1,
+      "message": "351 LOC exceeds standard advisory",
+      "loc": 351,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/components/repair/RepairCostBreakdown.tsx",
+      "line": 1,
+      "message": "303 LOC exceeds standard advisory",
+      "loc": 303,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/components/replay-library/ReplayLibraryPage.tsx",
+      "line": 1,
+      "message": "335 LOC exceeds standard advisory",
+      "loc": 335,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/components/settings/DesktopSettingsDialog.tabs.tsx",
+      "line": 1,
+      "message": "364 LOC exceeds standard advisory",
+      "loc": 364,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/components/settings/DesktopSettingsDialog.tsx",
+      "line": 1,
+      "message": "346 LOC exceeds standard advisory",
+      "loc": 346,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/components/shared/replay/SharedReplayViewer.tsx",
+      "line": 1,
+      "message": "387 LOC exceeds standard advisory",
+      "loc": 387,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/components/simulation-viewer/pages/encounter-history/BattleListSidebar.sections.tsx",
+      "line": 1,
+      "message": "301 LOC exceeds standard advisory",
+      "loc": 301,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/components/spa/SPAPicker/SPAItem.tsx",
+      "line": 1,
+      "message": "330 LOC exceeds standard advisory",
+      "loc": 330,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/components/sync/ConflictResolutionDialog.tsx",
+      "line": 1,
+      "message": "300 LOC exceeds standard advisory",
+      "loc": 300,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/components/sync/RoomCodeDialog.tsx",
+      "line": 1,
+      "message": "363 LOC exceeds standard advisory",
+      "loc": 363,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/components/ui/DialogTemplate.stories.tsx",
+      "line": 1,
+      "message": "300 LOC exceeds standard advisory",
+      "loc": 300,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/components/vault/ConflictResolutionDialog.tsx",
+      "line": 1,
+      "message": "326 LOC exceeds standard advisory",
+      "loc": 326,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/components/vault/folder-manager/FolderDialogs.tsx",
+      "line": 1,
+      "message": "314 LOC exceeds standard advisory",
+      "loc": 314,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/components/vault/folder-manager/FolderManagerIcons.tsx",
+      "line": 1,
+      "message": "315 LOC exceeds standard advisory",
+      "loc": 315,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/components/vault/ImportDialogSteps.tsx",
+      "line": 1,
+      "message": "300 LOC exceeds standard advisory",
+      "loc": 300,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/components/vault/VersionHistoryIcons.tsx",
+      "line": 1,
+      "message": "316 LOC exceeds standard advisory",
+      "loc": 316,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/components/vault/VersionListContent.tsx",
+      "line": 1,
+      "message": "323 LOC exceeds standard advisory",
+      "loc": 323,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/constants/campaign/skillCatalog.ts",
+      "line": 1,
+      "message": "384 LOC exceeds standard advisory",
+      "loc": 384,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/constants/scenario/templates.ts",
+      "line": 1,
+      "message": "391 LOC exceeds standard advisory",
+      "loc": 391,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/engine/adapters/CompendiumAdapter.movementHeight.ts",
+      "line": 1,
+      "message": "319 LOC exceeds standard advisory",
+      "loc": 319,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/engine/adapters/CompendiumAdapter.movementProfiles.ts",
+      "line": 1,
+      "message": "300 LOC exceeds standard advisory",
+      "loc": 300,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/engine/GameEngine.phases.ts",
+      "line": 1,
+      "message": "386 LOC exceeds standard advisory",
+      "loc": 386,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/engine/InteractiveSession.actions.attackProjection.ts",
+      "line": 1,
+      "message": "305 LOC exceeds standard advisory",
+      "loc": 305,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/engine/InteractiveSession.actions.movement.ts",
+      "line": 1,
+      "message": "307 LOC exceeds standard advisory",
+      "loc": 307,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/engine/InteractiveSession.ai.ts",
+      "line": 1,
+      "message": "339 LOC exceeds standard advisory",
+      "loc": 339,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/engine/InteractiveSession.ts",
+      "line": 1,
+      "message": "447 LOC exceeds standard advisory",
+      "loc": 447,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/hooks/audit/useEventTimeline.ts",
+      "line": 1,
+      "message": "302 LOC exceeds standard advisory",
+      "loc": 302,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/hooks/audit/useReplayPlayer.ts",
+      "line": 1,
+      "message": "312 LOC exceeds standard advisory",
+      "loc": 312,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/hooks/audit/useStateDiff.ts",
+      "line": 1,
+      "message": "341 LOC exceeds standard advisory",
+      "loc": 341,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/hooks/gameplay/useUnitInspectorProjection.ts",
+      "line": 1,
+      "message": "391 LOC exceeds standard advisory",
+      "loc": 391,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/hooks/replay/useHexMapStateFromEvents.ts",
+      "line": 1,
+      "message": "315 LOC exceeds standard advisory",
+      "loc": 315,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/hooks/useP2PReconnectSession.ts",
+      "line": 1,
+      "message": "351 LOC exceeds standard advisory",
+      "loc": 351,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/lib/campaign/coop/campaignSyncTransport.ts",
+      "line": 1,
+      "message": "317 LOC exceeds standard advisory",
+      "loc": 317,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/lib/campaign/encounter/materializeCampaignMissionEncounter.ts",
+      "line": 1,
+      "message": "388 LOC exceeds standard advisory",
+      "loc": 388,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/lib/campaign/events/prisoner/minorEventDefinitions.ts",
+      "line": 1,
+      "message": "312 LOC exceeds standard advisory",
+      "loc": 312,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/lib/campaign/hooks/useCampaignDashboardSummary.ts",
+      "line": 1,
+      "message": "340 LOC exceeds standard advisory",
+      "loc": 340,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/lib/campaign/processors/financialProcessor.ts",
+      "line": 1,
+      "message": "347 LOC exceeds standard advisory",
+      "loc": 347,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/lib/campaign/processors/postBattleProcessor.ts",
+      "line": 1,
+      "message": "307 LOC exceeds standard advisory",
+      "loc": 307,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/lib/campaign/readiness/missionReadinessProjection.ts",
+      "line": 1,
+      "message": "316 LOC exceeds standard advisory",
+      "loc": 316,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/lib/campaign/salvage/salvageEngine.ts",
+      "line": 1,
+      "message": "313 LOC exceeds standard advisory",
+      "loc": 313,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/lib/interventions/GmCampaignInterventionPreview.ts",
+      "line": 1,
+      "message": "465 LOC exceeds standard advisory",
+      "loc": 465,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/lib/interventions/GmCascadePreviewPipeline.ts",
+      "line": 1,
+      "message": "325 LOC exceeds standard advisory",
+      "loc": 325,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/lib/interventions/GmCombatInterventionPreview.ts",
+      "line": 1,
+      "message": "461 LOC exceeds standard advisory",
+      "loc": 461,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/lib/interventions/GmTacticalCommandPreviewAdapter.ts",
+      "line": 1,
+      "message": "346 LOC exceeds standard advisory",
+      "loc": 346,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/lib/multiplayer/client.ts",
+      "line": 1,
+      "message": "402 LOC exceeds standard advisory",
+      "loc": 402,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/lib/multiplayer/server/bindCampaignSyncConnection.ts",
+      "line": 1,
+      "message": "535 LOC exceeds standard advisory",
+      "loc": 535,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/lib/multiplayer/server/bindMultiplayerSocketConnection.ts",
+      "line": 1,
+      "message": "316 LOC exceeds standard advisory",
+      "loc": 316,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/lib/multiplayer/server/fogOfWar.ts",
+      "line": 1,
+      "message": "333 LOC exceeds standard advisory",
+      "loc": 333,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/lib/multiplayer/server/ServerMatchHost.ts",
+      "line": 1,
+      "message": "398 LOC exceeds standard advisory",
+      "loc": 398,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/lib/multiplayer/server/ServerMatchHostLobbyIntents.ts",
+      "line": 1,
+      "message": "333 LOC exceeds standard advisory",
+      "loc": 333,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/lib/p2p/gameSessionChannel.ts",
+      "line": 1,
+      "message": "396 LOC exceeds standard advisory",
+      "loc": 396,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/lib/p2p/intentTranslation.ts",
+      "line": 1,
+      "message": "333 LOC exceeds standard advisory",
+      "loc": 333,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/lib/p2p/intentTranslationPayloads.ts",
+      "line": 1,
+      "message": "314 LOC exceeds standard advisory",
+      "loc": 314,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/lib/p2p/lobbyChannel.ts",
+      "line": 1,
+      "message": "340 LOC exceeds standard advisory",
+      "loc": 340,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/lib/p2p/matchLogStorage.ts",
+      "line": 1,
+      "message": "394 LOC exceeds standard advisory",
+      "loc": 394,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/lib/scenarioPacks/packStamping.ts",
+      "line": 1,
+      "message": "388 LOC exceeds standard advisory",
+      "loc": 388,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/lib/starmap/starmapTravelPreview.ts",
+      "line": 1,
+      "message": "360 LOC exceeds standard advisory",
+      "loc": 360,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/pages-modules/e2e/mock-data.battles.ts",
+      "line": 1,
+      "message": "320 LOC exceeds standard advisory",
+      "loc": 320,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/pages-modules/gameplay/campaigns/CampaignCoopEntryPanel.tsx",
+      "line": 1,
+      "message": "485 LOC exceeds standard advisory",
+      "loc": 485,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/pages-modules/gameplay/campaigns/campaignPageShell.tsx",
+      "line": 1,
+      "message": "386 LOC exceeds standard advisory",
+      "loc": 386,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/pages-modules/gameplay/encounters/encounterDetailPage.helpers.tsx",
+      "line": 1,
+      "message": "369 LOC exceeds standard advisory",
+      "loc": 369,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/pages-modules/gameplay/encounters/quickSimPage.helpers.tsx",
+      "line": 1,
+      "message": "343 LOC exceeds standard advisory",
+      "loc": 343,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/pages-modules/gameplay/games/gameSessionPage.helpers.tsx",
+      "line": 1,
+      "message": "339 LOC exceeds standard advisory",
+      "loc": 339,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/pages-modules/gameplay/games/gmTacticalInterventionSurface.ts",
+      "line": 1,
+      "message": "307 LOC exceeds standard advisory",
+      "loc": 307,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/pages-modules/gameplay/lobby/gameplayLobbyPage.helpers.tsx",
+      "line": 1,
+      "message": "319 LOC exceeds standard advisory",
+      "loc": 319,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/pages/audit/timeline.tsx",
+      "line": 1,
+      "message": "322 LOC exceeds standard advisory",
+      "loc": 322,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/pages/compendium/equipment/[id].tsx",
+      "line": 1,
+      "message": "344 LOC exceeds standard advisory",
+      "loc": 344,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/pages/compendium/rules/index.tsx",
+      "line": 1,
+      "message": "399 LOC exceeds standard advisory",
+      "loc": 399,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/pages/compendium/units/[id].tsx",
+      "line": 1,
+      "message": "378 LOC exceeds standard advisory",
+      "loc": 378,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/pages/gameplay/campaigns/[id]/starmap.tsx",
+      "line": 1,
+      "message": "442 LOC exceeds standard advisory",
+      "loc": 442,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/pages/gameplay/encounters/[id]/pre-battle.tsx",
+      "line": 1,
+      "message": "360 LOC exceeds standard advisory",
+      "loc": 360,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/pages/gameplay/games/[id].tsx",
+      "line": 1,
+      "message": "365 LOC exceeds standard advisory",
+      "loc": 365,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/pages/gameplay/games/[id]/replay.tsx",
+      "line": 1,
+      "message": "354 LOC exceeds standard advisory",
+      "loc": 354,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/pages/gameplay/pilots/index.tsx",
+      "line": 1,
+      "message": "352 LOC exceeds standard advisory",
+      "loc": 352,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/pages/gameplay/quick/index.tsx",
+      "line": 1,
+      "message": "333 LOC exceeds standard advisory",
+      "loc": 333,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/pages/multiplayer/lobby/[roomCode].tsx",
+      "line": 1,
+      "message": "308 LOC exceeds standard advisory",
+      "loc": 308,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/pages/share.tsx",
+      "line": 1,
+      "message": "310 LOC exceeds standard advisory",
+      "loc": 310,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/pages/units/[id].tsx",
+      "line": 1,
+      "message": "331 LOC exceeds standard advisory",
+      "loc": 331,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/pages/units/index.tsx",
+      "line": 1,
+      "message": "394 LOC exceeds standard advisory",
+      "loc": 394,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/services/assets/MmDataAssetService.ts",
+      "line": 1,
+      "message": "335 LOC exceeds standard advisory",
+      "loc": 335,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/services/conversion/BlkParserService.ts",
+      "line": 1,
+      "message": "346 LOC exceeds standard advisory",
+      "loc": 346,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/services/conversion/EquipmentNameResolverMappings.ts",
+      "line": 1,
+      "message": "336 LOC exceeds standard advisory",
+      "loc": 336,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/services/conversion/LocationMappings.ts",
+      "line": 1,
+      "message": "370 LOC exceeds standard advisory",
+      "loc": 370,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/services/conversion/MTFImportService.ts",
+      "line": 1,
+      "message": "370 LOC exceeds standard advisory",
+      "loc": 370,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/services/conversion/ValueMappings.ts",
+      "line": 1,
+      "message": "397 LOC exceeds standard advisory",
+      "loc": 397,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/services/encounter/EncounterService.ts",
+      "line": 1,
+      "message": "361 LOC exceeds standard advisory",
+      "loc": 361,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/services/encounter/randomForceGenerator.ts",
+      "line": 1,
+      "message": "312 LOC exceeds standard advisory",
+      "loc": 312,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/services/equipment/EquipmentNameMapper.ts",
+      "line": 1,
+      "message": "305 LOC exceeds standard advisory",
+      "loc": 305,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/services/forces/ForceService.ts",
+      "line": 1,
+      "message": "316 LOC exceeds standard advisory",
+      "loc": 316,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/services/game-resolution/GameOutcomeCalculator.ts",
+      "line": 1,
+      "message": "335 LOC exceeds standard advisory",
+      "loc": 335,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/services/pilots/PilotRepository.ts",
+      "line": 1,
+      "message": "305 LOC exceeds standard advisory",
+      "loc": 305,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/services/pilots/PilotService.ts",
+      "line": 1,
+      "message": "372 LOC exceeds standard advisory",
+      "loc": 372,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/services/printing/RecordSheetService.ts",
+      "line": 1,
+      "message": "324 LOC exceeds standard advisory",
+      "loc": 324,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/services/units/CustomUnitApiService.ts",
+      "line": 1,
+      "message": "388 LOC exceeds standard advisory",
+      "loc": 388,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/services/units/handlers/BattleArmorUnitHandler.ts",
+      "line": 1,
+      "message": "307 LOC exceeds standard advisory",
+      "loc": 307,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/services/units/handlers/ProtoMechUnitHandler.ts",
+      "line": 1,
+      "message": "361 LOC exceeds standard advisory",
+      "loc": 361,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/services/units/handlers/unitHandlerShared.ts",
+      "line": 1,
+      "message": "301 LOC exceeds standard advisory",
+      "loc": 301,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/services/units/handlers/VehicleUnitHandler.ts",
+      "line": 1,
+      "message": "307 LOC exceeds standard advisory",
+      "loc": 307,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/services/units/unitLoaderService/componentMappers.ts",
+      "line": 1,
+      "message": "306 LOC exceeds standard advisory",
+      "loc": 306,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/services/units/UnitRepository.ts",
+      "line": 1,
+      "message": "337 LOC exceeds standard advisory",
+      "loc": 337,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/services/vault/ChangeLogRepository.ts",
+      "line": 1,
+      "message": "305 LOC exceeds standard advisory",
+      "loc": 305,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/services/vault/ContactRepository.ts",
+      "line": 1,
+      "message": "300 LOC exceeds standard advisory",
+      "loc": 300,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/services/vault/IdentityService.ts",
+      "line": 1,
+      "message": "307 LOC exceeds standard advisory",
+      "loc": 307,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/services/vault/OfflineQueueRepository.ts",
+      "line": 1,
+      "message": "329 LOC exceeds standard advisory",
+      "loc": 329,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/services/vault/P2PTransport.ts",
+      "line": 1,
+      "message": "354 LOC exceeds standard advisory",
+      "loc": 354,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/services/vault/PermissionRepository.ts",
+      "line": 1,
+      "message": "309 LOC exceeds standard advisory",
+      "loc": 309,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/services/vault/ShareLinkRepository.ts",
+      "line": 1,
+      "message": "323 LOC exceeds standard advisory",
+      "loc": 323,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/services/vault/SyncEngine.ts",
+      "line": 1,
+      "message": "372 LOC exceeds standard advisory",
+      "loc": 372,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/services/vault/VaultFolderRepository.ts",
+      "line": 1,
+      "message": "381 LOC exceeds standard advisory",
+      "loc": 381,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/services/vault/VaultService.ts",
+      "line": 1,
+      "message": "368 LOC exceeds standard advisory",
+      "loc": 368,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/services/vault/VersionHistoryService.ts",
+      "line": 1,
+      "message": "306 LOC exceeds standard advisory",
+      "loc": 306,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/simulation/ai/BotPlayer.ts",
+      "line": 1,
+      "message": "368 LOC exceeds standard advisory",
+      "loc": 368,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/simulation/detectors/KeyMomentDetector/tier1Moments.ts",
+      "line": 1,
+      "message": "339 LOC exceeds standard advisory",
+      "loc": 339,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/simulation/generator/ScenarioGenerator.ts",
+      "line": 1,
+      "message": "377 LOC exceeds standard advisory",
+      "loc": 377,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/simulation/metrics/swarmAggregation.internals.ts",
+      "line": 1,
+      "message": "364 LOC exceeds standard advisory",
+      "loc": 364,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/simulation/runner/CombatCriticalSlotEffectSupport.ts",
+      "line": 1,
+      "message": "360 LOC exceeds standard advisory",
+      "loc": 360,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/simulation/runner/CombatDamageSupport.criticalComponents.ts",
+      "line": 1,
+      "message": "360 LOC exceeds standard advisory",
+      "loc": 360,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/simulation/runner/CombatEventSupport.ts",
+      "line": 1,
+      "message": "381 LOC exceeds standard advisory",
+      "loc": 381,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/simulation/runner/CombatFeatureSupport.spa.ts",
+      "line": 1,
+      "message": "301 LOC exceeds standard advisory",
+      "loc": 301,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/simulation/runner/CombatParitySupport.ts",
+      "line": 1,
+      "message": "316 LOC exceeds standard advisory",
+      "loc": 316,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/simulation/runner/CombatPhysicalActionClassScopeSupport.ts",
+      "line": 1,
+      "message": "377 LOC exceeds standard advisory",
+      "loc": 377,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/simulation/runner/CombatPilotModifierApplicationSupport.assignments.ts",
+      "line": 1,
+      "message": "319 LOC exceeds standard advisory",
+      "loc": 319,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/simulation/runner/CombatRuleSupport.rangeToHit.ts",
+      "line": 1,
+      "message": "329 LOC exceeds standard advisory",
+      "loc": 329,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/simulation/runner/CombatRuleSupport.terrainMinefields.ts",
+      "line": 1,
+      "message": "353 LOC exceeds standard advisory",
+      "loc": 353,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/simulation/runner/CombatSourceRefAnchorRemap.ts",
+      "line": 1,
+      "message": "387 LOC exceeds standard advisory",
+      "loc": 387,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/simulation/runner/CombatSpecialWeaponSourceRefs.designators.ts",
+      "line": 1,
+      "message": "316 LOC exceeds standard advisory",
+      "loc": 316,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/simulation/runner/CombatTerrainEnvironmentSupport.ts",
+      "line": 1,
+      "message": "368 LOC exceeds standard advisory",
+      "loc": 368,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/simulation/runner/CombatValidationCatalogTriad.ts",
+      "line": 1,
+      "message": "401 LOC exceeds validation advisory",
+      "loc": 401,
+      "fileType": "validation"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/simulation/runner/phases/movementEnhancementFailureDamage.ts",
+      "line": 1,
+      "message": "307 LOC exceeds standard advisory",
+      "loc": 307,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/simulation/runner/phases/movementMinefieldState.ts",
+      "line": 1,
+      "message": "347 LOC exceeds standard advisory",
+      "loc": 347,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/simulation/runner/phases/movementTerrainPsr.ts",
+      "line": 1,
+      "message": "374 LOC exceeds standard advisory",
+      "loc": 374,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/simulation/runner/phases/movementUnitTurn.ts",
+      "line": 1,
+      "message": "370 LOC exceeds standard advisory",
+      "loc": 370,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/simulation/runner/phases/physicalAttackHelpers.ts",
+      "line": 1,
+      "message": "365 LOC exceeds standard advisory",
+      "loc": 365,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/simulation/runner/phases/physicalAttackSelection.ts",
+      "line": 1,
+      "message": "347 LOC exceeds standard advisory",
+      "loc": 347,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/simulation/runner/phases/weaponAttackAmmoExplosions.ts",
+      "line": 1,
+      "message": "300 LOC exceeds standard advisory",
+      "loc": 300,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/simulation/runner/phases/weaponAttackDesignatorMarkers.ts",
+      "line": 1,
+      "message": "334 LOC exceeds standard advisory",
+      "loc": 334,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/simulation/runner/phases/weaponAttackHitResolution.helpers.ts",
+      "line": 1,
+      "message": "374 LOC exceeds standard advisory",
+      "loc": 374,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/simulation/runner/phases/weaponAttackHitResolution.ts",
+      "line": 1,
+      "message": "442 LOC exceeds standard advisory",
+      "loc": 442,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/simulation/runner/phases/weaponAttackHitResolutionEarlyReturns.ts",
+      "line": 1,
+      "message": "353 LOC exceeds standard advisory",
+      "loc": 353,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/simulation/runner/phases/weaponAttackShotContext.ts",
+      "line": 1,
+      "message": "317 LOC exceeds standard advisory",
+      "loc": 317,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/simulation/runner/SimulationRunnerState.ts",
+      "line": 1,
+      "message": "537 LOC exceeds orchestrator advisory",
+      "loc": 537,
+      "fileType": "orchestrator"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/simulation/runner/UnitHydrationCriticalSlotClassification.ts",
+      "line": 1,
+      "message": "309 LOC exceeds standard advisory",
+      "loc": 309,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/simulation/runner/UnitHydrationCriticalSlotSupport.ts",
+      "line": 1,
+      "message": "316 LOC exceeds standard advisory",
+      "loc": 316,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/simulation/runner/UnitHydrationElectronics.ts",
+      "line": 1,
+      "message": "312 LOC exceeds standard advisory",
+      "loc": 312,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/simulation/runner/UnitHydrationMovement.ts",
+      "line": 1,
+      "message": "302 LOC exceeds standard advisory",
+      "loc": 302,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/stores/campaign/campaignCommandActions.ts",
+      "line": 1,
+      "message": "314 LOC exceeds standard advisory",
+      "loc": 314,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/stores/campaign/useCampaignPersistenceStore.ts",
+      "line": 1,
+      "message": "537 LOC exceeds standard advisory",
+      "loc": 537,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/stores/campaign/useCampaignStore.actions.ts",
+      "line": 1,
+      "message": "321 LOC exceeds standard advisory",
+      "loc": 321,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/stores/campaign/useCampaignStore.dayActions.ts",
+      "line": 1,
+      "message": "471 LOC exceeds standard advisory",
+      "loc": 471,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/stores/campaign/useCampaignStore.persistence.ts",
+      "line": 1,
+      "message": "358 LOC exceeds standard advisory",
+      "loc": 358,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/stores/unit/useUnitStructureStore.helpers.ts",
+      "line": 1,
+      "message": "324 LOC exceeds standard advisory",
+      "loc": 324,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/stores/unitState.ts",
+      "line": 1,
+      "message": "309 LOC exceeds standard advisory",
+      "loc": 309,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/stores/useAerospaceStore.ts",
+      "line": 1,
+      "message": "327 LOC exceeds standard advisory",
+      "loc": 327,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/stores/useAwardStore.ts",
+      "line": 1,
+      "message": "358 LOC exceeds standard advisory",
+      "loc": 358,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/stores/useBattleArmorStore.ts",
+      "line": 1,
+      "message": "314 LOC exceeds standard advisory",
+      "loc": 314,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/stores/useEncounterStore.apiActions.ts",
+      "line": 1,
+      "message": "365 LOC exceeds standard advisory",
+      "loc": 365,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/stores/useForceStore.apiActions.ts",
+      "line": 1,
+      "message": "339 LOC exceeds standard advisory",
+      "loc": 339,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/stores/useGameplayStore.actionHandlers.ts",
+      "line": 1,
+      "message": "401 LOC exceeds standard advisory",
+      "loc": 401,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/stores/useGameplayStore.helpers.ts",
+      "line": 1,
+      "message": "326 LOC exceeds standard advisory",
+      "loc": 326,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/stores/useGameplayStore.movementPlan.ts",
+      "line": 1,
+      "message": "314 LOC exceeds standard advisory",
+      "loc": 314,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/stores/useGameplayStore.ts",
+      "line": 1,
+      "message": "528 LOC exceeds standard advisory",
+      "loc": 528,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/stores/useMultiUnitStore.actions.ts",
+      "line": 1,
+      "message": "348 LOC exceeds standard advisory",
+      "loc": 348,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/stores/useProtoMechStore.ts",
+      "line": 1,
+      "message": "344 LOC exceeds standard advisory",
+      "loc": 344,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/stores/useQuickGameStore.actions.ts",
+      "line": 1,
+      "message": "327 LOC exceeds standard advisory",
+      "loc": 327,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/stores/useRepairStore.storeActions.ts",
+      "line": 1,
+      "message": "375 LOC exceeds standard advisory",
+      "loc": 375,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/stores/useTabManagerStore.ts",
+      "line": 1,
+      "message": "319 LOC exceeds standard advisory",
+      "loc": 319,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/testing/tactical-map.arc-scenarios.ts",
+      "line": 1,
+      "message": "318 LOC exceeds standard advisory",
+      "loc": 318,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/testing/tactical-map.indirect-fire-scenario.ts",
+      "line": 1,
+      "message": "370 LOC exceeds standard advisory",
+      "loc": 370,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/testing/tactical-map.lam-conversion-scenario.ts",
+      "line": 1,
+      "message": "330 LOC exceeds standard advisory",
+      "loc": 330,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/testing/tactical-map.movement-scenarios.ts",
+      "line": 1,
+      "message": "310 LOC exceeds standard advisory",
+      "loc": 310,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/testing/tactical-map.visibility-scenarios.ts",
+      "line": 1,
+      "message": "327 LOC exceeds standard advisory",
+      "loc": 327,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/types/campaign/contracts/contractTypes.ts",
+      "line": 1,
+      "message": "337 LOC exceeds standard advisory",
+      "loc": 337,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/types/equipment/ArtilleryTypes.ts",
+      "line": 1,
+      "message": "325 LOC exceeds standard advisory",
+      "loc": 325,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/types/gameplay/GameplayUIPanelStateTypes.ts",
+      "line": 1,
+      "message": "301 LOC exceeds standard advisory",
+      "loc": 301,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/types/gameplay/GameSessionAttackEvents.ts",
+      "line": 1,
+      "message": "327 LOC exceeds standard advisory",
+      "loc": 327,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/types/gameplay/GameSessionStateTypes.ts",
+      "line": 1,
+      "message": "302 LOC exceeds standard advisory",
+      "loc": 302,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/types/gameplay/GameSessionStatusEvents.ts",
+      "line": 1,
+      "message": "384 LOC exceeds standard advisory",
+      "loc": 384,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/types/gameplay/TerrainProperties.ts",
+      "line": 1,
+      "message": "386 LOC exceeds standard advisory",
+      "loc": 386,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/types/multiplayer/Protocol.ts",
+      "line": 1,
+      "message": "508 LOC exceeds standard advisory",
+      "loc": 508,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/types/pilot/SpecialAbilities.ts",
+      "line": 1,
+      "message": "329 LOC exceeds standard advisory",
+      "loc": 329,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/types/scenario/ScenarioInterfaces.ts",
+      "line": 1,
+      "message": "323 LOC exceeds standard advisory",
+      "loc": 323,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/types/unit/BattleArmorInterfaces.ts",
+      "line": 1,
+      "message": "348 LOC exceeds standard advisory",
+      "loc": 348,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/types/validation/DamageSystem.ts",
+      "line": 1,
+      "message": "350 LOC exceeds standard advisory",
+      "loc": 350,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/utils/construction/aerospace/aerospaceBV.ts",
+      "line": 1,
+      "message": "373 LOC exceeds standard advisory",
+      "loc": 373,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/utils/construction/armorCalculations/allocation.ts",
+      "line": 1,
+      "message": "337 LOC exceeds standard advisory",
+      "loc": 337,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/utils/construction/battleValueOffensive.ts",
+      "line": 1,
+      "message": "413 LOC exceeds standard advisory",
+      "loc": 413,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/utils/construction/equipmentBV/normalizationPatterns.ts",
+      "line": 1,
+      "message": "332 LOC exceeds standard advisory",
+      "loc": 332,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/utils/construction/formulaRegistry.ts",
+      "line": 1,
+      "message": "310 LOC exceeds standard advisory",
+      "loc": 310,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/utils/construction/vehicle/vehicleBV.ts",
+      "line": 1,
+      "message": "356 LOC exceeds standard advisory",
+      "loc": 356,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/utils/gameplay/airMekLandingPsr.ts",
+      "line": 1,
+      "message": "316 LOC exceeds standard advisory",
+      "loc": 316,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/utils/gameplay/c3Network/automaticFormation.ts",
+      "line": 1,
+      "message": "334 LOC exceeds standard advisory",
+      "loc": 334,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/utils/gameplay/combatProjection.rangeHex.ts",
+      "line": 1,
+      "message": "401 LOC exceeds standard advisory",
+      "loc": 401,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/utils/gameplay/combatProjection.rangeHexState.ts",
+      "line": 1,
+      "message": "396 LOC exceeds standard advisory",
+      "loc": 396,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/utils/gameplay/combatProjection.targeting.ts",
+      "line": 1,
+      "message": "341 LOC exceeds standard advisory",
+      "loc": 341,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/utils/gameplay/combatProjection.toHit.ts",
+      "line": 1,
+      "message": "353 LOC exceeds standard advisory",
+      "loc": 353,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/utils/gameplay/criticalHitResolution/resolver.ts",
+      "line": 1,
+      "message": "328 LOC exceeds standard advisory",
+      "loc": 328,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/utils/gameplay/criticalHitResolution/slotEffectResolution.ts",
+      "line": 1,
+      "message": "370 LOC exceeds standard advisory",
+      "loc": 370,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/utils/gameplay/damage/finalize.ts",
+      "line": 1,
+      "message": "395 LOC exceeds standard advisory",
+      "loc": 395,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/utils/gameplay/environmentalModifiers.ts",
+      "line": 1,
+      "message": "336 LOC exceeds standard advisory",
+      "loc": 336,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/utils/gameplay/gameEvents/combat.ts",
+      "line": 1,
+      "message": "335 LOC exceeds standard advisory",
+      "loc": 335,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/utils/gameplay/gameEvents/combatDamage.ts",
+      "line": 1,
+      "message": "327 LOC exceeds standard advisory",
+      "loc": 327,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/utils/gameplay/gameEvents/combatIndirectFire.ts",
+      "line": 1,
+      "message": "310 LOC exceeds standard advisory",
+      "loc": 310,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/utils/gameplay/gameEvents/movementDeclared.ts",
+      "line": 1,
+      "message": "316 LOC exceeds standard advisory",
+      "loc": 316,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/utils/gameplay/gameEvents/statusCritical.ts",
+      "line": 1,
+      "message": "313 LOC exceeds standard advisory",
+      "loc": 313,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/utils/gameplay/gameEvents/statusPhysical.ts",
+      "line": 1,
+      "message": "373 LOC exceeds standard advisory",
+      "loc": 373,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/utils/gameplay/gameSessionAttackResolution.ammoExplosions.ts",
+      "line": 1,
+      "message": "342 LOC exceeds standard advisory",
+      "loc": 342,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/utils/gameplay/gameSessionAttackResolution.damageEvents.ts",
+      "line": 1,
+      "message": "317 LOC exceeds standard advisory",
+      "loc": 317,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/utils/gameplay/gameSessionCore.ts",
+      "line": 1,
+      "message": "376 LOC exceeds standard advisory",
+      "loc": 376,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/utils/gameplay/gameSessionHeat.ammoExplosion.ts",
+      "line": 1,
+      "message": "344 LOC exceeds standard advisory",
+      "loc": 344,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/utils/gameplay/gameSessionHeat.effects.ts",
+      "line": 1,
+      "message": "336 LOC exceeds standard advisory",
+      "loc": 336,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/utils/gameplay/gameSessionPhysicalInput.ts",
+      "line": 1,
+      "message": "353 LOC exceeds standard advisory",
+      "loc": 353,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/utils/gameplay/gameSessionPSRResolution.ts",
+      "line": 1,
+      "message": "363 LOC exceeds standard advisory",
+      "loc": 363,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/utils/gameplay/gameSessionVehicleCriticalResolution.ts",
+      "line": 1,
+      "message": "314 LOC exceeds standard advisory",
+      "loc": 314,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/utils/gameplay/gameState/actionLocking.ts",
+      "line": 1,
+      "message": "373 LOC exceeds standard advisory",
+      "loc": 373,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/utils/gameplay/hitLocation.ts",
+      "line": 1,
+      "message": "336 LOC exceeds standard advisory",
+      "loc": 336,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/utils/gameplay/indirectFire.ts",
+      "line": 1,
+      "message": "364 LOC exceeds standard advisory",
+      "loc": 364,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/utils/gameplay/lineOfSight.terrain.ts",
+      "line": 1,
+      "message": "304 LOC exceeds standard advisory",
+      "loc": 304,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/utils/gameplay/movement/calculations.ts",
+      "line": 1,
+      "message": "300 LOC exceeds standard advisory",
+      "loc": 300,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/utils/gameplay/movement/eventPathDecomposition.ts",
+      "line": 1,
+      "message": "359 LOC exceeds standard advisory",
+      "loc": 359,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/utils/gameplay/movement/movementStepCost.ts",
+      "line": 1,
+      "message": "358 LOC exceeds standard advisory",
+      "loc": 358,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/utils/gameplay/movement/rangeHexProjection.ts",
+      "line": 1,
+      "message": "318 LOC exceeds standard advisory",
+      "loc": 318,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/utils/gameplay/movement/reachablePrePath.ts",
+      "line": 1,
+      "message": "360 LOC exceeds standard advisory",
+      "loc": 360,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/utils/gameplay/movement/runtimeCapability.ts",
+      "line": 1,
+      "message": "363 LOC exceeds standard advisory",
+      "loc": 363,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/utils/gameplay/movement/validation.ts",
+      "line": 1,
+      "message": "478 LOC exceeds validation advisory",
+      "loc": 478,
+      "fileType": "validation"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/utils/gameplay/physicalAttacks/damage.ts",
+      "line": 1,
+      "message": "376 LOC exceeds standard advisory",
+      "loc": 376,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/utils/gameplay/physicalAttacks/displacementOutcomeValidation.ts",
+      "line": 1,
+      "message": "442 LOC exceeds validation advisory",
+      "loc": 442,
+      "fileType": "validation"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/utils/gameplay/physicalAttacks/displacementValidationCore.ts",
+      "line": 1,
+      "message": "517 LOC exceeds validation advisory",
+      "loc": 517,
+      "fileType": "validation"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/utils/gameplay/physicalAttacks/eligibilityAttackOptions.ts",
+      "line": 1,
+      "message": "304 LOC exceeds standard advisory",
+      "loc": 304,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/utils/gameplay/physicalAttacks/grappleEligibility.ts",
+      "line": 1,
+      "message": "399 LOC exceeds standard advisory",
+      "loc": 399,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/utils/gameplay/physicalAttacks/restrictionActionValidationHelpers.ts",
+      "line": 1,
+      "message": "549 LOC exceeds validation advisory",
+      "loc": 549,
+      "fileType": "validation"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/utils/gameplay/physicalAttacks/toHitBasic.ts",
+      "line": 1,
+      "message": "330 LOC exceeds standard advisory",
+      "loc": 330,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/utils/gameplay/pilotingSkillRolls/modifierResolution.ts",
+      "line": 1,
+      "message": "358 LOC exceeds standard advisory",
+      "loc": 358,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/utils/gameplay/quirkModifiers/catalog.ts",
+      "line": 1,
+      "message": "301 LOC exceeds standard advisory",
+      "loc": 301,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/utils/gameplay/spaModifiers/abilityModifiers.ts",
+      "line": 1,
+      "message": "370 LOC exceeds standard advisory",
+      "loc": 370,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/utils/gameplay/spaModifiers/catalog.ts",
+      "line": 1,
+      "message": "388 LOC exceeds standard advisory",
+      "loc": 388,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/utils/gameplay/terrainFeatures.ts",
+      "line": 1,
+      "message": "308 LOC exceeds standard advisory",
+      "loc": 308,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/utils/gameplay/toHit/calculate.ts",
+      "line": 1,
+      "message": "334 LOC exceeds standard advisory",
+      "loc": 334,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "src/utils/gameplay/vehicleCriticalTables.ts",
+      "line": 1,
+      "message": "306 LOC exceeds standard advisory",
+      "loc": 306,
+      "fileType": "standard"
+    },
+    {
+      "category": "near-duplicate",
+      "severity": "info",
+      "file": "src/components/audit/causality/CausalityNode.tsx",
+      "line": 29,
+      "message": "8-line block cluster appears in 5 files",
+      "copies": 5,
+      "files": [
+        "src/components/audit/causality/CausalityNode.tsx",
+        "src/components/audit/replay/ReplayEventOverlay.tsx",
+        "src/components/audit/timeline/EventTimelineItem.tsx",
+        "src/components/settings/SettingsShared.constants.tsx",
+        "src/pages/index.tsx"
+      ]
+    },
+    {
+      "category": "near-duplicate",
+      "severity": "info",
+      "file": "src/components/audit/diff/CheckpointSelector.tsx",
+      "line": 15,
+      "message": "8-line block cluster appears in 10 files",
+      "copies": 10,
+      "files": [
+        "src/components/audit/diff/CheckpointSelector.tsx",
+        "src/components/audit/diff/NestedDiff.tsx",
+        "src/components/audit/diff/StateDiffPanel.tsx",
+        "src/components/common/icons/NavigationIcons.tsx",
+        "src/components/compendium/CompendiumIcons.tsx",
+        "src/components/pages/compare/ComparePage.components.tsx",
+        "src/components/ui/Breadcrumb.tsx",
+        "src/pages-modules/units/detail.icons.tsx"
+      ]
+    },
+    {
+      "category": "near-duplicate",
+      "severity": "info",
+      "file": "src/components/audit/diff/NestedDiff.tsx",
+      "line": 110,
+      "message": "8-line block cluster appears in 16 files",
+      "copies": 16,
+      "files": [
+        "src/components/audit/diff/NestedDiff.tsx",
+        "src/components/force/UnitSelector.tsx",
+        "src/components/gameplay/pages/campaigns/dashboard/CampaignDashboardPage.utils.ts",
+        "src/components/gameplay/pages/preBattle/usePreBattleLaunch.ts",
+        "src/components/gameplay/post-battle/RepairPreviewPanel.tsx",
+        "src/components/vault/ConflictResolution.icons.tsx",
+        "src/components/vault/SyncStatus.helpers.ts",
+        "src/components/vault/VersionListContent.tsx"
+      ]
+    },
+    {
+      "category": "near-duplicate",
+      "severity": "info",
+      "file": "src/components/audit/replay/GameReplayPage.icons.tsx",
+      "line": 10,
+      "message": "8-line block cluster appears in 7 files",
+      "copies": 7,
+      "files": [
+        "src/components/audit/replay/GameReplayPage.icons.tsx",
+        "src/components/campaign/ContextPanelIcons.tsx",
+        "src/components/common/ControlledInput.tsx",
+        "src/components/customizer/dialogs/dialogPresentation.tsx",
+        "src/components/pilots/wizard/PilotCreationWizardFooter.tsx",
+        "src/components/settings/DesktopSettingsDialog.tsx",
+        "src/components/sync/SyncBadge.tsx"
+      ]
+    },
+    {
+      "category": "near-duplicate",
+      "severity": "info",
+      "file": "src/components/award/AwardBadge.tsx",
+      "line": 78,
+      "message": "8-line block cluster appears in 9 files",
+      "copies": 9,
+      "files": [
+        "src/components/award/AwardBadge.tsx",
+        "src/components/award/AwardDetailModal.tsx",
+        "src/components/campaign/CampaignStatusHelpers.tsx",
+        "src/components/customizer/armor/ArmorDiagramQuickSettings.tsx",
+        "src/components/gameplay/pages/ModeSelection.tsx",
+        "src/components/pilots/wizard/ModeSelectionStep.tsx",
+        "src/components/quickgame/QuickGameReview.tsx",
+        "src/components/sync/RoomCodeDialog.tsx"
+      ]
+    },
+    {
+      "category": "near-duplicate",
+      "severity": "info",
+      "file": "src/components/campaign/bays/MechBay.tsx",
+      "line": 13,
+      "message": "8-line block cluster appears in 7 files",
+      "copies": 7,
+      "files": [
+        "src/components/campaign/bays/MechBay.tsx",
+        "src/components/campaign/bays/MedicalBay.tsx",
+        "src/components/campaign/bays/RepairBay.tsx",
+        "src/components/campaign/bays/SalvageAcceptancePanel.tsx",
+        "src/components/campaign/command/HiringPanel.tsx",
+        "src/components/gameplay/effects/PersistentEffectsLayer.tsx",
+        "src/lib/campaign/inventory/projectCampaignInventory.ts"
+      ]
+    },
+    {
+      "category": "near-duplicate",
+      "severity": "info",
+      "file": "src/components/campaign/bays/MedicalBay.tsx",
+      "line": 8,
+      "message": "8-line block cluster appears in 24 files",
+      "copies": 24,
+      "files": [
+        "src/components/campaign/bays/MedicalBay.tsx",
+        "src/components/campaign/coop/CampaignCoopRouteSurfaceConnected.tsx",
+        "src/components/force/UnitSelector.tsx",
+        "src/components/gameplay/CommitMoveButton.tsx",
+        "src/components/gameplay/HexMapDisplay/HexCell.combatBadges.tsx",
+        "src/components/gameplay/HexMapDisplay/HexCell.labels.tsx",
+        "src/components/gameplay/HexMapDisplay/HexCell.renderLabels.ts",
+        "src/components/gameplay/HexMapDisplay/HexMapDisplay.combinedTooltip.tsx"
+      ]
+    },
+    {
+      "category": "near-duplicate",
+      "severity": "info",
+      "file": "src/components/campaign/bays/RefitLaunchPanel.tsx",
+      "line": 184,
+      "message": "8-line block cluster appears in 4 files",
+      "copies": 4,
+      "files": [
+        "src/components/campaign/CampaignOverviewTab.missionSections.tsx",
+        "src/components/campaign/bays/RefitLaunchPanel.tsx",
+        "src/components/gameplay/pages/EncounterDetailPage.actions.tsx",
+        "src/pages-modules/gameplay/encounters/quickSimPage.helpers.tsx"
+      ]
+    },
+    {
+      "category": "near-duplicate",
+      "severity": "info",
+      "file": "src/components/campaign/bays/RepairBay.tsx",
+      "line": 7,
+      "message": "8-line block cluster appears in 5 files",
+      "copies": 5,
+      "files": [
+        "src/components/campaign/bays/RepairBay.tsx",
+        "src/components/gameplay/HexMapDisplay/HexCell.renderLabels.ts",
+        "src/components/gameplay/HexMapDisplay/HexMapDisplay.combinedTooltip.tsx",
+        "src/components/gameplay/HexMapDisplay/HexMapDisplay.projectionTooltipRows.tsx",
+        "src/lib/campaign/inventory/projectCampaignInventory.ts"
+      ]
+    },
+    {
+      "category": "near-duplicate",
+      "severity": "info",
+      "file": "src/components/campaign/CampaignStatusHelpers.tsx",
+      "line": 266,
+      "message": "8-line block cluster appears in 7 files",
+      "copies": 7,
+      "files": [
+        "src/components/campaign/CampaignStatusHelpers.tsx",
+        "src/components/gameplay/pages/campaigns/create/CreateCampaignPage.sections.tsx",
+        "src/components/pilots/wizard/StepIndicator.tsx",
+        "src/components/quickgame/QuickGameReview.tsx",
+        "src/components/sync/RoomCodeDialog.tsx",
+        "src/pages/gameplay/campaigns/[id]/forces.tsx",
+        "src/pages/gameplay/quick/index.tsx"
+      ]
+    },
+    {
+      "category": "near-duplicate",
+      "severity": "info",
+      "file": "src/components/campaign/ContextPanelIcons.tsx",
+      "line": 62,
+      "message": "8-line block cluster appears in 4 files",
+      "copies": 4,
+      "files": [
+        "src/components/campaign/ContextPanelIcons.tsx",
+        "src/components/vault/ConflictResolution.icons.tsx",
+        "src/components/vault/folder-manager/FolderManagerIcons.tsx",
+        "src/pages-modules/shared/icons.tsx"
+      ]
+    },
+    {
+      "category": "near-duplicate",
+      "severity": "info",
+      "file": "src/components/campaign/dashboard/CampaignDashboard.tsx",
+      "line": 75,
+      "message": "8-line block cluster appears in 4 files",
+      "copies": 4,
+      "files": [
+        "src/components/campaign/dashboard/CampaignDashboard.tsx",
+        "src/components/gameplay/pages/campaigns/dashboard/CampaignDashboardPage.hooks.ts",
+        "src/lib/campaign/fastForward/fastForwardCampaign.ts",
+        "src/stores/campaign/useCampaignStore.dayActions.ts"
+      ]
+    },
+    {
+      "category": "near-duplicate",
+      "severity": "info",
+      "file": "src/components/campaign/gm/GmCampaignLedgerProjection.tsx",
+      "line": 7,
+      "message": "8-line block cluster appears in 7 files",
+      "copies": 7,
+      "files": [
+        "src/components/campaign/gm/GmCampaignLedgerProjection.tsx",
+        "src/engine/adapters/CompendiumWeaponData.ts",
+        "src/services/conversion/MTFParser.components.ts",
+        "src/services/conversion/MTFParserHelpers.ts",
+        "src/services/conversion/ParityValidationCriticalSlots.ts",
+        "src/services/equipment/EquipmentNameMapper.ts",
+        "src/utils/locationUtils.ts"
+      ]
+    },
+    {
+      "category": "near-duplicate",
+      "severity": "info",
+      "file": "src/components/campaign/MissionTreeView.tsx",
+      "line": 54,
+      "message": "8-line block cluster appears in 7 files",
+      "copies": 7,
+      "files": [
+        "src/components/campaign/MissionTreeView.tsx",
+        "src/components/customizer/tabs/CustomizerTabs.tsx",
+        "src/components/gameplay/ArmorPip.tsx",
+        "src/components/quickgame/QuickGameResultsSections.tsx",
+        "src/components/shared/Toast.tsx",
+        "src/components/sync/PeerItemList.tsx",
+        "src/components/ui/Toast.tsx"
+      ]
+    },
+    {
+      "category": "near-duplicate",
+      "severity": "info",
+      "file": "src/components/campaign/StarmapDisplay.model.ts",
+      "line": 117,
+      "message": "8-line block cluster appears in 12 files",
+      "copies": 12,
+      "files": [
+        "src/components/campaign/StarmapDisplay.model.ts",
+        "src/components/gameplay/HexMapDisplay/HexCell.combatBadges.tsx",
+        "src/components/gameplay/HexMapDisplay/HexMapDisplay.combinedTooltip.tsx",
+        "src/components/gameplay/HexMapDisplay/HexMapDisplay.projectionTooltipRows.tsx",
+        "src/components/gameplay/HexMapDisplay/HexMapDisplay.tooltipFormatters.ts",
+        "src/components/gameplay/HexMapDisplay/MovementCostOverlay.projection.ts",
+        "src/components/gameplay/overlays/LineOfSightOverlay.tsx",
+        "src/components/gameplay/pages/campaigns/dashboard/CampaignDashboardPage.utils.ts"
+      ]
+    },
+    {
+      "category": "near-duplicate",
+      "severity": "info",
+      "file": "src/components/common/icons/NavigationIcons.tsx",
+      "line": 243,
+      "message": "8-line block cluster appears in 14 files",
+      "copies": 14,
+      "files": [
+        "src/components/common/icons/NavigationIcons.tsx",
+        "src/components/compendium/CompendiumIcons.tsx",
+        "src/components/compendium/CompendiumLayout.tsx",
+        "src/components/contacts/ContactDeleteDialog.tsx",
+        "src/components/contacts/ContactFilters.tsx",
+        "src/components/contacts/ContactFormModal.tsx",
+        "src/components/contacts/ContactList.tsx",
+        "src/components/vault/ConflictResolution.icons.tsx"
+      ]
+    },
+    {
+      "category": "near-duplicate",
+      "severity": "info",
+      "file": "src/components/compendium/CompendiumIcons.tsx",
+      "line": 4,
+      "message": "8-line block cluster appears in 4 files",
+      "copies": 4,
+      "files": [
+        "src/components/compendium/CompendiumIcons.tsx",
+        "src/pages-modules/share/icons.tsx",
+        "src/pages-modules/shared/icons.tsx",
+        "src/pages-modules/units/detail.icons.tsx"
+      ]
+    },
+    {
+      "category": "near-duplicate",
+      "severity": "info",
+      "file": "src/components/critical-slots/CriticalSlot.tsx",
+      "line": 110,
+      "message": "8-line block cluster appears in 8 files",
+      "copies": 8,
+      "files": [
+        "src/components/critical-slots/CriticalSlot.tsx",
+        "src/components/customizer/dialogs/ResetConfirmationDialog.tsx",
+        "src/components/customizer/tabs/TabBar.tsx",
+        "src/components/force/AssignmentSlot.tsx",
+        "src/components/force/ForceBuilder.tsx",
+        "src/components/repair/RepairQueueItem.tsx",
+        "src/components/spa/SPAPicker/SearchInput.tsx",
+        "src/components/ui/DialogTemplate.tsx"
+      ]
+    },
+    {
+      "category": "near-duplicate",
+      "severity": "info",
+      "file": "src/components/customizer/aerospace/AerospacePreviewTab.tsx",
+      "line": 85,
+      "message": "8-line block cluster appears in 4 files",
+      "copies": 4,
+      "files": [
+        "src/components/customizer/aerospace/AerospacePreviewTab.tsx",
+        "src/components/customizer/battlearmor/BattleArmorPreviewTab.tsx",
+        "src/components/customizer/protomech/ProtoMechPreviewTab.tsx",
+        "src/components/customizer/vehicle/VehiclePreviewTab.tsx"
+      ]
+    },
+    {
+      "category": "near-duplicate",
+      "severity": "info",
+      "file": "src/components/customizer/aerospace/AerospaceRecordSheetPreview.tsx",
+      "line": 87,
+      "message": "8-line block cluster appears in 4 files",
+      "copies": 4,
+      "files": [
+        "src/components/customizer/aerospace/AerospaceRecordSheetPreview.tsx",
+        "src/components/customizer/battlearmor/BattleArmorRecordSheetPreview.tsx",
+        "src/components/customizer/protomech/ProtoMechRecordSheetPreview.tsx",
+        "src/components/customizer/vehicle/VehicleRecordSheetPreview.tsx"
+      ]
+    },
+    {
+      "category": "near-duplicate",
+      "severity": "info",
+      "file": "src/components/customizer/armor/shared/MechSilhouette.biped.battlemech.ts",
+      "line": 8,
+      "message": "8-line block cluster appears in 7 files",
+      "copies": 7,
+      "files": [
+        "src/components/customizer/armor/shared/MechSilhouette.biped.battlemech.ts",
+        "src/components/customizer/armor/shared/MechSilhouette.biped.geometric.ts",
+        "src/components/customizer/armor/shared/MechSilhouette.biped.megamek.ts",
+        "src/components/customizer/armor/shared/MechSilhouette.biped.realistic.ts",
+        "src/components/customizer/armor/shared/MechSilhouette.fighter.ts",
+        "src/components/customizer/armor/shared/MechSilhouette.quad.ts",
+        "src/components/customizer/armor/shared/MechSilhouette.tripod.ts"
+      ]
+    },
+    {
+      "category": "near-duplicate",
+      "severity": "info",
+      "file": "src/components/customizer/armor/shared/MechSilhouette.biped.battlemech.ts",
+      "line": 40,
+      "message": "8-line block cluster appears in 6 files",
+      "copies": 6,
+      "files": [
+        "src/components/customizer/armor/shared/MechSilhouette.biped.battlemech.ts",
+        "src/components/customizer/armor/shared/MechSilhouette.biped.geometric.ts",
+        "src/components/customizer/armor/shared/MechSilhouette.biped.megamek.ts",
+        "src/components/customizer/armor/shared/MechSilhouette.biped.realistic.ts",
+        "src/components/customizer/armor/shared/MechSilhouette.quad.ts",
+        "src/components/customizer/armor/shared/MechSilhouette.tripod.ts"
+      ]
+    },
+    {
+      "category": "near-duplicate",
+      "severity": "info",
+      "file": "src/components/customizer/armor/shared/MechSilhouette.biped.battlemech.ts",
+      "line": 80,
+      "message": "8-line block cluster appears in 6 files",
+      "copies": 6,
+      "files": [
+        "src/components/customizer/armor/shared/MechSilhouette.biped.battlemech.ts",
+        "src/components/customizer/armor/shared/MechSilhouette.biped.megamek.ts",
+        "src/components/customizer/armor/shared/MechSilhouette.biped.realistic.ts",
+        "src/components/customizer/armor/shared/MechSilhouette.fighter.ts",
+        "src/components/customizer/armor/shared/MechSilhouette.quad.ts",
+        "src/components/customizer/armor/shared/MechSilhouette.tripod.ts"
+      ]
+    },
+    {
+      "category": "near-duplicate",
+      "severity": "info",
+      "file": "src/components/customizer/armor/shared/MechSilhouette.biped.battlemech.ts",
+      "line": 112,
+      "message": "8-line block cluster appears in 5 files",
+      "copies": 5,
+      "files": [
+        "src/components/customizer/armor/shared/MechSilhouette.biped.battlemech.ts",
+        "src/components/customizer/armor/shared/MechSilhouette.biped.geometric.ts",
+        "src/components/customizer/armor/shared/MechSilhouette.biped.megamek.ts",
+        "src/components/customizer/armor/shared/MechSilhouette.biped.realistic.ts",
+        "src/components/customizer/armor/shared/MechSilhouette.tripod.ts"
+      ]
+    },
+    {
+      "category": "near-duplicate",
+      "severity": "info",
+      "file": "src/components/customizer/armor/variants/CleanTechDiagram.location.tsx",
+      "line": 203,
+      "message": "8-line block cluster appears in 5 files",
+      "copies": 5,
+      "files": [
+        "src/components/customizer/armor/variants/CleanTechDiagram.location.tsx",
+        "src/components/customizer/armor/variants/MegaMekDiagram.location.tsx",
+        "src/components/customizer/armor/variants/NeonOperatorDiagram.location.tsx",
+        "src/components/customizer/armor/variants/PremiumMaterialDiagram.parts.tsx",
+        "src/components/customizer/armor/variants/TacticalHUDDiagram.parts.tsx"
+      ]
+    },
+    {
+      "category": "near-duplicate",
+      "severity": "info",
+      "file": "src/components/customizer/armor/variants/CleanTechDiagram.tsx",
+      "line": 41,
+      "message": "8-line block cluster appears in 4 files",
+      "copies": 4,
+      "files": [
+        "src/components/customizer/armor/variants/CleanTechDiagram.tsx",
+        "src/components/customizer/armor/variants/MegaMekDiagram.tsx",
+        "src/components/customizer/armor/variants/NeonOperatorDiagram.tsx",
+        "src/components/customizer/armor/variants/PremiumMaterialDiagram.tsx"
+      ]
+    },
+    {
+      "category": "near-duplicate",
+      "severity": "info",
+      "file": "src/components/customizer/battlearmor/BattleArmorAPWeaponsTab.tsx",
+      "line": 10,
+      "message": "8-line block cluster appears in 8 files",
+      "copies": 8,
+      "files": [
+        "src/components/customizer/battlearmor/BattleArmorAPWeaponsTab.tsx",
+        "src/components/customizer/battlearmor/BattleArmorJumpUMUTab.tsx",
+        "src/components/customizer/battlearmor/BattleArmorManipulatorsTab.tsx",
+        "src/components/customizer/battlearmor/BattleArmorModularWeaponsTab.tsx",
+        "src/components/customizer/protomech/ProtoMechArmorTab.tsx",
+        "src/components/customizer/protomech/ProtoMechEquipmentTab.tsx",
+        "src/components/customizer/protomech/ProtoMechGliderTab.tsx",
+        "src/components/customizer/protomech/ProtoMechMainGunTab.tsx"
+      ]
+    },
+    {
+      "category": "near-duplicate",
+      "severity": "info",
+      "file": "src/components/customizer/protomech/ProtoMechArmorDiagram.tsx",
+      "line": 7,
+      "message": "8-line block cluster appears in 10 files",
+      "copies": 10,
+      "files": [
+        "src/components/customizer/protomech/ProtoMechArmorDiagram.tsx",
+        "src/services/units/handlers/VehicleUnitHandler.ts",
+        "src/types/validation/BattleValue.ts",
+        "src/types/validation/DamageSystem.ts",
+        "src/utils/construction/aerospace/engineWeightAerospace.ts",
+        "src/utils/construction/battleValueMovement.ts",
+        "src/utils/construction/engineCalculations.ts",
+        "src/utils/construction/vehicle/armor.ts"
+      ]
+    },
+    {
+      "category": "near-duplicate",
+      "severity": "info",
+      "file": "src/components/force/UnitSelector.tsx",
+      "line": 27,
+      "message": "8-line block cluster appears in 13 files",
+      "copies": 13,
+      "files": [
+        "src/components/force/UnitSelector.tsx",
+        "src/components/gameplay/CommitMoveButton.tsx",
+        "src/components/gameplay/MovementIntentComposer/CostLedger.tsx",
+        "src/components/gameplay/damageFeedback.ts",
+        "src/components/gameplay/post-battle/RepairPreviewPanel.tsx",
+        "src/components/vault/ConflictResolution.icons.tsx",
+        "src/components/vault/SyncStatus.helpers.ts",
+        "src/components/vault/VersionListContent.tsx"
+      ]
+    },
+    {
+      "category": "near-duplicate",
+      "severity": "info",
+      "file": "src/components/gameplay/AttackIntentComposer/HeatEffectLedger.tsx",
+      "line": 41,
+      "message": "8-line block cluster appears in 5 files",
+      "copies": 5,
+      "files": [
+        "src/components/gameplay/AttackIntentComposer/HeatEffectLedger.tsx",
+        "src/components/gameplay/AttackIntentComposer/TwistControl.tsx",
+        "src/components/gameplay/AttackIntentComposer/VolleyResolver.tsx",
+        "src/components/gameplay/AttackIntentComposer/WeaponPalette.tsx",
+        "src/components/gameplay/MovementIntentComposer/PosturePalette.tsx"
+      ]
+    },
+    {
+      "category": "near-duplicate",
+      "severity": "info",
+      "file": "src/components/gameplay/HexMapDisplay/HexCell.combatBadges.tsx",
+      "line": 40,
+      "message": "8-line block cluster appears in 7 files",
+      "copies": 7,
+      "files": [
+        "src/components/gameplay/HexMapDisplay/HexCell.combatBadges.tsx",
+        "src/components/gameplay/HexMapDisplay/HexMapDisplay.combinedTooltip.tsx",
+        "src/components/gameplay/HexMapDisplay/HexMapDisplay.projectionTooltipRows.tsx",
+        "src/components/gameplay/HexMapDisplay/HexMapDisplay.tooltipFormatters.ts",
+        "src/utils/gameplay/standUpRules.ts",
+        "src/utils/gameplay/tacticalMapProjection.sourceReferenceFormatting.ts",
+        "src/utils/gameplay/vehicleHitLocation.ts"
+      ]
+    },
+    {
+      "category": "near-duplicate",
+      "severity": "info",
+      "file": "src/components/gameplay/HexMapDisplay/HexCell.combatBadges.tsx",
+      "line": 53,
+      "message": "8-line block cluster appears in 4 files",
+      "copies": 4,
+      "files": [
+        "src/components/gameplay/HexMapDisplay/HexCell.combatBadges.tsx",
+        "src/lib/campaign/inventory/projectCampaignInventory.ts",
+        "src/utils/effects/weaponEffectMap.ts",
+        "src/utils/gameplay/forceComparison.ts"
+      ]
+    },
+    {
+      "category": "near-duplicate",
+      "severity": "info",
+      "file": "src/components/gameplay/HexMapDisplay/HexCell.combatImpactBadge.tsx",
+      "line": 85,
+      "message": "8-line block cluster appears in 5 files",
+      "copies": 5,
+      "files": [
+        "src/components/gameplay/HexMapDisplay/HexCell.combatImpactBadge.tsx",
+        "src/components/gameplay/HexMapDisplay/HexCell.hoverMovementBadge.tsx",
+        "src/components/gameplay/HexMapDisplay/HexCell.invalidBadges.tsx",
+        "src/components/gameplay/HexMapDisplay/HexCell.movementBadges.tsx",
+        "src/components/gameplay/HexMapDisplay/HexCell.movementReachBadge.tsx"
+      ]
+    },
+    {
+      "category": "near-duplicate",
+      "severity": "info",
+      "file": "src/components/gameplay/HexMapDisplay/HexMapDisplay.combatC3Context.tsx",
+      "line": 37,
+      "message": "8-line block cluster appears in 5 files",
+      "copies": 5,
+      "files": [
+        "src/components/gameplay/HexMapDisplay/HexMapDisplay.combatC3Context.tsx",
+        "src/components/gameplay/HexMapDisplay/HexMapDisplay.combatIndirectFireContext.tsx",
+        "src/components/gameplay/HexMapDisplay/HexMapDisplay.combatLosContext.tsx",
+        "src/components/gameplay/HexMapDisplay/HexMapDisplay.combatMinimumRangeContext.tsx",
+        "src/components/gameplay/HexMapDisplay/HexMapDisplay.combatVisibilityContext.tsx"
+      ]
+    },
+    {
+      "category": "near-duplicate",
+      "severity": "info",
+      "file": "src/components/gameplay/pages/campaigns/dashboard/CampaignDashboardPage.sections.tsx",
+      "line": 75,
+      "message": "8-line block cluster appears in 9 files",
+      "copies": 9,
+      "files": [
+        "src/components/gameplay/pages/campaigns/dashboard/CampaignDashboardPage.sections.tsx",
+        "src/components/gameplay/pages/repair/bay/RepairBayPage.sections.tsx",
+        "src/pages/gameplay/campaigns/[id]/forces.tsx",
+        "src/pages/gameplay/campaigns/[id]/missions.tsx",
+        "src/pages/gameplay/campaigns/index.tsx",
+        "src/pages/gameplay/encounters/index.tsx",
+        "src/pages/gameplay/forces/index.tsx",
+        "src/pages/gameplay/games/index.tsx"
+      ]
+    },
+    {
+      "category": "near-duplicate",
+      "severity": "info",
+      "file": "src/components/gameplay/pages/campaigns/dashboard/CampaignDashboardPage.sections.tsx",
+      "line": 159,
+      "message": "8-line block cluster appears in 11 files",
+      "copies": 11,
+      "files": [
+        "src/components/gameplay/pages/campaigns/dashboard/CampaignDashboardPage.sections.tsx",
+        "src/components/gameplay/pages/forces/detail/ForceDetailPage.sections.tsx",
+        "src/components/gameplay/pages/repair/bay/RepairBayPage.sections.tsx",
+        "src/components/pilots/PilotAbilitiesPanel.tsx",
+        "src/components/pilots/wizard/SkillsStep.tsx",
+        "src/pages/gameplay/campaigns/index.tsx",
+        "src/pages/gameplay/encounters/index.tsx",
+        "src/pages/gameplay/forces/create.tsx"
+      ]
+    },
+    {
+      "category": "near-duplicate",
+      "severity": "info",
+      "file": "src/components/gameplay/pages/forces/detail/ForceDetailPage.sections.tsx",
+      "line": 72,
+      "message": "8-line block cluster appears in 10 files",
+      "copies": 10,
+      "files": [
+        "src/components/gameplay/pages/forces/detail/ForceDetailPage.sections.tsx",
+        "src/components/gameplay/pages/repair/bay/RepairBayPage.sections.tsx",
+        "src/components/pilots/PilotAbilitiesPanel.tsx",
+        "src/components/pilots/wizard/SkillsStep.tsx",
+        "src/pages/gameplay/campaigns/index.tsx",
+        "src/pages/gameplay/encounters/index.tsx",
+        "src/pages/gameplay/forces/create.tsx",
+        "src/pages/gameplay/forces/index.tsx"
+      ]
+    },
+    {
+      "category": "near-duplicate",
+      "severity": "info",
+      "file": "src/components/quickgame/QuickGameSetupScenarioConfig.tsx",
+      "line": 33,
+      "message": "8-line block cluster appears in 4 files",
+      "copies": 4,
+      "files": [
+        "src/components/quickgame/QuickGameSetupScenarioConfig.tsx",
+        "src/utils/gameplay/hitLocation.ts",
+        "src/utils/gameplay/protomech/hitLocation.ts",
+        "src/utils/gameplay/vehicleHitLocation.ts"
+      ]
+    },
+    {
+      "category": "near-duplicate",
+      "severity": "info",
+      "file": "src/components/replay-library/ReplayLibraryPage.tsx",
+      "line": 129,
+      "message": "8-line block cluster appears in 6 files",
+      "copies": 6,
+      "files": [
+        "src/components/replay-library/ReplayLibraryPage.tsx",
+        "src/pages/compendium/equipment/index.tsx",
+        "src/pages/compendium/units/index.tsx",
+        "src/pages/contacts.tsx",
+        "src/pages/share.tsx",
+        "src/pages/shared.tsx"
+      ]
+    },
+    {
+      "category": "near-duplicate",
+      "severity": "info",
+      "file": "src/components/settings/AccessibilitySettings.tsx",
+      "line": 17,
+      "message": "8-line block cluster appears in 7 files",
+      "copies": 7,
+      "files": [
+        "src/components/settings/AccessibilitySettings.tsx",
+        "src/components/settings/AppearanceSettings.tsx",
+        "src/components/settings/AuditSettings.tsx",
+        "src/components/settings/CustomizerSettings.tsx",
+        "src/components/settings/P2PSyncSettings.tsx",
+        "src/components/settings/UIBehaviorSettings.tsx",
+        "src/components/settings/VaultSettings.tsx"
+      ]
+    },
+    {
+      "category": "near-duplicate",
+      "severity": "info",
+      "file": "src/components/vault/ConflictResolution.icons.tsx",
+      "line": 150,
+      "message": "8-line block cluster appears in 4 files",
+      "copies": 4,
+      "files": [
+        "src/components/vault/ConflictResolution.icons.tsx",
+        "src/components/vault/VersionHistoryIcons.tsx",
+        "src/pages-modules/share/icons.tsx",
+        "src/pages-modules/shared/icons.tsx"
+      ]
+    },
+    {
+      "category": "near-duplicate",
+      "severity": "info",
+      "file": "src/components/vault/ConflictResolutionDialog.tsx",
+      "line": 32,
+      "message": "8-line block cluster appears in 4 files",
+      "copies": 4,
+      "files": [
+        "src/components/vault/ConflictResolutionDialog.tsx",
+        "src/components/vault/ShareDialog.tsx",
+        "src/components/vault/VersionList.tsx",
+        "src/components/vault/folder-manager/FolderDialogs.tsx"
+      ]
+    },
+    {
+      "category": "near-duplicate",
+      "severity": "info",
+      "file": "src/components/vault/folder-manager/FolderManagerIcons.tsx",
+      "line": 127,
+      "message": "8-line block cluster appears in 4 files",
+      "copies": 4,
+      "files": [
+        "src/components/vault/SyncStatus.icons.tsx",
+        "src/components/vault/folder-manager/FolderManagerIcons.tsx",
+        "src/pages-modules/share/icons.tsx",
+        "src/pages-modules/shared/icons.tsx"
+      ]
+    },
+    {
+      "category": "near-duplicate",
+      "severity": "info",
+      "file": "src/components/vault/folder-manager/FolderPanels.tsx",
+      "line": 40,
+      "message": "8-line block cluster appears in 4 files",
+      "copies": 4,
+      "files": [
+        "src/components/vault/folder-manager/FolderPanels.tsx",
+        "src/pages-modules/share/helpers.ts",
+        "src/pages-modules/shared/helpers.tsx",
+        "src/pages/share/[token].tsx"
+      ]
+    },
+    {
+      "category": "near-duplicate",
+      "severity": "info",
+      "file": "src/engine/adapters/CompendiumWeaponData.ts",
+      "line": 201,
+      "message": "8-line block cluster appears in 9 files",
+      "copies": 9,
+      "files": [
+        "src/engine/adapters/CompendiumWeaponData.ts",
+        "src/services/conversion/MTFExportHelpers.ts",
+        "src/services/conversion/MTFParser.components.ts",
+        "src/services/conversion/MTFParserHelpers.ts",
+        "src/services/conversion/ParityValidationCriticalSlots.ts",
+        "src/services/equipment/EquipmentNameMapper.ts",
+        "src/utils/construction/equipmentBV/normalizationPatterns.ts",
+        "src/utils/locationUtils.ts"
+      ]
+    },
+    {
+      "category": "near-duplicate",
+      "severity": "info",
+      "file": "src/pages/compendium/equipment/[id].tsx",
+      "line": 229,
+      "message": "8-line block cluster appears in 6 files",
+      "copies": 6,
+      "files": [
+        "src/pages/compendium/equipment/[id].tsx",
+        "src/pages/compendium/equipment/index.tsx",
+        "src/pages/compendium/units/[id].tsx",
+        "src/pages/compendium/units/index.tsx",
+        "src/pages/units/[id].tsx",
+        "src/pages/units/index.tsx"
+      ]
+    },
+    {
+      "category": "near-duplicate",
+      "severity": "info",
+      "file": "src/pages/gameplay/campaigns/[id]/acquisitions.tsx",
+      "line": 62,
+      "message": "8-line block cluster appears in 4 files",
+      "copies": 4,
+      "files": [
+        "src/pages/gameplay/campaigns/[id]/acquisitions.tsx",
+        "src/pages/gameplay/campaigns/[id]/contract-market.tsx",
+        "src/pages/gameplay/campaigns/[id]/finances.tsx",
+        "src/pages/gameplay/campaigns/[id]/hiring.tsx"
+      ]
+    },
+    {
+      "category": "near-duplicate",
+      "severity": "info",
+      "file": "src/pages/gameplay/campaigns/index.tsx",
+      "line": 157,
+      "message": "8-line block cluster appears in 5 files",
+      "copies": 5,
+      "files": [
+        "src/pages/gameplay/campaigns/index.tsx",
+        "src/pages/gameplay/encounters/index.tsx",
+        "src/pages/gameplay/forces/index.tsx",
+        "src/pages/gameplay/games/index.tsx",
+        "src/pages/gameplay/pilots/index.tsx"
+      ]
+    },
+    {
+      "category": "near-duplicate",
+      "severity": "info",
+      "file": "src/services/validation/rules/aerospace/AerospaceCategoryAdvancedRules.ts",
+      "line": 47,
+      "message": "8-line block cluster appears in 7 files",
+      "copies": 7,
+      "files": [
+        "src/services/validation/rules/aerospace/AerospaceCategoryAdvancedRules.ts",
+        "src/services/validation/rules/aerospace/AerospaceCategoryCoreRules.ts",
+        "src/services/validation/rules/equipment/EquipmentUnitTypeRules.ts",
+        "src/services/validation/rules/personnel/PersonnelCategoryRules.ts",
+        "src/services/validation/rules/universal/EraAvailability.ts",
+        "src/services/validation/rules/universal/RulesLevelCompliance.ts",
+        "src/services/validation/rules/vehicle/VehicleCategoryRules.ts"
+      ]
+    },
+    {
+      "category": "near-duplicate",
+      "severity": "info",
+      "file": "src/services/validation/rules/aerospace/AerospaceCategoryCoreRules.ts",
+      "line": 63,
+      "message": "8-line block cluster appears in 6 files",
+      "copies": 6,
+      "files": [
+        "src/services/validation/rules/aerospace/AerospaceCategoryCoreRules.ts",
+        "src/services/validation/rules/battlemech/BattleMechRules.ts",
+        "src/services/validation/rules/personnel/PersonnelCategoryRules.ts",
+        "src/services/validation/rules/universal/CriticalSlotOverflowValidation.ts",
+        "src/services/validation/rules/universal/WeightOverflowValidation.ts",
+        "src/services/validation/rules/vehicle/VehicleCategoryRules.ts"
+      ]
+    },
+    {
+      "category": "near-duplicate",
+      "severity": "info",
+      "file": "src/simulation/detectors/HeatSuicideDetector.ts",
+      "line": 100,
+      "message": "8-line block cluster appears in 4 files",
+      "copies": 4,
+      "files": [
+        "src/simulation/detectors/HeatSuicideDetector.ts",
+        "src/simulation/detectors/NoProgressDetector/detection.ts",
+        "src/simulation/detectors/PassiveUnitDetector.ts",
+        "src/simulation/detectors/StateCycleDetector/detection.ts"
+      ]
+    },
+    {
+      "category": "near-duplicate",
+      "severity": "info",
+      "file": "src/simulation/runner/CombatActionSupport.gameIntentSourceRefs.ts",
+      "line": 6,
+      "message": "8-line block cluster appears in 17 files",
+      "copies": 17,
+      "files": [
+        "src/simulation/runner/CombatActionSupport.gameIntentSourceRefs.ts",
+        "src/simulation/runner/CombatActionSupport.movementSourceRefs.ts",
+        "src/simulation/runner/CombatActionSupport.physicalUtilitySourceRefs.ts",
+        "src/simulation/runner/CombatAmmunitionSupport.ts",
+        "src/simulation/runner/CombatBattleMechEventSourceRefs.combat.ts",
+        "src/simulation/runner/CombatBattleMechEventSourceRefs.lifecycle.ts",
+        "src/simulation/runner/CombatBattleMechEventSourceRefs.terminal.ts",
+        "src/simulation/runner/CombatEventSourceRefs.ts"
+      ]
+    },
+    {
+      "category": "near-duplicate",
+      "severity": "info",
+      "file": "src/simulation/runner/CombatActionSupport.movementSourceRefs.ts",
+      "line": 173,
+      "message": "8-line block cluster appears in 13 files",
+      "copies": 13,
+      "files": [
+        "src/simulation/runner/CombatActionSupport.movementSourceRefs.ts",
+        "src/simulation/runner/CombatAmmunitionSupport.ts",
+        "src/simulation/runner/CombatBattleMechEventSourceRefs.combat.ts",
+        "src/simulation/runner/CombatBattleMechEventSourceRefs.lifecycle.ts",
+        "src/simulation/runner/CombatBattleMechEventSourceRefs.terminal.ts",
+        "src/simulation/runner/CombatEventSourceRefs.ts",
+        "src/simulation/runner/CombatIntegrationSupport.ts",
+        "src/simulation/runner/CombatParitySupport.ts"
+      ]
+    },
+    {
+      "category": "near-duplicate",
+      "severity": "info",
+      "file": "src/simulation/runner/CombatAttackInvalidationSourceRefs.ts",
+      "line": 155,
+      "message": "8-line block cluster appears in 4 files",
+      "copies": 4,
+      "files": [
+        "src/simulation/runner/CombatAttackInvalidationSourceRefs.ts",
+        "src/simulation/runner/CombatLifecycleSourceRefs.ts",
+        "src/simulation/runner/CombatPhysicalPsrSourceRefs.ts",
+        "src/simulation/runner/CombatPsrTriggerSourceRefs.ts"
+      ]
+    },
+    {
+      "category": "near-duplicate",
+      "severity": "info",
+      "file": "src/stores/unit/useUnitStore.ts",
+      "line": 81,
+      "message": "8-line block cluster appears in 5 files",
+      "copies": 5,
+      "files": [
+        "src/stores/unit/useUnitStore.ts",
+        "src/stores/useAerospaceStore.ts",
+        "src/stores/useBattleArmorStore.ts",
+        "src/stores/useInfantryStore.ts",
+        "src/stores/useVehicleStore.ts"
+      ]
+    },
+    {
+      "category": "near-duplicate",
+      "severity": "info",
+      "file": "src/types/award/categories/CampaignAwards.ts",
+      "line": 68,
+      "message": "8-line block cluster appears in 5 files",
+      "copies": 5,
+      "files": [
+        "src/types/award/categories/CampaignAwards.ts",
+        "src/types/award/categories/CombatAwards.ts",
+        "src/types/award/categories/ServiceAwards.ts",
+        "src/types/award/categories/SpecialAwards.ts",
+        "src/types/award/categories/SurvivalAwards.ts"
+      ]
+    },
+    {
+      "category": "near-duplicate",
+      "severity": "info",
+      "file": "src/utils/gameplay/airMekLandingPsr.ts",
+      "line": 240,
+      "message": "8-line block cluster appears in 4 files",
+      "copies": 4,
+      "files": [
+        "src/utils/gameplay/airMekLandingPsr.ts",
+        "src/utils/gameplay/gameSessionAttackResolution.ammoExplosions.ts",
+        "src/utils/gameplay/gameSessionAttackResolution.damageEvents.ts",
+        "src/utils/gameplay/gameSessionHeat.ammoExplosion.ts"
+      ]
+    },
+    {
+      "category": "near-duplicate",
+      "severity": "info",
+      "file": "src/utils/gameplay/gameEvents/groundObjects.ts",
+      "line": 93,
+      "message": "8-line block cluster appears in 5 files",
+      "copies": 5,
+      "files": [
+        "src/utils/gameplay/gameEvents/groundObjects.ts",
+        "src/utils/gameplay/gameEvents/statusChecksAmmo.ts",
+        "src/utils/gameplay/gameEvents/statusChecksHeat.ts",
+        "src/utils/gameplay/gameEvents/statusChecksPsr.ts",
+        "src/utils/gameplay/gameEvents/statusChecksUnitState.ts"
+      ]
+    },
+    {
+      "category": "near-duplicate",
+      "severity": "info",
+      "file": "src/utils/gameplay/gameEvents/statusCritical.ts",
+      "line": 49,
+      "message": "8-line block cluster appears in 6 files",
+      "copies": 6,
+      "files": [
+        "src/utils/gameplay/gameEvents/statusCritical.ts",
+        "src/utils/gameplay/gameEvents/statusHeat.ts",
+        "src/utils/gameplay/gameEvents/statusLifecycle.ts",
+        "src/utils/gameplay/gameEvents/statusPhysical.ts",
+        "src/utils/gameplay/gameEvents/vehicle.ts",
+        "src/utils/gameplay/objectives/objectiveEvents.ts"
+      ]
+    }
+  ]
+}

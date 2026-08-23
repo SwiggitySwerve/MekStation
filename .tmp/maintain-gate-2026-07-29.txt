@@ -1,0 +1,92 @@
+
+> mekstation-app@0.1.1 maintain:scan:gate
+> node scripts/maintenance/scan-maintenance.mjs --scope=src --baseline=docs/qc/maintenance-baseline.json --fail-on-regression
+
+Maintenance scanner: 0 critical/high findings
+file-bloat: critical=0 high=0 medium=0 low=0 warn=0 info=331
+near-duplicate: critical=0 high=0 medium=0 low=0 warn=0 info=59
+
+Top findings:
+[info] file-bloat src/__fixtures__/gameplay/demoSession.ts:1 - 375 LOC exceeds standard advisory
+[info] file-bloat src/components/audit/diff/NestedDiff.tsx:1 - 381 LOC exceeds standard advisory
+[info] file-bloat src/components/audit/query/SavedQueries.tsx:1 - 330 LOC exceeds standard advisory
+[info] file-bloat src/components/audit/replay/GameReplayPage.sections.tsx:1 - 408 LOC exceeds standard advisory
+[info] file-bloat src/components/award/awardIconComponents.tsx:1 - 356 LOC exceeds standard advisory
+[info] file-bloat src/components/award/AwardProgress.tsx:1 - 337 LOC exceeds standard advisory
+[info] file-bloat src/components/award/AwardSummary.tsx:1 - 310 LOC exceeds standard advisory
+[info] file-bloat src/components/campaign/CampaignStatusHelpers.tsx:1 - 315 LOC exceeds standard advisory
+[info] file-bloat src/components/campaign/coop/CampaignCoopRouteSurfaceConnected.tsx:1 - 364 LOC exceeds standard advisory
+[info] file-bloat src/components/campaign/dashboard/CampaignDashboardActivityCards.tsx:1 - 300 LOC exceeds standard advisory
+[info] file-bloat src/components/campaign/gm/GmCampaignInterventionControlPlane.tsx:1 - 404 LOC exceeds standard advisory
+[info] file-bloat src/components/campaign/MissionTreeView.tsx:1 - 333 LOC exceeds standard advisory
+[info] file-bloat src/components/common/ControlledInput.stories.tsx:1 - 319 LOC exceeds standard advisory
+[info] file-bloat src/components/common/ControlledInput.tsx:1 - 364 LOC exceeds standard advisory
+[info] file-bloat src/components/common/ErrorBoundary.stories.tsx:1 - 300 LOC exceeds standard advisory
+[info] file-bloat src/components/common/icons/NavigationIcons.tsx:1 - 385 LOC exceeds standard advisory
+[info] file-bloat src/components/contacts/ContactFormModal.tsx:1 - 317 LOC exceeds standard advisory
+[info] file-bloat src/components/customizer/armor/ArmorDiagramPreview.tsx:1 - 346 LOC exceeds standard advisory
+[info] file-bloat src/components/customizer/armor/shared/ArmorFills.tsx:1 - 317 LOC exceeds standard advisory
+[info] file-bloat src/components/customizer/armor/shared/LocationInteraction.neon.tsx:1 - 343 LOC exceeds standard advisory
+[info] file-bloat src/components/customizer/armor/variants/MegaMekDiagram.location.tsx:1 - 384 LOC exceeds standard advisory
+[info] file-bloat src/components/customizer/armor/variants/PremiumMaterialDiagram.parts.tsx:1 - 352 LOC exceeds standard advisory
+[info] file-bloat src/components/customizer/critical-slots/DoubleSlotRow.tsx:1 - 385 LOC exceeds standard advisory
+[info] file-bloat src/components/customizer/critical-slots/SlotRow.tsx:1 - 378 LOC exceeds standard advisory
+[info] file-bloat src/components/customizer/CustomizerWithRouter.tsx:1 - 358 LOC exceeds standard advisory
+[info] file-bloat src/components/customizer/dialogs/SaveUnitDialog.tsx:1 - 392 LOC exceeds standard advisory
+[info] file-bloat src/components/customizer/dialogs/VersionHistoryDialog.tsx:1 - 398 LOC exceeds standard advisory
+[info] file-bloat src/components/customizer/equipment/GlobalLoadoutTray.tsx:1 - 319 LOC exceeds standard advisory
+[info] file-bloat src/components/customizer/infantry/InfantryBuildTab.logic.ts:1 - 360 LOC exceeds standard advisory
+[info] file-bloat src/components/customizer/mobile/MobileLoadoutList.tsx:1 - 352 LOC exceeds standard advisory
+[info] file-bloat src/components/customizer/protomech/ProtoMechStructureTab.logic.ts:1 - 334 LOC exceeds standard advisory
+[info] file-bloat src/components/customizer/protomech/ProtoMechStructureTab.sections.tsx:1 - 339 LOC exceeds standard advisory
+[info] file-bloat src/components/customizer/shared/customizerTypeRegistry.tsx:1 - 315 LOC exceeds standard advisory
+[info] file-bloat src/components/customizer/shared/tabRegistry.tsx:1 - 353 LOC exceeds standard advisory
+[info] file-bloat src/components/customizer/tabs/ArmorTab.tsx:1 - 305 LOC exceeds standard advisory
+[info] file-bloat src/components/customizer/tabs/OverviewTab.tsx:1 - 324 LOC exceeds standard advisory
+[info] file-bloat src/components/customizer/tabs/StructureTab.tsx:1 - 313 LOC exceeds standard advisory
+[info] file-bloat src/components/customizer/UnitEditorWithRoutingLoadout.ts:1 - 341 LOC exceeds standard advisory
+[info] file-bloat src/components/customizer/UnitEditorWithRoutingStats.ts:1 - 349 LOC exceeds standard advisory
+[info] file-bloat src/components/customizer/vehicle/VehicleStatusBar.tsx:1 - 360 LOC exceeds standard advisory
+[info] file-bloat src/components/customizer/vehicle/VehicleStructureTab.tsx:1 - 324 LOC exceeds standard advisory
+[info] file-bloat src/components/customizer/vehicle/VehicleTurretTab.tsx:1 - 493 LOC exceeds standard advisory
+[info] file-bloat src/components/force/ForceBuilder.tsx:1 - 302 LOC exceeds standard advisory
+[info] file-bloat src/components/gameplay/animation/useMovementTween.ts:1 - 311 LOC exceeds standard advisory
+[info] file-bloat src/components/gameplay/AttackIntentComposer/AttackIntentComposer.model.ts:1 - 354 LOC exceeds standard advisory
+[info] file-bloat src/components/gameplay/CombatPlanningPanel.sections.tsx:1 - 344 LOC exceeds standard advisory
+[info] file-bloat src/components/gameplay/EventLogDisplay.formatters.ts:1 - 333 LOC exceeds standard advisory
+[info] file-bloat src/components/gameplay/ForceComparisonPanel.tsx:1 - 320 LOC exceeds standard advisory
+[info] file-bloat src/components/gameplay/GameplayLayout.commandPreview.ts:1 - 313 LOC exceeds standard advisory
+[info] file-bloat src/components/gameplay/GameplayLayout.tsx:1 - 507 LOC exceeds standard advisory
+[info] file-bloat src/components/gameplay/HexMapDisplay/HexCell.combatBadges.tsx:1 - 361 LOC exceeds standard advisory
+[info] file-bloat src/components/gameplay/HexMapDisplay/HexCell.invalidBadges.tsx:1 - 306 LOC exceeds standard advisory
+[info] file-bloat src/components/gameplay/HexMapDisplay/HexCell.movementBadges.tsx:1 - 347 LOC exceeds standard advisory
+[info] file-bloat src/components/gameplay/HexMapDisplay/HexCell.movementOptionSummaries.ts:1 - 407 LOC exceeds standard advisory
+[info] file-bloat src/components/gameplay/HexMapDisplay/HexCell.rootAttributes.ts:1 - 456 LOC exceeds standard advisory
+[info] file-bloat src/components/gameplay/HexMapDisplay/HexCell.terrainBadges.tsx:1 - 336 LOC exceeds standard advisory
+[info] file-bloat src/components/gameplay/HexMapDisplay/HexCell.tsx:1 - 323 LOC exceeds standard advisory
+[info] file-bloat src/components/gameplay/HexMapDisplay/HexMapDisplay.controls.tsx:1 - 345 LOC exceeds standard advisory
+[info] file-bloat src/components/gameplay/HexMapDisplay/HexMapDisplay.layers.tsx:1 - 355 LOC exceeds standard advisory
+[info] file-bloat src/components/gameplay/HexMapDisplay/HexMapDisplay.state.tsx:1 - 400 LOC exceeds standard advisory
+[info] file-bloat src/components/gameplay/HexMapDisplay/HexMapDisplay.stateHooks.ts:1 - 357 LOC exceeds standard advisory
+[info] file-bloat src/components/gameplay/HexMapDisplay/HexMapDisplay.tooltips.tsx:1 - 381 LOC exceeds standard advisory
+[info] file-bloat src/components/gameplay/HexMapDisplay/Overlays.tsx:1 - 400 LOC exceeds standard advisory
+[info] file-bloat src/components/gameplay/overlays/FiringArcOverlay.tsx:1 - 375 LOC exceeds standard advisory
+[info] file-bloat src/components/gameplay/pages/campaigns/dashboard/CampaignDashboardPage.sections.tsx:1 - 336 LOC exceeds standard advisory
+[info] file-bloat src/components/gameplay/pages/campaigns/dashboard/CampaignDashboardPage.tsx:1 - 306 LOC exceeds standard advisory
+[info] file-bloat src/components/gameplay/pages/EncounterDetailPage.sections.tsx:1 - 324 LOC exceeds standard advisory
+[info] file-bloat src/components/gameplay/pages/forces/detail/ForceDetailPage.tsx:1 - 321 LOC exceeds standard advisory
+[info] file-bloat src/components/gameplay/pages/gameSession/GameSessionPage.movement.helpers.ts:1 - 342 LOC exceeds standard advisory
+[info] file-bloat src/components/gameplay/pages/gameSession/GameSessionPage.movement.ts:1 - 348 LOC exceeds standard advisory
+[info] file-bloat src/components/gameplay/pages/gameSession/GameSessionPage.movementIntent.ts:1 - 300 LOC exceeds standard advisory
+[info] file-bloat src/components/gameplay/pages/gameSession/GameSessionPage.movementPlanning.ts:1 - 356 LOC exceeds standard advisory
+[info] file-bloat src/components/gameplay/pages/PreBattlePage.sections.tsx:1 - 302 LOC exceeds standard advisory
+[info] file-bloat src/components/gameplay/pages/repair/bay/RepairBayPage.sections.tsx:1 - 315 LOC exceeds standard advisory
+[info] file-bloat src/components/gameplay/pages/ScenarioRulesEditor.tsx:1 - 308 LOC exceeds standard advisory
+[info] file-bloat src/components/gameplay/PhysicalAttackPanel.model.ts:1 - 379 LOC exceeds standard advisory
+[info] file-bloat src/components/gameplay/PhysicalAttackPanel.tsx:1 - 349 LOC exceeds standard advisory
+[info] file-bloat src/components/gameplay/QuickSimResultPanel.tsx:1 - 387 LOC exceeds standard advisory
+[info] file-bloat src/components/gameplay/RecordSheetDisplay.tsx:1 - 352 LOC exceeds standard advisory
+[info] file-bloat src/components/gameplay/RecordSheetPanels.tsx:1 - 364 LOC exceeds standard advisory
+
+Baseline: docs/qc/maintenance-baseline.json
+Baseline regressions: 0

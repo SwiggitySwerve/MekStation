@@ -41,7 +41,7 @@ modularization decisions.
 
 ### **Default Guidance**
 - Runtime logic default target: ~300 lines
-- Runtime logic soft max: 400 lines
+- Runtime logic soft max: 500 lines
 - Runtime logic hard guardrail: 500 lines
 
 ### **Required Behavior**

@@ -1,0 +1,1366 @@
+{
+  "criticalHigh": 0,
+  "summary": {
+    "file-bloat": {
+      "critical": 0,
+      "high": 0,
+      "medium": 0,
+      "low": 0,
+      "warn": 0,
+      "info": 34
+    },
+    "near-duplicate": {
+      "critical": 0,
+      "high": 0,
+      "medium": 0,
+      "low": 0,
+      "warn": 0,
+      "info": 66
+    }
+  },
+  "baselineRegressions": [],
+  "findings": [
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "scripts/audit-ammo-matching.ts",
+      "line": 1,
+      "message": "577 LOC exceeds standard advisory",
+      "loc": 577,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "scripts/audit-megamek-board-import.ts",
+      "line": 1,
+      "message": "326 LOC exceeds standard advisory",
+      "loc": 326,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "scripts/check-defensive-assembly.ts",
+      "line": 1,
+      "message": "317 LOC exceeds standard advisory",
+      "loc": 317,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "scripts/compare-pip-distributions.ts",
+      "line": 1,
+      "message": "372 LOC exceeds standard advisory",
+      "loc": 372,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "scripts/data-migration/import-megamek-bv.ts",
+      "line": 1,
+      "message": "337 LOC exceeds standard advisory",
+      "loc": 337,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "scripts/megameklab-conversion/blk_aerospace_converter.py",
+      "line": 1,
+      "message": "291 LOC exceeds python advisory",
+      "loc": 291,
+      "fileType": "python"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "scripts/megameklab-conversion/blk_battlearmor_converter.py",
+      "line": 1,
+      "message": "232 LOC exceeds python advisory",
+      "loc": 232,
+      "fileType": "python"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "scripts/megameklab-conversion/blk_common.py",
+      "line": 1,
+      "message": "235 LOC exceeds python advisory",
+      "loc": 235,
+      "fileType": "python"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "scripts/megameklab-conversion/blk_conversion_runner.py",
+      "line": 1,
+      "message": "213 LOC exceeds python advisory",
+      "loc": 213,
+      "fileType": "python"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "scripts/megameklab-conversion/blk_infantry_converter.py",
+      "line": 1,
+      "message": "243 LOC exceeds python advisory",
+      "loc": 243,
+      "fileType": "python"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "scripts/megameklab-conversion/blk_protomech_converter.py",
+      "line": 1,
+      "message": "259 LOC exceeds python advisory",
+      "loc": 259,
+      "fileType": "python"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "scripts/megameklab-conversion/blk_vehicle_converter.py",
+      "line": 1,
+      "message": "247 LOC exceeds python advisory",
+      "loc": 247,
+      "fileType": "python"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "scripts/megameklab-conversion/data_converter_blk.py",
+      "line": 1,
+      "message": "226 LOC exceeds python advisory",
+      "loc": 226,
+      "fileType": "python"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "scripts/megameklab-conversion/data_converter_helpers.py",
+      "line": 1,
+      "message": "280 LOC exceeds python advisory",
+      "loc": 280,
+      "fileType": "python"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "scripts/megameklab-conversion/enum_mapping_tables.py",
+      "line": 1,
+      "message": "283 LOC exceeds python advisory",
+      "loc": 283,
+      "fileType": "python"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "scripts/megameklab-conversion/enum_mappings.py",
+      "line": 1,
+      "message": "216 LOC exceeds python advisory",
+      "loc": 216,
+      "fileType": "python"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "scripts/megameklab-conversion/mtf_parser.py",
+      "line": 1,
+      "message": "298 LOC exceeds python advisory",
+      "loc": 298,
+      "fileType": "python"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "scripts/megameklab-conversion/run_schema_validation_only.py",
+      "line": 1,
+      "message": "252 LOC exceeds python advisory",
+      "loc": 252,
+      "fileType": "python"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "scripts/megameklab-conversion/validator.py",
+      "line": 1,
+      "message": "237 LOC exceeds python advisory",
+      "loc": 237,
+      "fileType": "python"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "scripts/qc/recapture-scenario-pack-stages.ts",
+      "line": 1,
+      "message": "346 LOC exceeds standard advisory",
+      "loc": 346,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "scripts/qc/recapture-scenario-packs-core.ts",
+      "line": 1,
+      "message": "413 LOC exceeds standard advisory",
+      "loc": 413,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "scripts/qc/validate-nonbattlemech-scope-matrix.ts",
+      "line": 1,
+      "message": "485 LOC exceeds standard advisory",
+      "loc": 485,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "scripts/run-simulation-swarm.ts",
+      "line": 1,
+      "message": "354 LOC exceeds standard advisory",
+      "loc": 354,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "scripts/trace-clan-underc.ts",
+      "line": 1,
+      "message": "423 LOC exceeds standard advisory",
+      "loc": 423,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "scripts/trace-def-components.ts",
+      "line": 1,
+      "message": "350 LOC exceeds standard advisory",
+      "loc": 350,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "scripts/trace-def18.ts",
+      "line": 1,
+      "message": "482 LOC exceeds standard advisory",
+      "loc": 482,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "scripts/trace-defensive-gap.ts",
+      "line": 1,
+      "message": "313 LOC exceeds standard advisory",
+      "loc": 313,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "scripts/validate-aerospace-bv.ts",
+      "line": 1,
+      "message": "315 LOC exceeds standard advisory",
+      "loc": 315,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "scripts/validate-bv-ammo-rules.ts",
+      "line": 1,
+      "message": "490 LOC exceeds standard advisory",
+      "loc": 490,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "scripts/validate-bv-calculator.ts",
+      "line": 1,
+      "message": "586 LOC exceeds standard advisory",
+      "loc": 586,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "scripts/validate-bv-crit-scan.ts",
+      "line": 1,
+      "message": "593 LOC exceeds standard advisory",
+      "loc": 593,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "scripts/validate-bv-weapon-resolution.ts",
+      "line": 1,
+      "message": "456 LOC exceeds standard advisory",
+      "loc": 456,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "scripts/validate-bv.ts",
+      "line": 1,
+      "message": "385 LOC exceeds standard advisory",
+      "loc": 385,
+      "fileType": "standard"
+    },
+    {
+      "category": "file-bloat",
+      "severity": "info",
+      "file": "scripts/validate-infantry-bv.ts",
+      "line": 1,
+      "message": "397 LOC exceeds standard advisory",
+      "loc": 397,
+      "fileType": "standard"
+    },
+    {
+      "category": "near-duplicate",
+      "severity": "info",
+      "file": "scripts/accurate-gap-analysis.ts",
+      "line": 1,
+      "message": "8-line block cluster appears in 15 files",
+      "copies": 15,
+      "files": [
+        "scripts/accurate-gap-analysis.ts",
+        "scripts/analyze-minor-disc.ts",
+        "scripts/analyze-minor-undercalc.ts",
+        "scripts/analyze-off-accuracy.ts",
+        "scripts/analyze-remaining-gap.ts",
+        "scripts/check-cockpit-crits.ts",
+        "scripts/check-head-pattern.ts",
+        "scripts/check-heat-efficiency.ts"
+      ]
+    },
+    {
+      "category": "near-duplicate",
+      "severity": "info",
+      "file": "scripts/accurate-gap-analysis.ts",
+      "line": 47,
+      "message": "8-line block cluster appears in 12 files",
+      "copies": 12,
+      "files": [
+        "scripts/accurate-gap-analysis.ts",
+        "scripts/check-defensive-assembly.ts",
+        "scripts/check-df18.ts",
+        "scripts/exact-vs-gap.ts",
+        "scripts/run-simulation-swarm.ts",
+        "scripts/trace-1pct-detail.ts",
+        "scripts/trace-big-outliers.ts",
+        "scripts/trace-component-diffs.ts"
+      ]
+    },
+    {
+      "category": "near-duplicate",
+      "severity": "info",
+      "file": "scripts/analysis/equipment_audit_detailed.js",
+      "line": 6,
+      "message": "8-line block cluster appears in 4 files",
+      "copies": 4,
+      "files": [
+        "scripts/analysis/equipment_audit_detailed.js",
+        "scripts/analysis/equipment_systems_analysis.js",
+        "scripts/analysis/support_systems_analysis.js",
+        "scripts/analysis/weapons_analysis_detailed.js"
+      ]
+    },
+    {
+      "category": "near-duplicate",
+      "severity": "info",
+      "file": "scripts/analysis/equipment_audit_detailed.js",
+      "line": 162,
+      "message": "8-line block cluster appears in 4 files",
+      "copies": 4,
+      "files": [
+        "scripts/analysis/equipment_audit_detailed.js",
+        "scripts/analysis/equipment_systems_analysis.js",
+        "scripts/analysis/support_systems_analysis.js",
+        "scripts/analysis/weapons_analysis_detailed.js"
+      ]
+    },
+    {
+      "category": "near-duplicate",
+      "severity": "info",
+      "file": "scripts/analyze-1pct-under.ts",
+      "line": 2,
+      "message": "8-line block cluster appears in 6 files",
+      "copies": 6,
+      "files": [
+        "scripts/analyze-1pct-under.ts",
+        "scripts/analyze-gap-patterns.ts",
+        "scripts/analyze-overcalc.ts",
+        "scripts/analyze-remaining-outliers.ts",
+        "scripts/check-ammo-resolution.ts",
+        "scripts/check-cockpit-accuracy.ts"
+      ]
+    },
+    {
+      "category": "near-duplicate",
+      "severity": "info",
+      "file": "scripts/analyze-2to5-band.ts",
+      "line": 1,
+      "message": "8-line block cluster appears in 6 files",
+      "copies": 6,
+      "files": [
+        "scripts/analyze-2to5-band.ts",
+        "scripts/analyze-nearmiss.ts",
+        "scripts/analyze-remaining-gaps2.ts",
+        "scripts/check-5plus-issues.ts",
+        "scripts/check-ecm-exact.ts",
+        "scripts/find-unresolved-def-equip.ts"
+      ]
+    },
+    {
+      "category": "near-duplicate",
+      "severity": "info",
+      "file": "scripts/analyze-2to5-band.ts",
+      "line": 4,
+      "message": "8-line block cluster appears in 7 files",
+      "copies": 7,
+      "files": [
+        "scripts/analyze-2to5-band.ts",
+        "scripts/analyze-nearmiss.ts",
+        "scripts/analyze-remaining-gaps2.ts",
+        "scripts/analyze-underc-clusters.ts",
+        "scripts/check-5plus-issues.ts",
+        "scripts/deep-trace-overcalc-components.ts",
+        "scripts/trace-big-under.ts"
+      ]
+    },
+    {
+      "category": "near-duplicate",
+      "severity": "info",
+      "file": "scripts/analyze-bv-delta.js",
+      "line": 1,
+      "message": "8-line block cluster appears in 4 files",
+      "copies": 4,
+      "files": [
+        "scripts/analyze-bv-delta.js",
+        "scripts/check-missing-phys-weapons.js",
+        "scripts/check-nova-cews.js",
+        "scripts/deep-trace-closest.js"
+      ]
+    },
+    {
+      "category": "near-duplicate",
+      "severity": "info",
+      "file": "scripts/analyze-def-gap.ts",
+      "line": 11,
+      "message": "8-line block cluster appears in 5 files",
+      "copies": 5,
+      "files": [
+        "scripts/analyze-def-gap.ts",
+        "scripts/analyze-def-pattern.ts",
+        "scripts/analyze-pure-defgap.ts",
+        "scripts/check-gyro-hypothesis.ts",
+        "scripts/trace-overcalc15.ts"
+      ]
+    },
+    {
+      "category": "near-duplicate",
+      "severity": "info",
+      "file": "scripts/analyze-def-pattern.ts",
+      "line": 1,
+      "message": "8-line block cluster appears in 8 files",
+      "copies": 8,
+      "files": [
+        "scripts/analyze-def-pattern.ts",
+        "scripts/analyze-minor-gap.ts",
+        "scripts/analyze-minor-patterns.ts",
+        "scripts/analyze-pure-defgap.ts",
+        "scripts/check-unresolved.ts",
+        "scripts/classify-minor-disc.ts",
+        "scripts/trace-penalty-issues.ts",
+        "scripts/trace-xxl-wrong.ts"
+      ]
+    },
+    {
+      "category": "near-duplicate",
+      "severity": "info",
+      "file": "scripts/analyze-def-pattern.ts",
+      "line": 58,
+      "message": "8-line block cluster appears in 4 files",
+      "copies": 4,
+      "files": [
+        "scripts/analyze-def-pattern.ts",
+        "scripts/analyze-pure-defgap.ts",
+        "scripts/classify-minor-disc.ts",
+        "scripts/trace-penalty-issues.ts"
+      ]
+    },
+    {
+      "category": "near-duplicate",
+      "severity": "info",
+      "file": "scripts/analyze-def-pattern.ts",
+      "line": 112,
+      "message": "8-line block cluster appears in 12 files",
+      "copies": 12,
+      "files": [
+        "scripts/analyze-def-pattern.ts",
+        "scripts/audit-megamek-board-import.ts",
+        "scripts/check-head-pattern.ts",
+        "scripts/check-prefix-resolve.ts",
+        "scripts/deep-trace-overcalc.ts",
+        "scripts/extract-megamek-equipment.js",
+        "scripts/merge-extracted-equipment.js",
+        "scripts/qc/validate-long-campaign-stability.mjs"
+      ]
+    },
+    {
+      "category": "near-duplicate",
+      "severity": "info",
+      "file": "scripts/analyze-error-patterns.ts",
+      "line": 23,
+      "message": "8-line block cluster appears in 5 files",
+      "copies": 5,
+      "files": [
+        "scripts/analyze-error-patterns.ts",
+        "scripts/check-ff-impact.ts",
+        "scripts/check-mul-refs.ts",
+        "scripts/trace-minor-units2.ts",
+        "scripts/trace-tc-hag.ts"
+      ]
+    },
+    {
+      "category": "near-duplicate",
+      "severity": "info",
+      "file": "scripts/analyze-gap-patterns.ts",
+      "line": 161,
+      "message": "8-line block cluster appears in 4 files",
+      "copies": 4,
+      "files": [
+        "scripts/analyze-gap-patterns.ts",
+        "scripts/check-mul-vs-megamek.ts",
+        "scripts/find-simple-undercalc2.ts",
+        "scripts/trace-over1to2.ts"
+      ]
+    },
+    {
+      "category": "near-duplicate",
+      "severity": "info",
+      "file": "scripts/analyze-gap-side.ts",
+      "line": 2,
+      "message": "8-line block cluster appears in 9 files",
+      "copies": 9,
+      "files": [
+        "scripts/analyze-gap-side.ts",
+        "scripts/analyze-minor-disc2.ts",
+        "scripts/check-xxl.ts",
+        "scripts/find-common-patterns.ts",
+        "scripts/find-simple-undercalc.ts",
+        "scripts/find-systematic-diff.ts",
+        "scripts/find-underc-pattern.ts",
+        "scripts/gap-analysis.ts"
+      ]
+    },
+    {
+      "category": "near-duplicate",
+      "severity": "info",
+      "file": "scripts/analyze-outside.js",
+      "line": 6,
+      "message": "8-line block cluster appears in 13 files",
+      "copies": 13,
+      "files": [
+        "scripts/analyze-outside.js",
+        "scripts/analyze-remaining-patterns.js",
+        "scripts/check-atlas-c.js",
+        "scripts/check-magshot.js",
+        "scripts/check-tc-directfire.js",
+        "scripts/check-weapon-bv-patterns.js",
+        "scripts/find-ppcp-units.js",
+        "scripts/trace-artemis.js"
+      ]
+    },
+    {
+      "category": "near-duplicate",
+      "severity": "info",
+      "file": "scripts/analyze-underc-clusters.ts",
+      "line": 1,
+      "message": "8-line block cluster appears in 10 files",
+      "copies": 10,
+      "files": [
+        "scripts/analyze-underc-clusters.ts",
+        "scripts/deep-trace-overcalc-components.ts",
+        "scripts/reverse-engineer-bv.ts",
+        "scripts/trace-big-under.ts",
+        "scripts/trace-gt.ts",
+        "scripts/trace-off-gap.ts",
+        "scripts/trace-overcalc-units.ts",
+        "scripts/trace-overcalc.ts"
+      ]
+    },
+    {
+      "category": "near-duplicate",
+      "severity": "info",
+      "file": "scripts/audit-ammo-matching.ts",
+      "line": 89,
+      "message": "8-line block cluster appears in 4 files",
+      "copies": 4,
+      "files": [
+        "scripts/audit-ammo-matching.ts",
+        "scripts/debug-ammo-trace.ts",
+        "scripts/test-ammo-pattern-resolve.ts",
+        "scripts/trace-ammo-resolve.ts"
+      ]
+    },
+    {
+      "category": "near-duplicate",
+      "severity": "info",
+      "file": "scripts/audit-megamek-board-import.ts",
+      "line": 241,
+      "message": "8-line block cluster appears in 5 files",
+      "copies": 5,
+      "files": [
+        "scripts/audit-megamek-board-import.ts",
+        "scripts/deep-trace-overcalc.ts",
+        "scripts/run-simulation-swarm.ts",
+        "scripts/trace-ammo-gap.ts",
+        "scripts/trace-def18.ts"
+      ]
+    },
+    {
+      "category": "near-duplicate",
+      "severity": "info",
+      "file": "scripts/check-ammo-gaps.ts",
+      "line": 149,
+      "message": "8-line block cluster appears in 9 files",
+      "copies": 9,
+      "files": [
+        "scripts/check-ammo-gaps.ts",
+        "scripts/check-masc-heat-impact.ts",
+        "scripts/check-mul-accuracy.ts",
+        "scripts/check-mul-refs2.ts",
+        "scripts/debug-overcalc-source.ts",
+        "scripts/find-common-patterns.ts",
+        "scripts/temp-sf-verify.ts",
+        "scripts/trace-ammo-detail.ts"
+      ]
+    },
+    {
+      "category": "near-duplicate",
+      "severity": "info",
+      "file": "scripts/check-clan-weapon-bv.ts",
+      "line": 7,
+      "message": "8-line block cluster appears in 4 files",
+      "copies": 4,
+      "files": [
+        "scripts/check-clan-weapon-bv.ts",
+        "scripts/trace-def-bv-detail.ts",
+        "scripts/validate-bv-mul-overrides.ts",
+        "scripts/verify-ammo-bv.ts"
+      ]
+    },
+    {
+      "category": "near-duplicate",
+      "severity": "info",
+      "file": "scripts/check-clan-weapon-bv.ts",
+      "line": 51,
+      "message": "8-line block cluster appears in 4 files",
+      "copies": 4,
+      "files": [
+        "scripts/check-clan-weapon-bv.ts",
+        "scripts/trace-def-bv-detail.ts",
+        "scripts/validate-bv-mul-overrides.ts",
+        "scripts/verify-ammo-bv.ts"
+      ]
+    },
+    {
+      "category": "near-duplicate",
+      "severity": "info",
+      "file": "scripts/check-close-units.js",
+      "line": 4,
+      "message": "8-line block cluster appears in 8 files",
+      "copies": 8,
+      "files": [
+        "scripts/check-close-units.js",
+        "scripts/check-ijj-units.js",
+        "scripts/check-industrial-equip.js",
+        "scripts/check-mixed-tech.js",
+        "scripts/check-remaining-outliers.js",
+        "scripts/check-torpedo-resolution.js",
+        "scripts/check-vibroblades.js",
+        "scripts/investigate-outliers.js"
+      ]
+    },
+    {
+      "category": "near-duplicate",
+      "severity": "info",
+      "file": "scripts/check-defensive-assembly.ts",
+      "line": 15,
+      "message": "8-line block cluster appears in 17 files",
+      "copies": 17,
+      "files": [
+        "scripts/check-defensive-assembly.ts",
+        "scripts/check-masc-heat-impact.ts",
+        "scripts/check-mul-accuracy.ts",
+        "scripts/check-mul-bv.ts",
+        "scripts/check-mul-refs2.ts",
+        "scripts/check-ref-source.ts",
+        "scripts/check-speed-factor.ts",
+        "scripts/check-structure-gyro.ts"
+      ]
+    },
+    {
+      "category": "near-duplicate",
+      "severity": "info",
+      "file": "scripts/check-defensive-assembly.ts",
+      "line": 136,
+      "message": "8-line block cluster appears in 9 files",
+      "copies": 9,
+      "files": [
+        "scripts/check-defensive-assembly.ts",
+        "scripts/check-partial-wing.js",
+        "scripts/extract-megamek-equipment.js",
+        "scripts/run-simulation-preset.ts",
+        "scripts/run-simulation-swarm.ts",
+        "scripts/trace-hag-unit.ts",
+        "scripts/trace-overcalc-2to5.ts",
+        "scripts/trace-ppc-cap.ts"
+      ]
+    },
+    {
+      "category": "near-duplicate",
+      "severity": "info",
+      "file": "scripts/check-defensive-assembly.ts",
+      "line": 139,
+      "message": "8-line block cluster appears in 4 files",
+      "copies": 4,
+      "files": [
+        "scripts/check-defensive-assembly.ts",
+        "scripts/check-tsm-false.js",
+        "scripts/deep-trace-gap.ts",
+        "scripts/qc/report-journey-bugs.mjs"
+      ]
+    },
+    {
+      "category": "near-duplicate",
+      "severity": "info",
+      "file": "scripts/check-defensive-assembly.ts",
+      "line": 143,
+      "message": "8-line block cluster appears in 4 files",
+      "copies": 4,
+      "files": [
+        "scripts/check-defensive-assembly.ts",
+        "scripts/deep-trace-gap.ts",
+        "scripts/deep-trace-nearmiss.ts",
+        "scripts/trace-nearmiss-detail.ts"
+      ]
+    },
+    {
+      "category": "near-duplicate",
+      "severity": "info",
+      "file": "scripts/check-defensive-assembly.ts",
+      "line": 144,
+      "message": "8-line block cluster appears in 5 files",
+      "copies": 5,
+      "files": [
+        "scripts/check-defensive-assembly.ts",
+        "scripts/check-df18.ts",
+        "scripts/deep-trace-gap.ts",
+        "scripts/deep-trace-nearmiss.ts",
+        "scripts/gap-analysis.ts"
+      ]
+    },
+    {
+      "category": "near-duplicate",
+      "severity": "info",
+      "file": "scripts/check-defensive-assembly.ts",
+      "line": 286,
+      "message": "8-line block cluster appears in 8 files",
+      "copies": 8,
+      "files": [
+        "scripts/check-defensive-assembly.ts",
+        "scripts/check-unresolved.ts",
+        "scripts/find-simple-undercalc2.ts",
+        "scripts/trace-big-outliers.ts",
+        "scripts/trace-component-diffs.ts",
+        "scripts/trace-outliers.js",
+        "scripts/validate-bv-crit-scan-ammo.ts",
+        "scripts/validate-bv-weapon-resolution.ts"
+      ]
+    },
+    {
+      "category": "near-duplicate",
+      "severity": "info",
+      "file": "scripts/check-ecm-exact.ts",
+      "line": 4,
+      "message": "8-line block cluster appears in 10 files",
+      "copies": 10,
+      "files": [
+        "scripts/check-ecm-exact.ts",
+        "scripts/find-unresolved-def-equip.ts",
+        "scripts/reverse-engineer-bv.ts",
+        "scripts/trace-ammo-resolution.ts",
+        "scripts/trace-off-gap.ts",
+        "scripts/trace-overcalc-units.ts",
+        "scripts/trace-tc-units.ts",
+        "scripts/trace-under-detail.ts"
+      ]
+    },
+    {
+      "category": "near-duplicate",
+      "severity": "info",
+      "file": "scripts/check-explosive-detail.ts",
+      "line": 3,
+      "message": "8-line block cluster appears in 4 files",
+      "copies": 4,
+      "files": [
+        "scripts/check-explosive-detail.ts",
+        "scripts/check-speed-factor.ts",
+        "scripts/check-structure-gyro.ts",
+        "scripts/trace-def-bv-detail.ts"
+      ]
+    },
+    {
+      "category": "near-duplicate",
+      "severity": "info",
+      "file": "scripts/check-ff-impact.ts",
+      "line": 15,
+      "message": "8-line block cluster appears in 4 files",
+      "copies": 4,
+      "files": [
+        "scripts/check-ff-impact.ts",
+        "scripts/check-mul-refs.ts",
+        "scripts/trace-minor-units2.ts",
+        "scripts/trace-tc-hag.ts"
+      ]
+    },
+    {
+      "category": "near-duplicate",
+      "severity": "info",
+      "file": "scripts/check-gyro-crits.ts",
+      "line": 1,
+      "message": "8-line block cluster appears in 9 files",
+      "copies": 9,
+      "files": [
+        "scripts/check-gyro-crits.ts",
+        "scripts/check-gyro-impact.ts",
+        "scripts/check-gyro-impact2.ts",
+        "scripts/check-gyro-mismatch.ts",
+        "scripts/check-offequip-bv.ts",
+        "scripts/find-simple-undercalc2.ts",
+        "scripts/find-truly-vanilla.ts",
+        "scripts/trace-ammo-gap.ts"
+      ]
+    },
+    {
+      "category": "near-duplicate",
+      "severity": "info",
+      "file": "scripts/check-gyro-hypothesis.ts",
+      "line": 28,
+      "message": "8-line block cluster appears in 12 files",
+      "copies": 12,
+      "files": [
+        "scripts/check-gyro-hypothesis.ts",
+        "scripts/check-gyro-impact.ts",
+        "scripts/check-gyro-impact2.ts",
+        "scripts/trace-def-bv.ts",
+        "scripts/trace-def18.ts",
+        "scripts/trace-overcalc11.ts",
+        "scripts/trace-overcalc15.ts",
+        "scripts/trace-tmm.ts"
+      ]
+    },
+    {
+      "category": "near-duplicate",
+      "severity": "info",
+      "file": "scripts/check-hag.ts",
+      "line": 27,
+      "message": "8-line block cluster appears in 5 files",
+      "copies": 5,
+      "files": [
+        "scripts/check-hag.ts",
+        "scripts/diagnose-overcalc.ts",
+        "scripts/gap-analysis.ts",
+        "scripts/trace-big-over.ts",
+        "scripts/trace-over-offense.ts"
+      ]
+    },
+    {
+      "category": "near-duplicate",
+      "severity": "info",
+      "file": "scripts/check-heat-mods.js",
+      "line": 1,
+      "message": "8-line block cluster appears in 4 files",
+      "copies": 4,
+      "files": [
+        "scripts/check-heat-mods.js",
+        "scripts/check-streak-heat.js",
+        "scripts/trace-boundary.js",
+        "scripts/trace-boundary2.js"
+      ]
+    },
+    {
+      "category": "near-duplicate",
+      "severity": "info",
+      "file": "scripts/check-magshot.js",
+      "line": 19,
+      "message": "8-line block cluster appears in 5 files",
+      "copies": 5,
+      "files": [
+        "scripts/check-magshot.js",
+        "scripts/check-tc-directfire.js",
+        "scripts/check-weapon-bv-patterns.js",
+        "scripts/trace-artemis.js",
+        "scripts/trace-tbolt.js"
+      ]
+    },
+    {
+      "category": "near-duplicate",
+      "severity": "info",
+      "file": "scripts/check-struct-bv.js",
+      "line": 6,
+      "message": "8-line block cluster appears in 4 files",
+      "copies": 4,
+      "files": [
+        "scripts/check-struct-bv.js",
+        "scripts/temp-debug-defbv.ts",
+        "scripts/trace-def-shortfall.ts",
+        "scripts/validate-bv-components.js"
+      ]
+    },
+    {
+      "category": "near-duplicate",
+      "severity": "info",
+      "file": "scripts/check-unresolved-weapons.ts",
+      "line": 68,
+      "message": "8-line block cluster appears in 4 files",
+      "copies": 4,
+      "files": [
+        "scripts/check-unresolved-weapons.ts",
+        "scripts/check-weapon-resolution.ts",
+        "scripts/trace-off-bv-detail.ts",
+        "scripts/trace-under1to2.ts"
+      ]
+    },
+    {
+      "category": "near-duplicate",
+      "severity": "info",
+      "file": "scripts/classify-minor-disc.ts",
+      "line": 65,
+      "message": "8-line block cluster appears in 5 files",
+      "copies": 5,
+      "files": [
+        "scripts/classify-minor-disc.ts",
+        "scripts/find-common-patterns.ts",
+        "scripts/fix-quad-legs.js",
+        "scripts/gap-analysis.ts",
+        "scripts/trace-def18.ts"
+      ]
+    },
+    {
+      "category": "near-duplicate",
+      "severity": "info",
+      "file": "scripts/debug-ammo-trace.ts",
+      "line": 23,
+      "message": "8-line block cluster appears in 5 files",
+      "copies": 5,
+      "files": [
+        "scripts/debug-ammo-trace.ts",
+        "scripts/temp-ammo-resolve-test.ts",
+        "scripts/test-ammo-pattern-resolve.ts",
+        "scripts/trace-ammo-resolve.ts",
+        "scripts/trace-ammo-resolve3.ts"
+      ]
+    },
+    {
+      "category": "near-duplicate",
+      "severity": "info",
+      "file": "scripts/debug-er-pulse-resolve.ts",
+      "line": 7,
+      "message": "8-line block cluster appears in 7 files",
+      "copies": 7,
+      "files": [
+        "scripts/debug-er-pulse-resolve.ts",
+        "scripts/debug-hag-norm.ts",
+        "scripts/debug-ryoken.ts",
+        "scripts/debug-weapon-resolve.ts",
+        "scripts/test-mixed-resolve.ts",
+        "scripts/trace-atlas-c.ts",
+        "scripts/trace-specific-units.ts"
+      ]
+    },
+    {
+      "category": "near-duplicate",
+      "severity": "info",
+      "file": "scripts/debug-er-pulse-resolve.ts",
+      "line": 13,
+      "message": "8-line block cluster appears in 7 files",
+      "copies": 7,
+      "files": [
+        "scripts/debug-er-pulse-resolve.ts",
+        "scripts/debug-hag-norm.ts",
+        "scripts/debug-ryoken.ts",
+        "scripts/debug-weapon-resolve.ts",
+        "scripts/temp-resolve-actual.ts",
+        "scripts/temp-resolve-weapons.ts",
+        "scripts/test-mixed-resolve.ts"
+      ]
+    },
+    {
+      "category": "near-duplicate",
+      "severity": "info",
+      "file": "scripts/debug-hag-norm.ts",
+      "line": 1,
+      "message": "8-line block cluster appears in 4 files",
+      "copies": 4,
+      "files": [
+        "scripts/debug-hag-norm.ts",
+        "scripts/debug-ryoken.ts",
+        "scripts/debug-weapon-resolve.ts",
+        "scripts/test-mixed-resolve.ts"
+      ]
+    },
+    {
+      "category": "near-duplicate",
+      "severity": "info",
+      "file": "scripts/debug-tdr5ls-def.ts",
+      "line": 32,
+      "message": "8-line block cluster appears in 4 files",
+      "copies": 4,
+      "files": [
+        "scripts/debug-tdr5ls-def.ts",
+        "scripts/trace-albatross-weapons.ts",
+        "scripts/trace-atlas-c.ts",
+        "scripts/trace-single-def.ts"
+      ]
+    },
+    {
+      "category": "near-duplicate",
+      "severity": "info",
+      "file": "scripts/diagnose-ammo-resolution.ts",
+      "line": 78,
+      "message": "8-line block cluster appears in 4 files",
+      "copies": 4,
+      "files": [
+        "scripts/diagnose-ammo-resolution.ts",
+        "scripts/temp-cockpit-impact.ts",
+        "scripts/trace-ammo-detail.ts",
+        "scripts/trace-overcalc.ts"
+      ]
+    },
+    {
+      "category": "near-duplicate",
+      "severity": "info",
+      "file": "scripts/granular-diff.ts",
+      "line": 129,
+      "message": "8-line block cluster appears in 7 files",
+      "copies": 7,
+      "files": [
+        "scripts/granular-diff.ts",
+        "scripts/trace-ammo-detail.ts",
+        "scripts/trace-blitzkrieg.ts",
+        "scripts/trace-boreas.ts",
+        "scripts/trace-defensive-gap.ts",
+        "scripts/trace-nearmiss-components.ts",
+        "scripts/trace-ultra-clean.ts"
+      ]
+    },
+    {
+      "category": "near-duplicate",
+      "severity": "info",
+      "file": "scripts/granular-diff.ts",
+      "line": 130,
+      "message": "8-line block cluster appears in 6 files",
+      "copies": 6,
+      "files": [
+        "scripts/granular-diff.ts",
+        "scripts/trace-blitzkrieg.ts",
+        "scripts/trace-boreas.ts",
+        "scripts/trace-kodiak.js",
+        "scripts/trace-nearmiss-components.ts",
+        "scripts/trace-off-bv-detail.ts"
+      ]
+    },
+    {
+      "category": "near-duplicate",
+      "severity": "info",
+      "file": "scripts/qc/gm-ledger-qc-core.mjs",
+      "line": 180,
+      "message": "8-line block cluster appears in 7 files",
+      "copies": 7,
+      "files": [
+        "scripts/qc/gm-ledger-qc-core.mjs",
+        "scripts/qc/validate-combat-4v4-qc.mjs",
+        "scripts/qc/validate-combat-catalog-rules-parity.mjs",
+        "scripts/qc/validate-long-campaign-qc.mjs",
+        "scripts/qc/validate-tactical-projection-parity.mjs",
+        "scripts/qc/validate-wave3-encounter-tactical.mjs",
+        "scripts/qc/validate-wave4-scope-recovery.mjs"
+      ]
+    },
+    {
+      "category": "near-duplicate",
+      "severity": "info",
+      "file": "scripts/qc/gm-ledger-qc-core.mjs",
+      "line": 215,
+      "message": "8-line block cluster appears in 7 files",
+      "copies": 7,
+      "files": [
+        "scripts/qc/gm-ledger-qc-core.mjs",
+        "scripts/qc/validate-combat-catalog-rules-parity.mjs",
+        "scripts/qc/validate-known-gap-honesty.mjs",
+        "scripts/qc/validate-long-campaign-qc.mjs",
+        "scripts/qc/validate-tactical-projection-parity.mjs",
+        "scripts/qc/validate-wave3-encounter-tactical.mjs",
+        "scripts/qc/validate-wave4-scope-recovery.mjs"
+      ]
+    },
+    {
+      "category": "near-duplicate",
+      "severity": "info",
+      "file": "scripts/qc/validate-combat-4v4-qc.mjs",
+      "line": 1,
+      "message": "8-line block cluster appears in 4 files",
+      "copies": 4,
+      "files": [
+        "scripts/qc/validate-combat-4v4-qc.mjs",
+        "scripts/qc/validate-wave3-encounter-tactical.mjs",
+        "scripts/qc/validate-wave4-family-data-gate.mjs",
+        "scripts/qc/validate-wave4-scope-recovery.mjs"
+      ]
+    },
+    {
+      "category": "near-duplicate",
+      "severity": "info",
+      "file": "scripts/qc/validate-combat-4v4-qc.mjs",
+      "line": 44,
+      "message": "8-line block cluster appears in 5 files",
+      "copies": 5,
+      "files": [
+        "scripts/qc/validate-combat-4v4-qc.mjs",
+        "scripts/qc/validate-combat-catalog-rules-parity.mjs",
+        "scripts/qc/validate-tactical-projection-parity.mjs",
+        "scripts/qc/validate-wave3-encounter-tactical.mjs",
+        "scripts/qc/validate-wave4-scope-recovery.mjs"
+      ]
+    },
+    {
+      "category": "near-duplicate",
+      "severity": "info",
+      "file": "scripts/qc/validate-combat-4v4-qc.mjs",
+      "line": 118,
+      "message": "8-line block cluster appears in 6 files",
+      "copies": 6,
+      "files": [
+        "scripts/qc/validate-combat-4v4-qc.mjs",
+        "scripts/qc/validate-long-campaign-qc.mjs",
+        "scripts/qc/validate-playable-command-screen-slices.mjs",
+        "scripts/qc/validate-wave3-encounter-tactical.mjs",
+        "scripts/qc/validate-wave4-family-data-gate.mjs",
+        "scripts/qc/validate-wave4-scope-recovery.mjs"
+      ]
+    },
+    {
+      "category": "near-duplicate",
+      "severity": "info",
+      "file": "scripts/qc/validate-combat-4v4-qc.mjs",
+      "line": 347,
+      "message": "8-line block cluster appears in 6 files",
+      "copies": 6,
+      "files": [
+        "scripts/qc/validate-combat-4v4-qc.mjs",
+        "scripts/qc/validate-combat-catalog-rules-parity.mjs",
+        "scripts/qc/validate-long-campaign-qc.mjs",
+        "scripts/qc/validate-tactical-projection-parity.mjs",
+        "scripts/qc/validate-wave3-encounter-tactical.mjs",
+        "scripts/qc/validate-wave4-scope-recovery.mjs"
+      ]
+    },
+    {
+      "category": "near-duplicate",
+      "severity": "info",
+      "file": "scripts/qc/validate-combat-catalog-rules-parity.mjs",
+      "line": 233,
+      "message": "8-line block cluster appears in 6 files",
+      "copies": 6,
+      "files": [
+        "scripts/qc/validate-combat-catalog-rules-parity.mjs",
+        "scripts/qc/validate-known-gap-honesty.mjs",
+        "scripts/qc/validate-long-campaign-qc.mjs",
+        "scripts/qc/validate-tactical-projection-parity.mjs",
+        "scripts/qc/validate-wave3-encounter-tactical.mjs",
+        "scripts/qc/validate-wave4-scope-recovery.mjs"
+      ]
+    },
+    {
+      "category": "near-duplicate",
+      "severity": "info",
+      "file": "scripts/qc/validate-combat-catalog-rules-parity.mjs",
+      "line": 408,
+      "message": "8-line block cluster appears in 7 files",
+      "copies": 7,
+      "files": [
+        "scripts/qc/validate-combat-catalog-rules-parity.mjs",
+        "scripts/qc/validate-known-gap-honesty.mjs",
+        "scripts/qc/validate-long-campaign-qc.mjs",
+        "scripts/qc/validate-nonbattlemech-scope-matrix.ts",
+        "scripts/qc/validate-tactical-projection-parity.mjs",
+        "scripts/qc/validate-wave3-encounter-tactical.mjs",
+        "scripts/qc/validate-wave4-scope-recovery.mjs"
+      ]
+    },
+    {
+      "category": "near-duplicate",
+      "severity": "info",
+      "file": "scripts/qc/validate-openspec-ci-quality.mjs",
+      "line": 190,
+      "message": "8-line block cluster appears in 4 files",
+      "copies": 4,
+      "files": [
+        "scripts/qc/validate-openspec-ci-quality.mjs",
+        "scripts/qc/validate-wave3-encounter-tactical.mjs",
+        "scripts/qc/validate-wave4-family-data-gate.mjs",
+        "scripts/qc/validate-wave4-scope-recovery.mjs"
+      ]
+    },
+    {
+      "category": "near-duplicate",
+      "severity": "info",
+      "file": "scripts/qc/validate-playable-command-screen-slices.mjs",
+      "line": 296,
+      "message": "8-line block cluster appears in 4 files",
+      "copies": 4,
+      "files": [
+        "scripts/qc/validate-playable-command-screen-slices.mjs",
+        "scripts/qc/validate-wave3-encounter-tactical.mjs",
+        "scripts/qc/validate-wave4-family-data-gate.mjs",
+        "scripts/qc/validate-wave4-scope-recovery.mjs"
+      ]
+    },
+    {
+      "category": "near-duplicate",
+      "severity": "info",
+      "file": "scripts/temp-1pct.ts",
+      "line": 1,
+      "message": "8-line block cluster appears in 6 files",
+      "copies": 6,
+      "files": [
+        "scripts/temp-1pct.ts",
+        "scripts/temp-5pct.ts",
+        "scripts/temp-analyze.ts",
+        "scripts/temp-error-dist.ts",
+        "scripts/temp-head-crits.ts",
+        "scripts/temp-underc.ts"
+      ]
+    },
+    {
+      "category": "near-duplicate",
+      "severity": "info",
+      "file": "scripts/temp-1to3pct.ts",
+      "line": 1,
+      "message": "8-line block cluster appears in 6 files",
+      "copies": 6,
+      "files": [
+        "scripts/temp-1to3pct.ts",
+        "scripts/temp-ammo-match.ts",
+        "scripts/temp-cockpit-impact.ts",
+        "scripts/temp-deep-analysis.ts",
+        "scripts/temp-false-small.ts",
+        "scripts/temp-speed-check.ts"
+      ]
+    },
+    {
+      "category": "near-duplicate",
+      "severity": "info",
+      "file": "scripts/trace-def-bv-gap.ts",
+      "line": 95,
+      "message": "8-line block cluster appears in 5 files",
+      "copies": 5,
+      "files": [
+        "scripts/trace-def-bv-gap.ts",
+        "scripts/trace-def-components.ts",
+        "scripts/trace-def18.ts",
+        "scripts/trace-defensive-gap.ts",
+        "scripts/trace-ultra-clean.ts"
+      ]
+    },
+    {
+      "category": "near-duplicate",
+      "severity": "info",
+      "file": "scripts/trace-def-bv.ts",
+      "line": 12,
+      "message": "8-line block cluster appears in 6 files",
+      "copies": 6,
+      "files": [
+        "scripts/trace-def-bv.ts",
+        "scripts/trace-def-gap2.ts",
+        "scripts/trace-overcalc11.ts",
+        "scripts/trace-overcalc12.ts",
+        "scripts/trace-overcalc5.ts",
+        "scripts/trace-overcalc8.ts"
+      ]
+    },
+    {
+      "category": "near-duplicate",
+      "severity": "info",
+      "file": "scripts/trace-exact-weapons.ts",
+      "line": 20,
+      "message": "8-line block cluster appears in 4 files",
+      "copies": 4,
+      "files": [
+        "scripts/trace-exact-weapons.ts",
+        "scripts/trace-hag-ammo.ts",
+        "scripts/trace-hag-unit.ts",
+        "scripts/trace-ppc-cap.ts"
+      ]
+    },
+    {
+      "category": "near-duplicate",
+      "severity": "info",
+      "file": "scripts/trace-overcalc11.ts",
+      "line": 24,
+      "message": "8-line block cluster appears in 4 files",
+      "copies": 4,
+      "files": [
+        "scripts/trace-overcalc11.ts",
+        "scripts/trace-overcalc12.ts",
+        "scripts/trace-overcalc15.ts",
+        "scripts/trace-overcalc8.ts"
+      ]
+    },
+    {
+      "category": "near-duplicate",
+      "severity": "info",
+      "file": "scripts/trace-overcalc13.ts",
+      "line": 3,
+      "message": "8-line block cluster appears in 7 files",
+      "copies": 7,
+      "files": [
+        "scripts/trace-overcalc13.ts",
+        "scripts/trace-overcalc15.ts",
+        "scripts/trace-overcalc17.ts",
+        "scripts/trace-overcalc18.ts",
+        "scripts/trace-overcalc19.ts",
+        "scripts/trace-overcalc20.ts",
+        "scripts/trace-overcalc21.ts"
+      ]
+    },
+    {
+      "category": "near-duplicate",
+      "severity": "info",
+      "file": "scripts/trace-overcalc18.ts",
+      "line": 5,
+      "message": "8-line block cluster appears in 4 files",
+      "copies": 4,
+      "files": [
+        "scripts/trace-overcalc18.ts",
+        "scripts/trace-overcalc19.ts",
+        "scripts/trace-overcalc20.ts",
+        "scripts/trace-overcalc21.ts"
+      ]
+    }
+  ]
+}
