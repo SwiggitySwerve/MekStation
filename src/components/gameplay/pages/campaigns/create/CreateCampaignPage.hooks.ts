@@ -2,6 +2,8 @@ import { useCallback, useState } from 'react';
 
 import type { RosterUnitSource } from '@/types/campaign/RosterUnitSource';
 
+import { pinSourceVersion } from '@/lib/kernelPlugin/mekstation/mapRosterInstanceProvenance';
+
 import type {
   PilotAssignments,
   SelectedPilot,
@@ -37,6 +39,7 @@ interface UseCampaignRosterDraftResult {
     tonnage: number,
     unitRef: string,
     unitSource?: RosterUnitSource,
+    sourceVersion?: number,
   ) => void;
   handleRemoveUnit: (unitId: string) => void;
   handleAddPilot: () => void;
@@ -88,6 +91,7 @@ export function useCampaignRosterDraft(): UseCampaignRosterDraftResult {
       tonnage: number,
       unitRef: string,
       unitSource?: RosterUnitSource,
+      sourceVersion?: number,
     ) => {
       const unitId = createEntityId('unit');
       setSelectedUnits((previous) => {
@@ -99,6 +103,7 @@ export function useCampaignRosterDraft(): UseCampaignRosterDraftResult {
             tonnage,
             unitRef,
             ...(unitSource ? { unitSource } : {}),
+            sourceVersion: pinSourceVersion(sourceVersion),
           },
         ];
       });

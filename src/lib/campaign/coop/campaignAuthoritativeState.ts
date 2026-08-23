@@ -60,6 +60,9 @@ function projectRosterUnits(
       status: READINESS_STATUS[unit.readiness],
       unitRef: unit.unitRef,
       unitSource: parsed.source,
+      ...(unit.sourceVersion !== undefined
+        ? { sourceVersion: unit.sourceVersion }
+        : {}),
     };
   }
   return units;

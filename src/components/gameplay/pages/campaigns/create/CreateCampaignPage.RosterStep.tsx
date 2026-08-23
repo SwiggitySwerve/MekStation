@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 
 import { Button, Card, Badge } from '@/components/ui';
 import { WIZARD_REPRESENTATIVE_UNITS } from '@/lib/campaign/wizard/representativeUnits';
+import { CANONICAL_LIBRARY_SOURCE_VERSION } from '@/lib/kernelPlugin/mekstation/mekstationGamePlugin';
 import { getCustomUnitService } from '@/services/units/CustomUnitService';
 import { UNIT_TEMPLATES } from '@/simulation/generator';
 
@@ -40,7 +41,12 @@ function SavedDesignsGroup({
   onAdd,
 }: {
   loadSavedDesignIndex: () => Promise<readonly unknown[]>;
-  onAdd: (name: string, tonnage: number, unitRef: string) => void;
+  onAdd: (
+    name: string,
+    tonnage: number,
+    unitRef: string,
+    sourceVersion: number,
+  ) => void;
 }): React.ReactElement {
   const [tick, setTick] = useState(0);
   const [state, setState] = useState<{
@@ -109,7 +115,14 @@ function SavedDesignsGroup({
               type="button"
               aria-label={`Add saved design ${option.name}`}
               data-testid={`add-saved-design-${option.id}`}
-              onClick={() => onAdd(option.name, option.tonnage, option.id)}
+              onClick={() =>
+                onAdd(
+                  option.name,
+                  option.tonnage,
+                  option.id,
+                  option.currentVersion,
+                )
+              }
               className="border-border-theme-subtle bg-surface-deep hover:border-accent/50 flex items-center gap-3 rounded-lg border p-3 text-left"
             >
               <span className="text-accent text-sm font-bold">
@@ -171,6 +184,8 @@ export function RosterStep({
                   representativeUnit.unitName,
                   template.tonnage,
                   representativeUnit.unitRef,
+                  'canonical',
+                  CANONICAL_LIBRARY_SOURCE_VERSION,
                 )
               }
               className="border-border-theme-subtle bg-surface-deep hover:border-accent/50 hover:bg-surface-raised/50 flex items-center gap-3 rounded-lg border p-3 text-left transition-all"
@@ -194,8 +209,8 @@ export function RosterStep({
 
         <SavedDesignsGroup
           loadSavedDesignIndex={loadSavedDesignIndex}
-          onAdd={(name, tonnage, unitRef) =>
-            onAddTemplateUnit(name, tonnage, unitRef, 'custom')
+          onAdd={(name, tonnage, unitRef, sourceVersion) =>
+            onAddTemplateUnit(name, tonnage, unitRef, 'custom', sourceVersion)
           }
         />
 

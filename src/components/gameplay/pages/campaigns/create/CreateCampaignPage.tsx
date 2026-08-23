@@ -1,6 +1,8 @@
 import { useRouter } from 'next/router';
 import { useCallback, useMemo, useState } from 'react';
 
+import type { RosterUnitSource } from '@/types/campaign/RosterUnitSource';
+
 import { useToast } from '@/components/shared/Toast';
 import { PageLayout, Button } from '@/components/ui';
 import { useCampaignStore } from '@/stores/campaign/useCampaignStore';
@@ -44,6 +46,8 @@ interface StepContentInput {
     templateName: string,
     tonnage: number,
     unitRef: string,
+    unitSource?: RosterUnitSource,
+    sourceVersion?: number,
   ) => void;
   onAssignPilot: (unitId: string, pilotId: string) => void;
   onDescriptionChange: (description: string) => void;
