@@ -3,6 +3,8 @@
  *
  * GET — returns `ICampaignSummary[]` for every stored campaign, newest
  * saved first. Lightweight projection — never the full body (design D7).
+ * Unreadable rows are omitted from the array and listed in
+ * `X-MekStation-Campaign-List-Omissions` (id and reason only).
  *
  * Spec scenario this satisfies:
  *  - "List returns summaries only"
@@ -15,6 +17,10 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 
 import type { ICampaignSummary } from '@/types/campaign/SerializedCampaign';
 
+import {
+  CAMPAIGN_LIST_OMISSIONS_HEADER,
+  encodeCampaignListOmissions,
+} from '@/lib/campaign/persistence';
 import {
   initializeApiDatabase,
   sendCaughtApiError,
@@ -36,7 +42,17 @@ export default async function handler(
   }
 
   try {
-    const summaries = listCampaignSummaries();
+    const { summaries, omitted } = listCampaignSummaries();
+    // Always set the header (including `[]`) so clients can tell a
+    // current server from one that never advertised omissions.
+    res.setHeader(
+      CAMPAIGN_LIST_OMISSIONS_HEADER,
+      encodeCampaignListOmissions(omitted),
+    );
+    res.setHeader(
+      'Access-Control-Expose-Headers',
+      CAMPAIGN_LIST_OMISSIONS_HEADER,
+    );
     res.status(200).json(summaries);
   } catch (error) {
     sendCaughtApiError(res, error, 'failed to list campaigns');

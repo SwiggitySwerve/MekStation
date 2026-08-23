@@ -102,6 +102,8 @@ export default async function handler(
     case 'GET': {
       const result = readCampaign(id);
       if (result.kind === 'not_found') {
+        // Only a missing row is not-found. Unreadable rows use 500
+        // (corrupt) or 422 (invalid authority). A replica row is 200.
         res.status(404).json({ error: 'not found' });
         return;
       }
@@ -122,6 +124,9 @@ export default async function handler(
         });
         return;
       }
+      // Readable stored rows are 200, including replica authority.
+      // Replica is not not-found: this server does replicate that id.
+      // `authority.role` tells the client it is a shared copy.
       res.status(200).json(result.record);
       return;
     }

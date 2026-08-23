@@ -9,9 +9,14 @@ import { useRouter } from 'next/router';
 import { useState, useCallback, useEffect } from 'react';
 import { useStore } from 'zustand';
 
+import type {
+  CampaignListOmissionReason,
+  ICampaignListOmission,
+} from '@/lib/campaign/persistence';
 import type { ICampaignSummary } from '@/types/campaign/SerializedCampaign';
 
 import { PageLayout, Card, Button, EmptyState } from '@/components/ui';
+import { readCampaignListOmissionsFromResponse } from '@/lib/campaign/persistence';
 import { CampaignCoopEntryPanel } from '@/pages-modules/gameplay/campaigns/CampaignCoopEntryPanel';
 import { useCampaignPersistenceStore } from '@/stores/campaign/useCampaignPersistenceStore';
 import { useCampaignRosterStore } from '@/stores/campaign/useCampaignRosterStore';
@@ -91,6 +96,51 @@ function campaignToEntry(campaign: ICampaign): CampaignListEntry {
   };
 }
 
+/**
+ * Operator-facing label for a skipped list row. Copy must not imply
+ * the campaign is missing from the server.
+ */
+function omissionReasonLabel(reason: CampaignListOmissionReason): string {
+  switch (reason) {
+    case 'corrupt':
+      return 'unreadable record';
+    case 'invalid_authority':
+      return 'unreadable authority';
+    default: {
+      const exhaustive: never = reason;
+      return exhaustive;
+    }
+  }
+}
+
+/**
+ * Banner listing campaigns the server stored but could not project.
+ * Healthy cards still render; this is the visible list-omission signal.
+ */
+function CampaignListOmissionsNotice({
+  omitted,
+}: {
+  readonly omitted: readonly ICampaignListOmission[];
+}): React.ReactElement | null {
+  if (omitted.length === 0) {
+    return null;
+  }
+  const details = omitted
+    .map((entry) => `${entry.id} (${omissionReasonLabel(entry.reason)})`)
+    .join(', ');
+  return (
+    <p
+      className="mb-4 rounded-lg border border-amber-700 bg-amber-900/20 p-3 text-sm text-amber-200"
+      data-testid="campaigns-list-omissions"
+    >
+      {omitted.length} stored campaign{omitted.length === 1 ? '' : 's'} could
+      not be read and {omitted.length === 1 ? 'needs' : 'need'} repair:{' '}
+      {details}. {omitted.length === 1 ? 'It still exists' : 'They still exist'}{' '}
+      on the server.
+    </p>
+  );
+}
+
 export default function CampaignsListPage(): React.ReactElement {
   const router = useRouter();
   const store = useCampaignStore();
@@ -106,6 +156,9 @@ export default function CampaignsListPage(): React.ReactElement {
   const [campaignListError, setCampaignListError] = useState<string | null>(
     null,
   );
+  const [campaignListOmissions, setCampaignListOmissions] = useState<
+    readonly ICampaignListOmission[]
+  >([]);
   const [isClient, setIsClient] = useState(false);
   const [listRetryToken, setListRetryToken] = useState(0);
   const summaryEntries = campaignSummaries.map(summaryToEntry);
@@ -132,12 +185,15 @@ export default function CampaignsListPage(): React.ReactElement {
           throw new Error(`server responded ${response.status}`);
         }
         const summaries = (await response.json()) as ICampaignSummary[];
+        const omitted = readCampaignListOmissionsFromResponse(response);
         if (!cancelled) {
           setCampaignSummaries(summaries);
+          setCampaignListOmissions(omitted);
           setCampaignListError(null);
         }
       } catch (error) {
         if (!cancelled) {
+          setCampaignListOmissions([]);
           setCampaignListError(
             error instanceof Error ? error.message : 'failed to load campaigns',
           );
@@ -226,6 +282,8 @@ export default function CampaignsListPage(): React.ReactElement {
         </p>
       )}
 
+      <CampaignListOmissionsNotice omitted={campaignListOmissions} />
+
       {campaignListError && campaigns.length === 0 ? (
         // Per campaign-authority, "no campaigns" is a server-list claim the
         // client cannot make when the list request failed - a failed fetch
@@ -243,7 +301,7 @@ export default function CampaignsListPage(): React.ReactElement {
           }
           data-testid="campaigns-list-error"
         />
-      ) : campaigns.length === 0 ? (
+      ) : campaigns.length === 0 && campaignListOmissions.length === 0 ? (
         <EmptyState
           icon={
             <div className="bg-surface-raised/50 mx-auto flex h-16 w-16 items-center justify-center rounded-full">
