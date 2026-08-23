@@ -1,3 +1,4 @@
+import type { ICampaignGrantLiveSource } from '@/lib/campaign/delivery/campaignGrantChannelSession';
 import type { ICampaignEvent } from '@/types/campaign/CampaignSync';
 import type {
   ICampaignClientMessage,
@@ -25,7 +26,12 @@ import {
   admitBoundCampaignParticipation,
   captureCampaignConnectionBaseline,
 } from './authorizeCampaignParticipation';
+import { createCampaignGrantChannelDepsFromSqlite } from './campaignGrantChannelDeps';
 import { getCampaignHostRegistry } from './CampaignHostRegistry';
+import {
+  handleCampaignGrantJoin,
+  type ICampaignGrantChannelDeps,
+} from './handleCampaignGrantJoin';
 
 export interface IWireCampaignSocket extends IMatchSocket {
   on(event: 'message', listener: (data: unknown) => void): this;
@@ -47,6 +53,17 @@ export interface IBindCampaignSyncConnectionDeps {
     | Pick<CampaignHostRegistry, 'get' | 'getOrCreate'>
     | ICampaignHostRegistryLike;
   logger?: Pick<Console, 'error' | 'warn' | 'log'>;
+  /**
+   * Grant-channel projection/auth deps. Omitted sockets still accept
+   * room-code CampaignJoin. A CampaignGrantJoin without a working
+   * store closes as infrastructure, not as an auth refusal.
+   */
+  grantChannel?: ICampaignGrantChannelDeps | null;
+  /**
+   * Live wakeup for grant sockets. Defaults to the campaign host's
+   * post-append subscriber set so fan-out cannot precede durable write.
+   */
+  grantLiveSource?: ICampaignGrantLiveSource;
 }
 
 export interface IBoundCampaignSyncConnection {
@@ -61,6 +78,8 @@ export async function bindCampaignSyncConnection({
   verifiedPlayerId,
   registry = getCampaignHostRegistry(),
   logger = console,
+  grantChannel,
+  grantLiveSource,
 }: IBindCampaignSyncConnectionDeps): Promise<IBoundCampaignSyncConnection | null> {
   const entry = registry.getOrCreate
     ? await registry.getOrCreate(matchId)
@@ -98,6 +117,8 @@ export async function bindCampaignSyncConnection({
       cleanup,
       cleanupFns,
       logger,
+      grantChannel,
+      grantLiveSource,
     });
   });
   socket.on('close', cleanup);
@@ -115,6 +136,8 @@ interface IHandleInboundDeps {
   cleanup: () => void;
   cleanupFns: Set<() => void>;
   logger: Pick<Console, 'error' | 'warn' | 'log'>;
+  grantChannel?: ICampaignGrantChannelDeps | null;
+  grantLiveSource?: ICampaignGrantLiveSource;
 }
 
 async function handleInbound({
@@ -126,6 +149,8 @@ async function handleInbound({
   cleanup,
   cleanupFns,
   logger,
+  grantChannel,
+  grantLiveSource,
 }: IHandleInboundDeps): Promise<void> {
   const parsedJson = parseJsonPayload(data);
   if (!parsedJson.ok) {
@@ -194,7 +219,10 @@ async function handleInbound({
       entry,
       matchId,
       verifiedPlayerId,
+      cleanup,
       cleanupFns,
+      grantChannel,
+      grantLiveSource,
     });
   } catch (error) {
     logger.error('[campaign-sync] dispatch failed', error);
@@ -214,7 +242,10 @@ interface IDispatchCampaignEnvelopeDeps {
   entry: ICampaignHostRegistryEntry;
   matchId: string;
   verifiedPlayerId: string;
+  cleanup: () => void;
   cleanupFns: Set<() => void>;
+  grantChannel?: ICampaignGrantChannelDeps | null;
+  grantLiveSource?: ICampaignGrantLiveSource;
 }
 
 async function dispatchCampaignEnvelope({
@@ -223,7 +254,10 @@ async function dispatchCampaignEnvelope({
   entry,
   matchId,
   verifiedPlayerId,
+  cleanup,
   cleanupFns,
+  grantChannel,
+  grantLiveSource,
 }: IDispatchCampaignEnvelopeDeps): Promise<void> {
   switch (envelope.kind) {
     case 'CampaignJoin':
@@ -234,6 +268,26 @@ async function dispatchCampaignEnvelope({
         matchId,
         verifiedPlayerId,
         cleanupFns,
+      });
+      return;
+    case 'CampaignGrantJoin':
+      await handleCampaignGrantJoin({
+        envelope,
+        entry,
+        matchId,
+        verifiedPlayerId,
+        cleanupFns,
+        grantChannel: resolveGrantChannel(grantChannel),
+        liveSource: grantLiveSource ?? hostAppendLiveSource(entry),
+        send: (message) => send(socket, message),
+        closeTyped: (code, reason) =>
+          closeWithTypedError({
+            socket,
+            matchId,
+            cleanup,
+            code,
+            reason,
+          }),
       });
       return;
     case 'CampaignProposal':
@@ -570,6 +624,42 @@ function readKind(value: unknown): unknown {
     return null;
   }
   return (value as { kind?: unknown }).kind;
+}
+
+/**
+ * Uses an injected grant channel when present, including explicit null
+ * (tests that want store-unavailable without touching process SQLite).
+ * Omitted deps try the process database and map failure to null.
+ */
+function resolveGrantChannel(
+  injected: ICampaignGrantChannelDeps | null | undefined,
+): ICampaignGrantChannelDeps | null {
+  if (injected !== undefined) return injected;
+  try {
+    return createCampaignGrantChannelDepsFromSqlite({
+      clock: nowIso,
+      nowMs: () => Date.parse(nowIso()),
+      nowIso,
+    });
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Wakeups fire only from CampaignMatchHost subscribers, which run after
+ * durable append. The host event itself is discarded so sequence
+ * assignment stays inside projectCampaignStreamForGrant.
+ */
+function hostAppendLiveSource(
+  entry: ICampaignHostRegistryEntry,
+): ICampaignGrantLiveSource {
+  return {
+    subscribe: (listener) =>
+      entry.host.subscribe(() => {
+        listener();
+      }),
+  };
 }
 
 function closeWithTypedError({

@@ -31,7 +31,31 @@ import {
 } from '@/types/campaign/campaignSyncSchemas';
 import { SUPPORTED_PHYSICAL_ATTACK_TYPES } from '@/utils/gameplay/physicalAttacks/types';
 
+import {
+  CampaignGrantDeliverySchema,
+  CampaignGrantJoinSchema,
+  CampaignGrantRebaselineSchema,
+} from './CampaignGrantProtocol';
 import { MatchSeatSchema } from './Lobby';
+
+export {
+  CampaignGrantDeliveryCursorSchema,
+  CampaignGrantDeliveryItemSchema,
+  CampaignGrantDeliverySchema,
+  CampaignGrantEpochBaselineSchema,
+  CampaignGrantJoinSchema,
+  CampaignGrantProjectedEventSchema,
+  CampaignGrantRebaselineSchema,
+} from './CampaignGrantProtocol';
+export type {
+  ICampaignGrantDelivery,
+  ICampaignGrantDeliveryCursor,
+  ICampaignGrantDeliveryItemWire,
+  ICampaignGrantEpochBaseline,
+  ICampaignGrantJoin,
+  ICampaignGrantProjectedEventWire,
+  ICampaignGrantRebaseline,
+} from './CampaignGrantProtocol';
 
 // =============================================================================
 // Shared envelope fragments
@@ -452,6 +476,7 @@ export type ICampaignParticipation = z.infer<
 
 export const CampaignSyncClientKindSchema = z.enum([
   'CampaignJoin',
+  'CampaignGrantJoin',
   'CampaignProposal',
   'CampaignDecision',
   'CampaignHostIntent',
@@ -475,6 +500,7 @@ export const ClientMessageSchema = z.discriminatedUnion('kind', [
   IntentSchema,
   HeartbeatSchema,
   CampaignJoinSchema,
+  CampaignGrantJoinSchema,
   CampaignProposalSchema,
   CampaignDecisionSchema,
   CampaignHostIntentSchema,
@@ -486,6 +512,7 @@ export type ICampaignClientMessage = Extract<
   {
     kind:
       | 'CampaignJoin'
+      | 'CampaignGrantJoin'
       | 'CampaignProposal'
       | 'CampaignDecision'
       | 'CampaignHostIntent'
@@ -498,6 +525,7 @@ export function isCampaignClientMessage(
 ): message is ICampaignClientMessage {
   return (
     message.kind === 'CampaignJoin' ||
+    message.kind === 'CampaignGrantJoin' ||
     message.kind === 'CampaignProposal' ||
     message.kind === 'CampaignDecision' ||
     message.kind === 'CampaignHostIntent' ||
@@ -778,6 +806,8 @@ export const ServerMessageSchema = z.discriminatedUnion('kind', [
   CampaignProposalMessageSchema,
   CampaignDecisionMessageSchema,
   CampaignParticipationMessageSchema,
+  CampaignGrantDeliverySchema,
+  CampaignGrantRebaselineSchema,
 ]);
 export type IServerMessage = z.infer<typeof ServerMessageSchema>;
 
