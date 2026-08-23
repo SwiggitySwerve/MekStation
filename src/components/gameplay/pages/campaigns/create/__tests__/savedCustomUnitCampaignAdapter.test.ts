@@ -21,7 +21,12 @@ describe('validateSavedBattleMechIndex', () => {
       { ...valid, id: 'str-t', tonnage: '70' },
     ]);
     expect(result.options).toEqual([
-      { id: valid.id, name: valid.name, tonnage: 70 },
+      {
+        id: valid.id,
+        name: valid.name,
+        tonnage: 70,
+        currentVersion: 1,
+      },
     ]);
     expect(result.options[0]?.id).not.toContain('Warhammer');
     expect(result.rejected.map((entry) => entry.reason)).toEqual([

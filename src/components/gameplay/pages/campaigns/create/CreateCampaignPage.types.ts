@@ -7,6 +7,7 @@ export interface SelectedUnit {
   id: string;
   unitRef?: string;
   unitSource?: RosterUnitSource;
+  sourceVersion?: number;
   name: string;
   tonnage: number;
 }
@@ -44,6 +45,7 @@ export interface RosterStepProps {
     tonnage: number,
     unitRef: string,
     unitSource?: RosterUnitSource,
+    sourceVersion?: number,
   ) => void;
   loadSavedDesignIndex?: () => Promise<readonly unknown[]>;
   onRemoveUnit: (unitId: string) => void;

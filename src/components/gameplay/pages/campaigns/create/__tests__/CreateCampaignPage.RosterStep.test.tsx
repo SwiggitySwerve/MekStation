@@ -34,6 +34,8 @@ describe('CreateCampaignPage RosterStep', () => {
       'Locust LCT-1V',
       25,
       'locust-lct-1v',
+      'canonical',
+      1,
     );
     await screen.findByRole('status');
   });
@@ -82,6 +84,8 @@ describe('CreateCampaignPage RosterStep', () => {
       'Locust LCT-1V',
       25,
       'locust-lct-1v',
+      'canonical',
+      1,
     );
     expect(onAddTemplateUnit).toHaveBeenNthCalledWith(
       2,
@@ -89,6 +93,7 @@ describe('CreateCampaignPage RosterStep', () => {
       70,
       'custom-whm-6r-saved',
       'custom',
+      1,
     );
     expect(screen.getByText('Stock Templates')).toBeTruthy();
     expect(screen.getByText('1 saved designs unavailable')).toBeTruthy();

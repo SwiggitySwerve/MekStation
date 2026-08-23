@@ -6,7 +6,10 @@ import type { ICampaignRosterEntry } from '@/types/campaign/CampaignRosterEntry'
 import type { IRosterUnitProjection } from '@/types/campaign/RosterUnitProjection';
 
 import { applyPreset } from '@/lib/campaign/presetService';
-import { UNIT_TEMPLATES } from '@/simulation/generator';
+import {
+  isLibraryBackedEnrollment,
+  pinSourceVersion,
+} from '@/lib/kernelPlugin/mekstation/mapRosterInstanceProvenance';
 import { useCampaignPersistenceStore } from '@/stores/campaign/useCampaignPersistenceStore';
 import { useCampaignRosterStore } from '@/stores/campaign/useCampaignRosterStore';
 import { usePilotStore } from '@/stores/usePilotStore';
@@ -156,6 +159,7 @@ function createRosterUnitProjection({
     pilotId: pilotAssignments[unit.id],
     unitRef: unit.unitRef,
     unitSource: unit.unitSource,
+    sourceVersion: pinSourceVersion(unit.sourceVersion),
     chassisVariant: unit.name,
     readiness: 'Ready',
     ...(Number.isFinite(unit.tonnage) ? { tonnage: unit.tonnage } : {}),
@@ -166,12 +170,7 @@ function addTemplateUnitToRootForce({
   store,
   unit,
 }: AddSelectedUnitInput): void {
-  if (unit.unitSource !== 'custom') {
-    const template = UNIT_TEMPLATES.find(
-      (entry) => entry.name === unit.name || entry.tonnage === unit.tonnage,
-    );
-    if (!template) return;
-  }
+  if (!isLibraryBackedEnrollment(unit)) return;
 
   const forcesStore = store.getState().getForcesStore();
   if (!forcesStore) return;
