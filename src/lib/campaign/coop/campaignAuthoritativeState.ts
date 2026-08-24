@@ -8,6 +8,8 @@ import type { IRosterUnitProjection } from '@/types/campaign/RosterUnitProjectio
 import { createEmptyCampaignState } from '@/types/campaign/CampaignSync';
 import { parseRosterUnitSource } from '@/types/campaign/RosterUnitSource';
 
+import { campaignDaysBetween } from '../campaignCalendar';
+
 const READINESS_STATUS = {
   Ready: 'operational',
   Damaged: 'damaged',
@@ -103,8 +105,7 @@ function campaignDayFor(campaign: ICampaign): number {
   if (currentTime === null || startTime === null) {
     return 0;
   }
-  const msPerDay = 24 * 60 * 60 * 1000;
-  return Math.max(0, Math.floor((currentTime - startTime) / msPerDay));
+  return campaignDaysBetween(new Date(startTime), new Date(currentTime));
 }
 
 function dateTimeFor(value: Date | string | undefined): number | null {

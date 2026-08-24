@@ -4,6 +4,7 @@ import type { ICampaignWithBattleState } from '@/lib/campaign/processors/postBat
 import type { ICombatOutcome } from '@/types/combat/CombatOutcome';
 
 import { toast } from '@/components/shared/Toast';
+import { campaignDaysBetween } from '@/lib/campaign/campaignCalendar';
 import { getActiveCampaignSyncTransport } from '@/lib/campaign/coop/campaignSyncTransport';
 import {
   appendDailyBattleAuditEntry,
@@ -271,13 +272,7 @@ function advanceDaysAction(get: CampaignGet): CampaignStore['advanceDays'] {
 
 function campaignDayFor(campaign: ICampaign): number {
   const startDate = campaign.campaignStartDate ?? campaign.currentDate;
-  const msPerDay = 24 * 60 * 60 * 1000;
-  return Math.max(
-    0,
-    Math.floor(
-      (campaign.currentDate.getTime() - startDate.getTime()) / msPerDay,
-    ),
-  );
+  return campaignDaysBetween(startDate, campaign.currentDate);
 }
 
 function isPromiseLike<T>(value: MaybePromise<T>): value is Promise<T> {
