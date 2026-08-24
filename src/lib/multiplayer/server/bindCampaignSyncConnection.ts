@@ -806,5 +806,15 @@ function closeFrame(
 
 function send(socket: IMatchSocket, message: IServerMessage): void {
   if (socket.readyState !== 1) return;
-  socket.send(JSON.stringify(message));
+  try {
+    socket.send(JSON.stringify(message));
+  } catch {
+    // A downstream socket is allowed to fail; the SOURCE is not allowed
+    // to fail with it. A real socket throws from send when it is closing
+    // or already closed, and this helper is called from the close path
+    // itself - which runs inside a catch handler, so a throw here would
+    // escape the handler entirely and surface as an unhandled rejection
+    // in the source process. One-way data flow means a consumer can lose
+    // frames, never that it can throw into the server.
+  }
 }
