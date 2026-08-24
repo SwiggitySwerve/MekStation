@@ -158,6 +158,84 @@ export function saveCampaign(
   return tx();
 }
 
+export type StoreReplicaResult =
+  | { readonly kind: 'ok'; readonly record: SerializedCampaign }
+  | {
+      readonly kind: 'refused';
+      readonly reason: 'not-a-replica' | 'would-overwrite-source';
+    };
+
+/**
+ * Persists a redeemed REPLICA record.
+ *
+ * `saveCampaign` refuses to write a replica envelope, and that is
+ * correct: it is the command path, and D2 says commands execute only at
+ * the source. Redeeming a share is not a command - it is the act of
+ * INSTANTIATING the replica in the first place - so it needs its own
+ * narrow door rather than a loosened gate.
+ *
+ * The door is deliberately hard to misuse. It refuses anything that is
+ * not a replica envelope, so it cannot be used to sneak a source write
+ * past the command gate; and it refuses to overwrite a record this host
+ * SOURCES, so a share can never demote local authority. The redeem flow
+ * checks that too - this is the same invariant enforced again at the
+ * layer that actually owns the row, because a check that only lives in
+ * the caller is one refactor away from being gone.
+ */
+export function storeRedeemedReplica(
+  record: SerializedCampaign,
+): StoreReplicaResult {
+  if (record.authority.role !== 'replica') {
+    return { kind: 'refused', reason: 'not-a-replica' };
+  }
+  const db = getSQLiteService().getDatabase();
+  const tx = db.transaction((): StoreReplicaResult => {
+    const row = db
+      .prepare('SELECT version, payload FROM campaigns WHERE id = ?')
+      .get(record.campaignId) as
+      | { version: number; payload: string }
+      | undefined;
+    if (row) {
+      let storedJson: unknown = null;
+      try {
+        storedJson = JSON.parse(row.payload);
+      } catch {
+        // An unreadable local row is not a source we can confirm, but it
+        // is also not something to silently clobber.
+        return { kind: 'refused', reason: 'would-overwrite-source' };
+      }
+      const existing = hydrateCampaignRecord(storedJson, record.instanceId);
+      if (
+        existing.kind === 'failed' ||
+        existing.record.authority.role === 'source'
+      ) {
+        return { kind: 'refused', reason: 'would-overwrite-source' };
+      }
+    }
+    const nextVersion = (row?.version ?? 0) + 1;
+    const stored: SerializedCampaign = { ...record, version: nextVersion };
+    db.prepare(
+      `INSERT OR REPLACE INTO campaigns
+         (id, version, schema_version, name, faction_id, campaign_date,
+          balance, saved_at, origin_device_id, payload)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    ).run(
+      stored.campaignId,
+      stored.version,
+      stored.schemaVersion,
+      stored.body.name,
+      stored.body.factionId,
+      stored.body.currentDate,
+      stored.body.finances.balance,
+      stored.savedAt,
+      stored.originDeviceId,
+      JSON.stringify(stored),
+    );
+    return { kind: 'ok', record: stored };
+  });
+  return tx();
+}
+
 /**
  * Remove a stored campaign record. Idempotent for missing rows. Replica
  * and unknown-authority rows are not deleted — those are mutations.
