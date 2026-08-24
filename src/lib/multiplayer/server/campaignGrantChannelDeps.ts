@@ -43,6 +43,10 @@ export function createCampaignGrantChannelDepsFromSqlite(
   return {
     nowMs: args.nowMs,
     nowIso: args.nowIso,
+    // The cursor store writes to the SAME borrowed handle, so a resume
+    // reads exactly what the delivery path wrote - no second connection
+    // with its own view of an in-flight transaction.
+    database: () => db,
     projectDeps: {
       grantStore,
       viewerResolver: new AuthorizedViewerResolver(membership),

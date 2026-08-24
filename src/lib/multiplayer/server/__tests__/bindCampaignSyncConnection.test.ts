@@ -77,13 +77,16 @@ function participate(
   socket: MockWireSocket,
   participation: Record<string, unknown>,
 ): void {
+  // Deliberately a loose record: these cases send payloads the schema
+  // must REJECT, so the literal must not be checked against the valid
+  // CampaignParticipation shape.
   socket.inbound({
     kind: 'CampaignParticipation',
     matchId: 'match-campaign',
     ts: nowIso(),
     playerId: 'pid_guest',
     participation,
-  });
+  } as Record<string, unknown>);
 }
 
 function sawError(

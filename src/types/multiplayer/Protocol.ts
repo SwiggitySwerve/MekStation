@@ -32,6 +32,7 @@ import {
 import { SUPPORTED_PHYSICAL_ATTACK_TYPES } from '@/utils/gameplay/physicalAttacks/types';
 
 import {
+  CampaignGrantAckSchema,
   CampaignGrantDeliverySchema,
   CampaignGrantJoinSchema,
   CampaignGrantRebaselineSchema,
@@ -40,6 +41,7 @@ import {
 import { MatchSeatSchema } from './Lobby';
 
 export {
+  CampaignGrantAckSchema,
   CampaignGrantDeliveryCursorSchema,
   CampaignGrantDeliveryItemSchema,
   CampaignGrantDeliverySchema,
@@ -50,6 +52,7 @@ export {
   CampaignGrantSnapshotSchema,
 } from './CampaignGrantProtocol';
 export type {
+  ICampaignGrantAck,
   ICampaignGrantDelivery,
   ICampaignGrantDeliveryCursor,
   ICampaignGrantDeliveryItemWire,
@@ -480,6 +483,7 @@ export type ICampaignParticipation = z.infer<
 export const CampaignSyncClientKindSchema = z.enum([
   'CampaignJoin',
   'CampaignGrantJoin',
+  'CampaignGrantAck',
   'CampaignProposal',
   'CampaignDecision',
   'CampaignHostIntent',
@@ -504,6 +508,7 @@ export const ClientMessageSchema = z.discriminatedUnion('kind', [
   HeartbeatSchema,
   CampaignJoinSchema,
   CampaignGrantJoinSchema,
+  CampaignGrantAckSchema,
   CampaignProposalSchema,
   CampaignDecisionSchema,
   CampaignHostIntentSchema,
@@ -516,6 +521,7 @@ export type ICampaignClientMessage = Extract<
     kind:
       | 'CampaignJoin'
       | 'CampaignGrantJoin'
+      | 'CampaignGrantAck'
       | 'CampaignProposal'
       | 'CampaignDecision'
       | 'CampaignHostIntent'
@@ -529,6 +535,7 @@ export function isCampaignClientMessage(
   return (
     message.kind === 'CampaignJoin' ||
     message.kind === 'CampaignGrantJoin' ||
+    message.kind === 'CampaignGrantAck' ||
     message.kind === 'CampaignProposal' ||
     message.kind === 'CampaignDecision' ||
     message.kind === 'CampaignHostIntent' ||

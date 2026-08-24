@@ -3,6 +3,8 @@
  * Not a test file; loaded by the suites under this folder.
  */
 
+import type { Database } from 'better-sqlite3';
+
 import { mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
@@ -80,6 +82,8 @@ export class InjectedCampaignClock {
 export interface ICampaignDeliveryHarness {
   readonly dir: string;
   readonly dbPath: string;
+  /** The borrowed process handle, for stores that take one directly. */
+  readonly db: Database;
   readonly clock: InjectedCampaignClock;
   readonly grantStore: SQLiteCampaignGrantStore;
   readonly membership: CampaignGrantMembershipSource;
@@ -97,6 +101,14 @@ export async function openCampaignDeliveryHarness(): Promise<ICampaignDeliveryHa
   const dir = await mkdtemp(path.join(tmpdir(), 'campaign-delivery-'));
   const dbPath = path.join(dir, 'campaign-delivery.db');
   resetSQLiteService();
+  return openCampaignDeliveryHarnessAt(dir, dbPath);
+}
+
+/** Opens adapters over an existing path. Shared by open and reopen. */
+async function openCampaignDeliveryHarnessAt(
+  dir: string,
+  dbPath: string,
+): Promise<ICampaignDeliveryHarness> {
   getSQLiteService({ path: dbPath }).initialize();
   const db = getSQLiteService().getDatabase();
   const grantStore = new SQLiteCampaignGrantStore(db);
@@ -117,6 +129,7 @@ export async function openCampaignDeliveryHarness(): Promise<ICampaignDeliveryHa
   return {
     dir,
     dbPath,
+    db,
     clock,
     grantStore,
     membership,
@@ -133,6 +146,18 @@ export async function openCampaignDeliveryHarness(): Promise<ICampaignDeliveryHa
       },
     },
   };
+}
+
+/**
+ * Closes and reopens the SAME database file, returning a fresh set of
+ * adapters over it. A genuine restart: nothing in-process survives, so
+ * "survives a restart" cannot pass on an in-memory leftover.
+ */
+export async function reopenCampaignDeliveryHarness(
+  harness: ICampaignDeliveryHarness,
+): Promise<ICampaignDeliveryHarness> {
+  resetSQLiteService();
+  return openCampaignDeliveryHarnessAt(harness.dir, harness.dbPath);
 }
 
 /** Closes the process-global SQLite handle and deletes the temp dir. */
