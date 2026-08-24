@@ -46,6 +46,7 @@ import type {
   GuestProposalResult,
 } from '@/types/campaign/CoopCampaign';
 
+import { campaignSyncPostureFromMirrorStatus } from '@/lib/campaign/replica/campaignSyncUxState';
 import { buildCoopCampaignAuthorityProjection } from '@/lib/command-screen';
 import { INVALID_CAMPAIGN_INTENT } from '@/types/campaign/CampaignSync';
 
@@ -389,6 +390,11 @@ export function CampaignCoopRouteSurface(
           api={proposalsApi}
           actions={guestActions}
           authorityProjection={authorityProjection}
+          syncPosture={
+            guestMirrorSummary
+              ? campaignSyncPostureFromMirrorStatus(guestMirrorSummary.status)
+              : undefined
+          }
         />
       </div>
     );
