@@ -9,6 +9,7 @@ import { DeleteCampaignDialog } from '@/components/campaign/CampaignOverviewTab.
 import { CampaignCoopRouteSurfaceConnected } from '@/components/campaign/coop';
 import { CampaignDashboard } from '@/components/campaign/dashboard/CampaignDashboard';
 import { DayReportPanel } from '@/components/campaign/DayReportPanel';
+import { CampaignSharePanelConnected } from '@/components/campaign/share';
 import { Button, PageLayout } from '@/components/ui';
 import { materializeCampaignMissionEncounter } from '@/lib/campaign/encounter/materializeCampaignMissionEncounter';
 import {
@@ -325,6 +326,13 @@ export default function CampaignDashboardPage(): React.ReactElement {
         routeId="dashboard"
         dashboardMount
       />
+
+      {/*
+       * Share surface (task 2.2). Reads the campaign's STORED authority,
+       * so a replica shows the shared-copy notice rather than share
+       * controls that the server would refuse anyway.
+       */}
+      <CampaignSharePanelConnected campaignId={campaign.id} />
 
       {/*
        * Campaign Command Center (`add-campaign-command-center`, Wave 6.1.B).
