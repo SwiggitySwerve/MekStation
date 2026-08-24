@@ -27,12 +27,22 @@ import type { ICampaignGrant } from '@/lib/campaign/grants/ICampaignGrantStore';
 import type { CampaignAuthority } from '@/types/campaign/SerializedCampaign';
 
 export interface CampaignSharePanelProps {
-  /** Stored D2 authority for the campaign being viewed. */
-  readonly authority: CampaignAuthority;
+  /**
+   * Stored D2 authority for the campaign being viewed. Null for a legacy
+   * browser copy, which has no server record and therefore no authority
+   * to report - inventing `source` for it is the exact guess D2 removes.
+   */
+  readonly authority: CampaignAuthority | null;
   /** Grants the server reported, newest first; revoked ones included. */
   readonly grants: readonly ICampaignGrant[];
   /** Invoked when the owner withdraws a grant. */
   readonly onRevoke?: (grantId: string) => void;
+  /**
+   * True for a browser copy this server has never held (D8). Such a copy
+   * is perfectly readable and is NOT an error, but it cannot be shared:
+   * there is no source instance to hand access to.
+   */
+  readonly legacyUnadopted?: boolean;
 }
 
 /** Renders one grant row: who holds it, at what scope, and its state. */
@@ -78,19 +88,40 @@ function grantRow(
 }
 
 /**
- * The share surface. Renders the replica notice instead of controls when
- * this host is not the campaign's source.
+ * The share surface. Renders a notice instead of controls whenever this
+ * host cannot actually hand out access: a legacy copy has no source to
+ * share from, and a replica holds someone else's campaign.
  */
 export function CampaignSharePanel(
   props: CampaignSharePanelProps,
-): React.ReactElement {
+): React.ReactElement | null {
   const {
     authority,
     grants,
+    legacyUnadopted = false,
     onRevoke = () => {
       /* caller wires the mutation */
     },
   } = props;
+
+  // Checked before authority, because a legacy copy has none. Saying so
+  // beats the alternative this replaces - a share panel that silently
+  // renders nothing, leaving the owner to guess why.
+  if (legacyUnadopted) {
+    return (
+      <section data-testid="campaign-share-panel" className="mt-4">
+        <p
+          data-testid="campaign-share-legacy-notice"
+          className="rounded-lg border border-amber-700 bg-amber-900/30 p-3 text-xs text-amber-200"
+        >
+          This campaign is a legacy copy stored only in this browser. Adopt it
+          onto this server to share it with other players.
+        </p>
+      </section>
+    );
+  }
+
+  if (authority === null) return null;
 
   if (authority.role === 'replica') {
     return (

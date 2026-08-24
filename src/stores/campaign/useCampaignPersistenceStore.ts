@@ -21,6 +21,7 @@ import type {
 } from '@/types/campaign/SerializedCampaign';
 
 import { toast } from '@/components/shared/Toast';
+import { evaluateCampaignAdoptionOffer } from '@/lib/campaign/authority/campaignLegacyAdoption';
 import {
   buildSerializedCampaign,
   CURRENT_CAMPAIGN_SCHEMA_VERSION,
@@ -70,10 +71,18 @@ interface CampaignPersistenceState {
   errorMessage: string | null;
   conflictServerRecord: SerializedCampaign | null;
   lastPersistedCampaign: ICampaign | null;
+  /**
+   * True when the browser holds a campaign this server has never seen and
+   * that arrived by storage rehydration - a legacy copy awaiting adoption
+   * (D8). Such a copy is readable but unshareable, and deliberately does
+   * NOT auto-save: see the guard in `runSave`.
+   */
+  legacyUnadopted: boolean;
 }
 
 interface CampaignPersistenceActions {
   loadCampaign: (id: string) => Promise<boolean>;
+  adoptLegacyCampaign: () => Promise<boolean>;
   saveCampaign: (options?: {
     retryOnConflict?: boolean;
   }) => Promise<CampaignPersistenceSaveResult>;
@@ -109,6 +118,7 @@ const INITIAL_STATE: CampaignPersistenceState = {
   errorMessage: null,
   conflictServerRecord: null,
   lastPersistedCampaign: null,
+  legacyUnadopted: false,
 };
 
 let autoSaveTimer: ReturnType<typeof setTimeout> | null = null;
@@ -151,6 +161,16 @@ function clearAutoSaveTimer(): void {
 function readLiveCampaign(): ICampaign | null {
   const store = getCampaignStoreForRoster();
   return store ? store.getState().campaign : null;
+}
+
+/**
+ * The campaign store's own report of whether the campaign it holds came
+ * from storage. This is a fact about the browser, never a claim about the
+ * server, which is what makes it safe to base the adoption offer on.
+ */
+function readRehydratedCampaignId(): string | null {
+  const store = getCampaignStoreForRoster();
+  return store?.getState().rehydratedCampaignId ?? null;
 }
 
 function writeLiveCampaign(campaign: ICampaign): void {
@@ -445,6 +465,14 @@ async function runSave(
   if (!campaign || !campaignId) {
     return { status: 'skipped', retriedConflict: false };
   }
+  // An unadopted legacy copy must not become a server source by
+  // accident. A plain create stamps a journal-native cutover marker, which
+  // asserts the campaign's whole history lives in a journal that holds
+  // none of it - and the D10 rollback law reads that same field. Adoption
+  // is an explicit act through `adoptLegacyCampaign`.
+  if (get().legacyUnadopted) {
+    return { status: 'skipped', retriedConflict: false };
+  }
   const baseVersion = baseVersionOverride ?? get().baseVersion;
   set({ saveState: 'saving', errorMessage: null });
   let retriedConflict = false;
@@ -537,6 +565,24 @@ async function runLoad(set: PersistenceSet, id: string): Promise<boolean> {
         cache: 'no-store',
       });
       if (response.status === 404) {
+        // Not every missing record is an error. A campaign the browser
+        // rehydrated from storage that this server has never held is a
+        // legacy copy from before campaigns became server-owned; the
+        // honest response is an adoption offer, not "not found".
+        const offer = evaluateCampaignAdoptionOffer({
+          campaignId: id,
+          browserCampaignId: readLiveCampaign()?.id ?? null,
+          rehydratedCampaignId: readRehydratedCampaignId(),
+          serverLookup: 'absent',
+        });
+        if (offer.kind === 'adoptable') {
+          set({
+            saveState: 'idle',
+            errorMessage: null,
+            legacyUnadopted: true,
+          });
+          return false;
+        }
         set({ saveState: 'idle', errorMessage: 'campaign not found' });
         return false;
       }
@@ -561,6 +607,7 @@ async function runLoad(set: PersistenceSet, id: string): Promise<boolean> {
         errorMessage: null,
         metadata: metadataFrom(migrated),
         lastPersistedCampaign: loadedCampaign,
+        legacyUnadopted: false,
       });
       return true;
     } catch (error) {
@@ -568,6 +615,59 @@ async function runLoad(set: PersistenceSet, id: string): Promise<boolean> {
       set({ saveState: 'error', errorMessage: message });
       return false;
     }
+  }
+}
+
+/**
+ * Hand this browser's legacy copy to the server as its source instance.
+ * The envelope is built at the version the copy actually carries, so the
+ * server records what was imported rather than inventing a fresh history.
+ */
+async function runAdoptLegacyCampaign(
+  set: PersistenceSet,
+  get: PersistenceGet,
+): Promise<boolean> {
+  const campaign = readLiveCampaign();
+  const campaignId = get().campaignId ?? campaign?.id ?? null;
+  if (!campaign || !campaignId) {
+    return false;
+  }
+  // Either a load already found this copy unadopted, or it came out of
+  // storage and the campaigns index is offering it. Whether adoption is
+  // actually permitted is the server's answer, not a guess made here.
+  const offered =
+    get().legacyUnadopted || readRehydratedCampaignId() === campaignId;
+  if (!offered) {
+    return false;
+  }
+  set({ saveState: 'saving', errorMessage: null });
+  try {
+    const envelope = buildSerializedCampaign(
+      campaign,
+      getDeviceId(),
+      get().metadata.version,
+      readLiveRosterSnapshot(campaign.id),
+    );
+    const response = await fetch(
+      `/api/campaigns/${encodeURIComponent(campaignId)}/adopt`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ envelope }),
+      },
+    );
+    if (!response.ok) {
+      throw new Error(`server responded ${response.status}`);
+    }
+    const record = (await response.json()) as SerializedCampaign;
+    applySavedRecord(set, record);
+    // The browser copy is now a cache of a server-held campaign.
+    set({ legacyUnadopted: false });
+    return true;
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'adoption failed';
+    set({ saveState: 'error', errorMessage: message });
+    return false;
   }
 }
 
@@ -657,6 +757,7 @@ function createPersistenceActions(
     loadCampaign: loadCampaignAction(set),
     saveCampaign: saveCampaignAction(set, get),
     markDirty: markDirtyAction(set, get),
+    adoptLegacyCampaign: () => runAdoptLegacyCampaign(set, get),
     resolveConflictKeepLocal: resolveConflictKeepLocalAction(set, get),
     resolveConflictTakeServer: resolveConflictTakeServerAction(set, get),
     clearError: () => {

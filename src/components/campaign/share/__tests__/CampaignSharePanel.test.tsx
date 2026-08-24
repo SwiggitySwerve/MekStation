@@ -114,4 +114,25 @@ describe('CampaignSharePanel', () => {
       screen.queryByTestId('share-grant-revoke-grant-1'),
     ).not.toBeInTheDocument();
   });
+
+  it('says a legacy copy cannot be shared, rather than rendering nothing', () => {
+    // A campaign this server has never held has no authority at all, so
+    // the panel used to render blank and leave the owner guessing why the
+    // share controls were missing.
+    render(<CampaignSharePanel authority={null} grants={[]} legacyUnadopted />);
+
+    expect(
+      screen.getByTestId('campaign-share-legacy-notice'),
+    ).toBeInTheDocument();
+  });
+
+  it('renders nothing at all when the authority is simply not loaded yet', () => {
+    const { container } = render(
+      <CampaignSharePanel authority={null} grants={[grant()]} />,
+    );
+
+    // Distinct from the legacy case: unknown is not the same as legacy,
+    // and guessing `source` here would flash controls onto a replica.
+    expect(container).toBeEmptyDOMElement();
+  });
 });

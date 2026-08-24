@@ -71,6 +71,11 @@ export function CampaignSharePanelConnected(
   const authority = useCampaignPersistenceStore(
     (state) => state.metadata?.authority ?? null,
   );
+  // A legacy copy has no server record at all, so it has no authority
+  // either; the panel explains that case rather than rendering nothing.
+  const legacyUnadopted = useCampaignPersistenceStore(
+    (state) => state.legacyUnadopted,
+  );
   const [grants, setGrants] = useState<readonly ICampaignGrant[]>([]);
 
   const isSource = authority !== null && authority.role === 'source';
@@ -103,12 +108,15 @@ export function CampaignSharePanelConnected(
   );
 
   // Not loaded yet: render nothing rather than assuming an authority.
-  if (authority === null) return null;
+  // A legacy copy is different - it will never have one, and that is the
+  // thing worth saying.
+  if (authority === null && !legacyUnadopted) return null;
 
   return (
     <CampaignSharePanel
       authority={authority}
       grants={grants}
+      legacyUnadopted={legacyUnadopted}
       onRevoke={onRevoke}
     />
   );

@@ -31,16 +31,23 @@ interface CampaignListEntry {
   readonly balance?: number;
   readonly forcesCount?: number;
   readonly missionsCount?: number;
+  /**
+   * A copy this browser is holding that the server does not list (D8).
+   * Readable and playable, but unshareable until it is adopted.
+   */
+  readonly legacyUnadopted?: boolean;
 }
 
 interface CampaignCardProps {
   campaign: CampaignListEntry;
   onClick: () => void;
+  onAdopt?: () => void;
 }
 
 function CampaignCard({
   campaign,
   onClick,
+  onAdopt,
 }: CampaignCardProps): React.ReactElement {
   // Per PR4 of `wire-iperson-hard-cutover`: roster store is the canonical
   // personnel source - no legacy `campaign.personnel.size` fallback.
@@ -54,6 +61,29 @@ function CampaignCard({
       <h3 className="text-text-theme-primary group-hover:text-accent mb-2 text-lg font-semibold transition-colors">
         {campaign.name}
       </h3>
+
+      {campaign.legacyUnadopted && (
+        <div
+          className="mb-3 rounded border border-amber-700 bg-amber-900/20 p-2 text-xs text-amber-200"
+          data-testid={`campaign-legacy-${campaign.id}`}
+        >
+          <p className="mb-2">
+            Stored only in this browser. Adopt it onto this server to share it
+            with other players.
+          </p>
+          <Button
+            variant="secondary"
+            data-testid={`campaign-adopt-${campaign.id}`}
+            onClick={(event) => {
+              // The card itself navigates; adopting is a different intent.
+              event.stopPropagation();
+              onAdopt?.();
+            }}
+          >
+            Adopt
+          </Button>
+        </div>
+      )}
 
       <p className="text-text-theme-secondary mb-3 text-sm">
         Faction: {campaign.factionId}
@@ -85,12 +115,16 @@ function summaryToEntry(summary: ICampaignSummary): CampaignListEntry {
   };
 }
 
-function campaignToEntry(campaign: ICampaign): CampaignListEntry {
+function campaignToEntry(
+  campaign: ICampaign,
+  legacyUnadopted = false,
+): CampaignListEntry {
   return {
     id: campaign.id,
     name: campaign.name,
     factionId: campaign.factionId,
     currentDate: campaign.currentDate,
+    legacyUnadopted,
     forcesCount: campaign.forces.size,
     missionsCount: campaign.missions.size,
   };
@@ -150,6 +184,7 @@ export default function CampaignsListPage(): React.ReactElement {
   // action (create flow, e2e fixture) never surfaced a campaign-card
   // until a full reload (e2e triage RC4).
   const campaign = useStore(store, (s) => s.campaign);
+  const rehydratedCampaignId = useStore(store, (s) => s.rehydratedCampaignId);
   const [campaignSummaries, setCampaignSummaries] = useState<
     readonly ICampaignSummary[]
   >([]);
@@ -165,8 +200,16 @@ export default function CampaignsListPage(): React.ReactElement {
   const hasStoreOnlyCampaign =
     campaign &&
     !campaignSummaries.some((summary) => summary.id === campaign.id);
+  // The D8 offer surface: a campaign the browser rehydrated from storage
+  // that the server's list does not contain. A campaign created this
+  // session is also store-only for a moment, but it is new rather than
+  // legacy and must keep its ordinary first save.
+  const storeOnlyIsLegacy =
+    hasStoreOnlyCampaign === true &&
+    campaign !== null &&
+    rehydratedCampaignId === campaign.id;
   const campaigns = hasStoreOnlyCampaign
-    ? [...summaryEntries, campaignToEntry(campaign)]
+    ? [...summaryEntries, campaignToEntry(campaign, storeOnlyIsLegacy)]
     : summaryEntries;
 
   // Hydration fix: flip to client AFTER mount so SSR + first client
@@ -336,6 +379,16 @@ export default function CampaignsListPage(): React.ReactElement {
               key={campaign.id}
               campaign={campaign}
               onClick={() => handleCampaignClick(campaign)}
+              onAdopt={() => {
+                void (async () => {
+                  // Re-read the list afterwards: the server is what says
+                  // whether the campaign is now held, not this click.
+                  await useCampaignPersistenceStore
+                    .getState()
+                    .adoptLegacyCampaign();
+                  setListRetryToken((token) => token + 1);
+                })();
+              }}
             />
           ))}
         </div>
