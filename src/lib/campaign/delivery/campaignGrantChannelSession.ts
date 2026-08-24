@@ -62,9 +62,19 @@ export interface ICampaignGrantChannelSessionDeps {
 }
 
 /**
- * Runs backfill then live re-projection for one grant socket. Subscribe
- * happens only after a successful page so a stale cursor does not
- * generate live rebaseline spam.
+ * Upper bound on projections per drain turn. A drain re-projects until
+ * the stream is quiet; the bound keeps a pathological wake-per-commit
+ * storm from monopolising the event loop, and the leftover signal is
+ * carried into the next turn rather than dropped.
+ */
+const MAX_DRAIN_ITERATIONS = 8;
+
+/**
+ * Runs the replay/live handshake for one grant socket. The live
+ * subscription is attached BEFORE the replay and its wakeups are
+ * buffered, so a commit landing mid-replay cannot fall into the gap
+ * between "already read" and "not yet subscribed"; a stale cursor
+ * detaches again so it cannot generate live rebaseline spam.
  */
 export async function startCampaignGrantChannelSession(
   deps: ICampaignGrantChannelSessionDeps,
@@ -78,7 +88,13 @@ class CampaignGrantChannelSession {
   private cursor: IDeliveryCursor | null;
   private sentJoinDelivery = false;
   private active = true;
-  private pumpQueue: Promise<void> = Promise.resolve();
+  /** A drain loop is running; further wakes join it rather than racing. */
+  private draining = false;
+  /** At least one wakeup is owed a projection. Collapses a storm to one. */
+  private pendingWake = false;
+  /** Wakeups are buffered until the replay has handed over to live. */
+  private liveReleased = false;
+  private detachLive: (() => void) | null = null;
 
   /**
    * Binds wire callbacks, projection deps, and the starting cursor.
@@ -98,16 +114,26 @@ class CampaignGrantChannelSession {
    * items, then subscribes for durable-append wakeups.
    */
   public async start(): Promise<void> {
+    // Subscribed before the first read, so nothing committed during the
+    // replay can be missed by BOTH the replay and the live path. Wakeups
+    // that arrive now are held, not acted on.
+    this.attachLiveSubscription();
     const first =
       this.cursor === null &&
       this.deps.nullCursorBackfill === 'snapshot-plus-tail'
         ? await this.deliverSnapshotJoin()
         : await this.projectCurrentCursor();
-    if (!this.active) return;
-    if (first === 'closed') return;
-    if (first === 'stale') return;
-    this.attachLiveSubscription();
-    await this.pumpLive();
+    if (!this.active || first === 'closed' || first === 'stale') {
+      // A stale cursor gets its rebaseline and nothing else: staying
+      // subscribed would re-send that frame on every later commit.
+      this.releaseLiveSubscription();
+      return;
+    }
+    // One drain regardless of whether a wakeup arrived, so a join always
+    // confirms it is caught up before the socket goes quiet.
+    this.liveReleased = true;
+    this.pendingWake = true;
+    await this.drainLive();
   }
 
   /**
@@ -116,37 +142,70 @@ class CampaignGrantChannelSession {
    */
   private attachLiveSubscription(): void {
     const unsubscribe = this.deps.liveSource.subscribe(() => {
-      if (!this.active) return;
-      this.enqueuePump();
+      this.requestPump();
     });
     const stop = (): void => {
       this.active = false;
       unsubscribe();
     };
+    this.detachLive = stop;
     this.deps.cleanupFns.add(stop);
   }
 
-  /**
-   * Serializes live pumps so two rapid commits cannot interleave
-   * re-projection and double-send the same sequence.
-   */
-  private enqueuePump(): void {
-    this.pumpQueue = this.pumpQueue
-      .then(() => this.pumpLive())
-      .catch((error: unknown) => {
-        this.failInternal(error);
-      });
+  /** Drops the live subscription for a session that will not go live. */
+  private releaseLiveSubscription(): void {
+    const stop = this.detachLive;
+    if (stop === null) return;
+    this.detachLive = null;
+    this.deps.cleanupFns.delete(stop);
+    stop();
   }
 
   /**
-   * Re-projects from the last delivered cursor. Empty item lists after
-   * join are withheld (out of scope or already delivered).
+   * Records that a projection is owed and starts a drain if one is not
+   * already running. Collapsing to a flag is what makes a burst of
+   * wakeups cost one projection instead of one each - and it is also
+   * what keeps two projections from reading the same cursor and putting
+   * the same sequence on the wire twice.
    */
-  private async pumpLive(): Promise<void> {
+  private requestPump(): void {
     if (!this.active) return;
-    const result = await this.projectCurrentCursor();
-    if (result === 'stale' || result === 'closed') {
-      this.active = false;
+    this.pendingWake = true;
+    if (!this.liveReleased) return;
+    void this.drainLive();
+  }
+
+  /**
+   * Drains owed projections until the stream is quiet. Re-entrant calls
+   * return immediately: the running loop picks up the flag they set.
+   */
+  private async drainLive(): Promise<void> {
+    if (this.draining) return;
+    this.draining = true;
+    try {
+      let iterations = 0;
+      while (
+        this.active &&
+        this.pendingWake &&
+        iterations < MAX_DRAIN_ITERATIONS
+      ) {
+        this.pendingWake = false;
+        iterations += 1;
+        const result = await this.projectCurrentCursor();
+        if (result === 'stale' || result === 'closed') {
+          this.active = false;
+          return;
+        }
+      }
+    } catch (error) {
+      this.failInternal(error);
+    } finally {
+      this.draining = false;
+    }
+    // Hit the bound with work still owed: continue on a later turn so a
+    // storm yields the event loop instead of being silently truncated.
+    if (this.active && this.pendingWake) {
+      void Promise.resolve().then(() => this.drainLive());
     }
   }
 
