@@ -311,10 +311,16 @@ export class JournalCampaignEventStore implements ICampaignEventStore {
  * or no journal is provided — behavior is byte-identical to before.
  */
 export function createDefaultCampaignEventStore(deps?: {
-  readonly journal?: IEventJournal<ICampaignJournalEnvelope>;
+  /**
+   * A FACTORY, not a handle: a caller on a request path would otherwise
+   * open the database on every host creation just to hand it to a branch
+   * the disabled flag never takes, and would throw wherever SQLite is
+   * not initialised.
+   */
+  readonly journal?: () => IEventJournal<ICampaignJournalEnvelope>;
 }): ICampaignEventStore {
   if (CAMPAIGN_JOURNAL_AUTHORITY_ENABLED && deps?.journal) {
-    return new JournalCampaignEventStore(deps.journal);
+    return new JournalCampaignEventStore(deps.journal());
   }
   return new InMemoryCampaignEventStore();
 }
