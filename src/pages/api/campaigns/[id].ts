@@ -27,6 +27,7 @@ import {
   UNKNOWN_AUTHORITY_ROLE_REASON,
 } from '@/lib/campaign/authority/campaignAuthority';
 import { maybeAppendCampaignGenesisOnCreate } from '@/lib/campaign/authority/campaignSourceGenesis';
+import { resolveCampaignAuthorityFromStores } from '@/lib/campaign/authority/resolveCampaignAuthorityFromStores';
 import { CAMPAIGN_JOURNAL_AUTHORITY_ENABLED } from '@/lib/campaign/sync/JournalCampaignEventStore';
 import { SQLiteEventJournal } from '@/lib/events/journal/SQLiteEventJournal';
 import {
@@ -34,7 +35,10 @@ import {
   rejectMissingQueryString as readCampaignId,
   sendCaughtApiError as sendCampaignError,
 } from '@/pages-modules/api/routeHelpers';
-import { writeCampaignMigrationMarker } from '@/services/campaignPersistence/CampaignMigrationMarkerStore';
+import {
+  readCampaignMigrationMarker,
+  writeCampaignMigrationMarker,
+} from '@/services/campaignPersistence/CampaignMigrationMarkerStore';
 import {
   deleteCampaign,
   readCampaign,
@@ -44,6 +48,11 @@ import { getSQLiteService } from '@/services/persistence/SQLiteService';
 
 type ErrorResponse =
   | { error: string }
+  | {
+      error: string;
+      kind: 'blocked';
+      reason: string;
+    }
   | {
       error: string;
       kind: 'refused';
@@ -145,6 +154,30 @@ export default async function handler(
           .json({ error: 'envelope campaignId does not match url id' });
         return;
       }
+      // Task 5.7: authority is per campaign, read from the durable marker.
+      // A campaign whose marker says journal but whose journal has no
+      // stream must NOT take this write - accepting it would either start
+      // a fresh log or silently fall back to snapshot authority the
+      // marker has already superseded. It blocks, truthfully.
+      const authority = await resolveCampaignAuthorityFromStores(
+        {
+          readMarker: readCampaignMigrationMarker,
+          journal: () =>
+            new SQLiteEventJournal(getSQLiteService().getDatabase(), () =>
+              new Date().toISOString(),
+            ),
+        },
+        id,
+      );
+      if (authority.kind === 'blocked') {
+        res.status(409).json({
+          error: 'campaign authority is blocked',
+          kind: 'blocked',
+          reason: authority.reason,
+        });
+        return;
+      }
+
       try {
         const result = saveCampaign(body.envelope, body.baseVersion);
         if (result.kind === 'conflict') {
