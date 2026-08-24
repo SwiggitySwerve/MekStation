@@ -270,6 +270,24 @@ describe('CampaignCoopRouteSurfaceConnected runtime proposal transport', () => {
       coopSession: createGuestCoopSession('match-1', 'ABC234'),
     };
 
+    // Task 5.6 gates guest controls on a converged replica, so this
+    // setup now seeds the synced mirror it always implied: a guest with
+    // NO mirror has nothing to propose against, and testing the proposal
+    // transport from that state was testing an unreachable situation.
+    useCampaignMirrorStore.getState().applySnapshot({
+      sequence: 0,
+      campaignId: 'campaign-1',
+      ts: '3025-01-01T00:00:00.000Z',
+      authorPlayerId: 'host',
+      type: 'CampaignSnapshotPublished',
+      scope: 'campaign',
+      payload: {
+        matchId: 'match-1',
+        revision: 0,
+        state: createEmptyCampaignState('campaign-1'),
+      },
+    } as never);
+
     render(
       <CampaignCoopRouteSurfaceConnected campaign={guest} routeId="finances" />,
     );

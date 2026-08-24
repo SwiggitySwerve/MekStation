@@ -26,10 +26,13 @@
 
 import React from 'react';
 
+import type { ICampaignSyncUxPosture } from '@/lib/campaign/replica/campaignSyncUxState';
 import type { ICampaignIntent } from '@/types/campaign/CampaignSync';
 import type { ICommandAuthorityProjection } from '@/types/command-screen';
 
 import type { IGuestProposalsApi } from './useGuestProposals';
+
+import { CampaignSyncStateBanner } from './CampaignSyncStateBanner';
 
 // =============================================================================
 // Props
@@ -51,6 +54,15 @@ export interface GuestProposalSurfaceProps {
   /** The campaign actions the guest may propose. */
   readonly actions: readonly IGuestActionDescriptor[];
   readonly authorityProjection?: ICommandAuthorityProjection;
+  /**
+   * Synchronization posture of the guest's replica (task 5.6). Controls
+   * are offered ONLY when it says commands are enabled: proposing from a
+   * view that is mid-backfill, reconnecting, or refused means proposing
+   * blind against state that has already moved. Omitted on surfaces with
+   * no replica behind them, which keeps the pre-5.6 behaviour for them
+   * rather than silently disabling controls that were always safe.
+   */
+  readonly syncPosture?: ICampaignSyncUxPosture;
   /** Optional class override for the surface container. */
   readonly className?: string;
 }
@@ -83,6 +95,7 @@ export function GuestProposalSurface({
   api,
   actions,
   authorityProjection,
+  syncPosture,
   className = '',
 }: GuestProposalSurfaceProps): React.ReactElement {
   return (
@@ -93,6 +106,11 @@ export function GuestProposalSurface({
       <h3 className="mb-3 text-sm font-semibold tracking-wide text-slate-400 uppercase">
         Campaign Actions (Guest)
       </h3>
+
+      {/* Always rendered when a replica is behind this surface, including
+          while everything is fine: a banner that only appears on trouble
+          teaches a player that its absence means nothing. */}
+      {syncPosture && <CampaignSyncStateBanner posture={syncPosture} />}
 
       {authorityProjection && (
         <div
@@ -126,17 +144,25 @@ export function GuestProposalSurface({
       <div className="flex flex-wrap gap-2">
         {actions.map((action) => {
           const pending = api.isPending(action.kind);
+          // Two different reasons to be unavailable, deliberately not
+          // merged: `pending` means "this one is already in flight",
+          // while the sync gate means "none of these can be trusted right
+          // now". A player reading the surface can tell them apart.
+          const blockedBySync =
+            syncPosture !== undefined && !syncPosture.commandsEnabled;
+          const unavailable = pending || blockedBySync;
           return (
             <button
               key={action.kind}
               type="button"
               data-testid={`guest-action-${action.kind}`}
-              disabled={pending}
+              disabled={unavailable}
+              data-sync-blocked={blockedBySync ? 'true' : undefined}
               onClick={() => {
                 void api.submit(action.buildIntent());
               }}
               className={
-                pending
+                unavailable
                   ? 'cursor-not-allowed rounded-lg border border-slate-600 bg-slate-800 px-3 py-2 text-sm font-medium text-slate-500'
                   : 'rounded-lg border border-sky-500/50 bg-sky-600/20 px-3 py-2 text-sm font-medium text-sky-200 hover:bg-sky-600/30'
               }
