@@ -1,3 +1,4 @@
+import type { ICampaignJournalEnvelope } from '@/lib/campaign/sync/JournalCampaignEventStore';
 import type { ICampaignAuthoritativeState } from '@/types/campaign/CampaignSync';
 import type {
   CoopParticipationChoice,
@@ -7,7 +8,21 @@ import type { IForce } from '@/types/campaign/Force';
 
 import { registerActiveCoopHost } from '@/lib/campaign/coop/coopHostRegistry';
 import { createDefaultCampaignEventStore } from '@/lib/campaign/sync/JournalCampaignEventStore';
+import { SQLiteEventJournal } from '@/lib/events/journal/SQLiteEventJournal';
+import { getSQLiteService } from '@/services/persistence/SQLiteService';
 import { parseCampaignCoopSnapshot } from '@/types/campaign/campaignCoopSnapshot';
+
+/**
+ * The process journal, constructed lazily. A campaign host is created on
+ * a request path, so opening the database eagerly at module load would
+ * make an unrelated import fail wherever SQLite is not initialised.
+ */
+function campaignJournal(): SQLiteEventJournal<ICampaignJournalEnvelope> {
+  return new SQLiteEventJournal<ICampaignJournalEnvelope>(
+    getSQLiteService().getDatabase(),
+    () => new Date().toISOString(),
+  );
+}
 
 import type { IMatchStore } from './IMatchStore';
 
@@ -209,9 +224,16 @@ export class CampaignHostRegistry {
     const host = new CampaignMatchHost({
       campaignId: snapshot.campaignId,
       hostPlayerId: snapshot.hostPlayerId,
-      // The cutover-flag factory (task 5.1): identical in-memory behavior
-      // until CAMPAIGN_JOURNAL_AUTHORITY_ENABLED turns on with task 5.2.
-      eventStore: createDefaultCampaignEventStore(),
+      // The cutover-flag factory (task 5.1). The journal is supplied here
+      // even though the flag is still false, because the factory needs
+      // BOTH to route: passing none left the flag a no-op at the one
+      // production site that could use it, so flipping it after review
+      // would have changed nothing and looked like the cutover had
+      // failed. Behaviour today is unchanged - the guard requires the
+      // flag as well - and the flag stays the single reviewed switch.
+      eventStore: createDefaultCampaignEventStore({
+        journal: campaignJournal,
+      }),
       initialState: snapshot.state,
     });
     const syncSession = new CampaignSyncSession(host, { matchId });

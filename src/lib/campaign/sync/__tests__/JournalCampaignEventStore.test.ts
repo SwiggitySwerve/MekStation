@@ -267,9 +267,14 @@ describe('JournalCampaignEventStore (in-memory journal)', () => {
 
   it('keeps the production factory on the in-memory store while the flag is disabled', () => {
     expect(CAMPAIGN_JOURNAL_AUTHORITY_ENABLED).toBe(false);
-    expect(createDefaultCampaignEventStore({ journal })).toBeInstanceOf(
-      InMemoryCampaignEventStore,
-    );
+    // The factory takes a thunk, and must not even CALL it while the
+    // flag is off - a caller on a request path would otherwise open the
+    // database for a branch that is never taken.
+    const openJournal = jest.fn(() => journal);
+    expect(
+      createDefaultCampaignEventStore({ journal: openJournal }),
+    ).toBeInstanceOf(InMemoryCampaignEventStore);
+    expect(openJournal).not.toHaveBeenCalled();
     expect(createDefaultCampaignEventStore()).toBeInstanceOf(
       InMemoryCampaignEventStore,
     );
