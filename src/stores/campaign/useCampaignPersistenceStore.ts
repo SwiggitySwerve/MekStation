@@ -29,6 +29,10 @@ import {
   getDeviceId,
   migrateSerializedCampaign,
 } from '@/lib/campaign/persistence';
+import {
+  campaignCacheKeyOf,
+  evaluateCampaignCache,
+} from '@/lib/campaign/persistence/campaignCacheKey';
 import { backfillLegacyRosterUnitRefs } from '@/lib/campaign/wizard/legacyRosterUnitBackfill';
 import { Money } from '@/types/campaign/Money';
 
@@ -171,6 +175,22 @@ function readLiveCampaign(): ICampaign | null {
 function readRehydratedCampaignId(): string | null {
   const store = getCampaignStoreForRoster();
   return store?.getState().rehydratedCampaignId ?? null;
+}
+
+/** The identity the browser's persisted copy currently claims. */
+function readCachedCampaignKey(): ReturnType<typeof campaignCacheKeyOf> | null {
+  const store = getCampaignStoreForRoster();
+  return store?.getState().cachedCampaignKey ?? null;
+}
+
+/**
+ * Stamps the identity of the record this client now holds. Called on
+ * every authoritative read and write, so the cache's claim about itself
+ * is only ever set from a record the server actually returned.
+ */
+function writeCachedCampaignKey(record: SerializedCampaign): void {
+  const store = getCampaignStoreForRoster();
+  store?.getState().setCachedCampaignKey?.(campaignCacheKeyOf(record));
 }
 
 function writeLiveCampaign(campaign: ICampaign): void {
@@ -382,6 +402,7 @@ function applySavedRecord(
   record: SerializedCampaign,
 ): void {
   const persistedCampaign = deserializeCampaignRecord(record);
+  writeCachedCampaignKey(record);
   set({
     campaignId: record.campaignId,
     saveState: 'saved',
@@ -592,12 +613,30 @@ async function runLoad(set: PersistenceSet, id: string): Promise<boolean> {
       const migrated = migrateClientRecord(
         (await response.json()) as SerializedCampaign,
       );
-      const loadedCampaign = preserveGuestCoopSession(
-        deserializeCampaignRecord(migrated),
-        readLiveCampaign(),
+      // Task 1.3: the cache is keyed, so "is this copy the same thing?"
+      // is answered rather than assumed. A copy naming the same instance
+      // at the same revision is the server's own record and is left
+      // alone; anything else is REPLACED WHOLE. There is no merge -
+      // reconciling field by field would assemble a campaign that never
+      // existed on either side.
+      const verdict = evaluateCampaignCache(
+        readCachedCampaignKey(),
+        campaignCacheKeyOf(migrated),
       );
-      writeLiveCampaign(loadedCampaign);
-      restoreRosterProjection(id, migrated.body.rosterProjection);
+      const liveCampaign = readLiveCampaign();
+      const cacheStands =
+        verdict.kind === 'usable' && liveCampaign?.id === migrated.campaignId;
+      const loadedCampaign = cacheStands
+        ? liveCampaign
+        : preserveGuestCoopSession(
+            deserializeCampaignRecord(migrated),
+            liveCampaign,
+          );
+      if (!cacheStands) {
+        writeLiveCampaign(loadedCampaign);
+        restoreRosterProjection(id, migrated.body.rosterProjection);
+      }
+      writeCachedCampaignKey(migrated);
       set({
         campaignId: id,
         dirty: false,

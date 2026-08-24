@@ -1,5 +1,6 @@
 import type { StoreApi } from 'zustand';
 
+import type { ICampaignCacheKey } from '@/lib/campaign/persistence/campaignCacheKey';
 import type { ICampaign } from '@/types/campaign/Campaign';
 
 import type { MissionsStore } from './useMissionsStore';
@@ -13,6 +14,9 @@ interface CampaignStoreForRosterState {
    * this accessor keep satisfying the shape.
    */
   rehydratedCampaignId?: string | null;
+  /** Identity of the persisted copy (task 1.3); optional for test doubles. */
+  cachedCampaignKey?: ICampaignCacheKey | null;
+  setCachedCampaignKey?: (key: ICampaignCacheKey | null) => void;
   updateCampaign: (updates: Partial<ICampaign>) => void;
   switchCampaign: (campaign: ICampaign) => void;
   getMissionsStore?: () => StoreApi<MissionsStore> | null;

@@ -1,6 +1,7 @@
 import type { StoreApi } from 'zustand';
 
 import type { DayReport } from '@/lib/campaign/dayAdvancement';
+import type { ICampaignCacheKey } from '@/lib/campaign/persistence/campaignCacheKey';
 import type { IStarmapTravelPreview } from '@/lib/starmap/starmapTravelPreview';
 import type { IActivityLogEntry } from '@/types/campaign/ActivityLog';
 import type { ICampaign, ICampaignOptions } from '@/types/campaign/Campaign';
@@ -59,6 +60,16 @@ export interface CampaignState {
    * the rehydrated copy against the server before trusting it.
    */
   rehydratedCampaignId: string | null;
+  /**
+   * What the persisted copy claims to be: the D2 hosting instance that
+   * wrote it and the revision it was taken from (task 1.3). Null for a
+   * copy written before caches carried an identity, and for a campaign
+   * that has never been saved - both of which are UNKEYED rather than
+   * current, and are replaced rather than trusted.
+   */
+  cachedCampaignKey: ICampaignCacheKey | null;
+  /** Records the identity of the copy this client now holds. */
+  setCachedCampaignKey: (key: ICampaignCacheKey | null) => void;
   pendingBattleOutcomes: ICombatOutcome[];
   processedBattleIds: string[];
   reviewedBattleIds: Record<string, number>;

@@ -10,6 +10,8 @@
 import { create, StoreApi } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 
+import type { ICampaignCacheKey } from '@/lib/campaign/persistence/campaignCacheKey';
+
 import {
   subscribeToCombatOutcome,
   type ICombatOutcomeReadyEvent,
@@ -37,12 +39,33 @@ import {
   type SerializedCampaignState,
 } from './useCampaignStore.persistence';
 
+/**
+ * Validates a persisted cache key. A malformed one is treated as ABSENT
+ * rather than repaired: a key is a claim about identity, and a
+ * half-readable claim is not a weaker version of the truth.
+ */
+function readCampaignCacheKey(value: unknown): ICampaignCacheKey | null {
+  if (typeof value !== 'object' || value === null) return null;
+  const key = value as Partial<ICampaignCacheKey>;
+  if (typeof key.revision !== 'number' || !Number.isFinite(key.revision)) {
+    return null;
+  }
+  if (typeof key.instanceId !== 'string' && key.instanceId !== null) {
+    return null;
+  }
+  return { instanceId: key.instanceId ?? null, revision: key.revision };
+}
+
 export function createCampaignStore(): StoreApi<CampaignStore> {
   return create<CampaignStore>()(
     persist(
       (set, get) => ({
         campaign: null,
         rehydratedCampaignId: null,
+        cachedCampaignKey: null,
+        setCachedCampaignKey: (key) => {
+          set({ cachedCampaignKey: key });
+        },
         pendingBattleOutcomes: [],
         processedBattleIds: [],
         reviewedBattleIds: {},
@@ -89,13 +112,21 @@ export function createCampaignStore(): StoreApi<CampaignStore> {
               state.reviewedBattleIds,
             ),
             activityLog: state.activityLog,
+            // Persisted WITH the copy, so the identity travels with the
+            // thing it identifies. Held separately it could survive a
+            // copy being replaced and vouch for the wrong campaign.
+            cachedCampaignKey: state.cachedCampaignKey,
           };
         },
         merge: (persisted: unknown, current) => {
           const persistedData = persisted as {
             campaign?: SerializedCampaignState | null;
             activityLog?: IActivityLogEntry[];
+            cachedCampaignKey?: ICampaignCacheKey | null;
           };
+          const cachedCampaignKey = readCampaignCacheKey(
+            persistedData?.cachedCampaignKey,
+          );
           const activityLog = Array.isArray(persistedData?.activityLog)
             ? persistedData.activityLog.filter(isActivityLogEntry)
             : [];
@@ -104,6 +135,7 @@ export function createCampaignStore(): StoreApi<CampaignStore> {
               ...current,
               campaign: null,
               rehydratedCampaignId: null,
+              cachedCampaignKey: null,
               forcesStore: null,
               missionsStore: null,
               activityLog,
@@ -119,6 +151,7 @@ export function createCampaignStore(): StoreApi<CampaignStore> {
             ...current,
             campaign,
             rehydratedCampaignId: campaign.id,
+            cachedCampaignKey,
             pendingBattleOutcomes: serialized.pendingBattleOutcomes,
             processedBattleIds: serialized.processedBattleIds,
             reviewedBattleIds: serialized.reviewedBattleIds,
