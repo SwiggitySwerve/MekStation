@@ -105,6 +105,7 @@ import { useCampaignRosterStore } from '@/stores/campaign/useCampaignRosterStore
 import { ICampaign } from '@/types/campaign/Campaign';
 import { Money } from '@/types/campaign/Money';
 
+import { nextCampaignDay } from './campaignCalendar';
 import { processContracts } from './contractProcessing';
 import { processDailyCosts } from './dailyCostsProcessing';
 import { IDayPipelineResult, IDayEvent } from './dayPipeline';
@@ -183,7 +184,7 @@ export function advanceDay(campaign: ICampaign): DayReport {
   const costResult = processDailyCosts(campaignWithContracts);
 
   // 4. Advance the date by one day
-  const nextDate = new Date(processedDate.getTime() + 24 * 60 * 60 * 1000);
+  const nextDate = nextCampaignDay(processedDate);
 
   const updatedCampaign: ICampaign = {
     ...campaign,

@@ -33,6 +33,7 @@ import type { SerializedCampaign } from '@/types/campaign/SerializedCampaign';
 import { createEmptyCampaignState } from '@/types/campaign/CampaignSync';
 import { parseRosterUnitSource } from '@/types/campaign/RosterUnitSource';
 
+import { campaignDaysBetween } from '../campaignCalendar';
 import { freezeCampaignEvent } from '../sync/campaignEventScope';
 import {
   appendCampaignCommandBatch,
@@ -157,8 +158,7 @@ function dayBetween(start: string | undefined, current: string): number {
   if (!Number.isFinite(currentTime) || !Number.isFinite(startTime)) {
     return 0;
   }
-  const msPerDay = 24 * 60 * 60 * 1000;
-  return Math.max(0, Math.floor((currentTime - startTime) / msPerDay));
+  return campaignDaysBetween(new Date(startTime), new Date(currentTime));
 }
 
 export type CampaignGenesisResult =

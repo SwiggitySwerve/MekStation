@@ -1,6 +1,8 @@
 import type { IDayEvent } from '@/lib/campaign/dayPipeline';
 import type { ICampaign } from '@/types/campaign/Campaign';
 
+import { campaignDaysBetween } from '@/lib/campaign/campaignCalendar';
+
 import type { CampaignStore } from './useCampaignStore.types';
 
 interface IContractPaymentActivityOptions {
@@ -58,11 +60,5 @@ export function appendContractPaymentActivityEntries(
 
 function campaignDayFor(campaign: ICampaign): number {
   const startDate = campaign.campaignStartDate ?? campaign.currentDate;
-  const msPerDay = 24 * 60 * 60 * 1000;
-  return Math.max(
-    0,
-    Math.floor(
-      (campaign.currentDate.getTime() - startDate.getTime()) / msPerDay,
-    ),
-  );
+  return campaignDaysBetween(startDate, campaign.currentDate);
 }
