@@ -108,6 +108,29 @@ export const CampaignGrantJoinSchema = z.object({
 export type ICampaignGrantJoin = z.infer<typeof CampaignGrantJoinSchema>;
 
 /**
+ * A participant reporting the highest per-grant delivery sequence it has
+ * APPLIED. Sequences only mean anything inside a delivery epoch, so the
+ * epoch travels with the number - a bare sequence would be a number from
+ * one numbering read against another after any revocation or scope
+ * change. Strict: an acknowledgement is the one client frame that moves
+ * durable server state, so an unexpected field is a rejected envelope
+ * rather than something quietly ignored.
+ */
+export const CampaignGrantAckSchema = z
+  .object({
+    kind: z.literal('CampaignGrantAck'),
+    matchId: matchIdSchema,
+    ts: tsSchema,
+    playerId: z.string().min(1),
+    campaignId: z.string().min(1),
+    grantId: z.string().min(1),
+    deliveryEpochId: z.string().min(1),
+    ackedSequence: z.number().int().nonnegative(),
+  })
+  .strict();
+export type ICampaignGrantAck = z.infer<typeof CampaignGrantAckSchema>;
+
+/**
  * Backfill or live delivery. items may be empty on the join handshake
  * so the replica learns the current baseline; live out-of-scope wakes
  * MUST NOT use this frame.

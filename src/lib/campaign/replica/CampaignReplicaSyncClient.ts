@@ -194,7 +194,40 @@ export class CampaignReplicaSyncClient {
     }
     const last = delivery.items[delivery.items.length - 1];
     if (last !== undefined) {
+      this.acknowledge(delivery.deliveryEpochId, last.deliverySequence);
       this.options.onIngested?.(last.deliverySequence);
+    }
+  }
+
+  /**
+   * Reports the applied high-water mark so the source can resume this
+   * participant from it. Sent only AFTER a successful ingest - an
+   * acknowledgement for something not yet durable here would let a
+   * later resume skip it.
+   *
+   * Fire-and-forget by design: the durable cursor is an optimisation,
+   * and a failed acknowledgement costs a fuller backfill next time,
+   * which the replica applies idempotently. Making the sync connection
+   * depend on it would trade a real guarantee for a convenience.
+   */
+  private acknowledge(deliveryEpochId: string, ackedSequence: number): void {
+    const socket = this.socket;
+    if (socket === null) return;
+    try {
+      socket.send(
+        JSON.stringify({
+          kind: 'CampaignGrantAck',
+          matchId: this.options.matchId,
+          ts: this.options.nowIso(),
+          playerId: this.options.playerId,
+          campaignId: this.options.campaignId,
+          grantId: this.options.grantId,
+          deliveryEpochId,
+          ackedSequence,
+        }),
+      );
+    } catch {
+      // See above: never fatal to the sync connection.
     }
   }
 }

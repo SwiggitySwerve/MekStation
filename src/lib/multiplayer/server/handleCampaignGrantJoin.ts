@@ -9,6 +9,8 @@
  * @spec openspec/changes/design-campaign-authority-and-sync/design.md (D5)
  */
 
+import type { Database } from 'better-sqlite3';
+
 import type { CampaignGrantNullCursorBackfill } from '@/lib/campaign/delivery/campaignDeliveryTypes';
 import type { ICampaignGrantLiveSource } from '@/lib/campaign/delivery/campaignGrantChannelSession';
 import type { IProjectCampaignStreamDeps } from '@/lib/campaign/delivery/projectCampaignStreamForGrant';
@@ -26,10 +28,17 @@ import {
   grantTokenFailureFrame,
 } from '@/lib/campaign/delivery/campaignGrantChannelAuth';
 import { startCampaignGrantChannelSession } from '@/lib/campaign/delivery/campaignGrantChannelSession';
+import { readParticipantDeliveryCursor } from '@/lib/campaign/delivery/participantDeliveryCursor';
 import { verifyCampaignGrantToken } from '@/lib/campaign/grants/campaignGrantToken';
 import { mintVerifiedPrincipal } from '@/lib/multiplayer/server/authorization/AuthorizedViewer';
 
 import type { ICampaignHostRegistryEntry } from './CampaignHostRegistry';
+
+/** The cursor shape a grant join may start from. */
+type ICampaignGrantJoinCursor = Extract<
+  ICampaignClientMessage,
+  { kind: 'CampaignGrantJoin' }
+>['cursor'];
 
 export interface ICampaignGrantChannelDeps {
   readonly projectDeps: IProjectCampaignStreamDeps;
@@ -41,6 +50,12 @@ export interface ICampaignGrantChannelDeps {
    * scoped snapshot hydration.
    */
   readonly nullCursorBackfill?: CampaignGrantNullCursorBackfill;
+  /**
+   * Handle for the durable participant cursor (task 5.5). Optional so a
+   * test harness can wire projection only; without it a join simply
+   * falls back to the join envelope's own cursor.
+   */
+  readonly database?: () => Database;
 }
 
 export interface IHandleCampaignGrantJoinDeps {
@@ -56,6 +71,11 @@ export interface IHandleCampaignGrantJoinDeps {
   readonly liveSource: ICampaignGrantLiveSource;
   readonly send: (message: IServerMessage) => void;
   readonly closeTyped: (code: IErrorCode, reason: string) => void;
+  /** Records what this socket proved, for later acknowledgements. */
+  readonly onBound?: (
+    grantId: string,
+    session: { readonly campaignId: string; readonly participantId: string },
+  ) => void;
 }
 
 /**
@@ -104,6 +124,21 @@ export async function handleCampaignGrantJoin(
     return;
   }
 
+  deps.onBound?.(grant.grantId, {
+    campaignId: grant.campaignId,
+    participantId: grant.participantId,
+  });
+
+  // Resume: a client that sends no cursor but HAS a durable one picks up
+  // where it left off instead of re-reading the whole stream. A client
+  // that names its own cursor is believed over the stored one - it knows
+  // what it actually applied, and the stored value may lag the last
+  // acknowledgement in flight. A stored cursor from a superseded epoch
+  // is not special-cased here: validateCursor rebaselines it, which is
+  // the same answer the client would get for any stale cursor.
+  const resumeCursor =
+    deps.envelope.cursor ?? readDurableCursor(deps, grant.campaignId, grant);
+
   await startCampaignGrantChannelSession(
     {
       socketSend: deps.send,
@@ -118,6 +153,34 @@ export async function handleCampaignGrantJoin(
       nowIso: deps.grantChannel.nowIso,
       nullCursorBackfill: deps.grantChannel.nullCursorBackfill ?? 'full-stream',
     },
-    deps.envelope.cursor,
+    resumeCursor,
   );
+}
+
+/**
+ * Reads this participant's stored cursor, if the channel was wired with
+ * a database. A read failure is not a join failure: the worst case is a
+ * fuller backfill, which the replica applies idempotently.
+ */
+function readDurableCursor(
+  deps: IHandleCampaignGrantJoinDeps,
+  campaignId: string,
+  grant: { readonly grantId: string; readonly participantId: string },
+): ICampaignGrantJoinCursor {
+  const database = deps.grantChannel?.database;
+  if (database === undefined) return null;
+  try {
+    const stored = readParticipantDeliveryCursor(database(), {
+      campaignId,
+      grantId: grant.grantId,
+      participantId: grant.participantId,
+    });
+    if (stored === null) return null;
+    return {
+      deliveryEpochId: stored.deliveryEpochId,
+      afterSequence: stored.ackedSequence,
+    };
+  } catch {
+    return null;
+  }
 }

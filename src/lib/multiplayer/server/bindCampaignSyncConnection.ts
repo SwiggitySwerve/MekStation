@@ -34,6 +34,10 @@ import {
 } from './campaignGrantChannelDeps';
 import { getCampaignHostRegistry } from './CampaignHostRegistry';
 import {
+  handleCampaignGrantAck,
+  type IBoundGrantSession,
+} from './handleCampaignGrantAck';
+import {
   handleCampaignGrantJoin,
   type ICampaignGrantChannelDeps,
 } from './handleCampaignGrantJoin';
@@ -115,12 +119,20 @@ export async function bindCampaignSyncConnection({
   }
 
   const cleanupFns = new Set<() => void>();
+  /**
+   * Grants THIS socket authenticated, keyed by grantId. Per-socket on
+   * purpose: an acknowledgement may only move a cursor the connection
+   * proved a token for, so one authenticated client cannot advance
+   * another participant's place in the stream by naming their grant.
+   */
+  const boundGrants = new Map<string, IBoundGrantSession>();
   let cleanedUp = false;
   const cleanup = (): void => {
     if (cleanedUp) return;
     cleanedUp = true;
     cleanupFns.forEach((fn) => fn());
     cleanupFns.clear();
+    boundGrants.clear();
     const sockets = socketsByMatch.get(matchId);
     sockets?.delete(socket);
     if (sockets?.size === 0) socketsByMatch.delete(matchId);
@@ -135,6 +147,7 @@ export async function bindCampaignSyncConnection({
       verifiedPlayerId,
       cleanup,
       cleanupFns,
+      boundGrants,
       logger,
       grantChannel,
       grantLiveSource,
@@ -156,6 +169,7 @@ interface IHandleInboundDeps {
   verifiedPlayerId: string;
   cleanup: () => void;
   cleanupFns: Set<() => void>;
+  boundGrants: Map<string, IBoundGrantSession>;
   logger: Pick<Console, 'error' | 'warn' | 'log'>;
   grantChannel?: ICampaignGrantChannelDeps | null;
   grantLiveSource?: ICampaignGrantLiveSource;
@@ -171,6 +185,7 @@ async function handleInbound({
   verifiedPlayerId,
   cleanup,
   cleanupFns,
+  boundGrants,
   logger,
   grantChannel,
   grantLiveSource,
@@ -246,6 +261,8 @@ async function handleInbound({
       verifiedPlayerId,
       cleanup,
       cleanupFns,
+      boundGrants,
+      logger,
       grantChannel,
       grantLiveSource,
       replicaStore,
@@ -271,6 +288,8 @@ interface IDispatchCampaignEnvelopeDeps {
   verifiedPlayerId: string;
   cleanup: () => void;
   cleanupFns: Set<() => void>;
+  boundGrants: Map<string, IBoundGrantSession>;
+  logger: Pick<Console, 'error' | 'warn' | 'log'>;
   grantChannel?: ICampaignGrantChannelDeps | null;
   grantLiveSource?: ICampaignGrantLiveSource;
   replicaStore?: SQLiteCampaignReplicaStore | null;
@@ -285,6 +304,8 @@ async function dispatchCampaignEnvelope({
   verifiedPlayerId,
   cleanup,
   cleanupFns,
+  boundGrants,
+  logger,
   grantChannel,
   grantLiveSource,
   replicaStore,
@@ -324,8 +345,26 @@ async function dispatchCampaignEnvelope({
             code,
             reason,
           }),
+        onBound: (grantId, session) => boundGrants.set(grantId, session),
       });
       return;
+    case 'CampaignGrantAck': {
+      const channel = resolveGrantChannel(grantChannel);
+      const database = channel?.database;
+      if (database === undefined) return;
+      // Deliberately no reply frame and no close on refusal: a rejected
+      // cursor claim is a bookkeeping disagreement, and dropping the
+      // socket over one would turn it into a reconnect storm.
+      await handleCampaignGrantAck({
+        envelope,
+        boundGrants,
+        projectDeps: channel?.projectDeps,
+        database,
+        nowIso: () => channel?.nowIso() ?? nowIso(),
+        logger,
+      });
+      return;
+    }
     case 'CampaignProposal':
       await handleCampaignProposal({ envelope, socket, entry, matchId });
       return;
