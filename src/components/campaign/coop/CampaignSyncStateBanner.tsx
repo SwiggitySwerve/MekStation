@@ -43,6 +43,22 @@ export function CampaignSyncStateBanner({
     <p
       data-testid="campaign-sync-state"
       data-sync-state={posture.state}
+      // A status that changes with no live region is invisible to a
+      // screen reader: a sighted player watches the strip flip from "up
+      // to date" to "reconnecting", while a screen-reader user gets
+      // nothing at all. For a banner whose entire job is telling you
+      // whether to trust what you see, silence is the worst answer.
+      role="status"
+      // Polite, never assertive, INCLUDING for `blocked`. Assertive
+      // interrupts whatever the reader is currently speaking, and a sync
+      // posture is never more urgent than the sentence the player is in
+      // the middle of - the blocked case also disables the controls, so
+      // it is discoverable by trying rather than only by hearing.
+      aria-live="polite"
+      // The whole sentence is re-read on change. Without this a reader
+      // may announce only the changed words, which turns "you are up to
+      // date" into a fragment that means nothing on its own.
+      aria-atomic="true"
       className={`mb-3 rounded-lg border px-3 py-2 text-xs ${TONE[posture.state] ?? TONE.behind}`}
     >
       {posture.message}
