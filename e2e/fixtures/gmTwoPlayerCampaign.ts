@@ -12,6 +12,7 @@ const AUTH_PREFIX = 'mekstation.coopCampaign.token.';
 const STORAGE_PREFIX = 'mekstation.gm-two-player.fixture.';
 const ROLES = ['future-gm', 'future-player-1', 'future-player-2'] as const;
 const guards = require('../../scripts/qc/gm-two-player-campaign-core.cjs');
+import { openSqliteEvidenceReader } from './sqliteEvidenceReader';
 type Identity = { id: string; playerId: string; authFingerprint: string };
 type Client = {
   ownerRunId: string;
@@ -160,6 +161,18 @@ export async function createGmTwoPlayerCampaignFixture({
         app: database('mekstation.db'),
         multiplayer: database('multiplayer-matches.db'),
       },
+      /**
+       * Opens one of this run's databases for read-only proof (task
+       * 20.3). Routed through the fixture so evidence reads cannot
+       * quietly reach for the production store, and so the path is the
+       * run-owned one `assertRunOwnedPath` already validated.
+       */
+      openEvidence: (which: 'app' | 'multiplayer') =>
+        openSqliteEvidenceReader(
+          which === 'app'
+            ? database('mekstation.db').path
+            : database('multiplayer-matches.db').path,
+        ),
       clients,
       cleanup,
     };
