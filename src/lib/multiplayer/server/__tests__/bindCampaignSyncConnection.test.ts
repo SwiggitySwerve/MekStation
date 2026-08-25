@@ -176,6 +176,84 @@ describe('bindCampaignSyncConnection', () => {
     );
   });
 
+  it('does not fan out to a socket whose join was rejected', async () => {
+    // `addSocketToMatch` runs as the FIRST statement of the join
+    // handler, before the room code is checked. A guest who presents the
+    // wrong code is told UNKNOWN_MATCH and the handler returns - but the
+    // socket is already in the broadcast set and nothing removes it, so
+    // it keeps receiving every campaign event for a campaign it was
+    // refused entry to. Umbrella 6.1: authenticated durable membership
+    // must precede registration as a fan-out recipient.
+    const rejected = new MockWireSocket();
+    const host = new MockWireSocket();
+    const registry = await makeRegistry();
+
+    await bindCampaignSyncConnection({
+      socket: rejected,
+      registry,
+      matchId: 'match-campaign',
+      verifiedPlayerId: 'pid_intruder',
+      logger: quietLogger,
+      replicaStore: null,
+    });
+    rejected.inbound({
+      kind: 'CampaignJoin',
+      matchId: 'match-campaign',
+      ts: nowIso(),
+      playerId: 'pid_intruder',
+      role: 'guest',
+      roomCode: 'ZZZ999',
+    });
+    await flushAsyncHandlers();
+
+    // The refusal itself is correct and stays correct.
+    expect(rejected.sent).toContainEqual(
+      expect.objectContaining({ kind: 'Error', code: 'UNKNOWN_MATCH' }),
+    );
+    const afterRefusal = rejected.sent.length;
+
+    // Now drive a real broadcast on that campaign.
+    await bindCampaignSyncConnection({
+      socket: host,
+      registry,
+      matchId: 'match-campaign',
+      verifiedPlayerId: 'pid_host',
+      logger: quietLogger,
+      replicaStore: null,
+    });
+    host.inbound({
+      kind: 'CampaignJoin',
+      matchId: 'match-campaign',
+      ts: nowIso(),
+      playerId: 'pid_host',
+      role: 'host',
+      roomCode: 'ABC234',
+    });
+    await flushAsyncHandlers();
+    host.inbound({
+      kind: 'CampaignProposal',
+      matchId: 'match-campaign',
+      ts: nowIso(),
+      playerId: 'pid_host',
+      proposal: {
+        proposalId: 'proposal-leak',
+        campaignId: 'campaign-sync',
+        proposingPlayerId: 'pid_host',
+        ts: nowIso(),
+        intent: {
+          kind: 'SpendFunds',
+          campaignId: 'campaign-sync',
+          intentId: 'intent-leak',
+          payload: { amount: 1_000, reason: 'Ammo' },
+        },
+      },
+    });
+    await flushAsyncHandlers();
+
+    // The refused socket must have received NOTHING further.
+    expect(rejected.sent.slice(afterRefusal)).toEqual([]);
+  });
+
   it('routes a guest proposal through the server arbiter and broadcasts committed events', async () => {
     const socket = new MockWireSocket();
     const registry = await makeRegistry();
