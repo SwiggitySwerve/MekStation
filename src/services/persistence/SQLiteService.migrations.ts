@@ -20,6 +20,7 @@ import { EVENT_JOURNAL_MIGRATION } from './SQLiteService.eventJournal.migration'
 import { CAMPAIGN_PARTICIPANT_CURSORS_MIGRATION } from './SQLiteService.participantCursors.migration';
 import { PRIVATE_RECORDS_MIGRATION } from './SQLiteService.privateRecords.migration';
 import { REPLAY_CHECKPOINTS_MIGRATION } from './SQLiteService.replayCheckpoints.migration';
+import { CAMPAIGN_SESSION_PARTICIPANTS_MIGRATION } from './SQLiteService.sessionParticipants.migration';
 
 /**
  * Migration definition. `up` is either a raw SQL script or a function —
@@ -379,4 +380,5 @@ export const MIGRATIONS: readonly IMigration[] = [
   CAMPAIGN_GRANTS_MIGRATION,
   CAMPAIGN_HOST_INSTANCE_MIGRATION,
   CAMPAIGN_PARTICIPANT_CURSORS_MIGRATION,
+  CAMPAIGN_SESSION_PARTICIPANTS_MIGRATION,
 ];
