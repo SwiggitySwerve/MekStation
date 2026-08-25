@@ -47,6 +47,12 @@ import type { IGameEvent } from '@/types/gameplay/GameSessionInterfaces';
 import { normalizeRoomCode } from '@/lib/p2p/roomCodes';
 import { isSqliteUniqueConstraintError } from '@/services/persistence/sqliteConstraintErrors';
 
+import type {
+  IMatchCommandBatch,
+  IMatchCommandReceipt,
+  MatchBatchAppendResult,
+} from './matchCommandBatch';
+
 import {
   MatchNotFoundError,
   MatchStoreSequenceCollisionError,
@@ -54,6 +60,10 @@ import {
   type IMatchMetaPatch,
   type IMatchStore,
 } from './IMatchStore';
+import {
+  firstNonContiguousSequence,
+  matchCommandFingerprint,
+} from './matchCommandBatch';
 
 // =============================================================================
 // Constants
@@ -99,6 +109,20 @@ const SCHEMA_SQL = `
     FOREIGN KEY (match_id) REFERENCES mp_matches(match_id) ON DELETE CASCADE
   );
 
+  CREATE TABLE IF NOT EXISTS mp_command_receipts (
+    match_id       TEXT NOT NULL,
+    command_id     TEXT NOT NULL,
+    actor_id       TEXT NOT NULL,
+    first_revision INTEGER NOT NULL,
+    last_revision  INTEGER NOT NULL,
+    event_count    INTEGER NOT NULL,
+    fingerprint    TEXT NOT NULL,
+    post_digest    TEXT,
+    committed_at   TEXT NOT NULL,
+    PRIMARY KEY (match_id, command_id),
+    FOREIGN KEY (match_id) REFERENCES mp_matches(match_id) ON DELETE CASCADE
+  );
+
   CREATE INDEX IF NOT EXISTS idx_mp_matches_status ON mp_matches(status);
   CREATE INDEX IF NOT EXISTS idx_mp_matches_room_code ON mp_matches(room_code);
   CREATE INDEX IF NOT EXISTS idx_mp_match_events_match ON mp_match_events(match_id, sequence);
@@ -107,6 +131,33 @@ const SCHEMA_SQL = `
 // =============================================================================
 // Row shapes
 // =============================================================================
+
+interface ICommandReceiptRow {
+  readonly match_id: string;
+  readonly command_id: string;
+  readonly actor_id: string;
+  readonly first_revision: number;
+  readonly last_revision: number;
+  readonly event_count: number;
+  readonly fingerprint: string;
+  readonly post_digest: string | null;
+  readonly committed_at: string;
+}
+
+/** Row -> receipt. Kept next to the row shape so they change together. */
+function receiptFrom(row: ICommandReceiptRow): IMatchCommandReceipt {
+  return {
+    commandId: row.command_id,
+    actorId: row.actor_id,
+    matchId: row.match_id,
+    firstRevision: row.first_revision,
+    lastRevision: row.last_revision,
+    eventCount: row.event_count,
+    fingerprint: row.fingerprint,
+    expectedPostStateDigest: row.post_digest,
+    committedAt: row.committed_at,
+  };
+}
 
 interface IMatchRow {
   readonly match_id: string;
@@ -190,6 +241,123 @@ export class DurableMatchStore implements IMatchStore {
         JSON.stringify(meta),
       );
     return meta.matchId;
+  };
+
+  /**
+   * Append one command's events atomically (PR 1, tasks 1.1-1.2).
+   *
+   * Everything happens inside ONE SQLite transaction: the identity
+   * lookup, the revision check, every event INSERT, the receipt, and the
+   * `updated_at` bump. That is what gives the command a boundary - a
+   * failure anywhere rolls the whole thing back, so no reader ever sees
+   * a command that half happened.
+   *
+   * Order inside the transaction is deliberate. Identity is checked
+   * FIRST, because a retry that arrives after someone else moved the
+   * stream is still a retry, and reporting it as a revision conflict
+   * would send the caller off to rebuild state it already has.
+   */
+  appendCommandBatch = async (
+    matchId: string,
+    batch: IMatchCommandBatch,
+  ): Promise<MatchBatchAppendResult> => {
+    const match = this.getMatchRow(matchId);
+    if (!match) throw new MatchNotFoundError(matchId);
+    if (batch.events.length === 0) {
+      // An empty batch would commit a receipt for a command that did
+      // nothing, and a later retry would then "succeed" having still
+      // done nothing.
+      return { kind: 'empty-batch' };
+    }
+    const offending = firstNonContiguousSequence(batch);
+    if (offending !== null) {
+      return {
+        kind: 'non-contiguous',
+        expectedRevision: batch.expectedRevision,
+        offendingSequence: offending,
+      };
+    }
+
+    const fingerprint = matchCommandFingerprint(batch);
+    const committedAt = new Date().toISOString();
+
+    const tx = this.db.transaction((): MatchBatchAppendResult => {
+      const prior = this.db
+        .prepare(
+          `SELECT * FROM mp_command_receipts
+           WHERE match_id = ? AND command_id = ?`,
+        )
+        .get(matchId, batch.commandId) as ICommandReceiptRow | undefined;
+      if (prior) {
+        // Same id, same work: the caller never saw the acknowledgement.
+        // Same id, different work: refuse rather than overwrite.
+        return prior.fingerprint === fingerprint
+          ? { kind: 'duplicate-command', receipt: receiptFrom(prior) }
+          : { kind: 'integrity-conflict', commandId: batch.commandId };
+      }
+
+      const head = this.db
+        .prepare(
+          `SELECT COALESCE(MAX(sequence) + 1, 0) AS next
+           FROM mp_match_events WHERE match_id = ?`,
+        )
+        .get(matchId) as { next: number };
+      if (head.next !== batch.expectedRevision) {
+        return {
+          kind: 'revision-conflict',
+          expectedRevision: batch.expectedRevision,
+          actualRevision: head.next,
+        };
+      }
+
+      const insertEvent = this.db.prepare(
+        `INSERT INTO mp_match_events (match_id, sequence, event_json)
+         VALUES (?, ?, ?)`,
+      );
+      for (const event of batch.events) {
+        insertEvent.run(matchId, event.sequence, JSON.stringify(event));
+      }
+      const first = batch.events[0].sequence;
+      const last = batch.events[batch.events.length - 1].sequence;
+      this.db
+        .prepare(
+          `INSERT INTO mp_command_receipts
+             (match_id, command_id, actor_id, first_revision, last_revision,
+              event_count, fingerprint, post_digest, committed_at)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        )
+        .run(
+          matchId,
+          batch.commandId,
+          batch.actorId,
+          first,
+          last,
+          batch.events.length,
+          fingerprint,
+          batch.expectedPostStateDigest ?? null,
+          committedAt,
+        );
+      this.db
+        .prepare(`UPDATE mp_matches SET updated_at = ? WHERE match_id = ?`)
+        .run(committedAt, matchId);
+
+      return {
+        kind: 'committed',
+        receipt: {
+          commandId: batch.commandId,
+          actorId: batch.actorId,
+          matchId,
+          firstRevision: first,
+          lastRevision: last,
+          eventCount: batch.events.length,
+          fingerprint,
+          expectedPostStateDigest: batch.expectedPostStateDigest ?? null,
+          committedAt,
+        },
+      };
+    });
+
+    return tx();
   };
 
   appendEvent = async (matchId: string, event: IGameEvent): Promise<void> => {
