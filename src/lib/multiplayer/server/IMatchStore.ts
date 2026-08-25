@@ -25,6 +25,11 @@ import type { IGameEvent } from '@/types/gameplay/GameSessionInterfaces';
 import type { IHexCoordinate } from '@/types/gameplay/HexGridInterfaces';
 import type { IMatchSeat, TeamLayout } from '@/types/multiplayer/Lobby';
 
+import type {
+  IMatchCommandBatch,
+  MatchBatchAppendResult,
+} from './matchCommandBatch';
+
 // =============================================================================
 // Match metadata
 // =============================================================================
@@ -249,6 +254,26 @@ export interface IMatchStore {
   listMatches(filter?: {
     readonly status?: MatchStatus;
   }): Promise<readonly IMatchMeta[]>;
+
+  /**
+   * Append one command's events as a single atomic, contiguous batch
+   * (adopt-combat-event-journal-authority PR 1).
+   *
+   * OPTIONAL on the interface so a store can be adapted without every
+   * implementation moving at once - the capability is a structural flag
+   * a caller tests for, exactly as the campaign event store does. A
+   * store WITHOUT it is not broken, it simply has no command boundary
+   * yet and callers keep using `appendEvent`.
+   *
+   * Never throws for an expected outcome: a revision conflict, a
+   * recognised retry, a reused identity, and a gapped batch are all
+   * typed results, because a caller that cannot tell them apart will
+   * retry the ones that can never succeed.
+   */
+  appendCommandBatch?(
+    matchId: string,
+    batch: IMatchCommandBatch,
+  ): Promise<MatchBatchAppendResult>;
 }
 
 // =============================================================================
