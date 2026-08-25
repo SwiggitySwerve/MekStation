@@ -76,6 +76,31 @@ function resolveListenerHostname() {
   }
   return isStandaloneRuntime ? '127.0.0.1' : (raw ?? 'localhost');
 }
+/**
+ * Refuse to boot a non-test process that carries fault configuration
+ * (umbrella task 20.2).
+ *
+ * server.js is plain CommonJS and cannot import the TS module, so this
+ * mirrors `assertNoFaultControlsConfigured` in
+ * `src/lib/testing/faultControls.ts` — that module is the source of
+ * truth and its unit tests own the semantics. The mirror can drift,
+ * which is why a sibling test spawns THIS file rather than trusting it.
+ *
+ * Exiting rather than ignoring is the point. A process that boots and
+ * merely declines to honour fault config is one refactor away from
+ * honouring it; a process that refuses to start cannot rot that way.
+ */
+function assertNoFaultControlsConfigured() {
+  const configured = process.env.MEKSTATION_FAULT_CONTROLS;
+  if (configured === undefined || configured.trim() === '') return;
+  if (process.env.NODE_ENV === 'test') return;
+  console.error(
+    `[mp-boot] FAULT_CONTROLS_IN_PRODUCTION MEKSTATION_FAULT_CONTROLS=${configured}`,
+  );
+  process.exit(1);
+}
+assertNoFaultControlsConfigured();
+
 const hostname = resolveListenerHostname();
 const next = require('next');
 const { WebSocketServer } = require('ws');
