@@ -68,6 +68,20 @@ test('creates three isolated future-role contexts @fixture-smoke', async ({
       });
       expect(storage.auth.wireTokenLength).toBeGreaterThan(0);
     }
+    // Task 20.3: the run's own databases are readable through a
+    // dedicated read-only connection, never the production store. A
+    // schema surface with tables in it is the proof the reader is
+    // pointed at the real file rather than one it created.
+    const evidence = fixture.openEvidence('app');
+    try {
+      const before = evidence.fileHash();
+      expect(evidence.tables().length).toBeGreaterThan(0);
+      // Reading changed nothing, which is what makes the artifact
+      // describe the run rather than the probe.
+      expect(evidence.fileHash()).toBe(before);
+    } finally {
+      evidence.close();
+    }
   } finally {
     await fixture.cleanup();
   }
