@@ -38,13 +38,34 @@ export async function createGmTwoPlayerCampaignFixture({
   const clients: Client[] = [];
   const identityIds: string[] = [];
   let cleanedUp = false;
+  // Seeding an identity calls setActive, which deactivates EVERY other
+  // identity on the machine. Capture what was active BEFORE the first
+  // seed so teardown can put it back - otherwise a developer who runs
+  // this suite is left with no active vault identity and their own
+  // session silently stops working (task 20.5, "preserve user
+  // artifacts").
+  const priorActive = await request.get('/api/e2e/vault-identity', {
+    headers: { [RUN_ID_HEADER]: runId },
+  });
+  expect(priorActive.status(), await priorActive.text()).toBe(200);
+  const priorActiveId = (
+    (await priorActive.json()) as { activeId: string | null }
+  ).activeId;
+
   const cleanup = async () => {
     if (cleanedUp) return;
     cleanedUp = true;
     for (const client of clients) await client.context.close();
     const response = await request.delete('/api/e2e/vault-identity', {
       headers: { [RUN_ID_HEADER]: runId },
-      data: { ids: identityIds, runId },
+      data: {
+        ids: identityIds,
+        runId,
+        // Null when the machine had no active identity to begin with:
+        // restoring "nothing" is the correct end state there, and the
+        // route only reactivates when an id is actually named.
+        ...(priorActiveId === null ? {} : { restoreActiveId: priorActiveId }),
+      },
     });
     expect(response.status(), await response.text()).toBe(200);
   };

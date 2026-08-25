@@ -25,6 +25,13 @@ interface ISeedIdentityResponse {
 interface IDeleteIdentityResponse {
   readonly success: true;
   readonly deleted: number;
+  /** Whether a `restoreActiveId` was found and reactivated. */
+  readonly restored?: boolean;
+}
+
+interface IActiveIdentityResponse {
+  readonly success: true;
+  readonly activeId: string | null;
 }
 
 interface IErrorResponse {
@@ -34,6 +41,7 @@ interface IErrorResponse {
 type ResponseBody =
   | ISeedIdentityResponse
   | IDeleteIdentityResponse
+  | IActiveIdentityResponse
   | IErrorResponse;
 
 interface ISeedIdentityBody {
@@ -45,6 +53,16 @@ interface ISeedIdentityBody {
 interface IDeleteIdentityBody {
   readonly ids?: unknown;
   readonly runId?: unknown;
+  /**
+   * Identity to make active again after the deletes (task 20.5).
+   *
+   * Seeding an identity calls `setActive`, which deactivates EVERY other
+   * identity - so a harness that seeds and then deletes its own leaves
+   * the machine with no active identity at all, silently logging out
+   * whoever was using it. The caller reads the prior active id before
+   * seeding and hands it back here so cleanup restores what it found.
+   */
+  readonly restoreActiveId?: unknown;
 }
 
 const RUN_ID_HEADER = 'x-playwright-e2e-run-id';
@@ -68,7 +86,12 @@ export default async function handler(
     return;
   }
 
-  rejectUnexpectedMethod(req, res, ['POST', 'DELETE']);
+  if (req.method === 'GET') {
+    await handleGetActive(req, res);
+    return;
+  }
+
+  rejectUnexpectedMethod(req, res, ['GET', 'POST', 'DELETE']);
 }
 
 function isAuthorizedE2ERequest(req: NextApiRequest): boolean {
@@ -129,6 +152,21 @@ async function handlePost(
   });
 }
 
+/**
+ * Reports which identity is active, so a harness can put it back.
+ *
+ * Read-only and id-only: the caller needs to RESTORE the prior active
+ * identity, not to learn anything about it.
+ */
+async function handleGetActive(
+  _req: NextApiRequest,
+  res: NextApiResponse<ResponseBody>,
+): Promise<void> {
+  const repository = getIdentityRepository();
+  const active = await repository.getActive();
+  res.status(200).json({ success: true, activeId: active?.id ?? null });
+}
+
 async function handleDelete(
   req: NextApiRequest,
   res: NextApiResponse<ResponseBody>,
@@ -145,5 +183,31 @@ async function handleDelete(
     deleted += 1;
   }
 
-  res.status(200).json({ success: true, deleted });
+  // Restore AFTER the deletes: reactivating first would just be undone
+  // by nothing, but doing it last means the final state is the one the
+  // caller asked for even if it named an id it also deleted.
+  const restoreActiveId =
+    typeof body.restoreActiveId === 'string' ? body.restoreActiveId : null;
+  if (restoreActiveId === null) {
+    // Response shape stays exactly as it was for callers that did not
+    // ask for a restore - adding a field they never requested would
+    // change their contract for no benefit.
+    res.status(200).json({ success: true, deleted });
+    return;
+  }
+
+  let restored = false;
+  {
+    // A restore target that no longer exists is reported, not thrown:
+    // the harness cannot know whether the identity it saw at start was
+    // removed by something else meanwhile, and failing teardown over it
+    // would turn a tidy-up into a test failure.
+    const existing = await repository.getById(restoreActiveId);
+    if (existing) {
+      await repository.setActive(restoreActiveId);
+      restored = true;
+    }
+  }
+
+  res.status(200).json({ success: true, deleted, restored });
 }
