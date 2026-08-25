@@ -7,6 +7,8 @@ const mockRepository = {
   save: jest.fn(),
   setActive: jest.fn(),
   delete: jest.fn(),
+  getActive: jest.fn(),
+  getById: jest.fn(),
 };
 
 jest.mock('@/services/vault/IdentityRepository', () => ({
@@ -152,5 +154,74 @@ describe('/api/e2e/vault-identity', () => {
     expect(mockRepository.delete).toHaveBeenCalledWith('identity-host');
     expect(mockRepository.delete).toHaveBeenCalledWith('identity-guest');
     expect(result.body).toEqual({ success: true, deleted: 2 });
+  });
+
+  it('reports which identity is active so a harness can put it back', async () => {
+    process.env.NEXT_PUBLIC_E2E_MODE = 'true';
+    process.env.PLAYWRIGHT_E2E_RUN_ID = 'run-1';
+    // Seeding calls setActive, which deactivates every OTHER identity.
+    // A harness that cannot read the prior active id cannot restore it,
+    // and leaves the machine with no active identity at all.
+    mockRepository.getActive.mockResolvedValue({ id: 'identity-prior' });
+    const { req, res, result } = mockReqRes({ method: 'GET', runId: 'run-1' });
+
+    await handler(req, res);
+
+    expect(result.statusCode).toBe(200);
+    expect(result.body).toEqual({ success: true, activeId: 'identity-prior' });
+  });
+
+  it('reports a null active identity rather than inventing one', async () => {
+    process.env.NEXT_PUBLIC_E2E_MODE = 'true';
+    process.env.PLAYWRIGHT_E2E_RUN_ID = 'run-1';
+    mockRepository.getActive.mockResolvedValue(null);
+    const { req, res, result } = mockReqRes({ method: 'GET', runId: 'run-1' });
+
+    await handler(req, res);
+
+    expect(result.body).toEqual({ success: true, activeId: null });
+  });
+
+  it('reactivates the prior identity after the deletes', async () => {
+    process.env.NEXT_PUBLIC_E2E_MODE = 'true';
+    process.env.PLAYWRIGHT_E2E_RUN_ID = 'run-1';
+    mockRepository.getById.mockResolvedValue({ id: 'identity-prior' });
+    const { req, res, result } = mockReqRes({
+      method: 'DELETE',
+      runId: 'run-1',
+      body: {
+        ids: ['identity-host'],
+        runId: 'run-1',
+        restoreActiveId: 'identity-prior',
+      },
+    });
+
+    await handler(req, res);
+
+    expect(mockRepository.setActive).toHaveBeenCalledWith('identity-prior');
+    expect(result.body).toEqual({ success: true, deleted: 1, restored: true });
+  });
+
+  it('reports an unrestorable target instead of failing teardown', async () => {
+    process.env.NEXT_PUBLIC_E2E_MODE = 'true';
+    process.env.PLAYWRIGHT_E2E_RUN_ID = 'run-1';
+    // The harness cannot know whether something else removed that
+    // identity meanwhile; throwing here would turn a tidy-up into a
+    // test failure.
+    mockRepository.getById.mockResolvedValue(null);
+    const { req, res, result } = mockReqRes({
+      method: 'DELETE',
+      runId: 'run-1',
+      body: {
+        ids: ['identity-host'],
+        runId: 'run-1',
+        restoreActiveId: 'identity-gone',
+      },
+    });
+
+    await handler(req, res);
+
+    expect(mockRepository.setActive).not.toHaveBeenCalled();
+    expect(result.body).toEqual({ success: true, deleted: 1, restored: false });
   });
 });
