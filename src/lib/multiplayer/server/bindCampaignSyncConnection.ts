@@ -478,7 +478,12 @@ async function handleCampaignJoin({
   replicaStore?: SQLiteCampaignReplicaStore | null;
   roomCodeGrantIssuer?: ICampaignGrantSigner;
 }): Promise<void> {
-  addSocketToMatch(matchId, socket);
+  // Registration happens on each ACCEPTED path below, never here.
+  // Doing it up front put the socket in the broadcast set before the
+  // room code was checked, so a guest refused with UNKNOWN_MATCH stayed
+  // a fan-out recipient and kept receiving the campaign's events - a
+  // refusal that refused nothing. Umbrella 6.1: authenticated membership
+  // precedes socket attachment.
   const role: 'host' | 'guest' =
     verifiedPlayerId === entry.hostPlayerId ? 'host' : 'guest';
   const acknowledge = (): void => {
@@ -490,6 +495,9 @@ async function handleCampaignJoin({
   };
 
   if (role === 'host') {
+    // Admitted by identity: `role` is host precisely because the
+    // verified player id matches the registry's host.
+    addSocketToMatch(matchId, socket);
     const eventUnsubscribe = entry.host.subscribe((event) => {
       sendCampaignEvent(socket, matchId, event);
     });
@@ -544,6 +552,7 @@ async function handleCampaignJoin({
     return;
   }
   if (guestOutcome === 'served') {
+    addSocketToMatch(matchId, socket);
     acknowledge();
     return;
   }
@@ -558,6 +567,7 @@ async function handleCampaignJoin({
     send(socket, errorFrame(matchId, 'UNKNOWN_MATCH', 'unknown-room-code'));
     return;
   }
+  addSocketToMatch(matchId, socket);
   cleanupFns.add(join.disconnect);
   acknowledge();
 }
