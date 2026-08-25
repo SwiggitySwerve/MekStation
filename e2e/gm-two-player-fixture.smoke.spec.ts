@@ -82,6 +82,26 @@ test('creates three isolated future-role contexts @fixture-smoke', async ({
     } finally {
       evidence.close();
     }
+    // Task 20.4: the run writes a declared, role-labeled bundle under
+    // its own directory, and the manifest records what it MEANT to
+    // capture so a missing artifact is a gap rather than a silence.
+    const bundle = fixture.openEvidenceBundle();
+    for (const client of fixture.clients) {
+      bundle.write(
+        'environment',
+        client.role,
+        'context.json',
+        JSON.stringify({
+          role: client.role,
+          playerId: client.identity.playerId,
+        }),
+      );
+    }
+    const manifestPath = bundle.finalize({
+      node: process.version,
+      runId: fixture.runId,
+    });
+    expect(manifestPath).toContain(fixture.runId);
   } finally {
     await fixture.cleanup();
   }

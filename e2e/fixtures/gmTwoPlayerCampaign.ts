@@ -12,6 +12,7 @@ const AUTH_PREFIX = 'mekstation.coopCampaign.token.';
 const STORAGE_PREFIX = 'mekstation.gm-two-player.fixture.';
 const ROLES = ['future-gm', 'future-player-1', 'future-player-2'] as const;
 const guards = require('../../scripts/qc/gm-two-player-campaign-core.cjs');
+import { openEvidenceBundle } from './gmTwoPlayerEvidence';
 import { openSqliteEvidenceReader } from './sqliteEvidenceReader';
 type Identity = { id: string; playerId: string; authFingerprint: string };
 type Client = {
@@ -173,6 +174,13 @@ export async function createGmTwoPlayerCampaignFixture({
             ? database('mekstation.db').path
             : database('multiplayer-matches.db').path,
         ),
+      /**
+       * Opens this run's evidence bundle (task 20.4). Handed out by the
+       * fixture so every artifact lands under the run-owned directory
+       * and passes the secret scan, rather than each spec inventing its
+       * own place to write.
+       */
+      openEvidenceBundle: () => openEvidenceBundle(runId),
       clients,
       cleanup,
     };
