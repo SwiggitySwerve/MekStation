@@ -109,7 +109,8 @@ export interface ICoopEncounterComposition {
 export type CoopCompositionRejection =
   | 'no-deploying-player'
   | 'no-contributions'
-  | 'duplicate-player';
+  | 'duplicate-player'
+  | 'duplicate-unit';
 
 /**
  * The result of composing a co-op encounter — either the composition or
@@ -182,9 +183,28 @@ export function composeCoopEncounter(
 
   // Collect every deploying player's force units onto the shared side,
   // each tagged with its owner for `ServerMatchHost` ownership checks.
+  //
+  // A unit may appear ONCE. A co-op campaign has one shared roster, so
+  // both players pick from the same units and nothing stopped them
+  // picking the same lance - which produced two seats for one unit id
+  // carrying two DIFFERENT owners: the same mech on the map twice, and
+  // an ownership question with two answers.
+  //
+  // Checked across DEPLOYING contributions only. A command-HQ player
+  // puts nothing on the map, so their force overlapping a deployer's is
+  // not a double-deployment and must not block the launch.
+  //
+  // Refused rather than de-duplicated: silently dropping the second
+  // copy would quietly discard part of somebody's contribution, and the
+  // launch surface branches on a typed cause it can explain.
   const coopSeats: ICoopUnitSeat[] = [];
+  const seenUnits = new Set<string>();
   for (const contribution of deploying) {
     for (const unitId of contribution.force.unitIds) {
+      if (seenUnits.has(unitId)) {
+        return { ok: false, reason: 'duplicate-unit' };
+      }
+      seenUnits.add(unitId);
       coopSeats.push({
         unitId,
         ownerPlayerId: contribution.playerId,

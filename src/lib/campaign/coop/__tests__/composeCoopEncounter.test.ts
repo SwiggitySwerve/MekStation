@@ -52,6 +52,97 @@ const BASE_ENCOUNTER: IEncounter = {
   },
 };
 
+describe('composeCoopEncounter - the same unit twice', () => {
+  it('refuses a launch where two players contribute the same unit', () => {
+    // A co-op campaign has ONE shared roster, so both players pick from
+    // the same units. Nothing stopped them picking the same lance, and
+    // the composition then produced two seats for one unit id with two
+    // DIFFERENT owners - a unit on the map twice, and an ownership
+    // question with two answers.
+    const result = composeCoopEncounter(BASE_ENCOUNTER, [
+      {
+        playerId: 'host',
+        role: 'host',
+        force: makeForce('force-a', ['mech-1', 'mech-2']),
+        participation: 'deploy',
+      },
+      {
+        playerId: 'guest',
+        role: 'guest',
+        force: makeForce('force-b', ['mech-2', 'mech-3']),
+        participation: 'deploy',
+      },
+    ]);
+
+    expect(result.ok).toBe(false);
+    expect(result.ok === false && result.reason).toBe('duplicate-unit');
+  });
+
+  it('refuses it even when both name the identical force', () => {
+    // The blunt version of the same mistake.
+    const result = composeCoopEncounter(BASE_ENCOUNTER, [
+      {
+        playerId: 'host',
+        role: 'host',
+        force: makeForce('force-a', ['mech-1']),
+        participation: 'deploy',
+      },
+      {
+        playerId: 'guest',
+        role: 'guest',
+        force: makeForce('force-a', ['mech-1']),
+        participation: 'deploy',
+      },
+    ]);
+
+    expect(result.ok === false && result.reason).toBe('duplicate-unit');
+  });
+
+  it('ignores a repeat carried by a NON-deploying contribution', () => {
+    // A command-HQ player contributes no units to the map, so their
+    // force overlapping the deployer's is not a double-deployment and
+    // must not block the launch.
+    const result = composeCoopEncounter(BASE_ENCOUNTER, [
+      {
+        playerId: 'host',
+        role: 'host',
+        force: makeForce('force-a', ['mech-1', 'mech-2']),
+        participation: 'deploy',
+      },
+      {
+        playerId: 'guest',
+        role: 'guest',
+        force: makeForce('force-a', ['mech-1', 'mech-2']),
+        participation: 'command-hq',
+      },
+    ]);
+
+    expect(result.ok).toBe(true);
+  });
+
+  it('still allows one player to deploy a unit once', () => {
+    // The control. A duplicate check that rejected everything would
+    // pass the two rows above and break every real launch.
+    const result = composeCoopEncounter(BASE_ENCOUNTER, [
+      {
+        playerId: 'host',
+        role: 'host',
+        force: makeForce('force-a', ['mech-1', 'mech-2']),
+        participation: 'deploy',
+      },
+      {
+        playerId: 'guest',
+        role: 'guest',
+        force: makeForce('force-b', ['mech-3']),
+        participation: 'deploy',
+      },
+    ]);
+
+    expect(result.ok).toBe(true);
+    expect(result.ok === true && result.composition.coopSeats).toHaveLength(3);
+  });
+});
+
 describe('composeCoopEncounter — both forces deploying', () => {
   it('puts both players units on the shared side', () => {
     const result = composeCoopEncounter(BASE_ENCOUNTER, [
