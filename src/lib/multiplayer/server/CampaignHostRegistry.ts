@@ -205,6 +205,7 @@ export class CampaignHostRegistry {
   register = async (
     matchId: string,
     snapshot: ICampaignHostRegistrationSnapshot,
+    options: { readonly rebuilt?: boolean } = {},
   ): Promise<ICampaignHostRegistryEntry> => {
     const parsed = parseCampaignCoopSnapshot({
       campaignId: snapshot.campaignId,
@@ -264,6 +265,14 @@ export class CampaignHostRegistry {
       arbiter,
       unregisterActiveHost,
     });
+    // A REBUILT session starts paused: it has no GM connection, so the
+    // GM is absent, so the campaign is paused until they return. This
+    // is what carries the GM-loss pause across a process restart, and
+    // it needs no stored flag - a flag could disagree with reality,
+    // whereas this states the reality.
+    if (options.rebuilt === true) {
+      syncSession.pauseUntilGmReturns();
+    }
     this.entries.set(matchId, entry);
     return entry;
   };
@@ -298,13 +307,19 @@ export class CampaignHostRegistry {
     // unreachable the moment its invite expired - the members inside it
     // could not cold-recover after a restart. `null` rehydrates with
     // the invite already expired rather than minting a new one.
-    return this.register(matchId, {
-      campaignId: meta.coopCampaign.campaignId,
-      hostPlayerId: meta.hostPlayerId,
-      roomCode: meta.roomCode ?? null,
-      state: meta.coopCampaign.state,
-      arbitrationMode: meta.coopCampaign.arbitrationMode,
-    });
+    return this.register(
+      matchId,
+      {
+        campaignId: meta.coopCampaign.campaignId,
+        hostPlayerId: meta.hostPlayerId,
+        roomCode: meta.roomCode ?? null,
+        state: meta.coopCampaign.state,
+        arbitrationMode: meta.coopCampaign.arbitrationMode,
+      },
+      // Rebuilt, not created: this path runs when the entry was already
+      // gone - a restart, or an eviction - and nobody is connected to it.
+      { rebuilt: true },
+    );
   };
 
   dispose = (matchId: string): void => {
