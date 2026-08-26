@@ -78,6 +78,22 @@ function makeMockSocketFactory(): {
   };
 }
 
+function liveEvent(
+  f: { lastSocket: () => { inject: (m: unknown) => void } },
+  sequence: number,
+): void {
+  f.lastSocket().inject({
+    kind: 'Event',
+    matchId: 'm1',
+    ts: new Date().toISOString(),
+    event: { sequence, type: 'phase_changed' },
+  });
+}
+
+function seqOf(events: readonly unknown[]): number[] {
+  return events.map((e) => (e as { sequence: number }).sequence);
+}
+
 describe('multiplayer client', () => {
   it('keeps the credential out of the socket URL', () => {
     // A query string is the worst place for a bearer token: it lands in
@@ -142,6 +158,122 @@ describe('multiplayer client', () => {
     jest.advanceTimersByTime(HEARTBEAT_TIMEOUT_MS);
 
     expect(f.lastSocket().sentRaw).toHaveLength(0);
+  });
+
+  it('does not apply a live event that leaves a gap', async () => {
+    // The client applied whatever arrived and moved its cursor to the
+    // highest sequence it had seen. A dropped frame therefore did not
+    // just delay an event, it LOST it: the cursor had already advanced
+    // past the missing sequence, so the reconnect replay resumed after
+    // it and nobody ever noticed.
+    const f = makeMockSocketFactory();
+    const applied: unknown[] = [];
+    const client = connect(
+      'ws://localhost/x',
+      'm1',
+      { playerId: 'p1', token: 'tok' },
+      { socketFactory: f.factory, reconnect: false },
+    );
+    client.on('event', (e) => applied.push(e));
+    f.lastSocket().fireOpen();
+    f.lastSocket().inject({
+      kind: 'ReplayStart',
+      matchId: 'm1',
+      ts: new Date().toISOString(),
+      fromSeq: 0,
+      totalEvents: 0,
+    });
+    f.lastSocket().inject({
+      kind: 'ReplayEnd',
+      matchId: 'm1',
+      ts: new Date().toISOString(),
+      toSeq: 0,
+    });
+    applied.length = 0;
+
+    liveEvent(f, 0);
+    liveEvent(f, 1);
+    // 2 never arrives.
+    liveEvent(f, 3);
+
+    expect(seqOf(applied)).toEqual([0, 1]);
+    // The cursor must NOT have jumped the gap - it is what a reconnect
+    // resumes from, and resuming at 3 would skip 2 permanently.
+    expect(client.lastSeq()).toBe(1);
+  });
+
+  it('applies a buffered event once the gap is filled', async () => {
+    // Holding it rather than dropping it: the missing frame usually
+    // arrives moments later, and re-fetching the whole tail for a
+    // momentary reorder would be a heavy answer to a light problem.
+    const f = makeMockSocketFactory();
+    const applied: unknown[] = [];
+    const client = connect(
+      'ws://localhost/x',
+      'm1',
+      { playerId: 'p1', token: 'tok' },
+      { socketFactory: f.factory, reconnect: false },
+    );
+    client.on('event', (e) => applied.push(e));
+    f.lastSocket().fireOpen();
+    f.lastSocket().inject({
+      kind: 'ReplayStart',
+      matchId: 'm1',
+      ts: new Date().toISOString(),
+      fromSeq: 0,
+      totalEvents: 0,
+    });
+    f.lastSocket().inject({
+      kind: 'ReplayEnd',
+      matchId: 'm1',
+      ts: new Date().toISOString(),
+      toSeq: 0,
+    });
+    applied.length = 0;
+
+    liveEvent(f, 0);
+    liveEvent(f, 2);
+    liveEvent(f, 1);
+
+    // In SEQUENCE order, not arrival order.
+    expect(seqOf(applied)).toEqual([0, 1, 2]);
+    expect(client.lastSeq()).toBe(2);
+  });
+
+  it('ignores a live event the client has already applied', async () => {
+    // At-least-once delivery means a duplicate is normal traffic, not
+    // an error. Applying it twice is what a contiguity check is
+    // supposed to prevent.
+    const f = makeMockSocketFactory();
+    const applied: unknown[] = [];
+    const client = connect(
+      'ws://localhost/x',
+      'm1',
+      { playerId: 'p1', token: 'tok' },
+      { socketFactory: f.factory, reconnect: false },
+    );
+    client.on('event', (e) => applied.push(e));
+    f.lastSocket().fireOpen();
+    f.lastSocket().inject({
+      kind: 'ReplayStart',
+      matchId: 'm1',
+      ts: new Date().toISOString(),
+      fromSeq: 0,
+      totalEvents: 0,
+    });
+    f.lastSocket().inject({
+      kind: 'ReplayEnd',
+      matchId: 'm1',
+      ts: new Date().toISOString(),
+      toSeq: 0,
+    });
+    applied.length = 0;
+
+    liveEvent(f, 0);
+    liveEvent(f, 0);
+    liveEvent(f, 1);
+
+    expect(seqOf(applied)).toEqual([0, 1]);
   });
 
   it('sends SessionJoin on open', () => {
