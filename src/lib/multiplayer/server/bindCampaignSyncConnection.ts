@@ -55,6 +55,33 @@ export interface ICampaignHostRegistryLike {
   ): Promise<ICampaignHostRegistryEntry | null>;
 }
 
+/**
+ * The membership facts this module needs, narrowed to three questions.
+ *
+ * Narrow on purpose: the socket layer should be able to ask "is this
+ * person admitted", "have they been revoked", and "record that they
+ * joined" - and should not be able to reach the rest of the store from
+ * inside a connection handler.
+ */
+export interface ICampaignSessionMembershipPort {
+  readonly isActive: (
+    campaignId: string,
+    sessionId: string,
+    participantId: string,
+  ) => boolean;
+  readonly isRevoked: (
+    campaignId: string,
+    sessionId: string,
+    participantId: string,
+  ) => boolean;
+  readonly bind: (input: {
+    readonly campaignId: string;
+    readonly sessionId: string;
+    readonly participantId: string;
+    readonly seat: 'gm' | 'player';
+  }) => void;
+}
+
 export interface IBindCampaignSyncConnectionDeps {
   socket: IWireCampaignSocket;
   matchId: string;
@@ -74,6 +101,16 @@ export interface IBindCampaignSyncConnectionDeps {
    * post-append subscriber set so fan-out cannot precede durable write.
    */
   grantLiveSource?: ICampaignGrantLiveSource;
+  /**
+   * Durable session membership (umbrella 6.1/6.2).
+   *
+   * Present in production; a socket bound WITHOUT it keeps the
+   * pre-6.2 behaviour of deciding admission from the room code alone,
+   * which is what lets this land without rewriting every caller at
+   * once. Absence is the structural flag - there is no silent fallback
+   * hiding inside the store.
+   */
+  membership?: ICampaignSessionMembershipPort | null;
   /**
    * Durable replica for the room-code guest path. Omitted sockets try
    * the process database; explicit null keeps joinGuest (unit tests
@@ -103,6 +140,7 @@ export async function bindCampaignSyncConnection({
   grantLiveSource,
   replicaStore,
   roomCodeGrantIssuer,
+  membership,
 }: IBindCampaignSyncConnectionDeps): Promise<IBoundCampaignSyncConnection | null> {
   const entry = registry.getOrCreate
     ? await registry.getOrCreate(matchId)
@@ -153,6 +191,7 @@ export async function bindCampaignSyncConnection({
       grantLiveSource,
       replicaStore,
       roomCodeGrantIssuer,
+      membership,
     });
   });
   socket.on('close', cleanup);
@@ -175,6 +214,7 @@ interface IHandleInboundDeps {
   grantLiveSource?: ICampaignGrantLiveSource;
   replicaStore?: SQLiteCampaignReplicaStore | null;
   roomCodeGrantIssuer?: ICampaignGrantSigner;
+  membership?: ICampaignSessionMembershipPort | null;
 }
 
 async function handleInbound({
@@ -191,6 +231,7 @@ async function handleInbound({
   grantLiveSource,
   replicaStore,
   roomCodeGrantIssuer,
+  membership,
 }: IHandleInboundDeps): Promise<void> {
   const parsedJson = parseJsonPayload(data);
   if (!parsedJson.ok) {
@@ -267,6 +308,7 @@ async function handleInbound({
       grantLiveSource,
       replicaStore,
       roomCodeGrantIssuer,
+      membership,
     });
   } catch (error) {
     logger.error('[campaign-sync] dispatch failed', error);
@@ -294,6 +336,7 @@ interface IDispatchCampaignEnvelopeDeps {
   grantLiveSource?: ICampaignGrantLiveSource;
   replicaStore?: SQLiteCampaignReplicaStore | null;
   roomCodeGrantIssuer?: ICampaignGrantSigner;
+  membership?: ICampaignSessionMembershipPort | null;
 }
 
 async function dispatchCampaignEnvelope({
@@ -310,6 +353,7 @@ async function dispatchCampaignEnvelope({
   grantLiveSource,
   replicaStore,
   roomCodeGrantIssuer,
+  membership,
 }: IDispatchCampaignEnvelopeDeps): Promise<void> {
   switch (envelope.kind) {
     case 'CampaignJoin':
@@ -325,6 +369,7 @@ async function dispatchCampaignEnvelope({
         grantLiveSource,
         replicaStore,
         roomCodeGrantIssuer,
+        membership,
       });
       return;
     case 'CampaignGrantJoin':
@@ -465,6 +510,7 @@ async function handleCampaignJoin({
   grantLiveSource,
   replicaStore,
   roomCodeGrantIssuer,
+  membership,
 }: {
   envelope: Extract<ICampaignClientMessage, { kind: 'CampaignJoin' }>;
   socket: IWireCampaignSocket;
@@ -477,7 +523,24 @@ async function handleCampaignJoin({
   grantLiveSource?: ICampaignGrantLiveSource;
   replicaStore?: SQLiteCampaignReplicaStore | null;
   roomCodeGrantIssuer?: ICampaignGrantSigner;
+  membership?: ICampaignSessionMembershipPort | null;
 }): Promise<void> {
+  // Durable membership decides first (umbrella 6.1/6.2). Two things
+  // become possible only once it does:
+  //
+  // - A REVOKED participant is refused even holding a valid room code.
+  //   Before this, revocation lasted exactly as long as they stayed
+  //   disconnected, because the code was the whole check.
+  // - A returning member is routed by their membership rather than by
+  //   re-presenting the invite, so an expired or rotated code stops
+  //   locking out people already admitted.
+  if (membership) {
+    if (membership.isRevoked(entry.campaignId, matchId, verifiedPlayerId)) {
+      send(socket, errorFrame(matchId, 'AUTH_REJECTED', 'membership-revoked'));
+      return;
+    }
+  }
+
   // Registration happens on each ACCEPTED path below, never here.
   // Doing it up front put the socket in the broadcast set before the
   // room code was checked, so a guest refused with UNKNOWN_MATCH stayed
@@ -496,7 +559,14 @@ async function handleCampaignJoin({
 
   if (role === 'host') {
     // Admitted by identity: `role` is host precisely because the
-    // verified player id matches the registry's host.
+    // verified player id matches the registry's host. Recorded as the
+    // gm seat so the admission survives this connection.
+    membership?.bind({
+      campaignId: entry.campaignId,
+      sessionId: matchId,
+      participantId: verifiedPlayerId,
+      seat: 'gm',
+    });
     addSocketToMatch(matchId, socket);
     const eventUnsubscribe = entry.host.subscribe((event) => {
       sendCampaignEvent(socket, matchId, event);
@@ -524,6 +594,26 @@ async function handleCampaignJoin({
     cleanupFns.add(pendingUnsubscribe);
     acknowledge();
     return;
+  }
+
+  if (
+    membership?.isActive(entry.campaignId, matchId, verifiedPlayerId) === true
+  ) {
+    const rejoin = await entry.syncSession.joinGuest(
+      entry.roomCode,
+      (event) => {
+        sendCampaignEvent(socket, matchId, event);
+      },
+    );
+    if (rejoin.ok) {
+      addSocketToMatch(matchId, socket);
+      cleanupFns.add(rejoin.disconnect);
+      acknowledge();
+      return;
+    }
+    // Fall through rather than fail: a durable member whose live session
+    // cannot take them right now is not an authorization problem, and
+    // the paths below report the real reason.
   }
 
   const resolvedChannel = resolveGrantChannel(grantChannel);
@@ -567,6 +657,14 @@ async function handleCampaignJoin({
     send(socket, errorFrame(matchId, 'UNKNOWN_MATCH', 'unknown-room-code'));
     return;
   }
+  // The invite worked, so this newcomer becomes a durable member and
+  // will not need the code again.
+  membership?.bind({
+    campaignId: entry.campaignId,
+    sessionId: matchId,
+    participantId: verifiedPlayerId,
+    seat: 'player',
+  });
   addSocketToMatch(matchId, socket);
   cleanupFns.add(join.disconnect);
   acknowledge();

@@ -322,11 +322,17 @@ function loadMultiplayerRuntime() {
   const registryModule = require('./src/lib/multiplayer/server/MatchHostRegistry.ts');
   const socketModule = require('./src/lib/multiplayer/server/bindMultiplayerSocketConnection.ts');
   const campaignSocketModule = require('./src/lib/multiplayer/server/bindCampaignSyncConnection.ts');
+  const membershipModule = require('./src/lib/multiplayer/server/campaignSessionMembershipPort.ts');
   multiplayerRuntime = {
     bootstrapMultiplayerServer: registryModule.bootstrapMultiplayerServer,
     bindMultiplayerSocketConnection:
       socketModule.bindMultiplayerSocketConnection,
     bindCampaignSyncConnection: campaignSocketModule.bindCampaignSyncConnection,
+    // Supplied here rather than defaulted inside the bind function: a
+    // default would reach for SQLite from every test that binds a
+    // socket, and those tests have no database (umbrella 6.2).
+    campaignSessionMembership:
+      membershipModule.createCampaignSessionMembershipPort(),
   };
   return multiplayerRuntime;
 }
@@ -490,6 +496,7 @@ app
               matchId,
               verifiedPlayerId,
               logger: console,
+              membership: runtime.campaignSessionMembership,
             })
           : runtime.bindMultiplayerSocketConnection({
               socket: ws,
