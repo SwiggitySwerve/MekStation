@@ -41,7 +41,13 @@ function makeHost() {
     attachSocket: jest.fn(),
     // The mock mirrors production admission: attach on success and
     // return a viewer-shaped object.
-    admitSocket: jest.fn(async (socket: unknown, playerId: unknown) => {
+    // Return type mirrors production's `IAuthorizedViewer | null`, so a
+    // refusal can be modelled at all - a mock that can only succeed
+    // cannot express the case the binder has to handle.
+    admitSocket: jest.fn<
+      Promise<{ kind: string; principalId: unknown } | null>,
+      [unknown, unknown]
+    >(async (socket: unknown, playerId: unknown) => {
       host.attachSocket(socket, playerId);
       return { kind: 'viewer', principalId: playerId };
     }),
@@ -216,5 +222,61 @@ describe('bindMultiplayerSocketConnection', () => {
 
     expect(host.detachSocket).toHaveBeenCalledWith(socket);
     expect(host.releaseConnection).toHaveBeenCalledWith('conn-host');
+  });
+
+  it('binds nothing when durable membership refuses admission', async () => {
+    // The admission resolver has its own suite proving a non-member is
+    // refused and never attaches. What had no coverage was the BINDER's
+    // half of that contract: that a refusal actually stops the bind,
+    // rather than the socket being wired up anyway and merely lacking a
+    // viewer. Umbrella 6.1 names this binder explicitly.
+    const socket = new MockWireSocket();
+    const host = makeHost();
+    host.admitSocket.mockImplementation(async () => null);
+
+    const bound = await bindMultiplayerSocketConnection({
+      socket,
+      matchId: 'match-1',
+      verifiedPlayerId: 'pid_intruder',
+      registry: makeRegistry(host),
+      logger: quietLogger,
+    });
+
+    expect(bound).toBeNull();
+    // Never attached, so never a fan-out recipient.
+    expect(host.attachSocket).not.toHaveBeenCalled();
+    // And the connection slot is given back rather than leaked to a
+    // socket that was refused.
+    expect(host.releaseConnection).toHaveBeenCalled();
+  });
+
+  it('never dispatches an inbound message after a refused admission', async () => {
+    // The message handler is registered BEFORE admission resolves, and
+    // waits on a promise that only settles on success. A refusal must
+    // therefore leave inbound traffic permanently undelivered rather
+    // than merely unauthorized.
+    const socket = new MockWireSocket();
+    const host = makeHost();
+    host.admitSocket.mockImplementation(async () => null);
+
+    await bindMultiplayerSocketConnection({
+      socket,
+      matchId: 'match-1',
+      verifiedPlayerId: 'pid_intruder',
+      registry: makeRegistry(host),
+      logger: quietLogger,
+    });
+    socket.inbound({
+      kind: 'SessionJoin',
+      matchId: 'match-1',
+      ts: new Date().toISOString(),
+      playerId: 'pid_intruder',
+      token: 'wire-token',
+    });
+    await Promise.resolve();
+    await Promise.resolve();
+
+    expect(host.handleSessionJoin).not.toHaveBeenCalled();
+    expect(host.handleIntent).not.toHaveBeenCalled();
   });
 });
