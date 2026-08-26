@@ -176,6 +176,160 @@ describe('bindCampaignSyncConnection', () => {
     );
   });
 
+  /** In-memory membership port: the store's contract without a database. */
+  function fakeMembership(
+    seed: {
+      active?: readonly string[];
+      revoked?: readonly string[];
+    } = {},
+  ) {
+    const active = new Set(seed.active ?? []);
+    const revoked = new Set(seed.revoked ?? []);
+    const bound: { participantId: string; seat: string }[] = [];
+    return {
+      bound,
+      isActive: (_c: string, _s: string, participantId: string) =>
+        active.has(participantId),
+      isRevoked: (_c: string, _s: string, participantId: string) =>
+        revoked.has(participantId),
+      bind: (input: { participantId: string; seat: 'gm' | 'player' }) => {
+        bound.push({ participantId: input.participantId, seat: input.seat });
+        active.add(input.participantId);
+      },
+    };
+  }
+
+  it('refuses a revoked member even when they present a valid room code', async () => {
+    // The property that did not exist before durable membership:
+    // revocation used to last exactly as long as the member stayed
+    // disconnected, because the room code was the whole check.
+    const socket = new MockWireSocket();
+    const registry = await makeRegistry();
+    const membership = fakeMembership({ revoked: ['pid_guest'] });
+
+    await bindCampaignSyncConnection({
+      socket,
+      registry,
+      matchId: 'match-campaign',
+      verifiedPlayerId: 'pid_guest',
+      logger: quietLogger,
+      replicaStore: null,
+      membership,
+    });
+    socket.inbound({
+      kind: 'CampaignJoin',
+      matchId: 'match-campaign',
+      ts: nowIso(),
+      playerId: 'pid_guest',
+      role: 'guest',
+      roomCode: 'ABC234',
+    });
+    await flushAsyncHandlers();
+
+    expect(socket.sent).toContainEqual(
+      expect.objectContaining({
+        kind: 'Error',
+        code: 'AUTH_REJECTED',
+        reason: 'membership-revoked',
+      }),
+    );
+    expect(socket.sent).not.toContainEqual(
+      expect.objectContaining({ kind: 'CampaignSnapshot' }),
+    );
+  });
+
+  it('admits a returning member whose room code is now wrong', async () => {
+    // Durable routing, not invite routing: a rotated or expired code
+    // must not lock out someone already admitted.
+    const socket = new MockWireSocket();
+    const registry = await makeRegistry();
+    const membership = fakeMembership({ active: ['pid_guest'] });
+
+    await bindCampaignSyncConnection({
+      socket,
+      registry,
+      matchId: 'match-campaign',
+      verifiedPlayerId: 'pid_guest',
+      logger: quietLogger,
+      replicaStore: null,
+      membership,
+    });
+    socket.inbound({
+      kind: 'CampaignJoin',
+      matchId: 'match-campaign',
+      ts: nowIso(),
+      playerId: 'pid_guest',
+      role: 'guest',
+      roomCode: 'ZZZ999',
+    });
+    await flushAsyncHandlers();
+
+    expect(socket.sent).not.toContainEqual(
+      expect.objectContaining({ kind: 'Error', code: 'UNKNOWN_MATCH' }),
+    );
+  });
+
+  it('records a newcomer admitted by room code as a durable member', async () => {
+    // The invite worked once; it should not be needed again.
+    const socket = new MockWireSocket();
+    const registry = await makeRegistry();
+    const membership = fakeMembership();
+
+    await bindCampaignSyncConnection({
+      socket,
+      registry,
+      matchId: 'match-campaign',
+      verifiedPlayerId: 'pid_guest',
+      logger: quietLogger,
+      replicaStore: null,
+      membership,
+    });
+    socket.inbound({
+      kind: 'CampaignJoin',
+      matchId: 'match-campaign',
+      ts: nowIso(),
+      playerId: 'pid_guest',
+      role: 'guest',
+      roomCode: 'ABC234',
+    });
+    await flushAsyncHandlers();
+
+    expect(membership.bound).toContainEqual({
+      participantId: 'pid_guest',
+      seat: 'player',
+    });
+  });
+
+  it('records the host as the gm seat', async () => {
+    const socket = new MockWireSocket();
+    const registry = await makeRegistry();
+    const membership = fakeMembership();
+
+    await bindCampaignSyncConnection({
+      socket,
+      registry,
+      matchId: 'match-campaign',
+      verifiedPlayerId: 'pid_host',
+      logger: quietLogger,
+      replicaStore: null,
+      membership,
+    });
+    socket.inbound({
+      kind: 'CampaignJoin',
+      matchId: 'match-campaign',
+      ts: nowIso(),
+      playerId: 'pid_host',
+      role: 'host',
+      roomCode: 'ABC234',
+    });
+    await flushAsyncHandlers();
+
+    expect(membership.bound).toContainEqual({
+      participantId: 'pid_host',
+      seat: 'gm',
+    });
+  });
+
   it('does not fan out to a socket whose join was rejected', async () => {
     // `addSocketToMatch` runs as the FIRST statement of the join
     // handler, before the room code is checked. A guest who presents the
