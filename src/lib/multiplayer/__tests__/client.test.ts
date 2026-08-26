@@ -81,12 +81,32 @@ function makeMockSocketFactory(): {
 function liveEvent(
   f: { lastSocket: () => { inject: (m: unknown) => void } },
   sequence: number,
+  id = `evt-${sequence}`,
 ): void {
   f.lastSocket().inject({
     kind: 'Event',
     matchId: 'm1',
     ts: new Date().toISOString(),
-    event: { sequence, type: 'phase_changed' },
+    event: { sequence, type: 'phase_changed', id },
+  });
+}
+
+/** Opens and closes an empty replay window so live traffic applies. */
+function finishReplay(f: {
+  lastSocket: () => { inject: (m: unknown) => void };
+}): void {
+  f.lastSocket().inject({
+    kind: 'ReplayStart',
+    matchId: 'm1',
+    ts: new Date().toISOString(),
+    fromSeq: 0,
+    totalEvents: 0,
+  });
+  f.lastSocket().inject({
+    kind: 'ReplayEnd',
+    matchId: 'm1',
+    ts: new Date().toISOString(),
+    toSeq: 0,
   });
 }
 
@@ -160,12 +180,13 @@ describe('multiplayer client', () => {
     expect(f.lastSocket().sentRaw).toHaveLength(0);
   });
 
-  it('does not apply a live event that leaves a gap', async () => {
-    // The client applied whatever arrived and moved its cursor to the
-    // highest sequence it had seen. A dropped frame therefore did not
-    // just delay an event, it LOST it: the cursor had already advanced
-    // past the missing sequence, so the reconnect replay resumed after
-    // it and nobody ever noticed.
+  it('applies an event that skips a sequence, because sparse is normal', () => {
+    // A fog-of-war viewer's stream is LEGITIMATELY sparse - the server
+    // filters each event per recipient and skips the send entirely when
+    // it is not visible to them, keeping the authority sequence on
+    // everything else. Treating the next arrival as a "gap" and holding
+    // it would stall such a client permanently, because the sequence it
+    // is waiting for is one it is never allowed to see.
     const f = makeMockSocketFactory();
     const applied: unknown[] = [];
     const client = connect(
@@ -176,36 +197,23 @@ describe('multiplayer client', () => {
     );
     client.on('event', (e) => applied.push(e));
     f.lastSocket().fireOpen();
-    f.lastSocket().inject({
-      kind: 'ReplayStart',
-      matchId: 'm1',
-      ts: new Date().toISOString(),
-      fromSeq: 0,
-      totalEvents: 0,
-    });
-    f.lastSocket().inject({
-      kind: 'ReplayEnd',
-      matchId: 'm1',
-      ts: new Date().toISOString(),
-      toSeq: 0,
-    });
+    finishReplay(f);
     applied.length = 0;
 
     liveEvent(f, 0);
     liveEvent(f, 1);
-    // 2 never arrives.
+    // 2 is filtered out for this viewer and never sent.
     liveEvent(f, 3);
 
-    expect(seqOf(applied)).toEqual([0, 1]);
-    // The cursor must NOT have jumped the gap - it is what a reconnect
-    // resumes from, and resuming at 3 would skip 2 permanently.
-    expect(client.lastSeq()).toBe(1);
+    expect(seqOf(applied)).toEqual([0, 1, 3]);
+    expect(client.lastSeq()).toBe(3);
   });
 
-  it('applies a buffered event once the gap is filled', async () => {
-    // Holding it rather than dropping it: the missing frame usually
-    // arrives moments later, and re-fetching the whole tail for a
-    // momentary reorder would be a heavy answer to a light problem.
+  it('does not re-apply a sequence that arrives after a later one', () => {
+    // There is no reordering buffer, and there should not be: a single
+    // WebSocket delivers in order, so a lower sequence arriving after a
+    // higher one is a REDELIVERY rather than a reorder. Applying it
+    // again would double-apply the event.
     const f = makeMockSocketFactory();
     const applied: unknown[] = [];
     const client = connect(
@@ -216,27 +224,14 @@ describe('multiplayer client', () => {
     );
     client.on('event', (e) => applied.push(e));
     f.lastSocket().fireOpen();
-    f.lastSocket().inject({
-      kind: 'ReplayStart',
-      matchId: 'm1',
-      ts: new Date().toISOString(),
-      fromSeq: 0,
-      totalEvents: 0,
-    });
-    f.lastSocket().inject({
-      kind: 'ReplayEnd',
-      matchId: 'm1',
-      ts: new Date().toISOString(),
-      toSeq: 0,
-    });
+    finishReplay(f);
     applied.length = 0;
 
     liveEvent(f, 0);
     liveEvent(f, 2);
     liveEvent(f, 1);
 
-    // In SEQUENCE order, not arrival order.
-    expect(seqOf(applied)).toEqual([0, 1, 2]);
+    expect(seqOf(applied)).toEqual([0, 2]);
     expect(client.lastSeq()).toBe(2);
   });
 
@@ -274,6 +269,97 @@ describe('multiplayer client', () => {
     liveEvent(f, 1);
 
     expect(seqOf(applied)).toEqual([0, 1]);
+  });
+
+  it('blocks the stream when two different events claim one sequence', () => {
+    // A repeat of a sequence is ordinary at-least-once traffic. A
+    // DIFFERENT event under the same sequence is not - it means the
+    // stream forked, and quietly ignoring the second would hide the
+    // fork rather than report it.
+    const f = makeMockSocketFactory();
+    const applied: unknown[] = [];
+    const errors: unknown[] = [];
+    const client = connect(
+      'ws://localhost/x',
+      'm1',
+      { playerId: 'p1', token: 'tok' },
+      { socketFactory: f.factory, reconnect: false },
+    );
+    client.on('event', (e) => applied.push(e));
+    client.on('error', (e) => errors.push(e));
+    f.lastSocket().fireOpen();
+    finishReplay(f);
+    applied.length = 0;
+
+    liveEvent(f, 0, 'evt-0');
+    liveEvent(f, 0, 'evt-0-forked');
+    liveEvent(f, 1, 'evt-1');
+
+    expect(errors).toContainEqual(
+      expect.objectContaining({ reason: 'sequence-collision' }),
+    );
+    // Nothing after the collision is applied: the fork means the rest
+    // of the stream cannot be trusted.
+    expect(seqOf(applied)).toEqual([0]);
+  });
+
+  it('treats an identical repeat as a duplicate, not a collision', () => {
+    // The control. Without it, "blocks on collision" would pass equally
+    // against a client that blocked on every duplicate - which would
+    // take down a healthy session on ordinary redelivery.
+    const f = makeMockSocketFactory();
+    const applied: unknown[] = [];
+    const errors: unknown[] = [];
+    const client = connect(
+      'ws://localhost/x',
+      'm1',
+      { playerId: 'p1', token: 'tok' },
+      { socketFactory: f.factory, reconnect: false },
+    );
+    client.on('event', (e) => applied.push(e));
+    client.on('error', (e) => errors.push(e));
+    f.lastSocket().fireOpen();
+    finishReplay(f);
+    applied.length = 0;
+
+    liveEvent(f, 0, 'evt-0');
+    liveEvent(f, 0, 'evt-0');
+    liveEvent(f, 1, 'evt-1');
+
+    expect(errors).toHaveLength(0);
+    expect(seqOf(applied)).toEqual([0, 1]);
+  });
+
+  it('advances through a replay chunk that skips a sequence', () => {
+    // Replay is fog-filtered per viewer for the same reason live
+    // traffic is, so it is sparse for the same reason and no
+    // contiguity can be asserted on it either.
+    const f = makeMockSocketFactory();
+    const client = connect(
+      'ws://localhost/x',
+      'm1',
+      { playerId: 'p1', token: 'tok' },
+      { socketFactory: f.factory, reconnect: false },
+    );
+    f.lastSocket().fireOpen();
+    f.lastSocket().inject({
+      kind: 'ReplayStart',
+      matchId: 'm1',
+      ts: new Date().toISOString(),
+      fromSeq: 0,
+      totalEvents: 2,
+    });
+    f.lastSocket().inject({
+      kind: 'ReplayChunk',
+      matchId: 'm1',
+      ts: new Date().toISOString(),
+      events: [
+        { sequence: 0, type: 'phase_changed', id: 'r0' },
+        { sequence: 2, type: 'phase_changed', id: 'r2' },
+      ],
+    });
+
+    expect(client.lastSeq()).toBe(2);
   });
 
   it('sends SessionJoin on open', () => {

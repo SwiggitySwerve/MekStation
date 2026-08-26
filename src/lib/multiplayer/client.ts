@@ -120,11 +120,18 @@ interface IClientState {
   pendingLiveEvents: unknown[];
   replayBuffer: unknown[];
   /**
-   * Live events that arrived AHEAD of the cursor, keyed by sequence.
-   * They are held rather than applied, because applying them would
-   * leave a hole the cursor has already moved past.
+   * Identity of recently applied sequences, so a REPEAT of one can be
+   * told apart from a COLLISION on it. Bounded and evicted oldest-first
+   * for the same reason the server's intent window is: the useful
+   * horizon is short, and an unbounded map is a leak dressed as a
+   * safety feature.
    */
-  outOfOrderLiveEvents: Map<number, unknown>;
+  appliedIdentityBySeq: Map<number, string>;
+  /**
+   * Set once a sequence collision was seen. The stream forked, so
+   * nothing after it can be trusted and application stops.
+   */
+  blockedBySequenceCollision: boolean;
   lastSeq: number;
   reconnectAttempt: number;
   reconnectTimer: ReturnType<typeof setTimeout> | null;
@@ -155,9 +162,16 @@ const SERVER_MESSAGE_HANDLERS: Record<
   },
   ReplayChunk: ({ message, state, updateLastSeq }) => {
     const replay = message as Extract<IServerMessage, { kind: 'ReplayChunk' }>;
+    // Through the SAME admission as live traffic, so duplicate
+    // suppression and collision blocking apply to both inbound paths.
+    // Replay is fog-filtered per viewer too, so it is sparse for the
+    // same reason live traffic is and no contiguity is asserted here.
     for (const evt of replay.events) {
-      state.replayBuffer.push(evt);
-      updateLastSeq(evt);
+      for (const admitted of admitLiveEvent(state, evt)) {
+        state.replayBuffer.push(admitted);
+        updateLastSeq(admitted);
+        rememberApplied(state, admitted);
+      }
     }
   },
   ReplayEnd: ({ state, emit }) => {
@@ -174,13 +188,21 @@ const SERVER_MESSAGE_HANDLERS: Record<
   },
   Event: ({ message, state, emit, updateLastSeq }) => {
     const eventMessage = message as Extract<IServerMessage, { kind: 'Event' }>;
+    const wasBlocked = state.blockedBySequenceCollision;
     for (const event of admitLiveEvent(state, eventMessage.event)) {
       updateLastSeq(event);
+      rememberApplied(state, event);
       if (!state.ready) {
         state.pendingLiveEvents.push(event);
         continue;
       }
       emit('event', event);
+    }
+    if (!wasBlocked && state.blockedBySequenceCollision) {
+      emit('error', {
+        code: 'PROTOCOL_VIOLATION',
+        reason: 'sequence-collision',
+      });
     }
   },
   Heartbeat: () => {
@@ -300,7 +322,8 @@ export function connect(
     ready: false,
     pendingLiveEvents: [],
     replayBuffer: [],
-    outOfOrderLiveEvents: new Map(),
+    appliedIdentityBySeq: new Map(),
+    blockedBySequenceCollision: false,
     lastSeq: options.lastSeq ?? -1,
     reconnectAttempt: 0,
     reconnectTimer: null,
@@ -475,24 +498,70 @@ function admitLiveEvent(
   state: IClientState,
   event: unknown,
 ): readonly unknown[] {
+  if (state.blockedBySequenceCollision) return [];
   const sequence = sequenceOf(event);
   if (sequence === null) return [event];
-  if (sequence <= state.lastSeq) return [];
-  if (sequence > state.lastSeq + 1) {
-    state.outOfOrderLiveEvents.set(sequence, event);
+  if (sequence <= state.lastSeq) {
+    // Already applied - ordinarily a duplicate, which is fine. But if
+    // this sequence carries a DIFFERENT event than the one applied
+    // under it, the stream forked, and silently ignoring the second
+    // would hide the fork rather than report it.
+    const known = state.appliedIdentityBySeq.get(sequence);
+    if (known !== undefined && known !== identityOf(event)) {
+      state.blockedBySequenceCollision = true;
+    }
     return [];
   }
+  // AHEAD OF THE CURSOR IS NORMAL, and this is the correction to the
+  // previous version of this function, which held such an event back
+  // as a "gap" until the missing sequence arrived.
+  //
+  // It never arrives. A fog-of-war viewer's stream is LEGITIMATELY
+  // SPARSE: `broadcastEvent` filters each event per recipient and skips
+  // the send entirely when it is not visible to them, keeping the
+  // authority sequence on everything else. Measured on a two-player fog
+  // match - one player received sequences [2..8, 10, 11, 12] and the
+  // other [2..7, 9, 10, 11, 12]; each is missing precisely the event
+  // the other could see. Holding at the first gap would have stalled
+  // both clients permanently.
+  //
+  // Contiguity cannot be enforced on the AUTHORITY sequence at all,
+  // which is exactly why the spec asks for a per-viewer
+  // `deliverySequence` that is gapless BY VIEWER (umbrella task 5.1,
+  // `Authority and Viewer Sequences Are Separate`). Until that exists
+  // on the wire, the client advances.
+  return [event];
+}
 
-  const admitted: unknown[] = [event];
-  let next = sequence + 1;
-  for (;;) {
-    const buffered = state.outOfOrderLiveEvents.get(next);
-    if (buffered === undefined) break;
-    state.outOfOrderLiveEvents.delete(next);
-    admitted.push(buffered);
-    next += 1;
+/**
+ * How many applied sequences to remember for collision detection. Short
+ * on purpose: a fork shows up immediately or not at all, and the map is
+ * per-connection.
+ */
+const APPLIED_IDENTITY_WINDOW = 256;
+
+/** Remember an applied event so a later repeat can be checked. */
+function rememberApplied(state: IClientState, event: unknown): void {
+  const sequence = sequenceOf(event);
+  if (sequence === null) return;
+  state.appliedIdentityBySeq.set(sequence, identityOf(event));
+  while (state.appliedIdentityBySeq.size > APPLIED_IDENTITY_WINDOW) {
+    const oldest = state.appliedIdentityBySeq.keys().next().value;
+    if (oldest === undefined) break;
+    state.appliedIdentityBySeq.delete(oldest);
   }
-  return admitted;
+}
+
+/**
+ * What distinguishes one event from another at the same sequence. Its
+ * `id` when it has one, else its type - enough to catch a fork without
+ * digesting a payload on every frame.
+ */
+function identityOf(event: unknown): string {
+  if (typeof event !== 'object' || event === null) return '';
+  const record = event as { id?: unknown; type?: unknown };
+  if (typeof record.id === 'string' && record.id.length > 0) return record.id;
+  return typeof record.type === 'string' ? `type:${record.type}` : '';
 }
 
 /** An event's sequence, or null when it carries none. */
