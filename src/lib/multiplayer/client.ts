@@ -139,6 +139,13 @@ interface IClientState {
   // state rather than closed over, because it has to be cleared from
   // both the close paths and a reconnect starts a fresh one.
   heartbeatTimer: ReturnType<typeof setInterval> | null;
+  /**
+   * Last per-viewer delivery sequence seen on this connection, or null
+   * before the first numbered frame. Reset per socket: a reconnect is a
+   * fresh stream, so the previous connection's number says nothing
+   * about the next one's.
+   */
+  lastDeliverySequence: number | null;
   suppressNextSocketCloseEvent: boolean;
 }
 
@@ -202,6 +209,19 @@ const SERVER_MESSAGE_HANDLERS: Record<
       emit('error', {
         code: 'PROTOCOL_VIOLATION',
         reason: 'sequence-collision',
+      });
+    }
+    if (noteDeliveryGap(state, eventMessage.deliverySequence)) {
+      // ADVISORY ONLY - the events above were already applied, and that
+      // is deliberate. Holding them behind a gap is what a previous
+      // change did against the AUTHORITY sequence, and under fog it
+      // stalls forever on an event the viewer may never receive. This
+      // number is different: a hole in it means a frame was genuinely
+      // lost, so it is worth reporting - but the right response is to
+      // resynchronize, not to stop applying what did arrive.
+      emit('error', {
+        code: 'PROTOCOL_VIOLATION',
+        reason: 'delivery-gap',
       });
     }
   },
@@ -328,6 +348,7 @@ export function connect(
     reconnectAttempt: 0,
     reconnectTimer: null,
     heartbeatTimer: null,
+    lastDeliverySequence: null,
     suppressNextSocketCloseEvent: false,
   };
 
@@ -393,6 +414,8 @@ function openSocket(runtime: IClientRuntime): void {
   runtime.state.socket = socket;
 
   socket.onopen = () => {
+    // A reconnect is a fresh delivery stream.
+    runtime.state.lastDeliverySequence = null;
     sendSessionJoin(runtime, socket);
     startHeartbeat(runtime, socket);
   };
@@ -575,6 +598,25 @@ function sequenceOf(event: unknown): number | null {
     return (event as { sequence: number }).sequence;
   }
   return null;
+}
+
+/**
+ * Track this connection's delivery sequence and report a hole exactly
+ * once per occurrence.
+ *
+ * Returns true when the frame skipped ahead of the expected next value.
+ * Frames without a delivery sequence are pre-rollout frames and are NOT
+ * a gap - they simply carry no information about ordering.
+ */
+function noteDeliveryGap(
+  state: IClientState,
+  deliverySequence: number | undefined,
+): boolean {
+  if (typeof deliverySequence !== 'number') return false;
+  const previous = state.lastDeliverySequence;
+  state.lastDeliverySequence = deliverySequence;
+  if (previous === null) return false;
+  return deliverySequence !== previous + 1;
 }
 
 function updateLastSeq(state: IClientState, event: unknown): void {

@@ -597,6 +597,19 @@ export const EventMessageSchema = z.object({
   matchId: matchIdSchema,
   ts: tsSchema,
   event: z.unknown(),
+  /**
+   * This viewer's own gapless delivery sequence, independent of the
+   * authority sequence inside `event`.
+   *
+   * A hole here means a frame was genuinely LOST. A hole in the
+   * authority sequence means no such thing - under fog it usually means
+   * the viewer was not allowed to see that event - which is why gap
+   * detection can only be built on this number.
+   *
+   * Optional while the server rolls it out; a frame without it is a
+   * pre-rollout frame, not a gap.
+   */
+  deliverySequence: z.number().int().nonnegative().optional(),
 });
 export type IEventMessage = z.infer<typeof EventMessageSchema>;
 

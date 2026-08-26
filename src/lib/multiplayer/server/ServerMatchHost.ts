@@ -71,6 +71,7 @@ import type { IMatchSocket } from './ServerMatchSocketTypes';
 
 import { type IServerDiceRoller } from './CryptoDiceRoller';
 import { FogOfWarVisibilityCache } from './fogOfWar';
+import { ViewerDeliveryCursors } from './projection/ViewerDeliveryCursors';
 import { AcceptedIntentTracker } from './reconnection/AcceptedIntentTracker';
 import {
   migrateHostIfNeeded,
@@ -159,6 +160,8 @@ export class ServerMatchHost {
   private readonly broadcaster = new ServerMatchBroadcaster();
   private readonly lifecycle: ServerMatchSocketLifecycle;
   private readonly fogVisibilityCache = new FogOfWarVisibilityCache();
+  /** Per-viewer gapless delivery numbering (umbrella 11.1). */
+  private readonly deliveryCursors = new ViewerDeliveryCursors();
   private readonly session: InteractiveSession;
   private lastBroadcastSeq: number;
   private closed = false;
@@ -846,6 +849,7 @@ export class ServerMatchHost {
       lifecycle: this.lifecycle,
       broadcaster: this.broadcaster,
       fogVisibilityCache: this.fogVisibilityCache,
+      deliveryCursors: this.deliveryCursors,
       viewerResolver: this.viewerResolver,
       message,
     });
