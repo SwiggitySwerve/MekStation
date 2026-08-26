@@ -20,6 +20,7 @@ import type { IServerMessage } from '@/types/multiplayer/Protocol';
 import { createMinimalGrid } from '@/engine/GameEngine.helpers';
 import { InteractiveSession } from '@/engine/InteractiveSession';
 import { SeededRandom } from '@/simulation/core/SeededRandom';
+import { GameSide, type IGameUnit } from '@/types/gameplay';
 import { type IIntent, nowIso } from '@/types/multiplayer/Protocol';
 import { hydrateGameSessionFromEvents } from '@/utils/gameplay/gameSession';
 
@@ -44,6 +45,36 @@ async function makeStore(): Promise<InMemoryMatchStore> {
   return store;
 }
 
+/**
+ * A unit on each side, so the match stays ACTIVE across the sequence.
+ *
+ * With an empty roster the engine ends the game on the first advance,
+ * and every later command is now refused as `match-already-completed` -
+ * which would make the restart control below assert nothing.
+ */
+function twoSidedRoster(): IGameUnit[] {
+  return [
+    {
+      id: 'replay-player',
+      name: 'replay-player',
+      side: GameSide.Player,
+      unitRef: 'replay-player',
+      pilotRef: 'replay-player-pilot',
+      gunnery: 4,
+      piloting: 5,
+    },
+    {
+      id: 'replay-opponent',
+      name: 'replay-opponent',
+      side: GameSide.Opponent,
+      unitRef: 'replay-opponent',
+      pilotRef: 'replay-opponent-pilot',
+      gunnery: 4,
+      piloting: 5,
+    },
+  ] as IGameUnit[];
+}
+
 function makeHost(store: InMemoryMatchStore): ServerMatchHost {
   return ServerMatchHost.create(MATCH_ID, store, {
     mapRadius: 4,
@@ -52,7 +83,7 @@ function makeHost(store: InMemoryMatchStore): ServerMatchHost {
     grid: createMinimalGrid(4),
     playerUnits: [],
     opponentUnits: [],
-    gameUnits: [],
+    gameUnits: twoSidedRoster(),
   });
 }
 
