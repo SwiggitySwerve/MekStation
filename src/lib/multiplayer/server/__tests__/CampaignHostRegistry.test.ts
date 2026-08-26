@@ -170,6 +170,44 @@ describe('CampaignHostRegistry', () => {
     expect(entry?.syncSession.getRoomCode()).toBeNull();
   });
 
+  it('rebuilds a campaign PAUSED, because no GM is connected to it', async () => {
+    // What carries the GM-loss pause across a process restart. A
+    // rebuilt session has no GM connection attached, so the GM is
+    // absent, so the campaign is paused - stated directly rather than
+    // stored in a flag that could disagree with reality.
+    const store = new InMemoryMatchStore({ quiet: true });
+    await store.createMatch(matchMeta());
+    const registry = new CampaignHostRegistry({ matchStore: store });
+
+    const entry = await registry.getOrCreate('match-campaign');
+
+    expect(entry?.syncSession.isPaused()).toBe(true);
+  });
+
+  it('creates a fresh campaign UNPAUSED', async () => {
+    // The control, and the reason the two paths are distinguished at
+    // all. The GM is the one creating this and their socket follows
+    // immediately; starting it paused would refuse a guest who arrives
+    // in between.
+    const registry = new CampaignHostRegistry();
+
+    const entry = await registry.register('match-campaign', snapshot());
+
+    expect(entry.syncSession.isPaused()).toBe(false);
+  });
+
+  it('lets the returning GM clear a rebuild pause', async () => {
+    // A pause nothing can lift is an outage, not a pause.
+    const store = new InMemoryMatchStore({ quiet: true });
+    await store.createMatch(matchMeta());
+    const registry = new CampaignHostRegistry({ matchStore: store });
+    const entry = await registry.getOrCreate('match-campaign');
+
+    entry?.syncSession.noteGmConnected();
+
+    expect(entry?.syncSession.isPaused()).toBe(false);
+  });
+
   it('exposes a resettable process singleton', async () => {
     const registry = getCampaignHostRegistry();
     await registry.register('match-campaign', snapshot());

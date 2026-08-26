@@ -188,6 +188,24 @@ export class CampaignSyncSession {
    * A no-op when no GM connection is attached, so a stray close from a
    * connection that never held GM authority cannot pause the session.
    */
+  /**
+   * Pause a session that is being rebuilt rather than created - after a
+   * restart, or after the registry evicted it.
+   *
+   * This is what makes the GM-loss pause survive a process restart, and
+   * it does so WITHOUT a stored flag. A stored flag can disagree with
+   * reality; this cannot, because it states the reality directly: a
+   * rebuilt session has no GM connection attached, so the GM is absent,
+   * so the campaign is paused. Their next connection clears it.
+   *
+   * A freshly CREATED session does not call this. The GM is the one
+   * creating it and their socket follows immediately, and starting that
+   * case paused would refuse a guest who arrives in between.
+   */
+  pauseUntilGmReturns = (): void => {
+    this.paused = true;
+  };
+
   noteGmDisconnected = (): void => {
     if (this.gmConnections === 0) return;
     this.gmConnections -= 1;
