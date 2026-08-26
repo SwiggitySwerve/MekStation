@@ -18,6 +18,18 @@ import type { IServerMessage } from '@/types/multiplayer/Protocol';
 
 import type { IMatchSocket } from './ServerMatchSocketTypes';
 
+/**
+ * Per-connection outbound cap, in bytes already handed to the socket
+ * and not yet flushed to the network.
+ *
+ * There is no queue of our own to bound: `send` hands the payload to
+ * `ws`, which buffers it without limit. `bufferedAmount` IS the queue,
+ * so the bound is a check on it. A megabyte is far more than a healthy
+ * client ever holds - frames are small and drain in milliseconds - and
+ * far less than a stalled client can grow to in a long match.
+ */
+export const MAX_BUFFERED_BYTES = 1_048_576;
+
 export class ServerMatchBroadcaster {
   /**
    * Live registry of attached sockets. The lifecycle collaborator owns
@@ -25,6 +37,12 @@ export class ServerMatchBroadcaster {
    * during fan-out.
    */
   private readonly sockets = new Set<IMatchSocket>();
+
+  /** Connections whose outbound buffer passed `MAX_BUFFERED_BYTES`. */
+  private readonly behind = new Set<IMatchSocket>();
+
+  /** Last event sequence each connection actually received. */
+  private readonly deliveredSeq = new Map<IMatchSocket, number>();
 
   /**
    * Register a socket so subsequent `broadcast` calls reach it.
@@ -40,6 +58,37 @@ export class ServerMatchBroadcaster {
    */
   unregister = (socket: IMatchSocket): void => {
     this.sockets.delete(socket);
+    // Clear the side-tables too. They are keyed by socket identity,
+    // and a detached socket never comes back - keeping its row would
+    // leak one entry per connection for the life of the match.
+    this.behind.delete(socket);
+    this.deliveredSeq.delete(socket);
+  };
+
+  /**
+   * True once this connection's outbound buffer passed the cap. A
+   * behind connection receives no further live frames: resuming
+   * mid-stream would leave a HOLE in its event sequence, which is
+   * worse than a gap it knows about. The lifecycle reaps it on the
+   * next heartbeat tick, and the client reconnects and replays from
+   * its cursor.
+   */
+  isBehind = (socket: IMatchSocket): boolean => {
+    return this.behind.has(socket);
+  };
+
+  /** Sockets currently in the behind state. */
+  behindSockets = (): readonly IMatchSocket[] => {
+    return Array.from(this.behind);
+  };
+
+  /**
+   * The last event sequence this connection actually received - the
+   * durable cursor a resynchronization resumes from. Undefined when
+   * no sequenced event has reached it yet.
+   */
+  deliveredCursor = (socket: IMatchSocket): number | undefined => {
+    return this.deliveredSeq.get(socket);
   };
 
   /**
@@ -63,9 +112,21 @@ export class ServerMatchBroadcaster {
    */
   broadcast = (message: IServerMessage): void => {
     const payload = JSON.stringify(message);
+    const sequence = sequenceOf(message);
     this.sockets.forEach((socket) => {
+      // A connection already behind is skipped outright. This is the
+      // "stop unbounded enqueueing" half: one slow consumer must not
+      // grow the server's memory, and must not delay anyone else.
+      if (this.behind.has(socket)) return;
+      if (isSaturated(socket)) {
+        this.behind.add(socket);
+        return;
+      }
       try {
         socket.send(payload);
+        // Recorded AFTER a successful send: the cursor is what this
+        // connection actually received, not what we tried to give it.
+        if (sequence !== null) this.deliveredSeq.set(socket, sequence);
       } catch {
         // Socket is dead — let the heartbeat / close handler clean up.
       }
@@ -148,4 +209,31 @@ function traceSendResult(
   console.log(
     `[mp-socket:trace] send flushed kind=${message.kind} readyState=${socket.readyState}`,
   );
+}
+
+/**
+ * Whether this connection's outbound buffer has passed the cap.
+ *
+ * `bufferedAmount` is optional on `IMatchSocket` because test doubles
+ * and non-`ws` sockets do not have one. Absent means "no backpressure
+ * signal", which is read as healthy - inventing saturation for a socket
+ * that cannot report it would disconnect every mock in the suite.
+ */
+function isSaturated(socket: IMatchSocket): boolean {
+  const buffered = socket.bufferedAmount;
+  return typeof buffered === 'number' && buffered > MAX_BUFFERED_BYTES;
+}
+
+/**
+ * The sequence an `Event` frame carries, or null for frames outside the
+ * sequenced stream. Mirrors the client's own reading of
+ * `event.sequence` - the cursor only means something if both ends
+ * count the same thing.
+ */
+function sequenceOf(message: IServerMessage): number | null {
+  if (message.kind !== 'Event') return null;
+  const event = message.event;
+  if (typeof event !== 'object' || event === null) return null;
+  const sequence = (event as { sequence?: unknown }).sequence;
+  return typeof sequence === 'number' ? sequence : null;
 }

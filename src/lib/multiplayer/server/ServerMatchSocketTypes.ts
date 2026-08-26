@@ -19,6 +19,15 @@ export interface IMatchSocket {
   send(data: string): void;
   close(code?: number, reason?: string): void;
   readonly readyState: number;
+  /**
+   * Bytes handed to the socket and not yet flushed. Present on
+   * `ws.WebSocket`; OPTIONAL here because test doubles do not have
+   * one, and its absence is read as "no backpressure signal" rather
+   * than as zero. It is the only queue the server has - `send`
+   * buffers without limit - so it is what the per-connection bound
+   * is measured against.
+   */
+  readonly bufferedAmount?: number;
 }
 
 // Re-export the WebSocket type for the upgrade handler so it doesn't

@@ -125,6 +125,15 @@ export class ServerMatchSocketLifecycle {
     const heartbeatTimer = setInterval(() => {
       const state = this.sockets.get(socket);
       if (!state) return;
+      // A connection the broadcaster gave up on is reaped here rather
+      // than resumed. It has been receiving nothing since it went
+      // behind, so closing it is what turns a silent gap into the
+      // reconnect-and-replay the client already knows how to do - its
+      // own `lastSeq` is the cursor the replay resumes from.
+      if (this.deps.broadcaster.isBehind(socket)) {
+        this.detach(socket);
+        return;
+      }
       const idleFor = Date.now() - state.lastInboundAt;
       if (idleFor > HEARTBEAT_TIMEOUT_MS) {
         // Treat as dead — close + detach. The detach path also
