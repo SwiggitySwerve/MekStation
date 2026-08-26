@@ -602,12 +602,28 @@ export class ServerMatchHost {
     playerId: string,
     lastSeq?: number,
     requestedMatchId = this.matchId,
+    deliveryCursor?: number,
   ): Promise<void> => {
+    // A delivery cursor is the client's OWN numbering, and it is the
+    // only cursor it can quote once the authority sequence stops being
+    // sent to it. Translate it here, where the viewer's delivery record
+    // lives, into the authority sequence its replay should start from.
+    //
+    // Falls back to `lastSeq` when there is no record - after a restart
+    // the record is gone, and a full replay is the correct answer then
+    // rather than a wrong one.
+    const resumeFrom =
+      deliveryCursor === undefined
+        ? lastSeq
+        : (this.deliveryCursors.firstMissedAuthoritySequence(
+            playerId,
+            deliveryCursor,
+          ) ?? lastSeq);
     await handleSessionJoin(
       buildReplayContext(this.internals()),
       socket,
       playerId,
-      lastSeq,
+      resumeFrom,
       requestedMatchId,
     );
   };

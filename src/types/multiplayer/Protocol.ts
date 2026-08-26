@@ -95,6 +95,15 @@ export const SessionJoinSchema = z.object({
   playerId: z.string().min(1),
   token: z.string().min(1),
   lastSeq: z.number().int().nonnegative().optional(),
+  /**
+   * The client's own delivery cursor - the last `deliverySequence` it
+   * applied on its previous connection.
+   *
+   * Preferred over `lastSeq` when the server still holds that viewer's
+   * delivery record, because it is the only cursor a client can quote
+   * once the authority sequence stops being sent to it.
+   */
+  deliveryCursor: z.number().int().nonnegative().optional(),
 });
 export type ISessionJoin = z.infer<typeof SessionJoinSchema>;
 
