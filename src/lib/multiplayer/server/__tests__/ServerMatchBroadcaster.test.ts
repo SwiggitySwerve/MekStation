@@ -134,6 +134,57 @@ describe('ServerMatchBroadcaster backpressure', () => {
     expect(broadcaster.isBehind(socket)).toBe(false);
   });
 
+  it('keeps delivering when one socket throws on send', () => {
+    // The `catch` in `broadcast` was pure optimistic-path code with no
+    // test behind it. A socket that throws mid-fan-out - closed
+    // underneath us, or a `ws` internal error - must not take the
+    // event away from everyone iterated after it.
+    const broadcaster = new ServerMatchBroadcaster();
+    const first = bufferedSocket(0);
+    const throwing = {
+      send() {
+        throw new Error('socket already closed');
+      },
+      close() {},
+      readyState: 1,
+      bufferedAmount: 0,
+    };
+    const last = bufferedSocket(0);
+    broadcaster.register(first);
+    broadcaster.register(throwing);
+    broadcaster.register(last);
+
+    expect(() => broadcaster.broadcast(eventFrame(3))).not.toThrow();
+
+    expect(first.sent).toHaveLength(1);
+    expect(last.sent).toHaveLength(1);
+  });
+
+  it('does not advance a cursor for a send that threw', () => {
+    // The cursor is what ARRIVED. Recording a sequence whose send threw
+    // would tell a later resynchronization to resume PAST an event the
+    // connection never got - it would be skipped forever.
+    const broadcaster = new ServerMatchBroadcaster();
+    let failNext = false;
+    const socket = {
+      sent: [] as string[],
+      send(data: string) {
+        if (failNext) throw new Error('socket already closed');
+        socket.sent.push(data);
+      },
+      close() {},
+      readyState: 1,
+      bufferedAmount: 0,
+    };
+    broadcaster.register(socket);
+
+    broadcaster.broadcast(eventFrame(11));
+    failNext = true;
+    broadcaster.broadcast(eventFrame(12));
+
+    expect(broadcaster.deliveredCursor(socket)).toBe(11);
+  });
+
   it('forgets a connection entirely on unregister', () => {
     // Side-tables keyed by socket identity otherwise leak one row per
     // connection for the life of the match.
