@@ -111,6 +111,89 @@ describe('bindMultiplayerSocketConnection', () => {
     });
   });
 
+  it('refuses a SessionJoin claiming another player and replays nothing', async () => {
+    // Impersonation at the door. The envelope carries a playerId the
+    // connection never proved, and the reply must be a refusal - not a
+    // replay addressed to the claimed identity.
+    const socket = new MockWireSocket();
+    const host = makeHost();
+
+    await bindMultiplayerSocketConnection({
+      socket,
+      registry: makeRegistry(host),
+      matchId: 'match-live',
+      verifiedPlayerId: 'pid_guest',
+      connectionKey: 'conn-guest',
+      logger: quietLogger,
+    });
+    socket.inbound({
+      kind: 'SessionJoin',
+      matchId: 'match-live',
+      ts: new Date().toISOString(),
+      playerId: 'pid_host',
+      token: 'already-verified-at-upgrade',
+      lastSeq: 0,
+    });
+    await flushAsyncHandlers();
+
+    expect(host.handleSessionJoin).not.toHaveBeenCalled();
+    expect(socket.closes[0]).toMatchObject({
+      code: 1008,
+      reason: 'player-mismatch',
+    });
+    // Nothing but the refusal itself went out: a replay stream is
+    // exactly the payload this guard exists to withhold.
+    expect(
+      socket.sent.every(
+        (message) => message.kind === 'Error' || message.kind === 'Close',
+      ),
+    ).toBe(true);
+  });
+
+  it('refuses an Intent claiming another player and dispatches nothing', async () => {
+    // The same lie one message later. SessionJoin and Intent are
+    // guarded separately, so passing the first tells you nothing about
+    // the second - a player who joined honestly could still try to act
+    // as someone else.
+    const socket = new MockWireSocket();
+    const host = makeHost();
+
+    await bindMultiplayerSocketConnection({
+      socket,
+      registry: makeRegistry(host),
+      matchId: 'match-live',
+      verifiedPlayerId: 'pid_guest',
+      connectionKey: 'conn-guest',
+      logger: quietLogger,
+    });
+    socket.inbound({
+      kind: 'SessionJoin',
+      matchId: 'match-live',
+      ts: new Date().toISOString(),
+      playerId: 'pid_guest',
+      token: 'already-verified-at-upgrade',
+      lastSeq: 0,
+    });
+    await flushAsyncHandlers();
+    expect(host.handleSessionJoin).toHaveBeenCalled();
+
+    socket.inbound({
+      kind: 'Intent',
+      matchId: 'match-live',
+      ts: new Date().toISOString(),
+      playerId: 'pid_host',
+      intentId: 'intent-impersonated',
+      intent: { kind: 'AdvancePhase' },
+    });
+    await flushAsyncHandlers();
+
+    expect(host.handleIntent).not.toHaveBeenCalled();
+    expect(socket.closes[0]).toMatchObject({
+      code: 1008,
+      reason: 'player-mismatch',
+    });
+  });
+
   it('attaches the verified socket and routes SessionJoin to replay', async () => {
     const socket = new MockWireSocket();
     const host = makeHost();
