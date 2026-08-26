@@ -330,6 +330,48 @@ describe('bindCampaignSyncConnection', () => {
     });
   });
 
+  it('refuses a campaign envelope claiming another player before any payload', async () => {
+    // The campaign socket guards EVERY inbound kind at one place rather
+    // than per-kind, so the host-intent handler downstream can compare
+    // `envelope.playerId` to the registered host and still be safe. That
+    // safety is entirely borrowed from this check - a proof of the
+    // downstream comparison would prove nothing without it.
+    const socket = new MockWireSocket();
+    const registry = await makeRegistry();
+
+    await bindCampaignSyncConnection({
+      socket,
+      registry,
+      matchId: 'match-campaign',
+      verifiedPlayerId: 'pid_guest',
+      logger: quietLogger,
+      replicaStore: null,
+    });
+    socket.inbound({
+      kind: 'CampaignHostIntent',
+      matchId: 'match-campaign',
+      ts: nowIso(),
+      playerId: 'pid_host',
+      intent: {
+        kind: 'AdvanceDay',
+        campaignId: 'campaign-sync',
+        intentId: 'intent-impersonated',
+        payload: { days: 1 },
+      },
+    });
+    await flushAsyncHandlers();
+
+    expect(sawError(socket, 'AUTH_REJECTED', 'player-mismatch')).toBe(true);
+    expect(socket.closes[0]).toMatchObject({ reason: 'player-mismatch' });
+    // No campaign state reached the impersonator - not a snapshot, not
+    // an event, not the pending-proposal list.
+    expect(
+      socket.sent.every(
+        (message) => message.kind === 'Error' || message.kind === 'Close',
+      ),
+    ).toBe(true);
+  });
+
   it('cold-recovers a durable member after the invite expired', async () => {
     // Rehydration of a LAUNCHED campaign: the store cleared the code,
     // so the session opens with no invite at all. The member inside it
