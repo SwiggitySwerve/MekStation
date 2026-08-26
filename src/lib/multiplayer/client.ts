@@ -30,6 +30,7 @@ import {
 import {
   ClientMessageSchema,
   ServerMessageSchema,
+  HEARTBEAT_INTERVAL_MS,
   RECONNECT_INITIAL_MS,
   RECONNECT_MAX_MS,
   RECONNECT_MULTIPLIER,
@@ -121,6 +122,10 @@ interface IClientState {
   lastSeq: number;
   reconnectAttempt: number;
   reconnectTimer: ReturnType<typeof setTimeout> | null;
+  // The client's half of the bidirectional heartbeat. Kept on the
+  // state rather than closed over, because it has to be cleared from
+  // both the close paths and a reconnect starts a fresh one.
+  heartbeatTimer: ReturnType<typeof setInterval> | null;
   suppressNextSocketCloseEvent: boolean;
 }
 
@@ -290,6 +295,7 @@ export function connect(
     lastSeq: options.lastSeq ?? -1,
     reconnectAttempt: 0,
     reconnectTimer: null,
+    heartbeatTimer: null,
     suppressNextSocketCloseEvent: false,
   };
 
@@ -354,7 +360,10 @@ function openSocket(runtime: IClientRuntime): void {
   );
   runtime.state.socket = socket;
 
-  socket.onopen = () => sendSessionJoin(runtime, socket);
+  socket.onopen = () => {
+    sendSessionJoin(runtime, socket);
+    startHeartbeat(runtime, socket);
+  };
   socket.onmessage = (ev: { data: unknown }) =>
     handleSocketMessage(runtime, ev);
   socket.onerror = (e: unknown) => emitClientEvent(runtime, 'error', e);
@@ -406,6 +415,7 @@ function handleSocketMessage(
 }
 
 function handleSocketClose(runtime: IClientRuntime): void {
+  stopHeartbeat(runtime);
   if (runtime.state.suppressNextSocketCloseEvent) {
     runtime.state.suppressNextSocketCloseEvent = false;
   } else {
@@ -468,6 +478,50 @@ function scheduleReconnect(runtime: IClientRuntime): void {
   }, delay);
 }
 
+/**
+ * Start the client's half of the heartbeat.
+ *
+ * The server reaps a socket after `HEARTBEAT_TIMEOUT_MS` without
+ * INBOUND traffic, and a player who is watching rather than acting -
+ * a spectator, or anyone waiting out an opponent's turn - sends
+ * nothing at all. Without this, a healthy connection was closed for
+ * being quiet, and the client reconnected into the same silence.
+ *
+ * Sent at the server's own interval, so a single dropped frame still
+ * leaves two more inside the timeout.
+ */
+function startHeartbeat(
+  runtime: IClientRuntime,
+  socket: IClientWebSocket,
+): void {
+  stopHeartbeat(runtime);
+  runtime.state.heartbeatTimer = setInterval(() => {
+    // Only while this socket is still the live one AND open. A
+    // reconnect swaps the socket out; writing to the old one would
+    // throw on every tick forever.
+    if (runtime.state.socket !== socket || socket.readyState !== 1) return;
+    try {
+      socket.send(
+        JSON.stringify({
+          kind: 'Heartbeat' as const,
+          matchId: runtime.matchId,
+          ts: nowIso(),
+        }),
+      );
+    } catch {
+      // A failed keepalive is not worth surfacing: the socket is
+      // already dying and `onclose` reports that properly.
+    }
+  }, HEARTBEAT_INTERVAL_MS);
+}
+
+/** Idempotent, and called from every path that ends a connection. */
+function stopHeartbeat(runtime: IClientRuntime): void {
+  if (runtime.state.heartbeatTimer === null) return;
+  clearInterval(runtime.state.heartbeatTimer);
+  runtime.state.heartbeatTimer = null;
+}
+
 function sendClientIntent(
   runtime: IClientRuntime,
   intent: IIntentPayload,
@@ -514,6 +568,7 @@ function addClientListener(
 
 function closeClient(runtime: IClientRuntime): void {
   runtime.state.closedByCaller = true;
+  stopHeartbeat(runtime);
   if (runtime.state.reconnectTimer) {
     clearTimeout(runtime.state.reconnectTimer);
     runtime.state.reconnectTimer = null;

@@ -141,6 +141,30 @@ describe('ServerMatchSocketLifecycle', () => {
     expect(onLastSocketDropped).toHaveBeenCalledWith('p1');
   });
 
+  it('survives indefinitely on the client heartbeat cadence alone', () => {
+    // The two halves of the contract, joined. The row above proves ONE
+    // refresh keeps a socket alive; this drives the cadence the client
+    // actually sends at against the reaper for several timeout windows.
+    // It is what binds the two constants together - set the client
+    // interval above the server timeout and this reds, while every
+    // other row here stays green.
+    const { lifecycle, onLastSocketDropped } = makeLifecycle();
+    const socket = makeMockSocket();
+
+    lifecycle.attach(socket, 'p1');
+
+    // Four full timeout windows of a player who is watching, not acting.
+    const ticks = Math.ceil((HEARTBEAT_TIMEOUT_MS * 4) / HEARTBEAT_INTERVAL_MS);
+    for (let i = 0; i < ticks; i += 1) {
+      jest.advanceTimersByTime(HEARTBEAT_INTERVAL_MS);
+      lifecycle.noteInbound(socket);
+    }
+
+    expect(lifecycle.count()).toBe(1);
+    expect(socket.closeCount).toBe(0);
+    expect(onLastSocketDropped).not.toHaveBeenCalled();
+  });
+
   it('noteInbound refreshes the idle timer so active sockets are not detached', () => {
     const { lifecycle, onLastSocketDropped } = makeLifecycle();
     const socket = makeMockSocket();

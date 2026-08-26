@@ -9,6 +9,8 @@
  *   - Reconnect schedules with exponential backoff
  */
 
+import { HEARTBEAT_TIMEOUT_MS } from '@/types/multiplayer/Protocol';
+
 import { connect, type IClientWebSocket } from '../client';
 import { credentialProtocols } from '../socketCredentialProtocol';
 
@@ -93,6 +95,53 @@ describe('multiplayer client', () => {
     expect(f.urls[0]).not.toContain('token=');
     expect(f.urls[0]).not.toContain('tok');
     expect(f.offered[0]).toEqual(credentialProtocols('tok'));
+  });
+
+  it('keeps a quiet session alive by sending heartbeats', () => {
+    // The server reaps a socket after HEARTBEAT_TIMEOUT_MS of silence,
+    // and `lastInboundAt` only moves on INBOUND traffic. A player who
+    // is watching rather than acting - a spectator, or anyone waiting
+    // out an opponent's turn - sends nothing, so a healthy connection
+    // was being closed for being quiet.
+    const f = makeMockSocketFactory();
+    connect(
+      'ws://localhost/x',
+      'm1',
+      { playerId: 'p1', token: 'tok' },
+      { socketFactory: f.factory, reconnect: false },
+    );
+    f.lastSocket().fireOpen();
+    f.lastSocket().sentRaw.length = 0;
+
+    jest.advanceTimersByTime(HEARTBEAT_TIMEOUT_MS);
+
+    const kinds = f
+      .lastSocket()
+      .sentRaw.map((raw) => (JSON.parse(raw) as { kind: string }).kind);
+    expect(kinds).toContain('Heartbeat');
+    // At the server's own interval, comfortably inside its timeout.
+    expect(kinds.filter((kind) => kind === 'Heartbeat').length).toBeGreaterThan(
+      1,
+    );
+  });
+
+  it('stops heartbeating once the caller closes the client', () => {
+    // A timer that outlives the socket keeps the process alive and
+    // writes to a closed socket forever.
+    const f = makeMockSocketFactory();
+    const client = connect(
+      'ws://localhost/x',
+      'm1',
+      { playerId: 'p1', token: 'tok' },
+      { socketFactory: f.factory, reconnect: false },
+    );
+    f.lastSocket().fireOpen();
+    client.close();
+    f.lastSocket().sentRaw.length = 0;
+
+    jest.advanceTimersByTime(HEARTBEAT_TIMEOUT_MS);
+
+    expect(f.lastSocket().sentRaw).toHaveLength(0);
   });
 
   it('sends SessionJoin on open', () => {
