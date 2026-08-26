@@ -330,6 +330,92 @@ describe('bindCampaignSyncConnection', () => {
     });
   });
 
+  it('lets a durable member cold-reconnect with no room code at all', async () => {
+    // The reconnection a page reload produces. The first join is an
+    // invited newcomer; the SECOND presents no code whatsoever, which is
+    // the situation after a client loses whatever it had cached. Before
+    // durable membership this was simply a rejected join.
+    const registry = await makeRegistry();
+    const membership = fakeMembership();
+
+    const first = new MockWireSocket();
+    await bindCampaignSyncConnection({
+      socket: first,
+      registry,
+      matchId: 'match-campaign',
+      verifiedPlayerId: 'pid_guest',
+      logger: quietLogger,
+      replicaStore: null,
+      membership,
+    });
+    first.inbound({
+      kind: 'CampaignJoin',
+      matchId: 'match-campaign',
+      ts: nowIso(),
+      playerId: 'pid_guest',
+      role: 'guest',
+      roomCode: 'ABC234',
+    });
+    await flushAsyncHandlers();
+    expect(membership.bound).toContainEqual({
+      participantId: 'pid_guest',
+      seat: 'player',
+    });
+
+    // Cold restart of the client: brand new socket, no room code.
+    const reconnected = new MockWireSocket();
+    await bindCampaignSyncConnection({
+      socket: reconnected,
+      registry,
+      matchId: 'match-campaign',
+      verifiedPlayerId: 'pid_guest',
+      logger: quietLogger,
+      replicaStore: null,
+      membership,
+    });
+    reconnected.inbound({
+      kind: 'CampaignJoin',
+      matchId: 'match-campaign',
+      ts: nowIso(),
+      playerId: 'pid_guest',
+      role: 'guest',
+    });
+    await flushAsyncHandlers();
+
+    expect(reconnected.sent).not.toContainEqual(
+      expect.objectContaining({ kind: 'Error' }),
+    );
+  });
+
+  it('still refuses a stranger who presents no room code', async () => {
+    // The control. Without it, the row above would pass against a server
+    // that had simply stopped checking anything at all.
+    const socket = new MockWireSocket();
+    const registry = await makeRegistry();
+
+    await bindCampaignSyncConnection({
+      socket,
+      registry,
+      matchId: 'match-campaign',
+      verifiedPlayerId: 'pid_stranger',
+      logger: quietLogger,
+      replicaStore: null,
+      membership: fakeMembership(),
+    });
+    socket.inbound({
+      kind: 'CampaignJoin',
+      matchId: 'match-campaign',
+      ts: nowIso(),
+      playerId: 'pid_stranger',
+      role: 'guest',
+    });
+    await flushAsyncHandlers();
+
+    expect(socket.sent).toContainEqual(
+      expect.objectContaining({ kind: 'Error', code: 'UNKNOWN_MATCH' }),
+    );
+  });
+
   it('does not fan out to a socket whose join was rejected', async () => {
     // `addSocketToMatch` runs as the FIRST statement of the join
     // handler, before the room code is checked. A guest who presents the

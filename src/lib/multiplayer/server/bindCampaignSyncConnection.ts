@@ -647,8 +647,15 @@ async function handleCampaignJoin({
     return;
   }
 
+  // No fallback to `entry.roomCode`. Substituting the session's OWN
+  // code for a missing one made omitting the invite equivalent to
+  // presenting the correct invite, so any authenticated player who knew
+  // the match id could join a campaign they were never invited to - the
+  // room code protected nothing against them. A newcomer must present a
+  // code; a durable member never reaches here, because the membership
+  // path above already admitted them.
   const join = await entry.syncSession.joinGuest(
-    envelope.roomCode ?? entry.roomCode,
+    envelope.roomCode ?? '',
     (event) => {
       sendCampaignEvent(socket, matchId, event);
     },
