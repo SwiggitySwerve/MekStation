@@ -21,6 +21,7 @@ import {
   FogOfWarVisibilityCache,
 } from './fogOfWar';
 import { isSpectatorPlayer } from './lobby/spectatorSeats';
+import { ViewerDeliveryCursors } from './projection/ViewerDeliveryCursors';
 import { MATCH_WIRE_PUBLICATION_BOUNDARY } from './projection/ViewerPublicationBoundary';
 
 export function stampRollsOnNewEvents(
@@ -111,6 +112,7 @@ export async function broadcastEvent(ctx: {
   readonly broadcaster: ServerMatchBroadcaster;
   readonly fogVisibilityCache: FogOfWarVisibilityCache;
   readonly viewerResolver: AuthorizedViewerResolver;
+  readonly deliveryCursors: ViewerDeliveryCursors;
   readonly message: IEventMessage;
 }): Promise<void> {
   let meta: IMatchMeta | null = null;
@@ -175,7 +177,14 @@ export async function broadcastEvent(ctx: {
       frame,
     );
     if (guarded.kind !== 'send') continue;
-    ctx.broadcaster.safeSend(recipient.socket, guarded.value);
+    // Numbered HERE and nowhere earlier: every frame withheld by fog or
+    // omitted by the guard has already `continue`d, so it never consumes
+    // one of this viewer's numbers. That is what makes their sequence
+    // gapless while the authority sequence they can also see is not.
+    ctx.broadcaster.safeSend(recipient.socket, {
+      ...guarded.value,
+      deliverySequence: ctx.deliveryCursors.assign(recipient.playerId),
+    });
   }
 }
 
