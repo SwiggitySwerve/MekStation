@@ -1,3 +1,5 @@
+import { credentialProtocols } from '@/lib/multiplayer/socketCredentialProtocol';
+
 import type { ICampaignSyncWebSocket } from '../campaignSyncTransport';
 
 import {
@@ -14,15 +16,19 @@ interface IMockSocket extends ICampaignSyncWebSocket {
 
 function makeSocketFactory(): {
   readonly urls: string[];
-  factory: (url: string) => ICampaignSyncWebSocket;
+  readonly offered: (string[] | undefined)[];
+  factory: (url: string, protocols?: string[]) => ICampaignSyncWebSocket;
   lastSocket: () => IMockSocket;
 } {
   const sockets: IMockSocket[] = [];
   const urls: string[] = [];
+  const offered: (string[] | undefined)[] = [];
   return {
     urls,
-    factory: (url: string) => {
+    offered,
+    factory: (url: string, protocols?: string[]) => {
       urls.push(url);
+      offered.push(protocols);
       const socket: IMockSocket = {
         readyState: 1,
         onopen: null,
@@ -70,6 +76,11 @@ describe('campaignSyncTransport', () => {
 
     expect(sockets.urls[0]).toContain('channel=campaign');
     expect(sockets.urls[0]).toContain('matchId=match-1');
+    // The credential is NOT in the URL - it travels in the subprotocol
+    // header, so it never reaches an access or proxy log.
+    expect(sockets.urls[0]).not.toContain('token=');
+    expect(sockets.urls[0]).not.toContain('wire-token');
+    expect(sockets.offered[0]).toEqual(credentialProtocols('wire-token'));
     sockets.lastSocket().fireOpen();
 
     const join = JSON.parse(sockets.lastSocket().sentRaw[0]) as {

@@ -10,6 +10,7 @@
  */
 
 import { connect, type IClientWebSocket } from '../client';
+import { credentialProtocols } from '../socketCredentialProtocol';
 
 // Stand-in for `setTimeout` we can drive deterministically.
 jest.useFakeTimers();
@@ -22,13 +23,19 @@ interface IMockSocket extends IClientWebSocket {
 }
 
 function makeMockSocketFactory(): {
-  factory: (url: string) => IClientWebSocket;
+  factory: (url: string, protocols?: string[]) => IClientWebSocket;
   lastSocket: () => IMockSocket;
   socketsCreated: number;
+  readonly urls: string[];
+  readonly offered: (string[] | undefined)[];
 } {
   const sockets: IMockSocket[] = [];
+  const urls: string[] = [];
+  const offered: (string[] | undefined)[] = [];
 
-  const factory = (_url: string): IClientWebSocket => {
+  const factory = (_url: string, protocols?: string[]): IClientWebSocket => {
+    urls.push(_url);
+    offered.push(protocols);
     const sentRaw: string[] = [];
     const socket: IMockSocket = {
       readyState: 1,
@@ -60,6 +67,8 @@ function makeMockSocketFactory(): {
 
   return {
     factory,
+    urls,
+    offered,
     lastSocket: () => sockets[sockets.length - 1],
     get socketsCreated() {
       return sockets.length;
@@ -68,6 +77,24 @@ function makeMockSocketFactory(): {
 }
 
 describe('multiplayer client', () => {
+  it('keeps the credential out of the socket URL', () => {
+    // A query string is the worst place for a bearer token: it lands in
+    // access logs, proxy logs, and crash reports, none of which expect
+    // to hold secrets. The subprotocol header is a real header.
+    const f = makeMockSocketFactory();
+    connect(
+      'ws://localhost/x',
+      'm1',
+      { playerId: 'p1', token: 'tok' },
+      { socketFactory: f.factory, reconnect: false },
+    );
+
+    expect(f.urls[0]).toContain('matchId=m1');
+    expect(f.urls[0]).not.toContain('token=');
+    expect(f.urls[0]).not.toContain('tok');
+    expect(f.offered[0]).toEqual(credentialProtocols('tok'));
+  });
+
   it('sends SessionJoin on open', () => {
     const f = makeMockSocketFactory();
     connect(

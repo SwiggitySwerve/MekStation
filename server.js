@@ -14,9 +14,9 @@
  *     /api/multiplayer/socket through the WS server, and call
  *     `socket.destroy()` for any other upgrade path so we don't keep
  *     dangling sockets.
- *   - Auth in Wave 1 is a placeholder: presence of a `token` query
- *     param + a known `matchId`. Wave 2 adds Ed25519 signature
- *     verification.
+ *   - Auth: an Ed25519-signed wire token carried in the
+ *     `Sec-WebSocket-Protocol` header, plus a known `matchId`. A token
+ *     in the query string is refused rather than accepted.
  *
  * @spec openspec/specs/multiplayer-server/spec.md
  */
@@ -192,6 +192,38 @@ function decodeWireToken(wire) {
   return { playerId, issuedAt, expiresAt, publicKey, signature };
 }
 
+// Inlined mirror of src/lib/multiplayer/socketCredentialProtocol.ts.
+// server.js is plain CommonJS at the repo root and cannot import the
+// TypeScript module, so the constants and the decode are duplicated
+// here and pinned by a test that reads BOTH files.
+const WS_PROTOCOL_VERSION = 'mekstation.v1';
+const WS_CREDENTIAL_PREFIX = 'mekstation.token.';
+
+/** Reverse the base64url transform applied to the wire token. */
+function fromBase64Url(base64url) {
+  const restored = base64url.replace(/-/g, '+').replace(/_/g, '/');
+  const remainder = restored.length % 4;
+  if (remainder === 0 || remainder === 1) return restored;
+  return restored + '='.repeat(4 - remainder);
+}
+
+/**
+ * Pull the wire token out of `Sec-WebSocket-Protocol`. Returns null
+ * when no credential subprotocol was offered, which the caller must
+ * treat as unauthenticated - never as allow.
+ */
+function readCredentialProtocol(header) {
+  if (!header) return null;
+  for (const raw of String(header).split(',')) {
+    const entry = raw.trim();
+    if (!entry.startsWith(WS_CREDENTIAL_PREFIX)) continue;
+    const encoded = entry.slice(WS_CREDENTIAL_PREFIX.length);
+    if (encoded.length === 0) return null;
+    return fromBase64Url(encoded);
+  }
+  return null;
+}
+
 /**
  * Verify a wire-format token. Returns `{ ok: true, playerId }` on
  * success, or `{ ok: false, reason }` on failure.
@@ -303,7 +335,7 @@ function sendWebSocketUpgradeRequired(res) {
   res.end(
     JSON.stringify({
       error: 'Upgrade Required',
-      hint: `Open a WebSocket connection to ${WS_UPGRADE_PATH}?matchId=...&token=...`,
+      hint: `Open a WebSocket connection to ${WS_UPGRADE_PATH}?matchId=... with the credential in the Sec-WebSocket-Protocol header`,
     }),
   );
 }
@@ -428,6 +460,12 @@ app
     const wss = new WebSocketServer({
       noServer: true,
       perMessageDeflate: false,
+      // Echo ONLY the version marker. Selecting the credential
+      // subprotocol would put the token straight back into a response
+      // header, undoing the reason it left the URL. `ws` only calls
+      // this when the client offered protocols at all.
+      handleProtocols: (protocols) =>
+        protocols.has(WS_PROTOCOL_VERSION) ? WS_PROTOCOL_VERSION : false,
     });
 
     wss.on('connection', (ws, req) => {
@@ -680,8 +718,24 @@ app
           return;
         }
         const matchId = firstQueryValue(parsedUrl.query.matchId);
-        const token = firstQueryValue(parsedUrl.query.token);
+        const token = readCredentialProtocol(
+          req.headers['sec-websocket-protocol'],
+        );
         configureMpUpgradeSocket(socket);
+        // A credential in the query string is REFUSED, not accepted as
+        // a fallback. Accepting both would leave every caller free to
+        // keep logging the token, so the header would be an option
+        // rather than a guarantee.
+        if (firstQueryValue(parsedUrl.query.token)) {
+          // eslint-disable-next-line no-console
+          console.warn(
+            `[mp-socket] upgrade rejected matchId=${
+              typeof matchId === 'string' ? matchId : ''
+            } reason=token-in-url`,
+          );
+          rejectUpgrade(socket, '400 Bad Request');
+          return;
+        }
         // eslint-disable-next-line no-console
         console.log(
           `[mp-socket] upgrade requested matchId=${
