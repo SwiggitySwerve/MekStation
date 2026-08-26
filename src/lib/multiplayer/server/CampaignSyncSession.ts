@@ -84,6 +84,15 @@ export class CampaignSyncSession {
   private roomCode: string | null = null;
   private paused = false;
   /**
+   * How many GM connections are currently attached.
+   *
+   * A COUNT rather than a flag, because the GM can hold more than one
+   * at a time - a second tab, or a reconnect that lands before the old
+   * socket's close is processed. With a flag, closing either one paused
+   * a session the GM was still sitting in.
+   */
+  private gmConnections = 0;
+  /**
    * Whether `open` has run. Tracked separately from `roomCode` because
    * an open session may legitimately hold no invite, and `roomCode`
    * alone cannot tell "opened without one" from "not opened yet" —
@@ -152,6 +161,39 @@ export class CampaignSyncSession {
   /** Whether the session is paused (host disconnected). */
   isPaused = (): boolean => {
     return this.paused;
+  };
+
+  /**
+   * The GM's connection arrived. Clears a pause left by their previous
+   * one dropping.
+   *
+   * Only the GM's own reconnection resumes: the caller decides who this
+   * is by comparing the connection's VERIFIED principal to the
+   * registered host, so a tactical player cannot reach this by claiming
+   * to be one.
+   */
+  noteGmConnected = (): void => {
+    this.gmConnections += 1;
+    this.paused = false;
+  };
+
+  /**
+   * The GM's connection dropped. The session pauses; nobody is promoted.
+   *
+   * Distinct from `hostDisconnected`, which is TERMINAL - it closes the
+   * host, so nothing can resume afterwards. This is the recoverable
+   * case: authority stays with the absent GM and waits for them, which
+   * is the whole point of not promoting anyone.
+   *
+   * A no-op when no GM connection is attached, so a stray close from a
+   * connection that never held GM authority cannot pause the session.
+   */
+  noteGmDisconnected = (): void => {
+    if (this.gmConnections === 0) return;
+    this.gmConnections -= 1;
+    // Paused only when the LAST one goes. The GM is absent when none of
+    // their connections remain, not when one of several closes.
+    if (this.gmConnections === 0) this.paused = true;
   };
 
   /**

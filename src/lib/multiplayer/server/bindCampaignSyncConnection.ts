@@ -411,12 +411,26 @@ async function dispatchCampaignEnvelope({
       return;
     }
     case 'CampaignProposal':
+      // No correlation id: the proposal envelope carries an opaque
+      // `proposal`, and inventing a field to correlate against would be
+      // a protocol claim this refusal does not need to make.
+      if (refusedWhilePaused(entry, socket, matchId)) {
+        return;
+      }
       await handleCampaignProposal({ envelope, socket, entry, matchId });
       return;
     case 'CampaignDecision':
+      if (refusedWhilePaused(entry, socket, matchId, envelope.proposalId)) {
+        return;
+      }
       await handleCampaignDecision({ envelope, socket, entry, matchId });
       return;
     case 'CampaignHostIntent':
+      if (
+        refusedWhilePaused(entry, socket, matchId, envelope.intent.intentId)
+      ) {
+        return;
+      }
       await handleCampaignHostIntent({ envelope, socket, entry, matchId });
       return;
     case 'CampaignParticipation':
@@ -433,6 +447,38 @@ async function dispatchCampaignEnvelope({
       void exhaustive;
     }
   }
+}
+
+/**
+ * Refuse a state-changing campaign command while the session is paused
+ * for GM loss, and say so truthfully.
+ *
+ * Only the three MUTATING kinds are refused. Join, grant-join, and
+ * acknowledgement stay open on purpose: those are how a participant
+ * gets back and how the GM returns to resume, and refusing them would
+ * make the pause unrecoverable rather than recoverable.
+ *
+ * `MATCH_PAUSED` already means exactly this - an engine-mutating
+ * command rejected because the session is waiting on someone to
+ * reconnect - so no new code was minted for it.
+ */
+function refusedWhilePaused(
+  entry: ICampaignHostRegistryEntry,
+  socket: IWireCampaignSocket,
+  matchId: string,
+  correlationId?: string,
+): boolean {
+  if (!entry.syncSession.isPaused()) return false;
+  send(
+    socket,
+    errorFrame(
+      matchId,
+      'MATCH_PAUSED',
+      'campaign-paused-gm-absent',
+      correlationId,
+    ),
+  );
+  return true;
 }
 
 async function handleCampaignHostIntent({
@@ -558,6 +604,16 @@ async function handleCampaignJoin({
   };
 
   if (role === 'host') {
+    // The GM is here. This resumes a session their previous connection
+    // paused - and ONLY their own reconnection can, because `role` is
+    // host precisely when the connection's VERIFIED principal matches
+    // the registered host. A tactical player cannot reach this line.
+    entry.syncSession.noteGmConnected();
+    cleanupFns.add(() => {
+      // ...and this is GM loss. The session pauses rather than
+      // promoting anybody; authority waits for the same GM.
+      entry.syncSession.noteGmDisconnected();
+    });
     // Admitted by identity: `role` is host precisely because the
     // verified player id matches the registry's host. Recorded as the
     // gm seat so the admission survives this connection.

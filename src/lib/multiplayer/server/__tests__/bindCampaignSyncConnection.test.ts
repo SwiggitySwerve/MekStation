@@ -372,6 +372,187 @@ describe('bindCampaignSyncConnection', () => {
     ).toBe(true);
   });
 
+  async function bindHost(
+    registry: CampaignHostRegistry,
+    socket: MockWireSocket,
+  ): Promise<void> {
+    await bindCampaignSyncConnection({
+      socket,
+      registry,
+      matchId: 'match-campaign',
+      verifiedPlayerId: 'pid_host',
+      logger: quietLogger,
+      replicaStore: null,
+    });
+    socket.inbound({
+      kind: 'CampaignJoin',
+      matchId: 'match-campaign',
+      ts: nowIso(),
+      playerId: 'pid_host',
+      role: 'host',
+    });
+    await flushAsyncHandlers();
+  }
+
+  it('pauses the campaign when the GM connection drops', async () => {
+    // Authority belongs to the GM's connection. Losing it must stop the
+    // campaign rather than carry on without the only participant
+    // entitled to run it.
+    const registry = await makeRegistry();
+    const gm = new MockWireSocket();
+    await bindHost(registry, gm);
+    expect(registry.get('match-campaign')?.syncSession.isPaused()).toBe(false);
+
+    gm.close();
+    await flushAsyncHandlers();
+
+    expect(registry.get('match-campaign')?.syncSession.isPaused()).toBe(true);
+  });
+
+  it('refuses a player command while the GM is absent', async () => {
+    // The pause has to bite, or it is only a label. A player who stayed
+    // connected keeps PLAYER authority and nothing more.
+    const registry = await makeRegistry();
+    const gm = new MockWireSocket();
+    await bindHost(registry, gm);
+
+    const player = new MockWireSocket();
+    await bindCampaignSyncConnection({
+      socket: player,
+      registry,
+      matchId: 'match-campaign',
+      verifiedPlayerId: 'pid_guest',
+      logger: quietLogger,
+      replicaStore: null,
+      membership: fakeMembership({ active: ['pid_guest'] }),
+    });
+    player.inbound({
+      kind: 'CampaignJoin',
+      matchId: 'match-campaign',
+      ts: nowIso(),
+      playerId: 'pid_guest',
+      role: 'guest',
+    });
+    await flushAsyncHandlers();
+
+    gm.close();
+    await flushAsyncHandlers();
+    player.sent.length = 0;
+
+    player.inbound({
+      kind: 'CampaignProposal',
+      matchId: 'match-campaign',
+      ts: nowIso(),
+      playerId: 'pid_guest',
+      proposal: { kind: 'AdvanceDay', payload: {} },
+    });
+    await flushAsyncHandlers();
+
+    expect(sawError(player, 'MATCH_PAUSED', 'campaign-paused-gm-absent')).toBe(
+      true,
+    );
+  });
+
+  it('does not let a player resume the campaign by reconnecting', async () => {
+    // No implicit promotion. A player's connection arriving is not the
+    // GM's, so the pause must survive it - otherwise losing the GM and
+    // rejoining as a player would quietly hand the campaign back.
+    const registry = await makeRegistry();
+    const gm = new MockWireSocket();
+    await bindHost(registry, gm);
+    gm.close();
+    await flushAsyncHandlers();
+
+    const player = new MockWireSocket();
+    await bindCampaignSyncConnection({
+      socket: player,
+      registry,
+      matchId: 'match-campaign',
+      verifiedPlayerId: 'pid_guest',
+      logger: quietLogger,
+      replicaStore: null,
+      membership: fakeMembership({ active: ['pid_guest'] }),
+    });
+    player.inbound({
+      kind: 'CampaignJoin',
+      matchId: 'match-campaign',
+      ts: nowIso(),
+      playerId: 'pid_guest',
+      role: 'guest',
+    });
+    await flushAsyncHandlers();
+
+    expect(registry.get('match-campaign')?.syncSession.isPaused()).toBe(true);
+  });
+
+  it('resumes when the SAME GM reconnects', async () => {
+    // The other half of "no promotion": the pause is not a dead end.
+    // Authority waited for them and comes back when they do.
+    const registry = await makeRegistry();
+    const first = new MockWireSocket();
+    await bindHost(registry, first);
+    first.close();
+    await flushAsyncHandlers();
+    expect(registry.get('match-campaign')?.syncSession.isPaused()).toBe(true);
+
+    const second = new MockWireSocket();
+    await bindHost(registry, second);
+
+    expect(registry.get('match-campaign')?.syncSession.isPaused()).toBe(false);
+  });
+
+  it('does not pause while the GM still holds another connection', async () => {
+    // A second tab, or a reconnect that lands before the old socket's
+    // close is processed. Tracking presence as a flag paused a session
+    // the GM was still sitting in; it is a count for exactly this.
+    const registry = await makeRegistry();
+    const firstTab = new MockWireSocket();
+    const secondTab = new MockWireSocket();
+    await bindHost(registry, firstTab);
+    await bindHost(registry, secondTab);
+
+    firstTab.close();
+    await flushAsyncHandlers();
+
+    expect(registry.get('match-campaign')?.syncSession.isPaused()).toBe(false);
+
+    secondTab.close();
+    await flushAsyncHandlers();
+
+    expect(registry.get('match-campaign')?.syncSession.isPaused()).toBe(true);
+  });
+
+  it('does not pause when a non-GM connection closes', async () => {
+    // A player disconnecting is ordinary. Only the GM's loss pauses.
+    const registry = await makeRegistry();
+    const gm = new MockWireSocket();
+    await bindHost(registry, gm);
+
+    const player = new MockWireSocket();
+    await bindCampaignSyncConnection({
+      socket: player,
+      registry,
+      matchId: 'match-campaign',
+      verifiedPlayerId: 'pid_guest',
+      logger: quietLogger,
+      replicaStore: null,
+      membership: fakeMembership({ active: ['pid_guest'] }),
+    });
+    player.inbound({
+      kind: 'CampaignJoin',
+      matchId: 'match-campaign',
+      ts: nowIso(),
+      playerId: 'pid_guest',
+      role: 'guest',
+    });
+    await flushAsyncHandlers();
+
+    player.close();
+    await flushAsyncHandlers();
+
+    expect(registry.get('match-campaign')?.syncSession.isPaused()).toBe(false);
+  });
+
   it('cold-recovers a durable member after the invite expired', async () => {
     // Rehydration of a LAUNCHED campaign: the store cleared the code,
     // so the session opens with no invite at all. The member inside it
