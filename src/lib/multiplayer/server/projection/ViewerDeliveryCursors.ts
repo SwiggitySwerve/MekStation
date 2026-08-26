@@ -25,22 +25,50 @@
  */
 
 export class ViewerDeliveryCursors {
-  /** Next sequence to hand out, per viewer. Absent means zero. */
-  private readonly next = new Map<string, number>();
+  /**
+   * Per viewer, the AUTHORITY sequence behind each frame they were
+   * sent, in delivery order. The index IS the delivery sequence.
+   *
+   * Kept so a resuming client can name where it got to using only its
+   * own numbering - it has no authority sequence to quote, which is the
+   * whole point - while the server can still find what it missed.
+   */
+  private readonly delivered = new Map<string, number[]>();
 
   /**
-   * Take this viewer's next delivery sequence. Call once per frame that
-   * is actually being sent to them.
+   * Take this viewer's next delivery sequence, recording which
+   * authority event it carried. Call once per frame actually sent.
    */
-  assign(playerId: string): number {
-    const value = this.next.get(playerId) ?? 0;
-    this.next.set(playerId, value + 1);
-    return value;
+  assign(playerId: string, authoritySequence: number | null): number {
+    const list = this.delivered.get(playerId) ?? [];
+    list.push(authoritySequence ?? -1);
+    this.delivered.set(playerId, list);
+    return list.length - 1;
+  }
+
+  /**
+   * The authority sequence of the FIRST frame this viewer missed after
+   * `cursor`, or null when they are already current.
+   *
+   * A replay START rather than a list, because the existing per-player
+   * replay already filters to what this viewer may see - resuming from
+   * that point gives them their tail and nothing they are not owed.
+   */
+  firstMissedAuthoritySequence(
+    playerId: string,
+    cursor: number,
+  ): number | null {
+    const list = this.delivered.get(playerId);
+    if (list === undefined) return null;
+    for (let index = cursor + 1; index < list.length; index += 1) {
+      if (list[index] >= 0) return list[index];
+    }
+    return null;
   }
 
   /** How many frames this viewer has been sent. Test/observability. */
   issued(playerId: string): number {
-    return this.next.get(playerId) ?? 0;
+    return (this.delivered.get(playerId) ?? []).length;
   }
 
   /**
@@ -52,6 +80,6 @@ export class ViewerDeliveryCursors {
    * match teardown.
    */
   forget(playerId: string): void {
-    this.next.delete(playerId);
+    this.delivered.delete(playerId);
   }
 }

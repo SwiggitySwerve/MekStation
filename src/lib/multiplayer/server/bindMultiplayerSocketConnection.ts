@@ -256,6 +256,7 @@ async function dispatchEnvelope({
         verifiedPlayerId,
         envelope.lastSeq,
         envelope.matchId,
+        envelope.deliveryCursor,
       );
       logger.log(
         `[mp-socket] session joined matchId=${matchId} playerId=${verifiedPlayerId}`,

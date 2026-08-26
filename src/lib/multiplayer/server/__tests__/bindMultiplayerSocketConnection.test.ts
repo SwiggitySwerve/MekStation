@@ -225,6 +225,8 @@ describe('bindMultiplayerSocketConnection', () => {
       'pid_host',
       4,
       'match-live',
+      // The client's own delivery cursor, absent on a first join.
+      undefined,
     );
     expect(socket.closes).toEqual([]);
   });

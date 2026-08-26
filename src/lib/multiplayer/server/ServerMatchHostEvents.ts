@@ -183,7 +183,10 @@ export async function broadcastEvent(ctx: {
     // gapless while the authority sequence they can also see is not.
     ctx.broadcaster.safeSend(recipient.socket, {
       ...guarded.value,
-      deliverySequence: ctx.deliveryCursors.assign(recipient.playerId),
+      deliverySequence: ctx.deliveryCursors.assign(
+        recipient.playerId,
+        authoritySequenceOf(frame),
+      ),
     });
   }
 }
@@ -224,4 +227,16 @@ function withVisibilityAssignments(
     ...state,
     sideAssignments: meta.sideAssignments,
   } as IGameState;
+}
+
+/**
+ * The authority sequence inside an Event frame, or null when it carries
+ * none. Recorded beside the delivery number so a resume can map one back
+ * to the other.
+ */
+function authoritySequenceOf(frame: IEventMessage): number | null {
+  const event = frame.event;
+  if (typeof event !== 'object' || event === null) return null;
+  const sequence = (event as { sequence?: unknown }).sequence;
+  return typeof sequence === 'number' ? sequence : null;
 }

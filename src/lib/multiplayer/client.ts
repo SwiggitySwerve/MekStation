@@ -457,6 +457,13 @@ function sendSessionJoin(
     playerId: runtime.auth.playerId,
     token: runtime.wireToken,
     ...(runtime.state.lastSeq >= 0 ? { lastSeq: runtime.state.lastSeq } : {}),
+    // The client's own numbering. Sent ALONGSIDE `lastSeq`, not instead
+    // of it: the server prefers this when it still holds the delivery
+    // record and falls back otherwise, so a restarted server still
+    // resumes this client correctly.
+    ...(runtime.state.lastDeliverySequence !== null
+      ? { deliveryCursor: runtime.state.lastDeliverySequence }
+      : {}),
   };
   const parsed = ClientMessageSchema.safeParse(join);
   if (!parsed.success) {
