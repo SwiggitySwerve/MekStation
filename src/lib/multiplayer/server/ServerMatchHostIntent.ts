@@ -7,6 +7,7 @@ import type {
   IServerMessage,
 } from '@/types/multiplayer/Protocol';
 
+import { GameStatus } from '@/types/gameplay/GameSessionInterfaces';
 import {
   intentHasForbiddenDiceField,
   nowIso,
@@ -187,6 +188,36 @@ export async function handleIntent(
       ctx.matchId,
       'MATCH_PAUSED',
       'Match is paused waiting for a peer to reconnect',
+      envelope.intentId,
+    );
+    ctx.broadcast(err);
+    return [err];
+  }
+
+  if (ctx.session.getSession().currentState.status === GameStatus.Completed) {
+    // The match is over. Engine-mutating intents were still accepted
+    // here, and they were not harmless: MEASURED on a real one-sided
+    // victory, the log continued past `game_ended` with
+    // `movement_locked`, `attack_locked` and `attacks_revealed`, and
+    // `deriveCombatOutcome` - the value the campaign consumes for
+    // salvage and damage - came out DIFFERENT before and after.
+    //
+    // Nothing legitimate is refused by this. The only production caller
+    // of `handleIntent` is the raw client wire frame; GM corrections
+    // never touch this host (nothing under `src/lib/interventions/`
+    // references it), and the designed rewind is a replacement BRANCH
+    // rather than a command on a finished match.
+    //
+    // Gated on `status`, deliberately NOT on `isGameOver()`: that also
+    // returns true when a side simply has no surviving units, which is
+    // already the case at boot for a zero-unit harness, so it would
+    // refuse the very first intent of such a match.
+    //
+    // Lobby intents are unaffected - they return above, before this.
+    const err = errorMessage(
+      ctx.matchId,
+      'INVALID_INTENT',
+      'match-already-completed',
       envelope.intentId,
     );
     ctx.broadcast(err);

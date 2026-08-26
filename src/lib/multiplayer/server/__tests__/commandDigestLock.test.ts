@@ -24,12 +24,47 @@
 import { createMinimalGrid } from '@/engine/GameEngine.helpers';
 import { digestReplayCheckpointState } from '@/lib/events/replay/ReplayCheckpointCompatibility';
 import { SeededRandom } from '@/simulation/core/SeededRandom';
+import { GameSide, type IGameUnit } from '@/types/gameplay';
 import { type IIntent, nowIso } from '@/types/multiplayer/Protocol';
 
 import { InMemoryMatchStore } from '../InMemoryMatchStore';
 import { ServerMatchHost } from '../ServerMatchHost';
 
 const MATCH_ID = 'match-digest-lock';
+
+/**
+ * A unit on each side, so the match stays ACTIVE across the whole
+ * command sequence.
+ *
+ * With an empty roster the engine ends the game on the first advance -
+ * neither side has a surviving unit - and every later command is now
+ * refused as `match-already-completed`. That would leave this harness
+ * driving exactly one real command and asserting a literal about it,
+ * which passes while proving nothing. A two-sided roster keeps the
+ * sequence meaningful.
+ */
+function twoSidedRoster(): IGameUnit[] {
+  return [
+    {
+      id: 'lock-player',
+      name: 'lock-player',
+      side: GameSide.Player,
+      unitRef: 'lock-player',
+      pilotRef: 'lock-player-pilot',
+      gunnery: 4,
+      piloting: 5,
+    },
+    {
+      id: 'lock-opponent',
+      name: 'lock-opponent',
+      side: GameSide.Opponent,
+      unitRef: 'lock-opponent',
+      pilotRef: 'lock-opponent-pilot',
+      gunnery: 4,
+      piloting: 5,
+    },
+  ] as IGameUnit[];
+}
 
 async function makeHost(): Promise<ServerMatchHost> {
   const store = new InMemoryMatchStore({ quiet: true });
@@ -56,7 +91,7 @@ async function makeHost(): Promise<ServerMatchHost> {
     grid: createMinimalGrid(4),
     playerUnits: [],
     opponentUnits: [],
-    gameUnits: [],
+    gameUnits: twoSidedRoster(),
     // The DICE seed, which is a different knob from `random` above and
     // is the one initiative actually consumes. Without it the host
     // builds a `CryptoDiceRoller` - correct for a real match, where the
@@ -122,15 +157,24 @@ async function eventSignature(host: ServerMatchHost): Promise<string[]> {
  */
 function postStateDigest(host: ServerMatchHost): string {
   const state = host.getSessionForTests().currentState;
-  return digestReplayCheckpointState({
-    status: state.status,
-    turn: state.turn,
-    phase: state.phase,
-    activationIndex: state.activationIndex,
-    initiativeWinner: state.initiativeWinner ?? null,
-    firstMover: state.firstMover ?? null,
-    units: state.units,
-  });
+  // A JSON round-trip first, because the canonicalizer refuses
+  // `undefined` ("JCS cannot represent undefined") and real unit records
+  // carry optional fields that are absent. Dropping them is exactly
+  // what a digest of the state should do - an absent field and an
+  // explicitly-undefined one describe the same state - and both sides
+  // of every comparison here get the same treatment.
+  const normalized = JSON.parse(
+    JSON.stringify({
+      status: state.status,
+      turn: state.turn,
+      phase: state.phase,
+      activationIndex: state.activationIndex,
+      initiativeWinner: state.initiativeWinner ?? null,
+      firstMover: state.firstMover ?? null,
+      units: state.units,
+    }),
+  ) as unknown;
+  return digestReplayCheckpointState(normalized);
 }
 
 /** Drives the same commands every time, so two runs are comparable. */
@@ -177,9 +221,13 @@ describe('command-to-event and post-state digest lock', () => {
       '2:initiative_rolled',
       '3:initiative_order_set',
       '4:phase_changed',
-      '5:game_ended',
-      '6:phase_changed',
+      '5:movement_locked',
+      '6:movement_locked',
       '7:phase_changed',
+      '8:attack_locked',
+      '9:attack_locked',
+      '10:attacks_revealed',
+      '11:phase_changed',
     ]);
   });
 
@@ -188,7 +236,7 @@ describe('command-to-event and post-state digest lock', () => {
     await driveCommands(host);
 
     expect(postStateDigest(host)).toBe(
-      'a9054322deb133195c878ba3f55a37a7067758360db1a392303014020f1af5b3',
+      '164f29962e280bee5b09130ed0ff5b37475df5a2afe4d267aca665e76c4b5262',
     );
   });
 
