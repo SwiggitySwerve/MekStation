@@ -269,11 +269,18 @@ async function sendPlayerMismatchProposal(
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
     const params = new URLSearchParams({
       matchId: args.matchId,
-      token: args.token,
       playerId: args.ownPlayerId,
       channel: 'campaign',
     });
     const url = `${protocol}//${window.location.host}/api/multiplayer/socket?${params.toString()}`;
+    // The credential travels in the subprotocol header, not the URL.
+    // Inlined rather than imported because this body is serialised into
+    // the page by `page.evaluate` and cannot close over module scope.
+    const protocols = [
+      'mekstation.v1',
+      'mekstation.token.' +
+        args.token.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''),
+    ];
     return await new Promise<IImpersonationResult>((resolve) => {
       const frames: string[] = [];
       let settled = false;
@@ -286,7 +293,7 @@ async function sendPlayerMismatchProposal(
         ws.close();
         finish('timeout waiting for AUTH_REJECTED close', true);
       }, 15_000);
-      const ws = new WebSocket(url);
+      const ws = new WebSocket(url, protocols);
       ws.addEventListener('message', (event) => {
         frames.push(
           typeof event.data === 'string' ? event.data : String(event.data),

@@ -5,6 +5,7 @@ import type {
   IServerMessage,
 } from '@/types/multiplayer/Protocol';
 
+import { credentialProtocols } from '@/lib/multiplayer/socketCredentialProtocol';
 import {
   isCampaignWireEvent,
   type ICampaignEvent,
@@ -47,7 +48,10 @@ export interface ICampaignSyncWebSocket {
   onclose: ((ev: unknown) => void) | null;
 }
 
-export type CampaignSyncSocketFactory = (url: string) => ICampaignSyncWebSocket;
+export type CampaignSyncSocketFactory = (
+  url: string,
+  protocols?: string[],
+) => ICampaignSyncWebSocket;
 
 export interface IConnectCampaignSyncOptions {
   readonly matchId: string;
@@ -81,6 +85,7 @@ export function connectCampaignSyncTransport(
   let closed = false;
   const socket = (options.socketFactory ?? defaultSocketFactory())(
     buildCampaignSyncSocketUrl(options),
+    credentialProtocols(options.wireToken),
   );
 
   const emitError = (error: unknown): void => {
@@ -245,9 +250,12 @@ function buildCampaignSyncSocketUrl(
   options: IConnectCampaignSyncOptions,
 ): string {
   const base = options.url ?? defaultCampaignSocketUrl();
+  // No `token` here - it travels in the subprotocol header instead, so
+  // the credential stays out of access and proxy logs. `channel` and
+  // the ids are routing hints; the server derives the principal from
+  // the token alone and trusts neither.
   const params = new URLSearchParams({
     matchId: options.matchId,
-    token: options.wireToken,
     playerId: options.playerId,
     channel: 'campaign',
   });
@@ -263,12 +271,15 @@ function defaultCampaignSocketUrl(): string {
 }
 
 function defaultSocketFactory(): CampaignSyncSocketFactory {
-  return (url: string) => {
+  return (url: string, protocols?: string[]) => {
     const Ctor =
       typeof globalThis !== 'undefined'
         ? (
             globalThis as {
-              WebSocket?: new (url: string) => ICampaignSyncWebSocket;
+              WebSocket?: new (
+                url: string,
+                protocols?: string[],
+              ) => ICampaignSyncWebSocket;
             }
           ).WebSocket
         : undefined;
@@ -277,7 +288,7 @@ function defaultSocketFactory(): CampaignSyncSocketFactory {
         'No WebSocket constructor available; pass options.socketFactory',
       );
     }
-    return new Ctor(url);
+    return new Ctor(url, protocols);
   };
 }
 

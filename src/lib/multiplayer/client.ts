@@ -38,6 +38,8 @@ import {
   nowIso,
 } from '@/types/multiplayer/Protocol';
 
+import { credentialProtocols } from './socketCredentialProtocol';
+
 // =============================================================================
 // Public API
 // =============================================================================
@@ -87,7 +89,10 @@ export interface IClientWebSocket {
  * Defaults to the global `WebSocket` constructor in environments where
  * it exists.
  */
-export type WebSocketFactory = (url: string) => IClientWebSocket;
+export type WebSocketFactory = (
+  url: string,
+  protocols?: string[],
+) => IClientWebSocket;
 
 export interface IConnectOptions {
   /** Override the WebSocket factory (tests). */
@@ -331,16 +336,22 @@ function emitClientEvent(
 
 function buildSocketUrl(runtime: IClientRuntime): string {
   const sep = runtime.url.includes('?') ? '&' : '?';
+  // No `token` here. The credential rides in the subprotocol header
+  // (`credentialProtocols`) so it stays out of access and proxy logs.
+  // matchId and playerId are routing hints, not secrets, and the server
+  // trusts neither - it derives the principal from the token alone.
   const params = new URLSearchParams({
     matchId: runtime.matchId,
-    token: runtime.wireToken,
     playerId: runtime.auth.playerId,
   });
   return `${runtime.url}${sep}${params.toString()}`;
 }
 
 function openSocket(runtime: IClientRuntime): void {
-  const socket = runtime.factory(buildSocketUrl(runtime));
+  const socket = runtime.factory(
+    buildSocketUrl(runtime),
+    credentialProtocols(runtime.wireToken),
+  );
   runtime.state.socket = socket;
 
   socket.onopen = () => sendSessionJoin(runtime, socket);
@@ -525,17 +536,23 @@ function closeClient(runtime: IClientRuntime): void {
  * available — callers can pass an explicit `socketFactory` to bypass.
  */
 function defaultWebSocketFactory(): WebSocketFactory {
-  return (url: string) => {
+  return (url: string, protocols?: string[]) => {
     const Ctor =
       typeof globalThis !== 'undefined'
-        ? (globalThis as { WebSocket?: new (url: string) => IClientWebSocket })
-            .WebSocket
+        ? (
+            globalThis as {
+              WebSocket?: new (
+                url: string,
+                protocols?: string[],
+              ) => IClientWebSocket;
+            }
+          ).WebSocket
         : undefined;
     if (!Ctor) {
       throw new Error(
         'No WebSocket constructor available; pass options.socketFactory',
       );
     }
-    return new Ctor(url);
+    return new Ctor(url, protocols);
   };
 }
