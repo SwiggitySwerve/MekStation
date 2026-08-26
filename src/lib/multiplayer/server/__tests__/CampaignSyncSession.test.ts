@@ -37,6 +37,46 @@ function newSession(balance = 600_000): {
 }
 
 describe('CampaignSyncSession — host opens a shared campaign', () => {
+  it('opens with the invite already expired without minting a new one', async () => {
+    // The state a campaign is in after its match launched: the store
+    // cleared the code, so rehydrating must NOT hand out a fresh one.
+    const { session } = newSession();
+    await session.openWithoutInvite();
+
+    expect(session.getRoomCode()).toBeNull();
+
+    const refused = await session.joinGuest('ABC234', () => {});
+    expect(refused.ok).toBe(false);
+    expect(refused.delivered).toHaveLength(0);
+  });
+
+  it('admits a durable member into a session whose invite expired', async () => {
+    // The other half. Expiry exists to stop NEWCOMERS; the people
+    // already inside must still be able to come back.
+    const { session } = newSession();
+    await session.openWithoutInvite();
+
+    const received: ICampaignEvent[] = [];
+    const joined = await session.joinMember((e) => received.push(e));
+
+    expect(joined.ok).toBe(true);
+    expect(received[0]?.type).toBe('CampaignSnapshotPublished');
+    joined.disconnect();
+  });
+
+  it('refuses a member on a session paused by the host leaving', async () => {
+    // "No live campaign to hydrate from" is a different answer from
+    // "you are not a member", and it must not be silently conflated
+    // with the expired-invite case above, which stays joinable.
+    const { session } = newSession();
+    await session.open('ABC234');
+    session.hostDisconnected();
+
+    const refused = await session.joinMember(() => {});
+    expect(refused.ok).toBe(false);
+    expect(refused.delivered).toHaveLength(0);
+  });
+
   it('issues a valid 6-char room code excluding I/O/0/1', async () => {
     const { session } = newSession();
     const code = await session.open();

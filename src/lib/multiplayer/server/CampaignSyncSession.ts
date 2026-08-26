@@ -83,6 +83,14 @@ export class CampaignSyncSession {
   private readonly matchId: string;
   private roomCode: string | null = null;
   private paused = false;
+  /**
+   * Whether `open` has run. Tracked separately from `roomCode` because
+   * an open session may legitimately hold no invite, and `roomCode`
+   * alone cannot tell "opened without one" from "not opened yet" —
+   * conflating them would re-run `open` and mint a fresh code for a
+   * campaign whose invite had expired.
+   */
+  private opened = false;
 
   constructor(
     host: CampaignMatchHost,
@@ -102,13 +110,38 @@ export class CampaignSyncSession {
     if (this.roomCode !== null) {
       return this.roomCode;
     }
-    // The host commits the baseline `CampaignSnapshotPublished` as
-    // sequence 0 so the log always opens with a replayable baseline.
-    await this.host.open();
+    await this.ensureHostOpen();
     // Room code: same alphabet as `multiplayer-server` (I/O/0/1
-    // excluded — `generateRoomCode` already enforces it).
+    // excluded - `generateRoomCode` already enforces it).
     this.roomCode = roomCode ? normalizeRoomCode(roomCode) : generateRoomCode();
     return this.roomCode;
+  };
+
+  /**
+   * Open a campaign whose invite has ALREADY expired - the state a
+   * campaign is in after its match launched and the store cleared the
+   * code (`clearRoomCode`).
+   *
+   * Deliberately a separate entry point rather than a nullable argument
+   * to `open`, because `open` always ends with a LIVE invite: minting
+   * one here would let rehydrating a launched campaign re-open the door
+   * that launching closed. Members still join through `joinMember`;
+   * newcomers presenting the old code do not.
+   */
+  openWithoutInvite = async (): Promise<void> => {
+    await this.ensureHostOpen();
+  };
+
+  /**
+   * Commit the baseline `CampaignSnapshotPublished` as sequence 0 so
+   * the log always opens with a replayable baseline. Idempotent, and
+   * tracked by `opened` rather than by `roomCode` so an invite-less
+   * session still counts as open.
+   */
+  private ensureHostOpen = async (): Promise<void> => {
+    if (this.opened) return;
+    await this.host.open();
+    this.opened = true;
   };
 
   /** The issued room code, or `null` before `open`. */
@@ -141,6 +174,29 @@ export class CampaignSyncSession {
       this.roomCode === null ||
       normalizeRoomCode(roomCode) !== this.roomCode
     ) {
+      return { ok: false, delivered: [], disconnect: () => {} };
+    }
+    return this.joinMember(sink);
+  };
+
+  /**
+   * Admit a participant whose right to be here was established
+   * elsewhere — a durable campaign-session membership — and hydrate
+   * them exactly as an invited guest.
+   *
+   * Separate from `joinGuest` because the invite and the membership
+   * answer different questions. Expressing the member path in terms of
+   * the invite made expiring the invite lock out the people already
+   * inside, which is the opposite of what expiry is for.
+   *
+   * Refuses on a session that never opened, or one paused by the host
+   * leaving: there is no live campaign to hydrate from, and that is a
+   * different answer from "you are not a member".
+   */
+  joinMember = async (
+    sink: CampaignGuestSink,
+  ): Promise<ICampaignJoinResult> => {
+    if (!this.opened || this.paused) {
       return { ok: false, delivered: [], disconnect: () => {} };
     }
 

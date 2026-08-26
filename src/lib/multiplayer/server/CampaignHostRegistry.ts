@@ -36,7 +36,8 @@ const MAX_RECONCILED_BATTLE_IDS = 2048;
 export interface ICampaignHostRegistrationSnapshot {
   readonly campaignId: string;
   readonly hostPlayerId: string;
-  readonly roomCode: string;
+  /** The invite, or `null` to register with it already expired. */
+  readonly roomCode: string | null;
   readonly state: ICampaignAuthoritativeState;
   readonly revision?: number;
   readonly arbitrationMode?: GmArbitrationMode;
@@ -63,7 +64,8 @@ interface IParticipationBucket {
 export interface ICampaignHostRegistryEntry {
   readonly matchId: string;
   readonly campaignId: string;
-  readonly roomCode: string;
+  /** The invite this entry opened with, or `null` once expired. */
+  readonly roomCode: string | null;
   readonly revision: number;
   readonly hostPlayerId: string;
   readonly host: CampaignMatchHost;
@@ -86,7 +88,7 @@ export interface ICampaignHostRegistryEntry {
 class CampaignHostRegistryEntry implements ICampaignHostRegistryEntry {
   readonly matchId: string;
   readonly campaignId: string;
-  readonly roomCode: string;
+  readonly roomCode: string | null;
   readonly hostPlayerId: string;
   readonly host: CampaignMatchHost;
   readonly syncSession: CampaignSyncSession;
@@ -101,7 +103,7 @@ class CampaignHostRegistryEntry implements ICampaignHostRegistryEntry {
 
   constructor(input: {
     readonly matchId: string;
-    readonly roomCode: string;
+    readonly roomCode: string | null;
     readonly revision: number;
     readonly host: CampaignMatchHost;
     readonly syncSession: CampaignSyncSession;
@@ -237,7 +239,15 @@ export class CampaignHostRegistry {
       initialState: snapshot.state,
     });
     const syncSession = new CampaignSyncSession(host, { matchId });
-    const roomCode = await syncSession.open(snapshot.roomCode);
+    // `null` means the invite already expired - see `getOrCreate`. It
+    // opens the session without one rather than minting a fresh code,
+    // so rehydration cannot re-open a door that launching closed.
+    let roomCode: string | null = null;
+    if (snapshot.roomCode === null) {
+      await syncSession.openWithoutInvite();
+    } else {
+      roomCode = await syncSession.open(snapshot.roomCode);
+    }
     const revision = Math.max(0, (await host.getEventLog().nextSequence()) - 1);
     const arbiter = new CampaignGmArbiter(
       host,
@@ -278,14 +288,20 @@ export class CampaignHostRegistry {
     } catch {
       return null;
     }
-    if (!meta.coopCampaign || !meta.roomCode) {
+    if (!meta.coopCampaign) {
       return null;
     }
 
+    // A MISSING room code is not a missing campaign. Launching the
+    // match clears the code from the store (`clearRoomCode`), so
+    // refusing to rehydrate without one meant an active campaign became
+    // unreachable the moment its invite expired - the members inside it
+    // could not cold-recover after a restart. `null` rehydrates with
+    // the invite already expired rather than minting a new one.
     return this.register(matchId, {
       campaignId: meta.coopCampaign.campaignId,
       hostPlayerId: meta.hostPlayerId,
-      roomCode: meta.roomCode,
+      roomCode: meta.roomCode ?? null,
       state: meta.coopCampaign.state,
       arbitrationMode: meta.coopCampaign.arbitrationMode,
     });

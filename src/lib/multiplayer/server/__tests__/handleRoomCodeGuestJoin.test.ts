@@ -19,7 +19,10 @@ import { SQLiteCampaignReplicaStore } from '@/lib/campaign/replica/SQLiteCampaig
 import { freezeCampaignEvent } from '@/lib/campaign/sync/campaignEventScope';
 import { bindCampaignSyncConnection } from '@/lib/multiplayer/server/bindCampaignSyncConnection';
 import { CampaignHostRegistry } from '@/lib/multiplayer/server/CampaignHostRegistry';
-import { _resetRoomCodeGuestIssuerForTest } from '@/lib/multiplayer/server/handleRoomCodeGuestJoin';
+import {
+  _resetRoomCodeGuestIssuerForTest,
+  roomCodeAdmitsGuest,
+} from '@/lib/multiplayer/server/handleRoomCodeGuestJoin';
 import { useCampaignMirrorStore } from '@/lib/p2p/campaignMirrorStore';
 import { getSQLiteService } from '@/services/persistence/SQLiteService';
 import { createEmptyCampaignState } from '@/types/campaign/CampaignSync';
@@ -48,6 +51,37 @@ const ISSUER = {
 let harness: Awaited<ReturnType<typeof openCampaignDeliveryHarness>>;
 let registry: CampaignHostRegistry;
 let replica: SQLiteCampaignReplicaStore;
+
+describe('roomCodeAdmitsGuest', () => {
+  // Directly on the admission predicate: the heavy harness below can
+  // only reach it through a live session, and the case that matters is
+  // the one where the session's invite is GONE but the entry still
+  // remembers the code it opened with.
+  function entry(live: string | null) {
+    // `roomCode` is the code the entry OPENED with and never changes;
+    // `getRoomCode()` is the live invite. The gap between the two is
+    // the whole case under test, so the stub has to carry both.
+    return {
+      roomCode: ROOM_CODE,
+      syncSession: { getRoomCode: () => live },
+    } as unknown as Parameters<typeof roomCodeAdmitsGuest>[0];
+  }
+
+  it('admits the live invite', () => {
+    expect(roomCodeAdmitsGuest(entry(ROOM_CODE), ROOM_CODE)).toBe(true);
+  });
+
+  it('refuses the original code once the invite expired', () => {
+    // Was admitted before: the predicate fell back to `entry.roomCode`,
+    // which never changes, so an expired invite kept letting newcomers
+    // in even though the session had stopped resolving the code.
+    expect(roomCodeAdmitsGuest(entry(null), ROOM_CODE)).toBe(false);
+  });
+
+  it('refuses a guest presenting nothing', () => {
+    expect(roomCodeAdmitsGuest(entry(ROOM_CODE), undefined)).toBe(false);
+  });
+});
 
 describe('room-code guest grant path', () => {
   beforeEach(async () => {
