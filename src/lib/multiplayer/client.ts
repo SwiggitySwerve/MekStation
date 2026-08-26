@@ -119,6 +119,12 @@ interface IClientState {
   // on first listener attach.
   pendingLiveEvents: unknown[];
   replayBuffer: unknown[];
+  /**
+   * Live events that arrived AHEAD of the cursor, keyed by sequence.
+   * They are held rather than applied, because applying them would
+   * leave a hole the cursor has already moved past.
+   */
+  outOfOrderLiveEvents: Map<number, unknown>;
   lastSeq: number;
   reconnectAttempt: number;
   reconnectTimer: ReturnType<typeof setTimeout> | null;
@@ -168,12 +174,14 @@ const SERVER_MESSAGE_HANDLERS: Record<
   },
   Event: ({ message, state, emit, updateLastSeq }) => {
     const eventMessage = message as Extract<IServerMessage, { kind: 'Event' }>;
-    updateLastSeq(eventMessage.event);
-    if (!state.ready) {
-      state.pendingLiveEvents.push(eventMessage.event);
-      return;
+    for (const event of admitLiveEvent(state, eventMessage.event)) {
+      updateLastSeq(event);
+      if (!state.ready) {
+        state.pendingLiveEvents.push(event);
+        continue;
+      }
+      emit('event', event);
     }
-    emit('event', eventMessage.event);
   },
   Heartbeat: () => {
     // Server liveness ping; clients do not need to echo.
@@ -292,6 +300,7 @@ export function connect(
     ready: false,
     pendingLiveEvents: [],
     replayBuffer: [],
+    outOfOrderLiveEvents: new Map(),
     lastSeq: options.lastSeq ?? -1,
     reconnectAttempt: 0,
     reconnectTimer: null,
@@ -436,6 +445,67 @@ function handleServerMessage(
     emit: (name, payload) => emitClientEvent(runtime, name, payload),
     updateLastSeq: (event) => updateLastSeq(runtime.state, event),
   });
+}
+
+/**
+ * Decide what a newly-arrived live event lets the client apply.
+ *
+ * The client used to apply whatever arrived and move its cursor to the
+ * highest sequence it had seen. A dropped frame therefore did not just
+ * delay an event, it LOST it: the cursor had already advanced past the
+ * missing sequence, so the reconnect replay resumed after it and
+ * nothing ever noticed the hole.
+ *
+ * Three cases, and each one is a different kind of normal:
+ *
+ *   - the NEXT sequence: apply it, then drain anything buffered behind
+ *     it, because filling a gap can release a run;
+ *   - one already applied: ignore it. At-least-once delivery makes a
+ *     duplicate ordinary traffic, not an error;
+ *   - one ahead of the cursor: HOLD it. Reordering is usually momentary
+ *     and the missing frame arrives right after, so re-fetching the
+ *     whole tail would be a heavy answer to a light problem. The cursor
+ *     stays where it is, which is what makes a reconnect resume from
+ *     the hole rather than past it.
+ *
+ * Events without a numeric sequence are not part of the sequenced
+ * stream and pass straight through.
+ */
+function admitLiveEvent(
+  state: IClientState,
+  event: unknown,
+): readonly unknown[] {
+  const sequence = sequenceOf(event);
+  if (sequence === null) return [event];
+  if (sequence <= state.lastSeq) return [];
+  if (sequence > state.lastSeq + 1) {
+    state.outOfOrderLiveEvents.set(sequence, event);
+    return [];
+  }
+
+  const admitted: unknown[] = [event];
+  let next = sequence + 1;
+  for (;;) {
+    const buffered = state.outOfOrderLiveEvents.get(next);
+    if (buffered === undefined) break;
+    state.outOfOrderLiveEvents.delete(next);
+    admitted.push(buffered);
+    next += 1;
+  }
+  return admitted;
+}
+
+/** An event's sequence, or null when it carries none. */
+function sequenceOf(event: unknown): number | null {
+  if (
+    typeof event === 'object' &&
+    event !== null &&
+    'sequence' in event &&
+    typeof (event as { sequence?: unknown }).sequence === 'number'
+  ) {
+    return (event as { sequence: number }).sequence;
+  }
+  return null;
 }
 
 function updateLastSeq(state: IClientState, event: unknown): void {
