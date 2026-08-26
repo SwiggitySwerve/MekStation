@@ -6,7 +6,10 @@ import {
 
 import type { IMatchSocket } from '../ServerMatchSocketTypes';
 
-import { ServerMatchBroadcaster } from '../ServerMatchBroadcaster';
+import {
+  MAX_BUFFERED_BYTES,
+  ServerMatchBroadcaster,
+} from '../ServerMatchBroadcaster';
 import { ServerMatchSocketLifecycle } from '../ServerMatchSocketLifecycle';
 
 interface IRecordedSend {
@@ -14,7 +17,7 @@ interface IRecordedSend {
   parsed: IServerMessage;
 }
 
-function makeMockSocket(): IMatchSocket & {
+function makeMockSocket(bufferedAmount = 0): IMatchSocket & {
   sent: IRecordedSend[];
   closeCount: number;
 } {
@@ -22,6 +25,10 @@ function makeMockSocket(): IMatchSocket & {
   let closeCount = 0;
 
   return {
+    // Saturated by default in the backpressure row below, healthy
+    // everywhere else. Absent would read as "no signal", which is a
+    // different case and is covered in the broadcaster's own suite.
+    bufferedAmount,
     send(data: string) {
       sent.push({
         payload: data,
@@ -135,6 +142,34 @@ describe('ServerMatchSocketLifecycle', () => {
     lifecycle.attach(socket, 'p1');
 
     jest.advanceTimersByTime(HEARTBEAT_TIMEOUT_MS + HEARTBEAT_INTERVAL_MS + 1);
+
+    expect(lifecycle.count()).toBe(0);
+    expect(socket.closeCount).toBe(1);
+    expect(onLastSocketDropped).toHaveBeenCalledWith('p1');
+  });
+
+  it('reaps a connection the broadcaster gave up on', () => {
+    // A behind connection has been receiving nothing since it went
+    // behind. Leaving it attached is the worst of both worlds - it
+    // holds a seat and hears nothing - so the tick that reaps dead
+    // sockets reaps this one too, and the client reconnects and
+    // replays from its own cursor.
+    const { broadcaster, lifecycle, onLastSocketDropped } = makeLifecycle();
+    const socket = makeMockSocket(MAX_BUFFERED_BYTES + 1);
+
+    lifecycle.attach(socket, 'p1');
+    // Saturate it the way production does: through a real broadcast.
+    broadcaster.broadcast({
+      kind: 'Event',
+      matchId: 'match-lifecycle',
+      ts: new Date().toISOString(),
+      event: { sequence: 1 },
+    } as IServerMessage);
+    expect(broadcaster.isBehind(socket)).toBe(true);
+
+    // One tick, well inside the idle timeout: this is the backpressure
+    // reap, not the idle reap.
+    jest.advanceTimersByTime(HEARTBEAT_INTERVAL_MS);
 
     expect(lifecycle.count()).toBe(0);
     expect(socket.closeCount).toBe(1);
