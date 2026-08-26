@@ -17,6 +17,8 @@
  *   - Auth: an Ed25519-signed wire token carried in the
  *     `Sec-WebSocket-Protocol` header, plus a known `matchId`. A token
  *     in the query string is refused rather than accepted.
+ *   - The `?seed=N` debug dice seed is refused in production: it is
+ *     client-supplied and would let the caller pick the server's dice.
  *
  * @spec openspec/specs/multiplayer-server/spec.md
  */
@@ -90,6 +92,51 @@ function resolveListenerHostname() {
  * merely declines to honour fault config is one refactor away from
  * honouring it; a process that refuses to start cannot rot that way.
  */
+/**
+ * Read the `?seed=N` debug dice seed, and REFUSE it in production.
+ *
+ * This parameter selects `SeededDiceRoller` for the whole match, and it
+ * arrives on the WebSocket upgrade URL - which means the actor who sets
+ * it is a CLIENT, not an operator. `SeededRandom` is Mulberry32, so a
+ * client that chose the seed can compute every subsequent server d6
+ * locally: initiative, to-hit, hit location, crits. Whoever opens the
+ * first socket on a match would decide its dice, and the opponent would
+ * have no way to notice.
+ *
+ * That is precisely what the crypto-backed default exists to prevent -
+ * `openspec/specs/multiplayer-server/spec.md` requires the server to be
+ * the sole source of randomness, to never trust a value claimed by a
+ * client, and permits the seed only in a debug mode that is "never
+ * permitted in production".
+ *
+ * IGNORE, DO NOT EXIT. The sibling `assertNoFaultControlsConfigured`
+ * kills the process, and that is right for an operator-set env var
+ * read once at boot. This one is client-set and read per connection, so
+ * exiting would hand any client a one-request kill switch. The seed is
+ * simply not an affordance that exists in production; the warning is
+ * there so a misconfigured deployment is still visible.
+ */
+function readDebugDiceSeed(parsedUrl, matchId) {
+  const rawSeed = parsedUrl.query.seed;
+  const seedString = Array.isArray(rawSeed) ? rawSeed[0] : rawSeed;
+  if (typeof seedString !== 'string' || seedString.length === 0) {
+    return undefined;
+  }
+  if (process.env.NODE_ENV === 'production') {
+    // eslint-disable-next-line no-console
+    console.warn(
+      `[mp-socket] DICE_SEED_REFUSED_IN_PRODUCTION matchId=${
+        typeof matchId === 'string' ? matchId : ''
+      }`,
+    );
+    return undefined;
+  }
+  // Parse a finite integer; ignore anything else so a malformed query
+  // cannot destabilize the handler.
+  const seedValue = Number.parseInt(seedString, 10);
+  return Number.isFinite(seedValue) ? seedValue : undefined;
+}
+
 function assertNoFaultControlsConfigured() {
   const configured = process.env.MEKSTATION_FAULT_CONTROLS;
   if (configured === undefined || configured.trim() === '') return;
@@ -694,16 +741,10 @@ app
       // private-prefixed property avoids collisions with existing
       // request fields.
       req._mpVerifiedPlayerId = verification.playerId;
-      // Wave 3a: optional debug seed for bug reproduction. Parse a
-      // finite integer from `?seed=N`; ignore anything else so a
-      // malformed query can't destabilize production. Off by default.
-      const rawSeed = parsedUrl.query.seed;
-      const seedString = Array.isArray(rawSeed) ? rawSeed[0] : rawSeed;
-      if (typeof seedString === 'string' && seedString.length > 0) {
-        const seedValue = Number.parseInt(seedString, 10);
-        if (Number.isFinite(seedValue)) {
-          req._mpDiceSeed = seedValue;
-        }
+      // Wave 3a: optional debug seed for bug reproduction, gated below.
+      const debugSeed = readDebugDiceSeed(parsedUrl, matchId);
+      if (debugSeed !== undefined) {
+        req._mpDiceSeed = debugSeed;
       }
       wss.handleUpgrade(req, socket, head, (ws) => {
         wss.emit('connection', ws, req);
