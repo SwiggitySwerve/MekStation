@@ -330,6 +330,83 @@ describe('bindCampaignSyncConnection', () => {
     });
   });
 
+  it('cold-recovers a durable member after the invite expired', async () => {
+    // Rehydration of a LAUNCHED campaign: the store cleared the code,
+    // so the session opens with no invite at all. The member inside it
+    // must still get back in - previously the member path re-presented
+    // the entry's invite on their behalf, so expiring it locked out
+    // exactly the people expiry was never aimed at.
+    const registry = new CampaignHostRegistry();
+    await registry.register('match-campaign', {
+      campaignId: 'campaign-sync',
+      hostPlayerId: 'pid_host',
+      roomCode: null,
+      state: createEmptyCampaignState('campaign-sync'),
+    });
+    expect(
+      registry.get('match-campaign')?.syncSession.getRoomCode(),
+    ).toBeNull();
+
+    const socket = new MockWireSocket();
+    await bindCampaignSyncConnection({
+      socket,
+      registry,
+      matchId: 'match-campaign',
+      verifiedPlayerId: 'pid_guest',
+      logger: quietLogger,
+      replicaStore: null,
+      membership: fakeMembership({ active: ['pid_guest'] }),
+    });
+    socket.inbound({
+      kind: 'CampaignJoin',
+      matchId: 'match-campaign',
+      ts: nowIso(),
+      playerId: 'pid_guest',
+      role: 'guest',
+    });
+    await flushAsyncHandlers();
+
+    expect(socket.sent).not.toContainEqual(
+      expect.objectContaining({ kind: 'Error' }),
+    );
+  });
+
+  it('refuses a newcomer on a campaign whose invite expired', async () => {
+    // The control for the row above. A member gets in with nothing; a
+    // stranger must not, even holding the code that used to work.
+    const registry = new CampaignHostRegistry();
+    await registry.register('match-campaign', {
+      campaignId: 'campaign-sync',
+      hostPlayerId: 'pid_host',
+      roomCode: null,
+      state: createEmptyCampaignState('campaign-sync'),
+    });
+
+    const socket = new MockWireSocket();
+    await bindCampaignSyncConnection({
+      socket,
+      registry,
+      matchId: 'match-campaign',
+      verifiedPlayerId: 'pid_stranger',
+      logger: quietLogger,
+      replicaStore: null,
+      membership: fakeMembership(),
+    });
+    socket.inbound({
+      kind: 'CampaignJoin',
+      matchId: 'match-campaign',
+      ts: nowIso(),
+      playerId: 'pid_stranger',
+      role: 'guest',
+      roomCode: 'ABC234',
+    });
+    await flushAsyncHandlers();
+
+    expect(socket.sent).toContainEqual(
+      expect.objectContaining({ kind: 'Error', code: 'UNKNOWN_MATCH' }),
+    );
+  });
+
   it('lets a durable member cold-reconnect with no room code at all', async () => {
     // The reconnection a page reload produces. The first join is an
     // invited newcomer; the SECOND presents no code whatsoever, which is

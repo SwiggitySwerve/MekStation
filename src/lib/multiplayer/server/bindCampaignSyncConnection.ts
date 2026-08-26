@@ -599,12 +599,13 @@ async function handleCampaignJoin({
   if (
     membership?.isActive(entry.campaignId, matchId, verifiedPlayerId) === true
   ) {
-    const rejoin = await entry.syncSession.joinGuest(
-      entry.roomCode,
-      (event) => {
-        sendCampaignEvent(socket, matchId, event);
-      },
-    );
+    // Routed by MEMBERSHIP, not by the invite. Re-presenting
+    // `entry.roomCode` on their behalf worked only while the invite was
+    // still live, so expiring it locked out the people already inside -
+    // exactly backwards, since expiry exists to stop NEWCOMERS.
+    const rejoin = await entry.syncSession.joinMember((event) => {
+      sendCampaignEvent(socket, matchId, event);
+    });
     if (rejoin.ok) {
       addSocketToMatch(matchId, socket);
       cleanupFns.add(rejoin.disconnect);

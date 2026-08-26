@@ -83,11 +83,17 @@ export async function resolveRoomCodeGuestIssuer(
  * A mismatch is "not admitted"; resolve-or-issue must not run.
  */
 export function roomCodeAdmitsGuest(
-  entry: Pick<ICampaignHostRegistryEntry, 'roomCode' | 'syncSession'>,
+  entry: Pick<ICampaignHostRegistryEntry, 'syncSession'>,
   roomCode: string | undefined,
 ): boolean {
-  const expected = entry.syncSession.getRoomCode() ?? entry.roomCode;
-  if (!roomCode || expected.length === 0) return false;
+  // The LIVE invite only. There is deliberately no fallback to
+  // `entry.roomCode`: that field holds the code the entry opened with
+  // and never changes, so falling back to it made an expired invite
+  // keep admitting newcomers - the session had stopped resolving the
+  // code and this path handed back the original anyway. `null` here
+  // means expired, and expired must mean refused.
+  const expected = entry.syncSession.getRoomCode();
+  if (!roomCode || expected === null || expected.length === 0) return false;
   return normalizeRoomCode(roomCode) === normalizeRoomCode(expected);
 }
 

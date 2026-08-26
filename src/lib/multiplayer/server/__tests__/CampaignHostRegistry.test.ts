@@ -146,6 +146,30 @@ describe('CampaignHostRegistry', () => {
     expect(getActiveCoopHost('campaign-registry')).toBe(entry?.host);
   });
 
+  it('boots a LAUNCHED campaign whose invite the store already cleared', async () => {
+    // Launching sets `clearRoomCode`, so an active co-op campaign has
+    // no invite in the store. Requiring one to rehydrate made the
+    // campaign unreachable the moment it launched - the members inside
+    // could not cold-recover after a restart.
+    const store = new InMemoryMatchStore({ quiet: true });
+    await store.createMatch({
+      ...matchMeta(),
+      status: 'active',
+      roomCode: undefined,
+    });
+    const registry = new CampaignHostRegistry({ matchStore: store });
+
+    const entry = await registry.getOrCreate('match-campaign');
+
+    expect(entry).not.toBeNull();
+    expect(entry?.campaignId).toBe('campaign-registry');
+    expect(entry?.host.getState().balance).toBe(1_000_000);
+    // And it does NOT mint a replacement invite: rehydration must not
+    // re-open the door that launching closed.
+    expect(entry?.roomCode).toBeNull();
+    expect(entry?.syncSession.getRoomCode()).toBeNull();
+  });
+
   it('exposes a resettable process singleton', async () => {
     const registry = getCampaignHostRegistry();
     await registry.register('match-campaign', snapshot());
