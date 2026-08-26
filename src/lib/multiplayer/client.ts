@@ -146,6 +146,12 @@ interface IClientState {
    * about the next one's.
    */
   lastDeliverySequence: number | null;
+  /**
+   * True while a gap recovery is in flight. Without it a burst of lost
+   * frames would fire one resync each, and every resync is a full
+   * replay - turning a small loss into a stampede.
+   */
+  recoveringFromGap: boolean;
   suppressNextSocketCloseEvent: boolean;
 }
 
@@ -156,6 +162,8 @@ type ServerMessageHandlerContext = {
   readonly state: IClientState;
   readonly emit: ClientEmit;
   readonly updateLastSeq: LastSeqUpdater;
+  /** Re-send `SessionJoin` to pull the tail this client is missing. */
+  readonly requestResync: () => void;
 };
 type ServerMessageHandler = (context: ServerMessageHandlerContext) => void;
 
@@ -182,6 +190,9 @@ const SERVER_MESSAGE_HANDLERS: Record<
     }
   },
   ReplayEnd: ({ state, emit }) => {
+    // Whatever asked for this replay has been served - including a gap
+    // recovery, so the next hole is allowed to ask again.
+    state.recoveringFromGap = false;
     state.ready = true;
     for (const evt of state.replayBuffer) {
       emit('event', evt);
@@ -193,7 +204,7 @@ const SERVER_MESSAGE_HANDLERS: Record<
     }
     state.pendingLiveEvents = [];
   },
-  Event: ({ message, state, emit, updateLastSeq }) => {
+  Event: ({ message, state, emit, updateLastSeq, requestResync }) => {
     const eventMessage = message as Extract<IServerMessage, { kind: 'Event' }>;
     const wasBlocked = state.blockedBySequenceCollision;
     for (const event of admitLiveEvent(state, eventMessage.event)) {
@@ -223,6 +234,14 @@ const SERVER_MESSAGE_HANDLERS: Record<
         code: 'PROTOCOL_VIOLATION',
         reason: 'delivery-gap',
       });
+      // ...and RECOVER. Reporting a hole without pulling the missing
+      // frames leaves the client quietly wrong, which is worse than
+      // loud and wrong. One recovery at a time: a burst of losses would
+      // otherwise fire a full replay each.
+      if (!state.recoveringFromGap) {
+        state.recoveringFromGap = true;
+        requestResync();
+      }
     }
   },
   Heartbeat: () => {
@@ -349,6 +368,7 @@ export function connect(
     reconnectTimer: null,
     heartbeatTimer: null,
     lastDeliverySequence: null,
+    recoveringFromGap: false,
     suppressNextSocketCloseEvent: false,
   };
 
@@ -490,6 +510,14 @@ function handleServerMessage(
     state: runtime.state,
     emit: (name, payload) => emitClientEvent(runtime, name, payload),
     updateLastSeq: (event) => updateLastSeq(runtime.state, event),
+    requestResync: () => {
+      const socket = runtime.state.socket;
+      if (socket === null) return;
+      // The same frame a fresh connection sends. It carries `lastSeq`,
+      // so the server replays exactly the tail this client is missing
+      // rather than the whole match.
+      sendSessionJoin(runtime, socket);
+    },
   });
 }
 

@@ -26,11 +26,17 @@ interface IMockSocket extends IClientWebSocket {
 function mockSocketFactory(): {
   factory: () => IClientWebSocket;
   last: () => IMockSocket;
+  sentByClient: { kind: string; lastSeq?: number }[];
 } {
   const sockets: IMockSocket[] = [];
+  const sentByClient: { kind: string; lastSeq?: number }[] = [];
   const factory = (): IClientWebSocket => {
     const socket: IMockSocket = {
-      send: () => {},
+      send: (data: string) => {
+        sentByClient.push(
+          JSON.parse(data) as { kind: string; lastSeq?: number },
+        );
+      },
       close: () => {},
       readyState: 1,
       onopen: null,
@@ -47,7 +53,7 @@ function mockSocketFactory(): {
     sockets.push(socket);
     return socket;
   };
-  return { factory, last: () => sockets[sockets.length - 1] };
+  return { factory, last: () => sockets[sockets.length - 1], sentByClient };
 }
 
 function eventFrame(deliverySequence: number, sequence: number) {
@@ -90,7 +96,7 @@ function openReadyClient() {
     ts: nowIso(),
     toSeq: 0,
   });
-  return { sockets, errors, applied };
+  return { sockets, errors, applied, sentByClient: sockets.sentByClient };
 }
 
 function gaps(errors: readonly { reason?: string }[]): number {
@@ -112,6 +118,67 @@ describe('client delivery-gap detection', () => {
     // ...and the frame after the gap WAS applied. A client that stalled
     // here would be repeating the regression this number exists to fix.
     expect(applied).toHaveLength(3);
+  });
+
+  it('RECOVERS by asking for the tail it is missing', () => {
+    // Reporting a hole without pulling the missing frames leaves the
+    // client quietly wrong, which is worse than loud and wrong.
+    const { sockets, sentByClient } = openReadyClient();
+    sockets.last().inject(eventFrame(0, 100));
+    sockets.last().inject(eventFrame(1, 101));
+    const joinsBefore = sentByClient.filter(
+      (m) => m.kind === 'SessionJoin',
+    ).length;
+
+    sockets.last().inject(eventFrame(3, 102));
+
+    const joins = sentByClient.filter((m) => m.kind === 'SessionJoin');
+    expect(joins.length).toBe(joinsBefore + 1);
+    // It asks from what it HAS, so the server replays the missing tail
+    // rather than the whole match.
+    expect(joins[joins.length - 1].lastSeq).toBe(102);
+  });
+
+  it('asks once for a burst of losses, not once per hole', () => {
+    // Every resync is a full replay. One per lost frame turns a small
+    // loss into a stampede.
+    const { sockets, sentByClient } = openReadyClient();
+    sockets.last().inject(eventFrame(0, 100));
+    const joinsBefore = sentByClient.filter(
+      (m) => m.kind === 'SessionJoin',
+    ).length;
+
+    sockets.last().inject(eventFrame(2, 101));
+    sockets.last().inject(eventFrame(5, 102));
+    sockets.last().inject(eventFrame(9, 103));
+
+    const joinsAfter = sentByClient.filter(
+      (m) => m.kind === 'SessionJoin',
+    ).length;
+    expect(joinsAfter).toBe(joinsBefore + 1);
+  });
+
+  it('allows a fresh recovery once the replay it asked for ends', () => {
+    // The guard must not latch forever, or the second real loss of a
+    // session would go unrecovered.
+    const { sockets, sentByClient } = openReadyClient();
+    sockets.last().inject(eventFrame(0, 100));
+    sockets.last().inject(eventFrame(2, 101));
+    const afterFirst = sentByClient.filter(
+      (m) => m.kind === 'SessionJoin',
+    ).length;
+
+    sockets.last().inject({
+      kind: 'ReplayEnd',
+      matchId: 'm1',
+      ts: nowIso(),
+      toSeq: 101,
+    });
+    sockets.last().inject(eventFrame(4, 102));
+
+    expect(sentByClient.filter((m) => m.kind === 'SessionJoin').length).toBe(
+      afterFirst + 1,
+    );
   });
 
   it('does not cry gap over a sparse authority sequence', () => {
