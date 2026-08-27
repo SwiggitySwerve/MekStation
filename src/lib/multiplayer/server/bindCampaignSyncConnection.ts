@@ -645,6 +645,30 @@ async function handleCampaignJoin({
   };
 
   if (role === 'host') {
+    // Claim the gm seat BEFORE anything else happens, because the two
+    // authorities can disagree. `role` is host by comparing the verified
+    // principal to the registry's OWN in-memory `hostPlayerId`, while
+    // durable membership is what actually decides - and its
+    // single-active-GM index answers `gm-seat-taken` when a different
+    // identity already holds the seat for this session.
+    //
+    // That answer used to be discarded, and the session was RESUMED
+    // first, so a contested GM unpaused a live campaign on its way to
+    // being ignored. Ordering is the fix as much as the refusal is:
+    // nothing may resume, attach, or subscribe until the seat is ours.
+    const gmSeat = membership?.bind({
+      campaignId: entry.campaignId,
+      sessionId: matchId,
+      participantId: verifiedPlayerId,
+      seat: 'gm',
+    });
+    if (gmSeat?.kind === 'gm-seat-taken') {
+      send(
+        socket,
+        errorFrame(matchId, 'AUTH_REJECTED', 'campaign-gm-seat-taken'),
+      );
+      return;
+    }
     // The GM is here. This resumes a session their previous connection
     // paused - and ONLY their own reconnection can, because `role` is
     // host precisely when the connection's VERIFIED principal matches
@@ -654,15 +678,6 @@ async function handleCampaignJoin({
       // ...and this is GM loss. The session pauses rather than
       // promoting anybody; authority waits for the same GM.
       entry.syncSession.noteGmDisconnected();
-    });
-    // Admitted by identity: `role` is host precisely because the
-    // verified player id matches the registry's host. Recorded as the
-    // gm seat so the admission survives this connection.
-    membership?.bind({
-      campaignId: entry.campaignId,
-      sessionId: matchId,
-      participantId: verifiedPlayerId,
-      seat: 'gm',
     });
     addSocketToMatch(matchId, socket);
     const eventUnsubscribe = entry.host.subscribe((event) => {

@@ -181,6 +181,8 @@ describe('bindCampaignSyncConnection', () => {
     seed: {
       active?: readonly string[];
       revoked?: readonly string[];
+      /** The gm seat is already held by a different durable identity. */
+      gmSeatTaken?: boolean;
     } = {},
   ) {
     const active = new Set(seed.active ?? []);
@@ -193,6 +195,11 @@ describe('bindCampaignSyncConnection', () => {
       isRevoked: (_c: string, _s: string, participantId: string) =>
         revoked.has(participantId),
       bind: (input: { participantId: string; seat: 'gm' | 'player' }) => {
+        // The store's single-active-GM index answers this, and the
+        // socket layer was throwing the answer away.
+        if (input.seat === 'gm' && seed.gmSeatTaken === true) {
+          return { kind: 'gm-seat-taken' as const };
+        }
         // The real store refuses a third tactical seat inside its own
         // transaction. A fake that always says yes cannot show whether
         // the socket layer listens to that answer.
@@ -355,6 +362,84 @@ describe('bindCampaignSyncConnection', () => {
       { participantId: 'pid_p1', seat: 'player' },
       { participantId: 'pid_p2', seat: 'player' },
     ]);
+  });
+
+  it('refuses a GM whose seat durable membership gives to someone else', async () => {
+    // The registry decides `role === 'host'` by comparing the verified
+    // principal to its OWN in-memory hostPlayerId. Durable membership is
+    // the authority, and when the two disagree the store says so with
+    // gm-seat-taken - which was discarded. Worse, the session was
+    // RESUMED before the bind ran, so a contested GM unpaused a campaign
+    // on the way to being ignored.
+    const registry = await makeRegistry();
+    const membership = fakeMembership({ gmSeatTaken: true });
+    const socket = new MockWireSocket();
+
+    await bindCampaignSyncConnection({
+      socket,
+      registry,
+      matchId: 'match-campaign',
+      verifiedPlayerId: 'pid_host',
+      logger: quietLogger,
+      replicaStore: null,
+      membership,
+    });
+    socket.inbound({
+      kind: 'CampaignJoin',
+      matchId: 'match-campaign',
+      ts: nowIso(),
+      playerId: 'pid_host',
+      role: 'host',
+    });
+    await flushAsyncHandlers();
+
+    expect(sawError(socket, 'AUTH_REJECTED', 'campaign-gm-seat-taken')).toBe(
+      true,
+    );
+    // And nothing was handed over: an admitted GM is sent the campaign
+    // snapshot and subscribed to the stream. A refusal that still did
+    // that would have given a contested GM the live campaign anyway.
+    expect(socket.sent.some((frame) => frame.kind === 'CampaignSnapshot')).toBe(
+      false,
+    );
+  });
+
+  it('still admits the GM when the seat is theirs', async () => {
+    // The control. A guard that refused every host would pass the row
+    // above while making every campaign unhostable.
+    const registry = await makeRegistry();
+    const membership = fakeMembership();
+    const socket = new MockWireSocket();
+
+    await bindCampaignSyncConnection({
+      socket,
+      registry,
+      matchId: 'match-campaign',
+      verifiedPlayerId: 'pid_host',
+      logger: quietLogger,
+      replicaStore: null,
+      membership,
+    });
+    socket.inbound({
+      kind: 'CampaignJoin',
+      matchId: 'match-campaign',
+      ts: nowIso(),
+      playerId: 'pid_host',
+      role: 'host',
+    });
+    await flushAsyncHandlers();
+
+    expect(sawError(socket, 'AUTH_REJECTED', 'campaign-gm-seat-taken')).toBe(
+      false,
+    );
+    expect(membership.bound).toContainEqual({
+      participantId: 'pid_host',
+      seat: 'gm',
+    });
+    // ...and they really were admitted, not merely un-refused.
+    expect(socket.sent.some((frame) => frame.kind === 'CampaignSnapshot')).toBe(
+      true,
+    );
   });
 
   it('records the host as the gm seat', async () => {
