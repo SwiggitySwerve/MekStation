@@ -31,6 +31,7 @@ import {
   ClientMessageSchema,
   ServerMessageSchema,
   HEARTBEAT_INTERVAL_MS,
+  HEARTBEAT_TIMEOUT_MS,
   RECONNECT_INITIAL_MS,
   RECONNECT_MAX_MS,
   RECONNECT_MULTIPLIER,
@@ -139,6 +140,10 @@ interface IClientState {
   // state rather than closed over, because it has to be cleared from
   // both the close paths and a reconnect starts a fresh one.
   heartbeatTimer: ReturnType<typeof setInterval> | null;
+  // The other half: the deadline by which the SERVER must have said
+  // something. Re-armed by valid inbound traffic, never by our own
+  // sends - a keepalive we wrote proves nothing about the peer.
+  livenessTimer: ReturnType<typeof setTimeout> | null;
   /**
    * Last per-viewer delivery sequence seen on this connection, or null
    * before the first numbered frame. Reset per socket: a reconnect is a
@@ -367,6 +372,7 @@ export function connect(
     reconnectAttempt: 0,
     reconnectTimer: null,
     heartbeatTimer: null,
+    livenessTimer: null,
     lastDeliverySequence: null,
     recoveringFromGap: false,
     suppressNextSocketCloseEvent: false,
@@ -438,6 +444,7 @@ function openSocket(runtime: IClientRuntime): void {
     runtime.state.lastDeliverySequence = null;
     sendSessionJoin(runtime, socket);
     startHeartbeat(runtime, socket);
+    armLiveness(runtime, socket);
   };
   socket.onmessage = (ev: { data: unknown }) =>
     handleSocketMessage(runtime, ev);
@@ -493,11 +500,17 @@ function handleSocketMessage(
     return;
   }
   if (!parsed.success) return;
+  // Re-armed HERE rather than on raw receipt, because the spec asks
+  // liveness to reset only on valid protocol traffic: a peer emitting
+  // garbage is not a peer that is still speaking the protocol.
+  const socket = runtime.state.socket;
+  if (socket !== null) armLiveness(runtime, socket);
   handleServerMessage(runtime, parsed.data);
 }
 
 function handleSocketClose(runtime: IClientRuntime): void {
   stopHeartbeat(runtime);
+  stopLiveness(runtime);
   if (runtime.state.suppressNextSocketCloseEvent) {
     runtime.state.suppressNextSocketCloseEvent = false;
   } else {
@@ -711,6 +724,7 @@ function startHeartbeat(
   socket: IClientWebSocket,
 ): void {
   stopHeartbeat(runtime);
+  stopLiveness(runtime);
   runtime.state.heartbeatTimer = setInterval(() => {
     // Only while this socket is still the live one AND open. A
     // reconnect swaps the socket out; writing to the old one would
@@ -729,6 +743,45 @@ function startHeartbeat(
       // already dying and `onclose` reports that properly.
     }
   }, HEARTBEAT_INTERVAL_MS);
+}
+
+/**
+ * Arm the deadline by which the server must have said something.
+ *
+ * `startHeartbeat` keeps the SERVER from reaping us for being quiet.
+ * Nothing did the reverse: the inbound `Heartbeat` handler noted that
+ * clients need not echo and then discarded it, so a server that stopped
+ * talking - a half-open socket, a process killed without a FIN - was
+ * indistinguishable from a healthy idle one, and the client waited in a
+ * dead connection instead of reconnecting into a live one.
+ *
+ * Closing is the whole action: `onclose` already reports the drop and
+ * schedules the reconnect, so this only has to make the silence visible
+ * to machinery that is already there.
+ *
+ * Held to the SERVER's own timeout rather than a number of our own, so
+ * the two halves cannot drift apart and start disagreeing about when a
+ * connection is dead.
+ */
+function armLiveness(runtime: IClientRuntime, socket: IClientWebSocket): void {
+  stopLiveness(runtime);
+  runtime.state.livenessTimer = setTimeout(() => {
+    // A reconnect swaps the socket out; closing the old one would drop
+    // a connection that is already healthy.
+    if (runtime.state.socket !== socket) return;
+    try {
+      socket.close();
+    } catch {
+      // Already dying. `onclose` reports it properly either way.
+    }
+  }, HEARTBEAT_TIMEOUT_MS);
+}
+
+/** Idempotent, and called from every path that ends a connection. */
+function stopLiveness(runtime: IClientRuntime): void {
+  if (runtime.state.livenessTimer === null) return;
+  clearTimeout(runtime.state.livenessTimer);
+  runtime.state.livenessTimer = null;
 }
 
 /** Idempotent, and called from every path that ends a connection. */
@@ -785,6 +838,7 @@ function addClientListener(
 function closeClient(runtime: IClientRuntime): void {
   runtime.state.closedByCaller = true;
   stopHeartbeat(runtime);
+  stopLiveness(runtime);
   if (runtime.state.reconnectTimer) {
     clearTimeout(runtime.state.reconnectTimer);
     runtime.state.reconnectTimer = null;

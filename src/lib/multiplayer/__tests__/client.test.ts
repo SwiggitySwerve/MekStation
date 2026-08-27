@@ -161,6 +161,54 @@ describe('multiplayer client', () => {
     );
   });
 
+  it('gives up on a server that has gone silent', () => {
+    // The other half of the bidirectional heartbeat. The client sends
+    // its own keepalives, but nothing was watching for the SERVER going
+    // quiet — the inbound Heartbeat handler said in as many words that
+    // clients do not need to echo, and then did nothing with it. A
+    // half-open socket looks exactly like a healthy idle one from here,
+    // so the client sat in a dead connection indefinitely instead of
+    // reconnecting into a live one.
+    const f = makeMockSocketFactory();
+    connect(
+      'ws://localhost/x',
+      'm1',
+      { playerId: 'p1', token: 'tok' },
+      { socketFactory: f.factory, reconnect: false },
+    );
+    f.lastSocket().fireOpen();
+
+    jest.advanceTimersByTime(HEARTBEAT_TIMEOUT_MS + 1);
+
+    expect(f.lastSocket().readyState).toBe(3);
+  });
+
+  it('stays connected while the server is still talking', () => {
+    // The control. A liveness deadline that fires regardless of traffic
+    // would pass the row above by closing every connection on a timer.
+    const f = makeMockSocketFactory();
+    connect(
+      'ws://localhost/x',
+      'm1',
+      { playerId: 'p1', token: 'tok' },
+      { socketFactory: f.factory, reconnect: false },
+    );
+    f.lastSocket().fireOpen();
+
+    // Valid inbound traffic, spaced inside the deadline, well past the
+    // point where silence alone would have closed the socket.
+    for (let tick = 0; tick < 4; tick += 1) {
+      jest.advanceTimersByTime(Math.floor(HEARTBEAT_TIMEOUT_MS / 2));
+      f.lastSocket().inject({
+        kind: 'Heartbeat',
+        matchId: 'm1',
+        ts: new Date().toISOString(),
+      });
+    }
+
+    expect(f.lastSocket().readyState).toBe(1);
+  });
+
   it('stops heartbeating once the caller closes the client', () => {
     // A timer that outlives the socket keeps the process alive and
     // writes to a closed socket forever.
