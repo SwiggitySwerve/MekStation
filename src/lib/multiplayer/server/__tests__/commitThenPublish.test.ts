@@ -13,7 +13,7 @@
 import type { IGameEvent } from '@/types/gameplay/GameSessionInterfaces';
 import type { IServerMessage } from '@/types/multiplayer/Protocol';
 
-import { commitThenPublish } from '../ServerMatchHostIntent';
+import { commitThenPublish } from '../ServerMatchHostPublication';
 
 function gameEvent(sequence: number): IGameEvent {
   return { type: 'TestEvent', sequence } as unknown as IGameEvent;
