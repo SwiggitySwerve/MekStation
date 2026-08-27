@@ -97,6 +97,23 @@ export interface ICampaignSeatBindOutcome {
     | 'revoked';
 }
 
+/**
+ * Durable force ownership, narrowed to the one question this layer asks.
+ *
+ * Optional for the same reason membership is: the tests that bind a
+ * socket have no database, and a session without durable ownership
+ * behaves exactly as it did before this port existed.
+ */
+export interface ICampaignForceClaimPort {
+  readonly claim: (input: {
+    readonly campaignId: string;
+    readonly sessionId: string;
+    readonly missionId: string;
+    readonly forceId: string;
+    readonly participantId: string;
+  }) => { readonly kind: 'claimed' | 'already-held' | 'held-by-other' };
+}
+
 export interface IBindCampaignSyncConnectionDeps {
   socket: IWireCampaignSocket;
   matchId: string;
@@ -126,6 +143,7 @@ export interface IBindCampaignSyncConnectionDeps {
    * hiding inside the store.
    */
   membership?: ICampaignSessionMembershipPort | null;
+  forceClaims?: ICampaignForceClaimPort | null;
   /**
    * Durable replica for the room-code guest path. Omitted sockets try
    * the process database; explicit null keeps joinGuest (unit tests
@@ -156,6 +174,7 @@ export async function bindCampaignSyncConnection({
   replicaStore,
   roomCodeGrantIssuer,
   membership,
+  forceClaims,
 }: IBindCampaignSyncConnectionDeps): Promise<IBoundCampaignSyncConnection | null> {
   const entry = registry.getOrCreate
     ? await registry.getOrCreate(matchId)
@@ -207,6 +226,7 @@ export async function bindCampaignSyncConnection({
       replicaStore,
       roomCodeGrantIssuer,
       membership,
+      forceClaims,
     });
   });
   socket.on('close', cleanup);
@@ -230,6 +250,7 @@ interface IHandleInboundDeps {
   replicaStore?: SQLiteCampaignReplicaStore | null;
   roomCodeGrantIssuer?: ICampaignGrantSigner;
   membership?: ICampaignSessionMembershipPort | null;
+  forceClaims?: ICampaignForceClaimPort | null;
 }
 
 async function handleInbound({
@@ -247,6 +268,7 @@ async function handleInbound({
   replicaStore,
   roomCodeGrantIssuer,
   membership,
+  forceClaims,
 }: IHandleInboundDeps): Promise<void> {
   const parsedJson = parseJsonPayload(data);
   if (!parsedJson.ok) {
@@ -324,6 +346,7 @@ async function handleInbound({
       replicaStore,
       roomCodeGrantIssuer,
       membership,
+      forceClaims,
     });
   } catch (error) {
     logger.error('[campaign-sync] dispatch failed', error);
@@ -352,6 +375,7 @@ interface IDispatchCampaignEnvelopeDeps {
   replicaStore?: SQLiteCampaignReplicaStore | null;
   roomCodeGrantIssuer?: ICampaignGrantSigner;
   membership?: ICampaignSessionMembershipPort | null;
+  forceClaims?: ICampaignForceClaimPort | null;
 }
 
 async function dispatchCampaignEnvelope({
@@ -369,6 +393,7 @@ async function dispatchCampaignEnvelope({
   replicaStore,
   roomCodeGrantIssuer,
   membership,
+  forceClaims,
 }: IDispatchCampaignEnvelopeDeps): Promise<void> {
   switch (envelope.kind) {
     case 'CampaignJoin':
@@ -455,6 +480,7 @@ async function dispatchCampaignEnvelope({
         entry,
         matchId,
         verifiedPlayerId,
+        forceClaims,
       });
       return;
     default: {
@@ -895,12 +921,14 @@ function handleCampaignParticipation({
   entry,
   matchId,
   verifiedPlayerId,
+  forceClaims,
 }: {
   envelope: Extract<ICampaignClientMessage, { kind: 'CampaignParticipation' }>;
   socket: IWireCampaignSocket;
   entry: ICampaignHostRegistryEntry;
   matchId: string;
   verifiedPlayerId: string;
+  forceClaims?: ICampaignForceClaimPort | null;
 }): void {
   const admitted = admitBoundCampaignParticipation({
     socket,
@@ -911,6 +939,25 @@ function handleCampaignParticipation({
   if (!admitted.ok) {
     send(socket, errorFrame(matchId, admitted.code, admitted.reason));
     return;
+  }
+  // The in-memory rule already refused a force a teammate holds THIS
+  // session. The durable claim is what makes that survive a restart,
+  // which is when the in-memory records are gone and the force would
+  // otherwise be free for the taking. Writing it is also what settles a
+  // race: the insert either wins or names the holder, where two
+  // read-then-admit checks could both pass.
+  if (!admitted.idempotent) {
+    const claimed = forceClaims?.claim({
+      campaignId: entry.campaignId,
+      sessionId: matchId,
+      missionId: admitted.record.missionId,
+      forceId: admitted.record.force.id,
+      participantId: admitted.record.playerId,
+    });
+    if (claimed?.kind === 'held-by-other') {
+      send(socket, errorFrame(matchId, 'INVALID_INTENT', 'foreign-force'));
+      return;
+    }
   }
   const acceptance = {
     kind: 'CampaignParticipation' as const,

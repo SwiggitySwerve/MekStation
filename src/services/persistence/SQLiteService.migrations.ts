@@ -21,6 +21,7 @@ import { MATCH_AUTHORITY_BASELINE_MIGRATION } from './SQLiteService.matchAuthori
 import { CAMPAIGN_PARTICIPANT_CURSORS_MIGRATION } from './SQLiteService.participantCursors.migration';
 import { PRIVATE_RECORDS_MIGRATION } from './SQLiteService.privateRecords.migration';
 import { REPLAY_CHECKPOINTS_MIGRATION } from './SQLiteService.replayCheckpoints.migration';
+import { CAMPAIGN_SESSION_FORCE_CLAIMS_MIGRATION } from './SQLiteService.sessionForceClaims.migration';
 import { CAMPAIGN_SESSION_PARTICIPANTS_MIGRATION } from './SQLiteService.sessionParticipants.migration';
 
 /**
@@ -383,4 +384,5 @@ export const MIGRATIONS: readonly IMigration[] = [
   CAMPAIGN_PARTICIPANT_CURSORS_MIGRATION,
   CAMPAIGN_SESSION_PARTICIPANTS_MIGRATION,
   MATCH_AUTHORITY_BASELINE_MIGRATION,
+  CAMPAIGN_SESSION_FORCE_CLAIMS_MIGRATION,
 ];
