@@ -447,7 +447,10 @@ async function refuseUnauthorizedCommand(
  * every unit in engine state carries its side — so nothing new has to be
  * threaded through the wire to make the comparison.
  *
- * Deliberately narrow in two ways. Server-internal callers are exempt:
+ * Deliberately narrow in three ways. Co-op matches are exempt, because
+ * there both players' mechs sit on one shared side and a side check
+ * would refuse a teammate their own roster. Server-internal callers are
+ * exempt:
  * they are the host acting, not a principal claiming scope. And a
  * refusal needs BOTH sides to resolve, so a match whose meta carries no
  * `sideAssignments` keeps its previous behaviour instead of becoming
@@ -469,6 +472,17 @@ async function refuseForeignUnitCommand(
   if (unitSide === undefined) return null;
 
   const meta = await ctx.store.getMatchMeta(ctx.matchId);
+
+  // Co-op pools every deploying player's units onto the shared `player`
+  // side while a guest still sits in a `bravo` seat, so side stops being
+  // an ownership signal and a side check reads a teammate as an intruder
+  // — locking the guest out of the entire roster. What DOES express
+  // ownership there is the per-unit map `ownsCoopUnit` was written for,
+  // and it cannot be consulted from here: `coopSeats` never leave
+  // `composeCoopEncounter`. Until that map reaches the host, co-op unit
+  // commands are unconstrained, exactly as they were before this guard.
+  if (meta?.coopCampaign) return null;
+
   const callerSide = meta?.sideAssignments.find(
     (assignment) => assignment.playerId === verifiedPrincipalId,
   )?.side;
