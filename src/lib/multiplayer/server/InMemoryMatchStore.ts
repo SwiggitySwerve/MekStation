@@ -25,7 +25,9 @@ import {
   MatchStoreSequenceCollisionError,
   type IMatchMeta,
   type IMatchMetaPatch,
+  type IMatchPublication,
   type IMatchStore,
+  type IPublicationOutboxStore,
 } from './IMatchStore';
 import {
   firstNonContiguousSequence,
@@ -45,6 +47,16 @@ interface IMatchRecord {
    * remembers what the first attempt committed.
    */
   receipts: Map<string, IMatchCommandReceipt>;
+  /**
+   * Publication outbox rows by authority sequence (umbrella task 7.1);
+   * `publishedAt` null means "still owed to recipients". Written inside
+   * `appendCommandBatch` beside the events, so a refused batch leaves
+   * nothing here.
+   */
+  publications: Map<
+    number,
+    { readonly record: IMatchPublication; publishedAt: string | null }
+  >;
   // Set of sequences we've already stored — avoids O(n) scan on every
   // append for a duplicate-sequence check (matches can run hundreds of
   // events in a long fight).
@@ -56,7 +68,9 @@ interface IMatchRecord {
 // Store
 // =============================================================================
 
-export class InMemoryMatchStore implements IMatchStore {
+export class InMemoryMatchStore
+  implements IMatchStore, IPublicationOutboxStore
+{
   private readonly records = new Map<string, IMatchRecord>();
   /**
    * Wave 3b: secondary index `normalizedRoomCode -> matchId`. Updated
@@ -90,6 +104,7 @@ export class InMemoryMatchStore implements IMatchStore {
       events: [],
       sequences: new Set(),
       receipts: new Map(),
+      publications: new Map(),
       closed: false,
     });
     if (meta.roomCode && meta.status === 'lobby') {
@@ -188,10 +203,52 @@ export class InMemoryMatchStore implements IMatchStore {
     for (const event of batch.events) {
       rec.events.push(event);
       rec.sequences.add(event.sequence);
+      // The publication row lands beside its event, in the same
+      // all-or-nothing step the durable store uses. A commit with no
+      // publication record is an event nobody is ever told about.
+      rec.publications.set(event.sequence, {
+        record: {
+          matchId,
+          sequence: event.sequence,
+          commandId: batch.commandId,
+          event,
+          createdAt: committedAt,
+        },
+        publishedAt: null,
+      });
     }
     rec.receipts.set(batch.commandId, receipt);
     rec.meta = { ...rec.meta, updatedAt: committedAt };
     return { kind: 'committed', receipt };
+  };
+
+  /** See `IPublicationOutboxStore.listPendingPublications`. */
+  listPendingPublications = async (
+    matchId: string,
+  ): Promise<readonly IMatchPublication[]> => {
+    const rec = this.records.get(matchId);
+    if (!rec) return [];
+    return Array.from(rec.publications.values())
+      .filter((row) => row.publishedAt === null)
+      .map((row) => row.record)
+      .sort((a, b) => a.sequence - b.sequence);
+  };
+
+  /**
+   * See `IPublicationOutboxStore.markPublicationsPublished`, and the
+   * durable twin for why there is no "first mark wins" guard.
+   */
+  markPublicationsPublished = async (
+    matchId: string,
+    sequences: readonly number[],
+  ): Promise<void> => {
+    const rec = this.records.get(matchId);
+    if (!rec) return;
+    const publishedAt = new Date().toISOString();
+    for (const sequence of sequences) {
+      const row = rec.publications.get(sequence);
+      if (row) row.publishedAt = publishedAt;
+    }
   };
 
   getEvents = async (
