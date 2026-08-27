@@ -161,6 +161,65 @@ describe('multiplayer client', () => {
     );
   });
 
+  it('stamps every intent with an identity the server can dedupe on', () => {
+    // The server's replay-attack protection is `intentId`-shaped: it
+    // keeps a bounded set of accepted ids and refuses a repeat with
+    // DUPLICATE_INTENT. The field is optional on the schema for pre-M2
+    // clients, and the server SKIPS the duplicate check entirely when it
+    // is absent — so an unstamped intent is not merely unlabelled, it is
+    // exempt from replay protection. Protocol.ts asserts "the M2 client
+    // always stamps one", and that is the claim under test.
+    const f = makeMockSocketFactory();
+    const client = connect(
+      'ws://localhost/x',
+      'm1',
+      { playerId: 'p1', token: 'tok' },
+      { socketFactory: f.factory, reconnect: false },
+    );
+    f.lastSocket().fireOpen();
+    f.lastSocket().sentRaw.length = 0;
+
+    client.send({ kind: 'AdvancePhase' } as never);
+
+    const intents = f
+      .lastSocket()
+      .sentRaw.map(
+        (raw) => JSON.parse(raw) as { kind: string; intentId?: string },
+      )
+      .filter((frame) => frame.kind === 'Intent');
+    expect(intents).toHaveLength(1);
+    expect(typeof intents[0]?.intentId).toBe('string');
+    expect(intents[0]?.intentId ?? '').not.toHaveLength(0);
+  });
+
+  it('gives a different identity to each distinct intent', () => {
+    // The control. A constant id would satisfy the row above and be
+    // worse than none: the server would refuse the player's SECOND
+    // command of the match as a replay.
+    const f = makeMockSocketFactory();
+    const client = connect(
+      'ws://localhost/x',
+      'm1',
+      { playerId: 'p1', token: 'tok' },
+      { socketFactory: f.factory, reconnect: false },
+    );
+    f.lastSocket().fireOpen();
+    f.lastSocket().sentRaw.length = 0;
+
+    client.send({ kind: 'AdvancePhase' } as never);
+    client.send({ kind: 'AdvancePhase' } as never);
+
+    const ids = f
+      .lastSocket()
+      .sentRaw.map(
+        (raw) => JSON.parse(raw) as { kind: string; intentId?: string },
+      )
+      .filter((frame) => frame.kind === 'Intent')
+      .map((frame) => frame.intentId);
+    expect(ids).toHaveLength(2);
+    expect(new Set(ids).size).toBe(2);
+  });
+
   it('gives up on a server that has gone silent', () => {
     // The other half of the bidirectional heartbeat. The client sends
     // its own keepalives, but nothing was watching for the SERVER going
