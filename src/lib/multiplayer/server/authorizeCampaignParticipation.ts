@@ -55,9 +55,7 @@ export function admitBoundCampaignParticipation(input: {
     verifiedPlayerId: input.verifiedPlayerId,
     hostPlayerId: input.entry.hostPlayerId,
     forceUnits: input.entry.host.getState().forceUnits ?? {},
-    existing: input.entry
-      .getParticipationRecords(input.payload.missionId)
-      .find((record) => record.playerId === input.verifiedPlayerId),
+    records: input.entry.getParticipationRecords(input.payload.missionId),
     payload: input.payload,
   });
 }
@@ -69,7 +67,12 @@ export function admitCampaignParticipation(input: {
   readonly verifiedPlayerId: string;
   readonly hostPlayerId: string;
   readonly forceUnits: Readonly<Record<string, readonly string[]>>;
-  readonly existing: ICampaignParticipationRecord | undefined;
+  /**
+   * Every participation record already filed for this mission — not just
+   * the caller's. Ownership is a fact about the OTHER claims, so a
+   * function handed only its own record could never see a conflict.
+   */
+  readonly records: readonly ICampaignParticipationRecord[];
   readonly payload: ICampaignParticipationPayload;
 }): CampaignParticipationAdmission {
   if (input.acknowledgedRevision !== input.currentRevision) {
@@ -79,16 +82,41 @@ export function admitCampaignParticipation(input: {
   if (!unitIds) {
     return { ok: false, code: 'INVALID_INTENT', reason: 'foreign-force' };
   }
+  // A campaign has ONE shared roster, so `forceUnits` knowing a force
+  // only proves it exists — it says nothing about whose it is. The
+  // refusal above has always been named `foreign-force`, but until now
+  // it only fired for a force nobody had, which meant a player could
+  // file participation for their TEAMMATE's force and be admitted.
+  //
+  // Nothing upstream records force ownership: the campaign's forces are
+  // shared, and the only owner map in the codebase is built inside
+  // `composeCoopEncounter` and never leaves it. What the session does
+  // have is the claims themselves, so first claim on a mission owns the
+  // force for that mission. That is deliberately modest — it stops a
+  // player taking a force out of a teammate's hands, and it does not
+  // pretend to be a GM assignment mechanism, which would need an
+  // authority that does not exist yet.
+  const claimedByOther = input.records.some(
+    (candidate) =>
+      candidate.force.id === input.payload.forceId &&
+      candidate.playerId !== input.verifiedPlayerId,
+  );
+  if (claimedByOther) {
+    return { ok: false, code: 'INVALID_INTENT', reason: 'foreign-force' };
+  }
+  const existing = input.records.find(
+    (candidate) => candidate.playerId === input.verifiedPlayerId,
+  );
   const record = projectedRecord(input, unitIds);
-  if (!input.existing) {
+  if (!existing) {
     return { ok: true, idempotent: false, record };
   }
   if (
-    input.existing.choice === record.choice &&
-    input.existing.force.id === record.force.id &&
-    input.existing.missionId === record.missionId
+    existing.choice === record.choice &&
+    existing.force.id === record.force.id &&
+    existing.missionId === record.missionId
   ) {
-    return { ok: true, idempotent: true, record: input.existing };
+    return { ok: true, idempotent: true, record: existing };
   }
   return { ok: false, code: 'INVALID_INTENT', reason: 'conflicting-choice' };
 }
