@@ -119,6 +119,13 @@ interface IClientState {
   // consumer's `on('event', ...)` registration. Zustand-style: drain
   // on first listener attach.
   pendingLiveEvents: unknown[];
+  /**
+   * Commands sent but not yet answered, keyed by the id they went out
+   * with. A reconnect re-sends these AS THEY ARE: minting a fresh id
+   * would let authority apply the same command twice when the first
+   * attempt landed before the socket died.
+   */
+  pendingIntents: Map<string, unknown>;
   replayBuffer: unknown[];
   /**
    * Identity of recently applied sequences, so a REPEAT of one can be
@@ -169,6 +176,8 @@ type ServerMessageHandlerContext = {
   readonly updateLastSeq: LastSeqUpdater;
   /** Re-send `SessionJoin` to pull the tail this client is missing. */
   readonly requestResync: () => void;
+  /** Re-send every command still waiting for an answer. */
+  readonly resendPending: () => void;
 };
 type ServerMessageHandler = (context: ServerMessageHandlerContext) => void;
 
@@ -194,7 +203,7 @@ const SERVER_MESSAGE_HANDLERS: Record<
       }
     }
   },
-  ReplayEnd: ({ state, emit }) => {
+  ReplayEnd: ({ state, emit, resendPending }) => {
     // Whatever asked for this replay has been served - including a gap
     // recovery, so the next hole is allowed to ask again.
     state.recoveringFromGap = false;
@@ -208,11 +217,21 @@ const SERVER_MESSAGE_HANDLERS: Record<
       emit('event', evt);
     }
     state.pendingLiveEvents = [];
+    // Caught up, so anything still unanswered can be asked again - with
+    // the id it originally carried, which is what lets authority
+    // recognise a retry instead of applying a second command.
+    resendPending();
   },
   Event: ({ message, state, emit, updateLastSeq, requestResync }) => {
     const eventMessage = message as Extract<IServerMessage, { kind: 'Event' }>;
     const wasBlocked = state.blockedBySequenceCollision;
     for (const event of admitLiveEvent(state, eventMessage.event)) {
+      // Authority stamps the id onto the first event a command
+      // produces, so this is the client learning its command landed.
+      settlePendingIntent(
+        state,
+        (event as { payload?: { intentId?: unknown } }).payload?.intentId,
+      );
       updateLastSeq(event);
       rememberApplied(state, event);
       if (!state.ready) {
@@ -252,8 +271,12 @@ const SERVER_MESSAGE_HANDLERS: Record<
   Heartbeat: () => {
     // Server liveness ping; clients do not need to echo.
   },
-  Error: ({ message, emit }) => {
+  Error: ({ message, state, emit }) => {
     const error = message as Extract<IServerMessage, { kind: 'Error' }>;
+    // A refusal is an answer. Rejected, vetoed, duplicate, refused for
+    // scope - the command is settled either way, and retrying it on the
+    // next reconnect would just be refused again forever.
+    settlePendingIntent(state, error.intentId);
     emit('error', { code: error.code, reason: error.reason });
   },
   Close: ({ message, state, emit }) => {
@@ -365,6 +388,7 @@ export function connect(
     closedByCaller: false,
     ready: false,
     pendingLiveEvents: [],
+    pendingIntents: new Map(),
     replayBuffer: [],
     appliedIdentityBySeq: new Map(),
     blockedBySequenceCollision: false,
@@ -530,6 +554,7 @@ function handleServerMessage(
     state: runtime.state,
     emit: (name, payload) => emitClientEvent(runtime, name, payload),
     updateLastSeq: (event) => updateLastSeq(runtime.state, event),
+    resendPending: () => resendPendingIntents(runtime),
     requestResync: () => {
       const socket = runtime.state.socket;
       if (socket === null) return;
@@ -843,11 +868,52 @@ function sendClientIntent(
     );
     return;
   }
+  // Remembered BEFORE the write, because a send that throws is exactly
+  // the case this exists for: the command is pending either way, and
+  // only a receipt says otherwise.
+  runtime.state.pendingIntents.set(envelope.intentId, parsed.data);
   try {
     runtime.state.socket.send(JSON.stringify(parsed.data));
   } catch (e) {
     emitClientEvent(runtime, 'error', e);
   }
+}
+
+/**
+ * Re-send everything still waiting for an answer, oldest first.
+ *
+ * Fired once the replay window closes, not on socket open: until then
+ * the client is still being caught up, and a command sent into that
+ * window races the very replay meant to tell it whether the command
+ * already landed.
+ */
+function resendPendingIntents(runtime: IClientRuntime): void {
+  const socket = runtime.state.socket;
+  if (socket === null) return;
+  for (const envelope of Array.from(runtime.state.pendingIntents.values())) {
+    try {
+      socket.send(JSON.stringify(envelope));
+    } catch (e) {
+      emitClientEvent(runtime, 'error', e);
+      // Stop at the first failure: the socket is dying, and the rest
+      // stay pending for the next reconnect rather than being dropped.
+      return;
+    }
+  }
+}
+
+/**
+ * A command has been answered. Clears ONLY that one.
+ *
+ * Both terminal shapes carry the id back: authority stamps it onto the
+ * first event a command produces, and a refusal correlates its Error
+ * frame with it. Anything else - another player's events, an
+ * unrelated error - leaves this command pending, which is the whole
+ * point of keying on the id rather than clearing on any traffic.
+ */
+function settlePendingIntent(state: IClientState, intentId: unknown): void {
+  if (typeof intentId !== 'string') return;
+  state.pendingIntents.delete(intentId);
 }
 
 function addClientListener(
