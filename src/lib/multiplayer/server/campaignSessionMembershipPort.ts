@@ -57,13 +57,11 @@ export function createCampaignSessionMembershipPort(): ICampaignSessionMembershi
     isRevoked: (campaignId, sessionId, participantId) =>
       readRevokedAt(campaignId, sessionId, participantId) !== null,
     bind: (input) => {
-      // Seat refusals (gm taken, seats full) are the store's answer and
-      // are NOT escalated here: this call records an admission the
-      // socket layer has already granted by its own rules, and turning a
-      // bookkeeping refusal into a disconnect would drop a player the
-      // session had just accepted. Enforcing seat limits at admission
-      // time is task 9's job, where the refusal has somewhere to go.
-      bindCampaignSessionParticipant({
+      // The seat refusals are returned rather than swallowed. They used
+      // to be dropped here because the socket layer had nowhere to put
+      // them; the tactical-seat refusal now has somewhere to go, so the
+      // store's answer is handed back whole and the caller decides.
+      return bindCampaignSessionParticipant({
         campaignId: input.campaignId,
         sessionId: input.sessionId,
         participantId: input.participantId,

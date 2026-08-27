@@ -193,8 +193,19 @@ describe('bindCampaignSyncConnection', () => {
       isRevoked: (_c: string, _s: string, participantId: string) =>
         revoked.has(participantId),
       bind: (input: { participantId: string; seat: 'gm' | 'player' }) => {
+        // The real store refuses a third tactical seat inside its own
+        // transaction. A fake that always says yes cannot show whether
+        // the socket layer listens to that answer.
+        if (
+          input.seat === 'player' &&
+          !bound.some((row) => row.participantId === input.participantId) &&
+          bound.filter((row) => row.seat === 'player').length >= 2
+        ) {
+          return { kind: 'tactical-seats-full' as const, limit: 2 };
+        }
         bound.push({ participantId: input.participantId, seat: input.seat });
         active.add(input.participantId);
+        return { kind: 'bound' as const };
       },
     };
   }
@@ -298,6 +309,52 @@ describe('bindCampaignSyncConnection', () => {
       participantId: 'pid_guest',
       seat: 'player',
     });
+  });
+
+  it('refuses a third tactical player and leaves the first two seated', async () => {
+    // Exactly two tactical slots is the campaign's topology, and the
+    // store already refuses the third inside its bind transaction. The
+    // socket layer was discarding that answer, so the third player was
+    // admitted and streamed the campaign anyway.
+    const registry = await makeRegistry();
+    const membership = fakeMembership();
+
+    const join = async (playerId: string) => {
+      const socket = new MockWireSocket();
+      await bindCampaignSyncConnection({
+        socket,
+        registry,
+        matchId: 'match-campaign',
+        verifiedPlayerId: playerId,
+        logger: quietLogger,
+        replicaStore: null,
+        membership,
+      });
+      socket.inbound({
+        kind: 'CampaignJoin',
+        matchId: 'match-campaign',
+        ts: nowIso(),
+        playerId,
+        role: 'guest',
+        roomCode: 'ABC234',
+      });
+      await flushAsyncHandlers();
+      return socket;
+    };
+
+    await join('pid_p1');
+    await join('pid_p2');
+    const third = await join('pid_p3');
+
+    expect(
+      sawError(third, 'AUTH_REJECTED', 'campaign-tactical-seats-full'),
+    ).toBe(true);
+    // The two who were already seated keep their seats: a refusal must
+    // not disturb existing membership.
+    expect(membership.bound).toEqual([
+      { participantId: 'pid_p1', seat: 'player' },
+      { participantId: 'pid_p2', seat: 'player' },
+    ]);
   });
 
   it('records the host as the gm seat', async () => {

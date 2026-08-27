@@ -79,7 +79,22 @@ export interface ICampaignSessionMembershipPort {
     readonly sessionId: string;
     readonly participantId: string;
     readonly seat: 'gm' | 'player';
-  }) => void;
+  }) => ICampaignSeatBindOutcome;
+}
+
+/**
+ * What the seat store answered, narrowed to the discriminant this layer
+ * acts on. The store returns richer rows; nothing here needs them, and
+ * keeping the port thin is the same instinct that kept it to three
+ * questions in the first place.
+ */
+export interface ICampaignSeatBindOutcome {
+  readonly kind:
+    | 'bound'
+    | 'already-bound'
+    | 'gm-seat-taken'
+    | 'tactical-seats-full'
+    | 'revoked';
 }
 
 export interface IBindCampaignSyncConnectionDeps {
@@ -723,12 +738,32 @@ async function handleCampaignJoin({
   }
   // The invite worked, so this newcomer becomes a durable member and
   // will not need the code again.
-  membership?.bind({
+  const seat = membership?.bind({
     campaignId: entry.campaignId,
     sessionId: matchId,
     participantId: verifiedPlayerId,
     seat: 'player',
   });
+  // A campaign seats exactly two tactical players, and the store decides
+  // that inside its bind transaction — which is what makes it safe
+  // against two newcomers racing for the last seat, where a read-then-
+  // admit check would let both through. Until now the answer was
+  // discarded and the third player was admitted regardless.
+  //
+  // Undoing the hydration rather than pre-checking it keeps the store as
+  // the single authority on seat count. The cost is that a refused
+  // newcomer has already been sent the baseline before being turned
+  // away; closing that needs the invite check and the seat check to
+  // happen before any streaming, which is a larger change than this
+  // refusal.
+  if (seat?.kind === 'tactical-seats-full') {
+    join.disconnect();
+    send(
+      socket,
+      errorFrame(matchId, 'AUTH_REJECTED', 'campaign-tactical-seats-full'),
+    );
+    return;
+  }
   addSocketToMatch(matchId, socket);
   cleanupFns.add(join.disconnect);
   acknowledge();
