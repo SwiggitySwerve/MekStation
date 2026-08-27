@@ -851,6 +851,116 @@ describe('bindCampaignSyncConnection', () => {
     expect(rejected.sent.slice(afterRefusal)).toEqual([]);
   });
 
+  it('refuses a proposal attributed to someone else', async () => {
+    // The inbound guard proves `envelope.playerId`, but the proposal
+    // carries its OWN `proposingPlayerId` one level down, and that was
+    // never compared. The GM's review screen renders it verbatim, so an
+    // unchecked field decides whose name the GM sees next to a request
+    // they are about to approve.
+    const registry = await makeRegistry('host-review');
+    const guest = new MockWireSocket();
+    await bindCampaignSyncConnection({
+      socket: guest,
+      registry,
+      matchId: 'match-campaign',
+      verifiedPlayerId: 'pid_guest',
+      logger: quietLogger,
+      replicaStore: null,
+    });
+    guest.inbound({
+      kind: 'CampaignJoin',
+      matchId: 'match-campaign',
+      ts: nowIso(),
+      playerId: 'pid_guest',
+      role: 'guest',
+      roomCode: 'ABC234',
+    });
+    await flushAsyncHandlers();
+    guest.sent.length = 0;
+
+    guest.inbound({
+      kind: 'CampaignProposal',
+      matchId: 'match-campaign',
+      ts: nowIso(),
+      // Matches the proved identity, so the envelope guard is satisfied.
+      playerId: 'pid_guest',
+      proposal: {
+        proposalId: 'proposal-misattributed',
+        campaignId: 'campaign-sync',
+        // ...but the proposal names someone else as its author.
+        proposingPlayerId: 'pid_other',
+        ts: nowIso(),
+        intent: {
+          kind: 'SpendFunds',
+          campaignId: 'campaign-sync',
+          intentId: 'intent-misattributed',
+          payload: { amount: 750_000, reason: 'Not my idea' },
+        },
+      },
+    });
+    await flushAsyncHandlers();
+
+    expect(
+      sawError(guest, 'AUTH_REJECTED', 'campaign-proposal-attribution'),
+    ).toBe(true);
+    // Refusing must also mean not queueing it for the GM to see.
+    expect(
+      registry.get('match-campaign')?.arbiter.getPendingProposals().length,
+    ).toBe(0);
+  });
+
+  it('still accepts a proposal a player attributes to themselves', async () => {
+    // The control. A guard that refused every proposal would pass the
+    // row above while removing the feature it protects.
+    const registry = await makeRegistry('host-review');
+    const guest = new MockWireSocket();
+    await bindCampaignSyncConnection({
+      socket: guest,
+      registry,
+      matchId: 'match-campaign',
+      verifiedPlayerId: 'pid_guest',
+      logger: quietLogger,
+      replicaStore: null,
+    });
+    guest.inbound({
+      kind: 'CampaignJoin',
+      matchId: 'match-campaign',
+      ts: nowIso(),
+      playerId: 'pid_guest',
+      role: 'guest',
+      roomCode: 'ABC234',
+    });
+    await flushAsyncHandlers();
+    guest.sent.length = 0;
+
+    guest.inbound({
+      kind: 'CampaignProposal',
+      matchId: 'match-campaign',
+      ts: nowIso(),
+      playerId: 'pid_guest',
+      proposal: {
+        proposalId: 'proposal-own',
+        campaignId: 'campaign-sync',
+        proposingPlayerId: 'pid_guest',
+        ts: nowIso(),
+        intent: {
+          kind: 'SpendFunds',
+          campaignId: 'campaign-sync',
+          intentId: 'intent-own',
+          payload: { amount: 1_000, reason: 'Ammo' },
+        },
+      },
+    });
+    await flushAsyncHandlers();
+
+    expect(
+      sawError(guest, 'AUTH_REJECTED', 'campaign-proposal-attribution'),
+    ).toBe(false);
+    expect(
+      registry.get('match-campaign')?.arbiter.getPendingProposals().length,
+    ).toBe(1);
+  });
+
   it('refuses a decision from anyone but the GM', async () => {
     // GM review is the entire point of `host-review` mode. Without this
     // a guest could submit a proposal and immediately approve their own,
