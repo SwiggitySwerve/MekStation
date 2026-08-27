@@ -225,3 +225,156 @@ describe('CampaignSyncSession — host disconnect', () => {
     expect(result.ok).toBe(false);
   });
 });
+
+describe('CampaignSyncSession — scenario progression requires convergence', () => {
+  /**
+   * Two retained members hydrated at the same revision, then one campaign
+   * event committed on top so both are one revision behind. That is the
+   * shape the spec scenario describes: a campaign that moved on while a
+   * participant has not said they applied the move.
+   */
+  async function twoMembersOneEventBehind(): Promise<{
+    host: CampaignMatchHost;
+    session: CampaignSyncSession;
+    playerOneSaw: ICampaignEvent[];
+    playerTwoSaw: ICampaignEvent[];
+    stop: () => void;
+  }> {
+    const { host, session } = newSession();
+    await session.open();
+    const playerOneSaw: ICampaignEvent[] = [];
+    const playerTwoSaw: ICampaignEvent[] = [];
+    const one = await session.joinMember(
+      (e) => playerOneSaw.push(e),
+      'player-1',
+    );
+    const two = await session.joinMember(
+      (e) => playerTwoSaw.push(e),
+      'player-2',
+    );
+    await host.handleIntent({
+      kind: 'AdvanceDay',
+      campaignId: CAMPAIGN_ID,
+      intentId: 'advance-1',
+      payload: {},
+    });
+    return {
+      host,
+      session,
+      playerOneSaw,
+      playerTwoSaw,
+      stop: () => {
+        one.disconnect();
+        two.disconnect();
+      },
+    };
+  }
+
+  it('blocks the next scenario while a retained participant is behind', async () => {
+    const { session, stop } = await twoMembersOneEventBehind();
+    await session.noteParticipantAcknowledged('player-1', 1);
+
+    const gate = await session.evaluateScenarioLaunch();
+
+    expect(gate.ok).toBe(false);
+    if (!gate.ok) {
+      // The refusal has to be SHOWABLE — a bare false tells the GM
+      // nothing about who they are waiting for.
+      expect(gate.reason).toBe('participants-behind');
+      expect(gate.requiredRevision).toBe(1);
+      expect(gate.behind).toEqual([
+        { participantId: 'player-2', acknowledgedRevision: 0 },
+      ]);
+    }
+    stop();
+  });
+
+  it('allows the launch once every retained participant has converged', async () => {
+    // CONTROL: a gate that refused everything would fail here.
+    const { session, stop } = await twoMembersOneEventBehind();
+    await session.noteParticipantAcknowledged('player-1', 1);
+    await session.noteParticipantAcknowledged('player-2', 1);
+
+    expect(await session.evaluateScenarioLaunch()).toEqual({
+      ok: true,
+      requiredRevision: 1,
+    });
+    stop();
+  });
+
+  it('keeps delivering committed events to healthy clients while blocked', async () => {
+    // The other half of the requirement: being behind blocks PROGRESSION,
+    // never DELIVERY. A gate that froze the stream would fail here.
+    const { host, session, playerOneSaw, playerTwoSaw, stop } =
+      await twoMembersOneEventBehind();
+    await session.noteParticipantAcknowledged('player-1', 1);
+    playerOneSaw.length = 0;
+    playerTwoSaw.length = 0;
+
+    await host.handleIntent({
+      kind: 'AdvanceDay',
+      campaignId: CAMPAIGN_ID,
+      intentId: 'advance-2',
+      payload: {},
+    });
+
+    expect(playerOneSaw.map((e) => e.type)).toEqual(['CampaignDayAdvanced']);
+    expect(playerTwoSaw.map((e) => e.type)).toEqual(['CampaignDayAdvanced']);
+    // Joining is delivery too — a blocked launch must not lock people out.
+    const late = await session.joinMember(() => {}, 'player-3');
+    expect(late.ok).toBe(true);
+    expect((await session.evaluateScenarioLaunch()).ok).toBe(false);
+    late.disconnect();
+    stop();
+  });
+
+  it('refuses an acknowledgement past the highest delivered revision', async () => {
+    // Otherwise the slowest client converges itself by claiming a number,
+    // and the gate becomes advisory.
+    const { session, stop } = await twoMembersOneEventBehind();
+
+    expect(await session.noteParticipantAcknowledged('player-2', 99)).toBe(
+      'ahead-of-delivery',
+    );
+
+    const gate = await session.evaluateScenarioLaunch();
+    expect(gate.ok).toBe(false);
+    if (!gate.ok) {
+      expect(gate.behind.map((entry) => entry.participantId)).toEqual([
+        'player-1',
+        'player-2',
+      ]);
+    }
+    stop();
+  });
+
+  it('ignores an acknowledgement from a participant who is not retained', async () => {
+    // A stranger must not be able to add themselves to the set the launch
+    // is waiting on.
+    const { session, stop } = await twoMembersOneEventBehind();
+    await session.noteParticipantAcknowledged('player-1', 1);
+    await session.noteParticipantAcknowledged('player-2', 1);
+
+    expect(await session.noteParticipantAcknowledged('stranger', 1)).toBe(
+      'unknown-participant',
+    );
+
+    expect((await session.evaluateScenarioLaunch()).ok).toBe(true);
+    stop();
+  });
+
+  it('never moves an acknowledgement backwards', async () => {
+    // A late frame from a superseded connection must not un-converge a
+    // participant who has already caught up.
+    const { session, stop } = await twoMembersOneEventBehind();
+    await session.noteParticipantAcknowledged('player-1', 1);
+    await session.noteParticipantAcknowledged('player-2', 1);
+
+    expect(await session.noteParticipantAcknowledged('player-1', 0)).toBe(
+      'stale',
+    );
+
+    expect((await session.evaluateScenarioLaunch()).ok).toBe(true);
+    stop();
+  });
+});

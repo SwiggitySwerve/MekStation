@@ -18,9 +18,14 @@
  *     sends a fresh snapshot and resumes live streaming from there.
  *   - `hostDisconnected` pauses the session — the guest mirror is
  *     frozen and stays read-only; no campaign-tier host migration.
+ *   - `evaluateScenarioLaunch` gates PROGRESSION (not delivery) on every
+ *     retained participant having acknowledged the campaign's current
+ *     revision, and names the ones who have not.
  *
  * @spec openspec/changes/add-shared-campaign-state/specs/coop-campaign-sync/spec.md
  * @spec openspec/changes/add-shared-campaign-state/design.md (D6)
+ * @spec openspec/changes/harden-gm-two-player-campaign-sessions/specs/coop-campaign-sync/spec.md
+ *       (Campaign Progression Requires Convergence)
  */
 
 import type { ICampaignEvent } from '@/types/campaign/CampaignSync';
@@ -62,6 +67,43 @@ export interface ICampaignJoinResult {
   readonly disconnect: () => void;
 }
 
+/**
+ * A retained participant's place on the campaign's revision line — the
+ * highest campaign revision they have reported applying.
+ */
+export interface ICampaignParticipantConvergence {
+  readonly participantId: string;
+  readonly acknowledgedRevision: number;
+}
+
+/**
+ * The one reason this gate refuses a scenario launch. A named constant
+ * rather than a free string so the surface that SHOWS the reason cannot
+ * drift from the surface that decides it.
+ */
+export const PROGRESSION_BLOCKED_BEHIND = 'participants-behind' as const;
+
+/**
+ * The launch gate's answer. The refusal carries WHO is behind and how
+ * far, not merely that someone is: a bare `false` leaves the GM with a
+ * disabled button and no way to find out what they are waiting for.
+ */
+export type CampaignProgressionGate =
+  | { readonly ok: true; readonly requiredRevision: number }
+  | {
+      readonly ok: false;
+      readonly reason: typeof PROGRESSION_BLOCKED_BEHIND;
+      readonly requiredRevision: number;
+      readonly behind: readonly ICampaignParticipantConvergence[];
+    };
+
+/** What recording a participant's acknowledgement did. */
+export type CampaignAckOutcome =
+  | 'applied'
+  | 'stale'
+  | 'unknown-participant'
+  | 'ahead-of-delivery';
+
 /** The outcome of a guest resync. */
 export interface ICampaignResyncResult {
   /** True when the resync was accepted. */
@@ -100,6 +142,23 @@ export class CampaignSyncSession {
    * campaign whose invite had expired.
    */
   private opened = false;
+  /**
+   * Retained participants, keyed to the highest campaign revision each
+   * has acknowledged applying.
+   *
+   * A MAP rather than a set of converged/not flags, because the gate has
+   * to be able to NAME who it is waiting for. It is also the retained
+   * set itself: a participant is in here because they were admitted, and
+   * an audited GM removal is what takes them out (9.3's audited-removal
+   * command does not exist yet, so nothing removes them today).
+   *
+   * Held in memory, so a rebuilt session starts with it empty and blocks
+   * nobody until participants rejoin. That is the honest statement of
+   * what this process knows — a durable retained roster is 9.1's schema
+   * work, and a stored roster that disagreed with who is actually here
+   * would block launches on ghosts.
+   */
+  private readonly retained = new Map<string, number>();
 
   constructor(
     host: CampaignMatchHost,
@@ -229,6 +288,7 @@ export class CampaignSyncSession {
   joinGuest = async (
     roomCode: string,
     sink: CampaignGuestSink,
+    participantId?: string,
   ): Promise<ICampaignJoinResult> => {
     if (
       this.roomCode === null ||
@@ -236,7 +296,7 @@ export class CampaignSyncSession {
     ) {
       return { ok: false, delivered: [], disconnect: () => {} };
     }
-    return this.joinMember(sink);
+    return this.joinMember(sink, participantId);
   };
 
   /**
@@ -252,9 +312,15 @@ export class CampaignSyncSession {
    * Refuses on a session that never opened, or one paused by the host
    * leaving: there is no live campaign to hydrate from, and that is a
    * different answer from "you are not a member".
+   *
+   * `participantId` — when the caller has PROVED who this is — retains
+   * the participant for the progression gate. Omitting it hydrates
+   * exactly as before and retains nobody, so an unidentified sink can
+   * never become something a launch waits on.
    */
   joinMember = async (
     sink: CampaignGuestSink,
+    participantId?: string,
   ): Promise<ICampaignJoinResult> => {
     if (!this.opened || this.paused) {
       return { ok: false, delivered: [], disconnect: () => {} };
@@ -263,10 +329,15 @@ export class CampaignSyncSession {
     const delivered: ICampaignEvent[] = [];
     const buffered: ICampaignEvent[] = [];
     const liveUnsub = this.host.subscribe((event) => buffered.push(event));
-    const revision = Math.max(
-      0,
-      (await this.host.getEventLog().nextSequence()) - 1,
-    );
+    const revision = await this.currentRevision();
+    if (participantId !== undefined) {
+      // A member is converged the moment they are hydrated: the baseline
+      // they are handed IS `revision`. Seeding here rather than waiting
+      // for their first acknowledgement stops a participant who just
+      // joined from blocking a launch they are not behind on.
+      const acknowledged = this.retained.get(participantId) ?? revision;
+      this.retained.set(participantId, Math.max(revision, acknowledged));
+    }
     const baseline = this.buildBaselineEvent(revision);
     delivered.push(baseline);
     sink(baseline);
@@ -336,6 +407,78 @@ export class CampaignSyncSession {
     }
     const unsubscribe = this.host.subscribe(sink);
     return { ok: true, delivered, snapshotted: false, disconnect: unsubscribe };
+  };
+
+  /**
+   * Record that a retained participant has applied campaign revision
+   * `revision`. Monotonic — a late frame from a superseded connection
+   * cannot un-converge a participant who has already caught up.
+   *
+   * Refused in two cases, both of which would otherwise turn the launch
+   * gate into advice:
+   *
+   *   - `ahead-of-delivery` — the claim runs past the highest revision
+   *     the host has actually committed. Without this the slowest client
+   *     converges itself by naming a big number.
+   *   - `unknown-participant` — the caller is not in the retained set, so
+   *     a stranger cannot add themselves to the set a launch waits on.
+   *
+   * The caller is responsible for having PROVED the participant's
+   * identity first; this records a cursor, it does not authorize one.
+   */
+  noteParticipantAcknowledged = async (
+    participantId: string,
+    revision: number,
+  ): Promise<CampaignAckOutcome> => {
+    const acknowledged = this.retained.get(participantId);
+    if (acknowledged === undefined) return 'unknown-participant';
+    if (revision > (await this.currentRevision())) return 'ahead-of-delivery';
+    if (revision <= acknowledged) return 'stale';
+    this.retained.set(participantId, revision);
+    return 'applied';
+  };
+
+  /**
+   * Decide whether the campaign may progress to the next scenario.
+   *
+   * Committed events keep flowing to whoever can take them — this gate
+   * is deliberately not consulted anywhere on the delivery path — but a
+   * scenario launch requires every RETAINED participant to have reached
+   * the campaign's current revision. A participant who is reconnecting,
+   * or connected but behind, blocks the launch until they acknowledge,
+   * and the refusal names them so the reason is showable rather than a
+   * disabled button with no explanation.
+   *
+   * The required revision is read LIVE from the log head rather than
+   * cached, for the same reason `getParticipationRecords` filters
+   * against current roster state: a stored copy is a claim that has to
+   * be kept in step with reality, and this states the reality directly.
+   */
+  evaluateScenarioLaunch = async (): Promise<CampaignProgressionGate> => {
+    const requiredRevision = await this.currentRevision();
+    const behind: ICampaignParticipantConvergence[] = [];
+    this.retained.forEach((acknowledgedRevision, participantId) => {
+      if (acknowledgedRevision < requiredRevision) {
+        behind.push({ participantId, acknowledgedRevision });
+      }
+    });
+    if (behind.length === 0) return { ok: true, requiredRevision };
+    return {
+      ok: false,
+      reason: PROGRESSION_BLOCKED_BEHIND,
+      requiredRevision,
+      behind,
+    };
+  };
+
+  /**
+   * The highest sequence the host has committed — the campaign's current
+   * revision. `nextSequence` is the NEXT number to be handed out, so the
+   * committed head is one below it, floored at 0 for a log that has not
+   * opened yet.
+   */
+  private currentRevision = async (): Promise<number> => {
+    return Math.max(0, (await this.host.getEventLog().nextSequence()) - 1);
   };
 
   /**
