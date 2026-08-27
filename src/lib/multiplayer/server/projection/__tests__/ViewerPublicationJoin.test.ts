@@ -18,6 +18,7 @@ import { defaultSeats } from '@/types/multiplayer/Lobby';
 
 import { InMemoryMatchStore } from '../../InMemoryMatchStore';
 import { ServerMatchHost, type IMatchSocket } from '../../ServerMatchHost';
+import { AUTHORITY_ONLY_EVENT_FIELDS } from '../ViewerFrameProjector';
 
 interface IRecorded {
   parsed: IServerMessage;
@@ -121,7 +122,25 @@ describe('viewer publication SessionJoin', () => {
         }
       }
     }
-    expect(received).toEqual(storeEvents);
+    // The same events, MINUS the server-only authority fields umbrella
+    // task 11.1 strips at the publication boundary. Comparing against
+    // the raw store rows was the right pin before a projector existed;
+    // it is now the thing the spec forbids ("SHALL NOT serialize a raw
+    // authoritative payload"), so the pin moves rather than relaxes.
+    expect(received).toEqual(
+      storeEvents.map((event) => {
+        const kept: Record<string, unknown> = {};
+        for (const [key, value] of Object.entries(event)) {
+          if (
+            (AUTHORITY_ONLY_EVENT_FIELDS as readonly string[]).includes(key)
+          ) {
+            continue;
+          }
+          kept[key] = value;
+        }
+        return kept;
+      }),
+    );
     const start = socket.sent[0]?.parsed;
     if (start?.kind === 'ReplayStart') {
       expect(start.totalEvents).toBe(storeEvents.length);
