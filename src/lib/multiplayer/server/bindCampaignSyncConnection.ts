@@ -775,7 +775,27 @@ async function handleCampaignDecision({
   entry: ICampaignHostRegistryEntry;
   matchId: string;
 }): Promise<void> {
-  void socket;
+  if (envelope.playerId !== entry.hostPlayerId) {
+    // GM review is the entire point of `host-review` mode, and without
+    // this a guest could submit a proposal and immediately approve
+    // their own - committing it to the campaign with the GM never
+    // consulted. `handleCampaignHostIntent` has always checked this;
+    // the decision path simply never did.
+    //
+    // Comparing the ENVELOPE's playerId is safe because the inbound
+    // guard upstream closes any socket whose envelope claims an
+    // identity other than the one the connection proved.
+    send(
+      socket,
+      errorFrame(
+        matchId,
+        'AUTH_REJECTED',
+        'campaign-decision-requires-gm',
+        envelope.proposalId,
+      ),
+    );
+    return;
+  }
   const result = await entry.arbiter.decide(
     envelope.proposalId,
     envelope.decision,

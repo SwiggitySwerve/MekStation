@@ -794,6 +794,148 @@ describe('bindCampaignSyncConnection', () => {
     expect(rejected.sent.slice(afterRefusal)).toEqual([]);
   });
 
+  it('refuses a decision from anyone but the GM', async () => {
+    // GM review is the entire point of `host-review` mode. Without this
+    // a guest could submit a proposal and immediately approve their own,
+    // committing it to the campaign with the GM never consulted.
+    const registry = await makeRegistry('host-review');
+    const guest = new MockWireSocket();
+    await bindCampaignSyncConnection({
+      socket: guest,
+      registry,
+      matchId: 'match-campaign',
+      verifiedPlayerId: 'pid_guest',
+      logger: quietLogger,
+      replicaStore: null,
+    });
+    guest.inbound({
+      kind: 'CampaignJoin',
+      matchId: 'match-campaign',
+      ts: nowIso(),
+      playerId: 'pid_guest',
+      role: 'guest',
+      roomCode: 'ABC234',
+    });
+    await flushAsyncHandlers();
+
+    guest.inbound({
+      kind: 'CampaignProposal',
+      matchId: 'match-campaign',
+      ts: nowIso(),
+      playerId: 'pid_guest',
+      proposal: {
+        proposalId: 'proposal-self-approved',
+        campaignId: 'campaign-sync',
+        proposingPlayerId: 'pid_guest',
+        ts: nowIso(),
+        intent: {
+          kind: 'SpendFunds',
+          campaignId: 'campaign-sync',
+          intentId: 'intent-self-approved',
+          payload: { amount: 500_000, reason: 'Helping myself' },
+        },
+      },
+    });
+    await flushAsyncHandlers();
+    guest.sent.length = 0;
+
+    // The guest now approves their OWN proposal.
+    guest.inbound({
+      kind: 'CampaignDecision',
+      matchId: 'match-campaign',
+      ts: nowIso(),
+      playerId: 'pid_guest',
+      proposalId: 'proposal-self-approved',
+      decision: 'approve',
+    });
+    await flushAsyncHandlers();
+
+    expect(
+      sawError(guest, 'AUTH_REJECTED', 'campaign-decision-requires-gm'),
+    ).toBe(true);
+    // And nothing was decided: the proposal is still waiting for the GM.
+    expect(
+      registry.get('match-campaign')?.arbiter.getPendingProposals().length,
+    ).toBe(1);
+  });
+
+  it('still lets the GM decide', async () => {
+    // The control. A guard that refused everyone would pass the row
+    // above and break the feature it is protecting.
+    const registry = await makeRegistry('host-review');
+    const guest = new MockWireSocket();
+    await bindCampaignSyncConnection({
+      socket: guest,
+      registry,
+      matchId: 'match-campaign',
+      verifiedPlayerId: 'pid_guest',
+      logger: quietLogger,
+      replicaStore: null,
+    });
+    guest.inbound({
+      kind: 'CampaignJoin',
+      matchId: 'match-campaign',
+      ts: nowIso(),
+      playerId: 'pid_guest',
+      role: 'guest',
+      roomCode: 'ABC234',
+    });
+    await flushAsyncHandlers();
+    guest.inbound({
+      kind: 'CampaignProposal',
+      matchId: 'match-campaign',
+      ts: nowIso(),
+      playerId: 'pid_guest',
+      proposal: {
+        proposalId: 'proposal-for-gm',
+        campaignId: 'campaign-sync',
+        proposingPlayerId: 'pid_guest',
+        ts: nowIso(),
+        intent: {
+          kind: 'SpendFunds',
+          campaignId: 'campaign-sync',
+          intentId: 'intent-for-gm',
+          payload: { amount: 1_000, reason: 'Ammo' },
+        },
+      },
+    });
+    await flushAsyncHandlers();
+
+    const gm = new MockWireSocket();
+    await bindCampaignSyncConnection({
+      socket: gm,
+      registry,
+      matchId: 'match-campaign',
+      verifiedPlayerId: 'pid_host',
+      logger: quietLogger,
+      replicaStore: null,
+    });
+    gm.inbound({
+      kind: 'CampaignJoin',
+      matchId: 'match-campaign',
+      ts: nowIso(),
+      playerId: 'pid_host',
+      role: 'host',
+    });
+    await flushAsyncHandlers();
+    gm.inbound({
+      kind: 'CampaignDecision',
+      matchId: 'match-campaign',
+      ts: nowIso(),
+      playerId: 'pid_host',
+      proposalId: 'proposal-for-gm',
+      decision: 'approve',
+    });
+    await flushAsyncHandlers();
+
+    expect(sawError(gm, 'AUTH_REJECTED', 'campaign-decision-requires-gm')).toBe(
+      false,
+    );
+    expect(
+      registry.get('match-campaign')?.arbiter.getPendingProposals().length,
+    ).toBe(0);
+  });
+
   it('routes a guest proposal through the server arbiter and broadcasts committed events', async () => {
     const socket = new MockWireSocket();
     const registry = await makeRegistry();
