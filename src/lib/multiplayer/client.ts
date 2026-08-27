@@ -791,6 +791,36 @@ function stopHeartbeat(runtime: IClientRuntime): void {
   runtime.state.heartbeatTimer = null;
 }
 
+/**
+ * Mint the identity the server dedupes on.
+ *
+ * `Protocol.ts` states that the M2 client always stamps an `intentId`,
+ * and until now this function did not: every intent went out unstamped.
+ * That is not a cosmetic omission, because the field is optional for
+ * pre-M2 clients and the server SKIPS the duplicate check when it is
+ * absent — so an unstamped intent is exempt from replay protection, and
+ * a replayed envelope could re-trigger a movement or attack, which is
+ * the exact thing design D7 exists to prevent.
+ *
+ * Minted per send rather than per payload: two deliberate identical
+ * commands are two commands, and giving them one id would have the
+ * server refuse the second as a replay. Reusing an id across a RETRY of
+ * the same attempt is the opposite case and is task 5.2, which will
+ * hold onto this value rather than mint a new one.
+ */
+function mintIntentId(): string {
+  if (
+    typeof crypto !== 'undefined' &&
+    typeof crypto.randomUUID === 'function'
+  ) {
+    return crypto.randomUUID();
+  }
+  // Older runtimes: timestamp plus two random segments. Not RFC-4122,
+  // but the server only needs it to be unique within a match.
+  const rand = (): string => Math.random().toString(36).slice(2, 10);
+  return `intent-${Date.now().toString(36)}-${rand()}-${rand()}`;
+}
+
 function sendClientIntent(
   runtime: IClientRuntime,
   intent: IIntentPayload,
@@ -802,6 +832,7 @@ function sendClientIntent(
     ts: nowIso(),
     playerId: runtime.auth.playerId,
     intent,
+    intentId: mintIntentId(),
   };
   const parsed = ClientMessageSchema.safeParse(envelope);
   if (!parsed.success) {
