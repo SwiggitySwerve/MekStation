@@ -112,8 +112,26 @@ export type CampaignAckOutcome =
   | 'applied'
   | 'stale'
   | 'unknown-participant'
-  | 'ahead-of-commit'
+  | 'ahead-of-delivery'
   | 'invalid-revision';
+
+/**
+ * What the session knows about one retained participant.
+ *
+ * `delivered` is the highest revision this session has actually HANDED
+ * them; `acknowledged` is the highest they have reported applying. Held
+ * in ONE record rather than in two maps so they cannot be seeded
+ * independently or drift apart.
+ *
+ * Invariant: `acknowledged <= delivered <= the committed head`. The
+ * first half is enforced by the ack guards; the second by the fact that
+ * the only thing which raises `delivered` is a frame this session
+ * pushed, and every such frame is already committed.
+ */
+interface IRetainedParticipant {
+  readonly acknowledged: number;
+  readonly delivered: number;
+}
 
 /** The outcome of a guest resync. */
 export interface ICampaignResyncResult {
@@ -154,8 +172,8 @@ export class CampaignSyncSession {
    */
   private opened = false;
   /**
-   * Retained participants, keyed to the highest campaign revision each
-   * has acknowledged applying.
+   * Retained participants, keyed to what each has been sent and what
+   * each has acknowledged applying.
    *
    * A MAP rather than a set of converged/not flags, because the gate has
    * to be able to NAME who it is waiting for. It is also the retained
@@ -175,7 +193,7 @@ export class CampaignSyncSession {
    * work, and a stored roster that disagreed with who is actually here
    * would block launches on ghosts.
    */
-  private readonly retained = new Map<string, number>();
+  private readonly retained = new Map<string, IRetainedParticipant>();
 
   constructor(
     host: CampaignMatchHost,
@@ -353,6 +371,10 @@ export class CampaignSyncSession {
     delivered.push(baseline);
     sink(baseline);
 
+    // The highest revision this join actually handed the participant.
+    // The baseline IS `revision`; the tail can carry more when the host
+    // commits while we are reading it.
+    let deliveredRevision = revision;
     const seen = new Set<number>();
     const tail = await this.host.getEventLog().getCampaignEvents(revision + 1);
     for (const event of [...tail, ...buffered]) {
@@ -360,6 +382,8 @@ export class CampaignSyncSession {
       seen.add(event.sequence);
       delivered.push(event);
       sink(event);
+      if (event.sequence > deliveredRevision)
+        deliveredRevision = event.sequence;
     }
     liveUnsub();
 
@@ -374,11 +398,20 @@ export class CampaignSyncSession {
       // Plain assignment, not a max: a re-join reads the CURRENT head
       // and the head never falls, so rehydration can only raise this.
       // Guarding a fall that cannot happen made a bad value permanent.
-      this.retained.set(participantId, revision);
+      this.retained.set(participantId, {
+        acknowledged: revision,
+        delivered: deliveredRevision,
+      });
     }
 
     const unsubscribe = this.host.subscribe((event) => {
       sink(event);
+      // Delivery is recorded where delivery HAPPENS, and only after the
+      // sink took the frame. This is what lets the ack guard refuse a
+      // claim about a frame that was never sent.
+      if (participantId !== undefined) {
+        this.noteDelivered(participantId, event.sequence);
+      }
     });
 
     return { ok: true, delivered, disconnect: unsubscribe };
@@ -394,10 +427,14 @@ export class CampaignSyncSession {
    *     from after it (spec scenario "Large-gap resync receives a fresh
    *     snapshot").
    *
-   * IDENTIFIES NOBODY, deliberately: taking no `participantId`, it does
-   * not converge a retained participant the way `joinMember` does, so a
-   * player brought back this way still reads as behind. Route identified
-   * participants through `joinMember`. Nothing calls `resyncGuest` in
+   * IDENTIFIES NOBODY, deliberately, and that is now a constraint on the
+   * caller rather than a detail: taking no `participantId`, this path
+   * neither converges a retained participant nor records what it
+   * delivered to them. Route identified participants through
+   * `joinMember` — reconnecting them here would leave their watermark at
+   * the old connection's high-water mark, and every acknowledgement of a
+   * frame this path streamed would be refused `ahead-of-delivery`,
+   * blocking the launch permanently. Nothing calls `resyncGuest` in
    * production today (grepped) — a rule for the wiring, not a defect.
    */
   resyncGuest = async (
@@ -442,6 +479,29 @@ export class CampaignSyncSession {
   };
 
   /**
+   * Raise a retained participant's delivered watermark. Called from the
+   * live subscription in `joinMember`, the only place a frame reaches an
+   * IDENTIFIED participant after hydration.
+   *
+   * A no-op for someone not retained: an unidentified sink and a departed
+   * participant both have no ledger row to raise, and inventing one here
+   * would put somebody into the set a launch waits on without anybody
+   * having admitted them.
+   *
+   * No monotonic clamp, because a fall cannot happen: the host commits
+   * sequences in ascending order and this only ever sees the sequence it
+   * was just handed, so a second connection for the same participant
+   * re-sets the same number rather than a lower one. A clamp here would
+   * be unreachable code that no test could ever turn red — which is the
+   * shape of the `Math.max` this file used to carry.
+   */
+  private noteDelivered = (participantId: string, sequence: number): void => {
+    const entry = this.retained.get(participantId);
+    if (entry === undefined) return;
+    this.retained.set(participantId, { ...entry, delivered: sequence });
+  };
+
+  /**
    * Record that a retained participant has applied campaign revision
    * `revision`. Monotonic — a late frame from a superseded connection
    * cannot un-converge a participant who has already caught up.
@@ -457,29 +517,31 @@ export class CampaignSyncSession {
    *     was stored, and then compared false against the required
    *     revision forever — a participant who had acknowledged nothing
    *     read as permanently converged, and no rejoin could repair it.
-   *   - `ahead-of-commit` — the claim runs past the highest revision the
-   *     host has committed.
+   *   - `ahead-of-delivery` — the claim runs past the highest revision
+   *     this session actually HANDED that participant.
    *
-   * `ahead-of-commit` CHECKS THE COMMIT HEAD, NOT DELIVERY, and the name
-   * now says so. Called `ahead-of-delivery` while checking exactly this,
-   * it claimed a guarantee the code does not give: the head is a number
-   * every client knows, so a participant sent nothing at all converges by
-   * naming it. All the ceiling buys today is that a client cannot invent
-   * a FUTURE revision; the rest needs a delivered watermark.
+   * The ceiling is the per-participant watermark, not the commit head,
+   * and the name is honest again because of it. Against the head — which
+   * is what it checked while still called `ahead-of-delivery` — a
+   * participant this session had sent nothing at all converged by naming
+   * a number every client knows. Delivery is the strongest fact a server
+   * has: it can witness what it sent, never what a client applied. The
+   * watermark is always at or below the head, so this subsumes the old
+   * check rather than sitting beside it.
    *
    * The caller is responsible for having PROVED the participant's
    * identity first; this records a cursor, it does not authorize one.
    */
-  noteParticipantAcknowledged = async (
+  noteParticipantAcknowledged = (
     participantId: string,
     revision: number,
-  ): Promise<CampaignAckOutcome> => {
-    const acknowledged = this.retained.get(participantId);
-    if (acknowledged === undefined) return 'unknown-participant';
+  ): CampaignAckOutcome => {
+    const entry = this.retained.get(participantId);
+    if (entry === undefined) return 'unknown-participant';
     if (!Number.isInteger(revision) || revision < 0) return 'invalid-revision';
-    if (revision > (await this.currentRevision())) return 'ahead-of-commit';
-    if (revision <= acknowledged) return 'stale';
-    this.retained.set(participantId, revision);
+    if (revision > entry.delivered) return 'ahead-of-delivery';
+    if (revision <= entry.acknowledged) return 'stale';
+    this.retained.set(participantId, { ...entry, acknowledged: revision });
     return 'applied';
   };
 
@@ -526,9 +588,12 @@ export class CampaignSyncSession {
   evaluateScenarioLaunch = async (): Promise<CampaignProgressionGate> => {
     const requiredRevision = await this.currentRevision();
     const behind: ICampaignParticipantConvergence[] = [];
-    this.retained.forEach((acknowledgedRevision, participantId) => {
-      if (acknowledgedRevision < requiredRevision) {
-        behind.push({ participantId, acknowledgedRevision });
+    this.retained.forEach((entry, participantId) => {
+      if (entry.acknowledged < requiredRevision) {
+        behind.push({
+          participantId,
+          acknowledgedRevision: entry.acknowledged,
+        });
       }
     });
     if (behind.length === 0) return { ok: true, requiredRevision };
