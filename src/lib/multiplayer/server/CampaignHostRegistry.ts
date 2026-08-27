@@ -28,6 +28,7 @@ import type { IMatchStore } from './IMatchStore';
 
 import { CampaignGmArbiter } from './CampaignGmArbiter';
 import { CampaignMatchHost } from './CampaignMatchHost';
+import { participationIsFresh } from './campaignParticipationFreshness';
 import { CampaignSyncSession } from './CampaignSyncSession';
 import { getDefaultMatchStore } from './getDefaultMatchStore';
 
@@ -149,7 +150,15 @@ class CampaignHostRegistryEntry implements ICampaignHostRegistryEntry {
     missionId: string,
   ): readonly ICampaignParticipationRecord[] => {
     const bucket = this.participationByMission.get(missionId);
-    return bucket ? Array.from(bucket.records.values()) : [];
+    if (!bucket) return [];
+    // Filtered against CURRENT roster state, not against what was true
+    // when the choice was made. A player who picked a lance and then
+    // lost a mech to it is no longer ready, and saying so here rather
+    // than storing a flag means no invalidation path can forget to.
+    const rosterUnits = this.host.getState().rosterUnits ?? {};
+    return Array.from(bucket.records.values()).filter((record) =>
+      participationIsFresh(record, rosterUnits),
+    );
   };
 
   advanceRevision = (next: number): void => {
