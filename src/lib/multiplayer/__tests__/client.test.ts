@@ -91,6 +91,18 @@ function liveEvent(
   });
 }
 
+/** Every `intentId` this socket has been asked to send, in order. */
+function intentIdsOn(socket: { sentRaw: string[] }): (string | undefined)[] {
+  return socket.sentRaw
+    .map((raw) => JSON.parse(raw) as { kind: string; intentId?: string })
+    .filter((frame) => frame.kind === 'Intent')
+    .map((frame) => frame.intentId);
+}
+
+function nowIsoForTest(): string {
+  return new Date().toISOString();
+}
+
 /** Opens and closes an empty replay window so live traffic applies. */
 function finishReplay(f: {
   lastSocket: () => { inject: (m: unknown) => void };
@@ -159,6 +171,76 @@ describe('multiplayer client', () => {
     expect(kinds.filter((kind) => kind === 'Heartbeat').length).toBeGreaterThan(
       1,
     );
+  });
+
+  it('retries an unanswered intent with the same identity after a reconnect', () => {
+    // The scenario the identity exists for: the connection drops after
+    // submission and before any receipt. The player's command must not
+    // be silently lost, and the retry must carry the ORIGINAL id - a
+    // fresh one would let the server apply the same command twice if
+    // the first attempt did land before the socket died.
+    const f = makeMockSocketFactory();
+    const client = connect(
+      'ws://localhost/x',
+      'm1',
+      { playerId: 'p1', token: 'tok' },
+      { socketFactory: f.factory },
+    );
+    f.lastSocket().fireOpen();
+    f.lastSocket().sentRaw.length = 0;
+    client.send({ kind: 'AdvancePhase' } as never);
+    const sentId = intentIdsOn(f.lastSocket())[0];
+    expect(typeof sentId).toBe('string');
+
+    // The socket dies before any receipt, and the client reconnects.
+    f.lastSocket().fireClose();
+    jest.advanceTimersByTime(60_000);
+    expect(f.socketsCreated).toBe(2);
+    f.lastSocket().fireOpen();
+    f.lastSocket().sentRaw.length = 0;
+    finishReplay(f);
+
+    expect(intentIdsOn(f.lastSocket())).toEqual([sentId]);
+  });
+
+  it('does not retry an intent the server already answered', () => {
+    // The control, and the reason clearing has to be keyed on the id:
+    // re-sending a command that was already committed is exactly the
+    // double-apply the identity is meant to prevent. A retry rule that
+    // fired for everything would pass the row above and break this.
+    const f = makeMockSocketFactory();
+    const client = connect(
+      'ws://localhost/x',
+      'm1',
+      { playerId: 'p1', token: 'tok' },
+      { socketFactory: f.factory },
+    );
+    f.lastSocket().fireOpen();
+    finishReplay(f);
+    f.lastSocket().sentRaw.length = 0;
+    client.send({ kind: 'AdvancePhase' } as never);
+    const sentId = intentIdsOn(f.lastSocket())[0];
+
+    // The server commits it, stamping the id onto the produced event -
+    // which is how the client learns the attempt reached authority.
+    f.lastSocket().inject({
+      kind: 'Event',
+      matchId: 'm1',
+      ts: nowIsoForTest(),
+      event: {
+        type: 'phase_changed',
+        sequence: 1,
+        payload: { intentId: sentId },
+      },
+    });
+
+    f.lastSocket().fireClose();
+    jest.advanceTimersByTime(60_000);
+    f.lastSocket().fireOpen();
+    f.lastSocket().sentRaw.length = 0;
+    finishReplay(f);
+
+    expect(intentIdsOn(f.lastSocket())).toEqual([]);
   });
 
   it('stamps every intent with an identity the server can dedupe on', () => {
