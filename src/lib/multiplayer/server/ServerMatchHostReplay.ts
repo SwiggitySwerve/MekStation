@@ -156,7 +156,18 @@ export async function handleSessionJoin(
   ctx: IServerMatchHostReplayContext,
   socket: IMatchSocket,
   playerId: string,
-  lastSeq?: number,
+  /**
+   * The FIRST authority sequence to send, not the last one the client
+   * already holds.
+   *
+   * It used to mean the latter and this function added one. Two callers'
+   * conventions then met here without either being named: a delivery
+   * cursor resolves to the first frame a viewer LACKS, and adding one to
+   * that skipped exactly the frame a gap recovery had asked for. Naming
+   * the convention is the fix — the caller knows which number it has, and
+   * this function no longer guesses.
+   */
+  fromSeq?: number,
   requestedMatchId = ctx.matchId,
 ): Promise<void> {
   if (requestedMatchId !== ctx.matchId) {
@@ -177,7 +188,7 @@ export async function handleSessionJoin(
   }
   const viewer = resolution.viewer;
 
-  const requestFrom = lastSeq != null ? lastSeq + 1 : 0;
+  const requestFrom = fromSeq ?? 0;
   const replayed = await sendReplay(ctx, socket, requestFrom, playerId, viewer);
   if (!replayed) return;
 
