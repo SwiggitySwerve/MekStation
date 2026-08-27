@@ -402,6 +402,7 @@ function loadMultiplayerRuntime() {
   const socketModule = require('./src/lib/multiplayer/server/bindMultiplayerSocketConnection.ts');
   const campaignSocketModule = require('./src/lib/multiplayer/server/bindCampaignSyncConnection.ts');
   const membershipModule = require('./src/lib/multiplayer/server/campaignSessionMembershipPort.ts');
+  const forceClaimModule = require('./src/lib/multiplayer/server/campaignForceClaimPort.ts');
   multiplayerRuntime = {
     bootstrapMultiplayerServer: registryModule.bootstrapMultiplayerServer,
     bindMultiplayerSocketConnection:
@@ -412,6 +413,9 @@ function loadMultiplayerRuntime() {
     // socket, and those tests have no database (umbrella 6.2).
     campaignSessionMembership:
       membershipModule.createCampaignSessionMembershipPort(),
+    // Same reasoning as the membership port above: supplied here so a
+    // socket test never reaches for SQLite just by binding.
+    campaignForceClaims: forceClaimModule.createCampaignForceClaimPort(),
   };
   return multiplayerRuntime;
 }
@@ -582,6 +586,7 @@ app
               verifiedPlayerId,
               logger: console,
               membership: runtime.campaignSessionMembership,
+              forceClaims: runtime.campaignForceClaims,
             })
           : runtime.bindMultiplayerSocketConnection({
               socket: ws,

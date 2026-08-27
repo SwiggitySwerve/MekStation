@@ -1443,6 +1443,80 @@ describe('bindCampaignSyncConnection', () => {
     );
   });
 
+  it('honours durable force ownership from a previous process', async () => {
+    // The in-memory rule only knows about claims made THIS session. On
+    // the far side of a restart those records are gone and the force is
+    // free for the taking, so the durable holder is the only thing that
+    // can still say no.
+    const guestSocket = new MockWireSocket();
+    const registry = await makeRegistry();
+    const asked: unknown[] = [];
+    const forceClaims = {
+      // Stands in for two different worlds rather than two forces: the
+      // first ask finds the force durably held by someone else, the
+      // second finds it free. Using one force id keeps the shared
+      // fixture untouched.
+      claim: (input: { forceId: string }) => {
+        asked.push(input);
+        return asked.length === 1
+          ? ({ kind: 'held-by-other' } as const)
+          : ({ kind: 'claimed' } as const);
+      },
+    };
+
+    await bindCampaignSyncConnection({
+      socket: guestSocket,
+      registry,
+      matchId: 'match-campaign',
+      verifiedPlayerId: 'pid_guest',
+      logger: quietLogger,
+      replicaStore: null,
+      forceClaims,
+    });
+    guestSocket.inbound({
+      kind: 'CampaignJoin',
+      matchId: 'match-campaign',
+      ts: nowIso(),
+      playerId: 'pid_guest',
+      role: 'guest',
+      roomCode: 'ABC234',
+    });
+    await flushAsyncHandlers();
+    const records = () =>
+      registry
+        .get('match-campaign')
+        ?.getParticipationRecords('mission-alpha') ?? [];
+
+    guestSocket.sent.length = 0;
+    participate(guestSocket, {
+      missionId: 'mission-alpha',
+      forceId: 'force-guest',
+      choice: 'deploy',
+    });
+    await flushAsyncHandlers();
+
+    expect(asked).toHaveLength(1);
+    expect(sawError(guestSocket, 'INVALID_INTENT', 'foreign-force')).toBe(true);
+    // Refused means not published: a broadcast would tell the GM this
+    // player is deploying a force they were just denied.
+    expect(records()).toHaveLength(0);
+
+    // Control: a force nobody durably holds still goes through, so the
+    // port cannot be refusing everything.
+    guestSocket.sent.length = 0;
+    participate(guestSocket, {
+      missionId: 'mission-alpha',
+      forceId: 'force-guest',
+      choice: 'deploy',
+    });
+    await flushAsyncHandlers();
+
+    expect(sawError(guestSocket, 'INVALID_INTENT', 'foreign-force')).toBe(
+      false,
+    );
+    expect(records()).toHaveLength(1);
+  });
+
   it('broadcasts participation choices and records them in the registry', async () => {
     const hostSocket = new MockWireSocket();
     const guestSocket = new MockWireSocket();
