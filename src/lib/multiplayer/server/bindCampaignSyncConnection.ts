@@ -769,6 +769,21 @@ async function handleCampaignJoin({
   acknowledge();
 }
 
+/**
+ * Read a string field off a wire value the arbiter has not parsed yet.
+ *
+ * `CampaignProposal.proposal` is deliberately `unknown` here: the
+ * arbiter owns parsing it. This layer needs exactly one field early, to
+ * compare a claim against a proved identity, and returns null when the
+ * value is absent or the wrong shape so a MALFORMED proposal stays the
+ * arbiter's typed rejection rather than becoming an attribution error.
+ */
+function readStringField(value: unknown, field: string): string | null {
+  if (typeof value !== 'object' || value === null) return null;
+  const read = Reflect.get(value, field);
+  return typeof read === 'string' && read.length > 0 ? read : null;
+}
+
 async function handleCampaignProposal({
   envelope,
   socket,
@@ -780,6 +795,32 @@ async function handleCampaignProposal({
   entry: ICampaignHostRegistryEntry;
   matchId: string;
 }): Promise<void> {
+  // The envelope's identity is proved - the inbound guard closes any
+  // socket whose `playerId` differs from the one the connection
+  // authenticated as. The PROPOSAL carries its own author one level
+  // down, and that field was never compared to it, so a player could
+  // file a request under someone else's name.
+  //
+  // That matters because the field is not decoration: the GM's review
+  // surface renders `proposal.proposingPlayerId` directly, so it decides
+  // whose name sits next to a request the GM is about to approve. An
+  // unchecked string was choosing what the deciding authority believed.
+  const claimedProposer = readStringField(
+    envelope.proposal,
+    'proposingPlayerId',
+  );
+  if (claimedProposer !== null && claimedProposer !== envelope.playerId) {
+    send(
+      socket,
+      errorFrame(
+        matchId,
+        'AUTH_REJECTED',
+        'campaign-proposal-attribution',
+        readStringField(envelope.proposal, 'proposalId') ?? undefined,
+      ),
+    );
+    return;
+  }
   const result = await entry.arbiter.submitProposal(envelope.proposal);
   send(socket, {
     kind: 'CampaignDecision',
