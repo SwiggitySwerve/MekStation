@@ -3,6 +3,7 @@ import {
   getActiveCoopHost,
 } from '@/lib/campaign/coop/coopHostRegistry';
 import { createEmptyCampaignState } from '@/types/campaign/CampaignSync';
+import { ForceRole, FormationLevel } from '@/types/campaign/enums';
 
 import type { IMatchMeta } from '../IMatchStore';
 
@@ -206,6 +207,71 @@ describe('CampaignHostRegistry', () => {
     entry?.syncSession.noteGmConnected();
 
     expect(entry?.syncSession.isPaused()).toBe(false);
+  });
+
+  it('returns only the mission choices whose units still stand', async () => {
+    // The READ PATH, not just the predicate next door. Both players
+    // chose; one of them has a destroyed mech in the force they picked,
+    // so only the other is still readiness.
+    //
+    // The destroyed unit is in the registered state rather than mutated
+    // afterwards, because `CampaignMatchHost` exposes no state setter -
+    // real destruction arrives through battle reconciliation. What this
+    // pins is that the filter reads AUTHORITATIVE HOST STATE, which is
+    // the part that could regress.
+    const registry = new CampaignHostRegistry();
+    const base = snapshot();
+    const entry = await registry.register('match-campaign', {
+      ...base,
+      state: {
+        ...base.state,
+        rosterUnits: {
+          'unit-host': {
+            unitId: 'unit-host',
+            designation: 'Host Mech',
+            status: 'destroyed' as const,
+          },
+          'unit-guest': {
+            unitId: 'unit-guest',
+            designation: 'Guest Mech',
+            status: 'operational' as const,
+          },
+        },
+        forceUnits: {
+          'force-host': ['unit-host'],
+          'force-guest': ['unit-guest'],
+        },
+      },
+    });
+
+    const choice = (playerId: string, forceId: string, unitId: string) => ({
+      matchId: 'match-campaign',
+      missionId: 'mission-1',
+      playerId,
+      role: playerId === 'pid_host' ? ('host' as const) : ('guest' as const),
+      choice: 'deploy' as const,
+      force: {
+        id: forceId,
+        name: forceId,
+        subForceIds: [],
+        unitIds: [unitId],
+        forceType: ForceRole.STANDARD,
+        formationLevel: FormationLevel.LANCE,
+        createdAt: '2026-01-01T00:00:00.000Z',
+        updatedAt: '2026-01-01T00:00:00.000Z',
+      },
+    });
+
+    entry.publishParticipation(choice('pid_host', 'force-host', 'unit-host'));
+    entry.publishParticipation(
+      choice('pid_guest', 'force-guest', 'unit-guest'),
+    );
+
+    const remaining = entry.getParticipationRecords('mission-1');
+
+    // ONLY the affected player drops out. Both were published.
+    expect(remaining).toHaveLength(1);
+    expect(remaining[0].playerId).toBe('pid_guest');
   });
 
   it('exposes a resettable process singleton', async () => {
