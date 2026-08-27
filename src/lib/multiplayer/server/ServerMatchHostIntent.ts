@@ -152,6 +152,15 @@ export async function handleIntent(
     return commandRefusal;
   }
 
+  const foreignUnitRefusal = await refuseForeignUnitCommand(
+    ctx,
+    envelope,
+    verifiedPrincipalId,
+  );
+  if (foreignUnitRefusal) {
+    return foreignUnitRefusal;
+  }
+
   // Design D6 — per-connection intent rate-limiting. An over-budget
   // intent is rejected with a non-fatal RATE_LIMITED error; the
   // connection stays open and no event is appended.
@@ -418,6 +427,77 @@ async function refuseUnauthorizedCommand(
     }
     throw error;
   }
+}
+
+/**
+ * Refuses a unit-scoped command whose actor unit sits on a side the
+ * caller does not hold.
+ *
+ * Force-scope authorization cannot catch this and never could: a Move
+ * names `unitId`, not `forceId`, so `commandRequestFromIntent` builds an
+ * EMPTY force claim and the subset check passes trivially. The engine
+ * cannot catch it either — `EngineIntentHandler` is
+ * `(session, intent) => void`, so the dispatch layer never learns who
+ * sent the command. Measured 2026-08-26: without this, a seated opponent
+ * moved a Player-side mech and the host committed it (movement_declared
+ * + movement_locked, position changed).
+ *
+ * Both halves come from records the server already owns —
+ * `sideAssignments` is its own note of which side it gave a player, and
+ * every unit in engine state carries its side — so nothing new has to be
+ * threaded through the wire to make the comparison.
+ *
+ * Deliberately narrow in two ways. Server-internal callers are exempt:
+ * they are the host acting, not a principal claiming scope. And a
+ * refusal needs BOTH sides to resolve, so a match whose meta carries no
+ * `sideAssignments` keeps its previous behaviour instead of becoming
+ * newly unplayable — closing the measured hole without betting the
+ * match on a lookup this change did not verify everywhere.
+ */
+async function refuseForeignUnitCommand(
+  ctx: IServerMatchHostIntentContext,
+  envelope: IIntent,
+  verifiedPrincipalId: IntentVerifiedPrincipal,
+): Promise<readonly IServerMessage[] | null> {
+  if (verifiedPrincipalId === SERVER_INTERNAL_INTENT_CALLER) return null;
+
+  const actorUnitId = readActorUnitId(envelope.intent);
+  if (actorUnitId === null) return null;
+
+  const unitSide =
+    ctx.session.getSession().currentState.units[actorUnitId]?.side;
+  if (unitSide === undefined) return null;
+
+  const meta = await ctx.store.getMatchMeta(ctx.matchId);
+  const callerSide = meta?.sideAssignments.find(
+    (assignment) => assignment.playerId === verifiedPrincipalId,
+  )?.side;
+  if (callerSide === undefined) return null;
+
+  if (callerSide === unitSide) return null;
+
+  const err = errorMessage(
+    ctx.matchId,
+    'AUTH_REJECTED',
+    'unit-not-owned',
+    envelope.intentId,
+  );
+  ctx.broadcast(err);
+  return [err];
+}
+
+/**
+ * The unit a command ACTS WITH, which is the only one ownership
+ * constrains. Attacks name their actor `attackerId`; everything
+ * unit-scoped else names it `unitId`. `targetId` is pointedly not read —
+ * shooting a unit you do not own is the entire game.
+ */
+function readActorUnitId(intent: IIntent['intent']): string | null {
+  return (
+    readOptionalStringField(intent, 'unitId') ??
+    readOptionalStringField(intent, 'attackerId') ??
+    null
+  );
 }
 
 /**

@@ -231,12 +231,27 @@ export function composeCoopEncounter(
 /**
  * Check whether `playerId` owns `unitId` in a composed co-op encounter.
  *
- * `ServerMatchHost` already validates unit ownership for any seated
- * match; this helper expresses the co-op-specific ownership map so a
- * co-op combat-intent gate can reject an intent for a unit a player does
- * not own (design D1 / spec scenario "Cross-player unit intent is
+ * This helper expresses the co-op-specific ownership map so a co-op
+ * combat-intent gate can reject an intent for a unit a player does not
+ * own (design D1 / spec scenario "Cross-player unit intent is
  * rejected"). A unit absent from the composition is owned by no player,
  * so the helper returns `false` — an intent for it is rejected.
+ *
+ * This comment used to open by saying `ServerMatchHost` already
+ * validated unit ownership for any seated match. It did not, and the
+ * belief that it did is the likeliest reason nothing ever called this:
+ * the co-op case looked like a refinement of a working base case rather
+ * than the only guard there was. Measured 2026-08-26 on a properly
+ * seated 1v1, a player holding the `bravo` seat moved a Player-side mech
+ * and the host committed it.
+ *
+ * `ServerMatchHost` NOW refuses a command whose actor unit sits on a
+ * side the caller does not hold. That is a coarser grain than this
+ * helper: it separates opponents, not teammates. In a co-op match both
+ * players share the `player` side, so the host cannot tell their mechs
+ * apart, and this helper is still the only thing that can. It remains
+ * uncalled — `coopSeats` never leaves this module, so the per-unit owner
+ * map does not reach the host to be checked against.
  */
 export function ownsCoopUnit(
   composition: ICoopEncounterComposition,
