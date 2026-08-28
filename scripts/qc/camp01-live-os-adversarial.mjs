@@ -204,10 +204,20 @@ async function twoProcessRaceProbe({scratchRoot}) {
     const artifactDirectory={configured:fixture.artifactDirectory,canonical:fs.realpathSync.native(fixture.artifactDirectory)};
     const initial=await deadline(Promise.all(workers.map(({firstMessage})=>firstMessage)),15_000,'race ownership outcomes'), winner=initial.find(({kind})=>kind==='winner'), loser=initial.find(({kind})=>kind==='loser');
     if(!winner||!loser||winner.workerId===loser.workerId)return raceFailure('race did not produce one winner and one loser',{row:'C09-L6',artifactDirectory,workerOutcomes:initial.map(({workerId,kind,runtimeRoot,errorName,errorMessage,causeCode})=>({workerId,kind,runtimeRoot,errorName,errorMessage,causeCode}))});
-    const actualDuringOwnership=treeEntries(fixture.artifactDirectory), expectedDuringOwnership=[...winner.createdPaths.map((value)=>path.relative(fixture.artifactDirectory,value).split(path.sep).join('/')),`${path.basename(winner.runtimeRoot)}/.isolation-lease`,`${path.basename(winner.runtimeRoot)}/browser-storage/state.json`].sort();
-    winner.worker.send({type:'release'}); const results=await deadline(Promise.all(workers.map(({closed})=>closed)),15_000,'race worker cleanup'), entriesAfterCleanup=treeEntries(fixture.artifactDirectory);
-    const observation={row:'C09-L6',artifactDirectory,winner:{workerId:winner.workerId,outcome:'active-owner',runtimeRoot:path.basename(winner.runtimeRoot),createdPaths:winner.createdPaths},loser:{workerId:loser.workerId,outcome:'typed-rejection',errorName:loser.errorName,errorMessage:loser.errorMessage,causeCode:loser.causeCode},runtimeEntriesDuringOwnership:actualDuringOwnership,expectedEntriesDuringOwnership:expectedDuringOwnership,loserUnexpectedResidue:actualDuringOwnership.filter((entry)=>!expectedDuringOwnership.includes(entry)),artifactEntriesAfterWinnerCleanup:entriesAfterCleanup,workerExits:results.map(({exitCode,signal},index)=>({workerId:workers[index].workerId,exitCode,signal}))};
-    if(loser.errorName!=='Camp01RunnerIsolationError'||JSON.stringify(actualDuringOwnership)!==JSON.stringify(expectedDuringOwnership)||entriesAfterCleanup.length!==0||results.some(({exitCode,signal})=>exitCode!==0||signal!==null))return raceFailure('race ownership or residue oracle failed',observation);
+    // The runtime lives at the CONTRACT location `<repoRoot>/.c1r` (moved
+    // there from under the artifact directory on 2026-08-12, 7bc53c87a, to
+    // keep Next under Windows MAX_PATH). The oracle observes that contract
+    // location - not the path the winner reports, which would let the
+    // subject choose where it is inspected - and separately requires the
+    // winner's report to agree with the contract.
+    const contractRuntimeRoot=path.join(fixture.repoRoot,'.c1r');
+    const actualDuringOwnership=treeEntries(contractRuntimeRoot), expectedDuringOwnership=[...winner.createdPaths.filter((value)=>value!==winner.runtimeRoot).map((value)=>path.relative(contractRuntimeRoot,value).split(path.sep).join('/')),'.isolation-lease','browser-storage/state.json'].sort();
+    // The artifact directory must stay EMPTY through the whole race: since
+    // the runtime moved out of it, anything appearing there is residue.
+    const artifactEntriesDuringOwnership=treeEntries(fixture.artifactDirectory);
+    winner.worker.send({type:'release'}); const results=await deadline(Promise.all(workers.map(({closed})=>closed)),15_000,'race worker cleanup'), runtimeRootExistsAfterCleanup=pathExists(contractRuntimeRoot), artifactEntriesAfterCleanup=treeEntries(fixture.artifactDirectory);
+    const observation={row:'C09-L6',artifactDirectory,contractRuntimeRoot,winner:{workerId:winner.workerId,outcome:'active-owner',runtimeRoot:winner.runtimeRoot,createdPaths:winner.createdPaths},loser:{workerId:loser.workerId,outcome:'typed-rejection',errorName:loser.errorName,errorMessage:loser.errorMessage,causeCode:loser.causeCode},runtimeEntriesDuringOwnership:actualDuringOwnership,expectedEntriesDuringOwnership:expectedDuringOwnership,loserUnexpectedResidue:actualDuringOwnership.filter((entry)=>!expectedDuringOwnership.includes(entry)),artifactEntriesDuringOwnership,runtimeRootExistsAfterCleanup,artifactEntriesAfterCleanup,workerExits:results.map(({exitCode,signal},index)=>({workerId:workers[index].workerId,exitCode,signal}))};
+    if(loser.errorName!=='Camp01RunnerIsolationError'||winner.runtimeRoot!==contractRuntimeRoot||JSON.stringify(actualDuringOwnership)!==JSON.stringify(expectedDuringOwnership)||artifactEntriesDuringOwnership.length!==0||runtimeRootExistsAfterCleanup||artifactEntriesAfterCleanup.length!==0||results.some(({exitCode,signal})=>exitCode!==0||signal!==null))return raceFailure('race ownership or residue oracle failed',observation);
     return {evidence:{...observation,outcomeCode:'EXACTLY_ONE_RUNTIME_OWNER'}};
   } finally {for(const {worker} of workers)if(worker.exitCode===null)worker.kill();}
 }
