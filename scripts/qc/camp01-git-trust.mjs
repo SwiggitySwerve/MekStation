@@ -11,7 +11,8 @@ import { REPOSITORY_IDENTITY } from './camp01-authority-receipt.contract.mjs';
 // probes on every runner-image bump; an allowlist keeps the tamper property -
 // an UNKNOWN version still fails closed - while naming each accepted build.
 export const CAMP01_GIT_VERSIONS=Object.freeze(['2.54.0.windows.1','2.55.0.windows.4']);
-export const CAMP01_GIT_VERSION=CAMP01_GIT_VERSIONS[0], CAMP01_GIT_FETCH_URL='https://github.com/SwiggitySwerve/MekStation.git';
+export const CAMP01_GIT_VERSION = CAMP01_GIT_VERSIONS[0],
+  CAMP01_GIT_FETCH_URL = 'https://github.com/SwiggitySwerve/MekStation.git';
 const OID = /^[0-9a-f]{40}$/;
 // prettier-ignore
 const FETCH_REFS=Object.freeze(['+HEAD:refs/camp01/fetched-head','+refs/heads/main:refs/camp01/fetched-main']);
