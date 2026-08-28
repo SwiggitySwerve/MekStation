@@ -529,3 +529,109 @@ describe('client delivery cursor across a reconnect', () => {
     expect(lastJoin(sentByClient).deliveryCursor).toBe(0);
   });
 });
+
+function eventFrameDeliveryOnly(deliverySequence: number, id: string) {
+  return {
+    kind: 'Event',
+    matchId: 'm1',
+    ts: nowIso(),
+    deliverySequence,
+    event: { type: 'TestEvent', id },
+  };
+}
+
+function appliedIds(applied: readonly unknown[]): string[] {
+  return applied.map((event) => (event as { id: string }).id);
+}
+
+describe('client delivery-first admission without event.sequence', () => {
+  it('dedupes sequence-stripped live frames by delivery number, not type', () => {
+    // Same type and no `id`: identity collides across frames. Delivery
+    // numbers are what distinguish them. A client that keys only on
+    // authority sequence (absent here) re-applies the duplicate; a
+    // client that keys only on identity drops the second distinct
+    // delivery. Mutation M1 dies here.
+    const { sockets, applied } = openReadyClient();
+    sockets.last().inject({
+      kind: 'Event',
+      matchId: 'm1',
+      ts: nowIso(),
+      deliverySequence: 0,
+      event: { type: 'TestEvent' },
+    });
+    sockets.last().inject({
+      kind: 'Event',
+      matchId: 'm1',
+      ts: nowIso(),
+      deliverySequence: 1,
+      event: { type: 'TestEvent' },
+    });
+    sockets.last().inject({
+      kind: 'Event',
+      matchId: 'm1',
+      ts: nowIso(),
+      deliverySequence: 0,
+      event: { type: 'TestEvent' },
+    });
+    expect(applied).toHaveLength(2);
+  });
+
+  it('applies sequence-stripped frames in delivery order, exactly once', () => {
+    const { sockets, applied } = openReadyClient();
+    sockets.last().inject(eventFrameDeliveryOnly(0, 'a'));
+    sockets.last().inject(eventFrameDeliveryOnly(1, 'b'));
+    sockets.last().inject(eventFrameDeliveryOnly(2, 'c'));
+    // Recovery-shaped redelivery of the tail, still without sequence.
+    sockets.last().inject({
+      kind: 'ReplayStart',
+      matchId: 'm1',
+      ts: nowIso(),
+      fromSeq: 0,
+      totalEvents: 2,
+    });
+    sockets.last().inject({
+      kind: 'ReplayChunk',
+      matchId: 'm1',
+      ts: nowIso(),
+      events: [
+        { type: 'TestEvent', id: 'b' },
+        { type: 'TestEvent', id: 'c' },
+      ],
+    });
+    sockets.last().inject(replayEnd(2));
+
+    expect(appliedIds(applied)).toEqual(['a', 'b', 'c']);
+  });
+
+  it('reports a delivery gap, resyncs, and recovers without event.sequence', () => {
+    const { sockets, errors, applied, sentByClient } = openReadyClient();
+    sockets.last().inject(eventFrameDeliveryOnly(0, 'a'));
+    sockets.last().inject(eventFrameDeliveryOnly(1, 'b'));
+    sockets.last().inject(eventFrameDeliveryOnly(3, 'd'));
+
+    expect(gaps(errors)).toBe(1);
+    expect(appliedIds(applied)).toEqual(['a', 'b', 'd']);
+    expect(typeof lastJoin(sentByClient).deliveryCursor).toBe('number');
+    expect(lastJoin(sentByClient).deliveryCursor).toBe(1);
+
+    sockets.last().inject({
+      kind: 'ReplayStart',
+      matchId: 'm1',
+      ts: nowIso(),
+      fromSeq: 0,
+      totalEvents: 2,
+    });
+    sockets.last().inject({
+      kind: 'ReplayChunk',
+      matchId: 'm1',
+      ts: nowIso(),
+      events: [
+        { type: 'TestEvent', id: 'c' },
+        { type: 'TestEvent', id: 'd' },
+      ],
+    });
+    sockets.last().inject(replayEnd(3));
+
+    expect(appliedIds(applied)).toEqual(['a', 'b', 'd', 'c']);
+  });
+});

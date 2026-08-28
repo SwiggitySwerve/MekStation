@@ -354,4 +354,192 @@ describe('real client against a real fog-of-war server', () => {
 
     expect(client.lastSeq()).toBe(highest);
   });
+
+  it('applies, gaps, resyncs, and recovers when event.sequence is stripped', async () => {
+    // SLICE A PROOF. Slice B will stop putting `event.sequence` on
+    // player frames. This row is that future, today: the real fog
+    // server still stamps the field, then the duplex deletes it before
+    // the client sees the frame. Admission, exactly-once, gap
+    // detection, and recovery must all survive on `deliverySequence`
+    // (and event identity) alone.
+    //
+    // A client that still keys those on authority sequence passes
+    // every unstripped event through (`sequence === null`) and then
+    // double-applies the recovery tail. Exactly-once is the assertion
+    // that dies first.
+    const host = await fogHost();
+    const joinMessages: {
+      lastSeq?: number;
+      deliveryCursor?: number;
+    }[] = [];
+    const joins: (() => Promise<void>)[] = [];
+    const droppedIds: string[] = [];
+    const applied: { id?: string; sequence?: number }[] = [];
+    const gapReports: unknown[] = [];
+    const liveIdsInOrder: string[] = [];
+    let dropNextEvent = false;
+    let sawStrippedLiveEvent = false;
+
+    const clientSide: IClientWebSocket = {
+      send: (data: string) => {
+        const message = JSON.parse(data) as {
+          kind: string;
+          lastSeq?: number;
+          deliveryCursor?: number;
+        };
+        if (message.kind !== 'SessionJoin') return;
+        joinMessages.push({
+          lastSeq: message.lastSeq,
+          deliveryCursor: message.deliveryCursor,
+        });
+        joins.push(() =>
+          host.handleSessionJoin(
+            serverSide,
+            'pid_host',
+            message.lastSeq,
+            MATCH_ID,
+            message.deliveryCursor,
+          ),
+        );
+      },
+      close: () => {},
+      readyState: 1,
+      onopen: null,
+      onmessage: null,
+      onerror: null,
+      onclose: null,
+    };
+    const serverSide: IMatchSocket = {
+      send(data: string) {
+        const frame = JSON.parse(data) as {
+          kind: string;
+          event?: { sequence?: number; id?: string };
+        };
+        if (dropNextEvent && frame.kind === 'Event') {
+          dropNextEvent = false;
+          if (typeof frame.event?.id === 'string') {
+            droppedIds.push(frame.event.id);
+          }
+          return;
+        }
+        if (frame.kind === 'Event' && frame.event) {
+          if (typeof frame.event.id === 'string') {
+            liveIdsInOrder.push(frame.event.id);
+          }
+        }
+        const stripped = stripAuthoritySequence(data);
+        if (frame.kind === 'Event') {
+          const parsed = JSON.parse(stripped) as {
+            event?: { sequence?: number };
+          };
+          if (
+            parsed.event !== undefined &&
+            parsed.event.sequence === undefined
+          ) {
+            sawStrippedLiveEvent = true;
+          }
+        }
+        clientSide.onmessage?.({ data: stripped });
+      },
+      close() {
+        clientSide.onclose?.({});
+      },
+      readyState: 1,
+    };
+
+    const client = connect(
+      'ws://in-memory/x',
+      MATCH_ID,
+      { playerId: 'pid_host', token: 'tok' },
+      { socketFactory: () => clientSide, reconnect: false },
+    );
+    client.on('event', (event) =>
+      applied.push(event as { id?: string; sequence?: number }),
+    );
+    client.on('error', (error) => {
+      if ((error as { reason?: string }).reason === 'delivery-gap') {
+        gapReports.push(error);
+      }
+    });
+    clientSide.onopen?.({});
+    host.attachSocket(serverSide, 'pid_host');
+    await host.handleSessionJoin(serverSide, 'pid_host', undefined, MATCH_ID);
+    joins.length = 0;
+    joinMessages.length = 0;
+    applied.length = 0;
+    liveIdsInOrder.length = 0;
+    sawStrippedLiveEvent = false;
+
+    const drainJoins = async () => {
+      while (joins.length > 0) {
+        const next = joins.shift();
+        if (next !== undefined) await next();
+      }
+    };
+
+    for (const intentId of ['i1', 'i2', 'i3', 'i4', 'i5', 'i6']) {
+      if (intentId === 'i3') dropNextEvent = true;
+      await host.handleIntent({
+        kind: 'Intent',
+        matchId: MATCH_ID,
+        ts: nowIso(),
+        playerId: 'pid_host',
+        intentId,
+        intent: { kind: 'AdvancePhase' },
+      } as unknown as IIntent);
+      await drainJoins();
+    }
+    await drainJoins();
+
+    expect(sawStrippedLiveEvent).toBe(true);
+    expect(applied.every((event) => event.sequence === undefined)).toBe(true);
+    expect(droppedIds).toHaveLength(1);
+    expect(gapReports.length).toBeGreaterThan(0);
+    expect(joinMessages.length).toBeGreaterThan(0);
+    expect(
+      joinMessages.some((join) => typeof join.deliveryCursor === 'number'),
+    ).toBe(true);
+
+    const appliedIds = applied
+      .map((event) => event.id)
+      .filter((id): id is string => typeof id === 'string');
+    const uniqueIds = new Set(appliedIds);
+    // Exactly-once: the recovery tail must not re-apply events the
+    // live path already emitted, and the lost event must appear once.
+    expect(appliedIds).toHaveLength(uniqueIds.size);
+    expect(appliedIds).toContain(droppedIds[0]);
+    expect(appliedIds.filter((id) => id === droppedIds[0])).toHaveLength(1);
+    for (const liveId of liveIdsInOrder) {
+      expect(appliedIds.filter((id) => id === liveId)).toHaveLength(1);
+    }
+  });
 });
+
+/**
+ * Delete `event.sequence` (and the same field on ReplayChunk items)
+ * after the server serializes, before the client parses. Live
+ * `deliverySequence` is left intact: that is the number slice A keys
+ * on, and the number slice B will still send.
+ */
+function stripAuthoritySequence(raw: string): string {
+  const parsed = JSON.parse(raw) as {
+    kind?: string;
+    event?: Record<string, unknown>;
+    events?: Record<string, unknown>[];
+  };
+  if (
+    parsed.kind === 'Event' &&
+    parsed.event &&
+    typeof parsed.event === 'object'
+  ) {
+    delete parsed.event.sequence;
+  }
+  if (parsed.kind === 'ReplayChunk' && Array.isArray(parsed.events)) {
+    parsed.events = parsed.events.map((event) => {
+      if (!event || typeof event !== 'object') return event;
+      delete event.sequence;
+      return event;
+    });
+  }
+  return JSON.stringify(parsed);
+}
