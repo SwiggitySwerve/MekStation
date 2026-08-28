@@ -198,8 +198,22 @@ function deriveServerPlayerId(publicKeyBytes) {
   );
 }
 
-function canonicalPayload(playerId, issuedAt, expiresAt) {
+function canonicalPayload(playerId, issuedAt, expiresAt, scope) {
   // Object key order MUST be alphabetical — matches TS auth.ts canonicalTokenPayload.
+  if (
+    scope &&
+    typeof scope === 'object' &&
+    (scope.kind === 'match' || scope.kind === 'campaign-session') &&
+    typeof scope.id === 'string' &&
+    scope.id.length > 0
+  ) {
+    return JSON.stringify({
+      expiresAt,
+      issuedAt,
+      playerId,
+      scope: { id: scope.id, kind: scope.kind },
+    });
+  }
   return JSON.stringify({ expiresAt, issuedAt, playerId });
 }
 
@@ -226,7 +240,7 @@ function decodeWireToken(wire) {
     return null;
   }
   if (!parsed || typeof parsed !== 'object') return null;
-  const { playerId, issuedAt, expiresAt, publicKey, signature } = parsed;
+  const { playerId, issuedAt, expiresAt, publicKey, signature, scope } = parsed;
   if (
     typeof playerId !== 'string' ||
     typeof issuedAt !== 'string' ||
@@ -236,7 +250,27 @@ function decodeWireToken(wire) {
   ) {
     return null;
   }
-  return { playerId, issuedAt, expiresAt, publicKey, signature };
+  if (scope !== undefined) {
+    if (
+      !scope ||
+      typeof scope !== 'object' ||
+      (scope.kind !== 'match' && scope.kind !== 'campaign-session') ||
+      typeof scope.id !== 'string' ||
+      scope.id.length === 0
+    ) {
+      return null;
+    }
+  }
+  return {
+    playerId,
+    issuedAt,
+    expiresAt,
+    publicKey,
+    signature,
+    ...(scope !== undefined
+      ? { scope: { kind: scope.kind, id: scope.id } }
+      : {}),
+  };
 }
 
 // Inlined mirror of src/lib/multiplayer/socketCredentialProtocol.ts.
@@ -275,7 +309,7 @@ function readCredentialProtocol(header) {
  * Verify a wire-format token. Returns `{ ok: true, playerId }` on
  * success, or `{ ok: false, reason }` on failure.
  */
-function verifyWireToken(wire, nowMs = Date.now()) {
+function verifyWireToken(wire, nowMs = Date.now(), expectedScope) {
   traceSocket('verify start');
   const token = decodeWireToken(wire);
   if (!token) return { ok: false, reason: 'malformed' };
@@ -311,6 +345,7 @@ function verifyWireToken(wire, nowMs = Date.now()) {
     token.playerId,
     token.issuedAt,
     token.expiresAt,
+    token.scope,
   );
   const payloadBytes = Buffer.from(payload, 'utf8');
   let verified = false;
@@ -329,6 +364,19 @@ function verifyWireToken(wire, nowMs = Date.now()) {
   }
   traceSocket(`verify complete ok=${verified}`);
   if (!verified) return { ok: false, reason: 'bad-signature' };
+
+  // A token with no scope is still accepted when expectedScope was
+  // passed — transition residual; cutover is future work (reject
+  // scopeless socket tokens).
+  if (token.scope) {
+    if (!expectedScope) return { ok: false, reason: 'scope-unchecked' };
+    if (
+      token.scope.kind !== expectedScope.kind ||
+      token.scope.id !== expectedScope.id
+    ) {
+      return { ok: false, reason: 'scope-mismatch' };
+    }
+  }
 
   return { ok: true, playerId: token.playerId };
 }
@@ -722,7 +770,12 @@ app
       // client sees a clean rejection (the handshake never completes,
       // so there's no WS frame to send — this is the standard ws
       // server pattern).
-      const verification = verifyWireToken(token);
+      const channel = firstQueryValue(parsedUrl.query.channel);
+      const expectedScope =
+        channel === 'campaign'
+          ? { kind: 'campaign-session', id: matchId }
+          : { kind: 'match', id: matchId };
+      const verification = verifyWireToken(token, Date.now(), expectedScope);
       // eslint-disable-next-line no-console
       console.log(
         `[mp-socket] upgrade verification result matchId=${matchId} ok=${verification.ok}${

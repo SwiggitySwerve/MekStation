@@ -91,4 +91,35 @@ describe('issuePlayerToken (round-trip)', () => {
     expect(t2.signature).not.toBe(t1.signature);
     expect(t2.issuedAt).not.toBe(t1.issuedAt);
   });
+
+  it('mints a match-scoped token the server accepts for that match', async () => {
+    const identity = await makeIdentity();
+    const scope = { kind: 'match' as const, id: 'match-live' };
+    const token = await issuePlayerToken(identity, { scope });
+    expect(token.scope).toEqual(scope);
+
+    const accepted = await verifyPlayerToken(token, Date.now(), scope);
+    expect(accepted.ok).toBe(true);
+
+    const otherMatch = await verifyPlayerToken(token, Date.now(), {
+      kind: 'match',
+      id: 'match-other',
+    });
+    expect(otherMatch).toEqual({ ok: false, reason: 'scope-mismatch' });
+  });
+
+  it('does not reuse a cached token for a different scope', async () => {
+    const identity = await makeIdentity();
+    const cache = createTokenCache();
+    const t1 = await issuePlayerToken(identity, {
+      cache,
+      scope: { kind: 'match', id: 'match-A' },
+    });
+    const t2 = await issuePlayerToken(identity, {
+      cache,
+      scope: { kind: 'match', id: 'match-B' },
+    });
+    expect(t2).not.toBe(t1);
+    expect(t2.scope).toEqual({ kind: 'match', id: 'match-B' });
+  });
 });

@@ -9,9 +9,16 @@
  * this file can stay focused on the verifier branch logic.
  */
 
-import type { IPlayerToken } from '@/types/multiplayer/Player';
+import type {
+  IPlayerToken,
+  IPlayerTokenScope,
+} from '@/types/multiplayer/Player';
 
 import { generateKeyPair, signData } from '@/services/vault/IdentityService';
+import {
+  decodeTokenFromWire,
+  encodeTokenForWire,
+} from '@/types/multiplayer/Player';
 
 import { canonicalTokenPayload, verifyPlayerToken } from '../auth';
 import { derivePlayerId } from '../playerIdFromPublicKey';
@@ -23,6 +30,7 @@ function toBase64(bytes: Uint8Array): string {
 async function mintToken(opts?: {
   ttlMs?: number;
   issuedOffsetMs?: number;
+  scope?: IPlayerTokenScope;
 }): Promise<{
   token: IPlayerToken;
   publicKey: Uint8Array;
@@ -33,7 +41,12 @@ async function mintToken(opts?: {
   const now = Date.now();
   const issuedAt = new Date(now + (opts?.issuedOffsetMs ?? 0)).toISOString();
   const expiresAt = new Date(now + (opts?.ttlMs ?? 60_000)).toISOString();
-  const payload = canonicalTokenPayload({ playerId, issuedAt, expiresAt });
+  const payload = canonicalTokenPayload({
+    playerId,
+    issuedAt,
+    expiresAt,
+    scope: opts?.scope,
+  });
   const signature = await signData(
     new TextEncoder().encode(payload),
     kp.privateKey,
@@ -44,6 +57,7 @@ async function mintToken(opts?: {
     expiresAt,
     publicKey: toBase64(kp.publicKey),
     signature: toBase64(signature),
+    ...(opts?.scope ? { scope: opts.scope } : {}),
   };
   return { token, publicKey: kp.publicKey, privateKey: kp.privateKey };
 }
@@ -119,5 +133,55 @@ describe('verifyPlayerToken', () => {
     const result = await verifyPlayerToken(corrupted);
     expect(result.ok).toBe(false);
     if (!result.ok) expect(result.reason).toBe('bad-signature');
+  });
+
+  const MATCH_A: IPlayerTokenScope = { kind: 'match', id: 'match-AAAA' };
+  const MATCH_B: IPlayerTokenScope = { kind: 'match', id: 'match-BBBB' };
+
+  it('(a) rejects a token scoped to match A when expectedScope is match B', async () => {
+    const { token } = await mintToken({ scope: MATCH_A });
+    const result = await verifyPlayerToken(token, Date.now(), MATCH_B);
+    expect(result).toEqual({ ok: false, reason: 'scope-mismatch' });
+  });
+
+  it('(c) accepts a scopeless token when expectedScope is passed (transition)', async () => {
+    const { token } = await mintToken();
+    const result = await verifyPlayerToken(token, Date.now(), MATCH_A);
+    expect(result.ok).toBe(true);
+  });
+
+  it('(d) rejects a scoped token when the caller omitted expectedScope', async () => {
+    const { token } = await mintToken({ scope: MATCH_A });
+    const result = await verifyPlayerToken(token);
+    expect(result).toEqual({ ok: false, reason: 'scope-unchecked' });
+  });
+
+  it('(e) flipping the scope id on the wire fails signature verification', async () => {
+    const { token } = await mintToken({ scope: MATCH_A });
+    const honest = await verifyPlayerToken(token, Date.now(), MATCH_A);
+    expect(honest.ok).toBe(true);
+
+    const wire = encodeTokenForWire(token);
+    const json = Buffer.from(wire, 'base64').toString('utf8');
+    const flippedJson = json.replace(MATCH_A.id, MATCH_B.id);
+    expect(flippedJson).not.toBe(json);
+    const flipped = decodeTokenFromWire(
+      Buffer.from(flippedJson, 'utf8').toString('base64'),
+    );
+    expect(flipped).not.toBeNull();
+    expect(flipped?.scope?.id).toBe(MATCH_B.id);
+
+    const result = await verifyPlayerToken(flipped, Date.now(), MATCH_A);
+    expect(result.ok).toBe(false);
+    if (!result.ok) expect(result.reason).toBe('bad-signature');
+  });
+
+  it('rejects a match-scoped token presented as a campaign-session', async () => {
+    const { token } = await mintToken({ scope: MATCH_A });
+    const result = await verifyPlayerToken(token, Date.now(), {
+      kind: 'campaign-session',
+      id: MATCH_A.id,
+    });
+    expect(result).toEqual({ ok: false, reason: 'scope-mismatch' });
   });
 });

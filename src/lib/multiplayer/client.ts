@@ -424,10 +424,7 @@ export function connect(
   // Pre-encode the token to its wire form ONCE so every URL/SessionJoin
   // sees the same bytes. Structured tokens become base64-of-JSON; raw
   // strings pass through (legacy/test path).
-  const wireToken: string =
-    typeof auth.token === 'string'
-      ? auth.token
-      : encodeTokenForWire(auth.token);
+  const wireToken: string = encodeMatchSocketToken(auth.token);
   const listeners = new Map<IClientEventName, Set<IClientEventHandler>>();
 
   const state: IClientState = {
@@ -490,6 +487,10 @@ function emitClientEvent(
       // Don't let a buggy listener kill the socket pump.
     }
   }
+}
+
+function encodeMatchSocketToken(token: IPlayerToken | string): string {
+  return typeof token === 'string' ? token : encodeTokenForWire(token);
 }
 
 function buildSocketUrl(runtime: IClientRuntime): string {
