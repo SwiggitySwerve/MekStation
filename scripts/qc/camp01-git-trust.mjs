@@ -45,9 +45,22 @@ export async function resolveVerifiedGit({cwd=process.cwd()}={},dependencies={})
 // prettier-ignore
 export async function invokeGit({git,args,cwd},dependencies={}) {
   assertGit(git); if(typeof cwd!=='string'||!path.isAbsolute(cwd)) fail('Git cwd must be absolute'); if(!Array.isArray(args)||args.some((value)=>typeof value!=='string')) fail('Git argv must be a string array');
-  const options={shell:false,cwd:path.resolve(cwd),env:gitEnvironment(git.executable)}; let result;
-  try { result=await (dependencies.spawn??spawnSync)(git.executable,[...HARDENED_ARGS,...args],options); } catch { fail('Git invocation failed'); }
-  if(!result||result.status!==0) fail('Git invocation failed');
+  const resolvedCwd=path.resolve(cwd), options={shell:false,cwd:resolvedCwd,env:gitEnvironment(git.executable)}; let result;
+  // The hardened environment discards system and global config, and with
+  // them any safe.directory exception - so a repository whose filesystem
+  // owner differs from the invoking user fails every command with
+  // 'dubious ownership' (measured: an operator checkout owned by an old
+  // Windows-install SID, and the windows-2025 runner workspace, where
+  // actions/checkout writes its exception into the global config this
+  // environment deliberately ignores). Trusting exactly the directory
+  // the CALLER chose - via command-line config, which git counts as
+  // protected configuration for safe.directory - restores that one
+  // exception without readmitting any ambient config. Integrity of what
+  // the repository CONTAINS is carried by the OID pinning downstream,
+  // not by the ownership heuristic.
+  const argv=['-c',`safe.directory=${resolvedCwd.split(path.sep).join('/')}`,...HARDENED_ARGS,...args];
+  try { result=await (dependencies.spawn??spawnSync)(git.executable,argv,options); } catch { fail('Git invocation failed'); }
+  if(!result||result.status!==0) fail(`Git invocation failed${result&&result.stderr?`: ${String(result.stderr).trim().slice(0,200)}`:''}`);
   return Object.freeze({stdout:String(result.stdout??''),stderr:String(result.stderr??'')});
 }
 

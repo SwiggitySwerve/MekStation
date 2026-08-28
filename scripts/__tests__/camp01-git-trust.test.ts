@@ -10,7 +10,24 @@ const moduleUrl = pathToFileURL(
 const PINNED_VERSION = '2.54.0.windows.1';
 const FETCH_URL = 'https://github.com/SwiggitySwerve/MekStation.git';
 // prettier-ignore
-const HARDENED_PREFIX=['--no-replace-objects','-c','credential.helper=','-c','credential.interactive=never','-c','core.askPass=','-c','http.proxy=','-c','https.proxy=','-c',`url.${FETCH_URL}.insteadOf=camp01-disabled-rewrite:`] as const;
+// Every invocation now leads with the caller-chosen safe.directory (the
+// hardened env discards the global config that normally carries it).
+const safeDirPair=(cwd:string)=>['-c',`safe.directory=${cwd.split(path.sep).join('/')}`] as const;
+const HARDENED_PREFIX = [
+  '--no-replace-objects',
+  '-c',
+  'credential.helper=',
+  '-c',
+  'credential.interactive=never',
+  '-c',
+  'core.askPass=',
+  '-c',
+  'http.proxy=',
+  '-c',
+  'https.proxy=',
+  '-c',
+  `url.${FETCH_URL}.insteadOf=camp01-disabled-rewrite:`,
+] as const;
 const harness = `
 import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
@@ -133,7 +150,7 @@ describe('cross-platform CAMP-01 Git trust foundation', () => {
     // Then the literal is not parsed and no ambient proxy or credentials survive
     expect(result.calls[0]).toEqual({
       executable: fakeGit,
-      args: [...HARDENED_PREFIX, 'status;whoami'],
+      args: [...safeDirPair(root), ...HARDENED_PREFIX, 'status;whoami'],
       options: {
         shell: false,
         cwd: root,
@@ -174,7 +191,7 @@ describe('cross-platform CAMP-01 Git trust foundation', () => {
       ),
     ).toBe(true);
     expect(
-      result.calls.map(({ args }) => args.slice(HARDENED_PREFIX.length)),
+      result.calls.map(({ args }) => args.slice(HARDENED_PREFIX.length + 2)),
     ).toEqual([
       [
         'fetch',
