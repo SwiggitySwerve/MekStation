@@ -300,6 +300,15 @@ const SERVER_MESSAGE_HANDLERS: Record<
       // frames leaves the client quietly wrong, which is worse than
       // loud and wrong. One recovery at a time: a burst of losses would
       // otherwise fire a full replay each.
+      //
+      // A hole opening WHILE a recovery is in flight is therefore not
+      // asked about on its own, and it is not assumed recovered either.
+      // The answer already coming is a tail replay from the earlier
+      // hole, so it covers this one whenever the server had the frame
+      // by the time it snapshotted - and `noteDeliveryGap` has moved
+      // the evidence watermark up to this frame, so the cursor un-pins
+      // only if `ReplayEnd` proves that. Otherwise the pin holds and
+      // the next hole asks from the earlier point.
       if (!state.recoveringFromGap) {
         state.recoveringFromGap = true;
         requestResync();
@@ -625,25 +634,27 @@ function handleServerMessage(
 }
 
 /**
- * Decide what a newly-arrived live event lets the client apply.
+ * Decide what a newly-arrived event lets the client apply. Both inbound
+ * paths use it - live `Event` frames and `ReplayChunk` frames - so
+ * duplicate suppression and collision blocking apply to each.
  *
- * The client used to apply whatever arrived and move its cursor to the
- * highest sequence it had seen. A dropped frame therefore did not just
- * delay an event, it LOST it: the cursor had already advanced past the
- * missing sequence, so the reconnect replay resumed after it and
- * nothing ever noticed the hole.
+ * Contiguity is NOT enforced on the authority sequence, and cannot be:
+ * a fog viewer's slice of it is legitimately sparse (see the long note
+ * below on the measured two-player stream). An event ahead of the
+ * high-water is therefore applied, not held. The number that CAN be
+ * checked for holes is the per-viewer `deliverySequence`, which
+ * `noteDeliveryGap` tracks separately.
  *
- * Three cases, and each one is a different kind of normal:
+ * Three cases:
  *
- *   - the NEXT sequence: apply it, then drain anything buffered behind
- *     it, because filling a gap can release a run;
- *   - one already applied: ignore it. At-least-once delivery makes a
- *     duplicate ordinary traffic, not an error;
- *   - one ahead of the cursor: HOLD it. Reordering is usually momentary
- *     and the missing frame arrives right after, so re-fetching the
- *     whole tail would be a heavy answer to a light problem. The cursor
- *     stays where it is, which is what makes a reconnect resume from
- *     the hole rather than past it.
+ *   - ahead of the high-water: apply it;
+ *   - at or below it and remembered as applied: ignore it, unless it
+ *     carries a different event than the one applied under that
+ *     sequence, which is a fork and is reported;
+ *   - at or below it and NEVER applied: that is the shape of a frame
+ *     recovered by a gap recovery, and it is applied while such a
+ *     recovery is in flight and the sequence is recent enough for
+ *     "not remembered" to still mean "never applied".
  *
  * Events without a numeric sequence are not part of the sequenced
  * stream and pass straight through.
@@ -656,15 +667,33 @@ function admitLiveEvent(
   const sequence = sequenceOf(event);
   if (sequence === null) return [event];
   if (sequence <= state.lastSeq) {
-    // Already applied - ordinarily a duplicate, which is fine. But if
-    // this sequence carries a DIFFERENT event than the one applied
-    // under it, the stream forked, and silently ignoring the second
-    // would hide the fork rather than report it.
     const known = state.appliedIdentityBySeq.get(sequence);
-    if (known !== undefined && known !== identityOf(event)) {
-      state.blockedBySequenceCollision = true;
+    if (known !== undefined) {
+      // Already applied - ordinarily a duplicate, which is fine. But if
+      // this sequence carries a DIFFERENT event than the one applied
+      // under it, the stream forked, and silently ignoring the second
+      // would hide the fork rather than report it.
+      if (known !== identityOf(event)) state.blockedBySequenceCollision = true;
+      return [];
     }
-    return [];
+    // Below the high-water yet never applied. THIS IS THE RECOVERED
+    // FRAME, and dropping it is what made the whole gap recovery a
+    // no-op end to end: a lost frame's sequence is by definition below
+    // the high-water, because the frame that revealed the hole already
+    // advanced it. The server resumed from exactly the right event and
+    // the client threw it away on arrival - measured against the real
+    // fog server before this guard existed.
+    //
+    // Two conditions keep the opening narrow. It only applies while a
+    // gap recovery is in flight, which is the one inbound path that
+    // legitimately carries something older than the high-water; and it
+    // only reaches back as far as the identity window, because beyond
+    // that "not remembered" stops meaning "never applied" and starts
+    // meaning "evicted" - re-admitting there would apply an old event
+    // twice.
+    if (!state.recoveringFromGap) return [];
+    if (state.lastSeq - sequence >= APPLIED_IDENTITY_WINDOW) return [];
+    return [event];
   }
   // AHEAD OF THE CURSOR IS NORMAL, and this is the correction to the
   // previous version of this function, which held such an event back

@@ -119,6 +119,11 @@ function replayEnd(toSeq: number) {
   return { kind: 'ReplayEnd', matchId: 'm1', ts: nowIso(), toSeq };
 }
 
+/** The sequences the client actually emitted to its consumer. */
+function appliedSequences(applied: readonly unknown[]): number[] {
+  return applied.map((e) => (e as { sequence: number }).sequence);
+}
+
 /** The most recent `SessionJoin` the client wrote to the wire. */
 function lastJoin(sentByClient: readonly ISentMessage[]): ISentMessage {
   const joins = sentByClient.filter((m) => m.kind === 'SessionJoin');
@@ -274,6 +279,105 @@ describe('client delivery-gap detection', () => {
     sockets.last().inject(eventFrame(46, 203));
 
     expect(lastJoin(sentByClient).deliveryCursor).toBe(44);
+  });
+
+  it('applies a recovered frame that sits below its own high-water', () => {
+    // Where the whole recovery used to die. A lost frame's authority
+    // sequence is BY DEFINITION below the high-water - the frame that
+    // revealed the hole already advanced it - so the replay fetched to
+    // recover it arrived carrying a sequence the client discarded as
+    // "already applied". It had never been applied.
+    const { sockets, applied } = openReadyClient();
+    sockets.last().inject(eventFrame(0, 100));
+    sockets.last().inject(eventFrame(2, 102)); // delivery 1 (seq 101) lost
+    expect(appliedSequences(applied)).toEqual([100, 102]);
+
+    // The recovery answer, resuming at the frame the client lacks.
+    sockets.last().inject({
+      kind: 'ReplayStart',
+      matchId: 'm1',
+      ts: nowIso(),
+      fromSeq: 101,
+      totalEvents: 1,
+    });
+    sockets.last().inject({
+      kind: 'ReplayChunk',
+      matchId: 'm1',
+      ts: nowIso(),
+      events: [{ sequence: 101, type: 'TestEvent' }],
+    });
+    sockets.last().inject(replayEnd(102));
+
+    expect(appliedSequences(applied)).toEqual([100, 102, 101]);
+  });
+
+  it('does not resurrect an old sequence outside a gap recovery', () => {
+    // CONTROL for the row above, and the reason the opening is gated.
+    // Under fog a viewer's authority stream is legitimately sparse:
+    // sequence 101 here was WITHHELD, not lost, and no recovery ever
+    // asked for it. A replay that happens to carry it - visibility can
+    // differ between the live filter and a later one - must not apply
+    // it out of order behind everything already emitted.
+    const { sockets, applied } = openReadyClient();
+    sockets.last().inject(eventFrame(0, 100));
+    sockets.last().inject(eventFrame(1, 102)); // delivery contiguous: no loss
+    expect(appliedSequences(applied)).toEqual([100, 102]);
+
+    sockets.last().inject({
+      kind: 'ReplayStart',
+      matchId: 'm1',
+      ts: nowIso(),
+      fromSeq: 101,
+      totalEvents: 1,
+    });
+    sockets.last().inject({
+      kind: 'ReplayChunk',
+      matchId: 'm1',
+      ts: nowIso(),
+      events: [{ sequence: 101, type: 'TestEvent' }],
+    });
+    sockets.last().inject(replayEnd(102));
+
+    expect(appliedSequences(applied)).toEqual([100, 102]);
+  });
+
+  it('reaches back only as far as it still remembers what it applied', () => {
+    // The other half of the gate. "Not remembered" means "never
+    // applied" only inside the identity window; past it, it means
+    // EVICTED, and re-admitting there would apply an old event a second
+    // time. So a recovery may resurrect a recent unremembered sequence
+    // and must not resurrect an ancient one.
+    const { sockets, applied } = openReadyClient();
+    // Authority advances two at a time - every odd sequence is withheld
+    // and was never applied - while delivery stays contiguous.
+    for (let delivery = 0; delivery < 300; delivery += 1) {
+      sockets.last().inject(eventFrame(delivery, 1000 + delivery * 2));
+    }
+    const ancient = 1001;
+    const recent = 1000 + 299 * 2 - 1;
+    applied.length = 0;
+
+    // Arm a recovery so the opening is available at all.
+    sockets.last().inject(eventFrame(301, 1600)); // delivery 300 lost
+    sockets.last().inject({
+      kind: 'ReplayStart',
+      matchId: 'm1',
+      ts: nowIso(),
+      fromSeq: ancient,
+      totalEvents: 2,
+    });
+    sockets.last().inject({
+      kind: 'ReplayChunk',
+      matchId: 'm1',
+      ts: nowIso(),
+      events: [
+        { sequence: ancient, type: 'TestEvent' },
+        { sequence: recent, type: 'TestEvent' },
+      ],
+    });
+    sockets.last().inject(replayEnd(1600));
+
+    expect(appliedSequences(applied)).toEqual([1600, recent]);
   });
 
   it('asks once for a burst of losses, not once per hole', () => {
