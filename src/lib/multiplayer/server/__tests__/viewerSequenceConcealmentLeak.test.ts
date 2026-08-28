@@ -1,5 +1,5 @@
 /**
- * A player can count the events they were not allowed to see.
+ * A player cannot count the events they were not allowed to see.
  *
  * `multiplayer-sync` spec, `Authority and Viewer Sequences Are Separate`:
  *
@@ -8,33 +8,16 @@
  *    viewer projection stream. Player payloads SHALL NOT expose hidden
  *    authority identifiers or gaps that reveal concealed events."
  *
- * Both halves are violated today, and this measures by how much. Each
- * `Event` frame carries the raw AUTHORITY sequence, and under fog the
- * server skips the send for events a viewer may not see while every
- * event it does send keeps that sequence. So the holes in a player's
- * own stream are a side channel: arithmetic on numbers they were handed
- * tells them how many events were concealed and where in the ordering
- * they fell.
- *
- * That is not a hypothetical inference. The player needs nothing but
- * their own received frames — no second client, no timing, no server
- * access.
- *
- * WHY THIS IS A CHARACTERIZATION AND NOT A FIX. Closing it means giving
- * each viewer its own gapless `deliverySequence` and never putting the
- * authority sequence on the wire — the pre-serialization viewer
- * projection work (umbrella section 11), not a patch here. A previous
- * attempt to address the symptom client-side, by treating a skipped
- * sequence as a delivery gap, shipped as a regression and was reverted:
- * under fog it stalls the client forever, waiting on a sequence it is
- * never allowed to receive.
- *
- * WHEN THE FIX LANDS, THIS TEST MUST BE INVERTED — `concealedCount`
- * becomes 0 and the assertions below flip. Its failure is the signal
- * that the leak closed.
+ * Fog still conceals events: each player receives a proper subset of
+ * the authority log, and the two subsets differ. What closed is the
+ * side channel. Player `Event` frames carry no `event.sequence`, and
+ * the number they DO carry (`deliverySequence`) is gapless, so the
+ * arithmetic that used to name concealed authority slots comes up
+ * empty-handed. The durable log still has the authority sequence; the
+ * projector removes it per viewer, not at the source.
  *
  * @spec openspec/changes/harden-gm-two-player-campaign-sessions/specs/multiplayer-sync/spec.md
- * @spec openspec/changes/harden-gm-two-player-campaign-sessions/tasks.md (1.3, 5.3)
+ * @spec openspec/changes/harden-gm-two-player-campaign-sessions/tasks.md (1.3, 5.3, 11.1)
  */
 
 import type { IServerMessage } from '@/types/multiplayer/Protocol';
@@ -71,15 +54,32 @@ function makeUnit(id: string, side: GameSide): IGameUnit {
   } as IGameUnit;
 }
 
-function deliveredSequences(socket: {
+function deliveredEventFrames(socket: {
   readonly sent: readonly IServerMessage[];
-}): number[] {
+}): Array<{
+  readonly deliverySequence?: number;
+  readonly event: Record<string, unknown>;
+}> {
   return socket.sent
     .filter((message) => message.kind === 'Event')
-    .map(
-      (message) =>
-        (message as { event?: { sequence?: number } }).event?.sequence ?? -1,
-    );
+    .map((message) => {
+      const frame = message as {
+        deliverySequence?: number;
+        event?: Record<string, unknown>;
+      };
+      return {
+        deliverySequence: frame.deliverySequence,
+        event: frame.event ?? {},
+      };
+    });
+}
+
+function deliveredDeliverySequences(socket: {
+  readonly sent: readonly IServerMessage[];
+}): number[] {
+  return deliveredEventFrames(socket).map(
+    (frame) => frame.deliverySequence ?? -1,
+  );
 }
 
 /**
@@ -104,7 +104,7 @@ function concealmentLeak(received: readonly number[]): {
 }
 
 describe('viewer sequence concealment leak', () => {
-  it('lets a player count and locate the events hidden from them', async () => {
+  it('does not let a player count or locate the events hidden from them', async () => {
     const store = new InMemoryMatchStore({ quiet: true });
     const now = '2026-06-30T12:00:00.000Z';
     await store.createMatch({
@@ -152,26 +152,40 @@ describe('viewer sequence concealment leak', () => {
       } as unknown as IIntent);
     }
 
-    const playerLeak = concealmentLeak(deliveredSequences(player));
-    const opponentLeak = concealmentLeak(deliveredSequences(opponent));
+    const playerFrames = deliveredEventFrames(player);
+    const opponentFrames = deliveredEventFrames(opponent);
+    const stored = await host.getEventsFromSeq(0);
 
-    // THE LEAK. Each player can name events they never received.
-    expect(playerLeak.concealedCount).toBeGreaterThan(0);
-    expect(opponentLeak.concealedCount).toBeGreaterThan(0);
+    // Fog actually concealed something. Vacuous gaplessness (both
+    // players received the whole log) would not prove the leak closed.
+    expect(playerFrames.length).toBeGreaterThan(0);
+    expect(opponentFrames.length).toBeGreaterThan(0);
+    expect(playerFrames.length).toBeLessThan(stored.length);
+    expect(opponentFrames.length).toBeLessThan(stored.length);
+    const playerIds = playerFrames.map((frame) => frame.event.id);
+    const opponentIds = opponentFrames.map((frame) => frame.event.id);
+    expect(playerIds).not.toEqual(opponentIds);
 
-    // And it is genuinely private information, not a shared blind spot:
-    // the two players' concealed sets are different, so each is learning
-    // about the OTHER's activity specifically.
-    expect(playerLeak.concealedPositions).not.toEqual(
-      opponentLeak.concealedPositions,
-    );
+    const playerLeak = concealmentLeak(deliveredDeliverySequences(player));
+    const opponentLeak = concealmentLeak(deliveredDeliverySequences(opponent));
+
+    // THE GUARD. Delivery numbering is gapless, so the arithmetic that
+    // used to name concealed authority slots finds nothing.
+    expect(playerLeak.concealedCount).toBe(0);
+    expect(opponentLeak.concealedCount).toBe(0);
+    expect(playerLeak.concealedPositions).toEqual([]);
+    expect(opponentLeak.concealedPositions).toEqual([]);
+
+    for (const frame of [...playerFrames, ...opponentFrames]) {
+      expect(Object.keys(frame.event)).not.toContain('sequence');
+    }
   });
 
-  it('puts the raw authority sequence on the wire', async () => {
+  it('keeps the authority sequence off player frames and in the durable log', async () => {
     // The other half of the same requirement: "SHALL NOT expose hidden
-    // authority identifiers". The number in an Event frame IS the
-    // private global authority sequence, not a per-viewer one — which
-    // is what makes the arithmetic above possible at all.
+    // authority identifiers". Player Event frames carry a per-viewer
+    // delivery number; the private global sequence stays on the durable
+    // log and on authority viewers.
     const store = new InMemoryMatchStore({ quiet: true });
     const now = '2026-06-30T12:00:00.000Z';
     await store.createMatch({
@@ -214,14 +228,18 @@ describe('viewer sequence concealment leak', () => {
       intent: { kind: 'AdvancePhase' },
     } as unknown as IIntent);
 
-    const delivered = deliveredSequences(player);
-    const stored = (await host.getEventsFromSeq(0)).map((e) => e.sequence);
+    const frames = deliveredEventFrames(player);
+    const stored = await host.getEventsFromSeq(0);
 
-    // Every number the player received is the SAME number the durable
-    // authority log uses. There is no viewer-scoped numbering at all.
-    expect(delivered.length).toBeGreaterThan(0);
-    for (const sequence of delivered) {
-      expect(stored).toContain(sequence);
+    expect(frames.length).toBeGreaterThan(0);
+    expect(stored.some((event) => typeof event.sequence === 'number')).toBe(
+      true,
+    );
+    for (const frame of frames) {
+      expect(Object.keys(frame.event)).not.toContain('sequence');
+      expect(typeof frame.deliverySequence).toBe('number');
     }
+    const delivery = frames.map((frame) => frame.deliverySequence ?? -1);
+    expect(concealmentLeak(delivery).concealedCount).toBe(0);
   });
 });

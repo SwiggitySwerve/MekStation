@@ -26,6 +26,7 @@ import type {
 
 import type { AuthorizedViewerResolver } from './authorization/AuthorizedViewer';
 import type { IMatchStore } from './IMatchStore';
+import type { ViewerDeliveryCursors } from './projection/ViewerDeliveryCursors';
 import type { AcceptedIntentTracker } from './reconnection/AcceptedIntentTracker';
 import type { IntentRateLimiter } from './reconnection/IntentRateLimiter';
 import type { PendingPeerTracker } from './reconnection/PendingPeerTracker';
@@ -71,6 +72,7 @@ export interface IServerMatchHostInternals extends IServerMatchHostCaptureContex
   readonly rateLimiter: IntentRateLimiter;
   readonly acceptedIntents: AcceptedIntentTracker;
   readonly viewerResolver: AuthorizedViewerResolver;
+  readonly deliveryCursors: ViewerDeliveryCursors;
 }
 
 /**
@@ -113,6 +115,7 @@ export function buildReplayContext(
     safeSend: host.safeSend,
     maybeResume: host.maybeResume,
     viewerResolver: host.viewerResolver,
+    deliveryCursors: host.deliveryCursors,
   };
 }
 

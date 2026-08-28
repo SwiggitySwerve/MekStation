@@ -116,9 +116,9 @@ export const SessionJoinSchema = z.object({
    *   - a hole pins it, and no later run of contiguous frames may move
    *     it past that hole;
    *   - it un-pins only when a replay answering that hole reports a
-   *     `ReplayEnd.toSeq` at or beyond the authority sequence of the
-   *     frame that revealed the hole - i.e. on evidence the missing
-   *     frame was inside the answer;
+   *     `ReplayEnd.toDeliverySequence` at or beyond the revealing
+   *     frame's delivery number, falling back to `ReplayEnd.toSeq`
+   *     vs that frame's authority sequence on old servers;
    *   - a reconnect keeps the cursor: the server does not renumber a
    *     reconnecting viewer's stream, so it still indexes the same
    *     record.
@@ -618,9 +618,9 @@ export const ReplayStartSchema = z.object({
   ts: tsSchema,
   /**
    * Authority-space start of this replay. Not a per-event delivery
-   * number: ReplayChunk items have no `deliverySequence`, and when
-   * `event.sequence` is absent the client orders them by arrival
-   * inside the chunk. Slice B must not treat this as a delivery cursor.
+   * number: ReplayChunk items carry `deliverySequence` when the
+   * per-player path stamped them, and `fromSeq` stays in authority
+   * space for authority viewers and old clients.
    */
   fromSeq: z.number().int().nonnegative(),
   totalEvents: z.number().int().nonnegative(),
@@ -638,6 +638,12 @@ export const ReplayChunkSchema = z.object({
   matchId: matchIdSchema,
   ts: tsSchema,
   events: z.array(z.unknown()),
+  /**
+   * Per-item delivery numbers for this chunk, same length as `events`
+   * when present. Index i is the `deliverySequence` of events[i].
+   * Optional so an old server that only sent events still parses.
+   */
+  deliverySequences: z.array(z.number().int().nonnegative()).optional(),
 });
 export type IReplayChunk = z.infer<typeof ReplayChunkSchema>;
 
@@ -647,11 +653,18 @@ export const ReplayEndSchema = z.object({
   ts: tsSchema,
   /**
    * Authority-space end of this replay. Used to un-pin a delivery
-   * hole whose revealing frame still carried `event.sequence`. When
-   * that field is absent the client cannot match this number to a
-   * delivery cursor; a delivery-space bound is a slice B protocol gap.
+   * hole whose revealing frame still carried `event.sequence`, and
+   * kept for authority viewers. Player pin-release prefers
+   * `toDeliverySequence` when present.
    */
   toSeq: z.number().int().nonnegative(),
+  /**
+   * Delivery-space end of this replay: the last `deliverySequence`
+   * stamped on an item in this stream. A client that no longer sees
+   * `event.sequence` releases its gap pin against this number.
+   * Optional so an old server that only sends `toSeq` still parses.
+   */
+  toDeliverySequence: z.number().int().nonnegative().optional(),
 });
 export type IReplayEnd = z.infer<typeof ReplayEndSchema>;
 

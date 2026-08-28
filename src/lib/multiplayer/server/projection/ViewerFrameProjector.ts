@@ -40,7 +40,7 @@ import {
  * `fogOfWar.ts` before this projector runs and by the helper that
  * stamps it. Nothing on the receiving side reads it.
  *
- * WHAT THIS FIRST MEMBER IS WORTH, HONESTLY: it closes no information
+ * WHAT `visibility` IS WORTH, HONESTLY: it closes no information
  * channel. `visibility` is a pure function of `type`, which the
  * projector deliberately keeps - `classifyGameEventVisibility`
  * (`@/utils/gameplay/gameEventVisibility`) is a lookup on `type` alone
@@ -48,14 +48,15 @@ import {
  * removed value exactly. What the removal buys is the MECHANISM: one
  * declared list, applied once, pinned at the wire.
  *
- * KNOWN MEMBER STILL MISSING: `sequence`, the one that does carry
- * information - under fog the holes in a viewer's slice of it count the
- * events concealed from them (`viewerSequenceConcealmentLeak`). The
- * client uses it as dedupe key, fork detector, and `lastSeq` resume
- * cursor, so removing it needs the client resuming from the per-viewer
- * delivery cursor first. Separate slice.
+ * `sequence` is the member that DOES carry information. Under fog the
+ * holes in a player's slice of it counted concealed events
+ * (`viewerSequenceConcealmentLeak`). Player payloads SHALL NOT expose
+ * hidden authority identifiers or gaps that reveal concealed events
+ * (`Authority and Viewer Sequences Are Separate`). Removal is
+ * per-viewer at this projector, not at the event source: GM/authority
+ * projection streams keep the field; player projections do not.
  */
-export const AUTHORITY_ONLY_EVENT_FIELDS = ['visibility'] as const;
+export const AUTHORITY_ONLY_EVENT_FIELDS = ['visibility', 'sequence'] as const;
 
 const AUTHORITY_ONLY_EVENT_FIELD_SET: ReadonlySet<string> = new Set(
   AUTHORITY_ONLY_EVENT_FIELDS,
@@ -117,15 +118,33 @@ export function projectEventForViewer(
   }
   const record = event as Record<string, unknown>;
   const carries = Object.keys(record).some((key) =>
-    AUTHORITY_ONLY_EVENT_FIELD_SET.has(key),
+    shouldRemoveAuthorityField(viewer, key),
   );
   if (!carries) {
     return { kind: 'project', event };
   }
   const projected: Record<string, unknown> = {};
   for (const [key, value] of Object.entries(record)) {
-    if (AUTHORITY_ONLY_EVENT_FIELD_SET.has(key)) continue;
+    if (shouldRemoveAuthorityField(viewer, key)) continue;
     projected[key] = value;
   }
   return { kind: 'project', event: projected };
+}
+
+/**
+ * Authority-only fields leave PLAYER projection frames. GM viewers
+ * keep `sequence` because they are the authority surface; the
+ * boundary already branches on `viewer.role === 'gm'` for gm-only
+ * facts, and this is the same discrimination for field removal.
+ *
+ * Enforces `Authority and Viewer Sequences Are Separate`: player
+ * payloads SHALL NOT expose hidden authority identifiers.
+ */
+function shouldRemoveAuthorityField(
+  viewer: IAuthorizedViewer,
+  key: string,
+): boolean {
+  if (!AUTHORITY_ONLY_EVENT_FIELD_SET.has(key)) return false;
+  if (key === 'sequence' && viewer.role === 'gm') return false;
+  return true;
 }

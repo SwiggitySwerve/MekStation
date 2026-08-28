@@ -38,24 +38,34 @@ const PLAYER_ROW: IMembershipRecord = {
   active: true,
 };
 
+const GM_ROW: IMembershipRecord = {
+  ...PLAYER_ROW,
+  principalId: 'user-gm',
+  participantId: 'participant-gm',
+  role: 'gm',
+  ownedForceIds: ['force-gm'],
+};
+
 class FakeMembershipSource implements IMembershipSource {
-  /** Returns the single player row for a matching principal/session. */
+  public constructor(private readonly row: IMembershipRecord = PLAYER_ROW) {}
+
+  /** Returns the configured row for a matching principal/session. */
   public async lookupMembership(
     principalId: string,
     campaignSessionId: string,
   ): Promise<IMembershipRecord | null> {
     if (
-      principalId !== PLAYER_ROW.principalId ||
+      principalId !== this.row.principalId ||
       campaignSessionId !== SESSION_ID
     ) {
       return null;
     }
-    return PLAYER_ROW;
+    return this.row;
   }
 
   /** Returns the session membership epoch. */
   public async currentMembershipRevision(): Promise<number> {
-    return PLAYER_ROW.membershipRevision;
+    return this.row.membershipRevision;
   }
 }
 
@@ -64,6 +74,16 @@ async function playerViewer(): Promise<IAuthorizedViewer> {
   const resolver = new AuthorizedViewerResolver(new FakeMembershipSource());
   return resolver.resolve(
     mintVerifiedPrincipal(PLAYER_ROW.principalId),
+    SESSION_ID,
+  );
+}
+
+async function gmViewer(): Promise<IAuthorizedViewer> {
+  const resolver = new AuthorizedViewerResolver(
+    new FakeMembershipSource(GM_ROW),
+  );
+  return resolver.resolve(
+    mintVerifiedPrincipal(GM_ROW.principalId),
     SESSION_ID,
   );
 }
@@ -85,20 +105,41 @@ describe('projectEventForViewer', () => {
     if (result.kind !== 'project') return;
     expect(result.event).toEqual({
       id: 'evt-1',
+      type: 'phase_changed',
+      payload: { fromPhase: 'initiative', toPhase: 'movement' },
+    });
+    // CONTROL for the row above: the fields really were there to remove,
+    // and the authority's own object was not mutated on the way past.
+    expect(event.visibility).toBe('observer-visible');
+    expect(event.sequence).toBe(7);
+  });
+
+  it('keeps sequence on an authority viewer while still dropping visibility', async () => {
+    const viewer = await gmViewer();
+    const event = {
+      id: 'evt-gm',
+      sequence: 7,
+      type: 'phase_changed',
+      visibility: 'observer-visible',
+      payload: { fromPhase: 'initiative', toPhase: 'movement' },
+    };
+
+    const result = projectEventForViewer(viewer, event);
+
+    expect(result.kind).toBe('project');
+    if (result.kind !== 'project') return;
+    expect(result.event).toEqual({
+      id: 'evt-gm',
       sequence: 7,
       type: 'phase_changed',
       payload: { fromPhase: 'initiative', toPhase: 'movement' },
     });
-    // CONTROL for the row above: the field really was there to remove,
-    // and the authority's own object was not mutated on the way past.
-    expect(event.visibility).toBe('observer-visible');
   });
 
   it('returns the original object when nothing needs removing', async () => {
     const viewer = await playerViewer();
     const event = {
       id: 'evt-2',
-      sequence: 8,
       type: 'turn_started',
       payload: { turn: 2 },
     };

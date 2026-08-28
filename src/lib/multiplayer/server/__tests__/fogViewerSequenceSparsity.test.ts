@@ -1,24 +1,13 @@
 /**
- * A fog-of-war viewer's event stream is SPARSE, and that is a fact the
- * client depends on (umbrella task 5.1 `Authority and Viewer Sequences
- * Are Separate`).
+ * A fog-of-war viewer's AUTHORITY stream is sparse; their DELIVERY
+ * stream is not (umbrella task 5.1 / 11.1 `Authority and Viewer
+ * Sequences Are Separate`).
  *
- * `broadcastEvent` filters each event per recipient and, when the event
- * is not visible to them, skips the send entirely — while every event
- * that IS sent keeps its authority sequence. So each viewer sees a
- * stream with holes, and the holes are different per viewer.
- *
- * This is written down as a test because the client was briefly changed
- * to treat a skipped sequence as a delivery gap and hold everything
- * behind it. Under fog that stalls the client permanently: the sequence
- * it waits for is one it is never allowed to see. The client now
- * advances instead, and this row is what keeps that decision anchored
- * to the server's actual behaviour rather than to a comment.
- *
- * If a future change makes per-viewer streams contiguous — which is
- * what a per-viewer `deliverySequence` would do — this test fails, and
- * that failure is the signal that client-side contiguity becomes
- * enforceable.
+ * `broadcastEvent` still skips the send for events a viewer may not
+ * see. Player frames no longer carry the authority sequence, so those
+ * skips are not visible as holes in the numbers the player holds.
+ * Delivery numbering is gapless; the two viewers still receive
+ * different event subsets.
  */
 
 import type { IServerMessage } from '@/types/multiplayer/Protocol';
@@ -55,14 +44,24 @@ function makeUnit(id: string, side: GameSide): IGameUnit {
   } as IGameUnit;
 }
 
-function deliveredSequences(socket: {
+function deliveredDeliverySequences(socket: {
   readonly sent: readonly IServerMessage[];
 }): number[] {
   return socket.sent
     .filter((message) => message.kind === 'Event')
     .map(
       (message) =>
-        (message as { event?: { sequence?: number } }).event?.sequence ?? -1,
+        (message as { deliverySequence?: number }).deliverySequence ?? -1,
+    );
+}
+
+function deliveredEventIds(socket: {
+  readonly sent: readonly IServerMessage[];
+}): unknown[] {
+  return socket.sent
+    .filter((message) => message.kind === 'Event')
+    .map(
+      (message) => (message as { event?: { id?: unknown } }).event?.id ?? null,
     );
 }
 
@@ -121,18 +120,19 @@ describe('fog-of-war viewer sequence sparsity', () => {
       } as unknown as IIntent);
     }
 
-    const playerSeqs = deliveredSequences(player);
-    const opponentSeqs = deliveredSequences(opponent);
+    const playerDelivery = deliveredDeliverySequences(player);
+    const opponentDelivery = deliveredDeliverySequences(opponent);
+    const playerIds = deliveredEventIds(player);
+    const opponentIds = deliveredEventIds(opponent);
 
-    // Both received something, and neither received a contiguous run.
-    expect(playerSeqs.length).toBeGreaterThan(0);
-    expect(opponentSeqs.length).toBeGreaterThan(0);
-    expect(hasHole(playerSeqs)).toBe(true);
-    expect(hasHole(opponentSeqs)).toBe(true);
+    // Fog still conceals: each viewer received a different subset.
+    expect(playerDelivery.length).toBeGreaterThan(0);
+    expect(opponentDelivery.length).toBeGreaterThan(0);
+    expect(playerIds).not.toEqual(opponentIds);
 
-    // And the holes are DIFFERENT: each is missing an event the other
-    // could see, which is what makes the authority sequence unusable as
-    // a per-viewer contiguity check.
-    expect(playerSeqs).not.toEqual(opponentSeqs);
+    // Delivery numbering is gapless, so a hole is a real loss, not a
+    // withheld event. The authority sequence is no longer on the wire.
+    expect(hasHole(playerDelivery)).toBe(false);
+    expect(hasHole(opponentDelivery)).toBe(false);
   });
 });

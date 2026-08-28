@@ -37,6 +37,7 @@ import {
   RECONNECT_MULTIPLIER,
   type IServerMessage,
   type IIntentPayload,
+  type IReplayEnd,
   nowIso,
 } from '@/types/multiplayer/Protocol';
 
@@ -193,17 +194,17 @@ interface IClientState {
   /**
    * The AUTHORITY sequence of the frame that revealed the newest hole
    * still pinning `deliveryResumeCursor`, or null when nothing is
-   * pinned.
-   *
-   * The delivery sequence cannot say whether a recovery worked -
-   * `ReplayChunk` frames carry no `deliverySequence` at all, because
-   * only the live broadcast stamps one. The authority sequence can:
-   * `ReplayEnd.toSeq` is the highest authority sequence the replay
-   * carried, and a hole always sits strictly before the frame that
-   * revealed it. So `toSeq >= this` is the client's only evidence that
-   * what it asked for actually arrived.
+   * pinned. Used when `ReplayEnd` has no delivery-space bound (old
+   * servers).
    */
   deliveryHoleRevealSeq: number | null;
+  /**
+   * The DELIVERY sequence of the frame that revealed the newest hole
+   * still pinning `deliveryResumeCursor`, or null when nothing is
+   * pinned. `ReplayEnd.toDeliverySequence >= this` is the evidence
+   * that the missing frame was inside the answer.
+   */
+  deliveryHoleRevealDelivery: number | null;
   /**
    * True while a gap recovery is in flight. Without it a burst of lost
    * frames would fire one resync each, and every resync is a full
@@ -241,14 +242,17 @@ const SERVER_MESSAGE_HANDLERS: Record<
     // suppression and collision blocking apply to both inbound paths.
     // Replay is fog-filtered per viewer too, so it is sparse for the
     // same reason live traffic is and no contiguity is asserted here.
-    for (const evt of replay.events) {
-      // ReplayChunk items have no `deliverySequence`. Dual-key falls
-      // back to `event.sequence` when present, else arrival order plus
-      // event identity (sequence-free path for slice B).
-      for (const admitted of admitLiveEvent(state, evt)) {
-        state.replayBuffer.push(admitted);
+    const deliverySequences = replay.deliverySequences;
+    for (let index = 0; index < replay.events.length; index += 1) {
+      const evt = replay.events[index];
+      const stamped = deliverySequences?.[index];
+      const deliverySequence =
+        typeof stamped === 'number' ? stamped : itemDeliverySequence(evt);
+      const event = withoutItemDeliverySequence(evt);
+      for (const admitted of admitLiveEvent(state, event, deliverySequence)) {
+        state.replayBuffer.push(withLocalSequence(admitted, deliverySequence));
         updateLastSeq(admitted);
-        rememberApplied(state, admitted);
+        rememberApplied(state, admitted, deliverySequence);
       }
     }
   },
@@ -261,7 +265,7 @@ const SERVER_MESSAGE_HANDLERS: Record<
     // ...and this is the ONLY place the delivery cursor may move past a
     // hole, because it is the only place the client learns that what it
     // asked for was actually sent.
-    if (answeredGapRecovery) releaseDeliveryPin(state, end.toSeq);
+    if (answeredGapRecovery) releaseDeliveryPin(state, end);
     state.ready = true;
     for (const evt of state.replayBuffer) {
       emit('event', evt);
@@ -293,11 +297,12 @@ const SERVER_MESSAGE_HANDLERS: Record<
       );
       updateLastSeq(event);
       rememberApplied(state, event, eventMessage.deliverySequence);
+      const outbound = withLocalSequence(event, eventMessage.deliverySequence);
       if (!state.ready) {
-        state.pendingLiveEvents.push(event);
+        state.pendingLiveEvents.push(outbound);
         continue;
       }
-      emit('event', event);
+      emit('event', outbound);
     }
     if (!wasBlocked && state.blockedBySequenceCollision) {
       emit('error', {
@@ -474,6 +479,7 @@ export function connect(
     lastDeliverySequence: null,
     deliveryResumeCursor: null,
     deliveryHoleRevealSeq: null,
+    deliveryHoleRevealDelivery: null,
     recoveringFromGap: false,
     suppressNextSocketCloseEvent: false,
   };
@@ -684,6 +690,27 @@ function handleServerMessage(
  * checked for holes is the per-viewer `deliverySequence`, which
  * `noteDeliveryGap` tracks separately.
  */
+/**
+ * Stamp the viewer's delivery number onto a sequence-less wire event
+ * before it leaves the client. Inside THIS client's mirror, `sequence`
+ * means "position in the local log" - the same meaning hydration gives
+ * its own locally-appended events - and the delivery number is exactly
+ * that position. This is not an authority number and must never be
+ * treated as one; it exists so downstream consumers (`isGameEvent`,
+ * the mirror builder, hydration's sort) keep working when player
+ * frames stop carrying the authority sequence. An event that already
+ * has a sequence (an authority stream, or an old server) is passed
+ * through untouched.
+ */
+function withLocalSequence(event: unknown, deliverySequence?: number): unknown {
+  if (typeof deliverySequence !== 'number') return event;
+  if (typeof event !== 'object' || event === null) return event;
+  if (typeof (event as { sequence?: unknown }).sequence === 'number') {
+    return event;
+  }
+  return { ...event, sequence: deliverySequence };
+}
+
 function admitLiveEvent(
   state: IClientState,
   event: unknown,
@@ -854,6 +881,20 @@ function sequenceOf(event: unknown): number | null {
   return null;
 }
 
+function itemDeliverySequence(event: unknown): number | undefined {
+  if (typeof event !== 'object' || event === null) return undefined;
+  const value = (event as { deliverySequence?: unknown }).deliverySequence;
+  return typeof value === 'number' ? value : undefined;
+}
+
+function withoutItemDeliverySequence(event: unknown): unknown {
+  if (typeof event !== 'object' || event === null) return event;
+  if (!('deliverySequence' in event)) return event;
+  const copy = { ...(event as Record<string, unknown>) };
+  delete copy.deliverySequence;
+  return copy;
+}
+
 /**
  * Track this connection's delivery sequence and report a hole exactly
  * once per occurrence.
@@ -880,6 +921,7 @@ function noteDeliveryGap(
     // old pin forward for the rest of the match.
     state.deliveryResumeCursor = deliverySequence;
     state.deliveryHoleRevealSeq = null;
+    state.deliveryHoleRevealDelivery = null;
     return false;
   }
   if (deliverySequence === previous + 1) {
@@ -919,6 +961,10 @@ function noteDeliveryGap(
     state.deliveryHoleRevealSeq ?? Number.NEGATIVE_INFINITY,
     authoritySequence ?? state.lastSeq,
   );
+  state.deliveryHoleRevealDelivery = Math.max(
+    state.deliveryHoleRevealDelivery ?? Number.NEGATIVE_INFINITY,
+    deliverySequence,
+  );
   return true;
 }
 
@@ -926,30 +972,25 @@ function noteDeliveryGap(
  * Un-pin the delivery cursor - but only on evidence that the hole was
  * filled.
  *
- * A gap recovery asks the server to resume from the frame this client
- * LACKS, and the answer covers authority sequences up to
- * `ReplayEnd.toSeq`. The hole sits strictly before the frame that
- * revealed it, so a `toSeq` reaching that revealing sequence is proof
- * the hole was inside the replay - and the client now genuinely holds
- * everything up to the highest delivery frame it has seen.
- *
- * Short of that the replay was snapshotted before the loss reached the
- * store, nothing has been proven, and the cursor stays where it is. The
- * next hole then asks from the earlier point, which costs a longer
- * replay and never costs correctness.
- *
- * Delivery numbering cannot supply this evidence itself: `ReplayChunk`
- * frames carry no `deliverySequence`, because only the live broadcast
- * stamps one (`ServerMatchHostEvents`). The authority sequence is the
- * only number both paths share.
+ * Prefers `ReplayEnd.toDeliverySequence` against the revealing frame's
+ * delivery number. An old server that does not send that field falls
+ * back to `toSeq` against the revealing authority sequence (or lastSeq
+ * when the revealing frame carried none).
  */
-function releaseDeliveryPin(state: IClientState, toSeq: number): void {
-  const revealed = state.deliveryHoleRevealSeq;
-  if (revealed === null) return;
-  if (toSeq < revealed) return;
+function releaseDeliveryPin(state: IClientState, end: IReplayEnd): void {
   if (state.lastDeliverySequence === null) return;
+  if (typeof end.toDeliverySequence === 'number') {
+    const revealedDelivery = state.deliveryHoleRevealDelivery;
+    if (revealedDelivery === null) return;
+    if (end.toDeliverySequence < revealedDelivery) return;
+  } else {
+    const revealed = state.deliveryHoleRevealSeq;
+    if (revealed === null) return;
+    if (end.toSeq < revealed) return;
+  }
   state.deliveryResumeCursor = state.lastDeliverySequence;
   state.deliveryHoleRevealSeq = null;
+  state.deliveryHoleRevealDelivery = null;
 }
 
 function updateLastSeq(state: IClientState, event: unknown): void {

@@ -183,6 +183,7 @@ describe('viewer frame authority-only fields', () => {
       // emptying that list would make them all pass vacuously while
       // production stopped removing anything. This row goes red instead.
       expect(Object.keys(event)).not.toContain('visibility');
+      expect(Object.keys(event)).not.toContain('sequence');
     }
 
     // CONTROL. The authority log still records the field, so the frames
@@ -193,6 +194,9 @@ describe('viewer frame authority-only fields', () => {
         (event) => (event as { visibility?: unknown }).visibility !== undefined,
       ),
     ).toBe(true);
+    expect(stored.some((event) => typeof event.sequence === 'number')).toBe(
+      true,
+    );
   });
 
   it('removes only the declared fields and leaves the rest byte-identical', async () => {
@@ -253,6 +257,7 @@ describe('viewer frame authority-only fields', () => {
       // Named again, for the same reason: the replay surface must not be
       // provable only by a list that could be emptied.
       expect(Object.keys(event)).not.toContain('visibility');
+      expect(Object.keys(event)).not.toContain('sequence');
     }
 
     // ...and the joiner holds exactly what the live stream delivers, so

@@ -1,21 +1,8 @@
 /**
- * Each viewer gets a gapless delivery sequence of their own, even when
- * the authority sequence they can also see is full of holes.
- *
- * This is the first slice of umbrella 11.1. The spec requires the server
- * to "assign a gapless delivery sequence independently for each viewer
- * projection stream"; before this there was only the global authority
- * sequence, and under fog each viewer sees a sparse slice of it. That
- * sparsity is why client-side gap detection was impossible — a hole
- * meant "withheld from you", not "lost", and a client that waited on one
- * stalled forever.
- *
- * NOT CLAIMED HERE: the concealment leak is still open. The authority
- * sequence is still on the wire alongside this one, so a player can
- * still count what was hidden from them (`viewerSequenceConcealmentLeak`
- * still passes). Closing that means removing the authority sequence from
- * player frames and resuming replay from the delivery cursor — the next
- * slices, not this one.
+ * Each viewer gets a gapless delivery sequence of their own. Fog still
+ * conceals events (the two viewers receive different ids); player
+ * frames no longer carry the authority sequence that used to make
+ * those omissions countable.
  */
 
 import type { IServerMessage } from '@/types/multiplayer/Protocol';
@@ -56,7 +43,7 @@ function frames(socket: { readonly sent: readonly IServerMessage[] }) {
   return socket.sent.filter((m) => m.kind === 'Event') as Array<
     IServerMessage & {
       deliverySequence?: number;
-      event?: { sequence?: number };
+      event?: { sequence?: number; id?: string };
     }
   >;
 }
@@ -126,12 +113,13 @@ describe('per-viewer delivery sequence', () => {
       // Gapless and starting at zero: 0,1,2,...
       expect(delivery).toEqual(delivery.map((_, index) => index));
 
-      // ...whereas the authority sequence in the SAME frames is not.
-      const authority = received.map((f) => f.event?.sequence ?? -1);
-      const authorityIsGapless = authority.every(
-        (value, index) => index === 0 || value === authority[index - 1] + 1,
-      );
-      expect(authorityIsGapless).toBe(false);
+      // The authority sequence is no longer on player frames.
+      for (const frame of received) {
+        expect(frame.event).toBeDefined();
+        expect(
+          Object.prototype.hasOwnProperty.call(frame.event ?? {}, 'sequence'),
+        ).toBe(false);
+      }
     }
   });
 
@@ -153,9 +141,9 @@ describe('per-viewer delivery sequence', () => {
     expect(opponentDelivery[0]).toBe(0);
     // They received different numbers of frames - which is exactly why a
     // shared counter would have gapped one of them.
-    const playerAuthority = frames(player).map((f) => f.event?.sequence);
-    const opponentAuthority = frames(opponent).map((f) => f.event?.sequence);
-    expect(playerAuthority).not.toEqual(opponentAuthority);
+    const playerIds = frames(player).map((f) => f.event?.id);
+    const opponentIds = frames(opponent).map((f) => f.event?.id);
+    expect(playerIds).not.toEqual(opponentIds);
   });
 
   it('does not consume a number for a frame the viewer never receives', async () => {
@@ -176,11 +164,11 @@ describe('per-viewer delivery sequence', () => {
     // can be EQUAL - they were, first time this ran - because each side
     // loses a different event. Comparing counts would have passed for
     // the wrong reason, so compare what actually arrived.
-    const playerAuthority = playerFrames.map((f) => f.event?.sequence);
-    const opponentAuthority = opponentFrames.map((f) => f.event?.sequence);
-    expect(playerAuthority).not.toEqual(opponentAuthority);
+    const playerIds = playerFrames.map((f) => f.event?.id);
+    const opponentIds = opponentFrames.map((f) => f.event?.id);
+    expect(playerIds).not.toEqual(opponentIds);
     expect(
-      playerAuthority.filter((s) => !opponentAuthority.includes(s)).length,
+      playerIds.filter((id) => !opponentIds.includes(id)).length,
     ).toBeGreaterThan(0);
 
     // Yet each still counted from zero with no holes.
