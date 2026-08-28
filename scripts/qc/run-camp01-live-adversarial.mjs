@@ -107,7 +107,37 @@ async function envelopeAnchorProbe({ scratchRoot }) {
     };
   }
   // prettier-ignore
-  const gitOutput=async(args)=>(await invokeGit({git,args,cwd:initiatingRoot})).stdout.trim(), initiatingHeadSha=await gitOutput(['rev-parse','--verify','HEAD^{commit}']), initiatingTreeSha=await gitOutput(['rev-parse','--verify','HEAD^{tree}']), fetchedMainOid=await resolveFetchedMainOid({wave:'live-probe',sha:initiatingHeadSha,mode:'exact-main'},git,{sessionDirectory:path.join(scratchRoot,'fetched-main.git')}), fetchCheckRuns=(sha)=>fetchGitHubResource({resource:'check-runs',parameters:{sha}}), anchor=createAnchorAuthority({git,cwd:initiatingRoot},{fetchCheckRuns});
+  // Ancestry questions run in the probe's OWN fully-fetched session repo,
+  // never the initiating checkout: CI checkouts are shallow (depth 1), so
+  // HEAD~1, merge-base, and any object beyond the tip do not exist there.
+  // The session fetch pins head and main by OID with full history, which
+  // makes it the one place every ancestry answer is actually present.
+  const sessionDirectory=path.join(scratchRoot,'fetched-main.git');
+  const gitOutput = async (args) =>
+      (await invokeGit({ git, args, cwd: initiatingRoot })).stdout.trim(),
+    sessionGitOutput = async (args) =>
+      (await invokeGit({ git, args, cwd: sessionDirectory })).stdout.trim(),
+    initiatingHeadSha = await gitOutput([
+      'rev-parse',
+      '--verify',
+      'HEAD^{commit}',
+    ]),
+    initiatingTreeSha = await gitOutput([
+      'rev-parse',
+      '--verify',
+      'HEAD^{tree}',
+    ]),
+    fetchedMainOid = await resolveFetchedMainOid(
+      { wave: 'live-probe', sha: initiatingHeadSha, mode: 'exact-main' },
+      git,
+      { sessionDirectory },
+    ),
+    fetchCheckRuns = (sha) =>
+      fetchGitHubResource({ resource: 'check-runs', parameters: { sha } }),
+    anchor = createAnchorAuthority(
+      { git, cwd: initiatingRoot },
+      { fetchCheckRuns },
+    );
   let anchorSha = initiatingHeadSha,
     anchorTreeSha = initiatingTreeSha,
     anchorSource = 'initiating-head';
@@ -121,7 +151,7 @@ async function envelopeAnchorProbe({ scratchRoot }) {
     // Dev heads may be ahead of main; prefer fetched main, then its local merge-base.
     try {
       anchorSha = fetchedMainOid;
-      anchorTreeSha = await gitOutput([
+      anchorTreeSha = await sessionGitOutput([
         'rev-parse',
         '--verify',
         `${anchorSha}^{tree}`,
@@ -129,12 +159,12 @@ async function envelopeAnchorProbe({ scratchRoot }) {
       anchorSource = 'fetched-main';
     } catch (fallbackError) {
       if (!(fallbackError instanceof Camp01GitError)) throw fallbackError;
-      anchorSha = await gitOutput([
+      anchorSha = await sessionGitOutput([
         'merge-base',
         initiatingHeadSha,
         fetchedMainOid,
       ]);
-      anchorTreeSha = await gitOutput([
+      anchorTreeSha = await sessionGitOutput([
         'rev-parse',
         '--verify',
         `${anchorSha}^{tree}`,
@@ -144,7 +174,12 @@ async function envelopeAnchorProbe({ scratchRoot }) {
     await anchor(candidate(), { fetchedMainOid });
   }
   const priorShas = (
-    await gitOutput(['rev-list', '--first-parent', '--max-count=10', 'HEAD~1'])
+    await sessionGitOutput([
+      'rev-list',
+      '--first-parent',
+      '--max-count=10',
+      `${initiatingHeadSha}~1`,
+    ])
   ).split(/\r?\n/);
   for (let index = 0; index < priorShas.length; index += 1) {
     // prettier-ignore
