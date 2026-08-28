@@ -1,4 +1,4 @@
-Every PR in this change MUST stay under 500 non-generated changed lines and 15 files, own one behavior seam, and split through an OpenSpec update before implementation if the cap cannot be met.
+Every PR in this change MUST stay under 1000 non-generated changed lines and 15 files, own one behavior seam, and split through an OpenSpec update before implementation if the cap cannot be met. (Cap follows wave-map rule 7; line cap raised 500 -> 1000 on 2026-08-28.)
 
 Work-path trace: this leaf follows `add-authority-audit-and-privacy-proof`, may proceed independently of campaign adoption, and must finish before `add-cross-stream-effect-receipts` in `../harden-gm-two-player-campaign-sessions/event-history-wave-map.md`.
 
