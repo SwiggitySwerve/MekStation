@@ -616,6 +616,12 @@ export const ReplayStartSchema = z.object({
   kind: z.literal('ReplayStart'),
   matchId: matchIdSchema,
   ts: tsSchema,
+  /**
+   * Authority-space start of this replay. Not a per-event delivery
+   * number: ReplayChunk items have no `deliverySequence`, and when
+   * `event.sequence` is absent the client orders them by arrival
+   * inside the chunk. Slice B must not treat this as a delivery cursor.
+   */
   fromSeq: z.number().int().nonnegative(),
   totalEvents: z.number().int().nonnegative(),
 });
@@ -639,6 +645,12 @@ export const ReplayEndSchema = z.object({
   kind: z.literal('ReplayEnd'),
   matchId: matchIdSchema,
   ts: tsSchema,
+  /**
+   * Authority-space end of this replay. Used to un-pin a delivery
+   * hole whose revealing frame still carried `event.sequence`. When
+   * that field is absent the client cannot match this number to a
+   * delivery cursor; a delivery-space bound is a slice B protocol gap.
+   */
   toSeq: z.number().int().nonnegative(),
 });
 export type IReplayEnd = z.infer<typeof ReplayEndSchema>;

@@ -100,6 +100,21 @@ function liveEvent(
   });
 }
 
+function liveDeliveredEvent(
+  f: { lastSocket: () => { inject: (m: unknown) => void } },
+  deliverySequence: number,
+  sequence: number,
+  id: string,
+): void {
+  f.lastSocket().inject({
+    kind: 'Event',
+    matchId: 'm1',
+    ts: new Date().toISOString(),
+    deliverySequence,
+    event: { sequence, type: 'phase_changed', id },
+  });
+}
+
 /** Every `intentId` this socket has been asked to send, in order. */
 function intentIdsOn(socket: { sentRaw: string[] }): (string | undefined)[] {
   return socket.sentRaw
@@ -535,6 +550,37 @@ describe('multiplayer client', () => {
     // Nothing after the collision is applied: the fork means the rest
     // of the stream cannot be trusted.
     expect(seqOf(applied)).toEqual([0]);
+  });
+
+  it('blocks when a new delivery restates an already-applied authority sequence', () => {
+    // Dual-key fork: delivery is new, so a delivery-only admission
+    // would apply the second frame. Authority says this sequence was
+    // already applied under a different identity - that is the fork
+    // the secondary check exists to catch. Mutation M2 (drop that
+    // check) dies here.
+    const f = makeMockSocketFactory();
+    const applied: unknown[] = [];
+    const errors: unknown[] = [];
+    const client = connect(
+      'ws://localhost/x',
+      'm1',
+      { playerId: 'p1', token: 'tok' },
+      { socketFactory: f.factory, reconnect: false },
+    );
+    client.on('event', (e) => applied.push(e));
+    client.on('error', (e) => errors.push(e));
+    f.lastSocket().fireOpen();
+    finishReplay(f);
+    applied.length = 0;
+
+    liveDeliveredEvent(f, 0, 10, 'evt-a');
+    liveDeliveredEvent(f, 1, 10, 'evt-a-forked');
+    liveDeliveredEvent(f, 2, 11, 'evt-b');
+
+    expect(errors).toContainEqual(
+      expect.objectContaining({ reason: 'sequence-collision' }),
+    );
+    expect(seqOf(applied)).toEqual([10]);
   });
 
   it('treats an identical repeat as a duplicate, not a collision', () => {

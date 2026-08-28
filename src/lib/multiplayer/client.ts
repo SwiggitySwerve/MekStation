@@ -64,7 +64,12 @@ export interface IMultiplayerClient {
   send(intent: IIntentPayload): void;
   on(event: IClientEventName, handler: IClientEventHandler): () => void;
   close(): void;
-  /** Last server-side sequence the client has observed (for reconnect). */
+  /**
+   * Authority high-water the client has observed, or `-1` before any
+   * event carrying `sequence`. SessionJoin still quotes this alongside
+   * `deliveryCursor` (removing `lastSeq` is slice B). Admission itself
+   * is delivery-first when the live frame carries `deliverySequence`.
+   */
   lastSeq(): number;
   /** True after `ReplayEnd` has fired for the current connection. */
   isReady(): boolean;
@@ -128,19 +133,34 @@ interface IClientState {
   pendingIntents: Map<string, unknown>;
   replayBuffer: unknown[];
   /**
-   * Identity of recently applied sequences, so a REPEAT of one can be
-   * told apart from a COLLISION on it. Bounded and evicted oldest-first
-   * for the same reason the server's intent window is: the useful
-   * horizon is short, and an unbounded map is a leak dressed as a
-   * safety feature.
+   * Identity of recently applied AUTHORITY sequences. Secondary fork
+   * check while `event.sequence` is still on the wire (slice B removes
+   * it). Bounded and evicted oldest-first.
    */
   appliedIdentityBySeq: Map<number, string>;
+  /**
+   * Identity of recently applied DELIVERY numbers. Primary admission
+   * key for live frames. Same window as the authority map.
+   */
+  appliedIdentityByDelivery: Map<number, string>;
+  /**
+   * Recently applied event identities, for ReplayChunk items that carry
+   * neither a delivery number nor `event.sequence`. Arrival order in
+   * the chunk is the ordering; this set is the exactly-once check.
+   */
+  appliedIdentities: Map<string, true>;
   /**
    * Set once a sequence collision was seen. The stream forked, so
    * nothing after it can be trusted and application stops.
    */
   blockedBySequenceCollision: boolean;
   lastSeq: number;
+  /**
+   * Highest delivery number this client has applied, or `-1` before the
+   * first numbered live frame. Twin of `lastSeq` on the delivery axis
+   * (transitional dual-key awaiting slice B).
+   */
+  lastAppliedDelivery: number;
   reconnectAttempt: number;
   reconnectTimer: ReturnType<typeof setTimeout> | null;
   // The client's half of the bidirectional heartbeat. Kept on the
@@ -222,6 +242,9 @@ const SERVER_MESSAGE_HANDLERS: Record<
     // Replay is fog-filtered per viewer too, so it is sparse for the
     // same reason live traffic is and no contiguity is asserted here.
     for (const evt of replay.events) {
+      // ReplayChunk items have no `deliverySequence`. Dual-key falls
+      // back to `event.sequence` when present, else arrival order plus
+      // event identity (sequence-free path for slice B).
       for (const admitted of admitLiveEvent(state, evt)) {
         state.replayBuffer.push(admitted);
         updateLastSeq(admitted);
@@ -257,7 +280,11 @@ const SERVER_MESSAGE_HANDLERS: Record<
   Event: ({ message, state, emit, updateLastSeq, requestResync }) => {
     const eventMessage = message as Extract<IServerMessage, { kind: 'Event' }>;
     const wasBlocked = state.blockedBySequenceCollision;
-    for (const event of admitLiveEvent(state, eventMessage.event)) {
+    for (const event of admitLiveEvent(
+      state,
+      eventMessage.event,
+      eventMessage.deliverySequence,
+    )) {
       // Authority stamps the id onto the first event a command
       // produces, so this is the client learning its command landed.
       settlePendingIntent(
@@ -265,7 +292,7 @@ const SERVER_MESSAGE_HANDLERS: Record<
         (event as { payload?: { intentId?: unknown } }).payload?.intentId,
       );
       updateLastSeq(event);
-      rememberApplied(state, event);
+      rememberApplied(state, event, eventMessage.deliverySequence);
       if (!state.ready) {
         state.pendingLiveEvents.push(event);
         continue;
@@ -435,8 +462,11 @@ export function connect(
     pendingIntents: new Map(),
     replayBuffer: [],
     appliedIdentityBySeq: new Map(),
+    appliedIdentityByDelivery: new Map(),
+    appliedIdentities: new Map(),
     blockedBySequenceCollision: false,
     lastSeq: options.lastSeq ?? -1,
+    lastAppliedDelivery: -1,
     reconnectAttempt: 0,
     reconnectTimer: null,
     heartbeatTimer: null,
@@ -639,34 +669,75 @@ function handleServerMessage(
  * paths use it - live `Event` frames and `ReplayChunk` frames - so
  * duplicate suppression and collision blocking apply to each.
  *
+ * Dual-key, delivery-first (transitional, awaiting slice B):
+ *
+ *   - live frames with `deliverySequence` admit on the delivery number;
+ *     `event.sequence`, when present, is a secondary fork check;
+ *   - frames without a delivery number fall back to `event.sequence`
+ *     (today's ReplayChunk path, and pre-rollout live frames);
+ *   - neither number: arrival order plus event identity, so a
+ *     sequence-stripped recovery tail still applies exactly-once.
+ *
  * Contiguity is NOT enforced on the authority sequence, and cannot be:
- * a fog viewer's slice of it is legitimately sparse (see the long note
- * below on the measured two-player stream). An event ahead of the
- * high-water is therefore applied, not held. The number that CAN be
+ * a fog viewer's slice of it is legitimately sparse. An event ahead of
+ * the high-water is therefore applied, not held. The number that CAN be
  * checked for holes is the per-viewer `deliverySequence`, which
  * `noteDeliveryGap` tracks separately.
- *
- * Three cases:
- *
- *   - ahead of the high-water: apply it;
- *   - at or below it and remembered as applied: ignore it, unless it
- *     carries a different event than the one applied under that
- *     sequence, which is a fork and is reported;
- *   - at or below it and NEVER applied: that is the shape of a frame
- *     recovered by a gap recovery, and it is applied while such a
- *     recovery is in flight and the sequence is recent enough for
- *     "not remembered" to still mean "never applied".
- *
- * Events without a numeric sequence are not part of the sequenced
- * stream and pass straight through.
  */
 function admitLiveEvent(
   state: IClientState,
   event: unknown,
+  deliverySequence?: number,
 ): readonly unknown[] {
   if (state.blockedBySequenceCollision) return [];
+  if (typeof deliverySequence === 'number') {
+    return admitByDelivery(state, event, deliverySequence);
+  }
   const sequence = sequenceOf(event);
-  if (sequence === null) return [event];
+  if (sequence !== null) return admitByAuthority(state, event, sequence);
+  return admitByIdentity(state, event);
+}
+
+function admitByDelivery(
+  state: IClientState,
+  event: unknown,
+  deliverySequence: number,
+): readonly unknown[] {
+  const identity = identityOf(event);
+  if (deliverySequence <= state.lastAppliedDelivery) {
+    const known = state.appliedIdentityByDelivery.get(deliverySequence);
+    if (known !== undefined) {
+      if (known !== identity) state.blockedBySequenceCollision = true;
+      return [];
+    }
+    if (!state.recoveringFromGap) return [];
+    if (
+      state.lastAppliedDelivery - deliverySequence >=
+      APPLIED_IDENTITY_WINDOW
+    ) {
+      return [];
+    }
+  }
+  // Secondary consistency check while `event.sequence` is still on the
+  // wire. A new delivery number whose authority sequence was already
+  // applied is a fork, even though delivery-first admission would
+  // otherwise take it. Slice B drops this once the field is gone.
+  const authoritySeq = sequenceOf(event);
+  if (authoritySeq !== null) {
+    const knownAuth = state.appliedIdentityBySeq.get(authoritySeq);
+    if (knownAuth !== undefined) {
+      state.blockedBySequenceCollision = true;
+      return [];
+    }
+  }
+  return [event];
+}
+
+function admitByAuthority(
+  state: IClientState,
+  event: unknown,
+  sequence: number,
+): readonly unknown[] {
   if (sequence <= state.lastSeq) {
     const known = state.appliedIdentityBySeq.get(sequence);
     if (known !== undefined) {
@@ -696,24 +767,25 @@ function admitLiveEvent(
     if (state.lastSeq - sequence >= APPLIED_IDENTITY_WINDOW) return [];
     return [event];
   }
-  // AHEAD OF THE CURSOR IS NORMAL, and this is the correction to the
-  // previous version of this function, which held such an event back
-  // as a "gap" until the missing sequence arrived.
-  //
-  // It never arrives. A fog-of-war viewer's stream is LEGITIMATELY
-  // SPARSE: `broadcastEvent` filters each event per recipient and skips
-  // the send entirely when it is not visible to them, keeping the
-  // authority sequence on everything else. Measured on a two-player fog
-  // match - one player received sequences [2..8, 10, 11, 12] and the
-  // other [2..7, 9, 10, 11, 12]; each is missing precisely the event
-  // the other could see. Holding at the first gap would have stalled
-  // both clients permanently.
-  //
-  // Contiguity cannot be enforced on the AUTHORITY sequence at all,
-  // which is exactly why the spec asks for a per-viewer
-  // `deliverySequence` that is gapless BY VIEWER (umbrella task 5.1,
-  // `Authority and Viewer Sequences Are Separate`). Until that exists
-  // on the wire, the client advances.
+  // AHEAD OF THE CURSOR IS NORMAL. A fog-of-war viewer's authority
+  // stream is LEGITIMATELY SPARSE: the server skips the send for events
+  // the viewer may not see and keeps the authority sequence on the
+  // rest. Contiguity is enforced on `deliverySequence` instead.
+  return [event];
+}
+
+function admitByIdentity(
+  state: IClientState,
+  event: unknown,
+): readonly unknown[] {
+  // Sequence-free ReplayChunk (slice B future, and the slice A proof).
+  // `ReplayStart.fromSeq` / `ReplayEnd.toSeq` are still authority-space
+  // bounds and cannot number individual items, so arrival order in the
+  // chunk is the ordering and identity is the exactly-once key.
+  const identity = identityOf(event);
+  if (identity.length > 0 && state.appliedIdentities.has(identity)) {
+    return [];
+  }
   return [event];
 }
 
@@ -725,14 +797,35 @@ function admitLiveEvent(
 const APPLIED_IDENTITY_WINDOW = 256;
 
 /** Remember an applied event so a later repeat can be checked. */
-function rememberApplied(state: IClientState, event: unknown): void {
+function rememberApplied(
+  state: IClientState,
+  event: unknown,
+  deliverySequence?: number,
+): void {
+  const identity = identityOf(event);
+  if (typeof deliverySequence === 'number') {
+    state.appliedIdentityByDelivery.set(deliverySequence, identity);
+    if (deliverySequence > state.lastAppliedDelivery) {
+      state.lastAppliedDelivery = deliverySequence;
+    }
+    evictOldest(state.appliedIdentityByDelivery);
+  }
   const sequence = sequenceOf(event);
-  if (sequence === null) return;
-  state.appliedIdentityBySeq.set(sequence, identityOf(event));
-  while (state.appliedIdentityBySeq.size > APPLIED_IDENTITY_WINDOW) {
-    const oldest = state.appliedIdentityBySeq.keys().next().value;
+  if (sequence !== null) {
+    state.appliedIdentityBySeq.set(sequence, identity);
+    evictOldest(state.appliedIdentityBySeq);
+  }
+  if (identity.length > 0) {
+    state.appliedIdentities.set(identity, true);
+    evictOldest(state.appliedIdentities);
+  }
+}
+
+function evictOldest<K>(map: Map<K, unknown>): void {
+  while (map.size > APPLIED_IDENTITY_WINDOW) {
+    const oldest = map.keys().next().value;
     if (oldest === undefined) break;
-    state.appliedIdentityBySeq.delete(oldest);
+    map.delete(oldest);
   }
 }
 
@@ -860,15 +953,13 @@ function releaseDeliveryPin(state: IClientState, toSeq: number): void {
 }
 
 function updateLastSeq(state: IClientState, event: unknown): void {
-  if (
-    typeof event === 'object' &&
-    event !== null &&
-    'sequence' in event &&
-    typeof (event as { sequence?: unknown }).sequence === 'number'
-  ) {
-    const seq = (event as { sequence: number }).sequence;
-    if (seq > state.lastSeq) state.lastSeq = seq;
-  }
+  // Authority high-water only. Delivery is tracked on
+  // `lastAppliedDelivery`; mixing the two number spaces into `lastSeq`
+  // would make SessionJoin quote a delivery number as an authority
+  // cursor. When `event.sequence` is absent, lastSeq stays put and
+  // resume relies on `deliveryCursor` (slice B's remaining wire field).
+  const seq = sequenceOf(event);
+  if (seq !== null && seq > state.lastSeq) state.lastSeq = seq;
 }
 
 function scheduleReconnect(runtime: IClientRuntime): void {
