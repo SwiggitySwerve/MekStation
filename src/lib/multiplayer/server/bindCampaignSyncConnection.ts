@@ -11,6 +11,7 @@ import type {
 
 import { reconcileCoopBattle } from '@/lib/campaign/coop/reconcileCoopBattle';
 import { freezeCampaignEvent } from '@/lib/campaign/sync/campaignEventScope';
+import { normalizeRoomCode } from '@/lib/p2p/roomCodes';
 import {
   assertKnownCampaignSyncFrameKind,
   ClientMessageSchema,
@@ -483,6 +484,14 @@ async function dispatchCampaignEnvelope({
         forceClaims,
       });
       return;
+    case 'CampaignAck':
+      // envelope.playerId is the verified principal: handleInbound
+      // already closed the socket on player-mismatch.
+      entry.syncSession.noteParticipantAcknowledged(
+        envelope.playerId,
+        envelope.revision,
+      );
+      return;
     default: {
       const exhaustive: never = envelope;
       void exhaustive;
@@ -522,6 +531,57 @@ function refusedWhilePaused(
   return true;
 }
 
+function pendingAdvanceDayProposal(
+  entry: ICampaignHostRegistryEntry,
+  proposalId: string,
+): boolean {
+  return entry.arbiter
+    .getPendingProposals()
+    .some(
+      (row) =>
+        row.proposal.proposalId === proposalId &&
+        row.proposal.intent.kind === 'AdvanceDay',
+    );
+}
+
+function readProposalIntentKind(proposal: unknown): string | null {
+  if (typeof proposal !== 'object' || proposal === null) return null;
+  const intent = Reflect.get(proposal, 'intent');
+  if (typeof intent !== 'object' || intent === null) return null;
+  const kind = Reflect.get(intent, 'kind');
+  return typeof kind === 'string' && kind.length > 0 ? kind : null;
+}
+
+/**
+ * Refuses AdvanceDay while any retained participant is behind. Sends
+ * CAMPAIGN_NOT_CONVERGED naming who is behind and the revision they
+ * must reach; returns true when the commit must not happen. Progression
+ * only - other intent kinds are deliberately never gated, so delivery
+ * to healthy clients keeps flowing while someone lags.
+ */
+async function refuseUnconvergedProgression(
+  entry: ICampaignHostRegistryEntry,
+  socket: IWireCampaignSocket,
+  matchId: string,
+  correlationId?: string,
+): Promise<boolean> {
+  const gate = await entry.syncSession.evaluateScenarioLaunch();
+  if (gate.ok) return false;
+  const behind = gate.behind
+    .map((row) => `${row.participantId}:${row.acknowledgedRevision}`)
+    .join(',');
+  send(
+    socket,
+    errorFrame(
+      matchId,
+      'CAMPAIGN_NOT_CONVERGED',
+      `participants-behind ${behind}; requiredRevision ${gate.requiredRevision}`,
+      correlationId,
+    ),
+  );
+  return true;
+}
+
 async function handleCampaignHostIntent({
   envelope,
   socket,
@@ -543,6 +603,18 @@ async function handleCampaignHostIntent({
         envelope.intent.intentId,
       ),
     );
+    return;
+  }
+
+  if (
+    envelope.intent.kind === 'AdvanceDay' &&
+    (await refuseUnconvergedProgression(
+      entry,
+      socket,
+      matchId,
+      envelope.intent.intentId,
+    ))
+  ) {
     return;
   }
 
@@ -717,7 +789,7 @@ async function handleCampaignJoin({
     // exactly backwards, since expiry exists to stop NEWCOMERS.
     const rejoin = await entry.syncSession.joinMember((event) => {
       sendCampaignEvent(socket, matchId, event);
-    });
+    }, verifiedPlayerId);
     if (rejoin.ok) {
       addSocketToMatch(matchId, socket);
       cleanupFns.add(rejoin.disconnect);
@@ -760,6 +832,40 @@ async function handleCampaignJoin({
     return;
   }
 
+  // A rejoiner quoting `lastSeq` gets the missing tail (or a fresh
+  // snapshot past RESYNC_SNAPSHOT_GAP) instead of a full re-join. The
+  // code check matches the newcomer rule below - presenting the CURRENT
+  // invite is what distinguishes a returning guest from anyone who
+  // merely knows the match id. The verified playerId rides along so the
+  // frames this path streams raise the participant's delivered
+  // watermark; their convergence still requires their OWN ack of what
+  // arrived (`resyncGuest` deliberately never reseeds `acknowledged`).
+  if (envelope.lastSeq !== undefined) {
+    const issued = entry.syncSession.getRoomCode();
+    if (
+      issued === null ||
+      normalizeRoomCode(envelope.roomCode ?? '') !== issued
+    ) {
+      send(socket, errorFrame(matchId, 'UNKNOWN_MATCH', 'unknown-room-code'));
+      return;
+    }
+    const resync = await entry.syncSession.resyncGuest(
+      envelope.lastSeq,
+      (event) => {
+        sendCampaignEvent(socket, matchId, event);
+      },
+      verifiedPlayerId,
+    );
+    if (!resync.ok) {
+      send(socket, errorFrame(matchId, 'UNKNOWN_MATCH', 'resync-unavailable'));
+      return;
+    }
+    addSocketToMatch(matchId, socket);
+    cleanupFns.add(resync.disconnect);
+    acknowledge();
+    return;
+  }
+
   // No fallback to `entry.roomCode`. Substituting the session's OWN
   // code for a missing one made omitting the invite equivalent to
   // presenting the correct invite, so any authenticated player who knew
@@ -772,6 +878,7 @@ async function handleCampaignJoin({
     (event) => {
       sendCampaignEvent(socket, matchId, event);
     },
+    verifiedPlayerId,
   );
   if (!join.ok) {
     send(socket, errorFrame(matchId, 'UNKNOWN_MATCH', 'unknown-room-code'));
@@ -862,6 +969,18 @@ async function handleCampaignProposal({
     );
     return;
   }
+  if (
+    entry.arbiter.arbitrationMode === 'auto-approve' &&
+    readProposalIntentKind(envelope.proposal) === 'AdvanceDay' &&
+    (await refuseUnconvergedProgression(
+      entry,
+      socket,
+      matchId,
+      readStringField(envelope.proposal, 'proposalId') ?? undefined,
+    ))
+  ) {
+    return;
+  }
   const result = await entry.arbiter.submitProposal(envelope.proposal);
   send(socket, {
     kind: 'CampaignDecision',
@@ -913,6 +1032,19 @@ async function handleCampaignDecision({
     );
     return;
   }
+  if (
+    envelope.decision === 'approve' &&
+    pendingAdvanceDayProposal(entry, envelope.proposalId) &&
+    (await refuseUnconvergedProgression(
+      entry,
+      socket,
+      matchId,
+      envelope.proposalId,
+    ))
+  ) {
+    return;
+  }
+
   const result = await entry.arbiter.decide(
     envelope.proposalId,
     envelope.decision,

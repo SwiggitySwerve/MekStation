@@ -210,4 +210,86 @@ describe('campaignSyncTransport', () => {
       },
     });
   });
+
+  it('acks a resync snapshot with the revision it carries', () => {
+    // A large-gap resync delivers a CampaignSnapshotPublished baseline
+    // stamped sequence -1 and nothing else. Acking only sequence >= 0
+    // frames left the rejoiner permanently behind the gate: the server
+    // raised their delivered watermark to the snapshot's revision, but
+    // no ack could ever arrive until an UNRELATED live event landed -
+    // so AdvanceDay stayed refused with nothing anyone could do. After
+    // applying a snapshot the client genuinely holds the state at
+    // payload.revision, so acking that revision is honest.
+    const sockets = makeSocketFactory();
+    connectCampaignSyncTransport({
+      matchId: 'match-1',
+      role: 'guest',
+      playerId: 'pid_guest',
+      wireToken: 'wire-token',
+      url: 'ws://example.test/api/multiplayer/socket',
+      socketFactory: sockets.factory,
+    });
+
+    sockets.lastSocket().inject({
+      kind: 'CampaignEvent',
+      matchId: 'match-1',
+      ts: '2026-06-21T00:00:00.000Z',
+      event: {
+        type: 'CampaignSnapshotPublished',
+        sequence: -1,
+        campaignId: 'campaign-1',
+        ts: '2026-06-21T00:00:00.000Z',
+        authorPlayerId: 'pid_host',
+        scope: 'campaign',
+        payload: { matchId: 'match-1', revision: 7 },
+      },
+    });
+
+    expect(JSON.parse(sockets.lastSocket().sentRaw[0])).toMatchObject({
+      kind: 'CampaignAck',
+      revision: 7,
+    });
+  });
+
+  it('acks each applied CampaignEvent with that event sequence', () => {
+    const sockets = makeSocketFactory();
+    const transport = connectCampaignSyncTransport({
+      matchId: 'match-1',
+      role: 'guest',
+      playerId: 'pid_guest',
+      wireToken: 'wire-token',
+      url: 'ws://example.test/api/multiplayer/socket',
+      socketFactory: sockets.factory,
+    });
+    const applied: number[] = [];
+    transport.onFrame((message) => {
+      if (message.kind === 'CampaignEvent') {
+        applied.push(message.event.sequence);
+      }
+    });
+
+    sockets.lastSocket().inject({
+      kind: 'CampaignEvent',
+      matchId: 'match-1',
+      ts: '2026-06-21T00:00:00.000Z',
+      event: {
+        type: 'FundsChanged',
+        sequence: 4,
+        campaignId: 'campaign-1',
+        ts: '2026-06-21T00:00:00.000Z',
+        authorPlayerId: 'pid_host',
+        scope: 'campaign',
+        payload: {},
+      },
+    });
+
+    expect(applied).toEqual([4]);
+    expect(JSON.parse(sockets.lastSocket().sentRaw[0])).toMatchObject({
+      kind: 'CampaignAck',
+      matchId: 'match-1',
+      playerId: 'pid_guest',
+      campaignId: 'campaign-1',
+      revision: 4,
+    });
+  });
 });

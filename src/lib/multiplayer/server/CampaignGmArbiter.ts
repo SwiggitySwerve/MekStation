@@ -126,6 +126,15 @@ export class CampaignGmArbiter {
   private readonly host: CampaignMatchHost;
   /** The GM arbitration mode for this campaign (design D5). */
   private mode: GmArbitrationMode;
+
+  /**
+   * The mode, readable so the socket layer can tell whether submitting
+   * a proposal COMMITS (auto-approve) or merely queues (host-review) -
+   * the progression gate must run before the commit, wherever it is.
+   */
+  get arbitrationMode(): GmArbitrationMode {
+    return this.mode;
+  }
   /** Proposals awaiting a host decision (`host-review` mode only). */
   private readonly pending = new Map<string, IPendingProposal>();
   private readonly listeners = new Set<PendingProposalListener>();
