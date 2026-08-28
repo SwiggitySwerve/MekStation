@@ -272,7 +272,7 @@ describe('CampaignSyncSession — scenario progression requires convergence', ()
 
   it('blocks the next scenario while a retained participant is behind', async () => {
     const { session, stop } = await twoMembersOneEventBehind();
-    await session.noteParticipantAcknowledged('player-1', 1);
+    session.noteParticipantAcknowledged('player-1', 1);
 
     const gate = await session.evaluateScenarioLaunch();
 
@@ -292,8 +292,8 @@ describe('CampaignSyncSession — scenario progression requires convergence', ()
   it('allows the launch once every retained participant has converged', async () => {
     // CONTROL: a gate that refused everything would fail here.
     const { session, stop } = await twoMembersOneEventBehind();
-    await session.noteParticipantAcknowledged('player-1', 1);
-    await session.noteParticipantAcknowledged('player-2', 1);
+    session.noteParticipantAcknowledged('player-1', 1);
+    session.noteParticipantAcknowledged('player-2', 1);
 
     expect(await session.evaluateScenarioLaunch()).toEqual({
       ok: true,
@@ -307,7 +307,7 @@ describe('CampaignSyncSession — scenario progression requires convergence', ()
     // never DELIVERY. A gate that froze the stream would fail here.
     const { host, session, playerOneSaw, playerTwoSaw, stop } =
       await twoMembersOneEventBehind();
-    await session.noteParticipantAcknowledged('player-1', 1);
+    session.noteParticipantAcknowledged('player-1', 1);
     playerOneSaw.length = 0;
     playerTwoSaw.length = 0;
 
@@ -328,15 +328,13 @@ describe('CampaignSyncSession — scenario progression requires convergence', ()
     stop();
   });
 
-  it('refuses an acknowledgement past the highest committed revision', async () => {
-    // A client cannot invent a FUTURE revision. It is a narrower promise
-    // than the old name claimed: naming the CURRENT head is accepted
-    // whether or not the session sent that participant anything, which
-    // is what the delivered watermark has to close.
+  it('refuses an acknowledgement past the highest delivered revision', async () => {
+    // Otherwise the slowest client converges itself by claiming a number
+    // and the gate becomes advisory.
     const { session, stop } = await twoMembersOneEventBehind();
 
-    expect(await session.noteParticipantAcknowledged('player-2', 99)).toBe(
-      'ahead-of-commit',
+    expect(session.noteParticipantAcknowledged('player-2', 99)).toBe(
+      'ahead-of-delivery',
     );
 
     const gate = await session.evaluateScenarioLaunch();
@@ -350,16 +348,132 @@ describe('CampaignSyncSession — scenario progression requires convergence', ()
     stop();
   });
 
+  it('refuses an acknowledgement of a revision the participant was never sent', async () => {
+    // The whole point of the watermark. Against the commit head, a
+    // participant who received literally nothing converged by naming the
+    // head — a number every client knows.
+    const { host, session } = newSession();
+    await session.open();
+    const playerTwoSaw: ICampaignEvent[] = [];
+    const one = await session.joinMember(() => {}, 'player-1');
+    const two = await session.joinMember(
+      (e) => playerTwoSaw.push(e),
+      'player-2',
+    );
+    two.disconnect();
+    playerTwoSaw.length = 0;
+
+    await host.handleIntent({
+      kind: 'AdvanceDay',
+      campaignId: CAMPAIGN_ID,
+      intentId: 'unseen-1',
+      payload: {},
+    });
+    expect(playerTwoSaw).toHaveLength(0);
+
+    expect(session.noteParticipantAcknowledged('player-2', 1)).toBe(
+      'ahead-of-delivery',
+    );
+
+    session.noteParticipantAcknowledged('player-1', 1);
+    const gate = await session.evaluateScenarioLaunch();
+    expect(gate.ok).toBe(false);
+    if (!gate.ok) {
+      expect(gate.behind).toEqual([
+        { participantId: 'player-2', acknowledgedRevision: 0 },
+      ]);
+    }
+    one.disconnect();
+  });
+
+  it('accepts an acknowledgement of a revision that was actually streamed', async () => {
+    // CONTROL for the row above: the watermark must RISE as the session
+    // pushes frames, or the guard is a refuse-everything that would block
+    // every launch forever.
+    const { host, session } = newSession();
+    await session.open();
+    const playerTwoSaw: ICampaignEvent[] = [];
+    const one = await session.joinMember(() => {}, 'player-1');
+    const two = await session.joinMember(
+      (e) => playerTwoSaw.push(e),
+      'player-2',
+    );
+    // Drop the hydration frames; only what arrives LIVE is under test.
+    playerTwoSaw.length = 0;
+
+    await host.handleIntent({
+      kind: 'AdvanceDay',
+      campaignId: CAMPAIGN_ID,
+      intentId: 'seen-1',
+      payload: {},
+    });
+    expect(playerTwoSaw.map((e) => e.sequence)).toEqual([1]);
+
+    expect(session.noteParticipantAcknowledged('player-2', 1)).toBe('applied');
+    session.noteParticipantAcknowledged('player-1', 1);
+
+    expect(await session.evaluateScenarioLaunch()).toEqual({
+      ok: true,
+      requiredRevision: 1,
+    });
+    one.disconnect();
+    two.disconnect();
+  });
+
+  it('counts a frame committed DURING hydration as delivered', async () => {
+    // The join reads the head, then reads the tail. A commit landing
+    // between the two is buffered and streamed to this participant, so it
+    // was delivered — and if the watermark stopped at the head instead,
+    // acknowledging that frame would be refused 'ahead-of-delivery' and
+    // the launch would be blocked by a player who is not behind at all.
+    const { host, session } = newSession();
+    await session.open();
+
+    const log = host.getEventLog();
+    const realRead = log.getCampaignEvents.bind(log);
+    let raced = false;
+    const spy = jest
+      .spyOn(log, 'getCampaignEvents')
+      .mockImplementation(async (from?: number) => {
+        if (!raced) {
+          raced = true;
+          // Commits while the join is mid-hydration: the live
+          // subscription is already attached, so this is buffered.
+          await host.handleIntent({
+            kind: 'AdvanceDay',
+            campaignId: CAMPAIGN_ID,
+            intentId: 'raced-in',
+            payload: {},
+          });
+        }
+        return realRead(from);
+      });
+
+    const saw: ICampaignEvent[] = [];
+    const joined = await session.joinMember((e) => saw.push(e), 'racer');
+    spy.mockRestore();
+
+    expect(joined.ok).toBe(true);
+    expect(saw.map((e) => e.sequence)).toEqual([-1, 1]);
+
+    expect(session.noteParticipantAcknowledged('racer', 1)).toBe('applied');
+    expect(await session.evaluateScenarioLaunch()).toEqual({
+      ok: true,
+      requiredRevision: 1,
+    });
+    joined.disconnect();
+  });
+
   it('ignores an acknowledgement from a participant who is not retained', async () => {
     // A stranger must not be able to add themselves to the set the launch
     // is waiting on. The stranger names a BEHIND revision on purpose: an
     // ack at the head would leave the gate open even if the stranger WERE
     // admitted, so it would prove nothing about the guard.
     const { session, stop } = await twoMembersOneEventBehind();
-    await session.noteParticipantAcknowledged('player-1', 1);
-    await session.noteParticipantAcknowledged('player-2', 1);
+    session.noteParticipantAcknowledged('player-1', 1);
+    session.noteParticipantAcknowledged('player-2', 1);
 
-    expect(await session.noteParticipantAcknowledged('stranger', 0)).toBe(
+    expect(session.noteParticipantAcknowledged('stranger', 0)).toBe(
       'unknown-participant',
     );
 
@@ -376,12 +490,10 @@ describe('CampaignSyncSession — scenario progression requires convergence', ()
     // A late frame from a superseded connection must not un-converge a
     // participant who has already caught up.
     const { session, stop } = await twoMembersOneEventBehind();
-    await session.noteParticipantAcknowledged('player-1', 1);
-    await session.noteParticipantAcknowledged('player-2', 1);
+    session.noteParticipantAcknowledged('player-1', 1);
+    session.noteParticipantAcknowledged('player-2', 1);
 
-    expect(await session.noteParticipantAcknowledged('player-1', 0)).toBe(
-      'stale',
-    );
+    expect(session.noteParticipantAcknowledged('player-1', 0)).toBe('stale');
 
     expect((await session.evaluateScenarioLaunch()).ok).toBe(true);
     stop();
@@ -394,19 +506,19 @@ describe('CampaignSyncSession — scenario progression requires convergence', ()
     // false against the required revision for the life of the session.
     const { session, stop } = await twoMembersOneEventBehind();
 
-    expect(
-      await session.noteParticipantAcknowledged('player-2', Number.NaN),
-    ).toBe('invalid-revision');
-    expect(await session.noteParticipantAcknowledged('player-2', 1.5)).toBe(
+    expect(session.noteParticipantAcknowledged('player-2', Number.NaN)).toBe(
       'invalid-revision',
     );
-    expect(await session.noteParticipantAcknowledged('player-2', -1)).toBe(
+    expect(session.noteParticipantAcknowledged('player-2', 1.5)).toBe(
+      'invalid-revision',
+    );
+    expect(session.noteParticipantAcknowledged('player-2', -1)).toBe(
       'invalid-revision',
     );
 
     // The gate is the real assertion — a refused outcome string that
     // still poisoned the ledger would be no better than accepting it.
-    await session.noteParticipantAcknowledged('player-1', 1);
+    session.noteParticipantAcknowledged('player-1', 1);
     const gate = await session.evaluateScenarioLaunch();
     expect(gate.ok).toBe(false);
     if (!gate.ok) {
@@ -466,7 +578,7 @@ describe('CampaignSyncSession — scenario progression requires convergence', ()
       ok: true,
       requiredRevision: 1,
     });
-    expect(await session.noteParticipantAcknowledged('half-joined', 1)).toBe(
+    expect(session.noteParticipantAcknowledged('half-joined', 1)).toBe(
       'unknown-participant',
     );
   });
@@ -495,9 +607,7 @@ describe('CampaignSyncSession — scenario progression requires convergence', ()
       requiredRevision: 3,
     });
     // And they are genuinely at 3, not merely absent from the ledger.
-    expect(await session.noteParticipantAcknowledged('latecomer', 3)).toBe(
-      'stale',
-    );
+    expect(session.noteParticipantAcknowledged('latecomer', 3)).toBe('stale');
     latecomer.disconnect();
   });
 });
