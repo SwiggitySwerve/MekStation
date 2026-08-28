@@ -24,6 +24,7 @@ import {
   type IHumanActionRequest,
 } from './authorization/HumanActionAuthorizationGate';
 import { MembershipSourceUnavailableError } from './authorization/MatchSeatMembershipSource';
+import { hasPublicationOutbox } from './IMatchStore';
 import { isSpectatorPlayer } from './lobby/spectatorSeats';
 import { dispatchToEngine } from './ServerMatchHostEngineDispatch';
 import { stampIntentIdOnNewEvents } from './ServerMatchHostEvents';
@@ -271,6 +272,13 @@ export async function handleIntent(
     broadcast: ctx.broadcast,
     broadcastEvent: ctx.broadcastEvent,
     closeMatch: ctx.closeMatch,
+    // Offered only when the store keeps one. NOTHING PUTS ROWS IN IT ON
+    // THIS PATH TODAY: the outbox is written inside
+    // `appendCommandBatch`'s transaction, and this path still commits
+    // event-at-a-time through `appendEvent` (umbrella task 3.1 owns the
+    // switch). So the resume pass is inert here until that lands, and
+    // the marking pass is a no-op UPDATE over rows that do not exist.
+    ...(hasPublicationOutbox(ctx.store) ? { publications: ctx.store } : {}),
   });
   broadcasts.push(...published.messages);
   if (!published.committed) return broadcasts;
