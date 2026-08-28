@@ -1,4 +1,13 @@
-import { credentialProtocols } from '@/lib/multiplayer/socketCredentialProtocol';
+import type { IVaultIdentity } from '@/types/vault';
+
+import { issuePlayerToken } from '@/lib/multiplayer/client/issuePlayerToken';
+import {
+  credentialProtocols,
+  fromBase64Url,
+  WS_CREDENTIAL_PREFIX,
+} from '@/lib/multiplayer/socketCredentialProtocol';
+import { generateKeyPair } from '@/services/vault/IdentityService';
+import { decodeTokenFromWire } from '@/types/multiplayer/Player';
 
 import type { ICampaignSyncWebSocket } from '../campaignSyncTransport';
 
@@ -98,6 +107,43 @@ describe('campaignSyncTransport', () => {
       role: 'guest',
       roomCode: 'ABC234',
       token: 'wire-token',
+    });
+  });
+
+  it('puts a campaign-session-scoped token on the credential subprotocol', async () => {
+    const kp = await generateKeyPair();
+    const identity: IVaultIdentity = {
+      id: 'identity-id',
+      displayName: 'Campaign Pilot',
+      publicKey: Buffer.from(kp.publicKey).toString('base64'),
+      privateKey: Buffer.from(kp.privateKey).toString('base64'),
+      friendCode: 'AAAA-BBBB-CCCC-DDDD',
+      createdAt: new Date().toISOString(),
+    };
+    const token = await issuePlayerToken(identity, {
+      scope: { kind: 'campaign-session', id: 'match-1' },
+    });
+    const sockets = makeSocketFactory();
+    connectCampaignSyncTransport({
+      matchId: 'match-1',
+      role: 'guest',
+      playerId: token.playerId,
+      wireToken: token,
+      url: 'ws://example.test/api/multiplayer/socket',
+      socketFactory: sockets.factory,
+    });
+
+    const offered = sockets.offered[0] ?? [];
+    const credential = offered.find((entry) =>
+      entry.startsWith(WS_CREDENTIAL_PREFIX),
+    );
+    expect(credential).toBeDefined();
+    const wire = fromBase64Url(
+      (credential ?? '').slice(WS_CREDENTIAL_PREFIX.length),
+    );
+    expect(decodeTokenFromWire(wire)?.scope).toEqual({
+      kind: 'campaign-session',
+      id: 'match-1',
     });
   });
 

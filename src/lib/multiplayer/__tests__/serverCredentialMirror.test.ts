@@ -59,4 +59,13 @@ describe('server.js credential mirror', () => {
       'protocols.has(WS_PROTOCOL_VERSION) ? WS_PROTOCOL_VERSION : false',
     );
   });
+
+  it('threads expectedScope into the existing verifyWireToken site', () => {
+    expect(serverSource).toContain(
+      "channel === 'campaign'\n          ? { kind: 'campaign-session', id: matchId }\n          : { kind: 'match', id: matchId }",
+    );
+    expect(serverSource).toContain(
+      'verifyWireToken(token, Date.now(), expectedScope)',
+    );
+  });
 });

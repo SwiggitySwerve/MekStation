@@ -24,6 +24,7 @@ import type { NextApiRequest } from 'next';
 import {
   decodeTokenFromWire,
   type IPlayerToken,
+  type IPlayerTokenScope,
 } from '@/types/multiplayer/Player';
 
 import { derivePlayerId } from './playerIdFromPublicKey';
@@ -84,8 +85,19 @@ export function canonicalTokenPayload(args: {
   playerId: string;
   issuedAt: string;
   expiresAt: string;
+  scope?: IPlayerTokenScope;
 }): string {
   // Keys spelled in alphabetical order — matches the client signer.
+  // `scope` is inside the signed bytes when present; omitting the key
+  // keeps identity tokens byte-identical with the pre-scope payload.
+  if (args.scope) {
+    return JSON.stringify({
+      expiresAt: args.expiresAt,
+      issuedAt: args.issuedAt,
+      playerId: args.playerId,
+      scope: { id: args.scope.id, kind: args.scope.kind },
+    });
+  }
   return JSON.stringify({
     expiresAt: args.expiresAt,
     issuedAt: args.issuedAt,
@@ -103,7 +115,9 @@ export type IVerifyFailureReason =
   | 'expired'
   | 'clock-drift'
   | 'pid-mismatch'
-  | 'bad-signature';
+  | 'bad-signature'
+  | 'scope-mismatch'
+  | 'scope-unchecked';
 
 export interface IVerifySuccess {
   ok: true;
@@ -124,9 +138,19 @@ export type IVerifyResult = IVerifySuccess | IVerifyFailure;
  * result so callers can both branch and log the failure reason. Time is
  * injected via `nowMs` for tests; defaults to `Date.now()`.
  */
+export function expectedScopeForSocket(
+  channel: string | undefined | null,
+  matchId: string,
+): IPlayerTokenScope {
+  return channel === 'campaign'
+    ? { kind: 'campaign-session', id: matchId }
+    : { kind: 'match', id: matchId };
+}
+
 export async function verifyPlayerToken(
   token: IPlayerToken | null,
   nowMs: number = Date.now(),
+  expectedScope?: IPlayerTokenScope,
 ): Promise<IVerifyResult> {
   if (!token) return { ok: false, reason: 'malformed' };
 
@@ -179,6 +203,7 @@ export async function verifyPlayerToken(
     playerId: token.playerId,
     issuedAt: token.issuedAt,
     expiresAt: token.expiresAt,
+    scope: token.scope,
   });
   const payloadBytes = new TextEncoder().encode(payload);
 
@@ -203,6 +228,23 @@ export async function verifyPlayerToken(
   }
   if (!verified) {
     return { ok: false, reason: 'bad-signature' };
+  }
+
+  // Scope binding is after the signature so a rewritten scope id fails
+  // as bad-signature (the scope is inside the canonical bytes), not as
+  // a comparison miss. A token with no scope is still accepted when
+  // expectedScope was passed — transition residual; cutover is future
+  // work (reject scopeless socket tokens).
+  if (token.scope) {
+    if (expectedScope === undefined) {
+      return { ok: false, reason: 'scope-unchecked' };
+    }
+    if (
+      token.scope.kind !== expectedScope.kind ||
+      token.scope.id !== expectedScope.id
+    ) {
+      return { ok: false, reason: 'scope-mismatch' };
+    }
   }
 
   return {
@@ -256,6 +298,9 @@ function readQueryToken(req: NextApiRequest): string | null {
  * Convenience wrapper used by REST handlers — grab a token, verify it,
  * and return either the verified result or null. Caller decides on the
  * 401 response shape.
+ *
+ * REST does not pass expectedScope. A scoped socket token presented
+ * here fails closed (`scope-unchecked`) rather than silently widening.
  */
 export async function authenticateRequest(
   req: NextApiRequest,

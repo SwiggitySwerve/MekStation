@@ -9,10 +9,19 @@
  *   - Reconnect schedules with exponential backoff
  */
 
+import type { IVaultIdentity } from '@/types/vault';
+
+import { generateKeyPair } from '@/services/vault/IdentityService';
+import { decodeTokenFromWire } from '@/types/multiplayer/Player';
 import { HEARTBEAT_TIMEOUT_MS } from '@/types/multiplayer/Protocol';
 
 import { connect, type IClientWebSocket } from '../client';
-import { credentialProtocols } from '../socketCredentialProtocol';
+import { issuePlayerToken } from '../client/issuePlayerToken';
+import {
+  credentialProtocols,
+  fromBase64Url,
+  WS_CREDENTIAL_PREFIX,
+} from '../socketCredentialProtocol';
 
 // Stand-in for `setTimeout` we can drive deterministically.
 jest.useFakeTimers();
@@ -143,6 +152,42 @@ describe('multiplayer client', () => {
     expect(f.urls[0]).not.toContain('token=');
     expect(f.urls[0]).not.toContain('tok');
     expect(f.offered[0]).toEqual(credentialProtocols('tok'));
+  });
+
+  it('puts a match-scoped structured token on the credential subprotocol', async () => {
+    const kp = await generateKeyPair();
+    const identity: IVaultIdentity = {
+      id: 'identity-id',
+      displayName: 'Scoped Pilot',
+      publicKey: Buffer.from(kp.publicKey).toString('base64'),
+      privateKey: Buffer.from(kp.privateKey).toString('base64'),
+      friendCode: 'AAAA-BBBB-CCCC-DDDD',
+      createdAt: new Date().toISOString(),
+    };
+    const token = await issuePlayerToken(identity, {
+      scope: { kind: 'match', id: 'm1' },
+    });
+    const f = makeMockSocketFactory();
+    connect(
+      'ws://localhost/x',
+      'm1',
+      { playerId: token.playerId, token },
+      { socketFactory: f.factory, reconnect: false },
+    );
+
+    const offered = f.offered[0] ?? [];
+    const credential = offered.find((entry) =>
+      entry.startsWith(WS_CREDENTIAL_PREFIX),
+    );
+    expect(credential).toBeDefined();
+    const wire = fromBase64Url(
+      (credential ?? '').slice(WS_CREDENTIAL_PREFIX.length),
+    );
+    expect(decodeTokenFromWire(wire)?.scope).toEqual({
+      kind: 'match',
+      id: 'm1',
+    });
+    expect(credentialProtocols(wire)).toEqual(offered);
   });
 
   it('keeps a quiet session alive by sending heartbeats', () => {

@@ -13,6 +13,10 @@ import {
   type ICampaignReconcileBattleIntent,
 } from '@/types/campaign/CampaignSync';
 import {
+  encodeTokenForWire,
+  type IPlayerToken,
+} from '@/types/multiplayer/Player';
+import {
   ClientMessageSchema,
   nowIso,
   ServerMessageSchema,
@@ -57,7 +61,7 @@ export interface IConnectCampaignSyncOptions {
   readonly matchId: string;
   readonly role: 'host' | 'guest';
   readonly playerId: string;
-  readonly wireToken: string;
+  readonly wireToken: string | IPlayerToken;
   readonly roomCode?: string;
   readonly lastSeq?: number;
   readonly url?: string;
@@ -83,9 +87,10 @@ export function connectCampaignSyncTransport(
   const pendingOutbound: ICampaignClientMessage[] = [];
   let lastSeq = options.lastSeq ?? -1;
   let closed = false;
+  const wireToken = encodeCampaignSocketToken(options.wireToken);
   const socket = (options.socketFactory ?? defaultSocketFactory())(
     buildCampaignSyncSocketUrl(options),
-    credentialProtocols(options.wireToken),
+    credentialProtocols(wireToken),
   );
 
   const emitError = (error: unknown): void => {
@@ -180,7 +185,7 @@ export function connectCampaignSyncTransport(
       ts: nowIso(),
       playerId: options.playerId,
       role: options.role,
-      token: options.wireToken,
+      token: wireToken,
       roomCode: options.roomCode,
       ...(lastSeq >= 0 ? { lastSeq } : {}),
     });
@@ -268,6 +273,10 @@ export function registerCampaignSyncTransport(
       activeTransports.delete(transport.matchId);
     }
   };
+}
+
+function encodeCampaignSocketToken(token: string | IPlayerToken): string {
+  return typeof token === 'string' ? token : encodeTokenForWire(token);
 }
 
 function buildCampaignSyncSocketUrl(

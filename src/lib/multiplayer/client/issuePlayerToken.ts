@@ -18,7 +18,10 @@
  * @spec openspec/changes/add-player-identity-and-auth/specs/player-identity/spec.md
  */
 
-import type { IPlayerToken } from '@/types/multiplayer/Player';
+import type {
+  IPlayerToken,
+  IPlayerTokenScope,
+} from '@/types/multiplayer/Player';
 import type { IVaultIdentity } from '@/types/vault';
 
 import { canonicalTokenPayload } from '@/lib/multiplayer/server/auth';
@@ -70,6 +73,8 @@ export interface IIssueTokenOptions {
   cache?: ITokenCache;
   /** Inject a clock for tests. */
   nowMs?: number;
+  /** Socket binding. REST callers omit this (identity token). */
+  scope?: IPlayerTokenScope;
 }
 
 /**
@@ -100,11 +105,17 @@ export async function issuePlayerToken(
   const refreshWindowMs = options.refreshWindowMs ?? DEFAULT_REFRESH_WINDOW_MS;
   const nowMs = options.nowMs ?? Date.now();
 
-  // Cache hit path — reuse the existing token if it's not near expiry.
+  // Cache hit path — reuse the existing token if it's not near expiry
+  // and the requested scope matches. A match-A token must not be handed
+  // to a match-B socket.
   if (options.cache?.current) {
     const cached = options.cache.current;
     const expiresMs = Date.parse(cached.expiresAt);
-    if (Number.isFinite(expiresMs) && expiresMs - nowMs > refreshWindowMs) {
+    if (
+      Number.isFinite(expiresMs) &&
+      expiresMs - nowMs > refreshWindowMs &&
+      sameTokenScope(cached.scope, options.scope)
+    ) {
       return cached;
     }
   }
@@ -115,8 +126,14 @@ export async function issuePlayerToken(
   const playerId = derivePlayerId(publicKeyBytes);
   const issuedAt = new Date(nowMs).toISOString();
   const expiresAt = new Date(nowMs + ttlMs).toISOString();
+  const scope = options.scope;
 
-  const payload = canonicalTokenPayload({ playerId, issuedAt, expiresAt });
+  const payload = canonicalTokenPayload({
+    playerId,
+    issuedAt,
+    expiresAt,
+    scope,
+  });
   const payloadBytes = new TextEncoder().encode(payload);
   const signatureBytes = await signData(payloadBytes, privateKeyBytes);
 
@@ -126,6 +143,7 @@ export async function issuePlayerToken(
     expiresAt,
     publicKey: toBase64(publicKeyBytes),
     signature: toBase64(signatureBytes),
+    ...(scope ? { scope } : {}),
   };
 
   if (options.cache) {
@@ -140,4 +158,13 @@ export async function issuePlayerToken(
  */
 export function invalidateTokenCache(cache: ITokenCache): void {
   cache.current = null;
+}
+
+function sameTokenScope(
+  cached: IPlayerTokenScope | undefined,
+  requested: IPlayerTokenScope | undefined,
+): boolean {
+  if (cached === undefined && requested === undefined) return true;
+  if (cached === undefined || requested === undefined) return false;
+  return cached.kind === requested.kind && cached.id === requested.id;
 }

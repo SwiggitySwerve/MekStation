@@ -48,11 +48,28 @@ export const PlayerRefSchema = z.object({
 // =============================================================================
 
 /**
+ * Optional binding of a bearer token to one socket surface. When
+ * present it is part of the signed canonical payload — a scope sitting
+ * outside the signature is decoration an attacker rewrites.
+ */
+export type IPlayerTokenScopeKind = 'match' | 'campaign-session';
+
+export interface IPlayerTokenScope {
+  readonly kind: IPlayerTokenScopeKind;
+  readonly id: string;
+}
+
+export const PlayerTokenScopeSchema = z.object({
+  kind: z.enum(['match', 'campaign-session']),
+  id: z.string().min(1),
+});
+
+/**
  * Signed bearer token. The signature covers the canonical JSON
- * representation of `{playerId, issuedAt, expiresAt}` (object keys
- * sorted) under the embedded Ed25519 `publicKey`. Both signer and
- * verifier MUST produce byte-identical canonical strings — see
- * `canonicalTokenPayload` in `auth.ts`.
+ * representation of `{playerId, issuedAt, expiresAt}` plus `scope`
+ * when present (object keys sorted) under the embedded Ed25519
+ * `publicKey`. Both signer and verifier MUST produce byte-identical
+ * canonical strings — see `canonicalTokenPayload` in `auth.ts`.
  *
  * `publicKey` is embedded so the server can verify without a key
  * directory lookup. The verifier still cross-checks that `playerId` is
@@ -68,6 +85,8 @@ export interface IPlayerToken {
   readonly publicKey: string;
   /** Ed25519 signature over the canonical payload, base64-encoded. */
   readonly signature: string;
+  /** Socket binding. Absent on identity tokens (REST) and during cutover. */
+  readonly scope?: IPlayerTokenScope;
 }
 
 export const PlayerTokenSchema = z.object({
@@ -78,6 +97,7 @@ export const PlayerTokenSchema = z.object({
   expiresAt: z.string().min(1),
   publicKey: z.string().min(1),
   signature: z.string().min(1),
+  scope: PlayerTokenScopeSchema.optional(),
 });
 
 // =============================================================================
