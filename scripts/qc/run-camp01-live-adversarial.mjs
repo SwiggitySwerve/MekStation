@@ -93,10 +93,17 @@ async function envelopeAnchorProbe({ scratchRoot }) {
   let git;
   try {
     git = await resolveVerifiedGit({ cwd: initiatingRoot });
-  } catch {
+  } catch (error) {
+    // The resolver fails with a stage-naming message - executable
+    // missing, version probe failed, version drift. Discarding it here
+    // once cost two CI rounds of guessing which stage broke on a runner
+    // nobody can shell into; the skip now carries the stage verbatim.
     return {
       status: 'skipped-with-reason',
-      reason: { code: 'VERIFIED_GIT_UNAVAILABLE' },
+      reason: {
+        code: 'VERIFIED_GIT_UNAVAILABLE',
+        message: error instanceof Error ? error.message : String(error),
+      },
     };
   }
   // prettier-ignore
