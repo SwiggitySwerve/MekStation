@@ -6,11 +6,13 @@ import { REPOSITORY_IDENTITY } from './camp01-authority-receipt.contract.mjs';
 
 // prettier-ignore
 // Known-good Git builds, extended DELIBERATELY when an environment updates.
-// windows-2025 runner images ship 2.55.0.windows.4 (win25-vs2026/20260818.207);
+// windows-2025 runner images: the win25-vs2026/20260818.207 readme names
+// 2.55.0.windows.4 but the binary MEASURED 2.55.0.windows.5 (probe evidence,
+// 2026-08-28) - trust the measurement, keep both;
 // operator machines run 2.54.0.windows.1. An exact single pin broke the live
 // probes on every runner-image bump; an allowlist keeps the tamper property -
 // an UNKNOWN version still fails closed - while naming each accepted build.
-export const CAMP01_GIT_VERSIONS=Object.freeze(['2.54.0.windows.1','2.55.0.windows.4']);
+export const CAMP01_GIT_VERSIONS=Object.freeze(['2.54.0.windows.1','2.55.0.windows.4','2.55.0.windows.5']);
 export const CAMP01_GIT_VERSION = CAMP01_GIT_VERSIONS[0],
   CAMP01_GIT_FETCH_URL = 'https://github.com/SwiggitySwerve/MekStation.git';
 const OID = /^[0-9a-f]{40}$/;
