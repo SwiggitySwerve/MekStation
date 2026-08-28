@@ -85,4 +85,17 @@ describe('ViewerDeliveryCursors resume translation', () => {
     expect(cursors.issued('p1')).toBe(0);
     expect(cursors.firstMissedAuthoritySequence('p1', 0)).toBeNull();
   });
+
+  it('finds the delivery index already issued for an authority sequence', () => {
+    const cursors = new ViewerDeliveryCursors();
+    expect(cursors.assign('p1', 2)).toBe(0);
+    expect(cursors.assign('p1', 5)).toBe(1);
+    expect(cursors.assign('p1', 9)).toBe(2);
+
+    expect(cursors.deliverySequenceOf('p1', 2)).toBe(0);
+    expect(cursors.deliverySequenceOf('p1', 5)).toBe(1);
+    expect(cursors.deliverySequenceOf('p1', 9)).toBe(2);
+    expect(cursors.deliverySequenceOf('p1', 7)).toBeNull();
+    expect(cursors.deliverySequenceOf('never-seen', 2)).toBeNull();
+  });
 });

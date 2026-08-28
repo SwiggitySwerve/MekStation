@@ -238,11 +238,11 @@ function paginationEvents(count: number): readonly IGameEvent[] {
   })) as unknown as readonly IGameEvent[];
 }
 
-/** The same row as a viewer holds it, with the stamp removed. */
+/** The same row as a player viewer holds it, stamps removed. */
 function withoutVisibility(event: IGameEvent): Record<string, unknown> {
   const kept: Record<string, unknown> = {};
   for (const [key, value] of Object.entries(event)) {
-    if (key === 'visibility') continue;
+    if (key === 'visibility' || key === 'sequence') continue;
     kept[key] = value;
   }
   return kept;
@@ -444,8 +444,8 @@ describe('viewer publication boundary', () => {
       expect(guardedReplay.frames.chunks[0]?.kind).toBe('ReplayChunk');
       if (guardedReplay.frames.chunks[0]?.kind !== 'ReplayChunk') return;
       expect(guardedReplay.frames.chunks[0].events).toEqual([
-        { type: 'public_alpha', payload: { headline: 'A' }, sequence: 1 },
-        { type: 'public_beta', payload: { headline: 'B' }, sequence: 3 },
+        { type: 'public_alpha', payload: { headline: 'A' } },
+        { type: 'public_beta', payload: { headline: 'B' } },
       ]);
       if (guardedReplay.frames.start.kind === 'ReplayStart') {
         expect(guardedReplay.frames.start.totalEvents).toBe(2);

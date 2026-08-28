@@ -105,29 +105,40 @@ function makeSocket() {
   };
 }
 
-/** Authority sequences a socket was sent, live or replayed. */
+/** Delivery numbers a socket was sent, live or replayed. */
 function deliveredEvents(socket: { sent: unknown[] }): {
-  sequence: number;
+  sequence?: number;
   deliverySequence?: number;
+  id?: string;
 }[] {
-  const out: { sequence: number; deliverySequence?: number }[] = [];
+  const out: {
+    sequence?: number;
+    deliverySequence?: number;
+    id?: string;
+  }[] = [];
   for (const raw of socket.sent as {
     kind?: string;
-    event?: { sequence: number };
-    events?: { sequence: number }[];
+    event?: { sequence?: number; id?: string };
+    events?: { sequence?: number; id?: string }[];
     deliverySequence?: number;
+    deliverySequences?: number[];
   }[]) {
     if (raw?.kind === 'Event' && raw.event !== undefined) {
       out.push({
         sequence: raw.event.sequence,
         deliverySequence: raw.deliverySequence,
+        id: raw.event.id,
       });
       continue;
     }
-    // A replay arrives as chunks, not as individual live frames.
     if (raw?.kind === 'ReplayChunk' && Array.isArray(raw.events)) {
-      for (const event of raw.events) {
-        out.push({ sequence: (event as { sequence: number }).sequence });
+      for (let index = 0; index < raw.events.length; index += 1) {
+        const event = raw.events[index];
+        out.push({
+          sequence: event.sequence,
+          deliverySequence: raw.deliverySequences?.[index],
+          id: event.id,
+        });
       }
     }
   }
@@ -220,12 +231,36 @@ describe('resuming a viewer from their delivery cursor', () => {
       0,
     );
 
-    const replayed = deliveredEvents(resumeSocket).map((e) => e.sequence);
-    const firstMissing = live[1]?.sequence;
-    expect(typeof firstMissing).toBe('number');
+    const replayed = deliveredEvents(resumeSocket);
+    const firstMissing = live[1];
+    expect(typeof firstMissing?.deliverySequence).toBe('number');
     // The whole point of the recovery: the first frame they lack has to
-    // be in what comes back.
-    expect(replayed).toContain(firstMissing);
+    // be in what comes back, under the SAME delivery number live used.
+    expect(replayed.map((e) => e.deliverySequence)).toContain(
+      firstMissing?.deliverySequence,
+    );
+    expect(replayed.map((e) => e.id)).toContain(firstMissing?.id);
+  });
+
+  it('reuses delivery numbers for events already in the viewer record', async () => {
+    const { host, matchId, sockA } = await seatedHost();
+    for (let n = 0; n < 3; n += 1) await advance(host, n);
+
+    const live = deliveredEvents(sockA);
+    expect(live.length).toBeGreaterThan(1);
+
+    const resumeSocket = makeSocket();
+    await host.handleSessionJoin(
+      resumeSocket as never,
+      'pA',
+      undefined,
+      matchId,
+      0,
+    );
+
+    const replayed = deliveredEvents(resumeSocket);
+    const expected = live.slice(1).map((e) => e.deliverySequence);
+    expect(replayed.map((e) => e.deliverySequence)).toEqual(expected);
   });
 
   it('still replays from the start for a viewer with no delivery record', async () => {
@@ -238,7 +273,7 @@ describe('resuming a viewer from their delivery cursor', () => {
     const cold = makeSocket();
     await host.handleSessionJoin(cold as never, 'pB', undefined, matchId, 7);
 
-    const seqs = deliveredEvents(cold).map((e) => e.sequence);
+    const seqs = deliveredEvents(cold).map((e) => e.deliverySequence ?? -1);
     expect(seqs.length).toBeGreaterThan(0);
     expect(Math.min(...seqs)).toBe(0);
   });

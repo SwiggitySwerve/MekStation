@@ -47,6 +47,25 @@ export class ViewerDeliveryCursors {
   }
 
   /**
+   * The delivery index already issued for this authority sequence, or
+   * null when this viewer has never been sent that event.
+   *
+   * Replay uses this to reuse a number rather than call `assign` again:
+   * a second assign for an event already in the record is the same
+   * double-numbering defect as #1406 (two sockets splitting one
+   * viewer's stream).
+   */
+  deliverySequenceOf(
+    playerId: string,
+    authoritySequence: number,
+  ): number | null {
+    const list = this.delivered.get(playerId);
+    if (list === undefined) return null;
+    const index = list.indexOf(authoritySequence);
+    return index >= 0 ? index : null;
+  }
+
+  /**
    * The authority sequence of the FIRST frame this viewer missed after
    * `cursor`, or null when they are already current.
    *

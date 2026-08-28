@@ -33,6 +33,7 @@ import type { IClientWebSocket } from '../client';
 import type { IMatchSocket } from '../server/ServerMatchSocketTypes';
 
 import { connect } from '../client';
+import { buildMirrorSession, orderGameEvents } from '../mirrorMatchSession';
 import { InMemoryMatchStore } from '../server/InMemoryMatchStore';
 import { ServerMatchHost } from '../server/ServerMatchHost';
 
@@ -120,11 +121,11 @@ async function fogHost(): Promise<ServerMatchHost> {
 describe('real client against a real fog-of-war server', () => {
   it('keeps applying events after the server withholds one', async () => {
     // The regression this file exists for. The server drops events the
-    // viewer cannot see while keeping the authority sequence on the
-    // rest, so the client meets a hole it must not wait on.
+    // viewer cannot see. Delivery numbering is gapless, so the client
+    // must not stall on a withheld authority sequence.
     const host = await fogHost();
     const link = duplexLink();
-    const applied: { sequence: number }[] = [];
+    const applied: { id?: string; sequence?: number }[] = [];
 
     const client = connect(
       'ws://in-memory/x',
@@ -169,24 +170,30 @@ describe('real client against a real fog-of-war server', () => {
     const delivered = link.sentToClient
       .map(
         (raw) =>
-          JSON.parse(raw) as { kind: string; event?: { sequence: number } },
+          JSON.parse(raw) as {
+            kind: string;
+            deliverySequence?: number;
+            event?: { id?: string; sequence?: number };
+          },
       )
-      .filter((message) => message.kind === 'Event')
-      .map((message) => message.event?.sequence ?? -1);
-
-    // The server really did withhold something - otherwise this test
-    // proves nothing about sparsity and would pass against a contiguous
-    // stream too.
-    const hasHole = delivered.some(
-      (sequence, index) => index > 0 && sequence !== delivered[index - 1] + 1,
+      .filter((message) => message.kind === 'Event');
+    const deliveredIds = delivered.map((message) => message.event?.id ?? '');
+    const deliveredDelivery = delivered.map(
+      (message) => message.deliverySequence ?? -1,
     );
-    expect(delivered.length).toBeGreaterThan(0);
-    expect(hasHole).toBe(true);
 
-    // And the client applied everything it was given, INCLUDING the
-    // events after the hole. A client that stalled at the gap would
-    // stop here, which is exactly what #1369 would have done.
-    expect(applied.map((event) => event.sequence)).toEqual(delivered);
+    expect(delivered.length).toBeGreaterThan(0);
+    const deliveryHasHole = deliveredDelivery.some(
+      (sequence, index) =>
+        index > 0 && sequence !== deliveredDelivery[index - 1] + 1,
+    );
+    expect(deliveryHasHole).toBe(false);
+
+    // And the client applied everything it was given. A client that
+    // stalled at a withheld authority sequence would stop here.
+    expect(applied.map((event) => (event as { id?: string }).id ?? '')).toEqual(
+      deliveredIds,
+    );
   });
 
   it('recovers a frame lost in transit, end to end', async () => {
@@ -205,8 +212,8 @@ describe('real client against a real fog-of-war server', () => {
     // already moved the high-water past it.
     const host = await fogHost();
     const joins: (() => Promise<void>)[] = [];
-    const dropped: number[] = [];
-    const applied: { sequence: number }[] = [];
+    const dropped: string[] = [];
+    const applied: { sequence?: number; id?: string }[] = [];
     const gapReports: unknown[] = [];
     let dropNextEvent = false;
 
@@ -242,14 +249,14 @@ describe('real client against a real fog-of-war server', () => {
       send(data: string) {
         const frame = JSON.parse(data) as {
           kind: string;
-          event?: { sequence: number };
+          event?: { sequence?: number; id?: string };
         };
         if (dropNextEvent && frame.kind === 'Event') {
           // The loss. The server has already taken this viewer's next
           // delivery number for it, which is exactly what makes the
           // hole visible downstream.
           dropNextEvent = false;
-          dropped.push(frame.event?.sequence ?? -1);
+          dropped.push(frame.event?.id ?? '');
           return;
         }
         clientSide.onmessage?.({ data });
@@ -306,7 +313,7 @@ describe('real client against a real fog-of-war server', () => {
     expect(gapReports.length).toBeGreaterThan(0);
 
     // And the lost event is HELD, not merely asked about.
-    expect(applied.map((event) => event.sequence)).toContain(dropped[0]);
+    expect(applied.map((event) => event.id)).toContain(dropped[0]);
   });
 
   it('advances its resume cursor past a withheld sequence', async () => {
@@ -346,13 +353,20 @@ describe('real client against a real fog-of-war server', () => {
     const delivered = link.sentToClient
       .map(
         (raw) =>
-          JSON.parse(raw) as { kind: string; event?: { sequence: number } },
+          JSON.parse(raw) as {
+            kind: string;
+            deliverySequence?: number;
+            event?: { sequence?: number };
+          },
       )
-      .filter((message) => message.kind === 'Event')
-      .map((message) => message.event?.sequence ?? -1);
-    const highest = Math.max(...delivered);
-
-    expect(client.lastSeq()).toBe(highest);
+      .filter((message) => message.kind === 'Event');
+    expect(delivered.length).toBeGreaterThan(0);
+    // Authority sequence is gone from player frames, so lastSeq is no
+    // longer an authority high-water. Resume quotes deliveryCursor.
+    expect(
+      delivered.every((message) => message.event?.sequence === undefined),
+    ).toBe(true);
+    expect(client.lastSeq()).toBe(-1);
   });
 
   it('applies, gaps, resyncs, and recovers when event.sequence is stripped', async () => {
@@ -492,7 +506,21 @@ describe('real client against a real fog-of-war server', () => {
     await drainJoins();
 
     expect(sawStrippedLiveEvent).toBe(true);
-    expect(applied.every((event) => event.sequence === undefined)).toBe(true);
+    // Emitted events carry the client's LOCAL stamp - the delivery
+    // number, this mirror's log position - never the authority
+    // sequence. Ascending and duplicate-free is the property; the raw
+    // wire frames carried no sequence at all (asserted above).
+    const localSequences = applied.map((event) => event.sequence);
+    expect(localSequences.every((value) => typeof value === 'number')).toBe(
+      true,
+    );
+    // Arrival order is NOT ascending here by design: the dropped frame
+    // is recovered late carrying its ORIGINAL number. The property is
+    // duplicate-free and, once recovery lands, contiguous.
+    const numeric = localSequences as number[];
+    expect(new Set(numeric).size).toBe(numeric.length);
+    const sorted = [...numeric].sort((a, b) => a - b);
+    expect(sorted[sorted.length - 1]! - sorted[0]!).toBe(sorted.length - 1);
     expect(droppedIds).toHaveLength(1);
     expect(gapReports.length).toBeGreaterThan(0);
     expect(joinMessages.length).toBeGreaterThan(0);
@@ -521,6 +549,77 @@ describe('real client against a real fog-of-war server', () => {
  * `deliverySequence` is left intact: that is the number slice A keys
  * on, and the number slice B will still send.
  */
+// =============================================================================
+// The live shape: a sequence-stripped stream must still hydrate a mirror.
+// =============================================================================
+
+it('what the client emits from a sequence-stripped stream still hydrates a mirror', async () => {
+  // The strip removes the authority sequence from player frames, and the
+  // global isGameEvent guard rightly still requires one - engine events
+  // always carry it. The bridge is the client: the delivery number IS
+  // this mirror's local log position (the same meaning hydration gives
+  // its own locally-appended events), so the client stamps it onto
+  // sequence-less wire events at emission. Without the stamp every
+  // emitted event fails isGameEvent, the mirror log stays empty, and a
+  // real player sits at "loading match..." forever - while hook tests
+  // stay green on locally-built events that still carry sequences.
+  const host = await fogHost();
+  const emitted: unknown[] = [];
+  const clientSide: IClientWebSocket = {
+    send() {},
+    close() {
+      this.onclose?.({});
+    },
+    readyState: 1,
+    onopen: null,
+    onmessage: null,
+    onerror: null,
+    onclose: null,
+  };
+  const serverSide: IMatchSocket = {
+    send(data: string) {
+      clientSide.onmessage?.({ data: stripAuthoritySequence(data) });
+    },
+    close() {
+      clientSide.onclose?.({});
+    },
+    readyState: 1,
+  };
+
+  const client = connect(
+    'ws://in-memory/x',
+    MATCH_ID,
+    { playerId: 'pid_host', token: 'tok' },
+    { socketFactory: () => clientSide, reconnect: false },
+  );
+  client.on('event', (event) => {
+    emitted.push(event);
+  });
+  clientSide.onopen?.({});
+  host.attachSocket(serverSide, 'pid_host');
+  await host.handleSessionJoin(serverSide, 'pid_host', undefined, MATCH_ID);
+
+  for (const intentId of ['m1', 'm2']) {
+    await host.handleIntent(
+      {
+        kind: 'Intent',
+        matchId: MATCH_ID,
+        ts: nowIso(),
+        playerId: 'pid_host',
+        intentId,
+        intent: { kind: 'AdvancePhase' },
+      } as unknown as IIntent,
+      'conn-a',
+      'pid_host',
+    );
+  }
+  client.close();
+
+  const ordered = orderGameEvents(emitted);
+  expect(ordered.length).toBeGreaterThan(0);
+  expect(buildMirrorSession(ordered)).not.toBeNull();
+});
+
 function stripAuthoritySequence(raw: string): string {
   const parsed = JSON.parse(raw) as {
     kind?: string;

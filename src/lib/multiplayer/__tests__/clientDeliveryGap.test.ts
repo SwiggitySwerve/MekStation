@@ -603,6 +603,29 @@ describe('client delivery-first admission without event.sequence', () => {
     expect(appliedIds(applied)).toEqual(['a', 'b', 'c']);
   });
 
+  it('releases the pin from a delivery-space ReplayEnd bound without authority numbers', () => {
+    // M3. `toSeq` is too low to release via the old-server fallback;
+    // `toDeliverySequence` is what un-pins. Dropping that field leaves
+    // the cursor behind the hole forever.
+    const { sockets, sentByClient } = openReadyClient();
+    sockets.last().inject(eventFrame(0, 100));
+    sockets.last().inject(eventFrame(2, 101)); // delivery 1 lost
+    expect(lastJoin(sentByClient).deliveryCursor).toBe(0);
+
+    sockets.last().inject({
+      kind: 'ReplayEnd',
+      matchId: 'm1',
+      ts: nowIso(),
+      toSeq: 50,
+      toDeliverySequence: 2,
+    });
+    sockets.last().inject(eventFrame(3, 102));
+    sockets.last().inject(eventFrame(4, 103));
+    sockets.last().inject(eventFrame(6, 104));
+
+    expect(lastJoin(sentByClient).deliveryCursor).toBe(4);
+  });
+
   it('reports a delivery gap, resyncs, and recovers without event.sequence', () => {
     const { sockets, errors, applied, sentByClient } = openReadyClient();
     sockets.last().inject(eventFrameDeliveryOnly(0, 'a'));

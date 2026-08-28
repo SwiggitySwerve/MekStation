@@ -21,6 +21,7 @@ import { nowIso } from '@/types/multiplayer/Protocol';
 import { deriveState } from '@/utils/gameplay/gameState';
 
 import type { IMatchMeta, IMatchStore } from './IMatchStore';
+import type { ViewerDeliveryCursors } from './projection/ViewerDeliveryCursors';
 import type { IMatchSocket } from './ServerMatchSocketTypes';
 
 import {
@@ -36,7 +37,10 @@ import {
 } from './fogOfWar';
 import { isSpectatorPlayer } from './lobby/spectatorSeats';
 import { MATCH_WIRE_PUBLICATION_BOUNDARY } from './projection/ViewerPublicationBoundary';
-import { streamReplay } from './reconnection/replayStream';
+import {
+  streamReplay,
+  type IReplayStreamFrames,
+} from './reconnection/replayStream';
 
 type ReconnectMetadataReader = Pick<MatchLogStorage, 'getMatchMetadata'>;
 
@@ -47,6 +51,7 @@ export interface IServerMatchHostReplayContext {
   readonly safeSend: (socket: IMatchSocket, message: IServerMessage) => void;
   readonly maybeResume: () => void;
   readonly viewerResolver: AuthorizedViewerResolver;
+  readonly deliveryCursors: ViewerDeliveryCursors;
 }
 
 /**
@@ -86,11 +91,20 @@ export async function sendReplay(
       sendJoinGuardError(ctx, socket, guarded.error.message);
       return false;
     }
-    ctx.safeSend(socket, guarded.frames.start);
-    for (const chunk of guarded.frames.chunks) {
+    const outbound =
+      playerId != null
+        ? stampReplayDeliveries(
+            ctx.deliveryCursors,
+            playerId,
+            events,
+            guarded.frames,
+          )
+        : guarded.frames;
+    ctx.safeSend(socket, outbound.start);
+    for (const chunk of outbound.chunks) {
       ctx.safeSend(socket, chunk);
     }
-    ctx.safeSend(socket, guarded.frames.end);
+    ctx.safeSend(socket, outbound.end);
     return true;
   }
   ctx.safeSend(socket, frames.start);
@@ -99,6 +113,71 @@ export async function sendReplay(
   }
   ctx.safeSend(socket, frames.end);
   return true;
+}
+
+/**
+ * Stamp each replayed item with this viewer's deliverySequence.
+ *
+ * An event already in the record (matched by authority sequence)
+ * reuses that index; one not yet recorded is assigned through the
+ * same `ViewerDeliveryCursors.assign` live sends use, so the record
+ * stays gapless. `ReplayEnd.toDeliverySequence` is the last stamp
+ * so a client can release its gap pin without authority numbers.
+ */
+function stampReplayDeliveries(
+  cursors: ViewerDeliveryCursors,
+  playerId: string,
+  originals: readonly IGameEvent[],
+  frames: IReplayStreamFrames,
+): IReplayStreamFrames {
+  const authorityById = new Map<string, number>();
+  for (const event of originals) {
+    if (typeof event.id === 'string') {
+      authorityById.set(event.id, event.sequence);
+    }
+  }
+  let lastDelivery: number | null = null;
+  const chunks: IServerMessage[] = [];
+  for (const chunk of frames.chunks) {
+    if (chunk.kind !== 'ReplayChunk') {
+      chunks.push(chunk);
+      continue;
+    }
+    const deliverySequences: number[] = [];
+    for (const event of chunk.events) {
+      const authority = authoritySequenceForReplayItem(event, authorityById);
+      const existing =
+        authority !== null
+          ? cursors.deliverySequenceOf(playerId, authority)
+          : null;
+      const deliverySequence =
+        existing !== null ? existing : cursors.assign(playerId, authority);
+      lastDelivery = deliverySequence;
+      deliverySequences.push(deliverySequence);
+    }
+    chunks.push({ ...chunk, deliverySequences });
+  }
+  if (lastDelivery === null || frames.end.kind !== 'ReplayEnd') {
+    return { start: frames.start, chunks, end: frames.end };
+  }
+  return {
+    start: frames.start,
+    chunks,
+    end: { ...frames.end, toDeliverySequence: lastDelivery },
+  };
+}
+
+function authoritySequenceForReplayItem(
+  event: unknown,
+  authorityById: ReadonlyMap<string, number>,
+): number | null {
+  if (typeof event !== 'object' || event === null) return null;
+  const record = event as { id?: unknown; sequence?: unknown };
+  if (typeof record.id === 'string') {
+    const fromOriginal = authorityById.get(record.id);
+    if (typeof fromOriginal === 'number') return fromOriginal;
+  }
+  return typeof record.sequence === 'number' ? record.sequence : null;
 }
 
 export function getEventsFromSeq(

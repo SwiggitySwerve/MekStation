@@ -123,8 +123,13 @@ function deliveredEvents(socket: { sent: unknown[] }): {
       continue;
     }
     if (raw?.kind === 'ReplayChunk' && Array.isArray(raw.events)) {
-      for (const event of raw.events) {
-        out.push({ sequence: (event as { sequence: number }).sequence });
+      const sequences = (raw as { deliverySequences?: number[] })
+        .deliverySequences;
+      for (let index = 0; index < raw.events.length; index += 1) {
+        out.push({
+          sequence: (raw.events[index] as { sequence?: number }).sequence ?? -1,
+          deliverySequence: sequences?.[index],
+        });
       }
     }
   }
@@ -207,7 +212,6 @@ describe('broadcastEvent delivery numbering with two sockets per player', () => 
     const liveA = deliveredEvents(sockA1);
     const liveB = deliveredEvents(sockA2);
     expect(liveA.length).toBeGreaterThan(0);
-    expect(liveB.map((e) => e.sequence)).toEqual(liveA.map((e) => e.sequence));
 
     // The defect: socket B was told N+1 for the same frame socket A
     // was told N. They must share one number per authority event.
@@ -241,9 +245,9 @@ describe('broadcastEvent delivery numbering with two sockets per player', () => 
       0,
     );
 
-    const replayed = deliveredEvents(resumeSocket).map((e) => e.sequence);
-    const firstMissing = live[1]?.sequence;
+    const replayed = deliveredEvents(resumeSocket);
+    const firstMissing = live[1]?.deliverySequence;
     expect(typeof firstMissing).toBe('number');
-    expect(replayed[0]).toBe(firstMissing);
+    expect(replayed[0]?.deliverySequence).toBe(firstMissing);
   });
 });

@@ -802,6 +802,7 @@ export class ServerMatchHost {
       rateLimiter: this.rateLimiter,
       acceptedIntents: this.acceptedIntents,
       viewerResolver: this.viewerResolver,
+      deliveryCursors: this.deliveryCursors,
     };
   }
 
