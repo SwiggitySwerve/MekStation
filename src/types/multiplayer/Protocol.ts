@@ -517,6 +517,21 @@ export type ICampaignParticipation = z.infer<
   typeof CampaignParticipationSchema
 >;
 
+/**
+ * Guest/host acknowledgement of an applied campaign event. `revision`
+ * is that event's log sequence — the same number space
+ * `evaluateScenarioLaunch` reads — not a grant delivery-epoch cursor.
+ */
+export const CampaignAckSchema = z.object({
+  kind: z.literal('CampaignAck'),
+  matchId: matchIdSchema,
+  ts: tsSchema,
+  playerId: z.string().min(1),
+  campaignId: z.string().min(1),
+  revision: z.number().int().nonnegative(),
+});
+export type ICampaignAck = z.infer<typeof CampaignAckSchema>;
+
 export const CampaignSyncClientKindSchema = z.enum([
   'CampaignJoin',
   'CampaignGrantJoin',
@@ -525,6 +540,7 @@ export const CampaignSyncClientKindSchema = z.enum([
   'CampaignDecision',
   'CampaignHostIntent',
   'CampaignParticipation',
+  'CampaignAck',
 ]);
 export type CampaignSyncClientKind = z.infer<
   typeof CampaignSyncClientKindSchema
@@ -550,6 +566,7 @@ export const ClientMessageSchema = z.discriminatedUnion('kind', [
   CampaignDecisionSchema,
   CampaignHostIntentSchema,
   CampaignParticipationSchema,
+  CampaignAckSchema,
 ]);
 export type IClientMessage = z.infer<typeof ClientMessageSchema>;
 export type ICampaignClientMessage = Extract<
@@ -562,7 +579,8 @@ export type ICampaignClientMessage = Extract<
       | 'CampaignProposal'
       | 'CampaignDecision'
       | 'CampaignHostIntent'
-      | 'CampaignParticipation';
+      | 'CampaignParticipation'
+      | 'CampaignAck';
   }
 >;
 
@@ -576,7 +594,8 @@ export function isCampaignClientMessage(
     message.kind === 'CampaignProposal' ||
     message.kind === 'CampaignDecision' ||
     message.kind === 'CampaignHostIntent' ||
-    message.kind === 'CampaignParticipation'
+    message.kind === 'CampaignParticipation' ||
+    message.kind === 'CampaignAck'
   );
 }
 
@@ -677,6 +696,9 @@ export const ErrorCodeSchema = z.enum([
   //   envelope cannot re-trigger an action (design D7).
   'RATE_LIMITED',
   'DUPLICATE_INTENT',
+  // Campaign progression refused until every retained participant has
+  // acknowledged the campaign event-log head.
+  'CAMPAIGN_NOT_CONVERGED',
 ]);
 export type IErrorCode = z.infer<typeof ErrorCodeSchema>;
 
