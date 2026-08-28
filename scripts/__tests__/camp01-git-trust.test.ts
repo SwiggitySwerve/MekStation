@@ -121,7 +121,7 @@ describe('cross-platform CAMP-01 Git trust foundation', () => {
       action: 'resolve',
       root,
       executable: fakeGit,
-      version: '2.55.0.windows.4',
+      version: '2.55.0.windows.5',
     });
     expect(result).toMatchObject({ ok: true, value: { executable: fakeGit } });
   });
@@ -262,7 +262,7 @@ describe('cross-platform CAMP-01 Git trust foundation', () => {
     ],
     [
       { executable: fakeGit, version: '2.53.0' },
-      `CAMP01_GIT_INVALID: Git version drift; got 2.53.0, expected one of ${PINNED_VERSION}, 2.55.0.windows.4`,
+      `CAMP01_GIT_INVALID: Git version drift; got 2.53.0, expected one of ${PINNED_VERSION}, 2.55.0.windows.4, 2.55.0.windows.5`,
     ],
     [
       { executable: fakeGit, spawnFailure: true },
