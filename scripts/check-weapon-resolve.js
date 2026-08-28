@@ -1,11 +1,13 @@
 const fs = require('fs');
 const path = require('path');
-const r = JSON.parse(fs.readFileSync('validation-output/bv-validation-report.json', 'utf8'));
+const r = JSON.parse(
+  fs.readFileSync('validation-output/bv-validation-report.json', 'utf8'),
+);
 
 // Load all weapon catalogs
 const weaponDir = 'public/data/equipment/official/weapons';
 const allWeapons = new Map();
-for (const wf of fs.readdirSync(weaponDir).filter(f => f.endsWith('.json'))) {
+for (const wf of fs.readdirSync(weaponDir).filter((f) => f.endsWith('.json'))) {
   const data = JSON.parse(fs.readFileSync(path.join(weaponDir, wf), 'utf8'));
   if (data.items) {
     for (const item of data.items) {
@@ -16,15 +18,33 @@ for (const wf of fs.readdirSync(weaponDir).filter(f => f.endsWith('.json'))) {
 
 // Check specific weapons
 const checkWeapons = [
-  'clan-streak-lrm-5', 'clan-streak-lrm-10', 'clan-streak-lrm-15', 'clan-streak-lrm-20',
-  'streak-lrm-5', 'streak-lrm-10', 'streak-lrm-15', 'streak-lrm-20',
-  'tsemp-cannon', 'tsemp',
-  'mech-mortar-1', 'mech-mortar-2', 'mech-mortar-4', 'mech-mortar-8',
+  'clan-streak-lrm-5',
+  'clan-streak-lrm-10',
+  'clan-streak-lrm-15',
+  'clan-streak-lrm-20',
+  'streak-lrm-5',
+  'streak-lrm-10',
+  'streak-lrm-15',
+  'streak-lrm-20',
+  'tsemp-cannon',
+  'tsemp',
+  'mech-mortar-1',
+  'mech-mortar-2',
+  'mech-mortar-4',
+  'mech-mortar-8',
   'bombast-laser',
-  'medium-vsp-laser', 'large-vsp-laser', 'small-vsp-laser',
-  'large-re-engineered-laser', 'medium-re-engineered-laser', 'small-re-engineered-laser',
-  'hag-20', 'hag-30', 'hag-40',
-  'clan-hag-20', 'clan-hag-30', 'clan-hag-40',
+  'medium-vsp-laser',
+  'large-vsp-laser',
+  'small-vsp-laser',
+  'large-re-engineered-laser',
+  'medium-re-engineered-laser',
+  'small-re-engineered-laser',
+  'hag-20',
+  'hag-30',
+  'hag-40',
+  'clan-hag-20',
+  'clan-hag-30',
+  'clan-hag-40',
   'null-signature-system',
   'risc-advanced-point-defense-system',
 ];
@@ -33,7 +53,9 @@ console.log('=== WEAPON CATALOG LOOKUP ===');
 for (const w of checkWeapons) {
   const entry = allWeapons.get(w);
   if (entry) {
-    console.log(`  ${w}: BV=${entry.battleValue} heat=${entry.heat} [${entry.file}]`);
+    console.log(
+      `  ${w}: BV=${entry.battleValue} heat=${entry.heat} [${entry.file}]`,
+    );
   } else {
     console.log(`  ${w}: NOT FOUND`);
   }
@@ -86,9 +108,18 @@ for (const [id, w] of allWeapons) {
 // Just read the validation script for the relevant sections
 console.log('\n=== CHECKING VALIDATE-BV.TS FALLBACKS ===');
 const vbts = fs.readFileSync('scripts/validate-bv.ts', 'utf8');
-const fallbackWeapons = ['streak-lrm', 'mortar', 'hag', 'bombast', 'vsp', 're-engineered', 'tsemp', 'null-sig'];
+const fallbackWeapons = [
+  'streak-lrm',
+  'mortar',
+  'hag',
+  'bombast',
+  'vsp',
+  're-engineered',
+  'tsemp',
+  'null-sig',
+];
 for (const w of fallbackWeapons) {
-  const lines = vbts.split('\n').filter(l => l.toLowerCase().includes(w));
+  const lines = vbts.split('\n').filter((l) => l.toLowerCase().includes(w));
   if (lines.length > 0) {
     console.log(`\n  ${w}:`);
     for (const l of lines.slice(0, 5)) {

@@ -156,7 +156,21 @@ async function makeHost(
     updatedAt: now,
     config: { mapRadius: 25, turnLimit: 5, fogOfWar },
     layout: '1v1',
-    seats: defaultSeats('1v1'),
+    seats: defaultSeats('1v1').map((seat) => {
+      if (seat.slotId === 'alpha-1') {
+        return {
+          ...seat,
+          occupant: { playerId: 'pid_host', displayName: 'Host' },
+        };
+      }
+      if (seat.slotId === 'bravo-1') {
+        return {
+          ...seat,
+          occupant: { playerId: 'pid_opp', displayName: 'Opp' },
+        };
+      }
+      return seat;
+    }),
   });
   const host = ServerMatchHost.create(matchId, store, {
     mapRadius: 25,

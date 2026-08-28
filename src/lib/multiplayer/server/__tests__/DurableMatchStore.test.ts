@@ -182,6 +182,84 @@ describe('DurableMatchStore', () => {
   // Durability — survives a re-open against the same on-disk file
   // ---------------------------------------------------------------------------
 
+  it('leaves no trace of a batch that failed mid-transaction, across a reopen', async () => {
+    // The crash-BEFORE-commit case, proven against a real file rather
+    // than an in-memory handle - because the property being tested is
+    // what SURVIVES, and an in-memory store cannot answer that.
+    //
+    // A batch that fails partway must leave the stream exactly where it
+    // was. The dangerous failure is not the throw; it is a half-written
+    // command that a later reader cannot distinguish from a command
+    // which legitimately produced fewer events.
+    const fs = await import('node:fs');
+    const os = await import('node:os');
+    const path = await import('node:path');
+    const dbPath = path.join(
+      fs.mkdtempSync(path.join(os.tmpdir(), 'mp-durable-crash-')),
+      'matches.db',
+    );
+
+    const first = new DurableMatchStore({ path: dbPath });
+    await first.createMatch(makeMeta('crash-1', { status: 'active' }));
+
+    const committed = await first.appendCommandBatch!('crash-1', {
+      commandId: 'good-command',
+      actorId: 'p1',
+      expectedRevision: 0,
+      events: [
+        makeEvent('crash-1', 0),
+        makeEvent('crash-1', 1),
+        makeEvent('crash-1', 2),
+      ],
+    });
+    expect(committed.kind).toBe('committed');
+
+    // Now a batch whose SECOND event cannot be serialized. The first
+    // insert of the transaction succeeds; the second throws inside it.
+    const poisoned = makeEvent('crash-1', 4) as unknown as Record<
+      string,
+      unknown
+    >;
+    // A BigInt is valid in memory and fatal to `JSON.stringify`, so the
+    // failure lands mid-transaction rather than being caught up front.
+    poisoned.poison = BigInt(1);
+
+    let failed = false;
+    try {
+      await first.appendCommandBatch!('crash-1', {
+        commandId: 'doomed-command',
+        actorId: 'p1',
+        expectedRevision: 3,
+        events: [makeEvent('crash-1', 3), poisoned as unknown as IGameEvent],
+      });
+    } catch {
+      failed = true;
+    }
+    // NO FALSE SUCCESS: the call must not have handed back a receipt.
+    expect(failed).toBe(true);
+    first.close();
+
+    // Re-open the same file: this is what a restarted process sees.
+    const second = new DurableMatchStore({ path: dbPath });
+    const events = await second.getEvents('crash-1');
+
+    // Only the good command survives. Not one event of the doomed batch
+    // is present - including its FIRST event, which had already been
+    // inserted when the second one threw.
+    expect(events.map((e) => e.sequence)).toEqual([0, 1, 2]);
+
+    // And the doomed command id is free: a retry is a fresh command, not
+    // a duplicate of a half-written one.
+    const retry = await second.appendCommandBatch!('crash-1', {
+      commandId: 'doomed-command',
+      actorId: 'p1',
+      expectedRevision: 3,
+      events: [makeEvent('crash-1', 3)],
+    });
+    expect(retry.kind).toBe('committed');
+    second.close();
+  });
+
   it('survives a process restart (re-open) with the full event log intact', async () => {
     const fs = await import('node:fs');
     const os = await import('node:os');

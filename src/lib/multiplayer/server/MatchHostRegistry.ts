@@ -55,7 +55,14 @@ export class MatchHostRegistry {
    * `diceSeed` lets the WebSocket upgrade handler propagate the
    * `?seed=N` debug query param. When set, the host's dice roller is
    * `SeededDiceRoller` (deterministic) instead of `CryptoDiceRoller`
-   * (production). Off by default — production never reads it.
+   * (production).
+   *
+   * THIS LAYER DOES NOT ENFORCE THAT. The refusal lives in `server.js`
+   * (`readDebugDiceSeed`), which drops the param in production before
+   * it ever reaches here - the seed is client-supplied on the upgrade
+   * URL, so honouring it would let the caller pick the server's dice.
+   * Anything else that learns to pass `diceSeed` must gate it itself;
+   * this signature will accept whatever it is given.
    */
   getOrCreate = async (
     matchId: string,

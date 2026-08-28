@@ -25,12 +25,43 @@
 import { z } from 'zod';
 
 import {
+  CampaignEventEnvelopeSchema,
   CampaignIntentSchema,
   rosterUnitSchema,
 } from '@/types/campaign/campaignSyncSchemas';
 import { SUPPORTED_PHYSICAL_ATTACK_TYPES } from '@/utils/gameplay/physicalAttacks/types';
 
+import {
+  CampaignGrantAckSchema,
+  CampaignGrantDeliverySchema,
+  CampaignGrantJoinSchema,
+  CampaignGrantRebaselineSchema,
+  CampaignGrantSnapshotSchema,
+} from './CampaignGrantProtocol';
 import { MatchSeatSchema } from './Lobby';
+
+export {
+  CampaignGrantAckSchema,
+  CampaignGrantDeliveryCursorSchema,
+  CampaignGrantDeliveryItemSchema,
+  CampaignGrantDeliverySchema,
+  CampaignGrantEpochBaselineSchema,
+  CampaignGrantJoinSchema,
+  CampaignGrantProjectedEventSchema,
+  CampaignGrantRebaselineSchema,
+  CampaignGrantSnapshotSchema,
+} from './CampaignGrantProtocol';
+export type {
+  ICampaignGrantAck,
+  ICampaignGrantDelivery,
+  ICampaignGrantDeliveryCursor,
+  ICampaignGrantDeliveryItemWire,
+  ICampaignGrantEpochBaseline,
+  ICampaignGrantJoin,
+  ICampaignGrantProjectedEventWire,
+  ICampaignGrantRebaseline,
+  ICampaignGrantSnapshot,
+} from './CampaignGrantProtocol';
 
 // =============================================================================
 // Shared envelope fragments
@@ -64,6 +95,43 @@ export const SessionJoinSchema = z.object({
   playerId: z.string().min(1),
   token: z.string().min(1),
   lastSeq: z.number().int().nonnegative().optional(),
+  /**
+   * The client's own delivery cursor - the last `deliverySequence` it
+   * holds with NOTHING MISSING BEFORE IT.
+   *
+   * Contiguous, not high-water, and the distinction is the whole reason
+   * this field can describe a loss at all. The server resumes the
+   * viewer's stream at the frame that FOLLOWS this number - the first
+   * one the viewer lacks, not the one after that
+   * (`ViewerDeliveryCursors.firstMissedAuthoritySequence` returns the
+   * start, and `ServerMatchHost.handleSessionJoin` passes it through
+   * unadvanced). A client that quoted the highest frame it had SEEN
+   * would be asking for the tail after its own gap, excluding the lost
+   * frame from the replay fetched to recover it.
+   *
+   * WHAT "NOTHING MISSING" IS WORTH, exactly, because the sender can
+   * only claim what it can establish:
+   *
+   *   - a frame that arrived one step after the cursor advances it;
+   *   - a hole pins it, and no later run of contiguous frames may move
+   *     it past that hole;
+   *   - it un-pins only when a replay answering that hole reports a
+   *     `ReplayEnd.toSeq` at or beyond the authority sequence of the
+   *     frame that revealed the hole - i.e. on evidence the missing
+   *     frame was inside the answer;
+   *   - a reconnect keeps the cursor: the server does not renumber a
+   *     reconnecting viewer's stream, so it still indexes the same
+   *     record.
+   *
+   * The one thing it does NOT promise is content the server itself can
+   * no longer supply: when the delivery record is gone (a restart), the
+   * server falls back to `lastSeq` and neither side can do better.
+   *
+   * Preferred over `lastSeq` when the server still holds that viewer's
+   * delivery record, because it is the only cursor a client can quote
+   * once the authority sequence stops being sent to it.
+   */
+  deliveryCursor: z.number().int().nonnegative().optional(),
 });
 export type ISessionJoin = z.infer<typeof SessionJoinSchema>;
 
@@ -427,14 +495,13 @@ export const CampaignHostIntentSchema = z.object({
 });
 export type ICampaignHostIntent = z.infer<typeof CampaignHostIntentSchema>;
 
-export const CampaignParticipationPayloadSchema = z.object({
-  matchId: matchIdSchema,
-  missionId: z.string().min(1),
-  playerId: z.string().min(1),
-  role: CampaignSyncRoleSchema,
-  choice: CampaignParticipationChoiceSchema,
-  force: z.unknown(),
-});
+export const CampaignParticipationPayloadSchema = z
+  .object({
+    missionId: z.string().min(1),
+    forceId: z.string().min(1),
+    choice: CampaignParticipationChoiceSchema,
+  })
+  .strict();
 export type ICampaignParticipationPayload = z.infer<
   typeof CampaignParticipationPayloadSchema
 >;
@@ -452,6 +519,8 @@ export type ICampaignParticipation = z.infer<
 
 export const CampaignSyncClientKindSchema = z.enum([
   'CampaignJoin',
+  'CampaignGrantJoin',
+  'CampaignGrantAck',
   'CampaignProposal',
   'CampaignDecision',
   'CampaignHostIntent',
@@ -475,6 +544,8 @@ export const ClientMessageSchema = z.discriminatedUnion('kind', [
   IntentSchema,
   HeartbeatSchema,
   CampaignJoinSchema,
+  CampaignGrantJoinSchema,
+  CampaignGrantAckSchema,
   CampaignProposalSchema,
   CampaignDecisionSchema,
   CampaignHostIntentSchema,
@@ -486,6 +557,8 @@ export type ICampaignClientMessage = Extract<
   {
     kind:
       | 'CampaignJoin'
+      | 'CampaignGrantJoin'
+      | 'CampaignGrantAck'
       | 'CampaignProposal'
       | 'CampaignDecision'
       | 'CampaignHostIntent'
@@ -498,6 +571,8 @@ export function isCampaignClientMessage(
 ): message is ICampaignClientMessage {
   return (
     message.kind === 'CampaignJoin' ||
+    message.kind === 'CampaignGrantJoin' ||
+    message.kind === 'CampaignGrantAck' ||
     message.kind === 'CampaignProposal' ||
     message.kind === 'CampaignDecision' ||
     message.kind === 'CampaignHostIntent' ||
@@ -559,6 +634,19 @@ export const EventMessageSchema = z.object({
   matchId: matchIdSchema,
   ts: tsSchema,
   event: z.unknown(),
+  /**
+   * This viewer's own gapless delivery sequence, independent of the
+   * authority sequence inside `event`.
+   *
+   * A hole here means a frame was genuinely LOST. A hole in the
+   * authority sequence means no such thing - under fog it usually means
+   * the viewer was not allowed to see that event - which is why gap
+   * detection can only be built on this number.
+   *
+   * Optional while the server rolls it out; a frame without it is a
+   * pre-rollout frame, not a gap.
+   */
+  deliverySequence: z.number().int().nonnegative().optional(),
 });
 export type IEventMessage = z.infer<typeof EventMessageSchema>;
 
@@ -713,7 +801,7 @@ export const CampaignSnapshotMessageSchema = z.object({
   kind: z.literal('CampaignSnapshot'),
   matchId: matchIdSchema,
   ts: tsSchema,
-  event: z.unknown(),
+  event: CampaignEventEnvelopeSchema,
 });
 export type ICampaignSnapshotMessage = z.infer<
   typeof CampaignSnapshotMessageSchema
@@ -723,7 +811,7 @@ export const CampaignEventMessageSchema = z.object({
   kind: z.literal('CampaignEvent'),
   matchId: matchIdSchema,
   ts: tsSchema,
-  event: z.unknown(),
+  event: CampaignEventEnvelopeSchema,
 });
 export type ICampaignEventMessage = z.infer<typeof CampaignEventMessageSchema>;
 
@@ -752,6 +840,8 @@ export const CampaignParticipationMessageSchema = z.object({
   kind: z.literal('CampaignParticipation'),
   matchId: matchIdSchema,
   ts: tsSchema,
+  playerId: z.string().min(1),
+  role: CampaignSyncRoleSchema,
   participation: CampaignParticipationPayloadSchema,
 });
 export type ICampaignParticipationMessage = z.infer<
@@ -776,6 +866,9 @@ export const ServerMessageSchema = z.discriminatedUnion('kind', [
   CampaignProposalMessageSchema,
   CampaignDecisionMessageSchema,
   CampaignParticipationMessageSchema,
+  CampaignGrantDeliverySchema,
+  CampaignGrantRebaselineSchema,
+  CampaignGrantSnapshotSchema,
 ]);
 export type IServerMessage = z.infer<typeof ServerMessageSchema>;
 

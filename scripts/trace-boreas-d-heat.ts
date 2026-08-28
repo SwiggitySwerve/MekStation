@@ -6,9 +6,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 
-import {
-  resolveEquipmentBV,
-} from '../src/utils/construction/equipmentBVResolver';
+import { resolveEquipmentBV } from '../src/utils/construction/equipmentBVResolver';
 
 // Boreas D: 60t, Fusion 240, 14 Laser HS, 2x Clan Heavy Large Laser
 // Movement: walk 4, run 6
@@ -50,7 +48,9 @@ console.log('  Expected weaponBV = 366');
 // This means heat tracking is NOT being applied!
 console.log('\nOur validation says weaponBV=488 (= 244*2)');
 console.log('MISMATCH: heat tracking should give 366');
-console.log('Difference: 488 - 366 = 122 (= exactly the second weapon at half BV)');
+console.log(
+  'Difference: 488 - 366 = 122 (= exactly the second weapon at half BV)',
+);
 
 // Check what happens with the full formula:
 // Pre-SF with correct heat: 366 + 0 + 60 = 426
@@ -64,8 +64,12 @@ console.log('  Total: 766.2 + 477.12 = 1243.3');
 console.log('  vs index 1394 -> gap would be 151!');
 console.log('  So actually we would be MORE off...');
 console.log('');
-console.log('Unless our heatEfficiency calc is wrong and MegaMek gets 32+ efficiency');
-console.log('Let me check: maybe heat capacity for Boreas D includes engine HS');
+console.log(
+  'Unless our heatEfficiency calc is wrong and MegaMek gets 32+ efficiency',
+);
+console.log(
+  'Let me check: maybe heat capacity for Boreas D includes engine HS',
+);
 
 // Actually, the Boreas D has 14 Laser HS but the Fusion 240 engine includes
 // 10 integral HS. So the EXTRA HS = 14 - 10 = 4 external HS.
@@ -95,5 +99,7 @@ console.log('But wait: moveHeat should be max(runHeat, jumpHeat)');
 console.log('run 6 hexes = 2 heat, jump 0 = 0 heat');
 console.log('moveHeat = 2');
 console.log('');
-console.log('Actually, let me check if our validate-bv.ts computes the right heatDissipation');
+console.log(
+  'Actually, let me check if our validate-bv.ts computes the right heatDissipation',
+);
 console.log('for Laser HS...');

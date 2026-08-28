@@ -9,6 +9,11 @@ import React from 'react';
 
 import type { ICampaignSummary } from '@/types/campaign/SerializedCampaign';
 
+import {
+  CAMPAIGN_LIST_OMISSIONS_HEADER,
+  encodeCampaignListOmissions,
+} from '@/lib/campaign/persistence';
+
 const mockRouterPush = jest.fn();
 jest.mock('next/router', () => ({
   useRouter: () => ({
@@ -69,6 +74,9 @@ jest.mock('@/stores/campaign/useCampaignPersistenceStore', () => ({
 
 import CampaignsListPage from '@/pages/gameplay/campaigns/index';
 
+/** D2: the list projection surfaces the stored authority fact. */
+const TEST_HOST_INSTANCE_ID = 'host-instance-test';
+
 describe('CampaignsListPage multi-campaign backend list', () => {
   beforeEach(() => {
     mockRouterPush.mockReset();
@@ -85,6 +93,8 @@ describe('CampaignsListPage multi-campaign backend list', () => {
         currentDate: '3025-01-01T00:00:00.000Z',
         balance: 1000000,
         updatedAt: '2026-06-21T12:00:00.000Z',
+        instanceId: TEST_HOST_INSTANCE_ID,
+        authority: { role: 'source' },
       },
       {
         id: 'campaign-bravo',
@@ -93,6 +103,8 @@ describe('CampaignsListPage multi-campaign backend list', () => {
         currentDate: '3025-02-01T00:00:00.000Z',
         balance: 2500000,
         updatedAt: '2026-06-21T13:00:00.000Z',
+        instanceId: TEST_HOST_INSTANCE_ID,
+        authority: { role: 'source' },
       },
     ];
     (globalThis as unknown as { fetch: jest.Mock }).fetch = jest.fn(
@@ -137,6 +149,8 @@ describe('CampaignsListPage multi-campaign backend list', () => {
         currentDate: '3025-01-01T00:00:00.000Z',
         balance: 1000000,
         updatedAt: '2026-06-21T12:00:00.000Z',
+        instanceId: TEST_HOST_INSTANCE_ID,
+        authority: { role: 'source' },
       },
       {
         id: 'campaign-bravo',
@@ -145,6 +159,8 @@ describe('CampaignsListPage multi-campaign backend list', () => {
         currentDate: '3025-02-01T00:00:00.000Z',
         balance: 2500000,
         updatedAt: '2026-06-21T13:00:00.000Z',
+        instanceId: TEST_HOST_INSTANCE_ID,
+        authority: { role: 'source' },
       },
     ];
     mockCampaignStoreState.campaign = {
@@ -186,6 +202,8 @@ describe('CampaignsListPage multi-campaign backend list', () => {
         currentDate: '3025-01-01T00:00:00.000Z',
         balance: 1000000,
         updatedAt: '2026-06-21T12:00:00.000Z',
+        instanceId: TEST_HOST_INSTANCE_ID,
+        authority: { role: 'source' },
       },
     ];
     mockCampaignStoreState.campaign = {
@@ -240,5 +258,138 @@ describe('CampaignsListPage multi-campaign backend list', () => {
     expect(
       await screen.findByTestId('campaign-card-campaign-local'),
     ).toBeInTheDocument();
+  });
+
+  it('surfaces a list-failure error state instead of the empty state, and retry refetches', async () => {
+    const campaigns: ICampaignSummary[] = [
+      {
+        id: 'campaign-recovered',
+        name: 'Recovered Command',
+        factionId: 'kurita',
+        currentDate: '3025-03-01T00:00:00.000Z',
+        balance: 2500000,
+        updatedAt: '3025-03-01T00:00:00.000Z',
+        instanceId: TEST_HOST_INSTANCE_ID,
+        authority: { role: 'source' },
+      },
+    ];
+    let call = 0;
+    (globalThis as unknown as { fetch: jest.Mock }).fetch = jest.fn(
+      async () => {
+        call += 1;
+        if (call === 1) {
+          return { ok: false, status: 500, json: async () => ({}) };
+        }
+        return { ok: true, json: async () => campaigns };
+      },
+    );
+
+    await act(async () => {
+      render(<CampaignsListPage />);
+    });
+
+    expect(
+      await screen.findByTestId('campaigns-list-error'),
+    ).toBeInTheDocument();
+    expect(screen.getByText(/server responded 500/)).toBeInTheDocument();
+    expect(
+      screen.queryByTestId('campaigns-empty-state'),
+    ).not.toBeInTheDocument();
+
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button', { name: 'Retry' }));
+    });
+
+    expect(
+      await screen.findByTestId('campaign-card-campaign-recovered'),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByTestId('campaigns-list-error'),
+    ).not.toBeInTheDocument();
+  });
+
+  it('keeps the store campaign card with the refresh warning when the list fetch fails', async () => {
+    mockCampaignStoreState.campaign = {
+      id: 'campaign-local',
+      name: 'Local Command',
+      factionId: 'kurita',
+      currentDate: new Date('3025-03-01T00:00:00.000Z'),
+      forces: new Map(),
+      missions: new Map(),
+    };
+    (globalThis as unknown as { fetch: jest.Mock }).fetch = jest.fn(
+      async () => {
+        throw new Error('network down');
+      },
+    );
+
+    await act(async () => {
+      render(<CampaignsListPage />);
+    });
+
+    expect(
+      await screen.findByTestId('campaign-card-campaign-local'),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(/Stored campaign list could not refresh/),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByTestId('campaigns-list-error'),
+    ).not.toBeInTheDocument();
+  });
+
+  it('shows skipped campaign ids from the list-omissions header next to healthy cards', async () => {
+    const campaigns: ICampaignSummary[] = [
+      {
+        id: 'campaign-alpha',
+        name: 'Alpha Lance',
+        factionId: 'mercenary',
+        currentDate: '3025-01-01T00:00:00.000Z',
+        balance: 1000000,
+        updatedAt: '2026-06-21T12:00:00.000Z',
+        instanceId: TEST_HOST_INSTANCE_ID,
+        authority: { role: 'source' },
+      },
+      {
+        id: 'campaign-bravo',
+        name: 'Bravo Lance',
+        factionId: 'davion',
+        currentDate: '3025-02-01T00:00:00.000Z',
+        balance: 2500000,
+        updatedAt: '2026-06-21T13:00:00.000Z',
+        instanceId: TEST_HOST_INSTANCE_ID,
+        authority: { role: 'source' },
+      },
+    ];
+    const omissionsHeader = encodeCampaignListOmissions([
+      { id: 'ghost-camp', reason: 'corrupt' },
+    ]);
+    (globalThis as unknown as { fetch: jest.Mock }).fetch = jest.fn(
+      async () => ({
+        ok: true,
+        json: async () => campaigns,
+        headers: {
+          get: (name: string) =>
+            name === CAMPAIGN_LIST_OMISSIONS_HEADER ? omissionsHeader : null,
+        },
+      }),
+    );
+
+    await act(async () => {
+      render(<CampaignsListPage />);
+    });
+
+    expect(
+      await screen.findByTestId('campaigns-list-omissions'),
+    ).toBeInTheDocument();
+    expect(screen.getByText(/ghost-camp/)).toBeInTheDocument();
+    expect(screen.getByText(/unreadable record/)).toBeInTheDocument();
+    expect(
+      screen.getByTestId('campaign-card-campaign-alpha'),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByTestId('campaign-card-campaign-bravo'),
+    ).toBeInTheDocument();
+    expect(screen.queryByText('LEAK-OMISSION-PAYLOAD')).not.toBeInTheDocument();
   });
 });

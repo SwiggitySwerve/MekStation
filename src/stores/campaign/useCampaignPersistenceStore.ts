@@ -21,6 +21,7 @@ import type {
 } from '@/types/campaign/SerializedCampaign';
 
 import { toast } from '@/components/shared/Toast';
+import { evaluateCampaignAdoptionOffer } from '@/lib/campaign/authority/campaignLegacyAdoption';
 import {
   buildSerializedCampaign,
   CURRENT_CAMPAIGN_SCHEMA_VERSION,
@@ -28,6 +29,10 @@ import {
   getDeviceId,
   migrateSerializedCampaign,
 } from '@/lib/campaign/persistence';
+import {
+  campaignCacheKeyOf,
+  evaluateCampaignCache,
+} from '@/lib/campaign/persistence/campaignCacheKey';
 import { backfillLegacyRosterUnitRefs } from '@/lib/campaign/wizard/legacyRosterUnitBackfill';
 import { Money } from '@/types/campaign/Money';
 
@@ -70,11 +75,21 @@ interface CampaignPersistenceState {
   errorMessage: string | null;
   conflictServerRecord: SerializedCampaign | null;
   lastPersistedCampaign: ICampaign | null;
+  /**
+   * True when the browser holds a campaign this server has never seen and
+   * that arrived by storage rehydration - a legacy copy awaiting adoption
+   * (D8). Such a copy is readable but unshareable, and deliberately does
+   * NOT auto-save: see the guard in `runSave`.
+   */
+  legacyUnadopted: boolean;
 }
 
 interface CampaignPersistenceActions {
   loadCampaign: (id: string) => Promise<boolean>;
-  saveCampaign: () => Promise<CampaignPersistenceSaveResult>;
+  adoptLegacyCampaign: () => Promise<boolean>;
+  saveCampaign: (options?: {
+    retryOnConflict?: boolean;
+  }) => Promise<CampaignPersistenceSaveResult>;
   markDirty: () => void;
   resolveConflictKeepLocal: () => Promise<CampaignPersistenceSaveResult>;
   resolveConflictTakeServer: () => Promise<boolean>;
@@ -90,6 +105,12 @@ const INITIAL_METADATA: ICampaignSaveMetadata = {
   schemaVersion: CURRENT_CAMPAIGN_SCHEMA_VERSION,
   originDeviceId: null,
   version: 0,
+  // Never saved: the hosting instance and its authority are UNKNOWN.
+  // Null rather than a source default - claiming source authority for a
+  // record that was never written is exactly the silent inference D2
+  // forbids.
+  instanceId: null,
+  authority: null,
 };
 
 const INITIAL_STATE: CampaignPersistenceState = {
@@ -101,9 +122,35 @@ const INITIAL_STATE: CampaignPersistenceState = {
   errorMessage: null,
   conflictServerRecord: null,
   lastPersistedCampaign: null,
+  legacyUnadopted: false,
 };
 
 let autoSaveTimer: ReturnType<typeof setTimeout> | null = null;
+
+/**
+ * The load currently in flight, if any. `baseVersion` is the compare-and-swap
+ * token for the next write, and a load replaces it with the server's current
+ * version. A save that reads the token while a load is running would send a
+ * version the server has already moved past, so every write waits here first.
+ */
+let inFlightLoad: Promise<boolean> | null = null;
+
+/**
+ * Tail of the serialized write chain. Two overlapping writes would both read
+ * the same `baseVersion`, so the later one is guaranteed to lose the
+ * compare-and-swap; queueing makes the second read the version the first
+ * produced.
+ */
+let saveChain: Promise<unknown> = Promise.resolve();
+
+/**
+ * Test seam: drop the module-level load/save coordination between cases.
+ * Production code never calls this - the guards live for the page's lifetime.
+ */
+export function __resetCampaignPersistenceCoordinationForTests(): void {
+  inFlightLoad = null;
+  saveChain = Promise.resolve();
+}
 
 type PersistenceSet = Parameters<StateCreator<CampaignPersistenceStore>>[0];
 type PersistenceGet = Parameters<StateCreator<CampaignPersistenceStore>>[1];
@@ -118,6 +165,32 @@ function clearAutoSaveTimer(): void {
 function readLiveCampaign(): ICampaign | null {
   const store = getCampaignStoreForRoster();
   return store ? store.getState().campaign : null;
+}
+
+/**
+ * The campaign store's own report of whether the campaign it holds came
+ * from storage. This is a fact about the browser, never a claim about the
+ * server, which is what makes it safe to base the adoption offer on.
+ */
+function readRehydratedCampaignId(): string | null {
+  const store = getCampaignStoreForRoster();
+  return store?.getState().rehydratedCampaignId ?? null;
+}
+
+/** The identity the browser's persisted copy currently claims. */
+function readCachedCampaignKey(): ReturnType<typeof campaignCacheKeyOf> | null {
+  const store = getCampaignStoreForRoster();
+  return store?.getState().cachedCampaignKey ?? null;
+}
+
+/**
+ * Stamps the identity of the record this client now holds. Called on
+ * every authoritative read and write, so the cache's claim about itself
+ * is only ever set from a record the server actually returned.
+ */
+function writeCachedCampaignKey(record: SerializedCampaign): void {
+  const store = getCampaignStoreForRoster();
+  store?.getState().setCachedCampaignKey?.(campaignCacheKeyOf(record));
 }
 
 function writeLiveCampaign(campaign: ICampaign): void {
@@ -256,11 +329,28 @@ function metadataFrom(record: SerializedCampaign): ICampaignSaveMetadata {
     schemaVersion: record.schemaVersion,
     originDeviceId: record.originDeviceId,
     version: record.version,
+    instanceId: record.instanceId,
+    authority: record.authority,
   };
 }
 
+/**
+ * Client-side migration.
+ *
+ * `migrateSerializedCampaign` needs a host instance id to backfill a
+ * pre-D2 record, but the BROWSER is not a hosting server and must not
+ * invent one. A record read from the server already carries its
+ * instanceId; only a legacy browser-local snapshot lacks it, and for
+ * that case the device id is a placeholder the server overwrites on the
+ * next authoritative write (the same fallback `buildSerializedCampaign`
+ * uses). Expressed once here rather than at each call site.
+ */
+function migrateClientRecord(record: SerializedCampaign): SerializedCampaign {
+  return migrateSerializedCampaign(record, record.instanceId ?? getDeviceId());
+}
+
 function deserializeCampaignRecord(record: SerializedCampaign): ICampaign {
-  return deserializeCampaignBody(migrateSerializedCampaign(record).body);
+  return deserializeCampaignBody(migrateClientRecord(record).body);
 }
 
 type SaveAttemptResult =
@@ -312,6 +402,7 @@ function applySavedRecord(
   record: SerializedCampaign,
 ): void {
   const persistedCampaign = deserializeCampaignRecord(record);
+  writeCachedCampaignKey(record);
   set({
     campaignId: record.campaignId,
     saveState: 'saved',
@@ -336,7 +427,7 @@ function rollbackCoopCampaign(
     writeLiveCampaign(rollbackCampaign);
   }
   if (fallbackServerRecord) {
-    const migrated = migrateSerializedCampaign(fallbackServerRecord);
+    const migrated = migrateClientRecord(fallbackServerRecord);
     restoreRosterProjection(
       migrated.campaignId,
       migrated.body.rosterProjection,
@@ -359,15 +450,48 @@ function notifyUnresolvedCoopSave(message: string): void {
   });
 }
 
-async function performSave(
+/**
+ * Queue one write behind any write already running. Serializing is what makes
+ * `baseVersion` a usable compare-and-swap token: concurrent callers otherwise
+ * read the same token and every caller after the first is rejected as stale.
+ */
+function performSave(
   set: PersistenceSet,
   get: PersistenceGet,
   baseVersionOverride?: number,
   retryOnConflict = true,
 ): Promise<CampaignPersistenceSaveResult> {
+  const queued = saveChain.then(() =>
+    runSave(set, get, baseVersionOverride, retryOnConflict),
+  );
+  // The chain must survive a rejected write, or one failure would wedge every
+  // later save. `runSave` resolves its own errors, so this is belt-and-braces.
+  saveChain = queued.catch(() => undefined);
+  return queued;
+}
+
+async function runSave(
+  set: PersistenceSet,
+  get: PersistenceGet,
+  baseVersionOverride?: number,
+  retryOnConflict = true,
+): Promise<CampaignPersistenceSaveResult> {
+  // A load in flight is about to replace `baseVersion`; writing before it
+  // lands sends a version the server has already superseded.
+  if (inFlightLoad !== null) {
+    await inFlightLoad;
+  }
   const campaign = readLiveCampaign();
   const campaignId = get().campaignId ?? campaign?.id ?? null;
   if (!campaign || !campaignId) {
+    return { status: 'skipped', retriedConflict: false };
+  }
+  // An unadopted legacy copy must not become a server source by
+  // accident. A plain create stamps a journal-native cutover marker, which
+  // asserts the campaign's whole history lives in a journal that holds
+  // none of it - and the D10 rollback law reads that same field. Adoption
+  // is an explicit act through `adoptLegacyCampaign`.
+  if (get().legacyUnadopted) {
     return { status: 'skipped', retriedConflict: false };
   }
   const baseVersion = baseVersionOverride ?? get().baseVersion;
@@ -441,28 +565,78 @@ async function performSave(
 function loadCampaignAction(
   set: PersistenceSet,
 ): CampaignPersistenceStore['loadCampaign'] {
-  return async (id: string) => {
+  return (id: string) => {
+    // Published for the duration so a concurrent write waits for the version
+    // this load establishes instead of racing it.
+    const load = runLoad(set, id);
+    inFlightLoad = load;
+    return load.finally(() => {
+      if (inFlightLoad === load) {
+        inFlightLoad = null;
+      }
+    });
+  };
+}
+
+async function runLoad(set: PersistenceSet, id: string): Promise<boolean> {
+  {
     set({ saveState: 'saving', errorMessage: null });
     try {
       const response = await fetch(`/api/campaigns/${encodeURIComponent(id)}`, {
         cache: 'no-store',
       });
       if (response.status === 404) {
+        // Not every missing record is an error. A campaign the browser
+        // rehydrated from storage that this server has never held is a
+        // legacy copy from before campaigns became server-owned; the
+        // honest response is an adoption offer, not "not found".
+        const offer = evaluateCampaignAdoptionOffer({
+          campaignId: id,
+          browserCampaignId: readLiveCampaign()?.id ?? null,
+          rehydratedCampaignId: readRehydratedCampaignId(),
+          serverLookup: 'absent',
+        });
+        if (offer.kind === 'adoptable') {
+          set({
+            saveState: 'idle',
+            errorMessage: null,
+            legacyUnadopted: true,
+          });
+          return false;
+        }
         set({ saveState: 'idle', errorMessage: 'campaign not found' });
         return false;
       }
       if (!response.ok) {
         throw new Error(`server responded ${response.status}`);
       }
-      const migrated = migrateSerializedCampaign(
+      const migrated = migrateClientRecord(
         (await response.json()) as SerializedCampaign,
       );
-      const loadedCampaign = preserveGuestCoopSession(
-        deserializeCampaignRecord(migrated),
-        readLiveCampaign(),
+      // Task 1.3: the cache is keyed, so "is this copy the same thing?"
+      // is answered rather than assumed. A copy naming the same instance
+      // at the same revision is the server's own record and is left
+      // alone; anything else is REPLACED WHOLE. There is no merge -
+      // reconciling field by field would assemble a campaign that never
+      // existed on either side.
+      const verdict = evaluateCampaignCache(
+        readCachedCampaignKey(),
+        campaignCacheKeyOf(migrated),
       );
-      writeLiveCampaign(loadedCampaign);
-      restoreRosterProjection(id, migrated.body.rosterProjection);
+      const liveCampaign = readLiveCampaign();
+      const cacheStands =
+        verdict.kind === 'usable' && liveCampaign?.id === migrated.campaignId;
+      const loadedCampaign = cacheStands
+        ? liveCampaign
+        : preserveGuestCoopSession(
+            deserializeCampaignRecord(migrated),
+            liveCampaign,
+          );
+      if (!cacheStands) {
+        writeLiveCampaign(loadedCampaign);
+        restoreRosterProjection(id, migrated.body.rosterProjection);
+      }
+      writeCachedCampaignKey(migrated);
       set({
         campaignId: id,
         dirty: false,
@@ -472,6 +646,7 @@ function loadCampaignAction(
         errorMessage: null,
         metadata: metadataFrom(migrated),
         lastPersistedCampaign: loadedCampaign,
+        legacyUnadopted: false,
       });
       return true;
     } catch (error) {
@@ -479,16 +654,69 @@ function loadCampaignAction(
       set({ saveState: 'error', errorMessage: message });
       return false;
     }
-  };
+  }
+}
+
+/**
+ * Hand this browser's legacy copy to the server as its source instance.
+ * The envelope is built at the version the copy actually carries, so the
+ * server records what was imported rather than inventing a fresh history.
+ */
+async function runAdoptLegacyCampaign(
+  set: PersistenceSet,
+  get: PersistenceGet,
+): Promise<boolean> {
+  const campaign = readLiveCampaign();
+  const campaignId = get().campaignId ?? campaign?.id ?? null;
+  if (!campaign || !campaignId) {
+    return false;
+  }
+  // Either a load already found this copy unadopted, or it came out of
+  // storage and the campaigns index is offering it. Whether adoption is
+  // actually permitted is the server's answer, not a guess made here.
+  const offered =
+    get().legacyUnadopted || readRehydratedCampaignId() === campaignId;
+  if (!offered) {
+    return false;
+  }
+  set({ saveState: 'saving', errorMessage: null });
+  try {
+    const envelope = buildSerializedCampaign(
+      campaign,
+      getDeviceId(),
+      get().metadata.version,
+      readLiveRosterSnapshot(campaign.id),
+    );
+    const response = await fetch(
+      `/api/campaigns/${encodeURIComponent(campaignId)}/adopt`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ envelope }),
+      },
+    );
+    if (!response.ok) {
+      throw new Error(`server responded ${response.status}`);
+    }
+    const record = (await response.json()) as SerializedCampaign;
+    applySavedRecord(set, record);
+    // The browser copy is now a cache of a server-held campaign.
+    set({ legacyUnadopted: false });
+    return true;
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'adoption failed';
+    set({ saveState: 'error', errorMessage: message });
+    return false;
+  }
 }
 
 function saveCampaignAction(
   set: PersistenceSet,
   get: PersistenceGet,
 ): CampaignPersistenceStore['saveCampaign'] {
-  return async () => {
+  return async (options?: { retryOnConflict?: boolean }) => {
     clearAutoSaveTimer();
-    return performSave(set, get);
+    return performSave(set, get, undefined, options?.retryOnConflict ?? true);
   };
 }
 
@@ -539,7 +767,7 @@ function resolveConflictTakeServerAction(
     if (!serverRecord) {
       return false;
     }
-    const migrated = migrateSerializedCampaign(serverRecord);
+    const migrated = migrateClientRecord(serverRecord);
     const serverCampaign = deserializeCampaignRecord(migrated);
     writeLiveCampaign(serverCampaign);
     restoreRosterProjection(
@@ -568,6 +796,7 @@ function createPersistenceActions(
     loadCampaign: loadCampaignAction(set),
     saveCampaign: saveCampaignAction(set, get),
     markDirty: markDirtyAction(set, get),
+    adoptLegacyCampaign: () => runAdoptLegacyCampaign(set, get),
     resolveConflictKeepLocal: resolveConflictKeepLocalAction(set, get),
     resolveConflictTakeServer: resolveConflictTakeServerAction(set, get),
     clearError: () => {
@@ -579,6 +808,8 @@ function createPersistenceActions(
     },
     reset: () => {
       clearAutoSaveTimer();
+      inFlightLoad = null;
+      saveChain = Promise.resolve();
       set({ ...INITIAL_STATE });
     },
   };

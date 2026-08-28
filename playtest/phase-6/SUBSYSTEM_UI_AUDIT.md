@@ -1,5 +1,7 @@
 # Subsystem UI Coverage Audit — Wave 6.1.C
 
+> **[2026-08-21] Point-in-time snapshot.** This audit reflects the tree as of 2026-05-20 and is retained as dated evidence — its rows are deliberately NOT rewritten. The living coverage source is `docs/qc/mekstation-subsystem-coverage.json`, validated in the PR unit lane by `scripts/qc/validate-subsystem-coverage.mjs`. Known drift since this snapshot: awards (components + `e2e/awards.spec.ts` now exist) and unit market (the acquisitions route + `e2e/campaign-acquisition-browser.spec.ts` now exist). A full re-audit is a recorded follow-up in the ledger's deferred rows.
+
 **Date**: 2026-05-20
 **Source**: read-only audit of MekStation 19 MekHQ-equivalent campaign subsystems
 **Conducted by**: Wave 6.1 Council Lean+ verdict follow-up

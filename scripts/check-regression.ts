@@ -1,6 +1,8 @@
 import * as fs from 'fs';
 
-const report = JSON.parse(fs.readFileSync('validation-output/bv-validation-report.json', 'utf-8'));
+const report = JSON.parse(
+  fs.readFileSync('validation-output/bv-validation-report.json', 'utf-8'),
+);
 
 // Count cockpit types and analyze non-standard ones
 const cockpitCounts: Record<string, number> = {};
@@ -25,22 +27,26 @@ for (const r of report.allResults) {
 }
 
 console.log('=== COCKPIT TYPE DISTRIBUTION ===');
-for (const [k, v] of Object.entries(cockpitCounts).sort((a, b) => (b[1] as number) - (a[1] as number))) {
+for (const [k, v] of Object.entries(cockpitCounts).sort(
+  (a, b) => (b[1] as number) - (a[1] as number),
+)) {
   console.log(`  ${k}: ${v}`);
 }
 
 // Group by cockpit type
 for (const ct of ['small', 'torso-mounted', 'interface', 'command-console']) {
-  const units = nonStdDetails.filter(u => u.cockpit === ct);
+  const units = nonStdDetails.filter((u) => u.cockpit === ct);
   if (units.length === 0) continue;
 
-  const exact = units.filter(u => u.absPct === 0).length;
-  const within1 = units.filter(u => u.absPct <= 1).length;
-  const within5 = units.filter(u => u.absPct <= 5).length;
-  const over5 = units.filter(u => u.absPct > 5);
+  const exact = units.filter((u) => u.absPct === 0).length;
+  const within1 = units.filter((u) => u.absPct <= 1).length;
+  const within5 = units.filter((u) => u.absPct <= 5).length;
+  const over5 = units.filter((u) => u.absPct > 5);
 
   console.log(`\n=== ${ct.toUpperCase()} COCKPITS: ${units.length} units ===`);
-  console.log(`  Exact: ${exact} | Within 1%: ${within1} | Within 5%: ${within5}`);
+  console.log(
+    `  Exact: ${exact} | Within 1%: ${within1} | Within 5%: ${within5}`,
+  );
 
   if (over5.length > 0) {
     console.log(`  Over 5% (${over5.length}):`);
@@ -50,8 +56,13 @@ for (const ct of ['small', 'torso-mounted', 'interface', 'command-console']) {
   }
 
   // Show units where removing the cockpit modifier would improve accuracy
-  const wouldImproveWithout = units.filter(u => {
-    const mod = ct === 'interface' ? 1.3 : ct === 'small' || ct === 'torso-mounted' ? 0.95 : 1.0;
+  const wouldImproveWithout = units.filter((u) => {
+    const mod =
+      ct === 'interface'
+        ? 1.3
+        : ct === 'small' || ct === 'torso-mounted'
+          ? 0.95
+          : 1.0;
     if (mod === 1.0) return false;
     const baseBV = u.calc / mod;
     const withStandard = Math.round(baseBV);
@@ -59,11 +70,15 @@ for (const ct of ['small', 'torso-mounted', 'interface', 'command-console']) {
   });
 
   if (wouldImproveWithout.length > 0) {
-    console.log(`  Would be MORE accurate with standard modifier: ${wouldImproveWithout.length}`);
+    console.log(
+      `  Would be MORE accurate with standard modifier: ${wouldImproveWithout.length}`,
+    );
     for (const u of wouldImproveWithout.slice(0, 5)) {
       const mod = ct === 'interface' ? 1.3 : 0.95;
       const baseBV = u.calc / mod;
-      console.log(`    ${u.name}: ref=${u.ref} calc=${u.calc} withStd=${Math.round(baseBV)}`);
+      console.log(
+        `    ${u.name}: ref=${u.ref} calc=${u.calc} withStd=${Math.round(baseBV)}`,
+      );
     }
   }
 }

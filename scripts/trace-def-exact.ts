@@ -34,7 +34,6 @@ const knownUnits = [
   // Atlas AS7-D: 100t, walk 3, jump 0, 304 armor, 152 structure, std engine
   // Defensive: (760 + 228 + 50 - 30) * 1.1 = 1108.8 (AC/20 ammo explosive, 2 slots * 15 = 30 penalty)
   // Wait actually need to check MegaMek reports directly
-
   // Let me just compute our BV and compare with known total BV
 ];
 
@@ -51,24 +50,41 @@ try {
 }
 
 interface Result {
-  unitId: string; chassis: string; model: string; tonnage: number;
-  indexBV: number; calculatedBV: number | null; difference: number | null; percentDiff: number | null;
-  breakdown?: { defensiveBV: number; offensiveBV: number; weaponBV: number; ammoBV: number; speedFactor: number; explosivePenalty: number; defensiveEquipBV: number; };
+  unitId: string;
+  chassis: string;
+  model: string;
+  tonnage: number;
+  indexBV: number;
+  calculatedBV: number | null;
+  difference: number | null;
+  percentDiff: number | null;
+  breakdown?: {
+    defensiveBV: number;
+    offensiveBV: number;
+    weaponBV: number;
+    ammoBV: number;
+    speedFactor: number;
+    explosivePenalty: number;
+    defensiveEquipBV: number;
+  };
 }
 
 const allResults: Result[] = report.allResults || [];
 
 // Filter to undercalculating units (we're too low) with breakdowns
-const underCalc = allResults.filter((r: Result) =>
-  r.calculatedBV !== null &&
-  r.difference !== null &&
-  r.difference < -5 && // At least 5 BV under
-  r.breakdown &&
-  Math.abs(r.percentDiff || 0) < 10 // Not wildly off
+const underCalc = allResults.filter(
+  (r: Result) =>
+    r.calculatedBV !== null &&
+    r.difference !== null &&
+    r.difference < -5 && // At least 5 BV under
+    r.breakdown &&
+    Math.abs(r.percentDiff || 0) < 10, // Not wildly off
 );
 
 console.log(`=== Defensive BV Gap Analysis from Validation Report ===`);
-console.log(`Total undercalculating units (>5 BV under): ${underCalc.length}\n`);
+console.log(
+  `Total undercalculating units (>5 BV under): ${underCalc.length}\n`,
+);
 
 // For each undercalculating unit, the gap = indexBV - calculatedBV
 // We know: totalBV = (defensiveBV + offensiveBV) * cockpitMod
@@ -80,8 +96,12 @@ console.log(`Total undercalculating units (>5 BV under): ${underCalc.length}\n`)
 // defGap ~ (indexBV - calculatedBV) if the gap is purely defensive
 
 // Let's compute defensive gap as fraction of pre-factor
-console.log('Name                         | Ton |  Gap  | DefBV |  OffBV | SF   | DefEqBV | ExplPen | DefBV/Gap ratio');
-console.log('-----------------------------|-----|-------|-------|--------|------|---------|---------|----------------');
+console.log(
+  'Name                         | Ton |  Gap  | DefBV |  OffBV | SF   | DefEqBV | ExplPen | DefBV/Gap ratio',
+);
+console.log(
+  '-----------------------------|-----|-------|-------|--------|------|---------|---------|----------------',
+);
 
 let totalDefBV = 0;
 let totalOffBV = 0;
@@ -97,7 +117,9 @@ for (const r of underCalc.slice(0, 60)) {
   const expl = r.breakdown.explosivePenalty;
   const sf = r.breakdown.speedFactor;
 
-  console.log(`${name} | ${String(r.tonnage).padStart(3)} | ${String(gap).padStart(5)} | ${r.breakdown.defensiveBV.toFixed(0).padStart(5)} | ${r.breakdown.offensiveBV.toFixed(0).padStart(6)} | ${sf.toFixed(2).padStart(4)} | ${String(defEq).padStart(7)} | ${String(expl).padStart(7)} | ${(r.breakdown.defensiveBV / Math.abs(gap)).toFixed(1).padStart(6)}`);
+  console.log(
+    `${name} | ${String(r.tonnage).padStart(3)} | ${String(gap).padStart(5)} | ${r.breakdown.defensiveBV.toFixed(0).padStart(5)} | ${r.breakdown.offensiveBV.toFixed(0).padStart(6)} | ${sf.toFixed(2).padStart(4)} | ${String(defEq).padStart(7)} | ${String(expl).padStart(7)} | ${(r.breakdown.defensiveBV / Math.abs(gap)).toFixed(1).padStart(6)}`,
+  );
 
   totalDefBV += r.breakdown.defensiveBV;
   totalOffBV += r.breakdown.offensiveBV;
@@ -111,17 +133,23 @@ console.log(`\n--- Summary (${count} units) ---`);
 console.log(`Average gap: ${(totalGap / count).toFixed(1)} BV`);
 console.log(`Average defensive BV: ${(totalDefBV / count).toFixed(1)}`);
 console.log(`Average offensive BV: ${(totalOffBV / count).toFixed(1)}`);
-console.log(`Gap as % of avg def BV: ${(totalGap / totalDefBV * 100).toFixed(2)}%`);
+console.log(
+  `Gap as % of avg def BV: ${((totalGap / totalDefBV) * 100).toFixed(2)}%`,
+);
 
 console.log('\n--- Gap by Tonnage ---');
-for (const [ton, gaps] of Array.from(gapsByTonnage.entries()).sort((a, b) => a[0] - b[0])) {
+for (const [ton, gaps] of Array.from(gapsByTonnage.entries()).sort(
+  (a, b) => a[0] - b[0],
+)) {
   const avg = gaps.reduce((s, g) => s + g, 0) / gaps.length;
   console.log(`  ${ton}t: avg gap ${avg.toFixed(1)} BV (n=${gaps.length})`);
 }
 
 // Check if gap scales linearly with tonnage (would indicate structure/gyro issue)
 console.log('\n--- Gap/Tonnage Ratio ---');
-for (const [ton, gaps] of Array.from(gapsByTonnage.entries()).sort((a, b) => a[0] - b[0])) {
+for (const [ton, gaps] of Array.from(gapsByTonnage.entries()).sort(
+  (a, b) => a[0] - b[0],
+)) {
   const avg = gaps.reduce((s, g) => s + g, 0) / gaps.length;
   console.log(`  ${ton}t: gap/ton = ${(avg / ton).toFixed(2)}`);
 }

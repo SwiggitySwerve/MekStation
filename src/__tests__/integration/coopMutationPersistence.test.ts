@@ -277,12 +277,14 @@ describe('co-op host mutation persistence', () => {
       registry,
       matchId: MATCH_ID,
       verifiedPlayerId: HOST_PLAYER_ID,
+      replicaStore: null,
     });
     await bindCampaignSyncConnection({
       socket: guestSocket,
       registry,
       matchId: MATCH_ID,
       verifiedPlayerId: GUEST_PLAYER_ID,
+      replicaStore: null,
     });
     hostSocket.inbound({
       kind: 'CampaignJoin',

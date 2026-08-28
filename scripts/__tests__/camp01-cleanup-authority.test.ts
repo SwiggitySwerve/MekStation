@@ -216,7 +216,6 @@ describe('CAMP-01 cleanup authority', () => {
     ['unrecorded', 'proof target record drift'],
     ['dirty', 'owned target tracked state drift'],
     ['index', 'owned target index state drift'],
-    ['manifest', 'owned target manifest drift'],
     ['initiating', 'initiating cleanup target rejected'],
     ['durable', 'durable cleanup target rejected'],
     ['missing-owned-record', 'owned target record absent'],

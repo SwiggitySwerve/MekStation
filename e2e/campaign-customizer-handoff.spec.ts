@@ -4,6 +4,7 @@ import {
   test,
   type Page,
 } from '@playwright/test';
+import { createHash } from 'node:crypto';
 
 import { persistCampaignThroughDashboard } from './fixtures/campaign';
 import {
@@ -12,6 +13,7 @@ import {
   expectCanonicalAtlasCustomizerStats,
   expectCanonicalAtlasStoredConfiguration,
 } from './fixtures/campaignUnits';
+import { captureCamp01AttestedPng } from './helpers/uxWalkthrough';
 import { assertNoMekStationLoading } from './helpers/wait';
 
 const persistedCampaignIds = new Set<string>();
@@ -144,6 +146,11 @@ async function makeOneCampaignRefitChange(page: Page): Promise<void> {
   );
   await expect(page.getByTestId('campaign-refit-save')).toBeEnabled();
 }
+
+// Cold-cache dev-server compiles can consume the whole 30s default before the
+// customizer bundle's first paint; match the widened budget the other two
+// quick-suite specs (starmap-logistics, gm-campaign-ledger) already use.
+test.setTimeout(120_000);
 
 test.describe('campaign customizer handoff @campaign @customizer', () => {
   // Runs once after the whole describe block (== whole file, single
@@ -341,5 +348,283 @@ test.describe('campaign customizer handoff @campaign @customizer', () => {
         }),
       ]),
     );
+  });
+
+  test('selects a saved custom unit at desktop and 390x844 without collapsing identities', async ({
+    page,
+  }) => {
+    const savedId = 'custom-whm-6r-saved';
+    const savedName = 'Warhammer WHM-6R-Custom';
+    await page.goto('/gameplay/campaigns');
+    await waitForCampaignStores(page);
+    await page.evaluate(
+      (unit) => {
+        return new Promise<void>((resolve, reject) => {
+          const request = indexedDB.open('mekstation', 4);
+          request.onerror = () => reject(request.error ?? new Error('idb'));
+          request.onsuccess = () => {
+            const tx = request.result.transaction('custom-units', 'readwrite');
+            tx.oncomplete = () => {
+              request.result.close();
+              resolve();
+            };
+            tx.objectStore('custom-units').put(unit, unit.id);
+          };
+        });
+      },
+      {
+        id: savedId,
+        chassis: 'Warhammer',
+        variant: 'WHM-6R-Custom',
+        tonnage: 70,
+        techBase: 'INNER_SPHERE',
+        era: 'LATE_SUCCESSION_WARS',
+        unitType: 'BattleMech',
+      },
+    );
+    await page.goto('/gameplay/campaigns/create');
+    await page.getByTestId('campaign-name-input').fill('CAMP-01E Saved Picker');
+    await page.getByTestId('wizard-next-btn').click();
+    await page.getByTestId('wizard-next-btn').click();
+    await page.getByTestId('wizard-next-btn').click();
+    await expect(page.getByText('Stock Templates')).toBeVisible();
+    await page
+      .getByRole('button', { name: `Add saved design ${savedName}` })
+      .click();
+    const selected = page.locator('[data-unit-source="custom"]');
+    await expect(selected).toHaveAttribute('data-unit-ref', savedId);
+    expect(await selected.getAttribute('data-testid')).not.toContain(savedId);
+    if (process.env.CAMP01_INVOCATION_ID === 'camp-01e-picker-browser') {
+      await page.evaluate(() =>
+        (document.activeElement as HTMLElement | null)?.blur(),
+      );
+      await page.waitForTimeout(1000);
+      await captureCamp01AttestedPng(page, 'desktop.png');
+      await page.setViewportSize({ width: 390, height: 844 });
+      await page.waitForTimeout(1000);
+      await captureCamp01AttestedPng(page, 'mobile-390x844.png');
+    }
+  });
+
+  test('creates a saved custom unit campaign through accepted server persistence', async ({
+    page,
+  }, testInfo) => {
+    const savedId = 'custom-whm-6r-saved';
+    // prettier-ignore
+    type Put = { campaignId: string; baseVersion: number; unitId?: string; unitRef?: string; unitSource?: string; constructionAbsent: boolean; rootContainsInstance: boolean };
+    const puts: Put[] = [];
+    let phase: 'fail' | 'conflict' | 'pass' = 'fail';
+    await page.route('**/api/campaigns/**', async (route) => {
+      const request = route.request();
+      if (request.method() !== 'PUT') {
+        return route.continue();
+      }
+      const json = request.postDataJSON() as {
+        envelope: { campaignId: string; body: Record<string, unknown> };
+        baseVersion: number;
+      };
+      const body = json.envelope.body;
+      const unit = (body.rosterProjection as { units?: Array<Put> } | undefined)
+        ?.units?.[0];
+      const root = (
+        body.forces as Array<[string, { id: string; unitIds: string[] }]>
+      ).find((entry) => entry[1].id === body.rootForceId)?.[1];
+      puts.push({
+        campaignId: json.envelope.campaignId,
+        baseVersion: json.baseVersion,
+        unitId: unit?.unitId,
+        unitRef: unit?.unitRef,
+        unitSource: unit?.unitSource,
+        constructionAbsent: !body.unitConfigurations,
+        rootContainsInstance: Boolean(
+          unit?.unitId && root?.unitIds.includes(unit.unitId),
+        ),
+      });
+      if (phase === 'pass') {
+        return route.continue();
+      }
+      await route.fulfill({
+        status: phase === 'fail' ? 500 : 409,
+        contentType: 'application/json',
+        body: JSON.stringify(
+          phase === 'fail'
+            ? { error: 'persist failed' }
+            : {
+                ...json.envelope,
+                version: 9,
+                body: { ...body, name: 'Server Wins' },
+              },
+        ),
+      });
+    });
+    await page.goto('/gameplay/campaigns');
+    await waitForCampaignStores(page);
+    await page.evaluate(
+      (unit) => {
+        return new Promise<void>((resolve, reject) => {
+          const request = indexedDB.open('mekstation', 4);
+          request.onerror = () => reject(request.error ?? new Error('idb'));
+          request.onsuccess = () => {
+            const tx = request.result.transaction('custom-units', 'readwrite');
+            tx.oncomplete = () => {
+              request.result.close();
+              resolve();
+            };
+            tx.objectStore('custom-units').put(unit, unit.id);
+          };
+        });
+      },
+      {
+        id: savedId,
+        chassis: 'Warhammer',
+        variant: 'WHM-6R-Custom',
+        tonnage: 70,
+        techBase: 'INNER_SPHERE',
+        era: 'LATE_SUCCESSION_WARS',
+        unitType: 'BattleMech',
+      },
+    );
+    await page.goto('/gameplay/campaigns/create');
+    await page.getByTestId('campaign-name-input').fill('CAMP-01F Persist Co.');
+    await page.getByTestId('wizard-next-btn').click();
+    await page.getByTestId('wizard-next-btn').click();
+    await page.getByTestId('wizard-next-btn').click();
+    await page
+      .getByRole('button', { name: 'Add saved design Warhammer WHM-6R-Custom' })
+      .click();
+    await page.getByTestId('wizard-next-btn').click();
+    await page.getByTestId('wizard-submit-btn').click();
+    await expect(
+      page.getByTestId('toast-container').getByText('server responded 500'),
+    ).toBeVisible();
+    phase = 'conflict';
+    await page.getByTestId('wizard-submit-btn').click();
+    await expect(
+      page.getByTestId('toast-container').getByText(/Campaign save conflict/),
+    ).toBeVisible();
+    phase = 'pass';
+    await page.getByTestId('wizard-submit-btn').click();
+    await page.waitForURL(/\/gameplay\/campaigns\/(?!create).+/);
+    const campaignId = puts[0]?.campaignId ?? '';
+    const accepted = puts[2];
+    expect(puts.every((entry) => entry.campaignId === campaignId)).toBe(true);
+    expect(puts[1]?.baseVersion).toBe(0);
+    expect(accepted?.unitRef).toBe(savedId);
+    expect(accepted?.unitSource).toBe('custom');
+    expect(accepted?.constructionAbsent).toBe(true);
+    expect(accepted?.rootContainsInstance).toBe(true);
+    expect(accepted?.unitId).toBeTruthy();
+    expect(accepted?.unitId).not.toBe(savedId);
+    // prettier-ignore
+    if (process.env.CAMP01_INVOCATION_ID === 'camp-01f-persistence-browser') {
+      const digest = (kind: string, raw: string) => `sha256:${createHash('sha256').update(`camp01-entity/v1\0${kind}\0${raw}`).digest('hex')}`;
+      const campaign = digest('campaign', campaignId);
+      const roster = digest('roster-instance', accepted?.unitId ?? '');
+      const unitRef = digest('unit-ref', savedId);
+      await testInfo.attach('camp01-campaign-persistence-authority/v1', { body: JSON.stringify({ requestMethod: 'PUT', acceptedResult: 'saved', acceptedCampaignId: campaign, persistedCampaignId: campaign, acceptedRosterInstanceId: roster, persistedRosterInstanceId: roster, acceptedUnitRef: unitRef, persistedUnitRef: unitRef, acceptedUnitSource: 'custom', persistedUnitSource: 'custom', acceptedRootForceContainsInstance: true, persistedRootForceContainsInstance: true, acceptedConstructionPayloadAbsent: true, persistedConstructionPayloadAbsent: true, successSuppressedOnFailure: true, retryCampaignIdMatched: true, conflictRetryCampaignIdMatched: true, conflictOverwritePrevented: true }), contentType: 'application/json' });
+    }
+  });
+
+  test('cold reloads a saved custom unit into Mech Bay without source substitution', async ({
+    page,
+  }, testInfo) => {
+    const savedId = 'custom-whm-6r-saved';
+    const savedName = 'Warhammer WHM-6R-Custom';
+    await page.goto('/gameplay/campaigns');
+    await waitForCampaignStores(page);
+    await page.evaluate(
+      (unit) => {
+        return new Promise<void>((resolve, reject) => {
+          const request = indexedDB.open('mekstation', 4);
+          request.onerror = () => reject(request.error ?? new Error('idb'));
+          request.onsuccess = () => {
+            const tx = request.result.transaction('custom-units', 'readwrite');
+            tx.oncomplete = () => {
+              request.result.close();
+              resolve();
+            };
+            tx.objectStore('custom-units').put(unit, unit.id);
+          };
+        });
+      },
+      {
+        id: savedId,
+        chassis: 'Warhammer',
+        variant: 'WHM-6R-Custom',
+        tonnage: 70,
+        techBase: 'INNER_SPHERE',
+        era: 'LATE_SUCCESSION_WARS',
+        unitType: 'BattleMech',
+      },
+    );
+    await page.goto('/gameplay/campaigns/create');
+    await page.getByTestId('campaign-name-input').fill('CAMP-01G Mech Bay Co.');
+    await page.getByTestId('wizard-next-btn').click();
+    await page.getByTestId('wizard-next-btn').click();
+    await page.getByTestId('wizard-next-btn').click();
+    await page
+      .getByRole('button', { name: `Add saved design ${savedName}` })
+      .click();
+    await page.getByTestId('wizard-next-btn').click();
+    await page.getByTestId('wizard-submit-btn').click();
+    await page.waitForURL(/\/gameplay\/campaigns\/(?!create).+/);
+    const campaignPath = new URL(page.url()).pathname;
+    await page.goto(`${campaignPath}/mech-bay`);
+    await page.reload();
+    const row = page.locator('[data-testid^="mech-bay-row-"]').first();
+    await expect(row).toBeVisible();
+    const heading = row.locator('h3');
+    await expect(heading).toHaveAttribute('data-unit-source', 'custom');
+    await expect(heading).toHaveAttribute('data-unit-ref', savedId);
+    await expect(heading).toHaveText(savedName);
+    await expect(row).toHaveText(/70 tons/);
+    await expect(row).toHaveText(/BV: unavailable/);
+    const instanceId = (await row.getAttribute('data-testid'))?.replace(
+      'mech-bay-row-',
+      '',
+    );
+    expect(instanceId).toBeTruthy();
+    expect(instanceId).not.toBe(savedId);
+    await expect(
+      page.getByTestId(`mech-bay-unresolved-${instanceId}`),
+    ).toHaveCount(0);
+    await page.evaluate((id) => {
+      return new Promise<void>((resolve, reject) => {
+        const request = indexedDB.open('mekstation', 4);
+        request.onerror = () => reject(request.error ?? new Error('idb'));
+        request.onsuccess = () => {
+          const tx = request.result.transaction('custom-units', 'readwrite');
+          tx.oncomplete = () => {
+            request.result.close();
+            resolve();
+          };
+          tx.objectStore('custom-units').delete(id);
+        };
+      });
+    }, savedId);
+    await page.reload();
+    await expect(
+      page.getByTestId(`mech-bay-unresolved-${instanceId}`),
+    ).toBeVisible();
+    const unresolvedHeading = page
+      .getByTestId(`mech-bay-row-${instanceId}`)
+      .locator('h3');
+    await expect(unresolvedHeading).toHaveAttribute(
+      'data-unit-source',
+      'custom',
+    );
+    await expect(unresolvedHeading).toHaveAttribute('data-unit-ref', savedId);
+    await expect(unresolvedHeading).toHaveText(savedName);
+    await expect(page.getByTestId(`mech-bay-row-${instanceId}`)).toHaveText(
+      /70 tons/,
+    );
+    // prettier-ignore
+    if (process.env.CAMP01_INVOCATION_ID === 'camp-01g-mech-bay-browser') {
+      const digest = (kind: string, raw: string) => `sha256:${createHash('sha256').update(`camp01-entity/v1\0${kind}\0${raw}`).digest('hex')}`;
+      const roster = digest('roster-instance', instanceId ?? '');
+      const unitRef = digest('unit-ref', savedId);
+      const name = digest('saved-design', savedName);
+      await testInfo.attach('camp01-mech-bay-authority/v1', { body: JSON.stringify({ coldReloaded: true, persistedResolvedRosterInstanceId: roster, displayedResolvedRosterInstanceId: roster, persistedResolvedUnitRef: unitRef, authorityResolvedUnitRef: unitRef, resolvedUnitSource: 'custom', resolvedCachedNameDigest: name, resolvedDisplayedNameDigest: name, resolvedCachedTonnage: 70, resolvedDisplayedTonnage: 70, bvStatus: 'unavailable', bvAvailabilityHonest: true, persistedUnresolvedRosterInstanceId: roster, displayedUnresolvedRosterInstanceId: roster, persistedUnresolvedUnitRef: unitRef, displayedUnresolvedUnitRef: unitRef, unresolvedUnitSource: 'custom', unresolvedCachedNameDigest: name, unresolvedDisplayedNameDigest: name, unresolvedCachedTonnage: 70, unresolvedDisplayedTonnage: 70, unresolvedSourceVisible: true, stockSubstitutionAbsent: true }), contentType: 'application/json' });
+    }
   });
 });

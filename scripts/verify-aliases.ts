@@ -1,5 +1,8 @@
 #!/usr/bin/env npx tsx
-import { resolveEquipmentBV, resetCatalogCache } from '../src/utils/construction/equipmentBVResolver';
+import {
+  resolveEquipmentBV,
+  resetCatalogCache,
+} from '../src/utils/construction/equipmentBVResolver';
 
 resetCatalogCache();
 
@@ -48,7 +51,9 @@ for (const [id, expectedBV] of testCases) {
     passed++;
   } else {
     failed++;
-    console.log(`FAIL: ${id} -> resolved=${res.resolved}, bv=${res.battleValue} (expected ${expectedBV})`);
+    console.log(
+      `FAIL: ${id} -> resolved=${res.resolved}, bv=${res.battleValue} (expected ${expectedBV})`,
+    );
   }
 }
 

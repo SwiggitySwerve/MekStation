@@ -1,8 +1,3 @@
-import type {
-  ICampaignEvent,
-  ICampaignIntent,
-  ICampaignReconcileBattleIntent,
-} from '@/types/campaign/CampaignSync';
 import type { GmDecision, IGuestProposal } from '@/types/campaign/CoopCampaign';
 import type {
   ICampaignClientMessage,
@@ -10,6 +5,13 @@ import type {
   IServerMessage,
 } from '@/types/multiplayer/Protocol';
 
+import { credentialProtocols } from '@/lib/multiplayer/socketCredentialProtocol';
+import {
+  isCampaignWireEvent,
+  type ICampaignEvent,
+  type ICampaignIntent,
+  type ICampaignReconcileBattleIntent,
+} from '@/types/campaign/CampaignSync';
 import {
   ClientMessageSchema,
   nowIso,
@@ -46,7 +48,10 @@ export interface ICampaignSyncWebSocket {
   onclose: ((ev: unknown) => void) | null;
 }
 
-export type CampaignSyncSocketFactory = (url: string) => ICampaignSyncWebSocket;
+export type CampaignSyncSocketFactory = (
+  url: string,
+  protocols?: string[],
+) => ICampaignSyncWebSocket;
 
 export interface IConnectCampaignSyncOptions {
   readonly matchId: string;
@@ -80,6 +85,7 @@ export function connectCampaignSyncTransport(
   let closed = false;
   const socket = (options.socketFactory ?? defaultSocketFactory())(
     buildCampaignSyncSocketUrl(options),
+    credentialProtocols(options.wireToken),
   );
 
   const emitError = (error: unknown): void => {
@@ -244,9 +250,12 @@ function buildCampaignSyncSocketUrl(
   options: IConnectCampaignSyncOptions,
 ): string {
   const base = options.url ?? defaultCampaignSocketUrl();
+  // No `token` here - it travels in the subprotocol header instead, so
+  // the credential stays out of access and proxy logs. `channel` and
+  // the ids are routing hints; the server derives the principal from
+  // the token alone and trusts neither.
   const params = new URLSearchParams({
     matchId: options.matchId,
-    token: options.wireToken,
     playerId: options.playerId,
     channel: 'campaign',
   });
@@ -262,12 +271,15 @@ function defaultCampaignSocketUrl(): string {
 }
 
 function defaultSocketFactory(): CampaignSyncSocketFactory {
-  return (url: string) => {
+  return (url: string, protocols?: string[]) => {
     const Ctor =
       typeof globalThis !== 'undefined'
         ? (
             globalThis as {
-              WebSocket?: new (url: string) => ICampaignSyncWebSocket;
+              WebSocket?: new (
+                url: string,
+                protocols?: string[],
+              ) => ICampaignSyncWebSocket;
             }
           ).WebSocket
         : undefined;
@@ -276,7 +288,7 @@ function defaultSocketFactory(): CampaignSyncSocketFactory {
         'No WebSocket constructor available; pass options.socketFactory',
       );
     }
-    return new Ctor(url);
+    return new Ctor(url, protocols);
   };
 }
 
@@ -296,7 +308,7 @@ function updateLastSeq(
 ): void {
   if (
     (message.kind === 'CampaignSnapshot' || message.kind === 'CampaignEvent') &&
-    isCampaignSyncEvent(message.event)
+    isCampaignWireEvent(message.event)
   ) {
     setSequence(message.event.sequence);
   }
@@ -307,7 +319,7 @@ export function campaignEventFromMessage(
 ): ICampaignEvent | null {
   if (
     (message.kind === 'CampaignSnapshot' || message.kind === 'CampaignEvent') &&
-    isCampaignSyncEvent(message.event)
+    isCampaignWireEvent(message.event)
   ) {
     return message.event;
   }
@@ -324,20 +336,4 @@ export function campaignSnapshotFromMessage(
 export function _resetCampaignSyncTransportsForTest(): void {
   activeTransports.forEach((transport) => transport.close());
   activeTransports.clear();
-}
-
-function isCampaignSyncEvent(value: unknown): value is ICampaignEvent {
-  if (typeof value !== 'object' || value === null) return false;
-  const event = value as Partial<ICampaignEvent>;
-  return (
-    typeof event.type === 'string' &&
-    typeof event.sequence === 'number' &&
-    Number.isInteger(event.sequence) &&
-    event.sequence >= -1 &&
-    typeof event.campaignId === 'string' &&
-    typeof event.ts === 'string' &&
-    typeof event.authorPlayerId === 'string' &&
-    typeof event.payload === 'object' &&
-    event.payload !== null
-  );
 }

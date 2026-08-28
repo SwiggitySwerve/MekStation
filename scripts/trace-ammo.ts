@@ -3,13 +3,19 @@
 import * as fs from 'fs';
 import * as path from 'path';
 
-const indexData = JSON.parse(fs.readFileSync('public/data/units/battlemechs/index.json', 'utf-8'));
+const indexData = JSON.parse(
+  fs.readFileSync('public/data/units/battlemechs/index.json', 'utf-8'),
+);
 const target = process.argv[2] || 'Catapult CPLT-C6';
-const iu = indexData.units.find((u: any) => `${u.chassis} ${u.model}` === target);
+const iu = indexData.units.find(
+  (u: any) => `${u.chassis} ${u.model}` === target,
+);
 if (!iu) {
   console.log('Not found:', target);
   // Try partial match
-  const partial = indexData.units.find((u: any) => `${u.chassis} ${u.model}`.includes(target));
+  const partial = indexData.units.find((u: any) =>
+    `${u.chassis} ${u.model}`.includes(target),
+  );
   if (partial) console.log('Did you mean:', partial.chassis, partial.model);
   process.exit(1);
 }
@@ -39,4 +45,8 @@ for (const [loc, slots] of Object.entries(ud.criticalSlots || {})) {
 
 // Now run the actual BV calculation to see if ammo resolves
 // We can't easily import from validate-bv.ts (it's a script), so let's just invoke it
-console.log('\nRun with: DEBUG_AMMO=1 npx tsx scripts/validate-bv.ts --filter "' + target.split(' ')[0] + '" --verbose');
+console.log(
+  '\nRun with: DEBUG_AMMO=1 npx tsx scripts/validate-bv.ts --filter "' +
+    target.split(' ')[0] +
+    '" --verbose',
+);

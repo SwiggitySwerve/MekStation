@@ -1,8 +1,12 @@
 import type { NextRouter } from 'next/router';
 
-import { act, renderHook } from '@testing-library/react';
+import { act, render, renderHook, screen } from '@testing-library/react';
+import * as fs from 'node:fs';
+import * as path from 'node:path';
+import { createElement } from 'react';
 
 import { buildMissionReadinessProjection } from '@/lib/campaign/readiness/missionReadinessProjection';
+import { useCampaignPersistenceStore } from '@/stores/campaign/useCampaignPersistenceStore';
 import { useCampaignRosterStore } from '@/stores/campaign/useCampaignRosterStore';
 import {
   resetCampaignStore,
@@ -13,6 +17,7 @@ import { clientSafeStorage } from '@/stores/utils/clientSafeStorage';
 import { CampaignPreset } from '@/types/campaign/CampaignPreset';
 import { CampaignType } from '@/types/campaign/CampaignType';
 import { PilotStatus, PilotType, type IPilot } from '@/types/pilot';
+import { UnitType } from '@/types/unit/BattleMechInterfaces';
 
 import type {
   PilotAssignments,
@@ -21,7 +26,11 @@ import type {
 } from '../CreateCampaignPage.types';
 
 import { useCampaignRosterDraft } from '../CreateCampaignPage.hooks';
-import { submitCampaignCreation } from '../CreateCampaignPage.submit';
+import { RosterStep } from '../CreateCampaignPage.RosterStep';
+import {
+  resetCampaignCreationSubmitState,
+  submitCampaignCreation,
+} from '../CreateCampaignPage.submit';
 
 function makeRouter(): NextRouter {
   return {
@@ -30,7 +39,9 @@ function makeRouter(): NextRouter {
 }
 
 function resetWorld(): void {
+  resetCampaignCreationSubmitState();
   resetCampaignStore();
+  useCampaignPersistenceStore.getState().reset();
   useCampaignRosterStore.getState().reset();
   usePilotStore.setState({
     pilots: [],
@@ -150,6 +161,11 @@ function installPilotVaultFetchMock(): jest.MockedFunction<typeof fetch> {
         });
       }
 
+      if (url.startsWith('/api/campaigns/') && method === 'PUT') {
+        const body = JSON.parse(String(init?.body)) as { envelope: unknown };
+        return jsonResponse(body.envelope);
+      }
+
       return jsonResponse({ success: true });
     },
   ) as jest.MockedFunction<typeof fetch>;
@@ -202,6 +218,7 @@ describe('CreateCampaignPage submit roster persistence', () => {
       unitId: 'unit-light',
       unitName: 'Locust LCT-1V',
       unitRef: 'locust-lct-1v',
+      sourceVersion: 1,
     });
     expect(roster.pilots[0]).toMatchObject({
       pilotId: 'vault-pilot-1',
@@ -218,6 +235,30 @@ describe('CreateCampaignPage submit roster persistence', () => {
       useCampaignStore().getState().getForcesStore()?.getState().getRootForce()
         ?.unitIds,
     ).toContain('unit-light');
+  });
+
+  it('enrolls by unitRef even when name and tonnage do not match templates', async () => {
+    const oddball: SelectedUnit = {
+      id: 'unit-oddball',
+      name: 'Not A Stock Template',
+      tonnage: 17,
+      unitRef: 'locust-lct-1v',
+      unitSource: 'canonical',
+      sourceVersion: 1,
+    };
+    await submitWizardRoster({
+      selectedUnits: [oddball],
+      selectedPilots: [pilotOne],
+    });
+    expect(
+      useCampaignStore().getState().getForcesStore()?.getState().getRootForce()
+        ?.unitIds,
+    ).toContain('unit-oddball');
+    expect(useCampaignRosterStore.getState().units[0]).toMatchObject({
+      unitId: 'unit-oddball',
+      unitRef: 'locust-lct-1v',
+      sourceVersion: 1,
+    });
   });
 
   it('auto-assigns a lone wizard pilot to a lone wizard unit', async () => {
@@ -313,5 +354,80 @@ describe('CreateCampaignPage submit roster persistence', () => {
       'MechWarrior 1',
       'MechWarrior 2',
     ]);
+  });
+
+  it('preserves saved-design identity through roster submit and publishes CAMP-01E wave-result', async () => {
+    const savedId = 'custom-whm-6r-saved';
+    const name = 'Warhammer WHM-6R Custom';
+    const customMech: SelectedUnit = {
+      id: 'unit-custom-1',
+      name,
+      tonnage: 70,
+      unitRef: savedId,
+      unitSource: 'custom',
+    };
+    const { result } = renderHook(() => useCampaignRosterDraft());
+    const add = (): void => {
+      result.current.handleAddTemplateUnit(name, 70, savedId, 'custom');
+    };
+    act(() => {
+      add();
+      add();
+    });
+    const [first, second] = result.current.selectedUnits;
+    await submitWizardRoster({
+      selectedUnits: [customMech],
+      selectedPilots: [pilotOne],
+    });
+    const rosterUnit = useCampaignRosterStore.getState().units[0];
+    const rootIds =
+      useCampaignStore().getState().getForcesStore()?.getState().getRootForce()
+        ?.unitIds ?? [];
+    const noop = jest.fn();
+    render(
+      createElement(RosterStep, {
+        selectedUnits: [customMech],
+        selectedPilots: [],
+        pilotAssignments: {},
+        onAddTemplateUnit: noop,
+        onRemoveUnit: noop,
+        onAddPilot: noop,
+        onRemovePilot: noop,
+        onAssignPilot: noop,
+        loadSavedDesignIndex: async () => [
+          { id: savedId, name, tonnage: 70, unitType: UnitType.BATTLEMECH },
+        ],
+      }),
+    );
+    expect(
+      await screen.findByRole('button', { name: `Add saved design ${name}` }),
+    ).toBeTruthy();
+    const assertions = {
+      'narrowViewportUsable===true': Boolean(
+        document.querySelector('.grid-cols-1') && screen.getByRole('status'),
+      ),
+      'programmaticNamesPresent===true': Boolean(
+        screen.getByText('Stock Templates') &&
+        screen.getByText('Saved Designs') &&
+        screen.getByRole('button', { name: `Remove ${name} from roster` }),
+      ),
+      'rootForceContainsInstance===true': rootIds.includes(customMech.id),
+      'rosterInstanceIdPresent===true':
+        Boolean(first?.id) && first?.id !== second?.id && first?.id !== savedId,
+      'savedDesignIdPresent===true': first?.unitRef === savedId,
+      'unitRefMatched===true': rosterUnit?.unitRef === savedId,
+      'unitSourceCustom===true': rosterUnit?.unitSource === 'custom',
+    };
+    expect(Object.values(assertions).every((value) => value === true)).toBe(
+      true,
+    );
+    const artifactDir = process.env.CAMP01_ARTIFACT_DIR;
+    const runId = process.env.CAMP01_RUN_ID;
+    if (!artifactDir || !runId) return;
+    fs.writeFileSync(
+      path.join(artifactDir, 'wave-result.json'),
+      `${JSON.stringify({ schema: 'camp01-wave-result/v1', wave: 'camp-01e', runId, status: 'passed', assertions })}\n`,
+      { flag: 'wx' },
+    );
   });
 });

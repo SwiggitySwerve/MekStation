@@ -45,6 +45,7 @@ const requiredAggregatorNeeds = [
   'schema-bridge',
   'determinism-audit',
   'e2e-smoke',
+  'seam-anchors',
   'desktop-typecheck',
   'desktop-tests',
 ];

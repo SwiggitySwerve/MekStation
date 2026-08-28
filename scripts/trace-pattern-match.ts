@@ -26,10 +26,15 @@ const testPatterns: Array<[RegExp, string]> = [
   [/^(?:is\s*)?(?:light\s*)?mg\s*ammo$/, 'is ammo mg - full'],
   [/^(?:is\s*)?ammo\s+mg$/, 'is ammo mg - full'],
   [/^cl(?:an)?\s*lb\s*(\d+)-x\s*(?:ac\s*)?ammo$/, 'clan lb 10-x ac ammo'],
-  [/^cl(?:an)?\s*lb\s*(\d+)-x\s*(?:ac\s*)?cluster\s*ammo$/, 'clan lb 10-x cluster ammo'],
+  [
+    /^cl(?:an)?\s*lb\s*(\d+)-x\s*(?:ac\s*)?cluster\s*ammo$/,
+    'clan lb 10-x cluster ammo',
+  ],
 ];
 
 for (const [re, input] of testPatterns) {
   const m = input.match(re);
-  console.log(`${m ? 'MATCH' : 'MISS '}  ${re.source.padEnd(55).slice(0, 55)}  tested against "${input}"`);
+  console.log(
+    `${m ? 'MATCH' : 'MISS '}  ${re.source.padEnd(55).slice(0, 55)}  tested against "${input}"`,
+  );
 }

@@ -22,7 +22,11 @@
 import * as fs from 'fs';
 import * as path from 'path';
 
-import { BAArmorType, BAManipulator, BAWeightClass } from '../src/types/unit/BattleArmorInterfaces';
+import {
+  BAArmorType,
+  BAManipulator,
+  BAWeightClass,
+} from '../src/types/unit/BattleArmorInterfaces';
 import {
   calculateBattleArmorBV,
   type BAAmmoBVMount,
@@ -35,9 +39,18 @@ import {
 // =============================================================================
 
 const PROJECT_ROOT = path.resolve(__dirname, '..');
-const DATA_DIR = path.join(PROJECT_ROOT, 'public', 'data', 'units', 'battlearmor');
+const DATA_DIR = path.join(
+  PROJECT_ROOT,
+  'public',
+  'data',
+  'units',
+  'battlearmor',
+);
 const OUTPUT_DIR = path.join(PROJECT_ROOT, 'validation-output');
-const OUTPUT_FILE = path.join(OUTPUT_DIR, 'battle-armor-bv-validation-report.json');
+const OUTPUT_FILE = path.join(
+  OUTPUT_DIR,
+  'battle-armor-bv-validation-report.json',
+);
 
 // =============================================================================
 // Report Types
@@ -130,7 +143,8 @@ interface BAUnitJSON {
 function coerceWeightClass(v: string | undefined): BAWeightClass {
   if (!v) return BAWeightClass.LIGHT;
   const norm = v.trim().toLowerCase();
-  if (norm === 'pa(l)' || norm === 'pa_l' || norm === 'pal') return BAWeightClass.PA_L;
+  if (norm === 'pa(l)' || norm === 'pa_l' || norm === 'pal')
+    return BAWeightClass.PA_L;
   if (norm === 'light') return BAWeightClass.LIGHT;
   if (norm === 'medium') return BAWeightClass.MEDIUM;
   if (norm === 'heavy') return BAWeightClass.HEAVY;
@@ -164,8 +178,10 @@ function coerceManipulator(v: string | undefined): BAManipulator {
   if (!v) return BAManipulator.NONE;
   const norm = v.trim().toLowerCase().replace(/\s|-/g, '');
   if (norm.includes('vibroclaw')) return BAManipulator.VIBRO_CLAW;
-  if (norm.includes('heavyclaw') || norm.includes('heavybattle')) return BAManipulator.HEAVY_CLAW;
-  if (norm.includes('battleclaw') || norm === 'battle') return BAManipulator.BATTLE_CLAW;
+  if (norm.includes('heavyclaw') || norm.includes('heavybattle'))
+    return BAManipulator.HEAVY_CLAW;
+  if (norm.includes('battleclaw') || norm === 'battle')
+    return BAManipulator.BATTLE_CLAW;
   if (norm.includes('basicclaw')) return BAManipulator.BASIC_CLAW;
   return BAManipulator.NONE;
 }
@@ -174,9 +190,7 @@ function coerceManipulator(v: string | undefined): BAManipulator {
 // Weapon / Ammo mount coercion
 // =============================================================================
 
-function coerceWeaponMounts(
-  v: BAUnitJSON['weapons'],
-): BAWeaponBVMount[] {
+function coerceWeaponMounts(v: BAUnitJSON['weapons']): BAWeaponBVMount[] {
   if (!v) return [];
   return v.map((w) => {
     if (typeof w === 'string') return { id: w };
@@ -251,7 +265,9 @@ function loadUnitJSONs(dir: string): { path: string; unit: BAUnitJSON }[] {
       } catch (err) {
         // Skip malformed files — surface them via console and keep going.
         // eslint-disable-next-line no-console
-        console.warn(`[validate-battle-armor-bv] skipping ${full}: ${String(err)}`);
+        console.warn(
+          `[validate-battle-armor-bv] skipping ${full}: ${String(err)}`,
+        );
       }
     }
   };
@@ -308,11 +324,11 @@ function main(): void {
     const breakdown = calculateBattleArmorBV(input);
     const computed = breakdown.final;
     const delta = ref != null ? computed - ref : null;
-    const deltaPct =
-      ref != null && ref !== 0 ? (delta! / ref) * 100 : null;
+    const deltaPct = ref != null && ref !== 0 ? (delta! / ref) * 100 : null;
 
     squads.push({
-      unitId: unit.id ?? path.relative(PROJECT_ROOT, filePath).replace(/\\/g, '/'),
+      unitId:
+        unit.id ?? path.relative(PROJECT_ROOT, filePath).replace(/\\/g, '/'),
       chassis: unit.chassis ?? unit.name ?? 'Unknown',
       model: unit.model ?? '',
       weightClass: input.weightClass,

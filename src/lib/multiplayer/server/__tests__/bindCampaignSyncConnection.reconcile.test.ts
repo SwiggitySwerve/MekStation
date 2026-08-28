@@ -82,6 +82,7 @@ describe('bindCampaignSyncConnection ReconcileBattle routing', () => {
       matchId: 'campaign-sync-match-1',
       verifiedPlayerId: 'host-player-1',
       logger: quietLogger,
+      replicaStore: null,
     });
     await bindCampaignSyncConnection({
       socket: guestSocket,
@@ -89,6 +90,7 @@ describe('bindCampaignSyncConnection ReconcileBattle routing', () => {
       matchId: 'campaign-sync-match-1',
       verifiedPlayerId: 'guest-player-1',
       logger: quietLogger,
+      replicaStore: null,
     });
 
     hostSocket.inbound({

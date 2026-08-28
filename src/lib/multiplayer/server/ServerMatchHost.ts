@@ -71,6 +71,7 @@ import type { IMatchSocket } from './ServerMatchSocketTypes';
 
 import { type IServerDiceRoller } from './CryptoDiceRoller';
 import { FogOfWarVisibilityCache } from './fogOfWar';
+import { ViewerDeliveryCursors } from './projection/ViewerDeliveryCursors';
 import { AcceptedIntentTracker } from './reconnection/AcceptedIntentTracker';
 import {
   migrateHostIfNeeded,
@@ -145,10 +146,22 @@ export type { IMatchHostBootstrap } from './ServerMatchHostBootstrap';
 // Host
 // =============================================================================
 
+import {
+  AuthorizedViewerError,
+  AuthorizedViewerResolver,
+  type IAuthorizedViewer,
+} from './authorization/AuthorizedViewer';
+import { mintVerifiedPrincipal } from './authorization/AuthorizedViewer';
+import { MatchSeatMembershipSource } from './authorization/MatchSeatMembershipSource';
+
 export class ServerMatchHost {
+  private readonly viewerResolver: AuthorizedViewerResolver;
+
   private readonly broadcaster = new ServerMatchBroadcaster();
   private readonly lifecycle: ServerMatchSocketLifecycle;
   private readonly fogVisibilityCache = new FogOfWarVisibilityCache();
+  /** Per-viewer gapless delivery numbering (umbrella 11.1). */
+  private readonly deliveryCursors = new ViewerDeliveryCursors();
   private readonly session: InteractiveSession;
   private lastBroadcastSeq: number;
   private closed = false;
@@ -222,6 +235,9 @@ export class ServerMatchHost {
     options: { readonly recovered?: boolean } = {},
   ) {
     this.session = session;
+    this.viewerResolver = new AuthorizedViewerResolver(
+      new MatchSeatMembershipSource(store),
+    );
     this.capture = new ServerMatchHostCapture(sourceRoller);
     this.outcomePublisher = new ServerMatchHostOutcomePublisher(session);
     this.lifecycle = new ServerMatchSocketLifecycle({
@@ -322,6 +338,94 @@ export class ServerMatchHost {
    * upgrade handler also needs to react to `BAD_ENVELOPE` rejections
    * before then.
    */
+  /**
+   * Membership-gated admission (authority-audit PR 2): the ONLY
+   * production path onto the socket registry. The resolver must return
+   * an active authorized viewer for this match session BEFORE the
+   * socket attaches - no baseline, replay, lobby, or event payload is
+   * ever sent to an unadmitted socket. Client-supplied role/ownership
+   * fields play no part: the upgrade handler's verified player id is
+   * the identity, and the durable seat/roster row is the authority.
+   * Failure sends a typed AUTH_REJECTED and closes.
+   */
+  admitSocket = async (
+    socket: IMatchSocket,
+    verifiedPlayerId: string,
+  ): Promise<IAuthorizedViewer | null> => {
+    try {
+      const viewer = await this.viewerResolver.resolve(
+        mintVerifiedPrincipal(verifiedPlayerId),
+        this.matchId,
+      );
+      this.attachSocket(socket, verifiedPlayerId);
+      return viewer;
+    } catch (error) {
+      if (error instanceof AuthorizedViewerError) {
+        this.safeSend(socket, {
+          kind: 'Error',
+          matchId: this.matchId,
+          ts: nowIso(),
+          code: 'AUTH_REJECTED',
+          reason: `admission refused: ${error.code}`,
+        });
+        this.safeSend(socket, {
+          kind: 'Close',
+          matchId: this.matchId,
+          ts: nowIso(),
+          code: 'AUTH_REJECTED',
+          reason: 'not an active member of this match',
+        });
+        socket.close();
+        return null;
+      }
+      // Infrastructure failure: admission still FAILS CLOSED (no
+      // membership could be verified), but with an infra code rather
+      // than an authorization verdict.
+      this.safeSend(socket, {
+        kind: 'Close',
+        matchId: this.matchId,
+        ts: nowIso(),
+        code: 'INTERNAL_ERROR',
+        reason: 'membership verification unavailable',
+      });
+      socket.close();
+      return null;
+    }
+  };
+
+  /**
+   * Re-validates every attached socket's membership after a lobby
+   * mutation (authority-audit PR 2): revocation closes subsequent
+   * publication and reconnect access at the moment membership changes,
+   * while unaffected members stay attached.
+   */
+  revalidateAttachedViewers = async (): Promise<void> => {
+    for (const { socket, playerId } of this.lifecycle.attachedSockets()) {
+      try {
+        await this.viewerResolver.resolve(
+          mintVerifiedPrincipal(playerId),
+          this.matchId,
+        );
+      } catch (error) {
+        if (!(error instanceof AuthorizedViewerError)) {
+          // Infrastructure failure is NOT revocation: keep already
+          // admitted members attached (admission still gates new
+          // access fail-closed) and let the next revalidation retry.
+          continue;
+        }
+        this.safeSend(socket, {
+          kind: 'Close',
+          matchId: this.matchId,
+          ts: nowIso(),
+          code: 'AUTH_REJECTED',
+          reason: 'membership revoked',
+        });
+        this.lifecycle.detach(socket);
+        socket.close();
+      }
+    }
+  };
+
   attachSocket = (socket: IMatchSocket, playerId: string): void => {
     if (this.closed) {
       this.safeSend(socket, {
@@ -498,12 +602,38 @@ export class ServerMatchHost {
     playerId: string,
     lastSeq?: number,
     requestedMatchId = this.matchId,
+    deliveryCursor?: number,
   ): Promise<void> => {
+    // Two different numbers arrive here and only this function knows
+    // which is which, so this is where they are converted to the one
+    // thing the replay wants: the FIRST sequence to send.
+    //
+    // `lastSeq` is the last sequence the client HOLDS, so its replay
+    // starts after it. A delivery cursor is the client's OWN numbering -
+    // the only cursor it can quote once the authority sequence stops
+    // being sent to it - and `firstMissedAuthoritySequence` already
+    // answers with the first frame they LACK, so that value IS the start
+    // and must not be advanced again. Adding one to it skipped precisely
+    // the frame a gap recovery had asked for, which made the recovery
+    // ask the right question and get an answer one event short.
+    //
+    // Falls back to a full replay when there is no record: after a
+    // restart the record is gone, and everything from the top is the
+    // correct answer then rather than a wrong one.
+    const afterLastHeld = lastSeq != null ? lastSeq + 1 : 0;
+    const firstMissed =
+      deliveryCursor === undefined
+        ? null
+        : this.deliveryCursors.firstMissedAuthoritySequence(
+            playerId,
+            deliveryCursor,
+          );
+    const resumeFrom = firstMissed ?? afterLastHeld;
     await handleSessionJoin(
       buildReplayContext(this.internals()),
       socket,
       playerId,
-      lastSeq,
+      resumeFrom,
       requestedMatchId,
     );
   };
@@ -521,15 +651,23 @@ export class ServerMatchHost {
    * rate limiter (design D6) debits the right bucket. The WebSocket
    * upgrade handler passes the per-socket identity; tests may pass any
    * stable string (or omit it for a shared bucket).
+   *
+   * `verifiedPrincipalId` is required on the production socket path
+   * (the binder passes the connection's admitted player id). Direct
+   * host.handleIntent test callers may omit it; the intent module then
+   * uses SERVER_INTERNAL_INTENT_CALLER so those in-process callers keep
+   * working. That marker is not a wire grant of authority.
    */
   handleIntent = async (
     envelope: IIntent,
     connectionKey?: string,
+    verifiedPrincipalId?: string,
   ): Promise<readonly IServerMessage[]> => {
     return handleIntentWithContext(
       buildIntentContext(this.internals()),
       envelope,
       connectionKey,
+      verifiedPrincipalId,
     );
   };
 
@@ -663,6 +801,7 @@ export class ServerMatchHost {
       handleLobbyIntent: (envelope) => this.handleLobbyIntent(envelope),
       rateLimiter: this.rateLimiter,
       acceptedIntents: this.acceptedIntents,
+      viewerResolver: this.viewerResolver,
     };
   }
 
@@ -723,9 +862,10 @@ export class ServerMatchHost {
     void this.broadcaster.broadcast(message);
 
   /**
-   * Broadcast one live game event. With fog disabled this is the same
-   * fan-out as `broadcast`; with fog enabled each recipient receives a
-   * per-player filtered/redacted envelope or no envelope at all.
+   * Broadcast one live game event. Recipient selection resolves each
+   * attached socket's admitted viewer (cached by playerId) and applies
+   * the publication boundary. Fog filtering still runs in the events
+   * module when enabled.
    */
   private async broadcastEvent(message: IEventMessage): Promise<void> {
     await broadcastEventWithContext({
@@ -735,8 +875,9 @@ export class ServerMatchHost {
       lifecycle: this.lifecycle,
       broadcaster: this.broadcaster,
       fogVisibilityCache: this.fogVisibilityCache,
+      deliveryCursors: this.deliveryCursors,
+      viewerResolver: this.viewerResolver,
       message,
-      broadcast: (serverMessage) => this.broadcast(serverMessage),
     });
   }
 
@@ -776,6 +917,9 @@ export class ServerMatchHost {
       buildLobbyContext(this.internals()),
       envelope,
     );
+    // Authority-audit PR 2: seats may have changed - revoked members
+    // lose publication + reconnect access immediately.
+    await this.revalidateAttachedViewers();
     if (envelope.intent.kind === 'ForfeitMatch') {
       if (wasPaused) {
         this.isPaused = false;

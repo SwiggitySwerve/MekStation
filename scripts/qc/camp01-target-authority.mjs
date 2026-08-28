@@ -25,10 +25,16 @@ export class Camp01TargetError extends Error {
 
 // prettier-ignore
 export async function inspectOwnedTarget({wave,subject,worktree,spec,row,headSha},dependencies={}) {
-  if(typeof wave!=='string'||!['product','audit'].includes(subject)||!row||spec?.mergeSha!==headSha||!OID.test(headSha)) fail('owned target input invalid');
+  if(typeof wave!=='string'||!['product','audit'].includes(subject)||!row) fail('owned target input invalid');
+  // Registration records the pre-edit worktree HEAD. Audit forbids --spec;
+  // product still cites the child spec, whose merge SHA may be an ancestor.
+  const omitHead=headSha===null||headSha===undefined;
+  if(subject==='audit'){ if(spec!==null&&spec!==undefined||!omitHead) fail('owned target input invalid'); }
+  else { if(!OID.test(spec?.mergeSha)) fail('owned target input invalid'); if(!omitHead&&spec.mergeSha!==headSha) fail('owned target input invalid'); }
   const canonicalPath=canonicalDirectory(worktree,dependencies), git=await resolveGit(canonicalPath,dependencies), identity=await inspectIdentity(canonicalPath,git,dependencies);
-  if(identity.headSha!==headSha) fail('worktree HEAD mismatch'); if(!identity.branchRef) fail('owned worktree must have a branch');
-  const clean=await cleanState({root:canonicalPath,expectedHead:headSha,runRoot:null,git},dependencies); return freezeTarget({kind:'owned',subject,canonicalPath,gitWorktreeId:identity.gitWorktreeId,expectedHead:headSha,branchRef:identity.branchRef,oldOid:headSha,cleanManifest:clean.manifest,nonReparse:true,initiating:false});
+  const expectedHead=omitHead?identity.headSha:headSha; if(!OID.test(expectedHead)) fail('owned target input invalid');
+  if(identity.headSha!==expectedHead) fail('worktree HEAD mismatch'); if(!identity.branchRef) fail('owned worktree must have a branch');
+  const clean=await cleanState({root:canonicalPath,expectedHead,runRoot:null,git},dependencies); return freezeTarget({kind:'owned',subject,canonicalPath,gitWorktreeId:identity.gitWorktreeId,expectedHead,branchRef:identity.branchRef,oldOid:expectedHead,cleanManifest:clean.manifest,nonReparse:true,initiating:false});
 }
 
 // prettier-ignore
@@ -52,10 +58,12 @@ export async function observeCleanState({target,phase,runRoot},dependencies={}) 
 // mode-specific null/durable values before this cap can pass the writer schema.
 // prettier-ignore
 export async function resolveTargetFacts({ownedTarget,spec,row},dependencies={}) {
-  if(ownedTarget?.kind!=='owned'||!row||row.capSubject==='none'||!OID.test(spec?.mergeSha)||ownedTarget.oldOid!==spec.mergeSha) fail('target fact input invalid'); const canonicalPath=canonicalDirectory(ownedTarget.canonicalPath,dependencies), git=await resolveGit(canonicalPath,dependencies), identity=await inspectIdentity(canonicalPath,git,dependencies);
-  if(identity.gitWorktreeId!==ownedTarget.gitWorktreeId||identity.branchRef!==ownedTarget.branchRef) fail('worktree identity drift'); const headSha=identity.headSha; await callGit({git,cwd:canonicalPath,args:['merge-base','--is-ancestor',spec.mergeSha,headSha],message:'target head does not descend from base'},dependencies); await cleanState({root:canonicalPath,expectedHead:headSha,runRoot:null,git},dependencies); const treeSha=(await callGit({git,cwd:canonicalPath,args:['rev-parse','--verify',`${headSha}^{tree}`],message:'tree identity unavailable'},dependencies)).stdout.trim(); if(!OID.test(treeSha)) fail('tree identity unavailable');
-  const raw=(await callGit({git,cwd:canonicalPath,args:['diff','--numstat','-z','--no-renames',spec.mergeSha,headSha,'--'],message:'target diff unavailable'},dependencies)).stdout, manifest=parseNumstat(raw), changedLineCount=manifest.reduce((sum,entry)=>sum+(entry.added??0)+(entry.deleted??0),0);
-  return Object.freeze({treeSha,capProvenance:Object.freeze({subject:row.capSubject,baseSha:spec.mergeSha,headSha,fileCount:manifest.length,changedLineCount,binaryEntries:manifest.some((entry)=>entry.binary),changedTreeManifestDigest:digestBytes(canonicalBytes(manifest)),reviewedHeadReceiptId:undefined,reviewedHeadReceiptManifestDigest:undefined})});
+  if(ownedTarget?.kind!=='owned'||!row||row.capSubject==='none'||!OID.test(spec?.mergeSha)||!OID.test(ownedTarget.oldOid)) fail('target fact input invalid');
+  if(row.capSubject!=='product-pr'&&row.capSubject!=='audit-pr') fail('target fact input invalid');
+  const canonicalPath=canonicalDirectory(ownedTarget.canonicalPath,dependencies), git=await resolveGit(canonicalPath,dependencies), identity=await inspectIdentity(canonicalPath,git,dependencies);
+  if(identity.gitWorktreeId!==ownedTarget.gitWorktreeId||identity.branchRef!==ownedTarget.branchRef) fail('worktree identity drift'); const headSha=identity.headSha, baseSha=ownedTarget.oldOid; await callGit({git,cwd:canonicalPath,args:['merge-base','--is-ancestor',spec.mergeSha,headSha],message:'target head does not descend from base'},dependencies); await callGit({git,cwd:canonicalPath,args:['merge-base','--is-ancestor',baseSha,headSha],message:'target head does not descend from base'},dependencies); await cleanState({root:canonicalPath,expectedHead:headSha,runRoot:null,git},dependencies); const treeSha=(await callGit({git,cwd:canonicalPath,args:['rev-parse','--verify',`${headSha}^{tree}`],message:'tree identity unavailable'},dependencies)).stdout.trim(); if(!OID.test(treeSha)) fail('tree identity unavailable');
+  const raw=(await callGit({git,cwd:canonicalPath,args:['diff','--numstat','-z','--no-renames',baseSha,headSha,'--'],message:'target diff unavailable'},dependencies)).stdout, manifest=parseNumstat(raw), changedLineCount=manifest.reduce((sum,entry)=>sum+(entry.added??0)+(entry.deleted??0),0);
+  return Object.freeze({treeSha,capProvenance:Object.freeze({subject:row.capSubject,baseSha,headSha,fileCount:manifest.length,changedLineCount,binaryEntries:manifest.some((entry)=>entry.binary),changedTreeManifestDigest:digestBytes(canonicalBytes(manifest)),reviewedHeadReceiptId:undefined,reviewedHeadReceiptManifestDigest:undefined})});
 }
 
 // prettier-ignore
@@ -95,13 +103,14 @@ function lstat(value,dependencies) { try { return (dependencies.lstat??fs.lstatS
 // prettier-ignore
 function lstatIfPresent(value,dependencies) { try { return (dependencies.lstat??fs.lstatSync)(value); } catch(error) { if(error?.code==='ENOENT') return null; fail('filesystem inspection failed'); } }
 // prettier-ignore
-function resolveAllowed(root,runRoot,dependencies) { if(runRoot===null||runRoot===undefined) return null; if(typeof runRoot!=='string'||path.isAbsolute(runRoot)||runRoot.includes('\\')||runRoot.split('/').some((part)=>!part||part==='..')) fail('run root invalid'); const resolved=path.resolve(root,...runRoot.split('/')); if(resolved===root||!resolved.startsWith(`${root}${path.sep}`)) fail('run root invalid'); const stat=lstatIfPresent(resolved,dependencies); if(stat?.isSymbolicLink()) fail('reparse point present'); if(stat!==null&&!stat.isDirectory()) fail('run root invalid'); return resolved; }
+function resolveAllowed(root,runRoot,dependencies) { if(runRoot===null||runRoot===undefined) return null; if(typeof runRoot!=='string'||path.isAbsolute(runRoot)||runRoot.includes('\\')||runRoot.split('/').some((part)=>!part||part==='..')) fail('run root invalid'); const resolved=path.resolve(root,...runRoot.split('/')); if(resolved===root||!resolved.startsWith(`${root}${path.sep}`)) fail('run root invalid'); const evidence=path.resolve(root,'.sisyphus','evidence'); return Object.freeze([resolved,evidence].filter((value,index,all)=>all.indexOf(value)===index).map((value)=>{ const stat=lstatIfPresent(value,dependencies); if(stat?.isSymbolicLink()) fail('reparse point present'); if(stat!==null&&!stat.isDirectory()) fail('run root invalid'); return value; })); }
 // prettier-ignore
-function excluded(value,allowed) { return allowed!==null&&(value===allowed||value.startsWith(`${allowed}${path.sep}`)); }
+function excluded(value,allowed) { return allowed!==null&&allowed.some((base)=>value===base||value.startsWith(`${base}${path.sep}`)); }
 // prettier-ignore
 function parseWorktrees(value) { return value.split('\0\0').map((record)=>record.split('\0')).filter((fields)=>fields.some(Boolean)).map((fields)=>{const worktree=fields.find((field)=>field.startsWith('worktree '))?.slice(9), headSha=fields.find((field)=>field.startsWith('HEAD '))?.slice(5), branchRef=fields.find((field)=>field.startsWith('branch '))?.slice(7)??null; return {worktree,headSha,branchRef};}); }
+// Parses canonical numstat once so construction and admission derive identical caps.
 // prettier-ignore
-function parseNumstat(value) { return value.split('\0').filter(Boolean).map((record)=>{const first=record.indexOf('\t'), second=record.indexOf('\t',first+1), addedRaw=record.slice(0,first), deletedRaw=record.slice(first+1,second), file=record.slice(second+1).replace(/\\/g,'/'), binary=addedRaw==='-'&&deletedRaw==='-'; if(first<1||second<0||!file||path.isAbsolute(file)||file.split('/').includes('..')||!binary&&!/^\d+$/.test(addedRaw+deletedRaw)) fail('target diff invalid'); return {path:file,added:binary?null:Number(addedRaw),deleted:binary?null:Number(deletedRaw),binary};}).sort((left,right)=>left.path<right.path?-1:left.path>right.path?1:0); }
+export function parseNumstat(value) { return value.split('\0').filter(Boolean).map((record)=>{const first=record.indexOf('\t'), second=record.indexOf('\t',first+1), addedRaw=record.slice(0,first), deletedRaw=record.slice(first+1,second), file=record.slice(second+1).replace(/\\/g,'/'), binary=addedRaw==='-'&&deletedRaw==='-'; if(first<1||second<0||!file||path.isAbsolute(file)||file.split('/').includes('..')||!binary&&!/^\d+$/.test(addedRaw+deletedRaw)) fail('target diff invalid'); return {path:file,added:binary?null:Number(addedRaw),deleted:binary?null:Number(deletedRaw),binary};}).sort((left,right)=>left.path<right.path?-1:left.path>right.path?1:0); }
 // prettier-ignore
 async function resolveGit(cwd,dependencies) { if(dependencies.git) return dependencies.git; try { return await resolveVerifiedGit({cwd},dependencies.gitResolverDependencies??{}); } catch(error) { if(error instanceof Camp01GitError) fail('verified Git unavailable'); throw error; } }
 // prettier-ignore

@@ -28,6 +28,7 @@ function dayEvent(sequence: number, newDay: number): ICampaignEvent {
     campaignId: CAMPAIGN_ID,
     ts: '3025-01-01T00:00:00.000Z',
     authorPlayerId: 'host',
+    scope: 'campaign',
     payload: { newDay },
   };
 }
@@ -118,6 +119,7 @@ describe('CampaignEventLog — replay reconstruction', () => {
         campaignId: CAMPAIGN_ID,
         ts: '3025-01-01T00:00:00.000Z',
         authorPlayerId: 'host',
+        scope: 'campaign',
         payload: { state: createEmptyCampaignState(CAMPAIGN_ID) },
       },
       {
@@ -126,6 +128,7 @@ describe('CampaignEventLog — replay reconstruction', () => {
         campaignId: CAMPAIGN_ID,
         ts: '3025-01-01T00:00:00.000Z',
         authorPlayerId: 'host',
+        scope: 'campaign',
         payload: {
           delta: 500_000,
           reason: 'Contract advance',
@@ -139,6 +142,7 @@ describe('CampaignEventLog — replay reconstruction', () => {
         campaignId: CAMPAIGN_ID,
         ts: '3025-01-01T00:00:00.000Z',
         authorPlayerId: 'host',
+        scope: 'campaign',
         payload: {
           pilot: { pilotId: 'p1', name: 'Pilot One' },
           cost: 50_000,

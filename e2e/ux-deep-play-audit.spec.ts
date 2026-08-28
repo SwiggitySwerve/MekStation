@@ -24,6 +24,7 @@ import {
   type MissionLaunchObservation,
 } from './helpers/campaignFlow';
 import {
+  captureCamp01AttestedPng,
   createWalkthroughRecorder,
   type WalkthroughRecorder,
   type WalkthroughFindingSeverity,
@@ -992,6 +993,18 @@ test.describe('ux deep-play audit - desktop', () => {
     );
     const driver = createJourneyDriver(walk);
     try {
+      if (process.env.CAMP01_INVOCATION_ID === '01-ux-audit-deep') {
+        await page.goto('/dashboard');
+        await page.evaluate(() =>
+          (document.activeElement as HTMLElement | null)?.blur(),
+        );
+        await page.waitForTimeout(1000);
+        await captureCamp01AttestedPng(page, 'desktop.png');
+        await page.setViewportSize({ width: 390, height: 844 });
+        await page.waitForTimeout(1000);
+        await captureCamp01AttestedPng(page, 'mobile-390x844.png');
+        await page.setViewportSize({ width: 1440, height: 1000 });
+      }
       const campaign = await createCampaignViaWizard(driver, page, {
         name: `Deep Loop ${Date.now()}`,
         description:

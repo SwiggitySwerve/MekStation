@@ -109,7 +109,8 @@ export interface ICoopEncounterComposition {
 export type CoopCompositionRejection =
   | 'no-deploying-player'
   | 'no-contributions'
-  | 'duplicate-player';
+  | 'duplicate-player'
+  | 'duplicate-unit';
 
 /**
  * The result of composing a co-op encounter — either the composition or
@@ -182,9 +183,28 @@ export function composeCoopEncounter(
 
   // Collect every deploying player's force units onto the shared side,
   // each tagged with its owner for `ServerMatchHost` ownership checks.
+  //
+  // A unit may appear ONCE. A co-op campaign has one shared roster, so
+  // both players pick from the same units and nothing stopped them
+  // picking the same lance - which produced two seats for one unit id
+  // carrying two DIFFERENT owners: the same mech on the map twice, and
+  // an ownership question with two answers.
+  //
+  // Checked across DEPLOYING contributions only. A command-HQ player
+  // puts nothing on the map, so their force overlapping a deployer's is
+  // not a double-deployment and must not block the launch.
+  //
+  // Refused rather than de-duplicated: silently dropping the second
+  // copy would quietly discard part of somebody's contribution, and the
+  // launch surface branches on a typed cause it can explain.
   const coopSeats: ICoopUnitSeat[] = [];
+  const seenUnits = new Set<string>();
   for (const contribution of deploying) {
     for (const unitId of contribution.force.unitIds) {
+      if (seenUnits.has(unitId)) {
+        return { ok: false, reason: 'duplicate-unit' };
+      }
+      seenUnits.add(unitId);
       coopSeats.push({
         unitId,
         ownerPlayerId: contribution.playerId,
@@ -211,12 +231,27 @@ export function composeCoopEncounter(
 /**
  * Check whether `playerId` owns `unitId` in a composed co-op encounter.
  *
- * `ServerMatchHost` already validates unit ownership for any seated
- * match; this helper expresses the co-op-specific ownership map so a
- * co-op combat-intent gate can reject an intent for a unit a player does
- * not own (design D1 / spec scenario "Cross-player unit intent is
+ * This helper expresses the co-op-specific ownership map so a co-op
+ * combat-intent gate can reject an intent for a unit a player does not
+ * own (design D1 / spec scenario "Cross-player unit intent is
  * rejected"). A unit absent from the composition is owned by no player,
  * so the helper returns `false` — an intent for it is rejected.
+ *
+ * This comment used to open by saying `ServerMatchHost` already
+ * validated unit ownership for any seated match. It did not, and the
+ * belief that it did is the likeliest reason nothing ever called this:
+ * the co-op case looked like a refinement of a working base case rather
+ * than the only guard there was. Measured 2026-08-26 on a properly
+ * seated 1v1, a player holding the `bravo` seat moved a Player-side mech
+ * and the host committed it.
+ *
+ * `ServerMatchHost` NOW refuses a command whose actor unit sits on a
+ * side the caller does not hold. That is a coarser grain than this
+ * helper: it separates opponents, not teammates. In a co-op match both
+ * players share the `player` side, so the host cannot tell their mechs
+ * apart, and this helper is still the only thing that can. It remains
+ * uncalled — `coopSeats` never leaves this module, so the per-unit owner
+ * map does not reach the host to be checked against.
  */
 export function ownsCoopUnit(
   composition: ICoopEncounterComposition,

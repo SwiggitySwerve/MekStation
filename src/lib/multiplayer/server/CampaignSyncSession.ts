@@ -18,13 +18,29 @@
  *     sends a fresh snapshot and resumes live streaming from there.
  *   - `hostDisconnected` pauses the session — the guest mirror is
  *     frozen and stays read-only; no campaign-tier host migration.
+ *   - `evaluateScenarioLaunch` decides whether PROGRESSION (not
+ *     delivery) may happen, by checking that every retained participant
+ *     has acknowledged the campaign's current revision, and naming the
+ *     ones who have not.
+ *
+ * NOT WIRED. Nothing in production calls `evaluateScenarioLaunch`,
+ * `noteParticipantAcknowledged`, or passes a `participantId` to
+ * `joinMember` / `joinGuest` — grepped, not assumed. So `retained` is
+ * empty in every live session and the gate answers `ok` unconditionally:
+ * the spec scenario "Slow player blocks next scenario" is NOT enforced
+ * by shipping this file alone. The socket wiring is owned elsewhere in
+ * this wave; `evaluateScenarioLaunch`'s doc states what it must pass
+ * and which revision it must read.
  *
  * @spec openspec/changes/add-shared-campaign-state/specs/coop-campaign-sync/spec.md
  * @spec openspec/changes/add-shared-campaign-state/design.md (D6)
+ * @spec openspec/changes/harden-gm-two-player-campaign-sessions/specs/coop-campaign-sync/spec.md
+ *       (Campaign Progression Requires Convergence)
  */
 
 import type { ICampaignEvent } from '@/types/campaign/CampaignSync';
 
+import { freezeCampaignEvent } from '@/lib/campaign/sync/campaignEventScope';
 import { generateRoomCode, normalizeRoomCode } from '@/lib/p2p/roomCodes';
 import { nowIso } from '@/types/multiplayer/Protocol';
 
@@ -61,6 +77,44 @@ export interface ICampaignJoinResult {
   readonly disconnect: () => void;
 }
 
+/**
+ * A retained participant's place on the campaign's revision line — the
+ * highest campaign revision they have reported applying.
+ */
+export interface ICampaignParticipantConvergence {
+  readonly participantId: string;
+  readonly acknowledgedRevision: number;
+}
+
+/**
+ * The one reason this gate refuses a scenario launch. A named constant
+ * rather than a free string so the surface that SHOWS the reason cannot
+ * drift from the surface that decides it.
+ */
+export const PROGRESSION_BLOCKED_BEHIND = 'participants-behind' as const;
+
+/**
+ * The launch gate's answer. The refusal carries WHO is behind and how
+ * far, not merely that someone is: a bare `false` leaves the GM with a
+ * disabled button and no way to find out what they are waiting for.
+ */
+export type CampaignProgressionGate =
+  | { readonly ok: true; readonly requiredRevision: number }
+  | {
+      readonly ok: false;
+      readonly reason: typeof PROGRESSION_BLOCKED_BEHIND;
+      readonly requiredRevision: number;
+      readonly behind: readonly ICampaignParticipantConvergence[];
+    };
+
+/** What recording a participant's acknowledgement did. */
+export type CampaignAckOutcome =
+  | 'applied'
+  | 'stale'
+  | 'unknown-participant'
+  | 'ahead-of-commit'
+  | 'invalid-revision';
+
 /** The outcome of a guest resync. */
 export interface ICampaignResyncResult {
   /** True when the resync was accepted. */
@@ -79,11 +133,56 @@ export interface ICampaignResyncResult {
 
 export class CampaignSyncSession {
   private readonly host: CampaignMatchHost;
+  private readonly matchId: string;
   private roomCode: string | null = null;
   private paused = false;
+  /**
+   * How many GM connections are currently attached.
+   *
+   * A COUNT rather than a flag, because the GM can hold more than one
+   * at a time - a second tab, or a reconnect that lands before the old
+   * socket's close is processed. With a flag, closing either one paused
+   * a session the GM was still sitting in.
+   */
+  private gmConnections = 0;
+  /**
+   * Whether `open` has run. Tracked separately from `roomCode` because
+   * an open session may legitimately hold no invite, and `roomCode`
+   * alone cannot tell "opened without one" from "not opened yet" —
+   * conflating them would re-run `open` and mint a fresh code for a
+   * campaign whose invite had expired.
+   */
+  private opened = false;
+  /**
+   * Retained participants, keyed to the highest campaign revision each
+   * has acknowledged applying.
+   *
+   * A MAP rather than a set of converged/not flags, because the gate has
+   * to be able to NAME who it is waiting for. It is also the retained
+   * set itself: a participant is in here because they were admitted, and
+   * an audited GM removal is what takes them out.
+   *
+   * NOTHING REMOVES ANYONE TODAY — 9.3's audited-removal command does
+   * not exist. That is not merely incomplete, it is a precondition on
+   * wiring this gate: a participant who leaves and never returns stays
+   * retained and behind, so every subsequent launch is refused for the
+   * life of the process. Removal has to land before, or with, the
+   * socket wiring — never after it.
+   *
+   * Held in memory, so a rebuilt session starts with it empty and blocks
+   * nobody until participants rejoin. That is the honest statement of
+   * what this process knows — a durable retained roster is 9.1's schema
+   * work, and a stored roster that disagreed with who is actually here
+   * would block launches on ghosts.
+   */
+  private readonly retained = new Map<string, number>();
 
-  constructor(host: CampaignMatchHost) {
+  constructor(
+    host: CampaignMatchHost,
+    options: { readonly matchId?: string } = {},
+  ) {
     this.host = host;
+    this.matchId = options.matchId ?? host.campaignId;
   }
 
   /**
@@ -96,13 +195,38 @@ export class CampaignSyncSession {
     if (this.roomCode !== null) {
       return this.roomCode;
     }
-    // The host commits the baseline `CampaignSnapshotPublished` as
-    // sequence 0 so the log always opens with a replayable baseline.
-    await this.host.open();
+    await this.ensureHostOpen();
     // Room code: same alphabet as `multiplayer-server` (I/O/0/1
-    // excluded — `generateRoomCode` already enforces it).
+    // excluded - `generateRoomCode` already enforces it).
     this.roomCode = roomCode ? normalizeRoomCode(roomCode) : generateRoomCode();
     return this.roomCode;
+  };
+
+  /**
+   * Open a campaign whose invite has ALREADY expired - the state a
+   * campaign is in after its match launched and the store cleared the
+   * code (`clearRoomCode`).
+   *
+   * Deliberately a separate entry point rather than a nullable argument
+   * to `open`, because `open` always ends with a LIVE invite: minting
+   * one here would let rehydrating a launched campaign re-open the door
+   * that launching closed. Members still join through `joinMember`;
+   * newcomers presenting the old code do not.
+   */
+  openWithoutInvite = async (): Promise<void> => {
+    await this.ensureHostOpen();
+  };
+
+  /**
+   * Commit the baseline `CampaignSnapshotPublished` as sequence 0 so
+   * the log always opens with a replayable baseline. Idempotent, and
+   * tracked by `opened` rather than by `roomCode` so an invite-less
+   * session still counts as open.
+   */
+  private ensureHostOpen = async (): Promise<void> => {
+    if (this.opened) return;
+    await this.host.open();
+    this.opened = true;
   };
 
   /** The issued room code, or `null` before `open`. */
@@ -113,6 +237,57 @@ export class CampaignSyncSession {
   /** Whether the session is paused (host disconnected). */
   isPaused = (): boolean => {
     return this.paused;
+  };
+
+  /**
+   * The GM's connection arrived. Clears a pause left by their previous
+   * one dropping.
+   *
+   * Only the GM's own reconnection resumes: the caller decides who this
+   * is by comparing the connection's VERIFIED principal to the
+   * registered host, so a tactical player cannot reach this by claiming
+   * to be one.
+   */
+  noteGmConnected = (): void => {
+    this.gmConnections += 1;
+    this.paused = false;
+  };
+
+  /**
+   * The GM's connection dropped. The session pauses; nobody is promoted.
+   *
+   * Distinct from `hostDisconnected`, which is TERMINAL - it closes the
+   * host, so nothing can resume afterwards. This is the recoverable
+   * case: authority stays with the absent GM and waits for them, which
+   * is the whole point of not promoting anyone.
+   *
+   * A no-op when no GM connection is attached, so a stray close from a
+   * connection that never held GM authority cannot pause the session.
+   */
+  /**
+   * Pause a session that is being rebuilt rather than created - after a
+   * restart, or after the registry evicted it.
+   *
+   * This is what makes the GM-loss pause survive a process restart, and
+   * it does so WITHOUT a stored flag. A stored flag can disagree with
+   * reality; this cannot, because it states the reality directly: a
+   * rebuilt session has no GM connection attached, so the GM is absent,
+   * so the campaign is paused. Their next connection clears it.
+   *
+   * A freshly CREATED session does not call this. The GM is the one
+   * creating it and their socket follows immediately, and starting that
+   * case paused would refuse a guest who arrives in between.
+   */
+  pauseUntilGmReturns = (): void => {
+    this.paused = true;
+  };
+
+  noteGmDisconnected = (): void => {
+    if (this.gmConnections === 0) return;
+    this.gmConnections -= 1;
+    // Paused only when the LAST one goes. The GM is absent when none of
+    // their connections remain, not when one of several closes.
+    if (this.gmConnections === 0) this.paused = true;
   };
 
   /**
@@ -130,6 +305,7 @@ export class CampaignSyncSession {
   joinGuest = async (
     roomCode: string,
     sink: CampaignGuestSink,
+    participantId?: string,
   ): Promise<ICampaignJoinResult> => {
     if (
       this.roomCode === null ||
@@ -137,25 +313,70 @@ export class CampaignSyncSession {
     ) {
       return { ok: false, delivered: [], disconnect: () => {} };
     }
+    return this.joinMember(sink, participantId);
+  };
+
+  /**
+   * Admit a participant whose right to be here was established
+   * elsewhere — a durable campaign-session membership — and hydrate
+   * them exactly as an invited guest.
+   *
+   * Separate from `joinGuest` because the invite and the membership
+   * answer different questions. Expressing the member path in terms of
+   * the invite made expiring the invite lock out the people already
+   * inside, which is the opposite of what expiry is for.
+   *
+   * Refuses on a session that never opened, or one paused by the host
+   * leaving: there is no live campaign to hydrate from, and that is a
+   * different answer from "you are not a member".
+   *
+   * `participantId` — when the caller has PROVED who this is — retains
+   * the participant for the progression gate, and makes this connection
+   * the thing that records what they were delivered. Omitting it
+   * hydrates exactly as before and retains nobody, so an unidentified
+   * sink can never become something a launch waits on. No production
+   * caller passes it yet.
+   */
+  joinMember = async (
+    sink: CampaignGuestSink,
+    participantId?: string,
+  ): Promise<ICampaignJoinResult> => {
+    if (!this.opened || this.paused) {
+      return { ok: false, delivered: [], disconnect: () => {} };
+    }
 
     const delivered: ICampaignEvent[] = [];
-
-    // Step 1 — the baseline snapshot. Built from the host's CURRENT
-    // authoritative state and stamped as sequence -1 framing so it is
-    // unambiguously the baseline and never collides with a log event.
-    const baseline = this.buildBaselineEvent();
+    const buffered: ICampaignEvent[] = [];
+    const liveUnsub = this.host.subscribe((event) => buffered.push(event));
+    const revision = await this.currentRevision();
+    const baseline = this.buildBaselineEvent(revision);
     delivered.push(baseline);
     sink(baseline);
 
-    // Step 2 — stream the campaign event log from sequence 0.
-    const log = await this.host.getEventLog().getCampaignEvents(0);
-    for (const event of log) {
+    const seen = new Set<number>();
+    const tail = await this.host.getEventLog().getCampaignEvents(revision + 1);
+    for (const event of [...tail, ...buffered]) {
+      if (event.sequence <= revision || seen.has(event.sequence)) continue;
+      seen.add(event.sequence);
       delivered.push(event);
       sink(event);
     }
+    liveUnsub();
 
-    // Step 3 — live subscription. Every event the host commits from now
-    // on is pushed straight to the guest's sink.
+    if (participantId !== undefined) {
+      // A member is converged the moment they are hydrated: the baseline
+      // they were handed IS `revision`, so seeding here rather than at
+      // their first acknowledgement stops someone who just walked in from
+      // blocking a launch they are not behind on. AFTER the frames rather
+      // than before them, so a sink that throws part-way leaves nobody
+      // retained-and-converged for a hydration that never completed.
+      //
+      // Plain assignment, not a max: a re-join reads the CURRENT head
+      // and the head never falls, so rehydration can only raise this.
+      // Guarding a fall that cannot happen made a bad value permanent.
+      this.retained.set(participantId, revision);
+    }
+
     const unsubscribe = this.host.subscribe((event) => {
       sink(event);
     });
@@ -172,6 +393,12 @@ export class CampaignSyncSession {
    *     `CampaignSnapshotPublished` baseline, then resume live streaming
    *     from after it (spec scenario "Large-gap resync receives a fresh
    *     snapshot").
+   *
+   * IDENTIFIES NOBODY, deliberately: taking no `participantId`, it does
+   * not converge a retained participant the way `joinMember` does, so a
+   * player brought back this way still reads as behind. Route identified
+   * participants through `joinMember`. Nothing calls `resyncGuest` in
+   * production today (grepped) — a rule for the wiring, not a defect.
    */
   resyncGuest = async (
     lastSeq: number,
@@ -192,7 +419,7 @@ export class CampaignSyncSession {
 
     if (gap > RESYNC_SNAPSHOT_GAP) {
       // Large-gap path — a fresh baseline is cheaper than the tail.
-      const baseline = this.buildBaselineEvent();
+      const baseline = this.buildBaselineEvent(Math.max(0, highest - 1));
       delivered.push(baseline);
       sink(baseline);
       const unsubscribe = this.host.subscribe(sink);
@@ -215,6 +442,115 @@ export class CampaignSyncSession {
   };
 
   /**
+   * Record that a retained participant has applied campaign revision
+   * `revision`. Monotonic — a late frame from a superseded connection
+   * cannot un-converge a participant who has already caught up.
+   *
+   * Refused in three cases, each of which would otherwise turn the
+   * launch gate into advice:
+   *
+   *   - `unknown-participant` — the caller is not in the retained set, so
+   *     a stranger cannot add themselves to the set a launch waits on.
+   *   - `invalid-revision` — the claim is not a revision number at all.
+   *     `NaN` is the case that matters: every comparison against it is
+   *     false, so without this check it slipped BOTH remaining guards,
+   *     was stored, and then compared false against the required
+   *     revision forever — a participant who had acknowledged nothing
+   *     read as permanently converged, and no rejoin could repair it.
+   *   - `ahead-of-commit` — the claim runs past the highest revision the
+   *     host has committed.
+   *
+   * `ahead-of-commit` CHECKS THE COMMIT HEAD, NOT DELIVERY, and the name
+   * now says so. Called `ahead-of-delivery` while checking exactly this,
+   * it claimed a guarantee the code does not give: the head is a number
+   * every client knows, so a participant sent nothing at all converges by
+   * naming it. All the ceiling buys today is that a client cannot invent
+   * a FUTURE revision; the rest needs a delivered watermark.
+   *
+   * The caller is responsible for having PROVED the participant's
+   * identity first; this records a cursor, it does not authorize one.
+   */
+  noteParticipantAcknowledged = async (
+    participantId: string,
+    revision: number,
+  ): Promise<CampaignAckOutcome> => {
+    const acknowledged = this.retained.get(participantId);
+    if (acknowledged === undefined) return 'unknown-participant';
+    if (!Number.isInteger(revision) || revision < 0) return 'invalid-revision';
+    if (revision > (await this.currentRevision())) return 'ahead-of-commit';
+    if (revision <= acknowledged) return 'stale';
+    this.retained.set(participantId, revision);
+    return 'applied';
+  };
+
+  /**
+   * Decide whether the campaign may progress to the next scenario.
+   *
+   * Committed events keep flowing to whoever can take them — this gate
+   * is deliberately not consulted anywhere on the delivery path — but a
+   * scenario launch requires every RETAINED participant to have reached
+   * the campaign's current revision, and the refusal names them so the
+   * reason is showable rather than a disabled button with no
+   * explanation.
+   *
+   * What actually blocks is narrower than "reconnecting or behind": a
+   * participant who reconnects through `joinMember` is re-hydrated at
+   * the current head and so converges with no acknowledgement at all.
+   * What blocks is a participant who is ABSENT while the campaign moves
+   * on, or present and short of the head.
+   *
+   * This answers CONVERGENCE ONLY. It does not consult `paused` or
+   * `opened`, so it returns `ok` on a session whose GM has gone — the
+   * GM-loss refusal is its own guard (`refusedWhilePaused` in
+   * `bindCampaignSyncConnection.ts`, umbrella 9.3) and duplicating it
+   * here would give two places to keep in step. A caller must apply
+   * BOTH.
+   *
+   * The required revision is read LIVE from the log head rather than
+   * cached, for the same reason `getParticipationRecords` filters
+   * against current roster state: a stored copy is a claim that has to
+   * be kept in step with reality, and this states the reality directly.
+   *
+   * WIRING — the revision the acknowledgement carries must live in the
+   * log-head number space this gate reads (`nextSequence() - 1`). The
+   * two sources that do are the baseline event's `payload.revision`
+   * handed back by `joinMember`, and the `sequence` of each campaign
+   * event the client then applies. `ICampaignHostRegistryEntry.revision`
+   * — and so the `revision` captured by
+   * `captureCampaignConnectionBaseline` — is NOT one: it is sampled once
+   * at registration and only `advanceRevision` moves it, which no
+   * production code calls (`campaignParticipationFreshness.ts` records
+   * the same fact for participation admission). Feeding the gate that
+   * number refuses every launch from the first committed event onward.
+   */
+  evaluateScenarioLaunch = async (): Promise<CampaignProgressionGate> => {
+    const requiredRevision = await this.currentRevision();
+    const behind: ICampaignParticipantConvergence[] = [];
+    this.retained.forEach((acknowledgedRevision, participantId) => {
+      if (acknowledgedRevision < requiredRevision) {
+        behind.push({ participantId, acknowledgedRevision });
+      }
+    });
+    if (behind.length === 0) return { ok: true, requiredRevision };
+    return {
+      ok: false,
+      reason: PROGRESSION_BLOCKED_BEHIND,
+      requiredRevision,
+      behind,
+    };
+  };
+
+  /**
+   * The highest sequence the host has committed — the campaign's current
+   * revision. `nextSequence` is the NEXT number to be handed out, so the
+   * committed head is one below it, floored at 0 for a log that has not
+   * opened yet.
+   */
+  private currentRevision = async (): Promise<number> => {
+    return Math.max(0, (await this.host.getEventLog().nextSequence()) - 1);
+  };
+
+  /**
    * The host disconnected. The session pauses: the room code stops
    * resolving for new joins, the host is closed (rejecting any further
    * intent with `session-closed`), and the guest mirror — already
@@ -234,14 +570,22 @@ export class CampaignSyncSession {
    * (sequence 0+) — the guest's `applySnapshot` adopts the payload
    * wholesale regardless of sequence.
    */
-  private buildBaselineEvent(): ICampaignEvent<'CampaignSnapshotPublished'> {
-    return {
+  private buildBaselineEvent(
+    revision: number,
+  ): ICampaignEvent<'CampaignSnapshotPublished'> {
+    return freezeCampaignEvent({
       type: 'CampaignSnapshotPublished',
       sequence: -1,
       campaignId: this.host.campaignId,
       ts: nowIso(),
       authorPlayerId: this.host.getHostPlayerId(),
-      payload: this.host.buildSnapshotPayload(),
-    };
+      // Delivery baseline of the shared ledger; filtered snapshots are task 3.4.
+      scope: 'campaign',
+      payload: {
+        ...this.host.buildSnapshotPayload(),
+        matchId: this.matchId,
+        revision,
+      },
+    });
   }
 }

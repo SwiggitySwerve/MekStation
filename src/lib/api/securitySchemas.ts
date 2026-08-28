@@ -85,6 +85,8 @@ const CampaignRosterUnitSchema = z
     unitId: z.string().trim().min(1).max(ID_MAX_LENGTH),
     designation: z.string().trim().min(1).max(128),
     status: z.enum(['operational', 'damaged', 'destroyed']),
+    unitRef: z.string().trim().min(1).max(ID_MAX_LENGTH).optional(),
+    unitSource: z.enum(['canonical', 'custom']).optional(),
   })
   .strict();
 
@@ -109,6 +111,9 @@ const CampaignAuthoritativeStateSchema = z
     day: z.number().finite().int().nonnegative(),
     balance: z.number().finite(),
     rosterUnits: z.record(z.string(), CampaignRosterUnitSchema),
+    forceUnits: z
+      .record(z.string(), z.array(z.string().trim().min(1).max(ID_MAX_LENGTH)))
+      .optional(),
     pilots: z.record(z.string(), CampaignRosterPilotSchema),
     contracts: z.record(z.string(), CampaignAcceptedContractSchema),
     factionStanding: z.record(z.string(), z.number().finite()),

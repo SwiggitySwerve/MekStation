@@ -1,5 +1,16 @@
 const allowedTiers = new Set(['smoke', 'standard', 'extended']);
 const allowedModes = new Set(['headless', 'browser', 'hybrid']);
+// The closed six-tag gameplay-subsystem vocabulary (spec: Flow Registry /
+// journey-qc D4). Guarded against e2e/flows/manifest.ts FLOW_SUBSYSTEMS by
+// scripts/__tests__/subsystem-vocabulary.test.ts -- change both together.
+export const allowedSubsystems = new Set([
+  'navigation',
+  'combat',
+  'economy',
+  'maintenance',
+  'personnel',
+  'experience',
+]);
 const allowedCommandCheckpointRoles = new Set(['player', 'gm', 'both']);
 
 function issue(severity, message) {
@@ -222,6 +233,28 @@ function validateJourney(journey, index, ids, issues) {
     for (const tier of journey.tiers) {
       if (!allowedTiers.has(tier))
         issues.push(issue('error', `${label}: invalid tier ${tier}.`));
+    }
+  }
+  // The subsystems facet is required on every journey (an empty array is a
+  // deliberate declaration, a missing field is drift) -- D4.
+  if (!Array.isArray(journey.subsystems)) {
+    issues.push(
+      issue(
+        'error',
+        `${label}: subsystems must be an array of subsystem tags.`,
+      ),
+    );
+  } else {
+    const seenSubsystems = new Set();
+    for (const tag of journey.subsystems) {
+      if (!allowedSubsystems.has(tag)) {
+        issues.push(issue('error', `${label}: invalid subsystem tag ${tag}.`));
+      } else if (seenSubsystems.has(tag)) {
+        issues.push(
+          issue('error', `${label}: duplicate subsystem tag ${tag}.`),
+        );
+      }
+      seenSubsystems.add(tag);
     }
   }
   if (!journey.parameters || typeof journey.parameters !== 'object') {

@@ -1,3 +1,4 @@
+import type { ICampaignJournalEnvelope } from '@/lib/campaign/sync/JournalCampaignEventStore';
 import type { ICampaignAuthoritativeState } from '@/types/campaign/CampaignSync';
 import type {
   CoopParticipationChoice,
@@ -6,12 +7,28 @@ import type {
 import type { IForce } from '@/types/campaign/Force';
 
 import { registerActiveCoopHost } from '@/lib/campaign/coop/coopHostRegistry';
-import { InMemoryCampaignEventStore } from '@/lib/campaign/sync/InMemoryCampaignEventStore';
+import { createDefaultCampaignEventStore } from '@/lib/campaign/sync/JournalCampaignEventStore';
+import { SQLiteEventJournal } from '@/lib/events/journal/SQLiteEventJournal';
+import { getSQLiteService } from '@/services/persistence/SQLiteService';
+import { parseCampaignCoopSnapshot } from '@/types/campaign/campaignCoopSnapshot';
+
+/**
+ * The process journal, constructed lazily. A campaign host is created on
+ * a request path, so opening the database eagerly at module load would
+ * make an unrelated import fail wherever SQLite is not initialised.
+ */
+function campaignJournal(): SQLiteEventJournal<ICampaignJournalEnvelope> {
+  return new SQLiteEventJournal<ICampaignJournalEnvelope>(
+    getSQLiteService().getDatabase(),
+    () => new Date().toISOString(),
+  );
+}
 
 import type { IMatchStore } from './IMatchStore';
 
 import { CampaignGmArbiter } from './CampaignGmArbiter';
 import { CampaignMatchHost } from './CampaignMatchHost';
+import { participationIsFresh } from './campaignParticipationFreshness';
 import { CampaignSyncSession } from './CampaignSyncSession';
 import { getDefaultMatchStore } from './getDefaultMatchStore';
 
@@ -20,8 +37,10 @@ const MAX_RECONCILED_BATTLE_IDS = 2048;
 export interface ICampaignHostRegistrationSnapshot {
   readonly campaignId: string;
   readonly hostPlayerId: string;
-  readonly roomCode: string;
+  /** The invite, or `null` to register with it already expired. */
+  readonly roomCode: string | null;
   readonly state: ICampaignAuthoritativeState;
+  readonly revision?: number;
   readonly arbitrationMode?: GmArbitrationMode;
 }
 
@@ -46,7 +65,9 @@ interface IParticipationBucket {
 export interface ICampaignHostRegistryEntry {
   readonly matchId: string;
   readonly campaignId: string;
-  readonly roomCode: string;
+  /** The invite this entry opened with, or `null` once expired. */
+  readonly roomCode: string | null;
+  readonly revision: number;
   readonly hostPlayerId: string;
   readonly host: CampaignMatchHost;
   readonly syncSession: CampaignSyncSession;
@@ -59,6 +80,7 @@ export interface ICampaignHostRegistryEntry {
   readonly getParticipationRecords: (
     missionId: string,
   ) => readonly ICampaignParticipationRecord[];
+  readonly advanceRevision: (next: number) => void;
   readonly hasReconciledBattle: (matchId: string) => boolean;
   readonly recordReconciledBattle: (matchId: string) => void;
   readonly close: () => void;
@@ -67,12 +89,13 @@ export interface ICampaignHostRegistryEntry {
 class CampaignHostRegistryEntry implements ICampaignHostRegistryEntry {
   readonly matchId: string;
   readonly campaignId: string;
-  readonly roomCode: string;
+  readonly roomCode: string | null;
   readonly hostPlayerId: string;
   readonly host: CampaignMatchHost;
   readonly syncSession: CampaignSyncSession;
   readonly arbiter: CampaignGmArbiter;
 
+  private currentRevision: number;
   private readonly participationByMission = new Map<
     string,
     IParticipationBucket
@@ -81,7 +104,8 @@ class CampaignHostRegistryEntry implements ICampaignHostRegistryEntry {
 
   constructor(input: {
     readonly matchId: string;
-    readonly roomCode: string;
+    readonly roomCode: string | null;
+    readonly revision: number;
     readonly host: CampaignMatchHost;
     readonly syncSession: CampaignSyncSession;
     readonly arbiter: CampaignGmArbiter;
@@ -89,12 +113,17 @@ class CampaignHostRegistryEntry implements ICampaignHostRegistryEntry {
   }) {
     this.matchId = input.matchId;
     this.roomCode = input.roomCode;
+    this.currentRevision = input.revision;
     this.host = input.host;
     this.syncSession = input.syncSession;
     this.arbiter = input.arbiter;
     this.unregisterActiveHost = input.unregisterActiveHost;
     this.campaignId = input.host.campaignId;
     this.hostPlayerId = input.host.getHostPlayerId();
+  }
+
+  get revision(): number {
+    return this.currentRevision;
   }
 
   private readonly unregisterActiveHost: () => void;
@@ -121,7 +150,22 @@ class CampaignHostRegistryEntry implements ICampaignHostRegistryEntry {
     missionId: string,
   ): readonly ICampaignParticipationRecord[] => {
     const bucket = this.participationByMission.get(missionId);
-    return bucket ? Array.from(bucket.records.values()) : [];
+    if (!bucket) return [];
+    // Filtered against CURRENT roster state, not against what was true
+    // when the choice was made. A player who picked a lance and then
+    // lost a mech to it is no longer ready, and saying so here rather
+    // than storing a flag means no invalidation path can forget to.
+    const rosterUnits = this.host.getState().rosterUnits ?? {};
+    return Array.from(bucket.records.values()).filter((record) =>
+      participationIsFresh(record, rosterUnits),
+    );
+  };
+
+  advanceRevision = (next: number): void => {
+    if (!Number.isInteger(next) || next <= this.currentRevision) {
+      throw new Error('Campaign snapshot revision is stale');
+    }
+    this.currentRevision = next;
   };
 
   hasReconciledBattle = (matchId: string): boolean =>
@@ -170,18 +214,51 @@ export class CampaignHostRegistry {
   register = async (
     matchId: string,
     snapshot: ICampaignHostRegistrationSnapshot,
+    options: { readonly rebuilt?: boolean } = {},
   ): Promise<ICampaignHostRegistryEntry> => {
+    const parsed = parseCampaignCoopSnapshot({
+      campaignId: snapshot.campaignId,
+      matchId,
+      revision: snapshot.revision ?? 0,
+      state: snapshot.state,
+    });
+    if (!parsed.ok) {
+      throw new Error(`Campaign snapshot rejected: ${parsed.reason}`);
+    }
     const existing = this.entries.get(matchId);
-    if (existing && !existing.host.isClosed()) return existing;
+    if (existing && !existing.host.isClosed()) {
+      if (parsed.snapshot.revision < existing.revision) {
+        throw new Error('Campaign snapshot revision is stale');
+      }
+      return existing;
+    }
 
     const host = new CampaignMatchHost({
       campaignId: snapshot.campaignId,
       hostPlayerId: snapshot.hostPlayerId,
-      eventStore: new InMemoryCampaignEventStore(),
+      // The cutover-flag factory (task 5.1). The journal is supplied here
+      // even though the flag is still false, because the factory needs
+      // BOTH to route: passing none left the flag a no-op at the one
+      // production site that could use it, so flipping it after review
+      // would have changed nothing and looked like the cutover had
+      // failed. Behaviour today is unchanged - the guard requires the
+      // flag as well - and the flag stays the single reviewed switch.
+      eventStore: createDefaultCampaignEventStore({
+        journal: campaignJournal,
+      }),
       initialState: snapshot.state,
     });
-    const syncSession = new CampaignSyncSession(host);
-    const roomCode = await syncSession.open(snapshot.roomCode);
+    const syncSession = new CampaignSyncSession(host, { matchId });
+    // `null` means the invite already expired - see `getOrCreate`. It
+    // opens the session without one rather than minting a fresh code,
+    // so rehydration cannot re-open a door that launching closed.
+    let roomCode: string | null = null;
+    if (snapshot.roomCode === null) {
+      await syncSession.openWithoutInvite();
+    } else {
+      roomCode = await syncSession.open(snapshot.roomCode);
+    }
+    const revision = Math.max(0, (await host.getEventLog().nextSequence()) - 1);
     const arbiter = new CampaignGmArbiter(
       host,
       snapshot.arbitrationMode ?? 'host-review',
@@ -191,11 +268,20 @@ export class CampaignHostRegistry {
     const entry = new CampaignHostRegistryEntry({
       matchId,
       roomCode,
+      revision,
       host,
       syncSession,
       arbiter,
       unregisterActiveHost,
     });
+    // A REBUILT session starts paused: it has no GM connection, so the
+    // GM is absent, so the campaign is paused until they return. This
+    // is what carries the GM-loss pause across a process restart, and
+    // it needs no stored flag - a flag could disagree with reality,
+    // whereas this states the reality.
+    if (options.rebuilt === true) {
+      syncSession.pauseUntilGmReturns();
+    }
     this.entries.set(matchId, entry);
     return entry;
   };
@@ -220,17 +306,29 @@ export class CampaignHostRegistry {
     } catch {
       return null;
     }
-    if (!meta.coopCampaign || !meta.roomCode) {
+    if (!meta.coopCampaign) {
       return null;
     }
 
-    return this.register(matchId, {
-      campaignId: meta.coopCampaign.campaignId,
-      hostPlayerId: meta.hostPlayerId,
-      roomCode: meta.roomCode,
-      state: meta.coopCampaign.state,
-      arbitrationMode: meta.coopCampaign.arbitrationMode,
-    });
+    // A MISSING room code is not a missing campaign. Launching the
+    // match clears the code from the store (`clearRoomCode`), so
+    // refusing to rehydrate without one meant an active campaign became
+    // unreachable the moment its invite expired - the members inside it
+    // could not cold-recover after a restart. `null` rehydrates with
+    // the invite already expired rather than minting a new one.
+    return this.register(
+      matchId,
+      {
+        campaignId: meta.coopCampaign.campaignId,
+        hostPlayerId: meta.hostPlayerId,
+        roomCode: meta.roomCode ?? null,
+        state: meta.coopCampaign.state,
+        arbitrationMode: meta.coopCampaign.arbitrationMode,
+      },
+      // Rebuilt, not created: this path runs when the entry was already
+      // gone - a restart, or an eviction - and nobody is connected to it.
+      { rebuilt: true },
+    );
   };
 
   dispose = (matchId: string): void => {

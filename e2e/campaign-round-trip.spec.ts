@@ -200,15 +200,30 @@ test.describe('Campaign Round-Trip — single contract play loop', () => {
           scenarioIds: [],
           employerId: 'lyran-commonwealth',
           targetId: 'capellan-confederation',
-          paymentTerms: {
-            baseMultiplier: 1,
-            commandRights: 'integrated',
-            salvageRights: 50,
-            transportRights: 'employer-pays',
-            advancePayment: 0,
-            overheadComp: 'overhead',
-            duration: 6,
-          },
+          // Contract closure (contractClosure.ts) calls
+          // calculateTotalPayout(terms, outcome), which does Money math on
+          // basePayment/successPayment/partialPayment/failurePayment/
+          // transportPayment/supportPayment -- the old seed predated that
+          // processor and carried none of them. The evaluate sandbox
+          // cannot import Money, but the live campaign's balance IS a
+          // Money -- mint instances through its constructor.
+          paymentTerms: (() => {
+            const live = state.getCampaign() as {
+              finances: {
+                balance: { constructor: new (amount: number) => object };
+              };
+            };
+            const MoneyCtor = live.finances.balance.constructor;
+            return {
+              basePayment: new MoneyCtor(100_000),
+              successPayment: new MoneyCtor(50_000),
+              partialPayment: new MoneyCtor(20_000),
+              failurePayment: new MoneyCtor(0),
+              transportPayment: new MoneyCtor(5_000),
+              supportPayment: new MoneyCtor(0),
+              salvagePercent: 50,
+            };
+          })(),
           salvageRights: 'None',
           commandRights: 'House',
           createdAt: new Date().toISOString(),

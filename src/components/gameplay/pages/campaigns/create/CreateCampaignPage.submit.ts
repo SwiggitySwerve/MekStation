@@ -6,7 +6,11 @@ import type { ICampaignRosterEntry } from '@/types/campaign/CampaignRosterEntry'
 import type { IRosterUnitProjection } from '@/types/campaign/RosterUnitProjection';
 
 import { applyPreset } from '@/lib/campaign/presetService';
-import { UNIT_TEMPLATES } from '@/simulation/generator';
+import {
+  isLibraryBackedEnrollment,
+  pinSourceVersion,
+} from '@/lib/kernelPlugin/mekstation/mapRosterInstanceProvenance';
+import { useCampaignPersistenceStore } from '@/stores/campaign/useCampaignPersistenceStore';
 import { useCampaignRosterStore } from '@/stores/campaign/useCampaignRosterStore';
 import { usePilotStore } from '@/stores/usePilotStore';
 import { CampaignPilotStatus } from '@/types/campaign/CampaignInterfaces';
@@ -33,6 +37,14 @@ import {
 export { resolvePilotAssignmentsForSubmit };
 
 type ToastVariant = 'success' | 'error';
+
+let creationSubmitInFlight = false;
+let pendingCreatedCampaignId: string | null = null;
+
+export function resetCampaignCreationSubmitState(): void {
+  creationSubmitInFlight = false;
+  pendingCreatedCampaignId = null;
+}
 
 interface AddSelectedUnitInput {
   pilotAssignments: PilotAssignments;
@@ -146,8 +158,11 @@ function createRosterUnitProjection({
     unitName: unit.name,
     pilotId: pilotAssignments[unit.id],
     unitRef: unit.unitRef,
+    unitSource: unit.unitSource,
+    sourceVersion: pinSourceVersion(unit.sourceVersion),
     chassisVariant: unit.name,
     readiness: 'Ready',
+    ...(Number.isFinite(unit.tonnage) ? { tonnage: unit.tonnage } : {}),
   };
 }
 
@@ -155,10 +170,7 @@ function addTemplateUnitToRootForce({
   store,
   unit,
 }: AddSelectedUnitInput): void {
-  const template = UNIT_TEMPLATES.find(
-    (entry) => entry.name === unit.name || entry.tonnage === unit.tonnage,
-  );
-  if (!template) return;
+  if (!isLibraryBackedEnrollment(unit)) return;
 
   const forcesStore = store.getState().getForcesStore();
   if (!forcesStore) return;
@@ -220,62 +232,93 @@ export async function submitCampaignCreation({
   showToast,
   store,
 }: SubmitCampaignInput): Promise<void> {
+  if (creationSubmitInFlight) return;
+
+  creationSubmitInFlight = true;
   setLocalError(null);
   setIsSubmitting(true);
 
   try {
-    const namedPilots = normalizePilotNamesForSubmit(selectedPilots);
-    const presetOptions = applyPreset(selectedPreset, campaignType);
-    const campaignId = store
-      .getState()
-      .createCampaign(name.trim(), campaignType, presetOptions);
+    const existingCampaign = store.getState().campaign;
+    const reusePending =
+      pendingCreatedCampaignId !== null &&
+      existingCampaign?.id === pendingCreatedCampaignId;
+    let campaignId = pendingCreatedCampaignId;
 
-    if (!campaignId) {
-      showToast({ message: 'Failed to create campaign', variant: 'error' });
-      return;
-    }
+    if (!reusePending) {
+      const namedPilots = normalizePilotNamesForSubmit(selectedPilots);
+      const presetOptions = applyPreset(selectedPreset, campaignType);
+      campaignId = store
+        .getState()
+        .createCampaign(name.trim(), campaignType, presetOptions);
 
-    updateCampaignDescription(store, description);
-    useCampaignRosterStore.getState().initRoster(campaignId);
-    const registeredPilots = await registerWizardPilots(namedPilots);
-    const resolvedLocalPilotAssignments = resolvePilotAssignmentsForSubmit({
-      pilotAssignments,
-      selectedPilots: namedPilots,
-      selectedUnits,
-    });
-    const resolvedPilotAssignments = translatePilotAssignmentsToVaultIds(
-      resolvedLocalPilotAssignments,
-      registeredPilots,
-    );
+      if (!campaignId) {
+        showToast({ message: 'Failed to create campaign', variant: 'error' });
+        return;
+      }
 
-    for (const unit of selectedUnits) {
-      addSelectedUnitToRoster({
-        pilotAssignments: resolvedPilotAssignments,
-        store,
-        unit,
+      pendingCreatedCampaignId = campaignId;
+      updateCampaignDescription(store, description);
+      useCampaignRosterStore.getState().initRoster(campaignId);
+      const registeredPilots = await registerWizardPilots(namedPilots);
+      const resolvedLocalPilotAssignments = resolvePilotAssignmentsForSubmit({
+        pilotAssignments,
+        selectedPilots: namedPilots,
+        selectedUnits,
       });
+      const resolvedPilotAssignments = translatePilotAssignmentsToVaultIds(
+        resolvedLocalPilotAssignments,
+        registeredPilots,
+      );
+
+      for (const unit of selectedUnits) {
+        addSelectedUnitToRoster({
+          pilotAssignments: resolvedPilotAssignments,
+          store,
+          unit,
+        });
+      }
+
+      for (const pilot of registeredPilots) {
+        addSelectedPilotToRoster({
+          pilot,
+          pilotAssignments: resolvedPilotAssignments,
+        });
+      }
     }
 
-    for (const pilot of registeredPilots) {
-      addSelectedPilotToRoster({
-        pilot,
-        pilotAssignments: resolvedPilotAssignments,
-      });
-    }
+    if (!campaignId) return;
 
     await store.getState().saveCampaign();
+    const persistResult = await useCampaignPersistenceStore
+      .getState()
+      .saveCampaign({ retryOnConflict: false });
+
+    if (persistResult.status !== 'saved') {
+      const message =
+        persistResult.status === 'conflict'
+          ? 'Campaign save conflict. Retry keeps the same campaign.'
+          : persistResult.status === 'error'
+            ? persistResult.errorMessage
+            : 'Failed to persist campaign';
+      setLocalError(message);
+      showToast({ message, variant: 'error' });
+      return;
+    }
 
     showToast({
       message: `Campaign "${name.trim()}" created successfully!`,
       variant: 'success',
     });
-    router.push(`/gameplay/campaigns/${campaignId}`);
+    pendingCreatedCampaignId = null;
+    await router.push(`/gameplay/campaigns/${campaignId}`);
   } catch (error) {
     const message =
       error instanceof Error ? error.message : 'Failed to create campaign';
     setLocalError(message);
     showToast({ message, variant: 'error' });
   } finally {
+    creationSubmitInFlight = false;
     setIsSubmitting(false);
   }
 }

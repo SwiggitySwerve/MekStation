@@ -28,6 +28,12 @@
 
 import type { IEncounter } from '@/types/encounter';
 
+import {
+  type CampaignLaunchExpectedIdentity,
+  type CampaignLaunchSelectionUnit,
+  type CampaignLaunchSnapshot,
+  admitCampaignLaunch,
+} from '@/lib/campaign/readiness/canonicalCatalogAdmission';
 import { getEncounterService } from '@/services/encounter/EncounterService';
 
 import type { ICampaignEncounterLauncherService } from '../encounter/launchCampaignEncounter';
@@ -39,6 +45,12 @@ import type {
 
 import { launchCampaignEncounter } from '../encounter/launchCampaignEncounter';
 import { composeCoopEncounter } from './composeCoopEncounter';
+
+export interface LaunchCoopMissionAdmission {
+  readonly snapshot: CampaignLaunchSnapshot;
+  readonly expected: CampaignLaunchExpectedIdentity;
+  readonly selectedUnits?: readonly CampaignLaunchSelectionUnit[];
+}
 
 // =============================================================================
 // Result
@@ -86,7 +98,27 @@ export async function launchCoopMission(
   baseEncounter: IEncounter,
   contributions: readonly ICoopForceContribution[],
   service: ICampaignEncounterLauncherService = getEncounterService(),
+  admission?: LaunchCoopMissionAdmission,
 ): Promise<LaunchCoopMissionResult> {
+  const deployingUnitIds = contributions.flatMap((contribution) =>
+    contribution.participation === 'deploy' ? contribution.force.unitIds : [],
+  );
+  const selectedById = new Map(
+    (admission?.selectedUnits ?? []).map((unit) => [unit.unitId, unit]),
+  );
+  const gate = admitCampaignLaunch({
+    snapshot: admission?.snapshot,
+    expected: admission?.expected ?? {
+      campaignId: baseEncounter.campaignMeta?.campaignId ?? '',
+    },
+    selectedUnits: deployingUnitIds.map(
+      (unitId) => selectedById.get(unitId) ?? { unitId, unitName: unitId },
+    ),
+  });
+  if (!gate.admitted) {
+    return { ok: false, error: gate.blocker.message };
+  }
+
   // Step 1 — compose the co-op encounter. A zero-`deploy` launch is
   // BLOCKED here with a typed rejection; no encounter is created
   // (design D2 / spec "Mission with no deploying player is blocked").
@@ -131,6 +163,8 @@ function rejectionMessage(reason: CoopCompositionRejection): string {
       return 'Co-op mission cannot launch: at least one player must deploy onto the map. A mission with both players in command HQ has no one to fight it.';
     case 'no-contributions':
       return 'Co-op mission cannot launch: no player forces were contributed.';
+    case 'duplicate-unit':
+      return 'Co-op mission cannot launch: the same unit was contributed by both players. A co-op campaign shares one roster, so two players can pick the same lance - each unit can only deploy once, under one owner.';
     case 'duplicate-player':
       return 'Co-op mission cannot launch: a player contributed a force more than once.';
     default: {

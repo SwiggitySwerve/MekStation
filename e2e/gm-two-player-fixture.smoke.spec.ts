@@ -68,6 +68,40 @@ test('creates three isolated future-role contexts @fixture-smoke', async ({
       });
       expect(storage.auth.wireTokenLength).toBeGreaterThan(0);
     }
+    // Task 20.3: the run's own databases are readable through a
+    // dedicated read-only connection, never the production store. A
+    // schema surface with tables in it is the proof the reader is
+    // pointed at the real file rather than one it created.
+    const evidence = fixture.openEvidence('app');
+    try {
+      const before = evidence.fileHash();
+      expect(evidence.tables().length).toBeGreaterThan(0);
+      // Reading changed nothing, which is what makes the artifact
+      // describe the run rather than the probe.
+      expect(evidence.fileHash()).toBe(before);
+    } finally {
+      evidence.close();
+    }
+    // Task 20.4: the run writes a declared, role-labeled bundle under
+    // its own directory, and the manifest records what it MEANT to
+    // capture so a missing artifact is a gap rather than a silence.
+    const bundle = fixture.openEvidenceBundle();
+    for (const client of fixture.clients) {
+      bundle.write(
+        'environment',
+        client.role,
+        'context.json',
+        JSON.stringify({
+          role: client.role,
+          playerId: client.identity.playerId,
+        }),
+      );
+    }
+    const manifestPath = bundle.finalize({
+      node: process.version,
+      runId: fixture.runId,
+    });
+    expect(manifestPath).toContain(fixture.runId);
   } finally {
     await fixture.cleanup();
   }

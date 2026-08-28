@@ -4,7 +4,7 @@ Work-path trace: this leaf follows both independently gated combat and campaign 
 
 ## 0. Dual-Authority Admission — Pre-Implementation Receipt
 
-- [ ] 0.1 Before PR 1, verify on fetched exact main that both `adopt-combat-event-journal-authority` and `adopt-campaign-event-journal-authority` are synced and archived; their task 4.6 and 7.5 terminal evidence pass; both active ledger entries/directories are absent; and both merged branches/worktrees are pruned. Record both predecessor merge SHAs and fail closed on missing or contradictory evidence.
+- [ ] 0.1 Before PR 1, verify on fetched exact main that `adopt-combat-event-journal-authority` is synced and archived with its task 4.6 terminal evidence passing, and that the campaign-side predecessor — `design-campaign-authority-and-sync` task 5.7 (per-campaign cutover, which absorbed the superseded `adopt-campaign-event-journal-authority` PR 7 per the 2026-08-20 council reconciliation) — has its terminal evidence passing; the combat change's active ledger entry/directory is absent and both merged branches/worktrees are pruned. Record both predecessor merge SHAs and fail closed on missing or contradictory evidence.
 - [ ] 0.2 Before PR 1, re-review every PR seam in this file against the then-current codebase for the 500-line/15-file cap and one-behavior-seam rule, and re-confirm seam ownership against `../harden-gm-two-player-campaign-sessions/event-history-wave-map.md`; if any seam no longer fits or ownership has drifted, split or reassign it through a spec-only OpenSpec update before implementation, and fail closed on unresolved ownership conflicts.
 
 ## 1. Canonical Effect Identity and Digest — PR 1

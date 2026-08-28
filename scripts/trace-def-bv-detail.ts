@@ -8,21 +8,26 @@ import * as path from 'path';
 import { EngineType } from '../src/types/construction/EngineType';
 import { STRUCTURE_POINTS_TABLE } from '../src/types/construction/InternalStructureType';
 import {
-  calculateDefensiveBV,
-  calculateTMM,
-} from '../src/utils/construction/battleValueCalculations';
-import {
   getArmorBVMultiplier,
   getStructureBVMultiplier,
   getGyroBVMultiplier,
   getEngineBVMultiplier,
 } from '../src/types/validation/BattleValue';
+import {
+  calculateDefensiveBV,
+  calculateTMM,
+} from '../src/utils/construction/battleValueCalculations';
 
-const reportPath = path.resolve(__dirname, '../validation-output/bv-validation-report.json');
+const reportPath = path.resolve(
+  __dirname,
+  '../validation-output/bv-validation-report.json',
+);
 const report = JSON.parse(fs.readFileSync(reportPath, 'utf-8'));
 
 const unitsDir = path.resolve(__dirname, '../public/data/units/battlemechs');
-const indexData = JSON.parse(fs.readFileSync(path.join(unitsDir, 'index.json'), 'utf-8'));
+const indexData = JSON.parse(
+  fs.readFileSync(path.join(unitsDir, 'index.json'), 'utf-8'),
+);
 const unitPathMap = new Map<string, string>();
 for (const u of indexData.units) {
   unitPathMap.set(u.id, path.join(unitsDir, u.path));
@@ -30,21 +35,21 @@ for (const u of indexData.units) {
 
 // MegaMek armor multipliers for reference
 const MEGAMEK_ARMOR_MULT: Record<string, number> = {
-  'standard': 1.0,
-  'ferro_fibrous': 1.0,
-  'ferro_fibrous_clan': 1.0,
-  'light_ferro_fibrous': 1.0,
-  'heavy_ferro_fibrous': 1.0,
-  'stealth': 1.0,
-  'hardened': 2.0,
-  'reactive': 1.5,
-  'reflective': 1.5,
-  'ballistic_reinforced': 1.5,
-  'ferro_lamellor': 1.2,
-  'anti_penetrative_ablation': 1.2,
-  'heat_dissipating': 1.1,
-  'commercial': 1.0,
-  'industrial': 1.0,
+  standard: 1.0,
+  ferro_fibrous: 1.0,
+  ferro_fibrous_clan: 1.0,
+  light_ferro_fibrous: 1.0,
+  heavy_ferro_fibrous: 1.0,
+  stealth: 1.0,
+  hardened: 2.0,
+  reactive: 1.5,
+  reflective: 1.5,
+  ballistic_reinforced: 1.5,
+  ferro_lamellor: 1.2,
+  anti_penetrative_ablation: 1.2,
+  heat_dissipating: 1.1,
+  commercial: 1.0,
+  industrial: 1.0,
 };
 
 function calcTotalArmor(a: Record<string, any>): number {
@@ -65,7 +70,8 @@ function calcTotalStructure(ton: number): number {
 function mapEngineType(s: string, techBase: string): EngineType {
   const t = s.toUpperCase().replace(/[^A-Z]/g, '');
   if (t.includes('XXL')) return EngineType.XXL;
-  if (t.includes('XL') || t.includes('CLANXL')) return techBase === 'CLAN' ? EngineType.CLAN_XL : EngineType.XL;
+  if (t.includes('XL') || t.includes('CLANXL'))
+    return techBase === 'CLAN' ? EngineType.CLAN_XL : EngineType.XL;
   if (t.includes('LIGHT')) return EngineType.LIGHT;
   if (t.includes('COMPACT')) return EngineType.COMPACT;
   return EngineType.FUSION;
@@ -105,14 +111,20 @@ const targetIds = [
   'deimos-2',
 ];
 
-console.log("=== DETAILED DEFENSIVE BV TRACE ===\n");
+console.log('=== DETAILED DEFENSIVE BV TRACE ===\n');
 
 for (const targetId of targetIds) {
   const valUnit = report.allResults.find((u: any) => u.unitId === targetId);
-  if (!valUnit) { console.log(`${targetId}: not in report`); continue; }
+  if (!valUnit) {
+    console.log(`${targetId}: not in report`);
+    continue;
+  }
 
   const unitPath = unitPathMap.get(targetId);
-  if (!unitPath || !fs.existsSync(unitPath)) { console.log(`${targetId}: file not found`); continue; }
+  if (!unitPath || !fs.existsSync(unitPath)) {
+    console.log(`${targetId}: file not found`);
+    continue;
+  }
 
   const unit = JSON.parse(fs.readFileSync(unitPath, 'utf-8'));
 
@@ -159,11 +171,16 @@ for (const targetId of targetIds) {
     totalArmorPoints: totalArmor,
     totalStructurePoints: totalStructure,
     tonnage: unit.tonnage,
-    runMP, jumpMP, umuMP: 0,
+    runMP,
+    jumpMP,
+    umuMP: 0,
     armorType,
     structureType,
     gyroType,
-    engineType: engineType === EngineType.XXL && unit.techBase === 'CLAN' ? undefined : engineType,
+    engineType:
+      engineType === EngineType.XXL && unit.techBase === 'CLAN'
+        ? undefined
+        : engineType,
     defensiveEquipmentBV: 0,
     explosivePenalties: 0,
   };
@@ -176,32 +193,62 @@ for (const targetId of targetIds) {
   const reportedDefBV = valUnit.breakdown?.defensiveBV ?? 0;
   const reportedDefFactor = valUnit.breakdown?.defensiveFactor ?? 0;
 
-  console.log(`=== ${targetId} (${unit.tonnage}t, ${unit.techBase}, ${unit.engine.type}) ===`);
-  console.log(`  Index BV: ${valUnit.indexBV}, Calculated: ${valUnit.calculatedBV}, Diff: ${valUnit.difference} (${valUnit.percentDiff.toFixed(1)}%)`);
+  console.log(
+    `=== ${targetId} (${unit.tonnage}t, ${unit.techBase}, ${unit.engine.type}) ===`,
+  );
+  console.log(
+    `  Index BV: ${valUnit.indexBV}, Calculated: ${valUnit.calculatedBV}, Diff: ${valUnit.difference} (${valUnit.percentDiff.toFixed(1)}%)`,
+  );
   console.log('');
-  console.log(`  Armor: ${totalArmor}pts, type=${armorType}, mult=${armorMult}`);
-  console.log(`  Structure: ${totalStructure}pts, type=${structureType}, mult=${structMult}`);
+  console.log(
+    `  Armor: ${totalArmor}pts, type=${armorType}, mult=${armorMult}`,
+  );
+  console.log(
+    `  Structure: ${totalStructure}pts, type=${structureType}, mult=${structMult}`,
+  );
   console.log(`  Gyro: type=${gyroType}, mult=${gyroMult}`);
-  console.log(`  Engine: type=${unit.engine.type} -> ${EngineType[engineType]}, mult=${engineMult}`);
+  console.log(
+    `  Engine: type=${unit.engine.type} -> ${EngineType[engineType]}, mult=${engineMult}`,
+  );
   console.log('');
-  console.log(`  Manual calc: armor=${armorBV_manual.toFixed(2)}, struct=${structBV_manual.toFixed(2)}, gyro=${gyroBV_manual.toFixed(2)}`);
-  console.log(`  Code calc:   armor=${armorBV_code.toFixed(2)}, struct=${structBV_code.toFixed(2)}, gyro=${gyroBV_code.toFixed(2)}`);
-  console.log(`  Code baseDef = ${(armorBV_code + structBV_code + gyroBV_code).toFixed(2)}`);
+  console.log(
+    `  Manual calc: armor=${armorBV_manual.toFixed(2)}, struct=${structBV_manual.toFixed(2)}, gyro=${gyroBV_manual.toFixed(2)}`,
+  );
+  console.log(
+    `  Code calc:   armor=${armorBV_code.toFixed(2)}, struct=${structBV_code.toFixed(2)}, gyro=${gyroBV_code.toFixed(2)}`,
+  );
+  console.log(
+    `  Code baseDef = ${(armorBV_code + structBV_code + gyroBV_code).toFixed(2)}`,
+  );
   console.log('');
-  console.log(`  Walk=${walkMP}, Run=${runMP}, Jump=${jumpMP}, TMM=${tmm}, DefFactor=${defFactor.toFixed(2)}`);
-  console.log(`  calculateDefensiveBV result: ${defResult.totalDefensiveBV.toFixed(2)} (armor=${defResult.armorBV.toFixed(2)}, struct=${defResult.structureBV.toFixed(2)}, gyro=${defResult.gyroBV.toFixed(2)}, factor=${defResult.defensiveFactor.toFixed(2)})`);
+  console.log(
+    `  Walk=${walkMP}, Run=${runMP}, Jump=${jumpMP}, TMM=${tmm}, DefFactor=${defFactor.toFixed(2)}`,
+  );
+  console.log(
+    `  calculateDefensiveBV result: ${defResult.totalDefensiveBV.toFixed(2)} (armor=${defResult.armorBV.toFixed(2)}, struct=${defResult.structureBV.toFixed(2)}, gyro=${defResult.gyroBV.toFixed(2)}, factor=${defResult.defensiveFactor.toFixed(2)})`,
+  );
   console.log('');
-  console.log(`  Validation report defensiveBV: ${reportedDefBV.toFixed(2)}, factor: ${reportedDefFactor.toFixed(2)}`);
-  console.log(`  Difference: (report - manual): ${(reportedDefBV - defResult.totalDefensiveBV).toFixed(2)}`);
-  console.log(`  Report defEquipBV: ${valUnit.breakdown?.defensiveEquipBV ?? 0}, explPenalty: ${valUnit.breakdown?.explosivePenalty ?? 0}`);
+  console.log(
+    `  Validation report defensiveBV: ${reportedDefBV.toFixed(2)}, factor: ${reportedDefFactor.toFixed(2)}`,
+  );
+  console.log(
+    `  Difference: (report - manual): ${(reportedDefBV - defResult.totalDefensiveBV).toFixed(2)}`,
+  );
+  console.log(
+    `  Report defEquipBV: ${valUnit.breakdown?.defensiveEquipBV ?? 0}, explPenalty: ${valUnit.breakdown?.explosivePenalty ?? 0}`,
+  );
   console.log('');
 
   // Back-compute: what baseDef does the report imply?
   if (reportedDefFactor > 0) {
     const impliedBaseDef = reportedDefBV / reportedDefFactor;
     console.log(`  Implied baseDef from report: ${impliedBaseDef.toFixed(2)}`);
-    console.log(`  Our baseDef (no equip/penalty): ${(armorBV_code + structBV_code + gyroBV_code).toFixed(2)}`);
-    console.log(`  Gap in baseDef: ${(impliedBaseDef - (armorBV_code + structBV_code + gyroBV_code)).toFixed(2)}`);
+    console.log(
+      `  Our baseDef (no equip/penalty): ${(armorBV_code + structBV_code + gyroBV_code).toFixed(2)}`,
+    );
+    console.log(
+      `  Gap in baseDef: ${(impliedBaseDef - (armorBV_code + structBV_code + gyroBV_code)).toFixed(2)}`,
+    );
   }
   console.log('');
 }

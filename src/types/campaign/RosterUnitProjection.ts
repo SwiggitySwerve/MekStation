@@ -56,6 +56,7 @@
  * @module types/campaign/RosterUnitProjection
  */
 
+import type { RosterUnitSource } from './RosterUnitSource';
 import type { IUnitCombatState } from './UnitCombatState';
 
 // =============================================================================
@@ -81,6 +82,17 @@ export interface IRosterUnitProjection {
   readonly unitId: string;
   /** Canonical unit-dataset key; distinct from `unitId`, the roster-instance id. */
   readonly unitRef?: string;
+  /**
+   * Persisted roster source. Absent is legacy canonical. Invalid
+   * persisted values are rejected by `parseRosterUnitSource` and are
+   * never rewritten here.
+   */
+  readonly unitSource?: RosterUnitSource;
+  /**
+   * Pinned library version at enroll (`IInstanceProvenance.sourceVersion`).
+   * Vault edits publish newer versions and do not change this pin.
+   */
+  readonly sourceVersion?: number;
   /** Display name (cached at roster-add time). */
   readonly unitName: string;
   /** Assigned pilot id, if any. */

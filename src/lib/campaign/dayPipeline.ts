@@ -18,6 +18,8 @@ import { createSingleton } from '@/services/core/createSingleton';
 import { ICampaign } from '@/types/campaign/Campaign';
 import { logger } from '@/utils/logger';
 
+import { nextCampaignDay } from './campaignCalendar';
+
 // =============================================================================
 // Pipeline Phase Enum
 // =============================================================================
@@ -274,7 +276,7 @@ export class DayPipelineRegistry {
     // Advance the date by one day AFTER all processors. Strip the
     // transient `_dayEventsSoFar` field so it never leaks into the
     // persisted campaign snapshot.
-    const nextDate = new Date(processedDate.getTime() + 24 * 60 * 60 * 1000);
+    const nextDate = nextCampaignDay(processedDate);
     const {
       _dayEventsSoFar: _discardedDayEvents,
       ...campaignWithoutTransient

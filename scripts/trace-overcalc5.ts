@@ -1,10 +1,19 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import { resolveEquipmentBV, normalizeEquipmentId } from '../src/utils/construction/equipmentBVResolver';
-import { calculateOffensiveSpeedFactor, calculateDefensiveBV, calculateOffensiveBVWithHeatTracking, calculateTMM } from '../src/utils/construction/battleValueCalculations';
+
 import { EngineType } from '../src/types/construction/EngineType';
 import { STRUCTURE_POINTS_TABLE } from '../src/types/construction/InternalStructureType';
 import { getArmorBVMultiplier } from '../src/types/validation/BattleValue';
+import {
+  calculateOffensiveSpeedFactor,
+  calculateDefensiveBV,
+  calculateOffensiveBVWithHeatTracking,
+  calculateTMM,
+} from '../src/utils/construction/battleValueCalculations';
+import {
+  resolveEquipmentBV,
+  normalizeEquipmentId,
+} from '../src/utils/construction/equipmentBVResolver';
 
 function calcTotalStructure(ton: number): number {
   const t = STRUCTURE_POINTS_TABLE[ton];
@@ -16,14 +25,16 @@ function calcTotalArmor(a: any): number {
   let t = 0;
   for (const v of Object.values(a)) {
     if (typeof v === 'number') t += v;
-    else if (v && typeof v === 'object') t += ((v as any).front || 0) + ((v as any).rear || 0);
+    else if (v && typeof v === 'object')
+      t += ((v as any).front || 0) + ((v as any).rear || 0);
   }
   return t;
 }
 
 // ===== Jenner JR7-D Webster: CORRECT arithmetic =====
 console.log('=== Jenner JR7-D (Webster) ===');
-const jennerPath = 'public/data/units/battlemechs/4-clan-invasion/advanced/Jenner JR7-D (Webster).json';
+const jennerPath =
+  'public/data/units/battlemechs/4-clan-invasion/advanced/Jenner JR7-D (Webster).json';
 const jenner = JSON.parse(fs.readFileSync(jennerPath, 'utf8'));
 const jennerArmor = calcTotalArmor(jenner.armor.allocation);
 const jennerStruct = calcTotalStructure(35);
@@ -43,8 +54,19 @@ const jennerDef = calculateDefensiveBV({
   gyroType: 'standard',
   engineType: EngineType.STANDARD,
 });
-console.log('DefBV:', jennerDef.totalDefensiveBV.toFixed(2), '(report says 370.3)');
-console.log('  armorBV:', jennerDef.armorBV, 'structBV:', jennerDef.structureBV.toFixed(2), 'gyroBV:', jennerDef.gyroBV);
+console.log(
+  'DefBV:',
+  jennerDef.totalDefensiveBV.toFixed(2),
+  '(report says 370.3)',
+);
+console.log(
+  '  armorBV:',
+  jennerDef.armorBV,
+  'structBV:',
+  jennerDef.structureBV.toFixed(2),
+  'gyroBV:',
+  jennerDef.gyroBV,
+);
 console.log('  factor:', jennerDef.defensiveFactor);
 
 // Offensive: 6x ML, 20 heat diss, jump=7
@@ -64,10 +86,17 @@ console.log('  6x ML: heat=18, BV=276');
 console.log('  18 < 19 -> all weapons full BV');
 console.log('  weaponBV = 276');
 console.log('  weightBonus = 35');
-console.log('  SF = pow(1 + (15-5)/10, 1.2) =', calculateOffensiveSpeedFactor(jennerRun, 7));
+console.log(
+  '  SF = pow(1 + (15-5)/10, 1.2) =',
+  calculateOffensiveSpeedFactor(jennerRun, 7),
+);
 console.log('  offBV = (276 + 0 + 0 + 35) * 2.2974 =', (276 + 35) * 2.2974);
 console.log('');
-console.log('Total = defBV + offBV =', (jennerDef.totalDefensiveBV + (276 + 35) * 2.2974).toFixed(0), '(ref: 930)');
+console.log(
+  'Total = defBV + offBV =',
+  (jennerDef.totalDefensiveBV + (276 + 35) * 2.2974).toFixed(0),
+  '(ref: 930)',
+);
 console.log('');
 
 // The reference says 930. Our calc says 1085. So we're 155 over.
@@ -151,12 +180,21 @@ const mulCachePath = 'scripts/data-migration/mul-bv-cache.json';
 if (fs.existsSync(mulCachePath)) {
   const mulCache = JSON.parse(fs.readFileSync(mulCachePath, 'utf8'));
   const testUnits = [
-    'jenner-jr7-d-webster', 'wyvern-wve-5nsl', 'thunderbolt-tdr-5l',
-    'battle-cobra-btl-c-2oc', 'koshi-e', 'man-o-war-e', 'gladiator-a',
-    'loki-prime', 'hatamoto-chi-htm-27t-lowenbrau', 'celerity-clr-03-oe',
+    'jenner-jr7-d-webster',
+    'wyvern-wve-5nsl',
+    'thunderbolt-tdr-5l',
+    'battle-cobra-btl-c-2oc',
+    'koshi-e',
+    'man-o-war-e',
+    'gladiator-a',
+    'loki-prime',
+    'hatamoto-chi-htm-27t-lowenbrau',
+    'celerity-clr-03-oe',
   ];
 
-  const indexData = JSON.parse(fs.readFileSync('public/data/units/battlemechs/index.json', 'utf8'));
+  const indexData = JSON.parse(
+    fs.readFileSync('public/data/units/battlemechs/index.json', 'utf8'),
+  );
 
   for (const uid of testUnits) {
     const entry = mulCache.entries?.[uid];

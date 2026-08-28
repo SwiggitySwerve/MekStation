@@ -2,19 +2,26 @@ import * as fs from 'fs';
 import * as path from 'path';
 
 // Load validation report
-const report = JSON.parse(fs.readFileSync('validation-output/bv-validation-report.json', 'utf-8'));
+const report = JSON.parse(
+  fs.readFileSync('validation-output/bv-validation-report.json', 'utf-8'),
+);
 
 // Load MUL BV cache
-const cache = JSON.parse(fs.readFileSync('scripts/data-migration/mul-bv-cache.json', 'utf-8'));
+const cache = JSON.parse(
+  fs.readFileSync('scripts/data-migration/mul-bv-cache.json', 'utf-8'),
+);
 
 // Load index
-const index = JSON.parse(fs.readFileSync('public/data/units/battlemechs/index.json', 'utf-8'));
+const index = JSON.parse(
+  fs.readFileSync('public/data/units/battlemechs/index.json', 'utf-8'),
+);
 const indexById = new Map<string, any>();
 for (const u of index.units) indexById.set(u.id, u);
 
 // Get units undercalculated by 1-5%
 const undercalc = (report.allResults as any[]).filter(
-  (r: any) => r.percentDiff !== null && r.percentDiff < -0.5 && r.percentDiff > -5
+  (r: any) =>
+    r.percentDiff !== null && r.percentDiff < -0.5 && r.percentDiff > -5,
 );
 
 let hasMUL = 0;
@@ -23,7 +30,8 @@ let mulBVDiffers = 0;
 
 for (const r of undercalc) {
   const entry = cache.entries?.[r.unitId];
-  const mulBV = (entry && entry.mulBV > 0 && entry.matchType === 'exact') ? entry.mulBV : 0;
+  const mulBV =
+    entry && entry.mulBV > 0 && entry.matchType === 'exact' ? entry.mulBV : 0;
   const ixEntry = indexById.get(r.unitId);
   const indexBV = ixEntry?.bv || 0;
 
@@ -46,9 +54,12 @@ let count = 0;
 for (const r of undercalc) {
   if (count >= 10) break;
   const entry = cache.entries?.[r.unitId];
-  const mulBV = (entry && entry.mulBV > 0 && entry.matchType === 'exact') ? entry.mulBV : 0;
+  const mulBV =
+    entry && entry.mulBV > 0 && entry.matchType === 'exact' ? entry.mulBV : 0;
   if (mulBV > 0) {
-    console.log(`${r.chassis} ${r.model}: ref=${r.indexBV}, calc=${r.calculatedBV}, pct=${r.percentDiff?.toFixed(1)}%, mulBV=${mulBV}`);
+    console.log(
+      `${r.chassis} ${r.model}: ref=${r.indexBV}, calc=${r.calculatedBV}, pct=${r.percentDiff?.toFixed(1)}%, mulBV=${mulBV}`,
+    );
     count++;
   }
 }
@@ -58,10 +69,13 @@ count = 0;
 for (const r of undercalc) {
   if (count >= 10) break;
   const entry = cache.entries?.[r.unitId];
-  const mulBV = (entry && entry.mulBV > 0 && entry.matchType === 'exact') ? entry.mulBV : 0;
+  const mulBV =
+    entry && entry.mulBV > 0 && entry.matchType === 'exact' ? entry.mulBV : 0;
   if (mulBV === 0) {
     const ixEntry = indexById.get(r.unitId);
-    console.log(`${r.chassis} ${r.model}: ref=${r.indexBV}, calc=${r.calculatedBV}, pct=${r.percentDiff?.toFixed(1)}%, indexBV=${ixEntry?.bv}`);
+    console.log(
+      `${r.chassis} ${r.model}: ref=${r.indexBV}, calc=${r.calculatedBV}, pct=${r.percentDiff?.toFixed(1)}%, indexBV=${ixEntry?.bv}`,
+    );
     count++;
   }
 }

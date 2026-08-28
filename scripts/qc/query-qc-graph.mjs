@@ -3,11 +3,19 @@ import {
   loadJourneyArtifacts,
   parseArgs,
   queryGraph,
+  resolveSubsystemJourneyNodeIds,
 } from './journey-qc-core.mjs';
 
 const options = parseArgs(process.argv.slice(2));
-const { graph } = loadJourneyArtifacts();
-const result = queryGraph(graph, options);
+const { catalog, graph } = loadJourneyArtifacts();
+// --subsystem resolves journeys by the catalog facet, then returns their
+// existing graph joins; an unknown tag throws naming the six allowed values.
+const result = options.subsystem
+  ? queryGraph(graph, {
+      ...options,
+      matchIds: resolveSubsystemJourneyNodeIds(catalog, options.subsystem),
+    })
+  : queryGraph(graph, options);
 
 if (options.json) {
   console.log(JSON.stringify(result, null, 2));

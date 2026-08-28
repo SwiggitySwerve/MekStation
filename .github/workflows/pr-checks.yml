@@ -504,6 +504,74 @@ jobs:
             test-results
           retention-days: 7
 
+  # ---------------------------------------------------------------
+  # seam-anchors runs the three W2 seam trust anchor journeys in a
+  # real chromium browser against the self-booted Next dev server —
+  # the per-PR seam gate (W6 design D2). Advisory until wired into
+  # the lint-and-test aggregator (D2.4 staged landing). The job
+  # always runs, but its work is gated per-step on the
+  # detect-changes code/e2e filters — docs/openspec-only PRs no-op.
+  # The invocation carries an explicit --retries=0: the config's CI
+  # default is `retries: 2`, and a gate must never retry a flaky
+  # anchor to green (design R4).
+  # ---------------------------------------------------------------
+  seam-anchors:
+    name: Seam Anchors
+    needs: [detect-changes, install-deps]
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Skip (no code or e2e changes)
+        if: needs.detect-changes.outputs.code != 'true' && needs.detect-changes.outputs.e2e != 'true'
+        run: echo "No code or e2e changes — skipping seam anchors."
+
+      - name: Checkout code
+        if: needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true'
+        uses: actions/checkout@v6
+
+      - name: Setup Node + caches + install deps
+        if: needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true'
+        uses: ./.github/actions/setup-node-and-install
+        with:
+          node-version: '22'
+
+      - name: Resolve Playwright version for browser cache key
+        if: needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true'
+        id: playwright-version
+        shell: bash
+        run: echo "version=$(node -e "console.log(require('@playwright/test/package.json').version)")" >> "$GITHUB_OUTPUT"
+
+      - name: Cache Playwright chromium browser
+        if: needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true'
+        id: playwright-cache
+        uses: actions/cache@v5
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ steps.playwright-version.outputs.version }}
+
+      - name: Install Playwright chromium browser
+        if: (needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true') && steps.playwright-cache.outputs.cache-hit != 'true'
+        run: npx playwright install --with-deps chromium
+
+      - name: Install Playwright system dependencies (browser cached)
+        if: (needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true') && steps.playwright-cache.outputs.cache-hit == 'true'
+        run: npx playwright install-deps chromium
+
+      - name: Run seam trust anchor journeys
+        if: needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true'
+        run: npx playwright test e2e/active-session-recovery.spec.ts e2e/seam-roster-materialization-handoff.spec.ts e2e/seam-fresh-construction-no-instant-defeat.spec.ts --project=chromium --retries=0
+
+      - name: Upload Playwright report
+        if: failure() && (needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true')
+        uses: actions/upload-artifact@v7
+        with:
+          name: seam-anchors-report
+          path: |
+            playwright-report
+            test-results
+          retention-days: 7
+
   desktop-typecheck:
     name: Desktop Type Check
     needs: install-deps
@@ -543,9 +611,17 @@ jobs:
         run: npm test -- --runInBand
 
   # Aggregator that preserves the "Lint and Test" required-check name
-  # from before the fan-out. Passes only if every fan-out job passed.
+  # from before the fan-out. Runs UNCONDITIONALLY (if: always()) and
+  # fails unless every needed job's result is 'success' — GitHub counts
+  # a needs-skipped required check as passing, so without the assertion
+  # a failed fan-out job skips this aggregator and the PR shows green
+  # (the run-29059132882 hole; W6 design D2.3/R10). 'skipped' and
+  # 'cancelled' results are defects too: no needed job carries a
+  # job-level `if:` (verified in W6 task 1.1), so anything other than
+  # 'success' means a real failure upstream.
   lint-and-test:
     name: Lint and Test
+    if: always()
     needs:
       [
         lint,
@@ -563,14 +639,25 @@ jobs:
         schema-bridge,
         determinism-audit,
         e2e-smoke,
+        seam-anchors,
         desktop-typecheck,
         desktop-tests,
       ]
     runs-on: ubuntu-latest
     timeout-minutes: 1
     steps:
-      - name: All fan-out checks passed
-        run: echo "All fan-out checks passed"
+      - name: Assert every fan-out check succeeded
+        env:
+          NEEDS_JSON: ${{ toJSON(needs) }}
+        shell: bash
+        run: |
+          failed=$(echo "$NEEDS_JSON" | jq -r 'to_entries[] | select(.value.result != "success") | "\(.key)=\(.value.result)"')
+          if [ -n "$failed" ]; then
+            echo "Non-success needed jobs:"
+            echo "$failed"
+            exit 1
+          fi
+          echo "All fan-out checks passed"
 
   # prepare-build always runs (to satisfy branch-protection required check
   # names), but its work is gated per-step on detect-changes.outputs.code.

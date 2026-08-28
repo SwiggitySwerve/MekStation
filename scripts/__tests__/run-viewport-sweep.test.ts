@@ -153,14 +153,18 @@ const expectedLogicalCommands = [
 
 // prettier-ignore
 const camp01TestFiles = [
+  'scripts/__tests__/camp01-anchor-authority.test.ts',
   'scripts/__tests__/camp01-authority-receipt-qc.test.ts',
   'scripts/__tests__/camp01-authority-receipt-validator.test.ts',
   'scripts/__tests__/camp01-authority-receipt-writer.test.ts',
+  'scripts/__tests__/camp01-camp00-listener-adapter.test.ts',
   'scripts/__tests__/camp01-capture-reopen-adversarial.test.ts',
   'scripts/__tests__/camp01-capture-transaction.test.ts',
   'scripts/__tests__/camp01-cleanup-authority.test.ts',
   'scripts/__tests__/camp01-durable-export.test.ts',
   'scripts/__tests__/camp01-durable-facts.test.ts',
+  'scripts/__tests__/camp01-durable-facts-refs.test.ts',
+  'scripts/__tests__/camp01-g-report-normalizer.test.ts',
   'scripts/__tests__/camp01-repair-registry.test.ts',
   'scripts/__tests__/camp01-github-provenance.test.ts',
   'scripts/__tests__/camp01-git-trust.test.ts',

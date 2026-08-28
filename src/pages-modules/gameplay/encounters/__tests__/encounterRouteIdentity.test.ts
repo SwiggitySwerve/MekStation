@@ -88,6 +88,34 @@ describe('encounter route identity', () => {
     });
   });
 
+  it('resolves nothing on the server shape while the client shape recovers the id', () => {
+    // The SSR pass of a statically optimized dynamic page sees an empty
+    // query, the literal [id] asPath template, and no window — identity is
+    // unresolvable there, while the client's first render recovers it from
+    // window.location. This divergence is why SSR-rendered markup (the
+    // pre-battle loading branch's back link) must never embed the resolved
+    // identity: React 19 reports the href mismatch and refuses to patch it.
+    const serverShape = routerWith({}, '/gameplay/encounters/[id]');
+
+    expect(
+      encounterRouteIdentityFromRouter(serverShape, {
+        pathname: '',
+        search: '',
+      }),
+    ).toEqual({
+      encounterId: null,
+      campaignId: null,
+      missionId: null,
+    });
+
+    expect(
+      encounterRouteIdentityFromRouter(serverShape, {
+        pathname: '/gameplay/encounters/encounter-one',
+        search: '?campaignId=campaign-one',
+      }).encounterId,
+    ).toBe('encounter-one');
+  });
+
   it('recovers a force-selection side from the concrete browser URL', () => {
     expect(
       encounterForceSelectionSideFromRouter(

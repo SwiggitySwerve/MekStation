@@ -39,12 +39,18 @@ console.log('HAG/20 Ammo resolution:', JSON.stringify(hagAmmo3));
 // Now check the validation report for Boreas A specifically
 const reportPath = path.resolve('validation-output/bv-validation-report.json');
 let report: any;
-try { report = JSON.parse(fs.readFileSync(reportPath, 'utf-8')); } catch { process.exit(1); }
+try {
+  report = JSON.parse(fs.readFileSync(reportPath, 'utf-8'));
+} catch {
+  process.exit(1);
+}
 
 const boreas = report.allResults.filter((r: any) => r.chassis === 'Boreas');
 for (const r of boreas) {
   console.log(`\n--- ${r.chassis} ${r.model} ---`);
-  console.log(`  Index BV: ${r.indexBV}, Calculated BV: ${r.calculatedBV}, Diff: ${r.difference}`);
+  console.log(
+    `  Index BV: ${r.indexBV}, Calculated BV: ${r.calculatedBV}, Diff: ${r.difference}`,
+  );
   if (r.breakdown) {
     console.log(`  Defensive BV: ${r.breakdown.defensiveBV.toFixed(1)}`);
     console.log(`  Offensive BV: ${r.breakdown.offensiveBV.toFixed(1)}`);
@@ -60,12 +66,21 @@ for (const r of boreas) {
 }
 
 // Also check some other units
-const checkNames = ['Atlas AS8-KE', 'Goliath C', 'Hauptmann HA1-OT', 'Ostsol OTL-9R'];
+const checkNames = [
+  'Atlas AS8-KE',
+  'Goliath C',
+  'Hauptmann HA1-OT',
+  'Ostsol OTL-9R',
+];
 for (const name of checkNames) {
-  const r = report.allResults.find((r: any) => `${r.chassis} ${r.model}` === name);
+  const r = report.allResults.find(
+    (r: any) => `${r.chassis} ${r.model}` === name,
+  );
   if (r) {
     console.log(`\n--- ${r.chassis} ${r.model} ---`);
-    console.log(`  Index BV: ${r.indexBV}, Calculated BV: ${r.calculatedBV}, Diff: ${r.difference}`);
+    console.log(
+      `  Index BV: ${r.indexBV}, Calculated BV: ${r.calculatedBV}, Diff: ${r.difference}`,
+    );
     if (r.breakdown) {
       console.log(`  Defensive BV: ${r.breakdown.defensiveBV.toFixed(1)}`);
       console.log(`  Offensive BV: ${r.breakdown.offensiveBV.toFixed(1)}`);

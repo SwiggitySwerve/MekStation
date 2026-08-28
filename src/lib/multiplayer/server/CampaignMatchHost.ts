@@ -35,7 +35,6 @@
  * @spec openspec/changes/add-shared-campaign-state/design.md (D1, D2, D4)
  */
 
-import type { ICampaignEventStore } from '@/lib/campaign/sync/ICampaignEventStore';
 import type {
   CampaignIntentResult,
   ICampaignAuthoritativeState,
@@ -47,6 +46,13 @@ import type {
 
 import { applyCampaignEvent } from '@/lib/campaign/sync/applyCampaignEvent';
 import { CampaignEventLog } from '@/lib/campaign/sync/campaignEventLog';
+import { freezeCampaignEvent } from '@/lib/campaign/sync/campaignEventScope';
+import {
+  CampaignEventSequenceCollisionError,
+  CampaignProjectionDivergenceError,
+  type ICampaignEventStore,
+} from '@/lib/campaign/sync/ICampaignEventStore';
+import { computeCampaignStateDigest } from '@/lib/campaign/sync/JournalCampaignEventStore';
 import { INVALID_CAMPAIGN_INTENT } from '@/types/campaign/CampaignSync';
 import { parseCampaignIntent } from '@/types/campaign/campaignSyncSchemas';
 import { nowIso } from '@/types/multiplayer/Protocol';
@@ -85,19 +91,32 @@ export class CampaignMatchHost {
   public readonly campaignId: string;
   private readonly hostPlayerId: string;
   private readonly log: CampaignEventLog;
+  private readonly eventStore: ICampaignEventStore;
   /** The host's authoritative campaign state — the single source of truth. */
   private state: ICampaignAuthoritativeState;
   private readonly subscribers = new Set<CampaignEventSubscriber>();
   private closed = false;
   /** True once `open` has committed the baseline snapshot. */
   private opened = false;
+  /**
+   * True after a committed batch's applied digest diverged from its
+   * expected digest (D10). The projection was rebuilt from the journal;
+   * the flag is diagnostic — it records that a divergence occurred.
+   */
+  private divergenceDetected = false;
 
   constructor(options: ICampaignMatchHostOptions) {
     this.campaignId = options.campaignId;
     this.hostPlayerId = options.hostPlayerId;
+    this.eventStore = options.eventStore;
     this.log = new CampaignEventLog(options.campaignId, options.eventStore);
     this.state = options.initialState;
   }
+
+  /** Diagnostic: whether a projection divergence has ever been detected. */
+  hasDetectedDivergence = (): boolean => {
+    return this.divergenceDetected;
+  };
 
   // ---------------------------------------------------------------------------
   // Lifecycle
@@ -120,6 +139,8 @@ export class CampaignMatchHost {
         campaignId: this.campaignId,
         authorPlayerId: this.hostPlayerId,
         ts: nowIso(),
+        // Shared ledger baseline for every co-op participant, not GM-only.
+        scope: 'campaign',
         payload: { state: this.state },
       },
     ]);
@@ -325,6 +346,8 @@ export class CampaignMatchHost {
         campaignId: this.campaignId,
         authorPlayerId: this.hostPlayerId,
         ts: nowIso(),
+        // Post-battle salvage is a shared ledger fact.
+        scope: 'campaign',
         payload: {
           value,
           poolRemaining: this.state.salvagePool + value,
@@ -374,6 +397,8 @@ export class CampaignMatchHost {
         campaignId: this.campaignId,
         authorPlayerId: this.hostPlayerId,
         ts: nowIso(),
+        // Roster mutations are shared ledger facts.
+        scope: 'campaign',
         payload: { change, unit },
       },
     ]);
@@ -416,6 +441,12 @@ export class CampaignMatchHost {
   private async commitEvents(
     events: readonly UnsequencedCampaignEvent[],
   ): Promise<readonly ICampaignEvent[]> {
+    if (this.eventStore.appendCommandBatch) {
+      return this.commitEventsAsBatch(
+        events,
+        this.eventStore.appendCommandBatch,
+      );
+    }
     const committed: ICampaignEvent[] = [];
     for (const unsequenced of events) {
       const sequence = await this.log.nextSequence();
@@ -424,7 +455,10 @@ export class CampaignMatchHost {
       // corresponding `ICampaignEvent` variant; TS cannot correlate the
       // spread across the union, so the assertion makes the (sound)
       // intent explicit at this single chokepoint.
-      const event = { ...unsequenced, sequence } as ICampaignEvent;
+      const event = freezeCampaignEvent({
+        ...unsequenced,
+        sequence,
+      } as ICampaignEvent);
       // Append FIRST — a sequence collision rejects here and the host's
       // authoritative state is left untouched (no partial commit).
       await this.log.append(event);
@@ -439,6 +473,75 @@ export class CampaignMatchHost {
       committed.push(event);
     }
     return committed;
+  }
+
+  /**
+   * The D10 command→append pipeline (task 1.2), taken when the store is
+   * batch-capable (journal-backed): stamp one contiguous sequence run,
+   * derive the whole batch's expected post-state digest BEFORE commit,
+   * append batch + digest atomically, re-apply the committed batch to the
+   * live projection, verify the applied digest — and only then fan out.
+   * On divergence the host publishes no success, rebuilds the projection
+   * from the durable journal, and never deletes or compensates the
+   * committed batch.
+   */
+  private async commitEventsAsBatch(
+    events: readonly UnsequencedCampaignEvent[],
+    appendCommandBatch: NonNullable<ICampaignEventStore['appendCommandBatch']>,
+  ): Promise<readonly ICampaignEvent[]> {
+    const base = await this.log.nextSequence();
+    const sequenced = events.map((unsequenced, index) =>
+      freezeCampaignEvent({
+        ...unsequenced,
+        sequence: base + index,
+      } as ICampaignEvent),
+    );
+    // Derive the expected post-state on a scratch projection — the live
+    // state is untouched until the batch is durably committed.
+    let expected = this.state;
+    for (const event of sequenced) {
+      expected = applyCampaignEvent(expected, event);
+    }
+    const expectedDigest = computeCampaignStateDigest(expected);
+    const result = await appendCommandBatch(this.campaignId, {
+      // Deterministic per position: a retried identical batch replays the
+      // journal's cached commit; a racing different batch at the same
+      // head loses with a typed conflict and nothing applied.
+      commandId: `campaign-cmd:${this.campaignId}:${base}`,
+      events: sequenced,
+      expectedPostStateDigest: expectedDigest,
+    });
+    if (result.kind !== 'committed') {
+      // Single-writer host: a lost race or duplicate command here is a
+      // server bug, surfaced exactly like the legacy path's collision.
+      throw new CampaignEventSequenceCollisionError(this.campaignId, base);
+    }
+    // Verify-after-apply: re-apply the COMMITTED batch to the live
+    // projection and compare digests. Inequality means the projection
+    // can no longer be trusted (nondeterministic reducer, concurrent
+    // mutation): publish no success, rebuild from the journal, keep the
+    // committed batch untouched.
+    let applied = this.state;
+    for (const event of sequenced) {
+      applied = applyCampaignEvent(applied, event);
+    }
+    const appliedDigest = computeCampaignStateDigest(applied);
+    if (appliedDigest !== expectedDigest) {
+      this.divergenceDetected = true;
+      this.state = await this.log.reconstructState();
+      throw new CampaignProjectionDivergenceError(
+        this.campaignId,
+        expectedDigest,
+        appliedDigest,
+      );
+    }
+    this.state = applied;
+    for (const event of sequenced) {
+      this.subscribers.forEach((subscriber) => {
+        subscriber(event);
+      });
+    }
+    return sequenced;
   }
 
   /**

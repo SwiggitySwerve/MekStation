@@ -2,6 +2,7 @@ import type { IRepairBayItem } from '@/types/campaign/CampaignInventory';
 import type { ICampaignRosterEntry } from '@/types/campaign/CampaignRosterEntry';
 import type { IRosterUnitProjection } from '@/types/campaign/RosterUnitProjection';
 
+import { readyCanonicalCatalog } from '@/lib/campaign/readiness/canonicalCatalogAdmission';
 import { buildMissionReadinessProjection } from '@/lib/campaign/readiness/missionReadinessProjection';
 import { CampaignPilotStatus } from '@/types/campaign/CampaignPilotStatus';
 import { CampaignPersonnelRole } from '@/types/campaign/enums/CampaignPersonnelRole';
@@ -63,11 +64,14 @@ const mission = createMission({
   status: MissionStatus.ACTIVE,
 });
 
+const readyCatalog = readyCanonicalCatalog(['atlas-as7-d']);
+
 describe('buildMissionReadinessProjection', () => {
   it('selects a default deployable roster and explains launch consequences', () => {
     const projection = buildMissionReadinessProjection({
       campaignId: 'campaign-1',
       mission,
+      catalog: readyCatalog,
       units: [
         makeUnit(),
         makeUnit({
@@ -110,6 +114,7 @@ describe('buildMissionReadinessProjection', () => {
     const projection = buildMissionReadinessProjection({
       campaignId: 'campaign-1',
       mission,
+      catalog: readyCatalog,
       units: [
         makeUnit({
           unitId: 'unit-destroyed',
@@ -144,6 +149,7 @@ describe('buildMissionReadinessProjection', () => {
     const projection = buildMissionReadinessProjection({
       campaignId: 'campaign-1',
       mission,
+      catalog: readyCatalog,
       units: [makeUnit()],
       pilots: [
         makePilot({
@@ -164,6 +170,7 @@ describe('buildMissionReadinessProjection', () => {
     const projection = buildMissionReadinessProjection({
       campaignId: 'campaign-1',
       mission,
+      catalog: readyCatalog,
       units: [
         {
           unitId: 'unit-legacy',

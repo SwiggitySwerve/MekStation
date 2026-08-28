@@ -48,6 +48,10 @@ try {
         runId: context.runId, status: 'passed', assertions: Object.fromEntries(
           request.assertions.sort().map((id) => [id, request.assertionValues?.[id] ?? true])) };
         fs.writeFileSync(context.artifactPath('wave-result.json'), schemas.canonicalBytes(waveResult)); }
+      if (request.gReport && context.invocationId === 'camp-01g-mech-bay-browser') {
+        const reporter=WAVE_CONTRACTS['camp-01g'].reporterContracts[0];
+        fs.writeFileSync(context.artifactPath(reporter.normalizedPath), schemas.canonicalBytes({schema:reporter.reportSchema,parentRunId:context.runId,executionId:context.executionId,invocationId:context.invocationId,producerId:reporter.producerId,reporterId:reporter.reporterId,sourceIds:reporter.sourceIds,complete:true,observations:[{id:reporter.requiredTestIds[0],status:'passed',failureFingerprint:null}],...request.gReport}));
+      }
       if (request.capture && context.invocationId === 'camp-01e-picker-browser') {
         const policy=capture.capturePolicyFor('camp-01e'), snapshot={fixtureIds:[...policy.fixtureIds],fixtureAliases:[...policy.fixtureAliases],nonFixtureSentinels:[],domState:{html:'fixture'},appState:{route:'/fixture'},counters:{domMutations:0,storageWrites:0,databaseWrites:0,networkWrites:0},barrierTripped:false};
         for (const artifactPath of ['mobile-390x844.png','desktop.png']) { const transaction=capture.openCaptureTransaction({wave:'camp-01e',invocationId:context.invocationId,commandSequenceIndex:1,artifactPath,artifactDirectory:path.dirname(context.artifactPath(artifactPath))},{instrumentation:{seedFixtures:async()=>undefined,arm:async()=>undefined,snapshot:async()=>snapshot}}); await transaction.prepare(); await transaction.capture(async(file)=>fs.writeFileSync(file,Buffer.from(artifactPath))); await transaction.publish(); }
@@ -59,6 +63,7 @@ try {
     },
   });
   else if (request.action === 'validate-directory') value = writer.validateReceiptDirectory(request.value.directory, request.value.context);
+  else if (request.action === 'g-issued') value = writer.issuedCommandIdentity(WAVE_CONTRACTS['camp-01g'], 2, request.value);
   else if (request.action === 'identities') value = writer.issueHIdentities(request.value, () => Buffer.from(request.entropy, 'hex'));
   else if (request.action === 'h-command-identities') { const row=WAVE_CONTRACTS['camp-01h'], runId=request.value, identities=writer.issueHIdentities(runId); value=row.reporterContracts.map((reporter,index)=>({witnessLabel:reporter.witnessLabel,...writer.issuedCommandIdentity(row,index,runId),expectedExecutionId:identities[reporter.witnessLabel].executionId})); }
   else if (request.action === 'h-wave') { const row=WAVE_CONTRACTS['camp-01h'], assertions=Object.fromEntries([...row.assertions].sort().map((id)=>[id,id.endsWith('===true')?true:Number(/(?:===|>=)(-?\\d+)$/.exec(id)[1])])); assertions[request.value.id]=request.value.result; value=schemas.validateArtifact({schema:'camp01-wave-result/v1',wave:row.wave,runId:'camp01-'+'1'.repeat(32),status:request.value.status,assertions},{row}); }
@@ -102,6 +107,23 @@ const camp01eAssertions = [
 ];
 // prettier-ignore
 function camp01eRequest(runRoot: string) { const policy=invoke({action:'capture-policy',value:'camp-01e'}).value as {fixtureAllowlistDigest:string;barrierPolicyDigest:string}, specId=`tuple-${'5'.repeat(16)}`, productId=`tuple-${'6'.repeat(16)}`, predecessorId=`receipt-${'7'.repeat(16)}`; return {...baseRequest(runRoot),wave:'camp-01e',commandId:'camp-01e',provenance:{subject:'product-pr',specTupleId:specId,ownedPrTupleId:productId,predecessorReceiptIds:[predecessorId]},registryContext:{evidence:[],provenance:[{id:predecessorId,sourceKind:'predecessor-receipt',wave:'camp-01d',subject:'product-pr'},{id:specId,sourceKind:'spec-tuple',wave:'camp-01e',subject:'product-pr'},{id:productId,sourceKind:'owned-pr-tuple',wave:'camp-01e',subject:'product-pr'}],refs:[],capturePolicies:[{wave:'camp-01e',sha,fixtureAllowlistDigest:policy.fixtureAllowlistDigest,barrierPolicyDigest:policy.barrierPolicyDigest}],repairSources:[]}}; }
+const camp01gAssertions = [
+  'coldReloaded===true',
+  'rosterInstanceIdPresent===true',
+  'unitRefMatched===true',
+  'unitSourceCustom===true',
+  'cachedNamePreserved===true',
+  'tonnagePreserved===true',
+  'bvAvailabilityHonest===true',
+  'unresolvedSourceVisible===true',
+];
+type GEntity = { kind: string; digest: string; sourceEvidenceId: string };
+// prettier-ignore
+function gFacts(roster: string, unitRef: string, name: string) { return {coldReloaded:true,persistedResolvedRosterInstanceId:roster,displayedResolvedRosterInstanceId:roster,persistedResolvedUnitRef:unitRef,authorityResolvedUnitRef:unitRef,resolvedUnitSource:'custom',resolvedCachedNameDigest:name,resolvedDisplayedNameDigest:name,resolvedCachedTonnage:70,resolvedDisplayedTonnage:70,bvStatus:'unavailable',bvAvailabilityHonest:true,persistedUnresolvedRosterInstanceId:roster,displayedUnresolvedRosterInstanceId:roster,persistedUnresolvedUnitRef:unitRef,displayedUnresolvedUnitRef:unitRef,unresolvedUnitSource:'custom',unresolvedCachedNameDigest:name,unresolvedDisplayedNameDigest:name,unresolvedCachedTonnage:70,unresolvedDisplayedTonnage:70,unresolvedSourceVisible:true,stockSubstitutionAbsent:true}; }
+// prettier-ignore
+function camp01gRequest(runRoot: string, entities: GEntity[]) { const specId=`tuple-${'5'.repeat(16)}`, productId=`tuple-${'6'.repeat(16)}`, predecessorId=`receipt-${'7'.repeat(16)}`, provenance=[{id:predecessorId,sourceKind:'predecessor-receipt',wave:'camp-01f',subject:'product-pr'},{id:specId,sourceKind:'spec-tuple',wave:'camp-01g',subject:'product-pr'},{id:productId,sourceKind:'owned-pr-tuple',wave:'camp-01g',subject:'product-pr'}].sort((a,b)=>a.id.localeCompare(b.id)); return {...baseRequest(runRoot),wave:'camp-01g',commandId:'camp-01g',provenance:{subject:'product-pr',specTupleId:specId,ownedPrTupleId:productId,predecessorReceiptIds:[predecessorId]},identityRegistry:{schema:'camp01-identity-registry/v1',entities:[...entities].sort((a,b)=>a.digest.localeCompare(b.digest)),refs:[]},registryContext:{evidence:[],provenance,refs:[],capturePolicies:[],repairSources:[]}}; }
+// prettier-ignore
+function writeCamp01g(mutateEntities:(entities:GEntity[])=>GEntity[]=(entities)=>entities) { const entropy='c'.repeat(32), runId=`camp01-${entropy}`, issued=invoke({action:'g-issued',value:runId}).value as {executionId:string}, roster=invoke({action:'deriveEntityDigest',args:['roster-instance','roster-1']}).value as string, unitRef=invoke({action:'deriveEntityDigest',args:['unit-ref','custom-whm-6r-saved']}).value as string, name=invoke({action:'deriveEntityDigest',args:['saved-design','Warhammer WHM-6R-Custom']}).value as string, entities=mutateEntities([{kind:'roster-instance',digest:roster,sourceEvidenceId:issued.executionId},{kind:'unit-ref',digest:unitRef,sourceEvidenceId:issued.executionId}]), root=fs.mkdtempSync(path.join(os.tmpdir(),'camp-proof-g-reg-')), runRoot=path.join(root,'.sisyphus','evidence','playtest',`camp01g-mech-bay-${sha}`), value=camp01gRequest(runRoot,entities); return invoke({action:'write',value,assertions:camp01gAssertions,entropy,gReport:gFacts(roster,unitRef,name)}); }
 
 type PublicFixture = {
   workspace: string;
@@ -226,6 +248,75 @@ describe('CAMP-01 authority receipt writer and validator', () => {
     expect(
       fs.existsSync(path.join(finalDirectory, '.capture-attestations.json')),
     ).toBe(false);
+  });
+
+  it('accepts two uniqued G identity entities covering four digest-equal mech-bay slots', () => {
+    const written = writeCamp01g();
+    expect(written).toMatchObject({ ok: true, commandCount: 3 });
+    const finalDirectory = (written.value as { finalDirectory: string })
+      .finalDirectory;
+    const command = JSON.parse(
+      fs.readFileSync(path.join(finalDirectory, 'command-result.json'), 'utf8'),
+    ) as {
+      identityRegistry: { entities: GEntity[] };
+    };
+    const report = JSON.parse(
+      fs.readFileSync(
+        path.join(finalDirectory, 'reports', 'mech-bay-authority.json'),
+        'utf8',
+      ),
+    ) as {
+      persistedResolvedRosterInstanceId: string;
+      persistedUnresolvedRosterInstanceId: string;
+      persistedResolvedUnitRef: string;
+      persistedUnresolvedUnitRef: string;
+    };
+    expect(command.identityRegistry.entities).toHaveLength(2);
+    expect(report.persistedResolvedRosterInstanceId).toBe(
+      report.persistedUnresolvedRosterInstanceId,
+    );
+    expect(report.persistedResolvedUnitRef).toBe(
+      report.persistedUnresolvedUnitRef,
+    );
+    expect(
+      invoke({
+        action: 'validate-directory',
+        value: {
+          directory: finalDirectory,
+          context: {
+            registryContext: camp01gRequest(finalDirectory, []).registryContext,
+            reviewedHead: null,
+          },
+        },
+      }).ok,
+    ).toBe(true);
+  });
+
+  it('rejects a G registry carrying fabricated entities beyond the uniqued slot set', () => {
+    // Given extra registry entities no report slot names, when the receipt validates,
+    // then exact-set equality rejects them — coverage alone must never admit extras.
+    const written = writeCamp01g((entities) => [
+      ...entities,
+      {
+        kind: 'unit-ref',
+        digest: `sha256:${'e'.repeat(64)}`,
+        sourceEvidenceId: entities[0].sourceEvidenceId,
+      },
+    ]);
+    expect(written).toMatchObject({
+      ok: false,
+      error: expect.stringContaining('authority identity registry drift'),
+    });
+  });
+
+  it('rejects a G registry that omits a slot digest even when other slots unique', () => {
+    const written = writeCamp01g((entities) =>
+      entities.filter((entry) => entry.kind === 'roster-instance'),
+    );
+    expect(written).toMatchObject({
+      ok: false,
+      error: expect.stringContaining('authority identity registry drift'),
+    });
   });
 
   it.each([

@@ -1,7 +1,9 @@
 #!/usr/bin/env npx tsx
 import * as fs from 'fs';
 
-const index = JSON.parse(fs.readFileSync('public/data/units/battlemechs/index.json', 'utf-8'));
+const index = JSON.parse(
+  fs.readFileSync('public/data/units/battlemechs/index.json', 'utf-8'),
+);
 const units = index.units;
 
 // Replicate suspect BV logic
@@ -21,7 +23,9 @@ for (const [chassis, variants] of Array.from(byChassis.entries())) {
   }
   for (const [bv, ids] of Array.from(bvCounts.entries())) {
     if (ids.length >= 3) {
-      console.log(`Suspect: ${chassis} BV=${bv} -> ${ids.length} variants: ${ids.join(', ')}`);
+      console.log(
+        `Suspect: ${chassis} BV=${bv} -> ${ids.length} variants: ${ids.join(', ')}`,
+      );
       for (const id of ids) suspectBVIds.add(id);
     }
   }
@@ -37,7 +41,9 @@ for (const d of dashers) {
 }
 
 // Also check MUL exact matches
-const mulCache = JSON.parse(fs.readFileSync('scripts/data-migration/mul-bv-cache.json', 'utf-8'));
+const mulCache = JSON.parse(
+  fs.readFileSync('scripts/data-migration/mul-bv-cache.json', 'utf-8'),
+);
 const mulBVMap = new Map<string, number>();
 for (const u of units) {
   const entry = mulCache.entries?.[u.id];
@@ -54,4 +60,6 @@ for (const id of suspectBVIds) {
   if (mulBVMap.has(id)) suspectWithMul++;
 }
 console.log(`Suspect with MUL exact: ${suspectWithMul}`);
-console.log(`Suspect without MUL exact (would be excluded): ${suspectBVIds.size - suspectWithMul}`);
+console.log(
+  `Suspect without MUL exact (would be excluded): ${suspectBVIds.size - suspectWithMul}`,
+);

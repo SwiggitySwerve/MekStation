@@ -1,9 +1,18 @@
-const r = JSON.parse(require('fs').readFileSync('validation-output/bv-validation-report.json', 'utf8'));
+const r = JSON.parse(
+  require('fs').readFileSync(
+    'validation-output/bv-validation-report.json',
+    'utf8',
+  ),
+);
 
 // Strategy: Math.round((Math.floor(def) + Math.floor(off)) * cockpitMod)
-let exactBefore = 0, exactAfter = 0;
-let within1Before = 0, within1After = 0;
-let improved = 0, worsened = 0, unchanged = 0;
+let exactBefore = 0,
+  exactAfter = 0;
+let within1Before = 0,
+  within1After = 0;
+let improved = 0,
+  worsened = 0,
+  unchanged = 0;
 const changes = [];
 
 for (const u of r.allResults) {
@@ -43,15 +52,25 @@ for (const u of r.allResults) {
 }
 
 console.log('=== Floor def + floor off, round final ===');
-console.log(`Exact: ${exactBefore} → ${exactAfter} (${exactAfter - exactBefore > 0 ? '+' : ''}${exactAfter - exactBefore})`);
-console.log(`Within 1%: ${within1Before} → ${within1After} (${within1After - within1Before > 0 ? '+' : ''}${within1After - within1Before})`);
-console.log(`Improved: ${improved}, Worsened: ${worsened}, Unchanged: ${unchanged}`);
+console.log(
+  `Exact: ${exactBefore} → ${exactAfter} (${exactAfter - exactBefore > 0 ? '+' : ''}${exactAfter - exactBefore})`,
+);
+console.log(
+  `Within 1%: ${within1Before} → ${within1After} (${within1After - within1Before > 0 ? '+' : ''}${within1After - within1Before})`,
+);
+console.log(
+  `Improved: ${improved}, Worsened: ${worsened}, Unchanged: ${unchanged}`,
+);
 
 console.log('\nSample changes (first 20):');
-for (const c of changes.sort((a, b) => Math.abs(b.oldDiff) - Math.abs(a.oldDiff)).slice(0, 20)) {
+for (const c of changes
+  .sort((a, b) => Math.abs(b.oldDiff) - Math.abs(a.oldDiff))
+  .slice(0, 20)) {
   const dir1 = c.oldDiff > 0 ? '+' : '';
   const dir2 = c.newDiff > 0 ? '+' : '';
-  console.log(`  ${c.name}: diff ${dir1}${c.oldDiff} → ${dir2}${c.newDiff} (${c.oldBV}→${c.newBV} vs MUL ${c.mulBV})`);
+  console.log(
+    `  ${c.name}: diff ${dir1}${c.oldDiff} → ${dir2}${c.newDiff} (${c.oldBV}→${c.newBV} vs MUL ${c.mulBV})`,
+  );
 }
 
 // Also try: Math.round((Math.round(def) + Math.round(off)) * cockpitMod)

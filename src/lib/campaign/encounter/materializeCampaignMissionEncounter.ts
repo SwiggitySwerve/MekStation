@@ -9,6 +9,10 @@ import {
   logMissionLaunchCommitRejected,
   logMissionLaunchCommitSucceeded,
 } from '@/lib/campaign/encounter/missionLaunchCommandDiagnostics';
+import {
+  type CanonicalCombatCatalogSnapshot,
+  admitRosterUnitSource,
+} from '@/lib/campaign/readiness/canonicalCatalogAdmission';
 import { TerrainPreset, VictoryConditionType } from '@/types/encounter';
 import { ForceType } from '@/types/force';
 import { logger } from '@/utils/logger';
@@ -46,6 +50,7 @@ export interface MaterializeCampaignMissionEncounterInput {
   readonly campaign: CampaignMissionSource;
   readonly missionId: string;
   readonly rosterUnits: readonly IRosterUnitProjection[];
+  readonly catalog?: CanonicalCombatCatalogSnapshot;
   readonly fetchImpl?: FetchImpl;
 }
 
@@ -56,6 +61,24 @@ export interface MaterializeCampaignMissionEncounterResult {
 }
 
 const MATERIALIZER_LOG_SERVICE = 'campaign-encounter-materializer';
+
+function assertSourceCatalogAdmission(
+  rosterUnits: readonly IRosterUnitProjection[],
+  catalog: CanonicalCombatCatalogSnapshot | undefined,
+): void {
+  for (const unit of rosterUnits) {
+    const admission = admitRosterUnitSource({
+      unitSource: unit.unitSource,
+      unitRef: unit.unitRef,
+      catalog,
+      unitId: unit.unitId,
+      unitName: unit.unitName,
+    });
+    if (!admission.admitted) {
+      throw new Error(admission.blocker.message);
+    }
+  }
+}
 
 function assertLaunchRoster(
   rosterUnits: readonly IRosterUnitProjection[],
@@ -241,9 +264,11 @@ export async function materializeCampaignMissionEncounter({
   campaign,
   missionId,
   rosterUnits,
+  catalog,
   fetchImpl = fetch,
 }: MaterializeCampaignMissionEncounterInput): Promise<MaterializeCampaignMissionEncounterResult> {
   try {
+    assertSourceCatalogAdmission(rosterUnits, catalog);
     logLaunchRosterPreflightDiagnostics(campaign, missionId, rosterUnits);
     assertLaunchRoster(rosterUnits);
     const mission = campaign.missions.get(missionId);

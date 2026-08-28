@@ -62,6 +62,8 @@ interface MechBayRowProps {
   readonly ammoTicketCount: number;
   readonly unitTonnage?: number;
   readonly unitBattleValue?: number;
+  readonly unresolvedSource?: boolean;
+  readonly customBvAvailable?: boolean;
   /** Campaign id — used to build the Repair Bay drill-down link. */
   readonly campaignId: string;
   /**
@@ -84,16 +86,30 @@ export function MechBayRow({
   ammoTicketCount,
   unitTonnage,
   unitBattleValue,
+  unresolvedSource = false,
+  customBvAvailable = false,
   campaignId,
   onLaunchRefit,
 }: MechBayRowProps): React.ReactElement {
   const fixAction = readiness?.reasons.find((reason) => reason.actionHref);
+  const customSource = unit.unitSource === 'custom' || unresolvedSource;
+  const bvLabel = customSource
+    ? customBvAvailable && unitBattleValue
+      ? `${unitBattleValue.toLocaleString()} (available)`
+      : 'unavailable'
+    : unitBattleValue
+      ? unitBattleValue.toLocaleString()
+      : 'not cataloged';
   return (
     <CampaignListCard
       testId={`mech-bay-row-${unit.unitId}`}
       left={
         <>
-          <h3 className="text-text-theme-primary truncate text-base font-semibold">
+          <h3
+            className="text-text-theme-primary truncate text-base font-semibold"
+            data-unit-ref={unit.unitRef}
+            data-unit-source={String(unit.unitSource ?? 'canonical')}
+          >
             {unit.unitName}
           </h3>
           <p className="text-text-theme-secondary mt-1 font-mono text-xs">
@@ -110,17 +126,21 @@ export function MechBayRow({
             data-testid={`mech-bay-loadout-${unit.unitId}`}
           >
             Weight: {unitTonnage ? `${unitTonnage} tons` : 'not cataloged'} |
-            BV:{' '}
-            {unitBattleValue
-              ? unitBattleValue.toLocaleString()
-              : 'not cataloged'}{' '}
-            | Supply:{' '}
+            BV: {bvLabel} | Supply:{' '}
             {ammoTicketCount > 0
               ? `${ammoTicketCount} ammo ticket${
                   ammoTicketCount === 1 ? '' : 's'
                 }`
               : 'no open ammo tickets'}
           </p>
+          {unresolvedSource ? (
+            <p
+              className="mt-2 text-xs text-rose-300"
+              data-testid={`mech-bay-unresolved-${unit.unitId}`}
+            >
+              Unresolved source
+            </p>
+          ) : null}
           {readiness ? (
             <div
               className="mt-2 space-y-1"
@@ -225,6 +245,8 @@ export interface MechBayProps {
   >;
   readonly unitTonnageById?: ReadonlyMap<string, number>;
   readonly unitBattleValueById?: ReadonlyMap<string, number>;
+  readonly unresolvedUnitIds?: ReadonlySet<string>;
+  readonly customBvAvailableIds?: ReadonlySet<string>;
   /** The repair-bay line items from the campaign inventory. */
   readonly repairBay: readonly IRepairBayItem[];
   /** Campaign id — used for drill-down links. */
@@ -245,6 +267,8 @@ export function MechBay({
   readinessByUnitId,
   unitTonnageById,
   unitBattleValueById,
+  unresolvedUnitIds,
+  customBvAvailableIds,
   repairBay,
   campaignId,
   onLaunchRefit,
@@ -285,6 +309,8 @@ export function MechBay({
           ammoTicketCount={ammoTicketCountByUnit.get(unit.unitId) ?? 0}
           unitTonnage={unitTonnageById?.get(unit.unitId)}
           unitBattleValue={unitBattleValueById?.get(unit.unitId)}
+          unresolvedSource={unresolvedUnitIds?.has(unit.unitId)}
+          customBvAvailable={customBvAvailableIds?.has(unit.unitId)}
           campaignId={campaignId}
           onLaunchRefit={onLaunchRefit}
         />

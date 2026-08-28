@@ -5,16 +5,33 @@ import * as os from 'node:os';
 import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { WAVE_CONTRACTS } from './camp01-authority-receipt.contract.mjs';
+import {
+  Camp01FactsError,
+  createAnchorAuthority,
+} from './camp01-anchor-authority.mjs';
+import {
+  CAPTURE_CONTRACTS,
+  REPOSITORY_IDENTITY,
+  WAVE_CONTRACTS,
+} from './camp01-authority-receipt.contract.mjs';
 import {
   artifactDigest,
   canonicalBytes,
   validateArtifact,
 } from './camp01-authority-receipt.schemas.mjs';
+import { capturePolicyFor } from './camp01-capture-transaction.mjs';
 import { createCleanupAuthority } from './camp01-cleanup-authority.mjs';
 import { createDurableExport } from './camp01-durable-export.mjs';
-import { invokeGit, resolveVerifiedGit } from './camp01-git-trust.mjs';
-import { createGitHubProvenance } from './camp01-github-provenance.mjs';
+import {
+  createBareSession,
+  fetchAndVerifyOids,
+  invokeGit,
+  resolveVerifiedGit,
+} from './camp01-git-trust.mjs';
+import {
+  createGitHubProvenance,
+  fetchGitHubResource,
+} from './camp01-github-provenance.mjs';
 import { createProofEnvironment } from './camp01-proof-environment.mjs';
 import { createRepairRegistry } from './camp01-repair-registry.mjs';
 import {
@@ -33,12 +50,12 @@ const VALIDATOR = fileURLToPath(
 const ROWS = Object.values(WAVE_CONTRACTS),
   VIRTUAL = '-required-repairs';
 
-export class Camp01FactsError extends Error {
-  constructor(message) {
-    super(`CAMP01_FACTS_INVALID: ${message}`);
-    this.name = 'Camp01FactsError';
-  }
-}
+export { Camp01FactsError };
+
+// Exact-main nested reviewed-head revalidation looks up capture policy by
+// (wave, value.sha). Capture-owning waves must advertise both SHAs.
+// prettier-ignore
+export function capturePoliciesFor(wave,shas,attestation) { if(!(CAPTURE_CONTRACTS[wave]??[]).length)return []; const policy=attestation??capturePolicyFor(wave); return [...new Set(shas.filter((sha)=>typeof sha==='string'&&SHA.test(sha)))].map((sha)=>({wave,sha,fixtureAllowlistDigest:policy.fixtureAllowlistDigest,barrierPolicyDigest:policy.barrierPolicyDigest})).sort((a,b)=>`${a.wave}\0${a.sha}`.localeCompare(`${b.wave}\0${b.sha}`)); }
 
 // All JSON reads below are candidate reads only. A record enters the returned
 // index solely after the public validator accepts its exact path identity.
@@ -61,7 +78,7 @@ export function createDurableFacts(options = {}, dependencies = {}) {
   assertConfined(evidenceRoot, cleanupRoot);
   assertConfined(evidenceRoot, bootstrapFile);
   // prettier-ignore
-  async function readIndex() { try{ensureDirectory(initiatingRoot,evidenceRoot); const registrations=repairRegistry.discover(), records=[]; for(const candidate of candidates(evidenceRoot,registrations)){const context=contextFor(candidate,records); await invokeValidator(candidate,context,dependencies); bindCandidate(candidate,records); records.push(Object.freeze({...candidate,receiptId:receiptId(candidate.manifest),manifestDigest:artifactDigest(candidate.manifest),context}));} for(const row of [...ROWS,...registrations.map((entry)=>entry.row)])for(const mode of ['reviewed-head','exact-main'])one(records,row.wave,mode); const cleanups=readCleanups(cleanupRoot,records); consumeBootstrap(bootstrapFile,records); return Object.freeze({records:Object.freeze(records),cleanups:Object.freeze(cleanups),registrations});}catch(error){if(error instanceof Camp01FactsError)throw error;fail('durable index unreadable');} }
+  async function readIndex() { try{ensureDirectory(initiatingRoot,evidenceRoot); const registrations=repairRegistry.discover(), records=[]; for(const candidate of candidates(evidenceRoot,registrations)){const context=contextFor(candidate,records); await invokeValidator(candidate,context,dependencies); await invokeAnchor(candidate,dependencies); bindCandidate(candidate,records); records.push(Object.freeze({...candidate,receiptId:receiptId(candidate.manifest),manifestDigest:artifactDigest(candidate.manifest),context}));} for(const row of [...ROWS,...registrations.map((entry)=>entry.row)])for(const mode of ['reviewed-head','exact-main'])one(records,row.wave,mode); const cleanups=readCleanups(cleanupRoot,records); consumeBootstrap(bootstrapFile,records); return Object.freeze({records:Object.freeze(records),cleanups:Object.freeze(cleanups),registrations});}catch(error){if(error instanceof Camp01FactsError)throw error;fail('durable index unreadable');} }
   // prettier-ignore
   async function resolvePreflightFacts(input) { const index=await readIndex(), {row,arguments:arguments_}=input??{}; if(!row||!arguments_) fail('preflight input missing'); if(row.wave==='camp-proof'&&arguments_.mode==='reviewed-head') admitBootstrap(bootstrapFile,arguments_.sha,index.records); const concrete=row.predecessors.filter((wave)=>!wave.endsWith(VIRTUAL)); for(const wave of concrete){const record=one(index.records,wave,'exact-main'); if(!record) fail(`predecessor receipt missing: ${wave}`); if(!index.cleanups.some((entry)=>entry.wave===wave&&entry.runId===record.runId)) fail(`predecessor cleanup missing: ${wave}`);} const repairGates=row.predecessors.filter((wave)=>wave.endsWith(VIRTUAL)).map((gate)=>repairGate(gate,index)), target=row.capSubject==='none'?{treeSha:arguments_.sha,capProvenance:null}:await targetFacts(input,dependencies); contexts.set(key(row.wave,arguments_.mode,arguments_.sha),writerContext(input,index,target)); return {programSpecChanges:(arguments_.programSpecs??[]).map((value)=>String(value).split('|')[0]),predecessorReceiptWaves:concrete,predecessorCleanupWaves:concrete,repairGates,cap:target.capProvenance===null?null:{subject:target.capProvenance.subject,fileCount:target.capProvenance.fileCount,changedLineCount:target.capProvenance.changedLineCount,binaryEntries:target.capProvenance.binaryEntries}}; }
   // prettier-ignore
@@ -92,6 +109,7 @@ export async function createProductionDependencies(
         { cwd: initiatingRoot },
         dependencies.gitDependencies ?? {},
       )),
+    anchor = productionAnchor({ git, initiatingRoot }, dependencies),
     evidenceRoot = path.join(
       initiatingRoot,
       '.sisyphus',
@@ -109,7 +127,12 @@ export async function createProductionDependencies(
     },
     facts = createDurableFacts(
       { ...options, initiatingRoot },
-      { ...dependencies, targetDependencies: targetDeps, repairRegistry },
+      {
+        ...dependencies,
+        anchor,
+        targetDependencies: targetDeps,
+        repairRegistry,
+      },
     ),
     stateStore = createFileStateStore(initiatingRoot),
     active = new Map(),
@@ -118,7 +141,7 @@ export async function createProductionDependencies(
     ...dependencies,
     sessionDirectory:
       dependencies.sessionDirectory ??
-      (() => fs.mkdtempSync(path.join(os.tmpdir(), 'mekstation-camp01-git-'))),
+      (() => freshSessionDirectory('mekstation-camp01-git-')),
     resolvePreflightFacts: facts.resolvePreflightFacts,
     resolveWriterInputs: facts.resolveWriterInputs,
     resolveRepairSource: facts.resolveRepairSource,
@@ -189,16 +212,20 @@ export async function createProductionDependencies(
         git,
         dependencies.targetDependencies ?? {},
       )),
-    cleanup = createCleanupAuthority(
-      {
-        git,
-        initiatingTarget,
-        cleanupRoot:
-          options.cleanupRoot ?? path.join(evidenceRoot, '.camp01-cleanups'),
-        failedCreationTargets: options.failedCreationTargets ?? [],
-      },
-      { ...(dependencies.cleanupDependencies ?? {}), invokePublicValidator },
-    );
+    composedCleanupRoot =
+      options.cleanupRoot ?? path.join(evidenceRoot, '.camp01-cleanups');
+  // The cleanup authority fail-closes on a missing receipt root, so the
+  // composition provisions it exactly as it already provisions the evidence root.
+  ensureDirectory(initiatingRoot, composedCleanupRoot);
+  const cleanup = createCleanupAuthority(
+    {
+      git,
+      initiatingTarget,
+      cleanupRoot: composedCleanupRoot,
+      failedCreationTargets: options.failedCreationTargets ?? [],
+    },
+    { ...(dependencies.cleanupDependencies ?? {}), invokePublicValidator },
+  );
   return Object.freeze({
     stateStore,
     inspectOwnedTarget: (input) => inspectOwnedTarget(input, targetDeps),
@@ -219,17 +246,102 @@ export async function createProductionDependencies(
   });
 }
 
+// Composes the mandatory production authority while preserving explicit test fakes.
+function productionAnchor({ git, initiatingRoot }, dependencies) {
+  if (Object.hasOwn(dependencies, 'anchor')) {
+    if (typeof dependencies.anchor !== 'function')
+      fail('anchor dependency invalid');
+    return dependencies.anchor;
+  }
+  const transport = dependencies.fetchGitHubResource ?? fetchGitHubResource,
+    authority = createAnchorAuthority(
+      { git, cwd: initiatingRoot },
+      {
+        ...(dependencies.anchorDependencies ?? {}),
+        fetchCheckRuns: (sha) =>
+          transport({ resource: 'check-runs', parameters: { sha } }),
+      },
+    );
+  // Supplies freshly fetched main only to exact-main records that require A2.
+  return async (candidate) =>
+    authority(candidate, {
+      fetchedMainOid:
+        candidate.mode === 'exact-main'
+          ? await resolveFetchedMainOid(candidate, git, dependencies)
+          : null,
+    });
+}
+
+// Exported read-only-additively so the live tier can exercise production A2.
+export async function resolveFetchedMainOid(candidate, git, dependencies) {
+  try {
+    const transport = dependencies.fetchGitHubResource ?? fetchGitHubResource,
+      branch = await transport({
+        resource: 'branch',
+        parameters: { branch: REPOSITORY_IDENTITY.baseRef },
+      }),
+      mainOid = branch?.commit?.sha,
+      configured = dependencies.sessionDirectory,
+      directory =
+        typeof configured === 'function'
+          ? await configured({
+              operation: `anchor-${candidate.wave}-${candidate.sha}`,
+              wave: candidate.wave,
+            })
+          : (configured ?? freshSessionDirectory('mekstation-camp01-anchor-')),
+      gitDependencies = {
+        ...(dependencies.gitDependencies ?? {}),
+        ...(dependencies.testOnlyAllowLocalRemote === true
+          ? { testOnlyAllowLocalRemote: true }
+          : {}),
+      };
+    if (
+      branch?.name !== REPOSITORY_IDENTITY.baseRef ||
+      !SHA.test(mainOid) ||
+      typeof directory !== 'string' ||
+      !path.isAbsolute(directory)
+    )
+      fail('anchor main reachability drift');
+    const session = await createBareSession(
+        { git, directory },
+        gitDependencies,
+      ),
+      verified = await fetchAndVerifyOids(
+        {
+          session,
+          remoteUrl:
+            dependencies.testOnlyRemoteUrl ?? REPOSITORY_IDENTITY.fetchUrl,
+          headOid: mainOid,
+          mainOid,
+        },
+        gitDependencies,
+      );
+    return verified.mainOid;
+  } catch (error) {
+    if (error instanceof Camp01FactsError) throw error;
+    fail('anchor main reachability drift');
+  }
+}
+
+// Invokes optional hermetic anchors but rejects malformed present dependencies.
+async function invokeAnchor(candidate, dependencies) {
+  if (!Object.hasOwn(dependencies, 'anchor')) return;
+  if (typeof dependencies.anchor !== 'function')
+    fail('anchor dependency invalid');
+  await dependencies.anchor(candidate);
+}
+
 // prettier-ignore
 function candidates(evidenceRoot,registrations) { const found=[], initiatingRoot=path.resolve(evidenceRoot,'..','..','..'), rows=[...ROWS,...registrations.map((entry)=>entry.row)]; for(const entry of fs.readdirSync(evidenceRoot,{withFileTypes:true})){if(!entry.isDirectory()||entry.isSymbolicLink()||entry.name.startsWith('.'))continue; const matches=rows.filter((row)=>{const prefix=path.basename(row.runRootTemplate).replace('<sha>','');return entry.name.startsWith(prefix)&&SHA.test(entry.name.slice(prefix.length));}); if(matches.length!==1)continue; const row=matches[0], registration=registrations.find((value)=>value.wave===row.wave)??null, prefix=path.basename(row.runRootTemplate).replace('<sha>',''), sha=entry.name.slice(prefix.length), runRoot=row.runRootTemplate.replace('<sha>',sha), root=path.join(evidenceRoot,entry.name), children=fs.readdirSync(root,{withFileTypes:true}); if(children.length!==1||!children[0].isDirectory()||children[0].isSymbolicLink()||!RUN.test(children[0].name))fail('durable run root identity drift'); const directory=path.join(root,children[0].name), command=readJson(path.join(directory,'command-result.json')), manifest=readJson(path.join(directory,'receipt-manifest.json')); if(!command||!manifest||!Array.isArray(manifest.entries))fail('durable receipt identity drift'); const artifacts=Object.fromEntries(row.artifacts.filter((name)=>name.endsWith('.json')&&!['command-result.json','receipt-manifest.json'].includes(name)).map((name)=>[name,readCandidateJson(path.join(directory,...name.split('/')))])); if(command.wave!==row.wave||command.sha!==sha||command.runId!==children[0].name||manifest.wave!==row.wave||manifest.runId!==command.runId||!['reviewed-head','exact-main'].includes(command.mode))fail('durable receipt identity drift'); found.push({wave:row.wave,row,mode:command.mode,sha,runRoot,runId:command.runId,directory,initiatingRoot,command,manifest,artifacts,registration});} return found.sort((a,b)=>rows.indexOf(a.row)-rows.indexOf(b.row)||(a.mode==='reviewed-head'?-1:1)); }
 // prettier-ignore
-function contextFor(candidate,records) { const row=candidate.row, command=candidate.command, reviewed=command.mode==='exact-main'?records.find((entry)=>entry.wave===candidate.wave&&entry.mode==='reviewed-head'&&entry.receiptId===command.capProvenance?.reviewedHeadReceiptId):null, predecessors=row.predecessors.map((wave,index)=>({wave,id:command.provenance?.predecessorReceiptIds?.[index],record:wave.endsWith(VIRTUAL)?null:one(records,wave,'exact-main')})); const provenance=[...records.flatMap((entry)=>entry.context.registryContext.provenance),{id:command.provenance.specTupleId,sourceKind:'spec-tuple',wave:row.wave,subject:row.capSubject},...command.provenance.ownedPrTupleId?[{id:command.provenance.ownedPrTupleId,sourceKind:'owned-pr-tuple',wave:row.wave,subject:row.capSubject}]:[],...predecessors.map((entry)=>({id:entry.id,sourceKind:'predecessor-receipt',wave:entry.wave,subject:WAVE_CONTRACTS[entry.wave]?.capSubject??'product-pr'})),...reviewed?[{id:reviewed.receiptId,sourceKind:'reviewed-head-receipt',wave:row.wave,subject:row.capSubject}]:[]]; const evidence=predecessors.flatMap(({record})=>record?record.row.reporterContracts.filter((entry)=>!entry.witnessLabel).map((entry)=>({sourceKind:'execution',sourceKey:entry.invocationId,runId:record.runId,wave:record.wave,label:null})):[]), refs=(command.identityRegistry?.refs??[]).map((entry)=>({...entry,sourceWave:provenance.find((value)=>value.id===entry.validationProvenanceId)?.wave??row.wave})), capturePolicies=command.captureAttestations?.length?[{wave:row.wave,sha:command.sha,fixtureAllowlistDigest:command.captureAttestations[0].fixtureAllowlistDigest,barrierPolicyDigest:command.captureAttestations[0].barrierPolicyDigest}]:[]; return {registryContext:{evidence:unique(evidence,'sourceKey'),provenance:unique(provenance,'id'),refs:unique(refs,'ref'),capturePolicies,repairSources:repairSources({records:[...records,candidate]}).map(({repairRowId,failedReportObservationId,failedReportFingerprint,causeFingerprint})=>({repairRowId,failedReportObservationId,failedReportFingerprint,causeFingerprint}))},reviewedHead:reviewed?{receiptId:reviewed.receiptId,manifestDigest:reviewed.manifestDigest,command:reviewed.command,manifest:reviewed.manifest}:null,...candidate.registration?{repairDeclaration:candidate.registration.declaration,repairSource:candidate.registration.source}:{},...row.wave==='proof-02-triage'?{reproduction:readArtifact(one(records,'proof-02-reproduction','exact-main'),'proof02-reproduction.json')}:{}}; }
+export function contextFor(candidate,records) { const row=candidate.row, command=candidate.command, reviewed=command.mode==='exact-main'?records.find((entry)=>entry.wave===candidate.wave&&entry.mode==='reviewed-head'&&entry.receiptId===command.capProvenance?.reviewedHeadReceiptId):null, predecessors=row.predecessors.map((wave,index)=>({wave,id:command.provenance?.predecessorReceiptIds?.[index],record:wave.endsWith(VIRTUAL)?null:one(records,wave,'exact-main')})); const provenance=[...records.flatMap((entry)=>entry.context.registryContext.provenance),{id:command.provenance.specTupleId,sourceKind:'spec-tuple',wave:row.wave,subject:row.capSubject},...command.provenance.ownedPrTupleId?[{id:command.provenance.ownedPrTupleId,sourceKind:'owned-pr-tuple',wave:row.wave,subject:row.capSubject}]:[],...predecessors.map((entry)=>({id:entry.id,sourceKind:'predecessor-receipt',wave:entry.wave,subject:WAVE_CONTRACTS[entry.wave]?.capSubject??'product-pr'})),...reviewed?[{id:reviewed.receiptId,sourceKind:'reviewed-head-receipt',wave:row.wave,subject:row.capSubject}]:[]]; const evidence=predecessors.flatMap(({record})=>record?record.row.reporterContracts.filter((entry)=>!entry.witnessLabel).map((entry)=>({sourceKind:'execution',sourceKey:entry.invocationId,runId:record.runId,wave:record.wave,label:null})):[]), refs=(command.identityRegistry?.refs??[]).map((entry)=>({...entry,sourceWave:provenance.find((value)=>value.id===entry.validationProvenanceId)?.wave??row.wave})), capturePolicies=capturePoliciesFor(row.wave,[command.sha,reviewed?.command?.sha],command.captureAttestations?.[0]); return {registryContext:{evidence:unique(evidence,'sourceKey'),provenance:unique(provenance,'id'),refs:unique(refs,'ref'),capturePolicies,repairSources:repairSources({records:[...records,candidate]}).map(({repairRowId,failedReportObservationId,failedReportFingerprint,causeFingerprint})=>({repairRowId,failedReportObservationId,failedReportFingerprint,causeFingerprint}))},reviewedHead:reviewed?{receiptId:reviewed.receiptId,manifestDigest:reviewed.manifestDigest,command:reviewed.command,manifest:reviewed.manifest}:null,...candidate.registration?{repairDeclaration:candidate.registration.declaration,repairSource:candidate.registration.source}:{},...row.wave==='proof-02-triage'?{reproduction:readArtifact(one(records,'proof-02-reproduction','exact-main'),'proof02-reproduction.json')}:row.wave==='camp-01h'?{repairs:repairsReopenContext(records)}:{}}; }
 // prettier-ignore
 function bindCandidate(candidate,records) { const ids=candidate.command.provenance?.predecessorReceiptIds??[]; candidate.row.predecessors.forEach((wave,index)=>{if(wave.endsWith(VIRTUAL))return;const prior=one(records,wave,'exact-main');if(!prior||ids[index]!==prior.receiptId)fail('predecessor receipt identity drift');}); if(candidate.mode==='exact-main'&&candidate.command.capProvenance!==null){const reviewed=records.find((entry)=>entry.wave===candidate.wave&&entry.mode==='reviewed-head'&&entry.receiptId===candidate.command.capProvenance?.reviewedHeadReceiptId);if(!reviewed||candidate.command.capProvenance.reviewedHeadReceiptManifestDigest!==reviewed.manifestDigest)fail('reviewed-head receipt identity drift');} }
 // prettier-ignore
-function writerContext(input,index,target) {
+export function writerContext(input,index,target) {
   const {row,arguments:arguments_}=input, predecessors=row.predecessors.map((wave)=>wave.endsWith(VIRTUAL)?gateReceiptId(repairGate(wave,index)):one(index.records,wave,'exact-main')?.receiptId??fail(`predecessor receipt missing: ${wave}`)), reviewed=arguments_.mode==='exact-main'?index.records.find((entry)=>entry.wave===row.wave&&entry.mode==='reviewed-head'&&entry.command.sha===target.capProvenance?.headSha):null; if(arguments_.mode==='exact-main'&&row.capSubject!=='none'&&!reviewed)fail('reviewed-head receipt missing');
-  const sources=[...row.predecessors.filter((wave)=>!wave.endsWith(VIRTUAL)).map((wave)=>one(index.records,wave,'exact-main')),...reviewed?[reviewed]:[]].filter(Boolean), triage=row.wave==='proof-02-triage'?triageInputs(arguments_,predecessors[0],tupleId(input.provenance?.owned)):null, repairs=row.wave==='camp-01h'?repairInputs(arguments_,index):null, triageRefs=triage?.dispositions.flatMap((entry)=>[entry.resolutionRef,entry.auditAnchor,...entry.blockerRef?[entry.blockerRef]:[]]).map((ref)=>{const kind=triage.dispositions.some((entry)=>entry.auditAnchor===ref)?'audit':triage.dispositions.some((entry)=>entry.blockerRef===ref)?'github-issue':'receipt';return {ref,kind,targetDigest:artifactDigest(ref),validationProvenanceId:kind==='audit'?triage.auditTupleId:kind==='receipt'?predecessors[0]:tupleId(ref)};})??[], provenance=unique([...sources.flatMap((entry)=>entry.context.registryContext.provenance),...row.predecessors.map((wave,index_)=>({id:predecessors[index_],sourceKind:'predecessor-receipt',wave,subject:WAVE_CONTRACTS[wave]?.capSubject??'product-pr'})),...reviewed?[{id:reviewed.receiptId,sourceKind:'reviewed-head-receipt',wave:row.wave,subject:row.capSubject}]:[],...triageRefs.filter((entry)=>entry.kind==='github-issue').map((entry)=>({id:entry.validationProvenanceId,sourceKind:'ref-validation',wave:row.wave,subject:row.capSubject})),...repairs?.repairs.flatMap((entry)=>[{id:entry.repairReceiptId,sourceKind:'repair-receipt',wave:entry.repairRowId,subject:'product-pr'},{id:entry.cleanupReceiptId,sourceKind:'cleanup-receipt',wave:entry.repairRowId,subject:'product-pr'}])??[]],'id'), refs=unique([...sources.flatMap((entry)=>entry.command.identityRegistry.refs),...triageRefs],'ref'), entities=sources.flatMap((entry)=>entry.command.identityRegistry.entities), repair=[...repairSources(index),...triage?.dispositions.filter((entry)=>entry.repairRowId).map((entry)=>({kind:'proof',repairRowId:entry.repairRowId,receiptId:null,observationId:entry.observationId,failedReportObservationId:entry.observationId,failedReportFingerprint:entry.failureFingerprint,causeFingerprint:entry.causeFingerprint}))??[]];
-  const cap=target.capProvenance===null?null:{...target.capProvenance,reviewedHeadReceiptId:reviewed?.receiptId??null,reviewedHeadReceiptManifestDigest:reviewed?.manifestDigest??null}, registryContext={evidence:sources.flatMap((record)=>record.row.reporterContracts.filter((entry)=>!entry.witnessLabel).map((entry)=>({sourceKind:'execution',sourceKey:entry.invocationId,runId:record.runId,wave:record.wave,label:null}))),provenance,refs:unique(refs.map((entry)=>({...entry,sourceWave:provenance.find((value)=>value.id===entry.validationProvenanceId)?.wave??row.wave})),'ref'),capturePolicies:[],repairSources:unique(repair.map(({repairRowId,failedReportObservationId,failedReportFingerprint,causeFingerprint})=>({repairRowId,failedReportObservationId,failedReportFingerprint,causeFingerprint})),'repairRowId')}; return {treeSha:target.treeSha,capProvenance:cap,identityRegistry:{schema:'camp01-identity-registry/v1',entities:unique(entities,'digest'),refs},registryContext,predecessorReceiptIds:predecessors,reviewedHead:reviewed?{receiptId:reviewed.receiptId,manifestDigest:reviewed.manifestDigest,command:reviewed.command,manifest:reviewed.manifest}:null,...repairs?{repairs}:{},...triage?{reproduction:readArtifact(one(index.records,'proof-02-reproduction','exact-main'),'proof02-reproduction.json'),triage}:{}};
+  const sources=[...row.predecessors.filter((wave)=>!wave.endsWith(VIRTUAL)).map((wave)=>one(index.records,wave,'exact-main')),...reviewed?[reviewed]:[]].filter(Boolean), triage=row.wave==='proof-02-triage'?triageInputs(arguments_,predecessors[0],tupleId(input.provenance?.owned,row.wave)):null, repairs=row.wave==='camp-01h'?repairInputs(arguments_,index):null, triageRefs=triage?.dispositions.flatMap((entry)=>[entry.resolutionRef,entry.auditAnchor,...entry.blockerRef?[entry.blockerRef]:[]]).map((ref)=>{const kind=triage.dispositions.some((entry)=>entry.auditAnchor===ref)?'audit':triage.dispositions.some((entry)=>entry.blockerRef===ref)?'github-issue':'receipt';return {ref,kind,targetDigest:artifactDigest(ref),validationProvenanceId:kind==='audit'?triage.auditTupleId:kind==='receipt'?predecessors[0]:tupleId(ref)};})??[], provenance=unique([...sources.flatMap((entry)=>entry.context.registryContext.provenance),...row.predecessors.map((wave,index_)=>({id:predecessors[index_],sourceKind:'predecessor-receipt',wave,subject:WAVE_CONTRACTS[wave]?.capSubject??'product-pr'})),...reviewed?[{id:reviewed.receiptId,sourceKind:'reviewed-head-receipt',wave:row.wave,subject:row.capSubject}]:[],...triageRefs.filter((entry)=>entry.kind==='github-issue').map((entry)=>({id:entry.validationProvenanceId,sourceKind:'ref-validation',wave:row.wave,subject:row.capSubject})),...repairs?.repairs.flatMap((entry)=>[{id:entry.repairReceiptId,sourceKind:'repair-receipt',wave:entry.repairRowId,subject:'product-pr'},{id:entry.cleanupReceiptId,sourceKind:'cleanup-receipt',wave:entry.repairRowId,subject:'product-pr'}])??[]],'id'), refs=overlayIdentityRefs(sources.flatMap((entry)=>entry.command.identityRegistry.refs),triageRefs), entities=sources.flatMap((entry)=>entry.command.identityRegistry.entities), repair=[...repairSources(index),...triage?.dispositions.filter((entry)=>entry.repairRowId).map((entry)=>({kind:'proof',repairRowId:entry.repairRowId,receiptId:null,observationId:entry.observationId,failedReportObservationId:entry.observationId,failedReportFingerprint:entry.failureFingerprint,causeFingerprint:entry.causeFingerprint}))??[]];
+  const cap=target.capProvenance===null?null:{...target.capProvenance,reviewedHeadReceiptId:reviewed?.receiptId??null,reviewedHeadReceiptManifestDigest:reviewed?.manifestDigest??null}, registryContext={evidence:sources.flatMap((record)=>record.row.reporterContracts.filter((entry)=>!entry.witnessLabel).map((entry)=>({sourceKind:'execution',sourceKey:entry.invocationId,runId:record.runId,wave:record.wave,label:null}))),provenance,refs:unique(refs.map((entry)=>({...entry,sourceWave:provenance.find((value)=>value.id===entry.validationProvenanceId)?.wave??row.wave})),'ref'),capturePolicies:capturePoliciesFor(row.wave,[arguments_.sha,reviewed?.command?.sha],reviewed?.command?.captureAttestations?.[0]),repairSources:unique(repair.map(({repairRowId,failedReportObservationId,failedReportFingerprint,causeFingerprint})=>({repairRowId,failedReportObservationId,failedReportFingerprint,causeFingerprint})),'repairRowId')}; return {treeSha:target.treeSha,capProvenance:cap,identityRegistry:{schema:'camp01-identity-registry/v1',entities:unique(entities,'digest'),refs},registryContext,predecessorReceiptIds:predecessors,reviewedHead:reviewed?{receiptId:reviewed.receiptId,manifestDigest:reviewed.manifestDigest,command:reviewed.command,manifest:reviewed.manifest}:null,...repairs?{repairs}:{},...triage?{reproduction:readArtifact(one(index.records,'proof-02-reproduction','exact-main'),'proof02-reproduction.json'),triage}:{}};
 }
 // prettier-ignore
 async function targetFacts(input,dependencies) { if(input.row.capSubject!=='none'){const resolver=dependencies.resolveTargetFacts??resolveTargetFacts, spec=input.state?.registration?.spec??input.provenance?.spec; return resolver({ownedTarget:input.state?.ownedTarget,spec,row:input.row},dependencies.targetDependencies??{});} const clean=await (dependencies.observeCleanState??observeCleanState)({target:input.proofTarget??input.state?.proofTarget,phase:'baseline',runRoot:input.arguments.runRoot},dependencies.targetDependencies??{}); return {treeSha:clean.treeSha,capProvenance:null}; }
@@ -252,11 +364,23 @@ function receiptId(manifest) { return `receipt-${artifactDigest(manifest).slice(
 // prettier-ignore
 function gateReceiptId(gate) { return `receipt-${artifactDigest(gate).slice(7,39)}`; }
 // prettier-ignore
-function tupleId(value) { return `tuple-${createHash('sha256').update(JSON.stringify(value)).digest('hex').slice(0,32)}`; }
+function tupleId(value,wave) { return `tuple-${createHash('sha256').update(JSON.stringify(wave?{wave,value}:value)).digest('hex').slice(0,32)}`; }
 // prettier-ignore
 function triageInputs(arguments_,reproductionReceiptId,auditTupleId) { const dispositions=(arguments_.dispositions??[]).map((value)=>{const [observationId,failureFingerprint,severity,outcome,causeFingerprint,resolutionRef,blocker,rank,auditAnchor]=value.split('|');return {observationId,failureFingerprint,severity,outcome,causeFingerprint,resolutionRef,blockerRef:blocker==='none'?null:blocker,backlogRank:rank==='none'?null:Number(rank),auditAnchor,primaryObservationId:null,repairRowId:outcome==='repair-required'?`proof-02-repair-${causeFingerprint.replace(/^sha256:/,'')}`:null};}), groups=Object.groupBy(dispositions,(entry)=>entry.causeFingerprint); for(const entries of Object.values(groups)){entries.sort((a,b)=>a.observationId.localeCompare(b.observationId));for(const entry of entries.slice(1)){entry.primaryObservationId=entries[0].observationId;entry.outcome='not-distinct-cause';entry.repairRowId=null;}} return {reproductionReceiptId,auditTupleId,dispositions:dispositions.sort((a,b)=>a.observationId.localeCompare(b.observationId))}; }
+// Reopen-side mirror of repairInputs' parent binding: a durable camp-01h
+// receipt's proof02-repairs.json validates against the durable triage
+// exact-main run, never against its own self-declared fields. Per-entry
+// repair-receipt provenance for NON-empty repair lists remains fail-closed
+// through registry membership until a repair wave exists to compose from.
+// prettier-ignore
+export function repairsReopenContext(records) { const triage=one(records,'proof-02-triage','exact-main'); if(!triage) fail('camp-01h repairs context missing durable triage receipt'); return {parentRunId:triage.runId}; }
 // prettier-ignore
 export function repairInputs(arguments_,index) { const triage=one(index.records,'proof-02-triage','exact-main')??fail('triage receipt missing'), repairs=(arguments_.repairs??[]).map((value)=>{const tuple17=value.split('|'), repairRowId=`proof-02-repair-${tuple17[1].replace(/^sha256:/,'')}`, repair=one(index.records,repairRowId,'exact-main')??fail('repair receipt missing'), cleanup=index.cleanups.find((entry)=>entry.wave===repairRowId&&entry.runId===repair.runId)??fail('repair cleanup missing'); return {repairRowId,repairReceiptId:repair.receiptId,cleanupReceiptId:receiptId(cleanup),tuple17};}); return {parentRunId:triage.runId,triageReceiptId:triage.receiptId,repairs:repairs.sort((a,b)=>a.repairRowId.localeCompare(b.repairRowId))}; }
+// mkdtemp yields a collision-free parent; the returned CHILD must not exist yet
+// because createBareSession fail-closes on an existing session directory. The
+// first live camp-proof run proved the prior mkdtemp-result default unusable.
+// prettier-ignore
+export function freshSessionDirectory(prefix) { return path.join(fs.mkdtempSync(path.join(os.tmpdir(),prefix)),'session.git'); }
 // prettier-ignore
 function key(wave,mode,sha) { return `${wave}\0${mode}\0${sha}`; }
 // prettier-ignore
@@ -267,6 +391,8 @@ function readArtifact(record,name) { if(!record)fail(`durable artifact missing: 
 function readJson(file) { try{const stat=fs.lstatSync(file);if(stat.isSymbolicLink()||!stat.isFile())fail('durable artifact unreadable');return JSON.parse(fs.readFileSync(file,'utf8'));}catch{fail('durable artifact unreadable');} }
 // prettier-ignore
 function readCandidateJson(file) { try{const stat=fs.lstatSync(file);if(stat.isSymbolicLink()||!stat.isFile())return null;return JSON.parse(fs.readFileSync(file,'utf8'));}catch{return null;} }
+// prettier-ignore
+export function overlayIdentityRefs(inherited,overlay) { const inheritedRefs=new Set((inherited??[]).map((entry)=>entry.ref)); return unique([...(inherited??[]),...(overlay??[]).filter((entry)=>!inheritedRefs.has(entry.ref))],'ref'); }
 // prettier-ignore
 function unique(values,key_) { const sorted=[...values].sort((a,b)=>String(a[key_]).localeCompare(String(b[key_]))), out=[];for(const value of sorted){const prior=out.at(-1);if(prior?.[key_]===value[key_]&&JSON.stringify(prior)!==JSON.stringify(value))fail('durable registry identity drift');if(prior?.[key_]!==value[key_])out.push(value);}return out; }
 // prettier-ignore

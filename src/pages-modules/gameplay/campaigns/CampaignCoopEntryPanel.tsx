@@ -16,6 +16,8 @@ import { storeCoopCampaignToken } from '@/lib/campaign/coop/coopCampaignAuthToke
 import { applyPreset } from '@/lib/campaign/presetService';
 import { useCampaignMirrorStore } from '@/lib/p2p/campaignMirrorStore';
 import { parseRoomCode } from '@/lib/p2p/roomCodes';
+import { useCampaignPersistenceStore } from '@/stores/campaign/useCampaignPersistenceStore';
+import { useCampaignRosterStore } from '@/stores/campaign/useCampaignRosterStore';
 import { useCampaignStore } from '@/stores/campaign/useCampaignStore';
 import { CampaignPreset } from '@/types/campaign/CampaignPreset';
 import { CampaignType } from '@/types/campaign/CampaignType';
@@ -198,6 +200,25 @@ export function CampaignCoopEntryPanel(): React.ReactElement {
       if (!createdCampaign) {
         throw new Error('Failed to create the host campaign snapshot');
       }
+      // Per campaign-authority "Creation lands in the server store
+      // immediately": the host campaign must exist server-side before the
+      // match references it and before the lobby acknowledges creation -
+      // the debounced autosave is not a creation guarantee.
+      const persisted = await useCampaignPersistenceStore
+        .getState()
+        .saveCampaign();
+      if (persisted.status !== 'saved') {
+        throw new Error(
+          persisted.status === 'error'
+            ? persisted.errorMessage
+            : 'Failed to persist the host campaign to the server',
+        );
+      }
+      const rosterUnits = useCampaignRosterStore.getState().units;
+      const coopState = buildCampaignAuthoritativeState(
+        createdCampaign,
+        rosterUnits,
+      );
       const res = await fetch('/api/multiplayer/matches', {
         method: 'POST',
         headers: {
@@ -210,7 +231,7 @@ export function CampaignCoopEntryPanel(): React.ReactElement {
           displayName: auth.displayName,
           coopCampaign: {
             campaignId: createdCampaign.id,
-            state: buildCampaignAuthoritativeState(createdCampaign),
+            state: coopState,
             arbitrationMode: 'host-review',
           },
         }),

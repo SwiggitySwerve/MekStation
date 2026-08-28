@@ -3,19 +3,40 @@
  */
 import * as fs from 'fs';
 import * as path from 'path';
-import { resolveEquipmentBV, normalizeEquipmentId } from '../src/utils/construction/equipmentBVResolver';
 
-const report = JSON.parse(fs.readFileSync('validation-output/bv-validation-report.json', 'utf8'));
-const idx = JSON.parse(fs.readFileSync('public/data/units/battlemechs/index.json', 'utf8'));
+import {
+  resolveEquipmentBV,
+  normalizeEquipmentId,
+} from '../src/utils/construction/equipmentBVResolver';
+
+const report = JSON.parse(
+  fs.readFileSync('validation-output/bv-validation-report.json', 'utf8'),
+);
+const idx = JSON.parse(
+  fs.readFileSync('public/data/units/battlemechs/index.json', 'utf8'),
+);
 
 function loadUnit(unitId: string): any {
   const ie = idx.units.find((e: any) => e.id === unitId);
   if (!ie?.path) return null;
-  try { return JSON.parse(fs.readFileSync(path.join('public/data/units/battlemechs', ie.path), 'utf8')); } catch { return null; }
+  try {
+    return JSON.parse(
+      fs.readFileSync(
+        path.join('public/data/units/battlemechs', ie.path),
+        'utf8',
+      ),
+    );
+  } catch {
+    return null;
+  }
 }
 
-const valid = report.allResults.filter((x: any) => x.status !== 'error' && x.percentDiff !== null && x.breakdown);
-const big = valid.filter((x: any) => x.percentDiff < -5).sort((a: any, b: any) => a.percentDiff - b.percentDiff);
+const valid = report.allResults.filter(
+  (x: any) => x.status !== 'error' && x.percentDiff !== null && x.breakdown,
+);
+const big = valid
+  .filter((x: any) => x.percentDiff < -5)
+  .sort((a: any, b: any) => a.percentDiff - b.percentDiff);
 
 console.log(`=== UNDERCALCULATED 5%+ (${big.length} units) ===\n`);
 
@@ -29,14 +50,23 @@ for (const u of big) {
 
   // Check unresolved weapons
   const unresolvedWeapons: string[] = [];
-  for (const eq of (unit.equipment || [])) {
-    if (eq.id.toLowerCase().includes('ammo') || eq.id.toLowerCase().includes('targeting-computer') ||
-        eq.id.toLowerCase().includes('heat-sink') || eq.id.toLowerCase().includes('case') ||
-        eq.id.toLowerCase().includes('tsm') || eq.id.toLowerCase().includes('jump-jet') ||
-        eq.id.toLowerCase().includes('masc') || eq.id.toLowerCase().includes('ecm') ||
-        eq.id.toLowerCase().includes('probe') || eq.id.toLowerCase().includes('c3')) continue;
+  for (const eq of unit.equipment || []) {
+    if (
+      eq.id.toLowerCase().includes('ammo') ||
+      eq.id.toLowerCase().includes('targeting-computer') ||
+      eq.id.toLowerCase().includes('heat-sink') ||
+      eq.id.toLowerCase().includes('case') ||
+      eq.id.toLowerCase().includes('tsm') ||
+      eq.id.toLowerCase().includes('jump-jet') ||
+      eq.id.toLowerCase().includes('masc') ||
+      eq.id.toLowerCase().includes('ecm') ||
+      eq.id.toLowerCase().includes('probe') ||
+      eq.id.toLowerCase().includes('c3')
+    )
+      continue;
     const res = resolveEquipmentBV(eq.id);
-    if (!res.resolved || res.battleValue === 0) unresolvedWeapons.push(`${eq.id}(bv=${res.battleValue})`);
+    if (!res.resolved || res.battleValue === 0)
+      unresolvedWeapons.push(`${eq.id}(bv=${res.battleValue})`);
   }
 
   // Check for specific patterns
@@ -53,17 +83,36 @@ for (const u of big) {
   // Check if all weapons are energy (no ammo expected)
   const weapons = (unit.equipment || []).filter((eq: any) => {
     const lo = eq.id.toLowerCase();
-    return !lo.includes('ammo') && !lo.includes('targeting') && !lo.includes('heat-sink') &&
-           !lo.includes('case') && !lo.includes('tsm') && !lo.includes('jump') &&
-           !lo.includes('masc') && !lo.includes('ecm') && !lo.includes('probe') &&
-           !lo.includes('c3') && !lo.includes('sword') && !lo.includes('hatchet') &&
-           !lo.includes('shield') && resolveEquipmentBV(lo).resolved;
+    return (
+      !lo.includes('ammo') &&
+      !lo.includes('targeting') &&
+      !lo.includes('heat-sink') &&
+      !lo.includes('case') &&
+      !lo.includes('tsm') &&
+      !lo.includes('jump') &&
+      !lo.includes('masc') &&
+      !lo.includes('ecm') &&
+      !lo.includes('probe') &&
+      !lo.includes('c3') &&
+      !lo.includes('sword') &&
+      !lo.includes('hatchet') &&
+      !lo.includes('shield') &&
+      resolveEquipmentBV(lo).resolved
+    );
   });
   const hasBallisticOrMissile = weapons.some((w: any) => {
     const lo = w.id.toLowerCase();
-    return lo.includes('ac') || lo.includes('gauss') || lo.includes('lrm') || lo.includes('srm') ||
-           lo.includes('mml') || lo.includes('atm') || lo.includes('mg') || lo.includes('rl') ||
-           lo.includes('mrm');
+    return (
+      lo.includes('ac') ||
+      lo.includes('gauss') ||
+      lo.includes('lrm') ||
+      lo.includes('srm') ||
+      lo.includes('mml') ||
+      lo.includes('atm') ||
+      lo.includes('mg') ||
+      lo.includes('rl') ||
+      lo.includes('mrm')
+    );
   });
   if (!hasBallisticOrMissile && weapons.length > 0) tags.push('all-energy');
 
@@ -72,12 +121,19 @@ for (const u of big) {
     patterns[t].push(u.unitId);
   }
 
-  console.log(`${u.unitId.padEnd(42)} ${u.percentDiff.toFixed(1)}% diff=${u.difference} tech=${unit.techBase}`);
-  console.log(`  DEF: ${b.defensiveBV?.toFixed(0)}  OFF: ${b.offensiveBV?.toFixed(0)}  weap=${b.weaponBV?.toFixed(0)} ammo=${b.ammoBV} HE=${b.heatEfficiency} halved=${b.halvedWeaponCount}/${b.weaponCount}`);
-  if (unresolvedWeapons.length > 0) console.log(`  UNRESOLVED: ${unresolvedWeapons.join(', ')}`);
+  console.log(
+    `${u.unitId.padEnd(42)} ${u.percentDiff.toFixed(1)}% diff=${u.difference} tech=${unit.techBase}`,
+  );
+  console.log(
+    `  DEF: ${b.defensiveBV?.toFixed(0)}  OFF: ${b.offensiveBV?.toFixed(0)}  weap=${b.weaponBV?.toFixed(0)} ammo=${b.ammoBV} HE=${b.heatEfficiency} halved=${b.halvedWeaponCount}/${b.weaponCount}`,
+  );
+  if (unresolvedWeapons.length > 0)
+    console.log(`  UNRESOLVED: ${unresolvedWeapons.join(', ')}`);
 }
 
 console.log('\n=== PATTERN SUMMARY ===');
-for (const [k, v] of Object.entries(patterns).sort((a, b) => b[1].length - a[1].length)) {
+for (const [k, v] of Object.entries(patterns).sort(
+  (a, b) => b[1].length - a[1].length,
+)) {
   console.log(`  ${k}: ${v.length} units`);
 }

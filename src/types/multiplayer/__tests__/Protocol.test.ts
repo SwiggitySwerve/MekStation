@@ -406,12 +406,9 @@ describe('Protocol envelope schemas', () => {
           ts: nowIso(),
           playerId: 'pid_guest',
           participation: {
-            matchId: 'match-campaign',
             missionId: 'mission-1',
-            playerId: 'pid_guest',
-            role: 'guest' as const,
+            forceId: 'force-guest',
             choice: 'deploy' as const,
-            force: { id: 'force-guest' },
           },
         },
       ];
@@ -423,9 +420,39 @@ describe('Protocol envelope schemas', () => {
       expect(CampaignParticipationSchema.safeParse(frames[4]).success).toBe(
         true,
       );
+      expect(
+        CampaignParticipationSchema.safeParse({
+          kind: 'CampaignParticipation' as const,
+          matchId: 'match-campaign',
+          ts: nowIso(),
+          playerId: 'pid_guest',
+          participation: {
+            missionId: 'mission-1',
+            forceId: 'force-guest',
+            choice: 'deploy' as const,
+            playerId: 'forged',
+            role: 'host',
+            force: { id: 'force-guest' },
+          },
+        }).success,
+      ).toBe(false);
       for (const frame of frames) {
         expect(ClientMessageSchema.safeParse(frame).success).toBe(true);
       }
+    });
+
+    it('parses CampaignGrantJoin beside the room-code CampaignJoin frame', () => {
+      const env = {
+        kind: 'CampaignGrantJoin' as const,
+        matchId: 'match-campaign',
+        ts: nowIso(),
+        playerId: 'pid_replica',
+        campaignId: 'campaign-1',
+        grantId: 'a'.repeat(32),
+        token: { opaque: true },
+        cursor: null,
+      };
+      expect(ClientMessageSchema.safeParse(env).success).toBe(true);
     });
 
     it('throws loudly for an unknown campaign-sync frame kind', () => {
@@ -482,13 +509,29 @@ describe('Protocol envelope schemas', () => {
           kind: 'CampaignSnapshot' as const,
           matchId: 'm',
           ts: nowIso(),
-          event: { type: 'CampaignSnapshotPublished' },
+          event: {
+            type: 'CampaignSnapshotPublished',
+            sequence: -1,
+            campaignId: 'c',
+            ts: nowIso(),
+            authorPlayerId: 'host',
+            scope: 'campaign',
+            payload: {},
+          },
         },
         {
           kind: 'CampaignEvent' as const,
           matchId: 'm',
           ts: nowIso(),
-          event: { type: 'FundsChanged' },
+          event: {
+            type: 'FundsChanged',
+            sequence: 0,
+            campaignId: 'c',
+            ts: nowIso(),
+            authorPlayerId: 'host',
+            scope: 'campaign',
+            payload: {},
+          },
         },
         {
           kind: 'CampaignProposal' as const,
@@ -507,13 +550,12 @@ describe('Protocol envelope schemas', () => {
           kind: 'CampaignParticipation' as const,
           matchId: 'm',
           ts: nowIso(),
+          playerId: 'pid_guest',
+          role: 'guest' as const,
           participation: {
-            matchId: 'm',
             missionId: 'mission-1',
-            playerId: 'pid_guest',
-            role: 'guest' as const,
+            forceId: 'force-guest',
             choice: 'deploy' as const,
-            force: { id: 'force-guest' },
           },
         },
       ];

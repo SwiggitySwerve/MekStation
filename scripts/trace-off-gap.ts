@@ -5,22 +5,45 @@
  */
 import * as fs from 'fs';
 import * as path from 'path';
-import { resolveEquipmentBV, normalizeEquipmentId } from '../src/utils/construction/equipmentBVResolver';
 
-const report = JSON.parse(fs.readFileSync('validation-output/bv-validation-report.json', 'utf8'));
-const idx = JSON.parse(fs.readFileSync('public/data/units/battlemechs/index.json', 'utf8'));
+import {
+  resolveEquipmentBV,
+  normalizeEquipmentId,
+} from '../src/utils/construction/equipmentBVResolver';
+
+const report = JSON.parse(
+  fs.readFileSync('validation-output/bv-validation-report.json', 'utf8'),
+);
+const idx = JSON.parse(
+  fs.readFileSync('public/data/units/battlemechs/index.json', 'utf8'),
+);
 
 function loadUnit(unitId: string): any {
   const ie = idx.units.find((e: any) => e.id === unitId);
   if (!ie?.path) return null;
-  try { return JSON.parse(fs.readFileSync(path.join('public/data/units/battlemechs', ie.path), 'utf8')); } catch { return null; }
+  try {
+    return JSON.parse(
+      fs.readFileSync(
+        path.join('public/data/units/battlemechs', ie.path),
+        'utf8',
+      ),
+    );
+  } catch {
+    return null;
+  }
 }
 
-const valid = report.allResults.filter((x: any) => x.status !== 'error' && x.percentDiff !== null);
-const under1to2 = valid.filter((x: any) => x.percentDiff >= -2 && x.percentDiff < -1 && x.breakdown);
+const valid = report.allResults.filter(
+  (x: any) => x.status !== 'error' && x.percentDiff !== null,
+);
+const under1to2 = valid.filter(
+  (x: any) => x.percentDiff >= -2 && x.percentDiff < -1 && x.breakdown,
+);
 
 // Pick the top 10 by gap size, show full weapon trace
-const sorted = [...under1to2].sort((a: any, b: any) => a.difference - b.difference);
+const sorted = [...under1to2].sort(
+  (a: any, b: any) => a.difference - b.difference,
+);
 
 console.log(`=== OFFENSIVE GAP TRACE FOR TOP 15 UNITS ===\n`);
 
@@ -31,14 +54,22 @@ for (const u of sorted.slice(0, 15)) {
 
   const cockpit = b.cockpitModifier ?? 1;
   const refBase = u.indexBV / cockpit;
-  const offGap = (refBase - b.defensiveBV) - b.offensiveBV;
+  const offGap = refBase - b.defensiveBV - b.offensiveBV;
   const baseOffGap = offGap / b.speedFactor;
 
   console.log(`${'='.repeat(70)}`);
-  console.log(`${u.unitId} (${unit.techBase}, ${unit.tonnage}t) ref=${u.indexBV} calc=${u.calculatedBV} diff=${u.difference}`);
-  console.log(`  offBV=${b.offensiveBV?.toFixed(0)} SF=${b.speedFactor} offGap=${offGap.toFixed(1)} baseGap=${baseOffGap.toFixed(1)}`);
-  console.log(`  weapBV=${b.weaponBV?.toFixed(0)} ammoBV=${b.ammoBV} weightBonus=${b.weightBonus?.toFixed(0)} physBV=${b.physicalWeaponBV?.toFixed(0) || 0} offEquip=${b.offEquipBV || 0}`);
-  console.log(`  HE=${b.heatEfficiency} heatDiss=${b.heatDissipation} moveHeat=${b.moveHeat}`);
+  console.log(
+    `${u.unitId} (${unit.techBase}, ${unit.tonnage}t) ref=${u.indexBV} calc=${u.calculatedBV} diff=${u.difference}`,
+  );
+  console.log(
+    `  offBV=${b.offensiveBV?.toFixed(0)} SF=${b.speedFactor} offGap=${offGap.toFixed(1)} baseGap=${baseOffGap.toFixed(1)}`,
+  );
+  console.log(
+    `  weapBV=${b.weaponBV?.toFixed(0)} ammoBV=${b.ammoBV} weightBonus=${b.weightBonus?.toFixed(0)} physBV=${b.physicalWeaponBV?.toFixed(0) || 0} offEquip=${b.offEquipBV || 0}`,
+  );
+  console.log(
+    `  HE=${b.heatEfficiency} heatDiss=${b.heatDissipation} moveHeat=${b.moveHeat}`,
+  );
 
   // Resolve each weapon independently and show
   console.log(`  WEAPONS (from equipment):`);
@@ -46,14 +77,22 @@ for (const u of sorted.slice(0, 15)) {
   if (unit.equipment) {
     for (const eq of unit.equipment) {
       const res = resolveEquipmentBV(eq.id);
-      const isWeapon = res.type === 'weapon' || res.subType?.includes('weapon') ||
-        (res.battleValue > 0 && !eq.id.toLowerCase().includes('ammo') && !eq.id.toLowerCase().includes('case') &&
-         !eq.id.toLowerCase().includes('heat-sink') && !eq.id.toLowerCase().includes('ams') &&
-         !eq.id.toLowerCase().includes('ecm') && !eq.id.toLowerCase().includes('bap') &&
-         !eq.id.toLowerCase().includes('c3'));
+      const isWeapon =
+        res.type === 'weapon' ||
+        res.subType?.includes('weapon') ||
+        (res.battleValue > 0 &&
+          !eq.id.toLowerCase().includes('ammo') &&
+          !eq.id.toLowerCase().includes('case') &&
+          !eq.id.toLowerCase().includes('heat-sink') &&
+          !eq.id.toLowerCase().includes('ams') &&
+          !eq.id.toLowerCase().includes('ecm') &&
+          !eq.id.toLowerCase().includes('bap') &&
+          !eq.id.toLowerCase().includes('c3'));
       if (isWeapon && res.battleValue > 0) {
         totalResolvedBV += res.battleValue;
-        console.log(`    ${eq.id.padEnd(35)} @${eq.location.padEnd(6)} bv=${res.battleValue} heat=${res.heat} norm=${normalizeEquipmentId(eq.id)}`);
+        console.log(
+          `    ${eq.id.padEnd(35)} @${eq.location.padEnd(6)} bv=${res.battleValue} heat=${res.heat} norm=${normalizeEquipmentId(eq.id)}`,
+        );
       }
     }
   }
@@ -69,7 +108,9 @@ for (const u of sorted.slice(0, 15)) {
       const clanRes = resolveEquipmentBV(clanId);
 
       if (clanRes.battleValue > baseRes.battleValue) {
-        console.log(`    ${eq.id.padEnd(35)} base=${baseRes.battleValue} clan=${clanRes.battleValue} UPGRADE +${clanRes.battleValue - baseRes.battleValue}`);
+        console.log(
+          `    ${eq.id.padEnd(35)} base=${baseRes.battleValue} clan=${clanRes.battleValue} UPGRADE +${clanRes.battleValue - baseRes.battleValue}`,
+        );
       }
     }
   }
@@ -82,11 +123,23 @@ for (const u of sorted.slice(0, 15)) {
       for (const s of slots) {
         if (!s || typeof s !== 'string') continue;
         const lo = (s as string).toLowerCase();
-        if (lo.includes('ammo') || lo.includes('heat sink') || lo.includes('endo') ||
-            lo.includes('ferro') || lo.includes('engine') || lo.includes('gyro') ||
-            lo.includes('actuator') || lo.includes('life support') || lo.includes('sensor') ||
-            lo.includes('cockpit') || lo.includes('case') || lo.includes('-') && lo.length < 5 ||
-            lo === 'ams' || lo === 'ecm') continue;
+        if (
+          lo.includes('ammo') ||
+          lo.includes('heat sink') ||
+          lo.includes('endo') ||
+          lo.includes('ferro') ||
+          lo.includes('engine') ||
+          lo.includes('gyro') ||
+          lo.includes('actuator') ||
+          lo.includes('life support') ||
+          lo.includes('sensor') ||
+          lo.includes('cockpit') ||
+          lo.includes('case') ||
+          (lo.includes('-') && lo.length < 5) ||
+          lo === 'ams' ||
+          lo === 'ecm'
+        )
+          continue;
         // Check if this is a weapon we're not finding
         const res = resolveEquipmentBV(s as string);
         if (res.battleValue > 0 && (res.type === 'weapon' || res.heat > 0)) {
@@ -150,12 +203,14 @@ for (const u of under1to2) {
   const b = u.breakdown;
   const cockpit = b.cockpitModifier ?? 1;
   const refBase = u.indexBV / cockpit;
-  const offGap = (refBase - b.defensiveBV) - b.offensiveBV;
+  const offGap = refBase - b.defensiveBV - b.offensiveBV;
   const baseGap = offGap / b.speedFactor;
   if (!gapsByTech[tb]) gapsByTech[tb] = [];
   gapsByTech[tb].push(baseGap);
 }
 for (const [tb, gaps] of Object.entries(gapsByTech)) {
   const avg = gaps.reduce((s, g) => s + g, 0) / gaps.length;
-  console.log(`  ${tb}: avg base gap = ${avg.toFixed(1)} (${gaps.length} units)`);
+  console.log(
+    `  ${tb}: avg base gap = ${avg.toFixed(1)} (${gaps.length} units)`,
+  );
 }

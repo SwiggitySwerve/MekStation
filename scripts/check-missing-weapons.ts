@@ -5,31 +5,91 @@
 import * as fs from 'fs';
 import * as path from 'path';
 
-const report = JSON.parse(fs.readFileSync('validation-output/bv-validation-report.json', 'utf8'));
-const idx = JSON.parse(fs.readFileSync('public/data/units/battlemechs/index.json', 'utf8'));
+const report = JSON.parse(
+  fs.readFileSync('validation-output/bv-validation-report.json', 'utf8'),
+);
+const idx = JSON.parse(
+  fs.readFileSync('public/data/units/battlemechs/index.json', 'utf8'),
+);
 
-const valid = report.allResults.filter((x: any) => x.status !== 'error' && x.percentDiff !== null);
+const valid = report.allResults.filter(
+  (x: any) => x.status !== 'error' && x.percentDiff !== null,
+);
 const under = valid.filter((x: any) => x.percentDiff < -1);
 
 // Known non-weapon crit slot prefixes
 const nonWeaponPatterns = [
-  'heat sink', 'double heat sink', 'engine', 'fusion', 'gyro', 'cockpit',
-  'life support', 'sensor', 'shoulder', 'upper arm', 'lower arm', 'hand',
-  'upper leg', 'lower leg', 'foot', 'hip',
-  'endo', 'ferro', 'case', 'ammo', 'jump jet', 'improved jump jet',
-  'targeting computer', 'masc', 'supercharger', 'tsm', 'triple strength',
-  'ecm', 'guardian', 'angel', 'watchdog', 'nova cews', 'novacews',
-  'probe', 'beagle', 'bloodhound', 'active probe',
-  'shield', 'null sig', 'void sig', 'chameleon', 'stealth',
-  'artemis', 'apollo', 'coolant', 'partial wing',
-  'lift hoist', 'ejection', 'actuator', 'aes', 'c3',
-  'narc', 'tag', 'pod', 'command console', 'drone',
-  'armor', 'structure', 'harjel', 'radical heat',
-  'modular armor', 'blue shield', 'armored',
+  'heat sink',
+  'double heat sink',
+  'engine',
+  'fusion',
+  'gyro',
+  'cockpit',
+  'life support',
+  'sensor',
+  'shoulder',
+  'upper arm',
+  'lower arm',
+  'hand',
+  'upper leg',
+  'lower leg',
+  'foot',
+  'hip',
+  'endo',
+  'ferro',
+  'case',
+  'ammo',
+  'jump jet',
+  'improved jump jet',
+  'targeting computer',
+  'masc',
+  'supercharger',
+  'tsm',
+  'triple strength',
+  'ecm',
+  'guardian',
+  'angel',
+  'watchdog',
+  'nova cews',
+  'novacews',
+  'probe',
+  'beagle',
+  'bloodhound',
+  'active probe',
+  'shield',
+  'null sig',
+  'void sig',
+  'chameleon',
+  'stealth',
+  'artemis',
+  'apollo',
+  'coolant',
+  'partial wing',
+  'lift hoist',
+  'ejection',
+  'actuator',
+  'aes',
+  'c3',
+  'narc',
+  'tag',
+  'pod',
+  'command console',
+  'drone',
+  'armor',
+  'structure',
+  'harjel',
+  'radical heat',
+  'modular armor',
+  'blue shield',
+  'armored',
 ];
 
 function isWeaponCritSlot(slotName: string): boolean {
-  const lo = slotName.toLowerCase().replace(/\s*\(omnipod\)/gi, '').replace(/\s*\(armored\)/gi, '').trim();
+  const lo = slotName
+    .toLowerCase()
+    .replace(/\s*\(omnipod\)/gi, '')
+    .replace(/\s*\(armored\)/gi, '')
+    .trim();
   if (!lo || lo === 'null' || lo === '-empty-') return false;
   for (const p of nonWeaponPatterns) {
     if (lo.includes(p)) return false;
@@ -39,7 +99,8 @@ function isWeaponCritSlot(slotName: string): boolean {
 }
 
 function normalizeForComparison(s: string): string {
-  return s.toLowerCase()
+  return s
+    .toLowerCase()
     .replace(/\s*\(omnipod\)/gi, '')
     .replace(/\s*\(r\)/gi, '')
     .replace(/^(is|cl|clan)/i, '')
@@ -54,7 +115,16 @@ for (const u of under) {
   const ie = idx.units.find((e: any) => e.id === u.unitId);
   if (!ie?.path) continue;
   let unit: any;
-  try { unit = JSON.parse(fs.readFileSync(path.join('public/data/units/battlemechs', ie.path), 'utf8')); } catch { continue; }
+  try {
+    unit = JSON.parse(
+      fs.readFileSync(
+        path.join('public/data/units/battlemechs', ie.path),
+        'utf8',
+      ),
+    );
+  } catch {
+    continue;
+  }
   if (!unit.criticalSlots) continue;
 
   // Build set of equipment IDs (normalized)
@@ -73,15 +143,25 @@ for (const u of under) {
     if (!Array.isArray(slots)) continue;
     let prev = '';
     for (const s of slots) {
-      if (!s || typeof s !== 'string') { prev = ''; continue; }
-      if (!isWeaponCritSlot(s)) { prev = ''; continue; }
-      const clean = s.replace(/\s*\(omnipod\)/gi, '').replace(/\s*\(r\)/gi, '').trim();
+      if (!s || typeof s !== 'string') {
+        prev = '';
+        continue;
+      }
+      if (!isWeaponCritSlot(s)) {
+        prev = '';
+        continue;
+      }
+      const clean = s
+        .replace(/\s*\(omnipod\)/gi, '')
+        .replace(/\s*\(r\)/gi, '')
+        .trim();
       // Dedup multi-slot weapons (consecutive identical)
       if (clean === prev) continue;
       prev = clean;
 
       const norm = normalizeForComparison(clean);
-      if (!critWeapons.has(norm)) critWeapons.set(norm, { count: 0, locations: [] });
+      if (!critWeapons.has(norm))
+        critWeapons.set(norm, { count: 0, locations: [] });
       const entry = critWeapons.get(norm)!;
       entry.count++;
       if (!entry.locations.includes(loc)) entry.locations.push(loc);
@@ -107,12 +187,16 @@ for (const u of under) {
     unitsMissingWeapons++;
     totalMissingWeapons += missing.length;
     if (missingExamples.length < 30) {
-      missingExamples.push(`${u.unitId} (gap=${u.difference}, ${u.percentDiff?.toFixed(1)}%): ${missing.join(', ')}`);
+      missingExamples.push(
+        `${u.unitId} (gap=${u.difference}, ${u.percentDiff?.toFixed(1)}%): ${missing.join(', ')}`,
+      );
     }
   }
 }
 
-console.log(`Units with weapons in crits but NOT in equipment: ${unitsMissingWeapons}/${under.length}`);
+console.log(
+  `Units with weapons in crits but NOT in equipment: ${unitsMissingWeapons}/${under.length}`,
+);
 console.log(`Total missing weapon types: ${totalMissingWeapons}`);
 
 if (missingExamples.length > 0) {
@@ -122,27 +206,65 @@ if (missingExamples.length > 0) {
 
 // Also check: how many units have FEWER weapons in equipment than in crits?
 console.log('\n=== WEAPON COUNT: EQUIPMENT vs CRITS ===');
-let equipMore = 0, critsMore = 0, same = 0;
+let equipMore = 0,
+  critsMore = 0,
+  same = 0;
 for (const u of under.slice(0, 100)) {
   const ie = idx.units.find((e: any) => e.id === u.unitId);
   if (!ie?.path) continue;
   let unit: any;
-  try { unit = JSON.parse(fs.readFileSync(path.join('public/data/units/battlemechs', ie.path), 'utf8')); } catch { continue; }
+  try {
+    unit = JSON.parse(
+      fs.readFileSync(
+        path.join('public/data/units/battlemechs', ie.path),
+        'utf8',
+      ),
+    );
+  } catch {
+    continue;
+  }
 
   // Count weapons in equipment list
   let equipWeaponCount = 0;
   for (const eq of unit.equipment || []) {
     const lo = eq.id.toLowerCase();
-    if (lo.includes('ammo') || lo.includes('heat') || lo.includes('case') || lo.includes('endo') || lo.includes('ferro') ||
-        lo.includes('targeting-computer') || lo.includes('tsm') || lo.includes('ecm') || lo.includes('probe') ||
-        lo.includes('shield') || lo.includes('pod') || lo.includes('masc') || lo.includes('supercharger') ||
-        lo.includes('jump') || lo.includes('null-sig') || lo.includes('void-sig') || lo.includes('chameleon') ||
-        lo.includes('stealth') || lo.includes('artemis') || lo.includes('apollo') || lo.includes('narc') ||
-        lo.includes('tag') || lo.includes('c3') || lo.includes('coolant') || lo.includes('partial-wing') ||
-        lo.includes('lift-hoist') || lo.includes('actuator') || lo.includes('aes') || lo.includes('amu') ||
-        lo.includes('anti-missile') || lo.includes('ams')) continue;
+    if (
+      lo.includes('ammo') ||
+      lo.includes('heat') ||
+      lo.includes('case') ||
+      lo.includes('endo') ||
+      lo.includes('ferro') ||
+      lo.includes('targeting-computer') ||
+      lo.includes('tsm') ||
+      lo.includes('ecm') ||
+      lo.includes('probe') ||
+      lo.includes('shield') ||
+      lo.includes('pod') ||
+      lo.includes('masc') ||
+      lo.includes('supercharger') ||
+      lo.includes('jump') ||
+      lo.includes('null-sig') ||
+      lo.includes('void-sig') ||
+      lo.includes('chameleon') ||
+      lo.includes('stealth') ||
+      lo.includes('artemis') ||
+      lo.includes('apollo') ||
+      lo.includes('narc') ||
+      lo.includes('tag') ||
+      lo.includes('c3') ||
+      lo.includes('coolant') ||
+      lo.includes('partial-wing') ||
+      lo.includes('lift-hoist') ||
+      lo.includes('actuator') ||
+      lo.includes('aes') ||
+      lo.includes('amu') ||
+      lo.includes('anti-missile') ||
+      lo.includes('ams')
+    )
+      continue;
     const qtyMatch = eq.id.match(/^(\d+)-/);
-    const qty = (qtyMatch && parseInt(qtyMatch[1], 10) > 1) ? parseInt(qtyMatch[1], 10) : 1;
+    const qty =
+      qtyMatch && parseInt(qtyMatch[1], 10) > 1 ? parseInt(qtyMatch[1], 10) : 1;
     equipWeaponCount += qty;
   }
 

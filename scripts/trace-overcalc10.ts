@@ -1,9 +1,15 @@
 import * as fs from 'fs';
 import * as path from 'path';
 
-const data = JSON.parse(fs.readFileSync('validation-output/bv-validation-report.json', 'utf8'));
-const mulCache = JSON.parse(fs.readFileSync('scripts/data-migration/mul-bv-cache.json', 'utf8'));
-const indexData = JSON.parse(fs.readFileSync('public/data/units/battlemechs/index.json', 'utf8'));
+const data = JSON.parse(
+  fs.readFileSync('validation-output/bv-validation-report.json', 'utf8'),
+);
+const mulCache = JSON.parse(
+  fs.readFileSync('scripts/data-migration/mul-bv-cache.json', 'utf8'),
+);
+const indexData = JSON.parse(
+  fs.readFileSync('public/data/units/battlemechs/index.json', 'utf8'),
+);
 
 // Get reliable overcalculated units (MUL exact match, 4-7% range)
 const overCalc = data.allResults.filter((d: any) => {
@@ -37,26 +43,38 @@ for (const d of overCalc) {
       pct: d.percentDiff,
       ratio: (d.calculatedBV / d.indexBV).toFixed(4),
     });
-  } catch { /* skip */ }
+  } catch {
+    /* skip */
+  }
 }
 
 console.log('Cockpit types:');
-for (const [type, count] of Object.entries(cockpitTypes).sort((a, b) => b[1] - a[1])) {
+for (const [type, count] of Object.entries(cockpitTypes).sort(
+  (a, b) => b[1] - a[1],
+)) {
   const units = cockpitTypeDetails[type];
   const avgPct = units.reduce((s, u) => s + u.pct, 0) / units.length;
-  const avgRatio = units.reduce((s, u) => s + parseFloat(u.ratio), 0) / units.length;
-  console.log(`  ${type}: ${count} units, avg overcalc: ${avgPct.toFixed(1)}%, avg ratio: ${avgRatio.toFixed(4)}`);
+  const avgRatio =
+    units.reduce((s, u) => s + parseFloat(u.ratio), 0) / units.length;
+  console.log(
+    `  ${type}: ${count} units, avg overcalc: ${avgPct.toFixed(1)}%, avg ratio: ${avgRatio.toFixed(4)}`,
+  );
 }
 
 // Key question: are any STANDARD cockpit units overcalculated by exactly ~5.26%?
 // Because 1/0.95 = 1.0526... so if a 0.95 modifier is missing, the ratio would be ~1.0526
 console.log('\n=== RATIO ANALYSIS ===');
 const standardUnits = cockpitTypeDetails['STANDARD'] || [];
-const ratios = standardUnits.map(u => parseFloat(u.ratio));
-const nearFivePercent = ratios.filter(r => r >= 1.04 && r <= 1.06);
+const ratios = standardUnits.map((u) => parseFloat(u.ratio));
+const nearFivePercent = ratios.filter((r) => r >= 1.04 && r <= 1.06);
 console.log('STANDARD cockpit units:', standardUnits.length);
 console.log('  with ratio 1.04-1.06:', nearFivePercent.length);
-console.log('  mean ratio:', ratios.length > 0 ? (ratios.reduce((s, r) => s + r, 0) / ratios.length).toFixed(4) : 'N/A');
+console.log(
+  '  mean ratio:',
+  ratios.length > 0
+    ? (ratios.reduce((s, r) => s + r, 0) / ratios.length).toFixed(4)
+    : 'N/A',
+);
 
 // Now check if applying 0.95 to STANDARD cockpit units fixes them
 console.log('\n=== APPLYING 0.95 TO ALL STANDARD COCKPIT UNITS ===');
@@ -65,7 +83,7 @@ let totalStd = 0;
 for (const u of standardUnits) {
   const adjusted = Math.round(u.calc * 0.95);
   const diff = adjusted - u.ref;
-  const pct = Math.abs(diff / u.ref * 100);
+  const pct = Math.abs((diff / u.ref) * 100);
   if (pct <= 1) fixedCount++;
   totalStd++;
 }
@@ -78,7 +96,7 @@ for (const [type, units] of Object.entries(cockpitTypeDetails)) {
   for (const u of units) {
     const adjusted = Math.round(u.calc * 0.95);
     const diff = adjusted - u.ref;
-    const pct = Math.abs(diff / u.ref * 100);
+    const pct = Math.abs((diff / u.ref) * 100);
     if (pct <= 1) fixed++;
   }
   console.log(`  ${type}: ${fixed} of ${units.length} fixed by 0.95`);
@@ -113,14 +131,20 @@ for (const u of standardUnits.slice(0, 5)) {
   if (!iu) continue;
   const unitPath = path.resolve('public/data/units/battlemechs', iu.path);
   const unit = JSON.parse(fs.readFileSync(unitPath, 'utf8'));
-  console.log(`  ${u.id}: walk=${unit.movement.walk} jump=${unit.movement.jump || 0} calc=${u.calc} ref=${u.ref} ratio=${u.ratio}`);
+  console.log(
+    `  ${u.id}: walk=${unit.movement.walk} jump=${unit.movement.jump || 0} calc=${u.calc} ref=${u.ref} ratio=${u.ratio}`,
+  );
 }
 
 // Now let me check: what's in the breakdown for defensive factor?
 console.log('\n=== BREAKDOWN DETAILS ===');
 for (const d of overCalc.slice(0, 10)) {
-  console.log(`  ${d.unitId}: defBV=${d.breakdown.defensiveBV.toFixed(0)} offBV=${d.breakdown.offensiveBV.toFixed(0)} SF=${d.breakdown.speedFactor} weapBV=${d.breakdown.weaponBV} ammoBV=${d.breakdown.ammoBV}`);
-  console.log(`    total=${d.calculatedBV} ref=${d.indexBV} pct=+${d.percentDiff.toFixed(1)}%`);
+  console.log(
+    `  ${d.unitId}: defBV=${d.breakdown.defensiveBV.toFixed(0)} offBV=${d.breakdown.offensiveBV.toFixed(0)} SF=${d.breakdown.speedFactor} weapBV=${d.breakdown.weaponBV} ammoBV=${d.breakdown.ammoBV}`,
+  );
+  console.log(
+    `    total=${d.calculatedBV} ref=${d.indexBV} pct=+${d.percentDiff.toFixed(1)}%`,
+  );
 }
 
 // Check: is the overcalculation proportional to total BV or to a specific component?
@@ -131,5 +155,7 @@ for (const d of overCalc.slice(0, 20)) {
   const offPortion = d.breakdown.offensiveBV / d.calculatedBV;
   // If overcalculation is proportional to TOTAL BV (i.e. a multiplier on the whole thing)
   // then excess/total should be roughly constant (~5%)
-  console.log(`  ${d.unitId}: excess=${excess} total=${d.calculatedBV} excess/total=${(excess/d.calculatedBV*100).toFixed(1)}% def%=${(defPortion*100).toFixed(0)}% off%=${(offPortion*100).toFixed(0)}%`);
+  console.log(
+    `  ${d.unitId}: excess=${excess} total=${d.calculatedBV} excess/total=${((excess / d.calculatedBV) * 100).toFixed(1)}% def%=${(defPortion * 100).toFixed(0)}% off%=${(offPortion * 100).toFixed(0)}%`,
+  );
 }

@@ -14,6 +14,12 @@ import type { IGameEvent } from '@/types/gameplay/GameSessionInterfaces';
 
 import { normalizeRoomCode } from '@/lib/p2p/roomCodes';
 
+import type {
+  IMatchCommandBatch,
+  IMatchCommandReceipt,
+  MatchBatchAppendResult,
+} from './matchCommandBatch';
+
 import {
   MatchNotFoundError,
   MatchStoreSequenceCollisionError,
@@ -21,6 +27,10 @@ import {
   type IMatchMetaPatch,
   type IMatchStore,
 } from './IMatchStore';
+import {
+  firstNonContiguousSequence,
+  matchCommandFingerprint,
+} from './matchCommandBatch';
 
 // =============================================================================
 // Internal record shape
@@ -29,6 +39,12 @@ import {
 interface IMatchRecord {
   meta: IMatchMeta;
   events: IGameEvent[];
+  /**
+   * Command receipts by `commandId`. The batch contract's identity half
+   * lives here: a retry is only recognisable as one if the store
+   * remembers what the first attempt committed.
+   */
+  receipts: Map<string, IMatchCommandReceipt>;
   // Set of sequences we've already stored — avoids O(n) scan on every
   // append for a duplicate-sequence check (matches can run hundreds of
   // events in a long fight).
@@ -73,6 +89,7 @@ export class InMemoryMatchStore implements IMatchStore {
       meta,
       events: [],
       sequences: new Set(),
+      receipts: new Map(),
       closed: false,
     });
     if (meta.roomCode && meta.status === 'lobby') {
@@ -93,6 +110,88 @@ export class InMemoryMatchStore implements IMatchStore {
     rec.events.push(event);
     rec.sequences.add(event.sequence);
     rec.meta = { ...rec.meta, updatedAt: new Date().toISOString() };
+  };
+
+  /**
+   * Append a whole command atomically (umbrella task 2.2 - the in-memory
+   * store as a CONTRACT-COMPATIBLE dev/test adapter).
+   *
+   * Deliberately identical in behaviour to `DurableMatchStore`, and
+   * proven so by a shared contract suite rather than by inspection. A
+   * dev adapter that answers differently is worse than none: every test
+   * written against it would be describing a store that production does
+   * not have.
+   *
+   * Atomicity here is not a transaction but the same guarantee reached
+   * differently - every check runs before anything is written, and the
+   * writes that follow cannot fail.
+   */
+  appendCommandBatch = async (
+    matchId: string,
+    batch: IMatchCommandBatch,
+  ): Promise<MatchBatchAppendResult> => {
+    const rec = this.records.get(matchId);
+    if (!rec) throw new MatchNotFoundError(matchId);
+    if (batch.events.length === 0) {
+      // An empty batch would commit a receipt for a command that did
+      // nothing, and a later retry would then "succeed" having still
+      // done nothing.
+      return { kind: 'empty-batch' };
+    }
+    const offending = firstNonContiguousSequence(batch);
+    if (offending !== null) {
+      return {
+        kind: 'non-contiguous',
+        expectedRevision: batch.expectedRevision,
+        offendingSequence: offending,
+      };
+    }
+
+    const fingerprint = matchCommandFingerprint(batch);
+    // Identity FIRST, exactly as the durable store orders it: a retry
+    // that arrives after someone else moved the stream is still a
+    // retry, and reporting it as a revision conflict would send the
+    // caller off to rebuild state it already has.
+    const prior = rec.receipts.get(batch.commandId);
+    if (prior) {
+      return prior.fingerprint === fingerprint
+        ? { kind: 'duplicate-command', receipt: prior }
+        : { kind: 'integrity-conflict', commandId: batch.commandId };
+    }
+
+    const head =
+      rec.events.length === 0
+        ? 0
+        : rec.events[rec.events.length - 1].sequence + 1;
+    if (head !== batch.expectedRevision) {
+      return {
+        kind: 'revision-conflict',
+        expectedRevision: batch.expectedRevision,
+        actualRevision: head,
+      };
+    }
+
+    const committedAt = new Date().toISOString();
+    const first = batch.events[0].sequence;
+    const last = batch.events[batch.events.length - 1].sequence;
+    const receipt: IMatchCommandReceipt = {
+      commandId: batch.commandId,
+      actorId: batch.actorId,
+      matchId,
+      firstRevision: first,
+      lastRevision: last,
+      eventCount: batch.events.length,
+      fingerprint,
+      expectedPostStateDigest: batch.expectedPostStateDigest ?? null,
+      committedAt,
+    };
+    for (const event of batch.events) {
+      rec.events.push(event);
+      rec.sequences.add(event.sequence);
+    }
+    rec.receipts.set(batch.commandId, receipt);
+    rec.meta = { ...rec.meta, updatedAt: committedAt };
+    return { kind: 'committed', receipt };
   };
 
   getEvents = async (

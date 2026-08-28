@@ -105,93 +105,145 @@ async function seedAcquisitionCampaign(
   });
 }
 
-test.describe('campaign acquisition browser proof', () => {
-  test(
-    'adds, reloads, processes, and persists acquisition shopping-list delivery',
-    { tag: ['@campaign', '@economy', '@strict'] },
-    async ({ page }, testInfo) =>
-      withBrowserDiagnostics(page, testInfo, async () => {
-        await page.goto('/gameplay/campaigns');
-        const seeded = await seedAcquisitionCampaign(page);
+test.describe(
+  'campaign acquisition browser proof',
+  { tag: ['@subsystem:economy'] },
+  () => {
+    test(
+      'adds, reloads, processes, and persists acquisition shopping-list delivery',
+      { tag: ['@campaign', '@economy', '@strict'] },
+      async ({ page }, testInfo) =>
+        withBrowserDiagnostics(page, testInfo, async () => {
+          await page.goto('/gameplay/campaigns');
+          const seeded = await seedAcquisitionCampaign(page);
 
-        await page.goto(
-          `/gameplay/campaigns/${seeded.campaignId}/acquisitions`,
-        );
-        await expect(page.getByTestId('acquisitions-panel')).toBeVisible({
-          timeout: 20_000,
-        });
-        // Acquisitions now lives inside the collapsed "Command" nav dropdown
-        // (611daf06e); the closed summary surfaces the active tab label, and
-        // the link only enters the accessibility tree once the group is open.
-        await expect(
-          page.getByTestId('campaign-nav-command-group'),
-        ).toContainText('Acquisitions');
-        await page.getByTestId('campaign-nav-command-group').click();
-        await expect(
-          page.getByRole('link', { name: 'Acquisitions' }),
-        ).toHaveAttribute('aria-current', 'page');
-        await expect(
-          page.getByTestId(`acquisition-status-${seeded.dueRequestId}`),
-        ).toContainText('in transit');
-        await expect(
-          page.getByTestId('acquisitions-transit-count'),
-        ).toContainText('1');
+          // The seed writes the campaign store directly (no markDirty), so
+          // no auto-save fires. Persist explicitly before the hard
+          // navigation: the acquisitions page shell GETs the server copy on
+          // mount, and an un-PUT-ed campaign 404s (console-error guard)
+          // while in-flight equipment fetches abort (requestfailed noise).
+          const seedSaved = page.waitForResponse(
+            (response) =>
+              response.request().method() === 'PUT' &&
+              response.url().includes(`/api/campaigns/${seeded.campaignId}`) &&
+              response.ok(),
+            { timeout: 30_000 },
+          );
+          await page.evaluate(async () => {
+            const stores = (
+              window as unknown as {
+                __ZUSTAND_STORES__?: {
+                  campaignPersistence?: {
+                    getState: () => {
+                      saveCampaign: () => Promise<unknown>;
+                    };
+                  };
+                };
+              }
+            ).__ZUSTAND_STORES__;
+            await stores?.campaignPersistence?.getState().saveCampaign();
+          });
+          await seedSaved;
 
-        await page.getByTestId('acquisition-part-name').fill('PPC');
-        await page.getByTestId('acquisition-quantity').fill('2');
-        await page.getByTestId('acquisition-availability').selectOption('E');
-        await page.getByTestId('acquisition-add-request').click();
-        await expect(
-          page.getByTestId(`acquisition-request-${seeded.addedRequestId}`),
-        ).toContainText('PPC');
-        await expect(
-          page.getByTestId(`acquisition-status-${seeded.addedRequestId}`),
-        ).toContainText('pending');
-        await expect(
-          page.getByTestId('acquisitions-pending-count'),
-        ).toContainText('1');
+          await page.goto(
+            `/gameplay/campaigns/${seeded.campaignId}/acquisitions`,
+          );
+          await expect(page.getByTestId('acquisitions-panel')).toBeVisible({
+            timeout: 20_000,
+          });
+          // Acquisitions now lives inside the collapsed "Command" nav dropdown
+          // (611daf06e); the closed summary surfaces the active tab label, and
+          // the link only enters the accessibility tree once the group is open.
+          await expect(
+            page.getByTestId('campaign-nav-command-group'),
+          ).toContainText('Acquisitions');
+          await page.getByTestId('campaign-nav-command-group').click();
+          await expect(
+            page.getByRole('link', { name: 'Acquisitions' }),
+          ).toHaveAttribute('aria-current', 'page');
+          await expect(
+            page.getByTestId(`acquisition-status-${seeded.dueRequestId}`),
+          ).toContainText('in transit');
+          await expect(
+            page.getByTestId('acquisitions-transit-count'),
+          ).toContainText('1');
 
-        await page.reload({ waitUntil: 'networkidle' });
-        await waitForCampaignStoresReady(page);
-        await expect(
-          page.getByTestId(`acquisition-status-${seeded.dueRequestId}`),
-        ).toContainText('in transit');
-        await expect(
-          page.getByTestId(`acquisition-status-${seeded.addedRequestId}`),
-        ).toContainText('pending');
+          // The add rides the 2s debounced auto-save; both reloads below
+          // refetch the server copy, so each mutation must be durably PUT
+          // first (the same debounce-vs-hydration race fixed suite-wide on
+          // 2026-08-21).
+          const addSaved = page.waitForResponse(
+            (response) =>
+              response.request().method() === 'PUT' &&
+              response.url().includes(`/api/campaigns/${seeded.campaignId}`) &&
+              response.ok(),
+            { timeout: 30_000 },
+          );
+          await page.getByTestId('acquisition-part-name').fill('PPC');
+          await page.getByTestId('acquisition-quantity').fill('2');
+          await page.getByTestId('acquisition-availability').selectOption('E');
+          await page.getByTestId('acquisition-add-request').click();
+          await expect(
+            page.getByTestId(`acquisition-request-${seeded.addedRequestId}`),
+          ).toContainText('PPC');
+          await expect(
+            page.getByTestId(`acquisition-status-${seeded.addedRequestId}`),
+          ).toContainText('pending');
+          await expect(
+            page.getByTestId('acquisitions-pending-count'),
+          ).toContainText('1');
 
-        await page.getByTestId('acquisitions-advance-day').click();
-        await expect(
-          page.getByTestId(`acquisition-status-${seeded.dueRequestId}`),
-        ).toContainText('delivered');
-        await expect(
-          page.getByTestId(`acquisition-inventory-${seeded.duePartId}`),
-        ).toContainText('SRM Ammo');
-        await expect(
-          page.getByTestId(`acquisition-inventory-qty-${seeded.duePartId}`),
-        ).toContainText('x2');
-        await expect(
-          page.getByTestId('acquisition-current-date'),
-        ).toContainText('3025-02-02');
+          await addSaved;
+          await page.reload({ waitUntil: 'networkidle' });
+          await waitForCampaignStoresReady(page);
+          await expect(
+            page.getByTestId(`acquisition-status-${seeded.dueRequestId}`),
+          ).toContainText('in transit');
+          await expect(
+            page.getByTestId(`acquisition-status-${seeded.addedRequestId}`),
+          ).toContainText('pending');
 
-        await page.reload({ waitUntil: 'networkidle' });
-        await waitForCampaignStoresReady(page);
-        await expect(
-          page.getByTestId(`acquisition-status-${seeded.dueRequestId}`),
-        ).toContainText('delivered');
-        await expect(
-          page.getByTestId(`acquisition-inventory-qty-${seeded.duePartId}`),
-        ).toContainText('x2');
+          const advanceSaved = page.waitForResponse(
+            (response) =>
+              response.request().method() === 'PUT' &&
+              response.url().includes(`/api/campaigns/${seeded.campaignId}`) &&
+              response.ok(),
+            { timeout: 30_000 },
+          );
+          await page.getByTestId('acquisitions-advance-day').click();
+          await expect(
+            page.getByTestId(`acquisition-status-${seeded.dueRequestId}`),
+          ).toContainText('delivered');
+          await expect(
+            page.getByTestId(`acquisition-inventory-${seeded.duePartId}`),
+          ).toContainText('SRM Ammo');
+          await expect(
+            page.getByTestId(`acquisition-inventory-qty-${seeded.duePartId}`),
+          ).toContainText('x2');
+          await expect(
+            page.getByTestId('acquisition-current-date'),
+          ).toContainText('3025-02-02');
 
-        await page
-          .getByTestId(`acquisition-remove-${seeded.dueRequestId}`)
-          .click();
-        await expect(
-          page.getByTestId(`acquisition-request-${seeded.dueRequestId}`),
-        ).toHaveCount(0);
-        await expect(
-          page.getByTestId(`acquisition-inventory-qty-${seeded.duePartId}`),
-        ).toContainText('x2');
-      }),
-  );
-});
+          await advanceSaved;
+          await page.reload({ waitUntil: 'networkidle' });
+          await waitForCampaignStoresReady(page);
+          await expect(
+            page.getByTestId(`acquisition-status-${seeded.dueRequestId}`),
+          ).toContainText('delivered');
+          await expect(
+            page.getByTestId(`acquisition-inventory-qty-${seeded.duePartId}`),
+          ).toContainText('x2');
+
+          await page
+            .getByTestId(`acquisition-remove-${seeded.dueRequestId}`)
+            .click();
+          await expect(
+            page.getByTestId(`acquisition-request-${seeded.dueRequestId}`),
+          ).toHaveCount(0);
+          await expect(
+            page.getByTestId(`acquisition-inventory-qty-${seeded.duePartId}`),
+          ).toContainText('x2');
+        }),
+    );
+  },
+);

@@ -14,9 +14,11 @@
  *     /api/multiplayer/socket through the WS server, and call
  *     `socket.destroy()` for any other upgrade path so we don't keep
  *     dangling sockets.
- *   - Auth in Wave 1 is a placeholder: presence of a `token` query
- *     param + a known `matchId`. Wave 2 adds Ed25519 signature
- *     verification.
+ *   - Auth: an Ed25519-signed wire token carried in the
+ *     `Sec-WebSocket-Protocol` header, plus a known `matchId`. A token
+ *     in the query string is refused rather than accepted.
+ *   - The `?seed=N` debug dice seed is refused in production: it is
+ *     client-supplied and would let the caller pick the server's dice.
  *
  * @spec openspec/specs/multiplayer-server/spec.md
  */
@@ -30,19 +32,18 @@ const { parse } = require('node:url');
 process.env.BASELINE_BROWSER_MAPPING_IGNORE_OLD_DATA ??= 'true';
 process.env.BROWSERSLIST_IGNORE_OLD_DATA ??= 'true';
 
-const next = require('next');
-const { WebSocketServer } = require('ws');
-const {
-  serveDevClientMiddlewareManifest,
-} = require('./src/lib/server/devClientMiddlewareManifest.js');
-
 const STANDALONE_NEXT_CONFIG_PATH = path.join(
   __dirname,
   'server.next-config.json',
 );
-const isStandaloneRuntime =
-  fs.existsSync(path.join(__dirname, '.next')) &&
-  fs.existsSync(STANDALONE_NEXT_CONFIG_PATH);
+const nextDir = path.join(__dirname, '.next');
+const hasPackagedConfig = fs.existsSync(STANDALONE_NEXT_CONFIG_PATH);
+const hasNextDir = fs.existsSync(nextDir) && fs.statSync(nextDir).isDirectory();
+if (hasPackagedConfig && !hasNextDir) {
+  console.error('[mp-boot] packaged layout incomplete');
+  process.exit(1);
+}
+const isStandaloneRuntime = hasPackagedConfig && hasNextDir;
 let standaloneNextConfig = null;
 const traceMultiplayerSocket = process.env.MULTIPLAYER_SOCKET_TRACE === '1';
 
@@ -67,6 +68,92 @@ if (isStandaloneRuntime) {
     process.exit(1);
   }
 }
+
+function resolveListenerHostname() {
+  const raw = process.env.HOSTNAME;
+  // prettier-ignore
+  if (isStandaloneRuntime ? raw !== undefined && raw !== '127.0.0.1' : raw !== undefined && raw !== 'localhost' && raw !== '127.0.0.1') {
+    console.error(`[mp-boot] invalid HOSTNAME ${JSON.stringify(raw)}`);
+    process.exit(1);
+  }
+  return isStandaloneRuntime ? '127.0.0.1' : (raw ?? 'localhost');
+}
+/**
+ * Refuse to boot a non-test process that carries fault configuration
+ * (umbrella task 20.2).
+ *
+ * server.js is plain CommonJS and cannot import the TS module, so this
+ * mirrors `assertNoFaultControlsConfigured` in
+ * `src/lib/testing/faultControls.ts` — that module is the source of
+ * truth and its unit tests own the semantics. The mirror can drift,
+ * which is why a sibling test spawns THIS file rather than trusting it.
+ *
+ * Exiting rather than ignoring is the point. A process that boots and
+ * merely declines to honour fault config is one refactor away from
+ * honouring it; a process that refuses to start cannot rot that way.
+ */
+/**
+ * Read the `?seed=N` debug dice seed, and REFUSE it in production.
+ *
+ * This parameter selects `SeededDiceRoller` for the whole match, and it
+ * arrives on the WebSocket upgrade URL - which means the actor who sets
+ * it is a CLIENT, not an operator. `SeededRandom` is Mulberry32, so a
+ * client that chose the seed can compute every subsequent server d6
+ * locally: initiative, to-hit, hit location, crits. Whoever opens the
+ * first socket on a match would decide its dice, and the opponent would
+ * have no way to notice.
+ *
+ * That is precisely what the crypto-backed default exists to prevent -
+ * `openspec/specs/multiplayer-server/spec.md` requires the server to be
+ * the sole source of randomness, to never trust a value claimed by a
+ * client, and permits the seed only in a debug mode that is "never
+ * permitted in production".
+ *
+ * IGNORE, DO NOT EXIT. The sibling `assertNoFaultControlsConfigured`
+ * kills the process, and that is right for an operator-set env var
+ * read once at boot. This one is client-set and read per connection, so
+ * exiting would hand any client a one-request kill switch. The seed is
+ * simply not an affordance that exists in production; the warning is
+ * there so a misconfigured deployment is still visible.
+ */
+function readDebugDiceSeed(parsedUrl, matchId) {
+  const rawSeed = parsedUrl.query.seed;
+  const seedString = Array.isArray(rawSeed) ? rawSeed[0] : rawSeed;
+  if (typeof seedString !== 'string' || seedString.length === 0) {
+    return undefined;
+  }
+  if (process.env.NODE_ENV === 'production') {
+    // eslint-disable-next-line no-console
+    console.warn(
+      `[mp-socket] DICE_SEED_REFUSED_IN_PRODUCTION matchId=${
+        typeof matchId === 'string' ? matchId : ''
+      }`,
+    );
+    return undefined;
+  }
+  // Parse a finite integer; ignore anything else so a malformed query
+  // cannot destabilize the handler.
+  const seedValue = Number.parseInt(seedString, 10);
+  return Number.isFinite(seedValue) ? seedValue : undefined;
+}
+
+function assertNoFaultControlsConfigured() {
+  const configured = process.env.MEKSTATION_FAULT_CONTROLS;
+  if (configured === undefined || configured.trim() === '') return;
+  if (process.env.NODE_ENV === 'test') return;
+  console.error(
+    `[mp-boot] FAULT_CONTROLS_IN_PRODUCTION MEKSTATION_FAULT_CONTROLS=${configured}`,
+  );
+  process.exit(1);
+}
+assertNoFaultControlsConfigured();
+
+const hostname = resolveListenerHostname();
+const next = require('next');
+const { WebSocketServer } = require('ws');
+const {
+  serveDevClientMiddlewareManifest,
+} = require('./src/lib/server/devClientMiddlewareManifest.js');
 
 // =============================================================================
 // Inlined Wave 2 token verification (mirror of src/lib/multiplayer/server/auth.ts)
@@ -152,6 +239,38 @@ function decodeWireToken(wire) {
   return { playerId, issuedAt, expiresAt, publicKey, signature };
 }
 
+// Inlined mirror of src/lib/multiplayer/socketCredentialProtocol.ts.
+// server.js is plain CommonJS at the repo root and cannot import the
+// TypeScript module, so the constants and the decode are duplicated
+// here and pinned by a test that reads BOTH files.
+const WS_PROTOCOL_VERSION = 'mekstation.v1';
+const WS_CREDENTIAL_PREFIX = 'mekstation.token.';
+
+/** Reverse the base64url transform applied to the wire token. */
+function fromBase64Url(base64url) {
+  const restored = base64url.replace(/-/g, '+').replace(/_/g, '/');
+  const remainder = restored.length % 4;
+  if (remainder === 0 || remainder === 1) return restored;
+  return restored + '='.repeat(4 - remainder);
+}
+
+/**
+ * Pull the wire token out of `Sec-WebSocket-Protocol`. Returns null
+ * when no credential subprotocol was offered, which the caller must
+ * treat as unauthenticated - never as allow.
+ */
+function readCredentialProtocol(header) {
+  if (!header) return null;
+  for (const raw of String(header).split(',')) {
+    const entry = raw.trim();
+    if (!entry.startsWith(WS_CREDENTIAL_PREFIX)) continue;
+    const encoded = entry.slice(WS_CREDENTIAL_PREFIX.length);
+    if (encoded.length === 0) return null;
+    return fromBase64Url(encoded);
+  }
+  return null;
+}
+
 /**
  * Verify a wire-format token. Returns `{ ok: true, playerId }` on
  * success, or `{ ok: false, reason }` on failure.
@@ -223,7 +342,6 @@ const dev =
   !isStandaloneRuntime &&
   process.env.npm_lifecycle_event !== 'start';
 const port = parseInt(process.env.PORT ?? '3600', 10);
-const hostname = process.env.HOSTNAME ?? 'localhost';
 const appDir = isStandaloneRuntime ? __dirname : process.cwd();
 
 const app = next({
@@ -264,7 +382,7 @@ function sendWebSocketUpgradeRequired(res) {
   res.end(
     JSON.stringify({
       error: 'Upgrade Required',
-      hint: `Open a WebSocket connection to ${WS_UPGRADE_PATH}?matchId=...&token=...`,
+      hint: `Open a WebSocket connection to ${WS_UPGRADE_PATH}?matchId=... with the credential in the Sec-WebSocket-Protocol header`,
     }),
   );
 }
@@ -283,11 +401,21 @@ function loadMultiplayerRuntime() {
   const registryModule = require('./src/lib/multiplayer/server/MatchHostRegistry.ts');
   const socketModule = require('./src/lib/multiplayer/server/bindMultiplayerSocketConnection.ts');
   const campaignSocketModule = require('./src/lib/multiplayer/server/bindCampaignSyncConnection.ts');
+  const membershipModule = require('./src/lib/multiplayer/server/campaignSessionMembershipPort.ts');
+  const forceClaimModule = require('./src/lib/multiplayer/server/campaignForceClaimPort.ts');
   multiplayerRuntime = {
     bootstrapMultiplayerServer: registryModule.bootstrapMultiplayerServer,
     bindMultiplayerSocketConnection:
       socketModule.bindMultiplayerSocketConnection,
     bindCampaignSyncConnection: campaignSocketModule.bindCampaignSyncConnection,
+    // Supplied here rather than defaulted inside the bind function: a
+    // default would reach for SQLite from every test that binds a
+    // socket, and those tests have no database (umbrella 6.2).
+    campaignSessionMembership:
+      membershipModule.createCampaignSessionMembershipPort(),
+    // Same reasoning as the membership port above: supplied here so a
+    // socket test never reaches for SQLite just by binding.
+    campaignForceClaims: forceClaimModule.createCampaignForceClaimPort(),
   };
   return multiplayerRuntime;
 }
@@ -383,6 +511,12 @@ app
     const wss = new WebSocketServer({
       noServer: true,
       perMessageDeflate: false,
+      // Echo ONLY the version marker. Selecting the credential
+      // subprotocol would put the token straight back into a response
+      // header, undoing the reason it left the URL. `ws` only calls
+      // this when the client offered protocols at all.
+      handleProtocols: (protocols) =>
+        protocols.has(WS_PROTOCOL_VERSION) ? WS_PROTOCOL_VERSION : false,
     });
 
     wss.on('connection', (ws, req) => {
@@ -451,6 +585,8 @@ app
               matchId,
               verifiedPlayerId,
               logger: console,
+              membership: runtime.campaignSessionMembership,
+              forceClaims: runtime.campaignForceClaims,
             })
           : runtime.bindMultiplayerSocketConnection({
               socket: ws,
@@ -610,16 +746,10 @@ app
       // private-prefixed property avoids collisions with existing
       // request fields.
       req._mpVerifiedPlayerId = verification.playerId;
-      // Wave 3a: optional debug seed for bug reproduction. Parse a
-      // finite integer from `?seed=N`; ignore anything else so a
-      // malformed query can't destabilize production. Off by default.
-      const rawSeed = parsedUrl.query.seed;
-      const seedString = Array.isArray(rawSeed) ? rawSeed[0] : rawSeed;
-      if (typeof seedString === 'string' && seedString.length > 0) {
-        const seedValue = Number.parseInt(seedString, 10);
-        if (Number.isFinite(seedValue)) {
-          req._mpDiceSeed = seedValue;
-        }
+      // Wave 3a: optional debug seed for bug reproduction, gated below.
+      const debugSeed = readDebugDiceSeed(parsedUrl, matchId);
+      if (debugSeed !== undefined) {
+        req._mpDiceSeed = debugSeed;
       }
       wss.handleUpgrade(req, socket, head, (ws) => {
         wss.emit('connection', ws, req);
@@ -634,8 +764,24 @@ app
           return;
         }
         const matchId = firstQueryValue(parsedUrl.query.matchId);
-        const token = firstQueryValue(parsedUrl.query.token);
+        const token = readCredentialProtocol(
+          req.headers['sec-websocket-protocol'],
+        );
         configureMpUpgradeSocket(socket);
+        // A credential in the query string is REFUSED, not accepted as
+        // a fallback. Accepting both would leave every caller free to
+        // keep logging the token, so the header would be an option
+        // rather than a guarantee.
+        if (firstQueryValue(parsedUrl.query.token)) {
+          // eslint-disable-next-line no-console
+          console.warn(
+            `[mp-socket] upgrade rejected matchId=${
+              typeof matchId === 'string' ? matchId : ''
+            } reason=token-in-url`,
+          );
+          rejectUpgrade(socket, '400 Bad Request');
+          return;
+        }
         // eslint-disable-next-line no-console
         console.log(
           `[mp-socket] upgrade requested matchId=${
@@ -653,8 +799,19 @@ app
         }
       }
     });
-    server.listen(port, () => {
-      // eslint-disable-next-line no-console
+    server.listen({ port, host: hostname }, () => {
+      if (isStandaloneRuntime) {
+        const addr = server.address();
+        // prettier-ignore
+        if (!addr || typeof addr === 'string' || addr.address !== hostname || addr.port !== port) process.exit(1);
+        const family =
+          addr.family === 6 || addr.family === 'IPv6' ? 'IPv6' : 'IPv4';
+        // prettier-ignore
+        const line = `MEKSTATION_LISTENER_READY ${JSON.stringify({ schema: 'mekstation-packaged-listener-ready/v1', configuredHostname: hostname, boundAddress: addr.address, family, port: addr.port })}\n`;
+        if (family !== 'IPv4' || Buffer.byteLength(line) > 1024)
+          process.exit(1);
+        process.stdout.write(line);
+      }
       console.log(
         `> Ready on http://${hostname}:${port} (multiplayer socket: ${WS_UPGRADE_PATH})`,
       );

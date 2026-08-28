@@ -21,6 +21,7 @@ export interface IWireMatchSocket extends IMatchSocket {
 
 type HostLike = Pick<
   ServerMatchHost,
+  | 'admitSocket'
   | 'attachSocket'
   | 'detachSocket'
   | 'handleSessionJoin'
@@ -126,7 +127,14 @@ export async function bindMultiplayerSocketConnection({
     host.releaseConnection(connectionKey);
   };
 
-  host.attachSocket(socket, verifiedPlayerId);
+  // Authority-audit PR 2: membership-gated admission. No baseline,
+  // replay, or event payload flows before the resolver returns an
+  // active viewer; refusal already sent typed AUTH_REJECTED + Close.
+  const viewer = await host.admitSocket(socket, verifiedPlayerId);
+  if (viewer === null) {
+    host.releaseConnection(connectionKey);
+    return null;
+  }
   boundContext = { host, cleanup };
   resolveReady(boundContext);
 
@@ -248,6 +256,7 @@ async function dispatchEnvelope({
         verifiedPlayerId,
         envelope.lastSeq,
         envelope.matchId,
+        envelope.deliveryCursor,
       );
       logger.log(
         `[mp-socket] session joined matchId=${matchId} playerId=${verifiedPlayerId}`,
@@ -264,7 +273,9 @@ async function dispatchEnvelope({
         });
         return;
       }
-      await host.handleIntent(envelope, connectionKey);
+      // Bind the command path to this connection's admitted principal,
+      // never the envelope's client-supplied playerId.
+      await host.handleIntent(envelope, connectionKey, verifiedPlayerId);
       logger.log(
         `[mp-socket] intent dispatched matchId=${matchId} playerId=${verifiedPlayerId} intent=${envelope.intent.kind}`,
       );

@@ -1,7 +1,12 @@
 #!/usr/bin/env npx tsx
 import * as fs from 'fs';
 import * as path from 'path';
-import { calculateTMM, calculateSpeedFactor, calculateOffensiveSpeedFactor } from '../src/utils/construction/battleValueCalculations';
+
+import {
+  calculateTMM,
+  calculateSpeedFactor,
+  calculateOffensiveSpeedFactor,
+} from '../src/utils/construction/battleValueCalculations';
 
 // Test edge cases for TMM calculation to confirm correctness
 console.log('=== TMM Edge Case Verification ===');
@@ -26,7 +31,8 @@ for (let i = 0; i < testMPs.length; i++) {
   const mp = testMPs[i];
   const got = mpToTMM(mp);
   const expected = expectedTMMs[i];
-  const match = got === expected ? 'OK' : `MISMATCH (got ${got}, expected ${expected})`;
+  const match =
+    got === expected ? 'OK' : `MISMATCH (got ${got}, expected ${expected})`;
   console.log(`  MP ${mp.toString().padStart(2)}: TMM ${got} ${match}`);
 }
 
@@ -49,7 +55,9 @@ for (const c of combos) {
   const runTMM = mpToTMM(c.run);
   const jumpTMM = c.jump > 0 ? mpToTMM(c.jump) + 1 : 0;
   const df = 1 + tmm / 10.0;
-  console.log(`  run=${c.run}, jump=${c.jump}: runTMM=${runTMM}, jumpTMM=${jumpTMM}, max=${tmm}, DF=${df.toFixed(1)} | ${c.desc}`);
+  console.log(
+    `  run=${c.run}, jump=${c.jump}: runTMM=${runTMM}, jumpTMM=${jumpTMM}, max=${tmm}, DF=${df.toFixed(1)} | ${c.desc}`,
+  );
 }
 
 // Special: verify that 1-2 hex movement gets TMM 0 (not -1 or anything else)
@@ -66,4 +74,6 @@ for (const mp of [0, 1, 2]) {
 // But in combat, a stationary target gets NO TMM, while one that moved 1-2 hexes gets +0
 // For BV: runMP=0 means the mech can't move - getRunningTMM returns 0
 // Our code: calculateTMM(0, 0) = mpToTMM(0) = 0 (mp <= 2 => 0) - CORRECT
-console.log(`\n  TMM for stationary (runMP=0): ${calculateTMM(0, 0)} - should be 0`);
+console.log(
+  `\n  TMM for stationary (runMP=0): ${calculateTMM(0, 0)} - should be 0`,
+);

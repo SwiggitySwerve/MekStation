@@ -22,6 +22,10 @@ import path from 'node:path';
 
 import type { IGameEvent } from '@/types/gameplay';
 
+import {
+  loadReplayLibraryNdjson,
+  type IReplayLibraryBlockedLine,
+} from '@/lib/events/replay/ReplayLibraryLoadPipeline';
 import { type ApiErrorResponse } from '@/pages-modules/api/routeHelpers';
 import { ReplaySource } from '@/types/gameplay';
 import { logger } from '@/utils/logger';
@@ -31,8 +35,28 @@ import { logger } from '@/utils/logger';
 // =============================================================================
 
 type LoadResponse = {
-  events: IGameEvent[];
+  events: readonly IGameEvent[];
   gameId: string;
+  /** sha256 over the complete raw source bytes (pipeline evidence). */
+  sourceDigest: string;
+};
+
+/**
+ * Typed blocked history (replay-safety PR 18): replaces the old
+ * malformed-line skipping. Source identity and per-line evidence are
+ * preserved; no partial event list ever ships.
+ */
+type BlockedResponse = {
+  error: string;
+  code: 'REPLAY_HISTORY_BLOCKED';
+  blocked: {
+    sourceId: string;
+    formatId: string;
+    formatVersion: number;
+    sourceDigest: string;
+    blockedLineCount: number;
+    blockedLines: readonly IReplayLibraryBlockedLine[];
+  };
 };
 
 // =============================================================================
@@ -68,7 +92,7 @@ const GAME_ID_PATTERN = /^[A-Za-z0-9_-]+$/;
  */
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<LoadResponse | ApiErrorResponse>,
+  res: NextApiResponse<LoadResponse | BlockedResponse | ApiErrorResponse>,
 ): Promise<void> {
   if (req.method !== 'GET') {
     res.setHeader('Allow', ['GET']);
@@ -127,25 +151,40 @@ export default async function handler(
     return;
   }
 
-  // NDJSON: one event per line. Empty / whitespace-only lines are skipped
-  // (a writer crash mid-line should not poison the whole replay). Malformed
-  // lines are logged at debug and skipped — the alternative (failing the
-  // whole request) loses the entire replay over a single bad line.
-  const events: IGameEvent[] = [];
-  const lines = raw.split('\n');
-  for (const line of lines) {
-    const trimmed = line.trim();
-    if (!trimmed) continue;
-    try {
-      events.push(JSON.parse(trimmed) as IGameEvent);
-    } catch (parseErr) {
-      logger.debug('[replay-library] skipping malformed event line', {
-        filePath,
-        line: trimmed.slice(0, 200),
-        parseErr,
-      });
-    }
+  // Replay-safety PR 18: the load routes through the legacy adapter +
+  // composed baseline schemas + provenance + census projector,
+  // all-or-nothing. A single unsupported line blocks the WHOLE history
+  // with typed per-line evidence - the previous behavior (skip malformed
+  // lines, cast the rest unvalidated) presented partial replays as
+  // complete.
+  const sourceId = `${sourceRaw}/${gameIdRaw}`;
+  const result = loadReplayLibraryNdjson(raw, sourceId);
+  if (result.kind === 'blocked') {
+    logger.warn('[replay-library] history blocked by replay pipeline', {
+      sourceId,
+      blockedLineCount: result.blockedLines.length,
+      firstReason: result.blockedLines[0]?.reason,
+    });
+    res.status(422).json({
+      error: 'replay history is blocked',
+      code: 'REPLAY_HISTORY_BLOCKED',
+      blocked: {
+        sourceId,
+        formatId: result.formatId,
+        formatVersion: result.formatVersion,
+        sourceDigest: result.sourceDigest,
+        blockedLineCount: result.blockedLines.length,
+        // Cap the per-line evidence in the response body; the count and
+        // source digest identify the rest.
+        blockedLines: result.blockedLines.slice(0, 20),
+      },
+    });
+    return;
   }
 
-  res.status(200).json({ events, gameId: gameIdRaw });
+  res.status(200).json({
+    events: result.events,
+    gameId: gameIdRaw,
+    sourceDigest: result.sourceDigest,
+  });
 }

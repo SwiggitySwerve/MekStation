@@ -23,27 +23,31 @@ const schemasUrl = pathToFileURL(
 const harness = `
 import { spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
+import { EventEmitter } from 'node:events';
+import { syncBuiltinESMExports } from 'node:module';
+import https from 'node:https';
 import fs from 'node:fs'; import path from 'node:path';
 import * as provenance from ${JSON.stringify(provenanceUrl)};
 import * as trust from ${JSON.stringify(trustUrl)};
 import { REPOSITORY_IDENTITY, WAVE_CONTRACTS, assertRepairDeclaration, commandSequenceDigest } from ${JSON.stringify(contractUrl)};
 import { validatePreflight } from ${JSON.stringify(controllerUrl)};
 import { validateWriteContext } from ${JSON.stringify(schemasUrl)};
-const request=JSON.parse(fs.readFileSync(0,'utf8')), root=request.root, head='b'.repeat(40), merge='c'.repeat(40), ownedReviewer=request.drift==='self'?'author':'owned-reviewer', specReviewer='spec-reviewer', apiCalls=[];
+const request=JSON.parse(fs.readFileSync(0,'utf8')), root=request.root, head='b'.repeat(40), merge='c'.repeat(40), ownedReviewer=request.drift==='self'?'author':'owned-reviewer', specReviewer='spec-reviewer', soloOwner='SwiggitySwerve', apiCalls=[];
 const repo=()=>({id:REPOSITORY_IDENTITY.repositoryId,node_id:REPOSITORY_IDENTITY.nodeId,full_name:REPOSITORY_IDENTITY.nameWithOwner,default_branch:'main',fork:false,parent:null,source:null,owner:{login:'SwiggitySwerve'}});
 function transportFixtures(specSha=head,ownedSha=head,mainSha=merge,ownedMergeSha=mainSha){
   return async ({resource,parameters})=>{ let value; apiCalls.push({resource,parameters});
     if(request.drift==='transport-failure'&&resource==='repository') throw new Error('transport failed');
     if(resource==='repository') value=repo();
     else if(resource==='branch') value={name:'main',commit:{sha:mainSha}};
-    else if(resource==='pull-request'){const owned=String(parameters.number)==='201', sha=owned?ownedSha:specSha; value={number:Number(parameters.number),base:{ref:'main',repo:repo()},head:{sha,repo:repo()},merge_commit_sha:owned?ownedMergeSha:specSha,user:{login:'author'}};}
+    else if(resource==='pull-request'){const owned=String(parameters.number)==='201', sha=owned?ownedSha:specSha, solo=['solo-citation','solo-transport'].includes(request.action); value={number:Number(parameters.number),base:{ref:'main',repo:repo()},head:{sha,repo:repo()},merge_commit_sha:owned?ownedMergeSha:specSha,user:{login:solo?(request.drift==='solo-author'?'other-author':soloOwner):'author'},merged_by:{login:solo&&request.drift==='solo-merger'?'other-merger':soloOwner}};}
     else if(resource==='reviews'){
       const owned=String(parameters.number)==='201', sha=owned?ownedSha:specSha, reviewer=owned?ownedReviewer:specReviewer, approval={id:owned?401:301,state:'APPROVED',commit_id:sha,dismissed_at:null,user:{login:reviewer}};
       if(request.drift==='pagination-limit') value=Array.from({length:100},(_,index)=>({...approval,id:1000+index}));
       else if(request.drift==='approval-page-two'&&Number(parameters.page)===1) value=Array.from({length:100},(_,index)=>({...approval,id:1000+index}));
       else value=[approval];
     }
-    else if(resource==='permission'){const login=String(parameters.login), expected=['spec-reviewer','owned-reviewer','author']; if(!expected.includes(login)) throw new Error('unexpected permission login '+login); value={permission:'write',user:{login}};}
+    else if(resource==='collaborators') value=request.drift==='solo-collaborators'?[{login:soloOwner},{login:'second-collaborator'}]:[{login:soloOwner}];
+    else if(resource==='permission'){const login=String(parameters.login), expected=['spec-reviewer','owned-reviewer','author',soloOwner]; if(!expected.includes(login)) throw new Error('unexpected permission login '+login); value={permission:login===soloOwner&&request.drift!=='solo-permission-write'?'admin':'write',user:{login}};}
     else if(resource==='compare'){if(parameters.base!==specSha||parameters.head!==ownedSha) throw new Error('unexpected compare tuple'); value={status:request.drift==='compare-behind'?'behind':request.drift==='compare-diverged'?'diverged':'ahead'};}
     else throw new Error('unexpected mock resource '+resource);
     if(request.drift==='fork'&&resource==='repository') value.parent={id:1};
@@ -65,7 +69,10 @@ function transportFixtures(specSha=head,ownedSha=head,mainSha=merge,ownedMergeSh
     return structuredClone(value);
   };
 }
+let capturedAgent;
+async function captureEndpoint(resource,parameters){const original=https.request;let endpoint;https.request=(options,callback)=>{endpoint=options.path;capturedAgent=options.agent;const request=new EventEmitter(),response=new EventEmitter();response.statusCode=200;response.setEncoding=()=>{};request.destroy=()=>{};request.end=()=>{callback(response);response.emit('data','{"check_runs":[]}');response.emit('end');};return request;};syncBuiltinESMExports();try{await provenance.fetchGitHubResource({resource,parameters});return endpoint;}finally{https.request=original;syncBuiltinESMExports();}}
 const citation={kind:'owned',wave:'camp-01a',subject:'product-pr',prNumber:'201',headSha:head,mergeSha:merge,approvalId:'401',reviewer:ownedReviewer};
+const soloCitation={...citation,approvalId:'solo-maintainer',reviewer:soloOwner};
 async function seedRepository(child,mode){
   const git={executable:request.git}, work=path.join(root,'source'), remote=path.join(root,'remote.git'); fs.mkdirSync(work);
   const run=(args,cwd=work)=>trust.invokeGit({git,args,cwd}); await run(['init','--initial-branch=main']);
@@ -80,6 +87,10 @@ async function seedRepository(child,mode){
 }
 try { let value;
   if(request.action==='citation') value=await provenance.verifyGitHubCitation(citation,{fetchGitHubResource:transportFixtures()});
+  else if(request.action==='solo-citation') value=await provenance.verifyGitHubCitation(soloCitation,{fetchGitHubResource:transportFixtures()});
+  else if(request.action==='solo-transport'){await provenance.verifyGitHubCitation(soloCitation,{fetchGitHubResource:transportFixtures()}); value=apiCalls;}
+  else if(request.action==='resource-endpoint') value=await captureEndpoint(request.resource,request.parameters);
+  else if(request.action==='resource-agent'){await captureEndpoint(request.resource,request.parameters);value=capturedAgent;}
   else if(request.action==='resource-guard') value=await provenance.fetchGitHubResource({resource:request.resource,parameters:request.parameters});
   else {
     const child=request.action==='repair'?'repair-child':'add-campaign-roster-source-readiness', seeded=await seedRepository(child,request.action), citedSha=request.action==='nonancestor'?seeded.divergentSha:seeded.specSha;
@@ -89,7 +100,7 @@ try { let value;
     const source={kind:'proof',childChange:child,causeFingerprint:'sha256:'+seeded.cause,sourceDisposition:seeded.repairRow.sourceDisposition,reporterContracts:[],explicitDependencies:[]};
     const dependencies={fetchGitHubResource:transport,git:seeded.git,gitDependencies:request.action==='nonancestor'?{spawn:(executable,args,options)=>{const result=spawnSync(executable,args,options), fetchIndex=args.indexOf('fetch'); if(result.status!==0||fetchIndex<0)return result; return spawnSync(executable,[...args.slice(0,fetchIndex),'fetch','--no-tags','--no-recurse-submodules',seeded.remote,'+refs/heads/divergent:refs/camp01/divergent'],options);}}:undefined,sessionDirectory:request.drift==='missing-session'?undefined:request.drift==='relative-session'?()=>'.camp01-relative':({operation})=>path.join(root,operation+'.git'),testOnlyRemoteUrl:seeded.remote,testOnlyAllowLocalRemote:true,
       resolvePreflightFacts:()=>({predecessorReceiptWaves:['camp-00'],predecessorCleanupWaves:['camp-00'],repairGates:[],cap:{subject:'product-pr',fileCount:1,changedLineCount:2,binaryEntries:false}}),
-      resolveWriterInputs:request.action==='missing-writer-inputs'?undefined:(input)=>({treeSha:seeded.productSha,capProvenance:{subject:'product-pr',baseSha:seeded.specSha,headSha:seeded.productSha,fileCount:1,changedLineCount:2,binaryEntries:false,changedTreeManifestDigest:digest,reviewedHeadReceiptId:null,reviewedHeadReceiptManifestDigest:null},identityRegistry:{schema:'camp01-identity-registry/v1',entities:[],refs:[]},registryContext:{evidence:[],provenance:request.drift==='writer-registry-drift'?[{id:'tuple-'+createHash('sha256').update(JSON.stringify(input.provenance.spec)).digest('hex').slice(0,32),sourceKind:'drift',wave:'camp-00',subject:'none'}]:[{id:predecessor,sourceKind:'predecessor-receipt',wave:'camp-00',subject:'none'}],refs:[],capturePolicies:[],repairSources:[]},predecessorReceiptIds:request.drift==='malformed-writer-facts'?[]:[predecessor],reviewedHead:null}),
+      resolveWriterInputs:request.action==='missing-writer-inputs'?undefined:(input)=>({treeSha:seeded.productSha,capProvenance:{subject:'product-pr',baseSha:seeded.specSha,headSha:seeded.productSha,fileCount:1,changedLineCount:2,binaryEntries:false,changedTreeManifestDigest:digest,reviewedHeadReceiptId:null,reviewedHeadReceiptManifestDigest:null},identityRegistry:{schema:'camp01-identity-registry/v1',entities:[],refs:[]},registryContext:{evidence:[],provenance:request.drift==='writer-registry-drift'?[{id:'tuple-'+createHash('sha256').update(JSON.stringify({wave:input.row.wave,value:input.provenance.spec})).digest('hex').slice(0,32),sourceKind:'drift',wave:'camp-00',subject:'none'}]:request.drift==='shared-spec-predecessor'?[{id:'tuple-'+createHash('sha256').update(JSON.stringify(input.provenance.spec)).digest('hex').slice(0,32),sourceKind:'spec-tuple',wave:'proof-02-reproduction',subject:'none'},{id:predecessor,sourceKind:'predecessor-receipt',wave:'camp-00',subject:'none'}]:[{id:predecessor,sourceKind:'predecessor-receipt',wave:'camp-00',subject:'none'}],refs:[],capturePolicies:[],repairSources:[]},predecessorReceiptIds:request.drift==='malformed-writer-facts'?[]:[predecessor],reviewedHead:null}),
       resolveRepairSource:request.drift==='missing-repair-source'?undefined:()=>({source,registrySet:{requiredRowIds:[seeded.repairRow.wave],registeredRowIds:[seeded.repairRow.wave]}})};
     const seams=provenance.createGitHubProvenance(dependencies);
     if(request.action==='repair'){const registration=await seams.resolveRepairRegistration({wave:seeded.repairRow.wave,spec}); value={keys:Object.keys(registration),accepted:!!assertRepairDeclaration(registration.declaration,registration.source),registrySet:registration.registrySet};}
@@ -157,6 +168,101 @@ describe('CAMP-01 GitHub provenance', () => {
     });
   });
 
+  it('accepts the solo-maintainer sentinel for the sole admin owner who authored and merged the pull', () => {
+    // Given one owner collaborator on an owner-authored and owner-merged pull
+    const result = invoke({ action: 'solo-citation', root });
+    // When the sentinel is verified, then the reduced provenance shape is explicit
+    expect(result).toEqual({
+      ok: true,
+      value: {
+        prNumber: '201',
+        headSha: 'b'.repeat(40),
+        mergeSha: 'c'.repeat(40),
+        reviewId: 'solo-maintainer',
+        reviewer: 'SwiggitySwerve',
+        permission: 'ADMIN',
+      },
+    });
+  });
+
+  it('rejects the solo-maintainer sentinel when a second collaborator exists', () => {
+    // Given two repository collaborators
+    const result = invoke({
+      action: 'solo-citation',
+      drift: 'solo-collaborators',
+      root,
+    });
+    // When the sentinel arm runs, then the reduction self-invalidates
+    expect(result).toEqual({
+      ok: false,
+      error: 'CAMP01_PROVENANCE_INVALID: solo maintainer reduction unavailable',
+      name: 'Camp01ProvenanceError',
+    });
+  });
+
+  it('rejects the solo-maintainer sentinel when the pull author differs', () => {
+    // Given a pull authored by another identity
+    const result = invoke({
+      action: 'solo-citation',
+      drift: 'solo-author',
+      root,
+    });
+    // When the sentinel arm runs, then author provenance rejects exactly
+    expect(result).toEqual({
+      ok: false,
+      error: 'CAMP01_PROVENANCE_INVALID: solo provenance author drift',
+      name: 'Camp01ProvenanceError',
+    });
+  });
+
+  it('rejects the solo-maintainer sentinel when a merged pull has another merger', () => {
+    // Given a merged citation attributed to another merger
+    const result = invoke({
+      action: 'solo-citation',
+      drift: 'solo-merger',
+      root,
+    });
+    // When the sentinel arm runs, then merger provenance rejects exactly
+    expect(result).toEqual({
+      ok: false,
+      error: 'CAMP01_PROVENANCE_INVALID: solo provenance merger drift',
+      name: 'Camp01ProvenanceError',
+    });
+  });
+
+  it('rejects WRITE permission for the solo-maintainer sentinel', () => {
+    // Given the sole owner has only WRITE permission
+    const result = invoke({
+      action: 'solo-citation',
+      drift: 'solo-permission-write',
+      root,
+    });
+    // When the sentinel arm runs, then only ADMIN is accepted
+    expect(result).toEqual({
+      ok: false,
+      error: 'CAMP01_PROVENANCE_INVALID: reviewer permission drift',
+      name: 'Camp01ProvenanceError',
+    });
+  });
+
+  it('uses collaborators and ADMIN permission without looking up reviews for the sentinel', () => {
+    // Given a valid solo-maintainer citation
+    const result = invoke({ action: 'solo-transport', root });
+    // When transport is captured, then only the solo arm resources are requested
+    expect(result).toEqual({
+      ok: true,
+      value: [
+        { resource: 'repository', parameters: {} },
+        { resource: 'pull-request', parameters: { number: '201' } },
+        { resource: 'collaborators', parameters: {} },
+        {
+          resource: 'permission',
+          parameters: { login: 'SwiggitySwerve' },
+        },
+      ],
+    });
+  });
+
   it.each([
     ['approval-page-two', undefined],
     [
@@ -171,6 +277,7 @@ describe('CAMP-01 GitHub provenance', () => {
 
   it.each([
     ['unknown', {}, 'invalid GitHub resource'],
+    ['check-runs', { sha: 'invalid' }, 'invalid GitHub resource'],
     ['pull-request', { number: '0' }, 'invalid GitHub resource parameters'],
     ['permission', { login: 'bad/name' }, 'invalid GitHub resource'],
     [
@@ -195,6 +302,47 @@ describe('CAMP-01 GitHub provenance', () => {
       });
     },
   );
+
+  it('maps a valid check-runs SHA to the frozen repository endpoint', () => {
+    // Given one valid commit SHA, when routing runs, then the exact REST path is fixed.
+    const sha = 'a'.repeat(40);
+    const result = invoke({
+      action: 'resource-endpoint',
+      root,
+      resource: 'check-runs',
+      parameters: { sha },
+    });
+    expect(result).toEqual({
+      ok: true,
+      value: `/repos/SwiggitySwerve/MekStation/commits/${sha}/check-runs`,
+    });
+  });
+
+  it('requests every resource on a fresh connection with no shared agent', () => {
+    // Given the production transport, when any request is issued, then agent:false
+    // prevents stale keep-alive reuse across the controller's long git gaps.
+    const result = invoke({
+      action: 'resource-agent',
+      root,
+      resource: 'repository',
+      parameters: {},
+    });
+    expect(result).toEqual({ ok: true, value: false });
+  });
+
+  it('maps collaborators to the frozen repository endpoint', () => {
+    // Given the OID-less collaborators resource, when routing runs, then the repository path is exact.
+    const result = invoke({
+      action: 'resource-endpoint',
+      root,
+      resource: 'collaborators',
+      parameters: {},
+    });
+    expect(result).toEqual({
+      ok: true,
+      value: '/repos/SwiggitySwerve/MekStation/collaborators',
+    });
+  });
 
   it.each([
     ['transport-failure', 'GitHub transport failed'],
@@ -401,6 +549,22 @@ describe('CAMP-01 GitHub provenance', () => {
       value: { acceptedPreflight: true },
     });
   });
+
+  gitIt(
+    'scopes spec tuple ids so a predecessor citing the same spec does not drift',
+    () => {
+      const result = invoke({
+        action: 'preflight',
+        drift: 'shared-spec-predecessor',
+        root,
+        git: hostGit,
+      });
+      expect(result).toMatchObject({
+        ok: true,
+        value: { acceptedWriter: true },
+      });
+    },
+  );
 
   gitIt(
     'rejects exact-main receipt identity when the argument SHA drifts',

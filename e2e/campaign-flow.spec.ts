@@ -726,14 +726,19 @@ test.describe('Campaign Flow - Mission Generation', () => {
       await expect(page.getByTestId('encounter-detail-page')).toBeVisible({
         timeout: 20_000,
       });
-      await expect(page.getByText('Configuration Required')).toBeVisible();
+      // The roster->encounter materialization work now hands the linked
+      // encounter over FULLY CONFIGURED (player force from the mission
+      // lance, generated OpFor, map + victory conditions). The previous
+      // 'Configuration Required' empty state was the pre-fix behavior --
+      // these assertions rotted against the intended change.
+      await expect(page.getByText('Configuration Required')).toHaveCount(0);
       await expect(
-        page.getByText('Player force must be selected'),
+        page.getByRole('heading', { name: 'Player Force' }),
       ).toBeVisible();
       await expect(
-        page.getByText('Opponent force or OpFor configuration is required'),
+        page.getByRole('heading', { name: 'Opponent Force' }),
       ).toBeVisible();
-      await expect(page.getByTestId('launch-encounter-btn')).toBeDisabled();
+      await expect(page.getByTestId('launch-encounter-btn')).toBeEnabled();
     },
   );
 

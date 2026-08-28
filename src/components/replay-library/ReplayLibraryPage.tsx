@@ -15,6 +15,10 @@ import type { IReplayManifestEntry } from '@/replay-library/types';
 
 import { QuickGameReplayPanel } from '@/components/quickgame/QuickGameReplayPanel';
 import {
+  ReplayBlockedHistoryPanel,
+  type IReplayBlockedHistoryInfo,
+} from '@/components/replay-library/ReplayBlockedHistoryPanel';
+import {
   IReplayLibraryListResponse,
   ReplayRow,
   SOURCE_FILTERS,
@@ -35,6 +39,8 @@ interface IViewerState {
   readonly entry: IReplayManifestEntry;
   readonly events: readonly IGameEvent[] | null;
   readonly error: string | null;
+  /** Typed blocked-history payload (422 REPLAY_HISTORY_BLOCKED). */
+  readonly blocked: IReplayBlockedHistoryInfo | null;
 }
 
 interface ReplayManifestState {
@@ -89,7 +95,12 @@ function useReplayViewer(): ReplayViewerController {
   const [viewer, setViewer] = useState<IViewerState | null>(null);
 
   useEffect(() => {
-    if (viewer === null || viewer.events !== null || viewer.error !== null) {
+    if (
+      viewer === null ||
+      viewer.events !== null ||
+      viewer.error !== null ||
+      viewer.blocked !== null
+    ) {
       return undefined;
     }
 
@@ -99,6 +110,28 @@ function useReplayViewer(): ReplayViewerController {
         const res = await fetch(
           `/api/replay-library/${entry.replaySource}/${entry.id}`,
         );
+        // Replay-safety PR 20: a 422 REPLAY_HISTORY_BLOCKED is the typed
+        // blocked-history state, not a generic failure - render the
+        // persistent truthful panel with the evidence.
+        if (res.status === 422) {
+          const body = (await res.json()) as {
+            readonly code?: string;
+            readonly blocked?: IReplayBlockedHistoryInfo;
+          };
+          if (
+            body.code === 'REPLAY_HISTORY_BLOCKED' &&
+            body.blocked !== undefined &&
+            !cancelled
+          ) {
+            setViewer({
+              entry,
+              events: null,
+              error: null,
+              blocked: body.blocked,
+            });
+            return;
+          }
+        }
         if (!res.ok) {
           throw new Error(`HTTP ${res.status}`);
         }
@@ -106,7 +139,7 @@ function useReplayViewer(): ReplayViewerController {
           readonly events: readonly IGameEvent[];
         };
         if (!cancelled) {
-          setViewer({ entry, events: data.events, error: null });
+          setViewer({ entry, events: data.events, error: null, blocked: null });
         }
       } catch (err) {
         logger.error('[replay-library] failed to fetch events', err);
@@ -115,6 +148,7 @@ function useReplayViewer(): ReplayViewerController {
             entry,
             events: null,
             error: 'Failed to load replay events',
+            blocked: null,
           });
         }
       }
@@ -130,7 +164,7 @@ function useReplayViewer(): ReplayViewerController {
     setViewer((prev) =>
       prev !== null && prev.entry.id === entry.id
         ? prev
-        : { entry, events: null, error: null },
+        : { entry, events: null, error: null, blocked: null },
     );
   }, []);
 
@@ -195,7 +229,11 @@ function ReplayViewerLayout({
   return (
     <PageLayout
       title="Replay Library"
-      subtitle={`Watching ${viewer.entry.id} (${viewer.entry.replaySource})`}
+      subtitle={
+        viewer.blocked !== null
+          ? `Blocked replay ${viewer.entry.id} (${viewer.entry.replaySource})`
+          : `Watching ${viewer.entry.id} (${viewer.entry.replaySource})`
+      }
       maxWidth="wide"
     >
       <div className="mb-4">
@@ -209,16 +247,27 @@ function ReplayViewerLayout({
         </Button>
       </div>
 
-      <ReplayViewerBody viewer={viewer} />
+      <ReplayViewerBody viewer={viewer} onBackToList={onBackToList} />
     </PageLayout>
   );
 }
 
 function ReplayViewerBody({
   viewer,
+  onBackToList,
 }: {
   readonly viewer: IViewerState;
+  readonly onBackToList: () => void;
 }): React.ReactElement {
+  if (viewer.blocked !== null) {
+    return (
+      <ReplayBlockedHistoryPanel
+        blocked={viewer.blocked}
+        onBack={onBackToList}
+      />
+    );
+  }
+
   if (viewer.error !== null) {
     return (
       <Card data-testid="replay-viewer-error">

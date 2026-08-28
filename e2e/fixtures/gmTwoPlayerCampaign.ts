@@ -12,6 +12,8 @@ const AUTH_PREFIX = 'mekstation.coopCampaign.token.';
 const STORAGE_PREFIX = 'mekstation.gm-two-player.fixture.';
 const ROLES = ['future-gm', 'future-player-1', 'future-player-2'] as const;
 const guards = require('../../scripts/qc/gm-two-player-campaign-core.cjs');
+import { openEvidenceBundle } from './gmTwoPlayerEvidence';
+import { openSqliteEvidenceReader } from './sqliteEvidenceReader';
 type Identity = { id: string; playerId: string; authFingerprint: string };
 type Client = {
   ownerRunId: string;
@@ -38,13 +40,34 @@ export async function createGmTwoPlayerCampaignFixture({
   const clients: Client[] = [];
   const identityIds: string[] = [];
   let cleanedUp = false;
+  // Seeding an identity calls setActive, which deactivates EVERY other
+  // identity on the machine. Capture what was active BEFORE the first
+  // seed so teardown can put it back - otherwise a developer who runs
+  // this suite is left with no active vault identity and their own
+  // session silently stops working (task 20.5, "preserve user
+  // artifacts").
+  const priorActive = await request.get('/api/e2e/vault-identity', {
+    headers: { [RUN_ID_HEADER]: runId },
+  });
+  expect(priorActive.status(), await priorActive.text()).toBe(200);
+  const priorActiveId = (
+    (await priorActive.json()) as { activeId: string | null }
+  ).activeId;
+
   const cleanup = async () => {
     if (cleanedUp) return;
     cleanedUp = true;
     for (const client of clients) await client.context.close();
     const response = await request.delete('/api/e2e/vault-identity', {
       headers: { [RUN_ID_HEADER]: runId },
-      data: { ids: identityIds, runId },
+      data: {
+        ids: identityIds,
+        runId,
+        // Null when the machine had no active identity to begin with:
+        // restoring "nothing" is the correct end state there, and the
+        // route only reactivates when an id is actually named.
+        ...(priorActiveId === null ? {} : { restoreActiveId: priorActiveId }),
+      },
     });
     expect(response.status(), await response.text()).toBe(200);
   };
@@ -139,6 +162,25 @@ export async function createGmTwoPlayerCampaignFixture({
         app: database('mekstation.db'),
         multiplayer: database('multiplayer-matches.db'),
       },
+      /**
+       * Opens one of this run's databases for read-only proof (task
+       * 20.3). Routed through the fixture so evidence reads cannot
+       * quietly reach for the production store, and so the path is the
+       * run-owned one `assertRunOwnedPath` already validated.
+       */
+      openEvidence: (which: 'app' | 'multiplayer') =>
+        openSqliteEvidenceReader(
+          which === 'app'
+            ? database('mekstation.db').path
+            : database('multiplayer-matches.db').path,
+        ),
+      /**
+       * Opens this run's evidence bundle (task 20.4). Handed out by the
+       * fixture so every artifact lands under the run-owned directory
+       * and passes the secret scan, rather than each spec inventing its
+       * own place to write.
+       */
+      openEvidenceBundle: () => openEvidenceBundle(runId),
       clients,
       cleanup,
     };

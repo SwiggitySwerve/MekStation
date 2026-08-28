@@ -2,7 +2,10 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { validateJourneyCatalog as validateJourneyCatalogImplementation } from './journey-qc-catalog-validator.mjs';
+import {
+  allowedSubsystems,
+  validateJourneyCatalog as validateJourneyCatalogImplementation,
+} from './journey-qc-catalog-validator.mjs';
 import { validateValidationGraph as validateValidationGraphImplementation } from './journey-qc-graph-validator.mjs';
 import { validateLoggingMap as validateLoggingMapImplementation } from './journey-qc-logging-validator.mjs';
 import { executeRunPlan as executeRunPlanImplementation } from './journey-qc-run-executor.mjs';
@@ -245,6 +248,12 @@ export function parseArgs(argv) {
       'run-id',
       (value) => {
         options.runId = value;
+      },
+    ],
+    [
+      'subsystem',
+      (value) => {
+        options.subsystem = value;
       },
     ],
     [
@@ -1600,7 +1609,33 @@ export function logIntentLabel(entry) {
   return parts.join(' ');
 }
 
+/**
+ * Resolve the graph node ids of the journeys carrying a subsystem tag.
+ * The tag must come from the closed six-tag vocabulary; the journey set is
+ * resolved from the catalog facet at query time — the graph itself carries
+ * no subsystem field (design D4.4).
+ */
+export function resolveSubsystemJourneyNodeIds(catalog, subsystem) {
+  if (!allowedSubsystems.has(subsystem)) {
+    throw new Error(
+      `Unknown subsystem tag ${subsystem}. Allowed: ${[...allowedSubsystems].join(', ')}.`,
+    );
+  }
+  return catalog.journeys
+    .filter(
+      (journey) =>
+        Array.isArray(journey.subsystems) &&
+        journey.subsystems.includes(subsystem),
+    )
+    .map((journey) => `journey:${journey.id}`);
+}
+
 export function queryGraph(graph, options = {}) {
+  // matchIds narrows matching to an exact id set (the --subsystem path);
+  // the substring query below is the default text-match path.
+  const idFilter = Array.isArray(options.matchIds)
+    ? new Set(options.matchIds)
+    : null;
   const query = (
     options.query ??
     options.journey ??
@@ -1609,6 +1644,7 @@ export function queryGraph(graph, options = {}) {
   ).toLowerCase();
   const kind = options.kind;
   const matchedNodes = graph.nodes.filter((node) => {
+    if (idFilter) return idFilter.has(node.id);
     if (kind && node.kind !== kind) return false;
     if (!query) return true;
     return (

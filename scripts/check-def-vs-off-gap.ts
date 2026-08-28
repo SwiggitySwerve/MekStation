@@ -7,14 +7,21 @@
 import * as fs from 'fs';
 import * as path from 'path';
 
-const reportPath = path.resolve(__dirname, '../validation-output/bv-validation-report.json');
+const reportPath = path.resolve(
+  __dirname,
+  '../validation-output/bv-validation-report.json',
+);
 const report = JSON.parse(fs.readFileSync(reportPath, 'utf-8'));
 
-console.log("=== DEFENSIVE vs OFFENSIVE BV GAP ANALYSIS ===\n");
+console.log('=== DEFENSIVE vs OFFENSIVE BV GAP ANALYSIS ===\n');
 
 // Get all undercalculated units (-1% to -10%)
-const underUnits = report.allResults.filter((u: any) => u.percentDiff < -1 && u.percentDiff > -10);
-console.log(`Total undercalculated units (-1% to -10%): ${underUnits.length}\n`);
+const underUnits = report.allResults.filter(
+  (u: any) => u.percentDiff < -1 && u.percentDiff > -10,
+);
+console.log(
+  `Total undercalculated units (-1% to -10%): ${underUnits.length}\n`,
+);
 
 let defGapCount = 0;
 let offGapCount = 0;
@@ -82,7 +89,7 @@ for (const r of results) {
 }
 
 // Show some summary stats
-const totalGaps = results.map(r => r.totalGap);
+const totalGaps = results.map((r) => r.totalGap);
 const avg = totalGaps.reduce((a, b) => a + b, 0) / totalGaps.length;
 const sorted = [...totalGaps].sort((a, b) => a - b);
 const median = sorted[Math.floor(sorted.length / 2)];
@@ -92,7 +99,7 @@ console.log(`Median BV gap: ${median}`);
 console.log(`Min: ${sorted[0]}, Max: ${sorted[sorted.length - 1]}`);
 
 // Now check: what fraction of the gap is explained by offensive vs defensive
-console.log("\n--- Per-unit: DefBV as % of total, OffBV as % of total ---\n");
+console.log('\n--- Per-unit: DefBV as % of total, OffBV as % of total ---\n');
 
 let defPctSum = 0;
 let offPctSum = 0;
@@ -104,32 +111,51 @@ for (const r of results) {
   }
 }
 
-console.log(`Average DefBV share: ${(defPctSum / results.length * 100).toFixed(1)}%`);
-console.log(`Average OffBV share: ${(offPctSum / results.length * 100).toFixed(1)}%`);
+console.log(
+  `Average DefBV share: ${((defPctSum / results.length) * 100).toFixed(1)}%`,
+);
+console.log(
+  `Average OffBV share: ${((offPctSum / results.length) * 100).toFixed(1)}%`,
+);
 
 // For the first 20 undercalculated, show the detailed breakdown
-console.log("\n--- Top 20 Undercalculated Units Detail ---\n");
-console.log("Unit ID                          | Index |  Calc |  Gap | DefBV | OffBV | CkMod");
-console.log("---------------------------------|-------|-------|------|-------|-------|------");
-for (const r of results.sort((a, b) => a.totalGap - b.totalGap).reverse().slice(0, 20)) {
+console.log('\n--- Top 20 Undercalculated Units Detail ---\n');
+console.log(
+  'Unit ID                          | Index |  Calc |  Gap | DefBV | OffBV | CkMod',
+);
+console.log(
+  '---------------------------------|-------|-------|------|-------|-------|------',
+);
+for (const r of results
+  .sort((a, b) => a.totalGap - b.totalGap)
+  .reverse()
+  .slice(0, 20)) {
   console.log(
-    `${r.id.padEnd(33)}| ${String(r.indexBV).padStart(5)} | ${String(r.calcBV).padStart(5)} | ${String(r.totalGap).padStart(4)} | ${r.defBV.toFixed(0).padStart(5)} | ${r.offBV.toFixed(0).padStart(5)} | ${r.cockpitMod.toFixed(2)}`
+    `${r.id.padEnd(33)}| ${String(r.indexBV).padStart(5)} | ${String(r.calcBV).padStart(5)} | ${String(r.totalGap).padStart(4)} | ${r.defBV.toFixed(0).padStart(5)} | ${r.offBV.toFixed(0).padStart(5)} | ${r.cockpitMod.toFixed(2)}`,
   );
 }
 
 // Also check: do units with higher offensive BV fraction tend to have bigger gaps?
-console.log("\n--- Gap vs Offensive BV Ratio ---\n");
-const byOffPct = results.map(r => ({
-  ...r,
-  offPct: r.offBV / (r.defBV + r.offBV),
-  gapPct: r.totalGap / r.indexBV * 100,
-})).sort((a, b) => a.offPct - b.offPct);
+console.log('\n--- Gap vs Offensive BV Ratio ---\n');
+const byOffPct = results
+  .map((r) => ({
+    ...r,
+    offPct: r.offBV / (r.defBV + r.offBV),
+    gapPct: (r.totalGap / r.indexBV) * 100,
+  }))
+  .sort((a, b) => a.offPct - b.offPct);
 
 // Group by offensive share quartile
 const q1 = byOffPct.slice(0, Math.floor(byOffPct.length / 4));
-const q2 = byOffPct.slice(Math.floor(byOffPct.length / 4), Math.floor(byOffPct.length / 2));
-const q3 = byOffPct.slice(Math.floor(byOffPct.length / 2), Math.floor(byOffPct.length * 3 / 4));
-const q4 = byOffPct.slice(Math.floor(byOffPct.length * 3 / 4));
+const q2 = byOffPct.slice(
+  Math.floor(byOffPct.length / 4),
+  Math.floor(byOffPct.length / 2),
+);
+const q3 = byOffPct.slice(
+  Math.floor(byOffPct.length / 2),
+  Math.floor((byOffPct.length * 3) / 4),
+);
+const q4 = byOffPct.slice(Math.floor((byOffPct.length * 3) / 4));
 
 function avgGapPct(arr: typeof byOffPct) {
   return arr.reduce((a, b) => a + b.gapPct, 0) / arr.length;
@@ -138,9 +164,17 @@ function avgOffPct(arr: typeof byOffPct) {
   return arr.reduce((a, b) => a + b.offPct, 0) / arr.length;
 }
 
-console.log("Quartile | Avg Off% | Avg Gap%");
-console.log("---------|----------|--------");
-console.log(`Q1 (low) | ${(avgOffPct(q1)*100).toFixed(1)}%   | ${avgGapPct(q1).toFixed(2)}%`);
-console.log(`Q2       | ${(avgOffPct(q2)*100).toFixed(1)}%   | ${avgGapPct(q2).toFixed(2)}%`);
-console.log(`Q3       | ${(avgOffPct(q3)*100).toFixed(1)}%   | ${avgGapPct(q3).toFixed(2)}%`);
-console.log(`Q4 (high)| ${(avgOffPct(q4)*100).toFixed(1)}%   | ${avgGapPct(q4).toFixed(2)}%`);
+console.log('Quartile | Avg Off% | Avg Gap%');
+console.log('---------|----------|--------');
+console.log(
+  `Q1 (low) | ${(avgOffPct(q1) * 100).toFixed(1)}%   | ${avgGapPct(q1).toFixed(2)}%`,
+);
+console.log(
+  `Q2       | ${(avgOffPct(q2) * 100).toFixed(1)}%   | ${avgGapPct(q2).toFixed(2)}%`,
+);
+console.log(
+  `Q3       | ${(avgOffPct(q3) * 100).toFixed(1)}%   | ${avgGapPct(q3).toFixed(2)}%`,
+);
+console.log(
+  `Q4 (high)| ${(avgOffPct(q4) * 100).toFixed(1)}%   | ${avgGapPct(q4).toFixed(2)}%`,
+);

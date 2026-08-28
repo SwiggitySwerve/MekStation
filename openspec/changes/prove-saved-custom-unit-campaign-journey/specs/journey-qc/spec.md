@@ -2,7 +2,7 @@
 
 ### Requirement: CAMP-01H Proves Three Independent Authority Journeys
 
-Journey QC SHALL prove the saved-custom-unit campaign boundary through exactly three independently evidenced session witnesses on one exact SHA and SHALL reconcile the resulting gameplay experience without making custom units combat-capable.
+Journey QC SHALL prove exactly three independently evidenced session witnesses of campaign behavior the application ships today on one exact SHA and SHALL reconcile the resulting gameplay experience without making custom units combat-capable. REDUCED CLAIM (amended 2026-08-09 per the program owner's 2026-08-08 decision, following the acceptance-decoupling declaration): this requirement REDUCES the original saved-custom-unit boundary claim rather than satisfying it — server-issued custom-unit identity, roster-instance identity, custom source kind without substitution, custom-launch blocking, and the live server-session command/terminal/post-battle consequence chain are NOT attested by the redefined witnesses, remain unbuilt as attestations (measurement re-verified 2026-08-20 per the CAMP-R3 ledger entry: `unitSource` and `RosterUnitSource` now carry 16 and 8 tracked product files respectively from the merged CAMP-01A–H wave series, while `rosterInstanceId` and the entity-id alternation remain at zero tracked product files; the prior 2026-08-09 measurement recorded zero across all four; the amendment updates the measurement only — the boundary attestations remain un-attested and the reduction stands unchanged), and remain owned by the CAMP-01 product wave series. The witness labels `custom-save-reload`, `campaign-mech-bay-readiness`, and `canonical-combat-post-battle` persist solely as machinery identifiers; the receipt machinery's fact-slot contract continues to name the unreduced entities and therefore continues to be fixture-satisfiable only — re-pointing it to the reduced claims is declared product-wave work, never a silent fold here. No green run under this requirement SHALL be cited as satisfying the unreduced claim.
 
 #### Scenario: Three witnesses are independent and continuous
 
@@ -12,23 +12,20 @@ Journey QC SHALL prove the saved-custom-unit campaign boundary through exactly t
 - **AND** each final witness SHALL contain non-empty route, API, store, persistence, navigation, and cold-reload evidence
 - **AND** shared entity or campaign ids MAY prove continuity but SHALL NOT substitute for independent evidence
 
-#### Scenario: Custom source reaches readiness without launch substitution
+#### Scenario: Shipped campaign persistence survives save and reload
 
 - **WHEN** the custom save/reload and campaign-readiness witnesses complete
-- **THEN** their saved-design, roster-instance, campaign, and mission identities SHALL match the authoritative source chain
-- **AND** the custom row SHALL remain visible after cold reload
-- **AND** unsupported custom launch SHALL be blocked before encounter or session side effects
-- **AND** no canonical unit SHALL replace the custom source
+- **THEN** a Mech Bay refit order routed through the campaign customizer SHALL be saved, and mission readiness SHALL refresh its deployment validation on return
+- **AND** a player-safe merchant reversal SHALL save to and reload from the server campaign list
+- **AND** previewed and approved campaign travel consequences SHALL survive reload
+- **AND** the deep-play and layout gates SHALL pass on the shipped campaign Mech Bay and readiness surfaces
 
-#### Scenario: Canonical witness proves battle and post-battle persistence
+#### Scenario: Long-campaign checkpoints persist and reload
 
-- **WHEN** the canonical combat witness runs
-- **THEN** an admitted stock selection SHALL launch a real server session
-- **AND** a player command SHALL be visible and accepted
-- **AND** session navigation and reload SHALL preserve authority
-- **AND** a terminal result SHALL be observed before campaign return
-- **AND** an accepted post-battle consequence SHALL remain present after a cold reload
-- **AND** the saved custom design SHALL remain unchanged
+- **WHEN** the canonical combat/post-battle witness runs
+- **THEN** a ten-contract campaign's accumulated checkpoints SHALL reload and inspect identically
+- **AND** the swept campaign and game-session surfaces SHALL pass the viewport layout gates
+- **AND** the unreduced combat-chain claim (server session, accepted command, terminal result, post-battle consequence) SHALL remain deferred to the product wave series and SHALL NOT be inferred from this witness
 
 #### Scenario: Experience reconciliation is source-backed
 

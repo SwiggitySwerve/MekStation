@@ -3,12 +3,21 @@ import * as fs from 'fs';
 import * as path from 'path';
 
 // Load a specific unit and compute BV manually with debugging
-const indexData = JSON.parse(fs.readFileSync('public/data/units/battlemechs/index.json', 'utf-8'));
+const indexData = JSON.parse(
+  fs.readFileSync('public/data/units/battlemechs/index.json', 'utf-8'),
+);
 const target = process.argv[2] || 'Atlas AS7-D';
-const iu = indexData.units.find((u: any) => `${u.chassis} ${u.model}` === target);
-if (!iu) { console.log('Not found:', target); process.exit(1); }
+const iu = indexData.units.find(
+  (u: any) => `${u.chassis} ${u.model}` === target,
+);
+if (!iu) {
+  console.log('Not found:', target);
+  process.exit(1);
+}
 
-const ud = JSON.parse(fs.readFileSync(path.join('public/data/units/battlemechs', iu.path), 'utf-8'));
+const ud = JSON.parse(
+  fs.readFileSync(path.join('public/data/units/battlemechs', iu.path), 'utf-8'),
+);
 
 console.log(`=== ${iu.chassis} ${iu.model} ===`);
 console.log(`Index BV: ${iu.bv}`);
@@ -44,6 +53,7 @@ for (const [loc, slots] of Object.entries(ud.criticalSlots || {})) {
 let totalArmor = 0;
 for (const v of Object.values(ud.armor.allocation || {})) {
   if (typeof v === 'number') totalArmor += v;
-  else if (v && typeof v === 'object') totalArmor += ((v as any).front || 0) + ((v as any).rear || 0);
+  else if (v && typeof v === 'object')
+    totalArmor += ((v as any).front || 0) + ((v as any).rear || 0);
 }
 console.log(`\nTotal Armor: ${totalArmor}`);

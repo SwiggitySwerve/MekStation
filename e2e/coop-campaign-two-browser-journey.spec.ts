@@ -383,6 +383,20 @@ test.describe('live co-op campaign two-browser journey', () => {
       await expect(
         guestPage.getByTestId('host-command-authority-private'),
       ).toHaveCount(0);
+      // Task 5.6: the guest's command controls are gated on its replica
+      // having actually converged, so reaching a clickable action here is
+      // itself the pairing of UI state with the delivered stream - the
+      // advanced date above only arrived because events were delivered
+      // AND applied. Asserted explicitly so a future regression that
+      // ungates the controls cannot pass by clicking through a stale view.
+      const syncState = guestPage.getByTestId('campaign-sync-state');
+      await expect(syncState).toBeVisible({ timeout: 20_000 });
+      await expect(syncState).toHaveAttribute('data-sync-state', 'live', {
+        timeout: 20_000,
+      });
+      await expect(
+        guestPage.getByTestId('guest-action-SpendFunds'),
+      ).toBeEnabled({ timeout: 20_000 });
       await guestPage.getByTestId('guest-action-SpendFunds').click();
       await expect(guestPage.getByTestId('guest-proposal-pending')).toBeVisible(
         { timeout: 20_000 },

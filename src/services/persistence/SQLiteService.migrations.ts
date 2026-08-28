@@ -12,7 +12,17 @@
 
 import Database from 'better-sqlite3';
 
+import { ACTION_AUDIT_MIGRATION } from './SQLiteService.actionAudit.migration';
+import { CAMPAIGN_GRANTS_MIGRATION } from './SQLiteService.campaignGrants.migration';
+import { CAMPAIGN_HOST_INSTANCE_MIGRATION } from './SQLiteService.campaignHostInstance.migration';
+import { DELIVERY_EPOCHS_MIGRATION } from './SQLiteService.deliveryEpochs.migration';
 import { EVENT_JOURNAL_MIGRATION } from './SQLiteService.eventJournal.migration';
+import { MATCH_AUTHORITY_BASELINE_MIGRATION } from './SQLiteService.matchAuthorityBaseline.migration';
+import { CAMPAIGN_PARTICIPANT_CURSORS_MIGRATION } from './SQLiteService.participantCursors.migration';
+import { PRIVATE_RECORDS_MIGRATION } from './SQLiteService.privateRecords.migration';
+import { REPLAY_CHECKPOINTS_MIGRATION } from './SQLiteService.replayCheckpoints.migration';
+import { CAMPAIGN_SESSION_FORCE_CLAIMS_MIGRATION } from './SQLiteService.sessionForceClaims.migration';
+import { CAMPAIGN_SESSION_PARTICIPANTS_MIGRATION } from './SQLiteService.sessionParticipants.migration';
 
 /**
  * Migration definition. `up` is either a raw SQL script or a function —
@@ -350,4 +360,29 @@ export const MIGRATIONS: readonly IMigration[] = [
     },
   },
   EVENT_JOURNAL_MIGRATION,
+  {
+    version: 9,
+    name: 'campaign_authority_migration_schema',
+    // Durable per-campaign authority cutover marker (design-campaign-
+    // authority-and-sync D10, task 5.2). One row per campaign; the payload
+    // is the JSON ICampaignCutoverMarker. State-machine legality lives in
+    // src/lib/campaign/authority/ - the table only guarantees identity and
+    // non-empty payload, matching the campaigns-table idiom.
+    up: `
+      CREATE TABLE IF NOT EXISTS campaign_authority_migration (
+        campaign_id TEXT PRIMARY KEY CHECK (length(trim(campaign_id)) > 0),
+        payload TEXT NOT NULL CHECK (length(payload) > 0)
+      );
+    `,
+  },
+  REPLAY_CHECKPOINTS_MIGRATION,
+  ACTION_AUDIT_MIGRATION,
+  PRIVATE_RECORDS_MIGRATION,
+  DELIVERY_EPOCHS_MIGRATION,
+  CAMPAIGN_GRANTS_MIGRATION,
+  CAMPAIGN_HOST_INSTANCE_MIGRATION,
+  CAMPAIGN_PARTICIPANT_CURSORS_MIGRATION,
+  CAMPAIGN_SESSION_PARTICIPANTS_MIGRATION,
+  MATCH_AUTHORITY_BASELINE_MIGRATION,
+  CAMPAIGN_SESSION_FORCE_CLAIMS_MIGRATION,
 ];

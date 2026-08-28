@@ -5,43 +5,84 @@
  */
 import * as fs from 'fs';
 import * as path from 'path';
-import { resolveEquipmentBV, normalizeEquipmentId } from '../src/utils/construction/equipmentBVResolver';
 
-const idx = JSON.parse(fs.readFileSync('public/data/units/battlemechs/index.json', 'utf8'));
+import {
+  resolveEquipmentBV,
+  normalizeEquipmentId,
+} from '../src/utils/construction/equipmentBVResolver';
+
+const idx = JSON.parse(
+  fs.readFileSync('public/data/units/battlemechs/index.json', 'utf8'),
+);
 
 function loadUnit(unitId: string): any {
   const ie = idx.units.find((e: any) => e.id === unitId);
   if (!ie?.path) return null;
-  try { return JSON.parse(fs.readFileSync(path.join('public/data/units/battlemechs', ie.path), 'utf8')); } catch { return null; }
+  try {
+    return JSON.parse(
+      fs.readFileSync(
+        path.join('public/data/units/battlemechs', ie.path),
+        'utf8',
+      ),
+    );
+  } catch {
+    return null;
+  }
 }
 
 // Check weapon resolution for key weapon IDs
 console.log('=== WEAPON RESOLUTION CHECK ===');
 const weaponIds = [
   // iATM variants
-  'iatm-3', 'iatm-6', 'iatm-9', 'iatm-12',
-  'clan-iatm-3', 'clan-iatm-6', 'clan-iatm-9', 'clan-iatm-12',
+  'iatm-3',
+  'iatm-6',
+  'iatm-9',
+  'iatm-12',
+  'clan-iatm-3',
+  'clan-iatm-6',
+  'clan-iatm-9',
+  'clan-iatm-12',
   // HAG variants
-  'hag-20', 'hag-30', 'hag-40',
-  'clan-hag-20', 'clan-hag-30', 'clan-hag-40',
+  'hag-20',
+  'hag-30',
+  'hag-40',
+  'clan-hag-20',
+  'clan-hag-30',
+  'clan-hag-40',
   // Ultra AC variants (IS and Clan)
-  'ultra-ac-2', 'ultra-ac-5', 'ultra-ac-10', 'ultra-ac-20',
-  'clan-ultra-ac-2', 'clan-ultra-ac-5', 'clan-ultra-ac-10', 'clan-ultra-ac-20',
+  'ultra-ac-2',
+  'ultra-ac-5',
+  'ultra-ac-10',
+  'ultra-ac-20',
+  'clan-ultra-ac-2',
+  'clan-ultra-ac-5',
+  'clan-ultra-ac-10',
+  'clan-ultra-ac-20',
   // Improved heavy lasers
-  'improved-heavy-medium-laser', 'improved-heavy-large-laser', 'improved-heavy-small-laser',
-  'clan-improved-heavy-medium-laser', 'clan-improved-heavy-large-laser', 'clan-improved-heavy-small-laser',
+  'improved-heavy-medium-laser',
+  'improved-heavy-large-laser',
+  'improved-heavy-small-laser',
+  'clan-improved-heavy-medium-laser',
+  'clan-improved-heavy-large-laser',
+  'clan-improved-heavy-small-laser',
   // ER Large Laser (IS vs Clan — different BV!)
-  'er-large-laser', 'clan-er-large-laser',
+  'er-large-laser',
+  'clan-er-large-laser',
   'is-er-large-laser',
   // Light TAG
-  'light-tag', 'clan-light-tag', 'is-light-tag',
+  'light-tag',
+  'clan-light-tag',
+  'is-light-tag',
   // Barghest weapons
-  'heavy-gauss-rifle', 'er-large-laser',
+  'heavy-gauss-rifle',
+  'er-large-laser',
 ];
 
 for (const wid of weaponIds) {
   const res = resolveEquipmentBV(wid);
-  console.log(`  ${wid.padEnd(45)} → bv=${res.battleValue.toString().padStart(4)} heat=${res.heat.toString().padStart(2)} ${res.resolved ? 'OK' : '*** UNRESOLVED ***'}`);
+  console.log(
+    `  ${wid.padEnd(45)} → bv=${res.battleValue.toString().padStart(4)} heat=${res.heat.toString().padStart(2)} ${res.resolved ? 'OK' : '*** UNRESOLVED ***'}`,
+  );
 }
 
 // MegaMek reference BV values for verification
@@ -76,9 +117,12 @@ const megamekRef: Record<string, { bv: number; heat: number }> = {
 };
 for (const [wid, ref] of Object.entries(megamekRef)) {
   const res = resolveEquipmentBV(wid);
-  const bvMatch = res.battleValue === ref.bv ? 'OK' : `MISMATCH (got ${res.battleValue})`;
+  const bvMatch =
+    res.battleValue === ref.bv ? 'OK' : `MISMATCH (got ${res.battleValue})`;
   const heatMatch = res.heat === ref.heat ? 'OK' : `MISMATCH (got ${res.heat})`;
-  console.log(`  ${wid.padEnd(35)} ref bv=${ref.bv} ${bvMatch}, ref heat=${ref.heat} ${heatMatch}`);
+  console.log(
+    `  ${wid.padEnd(35)} ref bv=${ref.bv} ${bvMatch}, ref heat=${ref.heat} ${heatMatch}`,
+  );
 }
 
 // Deep trace specific undercalculated units
@@ -89,11 +133,13 @@ if (bgs1t) {
   console.log('  Equipment:');
   for (const eq of bgs1t.equipment) {
     const res = resolveEquipmentBV(eq.id);
-    console.log(`    ${eq.id.padEnd(40)} @${eq.location.padEnd(5)} → bv=${res.battleValue} heat=${res.heat} ${res.resolved ? '' : 'UNRESOLVED'}`);
+    console.log(
+      `    ${eq.id.padEnd(40)} @${eq.location.padEnd(5)} → bv=${res.battleValue} heat=${res.heat} ${res.resolved ? '' : 'UNRESOLVED'}`,
+    );
   }
   console.log('\n  CritSlots:');
   for (const [loc, slots] of Object.entries(bgs1t.criticalSlots || {})) {
-    const items = (slots as any[]).filter(s => s && typeof s === 'string');
+    const items = (slots as any[]).filter((s) => s && typeof s === 'string');
     if (items.length > 0) console.log(`    ${loc}: ${items.join(', ')}`);
   }
 }
@@ -105,7 +151,9 @@ if (enfield) {
   console.log('  Equipment:');
   for (const eq of enfield.equipment) {
     const res = resolveEquipmentBV(eq.id);
-    console.log(`    ${eq.id.padEnd(40)} @${eq.location.padEnd(5)} → bv=${res.battleValue} heat=${res.heat} ${res.resolved ? '' : 'UNRESOLVED'}`);
+    console.log(
+      `    ${eq.id.padEnd(40)} @${eq.location.padEnd(5)} → bv=${res.battleValue} heat=${res.heat} ${res.resolved ? '' : 'UNRESOLVED'}`,
+    );
   }
 }
 
@@ -118,12 +166,16 @@ if (cephD) {
   for (const eq of cephD.equipment) {
     const res = resolveEquipmentBV(eq.id);
     // Also try clan prefix
-    const clanRes = resolveEquipmentBV('clan-' + eq.id.replace(/^\d+-/, '').toLowerCase());
-    console.log(`    ${eq.id.padEnd(40)} @${eq.location.padEnd(5)} → bv=${res.battleValue} heat=${res.heat} ${res.resolved ? '' : 'UNRESOLVED'}  (clan: bv=${clanRes.battleValue})`);
+    const clanRes = resolveEquipmentBV(
+      'clan-' + eq.id.replace(/^\d+-/, '').toLowerCase(),
+    );
+    console.log(
+      `    ${eq.id.padEnd(40)} @${eq.location.padEnd(5)} → bv=${res.battleValue} heat=${res.heat} ${res.resolved ? '' : 'UNRESOLVED'}  (clan: bv=${clanRes.battleValue})`,
+    );
   }
   console.log('\n  CritSlots:');
   for (const [loc, slots] of Object.entries(cephD.criticalSlots || {})) {
-    const items = (slots as any[]).filter(s => s && typeof s === 'string');
+    const items = (slots as any[]).filter((s) => s && typeof s === 'string');
     if (items.length > 0) console.log(`    ${loc}: ${items.join(', ')}`);
   }
 }
@@ -136,12 +188,16 @@ if (beo) {
   console.log('  Equipment:');
   for (const eq of beo.equipment) {
     const res = resolveEquipmentBV(eq.id);
-    const clanRes = resolveEquipmentBV('clan-' + eq.id.replace(/^\d+-/, '').toLowerCase());
-    console.log(`    ${eq.id.padEnd(40)} @${eq.location.padEnd(5)} → bv=${res.battleValue} heat=${res.heat} ${res.resolved ? '' : 'UNRESOLVED'}  (clan: bv=${clanRes.battleValue})`);
+    const clanRes = resolveEquipmentBV(
+      'clan-' + eq.id.replace(/^\d+-/, '').toLowerCase(),
+    );
+    console.log(
+      `    ${eq.id.padEnd(40)} @${eq.location.padEnd(5)} → bv=${res.battleValue} heat=${res.heat} ${res.resolved ? '' : 'UNRESOLVED'}  (clan: bv=${clanRes.battleValue})`,
+    );
   }
   console.log('\n  CritSlots:');
   for (const [loc, slots] of Object.entries(beo.criticalSlots || {})) {
-    const items = (slots as any[]).filter(s => s && typeof s === 'string');
+    const items = (slots as any[]).filter((s) => s && typeof s === 'string');
     if (items.length > 0) console.log(`    ${loc}: ${items.join(', ')}`);
   }
 }

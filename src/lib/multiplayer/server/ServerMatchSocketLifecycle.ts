@@ -97,6 +97,20 @@ export class ServerMatchSocketLifecycle {
    * the prior heartbeat entry — callers shouldn't do that, but we
    * defensively `clearInterval` the old timer so we don't leak.
    */
+  /**
+   * Snapshot of attached sockets and their player ids (authority-audit
+   * PR 2): the host revalidates every attached viewer after a lobby
+   * mutation and detaches revoked members.
+   */
+  attachedSockets = (): readonly {
+    readonly socket: IMatchSocket;
+    readonly playerId: string;
+  }[] =>
+    Array.from(this.sockets.entries(), ([socket, state]) => ({
+      socket,
+      playerId: state.playerId,
+    }));
+
   attach = (socket: IMatchSocket, playerId: string): void => {
     const existing = this.sockets.get(socket);
     if (existing) {
@@ -111,6 +125,15 @@ export class ServerMatchSocketLifecycle {
     const heartbeatTimer = setInterval(() => {
       const state = this.sockets.get(socket);
       if (!state) return;
+      // A connection the broadcaster gave up on is reaped here rather
+      // than resumed. It has been receiving nothing since it went
+      // behind, so closing it is what turns a silent gap into the
+      // reconnect-and-replay the client already knows how to do - its
+      // own `lastSeq` is the cursor the replay resumes from.
+      if (this.deps.broadcaster.isBehind(socket)) {
+        this.detach(socket);
+        return;
+      }
       const idleFor = Date.now() - state.lastInboundAt;
       if (idleFor > HEARTBEAT_TIMEOUT_MS) {
         // Treat as dead — close + detach. The detach path also

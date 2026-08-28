@@ -1,7 +1,12 @@
-const r = JSON.parse(require('fs').readFileSync('validation-output/bv-validation-report.json', 'utf8'));
+const r = JSON.parse(
+  require('fs').readFileSync(
+    'validation-output/bv-validation-report.json',
+    'utf8',
+  ),
+);
 
 // All diff=+1 units
-const plus1 = r.allResults.filter(u => u.difference === 1);
+const plus1 = r.allResults.filter((u) => u.difference === 1);
 console.log('Units with diff=+1:', plus1.length);
 
 // Check cockpit modifier distribution
@@ -26,11 +31,18 @@ for (const u of plus1) {
   if (defFrac !== 0 || offFrac !== 0) {
     nonIntCount++;
     if (nonIntDetails.length < 10) {
-      nonIntDetails.push(`  ${u.chassis} ${u.model}: def=${b.defensiveBV} (frac=${defFrac.toFixed(4)}) off=${b.offensiveBV} (frac=${offFrac.toFixed(4)})`);
+      nonIntDetails.push(
+        `  ${u.chassis} ${u.model}: def=${b.defensiveBV} (frac=${defFrac.toFixed(4)}) off=${b.offensiveBV} (frac=${offFrac.toFixed(4)})`,
+      );
     }
   }
 }
-console.log('\nUnits with non-integer def/off BV:', nonIntCount, '/', plus1.length);
+console.log(
+  '\nUnits with non-integer def/off BV:',
+  nonIntCount,
+  '/',
+  plus1.length,
+);
 console.log('Sample:');
 for (const d of nonIntDetails) console.log(d);
 
@@ -45,10 +57,16 @@ for (const u of plus1) {
   const altBV = Math.round((Math.round(def) + Math.round(off)) * cockpitMod);
   if (altBV === u.indexBV) wouldFix++;
 }
-console.log('\nIf rounding def+off separately:', wouldFix, '/', plus1.length, 'would become exact');
+console.log(
+  '\nIf rounding def+off separately:',
+  wouldFix,
+  '/',
+  plus1.length,
+  'would become exact',
+);
 
 // Check the diff=-1 units too
-const minus1 = r.allResults.filter(u => u.difference === -1);
+const minus1 = r.allResults.filter((u) => u.difference === -1);
 console.log('\nUnits with diff=-1:', minus1.length);
 let wouldBreak = 0;
 for (const u of minus1) {
