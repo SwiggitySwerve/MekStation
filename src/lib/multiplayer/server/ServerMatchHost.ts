@@ -604,21 +604,31 @@ export class ServerMatchHost {
     requestedMatchId = this.matchId,
     deliveryCursor?: number,
   ): Promise<void> => {
-    // A delivery cursor is the client's OWN numbering, and it is the
-    // only cursor it can quote once the authority sequence stops being
-    // sent to it. Translate it here, where the viewer's delivery record
-    // lives, into the authority sequence its replay should start from.
+    // Two different numbers arrive here and only this function knows
+    // which is which, so this is where they are converted to the one
+    // thing the replay wants: the FIRST sequence to send.
     //
-    // Falls back to `lastSeq` when there is no record - after a restart
-    // the record is gone, and a full replay is the correct answer then
-    // rather than a wrong one.
-    const resumeFrom =
+    // `lastSeq` is the last sequence the client HOLDS, so its replay
+    // starts after it. A delivery cursor is the client's OWN numbering -
+    // the only cursor it can quote once the authority sequence stops
+    // being sent to it - and `firstMissedAuthoritySequence` already
+    // answers with the first frame they LACK, so that value IS the start
+    // and must not be advanced again. Adding one to it skipped precisely
+    // the frame a gap recovery had asked for, which made the recovery
+    // ask the right question and get an answer one event short.
+    //
+    // Falls back to a full replay when there is no record: after a
+    // restart the record is gone, and everything from the top is the
+    // correct answer then rather than a wrong one.
+    const afterLastHeld = lastSeq != null ? lastSeq + 1 : 0;
+    const firstMissed =
       deliveryCursor === undefined
-        ? lastSeq
-        : (this.deliveryCursors.firstMissedAuthoritySequence(
+        ? null
+        : this.deliveryCursors.firstMissedAuthoritySequence(
             playerId,
             deliveryCursor,
-          ) ?? lastSeq);
+          );
+    const resumeFrom = firstMissed ?? afterLastHeld;
     await handleSessionJoin(
       buildReplayContext(this.internals()),
       socket,

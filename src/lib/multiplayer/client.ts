@@ -159,6 +159,32 @@ interface IClientState {
    */
   lastDeliverySequence: number | null;
   /**
+   * The delivery sequence a resync may quote: the last one with NOTHING
+   * MISSING BEFORE IT.
+   *
+   * Deliberately not the same number as `lastDeliverySequence`. That one
+   * is the highest frame SEEN and is what gap detection compares
+   * against; this one is what the client may honestly claim to hold. A
+   * hole moves the first and pins the second, which is the entire
+   * difference between a cursor that can describe a loss and one that
+   * cannot.
+   */
+  deliveryResumeCursor: number | null;
+  /**
+   * The AUTHORITY sequence of the frame that revealed the newest hole
+   * still pinning `deliveryResumeCursor`, or null when nothing is
+   * pinned.
+   *
+   * The delivery sequence cannot say whether a recovery worked -
+   * `ReplayChunk` frames carry no `deliverySequence` at all, because
+   * only the live broadcast stamps one. The authority sequence can:
+   * `ReplayEnd.toSeq` is the highest authority sequence the replay
+   * carried, and a hole always sits strictly before the frame that
+   * revealed it. So `toSeq >= this` is the client's only evidence that
+   * what it asked for actually arrived.
+   */
+  deliveryHoleRevealSeq: number | null;
+  /**
    * True while a gap recovery is in flight. Without it a burst of lost
    * frames would fire one resync each, and every resync is a full
    * replay - turning a small loss into a stampede.
@@ -203,10 +229,16 @@ const SERVER_MESSAGE_HANDLERS: Record<
       }
     }
   },
-  ReplayEnd: ({ state, emit, resendPending }) => {
+  ReplayEnd: ({ message, state, emit, resendPending }) => {
+    const end = message as Extract<IServerMessage, { kind: 'ReplayEnd' }>;
     // Whatever asked for this replay has been served - including a gap
     // recovery, so the next hole is allowed to ask again.
+    const answeredGapRecovery = state.recoveringFromGap;
     state.recoveringFromGap = false;
+    // ...and this is the ONLY place the delivery cursor may move past a
+    // hole, because it is the only place the client learns that what it
+    // asked for was actually sent.
+    if (answeredGapRecovery) releaseDeliveryPin(state, end.toSeq);
     state.ready = true;
     for (const evt of state.replayBuffer) {
       emit('event', evt);
@@ -246,7 +278,13 @@ const SERVER_MESSAGE_HANDLERS: Record<
         reason: 'sequence-collision',
       });
     }
-    if (noteDeliveryGap(state, eventMessage.deliverySequence)) {
+    if (
+      noteDeliveryGap(
+        state,
+        eventMessage.deliverySequence,
+        sequenceOf(eventMessage.event),
+      )
+    ) {
       // ADVISORY ONLY - the events above were already applied, and that
       // is deliberate. Holding them behind a gap is what a previous
       // change did against the AUTHORITY sequence, and under fog it
@@ -262,6 +300,15 @@ const SERVER_MESSAGE_HANDLERS: Record<
       // frames leaves the client quietly wrong, which is worse than
       // loud and wrong. One recovery at a time: a burst of losses would
       // otherwise fire a full replay each.
+      //
+      // A hole opening WHILE a recovery is in flight is therefore not
+      // asked about on its own, and it is not assumed recovered either.
+      // The answer already coming is a tail replay from the earlier
+      // hole, so it covers this one whenever the server had the frame
+      // by the time it snapshotted - and `noteDeliveryGap` has moved
+      // the evidence watermark up to this frame, so the cursor un-pins
+      // only if `ReplayEnd` proves that. Otherwise the pin holds and
+      // the next hole asks from the earlier point.
       if (!state.recoveringFromGap) {
         state.recoveringFromGap = true;
         requestResync();
@@ -398,6 +445,8 @@ export function connect(
     heartbeatTimer: null,
     livenessTimer: null,
     lastDeliverySequence: null,
+    deliveryResumeCursor: null,
+    deliveryHoleRevealSeq: null,
     recoveringFromGap: false,
     suppressNextSocketCloseEvent: false,
   };
@@ -464,7 +513,23 @@ function openSocket(runtime: IClientRuntime): void {
   runtime.state.socket = socket;
 
   socket.onopen = () => {
-    // A reconnect is a fresh delivery stream.
+    // Gap DETECTION restarts here; the quotable CURSOR deliberately
+    // does not.
+    //
+    // `lastDeliverySequence` resets because the frames the server wrote
+    // to the dying socket consumed their numbers, so the first frame of
+    // the new connection would otherwise read as a hole - one the
+    // `SessionJoin` below has already asked about.
+    //
+    // `deliveryResumeCursor` survives, and that is the whole point of
+    // it. The server does NOT renumber a reconnecting viewer's stream
+    // (`ViewerDeliveryCursors.forget` is teardown-only), so the record
+    // this cursor indexes into is still there to resume against.
+    // Clearing it would make every reconnect quote no delivery cursor
+    // at all and the server would fall back to `lastSeq` - the
+    // authority high-water this change exists to stop resuming from -
+    // which turns a hole that was open when the socket died into one
+    // nobody can ever ask about again.
     runtime.state.lastDeliverySequence = null;
     sendSessionJoin(runtime, socket);
     startHeartbeat(runtime, socket);
@@ -492,8 +557,10 @@ function sendSessionJoin(
     // of it: the server prefers this when it still holds the delivery
     // record and falls back otherwise, so a restarted server still
     // resumes this client correctly.
-    ...(runtime.state.lastDeliverySequence !== null
-      ? { deliveryCursor: runtime.state.lastDeliverySequence }
+    // The LAST CONTIGUOUS one, never the highest seen. Quoting the
+    // highest is how a resume silently skips the frame it lost.
+    ...(runtime.state.deliveryResumeCursor !== null
+      ? { deliveryCursor: runtime.state.deliveryResumeCursor }
       : {}),
   };
   const parsed = ClientMessageSchema.safeParse(join);
@@ -567,25 +634,27 @@ function handleServerMessage(
 }
 
 /**
- * Decide what a newly-arrived live event lets the client apply.
+ * Decide what a newly-arrived event lets the client apply. Both inbound
+ * paths use it - live `Event` frames and `ReplayChunk` frames - so
+ * duplicate suppression and collision blocking apply to each.
  *
- * The client used to apply whatever arrived and move its cursor to the
- * highest sequence it had seen. A dropped frame therefore did not just
- * delay an event, it LOST it: the cursor had already advanced past the
- * missing sequence, so the reconnect replay resumed after it and
- * nothing ever noticed the hole.
+ * Contiguity is NOT enforced on the authority sequence, and cannot be:
+ * a fog viewer's slice of it is legitimately sparse (see the long note
+ * below on the measured two-player stream). An event ahead of the
+ * high-water is therefore applied, not held. The number that CAN be
+ * checked for holes is the per-viewer `deliverySequence`, which
+ * `noteDeliveryGap` tracks separately.
  *
- * Three cases, and each one is a different kind of normal:
+ * Three cases:
  *
- *   - the NEXT sequence: apply it, then drain anything buffered behind
- *     it, because filling a gap can release a run;
- *   - one already applied: ignore it. At-least-once delivery makes a
- *     duplicate ordinary traffic, not an error;
- *   - one ahead of the cursor: HOLD it. Reordering is usually momentary
- *     and the missing frame arrives right after, so re-fetching the
- *     whole tail would be a heavy answer to a light problem. The cursor
- *     stays where it is, which is what makes a reconnect resume from
- *     the hole rather than past it.
+ *   - ahead of the high-water: apply it;
+ *   - at or below it and remembered as applied: ignore it, unless it
+ *     carries a different event than the one applied under that
+ *     sequence, which is a fork and is reported;
+ *   - at or below it and NEVER applied: that is the shape of a frame
+ *     recovered by a gap recovery, and it is applied while such a
+ *     recovery is in flight and the sequence is recent enough for
+ *     "not remembered" to still mean "never applied".
  *
  * Events without a numeric sequence are not part of the sequenced
  * stream and pass straight through.
@@ -598,15 +667,33 @@ function admitLiveEvent(
   const sequence = sequenceOf(event);
   if (sequence === null) return [event];
   if (sequence <= state.lastSeq) {
-    // Already applied - ordinarily a duplicate, which is fine. But if
-    // this sequence carries a DIFFERENT event than the one applied
-    // under it, the stream forked, and silently ignoring the second
-    // would hide the fork rather than report it.
     const known = state.appliedIdentityBySeq.get(sequence);
-    if (known !== undefined && known !== identityOf(event)) {
-      state.blockedBySequenceCollision = true;
+    if (known !== undefined) {
+      // Already applied - ordinarily a duplicate, which is fine. But if
+      // this sequence carries a DIFFERENT event than the one applied
+      // under it, the stream forked, and silently ignoring the second
+      // would hide the fork rather than report it.
+      if (known !== identityOf(event)) state.blockedBySequenceCollision = true;
+      return [];
     }
-    return [];
+    // Below the high-water yet never applied. THIS IS THE RECOVERED
+    // FRAME, and dropping it is what made the whole gap recovery a
+    // no-op end to end: a lost frame's sequence is by definition below
+    // the high-water, because the frame that revealed the hole already
+    // advanced it. The server resumed from exactly the right event and
+    // the client threw it away on arrival - measured against the real
+    // fog server before this guard existed.
+    //
+    // Two conditions keep the opening narrow. It only applies while a
+    // gap recovery is in flight, which is the one inbound path that
+    // legitimately carries something older than the high-water; and it
+    // only reaches back as far as the identity window, because beyond
+    // that "not remembered" stops meaning "never applied" and starts
+    // meaning "evicted" - re-admitting there would apply an old event
+    // twice.
+    if (!state.recoveringFromGap) return [];
+    if (state.lastSeq - sequence >= APPLIED_IDENTITY_WINDOW) return [];
+    return [event];
   }
   // AHEAD OF THE CURSOR IS NORMAL, and this is the correction to the
   // previous version of this function, which held such an event back
@@ -684,12 +771,91 @@ function sequenceOf(event: unknown): number | null {
 function noteDeliveryGap(
   state: IClientState,
   deliverySequence: number | undefined,
+  authoritySequence: number | null,
 ): boolean {
   if (typeof deliverySequence !== 'number') return false;
   const previous = state.lastDeliverySequence;
   state.lastDeliverySequence = deliverySequence;
-  if (previous === null) return false;
-  return deliverySequence !== previous + 1;
+  if (previous === null) {
+    // First numbered frame of THIS connection - and it arrives behind
+    // this connection's own `SessionJoin` replay, on the same socket,
+    // so it is ordered after it. That join quoted whatever cursor was
+    // pinned, so the server has already resumed this viewer from the
+    // hole and everything before this frame has been served. The cursor
+    // is honest here, which is what stops a reconnect from dragging an
+    // old pin forward for the rest of the match.
+    state.deliveryResumeCursor = deliverySequence;
+    state.deliveryHoleRevealSeq = null;
+    return false;
+  }
+  if (deliverySequence === previous + 1) {
+    // A contiguous step - but the cursor follows it ONLY when it was
+    // already sitting on `previous`.
+    //
+    // That condition is the whole difference between "nothing missing
+    // before it" and "nothing missing since the last thing that went
+    // missing". A cursor pinned behind an unfilled hole must not leap
+    // forward just because the stream downstream of the loss runs
+    // contiguously again: those in-between frames were never received,
+    // and quoting past them tells the server to resume after events
+    // this client does not hold. Un-pinning is evidence-based instead
+    // and happens in `releaseDeliveryPin`, once the replay that was
+    // asked for has actually been served.
+    if (state.deliveryResumeCursor === previous) {
+      state.deliveryResumeCursor = deliverySequence;
+    }
+    return false;
+  }
+  // A HOLE, so the resume cursor STAYS BEHIND IT - and that is the
+  // whole fix. The server resolves `deliveryCursor` through this
+  // viewer's delivery record and replays from the first frame it
+  // LACKS, so a cursor that had advanced to the frame AFTER the loss
+  // asked for the tail past the hole: the missing frame was excluded
+  // from the very replay fetched to recover it. Leaving the cursor at
+  // the last frame with nothing missing before it is what makes the
+  // hole askable.
+  //
+  // The revealing frame's AUTHORITY sequence is remembered because a
+  // later `ReplayEnd` is checked against it: the hole sits strictly
+  // earlier in the stream than the frame that exposed it, so a replay
+  // reaching that sequence covered the hole too. Frames carrying no
+  // authority sequence fall back to the high-water, the most recent
+  // thing known to be held.
+  state.deliveryHoleRevealSeq = Math.max(
+    state.deliveryHoleRevealSeq ?? Number.NEGATIVE_INFINITY,
+    authoritySequence ?? state.lastSeq,
+  );
+  return true;
+}
+
+/**
+ * Un-pin the delivery cursor - but only on evidence that the hole was
+ * filled.
+ *
+ * A gap recovery asks the server to resume from the frame this client
+ * LACKS, and the answer covers authority sequences up to
+ * `ReplayEnd.toSeq`. The hole sits strictly before the frame that
+ * revealed it, so a `toSeq` reaching that revealing sequence is proof
+ * the hole was inside the replay - and the client now genuinely holds
+ * everything up to the highest delivery frame it has seen.
+ *
+ * Short of that the replay was snapshotted before the loss reached the
+ * store, nothing has been proven, and the cursor stays where it is. The
+ * next hole then asks from the earlier point, which costs a longer
+ * replay and never costs correctness.
+ *
+ * Delivery numbering cannot supply this evidence itself: `ReplayChunk`
+ * frames carry no `deliverySequence`, because only the live broadcast
+ * stamps one (`ServerMatchHostEvents`). The authority sequence is the
+ * only number both paths share.
+ */
+function releaseDeliveryPin(state: IClientState, toSeq: number): void {
+  const revealed = state.deliveryHoleRevealSeq;
+  if (revealed === null) return;
+  if (toSeq < revealed) return;
+  if (state.lastDeliverySequence === null) return;
+  state.deliveryResumeCursor = state.lastDeliverySequence;
+  state.deliveryHoleRevealSeq = null;
 }
 
 function updateLastSeq(state: IClientState, event: unknown): void {

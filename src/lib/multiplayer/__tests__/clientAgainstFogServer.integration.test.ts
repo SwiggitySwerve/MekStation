@@ -189,6 +189,126 @@ describe('real client against a real fog-of-war server', () => {
     expect(applied.map((event) => event.sequence)).toEqual(delivered);
   });
 
+  it('recovers a frame lost in transit, end to end', async () => {
+    // THE ROUND TRIP, and nothing in the repo proved it before. Every
+    // other row here - and every row in `clientDeliveryGap` - asserts
+    // what the client WRITES to the wire. This one drops a frame the
+    // server really sent, lets the real client notice, lets the real
+    // server answer, and asserts the lost EVENT ends up applied.
+    //
+    // It took three separate fixes to make it pass, one in each of the
+    // three places that touch the cursor: the client has to quote from
+    // before the hole, the server has to resume AT the frame the viewer
+    // lacks rather than after it, and the client has to accept an event
+    // whose sequence sits below its own high-water - which every
+    // recovered frame does, because the frame that revealed the hole
+    // already moved the high-water past it.
+    const host = await fogHost();
+    const joins: (() => Promise<void>)[] = [];
+    const dropped: number[] = [];
+    const applied: { sequence: number }[] = [];
+    const gapReports: unknown[] = [];
+    let dropNextEvent = false;
+
+    const clientSide: IClientWebSocket = {
+      send: (data: string) => {
+        const message = JSON.parse(data) as {
+          kind: string;
+          lastSeq?: number;
+          deliveryCursor?: number;
+        };
+        if (message.kind !== 'SessionJoin') return;
+        // Queued rather than awaited inline: the resync is written from
+        // inside the client's own message handling, which is itself
+        // inside the server's broadcast loop.
+        joins.push(() =>
+          host.handleSessionJoin(
+            serverSide,
+            'pid_host',
+            message.lastSeq,
+            MATCH_ID,
+            message.deliveryCursor,
+          ),
+        );
+      },
+      close: () => {},
+      readyState: 1,
+      onopen: null,
+      onmessage: null,
+      onerror: null,
+      onclose: null,
+    };
+    const serverSide: IMatchSocket = {
+      send(data: string) {
+        const frame = JSON.parse(data) as {
+          kind: string;
+          event?: { sequence: number };
+        };
+        if (dropNextEvent && frame.kind === 'Event') {
+          // The loss. The server has already taken this viewer's next
+          // delivery number for it, which is exactly what makes the
+          // hole visible downstream.
+          dropNextEvent = false;
+          dropped.push(frame.event?.sequence ?? -1);
+          return;
+        }
+        clientSide.onmessage?.({ data });
+      },
+      close() {
+        clientSide.onclose?.({});
+      },
+      readyState: 1,
+    };
+
+    const client = connect(
+      'ws://in-memory/x',
+      MATCH_ID,
+      { playerId: 'pid_host', token: 'tok' },
+      { socketFactory: () => clientSide, reconnect: false },
+    );
+    client.on('event', (event) => applied.push(event as { sequence: number }));
+    client.on('error', (error) => {
+      if ((error as { reason?: string }).reason === 'delivery-gap') {
+        gapReports.push(error);
+      }
+    });
+    clientSide.onopen?.({});
+    host.attachSocket(serverSide, 'pid_host');
+    await host.handleSessionJoin(serverSide, 'pid_host', undefined, MATCH_ID);
+    joins.length = 0;
+    applied.length = 0;
+
+    const drainJoins = async () => {
+      while (joins.length > 0) {
+        const next = joins.shift();
+        if (next !== undefined) await next();
+      }
+    };
+
+    for (const intentId of ['i1', 'i2', 'i3', 'i4', 'i5', 'i6']) {
+      if (intentId === 'i3') dropNextEvent = true;
+      await host.handleIntent({
+        kind: 'Intent',
+        matchId: MATCH_ID,
+        ts: nowIso(),
+        playerId: 'pid_host',
+        intentId,
+        intent: { kind: 'AdvancePhase' },
+      } as unknown as IIntent);
+      await drainJoins();
+    }
+    await drainJoins();
+
+    // Something really was lost, and the client really noticed -
+    // otherwise the assertion below would pass against a stream that
+    // never had a hole in it.
+    expect(dropped).toHaveLength(1);
+    expect(gapReports.length).toBeGreaterThan(0);
+
+    // And the lost event is HELD, not merely asked about.
+    expect(applied.map((event) => event.sequence)).toContain(dropped[0]);
+  });
+
   it('advances its resume cursor past a withheld sequence', async () => {
     // `lastSeq` is what a reconnect resumes from. Parking it at the hole
     // would make every reconnect re-request events the server will never
