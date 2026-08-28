@@ -97,7 +97,35 @@ export const SessionJoinSchema = z.object({
   lastSeq: z.number().int().nonnegative().optional(),
   /**
    * The client's own delivery cursor - the last `deliverySequence` it
-   * applied on its previous connection.
+   * holds with NOTHING MISSING BEFORE IT.
+   *
+   * Contiguous, not high-water, and the distinction is the whole reason
+   * this field can describe a loss at all. The server resumes the
+   * viewer's stream at the frame that FOLLOWS this number - the first
+   * one the viewer lacks, not the one after that
+   * (`ViewerDeliveryCursors.firstMissedAuthoritySequence` returns the
+   * start, and `ServerMatchHost.handleSessionJoin` passes it through
+   * unadvanced). A client that quoted the highest frame it had SEEN
+   * would be asking for the tail after its own gap, excluding the lost
+   * frame from the replay fetched to recover it.
+   *
+   * WHAT "NOTHING MISSING" IS WORTH, exactly, because the sender can
+   * only claim what it can establish:
+   *
+   *   - a frame that arrived one step after the cursor advances it;
+   *   - a hole pins it, and no later run of contiguous frames may move
+   *     it past that hole;
+   *   - it un-pins only when a replay answering that hole reports a
+   *     `ReplayEnd.toSeq` at or beyond the authority sequence of the
+   *     frame that revealed the hole - i.e. on evidence the missing
+   *     frame was inside the answer;
+   *   - a reconnect keeps the cursor: the server does not renumber a
+   *     reconnecting viewer's stream, so it still indexes the same
+   *     record.
+   *
+   * The one thing it does NOT promise is content the server itself can
+   * no longer supply: when the delivery record is gone (a restart), the
+   * server falls back to `lastSeq` and neither side can do better.
    *
    * Preferred over `lastSeq` when the server still holds that viewer's
    * delivery record, because it is the only cursor a client can quote

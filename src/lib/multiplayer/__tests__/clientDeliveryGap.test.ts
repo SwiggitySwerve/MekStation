@@ -20,22 +20,27 @@ import { connect } from '../client';
 
 interface IMockSocket extends IClientWebSocket {
   fireOpen(): void;
+  fireClose(): void;
   inject(message: unknown): void;
+}
+
+interface ISentMessage {
+  kind: string;
+  lastSeq?: number;
+  deliveryCursor?: number;
 }
 
 function mockSocketFactory(): {
   factory: () => IClientWebSocket;
   last: () => IMockSocket;
-  sentByClient: { kind: string; lastSeq?: number }[];
+  sentByClient: ISentMessage[];
 } {
   const sockets: IMockSocket[] = [];
-  const sentByClient: { kind: string; lastSeq?: number }[] = [];
+  const sentByClient: ISentMessage[] = [];
   const factory = (): IClientWebSocket => {
     const socket: IMockSocket = {
       send: (data: string) => {
-        sentByClient.push(
-          JSON.parse(data) as { kind: string; lastSeq?: number },
-        );
+        sentByClient.push(JSON.parse(data) as ISentMessage);
       },
       close: () => {},
       readyState: 1,
@@ -45,6 +50,9 @@ function mockSocketFactory(): {
       onclose: null,
       fireOpen() {
         socket.onopen?.({});
+      },
+      fireClose() {
+        socket.onclose?.({});
       },
       inject(message: unknown) {
         socket.onmessage?.({ data: JSON.stringify(message) });
@@ -66,7 +74,7 @@ function eventFrame(deliverySequence: number, sequence: number) {
   };
 }
 
-function openReadyClient() {
+function openReadyClient(options: { reconnect?: boolean } = {}) {
   const sockets = mockSocketFactory();
   const errors: { reason?: string }[] = [];
   const applied: unknown[] = [];
@@ -74,7 +82,10 @@ function openReadyClient() {
     'ws://localhost/x',
     'm1',
     { playerId: 'p1', token: 'tok' },
-    { socketFactory: sockets.factory, reconnect: false },
+    {
+      socketFactory: sockets.factory,
+      reconnect: options.reconnect ?? false,
+    },
   );
   client.on('error', (e) => errors.push(e as { reason?: string }));
   client.on('event', (e) => applied.push(e));
@@ -101,6 +112,17 @@ function openReadyClient() {
 
 function gaps(errors: readonly { reason?: string }[]): number {
   return errors.filter((e) => e.reason === 'delivery-gap').length;
+}
+
+/** A `ReplayEnd` covering authority sequences up to `toSeq`. */
+function replayEnd(toSeq: number) {
+  return { kind: 'ReplayEnd', matchId: 'm1', ts: nowIso(), toSeq };
+}
+
+/** The most recent `SessionJoin` the client wrote to the wire. */
+function lastJoin(sentByClient: readonly ISentMessage[]): ISentMessage {
+  const joins = sentByClient.filter((m) => m.kind === 'SessionJoin');
+  return joins[joins.length - 1];
 }
 
 describe('client delivery-gap detection', () => {
@@ -137,6 +159,121 @@ describe('client delivery-gap detection', () => {
     // It asks from what it HAS, so the server replays the missing tail
     // rather than the whole match.
     expect(joins[joins.length - 1].lastSeq).toBe(102);
+  });
+
+  it('quotes a delivery cursor from BEFORE the hole', () => {
+    // THE POINT OF THE WHOLE RECOVERY. `deliveryCursor` is the cursor
+    // the server actually resumes from - it translates it through that
+    // viewer's delivery record and only falls back to `lastSeq` when the
+    // record is gone. So a cursor that has already advanced PAST the
+    // hole asks for the tail after the loss, and the lost frame is
+    // excluded from the very replay fetched to recover it.
+    //
+    // That is max-high-water reproduced on the new number: the cursor
+    // moved to the highest thing seen, so the hole became unaskable.
+    const { sockets, sentByClient } = openReadyClient();
+    sockets.last().inject(eventFrame(0, 100));
+    sockets.last().inject(eventFrame(1, 101));
+
+    // Delivery 2 is lost.
+    sockets.last().inject(eventFrame(3, 102));
+
+    expect(lastJoin(sentByClient).deliveryCursor).toBe(1);
+  });
+
+  it('advances the cursor across a long contiguous run', () => {
+    // CONTROL. A client that simply pinned its cursor at the first frame
+    // would pass the row above for the wrong reason - and would make
+    // every recovery replay the entire match. The cursor has to track
+    // the stream, and stop only where the stream actually broke.
+    const { sockets, sentByClient } = openReadyClient();
+    for (const delivery of [0, 1, 2, 3, 4]) {
+      sockets.last().inject(eventFrame(delivery, 100 + delivery));
+    }
+
+    // Delivery 5 is lost.
+    sockets.last().inject(eventFrame(6, 106));
+
+    expect(lastJoin(sentByClient).deliveryCursor).toBe(4);
+  });
+
+  it('resumes advancing the cursor once a hole is behind it', () => {
+    // CONTROL, and the reason the cursor cannot simply freeze at the
+    // first hole of the connection. Pinning is for the moment of the
+    // ask; once the stream runs contiguously again the client really
+    // does hold those frames, so a LATER loss must be asked about from
+    // where it now is, not from an ancient gap already recovered.
+    // Freezing would make every subsequent recovery replay the whole
+    // match.
+    const { sockets, sentByClient } = openReadyClient();
+    sockets.last().inject(eventFrame(0, 100));
+    sockets.last().inject(eventFrame(2, 101)); // delivery 1 lost
+    expect(lastJoin(sentByClient).deliveryCursor).toBe(0);
+
+    sockets.last().inject({
+      kind: 'ReplayEnd',
+      matchId: 'm1',
+      ts: nowIso(),
+      toSeq: 101,
+    });
+    sockets.last().inject(eventFrame(3, 102));
+    sockets.last().inject(eventFrame(4, 103));
+
+    // Delivery 5 is lost.
+    sockets.last().inject(eventFrame(6, 104));
+
+    expect(lastJoin(sentByClient).deliveryCursor).toBe(4);
+  });
+
+  it('does not leap a hole the replay never reached', () => {
+    // The cursor's promise is "nothing missing BEFORE it", and a run of
+    // contiguous frames DOWNSTREAM of a loss says nothing about the
+    // loss. Here the recovery is answered by a replay whose `toSeq`
+    // stops short of the frame that revealed the hole - the server
+    // snapshotted before the lost event reached its store - so nothing
+    // has been proven and the cursor must stay where it is. A cursor
+    // that walked forward with the contiguous run would be quoting
+    // delivery 4 while never having held 1, and the server would resume
+    // it from 5.
+    const { sockets, sentByClient } = openReadyClient();
+    sockets.last().inject(eventFrame(0, 100));
+    sockets.last().inject(eventFrame(2, 101)); // delivery 1 lost
+    expect(lastJoin(sentByClient).deliveryCursor).toBe(0);
+
+    // Answered, but the answer stopped BEFORE sequence 101.
+    sockets.last().inject(replayEnd(100));
+    sockets.last().inject(eventFrame(3, 102));
+    sockets.last().inject(eventFrame(4, 103));
+
+    // A later loss, and the ask still names the last frame it holds.
+    sockets.last().inject(eventFrame(6, 104));
+
+    expect(lastJoin(sentByClient).deliveryCursor).toBe(0);
+  });
+
+  it('releases the pin on a stream that is never contiguous', () => {
+    // The other failure mode, and the reason the pin cannot simply be
+    // permanent. A viewer whose counter advances two at a time - one
+    // player with two attached sockets each take alternate numbers, and
+    // a send that FAILS consumes its number too - never produces a
+    // contiguous step at all. If only a contiguous step could un-pin
+    // the cursor, this connection would quote its FIRST frame forever
+    // and every later recovery would replay the whole match at the
+    // worst-off client. A completed recovery is what releases it.
+    const { sockets, sentByClient } = openReadyClient();
+    sockets.last().inject(eventFrame(40, 200));
+    sockets.last().inject(eventFrame(42, 201));
+    expect(lastJoin(sentByClient).deliveryCursor).toBe(40);
+
+    // A second hole while the first recovery is still in flight: the
+    // latch swallows the extra ask, and the replay that is already
+    // coming is a TAIL from the first hole, so it covers this one too.
+    sockets.last().inject(eventFrame(44, 202));
+    sockets.last().inject(replayEnd(202));
+
+    sockets.last().inject(eventFrame(46, 203));
+
+    expect(lastJoin(sentByClient).deliveryCursor).toBe(44);
   });
 
   it('asks once for a burst of losses, not once per hole', () => {
@@ -217,5 +354,74 @@ describe('client delivery-gap detection', () => {
 
     expect(gaps(errors)).toBe(0);
     expect(applied).toHaveLength(3);
+  });
+});
+
+describe('client delivery cursor across a reconnect', () => {
+  beforeEach(() => {
+    jest.useFakeTimers();
+  });
+  afterEach(() => {
+    jest.useRealTimers();
+  });
+
+  it('quotes the cursor from before a hole the socket died on', () => {
+    // The server does NOT renumber a reconnecting viewer's stream -
+    // `ViewerDeliveryCursors.forget` is teardown-only and has no
+    // production caller - so the pre-drop cursor still indexes the
+    // record the server will resume against. Dropping it on reconnect
+    // would send a `SessionJoin` carrying no delivery cursor at all,
+    // the server would fall back to `lastSeq`, and the hole that was
+    // open when the socket died would become permanently unaskable:
+    // exactly the authority high-water resume this change exists to
+    // stop.
+    const { sockets, sentByClient } = openReadyClient({ reconnect: true });
+    sockets.last().inject(eventFrame(0, 100));
+    sockets.last().inject(eventFrame(1, 101));
+    sockets.last().inject(eventFrame(3, 102)); // delivery 2 lost
+    expect(lastJoin(sentByClient).deliveryCursor).toBe(1);
+
+    // The socket dies before the recovery lands.
+    sockets.last().fireClose();
+    jest.advanceTimersByTime(60_000);
+    sockets.last().fireOpen();
+
+    const join = lastJoin(sentByClient);
+    expect(join.deliveryCursor).toBe(1);
+    expect(join.lastSeq).toBe(102);
+  });
+
+  it('keeps the cursor when the replay lands before any live frame', () => {
+    // A reconnect's own replay arrives BEFORE any numbered frame does,
+    // so at that moment the client holds no delivery sequence on this
+    // connection at all. There is nothing to un-pin to. A release that
+    // ran anyway would blank the cursor, and the next reconnect would
+    // quote nothing - the same permanent loss the row above exists to
+    // prevent, reached by a different door.
+    const { sockets, sentByClient } = openReadyClient({ reconnect: true });
+    sockets.last().inject(eventFrame(0, 100));
+    sockets.last().inject(eventFrame(2, 101)); // delivery 1 lost
+    expect(lastJoin(sentByClient).deliveryCursor).toBe(0);
+
+    sockets.last().fireClose();
+    jest.advanceTimersByTime(60_000);
+    sockets.last().fireOpen();
+    // Answered - and the answer covers the hole - but no live frame has
+    // arrived on this connection yet.
+    sockets.last().inject({
+      kind: 'ReplayStart',
+      matchId: 'm1',
+      ts: nowIso(),
+      fromSeq: 101,
+      totalEvents: 0,
+    });
+    sockets.last().inject(replayEnd(101));
+
+    // The connection flaps again before any live traffic.
+    sockets.last().fireClose();
+    jest.advanceTimersByTime(60_000);
+    sockets.last().fireOpen();
+
+    expect(lastJoin(sentByClient).deliveryCursor).toBe(0);
   });
 });
