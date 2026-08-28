@@ -1,7 +1,19 @@
+import { mkdtemp, rm } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import path from 'node:path';
+
 import {
   _resetActiveCoopHosts,
   getActiveCoopHost,
 } from '@/lib/campaign/coop/coopHostRegistry';
+import {
+  readCampaignSessionState,
+  writeCampaignSessionState,
+} from '@/services/campaignPersistence/CampaignSessionStateStore';
+import {
+  getSQLiteService,
+  resetSQLiteService,
+} from '@/services/persistence/SQLiteService';
 import { createEmptyCampaignState } from '@/types/campaign/CampaignSync';
 import { ForceRole, FormationLevel } from '@/types/campaign/enums';
 
@@ -282,5 +294,84 @@ describe('CampaignHostRegistry', () => {
 
     expect(getCampaignHostRegistry().size()).toBe(0);
     expect(getActiveCoopHost('campaign-registry')).toBeUndefined();
+  });
+
+  describe('durable readiness revision and active branch', () => {
+    let dir: string;
+    let dbPath: string;
+
+    beforeEach(async () => {
+      dir = await mkdtemp(path.join(tmpdir(), 'campaign-host-session-'));
+      dbPath = path.join(dir, 'session.db');
+      resetSQLiteService();
+      getSQLiteService({ path: dbPath }).initialize();
+    });
+
+    afterEach(async () => {
+      resetSQLiteService();
+      await rm(dir, { recursive: true, force: true, maxRetries: 3 });
+    });
+
+    it('recovers readiness revision and active branch after a process restart', async () => {
+      // Set through the store, not through advance/set: this row is the
+      // recovery path. A write-path defect must not be able to hide a
+      // recovery that still defaults.
+      writeCampaignSessionState({
+        campaignId: 'campaign-registry',
+        sessionId: 'match-campaign',
+        readinessRevision: 4,
+        activeBranch: 'rewind-alpha',
+      });
+      const store = new InMemoryMatchStore({ quiet: true });
+      await store.createMatch(matchMeta());
+      const registry = new CampaignHostRegistry({ matchStore: store });
+
+      const rebuilt = await registry.getOrCreate('match-campaign');
+
+      expect(rebuilt?.revision).toBe(4);
+      expect(rebuilt?.activeBranch).toBe('rewind-alpha');
+    });
+
+    it('persists an advanced readiness revision', async () => {
+      const registry = new CampaignHostRegistry();
+      const entry = await registry.register('match-campaign', snapshot());
+
+      entry.advanceRevision(3);
+
+      expect(
+        readCampaignSessionState('campaign-registry', 'match-campaign'),
+      ).toEqual(
+        expect.objectContaining({
+          readinessRevision: 3,
+        }),
+      );
+    });
+
+    it('persists a changed active branch', async () => {
+      const registry = new CampaignHostRegistry();
+      const entry = await registry.register('match-campaign', snapshot());
+
+      entry.setActiveBranch('rewind-alpha');
+
+      expect(
+        readCampaignSessionState('campaign-registry', 'match-campaign'),
+      ).toEqual(
+        expect.objectContaining({
+          activeBranch: 'rewind-alpha',
+        }),
+      );
+    });
+
+    it('starts a fresh session at revision 0 with the genesis branch', async () => {
+      const registry = new CampaignHostRegistry();
+
+      const entry = await registry.register('match-campaign', snapshot());
+
+      expect(entry.revision).toBe(0);
+      expect(entry.activeBranch).toBeNull();
+      expect(
+        readCampaignSessionState('campaign-registry', 'match-campaign'),
+      ).toBeNull();
+    });
   });
 });
