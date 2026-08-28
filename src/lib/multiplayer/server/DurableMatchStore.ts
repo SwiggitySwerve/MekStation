@@ -58,7 +58,9 @@ import {
   MatchStoreSequenceCollisionError,
   type IMatchMeta,
   type IMatchMetaPatch,
+  type IMatchPublication,
   type IMatchStore,
+  type IPublicationOutboxStore,
 } from './IMatchStore';
 import {
   firstNonContiguousSequence,
@@ -123,9 +125,22 @@ const SCHEMA_SQL = `
     FOREIGN KEY (match_id) REFERENCES mp_matches(match_id) ON DELETE CASCADE
   );
 
+  CREATE TABLE IF NOT EXISTS mp_match_outbox (
+    match_id     TEXT NOT NULL,
+    sequence     INTEGER NOT NULL,
+    command_id   TEXT NOT NULL,
+    event_json   TEXT NOT NULL,
+    created_at   TEXT NOT NULL,
+    published_at TEXT,
+    PRIMARY KEY (match_id, sequence),
+    FOREIGN KEY (match_id) REFERENCES mp_matches(match_id) ON DELETE CASCADE
+  );
+
   CREATE INDEX IF NOT EXISTS idx_mp_matches_status ON mp_matches(status);
   CREATE INDEX IF NOT EXISTS idx_mp_matches_room_code ON mp_matches(room_code);
   CREATE INDEX IF NOT EXISTS idx_mp_match_events_match ON mp_match_events(match_id, sequence);
+  CREATE INDEX IF NOT EXISTS idx_mp_match_outbox_pending
+    ON mp_match_outbox(match_id, published_at, sequence);
 `;
 
 // =============================================================================
@@ -172,6 +187,13 @@ interface IEventRow {
   readonly event_json: string;
 }
 
+interface IOutboxRow {
+  readonly sequence: number;
+  readonly command_id: string;
+  readonly event_json: string;
+  readonly created_at: string;
+}
+
 // =============================================================================
 // Store
 // =============================================================================
@@ -186,7 +208,7 @@ export interface IDurableMatchStoreOptions {
   readonly path?: string;
 }
 
-export class DurableMatchStore implements IMatchStore {
+export class DurableMatchStore implements IMatchStore, IPublicationOutboxStore {
   private readonly db: Database.Database;
 
   /**
@@ -314,8 +336,28 @@ export class DurableMatchStore implements IMatchStore {
         `INSERT INTO mp_match_events (match_id, sequence, event_json)
          VALUES (?, ?, ?)`,
       );
+      // The publication row goes down beside its event, inside this
+      // same transaction (umbrella task 7.1). Writing it afterwards
+      // would leave a window where the event is committed and nothing
+      // durable says anyone still has to be told about it - the hole
+      // `Commit Precedes Recipient Publication` names. The contract
+      // suite fails this INSERT on its own and asserts the events came
+      // down with it, so a later move out of here is noticed.
+      const insertOutbox = this.db.prepare(
+        `INSERT INTO mp_match_outbox
+           (match_id, sequence, command_id, event_json, created_at, published_at)
+         VALUES (?, ?, ?, ?, ?, NULL)`,
+      );
       for (const event of batch.events) {
-        insertEvent.run(matchId, event.sequence, JSON.stringify(event));
+        const eventJson = JSON.stringify(event);
+        insertEvent.run(matchId, event.sequence, eventJson);
+        insertOutbox.run(
+          matchId,
+          event.sequence,
+          batch.commandId,
+          eventJson,
+          committedAt,
+        );
       }
       const first = batch.events[0].sequence;
       const last = batch.events[batch.events.length - 1].sequence;
@@ -416,6 +458,60 @@ export class DurableMatchStore implements IMatchStore {
         .run(nextMeta.updatedAt, JSON.stringify(nextMeta), mId);
     });
     tx(matchId, event);
+  };
+
+  /**
+   * See `IPublicationOutboxStore.listPendingPublications`. An unknown
+   * match answers `[]` rather than throwing, unlike every other reader
+   * here.
+   */
+  listPendingPublications = async (
+    matchId: string,
+  ): Promise<readonly IMatchPublication[]> => {
+    const rows = this.db
+      .prepare(
+        `SELECT sequence, command_id, event_json, created_at
+         FROM mp_match_outbox
+         WHERE match_id = ? AND published_at IS NULL
+         ORDER BY sequence ASC`,
+      )
+      .all(matchId) as IOutboxRow[];
+    return rows.map((row) => ({
+      matchId,
+      sequence: row.sequence,
+      commandId: row.command_id,
+      event: JSON.parse(row.event_json) as IGameEvent,
+      createdAt: row.created_at,
+    }));
+  };
+
+  /**
+   * See `IPublicationOutboxStore.markPublicationsPublished`. ONLY the
+   * named sequences are marked; a row nobody named stays pending, which
+   * stops a drain that died halfway from forgetting the frames it never
+   * sent.
+   *
+   * There is deliberately no `published_at IS NULL` guard. It would read
+   * as "the first mark stays authoritative", but `published_at` is on no
+   * record this store hands out and in no SELECT it answers with, so no
+   * caller could tell whether the guard was there — and a rule whose
+   * removal no test can notice is not a rule.
+   */
+  markPublicationsPublished = async (
+    matchId: string,
+    sequences: readonly number[],
+  ): Promise<void> => {
+    if (sequences.length === 0) return;
+    const publishedAt = new Date().toISOString();
+    const mark = this.db.prepare(
+      `UPDATE mp_match_outbox SET published_at = ?
+       WHERE match_id = ? AND sequence = ?`,
+    );
+    this.db.transaction(() => {
+      for (const sequence of sequences) {
+        mark.run(publishedAt, matchId, sequence);
+      }
+    })();
   };
 
   getEvents = async (
