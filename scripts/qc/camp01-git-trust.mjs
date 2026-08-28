@@ -36,7 +36,7 @@ export async function resolveVerifiedGit({cwd=process.cwd()}={},dependencies={})
   const normalized=path.resolve(executable);
   try { const stat=await (dependencies.statFile??fs.statSync)(normalized); if(!stat.isFile()) fail('verified Git executable unavailable'); } catch(error) { if(error instanceof Camp01GitError) throw error; fail('verified Git executable unavailable'); }
   let raw; try { raw=(await invokeGit({git:{executable:normalized},args:['--version'],cwd},dependencies)).stdout; } catch(error) { if(error instanceof Camp01GitError) fail('Git version probe failed'); throw error; }
-  const version=raw.trim().replace(/^git version\s+/,''); if(!CAMP01_GIT_VERSIONS.includes(version)) fail(`Git version drift; expected one of ${CAMP01_GIT_VERSIONS.join(', ')}`);
+  const version=raw.trim().replace(/^git version\s+/,''); if(!CAMP01_GIT_VERSIONS.includes(version)) fail(`Git version drift; got ${version}, expected one of ${CAMP01_GIT_VERSIONS.join(', ')}`);
   return Object.freeze({executable:normalized});
 }
 
