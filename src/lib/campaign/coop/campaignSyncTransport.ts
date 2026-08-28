@@ -196,6 +196,30 @@ export function connectCampaignSyncTransport(
       lastSeq = Math.max(lastSeq, sequence);
     });
     listeners.forEach((handler) => handler(message));
+    if (
+      message.kind === 'CampaignEvent' &&
+      isCampaignWireEvent(message.event)
+    ) {
+      // A live event is acked at its own sequence. A resync snapshot is
+      // stamped sequence -1 but leaves the client genuinely holding the
+      // state at payload.revision, so it is acked at THAT revision -
+      // without this, a large-gap rejoiner could never converge until an
+      // unrelated live event happened to land, and progression deadlocked.
+      const ackRevision =
+        message.event.sequence >= 0
+          ? message.event.sequence
+          : snapshotAckRevision(message.event);
+      if (ackRevision !== null) {
+        sendEnvelope({
+          kind: 'CampaignAck',
+          matchId: options.matchId,
+          ts: nowIso(),
+          playerId: options.playerId,
+          campaignId: message.event.campaignId,
+          revision: ackRevision,
+        });
+      }
+    }
   };
   socket.onerror = (ev) => emitError(ev);
   socket.onclose = () => {
@@ -300,6 +324,27 @@ function parseServerMessage(data: unknown): IServerMessage | null {
   } catch {
     return null;
   }
+}
+
+/**
+ * The revision a snapshot baseline entitles the client to acknowledge,
+ * or null when the frame is not an ack-able snapshot. Only a
+ * CampaignSnapshotPublished carrying a non-negative integer revision
+ * qualifies - anything else acks nothing rather than guessing.
+ */
+function snapshotAckRevision(event: {
+  readonly type: string;
+  readonly payload?: unknown;
+}): number | null {
+  if (event.type !== 'CampaignSnapshotPublished') return null;
+  const payload = event.payload;
+  if (typeof payload !== 'object' || payload === null) return null;
+  const revision = Reflect.get(payload, 'revision');
+  return typeof revision === 'number' &&
+    Number.isInteger(revision) &&
+    revision >= 0
+    ? revision
+    : null;
 }
 
 function updateLastSeq(

@@ -23,14 +23,10 @@
  *     has acknowledged the campaign's current revision, and naming the
  *     ones who have not.
  *
- * NOT WIRED. Nothing in production calls `evaluateScenarioLaunch`,
- * `noteParticipantAcknowledged`, or passes a `participantId` to
- * `joinMember` / `joinGuest` — grepped, not assumed. So `retained` is
- * empty in every live session and the gate answers `ok` unconditionally:
- * the spec scenario "Slow player blocks next scenario" is NOT enforced
- * by shipping this file alone. The socket wiring is owned elsewhere in
- * this wave; `evaluateScenarioLaunch`'s doc states what it must pass
- * and which revision it must read.
+ * Socket wiring lives in `bindCampaignSyncConnection`: it passes the
+ * verified playerId into `joinMember` / `joinGuest` / `resyncGuest`,
+ * records `CampaignAck` frames via `noteParticipantAcknowledged`, and
+ * consults `evaluateScenarioLaunch` before committing `AdvanceDay`.
  *
  * @spec openspec/changes/add-shared-campaign-state/specs/coop-campaign-sync/spec.md
  * @spec openspec/changes/add-shared-campaign-state/design.md (D6)
@@ -352,8 +348,7 @@ export class CampaignSyncSession {
    * the participant for the progression gate, and makes this connection
    * the thing that records what they were delivered. Omitting it
    * hydrates exactly as before and retains nobody, so an unidentified
-   * sink can never become something a launch waits on. No production
-   * caller passes it yet.
+   * sink can never become something a launch waits on.
    */
   joinMember = async (
     sink: CampaignGuestSink,
@@ -427,19 +422,17 @@ export class CampaignSyncSession {
    *     from after it (spec scenario "Large-gap resync receives a fresh
    *     snapshot").
    *
-   * IDENTIFIES NOBODY, deliberately, and that is now a constraint on the
-   * caller rather than a detail: taking no `participantId`, this path
-   * neither converges a retained participant nor records what it
-   * delivered to them. Route identified participants through
-   * `joinMember` — reconnecting them here would leave their watermark at
-   * the old connection's high-water mark, and every acknowledgement of a
-   * frame this path streamed would be refused `ahead-of-delivery`,
-   * blocking the launch permanently. Nothing calls `resyncGuest` in
-   * production today (grepped) — a rule for the wiring, not a defect.
+   * `participantId` — when the caller has PROVED who this is — raises
+   * their delivered watermark for the frames this path actually streams.
+   * Omitting it leaves the watermark where the previous connection
+   * stopped, so an acknowledgement of the tail is refused
+   * `ahead-of-delivery`. This path does not reseed `acknowledged`: a
+   * reconnecting participant stays behind until they ack the tail.
    */
   resyncGuest = async (
     lastSeq: number,
     sink: CampaignGuestSink,
+    participantId?: string,
   ): Promise<ICampaignResyncResult> => {
     if (this.roomCode === null) {
       return {
@@ -453,13 +446,23 @@ export class CampaignSyncSession {
     const highest = await this.host.getEventLog().nextSequence();
     const gap = highest - 1 - lastSeq;
     const delivered: ICampaignEvent[] = [];
+    const liveSink: CampaignGuestSink = (event) => {
+      sink(event);
+      if (participantId !== undefined) {
+        this.noteDelivered(participantId, event.sequence);
+      }
+    };
 
     if (gap > RESYNC_SNAPSHOT_GAP) {
       // Large-gap path — a fresh baseline is cheaper than the tail.
-      const baseline = this.buildBaselineEvent(Math.max(0, highest - 1));
+      const revision = Math.max(0, highest - 1);
+      const baseline = this.buildBaselineEvent(revision);
       delivered.push(baseline);
       sink(baseline);
-      const unsubscribe = this.host.subscribe(sink);
+      if (participantId !== undefined) {
+        this.noteDelivered(participantId, revision);
+      }
+      const unsubscribe = this.host.subscribe(liveSink);
       return {
         ok: true,
         delivered,
@@ -473,15 +476,18 @@ export class CampaignSyncSession {
     for (const event of tail) {
       delivered.push(event);
       sink(event);
+      if (participantId !== undefined) {
+        this.noteDelivered(participantId, event.sequence);
+      }
     }
-    const unsubscribe = this.host.subscribe(sink);
+    const unsubscribe = this.host.subscribe(liveSink);
     return { ok: true, delivered, snapshotted: false, disconnect: unsubscribe };
   };
 
   /**
-   * Raise a retained participant's delivered watermark. Called from the
-   * live subscription in `joinMember`, the only place a frame reaches an
-   * IDENTIFIED participant after hydration.
+   * Raise a retained participant's delivered watermark. Called after a
+   * frame is handed to an identified sink from `joinMember` or
+   * `resyncGuest`.
    *
    * A no-op for someone not retained: an unidentified sink and a departed
    * participant both have no ledger row to raise, and inventing one here

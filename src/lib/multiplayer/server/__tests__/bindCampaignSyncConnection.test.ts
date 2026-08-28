@@ -1730,6 +1730,342 @@ describe('bindCampaignSyncConnection', () => {
       );
     }
   });
+
+  describe('campaign progression requires convergence', () => {
+    async function bindPlayer(
+      registry: CampaignHostRegistry,
+      playerId: string,
+      extras: {
+        membership?: ReturnType<typeof fakeMembership>;
+      } = {},
+    ): Promise<MockWireSocket> {
+      const socket = new MockWireSocket();
+      await bindCampaignSyncConnection({
+        socket,
+        registry,
+        matchId: 'match-campaign',
+        verifiedPlayerId: playerId,
+        logger: quietLogger,
+        replicaStore: null,
+        membership: extras.membership,
+      });
+      return socket;
+    }
+
+    function joinAs(
+      socket: MockWireSocket,
+      playerId: string,
+      role: 'host' | 'guest',
+      extras: { lastSeq?: number; roomCode?: string } = {},
+    ): void {
+      socket.inbound({
+        kind: 'CampaignJoin',
+        matchId: 'match-campaign',
+        ts: nowIso(),
+        playerId,
+        role,
+        ...(role === 'guest' || extras.roomCode !== undefined
+          ? { roomCode: extras.roomCode ?? 'ABC234' }
+          : {}),
+        ...(extras.lastSeq !== undefined ? { lastSeq: extras.lastSeq } : {}),
+      });
+    }
+
+    function sendHostIntent(
+      socket: MockWireSocket,
+      intent: {
+        kind: 'AdvanceDay' | 'SpendFunds';
+        intentId: string;
+        payload: Record<string, unknown>;
+      },
+    ): void {
+      socket.inbound({
+        kind: 'CampaignHostIntent',
+        matchId: 'match-campaign',
+        ts: nowIso(),
+        playerId: 'pid_host',
+        intent: {
+          kind: intent.kind,
+          campaignId: 'campaign-sync',
+          intentId: intent.intentId,
+          payload: intent.payload,
+        },
+      } as Record<string, unknown>);
+    }
+
+    function sendCampaignAck(
+      socket: MockWireSocket,
+      playerId: string,
+      revision: number,
+    ): void {
+      socket.inbound({
+        kind: 'CampaignAck',
+        matchId: 'match-campaign',
+        ts: nowIso(),
+        playerId,
+        campaignId: 'campaign-sync',
+        revision,
+      });
+    }
+
+    function readEventSequence(message: IServerMessage): number | null {
+      if (message.kind !== 'CampaignEvent') return null;
+      if (typeof message.event !== 'object' || message.event === null) {
+        return null;
+      }
+      const sequence = (message.event as { sequence?: unknown }).sequence;
+      return typeof sequence === 'number' ? sequence : null;
+    }
+
+    function latestGuestEventSequence(socket: MockWireSocket): number {
+      const sequences = socket.sent
+        .map(readEventSequence)
+        .filter((sequence): sequence is number => sequence !== null);
+      expect(sequences.length).toBeGreaterThan(0);
+      return Math.max(...sequences);
+    }
+
+    function sawNotConverged(
+      socket: MockWireSocket,
+      playerId: string,
+    ): boolean {
+      return socket.sent.some(
+        (message) =>
+          message.kind === 'Error' &&
+          message.code === 'CAMPAIGN_NOT_CONVERGED' &&
+          typeof message.reason === 'string' &&
+          message.reason.includes(playerId) &&
+          message.reason.includes('requiredRevision'),
+      );
+    }
+
+    async function openHostAndGuest(
+      arbitrationMode: 'auto-approve' | 'host-review' = 'auto-approve',
+      extras: {
+        membership?: ReturnType<typeof fakeMembership>;
+      } = {},
+    ): Promise<{
+      registry: CampaignHostRegistry;
+      host: MockWireSocket;
+      guest: MockWireSocket;
+    }> {
+      const registry = await makeRegistry(arbitrationMode);
+      const host = await bindPlayer(registry, 'pid_host');
+      const guest = await bindPlayer(registry, 'pid_guest', extras);
+      joinAs(host, 'pid_host', 'host');
+      joinAs(guest, 'pid_guest', 'guest');
+      await flushAsyncHandlers();
+      return { registry, host, guest };
+    }
+
+    async function putGuestBehind(
+      host: MockWireSocket,
+      intentId = 'spend-to-diverge',
+    ): Promise<void> {
+      sendHostIntent(host, {
+        kind: 'SpendFunds',
+        intentId,
+        payload: { amount: 1_000, reason: 'Parts' },
+      });
+      await flushAsyncHandlers();
+    }
+
+    it('refuses AdvanceDay while a guest is behind on an old ack', async () => {
+      const membership = fakeMembership({ active: ['pid_guest'] });
+      const { registry, host } = await openHostAndGuest('auto-approve', {
+        membership,
+      });
+      await putGuestBehind(host);
+
+      sendHostIntent(host, {
+        kind: 'AdvanceDay',
+        intentId: 'advance-blocked',
+        payload: { days: 1 },
+      });
+      await flushAsyncHandlers();
+
+      expect(sawNotConverged(host, 'pid_guest')).toBe(true);
+      expect(registry.get('match-campaign')?.host.getState().day).toBe(0);
+    });
+
+    it('commits AdvanceDay once every retained participant is converged', async () => {
+      const { registry, host } = await openHostAndGuest();
+
+      sendHostIntent(host, {
+        kind: 'AdvanceDay',
+        intentId: 'advance-converged',
+        payload: { days: 1 },
+      });
+      await flushAsyncHandlers();
+
+      expect(sawError(host, 'CAMPAIGN_NOT_CONVERGED')).toBe(false);
+      expect(registry.get('match-campaign')?.host.getState().day).toBe(1);
+    });
+
+    it('a CampaignAck from a behind guest lets the previously refused AdvanceDay commit', async () => {
+      const { registry, host, guest } = await openHostAndGuest();
+      await putGuestBehind(host);
+      const revision = latestGuestEventSequence(guest);
+
+      sendHostIntent(host, {
+        kind: 'AdvanceDay',
+        intentId: 'advance-before-ack',
+        payload: { days: 1 },
+      });
+      await flushAsyncHandlers();
+      expect(sawNotConverged(host, 'pid_guest')).toBe(true);
+      expect(registry.get('match-campaign')?.host.getState().day).toBe(0);
+
+      sendCampaignAck(guest, 'pid_guest', revision);
+      await flushAsyncHandlers();
+      host.sent.length = 0;
+      sendHostIntent(host, {
+        kind: 'AdvanceDay',
+        intentId: 'advance-after-ack',
+        payload: { days: 1 },
+      });
+      await flushAsyncHandlers();
+
+      expect(sawError(host, 'CAMPAIGN_NOT_CONVERGED')).toBe(false);
+      expect(registry.get('match-campaign')?.host.getState().day).toBe(1);
+    });
+
+    it('commits SpendFunds while a guest is behind', async () => {
+      const { registry, host } = await openHostAndGuest();
+      await putGuestBehind(host);
+      const afterFirst = registry
+        .get('match-campaign')
+        ?.host.getState().balance;
+
+      sendHostIntent(host, {
+        kind: 'SpendFunds',
+        intentId: 'spend-while-behind',
+        payload: { amount: 500, reason: 'Ammo' },
+      });
+      await flushAsyncHandlers();
+
+      expect(sawError(host, 'CAMPAIGN_NOT_CONVERGED')).toBe(false);
+      expect(registry.get('match-campaign')?.host.getState().balance).toBe(
+        (afterFirst ?? 0) - 500,
+      );
+      expect(registry.get('match-campaign')?.host.getState().day).toBe(0);
+    });
+
+    it('refuses an auto-approved AdvanceDay proposal while a participant is behind', async () => {
+      // In auto-approve mode, SUBMITTING an AdvanceDay proposal commits
+      // it immediately - so the gate must run before submission there.
+      // The proposal is refused outright, not queued: queuing it would
+      // commit it the moment the arbiter saw it.
+      const { registry, host, guest } = await openHostAndGuest('auto-approve');
+      await putGuestBehind(host);
+
+      guest.inbound({
+        kind: 'CampaignProposal',
+        matchId: 'match-campaign',
+        ts: nowIso(),
+        playerId: 'pid_guest',
+        proposal: {
+          proposalId: 'proposal-auto-advance-blocked',
+          campaignId: 'campaign-sync',
+          proposingPlayerId: 'pid_guest',
+          ts: nowIso(),
+          intent: {
+            kind: 'AdvanceDay',
+            campaignId: 'campaign-sync',
+            intentId: 'guest-auto-advance-blocked',
+            payload: { days: 1 },
+          },
+        },
+      });
+      await flushAsyncHandlers();
+
+      expect(sawNotConverged(guest, 'pid_guest')).toBe(true);
+      expect(registry.get('match-campaign')?.host.getState().day).toBe(0);
+      expect(
+        registry.get('match-campaign')?.arbiter.getPendingProposals().length,
+      ).toBe(0);
+    });
+
+    it('refuses an approved AdvanceDay proposal while a participant is behind', async () => {
+      const { registry, host, guest } = await openHostAndGuest('host-review');
+      await putGuestBehind(host);
+
+      guest.inbound({
+        kind: 'CampaignProposal',
+        matchId: 'match-campaign',
+        ts: nowIso(),
+        playerId: 'pid_guest',
+        proposal: {
+          proposalId: 'proposal-advance-blocked',
+          campaignId: 'campaign-sync',
+          proposingPlayerId: 'pid_guest',
+          ts: nowIso(),
+          intent: {
+            kind: 'AdvanceDay',
+            campaignId: 'campaign-sync',
+            intentId: 'guest-advance-blocked',
+            payload: { days: 1 },
+          },
+        },
+      });
+      await flushAsyncHandlers();
+      host.inbound({
+        kind: 'CampaignDecision',
+        matchId: 'match-campaign',
+        ts: nowIso(),
+        playerId: 'pid_host',
+        proposalId: 'proposal-advance-blocked',
+        decision: 'approve',
+      });
+      await flushAsyncHandlers();
+
+      expect(sawNotConverged(host, 'pid_guest')).toBe(true);
+      expect(registry.get('match-campaign')?.host.getState().day).toBe(0);
+      expect(
+        registry.get('match-campaign')?.arbiter.getPendingProposals().length,
+      ).toBe(1);
+    });
+
+    it('a reconnecting guest must ack the resync tail before AdvanceDay commits', async () => {
+      const { registry, host, guest } = await openHostAndGuest();
+      guest.close();
+      await flushAsyncHandlers();
+      await putGuestBehind(host);
+
+      const rejoined = await bindPlayer(registry, 'pid_guest');
+      joinAs(rejoined, 'pid_guest', 'guest', { lastSeq: 0 });
+      await flushAsyncHandlers();
+      expect(rejoined.sent).toContainEqual(
+        expect.objectContaining({
+          kind: 'CampaignEvent',
+          event: expect.objectContaining({ type: 'FundsChanged' }),
+        }),
+      );
+      const revision = latestGuestEventSequence(rejoined);
+
+      sendHostIntent(host, {
+        kind: 'AdvanceDay',
+        intentId: 'advance-before-resync-ack',
+        payload: { days: 1 },
+      });
+      await flushAsyncHandlers();
+      expect(sawNotConverged(host, 'pid_guest')).toBe(true);
+      expect(registry.get('match-campaign')?.host.getState().day).toBe(0);
+
+      sendCampaignAck(rejoined, 'pid_guest', revision);
+      await flushAsyncHandlers();
+      host.sent.length = 0;
+      sendHostIntent(host, {
+        kind: 'AdvanceDay',
+        intentId: 'advance-after-resync-ack',
+        payload: { days: 1 },
+      });
+      await flushAsyncHandlers();
+
+      expect(sawError(host, 'CAMPAIGN_NOT_CONVERGED')).toBe(false);
+      expect(registry.get('match-campaign')?.host.getState().day).toBe(1);
+    });
+  });
 });
 
 function readCampaignEventType(message: IServerMessage): string | null {
