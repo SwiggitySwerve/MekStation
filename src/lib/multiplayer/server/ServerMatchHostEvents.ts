@@ -100,9 +100,12 @@ export async function persistInitialEvents(ctx: {
 /**
  * Broadcast one live game event through the publication boundary.
  * Each attached socket is resolved to its admitted viewer (cached by
- * playerId). The v1 catalog is all-public, so every admitted member
- * receives the identical frame; an unadmitted socket receives nothing.
- * Fog filtering still runs first when enabled, then the guard.
+ * playerId so a player with two sockets is looked up once). Delivery
+ * numbering follows the same rule: one assign per player per frame,
+ * reused by every additional socket of that player in this broadcast.
+ * The v1 catalog is all-public, so every admitted member receives the
+ * identical frame; an unadmitted socket receives nothing. Fog
+ * filtering still runs first when enabled, then the guard.
  */
 export async function broadcastEvent(ctx: {
   readonly matchId: string;
@@ -147,6 +150,10 @@ export async function broadcastEvent(ctx: {
         )
       : null;
   const seats = fogMeta?.seats ?? [];
+  // One number per player per frame. Recipients are per-socket, but
+  // `assign` is keyed per player: a second call for the same player
+  // would append a duplicate entry and tell the extra socket N+1.
+  const deliveryByPlayer = new Map<string, number>();
 
   for (const recipient of recipients) {
     const viewer = viewerCache.get(recipient.playerId) ?? null;
@@ -181,12 +188,19 @@ export async function broadcastEvent(ctx: {
     // omitted by the guard has already `continue`d, so it never consumes
     // one of this viewer's numbers. That is what makes their sequence
     // gapless while the authority sequence they can also see is not.
-    ctx.broadcaster.safeSend(recipient.socket, {
-      ...guarded.value,
-      deliverySequence: ctx.deliveryCursors.assign(
+    // Additional sockets of the SAME player reuse the number already
+    // assigned for this frame; they do not call `assign` again.
+    let deliverySequence = deliveryByPlayer.get(recipient.playerId);
+    if (deliverySequence === undefined) {
+      deliverySequence = ctx.deliveryCursors.assign(
         recipient.playerId,
         authoritySequenceOf(frame),
-      ),
+      );
+      deliveryByPlayer.set(recipient.playerId, deliverySequence);
+    }
+    ctx.broadcaster.safeSend(recipient.socket, {
+      ...guarded.value,
+      deliverySequence,
     });
   }
 }
