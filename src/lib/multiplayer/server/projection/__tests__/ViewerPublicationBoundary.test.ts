@@ -10,7 +10,7 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 
-import type { IGameUnit } from '@/types/gameplay';
+import type { IGameEvent, IGameUnit } from '@/types/gameplay';
 import type { IEventMessage, IIntent } from '@/types/multiplayer/Protocol';
 
 import { createMinimalGrid } from '@/engine/GameEngine.helpers';
@@ -27,6 +27,7 @@ import {
 } from '../../authorization/AuthorizedViewer';
 import { MatchSeatMembershipSource } from '../../authorization/MatchSeatMembershipSource';
 import { InMemoryMatchStore } from '../../InMemoryMatchStore';
+import { streamReplay } from '../../reconnection/replayStream';
 import { ServerMatchHost, type IMatchSocket } from '../../ServerMatchHost';
 import {
   MATCH_WIRE_PROJECTOR_VERSION,
@@ -220,6 +221,31 @@ function liveEvent(type: string, payload: unknown): IEventMessage {
     ts: '2026-08-21T23:00:00.000Z',
     event: { type, payload },
   };
+}
+
+/** Authoritative rows shaped like the emitter's, stamp included. */
+function paginationEvents(count: number): readonly IGameEvent[] {
+  return Array.from({ length: count }, (_unused, index) => ({
+    id: `evt-page-${index}`,
+    gameId: MATCH_ID,
+    sequence: index,
+    timestamp: '2026-08-21T23:00:00.000Z',
+    type: 'phase_changed',
+    turn: 1,
+    phase: 'movement',
+    visibility: 'public',
+    payload: { fromPhase: 'initiative', toPhase: 'movement' },
+  })) as unknown as readonly IGameEvent[];
+}
+
+/** The same row as a viewer holds it, with the stamp removed. */
+function withoutVisibility(event: IGameEvent): Record<string, unknown> {
+  const kept: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(event)) {
+    if (key === 'visibility') continue;
+    kept[key] = value;
+  }
+  return kept;
 }
 
 /** Test-only catalog: public, hidden, gm-only. Not the production v1 map. */
@@ -424,6 +450,69 @@ describe('viewer publication boundary', () => {
       if (guardedReplay.frames.start.kind === 'ReplayStart') {
         expect(guardedReplay.frames.start.totalEvents).toBe(2);
       }
+    });
+  });
+
+  describe('replay pagination', () => {
+    it("keeps the caller's chunk boundaries when every event is rewritten", async () => {
+      const player = await resolveViewer(PLAYER_ROW);
+      const events = paginationEvents(5);
+      const frames = streamReplay(MATCH_ID, events, 0, 2);
+      expect(frames.chunks).toHaveLength(3);
+
+      const guarded = MATCH_WIRE_PUBLICATION_BOUNDARY.guardReplayFrames(
+        player,
+        frames,
+      );
+      expect(guarded.kind).toBe('send');
+      if (guarded.kind !== 'send') return;
+
+      // The authority stamps `visibility` on everything it emits, so the
+      // removal touches EVERY event and the bundle is always rebuilt.
+      // The rebuild must not re-chunk: `streamReplay` paginates so a
+      // long match does not push one megabyte payload, and concatenating
+      // the pages would undo that for every replay in production.
+      expect(guarded.frames.chunks).toHaveLength(frames.chunks.length);
+      expect(
+        guarded.frames.chunks.map((chunk) =>
+          chunk.kind === 'ReplayChunk' ? chunk.events.length : -1,
+        ),
+      ).toEqual([2, 2, 1]);
+
+      // CONTROL: the pages still carry every event, minus the field.
+      const delivered = guarded.frames.chunks.flatMap((chunk) =>
+        chunk.kind === 'ReplayChunk' ? chunk.events : [],
+      );
+      expect(delivered).toEqual(events.map(withoutVisibility));
+      if (guarded.frames.start.kind === 'ReplayStart') {
+        expect(guarded.frames.start.totalEvents).toBe(5);
+      }
+      if (guarded.frames.end.kind === 'ReplayEnd') {
+        expect(guarded.frames.end.toSeq).toBe(4);
+      }
+    });
+
+    it('returns the identical bundle when nothing needs removing', async () => {
+      const player = await resolveViewer(PLAYER_ROW);
+      const events = paginationEvents(5).map(withoutVisibility);
+      const frames = streamReplay(
+        MATCH_ID,
+        events as unknown as readonly IGameEvent[],
+        0,
+        2,
+      );
+
+      const guarded = MATCH_WIRE_PUBLICATION_BOUNDARY.guardReplayFrames(
+        player,
+        frames,
+      );
+      expect(guarded.kind).toBe('send');
+      if (guarded.kind !== 'send') return;
+      // Identity, not deep equality. The docblock promises the ORIGINAL
+      // bundle back when the projector touched nothing, stamps included;
+      // a rebuild that happened to produce an equal object would still
+      // break that promise, so this compares by reference.
+      expect(guarded.frames).toBe(frames);
     });
   });
 
