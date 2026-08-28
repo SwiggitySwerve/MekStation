@@ -23,6 +23,7 @@ import { PRIVATE_RECORDS_MIGRATION } from './SQLiteService.privateRecords.migrat
 import { REPLAY_CHECKPOINTS_MIGRATION } from './SQLiteService.replayCheckpoints.migration';
 import { CAMPAIGN_SESSION_FORCE_CLAIMS_MIGRATION } from './SQLiteService.sessionForceClaims.migration';
 import { CAMPAIGN_SESSION_PARTICIPANTS_MIGRATION } from './SQLiteService.sessionParticipants.migration';
+import { CAMPAIGN_SESSION_STATE_MIGRATION } from './SQLiteService.sessionState.migration';
 
 /**
  * Migration definition. `up` is either a raw SQL script or a function —
@@ -385,4 +386,5 @@ export const MIGRATIONS: readonly IMigration[] = [
   CAMPAIGN_SESSION_PARTICIPANTS_MIGRATION,
   MATCH_AUTHORITY_BASELINE_MIGRATION,
   CAMPAIGN_SESSION_FORCE_CLAIMS_MIGRATION,
+  CAMPAIGN_SESSION_STATE_MIGRATION,
 ];

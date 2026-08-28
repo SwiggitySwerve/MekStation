@@ -9,6 +9,11 @@ import type { IForce } from '@/types/campaign/Force';
 import { registerActiveCoopHost } from '@/lib/campaign/coop/coopHostRegistry';
 import { createDefaultCampaignEventStore } from '@/lib/campaign/sync/JournalCampaignEventStore';
 import { SQLiteEventJournal } from '@/lib/events/journal/SQLiteEventJournal';
+import {
+  readCampaignSessionState,
+  writeCampaignSessionActiveBranch,
+  writeCampaignSessionReadinessRevision,
+} from '@/services/campaignPersistence/CampaignSessionStateStore';
 import { getSQLiteService } from '@/services/persistence/SQLiteService';
 import { parseCampaignCoopSnapshot } from '@/types/campaign/campaignCoopSnapshot';
 
@@ -22,6 +27,10 @@ function campaignJournal(): SQLiteEventJournal<ICampaignJournalEnvelope> {
     getSQLiteService().getDatabase(),
     () => new Date().toISOString(),
   );
+}
+
+function sqliteReady(): boolean {
+  return getSQLiteService().isInitialized();
 }
 
 import type { IMatchStore } from './IMatchStore';
@@ -68,6 +77,8 @@ export interface ICampaignHostRegistryEntry {
   /** The invite this entry opened with, or `null` once expired. */
   readonly roomCode: string | null;
   readonly revision: number;
+  /** Null means the genesis/default branch. */
+  readonly activeBranch: string | null;
   readonly hostPlayerId: string;
   readonly host: CampaignMatchHost;
   readonly syncSession: CampaignSyncSession;
@@ -81,6 +92,7 @@ export interface ICampaignHostRegistryEntry {
     missionId: string,
   ) => readonly ICampaignParticipationRecord[];
   readonly advanceRevision: (next: number) => void;
+  readonly setActiveBranch: (next: string | null) => void;
   readonly hasReconciledBattle: (matchId: string) => boolean;
   readonly recordReconciledBattle: (matchId: string) => void;
   readonly close: () => void;
@@ -96,6 +108,7 @@ class CampaignHostRegistryEntry implements ICampaignHostRegistryEntry {
   readonly arbiter: CampaignGmArbiter;
 
   private currentRevision: number;
+  private currentActiveBranch: string | null;
   private readonly participationByMission = new Map<
     string,
     IParticipationBucket
@@ -106,6 +119,7 @@ class CampaignHostRegistryEntry implements ICampaignHostRegistryEntry {
     readonly matchId: string;
     readonly roomCode: string | null;
     readonly revision: number;
+    readonly activeBranch: string | null;
     readonly host: CampaignMatchHost;
     readonly syncSession: CampaignSyncSession;
     readonly arbiter: CampaignGmArbiter;
@@ -114,6 +128,7 @@ class CampaignHostRegistryEntry implements ICampaignHostRegistryEntry {
     this.matchId = input.matchId;
     this.roomCode = input.roomCode;
     this.currentRevision = input.revision;
+    this.currentActiveBranch = input.activeBranch;
     this.host = input.host;
     this.syncSession = input.syncSession;
     this.arbiter = input.arbiter;
@@ -124,6 +139,10 @@ class CampaignHostRegistryEntry implements ICampaignHostRegistryEntry {
 
   get revision(): number {
     return this.currentRevision;
+  }
+
+  get activeBranch(): string | null {
+    return this.currentActiveBranch;
   }
 
   private readonly unregisterActiveHost: () => void;
@@ -165,7 +184,28 @@ class CampaignHostRegistryEntry implements ICampaignHostRegistryEntry {
     if (!Number.isInteger(next) || next <= this.currentRevision) {
       throw new Error('Campaign snapshot revision is stale');
     }
+    if (sqliteReady()) {
+      writeCampaignSessionReadinessRevision({
+        campaignId: this.campaignId,
+        sessionId: this.matchId,
+        readinessRevision: next,
+      });
+    }
     this.currentRevision = next;
+  };
+
+  setActiveBranch = (next: string | null): void => {
+    if (next !== null && next.trim() === '') {
+      throw new Error('Campaign active branch is empty');
+    }
+    if (sqliteReady()) {
+      writeCampaignSessionActiveBranch({
+        campaignId: this.campaignId,
+        sessionId: this.matchId,
+        activeBranch: next,
+      });
+    }
+    this.currentActiveBranch = next;
   };
 
   hasReconciledBattle = (matchId: string): boolean =>
@@ -258,7 +298,15 @@ export class CampaignHostRegistry {
     } else {
       roomCode = await syncSession.open(snapshot.roomCode);
     }
-    const revision = Math.max(0, (await host.getEventLog().nextSequence()) - 1);
+    const logRevision = Math.max(
+      0,
+      (await host.getEventLog().nextSequence()) - 1,
+    );
+    const remembered = sqliteReady()
+      ? readCampaignSessionState(snapshot.campaignId, matchId)
+      : null;
+    const revision = remembered?.readinessRevision ?? logRevision;
+    const activeBranch = remembered?.activeBranch ?? null;
     const arbiter = new CampaignGmArbiter(
       host,
       snapshot.arbitrationMode ?? 'host-review',
@@ -269,6 +317,7 @@ export class CampaignHostRegistry {
       matchId,
       roomCode,
       revision,
+      activeBranch,
       host,
       syncSession,
       arbiter,

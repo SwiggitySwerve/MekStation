@@ -176,6 +176,7 @@ export function registryForHost(
     campaignId: host.campaignId,
     roomCode: 'GRANT0',
     revision: 0,
+    activeBranch: null,
     hostPlayerId: host.getHostPlayerId(),
     host,
     syncSession,
@@ -184,6 +185,7 @@ export function registryForHost(
     subscribeParticipation: () => () => undefined,
     getParticipationRecords: () => [],
     advanceRevision: () => undefined,
+    setActiveBranch: () => undefined,
     hasReconciledBattle: () => false,
     recordReconciledBattle: () => undefined,
     close: () => {
