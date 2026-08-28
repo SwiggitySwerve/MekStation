@@ -5,7 +5,13 @@ import * as path from 'node:path';
 import { REPOSITORY_IDENTITY } from './camp01-authority-receipt.contract.mjs';
 
 // prettier-ignore
-export const CAMP01_GIT_VERSION='2.54.0.windows.1', CAMP01_GIT_FETCH_URL='https://github.com/SwiggitySwerve/MekStation.git';
+// Known-good Git builds, extended DELIBERATELY when an environment updates.
+// windows-2025 runner images ship 2.55.0.windows.4 (win25-vs2026/20260818.207);
+// operator machines run 2.54.0.windows.1. An exact single pin broke the live
+// probes on every runner-image bump; an allowlist keeps the tamper property -
+// an UNKNOWN version still fails closed - while naming each accepted build.
+export const CAMP01_GIT_VERSIONS=Object.freeze(['2.54.0.windows.1','2.55.0.windows.4']);
+export const CAMP01_GIT_VERSION=CAMP01_GIT_VERSIONS[0], CAMP01_GIT_FETCH_URL='https://github.com/SwiggitySwerve/MekStation.git';
 const OID = /^[0-9a-f]{40}$/;
 // prettier-ignore
 const FETCH_REFS=Object.freeze(['+HEAD:refs/camp01/fetched-head','+refs/heads/main:refs/camp01/fetched-main']);
@@ -29,7 +35,7 @@ export async function resolveVerifiedGit({cwd=process.cwd()}={},dependencies={})
   const normalized=path.resolve(executable);
   try { const stat=await (dependencies.statFile??fs.statSync)(normalized); if(!stat.isFile()) fail('verified Git executable unavailable'); } catch(error) { if(error instanceof Camp01GitError) throw error; fail('verified Git executable unavailable'); }
   let raw; try { raw=(await invokeGit({git:{executable:normalized},args:['--version'],cwd},dependencies)).stdout; } catch(error) { if(error instanceof Camp01GitError) fail('Git version probe failed'); throw error; }
-  const version=raw.trim().replace(/^git version\s+/,''); if(version!==CAMP01_GIT_VERSION) fail(`Git version drift; expected ${CAMP01_GIT_VERSION}`);
+  const version=raw.trim().replace(/^git version\s+/,''); if(!CAMP01_GIT_VERSIONS.includes(version)) fail(`Git version drift; expected one of ${CAMP01_GIT_VERSIONS.join(', ')}`);
   return Object.freeze({executable:normalized});
 }
 

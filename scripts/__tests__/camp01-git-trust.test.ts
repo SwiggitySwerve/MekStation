@@ -113,6 +113,19 @@ describe('cross-platform CAMP-01 Git trust foundation', () => {
     expect(Object.keys(result.value ?? {})).toEqual(['executable']);
   });
 
+  it('resolves a runner-image Git build named on the allowlist', () => {
+    // windows-2025 runner images ship 2.55.0.windows.4. The allowlist
+    // exists so a DELIBERATELY named newer build resolves while an
+    // unknown one still fails closed (the drift row below).
+    const result = invoke({
+      action: 'resolve',
+      root,
+      executable: fakeGit,
+      version: '2.55.0.windows.4',
+    });
+    expect(result).toMatchObject({ ok: true, value: { executable: fakeGit } });
+  });
+
   it('builds every invocation from hardened argv and a zero-base environment', () => {
     // Given ambient process state and a shell-shaped literal argument
     // When the invocation helper calls injected spawn
@@ -249,7 +262,7 @@ describe('cross-platform CAMP-01 Git trust foundation', () => {
     ],
     [
       { executable: fakeGit, version: '2.53.0' },
-      `CAMP01_GIT_INVALID: Git version drift; expected ${PINNED_VERSION}`,
+      `CAMP01_GIT_INVALID: Git version drift; expected one of ${PINNED_VERSION}, 2.55.0.windows.4`,
     ],
     [
       { executable: fakeGit, spawnFailure: true },
