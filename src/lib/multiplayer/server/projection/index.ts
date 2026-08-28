@@ -18,6 +18,15 @@ export {
   projectMatchWirePayloadUnchanged,
 } from './MatchWireAudienceCatalog';
 export {
+  AUTHORITY_ONLY_EVENT_FIELDS,
+  projectEventForViewer,
+} from './ViewerFrameProjector';
+export type {
+  IViewerEventProjected,
+  IViewerEventProjectionFailure,
+  ViewerEventProjection,
+} from './ViewerFrameProjector';
+export {
   MATCH_WIRE_PUBLICATION_BOUNDARY,
   ViewerPublicationBoundary,
 } from './ViewerPublicationBoundary';

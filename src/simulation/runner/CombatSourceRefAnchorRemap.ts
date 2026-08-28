@@ -342,9 +342,13 @@ const MEKSTATION_SOURCE_REF_ANCHOR_REMAP: Readonly<Record<string, string>> = {
   'src/utils/gameplay/physicalAttacks/restrictions.ts#L331-L339':
     'src/utils/gameplay/physicalAttacks/restrictionBasic.ts#L26-L40',
   'src/utils/gameplay/physicalAttacks/restrictions.ts#L491-L499':
-    'src/utils/gameplay/physicalAttacks/restrictionActionValidationHelpers.ts#L210-L217',
+    'src/utils/gameplay/physicalAttacks/restrictionChargeValidationHelpers.ts#L69-L74',
   'src/utils/gameplay/physicalAttacks/restrictions.ts#L666-L751':
-    'src/utils/gameplay/physicalAttacks/restrictionActionValidationHelpers.ts#L519-L581',
+    'src/utils/gameplay/physicalAttacks/restrictionLimbValidationHelpers.ts#L117-L174',
+  'src/utils/gameplay/physicalAttacks/restrictionActionValidationHelpers.ts#L210-L217':
+    'src/utils/gameplay/physicalAttacks/restrictionChargeValidationHelpers.ts#L69-L74',
+  'src/utils/gameplay/physicalAttacks/restrictionActionValidationHelpers.ts#L519-L581':
+    'src/utils/gameplay/physicalAttacks/restrictionLimbValidationHelpers.ts#L117-L174',
   'src/utils/gameplay/physicalAttacks/restrictions.ts#L783-L791':
     'src/utils/gameplay/physicalAttacks/restrictionChargePush.ts#L144-L153',
   'src/utils/gameplay/physicalAttacks/toHit.ts#L103-L114':

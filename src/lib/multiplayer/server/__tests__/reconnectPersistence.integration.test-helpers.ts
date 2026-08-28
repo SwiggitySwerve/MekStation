@@ -73,6 +73,7 @@ import {
 } from '@/types/multiplayer/Protocol';
 
 import { InMemoryMatchStore } from '../InMemoryMatchStore';
+import { AUTHORITY_ONLY_EVENT_FIELDS } from '../projection/ViewerFrameProjector';
 import { ServerMatchHost, type IMatchSocket } from '../ServerMatchHost';
 
 interface IRecordedSend {
@@ -299,6 +300,32 @@ function eventStorage(events: readonly IGameEvent[]) {
   };
 }
 
+/**
+ * The authority's rows as a VIEWER actually holds them.
+ *
+ * Umbrella task 11.1 removes server-only authority fields at the
+ * publication boundary, so a client's local log is the authority log
+ * MINUS those fields. These proofs reconstruct a client's board and
+ * compare it to the authority's, and both sides have to be stated in
+ * the same vocabulary or they diverge by exactly the redaction - which
+ * is the behaviour under test everywhere else, not a defect here.
+ */
+function asViewerRows(events: readonly IGameEvent[]): readonly IGameEvent[] {
+  return events.map((event) => {
+    const kept: Record<string, unknown> = {};
+    for (const [key, value] of Object.entries(event)) {
+      if ((AUTHORITY_ONLY_EVENT_FIELDS as readonly string[]).includes(key)) {
+        continue;
+      }
+      kept[key] = value;
+    }
+    // Through `unknown`: the removed fields are optional on IGameEvent,
+    // so the rebuilt record IS one, but a key-by-key copy loses that
+    // proof and TS will not take the direct assertion.
+    return kept as unknown as IGameEvent;
+  });
+}
+
 async function hydrateCurrentState(
   matchId: string,
   events: readonly IGameEvent[],
@@ -383,7 +410,7 @@ describe('reconnect persistence integration', () => {
     host.attachSocket(hostSock, 'pid_host');
     host.attachSocket(guestSock, 'pid_guest');
     const hostEvents = await advanceHostToEventCount(host, store, matchId, 15);
-    const guestEvents = hostEvents.slice(0, 5);
+    const guestEvents = [...asViewerRows(hostEvents.slice(0, 5))];
     const lastGuestSequence = guestEvents.at(-1)?.sequence ?? -1;
 
     host.detachSocket(guestSock);
@@ -406,7 +433,7 @@ describe('reconnect persistence integration', () => {
 
     expect(replayedEvents).toHaveLength(expectedReplayCount);
     await expect(hydrateCurrentState(matchId, guestEvents)).resolves.toEqual(
-      await hydrateCurrentState(matchId, hostEvents),
+      await hydrateCurrentState(matchId, asViewerRows(hostEvents)),
     );
   });
 
@@ -418,7 +445,7 @@ describe('reconnect persistence integration', () => {
     host.attachSocket(hostSock, 'pid_host');
     host.attachSocket(guestSock, 'pid_guest');
     const hostEvents = await advanceHostToEventCount(host, store, matchId, 10);
-    const localEightEvents = hostEvents.slice(0, 8);
+    const localEightEvents = asViewerRows(hostEvents.slice(0, 8));
     await Promise.all(
       localEightEvents.map((event) =>
         matchLogStorage.appendEvent(matchId, event),
@@ -461,7 +488,7 @@ describe('reconnect persistence integration', () => {
       expect.arrayContaining(['ReplayStart', 'ReplayEnd']),
     );
     await expect(hydrateCurrentState(matchId, restoredEvents)).resolves.toEqual(
-      await hydrateCurrentState(matchId, hostEvents),
+      await hydrateCurrentState(matchId, asViewerRows(hostEvents)),
     );
   });
 });

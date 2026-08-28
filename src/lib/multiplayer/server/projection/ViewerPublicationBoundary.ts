@@ -13,6 +13,14 @@
  * envelope to eligible viewers. Control frames (Lobby, Error, Pong,
  * Heartbeat, ReplayStart/End metadata) are not catalog events.
  *
+ * The parity law is about the AUDIENCE decision: it does not rewrite a
+ * payload it decided a viewer may have. Removing server-only authority
+ * fields is a separate law, and umbrella task 11.1 applies it here -
+ * once, in `decideEvent`, which live, baseline, and replay all reach -
+ * via `projectEventForViewer`. Doing it per surface let them disagree.
+ * An event with nothing to remove keeps its identity, so a frame the
+ * projector does not touch is still the object the authority published.
+ *
  * @spec openspec/changes/add-authority-audit-and-privacy-proof/specs/gm-authority-redaction/spec.md
  */
 
@@ -34,6 +42,7 @@ import {
   type ViewerAudienceDecision,
   type ViewerAudienceProjector,
 } from './ViewerAudienceProjector';
+import { projectEventForViewer } from './ViewerFrameProjector';
 import {
   VIEWER_PROJECTION_MESSAGES,
   ViewerProjectionError,
@@ -152,36 +161,31 @@ function readSequence(event: unknown): number | null {
 }
 
 /**
- * Rebuilds replay frames after omitting hidden events, preserving the
- * original timestamps so this module never invents a clock value.
+ * Rebuilds the replay envelope around chunks that were already guarded
+ * IN PLACE, preserving the original timestamps so this module never
+ * invents a clock value.
+ *
+ * `chunks` carries the ORIGINAL pagination. `streamReplay` pages the
+ * events precisely "so that long matches don't push a single megabyte
+ * payload", so concatenating the survivors into one chunk would undo
+ * that. A page may shrink or empty out; its boundaries are not ours.
  */
 function rebuildReplayFrames(
   frames: IReplayStreamFrames,
-  visible: readonly unknown[],
+  chunks: readonly IServerMessage[],
+  totalEvents: number,
+  lastVisibleEvent: unknown,
 ): IReplayStreamFrames {
   const start: IServerMessage =
     frames.start.kind === 'ReplayStart'
-      ? ({
-          ...frames.start,
-          totalEvents: visible.length,
-        } satisfies IReplayStart)
+      ? ({ ...frames.start, totalEvents } satisfies IReplayStart)
       : frames.start;
-  const lastSequence = readSequence(visible[visible.length - 1]);
+  const lastSequence = readSequence(lastVisibleEvent);
   const end: IServerMessage =
     frames.end.kind === 'ReplayEnd' && lastSequence !== null
       ? ({ ...frames.end, toSeq: lastSequence } satisfies IReplayEnd)
       : frames.end;
-  const template = frames.chunks[0];
-  const chunk: IReplayChunk =
-    template !== undefined && template.kind === 'ReplayChunk'
-      ? { ...template, events: [...visible] }
-      : {
-          kind: 'ReplayChunk',
-          matchId: start.matchId,
-          ts: start.ts,
-          events: [...visible],
-        };
-  return { start, chunks: [chunk], end };
+  return { start, chunks, end };
 }
 
 /**
@@ -218,6 +222,11 @@ export class ViewerPublicationBoundary {
    * bundle so the host never sends ReplayStart then a raw chunk.
    * When every event is public identity, the original frames object
    * is returned (byte-identical envelopes, stamps included).
+   *
+   * Each chunk is guarded IN PLACE rather than the bundle being
+   * flattened, so the caller's pagination survives a removal that
+   * touches every event - the normal case, since the authority stamps
+   * its concealment class on everything it emits.
    */
   public guardReplayFrames(
     viewer: IAuthorizedViewer,
@@ -226,21 +235,37 @@ export class ViewerPublicationBoundary {
     if (!isAuthorizedViewer(viewer)) {
       return { kind: 'failure', error: notAViewer() };
     }
-    const originalEvents: unknown[] = [];
+    const guardedChunks: IServerMessage[] = [];
+    let changed = false;
+    let totalEvents = 0;
+    let lastVisibleEvent: unknown;
     for (const chunk of frames.chunks) {
-      if (chunk.kind !== 'ReplayChunk') continue;
-      for (const event of chunk.events) originalEvents.push(event);
+      if (chunk.kind !== 'ReplayChunk') {
+        guardedChunks.push(chunk);
+        continue;
+      }
+      const guarded = this.guardReplayChunk(viewer, chunk);
+      if (guarded.kind === 'failure') return guarded;
+      if (guarded.value !== chunk) changed = true;
+      guardedChunks.push(guarded.value);
+      totalEvents += guarded.value.events.length;
+      if (guarded.value.events.length > 0) {
+        lastVisibleEvent =
+          guarded.value.events[guarded.value.events.length - 1];
+      }
     }
-    const visible: unknown[] = [];
-    for (const event of originalEvents) {
-      const result = this.decideEvent(viewer, event);
-      if (result.kind === 'failure') return result;
-      if (result.kind === 'send') visible.push(event);
-    }
-    if (visible.length === originalEvents.length) {
+    if (!changed) {
       return { kind: 'send', frames };
     }
-    return { kind: 'send', frames: rebuildReplayFrames(frames, visible) };
+    return {
+      kind: 'send',
+      frames: rebuildReplayFrames(
+        frames,
+        guardedChunks,
+        totalEvents,
+        lastVisibleEvent,
+      ),
+    };
   }
 
   /**
@@ -291,7 +316,16 @@ export class ViewerPublicationBoundary {
     if (projectError !== null) {
       return { kind: 'failure', error: projectError };
     }
-    return { kind: 'send', value: event };
+    // Audience law settled; now the authority-field law. This is the
+    // ONE place it is applied, so live, baseline, and replay cannot
+    // disagree about what a viewer is holding. It returns the same
+    // object when there is nothing to remove, which is what lets the
+    // callers below keep the original envelope, chunk, or bundle.
+    const projected = projectEventForViewer(viewer, event);
+    if (projected.kind === 'failure') {
+      return { kind: 'failure', error: projected.error };
+    }
+    return { kind: 'send', value: projected.event };
   }
 
   /**
@@ -306,24 +340,32 @@ export class ViewerPublicationBoundary {
     const result = this.decideEvent(viewer, event);
     if (result.kind === 'failure') return result;
     if (result.kind === 'omit') return result;
-    return { kind: 'send', value: envelope };
+    if (result.value === event) {
+      return { kind: 'send', value: envelope };
+    }
+    return { kind: 'send', value: { ...envelope, event: result.value } as T };
   }
 
   /**
    * Filters a single ReplayChunk. Unchanged chunks keep the original
    * object; filtered chunks copy metadata and keep remaining events.
+   * Never omits - a chunk with nothing left is an empty chunk, so the
+   * bundle guard above can rely on getting one chunk back per chunk in.
    */
   private guardReplayChunk(
     viewer: IAuthorizedViewer,
     chunk: IReplayChunk,
-  ): PublicationGuardResult<IServerMessage> {
+  ): IPublicationSend<IReplayChunk> | IPublicationFailure {
     const kept: unknown[] = [];
+    let redacted = false;
     for (const event of chunk.events) {
       const result = this.decideEvent(viewer, event);
       if (result.kind === 'failure') return result;
-      if (result.kind === 'send') kept.push(event);
+      if (result.kind !== 'send') continue;
+      if (result.value !== event) redacted = true;
+      kept.push(result.value);
     }
-    if (kept.length === chunk.events.length) {
+    if (!redacted && kept.length === chunk.events.length) {
       return { kind: 'send', value: chunk };
     }
     return { kind: 'send', value: { ...chunk, events: kept } };

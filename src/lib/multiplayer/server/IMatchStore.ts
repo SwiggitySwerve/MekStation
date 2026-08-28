@@ -150,6 +150,90 @@ export type IMatchMetaPatch = Partial<
 };
 
 // =============================================================================
+// Durable publication outbox
+// =============================================================================
+
+/**
+ * One durable publication record: "this committed event has not yet
+ * been handed to recipients".
+ *
+ * `Commit Precedes Recipient Publication` asks for publication to be
+ * driven by records written in the SAME transaction as the command
+ * batch: the row survives the process, so a later drain can finish the
+ * delivery without re-executing the command. The event is carried ON
+ * the row rather than looked up from the log, so a drain never has to
+ * re-read the stream to find out what to send.
+ *
+ * NOT CLAIMED: per-recipient state. The requirement names "records AND
+ * cursors"; this is the records half only. A record carries ONE global
+ * published mark, so a drain that reached player A and not player B
+ * marks it done for both. The per-viewer cursors that would close that
+ * gap exist already (`ctx.deliveryCursors`) and are deliberately not
+ * consulted; until they are, what covers a half-delivered frame is the
+ * SessionJoin `lastSeq` replay, not this outbox.
+ */
+export interface IMatchPublication {
+  readonly matchId: string;
+  /** The authority sequence of the committed event. */
+  readonly sequence: number;
+  /** The command whose batch committed it. */
+  readonly commandId: string;
+  readonly event: IGameEvent;
+  readonly createdAt: string;
+}
+
+/**
+ * The outbox half of a store, narrowed so a caller can hold exactly
+ * the surface a drain needs and nothing else.
+ */
+export interface IPublicationOutboxStore {
+  /**
+   * Unpublished records for this match, ascending by sequence. An
+   * unknown match answers `[]` rather than throwing
+   * `MatchNotFoundError`, deliberately unlike every other reader here:
+   * a boot-time drain that threw on one unknown match would take down
+   * the resume for every other match beside it.
+   */
+  listPendingPublications(
+    matchId: string,
+  ): Promise<readonly IMatchPublication[]>;
+
+  /**
+   * Mark the given sequences delivered. Never touches the committed
+   * events themselves — marking is about DELIVERY, not about the log a
+   * reconnecting client replays.
+   *
+   * Idempotent means only that a repeat leaves the PENDING set the
+   * same. Whether the FIRST mark's timestamp survives a repeat is
+   * deliberately unspecified — nothing reads it back, so a rule about
+   * it is one no test could ever fail on.
+   */
+  markPublicationsPublished(
+    matchId: string,
+    sequences: readonly number[],
+  ): Promise<void>;
+}
+
+/**
+ * True iff the store keeps a durable publication outbox. A structural
+ * flag, exactly as `appendCommandBatch` is: a store without one is not
+ * broken, it simply has no publication record to resume from.
+ *
+ * It checks the two methods EXIST and nothing else — it cannot see
+ * whether an implementation honours the same-transaction rule below.
+ * `matchPublicationOutbox.test.ts` is what enforces that.
+ */
+export function hasPublicationOutbox(
+  store: IMatchStore,
+): store is IMatchStore & IPublicationOutboxStore {
+  const candidate = store as Partial<IPublicationOutboxStore>;
+  return (
+    typeof candidate.listPendingPublications === 'function' &&
+    typeof candidate.markPublicationsPublished === 'function'
+  );
+}
+
+// =============================================================================
 // Errors
 // =============================================================================
 
@@ -274,6 +358,28 @@ export interface IMatchStore {
     matchId: string,
     batch: IMatchCommandBatch,
   ): Promise<MatchBatchAppendResult>;
+
+  /**
+   * Durable publication outbox (umbrella task 7.1). OPTIONAL for the
+   * same reason `appendCommandBatch` is.
+   *
+   * Implementations that offer these MUST write the publication rows
+   * inside the SAME transaction as `appendCommandBatch`. Writing them
+   * afterwards would reintroduce the dual-write hole the outbox exists
+   * to close: a commit with no publication record is an event nobody
+   * will ever be told about.
+   *
+   * Enforced by test, not by types — the contract suite makes a
+   * publication write fail on its own and asserts the events went down
+   * with it, which a dual-writing store fails.
+   */
+  listPendingPublications?(
+    matchId: string,
+  ): Promise<readonly IMatchPublication[]>;
+  markPublicationsPublished?(
+    matchId: string,
+    sequences: readonly number[],
+  ): Promise<void>;
 }
 
 // =============================================================================

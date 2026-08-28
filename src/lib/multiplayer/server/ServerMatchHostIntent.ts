@@ -1,5 +1,4 @@
 import type { InteractiveSession } from '@/engine/InteractiveSession';
-import type { IGameEvent } from '@/types/gameplay/GameSessionInterfaces';
 import type { IMatchSeat } from '@/types/multiplayer/Lobby';
 import type {
   IEventMessage,
@@ -8,10 +7,7 @@ import type {
 } from '@/types/multiplayer/Protocol';
 
 import { GameStatus } from '@/types/gameplay/GameSessionInterfaces';
-import {
-  intentHasForbiddenDiceField,
-  nowIso,
-} from '@/types/multiplayer/Protocol';
+import { intentHasForbiddenDiceField } from '@/types/multiplayer/Protocol';
 
 import type { IMatchStore } from './IMatchStore';
 import type { AcceptedIntentTracker } from './reconnection/AcceptedIntentTracker';
@@ -28,10 +24,12 @@ import {
   type IHumanActionRequest,
 } from './authorization/HumanActionAuthorizationGate';
 import { MembershipSourceUnavailableError } from './authorization/MatchSeatMembershipSource';
+import { hasPublicationOutbox } from './IMatchStore';
 import { isSpectatorPlayer } from './lobby/spectatorSeats';
 import { dispatchToEngine } from './ServerMatchHostEngineDispatch';
 import { stampIntentIdOnNewEvents } from './ServerMatchHostEvents';
 import { isLobbyIntentKind } from './ServerMatchHostLobbyIntents';
+import { commitThenPublish, errorMessage } from './ServerMatchHostPublication';
 
 /**
  * In-process handleIntent caller that is not a wire socket. Production
@@ -274,86 +272,19 @@ export async function handleIntent(
     broadcast: ctx.broadcast,
     broadcastEvent: ctx.broadcastEvent,
     closeMatch: ctx.closeMatch,
+    // Offered only when the store keeps one. NOTHING PUTS ROWS IN IT ON
+    // THIS PATH TODAY: the outbox is written inside
+    // `appendCommandBatch`'s transaction, and this path still commits
+    // event-at-a-time through `appendEvent` (umbrella task 3.1 owns the
+    // switch). So the resume pass is inert here until that lands, and
+    // the marking pass is a no-op UPDATE over rows that do not exist.
+    ...(hasPublicationOutbox(ctx.store) ? { publications: ctx.store } : {}),
   });
   broadcasts.push(...published.messages);
   if (!published.committed) return broadcasts;
 
   ctx.tryPublishOutcome();
   return broadcasts;
-}
-
-/** What `commitThenPublish` did. */
-export interface ICommitThenPublishResult {
-  /** False when an append failed; the caller must not continue. */
-  readonly committed: boolean;
-  /** Frames recorded - either every Event frame, or the failure. */
-  readonly messages: readonly IServerMessage[];
-}
-
-/** Dependencies of `commitThenPublish`. */
-export interface ICommitThenPublishDeps {
-  readonly matchId: string;
-  readonly events: readonly IGameEvent[];
-  readonly intentId?: string;
-  readonly appendEvent: (event: IGameEvent) => Promise<unknown>;
-  readonly broadcast: (message: IServerMessage) => void;
-  readonly broadcastEvent: (message: IEventMessage) => Promise<void>;
-  readonly closeMatch: () => Promise<void>;
-}
-
-/**
- * Persist a command's events, and publish them ONLY once every one of
- * them is down.
- *
- * The two passes are the point. Appending and broadcasting in the same
- * pass meant a failure partway through had ALREADY told every client
- * about the events that landed before it - so a command that did not
- * succeed was still, in part, published. Recipients applied half a
- * command, the match then closed underneath them, and no reader
- * afterwards could tell that half-state from a command that
- * legitimately produced fewer events.
- *
- * NOT CLAIMED HERE: atomicity. The events still go down one at a time,
- * so a mid-command failure still leaves the earlier ones committed.
- * That boundary is the store adapters' `appendCommandBatch` (umbrella
- * task 3.1). What this fixes is narrower and worth stating exactly: a
- * partial commit is no longer PUBLISHED.
- */
-export async function commitThenPublish(
-  deps: ICommitThenPublishDeps,
-): Promise<ICommitThenPublishResult> {
-  // Pass 1 - commit. Nothing reaches a recipient from in here.
-  for (const event of deps.events) {
-    try {
-      await deps.appendEvent(event);
-    } catch (e) {
-      const err = errorMessage(
-        deps.matchId,
-        'STORE_FAILURE',
-        e instanceof Error ? e.message : 'Store append failed',
-        deps.intentId,
-      );
-      deps.broadcast(err);
-      await deps.closeMatch();
-      // Returning at the first failure rather than pushing on: further
-      // appends would only deepen a commit the caller is abandoning.
-      return { committed: false, messages: [err] };
-    }
-  }
-
-  // Pass 2 - publish. Reached only when the whole command is durable.
-  const messages: IServerMessage[] = [];
-  for (const event of deps.events) {
-    const envelopeOut: IEventMessage = {
-      kind: 'Event',
-      matchId: deps.matchId,
-      ts: nowIso(),
-      event,
-    };
-    await deps.broadcastEvent(envelopeOut);
-    messages.push(envelopeOut);
-  }
-  return { committed: true, messages };
 }
 
 /**
@@ -593,24 +524,4 @@ async function rejectSpectatorIntent(
   );
   ctx.broadcast(err);
   return [err];
-}
-
-/**
- * Builds a protocol Error envelope. `code` is the machine-readable
- * protocol union; `reason` must stay free of foreign session ids.
- */
-function errorMessage(
-  matchId: string,
-  code: Extract<IServerMessage, { kind: 'Error' }>['code'],
-  reason: string,
-  intentId?: string,
-): Extract<IServerMessage, { kind: 'Error' }> {
-  return {
-    kind: 'Error',
-    matchId,
-    ts: nowIso(),
-    code,
-    reason,
-    ...(intentId != null ? { intentId } : {}),
-  };
 }
