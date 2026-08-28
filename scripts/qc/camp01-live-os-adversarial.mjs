@@ -302,7 +302,10 @@ function deadline(promise,milliseconds,label) {return new Promise((resolve,rejec
 function holdWindowsExclusiveHandle(target) {
   const script="$stream=[System.IO.File]::Open($env:CAMP01_LOCK_PATH,[System.IO.FileMode]::Open,[System.IO.FileAccess]::ReadWrite,[System.IO.FileShare]::None);[Console]::Out.WriteLine('LOCKED');[Console]::Out.Flush();[Console]::In.ReadLine()|Out-Null;$stream.Dispose()", child=spawn('powershell.exe',['-NoLogo','-NoProfile','-NonInteractive','-Command',script],{env:{...process.env,CAMP01_LOCK_PATH:target},shell:false,stdio:['pipe','pipe','pipe']}); let output='',released=false,result=null;
   const ready=new Promise((resolve,reject)=>{child.once('error',reject);child.stdout.setEncoding('utf8');child.stdout.on('data',(chunk)=>{output+=chunk;if(output.includes('LOCKED'))resolve();});}), closed=processClosed(child);
-  return deadline(ready,10_000,'Windows file lock').then(()=>({async release(){if(released)return;released=true;child.stdin.end('\n');result=await deadline(closed,10_000,'Windows file unlock');},exitCode:()=>result?.exitCode??null}),(error)=>{child.kill();throw error;});
+  // 30s, not 10: powershell.exe cold-starts slowly on busy CI runners and
+  // the 10s deadline flaked (PROOF5D6_TIMEOUT measured 2026-08-28). Widened
+  // once with cause rather than retried in a loop.
+  return deadline(ready,30_000,'Windows file lock').then(()=>({async release(){if(released)return;released=true;child.stdin.end('\n');result=await deadline(closed,10_000,'Windows file unlock');},exitCode:()=>result?.exitCode??null}),(error)=>{child.kill();throw error;});
 }
 
 // prettier-ignore
