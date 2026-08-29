@@ -181,6 +181,9 @@ export class InteractiveSession {
    * `isGameOver`). Spec: "Event idempotent per session".
    */
   private outcomePublished = false;
+
+  /** Scratch flag: finalize state on game-over but never touch the bus. */
+  private suppressOutcomePublication = false;
   private matchLogDiverged = false;
   private readonly linkage: IInteractiveSessionLinkage;
 
@@ -269,6 +272,7 @@ export class InteractiveSession {
         );
       },
       getOutcomePublished: () => this.outcomePublished,
+      getSuppressOutcomePublication: () => this.suppressOutcomePublication,
       setOutcomePublished: (published) => {
         this.outcomePublished = published;
       },
@@ -337,6 +341,15 @@ export class InteractiveSession {
       readonly d6Roller?: D6Roller;
       readonly playerUnits?: readonly IAdaptedUnit[];
       readonly opponentUnits?: readonly IAdaptedUnit[];
+      /**
+       * Scratch sessions (decide/shadow comparison) must not announce
+       * outcomes: the bus is module-global, so a scratch reaching
+       * game-over would duplicate the live publish - or, on a divergent
+       * scratch, announce an outcome for an unfinished match. Only the
+       * bus publish is skipped; the endGame state work still runs so
+       * decided events and digests stay in parity with the live path.
+       */
+      readonly suppressOutcomePublication?: boolean;
     },
   ): InteractiveSession {
     const instance = new InteractiveSession(
@@ -353,6 +366,8 @@ export class InteractiveSession {
       session.config.victoryConditions,
     );
     instance.session = session;
+    instance.suppressOutcomePublication =
+      options.suppressOutcomePublication === true;
     return instance;
   }
 

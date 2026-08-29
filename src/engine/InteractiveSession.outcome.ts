@@ -21,6 +21,8 @@ export interface IFinalizeSessionOutcomeInput {
   readonly gameConfig: IGameConfig;
   readonly startedAt: string;
   readonly linkage: IInteractiveSessionLinkage;
+  /** Scratch sessions finalize state but must never touch the bus. */
+  readonly suppressPublish?: boolean;
 }
 
 export interface IFinalizeSessionOutcomeResult {
@@ -72,5 +74,10 @@ export function finalizeSessionOutcome(
     matchId: outcome.matchId,
     outcome,
   };
+  // Suppressed callers report published=true so the finalize guard
+  // closes; the outcome belongs to the live session, not the scratch.
+  if (input.suppressPublish === true) {
+    return { session, published: true };
+  }
   return { session, published: publishCombatOutcome(event) };
 }

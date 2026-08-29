@@ -111,6 +111,8 @@ function reconstructPreSession(
     random: new SeededRandom(decideDeps.randomSeed),
     playerUnits: decideDeps.playerUnits,
     opponentUnits: decideDeps.opponentUnits,
+    // Shadow pre-state is a comparison artifact - never a bus author.
+    suppressOutcomePublication: true,
   });
 }
 
