@@ -29,7 +29,10 @@
 
 import type { IReplayEnd, IReplayStart } from '@/types/multiplayer/Protocol';
 
-import type { IAuthorizedViewer } from '../authorization/AuthorizedViewer';
+import type {
+  IAuthorizedViewer,
+  ViewerRole,
+} from '../authorization/AuthorizedViewer';
 
 import { isAuthorizedViewer } from '../authorization/AuthorizedViewer';
 import {
@@ -83,6 +86,34 @@ export type ViewerEventProjection =
   | IViewerEventProjectionFailure;
 
 /**
+ * Server-internal field projection for a known viewer class. Shadow
+ * comparison has durable audience identities but no socket admission
+ * context to brand; it reuses this exact field policy rather than
+ * maintaining a second authority-field allowlist.
+ */
+export function projectEventForViewerClass(
+  event: unknown,
+  role: ViewerRole,
+): ViewerEventProjection {
+  if (typeof event !== 'object' || event === null || Array.isArray(event)) {
+    return { kind: 'failure', error: projectionFailed() };
+  }
+  const record = event as Record<string, unknown>;
+  const carries = Object.keys(record).some((key) =>
+    shouldRemoveAuthorityFieldForRole(role, key),
+  );
+  if (!carries) {
+    return { kind: 'project', event };
+  }
+  const projected: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(record)) {
+    if (shouldRemoveAuthorityFieldForRole(role, key)) continue;
+    projected[key] = value;
+  }
+  return { kind: 'project', event: projected };
+}
+
+/**
  * Constant projection-failed refusal, matching the publication
  * boundary's law that an inner message never rides out on the error.
  */
@@ -117,22 +148,7 @@ export function projectEventForViewer(
   if (!isAuthorizedViewer(viewer)) {
     return { kind: 'failure', error: notAViewer() };
   }
-  if (typeof event !== 'object' || event === null || Array.isArray(event)) {
-    return { kind: 'failure', error: projectionFailed() };
-  }
-  const record = event as Record<string, unknown>;
-  const carries = Object.keys(record).some((key) =>
-    shouldRemoveAuthorityField(viewer, key),
-  );
-  if (!carries) {
-    return { kind: 'project', event };
-  }
-  const projected: Record<string, unknown> = {};
-  for (const [key, value] of Object.entries(record)) {
-    if (shouldRemoveAuthorityField(viewer, key)) continue;
-    projected[key] = value;
-  }
-  return { kind: 'project', event: projected };
+  return projectEventForViewerClass(event, viewer.role);
 }
 
 /**
@@ -144,12 +160,12 @@ export function projectEventForViewer(
  * Enforces `Authority and Viewer Sequences Are Separate`: player
  * payloads SHALL NOT expose hidden authority identifiers.
  */
-function shouldRemoveAuthorityField(
-  viewer: IAuthorizedViewer,
+function shouldRemoveAuthorityFieldForRole(
+  role: ViewerRole,
   key: string,
 ): boolean {
   if (!AUTHORITY_ONLY_EVENT_FIELD_SET.has(key)) return false;
-  if (key === 'sequence' && viewer.role === 'gm') return false;
+  if (key === 'sequence' && role === 'gm') return false;
   return true;
 }
 

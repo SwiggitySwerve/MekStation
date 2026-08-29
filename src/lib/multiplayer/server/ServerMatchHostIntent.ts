@@ -10,6 +10,7 @@ import { GameStatus } from '@/types/gameplay/GameSessionInterfaces';
 import { intentHasForbiddenDiceField } from '@/types/multiplayer/Protocol';
 
 import type { IMatchStore } from './IMatchStore';
+import type { IShadowAudienceInput } from './journalAuthorityShadow';
 import type {
   JournalAuthorityRecovery,
   ShadowComparisonRecord,
@@ -306,12 +307,14 @@ export async function handleIntent(
   // first produced event so recovery can rebuild the accepted-id set.
   let newEvents = ctx.stampRollsOnNewEvents(ctx.drainNewEvents());
   if (ctx.journalAuthority?.shadow === true) {
+    const audience = await shadowAudienceInput(ctx);
     runLegacyShadowComparison(ctx.journalAuthority, {
       liveSession: ctx.session,
       headIndex,
       liveEvents: newEvents,
       intent: envelope.intent,
       intentId: envelope.intentId,
+      ...(audience !== null ? { audience } : {}),
     });
   }
   if (envelope.intentId != null && newEvents.length > 0) {
@@ -339,6 +342,30 @@ export async function handleIntent(
 
   ctx.tryPublishOutcome();
   return broadcasts;
+}
+
+/**
+ * The live broadcaster reads this same durable meta tuple immediately
+ * before fog filtering in ServerMatchHostEvents. Shadow comparison must
+ * use those exact player identities and side assignments, never a
+ * session-local reconstruction.
+ */
+async function shadowAudienceInput(
+  ctx: IServerMatchHostIntentContext,
+): Promise<IShadowAudienceInput | null> {
+  try {
+    const meta = await ctx.store.getMatchMeta(ctx.matchId);
+    return {
+      gmPlayerId: meta.hostPlayerId,
+      playerIds: meta.playerIds,
+      config: meta.config,
+      sideAssignments: meta.sideAssignments,
+    };
+  } catch {
+    // Shadow remains best-effort diagnostic work. The legacy command
+    // completed already, so unavailable audience metadata cannot abort it.
+    return null;
+  }
 }
 
 /**
