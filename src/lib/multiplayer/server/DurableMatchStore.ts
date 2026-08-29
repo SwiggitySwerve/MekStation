@@ -559,6 +559,20 @@ export class DurableMatchStore
     return row ? receiptFrom(row) : null;
   };
 
+  getLastCommandReceipt = async (
+    matchId: string,
+  ): Promise<IMatchCommandReceipt | null> => {
+    const row = this.db
+      .prepare(
+        `SELECT * FROM mp_command_receipts
+         WHERE match_id = ?
+         ORDER BY last_revision DESC
+         LIMIT 1`,
+      )
+      .get(matchId) as ICommandReceiptRow | undefined;
+    return row ? receiptFrom(row) : null;
+  };
+
   getJournalAuthorityStarted = async (
     matchId: string,
   ): Promise<IMatchJournalAuthorityStarted | null> => {

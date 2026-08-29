@@ -250,6 +250,20 @@ export class InMemoryMatchStore
     return rec.receipts.get(commandId) ?? null;
   };
 
+  getLastCommandReceipt = async (
+    matchId: string,
+  ): Promise<IMatchCommandReceipt | null> => {
+    const rec = this.records.get(matchId);
+    if (!rec) throw new MatchNotFoundError(matchId);
+    let latest: IMatchCommandReceipt | null = null;
+    for (const receipt of Array.from(rec.receipts.values())) {
+      if (latest == null || receipt.lastRevision > latest.lastRevision) {
+        latest = receipt;
+      }
+    }
+    return latest;
+  };
+
   getJournalAuthorityStarted = async (
     matchId: string,
   ): Promise<IMatchJournalAuthorityStarted | null> => {

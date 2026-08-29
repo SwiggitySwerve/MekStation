@@ -122,7 +122,7 @@ export async function recoverActiveMatches(
         continue;
       }
       const session = await rebuildSessionFromEvents(meta.matchId, events);
-      const host = ServerMatchHost.recover(meta.matchId, store, session);
+      const host = await ServerMatchHost.recover(meta.matchId, store, session);
       await host.restorePersistedViewerDeliveries();
       hosts.set(meta.matchId, host);
     } catch (e) {
