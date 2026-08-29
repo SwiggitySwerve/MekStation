@@ -152,6 +152,7 @@ export function tryFinalizeAndPublishInteractiveSession(
     gameConfig: context.gameConfig,
     startedAt: context.startedAt,
     linkage: context.linkage,
+    suppressPublish: context.getSuppressOutcomePublication(),
   });
   context.setSession(result.session);
   context.setOutcomePublished(result.published);

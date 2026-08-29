@@ -27,6 +27,7 @@ export interface IInteractiveSessionRuntimeContext {
   readonly getSession: () => IGameSession;
   readonly setSession: (session: IGameSession) => void;
   readonly getOutcomePublished: () => boolean;
+  readonly getSuppressOutcomePublication: () => boolean;
   readonly setOutcomePublished: (published: boolean) => void;
   readonly markMatchLogDiverged: () => void;
   readonly hasMatchLogDiverged: () => boolean;

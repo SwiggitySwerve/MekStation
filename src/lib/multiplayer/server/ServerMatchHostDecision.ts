@@ -92,6 +92,9 @@ export function decideCommandBatch(
     d6Roller: engineCallback,
     playerUnits: deps.playerUnits,
     opponentUnits: deps.opponentUnits,
+    // A decide scratch is never the live session: a game-ending command
+    // must not announce an outcome the live path has not committed.
+    suppressOutcomePublication: true,
   });
 
   dispatchToEngine(scratch, intent);
