@@ -22,6 +22,7 @@ import {
 import {
   COMPLETED_MATCH_RETENTION_MS,
   DurableMatchStore,
+  _setFailAtHeadUpdateForTests,
 } from '../DurableMatchStore';
 import {
   MatchNotFoundError,
@@ -255,6 +256,73 @@ describe('DurableMatchStore', () => {
       actorId: 'p1',
       expectedRevision: 3,
       events: [makeEvent('crash-1', 3)],
+    });
+    expect(retry.kind).toBe('committed');
+    second.close();
+  });
+
+  it('a crash at the head-update statement takes the whole batch down, across a reopen', async () => {
+    // Umbrella 3.2's fourth named seam: the failure lands AFTER the
+    // event, outbox, and receipt inserts and BEFORE the head update.
+    // Everything above it must roll back - a receipt without a head
+    // bump would be a command a later reader half-believes happened.
+    const fs = await import('node:fs');
+    const os = await import('node:os');
+    const path = await import('node:path');
+    const dbPath = path.join(
+      fs.mkdtempSync(path.join(os.tmpdir(), 'mp-durable-head-crash-')),
+      'matches.db',
+    );
+
+    const first = new DurableMatchStore({ path: dbPath });
+    await first.createMatch(makeMeta('head-crash-1', { status: 'active' }));
+
+    const committed = await first.appendCommandBatch!('head-crash-1', {
+      commandId: 'good-command',
+      actorId: 'p1',
+      expectedRevision: 0,
+      events: [makeEvent('head-crash-1', 0)],
+    });
+    expect(committed.kind).toBe('committed');
+
+    _setFailAtHeadUpdateForTests(true);
+    let failed = false;
+    try {
+      await first.appendCommandBatch!('head-crash-1', {
+        commandId: 'doomed-command',
+        actorId: 'p1',
+        expectedRevision: 1,
+        events: [makeEvent('head-crash-1', 1), makeEvent('head-crash-1', 2)],
+      });
+    } catch {
+      failed = true;
+    } finally {
+      _setFailAtHeadUpdateForTests(false);
+    }
+    expect(failed).toBe(true);
+
+    // NO RECEIPT: the doomed command must not be answerable, even
+    // though its receipt INSERT had already run when the seam fired.
+    expect(
+      await first.getCommandReceipt!('head-crash-1', 'doomed-command'),
+    ).toBeNull();
+    first.close();
+
+    const second = new DurableMatchStore({ path: dbPath });
+    // Only the good command's event survives the reopen.
+    expect(
+      (await second.getEvents('head-crash-1')).map((e) => e.sequence),
+    ).toEqual([0]);
+    expect(
+      await second.getCommandReceipt!('head-crash-1', 'doomed-command'),
+    ).toBeNull();
+
+    // The identity is free: the retry commits cleanly at the same head.
+    const retry = await second.appendCommandBatch!('head-crash-1', {
+      commandId: 'doomed-command',
+      actorId: 'p1',
+      expectedRevision: 1,
+      events: [makeEvent('head-crash-1', 1)],
     });
     expect(retry.kind).toBe('committed');
     second.close();

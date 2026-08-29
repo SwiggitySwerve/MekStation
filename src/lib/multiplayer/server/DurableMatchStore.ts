@@ -276,6 +276,13 @@ interface IOutboxRow {
 // Store
 // =============================================================================
 
+let failAtHeadUpdateForTests = false;
+
+/** Test-only: crash the batch transaction at the head-update statement. */
+export function _setFailAtHeadUpdateForTests(fail: boolean): void {
+  failAtHeadUpdateForTests = fail;
+}
+
 export interface IDurableMatchStoreOptions {
   /**
    * On-disk path for the SQLite file. Defaults to
@@ -491,6 +498,12 @@ export class DurableMatchStore
           batch.expectedPostStateDigest ?? null,
           committedAt,
         );
+      // Umbrella 3.2's named crash seam: die between the receipt insert
+      // and the head update, proving the transaction takes everything
+      // above down with it. Test-only, same pattern as the other seams.
+      if (failAtHeadUpdateForTests) {
+        throw new Error('test-crash-at-head-update');
+      }
       this.db
         .prepare(`UPDATE mp_matches SET updated_at = ? WHERE match_id = ?`)
         .run(committedAt, matchId);
