@@ -24,6 +24,20 @@
  * @spec openspec/changes/harden-gm-two-player-campaign-sessions/specs/multiplayer-sync/spec.md
  */
 
+import { logger } from '@/utils/logger';
+
+export type ViewerDeliveryPersist = (
+  playerId: string,
+  deliverySequence: number,
+  authoritySequence: number,
+) => void;
+
+export type ViewerDeliveryRecordSlot = {
+  readonly playerId: string;
+  readonly deliverySequence: number;
+  readonly authoritySequence: number;
+};
+
 export class ViewerDeliveryCursors {
   /**
    * Per viewer, the AUTHORITY sequence behind each frame they were
@@ -35,15 +49,54 @@ export class ViewerDeliveryCursors {
    */
   private readonly delivered = new Map<string, number[]>();
 
+  constructor(private readonly persist?: ViewerDeliveryPersist) {}
+
   /**
    * Take this viewer's next delivery sequence, recording which
    * authority event it carried. Call once per frame actually sent.
+   *
+   * THE single writer. Persist is best-effort: a throw must not block
+   * the send. The durable copy is a resume optimization, not authority
+   * — a missing row falls back to a full replay; a wrong row would
+   * shift every later cursor.
    */
   assign(playerId: string, authoritySequence: number | null): number {
     const list = this.delivered.get(playerId) ?? [];
-    list.push(authoritySequence ?? -1);
+    const authority = authoritySequence ?? -1;
+    list.push(authority);
     this.delivered.set(playerId, list);
-    return list.length - 1;
+    const deliverySequence = list.length - 1;
+    try {
+      this.persist?.(playerId, deliverySequence, authority);
+    } catch (error) {
+      logger.warn(
+        '[ViewerDeliveryCursors] persist failed; a missing row falls back to a full replay, which is safer than a shifted cursor',
+        error,
+      );
+    }
+    return deliverySequence;
+  }
+
+  /**
+   * Replace in-memory records from durable rows. A player whose
+   * delivery sequences are not 0..n-1 is skipped: a hole would shift
+   * later cursors, so no record (full replay) is the safe answer.
+   */
+  loadFromRecords(records: readonly ViewerDeliveryRecordSlot[]): void {
+    const byPlayer = new Map<string, ViewerDeliveryRecordSlot[]>();
+    for (const record of records) {
+      const list = byPlayer.get(record.playerId) ?? [];
+      list.push(record);
+      byPlayer.set(record.playerId, list);
+    }
+    for (const [playerId, entries] of Array.from(byPlayer.entries())) {
+      entries.sort((a, b) => a.deliverySequence - b.deliverySequence);
+      if (!isContiguousFromZero(entries)) continue;
+      this.delivered.set(
+        playerId,
+        entries.map((entry) => entry.authoritySequence),
+      );
+    }
   }
 
   /**
@@ -101,4 +154,14 @@ export class ViewerDeliveryCursors {
   forget(playerId: string): void {
     this.delivered.delete(playerId);
   }
+}
+
+function isContiguousFromZero(
+  entries: readonly ViewerDeliveryRecordSlot[],
+): boolean {
+  if (entries.length === 0) return false;
+  for (let index = 0; index < entries.length; index += 1) {
+    if (entries[index].deliverySequence !== index) return false;
+  }
+  return true;
 }

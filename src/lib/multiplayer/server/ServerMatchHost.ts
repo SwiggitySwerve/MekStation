@@ -65,13 +65,15 @@ import {
   type IServerMessage,
   nowIso,
 } from '@/types/multiplayer/Protocol';
+import { logger } from '@/utils/logger';
 
-import type { IMatchStore } from './IMatchStore';
 import type { IPublishNetworkedCommandResultInput } from './ServerMatchHostCommandResults';
 import type { IMatchSocket } from './ServerMatchSocketTypes';
 
 import { type IServerDiceRoller } from './CryptoDiceRoller';
+import { bindViewerDeliveryPersist } from './DurableMatchStore.viewerDelivery';
 import { FogOfWarVisibilityCache } from './fogOfWar';
+import { hasViewerDeliveryStore, type IMatchStore } from './IMatchStore';
 import {
   COMBAT_JOURNAL_AUTHORITY_ENABLED,
   type JournalAuthorityRecovery,
@@ -166,7 +168,7 @@ export class ServerMatchHost {
   private readonly lifecycle: ServerMatchSocketLifecycle;
   private readonly fogVisibilityCache = new FogOfWarVisibilityCache();
   /** Per-viewer gapless delivery numbering (umbrella 11.1). */
-  private readonly deliveryCursors = new ViewerDeliveryCursors();
+  private readonly deliveryCursors: ViewerDeliveryCursors;
   private session: InteractiveSession;
   private lastBroadcastSeq: number;
   private closed = false;
@@ -254,6 +256,9 @@ export class ServerMatchHost {
     } = {},
   ) {
     this.session = session;
+    this.deliveryCursors = new ViewerDeliveryCursors(
+      bindViewerDeliveryPersist(matchId, store),
+    );
     this.journalAuthorityEnabled = options.journalAuthority === true;
     this.journalRandomSeed = options.randomSeed ?? 0xc0ffee;
     this.journalDiceSeed = options.diceSeed ?? 0;
@@ -356,6 +361,24 @@ export class ServerMatchHost {
       recovered: true,
     });
   }
+
+  /**
+   * Reload persisted delivery slots into the in-memory mapping. A store
+   * without the port, or a load error, leaves the mapping empty so
+   * SessionJoin falls back to a full replay.
+   */
+  restorePersistedViewerDeliveries = async (): Promise<void> => {
+    if (!hasViewerDeliveryStore(this.store)) return;
+    try {
+      const rows = await this.store.listViewerDeliveryRecords(this.matchId);
+      this.deliveryCursors.loadFromRecords(rows);
+    } catch (error) {
+      logger.warn(
+        '[ServerMatchHost] viewer delivery restore failed; resume will fall back to a full replay',
+        error,
+      );
+    }
+  };
 
   // ---------------------------------------------------------------------------
   // Socket management
@@ -648,9 +671,10 @@ export class ServerMatchHost {
     // the frame a gap recovery had asked for, which made the recovery
     // ask the right question and get an answer one event short.
     //
-    // Falls back to a full replay when there is no record: after a
-    // restart the record is gone, and everything from the top is the
-    // correct answer then rather than a wrong one.
+    // Falls back to a full replay when this process has no record for
+    // the viewer. A rebuilt host reloads persisted rows when the store
+    // offers that port; a viewer with no rows still starts from the
+    // top, which is the correct answer rather than a wrong one.
     const afterLastHeld = lastSeq != null ? lastSeq + 1 : 0;
     const firstMissed =
       deliveryCursor === undefined
