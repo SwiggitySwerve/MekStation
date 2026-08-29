@@ -54,6 +54,13 @@ import type {
 } from './matchCommandBatch';
 
 import {
+  createDurableLegacyImportStore,
+  LEGACY_IMPORT_SCHEMA_SQL,
+  readDurableImportedEventSources,
+  readDurableLegacyImportMarker,
+  type IImportedEventSourceRow,
+} from './DurableMatchStore.legacyImport';
+import {
   MatchNotFoundError,
   MatchStoreSequenceCollisionError,
   type IMatchMeta,
@@ -62,6 +69,12 @@ import {
   type IMatchStore,
   type IPublicationOutboxStore,
 } from './IMatchStore';
+import {
+  importLegacyMatchEvents,
+  type IImportLegacyMatchEventsDeps,
+  type ILegacyImportMarker,
+  type LegacyEventImportResult,
+} from './importLegacyMatchEvents';
 import {
   firstNonContiguousSequence,
   matchCommandFingerprint,
@@ -231,7 +244,28 @@ export class DurableMatchStore implements IMatchStore, IPublicationOutboxStore {
     this.db.pragma('journal_mode = WAL');
     this.db.pragma('foreign_keys = ON');
     this.db.exec(SCHEMA_SQL);
+    this.db.exec(LEGACY_IMPORT_SCHEMA_SQL);
   }
+
+  /**
+   * Copy a retained legacy log into this match's event table. See
+   * `importLegacyMatchEvents` — the bulk path, not `appendCommandBatch`.
+   */
+  importLegacyEvents = (
+    input: Omit<IImportLegacyMatchEventsDeps, 'store'>,
+  ): LegacyEventImportResult =>
+    importLegacyMatchEvents({
+      ...input,
+      store: createDurableLegacyImportStore(this.db),
+    });
+
+  getLegacyImportMarker = (matchId: string): ILegacyImportMarker | null =>
+    readDurableLegacyImportMarker(this.db, matchId);
+
+  getImportedEventSources = (
+    matchId: string,
+  ): readonly IImportedEventSourceRow[] =>
+    readDurableImportedEventSources(this.db, matchId);
 
   createMatch = async (meta: IMatchMeta): Promise<string> => {
     const existing = this.db
