@@ -438,6 +438,19 @@ export class CampaignMatchHost {
    * and broadcast it. Sequence assignment is awaited per-event so two
    * events in one batch get consecutive numbers.
    */
+  /**
+   * Test-only: commit through the single real path. The scope table's
+   * anticipated GM-hidden facts have no production producer yet, and
+   * the wire scope boundary must be proven against the REAL commit,
+   * hydration, and live fan-out - not a mock. Same seam family as
+   * _setApplyCommittedForTests.
+   */
+  _commitEventsForTests = async (
+    events: readonly UnsequencedCampaignEvent[],
+  ): Promise<readonly ICampaignEvent[]> => {
+    return this.commitEvents(events);
+  };
+
   private async commitEvents(
     events: readonly UnsequencedCampaignEvent[],
   ): Promise<readonly ICampaignEvent[]> {
