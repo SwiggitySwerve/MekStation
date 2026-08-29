@@ -295,6 +295,21 @@ test.describe('multiplayer live vault-auth flow', () => {
         /Movement/i,
         { timeout: 20_000 },
       );
+
+      // Umbrella 6.4's cold-reload clause: a hard reload mid-match
+      // resumes the SAME session from the stored wire identity - the
+      // rejoined view shows live authoritative state (the advanced
+      // phase), not a lobby, a fresh match, or an auth failure.
+      // Falsification: clear the guest's sessionStorage before the
+      // reload and this times out at the phase assertion.
+      await guestPage.reload({ waitUntil: 'domcontentloaded' });
+      await expect(guestPage.getByTestId('phase-name')).toContainText(
+        /Movement/i,
+        { timeout: 30_000 },
+      );
+      await expect(
+        guestPage.getByTestId('unit-token-opponent-1-marauder-mad-3r'),
+      ).toBeVisible({ timeout: 20_000 });
     } finally {
       if (matchId && hostWireToken) {
         const deleteMatchResponse = await request.delete(
