@@ -75,8 +75,16 @@ import { bindViewerDeliveryPersist } from './DurableMatchStore.viewerDelivery';
 import { FogOfWarVisibilityCache } from './fogOfWar';
 import { hasViewerDeliveryStore, type IMatchStore } from './IMatchStore';
 import {
+  getJournalAuthorityAdmissionRefusal,
+  productionJournalAuthorityPrivacyGates,
+  resolveJournalAuthorityForNewMatch,
+  type IJournalAuthorityAdmissionRefusal,
+  type IJournalAuthorityPrivacyGateWiring,
+} from './journalAuthorityAdmission';
+import {
   COMBAT_JOURNAL_AUTHORITY_ENABLED,
   getCombatJournalAuthorityMode,
+  recordProcessShadowComparison,
   type JournalAuthorityRecovery,
   type ShadowComparisonRecord,
 } from './matchJournalAuthority';
@@ -181,6 +189,7 @@ export class ServerMatchHost {
   private shadowMismatches = 0;
   private readonly journalAuthorityEnabled: boolean;
   private readonly journalAuthorityShadow: boolean;
+  private readonly admissionRefusal: IJournalAuthorityAdmissionRefusal | null;
   private readonly journalRandomSeed: number;
   private readonly journalDiceSeed: number;
   private readonly journalPlayerUnits: readonly IAdaptedUnit[];
@@ -259,13 +268,35 @@ export class ServerMatchHost {
       readonly diceSeed?: number;
       readonly playerUnits?: readonly IAdaptedUnit[];
       readonly opponentUnits?: readonly IAdaptedUnit[];
+      readonly privacyGates?: IJournalAuthorityPrivacyGateWiring;
     } = {},
   ) {
     this.session = session;
     this.deliveryCursors = new ViewerDeliveryCursors(
       bindViewerDeliveryPersist(matchId, store),
     );
-    this.journalAuthorityEnabled = options.journalAuthority === true;
+    this.viewerResolver = new AuthorizedViewerResolver(
+      new MatchSeatMembershipSource(store),
+    );
+    const requested = options.journalAuthority === true;
+    if (options.recovered) {
+      this.journalAuthorityEnabled = requested;
+      this.admissionRefusal = null;
+    } else {
+      const resolved = resolveJournalAuthorityForNewMatch({
+        matchId,
+        store,
+        requested,
+        gates:
+          options.privacyGates ??
+          productionJournalAuthorityPrivacyGates(
+            this.viewerResolver,
+            this.deliveryCursors,
+          ),
+      });
+      this.journalAuthorityEnabled = resolved.enabled;
+      this.admissionRefusal = resolved.refusal;
+    }
     this.journalAuthorityShadow =
       !this.journalAuthorityEnabled &&
       getCombatJournalAuthorityMode() === 'shadow';
@@ -273,9 +304,6 @@ export class ServerMatchHost {
     this.journalDiceSeed = options.diceSeed ?? 0;
     this.journalPlayerUnits = options.playerUnits ?? [];
     this.journalOpponentUnits = options.opponentUnits ?? [];
-    this.viewerResolver = new AuthorizedViewerResolver(
-      new MatchSeatMembershipSource(store),
-    );
     this.capture = new ServerMatchHostCapture(sourceRoller);
     this.outcomePublisher = new ServerMatchHostOutcomePublisher(session);
     this.lifecycle = new ServerMatchSocketLifecycle({
@@ -339,6 +367,7 @@ export class ServerMatchHost {
       diceSeed: bootstrap.diceSeed,
       playerUnits: bootstrap.playerUnits,
       opponentUnits: bootstrap.opponentUnits,
+      privacyGates: bootstrap.privacyGates,
     });
     // Re-route the host's capture pointer through the ref the engine
     // callback closed over, so per-intent swaps stay invisible.
@@ -836,6 +865,15 @@ export class ServerMatchHost {
     mismatches: this.shadowMismatches,
   });
 
+  /** True when this match was admitted to the journal-authority path. */
+  isJournalAuthorityEnabled = (): boolean => this.journalAuthorityEnabled;
+
+  /** Host-queryable admission refusal; null when creation was not refused. */
+  getJournalAuthorityAdmissionRefusal =
+    (): IJournalAuthorityAdmissionRefusal | null =>
+      this.admissionRefusal ??
+      getJournalAuthorityAdmissionRefusal(this.matchId);
+
   /** Whether `closeMatch` has run. */
   isClosed = (): boolean => this.closed;
 
@@ -915,6 +953,7 @@ export class ServerMatchHost {
                 this.lastShadowComparison = record;
                 this.shadowComparisons += 1;
                 if (!record.equal) this.shadowMismatches += 1;
+                recordProcessShadowComparison(record);
               },
             }
           : undefined,

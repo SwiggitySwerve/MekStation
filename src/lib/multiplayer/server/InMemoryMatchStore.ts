@@ -19,7 +19,10 @@ import type {
   IMatchCommandReceipt,
   MatchBatchAppendResult,
 } from './matchCommandBatch';
-import type { IMatchJournalAuthorityStarted } from './matchJournalAuthority';
+import type {
+  IMatchJournalAuthorityBaseline,
+  IMatchJournalAuthorityStarted,
+} from './matchJournalAuthority';
 
 import {
   MatchNotFoundError,
@@ -59,6 +62,8 @@ interface IMatchRecord {
     { readonly record: IMatchPublication; publishedAt: string | null }
   >;
   started: IMatchJournalAuthorityStarted | null;
+  baseline: IMatchJournalAuthorityBaseline | null;
+  importedLegacy: boolean;
   // Set of sequences we've already stored — avoids O(n) scan on every
   // append for a duplicate-sequence check (matches can run hundreds of
   // events in a long fight).
@@ -108,6 +113,8 @@ export class InMemoryMatchStore
       receipts: new Map(),
       publications: new Map(),
       started: null,
+      baseline: null,
+      importedLegacy: false,
       closed: false,
     });
     if (meta.roomCode && meta.status === 'lobby') {
@@ -249,6 +256,29 @@ export class InMemoryMatchStore
     const rec = this.records.get(matchId);
     if (!rec) throw new MatchNotFoundError(matchId);
     return rec.started;
+  };
+
+  getJournalAuthorityBaseline = (
+    matchId: string,
+  ): IMatchJournalAuthorityBaseline | null => {
+    const rec = this.records.get(matchId);
+    return rec?.baseline ?? null;
+  };
+
+  insertJournalAuthorityBaseline = (
+    baseline: IMatchJournalAuthorityBaseline,
+  ): void => {
+    const rec = this.records.get(baseline.streamId);
+    if (!rec) throw new MatchNotFoundError(baseline.streamId);
+    if (rec.baseline != null) {
+      throw new Error('journal-authority-baseline already exists');
+    }
+    rec.baseline = baseline;
+  };
+
+  hasImportedLegacyStream = (matchId: string): boolean => {
+    const rec = this.records.get(matchId);
+    return rec?.importedLegacy === true;
   };
 
   /** See `IPublicationOutboxStore.listPendingPublications`. */

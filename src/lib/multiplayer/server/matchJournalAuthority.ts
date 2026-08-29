@@ -49,6 +49,37 @@ export interface ShadowComparisonRecord {
 }
 
 /**
+ * Process-wide shadow evidence for 4.2 admission. Zero comparisons is
+ * not a blocker: equality evidence is the deployment act of flipping
+ * the process mode to 'enabled'. This counter is the tripwire that
+ * un-flips admission automatically if any shadow comparison in this
+ * process recorded a mismatch.
+ */
+let processShadowComparisons = 0;
+let processShadowMismatches = 0;
+
+export function recordProcessShadowComparison(
+  record: ShadowComparisonRecord,
+): void {
+  processShadowComparisons += 1;
+  if (!record.equal) processShadowMismatches += 1;
+}
+
+export function getProcessShadowMismatchCount(): number {
+  return processShadowMismatches;
+}
+
+export function getProcessShadowComparisonCount(): number {
+  return processShadowComparisons;
+}
+
+/** Test-only: isolate admission tripwire state across suites. */
+export function _resetProcessShadowStatsForTests(): void {
+  processShadowComparisons = 0;
+  processShadowMismatches = 0;
+}
+
+/**
  * Host-side recovery contract for the journal-authority path (task 2.4).
  * Wire translation stays 2.3's STORE_FAILURE / INTERNAL_ERROR frames;
  * 3.x and 4.x consume this union, not a new protocol enum.
@@ -82,6 +113,12 @@ export interface IMatchJournalAuthorityHead {
   readonly digest: string;
   readonly effectiveGeneration: number;
 }
+
+/**
+ * Immutable cutover baseline for a match admitted to journal authority.
+ * Same tuple as the started-fact head; written once at admission.
+ */
+export type IMatchJournalAuthorityBaseline = IMatchJournalAuthorityHead;
 
 /**
  * Immutable one-time `journal-authority-started` fact. Written inside

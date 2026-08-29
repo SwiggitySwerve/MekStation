@@ -52,8 +52,16 @@ import type {
   IMatchCommandReceipt,
   MatchBatchAppendResult,
 } from './matchCommandBatch';
-import type { IMatchJournalAuthorityStarted } from './matchJournalAuthority';
+import type {
+  IMatchJournalAuthorityBaseline,
+  IMatchJournalAuthorityStarted,
+} from './matchJournalAuthority';
 
+import {
+  insertJournalAuthorityBaselineRow,
+  JOURNAL_AUTHORITY_BASELINE_SCHEMA_SQL,
+  readJournalAuthorityBaseline,
+} from './DurableMatchStore.journalAuthorityBaseline';
 import {
   createDurableLegacyImportStore,
   LEGACY_IMPORT_SCHEMA_SQL,
@@ -305,6 +313,7 @@ export class DurableMatchStore
     this.db.exec(SCHEMA_SQL);
     this.db.exec(LEGACY_IMPORT_SCHEMA_SQL);
     this.db.exec(VIEWER_DELIVERY_SCHEMA_SQL);
+    this.db.exec(JOURNAL_AUTHORITY_BASELINE_SCHEMA_SQL);
   }
 
   /**
@@ -326,6 +335,15 @@ export class DurableMatchStore
     matchId: string,
   ): readonly IImportedEventSourceRow[] =>
     readDurableImportedEventSources(this.db, matchId);
+
+  getJournalAuthorityBaseline = (
+    matchId: string,
+  ): IMatchJournalAuthorityBaseline | null =>
+    readJournalAuthorityBaseline(this.db, matchId);
+
+  insertJournalAuthorityBaseline = (
+    baseline: IMatchJournalAuthorityBaseline,
+  ): void => insertJournalAuthorityBaselineRow(this.db, baseline);
 
   createMatch = async (meta: IMatchMeta): Promise<string> => {
     const existing = this.db
