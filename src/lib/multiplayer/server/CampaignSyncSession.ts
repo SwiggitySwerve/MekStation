@@ -42,6 +42,11 @@ import { nowIso } from '@/types/multiplayer/Protocol';
 
 import type { CampaignMatchHost } from './CampaignMatchHost';
 
+import {
+  campaignScopeAdmits,
+  type ICampaignWireViewer,
+} from './campaignWireScopeBoundary';
+
 /**
  * The resync gap threshold. When a reconnecting guest is more than this
  * many events behind the current log, the host sends a fresh
@@ -316,6 +321,34 @@ export class CampaignSyncSession {
    *
    * A wrong room code rejects with `ok: false` and delivers nothing.
    */
+  /**
+   * The single wire application point (umbrella 11.1, campaign half):
+   * every campaign frame passes the scope boundary per recipient BEFORE
+   * serialization. Withheld frames still advance delivery bookkeeping -
+   * the existing noteDelivered calls run regardless of admission, and
+   * deliberately: a participant will never receive a fact scope holds
+   * back, and convergence must not wait forever on it (trade-off owned
+   * by the delegated delivery-epoch change; recorded in the receipts).
+   */
+  private wireViewer(participantId?: string): ICampaignWireViewer {
+    return {
+      participantId: participantId ?? null,
+      isGm:
+        participantId !== undefined &&
+        participantId === this.host.getHostPlayerId(),
+    };
+  }
+
+  private admitToWire(
+    sink: CampaignGuestSink,
+    participantId: string | undefined,
+  ): CampaignGuestSink {
+    const viewer = this.wireViewer(participantId);
+    return (event) => {
+      if (campaignScopeAdmits(event.scope, viewer)) sink(event);
+    };
+  }
+
   joinGuest = async (
     roomCode: string,
     sink: CampaignGuestSink,
@@ -351,12 +384,13 @@ export class CampaignSyncSession {
    * sink can never become something a launch waits on.
    */
   joinMember = async (
-    sink: CampaignGuestSink,
+    rawSink: CampaignGuestSink,
     participantId?: string,
   ): Promise<ICampaignJoinResult> => {
     if (!this.opened || this.paused) {
       return { ok: false, delivered: [], disconnect: () => {} };
     }
+    const sink = this.admitToWire(rawSink, participantId);
 
     const delivered: ICampaignEvent[] = [];
     const buffered: ICampaignEvent[] = [];
@@ -431,9 +465,10 @@ export class CampaignSyncSession {
    */
   resyncGuest = async (
     lastSeq: number,
-    sink: CampaignGuestSink,
+    rawSink: CampaignGuestSink,
     participantId?: string,
   ): Promise<ICampaignResyncResult> => {
+    const sink = this.admitToWire(rawSink, participantId);
     if (this.roomCode === null) {
       return {
         ok: false,
