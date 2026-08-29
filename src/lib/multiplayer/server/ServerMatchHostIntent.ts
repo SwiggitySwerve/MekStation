@@ -10,7 +10,10 @@ import { GameStatus } from '@/types/gameplay/GameSessionInterfaces';
 import { intentHasForbiddenDiceField } from '@/types/multiplayer/Protocol';
 
 import type { IMatchStore } from './IMatchStore';
-import type { JournalAuthorityRecovery } from './matchJournalAuthority';
+import type {
+  JournalAuthorityRecovery,
+  ShadowComparisonRecord,
+} from './matchJournalAuthority';
 import type { AcceptedIntentTracker } from './reconnection/AcceptedIntentTracker';
 import type { IntentRateLimiter } from './reconnection/IntentRateLimiter';
 import type { IServerMatchHostCaptureContext } from './ServerMatchHostCaptureContext';
@@ -27,6 +30,7 @@ import {
 } from './authorization/HumanActionAuthorizationGate';
 import { MembershipSourceUnavailableError } from './authorization/MatchSeatMembershipSource';
 import { hasPublicationOutbox } from './IMatchStore';
+import { runLegacyShadowComparison } from './journalAuthorityShadow';
 import { isSpectatorPlayer } from './lobby/spectatorSeats';
 import { dispatchToEngine } from './ServerMatchHostEngineDispatch';
 import { stampIntentIdOnNewEvents } from './ServerMatchHostEvents';
@@ -37,12 +41,14 @@ import { commitThenPublish, errorMessage } from './ServerMatchHostPublication';
 /** Per-host journal-authority handle. Absent / disabled = live dispatch. */
 export interface IJournalAuthorityHostHandle {
   readonly enabled: boolean;
+  readonly shadow: boolean;
   readonly decideDeps: IDecideCommandBatchDeps;
   readonly d6: () => number;
   replaceSession(session: InteractiveSession): void;
   markDivergence(): void;
   setLastBroadcastSeq(sequence: number): void;
   recordRecovery(recovery: JournalAuthorityRecovery | null): void;
+  recordShadowComparison(record: ShadowComparisonRecord): void;
 }
 
 /**
@@ -267,6 +273,7 @@ export async function handleIntent(
   }
 
   ctx.installFreshCapture();
+  const headIndex = ctx.session.getSession().events.length;
   try {
     dispatchToEngine(ctx.session, envelope.intent);
   } catch (e) {
@@ -284,6 +291,15 @@ export async function handleIntent(
   // the same envelope is caught (design D7), and stamp the id onto the
   // first produced event so recovery can rebuild the accepted-id set.
   let newEvents = ctx.stampRollsOnNewEvents(ctx.drainNewEvents());
+  if (ctx.journalAuthority?.shadow === true) {
+    runLegacyShadowComparison(ctx.journalAuthority, {
+      liveSession: ctx.session,
+      headIndex,
+      liveEvents: newEvents,
+      intent: envelope.intent,
+      intentId: envelope.intentId,
+    });
+  }
   if (envelope.intentId != null && newEvents.length > 0) {
     ctx.acceptedIntents.record(envelope.intentId);
     newEvents = stampIntentIdOnNewEvents(envelope.intentId, newEvents);
