@@ -13,6 +13,10 @@ import { LobbyPanel } from '@/components/multiplayer/LobbyPanel';
 import { NetworkedGameSurface } from '@/components/multiplayer/NetworkedGameSurface';
 import { useMultiplayerSession } from '@/hooks/useMultiplayerSession';
 import {
+  readMultiplayerToken,
+  storeMultiplayerToken,
+} from '@/pages-modules/multiplayer/multiplayerAuthTokenStore';
+import {
   buildWsUrl,
   mintToken,
 } from '@/pages-modules/multiplayer/multiplayerPage.helpers';
@@ -40,6 +44,16 @@ function useInviteResolution(roomCode: string | null): {
         );
         if (cancelled) return;
         if (res.status === 404) {
+          // The invite deliberately stops resolving once the match goes
+          // active - but a party to the match still knows its matchId
+          // from the stored identity, so a mid-match reload resumes
+          // instead of dead-ending (umbrella 6.4). A stranger with the
+          // dead code and no stored identity still sees not-found.
+          const stored = readMultiplayerToken(roomCode);
+          if (stored?.matchId) {
+            setResolution({ matchId: stored.matchId, status: 'active' });
+            return;
+          }
           setResolveError('Invite code not found or expired');
           return;
         }
@@ -229,6 +243,23 @@ export default function LobbyPage(): React.ReactElement {
   const [tokenState, setTokenState] = useState<MultiplayerTokenState | null>(
     null,
   );
+  // Cold-reload resume (umbrella 6.4): the minted identity survives a
+  // hard reload in sessionStorage, so a mid-match refresh rejoins the
+  // live session instead of falling back to the password prompt. An
+  // expired or refused restored token surfaces through the session's
+  // normal error state rather than being pre-judged here.
+  useEffect(() => {
+    if (tokenState !== null) return;
+    const restored = readMultiplayerToken(roomCode);
+    if (restored) setTokenState(restored.state);
+  }, [roomCode, tokenState]);
+  // Persist the resolved matchId beside the identity the moment both
+  // exist, so the post-active reload can name its match (see the 404
+  // fallback in useInviteResolution).
+  useEffect(() => {
+    if (!roomCode || !tokenState || !resolution) return;
+    storeMultiplayerToken(roomCode, tokenState, resolution.matchId);
+  }, [roomCode, tokenState, resolution]);
   const [password, setPassword] = useState<string>('');
   const [authError, setAuthError] = useState<string | null>(null);
 
@@ -275,6 +306,8 @@ export default function LobbyPage(): React.ReactElement {
           void (async () => {
             try {
               const t = await mintToken(password);
+              if (roomCode)
+                storeMultiplayerToken(roomCode, t, resolution?.matchId ?? null);
               setTokenState(t);
             } catch (e) {
               setAuthError(

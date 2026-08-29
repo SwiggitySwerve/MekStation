@@ -213,6 +213,10 @@ async function unlockVault(): Promise<void> {
 describe('Multiplayer lobby page — surface swap on status', () => {
   beforeEach(() => {
     mockFetch();
+    // The page persists the minted identity per room code (umbrella
+    // 6.4's cold-reload resume), so a prior test's mint would skip this
+    // test's Unlock-vault prompt. Each test starts identity-less.
+    window.sessionStorage.clear();
   });
 
   it('renders the lobby panel while status is lobby', async () => {
