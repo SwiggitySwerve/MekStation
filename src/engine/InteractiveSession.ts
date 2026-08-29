@@ -324,6 +324,39 @@ export class InteractiveSession {
   }
 
   /**
+   * Adopt a session rebuilt from an event log, injecting RNG and dice
+   * rather than re-seeding from `config.seed`. The combat decision
+   * seam uses this so a command can be decided on a scratch projection.
+   * The constructor's throwaway create+start log is replaced with
+   * `session` so currentState matches history.
+   */
+  static fromHydratedSession(
+    session: IGameSession,
+    options: {
+      readonly random: SeededRandom;
+      readonly d6Roller?: D6Roller;
+      readonly playerUnits?: readonly IAdaptedUnit[];
+      readonly opponentUnits?: readonly IAdaptedUnit[];
+    },
+  ): InteractiveSession {
+    const instance = new InteractiveSession(
+      session.config.mapRadius,
+      session.config.turnLimit,
+      options.random,
+      createRecoveredGridFromSession(session),
+      options.playerUnits ?? [],
+      options.opponentUnits ?? [],
+      session.units,
+      {},
+      options.d6Roller,
+      session.config.optionalRules,
+      session.config.victoryConditions,
+    );
+    instance.session = session;
+    return instance;
+  }
+
+  /**
    * Per `fix-recovered-session-adapted-units` (closes playtest gap #2):
    * async recovery factory that RE-DERIVES the per-unit adapted state
    * from each game unit's `unitRef` against the canonical unit catalog,
