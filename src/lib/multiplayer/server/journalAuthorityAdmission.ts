@@ -6,31 +6,29 @@
  * or pre-existing stream never enters this path.
  */
 
-import { logger } from '@/utils/logger';
+import { logger } from "@/utils/logger";
 
-import { AuthorizedViewerResolver } from './authorization/AuthorizedViewer';
-import { authorizeHumanAction } from './authorization/HumanActionAuthorizationGate';
+import { AuthorizedViewerResolver } from "./authorization/AuthorizedViewer";
+import { authorizeHumanAction } from "./authorization/HumanActionAuthorizationGate";
 import {
   MATCH_BASELINE_BRANCH_ID,
   MATCH_BASELINE_FIRST_GENERATION,
   digestRetainedMatchHistory,
-} from './matchAuthorityBaseline';
+} from "./matchAuthorityBaseline";
 import {
   getCombatJournalAuthorityMode,
   getProcessShadowMismatchCount,
   type CombatJournalAuthorityMode,
   type IMatchJournalAuthorityBaseline,
-} from './matchJournalAuthority';
-import { ViewerDeliveryCursors } from './projection/ViewerDeliveryCursors';
+} from "./matchJournalAuthority";
+import { ViewerDeliveryCursors } from "./projection/ViewerDeliveryCursors";
 import {
   MATCH_WIRE_PUBLICATION_BOUNDARY,
   ViewerPublicationBoundary,
-} from './projection/ViewerPublicationBoundary';
+} from "./projection/ViewerPublicationBoundary";
 
 export type JournalAuthorityAdmissionRefusalReason =
-  | 'imported-legacy'
-  | 'shadow-mismatch'
-  | 'missing-privacy-gates';
+  "imported-legacy" | "shadow-mismatch" | "missing-privacy-gates";
 
 export interface IJournalAuthorityAdmissionRefusal {
   readonly matchId: string;
@@ -72,15 +70,15 @@ export interface IAdmitJournalAuthorityInput {
 
 export type JournalAuthorityAdmissionDecision =
   | {
-      readonly kind: 'admitted';
+      readonly kind: "admitted";
       readonly baseline: IMatchJournalAuthorityBaseline;
       readonly reuse: boolean;
     }
   | {
-      readonly kind: 'refused';
+      readonly kind: "refused";
       readonly reason: JournalAuthorityAdmissionRefusalReason;
     }
-  | { readonly kind: 'inert' };
+  | { readonly kind: "inert" };
 
 const admissionRefusals = new Map<string, IJournalAuthorityAdmissionRefusal>();
 
@@ -130,7 +128,7 @@ export function genesisJournalAuthorityBaseline(
   streamId: string,
 ): IMatchJournalAuthorityBaseline {
   return {
-    streamType: 'match',
+    streamType: "match",
     streamId,
     branchId: MATCH_BASELINE_BRANCH_ID,
     revision: 0,
@@ -144,8 +142,8 @@ export function isJournalAuthorityBaselineStore(
 ): store is IJournalAuthorityBaselineStore {
   const candidate = store as Partial<IJournalAuthorityBaselineStore>;
   return (
-    typeof candidate.getJournalAuthorityBaseline === 'function' &&
-    typeof candidate.insertJournalAuthorityBaseline === 'function'
+    typeof candidate.getJournalAuthorityBaseline === "function" &&
+    typeof candidate.insertJournalAuthorityBaseline === "function"
   );
 }
 
@@ -158,13 +156,13 @@ export function matchStreamIsImportedLegacy(
     getLegacyImportMarker?(id: string): unknown | null;
     getImportedEventSources?(id: string): readonly unknown[];
   };
-  if (typeof candidate.hasImportedLegacyStream === 'function') {
+  if (typeof candidate.hasImportedLegacyStream === "function") {
     return candidate.hasImportedLegacyStream(matchId);
   }
-  if (typeof candidate.getLegacyImportMarker === 'function') {
+  if (typeof candidate.getLegacyImportMarker === "function") {
     if (candidate.getLegacyImportMarker(matchId) != null) return true;
   }
-  if (typeof candidate.getImportedEventSources === 'function') {
+  if (typeof candidate.getImportedEventSources === "function") {
     return candidate.getImportedEventSources(matchId).length > 0;
   }
   return false;
@@ -174,26 +172,26 @@ export function admitJournalAuthority(
   input: IAdmitJournalAuthorityInput,
 ): JournalAuthorityAdmissionDecision {
   if (input.imported) {
-    return { kind: 'refused', reason: 'imported-legacy' };
+    return { kind: "refused", reason: "imported-legacy" };
   }
-  if (input.mode !== 'enabled' || !input.requested) {
-    return { kind: 'inert' };
+  if (input.mode !== "enabled" || !input.requested) {
+    return { kind: "inert" };
   }
   if (shadowMismatchBlocksAdmission(input.processMismatchCount)) {
-    return { kind: 'refused', reason: 'shadow-mismatch' };
+    return { kind: "refused", reason: "shadow-mismatch" };
   }
   if (!privacyGatesArePresent(input.gates)) {
-    return { kind: 'refused', reason: 'missing-privacy-gates' };
+    return { kind: "refused", reason: "missing-privacy-gates" };
   }
   if (input.existingBaseline != null) {
     return {
-      kind: 'admitted',
+      kind: "admitted",
       baseline: input.existingBaseline,
       reuse: true,
     };
   }
   return {
-    kind: 'admitted',
+    kind: "admitted",
     baseline: genesisJournalAuthorityBaseline(input.matchId),
     reuse: false,
   };
@@ -222,7 +220,7 @@ export function resolveJournalAuthorityForNewMatch(input: {
     gates: input.gates,
     existingBaseline: existing,
   });
-  if (decision.kind === 'admitted') {
+  if (decision.kind === "admitted") {
     if (!isJournalAuthorityBaselineStore(input.store)) {
       return { enabled: false, refusal: null };
     }
@@ -233,7 +231,7 @@ export function resolveJournalAuthorityForNewMatch(input: {
     }
     return { enabled: true, refusal: null };
   }
-  if (decision.kind === 'refused') {
+  if (decision.kind === "refused") {
     const refusal: IJournalAuthorityAdmissionRefusal = {
       matchId: input.matchId,
       reason: decision.reason,

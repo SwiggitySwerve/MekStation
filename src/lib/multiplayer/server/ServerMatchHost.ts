@@ -41,39 +41,39 @@
  * @spec openspec/changes/add-authoritative-roll-arbitration/specs/multiplayer-server/spec.md
  */
 
-export type { WebSocket as WsWebSocket } from 'ws';
+export type { WebSocket as WsWebSocket } from "ws";
 
-import type { IAdaptedUnit } from '@/engine/types';
+import type { IAdaptedUnit } from "@/engine/types";
 import type {
   IGameEvent,
   IGameSession,
-} from '@/types/gameplay/GameSessionInterfaces';
-import type { IPlayerRef } from '@/types/multiplayer/Player';
+} from "@/types/gameplay/GameSessionInterfaces";
+import type { IPlayerRef } from "@/types/multiplayer/Player";
 
-import { InteractiveSession } from '@/engine/InteractiveSession';
+import { InteractiveSession } from "@/engine/InteractiveSession";
 import {
   type IGameSessionChannel,
   type IReconnectRequestEnvelope,
-} from '@/lib/p2p/gameSessionChannel';
+} from "@/lib/p2p/gameSessionChannel";
 import {
   matchLogStorage,
   type MatchLogStorage,
-} from '@/lib/p2p/matchLogStorage';
+} from "@/lib/p2p/matchLogStorage";
 import {
   type IIntent,
   type IEventMessage,
   type IServerMessage,
   nowIso,
-} from '@/types/multiplayer/Protocol';
-import { logger } from '@/utils/logger';
+} from "@/types/multiplayer/Protocol";
+import { logger } from "@/utils/logger";
 
-import type { IPublishNetworkedCommandResultInput } from './ServerMatchHostCommandResults';
-import type { IMatchSocket } from './ServerMatchSocketTypes';
+import type { IPublishNetworkedCommandResultInput } from "./ServerMatchHostCommandResults";
+import type { IMatchSocket } from "./ServerMatchSocketTypes";
 
-import { type IServerDiceRoller } from './CryptoDiceRoller';
-import { bindViewerDeliveryPersist } from './DurableMatchStore.viewerDelivery';
-import { FogOfWarVisibilityCache } from './fogOfWar';
-import { hasViewerDeliveryStore, type IMatchStore } from './IMatchStore';
+import { type IServerDiceRoller } from "./CryptoDiceRoller";
+import { bindViewerDeliveryPersist } from "./DurableMatchStore.viewerDelivery";
+import { FogOfWarVisibilityCache } from "./fogOfWar";
+import { hasViewerDeliveryStore, type IMatchStore } from "./IMatchStore";
 import {
   getJournalAuthorityAdmissionRefusal,
   isJournalAuthorityBaselineStore,
@@ -81,12 +81,12 @@ import {
   resolveJournalAuthorityForNewMatch,
   type IJournalAuthorityAdmissionRefusal,
   type IJournalAuthorityPrivacyGateWiring,
-} from './journalAuthorityAdmission';
+} from "./journalAuthorityAdmission";
 import {
   MATCH_BASELINE_BRANCH_ID,
   MATCH_BASELINE_FIRST_GENERATION,
   digestRetainedMatchHistory,
-} from './matchAuthorityBaseline';
+} from "./matchAuthorityBaseline";
 import {
   COMBAT_JOURNAL_AUTHORITY_ENABLED,
   getCombatJournalAuthorityMode,
@@ -94,28 +94,28 @@ import {
   type IMatchJournalAuthorityHead,
   type JournalAuthorityRecovery,
   type ShadowComparisonRecord,
-} from './matchJournalAuthority';
+} from "./matchJournalAuthority";
 import {
   MATCH_ROLLBACK_PRESERVED_FACTS,
   selectMatchRollbackReader,
   type MatchRollbackBlockedReason,
   type MatchRollbackReaderDecision,
-} from './matchRollbackReaderSelection';
-import { ViewerDeliveryCursors } from './projection/ViewerDeliveryCursors';
-import { AcceptedIntentTracker } from './reconnection/AcceptedIntentTracker';
+} from "./matchRollbackReaderSelection";
+import { ViewerDeliveryCursors } from "./projection/ViewerDeliveryCursors";
+import { AcceptedIntentTracker } from "./reconnection/AcceptedIntentTracker";
 import {
   migrateHostIfNeeded,
   type IHostMigrationResult,
-} from './reconnection/HostMigration';
-import { IntentRateLimiter } from './reconnection/IntentRateLimiter';
-import { PendingPeerTracker } from './reconnection/PendingPeerTracker';
-import { ServerMatchBroadcaster } from './ServerMatchBroadcaster';
+} from "./reconnection/HostMigration";
+import { IntentRateLimiter } from "./reconnection/IntentRateLimiter";
+import { PendingPeerTracker } from "./reconnection/PendingPeerTracker";
+import { ServerMatchBroadcaster } from "./ServerMatchBroadcaster";
 import {
   buildHostSession,
   type IMatchHostBootstrap,
-} from './ServerMatchHostBootstrap';
-import { ServerMatchHostCapture } from './ServerMatchHostCapture';
-import { publishNetworkedCommandResult } from './ServerMatchHostCommandResults';
+} from "./ServerMatchHostBootstrap";
+import { ServerMatchHostCapture } from "./ServerMatchHostCapture";
+import { publishNetworkedCommandResult } from "./ServerMatchHostCommandResults";
 import {
   buildCommandResultContext,
   buildIntentContext,
@@ -123,30 +123,30 @@ import {
   buildReconnectContext,
   buildReplayContext,
   type IServerMatchHostInternals,
-} from './ServerMatchHostContexts';
-import { digestCommandPostState } from './ServerMatchHostDecision';
-import { drainNewEvents } from './ServerMatchHostEngineDispatch';
+} from "./ServerMatchHostContexts";
+import { digestCommandPostState } from "./ServerMatchHostDecision";
+import { drainNewEvents } from "./ServerMatchHostEngineDispatch";
 import {
   broadcastEvent as broadcastEventWithContext,
   persistInitialEvents,
-} from './ServerMatchHostEvents';
-import { handleIntent as handleIntentWithContext } from './ServerMatchHostIntent';
-import { handleLobbyIntent as handleLobbyIntentWithContext } from './ServerMatchHostLobbyIntents';
-import { ServerMatchHostOutcomePublisher } from './ServerMatchHostOutcomePublisher';
+} from "./ServerMatchHostEvents";
+import { handleIntent as handleIntentWithContext } from "./ServerMatchHostIntent";
+import { handleLobbyIntent as handleLobbyIntentWithContext } from "./ServerMatchHostLobbyIntents";
+import { ServerMatchHostOutcomePublisher } from "./ServerMatchHostOutcomePublisher";
 import {
   maybeMarkPlayerPending,
   maybeResume,
-} from './ServerMatchHostReconnectLifecycle';
+} from "./ServerMatchHostReconnectLifecycle";
 import {
   bindReconnectChannel,
   getEventsFromSeq,
   handleReconnectRequest,
   handleSessionJoin,
   sendReplay,
-} from './ServerMatchHostReplay';
-import { ServerMatchSocketLifecycle } from './ServerMatchSocketLifecycle';
+} from "./ServerMatchHostReplay";
+import { ServerMatchSocketLifecycle } from "./ServerMatchSocketLifecycle";
 
-type ReconnectMetadataReader = Pick<MatchLogStorage, 'getMatchMetadata'>;
+type ReconnectMetadataReader = Pick<MatchLogStorage, "getMatchMetadata">;
 type PendingPeerSnapshot = {
   readonly playerId: string;
   readonly slotId: string;
@@ -158,7 +158,7 @@ type PendingPeerSnapshot = {
 
 // Re-exported for external consumers (e.g. websocket upgrade handler) so the
 // canonical home (`ServerMatchSocketTypes`) doesn't force a path change.
-export type { IMatchSocket } from './ServerMatchSocketTypes';
+export type { IMatchSocket } from "./ServerMatchSocketTypes";
 
 // =============================================================================
 // Engine bootstrap input — Wave 1 keeps it minimal
@@ -171,7 +171,7 @@ export type { IMatchSocket } from './ServerMatchSocketTypes';
  * session, the production REST `POST /matches` route would pass the
  * factory blob.
  */
-export type { IMatchHostBootstrap } from './ServerMatchHostBootstrap';
+export type { IMatchHostBootstrap } from "./ServerMatchHostBootstrap";
 
 // =============================================================================
 // Host
@@ -181,9 +181,9 @@ import {
   AuthorizedViewerError,
   AuthorizedViewerResolver,
   type IAuthorizedViewer,
-} from './authorization/AuthorizedViewer';
-import { mintVerifiedPrincipal } from './authorization/AuthorizedViewer';
-import { MatchSeatMembershipSource } from './authorization/MatchSeatMembershipSource';
+} from "./authorization/AuthorizedViewer";
+import { mintVerifiedPrincipal } from "./authorization/AuthorizedViewer";
+import { MatchSeatMembershipSource } from "./authorization/MatchSeatMembershipSource";
 
 export class ServerMatchHost {
   private readonly viewerResolver: AuthorizedViewerResolver;
@@ -299,15 +299,15 @@ export class ServerMatchHost {
     const requested = options.journalAuthority === true;
     if (options.recovered) {
       const rollbackReader = options.rollbackReader ?? {
-        kind: 'blocked' as const,
-        reason: 'recovery-selection-missing' as const,
+        kind: "blocked" as const,
+        reason: "recovery-selection-missing" as const,
         preserved: MATCH_ROLLBACK_PRESERVED_FACTS,
       };
       this.journalAuthorityEnabled =
-        rollbackReader.kind === 'journal-compatible';
+        rollbackReader.kind === "journal-compatible";
       this.admissionRefusal = null;
       this.rollbackBlockReason =
-        rollbackReader.kind === 'blocked' ? rollbackReader.reason : null;
+        rollbackReader.kind === "blocked" ? rollbackReader.reason : null;
     } else {
       const resolved = resolveJournalAuthorityForNewMatch({
         matchId,
@@ -332,7 +332,7 @@ export class ServerMatchHost {
     this.journalAuthorityShadow =
       !options.recovered &&
       !this.journalAuthorityEnabled &&
-      getCombatJournalAuthorityMode() === 'shadow';
+      getCombatJournalAuthorityMode() === "shadow";
     this.journalRandomSeed = options.randomSeed ?? 0xc0ffee;
     this.journalDiceSeed = options.diceSeed ?? 0;
     this.journalPlayerUnits = options.playerUnits ?? [];
@@ -450,7 +450,7 @@ export class ServerMatchHost {
       this.deliveryCursors.loadFromRecords(rows);
     } catch (error) {
       logger.warn(
-        '[ServerMatchHost] viewer delivery restore failed; resume will fall back to a full replay',
+        "[ServerMatchHost] viewer delivery restore failed; resume will fall back to a full replay",
         error,
       );
     }
@@ -492,18 +492,18 @@ export class ServerMatchHost {
     } catch (error) {
       if (error instanceof AuthorizedViewerError) {
         this.safeSend(socket, {
-          kind: 'Error',
+          kind: "Error",
           matchId: this.matchId,
           ts: nowIso(),
-          code: 'AUTH_REJECTED',
+          code: "AUTH_REJECTED",
           reason: `admission refused: ${error.code}`,
         });
         this.safeSend(socket, {
-          kind: 'Close',
+          kind: "Close",
           matchId: this.matchId,
           ts: nowIso(),
-          code: 'AUTH_REJECTED',
-          reason: 'not an active member of this match',
+          code: "AUTH_REJECTED",
+          reason: "not an active member of this match",
         });
         socket.close();
         return null;
@@ -512,11 +512,11 @@ export class ServerMatchHost {
       // membership could be verified), but with an infra code rather
       // than an authorization verdict.
       this.safeSend(socket, {
-        kind: 'Close',
+        kind: "Close",
         matchId: this.matchId,
         ts: nowIso(),
-        code: 'INTERNAL_ERROR',
-        reason: 'membership verification unavailable',
+        code: "INTERNAL_ERROR",
+        reason: "membership verification unavailable",
       });
       socket.close();
       return null;
@@ -544,11 +544,11 @@ export class ServerMatchHost {
           continue;
         }
         this.safeSend(socket, {
-          kind: 'Close',
+          kind: "Close",
           matchId: this.matchId,
           ts: nowIso(),
-          code: 'AUTH_REJECTED',
-          reason: 'membership revoked',
+          code: "AUTH_REJECTED",
+          reason: "membership revoked",
         });
         this.lifecycle.detach(socket);
         socket.close();
@@ -559,11 +559,11 @@ export class ServerMatchHost {
   attachSocket = (socket: IMatchSocket, playerId: string): void => {
     if (this.closed) {
       this.safeSend(socket, {
-        kind: 'Close',
+        kind: "Close",
         matchId: this.matchId,
         ts: nowIso(),
-        code: 'UNKNOWN_MATCH',
-        reason: 'Match has been closed',
+        code: "UNKNOWN_MATCH",
+        reason: "Match has been closed",
       });
       socket.close();
       return;
@@ -687,9 +687,9 @@ export class ServerMatchHost {
     request: IReconnectRequestEnvelope,
     channel: Pick<
       IGameSessionChannel,
-      | 'broadcastRejection'
-      | 'broadcastReconnectReject'
-      | 'broadcastReplayStream'
+      | "broadcastRejection"
+      | "broadcastReconnectReject"
+      | "broadcastReplayStream"
     >,
     metadataReader: ReconnectMetadataReader = matchLogStorage,
   ): Promise<void> => {
@@ -708,10 +708,10 @@ export class ServerMatchHost {
   bindReconnectChannel = (
     channel: Pick<
       IGameSessionChannel,
-      | 'broadcastRejection'
-      | 'broadcastReconnectReject'
-      | 'broadcastReplayStream'
-      | 'onReconnectRequest'
+      | "broadcastRejection"
+      | "broadcastReconnectReject"
+      | "broadcastReplayStream"
+      | "onReconnectRequest"
     >,
     metadataReader: ReconnectMetadataReader = matchLogStorage,
   ): (() => void) => {
@@ -806,7 +806,7 @@ export class ServerMatchHost {
     input: IPublishNetworkedCommandResultInput,
   ): Promise<IEventMessage> => {
     if (this.closed) {
-      throw new Error('Match is closed');
+      throw new Error("Match is closed");
     }
 
     const message = await publishNetworkedCommandResult(
@@ -857,10 +857,10 @@ export class ServerMatchHost {
     const socketList = this.lifecycle.snapshot();
     for (const socket of socketList) {
       this.safeSend(socket, {
-        kind: 'Close',
+        kind: "Close",
         matchId: this.matchId,
         ts: nowIso(),
-        reason: 'Match closed',
+        reason: "Match closed",
       });
       this.detachSocket(socket);
     }
@@ -1114,7 +1114,7 @@ export class ServerMatchHost {
     // Authority-audit PR 2: seats may have changed - revoked members
     // lose publication + reconnect access immediately.
     await this.revalidateAttachedViewers();
-    if (envelope.intent.kind === 'ForfeitMatch') {
+    if (envelope.intent.kind === "ForfeitMatch") {
       if (wasPaused) {
         this.isPaused = false;
       }
@@ -1170,10 +1170,10 @@ async function selectRecoveredMatchRollbackReader(
       supportedEffectiveGeneration: MATCH_BASELINE_FIRST_GENERATION,
     });
   } catch (error) {
-    logger.warn('[ServerMatchHost] rollback reader selection failed', error);
+    logger.warn("[ServerMatchHost] rollback reader selection failed", error);
     return {
-      kind: 'blocked',
-      reason: 'recovery-fact-read-failed',
+      kind: "blocked",
+      reason: "recovery-fact-read-failed",
       preserved: MATCH_ROLLBACK_PRESERVED_FACTS,
     };
   }
@@ -1185,7 +1185,7 @@ function headFromLegacyEvents(
   effectiveGeneration: number,
 ): IMatchJournalAuthorityHead {
   return {
-    streamType: 'match',
+    streamType: "match",
     streamId: matchId,
     branchId: MATCH_BASELINE_BRANCH_ID,
     revision: events.length > 0 ? events[events.length - 1].sequence : -1,
@@ -1197,7 +1197,7 @@ function headFromLegacyEvents(
 function journalHeadFromReceipt(
   startedHead: IMatchJournalAuthorityHead,
   receipt: Awaited<
-    ReturnType<NonNullable<IMatchStore['getLastCommandReceipt']>>
+    ReturnType<NonNullable<IMatchStore["getLastCommandReceipt"]>>
   >,
 ): IMatchJournalAuthorityHead | null {
   if (receipt?.expectedPostStateDigest == null) return null;
