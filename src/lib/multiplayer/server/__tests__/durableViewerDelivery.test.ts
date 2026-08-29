@@ -375,14 +375,32 @@ describe('durable viewer delivery mapping', () => {
       deliverySequence: 0,
       authoritySequence: 4,
     });
-    await expect(
-      store.appendViewerDeliveryRecord({
+    // Self-diagnosing form. This row failed twice ("did not throw") in
+    // full-scale runs and never reproduced in isolation, in-band, or
+    // 25 isolated iterations. If the first row is somehow absent when
+    // the duplicate runs, the assertion below names that state instead
+    // of the bare non-throw - the instrumented-failure rule.
+    const beforeDuplicate = await store.listViewerDeliveryRecords(matchId);
+    expect(beforeDuplicate).toHaveLength(1);
+    let duplicateError: unknown = null;
+    try {
+      await store.appendViewerDeliveryRecord({
         matchId,
         playerId: 'p1',
         deliverySequence: 0,
         authoritySequence: 99,
-      }),
-    ).rejects.toThrow();
+      });
+    } catch (error) {
+      duplicateError = error;
+    }
+    if (duplicateError === null) {
+      const after = await store.listViewerDeliveryRecords(matchId);
+      throw new Error(
+        `duplicate insert did not throw; rows before=${JSON.stringify(
+          beforeDuplicate,
+        )} after=${JSON.stringify(after)}`,
+      );
+    }
 
     const rows = await store.listViewerDeliveryRecords(matchId);
     expect(rows).toEqual([
