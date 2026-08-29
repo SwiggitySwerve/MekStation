@@ -308,6 +308,30 @@ describe('combat journal-authority recovery', () => {
     expect(new Set(sequences).size).toBe(sequences.length);
   });
 
+  it('POST-RECOVERY: a new command after crash-rebuild still decide/commit/publishes', async () => {
+    const { host, store } = await makeHost({
+      matchId: 'match-post-recovery-cmd',
+    });
+    matchJournalAuthority._setSkipPublishForTests(true);
+    await host.handleIntent(intent('lock-1', host.matchId));
+    matchJournalAuthority._setSkipPublishForTests(false);
+
+    const rebuilt = await rebuildHost(store, host.matchId);
+    const socket = makeMockSocket();
+    rebuilt.attachSocket(socket, 'host-player');
+    await rebuilt.handleIntent(intent('lock-1', host.matchId));
+
+    socket.sent.length = 0;
+    const next = await rebuilt.handleIntent(intent('lock-2', host.matchId));
+
+    expect(rebuilt.getLastJournalRecovery()).toBeNull();
+    expect(next.some((message) => message.kind === 'Event')).toBe(true);
+    expect(
+      await store.getCommandReceipt(host.matchId, 'lock-2'),
+    ).not.toBeNull();
+    expect(socket.sent.some((frame) => frame.kind === 'Event')).toBe(true);
+  });
+
   it('DIVERGENCE: union carries both digests; publication still blocked and the commit stays', async () => {
     matchJournalAuthority._setApplyCommittedForTests(
       (live, committed, deps) => {

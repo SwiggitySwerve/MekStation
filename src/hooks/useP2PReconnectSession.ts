@@ -10,6 +10,7 @@ import {
   getGameSessionAwarenessStates,
   getLocalPeerId as getSyncLocalPeerId,
   matchLogStorage,
+  MatchLogStorageUnavailableError,
   normalizeRoomCode,
   reconcileMatchLogMirror,
   type IGameSessionChannel,
@@ -69,6 +70,7 @@ interface ReconnectRuntime {
   requestSent: boolean;
   replayChain: Promise<void>;
   replayEvents: IGameEvent[];
+  requestedFullReplay: boolean;
 }
 
 export interface IUseP2PReconnectSessionOptions {
@@ -125,6 +127,7 @@ function createReconnectRuntime(): ReconnectRuntime {
     requestSent: false,
     replayChain: Promise.resolve(),
     replayEvents: [],
+    requestedFullReplay: false,
   };
 }
 
@@ -187,11 +190,19 @@ async function startReconnectSession(
   runtime: ReconnectRuntime,
 ): Promise<void> {
   const deps = resolveReconnectDependencies(options);
-  const [lastSequenceResult, metadata] = await Promise.all([
+  const [lastSequenceResult, metadata, storedEvents] = await Promise.all([
     deps.getLastSequence(matchId),
     deps.getMatchMetadata(matchId),
+    deps
+      .getEventsForMatch(matchId)
+      .catch((error: unknown) =>
+        error instanceof MatchLogStorageUnavailableError
+          ? []
+          : Promise.reject(error),
+      ),
   ]);
   const lastLocalSeq = lastSequenceResult ?? 0;
+  runtime.requestedFullReplay = storedEvents.length > 0;
 
   await deps.ensureSyncRoom(matchId);
   if (runtime.cancelled) return;
@@ -226,7 +237,8 @@ function setupHostReconnectResponder(
       matchId,
       metadata,
       channel,
-      getEventsFromSeq: deps.getHostEventsFromSeq,
+      getEventsFromSeq: (seq) =>
+        deps.getHostEventsFromSeq(request.lastLocalSeq === 0 ? 0 : seq),
     });
   });
 }
@@ -239,18 +251,17 @@ function setupGuestReconnect(
   deps: ReconnectDependencies,
   runtime: ReconnectRuntime,
 ): void {
-  const unsubscribeReplay = subscribeReplayStream(
-    matchId,
-    channel,
-    deps,
-    runtime,
-  );
-  const unsubscribeReject = subscribeReconnectReject(
-    matchId,
-    channel,
-    deps,
-    runtime,
-  );
+  const unsubscribeReplay = channel.onReplayStream((stream) => {
+    if (stream.matchId !== matchId) return;
+    runtime.replayChain = runtime.replayChain.then(() =>
+      applyReplayStream(matchId, stream, deps, runtime),
+    );
+  });
+  const unsubscribeReject = channel.onReconnectReject((rejection) => {
+    if (rejection.matchId !== matchId) return;
+    clearReconnectTimers(runtime);
+    deps.redirectToLobby(matchId, rejection.reason);
+  });
 
   runtime.cleanupChannel = () => {
     unsubscribeReplay();
@@ -261,7 +272,10 @@ function setupGuestReconnect(
     if (runtime.requestSent || runtime.cancelled) return;
     runtime.requestSent = true;
     clearReconnectTimers(runtime);
-    channel.broadcastReconnectRequest({ matchId, lastLocalSeq });
+    channel.broadcastReconnectRequest({
+      matchId,
+      lastLocalSeq: runtime.requestedFullReplay ? 0 : lastLocalSeq,
+    });
   };
 
   const checkHost = (): void => {
@@ -278,20 +292,6 @@ function setupGuestReconnect(
   checkHost();
 }
 
-function subscribeReplayStream(
-  matchId: string,
-  channel: IGameSessionChannel,
-  deps: ReconnectDependencies,
-  runtime: ReconnectRuntime,
-): () => void {
-  return channel.onReplayStream((stream) => {
-    if (stream.matchId !== matchId) return;
-    runtime.replayChain = runtime.replayChain.then(() =>
-      applyReplayStream(matchId, stream, deps, runtime),
-    );
-  });
-}
-
 async function applyReplayStream(
   matchId: string,
   stream: ReplayStreamMessage,
@@ -301,9 +301,13 @@ async function applyReplayStream(
   runtime.replayEvents.push(...stream.events);
   if (!stream.done || runtime.cancelled) return;
 
-  const events = orderReconnectEvents(runtime.replayEvents);
+  const events = runtime.replayEvents.slice();
   runtime.replayEvents = [];
-
+  if (events.every((event) => typeof event.sequence === 'number')) {
+    events.sort((left, right) => left.sequence - right.sequence);
+  }
+  const assumePrefixSnapshot = runtime.requestedFullReplay;
+  runtime.requestedFullReplay = false;
   const verdict = await reconcileMatchLogMirror({
     matchId,
     receivedEvents: events,
@@ -311,13 +315,17 @@ async function applyReplayStream(
       getEventsForMatch: deps.getEventsForMatch,
       deleteEventsForMatch: deps.deleteEventsForMatch,
     },
+    assumePrefixSnapshot,
   });
   if (verdict.kind !== 'match') {
     logger.warn('Match log mirror prefix diverged; discarding mirror', verdict);
     deps.onMirrorPrefixDivergence?.(verdict);
   }
 
+  const seen = new Set<string>();
   for (const event of events) {
+    if (seen.has(event.id)) continue;
+    seen.add(event.id);
     await deps.appendReplayEvent(matchId, event);
   }
   if (runtime.cancelled) return;
@@ -325,31 +333,6 @@ async function applyReplayStream(
     deps.setHydratedSession(await deps.hydrateFromMatchLog(matchId));
   }
   deps.setLive();
-}
-
-function orderReconnectEvents(events: readonly IGameEvent[]): IGameEvent[] {
-  const ordered = events.slice();
-  if (ordered.every((event) => typeof event.sequence === 'number')) {
-    ordered.sort(compareEventsBySequence);
-  }
-  return ordered;
-}
-
-function compareEventsBySequence(left: IGameEvent, right: IGameEvent): number {
-  return left.sequence - right.sequence;
-}
-
-function subscribeReconnectReject(
-  matchId: string,
-  channel: IGameSessionChannel,
-  deps: ReconnectDependencies,
-  runtime: ReconnectRuntime,
-): () => void {
-  return channel.onReconnectReject((rejection) => {
-    if (rejection.matchId !== matchId) return;
-    clearReconnectTimers(runtime);
-    deps.redirectToLobby(matchId, rejection.reason);
-  });
 }
 
 function handleReconnectTimeout(
@@ -438,5 +421,5 @@ function defaultGetHostEventsFromSeq(seq: number): readonly IGameEvent[] {
     interactiveSession?.getSession() ?? useGameplayStore.getState().session;
   return (session?.events ?? [])
     .filter((event) => event.sequence >= seq)
-    .sort(compareEventsBySequence);
+    .sort((left, right) => left.sequence - right.sequence);
 }

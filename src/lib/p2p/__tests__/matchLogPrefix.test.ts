@@ -320,4 +320,36 @@ describe('reconcileMatchLogMirror', () => {
     expect(await storage.getEventsForMatch(matchId)).toEqual(stored);
     storage.close();
   });
+
+  it('REPLACED-AT-0: a prefix snapshot with a rewritten head discards', async () => {
+    const matchId = 'prefix-replaced-at-0';
+    const storage = new MatchLogStorage({
+      dbName: nextDbName(),
+      now: () => BASE_TIME,
+      scheduleFrame: (callback) => callback(),
+    });
+    await persistEvents(storage, matchId, [
+      makeEvent(matchId, 0, 'id-old'),
+      makeEvent(matchId, 1, 'id-b'),
+    ]);
+
+    const verdict = await reconcileMatchLogMirror({
+      matchId,
+      receivedEvents: [
+        makeEvent(matchId, 0, 'id-new'),
+        makeEvent(matchId, 1, 'id-x'),
+      ],
+      storage,
+      assumePrefixSnapshot: true,
+    });
+
+    expect(verdict).toEqual({
+      kind: 'replaced',
+      position: 0,
+      storedId: 'id-old',
+      receivedId: 'id-new',
+    });
+    expect(await storage.getEventsForMatch(matchId)).toEqual([]);
+    storage.close();
+  });
 });

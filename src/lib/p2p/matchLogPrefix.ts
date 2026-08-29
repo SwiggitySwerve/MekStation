@@ -66,6 +66,7 @@ export async function reconcileMatchLogMirror(input: {
   readonly matchId: string;
   readonly receivedEvents: readonly IMatchLogPrefixEvent[];
   readonly storage: MatchLogPrefixStorage;
+  readonly assumePrefixSnapshot?: boolean;
 }): Promise<MatchLogPrefixVerdict> {
   let storedEvents: readonly IGameEvent[];
   try {
@@ -81,7 +82,10 @@ export async function reconcileMatchLogMirror(input: {
     return { kind: 'match' };
   }
 
-  if (!isAuthoritativePrefix(storedEvents, input.receivedEvents)) {
+  if (
+    !input.assumePrefixSnapshot &&
+    !isAuthoritativePrefix(storedEvents, input.receivedEvents)
+  ) {
     return { kind: 'match' };
   }
 

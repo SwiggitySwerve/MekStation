@@ -103,6 +103,7 @@ describe('useP2PReconnectSession', () => {
       useP2PReconnectSession('match-1', {
         getLastSequence: jest.fn().mockResolvedValue(5),
         getMatchMetadata: jest.fn().mockResolvedValue(metadata),
+        getEventsForMatch: jest.fn().mockResolvedValue([]),
         ensureSyncRoom: jest.fn(),
         getLocalPeerId: () => 'guest-peer',
         getHostPresent: () => true,
@@ -162,7 +163,10 @@ describe('useP2PReconnectSession', () => {
     );
 
     await waitFor(() => {
-      expect(channel.broadcastReconnectRequest).toHaveBeenCalled();
+      expect(channel.broadcastReconnectRequest).toHaveBeenCalledWith({
+        matchId: 'match-1',
+        lastLocalSeq: 0,
+      });
     });
 
     act(() => {
@@ -371,7 +375,10 @@ describe('useP2PReconnectSession', () => {
     );
 
     await waitFor(() => {
-      expect(channel.broadcastReconnectRequest).toHaveBeenCalled();
+      expect(channel.broadcastReconnectRequest).toHaveBeenCalledWith({
+        matchId: 'match-1',
+        lastLocalSeq: 0,
+      });
     });
 
     act(() => {
@@ -382,6 +389,154 @@ describe('useP2PReconnectSession', () => {
     expect(deleteEventsForMatch).not.toHaveBeenCalled();
     expect(onMirrorPrefixDivergence).not.toHaveBeenCalled();
     expect(setLive).toHaveBeenCalledTimes(1);
+  });
+
+  it('FULL REPLAY: a present mirror quotes lastLocalSeq 0, not the suffix (R1)', async () => {
+    const { channel } = makeChannel();
+
+    renderHook(() =>
+      useP2PReconnectSession('match-1', {
+        getLastSequence: jest.fn().mockResolvedValue(2),
+        getMatchMetadata: jest.fn().mockResolvedValue(metadata),
+        getEventsForMatch: jest
+          .fn()
+          .mockResolvedValue([makeEvent(0), makeEvent(1), makeEvent(2)]),
+        deleteEventsForMatch: jest.fn().mockResolvedValue(undefined),
+        ensureSyncRoom: jest.fn(),
+        getLocalPeerId: () => 'guest-peer',
+        getHostPresent: () => true,
+        createChannel: () => channel,
+        appendReplayEvent: jest.fn().mockResolvedValue(undefined),
+        hydrateFromMatchLog: jest.fn().mockResolvedValue(makeHydratedSession()),
+        setHydratedSession: jest.fn(),
+        setLive: jest.fn(),
+        redirectToLobby: jest.fn(),
+      }),
+    );
+
+    await waitFor(() => {
+      expect(channel.broadcastReconnectRequest).toHaveBeenCalledWith({
+        matchId: 'match-1',
+        lastLocalSeq: 0,
+      });
+    });
+  });
+
+  it('COLD RELOAD / REPLACED-AT-0: rewritten head discards the mirror (M3, R1)', async () => {
+    const { channel, emitReplay } = makeChannel();
+    const stored = [
+      makeEvent(0, 'id-old'),
+      makeEvent(1, 'id-b'),
+      makeEvent(2, 'id-c'),
+    ];
+    const stream = [
+      makeEvent(0, 'id-new'),
+      makeEvent(1, 'id-x'),
+      makeEvent(2, 'id-y'),
+    ];
+    const deleteEventsForMatch = jest.fn().mockResolvedValue(undefined);
+    const appendReplayEvent = jest.fn().mockResolvedValue(undefined);
+    const onMirrorPrefixDivergence = jest.fn();
+    const setLive = jest.fn();
+
+    renderHook(() =>
+      useP2PReconnectSession('match-1', {
+        getLastSequence: jest.fn().mockResolvedValue(2),
+        getMatchMetadata: jest.fn().mockResolvedValue(metadata),
+        getEventsForMatch: jest.fn().mockResolvedValue(stored),
+        deleteEventsForMatch,
+        ensureSyncRoom: jest.fn(),
+        getLocalPeerId: () => 'guest-peer',
+        getHostPresent: () => true,
+        createChannel: () => channel,
+        appendReplayEvent,
+        hydrateFromMatchLog: jest.fn().mockResolvedValue(makeHydratedSession()),
+        setHydratedSession: jest.fn(),
+        setLive,
+        redirectToLobby: jest.fn(),
+        onMirrorPrefixDivergence,
+      }),
+    );
+
+    await waitFor(() => {
+      expect(channel.broadcastReconnectRequest).toHaveBeenCalledWith({
+        matchId: 'match-1',
+        lastLocalSeq: 0,
+      });
+    });
+
+    act(() => {
+      emitReplay(stream);
+    });
+
+    await waitFor(() =>
+      expect(deleteEventsForMatch).toHaveBeenCalledWith('match-1'),
+    );
+    expect(onMirrorPrefixDivergence).toHaveBeenCalledWith({
+      kind: 'replaced',
+      position: 0,
+      storedId: 'id-old',
+      receivedId: 'id-new',
+    });
+    expect(appendReplayEvent.mock.calls.map(([, event]) => event.id)).toEqual([
+      'id-new',
+      'id-x',
+      'id-y',
+    ]);
+    expect(setLive).toHaveBeenCalledTimes(1);
+
+    act(() => {
+      emitReplay([makeEvent(3, 'id-command')]);
+    });
+    await waitFor(() =>
+      expect(appendReplayEvent.mock.calls.map(([, event]) => event.id)).toEqual(
+        ['id-new', 'id-x', 'id-y', 'id-command'],
+      ),
+    );
+  });
+
+  it('DUPLICATE: the same event in the catch-up stream is appended once (M2)', async () => {
+    const { channel, emitReplay } = makeChannel();
+    const stored = [makeEvent(0, 'id-a')];
+    const stream = [
+      makeEvent(0, 'id-a'),
+      makeEvent(1, 'id-b'),
+      makeEvent(1, 'id-b'),
+    ];
+    const appendReplayEvent = jest.fn().mockResolvedValue(undefined);
+    const setLive = jest.fn();
+
+    renderHook(() =>
+      useP2PReconnectSession('match-1', {
+        getLastSequence: jest.fn().mockResolvedValue(0),
+        getMatchMetadata: jest.fn().mockResolvedValue(metadata),
+        getEventsForMatch: jest.fn().mockResolvedValue(stored),
+        deleteEventsForMatch: jest.fn().mockResolvedValue(undefined),
+        ensureSyncRoom: jest.fn(),
+        getLocalPeerId: () => 'guest-peer',
+        getHostPresent: () => true,
+        createChannel: () => channel,
+        appendReplayEvent,
+        hydrateFromMatchLog: jest.fn().mockResolvedValue(makeHydratedSession()),
+        setHydratedSession: jest.fn(),
+        setLive,
+        redirectToLobby: jest.fn(),
+      }),
+    );
+
+    await waitFor(() => {
+      expect(channel.broadcastReconnectRequest).toHaveBeenCalled();
+    });
+
+    act(() => {
+      emitReplay(stream);
+    });
+
+    await waitFor(() => expect(setLive).toHaveBeenCalledTimes(1));
+    expect(appendReplayEvent.mock.calls.map(([, event]) => event.id)).toEqual([
+      'id-a',
+      'id-b',
+    ]);
   });
 
   it('hydrates locally and marks hostPending when the host is absent for 10 seconds', async () => {
