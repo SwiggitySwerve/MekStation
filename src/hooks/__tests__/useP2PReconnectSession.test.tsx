@@ -11,9 +11,9 @@ import {
   GameSide,
 } from '@/types/gameplay/GameSessionInterfaces';
 
-function makeEvent(sequence: number): IGameEvent {
+function makeEvent(sequence: number, id = `event-${sequence}`): IGameEvent {
   return {
-    id: `event-${sequence}`,
+    id,
     gameId: 'match-1',
     sequence,
     timestamp: '2026-04-30T00:00:00.000Z',
@@ -130,6 +130,257 @@ describe('useP2PReconnectSession', () => {
     expect(
       appendReplayEvent.mock.calls.map(([, event]) => event.sequence),
     ).toEqual([6, 7]);
+    expect(setLive).toHaveBeenCalledTimes(1);
+  });
+
+  it('MATCH: keeps the mirror and rehydrates from the stream like today', async () => {
+    const { channel, emitReplay } = makeChannel();
+    const stored = [makeEvent(0), makeEvent(1)];
+    const stream = [makeEvent(0), makeEvent(1), makeEvent(2)];
+    const deleteEventsForMatch = jest.fn().mockResolvedValue(undefined);
+    const appendReplayEvent = jest.fn().mockResolvedValue(undefined);
+    const setLive = jest.fn();
+    const onMirrorPrefixDivergence = jest.fn();
+
+    renderHook(() =>
+      useP2PReconnectSession('match-1', {
+        getLastSequence: jest.fn().mockResolvedValue(1),
+        getMatchMetadata: jest.fn().mockResolvedValue(metadata),
+        getEventsForMatch: jest.fn().mockResolvedValue(stored),
+        deleteEventsForMatch,
+        ensureSyncRoom: jest.fn(),
+        getLocalPeerId: () => 'guest-peer',
+        getHostPresent: () => true,
+        createChannel: () => channel,
+        appendReplayEvent,
+        hydrateFromMatchLog: jest.fn().mockResolvedValue(makeHydratedSession()),
+        setHydratedSession: jest.fn(),
+        setLive,
+        redirectToLobby: jest.fn(),
+        onMirrorPrefixDivergence,
+      }),
+    );
+
+    await waitFor(() => {
+      expect(channel.broadcastReconnectRequest).toHaveBeenCalled();
+    });
+
+    act(() => {
+      emitReplay(stream);
+    });
+
+    await waitFor(() => expect(appendReplayEvent).toHaveBeenCalledTimes(3));
+    expect(deleteEventsForMatch).not.toHaveBeenCalled();
+    expect(onMirrorPrefixDivergence).not.toHaveBeenCalled();
+    expect(appendReplayEvent.mock.calls.map(([, event]) => event.id)).toEqual(
+      stream.map((event) => event.id),
+    );
+    expect(setLive).toHaveBeenCalledTimes(1);
+  });
+
+  it('REPLACED: discards the mirror and proceeds from the stream', async () => {
+    const { channel, emitReplay } = makeChannel();
+    const stored = [
+      makeEvent(0, 'id-a'),
+      makeEvent(1, 'id-b'),
+      makeEvent(2, 'id-c'),
+    ];
+    const stream = [
+      makeEvent(0, 'id-a'),
+      makeEvent(1, 'id-x'),
+      makeEvent(2, 'id-c'),
+    ];
+    const deleteEventsForMatch = jest.fn().mockResolvedValue(undefined);
+    const appendReplayEvent = jest.fn().mockResolvedValue(undefined);
+    const onMirrorPrefixDivergence = jest.fn();
+    const setLive = jest.fn();
+
+    renderHook(() =>
+      useP2PReconnectSession('match-1', {
+        getLastSequence: jest.fn().mockResolvedValue(2),
+        getMatchMetadata: jest.fn().mockResolvedValue(metadata),
+        getEventsForMatch: jest.fn().mockResolvedValue(stored),
+        deleteEventsForMatch,
+        ensureSyncRoom: jest.fn(),
+        getLocalPeerId: () => 'guest-peer',
+        getHostPresent: () => true,
+        createChannel: () => channel,
+        appendReplayEvent,
+        hydrateFromMatchLog: jest.fn().mockResolvedValue(makeHydratedSession()),
+        setHydratedSession: jest.fn(),
+        setLive,
+        redirectToLobby: jest.fn(),
+        onMirrorPrefixDivergence,
+      }),
+    );
+
+    await waitFor(() => {
+      expect(channel.broadcastReconnectRequest).toHaveBeenCalled();
+    });
+
+    act(() => {
+      emitReplay(stream);
+    });
+
+    await waitFor(() =>
+      expect(deleteEventsForMatch).toHaveBeenCalledWith('match-1'),
+    );
+    expect(onMirrorPrefixDivergence).toHaveBeenCalledWith({
+      kind: 'replaced',
+      position: 1,
+      storedId: 'id-b',
+      receivedId: 'id-x',
+    });
+    expect(appendReplayEvent.mock.calls.map(([, event]) => event.id)).toEqual([
+      'id-a',
+      'id-x',
+      'id-c',
+    ]);
+    expect(setLive).toHaveBeenCalledTimes(1);
+  });
+
+  it('TRUNCATED: discards the mirror when the stream is shorter', async () => {
+    const { channel, emitReplay } = makeChannel();
+    const stored = [
+      makeEvent(0, 'id-a'),
+      makeEvent(1, 'id-b'),
+      makeEvent(2, 'id-c'),
+    ];
+    const stream = [makeEvent(0, 'id-a'), makeEvent(1, 'id-b')];
+    const deleteEventsForMatch = jest.fn().mockResolvedValue(undefined);
+    const appendReplayEvent = jest.fn().mockResolvedValue(undefined);
+    const onMirrorPrefixDivergence = jest.fn();
+
+    renderHook(() =>
+      useP2PReconnectSession('match-1', {
+        getLastSequence: jest.fn().mockResolvedValue(2),
+        getMatchMetadata: jest.fn().mockResolvedValue(metadata),
+        getEventsForMatch: jest.fn().mockResolvedValue(stored),
+        deleteEventsForMatch,
+        ensureSyncRoom: jest.fn(),
+        getLocalPeerId: () => 'guest-peer',
+        getHostPresent: () => true,
+        createChannel: () => channel,
+        appendReplayEvent,
+        hydrateFromMatchLog: jest.fn().mockResolvedValue(makeHydratedSession()),
+        setHydratedSession: jest.fn(),
+        setLive: jest.fn(),
+        redirectToLobby: jest.fn(),
+        onMirrorPrefixDivergence,
+      }),
+    );
+
+    await waitFor(() => {
+      expect(channel.broadcastReconnectRequest).toHaveBeenCalled();
+    });
+
+    act(() => {
+      emitReplay(stream);
+    });
+
+    await waitFor(() =>
+      expect(deleteEventsForMatch).toHaveBeenCalledWith('match-1'),
+    );
+    expect(onMirrorPrefixDivergence).toHaveBeenCalledWith({
+      kind: 'truncated',
+      position: 2,
+    });
+    expect(appendReplayEvent.mock.calls.map(([, event]) => event.id)).toEqual([
+      'id-a',
+      'id-b',
+    ]);
+  });
+
+  it('SEQUENCE-FREE: still discards on id mismatch when sequence is absent', async () => {
+    const { channel, emitReplay } = makeChannel();
+    const stored = [
+      makeEvent(0, 'id-a'),
+      makeEvent(1, 'id-b'),
+      makeEvent(2, 'id-c'),
+    ];
+    const stream = [
+      { id: 'id-a', type: GameEventType.GameStarted },
+      { id: 'id-x', type: GameEventType.GameStarted },
+      { id: 'id-c', type: GameEventType.GameStarted },
+    ] as IGameEvent[];
+    const deleteEventsForMatch = jest.fn().mockResolvedValue(undefined);
+    const onMirrorPrefixDivergence = jest.fn();
+
+    renderHook(() =>
+      useP2PReconnectSession('match-1', {
+        getLastSequence: jest.fn().mockResolvedValue(2),
+        getMatchMetadata: jest.fn().mockResolvedValue(metadata),
+        getEventsForMatch: jest.fn().mockResolvedValue(stored),
+        deleteEventsForMatch,
+        ensureSyncRoom: jest.fn(),
+        getLocalPeerId: () => 'guest-peer',
+        getHostPresent: () => true,
+        createChannel: () => channel,
+        appendReplayEvent: jest.fn().mockResolvedValue(undefined),
+        hydrateFromMatchLog: jest.fn().mockResolvedValue(makeHydratedSession()),
+        setHydratedSession: jest.fn(),
+        setLive: jest.fn(),
+        redirectToLobby: jest.fn(),
+        onMirrorPrefixDivergence,
+      }),
+    );
+
+    await waitFor(() => {
+      expect(channel.broadcastReconnectRequest).toHaveBeenCalled();
+    });
+
+    act(() => {
+      emitReplay(stream);
+    });
+
+    await waitFor(() =>
+      expect(deleteEventsForMatch).toHaveBeenCalledWith('match-1'),
+    );
+    expect(onMirrorPrefixDivergence).toHaveBeenCalledWith({
+      kind: 'replaced',
+      position: 1,
+      storedId: 'id-b',
+      receivedId: 'id-x',
+    });
+  });
+
+  it('NO MIRROR: does not delete and still applies the stream', async () => {
+    const { channel, emitReplay } = makeChannel();
+    const deleteEventsForMatch = jest.fn().mockResolvedValue(undefined);
+    const appendReplayEvent = jest.fn().mockResolvedValue(undefined);
+    const onMirrorPrefixDivergence = jest.fn();
+    const setLive = jest.fn();
+
+    renderHook(() =>
+      useP2PReconnectSession('match-1', {
+        getLastSequence: jest.fn().mockResolvedValue(null),
+        getMatchMetadata: jest.fn().mockResolvedValue(metadata),
+        getEventsForMatch: jest.fn().mockResolvedValue([]),
+        deleteEventsForMatch,
+        ensureSyncRoom: jest.fn(),
+        getLocalPeerId: () => 'guest-peer',
+        getHostPresent: () => true,
+        createChannel: () => channel,
+        appendReplayEvent,
+        hydrateFromMatchLog: jest.fn().mockResolvedValue(makeHydratedSession()),
+        setHydratedSession: jest.fn(),
+        setLive,
+        redirectToLobby: jest.fn(),
+        onMirrorPrefixDivergence,
+      }),
+    );
+
+    await waitFor(() => {
+      expect(channel.broadcastReconnectRequest).toHaveBeenCalled();
+    });
+
+    act(() => {
+      emitReplay([makeEvent(0), makeEvent(1)]);
+    });
+
+    await waitFor(() => expect(appendReplayEvent).toHaveBeenCalledTimes(2));
+    expect(deleteEventsForMatch).not.toHaveBeenCalled();
+    expect(onMirrorPrefixDivergence).not.toHaveBeenCalled();
     expect(setLive).toHaveBeenCalledTimes(1);
   });
 

@@ -12,6 +12,7 @@
 import type { IGameEvent } from '@/types/gameplay/GameSessionInterfaces';
 
 import {
+  deleteEventsForMatchInDatabase,
   matchSequenceRange,
   mergeMatchMetadata,
   migrateMatchLogDatabase,
@@ -167,6 +168,11 @@ export class MatchLogStorage {
         reject(toStorageError('Match events read aborted', transaction.error));
       };
     });
+  };
+
+  deleteEventsForMatch = async (matchId: string): Promise<void> => {
+    const db = await this.openDatabase();
+    await deleteEventsForMatchInDatabase(db, matchId);
   };
 
   getLastSequence = async (matchId: string): Promise<number | null> => {

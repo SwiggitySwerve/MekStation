@@ -132,6 +132,33 @@ export function matchSequenceRange(matchId: string): IDBKeyRange {
   );
 }
 
+export function deleteEventsForMatchInDatabase(
+  db: IDBDatabase,
+  matchId: string,
+): Promise<void> {
+  return new Promise<void>((resolve, reject) => {
+    const transaction = db.transaction(
+      MATCH_LOG_STORES.MATCH_EVENTS,
+      'readwrite',
+    );
+    transaction
+      .objectStore(MATCH_LOG_STORES.MATCH_EVENTS)
+      .delete(matchSequenceRange(matchId));
+
+    transaction.oncomplete = () => {
+      resolve();
+    };
+    transaction.onerror = () => {
+      reject(
+        toStorageError('Failed to delete match events', transaction.error),
+      );
+    };
+    transaction.onabort = () => {
+      reject(toStorageError('Match events delete aborted', transaction.error));
+    };
+  });
+}
+
 export function shouldPurgeMatch(
   metadata: IMatchMetadataRecord,
   cutoff: number,

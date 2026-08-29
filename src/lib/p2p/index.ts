@@ -244,5 +244,13 @@ export {
   type MatchLogStoreName,
 } from './matchLogStorage';
 
+export {
+  reconcileMatchLogMirror,
+  verifyMatchLogPrefix,
+  type IMatchLogPrefixEvent,
+  type MatchLogPrefixStorage,
+  type MatchLogPrefixVerdict,
+} from './matchLogPrefix';
+
 // Hooks
 export { useSyncRoom, type UseSyncRoomReturn } from './useSyncRoom';

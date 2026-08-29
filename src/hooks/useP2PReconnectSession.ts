@@ -11,11 +11,14 @@ import {
   getLocalPeerId as getSyncLocalPeerId,
   matchLogStorage,
   normalizeRoomCode,
+  reconcileMatchLogMirror,
   type IGameSessionChannel,
   type IMatchMetadataRecord,
+  type MatchLogPrefixVerdict,
 } from '@/lib/p2p';
 import { useSyncRoomStore } from '@/lib/p2p/useSyncRoomStore';
 import { useGameplayStore } from '@/stores/useGameplayStore';
+import { logger } from '@/utils/logger';
 
 export const RECONNECT_HOST_WAIT_MS = 10_000;
 const HOST_POLL_INTERVAL_MS = 250;
@@ -53,6 +56,9 @@ interface ReconnectDependencies {
   readonly getHostEventsFromSeq: (
     seq: number,
   ) => readonly IGameEvent[] | Promise<readonly IGameEvent[]>;
+  readonly getEventsForMatch: (matchId: string) => Promise<IGameEvent[]>;
+  readonly deleteEventsForMatch: (matchId: string) => Promise<void>;
+  readonly onMirrorPrefixDivergence?: (verdict: MatchLogPrefixVerdict) => void;
 }
 
 interface ReconnectRuntime {
@@ -62,6 +68,7 @@ interface ReconnectRuntime {
   pollId: ReturnType<typeof setInterval> | null;
   requestSent: boolean;
   replayChain: Promise<void>;
+  replayEvents: IGameEvent[];
 }
 
 export interface IUseP2PReconnectSessionOptions {
@@ -87,6 +94,9 @@ export interface IUseP2PReconnectSessionOptions {
   readonly getHostEventsFromSeq?: (
     seq: number,
   ) => readonly IGameEvent[] | Promise<readonly IGameEvent[]>;
+  readonly getEventsForMatch?: (matchId: string) => Promise<IGameEvent[]>;
+  readonly deleteEventsForMatch?: (matchId: string) => Promise<void>;
+  readonly onMirrorPrefixDivergence?: (verdict: MatchLogPrefixVerdict) => void;
 }
 
 export function useP2PReconnectSession(
@@ -114,6 +124,7 @@ function createReconnectRuntime(): ReconnectRuntime {
     pollId: null,
     requestSent: false,
     replayChain: Promise.resolve(),
+    replayEvents: [],
   };
 }
 
@@ -158,6 +169,13 @@ function resolveReconnectDependencies(
     redirectToLobby: options.redirectToLobby ?? defaultRedirectToLobby,
     getHostEventsFromSeq:
       options.getHostEventsFromSeq ?? defaultGetHostEventsFromSeq,
+    getEventsForMatch:
+      options.getEventsForMatch ??
+      matchLogStorage.getEventsForMatch.bind(matchLogStorage),
+    deleteEventsForMatch:
+      options.deleteEventsForMatch ??
+      matchLogStorage.deleteEventsForMatch.bind(matchLogStorage),
+    onMirrorPrefixDivergence: options.onMirrorPrefixDivergence,
     timeoutMs: options.timeoutMs ?? RECONNECT_HOST_WAIT_MS,
     pollIntervalMs: options.pollIntervalMs ?? HOST_POLL_INTERVAL_MS,
   };
@@ -280,15 +298,41 @@ async function applyReplayStream(
   deps: ReconnectDependencies,
   runtime: ReconnectRuntime,
 ): Promise<void> {
-  const events = stream.events.slice().sort(compareEventsBySequence);
+  runtime.replayEvents.push(...stream.events);
+  if (!stream.done || runtime.cancelled) return;
+
+  const events = orderReconnectEvents(runtime.replayEvents);
+  runtime.replayEvents = [];
+
+  const verdict = await reconcileMatchLogMirror({
+    matchId,
+    receivedEvents: events,
+    storage: {
+      getEventsForMatch: deps.getEventsForMatch,
+      deleteEventsForMatch: deps.deleteEventsForMatch,
+    },
+  });
+  if (verdict.kind !== 'match') {
+    logger.warn('Match log mirror prefix diverged; discarding mirror', verdict);
+    deps.onMirrorPrefixDivergence?.(verdict);
+  }
+
   for (const event of events) {
     await deps.appendReplayEvent(matchId, event);
   }
-  if (!stream.done || runtime.cancelled) return;
+  if (runtime.cancelled) return;
   if (!useGameplayStore.getState().interactiveSession) {
     deps.setHydratedSession(await deps.hydrateFromMatchLog(matchId));
   }
   deps.setLive();
+}
+
+function orderReconnectEvents(events: readonly IGameEvent[]): IGameEvent[] {
+  const ordered = events.slice();
+  if (ordered.every((event) => typeof event.sequence === 'number')) {
+    ordered.sort(compareEventsBySequence);
+  }
+  return ordered;
 }
 
 function compareEventsBySequence(left: IGameEvent, right: IGameEvent): number {
