@@ -14,7 +14,7 @@ const run = (...args: string[]) =>
     encoding: 'utf8',
   });
 describe('GM and two-player campaign QC runner', () => {
-  it('registers the approved catalog and deterministic fixture plan', () => {
+  it('registers the approved catalog and deterministic implemented plans', () => {
     expect(Object.keys(core.REGISTERED_GROUPS)).toEqual(groups);
     const plan = core.buildRunPlan({
       group: groups[0],
@@ -29,6 +29,27 @@ describe('GM and two-player campaign QC runner', () => {
       '--workers=1',
     ]);
     expect(plan.environment.MEKSTATION_E2E_REUSE_EXISTING_SERVER).toBe('false');
+
+    const membershipPlan = core.buildRunPlan({
+      group: 'membership-smoke',
+      runId: 'task-26-membership-smoke',
+      repoRoot,
+    });
+    expect(membershipPlan.args).toEqual([
+      path.join(repoRoot, 'scripts/playwright/run-playwright.mjs'),
+      'test',
+      '--project=chromium',
+      'e2e/gm-two-player-membership.smoke.spec.ts',
+      '--workers=1',
+    ]);
+    expect(membershipPlan.environment).toEqual({
+      ...plan.environment,
+      PLAYWRIGHT_E2E_RUN_ID: 'task-26-membership-smoke',
+      MEKSTATION_E2E_PORT: String(
+        core.deriveFixturePort('task-26-membership-smoke'),
+      ),
+      PORT: String(core.deriveFixturePort('task-26-membership-smoke')),
+    });
   });
 
   it('types unknown and future groups before browser startup', () => {
@@ -40,7 +61,9 @@ describe('GM and two-player campaign QC runner', () => {
       2,
       '[qc:gm-two-player-campaign] UNKNOWN_GROUP group=not-a-group',
     ]);
-    for (const group of groups.slice(1)) {
+    for (const group of groups.filter(
+      (group) => group !== 'fixture-smoke' && group !== 'membership-smoke',
+    )) {
       const result = run(`--group=${group}`, '--run-id=task-26-fixture-smoke');
       expect([result.status, result.stderr.trim()]).toEqual([
         3,

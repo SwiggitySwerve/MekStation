@@ -451,6 +451,16 @@ function loadMultiplayerRuntime() {
   const campaignSocketModule = require('./src/lib/multiplayer/server/bindCampaignSyncConnection.ts');
   const membershipModule = require('./src/lib/multiplayer/server/campaignSessionMembershipPort.ts');
   const forceClaimModule = require('./src/lib/multiplayer/server/campaignForceClaimPort.ts');
+  // The socket graph holds its OWN copy of the SQLite singleton - the
+  // tsx require hook builds a module graph separate from Next's API
+  // bundle, and only the API side ever called initialize(). The
+  // membership and force-claim ports read durable rows on every
+  // campaign join, so the first dispatch threw "Database not
+  // initialized" and closed the socket. initialize() is idempotent and
+  // shares DATABASE_PATH with the API side; WAL makes the two graphs'
+  // connections to the same file safe.
+  const sqliteModule = require('./src/services/persistence/SQLiteService.ts');
+  sqliteModule.getSQLiteService().initialize();
   multiplayerRuntime = {
     bootstrapMultiplayerServer: registryModule.bootstrapMultiplayerServer,
     bindMultiplayerSocketConnection:

@@ -4,6 +4,7 @@
  * (task 3.5). Intent/veto/arbitration still uses CampaignProposal.
  */
 
+import type { ICampaignSessionMembershipPort } from '@/lib/multiplayer/server/bindCampaignSyncConnection';
 import type { ICampaignAuthoritativeState } from '@/types/campaign/CampaignSync';
 import type { IServerMessage } from '@/types/multiplayer/Protocol';
 
@@ -332,27 +333,96 @@ describe('room-code guest grant path', () => {
     );
     expect(harness.grantStore.listGrants(CAMPAIGN_ID)).toHaveLength(0);
   });
+
+  it('binds seats before streaming, refuses the third guest, and admits a seated rejoin', async () => {
+    const membership = tacticalSeatMembership();
+    const first = await joinGuest('pid_first', membership);
+    await joinGuest('pid_second', membership);
+    expect(framesOf(first, 'CampaignSnapshot')).toHaveLength(1);
+
+    const refused = new MockWireSocket();
+    await bindGuest(refused, 'pid_third', membership);
+    refused.inbound(joinEnvelope('pid_third'));
+    await drain(function () {
+      return refused.closes.length > 0;
+    });
+
+    expect(framesOf(refused, 'CampaignSnapshot')).toHaveLength(0);
+    expect(refused.sent).toEqual([
+      expect.objectContaining({
+        kind: 'Error',
+        code: 'AUTH_REJECTED',
+        reason: 'campaign-tactical-seats-full',
+      }),
+      expect.objectContaining({
+        kind: 'Close',
+        code: 'AUTH_REJECTED',
+        reason: 'campaign-tactical-seats-full',
+      }),
+    ]);
+
+    first.close();
+    const rejoin = new MockWireSocket();
+    await bindGuest(rejoin, 'pid_first', membership);
+    rejoin.inbound(joinEnvelope('pid_first'));
+    await drain(function () {
+      return framesOf(rejoin, 'CampaignSnapshot').length > 0;
+    });
+    expect(framesOf(rejoin, 'CampaignSnapshot')).toHaveLength(1);
+  });
+
+  it('serves a room-code guest when the durable bind reports already-bound', async () => {
+    const socket = new MockWireSocket();
+    const bind = jest.fn(() => ({ kind: 'already-bound' as const }));
+    const membership: ICampaignSessionMembershipPort = {
+      isActive: () => false,
+      isRevoked: () => false,
+      bind,
+    };
+
+    await bindGuest(socket, GUEST_ID, membership);
+    socket.inbound(joinEnvelope());
+    await drain(function () {
+      return framesOf(socket, 'CampaignSnapshot').length > 0;
+    });
+
+    expect(framesOf(socket, 'CampaignSnapshot')).toHaveLength(1);
+    expect(bind).toHaveBeenCalledWith({
+      campaignId: CAMPAIGN_ID,
+      sessionId: MATCH_ID,
+      participantId: GUEST_ID,
+      seat: 'player',
+    });
+  });
 });
 
 /** Binds a guest socket with grant channel, replica, and test issuer. */
-async function bindGuest(socket: MockWireSocket): Promise<void> {
+async function bindGuest(
+  socket: MockWireSocket,
+  playerId = GUEST_ID,
+  membership?: ICampaignSessionMembershipPort,
+): Promise<void> {
   await bindCampaignSyncConnection({
     socket,
     registry,
     matchId: MATCH_ID,
-    verifiedPlayerId: GUEST_ID,
+    verifiedPlayerId: playerId,
     logger: quietLogger,
     grantChannel: harnessGrantChannel(harness, 'snapshot-plus-tail'),
     replicaStore: replica,
     roomCodeGrantIssuer: ISSUER,
+    membership,
   });
 }
 
 /** Sends CampaignJoin and waits until a snapshot arrives. */
-async function joinGuest(): Promise<MockWireSocket> {
+async function joinGuest(
+  playerId = GUEST_ID,
+  membership?: ICampaignSessionMembershipPort,
+): Promise<MockWireSocket> {
   const socket = new MockWireSocket();
-  await bindGuest(socket);
-  socket.inbound(joinEnvelope());
+  await bindGuest(socket, playerId, membership);
+  socket.inbound(joinEnvelope(playerId));
   await drain(function () {
     return framesOf(socket, 'CampaignSnapshot').length > 0;
   });
@@ -360,14 +430,33 @@ async function joinGuest(): Promise<MockWireSocket> {
 }
 
 /** Room-code CampaignJoin envelope for the guest under test. */
-function joinEnvelope() {
+function joinEnvelope(playerId = GUEST_ID) {
   return {
     kind: 'CampaignJoin' as const,
     matchId: MATCH_ID,
     ts: nowIso(),
-    playerId: GUEST_ID,
+    playerId,
     role: 'guest' as const,
     roomCode: ROOM_CODE,
+  };
+}
+
+/** In-memory tactical-seat adapter with the store's re-bind semantics. */
+function tacticalSeatMembership(): ICampaignSessionMembershipPort {
+  const active = new Set<string>();
+  return {
+    isActive: (_campaignId, _sessionId, participantId) =>
+      active.has(participantId),
+    isRevoked: () => false,
+    bind: (input) => {
+      if (input.seat === 'gm') return { kind: 'bound' };
+      if (active.has(input.participantId)) return { kind: 'already-bound' };
+      if (active.size >= 2) {
+        return { kind: 'tactical-seats-full', limit: 2 };
+      }
+      active.add(input.participantId);
+      return { kind: 'bound' };
+    },
   };
 }
 

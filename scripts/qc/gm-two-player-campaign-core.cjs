@@ -34,9 +34,13 @@ function buildRunPlan({ group, runId, repoRoot }) {
   const owner = REGISTERED_GROUPS[group];
   if (!owner) throw typedError('UNKNOWN_GROUP', `group=${String(group)}`);
   validateRunId(runId);
-  if (group !== 'fixture-smoke') {
+  if (group !== 'fixture-smoke' && group !== 'membership-smoke') {
     throw typedError('NOT_IMPLEMENTED', `group=${group} owner=${owner}`);
   }
+  const spec =
+    group === 'fixture-smoke'
+      ? 'e2e/gm-two-player-fixture.smoke.spec.ts'
+      : 'e2e/gm-two-player-membership.smoke.spec.ts';
   const port = String(deriveFixturePort(runId));
   return {
     command: process.execPath,
@@ -44,7 +48,7 @@ function buildRunPlan({ group, runId, repoRoot }) {
       path.join(repoRoot, 'scripts/playwright/run-playwright.mjs'),
       'test',
       '--project=chromium',
-      'e2e/gm-two-player-fixture.smoke.spec.ts',
+      spec,
       '--workers=1',
     ],
     environment: {
