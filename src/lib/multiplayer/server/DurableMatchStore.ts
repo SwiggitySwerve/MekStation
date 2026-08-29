@@ -62,6 +62,11 @@ import {
   type IImportedEventSourceRow,
 } from './DurableMatchStore.legacyImport';
 import {
+  insertViewerDeliveryRecord,
+  selectViewerDeliveryRecords,
+  VIEWER_DELIVERY_SCHEMA_SQL,
+} from './DurableMatchStore.viewerDelivery';
+import {
   MatchNotFoundError,
   MatchStoreSequenceCollisionError,
   type IMatchMeta,
@@ -69,6 +74,8 @@ import {
   type IMatchPublication,
   type IMatchStore,
   type IPublicationOutboxStore,
+  type IViewerDeliveryRecord,
+  type IViewerDeliveryStore,
 } from './IMatchStore';
 import {
   importLegacyMatchEvents,
@@ -271,7 +278,9 @@ export interface IDurableMatchStoreOptions {
   readonly path?: string;
 }
 
-export class DurableMatchStore implements IMatchStore, IPublicationOutboxStore {
+export class DurableMatchStore
+  implements IMatchStore, IPublicationOutboxStore, IViewerDeliveryStore
+{
   private readonly db: Database.Database;
 
   /**
@@ -295,6 +304,7 @@ export class DurableMatchStore implements IMatchStore, IPublicationOutboxStore {
     this.db.pragma('foreign_keys = ON');
     this.db.exec(SCHEMA_SQL);
     this.db.exec(LEGACY_IMPORT_SCHEMA_SQL);
+    this.db.exec(VIEWER_DELIVERY_SCHEMA_SQL);
   }
 
   /**
@@ -650,6 +660,18 @@ export class DurableMatchStore implements IMatchStore, IPublicationOutboxStore {
         mark.run(publishedAt, matchId, sequence);
       }
     })();
+  };
+
+  appendViewerDeliveryRecord = async (
+    record: IViewerDeliveryRecord,
+  ): Promise<void> => {
+    insertViewerDeliveryRecord(this.db, record);
+  };
+
+  listViewerDeliveryRecords = async (
+    matchId: string,
+  ): Promise<readonly IViewerDeliveryRecord[]> => {
+    return selectViewerDeliveryRecords(this.db, matchId);
   };
 
   getEvents = async (

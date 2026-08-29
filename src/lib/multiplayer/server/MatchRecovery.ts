@@ -123,6 +123,7 @@ export async function recoverActiveMatches(
       }
       const session = await rebuildSessionFromEvents(meta.matchId, events);
       const host = ServerMatchHost.recover(meta.matchId, store, session);
+      await host.restorePersistedViewerDeliveries();
       hosts.set(meta.matchId, host);
     } catch (e) {
       // eslint-disable-next-line no-console

@@ -236,6 +236,44 @@ export function hasPublicationOutbox(
 }
 
 // =============================================================================
+// Per-viewer delivery mapping
+// =============================================================================
+
+/**
+ * One slot in a viewer's delivery record. `deliverySequence` is the
+ * array index; `authoritySequence` is the authority event it carried,
+ * or -1 for a send-failure / unsequenced slot. Same shape as
+ * `ViewerDeliveryCursors`.
+ */
+export interface IViewerDeliveryRecord {
+  readonly matchId: string;
+  readonly playerId: string;
+  readonly deliverySequence: number;
+  readonly authoritySequence: number;
+}
+
+/**
+ * Optional durable copy of `ViewerDeliveryCursors`. Absence is today's
+ * in-memory behaviour — socket-binding tests have no DB.
+ */
+export interface IViewerDeliveryStore {
+  appendViewerDeliveryRecord(record: IViewerDeliveryRecord): Promise<void>;
+  listViewerDeliveryRecords(
+    matchId: string,
+  ): Promise<readonly IViewerDeliveryRecord[]>;
+}
+
+export function hasViewerDeliveryStore(
+  store: IMatchStore,
+): store is IMatchStore & IViewerDeliveryStore {
+  const candidate = store as Partial<IViewerDeliveryStore>;
+  return (
+    typeof candidate.appendViewerDeliveryRecord === 'function' &&
+    typeof candidate.listViewerDeliveryRecords === 'function'
+  );
+}
+
+// =============================================================================
 // Errors
 // =============================================================================
 
@@ -391,6 +429,16 @@ export interface IMatchStore {
     matchId: string,
     sequences: readonly number[],
   ): Promise<void>;
+
+  /**
+   * Per-viewer delivery mapping (leaf 3.1). OPTIONAL like the outbox
+   * and membership ports: a store without it keeps process-local
+   * `ViewerDeliveryCursors` only.
+   */
+  appendViewerDeliveryRecord?(record: IViewerDeliveryRecord): Promise<void>;
+  listViewerDeliveryRecords?(
+    matchId: string,
+  ): Promise<readonly IViewerDeliveryRecord[]>;
 }
 
 // =============================================================================
