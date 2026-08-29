@@ -137,6 +137,47 @@ export async function persistCampaignThroughDashboard(
   page: Page,
   campaignId: string,
 ): Promise<PersistedCampaignRecord> {
+  // The product's create wizard persists a new campaign server-side in the
+  // SAME page context it was created in, before any navigation
+  // (CreateCampaignPage.submit.ts). A store-seeded campaign that first meets
+  // the server AFTER a full reload instead looks like a rehydrated legacy
+  // copy, and the save path then demands explicit adoption rather than
+  // birthing the record — Save-now silently skips. Mirror the wizard: save
+  // once here, while the seeding context still holds the campaign.
+  const genesis = await page.evaluate(async () => {
+    type PersistenceStoreApi = {
+      getState: () => {
+        saveCampaign: (options?: {
+          retryOnConflict?: boolean;
+        }) => Promise<{ status: string }>;
+      };
+    };
+    type ExposedPersistenceStore =
+      | PersistenceStoreApi
+      | (() => PersistenceStoreApi);
+    const stores = (
+      window as unknown as {
+        __ZUSTAND_STORES__?: { campaignPersistence?: ExposedPersistenceStore };
+      }
+    ).__ZUSTAND_STORES__;
+    if (!stores?.campaignPersistence) {
+      throw new Error(
+        'Campaign persistence store not exposed on window.__ZUSTAND_STORES__.',
+      );
+    }
+    const exposed = stores.campaignPersistence;
+    const store = 'getState' in exposed ? exposed : exposed();
+    const result = await store
+      .getState()
+      .saveCampaign({ retryOnConflict: false });
+    return result.status;
+  });
+  if (genesis !== 'saved') {
+    throw new Error(
+      `Initial in-context campaign save did not persist (status: ${genesis})`,
+    );
+  }
+
   await page.goto(`/gameplay/campaigns/${campaignId}`, {
     waitUntil: 'domcontentloaded',
   });
