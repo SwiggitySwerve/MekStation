@@ -4,19 +4,28 @@
  * untouched. Mismatch is diagnostic only.
  */
 
-import type { IGameEvent } from '@/types/gameplay/GameSessionInterfaces';
+import type {
+  IGameEvent,
+  IGameState,
+} from '@/types/gameplay/GameSessionInterfaces';
 import type { IIntent } from '@/types/multiplayer/Protocol';
 import type { D6Roller } from '@/utils/gameplay/diceTypes';
 
 import { InteractiveSession } from '@/engine/InteractiveSession';
 import { canonicalizeJsonV1 } from '@/lib/events/journal/EventJournalCanonicalizer';
 import { SeededRandom } from '@/simulation/core/SeededRandom';
+import { sha256Sync } from '@/utils/events/hashUtils';
 import { hydrateGameSessionFromEvents } from '@/utils/gameplay/gameSession';
 import { logger } from '@/utils/logger';
 
-import type { ShadowComparisonRecord } from './matchJournalAuthority';
+import type {
+  IShadowAudienceDigestComparison,
+  ShadowComparisonRecord,
+} from './matchJournalAuthority';
 import type { IDecideCommandBatchDeps } from './ServerMatchHostDecision';
 
+import { filterEventForPlayer, FogOfWarVisibilityCache } from './fogOfWar';
+import { projectEventForViewerClass } from './projection/ViewerFrameProjector';
 import {
   decideCommandBatch,
   digestCommandPostState,
@@ -34,6 +43,8 @@ type ShadowDecideFn = typeof decideCommandBatch;
 
 let replayRollsOverride: readonly number[] | null = null;
 let decideHook: ShadowDecideFn | null = null;
+type ShadowAudienceStateMutator = (state: IGameState) => IGameState;
+let shadowAudienceStateMutator: ShadowAudienceStateMutator | null = null;
 
 /** Test-only: replace the replay sequence (wrong roll / exhaustion). */
 export function _setShadowReplayRollsForTests(
@@ -45,6 +56,13 @@ export function _setShadowReplayRollsForTests(
 /** Test-only: replace decide without touching live dispatch. */
 export function _setShadowDecideForTests(fn: ShadowDecideFn | null): void {
   decideHook = fn;
+}
+
+/** Test-only: corrupt only the scratch visibility inputs after decide. */
+export function _setShadowAudienceStateForTests(
+  mutator: ShadowAudienceStateMutator | null,
+): void {
+  shadowAudienceStateMutator = mutator;
 }
 
 function rollsFromStampedEvents(
@@ -74,11 +92,15 @@ function createReplayD6Roller(rolls: readonly number[]): D6Roller {
  * Event ids (and mint timestamps) are dispatch-scoped; the journal
  * path derives command-scoped ids, so canonical compare excludes them.
  */
-function canonicalEventContent(event: IGameEvent): string {
+function canonicalEventMaterial(event: IGameEvent): Record<string, unknown> {
   const cloned = JSON.parse(JSON.stringify(event)) as Record<string, unknown>;
   delete cloned.id;
   delete cloned.timestamp;
-  return canonicalizeJsonV1(cloned);
+  return cloned;
+}
+
+function canonicalEventContent(event: IGameEvent): string {
+  return canonicalizeJsonV1(canonicalEventMaterial(event));
 }
 
 function eventsCanonicallyEqual(
@@ -123,6 +145,108 @@ export interface ICompareJournalAuthorityShadowInput {
   readonly intent: IIntent['intent'];
   readonly intentId: string | undefined;
   readonly decideDeps: IDecideCommandBatchDeps;
+  /** Match metadata read by the live broadcaster before fog projection. */
+  readonly audience?: IShadowAudienceInput;
+}
+
+interface IShadowSideAssignment {
+  readonly playerId: string;
+  readonly side: string;
+}
+
+/**
+ * Audience identities come from the same durable match metadata read by
+ * ServerMatchHostEvents before it calls filterEventForPlayer.
+ */
+export interface IShadowAudienceInput {
+  readonly gmPlayerId: string;
+  readonly playerIds: readonly string[];
+  readonly config: { readonly fogOfWar?: boolean };
+  readonly sideAssignments: readonly IShadowSideAssignment[];
+}
+
+type ShadowAudience = {
+  readonly audience: string;
+  readonly playerId: string;
+  readonly viewerClass: 'gm' | 'player';
+};
+
+function audiencesFor(input: IShadowAudienceInput): readonly ShadowAudience[] {
+  return [
+    {
+      audience: 'gm',
+      playerId: input.gmPlayerId,
+      viewerClass: 'gm',
+    },
+    ...input.playerIds.map((playerId) => ({
+      audience: `player:${playerId}`,
+      playerId,
+      viewerClass: 'player' as const,
+    })),
+  ];
+}
+
+function withVisibilityAssignments(
+  state: IGameState,
+  input: IShadowAudienceInput,
+): IGameState {
+  return {
+    ...state,
+    sideAssignments: input.sideAssignments,
+  } as IGameState;
+}
+
+/**
+ * Hash the exact fog-filtered, field-projected event list for one audience.
+ * Every invocation has its own cache because it is a comparison snapshot,
+ * never the live broadcaster's mutable cache.
+ */
+export function audienceDigest(
+  events: readonly IGameEvent[],
+  state: IGameState,
+  audience: ShadowAudience,
+  input: IShadowAudienceInput,
+): string {
+  const cache = new FogOfWarVisibilityCache();
+  const projected: Record<string, unknown>[] = [];
+  for (const event of events) {
+    const fogged = filterEventForPlayer(event, audience.playerId, state, {
+      config: input.config,
+      cache,
+    });
+    if (fogged === null) continue;
+    const viewerProjected = projectEventForViewerClass(
+      fogged,
+      audience.viewerClass,
+    );
+    if (viewerProjected.kind !== 'project') continue;
+    projected.push(canonicalEventMaterial(viewerProjected.event as IGameEvent));
+  }
+  return sha256Sync(canonicalizeJsonV1(projected));
+}
+
+function compareAudienceDigests(
+  liveEvents: readonly IGameEvent[],
+  liveState: IGameState,
+  shadowEvents: readonly IGameEvent[],
+  shadowState: IGameState,
+  input: IShadowAudienceInput,
+): readonly IShadowAudienceDigestComparison[] {
+  return audiencesFor(input).map((audience) => {
+    const liveDigest = audienceDigest(liveEvents, liveState, audience, input);
+    const shadowDigest = audienceDigest(
+      shadowEvents,
+      shadowState,
+      audience,
+      input,
+    );
+    return {
+      audience: audience.audience,
+      liveDigest,
+      shadowDigest,
+      equal: liveDigest === shadowDigest,
+    };
+  });
 }
 
 export function compareJournalAuthorityShadow(
@@ -146,16 +270,52 @@ export function compareJournalAuthorityShadow(
       decided.events,
     );
     const digestEqual = decided.postStateDigest === liveDigest;
+    const liveState =
+      input.audience === undefined
+        ? null
+        : withVisibilityAssignments(
+            input.liveSession.getSession().currentState,
+            input.audience,
+          );
+    const scratchStateWithAssignments =
+      input.audience === undefined
+        ? null
+        : withVisibilityAssignments(
+            preSession.getSession().currentState,
+            input.audience,
+          );
+    const scratchState =
+      scratchStateWithAssignments === null
+        ? null
+        : (shadowAudienceStateMutator?.(scratchStateWithAssignments) ??
+          scratchStateWithAssignments);
+    const audienceDigests =
+      input.audience === undefined ||
+      liveState === null ||
+      scratchState === null
+        ? undefined
+        : compareAudienceDigests(
+            input.liveEvents,
+            liveState,
+            decided.events,
+            scratchState,
+            input.audience,
+          );
+    const audienceMismatch = audienceDigests?.find((digest) => !digest.equal);
     let reason: string | undefined;
     if (!eventsEqual) reason = 'event-mismatch';
     else if (!digestEqual) reason = 'digest-mismatch';
+    else if (audienceMismatch !== undefined) {
+      reason = `audience-digest-mismatch:${audienceMismatch.audience}`;
+    }
     return {
       intentId: input.intentId,
-      equal: eventsEqual && digestEqual,
+      equal: eventsEqual && digestEqual && audienceMismatch === undefined,
       eventCountLive: input.liveEvents.length,
       eventCountShadow: decided.events.length,
       liveDigest,
       shadowDigest: decided.postStateDigest,
+      ...(audienceDigests !== undefined ? { audienceDigests } : {}),
       ...(reason != null ? { reason } : {}),
     };
   } catch (error) {

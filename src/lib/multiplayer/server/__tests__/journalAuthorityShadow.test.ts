@@ -5,12 +5,19 @@
 
 import { createMinimalGrid } from '@/engine/GameEngine.helpers';
 import { SeededRandom } from '@/simulation/core/SeededRandom';
-import { GameSide, type IGameUnit } from '@/types/gameplay';
+import {
+  GameEventType,
+  GameSide,
+  MovementType,
+  type IGameEvent,
+  type IGameUnit,
+} from '@/types/gameplay';
 import { type IIntent, nowIso } from '@/types/multiplayer/Protocol';
 
 import { InMemoryMatchStore } from '../InMemoryMatchStore';
 import {
   compareJournalAuthorityShadow,
+  _setShadowAudienceStateForTests,
   _setShadowDecideForTests,
   _setShadowReplayRollsForTests,
 } from '../journalAuthorityShadow';
@@ -74,6 +81,7 @@ function intent(intentId: string, matchId = MATCH_ID): IIntent {
 async function makeHost(options: {
   readonly matchId?: string;
   readonly journalAuthority?: boolean;
+  readonly fogOfWar?: boolean;
 }): Promise<{ host: ServerMatchHost; store: InMemoryMatchStore }> {
   const matchId = options.matchId ?? MATCH_ID;
   const store = new InMemoryMatchStore({ quiet: true });
@@ -89,7 +97,11 @@ async function makeHost(options: {
     status: 'active',
     createdAt: now,
     updatedAt: now,
-    config: { mapRadius: 4, turnLimit: 5 },
+    config: {
+      mapRadius: 4,
+      turnLimit: 5,
+      ...(options.fogOfWar === true ? { fogOfWar: true } : {}),
+    },
   });
   const host = ServerMatchHost.create(matchId, store, {
     mapRadius: 4,
@@ -193,6 +205,7 @@ describe('combat journal-authority shadow', () => {
     matchJournalAuthority._setCombatJournalAuthorityModeForTests(null);
     _setShadowReplayRollsForTests(null);
     _setShadowDecideForTests(null);
+    _setShadowAudienceStateForTests(null);
   });
 
   it('FLAG: process-wide mode is off and enabled is derived false', () => {
@@ -202,9 +215,12 @@ describe('combat journal-authority shadow', () => {
     expect(COMBAT_JOURNAL_AUTHORITY_ENABLED).toBe(false);
   });
 
-  it('EQUAL: shadowed AdvancePhase matches live events and post-state digest', async () => {
+  it('SANDBOX EQUAL: fog-on shadow comparison matches GM and both player projections', async () => {
     matchJournalAuthority._setCombatJournalAuthorityModeForTests('shadow');
-    const { host } = await makeHost({ matchId: 'match-shadow-equal' });
+    const { host } = await makeHost({
+      matchId: 'match-shadow-equal',
+      fogOfWar: true,
+    });
     await host.handleIntent(intent('lock-1', host.matchId));
 
     const record = host.getLastShadowComparison();
@@ -214,10 +230,88 @@ describe('combat journal-authority shadow', () => {
     expect(record?.eventCountLive).toBe(record?.eventCountShadow);
     expect(record?.liveDigest).toBe(record?.shadowDigest);
     expect(record?.liveDigest).toMatch(/^[0-9a-f]{64}$/);
+    // Production sandbox deployment is the separate mode flip to `enabled`.
+    // Falsification: remove an audience from the comparison loop.
+    expect(record?.audienceDigests?.map((digest) => digest.audience)).toEqual([
+      'gm',
+      'player:host-player',
+      'player:guest-player',
+    ]);
+    expect(record?.audienceDigests?.every((digest) => digest.equal)).toBe(true);
     expect(host.getShadowComparisonStats()).toEqual({
       comparisons: 1,
       mismatches: 0,
     });
+  });
+
+  it('FOG STATE: equal event and authority digests still reject a changed player projection', () => {
+    const { session } = makeLive();
+    dispatchToEngine(session, ADVANCE);
+    const headIndex = session.getSession().events.length;
+    expect(Object.keys(session.getSession().currentState.units)).toContain(
+      'lock-player',
+    );
+    const liveDigest = digestCommandPostState(session.getSession());
+    const movement: IGameEvent = {
+      id: 'shadow-fog-event',
+      gameId: session.getSession().id,
+      sequence: 1,
+      timestamp: '2026-06-30T12:00:00.000Z',
+      turn: session.getSession().currentState.turn,
+      phase: session.getSession().currentState.phase,
+      type: GameEventType.MovementDeclared,
+      actorId: 'lock-player',
+      payload: {
+        unitId: 'lock-player',
+        from: { q: 0, r: 0 },
+        to: { q: 1, r: 0 },
+        movementType: MovementType.Walk,
+        mpUsed: 1,
+        steps: [],
+      },
+    };
+    _setShadowDecideForTests(() => ({
+      events: [movement],
+      postStateDigest: liveDigest,
+    }));
+    _setShadowAudienceStateForTests((state) => ({
+      ...state,
+      // This seam corrupts scratch-only visibility ownership. Events and
+      // authority state digest still match, but Player 1 must no longer see
+      // their actor-only movement event.
+      sideAssignments: [
+        { playerId: 'guest-player', side: 'player' },
+        { playerId: 'host-player', side: 'opponent' },
+      ],
+    }));
+
+    const record = compareJournalAuthorityShadow({
+      liveSession: session,
+      headIndex,
+      liveEvents: [movement],
+      intent: ADVANCE,
+      intentId: 'lock-fog-state',
+      decideDeps: DEPS,
+      audience: {
+        gmPlayerId: 'gm-player',
+        playerIds: ['host-player', 'guest-player'],
+        config: { fogOfWar: true },
+        sideAssignments: [
+          { playerId: 'host-player', side: 'player' },
+          { playerId: 'guest-player', side: 'opponent' },
+        ],
+      },
+    });
+
+    // Falsification: make audienceDigest ignore its state argument.
+    expect(record.liveDigest).toBe(record.shadowDigest);
+    expect(record.equal).toBe(false);
+    expect(record.reason).toBe('audience-digest-mismatch:player:host-player');
+    expect(
+      record.audienceDigests?.find(
+        (digest) => digest.audience === 'player:host-player',
+      )?.equal,
+    ).toBe(false);
   });
 
   it('MISMATCH: corrupt decide is recorded and does not alter the command', async () => {

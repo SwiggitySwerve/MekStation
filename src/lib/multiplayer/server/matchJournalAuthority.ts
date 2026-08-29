@@ -45,7 +45,16 @@ export interface ShadowComparisonRecord {
   readonly eventCountShadow: number;
   readonly liveDigest: string;
   readonly shadowDigest: string;
+  readonly audienceDigests?: readonly IShadowAudienceDigestComparison[];
   readonly reason?: string;
+}
+
+/** Equality evidence for one server-defined audience projection. */
+export interface IShadowAudienceDigestComparison {
+  readonly audience: string;
+  readonly liveDigest: string;
+  readonly shadowDigest: string;
+  readonly equal: boolean;
 }
 
 /**
