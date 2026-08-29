@@ -6,6 +6,8 @@ import type { D6Roller } from '@/utils/gameplay/diceTypes';
 import { InteractiveSession } from '@/engine/InteractiveSession';
 import { SeededRandom } from '@/simulation/core/SeededRandom';
 
+import type { IJournalAuthorityPrivacyGateWiring } from './journalAuthorityAdmission';
+
 import { CryptoDiceRoller, type IServerDiceRoller } from './CryptoDiceRoller';
 import { RollCapture, SeededDiceRoller } from './RollCapture';
 
@@ -20,6 +22,8 @@ export interface IMatchHostBootstrap {
   readonly diceSeed?: number;
   readonly journalAuthority?: boolean;
   readonly randomSeed?: number;
+  /** Test override: omit a collaborator to refuse admission. */
+  readonly privacyGates?: IJournalAuthorityPrivacyGateWiring;
 }
 
 export function buildHostSession(bootstrap: IMatchHostBootstrap): {
