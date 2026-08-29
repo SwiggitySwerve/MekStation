@@ -238,6 +238,19 @@ describe('Reconnection Flow (Wave 4)', () => {
     expect(resumedOnHost.length).toBeGreaterThan(0);
     expect(host.isPausedForReconnect()).toBe(false);
     expect(host.getPendingPeersForTests().length).toBe(0);
+
+    oppSock2.clear();
+    const afterResume = await host.handleIntent({
+      kind: 'Intent',
+      matchId,
+      ts: nowIso(),
+      playerId: 'pid_host',
+      intent: { kind: 'AdvancePhase' },
+    } as IIntent);
+    expect(afterResume.some((message) => message.kind === 'Event')).toBe(true);
+    expect(oppSock2.sent.some((frame) => frame.parsed.kind === 'Event')).toBe(
+      true,
+    );
   });
 
   it('host MarkSeatAi clears the pending seat and broadcasts MatchResumed', async () => {

@@ -25,6 +25,7 @@
  */
 
 import { createMinimalGrid } from '@/engine/GameEngine.helpers';
+import { matchLogStorage } from '@/lib/p2p/matchLogStorage';
 import { SeededRandom } from '@/simulation/core/SeededRandom';
 import { GameSide, type IGameUnit } from '@/types/gameplay';
 import { type IIntent, nowIso } from '@/types/multiplayer/Protocol';
@@ -194,6 +195,37 @@ describe('real client against a real fog-of-war server', () => {
     expect(applied.map((event) => (event as { id?: string }).id ?? '')).toEqual(
       deliveredIds,
     );
+  });
+
+  it('R2: the multiplayer client path does not read a match-log mirror', async () => {
+    const reads = jest.spyOn(matchLogStorage, 'getEventsForMatch');
+    const host = await fogHost();
+    const link = duplexLink();
+    const client = connect(
+      'ws://in-memory/x',
+      MATCH_ID,
+      { playerId: 'pid_host', token: 'tok' },
+      { socketFactory: () => link.clientSide, reconnect: false },
+    );
+    link.clientSide.onopen?.({});
+    host.attachSocket(link.serverSide, 'pid_host');
+    await host.handleSessionJoin(
+      link.serverSide,
+      'pid_host',
+      undefined,
+      MATCH_ID,
+    );
+    await host.handleIntent({
+      kind: 'Intent',
+      matchId: MATCH_ID,
+      ts: nowIso(),
+      playerId: 'pid_host',
+      intentId: 'r2-1',
+      intent: { kind: 'AdvancePhase' },
+    } as unknown as IIntent);
+    client.close();
+    expect(reads).not.toHaveBeenCalled();
+    reads.mockRestore();
   });
 
   it('recovers a frame lost in transit, end to end', async () => {

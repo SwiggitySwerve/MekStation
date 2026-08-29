@@ -764,6 +764,94 @@ describe('multiplayer client', () => {
     expect(events.length).toBe(1);
   });
 
+  it('applies a live event that overlaps the replay window exactly once (M1)', () => {
+    const f = makeMockSocketFactory();
+    const events: { id?: string }[] = [];
+
+    const client = connect(
+      'ws://localhost/x',
+      'm1',
+      { playerId: 'p1', token: 'tok' },
+      { socketFactory: f.factory, reconnect: false },
+    );
+    client.on('event', (e) => events.push(e as { id?: string }));
+
+    f.lastSocket().fireOpen();
+    f.lastSocket().inject({
+      kind: 'ReplayStart',
+      matchId: 'm1',
+      ts: new Date().toISOString(),
+      fromSeq: 0,
+      totalEvents: 1,
+    });
+    f.lastSocket().inject({
+      kind: 'Event',
+      matchId: 'm1',
+      ts: new Date().toISOString(),
+      deliverySequence: 0,
+      event: { id: 'overlap', sequence: 0, type: 'phase_changed' },
+    });
+    f.lastSocket().inject({
+      kind: 'ReplayChunk',
+      matchId: 'm1',
+      ts: new Date().toISOString(),
+      deliverySequences: [0],
+      events: [{ id: 'overlap', sequence: 0, type: 'phase_changed' }],
+    });
+    expect(events).toEqual([]);
+    f.lastSocket().inject({
+      kind: 'ReplayEnd',
+      matchId: 'm1',
+      ts: new Date().toISOString(),
+      toSeq: 0,
+    });
+    expect(events.filter((event) => event.id === 'overlap')).toHaveLength(1);
+
+    liveEvent(f, 1, 'post-recovery');
+    expect(events.map((event) => event.id)).toEqual([
+      'overlap',
+      'post-recovery',
+    ]);
+  });
+
+  it('applies a sequence-free redelivery once by identity', () => {
+    const f = makeMockSocketFactory();
+    const events: { id?: string }[] = [];
+
+    const client = connect(
+      'ws://localhost/x',
+      'm1',
+      { playerId: 'p1', token: 'tok' },
+      { socketFactory: f.factory, reconnect: false },
+    );
+    client.on('event', (e) => events.push(e as { id?: string }));
+
+    f.lastSocket().fireOpen();
+    finishReplay(f);
+    events.length = 0;
+
+    f.lastSocket().inject({
+      kind: 'Event',
+      matchId: 'm1',
+      ts: new Date().toISOString(),
+      event: { id: 'same', type: 'phase_changed' },
+    });
+    f.lastSocket().inject({
+      kind: 'Event',
+      matchId: 'm1',
+      ts: new Date().toISOString(),
+      event: { id: 'same', type: 'phase_changed' },
+    });
+    f.lastSocket().inject({
+      kind: 'Event',
+      matchId: 'm1',
+      ts: new Date().toISOString(),
+      event: { id: 'next', type: 'phase_changed' },
+    });
+
+    expect(events.map((event) => event.id)).toEqual(['same', 'next']);
+  });
+
   it('schedules a reconnect on close (exponential backoff)', () => {
     const f = makeMockSocketFactory();
     const reconnectAttempts: { attempt: number; delayMs: number }[] = [];

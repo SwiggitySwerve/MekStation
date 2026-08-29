@@ -14,6 +14,7 @@
 import type { IAdaptedUnit } from '@/engine/types';
 
 import { createMinimalGrid } from '@/engine/GameEngine.helpers';
+import { connect, type IClientWebSocket } from '@/lib/multiplayer/client';
 import { SeededRandom } from '@/simulation/core/SeededRandom';
 import {
   Facing,
@@ -278,6 +279,86 @@ describe('durable viewer delivery mapping', () => {
     expect(replayed[0]?.id).toBe(live[1]?.id);
     expect(replayed[0]?.id).not.toBe(live[0]?.id);
     expect(replayed[0]?.sequence).toBe(live[1]?.sequence);
+  });
+
+  it('PROCESS RESTART: rebuilt host delivers the tail once to a reconnecting client; a later command is seen', async () => {
+    const matchId = 'm-durable-restart-client';
+    const { host, sockA } = await seatedDurableHost(matchId, store);
+    for (let n = 0; n < 3; n += 1) await advance(host, matchId, n);
+    const live = deliveredEvents(sockA);
+    expect(live.length).toBeGreaterThan(1);
+
+    const rebuilt = await recoverActiveMatches(store);
+    const recovered = rebuilt.hosts.get(matchId);
+    expect(recovered).toBeDefined();
+
+    const applied: { id?: string }[] = [];
+    const joins: Array<() => Promise<void>> = [];
+    const clientSide: IClientWebSocket = {
+      send(data: string) {
+        const message = JSON.parse(data) as {
+          kind: string;
+          lastSeq?: number;
+          deliveryCursor?: number;
+        };
+        if (message.kind !== 'SessionJoin') return;
+        joins.push(() =>
+          recovered!.handleSessionJoin(
+            serverSide,
+            'pA',
+            message.lastSeq,
+            matchId,
+            0,
+          ),
+        );
+      },
+      close() {},
+      readyState: 1,
+      onopen: null,
+      onmessage: null,
+      onerror: null,
+      onclose: null,
+    };
+    const serverSide = {
+      send(data: string) {
+        clientSide.onmessage?.({ data });
+      },
+      close() {
+        clientSide.onclose?.({});
+      },
+      readyState: 1,
+    };
+
+    const client = connect(
+      'ws://in-memory/x',
+      matchId,
+      { playerId: 'pA', token: 'tok' },
+      { socketFactory: () => clientSide, reconnect: false },
+    );
+    client.on('event', (event) => applied.push(event as { id?: string }));
+    expect(await recovered!.admitSocket(serverSide, 'pA')).not.toBeNull();
+    clientSide.onopen?.({});
+    while (joins.length > 0) {
+      const next = joins.shift();
+      if (next !== undefined) await next();
+    }
+
+    const appliedIds = applied
+      .map((event) => event.id)
+      .filter((id): id is string => typeof id === 'string');
+    expect(appliedIds.length).toBeGreaterThan(0);
+    expect(new Set(appliedIds).size).toBe(appliedIds.length);
+    expect(appliedIds[0]).toBe(live[1]?.id);
+    expect(appliedIds[0]).not.toBe(live[0]?.id);
+
+    const before = appliedIds.length;
+    await advance(recovered!, matchId, 99);
+    const afterIds = applied
+      .map((event) => event.id)
+      .filter((id): id is string => typeof id === 'string');
+    expect(afterIds.length).toBeGreaterThan(before);
+    expect(new Set(afterIds).size).toBe(afterIds.length);
+    client.close();
   });
 
   it('still full-replays from 0 for a viewer with no persisted rows on a rebuilt host', async () => {
