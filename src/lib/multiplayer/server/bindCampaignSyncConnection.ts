@@ -873,6 +873,36 @@ async function handleCampaignJoin({
   // room code protected nothing against them. A newcomer must present a
   // code; a durable member never reaches here, because the membership
   // path above already admitted them.
+  // Seat before stream. The invite is validated the same way the
+  // resync path above validates it, the durable seat is claimed, and
+  // only then does joinGuest hydrate - a refused newcomer must never
+  // leave with the baseline in hand. The store's bind transaction stays
+  // the single authority on seat count (two newcomers racing for the
+  // last seat are separated by the database, not by this pre-check),
+  // and a bound-but-unstreamed member is simply a durable member: a
+  // transient stream failure does not unseat them, and their retry
+  // takes the membership path.
+  const issuedInvite = entry.syncSession.getRoomCode();
+  if (
+    issuedInvite === null ||
+    normalizeRoomCode(envelope.roomCode ?? '') !== issuedInvite
+  ) {
+    send(socket, errorFrame(matchId, 'UNKNOWN_MATCH', 'unknown-room-code'));
+    return;
+  }
+  const seat = membership?.bind({
+    campaignId: entry.campaignId,
+    sessionId: matchId,
+    participantId: verifiedPlayerId,
+    seat: 'player',
+  });
+  if (seat?.kind === 'tactical-seats-full') {
+    send(
+      socket,
+      errorFrame(matchId, 'AUTH_REJECTED', 'campaign-tactical-seats-full'),
+    );
+    return;
+  }
   const join = await entry.syncSession.joinGuest(
     envelope.roomCode ?? '',
     (event) => {
@@ -882,34 +912,6 @@ async function handleCampaignJoin({
   );
   if (!join.ok) {
     send(socket, errorFrame(matchId, 'UNKNOWN_MATCH', 'unknown-room-code'));
-    return;
-  }
-  // The invite worked, so this newcomer becomes a durable member and
-  // will not need the code again.
-  const seat = membership?.bind({
-    campaignId: entry.campaignId,
-    sessionId: matchId,
-    participantId: verifiedPlayerId,
-    seat: 'player',
-  });
-  // A campaign seats exactly two tactical players, and the store decides
-  // that inside its bind transaction — which is what makes it safe
-  // against two newcomers racing for the last seat, where a read-then-
-  // admit check would let both through. Until now the answer was
-  // discarded and the third player was admitted regardless.
-  //
-  // Undoing the hydration rather than pre-checking it keeps the store as
-  // the single authority on seat count. The cost is that a refused
-  // newcomer has already been sent the baseline before being turned
-  // away; closing that needs the invite check and the seat check to
-  // happen before any streaming, which is a larger change than this
-  // refusal.
-  if (seat?.kind === 'tactical-seats-full') {
-    join.disconnect();
-    send(
-      socket,
-      errorFrame(matchId, 'AUTH_REJECTED', 'campaign-tactical-seats-full'),
-    );
     return;
   }
   addSocketToMatch(matchId, socket);
