@@ -144,7 +144,7 @@ describe('viewer publication SessionJoin', () => {
     const start = socket.sent[0]?.parsed;
     if (start?.kind === 'ReplayStart') {
       expect(start.totalEvents).toBe(storeEvents.length);
-      expect(start.fromSeq).toBe(0);
+      expect(start.fromSeq).toBeUndefined();
     }
   });
 

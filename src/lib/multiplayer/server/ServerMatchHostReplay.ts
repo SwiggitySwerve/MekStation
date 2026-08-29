@@ -121,8 +121,11 @@ export async function sendReplay(
  * An event already in the record (matched by authority sequence)
  * reuses that index; one not yet recorded is assigned through the
  * same `ViewerDeliveryCursors.assign` live sends use, so the record
- * stays gapless. `ReplayEnd.toDeliverySequence` is the last stamp
- * so a client can release its gap pin without authority numbers.
+ * stays gapless. `ReplayStart.fromDeliverySequence` /
+ * `ReplayEnd.toDeliverySequence` are the lowest and highest stamps in
+ * this stream so the envelope span is the viewer's delivery range,
+ * not iteration order (prefix events never live-sent are assigned
+ * at the high end but appear first in a from-zero replay).
  */
 function stampReplayDeliveries(
   cursors: ViewerDeliveryCursors,
@@ -136,7 +139,8 @@ function stampReplayDeliveries(
       authorityById.set(event.id, event.sequence);
     }
   }
-  let lastDelivery: number | null = null;
+  let minDelivery: number | null = null;
+  let maxDelivery: number | null = null;
   const chunks: IServerMessage[] = [];
   for (const chunk of frames.chunks) {
     if (chunk.kind !== 'ReplayChunk') {
@@ -152,18 +156,27 @@ function stampReplayDeliveries(
           : null;
       const deliverySequence =
         existing !== null ? existing : cursors.assign(playerId, authority);
-      lastDelivery = deliverySequence;
+      if (minDelivery === null || deliverySequence < minDelivery) {
+        minDelivery = deliverySequence;
+      }
+      if (maxDelivery === null || deliverySequence > maxDelivery) {
+        maxDelivery = deliverySequence;
+      }
       deliverySequences.push(deliverySequence);
     }
     chunks.push({ ...chunk, deliverySequences });
   }
-  if (lastDelivery === null || frames.end.kind !== 'ReplayEnd') {
-    return { start: frames.start, chunks, end: frames.end };
+  const start: IServerMessage =
+    minDelivery !== null && frames.start.kind === 'ReplayStart'
+      ? { ...frames.start, fromDeliverySequence: minDelivery }
+      : frames.start;
+  if (maxDelivery === null || frames.end.kind !== 'ReplayEnd') {
+    return { start, chunks, end: frames.end };
   }
   return {
-    start: frames.start,
+    start,
     chunks,
-    end: { ...frames.end, toDeliverySequence: lastDelivery },
+    end: { ...frames.end, toDeliverySequence: maxDelivery },
   };
 }
 

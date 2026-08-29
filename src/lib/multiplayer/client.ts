@@ -805,10 +805,9 @@ function admitByIdentity(
   state: IClientState,
   event: unknown,
 ): readonly unknown[] {
-  // Sequence-free ReplayChunk (slice B future, and the slice A proof).
-  // `ReplayStart.fromSeq` / `ReplayEnd.toSeq` are still authority-space
-  // bounds and cannot number individual items, so arrival order in the
-  // chunk is the ordering and identity is the exactly-once key.
+  // Sequence-free ReplayChunk. ReplayStart/End bounds number the
+  // span, not individual items, so arrival order in the chunk is the
+  // ordering and identity is the exactly-once key.
   const identity = identityOf(event);
   if (identity.length > 0 && state.appliedIdentities.has(identity)) {
     return [];
@@ -983,10 +982,12 @@ function releaseDeliveryPin(state: IClientState, end: IReplayEnd): void {
     const revealedDelivery = state.deliveryHoleRevealDelivery;
     if (revealedDelivery === null) return;
     if (end.toDeliverySequence < revealedDelivery) return;
-  } else {
+  } else if (typeof end.toSeq === 'number') {
     const revealed = state.deliveryHoleRevealSeq;
     if (revealed === null) return;
     if (end.toSeq < revealed) return;
+  } else {
+    return;
   }
   state.deliveryResumeCursor = state.lastDeliverySequence;
   state.deliveryHoleRevealSeq = null;

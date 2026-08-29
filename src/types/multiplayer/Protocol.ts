@@ -617,12 +617,22 @@ export const ReplayStartSchema = z.object({
   matchId: matchIdSchema,
   ts: tsSchema,
   /**
-   * Authority-space start of this replay. Not a per-event delivery
-   * number: ReplayChunk items carry `deliverySequence` when the
-   * per-player path stamped them, and `fromSeq` stays in authority
-   * space for authority viewers and old clients.
+   * Authority-space start of this replay. Present on GM/authority
+   * projections and on old servers. Player projections omit it and
+   * carry `fromDeliverySequence` instead. Optional so both shapes
+   * parse.
    */
-  fromSeq: z.number().int().nonnegative(),
+  fromSeq: z.number().int().nonnegative().optional(),
+  /**
+   * Delivery-space start of this replay: the lowest per-viewer
+   * `deliverySequence` included in this stream. Player projections
+   * carry this instead of `fromSeq`. Per-viewer numbering is gapless,
+   * so `toDeliverySequence - fromDeliverySequence + 1` equals
+   * `totalEvents` and span-vs-count arithmetic yields no hidden-event
+   * count. Optional so an old server that only sends `fromSeq` still
+   * parses.
+   */
+  fromDeliverySequence: z.number().int().nonnegative().optional(),
   totalEvents: z.number().int().nonnegative(),
 });
 export type IReplayStart = z.infer<typeof ReplayStartSchema>;
@@ -652,17 +662,19 @@ export const ReplayEndSchema = z.object({
   matchId: matchIdSchema,
   ts: tsSchema,
   /**
-   * Authority-space end of this replay. Used to un-pin a delivery
-   * hole whose revealing frame still carried `event.sequence`, and
-   * kept for authority viewers. Player pin-release prefers
-   * `toDeliverySequence` when present.
+   * Authority-space end of this replay. Present on GM/authority
+   * projections and on old servers. Used to un-pin a delivery hole
+   * whose revealing frame still carried `event.sequence`. Player
+   * projections omit it; pin-release prefers `toDeliverySequence`.
+   * Optional so a player-projected envelope still parses.
    */
-  toSeq: z.number().int().nonnegative(),
+  toSeq: z.number().int().nonnegative().optional(),
   /**
-   * Delivery-space end of this replay: the last `deliverySequence`
-   * stamped on an item in this stream. A client that no longer sees
+   * Delivery-space end of this replay: the highest `deliverySequence`
+   * included in this stream. A client that no longer sees
    * `event.sequence` releases its gap pin against this number.
-   * Optional so an old server that only sends `toSeq` still parses.
+   * Player projections carry this instead of `toSeq`. Optional so
+   * an old server that only sends `toSeq` still parses.
    */
   toDeliverySequence: z.number().int().nonnegative().optional(),
 });

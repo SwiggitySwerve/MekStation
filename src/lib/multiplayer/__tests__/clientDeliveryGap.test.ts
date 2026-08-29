@@ -603,6 +603,50 @@ describe('client delivery-first admission without event.sequence', () => {
     expect(appliedIds(applied)).toEqual(['a', 'b', 'c']);
   });
 
+  it('recovers when ReplayStart/End carry no authority bounds', () => {
+    // Player-projected envelopes omit fromSeq/toSeq. Recovery must still
+    // complete: schema admits the shape, ReplayStart opens the window,
+    // ReplayEnd with toDeliverySequence releases the pin.
+    const { sockets, errors, applied, sentByClient } = openReadyClient();
+    sockets.last().inject(eventFrameDeliveryOnly(0, 'a'));
+    sockets.last().inject(eventFrameDeliveryOnly(1, 'b'));
+    sockets.last().inject(eventFrameDeliveryOnly(3, 'd'));
+
+    expect(gaps(errors)).toBe(1);
+    expect(appliedIds(applied)).toEqual(['a', 'b', 'd']);
+    expect(lastJoin(sentByClient).deliveryCursor).toBe(1);
+
+    sockets.last().inject({
+      kind: 'ReplayStart',
+      matchId: 'm1',
+      ts: nowIso(),
+      fromDeliverySequence: 2,
+      totalEvents: 2,
+    });
+    sockets.last().inject({
+      kind: 'ReplayChunk',
+      matchId: 'm1',
+      ts: nowIso(),
+      deliverySequences: [2, 3],
+      events: [
+        { type: 'TestEvent', id: 'c' },
+        { type: 'TestEvent', id: 'd' },
+      ],
+    });
+    sockets.last().inject(eventFrameDeliveryOnly(4, 'e'));
+    sockets.last().inject({
+      kind: 'ReplayEnd',
+      matchId: 'm1',
+      ts: nowIso(),
+      toDeliverySequence: 3,
+    });
+    sockets.last().inject(eventFrameDeliveryOnly(5, 'f'));
+    sockets.last().inject(eventFrameDeliveryOnly(7, 'h'));
+
+    expect(appliedIds(applied)).toEqual(['a', 'b', 'd', 'c', 'e', 'f', 'h']);
+    expect(lastJoin(sentByClient).deliveryCursor).toBe(5);
+  });
+
   it('releases the pin from a delivery-space ReplayEnd bound without authority numbers', () => {
     // M3. `toSeq` is too low to release via the old-server fallback;
     // `toDeliverySequence` is what un-pins. Dropping that field leaves

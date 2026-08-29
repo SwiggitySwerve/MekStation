@@ -85,6 +85,7 @@ const PUBLIC_ID_SHAPED_KEYS: ReadonlySet<string> = new Set([
   'deliverySequence',
   'deliverySequences',
   'toDeliverySequence',
+  'fromDeliverySequence',
 ]);
 
 /**
@@ -96,6 +97,7 @@ const COINCIDENTAL_NUMERIC_KEYS: ReadonlySet<string> = new Set([
   'deliverySequence',
   'deliverySequences',
   'toDeliverySequence',
+  'fromDeliverySequence',
   'fromSeq',
   'toSeq',
   'totalEvents',
@@ -650,50 +652,59 @@ describe('viewer frame raw-wire negative sweep', () => {
         }
         if (parsed.kind === 'ReplayEnd') toSeq = parsed.toSeq;
       }
-      expect(typeof fromSeq).toBe('number');
-      expect(typeof toSeq).toBe('number');
+      expect(fromSeq).toBeUndefined();
+      expect(toSeq).toBeUndefined();
       expect(typeof totalEvents).toBe('number');
     });
 
-    it.failing(
-      'FINDING: ReplayStart/End authority span does not let a player count withheld events',
-      async () => {
-        const { host } = await driveFogMatch('m-raw-infer-span');
-        const resync = makeRawSocket();
-        host.attachSocket(resync, 'pid_host');
-        await host.handleSessionJoin(resync, 'pid_host');
+    it('FINDING: ReplayStart/End authority span does not let a player count withheld events', async () => {
+      const { host } = await driveFogMatch('m-raw-infer-span');
+      const resync = makeRawSocket();
+      host.attachSocket(resync, 'pid_host');
+      await host.handleSessionJoin(resync, 'pid_host');
 
-        let fromSeq: number | undefined;
-        let toSeq: number | undefined;
-        let totalEvents: number | undefined;
-        for (const raw of allFrames(resync)) {
-          const parsed = JSON.parse(raw) as {
-            kind?: string;
-            fromSeq?: number;
-            toSeq?: number;
-            totalEvents?: number;
-          };
-          if (parsed.kind === 'ReplayStart') {
-            fromSeq = parsed.fromSeq;
-            totalEvents = parsed.totalEvents;
-          }
-          if (parsed.kind === 'ReplayEnd') toSeq = parsed.toSeq;
+      let fromSeq: number | undefined;
+      let toSeq: number | undefined;
+      let fromDeliverySequence: number | undefined;
+      let toDeliverySequence: number | undefined;
+      let totalEvents: number | undefined;
+      for (const raw of allFrames(resync)) {
+        const parsed = JSON.parse(raw) as {
+          kind?: string;
+          fromSeq?: number;
+          toSeq?: number;
+          fromDeliverySequence?: number;
+          toDeliverySequence?: number;
+          totalEvents?: number;
+        };
+        if (parsed.kind === 'ReplayStart') {
+          fromSeq = parsed.fromSeq;
+          fromDeliverySequence = parsed.fromDeliverySequence;
+          totalEvents = parsed.totalEvents;
         }
-        expect(typeof fromSeq).toBe('number');
-        expect(typeof toSeq).toBe('number');
-        expect(typeof totalEvents).toBe('number');
-        if (
-          typeof fromSeq !== 'number' ||
-          typeof toSeq !== 'number' ||
-          typeof totalEvents !== 'number'
-        ) {
-          return;
+        if (parsed.kind === 'ReplayEnd') {
+          toSeq = parsed.toSeq;
+          toDeliverySequence = parsed.toDeliverySequence;
         }
-        expect(toSeq - fromSeq + 1 - totalEvents).toBe(0);
-      },
-    );
+      }
+      expect(fromSeq).toBeUndefined();
+      expect(toSeq).toBeUndefined();
+      expect(typeof fromDeliverySequence).toBe('number');
+      expect(typeof toDeliverySequence).toBe('number');
+      expect(typeof totalEvents).toBe('number');
+      if (
+        typeof fromDeliverySequence !== 'number' ||
+        typeof toDeliverySequence !== 'number' ||
+        typeof totalEvents !== 'number'
+      ) {
+        return;
+      }
+      expect(toDeliverySequence - fromDeliverySequence + 1 - totalEvents).toBe(
+        0,
+      );
+    });
 
-    it('characterizes the replay-span finding: authority range minus totalEvents is the withheld count', async () => {
+    it('characterizes the replay-span finding: delivery span equals items delivered; hidden count unrecoverable', async () => {
       const { host, stored } = await driveFogMatch('m-raw-infer-span-char');
       const resync = makeRawSocket();
       host.attachSocket(resync, 'pid_host');
@@ -705,35 +716,108 @@ describe('viewer frame raw-wire negative sweep', () => {
 
       let fromSeq: number | undefined;
       let toSeq: number | undefined;
+      let fromDeliverySequence: number | undefined;
+      let toDeliverySequence: number | undefined;
       let totalEvents: number | undefined;
       for (const raw of allFrames(resync)) {
         const parsed = JSON.parse(raw) as {
           kind?: string;
           fromSeq?: number;
           toSeq?: number;
+          fromDeliverySequence?: number;
+          toDeliverySequence?: number;
           totalEvents?: number;
         };
         if (parsed.kind === 'ReplayStart') {
           fromSeq = parsed.fromSeq;
+          fromDeliverySequence = parsed.fromDeliverySequence;
           totalEvents = parsed.totalEvents;
         }
-        if (parsed.kind === 'ReplayEnd') toSeq = parsed.toSeq;
+        if (parsed.kind === 'ReplayEnd') {
+          toSeq = parsed.toSeq;
+          toDeliverySequence = parsed.toDeliverySequence;
+        }
       }
-      expect(typeof fromSeq).toBe('number');
-      expect(typeof toSeq).toBe('number');
+      expect(fromSeq).toBeUndefined();
+      expect(toSeq).toBeUndefined();
+      expect(typeof fromDeliverySequence).toBe('number');
+      expect(typeof toDeliverySequence).toBe('number');
       expect(typeof totalEvents).toBe('number');
       if (
-        typeof fromSeq !== 'number' ||
-        typeof toSeq !== 'number' ||
+        typeof fromDeliverySequence !== 'number' ||
+        typeof toDeliverySequence !== 'number' ||
         typeof totalEvents !== 'number'
       ) {
         return;
       }
-      const hiddenInRange = hiddenOnResync.filter(
-        (event) => event.sequence >= fromSeq && event.sequence <= toSeq,
-      ).length;
-      expect(toSeq - fromSeq + 1 - totalEvents).toBe(hiddenInRange);
-      expect(hiddenInRange).toBeGreaterThan(0);
+      expect(toDeliverySequence - fromDeliverySequence + 1).toBe(totalEvents);
+    });
+
+    it('keeps ReplayStart.fromSeq and ReplayEnd.toSeq on a GM projection', async () => {
+      const { stored, matchId } = await driveFogMatch('m-raw-env-gm');
+      const authority = stored.filter(
+        (event) => typeof event.sequence === 'number',
+      );
+      expect(authority.length).toBeGreaterThan(1);
+      const lastSequence = authority[authority.length - 1].sequence;
+      const frames = {
+        start: {
+          kind: 'ReplayStart' as const,
+          matchId,
+          ts: nowIso(),
+          fromSeq: 0,
+          totalEvents: authority.length,
+        },
+        chunks: [
+          {
+            kind: 'ReplayChunk' as const,
+            matchId,
+            ts: nowIso(),
+            events: authority as unknown[],
+          },
+        ],
+        end: {
+          kind: 'ReplayEnd' as const,
+          matchId,
+          ts: nowIso(),
+          toSeq: lastSequence,
+        },
+      };
+      const gm = await brandedViewer(GM_ROW);
+      const playerViewer = await brandedViewer(PLAYER_ROW);
+      const gmGuarded = MATCH_WIRE_PUBLICATION_BOUNDARY.guardReplayFrames(
+        gm,
+        frames,
+      );
+      const playerGuarded = MATCH_WIRE_PUBLICATION_BOUNDARY.guardReplayFrames(
+        playerViewer,
+        frames,
+      );
+      expect(gmGuarded.kind).toBe('send');
+      expect(playerGuarded.kind).toBe('send');
+      if (gmGuarded.kind !== 'send' || playerGuarded.kind !== 'send') return;
+
+      expect(gmGuarded.frames.start.kind).toBe('ReplayStart');
+      expect(gmGuarded.frames.end.kind).toBe('ReplayEnd');
+      if (
+        gmGuarded.frames.start.kind !== 'ReplayStart' ||
+        gmGuarded.frames.end.kind !== 'ReplayEnd'
+      ) {
+        return;
+      }
+      expect(gmGuarded.frames.start.fromSeq).toBe(0);
+      expect(gmGuarded.frames.end.toSeq).toBe(lastSequence);
+
+      expect(playerGuarded.frames.start.kind).toBe('ReplayStart');
+      expect(playerGuarded.frames.end.kind).toBe('ReplayEnd');
+      if (
+        playerGuarded.frames.start.kind !== 'ReplayStart' ||
+        playerGuarded.frames.end.kind !== 'ReplayEnd'
+      ) {
+        return;
+      }
+      expect(playerGuarded.frames.start.fromSeq).toBeUndefined();
+      expect(playerGuarded.frames.end.toSeq).toBeUndefined();
     });
   });
 

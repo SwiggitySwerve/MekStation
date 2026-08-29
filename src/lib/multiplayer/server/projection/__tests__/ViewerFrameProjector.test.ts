@@ -21,6 +21,8 @@ import {
 import {
   AUTHORITY_ONLY_EVENT_FIELDS,
   projectEventForViewer,
+  projectReplayEndForViewer,
+  projectReplayStartForViewer,
 } from '../ViewerFrameProjector';
 
 const SESSION_ID = 'session-projector';
@@ -184,5 +186,39 @@ describe('projectEventForViewer', () => {
     // Guards the rows above from quietly becoming vacuous if the list is
     // ever emptied rather than replaced.
     expect(AUTHORITY_ONLY_EVENT_FIELDS.length).toBeGreaterThan(0);
+  });
+});
+
+describe('projectReplay envelopes for viewer', () => {
+  const start = {
+    kind: 'ReplayStart' as const,
+    matchId: 'match-projector',
+    ts: '2026-08-28T12:00:00.000Z',
+    fromSeq: 0,
+    totalEvents: 4,
+  };
+  const end = {
+    kind: 'ReplayEnd' as const,
+    matchId: 'match-projector',
+    ts: '2026-08-28T12:00:00.000Z',
+    toSeq: 12,
+  };
+
+  it('strips authority bounds from a player ReplayStart/End', async () => {
+    const viewer = await playerViewer();
+    const projectedStart = projectReplayStartForViewer(viewer, start, 3);
+    const projectedEnd = projectReplayEndForViewer(viewer, end, 11);
+    expect(projectedStart.fromSeq).toBeUndefined();
+    expect(projectedStart.totalEvents).toBe(3);
+    expect(projectedEnd.toSeq).toBeUndefined();
+  });
+
+  it('keeps authority bounds on a GM ReplayStart/End', async () => {
+    const viewer = await gmViewer();
+    const projectedStart = projectReplayStartForViewer(viewer, start, 3);
+    const projectedEnd = projectReplayEndForViewer(viewer, end, 11);
+    expect(projectedStart.fromSeq).toBe(0);
+    expect(projectedStart.totalEvents).toBe(3);
+    expect(projectedEnd.toSeq).toBe(11);
   });
 });
