@@ -4,6 +4,7 @@
  */
 
 import type { IGameEvent } from '@/types/gameplay/GameSessionInterfaces';
+import type { IServerMessage } from '@/types/multiplayer/Protocol';
 
 import { InteractiveSession } from '@/engine/InteractiveSession';
 import { SeededRandom } from '@/simulation/core/SeededRandom';
@@ -13,6 +14,31 @@ import type { IDecideCommandBatchDeps } from './ServerMatchHostDecision';
 
 /** Hard-disabled cutover switch, same shape as the campaign sibling. */
 export const COMBAT_JOURNAL_AUTHORITY_ENABLED = false;
+
+/**
+ * Host-side recovery contract for the journal-authority path (task 2.4).
+ * Wire translation stays 2.3's STORE_FAILURE / INTERNAL_ERROR frames;
+ * 3.x and 4.x consume this union, not a new protocol enum.
+ */
+export type JournalAuthorityRecovery =
+  | { readonly kind: 'persistence-failure'; readonly reason: string }
+  | {
+      readonly kind: 'revision-conflict';
+      readonly expectedRevision: number;
+      readonly actualRevision: number;
+    }
+  | {
+      readonly kind: 'digest-divergence';
+      readonly expectedDigest: string;
+      readonly appliedDigest: string;
+      readonly rebuilt: boolean;
+    };
+
+/** Path result: wire frames plus the host-side recovery arm, if any. */
+export interface IJournalAuthorityPathResult {
+  readonly messages: readonly IServerMessage[];
+  readonly recovery: JournalAuthorityRecovery | null;
+}
 
 /** Complete head tuple recorded with the one-time started fact (D4). */
 export interface IMatchJournalAuthorityHead {
@@ -79,4 +105,16 @@ export function verifyAppliedDigest(
   expectedDigest: string,
 ): boolean {
   return appliedDigest === expectedDigest;
+}
+
+let skipNextPublish = false;
+
+/** Test-only: die after commit (and apply) before the publish loop. */
+export function _setSkipPublishForTests(skip: boolean): void {
+  skipNextPublish = skip;
+}
+
+/** Test-only: read the skip flag. The setter is what clears it. */
+export function _shouldSkipPublishForTests(): boolean {
+  return skipNextPublish;
 }

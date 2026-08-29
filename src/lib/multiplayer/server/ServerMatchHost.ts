@@ -72,7 +72,10 @@ import type { IMatchSocket } from './ServerMatchSocketTypes';
 
 import { type IServerDiceRoller } from './CryptoDiceRoller';
 import { FogOfWarVisibilityCache } from './fogOfWar';
-import { COMBAT_JOURNAL_AUTHORITY_ENABLED } from './matchJournalAuthority';
+import {
+  COMBAT_JOURNAL_AUTHORITY_ENABLED,
+  type JournalAuthorityRecovery,
+} from './matchJournalAuthority';
 import { ViewerDeliveryCursors } from './projection/ViewerDeliveryCursors';
 import { AcceptedIntentTracker } from './reconnection/AcceptedIntentTracker';
 import {
@@ -168,6 +171,7 @@ export class ServerMatchHost {
   private lastBroadcastSeq: number;
   private closed = false;
   private divergenceDetected = false;
+  private lastJournalRecovery: JournalAuthorityRecovery | null = null;
   private readonly journalAuthorityEnabled: boolean;
   private readonly journalRandomSeed: number;
   private readonly journalDiceSeed: number;
@@ -782,6 +786,10 @@ export class ServerMatchHost {
   /** Diagnostic: a committed batch's applied digest diverged. */
   hasDetectedDivergence = (): boolean => this.divergenceDetected;
 
+  /** Host-side recovery arm from the last journal-authority command. */
+  getLastJournalRecovery = (): JournalAuthorityRecovery | null =>
+    this.lastJournalRecovery;
+
   /** Whether `closeMatch` has run. */
   isClosed = (): boolean => this.closed;
 
@@ -851,6 +859,9 @@ export class ServerMatchHost {
             },
             setLastBroadcastSeq: (sequence) => {
               this.lastBroadcastSeq = sequence;
+            },
+            recordRecovery: (recovery) => {
+              this.lastJournalRecovery = recovery;
             },
           }
         : undefined,
