@@ -50,6 +50,22 @@ describe('GM and two-player campaign QC runner', () => {
       ),
       PORT: String(core.deriveFixturePort('task-26-membership-smoke')),
     });
+
+    // The evolving smoke subset is BOTH landed specs in one plan.
+    // Falsification: drop either spec from the smoke list and this reds.
+    const smokePlan = core.buildRunPlan({
+      group: 'smoke',
+      runId: 'task-26-smoke',
+      repoRoot,
+    });
+    expect(smokePlan.args).toEqual([
+      path.join(repoRoot, 'scripts/playwright/run-playwright.mjs'),
+      'test',
+      '--project=chromium',
+      'e2e/gm-two-player-fixture.smoke.spec.ts',
+      'e2e/gm-two-player-membership.smoke.spec.ts',
+      '--workers=1',
+    ]);
   });
 
   it('types unknown and future groups before browser startup', () => {
@@ -61,8 +77,9 @@ describe('GM and two-player campaign QC runner', () => {
       2,
       '[qc:gm-two-player-campaign] UNKNOWN_GROUP group=not-a-group',
     ]);
+    const implemented = ['fixture-smoke', 'membership-smoke', 'smoke'];
     for (const group of groups.filter(
-      (group) => group !== 'fixture-smoke' && group !== 'membership-smoke',
+      (group) => !implemented.includes(group),
     )) {
       const result = run(`--group=${group}`, '--run-id=task-26-fixture-smoke');
       expect([result.status, result.stderr.trim()]).toEqual([

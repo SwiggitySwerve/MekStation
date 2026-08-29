@@ -34,13 +34,22 @@ function buildRunPlan({ group, runId, repoRoot }) {
   const owner = REGISTERED_GROUPS[group];
   if (!owner) throw typedError('UNKNOWN_GROUP', `group=${String(group)}`);
   validateRunId(runId);
-  if (group !== 'fixture-smoke' && group !== 'membership-smoke') {
+  // The evolving `smoke` subset (umbrella 24.4) is exactly the staged
+  // groups that exist so far, run as one plan. It grows here, one line
+  // per landed group, so "run the smoke subset" never silently narrows
+  // to a stale list held somewhere else.
+  const SPEC_BY_GROUP = {
+    'fixture-smoke': ['e2e/gm-two-player-fixture.smoke.spec.ts'],
+    'membership-smoke': ['e2e/gm-two-player-membership.smoke.spec.ts'],
+    smoke: [
+      'e2e/gm-two-player-fixture.smoke.spec.ts',
+      'e2e/gm-two-player-membership.smoke.spec.ts',
+    ],
+  };
+  const specs = SPEC_BY_GROUP[group];
+  if (!specs) {
     throw typedError('NOT_IMPLEMENTED', `group=${group} owner=${owner}`);
   }
-  const spec =
-    group === 'fixture-smoke'
-      ? 'e2e/gm-two-player-fixture.smoke.spec.ts'
-      : 'e2e/gm-two-player-membership.smoke.spec.ts';
   const port = String(deriveFixturePort(runId));
   return {
     command: process.execPath,
@@ -48,7 +57,7 @@ function buildRunPlan({ group, runId, repoRoot }) {
       path.join(repoRoot, 'scripts/playwright/run-playwright.mjs'),
       'test',
       '--project=chromium',
-      spec,
+      ...specs,
       '--workers=1',
     ],
     environment: {
