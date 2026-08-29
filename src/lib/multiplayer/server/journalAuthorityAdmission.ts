@@ -204,6 +204,8 @@ export function resolveJournalAuthorityForNewMatch(input: {
   readonly store: object;
   readonly requested: boolean;
   readonly gates: IJournalAuthorityPrivacyGateWiring;
+  /** The retained pre-command stream head created by host bootstrap. */
+  readonly baseline?: IMatchJournalAuthorityBaseline;
 }): {
   readonly enabled: boolean;
   readonly refusal: IJournalAuthorityAdmissionRefusal | null;
@@ -225,7 +227,9 @@ export function resolveJournalAuthorityForNewMatch(input: {
       return { enabled: false, refusal: null };
     }
     if (!decision.reuse) {
-      input.store.insertJournalAuthorityBaseline(decision.baseline);
+      input.store.insertJournalAuthorityBaseline(
+        input.baseline ?? decision.baseline,
+      );
     }
     return { enabled: true, refusal: null };
   }

@@ -295,6 +295,7 @@ export class ServerMatchHost {
     this.viewerResolver = new AuthorizedViewerResolver(
       new MatchSeatMembershipSource(store),
     );
+    const sessionEvents = session.getSession().events;
     const requested = options.journalAuthority === true;
     if (options.recovered) {
       const rollbackReader = options.rollbackReader ?? {
@@ -312,6 +313,11 @@ export class ServerMatchHost {
         matchId,
         store,
         requested,
+        baseline: headFromLegacyEvents(
+          matchId,
+          sessionEvents,
+          MATCH_BASELINE_FIRST_GENERATION,
+        ),
         gates:
           options.privacyGates ??
           productionJournalAuthorityPrivacyGates(
@@ -350,7 +356,6 @@ export class ServerMatchHost {
         void this.handleSocketDropped(playerId);
       },
     });
-    const sessionEvents = session.getSession().events;
     if (options.recovered) {
       // Recovery path (design D3): the session was rebuilt by replaying
       // the durable event log, so the store already holds every event.

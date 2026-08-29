@@ -192,7 +192,7 @@ describe('journal authority admission', () => {
     _resetJournalAuthorityAdmissionForTests();
   });
 
-  it('HAPPY ADMISSION: new match, mode enabled, gates wired writes genesis baseline', async () => {
+  it('HAPPY ADMISSION: new match, mode enabled, gates wired writes the pre-command baseline', async () => {
     matchJournalAuthority._setCombatJournalAuthorityModeForTests('enabled');
     const { host, store } = await makeHost({
       matchId: 'match-admit-happy',
@@ -206,10 +206,12 @@ describe('journal authority admission', () => {
     expect(baseline?.streamType).toBe('match');
     expect(baseline?.streamId).toBe('match-admit-happy');
     expect(baseline?.branchId).toBe('main');
-    expect(baseline?.revision).toBe(0);
+    expect(baseline?.revision).toBe(1);
     expect(baseline?.effectiveGeneration).toBe(1);
-    // Real digest of the empty/genesis stream, not a placeholder.
-    expect(baseline?.digest).toBe(digestRetainedMatchHistory([]));
+    // The exact retained legacy head at admission, not an empty placeholder.
+    expect(baseline?.digest).toBe(
+      digestRetainedMatchHistory(host.getSessionForTests().events),
+    );
     expect(getJournalAuthorityAdmissionRefusal('match-admit-happy')).toBeNull();
 
     await host.handleIntent(intent('lock-1', host.matchId));
