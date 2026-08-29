@@ -12,8 +12,41 @@ import { hydrateGameSessionFromEvents } from '@/utils/gameplay/gameSession';
 
 import type { IDecideCommandBatchDeps } from './ServerMatchHostDecision';
 
-/** Hard-disabled cutover switch, same shape as the campaign sibling. */
-export const COMBAT_JOURNAL_AUTHORITY_ENABLED = false;
+/** Process-wide cutover: off (legacy author), shadow (compare-only), enabled. */
+export type CombatJournalAuthorityMode = 'off' | 'shadow' | 'enabled';
+
+export const COMBAT_JOURNAL_AUTHORITY_MODE =
+  'off' as CombatJournalAuthorityMode;
+
+/** Derived so existing callers stay source-compatible. */
+export const COMBAT_JOURNAL_AUTHORITY_ENABLED =
+  COMBAT_JOURNAL_AUTHORITY_MODE === 'enabled';
+
+let combatJournalAuthorityModeOverride: CombatJournalAuthorityMode | null =
+  null;
+
+/** Runtime mode, including the test override. Production reads the const. */
+export function getCombatJournalAuthorityMode(): CombatJournalAuthorityMode {
+  return combatJournalAuthorityModeOverride ?? COMBAT_JOURNAL_AUTHORITY_MODE;
+}
+
+/** Test-only: drive shadow/enabled construction without flipping the const. */
+export function _setCombatJournalAuthorityModeForTests(
+  mode: CombatJournalAuthorityMode | null,
+): void {
+  combatJournalAuthorityModeOverride = mode;
+}
+
+/** Last shadow compare, plus counters on the host. */
+export interface ShadowComparisonRecord {
+  readonly intentId: string | undefined;
+  readonly equal: boolean;
+  readonly eventCountLive: number;
+  readonly eventCountShadow: number;
+  readonly liveDigest: string;
+  readonly shadowDigest: string;
+  readonly reason?: string;
+}
 
 /**
  * Host-side recovery contract for the journal-authority path (task 2.4).

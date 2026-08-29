@@ -76,7 +76,9 @@ import { FogOfWarVisibilityCache } from './fogOfWar';
 import { hasViewerDeliveryStore, type IMatchStore } from './IMatchStore';
 import {
   COMBAT_JOURNAL_AUTHORITY_ENABLED,
+  getCombatJournalAuthorityMode,
   type JournalAuthorityRecovery,
+  type ShadowComparisonRecord,
 } from './matchJournalAuthority';
 import { ViewerDeliveryCursors } from './projection/ViewerDeliveryCursors';
 import { AcceptedIntentTracker } from './reconnection/AcceptedIntentTracker';
@@ -174,7 +176,11 @@ export class ServerMatchHost {
   private closed = false;
   private divergenceDetected = false;
   private lastJournalRecovery: JournalAuthorityRecovery | null = null;
+  private lastShadowComparison: ShadowComparisonRecord | null = null;
+  private shadowComparisons = 0;
+  private shadowMismatches = 0;
   private readonly journalAuthorityEnabled: boolean;
+  private readonly journalAuthorityShadow: boolean;
   private readonly journalRandomSeed: number;
   private readonly journalDiceSeed: number;
   private readonly journalPlayerUnits: readonly IAdaptedUnit[];
@@ -260,6 +266,9 @@ export class ServerMatchHost {
       bindViewerDeliveryPersist(matchId, store),
     );
     this.journalAuthorityEnabled = options.journalAuthority === true;
+    this.journalAuthorityShadow =
+      !this.journalAuthorityEnabled &&
+      getCombatJournalAuthorityMode() === 'shadow';
     this.journalRandomSeed = options.randomSeed ?? 0xc0ffee;
     this.journalDiceSeed = options.diceSeed ?? 0;
     this.journalPlayerUnits = options.playerUnits ?? [];
@@ -814,6 +823,19 @@ export class ServerMatchHost {
   getLastJournalRecovery = (): JournalAuthorityRecovery | null =>
     this.lastJournalRecovery;
 
+  /** Most recent shadow compare; null when mode is not shadow. */
+  getLastShadowComparison = (): ShadowComparisonRecord | null =>
+    this.lastShadowComparison;
+
+  /** Shadow compare counters for tests and the 4.2 cutover gate. */
+  getShadowComparisonStats = (): {
+    readonly comparisons: number;
+    readonly mismatches: number;
+  } => ({
+    comparisons: this.shadowComparisons,
+    mismatches: this.shadowMismatches,
+  });
+
   /** Whether `closeMatch` has run. */
   isClosed = (): boolean => this.closed;
 
@@ -865,30 +887,37 @@ export class ServerMatchHost {
       acceptedIntents: this.acceptedIntents,
       viewerResolver: this.viewerResolver,
       deliveryCursors: this.deliveryCursors,
-      journalAuthority: this.journalAuthorityEnabled
-        ? {
-            enabled: true,
-            decideDeps: {
-              randomSeed: this.journalRandomSeed,
-              diceSeed: this.journalDiceSeed,
-              playerUnits: this.journalPlayerUnits,
-              opponentUnits: this.journalOpponentUnits,
-            },
-            d6: () => this.capture.d6(),
-            replaceSession: (session) => {
-              this.session = session;
-            },
-            markDivergence: () => {
-              this.divergenceDetected = true;
-            },
-            setLastBroadcastSeq: (sequence) => {
-              this.lastBroadcastSeq = sequence;
-            },
-            recordRecovery: (recovery) => {
-              this.lastJournalRecovery = recovery;
-            },
-          }
-        : undefined,
+      journalAuthority:
+        this.journalAuthorityEnabled || this.journalAuthorityShadow
+          ? {
+              enabled: this.journalAuthorityEnabled,
+              shadow: this.journalAuthorityShadow,
+              decideDeps: {
+                randomSeed: this.journalRandomSeed,
+                diceSeed: this.journalDiceSeed,
+                playerUnits: this.journalPlayerUnits,
+                opponentUnits: this.journalOpponentUnits,
+              },
+              d6: () => this.capture.d6(),
+              replaceSession: (session) => {
+                this.session = session;
+              },
+              markDivergence: () => {
+                this.divergenceDetected = true;
+              },
+              setLastBroadcastSeq: (sequence) => {
+                this.lastBroadcastSeq = sequence;
+              },
+              recordRecovery: (recovery) => {
+                this.lastJournalRecovery = recovery;
+              },
+              recordShadowComparison: (record) => {
+                this.lastShadowComparison = record;
+                this.shadowComparisons += 1;
+                if (!record.equal) this.shadowMismatches += 1;
+              },
+            }
+          : undefined,
     };
   }
 
