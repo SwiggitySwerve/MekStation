@@ -822,6 +822,7 @@ async function handleCampaignJoin({
         reason,
       }),
     issuer: roomCodeGrantIssuer,
+    membership,
   });
   if (guestOutcome === 'rejected') {
     return;
@@ -847,6 +848,23 @@ async function handleCampaignJoin({
       normalizeRoomCode(envelope.roomCode ?? '') !== issued
     ) {
       send(socket, errorFrame(matchId, 'UNKNOWN_MATCH', 'unknown-room-code'));
+      return;
+    }
+    // This arm is only reached when the grant/replica route fell back
+    // (for example explicit unavailable adapters). It can therefore be
+    // a never-bound newcomer even though the normal grant route binds
+    // seats above; reserve the durable seat before resync streams.
+    const seat = membership?.bind({
+      campaignId: entry.campaignId,
+      sessionId: matchId,
+      participantId: verifiedPlayerId,
+      seat: 'player',
+    });
+    if (seat?.kind === 'tactical-seats-full') {
+      send(
+        socket,
+        errorFrame(matchId, 'AUTH_REJECTED', 'campaign-tactical-seats-full'),
+      );
       return;
     }
     const resync = await entry.syncSession.resyncGuest(

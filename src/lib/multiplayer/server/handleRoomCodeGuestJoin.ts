@@ -37,6 +37,7 @@ import { mintVerifiedPrincipal } from '@/lib/multiplayer/server/authorization/Au
 import { normalizeRoomCode } from '@/lib/p2p/roomCodes';
 import { generateKeyPair, toBase64 } from '@/services/vault/IdentityService';
 
+import type { ICampaignSessionMembershipPort } from './bindCampaignSyncConnection';
 import type { ICampaignHostRegistryEntry } from './CampaignHostRegistry';
 import type { ICampaignGrantChannelDeps } from './handleCampaignGrantJoin';
 
@@ -56,6 +57,7 @@ export interface IHandleRoomCodeGuestJoinDeps {
   readonly send: (message: IServerMessage) => void;
   readonly closeTyped: (code: IErrorCode, reason: string) => void;
   readonly issuer?: ICampaignGrantSigner;
+  readonly membership?: ICampaignSessionMembershipPort | null;
 }
 
 let cachedRoomCodeGuestIssuer: ICampaignGrantSigner | null = null;
@@ -116,6 +118,21 @@ export async function handleRoomCodeGuestJoin(
       code: 'UNKNOWN_MATCH',
       reason: 'unknown-room-code',
     });
+    return 'rejected';
+  }
+
+  // Seat before grant/snapshot/live attach. A refused guest must not
+  // receive any campaign frame through the grant channel on the way to
+  // learning that tactical seats are full. `already-bound` is admitted:
+  // the durable store returns it for an idempotent player-seat rejoin.
+  const seat = deps.membership?.bind({
+    campaignId: deps.entry.campaignId,
+    sessionId: deps.matchId,
+    participantId: deps.verifiedPlayerId,
+    seat: 'player',
+  });
+  if (seat?.kind === 'tactical-seats-full') {
+    deps.closeTyped('AUTH_REJECTED', 'campaign-tactical-seats-full');
     return 'rejected';
   }
 
