@@ -10,6 +10,7 @@ import { GameStatus } from '@/types/gameplay/GameSessionInterfaces';
 import { intentHasForbiddenDiceField } from '@/types/multiplayer/Protocol';
 
 import type { IMatchStore } from './IMatchStore';
+import type { JournalAuthorityRecovery } from './matchJournalAuthority';
 import type { AcceptedIntentTracker } from './reconnection/AcceptedIntentTracker';
 import type { IntentRateLimiter } from './reconnection/IntentRateLimiter';
 import type { IServerMatchHostCaptureContext } from './ServerMatchHostCaptureContext';
@@ -41,6 +42,7 @@ export interface IJournalAuthorityHostHandle {
   replaceSession(session: InteractiveSession): void;
   markDivergence(): void;
   setLastBroadcastSeq(sequence: number): void;
+  recordRecovery(recovery: JournalAuthorityRecovery | null): void;
 }
 
 /**
@@ -190,9 +192,12 @@ export async function handleIntent(
   // Design D7 — replay-attack protection. An intent whose id the
   // server has already accepted for this match is a replayed envelope;
   // reject it with DUPLICATE_INTENT and append no event.
+  // Journal-authority owns idempotent retry (identity law + outbox
+  // resume) for the same envelope, so D7 must not preempt that path.
   if (
     envelope.intentId != null &&
-    ctx.acceptedIntents.isDuplicate(envelope.intentId)
+    ctx.acceptedIntents.isDuplicate(envelope.intentId) &&
+    ctx.journalAuthority?.enabled !== true
   ) {
     const err = errorMessage(
       ctx.matchId,
@@ -257,7 +262,8 @@ export async function handleIntent(
   }
 
   if (ctx.journalAuthority?.enabled) {
-    return commitJournalAuthorityCommand(ctx, envelope);
+    const result = await commitJournalAuthorityCommand(ctx, envelope);
+    return result.messages;
   }
 
   ctx.installFreshCapture();

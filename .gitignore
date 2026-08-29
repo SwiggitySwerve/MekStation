@@ -230,3 +230,6 @@ simulation-reports/**
 .cache/
 swarm-runs/
 swarm-output.json
+
+# jest failure snapshots (test-failed/ variant observed 2026-08-28)
+**/__snapshots__/test-failed/

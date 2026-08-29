@@ -1,6 +1,7 @@
 /**
  * DECIDE -> APPEND-AT-REVISION -> APPLY-COMMITTED-BATCH -> VERIFY -> PUBLISH.
  * Apply consumes the committed envelope; mismatch rebuilds from the journal.
+ * Failures fold into one host-side recovery result (task 2.4).
  */
 
 import type { IIntent, IServerMessage } from '@/types/multiplayer/Protocol';
@@ -10,8 +11,17 @@ import { SeededRandom } from '@/simulation/core/SeededRandom';
 import { nowIso } from '@/types/multiplayer/Protocol';
 import { hydrateGameSessionFromEvents } from '@/utils/gameplay/gameSession';
 
-import type { IMatchJournalAuthorityStarted } from './matchJournalAuthority';
-import type { IServerMatchHostIntentContext } from './ServerMatchHostIntent';
+import type { IMatchStore } from './IMatchStore';
+import type { IMatchCommandReceipt } from './matchCommandBatch';
+import type {
+  IJournalAuthorityPathResult,
+  IMatchJournalAuthorityStarted,
+  JournalAuthorityRecovery,
+} from './matchJournalAuthority';
+import type {
+  IJournalAuthorityHostHandle,
+  IServerMatchHostIntentContext,
+} from './ServerMatchHostIntent';
 
 import { hasPublicationOutbox } from './IMatchStore';
 import {
@@ -24,26 +34,122 @@ import {
   digestCommandPostState,
 } from './ServerMatchHostDecision';
 import { stampIntentIdOnNewEvents } from './ServerMatchHostEvents';
-import { errorMessage } from './ServerMatchHostPublication';
+import {
+  errorMessage,
+  resumePendingPublications,
+} from './ServerMatchHostPublication';
+
+function finish(
+  journal: IJournalAuthorityHostHandle,
+  messages: readonly IServerMessage[],
+  recovery: JournalAuthorityRecovery | null,
+): IJournalAuthorityPathResult {
+  journal.recordRecovery(recovery);
+  return { messages, recovery };
+}
+
+function persistenceFailure(
+  ctx: IServerMatchHostIntentContext,
+  journal: IJournalAuthorityHostHandle,
+  envelope: IIntent,
+  reason: string,
+): IJournalAuthorityPathResult {
+  const err = errorMessage(
+    ctx.matchId,
+    'STORE_FAILURE',
+    reason,
+    envelope.intentId,
+  );
+  ctx.broadcast(err);
+  return finish(journal, [err], { kind: 'persistence-failure', reason });
+}
+
+async function resumeCommittedCommand(
+  ctx: IServerMatchHostIntentContext,
+  journal: IJournalAuthorityHostHandle,
+  envelope: IIntent,
+  prior: IMatchCommandReceipt,
+  appendCommandBatch: NonNullable<IMatchStore['appendCommandBatch']>,
+): Promise<IJournalAuthorityPathResult> {
+  const stored = await ctx.store.getEvents(ctx.matchId);
+  const events = stored.filter(
+    (event) =>
+      event.sequence >= prior.firstRevision &&
+      event.sequence <= prior.lastRevision,
+  );
+  let result;
+  try {
+    result = await appendCommandBatch(ctx.matchId, {
+      commandId: prior.commandId,
+      actorId: envelope.playerId,
+      expectedRevision: prior.firstRevision,
+      events,
+      expectedPostStateDigest: prior.expectedPostStateDigest,
+    });
+  } catch (e) {
+    const reason = e instanceof Error ? e.message : 'Store append failed';
+    return persistenceFailure(ctx, journal, envelope, reason);
+  }
+  if (result.kind === 'duplicate-command') {
+    if (!hasPublicationOutbox(ctx.store)) {
+      return finish(journal, [], null);
+    }
+    const resumed = await resumePendingPublications({
+      matchId: ctx.matchId,
+      publications: ctx.store,
+      broadcastEvent: ctx.broadcastEvent,
+    });
+    return finish(journal, resumed, null);
+  }
+  if (result.kind === 'revision-conflict') {
+    const err = errorMessage(
+      ctx.matchId,
+      'STORE_FAILURE',
+      'sequence-conflict',
+      envelope.intentId,
+    );
+    ctx.broadcast(err);
+    return finish(journal, [err], {
+      kind: 'revision-conflict',
+      expectedRevision: result.expectedRevision,
+      actualRevision: result.actualRevision,
+    });
+  }
+  return persistenceFailure(ctx, journal, envelope, result.kind);
+}
 
 export async function commitJournalAuthorityCommand(
   ctx: IServerMatchHostIntentContext,
   envelope: IIntent,
-): Promise<readonly IServerMessage[]> {
+): Promise<IJournalAuthorityPathResult> {
   const journal = ctx.journalAuthority;
   if (journal == null || !journal.enabled) {
     throw new Error('journal-authority path invoked with the flag off');
   }
   const appendCommandBatch = ctx.store.appendCommandBatch;
   if (appendCommandBatch == null) {
-    const err = errorMessage(
-      ctx.matchId,
-      'STORE_FAILURE',
+    return persistenceFailure(
+      ctx,
+      journal,
+      envelope,
       'appendCommandBatch unavailable',
+    );
+  }
+
+  if (envelope.intentId != null && ctx.store.getCommandReceipt != null) {
+    const prior = await ctx.store.getCommandReceipt(
+      ctx.matchId,
       envelope.intentId,
     );
-    ctx.broadcast(err);
-    return [err];
+    if (prior != null) {
+      return resumeCommittedCommand(
+        ctx,
+        journal,
+        envelope,
+        prior,
+        appendCommandBatch,
+      );
+    }
   }
 
   ctx.installFreshCapture();
@@ -61,7 +167,7 @@ export async function commitJournalAuthorityCommand(
       envelope.intentId,
     );
     ctx.broadcast(err);
-    return [err];
+    return finish(journal, [err], null);
   }
 
   let events = decided.events;
@@ -69,7 +175,7 @@ export async function commitJournalAuthorityCommand(
     events = stampIntentIdOnNewEvents(envelope.intentId, events);
   }
   if (events.length === 0) {
-    return [];
+    return finish(journal, [], null);
   }
 
   const expectedRevision = events[0].sequence;
@@ -98,14 +204,20 @@ export async function commitJournalAuthorityCommand(
           committedAt: '',
         };
 
-  const result = await appendCommandBatch(ctx.matchId, {
-    commandId,
-    actorId: envelope.playerId,
-    expectedRevision,
-    events,
-    expectedPostStateDigest: decided.postStateDigest,
-    journalAuthorityStarted: started,
-  });
+  let result;
+  try {
+    result = await appendCommandBatch(ctx.matchId, {
+      commandId,
+      actorId: envelope.playerId,
+      expectedRevision,
+      events,
+      expectedPostStateDigest: decided.postStateDigest,
+      journalAuthorityStarted: started,
+    });
+  } catch (e) {
+    const reason = e instanceof Error ? e.message : 'Store append failed';
+    return persistenceFailure(ctx, journal, envelope, reason);
+  }
 
   if (result.kind === 'revision-conflict') {
     const err = errorMessage(
@@ -115,20 +227,23 @@ export async function commitJournalAuthorityCommand(
       envelope.intentId,
     );
     ctx.broadcast(err);
-    return [err];
+    return finish(journal, [err], {
+      kind: 'revision-conflict',
+      expectedRevision: result.expectedRevision,
+      actualRevision: result.actualRevision,
+    });
   }
   if (result.kind === 'duplicate-command') {
-    return [];
+    return resumeCommittedCommand(
+      ctx,
+      journal,
+      envelope,
+      result.receipt,
+      appendCommandBatch,
+    );
   }
   if (result.kind !== 'committed') {
-    const err = errorMessage(
-      ctx.matchId,
-      'STORE_FAILURE',
-      result.kind,
-      envelope.intentId,
-    );
-    ctx.broadcast(err);
-    return [err];
+    return persistenceFailure(ctx, journal, envelope, result.kind);
   }
 
   if (envelope.intentId != null) {
@@ -165,11 +280,20 @@ export async function commitJournalAuthorityCommand(
       envelope.intentId,
     );
     ctx.broadcast(err);
-    return [err];
+    return finish(journal, [err], {
+      kind: 'digest-divergence',
+      expectedDigest,
+      appliedDigest,
+      rebuilt: true,
+    });
   }
 
   journal.replaceSession(appliedSession);
   journal.setLastBroadcastSeq(last.sequence);
+
+  if (matchJournalAuthority._shouldSkipPublishForTests()) {
+    return finish(journal, [], null);
+  }
 
   const messages: IServerMessage[] = [];
   for (const event of events) {
@@ -189,5 +313,5 @@ export async function commitJournalAuthorityCommand(
     );
   }
   ctx.tryPublishOutcome();
-  return messages;
+  return finish(journal, messages, null);
 }
