@@ -364,6 +364,54 @@ describe('bindCampaignSyncConnection', () => {
     ]);
   });
 
+  it('a refused third player is sent NOTHING but the refusal', async () => {
+    // The membership-smoke law: a refusal must produce no admission
+    // artifact. joinGuest streamed the baseline BEFORE the seat cap
+    // answered, so a seats-full stranger left with the campaign
+    // snapshot in hand - the code even documented the trade-off. The
+    // seat now binds before anything streams.
+    const registry = await makeRegistry();
+    const membership = fakeMembership();
+
+    const join = async (playerId: string) => {
+      const socket = new MockWireSocket();
+      await bindCampaignSyncConnection({
+        socket,
+        registry,
+        matchId: 'match-campaign',
+        verifiedPlayerId: playerId,
+        logger: quietLogger,
+        replicaStore: null,
+        membership,
+      });
+      socket.inbound({
+        kind: 'CampaignJoin',
+        matchId: 'match-campaign',
+        ts: nowIso(),
+        playerId,
+        role: 'guest',
+        roomCode: 'ABC234',
+      });
+      await flushAsyncHandlers();
+      return socket;
+    };
+
+    const first = await join('pid_p1');
+    await join('pid_p2');
+    const third = await join('pid_p3');
+
+    // Falsification: restore the stream-then-bind order and the
+    // snapshot assertion below reds while the refusal stays green.
+    expect(third.sent.filter((frame) => frame.kind !== 'Error')).toHaveLength(
+      0,
+    );
+    // CONTROL: an admitted player still receives the snapshot, so a
+    // guard that starved everyone would fail here rather than pass.
+    expect(first.sent.some((frame) => frame.kind === 'CampaignSnapshot')).toBe(
+      true,
+    );
+  });
+
   it('refuses a GM whose seat durable membership gives to someone else', async () => {
     // The registry decides `role === 'host'` by comparing the verified
     // principal to its OWN in-memory hostPlayerId. Durable membership is
