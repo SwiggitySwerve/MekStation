@@ -473,6 +473,13 @@ describe('Protocol envelope schemas', () => {
           totalEvents: 3,
         },
         {
+          kind: 'ReplayStart' as const,
+          matchId: 'm',
+          ts: nowIso(),
+          fromDeliverySequence: 0,
+          totalEvents: 3,
+        },
+        {
           kind: 'ReplayChunk' as const,
           matchId: 'm',
           ts: nowIso(),
@@ -483,6 +490,12 @@ describe('Protocol envelope schemas', () => {
           matchId: 'm',
           ts: nowIso(),
           toSeq: 3,
+        },
+        {
+          kind: 'ReplayEnd' as const,
+          matchId: 'm',
+          ts: nowIso(),
+          toDeliverySequence: 3,
         },
         {
           kind: 'Event' as const,
