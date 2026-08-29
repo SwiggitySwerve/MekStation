@@ -24,15 +24,21 @@ The PR order, dependency graph, ownership boundaries, exact-main regression cade
 
 ## 3. Atomic Batch Append API
 
-- [ ] 3.1 Implement command-receipt digesting and atomic multi-event append in the store adapters, satisfying `Atomic Command Event Batches` and `Command Receipts Persist for the Authority Lifetime`.
+- [x] 3.1 Implement command-receipt digesting and atomic multi-event append in the store adapters, satisfying `Atomic Command Event Batches` and `Command Receipts Persist for the Authority Lifetime`.
+  - Receipt (2026-08-29, reconciled against main 293790e09 after adopt-combat-event-journal-authority closed 24/24; adversarial evidence map + orchestrator spot-checks): command fingerprinting (matchCommandBatch.ts:102-112, covering actorId and sequence:id:type) with expectedPostStateDigest on the receipt; atomic multi-event append in BOTH adapters - DurableMatchStore's single SQLite transaction (independently reviewed SOUND in the leaf's 1.4 durability/security review: identity-before-revision, contiguity inside the tx, real-file mid-loop crash test reopening to zero orphans) and InMemoryMatchStore's check-all-then-write. Receipts persist across restart: the recovery suite returns the prior receipt after a crash between commit and publish. CARRIED RESIDUAL BY NAME: the event-at-a-time HOST path (ServerMatchHostIntent appendEvent) still accepts non-contiguous sequences (duplicate rejection only) - the migration of every intent class onto batch append rides with 4.1's serialized-executor work, not this store-adapter box.
+
 - [ ] 3.2 Add controlled no-network/no-sleep store seams that fail before commit, during a middle event, during head update, and during outbox insert; assert full rollback and no successful receipt.
 - [ ] 3.3 Add restart tests proving an identical retry returns the prior receipt and a reused identity with different actor, branch, kind, or payload returns a typed integrity conflict.
-- [ ] 3.4 Verify with `npm.cmd test -- --runInBand src/lib/multiplayer/server/__tests__/InMemoryMatchStore.test.ts src/lib/multiplayer/server/__tests__/DurableMatchStore.test.ts src/lib/multiplayer/server/__tests__/MatchStoreStress.test.ts`.
+- [x] 3.4 Verify with `npm.cmd test -- --runInBand src/lib/multiplayer/server/__tests__/InMemoryMatchStore.test.ts src/lib/multiplayer/server/__tests__/DurableMatchStore.test.ts src/lib/multiplayer/server/__tests__/MatchStoreStress.test.ts`.
+  - Receipt (2026-08-29, run twice on main 293790e09 - evidence mapper and orchestrator independently): 3 suites / 27 passed / 0 failed. HONESTY NOTE: the named suites do not cover 3.2's missing head-update crash seam or 3.3's branch/payload integrity-conflict dimensions - those siblings stay open and this box closes only what its literal command verifies. MatchStoreStress is a latency/rate budget suite, not a concurrency stress; 4.3 owns the concurrency proof.
+
 
 ## 4. Per-Session Serialized Command Cutover
 
 - [ ] 4.1 Add one bounded serialized executor per match/session and route `ServerMatchHostIntent.ts` validation, reducer execution, and batch creation through it, implementing `Per-Session Command Execution Is Serialized`.
-- [ ] 4.2 Split atomic store capability from host cutover behind a disabled-by-default shadow/cutover flag; compare existing and journal-derived results before the new path becomes authoritative.
+- [x] 4.2 Split atomic store capability from host cutover behind a disabled-by-default shadow/cutover flag; compare existing and journal-derived results before the new path becomes authoritative.
+  - Receipt (2026-08-29, delivered whole by the leaf - PRs #1447/#1449/#1455, verified on main 293790e09): store capability landed months before cutover (leaf PR 1); the flag is the reviewed three-way COMBAT_JOURNAL_AUTHORITY_MODE off|shadow|enabled, production const 'off' (matchJournalAuthority.ts:18). Shadow re-derives each legacy command on the pre-dispatch state by replaying the tick's stamped rolls, compares canonical events + post-state digest, and records mismatches host-side - no dual-authoring, no wire change, no live mutation, each law a mutation-proven test; the scratch can no longer author the outcome bus (#1455, the 4.5 reviewer's blocker honored). The new path becomes authoritative only per-match through the admission ladder whose tripwire refuses on any recorded mismatch. Audience-level (per-viewer projection) digest comparison remains 24.1's open clause - this box's state/event comparison is delivered.
+
 - [ ] 4.3 Prove concurrent Player 1/Player 2 commands form deterministic non-interleaved batches while commands in unrelated sessions continue independently.
 - [ ] 4.4 Verify with `npm.cmd test -- --runInBand src/lib/multiplayer/server/__tests__/ServerMatchHost.test.ts src/lib/multiplayer/server/__tests__/ServerMatchHostEngineDispatch.test.ts src/lib/multiplayer/server/__tests__/MatchStoreStress.test.ts`.
 
@@ -243,8 +249,12 @@ The PR order, dependency graph, ownership boundaries, exact-main regression cade
 ## 24. Cutover Rollback and Exact-Main Regression
 
 - [ ] 24.1 Prove shadow dual-write state and audience digests match before enabling journal authority for new sandbox sessions.
-- [ ] 24.2 Cut over new sessions behind the reviewed feature flag, preserve legacy completed-log read compatibility, and refuse ambiguous active-session migration.
-- [ ] 24.3 Document rollback that stops new admission, preserves journal/branch/receipt/audit rows, and returns to a schema-compatible reader without destructive history edits.
+- [x] 24.2 Cut over new sessions behind the reviewed feature flag, preserve legacy completed-log read compatibility, and refuse ambiguous active-session migration.
+  - Receipt (2026-08-29, combat scope - campaign cutover stays delegated to design-campaign-authority-and-sync per wave-map row 5; verified on main 293790e09): per-match admission at creation behind the off-by-default reviewed flag; legacy reads schema-compatible (DurableMatchStore suites green in both reconciliation runs); ambiguity REFUSED on two independent axes - an imported legacy stream is refused journal authority before any flag is consulted, and recovery selects its reader from durable facts alone (matchRollbackReaderSelection.ts, #1451), the options.recovered bypass deleted. The leaf's five SQL-corruption rollback proofs (#1453) pin the refusal shapes against a real store.
+
+- [x] 24.3 Document rollback that stops new admission, preserves journal/branch/receipt/audit rows, and returns to a schema-compatible reader without destructive history edits.
+  - Receipt (2026-08-29, combat scope, verified on main 293790e09): documented normatively in the leaf's delta spec (adopt-combat-event-journal-authority/specs/event-store/spec.md, 'Combat Rollback Preserves Journal Authority' - rollback SHALL stop admission, preserve rows/receipts/head/generation/recovery state, and never substitute an incompatible log), implemented as the pure fact-driven selector wired through recovery, and PROVEN against real SQLite with SQL-written corruptions: blocked states refuse new command/effect admission with typed errors, serve no legacy substitution (digest-asserted), and leave a byte-identical store dump. NOTE: the delta text merges into main specs at the leaf's archive; the normative content exists and is implemented today.
+
 - [ ] 24.4 After the pre-harness ABI-checker merge, archive its exact-main native-store regression. Land the isolated three-context fixture next, then after every later major merge update the evidence ledger and run the applicable staged `npm.cmd run verify:qc:gm-two-player-campaign -- --group=<slice>` against exact main before the next dependent PR: `fixture-smoke` before role admission, `membership-smoke` when durable GM/P1/P2 roles land, and the evolving `smoke` subset thereafter.
 
 ## 25. Final Verification and Documentation

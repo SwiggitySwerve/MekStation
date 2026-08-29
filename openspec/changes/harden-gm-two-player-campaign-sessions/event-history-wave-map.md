@@ -8,7 +8,7 @@
 | 1.5 | `harden-sqlite-journal-coherent-verified-open` | Archived 2026-08-01 | Coherent fail-closed SQLite verified opening before any replay or authority adoption |
 | 2 | `add-replay-schema-and-checkpoint-safety` | ARCHIVED 2026-08-21 (all 21 PRs merged through #1299; deltas merged into the living event-store/replay-library specs as 2026-08-22-add-replay-schema-and-checkpoint-safety) | 12 and 15 replay/upcast/checkpoint/quarantine foundation |
 | 3 | `add-authority-audit-and-privacy-proof` | ARCHIVED 2026-08-22 (all 10 PRs merged #1302-#1311; deltas merged into the living multiplayer-server/audit-timeline/gm-authority-redaction specs as 2026-08-22-add-authority-audit-and-privacy-proof) | 11, 12, and 18 membership-gated projection, action/private audit, privacy evidence |
-| 4 | `adopt-combat-event-journal-authority` | Proposed | 4 and combat portions of 5, 7, 14, and 24 |
+| 4 | `adopt-combat-event-journal-authority` | Complete 2026-08-29 (24/24, PRs #1444-#1458) | 4 and combat portions of 5, 7, and 24 - section 14 ownership corrected 2026-08-29: the leaf shipped no section-14 work and row 7 (`add-authoritative-history-branches`) is the operative owner |
 | 5 | `adopt-campaign-event-journal-authority` — SUPERSEDED 2026-08-20; campaign portions delegated to `design-campaign-authority-and-sync` (Group 5; council decision 2026-08-20-campaign-journal-reconciliation-and-next-work) | Superseded | 8, 10, and campaign portions of 5, 7, 9, 12, and 24 |
 | 6 | `add-cross-stream-effect-receipts` | Proposed | 13 and the linear outcome/progression portions of 17 |
 | 7 | `add-authoritative-history-branches` | Proposed | 14, 16, 17, and branch/correction portions of 18-19 |
