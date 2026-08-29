@@ -34,6 +34,12 @@ export interface IDecideCommandBatchDeps {
   readonly diceSeed: number;
   readonly playerUnits?: readonly IAdaptedUnit[];
   readonly opponentUnits?: readonly IAdaptedUnit[];
+  /**
+   * When set, the scratch session consumes this roller instead of
+   * re-seeding from `diceSeed`. The journal-authority host passes the
+   * live capture so decide continues the match dice cursor (L1).
+   */
+  readonly d6Roller?: D6Roller;
 }
 
 export interface ICommandDecision {
@@ -72,8 +78,14 @@ export function decideCommandBatch(
   const clonedEvents = JSON.parse(JSON.stringify(live.events)) as IGameEvent[];
   const hydrated = hydrateGameSessionFromEvents(live.id, clonedEvents);
 
-  const sourceRoller = new SeededDiceRoller(new SeededRandom(deps.diceSeed));
-  const capture = new RollCapture(sourceRoller);
+  const capture = new RollCapture(
+    deps.d6Roller != null
+      ? {
+          d6: () => deps.d6Roller!(),
+          asD6Roller: () => deps.d6Roller!,
+        }
+      : new SeededDiceRoller(new SeededRandom(deps.diceSeed)),
+  );
   const engineCallback: D6Roller = () => capture.d6();
   const scratch = InteractiveSession.fromHydratedSession(hydrated, {
     random: new SeededRandom(deps.randomSeed),

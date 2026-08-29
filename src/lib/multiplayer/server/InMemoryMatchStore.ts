@@ -19,6 +19,7 @@ import type {
   IMatchCommandReceipt,
   MatchBatchAppendResult,
 } from './matchCommandBatch';
+import type { IMatchJournalAuthorityStarted } from './matchJournalAuthority';
 
 import {
   MatchNotFoundError,
@@ -57,6 +58,7 @@ interface IMatchRecord {
     number,
     { readonly record: IMatchPublication; publishedAt: string | null }
   >;
+  started: IMatchJournalAuthorityStarted | null;
   // Set of sequences we've already stored — avoids O(n) scan on every
   // append for a duplicate-sequence check (matches can run hundreds of
   // events in a long fight).
@@ -105,6 +107,7 @@ export class InMemoryMatchStore
       sequences: new Set(),
       receipts: new Map(),
       publications: new Map(),
+      started: null,
       closed: false,
     });
     if (meta.roomCode && meta.status === 'lobby') {
@@ -185,6 +188,9 @@ export class InMemoryMatchStore
         actualRevision: head,
       };
     }
+    if (batch.journalAuthorityStarted && rec.started != null) {
+      throw new Error('journal-authority-started already exists');
+    }
 
     const committedAt = new Date().toISOString();
     const first = batch.events[0].sequence;
@@ -218,8 +224,31 @@ export class InMemoryMatchStore
       });
     }
     rec.receipts.set(batch.commandId, receipt);
+    if (batch.journalAuthorityStarted) {
+      rec.started = {
+        ...batch.journalAuthorityStarted,
+        committedAt,
+      };
+    }
     rec.meta = { ...rec.meta, updatedAt: committedAt };
     return { kind: 'committed', receipt };
+  };
+
+  getCommandReceipt = async (
+    matchId: string,
+    commandId: string,
+  ): Promise<IMatchCommandReceipt | null> => {
+    const rec = this.records.get(matchId);
+    if (!rec) throw new MatchNotFoundError(matchId);
+    return rec.receipts.get(commandId) ?? null;
+  };
+
+  getJournalAuthorityStarted = async (
+    matchId: string,
+  ): Promise<IMatchJournalAuthorityStarted | null> => {
+    const rec = this.records.get(matchId);
+    if (!rec) throw new MatchNotFoundError(matchId);
+    return rec.started;
   };
 
   /** See `IPublicationOutboxStore.listPendingPublications`. */

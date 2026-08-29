@@ -32,7 +32,10 @@ import type { IntentRateLimiter } from './reconnection/IntentRateLimiter';
 import type { PendingPeerTracker } from './reconnection/PendingPeerTracker';
 import type { IServerMatchHostCaptureContext } from './ServerMatchHostCaptureContext';
 import type { IPublishNetworkedCommandResultContext } from './ServerMatchHostCommandResults';
-import type { IServerMatchHostIntentContext } from './ServerMatchHostIntent';
+import type {
+  IJournalAuthorityHostHandle,
+  IServerMatchHostIntentContext,
+} from './ServerMatchHostIntent';
 import type { IServerMatchHostLobbyContext } from './ServerMatchHostLobbyIntents';
 import type { IServerMatchHostReconnectContext } from './ServerMatchHostReconnectLifecycle';
 import type { IServerMatchHostReplayContext } from './ServerMatchHostReplay';
@@ -73,6 +76,7 @@ export interface IServerMatchHostInternals extends IServerMatchHostCaptureContex
   readonly acceptedIntents: AcceptedIntentTracker;
   readonly viewerResolver: AuthorizedViewerResolver;
   readonly deliveryCursors: ViewerDeliveryCursors;
+  readonly journalAuthority?: IJournalAuthorityHostHandle;
 }
 
 /**
@@ -144,6 +148,7 @@ export function buildIntentContext(
     rateLimiter: host.rateLimiter,
     acceptedIntents: host.acceptedIntents,
     viewerResolver: host.viewerResolver,
+    journalAuthority: host.journalAuthority,
   };
 }
 

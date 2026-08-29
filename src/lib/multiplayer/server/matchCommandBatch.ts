@@ -28,6 +28,8 @@
 
 import type { IGameEvent } from '@/types/gameplay/GameSessionInterfaces';
 
+import type { IMatchJournalAuthorityStarted } from './matchJournalAuthority';
+
 /** One command's worth of events, offered as a single unit. */
 export interface IMatchCommandBatch {
   /** Stable identity — the same command retried carries the same id. */
@@ -44,6 +46,8 @@ export interface IMatchCommandBatch {
    * author intended, rather than confirming itself.
    */
   readonly expectedPostStateDigest?: string | null;
+  /** First journal-authority command only; a second write fails. */
+  readonly journalAuthorityStarted?: IMatchJournalAuthorityStarted;
 }
 
 /** What the store recorded about a committed command. */

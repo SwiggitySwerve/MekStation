@@ -52,6 +52,7 @@ import type {
   IMatchCommandReceipt,
   MatchBatchAppendResult,
 } from './matchCommandBatch';
+import type { IMatchJournalAuthorityStarted } from './matchJournalAuthority';
 
 import {
   createDurableLegacyImportStore,
@@ -149,6 +150,21 @@ const SCHEMA_SQL = `
     FOREIGN KEY (match_id) REFERENCES mp_matches(match_id) ON DELETE CASCADE
   );
 
+  CREATE TABLE IF NOT EXISTS mp_journal_authority_started (
+    match_id              TEXT NOT NULL PRIMARY KEY,
+    command_id            TEXT NOT NULL,
+    first_revision        INTEGER NOT NULL,
+    last_revision         INTEGER NOT NULL,
+    stream_type           TEXT NOT NULL CHECK (stream_type = 'match'),
+    stream_id             TEXT NOT NULL,
+    branch_id             TEXT NOT NULL,
+    revision              INTEGER NOT NULL,
+    digest                TEXT NOT NULL,
+    effective_generation  INTEGER NOT NULL CHECK (effective_generation >= 1),
+    committed_at          TEXT NOT NULL,
+    FOREIGN KEY (match_id) REFERENCES mp_matches(match_id) ON DELETE CASCADE
+  );
+
   CREATE INDEX IF NOT EXISTS idx_mp_matches_status ON mp_matches(status);
   CREATE INDEX IF NOT EXISTS idx_mp_matches_room_code ON mp_matches(room_code);
   CREATE INDEX IF NOT EXISTS idx_mp_match_events_match ON mp_match_events(match_id, sequence);
@@ -183,6 +199,40 @@ function receiptFrom(row: ICommandReceiptRow): IMatchCommandReceipt {
     eventCount: row.event_count,
     fingerprint: row.fingerprint,
     expectedPostStateDigest: row.post_digest,
+    committedAt: row.committed_at,
+  };
+}
+
+interface IJournalAuthorityStartedRow {
+  readonly match_id: string;
+  readonly command_id: string;
+  readonly first_revision: number;
+  readonly last_revision: number;
+  readonly stream_type: 'match';
+  readonly stream_id: string;
+  readonly branch_id: string;
+  readonly revision: number;
+  readonly digest: string;
+  readonly effective_generation: number;
+  readonly committed_at: string;
+}
+
+function startedFrom(
+  row: IJournalAuthorityStartedRow,
+): IMatchJournalAuthorityStarted {
+  return {
+    matchId: row.match_id,
+    commandId: row.command_id,
+    firstRevision: row.first_revision,
+    lastRevision: row.last_revision,
+    head: {
+      streamType: row.stream_type,
+      streamId: row.stream_id,
+      branchId: row.branch_id,
+      revision: row.revision,
+      digest: row.digest,
+      effectiveGeneration: row.effective_generation,
+    },
     committedAt: row.committed_at,
   };
 }
@@ -416,6 +466,38 @@ export class DurableMatchStore implements IMatchStore, IPublicationOutboxStore {
       this.db
         .prepare(`UPDATE mp_matches SET updated_at = ? WHERE match_id = ?`)
         .run(committedAt, matchId);
+      if (batch.journalAuthorityStarted) {
+        const already = this.db
+          .prepare(
+            `SELECT 1 FROM mp_journal_authority_started WHERE match_id = ?`,
+          )
+          .get(matchId);
+        if (already) {
+          throw new Error('journal-authority-started already exists');
+        }
+        const fact = batch.journalAuthorityStarted;
+        this.db
+          .prepare(
+            `INSERT INTO mp_journal_authority_started
+               (match_id, command_id, first_revision, last_revision,
+                stream_type, stream_id, branch_id, revision, digest,
+                effective_generation, committed_at)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+          )
+          .run(
+            matchId,
+            fact.commandId,
+            fact.firstRevision,
+            fact.lastRevision,
+            fact.head.streamType,
+            fact.head.streamId,
+            fact.head.branchId,
+            fact.head.revision,
+            fact.head.digest,
+            fact.head.effectiveGeneration,
+            committedAt,
+          );
+      }
 
       return {
         kind: 'committed',
@@ -434,6 +516,28 @@ export class DurableMatchStore implements IMatchStore, IPublicationOutboxStore {
     });
 
     return tx();
+  };
+
+  getCommandReceipt = async (
+    matchId: string,
+    commandId: string,
+  ): Promise<IMatchCommandReceipt | null> => {
+    const row = this.db
+      .prepare(
+        `SELECT * FROM mp_command_receipts
+         WHERE match_id = ? AND command_id = ?`,
+      )
+      .get(matchId, commandId) as ICommandReceiptRow | undefined;
+    return row ? receiptFrom(row) : null;
+  };
+
+  getJournalAuthorityStarted = async (
+    matchId: string,
+  ): Promise<IMatchJournalAuthorityStarted | null> => {
+    const row = this.db
+      .prepare(`SELECT * FROM mp_journal_authority_started WHERE match_id = ?`)
+      .get(matchId) as IJournalAuthorityStartedRow | undefined;
+    return row ? startedFrom(row) : null;
   };
 
   appendEvent = async (matchId: string, event: IGameEvent): Promise<void> => {

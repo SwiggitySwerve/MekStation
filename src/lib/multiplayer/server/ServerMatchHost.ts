@@ -43,6 +43,7 @@
 
 export type { WebSocket as WsWebSocket } from 'ws';
 
+import type { IAdaptedUnit } from '@/engine/types';
 import type {
   IGameEvent,
   IGameSession,
@@ -71,6 +72,7 @@ import type { IMatchSocket } from './ServerMatchSocketTypes';
 
 import { type IServerDiceRoller } from './CryptoDiceRoller';
 import { FogOfWarVisibilityCache } from './fogOfWar';
+import { COMBAT_JOURNAL_AUTHORITY_ENABLED } from './matchJournalAuthority';
 import { ViewerDeliveryCursors } from './projection/ViewerDeliveryCursors';
 import { AcceptedIntentTracker } from './reconnection/AcceptedIntentTracker';
 import {
@@ -162,9 +164,15 @@ export class ServerMatchHost {
   private readonly fogVisibilityCache = new FogOfWarVisibilityCache();
   /** Per-viewer gapless delivery numbering (umbrella 11.1). */
   private readonly deliveryCursors = new ViewerDeliveryCursors();
-  private readonly session: InteractiveSession;
+  private session: InteractiveSession;
   private lastBroadcastSeq: number;
   private closed = false;
+  private divergenceDetected = false;
+  private readonly journalAuthorityEnabled: boolean;
+  private readonly journalRandomSeed: number;
+  private readonly journalDiceSeed: number;
+  private readonly journalPlayerUnits: readonly IAdaptedUnit[];
+  private readonly journalOpponentUnits: readonly IAdaptedUnit[];
   /**
    * Wave 3b: cache of `playerId -> IPlayerRef` so OccupySeat intents
    * can resolve a display name. Populated by `registerPlayerRef` (called
@@ -232,9 +240,21 @@ export class ServerMatchHost {
     private readonly store: IMatchStore,
     session: InteractiveSession,
     sourceRoller?: IServerDiceRoller,
-    options: { readonly recovered?: boolean } = {},
+    options: {
+      readonly recovered?: boolean;
+      readonly journalAuthority?: boolean;
+      readonly randomSeed?: number;
+      readonly diceSeed?: number;
+      readonly playerUnits?: readonly IAdaptedUnit[];
+      readonly opponentUnits?: readonly IAdaptedUnit[];
+    } = {},
   ) {
     this.session = session;
+    this.journalAuthorityEnabled = options.journalAuthority === true;
+    this.journalRandomSeed = options.randomSeed ?? 0xc0ffee;
+    this.journalDiceSeed = options.diceSeed ?? 0;
+    this.journalPlayerUnits = options.playerUnits ?? [];
+    this.journalOpponentUnits = options.opponentUnits ?? [];
     this.viewerResolver = new AuthorizedViewerResolver(
       new MatchSeatMembershipSource(store),
     );
@@ -294,7 +314,14 @@ export class ServerMatchHost {
     bootstrap: IMatchHostBootstrap,
   ): ServerMatchHost {
     const { session, sourceRoller, captureRef } = buildHostSession(bootstrap);
-    const host = new ServerMatchHost(matchId, store, session, sourceRoller);
+    const host = new ServerMatchHost(matchId, store, session, sourceRoller, {
+      journalAuthority:
+        bootstrap.journalAuthority ?? COMBAT_JOURNAL_AUTHORITY_ENABLED,
+      randomSeed: bootstrap.randomSeed,
+      diceSeed: bootstrap.diceSeed,
+      playerUnits: bootstrap.playerUnits,
+      opponentUnits: bootstrap.opponentUnits,
+    });
     // Re-route the host's capture pointer through the ref the engine
     // callback closed over, so per-intent swaps stay invisible.
     host.capture.adoptExternalCaptureRef(captureRef);
@@ -752,6 +779,9 @@ export class ServerMatchHost {
   /** Test/observability: pull the live session (for assertions). */
   getSessionForTests = (): IGameSession => this.session.getSession();
 
+  /** Diagnostic: a committed batch's applied digest diverged. */
+  hasDetectedDivergence = (): boolean => this.divergenceDetected;
+
   /** Whether `closeMatch` has run. */
   isClosed = (): boolean => this.closed;
 
@@ -803,6 +833,27 @@ export class ServerMatchHost {
       acceptedIntents: this.acceptedIntents,
       viewerResolver: this.viewerResolver,
       deliveryCursors: this.deliveryCursors,
+      journalAuthority: this.journalAuthorityEnabled
+        ? {
+            enabled: true,
+            decideDeps: {
+              randomSeed: this.journalRandomSeed,
+              diceSeed: this.journalDiceSeed,
+              playerUnits: this.journalPlayerUnits,
+              opponentUnits: this.journalOpponentUnits,
+            },
+            d6: () => this.capture.d6(),
+            replaceSession: (session) => {
+              this.session = session;
+            },
+            markDivergence: () => {
+              this.divergenceDetected = true;
+            },
+            setLastBroadcastSeq: (sequence) => {
+              this.lastBroadcastSeq = sequence;
+            },
+          }
+        : undefined,
     };
   }
 

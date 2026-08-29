@@ -13,6 +13,7 @@ import type { IMatchStore } from './IMatchStore';
 import type { AcceptedIntentTracker } from './reconnection/AcceptedIntentTracker';
 import type { IntentRateLimiter } from './reconnection/IntentRateLimiter';
 import type { IServerMatchHostCaptureContext } from './ServerMatchHostCaptureContext';
+import type { IDecideCommandBatchDeps } from './ServerMatchHostDecision';
 
 import {
   AuthorizedViewerError,
@@ -28,8 +29,19 @@ import { hasPublicationOutbox } from './IMatchStore';
 import { isSpectatorPlayer } from './lobby/spectatorSeats';
 import { dispatchToEngine } from './ServerMatchHostEngineDispatch';
 import { stampIntentIdOnNewEvents } from './ServerMatchHostEvents';
+import { commitJournalAuthorityCommand } from './ServerMatchHostJournalAuthority';
 import { isLobbyIntentKind } from './ServerMatchHostLobbyIntents';
 import { commitThenPublish, errorMessage } from './ServerMatchHostPublication';
+
+/** Per-host journal-authority handle. Absent / disabled = live dispatch. */
+export interface IJournalAuthorityHostHandle {
+  readonly enabled: boolean;
+  readonly decideDeps: IDecideCommandBatchDeps;
+  readonly d6: () => number;
+  replaceSession(session: InteractiveSession): void;
+  markDivergence(): void;
+  setLastBroadcastSeq(sequence: number): void;
+}
 
 /**
  * In-process handleIntent caller that is not a wire socket. Production
@@ -81,6 +93,8 @@ export interface IServerMatchHostIntentContext extends IServerMatchHostCaptureCo
    * set for replay-attack detection (design D7).
    */
   readonly acceptedIntents: AcceptedIntentTracker;
+  /** Present when this host was created with journal authority on. */
+  readonly journalAuthority?: IJournalAuthorityHostHandle;
 }
 
 /**
@@ -240,6 +254,10 @@ export async function handleIntent(
     );
     ctx.broadcast(err);
     return [err];
+  }
+
+  if (ctx.journalAuthority?.enabled) {
+    return commitJournalAuthorityCommand(ctx, envelope);
   }
 
   ctx.installFreshCapture();

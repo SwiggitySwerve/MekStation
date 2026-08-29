@@ -18,6 +18,8 @@ export interface IMatchHostBootstrap {
   readonly opponentUnits: readonly IAdaptedUnit[];
   readonly gameUnits: readonly IGameUnit[];
   readonly diceSeed?: number;
+  readonly journalAuthority?: boolean;
+  readonly randomSeed?: number;
 }
 
 export function buildHostSession(bootstrap: IMatchHostBootstrap): {
