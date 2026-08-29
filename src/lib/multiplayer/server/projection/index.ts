@@ -20,6 +20,8 @@ export {
 export {
   AUTHORITY_ONLY_EVENT_FIELDS,
   projectEventForViewer,
+  projectReplayEndForViewer,
+  projectReplayStartForViewer,
 } from './ViewerFrameProjector';
 export type {
   IViewerEventProjected,

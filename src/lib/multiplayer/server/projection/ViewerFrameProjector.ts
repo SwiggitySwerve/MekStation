@@ -7,13 +7,15 @@
  * settles WHETHER a viewer may receive an event; this settles WHAT the
  * event may contain once they may.
  *
- * ONE function, called from ONE place: the boundary's per-event
- * decision, which every frame that REACHES the boundary funnels through
- * before `safeSend` serializes - live broadcast, SessionJoin baseline,
- * guarded replay. Applying it per surface let those surfaces disagree,
- * measurably: redacting only the live path left a mid-match joiner's
- * replayed events carrying a field the continuously connected client
- * had already lost.
+ * Event values go through `projectEventForViewer`, called from ONE
+ * place: the boundary's per-event decision, which every frame that
+ * REACHES the boundary funnels through before `safeSend` serializes -
+ * live broadcast, SessionJoin baseline, guarded replay. Replay
+ * envelopes (ReplayStart/End bounds) go through the sibling functions
+ * in this module from the same boundary. Applying either per surface
+ * let those surfaces disagree, measurably: redacting only the live path
+ * left a mid-match joiner's replayed events carrying a field the
+ * continuously connected client had already lost.
  *
  * Outbound paths that never reach the boundary are unchanged by this
  * slice: `sendReplay`'s no-playerId branch has no viewer to project for
@@ -24,6 +26,8 @@
  *
  * @spec openspec/changes/harden-gm-two-player-campaign-sessions/specs/gm-authority-redaction/spec.md
  */
+
+import type { IReplayEnd, IReplayStart } from '@/types/multiplayer/Protocol';
 
 import type { IAuthorizedViewer } from '../authorization/AuthorizedViewer';
 
@@ -147,4 +151,64 @@ function shouldRemoveAuthorityField(
   if (!AUTHORITY_ONLY_EVENT_FIELD_SET.has(key)) return false;
   if (key === 'sequence' && viewer.role === 'gm') return false;
   return true;
+}
+
+/**
+ * Project ReplayStart for one branded viewer.
+ *
+ * Same discrimination as `sequence` on events: GM/authority projections
+ * keep `fromSeq`; player projections omit it. `totalEvents` is the
+ * count of items this viewer is about to receive. `fromDeliverySequence`
+ * is left in place when already stamped; send-time numbering fills it.
+ */
+export function projectReplayStartForViewer(
+  viewer: IAuthorizedViewer,
+  start: IReplayStart,
+  totalEvents: number,
+): IReplayStart {
+  if (viewer.role === 'gm') {
+    if (start.totalEvents === totalEvents) return start;
+    return { ...start, totalEvents };
+  }
+  if (start.fromSeq === undefined && start.totalEvents === totalEvents) {
+    return start;
+  }
+  const projected: IReplayStart = {
+    kind: 'ReplayStart',
+    matchId: start.matchId,
+    ts: start.ts,
+    totalEvents,
+  };
+  return typeof start.fromDeliverySequence === 'number'
+    ? { ...projected, fromDeliverySequence: start.fromDeliverySequence }
+    : projected;
+}
+
+/**
+ * Project ReplayEnd for one branded viewer.
+ *
+ * GM/authority projections keep `toSeq`, retargeted at the last visible
+ * authority sequence when the bundle shrank. Player projections omit
+ * `toSeq`. `toDeliverySequence` is left in place when already stamped.
+ */
+export function projectReplayEndForViewer(
+  viewer: IAuthorizedViewer,
+  end: IReplayEnd,
+  lastVisibleSequence: number | null,
+): IReplayEnd {
+  if (viewer.role === 'gm') {
+    if (lastVisibleSequence === null || end.toSeq === lastVisibleSequence) {
+      return end;
+    }
+    return { ...end, toSeq: lastVisibleSequence };
+  }
+  if (end.toSeq === undefined) return end;
+  const projected: IReplayEnd = {
+    kind: 'ReplayEnd',
+    matchId: end.matchId,
+    ts: end.ts,
+  };
+  return typeof end.toDeliverySequence === 'number'
+    ? { ...projected, toDeliverySequence: end.toDeliverySequence }
+    : projected;
 }

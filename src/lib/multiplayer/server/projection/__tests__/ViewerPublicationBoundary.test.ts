@@ -486,13 +486,44 @@ describe('viewer publication boundary', () => {
       expect(delivered).toEqual(events.map(withoutVisibility));
       if (guarded.frames.start.kind === 'ReplayStart') {
         expect(guarded.frames.start.totalEvents).toBe(5);
+        expect(guarded.frames.start.fromSeq).toBeUndefined();
       }
       if (guarded.frames.end.kind === 'ReplayEnd') {
-        expect(guarded.frames.end.toSeq).toBe(4);
+        expect(guarded.frames.end.toSeq).toBeUndefined();
       }
     });
 
-    it('returns the identical bundle when nothing needs removing', async () => {
+    it('returns the identical bundle for a GM when nothing needs removing', async () => {
+      const gm = await resolveViewer(GM_ROW);
+      const events = paginationEvents(5).map((event) => {
+        const kept: Record<string, unknown> = {};
+        for (const [key, value] of Object.entries(event)) {
+          if (key === 'visibility') continue;
+          kept[key] = value;
+        }
+        return kept;
+      });
+      const frames = streamReplay(
+        MATCH_ID,
+        events as unknown as readonly IGameEvent[],
+        0,
+        2,
+      );
+
+      const guarded = MATCH_WIRE_PUBLICATION_BOUNDARY.guardReplayFrames(
+        gm,
+        frames,
+      );
+      expect(guarded.kind).toBe('send');
+      if (guarded.kind !== 'send') return;
+      // Identity, not deep equality. The docblock promises the ORIGINAL
+      // bundle back when the projector touched nothing, stamps included;
+      // a rebuild that happened to produce an equal object would still
+      // break that promise, so this compares by reference.
+      expect(guarded.frames).toBe(frames);
+    });
+
+    it('rewrites player envelopes while keeping already-projected chunks by identity', async () => {
       const player = await resolveViewer(PLAYER_ROW);
       const events = paginationEvents(5).map(withoutVisibility);
       const frames = streamReplay(
@@ -508,11 +539,15 @@ describe('viewer publication boundary', () => {
       );
       expect(guarded.kind).toBe('send');
       if (guarded.kind !== 'send') return;
-      // Identity, not deep equality. The docblock promises the ORIGINAL
-      // bundle back when the projector touched nothing, stamps included;
-      // a rebuild that happened to produce an equal object would still
-      // break that promise, so this compares by reference.
-      expect(guarded.frames).toBe(frames);
+      expect(guarded.frames).not.toBe(frames);
+      expect(guarded.frames.chunks).toBe(frames.chunks);
+      if (guarded.frames.start.kind === 'ReplayStart') {
+        expect(guarded.frames.start.fromSeq).toBeUndefined();
+        expect(guarded.frames.start.totalEvents).toBe(5);
+      }
+      if (guarded.frames.end.kind === 'ReplayEnd') {
+        expect(guarded.frames.end.toSeq).toBeUndefined();
+      }
     });
   });
 

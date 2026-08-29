@@ -11,15 +11,19 @@
  * (parity law). Hidden / gm-only / owner-only apply the PR 6 audience
  * visibility law and either omit the frame or send the original
  * envelope to eligible viewers. Control frames (Lobby, Error, Pong,
- * Heartbeat, ReplayStart/End metadata) are not catalog events.
+ * Heartbeat) are not catalog events. ReplayStart/End are not catalog
+ * events either; their bounds still pass through the envelope
+ * projector so player projections do not carry authority-space
+ * `fromSeq`/`toSeq`.
  *
  * The parity law is about the AUDIENCE decision: it does not rewrite a
  * payload it decided a viewer may have. Removing server-only authority
  * fields is a separate law, and umbrella task 11.1 applies it here -
- * once, in `decideEvent`, which live, baseline, and replay all reach -
- * via `projectEventForViewer`. Doing it per surface let them disagree.
- * An event with nothing to remove keeps its identity, so a frame the
- * projector does not touch is still the object the authority published.
+ * once, in `decideEvent` (events) and `guardReplayFrames` (envelopes),
+ * which live, baseline, and replay all reach - via the projector
+ * functions. Doing it per surface let them disagree. An event with
+ * nothing to remove keeps its identity, so a frame the projector does
+ * not touch is still the object the authority published.
  *
  * @spec openspec/changes/add-authority-audit-and-privacy-proof/specs/gm-authority-redaction/spec.md
  */
@@ -27,8 +31,6 @@
 import type {
   IEventMessage,
   IReplayChunk,
-  IReplayEnd,
-  IReplayStart,
   IServerMessage,
 } from '@/types/multiplayer/Protocol';
 
@@ -42,7 +44,11 @@ import {
   type ViewerAudienceDecision,
   type ViewerAudienceProjector,
 } from './ViewerAudienceProjector';
-import { projectEventForViewer } from './ViewerFrameProjector';
+import {
+  projectEventForViewer,
+  projectReplayEndForViewer,
+  projectReplayStartForViewer,
+} from './ViewerFrameProjector';
 import {
   VIEWER_PROJECTION_MESSAGES,
   ViewerProjectionError,
@@ -163,7 +169,8 @@ function readSequence(event: unknown): number | null {
 /**
  * Rebuilds the replay envelope around chunks that were already guarded
  * IN PLACE, preserving the original timestamps so this module never
- * invents a clock value.
+ * invents a clock value. Player vs GM bound discrimination lives in
+ * `projectReplayStartForViewer` / `projectReplayEndForViewer`.
  *
  * `chunks` carries the ORIGINAL pagination. `streamReplay` pages the
  * events precisely "so that long matches don't push a single megabyte
@@ -171,6 +178,7 @@ function readSequence(event: unknown): number | null {
  * that. A page may shrink or empty out; its boundaries are not ours.
  */
 function rebuildReplayFrames(
+  viewer: IAuthorizedViewer,
   frames: IReplayStreamFrames,
   chunks: readonly IServerMessage[],
   totalEvents: number,
@@ -178,12 +186,15 @@ function rebuildReplayFrames(
 ): IReplayStreamFrames {
   const start: IServerMessage =
     frames.start.kind === 'ReplayStart'
-      ? ({ ...frames.start, totalEvents } satisfies IReplayStart)
+      ? projectReplayStartForViewer(viewer, frames.start, totalEvents)
       : frames.start;
-  const lastSequence = readSequence(lastVisibleEvent);
   const end: IServerMessage =
-    frames.end.kind === 'ReplayEnd' && lastSequence !== null
-      ? ({ ...frames.end, toSeq: lastSequence } satisfies IReplayEnd)
+    frames.end.kind === 'ReplayEnd'
+      ? projectReplayEndForViewer(
+          viewer,
+          frames.end,
+          readSequence(lastVisibleEvent),
+        )
       : frames.end;
   return { start, chunks, end };
 }
@@ -220,8 +231,10 @@ export class ViewerPublicationBoundary {
   /**
    * Guards a SessionJoin replay bundle. Failure refuses the WHOLE
    * bundle so the host never sends ReplayStart then a raw chunk.
-   * When every event is public identity, the original frames object
-   * is returned (byte-identical envelopes, stamps included).
+   * When events AND envelopes need no rewrite, the original frames
+   * object is returned (byte-identical stamps included). Player
+   * envelopes that still carry authority `fromSeq`/`toSeq` are always
+   * rewritten, even when every event is already identity.
    *
    * Each chunk is guarded IN PLACE rather than the bundle being
    * flattened, so the caller's pagination survives a removal that
@@ -254,18 +267,21 @@ export class ViewerPublicationBoundary {
           guarded.value.events[guarded.value.events.length - 1];
       }
     }
-    if (!changed) {
+    const rebuilt = rebuildReplayFrames(
+      viewer,
+      frames,
+      changed ? guardedChunks : frames.chunks,
+      totalEvents,
+      lastVisibleEvent,
+    );
+    if (
+      !changed &&
+      rebuilt.start === frames.start &&
+      rebuilt.end === frames.end
+    ) {
       return { kind: 'send', frames };
     }
-    return {
-      kind: 'send',
-      frames: rebuildReplayFrames(
-        frames,
-        guardedChunks,
-        totalEvents,
-        lastVisibleEvent,
-      ),
-    };
+    return { kind: 'send', frames: rebuilt };
   }
 
   /**
