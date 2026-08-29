@@ -7,12 +7,6 @@
       "lastReviewed": "2026-07-29"
     },
     {
-      "name": "adopt-combat-event-journal-authority",
-      "status": "proposed",
-      "reason": "Wave 4 of the entity-history program: adopt the shared journal as combat authority through decide-append-apply-publish ordering, atomic match batches, idempotent command receipts, durable recovery, and a non-authoritative browser mirror.",
-      "lastReviewed": "2026-07-30"
-    },
-    {
       "name": "add-cross-stream-effect-receipts",
       "status": "proposed",
       "reason": "Wave 6 of the entity-history program: add target-scoped transactional outbox/inbox receipts, side-effect-free replay, causal cross-stream history, and exactly-once combat-to-campaign effect application over at-least-once delivery.",
