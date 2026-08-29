@@ -14,6 +14,7 @@ import type {
   JournalAuthorityRecovery,
   ShadowComparisonRecord,
 } from './matchJournalAuthority';
+import type { MatchRollbackBlockedReason } from './matchRollbackReaderSelection';
 import type { AcceptedIntentTracker } from './reconnection/AcceptedIntentTracker';
 import type { IntentRateLimiter } from './reconnection/IntentRateLimiter';
 import type { IServerMatchHostCaptureContext } from './ServerMatchHostCaptureContext';
@@ -101,6 +102,8 @@ export interface IServerMatchHostIntentContext extends IServerMatchHostCaptureCo
    * set for replay-attack detection (design D7).
    */
   readonly acceptedIntents: AcceptedIntentTracker;
+  /** Present only when durable rollback facts prohibit command admission. */
+  readonly rollbackBlockReason?: MatchRollbackBlockedReason;
   /** Present when this host was created with journal authority on. */
   readonly journalAuthority?: IJournalAuthorityHostHandle;
 }
@@ -161,6 +164,17 @@ export async function handleIntent(
   // (admission + revalidation). The command gate does not run here.
   if (isLobbyIntentKind(envelope.intent.kind)) {
     return ctx.handleLobbyIntent(envelope);
+  }
+
+  if (ctx.rollbackBlockReason != null) {
+    const err = errorMessage(
+      ctx.matchId,
+      'INTERNAL_ERROR',
+      `rollback-reader-blocked:${ctx.rollbackBlockReason}`,
+      envelope.intentId,
+    );
+    ctx.broadcast(err);
+    return [err];
   }
 
   const commandRefusal = await refuseUnauthorizedCommand(

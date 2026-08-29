@@ -404,6 +404,13 @@ export interface IMatchStore {
     commandId: string,
   ): Promise<IMatchCommandReceipt | null>;
 
+  /**
+   * Current durable command head, ordered by its final committed revision.
+   * Recovery uses this receipt only to verify a journal refold; it never
+   * rewrites or synthesizes the receipt.
+   */
+  getLastCommandReceipt?(matchId: string): Promise<IMatchCommandReceipt | null>;
+
   getJournalAuthorityStarted?(
     matchId: string,
   ): Promise<IMatchJournalAuthorityStarted | null>;

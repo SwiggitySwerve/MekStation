@@ -76,18 +76,31 @@ import { FogOfWarVisibilityCache } from './fogOfWar';
 import { hasViewerDeliveryStore, type IMatchStore } from './IMatchStore';
 import {
   getJournalAuthorityAdmissionRefusal,
+  isJournalAuthorityBaselineStore,
   productionJournalAuthorityPrivacyGates,
   resolveJournalAuthorityForNewMatch,
   type IJournalAuthorityAdmissionRefusal,
   type IJournalAuthorityPrivacyGateWiring,
 } from './journalAuthorityAdmission';
 import {
+  MATCH_BASELINE_BRANCH_ID,
+  MATCH_BASELINE_FIRST_GENERATION,
+  digestRetainedMatchHistory,
+} from './matchAuthorityBaseline';
+import {
   COMBAT_JOURNAL_AUTHORITY_ENABLED,
   getCombatJournalAuthorityMode,
   recordProcessShadowComparison,
+  type IMatchJournalAuthorityHead,
   type JournalAuthorityRecovery,
   type ShadowComparisonRecord,
 } from './matchJournalAuthority';
+import {
+  MATCH_ROLLBACK_PRESERVED_FACTS,
+  selectMatchRollbackReader,
+  type MatchRollbackBlockedReason,
+  type MatchRollbackReaderDecision,
+} from './matchRollbackReaderSelection';
 import { ViewerDeliveryCursors } from './projection/ViewerDeliveryCursors';
 import { AcceptedIntentTracker } from './reconnection/AcceptedIntentTracker';
 import {
@@ -111,6 +124,7 @@ import {
   buildReplayContext,
   type IServerMatchHostInternals,
 } from './ServerMatchHostContexts';
+import { digestCommandPostState } from './ServerMatchHostDecision';
 import { drainNewEvents } from './ServerMatchHostEngineDispatch';
 import {
   broadcastEvent as broadcastEventWithContext,
@@ -190,6 +204,7 @@ export class ServerMatchHost {
   private readonly journalAuthorityEnabled: boolean;
   private readonly journalAuthorityShadow: boolean;
   private readonly admissionRefusal: IJournalAuthorityAdmissionRefusal | null;
+  private readonly rollbackBlockReason: MatchRollbackBlockedReason | null;
   private readonly journalRandomSeed: number;
   private readonly journalDiceSeed: number;
   private readonly journalPlayerUnits: readonly IAdaptedUnit[];
@@ -269,6 +284,8 @@ export class ServerMatchHost {
       readonly playerUnits?: readonly IAdaptedUnit[];
       readonly opponentUnits?: readonly IAdaptedUnit[];
       readonly privacyGates?: IJournalAuthorityPrivacyGateWiring;
+      /** Recovery-only decision from immutable durable facts. */
+      readonly rollbackReader?: MatchRollbackReaderDecision;
     } = {},
   ) {
     this.session = session;
@@ -280,8 +297,16 @@ export class ServerMatchHost {
     );
     const requested = options.journalAuthority === true;
     if (options.recovered) {
-      this.journalAuthorityEnabled = requested;
+      const rollbackReader = options.rollbackReader ?? {
+        kind: 'blocked' as const,
+        reason: 'recovery-selection-missing' as const,
+        preserved: MATCH_ROLLBACK_PRESERVED_FACTS,
+      };
+      this.journalAuthorityEnabled =
+        rollbackReader.kind === 'journal-compatible';
       this.admissionRefusal = null;
+      this.rollbackBlockReason =
+        rollbackReader.kind === 'blocked' ? rollbackReader.reason : null;
     } else {
       const resolved = resolveJournalAuthorityForNewMatch({
         matchId,
@@ -296,8 +321,10 @@ export class ServerMatchHost {
       });
       this.journalAuthorityEnabled = resolved.enabled;
       this.admissionRefusal = resolved.refusal;
+      this.rollbackBlockReason = null;
     }
     this.journalAuthorityShadow =
+      !options.recovered &&
       !this.journalAuthorityEnabled &&
       getCombatJournalAuthorityMode() === 'shadow';
     this.journalRandomSeed = options.randomSeed ?? 0xc0ffee;
@@ -390,13 +417,19 @@ export class ServerMatchHost {
    * streams the missing events through the already-built replay path —
    * recovery does not need to do anything special for that.
    */
-  static recover(
+  static async recover(
     matchId: string,
     store: IMatchStore,
     session: InteractiveSession,
-  ): ServerMatchHost {
+  ): Promise<ServerMatchHost> {
+    const rollbackReader = await selectRecoveredMatchRollbackReader(
+      matchId,
+      store,
+      session,
+    );
     return new ServerMatchHost(matchId, store, session, undefined, {
       recovered: true,
+      rollbackReader,
     });
   }
 
@@ -925,6 +958,7 @@ export class ServerMatchHost {
       acceptedIntents: this.acceptedIntents,
       viewerResolver: this.viewerResolver,
       deliveryCursors: this.deliveryCursors,
+      rollbackBlockReason: this.rollbackBlockReason ?? undefined,
       journalAuthority:
         this.journalAuthorityEnabled || this.journalAuthorityShadow
           ? {
@@ -1083,4 +1117,109 @@ export class ServerMatchHost {
     }
     return messages;
   }
+}
+
+async function selectRecoveredMatchRollbackReader(
+  matchId: string,
+  store: IMatchStore,
+  session: InteractiveSession,
+): Promise<MatchRollbackReaderDecision> {
+  try {
+    const baseline = isJournalAuthorityBaselineStore(store)
+      ? store.getJournalAuthorityBaseline(matchId)
+      : null;
+    const started = store.getJournalAuthorityStarted
+      ? await store.getJournalAuthorityStarted(matchId)
+      : null;
+    const events = session.getSession().events;
+
+    if (started == null) {
+      const legacyHead = headFromLegacyEvents(
+        matchId,
+        events,
+        baseline?.effectiveGeneration ?? MATCH_BASELINE_FIRST_GENERATION,
+      );
+      return selectMatchRollbackReader({
+        baseline,
+        started,
+        recordedHead: legacyHead,
+        refoldedHead: legacyHead,
+        supportedEffectiveGeneration: MATCH_BASELINE_FIRST_GENERATION,
+      });
+    }
+
+    const receipt = store.getLastCommandReceipt
+      ? await store.getLastCommandReceipt(matchId)
+      : null;
+    const recordedHead = journalHeadFromReceipt(started.head, receipt);
+    const refoldedHead = refoldedJournalHead(
+      started.head,
+      receipt?.lastRevision ?? null,
+      session,
+    );
+    return selectMatchRollbackReader({
+      baseline,
+      started,
+      recordedHead,
+      refoldedHead,
+      supportedEffectiveGeneration: MATCH_BASELINE_FIRST_GENERATION,
+    });
+  } catch (error) {
+    logger.warn('[ServerMatchHost] rollback reader selection failed', error);
+    return {
+      kind: 'blocked',
+      reason: 'recovery-fact-read-failed',
+      preserved: MATCH_ROLLBACK_PRESERVED_FACTS,
+    };
+  }
+}
+
+function headFromLegacyEvents(
+  matchId: string,
+  events: readonly IGameEvent[],
+  effectiveGeneration: number,
+): IMatchJournalAuthorityHead {
+  return {
+    streamType: 'match',
+    streamId: matchId,
+    branchId: MATCH_BASELINE_BRANCH_ID,
+    revision: events.length > 0 ? events[events.length - 1].sequence : -1,
+    digest: digestRetainedMatchHistory(events),
+    effectiveGeneration,
+  };
+}
+
+function journalHeadFromReceipt(
+  startedHead: IMatchJournalAuthorityHead,
+  receipt: Awaited<
+    ReturnType<NonNullable<IMatchStore['getLastCommandReceipt']>>
+  >,
+): IMatchJournalAuthorityHead | null {
+  if (receipt?.expectedPostStateDigest == null) return null;
+  return {
+    ...startedHead,
+    revision: receipt.lastRevision,
+    digest: receipt.expectedPostStateDigest,
+  };
+}
+
+function refoldedJournalHead(
+  startedHead: IMatchJournalAuthorityHead,
+  expectedRevision: number | null,
+  session: InteractiveSession,
+): IMatchJournalAuthorityHead | null {
+  const events = session.getSession().events;
+  const last = events[events.length - 1];
+  if (
+    last == null ||
+    expectedRevision == null ||
+    last.sequence !== expectedRevision
+  ) {
+    return null;
+  }
+  return {
+    ...startedHead,
+    revision: last.sequence,
+    digest: digestCommandPostState(session.getSession()),
+  };
 }

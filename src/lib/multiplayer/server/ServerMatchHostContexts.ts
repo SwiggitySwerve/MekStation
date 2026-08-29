@@ -26,6 +26,7 @@ import type {
 
 import type { AuthorizedViewerResolver } from './authorization/AuthorizedViewer';
 import type { IMatchStore } from './IMatchStore';
+import type { MatchRollbackBlockedReason } from './matchRollbackReaderSelection';
 import type { ViewerDeliveryCursors } from './projection/ViewerDeliveryCursors';
 import type { AcceptedIntentTracker } from './reconnection/AcceptedIntentTracker';
 import type { IntentRateLimiter } from './reconnection/IntentRateLimiter';
@@ -76,6 +77,7 @@ export interface IServerMatchHostInternals extends IServerMatchHostCaptureContex
   readonly acceptedIntents: AcceptedIntentTracker;
   readonly viewerResolver: AuthorizedViewerResolver;
   readonly deliveryCursors: ViewerDeliveryCursors;
+  readonly rollbackBlockReason?: MatchRollbackBlockedReason;
   readonly journalAuthority?: IJournalAuthorityHostHandle;
 }
 
@@ -148,6 +150,7 @@ export function buildIntentContext(
     rateLimiter: host.rateLimiter,
     acceptedIntents: host.acceptedIntents,
     viewerResolver: host.viewerResolver,
+    rollbackBlockReason: host.rollbackBlockReason,
     journalAuthority: host.journalAuthority,
   };
 }

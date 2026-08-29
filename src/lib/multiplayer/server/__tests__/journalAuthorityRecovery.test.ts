@@ -13,6 +13,8 @@ import { hydrateGameSessionFromEvents } from '@/utils/gameplay/gameSession';
 
 import { InMemoryMatchStore } from '../InMemoryMatchStore';
 import * as matchJournalAuthority from '../matchJournalAuthority';
+import { rebuildSessionFromEvents } from '../MatchRecovery';
+import { selectMatchRollbackReader } from '../matchRollbackReaderSelection';
 import { ServerMatchHost, type IMatchSocket } from '../ServerMatchHost';
 import { digestCommandPostState } from '../ServerMatchHostDecision';
 
@@ -136,11 +138,20 @@ async function rebuildHost(
     hydrateGameSessionFromEvents(matchId, [...events]),
     { random: new SeededRandom(42) },
   );
-  return new ServerMatchHost(matchId, store, session, undefined, {
-    recovered: true,
-    journalAuthority: true,
-    randomSeed: 42,
-    diceSeed: 42,
+  return ServerMatchHost.recover(matchId, store, session);
+}
+
+async function dumpRollbackFacts(
+  store: InMemoryMatchStore,
+  matchId: string,
+  commandId: string,
+): Promise<string> {
+  return JSON.stringify({
+    events: await store.getEvents(matchId),
+    receipt: await store.getCommandReceipt(matchId, commandId),
+    baseline: store.getJournalAuthorityBaseline(matchId),
+    started: await store.getJournalAuthorityStarted(matchId),
+    meta: await store.getMatchMeta(matchId),
   });
 }
 
@@ -158,10 +169,12 @@ function failNextAppend(store: InMemoryMatchStore, reason: string): void {
 
 describe('combat journal-authority recovery', () => {
   beforeEach(() => {
+    matchJournalAuthority._setCombatJournalAuthorityModeForTests(null);
     matchJournalAuthority._setApplyCommittedForTests(null);
     matchJournalAuthority._setSkipPublishForTests(false);
   });
   afterEach(() => {
+    matchJournalAuthority._setCombatJournalAuthorityModeForTests(null);
     matchJournalAuthority._setApplyCommittedForTests(null);
     matchJournalAuthority._setSkipPublishForTests(false);
   });
@@ -330,6 +343,110 @@ describe('combat journal-authority recovery', () => {
       await store.getCommandReceipt(host.matchId, 'lock-2'),
     ).not.toBeNull();
     expect(socket.sent.some((frame) => frame.kind === 'Event')).toBe(true);
+  });
+
+  it.each(['off', 'shadow', 'enabled'] as const)(
+    'ROLLBACK: %s mode cannot override a started fact or mutate durable facts',
+    async (mode) => {
+      const { host, store } = await makeHost({
+        matchId: 'match-rollback-mode-off',
+      });
+      await host.handleIntent(intent('lock-1', host.matchId));
+      const before = await dumpRollbackFacts(store, host.matchId, 'lock-1');
+      const session = await rebuildSessionFromEvents(
+        host.matchId,
+        await store.getEvents(host.matchId),
+      );
+
+      matchJournalAuthority._setCombatJournalAuthorityModeForTests(mode);
+      const recovered = await ServerMatchHost.recover(
+        host.matchId,
+        store,
+        session,
+      );
+
+      expect(recovered.isJournalAuthorityEnabled()).toBe(true);
+      expect(await dumpRollbackFacts(store, host.matchId, 'lock-1')).toBe(
+        before,
+      );
+    },
+  );
+
+  it('ROLLBACK: a blocked recovery host returns a typed error and appends no command or effect', async () => {
+    const { host, store } = await makeHost({
+      matchId: 'match-rollback-blocked',
+    });
+    const session = await rebuildSessionFromEvents(
+      host.matchId,
+      await store.getEvents(host.matchId),
+    );
+    const blocked = selectMatchRollbackReader({
+      baseline: null,
+      started: {
+        matchId: host.matchId,
+        commandId: 'lock-0',
+        firstRevision: 0,
+        lastRevision: 1,
+        head: {
+          streamType: 'match',
+          streamId: host.matchId,
+          branchId: 'main',
+          revision: 1,
+          digest: 'recorded-digest',
+          effectiveGeneration: 1,
+        },
+        committedAt: '2026-08-29T00:00:00.000Z',
+      },
+      recordedHead: {
+        streamType: 'match',
+        streamId: host.matchId,
+        branchId: 'main',
+        revision: 1,
+        digest: 'recorded-digest',
+        effectiveGeneration: 1,
+      },
+      refoldedHead: {
+        streamType: 'match',
+        streamId: host.matchId,
+        branchId: 'main',
+        revision: 1,
+        digest: 'refolded-digest',
+        effectiveGeneration: 1,
+      },
+      supportedEffectiveGeneration: 1,
+    });
+    if (blocked.kind !== 'blocked') {
+      throw new Error('expected a blocked rollback decision');
+    }
+    const recovered = new ServerMatchHost(
+      host.matchId,
+      store,
+      session,
+      undefined,
+      {
+        recovered: true,
+        rollbackReader: blocked,
+      },
+    );
+    const before = await store.getEvents(host.matchId);
+
+    const messages = await recovered.handleIntent(
+      intent('lock-blocked', host.matchId),
+    );
+
+    expect(messages).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          kind: 'Error',
+          code: 'INTERNAL_ERROR',
+          reason: 'rollback-reader-blocked:digest-mismatch',
+        }),
+      ]),
+    );
+    expect(await store.getEvents(host.matchId)).toEqual(before);
+    expect(
+      await store.getCommandReceipt(host.matchId, 'lock-blocked'),
+    ).toBeNull();
   });
 
   it('DIVERGENCE: union carries both digests; publication still blocked and the commit stays', async () => {

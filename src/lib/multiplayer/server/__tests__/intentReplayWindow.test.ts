@@ -112,7 +112,7 @@ async function restart(store: InMemoryMatchStore): Promise<ServerMatchHost> {
   const events = await store.getEvents(MATCH_ID, 0);
   const session = hydrateGameSessionFromEvents(MATCH_ID, [...events]);
   const interactive = await InteractiveSession.fromSessionAsync(session);
-  return ServerMatchHost.recover(MATCH_ID, store, interactive);
+  return await ServerMatchHost.recover(MATCH_ID, store, interactive);
 }
 
 describe('intent replay window', () => {
