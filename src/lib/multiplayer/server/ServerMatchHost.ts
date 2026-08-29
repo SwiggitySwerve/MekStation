@@ -789,17 +789,33 @@ export class ServerMatchHost {
    * uses SERVER_INTERNAL_INTENT_CALLER so those in-process callers keep
    * working. That marker is not a wire grant of authority.
    */
+  /**
+   * Umbrella 4.1 - one serialized executor per match. Every intent -
+   * validation, reducer execution, batch creation, publication - runs
+   * to completion before the next begins, so concurrent player intents
+   * cannot interleave inside a command's async windows. The chain is
+   * per-host, so unrelated matches progress independently, and it
+   * survives a rejected intent: each link resolves its own errors into
+   * frames, and the tail swallows rejections so one failure cannot wedge
+   * every later command (the same law as the campaign save chain).
+   */
+  private intentChain: Promise<unknown> = Promise.resolve();
+
   handleIntent = async (
     envelope: IIntent,
     connectionKey?: string,
     verifiedPrincipalId?: string,
   ): Promise<readonly IServerMessage[]> => {
-    return handleIntentWithContext(
-      buildIntentContext(this.internals()),
-      envelope,
-      connectionKey,
-      verifiedPrincipalId,
-    );
+    const run = () =>
+      handleIntentWithContext(
+        buildIntentContext(this.internals()),
+        envelope,
+        connectionKey,
+        verifiedPrincipalId,
+      );
+    const queued = this.intentChain.then(run, run);
+    this.intentChain = queued.catch(() => undefined);
+    return queued;
   };
 
   publishHostCommandResult = async (
