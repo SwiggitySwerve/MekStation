@@ -83,6 +83,11 @@ export class ServerMatchHostCapture {
     this.captureSwap(new RollCapture(this.sourceRoller));
   }
 
+  /** Current capture's d6. Journal decide continues this cursor. */
+  d6(): number {
+    return this.currentCapture.d6();
+  }
+
   /**
    * Stamp the captured d6 sequence onto every fresh event before
    * persistence + broadcast. Delegates to the shared

@@ -27,8 +27,10 @@ import type { IMatchSeat, TeamLayout } from '@/types/multiplayer/Lobby';
 
 import type {
   IMatchCommandBatch,
+  IMatchCommandReceipt,
   MatchBatchAppendResult,
 } from './matchCommandBatch';
+import type { IMatchJournalAuthorityStarted } from './matchJournalAuthority';
 
 // =============================================================================
 // Match metadata
@@ -358,6 +360,15 @@ export interface IMatchStore {
     matchId: string,
     batch: IMatchCommandBatch,
   ): Promise<MatchBatchAppendResult>;
+
+  getCommandReceipt?(
+    matchId: string,
+    commandId: string,
+  ): Promise<IMatchCommandReceipt | null>;
+
+  getJournalAuthorityStarted?(
+    matchId: string,
+  ): Promise<IMatchJournalAuthorityStarted | null>;
 
   /**
    * Durable publication outbox (umbrella task 7.1). OPTIONAL for the
