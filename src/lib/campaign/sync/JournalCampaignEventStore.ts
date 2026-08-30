@@ -260,6 +260,15 @@ function receiptOf(
  * transaction. The receipt lookup happens before journal append, so a replay
  * returns the original range without entering the consequence path.
  */
+let failReceiptInsertForTests = false;
+
+/** Test-only: crash between the consequence append and the receipt
+ * insert, inside the extension transaction - the crash seam the
+ * rollback proof drives without depending on engine CHECK behavior. */
+export function _setFailReceiptInsertForTests(fail: boolean): void {
+  failReceiptInsertForTests = fail;
+}
+
 export async function appendCampaignCombatOutcomeBatch(
   journal: SQLiteEventJournalWriter<ICampaignJournalEnvelope>,
   input: {
@@ -321,6 +330,9 @@ export async function appendCampaignCombatOutcomeBatch(
       lastCommitPosition: appended.receipt.lastCommitPosition,
       receivedAt: appended.receipt.recordedAt,
     };
+    if (failReceiptInsertForTests) {
+      throw new Error('test-crash-before-receipt-insert');
+    }
     db.prepare(
       `INSERT INTO campaign_combat_outcome_inbox
          (outcome_id, outcome_version, campaign_id, command_id, command_digest,

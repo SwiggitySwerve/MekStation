@@ -14,6 +14,7 @@ import {
 import { createEmptyCampaignState } from '@/types/campaign/CampaignSync';
 
 import {
+  _setFailReceiptInsertForTests,
   JournalCampaignEventStore,
   type ICampaignJournalEnvelope,
 } from '../JournalCampaignEventStore';
@@ -123,12 +124,20 @@ describe('campaign combat outcome inbox', () => {
     const { host, store } = await openHost();
     const before = await store.getEvents(CAMPAIGN_ID);
 
-    // Version zero violates the SQLite receipt CHECK after the journal write
-    // has begun. This is the crash seam: a missing outer transaction leaves
-    // journal consequences behind without a receipt.
-    await expect(reconcileCoopBattle(host, consequences(0))).rejects.toThrow(
-      /CHECK constraint failed/,
-    );
+    // The deterministic crash seam: die between the consequence append
+    // and the receipt insert, inside the extension transaction. A
+    // missing outer transaction would leave journal consequences behind
+    // without a receipt. (The first draft drove a CHECK-constraint
+    // violation instead; CI's engine build did not throw where the
+    // local one did, so the seam is now explicit.)
+    _setFailReceiptInsertForTests(true);
+    try {
+      await expect(reconcileCoopBattle(host, consequences(1))).rejects.toThrow(
+        /test-crash-before-receipt-insert/,
+      );
+    } finally {
+      _setFailReceiptInsertForTests(false);
+    }
     expect(await store.getEvents(CAMPAIGN_ID)).toEqual(before);
     expect(inboxRows()).toEqual([]);
 
