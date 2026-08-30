@@ -45,6 +45,8 @@ export interface ICoopBattleConsequences {
   readonly campaignId: string;
   /** Combat session id — the LINK between the combat log and this. */
   readonly matchId: string;
+  /** Durable combat-outbox version; legacy callers default to version 1. */
+  readonly outcomeVersion?: number;
   /**
    * Net C-bill change from the battle (mission payout, repair costs).
    * Positive credits the campaign; negative debits it. Zero emits no
@@ -92,6 +94,13 @@ export interface ICoopReconciliationResult {
   readonly events: readonly ICampaignEvent[];
   /** The first failure reason, when `ok` is false. */
   readonly error?: string;
+  /** A later outcome version requires the coordinated-correction boundary. */
+  readonly conflict?: {
+    readonly kind: 'outcome-version-conflict';
+    readonly outcomeId: string;
+    readonly acceptedVersion: number;
+    readonly receivedVersion: number;
+  };
 }
 
 /**
@@ -114,6 +123,22 @@ export async function reconcileCoopBattle(
   host: CampaignMatchHost,
   consequences: ICoopBattleConsequences,
 ): Promise<ICoopReconciliationResult> {
+  if (host.hasCombatOutcomeInbox()) {
+    const result = await host.commitCombatOutcomeConsequences(consequences);
+    if (result.kind === 'committed' || result.kind === 'duplicate') {
+      return { ok: true, events: result.events };
+    }
+    if (result.kind === 'outcome-version-conflict') {
+      return {
+        ok: false,
+        events: [],
+        error: 'outcome-version-conflict',
+        conflict: result,
+      };
+    }
+    return { ok: false, events: [], error: result.reason };
+  }
+
   const committed: ICampaignEvent[] = [];
 
   // 1. Funds — a mission payout (or net repair cost). A positive delta
@@ -253,6 +278,7 @@ export function deriveCoopBattleConsequences(input: {
   return {
     campaignId,
     matchId: outcome.matchId,
+    outcomeVersion: outcome.version,
     fundsDelta: missionPayout,
     fundsReason: `Co-op mission resolution (${outcome.matchId})`,
     salvageValue,

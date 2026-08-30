@@ -15,6 +15,7 @@ import Database from 'better-sqlite3';
 import { ACTION_AUDIT_MIGRATION } from './SQLiteService.actionAudit.migration';
 import { CAMPAIGN_GRANTS_MIGRATION } from './SQLiteService.campaignGrants.migration';
 import { CAMPAIGN_HOST_INSTANCE_MIGRATION } from './SQLiteService.campaignHostInstance.migration';
+import { CAMPAIGN_COMBAT_OUTCOME_INBOX_MIGRATION } from './SQLiteService.campaignOutcomeInbox.migration';
 import { DELIVERY_EPOCHS_MIGRATION } from './SQLiteService.deliveryEpochs.migration';
 import { EVENT_JOURNAL_MIGRATION } from './SQLiteService.eventJournal.migration';
 import { MATCH_AUTHORITY_BASELINE_MIGRATION } from './SQLiteService.matchAuthorityBaseline.migration';
@@ -387,4 +388,5 @@ export const MIGRATIONS: readonly IMigration[] = [
   MATCH_AUTHORITY_BASELINE_MIGRATION,
   CAMPAIGN_SESSION_FORCE_CLAIMS_MIGRATION,
   CAMPAIGN_SESSION_STATE_MIGRATION,
+  CAMPAIGN_COMBAT_OUTCOME_INBOX_MIGRATION,
 ];

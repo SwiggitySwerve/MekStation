@@ -43,10 +43,13 @@ import {
   type IResolvedJournalPrincipal,
   type IStoredEvent,
 } from '@/lib/events/journal/EventJournalContract';
+import { SQLiteEventJournalWriter } from '@/lib/events/journal/SQLiteEventJournalWriter';
 
 import { campaignEventEntityRefs } from './campaignEventEntityRefs';
 import {
   CampaignEventSequenceCollisionError,
+  type CampaignCombatOutcomeInboxResult,
+  type ICampaignCombatOutcomeReceipt,
   type ICampaignEventStore,
 } from './ICampaignEventStore';
 import { InMemoryCampaignEventStore } from './InMemoryCampaignEventStore';
@@ -145,23 +148,13 @@ function envelopeOf(
   return stored.payload.campaignEvent;
 }
 
-/**
- * Append one campaign command's WHOLE event batch atomically at the
- * expected head. The first event's `sequence` must equal the current
- * next-sequence; the journal's revision guard turns a lost race into a
- * typed `sequence-conflict` with nothing applied (all-or-nothing).
- */
-export async function appendCampaignCommandBatch(
-  journal: IEventJournal<ICampaignJournalEnvelope>,
-  input: {
-    readonly campaignId: string;
-    readonly commandId: string;
-    readonly events: readonly ICampaignEvent[];
-    readonly expectedPostStateDigest: string | null;
-    /** Override the derived human principal (e.g. migration imports). */
-    readonly principal?: IResolvedJournalPrincipal;
-  },
-): Promise<CampaignBatchAppendResult> {
+function toJournalBatch(input: {
+  readonly campaignId: string;
+  readonly commandId: string;
+  readonly events: readonly ICampaignEvent[];
+  readonly expectedPostStateDigest: string | null;
+  readonly principal?: IResolvedJournalPrincipal;
+}): IAppendEventBatch<ICampaignJournalEnvelope> {
   if (input.events.length === 0) {
     throw new Error('A campaign command batch must contain at least one event');
   }
@@ -170,7 +163,7 @@ export async function appendCampaignCommandBatch(
       throw new Error('Campaign command batch sequences must be contiguous');
     }
   });
-  const batch: IAppendEventBatch<ICampaignJournalEnvelope> = {
+  return {
     streamType: CAMPAIGN_STREAM_TYPE,
     streamId: input.campaignId,
     expectedBranchId: ROOT_EVENT_BRANCH_ID,
@@ -191,6 +184,26 @@ export async function appendCampaignCommandBatch(
       input.principal ??
       campaignPrincipal(input.campaignId, input.events[0].authorPlayerId),
   };
+}
+
+/**
+ * Append one campaign command's WHOLE event batch atomically at the
+ * expected head. The first event's `sequence` must equal the current
+ * next-sequence; the journal's revision guard turns a lost race into a
+ * typed `sequence-conflict` with nothing applied (all-or-nothing).
+ */
+export async function appendCampaignCommandBatch(
+  journal: IEventJournal<ICampaignJournalEnvelope>,
+  input: {
+    readonly campaignId: string;
+    readonly commandId: string;
+    readonly events: readonly ICampaignEvent[];
+    readonly expectedPostStateDigest: string | null;
+    /** Override the derived human principal (e.g. migration imports). */
+    readonly principal?: IResolvedJournalPrincipal;
+  },
+): Promise<CampaignBatchAppendResult> {
+  const batch = toJournalBatch(input);
   const result = await journal.append(batch);
   if ('kind' in result && result.kind === 'committed') {
     return {
@@ -210,6 +223,127 @@ export async function appendCampaignCommandBatch(
     return { kind: 'duplicate-command', commandId: result.commandId };
   }
   return { kind: 'integrity-conflict' };
+}
+
+interface ICampaignCombatOutcomeInboxRow {
+  readonly outcome_id: string;
+  readonly outcome_version: number;
+  readonly campaign_id: string;
+  readonly command_id: string;
+  readonly command_digest: string;
+  readonly first_stream_revision: number;
+  readonly last_stream_revision: number;
+  readonly first_commit_position: number;
+  readonly last_commit_position: number;
+  readonly received_at: string;
+}
+
+function receiptOf(
+  row: ICampaignCombatOutcomeInboxRow,
+): ICampaignCombatOutcomeReceipt {
+  return {
+    outcomeId: row.outcome_id,
+    outcomeVersion: row.outcome_version,
+    campaignId: row.campaign_id,
+    commandId: row.command_id,
+    commandDigest: row.command_digest,
+    firstStreamRevision: row.first_stream_revision,
+    lastStreamRevision: row.last_stream_revision,
+    firstCommitPosition: row.first_commit_position,
+    lastCommitPosition: row.last_commit_position,
+    receivedAt: row.received_at,
+  };
+}
+
+/**
+ * Commit campaign consequences and their combat-outcome receipt as one
+ * transaction. The receipt lookup happens before journal append, so a replay
+ * returns the original range without entering the consequence path.
+ */
+let failReceiptInsertForTests = false;
+
+/** Test-only: crash between the consequence append and the receipt
+ * insert, inside the extension transaction - the crash seam the
+ * rollback proof drives without depending on engine CHECK behavior. */
+export function _setFailReceiptInsertForTests(fail: boolean): void {
+  failReceiptInsertForTests = fail;
+}
+
+export async function appendCampaignCombatOutcomeBatch(
+  journal: SQLiteEventJournalWriter<ICampaignJournalEnvelope>,
+  input: {
+    readonly campaignId: string;
+    readonly outcomeId: string;
+    readonly outcomeVersion: number;
+    readonly commandId: string;
+    readonly events: readonly ICampaignEvent[];
+    readonly expectedPostStateDigest: string;
+  },
+): Promise<CampaignCombatOutcomeInboxResult> {
+  const batch = toJournalBatch(input);
+  return journal.appendWithExtension(batch, (db, append) => {
+    const accepted = db
+      .prepare(
+        `SELECT outcome_id, outcome_version, campaign_id, command_id,
+                command_digest, first_stream_revision, last_stream_revision,
+                first_commit_position, last_commit_position, received_at
+           FROM campaign_combat_outcome_inbox
+          WHERE outcome_id = ?`,
+      )
+      .get(input.outcomeId) as ICampaignCombatOutcomeInboxRow | undefined;
+    if (accepted) {
+      const receipt = receiptOf(accepted);
+      if (receipt.outcomeVersion === input.outcomeVersion) {
+        return { kind: 'duplicate', receipt };
+      }
+      return {
+        kind: 'outcome-version-conflict',
+        outcomeId: input.outcomeId,
+        acceptedVersion: receipt.outcomeVersion,
+        receivedVersion: input.outcomeVersion,
+      };
+    }
+
+    const appended = append();
+    if (appended.kind !== 'committed') {
+      if (appended.kind === 'revision-conflict') {
+        return {
+          kind: 'sequence-conflict',
+          expectedNextSequence: appended.expectedRevision,
+          actualNextSequence: appended.actualRevision,
+        };
+      }
+      if (appended.kind === 'command-identity-conflict') {
+        return { kind: 'duplicate-command', commandId: appended.commandId };
+      }
+      return { kind: 'integrity-conflict' };
+    }
+    const receipt: ICampaignCombatOutcomeReceipt = {
+      outcomeId: input.outcomeId,
+      outcomeVersion: input.outcomeVersion,
+      campaignId: input.campaignId,
+      commandId: appended.receipt.commandId,
+      commandDigest: appended.receipt.commandDigest,
+      firstStreamRevision: appended.receipt.firstStreamRevision,
+      lastStreamRevision: appended.receipt.lastStreamRevision,
+      firstCommitPosition: appended.receipt.firstCommitPosition,
+      lastCommitPosition: appended.receipt.lastCommitPosition,
+      receivedAt: appended.receipt.recordedAt,
+    };
+    if (failReceiptInsertForTests) {
+      throw new Error('test-crash-before-receipt-insert');
+    }
+    db.prepare(
+      `INSERT INTO campaign_combat_outcome_inbox
+         (outcome_id, outcome_version, campaign_id, command_id, command_digest,
+          first_stream_revision, last_stream_revision, first_commit_position,
+          last_commit_position, received_at)
+       VALUES (@outcomeId, @outcomeVersion, @campaignId, @commandId,
+               @commandDigest, @firstStreamRevision, @lastStreamRevision,
+               @firstCommitPosition, @lastCommitPosition, @receivedAt)`,
+    ).run(receipt);
+    return { kind: 'committed', receipt };
+  });
 }
 
 /**
@@ -243,6 +377,25 @@ export class JournalCampaignEventStore implements ICampaignEventStore {
       commandId: input.commandId,
       events: input.events,
       expectedPostStateDigest: input.expectedPostStateDigest,
+    });
+  };
+
+  appendCombatOutcomeBatch = async (
+    campaignId: string,
+    input: {
+      readonly outcomeId: string;
+      readonly outcomeVersion: number;
+      readonly commandId: string;
+      readonly events: readonly ICampaignEvent[];
+      readonly expectedPostStateDigest: string;
+    },
+  ): Promise<CampaignCombatOutcomeInboxResult> => {
+    if (!(this.journal instanceof SQLiteEventJournalWriter)) {
+      throw new Error('Campaign outcome inbox requires a SQLite journal');
+    }
+    return appendCampaignCombatOutcomeBatch(this.journal, {
+      campaignId,
+      ...input,
     });
   };
 

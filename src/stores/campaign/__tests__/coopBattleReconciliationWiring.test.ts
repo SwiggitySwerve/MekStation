@@ -231,6 +231,7 @@ describe('co-op battle completion reconciles over campaign sync (D-4)', () => {
         payload: {
           campaignId,
           matchId: outcome.matchId,
+          outcomeVersion: 1,
           fundsDelta: 0,
           fundsReason: `Co-op mission resolution (${outcome.matchId})`,
           salvageValue: 50_000,
