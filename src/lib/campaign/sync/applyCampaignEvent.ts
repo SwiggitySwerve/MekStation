@@ -97,6 +97,7 @@ const CAMPAIGN_EVENT_REDUCERS: CampaignEventReducerMap = {
   },
   RosterUnitChanged: applyRosterUnitChanged,
   SalvageAllocated: applySalvageAllocated,
+  ParticipantRemoved: (state) => state,
 };
 
 function reduceCampaignEvent<T extends CampaignEventType>(

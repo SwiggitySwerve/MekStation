@@ -60,6 +60,32 @@ describe('CampaignMatchHost — open', () => {
   });
 });
 
+describe('CampaignMatchHost — guest-authored RemoveParticipant (9.3)', () => {
+  it('rejects a guest-authored removal as host-only, appending nothing', async () => {
+    // handleIntent is the GUEST-facing path - the transport-layer
+    // AUTH_REJECTED guard never runs here, so this row is the one that
+    // proves the VALIDATOR refuses a removal authored by anyone but the
+    // host. Without it the validator guard is unreachable by any test:
+    // the reviewer's guard-removal mutant survived until this row.
+    const { host, received } = makeHost(stateWith({}));
+    await host.open();
+    received.length = 0;
+
+    const result = await host.handleIntent({
+      kind: 'RemoveParticipant',
+      campaignId: CAMPAIGN_ID,
+      intentId: 'intent-remove-guest',
+      payload: { participantId: 'pid_other', reason: 'guest tries' },
+    });
+
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.reason).toBe('host-only');
+    }
+    expect(received).toHaveLength(0);
+  });
+});
+
 describe('CampaignMatchHost — valid intent', () => {
   it('commits a FundsChanged event and broadcasts it', async () => {
     const { host, received } = makeHost(stateWith({ balance: 600_000 }));

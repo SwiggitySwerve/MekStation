@@ -77,6 +77,9 @@ export const REPLAY_INPUT_PROVENANCE_MANIFEST = {
   ContractAccepted: provenance({ catalogRules: ['contract'] }),
   RosterUnitChanged: provenance({ catalogRules: ['unit'] }),
   SalvageAllocated: provenance({ catalogRules: ['value'] }),
+  // Pure command input - actor/participant/reason come from the intent,
+  // no randomness, catalog, or clock feeds it.
+  ParticipantRemoved: NONE,
   CampaignSnapshotPublished: provenance({ catalogRules: ['state'] }),
 
   // Combat lifecycle / initiative.

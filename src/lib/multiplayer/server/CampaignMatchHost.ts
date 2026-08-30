@@ -307,6 +307,7 @@ export class CampaignMatchHost {
       this.state,
       this.guestAuthor(intent),
       ts,
+      this.hostPlayerId,
     );
     if (!validation.ok) {
       return validation;
@@ -341,6 +342,7 @@ export class CampaignMatchHost {
       this.state,
       this.hostPlayerId,
       ts,
+      this.hostPlayerId,
     );
     if (!validation.ok) {
       return validation;

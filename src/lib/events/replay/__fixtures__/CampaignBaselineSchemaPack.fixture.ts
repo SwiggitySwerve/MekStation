@@ -35,6 +35,10 @@ export const VALID_CAMPAIGN_EVENT_PAYLOADS: Readonly<
     poolRemaining: 20_000,
     recoveredUnit: rosterUnit,
   },
+  ParticipantRemoved: {
+    participantId: 'player-unavailable',
+    reason: 'unavailable',
+  },
   CampaignSnapshotPublished: {
     state: {
       campaignId: 'campaign-snapshot',

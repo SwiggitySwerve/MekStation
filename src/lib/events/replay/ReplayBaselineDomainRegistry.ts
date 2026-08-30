@@ -3,7 +3,7 @@
  *
  * Composes the campaign pack and all eight combat packs into one
  * baseline registration set and proves it exactly covers every
- * canonical replay discriminant: the seven `CampaignEventType` members
+ * canonical replay discriminant: the eight `CampaignEventType` members
  * plus the 81 `GameEventType` members (80 frozen + `PhysicalAttackLocked`
  * per the 2026-08-21 schema-pack-inventory amendment).
  *
@@ -78,7 +78,7 @@ const COMBAT_COMPOSITION_COMPLETENESS: [
 void COMBAT_COMPOSITION_COMPLETENESS;
 
 /**
- * The seven canonical campaign discriminants as runtime values.
+ * The eight canonical campaign discriminants as runtime values.
  * `CampaignEventType` is a type-only string union with no runtime
  * object, so the values are pinned here; the two `satisfies`/`Exclude`
  * guards make the pin two-way exhaustive against the live union.
@@ -90,6 +90,7 @@ const CANONICAL_CAMPAIGN_EVENT_TYPES = [
   'ContractAccepted',
   'RosterUnitChanged',
   'SalvageAllocated',
+  'ParticipantRemoved',
   'CampaignSnapshotPublished',
 ] as const satisfies readonly CampaignEventType[];
 

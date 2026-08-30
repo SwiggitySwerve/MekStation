@@ -378,6 +378,7 @@ describe('room-code guest grant path', () => {
       isActive: () => false,
       isRevoked: () => false,
       bind,
+      revoke: () => false,
     };
 
     await bindGuest(socket, GUEST_ID, membership);
@@ -457,6 +458,7 @@ function tacticalSeatMembership(): ICampaignSessionMembershipPort {
       active.add(input.participantId);
       return { kind: 'bound' };
     },
+    revoke: (input) => active.delete(input.participantId),
   };
 }
 

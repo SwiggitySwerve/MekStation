@@ -587,6 +587,20 @@ export class CampaignSyncSession {
   };
 
   /**
+   * Apply an already-committed audited removal to the convergence set.
+   *
+   * The removal event is the authority: callers cannot name a participant
+   * directly, which keeps retained-set mutation coupled to the append-only
+   * audit record. Deleting a missing entry is intentionally idempotent so a
+   * recovery pass can heal a commit-before-revocation crash window.
+   */
+  applyCommittedParticipantRemoval = (
+    event: ICampaignEvent<'ParticipantRemoved'>,
+  ): void => {
+    this.retained.delete(event.payload.participantId);
+  };
+
+  /**
    * Decide whether the campaign may progress to the next scenario.
    *
    * Committed events keep flowing to whoever can take them — this gate

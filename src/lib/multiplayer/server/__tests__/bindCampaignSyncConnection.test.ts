@@ -214,6 +214,13 @@ describe('bindCampaignSyncConnection', () => {
         active.add(input.participantId);
         return { kind: 'bound' as const };
       },
+      revoke: (input: { participantId: string; revokedAt: string }) => {
+        void input.revokedAt;
+        if (revoked.has(input.participantId)) return false;
+        active.delete(input.participantId);
+        revoked.add(input.participantId);
+        return true;
+      },
     };
   }
 
@@ -2112,6 +2119,303 @@ describe('bindCampaignSyncConnection', () => {
 
       expect(sawError(host, 'CAMPAIGN_NOT_CONVERGED')).toBe(false);
       expect(registry.get('match-campaign')?.host.getState().day).toBe(1);
+    });
+  });
+});
+
+describe('bindCampaignSyncConnection — audited participant removal', () => {
+  it('revokes the durable seat, detaches the live player, and unblocks the next launch', async () => {
+    const registry = await makeRegistry();
+    const active = new Set(['pid_guest']);
+    const revoked = new Set<string>();
+    const membership = {
+      isActive: (
+        _campaignId: string,
+        _sessionId: string,
+        participantId: string,
+      ) => active.has(participantId),
+      isRevoked: (
+        _campaignId: string,
+        _sessionId: string,
+        participantId: string,
+      ) => revoked.has(participantId),
+      bind: (input: { participantId: string; seat: 'gm' | 'player' }) => {
+        active.add(input.participantId);
+        return { kind: 'bound' as const };
+      },
+      revoke: (input: { participantId: string; revokedAt: string }) => {
+        void input.revokedAt;
+        if (revoked.has(input.participantId)) return false;
+        active.delete(input.participantId);
+        revoked.add(input.participantId);
+        return true;
+      },
+    };
+    const player = new MockWireSocket();
+    const gm = new MockWireSocket();
+    const entry = registry.get('match-campaign');
+    expect(entry).not.toBeNull();
+    if (entry === null) return;
+
+    await bindCampaignSyncConnection({
+      socket: player,
+      registry,
+      matchId: 'match-campaign',
+      verifiedPlayerId: 'pid_guest',
+      logger: quietLogger,
+      membership,
+      replicaStore: null,
+    });
+    player.inbound({
+      kind: 'CampaignJoin',
+      matchId: 'match-campaign',
+      ts: nowIso(),
+      playerId: 'pid_guest',
+      role: 'guest',
+      roomCode: 'ABC234',
+    });
+    await flushAsyncHandlers();
+    expect(player.sent).toContainEqual(
+      expect.objectContaining({ kind: 'CampaignSnapshot' }),
+    );
+
+    const advanced = await entry.host.applyHostIntent({
+      kind: 'AdvanceDay',
+      campaignId: 'campaign-sync',
+      intentId: 'advance-before-removal',
+      payload: {},
+    });
+    expect(advanced.ok).toBe(true);
+    expect(await entry.syncSession.evaluateScenarioLaunch()).toEqual(
+      expect.objectContaining({ ok: false, reason: 'participants-behind' }),
+    );
+
+    await bindCampaignSyncConnection({
+      socket: gm,
+      registry,
+      matchId: 'match-campaign',
+      verifiedPlayerId: 'pid_host',
+      logger: quietLogger,
+      membership,
+      replicaStore: null,
+    });
+    gm.inbound({
+      kind: 'CampaignJoin',
+      matchId: 'match-campaign',
+      ts: nowIso(),
+      playerId: 'pid_host',
+      role: 'host',
+      roomCode: 'ABC234',
+    });
+    await flushAsyncHandlers();
+
+    gm.inbound({
+      kind: 'CampaignHostIntent',
+      matchId: 'match-campaign',
+      ts: nowIso(),
+      playerId: 'pid_host',
+      intent: {
+        kind: 'RemoveParticipant',
+        campaignId: 'campaign-sync',
+        intentId: 'remove-unavailable-player',
+        payload: { participantId: 'pid_guest', reason: 'unavailable' },
+      },
+    });
+    await flushAsyncHandlers();
+
+    const events = await entry.host.getEventLog().getCampaignEvents(0);
+    expect(events.at(-1)).toMatchObject({
+      type: 'ParticipantRemoved',
+      authorPlayerId: 'pid_host',
+      scope: 'campaign',
+      payload: { participantId: 'pid_guest', reason: 'unavailable' },
+    });
+    expect(
+      membership.isRevoked('campaign-sync', 'match-campaign', 'pid_guest'),
+    ).toBe(true);
+    expect(await entry.syncSession.evaluateScenarioLaunch()).toEqual({
+      ok: true,
+      requiredRevision: 2,
+    });
+
+    player.inbound({
+      kind: 'CampaignAck',
+      matchId: 'match-campaign',
+      ts: nowIso(),
+      playerId: 'pid_guest',
+      campaignId: 'campaign-sync',
+      revision: 1,
+    });
+    await flushAsyncHandlers();
+    expect(player.closes).toContainEqual(
+      expect.objectContaining({ reason: 'membership-revoked' }),
+    );
+
+    const rejoin = new MockWireSocket();
+    await bindCampaignSyncConnection({
+      socket: rejoin,
+      registry,
+      matchId: 'match-campaign',
+      verifiedPlayerId: 'pid_guest',
+      logger: quietLogger,
+      membership,
+      replicaStore: null,
+    });
+    rejoin.inbound({
+      kind: 'CampaignJoin',
+      matchId: 'match-campaign',
+      ts: nowIso(),
+      playerId: 'pid_guest',
+      role: 'guest',
+      roomCode: 'ABC234',
+    });
+    await flushAsyncHandlers();
+    expect(sawError(rejoin, 'AUTH_REJECTED', 'membership-revoked')).toBe(true);
+
+    gm.inbound({
+      kind: 'CampaignHostIntent',
+      matchId: 'match-campaign',
+      ts: nowIso(),
+      playerId: 'pid_host',
+      intent: {
+        kind: 'AdvanceDay',
+        campaignId: 'campaign-sync',
+        intentId: 'advance-after-removal',
+        payload: {},
+      },
+    });
+    await flushAsyncHandlers();
+    await new Promise((resolve) => setTimeout(resolve, 5));
+    expect(sawError(gm, 'MATCH_PAUSED')).toBe(false);
+    expect(sawError(gm, 'CAMPAIGN_NOT_CONVERGED')).toBe(false);
+    expect(
+      (await entry.host.getEventLog().getCampaignEvents(0)).at(-1),
+    ).toMatchObject({
+      type: 'CampaignDayAdvanced',
+    });
+    expect(entry.host.getState().day).toBe(2);
+  });
+
+  it('heals a committed removal on the next authenticated join after its durable revoke crashes', async () => {
+    const registry = await makeRegistry();
+    const active = new Set(['pid_guest']);
+    const revoked = new Set<string>();
+    let failNextRevoke = true;
+    const membership = {
+      isActive: (
+        _campaignId: string,
+        _sessionId: string,
+        participantId: string,
+      ) => active.has(participantId),
+      isRevoked: (
+        _campaignId: string,
+        _sessionId: string,
+        participantId: string,
+      ) => revoked.has(participantId),
+      bind: (input: { participantId: string; seat: 'gm' | 'player' }) => {
+        active.add(input.participantId);
+        return { kind: 'bound' as const };
+      },
+      revoke: (input: { participantId: string }) => {
+        if (failNextRevoke) {
+          failNextRevoke = false;
+          throw new Error('simulated durable revoke interruption');
+        }
+        active.delete(input.participantId);
+        revoked.add(input.participantId);
+        return true;
+      },
+    };
+    const entry = registry.get('match-campaign');
+    expect(entry).not.toBeNull();
+    if (entry === null) return;
+
+    const joined = await entry.syncSession.joinMember(() => {}, 'pid_guest');
+    expect(joined.ok).toBe(true);
+    expect(
+      await entry.host.applyHostIntent({
+        kind: 'AdvanceDay',
+        campaignId: 'campaign-sync',
+        intentId: 'advance-before-interrupted-revoke',
+        payload: {},
+      }),
+    ).toEqual(expect.objectContaining({ ok: true }));
+    expect(await entry.syncSession.evaluateScenarioLaunch()).toEqual(
+      expect.objectContaining({ ok: false, reason: 'participants-behind' }),
+    );
+
+    const firstGm = new MockWireSocket();
+    await bindCampaignSyncConnection({
+      socket: firstGm,
+      registry,
+      matchId: 'match-campaign',
+      verifiedPlayerId: 'pid_host',
+      logger: quietLogger,
+      membership,
+      replicaStore: null,
+    });
+    firstGm.inbound({
+      kind: 'CampaignJoin',
+      matchId: 'match-campaign',
+      ts: nowIso(),
+      playerId: 'pid_host',
+      role: 'host',
+      roomCode: 'ABC234',
+    });
+    await flushAsyncHandlers();
+    firstGm.inbound({
+      kind: 'CampaignHostIntent',
+      matchId: 'match-campaign',
+      ts: nowIso(),
+      playerId: 'pid_host',
+      intent: {
+        kind: 'RemoveParticipant',
+        campaignId: 'campaign-sync',
+        intentId: 'remove-before-interrupted-revoke',
+        payload: { participantId: 'pid_guest' },
+      },
+    });
+    await new Promise((resolve) => setTimeout(resolve, 5));
+
+    expect(
+      (await entry.host.getEventLog().getCampaignEvents(0)).at(-1),
+    ).toMatchObject({
+      type: 'ParticipantRemoved',
+      payload: { participantId: 'pid_guest' },
+    });
+    expect(
+      membership.isRevoked('campaign-sync', 'match-campaign', 'pid_guest'),
+    ).toBe(false);
+    expect(await entry.syncSession.evaluateScenarioLaunch()).toEqual(
+      expect.objectContaining({ ok: false, reason: 'participants-behind' }),
+    );
+
+    const returningGm = new MockWireSocket();
+    await bindCampaignSyncConnection({
+      socket: returningGm,
+      registry,
+      matchId: 'match-campaign',
+      verifiedPlayerId: 'pid_host',
+      logger: quietLogger,
+      membership,
+      replicaStore: null,
+    });
+    returningGm.inbound({
+      kind: 'CampaignJoin',
+      matchId: 'match-campaign',
+      ts: nowIso(),
+      playerId: 'pid_host',
+      role: 'host',
+      roomCode: 'ABC234',
+    });
+    await new Promise((resolve) => setTimeout(resolve, 5));
+
+    expect(
+      membership.isRevoked('campaign-sync', 'match-campaign', 'pid_guest'),
+    ).toBe(true);
+    expect(await entry.syncSession.evaluateScenarioLaunch()).toEqual({
+      ok: true,
+      requiredRevision: 2,
     });
   });
 });

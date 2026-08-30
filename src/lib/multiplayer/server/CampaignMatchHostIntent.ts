@@ -119,12 +119,16 @@ function event<T extends CampaignEventType>(
  * @param authorPlayerId the player whose intent this is (stamped on the
  *                    derived events).
  * @param ts          host wall-clock ISO timestamp for the events.
+ * @param hostPlayerId verified GM identity. Required only for the audited
+ *                    participant-removal command; omitted callers cannot
+ *                    accidentally authorize it.
  */
 export function validateCampaignIntent(
   intent: ICampaignIntent,
   state: ICampaignAuthoritativeState,
   authorPlayerId: string,
   ts: string,
+  hostPlayerId?: string,
 ): CampaignIntentValidation {
   // The intent must target the campaign this host owns.
   if (intent.campaignId !== state.campaignId) {
@@ -210,6 +214,20 @@ export function validateCampaignIntent(
             value,
             poolRemaining,
             ...(recoveredUnit ? { recoveredUnit } : {}),
+          }),
+        ],
+      };
+    }
+
+    case 'RemoveParticipant': {
+      if (authorPlayerId !== hostPlayerId) return reject('host-only');
+      const { participantId, reason } = intent.payload;
+      return {
+        ok: true,
+        events: [
+          mk('ParticipantRemoved', {
+            participantId,
+            ...(reason === undefined ? {} : { reason }),
           }),
         ],
       };

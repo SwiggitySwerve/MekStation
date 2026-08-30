@@ -395,6 +395,10 @@ function describeProposalEffect(proposal: IGuestProposal): string {
       return `Allocate ${intent.payload.value.toLocaleString()} C-bills of salvage`;
     case 'AdvanceDay':
       return `Advance ${intent.payload.days ?? 1} day`;
+    case 'RemoveParticipant':
+      // Host-only; a guest proposal never carries it, but the union is
+      // exhaustive and the label must exist for the compiler's sake.
+      return `Remove participant ${intent.payload.participantId}`;
     default: {
       const exhaustive: never = intent;
       void exhaustive;
