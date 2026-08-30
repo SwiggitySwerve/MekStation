@@ -1,7 +1,7 @@
 /**
  * Campaign baseline schema pack (replay-safety PR 3).
  *
- * Strict concrete v1 payload schemas for all seven `CampaignEventType`
+ * Strict concrete v1 payload schemas for all eight `CampaignEventType`
  * variants, registered at baseline v1 with no transitions. The nested
  * roster-unit / pilot / contract shapes are shared schemas because their
  * shapes are identical across payloads. The `satisfies` clause makes the
@@ -85,6 +85,9 @@ const CAMPAIGN_BASELINE_PAYLOAD_SCHEMAS = {
       recoveredUnit: campaignRosterUnit.optional(),
     })
     .strict(),
+  ParticipantRemoved: z
+    .object({ participantId: z.string(), reason: z.string().optional() })
+    .strict(),
   CampaignSnapshotPublished: z
     .object({
       state: campaignAuthoritativeState,
@@ -94,7 +97,7 @@ const CAMPAIGN_BASELINE_PAYLOAD_SCHEMAS = {
     .strict(),
 } satisfies Record<CampaignEventType, z.ZodType>;
 
-/** The seven canonical campaign discriminants this pack registers. */
+/** The eight canonical campaign discriminants this pack registers. */
 export const CAMPAIGN_BASELINE_EVENT_TYPES: readonly CampaignEventType[] =
   Object.freeze(
     Object.keys(CAMPAIGN_BASELINE_PAYLOAD_SCHEMAS) as CampaignEventType[],

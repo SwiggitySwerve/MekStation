@@ -89,7 +89,7 @@ describe('CAMPAIGN_EVENT_DEFAULT_SCOPE completeness', () => {
     expect(Object.keys(CAMPAIGN_EVENT_DEFAULT_SCOPE).sort()).toEqual(
       [...CAMPAIGN_EVENT_TYPES].sort(),
     );
-    expect(CAMPAIGN_EVENT_TYPES).toHaveLength(7);
+    expect(CAMPAIGN_EVENT_TYPES).toHaveLength(8);
   });
 
   it('rejects a partial table at runtime', () => {
@@ -145,6 +145,12 @@ describe('validateCampaignIntent stamps scope on every derived event', () => {
       payload: { value: 5 },
     },
     {
+      kind: 'RemoveParticipant',
+      campaignId: CAMPAIGN_ID,
+      intentId: 'i-remove-participant',
+      payload: { participantId: 'player-unavailable' },
+    },
+    {
       kind: 'AdvanceDay',
       campaignId: CAMPAIGN_ID,
       intentId: 'i-day',
@@ -159,6 +165,7 @@ describe('validateCampaignIntent stamps scope on every derived event', () => {
       'AcceptContract',
       'SpendFunds',
       'AllocateSalvage',
+      'RemoveParticipant',
       'AdvanceDay',
     ];
     expect(Array.from(kinds).sort()).toEqual([...expected].sort());
@@ -167,7 +174,13 @@ describe('validateCampaignIntent stamps scope on every derived event', () => {
   it('stamps a valid scope on every derived event', () => {
     const state = ledgerState();
     const derived = intents.flatMap((intent) => {
-      const result = validateCampaignIntent(intent, state, 'pid-host', NOW);
+      const result = validateCampaignIntent(
+        intent,
+        state,
+        'pid-host',
+        NOW,
+        'pid-host',
+      );
       expect(result.ok).toBe(true);
       return result.ok ? result.events : [];
     });
@@ -176,6 +189,28 @@ describe('validateCampaignIntent stamps scope on every derived event', () => {
       expect(isCampaignEventScope(event.scope)).toBe(true);
       expect(event.scope).toBe(CAMPAIGN_EVENT_DEFAULT_SCOPE[event.type]);
     }
+  });
+
+  it('rejects a guest participant removal with no derived events', () => {
+    const result = validateCampaignIntent(
+      {
+        kind: 'RemoveParticipant',
+        campaignId: CAMPAIGN_ID,
+        intentId: 'guest-remove-attempt',
+        payload: { participantId: 'player-unavailable' },
+      },
+      ledgerState(),
+      'pid-guest',
+      NOW,
+      'pid-host',
+    );
+
+    expect(result).toEqual({
+      ok: false,
+      code: 'INVALID_CAMPAIGN_INTENT',
+      reason: 'host-only',
+    });
+    expect(result).not.toHaveProperty('events');
   });
 });
 

@@ -29,6 +29,7 @@ const INVENTORY_CAMPAIGN_DISCRIMINANTS = [
   'ContractAccepted',
   'RosterUnitChanged',
   'SalvageAllocated',
+  'ParticipantRemoved',
   'CampaignSnapshotPublished',
 ] as const;
 
@@ -73,6 +74,11 @@ const MUTATIONS: Readonly<
     (p) => delete p['poolRemaining'],
     (p) => ((p['recoveredUnit'] as MutablePayload)['tonnage'] = 100),
     (p) => (p['recoveredUnit'] = 42),
+  ],
+  ParticipantRemoved: [
+    (p) => delete p['participantId'],
+    (p) => (p['unexpected'] = true),
+    (p) => (p['reason'] = 42),
   ],
   CampaignSnapshotPublished: [
     (p) => delete (p['state'] as MutablePayload)['salvagePool'],

@@ -24,13 +24,15 @@ import {
 } from '../ReplayBaselineDomainRegistry';
 import { UnsupportedReplayHistoryError } from '../ReplaySchemaRegistry';
 
-const CAMPAIGN_COUNT = 7;
+// Pinned to the CURRENT union heads - a new discriminant rewrites a
+// number here, not a title (the migration-head retitle law).
+const CAMPAIGN_COUNT = 8;
 const COMBAT_COUNT = 81;
 
 describe('complete replay baseline domain registry', () => {
   const registry = createReplayBaselineDomainRegistry();
 
-  it('composes exactly the canonical 7 campaign + 81 combat discriminants', () => {
+  it('composes exactly the canonical campaign + combat discriminant heads', () => {
     expect(REPLAY_BASELINE_CANONICAL_EVENT_TYPES).toHaveLength(
       CAMPAIGN_COUNT + COMBAT_COUNT,
     );

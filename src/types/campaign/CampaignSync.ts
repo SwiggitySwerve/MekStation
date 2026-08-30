@@ -150,6 +150,7 @@ export type CampaignEventType =
   | 'ContractAccepted'
   | 'RosterUnitChanged'
   | 'SalvageAllocated'
+  | 'ParticipantRemoved'
   | 'CampaignSnapshotPublished';
 
 /**
@@ -164,6 +165,7 @@ export const CAMPAIGN_EVENT_TYPES = [
   'ContractAccepted',
   'RosterUnitChanged',
   'SalvageAllocated',
+  'ParticipantRemoved',
   'CampaignSnapshotPublished',
 ] as const satisfies readonly CampaignEventType[];
 
@@ -244,6 +246,14 @@ export interface ISalvageAllocatedPayload {
   readonly recoveredUnit?: ICampaignRosterUnit;
 }
 
+/** `ParticipantRemoved` — the GM revoked a campaign-session participant. */
+export interface IParticipantRemovedPayload {
+  /** Durable participant identity removed from this campaign session. */
+  readonly participantId: string;
+  /** Optional audited GM rationale. */
+  readonly reason?: string;
+}
+
 /**
  * `CampaignSnapshotPublished` — a full-state baseline for a joining or
  * resyncing guest. The only event whose payload is a whole-campaign
@@ -269,6 +279,7 @@ export interface ICampaignEventPayloadMap {
   readonly ContractAccepted: IContractAcceptedPayload;
   readonly RosterUnitChanged: IRosterUnitChangedPayload;
   readonly SalvageAllocated: ISalvageAllocatedPayload;
+  readonly ParticipantRemoved: IParticipantRemovedPayload;
   readonly CampaignSnapshotPublished: ICampaignSnapshotPublishedPayload;
 }
 
@@ -405,7 +416,7 @@ export function isCampaignWireEvent(value: unknown): value is ICampaignEvent {
   return isCampaignEventShape(value, -1);
 }
 
-/** True iff `value` is one of the seven `CampaignEventType` strings. */
+/** True iff `value` is one of the eight `CampaignEventType` strings. */
 export function isCampaignEventType(value: string): value is CampaignEventType {
   return CAMPAIGN_EVENT_TYPE_SET.has(value);
 }
@@ -423,6 +434,7 @@ export type CampaignIntentKind =
   | 'AcceptContract'
   | 'SpendFunds'
   | 'AllocateSalvage'
+  | 'RemoveParticipant'
   | 'AdvanceDay';
 
 /** `HirePilot` intent payload. */
@@ -461,12 +473,21 @@ export interface IAdvanceDayIntentPayload {
   readonly days?: number;
 }
 
+/** `RemoveParticipant` intent payload. Only the authenticated GM may use it. */
+export interface IRemoveParticipantIntentPayload {
+  /** Durable participant identity to revoke from this session. */
+  readonly participantId: string;
+  /** Optional audited GM rationale. */
+  readonly reason?: string;
+}
+
 /** Discriminated map from intent kind to its payload shape. */
 export interface ICampaignIntentPayloadMap {
   readonly HirePilot: IHirePilotIntentPayload;
   readonly AcceptContract: IAcceptContractIntentPayload;
   readonly SpendFunds: ISpendFundsIntentPayload;
   readonly AllocateSalvage: IAllocateSalvageIntentPayload;
+  readonly RemoveParticipant: IRemoveParticipantIntentPayload;
   readonly AdvanceDay: IAdvanceDayIntentPayload;
 }
 
@@ -531,6 +552,7 @@ export type CampaignIntentRejectionReason =
   | 'insufficient-funds'
   | 'insufficient-standing'
   | 'insufficient-salvage'
+  | 'host-only'
   | 'malformed-intent'
   | 'session-closed'
   | 'campaign-mismatch';

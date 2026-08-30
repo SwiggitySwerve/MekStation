@@ -17,6 +17,7 @@
 import {
   activeCampaignSessionMembership,
   bindCampaignSessionParticipant,
+  revokeCampaignSessionParticipant,
 } from '@/services/campaignPersistence/CampaignSessionParticipantStore';
 import { getSQLiteService } from '@/services/persistence/SQLiteService';
 
@@ -69,5 +70,6 @@ export function createCampaignSessionMembershipPort(): ICampaignSessionMembershi
         boundAt: new Date().toISOString(),
       });
     },
+    revoke: (input) => revokeCampaignSessionParticipant(input),
   };
 }

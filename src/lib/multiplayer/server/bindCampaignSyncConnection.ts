@@ -81,6 +81,13 @@ export interface ICampaignSessionMembershipPort {
     readonly participantId: string;
     readonly seat: 'gm' | 'player';
   }) => ICampaignSeatBindOutcome;
+  /** Idempotent durable revocation applied from a committed audit event. */
+  readonly revoke: (input: {
+    readonly campaignId: string;
+    readonly sessionId: string;
+    readonly participantId: string;
+    readonly revokedAt: string;
+  }) => boolean;
 }
 
 /**
@@ -332,6 +339,29 @@ async function handleInbound({
   }
 
   try {
+    if (
+      membership &&
+      (envelope.kind === 'CampaignJoin' ||
+        envelope.kind === 'CampaignHostIntent')
+    ) {
+      await healCommittedParticipantRemovals(entry, membership);
+    }
+    // A reconnect is still routed through CampaignJoin so it receives the
+    // established non-closing membership-revoked refusal. A socket that was
+    // already admitted is detached before it can issue any further frame.
+    if (
+      envelope.kind !== 'CampaignJoin' &&
+      membership?.isRevoked(entry.campaignId, matchId, verifiedPlayerId)
+    ) {
+      closeWithTypedError({
+        socket,
+        matchId,
+        cleanup,
+        code: 'AUTH_REJECTED',
+        reason: 'membership-revoked',
+      });
+      return;
+    }
     await dispatchCampaignEnvelope({
       envelope,
       socket,
@@ -472,7 +502,13 @@ async function dispatchCampaignEnvelope({
       ) {
         return;
       }
-      await handleCampaignHostIntent({ envelope, socket, entry, matchId });
+      await handleCampaignHostIntent({
+        envelope,
+        socket,
+        entry,
+        matchId,
+        membership,
+      });
       return;
     case 'CampaignParticipation':
       handleCampaignParticipation({
@@ -587,11 +623,13 @@ async function handleCampaignHostIntent({
   socket,
   entry,
   matchId,
+  membership,
 }: {
   envelope: Extract<ICampaignClientMessage, { kind: 'CampaignHostIntent' }>;
   socket: IWireCampaignSocket;
   entry: ICampaignHostRegistryEntry;
   matchId: string;
+  membership?: ICampaignSessionMembershipPort | null;
 }): Promise<void> {
   if (envelope.playerId !== entry.hostPlayerId) {
     send(
@@ -644,6 +682,13 @@ async function handleCampaignHostIntent({
   }
 
   const result = await entry.host.applyHostIntent(envelope.intent);
+  if (result.ok) {
+    // This command's committed batch is already in hand. Apply its durable
+    // revocation synchronously rather than rescanning the journal, so the
+    // normal path completes the audit event, seat revoke, and retained-set
+    // removal as one logical command operation.
+    applyCommittedParticipantRemovals(entry, result.events, membership);
+  }
   if (!result.ok) {
     send(
       socket,
@@ -654,6 +699,39 @@ async function handleCampaignHostIntent({
         envelope.intent.intentId,
       ),
     );
+  }
+}
+
+/**
+ * Reconcile durable seats and the live convergence set from committed removal
+ * events. The journal append happens before this side effect because the
+ * campaign event batch and session-participant table do not share a SQLite
+ * transaction. If a process dies after append and before revoke, every later
+ * authenticated frame re-runs this idempotent pass before admission or command
+ * handling, so the committed audit record heals the durable seat.
+ */
+async function healCommittedParticipantRemovals(
+  entry: ICampaignHostRegistryEntry,
+  membership?: ICampaignSessionMembershipPort | null,
+): Promise<void> {
+  const events = await entry.host.getEventLog().getCampaignEvents(0);
+  applyCommittedParticipantRemovals(entry, events, membership);
+}
+
+function applyCommittedParticipantRemovals(
+  entry: ICampaignHostRegistryEntry,
+  events: readonly ICampaignEvent[],
+  membership?: ICampaignSessionMembershipPort | null,
+): void {
+  for (const event of events) {
+    if (event.type !== 'ParticipantRemoved') continue;
+    membership?.revoke({
+      campaignId: entry.campaignId,
+      sessionId: entry.matchId,
+      participantId: event.payload.participantId,
+      revokedAt: event.ts,
+    });
+    entry.syncSession.applyCommittedParticipantRemoval(event);
   }
 }
 

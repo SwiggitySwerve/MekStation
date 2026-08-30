@@ -99,6 +99,16 @@ const advanceDayIntentSchema = z.object({
   }),
 });
 
+const removeParticipantIntentSchema = z.object({
+  kind: z.literal('RemoveParticipant'),
+  campaignId: z.string().min(1),
+  intentId: z.string().min(1),
+  payload: z.object({
+    participantId: z.string().min(1),
+    reason: z.string().min(1).optional(),
+  }),
+});
+
 /**
  * The discriminated-union schema for any `ICampaignIntent`. A
  * `parse` failure means the intent is structurally malformed and the
@@ -110,6 +120,7 @@ export const CampaignIntentSchema = z.discriminatedUnion('kind', [
   acceptContractIntentSchema,
   spendFundsIntentSchema,
   allocateSalvageIntentSchema,
+  removeParticipantIntentSchema,
   advanceDayIntentSchema,
 ]);
 
@@ -144,7 +155,7 @@ export const CampaignEventScopeSchema = z.custom<CampaignEventScope>(
 );
 
 /**
- * Runtime schema for the seven campaign event type discriminants.
+ * Runtime schema for the eight campaign event type discriminants.
  */
 export const CampaignEventTypeSchema = z.custom<CampaignEventType>(
   (value): value is CampaignEventType =>

@@ -502,6 +502,10 @@ export function describeProposalEffect(proposal: IGuestProposal): string {
       return `Allocate ${formatCbills(intent.payload.value)} of salvage`;
     case 'AdvanceDay':
       return `Advance the campaign day by ${intent.payload.days ?? 1}`;
+    case 'RemoveParticipant':
+      // Host-only - never a guest proposal - but the switch is
+      // exhaustive so the label exists the day the union is consulted.
+      return `Remove participant ${intent.payload.participantId}`;
     default: {
       // Exhaustiveness guard — a new intent kind trips this at compile
       // time so the review surface never shows an unlabelled proposal.

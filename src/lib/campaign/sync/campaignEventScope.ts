@@ -18,9 +18,9 @@ import type {
 import { CAMPAIGN_EVENT_TYPES } from '@/types/campaign/CampaignSync';
 
 /**
- * Default scope for each of the seven ledger event types.
+ * Default scope for each of the eight ledger event types.
  *
- * All seven current types are shared-ledger facts (day, funds, roster,
+ * All eight current types are shared-ledger facts (day, funds, roster,
  * contract, pilot, salvage, and the full-state snapshot). They default
  * to `campaign` so every participant granted the campaign scope can
  * replay them. None of the current types is a GM-hidden fact; a future
@@ -35,6 +35,7 @@ export const CAMPAIGN_EVENT_DEFAULT_SCOPE = {
   ContractAccepted: 'campaign',
   RosterUnitChanged: 'campaign',
   SalvageAllocated: 'campaign',
+  ParticipantRemoved: 'campaign',
   CampaignSnapshotPublished: 'campaign',
 } as const satisfies Record<CampaignEventType, CampaignEventScope>;
 
