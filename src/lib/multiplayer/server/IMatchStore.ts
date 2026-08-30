@@ -311,6 +311,34 @@ export function hasViewerDeliveryStore(
   );
 }
 
+/** A participant's durable highest contiguous applied delivery receipt. */
+export interface IViewerDeliveryAcknowledgement {
+  readonly matchId: string;
+  readonly playerId: string;
+  readonly deliverySequence: number;
+}
+
+/** Optional receipt port; old stores continue with deliveryCursor fallback. */
+export interface IViewerDeliveryAcknowledgementStore {
+  acknowledgeViewerDelivery(
+    acknowledgement: IViewerDeliveryAcknowledgement,
+  ): Promise<void>;
+  getViewerDeliveryAcknowledgement(
+    matchId: string,
+    playerId: string,
+  ): Promise<IViewerDeliveryAcknowledgement | null>;
+}
+
+export function hasViewerDeliveryAcknowledgementStore(
+  store: IMatchStore,
+): store is IMatchStore & IViewerDeliveryAcknowledgementStore {
+  const candidate = store as Partial<IViewerDeliveryAcknowledgementStore>;
+  return (
+    typeof candidate.acknowledgeViewerDelivery === 'function' &&
+    typeof candidate.getViewerDeliveryAcknowledgement === 'function'
+  );
+}
+
 // =============================================================================
 // Errors
 // =============================================================================

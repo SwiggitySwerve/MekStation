@@ -161,9 +161,10 @@ describe('client delivery-gap detection', () => {
 
     const joins = sentByClient.filter((m) => m.kind === 'SessionJoin');
     expect(joins.length).toBe(joinsBefore + 1);
-    // It asks from what it HAS, so the server replays the missing tail
-    // rather than the whole match.
-    expect(joins[joins.length - 1].lastSeq).toBe(102);
+    // It asks from what it HAS - the delivery cursor, the only resume
+    // key since slice B retired the authority high-water from the wire.
+    expect(joins[joins.length - 1].deliveryCursor).toBe(1);
+    expect(joins[joins.length - 1].lastSeq).toBeUndefined();
   });
 
   it('quotes a delivery cursor from BEFORE the hole', () => {
@@ -492,7 +493,8 @@ describe('client delivery cursor across a reconnect', () => {
 
     const join = lastJoin(sentByClient);
     expect(join.deliveryCursor).toBe(1);
-    expect(join.lastSeq).toBe(102);
+    // Slice B: no authority high-water rides the join at all.
+    expect(join.lastSeq).toBeUndefined();
   });
 
   it('keeps the cursor when the replay lands before any live frame', () => {

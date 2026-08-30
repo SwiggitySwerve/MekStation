@@ -136,6 +136,21 @@ export const SessionJoinSchema = z.object({
 export type ISessionJoin = z.infer<typeof SessionJoinSchema>;
 
 /**
+ * DeliveryAck - a participant's receipt for the highest contiguous
+ * viewer-delivery sequence whose projected event reducer completed.
+ *
+ * The acknowledgement is intentionally delivery-space only: player
+ * projections never need to expose an authority sequence to resume.
+ */
+export const DeliveryAckSchema = z.object({
+  kind: z.literal('DeliveryAck'),
+  matchId: matchIdSchema,
+  ts: tsSchema,
+  deliverySequence: z.number().int().nonnegative(),
+});
+export type IDeliveryAck = z.infer<typeof DeliveryAckSchema>;
+
+/**
  * Intent — a player's request to mutate the engine. The server validates
  * (out-of-phase, wrong side, unknown unit, etc.) and either applies +
  * broadcasts the resulting events or replies with an `Error` envelope.
@@ -558,6 +573,7 @@ export function assertKnownCampaignSyncFrameKind(
 
 export const ClientMessageSchema = z.discriminatedUnion('kind', [
   SessionJoinSchema,
+  DeliveryAckSchema,
   IntentSchema,
   HeartbeatSchema,
   CampaignJoinSchema,

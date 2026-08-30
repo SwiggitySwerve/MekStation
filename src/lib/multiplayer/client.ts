@@ -66,10 +66,9 @@ export interface IMultiplayerClient {
   on(event: IClientEventName, handler: IClientEventHandler): () => void;
   close(): void;
   /**
-   * Authority high-water the client has observed, or `-1` before any
-   * event carrying `sequence`. SessionJoin still quotes this alongside
-   * `deliveryCursor` (removing `lastSeq` is slice B). Admission itself
-   * is delivery-first when the live frame carries `deliverySequence`.
+   * Legacy display high-water, or `-1` before any event carrying
+   * `sequence`. It is never used for admission or SessionJoin resume;
+   * player projections use delivery-space receipts for both.
    */
   lastSeq(): number;
   /** True after `ReplayEnd` has fired for the current connection. */
@@ -109,7 +108,7 @@ export interface IConnectOptions {
   reconnect?: boolean;
   /** Optional cap for consecutive reconnect attempts before terminal close. */
   maxReconnectAttempts?: number;
-  /** Last sequence to resume from (Wave 4 reconnect path). */
+  /** Legacy display seed; no longer sent as a SessionJoin resume hint. */
   lastSeq?: number;
 }
 
@@ -124,7 +123,7 @@ interface IClientState {
   // Buffer for events that arrive between ReplayEnd and the
   // consumer's `on('event', ...)` registration. Zustand-style: drain
   // on first listener attach.
-  pendingLiveEvents: unknown[];
+  pendingLiveEvents: IQueuedInboundEvent[];
   /**
    * Commands sent but not yet answered, keyed by the id they went out
    * with. A reconnect re-sends these AS THEY ARE: minting a fresh id
@@ -132,16 +131,10 @@ interface IClientState {
    * attempt landed before the socket died.
    */
   pendingIntents: Map<string, unknown>;
-  replayBuffer: unknown[];
+  replayBuffer: IQueuedInboundEvent[];
   /**
-   * Identity of recently applied AUTHORITY sequences. Secondary fork
-   * check while `event.sequence` is still on the wire (slice B removes
-   * it). Bounded and evicted oldest-first.
-   */
-  appliedIdentityBySeq: Map<number, string>;
-  /**
-   * Identity of recently applied DELIVERY numbers. Primary admission
-   * key for live frames. Same window as the authority map.
+   * Identity and projection digest of recently applied DELIVERY
+   * numbers. This is the only numbered admission key.
    */
   appliedIdentityByDelivery: Map<number, string>;
   /**
@@ -158,8 +151,7 @@ interface IClientState {
   lastSeq: number;
   /**
    * Highest delivery number this client has applied, or `-1` before the
-   * first numbered live frame. Twin of `lastSeq` on the delivery axis
-   * (transitional dual-key awaiting slice B).
+   * first numbered live frame.
    */
   lastAppliedDelivery: number;
   reconnectAttempt: number;
@@ -211,10 +203,17 @@ interface IClientState {
    * replay - turning a small loss into a stampede.
    */
   recoveringFromGap: boolean;
+  /** Highest contiguous sequence this client has successfully receipted. */
+  highestAcknowledgedDelivery: number;
   suppressNextSocketCloseEvent: boolean;
 }
 
-type ClientEmit = (name: IClientEventName, payload: unknown) => void;
+interface IQueuedInboundEvent {
+  readonly event: unknown;
+  readonly deliverySequence?: number;
+}
+
+type ClientEmit = (name: IClientEventName, payload: unknown) => boolean;
 type LastSeqUpdater = (event: unknown) => void;
 type ServerMessageHandlerContext = {
   readonly message: IServerMessage;
@@ -223,6 +222,8 @@ type ServerMessageHandlerContext = {
   readonly updateLastSeq: LastSeqUpdater;
   /** Re-send `SessionJoin` to pull the tail this client is missing. */
   readonly requestResync: () => void;
+  /** Acknowledge the contiguous delivery cursor after projection succeeds. */
+  readonly acknowledgeDelivery: () => void;
   /** Re-send every command still waiting for an answer. */
   readonly resendPending: () => void;
 };
@@ -236,7 +237,7 @@ const SERVER_MESSAGE_HANDLERS: Record<
     state.replayBuffer = [];
     state.ready = false;
   },
-  ReplayChunk: ({ message, state, updateLastSeq }) => {
+  ReplayChunk: ({ message, state }) => {
     const replay = message as Extract<IServerMessage, { kind: 'ReplayChunk' }>;
     // Through the SAME admission as live traffic, so duplicate
     // suppression and collision blocking apply to both inbound paths.
@@ -249,14 +250,29 @@ const SERVER_MESSAGE_HANDLERS: Record<
       const deliverySequence =
         typeof stamped === 'number' ? stamped : itemDeliverySequence(evt);
       const event = withoutItemDeliverySequence(evt);
-      for (const admitted of admitLiveEvent(state, event, deliverySequence)) {
-        state.replayBuffer.push(withLocalSequence(admitted, deliverySequence));
-        updateLastSeq(admitted);
+      for (const admitted of admitLiveEvent(
+        state,
+        event,
+        deliverySequence,
+        'replay',
+      )) {
         rememberApplied(state, admitted, deliverySequence);
+        state.replayBuffer.push({
+          event: admitted,
+          ...(deliverySequence !== undefined ? { deliverySequence } : {}),
+        });
       }
     }
   },
-  ReplayEnd: ({ message, state, emit, resendPending }) => {
+  ReplayEnd: ({
+    message,
+    state,
+    emit,
+    updateLastSeq,
+    requestResync,
+    acknowledgeDelivery,
+    resendPending,
+  }) => {
     const end = message as Extract<IServerMessage, { kind: 'ReplayEnd' }>;
     // Whatever asked for this replay has been served - including a gap
     // recovery, so the next hole is allowed to ask again.
@@ -266,22 +282,49 @@ const SERVER_MESSAGE_HANDLERS: Record<
     // hole, because it is the only place the client learns that what it
     // asked for was actually sent.
     if (answeredGapRecovery) releaseDeliveryPin(state, end);
-    state.ready = true;
-    for (const evt of state.replayBuffer) {
-      emit('event', evt);
-    }
+    const replay = state.replayBuffer;
     state.replayBuffer = [];
-    emit('ready', { lastSeq: state.lastSeq });
-    for (const evt of state.pendingLiveEvents) {
-      emit('event', evt);
+    if (
+      !applyQueuedEvents({
+        state,
+        emit,
+        updateLastSeq,
+        requestResync,
+        acknowledgeDelivery,
+        queued: replay,
+      })
+    ) {
+      return;
     }
+    state.ready = true;
+    emit('ready', { lastSeq: state.lastSeq });
+    const pending = state.pendingLiveEvents;
     state.pendingLiveEvents = [];
+    if (
+      !applyQueuedEvents({
+        state,
+        emit,
+        updateLastSeq,
+        requestResync,
+        acknowledgeDelivery,
+        queued: pending,
+      })
+    ) {
+      return;
+    }
     // Caught up, so anything still unanswered can be asked again - with
     // the id it originally carried, which is what lets authority
     // recognise a retry instead of applying a second command.
     resendPending();
   },
-  Event: ({ message, state, emit, updateLastSeq, requestResync }) => {
+  Event: ({
+    message,
+    state,
+    emit,
+    updateLastSeq,
+    requestResync,
+    acknowledgeDelivery,
+  }) => {
     const eventMessage = message as Extract<IServerMessage, { kind: 'Event' }>;
     const wasBlocked = state.blockedBySequenceCollision;
     for (const event of admitLiveEvent(
@@ -295,56 +338,37 @@ const SERVER_MESSAGE_HANDLERS: Record<
         state,
         (event as { payload?: { intentId?: unknown } }).payload?.intentId,
       );
-      updateLastSeq(event);
       rememberApplied(state, event, eventMessage.deliverySequence);
-      const outbound = withLocalSequence(event, eventMessage.deliverySequence);
       if (!state.ready) {
-        state.pendingLiveEvents.push(outbound);
+        state.pendingLiveEvents.push({
+          event,
+          ...(eventMessage.deliverySequence !== undefined
+            ? { deliverySequence: eventMessage.deliverySequence }
+            : {}),
+        });
         continue;
       }
-      emit('event', outbound);
+      applyQueuedEvents({
+        state,
+        emit,
+        updateLastSeq,
+        requestResync,
+        acknowledgeDelivery,
+        queued: [
+          {
+            event,
+            ...(eventMessage.deliverySequence !== undefined
+              ? { deliverySequence: eventMessage.deliverySequence }
+              : {}),
+          },
+        ],
+      });
     }
     if (!wasBlocked && state.blockedBySequenceCollision) {
       emit('error', {
         code: 'PROTOCOL_VIOLATION',
         reason: 'sequence-collision',
       });
-    }
-    if (
-      noteDeliveryGap(
-        state,
-        eventMessage.deliverySequence,
-        sequenceOf(eventMessage.event),
-      )
-    ) {
-      // ADVISORY ONLY - the events above were already applied, and that
-      // is deliberate. Holding them behind a gap is what a previous
-      // change did against the AUTHORITY sequence, and under fog it
-      // stalls forever on an event the viewer may never receive. This
-      // number is different: a hole in it means a frame was genuinely
-      // lost, so it is worth reporting - but the right response is to
-      // resynchronize, not to stop applying what did arrive.
-      emit('error', {
-        code: 'PROTOCOL_VIOLATION',
-        reason: 'delivery-gap',
-      });
-      // ...and RECOVER. Reporting a hole without pulling the missing
-      // frames leaves the client quietly wrong, which is worse than
-      // loud and wrong. One recovery at a time: a burst of losses would
-      // otherwise fire a full replay each.
-      //
-      // A hole opening WHILE a recovery is in flight is therefore not
-      // asked about on its own, and it is not assumed recovered either.
-      // The answer already coming is a tail replay from the earlier
-      // hole, so it covers this one whenever the server had the frame
-      // by the time it snapshotted - and `noteDeliveryGap` has moved
-      // the evidence watermark up to this frame, so the cursor un-pins
-      // only if `ReplayEnd` proves that. Otherwise the pin holds and
-      // the next hole asks from the earlier point.
-      if (!state.recoveringFromGap) {
-        state.recoveringFromGap = true;
-        requestResync();
-      }
     }
   },
   Heartbeat: () => {
@@ -412,6 +436,105 @@ const SERVER_MESSAGE_HANDLERS: Record<
   },
 };
 
+interface IApplyQueuedEventsContext {
+  readonly state: IClientState;
+  readonly emit: ClientEmit;
+  readonly updateLastSeq: LastSeqUpdater;
+  readonly requestResync: () => void;
+  readonly acknowledgeDelivery: () => void;
+  readonly queued: readonly IQueuedInboundEvent[];
+}
+
+/**
+ * Dispatch queued projected events and receipt only successful reducer
+ * applications. A listener is the client projection boundary: if it
+ * throws, the delivery reservation is released and the existing
+ * SessionJoin-tail recovery path is requested without an acknowledgement.
+ */
+function applyQueuedEvents({
+  state,
+  emit,
+  updateLastSeq,
+  requestResync,
+  acknowledgeDelivery,
+  queued,
+}: IApplyQueuedEventsContext): boolean {
+  for (let index = 0; index < queued.length; index += 1) {
+    const current = queued[index];
+    const outbound = withLocalSequence(current.event, current.deliverySequence);
+    if (!emit('event', outbound)) {
+      releaseQueuedReservations(state, queued.slice(index));
+      emit('error', {
+        code: 'PROTOCOL_VIOLATION',
+        reason: 'delivery-apply-failed',
+      });
+      if (!state.recoveringFromGap) {
+        state.recoveringFromGap = true;
+        requestResync();
+      }
+      return false;
+    }
+    updateLastSeq(current.event);
+    completeDeliveryApplication({
+      state,
+      event: current.event,
+      deliverySequence: current.deliverySequence,
+      emit,
+      requestResync,
+      acknowledgeDelivery,
+    });
+  }
+  return true;
+}
+
+function releaseQueuedReservations(
+  state: IClientState,
+  queued: readonly IQueuedInboundEvent[],
+): void {
+  for (const item of queued) {
+    const identity = identityOf(item.event);
+    if (typeof item.deliverySequence === 'number') {
+      if (
+        state.appliedIdentityByDelivery.get(item.deliverySequence) === identity
+      ) {
+        state.appliedIdentityByDelivery.delete(item.deliverySequence);
+      }
+    }
+    if (identity.length > 0) state.appliedIdentities.delete(identity);
+  }
+}
+
+function completeDeliveryApplication({
+  state,
+  event,
+  deliverySequence,
+  emit,
+  requestResync,
+  acknowledgeDelivery,
+}: {
+  readonly state: IClientState;
+  readonly event: unknown;
+  readonly deliverySequence: number | undefined;
+  readonly emit: ClientEmit;
+  readonly requestResync: () => void;
+  readonly acknowledgeDelivery: () => void;
+}): void {
+  if (noteDeliveryGap(state, deliverySequence, sequenceOf(event))) {
+    emit('error', {
+      code: 'PROTOCOL_VIOLATION',
+      reason: 'delivery-gap',
+    });
+    if (!state.recoveringFromGap) {
+      state.recoveringFromGap = true;
+      requestResync();
+    }
+  }
+  const cursor = state.deliveryResumeCursor;
+  if (cursor === null || cursor <= state.highestAcknowledgedDelivery) return;
+  state.highestAcknowledgedDelivery = cursor;
+  acknowledgeDelivery();
+}
+
 interface IClientRuntime {
   readonly url: string;
   readonly matchId: string;
@@ -466,7 +589,6 @@ export function connect(
     pendingLiveEvents: [],
     pendingIntents: new Map(),
     replayBuffer: [],
-    appliedIdentityBySeq: new Map(),
     appliedIdentityByDelivery: new Map(),
     appliedIdentities: new Map(),
     blockedBySequenceCollision: false,
@@ -481,6 +603,7 @@ export function connect(
     deliveryHoleRevealSeq: null,
     deliveryHoleRevealDelivery: null,
     recoveringFromGap: false,
+    highestAcknowledgedDelivery: -1,
     suppressNextSocketCloseEvent: false,
   };
 
@@ -513,16 +636,20 @@ function emitClientEvent(
   runtime: IClientRuntime,
   name: IClientEventName,
   payload: unknown,
-): void {
+): boolean {
   const handlers = runtime.listeners.get(name);
-  if (!handlers) return;
+  if (!handlers) return true;
+  let succeeded = true;
   for (const handler of Array.from(handlers)) {
     try {
       handler(payload);
     } catch {
-      // Don't let a buggy listener kill the socket pump.
+      // Event handlers are projected reducers. Keep the socket pump
+      // alive, but let delivery acknowledgement wait for recovery.
+      succeeded = false;
     }
   }
+  return succeeded;
 }
 
 function encodeMatchSocketToken(token: IPlayerToken | string): string {
@@ -589,11 +716,9 @@ function sendSessionJoin(
     ts: nowIso(),
     playerId: runtime.auth.playerId,
     token: runtime.wireToken,
-    ...(runtime.state.lastSeq >= 0 ? { lastSeq: runtime.state.lastSeq } : {}),
-    // The client's own numbering. Sent ALONGSIDE `lastSeq`, not instead
-    // of it: the server prefers this when it still holds the delivery
-    // record and falls back otherwise, so a restarted server still
-    // resumes this client correctly.
+    // Slice B resumes only from the viewer's own delivery numbering.
+    // Older clients that omit this field still use the server's legacy
+    // lastSeq fallback; this client no longer sends authority hints.
     // The LAST CONTIGUOUS one, never the highest seen. Quoting the
     // highest is how a resume silently skips the frame it lost.
     ...(runtime.state.deliveryResumeCursor !== null
@@ -613,6 +738,24 @@ function sendSessionJoin(
     socket.send(JSON.stringify(parsed.data));
   } catch (e) {
     emitClientEvent(runtime, 'error', e);
+  }
+}
+
+function sendDeliveryAck(runtime: IClientRuntime): void {
+  const deliverySequence = runtime.state.highestAcknowledgedDelivery;
+  if (deliverySequence < 0 || runtime.state.socket === null) return;
+  const ack = {
+    kind: 'DeliveryAck' as const,
+    matchId: runtime.matchId,
+    ts: nowIso(),
+    deliverySequence,
+  };
+  const parsed = ClientMessageSchema.safeParse(ack);
+  if (!parsed.success) return;
+  try {
+    runtime.state.socket.send(JSON.stringify(parsed.data));
+  } catch (error) {
+    emitClientEvent(runtime, 'error', error);
   }
 }
 
@@ -662,11 +805,11 @@ function handleServerMessage(
     requestResync: () => {
       const socket = runtime.state.socket;
       if (socket === null) return;
-      // The same frame a fresh connection sends. It carries `lastSeq`,
-      // so the server replays exactly the tail this client is missing
-      // rather than the whole match.
+      // The same frame a fresh connection sends. Its delivery cursor
+      // names the first viewer frame this client still needs.
       sendSessionJoin(runtime, socket);
     },
+    acknowledgeDelivery: () => sendDeliveryAck(runtime),
   });
 }
 
@@ -675,20 +818,17 @@ function handleServerMessage(
  * paths use it - live `Event` frames and `ReplayChunk` frames - so
  * duplicate suppression and collision blocking apply to each.
  *
- * Dual-key, delivery-first (transitional, awaiting slice B):
+ * Slice B delivery-first admission:
  *
- *   - live frames with `deliverySequence` admit on the delivery number;
- *     `event.sequence`, when present, is a secondary fork check;
- *   - frames without a delivery number fall back to `event.sequence`
- *     (today's ReplayChunk path, and pre-rollout live frames);
+ *   - frames with `deliverySequence` admit solely on the delivery number;
+ *   - frames without a delivery number use event identity only;
  *   - neither number: arrival order plus event identity, so a
  *     sequence-stripped recovery tail still applies exactly-once.
  *
- * Contiguity is NOT enforced on the authority sequence, and cannot be:
- * a fog viewer's slice of it is legitimately sparse. An event ahead of
- * the high-water is therefore applied, not held. The number that CAN be
- * checked for holes is the per-viewer `deliverySequence`, which
- * `noteDeliveryGap` tracks separately.
+ * No authority sequence participates in admission: player projections
+ * intentionally do not expose one. The number that CAN be checked for
+ * holes is the per-viewer `deliverySequence`, which `noteDeliveryGap`
+ * tracks separately.
  */
 /**
  * Stamp the viewer's delivery number onto a sequence-less wire event
@@ -715,14 +855,13 @@ function admitLiveEvent(
   state: IClientState,
   event: unknown,
   deliverySequence?: number,
+  source: 'live' | 'replay' = 'live',
 ): readonly unknown[] {
   if (state.blockedBySequenceCollision) return [];
   if (typeof deliverySequence === 'number') {
     return admitByDelivery(state, event, deliverySequence);
   }
-  const sequence = sequenceOf(event);
-  if (sequence !== null) return admitByAuthority(state, event, sequence);
-  return admitByIdentity(state, event);
+  return admitByIdentity(state, event, source);
 }
 
 function admitByDelivery(
@@ -745,65 +884,13 @@ function admitByDelivery(
       return [];
     }
   }
-  // Secondary consistency check while `event.sequence` is still on the
-  // wire. A new delivery number whose authority sequence was already
-  // applied is a fork, even though delivery-first admission would
-  // otherwise take it. Slice B drops this once the field is gone.
-  const authoritySeq = sequenceOf(event);
-  if (authoritySeq !== null) {
-    const knownAuth = state.appliedIdentityBySeq.get(authoritySeq);
-    if (knownAuth !== undefined) {
-      state.blockedBySequenceCollision = true;
-      return [];
-    }
-  }
-  return [event];
-}
-
-function admitByAuthority(
-  state: IClientState,
-  event: unknown,
-  sequence: number,
-): readonly unknown[] {
-  if (sequence <= state.lastSeq) {
-    const known = state.appliedIdentityBySeq.get(sequence);
-    if (known !== undefined) {
-      // Already applied - ordinarily a duplicate, which is fine. But if
-      // this sequence carries a DIFFERENT event than the one applied
-      // under it, the stream forked, and silently ignoring the second
-      // would hide the fork rather than report it.
-      if (known !== identityOf(event)) state.blockedBySequenceCollision = true;
-      return [];
-    }
-    // Below the high-water yet never applied. THIS IS THE RECOVERED
-    // FRAME, and dropping it is what made the whole gap recovery a
-    // no-op end to end: a lost frame's sequence is by definition below
-    // the high-water, because the frame that revealed the hole already
-    // advanced it. The server resumed from exactly the right event and
-    // the client threw it away on arrival - measured against the real
-    // fog server before this guard existed.
-    //
-    // Two conditions keep the opening narrow. It only applies while a
-    // gap recovery is in flight, which is the one inbound path that
-    // legitimately carries something older than the high-water; and it
-    // only reaches back as far as the identity window, because beyond
-    // that "not remembered" stops meaning "never applied" and starts
-    // meaning "evicted" - re-admitting there would apply an old event
-    // twice.
-    if (!state.recoveringFromGap) return [];
-    if (state.lastSeq - sequence >= APPLIED_IDENTITY_WINDOW) return [];
-    return [event];
-  }
-  // AHEAD OF THE CURSOR IS NORMAL. A fog-of-war viewer's authority
-  // stream is LEGITIMATELY SPARSE: the server skips the send for events
-  // the viewer may not see and keeps the authority sequence on the
-  // rest. Contiguity is enforced on `deliverySequence` instead.
   return [event];
 }
 
 function admitByIdentity(
   state: IClientState,
   event: unknown,
+  source: 'live' | 'replay' = 'live',
 ): readonly unknown[] {
   // Sequence-free ReplayChunk. ReplayStart/End bounds number the
   // span, not individual items, so arrival order in the chunk is the
@@ -811,6 +898,35 @@ function admitByIdentity(
   const identity = identityOf(event);
   if (identity.length > 0 && state.appliedIdentities.has(identity)) {
     return [];
+  }
+  // Conservative arm for an UNSTAMPED, id-less replay item arriving
+  // after this client already holds numbered frames: under fog the
+  // viewer's authority stream is legitimately sparse, so such an item
+  // may be a frame that was WITHHELD, not lost - and outside a gap
+  // recovery nothing asked for it. Initial hydration (nothing numbered
+  // applied yet) and recovery drains still admit; a modern server
+  // stamps its replays and never enters this arm.
+  if (source === 'replay' && identity.length === 0) {
+    const sequence = sequenceOf(event);
+    if (
+      sequence !== null &&
+      !state.recoveringFromGap &&
+      state.lastAppliedDelivery >= 0
+    ) {
+      return [];
+    }
+    // During recovery the opening is bounded by the identity window:
+    // past it, "not remembered" means EVICTED rather than never
+    // applied, and re-admitting would apply an old event twice. The
+    // legacy display high-water is the only ordering an unstamped
+    // item offers; only un-migrated replays ever reach this line.
+    if (
+      sequence !== null &&
+      state.recoveringFromGap &&
+      state.lastSeq - sequence >= APPLIED_IDENTITY_WINDOW
+    ) {
+      return [];
+    }
   }
   return [event];
 }
@@ -836,11 +952,6 @@ function rememberApplied(
     }
     evictOldest(state.appliedIdentityByDelivery);
   }
-  const sequence = sequenceOf(event);
-  if (sequence !== null) {
-    state.appliedIdentityBySeq.set(sequence, identity);
-    evictOldest(state.appliedIdentityBySeq);
-  }
   if (identity.length > 0) {
     state.appliedIdentities.set(identity, true);
     evictOldest(state.appliedIdentities);
@@ -862,9 +973,11 @@ function evictOldest<K>(map: Map<K, unknown>): void {
  */
 function identityOf(event: unknown): string {
   if (typeof event !== 'object' || event === null) return '';
-  const record = event as { id?: unknown; type?: unknown };
+  const record = event as { id?: unknown };
   if (typeof record.id === 'string' && record.id.length > 0) return record.id;
-  return typeof record.type === 'string' ? `type:${record.type}` : '';
+  // No id means NO identity - two id-less events of the same type are
+  // different events, so a type-based key would silently collapse them.
+  return '';
 }
 
 /** An event's sequence, or null when it carries none. */
@@ -909,6 +1022,18 @@ function noteDeliveryGap(
 ): boolean {
   if (typeof deliverySequence !== 'number') return false;
   const previous = state.lastDeliverySequence;
+  if (previous !== null && deliverySequence <= previous) {
+    // BACKFILL - a recovered frame below the stream head. The head does
+    // not move backwards and an old number is not a new hole; treating
+    // it as one both corrupted the head (so the next live frame looked
+    // discontiguous) and re-pinned a cursor the release had just moved.
+    // If it fills exactly the delivery the cursor waits on, the cursor
+    // steps across it; anything else about it is already recorded.
+    if (state.deliveryResumeCursor === deliverySequence - 1) {
+      state.deliveryResumeCursor = deliverySequence;
+    }
+    return false;
+  }
   state.lastDeliverySequence = deliverySequence;
   if (previous === null) {
     // First numbered frame of THIS connection - and it arrives behind

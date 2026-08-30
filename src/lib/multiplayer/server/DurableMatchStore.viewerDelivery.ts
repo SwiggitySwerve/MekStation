@@ -21,6 +21,7 @@ import type { ViewerDeliveryPersist } from './projection/ViewerDeliveryCursors';
 import {
   hasViewerDeliveryStore,
   type IMatchStore,
+  type IViewerDeliveryAcknowledgement,
   type IViewerDeliveryRecord,
 } from './IMatchStore';
 
@@ -50,6 +51,61 @@ function recordFrom(row: IViewerDeliveryRow): IViewerDeliveryRecord {
     playerId: row.player_id,
     deliverySequence: row.delivery_sequence,
     authoritySequence: row.authority_sequence,
+  };
+}
+
+export const VIEWER_DELIVERY_ACK_SCHEMA_SQL = `
+  CREATE TABLE IF NOT EXISTS mp_viewer_delivery_ack (
+    match_id          TEXT    NOT NULL CHECK (${nonempty('match_id')}),
+    player_id         TEXT    NOT NULL CHECK (${nonempty('player_id')}),
+    delivery_sequence INTEGER NOT NULL CHECK (delivery_sequence >= 0),
+    PRIMARY KEY (match_id, player_id),
+    FOREIGN KEY (match_id) REFERENCES mp_matches(match_id) ON DELETE CASCADE
+  );
+`;
+
+/**
+ * Persist a participant's highest contiguous applied delivery receipt
+ * (umbrella 5.1, "Acknowledgements Are Durable After Application").
+ *
+ * MONOTONIC by construction: the UPDATE arm only raises the stored
+ * value. A late or replayed ack for an older sequence is a no-op, so a
+ * retransmitted frame can never walk the durable receipt backwards.
+ */
+export function upsertViewerDeliveryAcknowledgement(
+  db: Database.Database,
+  ack: IViewerDeliveryAcknowledgement,
+): void {
+  db.prepare(
+    `INSERT INTO mp_viewer_delivery_ack
+       (match_id, player_id, delivery_sequence)
+     VALUES (?, ?, ?)
+     ON CONFLICT(match_id, player_id) DO UPDATE
+       SET delivery_sequence = excluded.delivery_sequence
+       WHERE excluded.delivery_sequence > mp_viewer_delivery_ack.delivery_sequence`,
+  ).run(ack.matchId, ack.playerId, ack.deliverySequence);
+}
+
+/** The stored receipt, or null when the participant never acked. */
+export function selectViewerDeliveryAcknowledgement(
+  db: Database.Database,
+  matchId: string,
+  playerId: string,
+): IViewerDeliveryAcknowledgement | null {
+  const row = db
+    .prepare(
+      `SELECT match_id, player_id, delivery_sequence
+       FROM mp_viewer_delivery_ack
+       WHERE match_id = ? AND player_id = ?`,
+    )
+    .get(matchId, playerId) as
+    | { match_id: string; player_id: string; delivery_sequence: number }
+    | undefined;
+  if (!row) return null;
+  return {
+    matchId: row.match_id,
+    playerId: row.player_id,
+    deliverySequence: row.delivery_sequence,
   };
 }
 

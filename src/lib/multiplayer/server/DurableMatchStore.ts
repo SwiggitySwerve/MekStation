@@ -73,7 +73,10 @@ import {
 import {
   insertViewerDeliveryRecord,
   selectViewerDeliveryRecords,
+  VIEWER_DELIVERY_ACK_SCHEMA_SQL,
   VIEWER_DELIVERY_SCHEMA_SQL,
+  selectViewerDeliveryAcknowledgement,
+  upsertViewerDeliveryAcknowledgement,
 } from './DurableMatchStore.viewerDelivery';
 import {
   MatchNotFoundError,
@@ -84,6 +87,7 @@ import {
   type IMatchPublication,
   type IMatchStore,
   type IPublicationOutboxStore,
+  type IViewerDeliveryAcknowledgement,
   type IViewerDeliveryRecord,
   type IViewerDeliveryStore,
 } from './IMatchStore';
@@ -343,6 +347,7 @@ export class DurableMatchStore
     this.db.exec(SCHEMA_SQL);
     this.db.exec(LEGACY_IMPORT_SCHEMA_SQL);
     this.db.exec(VIEWER_DELIVERY_SCHEMA_SQL);
+    this.db.exec(VIEWER_DELIVERY_ACK_SCHEMA_SQL);
     this.db.exec(JOURNAL_AUTHORITY_BASELINE_SCHEMA_SQL);
   }
 
@@ -793,6 +798,20 @@ export class DurableMatchStore
     matchId: string,
   ): Promise<readonly IViewerDeliveryRecord[]> => {
     return selectViewerDeliveryRecords(this.db, matchId);
+  };
+
+  /** See `IViewerDeliveryAcknowledgementStore`. Monotonic in the SQL. */
+  acknowledgeViewerDelivery = async (
+    ack: IViewerDeliveryAcknowledgement,
+  ): Promise<void> => {
+    upsertViewerDeliveryAcknowledgement(this.db, ack);
+  };
+
+  getViewerDeliveryAcknowledgement = async (
+    matchId: string,
+    playerId: string,
+  ): Promise<IViewerDeliveryAcknowledgement | null> => {
+    return selectViewerDeliveryAcknowledgement(this.db, matchId, playerId);
   };
 
   getEvents = async (
