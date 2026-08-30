@@ -1,6 +1,6 @@
 /**
  * Viewer publication boundary and match-wire catalog (authority-audit
- * PR 8). Pins: public v1 identity parity, hidden-gap adjacency,
+ * PR 8). Pins: public identity parity, hidden-gap adjacency,
  * projection-failure fail-closed, wire-format public pin, and import
  * hygiene for projection/delivery plus wiring-only ServerMatchHost.
  *
@@ -10,11 +10,12 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 
-import type { IGameEvent, IGameUnit } from '@/types/gameplay';
+import type { IGameEvent, IGameState, IGameUnit } from '@/types/gameplay';
 import type { IEventMessage, IIntent } from '@/types/multiplayer/Protocol';
 
 import { createMinimalGrid } from '@/engine/GameEngine.helpers';
 import { SeededRandom } from '@/simulation/core/SeededRandom';
+import { GameEventType, GamePhase } from '@/types/gameplay';
 import { defaultSeats } from '@/types/multiplayer/Lobby';
 import { nowIso } from '@/types/multiplayer/Protocol';
 
@@ -32,8 +33,10 @@ import { ServerMatchHost, type IMatchSocket } from '../../ServerMatchHost';
 import {
   MATCH_WIRE_PROJECTOR_VERSION,
   MATCH_WIRE_PUBLICATION_BOUNDARY,
-  MATCH_WIRE_V1_DECISIONS,
+  MATCH_WIRE_SEALED_DECLARATION_TYPES,
+  MATCH_WIRE_V2_DECISIONS,
   ViewerPublicationBoundary,
+  createMatchWireSealedChoiceAudienceContext,
   listedMatchWireEventTypes,
 } from '../index';
 import { ViewerAudienceProjector } from '../ViewerAudienceProjector';
@@ -551,6 +554,94 @@ describe('viewer publication boundary', () => {
     });
   });
 
+  describe('sealed tactical declarations', () => {
+    it('omits an opponent attack declaration while retaining immediate public phase publication', async () => {
+      const opponent = await resolveViewer({
+        ...PLAYER_ROW,
+        principalId: 'user-opponent',
+        participantId: 'participant-opponent',
+      });
+      const declaration = liveEvent('attack_declared', {
+        attackerId: 'unit-alpha',
+        targetId: 'unit-bravo',
+        weapons: ['medium-laser'],
+        toHitNumber: 7,
+      });
+      const publicPhase = liveEvent('phase_changed', {
+        fromPhase: 'movement',
+        toPhase: 'weapon_attack',
+      });
+
+      expect(
+        MATCH_WIRE_PUBLICATION_BOUNDARY.guardLiveEvent(opponent, declaration),
+      ).toEqual({ kind: 'omit' });
+      expect(
+        MATCH_WIRE_PUBLICATION_BOUNDARY.guardLiveEvent(opponent, publicPhase),
+      ).toEqual({ kind: 'send', value: publicPhase });
+    });
+
+    it('releases an attack declaration to the opponent only after its committed attacks reveal', async () => {
+      const opponent = await resolveViewer({
+        ...PLAYER_ROW,
+        principalId: 'user-opponent',
+        participantId: 'participant-opponent',
+      });
+      const attack = {
+        id: 'attack-sealed',
+        gameId: MATCH_ID,
+        sequence: 11,
+        timestamp: '2026-08-30T00:00:00.000Z',
+        type: GameEventType.AttackDeclared,
+        turn: 3,
+        phase: GamePhase.WeaponAttack,
+        actorId: 'unit-alpha',
+        payload: {
+          attackerId: 'unit-alpha',
+          targetId: 'unit-bravo',
+          weapons: ['medium-laser'],
+          toHitNumber: 7,
+        },
+      } as IGameEvent;
+      const reveal = {
+        id: 'attacks-revealed',
+        gameId: MATCH_ID,
+        sequence: 12,
+        timestamp: '2026-08-30T00:00:00.000Z',
+        type: GameEventType.AttacksRevealed,
+        turn: 3,
+        phase: GamePhase.WeaponAttack,
+        payload: { unitIds: ['unit-alpha'], attackCount: 1 },
+      } as IGameEvent;
+      const context = createMatchWireSealedChoiceAudienceContext(
+        [attack, reveal],
+        { units: {} } as IGameState,
+        reveal.sequence,
+      );
+      const message: IEventMessage = {
+        kind: 'Event',
+        matchId: MATCH_ID,
+        ts: reveal.timestamp,
+        event: attack,
+      };
+
+      const released = MATCH_WIRE_PUBLICATION_BOUNDARY.guardLiveEvent(
+        opponent,
+        message,
+        context,
+      );
+      expect(released.kind).toBe('send');
+      if (released.kind !== 'send') return;
+      const event = released.value.event;
+      expect(typeof event).toBe('object');
+      if (typeof event !== 'object' || event === null) return;
+      expect(event).toMatchObject({
+        id: attack.id,
+        payload: attack.payload,
+      });
+      expect('sequence' in event).toBe(false);
+    });
+  });
+
   describe('projection failure', () => {
     it('returns a typed failure with no raw fallback or payload fragment', async () => {
       const boundary = throwingBoundary();
@@ -572,12 +663,16 @@ describe('viewer publication boundary', () => {
   });
 
   describe('wire-format pin', () => {
-    it('maps every GameEventType to kind public at projectorVersion 1', () => {
+    it('seals only tactical declarations at projectorVersion 2', () => {
       const types = listedMatchWireEventTypes();
-      expect(types.length).toBe(Object.keys(MATCH_WIRE_V1_DECISIONS).length);
-      expect(MATCH_WIRE_PROJECTOR_VERSION).toBe(1);
+      expect(types.length).toBe(Object.keys(MATCH_WIRE_V2_DECISIONS).length);
+      expect(MATCH_WIRE_PROJECTOR_VERSION).toBe(2);
       for (const eventType of types) {
-        expect(MATCH_WIRE_V1_DECISIONS[eventType].kind).toBe('public');
+        expect(MATCH_WIRE_V2_DECISIONS[eventType].kind).toBe(
+          MATCH_WIRE_SEALED_DECLARATION_TYPES.has(eventType)
+            ? 'sealed-to-actor-until-revealed'
+            : 'public',
+        );
       }
     });
   });

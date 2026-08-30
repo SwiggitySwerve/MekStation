@@ -11,12 +11,18 @@ export {
   MATCH_WIRE_PROJECTOR_VERSION,
   MATCH_WIRE_PUBLIC_IDENTITY,
   MATCH_WIRE_STREAM_TYPE,
-  MATCH_WIRE_V1_DECISIONS,
+  MATCH_WIRE_V2_DECISIONS,
   createMatchWireAudienceProjector,
   listedMatchWireEventTypes,
   matchWireAudienceDefinition,
   projectMatchWirePayloadUnchanged,
 } from './MatchWireAudienceCatalog';
+export {
+  createMatchWireSealedChoiceAudienceContext,
+  isMatchWireSealedDeclaration,
+  MATCH_WIRE_SEALED_DECLARATION_TYPES,
+  sealedDeclarationsRevealedBy,
+} from './MatchWireSealedChoices';
 export {
   AUTHORITY_ONLY_EVENT_FIELDS,
   projectEventForViewer,
@@ -51,6 +57,8 @@ export type {
   IPublicAudienceDecision,
   IViewerAudienceEventDecision,
   IViewerAudienceProjectorDefinition,
+  IViewerAudienceRuntimeContext,
+  ISealedChoiceAudienceDecision,
   ViewerAudienceDecision,
 } from './ViewerAudienceProjector';
 export { ViewerProjectionService } from './ViewerProjectionService';

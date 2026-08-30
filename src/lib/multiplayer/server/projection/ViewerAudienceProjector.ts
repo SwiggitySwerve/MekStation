@@ -14,6 +14,8 @@
  *   is this viewer, OR the viewer role is gm (gm sees every owner).
  * - gm-only: role gm only.
  * - hidden: never projected to anyone through this service (not even gm).
+ * - sealed-to-actor-until-revealed: the actor and GM receive the fact until
+ *   the authoritative phase-finalization boundary makes it public.
  *
  * @spec openspec/changes/add-authority-audit-and-privacy-proof/specs/gm-authority-redaction/spec.md
  */
@@ -53,11 +55,23 @@ export interface IHiddenAudienceDecision {
   readonly kind: 'hidden';
 }
 
+export interface ISealedChoiceAudienceDecision {
+  readonly kind: 'sealed-to-actor-until-revealed';
+  project(payload: unknown, viewer: IAuthorizedViewer): JsonValue;
+}
+
 export type ViewerAudienceDecision =
   | IPublicAudienceDecision
   | IOwnerOnlyAudienceDecision
   | IGmOnlyAudienceDecision
-  | IHiddenAudienceDecision;
+  | IHiddenAudienceDecision
+  | ISealedChoiceAudienceDecision;
+
+/** Runtime facts needed to evaluate a sealed event without copying policy out of its catalog. */
+export interface IViewerAudienceRuntimeContext {
+  isSealedChoiceRevealed?(event: unknown): boolean;
+  isActorOwnedByViewer?(viewer: IAuthorizedViewer, event: unknown): boolean;
+}
 
 export interface IViewerAudienceEventDecision {
   readonly eventType: string;

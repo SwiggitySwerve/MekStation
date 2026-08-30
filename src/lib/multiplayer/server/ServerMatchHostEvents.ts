@@ -21,6 +21,11 @@ import {
   FogOfWarVisibilityCache,
 } from './fogOfWar';
 import { isSpectatorPlayer } from './lobby/spectatorSeats';
+import {
+  createMatchWireSealedChoiceAudienceContext,
+  isMatchWireSealedDeclaration,
+  sealedDeclarationsRevealedBy,
+} from './projection/MatchWireSealedChoices';
 import { ViewerDeliveryCursors } from './projection/ViewerDeliveryCursors';
 import { MATCH_WIRE_PUBLICATION_BOUNDARY } from './projection/ViewerPublicationBoundary';
 
@@ -103,9 +108,10 @@ export async function persistInitialEvents(ctx: {
  * playerId so a player with two sockets is looked up once). Delivery
  * numbering follows the same rule: one assign per player per frame,
  * reused by every additional socket of that player in this broadcast.
- * The v1 catalog is all-public, so every admitted member receives the
- * identical frame; an unadmitted socket receives nothing. Fog
- * filtering still runs first when enabled, then the guard.
+ * The catalog decides every admitted viewer's audience. Sealed tactical
+ * declarations bypass fog's independent actor-only classifier so the
+ * catalog remains their one authority; an unadmitted socket receives
+ * nothing.
  */
 export async function broadcastEvent(ctx: {
   readonly matchId: string;
@@ -118,6 +124,37 @@ export async function broadcastEvent(ctx: {
   readonly deliveryCursors: ViewerDeliveryCursors;
   readonly message: IEventMessage;
 }): Promise<void> {
+  await publishEvent(ctx, ctx.message, false);
+
+  const revealEvent = ctx.message.event as IGameEvent;
+  for (const declaration of sealedDeclarationsRevealedBy(
+    ctx.session.getSession().events,
+    revealEvent,
+  )) {
+    await publishEvent(
+      ctx,
+      { ...ctx.message, event: declaration },
+      true,
+      revealEvent.sequence,
+    );
+  }
+}
+
+async function publishEvent(
+  ctx: {
+    readonly matchId: string;
+    readonly store: IMatchStore;
+    readonly session: InteractiveSession;
+    readonly lifecycle: ServerMatchSocketLifecycle;
+    readonly broadcaster: ServerMatchBroadcaster;
+    readonly fogVisibilityCache: FogOfWarVisibilityCache;
+    readonly viewerResolver: AuthorizedViewerResolver;
+    readonly deliveryCursors: ViewerDeliveryCursors;
+  },
+  message: IEventMessage,
+  onlyUndelivered: boolean,
+  visibleThroughSequence = (message.event as IGameEvent).sequence,
+): Promise<void> {
   let meta: IMatchMeta | null = null;
   try {
     meta = await ctx.store.getMatchMeta(ctx.matchId);
@@ -141,14 +178,20 @@ export async function broadcastEvent(ctx: {
     ),
   );
 
-  const fogMeta = meta !== null && meta.config.fogOfWar === true ? meta : null;
+  const sourceEvent = message.event as IGameEvent;
   const state =
-    fogMeta !== null
-      ? withVisibilityAssignments(
-          ctx.session.getSession().currentState,
-          fogMeta,
-        )
+    meta !== null
+      ? withVisibilityAssignments(ctx.session.getSession().currentState, meta)
       : null;
+  const audienceContext =
+    state === null
+      ? undefined
+      : createMatchWireSealedChoiceAudienceContext(
+          ctx.session.getSession().events,
+          state,
+          visibleThroughSequence,
+        );
+  const fogMeta = meta !== null && meta.config.fogOfWar === true ? meta : null;
   const seats = fogMeta?.seats ?? [];
   // One number per player per frame. Recipients are per-socket, but
   // `assign` is keyed per player: a second call for the same player
@@ -159,31 +202,40 @@ export async function broadcastEvent(ctx: {
     const viewer = viewerCache.get(recipient.playerId) ?? null;
     if (viewer === null) continue;
 
-    let frame: IEventMessage = ctx.message;
-    if (fogMeta !== null && state !== null) {
+    let frame: IEventMessage = message;
+    if (
+      fogMeta !== null &&
+      state !== null &&
+      !isMatchWireSealedDeclaration(sourceEvent)
+    ) {
       const filtered = isSpectatorPlayer(seats, recipient.playerId)
-        ? filterEventForSpectator(ctx.message.event as IGameEvent, state, {
+        ? filterEventForSpectator(sourceEvent, state, {
             config: fogMeta.config,
             cache: ctx.fogVisibilityCache,
           })
-        : filterEventForPlayer(
-            ctx.message.event as IGameEvent,
-            recipient.playerId,
-            state,
-            {
-              config: fogMeta.config,
-              cache: ctx.fogVisibilityCache,
-            },
-          );
+        : filterEventForPlayer(sourceEvent, recipient.playerId, state, {
+            config: fogMeta.config,
+            cache: ctx.fogVisibilityCache,
+          });
       if (!filtered) continue;
-      frame = { ...ctx.message, event: filtered };
+      frame = { ...message, event: filtered };
     }
 
     const guarded = MATCH_WIRE_PUBLICATION_BOUNDARY.guardLiveEvent(
       viewer,
       frame,
+      audienceContext,
     );
     if (guarded.kind !== 'send') continue;
+    if (
+      onlyUndelivered &&
+      ctx.deliveryCursors.deliverySequenceOf(
+        recipient.playerId,
+        sourceEvent.sequence,
+      ) !== null
+    ) {
+      continue;
+    }
     // Numbered HERE and nowhere earlier: every frame withheld by fog or
     // omitted by the guard has already `continue`d, so it never consumes
     // one of this viewer's numbers. That is what makes their sequence
@@ -194,7 +246,7 @@ export async function broadcastEvent(ctx: {
     if (deliverySequence === undefined) {
       deliverySequence = ctx.deliveryCursors.assign(
         recipient.playerId,
-        authoritySequenceOf(frame),
+        authoritySequenceOf(sourceEvent),
       );
       deliveryByPlayer.set(recipient.playerId, deliverySequence);
     }
@@ -248,8 +300,7 @@ function withVisibilityAssignments(
  * none. Recorded beside the delivery number so a resume can map one back
  * to the other.
  */
-function authoritySequenceOf(frame: IEventMessage): number | null {
-  const event = frame.event;
+function authoritySequenceOf(event: unknown): number | null {
   if (typeof event !== 'object' || event === null) return null;
   const sequence = (event as { sequence?: unknown }).sequence;
   return typeof sequence === 'number' ? sequence : null;
