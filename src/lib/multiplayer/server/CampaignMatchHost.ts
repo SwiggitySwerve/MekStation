@@ -35,6 +35,7 @@
  * @spec openspec/changes/add-shared-campaign-state/design.md (D1, D2, D4)
  */
 
+import type { ICoopBattleConsequences } from '@/lib/campaign/coop/reconcileCoopBattle';
 import type {
   CampaignIntentResult,
   ICampaignAuthoritativeState,
@@ -63,6 +64,10 @@ import type {
 } from './CampaignMatchHostIntent';
 
 import { validateCampaignIntent } from './CampaignMatchHostIntent';
+import {
+  commitCampaignOutcomeConsequences,
+  type CampaignOutcomeConsequenceResult,
+} from './CampaignMatchHostOutcomeInbox';
 
 /**
  * A connected campaign-sync client. The host broadcasts every committed
@@ -70,6 +75,8 @@ import { validateCampaignIntent } from './CampaignMatchHostIntent';
  * registers one subscriber per socket; tests register a buffer.
  */
 export type CampaignEventSubscriber = (event: ICampaignEvent) => void;
+
+export type { CampaignOutcomeConsequenceResult } from './CampaignMatchHostOutcomeInbox';
 
 /** Construction input for a `CampaignMatchHost`. */
 export interface ICampaignMatchHostOptions {
@@ -133,6 +140,10 @@ export class CampaignMatchHost {
   open = async (): Promise<void> => {
     if (this.opened || this.closed) return;
     this.opened = true;
+    // A recovered durable campaign already has its baseline and tail. Do not
+    // append a second genesis snapshot merely because a new host instance
+    // opened around it.
+    if ((await this.log.nextSequence()) > 0) return;
     await this.commitEvents([
       {
         type: 'CampaignSnapshotPublished',
@@ -199,6 +210,38 @@ export class CampaignMatchHost {
   getHostPlayerId = (): string => {
     return this.hostPlayerId;
   };
+
+  hasCombatOutcomeInbox = (): boolean =>
+    this.eventStore.appendCombatOutcomeBatch !== undefined;
+
+  /**
+   * Commit one terminal combat outcome's campaign consequences through the
+   * durable inbox. A duplicate returns its prior receipt path without
+   * touching projection or fan-out; a different version is a typed conflict.
+   */
+  commitCombatOutcomeConsequences = async (
+    consequences: ICoopBattleConsequences,
+  ): Promise<CampaignOutcomeConsequenceResult> =>
+    commitCampaignOutcomeConsequences(
+      {
+        campaignId: this.campaignId,
+        hostPlayerId: this.hostPlayerId,
+        eventStore: this.eventStore,
+        getState: () => this.state,
+        setState: (state) => {
+          this.state = state;
+        },
+        nextSequence: () => this.log.nextSequence(),
+        reconstructState: () => this.log.reconstructState(),
+        markDivergence: () => {
+          this.divergenceDetected = true;
+        },
+        publish: (event) => {
+          this.subscribers.forEach((subscriber) => subscriber(event));
+        },
+      },
+      consequences,
+    );
 
   /** The campaign event log facade — for the sync-session replay path. */
   getEventLog = (): CampaignEventLog => {

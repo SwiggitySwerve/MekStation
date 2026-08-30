@@ -82,6 +82,40 @@ export type CampaignCommandBatchResult =
   | { readonly kind: 'duplicate-command' }
   | { readonly kind: 'integrity-conflict' };
 
+/** Durable receipt proving one combat outcome version reached campaign authority. */
+export interface ICampaignCombatOutcomeReceipt {
+  readonly outcomeId: string;
+  readonly outcomeVersion: number;
+  readonly campaignId: string;
+  readonly commandId: string;
+  readonly commandDigest: string;
+  readonly firstStreamRevision: number;
+  readonly lastStreamRevision: number;
+  readonly firstCommitPosition: number;
+  readonly lastCommitPosition: number;
+  readonly receivedAt: string;
+}
+
+/** A different version cannot silently reuse an accepted outcome identity. */
+export interface ICampaignOutcomeVersionConflict {
+  readonly kind: 'outcome-version-conflict';
+  readonly outcomeId: string;
+  readonly acceptedVersion: number;
+  readonly receivedVersion: number;
+}
+
+export type CampaignCombatOutcomeInboxResult =
+  | {
+      readonly kind: 'committed';
+      readonly receipt: ICampaignCombatOutcomeReceipt;
+    }
+  | {
+      readonly kind: 'duplicate';
+      readonly receipt: ICampaignCombatOutcomeReceipt;
+    }
+  | ICampaignOutcomeVersionConflict
+  | Exclude<CampaignCommandBatchResult, { readonly kind: 'committed' }>;
+
 export interface ICampaignEventStore {
   /**
    * Optional D10 batch capability (task 1.2): commit one command's whole
@@ -98,6 +132,21 @@ export interface ICampaignEventStore {
       readonly expectedPostStateDigest: string;
     },
   ) => Promise<CampaignCommandBatchResult>;
+
+  /**
+   * Optional durable inbox capability. Capable stores commit the campaign
+   * consequence batch and outcome receipt in the same SQLite transaction.
+   */
+  readonly appendCombatOutcomeBatch?: (
+    campaignId: string,
+    input: {
+      readonly outcomeId: string;
+      readonly outcomeVersion: number;
+      readonly commandId: string;
+      readonly events: readonly ICampaignEvent[];
+      readonly expectedPostStateDigest: string;
+    },
+  ) => Promise<CampaignCombatOutcomeInboxResult>;
 
   /**
    * Append a single campaign event. Sequence collisions MUST reject

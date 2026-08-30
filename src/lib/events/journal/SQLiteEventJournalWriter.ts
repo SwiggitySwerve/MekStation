@@ -33,6 +33,21 @@ export class SQLiteEventJournalWriter<TPayload = unknown> {
   public async append(
     raw: Journal.IAppendEventBatch<TPayload>,
   ): Promise<Journal.EventJournalAppendResult<TPayload>> {
+    return this.appendWithExtension(raw, (_db, append) => append());
+  }
+
+  /**
+   * Append a journal command inside a caller-owned extension of the same
+   * SQLite transaction. Durable consumers use this to make a receipt and the
+   * corresponding journal batch indivisible without exposing journal writes.
+   */
+  public async appendWithExtension<TResult>(
+    raw: Journal.IAppendEventBatch<TPayload>,
+    extend: (
+      db: Database.Database,
+      append: () => Journal.EventJournalAppendResult<TPayload>,
+    ) => TResult,
+  ): Promise<TResult> {
     const parsed = Schemas.AppendEventBatchSchema.parse(raw) as typeof raw;
     const identity = canonicalizeCommandIdentityV1(parsed);
     const eventIds = new Set(
@@ -43,7 +58,9 @@ export class SQLiteEventJournalWriter<TPayload = unknown> {
     }
     return this.db
       .transaction(() =>
-        this.appendInTransaction(identity.command, identity.digest),
+        extend(this.db, () =>
+          this.appendInTransaction(identity.command, identity.digest),
+        ),
       )
       .immediate();
   }

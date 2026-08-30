@@ -462,6 +462,7 @@ export type ICampaignDecision = z.infer<typeof CampaignDecisionSchema>;
 export const CoopBattleConsequencesSchema = z.object({
   campaignId: z.string().min(1),
   matchId: z.string().min(1),
+  outcomeVersion: z.number().int().positive().optional(),
   fundsDelta: z.number().finite(),
   fundsReason: z.string().min(1),
   salvageValue: z.number().finite().nonnegative(),

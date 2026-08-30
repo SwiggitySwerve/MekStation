@@ -7,7 +7,10 @@ import type {
 import type { IForce } from '@/types/campaign/Force';
 
 import { registerActiveCoopHost } from '@/lib/campaign/coop/coopHostRegistry';
-import { createDefaultCampaignEventStore } from '@/lib/campaign/sync/JournalCampaignEventStore';
+import {
+  createDefaultCampaignEventStore,
+  JournalCampaignEventStore,
+} from '@/lib/campaign/sync/JournalCampaignEventStore';
 import { SQLiteEventJournal } from '@/lib/events/journal/SQLiteEventJournal';
 import {
   readCampaignSessionState,
@@ -276,16 +279,11 @@ export class CampaignHostRegistry {
     const host = new CampaignMatchHost({
       campaignId: snapshot.campaignId,
       hostPlayerId: snapshot.hostPlayerId,
-      // The cutover-flag factory (task 5.1). The journal is supplied here
-      // even though the flag is still false, because the factory needs
-      // BOTH to route: passing none left the flag a no-op at the one
-      // production site that could use it, so flipping it after review
-      // would have changed nothing and looked like the cutover had
-      // failed. Behaviour today is unchanged - the guard requires the
-      // flag as well - and the flag stays the single reviewed switch.
-      eventStore: createDefaultCampaignEventStore({
-        journal: campaignJournal,
-      }),
+      // The server-resident host is durable whenever SQLite is initialized.
+      // Browser/unit hosts without it retain the in-memory factory seam.
+      eventStore: sqliteReady()
+        ? new JournalCampaignEventStore(campaignJournal())
+        : createDefaultCampaignEventStore(),
       initialState: snapshot.state,
     });
     const syncSession = new CampaignSyncSession(host, { matchId });
