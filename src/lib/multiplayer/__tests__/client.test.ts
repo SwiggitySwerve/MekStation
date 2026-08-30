@@ -123,6 +123,17 @@ function intentIdsOn(socket: { sentRaw: string[] }): (string | undefined)[] {
     .map((frame) => frame.intentId);
 }
 
+/** Delivery receipts emitted after the client's event projection succeeds. */
+function deliveryAcksOn(socket: { sentRaw: string[] }): number[] {
+  return socket.sentRaw
+    .map(
+      (raw) => JSON.parse(raw) as { kind: string; deliverySequence?: number },
+    )
+    .filter((frame) => frame.kind === 'DeliveryAck')
+    .map((frame) => frame.deliverySequence)
+    .filter((sequence): sequence is number => typeof sequence === 'number');
+}
+
 function nowIsoForTest(): string {
   return new Date().toISOString();
 }
@@ -458,11 +469,9 @@ describe('multiplayer client', () => {
     expect(client.lastSeq()).toBe(3);
   });
 
-  it('does not re-apply a sequence that arrives after a later one', () => {
-    // There is no reordering buffer, and there should not be: a single
-    // WebSocket delivers in order, so a lower sequence arriving after a
-    // higher one is a REDELIVERY rather than a reorder. Applying it
-    // again would double-apply the event.
+  it('does not re-apply a delivery that arrives after a later one', () => {
+    // Delivery ordering, not authority ordering, governs replay. A
+    // repeated old slot after a gap is normal at-least-once traffic.
     const f = makeMockSocketFactory();
     const applied: unknown[] = [];
     const client = connect(
@@ -476,9 +485,9 @@ describe('multiplayer client', () => {
     finishReplay(f);
     applied.length = 0;
 
-    liveEvent(f, 0);
-    liveEvent(f, 2);
-    liveEvent(f, 1);
+    liveDeliveredEvent(f, 0, 0, 'evt-0');
+    liveDeliveredEvent(f, 2, 2, 'evt-2');
+    liveDeliveredEvent(f, 0, 0, 'evt-0');
 
     expect(seqOf(applied)).toEqual([0, 2]);
     expect(client.lastSeq()).toBe(2);
@@ -540,9 +549,9 @@ describe('multiplayer client', () => {
     finishReplay(f);
     applied.length = 0;
 
-    liveEvent(f, 0, 'evt-0');
-    liveEvent(f, 0, 'evt-0-forked');
-    liveEvent(f, 1, 'evt-1');
+    liveDeliveredEvent(f, 0, 0, 'evt-0');
+    liveDeliveredEvent(f, 0, 0, 'evt-0-forked');
+    liveDeliveredEvent(f, 1, 1, 'evt-1');
 
     expect(errors).toContainEqual(
       expect.objectContaining({ reason: 'sequence-collision' }),
@@ -552,12 +561,11 @@ describe('multiplayer client', () => {
     expect(seqOf(applied)).toEqual([0]);
   });
 
-  it('blocks when a new delivery restates an already-applied authority sequence', () => {
-    // Dual-key fork: delivery is new, so a delivery-only admission
-    // would apply the second frame. Authority says this sequence was
-    // already applied under a different identity - that is the fork
-    // the secondary check exists to catch. Mutation M2 (drop that
-    // check) dies here.
+  it('admits a delivery frame even when its authority sequence lies', () => {
+    // Slice B deliberately retires authority-sequence admission. A
+    // player projection cannot depend on an authority sequence the
+    // projector strips in production, so a new delivery slot remains
+    // valid even when a legacy/test frame carries a conflicting one.
     const f = makeMockSocketFactory();
     const applied: unknown[] = [];
     const errors: unknown[] = [];
@@ -574,13 +582,63 @@ describe('multiplayer client', () => {
     applied.length = 0;
 
     liveDeliveredEvent(f, 0, 10, 'evt-a');
-    liveDeliveredEvent(f, 1, 10, 'evt-a-forked');
-    liveDeliveredEvent(f, 2, 11, 'evt-b');
+    liveDeliveredEvent(f, 1, 10, 'evt-a-with-lying-sequence');
 
-    expect(errors).toContainEqual(
-      expect.objectContaining({ reason: 'sequence-collision' }),
+    expect(errors).toHaveLength(0);
+    expect(seqOf(applied)).toEqual([10, 10]);
+  });
+
+  it('acknowledges only the highest contiguous delivery after projection', () => {
+    const f = makeMockSocketFactory();
+    const client = connect(
+      'ws://localhost/x',
+      'm1',
+      { playerId: 'p1', token: 'tok' },
+      { socketFactory: f.factory, reconnect: false },
     );
-    expect(seqOf(applied)).toEqual([10]);
+    client.on('event', () => undefined);
+    f.lastSocket().fireOpen();
+    finishReplay(f);
+    f.lastSocket().sentRaw.length = 0;
+
+    liveDeliveredEvent(f, 0, 10, 'evt-0');
+    liveDeliveredEvent(f, 1, 11, 'evt-1');
+    liveDeliveredEvent(f, 3, 13, 'evt-3');
+
+    // Mutant: acknowledging every applied frame would include 3.
+    expect(deliveryAcksOn(f.lastSocket())).toEqual([0, 1]);
+  });
+
+  it('does not acknowledge a delivery whose projected reducer fails', () => {
+    const f = makeMockSocketFactory();
+    const errors: unknown[] = [];
+    const client = connect(
+      'ws://localhost/x',
+      'm1',
+      { playerId: 'p1', token: 'tok' },
+      { socketFactory: f.factory, reconnect: false },
+    );
+    client.on('event', () => {
+      throw new Error('projected reducer failed');
+    });
+    client.on('error', (error) => errors.push(error));
+    f.lastSocket().fireOpen();
+    finishReplay(f);
+    f.lastSocket().sentRaw.length = 0;
+
+    liveDeliveredEvent(f, 0, 10, 'evt-0');
+
+    expect(deliveryAcksOn(f.lastSocket())).toEqual([]);
+    expect(errors).toContainEqual(
+      expect.objectContaining({ reason: 'delivery-apply-failed' }),
+    );
+    // Controlled recovery is the existing SessionJoin tail request.
+    expect(
+      f
+        .lastSocket()
+        .sentRaw.map((raw) => JSON.parse(raw) as { kind: string })
+        .some((frame) => frame.kind === 'SessionJoin'),
+    ).toBe(true);
   });
 
   it('treats an identical repeat as a duplicate, not a collision', () => {
@@ -637,6 +695,12 @@ describe('multiplayer client', () => {
         { sequence: 0, type: 'phase_changed', id: 'r0' },
         { sequence: 2, type: 'phase_changed', id: 'r2' },
       ],
+    });
+    f.lastSocket().inject({
+      kind: 'ReplayEnd',
+      matchId: 'm1',
+      ts: new Date().toISOString(),
+      toSeq: 2,
     });
 
     expect(client.lastSeq()).toBe(2);

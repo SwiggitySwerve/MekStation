@@ -25,6 +25,7 @@ type HostLike = Pick<
   | 'attachSocket'
   | 'detachSocket'
   | 'handleSessionJoin'
+  | 'handleDeliveryAck'
   | 'handleIntent'
   | 'noteInbound'
   | 'releaseConnection'
@@ -239,6 +240,11 @@ async function dispatchEnvelope({
 }: IDispatchEnvelopeDeps): Promise<void> {
   switch (envelope.kind) {
     case 'Heartbeat':
+      return;
+    case 'DeliveryAck':
+      // The receipt moves only the VERIFIED principal's own row - the
+      // frame deliberately carries no player field to spoof.
+      await host.handleDeliveryAck(verifiedPlayerId, envelope.deliverySequence);
       return;
     case 'SessionJoin':
       if (envelope.playerId !== verifiedPlayerId) {

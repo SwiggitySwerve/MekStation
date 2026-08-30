@@ -77,6 +77,7 @@ import { FogOfWarVisibilityCache } from './fogOfWar';
 import {
   hasCombatOutcomeOutbox,
   hasPublicationOutbox,
+  hasViewerDeliveryAcknowledgementStore,
   hasViewerDeliveryStore,
   type IMatchStore,
 } from './IMatchStore';
@@ -1142,6 +1143,35 @@ export class ServerMatchHost {
       message,
     };
   }
+
+  /**
+   * Persist a participant's delivery acknowledgement (umbrella 5.1).
+   *
+   * The playerId is the connection's VERIFIED principal - the envelope
+   * carries no player field at all, so an ack can only ever move its
+   * own sender's receipt. Monotonicity lives in the store's SQL; a
+   * stale or replayed ack is a durable no-op. A store without the
+   * capability ignores acks entirely - the client keeps working off
+   * its in-memory cursor exactly as before the frame existed.
+   */
+  handleDeliveryAck = async (
+    playerId: string,
+    deliverySequence: number,
+  ): Promise<void> => {
+    if (!hasViewerDeliveryAcknowledgementStore(this.store)) return;
+    try {
+      await this.store.acknowledgeViewerDelivery({
+        matchId: this.matchId,
+        playerId,
+        deliverySequence,
+      });
+    } catch (error) {
+      logger.warn(
+        "[ServerMatchHost] delivery ack persist failed; the client's next ack retries the same receipt",
+        error,
+      );
+    }
+  };
 
   /**
    * Drain publications a previous run committed but never sent
