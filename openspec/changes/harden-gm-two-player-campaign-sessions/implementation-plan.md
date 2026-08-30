@@ -46,6 +46,20 @@ Your next move: use the reviewed plan in an isolated task-owned worktree when im
 - Preserve all pre-existing `.audit/`, audit-document, ambient-browser, server, worktree, and unrelated user changes.
 - Keep determinism CI, SUPERHEAVY gyro, CAMP-03, and GAME-02 fixes as separate prerequisite/refinement PRs, never bundled into the OpenSpec authority change.
 
+## External prerequisite status (umbrella task 1.4)
+The four prerequisite/refinement fixes named in the bullet above stayed in separate changes, never bundled into this
+authority change. Status as of 2026-08-30, each verified against its own plan entry below:
+- Determinism CI fail-closed (todo 1): COMPLETE - shipped as its own `fix(ci)` PR; the audit exits nonzero on a missing
+  scanner instead of false-green.
+- SUPERHEAVY gyro serialization (todo 2): COMPLETE - shipped as its own serializer round-trip PR; 101+ weight units keep
+  gyro, weight, tech base, engine, armor, equipment, and critical slots through serialize/load.
+- CAMP-03 zero-BV campaign materialization (todo 3): COMPLETE - the original root cause was repaired externally in PR
+  #1072 (canonical MegaMek BV source restored); the residual launch race (navigation before the debounced authoritative
+  campaign save) was closed by awaiting the shared local-plus-authoritative checkpoint before routing.
+- GAME-02 Quick Game bootstrap recovery (todo 4): COMPLETE - bootstrap persists before navigation in its own PR.
+None of the four is implemented, re-implemented, or gated inside this change; this section records status only, which is
+the whole of task 1.4's mandate.
+
 ## Verification strategy
 > Zero human intervention - all verification is agent-executed.
 - Test decision: TDD for authority, migration, privacy, rewind, and failure seams; Jest + deterministic injected stores/duplexes first, then Playwright three-context integration and real UI.
