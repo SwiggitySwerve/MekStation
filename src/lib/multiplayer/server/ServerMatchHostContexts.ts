@@ -61,6 +61,8 @@ export interface IServerMatchHostInternals extends IServerMatchHostCaptureContex
   readonly setPaused: (paused: boolean) => void;
   readonly broadcast: (message: IServerMessage) => void;
   readonly broadcastEvent: (message: IEventMessage) => Promise<void>;
+  /** Undelivered-only broadcast for the outbox drains (umbrella 7.1). */
+  readonly broadcastUndeliveredEvent: (message: IEventMessage) => Promise<void>;
   readonly safeSend: (socket: IMatchSocket, message: IServerMessage) => void;
   readonly closeMatch: () => Promise<void>;
   readonly maybeResume: () => void;
@@ -141,6 +143,7 @@ export function buildIntentContext(
     isPaused: host.isPaused,
     broadcast: host.broadcast,
     broadcastEvent: host.broadcastEvent,
+    broadcastUndeliveredEvent: host.broadcastUndeliveredEvent,
     closeMatch: host.closeMatch,
     handleLobbyIntent: host.handleLobbyIntent,
     installFreshCapture: host.installFreshCapture,

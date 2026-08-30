@@ -21,7 +21,13 @@ import type {
 
 import { nowIso } from '@/types/multiplayer/Protocol';
 
-import type { IPublicationOutboxStore } from './IMatchStore';
+import type { IMatchStore, IPublicationOutboxStore } from './IMatchStore';
+import type {
+  IMatchCommandBatch,
+  MatchBatchAppendResult,
+} from './matchCommandBatch';
+
+import { hasPublicationOutbox } from './IMatchStore';
 
 /**
  * Builds a protocol Error envelope. `code` is the machine-readable
@@ -72,6 +78,30 @@ export interface ICommitThenPublishDeps {
    * no marking, publication straight from the in-memory events.
    */
   readonly publications?: IPublicationOutboxStore;
+  /**
+   * Atomic batch commit (umbrella task 7.1). When present alongside
+   * `publications`, pass 1 commits the whole command as ONE transaction
+   * that writes the events and their outbox rows together, and pass 2
+   * publishes from those durable rows rather than the in-memory
+   * events. Absent keeps the event-at-a-time path for stores without
+   * the capability.
+   */
+  readonly commitBatch?: {
+    readonly commandId: string;
+    readonly actorId: string;
+    readonly append: (
+      batch: IMatchCommandBatch,
+    ) => Promise<MatchBatchAppendResult>;
+  };
+  /**
+   * Undelivered-only broadcast for the resume pass. A resumed frame
+   * must never assign a fresh delivery number to a viewer whose cursor
+   * already records it; this variant skips those viewers. When absent
+   * the resume pass falls back to `broadcastEvent` (pre-7.1 behaviour).
+   */
+  readonly broadcastUndeliveredEvent?: (
+    message: IEventMessage,
+  ) => Promise<void>;
 }
 
 /**
@@ -92,14 +122,12 @@ export interface ICommitThenPublishDeps {
  * task 3.1). What this fixes is narrower and worth stating exactly: a
  * partial commit is no longer PUBLISHED.
  *
- * ALSO NOT CLAIMED: that this command's own frames come off durable
- * records. Pass 2 still publishes the in-memory events, because the
- * commit dep is `appendEvent` and only `appendCommandBatch` writes the
- * outbox. What the outbox buys today is the RESUME - passes 0 and 3 -
- * and those are inert on this path until task 3.1 routes the commit
- * through the batch. They are wired now so that switch does not have to
- * remember to wire them, and so a caller that already commits by batch
- * (see `resumePendingPublications`'s tests) gets the resume for free.
+ * With `commitBatch` supplied (umbrella 7.1), both limits above fall
+ * away: the whole command commits in one transaction that writes the
+ * events and their outbox rows together, and publication comes off
+ * those durable rows via `commitBatchThenPublishFromRows`. The
+ * event-at-a-time passes below remain for stores without the batch
+ * capability, where the outbox passes are inert by construction.
  */
 export async function commitThenPublish(
   deps: ICommitThenPublishDeps,
@@ -116,8 +144,22 @@ export async function commitThenPublish(
     await resumePendingPublications({
       matchId: deps.matchId,
       publications: deps.publications,
-      broadcastEvent: deps.broadcastEvent,
+      // Undelivered-only when the caller offers it: a resumed frame must
+      // not assign fresh delivery numbers to viewers who already hold it.
+      broadcastEvent: deps.broadcastUndeliveredEvent ?? deps.broadcastEvent,
     });
+  }
+
+  // The batch path (umbrella 7.1): one transaction writes the events
+  // and their outbox rows together, then publication comes off those
+  // durable rows. An empty command skips it - the store refuses an
+  // empty batch by design, and there is nothing to publish anyway.
+  if (deps.commitBatch && deps.publications && deps.events.length > 0) {
+    return commitBatchThenPublishFromRows(
+      deps,
+      deps.commitBatch,
+      deps.publications,
+    );
   }
 
   // Pass 1 - commit. Nothing reaches a recipient from in here.
@@ -164,6 +206,119 @@ export async function commitThenPublish(
   return { committed: true, messages };
 }
 
+/**
+ * Build the outbox/batch slice of `commitThenPublish`'s deps from a
+ * store's capabilities (umbrella 7.1).
+ *
+ * With both capabilities and a non-empty command, the command commits
+ * as ONE transaction that writes the events and their outbox rows
+ * together, and its frames publish from those rows. The command id is
+ * the intent id when the client sent one - that is the identity a
+ * retry reproduces - and falls back to the first event id, which never
+ * dedupes because a re-dispatch mints fresh event ids; the fallback
+ * merely keeps the batch path available, it does not invent retry
+ * identity the client never offered.
+ */
+export function outboxCommitDeps(
+  store: IMatchStore,
+  matchId: string,
+  envelope: { readonly intentId?: string; readonly playerId: string },
+  events: readonly IGameEvent[],
+): Partial<Pick<ICommitThenPublishDeps, 'publications' | 'commitBatch'>> {
+  if (!hasPublicationOutbox(store)) return {};
+  if (store.appendCommandBatch == null || events.length === 0) {
+    return { publications: store };
+  }
+  return {
+    publications: store,
+    commitBatch: {
+      commandId: envelope.intentId ?? `evt:${events[0].id}`,
+      actorId: envelope.playerId,
+      append: (batch: IMatchCommandBatch) =>
+        store.appendCommandBatch!(matchId, batch),
+    },
+  };
+}
+
+/**
+ * Pass 1-3 of the batch path: commit the command atomically, then
+ * publish it FROM the rows that transaction wrote.
+ *
+ * Publication reads the batch's own rows back through
+ * `listPendingPublications` rather than trusting the in-memory events -
+ * that is the literal reading of "publish committed results only from
+ * durable publication records created in the same transaction as the
+ * authoritative command batch", and it means a frame can only ever
+ * carry what the store actually holds. Each row is marked ONE AT A TIME
+ * after its own send, the same discipline as the resume drain: a
+ * process that dies halfway leaves its unsent rows pending for the next
+ * run's pass 0.
+ *
+ * A `duplicate-command` answer is a retry of a command that already
+ * committed: its frames were published by the original run or drained
+ * by pass 0 moments ago, so there is nothing new to say and no failure
+ * to report. The conflict kinds mean the engine session and the store
+ * disagree about the head - on this path that is a broken invariant,
+ * answered exactly like an append failure: truthful typed frame, close.
+ */
+async function commitBatchThenPublishFromRows(
+  deps: ICommitThenPublishDeps,
+  commitBatch: NonNullable<ICommitThenPublishDeps['commitBatch']>,
+  publications: IPublicationOutboxStore,
+): Promise<ICommitThenPublishResult> {
+  let result: MatchBatchAppendResult;
+  try {
+    result = await commitBatch.append({
+      commandId: commitBatch.commandId,
+      actorId: commitBatch.actorId,
+      expectedRevision: deps.events[0].sequence,
+      events: deps.events,
+    });
+  } catch (e) {
+    const err = errorMessage(
+      deps.matchId,
+      'STORE_FAILURE',
+      e instanceof Error ? e.message : 'Store append failed',
+      deps.intentId,
+    );
+    deps.broadcast(err);
+    await deps.closeMatch();
+    return { committed: false, messages: [err] };
+  }
+  if (result.kind === 'duplicate-command') {
+    return { committed: true, messages: [] };
+  }
+  if (result.kind !== 'committed') {
+    const err = errorMessage(
+      deps.matchId,
+      'STORE_FAILURE',
+      result.kind,
+      deps.intentId,
+    );
+    deps.broadcast(err);
+    await deps.closeMatch();
+    return { committed: false, messages: [err] };
+  }
+
+  const batchSequences = new Set(deps.events.map((event) => event.sequence));
+  const rows = (
+    await publications.listPendingPublications(deps.matchId)
+  ).filter((row) => batchSequences.has(row.sequence));
+  const messages: IServerMessage[] = [];
+  for (const row of rows) {
+    const envelopeOut: IEventMessage = {
+      kind: 'Event',
+      matchId: deps.matchId,
+      ts: nowIso(),
+      event: row.event,
+    };
+    await deps.broadcastEvent(envelopeOut);
+    await publications.markPublicationsPublished(deps.matchId, [row.sequence]);
+    messages.push(envelopeOut);
+  }
+  return { committed: true, messages };
+}
+
 /** Dependencies of `resumePendingPublications`. */
 export interface IResumePendingPublicationsDeps {
   readonly matchId: string;
@@ -199,13 +354,12 @@ export interface IResumePendingPublicationsDeps {
  * closing it properly needs the per-viewer delivery cursors the outbox
  * record deliberately does not carry yet (see `IMatchPublication`).
  *
- * ALSO UNRESOLVED, and flagged for task 3.1 rather than fixed here: a
- * resumed frame re-enters `broadcastEvent` and is assigned a FRESH
- * `deliverySequence`, while a client that already applied that
- * authority sequence discards the frame as a duplicate. Whether that
- * advances a viewer's delivery cursor past a frame it never applied
- * needs tracing before the commit path routes through
- * `appendCommandBatch` and starts producing real resumable records.
+ * The fresh-delivery-number question this used to flag is answered by
+ * the caller's choice of broadcast: production routes the drain through
+ * the undelivered-only variant, whose per-viewer cursor check skips
+ * anyone already holding the frame, so no cursor ever advances past a
+ * frame its viewer did not receive. The dep stays a plain broadcast
+ * function so the unit suites can observe the sends directly.
  */
 export async function resumePendingPublications(
   deps: IResumePendingPublicationsDeps,

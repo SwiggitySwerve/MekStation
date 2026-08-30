@@ -76,6 +76,7 @@ import { bindViewerDeliveryPersist } from './DurableMatchStore.viewerDelivery';
 import { FogOfWarVisibilityCache } from './fogOfWar';
 import {
   hasCombatOutcomeOutbox,
+  hasPublicationOutbox,
   hasViewerDeliveryStore,
   type IMatchStore,
 } from './IMatchStore';
@@ -133,11 +134,13 @@ import { digestCommandPostState } from './ServerMatchHostDecision';
 import { drainNewEvents } from './ServerMatchHostEngineDispatch';
 import {
   broadcastEvent as broadcastEventWithContext,
+  broadcastUndeliveredEvent as broadcastUndeliveredEventWithContext,
   persistInitialEvents,
 } from './ServerMatchHostEvents';
 import { handleIntent as handleIntentWithContext } from './ServerMatchHostIntent';
 import { handleLobbyIntent as handleLobbyIntentWithContext } from './ServerMatchHostLobbyIntents';
 import { ServerMatchHostOutcomePublisher } from './ServerMatchHostOutcomePublisher';
+import { resumePendingPublications } from './ServerMatchHostPublication';
 import {
   maybeMarkPlayerPending,
   maybeResume,
@@ -993,6 +996,8 @@ export class ServerMatchHost {
       },
       broadcast: (message) => this.broadcast(message),
       broadcastEvent: (message) => this.broadcastEvent(message),
+      broadcastUndeliveredEvent: (message) =>
+        this.broadcastUndeliveredEvent(message),
       safeSend: (socket, message) => this.safeSend(socket, message),
       closeMatch: () => this.closeMatch(),
       maybeResume: () => this.maybeResume(),
@@ -1106,7 +1111,26 @@ export class ServerMatchHost {
    * module when enabled.
    */
   private async broadcastEvent(message: IEventMessage): Promise<void> {
-    await broadcastEventWithContext({
+    await broadcastEventWithContext(this.broadcastEventContext(message));
+  }
+
+  /**
+   * Undelivered-only broadcast (umbrella 7.1): identical recipient
+   * selection and boundary, but a viewer whose delivery cursor already
+   * records the frame is skipped. The outbox drains route through this
+   * so a resumed frame never assigns fresh numbers to viewers who
+   * already hold it.
+   */
+  private async broadcastUndeliveredEvent(
+    message: IEventMessage,
+  ): Promise<void> {
+    await broadcastUndeliveredEventWithContext(
+      this.broadcastEventContext(message),
+    );
+  }
+
+  private broadcastEventContext(message: IEventMessage) {
+    return {
       matchId: this.matchId,
       store: this.store,
       session: this.session,
@@ -1116,8 +1140,24 @@ export class ServerMatchHost {
       deliveryCursors: this.deliveryCursors,
       viewerResolver: this.viewerResolver,
       message,
-    });
+    };
   }
+
+  /**
+   * Drain publications a previous run committed but never sent
+   * (umbrella 7.1). The registry bootstrap calls this after recovery
+   * restores the viewer delivery cursors - the cursors are what let the
+   * undelivered-only broadcast skip viewers who already hold a frame.
+   * Safe to call any time; a store without the outbox is a no-op.
+   */
+  resumePendingEventPublications = async (): Promise<void> => {
+    if (!hasPublicationOutbox(this.store)) return;
+    await resumePendingPublications({
+      matchId: this.matchId,
+      publications: this.store,
+      broadcastEvent: (message) => this.broadcastUndeliveredEvent(message),
+    });
+  };
 
   /**
    * Send to a single socket, swallowing send errors. Used for join +

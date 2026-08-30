@@ -43,6 +43,23 @@ class GatedStore extends InMemoryMatchStore {
       await base(matchId, event);
       this.trace.push(`append:end:${event.sequence}`);
     };
+    // Since umbrella 7.1 the live path commits each command as ONE
+    // atomic batch, so the gate must park the batch append too - the
+    // trace keys on the batch's first sequence, which preserves the
+    // strictly-ascending-starts law the rows below assert.
+    const baseBatch = this.appendCommandBatch;
+    this.appendCommandBatch = async (
+      matchId: Parameters<typeof baseBatch>[0],
+      batch: Parameters<typeof baseBatch>[1],
+    ) => {
+      this.trace.push(`append:start:${batch.events[0]?.sequence}`);
+      await this.gate;
+      const result = await baseBatch(matchId, batch);
+      // End keyed on the SAME first sequence as the start, so the
+      // start/end pairing the assertions rely on holds for a batch.
+      this.trace.push(`append:end:${batch.events[0]?.sequence}`);
+      return result;
+    };
   }
 
   arm(): void {

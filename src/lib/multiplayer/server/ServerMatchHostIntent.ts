@@ -10,7 +10,6 @@ import { GameStatus } from '@/types/gameplay/GameSessionInterfaces';
 import { intentHasForbiddenDiceField } from '@/types/multiplayer/Protocol';
 
 import type { IMatchStore } from './IMatchStore';
-import type { IShadowAudienceInput } from './journalAuthorityShadow';
 import type {
   JournalAuthorityRecovery,
   ShadowComparisonRecord,
@@ -31,14 +30,20 @@ import {
   type IHumanActionRequest,
 } from './authorization/HumanActionAuthorizationGate';
 import { MembershipSourceUnavailableError } from './authorization/MatchSeatMembershipSource';
-import { hasPublicationOutbox } from './IMatchStore';
-import { runLegacyShadowComparison } from './journalAuthorityShadow';
+import {
+  runLegacyShadowComparison,
+  shadowAudienceInput,
+} from './journalAuthorityShadow';
 import { isSpectatorPlayer } from './lobby/spectatorSeats';
 import { dispatchToEngine } from './ServerMatchHostEngineDispatch';
 import { stampIntentIdOnNewEvents } from './ServerMatchHostEvents';
 import { commitJournalAuthorityCommand } from './ServerMatchHostJournalAuthority';
 import { isLobbyIntentKind } from './ServerMatchHostLobbyIntents';
-import { commitThenPublish, errorMessage } from './ServerMatchHostPublication';
+import {
+  commitThenPublish,
+  errorMessage,
+  outboxCommitDeps,
+} from './ServerMatchHostPublication';
 
 /** Per-host journal-authority handle. Absent / disabled = live dispatch. */
 export interface IJournalAuthorityHostHandle {
@@ -82,6 +87,10 @@ export interface IServerMatchHostIntentContext extends IServerMatchHostCaptureCo
   readonly isPaused: boolean;
   readonly broadcast: (message: IServerMessage) => void;
   readonly broadcastEvent: (message: IEventMessage) => Promise<void>;
+  /** Undelivered-only broadcast for the outbox resume pass (7.1); optional for test contexts, production always supplies it. */
+  readonly broadcastUndeliveredEvent?: (
+    message: IEventMessage,
+  ) => Promise<void>;
   readonly closeMatch: () => Promise<void>;
   readonly handleLobbyIntent: (
     envelope: IIntent,
@@ -308,7 +317,7 @@ export async function handleIntent(
   // first produced event so recovery can rebuild the accepted-id set.
   let newEvents = ctx.stampRollsOnNewEvents(ctx.drainNewEvents());
   if (ctx.journalAuthority?.shadow === true) {
-    const audience = await shadowAudienceInput(ctx);
+    const audience = await shadowAudienceInput(ctx.store, ctx.matchId);
     runLegacyShadowComparison(ctx.journalAuthority, {
       liveSession: ctx.session,
       headIndex,
@@ -330,43 +339,16 @@ export async function handleIntent(
     broadcast: ctx.broadcast,
     broadcastEvent: ctx.broadcastEvent,
     closeMatch: ctx.closeMatch,
-    // Offered only when the store keeps one. NOTHING PUTS ROWS IN IT ON
-    // THIS PATH TODAY: the outbox is written inside
-    // `appendCommandBatch`'s transaction, and this path still commits
-    // event-at-a-time through `appendEvent` (umbrella task 3.1 owns the
-    // switch). So the resume pass is inert here until that lands, and
-    // the marking pass is a no-op UPDATE over rows that do not exist.
-    ...(hasPublicationOutbox(ctx.store) ? { publications: ctx.store } : {}),
+    ...(ctx.broadcastUndeliveredEvent != null
+      ? { broadcastUndeliveredEvent: ctx.broadcastUndeliveredEvent }
+      : {}),
+    ...outboxCommitDeps(ctx.store, ctx.matchId, envelope, newEvents),
   });
   broadcasts.push(...published.messages);
   if (!published.committed) return broadcasts;
 
   ctx.tryPublishOutcome();
   return broadcasts;
-}
-
-/**
- * The live broadcaster reads this same durable meta tuple immediately
- * before fog filtering in ServerMatchHostEvents. Shadow comparison must
- * use those exact player identities and side assignments, never a
- * session-local reconstruction.
- */
-async function shadowAudienceInput(
-  ctx: IServerMatchHostIntentContext,
-): Promise<IShadowAudienceInput | null> {
-  try {
-    const meta = await ctx.store.getMatchMeta(ctx.matchId);
-    return {
-      gmPlayerId: meta.hostPlayerId,
-      playerIds: meta.playerIds,
-      config: meta.config,
-      sideAssignments: meta.sideAssignments,
-    };
-  } catch {
-    // Shadow remains best-effort diagnostic work. The legacy command
-    // completed already, so unavailable audience metadata cannot abort it.
-    return null;
-  }
 }
 
 /**

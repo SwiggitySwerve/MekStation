@@ -113,7 +113,27 @@ export async function persistInitialEvents(ctx: {
  * catalog remains their one authority; an unadmitted socket receives
  * nothing.
  */
-export async function broadcastEvent(ctx: {
+export async function broadcastEvent(
+  ctx: IBroadcastEventContext,
+): Promise<void> {
+  await broadcastEventInMode(ctx, false);
+}
+
+/**
+ * The publication-outbox drain's broadcast (umbrella 7.1). Identical to
+ * `broadcastEvent` except every send runs in undelivered-only mode: a
+ * viewer whose delivery cursor already records this authority sequence
+ * is skipped instead of being assigned a second, fresh delivery number.
+ * That is what lets a restart drain re-offer a frame at-least-once
+ * without shifting the cursor of anyone who already applied it.
+ */
+export async function broadcastUndeliveredEvent(
+  ctx: IBroadcastEventContext,
+): Promise<void> {
+  await broadcastEventInMode(ctx, true);
+}
+
+export interface IBroadcastEventContext {
   readonly matchId: string;
   readonly store: IMatchStore;
   readonly session: InteractiveSession;
@@ -123,14 +143,22 @@ export async function broadcastEvent(ctx: {
   readonly viewerResolver: AuthorizedViewerResolver;
   readonly deliveryCursors: ViewerDeliveryCursors;
   readonly message: IEventMessage;
-}): Promise<void> {
-  await publishEvent(ctx, ctx.message, false);
+}
+
+async function broadcastEventInMode(
+  ctx: IBroadcastEventContext,
+  onlyUndelivered: boolean,
+): Promise<void> {
+  await publishEvent(ctx, ctx.message, onlyUndelivered);
 
   const revealEvent = ctx.message.event as IGameEvent;
   for (const declaration of sealedDeclarationsRevealedBy(
     ctx.session.getSession().events,
     revealEvent,
   )) {
+    // Reveals are always delivered in undelivered-only mode regardless
+    // of the outer mode: their whole mechanism is late delivery of a
+    // frame the viewer must receive exactly once.
     await publishEvent(
       ctx,
       { ...ctx.message, event: declaration },

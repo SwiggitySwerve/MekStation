@@ -18,6 +18,7 @@ import { sha256Sync } from '@/utils/events/hashUtils';
 import { hydrateGameSessionFromEvents } from '@/utils/gameplay/gameSession';
 import { logger } from '@/utils/logger';
 
+import type { IMatchStore } from './IMatchStore';
 import type {
   IShadowAudienceDigestComparison,
   ShadowComparisonRecord,
@@ -374,5 +375,31 @@ export function runLegacyShadowComparison(
     logger.warn(
       `[match-journal-shadow] mismatch intentId=${record.intentId ?? 'none'} reason=${record.reason} live=${record.liveDigest} shadow=${record.shadowDigest}`,
     );
+  }
+}
+
+/**
+ * Durable audience metadata for a shadow comparison.
+ *
+ * The live broadcaster reads this same durable meta tuple immediately
+ * before fog filtering in ServerMatchHostEvents. Shadow comparison must
+ * use those exact player identities and side assignments, never a
+ * session-local reconstruction. Best-effort: the legacy command already
+ * completed, so unavailable metadata answers null rather than aborting.
+ */
+export async function shadowAudienceInput(
+  store: IMatchStore,
+  matchId: string,
+): Promise<IShadowAudienceInput | null> {
+  try {
+    const meta = await store.getMatchMeta(matchId);
+    return {
+      gmPlayerId: meta.hostPlayerId,
+      playerIds: meta.playerIds,
+      config: meta.config,
+      sideAssignments: meta.sideAssignments,
+    };
+  } catch {
+    return null;
   }
 }
