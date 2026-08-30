@@ -55,11 +55,11 @@ describe('campaign combat outcome inbox SQLite migration', () => {
     });
   }
 
-  it('pins migration 21 and enforces one receipt per outcome identity and version', () => {
+  it('pins the migration head and enforces one receipt per outcome identity and version', () => {
     const db = database();
     expect(
       db.prepare('SELECT MAX(version) AS version FROM migrations').get(),
-    ).toEqual({ version: 21 });
+    ).toEqual({ version: 22 }); // 22 = private-access write purpose (task 11.2)
 
     insertReceipt(db);
     expect(() => insertReceipt(db)).toThrow(/UNIQUE constraint failed/);
