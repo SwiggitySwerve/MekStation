@@ -204,7 +204,7 @@ export async function importCampaignBaseline(
       highestSequence: result.actualNextSequence - 1,
     };
   }
-  if (result.kind === 'duplicate-command') {
+  if (result.kind === 'command-identity-conflict') {
     return { kind: 'duplicate-import', commandId: result.commandId };
   }
   if (result.kind !== 'committed') {

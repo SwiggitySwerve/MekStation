@@ -10,6 +10,7 @@
  * @spec openspec/changes/add-shared-campaign-state/specs/coop-campaign-sync/spec.md
  */
 
+import type { ICampaignEventStore } from '@/lib/campaign/sync/ICampaignEventStore';
 import type {
   ICampaignAuthoritativeState,
   ICampaignEvent,
@@ -145,6 +146,139 @@ describe('CampaignMatchHost — valid intent', () => {
     });
     expect(result.ok).toBe(true);
     expect(host.getState().day).toBe(4);
+  });
+});
+
+describe('CampaignMatchHost — stable client intent identity', () => {
+  it('replays an applyHostIntent retry without appending, applying, or broadcasting again', async () => {
+    const { host, received } = makeHost(stateWith({ day: 3 }));
+    await host.open();
+    received.length = 0;
+    const intent = {
+      kind: 'AdvanceDay' as const,
+      campaignId: CAMPAIGN_ID,
+      intentId: 'host-advance-day-once',
+      payload: {},
+    };
+
+    const first = await host.applyHostIntent(intent);
+    const retry = await host.applyHostIntent(intent);
+
+    expect(first).toEqual(retry);
+    expect(first.ok).toBe(true);
+    expect(host.getState().day).toBe(4);
+    expect(received.map((event) => event.type)).toEqual([
+      'CampaignDayAdvanced',
+    ]);
+    expect(await host.getEventLog().getCampaignEvents()).toHaveLength(2);
+  });
+
+  it('replays a guest handleIntent retry without appending, applying, or broadcasting again', async () => {
+    const { host, received } = makeHost(stateWith({ day: 3 }));
+    await host.open();
+    received.length = 0;
+    const intent = {
+      kind: 'AdvanceDay' as const,
+      campaignId: CAMPAIGN_ID,
+      intentId: 'guest-advance-day-once',
+      payload: {},
+    };
+
+    const first = await host.handleIntent(intent);
+    const retry = await host.handleIntent(intent);
+
+    expect(first).toEqual(retry);
+    expect(first.ok).toBe(true);
+    expect(host.getState().day).toBe(4);
+    expect(received.map((event) => event.type)).toEqual([
+      'CampaignDayAdvanced',
+    ]);
+    expect(await host.getEventLog().getCampaignEvents()).toHaveLength(2);
+  });
+
+  it('does not apply or broadcast when the store reports a duplicate command', async () => {
+    const baseStore = new InMemoryCampaignEventStore();
+    const store: ICampaignEventStore = {
+      appendEvent: baseStore.appendEvent,
+      appendCommandBatch: baseStore.appendCommandBatch,
+      getEvents: baseStore.getEvents,
+      highestSequence: baseStore.highestSequence,
+    };
+    const host = new CampaignMatchHost({
+      campaignId: CAMPAIGN_ID,
+      hostPlayerId: HOST_ID,
+      eventStore: store,
+      initialState: stateWith({ day: 3 }),
+    });
+    const received: ICampaignEvent[] = [];
+    host.subscribe((event) => received.push(event));
+    await host.open();
+    received.length = 0;
+    const intent = {
+      kind: 'AdvanceDay' as const,
+      campaignId: CAMPAIGN_ID,
+      intentId: 'duplicate-answer-without-preflight',
+      payload: {},
+    };
+
+    const first = await host.applyHostIntent(intent);
+    const retry = await host.applyHostIntent(intent);
+
+    expect(retry).toEqual(first);
+    expect(host.getState().day).toBe(4);
+    expect(received.map((event) => event.type)).toEqual([
+      'CampaignDayAdvanced',
+    ]);
+    expect(await host.getEventLog().getCampaignEvents()).toHaveLength(2);
+  });
+
+  it('rejects different work under an accepted intentId without appending', async () => {
+    const { host, received } = makeHost(stateWith({ day: 3 }));
+    await host.open();
+    received.length = 0;
+
+    await host.applyHostIntent({
+      kind: 'AdvanceDay',
+      campaignId: CAMPAIGN_ID,
+      intentId: 'reused-intent-id',
+      payload: { days: 1 },
+    });
+    const conflict = await host.applyHostIntent({
+      kind: 'AdvanceDay',
+      campaignId: CAMPAIGN_ID,
+      intentId: 'reused-intent-id',
+      payload: { days: 2 },
+    });
+
+    expect(conflict).toMatchObject({
+      ok: false,
+      code: 'INVALID_CAMPAIGN_INTENT',
+      reason: 'intent-identity-conflict',
+    });
+    expect(host.getState().day).toBe(4);
+    expect(received).toHaveLength(1);
+    expect(await host.getEventLog().getCampaignEvents()).toHaveLength(2);
+  });
+
+  it('keeps two no-intentId host sends as two independent commits', async () => {
+    const { host, received } = makeHost(stateWith({ day: 3 }));
+    await host.open();
+    received.length = 0;
+    const intent = {
+      kind: 'AdvanceDay' as const,
+      campaignId: CAMPAIGN_ID,
+      payload: {},
+    };
+
+    await host.applyHostIntent(intent as never);
+    await host.applyHostIntent(intent as never);
+
+    expect(host.getState().day).toBe(5);
+    expect(received.map((event) => event.type)).toEqual([
+      'CampaignDayAdvanced',
+      'CampaignDayAdvanced',
+    ]);
+    expect(await host.getEventLog().getCampaignEvents()).toHaveLength(3);
   });
 });
 

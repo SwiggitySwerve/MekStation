@@ -19,6 +19,8 @@ import type { ICampaignEvent } from '@/types/campaign/CampaignSync';
 
 import {
   CampaignEventSequenceCollisionError,
+  type CampaignCommandBatchResult,
+  type ICampaignCommandReceipt,
   type ICampaignEventStore,
 } from './ICampaignEventStore';
 
@@ -31,6 +33,8 @@ interface ICampaignLogRecord {
    * long campaign log never pays an O(n) scan per append.
    */
   readonly sequences: Set<number>;
+  /** Client-command receipts make the flag-off production adapter retry-safe. */
+  readonly commandReceipts: Map<string, ICampaignCommandReceipt>;
 }
 
 /**
@@ -58,6 +62,68 @@ export class InMemoryCampaignEventStore implements ICampaignEventStore {
     // host always appends ascending, so this sort is near-free, but it
     // makes an out-of-order append (a test, a recovery splice) correct.
     record.events.sort((left, right) => left.sequence - right.sequence);
+  };
+
+  appendCommandBatch = async (
+    campaignId: string,
+    input: {
+      readonly commandId: string;
+      readonly intentFingerprint?: string | null;
+      readonly events: readonly ICampaignEvent[];
+      readonly expectedPostStateDigest: string;
+    },
+  ): Promise<CampaignCommandBatchResult> => {
+    const record = this.getOrCreate(campaignId);
+    const prior = record.commandReceipts.get(input.commandId);
+    const intentFingerprint = input.intentFingerprint ?? null;
+    if (prior) {
+      return prior.intentFingerprint === intentFingerprint
+        ? { kind: 'duplicate-command', receipt: prior }
+        : { kind: 'command-identity-conflict', commandId: input.commandId };
+    }
+    if (input.events.length === 0) {
+      return { kind: 'integrity-conflict' };
+    }
+    const firstSequence = input.events[0].sequence;
+    const expectedNextSequence =
+      record.events.length === 0
+        ? 0
+        : record.events[record.events.length - 1].sequence + 1;
+    if (firstSequence !== expectedNextSequence) {
+      return { kind: 'sequence-conflict' };
+    }
+    if (
+      input.events.some(
+        (event, index) => event.sequence !== firstSequence + index,
+      )
+    ) {
+      return { kind: 'integrity-conflict' };
+    }
+    const receipt: ICampaignCommandReceipt = {
+      commandId: input.commandId,
+      intentFingerprint,
+      events: input.events.slice(),
+    };
+    for (const event of input.events) {
+      record.events.push(event);
+      record.sequences.add(event.sequence);
+    }
+    record.commandReceipts.set(input.commandId, receipt);
+    return { kind: 'committed', receipt };
+  };
+
+  getCommandReceipt = async (
+    campaignId: string,
+    commandId: string,
+  ): Promise<ICampaignCommandReceipt | null> => {
+    return this.getCommandReceiptNow(campaignId, commandId);
+  };
+
+  getCommandReceiptNow = (
+    campaignId: string,
+    commandId: string,
+  ): ICampaignCommandReceipt | null => {
+    return this.logs.get(campaignId)?.commandReceipts.get(commandId) ?? null;
   };
 
   getEvents = async (
@@ -91,7 +157,11 @@ export class InMemoryCampaignEventStore implements ICampaignEventStore {
   private getOrCreate(campaignId: string): ICampaignLogRecord {
     let record = this.logs.get(campaignId);
     if (!record) {
-      record = { events: [], sequences: new Set() };
+      record = {
+        events: [],
+        sequences: new Set(),
+        commandReceipts: new Map(),
+      };
       this.logs.set(campaignId, record);
     }
     return record;

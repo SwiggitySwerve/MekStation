@@ -63,6 +63,13 @@ import type {
   UnsequencedCampaignEvent,
 } from './CampaignMatchHostIntent';
 
+import {
+  CampaignIntentIdentityConflictError,
+  campaignIntentIdentityDeps,
+  intentCommandIdentity,
+  replayCommittedIntent,
+  type ICampaignIntentCommandIdentity,
+} from './campaignIntentIdentity';
 import { validateCampaignIntent } from './CampaignMatchHostIntent';
 import {
   commitCampaignOutcomeConsequences,
@@ -296,6 +303,12 @@ export class CampaignMatchHost {
       };
     }
 
+    const retry = await replayCommittedIntent(
+      campaignIntentIdentityDeps(this.campaignId, this.eventStore),
+      intent,
+    );
+    if (retry) return retry;
+
     // Step 3 — validate against CURRENT authoritative state. A rejected
     // intent mutates nothing — `validation` simply carries no events.
     // `handleIntent` is the GUEST-facing path (the host uses
@@ -315,8 +328,21 @@ export class CampaignMatchHost {
 
     // Steps 4-6 — apply, append, broadcast through the single commit
     // path so host-driven and guest-driven events share one ordering.
-    const committed = await this.commitEvents(validation.events);
-    return { ok: true, events: committed };
+    try {
+      const committed = await this.commitEvents(
+        validation.events,
+        intentCommandIdentity(this.campaignId, intent),
+      );
+      return { ok: true, events: committed };
+    } catch (error) {
+      if (error instanceof CampaignIntentIdentityConflictError) {
+        return campaignIntentIdentityDeps(
+          this.campaignId,
+          this.eventStore,
+        ).conflict();
+      }
+      throw error;
+    }
   };
 
   /**
@@ -336,6 +362,11 @@ export class CampaignMatchHost {
         reason: 'session-closed',
       };
     }
+    const retry = await replayCommittedIntent(
+      campaignIntentIdentityDeps(this.campaignId, this.eventStore),
+      intent,
+    );
+    if (retry) return retry;
     const ts = nowIso();
     const validation = validateCampaignIntent(
       intent,
@@ -347,8 +378,21 @@ export class CampaignMatchHost {
     if (!validation.ok) {
       return validation;
     }
-    const committed = await this.commitEvents(validation.events);
-    return { ok: true, events: committed };
+    try {
+      const committed = await this.commitEvents(
+        validation.events,
+        intentCommandIdentity(this.campaignId, intent),
+      );
+      return { ok: true, events: committed };
+    } catch (error) {
+      if (error instanceof CampaignIntentIdentityConflictError) {
+        return campaignIntentIdentityDeps(
+          this.campaignId,
+          this.eventStore,
+        ).conflict();
+      }
+      throw error;
+    }
   };
 
   /**
@@ -498,11 +542,13 @@ export class CampaignMatchHost {
 
   private async commitEvents(
     events: readonly UnsequencedCampaignEvent[],
+    identity?: ICampaignIntentCommandIdentity,
   ): Promise<readonly ICampaignEvent[]> {
     if (this.eventStore.appendCommandBatch) {
       return this.commitEventsAsBatch(
         events,
         this.eventStore.appendCommandBatch,
+        identity,
       );
     }
     const committed: ICampaignEvent[] = [];
@@ -546,6 +592,7 @@ export class CampaignMatchHost {
   private async commitEventsAsBatch(
     events: readonly UnsequencedCampaignEvent[],
     appendCommandBatch: NonNullable<ICampaignEventStore['appendCommandBatch']>,
+    identity?: ICampaignIntentCommandIdentity,
   ): Promise<readonly ICampaignEvent[]> {
     const base = await this.log.nextSequence();
     const sequenced = events.map((unsequenced, index) =>
@@ -562,13 +609,23 @@ export class CampaignMatchHost {
     }
     const expectedDigest = computeCampaignStateDigest(expected);
     const result = await appendCommandBatch(this.campaignId, {
-      // Deterministic per position: a retried identical batch replays the
-      // journal's cached commit; a racing different batch at the same
-      // head loses with a typed conflict and nothing applied.
-      commandId: `campaign-cmd:${this.campaignId}:${base}`,
+      // A supplied client identity is namespaced by campaign so its derived
+      // journal event ids cannot collide in the journal's global id space.
+      // The sequence fallback is for server events or legacy callers without
+      // an intent id; it never dedupes by design because no retry identity was
+      // offered.
+      commandId:
+        identity?.commandId ?? `campaign-cmd:${this.campaignId}:${base}`,
+      intentFingerprint: identity?.intentFingerprint,
       events: sequenced,
       expectedPostStateDigest: expectedDigest,
     });
+    if (result.kind === 'duplicate-command') {
+      return result.receipt.events;
+    }
+    if (result.kind === 'command-identity-conflict') {
+      throw new CampaignIntentIdentityConflictError(result.commandId);
+    }
     if (result.kind !== 'committed') {
       // Single-writer host: a lost race or duplicate command here is a
       // server bug, surfaced exactly like the legacy path's collision.
@@ -602,13 +659,9 @@ export class CampaignMatchHost {
     return sequenced;
   }
 
-  /**
-   * The `authorPlayerId` to stamp on a guest-driven event. CO1 has a
-   * single host/guest pair and the campaign intent carries no player
-   * id, so the guest's events are attributed to a stable
-   * `guest:<campaignId>` author. CO2 threads the real guest player id
-   * through the GM intent surface.
-   */
+  /** Guest-event author: CO1 has one host/guest pair and no player id on
+   * the intent, so a stable guest:<campaignId> author stands in until
+   * CO2 threads the real guest player id through the GM surface. */
   private guestAuthor(intent: ICampaignIntent): string {
     return `guest:${intent.campaignId}`;
   }

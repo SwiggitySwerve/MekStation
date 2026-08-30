@@ -141,6 +141,26 @@ describe('CampaignMatchHost over a batch-capable journal store', () => {
     expect((await journalRows()).length).toBe(before);
   });
 
+  it('replays a stable client intent without a second journal batch or broadcast', async () => {
+    const intent = {
+      intentId: 'intent-advance-once',
+      campaignId: 'campaign-pipeline',
+      kind: 'AdvanceDay' as const,
+      payload: { days: 1 },
+    };
+
+    const first = await host.applyHostIntent(intent as never);
+    const retry = await host.applyHostIntent(intent as never);
+
+    expect(retry).toEqual(first);
+    expect(host.getState().day).toBe(1);
+    expect(await journalRows()).toHaveLength(2);
+    expect(broadcasts).toEqual([
+      '0:CampaignSnapshotPublished',
+      '1:CampaignDayAdvanced',
+    ]);
+  });
+
   it('reprojects the stream to exactly the live authoritative state', async () => {
     await host.applyHostIntent({
       intentId: 'intent-hire-2',

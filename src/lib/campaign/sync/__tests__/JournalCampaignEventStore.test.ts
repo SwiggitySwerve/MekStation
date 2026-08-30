@@ -25,7 +25,10 @@ import { InMemoryEventJournal } from '@/lib/events/journal/InMemoryEventJournal'
 import { SQLiteEventJournal } from '@/lib/events/journal/SQLiteEventJournal';
 import { EVENT_JOURNAL_MIGRATION } from '@/services/persistence/SQLiteService.eventJournal.migration';
 
-import { CampaignEventSequenceCollisionError } from '../ICampaignEventStore';
+import {
+  CampaignEventSequenceCollisionError,
+  type ICampaignEventStore,
+} from '../ICampaignEventStore';
 import { InMemoryCampaignEventStore } from '../InMemoryCampaignEventStore';
 import {
   appendCampaignCommandBatch,
@@ -196,7 +199,7 @@ describe('JournalCampaignEventStore (in-memory journal)', () => {
     ).toBe(true);
   });
 
-  it('reports a retried command id as duplicate-command without re-applying', async () => {
+  it('rejects divergent reuse of a command id without re-applying', async () => {
     await appendCampaignCommandBatch(journal, {
       campaignId: 'campaign-journal',
       commandId: 'command-hire-1',
@@ -210,7 +213,7 @@ describe('JournalCampaignEventStore (in-memory journal)', () => {
       expectedPostStateDigest: null,
     });
     expect(retry).toEqual({
-      kind: 'duplicate-command',
+      kind: 'command-identity-conflict',
       commandId: 'command-hire-1',
     });
     expect(await store.highestSequence('campaign-journal')).toBe(1);
@@ -280,6 +283,55 @@ describe('JournalCampaignEventStore (in-memory journal)', () => {
     );
   });
 });
+
+const commandBatchStores: readonly [string, () => ICampaignEventStore][] = [
+  [
+    'journal-backed',
+    () =>
+      new JournalCampaignEventStore(
+        new InMemoryEventJournal<ICampaignJournalEnvelope>(() => NOW),
+      ),
+  ],
+  ['in-memory', () => new InMemoryCampaignEventStore()],
+];
+
+describe.each(commandBatchStores)(
+  '%s campaign command-batch contract',
+  (_name, createStore) => {
+    it('replays the accepted receipt and rejects divergent identity reuse', async () => {
+      const store = createStore();
+      const appendCommandBatch = store.appendCommandBatch;
+      if (!appendCommandBatch) {
+        throw new Error('campaign command-batch capability is required');
+      }
+      const input = {
+        commandId: 'campaign-intent:campaign-journal:intent-once',
+        intentFingerprint: 'intent-once-fingerprint',
+        events: [campaignEvent(0)],
+        expectedPostStateDigest: 'a'.repeat(64),
+      };
+
+      const committed = await appendCommandBatch('campaign-journal', input);
+      const retry = await appendCommandBatch('campaign-journal', input);
+      const conflict = await appendCommandBatch('campaign-journal', {
+        ...input,
+        intentFingerprint: 'different-work-fingerprint',
+        events: [campaignEvent(1, 'CampaignDayAdvanced', { newDay: 2 })],
+      });
+
+      expect(committed.kind).toBe('committed');
+      expect(retry).toMatchObject({
+        kind: 'duplicate-command',
+        receipt: { commandId: input.commandId, events: input.events },
+      });
+      expect(conflict).toEqual({
+        kind: 'command-identity-conflict',
+        commandId: input.commandId,
+      });
+      expect(await store.getEvents('campaign-journal')).toEqual(input.events);
+    });
+  },
+);
 
 describe('JournalCampaignEventStore (real SQLite restart)', () => {
   let directory: string;

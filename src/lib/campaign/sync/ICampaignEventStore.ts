@@ -72,14 +72,29 @@ export class CampaignProjectionDivergenceError extends Error {
 }
 
 /**
+ * The accepted identity and events for one client-originated campaign
+ * command. A retry returns this prior receipt without applying or
+ * publishing the command again.
+ */
+export interface ICampaignCommandReceipt {
+  readonly commandId: string;
+  readonly intentFingerprint: string | null;
+  readonly events: readonly ICampaignEvent[];
+}
+
+/**
  * Minimal structural result of the optional batch capability — the host
  * switches on `kind` only; richer implementations (the journal store's
  * receipt-carrying result) remain structurally assignable.
  */
 export type CampaignCommandBatchResult =
-  | { readonly kind: 'committed' }
+  | { readonly kind: 'committed'; readonly receipt: ICampaignCommandReceipt }
   | { readonly kind: 'sequence-conflict' }
-  | { readonly kind: 'duplicate-command' }
+  | {
+      readonly kind: 'duplicate-command';
+      readonly receipt: ICampaignCommandReceipt;
+    }
+  | { readonly kind: 'command-identity-conflict'; readonly commandId: string }
   | { readonly kind: 'integrity-conflict' };
 
 /** Durable receipt proving one combat outcome version reached campaign authority. */
@@ -114,24 +129,44 @@ export type CampaignCombatOutcomeInboxResult =
       readonly receipt: ICampaignCombatOutcomeReceipt;
     }
   | ICampaignOutcomeVersionConflict
-  | Exclude<CampaignCommandBatchResult, { readonly kind: 'committed' }>;
+  | {
+      readonly kind: 'duplicate-command';
+      readonly commandId: string;
+    }
+  | Exclude<
+      CampaignCommandBatchResult,
+      { readonly kind: 'committed' | 'duplicate-command' }
+    >;
 
 export interface ICampaignEventStore {
   /**
    * Optional D10 batch capability (task 1.2): commit one command's whole
    * contiguous event batch plus its expected post-state digest atomically
-   * at the expected head. Journal-backed stores provide it; the in-memory
-   * store does not, which is what keeps the host on its legacy per-event
-   * path while the cutover flag is off.
+   * at the expected head. Both the journal-backed and flag-off in-memory
+   * stores provide it so client retry identity is adapter-compatible.
    */
   readonly appendCommandBatch?: (
     campaignId: string,
     input: {
       readonly commandId: string;
+      /** Stable fingerprint of the client intent that owns this command id. */
+      readonly intentFingerprint?: string | null;
       readonly events: readonly ICampaignEvent[];
       readonly expectedPostStateDigest: string;
     },
   ) => Promise<CampaignCommandBatchResult>;
+
+  /** Return the accepted receipt for a client command id, if one exists. */
+  readonly getCommandReceipt?: (
+    campaignId: string,
+    commandId: string,
+  ) => Promise<ICampaignCommandReceipt | null>;
+
+  /** Synchronous receipt lookup for process-local adapters on hot wire paths. */
+  readonly getCommandReceiptNow?: (
+    campaignId: string,
+    commandId: string,
+  ) => ICampaignCommandReceipt | null;
 
   /**
    * Optional durable inbox capability. Capable stores commit the campaign

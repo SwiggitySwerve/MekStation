@@ -176,7 +176,7 @@ export async function executeCampaignCommand(
       actualSequence: appended.actualNextSequence,
     };
   }
-  if (appended.kind === 'duplicate-command') {
+  if (appended.kind === 'command-identity-conflict') {
     return { kind: 'duplicate', commandId: appended.commandId };
   }
   if (appended.kind !== 'committed') {
