@@ -38,6 +38,7 @@ import { dispatchToEngine } from '../ServerMatchHostEngineDispatch';
 const MATCH_ID = 'match-journal-shadow';
 
 const ADVANCE: IIntent['intent'] = { kind: 'AdvancePhase' };
+const CONCEDE: IIntent['intent'] = { kind: 'Concede', side: GameSide.Player };
 
 const DEPS: IDecideCommandBatchDeps = {
   randomSeed: 42,
@@ -75,6 +76,17 @@ function intent(intentId: string, matchId = MATCH_ID): IIntent {
     playerId: 'host-player',
     intentId,
     intent: ADVANCE,
+  } as unknown as IIntent;
+}
+
+function concedeIntent(intentId: string, matchId = MATCH_ID): IIntent {
+  return {
+    kind: 'Intent',
+    matchId,
+    ts: nowIso(),
+    playerId: 'host-player',
+    intentId,
+    intent: CONCEDE,
   } as unknown as IIntent;
 }
 
@@ -389,6 +401,18 @@ describe('combat journal-authority shadow', () => {
     expect((await shadow.store.getEvents(shadow.host.matchId)).length).toBe(
       (await off.store.getEvents(off.host.matchId)).length,
     );
+  });
+
+  it('NO TERMINAL OUTBOX: shadow-only terminal comparison leaves no authority row', async () => {
+    matchJournalAuthority._setCombatJournalAuthorityModeForTests('shadow');
+    const { host, store } = await makeHost({
+      matchId: 'match-shadow-terminal-outbox',
+    });
+
+    await host.handleIntent(concedeIntent('shadow-terminal', host.matchId));
+
+    // Falsification: route shadow's decided terminal outcome into the batch.
+    expect(await store.getCombatOutcomeOutbox(host.matchId)).toBeNull();
   });
 
   it('NO LIVE MUTATION: compare leaves live digest, log, identity, and capture', () => {

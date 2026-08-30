@@ -21,6 +21,7 @@
 
 import type { ICampaignAuthoritativeState } from '@/types/campaign/CampaignSync';
 import type { GmArbitrationMode } from '@/types/campaign/CoopCampaign';
+import type { ICombatOutcome } from '@/types/combat/CombatOutcome';
 import type { IGameEvent } from '@/types/gameplay/GameSessionInterfaces';
 import type { IHexCoordinate } from '@/types/gameplay/HexGridInterfaces';
 import type { IMatchSeat, TeamLayout } from '@/types/multiplayer/Lobby';
@@ -214,6 +215,43 @@ export interface IPublicationOutboxStore {
     matchId: string,
     sequences: readonly number[],
   ): Promise<void>;
+}
+
+// =============================================================================
+// Terminal combat outcome outbox
+// =============================================================================
+
+/**
+ * The durable combat-to-campaign authority boundary. The canonical outcome
+ * payload is written inside the terminal command transaction; `publishedAt`
+ * records only the in-process notification attempt, never campaign receipt.
+ */
+export interface IMatchCombatOutcomeOutbox {
+  readonly matchId: string;
+  readonly outcomeId: string;
+  readonly outcomeVersion: number;
+  readonly outcome: ICombatOutcome;
+  readonly createdAt: string;
+  readonly publishedAt: string | null;
+}
+
+/** Narrow store port used by post-verify and restart outcome publication. */
+export interface ICombatOutcomeOutboxStore {
+  getCombatOutcomeOutbox(
+    matchId: string,
+  ): Promise<IMatchCombatOutcomeOutbox | null>;
+  markCombatOutcomePublished(matchId: string, outcomeId: string): Promise<void>;
+}
+
+/** Structural capability guard, matching the batch/publication-port pattern. */
+export function hasCombatOutcomeOutbox(
+  store: IMatchStore,
+): store is IMatchStore & ICombatOutcomeOutboxStore {
+  const candidate = store as Partial<ICombatOutcomeOutboxStore>;
+  return (
+    typeof candidate.getCombatOutcomeOutbox === 'function' &&
+    typeof candidate.markCombatOutcomePublished === 'function'
+  );
 }
 
 /**
@@ -435,6 +473,19 @@ export interface IMatchStore {
   markPublicationsPublished?(
     matchId: string,
     sequences: readonly number[],
+  ): Promise<void>;
+
+  /**
+   * Terminal combat outcome outbox (umbrella task 13.1). OPTIONAL like
+   * `appendCommandBatch`; capable stores write `batch.combatOutcome` in that
+   * same transaction, then expose only read/mark operations to publication.
+   */
+  getCombatOutcomeOutbox?(
+    matchId: string,
+  ): Promise<IMatchCombatOutcomeOutbox | null>;
+  markCombatOutcomePublished?(
+    matchId: string,
+    outcomeId: string,
   ): Promise<void>;
 
   /**

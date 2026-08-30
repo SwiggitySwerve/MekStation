@@ -14,6 +14,10 @@
  */
 
 import {
+  CombatEndReason,
+  type ICombatOutcome,
+} from '@/types/combat/CombatOutcome';
+import {
   GameEventType,
   GamePhase,
   type IGameEvent,
@@ -62,6 +66,19 @@ function makeEvent(matchId: string, sequence: number): IGameEvent {
     phase: GamePhase.Initiative,
     payload: {} as never,
   } as IGameEvent;
+}
+
+function makeOutcome(matchId: string): ICombatOutcome {
+  return {
+    version: 1,
+    matchId,
+    contractId: null,
+    scenarioId: null,
+    endReason: CombatEndReason.Destruction,
+    report: {} as ICombatOutcome['report'],
+    unitDeltas: [],
+    capturedAt: '2026-08-29T12:00:00.000Z',
+  };
 }
 
 describe('DurableMatchStore', () => {
@@ -326,6 +343,77 @@ describe('DurableMatchStore', () => {
     });
     expect(retry.kind).toBe('committed');
     second.close();
+  });
+
+  it('keeps a terminal outcome row atomic, durable, and write-once', async () => {
+    // The outcome INSERT runs after the event INSERTs. A duplicate
+    // outcome therefore proves the transaction, not just the row:
+    // reopen must retain the first batch and none of the doomed one.
+    const fs = await import('node:fs');
+    const os = await import('node:os');
+    const path = await import('node:path');
+    const dbPath = path.join(
+      fs.mkdtempSync(path.join(os.tmpdir(), 'mp-outcome-outbox-')),
+      'matches.db',
+    );
+    const matchId = 'outcome-atomic';
+    const first = new DurableMatchStore({ path: dbPath });
+    try {
+      await first.createMatch(makeMeta(matchId, { status: 'active' }));
+      const committed = await first.appendCommandBatch!(matchId, {
+        commandId: 'terminal-command',
+        actorId: 'p1',
+        expectedRevision: 0,
+        events: [makeEvent(matchId, 0)],
+        combatOutcome: {
+          outcomeId: matchId,
+          outcomeVersion: 1,
+          outcome: makeOutcome(matchId),
+        },
+      });
+      expect(committed.kind).toBe('committed');
+      expect(await first.getCombatOutcomeOutbox(matchId)).toEqual(
+        expect.objectContaining({
+          outcomeId: matchId,
+          outcomeVersion: 1,
+          publishedAt: null,
+        }),
+      );
+
+      await expect(
+        first.appendCommandBatch!(matchId, {
+          commandId: 'second-terminal-command',
+          actorId: 'p1',
+          expectedRevision: 1,
+          events: [makeEvent(matchId, 1)],
+          combatOutcome: {
+            outcomeId: matchId,
+            outcomeVersion: 1,
+            outcome: makeOutcome(matchId),
+          },
+        }),
+      ).rejects.toThrow();
+    } finally {
+      first.close();
+    }
+
+    const reopened = new DurableMatchStore({ path: dbPath });
+    try {
+      expect(
+        (await reopened.getEvents(matchId)).map((event) => event.sequence),
+      ).toEqual([0]);
+      const row = await reopened.getCombatOutcomeOutbox(matchId);
+      expect(row?.outcome.matchId).toBe(matchId);
+      expect(row?.publishedAt).toBeNull();
+
+      await reopened.markCombatOutcomePublished(matchId, matchId);
+      expect(
+        (await reopened.getCombatOutcomeOutbox(matchId))?.publishedAt,
+      ).toEqual(expect.any(String));
+    } finally {
+      reopened.close();
+      fs.rmSync(path.dirname(dbPath), { recursive: true, force: true });
+    }
   });
 
   it('survives a process restart (re-open) with the full event log intact', async () => {

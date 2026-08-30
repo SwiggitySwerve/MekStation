@@ -42,6 +42,7 @@ import Database from 'better-sqlite3';
 import fs from 'node:fs';
 import path from 'node:path';
 
+import type { ICombatOutcome } from '@/types/combat/CombatOutcome';
 import type { IGameEvent } from '@/types/gameplay/GameSessionInterfaces';
 
 import { normalizeRoomCode } from '@/lib/p2p/roomCodes';
@@ -79,6 +80,7 @@ import {
   MatchStoreSequenceCollisionError,
   type IMatchMeta,
   type IMatchMetaPatch,
+  type IMatchCombatOutcomeOutbox,
   type IMatchPublication,
   type IMatchStore,
   type IPublicationOutboxStore,
@@ -165,6 +167,16 @@ const SCHEMA_SQL = `
     FOREIGN KEY (match_id) REFERENCES mp_matches(match_id) ON DELETE CASCADE
   );
 
+  CREATE TABLE IF NOT EXISTS mp_combat_outcome_outbox (
+    match_id       TEXT PRIMARY KEY,
+    outcome_id     TEXT NOT NULL,
+    outcome_version INTEGER NOT NULL,
+    outcome_json   TEXT NOT NULL,
+    created_at     TEXT NOT NULL,
+    published_at   TEXT,
+    FOREIGN KEY (match_id) REFERENCES mp_matches(match_id) ON DELETE CASCADE
+  );
+
   CREATE TABLE IF NOT EXISTS mp_journal_authority_started (
     match_id              TEXT NOT NULL PRIMARY KEY,
     command_id            TEXT NOT NULL,
@@ -185,6 +197,8 @@ const SCHEMA_SQL = `
   CREATE INDEX IF NOT EXISTS idx_mp_match_events_match ON mp_match_events(match_id, sequence);
   CREATE INDEX IF NOT EXISTS idx_mp_match_outbox_pending
     ON mp_match_outbox(match_id, published_at, sequence);
+  CREATE INDEX IF NOT EXISTS idx_mp_combat_outcome_outbox_pending
+    ON mp_combat_outcome_outbox(match_id, published_at);
 `;
 
 // =============================================================================
@@ -270,6 +284,14 @@ interface IOutboxRow {
   readonly command_id: string;
   readonly event_json: string;
   readonly created_at: string;
+}
+
+interface ICombatOutcomeOutboxRow {
+  readonly outcome_id: string;
+  readonly outcome_version: number;
+  readonly outcome_json: string;
+  readonly created_at: string;
+  readonly published_at: string | null;
 }
 
 // =============================================================================
@@ -539,7 +561,28 @@ export class DurableMatchStore
             committedAt,
           );
       }
-
+      if (batch.combatOutcome) {
+        const already = this.db
+          .prepare(`SELECT 1 FROM mp_combat_outcome_outbox WHERE match_id = ?`)
+          .get(matchId);
+        if (already) {
+          throw new Error('combat-outcome already exists');
+        }
+        const outcome = batch.combatOutcome;
+        this.db
+          .prepare(
+            `INSERT INTO mp_combat_outcome_outbox
+               (match_id, outcome_id, outcome_version, outcome_json, created_at, published_at)
+             VALUES (?, ?, ?, ?, ?, NULL)`,
+          )
+          .run(
+            matchId,
+            outcome.outcomeId,
+            outcome.outcomeVersion,
+            JSON.stringify(outcome.outcome),
+            committedAt,
+          );
+      }
       return {
         kind: 'committed',
         receipt: {
@@ -705,6 +748,38 @@ export class DurableMatchStore
         mark.run(publishedAt, matchId, sequence);
       }
     })();
+  };
+
+  getCombatOutcomeOutbox = async (
+    matchId: string,
+  ): Promise<IMatchCombatOutcomeOutbox | null> => {
+    const row = this.db
+      .prepare(
+        `SELECT outcome_id, outcome_version, outcome_json, created_at, published_at
+         FROM mp_combat_outcome_outbox WHERE match_id = ?`,
+      )
+      .get(matchId) as ICombatOutcomeOutboxRow | undefined;
+    if (!row) return null;
+    return {
+      matchId,
+      outcomeId: row.outcome_id,
+      outcomeVersion: row.outcome_version,
+      outcome: JSON.parse(row.outcome_json) as ICombatOutcome,
+      createdAt: row.created_at,
+      publishedAt: row.published_at,
+    };
+  };
+
+  markCombatOutcomePublished = async (
+    matchId: string,
+    outcomeId: string,
+  ): Promise<void> => {
+    this.db
+      .prepare(
+        `UPDATE mp_combat_outcome_outbox SET published_at = ?
+         WHERE match_id = ? AND outcome_id = ? AND published_at IS NULL`,
+      )
+      .run(new Date().toISOString(), matchId, outcomeId);
   };
 
   appendViewerDeliveryRecord = async (

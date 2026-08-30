@@ -13,6 +13,7 @@
  */
 
 import type { IAdaptedUnit } from '@/engine/types';
+import type { ICombatOutcome } from '@/types/combat/CombatOutcome';
 import type {
   IGameEvent,
   IGameSession,
@@ -21,8 +22,10 @@ import type { IIntent } from '@/types/multiplayer/Protocol';
 import type { D6Roller } from '@/utils/gameplay/diceTypes';
 
 import { InteractiveSession } from '@/engine/InteractiveSession';
+import { deriveCombatOutcome } from '@/lib/combat/outcome/combatOutcome';
 import { digestReplayCheckpointState } from '@/lib/events/replay/ReplayCheckpointCompatibility';
 import { SeededRandom } from '@/simulation/core/SeededRandom';
+import { GameStatus } from '@/types/gameplay/GameSessionInterfaces';
 import { hydrateGameSessionFromEvents } from '@/utils/gameplay/gameSession';
 
 import { RollCapture, SeededDiceRoller } from './RollCapture';
@@ -45,6 +48,8 @@ export interface IDecideCommandBatchDeps {
 export interface ICommandDecision {
   readonly events: readonly IGameEvent[];
   readonly postStateDigest: string;
+  /** Present only when this command's decided post-state is terminal. */
+  readonly terminalOutcome?: ICombatOutcome;
 }
 
 /**
@@ -99,8 +104,17 @@ export function decideCommandBatch(
 
   dispatchToEngine(scratch, intent);
   const produced = scratch.getSession().events.slice(head);
+  const postState = scratch.getSession();
   return {
     events: stampRollsOnNewEvents(capture, produced),
-    postStateDigest: digestCommandPostState(scratch.getSession()),
+    postStateDigest: digestCommandPostState(postState),
+    ...(postState.currentState.status === GameStatus.Completed
+      ? {
+          terminalOutcome: deriveCombatOutcome(postState, {
+            contractId: postState.config.contractId ?? undefined,
+            scenarioId: postState.config.scenarioId ?? undefined,
+          }),
+        }
+      : {}),
   };
 }

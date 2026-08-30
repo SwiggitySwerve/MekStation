@@ -108,6 +108,7 @@ describe.each(stores)('%s appendCommandBatch contract', (_name, build) => {
       eventCount: 2,
     });
     expect(await store.getEvents(MATCH_ID)).toHaveLength(2);
+    expect(await store.getCombatOutcomeOutbox(MATCH_ID)).toBeNull();
   });
 
   it('refuses an empty batch', async () => {

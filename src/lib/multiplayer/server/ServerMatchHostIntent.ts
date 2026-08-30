@@ -49,6 +49,7 @@ export interface IJournalAuthorityHostHandle {
   replaceSession(session: InteractiveSession): void;
   markDivergence(): void;
   setLastBroadcastSeq(sequence: number): void;
+  publishDurableCombatOutcome(): Promise<void>;
   recordRecovery(recovery: JournalAuthorityRecovery | null): void;
   recordShadowComparison(record: ShadowComparisonRecord): void;
 }

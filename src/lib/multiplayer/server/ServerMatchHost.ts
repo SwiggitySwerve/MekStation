@@ -50,6 +50,7 @@ import type {
 } from '@/types/gameplay/GameSessionInterfaces';
 import type { IPlayerRef } from '@/types/multiplayer/Player';
 
+import { publishCombatOutcome } from '@/engine/combatOutcomeBus';
 import { InteractiveSession } from '@/engine/InteractiveSession';
 import {
   type IGameSessionChannel,
@@ -73,7 +74,11 @@ import type { IMatchSocket } from './ServerMatchSocketTypes';
 import { type IServerDiceRoller } from './CryptoDiceRoller';
 import { bindViewerDeliveryPersist } from './DurableMatchStore.viewerDelivery';
 import { FogOfWarVisibilityCache } from './fogOfWar';
-import { hasViewerDeliveryStore, type IMatchStore } from './IMatchStore';
+import {
+  hasCombatOutcomeOutbox,
+  hasViewerDeliveryStore,
+  type IMatchStore,
+} from './IMatchStore';
 import {
   getJournalAuthorityAdmissionRefusal,
   isJournalAuthorityBaselineStore,
@@ -432,10 +437,14 @@ export class ServerMatchHost {
       store,
       session,
     );
-    return new ServerMatchHost(matchId, store, session, undefined, {
+    const host = new ServerMatchHost(matchId, store, session, undefined, {
       recovered: true,
       rollbackReader,
     });
+    // Pass 0 for terminal combat: a crash after the terminal transaction but
+    // before notification resumes from the row before this host accepts work.
+    await host.publishDurableCombatOutcome();
+    return host;
   }
 
   /**
@@ -890,6 +899,23 @@ export class ServerMatchHost {
   private tryPublishOutcome = (): void =>
     void this.outcomePublisher.tryPublish();
 
+  /**
+   * Publish the terminal campaign handoff only from its durable row. This is
+   * intentionally separate from the legacy engine-primary bus path: legacy
+   * event-at-a-time commits have no terminal transaction to join.
+   */
+  private publishDurableCombatOutcome = async (): Promise<void> => {
+    if (!hasCombatOutcomeOutbox(this.store)) return;
+    const record = await this.store.getCombatOutcomeOutbox(this.matchId);
+    if (record == null || record.publishedAt != null) return;
+    publishCombatOutcome({
+      matchId: record.matchId,
+      outcome: record.outcome,
+    });
+    await this.store.markCombatOutcomePublished(this.matchId, record.outcomeId);
+    this.outcomePublisher.markPublishedFromDurableOutbox();
+  };
+
   /** Test/observability: number of currently-connected sockets. */
   socketCount = (): number => this.lifecycle.count();
 
@@ -1001,6 +1027,8 @@ export class ServerMatchHost {
               setLastBroadcastSeq: (sequence) => {
                 this.lastBroadcastSeq = sequence;
               },
+              publishDurableCombatOutcome: () =>
+                this.publishDurableCombatOutcome(),
               recordRecovery: (recovery) => {
                 this.lastJournalRecovery = recovery;
               },
