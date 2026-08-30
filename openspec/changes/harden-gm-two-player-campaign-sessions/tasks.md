@@ -183,7 +183,9 @@ The PR order, dependency graph, ownership boundaries, exact-main regression cade
   - Receipt (2026-08-29 - CLOSES this box, proven by the 13.2 suite's own rows on real SQLite): DUPLICATE DELIVERY commits one consequence batch and one durable receipt (second delivery answers duplicate, applies nothing); CRASH-BEFORE-RECEIPT rolls back the consequences with the failed receipt insert and a redelivery applies exactly one batch; RESTART plus outbox replay stays idempotent against the durable receipt; INGESTION RETRIES are the same redelivery path, receipt-answered. Each proof drives the real journal extension transaction; the mutation runs above are the falsifications.
 
 - [ ] 13.4 Enforce `Combat-Only Rewind Stops at Campaign Receipt` with a typed closed-boundary response.
-- [ ] 13.5 Verify with `npm.cmd test -- --runInBand src/lib/multiplayer/server/__tests__/bindCampaignSyncConnection.reconcile.test.ts src/lib/multiplayer/server/__tests__/CampaignMatchHost.test.ts` and focused `InteractiveSession.outcome` tests.
+- [x] 13.5 Verify with `npm.cmd test -- --runInBand src/lib/multiplayer/server/__tests__/bindCampaignSyncConnection.reconcile.test.ts src/lib/multiplayer/server/__tests__/CampaignMatchHost.test.ts` and focused `InteractiveSession.outcome` tests.
+  - Receipt (2026-08-29, run on main eb500af3a - CLOSES this box on its literal command plus the focused outcome suite): reconcile + CampaignMatchHost + InteractiveSession.outcomeBus, 3 suites / 16 passed / 0 failed - the reconcile path now routing through the durable inbox, the host carrying the outcome-consequence commitment, and the bus suite pinning the engine-side publish guard beside the suppression law. HONESTY NOTE: sibling 13.4 (Combat-Only Rewind Stops at Campaign Receipt) remains open - its enforcement point is the rewind command surface owned by add-authoritative-history-branches (wave map row 7), and the typed closed-boundary response lands with it; the receipt table it will consult exists as of 13.2.
+
 
 ## 14. Immutable Combat Correction and Rewind Kernel
 
