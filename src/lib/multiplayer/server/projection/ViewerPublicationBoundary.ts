@@ -7,10 +7,10 @@
  * Missing catalog entries and projector throws fail closed with a typed
  * ViewerProjectionError; the host must not fall back to the raw frame.
  *
- * Public v1 decisions pass the original envelope through unchanged
- * (parity law). Hidden / gm-only / owner-only apply the PR 6 audience
- * visibility law and either omit the frame or send the original
- * envelope to eligible viewers. Control frames (Lobby, Error, Pong,
+ * Public decisions pass the original envelope through unchanged
+ * (parity law). Hidden, owner-only, and sealed decisions apply the
+ * audience visibility law and either omit the frame or send the
+ * original envelope to eligible viewers. Control frames (Lobby, Error, Pong,
  * Heartbeat) are not catalog events. ReplayStart/End are not catalog
  * events either; their bounds still pass through the envelope
  * projector so player projections do not carry authority-space
@@ -41,6 +41,7 @@ import { isAuthorizedViewer } from '../authorization/AuthorizedViewer';
 import { createMatchWireAudienceProjector } from './MatchWireAudienceCatalog';
 import {
   isOwnerAudienceMatch,
+  type IViewerAudienceRuntimeContext,
   type ViewerAudienceDecision,
   type ViewerAudienceProjector,
 } from './ViewerAudienceProjector';
@@ -129,11 +130,19 @@ function isVisibleToViewer(
   viewer: IAuthorizedViewer,
   decision: ViewerAudienceDecision,
   payload: unknown,
+  event: unknown,
+  context: IViewerAudienceRuntimeContext | undefined,
 ): boolean {
   if (decision.kind === 'hidden') return false;
   if (decision.kind === 'gm-only') return viewer.role === 'gm';
   if (decision.kind === 'owner-only') {
     return isOwnerAudienceMatch(viewer, payload);
+  }
+  if (decision.kind === 'sealed-to-actor-until-revealed') {
+    return (
+      context?.isSealedChoiceRevealed?.(event) === true ||
+      context?.isActorOwnedByViewer?.(viewer, event) === true
+    );
   }
   return true;
 }
@@ -204,7 +213,7 @@ function rebuildReplayFrames(
  */
 export class ViewerPublicationBoundary {
   /**
-   * Binds a validated audience projector. Production uses the v1
+   * Binds a validated audience projector. Production uses the v2
    * match-wire catalog; tests may inject a synthetic catalog.
    */
   public constructor(private readonly projector: ViewerAudienceProjector) {}
@@ -218,6 +227,7 @@ export class ViewerPublicationBoundary {
   public guardLiveEvent(
     viewer: IAuthorizedViewer,
     eventMessage: IEventMessage,
+    context?: IViewerAudienceRuntimeContext,
   ): PublicationGuardResult<IEventMessage> {
     if (!isAuthorizedViewer(viewer)) {
       return { kind: 'failure', error: notAViewer() };
@@ -225,7 +235,12 @@ export class ViewerPublicationBoundary {
     if (eventMessage.kind !== 'Event') {
       return { kind: 'failure', error: projectionFailed() };
     }
-    return this.guardEventEnvelope(viewer, eventMessage, eventMessage.event);
+    return this.guardEventEnvelope(
+      viewer,
+      eventMessage,
+      eventMessage.event,
+      context,
+    );
   }
 
   /**
@@ -244,6 +259,7 @@ export class ViewerPublicationBoundary {
   public guardReplayFrames(
     viewer: IAuthorizedViewer,
     frames: IReplayStreamFrames,
+    context?: IViewerAudienceRuntimeContext,
   ): ReplayFramesGuardResult {
     if (!isAuthorizedViewer(viewer)) {
       return { kind: 'failure', error: notAViewer() };
@@ -257,7 +273,7 @@ export class ViewerPublicationBoundary {
         guardedChunks.push(chunk);
         continue;
       }
-      const guarded = this.guardReplayChunk(viewer, chunk);
+      const guarded = this.guardReplayChunk(viewer, chunk, context);
       if (guarded.kind === 'failure') return guarded;
       if (guarded.value !== chunk) changed = true;
       guardedChunks.push(guarded.value);
@@ -292,6 +308,7 @@ export class ViewerPublicationBoundary {
   public guardBaseline(
     viewer: IAuthorizedViewer,
     baselineMessage: IServerMessage,
+    context?: IViewerAudienceRuntimeContext,
   ): PublicationGuardResult<IServerMessage> {
     if (!isAuthorizedViewer(viewer)) {
       return { kind: 'failure', error: notAViewer() };
@@ -301,10 +318,11 @@ export class ViewerPublicationBoundary {
         viewer,
         baselineMessage,
         baselineMessage.event,
+        context,
       );
     }
     if (baselineMessage.kind === 'ReplayChunk') {
-      return this.guardReplayChunk(viewer, baselineMessage);
+      return this.guardReplayChunk(viewer, baselineMessage, context);
     }
     return { kind: 'send', value: baselineMessage };
   }
@@ -316,6 +334,7 @@ export class ViewerPublicationBoundary {
   private decideEvent(
     viewer: IAuthorizedViewer,
     event: unknown,
+    context?: IViewerAudienceRuntimeContext,
   ): PublicationGuardResult<unknown> {
     const parsed = readWireEvent(event);
     if (parsed === null) {
@@ -325,7 +344,7 @@ export class ViewerPublicationBoundary {
     if (decision === undefined) {
       return { kind: 'failure', error: projectionFailed() };
     }
-    if (!isVisibleToViewer(viewer, decision, parsed.payload)) {
+    if (!isVisibleToViewer(viewer, decision, parsed.payload, event, context)) {
       return { kind: 'omit' };
     }
     const projectError = applyProject(decision, parsed.payload, viewer);
@@ -352,8 +371,9 @@ export class ViewerPublicationBoundary {
     viewer: IAuthorizedViewer,
     envelope: T,
     event: unknown,
+    context?: IViewerAudienceRuntimeContext,
   ): PublicationGuardResult<T> {
-    const result = this.decideEvent(viewer, event);
+    const result = this.decideEvent(viewer, event, context);
     if (result.kind === 'failure') return result;
     if (result.kind === 'omit') return result;
     if (result.value === event) {
@@ -371,11 +391,12 @@ export class ViewerPublicationBoundary {
   private guardReplayChunk(
     viewer: IAuthorizedViewer,
     chunk: IReplayChunk,
+    context?: IViewerAudienceRuntimeContext,
   ): IPublicationSend<IReplayChunk> | IPublicationFailure {
     const kept: unknown[] = [];
     let redacted = false;
     for (const event of chunk.events) {
-      const result = this.decideEvent(viewer, event);
+      const result = this.decideEvent(viewer, event, context);
       if (result.kind === 'failure') return result;
       if (result.kind !== 'send') continue;
       if (result.value !== event) redacted = true;
@@ -389,7 +410,7 @@ export class ViewerPublicationBoundary {
 }
 
 /**
- * Production singleton bound to the v1 all-public match-wire catalog.
+ * Production singleton bound to the v2 match-wire catalog.
  */
 export const MATCH_WIRE_PUBLICATION_BOUNDARY = new ViewerPublicationBoundary(
   createMatchWireAudienceProjector(),

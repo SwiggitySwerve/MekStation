@@ -36,6 +36,10 @@ import {
   FogOfWarVisibilityCache,
 } from './fogOfWar';
 import { isSpectatorPlayer } from './lobby/spectatorSeats';
+import {
+  createMatchWireSealedChoiceAudienceContext,
+  isMatchWireSealedDeclaration,
+} from './projection/MatchWireSealedChoices';
 import { MATCH_WIRE_PUBLICATION_BOUNDARY } from './projection/ViewerPublicationBoundary';
 import {
   streamReplay,
@@ -83,9 +87,11 @@ export async function sendReplay(
     viewer = resolution.viewer;
   }
   if (viewer !== null) {
+    const audienceContext = await sealedChoiceAudienceContext(ctx);
     const guarded = MATCH_WIRE_PUBLICATION_BOUNDARY.guardReplayFrames(
       viewer,
       frames,
+      audienceContext,
     );
     if (guarded.kind === 'failure') {
       sendJoinGuardError(ctx, socket, guarded.error.message);
@@ -411,6 +417,10 @@ async function getReplayEventsForPlayer(
   for (const event of allEvents) {
     prefix.push(event);
     if (event.sequence < fromSeq) continue;
+    if (isMatchWireSealedDeclaration(event)) {
+      visible.push(event);
+      continue;
+    }
     const state = withVisibilityAssignments(deriveState(gameId, prefix), meta);
     const filtered = spectator
       ? filterEventForSpectator(event, state, {
@@ -427,6 +437,19 @@ async function getReplayEventsForPlayer(
   }
 
   return visible;
+}
+
+async function sealedChoiceAudienceContext(ctx: IServerMatchHostReplayContext) {
+  try {
+    const meta = await ctx.store.getMatchMeta(ctx.matchId);
+    return createMatchWireSealedChoiceAudienceContext(
+      ctx.session.getSession().events,
+      withVisibilityAssignments(ctx.session.getSession().currentState, meta),
+      Number.MAX_SAFE_INTEGER,
+    );
+  } catch {
+    return undefined;
+  }
 }
 
 function withVisibilityAssignments(
