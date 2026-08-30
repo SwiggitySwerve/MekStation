@@ -29,6 +29,7 @@ import {
   MatchStoreSequenceCollisionError,
   type IMatchMeta,
   type IMatchMetaPatch,
+  type IMatchCombatOutcomeOutbox,
   type IMatchPublication,
   type IMatchStore,
   type IPublicationOutboxStore,
@@ -61,6 +62,7 @@ interface IMatchRecord {
     number,
     { readonly record: IMatchPublication; publishedAt: string | null }
   >;
+  combatOutcome: IMatchCombatOutcomeOutbox | null;
   started: IMatchJournalAuthorityStarted | null;
   baseline: IMatchJournalAuthorityBaseline | null;
   importedLegacy: boolean;
@@ -112,6 +114,7 @@ export class InMemoryMatchStore
       sequences: new Set(),
       receipts: new Map(),
       publications: new Map(),
+      combatOutcome: null,
       started: null,
       baseline: null,
       importedLegacy: false,
@@ -198,6 +201,9 @@ export class InMemoryMatchStore
     if (batch.journalAuthorityStarted && rec.started != null) {
       throw new Error('journal-authority-started already exists');
     }
+    if (batch.combatOutcome && rec.combatOutcome != null) {
+      throw new Error('combat-outcome already exists');
+    }
 
     const committedAt = new Date().toISOString();
     const first = batch.events[0].sequence;
@@ -237,6 +243,16 @@ export class InMemoryMatchStore
         committedAt,
       };
     }
+    if (batch.combatOutcome) {
+      rec.combatOutcome = {
+        matchId,
+        outcomeId: batch.combatOutcome.outcomeId,
+        outcomeVersion: batch.combatOutcome.outcomeVersion,
+        outcome: batch.combatOutcome.outcome,
+        createdAt: committedAt,
+        publishedAt: null,
+      };
+    }
     rec.meta = { ...rec.meta, updatedAt: committedAt };
     return { kind: 'committed', receipt };
   };
@@ -270,6 +286,29 @@ export class InMemoryMatchStore
     const rec = this.records.get(matchId);
     if (!rec) throw new MatchNotFoundError(matchId);
     return rec.started;
+  };
+
+  getCombatOutcomeOutbox = async (
+    matchId: string,
+  ): Promise<IMatchCombatOutcomeOutbox | null> => {
+    const rec = this.records.get(matchId);
+    if (!rec) throw new MatchNotFoundError(matchId);
+    return rec.combatOutcome;
+  };
+
+  markCombatOutcomePublished = async (
+    matchId: string,
+    outcomeId: string,
+  ): Promise<void> => {
+    const rec = this.records.get(matchId);
+    if (!rec) throw new MatchNotFoundError(matchId);
+    const current = rec.combatOutcome;
+    if (current == null || current.outcomeId !== outcomeId) return;
+    if (current.publishedAt != null) return;
+    rec.combatOutcome = {
+      ...current,
+      publishedAt: new Date().toISOString(),
+    };
   };
 
   getJournalAuthorityBaseline = (

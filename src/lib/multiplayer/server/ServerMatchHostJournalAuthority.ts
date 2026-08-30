@@ -91,14 +91,14 @@ async function resumeCommittedCommand(
     return persistenceFailure(ctx, journal, envelope, reason);
   }
   if (result.kind === 'duplicate-command') {
-    if (!hasPublicationOutbox(ctx.store)) {
-      return finish(journal, [], null);
-    }
-    const resumed = await resumePendingPublications({
-      matchId: ctx.matchId,
-      publications: ctx.store,
-      broadcastEvent: ctx.broadcastEvent,
-    });
+    const resumed = hasPublicationOutbox(ctx.store)
+      ? await resumePendingPublications({
+          matchId: ctx.matchId,
+          publications: ctx.store,
+          broadcastEvent: ctx.broadcastEvent,
+        })
+      : [];
+    await journal.publishDurableCombatOutcome();
     return finish(journal, resumed, null);
   }
   if (result.kind === 'revision-conflict') {
@@ -213,6 +213,15 @@ export async function commitJournalAuthorityCommand(
       events,
       expectedPostStateDigest: decided.postStateDigest,
       journalAuthorityStarted: started,
+      ...(decided.terminalOutcome
+        ? {
+            combatOutcome: {
+              outcomeId: ctx.matchId,
+              outcomeVersion: decided.terminalOutcome.version,
+              outcome: decided.terminalOutcome,
+            },
+          }
+        : {}),
     });
   } catch (e) {
     const reason = e instanceof Error ? e.message : 'Store append failed';
@@ -312,6 +321,10 @@ export async function commitJournalAuthorityCommand(
       events.map((event) => event.sequence),
     );
   }
-  ctx.tryPublishOutcome();
+  // The journal path never asks the engine-primary publisher to inspect its
+  // constructor session: `replaceSession` above made that session stale.
+  // The durable row is the authority boundary and is the only source for the
+  // notification, both here and after recovery.
+  await journal.publishDurableCombatOutcome();
   return finish(journal, messages, null);
 }

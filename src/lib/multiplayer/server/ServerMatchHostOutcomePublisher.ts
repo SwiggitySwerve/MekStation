@@ -39,6 +39,15 @@ export class ServerMatchHostOutcomePublisher {
   constructor(private readonly session: InteractiveSession) {}
 
   /**
+   * The journal-authority path publishes from its durable outcome row rather
+   * than this constructor-bound session. Mirror that publication here so a
+   * later `closeMatch` safety-net call cannot emit a second outcome.
+   */
+  markPublishedFromDurableOutbox(): void {
+    this.hostOutcomePublished = true;
+  }
+
+  /**
    * Defensive `CombatOutcomeReady` publish helper.
    * `InteractiveSession.tryFinalizeAndPublish` is the primary path and
    * runs synchronously inside `concede`, `advancePhase`, `applyAttack`,

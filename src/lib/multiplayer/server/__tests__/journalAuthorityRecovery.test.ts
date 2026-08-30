@@ -4,6 +4,11 @@
  * files; this file owns the typed recovery result and the three faults.
  */
 
+import {
+  _resetCombatOutcomeBus,
+  subscribeToCombatOutcome,
+  type ICombatOutcomeReadyEvent,
+} from '@/engine/combatOutcomeBus';
 import { createMinimalGrid } from '@/engine/GameEngine.helpers';
 import { InteractiveSession } from '@/engine/InteractiveSession';
 import { SeededRandom } from '@/simulation/core/SeededRandom';
@@ -51,6 +56,17 @@ function intent(intentId: string, matchId = MATCH_ID): IIntent {
     playerId: 'host-player',
     intentId,
     intent: { kind: 'AdvancePhase' },
+  } as unknown as IIntent;
+}
+
+function concedeIntent(intentId: string, matchId = MATCH_ID): IIntent {
+  return {
+    kind: 'Intent',
+    matchId,
+    ts: nowIso(),
+    playerId: 'host-player',
+    intentId,
+    intent: { kind: 'Concede', side: GameSide.Player },
   } as unknown as IIntent;
 }
 
@@ -169,11 +185,13 @@ function failNextAppend(store: InMemoryMatchStore, reason: string): void {
 
 describe('combat journal-authority recovery', () => {
   beforeEach(() => {
+    _resetCombatOutcomeBus();
     matchJournalAuthority._setCombatJournalAuthorityModeForTests(null);
     matchJournalAuthority._setApplyCommittedForTests(null);
     matchJournalAuthority._setSkipPublishForTests(false);
   });
   afterEach(() => {
+    _resetCombatOutcomeBus();
     matchJournalAuthority._setCombatJournalAuthorityModeForTests(null);
     matchJournalAuthority._setApplyCommittedForTests(null);
     matchJournalAuthority._setSkipPublishForTests(false);
@@ -319,6 +337,70 @@ describe('combat journal-authority recovery', () => {
       (message) => (message as { event: { sequence: number } }).event.sequence,
     );
     expect(new Set(sequences).size).toBe(sequences.length);
+  });
+
+  it('OUTCOME: a verified terminal command publishes its durable row once', async () => {
+    const { host, store } = await makeHost({
+      matchId: 'match-terminal-outcome-live',
+    });
+    const published: ICombatOutcomeReadyEvent[] = [];
+    const unsubscribe = subscribeToCombatOutcome((event) => {
+      published.push(event);
+    });
+    try {
+      await host.handleIntent(concedeIntent('terminal-command', host.matchId));
+
+      const row = await store.getCombatOutcomeOutbox(host.matchId);
+      expect(row).toEqual(
+        expect.objectContaining({
+          outcomeId: host.matchId,
+          outcomeVersion: 1,
+          publishedAt: expect.any(String),
+        }),
+      );
+      expect(published).toEqual([
+        expect.objectContaining({
+          matchId: host.matchId,
+          outcome: row?.outcome,
+        }),
+      ]);
+
+      await host.closeMatch();
+      expect(published).toHaveLength(1);
+    } finally {
+      unsubscribe();
+    }
+  });
+
+  it('OUTCOME CRASH: recovery publishes a committed-but-unpublished row exactly once', async () => {
+    const { host, store } = await makeHost({
+      matchId: 'match-terminal-outcome-recovery',
+    });
+    const published: ICombatOutcomeReadyEvent[] = [];
+    const unsubscribe = subscribeToCombatOutcome((event) => {
+      published.push(event);
+    });
+    try {
+      matchJournalAuthority._setSkipPublishForTests(true);
+      await host.handleIntent(concedeIntent('terminal-command', host.matchId));
+      matchJournalAuthority._setSkipPublishForTests(false);
+
+      expect(published).toHaveLength(0);
+      expect(
+        (await store.getCombatOutcomeOutbox(host.matchId))?.publishedAt,
+      ).toBeNull();
+
+      await rebuildHost(store, host.matchId);
+
+      expect(published).toHaveLength(1);
+      expect(published[0]?.matchId).toBe(host.matchId);
+      expect(
+        (await store.getCombatOutcomeOutbox(host.matchId))?.publishedAt,
+      ).toEqual(expect.any(String));
+    } finally {
+      matchJournalAuthority._setSkipPublishForTests(false);
+      unsubscribe();
+    }
   });
 
   it('POST-RECOVERY: a new command after crash-rebuild still decide/commit/publishes', async () => {

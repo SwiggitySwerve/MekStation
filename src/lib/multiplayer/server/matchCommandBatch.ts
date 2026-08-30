@@ -26,9 +26,20 @@
  * @spec openspec/changes/harden-gm-two-player-campaign-sessions/tasks.md (3)
  */
 
+import type { ICombatOutcome } from '@/types/combat/CombatOutcome';
 import type { IGameEvent } from '@/types/gameplay/GameSessionInterfaces';
 
 import type { IMatchJournalAuthorityStarted } from './matchJournalAuthority';
+
+/**
+ * The one terminal outcome a combat match can offer to its authoritative
+ * command transaction. The store mints `createdAt` only when the batch commits.
+ */
+export interface IMatchCombatOutcomeOutboxInput {
+  readonly outcomeId: string;
+  readonly outcomeVersion: number;
+  readonly outcome: ICombatOutcome;
+}
 
 /** One command's worth of events, offered as a single unit. */
 export interface IMatchCommandBatch {
@@ -48,6 +59,8 @@ export interface IMatchCommandBatch {
   readonly expectedPostStateDigest?: string | null;
   /** First journal-authority command only; a second write fails. */
   readonly journalAuthorityStarted?: IMatchJournalAuthorityStarted;
+  /** Terminal journal-authority command only; a second write fails. */
+  readonly combatOutcome?: IMatchCombatOutcomeOutboxInput;
 }
 
 /** What the store recorded about a committed command. */
