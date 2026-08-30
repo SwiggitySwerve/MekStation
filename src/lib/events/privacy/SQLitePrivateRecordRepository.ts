@@ -19,6 +19,7 @@ import {
   isPrivateRetentionPolicy,
   PrivateRecordError,
   type IPrivateAccessAuditRecord,
+  type IPrivateRecordAuthorizedCreate,
   type IPrivateRecordCreate,
   type IPrivateRecordEraseInput,
   type IPrivateRecordErasedView,
@@ -43,6 +44,7 @@ import {
   parseStoredKind,
   parseStoredPayloadState,
   parseStoredRetentionClass,
+  throwAccessDenied,
   type IPrivateAccessAuditRow,
   type IPrivateRecordRow,
 } from './privateRecordGuards';
@@ -83,30 +85,55 @@ export class SQLitePrivateRecordRepository implements IPrivateRecordRepository {
     for (let attempt = 0; attempt < MAX_REF_ATTEMPTS; attempt += 1) {
       const opaqueRef = generateOpaqueRef();
       try {
-        this.db
-          .prepare(INSERT_RECORD_SQL)
-          .run(
-            opaqueRef,
-            input.campaignSessionId,
-            input.commandId,
-            input.recordKind,
-            input.payload,
-            input.retentionClass,
-            input.createdAt,
-            input.createdAt,
-          );
+        return this.insertPrivateRecord(input, opaqueRef);
       } catch (error) {
         if (isUniqueViolation(error)) continue;
         throw error;
       }
-      const created = this.load(opaqueRef);
-      if (created === null || created.payloadState === 'erased') {
-        throw new PrivateRecordError(
-          'invalid-record',
-          'Private-record insert did not persist as present',
+    }
+    throw new PrivateRecordError(
+      'invalid-record',
+      'Private-record opaque ref mint collided repeatedly',
+    );
+  }
+
+  /**
+   * GM-only private write for a human GM surface. The membership check
+   * happens before the insert, and the private row plus payload-free
+   * granted audit row commit together. Direct server maintenance writes
+   * retain `createPrivateRecord`; human preview producers use this path.
+   */
+  public async createAuthorizedPrivateRecord(
+    input: IPrivateRecordAuthorizedCreate,
+  ): Promise<IPrivateRecordOpenView> {
+    assertPrivateRecordCreate(input);
+    for (let attempt = 0; attempt < MAX_REF_ATTEMPTS; attempt += 1) {
+      const opaqueRef = generateOpaqueRef();
+      const viewer = await this.access.requireGmViewer(
+        input,
+        opaqueRef,
+        'write',
+      );
+      if (viewer.campaignSessionId !== input.campaignSessionId) {
+        this.access.insertDenied(
+          input,
+          viewer,
+          opaqueRef,
+          'write',
+          'wrong-session',
         );
+        throwAccessDenied();
       }
-      return created;
+      try {
+        return this.db.transaction(() => {
+          const created = this.insertPrivateRecord(input, opaqueRef);
+          this.access.insertGranted(input, viewer, opaqueRef, 'write');
+          return created;
+        })();
+      } catch (error) {
+        if (isUniqueViolation(error)) continue;
+        throw error;
+      }
     }
     throw new PrivateRecordError(
       'invalid-record',
@@ -378,6 +405,33 @@ export class SQLitePrivateRecordRepository implements IPrivateRecordRepository {
   private load(opaqueRef: string): IPrivateRecordView | null {
     const row = this.loadRow(opaqueRef);
     return row === null ? null : this.toView(row);
+  }
+
+  /** Inserts one present record under an already-minted opaque ref. */
+  private insertPrivateRecord(
+    input: IPrivateRecordCreate,
+    opaqueRef: string,
+  ): IPrivateRecordOpenView {
+    this.db
+      .prepare(INSERT_RECORD_SQL)
+      .run(
+        opaqueRef,
+        input.campaignSessionId,
+        input.commandId,
+        input.recordKind,
+        input.payload,
+        input.retentionClass,
+        input.createdAt,
+        input.createdAt,
+      );
+    const created = this.load(opaqueRef);
+    if (created === null || created.payloadState === 'erased') {
+      throw new PrivateRecordError(
+        'invalid-record',
+        'Private-record insert did not persist as present',
+      );
+    }
+    return created;
   }
 
   /** Raw row load used by default export (no payload in the return shape). */

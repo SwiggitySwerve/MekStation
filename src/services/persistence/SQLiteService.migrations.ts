@@ -20,6 +20,7 @@ import { DELIVERY_EPOCHS_MIGRATION } from './SQLiteService.deliveryEpochs.migrat
 import { EVENT_JOURNAL_MIGRATION } from './SQLiteService.eventJournal.migration';
 import { MATCH_AUTHORITY_BASELINE_MIGRATION } from './SQLiteService.matchAuthorityBaseline.migration';
 import { CAMPAIGN_PARTICIPANT_CURSORS_MIGRATION } from './SQLiteService.participantCursors.migration';
+import { PRIVATE_ACCESS_WRITE_MIGRATION } from './SQLiteService.privateAccessWrite.migration';
 import { PRIVATE_RECORDS_MIGRATION } from './SQLiteService.privateRecords.migration';
 import { REPLAY_CHECKPOINTS_MIGRATION } from './SQLiteService.replayCheckpoints.migration';
 import { CAMPAIGN_SESSION_FORCE_CLAIMS_MIGRATION } from './SQLiteService.sessionForceClaims.migration';
@@ -389,4 +390,5 @@ export const MIGRATIONS: readonly IMigration[] = [
   CAMPAIGN_SESSION_FORCE_CLAIMS_MIGRATION,
   CAMPAIGN_SESSION_STATE_MIGRATION,
   CAMPAIGN_COMBAT_OUTCOME_INBOX_MIGRATION,
+  PRIVATE_ACCESS_WRITE_MIGRATION,
 ];

@@ -43,6 +43,7 @@ export type PrivateRetentionPolicy =
   (typeof PRIVATE_RETENTION_POLICIES)[number];
 
 export const PRIVATE_ACCESS_PURPOSES = [
+  'write',
   'lookup',
   'export-attempt',
   'retention-action',
@@ -176,6 +177,14 @@ export interface IPrivateRecordCreate {
   readonly createdAt: string;
 }
 
+/**
+ * A human-initiated private write. The repository rechecks the
+ * server-derived viewer before inserting and records the result as a
+ * payload-free access-audit row.
+ */
+export interface IPrivateRecordAuthorizedCreate
+  extends IPrivateRecordCreate, IPrivateRecordGateInput {}
+
 interface IPrivateRecordIdentity {
   readonly opaqueRef: string;
   readonly campaignSessionId: string;
@@ -268,6 +277,9 @@ export interface IPrivateRetentionRun {
  */
 export interface IPrivateRecordRepository {
   createPrivateRecord(input: IPrivateRecordCreate): IPrivateRecordOpenView;
+  createAuthorizedPrivateRecord(
+    input: IPrivateRecordAuthorizedCreate,
+  ): Promise<IPrivateRecordOpenView>;
   lookupPrivate(input: IPrivateRecordLookupInput): Promise<IPrivateRecordView>;
   exportView(
     input: IPrivateRecordExportInput,

@@ -63,7 +63,11 @@ import {
  * per-viewer at this projector, not at the event source: GM/authority
  * projection streams keep the field; player projections do not.
  */
-export const AUTHORITY_ONLY_EVENT_FIELDS = ['visibility', 'sequence'] as const;
+export const AUTHORITY_ONLY_EVENT_FIELDS = [
+  'visibility',
+  'sequence',
+  'privateRecordRef',
+] as const;
 
 const AUTHORITY_ONLY_EVENT_FIELD_SET: ReadonlySet<string> = new Set(
   AUTHORITY_ONLY_EVENT_FIELDS,
@@ -98,11 +102,12 @@ export function projectEventForViewerClass(
   if (typeof event !== 'object' || event === null || Array.isArray(event)) {
     return { kind: 'failure', error: projectionFailed() };
   }
-  const record = event as Record<string, unknown>;
+  const privateRefProjection = removePrivateRecordRefs(event, role);
+  const record = privateRefProjection.value as Record<string, unknown>;
   const carries = Object.keys(record).some((key) =>
     shouldRemoveAuthorityFieldForRole(role, key),
   );
-  if (!carries) {
+  if (!carries && !privateRefProjection.changed) {
     return { kind: 'project', event };
   }
   const projected: Record<string, unknown> = {};
@@ -111,6 +116,39 @@ export function projectEventForViewerClass(
     projected[key] = value;
   }
   return { kind: 'project', event: projected };
+}
+
+/** One recursive projection for the opaque private-record identifier. */
+function removePrivateRecordRefs(
+  value: unknown,
+  role: ViewerRole,
+): { readonly value: unknown; readonly changed: boolean } {
+  if (role === 'gm' || typeof value !== 'object' || value === null) {
+    return { value, changed: false };
+  }
+  if (Array.isArray(value)) {
+    const projected: unknown[] = [];
+    let changed = false;
+    for (const item of value) {
+      const next = removePrivateRecordRefs(item, role);
+      projected.push(next.value);
+      if (next.changed) changed = true;
+    }
+    return changed ? { value: projected, changed: true } : { value, changed };
+  }
+
+  const projected: Record<string, unknown> = {};
+  let changed = false;
+  for (const [key, nested] of Object.entries(value)) {
+    if (key === 'privateRecordRef') {
+      changed = true;
+      continue;
+    }
+    const next = removePrivateRecordRefs(nested, role);
+    projected[key] = next.value;
+    if (next.changed) changed = true;
+  }
+  return changed ? { value: projected, changed: true } : { value, changed };
 }
 
 /**
@@ -165,7 +203,9 @@ function shouldRemoveAuthorityFieldForRole(
   key: string,
 ): boolean {
   if (!AUTHORITY_ONLY_EVENT_FIELD_SET.has(key)) return false;
-  if (key === 'sequence' && role === 'gm') return false;
+  if ((key === 'sequence' || key === 'privateRecordRef') && role === 'gm') {
+    return false;
+  }
   return true;
 }
 
