@@ -35,6 +35,7 @@ import type {
 } from '@/lib/events/journal/EventJournalContract';
 import type {
   IPrivateAccessAuditRecord,
+  IPrivateRecordAuthorizedCreate,
   IPrivateRecordCreate,
   IPrivateRecordEraseInput,
   IPrivateRecordErasedView,
@@ -281,6 +282,13 @@ class ProbePrivateRepository implements IPrivateRecordRepository {
   public createPrivateRecord(): IPrivateRecordOpenView {
     this.calls.push('createPrivateRecord');
     throw new Error(PROBE_MESSAGE);
+  }
+
+  public createAuthorizedPrivateRecord(
+    _input: IPrivateRecordAuthorizedCreate,
+  ): Promise<IPrivateRecordOpenView> {
+    this.calls.push('createAuthorizedPrivateRecord');
+    return Promise.reject(new Error(PROBE_MESSAGE));
   }
 
   public lookupPrivate(

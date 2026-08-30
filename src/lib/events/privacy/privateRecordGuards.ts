@@ -10,7 +10,10 @@
 
 import { randomBytes } from 'node:crypto';
 
-import { isSqliteUniqueConstraintError } from '@/services/persistence/sqliteConstraintErrors';
+import {
+  isSqliteUniqueConstraintError,
+  sqliteConstraintMessage,
+} from '@/services/persistence/sqliteConstraintErrors';
 
 import {
   isPrivateAccessPurpose,
@@ -65,7 +68,10 @@ export function isNonempty(value: string): boolean {
 
 /** True for SQLite UNIQUE failures on this table's primary key. */
 export function isUniqueViolation(error: unknown): boolean {
-  return isSqliteUniqueConstraintError(error);
+  return (
+    isSqliteUniqueConstraintError(error) &&
+    /private_record\.opaque_ref/i.test(sqliteConstraintMessage(error))
+  );
 }
 
 /**

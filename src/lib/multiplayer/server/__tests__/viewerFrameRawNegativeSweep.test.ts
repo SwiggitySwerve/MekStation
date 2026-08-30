@@ -48,6 +48,7 @@ import { ServerMatchHost, type IMatchSocket } from '../ServerMatchHost';
 const SEQUENCE_KEY = /"sequence"\s*:/;
 const PRIVATE_REASON_SENTINEL = 'GM-PRIVATE-REASON-SENTINEL-11-4';
 const CONCEALED_EVENT_ID = 'evt-concealed-sentinel-11-4';
+const PRIVATE_RECORD_REF_SENTINEL = 'f'.repeat(32);
 
 /**
  * Id-shaped keys the match-wire protocol actually declares on a
@@ -138,6 +139,7 @@ const FORBIDDEN_METADATA_KEYS: ReadonlySet<string> = new Set([
   'canonicalizerVersion',
   'privateReason',
   'privateMetadata',
+  'privateRecordRef',
   'hiddenNotes',
   'gmReason',
   'sequenceHint',
@@ -531,6 +533,55 @@ describe('viewer frame raw-wire negative sweep', () => {
         });
       }
       expect(Array.from(unexpected).sort()).toEqual([]);
+    });
+
+    it('removes a planted private-record opaque ref from a player-safe fact while retaining it for the GM', async () => {
+      const { stored } = await driveFogMatch('m-raw-private-record-ref');
+      const authority = stored.find(
+        (event) => typeof event.sequence === 'number',
+      );
+      expect(authority).toBeDefined();
+      if (authority === undefined) return;
+      const authorityPayload =
+        typeof authority.payload === 'object' &&
+        authority.payload !== null &&
+        !Array.isArray(authority.payload)
+          ? authority.payload
+          : {};
+
+      const envelope: IEventMessage = {
+        kind: 'Event',
+        matchId: 'm-raw-private-record-ref',
+        ts: nowIso(),
+        event: {
+          ...authority,
+          privateRecordRef: PRIVATE_RECORD_REF_SENTINEL,
+          payload: {
+            ...authorityPayload,
+            privateRecordRef: PRIVATE_RECORD_REF_SENTINEL,
+          },
+        },
+      };
+      const gm = await brandedViewer(GM_ROW);
+      const player = await brandedViewer(PLAYER_ROW);
+      const gmGuarded = MATCH_WIRE_PUBLICATION_BOUNDARY.guardLiveEvent(
+        gm,
+        envelope,
+      );
+      const playerGuarded = MATCH_WIRE_PUBLICATION_BOUNDARY.guardLiveEvent(
+        player,
+        envelope,
+      );
+
+      expect(gmGuarded.kind).toBe('send');
+      expect(playerGuarded.kind).toBe('send');
+      if (gmGuarded.kind !== 'send' || playerGuarded.kind !== 'send') return;
+
+      const gmRaw = JSON.stringify(gmGuarded.value);
+      const playerRaw = JSON.stringify(playerGuarded.value);
+      expect(gmRaw).toContain(PRIVATE_RECORD_REF_SENTINEL);
+      expect(playerRaw).not.toContain(PRIVATE_RECORD_REF_SENTINEL);
+      expect(playerRaw).not.toContain('privateRecordRef');
     });
   });
 

@@ -22,6 +22,7 @@ import {
   type IMembershipRecord,
   type IMembershipSource,
 } from '@/lib/multiplayer/server/authorization/AuthorizedViewer';
+import { GmPrivatePreviewRecordWriter } from '@/lib/multiplayer/server/history/GmPrivatePreviewRecordWriter';
 import {
   getSQLiteService,
   resetSQLiteService,
@@ -180,6 +181,128 @@ describe('SQLite private record repository', () => {
     for (const ref of [first.opaqueRef, second.opaqueRef]) {
       expect(ref).not.toContain(SECRET);
       expect(ref).not.toContain(digest);
+    }
+  });
+
+  it('creates a GM-only private record and records its authorized write', async () => {
+    const db = database();
+    const repo = new SQLitePrivateRecordRepository(db);
+    const viewResolver = resolver();
+    const created = await repo.createAuthorizedPrivateRecord({
+      ...createInput({ recordKind: 'gm-draft' }),
+      ...gate(viewResolver, GM_ROW.principalId),
+    });
+
+    expect(created.payloadState).toBe('present');
+    expect(created.payload).toBe(SECRET);
+    expect(repo.listAccessAudit(created.opaqueRef)).toEqual([
+      expect.objectContaining({
+        actorPrincipalId: GM_ROW.principalId,
+        actorRole: 'gm',
+        purpose: 'write',
+        result: 'granted',
+        safeReasonCode: null,
+      }),
+    ]);
+
+    const countBeforePlayerWrite = (
+      db.prepare('SELECT COUNT(*) AS count FROM private_record').get() as {
+        count: number;
+      }
+    ).count;
+    const playerError = await catchPrivate(() =>
+      repo.createAuthorizedPrivateRecord({
+        ...createInput({ commandId: 'cmd-player-write' }),
+        ...gate(viewResolver, PLAYER_ROW.principalId),
+      }),
+    );
+
+    expect(playerError.code).toBe(PRIVATE_RECORD_ACCESS_DENIED_CODE);
+    expect(playerError.message).toBe(PRIVATE_RECORD_ACCESS_DENIED_MESSAGE);
+    expect(
+      (
+        db.prepare('SELECT COUNT(*) AS count FROM private_record').get() as {
+          count: number;
+        }
+      ).count,
+    ).toBe(countBeforePlayerWrite);
+    expect(
+      db
+        .prepare(
+          `SELECT actor_principal_id, actor_role, purpose, result, safe_reason_code
+           FROM private_access_audit WHERE purpose = 'write' ORDER BY id`,
+        )
+        .all(),
+    ).toEqual([
+      {
+        actor_principal_id: GM_ROW.principalId,
+        actor_role: 'gm',
+        purpose: 'write',
+        result: 'granted',
+        safe_reason_code: null,
+      },
+      {
+        actor_principal_id: PLAYER_ROW.principalId,
+        actor_role: 'player',
+        purpose: 'write',
+        result: 'denied',
+        safe_reason_code: 'role-denied',
+      },
+    ]);
+  });
+
+  it('stores a GM preview summary and private reason as distinct server-only records', async () => {
+    const repo = new SQLitePrivateRecordRepository(database());
+    const viewResolver = resolver();
+    const writer = new GmPrivatePreviewRecordWriter(repo);
+
+    const stored = await writer.store({
+      resolver: viewResolver,
+      principalId: GM_ROW.principalId,
+      campaignSessionId: 'session-1',
+      commandId: 'cmd-preview-1',
+      createdAt: CREATED_AT,
+      preview: { correction: 'adjust damage', unitId: 'unit-secret' },
+      derivedSummary: 'GM preview: damage correction',
+      privateReason: SECRET,
+    });
+
+    expect(Object.keys(stored).sort()).toEqual(['preview', 'reason']);
+    expect(stored.preview).toBeDefined();
+    if (stored.preview === undefined) {
+      throw new Error('expected GM preview record');
+    }
+    expect(stored.preview.opaqueRef).not.toBe(stored.reason?.opaqueRef);
+    const preview = await repo.lookupPrivate({
+      ...gate(viewResolver, GM_ROW.principalId),
+      opaqueRef: stored.preview.opaqueRef,
+    });
+    expect(preview.payloadState).toBe('present');
+    if (preview.payloadState !== 'present') {
+      throw new Error('expected present preview payload');
+    }
+    expect(JSON.parse(preview.payload)).toEqual({
+      derivedSummary: 'GM preview: damage correction',
+      preview: { correction: 'adjust damage', unitId: 'unit-secret' },
+    });
+
+    const reason = await repo.lookupPrivate({
+      ...gate(viewResolver, GM_ROW.principalId),
+      opaqueRef: stored.reason?.opaqueRef ?? '',
+    });
+    expect(reason.payloadState).toBe('present');
+    if (reason.payloadState !== 'present') {
+      throw new Error('expected present reason payload');
+    }
+    expect(reason.payload).toBe(SECRET);
+    for (const record of [stored.preview, stored.reason]) {
+      expect(record).toBeDefined();
+      if (record === undefined) continue;
+      expect(repo.listAccessAudit(record.opaqueRef)).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({ purpose: 'write', result: 'granted' }),
+        ]),
+      );
     }
   });
 
