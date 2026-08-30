@@ -95,7 +95,9 @@ async function resumeCommittedCommand(
       ? await resumePendingPublications({
           matchId: ctx.matchId,
           publications: ctx.store,
-          broadcastEvent: ctx.broadcastEvent,
+          // Undelivered-only so a drained frame never assigns a fresh
+          // delivery number to a viewer whose cursor already holds it.
+          broadcastEvent: ctx.broadcastUndeliveredEvent ?? ctx.broadcastEvent,
         })
       : [];
     await journal.publishDurableCombatOutcome();

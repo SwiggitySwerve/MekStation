@@ -380,6 +380,7 @@ describe('combat journal-authority shadow', () => {
 
   it('NO DUAL-AUTHORING: shadowed command does not write journal artifacts', async () => {
     const off = await makeHost({ matchId: 'match-shadow-append-off' });
+    const offBatchSpy = jest.spyOn(off.store, 'appendCommandBatch');
     matchJournalAuthority._setCombatJournalAuthorityModeForTests('shadow');
     const shadow = await makeHost({ matchId: 'match-shadow-append-on' });
     const batchSpy = jest.spyOn(shadow.store, 'appendCommandBatch');
@@ -387,14 +388,28 @@ describe('combat journal-authority shadow', () => {
     await drive(off.host);
     await drive(shadow.host);
 
+    // Since umbrella 7.1 the LIVE path itself commits each command as
+    // one atomic batch, so "no journal artifacts from the shadow" can
+    // no longer mean zero batch appends. The honest reading of the
+    // invariant: shadow mode performs EXACTLY the writes mode-off
+    // performs - the compare adds nothing durable of its own.
     // Falsification: append the decided batch inside the shadow compare
-    expect(batchSpy).not.toHaveBeenCalled();
+    // and the shadow host gains an extra call the off host lacks.
+    expect(batchSpy.mock.calls.length).toBe(offBatchSpy.mock.calls.length);
     expect(
       await shadow.store.getJournalAuthorityStarted!(shadow.host.matchId),
     ).toBeNull();
-    expect(
-      await shadow.store.getCommandReceipt!(shadow.host.matchId, 'lock-1'),
-    ).toBeNull();
+    // The live command's own receipt exists on BOTH hosts identically -
+    // what must NOT exist is any receipt beyond the driven commands.
+    const shadowReceipt = await shadow.store.getCommandReceipt!(
+      shadow.host.matchId,
+      'lock-1',
+    );
+    const offReceipt = await off.store.getCommandReceipt!(
+      off.host.matchId,
+      'lock-1',
+    );
+    expect(shadowReceipt === null).toBe(offReceipt === null);
     expect(
       await shadow.store.listPendingPublications(shadow.host.matchId),
     ).toEqual([]);

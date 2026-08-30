@@ -124,6 +124,11 @@ export async function recoverActiveMatches(
       const session = await rebuildSessionFromEvents(meta.matchId, events);
       const host = await ServerMatchHost.recover(meta.matchId, store, session);
       await host.restorePersistedViewerDeliveries();
+      // Drain publications the dead process committed but never sent
+      // (umbrella 7.1). AFTER the cursor restore on purpose: the
+      // undelivered-only broadcast consults those cursors to skip
+      // viewers who already hold a frame.
+      await host.resumePendingEventPublications();
       hosts.set(meta.matchId, host);
     } catch (e) {
       // eslint-disable-next-line no-console
