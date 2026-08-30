@@ -155,6 +155,23 @@ describe.each(stores)('%s appendCommandBatch contract', (_name, build) => {
     expect(await store.getEvents(MATCH_ID)).toHaveLength(2);
   });
 
+  it('refuses the same command id carrying payload-divergent work', async () => {
+    await append();
+
+    const conflict = await append({
+      events: [
+        Object.assign(event(0), { payload: { target: 'alpha', damage: 8 } }),
+        Object.assign(event(1), { payload: { target: 'beta', damage: 3 } }),
+      ],
+    });
+
+    expect(conflict).toEqual({
+      kind: 'integrity-conflict',
+      commandId: 'cmd-1',
+    });
+    expect(await store.getEvents(MATCH_ID)).toHaveLength(2);
+  });
+
   it('checks identity BEFORE the revision', async () => {
     // The ordering is load-bearing. A retry arriving after someone else
     // moved the stream is still a retry; calling it a revision conflict

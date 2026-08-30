@@ -37,6 +37,7 @@ import {
 import {
   firstNonContiguousSequence,
   matchCommandFingerprint,
+  matchesCommandFingerprint,
 } from './matchCommandBatch';
 
 // =============================================================================
@@ -182,7 +183,7 @@ export class InMemoryMatchStore
     // caller off to rebuild state it already has.
     const prior = rec.receipts.get(batch.commandId);
     if (prior) {
-      return prior.fingerprint === fingerprint
+      return matchesCommandFingerprint(prior.fingerprint, batch)
         ? { kind: 'duplicate-command', receipt: prior }
         : { kind: 'integrity-conflict', commandId: batch.commandId };
     }

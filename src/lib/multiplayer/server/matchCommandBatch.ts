@@ -26,6 +26,8 @@
  * @spec openspec/changes/harden-gm-two-player-campaign-sessions/tasks.md (3)
  */
 
+import { createHash } from 'node:crypto';
+
 import type { ICombatOutcome } from '@/types/combat/CombatOutcome';
 import type { IGameEvent } from '@/types/gameplay/GameSessionInterfaces';
 
@@ -107,21 +109,58 @@ export type MatchBatchAppendResult =
 /**
  * Fingerprint of what a command actually did.
  *
- * Deliberately covers the actor, the revision span, and every event id
- * and type — the things that make two batches the SAME work. A retry
- * reproduces all of them; a different command reusing the id does not,
- * which is what turns a silent overwrite into a typed refusal.
+ * Covers the actor, the revision span, and every event's identity, type,
+ * and payload digest — the things that make two batches the SAME work. A
+ * retry reproduces all of them; a different command reusing the id does
+ * not, which is what turns a silent overwrite into a typed refusal.
  */
 export function matchCommandFingerprint(batch: IMatchCommandBatch): string {
   const parts = [
+    'v2',
+    batch.commandId,
+    batch.actorId,
+    String(batch.expectedRevision),
+    ...batch.events.map(
+      (event) =>
+        `${event.sequence}:${event.id}:${event.type}:${eventPayloadDigest(event.payload)}`,
+    ),
+  ];
+  return parts.join('|');
+}
+
+/**
+ * Recognises receipts written before `v2` added payload integrity.
+ *
+ * Durable stores may retain old receipts over an upgrade. An identical retry
+ * must remain idempotent instead of becoming a false integrity conflict, so
+ * callers accept either persisted format while new receipts always use v2.
+ */
+export function matchesCommandFingerprint(
+  storedFingerprint: string,
+  batch: IMatchCommandBatch,
+): boolean {
+  return (
+    storedFingerprint === matchCommandFingerprint(batch) ||
+    storedFingerprint === legacyMatchCommandFingerprint(batch)
+  );
+}
+
+function legacyMatchCommandFingerprint(batch: IMatchCommandBatch): string {
+  return [
     batch.commandId,
     batch.actorId,
     String(batch.expectedRevision),
     ...batch.events.map(
       (event) => `${event.sequence}:${event.id}:${event.type}`,
     ),
-  ];
-  return parts.join('|');
+  ].join('|');
+}
+
+function eventPayloadDigest(payload: unknown): string {
+  const serialized = JSON.stringify(payload);
+  return createHash('sha256')
+    .update(serialized ?? 'undefined')
+    .digest('hex');
 }
 
 /**

@@ -23,7 +23,9 @@
  *    only holds in one process is not durability.
  */
 
+import Database from 'better-sqlite3';
 import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 
 import {
@@ -31,6 +33,11 @@ import {
   GamePhase,
   type IGameEvent,
 } from '@/types/gameplay/GameSessionInterfaces';
+
+import type {
+  IMatchCommandBatch,
+  IMatchCommandReceipt,
+} from '../matchCommandBatch';
 
 import { DurableMatchStore } from '../DurableMatchStore';
 import { type IMatchMeta } from '../IMatchStore';
@@ -72,6 +79,60 @@ function makeEvent(matchId: string, sequence: number): IGameEvent {
     phase: GamePhase.Initiative,
     payload: {} as never,
   } as IGameEvent;
+}
+
+const RESTART_MATCH_ID = 'match-command-restart';
+
+function makeRestartBatch(): IMatchCommandBatch {
+  return {
+    commandId: 'cmd-restart',
+    actorId: 'p1',
+    expectedRevision: 0,
+    events: [
+      Object.assign(makeEvent(RESTART_MATCH_ID, 0), {
+        payload: { target: 'alpha', damage: 7 },
+      }),
+    ],
+  };
+}
+
+function makeTemporaryDatabase(): {
+  readonly directory: string;
+  readonly file: string;
+} {
+  const directory = fs.mkdtempSync(
+    path.join(os.tmpdir(), 'mekstation-command-batch-'),
+  );
+  return { directory, file: path.join(directory, 'matches.db') };
+}
+
+async function commitAndClose(
+  file: string,
+  batch: IMatchCommandBatch,
+): Promise<IMatchCommandReceipt> {
+  const first = new DurableMatchStore({ path: file });
+  try {
+    await first.createMatch(makeMeta(RESTART_MATCH_ID));
+    const result = await first.appendCommandBatch(RESTART_MATCH_ID, batch);
+    if (result.kind !== 'committed') {
+      throw new Error(`Expected committed batch, received ${result.kind}`);
+    }
+    return result.receipt;
+  } finally {
+    first.close();
+  }
+}
+
+/** The receipt format used before payload integrity was added. */
+function oldFormatFingerprint(batch: IMatchCommandBatch): string {
+  return [
+    batch.commandId,
+    batch.actorId,
+    String(batch.expectedRevision),
+    ...batch.events.map(
+      (event) => `${event.sequence}:${event.id}:${event.type}`,
+    ),
+  ].join('|');
 }
 
 describe('atomic match command batches', () => {
@@ -265,6 +326,148 @@ describe('atomic match command batches', () => {
     } finally {
       reopened.close();
       removeDatabase(file);
+    }
+  });
+});
+
+describe('durable command identity after restart', () => {
+  it('returns the prior receipt field-for-field for an identical retry', async () => {
+    const { directory, file } = makeTemporaryDatabase();
+    try {
+      const batch = makeRestartBatch();
+      const priorReceipt = await commitAndClose(file, batch);
+      const reopened = new DurableMatchStore({ path: file });
+      try {
+        const retry = await reopened.appendCommandBatch(
+          RESTART_MATCH_ID,
+          batch,
+        );
+
+        expect(retry.kind).toBe('duplicate-command');
+        if (retry.kind !== 'duplicate-command') return;
+        expect(retry.receipt).toEqual(priorReceipt);
+      } finally {
+        reopened.close();
+      }
+    } finally {
+      fs.rmSync(directory, { recursive: true, force: true });
+    }
+  });
+
+  it('refuses a restarted retry whose command id is reused by another actor', async () => {
+    const { directory, file } = makeTemporaryDatabase();
+    try {
+      const batch = makeRestartBatch();
+      await commitAndClose(file, batch);
+      const reopened = new DurableMatchStore({ path: file });
+      try {
+        const result = await reopened.appendCommandBatch(RESTART_MATCH_ID, {
+          ...batch,
+          actorId: 'p2',
+        });
+
+        expect(result).toEqual({
+          kind: 'integrity-conflict',
+          commandId: batch.commandId,
+        });
+      } finally {
+        reopened.close();
+      }
+    } finally {
+      fs.rmSync(directory, { recursive: true, force: true });
+    }
+  });
+
+  it('refuses a restarted retry whose command id is reused for another event type', async () => {
+    const { directory, file } = makeTemporaryDatabase();
+    try {
+      const batch = makeRestartBatch();
+      await commitAndClose(file, batch);
+      const reopened = new DurableMatchStore({ path: file });
+      try {
+        const result = await reopened.appendCommandBatch(RESTART_MATCH_ID, {
+          ...batch,
+          events: [
+            Object.assign(makeEvent(RESTART_MATCH_ID, 0), {
+              type: GameEventType.GameEnded,
+              payload: { target: 'alpha', damage: 7 },
+            }),
+          ],
+        });
+
+        expect(result).toEqual({
+          kind: 'integrity-conflict',
+          commandId: batch.commandId,
+        });
+      } finally {
+        reopened.close();
+      }
+    } finally {
+      fs.rmSync(directory, { recursive: true, force: true });
+    }
+  });
+
+  it('refuses a restarted retry whose command id carries a different payload', async () => {
+    const { directory, file } = makeTemporaryDatabase();
+    try {
+      const batch = makeRestartBatch();
+      await commitAndClose(file, batch);
+      const reopened = new DurableMatchStore({ path: file });
+      try {
+        const result = await reopened.appendCommandBatch(RESTART_MATCH_ID, {
+          ...batch,
+          events: [
+            Object.assign(makeEvent(RESTART_MATCH_ID, 0), {
+              payload: { target: 'alpha', damage: 8 },
+            }),
+          ],
+        });
+
+        expect(result).toEqual({
+          kind: 'integrity-conflict',
+          commandId: batch.commandId,
+        });
+      } finally {
+        reopened.close();
+      }
+    } finally {
+      fs.rmSync(directory, { recursive: true, force: true });
+    }
+  });
+
+  it('recognises an old-format persisted receipt after the fingerprint upgrade', async () => {
+    const { directory, file } = makeTemporaryDatabase();
+    try {
+      const batch = makeRestartBatch();
+      await commitAndClose(file, batch);
+      const legacy = new Database(file);
+      try {
+        legacy
+          .prepare(
+            `UPDATE mp_command_receipts
+             SET fingerprint = ?
+             WHERE match_id = ? AND command_id = ?`,
+          )
+          .run(oldFormatFingerprint(batch), RESTART_MATCH_ID, batch.commandId);
+      } finally {
+        legacy.close();
+      }
+
+      const reopened = new DurableMatchStore({ path: file });
+      try {
+        const retry = await reopened.appendCommandBatch(
+          RESTART_MATCH_ID,
+          batch,
+        );
+
+        expect(retry.kind).toBe('duplicate-command');
+        if (retry.kind !== 'duplicate-command') return;
+        expect(retry.receipt.fingerprint).toBe(oldFormatFingerprint(batch));
+      } finally {
+        reopened.close();
+      }
+    } finally {
+      fs.rmSync(directory, { recursive: true, force: true });
     }
   });
 });

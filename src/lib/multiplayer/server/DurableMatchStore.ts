@@ -96,6 +96,7 @@ import {
 import {
   firstNonContiguousSequence,
   matchCommandFingerprint,
+  matchesCommandFingerprint,
 } from './matchCommandBatch';
 
 // =============================================================================
@@ -454,7 +455,7 @@ export class DurableMatchStore
       if (prior) {
         // Same id, same work: the caller never saw the acknowledgement.
         // Same id, different work: refuse rather than overwrite.
-        return prior.fingerprint === fingerprint
+        return matchesCommandFingerprint(prior.fingerprint, batch)
           ? { kind: 'duplicate-command', receipt: receiptFrom(prior) }
           : { kind: 'integrity-conflict', commandId: batch.commandId };
       }
