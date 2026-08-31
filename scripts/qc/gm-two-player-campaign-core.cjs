@@ -3,7 +3,7 @@ const crypto = require('node:crypto');
 const net = require('node:net');
 const path = require('node:path');
 const GROUP_CATALOG =
-  'fixture-smoke:26,membership-smoke:15,evidence-smoke:27,fault-smoke:28,smoke:15,authority-pack1:21,exactly-once-pack:21,authority:29,visibility:30,combat:31,campaign:32,failure:32,performance:33,all:34,traceability:34,quality:34,manual-setup:34,scope:34';
+  'fixture-smoke:26,membership-smoke:15,evidence-smoke:27,fault-smoke:28,smoke:15,authority-pack1:21,exactly-once-pack:21,fault-pack:21,authority:29,visibility:30,combat:31,campaign:32,failure:32,performance:33,all:34,traceability:34,quality:34,manual-setup:34,scope:34';
 const REGISTERED_GROUPS = Object.freeze(
   Object.fromEntries(
     GROUP_CATALOG.split(',').map((entry) => {
@@ -48,6 +48,7 @@ function buildRunPlan({ group, runId, repoRoot }) {
     // `authority` remains reserved for the complete E2E-01..18 pack.
     'authority-pack1': ['e2e/gm-two-player-authority.pack1.spec.ts'],
     'exactly-once-pack': ['e2e/gm-two-player-exactly-once.pack.spec.ts'],
+    'fault-pack': ['e2e/gm-two-player-fault.pack.spec.ts'],
   };
   const specs = SPEC_BY_GROUP[group];
   if (!specs) {

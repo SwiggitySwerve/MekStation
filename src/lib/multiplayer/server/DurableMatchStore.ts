@@ -304,10 +304,48 @@ interface ICombatOutcomeOutboxRow {
 // =============================================================================
 
 let failAtHeadUpdateForTests = false;
+let failAtHeadUpdateOnce = false;
+
+/**
+ * Cross-module-graph one-shot arm. The e2e fault route runs in Next's
+ * bundle while the socket host's store lives in the tsx graph - two
+ * module graphs, two copies of the flags above (the same split that
+ * once left the socket path's SQLite singleton uninitialized). A
+ * sentinel file is graph-agnostic; it is consumed (unlinked) at the
+ * failure point, and the stat only ever runs in e2e mode.
+ */
+export const E2E_FAULT_SENTINEL = 'data/.e2e-fault-append-head-update';
+
+function consumeSentinelFault(): boolean {
+  if (process.env.NEXT_PUBLIC_E2E_MODE !== 'true') return false;
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const fs = require('node:fs') as typeof import('node:fs');
+    if (!fs.existsSync(E2E_FAULT_SENTINEL)) return false;
+    fs.unlinkSync(E2E_FAULT_SENTINEL);
+    return true;
+  } catch {
+    return false;
+  }
+}
 
 /** Test-only: crash the batch transaction at the head-update statement. */
 export function _setFailAtHeadUpdateForTests(fail: boolean): void {
   failAtHeadUpdateForTests = fail;
+}
+
+/**
+ * Arm the head-update crash for exactly ONE batch append (the e2e fault
+ * route's lever). The flag is consumed at the failure point, so a stuck
+ * fault cannot outlive the append it was armed for.
+ */
+export function _armFailAtHeadUpdateOnce(): void {
+  failAtHeadUpdateOnce = true;
+}
+
+/** Whether a one-shot fault is currently armed (introspection). */
+export function _isFailAtHeadUpdateArmed(): boolean {
+  return failAtHeadUpdateOnce || failAtHeadUpdateForTests;
 }
 
 export interface IDurableMatchStoreOptions {
@@ -529,7 +567,13 @@ export class DurableMatchStore
       // Umbrella 3.2's named crash seam: die between the receipt insert
       // and the head update, proving the transaction takes everything
       // above down with it. Test-only, same pattern as the other seams.
-      if (failAtHeadUpdateForTests) {
+      // Evaluate EVERY arm before deciding - the route arms both the
+      // module flag and the cross-graph sentinel, and one fault must
+      // consume them together or the survivor fires a second time.
+      const armedOnce = failAtHeadUpdateOnce;
+      const armedSentinel = consumeSentinelFault();
+      if (failAtHeadUpdateForTests || armedOnce || armedSentinel) {
+        failAtHeadUpdateOnce = false;
         throw new Error('test-crash-at-head-update');
       }
       this.db

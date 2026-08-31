@@ -5,7 +5,7 @@ const repoRoot = path.resolve(__dirname, '../..');
 const runner = path.join(repoRoot, 'scripts/qc/run-gm-two-player-campaign.mjs');
 const core = require('../qc/gm-two-player-campaign-core.cjs');
 const groups =
-  'fixture-smoke,membership-smoke,evidence-smoke,fault-smoke,smoke,authority-pack1,exactly-once-pack,authority,visibility,combat,campaign,failure,performance,all,traceability,quality,manual-setup,scope'.split(
+  'fixture-smoke,membership-smoke,evidence-smoke,fault-smoke,smoke,authority-pack1,exactly-once-pack,fault-pack,authority,visibility,combat,campaign,failure,performance,all,traceability,quality,manual-setup,scope'.split(
     ',',
   );
 const run = (...args: string[]) =>
@@ -80,6 +80,19 @@ describe('GM and two-player campaign QC runner', () => {
       '--workers=1',
     ]);
 
+    const faultPlan = core.buildRunPlan({
+      group: 'fault-pack',
+      runId: 'task-21-fault-pack',
+      repoRoot,
+    });
+    expect(faultPlan.args).toEqual([
+      path.join(repoRoot, 'scripts/playwright/run-playwright.mjs'),
+      'test',
+      '--project=chromium',
+      'e2e/gm-two-player-fault.pack.spec.ts',
+      '--workers=1',
+    ]);
+
     const exactlyOncePlan = core.buildRunPlan({
       group: 'exactly-once-pack',
       runId: 'task-21-exactly-once-pack',
@@ -109,6 +122,7 @@ describe('GM and two-player campaign QC runner', () => {
       'smoke',
       'authority-pack1',
       'exactly-once-pack',
+      'fault-pack',
     ];
     for (const group of groups.filter(
       (group) => !implemented.includes(group),
