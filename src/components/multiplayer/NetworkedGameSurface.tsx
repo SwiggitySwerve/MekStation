@@ -28,9 +28,7 @@ import type {
 } from '@/hooks/useMultiplayerSession';
 import type { IClientLifecycleState } from '@/lib/multiplayer/client';
 import type { TacticalLifecycleProjectionSignal } from '@/lib/multiplayer/tacticalLifecycleState';
-import type {
-  ICommandAuthorityProjection,
-} from '@/types/command-screen';
+import type { ICommandAuthorityProjection } from '@/types/command-screen';
 import type {
   IGameEvent,
   IGameIntent,
