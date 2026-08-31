@@ -36,6 +36,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { IReplaySurfaceBlockedEvent } from '@/lib/events/replay/ReplaySurfaceGate';
 import type {
   IClientAuth,
+  IClientLifecycleState,
   IConnectOptions,
   IMultiplayerClient,
 } from '@/lib/multiplayer/client';
@@ -168,6 +169,8 @@ export interface IUseMultiplayerSessionResult {
   readonly pausedInfo: IMatchPausedInfo | null;
   /** Terminal `Close` payload once the match has closed; `null` before. */
   readonly closedInfo: IMatchClosedInfo | null;
+  /** Public client delivery/connection facts for the tactical lifecycle strip. */
+  readonly clientLifecycle?: IClientLifecycleState;
 }
 
 // =============================================================================
@@ -203,6 +206,9 @@ export function useMultiplayerSession(
   );
   const [pausedInfo, setPausedInfo] = useState<IMatchPausedInfo | null>(null);
   const [closedInfo, setClosedInfo] = useState<IMatchClosedInfo | null>(null);
+  const [clientLifecycle, setClientLifecycle] = useState<IClientLifecycleState>(
+    EMPTY_CLIENT_LIFECYCLE,
+  );
   // The full, uncapped game-event log the mirror is rebuilt from. Kept
   // in React state (not just a ref) so a new event triggers a rebuild +
   // re-render; kept SEPARATE from the capped `events` tail because the
@@ -226,6 +232,7 @@ export function useMultiplayerSession(
       setIntentError,
       setPausedInfo,
       setClosedInfo,
+      setClientLifecycle,
       setMirrorLog,
     });
 
@@ -236,6 +243,7 @@ export function useMultiplayerSession(
       matchId,
       options,
       setClosedInfo,
+      setClientLifecycle,
       setError,
       setEvents,
       setIntentError,
@@ -304,5 +312,14 @@ export function useMultiplayerSession(
     clearIntentError,
     pausedInfo,
     closedInfo,
+    clientLifecycle,
   };
 }
+
+const EMPTY_CLIENT_LIFECYCLE: IClientLifecycleState = {
+  blockedBySequenceCollision: false,
+  pendingIntentCount: 0,
+  ready: false,
+  reconnectScheduled: false,
+  recoveringFromGap: false,
+};
