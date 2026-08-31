@@ -9,7 +9,11 @@ import type {
 
 import { reconcileCoopBattle } from '@/lib/campaign/coop/reconcileCoopBattle';
 import { createEmptyCampaignState } from '@/types/campaign/CampaignSync';
-import { nowIso } from '@/types/multiplayer/Protocol';
+import {
+  HEARTBEAT_INTERVAL_MS,
+  HEARTBEAT_TIMEOUT_MS,
+  nowIso,
+} from '@/types/multiplayer/Protocol';
 
 import type { IMatchSocket } from '../ServerMatchSocketTypes';
 
@@ -174,6 +178,156 @@ describe('bindCampaignSyncConnection', () => {
         matchId: 'match-campaign',
       }),
     );
+  });
+
+  describe('campaign heartbeat lifecycle', () => {
+    beforeEach(() => {
+      jest.useFakeTimers();
+    });
+
+    afterEach(() => {
+      jest.useRealTimers();
+    });
+
+    it('accepts a heartbeat and replies on the standard server cadence', async () => {
+      const socket = new MockWireSocket();
+      const registry = await makeRegistry();
+
+      await bindCampaignSyncConnection({
+        socket,
+        registry,
+        matchId: 'match-campaign',
+        verifiedPlayerId: 'pid_guest',
+        logger: quietLogger,
+        replicaStore: null,
+      });
+      socket.inbound({
+        kind: 'Heartbeat',
+        matchId: 'match-campaign',
+        ts: nowIso(),
+      });
+      await flushAsyncHandlers();
+      jest.advanceTimersByTime(HEARTBEAT_INTERVAL_MS);
+
+      expect(sawError(socket, 'BAD_ENVELOPE', 'not-campaign-sync')).toBe(false);
+      expect(socket.sent).toContainEqual(
+        expect.objectContaining({
+          kind: 'Heartbeat',
+          matchId: 'match-campaign',
+        }),
+      );
+      expect(socket.readyState).toBe(1);
+
+      socket.close();
+    });
+
+    it('reaps an idle GM socket and pauses the campaign through existing cleanup', async () => {
+      const socket = new MockWireSocket();
+      const registry = await makeRegistry();
+
+      await bindCampaignSyncConnection({
+        socket,
+        registry,
+        matchId: 'match-campaign',
+        verifiedPlayerId: 'pid_host',
+        logger: quietLogger,
+        replicaStore: null,
+      });
+      socket.inbound({
+        kind: 'CampaignJoin',
+        matchId: 'match-campaign',
+        ts: nowIso(),
+        playerId: 'pid_host',
+        role: 'host',
+      });
+      await flushAsyncHandlers();
+      expect(registry.get('match-campaign')?.syncSession.isPaused()).toBe(
+        false,
+      );
+
+      jest.advanceTimersByTime(
+        HEARTBEAT_TIMEOUT_MS + HEARTBEAT_INTERVAL_MS + 1,
+      );
+      await flushAsyncHandlers();
+
+      expect(socket.readyState).toBe(3);
+      expect(registry.get('match-campaign')?.syncSession.isPaused()).toBe(true);
+    });
+
+    it('keeps a quiet campaign socket connected on heartbeat cadence alone', async () => {
+      const socket = new MockWireSocket();
+      const registry = await makeRegistry();
+
+      await bindCampaignSyncConnection({
+        socket,
+        registry,
+        matchId: 'match-campaign',
+        verifiedPlayerId: 'pid_guest',
+        logger: quietLogger,
+        replicaStore: null,
+      });
+
+      const ticks = Math.ceil(
+        (HEARTBEAT_TIMEOUT_MS * 4) / HEARTBEAT_INTERVAL_MS,
+      );
+      for (let tick = 0; tick < ticks; tick += 1) {
+        jest.advanceTimersByTime(HEARTBEAT_INTERVAL_MS);
+        socket.inbound({
+          kind: 'Heartbeat',
+          matchId: 'match-campaign',
+          ts: nowIso(),
+        });
+        await flushAsyncHandlers();
+      }
+
+      expect(socket.readyState).toBe(1);
+      expect(sawError(socket, 'BAD_ENVELOPE', 'not-campaign-sync')).toBe(false);
+
+      socket.close();
+    });
+
+    it('treats an authenticated campaign intent as liveness traffic', async () => {
+      const socket = new MockWireSocket();
+      const registry = await makeRegistry();
+
+      await bindCampaignSyncConnection({
+        socket,
+        registry,
+        matchId: 'match-campaign',
+        verifiedPlayerId: 'pid_host',
+        logger: quietLogger,
+        replicaStore: null,
+      });
+      socket.inbound({
+        kind: 'CampaignJoin',
+        matchId: 'match-campaign',
+        ts: nowIso(),
+        playerId: 'pid_host',
+        role: 'host',
+      });
+      await flushAsyncHandlers();
+
+      jest.advanceTimersByTime(HEARTBEAT_INTERVAL_MS * 2);
+      socket.inbound({
+        kind: 'CampaignHostIntent',
+        matchId: 'match-campaign',
+        ts: nowIso(),
+        playerId: 'pid_host',
+        intent: {
+          kind: 'AdvanceDay',
+          campaignId: 'campaign-sync',
+          intentId: 'heartbeat-liveness-intent',
+          payload: { days: 1 },
+        },
+      });
+      await flushAsyncHandlers();
+      jest.advanceTimersByTime(HEARTBEAT_INTERVAL_MS * 2);
+
+      expect(socket.readyState).toBe(1);
+      expect(registry.get('match-campaign')?.host.getState().day).toBe(1);
+
+      socket.close();
+    });
   });
 
   /** In-memory membership port: the store's contract without a database. */

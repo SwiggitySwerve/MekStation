@@ -590,6 +590,7 @@ export type ICampaignClientMessage = Extract<
   IClientMessage,
   {
     kind:
+      | 'Heartbeat'
       | 'CampaignJoin'
       | 'CampaignGrantJoin'
       | 'CampaignGrantAck'
@@ -605,6 +606,7 @@ export function isCampaignClientMessage(
   message: IClientMessage,
 ): message is ICampaignClientMessage {
   return (
+    message.kind === 'Heartbeat' ||
     message.kind === 'CampaignJoin' ||
     message.kind === 'CampaignGrantJoin' ||
     message.kind === 'CampaignGrantAck' ||

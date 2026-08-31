@@ -8,6 +8,7 @@ import {
 } from '@/lib/multiplayer/socketCredentialProtocol';
 import { generateKeyPair } from '@/services/vault/IdentityService';
 import { decodeTokenFromWire } from '@/types/multiplayer/Player';
+import { HEARTBEAT_INTERVAL_MS } from '@/types/multiplayer/Protocol';
 
 import type { ICampaignSyncWebSocket } from '../campaignSyncTransport';
 
@@ -69,6 +70,52 @@ function makeSocketFactory(): {
 describe('campaignSyncTransport', () => {
   beforeEach(() => {
     _resetCampaignSyncTransportsForTest();
+  });
+
+  it('keeps the quiet channel alive: heartbeats flow on the shared cadence', () => {
+    // The campaign socket now participates in the same liveness policy
+    // as the match socket (the server reaps idle connections), so a
+    // client that never sends heartbeats would be reaped for reading
+    // the screen quietly. RED before the transport scheduled them.
+    jest.useFakeTimers();
+    try {
+      const sockets = makeSocketFactory();
+      const transport = connectCampaignSyncTransport({
+        matchId: 'match-hb',
+        role: 'guest',
+        playerId: 'pid_guest',
+        wireToken: 'wire-token',
+        roomCode: 'ABC234',
+        url: 'ws://example.test/api/multiplayer/socket',
+        socketFactory: sockets.factory,
+      });
+      sockets.lastSocket().fireOpen();
+      const before = sockets.lastSocket().sentRaw.length;
+
+      jest.advanceTimersByTime(HEARTBEAT_INTERVAL_MS * 3 + 5);
+
+      const beats = sockets
+        .lastSocket()
+        .sentRaw.slice(before)
+        .map((raw) => JSON.parse(raw) as { kind: string; matchId?: string })
+        .filter((frame) => frame.kind === 'Heartbeat');
+      expect(beats.length).toBeGreaterThanOrEqual(3);
+      expect(beats[0]).toMatchObject({ matchId: 'match-hb' });
+
+      // close() stops the cadence - a closed transport must not tick.
+      const closedAt = sockets.lastSocket().sentRaw.length;
+      transport.close();
+      jest.advanceTimersByTime(HEARTBEAT_INTERVAL_MS * 3);
+      expect(
+        sockets
+          .lastSocket()
+          .sentRaw.slice(closedAt)
+          .map((raw) => JSON.parse(raw) as { kind: string })
+          .filter((frame) => frame.kind === 'Heartbeat'),
+      ).toHaveLength(0);
+    } finally {
+      jest.useRealTimers();
+    }
   });
 
   it('opens the campaign channel and sends CampaignJoin', () => {

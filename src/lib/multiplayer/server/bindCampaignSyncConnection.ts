@@ -43,6 +43,8 @@ import {
   type ICampaignGrantChannelDeps,
 } from './handleCampaignGrantJoin';
 import { handleRoomCodeGuestJoin } from './handleRoomCodeGuestJoin';
+import { ServerMatchBroadcaster } from './ServerMatchBroadcaster';
+import { ServerMatchSocketLifecycle } from './ServerMatchSocketLifecycle';
 
 export interface IWireCampaignSocket extends IMatchSocket {
   on(event: 'message', listener: (data: unknown) => void): this;
@@ -170,6 +172,31 @@ export interface IBoundCampaignSyncConnection {
 }
 
 const socketsByMatch = new Map<string, Set<IWireCampaignSocket>>();
+const campaignSocketLifecycles = new WeakMap<
+  ICampaignHostRegistryEntry,
+  ServerMatchSocketLifecycle
+>();
+
+/**
+ * Campaign sockets use the match socket lifecycle. Campaign-specific
+ * presence remains the binder's responsibility: a liveness reap closes the
+ * socket, then invokes the existing GM/guest cleanup handlers.
+ */
+function campaignSocketLifecycle(
+  entry: ICampaignHostRegistryEntry,
+  matchId: string,
+): ServerMatchSocketLifecycle {
+  const existing = campaignSocketLifecycles.get(entry);
+  if (existing) return existing;
+
+  const lifecycle = new ServerMatchSocketLifecycle({
+    matchId,
+    broadcaster: new ServerMatchBroadcaster(),
+    onLastSocketDropped: () => undefined,
+  });
+  campaignSocketLifecycles.set(entry, lifecycle);
+  return lifecycle;
+}
 
 export async function bindCampaignSyncConnection({
   socket,
@@ -217,11 +244,15 @@ export async function bindCampaignSyncConnection({
     sockets?.delete(socket);
     if (sockets?.size === 0) socketsByMatch.delete(matchId);
   };
+  const lifecycle = campaignSocketLifecycle(entry, matchId);
+  lifecycle.attach(socket, verifiedPlayerId);
+  cleanupFns.add(() => lifecycle.detach(socket));
 
   socket.on('message', (data) => {
     void handleInbound({
       data,
       socket,
+      lifecycle,
       entry,
       matchId,
       verifiedPlayerId,
@@ -246,6 +277,7 @@ export async function bindCampaignSyncConnection({
 interface IHandleInboundDeps {
   data: unknown;
   socket: IWireCampaignSocket;
+  lifecycle: ServerMatchSocketLifecycle;
   entry: ICampaignHostRegistryEntry;
   matchId: string;
   verifiedPlayerId: string;
@@ -264,6 +296,7 @@ interface IHandleInboundDeps {
 async function handleInbound({
   data,
   socket,
+  lifecycle,
   entry,
   matchId,
   verifiedPlayerId,
@@ -278,6 +311,10 @@ async function handleInbound({
   membership,
   forceClaims,
 }: IHandleInboundDeps): Promise<void> {
+  // Keep the campaign path aligned with the match binder: any inbound
+  // frame refreshes the connection before it reaches intent dispatch.
+  lifecycle.noteInbound(socket);
+
   const parsedJson = parseJsonPayload(data);
   if (!parsedJson.ok) {
     logger.warn(
@@ -325,6 +362,11 @@ async function handleInbound({
       code: 'UNKNOWN_MATCH',
       reason: 'wrong-match',
     });
+    return;
+  }
+  if (envelope.kind === 'Heartbeat') {
+    // Protocol plumbing only. The lifecycle recorded the inbound frame
+    // above and sends the matching server heartbeat on its normal cadence.
     return;
   }
   if (envelope.playerId !== verifiedPlayerId) {
@@ -527,6 +569,11 @@ async function dispatchCampaignEnvelope({
         envelope.playerId,
         envelope.revision,
       );
+      return;
+    case 'Heartbeat':
+      // Unreachable by construction - handleInbound answers heartbeats
+      // before dispatch - but the union carries the kind now and the
+      // exhaustive default keeps this switch honest about it.
       return;
     default: {
       const exhaustive: never = envelope;

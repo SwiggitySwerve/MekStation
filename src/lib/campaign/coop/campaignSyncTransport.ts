@@ -18,6 +18,7 @@ import {
 } from '@/types/multiplayer/Player';
 import {
   ClientMessageSchema,
+  HEARTBEAT_INTERVAL_MS,
   nowIso,
   ServerMessageSchema,
 } from '@/types/multiplayer/Protocol';
@@ -92,6 +93,28 @@ export function connectCampaignSyncTransport(
     buildCampaignSyncSocketUrl(options),
     credentialProtocols(wireToken),
   );
+  // The campaign socket participates in the same liveness policy as the
+  // match socket (the server reaps idle connections after
+  // HEARTBEAT_TIMEOUT_MS), so a quiet channel - a GM reading the screen
+  // between commands - must carry heartbeats or be reaped for silence.
+  // Same cadence as the match client: several beats fit inside one
+  // timeout window, so a single dropped frame costs nothing.
+  let heartbeatTimer: ReturnType<typeof setInterval> | null = null;
+  const stopHeartbeat = (): void => {
+    if (heartbeatTimer !== null) clearInterval(heartbeatTimer);
+    heartbeatTimer = null;
+  };
+  const startHeartbeat = (): void => {
+    stopHeartbeat();
+    heartbeatTimer = setInterval(() => {
+      if (closed || socket.readyState !== 1) return;
+      sendParsedEnvelope({
+        kind: 'Heartbeat',
+        matchId: options.matchId,
+        ts: nowIso(),
+      });
+    }, HEARTBEAT_INTERVAL_MS);
+  };
 
   const emitError = (error: unknown): void => {
     errorListeners.forEach((handler) => handler(error));
@@ -170,6 +193,7 @@ export function connectCampaignSyncTransport(
     },
     close: () => {
       closed = true;
+      stopHeartbeat();
       if (activeTransports.get(options.matchId) === transport) {
         activeTransports.delete(options.matchId);
       }
@@ -179,6 +203,7 @@ export function connectCampaignSyncTransport(
   };
 
   socket.onopen = () => {
+    startHeartbeat();
     sendEnvelope({
       kind: 'CampaignJoin',
       matchId: options.matchId,
@@ -228,6 +253,7 @@ export function connectCampaignSyncTransport(
   };
   socket.onerror = (ev) => emitError(ev);
   socket.onclose = () => {
+    stopHeartbeat();
     if (activeTransports.get(options.matchId) === transport) {
       activeTransports.delete(options.matchId);
     }
