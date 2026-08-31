@@ -26,10 +26,9 @@ import type {
   IMatchPausedInfo,
   IMultiplayerError,
 } from '@/hooks/useMultiplayerSession';
-import type {
-  ICommandAuthorityProjection,
-  IPlayerCommandResult,
-} from '@/types/command-screen';
+import type { IClientLifecycleState } from '@/lib/multiplayer/client';
+import type { TacticalLifecycleProjectionSignal } from '@/lib/multiplayer/tacticalLifecycleState';
+import type { ICommandAuthorityProjection } from '@/types/command-screen';
 import type {
   IGameEvent,
   IGameIntent,
@@ -46,12 +45,15 @@ import {
   extractPlayerSafeCommandResults,
 } from '@/lib/command-screen';
 import {
+  deriveTacticalLifecyclePosture,
+  deriveTacticalWireFacts,
+} from '@/lib/multiplayer/tacticalLifecycleState';
+import {
   deriveTurnOwnership,
   localSideFromSeats,
 } from '@/lib/multiplayer/turnOwnership';
 import {
   canLocalPeerControlSide,
-  GamePhase,
   GameSide,
   GameStatus,
 } from '@/types/gameplay/GameSessionInterfaces';
@@ -64,6 +66,11 @@ import {
   MatchPauseOverlay,
   SpectatorIndicator,
 } from './NetworkedGameSurface.overlays';
+import {
+  NetworkedCommandResultFeed,
+  SelectionSummary,
+} from './NetworkedGameSurface.panels';
+import { TacticalLifecycleStateBanner } from './TacticalLifecycleStateBanner';
 
 // =============================================================================
 // Types
@@ -99,6 +106,10 @@ export interface INetworkedGameSurfaceProps {
   readonly hostPlayerId?: string | null;
   readonly onPreviewHostGmCorrection?: () => void;
   readonly onApproveHostGmCorrection?: () => void;
+  /** Public connection/delivery facts exposed by the multiplayer client. */
+  readonly clientLifecycle?: IClientLifecycleState;
+  /** Branch-gated history signal; null in the live multiplayer client today. */
+  readonly projectionSignal?: TacticalLifecycleProjectionSignal | null;
   /**
    * M3 (add-matchmaking-and-spectator) — render the surface in
    * read-only spectator mode. When `true` the intent-emit action bar is
@@ -134,6 +145,8 @@ export function NetworkedGameSurface({
   hostPlayerId,
   onPreviewHostGmCorrection = () => {},
   onApproveHostGmCorrection = () => {},
+  clientLifecycle = LIVE_CLIENT_LIFECYCLE,
+  projectionSignal = null,
   spectator = false,
 }: INetworkedGameSurfaceProps): React.ReactElement {
   // Map-selection state owned here so the action bar stays a controlled
@@ -155,6 +168,21 @@ export function NetworkedGameSurface({
     () => hostPlayerId ?? firstOccupiedHumanPlayerId(seats),
     [hostPlayerId, seats],
   );
+  const tacticalWireFacts = useMemo(
+    () => deriveTacticalWireFacts(mirrorEvents, localSide),
+    [localSide, mirrorEvents],
+  );
+  const tacticalLifecycle = useMemo(
+    () =>
+      deriveTacticalLifecyclePosture({
+        client: clientLifecycle,
+        projectionSignal,
+        ...tacticalWireFacts,
+      }),
+    [clientLifecycle, projectionSignal, tacticalWireFacts],
+  );
+  const interactionPaused =
+    status === 'paused' || tacticalLifecycle.state === 'blocked';
   const authorityProjection = useMemo(
     () =>
       buildNetworkedTacticalAuthorityProjection({
@@ -162,7 +190,7 @@ export function NetworkedGameSurface({
         hostPlayerId: resolvedHostPlayerId,
         canAct: ownership.canAct,
         waitingForOpponent: ownership.waitingForOpponent,
-        paused: status === 'paused',
+        paused: interactionPaused,
         spectator,
       }),
     [
@@ -171,7 +199,7 @@ export function NetworkedGameSurface({
       playerId,
       resolvedHostPlayerId,
       spectator,
-      status,
+      interactionPaused,
     ],
   );
 
@@ -248,7 +276,7 @@ export function NetworkedGameSurface({
   }
 
   const state = mirrorSession.currentState;
-  const paused = status === 'paused';
+  const paused = interactionPaused;
   const isPlayerTurn = ownership.canAct;
 
   // ---------------------------------------------------------------------------
@@ -269,6 +297,8 @@ export function NetworkedGameSurface({
           state.status === GameStatus.Completed ? 'Match complete' : undefined
         }
       />
+
+      <TacticalLifecycleStateBanner posture={tacticalLifecycle} />
 
       <NetworkedAuthorityStrip projection={authorityProjection} />
 
@@ -338,6 +368,14 @@ export function NetworkedGameSurface({
     </section>
   );
 }
+
+const LIVE_CLIENT_LIFECYCLE: IClientLifecycleState = {
+  blockedBySequenceCollision: false,
+  pendingIntentCount: 0,
+  ready: true,
+  reconnectScheduled: false,
+  recoveringFromGap: false,
+};
 
 function firstOccupiedHumanPlayerId(
   seats: readonly IMatchSeat[],
@@ -418,78 +456,6 @@ function NetworkedHostGmControls({
       >
         Approve GM Fix
       </button>
-    </div>
-  );
-}
-
-function NetworkedCommandResultFeed({
-  results,
-}: {
-  readonly results: readonly {
-    readonly publicSummary: string;
-    readonly result: IPlayerCommandResult;
-  }[];
-}): React.ReactElement | null {
-  if (results.length === 0) return null;
-  return (
-    <ul
-      data-testid="network-command-result-feed"
-      className="space-y-2 rounded-lg border border-slate-700 bg-slate-900/50 p-3 text-xs text-slate-200"
-    >
-      {results.map((entry, index) => (
-        <li
-          key={`${entry.result.commandId}-${entry.result.previewId ?? index}`}
-          data-testid="network-command-result-entry"
-          className="rounded border border-slate-700 bg-slate-950/40 px-3 py-2"
-        >
-          <span className="font-medium">{entry.publicSummary}</span>
-          <span className="ml-2 text-slate-400">{entry.result.status}</span>
-        </li>
-      ))}
-    </ul>
-  );
-}
-
-// =============================================================================
-// Selection summary
-// =============================================================================
-
-interface ISelectionSummaryProps {
-  readonly selectedUnitId: string | null;
-  readonly targetUnitId: string | null;
-  readonly phase: GamePhase;
-}
-
-/**
- * Small read-out of the current map selection so the player can see
- * what their next intent will act on. Purely informational.
- */
-function SelectionSummary({
-  selectedUnitId,
-  targetUnitId,
-  phase,
-}: ISelectionSummaryProps): React.ReactElement {
-  const isAttackPhase =
-    phase === GamePhase.WeaponAttack || phase === GamePhase.PhysicalAttack;
-  return (
-    <div
-      data-testid="selection-summary"
-      className="shrink-0 text-right text-xs text-slate-400"
-    >
-      <p>
-        Unit:{' '}
-        <span className="font-mono text-slate-200">
-          {selectedUnitId ?? '—'}
-        </span>
-      </p>
-      {isAttackPhase && (
-        <p>
-          Target:{' '}
-          <span className="font-mono text-slate-200">
-            {targetUnitId ?? '—'}
-          </span>
-        </p>
-      )}
     </div>
   );
 }

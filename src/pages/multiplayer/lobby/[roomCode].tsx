@@ -365,6 +365,7 @@ export default function LobbyPage(): React.ReactElement {
           intentError={session.intentError}
           onClearIntentError={session.clearIntentError}
           onSendGameIntent={session.sendGameIntent}
+          clientLifecycle={session.clientLifecycle}
         />
       )}
     </div>

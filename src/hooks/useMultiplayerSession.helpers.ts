@@ -2,6 +2,7 @@ import type { Dispatch, MutableRefObject, SetStateAction } from 'react';
 
 import type {
   IClientAuth,
+  IClientLifecycleState,
   IConnectOptions,
   IMultiplayerClient,
 } from '@/lib/multiplayer/client';
@@ -31,6 +32,7 @@ const MAX_EVENTS_RETAINED = 200;
 
 interface MultiplayerSetters {
   readonly setClosedInfo: Dispatch<SetStateAction<IMatchClosedInfo | null>>;
+  readonly setClientLifecycle: Dispatch<SetStateAction<IClientLifecycleState>>;
   readonly setError: Dispatch<SetStateAction<IMultiplayerError | null>>;
   readonly setEvents: Dispatch<SetStateAction<readonly unknown[]>>;
   readonly setIntentError: Dispatch<SetStateAction<IMultiplayerError | null>>;
@@ -60,6 +62,7 @@ export function resetMultiplayerConnectionState(
   setters: Pick<
     MultiplayerSetters,
     | 'setClosedInfo'
+    | 'setClientLifecycle'
     | 'setError'
     | 'setIntentError'
     | 'setMirrorLog'
@@ -72,6 +75,13 @@ export function resetMultiplayerConnectionState(
   setters.setIntentError(null);
   setters.setPausedInfo(null);
   setters.setClosedInfo(null);
+  setters.setClientLifecycle({
+    blockedBySequenceCollision: false,
+    pendingIntentCount: 0,
+    ready: false,
+    reconnectScheduled: false,
+    recoveringFromGap: false,
+  });
   setters.setMirrorLog([]);
 }
 
@@ -85,6 +95,7 @@ export function connectMultiplayerSession(
     lastSeq: params.options.lastSeq,
   });
   params.clientRef.current = client;
+  params.setClientLifecycle(client.lifecycle());
 
   const unsubReady = client.on('ready', () => {
     params.setStatus('ready');
@@ -96,12 +107,16 @@ export function connectMultiplayerSession(
   );
   const unsubError = client.on('error', createClientErrorHandler(params));
   const unsubClose = client.on('close', createClientCloseHandler(params));
+  const unsubLifecycle = client.on('lifecycle', () => {
+    params.setClientLifecycle(client.lifecycle());
+  });
 
   return () => {
     unsubReady();
     unsubEvent();
     unsubError();
     unsubClose();
+    unsubLifecycle();
     closeClient(params.clientRef, client);
   };
 }

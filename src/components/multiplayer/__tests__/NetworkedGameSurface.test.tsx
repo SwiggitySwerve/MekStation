@@ -14,6 +14,7 @@
 import '@testing-library/jest-dom';
 import { fireEvent, render, screen } from '@testing-library/react';
 
+import type { IClientLifecycleState } from '@/lib/multiplayer/client';
 import type { ICommandCommitResult } from '@/types/command-screen';
 import type {
   IGameEvent,
@@ -145,6 +146,7 @@ interface IRenderOptions {
   readonly hostPlayerId?: string | null;
   readonly onPreviewHostGmCorrection?: jest.Mock;
   readonly onApproveHostGmCorrection?: jest.Mock;
+  readonly clientLifecycle?: IClientLifecycleState;
 }
 
 function renderSurface(opts: IRenderOptions = {}) {
@@ -170,6 +172,7 @@ function renderSurface(opts: IRenderOptions = {}) {
       onSendGameIntent={onSendGameIntent}
       onPreviewHostGmCorrection={opts.onPreviewHostGmCorrection}
       onApproveHostGmCorrection={opts.onApproveHostGmCorrection}
+      clientLifecycle={opts.clientLifecycle}
     />,
   );
   return { onSendGameIntent, onClearIntentError };
@@ -389,6 +392,24 @@ describe('NetworkedGameSurface — fog rendering', () => {
 // =============================================================================
 
 describe('NetworkedGameSurface — lifecycle', () => {
+  it('renders the client-derived blocked posture at the tactical locator', () => {
+    renderSurface({
+      clientLifecycle: {
+        blockedBySequenceCollision: true,
+        pendingIntentCount: 0,
+        ready: true,
+        reconnectScheduled: false,
+        recoveringFromGap: false,
+      },
+    });
+
+    expect(screen.getByTestId('tactical-lifecycle-state')).toHaveAttribute(
+      'data-state',
+      'blocked',
+    );
+    expect(screen.getByTestId('advance-phase-button')).toBeDisabled();
+  });
+
   it('renders the blocking pause overlay on MatchPaused', () => {
     renderSurface({
       status: 'paused',

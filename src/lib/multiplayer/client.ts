@@ -57,9 +57,19 @@ export type IClientEventName =
   | 'event' // a live game event arrived
   | 'error' // server rejected something
   | 'close' // connection terminated (either side)
-  | 'reconnect'; // reconnection attempt scheduled
+  | 'reconnect' // reconnection attempt scheduled
+  | 'lifecycle'; // public transport/delivery snapshot changed
 
 export type IClientEventHandler = (payload: unknown) => void;
+
+/** Public lifecycle facts for stateful consumer surfaces. */
+export interface IClientLifecycleState {
+  readonly blockedBySequenceCollision: boolean;
+  readonly pendingIntentCount: number;
+  readonly ready: boolean;
+  readonly reconnectScheduled: boolean;
+  readonly recoveringFromGap: boolean;
+}
 
 export interface IMultiplayerClient {
   send(intent: IIntentPayload): void;
@@ -73,6 +83,8 @@ export interface IMultiplayerClient {
   lastSeq(): number;
   /** True after `ReplayEnd` has fired for the current connection. */
   isReady(): boolean;
+  /** Current public transport/delivery snapshot for persistent UI posture. */
+  lifecycle(): IClientLifecycleState;
 }
 
 /**
@@ -629,6 +641,7 @@ export function connect(
     close: () => closeClient(runtime),
     lastSeq: () => state.lastSeq,
     isReady: () => state.ready,
+    lifecycle: () => lifecycleState(state),
   };
 }
 
@@ -789,7 +802,9 @@ function handleSocketClose(runtime: IClientRuntime): void {
   }
   if (!runtime.state.closedByCaller && (runtime.options.reconnect ?? true)) {
     scheduleReconnect(runtime);
+    return;
   }
+  emitLifecycle(runtime);
 }
 
 function handleServerMessage(
@@ -811,6 +826,7 @@ function handleServerMessage(
     },
     acknowledgeDelivery: () => sendDeliveryAck(runtime),
   });
+  emitLifecycle(runtime);
 }
 
 /**
@@ -1092,6 +1108,20 @@ function noteDeliveryGap(
   return true;
 }
 
+function emitLifecycle(runtime: IClientRuntime): void {
+  emitClientEvent(runtime, 'lifecycle', lifecycleState(runtime.state));
+}
+
+function lifecycleState(state: IClientState): IClientLifecycleState {
+  return {
+    blockedBySequenceCollision: state.blockedBySequenceCollision,
+    pendingIntentCount: state.pendingIntents.size,
+    ready: state.ready,
+    reconnectScheduled: state.reconnectTimer !== null,
+    recoveringFromGap: state.recoveringFromGap,
+  };
+}
+
 /**
  * Un-pin the delivery cursor - but only on evidence that the hole was
  * filled.
@@ -1152,9 +1182,11 @@ function scheduleReconnect(runtime: IClientRuntime): void {
   });
   runtime.state.reconnectTimer = setTimeout(() => {
     runtime.state.reconnectTimer = null;
+    emitLifecycle(runtime);
     if (runtime.state.closedByCaller) return;
     openSocket(runtime);
   }, delay);
+  emitLifecycle(runtime);
 }
 
 /**
@@ -1297,6 +1329,7 @@ function sendClientIntent(
   // the case this exists for: the command is pending either way, and
   // only a receipt says otherwise.
   runtime.state.pendingIntents.set(envelope.intentId, parsed.data);
+  emitLifecycle(runtime);
   try {
     runtime.state.socket.send(JSON.stringify(parsed.data));
   } catch (e) {
