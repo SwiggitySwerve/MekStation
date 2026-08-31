@@ -555,7 +555,8 @@ export type CampaignIntentRejectionReason =
   | 'host-only'
   | 'malformed-intent'
   | 'session-closed'
-  | 'campaign-mismatch';
+  | 'campaign-mismatch'
+  | 'intent-identity-conflict';
 
 /**
  * The result of validating one campaign intent against authoritative

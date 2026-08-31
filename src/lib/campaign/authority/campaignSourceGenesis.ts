@@ -224,7 +224,7 @@ export async function appendCampaignGenesis(
   });
   if (
     result.kind === 'sequence-conflict' ||
-    result.kind === 'duplicate-command'
+    result.kind === 'command-identity-conflict'
   ) {
     return { kind: 'already-journaled' };
   }

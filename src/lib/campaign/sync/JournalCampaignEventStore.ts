@@ -47,8 +47,13 @@ import { SQLiteEventJournalWriter } from '@/lib/events/journal/SQLiteEventJourna
 
 import { campaignEventEntityRefs } from './campaignEventEntityRefs';
 import {
+  readCampaignJournalEvents,
+  readCampaignJournalHighestSequence,
+} from './campaignJournalReads';
+import {
   CampaignEventSequenceCollisionError,
   type CampaignCombatOutcomeInboxResult,
+  type ICampaignCommandReceipt,
   type ICampaignCombatOutcomeReceipt,
   type ICampaignEventStore,
 } from './ICampaignEventStore';
@@ -73,6 +78,8 @@ export const CAMPAIGN_JOURNAL_AUTHORITY_ENABLED = false;
 export interface ICampaignJournalEnvelope {
   readonly campaignEvent: ICampaignEvent;
   readonly expectedPostStateDigest: string | null;
+  /** Stable identity of the client intent that produced this command. */
+  readonly intentFingerprint: string | null;
 }
 
 export type CampaignBatchAppendFailure =
@@ -81,14 +88,21 @@ export type CampaignBatchAppendFailure =
       readonly expectedNextSequence: number;
       readonly actualNextSequence: number;
     }
-  | { readonly kind: 'duplicate-command'; readonly commandId: string }
+  | {
+      readonly kind: 'command-identity-conflict';
+      readonly commandId: string;
+    }
   | { readonly kind: 'integrity-conflict' };
 
 export type CampaignBatchAppendResult =
   | {
       readonly kind: 'committed';
-      readonly receipt: ICommandReceipt;
+      readonly receipt: ICommandReceipt & ICampaignCommandReceipt;
       readonly expectedPostStateDigest: string | null;
+    }
+  | {
+      readonly kind: 'duplicate-command';
+      readonly receipt: ICampaignCommandReceipt;
     }
   | CampaignBatchAppendFailure;
 
@@ -122,6 +136,7 @@ function toAppendEvent(
   commandIndex: number,
   event: ICampaignEvent,
   expectedPostStateDigest: string | null,
+  intentFingerprint: string | null,
 ): IEventToAppend<ICampaignJournalEnvelope> {
   return {
     // Deterministic per (command, index): a retried command re-derives the
@@ -135,14 +150,18 @@ function toAppendEvent(
     correlationId: commandId,
     causationEventIds: [],
     occurredAt: event.ts,
-    payload: { campaignEvent: event, expectedPostStateDigest },
+    payload: {
+      campaignEvent: event,
+      expectedPostStateDigest,
+      intentFingerprint,
+    },
     // Task 5.3: the full durable identity chain (campaign, campaign-unit,
     // canonical/saved source, pilot, contract, session) per event type.
     entityRefs: campaignEventEntityRefs(campaignId, event),
   };
 }
 
-function envelopeOf(
+export function envelopeOf(
   stored: IStoredEvent<ICampaignJournalEnvelope>,
 ): ICampaignEvent {
   return stored.payload.campaignEvent;
@@ -153,6 +172,7 @@ function toJournalBatch(input: {
   readonly commandId: string;
   readonly events: readonly ICampaignEvent[];
   readonly expectedPostStateDigest: string | null;
+  readonly intentFingerprint?: string | null;
   readonly principal?: IResolvedJournalPrincipal;
 }): IAppendEventBatch<ICampaignJournalEnvelope> {
   if (input.events.length === 0) {
@@ -178,6 +198,7 @@ function toJournalBatch(input: {
         index === input.events.length - 1
           ? input.expectedPostStateDigest
           : null,
+        input.intentFingerprint ?? null,
       ),
     ),
     principal:
@@ -199,6 +220,7 @@ export async function appendCampaignCommandBatch(
     readonly commandId: string;
     readonly events: readonly ICampaignEvent[];
     readonly expectedPostStateDigest: string | null;
+    readonly intentFingerprint?: string | null;
     /** Override the derived human principal (e.g. migration imports). */
     readonly principal?: IResolvedJournalPrincipal;
   },
@@ -208,7 +230,11 @@ export async function appendCampaignCommandBatch(
   if ('kind' in result && result.kind === 'committed') {
     return {
       kind: 'committed',
-      receipt: result.receipt,
+      receipt: {
+        ...result.receipt,
+        intentFingerprint: input.intentFingerprint ?? null,
+        events: result.events.map(envelopeOf),
+      },
       expectedPostStateDigest: input.expectedPostStateDigest,
     };
   }
@@ -220,7 +246,7 @@ export async function appendCampaignCommandBatch(
     };
   }
   if (result.kind === 'command-identity-conflict') {
-    return { kind: 'duplicate-command', commandId: result.commandId };
+    return { kind: 'command-identity-conflict', commandId: result.commandId };
   }
   return { kind: 'integrity-conflict' };
 }
@@ -368,16 +394,47 @@ export class JournalCampaignEventStore implements ICampaignEventStore {
     campaignId: string,
     input: {
       readonly commandId: string;
+      readonly intentFingerprint?: string | null;
       readonly events: readonly ICampaignEvent[];
       readonly expectedPostStateDigest: string;
     },
   ): Promise<CampaignBatchAppendResult> => {
+    const prior = await this.getCommandReceipt(campaignId, input.commandId);
+    if (prior) {
+      return prior.intentFingerprint === (input.intentFingerprint ?? null)
+        ? { kind: 'duplicate-command', receipt: prior }
+        : {
+            kind: 'command-identity-conflict',
+            commandId: input.commandId,
+          };
+    }
     return appendCampaignCommandBatch(this.journal, {
       campaignId,
       commandId: input.commandId,
+      intentFingerprint: input.intentFingerprint,
       events: input.events,
       expectedPostStateDigest: input.expectedPostStateDigest,
     });
+  };
+
+  getCommandReceipt = async (
+    campaignId: string,
+    commandId: string,
+  ): Promise<ICampaignCommandReceipt | null> => {
+    const highWater = await this.journal.captureHighWater();
+    if (highWater.commitPosition === 0) return null;
+    const rows = await this.journal.readEventHistory({
+      selector: { kind: 'correlation', id: commandId },
+      afterCommitPosition: 0,
+      throughCommitPosition: highWater.commitPosition,
+      limit: EVENT_JOURNAL_MAX_PAGE_SIZE,
+    });
+    if (rows.length === 0 || rows[0].streamId !== campaignId) return null;
+    return {
+      commandId,
+      intentFingerprint: rows[0].payload.intentFingerprint ?? null,
+      events: rows.map(envelopeOf),
+    };
   };
 
   appendCombatOutcomeBatch = async (
@@ -409,6 +466,7 @@ export class JournalCampaignEventStore implements ICampaignEventStore {
       events: [event],
       // Single-event facade appends carry no derived post-state digest.
       expectedPostStateDigest: null,
+      intentFingerprint: null,
     });
     if (result.kind === 'committed') return;
     throw new CampaignEventSequenceCollisionError(campaignId, event.sequence);
@@ -417,43 +475,11 @@ export class JournalCampaignEventStore implements ICampaignEventStore {
   getEvents = async (
     campaignId: string,
     fromSeq = 0,
-  ): Promise<readonly ICampaignEvent[]> => {
-    const events: ICampaignEvent[] = [];
-    // afterRevision is exclusive and sequence N lives at revision N + 1,
-    // so starting after revision `fromSeq` yields sequence >= fromSeq.
-    let afterRevision = Math.max(0, fromSeq);
-    for (;;) {
-      const page = await this.journal.readStream({
-        streamType: CAMPAIGN_STREAM_TYPE,
-        streamId: campaignId,
-        branchId: ROOT_EVENT_BRANCH_ID,
-        afterRevision,
-        limit: EVENT_JOURNAL_MAX_PAGE_SIZE,
-      });
-      for (const stored of page) events.push(envelopeOf(stored));
-      if (page.length < EVENT_JOURNAL_MAX_PAGE_SIZE) return events;
-      afterRevision = page[page.length - 1].streamRevision;
-    }
-  };
+  ): Promise<readonly ICampaignEvent[]> =>
+    readCampaignJournalEvents(this.journal, campaignId, fromSeq);
 
-  highestSequence = async (campaignId: string): Promise<number> => {
-    let highest = -1;
-    let afterRevision = 0;
-    for (;;) {
-      const page = await this.journal.readStream({
-        streamType: CAMPAIGN_STREAM_TYPE,
-        streamId: campaignId,
-        branchId: ROOT_EVENT_BRANCH_ID,
-        afterRevision,
-        limit: EVENT_JOURNAL_MAX_PAGE_SIZE,
-      });
-      if (page.length > 0) {
-        highest = envelopeOf(page[page.length - 1]).sequence;
-        afterRevision = page[page.length - 1].streamRevision;
-      }
-      if (page.length < EVENT_JOURNAL_MAX_PAGE_SIZE) return highest;
-    }
-  };
+  highestSequence = async (campaignId: string): Promise<number> =>
+    readCampaignJournalHighestSequence(this.journal, campaignId);
 }
 
 /**

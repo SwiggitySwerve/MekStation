@@ -150,6 +150,7 @@ function toStoredHostEvent(
   const payload: ICampaignJournalEnvelope = {
     campaignEvent: event,
     expectedPostStateDigest: null,
+    intentFingerprint: null,
   };
   return {
     eventId,
