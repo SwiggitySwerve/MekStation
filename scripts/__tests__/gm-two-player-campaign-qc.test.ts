@@ -5,7 +5,7 @@ const repoRoot = path.resolve(__dirname, '../..');
 const runner = path.join(repoRoot, 'scripts/qc/run-gm-two-player-campaign.mjs');
 const core = require('../qc/gm-two-player-campaign-core.cjs');
 const groups =
-  'fixture-smoke,membership-smoke,evidence-smoke,fault-smoke,smoke,authority-pack1,authority,visibility,combat,campaign,failure,performance,all,traceability,quality,manual-setup,scope'.split(
+  'fixture-smoke,membership-smoke,evidence-smoke,fault-smoke,smoke,authority-pack1,exactly-once-pack,authority,visibility,combat,campaign,failure,performance,all,traceability,quality,manual-setup,scope'.split(
     ',',
   );
 const run = (...args: string[]) =>
@@ -79,6 +79,19 @@ describe('GM and two-player campaign QC runner', () => {
       'e2e/gm-two-player-authority.pack1.spec.ts',
       '--workers=1',
     ]);
+
+    const exactlyOncePlan = core.buildRunPlan({
+      group: 'exactly-once-pack',
+      runId: 'task-21-exactly-once-pack',
+      repoRoot,
+    });
+    expect(exactlyOncePlan.args).toEqual([
+      path.join(repoRoot, 'scripts/playwright/run-playwright.mjs'),
+      'test',
+      '--project=chromium',
+      'e2e/gm-two-player-exactly-once.pack.spec.ts',
+      '--workers=1',
+    ]);
   });
 
   it('types unknown and future groups before browser startup', () => {
@@ -95,6 +108,7 @@ describe('GM and two-player campaign QC runner', () => {
       'membership-smoke',
       'smoke',
       'authority-pack1',
+      'exactly-once-pack',
     ];
     for (const group of groups.filter(
       (group) => !implemented.includes(group),
