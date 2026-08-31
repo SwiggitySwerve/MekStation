@@ -24,6 +24,7 @@ import {
   HEARTBEAT_INTERVAL_MS,
   HEARTBEAT_TIMEOUT_MS,
   RECONNECT_MAX_MS,
+  isCampaignClientMessage,
   nowIso,
 } from '../Protocol';
 
@@ -453,6 +454,16 @@ describe('Protocol envelope schemas', () => {
         cursor: null,
       };
       expect(ClientMessageSchema.safeParse(env).success).toBe(true);
+    });
+
+    it('routes a protocol heartbeat through the campaign channel', () => {
+      const parsed = ClientMessageSchema.parse({
+        kind: 'Heartbeat',
+        matchId: 'match-campaign',
+        ts: nowIso(),
+      });
+
+      expect(isCampaignClientMessage(parsed)).toBe(true);
     });
 
     it('throws loudly for an unknown campaign-sync frame kind', () => {
