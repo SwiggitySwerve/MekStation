@@ -13,6 +13,8 @@ import { LobbyPanel } from '@/components/multiplayer/LobbyPanel';
 import { NetworkedGameSurface } from '@/components/multiplayer/NetworkedGameSurface';
 import { useMultiplayerSession } from '@/hooks/useMultiplayerSession';
 import {
+  clearMultiplayerTokenCredential,
+  readMultiplayerMatchId,
   readMultiplayerToken,
   storeMultiplayerToken,
 } from '@/pages-modules/multiplayer/multiplayerAuthTokenStore';
@@ -49,9 +51,9 @@ function useInviteResolution(roomCode: string | null): {
           // from the stored identity, so a mid-match reload resumes
           // instead of dead-ending (umbrella 6.4). A stranger with the
           // dead code and no stored identity still sees not-found.
-          const stored = readMultiplayerToken(roomCode);
-          if (stored?.matchId) {
-            setResolution({ matchId: stored.matchId, status: 'active' });
+          const storedMatchId = readMultiplayerMatchId(roomCode);
+          if (storedMatchId) {
+            setResolution({ matchId: storedMatchId, status: 'active' });
             return;
           }
           setResolveError('Invite code not found or expired');
@@ -234,6 +236,17 @@ function multiplayerUnavailableReason(
   return null;
 }
 
+function isTerminalStaleCredentialRejection(
+  closeCode: string | undefined,
+  tokenState: MultiplayerTokenState | null,
+): boolean {
+  if (!tokenState || closeCode !== 'RECONNECT_LIMIT') {
+    return false;
+  }
+  const expiresMs = Date.parse(tokenState.token.expiresAt);
+  return Number.isFinite(expiresMs) && expiresMs <= Date.now();
+}
+
 export default function LobbyPage(): React.ReactElement {
   const router = useRouter();
   const roomCode =
@@ -281,6 +294,17 @@ export default function LobbyPage(): React.ReactElement {
     { maxReconnectAttempts: 2 },
   );
   useAutoOccupySeat(session, tokenState);
+  const terminalStaleCredentialRejected = isTerminalStaleCredentialRejection(
+    session.closedInfo?.code,
+    tokenState,
+  );
+  useEffect(() => {
+    if (!roomCode || !terminalStaleCredentialRejected) {
+      return;
+    }
+    clearMultiplayerTokenCredential(roomCode);
+    setTokenState(null);
+  }, [roomCode, terminalStaleCredentialRejected]);
 
   if (!roomCode) {
     return (

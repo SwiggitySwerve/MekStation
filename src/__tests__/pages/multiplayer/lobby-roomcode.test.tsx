@@ -25,7 +25,10 @@ import type { ILobbyUpdated } from '@/types/multiplayer/Protocol';
 
 import { buildMirrorSession } from '@/lib/multiplayer/mirrorMatchSession';
 import { GameSide } from '@/types/gameplay/GameSessionInterfaces';
-import { encodeTokenForWire } from '@/types/multiplayer/Player';
+import {
+  decodeTokenFromWire,
+  encodeTokenForWire,
+} from '@/types/multiplayer/Player';
 import {
   advancePhase,
   createGameSession,
@@ -68,11 +71,11 @@ import LobbyPage from '@/pages/multiplayer/lobby/[roomCode]';
 
 const PLAYER_ID = 'pid_3yJ8Qw1aBcDeFgHiJkLmNoPqRsTuVwXyZ';
 
-function wireToken(): string {
+function wireToken(expiresAt = '2099-01-01T00:00:00.000Z'): string {
   return encodeTokenForWire({
     playerId: PLAYER_ID,
     issuedAt: '2026-05-19T00:00:00.000Z',
-    expiresAt: '2099-01-01T00:00:00.000Z',
+    expiresAt,
     publicKey: 'cHVibGljLWtleQ==',
     signature: 'c2lnbmF0dXJl',
   });
@@ -269,6 +272,99 @@ describe('Multiplayer lobby page — surface swap on status', () => {
       await screen.findByTestId('multiplayer-unavailable-panel'),
     ).toHaveTextContent('Multiplayer unavailable');
     expect(screen.queryByText('Joining lobby...')).not.toBeInTheDocument();
+  });
+
+  it('returns an expired restored credential to the vault prompt while retaining the match route', async () => {
+    const expiredWireToken = wireToken('2026-05-19T00:00:01.000Z');
+    const expiredToken = decodeTokenFromWire(expiredWireToken);
+    if (!expiredToken) throw new Error('expired test token did not decode');
+    window.sessionStorage.setItem(
+      'mekstation.multiplayer.token.ROOM01',
+      JSON.stringify({
+        state: {
+          wireToken: expiredWireToken,
+          token: expiredToken,
+          displayName: 'Host',
+        },
+        matchId: 'match-1',
+      }),
+    );
+    mockSession = {
+      ...baseSession('lobby'),
+      status: 'closed',
+      lobbyState: null,
+      closedInfo: {
+        code: 'RECONNECT_LIMIT',
+        reason: 'Unable to reconnect to multiplayer session',
+      },
+    };
+
+    render(<LobbyPage />);
+
+    await waitFor(() =>
+      expect(screen.getByText('Unlock vault')).toBeInTheDocument(),
+    );
+    expect(
+      window.sessionStorage.getItem('mekstation.multiplayer.token.ROOM01'),
+    ).toBe(JSON.stringify({ matchId: 'match-1' }));
+  });
+
+  it('keeps an unexpired credential on the reconnect path after a transient terminal retry failure', async () => {
+    const validWireToken = wireToken();
+    const validToken = decodeTokenFromWire(validWireToken);
+    if (!validToken) throw new Error('valid test token did not decode');
+    window.sessionStorage.setItem(
+      'mekstation.multiplayer.token.ROOM01',
+      JSON.stringify({
+        state: {
+          wireToken: validWireToken,
+          token: validToken,
+          displayName: 'Host',
+        },
+        matchId: 'match-1',
+      }),
+    );
+    mockSession = {
+      ...baseSession('lobby'),
+      status: 'closed',
+      lobbyState: null,
+      closedInfo: {
+        code: 'RECONNECT_LIMIT',
+        reason: 'Unable to reconnect to multiplayer session',
+      },
+    };
+
+    render(<LobbyPage />);
+
+    expect(
+      await screen.findByTestId('multiplayer-unavailable-panel'),
+    ).toBeInTheDocument();
+    expect(screen.queryByText('Unlock vault')).not.toBeInTheDocument();
+    expect(
+      window.sessionStorage.getItem('mekstation.multiplayer.token.ROOM01'),
+    ).toContain(validWireToken);
+  });
+
+  it('keeps the active-invite 404 fallback on the preserved match route after credential clearing', async () => {
+    window.sessionStorage.setItem(
+      'mekstation.multiplayer.token.ROOM01',
+      JSON.stringify({ matchId: 'match-1' }),
+    );
+    global.fetch = jest.fn(async () => ({
+      ok: false,
+      status: 404,
+      json: async () => ({ error: 'Invite code not found or expired' }),
+    })) as unknown as typeof fetch;
+    mockSession = baseSession('lobby');
+
+    render(<LobbyPage />);
+
+    await waitFor(() => expect(global.fetch).toHaveBeenCalledTimes(1));
+    await act(async () => {});
+    expect(screen.getByText('Unlock vault')).toBeInTheDocument();
+    expect(
+      screen.queryByText('Invite code not found or expired'),
+    ).not.toBeInTheDocument();
   });
 
   it('no longer references the single-player gameplay placeholder copy', () => {
