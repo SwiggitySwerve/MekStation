@@ -34,6 +34,7 @@ import {
 import { TokenIssueBodySchema } from '@/lib/api/securitySchemas';
 import { canonicalTokenPayload } from '@/lib/multiplayer/server/auth';
 import { derivePlayerId } from '@/lib/multiplayer/server/playerIdFromPublicKey';
+import { consumeE2ETokenTtlOverride } from '@/pages-modules/api/e2eTokenTtlRoute';
 import { rejectUnexpectedMethod } from '@/pages-modules/api/routeHelpers';
 import { getIdentityRepository } from '@/services/vault/IdentityRepository';
 import {
@@ -117,7 +118,13 @@ export default async function handler(
     rejectRateLimited(res, limit);
     return;
   }
-  const ttl = ttlMs ? Math.min(ttlMs, MAX_TTL_MS) : DEFAULT_TTL_MS;
+  // The E2E-only route may supply a short default for exactly one normal
+  // vault mint. An explicit caller value always wins and production keeps
+  // the one-hour default because no guarded route can arm an override.
+  const ttl = Math.min(
+    ttlMs ?? consumeE2ETokenTtlOverride() ?? DEFAULT_TTL_MS,
+    MAX_TTL_MS,
+  );
 
   // Load + unlock the active identity. We never persist the unlocked
   // identity beyond this request — the decrypted private key lives in

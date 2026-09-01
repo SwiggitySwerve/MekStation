@@ -77,11 +77,45 @@ export function readMultiplayerToken(
         matchId: typeof parsed.matchId === 'string' ? parsed.matchId : null,
       };
     }
+    // A terminal stale-token rejection deliberately retains only this
+    // durable route. It is not a malformed credential and must survive
+    // until the next successful vault reauthentication replaces it.
+    if (typeof parsed.matchId === 'string' && state === undefined) {
+      return null;
+    }
   } catch {
     // Malformed storage falls through to removal below.
   }
   storage.removeItem(storageKey(roomCode));
   return null;
+}
+
+export function readMultiplayerMatchId(
+  roomCode: string | null | undefined,
+): string | null {
+  if (!roomCode) return null;
+  const storage = getSessionStorage();
+  if (!storage) return null;
+  const raw = storage.getItem(storageKey(roomCode));
+  if (!raw) return null;
+  try {
+    const parsed = JSON.parse(raw) as { matchId?: unknown };
+    return typeof parsed.matchId === 'string' ? parsed.matchId : null;
+  } catch {
+    return null;
+  }
+}
+
+/** Drop a refused wire credential without losing the match resume route. */
+export function clearMultiplayerTokenCredential(roomCode: string): void {
+  const storage = getSessionStorage();
+  if (!storage) return;
+  const matchId = readMultiplayerMatchId(roomCode);
+  if (matchId) {
+    storage.setItem(storageKey(roomCode), JSON.stringify({ matchId }));
+    return;
+  }
+  storage.removeItem(storageKey(roomCode));
 }
 
 export function clearMultiplayerToken(roomCode: string): void {
