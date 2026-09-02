@@ -7,33 +7,17 @@
  * nothing, because previewing commits nothing - and asked before anything
  * is applied.
  *
- * WHY NOT `DialogTemplate`, and why this is a second dialog rather than a
- * reuse of `VetoConfirmationDialog`: the shipped modal stack puts
- * `aria-labelledby` on the content div rather than on the element carrying
- * `role="dialog"` (so the dialog has no accessible name) and never
- * restores focus on close. `VetoConfirmationDialog` was built in the
- * campaign tree to avoid both, and this follows its SHAPE deliberately -
- * same trap, same Escape scope, same restore-with-fallback - but it is a
- * different dialog: its body has three states (in flight, a preview, a
- * refusal), it swaps between them without closing, and its primary action
- * is disabled for a reason it must render. Importing across into the
- * campaign tree to share a shell would couple two surfaces that answer
- * different questions.
- *
- * The focus trap is NOT re-implemented: `trapFocus` already exists in
- * `src/utils/accessibility.ts`, and a third copy is how copies drift.
- *
  * A REFUSAL DOES NOT CLOSE THE DIALOG. Closing on a refusal would drop the
- * GM back to the surface with no statement of what happened, and the thing
- * they need next - asking the server again - would be a control they have
- * to rediscover. The body swaps in place, focus moves to the sentence, and
- * the primary becomes the recovery, which commits nothing: it clears the
- * local answer so the server is asked again.
+ * GM back to the surface with no statement of what happened. Confirm stays
+ * disabled while a commit is in flight and after a committed result so a
+ * second press cannot apply the same rewind twice.
  *
  * @spec openspec/changes/harden-gm-two-player-campaign-sessions/tasks.md
  */
 
-import React, { useEffect, useId, useRef } from 'react';
+import React, { useEffect, useId, useRef, useState } from 'react';
+
+import type { GmCombatRewindCommitResult } from '@/lib/multiplayer/server/history/GmCombatRewindCommit';
 
 import { trapFocus } from '@/utils/accessibility';
 
@@ -42,9 +26,10 @@ import type {
   IGmRewindArm,
 } from './gmRewindPreviewPhrasing';
 
+import { RewindPreviewBody } from './GmRewindPreviewDialog.body';
 import {
   describePreviewUnavailable,
-  describeRewindBlastRadius,
+  describeRewindCommitted,
   describeRewindRefusal,
   dispatchWhenArmed,
   rewindConfirmArm,
@@ -58,10 +43,10 @@ export interface GmRewindPreviewDialogProps {
   /** Asks the server again. Commits nothing - the recovery after a refusal. */
   readonly onRetryPreview: () => void;
   /**
-   * Applies the previewed rewind. Absent until task 3b-iv builds a commit
-   * path; while absent the confirm renders disabled with the reason.
+   * Applies the previewed rewind. Absent until a page binds the commit
+   * producer; while absent the confirm renders disabled with the reason.
    */
-  readonly onConfirmRewind?: () => void;
+  readonly onConfirmRewind?: () => Promise<GmCombatRewindCommitResult>;
   /** Backs out, applying nothing. */
   readonly onCancel: () => void;
   /**
@@ -88,28 +73,42 @@ export function GmRewindPreviewDialog({
   const titleId = useId();
   const descriptionId = useId();
   const confirmReasonId = useId();
+  const [commitResult, setCommitResult] =
+    useState<GmCombatRewindCommitResult | null>(null);
+  const [committing, setCommitting] = useState(false);
+  const [commitUnavailable, setCommitUnavailable] = useState(false);
+  const inFlightRef = useRef(false);
 
   const confirmArm: IGmRewindArm = rewindConfirmArm(
     outcome,
     onConfirmRewind !== undefined,
   );
-  const refused = outcome !== null && outcome.kind !== 'preview';
+  const confirmLocked =
+    committing || commitResult?.kind === 'committed' || commitUnavailable;
+  const confirmEnabled = confirmArm.enabled && !confirmLocked;
+  const commitRefused = commitResult?.kind === 'refused';
+  const refused =
+    (outcome !== null && outcome.kind !== 'preview') ||
+    commitRefused ||
+    commitUnavailable;
 
   useEffect(() => {
-    // Plain locals, not refs: the effect runs once, so the closure carries
-    // these to cleanup, and reading a ref inside cleanup is the unreliable
-    // pattern the hooks lint warns about.
+    // A new preview (or a retry that cleared the last one) is a different
+    // question. The previous commit answer must not linger as if it were
+    // this one's.
+    setCommitResult(null);
+    setCommitting(false);
+    setCommitUnavailable(false);
+    inFlightRef.current = false;
+  }, [outcome]);
+
+  useEffect(() => {
     const opener = document.activeElement;
     const fallback = fallbackFocusRef;
     const dialog = dialogRef.current;
-    // Focus the primary control that can actually be used. When confirm is
-    // disabled that is the way out, not the greyed-out action - a keyboard
-    // user landing on something inert has to guess where they are.
     primaryRef.current?.focus();
     const release = dialog ? trapFocus(dialog) : null;
 
-    // Escape on the document, matching the shipped modals: focus sits on a
-    // button inside, so a container-scoped listener would miss the key.
     const handleKey = (event: KeyboardEvent): void => {
       if (event.key === 'Escape') onCancel();
     };
@@ -129,13 +128,35 @@ export function GmRewindPreviewDialog({
   }, []);
 
   useEffect(() => {
-    // A refusal arriving while the dialog is open leaves the GM's focus on
-    // a control that no longer exists or no longer means anything. Move it
-    // to the sentence that says what happened, which is also how a screen
-    // reader hears the swap at all - the body changed, the dialog did not.
     if (!refused) return;
     refusalRef.current?.focus();
   }, [refused]);
+
+  const askToConfirm = async (): Promise<void> => {
+    if (onConfirmRewind === undefined || inFlightRef.current) return;
+    if (commitResult?.kind === 'committed') return;
+    // WHY: two clicks can land before React disables the button. The ref
+    // is the guard the disabled attribute cannot be; without it a pending
+    // producer is called twice and the match is rewound twice.
+    inFlightRef.current = true;
+    setCommitting(true);
+    try {
+      const result = await onConfirmRewind();
+      setCommitResult(result);
+    } catch {
+      setCommitUnavailable(true);
+    } finally {
+      inFlightRef.current = false;
+      setCommitting(false);
+    }
+  };
+
+  const armedForClick: IGmRewindArm = confirmEnabled
+    ? { enabled: true, disabledReason: null }
+    : {
+        enabled: false,
+        disabledReason: confirmArm.disabledReason ?? 'Commit already sent.',
+      };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
@@ -152,7 +173,7 @@ export function GmRewindPreviewDialog({
           Rewind this match?
         </h4>
 
-        {outcome === null && (
+        {outcome === null && commitResult === null && !commitUnavailable && (
           <p
             id={descriptionId}
             data-testid="gm-rewind-pending"
@@ -162,54 +183,66 @@ export function GmRewindPreviewDialog({
           </p>
         )}
 
-        {outcome !== null && outcome.kind === 'preview' && (
-          <RewindPreviewBody descriptionId={descriptionId} outcome={outcome} />
+        {outcome !== null &&
+          outcome.kind === 'preview' &&
+          commitResult === null &&
+          !commitUnavailable && (
+            <RewindPreviewBody
+              descriptionId={descriptionId}
+              outcome={outcome}
+            />
+          )}
+
+        {commitResult?.kind === 'committed' && (
+          <p
+            id={descriptionId}
+            data-testid="gm-rewind-committed"
+            className="mt-2 text-xs text-emerald-200"
+          >
+            {describeRewindCommitted(commitResult)}
+          </p>
         )}
 
-        {refused && outcome !== null && (
+        {refused && (
           <p
             ref={refusalRef}
             id={descriptionId}
             data-testid="gm-rewind-refusal"
-            // Focusable so focus can land on the statement itself, never in
-            // the tab order - it is a sentence, not a control.
             tabIndex={-1}
             className="mt-2 text-xs text-amber-200"
           >
-            {outcome.kind === 'refused'
-              ? describeRewindRefusal(outcome)
-              : describePreviewUnavailable()}
+            {commitResult?.kind === 'refused'
+              ? describeRewindRefusal(commitResult)
+              : outcome !== null && outcome.kind === 'refused'
+                ? describeRewindRefusal(outcome)
+                : describePreviewUnavailable()}
           </p>
         )}
 
-        {/* The reason the confirm is unavailable, rendered rather than
-            implied: an `aria-describedby` pointing at nothing describes
-            nothing, and a disabled control is out of the tab order so
-            hover cannot rescue it. */}
-        {confirmArm.disabledReason !== null && !refused && (
+        {armedForClick.disabledReason !== null && !refused && (
           <p
             id={confirmReasonId}
             data-testid="gm-rewind-confirm-reason"
             className="mt-2 text-xs text-slate-500"
           >
-            {confirmArm.disabledReason}
+            {armedForClick.disabledReason}
           </p>
         )}
 
-        {/* Wraps rather than scrolls, so every answer stays reachable on a
-            narrow viewport. */}
         <div
           data-testid="gm-rewind-preview-actions"
           className="mt-4 flex flex-wrap justify-end gap-2"
         >
           <button
-            ref={refused || !confirmArm.enabled ? primaryRef : null}
+            ref={refused || !confirmEnabled ? primaryRef : null}
             type="button"
             data-testid="gm-rewind-cancel"
             onClick={onCancel}
             className={`${BUTTON_BASE} border-slate-600 bg-slate-800 text-slate-200 hover:bg-slate-700 focus:ring-slate-400`}
           >
-            {refused ? 'Close' : 'Leave history alone'}
+            {refused || commitResult?.kind === 'committed'
+              ? 'Close'
+              : 'Leave history alone'}
           </button>
 
           {refused ? (
@@ -223,14 +256,20 @@ export function GmRewindPreviewDialog({
             </button>
           ) : (
             <button
-              ref={confirmArm.enabled ? primaryRef : null}
+              ref={confirmEnabled ? primaryRef : null}
               type="button"
               data-testid="gm-rewind-confirm"
-              disabled={!confirmArm.enabled}
+              disabled={!confirmEnabled}
               aria-describedby={
-                confirmArm.disabledReason !== null ? confirmReasonId : undefined
+                armedForClick.disabledReason !== null
+                  ? confirmReasonId
+                  : undefined
               }
-              onClick={() => dispatchWhenArmed(confirmArm, onConfirmRewind)}
+              onClick={() =>
+                dispatchWhenArmed(armedForClick, () => {
+                  void askToConfirm();
+                })
+              }
               className={`${BUTTON_BASE} border-red-500/50 bg-red-600/20 text-red-200 hover:bg-red-600/30 focus:ring-red-400 disabled:cursor-not-allowed disabled:opacity-50`}
             >
               Rewind the match
@@ -238,35 +277,6 @@ export function GmRewindPreviewDialog({
           )}
         </div>
       </div>
-    </div>
-  );
-}
-
-function RewindPreviewBody({
-  descriptionId,
-  outcome,
-}: {
-  readonly descriptionId: string;
-  readonly outcome: Extract<GmRewindPreviewOutcome, { kind: 'preview' }>;
-}): React.ReactElement {
-  const radius = describeRewindBlastRadius(outcome);
-  return (
-    <div
-      id={descriptionId}
-      data-testid="gm-rewind-preview-blast-radius"
-      className="mt-2 text-xs text-slate-400"
-    >
-      <p>{radius.summary}</p>
-      {radius.artifactLines.length > 0 && (
-        <ul className="mt-2 list-disc pl-5">
-          {radius.artifactLines.map((line) => (
-            <li key={line}>{line}</li>
-          ))}
-        </ul>
-      )}
-      <p className="mt-2 text-slate-500">
-        Nothing has been changed yet. Looking costs nothing.
-      </p>
     </div>
   );
 }
