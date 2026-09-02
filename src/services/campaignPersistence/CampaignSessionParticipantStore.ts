@@ -314,3 +314,30 @@ export function revokeCampaignSessionParticipant(input: {
     );
   return result.changes > 0;
 }
+
+/**
+ * Whether the membership row exists and has a revocation timestamp.
+ *
+ * A missing row and an active row are both "not revoked". The
+ * campaign socket needs that distinction: activeCampaignSessionMembership
+ * reports a revoked member as absent, so a newcomer and a revoked
+ * member look identical through that lens. This query used to live
+ * inline in campaignSessionMembershipPort; it lives here so that port
+ * stops opening SQLite itself.
+ */
+export function isRevokedCampaignSessionParticipant(
+  campaignId: string,
+  sessionId: string,
+  participantId: string,
+): boolean {
+  const row = getSQLiteService()
+    .getDatabase()
+    .prepare(
+      `SELECT revoked_at FROM campaign_session_participant
+       WHERE campaign_id = ? AND session_id = ? AND participant_id = ?`,
+    )
+    .get(campaignId, sessionId, participantId) as
+    | { revoked_at: string | null }
+    | undefined;
+  return row !== undefined && row.revoked_at !== null;
+}

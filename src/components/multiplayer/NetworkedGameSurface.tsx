@@ -27,6 +27,7 @@ import type {
   IMultiplayerError,
 } from '@/hooks/useMultiplayerSession';
 import type { IClientLifecycleState } from '@/lib/multiplayer/client';
+import type { GmCombatRewindCommitResult } from '@/lib/multiplayer/server/history/GmCombatRewindCommit';
 import type { TacticalLifecycleProjectionSignal } from '@/lib/multiplayer/tacticalLifecycleState';
 import type { ICommandAuthorityProjection } from '@/types/command-screen';
 import type {
@@ -129,10 +130,10 @@ export interface INetworkedGameSurfaceProps {
    */
   readonly onPreviewRewind?: () => Promise<GmRewindPreviewOutcome>;
   /**
-   * Applies a previewed rewind. Absent until task 3b-iv builds a commit
-   * path, so the confirm renders disabled for its own separate reason.
+   * Applies the preview the GM was shown. The dialog awaits this and
+   * stays open on a refusal so the reason is not dropped.
    */
-  readonly onConfirmRewind?: () => void;
+  readonly onConfirmRewind?: () => Promise<GmCombatRewindCommitResult>;
   /** Public connection/delivery facts exposed by the multiplayer client. */
   readonly clientLifecycle?: IClientLifecycleState;
   /** Branch-gated history signal; null in the live multiplayer client today. */
