@@ -6,6 +6,7 @@ const mockRouterPush = jest.fn();
 const mockMaterializeCampaignMissionEncounter = jest.fn();
 const mockRosterCreateMission = jest.fn();
 const mockPersistCampaign = jest.fn();
+const mockReportLaunchConflict = jest.fn();
 const mockLoadPersistedCampaign = jest.fn();
 const mockResetPersistence = jest.fn();
 let mockReadinessCanLaunch = false;
@@ -30,6 +31,12 @@ jest.mock('next/router', () => ({
 jest.mock(
   '@/lib/campaign/encounter/materializeCampaignMissionEncounter',
   () => ({
+    // Keep the REAL module except for the call itself: the launch path
+    // narrows on CampaignOwnedForceStaleError with instanceof, and a
+    // wholesale mock makes that class undefined at the comparison.
+    ...jest.requireActual(
+      '@/lib/campaign/encounter/materializeCampaignMissionEncounter',
+    ),
     materializeCampaignMissionEncounter: (...args: unknown[]) =>
       mockMaterializeCampaignMissionEncounter(...args),
   }),
@@ -121,6 +128,10 @@ jest.mock(
   '@/components/gameplay/pages/campaigns/dashboard/CampaignDashboardPage.hooks',
   () => ({
     useClientReady: () => true,
+    // Umbrella 10.3: null means "no head read yet", which is the ungated
+    // path - these rows assert the pre-existing launch behaviour, and a
+    // head here would put them through the authority gate they predate.
+    useCampaignLaunchHead: () => null,
     usePendingOutcomes: () => [],
     useDailyBattleAudit: () => [],
     useOutcomeApplyErrors: () => ({}),
@@ -143,6 +154,13 @@ jest.mock('@/stores/campaign/useCampaignPersistenceStore', () => {
     reset: (...args: unknown[]) => mockResetPersistence(...args),
     saveCampaign: (...args: unknown[]) => mockPersistCampaign(...args),
     saveState: 'idle' as const,
+    // Umbrella 10.3: the launch clears any prior conflict before it runs
+    // and reports a stale head onto this surface instead of flattening it
+    // into the generic error string.
+    launchConflict: null,
+    reportLaunchConflict: (...args: unknown[]) =>
+      mockReportLaunchConflict(...args),
+    clearLaunchConflict: () => undefined,
   };
   return {
     useCampaignPersistenceStore: Object.assign(

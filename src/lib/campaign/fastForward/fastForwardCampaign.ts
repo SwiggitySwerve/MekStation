@@ -64,6 +64,8 @@ export interface FastForwardBridgedScenarioHandoff {
   readonly scenarioId: string;
   readonly contractId: string;
   readonly encounterId: string;
+  /** The run-wide head, when the gate is on (umbrella 10.3). */
+  readonly expectedHead?: IExpectedBranchHead;
 }
 
 /** What a battle runner reports back once a bridged scenario has been fought. */
@@ -84,11 +86,24 @@ export type FastForwardBattleRunner = (
 ) => MaybePromise<FastForwardBattleRunResult | null>;
 
 /** Fail-loud expectations (spec: "Fixture Expectations Fail Loud"). */
+import type { IExpectedBranchHead } from '@/lib/events/journal/EventHistoryExpectedHead';
+
+import { readCampaignLaunchHead } from '@/lib/campaign/encounter/readCampaignLaunchHead';
+
 export interface FastForwardExpectations {
   readonly minScenariosBridged?: number;
   readonly minBattles?: number;
 }
 
+/**
+ * The head a whole fast-forward run is entitled to launch from.
+ *
+ * Read ONCE at the start of the run and carried to every battle, for
+ * the same reason the dashboard reads it at hydration: a head read
+ * immediately before each battle would always match, and the gate
+ * would prove nothing. Read once, the gate spans the run and catches a
+ * campaign that moved partway through it.
+ */
 export interface FastForwardCampaignParams {
   /** Number of scheduled days to advance before the drain phase. */
   readonly days: number;
@@ -96,6 +111,13 @@ export interface FastForwardCampaignParams {
   readonly expectations?: FastForwardExpectations;
   /** Group-3 hand-off; omit to exercise only the bridge-detection contract. */
   readonly runBridgedScenario?: FastForwardBattleRunner;
+  /**
+   * Supplying a fetch turns the launch-authority gate ON for this run:
+   * the head is read once and every battle is launched against it.
+   * Absent means ungated - the pre-10.3 behaviour, kept structurally
+   * rather than by a flag read, so no existing driver changes shape.
+   */
+  readonly launchHeadFetch?: typeof fetch;
   /**
    * Upper bound on drain-day iterations before the driver fails loud
    * instead of looping forever on an outcome that never drains (e.g. one
@@ -180,6 +202,29 @@ export async function fastForwardCampaign(
   const store = useCampaignStore();
   store.getState().switchCampaign(campaign);
 
+  // 10.3: one head for the whole run. An unreachable authority throws
+  // rather than running ungated - an outage must not silently become a
+  // run that launches against whatever it likes.
+  let runLaunchHead: IExpectedBranchHead | undefined;
+  if (params.launchHeadFetch) {
+    const head = await readCampaignLaunchHead(
+      campaign.id,
+      params.launchHeadFetch,
+    );
+    if (head.kind === 'unavailable') {
+      throw new Error(
+        `fastForwardCampaign: launch head unavailable (${head.reason}) - refusing to run ungated`,
+      );
+    }
+    if (head.kind === 'head') {
+      runLaunchHead = {
+        branchId: head.branchId,
+        revision: head.revision,
+        effectiveGeneration: head.effectiveGeneration,
+      };
+    }
+  }
+
   const dayReports: DayReport[] = [];
   const scenariosBridged: string[] = [];
   const battles: FastForwardBattleRecord[] = [];
@@ -219,6 +264,7 @@ export async function fastForwardCampaign(
         scenarioId,
         contractId: encounter.campaignMeta.contractId,
         encounterId: encounter.id,
+        ...(runLaunchHead === undefined ? {} : { expectedHead: runLaunchHead }),
       };
       const result = await resolveMaybePromise(
         params.runBridgedScenario(handoff),
