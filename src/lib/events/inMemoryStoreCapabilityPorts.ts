@@ -4,27 +4,29 @@
  * persist past the highestAssigned supplied on the call.
  */
 
-import {
-  PRODUCTION_BRANCH_CREATION_SEAM,
-  type IBranchCreationSeam,
-} from '@/lib/events/journal/EventHistoryBranchContract';
-import type {
-  BindParticipantResult,
-  CampaignSeat,
-  ICampaignSessionMembership,
-} from '@/services/campaignPersistence/CampaignSessionParticipantStore';
 import type {
   IParticipantAckRequest,
   IParticipantDeliveryCursor,
   ParticipantAckResult,
 } from '@/lib/campaign/delivery/participantDeliveryCursor';
+import type {
+  BindParticipantResult,
+  CampaignSeat,
+  ICampaignSessionMembership,
+} from '@/services/campaignPersistence/CampaignSessionParticipantStore';
 
-import { InMemoryHistoryBranchPort } from './inMemoryHistoryBranchPort';
+import {
+  PRODUCTION_BRANCH_CREATION_SEAM,
+  type IBranchCreationSeam,
+} from '@/lib/events/journal/EventHistoryBranchContract';
+
 import type {
   ICampaignSessionParticipantPort,
   IParticipantAckAuthorization,
   IParticipantDeliveryCursorPort,
 } from './storeCapabilityPorts';
+
+import { InMemoryHistoryBranchPort } from './inMemoryHistoryBranchPort';
 
 /** Must stay equal to CampaignSessionParticipantStore.TACTICAL_SEAT_LIMIT. */
 const TACTICAL_SEAT_LIMIT = 2;

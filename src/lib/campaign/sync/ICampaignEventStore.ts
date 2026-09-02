@@ -149,7 +149,8 @@ export type CampaignCombatOutcomeInboxResult =
  * facade so both store boundaries can carry the same ports.
  */
 export interface ICampaignEventStore
-  extends Partial<IEventHistoryBranchPort>,
+  extends
+    Partial<IEventHistoryBranchPort>,
     Partial<ICampaignSessionParticipantPort>,
     Partial<IParticipantDeliveryCursorPort> {
   /**

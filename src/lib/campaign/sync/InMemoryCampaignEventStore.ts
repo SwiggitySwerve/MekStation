@@ -16,8 +16,9 @@
  */
 
 import type { IBranchCreationSeam } from '@/lib/events/journal/EventHistoryBranchContract';
-import { InMemoryStoreCapabilityPorts } from '@/lib/events/inMemoryStoreCapabilityPorts';
 import type { ICampaignEvent } from '@/types/campaign/CampaignSync';
+
+import { InMemoryStoreCapabilityPorts } from '@/lib/events/inMemoryStoreCapabilityPorts';
 
 import {
   CampaignEventSequenceCollisionError,

@@ -10,9 +10,9 @@
  * @spec openspec/changes/add-multiplayer-server-infrastructure/specs/multiplayer-server/spec.md
  */
 
+import type { IBranchCreationSeam } from '@/lib/events/journal/EventHistoryBranchContract';
 import type { IGameEvent } from '@/types/gameplay/GameSessionInterfaces';
 
-import type { IBranchCreationSeam } from '@/lib/events/journal/EventHistoryBranchContract';
 import { InMemoryStoreCapabilityPorts } from '@/lib/events/inMemoryStoreCapabilityPorts';
 import { normalizeRoomCode } from '@/lib/p2p/roomCodes';
 

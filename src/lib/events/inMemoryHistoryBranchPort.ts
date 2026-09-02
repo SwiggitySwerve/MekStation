@@ -14,6 +14,7 @@ import type {
   IEventHistoryEffectiveHead,
   IEventHistoryStreamRef,
 } from '@/lib/events/journal/EventHistoryBranchContract';
+
 import {
   EventHistoryBranchError,
   PRODUCTION_BRANCH_CREATION_SEAM,
@@ -102,7 +103,8 @@ export class InMemoryHistoryBranchPort implements IEventHistoryBranchPort {
       );
     }
     this.branches.set(key, branch);
-    if (branch.status === 'effective') this.installHead(branch, branch.createdAt);
+    if (branch.status === 'effective')
+      this.installHead(branch, branch.createdAt);
   }
 
   public transitionBranchStatus(
