@@ -91,6 +91,44 @@ export interface ICampaignBatchCommitHost {
 }
 
 /**
+ * The non-batch fallback: stamp, append, apply and publish one event at
+ * a time, for a store with no `appendCommandBatch`.
+ *
+ * Lifted out of `CampaignMatchHost` for the reason the batch pipeline
+ * above was: the reconcile batch door (finding #78) needed room, and
+ * this loop is a coherent block whose contract was already named.
+ * Nothing about the ordering changed in the move - the append still
+ * happens BEFORE the projection moves, so a sequence collision rejects
+ * with the host's state untouched rather than half-applied.
+ */
+export async function commitCampaignEventsInSequence(
+  host: ICampaignBatchCommitHost,
+  append: (event: ICampaignEvent) => Promise<void>,
+  events: readonly UnsequencedCampaignEvent[],
+): Promise<CampaignCommitOutcome> {
+  const committed: ICampaignEvent[] = [];
+  for (const unsequenced of events) {
+    // Awaited per event so two events in one call get consecutive numbers.
+    const sequence = await host.nextSequence();
+    // The spread of one unsequenced union member plus `sequence` is
+    // exactly the corresponding `ICampaignEvent` variant; TS cannot
+    // correlate the spread across the union, so the assertion makes the
+    // (sound) intent explicit at this single chokepoint.
+    const event = freezeCampaignEvent({
+      ...unsequenced,
+      sequence,
+    } as ICampaignEvent);
+    await append(event);
+    // Advance through the SHARED reducer - the same function the guest
+    // mirror uses, so host and guest can never drift.
+    host.writeState(applyCampaignEvent(host.readState(), event));
+    host.publish(event);
+    committed.push(event);
+  }
+  return { kind: 'committed', events: committed };
+}
+
+/**
  * Commit one command's whole event batch atomically, verify the applied
  * projection, and publish only on success.
  */
