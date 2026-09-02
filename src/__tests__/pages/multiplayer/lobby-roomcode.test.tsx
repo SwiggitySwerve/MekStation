@@ -23,7 +23,10 @@ import React from 'react';
 import type { IUseMultiplayerSessionResult } from '@/hooks/useMultiplayerSession';
 import type { ILobbyUpdated } from '@/types/multiplayer/Protocol';
 
+import { ROOT_EVENT_BRANCH_ID } from '@/lib/events/journal/EventJournalContract';
+import { previewGmCombatRewind } from '@/lib/multiplayer/client/previewGmCombatRewind';
 import { buildMirrorSession } from '@/lib/multiplayer/mirrorMatchSession';
+import { MATCH_BASELINE_FIRST_GENERATION } from '@/lib/multiplayer/server/matchAuthorityBaseline';
 import { GameSide } from '@/types/gameplay/GameSessionInterfaces';
 import {
   decodeTokenFromWire,
@@ -63,7 +66,14 @@ jest.mock('@/hooks/useMultiplayerSession', () => ({
   useMultiplayerSession: () => mockSession,
 }));
 
+jest.mock('@/lib/multiplayer/client/previewGmCombatRewind', () => ({
+  previewGmCombatRewind: jest.fn(),
+}));
+
 import LobbyPage from '@/pages/multiplayer/lobby/[roomCode]';
+
+const mockedPreviewGmCombatRewind =
+  previewGmCombatRewind as jest.MockedFunction<typeof previewGmCombatRewind>;
 
 // =============================================================================
 // Fixtures
@@ -221,6 +231,8 @@ describe('Multiplayer lobby page — surface swap on status', () => {
     // 6.4's cold-reload resume), so a prior test's mint would skip this
     // test's Unlock-vault prompt. Each test starts identity-less.
     window.sessionStorage.clear();
+    mockedPreviewGmCombatRewind.mockReset();
+    mockedPreviewGmCombatRewind.mockResolvedValue({ kind: 'unavailable' });
   });
 
   it('renders the lobby panel while status is lobby', async () => {
@@ -387,6 +399,80 @@ describe('Multiplayer lobby page — surface swap on status', () => {
     expect(
       screen.queryByText('Invite code not found or expired'),
     ).not.toBeInTheDocument();
+  });
+
+  it('enables the host GM rewind preview once the lobby producer is bound', async () => {
+    mockSession = baseSession('active');
+    render(<LobbyPage />);
+    await unlockVault();
+
+    const previewBtn = await screen.findByTestId(
+      'networked-gm-rewind-preview-btn',
+    );
+    expect(previewBtn).toBeEnabled();
+    expect(
+      screen.queryByTestId('networked-gm-rewind-unavailable'),
+    ).not.toBeInTheDocument();
+  });
+
+  it('mounts no rewind controls for a guest token on the active surface', async () => {
+    const guestWire = encodeTokenForWire({
+      playerId: 'pid_guest',
+      issuedAt: '2026-05-19T00:00:00.000Z',
+      expiresAt: '2099-01-01T00:00:00.000Z',
+      publicKey: 'cHVibGljLWtleQ==',
+      signature: 'c2lnbmF0dXJl',
+    });
+    const guestToken = decodeTokenFromWire(guestWire);
+    if (!guestToken) throw new Error('guest test token did not decode');
+    window.sessionStorage.setItem(
+      'mekstation.multiplayer.token.ROOM01',
+      JSON.stringify({
+        state: {
+          wireToken: guestWire,
+          token: guestToken,
+          displayName: 'Guest',
+        },
+        matchId: 'match-1',
+      }),
+    );
+    mockSession = baseSession('active');
+    render(<LobbyPage />);
+
+    await waitFor(() =>
+      expect(screen.getByTestId('networked-game-surface')).toBeInTheDocument(),
+    );
+    expect(
+      screen.queryByTestId('networked-gm-rewind-controls'),
+    ).not.toBeInTheDocument();
+  });
+
+  it('asks the preview adapter for expectedRevision of last mirror sequence plus one', async () => {
+    mockSession = baseSession('active');
+    render(<LobbyPage />);
+    await unlockVault();
+
+    const previewBtn = await screen.findByTestId(
+      'networked-gm-rewind-preview-btn',
+    );
+    await act(async () => {
+      fireEvent.click(previewBtn);
+    });
+
+    let lastSequence = -1;
+    for (const event of mockSession.mirrorEvents) {
+      if (event.sequence > lastSequence) lastSequence = event.sequence;
+    }
+    const expectedRevision = lastSequence + 1;
+    expect(mockedPreviewGmCombatRewind.mock.calls[0]?.[0]).toStrictEqual({
+      matchId: 'match-1',
+      wireToken: wireToken(),
+      targetRevision: expectedRevision - 1,
+      expectedBranchId: ROOT_EVENT_BRANCH_ID,
+      expectedRevision,
+      expectedDigest: '',
+      expectedGeneration: MATCH_BASELINE_FIRST_GENERATION,
+    });
   });
 
   it('no longer references the single-player gameplay placeholder copy', () => {
