@@ -210,6 +210,12 @@ export async function materializeBranchPath<TEvent extends IBranchEventView>(
         `Branch '${segment.branchId}' is anchored to a base its parent does not hold at revision ${segment.fromRevision}`,
       );
     }
+    // An empty segment asks for no events, so there is nothing to read and
+    // nothing a reader could answer. Skipping the call matters beyond the
+    // round trip: a candidate anchored at its parent's head contributes an
+    // empty suffix, and the journal reader refuses any branch but `root`
+    // by name - so reading here would refuse a question nobody asked.
+    if (segment.throughRevision === segment.fromRevision) continue;
     const events = await readSegment(reader, path, segment);
     verifySegment(segment, events, anchor, seenEventIds);
     materialized.push(...events);
