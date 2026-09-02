@@ -26,12 +26,16 @@
  * registry doubles as the D7 session record of quarantine reason +
  * recovery action.
  *
- * BRANCH-ERA DEFERRAL (task 17.3): parent/base/supersession lineage
- * validation activates with `add-authoritative-history-branches`
- * (whose proposal owns immutable branch records, activation CAS, and
- * correction leases). Nothing here weakens the current fixed-root
- * identity checks - `broken-root-continuity` remains a quarantine
- * reason on the root branch today.
+ * BRANCH-ERA DEFERRAL (task 17.3) - SPENT. The condition this header
+ * named has been met: `add-authoritative-history-branches` landed its
+ * immutable branch records, activation CAS and correction leases, so
+ * lineage validation is no longer deferred. Umbrella task 15.4 adds
+ * the recovery-time corruption classes to the vocabulary below -
+ * `sequence-gap`, `broken-lineage`, `duplicate-receipt` and
+ * `missing-digest` - detected by `AuthorityQuarantine` and quarantined
+ * through this same registry, per session, with no second registry and
+ * no durable table. `broken-root-continuity` keeps its existing
+ * meaning for the fixed-root identity checks.
  *
  * @spec openspec/changes/add-replay-schema-and-checkpoint-safety/specs/event-store/spec.md
  */
@@ -43,7 +47,11 @@ import { assertReplayInputProvenance } from './ReplayInputProvenanceManifest';
 import { UnsupportedReplayHistoryError } from './ReplaySchemaRegistry';
 
 export type ReplayQuarantineReason =
+  | 'broken-lineage'
   | 'broken-root-continuity'
+  | 'duplicate-receipt'
+  | 'missing-digest'
+  | 'sequence-gap'
   | 'canonicalizer-mismatch'
   | 'digest-mismatch'
   | 'invalid-payload'

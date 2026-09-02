@@ -24,12 +24,14 @@
  */
 
 import type { AuthorityRecoveryBlockedReason } from '@/lib/events/checkpoints/AuthorityRecoveryPort';
+import type { ReplayQuarantineRegistry } from '@/lib/events/replay/ReplayQuarantineRegistry';
 import type {
   IGameEvent,
   IGameSession,
 } from '@/types/gameplay/GameSessionInterfaces';
 
 import { InteractiveSession } from '@/engine/InteractiveSession';
+import { quarantineAuthorityCorruption } from '@/lib/events/checkpoints/AuthorityQuarantine';
 import { referenceRecoveryPort } from '@/lib/events/checkpoints/AuthorityRecoveryPort';
 import { hydrateGameSessionFromEvents } from '@/utils/gameplay/gameSession';
 
@@ -112,6 +114,7 @@ export async function rebuildSessionFromEvents(
  */
 export async function recoverActiveMatches(
   store: IMatchStore,
+  quarantine?: ReplayQuarantineRegistry,
 ): Promise<IMatchRecoveryResult> {
   const hosts = new Map<string, ServerMatchHost>();
   const failed: string[] = [];
@@ -144,6 +147,16 @@ export async function recoverActiveMatches(
         read: (fromExclusive) =>
           store.getEvents(meta.matchId, fromExclusive + 1),
         revisionOf: (event) => event.sequence,
+        // A match log carries no digests, so lineage and digest checks
+        // do not apply to it (the detector skips them for an authority
+        // that carries none). Sequence continuity and event-identity
+        // uniqueness are what this authority CAN be validated on.
+        integrityOf: (event) => ({
+          revision: event.sequence,
+          receiptId: event.id,
+          previousDigest: null,
+          digest: null,
+        }),
         fold: (events) => hydrateGameSessionFromEvents(meta.matchId, events),
       });
       // A refused authority is named and skipped. Nothing partial is
@@ -160,6 +173,16 @@ export async function recoverActiveMatches(
           reason: verdict.reason,
           evidence: verdict.evidence,
         });
+        // Corruption quarantines THIS session and no other: the scope
+        // key is the match id, and the sweep carries on to the next
+        // match, which is what keeps a healthy session serving.
+        if (quarantine !== undefined) {
+          quarantineAuthorityCorruption(
+            quarantine,
+            { authorityType: 'match', authorityId: meta.matchId },
+            verdict,
+          );
+        }
         continue;
       }
       const session = await InteractiveSession.fromSessionAsync(verdict.state);
