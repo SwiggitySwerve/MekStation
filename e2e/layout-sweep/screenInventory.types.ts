@@ -122,7 +122,17 @@ export interface SweptScreenEntry extends BaseEntry {
 /** A route navigated through a scenario pack. */
 export interface PackSeededScreenEntry extends BaseEntry {
   readonly class: 'pack-seeded';
-  readonly pack: 'navigation' | 'combat';
+  /**
+   * The manifest pack id whose seeded state this screen is swept against.
+   * The two `coop-*` ids exist because the co-op lifecycle surfaces mount
+   * only on a campaign carrying a `coopSession`, which the navigation pack
+   * does not seed (umbrella 19.4, finding #32).
+   */
+  readonly pack:
+    | 'navigation'
+    | 'combat'
+    | 'coop-host-review'
+    | 'coop-guest-proposal';
   readonly navigation: 'direct-goto' | 'in-page-discovery';
   readonly routeTemplate?: string;
   readonly primaryAffordances: readonly CheckTarget[];

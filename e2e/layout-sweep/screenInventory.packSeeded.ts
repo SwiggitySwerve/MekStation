@@ -6,6 +6,7 @@ import {
 } from './screenInventory.chrome';
 import {
   affordance,
+  type CheckTarget,
   type PackSeededScreenEntry,
 } from './screenInventory.types';
 
@@ -41,54 +42,113 @@ const CAMPAIGN_SUBROUTE_LABELS: ReadonlyArray<readonly [string, string]> = [
 ];
 
 /**
- * The co-op lifecycle UI is NOT swept, and this says so on the entry that
- * would otherwise appear to cover it (umbrella 19.4, finding #32).
+ * The co-op lifecycle UI IS swept now (umbrella 19.4, finding #32 closed).
  *
- * Recorded as a `note` rather than a `QuarantineEntry` deliberately. A
+ * It previously was not, and could not be: these surfaces mount only on a
+ * campaign carrying a `coopSession`, and no scenario pack seeded one, so
+ * `CampaignCoopRouteSurface` rendered null on every swept route. The
+ * `coop-host-review` and `coop-guest-proposal` packs fix that, and the two
+ * notes below replace the note that used to record the gap.
+ *
+ * The gap was recorded as a `note` rather than a `QuarantineEntry`, and
+ * the reasoning is worth keeping now that the note is being replaced: a
  * quarantine is a SUPPRESSION - `viewport-layout-sweep.spec.ts` looks one
- * up by viewport+check and skips that check when it matches - so filing
- * this as a quarantine would have switched OFF the clickable check that
- * currently passes on this screen's campaign-nav affordance. That would
- * have reduced real coverage in order to document a gap in coverage. A
- * note documents without suppressing, which is what is wanted here.
- *
- * FOLLOW-UP: add a co-op host campaign scenario pack under
- * `e2e/scenario-packs/campaign/` (manifest entry + schemaVersion pin,
- * seeding `coopSession` in host mode, plus a postLoadAction that submits
- * one non-progression proposal into the runtime session under
- * `host-review` arbitration). Until then the affordances below cannot be
- * declared, because they never render.
+ * up by viewport+check and skips that check - so filing it as a quarantine
+ * would have switched OFF the clickable check that already passed on this
+ * screen, reducing real coverage in order to document a gap in coverage.
  */
-const COOP_SURFACES_UNSWEPT =
-  ' CO-OP SURFACES ARE NOT COVERED BY THIS ENTRY: `host-gm-review-surface`, ' +
-  '`campaign-sync-state` and (on the personnel / mech-bay / hiring / ' +
-  'contract-market / finances sub-routes) `guest-proposal-surface` all mount ' +
-  'only when the campaign carries a `coopSession`, and no scenario pack seeds ' +
-  'one -- `grep -rl coopSession e2e/scenario-packs/` returns nothing. ' +
-  '`CampaignCoopRouteSurface` therefore renders null on every swept route, so ' +
-  'a green sweep here says nothing about the co-op lifecycle UI. Declaring ' +
-  'those affordances now would fail at all four viewports, always. Follow-up: ' +
-  'the co-op host campaign pack described above; the affordances become real ' +
-  'CheckTargets the moment it exists.';
+const COOP_HOST_SWEPT =
+  ' CO-OP HOST SURFACE: this entry is seeded by the `coop-host-review` pack ' +
+  'rather than `navigation`, because `host-gm-review-surface` mounts only on ' +
+  'a campaign carrying a host `coopSession`. The GM review surface is checked ' +
+  'here as an overlap target. NON-CLAIM: the surface is swept in its EMPTY ' +
+  "state, posture `live`. Its `pending` posture needs a guest's proposal, " +
+  'which lives in the in-memory runtime session (`coopRuntimeSession.ts`: ' +
+  '"not persisted campaign data") and has no front-door control to create -- ' +
+  'so it is covered by jest rows only, and becomes sweepable when the sweep ' +
+  'becomes two-browser.';
+
+const COOP_GUEST_SWEPT =
+  ' CO-OP GUEST SURFACES: this entry is seeded by the `coop-guest-proposal` ' +
+  'pack rather than `navigation`, because `guest-proposal-surface` and the ' +
+  '`campaign-sync-state` banner it carries mount only on a campaign carrying ' +
+  'a guest `coopSession`. Both are checked here as overlap targets. The ' +
+  'banner renders posture `blocked` (no grant token in a single-browser ' +
+  'sweep), which is a real posture, not a placeholder. NON-CLAIM: the other ' +
+  'four mutation sub-routes (personnel / mech-bay / hiring / contract-market) ' +
+  'stay on the `navigation` pack and do NOT cover the guest surface -- one ' +
+  'route is enough to sweep the surface, and repointing all five would swap ' +
+  'their seeded state wholesale for no extra coverage.';
+
+/**
+ * Routes repointed at a co-op pack so the lifecycle surfaces actually
+ * mount. A screen entry names ONE pack, and the guard requires exactly one
+ * classification per manifest route, so these could not be added as
+ * parallel entries alongside the navigation-pack ones -- the existing
+ * entries are repointed instead, keeping their campaign-nav affordances.
+ */
+const COOP_ROUTE_OVERRIDES: Readonly<
+  Record<
+    string,
+    {
+      readonly pack: 'coop-host-review' | 'coop-guest-proposal';
+      readonly targets: readonly CheckTarget[];
+      readonly note: string;
+    }
+  >
+> = {
+  '/gameplay/campaigns/[id]': {
+    pack: 'coop-host-review',
+    targets: [
+      affordance({
+        label: 'host GM review surface',
+        testId: 'host-gm-review-surface',
+      }),
+    ],
+    note: COOP_HOST_SWEPT,
+  },
+  '/gameplay/campaigns/[id]/finances': {
+    pack: 'coop-guest-proposal',
+    targets: [
+      affordance({
+        label: 'guest proposal surface',
+        testId: 'guest-proposal-surface',
+      }),
+      affordance({
+        label: 'campaign sync posture banner',
+        testId: 'campaign-sync-state',
+      }),
+    ],
+    note: COOP_GUEST_SWEPT,
+  },
+};
 
 export const packSeededEntries: readonly PackSeededScreenEntry[] = [
-  ...CAMPAIGN_SUBROUTE_LABELS.map(
-    ([pattern, label]): PackSeededScreenEntry => ({
+  ...CAMPAIGN_SUBROUTE_LABELS.map(([pattern, label]): PackSeededScreenEntry => {
+    const coop = COOP_ROUTE_OVERRIDES[pattern];
+    return {
       id: `pack-seeded-${pattern.replace(/[[\]/]/g, '-').replace(/^-+|-+$/g, '')}`,
       class: 'pack-seeded',
       label,
       manifestPaths: [pattern],
-      pack: 'navigation',
+      pack: coop?.pack ?? 'navigation',
       navigation: 'direct-goto',
       routeTemplate: pattern.replace('[id]', '{id}'),
       primaryAffordances: CAMPAIGN_NAV_PRIMARY_AFFORDANCE,
-      overlapTargets: CAMPAIGN_NAV_OVERLAP_TARGETS,
+      // Co-op surfaces ride as OVERLAP targets, not primary affordances:
+      // they are panels rather than the screen's call to action, which is
+      // the same call `pack-seeded-mission-launch` makes for its briefing
+      // panel. The campaign-nav primary affordance is unchanged, so
+      // repointing the pack does not drop the check that already passed.
+      overlapTargets: coop
+        ? [...CAMPAIGN_NAV_OVERLAP_TARGETS, ...coop.targets]
+        : CAMPAIGN_NAV_OVERLAP_TARGETS,
       quarantine: [],
       note:
-        "Campaign id sourced from the navigation-pack loader's post-navigation URL (design D5) -- never pack payload internals." +
-        (pattern === '/gameplay/campaigns/[id]' ? COOP_SURFACES_UNSWEPT : ''),
-    }),
-  ),
+        "Campaign id sourced from the pack loader's post-navigation URL (design D5) -- never pack payload internals." +
+        (coop?.note ?? ''),
+    };
+  }),
   {
     id: 'pack-seeded-mission-launch',
     class: 'pack-seeded',
