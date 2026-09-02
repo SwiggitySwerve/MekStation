@@ -123,7 +123,9 @@ describe('campaign authority blocked at the route', () => {
     await put({ envelope: envelope(0), baseVersion: 0 });
     const stale = await put({ envelope: envelope(0), baseVersion: 0 });
     expect(stale.status).toBe(409);
-    expect(stale.json.kind).toBeUndefined();
+    // Both 409s are typed now (umbrella 8.3): the discriminator is which
+    // `kind` they carry, not whether one of them carries none.
+    expect(stale.json.kind).toBe('conflict');
 
     writeCampaignMigrationMarker(createJournalNativeMarker(CAMPAIGN_ID));
     const blocked = await put({ envelope: envelope(1), baseVersion: 1 });

@@ -78,6 +78,22 @@ function jsonResponse(status: number, body: unknown): Response {
   } as Response;
 }
 
+/**
+ * The typed 409 the PUT boundary now returns: the reason the base could
+ * not be reconstructed, the one safe recovery, and the server's record so
+ * take-server still has something to adopt.
+ */
+function conflictResponse(record: SerializedCampaign): Response {
+  return jsonResponse(409, {
+    kind: 'conflict',
+    reason: 'base-state-unavailable',
+    recoveryAction: 'resync-to-active-head',
+    conflictingFields: [],
+    currentVersion: record.version,
+    current: record,
+  });
+}
+
 function seedRosterProjection(campaignId: string): void {
   useCampaignRosterStore.setState({
     campaignId,
@@ -327,11 +343,11 @@ describe('useCampaignPersistenceStore', () => {
   // Conflict surfacing
   // ---------------------------------------------------------------------------
 
-  it('a repeated 409 sets saveState to conflict and exposes the server record', async () => {
+  it('a 409 sets saveState to conflict and exposes the server record', async () => {
     const serverRecord = buildSerializedCampaign(campaign, 'device-z', 5);
     jest
       .spyOn(global, 'fetch')
-      .mockResolvedValue(jsonResponse(409, serverRecord));
+      .mockResolvedValue(conflictResponse(serverRecord));
 
     const result = await useCampaignPersistenceStore.getState().saveCampaign();
 
@@ -339,14 +355,14 @@ describe('useCampaignPersistenceStore', () => {
     expect(state.saveState).toBe('conflict');
     expect(state.conflictServerRecord).not.toBeNull();
     expect(state.conflictServerRecord?.version).toBe(5);
-    expect(result).toMatchObject({ status: 'conflict', retriedConflict: true });
+    expect(result).toMatchObject({ status: 'conflict' });
   });
 
   it('resolveConflictTakeServer adopts the server record', async () => {
     const serverRecord = buildSerializedCampaign(campaign, 'device-z', 5);
     jest
       .spyOn(global, 'fetch')
-      .mockResolvedValue(jsonResponse(409, serverRecord));
+      .mockResolvedValue(conflictResponse(serverRecord));
     await useCampaignPersistenceStore.getState().saveCampaign();
 
     const ok = await useCampaignPersistenceStore
@@ -357,27 +373,46 @@ describe('useCampaignPersistenceStore', () => {
     expect(useCampaignPersistenceStore.getState().saveState).toBe('saved');
   });
 
-  it('resolveConflictKeepLocal re-PUTs using the server version as base', async () => {
+  it('offers no overwrite path back to the server after a 409', async () => {
     const serverRecord = buildSerializedCampaign(campaign, 'device-z', 5);
     const fetchMock = jest.spyOn(global, 'fetch');
-    fetchMock
-      .mockResolvedValueOnce(jsonResponse(409, serverRecord))
-      .mockResolvedValueOnce(jsonResponse(409, serverRecord));
+    fetchMock.mockResolvedValue(conflictResponse(serverRecord));
+
     await useCampaignPersistenceStore.getState().saveCampaign();
 
-    const accepted = buildSerializedCampaign(campaign, 'device-local', 6);
-    fetchMock.mockResolvedValueOnce(jsonResponse(200, accepted));
-    await useCampaignPersistenceStore.getState().resolveConflictKeepLocal();
-
-    expect(useCampaignPersistenceStore.getState().saveState).toBe('saved');
-    expect(useCampaignPersistenceStore.getState().baseVersion).toBe(6);
-    const keepLocalBody = JSON.parse(
-      String((fetchMock.mock.calls[2][1] as RequestInit).body),
-    ) as { baseVersion: number };
-    expect(keepLocalBody.baseVersion).toBe(5);
+    // Gone from the surface entirely rather than merely unwired: a caller
+    // cannot reach the stale-envelope overwrite to resubmit it. This row
+    // used to assert the opposite - that keep-local re-PUT the same body
+    // at the server's version, which silently discarded whatever the
+    // other writer had just committed.
+    expect(
+      (
+        useCampaignPersistenceStore.getState() as unknown as Record<
+          string,
+          unknown
+        >
+      ).resolveConflictKeepLocal,
+    ).toBeUndefined();
+    expect(fetchMock).toHaveBeenCalledTimes(1);
   });
 
-  it('refreshes the server version and retries once on a 409 conflict', async () => {
+  it('exposes the typed conflict the server returned, with its recovery action', async () => {
+    const serverRecord = buildSerializedCampaign(campaign, 'device-z', 5);
+    jest
+      .spyOn(global, 'fetch')
+      .mockResolvedValue(conflictResponse(serverRecord));
+
+    await useCampaignPersistenceStore.getState().saveCampaign();
+
+    expect(useCampaignPersistenceStore.getState().saveConflict).toEqual({
+      reason: 'base-state-unavailable',
+      recoveryAction: 'resync-to-active-head',
+      conflictingFields: [],
+      currentVersion: 5,
+    });
+  });
+
+  it('never resubmits the stale envelope at the server version', async () => {
     const conflictRecord = buildSerializedCampaign(campaign, 'device-z', 5);
     const accepted = buildSerializedCampaign(campaign, 'device-local', 6);
     const putBodies: Array<{
@@ -390,19 +425,23 @@ describe('useCampaignPersistenceStore', () => {
         String((init as RequestInit).body),
       ) as (typeof putBodies)[number];
       putBodies.push(body);
+      // The server would ACCEPT a second attempt at version 5 - that is
+      // exactly what made the old behaviour dangerous rather than merely
+      // noisy. Nothing but the client's own restraint stops the overwrite.
       return putBodies.length === 1
-        ? jsonResponse(409, conflictRecord)
+        ? conflictResponse(conflictRecord)
         : jsonResponse(200, accepted);
     });
 
     const result = await useCampaignPersistenceStore.getState().saveCampaign();
 
-    expect(result).toMatchObject({ status: 'saved', retriedConflict: true });
-    expect(fetchMock).toHaveBeenCalledTimes(2);
-    expect(putBodies.map((body) => body.baseVersion)).toEqual([0, 5]);
-    expect(putBodies[1].envelope.body.name).toBe(campaign.name);
-    expect(useCampaignPersistenceStore.getState().saveState).toBe('saved');
-    expect(useCampaignPersistenceStore.getState().baseVersion).toBe(6);
+    // One attempt, at the version this client actually held.
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect(putBodies.map((body) => body.baseVersion)).toEqual([0]);
+    expect(result).toMatchObject({ status: 'conflict' });
+    expect(useCampaignPersistenceStore.getState().saveState).toBe('conflict');
+    // The intervening change is preserved, because nothing overwrote it.
+    expect(useCampaignPersistenceStore.getState().baseVersion).toBe(0);
   });
 
   it('a save issued while a load is in flight writes against the loaded version', async () => {
@@ -475,8 +514,8 @@ describe('useCampaignPersistenceStore', () => {
     ]);
 
     expect(putBodies.map((entry) => entry.baseVersion)).toEqual([0, 1]);
-    expect(first).toMatchObject({ status: 'saved', retriedConflict: false });
-    expect(second).toMatchObject({ status: 'saved', retriedConflict: false });
+    expect(first).toMatchObject({ status: 'saved' });
+    expect(second).toMatchObject({ status: 'saved' });
     expect(useCampaignPersistenceStore.getState().baseVersion).toBe(2);
   });
 
@@ -517,7 +556,7 @@ describe('useCampaignPersistenceStore', () => {
     ).toBe('Server Accepted Snapshot');
   });
 
-  it('rolls back a co-op campaign and toasts when retrying a 409 remains unresolved', async () => {
+  it('rolls back a co-op campaign and toasts on the FIRST 409', async () => {
     const persistedCampaign = {
       ...campaign,
       coopSession: createHostCoopSession('ROOM12', 'match-coop'),
@@ -543,13 +582,15 @@ describe('useCampaignPersistenceStore', () => {
       'device-z',
       2,
     );
-    fetchMock
-      .mockResolvedValueOnce(jsonResponse(409, serverRecord))
-      .mockResolvedValueOnce(jsonResponse(409, serverRecord));
+    fetchMock.mockResolvedValue(conflictResponse(serverRecord));
 
     const result = await useCampaignPersistenceStore.getState().saveCampaign();
 
-    expect(result).toMatchObject({ status: 'conflict', retriedConflict: true });
+    // The rollback used to wait for a second refused attempt. There is no
+    // second attempt now, so it has to happen here or the co-op client
+    // keeps rendering an optimistic change the server rejected.
+    expect(result).toMatchObject({ status: 'conflict' });
+    expect(fetchMock).toHaveBeenCalledTimes(2);
     expect(mockStore.getState().campaign?.currentDate.toISOString()).toBe(
       '3025-01-01T00:00:00.000Z',
     );

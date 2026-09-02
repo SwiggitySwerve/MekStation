@@ -57,7 +57,19 @@ export type CampaignConflictRefusalReason =
   /** It said, and the server derived something else. */
   | 'declared-field-set-mismatch'
   /** The base revision named is not one this stream ever had. */
-  | 'base-revision-unknown';
+  | 'base-revision-unknown'
+  /**
+   * The base cannot be reconstructed at all, so disjointness is not a
+   * question this boundary can answer.
+   *
+   * The whole-envelope `PUT` path: the campaigns table keeps one row per
+   * campaign, so the state the client wrote against is gone the moment
+   * the next write lands, and only a journal replay could bring it back.
+   * REFUSE, NEVER GUESS - the alternative is what this task removes,
+   * where the client resubmitted its stale envelope and silently
+   * overwrote whoever committed in between.
+   */
+  | 'base-state-unavailable';
 
 /** The head the authority actually holds. */
 export interface ICampaignConflictHead {
