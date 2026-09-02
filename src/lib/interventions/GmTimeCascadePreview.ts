@@ -18,9 +18,22 @@ import {
 } from '@/lib/campaign/processors';
 import { findSystemById } from '@/lib/starmap/loadInnerSphereSeed';
 
+import type { CampaignAffectedFamily } from './GmCampaignAffectedFamilies';
+
+import {
+  CAMPAIGN_ROOT_FIELDS,
+  declareAffectedFamilies,
+} from './GmCampaignAffectedFamilies';
+
 export interface IGmTimeCascadeProjectedEffectResult {
   readonly effect: IGmTimeCascadeProjectedEffect;
   readonly changedStateRefs: readonly string[];
+  /**
+   * The domains this correction affects, named from the closed
+   * vocabulary (task 16.1). Derived from `changedStateRefs`, so the
+   * two cannot disagree about what moved.
+   */
+  readonly affectedFamilies: readonly CampaignAffectedFamily[];
   readonly summary: string;
   readonly conflicts: readonly IGmTimeCascadeInterventionConflictInput[];
 }
@@ -42,20 +55,6 @@ const TIME_CASCADE_PROCESSORS = [
   personnelMarketProcessor,
   contractMarketProcessor,
 ] as const satisfies readonly IDayProcessor[];
-
-const CAMPAIGN_ROOT_FIELDS = [
-  'currentDate',
-  'currentSystemId',
-  'repairQueue',
-  'partsInventory',
-  'unitCombatStates',
-  'finances',
-  'missions',
-  'loans',
-  'unitMarket',
-  'personnelMarket',
-  'contractMarket',
-] as const;
 
 export function buildGmTimeCascadeProjectedEffect(
   payload: IGmTimeCascadeInterventionCommandPayload,
@@ -141,6 +140,7 @@ export function buildGmTimeCascadeProjectedEffect(
     });
 
   return {
+    affectedFamilies: declareAffectedFamilies(state.id, changedStateRefs),
     summary,
     changedStateRefs,
     conflicts: [...externalConflicts, ...explicitConflicts],
