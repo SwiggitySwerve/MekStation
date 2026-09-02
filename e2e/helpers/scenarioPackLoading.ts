@@ -46,6 +46,7 @@ import {
   getManifestEntry,
   type ScenarioPackManifestEntry,
 } from '../scenario-packs/manifest';
+import { campaignDashboardRoute } from './campaignRoutes';
 import {
   asSeededGameEvents,
   asSeededMatchesRowFields,
@@ -408,7 +409,10 @@ export async function loadCampaignPack(
   // (a no-op extra hop for every pack whose targetRoute is already under
   // `/gameplay/campaigns/[id]/*`, since the persistence store is global and
   // not route-scoped).
-  await page.goto(`/gameplay/campaigns/${encodeURIComponent(ids.campaignId)}`);
+  // Built from the shared template rather than an inlined literal so the
+  // e2e warm-up list and its guard can name the route this navigates by
+  // (finding #60 -- this goto is what paid a 30.8 s cold compile).
+  await page.goto(campaignDashboardRoute(ids.campaignId));
   await assertCampaignPackMounted(page, ids.campaignId, packId);
 
   // Post-load actions run on the DASHBOARD, before the hop to the pack's
