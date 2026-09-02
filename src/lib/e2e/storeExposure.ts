@@ -5,6 +5,7 @@
  * Only active when NEXT_PUBLIC_E2E_MODE=true
  */
 
+import { getActiveCampaignSyncTransport } from '@/lib/campaign/coop/campaignSyncTransport';
 import { getEventStore } from '@/services/events';
 import * as aerospaceRegistry from '@/stores/aerospaceStoreRegistry';
 import { useCampaignPersistenceStore } from '@/stores/campaign/useCampaignPersistenceStore';
@@ -54,6 +55,16 @@ export function exposeStoresForE2E(): void {
   window.__UNIT_REGISTRY__ = unitRegistry;
   window.__UNIT_TEMPLATES__ = UNIT_TEMPLATES;
   window.__EVENT_STORE__ = getEventStore();
+  // The live co-op campaign socket, for the controlled loopback
+  // performance runner (umbrella 23.1). The runner has to issue commands
+  // on the SAME authenticated transport the surface uses - a second
+  // socket for the GM would look like a host reconnect and pause the
+  // session - and it has to observe delivered frames on each guest's own
+  // transport to time an accepted command to its eligible render. Both
+  // need the module-scope registry, which is otherwise unreachable from
+  // a page script. Read-only accessor, behind the same E2E-mode guard as
+  // every other exposure here.
+  window.__CAMPAIGN_SYNC_TRANSPORT__ = getActiveCampaignSyncTransport;
 
   logger.debug('[E2E] Stores exposed for testing');
 }

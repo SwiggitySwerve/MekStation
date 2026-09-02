@@ -208,6 +208,49 @@ describe('GM and two-player campaign QC runner', () => {
     expect(failurePlan.environment.MEKSTATION_E2E_SERVER_COMMAND).toBe(
       'node server.js',
     );
+    // The performance selector (umbrella 22.4) is registered with the
+    // SAME strict plan every other pack gets - one worker, no reused
+    // server, the real spec. Falsification: point it at a lighter spec,
+    // or hand it a second worker, and this reds.
+    const performancePlan = core.buildRunPlan({
+      group: 'performance',
+      runId: 'task-23-performance',
+      repoRoot,
+    });
+    expect(performancePlan.args).toEqual([
+      path.join(repoRoot, 'scripts/playwright/run-playwright.mjs'),
+      'test',
+      '--project=chromium',
+      'e2e/gm-two-player-performance.pack.spec.ts',
+      '--workers=1',
+    ]);
+    expect(performancePlan.environment.MEKSTATION_E2E_SERVER_COMMAND).toBe(
+      'node server.js',
+    );
+  });
+
+  it('archives the performance report inside the run-owned evidence root', () => {
+    // Task 23.4 says the latency and memory JSON is archived WITH the
+    // run. The evidence bundle writes under `test-results/gm-two-player/
+    // <run-id>/`, and the same run-owned guard the databases use refuses
+    // anything outside it - so a report written to a shared path, where
+    // the next run would overwrite it, cannot pass.
+    const root = path.join(repoRoot, 'test-results/gm-two-player');
+    const owned = path.join(
+      root,
+      'task-23-performance',
+      'controlled.latency.performance.json',
+    );
+    expect(core.assertRunOwnedPath(owned, 'task-23-performance', root)).toBe(
+      path.resolve(owned),
+    );
+    expect(() =>
+      core.assertRunOwnedPath(
+        path.join(root, 'controlled.latency.performance.json'),
+        'task-23-performance',
+        root,
+      ),
+    ).toThrow(/FOREIGN_PATH/);
   });
 
   it('types unknown and future groups before browser startup', () => {
@@ -233,9 +276,10 @@ describe('GM and two-player campaign QC runner', () => {
       'proposal-pack',
       'three-context-pack',
       'two-device-pack',
-      // 22.2's E2E-61..70 subset. `campaign`, `performance` and `all`
+      // 22.2's E2E-61..70 subset and 23.x's performance pack. `campaign` and `all`
       // stay unimplemented and must keep answering NOT_IMPLEMENTED.
       'failure',
+      'performance',
     ];
     for (const group of groups.filter(
       (group) => !implemented.includes(group),
