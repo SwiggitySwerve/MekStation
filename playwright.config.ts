@@ -76,6 +76,12 @@ const e2eRuntimeDir =
 export default defineConfig({
   testDir: './e2e',
 
+  /* Compile the harness's cold routes before the first measured test
+     (finding #60). Runs AFTER the `webServer` plugin, so the dev server is
+     listening; carries its own budget (MEKSTATION_E2E_WARMUP_TIMEOUT_MS),
+     so no test timeout below is relaxed to pay for a compile. */
+  globalSetup: './e2e/globalSetup.ts',
+
   ...(campJsonCollection
     ? {
         metadata: {
