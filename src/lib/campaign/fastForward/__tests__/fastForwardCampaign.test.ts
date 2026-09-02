@@ -40,7 +40,12 @@ import {
   fastForwardCampaign,
   type FastForwardBattleRunner,
 } from '../fastForwardCampaign';
+import { createFastForwardCombatRunner } from '../fastForwardCombatRunner';
 import { buildFastForwardFixture } from '../fastForwardFixture';
+import {
+  createInProcessApiFetch,
+  initializeInProcessApiDatabase,
+} from '../inProcessApiRouter';
 
 interface BridgeCampaignView {
   readonly bridgedEncounters?: Readonly<Record<string, unknown>>;
@@ -163,6 +168,92 @@ describe('fastForwardCampaign', () => {
     }
   });
 
+  describe('run-wide launch head (umbrella 10.3)', () => {
+    // The runner drives the REAL in-process handlers, which need the
+    // database this suite does not otherwise stand up.
+    beforeEach(() => {
+      initializeInProcessApiDatabase();
+    });
+
+    const HEAD = {
+      kind: 'head',
+      branchId: 'root',
+      revision: 1,
+      effectiveGeneration: 1,
+    };
+
+    /** Answers the head read; everything else is not its business. */
+    function headFetch(body: unknown, status = 200) {
+      return jest.fn(async () => ({
+        ok: status >= 200 && status < 300,
+        status,
+        json: async () => body,
+      })) as unknown as typeof fetch;
+    }
+
+    it('refuses the whole run before any battle when the head is stale', async () => {
+      const fixture = buildFastForwardFixture({
+        useRoleBasedSalaries: false,
+      });
+      const battles: string[] = [];
+      // The head read succeeds; the AUTHORITY refuses. The run must
+      // stop at the first battle rather than fielding a stale one.
+      const runner = createFastForwardCombatRunner({
+        fetchImpl: (async (input: unknown, init?: RequestInit) => {
+          const url = String(input);
+          if (url.endsWith('/launch-authority')) {
+            return {
+              ok: false,
+              status: 409,
+              json: async () => ({
+                kind: 'refused',
+                code: 'STALE_REVISION',
+                reason: 'launch head is stale',
+                activeHead: {
+                  branchId: 'root',
+                  revision: 9,
+                  effectiveGeneration: 1,
+                },
+                resyncAction: 'resync-to-active-head',
+              }),
+            } as Response;
+          }
+          battles.push(url);
+          return createInProcessApiFetch()(input as RequestInfo, init);
+        }) as unknown as typeof fetch,
+      });
+
+      await expect(
+        fastForwardCampaign(fixture.campaign, {
+          days: 1,
+          runBridgedScenario: runner,
+          launchHeadFetch: headFetch(HEAD),
+          expectations: { minScenariosBridged: 1 },
+        }),
+      ).rejects.toThrow(/STALE_REVISION/);
+
+      // Nothing was built for a run that was never entitled to launch.
+      expect(battles.filter((url) => url.startsWith('/api/forces'))).toEqual(
+        [],
+      );
+    });
+
+    it('refuses to run ungated when the head cannot be read', async () => {
+      const fixture = buildFastForwardFixture({
+        useRoleBasedSalaries: false,
+      });
+
+      // An outage must not quietly become a run that launches against
+      // whatever it likes.
+      await expect(
+        fastForwardCampaign(fixture.campaign, {
+          days: 1,
+          runBridgedScenario: createFastForwardCombatRunner(),
+          launchHeadFetch: headFetch({ error: 'boom' }, 500),
+        }),
+      ).rejects.toThrow(/launch head unavailable/);
+    });
+  });
   it('throws on a declared expectation miss instead of returning a quietly-empty green run', async () => {
     const fixture = buildFastForwardFixture({ useRoleBasedSalaries: false });
     // Same fixture, AtB gate closed — scenario generation can never fire.

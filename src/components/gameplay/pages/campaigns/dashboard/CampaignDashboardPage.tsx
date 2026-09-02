@@ -45,11 +45,16 @@ import {
 } from './CampaignDashboardPage.cards';
 import {
   useCampaignDayReports,
+  useCampaignLaunchHead,
   useClientReady,
   useDailyBattleAudit,
   useOutcomeApplyErrors,
   usePendingOutcomes,
 } from './CampaignDashboardPage.hooks';
+import {
+  classifyLaunchFailure,
+  resolveDashboardLaunchForces,
+} from './CampaignDashboardPage.launch';
 import {
   CampaignHeaderContent,
   CampaignLoadingState,
@@ -81,6 +86,7 @@ export default function CampaignDashboardPage(): React.ReactElement {
   const missionCount = rosterStore((state) => state.missionCount);
 
   const isClient = useClientReady();
+  const launchHead = useCampaignLaunchHead(liveCampaign?.id);
   const rehydratedCampaignId = useStore(
     store,
     (state) => state.rehydratedCampaignId,
@@ -114,6 +120,12 @@ export default function CampaignDashboardPage(): React.ReactElement {
   >(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
+  const reportLaunchConflict = useCampaignPersistenceStore(
+    (s) => s.reportLaunchConflict,
+  );
+  const clearLaunchConflict = useCampaignPersistenceStore(
+    (s) => s.clearLaunchConflict,
+  );
 
   useEffect(() => {
     let cancelled = false;
@@ -168,6 +180,7 @@ export default function CampaignDashboardPage(): React.ReactElement {
     }
     setIsGenerating(true);
     setMissionGenerationError(null);
+    clearLaunchConflict();
 
     try {
       if (!missionReadinessProjection.canLaunch) {
@@ -199,11 +212,21 @@ export default function CampaignDashboardPage(): React.ReactElement {
         ...currentCampaign,
         missions: new Map(currentCampaign.missions).set(missionId, mission),
       };
+      const ownedForces = await resolveDashboardLaunchForces({
+        campaignId: currentCampaign.id,
+        missionId,
+        launchHead,
+        ...(currentCampaign.coopSession?.matchId === undefined
+          ? {}
+          : { sessionId: currentCampaign.coopSession.matchId }),
+      });
+
       const result = await materializeCampaignMissionEncounter({
         campaign: launchCampaign,
         missionId,
         rosterUnits: deployableUnits,
         catalog,
+        ...(ownedForces === undefined ? {} : { ownedForces }),
       });
       rosterStore
         .getState()
@@ -224,16 +247,22 @@ export default function CampaignDashboardPage(): React.ReactElement {
         `/gameplay/encounters/${result.encounterId}?campaignId=${currentCampaign.id}&missionId=${missionId}`,
       );
     } catch (error) {
-      const message =
-        error instanceof Error ? error.message : 'failed to generate mission';
-      setMissionGenerationError(`Mission could not be launched: ${message}`);
+      const failure = classifyLaunchFailure(error);
+      if (failure.kind === 'conflict') {
+        reportLaunchConflict(failure.conflict);
+        return;
+      }
+      setMissionGenerationError(failure.message);
     } finally {
       setIsGenerating(false);
     }
   }, [
     catalog,
+    clearLaunchConflict,
+    launchHead,
     missionCount,
     missionReadinessProjection,
+    reportLaunchConflict,
     rosterStore,
     router,
     store,
