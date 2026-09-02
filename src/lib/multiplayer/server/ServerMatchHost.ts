@@ -52,7 +52,6 @@ import type { IPlayerRef } from '@/types/multiplayer/Player';
 
 import { publishCombatOutcome } from '@/engine/combatOutcomeBus';
 import { InteractiveSession } from '@/engine/InteractiveSession';
-import { SeededRandom } from '@/simulation/core/SeededRandom';
 import {
   type IGameSessionChannel,
   type IReconnectRequestEnvelope,
@@ -61,6 +60,7 @@ import {
   matchLogStorage,
   type MatchLogStorage,
 } from '@/lib/p2p/matchLogStorage';
+import { SeededRandom } from '@/simulation/core/SeededRandom';
 import {
   type IIntent,
   type IEventMessage,
@@ -77,7 +77,6 @@ import {
   type ICommandRejectionAuditPort,
 } from './audit/CommandRejectionAudit';
 import { type IServerDiceRoller } from './CryptoDiceRoller';
-import { SeededDiceRoller } from './RollCapture';
 import { bindViewerDeliveryPersist } from './DurableMatchStore.viewerDelivery';
 import { FogOfWarVisibilityCache } from './fogOfWar';
 import {
@@ -122,6 +121,7 @@ import {
 } from './reconnection/HostMigration';
 import { IntentRateLimiter } from './reconnection/IntentRateLimiter';
 import { PendingPeerTracker } from './reconnection/PendingPeerTracker';
+import { SeededDiceRoller } from './RollCapture';
 import { ServerMatchBroadcaster } from './ServerMatchBroadcaster';
 import {
   buildHostSession,
@@ -149,11 +149,6 @@ import { handleLobbyIntent as handleLobbyIntentWithContext } from './ServerMatch
 import { ServerMatchHostOutcomePublisher } from './ServerMatchHostOutcomePublisher';
 import { resumePendingPublications } from './ServerMatchHostPublication';
 import {
-  rebuildHostFromActivatedBranch,
-  type IRewindRebuildHost,
-  type IRewindRebuildRequest,
-} from './ServerMatchHostRewindRebuild';
-import {
   maybeMarkPlayerPending,
   maybeResume,
 } from './ServerMatchHostReconnectLifecycle';
@@ -164,6 +159,11 @@ import {
   handleSessionJoin,
   sendReplay,
 } from './ServerMatchHostReplay';
+import {
+  rebuildHostFromActivatedBranch,
+  type IRewindRebuildHost,
+  type IRewindRebuildRequest,
+} from './ServerMatchHostRewindRebuild';
 import { ServerMatchSocketLifecycle } from './ServerMatchSocketLifecycle';
 
 type ReconnectMetadataReader = Pick<MatchLogStorage, 'getMatchMetadata'>;
@@ -496,9 +496,7 @@ export class ServerMatchHost {
    * Rebuild the live engine from the activated rewind branch. The
    * commit route calls this after `kind === 'committed'`.
    */
-  rebuildFromActivatedBranch = (
-    input: IRewindRebuildRequest,
-  ): Promise<void> =>
+  rebuildFromActivatedBranch = (input: IRewindRebuildRequest): Promise<void> =>
     rebuildHostFromActivatedBranch(this.rewindRebuildPort(), input);
 
   /**

@@ -18,8 +18,8 @@ import type {
 
 import { AUTHORITY_HISTORY_START } from '@/lib/events/checkpoints/AuthorityRecoveryPort';
 import { BranchCheckpointCache } from '@/lib/events/checkpoints/BranchCheckpointCache';
-import { SQLiteEventHistoryBranchStore } from '@/lib/events/journal/SQLiteEventHistoryBranchStore';
 import { readEffectiveStreamHead } from '@/lib/events/journal/EventHistoryEffectiveStreamHead';
+import { SQLiteEventHistoryBranchStore } from '@/lib/events/journal/SQLiteEventHistoryBranchStore';
 import { digestReplayCheckpointState } from '@/lib/events/replay/ReplayCheckpointCompatibility';
 import { buildGmCombatRewindCommitDeps } from '@/pages-modules/api/rewindCommitDeps';
 import {
@@ -216,7 +216,9 @@ describe('match recovery checkpoint door', () => {
 
   it('boot after a committed rewind yields the rewound session', async () => {
     const store = new DurableMatchStore({ path: path.join(dir, 'rewind.db') });
-    getSQLiteService({ path: path.join(dir, 'rewind-journal.db') }).initialize();
+    getSQLiteService({
+      path: path.join(dir, 'rewind-journal.db'),
+    }).initialize();
     await writeLog(store);
     const db = getSQLiteService().getDatabase();
     // Same alignment as the rewind-commit route: journal id/digest must
@@ -284,9 +286,9 @@ describe('match recovery checkpoint door', () => {
          (stream_type, stream_id, branch_id, stream_revision, event_digest)
        VALUES ('match', ?, 'root', ?, ?)`,
     ).run(MATCH_ID, headEvent.streamRevision, headEvent.eventDigest);
-    expect(new SQLiteEventHistoryBranchStore(db).backfillGenesisBranches()).toBe(
-      1,
-    );
+    expect(
+      new SQLiteEventHistoryBranchStore(db).backfillGenesisBranches(),
+    ).toBe(1);
     const branches = new SQLiteEventHistoryBranchStore(db);
     const streamHead = readEffectiveStreamHead(db, branches, stream);
     const effective = branches.readEffectiveHead(stream);

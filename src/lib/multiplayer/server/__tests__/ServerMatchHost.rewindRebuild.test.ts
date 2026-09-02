@@ -12,28 +12,34 @@
  */
 
 import type Database from 'better-sqlite3';
-import type { IEventHistoryStreamRef } from '@/lib/events/journal/EventHistoryBranchContract';
-import type { ICorrectionLeaseHandle } from '@/lib/events/journal/EventHistoryCorrectionLeaseContract';
-import type { IGameEvent } from '@/types/gameplay/GameSessionInterfaces';
-import type { IMatchMeta } from '../IMatchStore';
 
 import { mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 
+import type { IEventHistoryStreamRef } from '@/lib/events/journal/EventHistoryBranchContract';
+import type { ICorrectionLeaseHandle } from '@/lib/events/journal/EventHistoryCorrectionLeaseContract';
+import type { IGameEvent } from '@/types/gameplay/GameSessionInterfaces';
+
 import { InteractiveSession } from '@/engine/InteractiveSession';
-import { SQLiteEventHistoryCorrectionLeaseStore } from '@/lib/events/journal/SQLiteEventHistoryCorrectionLeaseStore';
-import { SQLiteEventHistoryBranchStore } from '@/lib/events/journal/SQLiteEventHistoryBranchStore';
 import { readEffectiveStreamHead } from '@/lib/events/journal/EventHistoryEffectiveStreamHead';
-import { SeededRandom } from '@/simulation/core/SeededRandom';
+import { SQLiteEventHistoryBranchStore } from '@/lib/events/journal/SQLiteEventHistoryBranchStore';
+import { SQLiteEventHistoryCorrectionLeaseStore } from '@/lib/events/journal/SQLiteEventHistoryCorrectionLeaseStore';
+import { buildGmCombatRewindCommitDeps } from '@/pages-modules/api/rewindCommitDeps';
 import {
   getSQLiteService,
   resetSQLiteService,
 } from '@/services/persistence/SQLiteService';
+import { SeededRandom } from '@/simulation/core/SeededRandom';
+import { GamePhase, GameSide } from '@/types/gameplay/GameSessionInterfaces';
 import {
-  GamePhase,
-  GameSide,
-} from '@/types/gameplay/GameSessionInterfaces';
+  advancePhase,
+  createGameSession,
+  startGame,
+} from '@/utils/gameplay/gameSession';
+
+import type { IMatchMeta } from '../IMatchStore';
+
 import { DurableMatchStore } from '../DurableMatchStore';
 import { commitGmCombatRewind } from '../history/GmCombatRewindCommit';
 import { matchStreamRef } from '../history/GmCombatRewindPreview';
@@ -43,15 +49,8 @@ import {
 } from '../history/matchStoreBranchSegmentReader';
 import { recoverActiveMatches } from '../MatchRecovery';
 import { foldMatchSession } from '../MatchSessionProjector';
-import { buildGmCombatRewindCommitDeps } from '@/pages-modules/api/rewindCommitDeps';
 import { SeededDiceRoller } from '../RollCapture';
 import { ServerMatchHost, type IMatchSocket } from '../ServerMatchHost';
-
-import {
-  advancePhase,
-  createGameSession,
-  startGame,
-} from '@/utils/gameplay/gameSession';
 
 const MATCH_ID = 'rewind-rebuild-1';
 const AT = '2026-09-02T00:00:00.000Z';
@@ -132,7 +131,8 @@ describe('ServerMatchHost rewind rebuild', () => {
     const prefixIds = new Set(
       stored
         .filter(
-          (event) => revisionForMatchSequence(event.sequence) <= TARGET_REVISION,
+          (event) =>
+            revisionForMatchSequence(event.sequence) <= TARGET_REVISION,
         )
         .map((event) => event.id),
     );
@@ -317,9 +317,9 @@ describe('ServerMatchHost rewind rebuild', () => {
          (stream_type, stream_id, branch_id, stream_revision, event_digest)
        VALUES ('match', ?, 'root', ?, ?)`,
     ).run(MATCH_ID, head.streamRevision, head.eventDigest);
-    expect(new SQLiteEventHistoryBranchStore(db).backfillGenesisBranches()).toBe(
-      1,
-    );
+    expect(
+      new SQLiteEventHistoryBranchStore(db).backfillGenesisBranches(),
+    ).toBe(1);
   }
 
   async function commitRewind(

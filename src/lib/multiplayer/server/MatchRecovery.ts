@@ -49,8 +49,8 @@ import {
   foldMatchSession,
   matchAuthoritativePipeline,
 } from './MatchSessionProjector';
-import { tryFoldActivatedRewindBranch } from './ServerMatchHostRewindRebuild';
 import { ServerMatchHost } from './ServerMatchHost';
+import { tryFoldActivatedRewindBranch } from './ServerMatchHostRewindRebuild';
 
 /**
  * Capability a store must expose to be recoverable: the standard
@@ -162,7 +162,11 @@ export async function recoverActiveMatches(
       const rewound = await tryFoldActivatedRewindBranch(store, meta.matchId);
       if (rewound !== null) {
         const session = await InteractiveSession.fromSessionAsync(rewound);
-        const host = await ServerMatchHost.recover(meta.matchId, store, session);
+        const host = await ServerMatchHost.recover(
+          meta.matchId,
+          store,
+          session,
+        );
         const last = rewound.events[rewound.events.length - 1];
         // Same ceiling the live rebuild sets: store getEvents still
         // walks the untruncated log, so join replay must stop here.

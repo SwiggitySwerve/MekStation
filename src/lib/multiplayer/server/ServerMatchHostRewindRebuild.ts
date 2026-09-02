@@ -14,15 +14,18 @@
  */
 
 import type { IMatchStore } from '@/lib/multiplayer/server/IMatchStore';
-import type { IGameEvent, IGameSession } from '@/types/gameplay/GameSessionInterfaces';
+import type {
+  IGameEvent,
+  IGameSession,
+} from '@/types/gameplay/GameSessionInterfaces';
 
 import { InteractiveSession } from '@/engine/InteractiveSession';
-import { ROOT_EVENT_BRANCH_ID } from '@/lib/events/journal/EventJournalContract';
 import {
   materializeBranchPath,
   resolveBranchPath,
 } from '@/lib/events/journal/EventHistoryBranchResolver';
 import { readEffectiveStreamHead } from '@/lib/events/journal/EventHistoryEffectiveStreamHead';
+import { ROOT_EVENT_BRANCH_ID } from '@/lib/events/journal/EventJournalContract';
 import { SQLiteEventHistoryBranchStore } from '@/lib/events/journal/SQLiteEventHistoryBranchStore';
 import { SQLiteEventHistoryCorrectionLeaseStore } from '@/lib/events/journal/SQLiteEventHistoryCorrectionLeaseStore';
 import { matchStreamRef } from '@/lib/multiplayer/server/history/GmCombatRewindPreview';

@@ -47,9 +47,9 @@ import {
 } from '@/lib/multiplayer/server/authorization/HumanActionAuthorizationGate';
 import { MatchSeatMembershipSource } from '@/lib/multiplayer/server/authorization/MatchSeatMembershipSource';
 import { getDefaultMatchStore } from '@/lib/multiplayer/server/getDefaultMatchStore';
-import { getMatchHostRegistry } from '@/lib/multiplayer/server/MatchHostRegistry';
 import { commitGmCombatRewind } from '@/lib/multiplayer/server/history/GmCombatRewindCommit';
 import { matchStreamRef } from '@/lib/multiplayer/server/history/GmCombatRewindPreview';
+import { getMatchHostRegistry } from '@/lib/multiplayer/server/MatchHostRegistry';
 import {
   buildGmCombatRewindCommitDeps,
   isRewindCommitBody,
