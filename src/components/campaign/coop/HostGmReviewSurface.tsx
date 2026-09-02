@@ -264,6 +264,24 @@ export function HostGmReviewSurface({
             {lifecycle.recovery.description}
           </p>
           {/*
+            What the SERVER said to do, verbatim - as information, never as
+            the button's label. The authority's actions are strings like
+            `resync-to-active-head`, and the control below only clears a
+            local hint, so labelling the button with the instruction would
+            promise a movement pressing it cannot perform (finding #93).
+            Shown anyway because it is the only real recovery anyone has
+            named, and dropping it would trade one dishonesty for silence.
+          */}
+          {lifecycle.recovery.serverAction && (
+            <p
+              data-testid="gm-lifecycle-recovery-server-action"
+              data-server-action={lifecycle.recovery.serverAction}
+              className="mt-1 text-slate-400"
+            >
+              Server instruction: {lifecycle.recovery.serverAction}
+            </p>
+          )}
+          {/*
             A rebuild has nothing to press. The stream reopens on lease
             expiry, release, or activation, so the recovery is stated and
             the button is deliberately absent rather than rendered as a

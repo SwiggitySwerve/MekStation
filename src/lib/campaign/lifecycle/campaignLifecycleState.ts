@@ -40,13 +40,17 @@
  * what the unreachability sweep still asserts, and it is now a sweep over
  * both doors rather than one.
  *
- * WHAT A REFUSAL SAYS TO DO IS THE SERVER'S TO SAY. Both admission arms
- * ship a named action - `EXPECTED_HEAD_RESYNC_ACTION`
- * ('resync-to-active-head') and `REBUILD_RETRY_ACTION`
- * ('retry-after-rebuild'). When one reaches this module it is what the
- * human is shown, verbatim; the labels below are the fallback for the
- * refusals that arrive without one, and a client that paraphrased an
- * instruction it did receive would eventually paraphrase it wrongly.
+ * WHAT A REFUSAL SAYS TO DO IS THE SERVER'S TO SAY - BUT IT IS NOT WHAT
+ * THE BUTTON DOES. Both admission arms ship a named action:
+ * `EXPECTED_HEAD_RESYNC_ACTION` ('resync-to-active-head') and
+ * `REBUILD_RETRY_ACTION` ('retry-after-rebuild'). Those reach the human
+ * verbatim through `serverAction`, rendered beside the control - never as
+ * the control's label, because no client here can carry either
+ * instruction out: the only handler any of these controls has clears a
+ * local hint so the server answers again (finding #93). Paraphrasing the
+ * server would eventually paraphrase it wrongly; labelling a button with
+ * it promises a movement the press cannot perform. Both are avoided by
+ * keeping the two sentences apart.
  *
  * @spec openspec/specs/campaign-persistence/spec.md ("Campaign Rebuild Is Gated")
  * @spec openspec/specs/coop-campaign-sync/spec.md ("Campaign Conflict Resolution Is Command-Based")
@@ -83,12 +87,11 @@ export type CampaignLifecycleRefusalCode =
  * about it.
  *
  * `recoveryAction` is null when the refusal named none - the wire's
- * `Error` frame has no action field at all, and the campaign commands
- * route currently drops the action its own admission arm computed
- * (`campaignCommandPipeline` returns `{ kind: 'blocked', reason: code }`,
- * spending `rebuilding.action` on the way past). Holding the field
- * anyway is what lets the verbatim rule below be written once instead of
- * added later.
+ * `Error` frame has no action field at all. The campaign commands route
+ * DOES carry one since its #66 fix (a rebuild answers 409 with
+ * `recoveryAction: 'retry-after-rebuild'`), and the door reads the field
+ * generically, so the verbatim rule below covers both doors without a
+ * special case for either.
  */
 export interface ICampaignCommandRefusal {
   readonly code: CampaignLifecycleRefusalCode;
@@ -137,6 +140,20 @@ export interface IGmRecoveryAction {
    * in control of it.
    */
   readonly actionable: boolean;
+  /**
+   * What the SERVER said to do, verbatim, or null when it said nothing.
+   *
+   * Deliberately not the `label`. Every actionable recovery on both
+   * surfaces is wired to one handler, which clears a local hint so the
+   * server answers again - it resyncs nothing and rebases nothing. The
+   * server's own action strings are `resync-to-active-head` and
+   * `rebase-onto-active-head`, so putting one on the button would have it
+   * promise a movement the press cannot perform (finding #93). The
+   * instruction is still worth showing - it is the only real recovery
+   * anyone has named - so it is carried here and rendered as information
+   * beside the control rather than as the control's promise.
+   */
+  readonly serverAction: string | null;
 }
 
 /**
@@ -244,50 +261,69 @@ const REFUSAL_MESSAGES: Readonly<Record<CampaignLifecycleRefusalCode, string>> =
   };
 
 /**
- * The recovery each refusal offers WHEN THE SERVER NAMED NONE.
+ * What each refusal offers the actor.
  *
- * Three different recoveries, because the three refusals are different
- * situations and one label for all of them would be a label that means
- * nothing:
+ * TWO shapes, not four, because there are only two things a person can
+ * actually do here:
  *
- *   - not converged -> `Check again`. The block is a hint carried
- *     forward from the last refusal, not a convergence subscription, so
- *     clearing it lets the SERVER - the only authority on whether the
- *     campaign converged - answer again.
- *   - stale / rewound -> `Resync to active head`, which is the human
- *     rendering of the server's own `resync-to-active-head`. Retrying
- *     against the head you already hold would just be refused again.
+ *   - every ACTIONABLE refusal -> `CLEAR_HINT_LABEL`. They share one
+ *     handler, which clears a local hint so the SERVER - the only
+ *     authority on any of these conditions - answers again. An earlier
+ *     version gave the staleness family `Resync to active head`, on the
+ *     reasoning that it was the human rendering of the server's own
+ *     `resync-to-active-head`. It was not: it was a promise about a
+ *     movement the button does not perform, and the description repeated
+ *     it (finding #93). What distinguishes the refusals lives in
+ *     `REFUSAL_MESSAGES` and in the descriptions below, where a sentence
+ *     can explain a situation without claiming to change it.
  *   - rebuilding -> `Wait for rebuild`, and NOT actionable. The head a
  *     client would resync to is the one the rebuild is replacing, which
  *     is exactly why `EventHistoryCommandAdmission` names its action
  *     `retry-after-rebuild` rather than a resync.
  *
+ * The server's own instruction is not lost - `resolveRecovery` carries it
+ * verbatim into `serverAction`, which the surfaces render beside the
+ * control rather than on it.
+ *
  * Nothing here commits anything, which is what makes it safe to offer to
  * an actor whose last command was refused.
  */
+/**
+ * What the one shared recovery handler actually does, in the user"s words.
+ *
+ * Every actionable recovery on both surfaces is wired to `onClearRefusal`,
+ * which clears a local hint so the SERVER answers again. One handler, one
+ * label: naming them differently would be describing one action three ways,
+ * and two of those descriptions would be wrong (finding #93).
+ */
+const CLEAR_HINT_LABEL = 'Check again';
+
 const RECOVERIES: Readonly<
   Record<CampaignLifecycleRefusalCode, IGmRecoveryAction>
 > = {
   CAMPAIGN_NOT_CONVERGED: {
     code: 'CAMPAIGN_NOT_CONVERGED',
-    label: 'Check again',
+    label: CLEAR_HINT_LABEL,
     description:
       'Progression resumes once every participant has caught up. Checking again retries against the campaign server.',
     actionable: true,
+    serverAction: null,
   },
   STALE_BRANCH: {
     code: 'STALE_BRANCH',
-    label: 'Resync to active head',
+    label: CLEAR_HINT_LABEL,
     description:
-      'This view is on a superseded branch of campaign history. Resyncing brings it to the branch the campaign is actually on.',
+      'This view is on a superseded branch of campaign history. Checking again asks the campaign server to judge the next command afresh; while the branch is superseded it will refuse again.',
     actionable: true,
+    serverAction: null,
   },
   PROJECTION_REWOUND: {
     code: 'PROJECTION_REWOUND',
-    label: 'Resync to active head',
+    label: CLEAR_HINT_LABEL,
     description:
-      'The campaign projection was rewound to an authoritative branch. Resyncing brings this view to it.',
+      'The campaign projection was rewound to an authoritative branch. Checking again asks the campaign server to judge the next command afresh.',
     actionable: true,
+    serverAction: null,
   },
   PROJECTION_REBUILDING: {
     code: 'PROJECTION_REBUILDING',
@@ -295,24 +331,27 @@ const RECOVERIES: Readonly<
     description:
       'The campaign projection is being rebuilt from authoritative history. It reopens on its own when the rebuild finishes.',
     actionable: false,
+    serverAction: null,
   },
 };
 
 /**
  * The recovery a refusal actually offers.
  *
- * When the refusal carried an action the SERVER named, that string is
- * the label verbatim. The local table supplies the surrounding
- * description and decides whether there is anything to press - the
- * server names WHAT to do, this module knows whether the actor is the
- * one who can do it.
+ * The server"s named action is carried VERBATIM into `serverAction` and
+ * deliberately NOT onto the `label`. Cut A put it on the label, which made
+ * the button read `resync-to-active-head` while its handler only cleared a
+ * local hint - the button promised a movement pressing it cannot perform
+ * (finding #93). The server names WHAT SHOULD HAPPEN; the label names WHAT
+ * THIS CONTROL DOES; they are only the same sentence when the client can
+ * actually carry the instruction out, and today it cannot.
  */
 function resolveRecovery(refusal: ICampaignCommandRefusal): IGmRecoveryAction {
   const local = RECOVERIES[refusal.code];
   if (refusal.recoveryAction === null || refusal.recoveryAction === '') {
     return local;
   }
-  return { ...local, label: refusal.recoveryAction };
+  return { ...local, serverAction: refusal.recoveryAction };
 }
 
 /**
