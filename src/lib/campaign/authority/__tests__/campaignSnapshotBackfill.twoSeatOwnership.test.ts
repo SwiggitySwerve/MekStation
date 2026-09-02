@@ -8,8 +8,6 @@ import { mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 
-import { createEmptyCampaignState } from '@/types/campaign/CampaignSync';
-
 import { SQLiteEventJournal } from '@/lib/events/journal/SQLiteEventJournal';
 import {
   readCampaignMigrationMarker,
@@ -21,9 +19,10 @@ import {
   getSQLiteService,
   resetSQLiteService,
 } from '@/services/persistence/SQLiteService';
+import { createEmptyCampaignState } from '@/types/campaign/CampaignSync';
 
-import type { ICampaignCutoverMarker } from '../campaignAuthorityMigration';
 import type { ICampaignJournalEnvelope } from '../../sync/JournalCampaignEventStore';
+import type { ICampaignCutoverMarker } from '../campaignAuthorityMigration';
 
 import { readCampaignJournalHighestSequence } from '../../sync/campaignJournalReads';
 import {

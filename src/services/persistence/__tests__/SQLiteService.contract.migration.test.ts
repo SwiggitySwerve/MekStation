@@ -11,11 +11,11 @@ import path from 'node:path';
 
 import type { SerializedCampaign } from '@/types/campaign/SerializedCampaign';
 
+import { buildPopulatedCampaign } from '@/lib/campaign/persistence/__tests__/campaignFixture';
 import {
   buildSerializedCampaign,
   toCampaignSummary,
 } from '@/lib/campaign/persistence/campaignEnvelope';
-import { buildPopulatedCampaign } from '@/lib/campaign/persistence/__tests__/campaignFixture';
 import {
   readCampaign,
   saveCampaign,
