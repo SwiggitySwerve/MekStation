@@ -133,7 +133,7 @@ describe('replay checkpoint SQLite migration', () => {
   it.each([
     ['blank checkpoint_id', { checkpointId: '  ' }],
     ['blank stream_id', { streamId: '' }],
-    ['non-root branch', { branchId: 'side-branch' }],
+    ['blank branch_id', { branchId: '   ' }],
     ['negative revision', { revision: -1 }],
     ['non-integer revision', { revision: 1.5 }],
     ['short fingerprint', { schemaPipelineFingerprint: 'abc123' }],
