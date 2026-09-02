@@ -153,6 +153,70 @@ export const SCENARIO_PACK_MANIFEST: readonly ManifestEntry[] = [
     // (repair hours partially applied, a day's costs posted).
     postLoadActions: ['advance-day'],
   },
+  // ---------------------------------------------------------------------
+  // Co-op lifecycle packs (umbrella 19.4, finding #32).
+  //
+  // These two are HAND-AUTHORED, and their provenance says so rather than
+  // borrowing a genesis they do not have. Neither sanctioned minter can
+  // produce them: the flow-checkpoint minter captures a live GET against a
+  // registered flow and `e2e/flows/manifest.ts` registers no co-op flow,
+  // while the fast-forward minter dumps a headless `fastForwardCampaign()`
+  // day-advance run, which never opens a co-op session.
+  //
+  // TWO entries, not one: `coopSession.mode` is single-valued per campaign
+  // and the surfaces split on it. `postLoadActions` is EMPTY on both - see
+  // the non-claim in the sweep inventory: a pending GM row cannot be
+  // created through the front door, and a proposal no guest sent would be
+  // a fixture wearing the pending posture's clothes.
+  //
+  // NO `coop` SUBSYSTEM TAG, deliberately. `PACK_SUBSYSTEMS` is not merely
+  // a closed list - `packSchemas.test.ts` asserts it equals the set of
+  // subsystems the REGISTERED FLOWS actually exercise
+  // (`FLOW_MANIFEST.flatMap((flow) => flow.subsystems)`), so a tag no flow
+  // exercises is dead vocabulary the guard correctly rejects. Adding
+  // `coop` therefore requires registering a co-op FLOW first, which is a
+  // larger change than this pack. Each entry instead carries the tag of
+  // the flow that already covers its target route: the host pack loads a
+  // campaign dashboard (`navigation`), the guest pack the finances
+  // sub-route (`economy`). The tag describes the route family the pack
+  // loads through, and the pack ids say what they actually seed.
+  // ---------------------------------------------------------------------
+  {
+    id: 'coop-host-review',
+    kind: 'campaign',
+    subsystems: ['navigation'],
+    viewports: [],
+    targetRoute: '/gameplay/campaigns/{id}',
+    parityAnchorJourney:
+      'anchor:harden-gm-two-player-campaign-sessions-19.4-coop-host',
+    payloadPath: 'campaign/coop-host-review.campaign.json',
+    provenance: {
+      genesisSource:
+        'hand-authored:harden-gm-two-player-campaign-sessions@19.4-coop-host',
+      mintedAt: '2026-09-02T12:13:00.000Z',
+      baseCommit: 'e67d2bf9c160e49bea97989e42990a4a6103e156',
+    },
+    pins: { schemaVersion: 1 },
+    postLoadActions: [],
+  },
+  {
+    id: 'coop-guest-proposal',
+    kind: 'campaign',
+    subsystems: ['economy'],
+    viewports: [],
+    targetRoute: '/gameplay/campaigns/{id}/finances',
+    parityAnchorJourney:
+      'anchor:harden-gm-two-player-campaign-sessions-19.4-coop-guest',
+    payloadPath: 'campaign/coop-guest-proposal.campaign.json',
+    provenance: {
+      genesisSource:
+        'hand-authored:harden-gm-two-player-campaign-sessions@19.4-coop-guest',
+      mintedAt: '2026-09-02T12:13:00.000Z',
+      baseCommit: 'e67d2bf9c160e49bea97989e42990a4a6103e156',
+    },
+    pins: { schemaVersion: 1 },
+    postLoadActions: [],
+  },
 ];
 
 /**
