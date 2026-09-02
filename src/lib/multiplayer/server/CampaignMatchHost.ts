@@ -45,35 +45,33 @@ import type {
   ICampaignSnapshotPublishedPayload,
 } from '@/types/campaign/CampaignSync';
 
-import { applyCampaignEvent } from '@/lib/campaign/sync/applyCampaignEvent';
 import { CampaignEventLog } from '@/lib/campaign/sync/campaignEventLog';
-import { freezeCampaignEvent } from '@/lib/campaign/sync/campaignEventScope';
 import { type ICampaignEventStore } from '@/lib/campaign/sync/ICampaignEventStore';
-import { INVALID_CAMPAIGN_INTENT } from '@/types/campaign/CampaignSync';
-import { parseCampaignIntent } from '@/types/campaign/campaignSyncSchemas';
-import { nowIso } from '@/types/multiplayer/Protocol';
 
 import type {
   CampaignCommitOutcome,
   ICampaignBatchCommitHost,
 } from './campaignHostBatchCommit';
 import type {
-  CampaignIntentValidation,
-  UnsequencedCampaignEvent,
-} from './CampaignMatchHostIntent';
+  CampaignRosterChangeKind,
+  ICampaignHostBatchDoors,
+  ICampaignRosterUnitChange,
+} from './campaignHostDoors';
+import type { UnsequencedCampaignEvent } from './CampaignMatchHostIntent';
+import type { ICampaignIntentCommandIdentity } from './campaignIntentIdentity';
 
 import {
   commitCampaignEventBatch,
-  resultOfCommit,
+  commitCampaignEventsInSequence,
 } from './campaignHostBatchCommit';
 import {
-  CampaignIntentIdentityConflictError,
-  campaignIntentIdentityDeps,
-  intentCommandIdentity,
-  replayCommittedIntent,
-  type ICampaignIntentCommandIdentity,
-} from './campaignIntentIdentity';
-import { validateCampaignIntent } from './CampaignMatchHostIntent';
+  type ICampaignMatchHostLockedContext,
+  applyHostIntentLocked,
+  applyRosterUnitChangeLocked,
+  creditSalvagePoolLocked,
+  handleIntentLocked,
+  openLocked,
+} from './CampaignMatchHost.doors';
 import {
   commitCampaignOutcomeConsequences,
   outcomeInboxHostFrom,
@@ -169,6 +167,47 @@ export class CampaignMatchHost {
    * The chain is rejection-proof: a door that throws must not wedge every
    * later door behind a permanently rejected promise.
    */
+  /**
+   * Run a MULTI-DOOR body as one critical section (finding #78).
+   *
+   * A post-battle reconcile is three doors describing one battle. Walked
+   * through the public doors it is three critical sections with two gaps,
+   * and a racing writer lands in a gap: a mirror observed the payout
+   * applied and the salvage missing. The body is handed the UNLOCKED
+   * bodies rather than the public doors - see `campaignHostDoors` for
+   * why a re-entrant depth counter would be a hole, not a fix.
+   */
+  runBatchExclusive = <T>(
+    work: (doors: ICampaignHostBatchDoors) => Promise<T>,
+  ): Promise<T> => this.runExclusive(() => work(this.batchDoors()));
+
+  private batchDoors(): ICampaignHostBatchDoors {
+    const ctx = this.doorContext();
+    return {
+      applyHostIntent: (intent) => applyHostIntentLocked(ctx, intent),
+      creditSalvagePool: (value, reason) =>
+        creditSalvagePoolLocked(ctx, value, reason),
+      applyRosterUnitChange: (campaignId, change, unit, intentTag) =>
+        applyRosterUnitChangeLocked(ctx, campaignId, change, unit, intentTag),
+    };
+  }
+
+  private doorContext(): ICampaignMatchHostLockedContext {
+    return {
+      campaignId: this.campaignId,
+      hostPlayerId: this.hostPlayerId,
+      eventStore: this.eventStore,
+      isOpened: () => this.opened,
+      isClosed: () => this.closed,
+      markOpened: () => {
+        this.opened = true;
+      },
+      readState: () => this.state,
+      nextSequence: () => this.log.nextSequence(),
+      commitEvents: (events, identity) => this.commitEvents(events, identity),
+    };
+  }
+
   private runExclusive<T>(work: () => Promise<T>): Promise<T> {
     const queued = this.commitChain.then(() => {
       this.lockDepth += 1;
@@ -192,27 +231,8 @@ export class CampaignMatchHost {
    * `CampaignSyncSession` calls this when a host opens a campaign for
    * co-op; it then issues the room code.
    */
-  open = async (): Promise<void> => this.runExclusive(() => this.openLocked());
-
-  private openLocked = async (): Promise<void> => {
-    if (this.opened || this.closed) return;
-    this.opened = true;
-    // A recovered durable campaign already has its baseline and tail. Do not
-    // append a second genesis snapshot merely because a new host instance
-    // opened around it.
-    if ((await this.log.nextSequence()) > 0) return;
-    await this.commitEvents([
-      {
-        type: 'CampaignSnapshotPublished',
-        campaignId: this.campaignId,
-        authorPlayerId: this.hostPlayerId,
-        ts: nowIso(),
-        // Shared ledger baseline for every co-op participant, not GM-only.
-        scope: 'campaign',
-        payload: { state: this.state },
-      },
-    ]);
-  };
+  open = async (): Promise<void> =>
+    this.runExclusive(() => openLocked(this.doorContext()));
 
   /**
    * Close the campaign session. Idempotent. After close, every intent
@@ -330,71 +350,7 @@ export class CampaignMatchHost {
    * subscriber buffer.
    */
   handleIntent = async (rawIntent: unknown): Promise<CampaignIntentResult> =>
-    this.runExclusive(() => this.handleIntentLocked(rawIntent));
-
-  private handleIntentLocked = async (
-    rawIntent: unknown,
-  ): Promise<CampaignIntentResult> => {
-    // Step 1 — closed check.
-    if (this.closed) {
-      return {
-        ok: false,
-        code: INVALID_CAMPAIGN_INTENT,
-        reason: 'session-closed',
-      };
-    }
-
-    // Step 2 — malformed check (zod parse at the boundary, task 1.3).
-    const intent = parseCampaignIntent(rawIntent);
-    if (intent === null) {
-      return {
-        ok: false,
-        code: INVALID_CAMPAIGN_INTENT,
-        reason: 'malformed-intent',
-      };
-    }
-
-    const retry = await replayCommittedIntent(
-      campaignIntentIdentityDeps(this.campaignId, this.eventStore),
-      intent,
-    );
-    if (retry) return retry;
-
-    // Step 3 — validate against CURRENT authoritative state. A rejected
-    // intent mutates nothing — `validation` simply carries no events.
-    // `handleIntent` is the GUEST-facing path (the host uses
-    // `applyHostIntent`), so the derived events are attributed to the
-    // guest author.
-    const ts = nowIso();
-    const validation: CampaignIntentValidation = validateCampaignIntent(
-      intent,
-      this.state,
-      this.guestAuthor(intent),
-      ts,
-      this.hostPlayerId,
-    );
-    if (!validation.ok) {
-      return validation;
-    }
-
-    // Steps 4-6 — apply, append, broadcast through the single commit
-    // path so host-driven and guest-driven events share one ordering.
-    try {
-      const outcome = await this.commitEvents(
-        validation.events,
-        intentCommandIdentity(this.campaignId, intent),
-      );
-      return resultOfCommit(outcome);
-    } catch (error) {
-      if (error instanceof CampaignIntentIdentityConflictError) {
-        return campaignIntentIdentityDeps(
-          this.campaignId,
-          this.eventStore,
-        ).conflict();
-      }
-      throw error;
-    }
-  };
+    this.runExclusive(() => handleIntentLocked(this.doorContext(), rawIntent));
 
   /**
    * Convenience for the host's OWN actions (e.g. a host UI clicking
@@ -406,50 +362,7 @@ export class CampaignMatchHost {
   applyHostIntent = async (
     intent: ICampaignIntent,
   ): Promise<CampaignIntentResult> =>
-    this.runExclusive(() => this.applyHostIntentLocked(intent));
-
-  private applyHostIntentLocked = async (
-    intent: ICampaignIntent,
-  ): Promise<CampaignIntentResult> => {
-    if (this.closed) {
-      return {
-        ok: false,
-        code: INVALID_CAMPAIGN_INTENT,
-        reason: 'session-closed',
-      };
-    }
-    const retry = await replayCommittedIntent(
-      campaignIntentIdentityDeps(this.campaignId, this.eventStore),
-      intent,
-    );
-    if (retry) return retry;
-    const ts = nowIso();
-    const validation = validateCampaignIntent(
-      intent,
-      this.state,
-      this.hostPlayerId,
-      ts,
-      this.hostPlayerId,
-    );
-    if (!validation.ok) {
-      return validation;
-    }
-    try {
-      const outcome = await this.commitEvents(
-        validation.events,
-        intentCommandIdentity(this.campaignId, intent),
-      );
-      return resultOfCommit(outcome);
-    } catch (error) {
-      if (error instanceof CampaignIntentIdentityConflictError) {
-        return campaignIntentIdentityDeps(
-          this.campaignId,
-          this.eventStore,
-        ).conflict();
-      }
-      throw error;
-    }
-  };
+    this.runExclusive(() => applyHostIntentLocked(this.doorContext(), intent));
 
   /**
    * Credit the campaign salvage pool — a host-authoritative
@@ -470,43 +383,9 @@ export class CampaignMatchHost {
     value: number,
     reason: string,
   ): Promise<CampaignIntentResult> =>
-    this.runExclusive(() => this.creditSalvagePoolLocked(value, reason));
-
-  private creditSalvagePoolLocked = async (
-    value: number,
-    reason: string,
-  ): Promise<CampaignIntentResult> => {
-    if (this.closed) {
-      return {
-        ok: false,
-        code: INVALID_CAMPAIGN_INTENT,
-        reason: 'session-closed',
-      };
-    }
-    if (!(value > 0) || !Number.isFinite(value)) {
-      return {
-        ok: false,
-        code: INVALID_CAMPAIGN_INTENT,
-        reason: 'malformed-intent',
-      };
-    }
-    void reason;
-    const outcome = await this.commitEvents([
-      {
-        type: 'SalvageAllocated',
-        campaignId: this.campaignId,
-        authorPlayerId: this.hostPlayerId,
-        ts: nowIso(),
-        // Post-battle salvage is a shared ledger fact.
-        scope: 'campaign',
-        payload: {
-          value,
-          poolRemaining: this.state.salvagePool + value,
-        },
-      },
-    ]);
-    return resultOfCommit(outcome);
-  };
+    this.runExclusive(() =>
+      creditSalvagePoolLocked(this.doorContext(), value, reason),
+    );
 
   /**
    * Commit a `RosterUnitChanged` event under host authority — a
@@ -519,56 +398,19 @@ export class CampaignMatchHost {
    */
   applyRosterUnitChange = async (
     campaignId: string,
-    change: 'added' | 'removed' | 'repaired',
-    unit: {
-      readonly unitId: string;
-      readonly designation: string;
-      readonly status: 'operational' | 'damaged' | 'destroyed';
-    },
+    change: CampaignRosterChangeKind,
+    unit: ICampaignRosterUnitChange,
     intentTag: string,
   ): Promise<CampaignIntentResult> =>
     this.runExclusive(() =>
-      this.applyRosterUnitChangeLocked(campaignId, change, unit, intentTag),
+      applyRosterUnitChangeLocked(
+        this.doorContext(),
+        campaignId,
+        change,
+        unit,
+        intentTag,
+      ),
     );
-
-  private applyRosterUnitChangeLocked = async (
-    campaignId: string,
-    change: 'added' | 'removed' | 'repaired',
-    unit: {
-      readonly unitId: string;
-      readonly designation: string;
-      readonly status: 'operational' | 'damaged' | 'destroyed';
-    },
-    intentTag: string,
-  ): Promise<CampaignIntentResult> => {
-    if (this.closed) {
-      return {
-        ok: false,
-        code: INVALID_CAMPAIGN_INTENT,
-        reason: 'session-closed',
-      };
-    }
-    if (campaignId !== this.campaignId) {
-      return {
-        ok: false,
-        code: INVALID_CAMPAIGN_INTENT,
-        reason: 'campaign-mismatch',
-      };
-    }
-    void intentTag;
-    const outcome = await this.commitEvents([
-      {
-        type: 'RosterUnitChanged',
-        campaignId: this.campaignId,
-        authorPlayerId: this.hostPlayerId,
-        ts: nowIso(),
-        // Roster mutations are shared ledger facts.
-        scope: 'campaign',
-        payload: { change, unit },
-      },
-    ]);
-    return resultOfCommit(outcome);
-  };
 
   /**
    * Build the typed error envelope for a rejected intent, carrying the
@@ -643,30 +485,11 @@ export class CampaignMatchHost {
         identity,
       );
     }
-    const committed: ICampaignEvent[] = [];
-    for (const unsequenced of events) {
-      const sequence = await this.log.nextSequence();
-      // Re-attach the host-assigned sequence. The spread of one
-      // unsequenced union member plus `sequence` is exactly the
-      // corresponding `ICampaignEvent` variant; TS cannot correlate the
-      // spread across the union, so the assertion makes the (sound)
-      // intent explicit at this single chokepoint.
-      const event = freezeCampaignEvent({
-        ...unsequenced,
-        sequence,
-      } as ICampaignEvent);
-      // Append FIRST — a sequence collision rejects here and the host's
-      // authoritative state is left untouched (no partial commit).
-      await this.log.append(event);
-      // Advance authoritative state through the SHARED reducer — the
-      // same function the guest mirror uses, so host and guest can
-      // never drift.
-      this.state = applyCampaignEvent(this.state, event);
-      // Broadcast to every connected client.
-      this.publish(event);
-      committed.push(event);
-    }
-    return { kind: 'committed', events: committed };
+    return commitCampaignEventsInSequence(
+      this.batchHost(),
+      (event) => this.log.append(event),
+      events,
+    );
   }
 
   /**
@@ -701,10 +524,4 @@ export class CampaignMatchHost {
     };
   }
 
-  /** Guest-event author: CO1 has one host/guest pair and no player id on
-   * the intent, so a stable guest:<campaignId> author stands in until
-   * CO2 threads the real guest player id through the GM surface. */
-  private guestAuthor(intent: ICampaignIntent): string {
-    return `guest:${intent.campaignId}`;
-  }
 }

@@ -88,6 +88,8 @@ export interface ICampaignHostRegistryEntry {
   readonly setActiveBranch: (next: string | null) => void;
   readonly hasReconciledBattle: (matchId: string) => boolean;
   readonly recordReconciledBattle: (matchId: string) => void;
+  /** Undo a record whose reconcile then failed, so a retry is admitted. */
+  readonly clearReconciledBattle: (matchId: string) => void;
   readonly close: () => void;
 }
 
@@ -215,6 +217,10 @@ class CampaignHostRegistryEntry implements ICampaignHostRegistryEntry {
       if (oldest === undefined) break;
       this.reconciledBattleIds.delete(oldest);
     }
+  };
+
+  clearReconciledBattle = (matchId: string): void => {
+    this.reconciledBattleIds.delete(matchId);
   };
 
   close = (): void => {

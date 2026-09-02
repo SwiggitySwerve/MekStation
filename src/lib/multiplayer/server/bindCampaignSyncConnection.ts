@@ -709,22 +709,44 @@ async function handleCampaignHostIntent({
     if (entry.hasReconciledBattle(battleMatchId)) {
       return;
     }
-
-    const result = await reconcileCoopBattle(
-      entry.host,
-      envelope.intent.payload,
-    );
+    // Recorded BEFORE the first await, not after the walk (finding #78).
+    // `emit` is synchronous, so a duplicate frame's handler starts while
+    // this one is suspended on the walk; a record on the far side of the
+    // await meant both frames passed the check and both walked. The
+    // funds door dedupes on its intentId, but salvage and roster carry
+    // no identity and re-committed - five events for a three-event
+    // battle. Check and record now share one synchronous span, which is
+    // the only span nothing can interleave with.
     entry.recordReconciledBattle(battleMatchId);
-    if (!result.ok) {
-      send(
-        socket,
-        errorFrame(
-          matchId,
-          'INVALID_INTENT',
-          result.error ?? 'battle-reconciliation-failed',
-          envelope.intent.intentId,
-        ),
+
+    // Recorded before the await; cleared whenever the walk does not
+    // succeed. A `!result.ok` return is one failure shape. A THROW is
+    // the other: without this wrap the dispatch catch closes the socket
+    // and the record outlives the attempt, so a reconnect retry is
+    // swallowed (finding #78).
+    let walkSucceeded = false;
+    try {
+      const result = await reconcileCoopBattle(
+        entry.host,
+        envelope.intent.payload,
       );
+      if (!result.ok) {
+        send(
+          socket,
+          errorFrame(
+            matchId,
+            'INVALID_INTENT',
+            result.error ?? 'battle-reconciliation-failed',
+            envelope.intent.intentId,
+          ),
+        );
+        return;
+      }
+      walkSucceeded = true;
+    } finally {
+      if (!walkSucceeded) {
+        entry.clearReconciledBattle(battleMatchId);
+      }
     }
     return;
   }

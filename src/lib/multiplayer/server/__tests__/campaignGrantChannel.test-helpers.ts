@@ -191,6 +191,7 @@ export function registryForHost(
     setActiveBranch: () => undefined,
     hasReconciledBattle: () => false,
     recordReconciledBattle: () => undefined,
+    clearReconciledBattle: () => undefined,
     close: () => {
       host.close();
     },
