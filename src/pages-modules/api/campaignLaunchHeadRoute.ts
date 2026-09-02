@@ -26,47 +26,21 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 
 import type { CampaignLaunchHeadResult } from '@/lib/campaign/authority/campaignLaunchHead';
-import type { IEventHistoryStreamRef } from '@/lib/events/journal/EventHistoryBranchContract';
 
-import { resolveCampaignLaunchHead } from '@/lib/campaign/authority/campaignLaunchHead';
-import { SQLiteEventHistoryBranchStore } from '@/lib/events/journal/SQLiteEventHistoryBranchStore';
+import {
+  campaignLaunchHeadPorts,
+  resolveCampaignLaunchHead,
+} from '@/lib/campaign/authority/campaignLaunchHead';
 import {
   initializeApiDatabase,
   rejectMissingQueryString,
   rejectUnexpectedMethod,
   sendCaughtApiError,
 } from '@/pages-modules/api/routeHelpers';
-import { readCampaign } from '@/services/campaignPersistence/CampaignPersistenceService';
-import { getSQLiteService } from '@/services/persistence/SQLiteService';
 
 type ResponseBody =
   | Exclude<CampaignLaunchHeadResult, { kind: 'campaign-not-found' }>
   | { readonly error: string };
-
-/**
- * The journal's head revision for this stream and branch.
- *
- * A branch with no head row is at revision 0 - it exists and nothing has
- * been appended to it yet. That is the genesis case, not a missing
- * stream, and treating it as absent would make a fresh campaign
- * unlaunchable.
- */
-function readJournalRevision(
-  stream: IEventHistoryStreamRef,
-  branchId: string,
-): number {
-  const row = getSQLiteService()
-    .getDatabase()
-    .prepare(
-      `SELECT stream_revision AS revision
-         FROM event_journal_stream_heads
-        WHERE stream_type = ? AND stream_id = ? AND branch_id = ?`,
-    )
-    .get(stream.streamType, stream.streamId, branchId) as
-    | { readonly revision: number }
-    | undefined;
-  return row?.revision ?? 0;
-}
 
 export default function handler(
   req: NextApiRequest,
@@ -84,17 +58,7 @@ export default function handler(
   if (!id) return;
 
   try {
-    const result = resolveCampaignLaunchHead(
-      {
-        readCampaign,
-        readEffectiveHead: (stream) =>
-          new SQLiteEventHistoryBranchStore(
-            getSQLiteService().getDatabase(),
-          ).readEffectiveHead(stream),
-        readJournalRevision,
-      },
-      id,
-    );
+    const result = resolveCampaignLaunchHead(campaignLaunchHeadPorts(), id);
     if (result.kind === 'campaign-not-found') {
       res.status(404).json({ error: 'not found' });
       return;
