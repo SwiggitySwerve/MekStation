@@ -46,9 +46,7 @@ import type {
   GuestProposalResult,
 } from '@/types/campaign/CoopCampaign';
 
-import {
-  toCampaignLifecyclePosture,
-} from '@/lib/campaign/lifecycle/campaignLifecycleState';
+import { toCampaignLifecyclePosture } from '@/lib/campaign/lifecycle/campaignLifecycleState';
 import { campaignSyncPostureFromMirrorStatus } from '@/lib/campaign/replica/campaignSyncUxState';
 import { buildCoopCampaignAuthorityProjection } from '@/lib/command-screen';
 import { INVALID_CAMPAIGN_INTENT } from '@/types/campaign/CampaignSync';
