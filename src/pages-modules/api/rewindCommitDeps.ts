@@ -15,17 +15,20 @@
 
 import type { IEventHistoryStreamRef } from '@/lib/events/journal/EventHistoryBranchContract';
 import type { IGmCombatRewindCommitDeps } from '@/lib/multiplayer/server/history/GmCombatRewindCommit';
-import type { IMatchMeta, IMatchStore } from '@/lib/multiplayer/server/IMatchStore';
+import type {
+  IMatchMeta,
+  IMatchStore,
+} from '@/lib/multiplayer/server/IMatchStore';
 import type { IGameState } from '@/types/gameplay/GameSessionInterfaces';
 
 import { SQLiteEventHistoryArtifactManifestStore } from '@/lib/events/journal/EventHistoryArtifactManifest';
 import { SQLiteEventHistoryBranchStore } from '@/lib/events/journal/SQLiteEventHistoryBranchStore';
 import { SQLiteEventHistoryCorrectionLeaseStore } from '@/lib/events/journal/SQLiteEventHistoryCorrectionLeaseStore';
+import { ReplaySchemaRegistry } from '@/lib/events/replay/ReplaySchemaRegistry';
 import {
   REPLAY_LIBRARY_CENSUS_PROJECTOR,
   type IReplayLibraryCensusState,
 } from '@/lib/events/replay/ReplaySurfaceGate';
-import { ReplaySchemaRegistry } from '@/lib/events/replay/ReplaySchemaRegistry';
 import { matchStoreBranchSegmentReader } from '@/lib/multiplayer/server/history/matchStoreBranchSegmentReader';
 import { hasCombatOutcomeOutbox } from '@/lib/multiplayer/server/IMatchStore';
 import { combatViewerProbe } from '@/lib/multiplayer/server/projection/combatViewerProbe';
