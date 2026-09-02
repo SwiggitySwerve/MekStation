@@ -60,9 +60,15 @@ export interface IMatchEventSource {
  *
  * Chained rather than standalone so the digest carries POSITION as well
  * as content: two identical events at different points in a match are
- * different history, and a chain is what `verifySegment` checks.
+ * different history, and a chain is what `verifySegment` checks. Field
+ * order is `{ previous, event }` on purpose — a second helper that
+ * hashed `{ event, previous }` would be a different chain, and every
+ * checkpoint attested against this one would fail to verify.
  */
-function chainDigest(previous: string | null, event: IGameEvent): string {
+export function matchEventChainDigest(
+  previous: string | null,
+  event: IGameEvent,
+): string {
   return sha256Sync(canonicalizeJsonV1({ previous, event }));
 }
 
@@ -93,7 +99,7 @@ export function matchStoreBranchSegmentReader(
       const chained: IProjectableBranchEvent[] = [];
       let previous: string | null = null;
       for (const event of events) {
-        const eventDigest = chainDigest(previous, event);
+        const eventDigest = matchEventChainDigest(previous, event);
         chained.push({
           eventId: event.id,
           branchId: ROOT_EVENT_BRANCH_ID,
