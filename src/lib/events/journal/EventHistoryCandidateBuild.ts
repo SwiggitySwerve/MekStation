@@ -175,8 +175,49 @@ export function createCorrectionCandidateBranch(
       CORRECTION_BRANCH_CREATION_SEAM,
     );
     authorized.createBranch(candidate);
+    seedCandidateJournalHead(db, candidate);
     return authorized.requireBranch(stream, candidate.branchId);
   })();
+}
+
+/**
+ * Anchor the candidate's journal head at the base it was cut from
+ * (umbrella 16.2, Wave D2 finding #80).
+ *
+ * `createBranch` writes `event_history_branches` and nothing else, so
+ * before this a candidate had NO `event_journal_stream_heads` row - and
+ * the journal writer reads that row for three things at once: the
+ * revision an append is expected at (`?? 0`), the revision it numbers
+ * from, and the digest it chains to (`?? null`). A first append onto a
+ * candidate anchored at base revision N therefore committed at revision
+ * 1 chained to nothing, while `EventHistoryBranchResolver.verifySegment`
+ * requires revision N+1 chained to the branch's own `baseDigest`. The
+ * candidate was storable and unmaterializable at the same time.
+ *
+ * Seeding the head is what makes the two agree, and it is done HERE, in
+ * the transaction that mints the branch, because a candidate that exists
+ * without its anchor is exactly the state that was wrong: there is no
+ * window in which a caller could observe one and not the other.
+ *
+ * The values are not a choice. `baseRevision` and `baseDigest` are the
+ * branch record's own, so the head this seeds and the base the resolver
+ * verifies against are the same two numbers read from the same row.
+ */
+function seedCandidateJournalHead(
+  db: Database.Database,
+  candidate: IEventHistoryBranch,
+): void {
+  db.prepare(
+    `INSERT INTO event_journal_stream_heads
+       (stream_type, stream_id, branch_id, stream_revision, event_digest)
+     VALUES (@streamType, @streamId, @branchId, @streamRevision, @eventDigest)`,
+  ).run({
+    streamType: candidate.streamType,
+    streamId: candidate.streamId,
+    branchId: candidate.branchId,
+    streamRevision: candidate.baseRevision,
+    eventDigest: candidate.baseDigest,
+  });
 }
 
 /** The branch the candidate descends from - by definition the lease's. */
