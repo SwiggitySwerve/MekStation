@@ -3,6 +3,7 @@ import type { NextRouter } from 'next/router';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 import type { InteractiveSession } from '@/engine/GameEngine';
+import type { MatchLogPrefixVerdict } from '@/lib/p2p/matchLogPrefix';
 import type { IGameSession } from '@/types/gameplay';
 
 import { useP2PPeerPresence } from '@/hooks/useP2PPeerPresence';
@@ -10,6 +11,7 @@ import {
   deriveReconnectRoomCode,
   useP2PReconnectSession,
 } from '@/hooks/useP2PReconnectSession';
+import { useP2PMirrorStore } from '@/lib/p2p/p2pMirrorStore';
 import { GameStatus } from '@/types/gameplay';
 import { logger } from '@/utils/logger';
 
@@ -222,8 +224,21 @@ export function useGameSessionLifecycle({
     [router],
   );
 
+  // The verdict has always been produced; nothing ever received it
+  // (finding #62), so a client whose history disagreed with its peer's
+  // discarded its log, kept playing the stale board, and said nothing
+  // (finding #79). Recording it is what lets the dock refuse.
+  const recordMirrorDivergence = useCallback(
+    (verdict: MatchLogPrefixVerdict) => {
+      if (!matchId) return;
+      useP2PMirrorStore.getState().recordDivergence(matchId, verdict);
+    },
+    [matchId],
+  );
+
   useP2PReconnectSession(matchId, {
     redirectToLobby: redirectReconnectToLobby,
+    onMirrorPrefixDivergence: recordMirrorDivergence,
   });
 
   // The reconnect hook above answers "was the host there when I loaded

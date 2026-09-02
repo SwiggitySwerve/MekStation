@@ -17,6 +17,7 @@ import { useMemo } from 'react';
 import type { CommandAvailability } from '@/types/gameplay/TacticalCommandInterfaces';
 
 import { p2pCommandAvailability } from '@/lib/p2p/p2pCommandGate';
+import { useP2PMirrorStore } from '@/lib/p2p/p2pMirrorStore';
 import { useGameplayStore } from '@/stores/useGameplayStore';
 
 import { deriveReconnectRoomCode } from './useP2PReconnectSession';
@@ -25,10 +26,22 @@ export function useP2PCommandGate(
   matchId: string | null,
 ): CommandAvailability | undefined {
   const localMatchStatus = useGameplayStore((state) => state.localMatchStatus);
+  // Subscribed, not read once: the divergence lands mid-session,
+  // from a replay that arrives while the player is already looking
+  // at the board.
+  const mirrorMatchId = useP2PMirrorStore((state) => state.matchId);
+  const mirrorDivergence = useP2PMirrorStore((state) => state.divergence);
   const isP2PMatch =
     matchId !== null && deriveReconnectRoomCode(matchId) !== null;
+  const divergence =
+    mirrorMatchId !== null && mirrorMatchId === matchId
+      ? mirrorDivergence
+      : null;
   return useMemo(
-    () => (isP2PMatch ? p2pCommandAvailability(localMatchStatus) : undefined),
-    [isP2PMatch, localMatchStatus],
+    () =>
+      isP2PMatch
+        ? p2pCommandAvailability(localMatchStatus, divergence)
+        : undefined,
+    [isP2PMatch, localMatchStatus, divergence],
   );
 }
