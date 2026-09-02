@@ -23,9 +23,14 @@
  * @spec openspec/changes/harden-multiplayer-transport/specs/multiplayer-server/spec.md
  */
 
-import type { IGameEvent } from '@/types/gameplay/GameSessionInterfaces';
+import type { AuthorityRecoveryBlockedReason } from '@/lib/events/checkpoints/AuthorityRecoveryPort';
+import type {
+  IGameEvent,
+  IGameSession,
+} from '@/types/gameplay/GameSessionInterfaces';
 
 import { InteractiveSession } from '@/engine/InteractiveSession';
+import { referenceRecoveryPort } from '@/lib/events/checkpoints/AuthorityRecoveryPort';
 import { hydrateGameSessionFromEvents } from '@/utils/gameplay/gameSession';
 
 import type { IMatchMeta, IMatchStore } from './IMatchStore';
@@ -42,12 +47,25 @@ export interface IRecoverableMatchStore extends IMatchStore {
   listActiveMatches(): Promise<readonly IMatchMeta[]>;
 }
 
+/** One refused authority, and why (umbrella 15.3). */
+export interface IMatchRecoveryBlock {
+  readonly matchId: string;
+  readonly reason: AuthorityRecoveryBlockedReason;
+  readonly evidence: readonly string[];
+}
+
 /** Result of a recovery sweep — surfaced for logging + tests. */
 export interface IMatchRecoveryResult {
   /** Hosts successfully re-instantiated, keyed by matchId. */
   readonly hosts: ReadonlyMap<string, ServerMatchHost>;
   /** Match ids that were active but could not be rebuilt. */
   readonly failed: readonly string[];
+  /**
+   * The subset of `failed` whose AUTHORITY DATA was refused, with the
+   * typed reason. `failed` stays exactly what it was so existing callers
+   * are untouched; this says why, which a bare id never could.
+   */
+  readonly blocked: readonly IMatchRecoveryBlock[];
 }
 
 /**
@@ -97,11 +115,15 @@ export async function recoverActiveMatches(
 ): Promise<IMatchRecoveryResult> {
   const hosts = new Map<string, ServerMatchHost>();
   const failed: string[] = [];
+  const blocked: IMatchRecoveryBlock[] = [];
+  // The reference port: read everything, fold it - verbatim what this
+  // sweep already did. What it adds is a NAME for each refusal.
+  const recovery = referenceRecoveryPort<IGameEvent, IGameSession>();
 
   if (!isRecoverableMatchStore(store)) {
     // The in-memory dev store has nothing to recover after a restart;
     // an empty result is the correct, non-erroring outcome.
-    return { hosts, failed };
+    return { hosts, failed, blocked };
   }
 
   let active: readonly IMatchMeta[];
@@ -110,18 +132,37 @@ export async function recoverActiveMatches(
   } catch (e) {
     // eslint-disable-next-line no-console
     console.warn('[MatchRecovery] failed to enumerate active matches', e);
-    return { hosts, failed };
+    return { hosts, failed, blocked };
   }
 
   for (const meta of active) {
     try {
-      const events = await store.getEvents(meta.matchId, 0);
-      if (events.length === 0) {
-        // An `active` match with no events is malformed — skip it.
+      const verdict = await recovery({
+        authorityId: meta.matchId,
+        // An `active` match with no events is malformed, not a fresh one.
+        emptyHistory: 'corrupt',
+        read: (fromExclusive) =>
+          store.getEvents(meta.matchId, fromExclusive + 1),
+        revisionOf: (event) => event.sequence,
+        fold: (events) => hydrateGameSessionFromEvents(meta.matchId, events),
+      });
+      // A refused authority is named and skipped. Nothing partial is
+      // built from it: no session, no host, no registration.
+      if (verdict.kind === 'blocked') {
+        // eslint-disable-next-line no-console
+        console.warn(
+          `[MatchRecovery] match ${meta.matchId} is not recoverable (${verdict.reason})`,
+          verdict.evidence,
+        );
         failed.push(meta.matchId);
+        blocked.push({
+          matchId: meta.matchId,
+          reason: verdict.reason,
+          evidence: verdict.evidence,
+        });
         continue;
       }
-      const session = await rebuildSessionFromEvents(meta.matchId, events);
+      const session = await InteractiveSession.fromSessionAsync(verdict.state);
       const host = await ServerMatchHost.recover(meta.matchId, store, session);
       await host.restorePersistedViewerDeliveries();
       // Drain publications the dead process committed but never sent
@@ -140,5 +181,5 @@ export async function recoverActiveMatches(
     }
   }
 
-  return { hosts, failed };
+  return { hosts, failed, blocked };
 }
