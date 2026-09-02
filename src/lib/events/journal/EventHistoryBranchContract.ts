@@ -149,6 +149,8 @@ export type EventHistoryBranchErrorCode =
   | 'no-effective-branch'
   /** The transition is not in the legal table. */
   | 'illegal-status-transition'
+  /** The prior generation has no next safe integer to activate into. */
+  | 'generation-exhausted'
   /** A resolved path has a gap, wrong base, or broken digest chain. */
   | 'branch-integrity';
 
