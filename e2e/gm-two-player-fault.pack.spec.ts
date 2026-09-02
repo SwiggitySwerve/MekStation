@@ -18,132 +18,29 @@
  *
  * @tags @fault-pack @tactical @E2E-13
  */
+import { expect, test } from '@playwright/test';
 
 import {
-  expect,
-  test,
-  type APIRequestContext,
-  type Browser,
-  type Page,
-} from '@playwright/test';
+  advanceToMovement,
+  advancePhase,
+  armScopedFault,
+  connectLobby,
+  deleteIdentities,
+  e2eRunId,
+  markReady,
+  openContextPage,
+  readMatch,
+  readToken,
+  seedIdentity,
+  tapErrorFrames,
+  type IMatchHandle,
+  type IMatchToken,
+} from './helpers/gmTwoPlayerMatchFlow';
 
-function runId(): string {
-  const value = process.env.PLAYWRIGHT_E2E_RUN_ID;
-  if (!value) throw new Error('PLAYWRIGHT_E2E_RUN_ID missing');
-  return value;
-}
-
-type Identity = { readonly id: string; readonly displayName: string };
-type Token = { readonly token: string; readonly playerId: string };
-type Match = { readonly matchId: string; readonly roomCode: string };
-
-const RUN_ID_HEADER = 'x-playwright-e2e-run-id';
 const HOST_PASSWORD = 'HostPassword123!';
 const GUEST_PASSWORD = 'GuestPassword123!';
-
-async function seedIdentity(
-  request: APIRequestContext,
-  displayName: string,
-  password: string,
-): Promise<Identity> {
-  const response = await request.post('/api/e2e/vault-identity', {
-    headers: { [RUN_ID_HEADER]: runId() },
-    data: { displayName, password },
-  });
-  expect(response.status(), await response.text()).toBe(201);
-  return (await response.json()) as Identity;
-}
-
-async function deleteIdentities(
-  request: APIRequestContext,
-  ids: readonly string[],
-): Promise<void> {
-  if (ids.length === 0) return;
-  const response = await request.delete('/api/e2e/vault-identity', {
-    headers: { [RUN_ID_HEADER]: runId() },
-    data: { ids },
-  });
-  expect(response.status(), await response.text()).toBe(200);
-}
-
-async function openContextPage(browser: Browser): Promise<Page> {
-  return (await browser.newContext()).newPage();
-}
-
-async function connectLobby(page: Page, password: string): Promise<void> {
-  await expect(page.getByRole('heading', { name: 'Unlock vault' })).toBeVisible(
-    {
-      timeout: 20_000,
-    },
-  );
-  await page.getByPlaceholder('Vault password').fill(password);
-  await Promise.all([
-    page.waitForResponse(
-      (response) =>
-        response.url().includes('/api/multiplayer/auth/token') &&
-        response.request().method() === 'POST' &&
-        response.status() === 200,
-      { timeout: 30_000 },
-    ),
-    page.getByRole('button', { name: 'Connect to lobby' }).click(),
-  ]);
-}
-
-async function markReady(page: Page, slotId: string): Promise<void> {
-  const row = page.locator(`[data-slot-id="${slotId}"]`);
-  await expect(row).toBeVisible({ timeout: 20_000 });
-  await row.getByRole('button', { name: 'Ready' }).click();
-  await expect(row).toContainText('Ready', { timeout: 15_000 });
-}
-
-async function advanceToMovement(host: Page, guest: Page): Promise<void> {
-  await advancePhase(host);
-  await expect(host.getByTestId('phase-name')).toContainText(/Movement/i);
-  await expect(guest.getByTestId('phase-name')).toContainText(/Movement/i);
-}
-
-async function advancePhase(...pages: readonly Page[]): Promise<void> {
-  let activeIndex = -1;
-  await expect
-    .poll(
-      async () => {
-        for (let index = 0; index < pages.length; index += 1) {
-          const page = pages[index];
-          if (!page) continue;
-          const control = page.getByTestId('advance-phase-button');
-          if ((await control.count()) === 1 && (await control.isEnabled())) {
-            activeIndex = index;
-            return true;
-          }
-        }
-        return false;
-      },
-      { timeout: 15_000 },
-    )
-    .toBe(true);
-  const activePage = pages[activeIndex];
-  if (!activePage) throw new Error('No player can advance the phase');
-  await activePage.getByTestId('advance-phase-button').click();
-}
-
-async function readToken(
-  response: Promise<import('@playwright/test').Response>,
-): Promise<Token> {
-  return (await (await response).json()) as Token;
-}
-
-async function readMatch(
-  response: Promise<import('@playwright/test').Response>,
-): Promise<Match> {
-  const body = (await (await response).json()) as {
-    readonly matchId: string;
-    readonly roomCode?: string;
-    readonly meta: { readonly roomCode?: string };
-  };
-  const roomCode = body.roomCode ?? body.meta.roomCode;
-  if (!roomCode) throw new Error('Match response lacked a room code');
-  return { matchId: body.matchId, roomCode };
-}
+type Match = IMatchHandle;
+type Token = IMatchToken;
 
 test('E2E-13 a one-shot append failure is truthful end to end @E2E-13', async ({
   browser,
@@ -158,29 +55,9 @@ test('E2E-13 a one-shot append failure is truthful end to end @E2E-13', async ({
 
   // Observer-only wire tap on the HOST (the actor): every server frame
   // passes through untouched; typed Error frames are recorded.
-  const hostErrors: { code?: string; reason?: string }[] = [];
-  await hostPage.routeWebSocket(
-    (url) => url.pathname === '/api/multiplayer/socket',
-    (route) => {
-      const server = route.connectToServer();
-      route.onMessage((message) => server.send(message));
-      server.onMessage((message) => {
-        try {
-          const frame = JSON.parse(String(message)) as {
-            kind?: string;
-            code?: string;
-            reason?: string;
-          };
-          if (frame.kind === 'Error') {
-            hostErrors.push({ code: frame.code, reason: frame.reason });
-          }
-        } catch {
-          // Non-JSON frames pass through unrecorded.
-        }
-        route.send(message);
-      });
-    },
-  );
+  const hostTap = tapErrorFrames(hostPage);
+  const hostErrors = hostTap.frames;
+  await hostTap.install();
 
   try {
     const host = await seedIdentity(request, 'Fault Host', HOST_PASSWORD);
@@ -238,11 +115,7 @@ test('E2E-13 a one-shot append failure is truthful end to end @E2E-13', async ({
     await advanceToMovement(hostPage, guestPage);
 
     // Arm exactly ONE append failure through the guarded route.
-    const armed = await request.post('/api/e2e/fault', {
-      headers: { [RUN_ID_HEADER]: runId() },
-      data: { kind: 'append-head-update', mode: 'once' },
-    });
-    expect(armed.status()).toBe(200);
+    await armScopedFault(request, 'append-head-update', match.matchId);
 
     // The actor attempts the next command; its append dies in the store.
     await advancePhase(hostPage, guestPage);
