@@ -27,7 +27,6 @@ import type {
   IMultiplayerError,
 } from '@/hooks/useMultiplayerSession';
 import type { IClientLifecycleState } from '@/lib/multiplayer/client';
-import type { GmCombatRewindPreviewResult } from '@/lib/multiplayer/server/history/GmCombatRewindPreview';
 import type { TacticalLifecycleProjectionSignal } from '@/lib/multiplayer/tacticalLifecycleState';
 import type { ICommandAuthorityProjection } from '@/types/command-screen';
 import type {
@@ -59,6 +58,8 @@ import {
   GameSide,
   GameStatus,
 } from '@/types/gameplay/GameSessionInterfaces';
+
+import type { GmRewindPreviewOutcome } from './gmRewindPreviewPhrasing';
 
 import { NetworkedActionBar } from './NetworkedGameSurface.actionbar';
 import { NetworkedGmRewindControls } from './NetworkedGameSurface.gmRewind';
@@ -120,12 +121,13 @@ export interface INetworkedGameSurfaceProps {
   readonly onApproveHostGmCorrection?: () => void;
   /**
    * Asks the authority what a rewind to a chosen revision would touch
-   * (umbrella 19.3). Injected, because the route that answers - `POST
-   * /api/matches/[id]/rewind-preview` - is task 3b-iii and does not exist
-   * yet; REPLACED-WHEN-EMITTED by the page's adapter over it. Absent means
-   * the control renders disabled with the reason rather than looking live.
+   * (umbrella 19.3). The lobby page binds `previewGmCombatRewind`, which
+   * returns the route union plus `unavailable` for transport failures so
+   * the page does not throw as control flow. Absent (spectate, or a page
+   * that has not wired it) means the control renders disabled with the
+   * reason rather than looking live.
    */
-  readonly onPreviewRewind?: () => Promise<GmCombatRewindPreviewResult>;
+  readonly onPreviewRewind?: () => Promise<GmRewindPreviewOutcome>;
   /**
    * Applies a previewed rewind. Absent until task 3b-iv builds a commit
    * path, so the confirm renders disabled for its own separate reason.
