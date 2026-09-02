@@ -21,7 +21,10 @@ function sqliteReady(): boolean {
 import type { CampaignEventStoreDurability } from './getCampaignEventStore';
 import type { IMatchStore } from './IMatchStore';
 
-import { CampaignGmArbiter } from './CampaignGmArbiter';
+import {
+  CampaignGmArbiter,
+  PRODUCTION_PROPOSAL_TIMEOUT_MS,
+} from './CampaignGmArbiter';
 import { CampaignMatchHost } from './CampaignMatchHost';
 import { participationIsFresh } from './campaignParticipationFreshness';
 import { CampaignSyncSession } from './CampaignSyncSession';
@@ -225,6 +228,7 @@ class CampaignHostRegistryEntry implements ICampaignHostRegistryEntry {
 
   close = (): void => {
     this.unregisterActiveHost();
+    this.arbiter.close();
     this.host.close();
     this.participationByMission.clear();
     this.reconciledBattleIds.clear();
@@ -308,7 +312,7 @@ export class CampaignHostRegistry {
     const arbiter = new CampaignGmArbiter(
       host,
       snapshot.arbitrationMode ?? 'host-review',
-      { proposalTimeoutMs: 0 },
+      { proposalTimeoutMs: PRODUCTION_PROPOSAL_TIMEOUT_MS },
     );
     const unregisterActiveHost = registerActiveCoopHost(host);
     const entry = new CampaignHostRegistryEntry({
