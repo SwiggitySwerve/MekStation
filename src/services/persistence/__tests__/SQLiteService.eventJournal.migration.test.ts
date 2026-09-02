@@ -189,7 +189,12 @@ describe('event journal SQLite migration', () => {
     expect(() =>
       db.prepare('INSERT INTO event_journal_store_state VALUES (2, 0)').run(),
     ).toThrow(/CHECK constraint failed/);
-    expect(() => insertBatch(db, { branchId: 'fork' })).toThrow(
+    // Migration 26 lifted the root pin, so a NAMED branch is no longer
+    // refused here - the effective-head rule above the schema is what
+    // refuses an arbitrary one, and `SQLiteService.branchPin.migration`
+    // owns that proof. What this schema still refuses is a branch id that
+    // is not an id at all.
+    expect(() => insertBatch(db, { branchId: '   ' })).toThrow(
       /CHECK constraint failed/,
     );
     expect(() => insertBatch(db, { eventCount: 2 })).toThrow(
