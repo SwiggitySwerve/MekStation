@@ -20,6 +20,11 @@
  */
 
 import type { StreamRebuildRefusal } from '@/lib/events/journal/EventHistoryCommandAdmission';
+import type {
+  ICampaignSessionParticipantPort,
+  IEventHistoryBranchPort,
+  IParticipantDeliveryCursorPort,
+} from '@/lib/events/storeCapabilityPorts';
 import type { ICampaignAuthoritativeState } from '@/types/campaign/CampaignSync';
 import type { GmArbitrationMode } from '@/types/campaign/CoopCampaign';
 import type { ICombatOutcome } from '@/types/combat/CombatOutcome';
@@ -421,8 +426,15 @@ export class MatchNotFoundError extends Error {
  * All methods are async so future implementations can use a network
  * backend without changing call sites. Synchronous implementations
  * (like `InMemoryMatchStore`) satisfy the contract via `Promise.resolve`.
+ *
+ * Optional branch / participant / cursor capabilities. Participant and
+ * cursor keys are campaign/session/grant, not matchId — this is a
+ * facade so both store boundaries can carry the same ports.
  */
-export interface IMatchStore {
+export interface IMatchStore
+  extends Partial<IEventHistoryBranchPort>,
+    Partial<ICampaignSessionParticipantPort>,
+    Partial<IParticipantDeliveryCursorPort> {
   /**
    * Persist a brand-new match. Implementations MUST reject if a match
    * with the same `matchId` already exists.

@@ -18,6 +18,11 @@ import {
   type IGameEvent,
 } from '@/types/gameplay/GameSessionInterfaces';
 
+import type { IEventHistoryBranch } from '@/lib/events/journal/EventHistoryBranchContract';
+import { EventHistoryBranchError } from '@/lib/events/journal/EventHistoryBranchContract';
+import type { IParticipantAckAuthorization } from '@/lib/events/storeCapabilityPorts';
+import { InMemoryCampaignEventStore } from '@/lib/campaign/sync/InMemoryCampaignEventStore';
+
 import type {
   IMatchCommandBatch,
   MatchBatchAppendResult,
@@ -221,3 +226,223 @@ describe.each(stores)('%s appendCommandBatch contract', (_name, build) => {
     ).toBe('digest-xyz');
   });
 });
+
+const STREAM = { streamType: 'match', streamId: 'stream-ports' } as const;
+const BOUND_AT = '2026-01-01T00:00:00.000Z';
+const REVOKED_AT = '2026-01-01T01:00:00.000Z';
+
+function sampleBranch(): IEventHistoryBranch {
+  return {
+    streamType: STREAM.streamType,
+    streamId: STREAM.streamId,
+    branchId: 'branch-1',
+    parentBranchId: null,
+    ancestorDepth: 0,
+    baseRevision: 0,
+    baseEventId: null,
+    baseDigest: 'digest-unused-while-seam-disabled',
+    status: 'building',
+    createdBy: 'contract',
+    reason: 'prefix-port-contract',
+    createdAt: BOUND_AT,
+  };
+}
+
+function bindInput(
+  participantId: string,
+  seat: 'gm' | 'player',
+): {
+  readonly campaignId: string;
+  readonly sessionId: string;
+  readonly participantId: string;
+  readonly seat: 'gm' | 'player';
+  readonly boundAt: string;
+} {
+  return {
+    campaignId: 'campaign-ports',
+    sessionId: 'session-ports',
+    participantId,
+    seat,
+    boundAt: BOUND_AT,
+  };
+}
+
+function cursorAuth(): IParticipantAckAuthorization {
+  return {
+    grant: {
+      grantId: 'grant-1',
+      campaignId: 'campaign-ports',
+      participantId: 'viewer-1',
+      active: true,
+    },
+    viewerAuthorized: true,
+    currentEpochId: 'epoch-1',
+    highestAssigned: 3,
+  };
+}
+
+/**
+ * In-memory builders only. DurableMatchStore / JournalCampaignEventStore
+ * join this describe in the next seam.
+ */
+const inMemoryPortStores: ReadonlyArray<
+  readonly [string, () => InMemoryMatchStore | InMemoryCampaignEventStore]
+> = [
+  ['InMemoryMatchStore', () => new InMemoryMatchStore({ quiet: true })],
+  ['InMemoryCampaignEventStore', () => new InMemoryCampaignEventStore()],
+];
+
+describe.each(inMemoryPortStores)(
+  '%s optional capability ports',
+  (_name, build) => {
+    it('exposes the three optional ports', () => {
+      const store = build();
+      expect(typeof store.readBranch).toBe('function');
+      expect(typeof store.bindCampaignSessionParticipant).toBe('function');
+      expect(typeof store.readParticipantDeliveryCursor).toBe('function');
+    });
+
+    it('readEffectiveHead is null until an effective branch exists', () => {
+      expect(build().readEffectiveHead(STREAM)).toBeNull();
+    });
+
+    it('requireBranch on an unknown branch throws EventHistoryBranchError unknown-branch', () => {
+      expect(() => build().requireBranch(STREAM, 'no-such-branch')).toThrow(
+        EventHistoryBranchError,
+      );
+      try {
+        build().requireBranch(STREAM, 'no-such-branch');
+        throw new Error('expected EventHistoryBranchError');
+      } catch (error) {
+        expect(error).toBeInstanceOf(EventHistoryBranchError);
+        expect((error as EventHistoryBranchError).code).toBe('unknown-branch');
+      }
+    });
+
+    it('createBranch honors the disabled production seam', () => {
+      expect(() => build().createBranch(sampleBranch())).toThrow(
+        EventHistoryBranchError,
+      );
+      try {
+        build().createBranch(sampleBranch());
+        throw new Error('expected EventHistoryBranchError');
+      } catch (error) {
+        expect(error).toBeInstanceOf(EventHistoryBranchError);
+        expect((error as EventHistoryBranchError).code).toBe(
+          'branch-creation-disabled',
+        );
+      }
+    });
+
+    it('bind then active membership, revoke hides it, isRevoked true', () => {
+      const store = build();
+      const bound = store.bindCampaignSessionParticipant(bindInput('p1', 'gm'));
+      expect(bound.kind).toBe('bound');
+      expect(
+        store.activeCampaignSessionMembership(
+          'campaign-ports',
+          'session-ports',
+          'p1',
+        ),
+      ).not.toBeNull();
+      // A live seat is not revoked: the predicate must read the timestamp, not the row's existence.
+      expect(
+        store.isRevokedCampaignSessionParticipant(
+          'campaign-ports',
+          'session-ports',
+          'p1',
+        ),
+      ).toBe(false);
+      expect(
+        store.revokeCampaignSessionParticipant({
+          campaignId: 'campaign-ports',
+          sessionId: 'session-ports',
+          participantId: 'p1',
+          revokedAt: REVOKED_AT,
+        }),
+      ).toBe(true);
+      expect(
+        store.activeCampaignSessionMembership(
+          'campaign-ports',
+          'session-ports',
+          'p1',
+        ),
+      ).toBeNull();
+      expect(
+        store.isRevokedCampaignSessionParticipant(
+          'campaign-ports',
+          'session-ports',
+          'p1',
+        ),
+      ).toBe(true);
+    });
+
+    it('a second active GM is gm-seat-taken', () => {
+      const store = build();
+      expect(store.bindCampaignSessionParticipant(bindInput('gm-1', 'gm')).kind)
+        .toBe('bound');
+      expect(store.bindCampaignSessionParticipant(bindInput('gm-2', 'gm'))).toEqual(
+        { kind: 'gm-seat-taken' },
+      );
+    });
+
+    it('a third tactical player is tactical-seats-full', () => {
+      const store = build();
+      expect(
+        store.bindCampaignSessionParticipant(bindInput('player-1', 'player'))
+          .kind,
+      ).toBe('bound');
+      expect(
+        store.bindCampaignSessionParticipant(bindInput('player-2', 'player'))
+          .kind,
+      ).toBe('bound');
+      expect(
+        store.bindCampaignSessionParticipant(bindInput('player-3', 'player')),
+      ).toEqual({ kind: 'tactical-seats-full', limit: 2 });
+    });
+
+    it('cursor read is null, an identical ack applies then is stale', async () => {
+      const store = build();
+      const key = {
+        campaignId: 'campaign-ports',
+        grantId: 'grant-1',
+        participantId: 'viewer-1',
+      };
+      expect(store.readParticipantDeliveryCursor(key)).toBeNull();
+      const request = {
+        principal: { principalId: 'viewer-1' },
+        grantId: 'grant-1',
+        deliveryEpochId: 'epoch-1',
+        ackedSequence: 1,
+      };
+      const authorization = cursorAuth();
+      const applied = await store.recordParticipantAcknowledgement(
+        request,
+        authorization,
+        BOUND_AT,
+      );
+      expect(applied.kind).toBe('applied');
+      const stale = await store.recordParticipantAcknowledgement(
+        request,
+        authorization,
+        BOUND_AT,
+      );
+      expect(stale.kind).toBe('stale');
+    });
+
+    it('an ack past highestAssigned is gap', async () => {
+      const store = build();
+      const gap = await store.recordParticipantAcknowledgement(
+        {
+          principal: { principalId: 'viewer-1' },
+          grantId: 'grant-1',
+          deliveryEpochId: 'epoch-1',
+          ackedSequence: 9,
+        },
+        cursorAuth(),
+        BOUND_AT,
+      );
+      expect(gap).toEqual({ kind: 'gap', highestAssigned: 3 });
+    });
+  },
+);

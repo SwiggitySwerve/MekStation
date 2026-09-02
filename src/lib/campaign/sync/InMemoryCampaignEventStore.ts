@@ -15,6 +15,8 @@
  * @spec openspec/changes/add-shared-campaign-state/design.md (D2)
  */
 
+import type { IBranchCreationSeam } from '@/lib/events/journal/EventHistoryBranchContract';
+import { InMemoryStoreCapabilityPorts } from '@/lib/events/inMemoryStoreCapabilityPorts';
 import type { ICampaignEvent } from '@/types/campaign/CampaignSync';
 
 import {
@@ -43,8 +45,17 @@ interface ICampaignLogRecord {
  * sequence-collision check runs BEFORE any mutation, so a rejected
  * append leaves the log untouched.
  */
-export class InMemoryCampaignEventStore implements ICampaignEventStore {
+export class InMemoryCampaignEventStore
+  extends InMemoryStoreCapabilityPorts
+  implements ICampaignEventStore
+{
   private readonly logs = new Map<string, ICampaignLogRecord>();
+
+  public constructor(
+    options: { branchCreationSeam?: IBranchCreationSeam } = {},
+  ) {
+    super(options.branchCreationSeam);
+  }
 
   appendEvent = async (
     campaignId: string,
@@ -152,6 +163,7 @@ export class InMemoryCampaignEventStore implements ICampaignEventStore {
   /** Drop every log. Used by tests for isolation. */
   reset = (): void => {
     this.logs.clear();
+    this.clearPorts();
   };
 
   private getOrCreate(campaignId: string): ICampaignLogRecord {
