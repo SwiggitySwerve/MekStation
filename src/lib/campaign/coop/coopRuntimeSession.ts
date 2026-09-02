@@ -25,7 +25,10 @@ import type { ICoopSession } from '@/types/campaign/CoopSession';
 import type { IForce } from '@/types/campaign/Force';
 
 import { createDefaultCampaignEventStore } from '@/lib/campaign/sync/JournalCampaignEventStore';
-import { CampaignGmArbiter } from '@/lib/multiplayer/server/CampaignGmArbiter';
+import {
+  CampaignGmArbiter,
+  PRODUCTION_PROPOSAL_TIMEOUT_MS,
+} from '@/lib/multiplayer/server/CampaignGmArbiter';
 import { CampaignMatchHost } from '@/lib/multiplayer/server/CampaignMatchHost';
 import { CampaignSyncSession } from '@/lib/multiplayer/server/CampaignSyncSession';
 import { INVALID_CAMPAIGN_INTENT } from '@/types/campaign/CampaignSync';
@@ -104,9 +107,7 @@ export async function openCoopRuntimeSession(
   const arbiter = new CampaignGmArbiter(
     host,
     options.arbitrationMode ?? 'host-review',
-    // The UI transport resolves pending proposals from explicit GM decisions.
-    // A future socket transport can surface timeout resolutions as broadcasts.
-    { proposalTimeoutMs: 0 },
+    { proposalTimeoutMs: PRODUCTION_PROPOSAL_TIMEOUT_MS },
   );
   const unregisterHost = registerActiveCoopHost(host);
   const record: ICoopRuntimeRecord = {
@@ -118,6 +119,11 @@ export async function openCoopRuntimeSession(
     unregisterHost,
     resultWaiters: new Map(),
   };
+  // Timeout auto-vetoes never go through decideGuestProposal, so the
+  // waiter must hear them from the arbiter's resolved-result path.
+  arbiter.subscribeResolved((result) => {
+    resolveGuestProposal(record, result);
+  });
 
   runtimeByMatchId.set(matchId, record);
   runtimeByCampaignId.set(campaign.id, record);
@@ -187,6 +193,7 @@ export async function decideGuestProposal(
 export function closeCoopRuntimeSession(matchId: string): void {
   const runtime = runtimeByMatchId.get(matchId);
   if (!runtime) return;
+  runtime.arbiter.close();
   runtime.host.close();
   runtime.unregisterHost();
   runtimeByMatchId.delete(matchId);
@@ -195,6 +202,7 @@ export function closeCoopRuntimeSession(matchId: string): void {
 
 export function _resetCoopRuntimeSessions(): void {
   for (const runtime of Array.from(runtimeByMatchId.values())) {
+    runtime.arbiter.close();
     runtime.host.close();
     runtime.unregisterHost();
   }
