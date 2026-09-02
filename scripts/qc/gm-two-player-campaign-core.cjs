@@ -3,7 +3,7 @@ const crypto = require('node:crypto');
 const net = require('node:net');
 const path = require('node:path');
 const GROUP_CATALOG =
-  'fixture-smoke:26,membership-smoke:15,evidence-smoke:27,fault-smoke:28,smoke:15,authority-pack1:21,exactly-once-pack:21,fault-pack:21,token-pack:21,restart-pack:21,resilience-pack:21,privacy-pack:30,proposal-pack:30,three-context-pack:30,two-device-pack:30,authority:29,visibility:30,combat:31,campaign:32,failure:32,performance:33,all:34,traceability:34,quality:34,manual-setup:34,scope:34';
+  'fixture-smoke:26,membership-smoke:15,evidence-smoke:27,fault-smoke:28,smoke:15,authority-pack1:21,exactly-once-pack:21,fault-pack:21,token-pack:21,restart-pack:21,resilience-pack:21,authority-order:21,privacy-pack:30,proposal-pack:30,three-context-pack:30,two-device-pack:30,authority:29,visibility:30,combat:31,campaign:32,failure:32,performance:33,all:34,traceability:34,quality:34,manual-setup:34,scope:34';
 const REGISTERED_GROUPS = Object.freeze(
   Object.fromEntries(
     GROUP_CATALOG.split(',').map((entry) => {
@@ -54,6 +54,12 @@ function buildRunPlan({ group, runId, repoRoot }) {
     'token-pack': ['e2e/gm-two-player-token.pack.spec.ts'],
     'restart-pack': ['e2e/gm-two-player-restart.pack.spec.ts'],
     'resilience-pack': ['e2e/gm-two-player-resilience.pack.spec.ts'],
+    // E2E-04/07 (umbrella 21.1). Deliberately NOT in RESPAWNING_GROUPS:
+    // neither row kills the server, and the relaunching wrapper is the
+    // exception, never the default (see the lookup on
+    // MEKSTATION_E2E_SERVER_COMMAND). `authority` stays reserved for
+    // the complete E2E-01..18 pack and still answers NOT_IMPLEMENTED.
+    'authority-order': ['e2e/gm-two-player-authority-order.pack.spec.ts'],
     // `visibility` remains reserved for the complete E2E-19..30 pack.
     // `privacy-pack` is the tactical-channel subset (E2E-20/21/22/23/
     // 24/26/27); `proposal-pack` is the campaign-channel arbitration

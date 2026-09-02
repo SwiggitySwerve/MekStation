@@ -10,8 +10,10 @@
  * @spec openspec/changes/add-multiplayer-server-infrastructure/specs/multiplayer-server/spec.md
  */
 
+import type { IBranchCreationSeam } from '@/lib/events/journal/EventHistoryBranchContract';
 import type { IGameEvent } from '@/types/gameplay/GameSessionInterfaces';
 
+import { InMemoryStoreCapabilityPorts } from '@/lib/events/inMemoryStoreCapabilityPorts';
 import { normalizeRoomCode } from '@/lib/p2p/roomCodes';
 
 import type {
@@ -79,6 +81,7 @@ interface IMatchRecord {
 // =============================================================================
 
 export class InMemoryMatchStore
+  extends InMemoryStoreCapabilityPorts
   implements IMatchStore, IPublicationOutboxStore
 {
   private readonly records = new Map<string, IMatchRecord>();
@@ -94,7 +97,10 @@ export class InMemoryMatchStore
    * Create the store. By default, emits the dev-only warning on
    * construction (set `quiet: true` in tests to silence).
    */
-  constructor(options: { quiet?: boolean } = {}) {
+  constructor(
+    options: { quiet?: boolean; branchCreationSeam?: IBranchCreationSeam } = {},
+  ) {
+    super(options.branchCreationSeam);
     if (!options.quiet) {
       // eslint-disable-next-line no-console
       console.warn(
@@ -480,5 +486,6 @@ export class InMemoryMatchStore
   _reset = (): void => {
     this.records.clear();
     this.roomCodeIndex.clear();
+    this.clearPorts();
   };
 }

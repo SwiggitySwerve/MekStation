@@ -25,6 +25,11 @@
  * @spec openspec/changes/add-shared-campaign-state/design.md (D2)
  */
 
+import type {
+  ICampaignSessionParticipantPort,
+  IEventHistoryBranchPort,
+  IParticipantDeliveryCursorPort,
+} from '@/lib/events/storeCapabilityPorts';
 import type { ICampaignEvent } from '@/types/campaign/CampaignSync';
 
 /**
@@ -138,7 +143,16 @@ export type CampaignCombatOutcomeInboxResult =
       { readonly kind: 'committed' | 'duplicate-command' }
     >;
 
-export interface ICampaignEventStore {
+/**
+ * Optional branch / participant / cursor capabilities. Participant and
+ * cursor keys are campaign/session/grant, not matchId — this is a
+ * facade so both store boundaries can carry the same ports.
+ */
+export interface ICampaignEventStore
+  extends
+    Partial<IEventHistoryBranchPort>,
+    Partial<ICampaignSessionParticipantPort>,
+    Partial<IParticipantDeliveryCursorPort> {
   /**
    * Optional D10 batch capability (task 1.2): commit one command's whole
    * contiguous event batch plus its expected post-state digest atomically
