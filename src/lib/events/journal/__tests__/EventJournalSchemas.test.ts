@@ -85,7 +85,11 @@ describe('event journal command boundaries', () => {
   });
   it.each([
     [{ ...command, streamId: '' }],
-    [{ ...command, expectedBranchId: 'fork-1' }],
+    // A NAMED branch is no longer a schema error (task 16.2 widened
+    // `expectedBranchId` off `z.literal`); what refuses one that is not
+    // the stream's effective branch is the rule above the journal, in
+    // `JournalCampaignEventStore`. The schema still refuses a non-id.
+    [{ ...command, expectedBranchId: '   ' }],
     [{ ...command, expectedRevision: -1 }],
     [{ ...command, events: [{ ...event, eventVersion: 0 }] }],
   ])('rejects an invalid command identity or version', (candidate) => {
