@@ -246,7 +246,9 @@ The PR order, dependency graph, ownership boundaries, exact-main regression cade
 
 - [ ] 14.1 Route finalized combat corrections through server-authored authoritative commands while keeping preview non-mutating and GM-private, implementing `Combat Intervention Has Distinct Preview and Commit Phases`.
 - [ ] 14.2 Add immutable combat branch, supersession, trusted-checkpoint, and stale-branch command semantics without changing existing combat reducers.
-- [ ] 14.3 Reject commands during rebuild with retryable `PROJECTION_REBUILDING`; do not queue them invisibly.
+- [x] 14.3 Reject commands during rebuild with retryable `PROJECTION_REBUILDING`; do not queue them invisibly.
+  - CLOSED (2026-09-02, Wave C3 seam 3a, leaf 2.2 adoption): PROJECTION_REBUILDING is now a real server refusal at both live admission sites (combat ServerMatchHostIntent after the rollback gate; campaign executeCampaignCommand third blocked arm -> 409), retryable (a lapsed lease admits again), never queued. ErrorCodeSchema gains the member; no exhaustive pin exists and LIVE_WIRE_CODES already carried it (the earlier wave's landing strip); campaignLifecycleState comments corrected; both reserved-posture guards survive unchanged because they assert unreachability from live client/sync signals, not from a server refusal. journalAuthorityAdmission is MATCH-CREATION admission, not this gate. Client-side gating on the code is 19.2 (Wave E2 seam 3).
+
 - [ ] 14.4 Rebuild combat state, RNG provenance, fog, sealed choices, and viewer projections; activate the replacement branch atomically only after verification.
 - [ ] 14.5 Verify with GM intervention suites, deterministic replay tests, fog integration tests, and `npm.cmd run verify:qc:gm:campaign-ledger`.
 
