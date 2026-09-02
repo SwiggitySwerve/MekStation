@@ -110,6 +110,15 @@ export type CampaignCommandResult =
       /** Authority says no log is safe to write (task 5.7). */
       readonly kind: 'blocked';
       readonly reason: string;
+      /**
+       * What the caller should do next, when the block knows.
+       *
+       * Optional because not every block has an answer: a campaign whose
+       * authority is blocked has no action a client can take. A rebuild
+       * does - wait and retry - and dropping it here is what left the
+       * client rendering a refusal with no recovery at all.
+       */
+      readonly recoveryAction?: string;
     }
   | ({
       /**
@@ -298,7 +307,14 @@ export async function executeCampaignCommand(
     campaignStreamRef(request.campaignId),
   );
   if (rebuilding !== null) {
-    return { kind: 'blocked', reason: rebuilding.code };
+    return {
+      kind: 'blocked',
+      reason: rebuilding.code,
+      // Carried, not dropped: the rebuild arm is the one block that knows
+      // what to do next, and a client told only PROJECTION_REBUILDING has
+      // to guess whether to wait or give up.
+      recoveryAction: rebuilding.action,
+    };
   }
 
   const store = new JournalCampaignEventStore(deps.journal);
