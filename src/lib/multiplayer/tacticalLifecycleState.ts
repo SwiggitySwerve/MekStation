@@ -22,12 +22,38 @@ import {
 export type TacticalLifecycleState = LifecycleState;
 
 /**
- * Reserved for `add-authoritative-history-branches`. The tactical client does
- * not emit either signal yet: accepting one here would falsely claim that a
- * live match can rewind or rebuild today. The branch can pass its typed signal
- * to this model without changing this banner or its locators.
+ * Owned by `add-authoritative-history-branches`; half of it is now LIVE.
+ *
+ * `PROJECTION_REBUILDING` is a real server refusal: the match stream
+ * refuses an engine-mutating intent while a correction lease rebuilds
+ * this match's history, and `projectionSignalFromServerError` below
+ * turns that refusal into this signal. So `rebuilding` is reachable in
+ * a live match today, and the tactical surface must gate on it.
+ *
+ * `PROJECTION_REWOUND` remains reachable-when-emitted, and not by
+ * oversight: it is not a member of `ErrorCodeSchema`, so the wire
+ * cannot carry it at all. A producer landing is what earns the second
+ * arm of the mapper - a row pins that absence rather than leaving it a
+ * claim in a comment.
  */
 export type TacticalLifecycleProjectionSignal = LifecycleProjectionSignal;
+
+/**
+ * Turns a server `Error` frame's code into a projection signal.
+ *
+ * Deliberately total and deliberately narrow: every code that is not a
+ * projection refusal answers `null`, so a rate-limit or a wrong-phase
+ * rejection can never freeze the board. The parameter is a plain
+ * `string | undefined` rather than `IErrorCode` because the client
+ * surfaces whatever the wire sent - including a code from a newer
+ * server this build does not know - and an unknown code must map to
+ * "no signal" rather than throw.
+ */
+export function projectionSignalFromServerError(
+  code: string | undefined,
+): TacticalLifecycleProjectionSignal | null {
+  return code === 'PROJECTION_REBUILDING' ? 'PROJECTION_REBUILDING' : null;
+}
 
 export interface ITacticalLifecyclePosture {
   readonly state: TacticalLifecycleState;

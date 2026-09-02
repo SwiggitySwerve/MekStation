@@ -3,10 +3,12 @@ import {
   GamePhase,
   GameSide,
 } from '@/types/gameplay/GameSessionInterfaces';
+import { ErrorCodeSchema } from '@/types/multiplayer/Protocol';
 
 import {
   deriveTacticalLifecyclePosture,
   deriveTacticalWireFacts,
+  projectionSignalFromServerError,
   type IClientLifecycleState,
   type TacticalLifecycleProjectionSignal,
 } from '../tacticalLifecycleState';
@@ -47,7 +49,7 @@ describe('tactical lifecycle posture', () => {
     ['rewound', 'PROJECTION_REWOUND'],
     ['rebuilding', 'PROJECTION_REBUILDING'],
   ] as const)(
-    'reserves the %s locator for the branch-owned %s signal',
+    'derives the %s posture from the %s signal',
     (state, projectionSignal: TacticalLifecycleProjectionSignal) => {
       expect(
         deriveTacticalLifecyclePosture({
@@ -60,10 +62,14 @@ describe('tactical lifecycle posture', () => {
     },
   );
 
-  it('keeps branch-gated projection postures unreachable from live client signals', () => {
+  it('never invents a projection posture from live client signals alone', () => {
     // A SWEEP, not one sample: the reviewer's routed-live-signal mutant
     // (recoveringFromGap answering 'rebuilding') survived a single-case
     // guard. Every live-signal combination must land on a live posture.
+    // Since umbrella 19.2 3b-i the signal itself HAS a live producer -
+    // a server PROJECTION_REBUILDING refusal - so what this row still
+    // guards is narrower and more important: with no signal, transport
+    // facts alone must never answer 'the projection is being rebuilt'.
     const liveVariants = [
       {},
       { pendingIntentCount: 1 },
@@ -84,6 +90,43 @@ describe('tactical lifecycle posture', () => {
         expect(['rebuilding', 'rewound']).not.toContain(posture.state);
       }
     }
+  });
+
+  it("maps the server's PROJECTION_REBUILDING refusal into the rebuilding signal", () => {
+    expect(projectionSignalFromServerError('PROJECTION_REBUILDING')).toBe(
+      'PROJECTION_REBUILDING',
+    );
+    expect(
+      deriveTacticalLifecyclePosture({
+        client: LIVE_CLIENT,
+        finalizationLanded: false,
+        projectionSignal: projectionSignalFromServerError(
+          'PROJECTION_REBUILDING',
+        ),
+        sealedChoiceAwaitingReveal: false,
+      }).state,
+    ).toBe('rebuilding');
+  });
+
+  it('gives no projection signal to any other server error code', () => {
+    // A SWEEP over the real wire enum, not a sample: a mapper that
+    // answered 'rebuilding' for every refusal would turn a rate-limit
+    // into a frozen board.
+    for (const code of ErrorCodeSchema.options) {
+      if (code === 'PROJECTION_REBUILDING') continue;
+      expect(projectionSignalFromServerError(code)).toBeNull();
+    }
+    expect(projectionSignalFromServerError(undefined)).toBeNull();
+    expect(projectionSignalFromServerError('NOT_A_WIRE_CODE')).toBeNull();
+  });
+
+  it('has no wire code that could produce the rewound signal today', () => {
+    // The honest half of 3b-i: `rewound` stays reachable-when-emitted
+    // because the Error frame cannot carry PROJECTION_REWOUND at all -
+    // it is not a member of the wire enum. When a producer lands, this
+    // row fails and the mapper gains its second arm.
+    expect(ErrorCodeSchema.options).not.toContain('PROJECTION_REWOUND');
+    expect(projectionSignalFromServerError('PROJECTION_REWOUND')).toBeNull();
   });
 
   it('derives sealed until the actor-owned declaration is finalized', () => {
