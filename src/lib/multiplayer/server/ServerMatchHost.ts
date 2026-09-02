@@ -71,6 +71,10 @@ import { logger } from '@/utils/logger';
 import type { IPublishNetworkedCommandResultInput } from './ServerMatchHostCommandResults';
 import type { IMatchSocket } from './ServerMatchSocketTypes';
 
+import {
+  selectCommandRejectionAudit,
+  type ICommandRejectionAuditPort,
+} from './audit/CommandRejectionAudit';
 import { type IServerDiceRoller } from './CryptoDiceRoller';
 import { bindViewerDeliveryPersist } from './DurableMatchStore.viewerDelivery';
 import { FogOfWarVisibilityCache } from './fogOfWar';
@@ -214,6 +218,13 @@ export class ServerMatchHost {
   private readonly journalAuthorityShadow: boolean;
   private readonly admissionRefusal: IJournalAuthorityAdmissionRefusal | null;
   private readonly rollbackBlockReason: MatchRollbackBlockedReason | null;
+  /**
+   * Where a terminal command refusal is recorded (umbrella 18.2).
+   * Resolved once per host: the selection reads process configuration,
+   * not per-match state, and a host that outlives a database swap is
+   * not a case this codebase has.
+   */
+  private readonly commandRejectionAudit: ICommandRejectionAuditPort | null;
   private readonly journalRandomSeed: number;
   private readonly journalDiceSeed: number;
   private readonly journalPlayerUnits: readonly IAdaptedUnit[];
@@ -304,6 +315,7 @@ export class ServerMatchHost {
     this.viewerResolver = new AuthorizedViewerResolver(
       new MatchSeatMembershipSource(store),
     );
+    this.commandRejectionAudit = selectCommandRejectionAudit();
     const sessionEvents = session.getSession().events;
     const requested = options.journalAuthority === true;
     if (options.recovered) {
@@ -1011,6 +1023,7 @@ export class ServerMatchHost {
       acceptedIntents: this.acceptedIntents,
       viewerResolver: this.viewerResolver,
       deliveryCursors: this.deliveryCursors,
+      commandRejectionAudit: this.commandRejectionAudit ?? undefined,
       rollbackBlockReason: this.rollbackBlockReason ?? undefined,
       journalAuthority:
         this.journalAuthorityEnabled || this.journalAuthorityShadow
