@@ -35,6 +35,9 @@ import type { IEventHistoryStreamRef } from '@/lib/events/journal/EventHistoryBr
 import type { SerializedCampaign } from '@/types/campaign/SerializedCampaign';
 
 import { CAMPAIGN_STREAM_TYPE } from '@/lib/campaign/sync/JournalCampaignEventStore';
+import { SQLiteEventHistoryBranchStore } from '@/lib/events/journal/SQLiteEventHistoryBranchStore';
+import { readCampaign } from '@/services/campaignPersistence/CampaignPersistenceService';
+import { getSQLiteService } from '@/services/persistence/SQLiteService';
 
 /** The stream a campaign's authoritative history lives on. */
 export function campaignStreamRef(campaignId: string): IEventHistoryStreamRef {
@@ -106,5 +109,48 @@ export function resolveCampaignLaunchHead(
     branchId: head.branchId,
     revision: ports.readJournalRevision(stream, head.branchId),
     effectiveGeneration: head.effectiveGeneration,
+  };
+}
+
+/**
+ * The journal head revision for a stream and branch.
+ *
+ * A branch with no head row sits at revision 0: it exists and nothing
+ * has been appended to it yet. That is the genesis case (and what a
+ * freshly minted candidate branch will look like), not a missing
+ * stream - the correction-lease store reads a missing row the same way.
+ * Defaulting it to anything else compares a fabricated revision against
+ * a head of 0 and refuses a fresh campaign its first launch.
+ */
+function readJournalRevision(
+  stream: IEventHistoryStreamRef,
+  branchId: string,
+): number {
+  const row = getSQLiteService()
+    .getDatabase()
+    .prepare(
+      `SELECT stream_revision AS revision
+         FROM event_journal_stream_heads
+        WHERE stream_type = ? AND stream_id = ? AND branch_id = ?`,
+    )
+    .get(stream.streamType, stream.streamId, branchId) as
+    | { readonly revision: number }
+    | undefined;
+  return row?.revision ?? 0;
+}
+
+/**
+ * The durable ports. Lives here rather than in either route so the two
+ * launch endpoints cannot drift into two different definitions of "the
+ * head" - the whole point of this module is that there is one.
+ */
+export function campaignLaunchHeadPorts(): ICampaignLaunchHeadPorts {
+  return {
+    readCampaign,
+    readEffectiveHead: (stream) =>
+      new SQLiteEventHistoryBranchStore(
+        getSQLiteService().getDatabase(),
+      ).readEffectiveHead(stream),
+    readJournalRevision,
   };
 }
