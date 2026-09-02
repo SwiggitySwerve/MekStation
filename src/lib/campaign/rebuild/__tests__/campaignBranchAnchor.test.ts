@@ -232,7 +232,7 @@ describe('campaign branch anchor', () => {
     expect(root.digest).not.toStrictEqual(onCandidate.digest);
   });
 
-  it('A2b: a candidate can only be cut at the head, never below it', async () => {
+  it('A2b: fencing stays at the head; the CUT may be below it', async () => {
     await seedRootHistory();
     const branches = new SQLiteEventHistoryBranchStore(db);
     const leases = new SQLiteEventHistoryCorrectionLeaseStore(db, branches, {
@@ -240,23 +240,30 @@ describe('campaign branch anchor', () => {
     });
     const earlier = db
       .prepare(
-        `SELECT event_digest AS digest FROM event_journal_events
-          WHERE stream_id = ? AND stream_revision = 1`,
+        `SELECT event_id AS id, event_digest AS digest
+           FROM event_journal_events
+          WHERE stream_id = ? AND branch_id = 'root' AND stream_revision = 1`,
       )
-      .get(CAMPAIGN_ID) as { digest: string };
+      .get(CAMPAIGN_ID) as { id: string; digest: string };
+    const head = db
+      .prepare(
+        `SELECT stream_revision AS revision, event_digest AS digest
+           FROM event_journal_stream_heads
+          WHERE stream_id = ? AND branch_id = 'root'`,
+      )
+      .get(CAMPAIGN_ID) as { revision: number; digest: string };
 
-    // A rewind wants a base BELOW the head - that is what "from a trusted
-    // base" means when facts are being dropped. The lease is the only way
-    // to a candidate, and it binds the base to the head it fences on, so
-    // asking for revision 1 while the head is 2 is refused as a stale
-    // head rather than understood as a rewind target. Finding #83: the
-    // branches leaf mints forward-correction candidates only.
+    // HALF ONE - fencing is unchanged. A lease still may not claim a
+    // head that is not live, so asking to be fenced at revision 1
+    // while the head is 2 is refused. This half was the whole of the
+    // row before Seam C1c, and on its own it PINNED finding #87 as
+    // correct behaviour.
     expect(() =>
       leases.acquireCorrectionLease({
         ...stream,
         owner: 'host-1',
         actor: 'gm-1',
-        reason: 'rewind-to-1',
+        reason: 'mis-fenced',
         ttlMs: 60_000,
         expectedBranchId: 'root',
         expectedRevision: 1,
@@ -264,6 +271,40 @@ describe('campaign branch anchor', () => {
         expectedGeneration: 1,
       }),
     ).toThrow(/STALE_REVISION/);
+
+    // HALF TWO - the cut is a different question from the fence. The
+    // SAME revision 1, asked for as a base by a lease fenced correctly
+    // at the live head, is accepted. Without this half the suite would
+    // still be asserting that a rewind is impossible.
+    const lease = leases.acquireCorrectionLease({
+      ...stream,
+      owner: 'host-1',
+      actor: 'gm-1',
+      reason: 'rewind-to-1',
+      ttlMs: 60_000,
+      expectedBranchId: 'root',
+      expectedRevision: head.revision,
+      expectedDigest: head.digest,
+      expectedGeneration: 1,
+    });
+    const candidate = createCorrectionCandidateBranch(db, leases, {
+      ...stream,
+      leaseId: lease.leaseId,
+      owner: lease.owner,
+      fencingEpoch: lease.fencingEpoch,
+      createdAt: TS,
+      baseRevision: 1,
+    });
+
+    expect(candidate.baseRevision).toStrictEqual(1);
+    expect(candidate.baseEventId).toStrictEqual(earlier.id);
+    expect(
+      readCampaignBranchAnchor(db, CAMPAIGN_ID, candidate.branchId),
+    ).toStrictEqual({
+      branchId: candidate.branchId,
+      revision: 1,
+      digest: earlier.digest,
+    });
   });
 
   it('A3: a root branch with no events sits at genesis, from the record', async () => {
