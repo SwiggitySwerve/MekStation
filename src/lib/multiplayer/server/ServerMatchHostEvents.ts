@@ -331,9 +331,18 @@ async function publishEvent(
     // assigned for this frame; they do not call `assign` again.
     let deliverySequence = deliveryByPlayer.get(recipient.playerId);
     if (deliverySequence === undefined) {
+      const authority = authoritySequenceOf(sourceEvent);
+      // Unacked-frame bound (E2E-14). bufferedAmount stays 0 on match
+      // traffic, so it is not this bound. Asked HERE, before assign,
+      // so an isolated viewer stops growing issued; they resume from
+      // firstMissedAuthoritySequence after the next ack, same as a
+      // reconnect. Only this viewer is refused.
+      if (!ctx.deliveryCursors.admit(recipient.playerId, authority)) {
+        continue;
+      }
       deliverySequence = ctx.deliveryCursors.assign(
         recipient.playerId,
-        authoritySequenceOf(sourceEvent),
+        authority,
       );
       deliveryByPlayer.set(recipient.playerId, deliverySequence);
     }

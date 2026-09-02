@@ -26,6 +26,18 @@
 
 import { logger } from '@/utils/logger';
 
+/**
+ * Per-viewer unacked-frame cap (E2E-14 product bound).
+ *
+ * A healthy client acks the contiguous applied head within a handful
+ * of frames. 64 is large enough that a brief hitch or one phase-advance
+ * burst never isolates anyone, and small enough that a stalled viewer
+ * cannot keep being handed live facts. It is a count of unacked frames,
+ * not bytes: `socket.bufferedAmount` stays 0 on match traffic, so it
+ * is not this bound. Infinity would never isolate.
+ */
+export const MAX_VIEWER_UNACKED = 64;
+
 export type ViewerDeliveryPersist = (
   playerId: string,
   deliverySequence: number,
@@ -49,6 +61,25 @@ export class ViewerDeliveryCursors {
    */
   private readonly delivered = new Map<string, number[]>();
 
+  /** Highest contiguous applied delivery sequence this viewer acked. */
+  private readonly lastAcked = new Map<string, number>();
+
+  /**
+   * Viewers who hit the unacked bound. Isolated independently: one
+   * stalled consumer must not freeze anyone else. Cleared on an ack
+   * that brings unacked back under the cap; resume then uses the same
+   * firstMissedAuthoritySequence path a reconnect uses.
+   */
+  private readonly isolated = new Set<string>();
+
+  /**
+   * First authority sequence refused after isolation. Assigning stops
+   * at the bound, so the delivered list does not grow and a walk of it
+   * would claim the viewer is current. Remembering the first refused
+   * event is what makes firstMissed start at the gap, not the live head.
+   */
+  private readonly isolationResume = new Map<string, number>();
+
   constructor(private readonly persist?: ViewerDeliveryPersist) {}
 
   /**
@@ -66,6 +97,9 @@ export class ViewerDeliveryCursors {
     list.push(authority);
     this.delivered.set(playerId, list);
     const deliverySequence = list.length - 1;
+    if (authority >= 0 && this.isolationResume.get(playerId) === authority) {
+      this.isolationResume.delete(playerId);
+    }
     try {
       this.persist?.(playerId, deliverySequence, authority);
     } catch (error) {
@@ -131,11 +165,78 @@ export class ViewerDeliveryCursors {
     cursor: number,
   ): number | null {
     const list = this.delivered.get(playerId);
-    if (list === undefined) return null;
-    for (let index = cursor + 1; index < list.length; index += 1) {
-      if (list[index] >= 0) return list[index];
+    if (list !== undefined) {
+      for (let index = cursor + 1; index < list.length; index += 1) {
+        if (list[index] >= 0) return list[index];
+      }
+    }
+    const resume = this.isolationResume.get(playerId);
+    if (
+      resume !== undefined &&
+      this.deliverySequenceOf(playerId, resume) === null
+    ) {
+      return resume;
     }
     return null;
+  }
+
+  /**
+   * Frames handed to this viewer that they have not acked.
+   *
+   * `issued - 1 - lastAcked` is the open window once a receipt exists
+   * (delivery sequences are 0-based). Never-acked means the whole
+   * issued list is still outstanding — that is how a silent client
+   * trips the bound.
+   */
+  unacked(playerId: string): number {
+    const issued = this.issued(playerId);
+    const acked = this.lastAcked.get(playerId);
+    if (acked === undefined) return issued;
+    const pending = issued - 1 - acked;
+    return pending > 0 ? pending : 0;
+  }
+
+  /** True once this viewer tripped the unacked bound and has not yet acked under it. */
+  isIsolated(playerId: string): boolean {
+    return this.isolated.has(playerId);
+  }
+
+  /**
+   * Whether this viewer may be assigned one more live frame. THE place
+   * the unacked bound is applied.
+   *
+   * A viewer already isolated is refused so issued stops growing. A
+   * viewer whose unacked window just reached the cap is isolated and
+   * refused from now on. The refused authority is remembered so a later
+   * ack resumes from firstMissed, not from the live head. Other viewers
+   * are not touched.
+   */
+  admit(playerId: string, authoritySequence: number | null): boolean {
+    if (this.isolated.has(playerId)) {
+      this.rememberIsolationResume(playerId, authoritySequence);
+      return false;
+    }
+    if (this.unacked(playerId) >= MAX_VIEWER_UNACKED) {
+      this.isolated.add(playerId);
+      this.rememberIsolationResume(playerId, authoritySequence);
+      return false;
+    }
+    return true;
+  }
+
+  /**
+   * Record the contiguous applied receipt. Monotonic: a stale ack is a
+   * no-op. An ack that brings unacked under the cap clears isolation
+   * so the viewer can resume; isolationResume stays until that missed
+   * authority is assigned again.
+   */
+  acknowledge(playerId: string, deliverySequence: number): void {
+    const previous = this.lastAcked.get(playerId);
+    if (previous !== undefined && deliverySequence < previous) return;
+    this.lastAcked.set(playerId, deliverySequence);
+    if (this.unacked(playerId) < MAX_VIEWER_UNACKED) {
+      this.isolated.delete(playerId);
+    }
   }
 
   /** How many frames this viewer has been sent. Test/observability. */
@@ -153,6 +254,18 @@ export class ViewerDeliveryCursors {
    */
   forget(playerId: string): void {
     this.delivered.delete(playerId);
+    this.lastAcked.delete(playerId);
+    this.isolated.delete(playerId);
+    this.isolationResume.delete(playerId);
+  }
+
+  private rememberIsolationResume(
+    playerId: string,
+    authoritySequence: number | null,
+  ): void {
+    if (authoritySequence === null || authoritySequence < 0) return;
+    if (this.isolationResume.has(playerId)) return;
+    this.isolationResume.set(playerId, authoritySequence);
   }
 }
 
