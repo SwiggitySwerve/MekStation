@@ -1,3 +1,4 @@
+import type { getActiveCampaignSyncTransport } from '@/lib/campaign/coop/campaignSyncTransport';
 import type { EventStoreService } from '@/services/events';
 import type * as aerospaceRegistry from '@/stores/aerospaceStoreRegistry';
 import type * as unitRegistry from '@/stores/unitStoreRegistry';
@@ -39,6 +40,29 @@ declare global {
     __UNIT_TEMPLATES__?: typeof UNIT_TEMPLATES;
     __EVENT_STORE__?: EventStoreService;
     __E2E_MODE__?: boolean;
+    /** Live co-op campaign transport lookup (performance pack, 23.1). */
+    __CAMPAIGN_SYNC_TRANSPORT__?: typeof getActiveCampaignSyncTransport;
+    /** Per-context observation the controlled loopback runner reads back. */
+    __PERFORMANCE_OBSERVER_STATE__?: {
+      frames: {
+        sequence: number;
+        serverTs: string;
+        renderedAtMs: number;
+      }[];
+      state: {
+        highestSequence: number;
+        appliedSequence: number;
+        recoveredRevision: number;
+        peakPendingEnvelopes: number;
+        peakPendingBytes: number;
+        maxFrameEvents: number;
+        maxFrameBytes: number;
+        pendingEnvelopes: number;
+        pendingBytes: number;
+      };
+    };
+    /** This context's post-warm-up JS heap reading, in bytes. */
+    __PERFORMANCE_HEAP_BASELINE__?: number;
   }
 }
 
