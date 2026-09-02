@@ -60,8 +60,8 @@ describe('MatchHistoryLineage', () => {
         }}
       />,
     );
-    expect(screen.getByTestId('match-history-lineage-reason')).toHaveTextContent(
-      'authorized rewind to turn 2',
-    );
+    expect(
+      screen.getByTestId('match-history-lineage-reason'),
+    ).toHaveTextContent('authorized rewind to turn 2');
   });
 });

@@ -13,8 +13,8 @@ import { tmpdir } from 'node:os';
 import path from 'node:path';
 
 import type { IAffectedArtifact } from '@/lib/events/journal/EventHistoryArtifactManifest';
-import type { IMatchMeta } from '@/lib/multiplayer/server/IMatchStore';
 import type { IViewerHistoryLineage } from '@/lib/multiplayer/server/history/ViewerHistoryLineage';
+import type { IMatchMeta } from '@/lib/multiplayer/server/IMatchStore';
 import type { IVaultIdentity } from '@/types/vault';
 
 import { activateCandidateBranch } from '@/lib/events/journal/EventHistoryActivation';
@@ -160,7 +160,11 @@ describe('GET /api/matches/:id/timeline and /export lineage', () => {
       createdAt: AT,
     });
     const artifacts: readonly IAffectedArtifact[] = [
-      { artifactKind: 'projection', artifactId: player.playerId, sourceRevision: 2 },
+      {
+        artifactKind: 'projection',
+        artifactId: player.playerId,
+        sourceRevision: 2,
+      },
       { artifactKind: 'checkpoint', artifactId: 'ckpt-3', sourceRevision: 3 },
     ];
     const manifests = new SQLiteEventHistoryArtifactManifestStore(db);

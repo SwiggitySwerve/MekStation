@@ -21,7 +21,7 @@ export function MatchHistoryLineage({
   return (
     <ol
       data-testid="match-history-lineage"
-      className="space-y-1 text-sm text-text-theme-primary"
+      className="text-text-theme-primary space-y-1 text-sm"
     >
       {lineage.transitions.map((transition) => (
         <li
@@ -32,10 +32,7 @@ export function MatchHistoryLineage({
             {transition.fromBranchId} → {transition.toBranchId}
           </span>
           <span> cutoff {transition.baseRevision}</span>
-          <span>
-            {' '}
-            {transition.invalidatedArtifacts.length} artifacts
-          </span>
+          <span> {transition.invalidatedArtifacts.length} artifacts</span>
           {'reason' in transition ? (
             <span data-testid="match-history-lineage-reason">
               {' '}

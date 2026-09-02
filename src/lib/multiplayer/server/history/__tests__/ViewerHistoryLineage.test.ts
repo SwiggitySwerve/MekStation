@@ -12,7 +12,6 @@ import path from 'node:path';
 
 import type { IAffectedArtifact } from '@/lib/events/journal/EventHistoryArtifactManifest';
 import type { IEventHistoryBranch } from '@/lib/events/journal/EventHistoryBranchContract';
-import type { IViewerLineageTransition } from '../ViewerHistoryLineage';
 
 import { activateCandidateBranch } from '@/lib/events/journal/EventHistoryActivation';
 import { SQLiteEventHistoryArtifactManifestStore } from '@/lib/events/journal/EventHistoryArtifactManifest';
@@ -20,11 +19,14 @@ import { EVENT_HISTORY_GENESIS_DIGEST } from '@/lib/events/journal/EventHistoryB
 import { _branchCreationSeamForTests } from '@/lib/events/journal/EventHistoryBranchContract';
 import { SQLiteEventHistoryBranchStore } from '@/lib/events/journal/SQLiteEventHistoryBranchStore';
 import { SQLiteEventHistoryCorrectionLeaseStore } from '@/lib/events/journal/SQLiteEventHistoryCorrectionLeaseStore';
+import { SQLiteService } from '@/services/persistence/SQLiteService';
+
+import type { IViewerLineageTransition } from '../ViewerHistoryLineage';
+
 import {
   isGmLineageTransition,
   projectViewerHistoryLineage,
 } from '../ViewerHistoryLineage';
-import { SQLiteService } from '@/services/persistence/SQLiteService';
 
 const STREAM = { streamType: 'match', streamId: 'stream-lineage' } as const;
 const AT = '2026-09-02T00:00:00.000Z';
@@ -94,7 +96,11 @@ describe('ViewerHistoryLineage', () => {
     expect(stores().branches.backfillGenesisBranches()).toBe(1);
   }
 
-  function child(branchId: string, parent: string, depth: number): IEventHistoryBranch {
+  function child(
+    branchId: string,
+    parent: string,
+    depth: number,
+  ): IEventHistoryBranch {
     return {
       ...STREAM,
       branchId,
@@ -110,12 +116,16 @@ describe('ViewerHistoryLineage', () => {
     };
   }
 
-  function activate(branchId: string, reason: string, expected: {
-    readonly branchId: string;
-    readonly revision: number;
-    readonly digest: string;
-    readonly generation: number;
-  }): void {
+  function activate(
+    branchId: string,
+    reason: string,
+    expected: {
+      readonly branchId: string;
+      readonly revision: number;
+      readonly digest: string;
+      readonly generation: number;
+    },
+  ): void {
     const { branches, manifests } = stores();
     branches.createBranch(
       child(branchId, expected.branchId, expected.generation),

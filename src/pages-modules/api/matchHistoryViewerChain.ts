@@ -18,8 +18,8 @@ import type { JsonValue } from '@/lib/multiplayer/server/projection/ViewerProjec
 
 import { SQLiteActionAuditRepository } from '@/lib/events/audit/SQLiteActionAuditRepository';
 import { SQLiteEventHistoryArtifactManifestStore } from '@/lib/events/journal/EventHistoryArtifactManifest';
-import { SQLiteEventJournal } from '@/lib/events/journal/SQLiteEventJournal';
 import { SQLiteEventHistoryBranchStore } from '@/lib/events/journal/SQLiteEventHistoryBranchStore';
+import { SQLiteEventJournal } from '@/lib/events/journal/SQLiteEventJournal';
 import { SQLitePrivateRecordRepository } from '@/lib/events/privacy/SQLitePrivateRecordRepository';
 import { authenticateRequest } from '@/lib/multiplayer/server/auth';
 import {
@@ -30,12 +30,12 @@ import { HumanActionAuthorizationError } from '@/lib/multiplayer/server/authoriz
 import { MatchSeatMembershipSource } from '@/lib/multiplayer/server/authorization/MatchSeatMembershipSource';
 import { SQLiteDeliveryEpochStore } from '@/lib/multiplayer/server/delivery/SQLiteDeliveryEpochStore';
 import { getDefaultMatchStore } from '@/lib/multiplayer/server/getDefaultMatchStore';
-import { ViewerHistoryService } from '@/lib/multiplayer/server/history/ViewerHistoryService';
 import {
   projectViewerHistoryLineage,
   type IViewerHistoryLineage,
   type IViewerHistoryLineageStores,
 } from '@/lib/multiplayer/server/history/ViewerHistoryLineage';
+import { ViewerHistoryService } from '@/lib/multiplayer/server/history/ViewerHistoryService';
 import { matchWireAudienceDefinition } from '@/lib/multiplayer/server/projection/MatchWireAudienceCatalog';
 import {
   ViewerAudienceProjectorRegistry,
