@@ -26,8 +26,8 @@ import type {
 } from '@/lib/events/storeCapabilityPorts';
 
 import { InMemoryCampaignEventStore } from '@/lib/campaign/sync/InMemoryCampaignEventStore';
-import { bindJournalCapabilityPorts } from '@/lib/campaign/sync/journalCapabilityPorts';
 import { JournalCampaignEventStore } from '@/lib/campaign/sync/JournalCampaignEventStore';
+import { bindJournalCapabilityPorts } from '@/lib/campaign/sync/journalCapabilityPorts';
 import {
   _branchCreationSeamForTests,
   EventHistoryBranchError,

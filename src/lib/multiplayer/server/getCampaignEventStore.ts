@@ -34,8 +34,8 @@ import type { ICampaignEventStore } from '@/lib/campaign/sync/ICampaignEventStor
 import type { ICampaignJournalEnvelope } from '@/lib/campaign/sync/JournalCampaignEventStore';
 
 import { InMemoryCampaignEventStore } from '@/lib/campaign/sync/InMemoryCampaignEventStore';
-import { bindJournalCapabilityPorts } from '@/lib/campaign/sync/journalCapabilityPorts';
 import { JournalCampaignEventStore } from '@/lib/campaign/sync/JournalCampaignEventStore';
+import { bindJournalCapabilityPorts } from '@/lib/campaign/sync/journalCapabilityPorts';
 import { SQLiteEventJournal } from '@/lib/events/journal/SQLiteEventJournal';
 import { getSQLiteService } from '@/services/persistence/SQLiteService';
 

@@ -54,6 +54,8 @@ import {
 } from '@/lib/events/journal/EventJournalContract';
 import { SQLiteEventJournalWriter } from '@/lib/events/journal/SQLiteEventJournalWriter';
 
+import type { JournalCapabilityPortsBinder } from './journalCapabilityPorts';
+
 import { resolveCampaignBranchId } from './campaignBranchRule';
 import { appendCampaignCombatOutcomeBatch } from './campaignCombatOutcomeInbox';
 import { campaignEventEntityRefs } from './campaignEventEntityRefs';
@@ -68,7 +70,6 @@ import {
   type ICampaignEventStore,
 } from './ICampaignEventStore';
 import { InMemoryCampaignEventStore } from './InMemoryCampaignEventStore';
-import type { JournalCapabilityPortsBinder } from './journalCapabilityPorts';
 
 /** The journal stream type every campaign stream lives under (design D1). */
 export const CAMPAIGN_STREAM_TYPE = 'campaign' as const;
