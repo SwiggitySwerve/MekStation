@@ -1,7 +1,5 @@
 import type { ICampaign } from '@/types/campaign/Campaign';
-import type { IMission } from '@/types/campaign/Mission';
 import type { IRosterUnitProjection } from '@/types/campaign/RosterUnitProjection';
-import type { IForce } from '@/types/force';
 
 import {
   isRosterPreflightFailure,
@@ -13,38 +11,31 @@ import {
   type CanonicalCombatCatalogSnapshot,
   admitRosterUnitSource,
 } from '@/lib/campaign/readiness/canonicalCatalogAdmission';
-import { TerrainPreset, VictoryConditionType } from '@/types/encounter';
-import { ForceType } from '@/types/force';
 import { logger } from '@/utils/logger';
 
+import type { OwnedForceMaterializationResult } from './campaignOwnedForceMaterialization';
+
+import { ownedPlayerForceUnits } from './campaignOwnedForceMaterialization';
 import {
-  type ApiFailurePayload,
-  apiJsonHeaders,
-  assertOperationSuccess,
   encounterExists,
   type FetchImpl,
-  readApiJson,
   validateExistingEncounter,
 } from './materializeCampaignMissionEncounter.api';
 import {
-  type AssignedForceUnit,
   rosterUnitsToForceUnits,
   selectOpponentUnits,
 } from './materializeCampaignMissionEncounter.forceUnits';
+import {
+  CampaignOwnedForceStaleError,
+  assertOwnedForcesCurrent,
+} from './materializeCampaignMissionEncounter.ownedForces';
+import {
+  attachEncounterForce,
+  createAssignedForceWithUnits,
+  createConfiguredEncounter,
+} from './materializeCampaignMissionEncounter.rest';
 
 type CampaignMissionSource = Pick<ICampaign, 'id' | 'name' | 'missions'>;
-
-interface ForceApiResponse extends ApiFailurePayload {
-  readonly id?: string;
-  readonly force?: Pick<IForce, 'id' | 'assignments'>;
-}
-
-interface EncounterApiResponse extends ApiFailurePayload {
-  readonly id?: string;
-  readonly encounter?: {
-    readonly id: string;
-  };
-}
 
 export interface MaterializeCampaignMissionEncounterInput {
   readonly campaign: CampaignMissionSource;
@@ -52,6 +43,12 @@ export interface MaterializeCampaignMissionEncounterInput {
   readonly rosterUnits: readonly IRosterUnitProjection[];
   readonly catalog?: CanonicalCombatCatalogSnapshot;
   readonly fetchImpl?: FetchImpl;
+  /**
+   * Authoritative owned forces for both tactical slots, resolved by
+   * `materializeOwnedPlayerForces` against the active branch/revision.
+   * Absent on the single-player path, which keeps its flat roster.
+   */
+  readonly ownedForces?: OwnedForceMaterializationResult;
 }
 
 export interface MaterializeCampaignMissionEncounterResult {
@@ -59,6 +56,9 @@ export interface MaterializeCampaignMissionEncounterResult {
   readonly reused: boolean;
   readonly missionScenarioIds: readonly string[];
 }
+
+// Re-exported so callers keep one import site for the launch surface.
+export { CampaignOwnedForceStaleError };
 
 const MATERIALIZER_LOG_SERVICE = 'campaign-encounter-materializer';
 
@@ -109,165 +109,16 @@ function assertLaunchRoster(
   }
 }
 
-async function createAssignedForceWithUnits({
-  name,
-  units,
-  fetchImpl,
-}: {
-  readonly name: string;
-  readonly units: readonly AssignedForceUnit[];
-  readonly fetchImpl: FetchImpl;
-}): Promise<string> {
-  const createResponse = await fetchImpl('/api/forces', {
-    method: 'POST',
-    headers: apiJsonHeaders(),
-    body: JSON.stringify({
-      name,
-      forceType: ForceType.Lance,
-    }),
-  });
-  const created = await readApiJson<ForceApiResponse>(
-    createResponse,
-    'Failed to create force',
-  );
-  assertOperationSuccess(created, 'Failed to create force');
-
-  const forceId = created.force?.id ?? created.id;
-  if (!forceId) {
-    throw new Error('Force creation did not return a force id');
-  }
-
-  const assignmentSlots = created.force?.assignments ?? [];
-  if (units.length > assignmentSlots.length) {
-    throw new Error(
-      `Created Lance force provided ${assignmentSlots.length} assignment slots, but ${units.length} units were selected; refusing to drop units.`,
-    );
-  }
-
-  for (let index = 0; index < units.length; index += 1) {
-    const assignmentId = assignmentSlots[index]?.id;
-    if (!assignmentId) {
-      throw new Error(
-        `Created force did not include assignment slot ${index + 1}`,
-      );
-    }
-
-    const unit = units[index];
-    if (!unit) {
-      throw new Error(`Missing unit payload for assignment slot ${index + 1}`);
-    }
-    const assignResponse = await fetchImpl(
-      `/api/forces/assignments/${encodeURIComponent(assignmentId)}`,
-      {
-        method: 'PUT',
-        headers: apiJsonHeaders(),
-        body: JSON.stringify({
-          unitId: unit.unitRef,
-          pilotId: unit.pilotRef,
-        }),
-      },
-    );
-    const assigned = await readApiJson<ApiFailurePayload>(
-      assignResponse,
-      'Failed to assign unit to force',
-    );
-    assertOperationSuccess(assigned, 'Failed to assign unit to force');
-  }
-
-  return forceId;
-}
-
-async function createConfiguredEncounter({
-  campaign,
-  mission,
-  missionId,
-  fetchImpl,
-}: {
-  readonly campaign: CampaignMissionSource;
-  readonly mission: IMission | undefined;
-  readonly missionId: string;
-  readonly fetchImpl: FetchImpl;
-}): Promise<string> {
-  const createResponse = await fetchImpl('/api/encounters', {
-    method: 'POST',
-    headers: apiJsonHeaders(),
-    body: JSON.stringify({
-      name: mission?.name ?? `Campaign Mission ${missionId}`,
-      description:
-        mission?.description ??
-        `Campaign mission ${missionId} for ${campaign.name}.`,
-    }),
-  });
-  const created = await readApiJson<EncounterApiResponse>(
-    createResponse,
-    'Failed to create encounter',
-  );
-  assertOperationSuccess(created, 'Failed to create encounter');
-
-  const encounterId = created.encounter?.id ?? created.id;
-  if (!encounterId) {
-    throw new Error('Encounter creation did not return an encounter id');
-  }
-
-  const patchResponse = await fetchImpl(
-    `/api/encounters/${encodeURIComponent(encounterId)}`,
-    {
-      method: 'PATCH',
-      headers: apiJsonHeaders(),
-      body: JSON.stringify({
-        mapConfig: {
-          radius: 8,
-          terrain: TerrainPreset.Clear,
-          playerDeploymentZone: 'south',
-          opponentDeploymentZone: 'north',
-        },
-        victoryConditions: [{ type: VictoryConditionType.DestroyAll }],
-        optionalRules: [],
-      }),
-    },
-  );
-  const patched = await readApiJson<ApiFailurePayload>(
-    patchResponse,
-    'Failed to configure encounter',
-  );
-  assertOperationSuccess(patched, 'Failed to configure encounter');
-  return encounterId;
-}
-
-async function attachEncounterForce({
-  encounterId,
-  forceId,
-  side,
-  fetchImpl,
-}: {
-  readonly encounterId: string;
-  readonly forceId: string;
-  readonly side: 'player-force' | 'opponent-force';
-  readonly fetchImpl: FetchImpl;
-}): Promise<void> {
-  const response = await fetchImpl(
-    `/api/encounters/${encodeURIComponent(encounterId)}/${side}`,
-    {
-      method: 'PUT',
-      headers: apiJsonHeaders(),
-      body: JSON.stringify({ forceId }),
-    },
-  );
-  const payload = await readApiJson<ApiFailurePayload>(
-    response,
-    `Failed to attach ${side}`,
-  );
-  assertOperationSuccess(payload, `Failed to attach ${side}`);
-}
-
 export async function materializeCampaignMissionEncounter({
   campaign,
   missionId,
   rosterUnits,
   catalog,
   fetchImpl = fetch,
+  ownedForces,
 }: MaterializeCampaignMissionEncounterInput): Promise<MaterializeCampaignMissionEncounterResult> {
   try {
+    assertOwnedForcesCurrent(ownedForces);
     assertSourceCatalogAdmission(rosterUnits, catalog);
     logLaunchRosterPreflightDiagnostics(campaign, missionId, rosterUnits);
     assertLaunchRoster(rosterUnits);
@@ -326,9 +177,15 @@ export async function materializeCampaignMissionEncounter({
       }
     }
 
+    // Both tactical slots field onto ONE player side (co-op D1); slot
+    // attribution stays on `ownedForces.slots` for seat validation.
+    const playerUnits =
+      ownedForces?.kind === 'materialized'
+        ? ownedPlayerForceUnits(ownedForces.slots)
+        : rosterUnitsToForceUnits(rosterUnits);
     const playerForceId = await createAssignedForceWithUnits({
       name: `${campaign.name} ${mission?.name ?? missionId} Lance`,
-      units: rosterUnitsToForceUnits(rosterUnits),
+      units: playerUnits,
       fetchImpl,
     });
     const opponentForceId = await createAssignedForceWithUnits({
@@ -338,7 +195,9 @@ export async function materializeCampaignMissionEncounter({
       // plus mission is stable before force creation, and true repeat launches
       // short-circuit through the existing-scenario reuse branch above.
       units: selectOpponentUnits({
-        count: rosterUnits.length,
+        // Sized off the units actually fielded, not the caller roster -
+        // two slots' union is what the OpFor has to answer.
+        count: playerUnits.length,
         seed: `${campaign.id}:${missionId}`,
       }),
       fetchImpl,
