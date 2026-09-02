@@ -50,7 +50,11 @@ export const EventToAppendSchema = z
 const AppendCommandShape = {
   streamType: DurableIdSchema,
   streamId: DurableIdSchema,
-  expectedBranchId: z.literal(ROOT_EVENT_BRANCH_ID),
+  // Widened from `z.literal(ROOT_EVENT_BRANCH_ID)` with task 16.2: the
+  // same non-empty-id rule every other durable id carries. The pin
+  // narrowed to a shape check; the branch RULE above the journal is
+  // what refuses an id that is not the stream's effective branch.
+  expectedBranchId: DurableIdSchema,
   expectedRevision: SafeNonnegativeIntegerSchema,
   commandId: DurableIdSchema,
   events: z.array(EventToAppendSchema).min(1),

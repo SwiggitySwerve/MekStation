@@ -2,7 +2,20 @@ export const ROOT_EVENT_BRANCH_ID = 'root' as const;
 export const EVENT_JOURNAL_MAX_PAGE_SIZE = 500 as const;
 export const CURRENT_EVENT_CANONICALIZER_VERSION = 1 as const;
 export const EVENT_ACTOR_KINDS = ['human', 'system', 'migration'] as const;
-export type EventBranchId = typeof ROOT_EVENT_BRANCH_ID;
+/**
+ * A branch id. Was the literal type `'root'` until umbrella task 16.2:
+ * the journal held exactly one branch, pinned in three places - this
+ * type, `z.literal(ROOT_EVENT_BRANCH_ID)` in `EventJournalSchemas`,
+ * and a storage CHECK on three tables (lifted by migration 26).
+ *
+ * All three are gone. What refuses an ARBITRARY id now is a RULE
+ * rather than a wall: an append naming a branch that is not the
+ * stream's current effective branch is refused typed, so only the
+ * branches-leaf activation path can move which id a stream accepts.
+ * `ROOT_EVENT_BRANCH_ID` remains the genesis branch every stream
+ * starts on.
+ */
+export type EventBranchId = string;
 export type EventActorKind = (typeof EVENT_ACTOR_KINDS)[number];
 export interface IEntityEventRef {
   readonly entityType: string;
