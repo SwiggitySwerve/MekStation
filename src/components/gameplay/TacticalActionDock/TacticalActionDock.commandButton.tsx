@@ -92,19 +92,6 @@ export function CommandButton({
         hover. This element is the accessible description; the tooltip
         remains the visible one for sighted users.
       */}
-      {/*
-        The disabled reason, always in the DOM (umbrella 19.2).
-
-        The button has carried `aria-describedby="command-disabled-reason-<id>"`
-        since the dock shipped, but nothing ever set that ID - the tooltip
-        marks its reason with `data-testid`, which is not an id - so the
-        reference dangled and the description reached nobody. Rendering it
-        on hover alone could not have fixed that either: a disabled button
-        is out of the tab order, so `onFocus` never fires for exactly the
-        controls whose reason matters, leaving it reachable only by mouse
-        hover. This element is the accessible description; the tooltip
-        remains the visible one for sighted users.
-      */}
       {!availability.available && (
         <span id={`command-disabled-reason-${command.id}`} className="sr-only">
           {availability.reason}
