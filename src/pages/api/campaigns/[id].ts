@@ -29,6 +29,7 @@ import {
 import { maybeAppendCampaignGenesisOnCreate } from '@/lib/campaign/authority/campaignSourceGenesis';
 import { resolveCampaignAuthorityFromStores } from '@/lib/campaign/authority/resolveCampaignAuthorityFromStores';
 import { CAMPAIGN_JOURNAL_AUTHORITY_ENABLED } from '@/lib/campaign/sync/JournalCampaignEventStore';
+import { EXPECTED_HEAD_RESYNC_ACTION } from '@/lib/events/journal/EventHistoryExpectedHead';
 import { SQLiteEventJournal } from '@/lib/events/journal/SQLiteEventJournal';
 import {
   initializeApiDatabase as initCampaignDb,
@@ -45,6 +46,20 @@ import {
   saveCampaign,
 } from '@/services/campaignPersistence/CampaignPersistenceService';
 import { getSQLiteService } from '@/services/persistence/SQLiteService';
+
+/**
+ * The typed stale-write refusal (umbrella 8.3/8.4). Carries the server's
+ * record so the one safe recovery has something to adopt; it is not an
+ * error shape, which is why it is named separately.
+ */
+type ConflictResponse = {
+  kind: 'conflict';
+  reason: 'base-state-unavailable';
+  recoveryAction: typeof EXPECTED_HEAD_RESYNC_ACTION;
+  conflictingFields: readonly string[];
+  currentVersion: number;
+  current: SerializedCampaign;
+};
 
 type ErrorResponse =
   | { error: string }
@@ -100,7 +115,7 @@ function isValidPutBody(value: unknown): value is PutBody {
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<SerializedCampaign | ErrorResponse>,
+  res: NextApiResponse<SerializedCampaign | ConflictResponse | ErrorResponse>,
 ): Promise<void> {
   if (!initCampaignDb(res)) return;
 
@@ -181,9 +196,31 @@ export default async function handler(
       try {
         const result = saveCampaign(body.envelope, body.baseVersion);
         if (result.kind === 'conflict') {
-          // Stale write — return the current record so the client can
-          // offer keep-local / take-server.
-          res.status(409).json(result.current);
+          // A stale whole-envelope write, refused in the same typed shape
+          // the command boundary uses (umbrella 8.3/8.4): why, what to do
+          // next, and the current record so the one safe recovery has
+          // something to adopt.
+          //
+          // The reason is always `base-state-unavailable`, and it is a
+          // property of this boundary rather than of this request. A `PUT`
+          // carries a whole campaign, not a command, so there is nothing
+          // to compare field-by-field; and the state this client wrote
+          // against is not recoverable, because the campaigns table keeps
+          // one row per campaign. Disjointness cannot be decided here at
+          // all, so it is not attempted.
+          //
+          // NO JOURNAL HEAD IS REPORTED, deliberately. `version` is the
+          // campaigns-table write counter, NOT a journal revision - the
+          // trap the launch-head route documents - so it is named
+          // `currentVersion` and never dressed up as a branch head.
+          res.status(409).json({
+            kind: 'conflict',
+            reason: 'base-state-unavailable',
+            recoveryAction: EXPECTED_HEAD_RESYNC_ACTION,
+            conflictingFields: [],
+            currentVersion: result.current.version,
+            current: result.current,
+          });
           return;
         }
         if (result.kind === 'refused') {
