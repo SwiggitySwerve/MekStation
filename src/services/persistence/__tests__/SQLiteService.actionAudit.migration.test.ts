@@ -301,6 +301,7 @@ describe('action audit SQLite migration', () => {
       'action_audit_insert_not_published',
       'action_audit_no_delete',
       'action_audit_no_rewrite',
+      'action_audit_no_update',
       'campaign_grant_insert_active',
       'campaign_grant_no_delete',
       'campaign_grant_revoke_only',
@@ -340,6 +341,7 @@ describe('action audit SQLite migration', () => {
       'private_record_insert_present',
       'private_record_no_delete',
       'private_record_no_rewrite',
+      'private_record_rejection_detail_requires_command',
       'replay_checkpoints_no_update',
     ]);
   });

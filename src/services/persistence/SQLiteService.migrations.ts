@@ -13,6 +13,7 @@
 import Database from 'better-sqlite3';
 
 import { ACTION_AUDIT_MIGRATION } from './SQLiteService.actionAudit.migration';
+import { ACTION_AUDIT_SESSION_IDENTITY_MIGRATION } from './SQLiteService.actionAuditSessionIdentity.migration';
 import { EVENT_HISTORY_ARTIFACT_MANIFEST_MIGRATION } from './SQLiteService.artifactManifest.migration';
 import { JOURNAL_BRANCH_PIN_MIGRATION } from './SQLiteService.branchPin.migration';
 import { CAMPAIGN_GRANTS_MIGRATION } from './SQLiteService.campaignGrants.migration';
@@ -25,6 +26,7 @@ import { EVENT_HISTORY_BRANCHES_MIGRATION } from './SQLiteService.historyBranche
 import { MATCH_AUTHORITY_BASELINE_MIGRATION } from './SQLiteService.matchAuthorityBaseline.migration';
 import { CAMPAIGN_PARTICIPANT_CURSORS_MIGRATION } from './SQLiteService.participantCursors.migration';
 import { PRIVATE_ACCESS_WRITE_MIGRATION } from './SQLiteService.privateAccessWrite.migration';
+import { PRIVATE_RECORD_REJECTION_ONCE_MIGRATION } from './SQLiteService.privateRecordRejectionOnce.migration';
 import { PRIVATE_RECORDS_MIGRATION } from './SQLiteService.privateRecords.migration';
 import { REPLAY_CHECKPOINTS_MIGRATION } from './SQLiteService.replayCheckpoints.migration';
 import { REPLAY_CHECKPOINTS_BRANCH_MIGRATION } from './SQLiteService.replayCheckpointsBranch.migration';
@@ -401,4 +403,6 @@ export const MIGRATIONS: readonly IMigration[] = [
   EVENT_HISTORY_ARTIFACT_MANIFEST_MIGRATION,
   JOURNAL_BRANCH_PIN_MIGRATION,
   REPLAY_CHECKPOINTS_BRANCH_MIGRATION,
+  ACTION_AUDIT_SESSION_IDENTITY_MIGRATION,
+  PRIVATE_RECORD_REJECTION_ONCE_MIGRATION,
 ];

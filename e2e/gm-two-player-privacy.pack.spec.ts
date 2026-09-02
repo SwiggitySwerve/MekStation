@@ -96,12 +96,13 @@
  *   product defect that blocks it recorded in that file's header - no
  *   production wiring arms `CampaignGmArbiter`'s proposal-timeout
  *   timer, so "another times out" has no behaviour to observe.
- * E2E-28 ("unauthorized access fails before fan-out"): the letter's
- *   WHEN spans WebSocket, API, export AND GM-command access. The export
- *   surface (`ViewerHistoryService.exportForViewer`) has no HTTP route,
- *   and there is no GM-command route on this channel (see E2E-19), so a
- *   tactical-only proof would cover one quarter of the letter while
- *   reporting the whole of it. Deferred rather than half-claimed.
+ * E2E-28 ("unauthorized access fails before fan-out"): this row is the
+ *   HTTP API + export slice of the letter — seated GET /export and
+ *   /timeline agree on timelineDigest, and the same URLs refuse a
+ *   missing bearer (401 {error}) and a stranger (403 {error}) without
+ *   writing a new outbox or domain-event row. The GM-command half stays
+ *   defect #15 (no production GM-command route on this channel; see
+ *   E2E-19). WS-unauthorized is not this row.
  *
  * ROLE HONESTY (bounds every letter above): the tactical channel mints
  * NO `role: 'gm'` viewer. `MatchSeatMembershipSource.lookupMembership`
@@ -142,7 +143,7 @@
  * rather than fixed: this is a test-authoring seam.
  *
  * @tags @privacy-pack @tactical @E2E-20 @E2E-21 @E2E-22 @E2E-23
- * @tags @E2E-24 @E2E-26 @E2E-27
+ * @tags @E2E-24 @E2E-26 @E2E-27 @E2E-28
  */
 
 import {
@@ -153,6 +154,9 @@ import {
   type Page,
   type WebSocketRoute,
 } from '@playwright/test';
+import path from 'node:path';
+
+import { openSqliteEvidenceReader } from './fixtures/sqliteEvidenceReader';
 
 const RUN_ID_HEADER = 'x-playwright-e2e-run-id';
 const HOST_PASSWORD = 'HostPassword123!';
@@ -195,6 +199,8 @@ interface IFixture {
   readonly guestPage: Page;
   readonly hostTap: IWireTap;
   readonly guestTap: IWireTap;
+  readonly matchId: string;
+  readonly hostToken: Token;
   readonly cleanup: () => Promise<void>;
 }
 
@@ -532,6 +538,88 @@ test.describe('tactical pre-serialization privacy', () => {
         payloadDigest(livePayloads, shared),
       );
     } finally {
+      await fixture.cleanup();
+    }
+  });
+
+  test('E2E-28 seated export and timeline agree; strangers fail before fan-out @E2E-28', async ({
+    browser,
+    request,
+  }) => {
+    test.setTimeout(240_000);
+    const fixture = await openPrivacyFixture(browser, request, 'Privacy G');
+    const strangerIds: string[] = [];
+    try {
+      const before = matchDurableCounts(fixture.matchId);
+      const seated = {
+        Authorization: `Bearer ${fixture.hostToken.token}`,
+      };
+      const exportUrl = `/api/matches/${fixture.matchId}/export?streamType=match`;
+      const timelineUrl = `/api/matches/${fixture.matchId}/timeline`;
+
+      const seatedExport = await request.get(exportUrl, { headers: seated });
+      const seatedTimeline = await request.get(timelineUrl, {
+        headers: seated,
+      });
+      expect(seatedExport.status()).toBe(200);
+      expect(seatedTimeline.status()).toBe(200);
+      const exportBody = (await seatedExport.json()) as {
+        readonly timelineDigest?: unknown;
+      };
+      const timelineBody = (await seatedTimeline.json()) as {
+        readonly timelineDigest?: unknown;
+      };
+      expect(typeof exportBody.timelineDigest).toBe('string');
+      expect(exportBody.timelineDigest).toBe(timelineBody.timelineDigest);
+
+      const anonExport = await request.get(exportUrl);
+      const anonTimeline = await request.get(timelineUrl);
+      expect(anonExport.status()).toBe(401);
+      expect(anonTimeline.status()).toBe(401);
+      expect(errorOnly(await anonExport.json())).toBe(true);
+      expect(errorOnly(await anonTimeline.json())).toBe(true);
+
+      const strangerName = `Privacy G Stranger`;
+      const strangerPassword = 'StrangerPassword123!';
+      const stranger = await seedIdentity(
+        request,
+        strangerName,
+        strangerPassword,
+      );
+      strangerIds.push(stranger.id);
+      const strangerToken = await request.post('/api/multiplayer/auth/token', {
+        data: { displayName: strangerName, password: strangerPassword },
+      });
+      expect(strangerToken.status(), await strangerToken.text()).toBe(200);
+      const strangerBody = (await strangerToken.json()) as {
+        readonly token?: unknown;
+      };
+      if (typeof strangerBody.token !== 'string') {
+        throw new Error('Stranger token response lacked a bearer');
+      }
+      const strangerAuth = {
+        Authorization: `Bearer ${strangerBody.token}`,
+      };
+      const strangerExport = await request.get(exportUrl, {
+        headers: strangerAuth,
+      });
+      const strangerTimeline = await request.get(timelineUrl, {
+        headers: strangerAuth,
+      });
+      expect(strangerExport.status()).toBe(403);
+      expect(strangerTimeline.status()).toBe(403);
+      const strangerExportJson = await strangerExport.json();
+      const strangerTimelineJson = await strangerTimeline.json();
+      expect(errorOnly(strangerExportJson)).toBe(true);
+      expect(errorOnly(strangerTimelineJson)).toBe(true);
+      expect(JSON.stringify(strangerExportJson)).not.toContain(fixture.matchId);
+      expect(JSON.stringify(strangerTimelineJson)).not.toContain(
+        fixture.matchId,
+      );
+
+      expect(matchDurableCounts(fixture.matchId)).toEqual(before);
+    } finally {
+      await deleteIdentities(request, strangerIds);
       await fixture.cleanup();
     }
   });
@@ -906,11 +994,16 @@ async function openPrivacyFixture(
       /Movement/i,
       { timeout: 30_000 },
     );
+    if (!match || !hostToken) {
+      throw new Error('Privacy fixture launched without a seated match token');
+    }
     return {
       hostPage,
       guestPage,
       hostTap,
       guestTap,
+      matchId: match.matchId,
+      hostToken,
       cleanup: async () => {
         if (match && hostToken) {
           await request.delete(`/api/multiplayer/matches/${match.matchId}`, {
@@ -1111,4 +1204,38 @@ function runId(): string {
   const value = process.env.PLAYWRIGHT_E2E_RUN_ID;
   if (!value) throw new Error('PLAYWRIGHT_E2E_RUN_ID missing');
   return value;
+}
+
+/** True when the body is the transport {error} shape and nothing else. */
+function errorOnly(value: unknown): boolean {
+  if (!isRecord(value)) return false;
+  return Object.keys(value).length === 1 && typeof value['error'] === 'string';
+}
+
+/**
+ * Outbox and domain-event counts for one match. A GET that fans out
+ * would increment these; the E2E-28 row requires they stay put.
+ */
+function matchDurableCounts(matchId: string): {
+  readonly events: number;
+  readonly outbox: number;
+} {
+  const reader = openSqliteEvidenceReader(
+    path.resolve('.sisyphus/e2e-runtime', runId(), 'multiplayer-matches.db'),
+  );
+  try {
+    const one = (table: string): number =>
+      (
+        reader.select<{ n: number }>(
+          `SELECT COUNT(*) AS n FROM ${table} WHERE match_id = ?`,
+          [matchId],
+        )[0] ?? { n: 0 }
+      ).n;
+    return {
+      events: one('mp_match_events'),
+      outbox: one('mp_match_outbox'),
+    };
+  } finally {
+    reader.close();
+  }
 }

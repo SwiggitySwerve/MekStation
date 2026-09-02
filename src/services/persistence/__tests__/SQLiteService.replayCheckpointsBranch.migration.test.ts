@@ -267,6 +267,6 @@ describe('replay checkpoint branch pin', () => {
         {},
         db.prepare('SELECT MAX(version) AS version FROM migrations').get(),
       ),
-    ).toStrictEqual({ version: 27 });
+    ).toStrictEqual({ version: 29 });
   });
 });
