@@ -27,12 +27,23 @@
  *   head update did, which would have let this scenario be claimed on a
  *   third of its own text.
  *
- *
- * E2E-66 IS NOT DROPPED - it lands in the immediately following PR on
- * this branch's stack, because splitting it in two (reconnect-in-place
- * vs reconnect-by-reload, which take DIFFERENT delivery paths - measured)
- * pushed this PR past its line cap. The prefix here is green on its own:
- * nothing below depends on the E2E-66 rows.
+ * E2E-66: "WHEN one player's network is partitioned while eligible
+ *   events commit THEN reconnection SHALL apply every authorized event
+ *   once from the durable viewer cursor." Carried as TWO rows because
+ *   finding #90 measured two different delivery paths, not one. Reconnect
+ *   IN PLACE (`context.setOffline(true)` then `false`) is the live
+ *   outbox path: exactly one new `deliverySequence`, contiguous with the
+ *   viewer's prior high-water, and ZERO `ReplayChunk` frames. Reconnect
+ *   BY RELOAD (`page.reload()`) delivers the missed event as a live
+ *   `Event` AND THEN replays from zero (`ReplayStart`, `ReplayChunk`
+ *   with a plural `deliverySequences` array covering 0..N, `ReplayEnd`).
+ *   A session-wide "no delivery number repeats anywhere" claim is FALSE
+ *   against that correct reload behaviour — the letter is APPLY-side,
+ *   keyed on `deliverySequence` (finding #89: `event.sequence` is
+ *   undefined on the player wire). The shared flattener below reads BOTH
+ *   the singular live field and the plural ReplayChunk array; a counter
+ *   that read only the singular field was blind to every replay chunk,
+ *   which is how a `resumeFrom = afterLastHeld` mutant survived.
  *
  * NOT CLAIMED HERE, and why:
  *
@@ -61,7 +72,7 @@
  * arm below names the match it belongs to, so these rows can arm several
  * faults across several tests without one landing on another's session.
  *
- * @tags @failure @E2E-61 @E2E-62 @E2E-63
+ * @tags @failure @E2E-61 @E2E-62 @E2E-63 @E2E-66
  */
 
 import { expect, test, type Page } from '@playwright/test';
@@ -73,6 +84,7 @@ import {
   armScopedFault,
   deleteIdentities,
   e2eRunId,
+  hostOwnedUnitId,
   launchOneVersusOne,
   openContextPage,
   tapErrorFrames,
@@ -158,6 +170,147 @@ async function launchTappedMatch(input: {
     guestPassword: GUEST_PASSWORD,
   });
   return { ...launched, tap };
+}
+
+type ISocketTap = ReturnType<typeof tapErrorFrames>;
+
+interface IWireFrame {
+  readonly kind?: string;
+  readonly deliverySequence?: number;
+  readonly deliverySequences?: readonly number[];
+}
+
+function parseWireFrame(raw: string): IWireFrame | null {
+  try {
+    const parsed: unknown = JSON.parse(raw);
+    if (typeof parsed !== 'object' || parsed === null) return null;
+    const record = parsed as Record<string, unknown>;
+    const kind = record.kind;
+    const deliverySequence = record.deliverySequence;
+    const deliverySequences = record.deliverySequences;
+    return {
+      kind: typeof kind === 'string' ? kind : undefined,
+      deliverySequence:
+        typeof deliverySequence === 'number' ? deliverySequence : undefined,
+      deliverySequences: Array.isArray(deliverySequences)
+        ? deliverySequences.filter(
+            (value): value is number => typeof value === 'number',
+          )
+        : undefined,
+    };
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Flatten BOTH the singular `deliverySequence` of live `Event` frames
+ * and the plural `deliverySequences` of `ReplayChunk` frames into one
+ * ordered number list.
+ *
+ * Finding #90: a counter that read only the singular field was blind to
+ * every replay chunk. ReplayChunk never carries a top-level
+ * `deliverySequence`; the numbers live in `deliverySequences[]`. That
+ * blindness is how `resumeFrom = afterLastHeld` survived an orchestrator
+ * live mutant — the row could not see the replayed copy at all.
+ */
+function flattenDeliveryNumbers(rawFrames: readonly string[]): number[] {
+  const numbers: number[] = [];
+  for (const raw of rawFrames) {
+    const frame = parseWireFrame(raw);
+    if (frame === null) continue;
+    if (frame.kind === 'Event' && frame.deliverySequence !== undefined) {
+      numbers.push(frame.deliverySequence);
+    }
+    if (frame.kind === 'ReplayChunk' && frame.deliverySequences !== undefined) {
+      numbers.push(...frame.deliverySequences);
+    }
+  }
+  return numbers;
+}
+
+function rawFramesOfKind(
+  rawFrames: readonly string[],
+  kind: string,
+): readonly string[] {
+  return rawFrames.filter((raw) => parseWireFrame(raw)?.kind === kind);
+}
+
+function highWater(numbers: readonly number[]): number {
+  if (numbers.length === 0) return -1;
+  return Math.max(...numbers);
+}
+
+/**
+ * Same 1v1 as the 61-63 rows, plus a guest tap installed before the
+ * socket exists. The host tap stays launchTappedMatch's; this does not
+ * fork that helper.
+ */
+async function launchBothTapped(input: {
+  readonly browser: Parameters<typeof openContextPage>[0];
+  readonly request: Parameters<typeof deleteIdentities>[0];
+  readonly hostPage: Page;
+  readonly guestPage: Page;
+}): Promise<
+  Awaited<ReturnType<typeof launchTappedMatch>> & {
+    readonly guestTap: ISocketTap;
+  }
+> {
+  const guestTap = tapErrorFrames(input.guestPage);
+  await guestTap.install();
+  const launched = await launchTappedMatch(input);
+  return { ...launched, guestTap };
+}
+
+/**
+ * Partition the guest, then commit a host-owned GoProne. Ending a phase
+ * needs both players, so AdvancePhase cannot be the partitioned commit
+ * (finding #88). Returns the guest's held delivery high-water so catch-up
+ * rows can key on deliverySequence, never on the durable log.
+ */
+async function partitionThenCommitGoProne(input: {
+  readonly matchId: string;
+  readonly hostPage: Page;
+  readonly guestPage: Page;
+  readonly hostTap: ISocketTap;
+  readonly guestTap: ISocketTap;
+  readonly hostPlayerId: string;
+}): Promise<{
+  readonly heldReceived: number;
+  readonly heldNumbers: readonly number[];
+  readonly priorHighWater: number;
+}> {
+  const unitId = await hostOwnedUnitId(input.hostPage);
+  await input.guestPage.context().setOffline(true);
+  // In-flight frames can still land as the socket FINs. Snapshot AFTER
+  // that settles so "guest received nothing meanwhile" is about the
+  // commit, not the disconnect itself.
+  await input.guestPage.waitForTimeout(1_000);
+  const heldNumbers = flattenDeliveryNumbers(input.guestTap.received);
+  const heldReceived = input.guestTap.received.length;
+  const priorHighWater = highWater(heldNumbers);
+  const eventsBefore = durableCounts(input.matchId).events;
+
+  input.hostTap.inject({
+    kind: 'Intent',
+    matchId: input.matchId,
+    ts: new Date().toISOString(),
+    playerId: input.hostPlayerId,
+    intentId: `failure-e2e66-${crypto.randomUUID()}`,
+    intent: { kind: 'GoProne', unitId },
+  });
+
+  await expect
+    .poll(() => durableCounts(input.matchId).events, { timeout: 20_000 })
+    .toBeGreaterThan(eventsBefore);
+
+  // Heartbeats may still move the raw frame count if the TCP session
+  // has not FINed; the letter keys on delivery numbers.
+  expect(flattenDeliveryNumbers(input.guestTap.received)).toEqual([
+    ...heldNumbers,
+  ]);
+
+  return { heldReceived, heldNumbers, priorHighWater };
 }
 
 test.describe('GM two-player failure pack', () => {
@@ -343,4 +496,158 @@ test.describe('GM two-player failure pack', () => {
       }
     });
   }
+
+  test('R66a a partitioned player catches up in place, exactly once @failure @E2E-66', async ({
+    browser,
+    request,
+  }) => {
+    test.setTimeout(240_000);
+    const hostPage = await openContextPage(browser);
+    const guestPage = await openContextPage(browser);
+    let identityIds: readonly string[] = [];
+
+    try {
+      const {
+        match,
+        tap,
+        guestTap,
+        hostToken,
+        identityIds: launched,
+      } = await launchBothTapped({
+        browser,
+        request,
+        hostPage,
+        guestPage,
+      });
+      identityIds = launched;
+
+      const { heldReceived, priorHighWater } = await partitionThenCommitGoProne(
+        {
+          matchId: match.matchId,
+          hostPage,
+          guestPage,
+          hostTap: tap,
+          guestTap,
+          hostPlayerId: hostToken.playerId,
+        },
+      );
+
+      await guestPage.context().setOffline(false);
+
+      await expect
+        .poll(
+          () =>
+            flattenDeliveryNumbers(
+              guestTap.received.slice(heldReceived),
+            ).filter((value) => value > priorHighWater).length,
+          { timeout: 30_000 },
+        )
+        .toBeGreaterThan(0);
+
+      // A late ReplayChunk is exactly the path this row excludes, so
+      // wait past the first poll success before asserting absence.
+      await guestPage.waitForTimeout(2_500);
+
+      const catchup = guestTap.received.slice(heldReceived);
+      const newcomers = flattenDeliveryNumbers(catchup).filter(
+        (value) => value > priorHighWater,
+      );
+      expect(newcomers).toEqual([priorHighWater + 1]);
+      expect(rawFramesOfKind(catchup, 'ReplayChunk')).toHaveLength(0);
+      expect(rawFramesOfKind(catchup, 'Event').length).toBeGreaterThan(0);
+    } finally {
+      await deleteIdentities(request, identityIds);
+      await hostPage.context().close();
+      await guestPage.context().close();
+    }
+  });
+
+  test('R66b a reloaded player rebuilds from zero and still applies the missed event once @failure @E2E-66', async ({
+    browser,
+    request,
+  }) => {
+    test.setTimeout(240_000);
+    const hostPage = await openContextPage(browser);
+    const guestPage = await openContextPage(browser);
+    let identityIds: readonly string[] = [];
+
+    try {
+      const {
+        match,
+        tap,
+        guestTap,
+        hostToken,
+        identityIds: launched,
+      } = await launchBothTapped({
+        browser,
+        request,
+        hostPage,
+        guestPage,
+      });
+      identityIds = launched;
+
+      const { heldReceived, priorHighWater } = await partitionThenCommitGoProne(
+        {
+          matchId: match.matchId,
+          hostPage,
+          guestPage,
+          hostTap: tap,
+          guestTap,
+          hostPlayerId: hostToken.playerId,
+        },
+      );
+
+      // Online first so the document can load; reload immediately so
+      // this row takes the from-zero path rather than the in-place
+      // outbox drain R66a already covers.
+      await guestPage.context().setOffline(false);
+      await guestPage.reload({ waitUntil: 'domcontentloaded' });
+      await expect(guestPage.getByTestId('networked-game-surface')).toBeVisible(
+        {
+          timeout: 60_000,
+        },
+      );
+      // MatchResumed only fires if the disconnect paused the match.
+      // A partition that leaves the server socket up (the case that lets
+      // the unilateral GoProne commit) still replays from zero on reload,
+      // and ReplayEnd is that path's measured resume signal.
+      await expect
+        .poll(
+          () => {
+            const slice = guestTap.received.slice(heldReceived);
+            return (
+              rawFramesOfKind(slice, 'MatchResumed').length +
+              rawFramesOfKind(slice, 'ReplayEnd').length
+            );
+          },
+          { timeout: 60_000 },
+        )
+        .toBeGreaterThan(0);
+      await guestPage.waitForTimeout(2_500);
+
+      const catchup = guestTap.received.slice(heldReceived);
+      const replayRaw = rawFramesOfKind(catchup, 'ReplayChunk');
+      expect(
+        replayRaw.length,
+        'reload path entered no replay code',
+      ).toBeGreaterThan(0);
+
+      // Through the flattener on ReplayChunk frames only, so a counter
+      // that read the singular field again would see an empty list.
+      const replayNumbers = flattenDeliveryNumbers(replayRaw);
+      expect(new Set(replayNumbers).size).toBe(replayNumbers.length);
+      expect(replayNumbers).toEqual(replayNumbers.map((_, index) => index));
+      expect(replayNumbers[0]).toBe(0);
+
+      const missed = priorHighWater + 1;
+      expect(
+        flattenDeliveryNumbers(rawFramesOfKind(catchup, 'Event')),
+      ).toContain(missed);
+      expect(replayNumbers).toContain(missed);
+    } finally {
+      await deleteIdentities(request, identityIds);
+      await hostPage.context().close();
+      await guestPage.context().close();
+    }
+  });
 });
