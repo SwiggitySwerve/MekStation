@@ -216,14 +216,19 @@ describe('journal branch pin', () => {
     expect(reopened.pragma('foreign_key_check')).toStrictEqual([]);
   });
 
-  it('the migration ledger pins the head version explicitly', () => {
-    // Without this the ledger row is `MIGRATIONS.length - 1`, which
-    // self-adjusts: dropping a migration changes both sides equally and
-    // nothing goes red. This pin is what makes that mutant killable.
+  it('the migration ledger records this migration explicitly', () => {
+    // This asserted `MAX(version) === 26` while 26 WAS the head. It is no
+    // longer - migration 27 lifts the checkpoint table's matching branch
+    // pin - so the row now pins that THIS migration is applied, by its own
+    // version rather than by a head that later migrations keep moving.
+    // The explicit head pin (finding #54's point: both head constants
+    // self-adjust, so neither can kill a dropped migration) lives with the
+    // newest migration, currently
+    // `SQLiteService.replayCheckpointsBranch.migration.test`.
     const db = database();
-    const head = db
-      .prepare('SELECT MAX(version) AS version FROM migrations')
-      .get() as { version: number };
-    expect(head.version).toBe(26);
+    const applied = db
+      .prepare('SELECT name FROM migrations WHERE version = 26')
+      .get() as { name: string } | undefined;
+    expect(applied?.name).toBe('event_journal_branch_pin_lift');
   });
 });

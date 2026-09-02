@@ -48,10 +48,11 @@ const STREAM = { streamType: 'campaign', streamId: 'campaign-alpha' };
 
 const PIPELINE: IBranchCheckpointPipeline = {
   stream: STREAM,
-  // Storage still pins branch_id to 'root' (migration 10, mirroring the
-  // journal's own root pin) - writes therefore only ever happen on root
-  // today. The reader is asked about other branches below, which is what
-  // proves the branch is part of the key.
+  // The default pipeline writes on root, as every caller does today.
+  // Migration 27 lifted the storage pin, so a non-root branch is now
+  // WRITABLE too - the reader is asked about other branches below, and
+  // the write side is proven separately, because until the lift the two
+  // could not be told apart.
   branchId: 'root',
   projectorId: 'checkpoint.authoritative',
   projectorVersion: 1,
@@ -227,6 +228,40 @@ describe('branch checkpoint cache', () => {
     expect((rows(reopened)[0] as { checkpoint_id: string }).checkpoint_id).toBe(
       written.checkpointId,
     );
+  });
+
+  it('keys the WRITE by branch: two branches cache the same head apart', () => {
+    const db = database();
+    const onRoot = cache(db).record(
+      PIPELINE,
+      4,
+      CHAIN[4] as string,
+      stateAt(4),
+      RECORDED_AT,
+    );
+
+    // Same stream, same head, same reducer and pipeline - a DIFFERENT
+    // branch, holding different history and therefore different state.
+    const onCandidate = cache(db).record(
+      { ...PIPELINE, branchId: 'candidate-1' },
+      4,
+      CHAIN[4] as string,
+      stateAt(3),
+      RECORDED_AT,
+    );
+
+    // Both stored, under distinct derived ids. Drop the branch from
+    // the key and these two collide: the second record finds the slot
+    // occupied by a state digest that is not its own and rethrows the
+    // duplicate. This row could not exist before migration 27 - with
+    // only 'root' storable there was no second branch to collide with,
+    // which is exactly why the write-key mutant was equivalent then.
+    expect(onRoot.kind).toBe('recorded');
+    expect(onCandidate.kind).toBe('recorded');
+    expect(onCandidate.checkpointId).not.toBe(onRoot.checkpointId);
+    expect(
+      (rows(db) as { branch_id: string }[]).map((row) => row.branch_id).sort(),
+    ).toStrictEqual(['candidate-1', 'root']);
   });
 
   it('re-recording the identical claim is a no-op, not a second row', () => {
