@@ -74,7 +74,10 @@ export const StoredEventSchema = z
     ...ResolvedJournalPrincipalSchema.shape,
     streamType: DurableIdSchema,
     streamId: DurableIdSchema,
-    branchId: z.literal(ROOT_EVENT_BRANCH_ID),
+    // Same widening as expectedBranchId: a stored row may name a
+    // correction candidate. The root literal was the old pin; the
+    // branch rule, not this schema, decides which id is effective.
+    branchId: DurableIdSchema,
     streamRevision: PositiveSafeIntegerSchema,
     commitPosition: PositiveSafeIntegerSchema,
     commandId: DurableIdSchema,
@@ -92,7 +95,7 @@ export const CommandReceiptSchema = z
     canonicalizerVersion: PositiveSafeIntegerSchema,
     streamType: DurableIdSchema,
     streamId: DurableIdSchema,
-    branchId: z.literal(ROOT_EVENT_BRANCH_ID),
+    branchId: DurableIdSchema,
     eventCount: PositiveSafeIntegerSchema,
     firstStreamRevision: PositiveSafeIntegerSchema,
     lastStreamRevision: PositiveSafeIntegerSchema,
