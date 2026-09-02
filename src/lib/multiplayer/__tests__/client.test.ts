@@ -878,6 +878,79 @@ describe('multiplayer client', () => {
     ]);
   });
 
+  it('applies a live Event then a from-zero ReplayChunk overlap once, and still admits the next delivery', () => {
+    // Finding #90's measured reload order: live Event deliverySequence=5
+    // (player wire: event.sequence is undefined), then ReplayStart,
+    // ReplayChunk deliverySequences [0..5], ReplayEnd. The overlap must
+    // not double-apply. A genuinely new delivery after the replay is
+    // the control that admission did not wedge shut.
+    const f = makeMockSocketFactory();
+    const applied: { id?: string }[] = [];
+
+    const client = connect(
+      'ws://localhost/x',
+      'm1',
+      { playerId: 'p1', token: 'tok' },
+      { socketFactory: f.factory, reconnect: false },
+    );
+    client.on('event', (e) => applied.push(e as { id?: string }));
+
+    f.lastSocket().fireOpen();
+    finishReplay(f);
+    applied.length = 0;
+
+    f.lastSocket().inject({
+      kind: 'Event',
+      matchId: 'm1',
+      ts: new Date().toISOString(),
+      deliverySequence: 5,
+      event: { id: 'missed', type: 'movement_locked' },
+    });
+    const afterLive = applied.map((event) => event.id);
+    expect(afterLive).toEqual(['missed']);
+
+    f.lastSocket().inject({
+      kind: 'ReplayStart',
+      matchId: 'm1',
+      ts: new Date().toISOString(),
+      fromSeq: 0,
+      totalEvents: 6,
+    });
+    f.lastSocket().inject({
+      kind: 'ReplayChunk',
+      matchId: 'm1',
+      ts: new Date().toISOString(),
+      deliverySequences: [0, 1, 2, 3, 4, 5],
+      events: [
+        { id: 'r0', type: 'phase_changed' },
+        { id: 'r1', type: 'phase_changed' },
+        { id: 'r2', type: 'phase_changed' },
+        { id: 'r3', type: 'phase_changed' },
+        { id: 'r4', type: 'phase_changed' },
+        { id: 'missed', type: 'movement_locked' },
+      ],
+    });
+    f.lastSocket().inject({
+      kind: 'ReplayEnd',
+      matchId: 'm1',
+      ts: new Date().toISOString(),
+      toSeq: 5,
+    });
+    expect(applied.map((event) => event.id)).toEqual(afterLive);
+
+    f.lastSocket().inject({
+      kind: 'Event',
+      matchId: 'm1',
+      ts: new Date().toISOString(),
+      deliverySequence: 6,
+      event: { id: 'after-replay', type: 'movement_locked' },
+    });
+    expect(applied.map((event) => event.id)).toEqual([
+      'missed',
+      'after-replay',
+    ]);
+  });
+
   it('applies a sequence-free redelivery once by identity', () => {
     const f = makeMockSocketFactory();
     const events: { id?: string }[] = [];
