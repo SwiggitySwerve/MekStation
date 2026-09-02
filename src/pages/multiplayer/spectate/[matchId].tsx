@@ -221,6 +221,7 @@ export default function SpectatePage(): React.ReactElement {
         onClearIntentError={session.clearIntentError}
         onSendGameIntent={session.sendGameIntent}
         clientLifecycle={session.clientLifecycle}
+        projectionSignal={session.projectionSignal}
         spectator
       />
     </div>

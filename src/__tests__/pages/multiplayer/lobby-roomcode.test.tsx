@@ -165,6 +165,7 @@ function baseSession(status: 'lobby' | 'active'): IUseMultiplayerSessionResult {
     clearIntentError: jest.fn(),
     pausedInfo: null,
     closedInfo: null,
+    projectionSignal: null,
   };
 }
 
@@ -249,6 +250,27 @@ describe('Multiplayer lobby page — surface swap on status', () => {
     for (const link of links) {
       expect(link).not.toHaveAttribute('href', '/gameplay');
     }
+  });
+
+  it("carries the client's rebuild signal all the way to the match controls", async () => {
+    // The link the seam exists for (umbrella 19.2, 3b-i): the page is
+    // what joins the client binding's `projectionSignal` to the surface
+    // that gates on it. A row that stopped at the surface would pass
+    // with this prop dropped from the page - which is exactly how the
+    // reserved posture stayed unreachable for as long as it did.
+    mockSession = {
+      ...baseSession('active'),
+      projectionSignal: 'PROJECTION_REBUILDING',
+    };
+    render(<LobbyPage />);
+    await unlockVault();
+
+    const concede = await screen.findByTestId('concede-button');
+    expect(concede).toBeDisabled();
+    const description = document.getElementById(
+      concede.getAttribute('aria-describedby') as string,
+    );
+    expect(description?.textContent).toContain('rebuilt from authoritative');
   });
 
   it('renders multiplayer unavailable when the socket closes with a terminal server binding error', async () => {

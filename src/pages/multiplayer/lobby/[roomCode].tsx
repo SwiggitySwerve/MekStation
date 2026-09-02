@@ -390,6 +390,7 @@ export default function LobbyPage(): React.ReactElement {
           onClearIntentError={session.clearIntentError}
           onSendGameIntent={session.sendGameIntent}
           clientLifecycle={session.clientLifecycle}
+          projectionSignal={session.projectionSignal}
         />
       )}
     </div>

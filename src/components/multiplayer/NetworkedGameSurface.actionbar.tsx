@@ -19,6 +19,7 @@
 import React from 'react';
 
 import type { IGameSession } from '@/types/gameplay/GameSessionInterfaces';
+import type { CommandAvailability } from '@/types/gameplay/TacticalCommandInterfaces';
 
 import {
   concedeIntent,
@@ -34,6 +35,11 @@ import { type ITurnOwnership } from '@/lib/multiplayer/turnOwnership';
 import { GamePhase, GameSide } from '@/types/gameplay/GameSessionInterfaces';
 import { MovementType } from '@/types/gameplay/HexGridInterfaces';
 
+import {
+  buildActionControlContext,
+  NETWORKED_ACTION_REFUSAL_ID,
+  type IActionControlContext,
+} from './NetworkedGameSurface.actionContext';
 import { WaitingForOpponentIndicator } from './NetworkedGameSurface.overlays';
 
 // =============================================================================
@@ -53,6 +59,13 @@ export interface INetworkedActionBarProps {
   readonly targetUnitId: string | null;
   /** Whether the match is paused (disables every control while true). */
   readonly paused: boolean;
+  /**
+   * The tactical lifecycle's answer to "may this client command at all"
+   * (umbrella 19.2). Refused in the postures where the client knows its
+   * board is not the server's - rebuild, rewound branch, blocked
+   * stream, and the three convergence states. Absent means ungated.
+   */
+  readonly commandGate?: CommandAvailability;
   /** Forward an intent to the server. The bar never resolves locally. */
   readonly onSendIntent: (
     intent: ReturnType<typeof declareMovementIntent>,
@@ -86,6 +99,7 @@ export function NetworkedActionBar({
   selectedHex,
   targetUnitId,
   paused,
+  commandGate,
   onSendIntent,
 }: INetworkedActionBarProps): React.ReactElement {
   const phase = session.currentState.phase;
@@ -105,7 +119,10 @@ export function NetworkedActionBar({
     ownership.localSide !== null && ownership.activeSide === null;
   const canAdvancePhase =
     !paused && (ownership.canAct || canAdvanceServerPhase);
-  const controlContext: IActionControlContext = {
+  // One construction point for both halves of the gate: what a control
+  // renders as, and what it is allowed to send. Splitting them is how a
+  // surface ends up with a disabled button and a live dispatch path.
+  const controlContext = buildActionControlContext({
     session,
     enabled,
     canAdvancePhase,
@@ -114,7 +131,8 @@ export function NetworkedActionBar({
     selectedHex,
     targetUnitId,
     onSendIntent,
-  };
+    commandGate,
+  });
 
   // When the gate is closed and the match is live, show the passive
   // indicator instead of dead controls (D4).
@@ -130,11 +148,15 @@ export function NetworkedActionBar({
       >
         <WaitingForOpponentIndicator />
         <ConcedeControl
-          enabled={!paused}
+          enabled={!paused && !controlContext.refused}
+          describedBy={controlContext.describedBy}
           onConcede={() =>
-            onSendIntent(concedeIntent(authorPeerId, { side: localSide }))
+            controlContext.onSendIntent(
+              concedeIntent(authorPeerId, { side: localSide }),
+            )
           }
         />
+        <GateRefusalDescription context={controlContext} />
       </div>
     );
   }
@@ -159,24 +181,40 @@ export function NetworkedActionBar({
       <CommonPhaseControls context={controlContext} />
 
       <ConcedeControl
-        enabled={!paused}
+        enabled={!paused && !controlContext.refused}
+        describedBy={controlContext.describedBy}
         onConcede={() =>
-          onSendIntent(concedeIntent(authorPeerId, { side: localSide }))
+          controlContext.onSendIntent(
+            concedeIntent(authorPeerId, { side: localSide }),
+          )
         }
       />
+
+      <GateRefusalDescription context={controlContext} />
     </div>
   );
 }
 
-interface IActionControlContext {
-  readonly session: IGameSession;
-  readonly enabled: boolean;
-  readonly canAdvancePhase: boolean;
-  readonly authorPeerId: string;
-  readonly selectedUnitId: string | null;
-  readonly selectedHex: { readonly q: number; readonly r: number } | null;
-  readonly targetUnitId: string | null;
-  readonly onSendIntent: INetworkedActionBarProps['onSendIntent'];
+/**
+ * The refusal reason, in the DOM exactly when a control points at it.
+ *
+ * One element for the whole bar rather than one per control: every
+ * gated control is refused for the SAME reason by construction (the
+ * gate answers per surface, not per command), and a single node is what
+ * makes `aria-describedby` resolvable instead of dangling - the mistake
+ * finding #42 caught on the single-player dock.
+ */
+function GateRefusalDescription({
+  context,
+}: {
+  readonly context: IActionControlContext;
+}): React.ReactElement | null {
+  if (context.refusalReason === null) return null;
+  return (
+    <span id={NETWORKED_ACTION_REFUSAL_ID} className="sr-only">
+      {context.refusalReason}
+    </span>
+  );
 }
 
 function MovementPhaseControls({
@@ -190,6 +228,7 @@ function MovementPhaseControls({
       <button
         type="button"
         data-testid="declare-movement-button"
+        aria-describedby={context.describedBy}
         className={controlClass(
           enabled && selectedUnitId !== null && selectedHex !== null,
         )}
@@ -201,6 +240,7 @@ function MovementPhaseControls({
       <button
         type="button"
         data-testid="stand-button"
+        aria-describedby={context.describedBy}
         className={controlClass(enabled && selectedUnitId !== null)}
         disabled={!enabled || !selectedUnitId}
         onClick={() => sendStandIntent(context)}
@@ -224,6 +264,7 @@ function WeaponAttackPhaseControls({
     <button
       type="button"
       data-testid="declare-attack-button"
+      aria-describedby={context.describedBy}
       className={controlClass(canDeclare)}
       disabled={!canDeclare}
       onClick={() => sendWeaponAttackIntent(context)}
@@ -246,6 +287,7 @@ function PhysicalAttackPhaseControls({
     <button
       type="button"
       data-testid="declare-physical-button"
+      aria-describedby={context.describedBy}
       className={controlClass(canDeclare)}
       disabled={!canDeclare}
       onClick={() => sendPhysicalAttackIntent(context)}
@@ -265,6 +307,7 @@ function CommonPhaseControls({
       <button
         type="button"
         data-testid="advance-phase-button"
+        aria-describedby={context.describedBy}
         className={controlClass(context.canAdvancePhase)}
         disabled={!context.canAdvancePhase}
         onClick={() =>
@@ -277,6 +320,7 @@ function CommonPhaseControls({
       <button
         type="button"
         data-testid="eject-button"
+        aria-describedby={context.describedBy}
         className={controlClass(
           context.enabled && context.selectedUnitId !== null,
         )}
@@ -345,22 +389,29 @@ function sendEjectIntent(context: IActionControlContext): void {
 
 interface IConcedeControlProps {
   readonly enabled: boolean;
+  readonly describedBy?: string | undefined;
   readonly onConcede: () => void;
 }
 
 /**
  * The concede control is available in every phase regardless of the
  * turn-ownership gate — a player may always forfeit. It is still gated
- * by `paused` (D6) so a concede cannot race a reconnect.
+ * by `paused` (D6) so a concede cannot race a reconnect, and by the
+ * lifecycle gate (19.2): a forfeit is an engine-mutating command like
+ * any other, and the server refuses it while history is rebuilding.
+ * Leaving it live would offer the player the one irreversible action on
+ * a board the client already knows is not the server's.
  */
 function ConcedeControl({
   enabled,
+  describedBy,
   onConcede,
 }: IConcedeControlProps): React.ReactElement {
   return (
     <button
       type="button"
       data-testid="concede-button"
+      aria-describedby={describedBy}
       className={
         enabled
           ? 'rounded border border-rose-700 px-3 py-1.5 text-sm font-medium text-rose-300 hover:bg-rose-900/30'

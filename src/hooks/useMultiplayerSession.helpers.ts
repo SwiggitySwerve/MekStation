@@ -6,6 +6,7 @@ import type {
   IConnectOptions,
   IMultiplayerClient,
 } from '@/lib/multiplayer/client';
+import type { TacticalLifecycleProjectionSignal } from '@/lib/multiplayer/tacticalLifecycleState';
 import type {
   IIntentPayload,
   ILobbyUpdated,
@@ -14,6 +15,7 @@ import type {
 } from '@/types/multiplayer/Protocol';
 
 import { connect } from '@/lib/multiplayer/client';
+import { projectionSignalFromServerError } from '@/lib/multiplayer/tacticalLifecycleState';
 import { useGameplayStore } from '@/stores/useGameplayStore';
 import { RECONNECT_GRACE_MS } from '@/types/multiplayer/Protocol';
 
@@ -40,6 +42,9 @@ interface MultiplayerSetters {
   readonly setLobbyState: Dispatch<SetStateAction<ILobbyUpdated | null>>;
   readonly setMirrorLog: Dispatch<SetStateAction<readonly unknown[]>>;
   readonly setPausedInfo: Dispatch<SetStateAction<IMatchPausedInfo | null>>;
+  readonly setProjectionSignal: Dispatch<
+    SetStateAction<TacticalLifecycleProjectionSignal | null>
+  >;
   readonly setStatus: Dispatch<SetStateAction<MultiplayerStatus>>;
 }
 
@@ -67,6 +72,7 @@ export function resetMultiplayerConnectionState(
     | 'setIntentError'
     | 'setMirrorLog'
     | 'setPausedInfo'
+    | 'setProjectionSignal'
     | 'setStatus'
   >,
 ): void {
@@ -75,6 +81,9 @@ export function resetMultiplayerConnectionState(
   setters.setIntentError(null);
   setters.setPausedInfo(null);
   setters.setClosedInfo(null);
+  // A reconnect re-reads history from the server; whatever rebuild the
+  // previous connection was told about is not this connection's fact.
+  setters.setProjectionSignal(null);
   setters.setClientLifecycle({
     blockedBySequenceCollision: false,
     pendingIntentCount: 0,
@@ -158,6 +167,13 @@ function handleMultiplayerEvent(
     return;
   }
 
+  // A projected authoritative match event carries no envelope `kind` -
+  // the client emits the inner event, not the `Event` wrapper. That
+  // frame is the server saying "here is history again", which is
+  // exactly what a rebuild refusal was waiting for. Campaign and
+  // host-migration envelopes reach this line too and deliberately do
+  // NOT clear it: they say nothing about this match's tactical stream.
+  if (kind === null) context.setProjectionSignal(null);
   appendGameEvent(raw, context);
 }
 
@@ -231,7 +247,7 @@ function appendGameEvent(raw: unknown, context: EventHandlerContext): void {
 function createClientErrorHandler(
   setters: Pick<
     MultiplayerSetters,
-    'setError' | 'setIntentError' | 'setStatus'
+    'setError' | 'setIntentError' | 'setProjectionSignal' | 'setStatus'
   >,
 ): (payload: unknown) => void {
   return (payload) => handleClientError(payload, setters);
@@ -241,7 +257,7 @@ function handleClientError(
   payload: unknown,
   setters: Pick<
     MultiplayerSetters,
-    'setError' | 'setIntentError' | 'setStatus'
+    'setError' | 'setIntentError' | 'setProjectionSignal' | 'setStatus'
   >,
 ): void {
   const err = payload as { code?: string; reason?: string } | Error;
@@ -251,6 +267,13 @@ function handleClientError(
     return;
   }
   if (typeof err.code === 'string' && err.code !== 'CLIENT_ERROR') {
+    // A projection refusal is BOTH a refusal and a posture. The toast
+    // keeps its channel (a player asked for something and did not get
+    // it); the signal is what makes the surface stop offering more.
+    // Only a rebuild refusal lights it - an unrelated refusal arriving
+    // mid-rebuild must not clear a posture it knows nothing about.
+    const signal = projectionSignalFromServerError(err.code);
+    if (signal !== null) setters.setProjectionSignal(signal);
     setters.setIntentError({ code: err.code, reason: err.reason });
     return;
   }
