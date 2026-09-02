@@ -53,13 +53,19 @@ import { INVALID_CAMPAIGN_INTENT } from '@/types/campaign/CampaignSync';
 import { parseCampaignIntent } from '@/types/campaign/campaignSyncSchemas';
 import { nowIso } from '@/types/multiplayer/Protocol';
 
-import type { ICampaignBatchCommitHost } from './campaignHostBatchCommit';
+import type {
+  CampaignCommitOutcome,
+  ICampaignBatchCommitHost,
+} from './campaignHostBatchCommit';
 import type {
   CampaignIntentValidation,
   UnsequencedCampaignEvent,
 } from './CampaignMatchHostIntent';
 
-import { commitCampaignEventBatch } from './campaignHostBatchCommit';
+import {
+  commitCampaignEventBatch,
+  resultOfCommit,
+} from './campaignHostBatchCommit';
 import {
   CampaignIntentIdentityConflictError,
   campaignIntentIdentityDeps,
@@ -70,6 +76,7 @@ import {
 import { validateCampaignIntent } from './CampaignMatchHostIntent';
 import {
   commitCampaignOutcomeConsequences,
+  outcomeInboxHostFrom,
   type CampaignOutcomeConsequenceResult,
 } from './CampaignMatchHostOutcomeInbox';
 
@@ -272,25 +279,21 @@ export class CampaignMatchHost {
   commitCombatOutcomeConsequences = async (
     consequences: ICoopBattleConsequences,
   ): Promise<CampaignOutcomeConsequenceResult> =>
-    commitCampaignOutcomeConsequences(
-      {
-        campaignId: this.campaignId,
-        hostPlayerId: this.hostPlayerId,
-        eventStore: this.eventStore,
-        getState: () => this.state,
-        setState: (state) => {
-          this.state = state;
-        },
-        nextSequence: () => this.log.nextSequence(),
-        reconstructState: () => this.log.reconstructState(),
-        markDivergence: () => {
-          this.divergenceDetected = true;
-        },
-        publish: (event) => {
-          this.subscribers.forEach((subscriber) => subscriber(event));
-        },
-      },
-      consequences,
+    // FINDING #77: this is a writer door like any other. It never goes
+    // through `commitEvents`, so the lock-held assert cannot see it, and
+    // it reads `nextSequence()` across an await exactly like the doors
+    // the serializer already covers. It is reachable only on an
+    // inbox-capable store, which is why no row caught it until one was
+    // written against a real journal store.
+    this.runExclusive(() =>
+      commitCampaignOutcomeConsequences(
+        outcomeInboxHostFrom(
+          this.batchHost(),
+          this.hostPlayerId,
+          this.eventStore,
+        ),
+        consequences,
+      ),
     );
 
   /** The campaign event log facade — for the sync-session replay path. */
@@ -377,11 +380,11 @@ export class CampaignMatchHost {
     // Steps 4-6 — apply, append, broadcast through the single commit
     // path so host-driven and guest-driven events share one ordering.
     try {
-      const committed = await this.commitEvents(
+      const outcome = await this.commitEvents(
         validation.events,
         intentCommandIdentity(this.campaignId, intent),
       );
-      return { ok: true, events: committed };
+      return resultOfCommit(outcome);
     } catch (error) {
       if (error instanceof CampaignIntentIdentityConflictError) {
         return campaignIntentIdentityDeps(
@@ -432,11 +435,11 @@ export class CampaignMatchHost {
       return validation;
     }
     try {
-      const committed = await this.commitEvents(
+      const outcome = await this.commitEvents(
         validation.events,
         intentCommandIdentity(this.campaignId, intent),
       );
-      return { ok: true, events: committed };
+      return resultOfCommit(outcome);
     } catch (error) {
       if (error instanceof CampaignIntentIdentityConflictError) {
         return campaignIntentIdentityDeps(
@@ -488,7 +491,7 @@ export class CampaignMatchHost {
       };
     }
     void reason;
-    const committed = await this.commitEvents([
+    const outcome = await this.commitEvents([
       {
         type: 'SalvageAllocated',
         campaignId: this.campaignId,
@@ -502,7 +505,7 @@ export class CampaignMatchHost {
         },
       },
     ]);
-    return { ok: true, events: committed };
+    return resultOfCommit(outcome);
   };
 
   /**
@@ -553,7 +556,7 @@ export class CampaignMatchHost {
       };
     }
     void intentTag;
-    const committed = await this.commitEvents([
+    const outcome = await this.commitEvents([
       {
         type: 'RosterUnitChanged',
         campaignId: this.campaignId,
@@ -564,7 +567,7 @@ export class CampaignMatchHost {
         payload: { change, unit },
       },
     ]);
-    return { ok: true, events: committed };
+    return resultOfCommit(outcome);
   };
 
   /**
@@ -576,12 +579,10 @@ export class CampaignMatchHost {
     intentId: string,
     rejection: Extract<CampaignIntentResult, { ok: false }>,
   ): ICampaignIntentError {
-    return {
-      ok: false,
-      code: rejection.code,
-      reason: rejection.reason,
-      intentId,
-    };
+    // Spread rather than rebuild: the stale-head arm carries a head and
+    // a recovery action, and picking fields by hand is how they got
+    // dropped on the way to the wire in the first place.
+    return { ...rejection, intentId };
   }
 
   // ---------------------------------------------------------------------------
@@ -610,12 +611,20 @@ export class CampaignMatchHost {
   _commitEventsForTests = async (
     events: readonly UnsequencedCampaignEvent[],
   ): Promise<readonly ICampaignEvent[]> =>
-    this.runExclusive(() => this.commitEvents(events));
+    this.runExclusive(async () => {
+      const outcome = await this.commitEvents(events);
+      if (outcome.kind === 'lost-race') {
+        // A test seam has no caller to hand a refusal to, and an empty
+        // array would read as "committed nothing".
+        throw new Error('commit lost a race to another writer');
+      }
+      return outcome.events;
+    });
 
   private async commitEvents(
     events: readonly UnsequencedCampaignEvent[],
     identity?: ICampaignIntentCommandIdentity,
-  ): Promise<readonly ICampaignEvent[]> {
+  ): Promise<CampaignCommitOutcome> {
     // The enforcement of the single-writer claim the collision throw
     // below already asserts. Reaching a commit without the lock means a
     // door was added that forgot to take it, and the symptom would
@@ -657,7 +666,7 @@ export class CampaignMatchHost {
       this.publish(event);
       committed.push(event);
     }
-    return committed;
+    return { kind: 'committed', events: committed };
   }
 
   /**

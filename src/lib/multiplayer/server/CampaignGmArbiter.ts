@@ -36,10 +36,8 @@
  * @spec openspec/changes/add-coop-campaign-play/design.md (D3, D4, D5, D6, D7)
  */
 
-import type {
-  CampaignIntentResult,
-  ICampaignAuthoritativeState,
-} from '@/types/campaign/CampaignSync';
+import type { ICampaignAuthoritativeState } from '@/types/campaign/CampaignSync';
+import type { ICampaignMechanicalRejection } from '@/types/campaign/CampaignSync';
 import type {
   GmArbitrationMode,
   GmDecision,
@@ -47,7 +45,10 @@ import type {
   IGuestProposal,
 } from '@/types/campaign/CoopCampaign';
 
-import { INVALID_CAMPAIGN_INTENT } from '@/types/campaign/CampaignSync';
+import {
+  CAMPAIGN_STALE_HEAD,
+  INVALID_CAMPAIGN_INTENT,
+} from '@/types/campaign/CampaignSync';
 import { toProposalVetoError } from '@/types/campaign/CoopCampaign';
 import { parseGuestProposal } from '@/types/campaign/coopCampaignSchemas';
 
@@ -363,14 +364,20 @@ export class CampaignGmArbiter {
   private runMechanicalCheck(
     proposal: IGuestProposal,
     state: ICampaignAuthoritativeState,
-  ): Extract<CampaignIntentResult, { ok: false }> | { ok: true } {
+  ): ICampaignMechanicalRejection | { ok: true } {
     const validation = validateCampaignIntent(
       proposal.intent,
       state,
       proposal.proposingPlayerId,
       proposal.ts,
     );
-    return validation.ok ? { ok: true } : validation;
+    if (validation.ok) return { ok: true };
+    // `validateCampaignIntent` touches no head, so it cannot produce a
+    // stale-head refusal. Narrowing here keeps that fact local instead of
+    // making every caller handle a case that cannot occur.
+    return validation.code === CAMPAIGN_STALE_HEAD
+      ? { ok: false, code: INVALID_CAMPAIGN_INTENT, reason: 'malformed-intent' }
+      : validation;
   }
 
   /**
@@ -392,6 +399,16 @@ export class CampaignGmArbiter {
         status: 'committed',
         proposalId: proposal.proposalId,
         events: result.events,
+      };
+    }
+    if (result.code === CAMPAIGN_STALE_HEAD) {
+      // The proposal was fine; the head moved under it. Calling that a
+      // mechanical rejection would send the GM off to fix something that
+      // needs no fixing.
+      return {
+        status: 'stale-head',
+        proposalId: proposal.proposalId,
+        refusal: result,
       };
     }
     return {

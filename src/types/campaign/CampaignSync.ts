@@ -562,22 +562,102 @@ export type CampaignIntentRejectionReason =
  * The result of validating one campaign intent against authoritative
  * state. Per design D8.
  */
+export const CAMPAIGN_STALE_HEAD = 'CAMPAIGN_STALE_HEAD' as const;
+
+/**
+ * A refusal that IS about the intent - it was malformed, unaffordable,
+ * out of turn, or from the wrong seat.
+ *
+ * Named so a path that only ever validates can keep saying exactly that.
+ * Validation touches no head, so it cannot produce a stale-head refusal,
+ * and widening its signature to the whole union would invite a caller to
+ * handle a case that cannot occur.
+ */
+export interface ICampaignMechanicalRejection {
+  readonly ok: false;
+  readonly code: typeof INVALID_CAMPAIGN_INTENT;
+  readonly reason: CampaignIntentRejectionReason;
+}
+
+/** Where the authority's head actually is. */
+export interface ICampaignHeadRef {
+  readonly branchId: string;
+  readonly revision: number;
+}
+
+/**
+ * A refusal caused by the head moving, not by anything wrong with the
+ * intent.
+ *
+ * Its own code, and that is the point: the intent was valid, nobody did
+ * anything wrong, and the answer is to catch up and send it again. A
+ * caller that could not tell this from `INVALID_CAMPAIGN_INTENT` would
+ * either retry something that can never succeed or abandon something
+ * that would.
+ */
+export interface ICampaignStaleHeadRefusal {
+  readonly ok: false;
+  readonly code: typeof CAMPAIGN_STALE_HEAD;
+  /** Another writer committed between this command's replay and its append. */
+  readonly reason: 'lost-race';
+  /** Read from the FAILED append, so it is the head AFTER the race. */
+  readonly head: ICampaignHeadRef;
+  readonly recoveryAction: 'resync-to-active-head';
+  /** Always empty: a lost race never got compared field by field. */
+  readonly conflictingFields: readonly string[];
+}
+
+/**
+ * Build the stale-head refusal.
+ *
+ * Beside the type rather than in the host: two surfaces now answer a
+ * lost race - the socket host and the GM arbiter - and a second
+ * hand-built copy is how the head or the action goes missing on one of
+ * them.
+ */
+export function campaignStaleHeadRefusal(
+  head: ICampaignHeadRef,
+): ICampaignStaleHeadRefusal {
+  return {
+    ok: false,
+    code: CAMPAIGN_STALE_HEAD,
+    reason: 'lost-race',
+    head,
+    recoveryAction: 'resync-to-active-head',
+    conflictingFields: [],
+  };
+}
+
 export type CampaignIntentResult =
   | { readonly ok: true; readonly events: readonly ICampaignEvent[] }
   | {
       readonly ok: false;
       readonly code: typeof INVALID_CAMPAIGN_INTENT;
       readonly reason: CampaignIntentRejectionReason;
-    };
+    }
+  // ADDITIVE: every pre-existing refusal still carries
+  // `INVALID_CAMPAIGN_INTENT`, so no existing construction site changes
+  // shape. Only a lost race builds this one.
+  | ICampaignStaleHeadRefusal;
 
 /**
  * A typed error envelope for a rejected campaign intent — the campaign
  * analogue of the combat `Error` server message. Carries the originating
  * `intentId` so the guest can correlate the rejection.
  */
-export interface ICampaignIntentError {
-  readonly ok: false;
-  readonly code: typeof INVALID_CAMPAIGN_INTENT;
-  readonly reason: CampaignIntentRejectionReason;
-  readonly intentId: string;
-}
+export type ICampaignIntentError =
+  | {
+      readonly ok: false;
+      readonly code: typeof INVALID_CAMPAIGN_INTENT;
+      readonly reason: CampaignIntentRejectionReason;
+      readonly intentId: string;
+    }
+  /**
+   * The stale-head refusal, correlated to its intent.
+   *
+   * The head and the action ride ALL the way to the wire. Dropping them
+   * here would still compile - both arms carry `reason` - and the client
+   * would be told only that something went wrong, which is the shape
+   * this whole task exists to replace.
+   */
+  | (ICampaignStaleHeadRefusal & { readonly intentId: string });

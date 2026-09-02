@@ -28,17 +28,18 @@
 
 import type { ICampaignEventStore } from '@/lib/campaign/sync/ICampaignEventStore';
 import type {
+  CampaignIntentResult,
   ICampaignAuthoritativeState,
   ICampaignEvent,
+  ICampaignHeadRef,
 } from '@/types/campaign/CampaignSync';
 
 import { applyCampaignEvent } from '@/lib/campaign/sync/applyCampaignEvent';
 import { freezeCampaignEvent } from '@/lib/campaign/sync/campaignEventScope';
-import {
-  CampaignEventSequenceCollisionError,
-  CampaignProjectionDivergenceError,
-} from '@/lib/campaign/sync/ICampaignEventStore';
+import { CampaignProjectionDivergenceError } from '@/lib/campaign/sync/ICampaignEventStore';
 import { computeCampaignStateDigest } from '@/lib/campaign/sync/JournalCampaignEventStore';
+import { ROOT_EVENT_BRANCH_ID } from '@/lib/events/journal/EventJournalContract';
+import { campaignStaleHeadRefusal } from '@/types/campaign/CampaignSync';
 
 import type { ICampaignIntentCommandIdentity } from './campaignIntentIdentity';
 import type { UnsequencedCampaignEvent } from './CampaignMatchHostIntent';
@@ -52,6 +53,29 @@ import { CampaignIntentIdentityConflictError } from './campaignIntentIdentity';
  * exactly these five things, and naming them is what stops a later edit
  * from quietly reaching for a sixth.
  */
+/**
+ * What one commit did. A lost race is a RESULT, not an exception: the
+ * throw it replaces escaped the host's doors and reached the socket
+ * dispatch catch, which closed a connection over something recoverable.
+ */
+export type CampaignCommitOutcome =
+  | { readonly kind: 'committed'; readonly events: readonly ICampaignEvent[] }
+  | { readonly kind: 'lost-race'; readonly head: ICampaignHeadRef };
+
+/**
+ * One commit outcome as one door's answer.
+ *
+ * Folded because all four committing doors said exactly this, and four
+ * copies is four chances for one of them to drop the head.
+ */
+export function resultOfCommit(
+  outcome: CampaignCommitOutcome,
+): CampaignIntentResult {
+  return outcome.kind === 'lost-race'
+    ? campaignStaleHeadRefusal(outcome.head)
+    : { ok: true, events: outcome.events };
+}
+
 export interface ICampaignBatchCommitHost {
   readonly campaignId: string;
   /** The sequence the next event should carry. */
@@ -75,7 +99,7 @@ export async function commitCampaignEventBatch(
   events: readonly UnsequencedCampaignEvent[],
   appendCommandBatch: NonNullable<ICampaignEventStore['appendCommandBatch']>,
   identity?: ICampaignIntentCommandIdentity,
-): Promise<readonly ICampaignEvent[]> {
+): Promise<CampaignCommitOutcome> {
   const base = await host.nextSequence();
   const sequenced = events.map((unsequenced, index) =>
     freezeCampaignEvent({
@@ -102,17 +126,34 @@ export async function commitCampaignEventBatch(
     expectedPostStateDigest: expectedDigest,
   });
   if (result.kind === 'duplicate-command') {
-    return result.receipt.events;
+    return { kind: 'committed', events: result.receipt.events };
   }
   if (result.kind === 'command-identity-conflict') {
     throw new CampaignIntentIdentityConflictError(result.commandId);
   }
   if (result.kind !== 'committed') {
-    // Single-writer host: with the write lock held, this host cannot race
-    // itself, so reaching here means ANOTHER writer moved the head - a
-    // second host instance, or the HTTP command route. Answering that
-    // with a typed refusal instead of a throw is its own seam.
-    throw new CampaignEventSequenceCollisionError(host.campaignId, base);
+    // With the write lock held this host cannot race ITSELF, so reaching
+    // here means another writer moved the head - a second host instance,
+    // or the HTTP command route. That is not fatal and not the client's
+    // fault, so it is answered rather than thrown: the throw used to
+    // escape `applyHostIntent` and close the GM's socket.
+    //
+    // The revision comes from the FAILED append, never from the read
+    // above: something committed in between, so the replayed number is
+    // already history. For a campaign stream the next sequence and the
+    // revision are the same value (sequence N lives at revision N + 1),
+    // so this needs the right source, not a conversion.
+    return {
+      kind: 'lost-race',
+      head: {
+        branchId: ROOT_EVENT_BRANCH_ID,
+        // Re-read, not carried. `base` is the pre-race number and is
+        // already history; and the store contract's conflict arm is
+        // structural, carrying no sequence of its own, so asking the
+        // stream again is the only answer that holds on every adapter.
+        revision: await host.nextSequence(),
+      },
+    };
   }
   // Verify-after-apply: re-apply the COMMITTED batch to the live
   // projection and compare digests. Inequality means the projection can
@@ -137,5 +178,5 @@ export async function commitCampaignEventBatch(
   for (const event of sequenced) {
     host.publish(event);
   }
-  return sequenced;
+  return { kind: 'committed', events: sequenced };
 }
