@@ -11,9 +11,10 @@
  */
 
 import '@testing-library/jest-dom';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import React, { useRef } from 'react';
 
+import type { GmCombatRewindCommitResult } from '@/lib/multiplayer/server/history/GmCombatRewindCommit';
 import type { GmCombatRewindPreviewResult } from '@/lib/multiplayer/server/history/GmCombatRewindPreview';
 
 import {
@@ -39,6 +40,23 @@ const REFUSED: GmCombatRewindPreviewResult = {
     "A campaign has taken delivery of outcome 'outcome-9'; raw operator text",
 };
 
+const COMMITTED: GmCombatRewindCommitResult = {
+  kind: 'committed',
+  matchId: 'match-1',
+  activatedBranchId: 'candidate-1',
+  priorBranchId: 'root',
+  effectiveGeneration: 2,
+  invalidations: [
+    { artifactKind: 'checkpoint', artifactId: 'cp-1', sourceRevision: 5 },
+  ],
+};
+
+const COMMIT_REFUSED: GmCombatRewindCommitResult = {
+  kind: 'refused',
+  reason: 'campaign-receipt-delivered',
+  detail: "A campaign has taken delivery of outcome 'outcome-9'",
+};
+
 /**
  * A harness with a real opener and a real fallback target, because both
  * halves of the focus-restoration contract need a document to restore in.
@@ -52,7 +70,7 @@ function Harness({
   open = true,
 }: {
   readonly outcome: GmRewindPreviewOutcome | null;
-  readonly onConfirmRewind?: () => void;
+  readonly onConfirmRewind?: () => Promise<GmCombatRewindCommitResult>;
   readonly onCancel?: () => void;
   readonly onRetryPreview?: () => void;
   readonly openerPresent?: boolean;
@@ -239,12 +257,56 @@ describe('GmRewindPreviewDialog — the confirm arm', () => {
     );
   });
 
-  it('renders confirm enabled and dispatches once a producer exists', () => {
-    const onConfirmRewind = jest.fn();
+  it('confirm calls the producer once and phrases committed', async () => {
+    const onConfirmRewind = jest.fn().mockResolvedValue(COMMITTED);
+    render(<Harness outcome={PREVIEW} onConfirmRewind={onConfirmRewind} />);
+    fireEvent.click(screen.getByTestId('gm-rewind-confirm'));
+    expect(onConfirmRewind).toHaveBeenCalledTimes(1);
+    await waitFor(() =>
+      expect(screen.getByTestId('gm-rewind-committed')).toHaveTextContent(
+        /committed/i,
+      ),
+    );
+    expect(screen.getByTestId('gm-rewind-committed')).toHaveTextContent(
+      /generation advanced to 2/i,
+    );
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+    expect(screen.getByTestId('gm-rewind-confirm')).toBeDisabled();
+  });
+
+  it('a campaign-receipt-delivered refusal keeps the dialog open with its phrasing', async () => {
+    const onConfirmRewind = jest.fn().mockResolvedValue(COMMIT_REFUSED);
+    render(<Harness outcome={PREVIEW} onConfirmRewind={onConfirmRewind} />);
+    fireEvent.click(screen.getByTestId('gm-rewind-confirm'));
+    await waitFor(() =>
+      expect(screen.getByTestId('gm-rewind-refusal')).toHaveTextContent(
+        /campaign has already taken delivery/i,
+      ),
+    );
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+    expect(screen.queryByTestId('gm-rewind-committed')).not.toBeInTheDocument();
+  });
+
+  it('confirm is disabled while in flight so a second click does not call the producer again', async () => {
+    let resolveCommit: (value: GmCombatRewindCommitResult) => void =
+      () => undefined;
+    const onConfirmRewind = jest.fn(
+      () =>
+        new Promise<GmCombatRewindCommitResult>((resolve) => {
+          resolveCommit = resolve;
+        }),
+    );
     render(<Harness outcome={PREVIEW} onConfirmRewind={onConfirmRewind} />);
     const confirm = screen.getByTestId('gm-rewind-confirm');
-    expect(confirm).toBeEnabled();
+    fireEvent.click(confirm);
     fireEvent.click(confirm);
     expect(onConfirmRewind).toHaveBeenCalledTimes(1);
+    await waitFor(() => expect(confirm).toBeDisabled());
+    fireEvent.click(confirm);
+    expect(onConfirmRewind).toHaveBeenCalledTimes(1);
+    resolveCommit(COMMITTED);
+    await waitFor(() =>
+      expect(screen.getByTestId('gm-rewind-committed')).toBeInTheDocument(),
+    );
   });
 });

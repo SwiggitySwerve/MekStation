@@ -24,6 +24,7 @@ import type { IUseMultiplayerSessionResult } from '@/hooks/useMultiplayerSession
 import type { ILobbyUpdated } from '@/types/multiplayer/Protocol';
 
 import { ROOT_EVENT_BRANCH_ID } from '@/lib/events/journal/EventJournalContract';
+import { commitGmCombatRewind } from '@/lib/multiplayer/client/commitGmCombatRewind';
 import { previewGmCombatRewind } from '@/lib/multiplayer/client/previewGmCombatRewind';
 import { buildMirrorSession } from '@/lib/multiplayer/mirrorMatchSession';
 import { MATCH_BASELINE_FIRST_GENERATION } from '@/lib/multiplayer/server/matchAuthorityBaseline';
@@ -70,10 +71,19 @@ jest.mock('@/lib/multiplayer/client/previewGmCombatRewind', () => ({
   previewGmCombatRewind: jest.fn(),
 }));
 
+jest.mock('@/lib/multiplayer/client/commitGmCombatRewind', () => ({
+  commitGmCombatRewind: jest.fn(),
+  GmCombatRewindTransportError: class GmCombatRewindTransportError extends Error {
+    override readonly name = 'GmCombatRewindTransportError';
+  },
+}));
+
 import LobbyPage from '@/pages/multiplayer/lobby/[roomCode]';
 
 const mockedPreviewGmCombatRewind =
   previewGmCombatRewind as jest.MockedFunction<typeof previewGmCombatRewind>;
+const mockedCommitGmCombatRewind =
+  commitGmCombatRewind as jest.MockedFunction<typeof commitGmCombatRewind>;
 
 // =============================================================================
 // Fixtures
@@ -233,6 +243,7 @@ describe('Multiplayer lobby page — surface swap on status', () => {
     window.sessionStorage.clear();
     mockedPreviewGmCombatRewind.mockReset();
     mockedPreviewGmCombatRewind.mockResolvedValue({ kind: 'unavailable' });
+    mockedCommitGmCombatRewind.mockReset();
   });
 
   it('renders the lobby panel while status is lobby', async () => {
@@ -473,6 +484,45 @@ describe('Multiplayer lobby page — surface swap on status', () => {
       expectedDigest: '',
       expectedGeneration: MATCH_BASELINE_FIRST_GENERATION,
     });
+  });
+
+  it('confirm adapter receives the same body the preview adapter was asked with', async () => {
+    mockedPreviewGmCombatRewind.mockResolvedValue({
+      kind: 'preview',
+      matchId: 'match-1',
+      targetRevision: 3,
+      priorHead: { branchId: 'root', revision: 7, effectiveGeneration: 1 },
+      changedViewerIds: ['pid_host'],
+      entries: [],
+    });
+    mockedCommitGmCombatRewind.mockResolvedValue({
+      kind: 'committed',
+      matchId: 'match-1',
+      activatedBranchId: 'candidate-1',
+      priorBranchId: 'root',
+      effectiveGeneration: 2,
+      invalidations: [],
+    });
+    mockSession = baseSession('active');
+    render(<LobbyPage />);
+    await unlockVault();
+
+    const previewBtn = await screen.findByTestId(
+      'networked-gm-rewind-preview-btn',
+    );
+    await act(async () => {
+      fireEvent.click(previewBtn);
+    });
+    const confirm = await screen.findByTestId('gm-rewind-confirm');
+    await waitFor(() => expect(confirm).toBeEnabled());
+    await act(async () => {
+      fireEvent.click(confirm);
+    });
+
+    expect(mockedCommitGmCombatRewind).toHaveBeenCalledTimes(1);
+    expect(mockedCommitGmCombatRewind.mock.calls[0]?.[0]).toStrictEqual(
+      mockedPreviewGmCombatRewind.mock.calls[0]?.[0],
+    );
   });
 
   it('no longer references the single-player gameplay placeholder copy', () => {

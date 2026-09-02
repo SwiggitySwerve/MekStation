@@ -17,9 +17,10 @@
  */
 
 import '@testing-library/jest-dom';
-import { render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
+import type { GmCombatRewindCommitResult } from '@/lib/multiplayer/server/history/GmCombatRewindCommit';
 import type { IMatchSeat } from '@/types/multiplayer/Lobby';
 
 import { buildMirrorSession } from '@/lib/multiplayer/mirrorMatchSession';
@@ -121,6 +122,23 @@ const PREVIEW_ANSWER = {
   ],
 } as const;
 
+const COMMITTED_ANSWER: GmCombatRewindCommitResult = {
+  kind: 'committed',
+  matchId: 'match-rewind-fixture',
+  activatedBranchId: 'candidate-1',
+  priorBranchId: 'root',
+  effectiveGeneration: 2,
+  invalidations: [
+    { artifactKind: 'checkpoint', artifactId: 'cp-1', sourceRevision: 5 },
+  ],
+};
+
+const COMMIT_REFUSED: GmCombatRewindCommitResult = {
+  kind: 'refused',
+  reason: 'campaign-receipt-delivered',
+  detail: 'raw operator text',
+};
+
 describe('NetworkedGameSurface — who gets the rewind control', () => {
   it('offers it to the host GM', () => {
     renderSurface();
@@ -134,6 +152,18 @@ describe('NetworkedGameSurface — who gets the rewind control', () => {
     expect(
       screen.queryByTestId('networked-gm-rewind-preview-btn'),
     ).not.toBeInTheDocument();
+  });
+
+  it('offers confirm to nobody else at the table', () => {
+    renderSurface({
+      playerId: 'pid_guest',
+      onPreviewRewind: jest.fn().mockResolvedValue(PREVIEW_ANSWER),
+      onConfirmRewind: jest.fn().mockResolvedValue(COMMITTED_ANSWER),
+    });
+    expect(
+      screen.queryByTestId('networked-gm-rewind-preview-btn'),
+    ).not.toBeInTheDocument();
+    expect(screen.queryByTestId('gm-rewind-confirm')).not.toBeInTheDocument();
   });
 
   it('offers it to no spectator, even one holding the host id', () => {
@@ -236,9 +266,9 @@ describe('NetworkedGameSurface — the preview flow', () => {
     expect(document.body.textContent).not.toContain('socket hang up');
   });
 
-  it('closes once the GM confirms, so the question is not asked twice', async () => {
+  it('confirm calls the producer once and phrases committed', async () => {
     const onPreviewRewind = jest.fn().mockResolvedValue(PREVIEW_ANSWER);
-    const onConfirmRewind = jest.fn();
+    const onConfirmRewind = jest.fn().mockResolvedValue(COMMITTED_ANSWER);
     renderSurface({ onPreviewRewind, onConfirmRewind });
     await userEvent.click(
       screen.getByTestId('networked-gm-rewind-preview-btn'),
@@ -248,7 +278,61 @@ describe('NetworkedGameSurface — the preview flow', () => {
     );
     await userEvent.click(screen.getByTestId('gm-rewind-confirm'));
     expect(onConfirmRewind).toHaveBeenCalledTimes(1);
-    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    await waitFor(() =>
+      expect(screen.getByTestId('gm-rewind-committed')).toHaveTextContent(
+        /committed/i,
+      ),
+    );
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+  });
+
+  it('a campaign-receipt-delivered refusal keeps the dialog open with its phrasing', async () => {
+    const onPreviewRewind = jest.fn().mockResolvedValue(PREVIEW_ANSWER);
+    const onConfirmRewind = jest.fn().mockResolvedValue(COMMIT_REFUSED);
+    renderSurface({ onPreviewRewind, onConfirmRewind });
+    await userEvent.click(
+      screen.getByTestId('networked-gm-rewind-preview-btn'),
+    );
+    await waitFor(() =>
+      expect(screen.getByTestId('gm-rewind-confirm')).toBeEnabled(),
+    );
+    await userEvent.click(screen.getByTestId('gm-rewind-confirm'));
+    await waitFor(() =>
+      expect(screen.getByTestId('gm-rewind-refusal')).toHaveTextContent(
+        /campaign has already taken delivery/i,
+      ),
+    );
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+    expect(document.body.textContent).not.toContain('raw operator text');
+    expect(screen.queryByTestId('gm-rewind-committed')).not.toBeInTheDocument();
+  });
+
+  it('confirm is disabled while in flight so a second click does not call the producer again', async () => {
+    let resolveCommit: (value: GmCombatRewindCommitResult) => void =
+      () => undefined;
+    const onPreviewRewind = jest.fn().mockResolvedValue(PREVIEW_ANSWER);
+    const onConfirmRewind = jest.fn(
+      () =>
+        new Promise<GmCombatRewindCommitResult>((resolve) => {
+          resolveCommit = resolve;
+        }),
+    );
+    renderSurface({ onPreviewRewind, onConfirmRewind });
+    await userEvent.click(
+      screen.getByTestId('networked-gm-rewind-preview-btn'),
+    );
+    await waitFor(() =>
+      expect(screen.getByTestId('gm-rewind-confirm')).toBeEnabled(),
+    );
+    const confirm = screen.getByTestId('gm-rewind-confirm');
+    fireEvent.click(confirm);
+    fireEvent.click(confirm);
+    expect(onConfirmRewind).toHaveBeenCalledTimes(1);
+    await waitFor(() => expect(confirm).toBeDisabled());
+    resolveCommit(COMMITTED_ANSWER);
+    await waitFor(() =>
+      expect(screen.getByTestId('gm-rewind-committed')).toBeInTheDocument(),
+    );
   });
 
   it('closes on cancel and applies nothing', async () => {
