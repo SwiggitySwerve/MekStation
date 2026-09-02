@@ -73,6 +73,12 @@ function buildRunPlan({ group, runId, repoRoot }) {
     // sitting in no group is how a merged change broke the share story
     // without anything going red (finding #33).
     'two-device-pack': ['e2e/campaign-two-device-drive.spec.ts'],
+    // 22.2's failure catalog (E2E-61..70). Deliberately NOT in
+    // RESPAWNING_GROUPS: no row here kills the server, and the
+    // relaunching wrapper is the exception, never the default. The qc
+    // suite pins this group's server command to `node server.js` so a
+    // future respawning row has to say so out loud.
+    failure: ['e2e/gm-two-player-failure.pack.spec.ts'],
   };
   const specs = SPEC_BY_GROUP[group];
   if (!specs) {
