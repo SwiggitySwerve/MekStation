@@ -290,9 +290,12 @@ export async function submitCampaignCreation({
     if (!campaignId) return;
 
     await store.getState().saveCampaign();
+    // No option any more: a 409 is never retried, so opting out of a
+    // retry that cannot happen would be describing behaviour the store
+    // no longer has.
     const persistResult = await useCampaignPersistenceStore
       .getState()
-      .saveCampaign({ retryOnConflict: false });
+      .saveCampaign();
 
     if (persistResult.status !== 'saved') {
       const message =

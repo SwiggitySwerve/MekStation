@@ -4,8 +4,11 @@
  * Surfaces campaign persistence metadata on the dashboard — the
  * last-saved timestamp, the save-state, and a manual "Save now" action
  * that issues an immediate `PUT` bypassing the auto-save debounce
- * (tasks 5.2). When the save-state is `conflict` it offers keep-local /
- * take-server resolution.
+ * (tasks 5.2). When the save-state is `conflict` it reports the server's
+ * typed refusal and offers the one safe recovery: take the server's
+ * version. Keep-local was removed with umbrella 8.3 - it re-sent the
+ * same stale envelope at the server's version, which is an overwrite of
+ * whoever committed in between, not a resolution.
  *
  * It also surfaces a LAUNCH conflict (umbrella 10.3): a launch the
  * authority refused because the campaign moved under this client. It
@@ -65,9 +68,7 @@ export function CampaignSaveStatusCard(): React.ReactElement {
   const metadata = useCampaignPersistenceStore((s) => s.metadata);
   const errorMessage = useCampaignPersistenceStore((s) => s.errorMessage);
   const saveCampaign = useCampaignPersistenceStore((s) => s.saveCampaign);
-  const resolveConflictKeepLocal = useCampaignPersistenceStore(
-    (s) => s.resolveConflictKeepLocal,
-  );
+  const saveConflict = useCampaignPersistenceStore((s) => s.saveConflict);
   const resolveConflictTakeServer = useCampaignPersistenceStore(
     (s) => s.resolveConflictTakeServer,
   );
@@ -79,10 +80,6 @@ export function CampaignSaveStatusCard(): React.ReactElement {
   const handleSaveNow = useCallback(() => {
     void saveCampaign();
   }, [saveCampaign]);
-
-  const handleKeepLocal = useCallback(() => {
-    void resolveConflictKeepLocal();
-  }, [resolveConflictKeepLocal]);
 
   const handleTakeServer = useCallback(() => {
     void resolveConflictTakeServer();
@@ -129,9 +126,18 @@ export function CampaignSaveStatusCard(): React.ReactElement {
             </p>
           )}
           {saveState === 'conflict' && (
-            <p className="mt-1 text-sm text-red-400">
-              This campaign was changed on another device. Choose which version
-              to keep.
+            <p
+              className="mt-1 text-sm text-red-400"
+              data-testid="campaign-save-conflict"
+            >
+              Save refused
+              {saveConflict ? ` (${saveConflict.reason})` : ''}: this campaign
+              was changed elsewhere
+              {saveConflict
+                ? ` and is now at version ${saveConflict.currentVersion}`
+                : ''}
+              . Your unsaved edits cannot be applied on top of it - take the
+              server version and redo them.
             </p>
           )}
           {launchConflict && (
@@ -156,22 +162,16 @@ export function CampaignSaveStatusCard(): React.ReactElement {
             </Button>
           )}
           {saveState === 'conflict' ? (
-            <>
-              <Button
-                variant="secondary"
-                onClick={handleTakeServer}
-                data-testid="campaign-conflict-take-server-btn"
-              >
-                Use Server Version
-              </Button>
-              <Button
-                variant="primary"
-                onClick={handleKeepLocal}
-                data-testid="campaign-conflict-keep-local-btn"
-              >
-                Keep My Version
-              </Button>
-            </>
+            // One action, because there is one honest move. The removed
+            // "Keep My Version" re-sent the stale envelope at the server's
+            // version, which silently discarded the other writer's change.
+            <Button
+              variant="primary"
+              onClick={handleTakeServer}
+              data-testid="campaign-conflict-take-server-btn"
+            >
+              Use Server Version
+            </Button>
           ) : (
             <Button
               variant="primary"

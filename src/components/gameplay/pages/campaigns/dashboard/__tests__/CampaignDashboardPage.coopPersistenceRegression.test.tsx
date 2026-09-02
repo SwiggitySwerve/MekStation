@@ -227,7 +227,11 @@ describe('CampaignDashboardPage co-op persistence regression', () => {
     expect(server.getRecord().body.currentDate).toBe(
       '3025-07-09T00:00:00.000Z',
     );
-    expect(server.putBodies.map((body) => body.baseVersion)).toEqual([1, 2]);
+    // ONE attempt. This asserted [1, 2] - the second entry being the same
+    // stale envelope re-sent at the version the server had just reported,
+    // which the server would have ACCEPTED, overwriting the external
+    // change `bumpExternalVersion` had just made. Umbrella 8.3 removed it.
+    expect(server.putBodies.map((body) => body.baseVersion)).toEqual([1]);
     expect(
       delivered.some((event) => event.type === 'CampaignDayAdvanced'),
     ).toBe(false);
