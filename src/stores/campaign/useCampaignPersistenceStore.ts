@@ -53,12 +53,11 @@ export type CampaignSaveState =
  * this client.
  *
  * Kept alongside the save conflict rather than folded into it: both
- * are "your view is stale", but their recoveries differ. A save
- * conflict offers keep-local / take-server, because two versions of
- * the campaign exist and somebody must choose. A launch refusal has
- * only one honest move - resync to the head the authority holds -
- * and offering "keep my version" for a branch head would invite the
- * user to insist on a world that no longer exists.
+ * are "your view is stale", and since umbrella 8.3 both have the SAME
+ * single honest move - resync to what the authority holds. They stay
+ * separate because they carry different evidence: a launch refusal
+ * names a branch head, a save refusal names a write version, and the
+ * two are different numbers.
  */
 export interface ICampaignLaunchConflict {
   /** STALE_BRANCH / STALE_REVISION / STALE_GENERATION / ownership. */
@@ -72,22 +71,35 @@ export interface ICampaignLaunchConflict {
   readonly resyncAction: string;
 }
 
+/**
+ * The server's typed refusal of a stale whole-envelope write (umbrella
+ * 8.3/8.4).
+ *
+ * `currentVersion` is the campaigns-table write counter, NOT a journal
+ * revision, and is named so on purpose: the two are different numbers and
+ * conflating them is the trap the launch-head route documents.
+ */
+export interface ICampaignSaveConflict {
+  readonly reason: string;
+  readonly recoveryAction: string;
+  readonly conflictingFields: readonly string[];
+  readonly currentVersion: number;
+}
+
 export type CampaignPersistenceSaveResult =
   | {
       readonly status: 'saved';
       readonly record: SerializedCampaign;
-      readonly retriedConflict: boolean;
     }
-  | { readonly status: 'skipped'; readonly retriedConflict: false }
+  | { readonly status: 'skipped' }
   | {
       readonly status: 'conflict';
       readonly conflictServerRecord: SerializedCampaign;
-      readonly retriedConflict: boolean;
+      readonly conflict: ICampaignSaveConflict | null;
     }
   | {
       readonly status: 'error';
       readonly errorMessage: string;
-      readonly retriedConflict: boolean;
     };
 
 interface CampaignPersistenceState {
@@ -98,6 +110,8 @@ interface CampaignPersistenceState {
   baseVersion: number;
   errorMessage: string | null;
   conflictServerRecord: SerializedCampaign | null;
+  /** The server's typed reason and safe recovery for the last 409. */
+  saveConflict: ICampaignSaveConflict | null;
   /** Set when a launch was refused for a stale head or ownership. */
   launchConflict: ICampaignLaunchConflict | null;
   lastPersistedCampaign: ICampaign | null;
@@ -113,11 +127,18 @@ interface CampaignPersistenceState {
 interface CampaignPersistenceActions {
   loadCampaign: (id: string) => Promise<boolean>;
   adoptLegacyCampaign: () => Promise<boolean>;
-  saveCampaign: (options?: {
-    retryOnConflict?: boolean;
-  }) => Promise<CampaignPersistenceSaveResult>;
+  saveCampaign: () => Promise<CampaignPersistenceSaveResult>;
   markDirty: () => void;
-  resolveConflictKeepLocal: () => Promise<CampaignPersistenceSaveResult>;
+  /**
+   * Adopt the server's record and continue from there.
+   *
+   * The ONLY resolution. `resolveConflictKeepLocal` used to sit beside
+   * this one and re-`PUT` the same stale envelope at the server's
+   * version, which is an overwrite of whatever the other writer had just
+   * committed - the strategy umbrella 8.3 removes. A stale envelope
+   * cannot be rebased, because nothing on this boundary knows which
+   * fields it changed.
+   */
   resolveConflictTakeServer: () => Promise<boolean>;
   clearError: () => void;
   reportLaunchConflict: (conflict: ICampaignLaunchConflict) => void;
@@ -149,6 +170,7 @@ const INITIAL_STATE: CampaignPersistenceState = {
   baseVersion: 0,
   errorMessage: null,
   conflictServerRecord: null,
+  saveConflict: null,
   launchConflict: null,
   lastPersistedCampaign: null,
   legacyUnadopted: false,
@@ -387,7 +409,49 @@ type SaveAttemptResult =
   | {
       readonly status: 'conflict';
       readonly conflictServerRecord: SerializedCampaign;
+      readonly conflict: ICampaignSaveConflict | null;
     };
+
+/**
+ * Read a 409 body in the typed shape, falling back to the bare record.
+ *
+ * The fallback is not politeness to old servers: a client that threw on
+ * an unexpected 409 body would turn a conflict it can safely recover from
+ * into an error state, and the recovery - take the server's record - is
+ * available either way. Absent typed fields surface as a null `conflict`
+ * so the UI can say "changed elsewhere" without inventing a reason.
+ */
+function readConflictBody(body: unknown): {
+  readonly record: SerializedCampaign;
+  readonly conflict: ICampaignSaveConflict | null;
+} {
+  const typed = body as Partial<{
+    kind: string;
+    reason: string;
+    recoveryAction: string;
+    conflictingFields: readonly string[];
+    currentVersion: number;
+    current: SerializedCampaign;
+  }>;
+  if (
+    typed?.kind === 'conflict' &&
+    typeof typed.reason === 'string' &&
+    typeof typed.recoveryAction === 'string' &&
+    typeof typed.currentVersion === 'number' &&
+    typed.current !== undefined
+  ) {
+    return {
+      record: typed.current,
+      conflict: {
+        reason: typed.reason,
+        recoveryAction: typed.recoveryAction,
+        conflictingFields: typed.conflictingFields ?? [],
+        currentVersion: typed.currentVersion,
+      },
+    };
+  }
+  return { record: body as SerializedCampaign, conflict: null };
+}
 
 async function putLiveCampaign(
   campaignId: string,
@@ -412,10 +476,8 @@ async function putLiveCampaign(
     },
   );
   if (response.status === 409) {
-    return {
-      status: 'conflict',
-      conflictServerRecord: (await response.json()) as SerializedCampaign,
-    };
+    const { record, conflict } = readConflictBody(await response.json());
+    return { status: 'conflict', conflictServerRecord: record, conflict };
   }
   if (!response.ok) {
     throw new Error(`server responded ${response.status}`);
@@ -488,11 +550,8 @@ function performSave(
   set: PersistenceSet,
   get: PersistenceGet,
   baseVersionOverride?: number,
-  retryOnConflict = true,
 ): Promise<CampaignPersistenceSaveResult> {
-  const queued = saveChain.then(() =>
-    runSave(set, get, baseVersionOverride, retryOnConflict),
-  );
+  const queued = saveChain.then(() => runSave(set, get, baseVersionOverride));
   // The chain must survive a rejected write, or one failure would wedge every
   // later save. `runSave` resolves its own errors, so this is belt-and-braces.
   saveChain = queued.catch(() => undefined);
@@ -503,7 +562,6 @@ async function runSave(
   set: PersistenceSet,
   get: PersistenceGet,
   baseVersionOverride?: number,
-  retryOnConflict = true,
 ): Promise<CampaignPersistenceSaveResult> {
   // A load in flight is about to replace `baseVersion`; writing before it
   // lands sends a version the server has already superseded.
@@ -513,7 +571,7 @@ async function runSave(
   const campaign = readLiveCampaign();
   const campaignId = get().campaignId ?? campaign?.id ?? null;
   if (!campaign || !campaignId) {
-    return { status: 'skipped', retriedConflict: false };
+    return { status: 'skipped' };
   }
   // An unadopted legacy copy must not become a server source by
   // accident. A plain create stamps a journal-native cutover marker, which
@@ -521,62 +579,49 @@ async function runSave(
   // none of it - and the D10 rollback law reads that same field. Adoption
   // is an explicit act through `adoptLegacyCampaign`.
   if (get().legacyUnadopted) {
-    return { status: 'skipped', retriedConflict: false };
+    return { status: 'skipped' };
   }
   const baseVersion = baseVersionOverride ?? get().baseVersion;
   set({ saveState: 'saving', errorMessage: null });
-  let retriedConflict = false;
 
   try {
-    const first = await putLiveCampaign(campaignId, baseVersion);
-    if (first.status === 'saved') {
-      applySavedRecord(set, first.record);
-      return {
-        status: 'saved',
-        record: first.record,
-        retriedConflict: false,
-      };
+    const attempt = await putLiveCampaign(campaignId, baseVersion);
+    if (attempt.status === 'saved') {
+      applySavedRecord(set, attempt.record);
+      return { status: 'saved', record: attempt.record };
     }
 
+    // ONE ATTEMPT. This used to re-`PUT` the same envelope at the version
+    // the server just reported, which is not a retry - the compare-and-swap
+    // was never the thing that failed. It was an overwrite: the second
+    // write carried a body derived from a state that predates whatever the
+    // other writer committed, and the server accepts it precisely because
+    // the version now matches. Nothing detected the loss, so the only
+    // symptom was version churn (the "409 retry-noise" residual).
+    //
+    // A whole envelope cannot be rebased here either, because this
+    // boundary does not know which fields it changed - which is why the
+    // server answers `base-state-unavailable` and the one safe move is to
+    // take its record.
     set({
       saveState: 'conflict',
-      conflictServerRecord: first.conflictServerRecord,
+      conflictServerRecord: attempt.conflictServerRecord,
+      saveConflict: attempt.conflict,
     });
-    if (retryOnConflict) {
-      retriedConflict = true;
-      const retry = await putLiveCampaign(
-        campaignId,
-        first.conflictServerRecord.version,
+    if (isCoopCampaign(campaign)) {
+      // On the FIRST refusal now. Waiting for a second attempt used to
+      // hide this; there is no second attempt, and a co-op client left
+      // rendering a change the server refused is telling its player
+      // something untrue.
+      rollbackCoopCampaign(set, get, attempt.conflictServerRecord);
+      notifyUnresolvedCoopSave(
+        'Co-op campaign save was refused: the campaign changed elsewhere. Your local change was rolled back.',
       );
-      if (retry.status === 'saved') {
-        applySavedRecord(set, retry.record);
-        return {
-          status: 'saved',
-          record: retry.record,
-          retriedConflict: true,
-        };
-      }
-      set({
-        saveState: 'conflict',
-        conflictServerRecord: retry.conflictServerRecord,
-      });
-      if (isCoopCampaign(campaign)) {
-        rollbackCoopCampaign(set, get, retry.conflictServerRecord);
-        notifyUnresolvedCoopSave(
-          'Co-op campaign save failed after a version refresh. Your local change was rolled back.',
-        );
-      }
-      return {
-        status: 'conflict',
-        conflictServerRecord: retry.conflictServerRecord,
-        retriedConflict: true,
-      };
     }
-
     return {
       status: 'conflict',
-      conflictServerRecord: first.conflictServerRecord,
-      retriedConflict: false,
+      conflictServerRecord: attempt.conflictServerRecord,
+      conflict: attempt.conflict,
     };
   } catch (error) {
     const message = error instanceof Error ? error.message : 'save failed';
@@ -587,7 +632,7 @@ async function runSave(
       );
     }
     set({ saveState: 'error', errorMessage: message });
-    return { status: 'error', errorMessage: message, retriedConflict };
+    return { status: 'error', errorMessage: message };
   }
 }
 
@@ -743,9 +788,9 @@ function saveCampaignAction(
   set: PersistenceSet,
   get: PersistenceGet,
 ): CampaignPersistenceStore['saveCampaign'] {
-  return async (options?: { retryOnConflict?: boolean }) => {
+  return async () => {
     clearAutoSaveTimer();
-    return performSave(set, get, undefined, options?.retryOnConflict ?? true);
+    return performSave(set, get);
   };
 }
 
@@ -774,19 +819,6 @@ function markDirtyAction(
   };
 }
 
-function resolveConflictKeepLocalAction(
-  set: PersistenceSet,
-  get: PersistenceGet,
-): CampaignPersistenceStore['resolveConflictKeepLocal'] {
-  return async () => {
-    const serverRecord = get().conflictServerRecord;
-    if (!serverRecord) {
-      return { status: 'skipped', retriedConflict: false };
-    }
-    return performSave(set, get, serverRecord.version, false);
-  };
-}
-
 function resolveConflictTakeServerAction(
   set: PersistenceSet,
   get: PersistenceGet,
@@ -809,6 +841,7 @@ function resolveConflictTakeServerAction(
       saveState: 'saved',
       baseVersion: migrated.version,
       conflictServerRecord: null,
+      saveConflict: null,
       errorMessage: null,
       metadata: metadataFrom(migrated),
       lastPersistedCampaign: serverCampaign,
@@ -826,7 +859,6 @@ function createPersistenceActions(
     saveCampaign: saveCampaignAction(set, get),
     markDirty: markDirtyAction(set, get),
     adoptLegacyCampaign: () => runAdoptLegacyCampaign(set, get),
-    resolveConflictKeepLocal: resolveConflictKeepLocalAction(set, get),
     resolveConflictTakeServer: resolveConflictTakeServerAction(set, get),
     clearError: () => {
       set((state) =>

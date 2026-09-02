@@ -189,7 +189,7 @@ describe('Campaign persistence API', () => {
     expect((res._getJSONData() as SerializedCampaign).version).toBe(2);
   });
 
-  it('rejects a stale write with 409 and returns the current record', async () => {
+  it('rejects a stale write with a typed 409 naming the one safe recovery', async () => {
     // Two clean writes take the stored version to 2.
     await callId('PUT', 'camp-5', {
       envelope: envelopeFor('camp-5'),
@@ -205,11 +205,21 @@ describe('Campaign persistence API', () => {
       baseVersion: 1,
     });
     expect(res._getStatusCode()).toBe(409);
-    const current = res._getJSONData() as SerializedCampaign;
-    expect(current.version).toBe(2);
+    // The body used to be the bare record, which told a client THAT it
+    // lost but nothing about what to do - and what clients did was resend
+    // the same envelope at the version they had just been handed.
+    expect(res._getJSONData()).toMatchObject({
+      kind: 'conflict',
+      reason: 'base-state-unavailable',
+      recoveryAction: 'resync-to-active-head',
+      conflictingFields: [],
+      currentVersion: 2,
+    });
+    const body = res._getJSONData() as { current: SerializedCampaign };
+    expect(body.current.version).toBe(2);
   });
 
-  it('two clients editing the same campaign — second PUT conflicts, recovers via keep-local', async () => {
+  it('two clients editing the same campaign - the server would accept an overwrite, so the client must not offer one', async () => {
     // Client A and B both load at version 1.
     await callId('PUT', 'camp-6', {
       envelope: envelopeFor('camp-6'),
@@ -226,14 +236,25 @@ describe('Campaign persistence API', () => {
       baseVersion: 1,
     });
     expect(conflict.res._getStatusCode()).toBe(409);
-    const serverRecord = conflict.res._getJSONData() as SerializedCampaign;
-    // keep-local recovery — re-PUT using the server's version as base.
-    const recovered = await callId('PUT', 'camp-6', {
+    const refusal = conflict.res._getJSONData() as {
+      recoveryAction: string;
+      current: SerializedCampaign;
+    };
+    expect(refusal.recoveryAction).toBe('resync-to-active-head');
+
+    // THE DANGER, kept as an executable statement rather than a comment:
+    // resending B's stale envelope at the version it was just handed
+    // SUCCEEDS. The compare-and-swap cannot see that the body predates
+    // A's change, so nothing on this boundary refuses it. That is why the
+    // retry had to be removed on the CLIENT (umbrella 8.3) - this row
+    // exists so a future reader does not reintroduce it believing the
+    // server guards against it.
+    const overwrite = await callId('PUT', 'camp-6', {
       envelope: envelopeFor('camp-6'),
-      baseVersion: serverRecord.version,
+      baseVersion: refusal.current.version,
     });
-    expect(recovered.res._getStatusCode()).toBe(200);
-    expect((recovered.res._getJSONData() as SerializedCampaign).version).toBe(
+    expect(overwrite.res._getStatusCode()).toBe(200);
+    expect((overwrite.res._getJSONData() as SerializedCampaign).version).toBe(
       3,
     );
   });
