@@ -20,6 +20,15 @@
  * light `rewound` / `rebuilding` without touching a banner or a locator;
  * simulating them would be a lie about what the product does.
  *
+ * `PROJECTION_REBUILDING` IS PRODUCED SERVER-SIDE as of the branch
+ * change's adoption seam: the combat host answers it as a typed `Error`
+ * frame and `executeCampaignCommand` answers it as a `blocked` reason
+ * the commands route returns as 409. Neither reaches THIS module. The
+ * door still admits exactly one code, and the campaign refusal arrives
+ * as an HTTP body rather than a wire `Error`, so the reserved postures
+ * stay unreachable from a live client signal - which is what the
+ * unreachability sweeps below assert, and why they are unchanged.
+ *
  * @spec openspec/specs/campaign-persistence/spec.md ("Campaign Rebuild Is Gated")
  * @spec openspec/specs/coop-campaign-sync/spec.md ("Campaign Conflict Resolution Is Command-Based")
  */
@@ -38,9 +47,13 @@ import type {
  *
  * `CAMPAIGN_NOT_CONVERGED` is live. `STALE_BRANCH` exists on the
  * event-history head guard but is not yet returned on any command path a
- * campaign surface calls, and the two projection signals are not emitted
- * at all. They are routed anyway so the day they reach the wire is a
- * one-line change in the mapper below rather than new UI.
+ * campaign surface calls. `PROJECTION_REBUILDING` is now produced by
+ * both live command paths - the combat host's typed `Error` frame and
+ * the campaign commands route's 409 - but neither is a signal a campaign
+ * CLIENT maps through the door below, so no posture here is reachable
+ * from it yet. `PROJECTION_REWOUND` is still emitted by nothing.
+ * They are routed anyway so the day one reaches this mapper is a
+ * one-line change rather than new UI.
  */
 export type CampaignLifecycleRefusalCode =
   | 'CAMPAIGN_NOT_CONVERGED'

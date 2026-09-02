@@ -36,6 +36,8 @@
  * @spec openspec/changes/design-campaign-authority-and-sync/specs/campaign-authority/spec.md
  */
 
+import type { IEventHistoryStreamRef } from '@/lib/events/journal/EventHistoryBranchContract';
+import type { StreamRebuildRefusal } from '@/lib/events/journal/EventHistoryCommandAdmission';
 import type { IEventJournal } from '@/lib/events/journal/EventJournalContract';
 import type {
   ICampaignAuthoritativeState,
@@ -43,6 +45,7 @@ import type {
   ICampaignIntent,
 } from '@/types/campaign/CampaignSync';
 
+import { readDurableStreamRebuild } from '@/lib/events/journal/EventHistoryDurableRebuild';
 import { validateCampaignIntent } from '@/lib/multiplayer/server/CampaignMatchHostIntent';
 
 import type { CampaignAuthorityMode } from './campaignAuthorityMode';
@@ -55,6 +58,7 @@ import {
   JournalCampaignEventStore,
   type ICampaignJournalEnvelope,
 } from '../sync/JournalCampaignEventStore';
+import { campaignStreamRef } from './campaignLaunchHead';
 
 /** Every way a command can fail to commit, kept distinguishable. */
 export type CampaignCommandResult =
@@ -95,10 +99,27 @@ export type CampaignCommandResult =
       readonly actualDigest: string;
     };
 
+/**
+ * Reads whether a correction lease is rebuilding a stream's history.
+ * Same signature as the durable reader, which is the default.
+ */
+export type CampaignRebuildReader = (
+  stream: IEventHistoryStreamRef,
+) => StreamRebuildRefusal | null;
+
 export interface ICampaignCommandDeps {
   readonly journal: IEventJournal<ICampaignJournalEnvelope>;
   /** Per-campaign authority (task 5.7). Commands run only where a log is. */
   readonly authority: CampaignAuthorityMode;
+  /**
+   * Seam for a caller that wants to answer the rebuild question itself.
+   * Absent means the DURABLE reader, deliberately: the shipped route
+   * builds these deps from the journal and the authority alone, so a
+   * required field would have left production ungated while the suite
+   * passed. An in-memory journal has no lease table and the reader
+   * answers null, which is the same answer it gave before this gate.
+   */
+  readonly rebuild?: CampaignRebuildReader;
 }
 
 export interface ICampaignCommandRequest {
@@ -127,6 +148,21 @@ export async function executeCampaignCommand(
   }
   if (deps.authority.kind !== 'journal') {
     return { kind: 'blocked', reason: 'campaign-not-on-journal-authority' };
+  }
+  // A correction lease is rebuilding this campaign's history. `blocked`
+  // rather than `rejected`: the campaign may well be able to afford the
+  // command, and a caller told "rejected" would give up on something
+  // that succeeds the moment the rebuild lands. Refused before the
+  // stream is even read, so nothing is appended to the history a
+  // correction is about to replace, and nothing is queued to drain
+  // afterwards. Only the rebuild arm of the shared admission is
+  // consumed: this request carries no client-claimed expected head, so
+  // the staleness arm has nothing here to compare.
+  const rebuilding = (deps.rebuild ?? readDurableStreamRebuild)(
+    campaignStreamRef(request.campaignId),
+  );
+  if (rebuilding !== null) {
+    return { kind: 'blocked', reason: rebuilding.code };
   }
 
   const store = new JournalCampaignEventStore(deps.journal);

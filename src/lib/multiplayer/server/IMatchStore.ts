@@ -19,6 +19,7 @@
  * @spec openspec/changes/add-multiplayer-server-infrastructure/specs/multiplayer-server/spec.md
  */
 
+import type { StreamRebuildRefusal } from '@/lib/events/journal/EventHistoryCommandAdmission';
 import type { ICampaignAuthoritativeState } from '@/types/campaign/CampaignSync';
 import type { GmArbitrationMode } from '@/types/campaign/CoopCampaign';
 import type { ICombatOutcome } from '@/types/combat/CombatOutcome';
@@ -252,6 +253,45 @@ export function hasCombatOutcomeOutbox(
     typeof candidate.getCombatOutcomeOutbox === 'function' &&
     typeof candidate.markCombatOutcomePublished === 'function'
   );
+}
+
+// =============================================================================
+// History-rebuild admission
+// =============================================================================
+
+/**
+ * Narrow store port answering one question about a match's authoritative
+ * history: is a correction lease rebuilding it right now?
+ *
+ * A port rather than a host field because the answer is DURABLE and
+ * per-stream. A field on the host context would be read once at
+ * construction and then be wrong for the whole life of the host — a
+ * rewind acquired after boot would go unnoticed, and one released during
+ * a match would block commands forever.
+ */
+export interface IMatchStreamRebuildStore {
+  /**
+   * The live rebuild on this match's stream, or null. Reads only: a
+   * refusal must leave the history a correction is about to replace
+   * exactly as it found it.
+   */
+  readMatchStreamRebuild(matchId: string): StreamRebuildRefusal | null;
+}
+
+/**
+ * Structural capability guard, matching the outbox pattern above.
+ *
+ * Absent is not broken. A browser host or a unit-test harness has no
+ * database to hold a correction lease, so it can have no rebuild in
+ * progress — the same convention `commandRejectionAudit` documents,
+ * where the missing collaborator means the fact does not exist rather
+ * than that the command is withheld.
+ */
+export function hasMatchStreamRebuildReader(
+  store: IMatchStore,
+): store is IMatchStore & IMatchStreamRebuildStore {
+  const candidate = store as Partial<IMatchStreamRebuildStore>;
+  return typeof candidate.readMatchStreamRebuild === 'function';
 }
 
 /**

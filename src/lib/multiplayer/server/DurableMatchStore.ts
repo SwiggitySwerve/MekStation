@@ -42,9 +42,11 @@ import Database from 'better-sqlite3';
 import fs from 'node:fs';
 import path from 'node:path';
 
+import type { StreamRebuildRefusal } from '@/lib/events/journal/EventHistoryCommandAdmission';
 import type { ICombatOutcome } from '@/types/combat/CombatOutcome';
 import type { IGameEvent } from '@/types/gameplay/GameSessionInterfaces';
 
+import { readDurableStreamRebuild } from '@/lib/events/journal/EventHistoryDurableRebuild';
 import { normalizeRoomCode } from '@/lib/p2p/roomCodes';
 import { isSqliteUniqueConstraintError } from '@/services/persistence/sqliteConstraintErrors';
 
@@ -86,6 +88,7 @@ import {
   type IMatchCombatOutcomeOutbox,
   type IMatchPublication,
   type IMatchStore,
+  type IMatchStreamRebuildStore,
   type IPublicationOutboxStore,
   type IViewerDeliveryAcknowledgement,
   type IViewerDeliveryRecord,
@@ -425,7 +428,11 @@ export interface IDurableMatchStoreOptions {
 }
 
 export class DurableMatchStore
-  implements IMatchStore, IPublicationOutboxStore, IViewerDeliveryStore
+  implements
+    IMatchStore,
+    IMatchStreamRebuildStore,
+    IPublicationOutboxStore,
+    IViewerDeliveryStore
 {
   private readonly db: Database.Database;
 
@@ -483,6 +490,19 @@ export class DurableMatchStore
   insertJournalAuthorityBaseline = (
     baseline: IMatchJournalAuthorityBaseline,
   ): void => insertJournalAuthorityBaselineRow(this.db, baseline);
+
+  /**
+   * Whether a correction lease is rebuilding this match's history.
+   *
+   * `this.db` is deliberately NOT passed. The branch and lease tables
+   * live in `SQLiteService`'s database, not this store's own file — see
+   * `EventHistoryDurableRebuild` for the measurement. The capability is
+   * still implemented HERE, which is what makes it structural: a store
+   * with no database at all cannot answer it, and says so by not having
+   * the method.
+   */
+  readMatchStreamRebuild = (matchId: string): StreamRebuildRefusal | null =>
+    readDurableStreamRebuild({ streamType: 'match', streamId: matchId });
 
   createMatch = async (meta: IMatchMeta): Promise<string> => {
     const existing = this.db
