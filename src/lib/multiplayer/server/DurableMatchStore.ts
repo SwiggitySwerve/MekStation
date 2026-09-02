@@ -305,6 +305,23 @@ interface ICombatOutcomeOutboxRow {
 
 let failAtHeadUpdateForTests = false;
 let failAtHeadUpdateOnce = false;
+type E2EFaultKind =
+  | 'append-head-update'
+  | 'process-exit-before-commit'
+  | 'process-exit-after-commit';
+
+export const E2E_FAULT_SENTINELS: Readonly<Record<E2EFaultKind, string>> = {
+  'append-head-update': 'data/.e2e-fault-append-head-update',
+  'process-exit-before-commit': 'data/.e2e-fault-process-exit-before-commit',
+  'process-exit-after-commit': 'data/.e2e-fault-process-exit-after-commit',
+};
+
+const armedE2EFaults: Record<E2EFaultKind, boolean> = {
+  'append-head-update': false,
+  'process-exit-before-commit': false,
+  'process-exit-after-commit': false,
+};
+let exitProcessForE2EFault: (code: number) => void = process.exit;
 
 /**
  * Cross-module-graph one-shot arm. The e2e fault route runs in Next's
@@ -314,19 +331,63 @@ let failAtHeadUpdateOnce = false;
  * sentinel file is graph-agnostic; it is consumed (unlinked) at the
  * failure point, and the stat only ever runs in e2e mode.
  */
-export const E2E_FAULT_SENTINEL = 'data/.e2e-fault-append-head-update';
+export const E2E_FAULT_SENTINEL = E2E_FAULT_SENTINELS['append-head-update'];
 
-function consumeSentinelFault(): boolean {
+function consumeSentinelFault(kind: E2EFaultKind): boolean {
   if (process.env.NEXT_PUBLIC_E2E_MODE !== 'true') return false;
   try {
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const fs = require('node:fs') as typeof import('node:fs');
-    if (!fs.existsSync(E2E_FAULT_SENTINEL)) return false;
-    fs.unlinkSync(E2E_FAULT_SENTINEL);
+    const sentinel = E2E_FAULT_SENTINELS[kind];
+    if (!fs.existsSync(sentinel)) return false;
+    fs.unlinkSync(sentinel);
     return true;
   } catch {
     return false;
   }
+}
+
+function consumeE2EFault(kind: E2EFaultKind): boolean {
+  // Evaluate EVERY arm - the route arms both the module map and the
+  // cross-graph sentinel, and one fault must consume them together or
+  // the survivor fires a second time (the short-circuit bug, twice).
+  const armedInGraph = armedE2EFaults[kind];
+  armedE2EFaults[kind] = false;
+  const sentinelFired = consumeSentinelFault(kind);
+  return armedInGraph || sentinelFired;
+}
+
+export function _armE2EFaultOnce(kind: E2EFaultKind): void {
+  armedE2EFaults[kind] = true;
+}
+
+export function _isE2EFaultArmed(kind: E2EFaultKind): boolean {
+  return armedE2EFaults[kind] || fs.existsSync(E2E_FAULT_SENTINELS[kind]);
+}
+
+/** Test-only: replace the fatal process-exit boundary with an observable seam. */
+export function _setE2EFaultProcessExitForTests(
+  exit: (code: number) => void,
+): void {
+  exitProcessForE2EFault = exit;
+}
+
+/** Test-only: restore all one-shot e2e arms and their process-exit seam. */
+export function _resetE2EFaultsForTests(): void {
+  for (const kind of Object.keys(E2E_FAULT_SENTINELS) as E2EFaultKind[]) {
+    armedE2EFaults[kind] = false;
+    try {
+      fs.unlinkSync(E2E_FAULT_SENTINELS[kind]);
+    } catch {
+      // A missing sentinel is already reset.
+    }
+  }
+  exitProcessForE2EFault = process.exit;
+}
+
+/** Exit at an e2e-only failure boundary after consuming its one-shot arm. */
+export function exitForE2EFault(kind: E2EFaultKind): void {
+  if (!consumeE2EFault(kind)) return;
+  exitProcessForE2EFault(1);
+  throw new Error(`test-${kind}`);
 }
 
 /** Test-only: crash the batch transaction at the head-update statement. */
@@ -341,11 +402,16 @@ export function _setFailAtHeadUpdateForTests(fail: boolean): void {
  */
 export function _armFailAtHeadUpdateOnce(): void {
   failAtHeadUpdateOnce = true;
+  _armE2EFaultOnce('append-head-update');
 }
 
 /** Whether a one-shot fault is currently armed (introspection). */
 export function _isFailAtHeadUpdateArmed(): boolean {
-  return failAtHeadUpdateOnce || failAtHeadUpdateForTests;
+  return (
+    failAtHeadUpdateOnce ||
+    failAtHeadUpdateForTests ||
+    _isE2EFaultArmed('append-head-update')
+  );
 }
 
 export interface IDurableMatchStoreOptions {
@@ -570,9 +636,10 @@ export class DurableMatchStore
       // Evaluate EVERY arm before deciding - the route arms both the
       // module flag and the cross-graph sentinel, and one fault must
       // consume them together or the survivor fires a second time.
+      exitForE2EFault('process-exit-before-commit');
       const armedOnce = failAtHeadUpdateOnce;
-      const armedSentinel = consumeSentinelFault();
-      if (failAtHeadUpdateForTests || armedOnce || armedSentinel) {
+      const armedFault = consumeE2EFault('append-head-update');
+      if (failAtHeadUpdateForTests || armedOnce || armedFault) {
         failAtHeadUpdateOnce = false;
         throw new Error('test-crash-at-head-update');
       }

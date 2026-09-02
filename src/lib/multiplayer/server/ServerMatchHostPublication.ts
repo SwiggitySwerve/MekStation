@@ -27,6 +27,7 @@ import type {
   MatchBatchAppendResult,
 } from './matchCommandBatch';
 
+import { exitForE2EFault } from './DurableMatchStore';
 import { hasPublicationOutbox } from './IMatchStore';
 
 /**
@@ -299,6 +300,10 @@ async function commitBatchThenPublishFromRows(
     await deps.closeMatch();
     return { committed: false, messages: [err] };
   }
+
+  // E2E-06's armed boundary: the batch is durable, nothing has been
+  // sent. A death here is exactly the crash the restart drain recovers.
+  exitForE2EFault('process-exit-after-commit');
 
   const batchSequences = new Set(deps.events.map((event) => event.sequence));
   const rows = (
