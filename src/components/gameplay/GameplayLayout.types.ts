@@ -17,6 +17,7 @@ import type {
   TacticalActionHandler,
   IWeaponStatus,
 } from '@/types/gameplay';
+import type { CommandAvailability } from '@/types/gameplay/TacticalCommandInterfaces';
 import type { ShellMode } from '@/types/gameplay/TacticalShellInterfaces';
 
 /**
@@ -101,6 +102,13 @@ export interface GameplayLayoutProps {
   shellMode?: ShellMode;
   /** Optional GM intervention surface used by the tactical command dock. */
   gmIntervention?: IGmTacticalInterventionSurface;
+  /**
+   * Surface-wide command refusal (umbrella 19.2). Supplied when the
+   * session runs on a transport that can tell the player their view is
+   * not shared - today, a P2P match whose peer is gone. ABSENT means
+   * ungated: a local battle keeps its pre-19.2 behaviour.
+   */
+  commandGate?: CommandAvailability;
   /** Optional className for styling */
   className?: string;
 }

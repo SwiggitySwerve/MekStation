@@ -19,8 +19,9 @@
  * cannot take and is told neither why nor what would change it.
  */
 
-import type { CommandAvailability } from '@/types/gameplay';
+import type { CommandAvailability, ITacticalCommand } from '@/types/gameplay';
 
+import { createTacticalCommandDispatcher } from '../TacticalActionDock.dispatch';
 import * as H from './TacticalActionDock.test-helpers';
 
 const { TacticalActionDock, makeCtx, render, screen } = H;
@@ -31,6 +32,23 @@ const REFUSED: CommandAvailability = {
 };
 
 const ALLOWED: CommandAvailability = { available: true };
+
+/**
+ * A command that always commits, so `onAction` firing is proof the
+ * dispatcher ran the command rather than proof of anything about the
+ * registry. `requiresConfirmation` is false: the confirm branch would
+ * otherwise decide the outcome instead of the gate.
+ */
+const COMMITTING_COMMAND: ITacticalCommand = {
+  id: 'test.commit',
+  category: 'utility',
+  label: 'Test Commit',
+  phaseConstraints: [],
+  availability: () => ({ available: true }),
+  commit: () => ({ actionId: 'test.commit' }),
+  requiresConfirmation: false,
+  undoable: false,
+};
 
 function renderDock(commandGate?: CommandAvailability) {
   return render(
@@ -113,24 +131,46 @@ describe('tactical dock command gate', () => {
   });
 
   it('refuses the dispatch itself, not merely the button', () => {
-    // The gate has to hold on the dispatch path too. A gate that only
-    // disabled the button would still let a programmatic activation
-    // through - which is exactly the silent retry 19.2 forbids.
+    // The gate has to hold on the dispatch path too: disabling a control
+    // is not the same fact as refusing to apply a command, and only the
+    // second one survives a keyboard path, a context menu, or any future
+    // programmatic activation.
+    //
+    // This row calls the dock's OWN dispatcher rather than clicking. The
+    // click form it replaced could not fail (finding #71): a gated dock
+    // renders every dispatch surface as a disabled button, and React
+    // delivers no click to one - measured with both `removeAttribute`
+    // and a write to the `disabled` property - so deleting the guard
+    // outright left the old row green.
     const onAction = jest.fn();
-    render(
-      <TacticalActionDock
-        ctx={makeCtx()}
-        shellMode="combat"
-        onAction={onAction}
-        commandGate={REFUSED}
-      />,
-    );
+    const dispatch = createTacticalCommandDispatcher({
+      ctx: makeCtx(),
+      commandGate: REFUSED,
+      gmIntervention: undefined,
+      onAction,
+      onGmPreview: jest.fn(),
+    });
 
-    for (const button of commandButtons()) {
-      button.removeAttribute('disabled');
-      button.click();
-    }
+    dispatch(COMMITTING_COMMAND);
 
     expect(onAction).not.toHaveBeenCalled();
+  });
+
+  it('applies that same command when the gate allows', () => {
+    // The control. Without it the row above would pass against a
+    // dispatcher that never applies anything at all, which is exactly
+    // how the previous version proved nothing.
+    const onAction = jest.fn();
+    const dispatch = createTacticalCommandDispatcher({
+      ctx: makeCtx(),
+      commandGate: ALLOWED,
+      gmIntervention: undefined,
+      onAction,
+      onGmPreview: jest.fn(),
+    });
+
+    dispatch(COMMITTING_COMMAND);
+
+    expect(onAction).toHaveBeenCalledWith('test.commit');
   });
 });
