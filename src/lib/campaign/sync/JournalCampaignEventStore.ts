@@ -27,6 +27,7 @@
 
 import { sha256 } from 'js-sha256';
 
+import type { SQLiteEventHistoryBranchStore } from '@/lib/events/journal/SQLiteEventHistoryBranchStore';
 import type {
   ICampaignAuthoritativeState,
   ICampaignEvent,
@@ -45,6 +46,7 @@ import {
 } from '@/lib/events/journal/EventJournalContract';
 import { SQLiteEventJournalWriter } from '@/lib/events/journal/SQLiteEventJournalWriter';
 
+import { resolveCampaignBranchId } from './campaignBranchRule';
 import { campaignEventEntityRefs } from './campaignEventEntityRefs';
 import {
   readCampaignJournalEvents,
@@ -169,6 +171,8 @@ export function envelopeOf(
 
 function toJournalBatch(input: {
   readonly campaignId: string;
+  /** Genesis unless a caller resolved a branch. */
+  readonly branchId?: string;
   readonly commandId: string;
   readonly events: readonly ICampaignEvent[];
   readonly expectedPostStateDigest: string | null;
@@ -186,7 +190,7 @@ function toJournalBatch(input: {
   return {
     streamType: CAMPAIGN_STREAM_TYPE,
     streamId: input.campaignId,
-    expectedBranchId: ROOT_EVENT_BRANCH_ID,
+    expectedBranchId: input.branchId ?? ROOT_EVENT_BRANCH_ID,
     expectedRevision: input.events[0].sequence,
     commandId: input.commandId,
     events: input.events.map((event, index) =>
@@ -223,6 +227,12 @@ export async function appendCampaignCommandBatch(
     readonly intentFingerprint?: string | null;
     /** Override the derived human principal (e.g. migration imports). */
     readonly principal?: IResolvedJournalPrincipal;
+    /**
+     * The branch this command lands on. Defaults to genesis, so every
+     * caller that has not been taught about branches writes exactly
+     * where it always did.
+     */
+    readonly branchId?: string;
   },
 ): Promise<CampaignBatchAppendResult> {
   const batch = toJournalBatch(input);
@@ -378,10 +388,26 @@ export async function appendCampaignCombatOutcomeBatch(
  * the existing `CampaignEventLog` facade and host keep working unchanged
  * when the cutover flag turns on.
  */
+export { CampaignStaleBranchError } from './campaignBranchRule';
+
 export class JournalCampaignEventStore implements ICampaignEventStore {
   public constructor(
     private readonly journal: IEventJournal<ICampaignJournalEnvelope>,
+    /**
+     * Where the stream's effective branch is read from (task 16.2).
+     * ABSENT by default, and every production site constructs it that
+     * way today: without it this store writes on genesis exactly as it
+     * did before branches existed. Handed one, the branch id is derived
+     * from the effective head instead of assumed, which is what lets an
+     * activation move it without touching this class.
+     */
+    private readonly branches?: SQLiteEventHistoryBranchStore,
   ) {}
+
+  /** The branch this command lands on - see `campaignBranchRule`. */
+  private resolveBranchId(campaignId: string, requested?: string): string {
+    return resolveCampaignBranchId(campaignId, requested, this.branches);
+  }
 
   /**
    * The D10 batch capability the host's command->append pipeline detects
@@ -397,8 +423,12 @@ export class JournalCampaignEventStore implements ICampaignEventStore {
       readonly intentFingerprint?: string | null;
       readonly events: readonly ICampaignEvent[];
       readonly expectedPostStateDigest: string;
+      readonly branchId?: string;
     },
   ): Promise<CampaignBatchAppendResult> => {
+    // Before the duplicate check: a command naming the wrong branch is
+    // refused whether or not it was seen before.
+    const branchId = this.resolveBranchId(campaignId, input.branchId);
     const prior = await this.getCommandReceipt(campaignId, input.commandId);
     if (prior) {
       return prior.intentFingerprint === (input.intentFingerprint ?? null)
@@ -410,6 +440,7 @@ export class JournalCampaignEventStore implements ICampaignEventStore {
     }
     return appendCampaignCommandBatch(this.journal, {
       campaignId,
+      branchId,
       commandId: input.commandId,
       intentFingerprint: input.intentFingerprint,
       events: input.events,
@@ -462,6 +493,7 @@ export class JournalCampaignEventStore implements ICampaignEventStore {
   ): Promise<void> => {
     const result = await appendCampaignCommandBatch(this.journal, {
       campaignId,
+      branchId: this.resolveBranchId(campaignId),
       commandId: `campaign-event:${campaignId}:${event.sequence}`,
       events: [event],
       // Single-event facade appends carry no derived post-state digest.
