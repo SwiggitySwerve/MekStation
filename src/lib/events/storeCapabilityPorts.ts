@@ -10,6 +10,11 @@
  */
 
 import type {
+  IParticipantAckRequest,
+  IParticipantDeliveryCursor,
+  ParticipantAckResult,
+} from '@/lib/campaign/delivery/participantDeliveryCursor';
+import type {
   EventHistoryBranchStatus,
   IEventHistoryBranch,
   IEventHistoryEffectiveHead,
@@ -20,11 +25,6 @@ import type {
   CampaignSeat,
   ICampaignSessionMembership,
 } from '@/services/campaignPersistence/CampaignSessionParticipantStore';
-import type {
-  IParticipantAckRequest,
-  IParticipantDeliveryCursor,
-  ParticipantAckResult,
-} from '@/lib/campaign/delivery/participantDeliveryCursor';
 
 export type {
   BindParticipantResult,

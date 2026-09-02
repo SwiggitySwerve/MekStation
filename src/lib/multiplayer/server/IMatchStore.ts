@@ -432,7 +432,8 @@ export class MatchNotFoundError extends Error {
  * facade so both store boundaries can carry the same ports.
  */
 export interface IMatchStore
-  extends Partial<IEventHistoryBranchPort>,
+  extends
+    Partial<IEventHistoryBranchPort>,
     Partial<ICampaignSessionParticipantPort>,
     Partial<IParticipantDeliveryCursorPort> {
   /**
