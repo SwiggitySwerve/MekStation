@@ -201,3 +201,23 @@ describe('ServerMatchBroadcaster backpressure', () => {
     expect(broadcaster.behindSockets()).toEqual([]);
   });
 });
+
+describe('ServerMatchBroadcaster saturation boundary', () => {
+  it('treats a connection exactly at the cap as healthy', () => {
+    // The bound is "passed the cap", not "reached it". At the boundary
+    // the connection is still inside what the server tolerates, and a
+    // `>=` here would cut off a client that never exceeded anything.
+    const broadcaster = new ServerMatchBroadcaster();
+    const atCap = bufferedSocket(MAX_BUFFERED_BYTES);
+    const pastCap = bufferedSocket(MAX_BUFFERED_BYTES + 1);
+    broadcaster.register(atCap);
+    broadcaster.register(pastCap);
+
+    broadcaster.broadcast(eventFrame(1));
+
+    expect(broadcaster.isBehind(atCap)).toBe(false);
+    expect(atCap.sent).toHaveLength(1);
+    expect(broadcaster.isBehind(pastCap)).toBe(true);
+    expect(pastCap.sent).toHaveLength(0);
+  });
+});

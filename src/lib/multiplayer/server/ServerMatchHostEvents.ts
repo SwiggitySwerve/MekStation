@@ -278,6 +278,26 @@ async function publishEvent(
       );
       deliveryByPlayer.set(recipient.playerId, deliverySequence);
     }
+    // The bounded queue, applied to the fact stream. Before this, the
+    // per-viewer fan-out reached `safeSend` directly - which applies no
+    // cap - so `MAX_BUFFERED_BYTES` guarded only the shared broadcast
+    // and a stalled viewer was handed authorized facts without limit.
+    //
+    // Asked HERE, after the number is assigned, and that placement is
+    // the whole of the recovery. `ViewerDeliveryCursors` distinguishes a
+    // frame that was never owed (withheld by fog or the guard - it
+    // `continue`s above and consumes no number) from a frame that was
+    // owed and lost (it consumes its number, and the resulting hole is
+    // the true signal that something went missing). A backpressure
+    // refusal is the second kind: the viewer was eligible and did not
+    // get it. Consuming the number is what lets the rejoin resume
+    // EXACTLY at the first frame it lacks - the record's entry at
+    // `cursor + 1` is that frame, and the replay hands it back under the
+    // number already assigned to it, so the viewer's own sequence stays
+    // contiguous across the gap. Measured: move this check above
+    // `assign` and the rejoin re-delivers frames the viewer already
+    // applied (15 frames, 12 distinct), which the resume row catches.
+    if (!ctx.broadcaster.admitForSend(recipient.socket)) continue;
     ctx.broadcaster.safeSend(recipient.socket, {
       ...guarded.value,
       deliverySequence,

@@ -83,6 +83,34 @@ export class ServerMatchBroadcaster {
   };
 
   /**
+   * Whether this connection may be handed one more frame - and the ONE
+   * place the bound is applied.
+   *
+   * Both halves of the bound live here so every fan-out path shares
+   * them: a connection already behind is refused outright, and a
+   * connection whose buffer has just passed the cap is moved into the
+   * behind set and refused from now on. A refusal means the frame was
+   * OWED and lost, never that it was withheld - so a caller that
+   * numbers its frames per viewer asks this LAST, after the number is
+   * assigned, and the unfilled number is what tells the viewer's rejoin
+   * where to resume (see the call site in `ServerMatchHostEvents`).
+   *
+   * Extracted from `broadcast` when the per-viewer event fan-out was
+   * found to bypass the bound entirely (it reached `safeSend` directly,
+   * so a stalled viewer was handed authorized facts without limit).
+   * Duplicating the check at the second call site would have let the
+   * two drift; one method cannot.
+   */
+  admitForSend = (socket: IMatchSocket): boolean => {
+    if (this.behind.has(socket)) return false;
+    if (isSaturated(socket)) {
+      this.behind.add(socket);
+      return false;
+    }
+    return true;
+  };
+
+  /**
    * The last event sequence this connection actually received - the
    * durable cursor a resynchronization resumes from. Undefined when
    * no sequenced event has reached it yet.
@@ -114,14 +142,10 @@ export class ServerMatchBroadcaster {
     const payload = JSON.stringify(message);
     const sequence = sequenceOf(message);
     this.sockets.forEach((socket) => {
-      // A connection already behind is skipped outright. This is the
-      // "stop unbounded enqueueing" half: one slow consumer must not
-      // grow the server's memory, and must not delay anyone else.
-      if (this.behind.has(socket)) return;
-      if (isSaturated(socket)) {
-        this.behind.add(socket);
-        return;
-      }
+      // One slow consumer must not grow the server's memory, and must
+      // not delay anyone else. The bound itself lives in `admitForSend`
+      // so this path and the per-viewer event fan-out share it.
+      if (!this.admitForSend(socket)) return;
       try {
         socket.send(payload);
         // Recorded AFTER a successful send: the cursor is what this
