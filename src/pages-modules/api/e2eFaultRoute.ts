@@ -16,13 +16,13 @@
 
 import type { NextApiRequest, NextApiResponse } from 'next';
 
-import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
+import { mkdirSync, writeFileSync } from 'node:fs';
 import { dirname } from 'node:path';
 
 import {
-  E2E_FAULT_SENTINEL,
-  _armFailAtHeadUpdateOnce,
-  _isFailAtHeadUpdateArmed,
+  E2E_FAULT_SENTINELS,
+  _armE2EFaultOnce,
+  _isE2EFaultArmed,
 } from '@/lib/multiplayer/server/DurableMatchStore';
 import { rejectUnexpectedMethod } from '@/pages-modules/api/routeHelpers';
 
@@ -61,18 +61,26 @@ export default async function handler(
 
   if (req.method === 'POST') {
     const body = req.body as IArmBody;
-    if (body.kind !== 'append-head-update' || body.mode !== 'once') {
+    const kind = body.kind;
+    if (
+      (kind !== 'append-head-update' &&
+        kind !== 'process-exit-before-commit' &&
+        kind !== 'process-exit-after-commit') ||
+      body.mode !== 'once'
+    ) {
       res.status(400).json({
-        error: 'Only {kind: "append-head-update", mode: "once"} is supported',
+        error:
+          'Only mode "once" with kind "append-head-update", "process-exit-before-commit", or "process-exit-after-commit" is supported',
       });
       return;
     }
     // Arm BOTH graphs: the module flag serves whatever store instance
     // shares this bundle; the sentinel file reaches the socket host's
     // tsx-graph store, and is consumed (unlinked) at the failure point.
-    _armFailAtHeadUpdateOnce();
-    mkdirSync(dirname(E2E_FAULT_SENTINEL), { recursive: true });
-    writeFileSync(E2E_FAULT_SENTINEL, new Date().toISOString());
+    _armE2EFaultOnce(kind);
+    const sentinel = E2E_FAULT_SENTINELS[kind];
+    mkdirSync(dirname(sentinel), { recursive: true });
+    writeFileSync(sentinel, new Date().toISOString());
     res.status(200).json({ success: true, armed: true });
     return;
   }
@@ -80,7 +88,10 @@ export default async function handler(
   if (req.method === 'GET') {
     res.status(200).json({
       success: true,
-      armed: _isFailAtHeadUpdateArmed() || existsSync(E2E_FAULT_SENTINEL),
+      armed:
+        _isE2EFaultArmed('append-head-update') ||
+        _isE2EFaultArmed('process-exit-before-commit') ||
+        _isE2EFaultArmed('process-exit-after-commit'),
     });
     return;
   }

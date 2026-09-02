@@ -1,9 +1,14 @@
 /**
- * Live grant-channel fan-out for a room-code guest (task 3.5).
+ * Live grant-channel ingest for a room-code guest (task 3.5; wire
+ * emission removed by the finding #12 delivery unification).
  *
- * Grant frames stay off the client wire. Delivery items are ingested
- * into the replica (offset after the hydration snapshot) then emitted
- * as CampaignEvent so proposal/veto/arbitration clients are unchanged.
+ * Grant frames stay off the client wire entirely. Delivery items are
+ * ingested into the durable replica (offset after the hydration
+ * snapshot) so a rejoin hydrates current state; the client's live
+ * CampaignEvent frames come from the session's single scoped live
+ * sink (`CampaignSyncSession.attachLiveParticipant`), the same path
+ * the host and member arms use, so projection state can never decide
+ * whether a committed event reaches a connected client.
  */
 
 import type { ICampaignGrantDeliveryItem } from '@/lib/campaign/delivery/campaignDeliveryTypes';
@@ -16,7 +21,6 @@ import type { IErrorCode, IServerMessage } from '@/types/multiplayer/Protocol';
 
 import { offsetProjectorItemsForReplica } from '@/lib/campaign/coop/roomCodeGuestHydration';
 import { startCampaignGrantChannelSession } from '@/lib/campaign/delivery/campaignGrantChannelSession';
-import { campaignGrantItemToReplayEvent } from '@/lib/campaign/delivery/foldCampaignGrantDelivery';
 import {
   CAMPAIGN_EVENT_TYPES,
   isCampaignEventScope,
@@ -32,7 +36,6 @@ export interface IRoomCodeGuestLiveFanoutDeps {
   readonly replica: SQLiteCampaignReplicaStore;
   readonly cleanupFns: Set<() => void>;
   readonly nowIso: () => string;
-  readonly send: (message: IServerMessage) => void;
   readonly closeTyped: (code: IErrorCode, reason: string) => void;
 }
 
@@ -75,8 +78,10 @@ export async function attachRoomCodeGuestLiveSession(
 }
 
 /**
- * Ingests live delivery items and emits CampaignEvent frames. Empty
- * join handshakes and grant-only kinds stay off the client socket.
+ * Ingests live delivery items into the durable replica. Nothing here
+ * reaches the client socket: live wire delivery is the session's
+ * unified scoped sink (finding #12), and grant-only kinds plus empty
+ * join handshakes are simply consumed.
  */
 async function fanOutGrantFrame(
   deps: IRoomCodeGuestLiveFanoutDeps,
@@ -99,16 +104,6 @@ async function fanOutGrantFrame(
   });
   if (ingested.kind !== 'applied' && ingested.kind !== 'duplicate') {
     deps.closeTyped('INTERNAL_ERROR', ingested.reason);
-    return;
-  }
-  const ts = deps.nowIso();
-  for (const item of items) {
-    deps.send({
-      kind: 'CampaignEvent',
-      matchId: deps.matchId,
-      ts,
-      event: campaignGrantItemToReplayEvent(item),
-    });
   }
 }
 

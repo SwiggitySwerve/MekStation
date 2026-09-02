@@ -10,7 +10,6 @@ import type {
 } from '@/types/multiplayer/Protocol';
 
 import { reconcileCoopBattle } from '@/lib/campaign/coop/reconcileCoopBattle';
-import { freezeCampaignEvent } from '@/lib/campaign/sync/campaignEventScope';
 import { normalizeRoomCode } from '@/lib/p2p/roomCodes';
 import {
   assertKnownCampaignSyncFrameKind,
@@ -29,6 +28,7 @@ import {
   admitBoundCampaignParticipation,
   captureCampaignConnectionBaseline,
 } from './authorizeCampaignParticipation';
+import { campaignEventWireFrame } from './campaignEventWireFrame';
 import {
   createCampaignGrantChannelDepsFromSqlite,
   createCampaignReplicaStoreFromSqlite,
@@ -877,25 +877,25 @@ async function handleCampaignJoin({
       entry.syncSession.noteGmDisconnected();
     });
     addSocketToMatch(matchId, socket);
-    const eventUnsubscribe = entry.host.subscribe((event) => {
+    // The SAME session hydration and scoped live attach every other arm
+    // uses (finding #12, delivery unification) - never a hand-built
+    // snapshot plus a direct unscoped host.subscribe. The session's
+    // baseline names the match and the revision it is a baseline OF,
+    // the GM viewer admits every scope, and the session refuses to
+    // retain the GM, so the launch gate never waits on the authority
+    // itself. `joinMember` cannot refuse here: the session opened at
+    // registration and `noteGmConnected` above cleared any pause.
+    const gmJoin = await entry.syncSession.joinMember((event) => {
       sendCampaignEvent(socket, matchId, event);
-    });
-    cleanupFns.add(eventUnsubscribe);
-    send(socket, {
-      kind: 'CampaignSnapshot',
-      matchId,
-      ts: nowIso(),
-      event: freezeCampaignEvent({
-        type: 'CampaignSnapshotPublished',
-        sequence: -1,
-        campaignId: entry.campaignId,
-        ts: nowIso(),
-        authorPlayerId: entry.hostPlayerId,
-        // Host-join snapshot is the shared ledger projection.
-        scope: 'campaign',
-        payload: entry.host.buildSnapshotPayload(),
-      }),
-    });
+    }, verifiedPlayerId);
+    if (!gmJoin.ok) {
+      send(
+        socket,
+        errorFrame(matchId, 'INTERNAL_ERROR', 'campaign-session-unavailable'),
+      );
+      return;
+    }
+    cleanupFns.add(gmJoin.disconnect);
     sendPendingProposals(socket, matchId, entry.arbiter.getPendingProposals());
     const pendingUnsubscribe = entry.arbiter.subscribePending((pending) => {
       sendPendingProposals(socket, matchId, pending);
@@ -1276,15 +1276,7 @@ function sendCampaignEvent(
   matchId: string,
   event: ICampaignEvent,
 ): void {
-  send(socket, {
-    kind:
-      event.type === 'CampaignSnapshotPublished'
-        ? 'CampaignSnapshot'
-        : 'CampaignEvent',
-    matchId,
-    ts: nowIso(),
-    event,
-  });
+  send(socket, campaignEventWireFrame(matchId, event));
 }
 
 function sendPendingProposals(

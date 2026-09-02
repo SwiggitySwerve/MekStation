@@ -5,7 +5,7 @@ const repoRoot = path.resolve(__dirname, '../..');
 const runner = path.join(repoRoot, 'scripts/qc/run-gm-two-player-campaign.mjs');
 const core = require('../qc/gm-two-player-campaign-core.cjs');
 const groups =
-  'fixture-smoke,membership-smoke,evidence-smoke,fault-smoke,smoke,authority-pack1,exactly-once-pack,fault-pack,token-pack,authority,visibility,combat,campaign,failure,performance,all,traceability,quality,manual-setup,scope'.split(
+  'fixture-smoke,membership-smoke,evidence-smoke,fault-smoke,smoke,authority-pack1,exactly-once-pack,fault-pack,token-pack,restart-pack,authority,visibility,combat,campaign,failure,performance,all,traceability,quality,manual-setup,scope'.split(
     ',',
   );
 const run = (...args: string[]) =>
@@ -80,6 +80,24 @@ describe('GM and two-player campaign QC runner', () => {
       '--workers=1',
     ]);
 
+    const restartPlan = core.buildRunPlan({
+      group: 'restart-pack',
+      runId: 'task-21-restart-pack',
+      repoRoot,
+    });
+    expect(restartPlan.args).toEqual([
+      path.join(repoRoot, 'scripts/playwright/run-playwright.mjs'),
+      'test',
+      '--project=chromium',
+      'e2e/gm-two-player-restart.pack.spec.ts',
+      '--workers=1',
+    ]);
+    // The restart pack alone runs behind the relaunching wrapper - the
+    // scenarios kill the server and the readiness gate waits it back.
+    expect(restartPlan.environment.MEKSTATION_E2E_SERVER_COMMAND).toBe(
+      'node scripts/e2e/relaunching-server.mjs',
+    );
+
     const faultPlan = core.buildRunPlan({
       group: 'fault-pack',
       runId: 'task-21-fault-pack',
@@ -137,6 +155,7 @@ describe('GM and two-player campaign QC runner', () => {
       'exactly-once-pack',
       'fault-pack',
       'token-pack',
+      'restart-pack',
     ];
     for (const group of groups.filter(
       (group) => !implemented.includes(group),
