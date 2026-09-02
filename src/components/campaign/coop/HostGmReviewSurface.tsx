@@ -79,22 +79,47 @@ function formatCbills(amount: number): string {
 /**
  * Whether the server would refuse this exact decision right now.
  *
- * The campaign host server refuses `CAMPAIGN_NOT_CONVERGED` for
- * PROGRESSION only - `AdvanceDay`, including the host approving a
- * guest's `AdvanceDay` proposal. Every other decision, and every veto,
- * is still accepted. Gating on the posture alone would disable controls
- * the server would happily take, and would leave the host unable to
- * clear a queue they are entitled to clear.
+ * Two refusals with two different reaches, and the gate has to keep them
+ * apart or it is lying in one direction or the other:
+ *
+ *   - `CAMPAIGN_NOT_CONVERGED` is checked AGAINST THE INTENT. The server
+ *     refuses `AdvanceDay` - including the host's approval of a guest's
+ *     `AdvanceDay` - and takes everything else. So only that one approval
+ *     is withheld; disabling the rest would strand the host with a queue
+ *     they are entitled to clear.
+ *   - a rebuild or a stale branch is decided BEFORE the intent is read:
+ *     `executeCampaignCommand` returns `blocked` from its admission arm,
+ *     so approving ANY proposal is refused. Gating only progression here
+ *     would hand the host a live-looking Approve on a command the server
+ *     has already decided against.
+ *
+ * A veto is never refused either way. It removes a proposal from the
+ * arbiter's queue and appends no campaign event, so no admission gate
+ * sees it - which is exactly why it must stay live while the projection
+ * rebuilds.
  */
 function decisionRefused(
   entry: IPendingProposal,
   decision: GmDecision,
   lifecycle: IGmLifecyclePosture | undefined,
 ): boolean {
-  if (lifecycle === undefined || lifecycle.progressionEnabled) return false;
+  if (lifecycle === undefined) return false;
   if (decision !== 'approve') return false;
+  if (!lifecycle.commandsEnabled) return true;
+  if (lifecycle.progressionEnabled) return false;
   return entry.proposal.intent.kind === 'AdvanceDay';
 }
+
+/**
+ * The id of the element stating WHY a control is withheld.
+ *
+ * A disabled button with no reason is a dead button: the host learns
+ * that the thing does not work and nothing about what would make it
+ * work. `aria-describedby` is what carries that to a screen reader,
+ * which is why the reason is a real rendered element with a real id
+ * rather than a `data-` attribute only a test can read.
+ */
+const GM_BLOCKED_REASON_ID = 'gm-command-blocked-reason';
 
 // =============================================================================
 // Component
@@ -143,7 +168,11 @@ export function HostGmReviewSurface({
     onDecide(entry.proposal.proposalId, decision);
   };
 
-  const progressionEnabled = lifecycle?.progressionEnabled;
+  // Any standing refusal, not progression alone: a rebuild disables the
+  // approve button the host is standing on just as a convergence refusal
+  // does, so the focus rescue below has to run for both.
+  const refusalStanding =
+    lifecycle !== undefined && lifecycle.recovery !== null;
   useEffect(() => {
     // A disabled element cannot hold focus, so when a refusal lands on
     // the button the host had focused the browser drops focus to <body> -
@@ -154,11 +183,19 @@ export function HostGmReviewSurface({
     // Deliberately NOT a general "focus the newest thing" rule: a host
     // who was working elsewhere keeps their place, because stealing focus
     // on an async frame is its own defect.
-    if (progressionEnabled !== false) return;
+    if (!refusalStanding) return;
     if (focusedApproveRef.current === null) return;
-    recoveryRef.current?.focus();
+    // A rebuild renders no recovery BUTTON, so there is nothing to move
+    // to. The surface itself is the fallback - it is programmatically
+    // focusable for exactly this - and landing there beats landing on
+    // <body> at the top of the document.
+    if (recoveryRef.current) {
+      recoveryRef.current.focus();
+    } else {
+      surfaceRef.current?.focus();
+    }
     focusedApproveRef.current = null;
-  }, [progressionEnabled]);
+  }, [refusalStanding]);
 
   return (
     <section
@@ -200,6 +237,23 @@ export function HostGmReviewSurface({
         />
       )}
 
+      {/*
+        WHY a control is withheld, as a real element with a real id, so
+        `aria-describedby` on the disabled button has something to point
+        at. Rendered only while something is actually refused - an
+        always-present reason for a surface that is working would be a
+        permanent warning about nothing.
+      */}
+      {lifecycle?.recovery && (
+        <p
+          id={GM_BLOCKED_REASON_ID}
+          data-testid="gm-command-blocked-reason"
+          className="mb-2 text-xs text-amber-300"
+        >
+          {lifecycle.message}
+        </p>
+      )}
+
       {/* The typed recovery the refusal names. It commits nothing - it
           clears the local hint so the SERVER answers again - which is
           what makes it safe to offer to an actor whose last command was
@@ -209,16 +263,32 @@ export function HostGmReviewSurface({
           <p data-testid="gm-lifecycle-recovery-description">
             {lifecycle.recovery.description}
           </p>
-          <button
-            ref={recoveryRef}
-            type="button"
-            data-testid="gm-lifecycle-recovery"
-            data-recovery-code={lifecycle.recovery.code}
-            onClick={onClearLifecycleRefusal}
-            className="mt-2 rounded-lg border border-sky-500/50 bg-sky-600/20 px-3 py-1.5 text-sm font-medium text-sky-200 hover:bg-sky-600/30"
-          >
-            {lifecycle.recovery.label}
-          </button>
+          {/*
+            A rebuild has nothing to press. The stream reopens on lease
+            expiry, release, or activation, so the recovery is stated and
+            the button is deliberately absent rather than rendered as a
+            control whose only effect is to re-discover the same refusal.
+          */}
+          {lifecycle.recovery.actionable ? (
+            <button
+              ref={recoveryRef}
+              type="button"
+              data-testid="gm-lifecycle-recovery"
+              data-recovery-code={lifecycle.recovery.code}
+              onClick={onClearLifecycleRefusal}
+              className="mt-2 rounded-lg border border-sky-500/50 bg-sky-600/20 px-3 py-1.5 text-sm font-medium text-sky-200 hover:bg-sky-600/30"
+            >
+              {lifecycle.recovery.label}
+            </button>
+          ) : (
+            <p
+              data-testid="gm-lifecycle-recovery-wait"
+              data-recovery-code={lifecycle.recovery.code}
+              className="mt-2 text-sm font-medium text-slate-200"
+            >
+              {lifecycle.recovery.label}
+            </p>
+          )}
         </div>
       )}
 
@@ -316,7 +386,15 @@ export function HostGmReviewSurface({
                   disabled={decisionRefused(entry, 'approve', lifecycle)}
                   // The reason rides the control, so a disabled button is
                   // not a mystery the host has to correlate with a banner
-                  // somewhere else on the screen.
+                  // somewhere else on the screen. `aria-describedby` is
+                  // the half that reaches a screen reader; the `data-`
+                  // attribute below is only a locator and would announce
+                  // nothing on its own.
+                  aria-describedby={
+                    decisionRefused(entry, 'approve', lifecycle)
+                      ? GM_BLOCKED_REASON_ID
+                      : undefined
+                  }
                   data-lifecycle-blocked={
                     decisionRefused(entry, 'approve', lifecycle)
                       ? 'true'
