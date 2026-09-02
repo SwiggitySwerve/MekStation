@@ -245,7 +245,7 @@ describe('focus after a refusal', () => {
         pending={[pendingProposal('p-day', 'AdvanceDay')]}
         onDecide={jest.fn() as never}
         lifecycle={deriveGmLifecyclePosture({
-          refusal: 'CAMPAIGN_NOT_CONVERGED',
+          refusal: { code: 'CAMPAIGN_NOT_CONVERGED', recoveryAction: null },
           pendingProposalCount: 1,
         })}
       />,
@@ -270,7 +270,7 @@ describe('focus after a refusal', () => {
         pending={[pendingProposal('p-day', 'AdvanceDay')]}
         onDecide={jest.fn() as never}
         lifecycle={deriveGmLifecyclePosture({
-          refusal: 'CAMPAIGN_NOT_CONVERGED',
+          refusal: { code: 'CAMPAIGN_NOT_CONVERGED', recoveryAction: null },
           pendingProposalCount: 1,
         })}
       />,
