@@ -41,6 +41,8 @@ scripts/**
 !scripts/print-combat-validation-gaps.ts
 !scripts/maintenance/
 !scripts/maintenance/scan-maintenance.mjs
+!scripts/e2e/
+!scripts/e2e/relaunching-server.mjs
 !scripts/jest/
 !scripts/jest/run-jest-lane.mjs
 !scripts/lib/
