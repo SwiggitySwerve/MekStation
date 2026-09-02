@@ -57,8 +57,8 @@ import type {
   ICampaignHostBatchDoors,
   ICampaignRosterUnitChange,
 } from './campaignHostDoors';
-import type { UnsequencedCampaignEvent } from './CampaignMatchHostIntent';
 import type { ICampaignIntentCommandIdentity } from './campaignIntentIdentity';
+import type { UnsequencedCampaignEvent } from './CampaignMatchHostIntent';
 
 import {
   commitCampaignEventBatch,
@@ -523,5 +523,4 @@ export class CampaignMatchHost {
       publish: (event) => this.publish(event),
     };
   }
-
 }
