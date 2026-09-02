@@ -111,7 +111,7 @@ describe('grant channel delivery', () => {
       { delta: 0, reason: VISIBLE_ONE, balance: 1 },
       { delta: 0, reason: VISIBLE_TWO, balance: 1 },
     ]);
-    expect(leakScan(socket.sent, WITHHELD_GM_SECRET)).toEqual([]);
+    expect(leakScan(socket.sent, [WITHHELD_GM_SECRET])).toEqual([]);
 
     const resume = await bindGrantSocket(campaignId, PARTICIPANT_PLAYER);
     const __before2 = resume.sent.length;
@@ -218,8 +218,8 @@ describe('grant channel delivery', () => {
       'gm',
       'campaign',
     ]);
-    expect(leakScan(campaignSocket.sent, WITHHELD_GM_SECRET)).toEqual([]);
-    expect(leakScan(gmSocket.sent, 'not-a-withheld-marker')).toEqual([]);
+    expect(leakScan(campaignSocket.sent, [WITHHELD_GM_SECRET])).toEqual([]);
+    expect(leakScan(gmSocket.sent, ['not-a-withheld-marker'])).toEqual([]);
     expect(JSON.stringify(gmSocket.sent)).toContain(WITHHELD_GM_SECRET);
     expect(framesOf(campaignSocket, 'CampaignEvent')).toHaveLength(0);
     expect(

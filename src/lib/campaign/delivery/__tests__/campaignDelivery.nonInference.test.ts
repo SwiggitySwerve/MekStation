@@ -9,6 +9,8 @@
  * reveal how many events were withheld.
  */
 
+import { leakScan } from '@/lib/multiplayer/server/__tests__/campaignGrantChannel.test-helpers';
+
 import { createGmGrantScopes } from '../../grants/campaignGrantGuards';
 import {
   CAMPAIGN_GRANT_PROJECTOR_VERSION,
@@ -31,18 +33,6 @@ const VISIBLE_TWO = 'VISIBLE-CAMPAIGN-2';
 const VISIBLE_THREE = 'VISIBLE-CAMPAIGN-3';
 const WITHHELD_GM = 'WITHHELD-GM-SECRET';
 const WITHHELD_GM_B = 'WITHHELD-GM-BURST';
-
-const JOURNAL_LEAK_KEYS: readonly string[] = [
-  'streamRevision',
-  'commitPosition',
-  'eventDigest',
-  'previousStreamEventDigest',
-  'commit_position',
-  'event_digest',
-  'stream_revision',
-  'projectedEventIdentity',
-  'sequence',
-];
 
 const INTERLEAVE_A: readonly {
   readonly scope: 'campaign' | 'gm';
@@ -69,33 +59,6 @@ const INTERLEAVE_B: readonly {
   { scope: 'gm', reason: `${WITHHELD_GM}-extra-3` },
   { scope: 'campaign', reason: VISIBLE_THREE },
 ];
-
-/** Collects own enumerable keys from a JSON tree. */
-function collectKeys(value: unknown, into: Set<string>): void {
-  if (Array.isArray(value)) {
-    for (const entry of value) collectKeys(entry, into);
-    return;
-  }
-  if (typeof value !== 'object' || value === null) return;
-  for (const key of Object.keys(value)) {
-    into.add(key);
-    collectKeys(Reflect.get(value, key), into);
-  }
-}
-
-/** True when serialized delivery names a withheld marker or journal field. */
-function leakScan(serialized: string, parsed: unknown): readonly string[] {
-  const leaks: string[] = [];
-  if (serialized.includes(WITHHELD_GM) || serialized.includes(WITHHELD_GM_B)) {
-    leaks.push('withheld-payload-marker');
-  }
-  const keys = new Set<string>();
-  collectKeys(parsed, keys);
-  for (const key of JOURNAL_LEAK_KEYS) {
-    if (keys.has(key)) leaks.push(key);
-  }
-  return leaks;
-}
 
 function normalizeCampaignIds(serialized: string, campaignId: string): string {
   return serialized.split(campaignId).join('CAMPAIGN');
@@ -165,9 +128,8 @@ describe('campaignDelivery non-inference', () => {
     ]);
 
     const serializedA = JSON.stringify(pageA);
-    const serializedB = JSON.stringify(pageB);
-    expect(leakScan(serializedA, JSON.parse(serializedA))).toEqual([]);
-    expect(leakScan(serializedB, JSON.parse(serializedB))).toEqual([]);
+    expect(leakScan(pageA, [WITHHELD_GM, WITHHELD_GM_B])).toEqual([]);
+    expect(leakScan(pageB, [WITHHELD_GM, WITHHELD_GM_B])).toEqual([]);
     expect(pageA.items).toHaveLength(3);
     expect(pageB.items).toHaveLength(3);
     expect(
