@@ -19,7 +19,6 @@
 import { useMemo } from 'react';
 import { useStore } from 'zustand';
 
-import type { IActivityLogEntry } from '@/types/campaign/ActivityLog';
 import type { ICampaign } from '@/types/campaign/Campaign';
 import type { ICampaignRosterEntry } from '@/types/campaign/CampaignRosterEntry';
 import type { IRosterUnitProjection } from '@/types/campaign/RosterUnitProjection';
@@ -118,7 +117,11 @@ export interface ICampaignOperationsSummary {
   readonly items: readonly ICampaignOperationItem[];
 }
 
-/** Aggregate summary the dashboard consumes. */
+/**
+ * Aggregate summary the dashboard consumes.
+ * Activity is intentionally absent — the FIFO must not type-check
+ * back into Recent Activity.
+ */
 export interface IDashboardSummary {
   readonly campaignId: string;
   readonly campaignName: string;
@@ -126,7 +129,6 @@ export interface IDashboardSummary {
   readonly activeContract: IActiveContractSummary;
   readonly finances: IFinancesSummary;
   readonly dayAdvance: IDayAdvanceSummary;
-  readonly activityLog: readonly IActivityLogEntry[];
   readonly operations: ICampaignOperationsSummary;
 }
 
@@ -422,14 +424,13 @@ function buildCampaignOperationsSummary(
  * memoizes by the campaign's identity so re-renders that don't change
  * the relevant slice are no-ops downstream.
  *
- * The shape includes the full activity log (newest last). The
- * <ActivityLogCard> filters by category at render time; surfacing the
- * full log here keeps the hook simple and the card composable.
+ * Activity rows are not on this snapshot. The card reads
+ * `useCampaignActivityFeed` so the browser FIFO cannot type-check
+ * back into Recent Activity.
  */
 export function useCampaignDashboardSummary(): IDashboardSummary | null {
   const store = useCampaignStore();
   const campaign = useStore(store, (state) => state.campaign);
-  const activityLog = useStore(store, (state) => state.activityLog);
   const pendingBattleOutcomes = useStore(
     store,
     (state) => state.pendingBattleOutcomes,
@@ -465,7 +466,6 @@ export function useCampaignDashboardSummary(): IDashboardSummary | null {
         currentDay: 0,
         pendingEventPreview: null,
       },
-      activityLog,
       operations: buildCampaignOperationsSummary(
         campaign,
         forceSnapshot,
@@ -474,8 +474,7 @@ export function useCampaignDashboardSummary(): IDashboardSummary | null {
         pendingBattleOutcomes.length,
       ),
     };
-    // The memo key is the identity of the campaign + log — re-runs only when
-    // those change. Day-advance mutates both, so the dashboard sees fresh
-    // numbers immediately after an advance.
-  }, [campaign, activityLog, pendingBattleOutcomes, rosterPilots, rosterUnits]);
+    // Campaign identity plus the slices the other cards read. Activity
+    // is no longer a summary dependency — the feed hook owns that slice.
+  }, [campaign, pendingBattleOutcomes, rosterPilots, rosterUnits]);
 }
