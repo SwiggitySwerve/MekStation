@@ -20,6 +20,7 @@ import { act, cleanup, render, screen } from '@testing-library/react';
 import React from 'react';
 
 import type { ICampaignSyncTransport } from '@/lib/campaign/coop/campaignSyncTransport';
+import type { IGmLifecyclePosture } from '@/lib/campaign/lifecycle/campaignLifecycleState';
 import type { IPendingProposal } from '@/lib/multiplayer/server/CampaignGmArbiter';
 
 import {
@@ -65,34 +66,45 @@ function pendingProposal(id: string, kind: string): IPendingProposal {
   } as unknown as IPendingProposal;
 }
 
-/** A GM posture literal, so these rows test the SURFACE, not a derivation. */
+/**
+ * A GM posture literal, so these rows test the SURFACE, not a derivation.
+ *
+ * TYPED as `IGmLifecyclePosture` rather than cast through `as never`. The
+ * cast is what let this helper silently fall behind the interface when
+ * 19.2 seam 3 added `commandsEnabled`: every row here kept compiling
+ * while handing the surface a posture the product cannot produce, and the
+ * surface read the missing field as "no commands allowed". A literal
+ * fixture is a fine way to test a component, but only if the compiler
+ * still holds it to the shape the component is promised.
+ */
 function gmPosture(
-  overrides: Partial<{
-    state: string;
-    message: string;
-    progressionEnabled: boolean;
-    recovery: { code: string; label: string; description: string } | null;
-  }> = {},
-) {
+  overrides: Partial<IGmLifecyclePosture> = {},
+): IGmLifecyclePosture {
   return {
     state: 'live',
     message: 'Campaign lifecycle posture: live.',
     progressionEnabled: true,
+    commandsEnabled: true,
     recovery: null,
     ...overrides,
-  } as never;
+  };
 }
 
 /** The refused-progression posture the host actually sees today. */
-function refusedPosture() {
+function refusedPosture(): IGmLifecyclePosture {
   return gmPosture({
     state: 'blocked',
     message: 'Campaign lifecycle posture: blocked.',
     progressionEnabled: false,
+    // Progression only. The convergence refusal is checked against the
+    // intent, so every other command stays enabled - which is exactly
+    // what the anti-over-gating rows below assert.
+    commandsEnabled: true,
     recovery: {
       code: 'CAMPAIGN_NOT_CONVERGED',
       label: 'Check again',
       description: 'Waiting for every participant to catch up.',
+      actionable: true,
     },
   });
 }
