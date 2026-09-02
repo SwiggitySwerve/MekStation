@@ -173,6 +173,7 @@ export interface IBoundCampaignSyncConnection {
 }
 
 const socketsByMatch = new Map<string, Set<IWireCampaignSocket>>();
+const timeoutOutcomeArmed = new WeakSet<ICampaignHostRegistryEntry>();
 const campaignSocketLifecycles = new WeakMap<
   ICampaignHostRegistryEntry,
   ServerMatchSocketLifecycle
@@ -225,6 +226,8 @@ export async function bindCampaignSyncConnection({
     });
     return null;
   }
+
+  armTimeoutOutcomeBroadcast(entry, matchId);
 
   const cleanupFns = new Set<() => void>();
   /**
@@ -1346,6 +1349,28 @@ function broadcast(matchId: string, message: IServerMessage): void {
   const sockets = socketsByMatch.get(matchId);
   if (!sockets) return;
   sockets.forEach((socket) => send(socket, message));
+}
+
+/**
+ * Wire timeout auto-vetoes onto the same CampaignDecision fan-out the
+ * host's decide() path already uses. Armed once per registry entry so
+ * a second socket does not double-broadcast.
+ */
+function armTimeoutOutcomeBroadcast(
+  entry: ICampaignHostRegistryEntry,
+  matchId: string,
+): void {
+  if (timeoutOutcomeArmed.has(entry)) return;
+  timeoutOutcomeArmed.add(entry);
+  entry.arbiter.subscribeResolved((result) => {
+    broadcast(matchId, {
+      kind: 'CampaignDecision',
+      matchId,
+      ts: nowIso(),
+      proposalId: result.proposalId,
+      result,
+    });
+  });
 }
 
 function parseJsonPayload(

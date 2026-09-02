@@ -54,7 +54,13 @@ import { parseGuestProposal } from '@/types/campaign/coopCampaignSchemas';
 
 import type { CampaignMatchHost } from './CampaignMatchHost';
 
+import {
+  defaultArbiterTimers,
+  type ICampaignGmArbiterTimers,
+} from './campaignGmArbiterTimeout';
 import { validateCampaignIntent } from './CampaignMatchHostIntent';
+
+export { PRODUCTION_PROPOSAL_TIMEOUT_MS } from './campaignGmArbiterTimeout';
 
 // =============================================================================
 // Pending proposal — the host review queue entry
@@ -97,6 +103,15 @@ export type PendingProposalListener = (
   pending: readonly IPendingProposal[],
 ) => void;
 
+/**
+ * Notified when a queued proposal reaches a terminal result without
+ * going through `decide()` — today that is the auto-veto timeout. The
+ * binder and the runtime session already tell the guest via
+ * `CampaignDecision` / result waiters; they subscribe here so a timeout
+ * uses those same paths instead of discarding the result.
+ */
+export type ProposalResolvedListener = (result: GuestProposalResult) => void;
+
 // =============================================================================
 // Arbiter
 // =============================================================================
@@ -121,6 +136,12 @@ export const DEFAULT_PROPOSAL_TIMEOUT_MS = 5 * 60_000;
  */
 export interface ICampaignGmArbiterOptions {
   readonly proposalTimeoutMs?: number;
+  /**
+   * Injectable setTimeout/clearTimeout pair. Production omits this.
+   * Tests pass a recording pair so cancel-on-decide and release-on-close
+   * can be asserted without depending on Jest fake timers alone.
+   */
+  readonly timers?: ICampaignGmArbiterTimers;
 }
 
 export class CampaignGmArbiter {
@@ -139,17 +160,20 @@ export class CampaignGmArbiter {
   /** Proposals awaiting a host decision (`host-review` mode only). */
   private readonly pending = new Map<string, IPendingProposal>();
   private readonly listeners = new Set<PendingProposalListener>();
+  private readonly resolvedListeners = new Set<ProposalResolvedListener>();
   /**
    * Per polish-wave-6.2-gaps (gap #3): the maximum time a proposal may
    * sit in `pending` before the arbiter auto-vetoes it. 0 disables.
    */
-  private readonly proposalTimeoutMs: number;
+  private readonly timeoutMs: number;
+  private readonly scheduleTimeout: ICampaignGmArbiterTimers['setTimeout'];
+  private readonly cancelScheduled: ICampaignGmArbiterTimers['clearTimeout'];
   /**
    * Per polish-wave-6.2-gaps (gap #3): active auto-veto timers keyed by
    * proposalId, so `decide()` can cancel the timer when the host resolves
    * the proposal before timeout fires.
    */
-  private readonly timers = new Map<string, ReturnType<typeof setTimeout>>();
+  private readonly timers = new Map<string, unknown>();
 
   constructor(
     host: CampaignMatchHost,
@@ -158,8 +182,18 @@ export class CampaignGmArbiter {
   ) {
     this.host = host;
     this.mode = mode;
-    this.proposalTimeoutMs =
-      options.proposalTimeoutMs ?? DEFAULT_PROPOSAL_TIMEOUT_MS;
+    this.timeoutMs = options.proposalTimeoutMs ?? DEFAULT_PROPOSAL_TIMEOUT_MS;
+    const timers = options.timers ?? defaultArbiterTimers;
+    this.scheduleTimeout = timers.setTimeout;
+    this.cancelScheduled = timers.clearTimeout;
+  }
+
+  /**
+   * The armed auto-veto interval. Production sites must pass
+   * `PRODUCTION_PROPOSAL_TIMEOUT_MS`; 0 means the watchdog is off.
+   */
+  get proposalTimeoutMs(): number {
+    return this.timeoutMs;
   }
 
   // ---------------------------------------------------------------------------
@@ -203,6 +237,27 @@ export class CampaignGmArbiter {
     return () => {
       this.listeners.delete(listener);
     };
+  };
+
+  /**
+   * Subscribe to terminal results that did not go through `decide()`
+   * (the auto-veto timeout). Returns an unsubscribe function.
+   */
+  subscribeResolved = (listener: ProposalResolvedListener): (() => void) => {
+    this.resolvedListeners.add(listener);
+    return () => {
+      this.resolvedListeners.delete(listener);
+    };
+  };
+
+  /**
+   * Drop every armed auto-veto timer. A closed host must not leave a
+   * timeout handle that keeps the process alive.
+   */
+  close = (): void => {
+    for (const proposalId of Array.from(this.timers.keys())) {
+      this.cancelTimeoutFor(proposalId);
+    }
   };
 
   // ---------------------------------------------------------------------------
@@ -338,7 +393,7 @@ export class CampaignGmArbiter {
     this.pending.delete(proposalId);
     this.cancelTimeoutFor(proposalId);
     this.notifyPending();
-    return {
+    const result: GuestProposalResult = {
       status: 'vetoed',
       proposalId,
       error: {
@@ -348,6 +403,8 @@ export class CampaignGmArbiter {
         reason: 'host-review-timeout',
       },
     };
+    this.notifyResolved(result);
+    return result;
   };
 
   // ---------------------------------------------------------------------------
@@ -428,7 +485,7 @@ export class CampaignGmArbiter {
   private cancelTimeoutFor(proposalId: string): void {
     const timer = this.timers.get(proposalId);
     if (timer !== undefined) {
-      clearTimeout(timer);
+      this.cancelScheduled(timer);
       this.timers.delete(proposalId);
     }
   }
@@ -453,10 +510,10 @@ export class CampaignGmArbiter {
     // so the resulting rejection carries `reason: 'host-review-timeout'`
     // (distinguishable in the guest UI). 0 means "no timeout" — preserves
     // legacy behavior for callers that opt out.
-    if (this.proposalTimeoutMs > 0) {
-      const timer = setTimeout(() => {
+    if (this.timeoutMs > 0) {
+      const timer = this.scheduleTimeout(() => {
         this.autoVetoForTimeout(proposal.proposalId);
-      }, this.proposalTimeoutMs);
+      }, this.timeoutMs);
       // Node-only: don't keep the event loop alive for an idle timer.
       // (Browser builds get a no-op; jsdom respects setTimeout's return.)
       if (typeof (timer as { unref?: () => void }).unref === 'function') {
@@ -473,6 +530,13 @@ export class CampaignGmArbiter {
     const snapshot = this.getPendingProposals();
     this.listeners.forEach((listener) => {
       listener(snapshot);
+    });
+  }
+
+  /** Tell subscribers a timeout (or other non-decide) result landed. */
+  private notifyResolved(result: GuestProposalResult): void {
+    this.resolvedListeners.forEach((listener) => {
+      listener(result);
     });
   }
 }
