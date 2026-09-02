@@ -118,8 +118,13 @@ test('E2E-30 concurrent proposals stay attributable and independently resolvable
       .getByTestId(`proposal-balance-${proposalTwo}`)
       .textContent();
 
-    // (b) resolve exactly ONE of them.
+    // (b) resolve exactly ONE of them. Veto is destructive, so the
+    // review surface now opens VetoConfirmationDialog first; the click
+    // on `veto-${id}` only raises the question. The decision is the
+    // confirm — without it the proposal stays pending and the guest
+    // never reaches `guest-proposal-vetoed`.
     await gm.page.getByTestId(`veto-${proposalOne}`).click();
+    await gm.page.getByTestId('veto-confirm').click();
 
     // (c) the resolved proposal clears ITS OWN pending UI...
     await expect(
