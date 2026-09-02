@@ -628,8 +628,12 @@ describe.each(portStores)('%s optional capability ports', (_name, build) => {
 
 describe('JournalCampaignEventStore branch port absence', () => {
   it('hasHistoryBranchStore is false when branches is omitted', () => {
+    // The binder runs but no branch store was given: the branch methods
+    // must stay absent, so the guard answers false rather than lying.
     const store = new JournalCampaignEventStore(
       new InMemoryEventJournal(() => BOUND_AT),
+      undefined,
+      { capabilityPorts: bindJournalCapabilityPorts },
     );
     expect(hasHistoryBranchStore(store)).toBe(false);
     expect(store.readBranch).toBeUndefined();
