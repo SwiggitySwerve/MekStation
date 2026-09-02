@@ -28,9 +28,7 @@ export class HostAsGmMembershipSource implements IMembershipSource {
     return { ...row, role: 'gm' };
   }
 
-  public currentMembershipRevision(
-    campaignSessionId: string,
-  ): Promise<number> {
+  public currentMembershipRevision(campaignSessionId: string): Promise<number> {
     return this.inner.currentMembershipRevision(campaignSessionId);
   }
 }
