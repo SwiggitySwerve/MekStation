@@ -5,7 +5,7 @@ const repoRoot = path.resolve(__dirname, '../..');
 const runner = path.join(repoRoot, 'scripts/qc/run-gm-two-player-campaign.mjs');
 const core = require('../qc/gm-two-player-campaign-core.cjs');
 const groups =
-  'fixture-smoke,membership-smoke,evidence-smoke,fault-smoke,smoke,authority-pack1,exactly-once-pack,fault-pack,token-pack,restart-pack,resilience-pack,privacy-pack,proposal-pack,three-context-pack,authority,visibility,combat,campaign,failure,performance,all,traceability,quality,manual-setup,scope'.split(
+  'fixture-smoke,membership-smoke,evidence-smoke,fault-smoke,smoke,authority-pack1,exactly-once-pack,fault-pack,token-pack,restart-pack,resilience-pack,privacy-pack,proposal-pack,three-context-pack,two-device-pack,authority,visibility,combat,campaign,failure,performance,all,traceability,quality,manual-setup,scope'.split(
     ',',
   );
 /** The server command a non-respawning implemented group is planned with. */
@@ -210,6 +210,7 @@ describe('GM and two-player campaign QC runner', () => {
       'privacy-pack',
       'proposal-pack',
       'three-context-pack',
+      'two-device-pack',
     ];
     for (const group of groups.filter(
       (group) => !implemented.includes(group),

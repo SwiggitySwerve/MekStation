@@ -265,6 +265,31 @@ describe('campaign grants route', () => {
     expect(res.getHeader('Allow')).toContain('POST');
   });
 
+  it('serves a seat-less campaign without a token - the #29 boundary', async () => {
+    // Finding #33: the two-device share story creates a source campaign
+    // with a plain PUT - no co-op session, therefore no seats - and then
+    // issues a grant over the API. #1521 refused that 401/403; there is
+    // nobody on such a campaign to authorize against, so the route asks
+    // for nothing it could not check.
+    storeCampaign(CAMPAIGN_ID, { role: 'source' });
+
+    const issued = await call('POST', { id: CAMPAIGN_ID }, issueBody);
+    expect(issued.status).toBe(201);
+    const grant = issued.json as ICampaignGrant;
+
+    const listed = await call('GET', { id: CAMPAIGN_ID });
+    expect(listed.status).toBe(200);
+    expect((listed.json as ICampaignGrant[]).map((g) => g.grantId)).toEqual([
+      grant.grantId,
+    ]);
+
+    // One seat is all it takes for the gate to close again.
+    seat(CAMPAIGN_ID, gm.playerId, 'gm');
+    expect((await call('GET', { id: CAMPAIGN_ID })).status).toBe(401);
+    const asGm = await call('GET', { id: CAMPAIGN_ID }, undefined, gm.wire);
+    expect(asGm.status).toBe(200);
+  });
+
   it('refuses every verb without a token - the roster is the private material', async () => {
     storeCampaign(CAMPAIGN_ID, { role: 'source' });
     seat(CAMPAIGN_ID, gm.playerId, 'gm');
