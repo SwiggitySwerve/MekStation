@@ -12,16 +12,16 @@
  * downstream test that happens to use one of them.
  */
 
+import type { IEventHistoryBranch } from '@/lib/events/journal/EventHistoryBranchContract';
+import type { IParticipantAckAuthorization } from '@/lib/events/storeCapabilityPorts';
+
+import { InMemoryCampaignEventStore } from '@/lib/campaign/sync/InMemoryCampaignEventStore';
+import { EventHistoryBranchError } from '@/lib/events/journal/EventHistoryBranchContract';
 import {
   GameEventType,
   GamePhase,
   type IGameEvent,
 } from '@/types/gameplay/GameSessionInterfaces';
-
-import type { IEventHistoryBranch } from '@/lib/events/journal/EventHistoryBranchContract';
-import { EventHistoryBranchError } from '@/lib/events/journal/EventHistoryBranchContract';
-import type { IParticipantAckAuthorization } from '@/lib/events/storeCapabilityPorts';
-import { InMemoryCampaignEventStore } from '@/lib/campaign/sync/InMemoryCampaignEventStore';
 
 import type {
   IMatchCommandBatch,
@@ -379,11 +379,12 @@ describe.each(inMemoryPortStores)(
 
     it('a second active GM is gm-seat-taken', () => {
       const store = build();
-      expect(store.bindCampaignSessionParticipant(bindInput('gm-1', 'gm')).kind)
-        .toBe('bound');
-      expect(store.bindCampaignSessionParticipant(bindInput('gm-2', 'gm'))).toEqual(
-        { kind: 'gm-seat-taken' },
-      );
+      expect(
+        store.bindCampaignSessionParticipant(bindInput('gm-1', 'gm')).kind,
+      ).toBe('bound');
+      expect(
+        store.bindCampaignSessionParticipant(bindInput('gm-2', 'gm')),
+      ).toEqual({ kind: 'gm-seat-taken' });
     });
 
     it('a third tactical player is tactical-seats-full', () => {
