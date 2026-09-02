@@ -23,13 +23,15 @@
  * as `unavailable`, which is phrased on its own and never shows what threw.
  *
  * Until a page passes a producer, the preview control renders DISABLED
- * with the reason, and the confirm arm is disabled for a second,
- * independent reason: the commit path itself is task 3b-iv.
+ * with the reason, and the confirm arm is disabled until a commit
+ * producer is passed beside it.
  *
  * @spec openspec/changes/harden-gm-two-player-campaign-sessions/tasks.md
  */
 
 import React, { useCallback, useId, useRef, useState } from 'react';
+
+import type { GmCombatRewindCommitResult } from '@/lib/multiplayer/server/history/GmCombatRewindCommit';
 
 import type { GmRewindPreviewOutcome } from './gmRewindPreviewPhrasing';
 
@@ -39,8 +41,11 @@ import { dispatchWhenArmed, rewindPreviewArm } from './gmRewindPreviewPhrasing';
 export interface INetworkedGmRewindControlsProps {
   /** Asks the authority what a rewind would touch. Commits nothing. */
   readonly onPreviewRewind?: () => Promise<GmRewindPreviewOutcome>;
-  /** Applies the previewed rewind. Absent until task 3b-iv builds one. */
-  readonly onConfirmRewind?: () => void;
+  /**
+   * Applies the previewed rewind. The dialog awaits this and closes only
+   * after a `committed` result — a refusal must stay on screen.
+   */
+  readonly onConfirmRewind?: () => Promise<GmCombatRewindCommitResult>;
 }
 
 export function NetworkedGmRewindControls({
@@ -112,20 +117,7 @@ export function NetworkedGmRewindControls({
           onRetryPreview={() => {
             void askForPreview();
           }}
-          onConfirmRewind={
-            // Wrapped rather than forwarded so confirming closes the
-            // dialog: the question has been answered, and leaving it open
-            // over a decided rewind invites a second press. `undefined`
-            // when no producer exists, because that absence IS what the
-            // confirm arm reads to disable itself.
-            onConfirmRewind === undefined
-              ? undefined
-              : () => {
-                  onConfirmRewind();
-                  setOpen(false);
-                  setOutcome(null);
-                }
-          }
+          onConfirmRewind={onConfirmRewind}
           onCancel={() => {
             setOpen(false);
             setOutcome(null);

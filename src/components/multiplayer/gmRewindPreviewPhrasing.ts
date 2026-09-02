@@ -30,9 +30,10 @@
 
 import type { EventHistoryArtifactKind } from '@/lib/events/journal/EventHistoryArtifactManifest';
 import type {
-  GmCombatRewindPreviewRefusal,
-  GmCombatRewindPreviewResult,
-} from '@/lib/multiplayer/server/history/GmCombatRewindPreview';
+  GmCombatRewindCommitRefusal,
+  GmCombatRewindCommitResult,
+} from '@/lib/multiplayer/server/history/GmCombatRewindCommit';
+import type { GmCombatRewindPreviewResult } from '@/lib/multiplayer/server/history/GmCombatRewindPreview';
 
 /**
  * A preview the surface could not get an answer to at all: the request
@@ -49,14 +50,19 @@ export type GmRewindPreviewOutcome =
   | IGmRewindPreviewUnavailable;
 
 type PreviewOk = Extract<GmCombatRewindPreviewResult, { kind: 'preview' }>;
-type PreviewRefused = Extract<GmCombatRewindPreviewResult, { kind: 'refused' }>;
+type CommitOk = Extract<GmCombatRewindCommitResult, { kind: 'committed' }>;
+type AnyRewindRefused = {
+  readonly kind: 'refused';
+  readonly reason: GmCombatRewindCommitRefusal;
+  readonly detail: string;
+};
 
 /**
- * One GM-facing sentence per refusal. Total over the union by type, so the
- * compiler is the thing that stops an unphrased member shipping.
+ * One GM-facing sentence per refusal. Total over the commit union by type,
+ * so a commit-only member cannot ship without a sentence of its own.
  */
 export const GM_REWIND_REFUSAL_PHRASING: Readonly<
-  Record<GmCombatRewindPreviewRefusal, string>
+  Record<GmCombatRewindCommitRefusal, string>
 > = Object.freeze({
   'gm-role-required':
     'Only the game master for this match can preview a rewind.',
@@ -88,6 +94,13 @@ export const GM_REWIND_REFUSAL_PHRASING: Readonly<
     'This match has no authoritative history to rewind yet. Play a turn first, then ask again.',
   'fog-preview-unsupported':
     'This match uses fog of war, and a rewind preview cannot yet show what each player would see. No rewind was made.',
+  // Commit-only: preview cannot produce these because it writes nothing.
+  'candidate-verification-failed':
+    'The proposed rewind did not match this match history. Nothing was changed.',
+  'generation-exhausted':
+    'This match has no more corrections left to spend. Nothing was changed.',
+  'correction-lease-held':
+    'Another correction is already holding this match history. Ask again once it finishes.',
 });
 
 /**
@@ -95,9 +108,9 @@ export const GM_REWIND_REFUSAL_PHRASING: Readonly<
  * record's totality is the type-level pin; this is its runtime shadow, so
  * a sweep cannot fall behind the union by being written out by hand.
  */
-export const GM_REWIND_REFUSAL_REASONS: readonly GmCombatRewindPreviewRefusal[] =
+export const GM_REWIND_REFUSAL_REASONS: readonly GmCombatRewindCommitRefusal[] =
   Object.freeze(
-    Object.keys(GM_REWIND_REFUSAL_PHRASING) as GmCombatRewindPreviewRefusal[],
+    Object.keys(GM_REWIND_REFUSAL_PHRASING) as GmCombatRewindCommitRefusal[],
   );
 
 /** Shown when the server could not be asked, or did not answer in kind. */
@@ -105,8 +118,23 @@ export const PREVIEW_UNAVAILABLE_PHRASING =
   'The match server could not answer the preview request. Nothing was changed; you can ask again.';
 
 /** The refusal sentence for this reason. The server `detail` is dropped. */
-export function describeRewindRefusal(refusal: PreviewRefused): string {
+export function describeRewindRefusal(refusal: AnyRewindRefused): string {
   return GM_REWIND_REFUSAL_PHRASING[refusal.reason];
+}
+
+/**
+ * What a GM reads after a rewind actually lands. Generation is the
+ * fencing number that advanced; the count is how many derived artifacts
+ * the activation marked stale.
+ */
+export function describeRewindCommitted(result: CommitOk): string {
+  const count = result.invalidations.length;
+  const artifactClause =
+    count === 1 ? '1 saved artifact' : `${count} saved artifacts`;
+  return (
+    `Rewind committed. History generation advanced to ` +
+    `${result.effectiveGeneration}. ${artifactClause} went stale.`
+  );
 }
 
 /** What a GM reads when nothing came back at all. */

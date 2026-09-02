@@ -12,22 +12,62 @@
  * downstream test that happens to use one of them.
  */
 
+import Database from 'better-sqlite3';
+import { mkdtemp, rm } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import path from 'node:path';
+
 import type { IEventHistoryBranch } from '@/lib/events/journal/EventHistoryBranchContract';
-import type { IParticipantAckAuthorization } from '@/lib/events/storeCapabilityPorts';
+import type {
+  ICampaignSessionParticipantPort,
+  IEventHistoryBranchPort,
+  IParticipantAckAuthorization,
+  IParticipantDeliveryCursorPort,
+} from '@/lib/events/storeCapabilityPorts';
 
 import { InMemoryCampaignEventStore } from '@/lib/campaign/sync/InMemoryCampaignEventStore';
-import { EventHistoryBranchError } from '@/lib/events/journal/EventHistoryBranchContract';
+import { JournalCampaignEventStore } from '@/lib/campaign/sync/JournalCampaignEventStore';
+import { bindJournalCapabilityPorts } from '@/lib/campaign/sync/journalCapabilityPorts';
+import {
+  _branchCreationSeamForTests,
+  EventHistoryBranchError,
+} from '@/lib/events/journal/EventHistoryBranchContract';
+import { InMemoryEventJournal } from '@/lib/events/journal/InMemoryEventJournal';
+import { SQLiteEventHistoryBranchStore } from '@/lib/events/journal/SQLiteEventHistoryBranchStore';
+import { hasHistoryBranchStore } from '@/lib/events/storeCapabilityPorts';
+import { mintVerifiedPrincipal } from '@/lib/multiplayer/server/authorization/AuthorizedViewer';
+import * as CampaignSessionParticipantStore from '@/services/campaignPersistence/CampaignSessionParticipantStore';
+import {
+  getSQLiteService,
+  resetSQLiteService,
+} from '@/services/persistence/SQLiteService';
 import {
   GameEventType,
   GamePhase,
   type IGameEvent,
 } from '@/types/gameplay/GameSessionInterfaces';
 
+jest.mock(
+  '@/services/campaignPersistence/CampaignSessionParticipantStore',
+  () => {
+    const actual = jest.requireActual<
+      typeof import('@/services/campaignPersistence/CampaignSessionParticipantStore')
+    >('@/services/campaignPersistence/CampaignSessionParticipantStore');
+    return {
+      ...actual,
+      isRevokedCampaignSessionParticipant: jest.fn(
+        actual.isRevokedCampaignSessionParticipant,
+      ),
+    };
+  },
+);
+
 import type {
   IMatchCommandBatch,
   MatchBatchAppendResult,
 } from '../matchCommandBatch';
 
+import { createCampaignSessionMembershipPort } from '../campaignSessionMembershipPort';
 import { DurableMatchStore } from '../DurableMatchStore';
 import { MatchNotFoundError, type IMatchMeta } from '../IMatchStore';
 import { InMemoryMatchStore } from '../InMemoryMatchStore';
@@ -240,7 +280,10 @@ function sampleBranch(): IEventHistoryBranch {
     ancestorDepth: 0,
     baseRevision: 0,
     baseEventId: null,
-    baseDigest: 'digest-unused-while-seam-disabled',
+    // CHECK requires 64 lowercase hex chars. The disabled-seam row
+    // never inserts; the durable isolation seed goes through the
+    // test seam and must satisfy the column.
+    baseDigest: 'a'.repeat(64),
     status: 'building',
     createdBy: 'contract',
     reason: 'prefix-port-contract',
@@ -281,169 +324,342 @@ function cursorAuth(): IParticipantAckAuthorization {
   };
 }
 
+type CapabilityPortStore = IEventHistoryBranchPort &
+  ICampaignSessionParticipantPort &
+  IParticipantDeliveryCursorPort;
+
+const SQLITE_PORT_STORES = new Set([
+  'DurableMatchStore',
+  'JournalCampaignEventStore',
+]);
+
 /**
- * In-memory builders only. DurableMatchStore / JournalCampaignEventStore
- * join this describe in the next seam.
+ * Four builders. The two SQLite ones share one temp-file SQLiteService
+ * brought up through the full migration catalog — never a hand-picked
+ * subset — because participant, cursor, and branch tables live there.
  */
-const inMemoryPortStores: ReadonlyArray<
-  readonly [string, () => InMemoryMatchStore | InMemoryCampaignEventStore]
-> = [
-  ['InMemoryMatchStore', () => new InMemoryMatchStore({ quiet: true })],
-  ['InMemoryCampaignEventStore', () => new InMemoryCampaignEventStore()],
-];
+const portStores: ReadonlyArray<readonly [string, () => CapabilityPortStore]> =
+  [
+    ['InMemoryMatchStore', () => new InMemoryMatchStore({ quiet: true })],
+    ['InMemoryCampaignEventStore', () => new InMemoryCampaignEventStore()],
+    [
+      'DurableMatchStore',
+      () => {
+        const store = new DurableMatchStore({
+          path: matchDbPath,
+          capabilityDb: () => getSQLiteService().getDatabase(),
+        });
+        closeables.push(store);
+        return store;
+      },
+    ],
+    [
+      'JournalCampaignEventStore',
+      () =>
+        new JournalCampaignEventStore(
+          new InMemoryEventJournal(() => BOUND_AT),
+          new SQLiteEventHistoryBranchStore(getSQLiteService().getDatabase()),
+          { capabilityPorts: bindJournalCapabilityPorts },
+        ),
+    ],
+  ];
 
-describe.each(inMemoryPortStores)(
-  '%s optional capability ports',
-  (_name, build) => {
-    it('exposes the three optional ports', () => {
-      const store = build();
-      expect(typeof store.readBranch).toBe('function');
-      expect(typeof store.bindCampaignSessionParticipant).toBe('function');
-      expect(typeof store.readParticipantDeliveryCursor).toBe('function');
-    });
+let sqliteDir: string | undefined;
+let matchDbPath = '';
+let closeables: Array<{ close: () => void }> = [];
 
-    it('readEffectiveHead is null until an effective branch exists', () => {
-      expect(build().readEffectiveHead(STREAM)).toBeNull();
-    });
+function matchFileHasBranchTable(): boolean {
+  const db = new Database(matchDbPath, { fileMustExist: true });
+  try {
+    const row = db
+      .prepare(
+        `SELECT name FROM sqlite_master
+         WHERE type = 'table' AND name = 'event_history_branches'`,
+      )
+      .get() as { name: string } | undefined;
+    return row !== undefined;
+  } finally {
+    db.close();
+  }
+}
 
-    it('requireBranch on an unknown branch throws EventHistoryBranchError unknown-branch', () => {
-      expect(() => build().requireBranch(STREAM, 'no-such-branch')).toThrow(
-        EventHistoryBranchError,
+describe.each(portStores)('%s optional capability ports', (_name, build) => {
+  beforeEach(async () => {
+    closeables = [];
+    if (!SQLITE_PORT_STORES.has(_name)) return;
+    sqliteDir = await mkdtemp(path.join(tmpdir(), 'capability-ports-'));
+    matchDbPath = path.join(sqliteDir, 'multiplayer-matches.db');
+    resetSQLiteService();
+    getSQLiteService({
+      path: path.join(sqliteDir, 'mekstation.db'),
+    }).initialize();
+  });
+
+  afterEach(async () => {
+    for (const handle of closeables) {
+      handle.close();
+    }
+    closeables = [];
+    if (!SQLITE_PORT_STORES.has(_name)) return;
+    resetSQLiteService();
+    if (sqliteDir !== undefined) {
+      await rm(sqliteDir, { recursive: true, force: true, maxRetries: 3 });
+      sqliteDir = undefined;
+    }
+  });
+
+  it('exposes the three optional ports', () => {
+    const store = build();
+    expect(typeof store.readBranch).toBe('function');
+    expect(typeof store.bindCampaignSessionParticipant).toBe('function');
+    expect(typeof store.readParticipantDeliveryCursor).toBe('function');
+  });
+
+  it('readEffectiveHead is null until an effective branch exists', () => {
+    expect(build().readEffectiveHead(STREAM)).toBeNull();
+  });
+
+  it('requireBranch on an unknown branch throws EventHistoryBranchError unknown-branch', () => {
+    expect(() => build().requireBranch(STREAM, 'no-such-branch')).toThrow(
+      EventHistoryBranchError,
+    );
+    try {
+      build().requireBranch(STREAM, 'no-such-branch');
+      throw new Error('expected EventHistoryBranchError');
+    } catch (error) {
+      expect(error).toBeInstanceOf(EventHistoryBranchError);
+      expect((error as EventHistoryBranchError).code).toBe('unknown-branch');
+    }
+  });
+
+  it('createBranch honors the disabled production seam', () => {
+    expect(() => build().createBranch(sampleBranch())).toThrow(
+      EventHistoryBranchError,
+    );
+    try {
+      build().createBranch(sampleBranch());
+      throw new Error('expected EventHistoryBranchError');
+    } catch (error) {
+      expect(error).toBeInstanceOf(EventHistoryBranchError);
+      expect((error as EventHistoryBranchError).code).toBe(
+        'branch-creation-disabled',
       );
-      try {
-        build().requireBranch(STREAM, 'no-such-branch');
-        throw new Error('expected EventHistoryBranchError');
-      } catch (error) {
-        expect(error).toBeInstanceOf(EventHistoryBranchError);
-        expect((error as EventHistoryBranchError).code).toBe('unknown-branch');
-      }
-    });
+    }
+  });
 
-    it('createBranch honors the disabled production seam', () => {
-      expect(() => build().createBranch(sampleBranch())).toThrow(
-        EventHistoryBranchError,
-      );
-      try {
-        build().createBranch(sampleBranch());
-        throw new Error('expected EventHistoryBranchError');
-      } catch (error) {
-        expect(error).toBeInstanceOf(EventHistoryBranchError);
-        expect((error as EventHistoryBranchError).code).toBe(
-          'branch-creation-disabled',
-        );
-      }
-    });
-
-    it('bind then active membership, revoke hides it, isRevoked true', () => {
-      const store = build();
-      const bound = store.bindCampaignSessionParticipant(bindInput('p1', 'gm'));
-      expect(bound.kind).toBe('bound');
-      expect(
-        store.activeCampaignSessionMembership(
-          'campaign-ports',
-          'session-ports',
-          'p1',
-        ),
-      ).not.toBeNull();
-      // A live seat is not revoked: the predicate must read the timestamp, not the row's existence.
-      expect(
-        store.isRevokedCampaignSessionParticipant(
-          'campaign-ports',
-          'session-ports',
-          'p1',
-        ),
-      ).toBe(false);
-      expect(
-        store.revokeCampaignSessionParticipant({
-          campaignId: 'campaign-ports',
-          sessionId: 'session-ports',
-          participantId: 'p1',
-          revokedAt: REVOKED_AT,
-        }),
-      ).toBe(true);
-      expect(
-        store.activeCampaignSessionMembership(
-          'campaign-ports',
-          'session-ports',
-          'p1',
-        ),
-      ).toBeNull();
-      expect(
-        store.isRevokedCampaignSessionParticipant(
-          'campaign-ports',
-          'session-ports',
-          'p1',
-        ),
-      ).toBe(true);
-    });
-
-    it('a second active GM is gm-seat-taken', () => {
-      const store = build();
-      expect(
-        store.bindCampaignSessionParticipant(bindInput('gm-1', 'gm')).kind,
-      ).toBe('bound');
-      expect(
-        store.bindCampaignSessionParticipant(bindInput('gm-2', 'gm')),
-      ).toEqual({ kind: 'gm-seat-taken' });
-    });
-
-    it('a third tactical player is tactical-seats-full', () => {
-      const store = build();
-      expect(
-        store.bindCampaignSessionParticipant(bindInput('player-1', 'player'))
-          .kind,
-      ).toBe('bound');
-      expect(
-        store.bindCampaignSessionParticipant(bindInput('player-2', 'player'))
-          .kind,
-      ).toBe('bound');
-      expect(
-        store.bindCampaignSessionParticipant(bindInput('player-3', 'player')),
-      ).toEqual({ kind: 'tactical-seats-full', limit: 2 });
-    });
-
-    it('cursor read is null, an identical ack applies then is stale', async () => {
-      const store = build();
-      const key = {
+  it('bind then active membership, revoke hides it, isRevoked true', () => {
+    const store = build();
+    const bound = store.bindCampaignSessionParticipant(bindInput('p1', 'gm'));
+    expect(bound.kind).toBe('bound');
+    expect(
+      store.activeCampaignSessionMembership(
+        'campaign-ports',
+        'session-ports',
+        'p1',
+      ),
+    ).not.toBeNull();
+    // A live seat is not revoked: the predicate must read the timestamp, not the row's existence.
+    expect(
+      store.isRevokedCampaignSessionParticipant(
+        'campaign-ports',
+        'session-ports',
+        'p1',
+      ),
+    ).toBe(false);
+    expect(
+      store.revokeCampaignSessionParticipant({
         campaignId: 'campaign-ports',
+        sessionId: 'session-ports',
+        participantId: 'p1',
+        revokedAt: REVOKED_AT,
+      }),
+    ).toBe(true);
+    expect(
+      store.activeCampaignSessionMembership(
+        'campaign-ports',
+        'session-ports',
+        'p1',
+      ),
+    ).toBeNull();
+    expect(
+      store.isRevokedCampaignSessionParticipant(
+        'campaign-ports',
+        'session-ports',
+        'p1',
+      ),
+    ).toBe(true);
+  });
+
+  it('a second active GM is gm-seat-taken', () => {
+    const store = build();
+    expect(
+      store.bindCampaignSessionParticipant(bindInput('gm-1', 'gm')).kind,
+    ).toBe('bound');
+    expect(
+      store.bindCampaignSessionParticipant(bindInput('gm-2', 'gm')),
+    ).toEqual({ kind: 'gm-seat-taken' });
+  });
+
+  it('a third tactical player is tactical-seats-full', () => {
+    const store = build();
+    expect(
+      store.bindCampaignSessionParticipant(bindInput('player-1', 'player'))
+        .kind,
+    ).toBe('bound');
+    expect(
+      store.bindCampaignSessionParticipant(bindInput('player-2', 'player'))
+        .kind,
+    ).toBe('bound');
+    expect(
+      store.bindCampaignSessionParticipant(bindInput('player-3', 'player')),
+    ).toEqual({ kind: 'tactical-seats-full', limit: 2 });
+  });
+
+  it('cursor read is null, an identical ack applies then is stale', async () => {
+    const store = build();
+    const key = {
+      campaignId: 'campaign-ports',
+      grantId: 'grant-1',
+      participantId: 'viewer-1',
+    };
+    expect(store.readParticipantDeliveryCursor(key)).toBeNull();
+    const request = {
+      principal: mintVerifiedPrincipal('viewer-1'),
+      grantId: 'grant-1',
+      deliveryEpochId: 'epoch-1',
+      ackedSequence: 1,
+    };
+    const authorization = cursorAuth();
+    const applied = await store.recordParticipantAcknowledgement(
+      request,
+      authorization,
+      BOUND_AT,
+    );
+    expect(applied.kind).toBe('applied');
+    const stale = await store.recordParticipantAcknowledgement(
+      request,
+      authorization,
+      BOUND_AT,
+    );
+    expect(stale.kind).toBe('stale');
+  });
+
+  it('an ack past highestAssigned is gap', async () => {
+    const store = build();
+    const gap = await store.recordParticipantAcknowledgement(
+      {
+        principal: mintVerifiedPrincipal('viewer-1'),
         grantId: 'grant-1',
-        participantId: 'viewer-1',
-      };
-      expect(store.readParticipantDeliveryCursor(key)).toBeNull();
-      const request = {
-        principal: { principalId: 'viewer-1' },
+        deliveryEpochId: 'epoch-1',
+        ackedSequence: 9,
+      },
+      cursorAuth(),
+      BOUND_AT,
+    );
+    expect(gap).toEqual({ kind: 'gap', highestAssigned: 3 });
+  });
+
+  it('an ack without authorization is not-authorized', async () => {
+    const denied = await build().recordParticipantAcknowledgement(
+      {
+        principal: mintVerifiedPrincipal('viewer-1'),
         grantId: 'grant-1',
         deliveryEpochId: 'epoch-1',
         ackedSequence: 1,
-      };
-      const authorization = cursorAuth();
-      const applied = await store.recordParticipantAcknowledgement(
-        request,
-        authorization,
-        BOUND_AT,
-      );
-      expect(applied.kind).toBe('applied');
-      const stale = await store.recordParticipantAcknowledgement(
-        request,
-        authorization,
-        BOUND_AT,
-      );
-      expect(stale.kind).toBe('stale');
+      },
+      {
+        grant: null,
+        viewerAuthorized: false,
+        currentEpochId: 'epoch-1',
+        highestAssigned: 3,
+      },
+      BOUND_AT,
+    );
+    expect(denied).toEqual({
+      kind: 'not-authorized',
+      reason: 'not-authorized',
     });
+  });
 
-    it('an ack past highestAssigned is gap', async () => {
-      const store = build();
-      const gap = await store.recordParticipantAcknowledgement(
-        {
-          principal: { principalId: 'viewer-1' },
-          grantId: 'grant-1',
-          deliveryEpochId: 'epoch-1',
-          ackedSequence: 9,
-        },
-        cursorAuth(),
-        BOUND_AT,
-      );
-      expect(gap).toEqual({ kind: 'gap', highestAssigned: 3 });
+  it('a live grant does not authorize a viewer the resolver refuses', async () => {
+    // The grant alone is not authority: the viewer check must refuse
+    // even when the grant row is present and active.
+    const denied = await build().recordParticipantAcknowledgement(
+      {
+        principal: mintVerifiedPrincipal('viewer-1'),
+        grantId: 'grant-1',
+        deliveryEpochId: 'epoch-1',
+        ackedSequence: 1,
+      },
+      { ...cursorAuth(), viewerAuthorized: false },
+      BOUND_AT,
+    );
+    expect(denied).toEqual({
+      kind: 'not-authorized',
+      reason: 'not-authorized',
     });
-  },
-);
+  });
+
+  if (_name === 'DurableMatchStore') {
+    it('the durable store keeps branch rows in the campaign database, never in the match file', () => {
+      const store = build();
+      expect(() => store.createBranch(sampleBranch())).toThrow(
+        EventHistoryBranchError,
+      );
+      const seeded = sampleBranch();
+      new SQLiteEventHistoryBranchStore(
+        getSQLiteService().getDatabase(),
+        _branchCreationSeamForTests(),
+      ).createBranch(seeded);
+      expect(store.readBranch(STREAM, seeded.branchId)).toEqual(seeded);
+      expect(matchFileHasBranchTable()).toBe(false);
+      expect(
+        getSQLiteService()
+          .getDatabase()
+          .prepare(
+            `SELECT name FROM sqlite_master
+               WHERE type = 'table' AND name = 'event_history_branches'`,
+          )
+          .get(),
+      ).toEqual({ name: 'event_history_branches' });
+    });
+  }
+});
+
+describe('JournalCampaignEventStore branch port absence', () => {
+  it('hasHistoryBranchStore is false when branches is omitted', () => {
+    // The binder runs but no branch store was given: the branch methods
+    // must stay absent, so the guard answers false rather than lying.
+    const store = new JournalCampaignEventStore(
+      new InMemoryEventJournal(() => BOUND_AT),
+      undefined,
+      { capabilityPorts: bindJournalCapabilityPorts },
+    );
+    expect(hasHistoryBranchStore(store)).toBe(false);
+    expect(store.readBranch).toBeUndefined();
+    expect(store.readEffectiveHead).toBeUndefined();
+  });
+});
+
+describe('campaignSessionMembershipPort isRevoked forwarding', () => {
+  let dir: string;
+
+  beforeEach(async () => {
+    dir = await mkdtemp(path.join(tmpdir(), 'membership-is-revoked-'));
+    resetSQLiteService();
+    getSQLiteService({ path: path.join(dir, 'mekstation.db') }).initialize();
+  });
+
+  afterEach(async () => {
+    resetSQLiteService();
+    jest.clearAllMocks();
+    await rm(dir, { recursive: true, force: true, maxRetries: 3 });
+  });
+
+  it('isRevoked calls isRevokedCampaignSessionParticipant', () => {
+    createCampaignSessionMembershipPort().isRevoked('c', 's', 'p');
+    expect(
+      CampaignSessionParticipantStore.isRevokedCampaignSessionParticipant,
+    ).toHaveBeenCalledWith('c', 's', 'p');
+  });
+});

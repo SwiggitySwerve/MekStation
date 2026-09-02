@@ -5,18 +5,13 @@
  */
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
-import type { GmRewindPreviewOutcome } from '@/components/multiplayer/gmRewindPreviewPhrasing';
 import type { MultiplayerTokenState } from '@/pages-modules/multiplayer/multiplayerPage.helpers';
-import type { IGameEvent } from '@/types/gameplay/GameSessionInterfaces';
 
 import { LobbyPanel } from '@/components/multiplayer/LobbyPanel';
 import { NetworkedGameSurface } from '@/components/multiplayer/NetworkedGameSurface';
 import { useMultiplayerSession } from '@/hooks/useMultiplayerSession';
-import { ROOT_EVENT_BRANCH_ID } from '@/lib/events/journal/EventJournalContract';
-import { previewGmCombatRewind } from '@/lib/multiplayer/client/previewGmCombatRewind';
-import { MATCH_BASELINE_FIRST_GENERATION } from '@/lib/multiplayer/server/matchAuthorityBaseline';
 import {
   clearMultiplayerTokenCredential,
   readMultiplayerMatchId,
@@ -27,6 +22,7 @@ import {
   buildWsUrl,
   mintToken,
 } from '@/pages-modules/multiplayer/multiplayerPage.helpers';
+import { useGmRewindProducers } from '@/pages-modules/multiplayer/useGmRewindProducers';
 
 interface IInviteResolution {
   readonly matchId: string;
@@ -241,18 +237,6 @@ function multiplayerUnavailableReason(
   return null;
 }
 
-/**
- * The match reader names revision as sequence + 1. An empty mirror has
- * no last event, so the believed head is revision 0 rather than -1.
- */
-function believedHeadRevision(mirrorEvents: readonly IGameEvent[]): number {
-  let lastSequence = -1;
-  for (const event of mirrorEvents) {
-    if (event.sequence > lastSequence) lastSequence = event.sequence;
-  }
-  return lastSequence < 0 ? 0 : lastSequence + 1;
-}
-
 function isTerminalStaleCredentialRejection(
   closeCode: string | undefined,
   tokenState: MultiplayerTokenState | null,
@@ -323,37 +307,11 @@ export default function LobbyPage(): React.ReactElement {
     setTokenState(null);
   }, [roomCode, terminalStaleCredentialRejected]);
 
-  const handlePreviewRewind =
-    useCallback(async (): Promise<GmRewindPreviewOutcome> => {
-      if (!resolution || !tokenState) {
-        return { kind: 'unavailable' };
-      }
-      const expectedRevision = believedHeadRevision(session.mirrorEvents);
-      return previewGmCombatRewind({
-        matchId: resolution.matchId,
-        wireToken: tokenState.wireToken,
-        // WHY: this slice has no target picker. Rewind one behind the
-        // believed head, floored at 0 so an empty mirror still names a
-        // legal revision instead of -1.
-        targetRevision: Math.max(0, expectedRevision - 1),
-        // WHY: the reader cannot see the match baseline's 'main' branch
-        // and naming it would be answered STALE_BRANCH. 'root' is the
-        // journal genesis the preview compares against.
-        expectedBranchId: ROOT_EVENT_BRANCH_ID,
-        expectedRevision,
-        // WHY: the client does not hold event_digest. The preview's
-        // expected-head check compares branch/revision/generation only
-        // (GmCombatRewindPreview.ts ~258-266). The route schema accepts
-        // any string, including empty (rewind-preview.ts line 110), so
-        // we send '' rather than invent a hash.
-        expectedDigest: '',
-        // WHY: the client cannot see generation after a correction. We
-        // send the imported baseline's first generation (1); a later
-        // correction is answered STALE_GENERATION, which the dialog
-        // already phrases.
-        expectedGeneration: MATCH_BASELINE_FIRST_GENERATION,
-      });
-    }, [resolution, session.mirrorEvents, tokenState]);
+  const { onPreviewRewind, onConfirmRewind } = useGmRewindProducers({
+    matchId: resolution?.matchId ?? null,
+    wireToken: tokenState?.wireToken ?? null,
+    mirrorEvents: session.mirrorEvents,
+  });
 
   if (!roomCode) {
     return (
@@ -438,7 +396,8 @@ export default function LobbyPage(): React.ReactElement {
           intentError={session.intentError}
           onClearIntentError={session.clearIntentError}
           onSendGameIntent={session.sendGameIntent}
-          onPreviewRewind={handlePreviewRewind}
+          onPreviewRewind={onPreviewRewind}
+          onConfirmRewind={onConfirmRewind}
           clientLifecycle={session.clientLifecycle}
           projectionSignal={session.projectionSignal}
         />
