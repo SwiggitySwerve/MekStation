@@ -1,4 +1,3 @@
-import type { ICampaignJournalEnvelope } from '@/lib/campaign/sync/JournalCampaignEventStore';
 import type { ICampaignAuthoritativeState } from '@/types/campaign/CampaignSync';
 import type {
   CoopParticipationChoice,
@@ -8,11 +7,6 @@ import type { IForce } from '@/types/campaign/Force';
 
 import { registerActiveCoopHost } from '@/lib/campaign/coop/coopHostRegistry';
 import {
-  createDefaultCampaignEventStore,
-  JournalCampaignEventStore,
-} from '@/lib/campaign/sync/JournalCampaignEventStore';
-import { SQLiteEventJournal } from '@/lib/events/journal/SQLiteEventJournal';
-import {
   readCampaignSessionState,
   writeCampaignSessionActiveBranch,
   writeCampaignSessionReadinessRevision,
@@ -20,28 +14,18 @@ import {
 import { getSQLiteService } from '@/services/persistence/SQLiteService';
 import { parseCampaignCoopSnapshot } from '@/types/campaign/campaignCoopSnapshot';
 
-/**
- * The process journal, constructed lazily. A campaign host is created on
- * a request path, so opening the database eagerly at module load would
- * make an unrelated import fail wherever SQLite is not initialised.
- */
-function campaignJournal(): SQLiteEventJournal<ICampaignJournalEnvelope> {
-  return new SQLiteEventJournal<ICampaignJournalEnvelope>(
-    getSQLiteService().getDatabase(),
-    () => new Date().toISOString(),
-  );
-}
-
 function sqliteReady(): boolean {
   return getSQLiteService().isInitialized();
 }
 
+import type { CampaignEventStoreDurability } from './getCampaignEventStore';
 import type { IMatchStore } from './IMatchStore';
 
 import { CampaignGmArbiter } from './CampaignGmArbiter';
 import { CampaignMatchHost } from './CampaignMatchHost';
 import { participationIsFresh } from './campaignParticipationFreshness';
 import { CampaignSyncSession } from './CampaignSyncSession';
+import { selectCampaignEventStore } from './getCampaignEventStore';
 import { getDefaultMatchStore } from './getDefaultMatchStore';
 
 const MAX_RECONCILED_BATTLE_IDS = 2048;
@@ -86,6 +70,12 @@ export interface ICampaignHostRegistryEntry {
   readonly host: CampaignMatchHost;
   readonly syncSession: CampaignSyncSession;
   readonly arbiter: CampaignGmArbiter;
+  /**
+   * Which log this campaign's events are actually going to. Exposed so a
+   * diagnostic or recovery path cannot mistake a dev process's ephemeral
+   * adapter for authority it can rebuild from.
+   */
+  readonly eventStoreDurability: CampaignEventStoreDurability;
   readonly publishParticipation: (record: ICampaignParticipationRecord) => void;
   readonly subscribeParticipation: (
     missionId: string,
@@ -109,6 +99,7 @@ class CampaignHostRegistryEntry implements ICampaignHostRegistryEntry {
   readonly host: CampaignMatchHost;
   readonly syncSession: CampaignSyncSession;
   readonly arbiter: CampaignGmArbiter;
+  readonly eventStoreDurability: CampaignEventStoreDurability;
 
   private currentRevision: number;
   private currentActiveBranch: string | null;
@@ -126,6 +117,7 @@ class CampaignHostRegistryEntry implements ICampaignHostRegistryEntry {
     readonly host: CampaignMatchHost;
     readonly syncSession: CampaignSyncSession;
     readonly arbiter: CampaignGmArbiter;
+    readonly eventStoreDurability: CampaignEventStoreDurability;
     readonly unregisterActiveHost: () => void;
   }) {
     this.matchId = input.matchId;
@@ -135,6 +127,7 @@ class CampaignHostRegistryEntry implements ICampaignHostRegistryEntry {
     this.host = input.host;
     this.syncSession = input.syncSession;
     this.arbiter = input.arbiter;
+    this.eventStoreDurability = input.eventStoreDurability;
     this.unregisterActiveHost = input.unregisterActiveHost;
     this.campaignId = input.host.campaignId;
     this.hostPlayerId = input.host.getHostPlayerId();
@@ -276,14 +269,15 @@ export class CampaignHostRegistry {
       return existing;
     }
 
+    // The environment decides which log this campaign writes to, and it
+    // says which one it picked. A process that promised durability and
+    // cannot deliver it throws here rather than hosting the campaign on
+    // a log that disappears with the process.
+    const eventStore = selectCampaignEventStore();
     const host = new CampaignMatchHost({
       campaignId: snapshot.campaignId,
       hostPlayerId: snapshot.hostPlayerId,
-      // The server-resident host is durable whenever SQLite is initialized.
-      // Browser/unit hosts without it retain the in-memory factory seam.
-      eventStore: sqliteReady()
-        ? new JournalCampaignEventStore(campaignJournal())
-        : createDefaultCampaignEventStore(),
+      eventStore: eventStore.store,
       initialState: snapshot.state,
     });
     const syncSession = new CampaignSyncSession(host, { matchId });
@@ -319,6 +313,7 @@ export class CampaignHostRegistry {
       host,
       syncSession,
       arbiter,
+      eventStoreDurability: eventStore.durability,
       unregisterActiveHost,
     });
     // A REBUILT session starts paused: it has no GM connection, so the
