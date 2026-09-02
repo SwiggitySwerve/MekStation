@@ -37,7 +37,11 @@ import type {
   IEventHistoryStreamRef,
   IEventHistoryBranch,
 } from './EventHistoryBranchContract';
-import type { IEntityEventRef, IEventJournal } from './EventJournalContract';
+import type {
+  IEntityEventRef,
+  IEventJournal,
+  IStoredEvent,
+} from './EventJournalContract';
 import type { SQLiteEventHistoryBranchStore } from './SQLiteEventHistoryBranchStore';
 
 import {
@@ -89,12 +93,23 @@ export interface IResolvedBranchPath extends IEventHistoryStreamRef {
   readonly segments: readonly IBranchPathSegment[];
 }
 
-/** The narrow read this resolver needs. */
-export interface IBranchSegmentReader {
+/**
+ * The narrow read this resolver needs.
+ *
+ * Generic over the event it yields so a caller that HAS more than the
+ * narrow view - the production journal reader hands back whole
+ * `IStoredEvent`s - can keep those fields through materialisation. The
+ * default is still `IBranchEventView`, so every existing caller reads
+ * exactly as before, and the verification this resolver performs is
+ * unchanged: it only ever touches the narrow fields.
+ */
+export interface IBranchSegmentReader<
+  TEvent extends IBranchEventView = IBranchEventView,
+> {
   read(
     stream: IEventHistoryStreamRef,
     segment: IBranchPathSegment,
-  ): Promise<readonly IBranchEventView[]>;
+  ): Promise<readonly TEvent[]>;
 }
 
 /** Which entity's history to prove at a head. */
@@ -173,11 +188,11 @@ export function resolveBranchPath(
  * Read and verify every segment, returning the whole history at that head
  * in ascending revision order.
  */
-export async function materializeBranchPath(
-  reader: IBranchSegmentReader,
+export async function materializeBranchPath<TEvent extends IBranchEventView>(
+  reader: IBranchSegmentReader<TEvent>,
   path: IResolvedBranchPath,
-): Promise<readonly IBranchEventView[]> {
-  const materialized: IBranchEventView[] = [];
+): Promise<readonly TEvent[]> {
+  const materialized: TEvent[] = [];
   const seenEventIds = new Set<string>();
   // The event the next segment must continue from. Starts at genesis, and
   // survives an empty segment unchanged - a branch whose base equals its
@@ -211,11 +226,11 @@ export async function materializeBranchPath(
  * history on a superseded branch than on the effective one, which is
  * precisely what prior-head inspection is for.
  */
-export async function readEntityHistoryAtHead(
-  reader: IBranchSegmentReader,
+export async function readEntityHistoryAtHead<TEvent extends IBranchEventView>(
+  reader: IBranchSegmentReader<TEvent>,
   path: IResolvedBranchPath,
   selector: IBranchEntitySelector,
-): Promise<readonly IBranchEventView[]> {
+): Promise<readonly TEvent[]> {
   const events = await materializeBranchPath(reader, path);
   return Object.freeze(
     events.filter((event) =>
@@ -236,9 +251,9 @@ export async function readEntityHistoryAtHead(
  * rather than quietly answering with root events under a candidate's name.
  * PR 2's candidate storage is what will make other branches readable.
  */
-export function journalBranchSegmentReader(
-  journal: IEventJournal,
-): IBranchSegmentReader {
+export function journalBranchSegmentReader<TPayload>(
+  journal: IEventJournal<TPayload>,
+): IBranchSegmentReader<IStoredEvent<TPayload>> {
   return {
     read: async (stream, segment) => {
       if (segment.branchId !== ROOT_EVENT_BRANCH_ID) {
@@ -247,7 +262,7 @@ export function journalBranchSegmentReader(
           `The journal stores only the '${ROOT_EVENT_BRANCH_ID}' branch; '${segment.branchId}' has no events`,
         );
       }
-      const collected: IBranchEventView[] = [];
+      const collected: IStoredEvent<TPayload>[] = [];
       let after = segment.fromRevision;
       while (after < segment.throughRevision) {
         const page = await journal.readStream({
@@ -269,11 +284,11 @@ export function journalBranchSegmentReader(
   };
 }
 
-async function readSegment(
-  reader: IBranchSegmentReader,
+async function readSegment<TEvent extends IBranchEventView>(
+  reader: IBranchSegmentReader<TEvent>,
   path: IResolvedBranchPath,
   segment: IBranchPathSegment,
-): Promise<readonly IBranchEventView[]> {
+): Promise<readonly TEvent[]> {
   return reader.read(
     { streamType: path.streamType, streamId: path.streamId },
     segment,
