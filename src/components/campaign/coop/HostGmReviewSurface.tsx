@@ -128,6 +128,20 @@ export function HostGmReviewSurface({
   // the rescue below is for the case where a refusal disables the very
   // button under the cursor, and nothing else.
   const focusedApproveRef = useRef<string | null>(null);
+  // What the host last DID, for the live region. Deliberately phrased as
+  // "sent": this surface hands the decision to a callback and never sees
+  // an acknowledgement, so announcing "vetoed" would assert a server
+  // outcome it holds no evidence for. The row leaving the queue is that
+  // evidence, and it arrives on its own.
+  const [decisionAnnouncement, setDecisionAnnouncement] = useState('');
+
+  /** Records the decision, then forwards it. */
+  const decide = (entry: IPendingProposal, decision: GmDecision): void => {
+    setDecisionAnnouncement(
+      `${decision === 'veto' ? 'Veto' : 'Approval'} sent for ${entry.effectSummary}.`,
+    );
+    onDecide(entry.proposal.proposalId, decision);
+  };
 
   const progressionEnabled = lifecycle?.progressionEnabled;
   useEffect(() => {
@@ -158,6 +172,23 @@ export function HostGmReviewSurface({
       <h3 className="mb-3 text-sm font-semibold tracking-wide text-slate-400 uppercase">
         GM Review — Pending Guest Proposals
       </h3>
+
+      {/*
+        What the host just did (umbrella 19.3). Separate from the posture
+        strip above: the posture says whether the server will take a
+        decision, this says one was sent. Empty - and therefore silent -
+        until the host actually decides something, so a cancelled veto
+        announces nothing.
+      */}
+      <p
+        data-testid="gm-decision-announcement"
+        role="status"
+        aria-live="polite"
+        aria-atomic="true"
+        className="sr-only"
+      >
+        {decisionAnnouncement}
+      </p>
 
       {/* The always-on posture strip, so "the server will take my
           decision" is a fact the host can read rather than assume. */}
@@ -296,7 +327,7 @@ export function HostGmReviewSurface({
                   onFocus={() => {
                     focusedApproveRef.current = entry.proposal.proposalId;
                   }}
-                  onClick={() => onDecide(entry.proposal.proposalId, 'approve')}
+                  onClick={() => decide(entry, 'approve')}
                   className={
                     decisionRefused(entry, 'approve', lifecycle)
                       ? 'cursor-not-allowed rounded-lg border border-slate-600 bg-slate-800 px-3 py-1.5 text-sm font-medium text-slate-500'
@@ -349,7 +380,7 @@ export function HostGmReviewSurface({
           fallbackFocusRef={surfaceRef}
           onCancel={() => setVetoTarget(null)}
           onConfirm={() => {
-            onDecide(vetoTarget.proposal.proposalId, 'veto');
+            decide(vetoTarget, 'veto');
             setVetoTarget(null);
           }}
         />
