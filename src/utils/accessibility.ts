@@ -57,10 +57,26 @@ const FOCUSABLE_SELECTOR =
  * @returns Cleanup function to remove the event listener
  */
 export function trapFocus(element: HTMLElement): () => void {
+  // Visibility is decided WITHOUT `offsetParent`, which this filter used
+  // until it acquired its first production caller and the check turned
+  // out to be wrong twice over. `offsetParent` is null for any
+  // `position: fixed` element - which is essentially every modal, the one
+  // thing a focus trap exists for - so the filter emptied itself and the
+  // trap silently did nothing in a real browser. It is also a layout
+  // property, and jsdom performs no layout, so it is null for EVERY
+  // element under test: any component test asserting the trap would have
+  // passed vacuously. The attribute checks below mean the same thing for
+  // the hidden elements actually worth skipping, and mean it in both
+  // environments.
   const getFocusableElements = (): HTMLElement[] =>
     Array.from(
       element.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR),
-    ).filter((el) => !el.hasAttribute('disabled') && el.offsetParent !== null);
+    ).filter(
+      (el) =>
+        !el.hasAttribute('disabled') &&
+        !el.hidden &&
+        el.getAttribute('aria-hidden') !== 'true',
+    );
 
   const handleKeyDown = (e: KeyboardEvent): void => {
     if (e.key !== 'Tab') return;
