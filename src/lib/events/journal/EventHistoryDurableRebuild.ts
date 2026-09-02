@@ -25,41 +25,15 @@
  * @spec openspec/changes/add-authoritative-history-branches/specs/gm-combat-interventions/spec.md
  */
 
-import type Database from 'better-sqlite3';
-
 import { getSQLiteService } from '@/services/persistence/SQLiteService';
 
 import type { IEventHistoryStreamRef } from './EventHistoryBranchContract';
 import type { StreamRebuildRefusal } from './EventHistoryCommandAdmission';
 
 import { readRebuildRefusal } from './EventHistoryCommandAdmission';
+import { readEffectiveStreamHead } from './EventHistoryEffectiveStreamHead';
 import { SQLiteEventHistoryBranchStore } from './SQLiteEventHistoryBranchStore';
 import { SQLiteEventHistoryCorrectionLeaseStore } from './SQLiteEventHistoryCorrectionLeaseStore';
-
-/**
- * The journal revision this stream is at.
- *
- * Read without naming a branch, exactly as the correction-lease store's
- * own head read does — asking for a branch here would let the two reads
- * disagree about which head they mean. A stream with no head row sits at
- * revision 0: nothing has been appended yet, which is not a missing
- * stream.
- */
-function readStreamRevision(
-  db: Database.Database,
-  stream: IEventHistoryStreamRef,
-): number {
-  const row = db
-    .prepare(
-      `SELECT stream_revision AS revision
-         FROM event_journal_stream_heads
-        WHERE stream_type = ? AND stream_id = ?`,
-    )
-    .get(stream.streamType, stream.streamId) as
-    | { readonly revision: number }
-    | undefined;
-  return row?.revision ?? 0;
-}
 
 /**
  * The live rebuild on this stream, or null.
@@ -80,6 +54,6 @@ export function readDurableStreamRebuild(
     branches,
     leases,
     stream,
-    readStreamRevision(db, stream),
+    readEffectiveStreamHead(db, branches, stream).revision,
   );
 }
