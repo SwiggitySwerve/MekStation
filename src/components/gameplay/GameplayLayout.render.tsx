@@ -15,6 +15,7 @@ import type {
   IWeaponStatus,
   TacticalActionHandler,
 } from '@/types/gameplay';
+import type { CommandAvailability } from '@/types/gameplay/TacticalCommandInterfaces';
 import type { ShellMode } from '@/types/gameplay/TacticalShellInterfaces';
 import type { ITacticalMapProjectionFrame } from '@/utils/gameplay/tacticalMapProjection';
 
@@ -60,6 +61,7 @@ interface GameplayLayoutViewProps {
   readonly phaseQueueProjection: PhaseQueueProjection;
   readonly shellMode: ShellMode;
   readonly gmIntervention: IGmTacticalInterventionSurface | undefined;
+  readonly commandGate: CommandAvailability | undefined;
   readonly localFogPlayerId: string;
   readonly playerSide: GameSide;
   readonly selectedUnitId: string | null;
@@ -119,6 +121,7 @@ export function GameplayLayoutView({
   phaseQueueProjection,
   shellMode,
   gmIntervention,
+  commandGate,
   localFogPlayerId,
   playerSide,
   selectedUnitId,
@@ -257,6 +260,7 @@ export function GameplayLayoutView({
           actionContext={actionContext}
           shellMode={shellMode}
           gmIntervention={gmIntervention}
+          commandGate={commandGate}
           onAction={onAction}
           commandPreviewInputs={commandPreviewInputs}
           composerDockContext={composerDockContext}

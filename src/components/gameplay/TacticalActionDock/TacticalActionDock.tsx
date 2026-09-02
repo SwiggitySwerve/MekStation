@@ -32,8 +32,6 @@ import type {
 } from '@/types/gameplay';
 import type { ShellMode } from '@/types/gameplay/TacticalShellInterfaces';
 
-import { isGmTacticalCommandId } from '@/lib/interventions';
-
 import {
   AttackIntentComposer,
   type IAttackComposerContext,
@@ -47,6 +45,7 @@ import {
   isDangerCommand,
   resolveAvailability,
 } from './TacticalActionDock.commandButton';
+import { createTacticalCommandDispatcher } from './TacticalActionDock.dispatch';
 import {
   GmInterventionConfirmationPanel,
   GmInterventionPlayerLog,
@@ -294,59 +293,26 @@ export function TacticalActionDock({
     previewInputs ?? {},
   );
 
-  const dispatchCommand = useCallback(
-    (command: ITacticalCommand, trigger?: HTMLButtonElement) => {
-      const availability = resolveAvailability(
-        command,
-        effectiveCtx,
+  // The dispatcher is built by a module-level factory rather than
+  // inlined here so its refusal has a caller a test can reach: a
+  // gated dock renders every control disabled, and React delivers no
+  // click to a disabled button, so an inline guard was unfalsifiable
+  // (finding #71).
+  //
+  // `commandGate` belongs in the deps: without it the dispatcher
+  // closes over the gate as it was when the dock last rebuilt it, so
+  // a refusal that arrived since would be invisible to the dispatch
+  // path and the command would commit against a board the client
+  // knows is stale - the exact silent retry the gate exists to stop.
+  const dispatchCommand = useMemo(
+    () =>
+      createTacticalCommandDispatcher({
+        ctx: effectiveCtx,
         commandGate,
-      );
-      if (!availability.available) {
-        // Disabled-with-reason: refuse the click silently. The
-        // tooltip is the explanation surface — no secondary toast.
-        trigger?.focus();
-        return;
-      }
-      if (
-        command.category === 'gm' &&
-        gmIntervention &&
-        isGmTacticalCommandId(command.id)
-      ) {
-        const preview = gmIntervention.preview({
-          commandId: command.id,
-          command,
-          ctx: effectiveCtx,
-        });
-        setGmPreviewState({ commandLabel: command.label, preview });
-        trigger?.focus();
-        return;
-      }
-      if (command.requiresConfirmation) {
-        // Spec `End phase distinguishes no-op from unresolved
-        // actions` — irreversible commits route through the
-        // global confirm. Today we wrap the existing native
-        // confirm() so the dock has the gate in place without
-        // depending on a modal stack that doesn't exist yet.
-        // Wave 7.3+ replaces this with the dedicated confirm UI.
-        const ok =
-          typeof window === 'undefined'
-            ? true
-            : window.confirm(`Confirm: ${command.label}?`);
-        trigger?.focus();
-        if (!ok) return;
-      }
-      const result = command.commit(effectiveCtx);
-      if (result.payload === undefined) {
-        onAction(result.actionId);
-      } else {
-        onAction(result.actionId, result.payload);
-      }
-    },
-    // `commandGate` belongs here: without it the callback closes over the
-    // gate as it was when the dock last re-created this handler, so a
-    // refusal that arrived since would be invisible to the dispatch path
-    // and the command would commit against a board the client knows is
-    // stale - the exact silent retry the gate exists to prevent.
+        gmIntervention,
+        onAction,
+        onGmPreview: setGmPreviewState,
+      }),
     [commandGate, effectiveCtx, gmIntervention, onAction],
   );
 

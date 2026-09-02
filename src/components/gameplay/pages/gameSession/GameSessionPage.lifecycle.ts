@@ -5,6 +5,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import type { InteractiveSession } from '@/engine/GameEngine';
 import type { IGameSession } from '@/types/gameplay';
 
+import { useP2PPeerPresence } from '@/hooks/useP2PPeerPresence';
 import {
   deriveReconnectRoomCode,
   useP2PReconnectSession,
@@ -224,6 +225,12 @@ export function useGameSessionLifecycle({
   useP2PReconnectSession(matchId, {
     redirectToLobby: redirectReconnectToLobby,
   });
+
+  // The reconnect hook above answers "was the host there when I loaded
+  // this page". This one answers "is my peer there NOW" - the case a
+  // player actually hits, and the one nothing watched before umbrella
+  // 19.2. Both write the same store field.
+  useP2PPeerPresence(matchId);
 
   useInteractiveBattleBeforeUnloadWarning(
     shouldWarnBeforeInteractiveBattleUnload({
