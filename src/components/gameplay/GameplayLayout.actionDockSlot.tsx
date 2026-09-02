@@ -8,6 +8,7 @@ import type {
   IUnitGameState,
   TacticalActionHandler,
 } from '@/types/gameplay';
+import type { CommandAvailability } from '@/types/gameplay/TacticalCommandInterfaces';
 import type { ShellMode } from '@/types/gameplay/TacticalShellInterfaces';
 
 import type { IAttackComposerContext } from './AttackIntentComposer';
@@ -39,6 +40,7 @@ export function GameplayActionDockSlot({
   sessionId,
   playerSide,
   selectedUnit,
+  commandGate,
 }: {
   readonly actionContext: ITacticalCommandContext;
   readonly shellMode: ShellMode;
@@ -54,6 +56,7 @@ export function GameplayActionDockSlot({
   readonly sessionId: string;
   readonly playerSide: GameSide;
   readonly selectedUnit: IUnitGameState | null | undefined;
+  readonly commandGate?: CommandAvailability;
 }): React.ReactElement {
   return (
     <ShellSlot id="bottom-dock" ownerId="TacticalActionDock">
@@ -62,6 +65,7 @@ export function GameplayActionDockSlot({
         shellMode={shellMode}
         gmIntervention={gmIntervention}
         onAction={onAction}
+        commandGate={commandGate}
         previewInputs={commandPreviewInputs}
         intentComposer={composerDockContext}
         attackComposer={attackComposerContext}

@@ -25,6 +25,7 @@ import {
 } from '@/components/gameplay/pages/GameSessionPage.states';
 import { SpectatorView } from '@/components/gameplay/SpectatorView';
 import { usePhaseQueueProjection } from '@/hooks/gameplay';
+import { useP2PCommandGate } from '@/hooks/useP2PCommandGate';
 import {
   completedInteractiveElement,
   completedSessionElement,
@@ -218,6 +219,9 @@ export default function GameSessionPage(): React.ReactElement {
     setSpectatorMode,
   });
 
+  // A P2P match with an absent peer refuses tactical commands; a local
+  // battle gets no gate at all (umbrella 19.2, finding #61).
+  const commandGate = useP2PCommandGate(routeContext.matchId);
   const isInteractive = Boolean(interactiveSession);
   const phase = session?.currentState.phase;
   const phaseQueueProjection = usePhaseQueueProjection();
@@ -364,6 +368,7 @@ export default function GameSessionPage(): React.ReactElement {
             playerSide={GameSide.Player}
             shellMode={shellMode}
             gmIntervention={gmIntervention}
+            commandGate={commandGate}
           />
         </div>
         {/*

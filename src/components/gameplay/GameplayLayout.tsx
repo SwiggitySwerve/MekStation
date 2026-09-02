@@ -93,6 +93,7 @@ export function GameplayLayout({
   playerSide = GameSide.Player,
   shellMode = 'combat',
   gmIntervention,
+  commandGate,
   className = '',
 }: GameplayLayoutProps): React.ReactElement {
   const { currentState, events, config, units } = session;
@@ -493,6 +494,7 @@ export function GameplayLayout({
       phaseQueueProjection={phaseQueueProjection}
       shellMode={shellMode}
       gmIntervention={gmIntervention}
+      commandGate={commandGate}
       localFogPlayerId={localFogPlayerId}
       playerSide={playerSide}
       selectedUnitId={selectedUnitId}
