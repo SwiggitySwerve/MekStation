@@ -9,11 +9,11 @@
 
 import type Database from 'better-sqlite3';
 
-import type { IProjectCampaignStreamDeps } from '@/lib/campaign/delivery/projectCampaignStreamForGrant';
 import type {
   IParticipantAckRequest,
   IParticipantDeliveryCursor,
 } from '@/lib/campaign/delivery/participantDeliveryCursor';
+import type { IProjectCampaignStreamDeps } from '@/lib/campaign/delivery/projectCampaignStreamForGrant';
 import type { ICampaignGrant } from '@/lib/campaign/grants/ICampaignGrantStore';
 import type {
   EventHistoryBranchStatus,

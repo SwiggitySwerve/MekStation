@@ -67,8 +67,8 @@ import {
   type ICampaignCommandReceipt,
   type ICampaignEventStore,
 } from './ICampaignEventStore';
-import { bindJournalCapabilityPorts } from './journalCapabilityPorts';
 import { InMemoryCampaignEventStore } from './InMemoryCampaignEventStore';
+import { bindJournalCapabilityPorts } from './journalCapabilityPorts';
 
 /** The journal stream type every campaign stream lives under (design D1). */
 export const CAMPAIGN_STREAM_TYPE = 'campaign' as const;

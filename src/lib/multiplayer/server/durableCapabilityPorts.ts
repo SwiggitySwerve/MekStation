@@ -15,15 +15,15 @@ import type {
   IEventHistoryBranch,
   IEventHistoryStreamRef,
 } from '@/lib/events/journal/EventHistoryBranchContract';
-import { SQLiteEventHistoryBranchStore } from '@/lib/events/journal/SQLiteEventHistoryBranchStore';
 import type {
   ICampaignSessionParticipantPort,
   IEventHistoryBranchPort,
   IParticipantDeliveryCursorPort,
 } from '@/lib/events/storeCapabilityPorts';
-import { getSQLiteService } from '@/services/persistence/SQLiteService';
 
 import { bindSqliteSessionPorts } from '@/lib/campaign/sync/journalCapabilityPorts';
+import { SQLiteEventHistoryBranchStore } from '@/lib/events/journal/SQLiteEventHistoryBranchStore';
+import { getSQLiteService } from '@/services/persistence/SQLiteService';
 
 type CapabilityTarget = Partial<
   IEventHistoryBranchPort &
