@@ -11,6 +11,7 @@ import { CampaignDashboard } from '@/components/campaign/dashboard/CampaignDashb
 import { DayReportPanel } from '@/components/campaign/DayReportPanel';
 import { CampaignSharePanelConnected } from '@/components/campaign/share';
 import { Button, PageLayout } from '@/components/ui';
+import { getCoopMatchId } from '@/lib/campaign/coop/coopRuntimeSession';
 import { materializeCampaignMissionEncounter } from '@/lib/campaign/encounter/materializeCampaignMissionEncounter';
 import {
   type CanonicalCombatCatalogSnapshot,
@@ -332,7 +333,10 @@ export default function CampaignDashboardPage(): React.ReactElement {
        * so a replica shows the shared-copy notice rather than share
        * controls that the server would refuse anyway.
        */}
-      <CampaignSharePanelConnected campaignId={campaign.id} />
+      <CampaignSharePanelConnected
+        campaignId={campaign.id}
+        matchId={getCoopMatchId(campaign.coopSession)}
+      />
 
       {/*
        * Campaign Command Center (`add-campaign-command-center`, Wave 6.1.B).

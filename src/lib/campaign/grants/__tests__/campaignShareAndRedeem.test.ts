@@ -24,6 +24,7 @@ import type { SerializedCampaign } from '@/types/campaign/SerializedCampaign';
 
 import { buildPopulatedCampaign } from '@/lib/campaign/persistence/__tests__/campaignFixture';
 import { buildSerializedCampaign } from '@/lib/campaign/persistence/campaignEnvelope';
+import { bindCampaignSessionParticipant } from '@/services/campaignPersistence/CampaignSessionParticipantStore';
 import {
   getSQLiteService,
   resetSQLiteService,
@@ -41,6 +42,7 @@ import {
 import { redeemCampaignGrant } from '../redeemCampaignGrant';
 
 const CAMPAIGN_ID = 'campaign-share-subject';
+const SHARE_GM = 'pid-share-gm';
 const ISSUED_AT = '2026-08-23T00:00:00.000Z';
 const EXPIRES_AT = '2026-09-23T00:00:00.000Z';
 const NOW_MS = Date.parse('2026-08-24T00:00:00.000Z');
@@ -72,6 +74,22 @@ function storeCampaign(
      VALUES (?, 1, 2, ?, 'mercenary', '3025-01-01T00:00:00.000Z',
              0, 'device-test', ?, ?)`,
   ).run(campaignId, campaignId, ISSUED_AT, JSON.stringify(record));
+  seatGm(campaignId);
+}
+
+/**
+ * Seats the campaign's GM. Sharing is now gated on the caller holding
+ * that seat as well as on the campaign being a source here, so a share
+ * test has to say who is asking.
+ */
+function seatGm(campaignId: string): void {
+  bindCampaignSessionParticipant({
+    campaignId,
+    sessionId: `session-${campaignId}`,
+    participantId: SHARE_GM,
+    seat: 'gm',
+    boundAt: ISSUED_AT,
+  });
 }
 
 /** Signs a token for `grant` with `keys`, optionally widening scopes. */
@@ -130,6 +148,7 @@ describe('campaign share and redeem', () => {
   function issue(): ICampaignGrant {
     const result = issueShareGrant(db(), {
       campaignId: CAMPAIGN_ID,
+      callerId: SHARE_GM,
       participantId: 'participant-guest',
       issuerPublicKey: toBase64(keys.publicKey),
       scopes: ['campaign'],
@@ -148,7 +167,7 @@ describe('campaign share and redeem', () => {
       const grant = issue();
       expect(grant.scopes).toEqual(['campaign']);
 
-      const listed = listShareGrants(db(), CAMPAIGN_ID);
+      const listed = listShareGrants(db(), CAMPAIGN_ID, SHARE_GM);
       expect(listed.kind).toBe('ok');
       if (listed.kind !== 'ok') return;
       expect(listed.value.map((g) => g.grantId)).toEqual([grant.grantId]);
@@ -159,12 +178,13 @@ describe('campaign share and redeem', () => {
         CAMPAIGN_ID,
         grant.grantId,
         '2026-08-25T00:00:00.000Z',
+        SHARE_GM,
       );
       expect(revoked.kind).toBe('ok');
 
       // A revoked grant stays listed and carries revokedAt: the owner
       // must be able to tell "never shared" from "shared and withdrawn".
-      const after = listShareGrants(db(), CAMPAIGN_ID);
+      const after = listShareGrants(db(), CAMPAIGN_ID, SHARE_GM);
       expect(after.kind).toBe('ok');
       if (after.kind !== 'ok') return;
       expect(after.value[0]?.revokedAt).toBe('2026-08-25T00:00:00.000Z');
@@ -180,6 +200,7 @@ describe('campaign share and redeem', () => {
 
       const issued = issueShareGrant(db(), {
         campaignId: CAMPAIGN_ID,
+        callerId: SHARE_GM,
         participantId: 'participant-guest',
         issuerPublicKey: toBase64(keys.publicKey),
         scopes: ['campaign'],
@@ -190,7 +211,7 @@ describe('campaign share and redeem', () => {
       expect(issued).toEqual({ kind: 'refused', reason: 'not-source' });
       // Nothing was written: a refusal that still minted a row would be
       // worse than no gate at all.
-      const listed = listShareGrants(db(), CAMPAIGN_ID);
+      const listed = listShareGrants(db(), CAMPAIGN_ID, SHARE_GM);
       expect(listed).toEqual({ kind: 'refused', reason: 'not-source' });
     });
 
@@ -198,6 +219,7 @@ describe('campaign share and redeem', () => {
       expect(
         issueShareGrant(db(), {
           campaignId: 'campaign-absent',
+          callerId: SHARE_GM,
           participantId: 'p',
           issuerPublicKey: toBase64(keys.publicKey),
           scopes: ['campaign'],
@@ -217,11 +239,12 @@ describe('campaign share and redeem', () => {
         'campaign-other',
         grant.grantId,
         '2026-08-25T00:00:00.000Z',
+        SHARE_GM,
       );
       expect(refused).toEqual({ kind: 'refused', reason: 'invalid-request' });
 
       // The check runs BEFORE the write, so the grant is still active.
-      const listed = listShareGrants(db(), CAMPAIGN_ID);
+      const listed = listShareGrants(db(), CAMPAIGN_ID, SHARE_GM);
       expect(listed.kind).toBe('ok');
       if (listed.kind !== 'ok') return;
       expect(listed.value[0]?.revokedAt ?? null).toBeNull();

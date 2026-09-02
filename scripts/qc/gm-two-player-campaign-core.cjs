@@ -3,7 +3,7 @@ const crypto = require('node:crypto');
 const net = require('node:net');
 const path = require('node:path');
 const GROUP_CATALOG =
-  'fixture-smoke:26,membership-smoke:15,evidence-smoke:27,fault-smoke:28,smoke:15,authority-pack1:21,exactly-once-pack:21,fault-pack:21,token-pack:21,restart-pack:21,resilience-pack:21,privacy-pack:30,proposal-pack:30,authority:29,visibility:30,combat:31,campaign:32,failure:32,performance:33,all:34,traceability:34,quality:34,manual-setup:34,scope:34';
+  'fixture-smoke:26,membership-smoke:15,evidence-smoke:27,fault-smoke:28,smoke:15,authority-pack1:21,exactly-once-pack:21,fault-pack:21,token-pack:21,restart-pack:21,resilience-pack:21,privacy-pack:30,proposal-pack:30,three-context-pack:30,authority:29,visibility:30,combat:31,campaign:32,failure:32,performance:33,all:34,traceability:34,quality:34,manual-setup:34,scope:34';
 const REGISTERED_GROUPS = Object.freeze(
   Object.fromEntries(
     GROUP_CATALOG.split(',').map((entry) => {
@@ -61,6 +61,12 @@ function buildRunPlan({ group, runId, repoRoot }) {
     // surfaces - each named, with its evidence, in its spec's header.
     'privacy-pack': ['e2e/gm-two-player-privacy.pack.spec.ts'],
     'proposal-pack': ['e2e/gm-two-player-proposals.pack.spec.ts'],
+    // The three-context privacy journey belongs to
+    // `add-authority-audit-and-privacy-proof` PR 10, not to this
+    // umbrella, but this runner is where CI gating lives - and the
+    // share-roster leak it caught (finding #21) went unnoticed precisely
+    // because no gated group ran it.
+    'three-context-pack': ['e2e/authority-privacy-three-context.spec.ts'],
   };
   const specs = SPEC_BY_GROUP[group];
   if (!specs) {
