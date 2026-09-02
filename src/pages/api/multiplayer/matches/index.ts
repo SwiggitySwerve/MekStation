@@ -31,6 +31,9 @@ import {
   CreateMultiplayerMatchBodySchema,
   type CreateMultiplayerMatchBody,
 } from '@/lib/api/securitySchemas';
+import { commitCampaignCreationCheckpoint } from '@/lib/campaign/authority/campaignCreationCheckpoint';
+import { campaignCreationCheckpointPorts } from '@/lib/campaign/authority/campaignCreationCheckpointPorts';
+import { CAMPAIGN_JOURNAL_AUTHORITY_ENABLED } from '@/lib/campaign/sync/JournalCampaignEventStore';
 import { authenticateRequest } from '@/lib/multiplayer/server/auth';
 import { getCampaignHostRegistry } from '@/lib/multiplayer/server/CampaignHostRegistry';
 import { getDefaultMatchStore } from '@/lib/multiplayer/server/getDefaultMatchStore';
@@ -209,6 +212,36 @@ function buildMatchMeta(
   };
 }
 
+/**
+ * Await the campaign creation authority checkpoint for a co-op host.
+ *
+ * Throws on refusal, naming the stage, so the caller's existing
+ * rollback (close the match, answer 500) covers it. Without durable
+ * ports there is nothing to commit to and the pre-checkpoint behaviour
+ * is preserved - the same structural-flag convention the campaign
+ * membership and force-claim ports use.
+ */
+async function commitCoopCampaignAuthority(
+  campaignId: string,
+  matchId: string,
+  hostPlayerId: string,
+): Promise<void> {
+  const ports = campaignCreationCheckpointPorts();
+  if (!ports) return;
+  const checkpoint = await commitCampaignCreationCheckpoint(ports, {
+    campaignId,
+    sessionId: matchId,
+    gmParticipantId: hostPlayerId,
+    journalAuthorityEnabled: CAMPAIGN_JOURNAL_AUTHORITY_ENABLED,
+    committedAt: new Date().toISOString(),
+  });
+  if (checkpoint.kind === 'failed') {
+    throw new Error(
+      `Campaign creation checkpoint failed at ${checkpoint.stage}: ${checkpoint.reason}`,
+    );
+  }
+}
+
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<ICreateMatchResponse | IErrorResponse>,
@@ -248,6 +281,15 @@ export default async function handler(
       if (!meta.roomCode) {
         throw new Error('Co-op campaign registration requires a room code');
       }
+      // Umbrella 10.1: every authority piece the campaign depends on
+      // commits BEFORE the 201. A refusal throws into the catch below,
+      // which already closes the match - so a failed checkpoint leaves
+      // no half-created campaign for the lobby to navigate into.
+      await commitCoopCampaignAuthority(
+        body.coopCampaign.campaignId,
+        meta.matchId,
+        hostPlayerId,
+      );
       await getCampaignHostRegistry().register(meta.matchId, {
         campaignId: body.coopCampaign.campaignId,
         hostPlayerId,
