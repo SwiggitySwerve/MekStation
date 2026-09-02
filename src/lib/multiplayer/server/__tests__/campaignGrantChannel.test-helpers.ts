@@ -181,6 +181,8 @@ export function registryForHost(
     host,
     syncSession,
     arbiter,
+    // The helper hands the binder a host built in memory, and says so.
+    eventStoreDurability: 'ephemeral',
     publishParticipation: () => undefined,
     subscribeParticipation: () => () => undefined,
     getParticipationRecords: () => [],
