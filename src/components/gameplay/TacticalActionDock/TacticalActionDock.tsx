@@ -42,7 +42,11 @@ import {
   MovementIntentComposer,
   type IMovementComposerContext,
 } from '../MovementIntentComposer';
-import { CommandTooltip } from './CommandTooltip';
+import {
+  CommandButton,
+  isDangerCommand,
+  resolveAvailability,
+} from './TacticalActionDock.commandButton';
 import {
   GmInterventionConfirmationPanel,
   GmInterventionPlayerLog,
@@ -94,6 +98,24 @@ export interface TacticalActionDockProps {
    * weapon-attack declaration surface (Single Attack Authority, D9).
    */
   readonly attackComposer?: IAttackComposerContext;
+  /**
+   * A surface-level availability override (umbrella 19.2). When it refuses,
+   * EVERY command is refused with its reason instead of being asked whether
+   * it is individually available.
+   *
+   * Typed as `CommandAvailability` - a type this layer already owns -
+   * rather than as a networked lifecycle posture. The dock is the shared
+   * tactical surface, single-player included, and no component under
+   * `src/components/gameplay` imports from `src/lib/multiplayer`; keeping
+   * that boundary means the translation from posture to gate happens in
+   * `NetworkedGameSurface`, which legitimately knows both. The dock never
+   * learns what a lifecycle is.
+   *
+   * Omitted on surfaces with no gate behind them, which keeps their
+   * pre-19.2 behaviour rather than silently refusing commands that were
+   * always safe.
+   */
+  readonly commandGate?: CommandAvailability;
   /** Optional className for styling. */
   readonly className?: string;
 }
@@ -108,86 +130,6 @@ const CATEGORY_LABELS: Record<ITacticalCommand['category'], string> = {
   gm: 'GM',
 };
 
-interface CommandButtonProps {
-  readonly command: ITacticalCommand;
-  readonly availability: CommandAvailability;
-  readonly onActivate: (trigger: HTMLButtonElement) => void;
-}
-
-function CommandButton({
-  command,
-  availability,
-  onActivate,
-}: CommandButtonProps): React.ReactElement {
-  const [hover, setHover] = useState(false);
-  const disabled = !availability.available;
-  const danger = isDangerCommand(command);
-
-  const baseClasses =
-    'relative px-3 py-2 min-h-[40px] whitespace-nowrap rounded font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2';
-  const enabledClasses = danger
-    ? 'border border-red-500 bg-red-950/80 text-red-50 hover:bg-red-900 focus:ring-red-400 cursor-pointer'
-    : 'bg-surface-raised hover:bg-surface-deep text-text-theme-primary focus:ring-border-theme cursor-pointer';
-  const disabledClasses = danger
-    ? 'border border-red-800 bg-red-950/30 text-red-200/60 opacity-60 cursor-not-allowed'
-    : 'bg-surface-base text-text-theme-secondary opacity-50 cursor-not-allowed';
-
-  return (
-    <div
-      className="relative"
-      onMouseEnter={() => setHover(true)}
-      onMouseLeave={() => setHover(false)}
-      onFocus={() => setHover(true)}
-      onBlur={() => setHover(false)}
-    >
-      <button
-        type="button"
-        disabled={disabled}
-        onClick={(event) => onActivate(event.currentTarget)}
-        className={`${baseClasses} ${disabled ? disabledClasses : enabledClasses}`}
-        data-testid={`command-btn-${command.id}`}
-        data-command-id={command.id}
-        data-command-category={command.category}
-        data-command-danger={danger ? 'true' : 'false'}
-        aria-disabled={disabled}
-        aria-describedby={
-          disabled ? `command-disabled-reason-${command.id}` : undefined
-        }
-        aria-label={
-          danger ? `${command.label} (requires confirmation)` : command.label
-        }
-        title={command.label}
-      >
-        {command.label}
-        {command.hotkey && (
-          <span
-            className={`ml-2 text-xs opacity-75 ${
-              danger ? 'text-red-100' : 'text-text-theme-secondary'
-            }`}
-          >
-            ({command.hotkey})
-          </span>
-        )}
-      </button>
-      {hover && (
-        <CommandTooltip command={command} availability={availability} />
-      )}
-    </div>
-  );
-}
-
-function isDangerCommand(command: ITacticalCommand): boolean {
-  return (
-    command.requiresConfirmation &&
-    (command.id === 'utility.eject' ||
-      command.id === 'utility.withdraw' ||
-      command.id === 'utility.concede')
-  );
-}
-
-/**
- * Group of commands sharing a category.
- */
 interface CommandGroupProps {
   readonly category: ITacticalCommand['category'];
   readonly commands: readonly ITacticalCommand[];
@@ -196,11 +138,13 @@ interface CommandGroupProps {
     command: ITacticalCommand,
     trigger?: HTMLButtonElement,
   ) => void;
+  readonly commandGate?: CommandAvailability;
 }
 
 function CommandGroup({
   category,
   commands,
+  commandGate,
   ctx,
   onDispatch,
 }: CommandGroupProps): React.ReactElement {
@@ -224,7 +168,7 @@ function CommandGroup({
             <CommandButton
               key={command.id}
               command={command}
-              availability={command.availability(ctx)}
+              availability={resolveAvailability(command, ctx, commandGate)}
               onActivate={(trigger) => onDispatch(command, trigger)}
             />
           ))}
@@ -246,7 +190,7 @@ function CommandGroup({
               <CommandButton
                 key={command.id}
                 command={command}
-                availability={command.availability(ctx)}
+                availability={resolveAvailability(command, ctx, commandGate)}
                 onActivate={(trigger) => onDispatch(command, trigger)}
               />
             ))}
@@ -275,6 +219,7 @@ export function TacticalActionDock({
   gmIntervention,
   intentComposer,
   attackComposer,
+  commandGate,
   className = '',
 }: TacticalActionDockProps): React.ReactElement {
   const [gmPreviewState, setGmPreviewState] = useState<IGmPreviewState | null>(
@@ -351,7 +296,11 @@ export function TacticalActionDock({
 
   const dispatchCommand = useCallback(
     (command: ITacticalCommand, trigger?: HTMLButtonElement) => {
-      const availability = command.availability(effectiveCtx);
+      const availability = resolveAvailability(
+        command,
+        effectiveCtx,
+        commandGate,
+      );
       if (!availability.available) {
         // Disabled-with-reason: refuse the click silently. The
         // tooltip is the explanation surface — no secondary toast.
@@ -393,7 +342,12 @@ export function TacticalActionDock({
         onAction(result.actionId, result.payload);
       }
     },
-    [effectiveCtx, gmIntervention, onAction],
+    // `commandGate` belongs here: without it the callback closes over the
+    // gate as it was when the dock last re-created this handler, so a
+    // refusal that arrived since would be invisible to the dispatch path
+    // and the command would commit against a board the client knows is
+    // stale - the exact silent retry the gate exists to prevent.
+    [commandGate, effectiveCtx, gmIntervention, onAction],
   );
 
   const approveGmPreview = useCallback(() => {
@@ -460,6 +414,7 @@ export function TacticalActionDock({
             commands={g.commands}
             ctx={effectiveCtx}
             onDispatch={dispatchCommand}
+            commandGate={commandGate}
           />
         ))}
       </div>
