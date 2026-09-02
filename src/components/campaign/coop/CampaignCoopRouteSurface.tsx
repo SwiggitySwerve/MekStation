@@ -314,11 +314,16 @@ export function CampaignCoopRouteSurface(
       }),
     [lastRefusalCode, pendingProposals.length],
   );
-  // The guest's posture. `refusal` is null by construction: no route in
-  // `buildActionsForRoute` raises an `AdvanceDay` proposal, and
-  // progression is the only thing the server refuses, so a guest on this
-  // surface cannot be refused today. Claiming otherwise would put a
-  // player behind a gate nothing can open.
+  // The guest's posture.
+  //
+  // `refusal` used to be hardcoded null here, on the reasoning that
+  // progression was the only thing the server refused and no guest route
+  // raises an `AdvanceDay`. That stopped being true: the command
+  // admission gate refuses `PROJECTION_REBUILDING` and the staleness
+  // family BEFORE the intent is read, so they apply to every command a
+  // guest can raise. The refusal now comes through the same mapper door
+  // the host uses - the surface never invents a posture the server did
+  // not send.
   const guestLifecycle = useMemo(() => {
     if (!guestMirrorSummary) return undefined;
     const resolved = proposalsApi.proposals.filter(
@@ -332,10 +337,13 @@ export function CampaignCoopRouteSurface(
         ),
         lastProposalCommitted:
           resolved[resolved.length - 1]?.status === 'committed',
-        refusal: null,
+        refusal:
+          lastRefusalCode === null
+            ? null
+            : campaignRefusalFromServerErrorCode(lastRefusalCode),
       },
     );
-  }, [guestMirrorSummary, proposalsApi.proposals]);
+  }, [guestMirrorSummary, lastRefusalCode, proposalsApi.proposals]);
 
   // Single-player campaigns mount neither co-op surface.
   if (!campaign?.coopSession) {
@@ -447,6 +455,7 @@ export function CampaignCoopRouteSurface(
           actions={guestActions}
           authorityProjection={authorityProjection}
           syncPosture={guestLifecycle}
+          onClearLifecycleRefusal={onClearRefusal}
         />
       </div>
     );

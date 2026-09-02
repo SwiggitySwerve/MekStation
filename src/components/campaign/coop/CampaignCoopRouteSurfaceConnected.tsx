@@ -200,6 +200,23 @@ export function CampaignCoopRouteSurfaceConnected({
 
     projectMirrorToCampaign();
     return transport.onFrame((message) => {
+      // Umbrella 19.2: the guest gets the SAME refusal channel the host
+      // has had since seam 1, for the same reason. The server refuses on
+      // the frame stream both roles already subscribe to, and a guest
+      // whose commands are being refused was, until this, told nothing at
+      // all - their replica reads "up to date" because it IS up to date,
+      // and "up to date" is precisely what reads as permission.
+      //
+      // Deliberately the same two rules as the host, not a second
+      // policy: hold the last Error code, and clear it optimistically on
+      // the next committed campaign event, because no "you may command
+      // again" frame exists and the server stays the enforcer.
+      if (message.kind === 'Error') {
+        setLastRefusalCode(message.code);
+      }
+      if (message.kind === 'CampaignEvent') {
+        setLastRefusalCode(null);
+      }
       const event = campaignEventFromMessage(message);
       if (!event) return;
       const mirrorStore = useCampaignMirrorStore.getState();
