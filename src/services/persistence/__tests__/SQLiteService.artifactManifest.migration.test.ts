@@ -117,9 +117,20 @@ describe('event history artifact manifest SQLite migration', () => {
     expect(
       db.prepare('SELECT MAX(version) AS version FROM migrations').get(),
     ).toEqual({ version: MIGRATION_HEAD });
-    expect(EVENT_HISTORY_ARTIFACT_MANIFEST_MIGRATION.version).toBe(
-      MIGRATION_HEAD,
-    );
+    // This leaf is no longer the newest migration - the branch-pin lift
+    // (26) is - so what it still owns is being APPLIED, not being last.
+    expect(
+      EVENT_HISTORY_ARTIFACT_MANIFEST_MIGRATION.version,
+    ).toBeLessThanOrEqual(MIGRATION_HEAD);
+    expect(
+      (
+        db
+          .prepare('SELECT name FROM migrations WHERE version = ?')
+          .get(EVENT_HISTORY_ARTIFACT_MANIFEST_MIGRATION.version) as
+          | { name: string }
+          | undefined
+      )?.name,
+    ).toBe(EVENT_HISTORY_ARTIFACT_MANIFEST_MIGRATION.name);
 
     const tables = db
       .prepare(
