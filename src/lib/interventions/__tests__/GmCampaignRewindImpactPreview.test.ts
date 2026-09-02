@@ -15,11 +15,11 @@ import type { ICampaignEvent } from '@/types/campaign/CampaignSync';
 
 import { importCampaignBaseline } from '@/lib/campaign/authority/campaignAuthorityMigration';
 import { SQLiteEventJournal } from '@/lib/events/journal/SQLiteEventJournal';
-import { createEmptyCampaignState } from '@/types/campaign/CampaignSync';
 import {
   getSQLiteService,
   resetSQLiteService,
 } from '@/services/persistence/SQLiteService';
+import { createEmptyCampaignState } from '@/types/campaign/CampaignSync';
 
 import { UNDERIVABLE_AFFECTED_FAMILIES } from '../GmCampaignAffectedFamilies';
 import {

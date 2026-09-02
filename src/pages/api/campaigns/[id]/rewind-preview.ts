@@ -176,7 +176,9 @@ export default async function handler(
     await new GmPrivatePreviewRecordWriter(
       new SQLitePrivateRecordRepository(getSQLiteService().getDatabase()),
     ).store({
-      resolver: new AuthorizedViewerResolver(new CampaignSeatMembershipSource()),
+      resolver: new AuthorizedViewerResolver(
+        new CampaignSeatMembershipSource(),
+      ),
       principalId: auth.playerId,
       campaignSessionId: id,
       commandId: null,
