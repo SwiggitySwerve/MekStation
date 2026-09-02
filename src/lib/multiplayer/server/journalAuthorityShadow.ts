@@ -172,7 +172,15 @@ type ShadowAudience = {
   readonly viewerClass: 'gm' | 'player';
 };
 
-function audiencesFor(input: IShadowAudienceInput): readonly ShadowAudience[] {
+/**
+ * Exported so the combat viewer probe names the SAME audiences this
+ * comparison does. Restating the `'gm'` / `'player:<id>'` mapping in a
+ * second place is how the two would eventually disagree about who a
+ * viewer id refers to.
+ */
+export function audiencesFor(
+  input: IShadowAudienceInput,
+): readonly ShadowAudience[] {
   return [
     {
       audience: 'gm',
