@@ -43,6 +43,11 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 import type { StreamRebuildRefusal } from '@/lib/events/journal/EventHistoryCommandAdmission';
+import type {
+  ICampaignSessionParticipantPort,
+  IEventHistoryBranchPort,
+  IParticipantDeliveryCursorPort,
+} from '@/lib/events/storeCapabilityPorts';
 import type { ICombatOutcome } from '@/types/combat/CombatOutcome';
 import type { IGameEvent } from '@/types/gameplay/GameSessionInterfaces';
 
@@ -60,6 +65,7 @@ import type {
   IMatchJournalAuthorityStarted,
 } from './matchJournalAuthority';
 
+import { bindDurableCapabilityPorts } from './durableCapabilityPorts';
 import {
   insertJournalAuthorityBaselineRow,
   JOURNAL_AUTHORITY_BASELINE_SCHEMA_SQL,
@@ -536,6 +542,13 @@ export interface IDurableMatchStoreOptions {
    * suite so it never touches disk).
    */
   readonly path?: string;
+  /**
+   * Campaign-database handle. Branch, participant, and cursor tables
+   * live in SQLiteService (mekstation.db), never this store's match
+   * file. A getter so construction does not open that database unless
+   * a capability method actually runs.
+   */
+  readonly capabilityDb?: () => Database.Database;
 }
 
 export class DurableMatchStore
@@ -545,6 +558,24 @@ export class DurableMatchStore
     IPublicationOutboxStore,
     IViewerDeliveryStore
 {
+  // Port members are assigned at construction by bindDurableCapabilityPorts; declare keeps them on the type with no runtime emit and no class/interface merge.
+  declare readBranch: IEventHistoryBranchPort['readBranch'];
+  declare requireBranch: IEventHistoryBranchPort['requireBranch'];
+  declare readEffectiveHead: IEventHistoryBranchPort['readEffectiveHead'];
+  declare requireEffectiveHead: IEventHistoryBranchPort['requireEffectiveHead'];
+  declare createBranch: IEventHistoryBranchPort['createBranch'];
+  declare transitionBranchStatus: IEventHistoryBranchPort['transitionBranchStatus'];
+  declare bindCampaignSessionParticipant: ICampaignSessionParticipantPort['bindCampaignSessionParticipant'];
+  declare activeCampaignSessionMembership: ICampaignSessionParticipantPort['activeCampaignSessionMembership'];
+  declare isActiveCampaignGm: ICampaignSessionParticipantPort['isActiveCampaignGm'];
+  declare campaignHasAnyActiveSeat: ICampaignSessionParticipantPort['campaignHasAnyActiveSeat'];
+  declare isActiveCampaignSeat: ICampaignSessionParticipantPort['isActiveCampaignSeat'];
+  declare listActiveCampaignSessionParticipants: ICampaignSessionParticipantPort['listActiveCampaignSessionParticipants'];
+  declare revokeCampaignSessionParticipant: ICampaignSessionParticipantPort['revokeCampaignSessionParticipant'];
+  declare isRevokedCampaignSessionParticipant: ICampaignSessionParticipantPort['isRevokedCampaignSessionParticipant'];
+  declare readParticipantDeliveryCursor: IParticipantDeliveryCursorPort['readParticipantDeliveryCursor'];
+  declare recordParticipantAcknowledgement: IParticipantDeliveryCursorPort['recordParticipantAcknowledgement'];
+
   private readonly db: Database.Database;
 
   /**
@@ -571,6 +602,8 @@ export class DurableMatchStore
     this.db.exec(VIEWER_DELIVERY_SCHEMA_SQL);
     this.db.exec(VIEWER_DELIVERY_ACK_SCHEMA_SQL);
     this.db.exec(JOURNAL_AUTHORITY_BASELINE_SCHEMA_SQL);
+    // Capability tables are not in this.db — see durableCapabilityPorts.
+    bindDurableCapabilityPorts(this, options);
   }
 
   /**

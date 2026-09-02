@@ -24,6 +24,13 @@ export type { IMigration } from './SQLiteService.migrations';
 export interface IDatabaseConfig {
   readonly path: string;
   readonly maxVersionHistory: number;
+  /**
+   * Stop the ladder at this version (inclusive). Production never
+   * passes it. Contract tests need the real runner one step short of
+   * head so a snapshot written there can be re-read after a later
+   * initialize finishes the catalog.
+   */
+  readonly maxMigrationVersion?: number;
 }
 
 /**
@@ -127,11 +134,18 @@ export class SQLiteService implements ISQLiteService {
     // Get current migration version
     const currentVersion = this.getCurrentMigrationVersion();
 
-    // Run pending migrations
+    // Run pending migrations. A test-only cap leaves the file one
+    // catalog step short; the next uncapped initialize is the same
+    // runner finishing the leftover, not a hand-picked subset.
+    const cap = this.config.maxMigrationVersion;
     for (const migration of MIGRATIONS) {
-      if (migration.version > currentVersion) {
-        this.runMigration(migration);
+      if (migration.version <= currentVersion) {
+        continue;
       }
+      if (cap !== undefined && migration.version > cap) {
+        continue;
+      }
+      this.runMigration(migration);
     }
   }
 

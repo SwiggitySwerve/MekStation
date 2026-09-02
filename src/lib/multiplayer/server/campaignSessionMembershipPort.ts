@@ -19,35 +19,9 @@ import {
   bindCampaignSessionParticipant,
   revokeCampaignSessionParticipant,
 } from '@/services/campaignPersistence/CampaignSessionParticipantStore';
-import { getSQLiteService } from '@/services/persistence/SQLiteService';
+import * as CampaignSessionParticipantStore from '@/services/campaignPersistence/CampaignSessionParticipantStore';
 
 import type { ICampaignSessionMembershipPort } from './bindCampaignSyncConnection';
-
-/**
- * Whether a participant has a row at all, active or revoked.
- *
- * `activeCampaignSessionMembership` deliberately reports a revoked row
- * as absent, so "revoked" needs its own question rather than being
- * inferred from the absence of an active membership - a newcomer and a
- * revoked member look identical through that lens, and only one of them
- * may be let in.
- */
-function readRevokedAt(
-  campaignId: string,
-  sessionId: string,
-  participantId: string,
-): string | null {
-  const row = getSQLiteService()
-    .getDatabase()
-    .prepare(
-      `SELECT revoked_at FROM campaign_session_participant
-       WHERE campaign_id = ? AND session_id = ? AND participant_id = ?`,
-    )
-    .get(campaignId, sessionId, participantId) as
-    | { revoked_at: string | null }
-    | undefined;
-  return row?.revoked_at ?? null;
-}
 
 /** The production port. */
 export function createCampaignSessionMembershipPort(): ICampaignSessionMembershipPort {
@@ -56,7 +30,11 @@ export function createCampaignSessionMembershipPort(): ICampaignSessionMembershi
       activeCampaignSessionMembership(campaignId, sessionId, participantId) !==
       null,
     isRevoked: (campaignId, sessionId, participantId) =>
-      readRevokedAt(campaignId, sessionId, participantId) !== null,
+      CampaignSessionParticipantStore.isRevokedCampaignSessionParticipant(
+        campaignId,
+        sessionId,
+        participantId,
+      ),
     bind: (input) => {
       // The seat refusals are returned rather than swallowed. They used
       // to be dropped here because the socket layer had nowhere to put
