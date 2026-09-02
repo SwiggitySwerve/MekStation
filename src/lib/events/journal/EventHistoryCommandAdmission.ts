@@ -82,6 +82,47 @@ export type StreamCommandAdmission =
     };
 
 /**
+ * The rebuild verdict on its own, named so the paths that can only
+ * produce THIS arm do not each spell the `Extract<>` out again.
+ */
+export type StreamRebuildRefusal = Extract<
+  StreamCommandAdmission,
+  { kind: 'rebuilding' }
+>;
+
+/**
+ * The rebuild arm on its own: is a correction lease live on this stream?
+ *
+ * Extracted because not every command path can consume the full
+ * admission. The combat wire carries no client-claimed expected head, so
+ * there is nothing there to compare and only this question can honestly be
+ * asked. Pulling it out means the gate that asks less runs the SAME rule
+ * rather than a second copy that could drift from it.
+ *
+ * Returns null when no rebuild is running - which is not the same as
+ * "admitted": a caller that can compare an expected head still has to.
+ */
+export function readRebuildRefusal(
+  branches: SQLiteEventHistoryBranchStore,
+  leases: SQLiteEventHistoryCorrectionLeaseStore,
+  stream: IEventHistoryStreamRef,
+  currentRevision: number,
+): StreamRebuildRefusal | null {
+  const live = leases.readLiveLease(stream);
+  if (live === null) return null;
+  return Object.freeze({
+    kind: 'rebuilding',
+    code: PROJECTION_REBUILDING_CODE,
+    retryable: true,
+    leaseId: live.leaseId,
+    owner: live.owner,
+    fencingEpoch: live.fencingEpoch,
+    activeHead: readActiveBranchHead(branches, stream, currentRevision),
+    action: REBUILD_RETRY_ACTION,
+  });
+}
+
+/**
  * Decide whether one ordinary command may append to this stream.
  *
  * Reads only. `currentRevision` is the journal revision the caller already
@@ -101,19 +142,13 @@ export function admitStreamCommand(
   currentRevision: number,
   expected: IExpectedBranchHead,
 ): StreamCommandAdmission {
-  const live = leases.readLiveLease(stream);
-  if (live !== null) {
-    return Object.freeze({
-      kind: 'rebuilding',
-      code: PROJECTION_REBUILDING_CODE,
-      retryable: true,
-      leaseId: live.leaseId,
-      owner: live.owner,
-      fencingEpoch: live.fencingEpoch,
-      activeHead: readActiveBranchHead(branches, stream, currentRevision),
-      action: REBUILD_RETRY_ACTION,
-    });
-  }
+  const rebuilding = readRebuildRefusal(
+    branches,
+    leases,
+    stream,
+    currentRevision,
+  );
+  if (rebuilding !== null) return rebuilding;
   const verdict = validateExpectedBranchHead(
     branches,
     stream,

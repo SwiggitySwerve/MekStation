@@ -10,6 +10,7 @@ import type { IExpectedBranchHead } from '../EventHistoryExpectedHead';
 import {
   REBUILD_RETRY_ACTION,
   admitStreamCommand,
+  readRebuildRefusal,
 } from '../EventHistoryCommandAdmission';
 import { SQLiteEventHistoryBranchStore } from '../SQLiteEventHistoryBranchStore';
 import { SQLiteEventHistoryCorrectionLeaseStore } from '../SQLiteEventHistoryCorrectionLeaseStore';
@@ -109,6 +110,38 @@ describe('admitStreamCommand', () => {
       leases: count('event_history_correction_leases'),
     };
   }
+
+  it('names the live rebuild on its own, for a caller that has no expected head to compare', () => {
+    // The combat wire carries no client-claimed head, so the command gate
+    // there can consume only this arm. It is the SAME rule the full
+    // admission runs first - extracted so the two cannot drift, not
+    // restated for the caller that needs less.
+    expect(
+      readRebuildRefusal(branches(), leases(), STREAM, HEAD_REVISION),
+    ).toBe(null);
+    const { leaseId, epoch } = acquire();
+    expect(
+      readRebuildRefusal(branches(), leases(), STREAM, HEAD_REVISION),
+    ).toEqual({
+      kind: 'rebuilding',
+      code: 'PROJECTION_REBUILDING',
+      retryable: true,
+      leaseId,
+      owner: 'host-1',
+      fencingEpoch: epoch,
+      activeHead: {
+        branchId: 'root',
+        revision: HEAD_REVISION,
+        effectiveGeneration: 1,
+      },
+      action: REBUILD_RETRY_ACTION,
+    });
+    // And the full admission answers with exactly what the extracted rule
+    // produced - one rule, two callers.
+    expect(admit()).toEqual(
+      readRebuildRefusal(branches(), leases(), STREAM, HEAD_REVISION),
+    );
+  });
 
   it('admits a command that names the current head when no rebuild is running', () => {
     expect(admit()).toEqual({
