@@ -26,6 +26,7 @@
 import type Database from 'better-sqlite3';
 
 import { readCampaign } from '@/services/campaignPersistence/CampaignPersistenceService';
+import { isActiveCampaignGm } from '@/services/campaignPersistence/CampaignSessionParticipantStore';
 
 import type { ICampaignGrant } from './ICampaignGrantStore';
 
@@ -37,6 +38,7 @@ export type CampaignShareRefusalReason =
   | 'campaign-not-found'
   | 'campaign-unreadable'
   | 'not-source'
+  | 'not-campaign-gm'
   | 'invalid-request';
 
 export type CampaignShareResult<T> =
@@ -48,6 +50,8 @@ export type CampaignShareResult<T> =
 
 export interface IIssueShareGrantInput {
   readonly campaignId: string;
+  /** The verified principal asking to issue. Never a client claim. */
+  readonly callerId: string;
   readonly participantId: string;
   readonly issuerPublicKey: string;
   readonly scopes: readonly string[];
@@ -82,6 +86,31 @@ function requireSourceCampaign(campaignId: string): CampaignShareResult<true> {
 }
 
 /**
+ * Confirms the CALLER may administer this campaign's sharing.
+ *
+ * `requireSourceCampaign` answers a question about the CAMPAIGN - does
+ * this server execute commands for it - which is true for every browser
+ * this server serves, co-op guests included. It is not, and never was,
+ * a statement about who is asking. Listing grants, issuing them and
+ * revoking them are the campaign GM's administration surface, so the
+ * caller must hold the campaign's ACTIVE `gm` seat. The question is
+ * asked ABOUT the caller - `isActiveCampaignGm(campaignId, callerId)` -
+ * so no row ordering stands between a seated player and their refusal.
+ */
+function requireCampaignGm(
+  campaignId: string,
+  callerId: string,
+): CampaignShareResult<true> {
+  if (callerId.trim().length === 0) {
+    return { kind: 'refused', reason: 'invalid-request' };
+  }
+  if (!isActiveCampaignGm(campaignId, callerId)) {
+    return { kind: 'refused', reason: 'not-campaign-gm' };
+  }
+  return { kind: 'ok', value: true };
+}
+
+/**
  * Issues a grant for a campaign this server owns. The caller supplies
  * the issuer's public key; the private half stays with the client
  * identity that will sign the token.
@@ -92,6 +121,8 @@ export function issueShareGrant(
 ): CampaignShareResult<ICampaignGrant> {
   const owned = requireSourceCampaign(input.campaignId);
   if (owned.kind !== 'ok') return owned;
+  const authorized = requireCampaignGm(input.campaignId, input.callerId);
+  if (authorized.kind !== 'ok') return authorized;
   if (
     input.participantId.trim().length === 0 ||
     input.issuerPublicKey.trim().length === 0 ||
@@ -122,9 +153,12 @@ export function issueShareGrant(
 export function listShareGrants(
   db: Database.Database,
   campaignId: string,
+  callerId: string,
 ): CampaignShareResult<readonly ICampaignGrant[]> {
   const owned = requireSourceCampaign(campaignId);
   if (owned.kind !== 'ok') return owned;
+  const authorized = requireCampaignGm(campaignId, callerId);
+  if (authorized.kind !== 'ok') return authorized;
   const store = new SQLiteCampaignGrantStore(db);
   return { kind: 'ok', value: store.listGrants(campaignId) };
 }
@@ -138,9 +172,12 @@ export function revokeShareGrant(
   campaignId: string,
   grantId: string,
   revokedAt: string,
+  callerId: string,
 ): CampaignShareResult<ICampaignGrant> {
   const owned = requireSourceCampaign(campaignId);
   if (owned.kind !== 'ok') return owned;
+  const authorized = requireCampaignGm(campaignId, callerId);
+  if (authorized.kind !== 'ok') return authorized;
   if (grantId.trim().length === 0) {
     return { kind: 'refused', reason: 'invalid-request' };
   }

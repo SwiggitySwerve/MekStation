@@ -299,13 +299,20 @@ function readQueryToken(req: NextApiRequest): string | null {
  * and return either the verified result or null. Caller decides on the
  * 401 response shape.
  *
- * REST does not pass expectedScope. A scoped socket token presented
- * here fails closed (`scope-unchecked`) rather than silently widening.
+ * A REST caller that omits `expectedScope` still fails closed on a
+ * SCOPED token (`scope-unchecked`) rather than silently widening it.
+ * A route that knows which session a request belongs to passes the
+ * scope so a token minted for THAT session is accepted and one minted
+ * for another is refused `scope-mismatch`. The scope must be derived
+ * server-side from the addressed resource - never read off the request,
+ * which would let a caller name the scope its own token happens to
+ * carry.
  */
 export async function authenticateRequest(
   req: NextApiRequest,
   nowMs?: number,
+  expectedScope?: IPlayerTokenScope,
 ): Promise<IVerifyResult> {
   const token = extractTokenFromRequest(req);
-  return verifyPlayerToken(token, nowMs);
+  return verifyPlayerToken(token, nowMs, expectedScope);
 }
