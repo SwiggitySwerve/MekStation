@@ -21,6 +21,7 @@ import { defaultSeats } from '@/types/multiplayer/Lobby';
 import { type IIntent, nowIso } from '@/types/multiplayer/Protocol';
 
 import type { IViewerDeliveryAcknowledgement } from '../IMatchStore';
+
 import { InMemoryMatchStore } from '../InMemoryMatchStore';
 import { MAX_VIEWER_UNACKED } from '../projection/ViewerDeliveryCursors';
 import { ServerMatchHost } from '../ServerMatchHost';
@@ -282,7 +283,7 @@ async function isolateP2(host: ServerMatchHost): Promise<IsolationDrive> {
 }
 
 describe('ServerMatchHost per-viewer unacked bound', () => {
-  it('withholding Player 2\'s acks for MAX_VIEWER_UNACKED frames isolates Player 2 while Player 1\'s issued keeps growing', async () => {
+  it("withholding Player 2's acks for MAX_VIEWER_UNACKED frames isolates Player 2 while Player 1's issued keeps growing", async () => {
     const { host } = await seatedHost();
     const { step, lastBurst } = await isolateP2(host);
     expect(host.viewerIsolated(P2)).toBe(true);
@@ -325,7 +326,11 @@ describe('ServerMatchHost per-viewer unacked bound', () => {
     const replayStart = sockP2.sent.slice(sentBefore).find((raw) => {
       return (raw as { kind?: string }).kind === 'ReplayStart';
     }) as
-      | { fromSeq?: number; fromDeliverySequence?: number; totalEvents?: number }
+      | {
+          fromSeq?: number;
+          fromDeliverySequence?: number;
+          totalEvents?: number;
+        }
       | undefined;
 
     expect(replayStart).toBeDefined();
@@ -341,7 +346,7 @@ describe('ServerMatchHost per-viewer unacked bound', () => {
     }
   });
 
-  it('the GM is never isolated by another viewer\'s backlog', async () => {
+  it("the GM is never isolated by another viewer's backlog", async () => {
     const { host } = await seatedHost();
     const { step } = await isolateP2(host);
     const gmAtIsolation = host.viewerIssued(GM);
