@@ -3,9 +3,10 @@
  * task 1.1 / 1.2; design D1).
  *
  * Three additive tables. They record LINEAGE, never events: per D1 branch
- * metadata is separate from domain events, so `event_journal_*` keeps its
- * `branch_id = 'root'` pin untouched and nothing here can make the journal
- * accept a second branch.
+ * metadata is separate from domain events. Migration 26 lifted the journal's
+ * `branch_id = 'root'` pin, so a stream may hold several
+ * `event_journal_stream_heads` rows; these tables still do not write those
+ * rows and are not a second authority on whether the stream's events exist.
  *
  * - `event_history_branches` - one immutable row per branch: stream,
  *   opaque branch id, parent, base revision/event/digest, creator, reason,

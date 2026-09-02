@@ -63,6 +63,29 @@ describe('SQLiteEventHistoryCorrectionLeaseStore', () => {
     new SQLiteEventHistoryBranchStore(db).backfillGenesisBranches();
   }
 
+  /**
+   * C1a plants a candidate head at the base it was cut from, so the
+   * stream holds two `event_journal_stream_heads` rows. The PK scan
+   * hits `candidate-1` before `root`; an unqualified read therefore
+   * treats the lower revision as current and refuses the true head.
+   */
+  function seedCandidateHead(): void {
+    db.prepare(
+      `INSERT INTO event_history_branches
+         (stream_type, stream_id, branch_id, parent_branch_id, ancestor_depth,
+          base_revision, base_event_id, base_digest, status, created_by,
+          reason, created_at)
+       VALUES ('match', 'stream-1', 'candidate-1', 'root', 1, 2, 'event-2', ?,
+               'building', 'host-1', 'correction-rebuild:lease:1:rewind',
+               '2026-09-02T00:00:00.000Z')`,
+    ).run(OTHER_DIGEST);
+    db.prepare(
+      `INSERT INTO event_journal_stream_heads
+         (stream_type, stream_id, branch_id, stream_revision, event_digest)
+       VALUES ('match', 'stream-1', 'candidate-1', 2, ?)`,
+    ).run(OTHER_DIGEST);
+  }
+
   function leaseStore(): SQLiteEventHistoryCorrectionLeaseStore {
     return new SQLiteEventHistoryCorrectionLeaseStore(
       db,
@@ -406,5 +429,27 @@ describe('SQLiteEventHistoryCorrectionLeaseStore', () => {
       ).toBe('invalid-correction-lease-request');
     }
     expect(storedLeases()).toEqual([]);
+  });
+
+  it('acquires a lease bound to the true head when a candidate head row sits below it', () => {
+    seedCandidateHead();
+    const lease = leaseStore().acquireCorrectionLease(request());
+    expect(lease.expectedBranchId).toBe('root');
+    expect(lease.expectedRevision).toBe(4);
+    expect(lease.expectedDigest).toBe(HEAD_DIGEST);
+    expect(lease.state).toBe('active');
+  });
+
+  it('refuses a lease bound to the candidate digest as STALE_DIGEST', () => {
+    seedCandidateHead();
+    try {
+      leaseStore().acquireCorrectionLease(
+        request({ expectedDigest: OTHER_DIGEST }),
+      );
+      throw new Error('expected STALE_DIGEST');
+    } catch (error) {
+      if (!(error instanceof EventHistoryCorrectionLeaseError)) throw error;
+      expect(error.staleHeadReason).toBe('STALE_DIGEST');
+    }
   });
 });
