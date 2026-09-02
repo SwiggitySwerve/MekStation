@@ -42,8 +42,24 @@ export const CORRECTION_LEASE_STATES = [
 
 export type CorrectionLeaseState = (typeof CORRECTION_LEASE_STATES)[number];
 
+/**
+ * The four facts a correction binds itself to.
+ *
+ * Named as its own shape because it is checked TWICE against the live head:
+ * once when the lease is acquired, and again when the candidate is built,
+ * since a head that moved in between would leave the build anchored to
+ * history that is no longer there. Both checks go through one verifier, so
+ * they cannot drift into two definitions of "still current".
+ */
+export interface IExpectedHeadBinding {
+  readonly expectedBranchId: string;
+  readonly expectedRevision: number;
+  readonly expectedDigest: string;
+  readonly expectedGeneration: number;
+}
+
 /** One durable correction lease, exactly as the table holds it. */
-export interface IEventHistoryCorrectionLease {
+export interface IEventHistoryCorrectionLease extends IExpectedHeadBinding {
   readonly streamType: string;
   readonly streamId: string;
   readonly leaseId: string;
@@ -51,27 +67,19 @@ export interface IEventHistoryCorrectionLease {
   readonly actor: string;
   readonly reason: string;
   readonly fencingEpoch: number;
-  readonly expectedBranchId: string;
-  readonly expectedRevision: number;
-  readonly expectedDigest: string;
-  readonly expectedGeneration: number;
   readonly acquiredAtMs: number;
   readonly expiresAtMs: number;
   readonly state: CorrectionLeaseState;
 }
 
 /** What an acquirer asks for. The lease id and epoch are minted, never named. */
-export interface ICorrectionLeaseRequest {
+export interface ICorrectionLeaseRequest extends IExpectedHeadBinding {
   readonly streamType: string;
   readonly streamId: string;
   readonly owner: string;
   readonly actor: string;
   readonly reason: string;
   readonly ttlMs: number;
-  readonly expectedBranchId: string;
-  readonly expectedRevision: number;
-  readonly expectedDigest: string;
-  readonly expectedGeneration: number;
 }
 
 /** A renewal names the lease it holds and how much longer it wants. */
