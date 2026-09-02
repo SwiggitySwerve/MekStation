@@ -3,7 +3,7 @@ const crypto = require('node:crypto');
 const net = require('node:net');
 const path = require('node:path');
 const GROUP_CATALOG =
-  'fixture-smoke:26,membership-smoke:15,evidence-smoke:27,fault-smoke:28,smoke:15,authority-pack1:21,exactly-once-pack:21,fault-pack:21,token-pack:21,restart-pack:21,authority:29,visibility:30,combat:31,campaign:32,failure:32,performance:33,all:34,traceability:34,quality:34,manual-setup:34,scope:34';
+  'fixture-smoke:26,membership-smoke:15,evidence-smoke:27,fault-smoke:28,smoke:15,authority-pack1:21,exactly-once-pack:21,fault-pack:21,token-pack:21,restart-pack:21,resilience-pack:21,authority:29,visibility:30,combat:31,campaign:32,failure:32,performance:33,all:34,traceability:34,quality:34,manual-setup:34,scope:34';
 const REGISTERED_GROUPS = Object.freeze(
   Object.fromEntries(
     GROUP_CATALOG.split(',').map((entry) => {
@@ -12,6 +12,8 @@ const REGISTERED_GROUPS = Object.freeze(
     }),
   ),
 );
+// Groups whose specs terminate the server process mid-scenario.
+const RESPAWNING_GROUPS = new Set(['restart-pack', 'resilience-pack']);
 const SAFE_RUN_ID = /^[a-z0-9](?:[a-z0-9-]{0,78}[a-z0-9])?$/i;
 function typedError(code, detail) {
   return Object.assign(new Error(`${code} ${detail}`), { code, detail });
@@ -51,6 +53,7 @@ function buildRunPlan({ group, runId, repoRoot }) {
     'fault-pack': ['e2e/gm-two-player-fault.pack.spec.ts'],
     'token-pack': ['e2e/gm-two-player-token.pack.spec.ts'],
     'restart-pack': ['e2e/gm-two-player-restart.pack.spec.ts'],
+    'resilience-pack': ['e2e/gm-two-player-resilience.pack.spec.ts'],
   };
   const specs = SPEC_BY_GROUP[group];
   if (!specs) {
@@ -71,10 +74,13 @@ function buildRunPlan({ group, runId, repoRoot }) {
       MEKSTATION_E2E_PORT: port,
       MEKSTATION_E2E_REUSE_EXISTING_SERVER: 'false',
       PORT: port,
-      MEKSTATION_E2E_SERVER_COMMAND:
-        group === 'restart-pack'
-          ? 'node scripts/e2e/relaunching-server.mjs'
-          : 'node server.js',
+      // Groups whose scenarios kill the server run behind the relaunching
+      // wrapper - Playwright cannot restart a webServer child it did not
+      // kill, so the wrapper owns the respawn and the readiness gate waits
+      // it back.
+      MEKSTATION_E2E_SERVER_COMMAND: RESPAWNING_GROUPS.has(group)
+        ? 'node scripts/e2e/relaunching-server.mjs'
+        : 'node server.js',
     },
   };
 }

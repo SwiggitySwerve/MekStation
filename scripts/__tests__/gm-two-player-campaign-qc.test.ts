@@ -5,9 +5,21 @@ const repoRoot = path.resolve(__dirname, '../..');
 const runner = path.join(repoRoot, 'scripts/qc/run-gm-two-player-campaign.mjs');
 const core = require('../qc/gm-two-player-campaign-core.cjs');
 const groups =
-  'fixture-smoke,membership-smoke,evidence-smoke,fault-smoke,smoke,authority-pack1,exactly-once-pack,fault-pack,token-pack,restart-pack,authority,visibility,combat,campaign,failure,performance,all,traceability,quality,manual-setup,scope'.split(
+  'fixture-smoke,membership-smoke,evidence-smoke,fault-smoke,smoke,authority-pack1,exactly-once-pack,fault-pack,token-pack,restart-pack,resilience-pack,authority,visibility,combat,campaign,failure,performance,all,traceability,quality,manual-setup,scope'.split(
     ',',
   );
+/** The server command a non-respawning implemented group is planned with. */
+const faultSmokeServerCommand = (
+  core: {
+    buildRunPlan: (input: unknown) => { environment: Record<string, string> };
+  },
+  repoRoot: string,
+): string =>
+  core.buildRunPlan({
+    group: 'fault-pack',
+    runId: 'task-21-fault-pack-server',
+    repoRoot,
+  }).environment.MEKSTATION_E2E_SERVER_COMMAND;
 const run = (...args: string[]) =>
   spawnSync(process.execPath, [runner, ...args], {
     cwd: repoRoot,
@@ -92,11 +104,34 @@ describe('GM and two-player campaign QC runner', () => {
       'e2e/gm-two-player-restart.pack.spec.ts',
       '--workers=1',
     ]);
-    // The restart pack alone runs behind the relaunching wrapper - the
-    // scenarios kill the server and the readiness gate waits it back.
+    // The restart pack runs behind the relaunching wrapper - the scenarios
+    // kill the server and the readiness gate waits it back.
     expect(restartPlan.environment.MEKSTATION_E2E_SERVER_COMMAND).toBe(
       'node scripts/e2e/relaunching-server.mjs',
     );
+
+    const resiliencePlan = core.buildRunPlan({
+      group: 'resilience-pack',
+      runId: 'task-21-resilience-pack',
+      repoRoot,
+    });
+    expect(resiliencePlan.args).toEqual([
+      path.join(repoRoot, 'scripts/playwright/run-playwright.mjs'),
+      'test',
+      '--project=chromium',
+      'e2e/gm-two-player-resilience.pack.spec.ts',
+      '--workers=1',
+    ]);
+    // E2E-15 kills the server too, so this group also needs the wrapper. A
+    // group that respawns without it hangs on the readiness gate instead of
+    // failing loudly, which is why the wiring is pinned per group rather
+    // than left to the spec.
+    expect(resiliencePlan.environment.MEKSTATION_E2E_SERVER_COMMAND).toBe(
+      'node scripts/e2e/relaunching-server.mjs',
+    );
+    // Every other group keeps the plain server - the wrapper is the
+    // exception, never the default.
+    expect(faultSmokeServerCommand(core, repoRoot)).toBe('node server.js');
 
     const faultPlan = core.buildRunPlan({
       group: 'fault-pack',
@@ -156,6 +191,7 @@ describe('GM and two-player campaign QC runner', () => {
       'fault-pack',
       'token-pack',
       'restart-pack',
+      'resilience-pack',
     ];
     for (const group of groups.filter(
       (group) => !implemented.includes(group),
