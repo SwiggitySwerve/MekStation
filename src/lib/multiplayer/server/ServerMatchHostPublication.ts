@@ -303,7 +303,7 @@ async function commitBatchThenPublishFromRows(
 
   // E2E-06's armed boundary: the batch is durable, nothing has been
   // sent. A death here is exactly the crash the restart drain recovers.
-  exitForE2EFault('process-exit-after-commit');
+  exitForE2EFault('process-exit-after-commit', deps.matchId);
 
   const batchSequences = new Set(deps.events.map((event) => event.sequence));
   const rows = (
