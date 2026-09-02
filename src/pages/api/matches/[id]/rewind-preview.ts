@@ -42,18 +42,24 @@
  * passes its third argument straight through to the resolver. That is
  * the established convention here, not something this route bends.
  *
+ * A successful preview then stores one server-only GM review record
+ * through GmPrivatePreviewRecordWriter. The write lives HERE, not in
+ * previewGmCombatRewind: that module is a pure consult so its storage
+ * census stays true, and an unfinalized preview is reachable only
+ * through this authorized GM path. Refusals write nothing. The record
+ * is never copied onto the response, a player frame, a snapshot, a
+ * history read, or an export.
+ *
  * @spec openspec/changes/harden-gm-two-player-campaign-sessions/specs/gm-combat-interventions/spec.md
  */
 
 import type { NextApiRequest, NextApiResponse } from 'next';
 
-import type { IEventHistoryStreamRef } from '@/lib/events/journal/EventHistoryBranchContract';
-import type { GmCombatRewindPreviewResult } from '@/lib/multiplayer/server/history/GmCombatRewindPreview';
 import type { IMatchMeta } from '@/lib/multiplayer/server/IMatchStore';
-import type { IGameState } from '@/types/gameplay/GameSessionInterfaces';
 import type { IGmAuthorityContext } from '@/types/interventions';
 
 import { SQLiteEventHistoryBranchStore } from '@/lib/events/journal/SQLiteEventHistoryBranchStore';
+import { SQLitePrivateRecordRepository } from '@/lib/events/privacy/SQLitePrivateRecordRepository';
 import { authenticateRequest } from '@/lib/multiplayer/server/auth';
 import {
   AuthorizedViewerError,
@@ -69,100 +75,26 @@ import {
   matchStreamRef,
   previewGmCombatRewind,
 } from '@/lib/multiplayer/server/history/GmCombatRewindPreview';
+import { GmPrivatePreviewRecordWriter } from '@/lib/multiplayer/server/history/GmPrivatePreviewRecordWriter';
 import { matchStoreBranchSegmentReader } from '@/lib/multiplayer/server/history/matchStoreBranchSegmentReader';
 import { hasCombatOutcomeOutbox } from '@/lib/multiplayer/server/IMatchStore';
 import { combatViewerProbe } from '@/lib/multiplayer/server/projection/combatViewerProbe';
+import { HostAsGmMembershipSource } from '@/pages-modules/api/hostAsGmMembershipSource';
+import {
+  FOG_DISABLED_STATE,
+  isPreviewBody,
+  readEffectiveRevision,
+  refused,
+  statusForRefusal,
+  viewerIdsFor,
+} from '@/pages-modules/api/rewindPreviewRouteSupport';
 import {
   initializeApiDatabase,
   rejectMissingQueryString,
   sendCaughtApiError,
 } from '@/pages-modules/api/routeHelpers';
 import { getSQLiteService } from '@/services/persistence/SQLiteService';
-
-interface IPreviewBody {
-  readonly targetRevision: number;
-  readonly expectedBranchId: string;
-  readonly expectedRevision: number;
-  readonly expectedDigest: string;
-  readonly expectedGeneration: number;
-}
-
-/**
- * The state fog-of-war filtering would read.
- *
- * Never reached: the handler refuses a fogged match before building the
- * probe, and with fog off `filterEventForPlayer` returns each event
- * before touching state at all. The refusal is what makes this
- * placeholder honest - remove the refusal and this becomes a lie about
- * what the GM is being shown.
- */
-const FOG_DISABLED_STATE = Object.freeze({}) as IGameState;
-
-function isPreviewBody(value: unknown): value is IPreviewBody {
-  if (typeof value !== 'object' || value === null) return false;
-  const body = value as Partial<IPreviewBody>;
-  return (
-    Number.isSafeInteger(body.targetRevision) &&
-    (body.targetRevision as number) >= 0 &&
-    typeof body.expectedBranchId === 'string' &&
-    body.expectedBranchId.trim().length > 0 &&
-    Number.isSafeInteger(body.expectedRevision) &&
-    typeof body.expectedDigest === 'string' &&
-    Number.isSafeInteger(body.expectedGeneration)
-  );
-}
-
-/**
- * The journal revision the effective branch answers at, read NAMING that
- * branch (finding #81). The unqualified read is exact only while a
- * stream has one head row; once a candidate has one it returns an
- * arbitrary row, biased toward the lower revision. `campaignLaunchHead`
- * already reads this way; this route is qualified from birth so there is
- * nothing here to retrofit.
- */
-function readEffectiveRevision(
-  stream: IEventHistoryStreamRef,
-  branchId: string,
-): number {
-  const row = getSQLiteService()
-    .getDatabase()
-    .prepare(
-      `SELECT stream_revision AS revision
-         FROM event_journal_stream_heads
-        WHERE stream_type = ? AND stream_id = ? AND branch_id = ?`,
-    )
-    .get(stream.streamType, stream.streamId, branchId) as
-    | { readonly revision: number }
-    | undefined;
-  return row?.revision ?? 0;
-}
-
-/** Every audience the probe can be asked about, in its own vocabulary. */
-function viewerIdsFor(meta: IMatchMeta): readonly string[] {
-  return ['gm', ...meta.playerIds.map((playerId) => `player:${playerId}`)];
-}
-
-function refused(
-  res: NextApiResponse,
-  status: number,
-  result: GmCombatRewindPreviewResult,
-): void {
-  res.status(status).json(result);
-}
-
-/** 403 for the authority arms, 404 for a stream we hold nothing for. */
-function statusForRefusal(
-  reason: Extract<GmCombatRewindPreviewResult, { kind: 'refused' }>['reason'],
-): number {
-  if (
-    reason === 'gm-role-required' ||
-    reason === 'actor-mismatch' ||
-    reason === 'state-not-owned'
-  ) {
-    return 403;
-  }
-  return reason === 'no-authoritative-history' ? 404 : 409;
-}
+import { nowIso } from '@/types/multiplayer/Protocol';
 
 export default async function handler(
   req: NextApiRequest,
@@ -225,8 +157,9 @@ export default async function handler(
     // The brand is the authorization. A preview is a READ, so it asks
     // for the `branch` stream kind - a `command` request would run the
     // force-scope check and refuse a GM who holds no forces.
+    const membership = new MatchSeatMembershipSource(store);
     const viewer = await authorizeHumanAction(
-      new AuthorizedViewerResolver(new MatchSeatMembershipSource(store)),
+      new AuthorizedViewerResolver(membership),
       auth.playerId,
       matchId,
       { kind: 'branch', streamType: 'match', streamId: matchId },
@@ -289,6 +222,29 @@ export default async function handler(
     );
 
     if (result.kind === 'preview') {
+      // Record after the consult so a 403/404/409 leaves no row, and
+      // so the preview module itself never writes.
+      const writer = new GmPrivatePreviewRecordWriter(
+        new SQLitePrivateRecordRepository(getSQLiteService().getDatabase()),
+      );
+      await writer.store({
+        resolver: new AuthorizedViewerResolver(
+          new HostAsGmMembershipSource(membership, meta.hostPlayerId),
+        ),
+        principalId: viewer.principalId,
+        campaignSessionId: matchId,
+        commandId: null,
+        createdAt: nowIso(),
+        preview: {
+          actorId: viewer.principalId,
+          stream,
+          branchId: result.priorHead.branchId,
+          targetRevision: result.targetRevision,
+          entries: result.entries,
+          changedViewerIds: result.changedViewerIds,
+        },
+        derivedSummary: `GM rewind preview to revision ${String(result.targetRevision)}`,
+      });
       res.status(200).json(result);
       return;
     }
