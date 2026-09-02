@@ -22,7 +22,7 @@
  * @spec openspec/changes/add-coop-campaign-play/design.md (D5, D7)
  */
 
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 import type { IGmLifecyclePosture } from '@/lib/campaign/lifecycle/campaignLifecycleState';
 import type { IPendingProposal } from '@/lib/multiplayer/server/CampaignGmArbiter';
@@ -30,6 +30,8 @@ import type { GmDecision } from '@/types/campaign/CoopCampaign';
 import type { ICommandAuthorityProjection } from '@/types/command-screen';
 
 import { LifecycleStateBanner } from '@/components/common/LifecycleStateBanner';
+
+import { VetoConfirmationDialog } from './VetoConfirmationDialog';
 
 // =============================================================================
 // Props
@@ -116,9 +118,41 @@ export function HostGmReviewSurface({
   onClearLifecycleRefusal = () => {},
   className = '',
 }: HostGmReviewSurfaceProps): React.ReactElement {
+  // The proposal a veto has been raised against, or null. Holding the
+  // entry rather than the id keeps the dialog's summary in step with the
+  // row even if the queue reorders underneath it.
+  const [vetoTarget, setVetoTarget] = useState<IPendingProposal | null>(null);
+  const surfaceRef = useRef<HTMLElement>(null);
+  const recoveryRef = useRef<HTMLButtonElement>(null);
+  // Which approve control the host was standing on. Only approve sets it:
+  // the rescue below is for the case where a refusal disables the very
+  // button under the cursor, and nothing else.
+  const focusedApproveRef = useRef<string | null>(null);
+
+  const progressionEnabled = lifecycle?.progressionEnabled;
+  useEffect(() => {
+    // A disabled element cannot hold focus, so when a refusal lands on
+    // the button the host had focused the browser drops focus to <body> -
+    // a keyboard user is silently returned to the top of the document
+    // with no announcement. Move them to the recovery action, which is
+    // the thing they can actually do next.
+    //
+    // Deliberately NOT a general "focus the newest thing" rule: a host
+    // who was working elsewhere keeps their place, because stealing focus
+    // on an async frame is its own defect.
+    if (progressionEnabled !== false) return;
+    if (focusedApproveRef.current === null) return;
+    recoveryRef.current?.focus();
+    focusedApproveRef.current = null;
+  }, [progressionEnabled]);
+
   return (
     <section
+      ref={surfaceRef}
       data-testid="host-gm-review-surface"
+      // Programmatically focusable so focus has somewhere to land when the
+      // control it came from no longer exists. Never in the tab order.
+      tabIndex={-1}
       className={`rounded-xl border border-slate-700 bg-slate-900/60 p-4 ${className}`}
     >
       <h3 className="mb-3 text-sm font-semibold tracking-wide text-slate-400 uppercase">
@@ -145,6 +179,7 @@ export function HostGmReviewSurface({
             {lifecycle.recovery.description}
           </p>
           <button
+            ref={recoveryRef}
             type="button"
             data-testid="gm-lifecycle-recovery"
             data-recovery-code={lifecycle.recovery.code}
@@ -256,6 +291,11 @@ export function HostGmReviewSurface({
                       ? 'true'
                       : undefined
                   }
+                  // Remembering which approve control holds focus is what
+                  // lets a refusal rescue it instead of stranding it.
+                  onFocus={() => {
+                    focusedApproveRef.current = entry.proposal.proposalId;
+                  }}
                   onClick={() => onDecide(entry.proposal.proposalId, 'approve')}
                   className={
                     decisionRefused(entry, 'approve', lifecycle)
@@ -268,7 +308,15 @@ export function HostGmReviewSurface({
                 <button
                   type="button"
                   data-testid={`veto-${entry.proposal.proposalId}`}
-                  onClick={() => onDecide(entry.proposal.proposalId, 'veto')}
+                  // Any other control taking focus clears the rescue
+                  // target: the host is no longer standing on the button a
+                  // refusal would disable.
+                  onFocus={() => {
+                    focusedApproveRef.current = null;
+                  }}
+                  // Destructive and irreversible from the guest's side, so
+                  // it opens a question instead of deciding.
+                  onClick={() => setVetoTarget(entry)}
                   className="rounded-lg border border-red-500/50 bg-red-600/20 px-3 py-1.5 text-sm font-medium text-red-200 hover:bg-red-600/30"
                 >
                   Veto
@@ -293,6 +341,18 @@ export function HostGmReviewSurface({
             </li>
           ))}
         </ul>
+      )}
+
+      {vetoTarget && (
+        <VetoConfirmationDialog
+          effectSummary={vetoTarget.effectSummary}
+          fallbackFocusRef={surfaceRef}
+          onCancel={() => setVetoTarget(null)}
+          onConfirm={() => {
+            onDecide(vetoTarget.proposal.proposalId, 'veto');
+            setVetoTarget(null);
+          }}
+        />
       )}
     </section>
   );
