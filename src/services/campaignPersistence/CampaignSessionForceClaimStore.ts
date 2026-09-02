@@ -28,6 +28,49 @@ interface IClaimRow {
   readonly participant_id: string;
 }
 
+/** One durable claim row, as migration reads them back. */
+export interface ICampaignSessionForceClaim {
+  readonly missionId: string;
+  readonly forceId: string;
+  readonly participantId: string;
+}
+
+interface IFullClaimRow {
+  readonly mission_id: string;
+  readonly force_id: string;
+  readonly participant_id: string;
+}
+
+/**
+ * Every claim recorded for this session, across every mission.
+ *
+ * The per-mission reader answers "may this participant take this force
+ * now?". Migration asks a different question - "whose is this force,
+ * over the campaign's whole history?" - and a force with two holders on
+ * two missions is exactly the ambiguity it must refuse to resolve, so it
+ * needs all the rows rather than one mission's.
+ */
+export function listCampaignSessionForceClaims(
+  campaignId: string,
+  sessionId: string,
+): readonly ICampaignSessionForceClaim[] {
+  return (
+    getSQLiteService()
+      .getDatabase()
+      .prepare(
+        `SELECT mission_id, force_id, participant_id
+           FROM campaign_session_force_claim
+          WHERE campaign_id = ? AND session_id = ?
+          ORDER BY mission_id, force_id, participant_id`,
+      )
+      .all(campaignId, sessionId) as IFullClaimRow[]
+  ).map((row) => ({
+    missionId: row.mission_id,
+    forceId: row.force_id,
+    participantId: row.participant_id,
+  }));
+}
+
 /**
  * Record that `participantId` holds `forceId` for this mission, unless
  * somebody else already does.
