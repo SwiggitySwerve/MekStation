@@ -54,7 +54,10 @@
  * @spec openspec/changes/harden-gm-two-player-campaign-sessions/specs/event-store/spec.md
  */
 
+import type { IAuthorityEventIntegrity } from './AuthorityQuarantine';
+
 import { evaluateReplayTailContinuity } from '../replay/ReplayCheckpointCompatibility';
+import { detectAuthorityCorruption } from './AuthorityQuarantine';
 import { BranchCheckpointCache } from './BranchCheckpointCache';
 
 export type {
@@ -78,6 +81,15 @@ export const AUTHORITY_HISTORY_START = -1;
 export type AuthorityRecoveryBlockedReason =
   /** An authority that must hold events holds none. */
   | 'empty-history'
+  /**
+   * The four corruption classes (task 15.4). Each names authority data
+   * that is WRONG, not merely absent, and each quarantines the session
+   * it came from - see `AuthorityQuarantine`.
+   */
+  | 'sequence-gap'
+  | 'broken-lineage'
+  | 'duplicate-receipt'
+  | 'missing-digest'
   /** A trusted base, then a tail that does not continue it. */
   | 'partial-history'
   /** The reference fold itself threw. */
@@ -137,6 +149,13 @@ export interface IAuthorityRecoverySource<TEvent, TState> {
   read(fromExclusive: number): Promise<readonly TEvent[]>;
   /** This authority's revision for one event. */
   revisionOf(event: TEvent): number;
+  /**
+   * The integrity facts this authority carries per event. When absent,
+   * recovery validates nothing beyond what the checkpoint contract
+   * already checks - so an authority opts IN to corruption detection by
+   * being able to describe itself, and none is silently assumed.
+   */
+  integrityOf?(event: TEvent): IAuthorityEventIntegrity;
   /** The ONE reducer. `base` absent means fold from the beginning. */
   fold(events: readonly TEvent[], base?: TState): TState;
 }
@@ -183,6 +202,18 @@ export function referenceRecoveryPort<TEvent, TState>(): AuthorityRecoveryPort<
     const events = await source.read(AUTHORITY_HISTORY_START);
     if (events.length === 0 && source.emptyHistory === 'corrupt') {
       return blocked('empty-history', [source.authorityId]);
+    }
+    // Validate BEFORE folding: a corrupt history must never reach the
+    // reducer, because a state folded from it is exactly the partial
+    // recovery this must not publish.
+    const integrityOf = source.integrityOf;
+    if (integrityOf !== undefined) {
+      const corruption = detectAuthorityCorruption(
+        events.map((event) => integrityOf(event)),
+      );
+      if (corruption !== null) {
+        return blocked(corruption.reason, corruption.evidence);
+      }
     }
     try {
       return Object.freeze({
