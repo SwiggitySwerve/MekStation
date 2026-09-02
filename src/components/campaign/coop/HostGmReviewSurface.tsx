@@ -24,9 +24,12 @@
 
 import React from 'react';
 
+import type { IGmLifecyclePosture } from '@/lib/campaign/lifecycle/campaignLifecycleState';
 import type { IPendingProposal } from '@/lib/multiplayer/server/CampaignGmArbiter';
 import type { GmDecision } from '@/types/campaign/CoopCampaign';
 import type { ICommandAuthorityProjection } from '@/types/command-screen';
+
+import { LifecycleStateBanner } from '@/components/common/LifecycleStateBanner';
 
 // =============================================================================
 // Props
@@ -44,6 +47,20 @@ export interface HostGmReviewSurfaceProps {
   readonly onManualTakeover?: (proposalId: string) => void;
   readonly onGmCorrection?: (proposalId: string) => void;
   readonly authorityProjection?: ICommandAuthorityProjection;
+  /**
+   * The host's lifecycle posture (umbrella 19.1/19.2). Omitted on
+   * surfaces with no campaign session behind them, which keeps their
+   * pre-19.2 behaviour rather than silently gating controls that were
+   * always safe.
+   */
+  readonly lifecycle?: IGmLifecyclePosture;
+  /**
+   * Clears the standing refusal so the host can retry. The local block
+   * is a hint carried forward from the last refusal, not a live
+   * subscription - the server is still the authority and re-refuses if
+   * the condition holds.
+   */
+  readonly onClearLifecycleRefusal?: () => void;
   /** Optional class override for the surface container. */
   readonly className?: string;
 }
@@ -55,6 +72,26 @@ export interface HostGmReviewSurfaceProps {
 /** Format a C-bill amount with thousands separators for the review UI. */
 function formatCbills(amount: number): string {
   return `${Math.round(amount).toLocaleString('en-US')} C-bills`;
+}
+
+/**
+ * Whether the server would refuse this exact decision right now.
+ *
+ * The campaign host server refuses `CAMPAIGN_NOT_CONVERGED` for
+ * PROGRESSION only - `AdvanceDay`, including the host approving a
+ * guest's `AdvanceDay` proposal. Every other decision, and every veto,
+ * is still accepted. Gating on the posture alone would disable controls
+ * the server would happily take, and would leave the host unable to
+ * clear a queue they are entitled to clear.
+ */
+function decisionRefused(
+  entry: IPendingProposal,
+  decision: GmDecision,
+  lifecycle: IGmLifecyclePosture | undefined,
+): boolean {
+  if (lifecycle === undefined || lifecycle.progressionEnabled) return false;
+  if (decision !== 'approve') return false;
+  return entry.proposal.intent.kind === 'AdvanceDay';
 }
 
 // =============================================================================
@@ -75,6 +112,8 @@ export function HostGmReviewSurface({
   onManualTakeover = () => {},
   onGmCorrection = () => {},
   authorityProjection,
+  lifecycle,
+  onClearLifecycleRefusal = () => {},
   className = '',
 }: HostGmReviewSurfaceProps): React.ReactElement {
   return (
@@ -85,6 +124,37 @@ export function HostGmReviewSurface({
       <h3 className="mb-3 text-sm font-semibold tracking-wide text-slate-400 uppercase">
         GM Review — Pending Guest Proposals
       </h3>
+
+      {/* The always-on posture strip, so "the server will take my
+          decision" is a fact the host can read rather than assume. */}
+      {lifecycle && (
+        <LifecycleStateBanner
+          testId="gm-lifecycle-state"
+          state={lifecycle.state}
+          message={lifecycle.message}
+        />
+      )}
+
+      {/* The typed recovery the refusal names. It commits nothing - it
+          clears the local hint so the SERVER answers again - which is
+          what makes it safe to offer to an actor whose last command was
+          refused. */}
+      {lifecycle?.recovery && (
+        <div className="mb-3 rounded-lg border border-slate-700 bg-slate-950/60 p-3 text-xs text-slate-300">
+          <p data-testid="gm-lifecycle-recovery-description">
+            {lifecycle.recovery.description}
+          </p>
+          <button
+            type="button"
+            data-testid="gm-lifecycle-recovery"
+            data-recovery-code={lifecycle.recovery.code}
+            onClick={onClearLifecycleRefusal}
+            className="mt-2 rounded-lg border border-sky-500/50 bg-sky-600/20 px-3 py-1.5 text-sm font-medium text-sky-200 hover:bg-sky-600/30"
+          >
+            {lifecycle.recovery.label}
+          </button>
+        </div>
+      )}
 
       {authorityProjection && (
         <div
@@ -123,6 +193,10 @@ export function HostGmReviewSurface({
         </p>
       ) : (
         <ul className="space-y-3">
+          {/* The gate is decided PER PROPOSAL, not per surface: the
+              refusal covers progression only, so it is asked against
+              this proposal's intent rather than blanket-disabling the
+              queue. */}
           {pending.map((entry) => (
             <li
               key={entry.proposal.proposalId}
@@ -173,8 +247,21 @@ export function HostGmReviewSurface({
                 <button
                   type="button"
                   data-testid={`approve-${entry.proposal.proposalId}`}
+                  disabled={decisionRefused(entry, 'approve', lifecycle)}
+                  // The reason rides the control, so a disabled button is
+                  // not a mystery the host has to correlate with a banner
+                  // somewhere else on the screen.
+                  data-lifecycle-blocked={
+                    decisionRefused(entry, 'approve', lifecycle)
+                      ? 'true'
+                      : undefined
+                  }
                   onClick={() => onDecide(entry.proposal.proposalId, 'approve')}
-                  className="rounded-lg border border-emerald-500/50 bg-emerald-600/20 px-3 py-1.5 text-sm font-medium text-emerald-200 hover:bg-emerald-600/30"
+                  className={
+                    decisionRefused(entry, 'approve', lifecycle)
+                      ? 'cursor-not-allowed rounded-lg border border-slate-600 bg-slate-800 px-3 py-1.5 text-sm font-medium text-slate-500'
+                      : 'rounded-lg border border-emerald-500/50 bg-emerald-600/20 px-3 py-1.5 text-sm font-medium text-emerald-200 hover:bg-emerald-600/30'
+                  }
                 >
                   Approve
                 </button>

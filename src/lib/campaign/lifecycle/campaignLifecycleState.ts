@@ -67,6 +67,34 @@ export interface ICampaignLifecycleFacts {
   readonly refusal: CampaignLifecycleRefusalCode | null;
 }
 
+/** A recovery the host can actually take, named by the refusal. */
+export interface IGmRecoveryAction {
+  readonly code: CampaignLifecycleRefusalCode;
+  readonly label: string;
+  readonly description: string;
+}
+
+/** The GM posture. */
+export interface IGmLifecyclePosture {
+  readonly state: LifecycleState;
+  readonly message: string;
+  /**
+   * Whether the server would accept a PROGRESSION commit right now.
+   * Deliberately narrower than a blanket `commandsEnabled`: the server
+   * refuses `AdvanceDay` and the host's approval of an `AdvanceDay`
+   * proposal, and nothing else. A blanket gate would strand a host with
+   * a proposal queue they are perfectly entitled to clear, and would
+   * teach them that the gate does not mean what it says.
+   */
+  readonly progressionEnabled: boolean;
+  readonly recovery: IGmRecoveryAction | null;
+}
+
+export interface IGmLifecycleInput {
+  readonly refusal: CampaignLifecycleRefusalCode | null;
+  readonly pendingProposalCount: number;
+}
+
 const GUEST_MESSAGES: Readonly<Record<LifecycleState, string>> = {
   pending: 'Your proposal is awaiting the campaign GM.',
   sealed: 'Your proposal is sealed until the GM reveals it.',
@@ -78,6 +106,57 @@ const GUEST_MESSAGES: Readonly<Record<LifecycleState, string>> = {
   rewound: 'The campaign projection was rewound to an authoritative branch.',
   rebuilding: 'Rebuilding the campaign projection from authoritative history…',
   live: 'Up to date with the campaign owner.',
+};
+
+const GM_MESSAGES: Readonly<Record<LifecycleState, string>> = {
+  pending: 'Guest proposals are awaiting your review.',
+  sealed: 'A guest declaration is sealed until you reveal it.',
+  finalized: 'Your latest campaign decision was committed.',
+  syncing: 'Loading the campaign…',
+  reconnecting: 'Reconnecting to the campaign session…',
+  behind: 'Catching up on recent campaign activity…',
+  blocked: 'Campaign progression is paused until every participant catches up.',
+  rewound: 'The campaign projection was rewound to an authoritative branch.',
+  rebuilding: 'Rebuilding the campaign projection from authoritative history…',
+  live: 'Campaign is up to date.',
+};
+
+/**
+ * The recovery each refusal offers. `Check again` is deliberately the
+ * only ACTION: the local block is a hint carried forward from the last
+ * refusal, not a live convergence subscription, so clearing it lets the
+ * host retry and lets the SERVER - which is the only authority on
+ * whether the campaign converged - answer again. Nothing here commits
+ * anything, which is what makes it safe to offer to an actor whose last
+ * command was refused.
+ */
+const RECOVERIES: Readonly<
+  Record<CampaignLifecycleRefusalCode, IGmRecoveryAction>
+> = {
+  CAMPAIGN_NOT_CONVERGED: {
+    code: 'CAMPAIGN_NOT_CONVERGED',
+    label: 'Check again',
+    description:
+      'Progression resumes once every participant has caught up. Checking again retries against the campaign server.',
+  },
+  STALE_BRANCH: {
+    code: 'STALE_BRANCH',
+    label: 'Check again',
+    description:
+      'This view is on a superseded branch of campaign history. Checking again retries against the active branch.',
+  },
+  PROJECTION_REWOUND: {
+    code: 'PROJECTION_REWOUND',
+    label: 'Check again',
+    description:
+      'The campaign projection was rewound. Checking again retries against the authoritative branch.',
+  },
+  PROJECTION_REBUILDING: {
+    code: 'PROJECTION_REBUILDING',
+    label: 'Check again',
+    description:
+      'The campaign projection is being rebuilt. Checking again retries once it is complete.',
+  },
 };
 
 /**
@@ -176,6 +255,36 @@ function deriveGuestLifecycleState(
   if (facts.proposalAwaitingGm) return 'pending';
   if (facts.lastProposalCommitted) return 'finalized';
   return 'live';
+}
+
+/**
+ * The host's posture.
+ *
+ * `sealed` is absent by construction: a campaign has no
+ * declare-then-reveal phase, so there is no honest way for this surface
+ * to reach it. The tactical surface, which does have one, derives it
+ * there.
+ */
+export function deriveGmLifecyclePosture(
+  input: IGmLifecycleInput,
+): IGmLifecyclePosture {
+  if (input.refusal !== null) {
+    const state = refusalState(input.refusal);
+    return {
+      state,
+      message: GM_MESSAGES[state],
+      progressionEnabled: false,
+      recovery: RECOVERIES[input.refusal],
+    };
+  }
+  const state: LifecycleState =
+    input.pendingProposalCount > 0 ? 'pending' : 'live';
+  return {
+    state,
+    message: GM_MESSAGES[state],
+    progressionEnabled: true,
+    recovery: null,
+  };
 }
 
 function assertNever(value: never): never {

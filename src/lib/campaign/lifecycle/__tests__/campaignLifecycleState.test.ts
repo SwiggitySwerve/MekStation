@@ -14,11 +14,15 @@
  * nothing can satisfy is just as useless as one everything can.
  */
 
-import type { ICampaignLifecycleFacts } from '@/lib/campaign/lifecycle/campaignLifecycleState';
+import type {
+  CampaignLifecycleRefusalCode,
+  ICampaignLifecycleFacts,
+} from '@/lib/campaign/lifecycle/campaignLifecycleState';
 import type { CampaignSyncUxState } from '@/lib/campaign/replica/campaignSyncUxState';
 
 import {
   campaignRefusalFromServerErrorCode,
+  deriveGmLifecyclePosture,
   toCampaignLifecyclePosture,
 } from '@/lib/campaign/lifecycle/campaignLifecycleState';
 import { deriveCampaignSyncUxPosture } from '@/lib/campaign/replica/campaignSyncUxState';
@@ -119,6 +123,13 @@ const LIVE_WIRE_CODES = [
 
 const RESERVED_STATES = ['rewound', 'rebuilding'] as const;
 
+const LIVE_REFUSALS: readonly CampaignLifecycleRefusalCode[] = [
+  'CAMPAIGN_NOT_CONVERGED',
+  'STALE_BRANCH',
+  'PROJECTION_REWOUND',
+  'PROJECTION_REBUILDING',
+];
+
 describe('guest lifecycle derivation', () => {
   it('renames each shipped sync posture into the shared vocabulary', () => {
     const named = SYNC_STATES.map(
@@ -209,6 +220,50 @@ describe('guest lifecycle derivation', () => {
   });
 });
 
+describe('GM lifecycle derivation', () => {
+  it('is live and unrestricted with an empty queue', () => {
+    const posture = deriveGmLifecyclePosture({
+      refusal: null,
+      pendingProposalCount: 0,
+    });
+
+    expect(posture.state).toBe('live');
+    expect(posture.progressionEnabled).toBe(true);
+    expect(posture.recovery).toBeNull();
+  });
+
+  it('is pending while proposals await review, without restricting anything', () => {
+    const posture = deriveGmLifecyclePosture({
+      refusal: null,
+      pendingProposalCount: 2,
+    });
+
+    expect(posture.state).toBe('pending');
+    // A queue is not a refusal. Gating here would stop the host from
+    // clearing the very queue that produced the posture.
+    expect(posture.progressionEnabled).toBe(true);
+  });
+
+  it('blocks progression and names a recovery when the campaign has not converged', () => {
+    const posture = deriveGmLifecyclePosture({
+      refusal: 'CAMPAIGN_NOT_CONVERGED',
+      pendingProposalCount: 1,
+    });
+
+    expect(posture.state).toBe('blocked');
+    expect(posture.progressionEnabled).toBe(false);
+    expect(posture.recovery?.code).toBe('CAMPAIGN_NOT_CONVERGED');
+  });
+
+  it('announces nothing with a digit in it', () => {
+    for (const refusal of [null, ...LIVE_REFUSALS]) {
+      expect(
+        deriveGmLifecyclePosture({ refusal, pendingProposalCount: 4 }).message,
+      ).not.toMatch(/\d/);
+    }
+  });
+});
+
 describe('reserved postures are unreachable from a live signal', () => {
   it('admits exactly one wire code through the refusal door', () => {
     const admitted = LIVE_WIRE_CODES.filter(
@@ -238,6 +293,13 @@ describe('reserved postures are unreachable from a live signal', () => {
           }
         }
       }
+      for (const pendingProposalCount of [0, 1, 5]) {
+        const host = deriveGmLifecyclePosture({
+          refusal,
+          pendingProposalCount,
+        });
+        expect(RESERVED_STATES).not.toContain(host.state);
+      }
     }
   });
 
@@ -245,6 +307,12 @@ describe('reserved postures are unreachable from a live signal', () => {
     // A guard nothing can satisfy is as useless as one everything can.
     // These are the two calls `add-authoritative-history-branches` makes
     // to light the postures without touching a banner or a locator.
+    expect(
+      deriveGmLifecyclePosture({
+        refusal: 'PROJECTION_REWOUND',
+        pendingProposalCount: 0,
+      }).state,
+    ).toBe('rewound');
     expect(
       toCampaignLifecyclePosture(
         sync('live'),

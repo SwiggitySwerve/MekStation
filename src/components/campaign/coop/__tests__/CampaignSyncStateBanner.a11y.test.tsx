@@ -20,6 +20,8 @@ import type { CampaignSyncUxState } from '@/lib/campaign/replica/campaignSyncUxS
 import type { LifecycleState } from '@/lib/lifecycle/lifecycleState';
 
 import { CampaignSyncStateBanner } from '@/components/campaign/coop/CampaignSyncStateBanner';
+import { HostGmReviewSurface } from '@/components/campaign/coop/HostGmReviewSurface';
+import { deriveGmLifecyclePosture } from '@/lib/campaign/lifecycle/campaignLifecycleState';
 
 const STATES: readonly CampaignSyncUxState[] = [
   'blocked',
@@ -101,5 +103,78 @@ describe('campaign sync banner a11y', () => {
       expect(screen.getByRole('status').textContent ?? '').not.toMatch(/\d/);
       unmount();
     }
+  });
+});
+
+/**
+ * The GM half (umbrella 19.1/19.2). Same discipline, same reasons: the
+ * host's posture decides whether a control they are looking at will be
+ * taken, and a host who cannot see the screen has to be told.
+ */
+const GM_REFUSALS = [
+  null,
+  'CAMPAIGN_NOT_CONVERGED',
+  'STALE_BRANCH',
+  'PROJECTION_REWOUND',
+  'PROJECTION_REBUILDING',
+] as const;
+
+describe('GM lifecycle banner a11y', () => {
+  it.each(GM_REFUSALS)('renders %s with no axe violations', async (refusal) => {
+    const { container } = render(
+      <HostGmReviewSurface
+        pending={[]}
+        onDecide={() => {}}
+        lifecycle={deriveGmLifecyclePosture({
+          refusal,
+          pendingProposalCount: 0,
+        })}
+      />,
+    );
+
+    expect(await axe(container)).toHaveNoViolations();
+  });
+
+  it.each(GM_REFUSALS)('announces %s through a live region', (refusal) => {
+    // By ROLE, not by testid: it pins the accessibility tree a screen
+    // reader actually walks rather than a hook only tests can see.
+    render(
+      <HostGmReviewSurface
+        pending={[]}
+        onDecide={() => {}}
+        lifecycle={deriveGmLifecyclePosture({
+          refusal,
+          pendingProposalCount: 0,
+        })}
+      />,
+    );
+
+    const status = screen.getByRole('status');
+    expect(status).toHaveAttribute('aria-live', 'polite');
+    expect(status).toHaveAttribute('aria-atomic', 'true');
+    expect(status).not.toHaveAttribute('aria-live', 'assertive');
+    // No digits, for the same reason the guest banner carries none.
+    expect(status.textContent ?? '').not.toMatch(/\d/);
+  });
+
+  it('keeps the recovery action reachable from the keyboard', () => {
+    // A recovery offered only to a mouse is not a recovery. A real
+    // <button> is focusable and Enter/Space-activated by the platform,
+    // which is why it is one rather than a clickable div.
+    render(
+      <HostGmReviewSurface
+        pending={[]}
+        onDecide={() => {}}
+        lifecycle={deriveGmLifecyclePosture({
+          refusal: 'CAMPAIGN_NOT_CONVERGED',
+          pendingProposalCount: 0,
+        })}
+      />,
+    );
+
+    const recovery = screen.getByTestId('gm-lifecycle-recovery');
+    expect(recovery.tagName).toBe('BUTTON');
+    recovery.focus();
+    expect(recovery).toHaveFocus();
   });
 });
