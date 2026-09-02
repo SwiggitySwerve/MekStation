@@ -5,7 +5,7 @@ const repoRoot = path.resolve(__dirname, '../..');
 const runner = path.join(repoRoot, 'scripts/qc/run-gm-two-player-campaign.mjs');
 const core = require('../qc/gm-two-player-campaign-core.cjs');
 const groups =
-  'fixture-smoke,membership-smoke,evidence-smoke,fault-smoke,smoke,authority-pack1,exactly-once-pack,fault-pack,token-pack,restart-pack,resilience-pack,privacy-pack,proposal-pack,three-context-pack,two-device-pack,authority,visibility,combat,campaign,failure,performance,all,traceability,quality,manual-setup,scope'.split(
+  'fixture-smoke,membership-smoke,evidence-smoke,fault-smoke,smoke,authority-pack1,exactly-once-pack,fault-pack,token-pack,restart-pack,resilience-pack,authority-order,privacy-pack,proposal-pack,three-context-pack,two-device-pack,authority,visibility,combat,campaign,failure,performance,all,traceability,quality,manual-setup,scope'.split(
     ',',
   );
 /** The server command a non-respawning implemented group is planned with. */
@@ -128,6 +128,30 @@ describe('GM and two-player campaign QC runner', () => {
     // than left to the spec.
     expect(resiliencePlan.environment.MEKSTATION_E2E_SERVER_COMMAND).toBe(
       'node scripts/e2e/relaunching-server.mjs',
+    );
+
+    // Predicted red of this pin today, before the catalog grew the
+    // group: Object.keys(REGISTERED_GROUPS) lacked `authority-order`,
+    // so the first expect(toEqual(groups)) printed
+    // `-   "authority-order",` under `resilience-pack` (Expected 28 /
+    // Received 27). The group is pinned here so that absence stays a
+    // red, not a silent skip.
+    const authorityOrderPlan = core.buildRunPlan({
+      group: 'authority-order',
+      runId: 'task-21-authority-order',
+      repoRoot,
+    });
+    expect(authorityOrderPlan.args).toEqual([
+      path.join(repoRoot, 'scripts/playwright/run-playwright.mjs'),
+      'test',
+      '--project=chromium',
+      'e2e/gm-two-player-authority-order.pack.spec.ts',
+      '--workers=1',
+    ]);
+    // Neither E2E-04 nor E2E-07 kills the process. A future respawning
+    // row has to join RESPAWNING_GROUPS and change this line.
+    expect(authorityOrderPlan.environment.MEKSTATION_E2E_SERVER_COMMAND).toBe(
+      'node server.js',
     );
     // Every other group keeps the plain server - the wrapper is the
     // exception, never the default.
@@ -272,6 +296,7 @@ describe('GM and two-player campaign QC runner', () => {
       'token-pack',
       'restart-pack',
       'resilience-pack',
+      'authority-order',
       'privacy-pack',
       'proposal-pack',
       'three-context-pack',
