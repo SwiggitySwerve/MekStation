@@ -3,7 +3,7 @@ const crypto = require('node:crypto');
 const net = require('node:net');
 const path = require('node:path');
 const GROUP_CATALOG =
-  'fixture-smoke:26,membership-smoke:15,evidence-smoke:27,fault-smoke:28,smoke:15,authority-pack1:21,exactly-once-pack:21,fault-pack:21,token-pack:21,restart-pack:21,resilience-pack:21,privacy-pack:30,proposal-pack:30,three-context-pack:30,authority:29,visibility:30,combat:31,campaign:32,failure:32,performance:33,all:34,traceability:34,quality:34,manual-setup:34,scope:34';
+  'fixture-smoke:26,membership-smoke:15,evidence-smoke:27,fault-smoke:28,smoke:15,authority-pack1:21,exactly-once-pack:21,fault-pack:21,token-pack:21,restart-pack:21,resilience-pack:21,privacy-pack:30,proposal-pack:30,three-context-pack:30,two-device-pack:30,authority:29,visibility:30,combat:31,campaign:32,failure:32,performance:33,all:34,traceability:34,quality:34,manual-setup:34,scope:34';
 const REGISTERED_GROUPS = Object.freeze(
   Object.fromEntries(
     GROUP_CATALOG.split(',').map((entry) => {
@@ -67,6 +67,12 @@ function buildRunPlan({ group, runId, repoRoot }) {
     // share-roster leak it caught (finding #21) went unnoticed precisely
     // because no gated group ran it.
     'three-context-pack': ['e2e/authority-privacy-three-context.spec.ts'],
+    // The two-device drive belongs to `design-campaign-authority-and-sync`
+    // task 4.5. It is gated here for the same reason the three-context
+    // journey is: this runner is where CI gating lives, and this spec
+    // sitting in no group is how a merged change broke the share story
+    // without anything going red (finding #33).
+    'two-device-pack': ['e2e/campaign-two-device-drive.spec.ts'],
   };
   const specs = SPEC_BY_GROUP[group];
   if (!specs) {
