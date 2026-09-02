@@ -1,8 +1,13 @@
+import type { OwnedForceMaterializationResult } from '@/lib/campaign/encounter/campaignOwnedForceMaterialization';
 import type { ICampaign } from '@/types/campaign/Campaign';
 import type { IRosterUnitProjection } from '@/types/campaign/RosterUnitProjection';
 
-import { materializeCampaignMissionEncounter } from '@/lib/campaign/encounter/materializeCampaignMissionEncounter';
+import {
+  CampaignOwnedForceStaleError,
+  materializeCampaignMissionEncounter,
+} from '@/lib/campaign/encounter/materializeCampaignMissionEncounter';
 import { readyCanonicalCatalog } from '@/lib/campaign/readiness/canonicalCatalogAdmission';
+import { EXPECTED_HEAD_RESYNC_ACTION } from '@/lib/events/journal/EventHistoryExpectedHead';
 import { MissionStatus } from '@/types/campaign/enums/MissionStatus';
 import { createContract } from '@/types/campaign/Mission';
 import {
@@ -563,5 +568,151 @@ describe('materializeCampaignMissionEncounter', () => {
     );
 
     expect(fetchImpl).not.toHaveBeenCalled();
+  });
+
+  describe('authoritative owned forces (umbrella 10.3)', () => {
+    const ACTIVE_HEAD = {
+      branchId: 'root',
+      revision: 7,
+      effectiveGeneration: 1,
+    } as const;
+
+    /** A refusal shaped exactly as `materializeOwnedPlayerForces` returns it. */
+    function staleOwnedForces(
+      code: 'STALE_REVISION' | 'STALE_OWNERSHIP',
+      reason: string,
+    ): OwnedForceMaterializationResult {
+      return {
+        kind: 'refused',
+        code,
+        reason,
+        activeHead: ACTIVE_HEAD,
+        resyncAction: EXPECTED_HEAD_RESYNC_ACTION,
+      };
+    }
+
+    function ownedSlot(
+      slot: 1 | 2,
+      forceId: string,
+      unitRefs: readonly string[],
+    ) {
+      return {
+        slot,
+        forceId,
+        ownerParticipantId: `campaign-player-slot:${slot}`,
+        units: unitRefs.map((unitRef, index) => ({
+          reference: {
+            unitId: `${forceId}-unit-${index + 1}`,
+            unitRef,
+            unitSource: 'canonical' as const,
+            designation: `Slot ${slot} Unit ${index + 1}`,
+            adoptedAt: '3025-07-04T00:00:00.000Z',
+          },
+          pilotRef: `pilot-${slot}-${index + 1}`,
+        })),
+      };
+    }
+
+    it('refuses a launch against a stale revision before creating anything', async () => {
+      const calls: FetchCall[] = [];
+      const fetchImpl = makeMaterializationFetch(calls);
+
+      await expect(
+        materializeCampaignMissionEncounter({
+          campaign: makeCampaign(),
+          missionId: 'contract-1',
+          rosterUnits: makeRoster(2),
+          catalog: readyCatalog,
+          fetchImpl,
+          ownedForces: staleOwnedForces(
+            'STALE_REVISION',
+            'launch head is stale (STALE_REVISION)',
+          ),
+        }),
+      ).rejects.toThrow(/STALE_REVISION/);
+
+      // The gate is the ordering, not the message: a refusal that let the
+      // encounter exist first would be a report rather than a gate.
+      expect(calls).toHaveLength(0);
+    });
+
+    it('names the current head and the recovery action on the refusal', async () => {
+      const fetchImpl = makeMaterializationFetch([]);
+
+      const error = await materializeCampaignMissionEncounter({
+        campaign: makeCampaign(),
+        missionId: 'contract-1',
+        rosterUnits: makeRoster(2),
+        catalog: readyCatalog,
+        fetchImpl,
+        ownedForces: staleOwnedForces(
+          'STALE_OWNERSHIP',
+          'force force-a is held by pid_other for mission contract-1',
+        ),
+      }).catch((caught: unknown) => caught);
+
+      expect(error).toBeInstanceOf(CampaignOwnedForceStaleError);
+      const stale = error as CampaignOwnedForceStaleError;
+      expect(stale.code).toBe('STALE_OWNERSHIP');
+      expect(stale.activeHead).toEqual(ACTIVE_HEAD);
+      expect(stale.resyncAction).toBe(EXPECTED_HEAD_RESYNC_ACTION);
+    });
+
+    it('fields both tactical slots on one player side, in slot order', async () => {
+      const calls: FetchCall[] = [];
+      const fetchImpl = makeMaterializationFetch(calls);
+
+      const result = await materializeCampaignMissionEncounter({
+        campaign: makeCampaign(),
+        missionId: 'contract-1',
+        rosterUnits: makeRoster(2),
+        catalog: readyCatalog,
+        fetchImpl,
+        ownedForces: {
+          kind: 'materialized',
+          head: ACTIVE_HEAD,
+          slots: [
+            ownedSlot(1, 'force-alpha', ['locust-lct-1v', 'hunchback-hbk-4g']),
+            ownedSlot(2, 'force-bravo', ['marauder-mad-3r']),
+          ],
+        },
+      });
+
+      expect(result.encounterId).toBe('enc-organic');
+      // Slot 1's units precede slot 2's, and slot 2's unit is present at
+      // all - materializing the player side from slot 1's ownership alone
+      // would drop the second player from their own mission.
+      const playerAssignments = assignmentBodies(calls).slice(0, 3);
+      expect(playerAssignments).toEqual([
+        { unitId: 'locust-lct-1v', pilotId: 'pilot-1-1' },
+        { unitId: 'hunchback-hbk-4g', pilotId: 'pilot-1-2' },
+        { unitId: 'marauder-mad-3r', pilotId: 'pilot-2-1' },
+      ]);
+    });
+
+    it('sizes the OpFor against both slots rather than one', async () => {
+      const calls: FetchCall[] = [];
+      const fetchImpl = makeMaterializationFetch(calls);
+
+      await materializeCampaignMissionEncounter({
+        campaign: makeCampaign(),
+        missionId: 'contract-1',
+        rosterUnits: makeRoster(1),
+        catalog: readyCatalog,
+        fetchImpl,
+        ownedForces: {
+          kind: 'materialized',
+          head: ACTIVE_HEAD,
+          slots: [
+            ownedSlot(1, 'force-alpha', ['locust-lct-1v', 'hunchback-hbk-4g']),
+            ownedSlot(2, 'force-bravo', ['marauder-mad-3r']),
+          ],
+        },
+      });
+
+      // Three player units means three OpFor units. Sizing off the caller's
+      // `rosterUnits` (length 1 here) would field a lopsided battle.
+      expect(assignmentBodies(calls)).toHaveLength(6);
+    });
   });
 });
