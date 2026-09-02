@@ -152,10 +152,12 @@ async function broadcastEventInMode(
   await publishEvent(ctx, ctx.message, onlyUndelivered);
 
   const revealEvent = ctx.message.event as IGameEvent;
-  for (const declaration of sealedDeclarationsRevealedBy(
+  const selected = sealedDeclarationsRevealedBy(
     ctx.session.getSession().events,
     revealEvent,
-  )) {
+  );
+  if (selected.length === 0) return;
+  for (const declaration of await committedDeclarations(ctx, selected)) {
     // Reveals are always delivered in undelivered-only mode regardless
     // of the outer mode: their whole mechanism is late delivery of a
     // frame the viewer must receive exactly once.
@@ -166,6 +168,63 @@ async function broadcastEventInMode(
       revealEvent.sequence,
     );
   }
+}
+
+/**
+ * Resolve each selected declaration to the row the authority COMMITTED.
+ *
+ * WHY the store and not the session log the selection came from: the
+ * commit path stamps `intentId` and captured `rolls` onto a COPY of the
+ * batch (`stampIntentIdOnNewEvents` / `stampRollsOnNewEvents` above both
+ * return new objects), and `commitThenPublish` persists and broadcasts
+ * THAT copy while the engine's in-memory log keeps the pre-stamp
+ * original. Selecting from the session is still correct - the selector
+ * reads only `type`, `turn`, `phase` and `sequence`, which no stamp
+ * touches - but the PAYLOAD is only right in the store. Revealing the
+ * session's copy made the late frame differ from the actor's own live
+ * frame and from the viewer's replay of the same event id, by exactly
+ * the stamped fields: live and replay were not equivalent for one
+ * viewer, which is what `E2E-26` forbids, and `E2E-22` asks for the
+ * reveal to come from committed delivery streams in the first place.
+ *
+ * Fails closed per declaration: a row the store cannot answer for is
+ * NOT revealed at all, rather than revealed as a payload no surface
+ * committed. That matches the publication boundary's own no-raw-fallback
+ * law, and it is recoverable - replay reads these same rows, so the
+ * viewer still gets the declaration on their next resume.
+ */
+async function committedDeclarations(
+  ctx: { readonly matchId: string; readonly store: IMatchStore },
+  declarations: readonly IGameEvent[],
+): Promise<readonly IGameEvent[]> {
+  const fromSeq = Math.min(
+    ...declarations.map((declaration) => declaration.sequence),
+  );
+  let committed: readonly IGameEvent[];
+  try {
+    committed = await ctx.store.getEvents(ctx.matchId, fromSeq);
+  } catch (e) {
+    // eslint-disable-next-line no-console
+    console.warn(
+      `[ServerMatchHost ${ctx.matchId}] sealed reveal withheld: committed events unreadable from seq=${fromSeq}`,
+      e,
+    );
+    return [];
+  }
+  const committedById = new Map(committed.map((event) => [event.id, event]));
+  const resolved: IGameEvent[] = [];
+  for (const declaration of declarations) {
+    const row = committedById.get(declaration.id);
+    if (row === undefined) {
+      // eslint-disable-next-line no-console
+      console.warn(
+        `[ServerMatchHost ${ctx.matchId}] sealed reveal withheld: no committed row for event id=${declaration.id} seq=${declaration.sequence}`,
+      );
+      continue;
+    }
+    resolved.push(row);
+  }
+  return resolved;
 }
 
 async function publishEvent(
