@@ -39,6 +39,7 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 import type { CampaignShareRefusalReason } from '@/lib/campaign/grants/campaignShareService';
 import type { ICampaignGrant } from '@/lib/campaign/grants/ICampaignGrantStore';
 
+import { expectedScopeForCampaign } from '@/lib/campaign/authority/campaignSessionScope';
 import {
   issueShareGrant,
   listShareGrants,
@@ -50,7 +51,7 @@ import {
   queryStringParam,
   sendCaughtApiError,
 } from '@/pages-modules/api/routeHelpers';
-import { readCampaign } from '@/services/campaignPersistence/CampaignPersistenceService';
+import { campaignHasAnyActiveSeat } from '@/services/campaignPersistence/CampaignSessionParticipantStore';
 import { getSQLiteService } from '@/services/persistence/SQLiteService';
 
 type ErrorResponse = { error: string; reason?: CampaignShareRefusalReason };
@@ -67,24 +68,6 @@ function statusForRefusal(reason: CampaignShareRefusalReason): number {
   if (reason === 'not-campaign-gm') return 403;
   if (reason === 'campaign-unreadable') return 500;
   return 400;
-}
-
-/**
- * The session scope a token for this campaign must carry, read from the
- * campaign's OWN stored co-op session rather than from the request.
- * `undefined` when the campaign runs no co-op session: a scoped token
- * then fails closed in `authenticateRequest`, and an unscoped one still
- * has to clear the GM gate, which a campaign with no seats refuses.
- */
-function expectedScopeForCampaign(
-  campaignId: string,
-): { readonly kind: 'campaign-session'; readonly id: string } | undefined {
-  const read = readCampaign(campaignId);
-  if (read.kind !== 'ok') return undefined;
-  const matchId = read.record.body.coopSession?.matchId;
-  return typeof matchId === 'string' && matchId.length > 0
-    ? { kind: 'campaign-session', id: matchId }
-    : undefined;
 }
 
 /** Body of a POST issue request, validated before it reaches the store. */
@@ -130,19 +113,30 @@ export default async function handler(
     const nowIso = new Date().toISOString();
     // Identity first, for every verb including the read: the roster IS
     // the private material here, so an unauthenticated GET is the leak.
+    //
+    // Except on a campaign with no participants, where there is nobody
+    // to authorize against and a self-issued token would pass anyway
+    // (finding #33, the #29 boundary - the service comment carries the
+    // reasoning and the named exposure). Demanding a token there would
+    // be a check that refuses only callers who have not bothered to mint
+    // one, which is friction wearing a gate's clothes.
+    const gated = campaignHasAnyActiveSeat(id);
     const auth = await authenticateRequest(
       req,
       undefined,
       expectedScopeForCampaign(id),
     );
-    if (!auth.ok) {
+    if (gated && !auth.ok) {
       res.status(401).json({ error: `Unauthorized: ${auth.reason}` });
       return;
     }
+    // Empty when the campaign is ungated and the caller offered nothing;
+    // the service refuses an empty caller wherever the gate applies.
+    const callerId = auth.ok ? auth.playerId : '';
 
     switch (req.method) {
       case 'GET': {
-        const listed = listShareGrants(db, id, auth.playerId);
+        const listed = listShareGrants(db, id, callerId);
         if (listed.kind !== 'ok') {
           res
             .status(statusForRefusal(listed.reason))
@@ -160,7 +154,7 @@ export default async function handler(
         }
         const issued = issueShareGrant(db, {
           campaignId: id,
-          callerId: auth.playerId,
+          callerId,
           participantId: req.body.participantId,
           issuerPublicKey: req.body.issuerPublicKey,
           scopes: req.body.scopes,
@@ -183,13 +177,7 @@ export default async function handler(
           res.status(400).json({ error: 'missing grantId' });
           return;
         }
-        const revoked = revokeShareGrant(
-          db,
-          id,
-          grantId,
-          nowIso,
-          auth.playerId,
-        );
+        const revoked = revokeShareGrant(db, id, grantId, nowIso, callerId);
         if (revoked.kind !== 'ok') {
           res
             .status(statusForRefusal(revoked.reason))
