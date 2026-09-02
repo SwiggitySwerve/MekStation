@@ -1,4 +1,5 @@
 import type Database from 'better-sqlite3';
+
 import { mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
@@ -9,6 +10,7 @@ import {
 } from '@/services/persistence/SQLiteService';
 
 import type * as Journal from '../EventJournalContract';
+
 import { SQLiteEventHistoryBranchStore } from '../SQLiteEventHistoryBranchStore';
 import { SQLiteEventJournalWriter } from '../SQLiteEventJournalWriter';
 
