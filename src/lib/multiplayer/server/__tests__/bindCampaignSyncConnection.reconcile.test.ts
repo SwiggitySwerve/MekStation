@@ -82,9 +82,10 @@ describe('bindCampaignSyncConnection ReconcileBattle routing', () => {
     const entry = registry.get('campaign-sync-match-1');
     expect(entry).not.toBeNull();
     const host = entry!.host;
-    const applyHostIntent = jest.spyOn(host, 'applyHostIntent');
-    const creditSalvagePool = jest.spyOn(host, 'creditSalvagePool');
-    const applyRosterUnitChange = jest.spyOn(host, 'applyRosterUnitChange');
+    // The three doors used to be three public calls; the walk now takes
+    // ONE batch door (finding #78), so the once-ness is proven on it. The
+    // committed events below still prove all three doors ran inside it.
+    const runBatchExclusive = jest.spyOn(host, 'runBatchExclusive');
 
     await bindCampaignSyncConnection({
       socket: hostSocket,
@@ -166,9 +167,7 @@ describe('bindCampaignSyncConnection ReconcileBattle routing', () => {
         event: expect.objectContaining({ type: 'RosterUnitChanged' }),
       }),
     ]);
-    expect(applyHostIntent).toHaveBeenCalledTimes(1);
-    expect(creditSalvagePool).toHaveBeenCalledTimes(1);
-    expect(applyRosterUnitChange).toHaveBeenCalledTimes(1);
+    expect(runBatchExclusive).toHaveBeenCalledTimes(1);
 
     hostSocket.inbound(reconcileBattleFrame);
     await flushAsyncHandlers();
@@ -176,8 +175,6 @@ describe('bindCampaignSyncConnection ReconcileBattle routing', () => {
     expect(
       guestSocket.sent.filter((message) => message.kind === 'CampaignEvent'),
     ).toHaveLength(3);
-    expect(applyHostIntent).toHaveBeenCalledTimes(1);
-    expect(creditSalvagePool).toHaveBeenCalledTimes(1);
-    expect(applyRosterUnitChange).toHaveBeenCalledTimes(1);
+    expect(runBatchExclusive).toHaveBeenCalledTimes(1);
   });
 });

@@ -24,6 +24,7 @@
  * @module lib/campaign/coop/reconcileCoopBattle
  */
 
+import type { ICampaignHostBatchDoors } from '@/lib/multiplayer/server/campaignHostDoors';
 import type { CampaignMatchHost } from '@/lib/multiplayer/server/CampaignMatchHost';
 import type { ICampaignEvent } from '@/types/campaign/CampaignSync';
 import type { ICombatOutcome } from '@/types/combat/CombatOutcome';
@@ -107,10 +108,14 @@ export interface ICoopReconciliationResult {
  * Reconcile a resolved co-op encounter into the shared campaign.
  *
  * Derives a small ordered set of CO1 campaign intents from the battle
- * consequences and commits each through the `CampaignMatchHost`'s
- * authoritative `applyHostIntent` path — so the resulting events are
- * appended to the SHARED campaign event log and broadcast to BOTH
- * players' CO1 mirrors (design D8).
+ * consequences and commits them as one batch through the host's
+ * `runBatchExclusive` door. The three doors describe one battle; walked
+ * through the public doors they were three critical sections with two
+ * gaps, and a racing writer landed between funds and salvage — a mirror
+ * then saw the payout applied and the salvage still missing. The batch
+ * door takes the write lock once and hands this walk the unlocked
+ * bodies, so the events stay contiguous on the shared campaign log and
+ * both players' mirrors converge (design D8).
  *
  * The commit order is deterministic: funds, then salvage, then roster
  * changes. A `command-hq` player and a deploying player both receive
@@ -139,6 +144,27 @@ export async function reconcileCoopBattle(
     return { ok: false, events: [], error: result.reason };
   }
 
+  // The three doors describe ONE battle, so they are committed as one
+  // critical section (finding #78). Through the public doors the walk
+  // was three sections with two gaps, and a writer racing it landed in a
+  // gap - a mirror observed the payout applied with the salvage still
+  // missing. The batch door takes the host's write lock once and hands
+  // this walk the unlocked bodies, so the events are contiguous.
+  return host.runBatchExclusive((doors) =>
+    walkReconciliationDoors(doors, consequences),
+  );
+}
+
+/**
+ * The funds -> salvage -> roster walk, already inside the host's write
+ * lock. Extracted so the ordering has one home and the batch door has
+ * one body; the order is deterministic so both players' mirrors receive
+ * exactly these events, in this order, and converge (design D8).
+ */
+async function walkReconciliationDoors(
+  host: ICampaignHostBatchDoors,
+  consequences: ICoopBattleConsequences,
+): Promise<ICoopReconciliationResult> {
   const committed: ICampaignEvent[] = [];
 
   // 1. Funds — a mission payout (or net repair cost). A positive delta
