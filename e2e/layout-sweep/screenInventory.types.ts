@@ -1,6 +1,9 @@
 import type { Locator, Page } from '@playwright/test';
 
-import { SWEEP_VIEWPORTS } from '../helpers/layout';
+// Imported from `helpers/sweepViewports` rather than `helpers/layout` (which
+// re-exports it): this module must stay loadable without `@playwright/test`
+// so the Jest-side sweep-coverage guard can read the inventory.
+import { SWEEP_VIEWPORTS } from '../helpers/sweepViewports';
 
 export type SweepViewportLabel = (typeof SWEEP_VIEWPORTS)[number]['label'];
 
