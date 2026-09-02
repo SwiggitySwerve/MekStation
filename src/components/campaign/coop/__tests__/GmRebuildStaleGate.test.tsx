@@ -268,7 +268,13 @@ describe('recovery actions per posture', () => {
     expect(screen.queryByTestId('gm-lifecycle-recovery')).toBeNull();
   });
 
-  it('sends a host on a stale branch back to the active head', () => {
+  it('offers a stale-branch host the one thing the control actually does', () => {
+    // This row used to be named "sends a host on a stale branch back to
+    // the active head" and asserted a button labelled `Resync to active
+    // head`. It sent nobody anywhere: the handler clears a local hint
+    // (finding #93). The row now pins the honest label, and the branch it
+    // is stale against is explained in the description instead - where a
+    // sentence can say something the button cannot do.
     render(
       <HostGmReviewSurface
         pending={[]}
@@ -278,8 +284,11 @@ describe('recovery actions per posture', () => {
     );
 
     expect(screen.getByTestId('gm-lifecycle-recovery')).toHaveTextContent(
-      'Resync to active head',
+      'Check again',
     );
+    expect(
+      screen.getByTestId('gm-lifecycle-recovery-description'),
+    ).toHaveTextContent(/superseded branch/i);
   });
 
   it('renders no recovery at all for a posture that has none', () => {
@@ -315,8 +324,38 @@ describe('recovery actions per posture', () => {
       />,
     );
 
+    // Rendered verbatim in its OWN element. Not on the button: the
+    // button's handler clears a local hint and rebases nothing, so
+    // labelling it `rebase-onto-active-head` would promise a movement
+    // pressing it cannot perform (finding #93).
+    expect(
+      screen.getByTestId('gm-lifecycle-recovery-server-action'),
+    ).toHaveTextContent(CAMPAIGN_CONFLICT_REBASE_ACTION);
     expect(screen.getByTestId('gm-lifecycle-recovery')).toHaveTextContent(
-      CAMPAIGN_CONFLICT_REBASE_ACTION,
+      'Check again',
     );
+  });
+
+  it('never puts a movement promise on a control that only clears a hint', () => {
+    // The rendered half of the #93 sweep. The derivation rows pin the
+    // label; this pins what actually reaches the DOM, for a refusal with a
+    // server action and one without - the two ways a label is produced.
+    for (const serverAction of [null, CAMPAIGN_CONFLICT_REBASE_ACTION]) {
+      const { unmount } = render(
+        <HostGmReviewSurface
+          pending={[]}
+          onDecide={() => {}}
+          lifecycle={deriveGmLifecyclePosture({
+            refusal: refusal('STALE_BRANCH', serverAction),
+            pendingProposalCount: 0,
+          })}
+        />,
+      );
+
+      expect(
+        screen.getByTestId('gm-lifecycle-recovery').textContent ?? '',
+      ).not.toMatch(/resync|rebase/i);
+      unmount();
+    }
   });
 });

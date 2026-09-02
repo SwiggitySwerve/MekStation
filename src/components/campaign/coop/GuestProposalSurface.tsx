@@ -169,6 +169,18 @@ export function GuestProposalSurface({
           <p data-testid="guest-lifecycle-recovery-description">
             {syncPosture.recovery.description}
           </p>
+          {/* The server's instruction, verbatim, as information rather
+              than as the control's promise - see the GM surface's note
+              and finding #93. */}
+          {syncPosture.recovery.serverAction && (
+            <p
+              data-testid="guest-lifecycle-recovery-server-action"
+              data-server-action={syncPosture.recovery.serverAction}
+              className="mt-1 text-slate-400"
+            >
+              Server instruction: {syncPosture.recovery.serverAction}
+            </p>
+          )}
           {/* A rebuild has nothing to press - see the GM surface's note.
               The recovery is stated either way; only the affordance
               differs, because only sometimes is the guest the one who

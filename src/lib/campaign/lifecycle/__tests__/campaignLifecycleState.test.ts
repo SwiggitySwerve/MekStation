@@ -29,6 +29,7 @@ import {
   toCampaignLifecyclePosture,
 } from '@/lib/campaign/lifecycle/campaignLifecycleState';
 import { deriveCampaignSyncUxPosture } from '@/lib/campaign/replica/campaignSyncUxState';
+import { REBUILD_RETRY_ACTION } from '@/lib/events/journal/EventHistoryCommandAdmission';
 import { EXPECTED_HEAD_RESYNC_ACTION } from '@/lib/events/journal/EventHistoryExpectedHead';
 import { ErrorCodeSchema } from '@/types/multiplayer/Protocol';
 
@@ -337,12 +338,22 @@ describe('the two refusal doors', () => {
   });
 
   it("reads a rebuild out of the commands route's blocked body", () => {
+    // The body is the one PRODUCTION sends. `campaignCommandPipeline`'s
+    // rebuild arm carries `recoveryAction: rebuilding.action` and the
+    // route forwards it, so a fixture that omitted the field - as this
+    // row's first version did - was pinning a shape the route had stopped
+    // producing. The constant is imported, not retyped, so the day the
+    // admission renames its action this row fails instead of drifting.
     expect(
       campaignRefusalFromCommandRefusal({
         kind: 'blocked',
         reason: 'PROJECTION_REBUILDING',
+        recoveryAction: REBUILD_RETRY_ACTION,
       }),
-    ).toStrictEqual({ code: 'PROJECTION_REBUILDING', recoveryAction: null });
+    ).toStrictEqual({
+      code: 'PROJECTION_REBUILDING',
+      recoveryAction: REBUILD_RETRY_ACTION,
+    });
   });
 
   it('does not read a lifecycle posture out of every blocked body', () => {
@@ -383,7 +394,7 @@ describe('the two refusal doors', () => {
     }
   });
 
-  it("shows the server's action instead of the local label when it has one", () => {
+  it("carries the server's action verbatim WITHOUT putting it on the button", () => {
     const local = deriveGmLifecyclePosture({
       refusal: refusal('STALE_BRANCH'),
       pendingProposalCount: 0,
@@ -393,10 +404,16 @@ describe('the two refusal doors', () => {
       pendingProposalCount: 0,
     });
 
-    expect(local.recovery?.label).toBe('Resync to active head');
-    expect(named.recovery?.label).toBe(EXPECTED_HEAD_RESYNC_ACTION);
-    // Only the label is the server's to name. The description and whether
-    // there is anything to press stay local knowledge.
+    // The server's instruction is carried VERBATIM - but as its own
+    // field, not as the button's label. The button says what pressing it
+    // does; `serverAction` says what the authority told the client to do.
+    // Those are two different sentences, and cut A had them as one.
+    expect(named.recovery?.serverAction).toBe(EXPECTED_HEAD_RESYNC_ACTION);
+    expect(local.recovery?.serverAction).toBeNull();
+    // The label does NOT move when the server names an action, because
+    // the handler does not move either.
+    expect(local.recovery?.label).toBe('Check again');
+    expect(named.recovery?.label).toBe('Check again');
     expect(named.recovery?.description).toBe(local.recovery?.description);
     expect(named.recovery?.actionable).toBe(true);
   });
@@ -413,6 +430,11 @@ describe('the two refusal doors', () => {
       description:
         'The campaign projection is being rebuilt from authoritative history. It reopens on its own when the rebuild finishes.',
       actionable: false,
+      // The rebuild refusal DOES carry a server action in production
+      // (`retry-after-rebuild`); this row is the no-action-supplied case,
+      // so the field is null rather than absent. `toStrictEqual` is what
+      // makes a silently-dropped field fail here.
+      serverAction: null,
     });
   });
 
@@ -429,6 +451,93 @@ describe('the two refusal doors', () => {
     ]) {
       expect(campaignRefusalFromCommandRefusal(body)).toBeNull();
     }
+  });
+});
+
+/**
+ * Finding #93. Every actionable recovery on both surfaces is wired to the
+ * SAME handler - `onClearRefusal`, which clears a local hint so the server
+ * answers again. It resyncs nothing, rebases nothing, and commits nothing.
+ * So a label promising a resync is a promise the button cannot keep, and
+ * the person who trusts it goes and waits for a state change that never
+ * happens.
+ *
+ * These rows derive from the recovery table THROUGH the real derivation
+ * rather than reading a literal, so a future entry whose handler clears a
+ * hint cannot quietly claim a resync.
+ */
+describe('a recovery label says what pressing it does', () => {
+  /** Every refusal the vocabulary admits - the whole table, not a sample. */
+  const ALL_REFUSALS: readonly CampaignLifecycleRefusalCode[] = [
+    'CAMPAIGN_NOT_CONVERGED',
+    'STALE_BRANCH',
+    'PROJECTION_REWOUND',
+    'PROJECTION_REBUILDING',
+  ];
+
+  /** What the one shared handler actually does, in the user's words. */
+  const CLEAR_HINT_LABEL = 'Check again';
+
+  /** Words that promise the client will move itself to another head. */
+  const MOVEMENT_PROMISE = /resync|rebase/i;
+
+  it('gives every pressable recovery the one label its handler earns', () => {
+    for (const code of ALL_REFUSALS) {
+      const recovery = deriveGmLifecyclePosture({
+        refusal: refusal(code),
+        pendingProposalCount: 0,
+      }).recovery;
+      if (recovery?.actionable !== true) continue;
+      expect(recovery.label).toBe(CLEAR_HINT_LABEL);
+    }
+  });
+
+  it('never promises movement on a control that only clears a hint', () => {
+    // The sweep that closes the second door. The table is one source of a
+    // label; a server-supplied `recoveryAction` is the other, and it is
+    // literally `resync-to-active-head` / `rebase-onto-active-head`. A row
+    // that checked only the table would stay green while production put
+    // the server's instruction on the button.
+    const serverActions = [
+      null,
+      EXPECTED_HEAD_RESYNC_ACTION,
+      CAMPAIGN_CONFLICT_REBASE_ACTION,
+    ];
+    for (const code of ALL_REFUSALS) {
+      for (const serverAction of serverActions) {
+        const recovery = deriveGmLifecyclePosture({
+          refusal: refusal(code, serverAction),
+          pendingProposalCount: 0,
+        }).recovery;
+        if (recovery?.actionable !== true) continue;
+        expect(recovery.label).not.toMatch(MOVEMENT_PROMISE);
+      }
+    }
+  });
+
+  it('does not let the description keep the promise the label gave up', () => {
+    // Moving the lie from the button to the sentence under it would be no
+    // fix at all.
+    for (const code of ALL_REFUSALS) {
+      const recovery = deriveGmLifecyclePosture({
+        refusal: refusal(code),
+        pendingProposalCount: 0,
+      }).recovery;
+      if (recovery?.actionable !== true) continue;
+      expect(recovery.description).not.toMatch(MOVEMENT_PROMISE);
+    }
+  });
+
+  it("still carries the server's instruction where it can be read", () => {
+    // Truthful labelling must not become silence: the authority DID say
+    // what to do, and dropping it would lose the only real recovery
+    // instruction that exists.
+    const recovery = deriveGmLifecyclePosture({
+      refusal: refusal('STALE_BRANCH', EXPECTED_HEAD_RESYNC_ACTION),
+      pendingProposalCount: 0,
+    }).recovery;
+
+    expect(recovery?.serverAction).toBe(EXPECTED_HEAD_RESYNC_ACTION);
   });
 });
 
