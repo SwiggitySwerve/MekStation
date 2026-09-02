@@ -308,21 +308,65 @@ interface ICombatOutcomeOutboxRow {
 
 let failAtHeadUpdateForTests = false;
 let failAtHeadUpdateOnce = false;
-type E2EFaultKind =
+export type E2EFaultKind =
+  | 'append-event-insert'
+  | 'append-outbox-insert'
   | 'append-head-update'
   | 'process-exit-before-commit'
   | 'process-exit-after-commit';
 
-export const E2E_FAULT_SENTINELS: Readonly<Record<E2EFaultKind, string>> = {
-  'append-head-update': 'data/.e2e-fault-append-head-update',
-  'process-exit-before-commit': 'data/.e2e-fault-process-exit-before-commit',
-  'process-exit-after-commit': 'data/.e2e-fault-process-exit-after-commit',
-};
+/** Every fault kind the lever can arm, in batch-lifecycle order. */
+export const E2E_FAULT_KINDS: readonly E2EFaultKind[] = [
+  'append-event-insert',
+  'append-outbox-insert',
+  'append-head-update',
+  'process-exit-before-commit',
+  'process-exit-after-commit',
+];
 
-const armedE2EFaults: Record<E2EFaultKind, boolean> = {
-  'append-head-update': false,
-  'process-exit-before-commit': false,
-  'process-exit-after-commit': false,
+/**
+ * The session an arm belongs to (umbrella finding #72).
+ *
+ * The catalog header governing E2E-61..70 and design D9 both require every
+ * fault seam to carry "explicit session scope"; this lever carried none,
+ * so an arm was process-wide and the next batch append on ANY match
+ * consumed it. A fault that cannot say which session it belongs to cannot
+ * be used by a pack that arms several faults across several tests.
+ */
+export interface IE2EFaultScope {
+  readonly matchId: string;
+}
+
+/**
+ * Run-scoped sentinel root. The paths under it used to be fixed and
+ * repo-relative (`data/.e2e-fault-append-head-update`), which made an
+ * aborted run's leftover sentinel indistinguishable from this run's - a
+ * live landmine for whoever ran next. Keying on the Playwright run id
+ * makes a foreign run's sentinel visibly foreign, and makes the
+ * start-up sweep below able to tell the difference.
+ */
+export const E2E_FAULT_SENTINEL_ROOT = 'data/.e2e-fault';
+
+/** The current run id, or null when nothing identifies this run. */
+function currentE2ERunId(): string | null {
+  const runId = process.env.PLAYWRIGHT_E2E_RUN_ID;
+  return runId && runId.length > 0 ? runId : null;
+}
+
+/** Sentinel path for one kind in one run, or null without a run id. */
+export function e2eFaultSentinelPath(
+  kind: E2EFaultKind,
+  runId: string | null = currentE2ERunId(),
+): string | null {
+  return runId ? path.join(E2E_FAULT_SENTINEL_ROOT, runId, kind) : null;
+}
+
+const armedE2EFaults: Record<E2EFaultKind, IE2EFaultScope | null> = {
+  'append-event-insert': null,
+  'append-outbox-insert': null,
+  'append-head-update': null,
+  'process-exit-before-commit': null,
+  'process-exit-after-commit': null,
 };
 let exitProcessForE2EFault: (code: number) => void = process.exit;
 
@@ -331,16 +375,51 @@ let exitProcessForE2EFault: (code: number) => void = process.exit;
  * bundle while the socket host's store lives in the tsx graph - two
  * module graphs, two copies of the flags above (the same split that
  * once left the socket path's SQLite singleton uninitialized). A
- * sentinel file is graph-agnostic; it is consumed (unlinked) at the
- * failure point, and the stat only ever runs in e2e mode.
+ * sentinel file is graph-agnostic; it carries its scope as its contents,
+ * is consumed (unlinked) at the failure point, and the stat only ever
+ * runs in e2e mode.
  */
-export const E2E_FAULT_SENTINEL = E2E_FAULT_SENTINELS['append-head-update'];
+function readSentinelScope(sentinel: string): IE2EFaultScope | null {
+  try {
+    const raw = fs.readFileSync(sentinel, 'utf-8');
+    const parsed = JSON.parse(raw) as { matchId?: unknown };
+    return typeof parsed.matchId === 'string'
+      ? { matchId: parsed.matchId }
+      : null;
+  } catch {
+    // An unreadable or unparseable sentinel names no session, and a
+    // fault that cannot name its session must not fire.
+    return null;
+  }
+}
 
-function consumeSentinelFault(kind: E2EFaultKind): boolean {
+/** Write one run-scoped sentinel carrying its session scope. */
+export function _writeE2EFaultSentinel(
+  kind: E2EFaultKind,
+  scope: IE2EFaultScope,
+): void {
+  const sentinel = e2eFaultSentinelPath(kind);
+  if (!sentinel) return;
+  fs.mkdirSync(path.dirname(sentinel), { recursive: true });
+  fs.writeFileSync(
+    sentinel,
+    JSON.stringify({
+      matchId: scope.matchId,
+      armedAt: new Date().toISOString(),
+    }),
+  );
+}
+
+function consumeSentinelFault(kind: E2EFaultKind, matchId: string): boolean {
   if (process.env.NEXT_PUBLIC_E2E_MODE !== 'true') return false;
   try {
-    const sentinel = E2E_FAULT_SENTINELS[kind];
-    if (!fs.existsSync(sentinel)) return false;
+    const sentinel = e2eFaultSentinelPath(kind);
+    if (!sentinel || !fs.existsSync(sentinel)) return false;
+    // Scope is checked BEFORE the unlink: a fault armed for another match
+    // must still be waiting when that match arrives, not burned by this
+    // one. Consuming first and comparing after would silently disarm it.
+    const scope = readSentinelScope(sentinel);
+    if (!scope || scope.matchId !== matchId) return false;
     fs.unlinkSync(sentinel);
     return true;
   } catch {
@@ -348,22 +427,55 @@ function consumeSentinelFault(kind: E2EFaultKind): boolean {
   }
 }
 
-function consumeE2EFault(kind: E2EFaultKind): boolean {
+function consumeE2EFault(kind: E2EFaultKind, matchId: string): boolean {
   // Evaluate EVERY arm - the route arms both the module map and the
   // cross-graph sentinel, and one fault must consume them together or
   // the survivor fires a second time (the short-circuit bug, twice).
   const armedInGraph = armedE2EFaults[kind];
-  armedE2EFaults[kind] = false;
-  const sentinelFired = consumeSentinelFault(kind);
-  return armedInGraph || sentinelFired;
+  const graphFired = armedInGraph?.matchId === matchId;
+  if (graphFired) armedE2EFaults[kind] = null;
+  const sentinelFired = consumeSentinelFault(kind, matchId);
+  return graphFired || sentinelFired;
 }
 
-export function _armE2EFaultOnce(kind: E2EFaultKind): void {
-  armedE2EFaults[kind] = true;
+export function _armE2EFaultOnce(
+  kind: E2EFaultKind,
+  scope: IE2EFaultScope,
+): void {
+  armedE2EFaults[kind] = scope;
 }
 
 export function _isE2EFaultArmed(kind: E2EFaultKind): boolean {
-  return armedE2EFaults[kind] || fs.existsSync(E2E_FAULT_SENTINELS[kind]);
+  const sentinel = e2eFaultSentinelPath(kind);
+  return (
+    armedE2EFaults[kind] !== null ||
+    (sentinel !== null && fs.existsSync(sentinel))
+  );
+}
+
+/**
+ * Delete every fault sentinel that does NOT belong to the current run,
+ * returning how many were cleared. Called at server start so an aborted
+ * run cannot arm the next one; never touches the current run's own
+ * sentinels, and does nothing at all outside e2e mode.
+ */
+export function clearStaleE2EFaultSentinels(): number {
+  if (process.env.NEXT_PUBLIC_E2E_MODE !== 'true') return 0;
+  const keep = currentE2ERunId();
+  let cleared = 0;
+  try {
+    for (const entry of fs.readdirSync(E2E_FAULT_SENTINEL_ROOT)) {
+      if (entry === keep) continue;
+      fs.rmSync(path.join(E2E_FAULT_SENTINEL_ROOT, entry), {
+        recursive: true,
+        force: true,
+      });
+      cleared += 1;
+    }
+  } catch {
+    // No sentinel root is the normal case: nothing stale to clear.
+  }
+  return cleared;
 }
 
 /** Test-only: replace the fatal process-exit boundary with an observable seam. */
@@ -375,20 +487,22 @@ export function _setE2EFaultProcessExitForTests(
 
 /** Test-only: restore all one-shot e2e arms and their process-exit seam. */
 export function _resetE2EFaultsForTests(): void {
-  for (const kind of Object.keys(E2E_FAULT_SENTINELS) as E2EFaultKind[]) {
-    armedE2EFaults[kind] = false;
+  for (const kind of E2E_FAULT_KINDS) {
+    armedE2EFaults[kind] = null;
+    const sentinel = e2eFaultSentinelPath(kind);
     try {
-      fs.unlinkSync(E2E_FAULT_SENTINELS[kind]);
+      if (sentinel) fs.unlinkSync(sentinel);
     } catch {
       // A missing sentinel is already reset.
     }
   }
+  failAtHeadUpdateOnce = false;
   exitProcessForE2EFault = process.exit;
 }
 
 /** Exit at an e2e-only failure boundary after consuming its one-shot arm. */
-export function exitForE2EFault(kind: E2EFaultKind): void {
-  if (!consumeE2EFault(kind)) return;
+export function exitForE2EFault(kind: E2EFaultKind, matchId: string): void {
+  if (!consumeE2EFault(kind, matchId)) return;
   exitProcessForE2EFault(1);
   throw new Error(`test-${kind}`);
 }
@@ -399,16 +513,13 @@ export function _setFailAtHeadUpdateForTests(fail: boolean): void {
 }
 
 /**
- * Arm the head-update crash for exactly ONE batch append (the e2e fault
- * route's lever). The flag is consumed at the failure point, so a stuck
- * fault cannot outlive the append it was armed for.
+ * Whether a head-update fault is currently armed (introspection).
+ *
+ * `_armFailAtHeadUpdateOnce` used to sit here as an UNSCOPED arm with no
+ * callers left. It is deleted rather than updated: leaving a
+ * scope-free way to arm the lever would reopen finding #72 from inside
+ * the module that just closed it.
  */
-export function _armFailAtHeadUpdateOnce(): void {
-  failAtHeadUpdateOnce = true;
-  _armE2EFaultOnce('append-head-update');
-}
-
-/** Whether a one-shot fault is currently armed (introspection). */
 export function _isFailAtHeadUpdateArmed(): boolean {
   return (
     failAtHeadUpdateOnce ||
@@ -619,9 +730,34 @@ export class DurableMatchStore
            (match_id, sequence, command_id, event_json, created_at, published_at)
          VALUES (?, ?, ?, ?, ?, NULL)`,
       );
-      for (const event of batch.events) {
+      // E2E-63's letter names three failure points - "a middle event, head
+      // update, or outbox insert" - and only the head update existed
+      // (finding #75). The two below are the other two, fired at the
+      // MIDDLE of the batch so a partial write is genuinely attempted:
+      // failing the first event would prove only that an empty
+      // transaction rolls back, which is not what the scenario claims.
+      // An index loop rather than `.entries()`: this tsconfig's target
+      // rejects iterating an array iterator without `downlevelIteration`.
+      const middleIndex = Math.floor(batch.events.length / 2);
+      for (let index = 0; index < batch.events.length; index += 1) {
+        const event = batch.events[index];
         const eventJson = JSON.stringify(event);
+        if (
+          index === middleIndex &&
+          consumeE2EFault('append-event-insert', matchId)
+        ) {
+          throw new Error('test-append-event-insert');
+        }
         insertEvent.run(matchId, event.sequence, eventJson);
+        if (
+          index === middleIndex &&
+          consumeE2EFault('append-outbox-insert', matchId)
+        ) {
+          // Deliberately AFTER its own event insert: this is the window
+          // the outbox exists to close - an event durable with nothing
+          // durable saying anyone still has to be told about it.
+          throw new Error('test-append-outbox-insert');
+        }
         insertOutbox.run(
           matchId,
           event.sequence,
@@ -656,9 +792,9 @@ export class DurableMatchStore
       // Evaluate EVERY arm before deciding - the route arms both the
       // module flag and the cross-graph sentinel, and one fault must
       // consume them together or the survivor fires a second time.
-      exitForE2EFault('process-exit-before-commit');
+      exitForE2EFault('process-exit-before-commit', matchId);
       const armedOnce = failAtHeadUpdateOnce;
-      const armedFault = consumeE2EFault('append-head-update');
+      const armedFault = consumeE2EFault('append-head-update', matchId);
       if (failAtHeadUpdateForTests || armedOnce || armedFault) {
         failAtHeadUpdateOnce = false;
         throw new Error('test-crash-at-head-update');

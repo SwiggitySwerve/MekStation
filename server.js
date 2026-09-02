@@ -451,6 +451,7 @@ function loadMultiplayerRuntime() {
   const campaignSocketModule = require('./src/lib/multiplayer/server/bindCampaignSyncConnection.ts');
   const membershipModule = require('./src/lib/multiplayer/server/campaignSessionMembershipPort.ts');
   const forceClaimModule = require('./src/lib/multiplayer/server/campaignForceClaimPort.ts');
+  const durableStoreModule = require('./src/lib/multiplayer/server/DurableMatchStore.ts');
   // The socket graph holds its OWN copy of the SQLite singleton - the
   // tsx require hook builds a module graph separate from Next's API
   // bundle, and only the API side ever called initialize(). The
@@ -463,6 +464,10 @@ function loadMultiplayerRuntime() {
   sqliteModule.getSQLiteService().initialize();
   multiplayerRuntime = {
     bootstrapMultiplayerServer: registryModule.bootstrapMultiplayerServer,
+    // Sourced from the store module rather than reimplemented here: the
+    // sentinel path convention has exactly one owner, so a sweep in
+    // server.js can never drift from the paths the store writes.
+    clearStaleE2EFaultSentinels: durableStoreModule.clearStaleE2EFaultSentinels,
     bindMultiplayerSocketConnection:
       socketModule.bindMultiplayerSocketConnection,
     bindCampaignSyncConnection: campaignSocketModule.bindCampaignSyncConnection,
@@ -517,7 +522,19 @@ app
   .prepare()
   .then(async () => {
     try {
-      await loadMultiplayerRuntime().bootstrapMultiplayerServer();
+      const runtime = loadMultiplayerRuntime();
+      // Clear any fault sentinel left behind by an ABORTED earlier run
+      // before anything can trip over it (finding #72). Sentinels are
+      // keyed by Playwright run id, so this only ever removes foreign
+      // ones, and it is a no-op outside e2e mode.
+      const staleSentinels = runtime.clearStaleE2EFaultSentinels();
+      if (staleSentinels > 0) {
+        // eslint-disable-next-line no-console
+        console.log(
+          `[e2e-fault] cleared ${staleSentinels} stale fault sentinel dir(s) from earlier runs`,
+        );
+      }
+      await runtime.bootstrapMultiplayerServer();
     } catch (err) {
       // eslint-disable-next-line no-console
       console.error('[mp-boot] runtime load failed', err);
