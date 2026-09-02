@@ -26,6 +26,7 @@ import type {
 } from '@/lib/events/storeCapabilityPorts';
 
 import { InMemoryCampaignEventStore } from '@/lib/campaign/sync/InMemoryCampaignEventStore';
+import { bindJournalCapabilityPorts } from '@/lib/campaign/sync/journalCapabilityPorts';
 import { JournalCampaignEventStore } from '@/lib/campaign/sync/JournalCampaignEventStore';
 import {
   _branchCreationSeamForTests,
@@ -358,6 +359,7 @@ const portStores: ReadonlyArray<readonly [string, () => CapabilityPortStore]> =
         new JournalCampaignEventStore(
           new InMemoryEventJournal(() => BOUND_AT),
           new SQLiteEventHistoryBranchStore(getSQLiteService().getDatabase()),
+          { capabilityPorts: bindJournalCapabilityPorts },
         ),
     ],
   ];

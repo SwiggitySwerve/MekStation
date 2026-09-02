@@ -34,6 +34,7 @@ import type { ICampaignEventStore } from '@/lib/campaign/sync/ICampaignEventStor
 import type { ICampaignJournalEnvelope } from '@/lib/campaign/sync/JournalCampaignEventStore';
 
 import { InMemoryCampaignEventStore } from '@/lib/campaign/sync/InMemoryCampaignEventStore';
+import { bindJournalCapabilityPorts } from '@/lib/campaign/sync/journalCapabilityPorts';
 import { JournalCampaignEventStore } from '@/lib/campaign/sync/JournalCampaignEventStore';
 import { SQLiteEventJournal } from '@/lib/events/journal/SQLiteEventJournal';
 import { getSQLiteService } from '@/services/persistence/SQLiteService';
@@ -114,7 +115,12 @@ export function selectCampaignEventStore(): ICampaignEventStoreSelection {
   if (getSQLiteService().isInitialized()) {
     return {
       durability: 'journal',
-      store: new JournalCampaignEventStore(campaignJournal()),
+      // Server-only selection: bind ports here. The store no longer
+      // imports journalCapabilityPorts itself, so a client bundle that
+      // constructs the same class without this option stays off SQLite.
+      store: new JournalCampaignEventStore(campaignJournal(), undefined, {
+        capabilityPorts: bindJournalCapabilityPorts,
+      }),
     };
   }
   if (override === 'durable') {

@@ -68,7 +68,7 @@ import {
   type ICampaignEventStore,
 } from './ICampaignEventStore';
 import { InMemoryCampaignEventStore } from './InMemoryCampaignEventStore';
-import { bindJournalCapabilityPorts } from './journalCapabilityPorts';
+import type { JournalCapabilityPortsBinder } from './journalCapabilityPorts';
 
 /** The journal stream type every campaign stream lives under (design D1). */
 export const CAMPAIGN_STREAM_TYPE = 'campaign' as const;
@@ -297,7 +297,7 @@ export {
 export { CampaignStaleBranchError } from './campaignBranchRule';
 
 export class JournalCampaignEventStore implements ICampaignEventStore {
-  // Port members are assigned at construction by bindJournalCapabilityPorts; declare keeps them on the type with no runtime emit and no class/interface merge.
+  // Port members are assigned only when a server site passes capabilityPorts; declare keeps them on the type with no runtime emit and no class/interface merge.
   declare readBranch: IEventHistoryBranchPort['readBranch'];
   declare requireBranch: IEventHistoryBranchPort['requireBranch'];
   declare readEffectiveHead: IEventHistoryBranchPort['readEffectiveHead'];
@@ -326,10 +326,15 @@ export class JournalCampaignEventStore implements ICampaignEventStore {
      * activation move it without touching this class.
      */
     private readonly branches?: SQLiteEventHistoryBranchStore,
+    options?: {
+      readonly capabilityPorts?: JournalCapabilityPortsBinder;
+    },
   ) {
-    // Branch methods stay undefined when branches is omitted so the
-    // structural guard cannot report a store that has no branch table.
-    bindJournalCapabilityPorts(this, branches);
+    // Server construction passes bindJournalCapabilityPorts. Client-reachable
+    // sites omit it so webpack never follows journalCapabilityPorts into
+    // node:crypto. Branch methods stay undefined when branches is omitted
+    // so the structural guard cannot report a store that has no branch table.
+    options?.capabilityPorts?.(this, branches);
   }
 
   /** The branch this command lands on - see `campaignBranchRule`. */
@@ -459,6 +464,9 @@ export function createDefaultCampaignEventStore(deps?: {
   readonly journal?: () => IEventJournal<ICampaignJournalEnvelope>;
 }): ICampaignEventStore {
   if (CAMPAIGN_JOURNAL_AUTHORITY_ENABLED && deps?.journal) {
+    // No capabilityPorts: this factory is imported by client-reachable
+    // coopRuntimeSession. Ports are server capabilities and would pull
+    // journalCapabilityPorts (SQLite / node:crypto) into the client bundle.
     return new JournalCampaignEventStore(deps.journal());
   }
   return new InMemoryCampaignEventStore();

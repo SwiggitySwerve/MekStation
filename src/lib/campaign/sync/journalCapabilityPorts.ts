@@ -46,7 +46,20 @@ import {
 } from '@/services/campaignPersistence/CampaignSessionParticipantStore';
 import { getSQLiteService } from '@/services/persistence/SQLiteService';
 
-import type { ICampaignJournalEnvelope } from './JournalCampaignEventStore';
+import type {
+  ICampaignJournalEnvelope,
+  JournalCampaignEventStore,
+} from './JournalCampaignEventStore';
+
+/**
+ * Injected at server construction. The journal store imports this type
+ * only so a client-reachable `new JournalCampaignEventStore` never
+ * follows this module into SQLite / node:crypto.
+ */
+export type JournalCapabilityPortsBinder = (
+  store: JournalCampaignEventStore,
+  branches?: SQLiteEventHistoryBranchStore,
+) => void;
 
 type CapabilityTarget = Partial<
   IEventHistoryBranchPort &
