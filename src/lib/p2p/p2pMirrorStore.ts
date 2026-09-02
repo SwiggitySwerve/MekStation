@@ -14,7 +14,10 @@
  * session outlives a match. Without the match id a player who diverged
  * in one battle would find the next one refused before it began.
  *
- * WHY THERE IS NO `clear`. E4c-B1 ships the refusal, not the recovery.
+ * WHY THE ONLY CLEAR IS `resolveDivergenceAfterRebuild`. B1 shipped the
+ * refusal with no way out at all, for the reason below; B2 adds the
+ * rebuild, and the flag now clears when - and only when - that rebuild
+ * has actually replaced the board.
  * After a divergence `reconcileMatchLogMirror` has deleted the durable
  * log and the in-memory session still holds events the peer's history
  * replaced, so the board really is wrong until it is rebuilt from the
@@ -43,6 +46,13 @@ interface IP2PMirrorState {
   recordDivergence(matchId: string, verdict: MatchLogPrefixVerdict): void;
   /** The divergence for this match, or `null`. */
   divergenceFor(matchId: string | null): IP2PMirrorDivergence | null;
+  /**
+   * The ONE recovery path (E4c-B2): the board has been rebuilt from
+   * the peer's authoritative log, so the fact this flag records is
+   * no longer true. Call it from the rebuild and nowhere else - a
+   * clear reachable from the UI would be a button that lies.
+   */
+  resolveDivergenceAfterRebuild(matchId: string): void;
   /** Session-level reset. Not a recovery path - see the module header. */
   reset(): void;
 }
@@ -61,6 +71,10 @@ export const useP2PMirrorStore = create<IP2PMirrorState>((set, get) => ({
     if (matchId === null) return null;
     const state = get();
     return state.matchId === matchId ? state.divergence : null;
+  },
+  resolveDivergenceAfterRebuild: (matchId) => {
+    if (get().matchId !== matchId) return;
+    set({ matchId: null, divergence: null });
   },
   reset: () => set({ matchId: null, divergence: null }),
 }));

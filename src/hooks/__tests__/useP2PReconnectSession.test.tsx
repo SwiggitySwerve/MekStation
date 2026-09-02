@@ -196,6 +196,10 @@ describe('useP2PReconnectSession', () => {
     ];
     const deleteEventsForMatch = jest.fn().mockResolvedValue(undefined);
     const appendReplayEvent = jest.fn().mockResolvedValue(undefined);
+    // Since E4c-B2 a diverged mirror is rebuilt rather than played
+    // on: the peer's events go to the DURABLE log and the board is
+    // hydrated from it, so the stream lands on the durable appender.
+    const persistReplayEvent = jest.fn().mockResolvedValue(undefined);
     const onMirrorPrefixDivergence = jest.fn();
     const setLive = jest.fn();
 
@@ -210,6 +214,8 @@ describe('useP2PReconnectSession', () => {
         getHostPresent: () => true,
         createChannel: () => channel,
         appendReplayEvent,
+        persistReplayEvent,
+        adoptRebuiltSession: jest.fn(),
         hydrateFromMatchLog: jest.fn().mockResolvedValue(makeHydratedSession()),
         setHydratedSession: jest.fn(),
         setLive,
@@ -235,7 +241,7 @@ describe('useP2PReconnectSession', () => {
       storedId: 'id-b',
       receivedId: 'id-x',
     });
-    expect(appendReplayEvent.mock.calls.map(([, event]) => event.id)).toEqual([
+    expect(persistReplayEvent.mock.calls.map(([, event]) => event.id)).toEqual([
       'id-a',
       'id-x',
       'id-c',
@@ -253,6 +259,10 @@ describe('useP2PReconnectSession', () => {
     const stream = [makeEvent(0, 'id-a'), makeEvent(1, 'id-b')];
     const deleteEventsForMatch = jest.fn().mockResolvedValue(undefined);
     const appendReplayEvent = jest.fn().mockResolvedValue(undefined);
+    // Since E4c-B2 a diverged mirror is rebuilt rather than played
+    // on: the peer's events go to the DURABLE log and the board is
+    // hydrated from it, so the stream lands on the durable appender.
+    const persistReplayEvent = jest.fn().mockResolvedValue(undefined);
     const onMirrorPrefixDivergence = jest.fn();
 
     renderHook(() =>
@@ -266,6 +276,8 @@ describe('useP2PReconnectSession', () => {
         getHostPresent: () => true,
         createChannel: () => channel,
         appendReplayEvent,
+        persistReplayEvent,
+        adoptRebuiltSession: jest.fn(),
         hydrateFromMatchLog: jest.fn().mockResolvedValue(makeHydratedSession()),
         setHydratedSession: jest.fn(),
         setLive: jest.fn(),
@@ -289,7 +301,7 @@ describe('useP2PReconnectSession', () => {
       kind: 'truncated',
       position: 2,
     });
-    expect(appendReplayEvent.mock.calls.map(([, event]) => event.id)).toEqual([
+    expect(persistReplayEvent.mock.calls.map(([, event]) => event.id)).toEqual([
       'id-a',
       'id-b',
     ]);
@@ -321,6 +333,8 @@ describe('useP2PReconnectSession', () => {
         getHostPresent: () => true,
         createChannel: () => channel,
         appendReplayEvent: jest.fn().mockResolvedValue(undefined),
+        persistReplayEvent: jest.fn().mockResolvedValue(undefined),
+        adoptRebuiltSession: jest.fn(),
         hydrateFromMatchLog: jest.fn().mockResolvedValue(makeHydratedSession()),
         setHydratedSession: jest.fn(),
         setLive: jest.fn(),
@@ -436,6 +450,10 @@ describe('useP2PReconnectSession', () => {
     ];
     const deleteEventsForMatch = jest.fn().mockResolvedValue(undefined);
     const appendReplayEvent = jest.fn().mockResolvedValue(undefined);
+    // Since E4c-B2 a diverged mirror is rebuilt rather than played
+    // on: the peer's events go to the DURABLE log and the board is
+    // hydrated from it, so the stream lands on the durable appender.
+    const persistReplayEvent = jest.fn().mockResolvedValue(undefined);
     const onMirrorPrefixDivergence = jest.fn();
     const setLive = jest.fn();
 
@@ -450,6 +468,8 @@ describe('useP2PReconnectSession', () => {
         getHostPresent: () => true,
         createChannel: () => channel,
         appendReplayEvent,
+        persistReplayEvent,
+        adoptRebuiltSession: jest.fn(),
         hydrateFromMatchLog: jest.fn().mockResolvedValue(makeHydratedSession()),
         setHydratedSession: jest.fn(),
         setLive,
@@ -478,7 +498,7 @@ describe('useP2PReconnectSession', () => {
       storedId: 'id-old',
       receivedId: 'id-new',
     });
-    expect(appendReplayEvent.mock.calls.map(([, event]) => event.id)).toEqual([
+    expect(persistReplayEvent.mock.calls.map(([, event]) => event.id)).toEqual([
       'id-new',
       'id-x',
       'id-y',
@@ -488,11 +508,20 @@ describe('useP2PReconnectSession', () => {
     act(() => {
       emitReplay([makeEvent(3, 'id-command')]);
     });
+    // The rebuild is for the diverging replay only. Once the board has
+    // been replaced, later live events resume the ordinary in-memory
+    // path - otherwise every event for the rest of the match would take
+    // a durable write and a rehydrate.
     await waitFor(() =>
       expect(appendReplayEvent.mock.calls.map(([, event]) => event.id)).toEqual(
-        ['id-new', 'id-x', 'id-y', 'id-command'],
+        ['id-command'],
       ),
     );
+    expect(persistReplayEvent.mock.calls.map(([, event]) => event.id)).toEqual([
+      'id-new',
+      'id-x',
+      'id-y',
+    ]);
   });
 
   it('DUPLICATE: the same event in the catch-up stream is appended once (M2)', async () => {
