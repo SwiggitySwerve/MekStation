@@ -15,7 +15,9 @@ import { axe } from 'jest-axe';
  */
 import React from 'react';
 
+import type { ICampaignLifecyclePosture } from '@/lib/campaign/lifecycle/campaignLifecycleState';
 import type { CampaignSyncUxState } from '@/lib/campaign/replica/campaignSyncUxState';
+import type { LifecycleState } from '@/lib/lifecycle/lifecycleState';
 
 import { CampaignSyncStateBanner } from '@/components/campaign/coop/CampaignSyncStateBanner';
 
@@ -28,9 +30,24 @@ const STATES: readonly CampaignSyncUxState[] = [
   'live',
 ];
 
-function posture(state: CampaignSyncUxState) {
+/**
+ * The lifecycle name each sync posture publishes since 19.1. Written out
+ * rather than derived so a silent change to the mapping shows up here as
+ * a diff, on the suite that pins what a screen reader is handed.
+ */
+const LIFECYCLE_NAME: Readonly<Record<CampaignSyncUxState, LifecycleState>> = {
+  blocked: 'blocked',
+  resyncing: 'syncing',
+  retrying: 'reconnecting',
+  'catching-up': 'syncing',
+  behind: 'behind',
+  live: 'live',
+};
+
+function posture(state: CampaignSyncUxState): ICampaignLifecyclePosture {
   return {
     state,
+    lifecycleState: LIFECYCLE_NAME[state],
     message: `Synchronization posture: ${state}.`,
     commandsEnabled: state === 'live',
   };

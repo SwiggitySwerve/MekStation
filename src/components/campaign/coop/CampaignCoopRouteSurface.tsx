@@ -46,6 +46,7 @@ import type {
   GuestProposalResult,
 } from '@/types/campaign/CoopCampaign';
 
+import { toCampaignLifecyclePosture } from '@/lib/campaign/lifecycle/campaignLifecycleState';
 import { campaignSyncPostureFromMirrorStatus } from '@/lib/campaign/replica/campaignSyncUxState';
 import { buildCoopCampaignAuthorityProjection } from '@/lib/command-screen';
 import { INVALID_CAMPAIGN_INTENT } from '@/types/campaign/CampaignSync';
@@ -282,6 +283,28 @@ export function CampaignCoopRouteSurface(
       }),
     [campaign?.coopSession?.mode, pendingProposals.length, routeId],
   );
+  // The guest's posture. `refusal` is null by construction: no route in
+  // `buildActionsForRoute` raises an `AdvanceDay` proposal, and
+  // progression is the only thing the server refuses, so a guest on this
+  // surface cannot be refused today. Claiming otherwise would put a
+  // player behind a gate nothing can open.
+  const guestLifecycle = useMemo(() => {
+    if (!guestMirrorSummary) return undefined;
+    const resolved = proposalsApi.proposals.filter(
+      (tracked) => tracked.status !== 'pending',
+    );
+    return toCampaignLifecyclePosture(
+      campaignSyncPostureFromMirrorStatus(guestMirrorSummary.status),
+      {
+        proposalAwaitingGm: proposalsApi.proposals.some(
+          (tracked) => tracked.status === 'pending',
+        ),
+        lastProposalCommitted:
+          resolved[resolved.length - 1]?.status === 'committed',
+        refusal: null,
+      },
+    );
+  }, [guestMirrorSummary, proposalsApi.proposals]);
 
   // Single-player campaigns mount neither co-op surface.
   if (!campaign?.coopSession) {
@@ -390,11 +413,7 @@ export function CampaignCoopRouteSurface(
           api={proposalsApi}
           actions={guestActions}
           authorityProjection={authorityProjection}
-          syncPosture={
-            guestMirrorSummary
-              ? campaignSyncPostureFromMirrorStatus(guestMirrorSummary.status)
-              : undefined
-          }
+          syncPosture={guestLifecycle}
         />
       </div>
     );
