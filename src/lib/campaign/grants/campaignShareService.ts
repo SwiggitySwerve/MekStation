@@ -26,7 +26,10 @@
 import type Database from 'better-sqlite3';
 
 import { readCampaign } from '@/services/campaignPersistence/CampaignPersistenceService';
-import { isActiveCampaignGm } from '@/services/campaignPersistence/CampaignSessionParticipantStore';
+import {
+  campaignHasAnyActiveSeat,
+  isActiveCampaignGm,
+} from '@/services/campaignPersistence/CampaignSessionParticipantStore';
 
 import type { ICampaignGrant } from './ICampaignGrantStore';
 
@@ -101,8 +104,29 @@ function requireCampaignGm(
   campaignId: string,
   callerId: string,
 ): CampaignShareResult<true> {
+  // THE #29 BOUNDARY, not a design (finding #33). A campaign with no
+  // participants has no principal to authorize against: the record
+  // carries no owner, and `originDeviceId` is a UUID the browser mints
+  // for itself. There is therefore literally nothing to check here - a
+  // self-issued token would pass, so demanding one would be friction
+  // rather than a gate. Sharing such a campaign stays at its
+  // pre-#1521 authorization, which is the two-device share story
+  // (`e2e/campaign-two-device-drive.spec.ts`) that #1521 had broken.
+  //
+  // THE EXPOSURE, named rather than implied: on a shared server anyone
+  // who knows a session-less campaign's id can issue themselves a grant
+  // and redeem a full copy. That is the #29 exposure, not a new one -
+  // `GET /api/campaigns/[id]` already hands the whole body to any
+  // caller - and it closes when a campaign record gains an owner
+  // principal, which is #29's own Epic.
+  //
+  // A campaign that HAS participants keeps the gate exactly as #1521
+  // shipped it: there is someone to protect, and the GM is who may.
+  if (!campaignHasAnyActiveSeat(campaignId)) {
+    return { kind: 'ok', value: true };
+  }
   if (callerId.trim().length === 0) {
-    return { kind: 'refused', reason: 'invalid-request' };
+    return { kind: 'refused', reason: 'not-campaign-gm' };
   }
   if (!isActiveCampaignGm(campaignId, callerId)) {
     return { kind: 'refused', reason: 'not-campaign-gm' };

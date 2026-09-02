@@ -218,6 +218,56 @@ export function isActiveCampaignGm(
   return row !== undefined;
 }
 
+/**
+ * Whether this campaign has ANY active participant at all.
+ *
+ * Deliberately campaign-scoped, unlike its two neighbours: this asks
+ * whether there is anybody to authorize AGAINST, which is a property of
+ * the campaign and not of a caller. It is the one question in this file
+ * that a caller's identity cannot answer.
+ */
+export function campaignHasAnyActiveSeat(campaignId: string): boolean {
+  const row = getSQLiteService()
+    .getDatabase()
+    .prepare(
+      `SELECT 1 AS present FROM campaign_session_participant
+       WHERE campaign_id = ? AND revoked_at IS NULL
+       LIMIT 1`,
+    )
+    .get(campaignId) as { present: number } | undefined;
+  return row !== undefined;
+}
+
+/**
+ * Whether THIS participant holds ANY active seat on this campaign - GM
+ * or player - in whichever session holds it.
+ *
+ * Sibling of `isActiveCampaignGm`, and caller-scoped for the same
+ * reason: the question is asked ABOUT the caller, so no row ordering
+ * stands between a stranger and their refusal.
+ *
+ * The seat distinction is deliberate rather than absent. Administering
+ * who may READ a campaign is the GM's alone (`isActiveCampaignGm`);
+ * COMMANDING one is something every participant does, so a gate that
+ * demanded the GM seat here would refuse the players the campaign
+ * exists for.
+ */
+export function isActiveCampaignSeat(
+  campaignId: string,
+  participantId: string,
+): boolean {
+  const row = getSQLiteService()
+    .getDatabase()
+    .prepare(
+      `SELECT 1 AS present FROM campaign_session_participant
+       WHERE campaign_id = ? AND participant_id = ?
+         AND revoked_at IS NULL
+       LIMIT 1`,
+    )
+    .get(campaignId, participantId) as { present: number } | undefined;
+  return row !== undefined;
+}
+
 /** Every active membership for a session, GM first then seat order. */
 export function listActiveCampaignSessionParticipants(
   campaignId: string,

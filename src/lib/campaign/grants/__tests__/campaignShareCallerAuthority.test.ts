@@ -43,6 +43,7 @@ import {
 
 const CAMPAIGN_ID = 'campaign-share-authority';
 const NO_GM_CAMPAIGN_ID = 'campaign-share-authority-no-gm';
+const SEATLESS_CAMPAIGN_ID = 'campaign-share-authority-seatless';
 const SESSION_ID = 'session-share-authority';
 /**
  * The player is still bound BEFORE the GM, and the row order is still
@@ -268,6 +269,56 @@ describe('campaign share caller authority', () => {
         expiresAt: EXPIRES_AT,
       }),
     ).toEqual({ kind: 'refused', reason: 'not-campaign-gm' });
+  });
+
+  it('issues and lists on a campaign with NO participants - the #29 boundary', () => {
+    // Finding #33. A campaign nobody has joined has no principal to
+    // authorize against: the record carries no owner, so a self-issued
+    // token would pass and demanding one would be friction, not a gate.
+    // Sharing it therefore stays where it was before #1521 - which is
+    // the two-device share story that #1521 had silently broken.
+    storeSourceCampaign(SEATLESS_CAMPAIGN_ID);
+
+    const issued = issueShareGrant(db(), {
+      campaignId: SEATLESS_CAMPAIGN_ID,
+      callerId: '',
+      participantId: OUTSIDER_ID,
+      issuerPublicKey: 'AAAA',
+      scopes: ['campaign'],
+      issuedAt: ISSUED_AT,
+      expiresAt: EXPIRES_AT,
+    });
+    expect(issued.kind).toBe('ok');
+
+    const listed = listShareGrants(db(), SEATLESS_CAMPAIGN_ID, '');
+    expect(listed.kind).toBe('ok');
+    if (listed.kind !== 'ok') return;
+    expect(listed.value).toHaveLength(1);
+  });
+
+  it('closes the boundary the moment the campaign has ANY participant', () => {
+    // The same campaign, one seat later. Nothing else changed, so this
+    // is the branch itself under test rather than two different setups.
+    storeSourceCampaign(SEATLESS_CAMPAIGN_ID);
+    expect(listShareGrants(db(), SEATLESS_CAMPAIGN_ID, OUTSIDER_ID).kind).toBe(
+      'ok',
+    );
+
+    seat(PLAYER_ID, 'player', {
+      campaignId: SEATLESS_CAMPAIGN_ID,
+      boundAt: PLAYER_BOUND_AT,
+    });
+
+    expect(listShareGrants(db(), SEATLESS_CAMPAIGN_ID, OUTSIDER_ID)).toEqual({
+      kind: 'refused',
+      reason: 'not-campaign-gm',
+    });
+    // And an anonymous caller is refused too, rather than inheriting the
+    // seat-less pass: an empty caller cannot be the GM of anything.
+    expect(listShareGrants(db(), SEATLESS_CAMPAIGN_ID, '')).toEqual({
+      kind: 'refused',
+      reason: 'not-campaign-gm',
+    });
   });
 
   it('refuses a GM whose own seat has been revoked', () => {
