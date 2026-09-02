@@ -5,6 +5,9 @@ interface ICardProps {
   readonly testid: string;
   readonly children: React.ReactNode;
   readonly footer?: React.ReactNode;
+  /** Honest origin text — solo FIFO is not the shared log. */
+  readonly headerNote?: string;
+  readonly headerNoteTestId?: string;
 }
 
 export function DashboardCard({
@@ -12,6 +15,8 @@ export function DashboardCard({
   testid,
   children,
   footer,
+  headerNote,
+  headerNoteTestId,
 }: ICardProps): React.ReactElement {
   return (
     <section
@@ -21,6 +26,14 @@ export function DashboardCard({
       <h3 className="mb-3 text-sm font-semibold tracking-wide text-slate-400 uppercase">
         {title}
       </h3>
+      {headerNote ? (
+        <p
+          data-testid={headerNoteTestId}
+          className="-mt-2 mb-3 text-xs text-slate-400"
+        >
+          {headerNote}
+        </p>
+      ) : null}
       <div className="flex-1">{children}</div>
       {footer ? (
         <div className="mt-3 border-t border-slate-700 pt-3">{footer}</div>
