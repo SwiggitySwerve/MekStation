@@ -16,13 +16,12 @@
 
 import type { NextApiRequest, NextApiResponse } from 'next';
 
-import { mkdirSync, writeFileSync } from 'node:fs';
-import { dirname } from 'node:path';
-
 import {
-  E2E_FAULT_SENTINELS,
+  E2E_FAULT_KINDS,
   _armE2EFaultOnce,
   _isE2EFaultArmed,
+  _writeE2EFaultSentinel,
+  type E2EFaultKind,
 } from '@/lib/multiplayer/server/DurableMatchStore';
 import { rejectUnexpectedMethod } from '@/pages-modules/api/routeHelpers';
 
@@ -46,6 +45,15 @@ interface IArmBody {
   readonly kind?: unknown;
   readonly mode?: unknown;
   readonly runId?: unknown;
+  readonly matchId?: unknown;
+}
+
+/** True for a kind this lever knows how to arm. */
+function isFaultKind(value: unknown): value is E2EFaultKind {
+  return (
+    typeof value === 'string' &&
+    (E2E_FAULT_KINDS as readonly string[]).includes(value)
+  );
 }
 
 const RUN_ID_HEADER = 'x-playwright-e2e-run-id';
@@ -62,25 +70,29 @@ export default async function handler(
   if (req.method === 'POST') {
     const body = req.body as IArmBody;
     const kind = body.kind;
-    if (
-      (kind !== 'append-head-update' &&
-        kind !== 'process-exit-before-commit' &&
-        kind !== 'process-exit-after-commit') ||
-      body.mode !== 'once'
-    ) {
+    if (!isFaultKind(kind) || body.mode !== 'once') {
       res.status(400).json({
-        error:
-          'Only mode "once" with kind "append-head-update", "process-exit-before-commit", or "process-exit-after-commit" is supported',
+        error: `Only mode "once" with kind ${E2E_FAULT_KINDS.map((k) => `"${k}"`).join(', ')} is supported`,
+      });
+      return;
+    }
+    // Session scope is REQUIRED, not optional (finding #72). The catalog
+    // header governing E2E-61..70 and design D9 both demand it, and an
+    // arm that names no session is the defect itself: whichever append
+    // ran next wore it, on any match.
+    const matchId = body.matchId;
+    if (typeof matchId !== 'string' || matchId.length === 0) {
+      res.status(400).json({
+        error: 'A fault arm requires a session scope: "matchId" is required',
       });
       return;
     }
     // Arm BOTH graphs: the module flag serves whatever store instance
     // shares this bundle; the sentinel file reaches the socket host's
-    // tsx-graph store, and is consumed (unlinked) at the failure point.
-    _armE2EFaultOnce(kind);
-    const sentinel = E2E_FAULT_SENTINELS[kind];
-    mkdirSync(dirname(sentinel), { recursive: true });
-    writeFileSync(sentinel, new Date().toISOString());
+    // tsx-graph store, carries the same scope, and is consumed (unlinked)
+    // at the failure point.
+    _armE2EFaultOnce(kind, { matchId });
+    _writeE2EFaultSentinel(kind, { matchId });
     res.status(200).json({ success: true, armed: true });
     return;
   }
@@ -88,10 +100,7 @@ export default async function handler(
   if (req.method === 'GET') {
     res.status(200).json({
       success: true,
-      armed:
-        _isE2EFaultArmed('append-head-update') ||
-        _isE2EFaultArmed('process-exit-before-commit') ||
-        _isE2EFaultArmed('process-exit-after-commit'),
+      armed: E2E_FAULT_KINDS.some((kind) => _isE2EFaultArmed(kind)),
     });
     return;
   }
