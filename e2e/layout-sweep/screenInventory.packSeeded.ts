@@ -40,6 +40,37 @@ const CAMPAIGN_SUBROUTE_LABELS: ReadonlyArray<readonly [string, string]> = [
   ['/gameplay/campaigns/[id]/starmap', 'campaign starmap'],
 ];
 
+/**
+ * The co-op lifecycle UI is NOT swept, and this says so on the entry that
+ * would otherwise appear to cover it (umbrella 19.4, finding #32).
+ *
+ * Recorded as a `note` rather than a `QuarantineEntry` deliberately. A
+ * quarantine is a SUPPRESSION - `viewport-layout-sweep.spec.ts` looks one
+ * up by viewport+check and skips that check when it matches - so filing
+ * this as a quarantine would have switched OFF the clickable check that
+ * currently passes on this screen's campaign-nav affordance. That would
+ * have reduced real coverage in order to document a gap in coverage. A
+ * note documents without suppressing, which is what is wanted here.
+ *
+ * FOLLOW-UP: add a co-op host campaign scenario pack under
+ * `e2e/scenario-packs/campaign/` (manifest entry + schemaVersion pin,
+ * seeding `coopSession` in host mode, plus a postLoadAction that submits
+ * one non-progression proposal into the runtime session under
+ * `host-review` arbitration). Until then the affordances below cannot be
+ * declared, because they never render.
+ */
+const COOP_SURFACES_UNSWEPT =
+  ' CO-OP SURFACES ARE NOT COVERED BY THIS ENTRY: `host-gm-review-surface`, ' +
+  '`campaign-sync-state` and (on the personnel / mech-bay / hiring / ' +
+  'contract-market / finances sub-routes) `guest-proposal-surface` all mount ' +
+  'only when the campaign carries a `coopSession`, and no scenario pack seeds ' +
+  'one -- `grep -rl coopSession e2e/scenario-packs/` returns nothing. ' +
+  '`CampaignCoopRouteSurface` therefore renders null on every swept route, so ' +
+  'a green sweep here says nothing about the co-op lifecycle UI. Declaring ' +
+  'those affordances now would fail at all four viewports, always. Follow-up: ' +
+  'the co-op host campaign pack described above; the affordances become real ' +
+  'CheckTargets the moment it exists.';
+
 export const packSeededEntries: readonly PackSeededScreenEntry[] = [
   ...CAMPAIGN_SUBROUTE_LABELS.map(
     ([pattern, label]): PackSeededScreenEntry => ({
@@ -53,7 +84,9 @@ export const packSeededEntries: readonly PackSeededScreenEntry[] = [
       primaryAffordances: CAMPAIGN_NAV_PRIMARY_AFFORDANCE,
       overlapTargets: CAMPAIGN_NAV_OVERLAP_TARGETS,
       quarantine: [],
-      note: "Campaign id sourced from the navigation-pack loader's post-navigation URL (design D5) -- never pack payload internals.",
+      note:
+        "Campaign id sourced from the navigation-pack loader's post-navigation URL (design D5) -- never pack payload internals." +
+        (pattern === '/gameplay/campaigns/[id]' ? COOP_SURFACES_UNSWEPT : ''),
     }),
   ),
   {
