@@ -12,9 +12,14 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 
 import {
   DurableMatchStore,
+  E2E_FAULT_SENTINELS,
+  _isE2EFaultArmed,
   _isFailAtHeadUpdateArmed,
+  _resetE2EFaultsForTests,
+  _setE2EFaultProcessExitForTests,
   _setFailAtHeadUpdateForTests,
 } from '@/lib/multiplayer/server/DurableMatchStore';
+import { commitThenPublish } from '@/lib/multiplayer/server/ServerMatchHostPublication';
 import handler from '@/pages-modules/api/e2eFaultRoute';
 
 function stubRes() {
@@ -60,12 +65,14 @@ describe('e2e fault route', () => {
   beforeEach(() => {
     process.env.NEXT_PUBLIC_E2E_MODE = 'true';
     process.env.PLAYWRIGHT_E2E_RUN_ID = RUN_ID;
+    _resetE2EFaultsForTests();
     _setFailAtHeadUpdateForTests(false);
   });
 
   afterEach(() => {
     process.env.NEXT_PUBLIC_E2E_MODE = savedMode;
     process.env.PLAYWRIGHT_E2E_RUN_ID = savedRun;
+    _resetE2EFaultsForTests();
     _setFailAtHeadUpdateForTests(false);
   });
 
@@ -175,4 +182,116 @@ describe('e2e fault route', () => {
     expect(second.kind).toBe('committed');
     store.close();
   });
+
+  it('consumes a process exit before commit at the transactional failure point', async () => {
+    const exitCodes: number[] = [];
+    _setE2EFaultProcessExitForTests((code) => {
+      exitCodes.push(code);
+    });
+    const { res, record } = stubRes();
+    await handler(
+      req({
+        method: 'POST',
+        body: { kind: 'process-exit-before-commit', mode: 'once' },
+        headers: { 'x-playwright-e2e-run-id': RUN_ID },
+      }),
+      res,
+    );
+    expect(record.status).toBe(200);
+
+    const store = await seededStore();
+    await expect(
+      store.appendCommandBatch('m-fault', batch('cmd-before-exit')),
+    ).rejects.toThrow('test-process-exit-before-commit');
+
+    expect(exitCodes).toEqual([1]);
+    expect(_isE2EFaultArmed('process-exit-before-commit')).toBe(false);
+    expect(await store.getEvents('m-fault')).toEqual([]);
+    expect(await store.listPendingPublications('m-fault')).toEqual([]);
+    expect(E2E_FAULT_SENTINELS['process-exit-before-commit']).toBeDefined();
+    store.close();
+  });
+
+  it('consumes a process exit after commit before the publication loop', async () => {
+    const exitCodes: number[] = [];
+    const published: unknown[] = [];
+    _setE2EFaultProcessExitForTests((code) => {
+      exitCodes.push(code);
+    });
+    const { res } = stubRes();
+    await handler(
+      req({
+        method: 'POST',
+        body: { kind: 'process-exit-after-commit', mode: 'once' },
+        headers: { 'x-playwright-e2e-run-id': RUN_ID },
+      }),
+      res,
+    );
+
+    const store = await seededStore();
+    await expect(
+      commitThenPublish({
+        matchId: 'm-fault',
+        events: [event(0)],
+        appendEvent: async () => undefined,
+        broadcast: () => {},
+        broadcastEvent: async (message) => {
+          published.push(message);
+        },
+        closeMatch: async () => {},
+        publications: store,
+        commitBatch: {
+          commandId: 'cmd-after-exit',
+          actorId: 'pA',
+          append: (input) => store.appendCommandBatch('m-fault', input),
+        },
+      }),
+    ).rejects.toThrow('test-process-exit-after-commit');
+
+    expect(exitCodes).toEqual([1]);
+    expect(_isE2EFaultArmed('process-exit-after-commit')).toBe(false);
+    expect(await store.getEvents('m-fault')).toHaveLength(1);
+    expect(await store.listPendingPublications('m-fault')).toHaveLength(1);
+    expect(published).toEqual([]);
+    expect(E2E_FAULT_SENTINELS['process-exit-after-commit']).toBeDefined();
+    store.close();
+  });
 });
+
+function event(sequence: number) {
+  return {
+    id: `evt-${sequence}`,
+    type: 'phase_changed',
+    sequence,
+    timestamp: new Date().toISOString(),
+    payload: {},
+  } as never;
+}
+
+function batch(commandId: string) {
+  return {
+    commandId,
+    actorId: 'pA',
+    expectedRevision: 0,
+    events: [event(0)],
+  };
+}
+
+async function seededStore(): Promise<DurableMatchStore> {
+  const store = new DurableMatchStore({ path: ':memory:' });
+  const now = new Date().toISOString();
+  await store.createMatch({
+    matchId: 'm-fault',
+    hostPlayerId: 'pA',
+    playerIds: ['pA', 'pB'],
+    sideAssignments: [
+      { playerId: 'pA', side: 'player' },
+      { playerId: 'pB', side: 'opponent' },
+    ],
+    status: 'active',
+    createdAt: now,
+    updatedAt: now,
+    config: { mapRadius: 4, turnLimit: 5 },
+  });
+  return store;
+}
