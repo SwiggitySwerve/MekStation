@@ -169,8 +169,16 @@ export default async function handler(
         res.status(409).json({ kind: 'blocked', reason: result.reason });
         return;
       case 'conflict':
+        // The whole conflict, not a fragment of it: why, where the head
+        // actually is, what to do next, and which fields collided. A
+        // client handed only sequence numbers can do nothing but retry
+        // blindly, which is the strategy task 8.3 removes.
         res.status(409).json({
           kind: 'conflict',
+          reason: result.reason,
+          head: result.head,
+          recoveryAction: result.recoveryAction,
+          conflictingFields: result.conflictingFields,
           expectedSequence: result.expectedSequence,
           actualSequence: result.actualSequence,
         });
