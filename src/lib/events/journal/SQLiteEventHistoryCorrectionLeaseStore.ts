@@ -41,6 +41,7 @@ import type {
   ICorrectionLeaseRequest,
   IEventHistoryClock,
   IEventHistoryCorrectionLease,
+  IExpectedHeadBinding,
   IHeldCorrectionLease,
 } from './EventHistoryCorrectionLeaseContract';
 import type { SQLiteEventHistoryBranchStore } from './SQLiteEventHistoryBranchStore';
@@ -281,16 +282,21 @@ export class SQLiteEventHistoryCorrectionLeaseStore {
   }
 
   /**
-   * Verify the four facts the lease binds to.
+   * Verify the four facts a correction binds to, against the live head.
+   *
+   * Public because it is asked TWICE: once here when the lease is acquired,
+   * and again when the candidate is built, because a head that moved in
+   * between would leave the build anchored to history that is no longer
+   * there. One verifier, so the two moments cannot disagree.
    *
    * Branch, revision and generation go through PR 1's shared expected-head
    * comparison - not a restated copy - so the lease and an ordinary command
    * can never disagree about what "stale" means. The digest is compared
    * here because that module carries branch/revision/generation only.
    */
-  private assertExpectedHeadIsCurrent(
+  public assertExpectedHeadIsCurrent(
     stream: IEventHistoryStreamRef,
-    request: ICorrectionLeaseRequest,
+    binding: IExpectedHeadBinding,
   ): void {
     const head = this.readJournalHead(stream);
     const verdict = validateExpectedBranchHead(
@@ -298,21 +304,21 @@ export class SQLiteEventHistoryCorrectionLeaseStore {
       stream,
       head.revision,
       {
-        branchId: request.expectedBranchId,
-        revision: request.expectedRevision,
-        effectiveGeneration: request.expectedGeneration,
+        branchId: binding.expectedBranchId,
+        revision: binding.expectedRevision,
+        effectiveGeneration: binding.expectedGeneration,
       },
     );
     if (verdict.kind === 'refused') {
       throw this.staleHead(
         verdict.code,
-        `Lease would bind to ${verdict.code} on branch '${request.expectedBranchId}' at revision ${request.expectedRevision}`,
+        `Correction would bind to ${verdict.code} on branch '${binding.expectedBranchId}' at revision ${binding.expectedRevision}`,
       );
     }
-    if (request.expectedDigest !== head.digest) {
+    if (binding.expectedDigest !== head.digest) {
       throw this.staleHead(
         'STALE_DIGEST',
-        `Lease would bind to digest '${request.expectedDigest}' but the head holds '${head.digest}'`,
+        `Correction would bind to digest '${binding.expectedDigest}' but the head holds '${head.digest}'`,
       );
     }
   }
