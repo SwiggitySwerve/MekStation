@@ -52,8 +52,18 @@ async function makeRegistry(): Promise<CampaignHostRegistry> {
   return registry;
 }
 
+/**
+ * Drain the microtask queue between inbound frames.
+ *
+ * Raised from 32 when the host's write lock landed: serializing a door
+ * costs a promise hop per acquisition, and one reconcile walks three
+ * doors, so 32 no longer covered a full reconcile. Starving the flush
+ * did not break the dedup - it let the SECOND frame start before the
+ * first had recorded the battle, which is a fixed-count-flush artifact
+ * rather than a behaviour change.
+ */
 async function flushAsyncHandlers(): Promise<void> {
-  for (let i = 0; i < 32; i += 1) {
+  for (let i = 0; i < 200; i += 1) {
     await Promise.resolve();
   }
 }
