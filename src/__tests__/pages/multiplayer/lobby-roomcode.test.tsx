@@ -82,8 +82,9 @@ import LobbyPage from '@/pages/multiplayer/lobby/[roomCode]';
 
 const mockedPreviewGmCombatRewind =
   previewGmCombatRewind as jest.MockedFunction<typeof previewGmCombatRewind>;
-const mockedCommitGmCombatRewind =
-  commitGmCombatRewind as jest.MockedFunction<typeof commitGmCombatRewind>;
+const mockedCommitGmCombatRewind = commitGmCombatRewind as jest.MockedFunction<
+  typeof commitGmCombatRewind
+>;
 
 // =============================================================================
 // Fixtures

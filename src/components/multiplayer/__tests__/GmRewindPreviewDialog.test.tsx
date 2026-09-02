@@ -288,8 +288,8 @@ describe('GmRewindPreviewDialog — the confirm arm', () => {
   });
 
   it('confirm is disabled while in flight so a second click does not call the producer again', async () => {
-    let resolveCommit: (value: GmCombatRewindCommitResult) => void =
-      () => undefined;
+    let resolveCommit: (value: GmCombatRewindCommitResult) => void = () =>
+      undefined;
     const onConfirmRewind = jest.fn(
       () =>
         new Promise<GmCombatRewindCommitResult>((resolve) => {

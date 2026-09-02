@@ -308,8 +308,8 @@ describe('NetworkedGameSurface — the preview flow', () => {
   });
 
   it('confirm is disabled while in flight so a second click does not call the producer again', async () => {
-    let resolveCommit: (value: GmCombatRewindCommitResult) => void =
-      () => undefined;
+    let resolveCommit: (value: GmCombatRewindCommitResult) => void = () =>
+      undefined;
     const onPreviewRewind = jest.fn().mockResolvedValue(PREVIEW_ANSWER);
     const onConfirmRewind = jest.fn(
       () =>

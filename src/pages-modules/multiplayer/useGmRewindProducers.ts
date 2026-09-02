@@ -46,9 +46,7 @@ function believedHeadRevision(mirrorEvents: readonly IGameEvent[]): number {
 export function useGmRewindProducers(
   input: IUseGmRewindProducersInput,
 ): IUseGmRewindProducers {
-  const lastRewindRequestRef = useRef<IPreviewGmCombatRewindInput | null>(
-    null,
-  );
+  const lastRewindRequestRef = useRef<IPreviewGmCombatRewindInput | null>(null);
 
   const onPreviewRewind =
     useCallback(async (): Promise<GmRewindPreviewOutcome> => {
