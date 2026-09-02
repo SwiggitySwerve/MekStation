@@ -5,25 +5,43 @@
  * membership plus account or vault reauthentication SHALL remint authority
  * without widening access or placing a bearer token in a URL."
  *
+ * E2E-17: a seated participant cold-reloads after LaunchMatch expired
+ * the invite. The route recovers on durable matchId + vault session;
+ * a newcomer holding the pre-launch room code is refused.
+ *
  * The short token is armed through the run-token-guarded E2E seam. The
  * socket credential remains in `Sec-WebSocket-Protocol` via
  * `socketCredentialProtocol`; URL observation is deliberately across the
  * complete scenario, not only the retry.
  *
- * @tags @token-pack @E2E-16
+ * @tags @token-pack @E2E-16 @E2E-17
  */
 
 import {
   expect,
   test,
   type APIRequestContext,
-  type Browser,
   type Page,
 } from '@playwright/test';
+
+import {
+  EXPIRED_INVITE_WIRE,
+  refuseExpiredRoomCodeOnCampaignWire,
+} from './helpers/expiredInviteRefusal';
+import {
+  launchOneVersusOne,
+  openContextPage,
+} from './helpers/gmTwoPlayerMatchFlow';
+import { readMatchAuthorityEvidence } from './helpers/matchAuthorityEvidence';
+import {
+  assertNoBearerInUrls,
+  observeSocketAndRequestUrls,
+} from './helpers/tokenPackUrlSweep';
 
 const RUN_ID_HEADER = 'x-playwright-e2e-run-id';
 const HOST_PASSWORD = 'HostPassword123!';
 const GUEST_PASSWORD = 'GuestPassword123!';
+const NEWCOMER_PASSWORD = 'NewcomerPassword123!';
 const SHORT_TOKEN_TTL_MS = 90_000;
 
 type Identity = { readonly id: string };
@@ -75,10 +93,6 @@ async function deleteIdentities(
     data: { ids },
   });
   expect(response.status(), await response.text()).toBe(200);
-}
-
-async function openContextPage(browser: Browser): Promise<Page> {
-  return (await browser.newContext()).newPage();
 }
 
 async function connectLobby(page: Page, password: string): Promise<Token> {
@@ -134,43 +148,6 @@ async function readAuthority(
   );
   expect(response.status(), await response.text()).toBe(200);
   return ((await response.json()) as { readonly meta: MatchAuthority }).meta;
-}
-
-function observeSocketAndRequestUrls(
-  page: Page,
-  socketUrls: string[],
-  requestUrls: string[],
-): Promise<void> {
-  page.on('request', (request) => requestUrls.push(request.url()));
-  return page.routeWebSocket(
-    (url) => {
-      if (url.pathname !== '/api/multiplayer/socket') return false;
-      socketUrls.push(url.toString());
-      return true;
-    },
-    (route) => {
-      const server = route.connectToServer();
-      route.onMessage((message) => server.send(message));
-      server.onMessage((message) => route.send(message));
-    },
-  );
-}
-
-function assertNoBearerInUrls(
-  urls: readonly string[],
-  bearerTokens: readonly string[],
-): void {
-  for (const value of urls) {
-    const url = new URL(value);
-    // Mutant: restore `?token=` to the WS URL. This rejects it even if
-    // the base64 value is encoded and would otherwise evade raw matching.
-    expect(url.searchParams.has('token')).toBe(false);
-    for (const token of bearerTokens) {
-      // Mutant: move the bearer to any other URL field. This catches the
-      // concrete secret, while `socketCredentialProtocol` owns the header.
-      expect(value).not.toContain(token);
-    }
-  }
 }
 
 test('E2E-16 expired participant reauthenticates without a URL bearer @E2E-16', async ({
@@ -353,5 +330,175 @@ test('E2E-16 expired participant reauthenticates without a URL bearer @E2E-16', 
     await deleteIdentities(request, identities);
     await hostPage.context().close();
     await guestPage.context().close();
+  }
+});
+
+test('E2E-17 active route uses durable identity after invite expiry @token-pack @E2E-17', async ({
+  browser,
+  request,
+}) => {
+  test.setTimeout(240_000);
+
+  const identities: string[] = [];
+  let matchId: string | null = null;
+  let hostToken: string | null = null;
+  const hostPage = await openContextPage(browser);
+  const guestPage = await openContextPage(browser);
+  const newcomerPage = await openContextPage(browser);
+  const socketUrls: string[] = [];
+  const requestUrls: string[] = [];
+  await Promise.all([
+    observeSocketAndRequestUrls(hostPage, socketUrls, requestUrls),
+    observeSocketAndRequestUrls(guestPage, socketUrls, requestUrls),
+    observeSocketAndRequestUrls(newcomerPage, socketUrls, requestUrls),
+  ]);
+
+  try {
+    const launched = await launchOneVersusOne({
+      browser,
+      request,
+      hostPage,
+      guestPage,
+      hostName: 'Invite Host',
+      guestName: 'Invite Guest',
+      hostPassword: HOST_PASSWORD,
+      guestPassword: GUEST_PASSWORD,
+    });
+    matchId = launched.match.matchId;
+    hostToken = launched.hostToken.token;
+    identities.push(...launched.identityIds);
+    // Keep the pre-launch invite. LaunchMatch sets clearRoomCode; the
+    // store column is what a stranger can still type after expiry.
+    const staleRoomCode = launched.match.roomCode;
+
+    const afterLaunch = readMatchAuthorityEvidence(launched.match.matchId);
+    // Mutant: clearRoomCode dropped at launch. The invite stays live
+    // and this is the first read that goes red.
+    expect(afterLaunch.roomCode).toBeNull();
+    // The column is only an index while in lobby; the meta copy is what
+    // LaunchMatch actually clears, so it is the one that proves clearRoomCode.
+    expect(afterLaunch.metaRoomCode).toBeNull();
+    expect(afterLaunch.status).toBe('active');
+    expect(afterLaunch.playerIds).toHaveLength(2);
+
+    const authorityBefore = await readAuthority(
+      request,
+      launched.match.matchId,
+      launched.hostToken.token,
+    );
+    const guestSeatBefore = authorityBefore.seats?.find(
+      (seat) => seat.slotId === 'bravo-1',
+    );
+    const guestPlayerId = guestSeatBefore?.occupant?.playerId;
+    if (!guestPlayerId) {
+      throw new Error('Guest bravo-1 had no occupant before the reload');
+    }
+
+    // The lobby URL still carries the dead room code. A seated party
+    // recovers from the stored matchId, so this reload must not ask
+    // for the vault again or mint a new seat.
+    await guestPage.reload({ waitUntil: 'domcontentloaded' });
+    await expect(guestPage.getByTestId('networked-game-surface')).toBeVisible({
+      timeout: 60_000,
+    });
+
+    const authorityAfterReload = await readAuthority(
+      request,
+      launched.match.matchId,
+      launched.hostToken.token,
+    );
+    const guestSeatAfter = authorityAfterReload.seats?.find(
+      (seat) => seat.slotId === 'bravo-1',
+    );
+    // Mutant: membership path skipped, reloader seated as a newcomer.
+    // Same slot would then hold a different playerId.
+    expect(guestSeatAfter?.occupant?.playerId).toBe(guestPlayerId);
+    expect(authorityAfterReload.playerIds).toEqual(authorityBefore.playerIds);
+
+    const newcomer = await seedIdentity(
+      request,
+      'Invite Newcomer',
+      NEWCOMER_PASSWORD,
+    );
+    identities.push(newcomer.id);
+    await newcomerPage.goto('/multiplayer');
+    await newcomerPage
+      .getByPlaceholder('Vault password')
+      .fill(NEWCOMER_PASSWORD);
+    await newcomerPage.getByLabel('Room code').fill(staleRoomCode);
+    const inviteResponse = newcomerPage.waitForResponse(
+      (response) =>
+        response.url().includes('/api/multiplayer/invites/') &&
+        response.request().method() === 'GET',
+      { timeout: 30_000 },
+    );
+    const tokenResponse = newcomerPage.waitForResponse(
+      (response) =>
+        response.url().includes('/api/multiplayer/auth/token') &&
+        response.request().method() === 'POST' &&
+        response.status() === 200,
+      { timeout: 30_000 },
+    );
+    await newcomerPage.getByRole('button', { name: 'Join match' }).click();
+    const invite = await inviteResponse;
+    // The invite resolver looks up mp_matches.room_code. After launch
+    // that column is NULL, so the product answers this exact 404 body.
+    expect(invite.status()).toBe(404);
+    expect(await invite.json()).toEqual({
+      error: 'Invite code not found or expired',
+    });
+    const newcomerToken = await readToken(tokenResponse);
+    // The join page can show more than one alert (the credential banner
+    // is one); pin the one that names the stale code.
+    await expect(
+      newcomerPage
+        .getByRole('alert')
+        .filter({ hasText: 'No active match with room code' }),
+    ).toContainText('No active match with room code ' + staleRoomCode);
+    await expect(
+      newcomerPage.getByTestId('networked-game-surface'),
+    ).toHaveCount(0);
+
+    // Same dead code on the lobby route: no stored matchId, so the
+    // page cannot take the reloader's fallback.
+    await newcomerPage.goto('/multiplayer/lobby/' + staleRoomCode);
+    await expect(
+      newcomerPage.getByText('Invite code not found or expired'),
+    ).toBeVisible({ timeout: 20_000 });
+
+    // handleRoomCodeGuestJoin.ts:119-120: when getRoomCode() is null
+    // the server sends this Error. Assert that frame, not a guessed
+    // reason. The invite 404 above is the hub door; this is the wire.
+    const wireRefusal = await refuseExpiredRoomCodeOnCampaignWire(
+      newcomerPage,
+      {
+        matchId: launched.match.matchId,
+        playerId: newcomerToken.playerId,
+        wireToken: newcomerToken.token,
+        roomCode: staleRoomCode,
+      },
+    );
+    expect(wireRefusal.code).toBe(EXPIRED_INVITE_WIRE.code);
+    expect(wireRefusal.reason).toBe(EXPIRED_INVITE_WIRE.reason);
+
+    const after = readMatchAuthorityEvidence(launched.match.matchId);
+    expect(after.status).toBe(afterLaunch.status);
+    expect(after.playerIds).toEqual(afterLaunch.playerIds);
+    expect(after.roomCode).toBeNull();
+    assertNoBearerInUrls(
+      [...socketUrls, ...requestUrls],
+      [launched.hostToken.token, newcomerToken.token],
+    );
+  } finally {
+    if (matchId && hostToken) {
+      await request.delete(
+        `/api/multiplayer/matches/${encodeURIComponent(matchId)}`,
+        { headers: { Authorization: `Bearer ${hostToken}` } },
+      );
+    }
+    await deleteIdentities(request, identities);
+    await hostPage.context().close();
+    await guestPage.context().close();
+    await newcomerPage.context().close();
   }
 });

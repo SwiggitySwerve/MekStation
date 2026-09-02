@@ -75,7 +75,7 @@ type Batch = {
   readonly recorded_at: string;
 };
 
-test('E2E-18 quiet heartbeats keep three campaign clients connected @authority-e2e', async ({
+test('E2E-18 quiet heartbeats keep three campaign clients connected @authority-e2e @E2E-18', async ({
   baseURL,
   browser,
   request,
@@ -112,7 +112,7 @@ test('E2E-18 quiet heartbeats keep three campaign clients connected @authority-e
   }
 });
 
-test('E2E-03 a committed command is durable before every eligible player renders it @authority-e2e', async ({
+test('E2E-03 a committed command is durable before every eligible player renders it @authority-e2e @E2E-03', async ({
   baseURL,
   browser,
   request,
@@ -150,7 +150,7 @@ test('E2E-03 a committed command is durable before every eligible player renders
   }
 });
 
-test('E2E-08 a resent command identity commits once and renders once @authority-e2e', async ({
+test('E2E-08 a resent command identity commits once and renders once @authority-e2e @E2E-08', async ({
   baseURL,
   browser,
   request,
