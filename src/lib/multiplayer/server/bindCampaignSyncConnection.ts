@@ -11,6 +11,7 @@ import type {
 
 import { reconcileCoopBattle } from '@/lib/campaign/coop/reconcileCoopBattle';
 import { normalizeRoomCode } from '@/lib/p2p/roomCodes';
+import { CAMPAIGN_STALE_HEAD } from '@/types/campaign/CampaignSync';
 import {
   assertKnownCampaignSyncFrameKind,
   ClientMessageSchema,
@@ -737,14 +738,30 @@ async function handleCampaignHostIntent({
     applyCommittedParticipantRemovals(entry, result.events, membership);
   }
   if (!result.ok) {
+    // A stale head is neither fatal nor the client's fault, so it keeps
+    // its own code AND carries the head and the recovery action onto the
+    // wire. Reporting it as INVALID_INTENT would compile - both arms have
+    // a `reason` - and would tell the client its command was bad when the
+    // command was fine.
     send(
       socket,
-      errorFrame(
-        matchId,
-        'INVALID_INTENT',
-        result.reason,
-        envelope.intent.intentId,
-      ),
+      result.code === CAMPAIGN_STALE_HEAD
+        ? {
+            ...errorFrame(
+              matchId,
+              'CAMPAIGN_STALE_HEAD',
+              result.reason,
+              envelope.intent.intentId,
+            ),
+            conflictHead: result.head,
+            recoveryAction: result.recoveryAction,
+          }
+        : errorFrame(
+            matchId,
+            'INVALID_INTENT',
+            result.reason,
+            envelope.intent.intentId,
+          ),
     );
   }
 }
