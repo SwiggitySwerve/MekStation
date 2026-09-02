@@ -74,9 +74,27 @@ export interface IGmRecoveryAction {
   readonly description: string;
 }
 
+/**
+ * The postures the GM surface can actually reach.
+ *
+ * `GM_MESSAGES` has to be total over `LifecycleState` to be a Record, and
+ * a total map reads as a claim that all ten are reachable here - they are
+ * not. `deriveGmLifecyclePosture` returns exactly these five: a campaign
+ * has no declare-then-reveal phase (`sealed`), the host is the authority
+ * rather than a replica of it (`syncing` / `reconnecting` / `behind`), and
+ * nothing on this surface reports a decision as `finalized`. Naming the
+ * reachable set makes the compiler enforce what a comment could only
+ * assert; the branch work widens this alias in one visible line rather
+ * than silently satisfying a claim that was already written down.
+ */
+export type GmReachableState = Extract<
+  LifecycleState,
+  'pending' | 'blocked' | 'rewound' | 'rebuilding' | 'live'
+>;
+
 /** The GM posture. */
 export interface IGmLifecyclePosture {
-  readonly state: LifecycleState;
+  readonly state: GmReachableState;
   readonly message: string;
   /**
    * Whether the server would accept a PROGRESSION commit right now.
@@ -108,13 +126,8 @@ const GUEST_MESSAGES: Readonly<Record<LifecycleState, string>> = {
   live: 'Up to date with the campaign owner.',
 };
 
-const GM_MESSAGES: Readonly<Record<LifecycleState, string>> = {
+const GM_MESSAGES: Readonly<Record<GmReachableState, string>> = {
   pending: 'Guest proposals are awaiting your review.',
-  sealed: 'A guest declaration is sealed until you reveal it.',
-  finalized: 'Your latest campaign decision was committed.',
-  syncing: 'Loading the campaign…',
-  reconnecting: 'Reconnecting to the campaign session…',
-  behind: 'Catching up on recent campaign activity…',
   blocked: 'Campaign progression is paused until every participant catches up.',
   rewound: 'The campaign projection was rewound to an authoritative branch.',
   rebuilding: 'Rebuilding the campaign projection from authoritative history…',
@@ -177,7 +190,20 @@ export function campaignRefusalFromServerErrorCode(
  * Maps a refusal to its posture. Shared by both surfaces so a refusal
  * never reads as one thing to a guest and another to the host.
  */
-function refusalState(refusal: CampaignLifecycleRefusalCode): LifecycleState {
+/**
+ * The three postures a refusal can produce. Declared rather than widened
+ * to `LifecycleState` so the GM posture's narrowed `state` accepts this
+ * directly - and so a new refusal code cannot quietly introduce a posture
+ * neither surface was written to render.
+ */
+type RefusalPostureState = Extract<
+  LifecycleState,
+  'blocked' | 'rewound' | 'rebuilding'
+>;
+
+function refusalState(
+  refusal: CampaignLifecycleRefusalCode,
+): RefusalPostureState {
   switch (refusal) {
     case 'PROJECTION_REBUILDING':
       return 'rebuilding';

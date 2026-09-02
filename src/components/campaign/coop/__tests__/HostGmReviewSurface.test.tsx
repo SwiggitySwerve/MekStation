@@ -8,7 +8,7 @@
  * @spec openspec/changes/add-coop-campaign-play/specs/coop-campaign-sync/spec.md
  */
 
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import React from 'react';
 
 import type { IPendingProposal } from '@/lib/multiplayer/server/CampaignGmArbiter';
@@ -143,7 +143,11 @@ describe('HostGmReviewSurface — decisions', () => {
     expect(onDecide).toHaveBeenCalledWith('p1', 'approve');
   });
 
-  it('forwards a veto decision', () => {
+  it('forwards a veto decision once the host confirms it', () => {
+    // Veto became a two-step action in umbrella 19.3: it rejects another
+    // player's proposal irreversibly, so it asks before it decides. This
+    // row keeps asserting that the decision still reaches `onDecide` with
+    // the same arguments - only the step that raises it moved.
     const onDecide = jest.fn();
     render(
       <HostGmReviewSurface
@@ -151,7 +155,14 @@ describe('HostGmReviewSurface — decisions', () => {
         onDecide={onDecide}
       />,
     );
-    screen.getByTestId('veto-p1').click();
+
+    // `fireEvent` rather than a raw `.click()`: opening the confirmation
+    // is a React state update, and only the act()-wrapped helper flushes
+    // the re-render that puts the dialog in the DOM.
+    fireEvent.click(screen.getByTestId('veto-p1'));
+    expect(onDecide).not.toHaveBeenCalled();
+
+    fireEvent.click(screen.getByTestId('veto-confirm'));
     expect(onDecide).toHaveBeenCalledWith('p1', 'veto');
   });
 });
