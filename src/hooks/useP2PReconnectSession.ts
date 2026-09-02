@@ -6,24 +6,37 @@ import type { IGameEvent } from '@/types/gameplay/GameSessionInterfaces';
 import { InteractiveSession } from '@/engine/InteractiveSession';
 import {
   answerReconnectRequest,
-  createGameSessionChannel,
-  getGameSessionAwarenessStates,
-  getLocalPeerId as getSyncLocalPeerId,
   matchLogStorage,
   MatchLogStorageUnavailableError,
-  normalizeRoomCode,
   reconcileMatchLogMirror,
   type IGameSessionChannel,
   type IMatchMetadataRecord,
   type MatchLogPrefixVerdict,
 } from '@/lib/p2p';
-import { useSyncRoomStore } from '@/lib/p2p/useSyncRoomStore';
+import { useP2PMirrorStore } from '@/lib/p2p/p2pMirrorStore';
 import { useGameplayStore } from '@/stores/useGameplayStore';
+
+import {
+  appendReplayEventToActiveSession,
+  defaultAdoptRebuiltSession,
+  defaultCreateChannel,
+  defaultEnsureSyncRoom,
+  defaultGetHostEventsFromSeq,
+  defaultGetHostPresent,
+  defaultGetLocalPeerId,
+  defaultRedirectToLobby,
+  defaultSetHostPending,
+  defaultSetHydratedSession,
+  defaultSetLive,
+  deriveReconnectRoomCode,
+  persistReplayEventToMatchLog,
+} from './useP2PReconnectSession.defaults';
+
+export { deriveReconnectRoomCode };
 import { logger } from '@/utils/logger';
 
 export const RECONNECT_HOST_WAIT_MS = 10_000;
 const HOST_POLL_INTERVAL_MS = 250;
-const P2P_MATCH_ID_PREFIX = 'p2p-';
 
 type ReplayEventAppender = (
   matchId: string,
@@ -49,6 +62,15 @@ interface ReconnectDependencies {
     localPeerId: string,
   ) => IGameSessionChannel;
   readonly appendReplayEvent: ReplayEventAppender;
+  /**
+   * Durable write used on the divergence path. Distinct from
+   * `appendReplayEvent`, which short-circuits to the in-memory
+   * session whenever one exists and therefore leaves the log empty
+   * exactly when the rebuild needs it (finding #85).
+   */
+  readonly persistReplayEvent: ReplayEventAppender;
+  /** Replace the live board with a session rebuilt from the log. */
+  readonly adoptRebuiltSession: (session: IGameSession) => void;
   readonly hydrateFromMatchLog: (matchId: string) => Promise<IGameSession>;
   readonly setHydratedSession: (session: IGameSession) => void;
   readonly setHostPending: () => void;
@@ -88,6 +110,8 @@ export interface IUseP2PReconnectSessionOptions {
     localPeerId: string,
   ) => IGameSessionChannel;
   readonly appendReplayEvent?: ReplayEventAppender;
+  readonly persistReplayEvent?: ReplayEventAppender;
+  readonly adoptRebuiltSession?: (session: IGameSession) => void;
   readonly hydrateFromMatchLog?: (matchId: string) => Promise<IGameSession>;
   readonly setHydratedSession?: (session: IGameSession) => void;
   readonly setHostPending?: () => void;
@@ -164,6 +188,10 @@ function resolveReconnectDependencies(
     createChannel: options.createChannel ?? defaultCreateChannel,
     appendReplayEvent:
       options.appendReplayEvent ?? appendReplayEventToActiveSession,
+    persistReplayEvent:
+      options.persistReplayEvent ?? persistReplayEventToMatchLog,
+    adoptRebuiltSession:
+      options.adoptRebuiltSession ?? defaultAdoptRebuiltSession,
     hydrateFromMatchLog:
       options.hydrateFromMatchLog ?? InteractiveSession.fromMatchLog,
     setHydratedSession: options.setHydratedSession ?? defaultSetHydratedSession,
@@ -322,14 +350,28 @@ async function applyReplayStream(
     deps.onMirrorPrefixDivergence?.(verdict);
   }
 
+  // A diverged mirror is not repaired by appending the peer's history
+  // onto the board that disagreed with it - that is what produced the
+  // mixed session in the first place (#79). The peer's events go to the
+  // DURABLE log, which the reconcile above just emptied, and the board
+  // is then rebuilt from it (#85: the ordinary append would have
+  // short-circuited to memory and left the log empty).
+  const diverged = verdict.kind !== 'match';
   const seen = new Set<string>();
   for (const event of events) {
     if (seen.has(event.id)) continue;
     seen.add(event.id);
-    await deps.appendReplayEvent(matchId, event);
+    await (diverged
+      ? deps.persistReplayEvent(matchId, event)
+      : deps.appendReplayEvent(matchId, event));
   }
   if (runtime.cancelled) return;
-  if (!useGameplayStore.getState().interactiveSession) {
+  if (diverged) {
+    deps.adoptRebuiltSession(await deps.hydrateFromMatchLog(matchId));
+    // Only here. The flag records "your board is not theirs", and this
+    // is the one moment that stops being true.
+    useP2PMirrorStore.getState().resolveDivergenceAfterRebuild(matchId);
+  } else if (!useGameplayStore.getState().interactiveSession) {
     deps.setHydratedSession(await deps.hydrateFromMatchLog(matchId));
   }
   deps.setLive();
@@ -347,79 +389,4 @@ function handleReconnectTimeout(
     deps.setHydratedSession(session);
     deps.setHostPending();
   });
-}
-
-export function deriveReconnectRoomCode(matchId: string): string | null {
-  if (!matchId.startsWith(P2P_MATCH_ID_PREFIX)) return null;
-  const rawRoomCode = matchId.slice(P2P_MATCH_ID_PREFIX.length);
-  return rawRoomCode ? normalizeRoomCode(rawRoomCode) : null;
-}
-
-async function defaultEnsureSyncRoom(matchId: string): Promise<void> {
-  const store = useSyncRoomStore.getState();
-  const roomCode = deriveReconnectRoomCode(matchId);
-  if (!roomCode) return;
-  if (store.activeRoom?.roomCode === roomCode) return;
-  await store.joinRoom(roomCode);
-}
-
-function defaultGetLocalPeerId(): string | null {
-  return getSyncLocalPeerId() ?? useSyncRoomStore.getState().localPeerId;
-}
-
-function defaultGetHostPresent(hostPeerId: string | null): boolean {
-  if (!hostPeerId) return false;
-  return getGameSessionAwarenessStates().some((peer) => {
-    return peer.role === 'host' && peer.peerId === hostPeerId;
-  });
-}
-
-function defaultCreateChannel(
-  matchId: string,
-  localPeerId: string,
-): IGameSessionChannel {
-  return createGameSessionChannel({ matchId, localPeerId });
-}
-
-async function appendReplayEventToActiveSession(
-  matchId: string,
-  event: IGameEvent,
-): Promise<void> {
-  const store = useGameplayStore.getState();
-  const interactiveSession = store.interactiveSession;
-  if (interactiveSession) {
-    interactiveSession.appendEvent(event);
-    store.setSession(interactiveSession.getSession());
-    return;
-  }
-  await matchLogStorage.appendEvent(matchId, event);
-}
-
-function defaultSetHydratedSession(session: IGameSession): void {
-  useGameplayStore.getState().setSession(session);
-}
-
-function defaultSetHostPending(): void {
-  useGameplayStore.getState().setLocalMatchStatus('hostPending');
-}
-
-function defaultSetLive(): void {
-  useGameplayStore.getState().resetLocalMatchStatus();
-}
-
-function defaultRedirectToLobby(matchId: string, reason: string): void {
-  const roomCode = deriveReconnectRoomCode(matchId);
-  const target = roomCode
-    ? `/gameplay/lobby/${encodeURIComponent(roomCode)}`
-    : '/gameplay/games';
-  window.location.assign(`${target}?error=${encodeURIComponent(reason)}`);
-}
-
-function defaultGetHostEventsFromSeq(seq: number): readonly IGameEvent[] {
-  const interactiveSession = useGameplayStore.getState().interactiveSession;
-  const session =
-    interactiveSession?.getSession() ?? useGameplayStore.getState().session;
-  return (session?.events ?? [])
-    .filter((event) => event.sequence >= seq)
-    .sort((left, right) => left.sequence - right.sequence);
 }

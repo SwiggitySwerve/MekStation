@@ -125,4 +125,19 @@ describe('useP2PMirrorStore', () => {
       position: 2,
     });
   });
+  it('resolves only the match that was actually rebuilt', () => {
+    // E4c-B2's resolver is keyed for the same reason the record is: a
+    // rebuild that completes for one battle says nothing about another,
+    // and clearing the wrong flag would reopen a board that is still
+    // wrong.
+    const store = useP2PMirrorStore.getState();
+    store.recordDivergence('p2p-ROOM01', { kind: 'truncated', position: 2 });
+    store.resolveDivergenceAfterRebuild('p2p-ROOM99');
+    expect(store.divergenceFor('p2p-ROOM01')).toStrictEqual({
+      kind: 'truncated',
+      position: 2,
+    });
+    store.resolveDivergenceAfterRebuild('p2p-ROOM01');
+    expect(store.divergenceFor('p2p-ROOM01')).toBeNull();
+  });
 });
