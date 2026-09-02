@@ -27,6 +27,7 @@ import type {
   IMultiplayerError,
 } from '@/hooks/useMultiplayerSession';
 import type { IClientLifecycleState } from '@/lib/multiplayer/client';
+import type { GmCombatRewindPreviewResult } from '@/lib/multiplayer/server/history/GmCombatRewindPreview';
 import type { TacticalLifecycleProjectionSignal } from '@/lib/multiplayer/tacticalLifecycleState';
 import type { ICommandAuthorityProjection } from '@/types/command-screen';
 import type {
@@ -60,6 +61,7 @@ import {
 } from '@/types/gameplay/GameSessionInterfaces';
 
 import { NetworkedActionBar } from './NetworkedGameSurface.actionbar';
+import { NetworkedGmRewindControls } from './NetworkedGameSurface.gmRewind';
 import {
   IntentErrorToast,
   MatchClosedPanel,
@@ -105,8 +107,30 @@ export interface INetworkedGameSurfaceProps {
   /** Forward a player action to the server (D3). */
   readonly onSendGameIntent: (intent: IGameIntent) => boolean;
   readonly hostPlayerId?: string | null;
+  /**
+   * The GM-fix stubs (umbrella 19.3). They now render ONLY when a caller
+   * supplies both - the no-op defaults are gone. That is defect #15 fixed
+   * at the cause: the production lobby route passes neither, so the host
+   * no longer sees two buttons that silently do nothing, while the
+   * `/e2e/networked-command-proof` harness that DOES wire them keeps the
+   * proof its Playwright specs assert. The host GM's live control on the
+   * lobby route is the rewind flow below.
+   */
   readonly onPreviewHostGmCorrection?: () => void;
   readonly onApproveHostGmCorrection?: () => void;
+  /**
+   * Asks the authority what a rewind to a chosen revision would touch
+   * (umbrella 19.3). Injected, because the route that answers - `POST
+   * /api/matches/[id]/rewind-preview` - is task 3b-iii and does not exist
+   * yet; REPLACED-WHEN-EMITTED by the page's adapter over it. Absent means
+   * the control renders disabled with the reason rather than looking live.
+   */
+  readonly onPreviewRewind?: () => Promise<GmCombatRewindPreviewResult>;
+  /**
+   * Applies a previewed rewind. Absent until task 3b-iv builds a commit
+   * path, so the confirm renders disabled for its own separate reason.
+   */
+  readonly onConfirmRewind?: () => void;
   /** Public connection/delivery facts exposed by the multiplayer client. */
   readonly clientLifecycle?: IClientLifecycleState;
   /** Branch-gated history signal; null in the live multiplayer client today. */
@@ -144,8 +168,10 @@ export function NetworkedGameSurface({
   onClearIntentError,
   onSendGameIntent,
   hostPlayerId,
-  onPreviewHostGmCorrection = () => {},
-  onApproveHostGmCorrection = () => {},
+  onPreviewHostGmCorrection,
+  onApproveHostGmCorrection,
+  onPreviewRewind,
+  onConfirmRewind,
   clientLifecycle = LIVE_CLIENT_LIFECYCLE,
   projectionSignal = null,
   spectator = false,
@@ -373,11 +399,23 @@ export function NetworkedGameSurface({
         />
       </div>
 
+      {/* GM authority controls are gated by the PROJECTION's role, not by
+          the raw player id - a spectator holding the host's id is still a
+          spectator - and the lobby route is their only mount. */}
       {authorityProjection.viewerRole === 'host-gm' && !spectator && (
-        <NetworkedHostGmControls
-          onPreview={onPreviewHostGmCorrection}
-          onApprove={onApproveHostGmCorrection}
-        />
+        <>
+          {onPreviewHostGmCorrection !== undefined &&
+            onApproveHostGmCorrection !== undefined && (
+              <NetworkedHostGmControls
+                onPreview={onPreviewHostGmCorrection}
+                onApprove={onApproveHostGmCorrection}
+              />
+            )}
+          <NetworkedGmRewindControls
+            onPreviewRewind={onPreviewRewind}
+            onConfirmRewind={onConfirmRewind}
+          />
+        </>
       )}
 
       <NetworkedCommandResultFeed results={commandResults} />
@@ -444,6 +482,11 @@ function NetworkedAuthorityStrip({
   );
 }
 
+/**
+ * The GM-fix stubs, kept for the `/e2e/networked-command-proof` harness
+ * that wires them. Mounted only when a caller supplies both handlers, so
+ * no production page inherits a control that does nothing (defect #15).
+ */
 function NetworkedHostGmControls({
   onPreview,
   onApprove,
