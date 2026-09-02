@@ -46,9 +46,17 @@ import type {
 } from '@/types/campaign/CampaignSync';
 
 import { readDurableStreamRebuild } from '@/lib/events/journal/EventHistoryDurableRebuild';
+import { EXPECTED_HEAD_RESYNC_ACTION } from '@/lib/events/journal/EventHistoryExpectedHead';
+import { ROOT_EVENT_BRANCH_ID } from '@/lib/events/journal/EventJournalContract';
 import { validateCampaignIntent } from '@/lib/multiplayer/server/CampaignMatchHostIntent';
 
 import type { CampaignAuthorityMode } from './campaignAuthorityMode';
+import type {
+  CampaignConflictBase,
+  CampaignConflictRecoveryAction,
+  CampaignConflictRefusalReason,
+  ICampaignConflictHead,
+} from './campaignConflictDecision';
 
 import { replayCampaignEvents } from '../sync/applyCampaignEvent';
 import { freezeCampaignEvent } from '../sync/campaignEventScope';
@@ -58,7 +66,32 @@ import {
   JournalCampaignEventStore,
   type ICampaignJournalEnvelope,
 } from '../sync/JournalCampaignEventStore';
+import { diffCampaignFields } from './campaignCommandFieldSet';
+import { decideCampaignConflict } from './campaignConflictDecision';
 import { campaignStreamRef } from './campaignLaunchHead';
+
+/**
+ * Why a command did not commit against the head.
+ *
+ * The decision's own reasons, plus the one only the append can discover:
+ * a race lost between the replay and the commit.
+ */
+export type CampaignCommandConflictReason =
+  | CampaignConflictRefusalReason
+  | 'lost-race';
+
+/**
+ * The branch a campaign command commits to.
+ *
+ * A constant because `JournalCampaignEventStore` pins campaign streams to
+ * the genesis branch, so this is a FACT about the pipeline rather than an
+ * assumption about the journal. When the root-branch pin is lifted this
+ * becomes a read of the resolved effective branch, and this function is
+ * the only place that has to change.
+ */
+function campaignCommandBranchId(): string {
+  return ROOT_EVENT_BRANCH_ID;
+}
 
 /** Every way a command can fail to commit, kept distinguishable. */
 export type CampaignCommandResult =
@@ -78,12 +111,29 @@ export type CampaignCommandResult =
       readonly kind: 'blocked';
       readonly reason: string;
     }
-  | {
-      /** Another writer got there first; nothing was applied. */
+  | ({
+      /**
+       * The command did not commit because the head was not where it
+       * needed to be; nothing was applied.
+       *
+       * ONE SHAPE FOR BOTH WAYS THAT HAPPENS. A command refused before
+       * the append (its base was stale and its fields collided) and one
+       * that lost the race at the append are different facts, and
+       * `reason` keeps them apart - but both carry the current branch,
+       * the current revision, and what to do next, because a client told
+       * only "conflict" can do nothing but guess, and the guess it makes
+       * is the blind retry task 8.3 removes.
+       */
       readonly kind: 'conflict';
-      readonly expectedSequence: number;
-      readonly actualSequence: number;
-    }
+      readonly reason: CampaignCommandConflictReason;
+      readonly head: ICampaignConflictHead;
+      readonly recoveryAction: CampaignConflictRecoveryAction;
+      readonly conflictingFields: readonly string[];
+    } & {
+      /** Present only on a lost race: the sequences the append compared. */
+      readonly expectedSequence?: number;
+      readonly actualSequence?: number;
+    })
   | {
       /** This exact command already committed. Not an error. */
       readonly kind: 'duplicate';
@@ -129,6 +179,92 @@ export interface ICampaignCommandRequest {
   /** Stable identity so a retried command commits at most once. */
   readonly commandId: string;
   readonly ts: string;
+  /**
+   * The journal revision the client believes it is writing against.
+   *
+   * Optional, and absent means "I make no claim about the head" - the
+   * append's own revision guard still catches a lost race, so a caller
+   * that never learned the head keeps working exactly as before. A
+   * caller that DOES name one gets the field-level decision.
+   */
+  readonly expectedRevision?: number;
+  /**
+   * The client's claim about which fields this command changes.
+   *
+   * CHECKED, never trusted: the server derives the same set by replaying
+   * the command against the base the client named, and a mismatch is
+   * refused. A declaration that steered the verdict would let a client
+   * describe its overwrite as disjoint and have it serialized.
+   */
+  readonly declaredFields?: readonly string[];
+}
+
+/**
+ * Reconstruct what the caller was writing against, so the decision is
+ * made over sets the SERVER derived.
+ *
+ * The base is replayed rather than accepted: journal revision R is the
+ * first R events (sequence N lives at streamRevision N + 1), so slicing
+ * there and folding gives exactly the state the client held. The
+ * command's touched set is then what the intent does TO THAT BASE - not
+ * what it would do to the head, which is a different command.
+ *
+ * A command that will not even validate against the base it names
+ * touches nothing on that base. That is deliberately not a fifth refusal
+ * reason: any non-empty declaration is then a mismatch and an empty one
+ * is undeclared, so both land on `rebase-onto-active-head`, which is the
+ * right advice for a client whose derivation is out of step.
+ */
+function resolveCommandBase(
+  request: ICampaignCommandRequest,
+  priorEvents: readonly ICampaignEvent[],
+  priorState: ICampaignAuthoritativeState,
+): CampaignConflictBase {
+  const expected = request.expectedRevision;
+  if (expected === undefined || expected === priorEvents.length) {
+    return { kind: 'at-head' };
+  }
+  if (expected < 0 || expected > priorEvents.length) {
+    return { kind: 'revision-unknown' };
+  }
+  const baseEvents = priorEvents.slice(0, expected);
+  const baseState = replayCampaignEvents(request.campaignId, baseEvents);
+  const baseValidation = validateCampaignIntent(
+    request.intent,
+    baseState,
+    request.authorPlayerId,
+    request.ts,
+  );
+  // Sequenced only so the derived events satisfy the event type for the
+  // fold. Nothing here is appended - these numbers never leave this
+  // function, and the real sequencing happens against the current head.
+  const baseDerived = baseValidation.ok
+    ? (baseValidation.events.map((event, index) =>
+        freezeCampaignEvent({ ...event, sequence: baseEvents.length + index }),
+      ) as readonly ICampaignEvent[])
+    : [];
+  const touchedFields = baseValidation.ok
+    ? diffCampaignFields(
+        baseState,
+        replayCampaignEvents(request.campaignId, [
+          ...baseEvents,
+          ...baseDerived,
+        ]),
+      )
+    : [];
+  return {
+    kind: 'reconstructed',
+    touchedFields,
+    interveningFields: diffCampaignFields(baseState, priorState),
+    // An empty declaration is no declaration: a stale command that says
+    // it changes nothing, while deriving events, has described something
+    // other than itself.
+    declaredFields:
+      request.declaredFields === undefined ||
+      request.declaredFields.length === 0
+        ? null
+        : request.declaredFields,
+  };
 }
 
 /**
@@ -171,6 +307,31 @@ export async function executeCampaignCommand(
   // supplying it could authorise its own command.
   const priorState = replayCampaignEvents(request.campaignId, priorEvents);
 
+  // The command-based conflict decision (task 8.4). A refusal returns
+  // here, BEFORE anything is derived or appended - which is how "SHALL
+  // append nothing" is structural rather than remembered. `current` and
+  // `revalidate` both fall through to the validation below, and that
+  // validation runs against `priorState`: revalidating a disjoint stale
+  // command against the current revision is not a separate code path, it
+  // is the ordinary one.
+  const head: ICampaignConflictHead = {
+    branchId: campaignCommandBranchId(),
+    revision: priorEvents.length,
+  };
+  const decision = decideCampaignConflict(
+    head,
+    resolveCommandBase(request, priorEvents, priorState),
+  );
+  if (decision.kind === 'refused') {
+    return {
+      kind: 'conflict',
+      reason: decision.reason,
+      head: decision.head,
+      recoveryAction: decision.recoveryAction,
+      conflictingFields: decision.conflictingFields,
+    };
+  }
+
   const validation = validateCampaignIntent(
     request.intent,
     priorState,
@@ -208,6 +369,23 @@ export async function executeCampaignCommand(
   if (appended.kind === 'sequence-conflict') {
     return {
       kind: 'conflict',
+      reason: 'lost-race',
+      // The head from the FAILED APPEND, never the one replayed above:
+      // by definition something committed in between, so the replayed
+      // revision is already history and sending a client back to it
+      // would send it somewhere that no longer exists.
+      // `actualNextSequence` carries the journal's `actualRevision`, and
+      // for a campaign stream the next sequence and the revision are the
+      // same number (sequence N lives at revision N + 1), so this needs
+      // no conversion - only the right source.
+      head: {
+        branchId: campaignCommandBranchId(),
+        revision: appended.actualNextSequence,
+      },
+      // A lost race is not a field collision: this command never got to
+      // be compared against anything. Resync is the honest advice.
+      recoveryAction: EXPECTED_HEAD_RESYNC_ACTION,
+      conflictingFields: [],
       expectedSequence: appended.expectedNextSequence,
       actualSequence: appended.actualNextSequence,
     };
