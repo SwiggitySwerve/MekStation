@@ -27,6 +27,7 @@ import { InMemoryCampaignEventStore } from '@/lib/campaign/sync/InMemoryCampaign
 import { CampaignGmArbiter } from '@/lib/multiplayer/server/CampaignGmArbiter';
 import { CampaignMatchHost } from '@/lib/multiplayer/server/CampaignMatchHost';
 import { CampaignSyncSession } from '@/lib/multiplayer/server/CampaignSyncSession';
+import { AUTHORITY_ONLY_EVENT_FIELDS } from '@/lib/multiplayer/server/projection/ViewerFrameProjector';
 import { generateKeyPair, toBase64 } from '@/services/vault/IdentityService';
 import { createEmptyCampaignState } from '@/types/campaign/CampaignSync';
 import { nowIso } from '@/types/multiplayer/Protocol';
@@ -235,6 +236,26 @@ export const WITHHELD_GM_SECRET = 'WITHHELD-GM-SECRET';
 export const VISIBLE_ONE = 'VISIBLE-CAMPAIGN-1';
 export const VISIBLE_TWO = 'VISIBLE-CAMPAIGN-2';
 
+/**
+ * Keys no surface this scanner guards may ever carry.
+ *
+ * Two families, and the split is the point. The journal family
+ * (revisions, commit positions, digests, `sequence`) are hidden-event
+ * identifiers: a player who can see them can count what was withheld.
+ * The raw-column family (snake_case names straight off `action_audit`,
+ * `private_record`, and `private_access_audit`) can only appear if a
+ * repository row was serialized to a viewer instead of projected, which
+ * is exactly the failure the pre-serialization projector exists to
+ * prevent.
+ *
+ * `AUTHORITY_ONLY_EVENT_FIELDS` is imported rather than restated so the
+ * shipped declaration stays the single source for what authority-only
+ * means.
+ *
+ * A key forbidden on only SOME surfaces does NOT belong here - the GM
+ * legitimately sees committed revision ranges, so those ride as a
+ * call-site extra, the same way a snapshot passes `['revision']`.
+ */
 const JOURNAL_LEAK_KEYS: readonly string[] = [
   'streamRevision',
   'commitPosition',
@@ -244,7 +265,18 @@ const JOURNAL_LEAK_KEYS: readonly string[] = [
   'event_digest',
   'stream_revision',
   'projectedEventIdentity',
-  'sequence',
+  ...AUTHORITY_ONLY_EVENT_FIELDS,
+  'opaque_ref',
+  'payload_state',
+  'command_digest',
+  'correlation_id',
+  'campaign_session_id',
+  'actor_principal_id',
+  'actor_participant_id',
+  'lifecycle_state',
+  'safe_reason_code',
+  'committed_first_revision',
+  'committed_last_revision',
 ];
 
 /** Collects own enumerable keys from a JSON tree. */
@@ -260,18 +292,30 @@ function collectKeys(value: unknown, into: Set<string>): void {
   }
 }
 
-/** Names withheld markers or journal fields found on a socket's frames. */
+/**
+ * Names withheld markers or forbidden keys found anywhere in a value.
+ *
+ * THE one scanner. `markers` are payload secrets that must not appear
+ * in the serialized bytes; `extraKeys` are per-surface additions to the
+ * base key list, for keys a particular surface forbids but others
+ * legitimately carry.
+ */
 export function leakScan(
-  frames: readonly IServerMessage[],
-  withheldMarker: string,
+  value: unknown,
+  markers: readonly string[],
+  extraKeys: readonly string[] = [],
 ): readonly string[] {
   const leaks: string[] = [];
-  const serialized = JSON.stringify(frames);
-  if (serialized.includes(withheldMarker))
-    leaks.push('withheld-payload-marker');
+  const serialized = JSON.stringify(value);
+  for (const marker of markers) {
+    if (marker.length > 0 && serialized.includes(marker)) {
+      leaks.push('withheld-payload-marker');
+      break;
+    }
+  }
   const keys = new Set<string>();
-  collectKeys(frames, keys);
-  for (const key of JOURNAL_LEAK_KEYS) {
+  collectKeys(value, keys);
+  for (const key of [...JOURNAL_LEAK_KEYS, ...extraKeys]) {
     if (keys.has(key)) leaks.push(key);
   }
   return leaks;

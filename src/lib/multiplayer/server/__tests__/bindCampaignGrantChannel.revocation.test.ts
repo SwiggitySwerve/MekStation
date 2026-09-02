@@ -121,7 +121,7 @@ describe('grant revocation stops delivery at the boundary', () => {
 
     // This event is squarely in scope for the grant - only revocation
     // withholds it - so its absence IS the assertion.
-    expect(leakScan(socket.sent, AFTER_REVOKE)).toEqual([]);
+    expect(leakScan(socket.sent, [AFTER_REVOKE])).toEqual([]);
     expect(JSON.stringify(socket.sent.slice(afterRevoke))).not.toContain(
       AFTER_REVOKE,
     );

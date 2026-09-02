@@ -3,6 +3,7 @@
  * count, and a snapshot built for one grant is refused for another.
  */
 
+import { leakScan } from '@/lib/multiplayer/server/__tests__/campaignGrantChannel.test-helpers';
 import { CampaignGrantSnapshotSchema } from '@/types/multiplayer/Protocol';
 
 import { createGmGrantScopes } from '../../grants/campaignGrantGuards';
@@ -15,10 +16,11 @@ import {
 import { canonicalizeCampaignJson } from '../foldCampaignGrantDelivery';
 import {
   SNAPSHOT_WITHHELD_GM,
+  SNAPSHOT_WITHHELD_GM_B,
+  SNAPSHOT_WITHHELD_PILOT,
   buildInterleavedLedger,
   countInScope,
   normalizeSnapshotIds,
-  snapshotLeakScan,
 } from './campaignGrantSnapshot.test-helpers';
 import {
   PARTICIPANT_GM,
@@ -85,9 +87,15 @@ describe('scoped snapshot privacy', () => {
     if (builtA.kind !== 'snapshot' || builtB.kind !== 'snapshot') return;
 
     const serializedA = JSON.stringify(builtA.snapshot);
-    const serializedB = JSON.stringify(builtB.snapshot);
-    expect(snapshotLeakScan(serializedA, JSON.parse(serializedA))).toEqual([]);
-    expect(snapshotLeakScan(serializedB, JSON.parse(serializedB))).toEqual([]);
+    // `revision` is this surface's own extra: a snapshot must not carry
+    // one, while the streams other callers scan legitimately do.
+    const markers = [
+      SNAPSHOT_WITHHELD_GM,
+      SNAPSHOT_WITHHELD_GM_B,
+      SNAPSHOT_WITHHELD_PILOT,
+    ];
+    expect(leakScan(builtA.snapshot, markers, ['revision'])).toEqual([]);
+    expect(leakScan(builtB.snapshot, markers, ['revision'])).toEqual([]);
     expect(serializedA).not.toContain(SNAPSHOT_WITHHELD_GM);
 
     const comparableA = {

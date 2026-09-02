@@ -18,19 +18,6 @@ export const SNAPSHOT_WITHHELD_GM = 'WITHHELD-GM-SECRET';
 export const SNAPSHOT_WITHHELD_GM_B = 'WITHHELD-GM-BURST';
 export const SNAPSHOT_WITHHELD_PILOT = 'WITHHELD-GM-PILOT';
 
-export const SNAPSHOT_JOURNAL_LEAK_KEYS: readonly string[] = [
-  'streamRevision',
-  'commitPosition',
-  'eventDigest',
-  'previousStreamEventDigest',
-  'commit_position',
-  'event_digest',
-  'stream_revision',
-  'projectedEventIdentity',
-  'sequence',
-  'revision',
-];
-
 const AUTHOR = 'pid-host';
 
 /** Envelope shared by every scripted ledger event. */
@@ -205,40 +192,6 @@ export function countInScope(
   return events.filter(function (event) {
     return event.scope === scope;
   }).length;
-}
-
-/** Collects own enumerable keys from a JSON tree. */
-export function collectJsonKeys(value: unknown, into: Set<string>): void {
-  if (Array.isArray(value)) {
-    for (const entry of value) collectJsonKeys(entry, into);
-    return;
-  }
-  if (typeof value !== 'object' || value === null) return;
-  for (const key of Object.keys(value)) {
-    into.add(key);
-    collectJsonKeys(Reflect.get(value, key), into);
-  }
-}
-
-/** Names withheld markers or journal fields found in a serialized snapshot. */
-export function snapshotLeakScan(
-  serialized: string,
-  parsed: unknown,
-): readonly string[] {
-  const leaks: string[] = [];
-  if (
-    serialized.includes(SNAPSHOT_WITHHELD_GM) ||
-    serialized.includes(SNAPSHOT_WITHHELD_GM_B) ||
-    serialized.includes(SNAPSHOT_WITHHELD_PILOT)
-  ) {
-    leaks.push('withheld-payload-marker');
-  }
-  const keys = new Set<string>();
-  collectJsonKeys(parsed, keys);
-  for (const key of SNAPSHOT_JOURNAL_LEAK_KEYS) {
-    if (keys.has(key)) leaks.push(key);
-  }
-  return leaks;
 }
 
 /** Replaces campaign and grant ids so withheld-count pairs can compare. */
