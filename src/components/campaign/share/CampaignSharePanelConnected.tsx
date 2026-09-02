@@ -25,12 +25,20 @@ import React, { useCallback, useEffect, useState } from 'react';
 import type { ICampaignGrant } from '@/lib/campaign/grants/ICampaignGrantStore';
 import type { CampaignAuthority } from '@/types/campaign/SerializedCampaign';
 
+import { readCoopCampaignToken } from '@/lib/campaign/coop/coopCampaignAuthTokenStore';
 import { useCampaignPersistenceStore } from '@/stores/campaign/useCampaignPersistenceStore';
 
 import { CampaignSharePanel } from './CampaignSharePanel';
 
 export interface CampaignSharePanelConnectedProps {
   readonly campaignId: string;
+  /**
+   * The campaign's co-op match id, when it runs a session. The share
+   * endpoint authenticates the caller, and the only token this browser
+   * holds for a campaign is the one minted for that session, so without
+   * it there is nothing to present and the server answers 401.
+   */
+  readonly matchId?: string | null;
 }
 
 /**
@@ -38,12 +46,26 @@ export interface CampaignSharePanelConnectedProps {
  * may not list) yields an empty set rather than an error surface - the
  * panel already explains the replica case from the authority alone.
  */
+/**
+ * The bearer header for this campaign's share endpoint, or an empty set
+ * of headers when this browser holds no token for the session. Sending
+ * nothing is the honest request: the server refuses it, which is the
+ * correct outcome for a caller who cannot prove who they are.
+ */
+function shareAuthHeaders(
+  matchId: string | null | undefined,
+): Record<string, string> {
+  const stored = readCoopCampaignToken(matchId);
+  return stored ? { Authorization: `Bearer ${stored.wireToken}` } : {};
+}
+
 async function fetchGrants(
   campaignId: string,
+  matchId: string | null | undefined,
 ): Promise<readonly ICampaignGrant[]> {
   const response = await fetch(
     `/api/campaigns/${encodeURIComponent(campaignId)}/grants`,
-    { cache: 'no-store' },
+    { cache: 'no-store', headers: shareAuthHeaders(matchId) },
   );
   if (!response.ok) return [];
   const parsed: unknown = await response.json();
@@ -63,7 +85,7 @@ async function fetchGrants(
 export function CampaignSharePanelConnected(
   props: CampaignSharePanelConnectedProps,
 ): React.ReactElement | null {
-  const { campaignId } = props;
+  const { campaignId, matchId = null } = props;
   // Defensive read: a share panel must never be the reason a campaign
   // dashboard fails to render. Absent metadata degrades to "unknown
   // authority", which renders nothing - the same safe answer as "not
@@ -85,8 +107,8 @@ export function CampaignSharePanelConnected(
       setGrants([]);
       return;
     }
-    setGrants(await fetchGrants(campaignId));
-  }, [campaignId, isSource]);
+    setGrants(await fetchGrants(campaignId, matchId));
+  }, [campaignId, isSource, matchId]);
 
   useEffect(() => {
     void load();
@@ -97,14 +119,14 @@ export function CampaignSharePanelConnected(
       void (async () => {
         await fetch(
           `/api/campaigns/${encodeURIComponent(campaignId)}/grants?grantId=${encodeURIComponent(grantId)}`,
-          { method: 'DELETE' },
+          { method: 'DELETE', headers: shareAuthHeaders(matchId) },
         );
         // Re-read rather than mutating locally: the server owns whether
         // the revoke actually landed.
         await load();
       })();
     },
-    [campaignId, load],
+    [campaignId, load, matchId],
   );
 
   // Not loaded yet: render nothing rather than assuming an authority.

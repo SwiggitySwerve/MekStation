@@ -21,6 +21,7 @@ import { issueShareGrant } from '@/lib/campaign/grants/campaignShareService';
 import { buildPopulatedCampaign } from '@/lib/campaign/persistence/__tests__/campaignFixture';
 import { buildSerializedCampaign } from '@/lib/campaign/persistence/campaignEnvelope';
 import redeemHandler from '@/pages/api/campaigns/redeem';
+import { bindCampaignSessionParticipant } from '@/services/campaignPersistence/CampaignSessionParticipantStore';
 import {
   getSQLiteService,
   resetSQLiteService,
@@ -73,6 +74,8 @@ async function call(body: Body): Promise<{ status: number; json: unknown }> {
   return { status: res._getStatusCode(), json: res._getJSONData() };
 }
 
+const REDEEM_ISSUER_GM = 'pid-redeem-gm';
+
 describe('campaign redeem route', () => {
   let keys: { publicKey: Uint8Array; privateKey: Uint8Array };
 
@@ -89,8 +92,18 @@ describe('campaign redeem route', () => {
   /** Issues a grant on a temporarily-stored source campaign, then removes it. */
   function issueGrantFor(campaignId: string): ICampaignGrant {
     storeCampaign(campaignId, { role: 'source' });
+    // Sharing is gated on the caller holding the campaign's GM seat, so
+    // the fixture seats one before issuing on its behalf.
+    bindCampaignSessionParticipant({
+      campaignId,
+      sessionId: `session-${campaignId}`,
+      participantId: REDEEM_ISSUER_GM,
+      seat: 'gm',
+      boundAt: '2026-08-23T00:00:00.000Z',
+    });
     const issued = issueShareGrant(getSQLiteService().getDatabase(), {
       campaignId,
+      callerId: REDEEM_ISSUER_GM,
       participantId: 'participant-guest',
       issuerPublicKey: toBase64(keys.publicKey),
       scopes: ['campaign'],

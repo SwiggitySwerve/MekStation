@@ -49,6 +49,8 @@ interface IWireHarness {
   readonly joins: number;
   readonly replayedEventIds: ReadonlySet<string>;
   readonly target: ITargetFrame | null;
+  /** Every delivery number this page was SENT, in arrival order. */
+  readonly deliveries: readonly number[];
 }
 
 test.describe('tactical client exactly-once delivery', () => {
@@ -165,8 +167,33 @@ test.describe('tactical client exactly-once delivery', () => {
         timeout: 15_000,
       });
 
-      await advanceToPhysicalAttack(fixture.hostPage, fixture.guestPage);
+      // LATER DELIVERY, WITHOUT A SECOND PHASE ADVANCE (finding #23).
+      // The phase change the collision rode is not the last frame of
+      // that commit - the authority publishes more behind it - so the
+      // later deliveries the letter needs are already on the wire, and
+      // this waits for one rather than manufacturing it.
+      //
+      // Manufacturing it was the old flake: driving another phase
+      // advance needs a player to end the phase, a collided client
+      // self-pauses (`paused` disables every control), and the D4
+      // turn-ownership gate renders no End-phase control for the side
+      // that is not active. MEASURED at both action bars: whoever was
+      // wedged, the phase could not be advanced again - the row only
+      // ever passed by clicking the wedged client's control in the
+      // instant before its pause rendered, which it won on ~60% of runs.
+      await expect
+        .poll(
+          () =>
+            fixture.harness.deliveries.some(
+              (sequence) => sequence > target.deliverySequence,
+            ),
+          { timeout: 30_000 },
+        )
+        .toBe(true);
+      // A settle window so a late acknowledgement has time to be wrong.
       await fixture.guestPage.waitForTimeout(1_000);
+      // The letter: later delivery arrived and did NOT advance the
+      // cursor past the collided frame.
       expect(
         fixture.harness.acknowledgements.some(
           (sequence) => sequence > target.deliverySequence,
@@ -284,6 +311,7 @@ async function installHarness(
   scenario: Scenario,
 ): Promise<IWireHarness> {
   const acknowledgements: number[] = [];
+  const deliveries: number[] = [];
   const joinCursors: (number | null)[] = [];
   const replayedEventIds = new Set<string>();
   let armed = false;
@@ -310,7 +338,25 @@ async function installHarness(
       server.onMessage((message) => {
         const frame = parseFrame(message);
         noteReplayEventIds(frame, replayedEventIds);
-        const candidate = frame && phaseChangeTarget(frame);
+        // Recorded on the way IN, before any scenario rewrites the
+        // stream, so "a later delivery reached this client" is a fact
+        // about the wire and not about what the harness chose to pass on.
+        if (frame) {
+          const delivered = numberField(frame, 'deliverySequence');
+          if (delivered !== null) deliveries.push(delivered);
+        }
+        // The collision scenario collides the FIRST delivered event of
+        // the commit rather than its phase change. The phase change is
+        // the LAST event the authority publishes for that commit
+        // (measured: nothing is delivered after it until a player acts),
+        // so colliding there left no later delivery for the cursor to
+        // refuse - and manufacturing one needed a phase advance that a
+        // collided, self-paused client can no longer drive.
+        const candidate =
+          frame &&
+          (scenario === 'collision'
+            ? deliveredEventTarget(frame)
+            : phaseChangeTarget(frame));
         if (!armed || target || !candidate) {
           route.send(message);
           return;
@@ -342,6 +388,7 @@ async function installHarness(
       armed = true;
     },
     acknowledgements,
+    deliveries,
     joinCursors,
     get joins() {
       return joins;
@@ -478,6 +525,17 @@ function parseFrame(message: string | Buffer): WireFrame | null {
     throw error;
   }
   return isRecord(parsed) ? parsed : null;
+}
+
+/** Any delivered Event frame, whatever fact it carries. */
+function deliveredEventTarget(frame: WireFrame): ITargetFrame | null {
+  if (frameKind(frame) !== 'Event') return null;
+  const event = objectField(frame, 'event');
+  const sequence = numberField(frame, 'deliverySequence');
+  const eventId = event === null ? null : stringField(event, 'id');
+  return event !== null && sequence !== null && eventId !== null
+    ? { deliverySequence: sequence, eventId }
+    : null;
 }
 
 function phaseChangeTarget(frame: WireFrame): ITargetFrame | null {
