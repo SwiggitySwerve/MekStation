@@ -180,6 +180,44 @@ export function activeCampaignSessionMembership(
   return row ? toMembership(row) : null;
 }
 
+/**
+ * Whether THIS participant holds an active `gm` seat on this campaign,
+ * in whichever session holds it.
+ *
+ * Asks about the caller rather than fetching "the GM" and comparing. The
+ * difference is not cosmetic: a fetch-then-compare has to pick one row
+ * out of the campaign, so its answer depends on the ordering it picked -
+ * and a campaign carrying two co-op sessions has two active GM rows for
+ * that ordering to choose between (the partial unique index
+ * `idx_campaign_session_single_gm` is per (campaign, session), not per
+ * campaign). It was also weak to test: a seat filter widened to accept
+ * players still refused a seated player whenever the GM's row happened
+ * to sort first, so the fixtures were doing the refusing.
+ *
+ * Campaign-scoped rather than session-scoped because the caller that
+ * needs it - the share surface's authorization gate - is addressed by
+ * campaign id alone and has no session id to quote.
+ *
+ * A revoked GM is NOT active: `revoked_at IS NULL` is what separates
+ * "the GM" from "someone who used to be the GM", and an authorization
+ * gate must not read the second as the first.
+ */
+export function isActiveCampaignGm(
+  campaignId: string,
+  participantId: string,
+): boolean {
+  const row = getSQLiteService()
+    .getDatabase()
+    .prepare(
+      `SELECT 1 AS present FROM campaign_session_participant
+       WHERE campaign_id = ? AND participant_id = ?
+         AND seat = 'gm' AND revoked_at IS NULL
+       LIMIT 1`,
+    )
+    .get(campaignId, participantId) as { present: number } | undefined;
+  return row !== undefined;
+}
+
 /** Every active membership for a session, GM first then seat order. */
 export function listActiveCampaignSessionParticipants(
   campaignId: string,
