@@ -137,10 +137,42 @@ async function intent(
   );
 }
 
+/**
+ * Every event a replay bundle delivered to one socket, flattened out of
+ * its `ReplayChunk` pages. Replay is the surface that serves the
+ * COMMITTED rows, so this is what a reveal has to agree with.
+ */
+function replayedEvents(socketValue: IRecordedSocket): Array<{
+  readonly id?: string;
+  readonly payload?: unknown;
+  readonly type?: string;
+}> {
+  const out: Array<{
+    readonly id?: string;
+    readonly payload?: unknown;
+    readonly type?: string;
+  }> = [];
+  for (const message of socketValue.sent as Array<{
+    readonly kind?: string;
+    readonly events?: Array<{
+      readonly id?: string;
+      readonly payload?: unknown;
+      readonly type?: string;
+    }>;
+  }>) {
+    if (message.kind !== 'ReplayChunk' || !Array.isArray(message.events)) {
+      continue;
+    }
+    out.push(...message.events);
+  }
+  return out;
+}
+
 async function makeHost(): Promise<{
   readonly host: ServerMatchHost;
   readonly playerOne: IRecordedSocket;
   readonly playerTwo: IRecordedSocket;
+  readonly store: InMemoryMatchStore;
 }> {
   const store = new InMemoryMatchStore({ quiet: true });
   const now = '2026-08-30T00:00:00.000Z';
@@ -192,12 +224,75 @@ async function makeHost(): Promise<{
   const playerTwo = socket();
   host.attachSocket(playerOne, 'player-one');
   host.attachSocket(playerTwo, 'player-two');
-  return { host, playerOne, playerTwo };
+  return { host, playerOne, playerTwo, store };
+}
+
+/**
+ * Drive a fresh host to the instant just after the movement phase
+ * closes: player one declares (the sealed choice under test), player
+ * two declares, and an `AdvancePhase` finalizes the phase - which is
+ * the event that triggers the reveal. Returns the declaration as the
+ * in-memory SESSION holds it, which is deliberately not asserted to be
+ * the committed copy; that is what the caller is measuring.
+ */
+async function driveToMovementReveal(
+  host: ServerMatchHost,
+  beforeFinalize: () => void = () => undefined,
+): Promise<{
+  readonly move: {
+    readonly id: string;
+    readonly payload: unknown;
+    readonly sequence: number;
+  };
+}> {
+  for (let step = 0; step < 3; step += 1) {
+    if (host.getSessionForTests().currentState.phase === GamePhase.Movement) {
+      break;
+    }
+    await intent(host, 'player-one', `to-movement-${step}`, {
+      kind: 'AdvancePhase',
+    });
+  }
+  const playerOnePosition =
+    host.getSessionForTests().currentState.units['unit-one']?.position;
+  if (playerOnePosition === undefined) {
+    throw new Error('player one has no position');
+  }
+  await intent(host, 'player-one', 'move-one', {
+    kind: 'Move',
+    unitId: 'unit-one',
+    to: { q: playerOnePosition.q, r: playerOnePosition.r - 1 },
+    facing: Facing.North,
+    movementType: 'walk',
+  });
+  const playerTwoPosition =
+    host.getSessionForTests().currentState.units['unit-two']?.position;
+  if (playerTwoPosition === undefined) {
+    throw new Error('player two has no position');
+  }
+  await intent(host, 'player-two', 'move-two', {
+    kind: 'Move',
+    unitId: 'unit-two',
+    to: { q: playerTwoPosition.q, r: playerTwoPosition.r + 1 },
+    facing: Facing.South,
+    movementType: 'walk',
+  });
+  // The caller's last chance to arrange the world before the event
+  // that triggers the reveal commits.
+  beforeFinalize();
+  await intent(host, 'player-one', 'finalize-movement', {
+    kind: 'AdvancePhase',
+  });
+  const move = host
+    .getSessionForTests()
+    .events.find((event) => event.type === GameEventType.MovementDeclared);
+  if (move === undefined) throw new Error('no movement declaration committed');
+  return { move };
 }
 
 describe('sealed two-player tactical choices', () => {
   it('withholds a committed move without a delivery gap, then delivers its original after movement finalization', async () => {
-    const { host, playerOne, playerTwo } = await makeHost();
+    const { host, playerOne, playerTwo, store } = await makeHost();
 
     for (let step = 0; step < 3; step += 1) {
       if (host.getSessionForTests().currentState.phase === GamePhase.Movement) {
@@ -284,7 +379,16 @@ describe('sealed two-player tactical choices', () => {
     expect(postReveal.map((frame) => frame.event?.id)).toContain(move.id);
     const revealed = postReveal.filter((frame) => frame.event?.id === move.id);
     expect(revealed).toHaveLength(1);
-    expect(revealed[0]?.event?.payload).toEqual(move.payload);
+    // The yardstick is the COMMITTED row, not the session's copy of it.
+    // The two differ by the fields the commit path stamps onto its copy
+    // (`intentId`, captured `rolls`), so comparing the reveal against
+    // the session made this row blind to a reveal that republished an
+    // event the authority never wrote down.
+    const committedMove = (await store.getEvents(MATCH_ID)).find(
+      (event) => event.id === move.id,
+    );
+    expect(committedMove).toBeDefined();
+    expect(revealed[0]?.event?.payload).toEqual(committedMove?.payload);
     expect(
       postReveal.some(
         (frame) => frame.event?.type === GameEventType.PhaseChanged,
@@ -298,5 +402,78 @@ describe('sealed two-player tactical choices', () => {
         (_delivery, index) => (postRevealDelivery[0] ?? 0) + index,
       ),
     );
+  });
+
+  it('reveals the COMMITTED declaration, byte-identical to what replay serves the same viewer', async () => {
+    const { host, playerTwo, store } = await makeHost();
+    const { move } = await driveToMovementReveal(host);
+
+    // The committed record is the store row, not the session's copy:
+    // `commitThenPublish` persists the stamped batch while the engine's
+    // in-memory log keeps the pre-stamp original.
+    const committedRow = (await store.getEvents(MATCH_ID)).find(
+      (event) => event.id === move.id,
+    );
+    expect(committedRow).toBeDefined();
+    if (committedRow === undefined) return;
+    // Pinned so the row below cannot go green by the stamp vanishing:
+    // the committed fact genuinely carries the accepted intent id.
+    expect(committedRow.payload).toMatchObject({ intentId: 'move-one' });
+
+    const revealed = eventFrames(playerTwo).filter(
+      (frame) => frame.event?.id === move.id,
+    );
+    expect(revealed).toHaveLength(1);
+    // The letter of E2E-22: the reveal is the COMMITTED event, not a
+    // copy the authority never wrote down.
+    expect(revealed[0]?.event?.payload).toEqual(committedRow.payload);
+
+    // The letter of E2E-26: replay of the same event for the same
+    // viewer carries the same payload fields the live reveal did.
+    const rejoin = socket();
+    host.attachSocket(rejoin, 'player-two');
+    await host.handleSessionJoin(rejoin, 'player-two', undefined, MATCH_ID, 0);
+    const replayedMove = replayedEvents(rejoin).filter(
+      (event) => event.id === move.id,
+    );
+    expect(replayedMove).toHaveLength(1);
+    expect(replayedMove[0]?.payload).toEqual(revealed[0]?.event?.payload);
+  });
+
+  it('withholds the reveal entirely when no committed row answers for it', async () => {
+    const { host, playerTwo, store } = await makeHost();
+    const warned = jest
+      .spyOn(console, 'warn')
+      .mockImplementation(() => undefined);
+    try {
+      const realGetEvents = store.getEvents;
+      const { move } = await driveToMovementReveal(host, () => {
+        // The commit path is untouched; only the reveal's lookup of the
+        // committed row comes up empty. Fail-closed means the opponent
+        // gets NO copy - never the session's uncommitted one.
+        jest
+          .spyOn(store, 'getEvents')
+          .mockImplementation(async (matchId, fromSeq) =>
+            (await realGetEvents(matchId, fromSeq)).filter(
+              (event) => event.type !== GameEventType.MovementDeclared,
+            ),
+          );
+      });
+
+      const opponentFrames = eventFrames(playerTwo);
+      expect(opponentFrames.map((frame) => frame.event?.id)).not.toContain(
+        move.id,
+      );
+      // The trigger itself still published, so the row is measuring a
+      // withheld reveal and not a dead run that published nothing.
+      expect(
+        opponentFrames.some(
+          (frame) => frame.event?.type === GameEventType.PhaseChanged,
+        ),
+      ).toBe(true);
+      expect(warned).toHaveBeenCalled();
+    } finally {
+      jest.restoreAllMocks();
+    }
   });
 });

@@ -28,42 +28,47 @@
  *   GM-private field, private identifier, authority sequence, or
  *   inferable hidden-event gap SHALL appear."
  *
- * BLOCKED ON A PRODUCT DEFECT MEASURED BY THIS PACK - E2E-22 ("WHEN the
- * authority finalizes the sealed phase THEN eligible contexts SHALL
- * receive the authorized reveal from committed viewer delivery
- * streams") and E2E-26 ("WHEN a player reconnects and replays events
- * previously delivered live THEN replay and live payload fields plus
- * projection digests SHALL be equivalent for that player"):
+ * E2E-22: "WHEN the authority finalizes the sealed phase THEN eligible
+ *   contexts SHALL receive the authorized reveal from committed viewer
+ *   delivery streams."
+ * E2E-26: "WHEN a player reconnects and replays events previously
+ *   delivered live THEN replay and live payload fields plus projection
+ *   digests SHALL be equivalent for that player."
  *
- *   THE REVEAL DOES NOT REPUBLISH THE COMMITTED EVENT. On an accepted
- *   intent, `ServerMatchHostIntent` stamps `intentId` into the payload
- *   of the batch's FIRST event via `stampIntentIdOnNewEvents`
- *   (`src/lib/multiplayer/server/ServerMatchHostEvents.ts`) and hands
- *   that STAMPED copy to `commitThenPublish`, which both persists it
- *   and broadcasts it live. The stamp is a copy: the in-memory session
- *   events keep the UNSTAMPED payload. `broadcastEventInMode` then
- *   sources the sealed reveal from `ctx.session.getSession().events`,
- *   so the late-delivered frame is the unstamped one.
+ * THE DEFECT THOSE TWO MEASURED, AND THE FIX THEY NOW PIN: the sealed
+ * reveal used to republish the SESSION's copy of the declaration rather
+ * than the COMMITTED one. `ServerMatchHostIntent` stamps `intentId` into
+ * the first event of an accepted batch via `stampIntentIdOnNewEvents`
+ * and hands that STAMPED copy to `commitThenPublish`, which persists AND
+ * live-broadcasts it; the stamp is a copy, so the engine's in-memory
+ * event log keeps the pre-stamp original. `broadcastEventInMode` sourced
+ * the reveal from `ctx.session.getSession().events`, so the
+ * late-delivered frame was the unstamped one: measured live in Chromium,
+ * the reveal Player 1 received for Player 2's declaration differed from
+ * the copy Player 2 was delivered live by exactly `intentId`, and after
+ * a Player 2 reconnect the REPLAYED copy carried `intentId` while the
+ * live reveal had not - live and replay payloads were not equivalent for
+ * that viewer, which is precisely what E2E-26 forbids.
+ * `ServerMatchHostEvents.committedDeclarations` now resolves every
+ * selected declaration to its committed store row before publishing it,
+ * and fails closed (no reveal) on a row it cannot read rather than
+ * revealing a payload no surface committed.
  *
- *   MEASURED live in Chromium by the two tests this pack therefore does
- *   NOT ship: (a) the reveal Player 1 receives for Player 2's
- *   declaration differs from the copy Player 2 was delivered live, by
- *   exactly `intentId`; (b) after a Player 2 reconnect, the REPLAYED
- *   copy of Player 1's declaration carries
- *   `"intentId": "privacy-pack-<uuid>"` while the live reveal of the
- *   same event id did not - so live and replay payload fields are NOT
- *   equivalent for that viewer, which is precisely what E2E-26
- *   requires. The replay path additionally hands the opponent the
- *   actor's client-generated intent identifier that the live path
- *   withholds.
- *
- *   FIX SITE (a product change, out of scope for this test-authoring
- *   seam): `broadcastEventInMode` must reveal the COMMITTED event -
- *   either by writing the stamped payload back into the session or by
- *   re-reading the committed row - so reveal, live and replay agree.
- *   The shipped unit pin `sealedChoiceDelivery.test.ts` cannot see this
- *   because it compares the reveal against the session's own unstamped
- *   event on both sides.
+ * NAMED, NOT CLAIMED - WHETHER A NON-ACTOR SHOULD SEE `intentId` AT ALL:
+ * the two rows below assert that the reveal, the actor's live frame and
+ * the viewer's replay all carry the SAME payload, which is the letter of
+ * E2E-22/E2E-26. They deliberately do not assert what that payload may
+ * contain. `intentId` is the actor's client-generated command id, echoed
+ * so the ACTOR's client can settle its pending intent
+ * (`src/lib/multiplayer/client.ts` `settlePendingIntent`), and today it
+ * rides EVERY live frame to EVERY attached viewer - not just reveals -
+ * because `commitThenPublish` broadcasts one stamped copy to all
+ * sockets. Withholding it from non-issuers is therefore a systemic
+ * projector rule, not a reveal-path rule, and `ViewerFrameProjector`
+ * has no issuer identity to key it on today
+ * (`AUTHORITY_ONLY_EVENT_FIELDS` is a top-level-field list; `intentId`
+ * lives inside `payload`). Reported as its own finding rather than
+ * half-implemented here.
  *
  * DEFERRED, with the exact reason each is not provable on this channel:
  *
@@ -81,13 +86,16 @@
  *   proof` wires them. There is therefore NO production draft or
  *   correction write surface on the tactical channel to seed a private
  *   reason with.
- * E2E-29 ("veto and timeout commit nothing") and E2E-30 ("simultaneous
- *   proposals remain attributable"): proposals, vetoes and GM review
- *   items are CAMPAIGN-channel frames (`CampaignProposal` /
- *   `CampaignDecision` in `@/types/multiplayer/Protocol`). Campaign
- *   live delivery is blocked by the known join-arm finding recorded in
- *   `e2e/gm-two-player-authority.pack1.spec.ts` and is being fixed in
- *   parallel; no tactical frame carries a proposal.
+ * E2E-29 and E2E-30 have MOVED, not vanished: proposals, vetoes and GM
+ *   review items are CAMPAIGN-channel frames (`CampaignProposal` /
+ *   `CampaignDecision` in `@/types/multiplayer/Protocol`); no tactical
+ *   frame carries a proposal, and this pack's fixture mints no GM
+ *   context (see ROLE HONESTY below). E2E-30 is LIVE on the
+ *   campaign-channel rig in `e2e/gm-two-player-proposals.pack.spec.ts`
+ *   (runner group `proposal-pack`); E2E-29 is deferred THERE, with the
+ *   product defect that blocks it recorded in that file's header - no
+ *   production wiring arms `CampaignGmArbiter`'s proposal-timeout
+ *   timer, so "another times out" has no behaviour to observe.
  * E2E-28 ("unauthorized access fails before fan-out"): the letter's
  *   WHEN spans WebSocket, API, export AND GM-command access. The export
  *   surface (`ViewerHistoryService.exportForViewer`) has no HTTP route,
@@ -133,7 +141,8 @@
  * hex - which the opponent's board genuinely does not hold. Reported
  * rather than fixed: this is a test-authoring seam.
  *
- * @tags @privacy-pack @tactical @E2E-20 @E2E-21 @E2E-23 @E2E-24 @E2E-27
+ * @tags @privacy-pack @tactical @E2E-20 @E2E-21 @E2E-22 @E2E-23
+ * @tags @E2E-24 @E2E-26 @E2E-27
  */
 
 import {
@@ -383,6 +392,149 @@ test.describe('tactical pre-serialization privacy', () => {
       await fixture.cleanup();
     }
   });
+
+  test('E2E-22 finalization reveals the COMMITTED declaration on the opponent delivery stream @E2E-22', async ({
+    browser,
+    request,
+  }) => {
+    test.setTimeout(240_000);
+    const fixture = await openPrivacyFixture(browser, request, 'Privacy E');
+    try {
+      const actorUnitId = await unitIdOnSide(fixture.hostPage, 'player');
+      const opponentUnitId = await unitIdOnSide(fixture.guestPage, 'opponent');
+      declareSealedChoice(fixture.hostTap, actorUnitId);
+      const declaration = await awaitEventOfType(
+        fixture.hostTap,
+        MOVEMENT_DECLARED,
+      );
+      const declarationId = eventId(declaration);
+      // Both sides declare, so the phase finalizes with a sealed choice
+      // from each and the reveal is not a one-sided special case.
+      declareSealedChoice(fixture.guestTap, opponentUnitId);
+      await awaitEventOfType(fixture.guestTap, MOVEMENT_DECLARED);
+
+      // Precondition, held long enough for a leaked frame to arrive:
+      // before finalization the opponent has no copy at all, so what
+      // arrives below is the reveal and not an earlier delivery.
+      await fixture.guestPage.waitForTimeout(WITHHOLD_HOLD_MS);
+      expect(countEventId(fixture.guestTap.frames, declarationId)).toBe(0);
+
+      await advancePhase(fixture.hostPage, fixture.guestPage);
+      await expect(fixture.guestPage.getByTestId('phase-name')).toContainText(
+        /Weapon Attack/i,
+        { timeout: 30_000 },
+      );
+
+      // (a) the authorized reveal reaches the eligible context.
+      await expect
+        .poll(() => countEventId(fixture.guestTap.frames, declarationId), {
+          timeout: 30_000,
+        })
+        .toBe(1);
+      // `expect.poll` stops at its first success, so the exactly-once
+      // half is a real wait followed by a re-read.
+      await fixture.guestPage.waitForTimeout(WITHHOLD_HOLD_MS);
+      expect(countEventId(fixture.guestTap.frames, declarationId)).toBe(1);
+
+      // (b) "from committed viewer delivery streams": what the opponent
+      // is handed is the COMMITTED event - byte-identical to the copy
+      // the authority delivered to the actor at commit time. Before the
+      // reveal read committed rows this differed by exactly the fields
+      // the commit path stamps onto its own copy.
+      const actorCopy = payloadOfEventId(fixture.hostTap.frames, declarationId);
+      expect(actorCopy).toBeDefined();
+      expect(payloadOfEventId(fixture.guestTap.frames, declarationId)).toEqual(
+        actorCopy,
+      );
+
+      // (c) it rode the opponent's OWN delivery stream: their numbers
+      // are still one contiguous run, so the reveal was numbered where
+      // it was delivered and nothing was skipped to make room for it.
+      expect(fixture.guestTap.frames.length).toBeGreaterThan(0);
+      expectGaplessDelivery(fixture.guestTap);
+    } finally {
+      await fixture.cleanup();
+    }
+  });
+
+  test('E2E-26 a reconnecting player replays exactly what it was delivered live @E2E-26', async ({
+    browser,
+    request,
+  }) => {
+    test.setTimeout(240_000);
+    const fixture = await openPrivacyFixture(browser, request, 'Privacy F');
+    try {
+      const actorUnitId = await unitIdOnSide(fixture.hostPage, 'player');
+      declareSealedChoice(fixture.hostTap, actorUnitId);
+      const declaration = await awaitEventOfType(
+        fixture.hostTap,
+        MOVEMENT_DECLARED,
+      );
+      const declarationId = eventId(declaration);
+      await advancePhase(fixture.hostPage, fixture.guestPage);
+      await expect
+        .poll(() => countEventId(fixture.guestTap.frames, declarationId), {
+          timeout: 30_000,
+        })
+        .toBe(1);
+
+      // Everything this viewer HELD from live delivery, captured before
+      // the reconnect so the two windows cannot contaminate each other.
+      const livePayloads = payloadsByEventId(fixture.guestTap.frames);
+      const liveFrameCount = fixture.guestTap.frames.length;
+
+      // A hard reload is a real reconnect: the client keeps no lastSeq
+      // across it, so the authority answers SessionJoin with a full
+      // replay of what this viewer may hold. MEASURED: the active match
+      // route recovers by durable session identity without a second
+      // vault unlock (E2E-17's letter), so this waits for the surface
+      // itself rather than driving the unlock form - a re-introduced
+      // unlock step would fail this wait loudly instead of being
+      // papered over by a conditional.
+      await fixture.guestPage.reload({ waitUntil: 'domcontentloaded' });
+      await expect(
+        fixture.guestPage.getByTestId('networked-game-surface'),
+      ).toBeVisible({ timeout: 60_000 });
+      await expect
+        .poll(
+          () =>
+            countEventId(
+              fixture.guestTap.frames.slice(liveFrameCount),
+              declarationId,
+            ),
+          { timeout: 60_000 },
+        )
+        .toBeGreaterThan(0);
+      await fixture.guestPage.waitForTimeout(WITHHOLD_HOLD_MS);
+
+      const replayPayloads = payloadsByEventId(
+        fixture.guestTap.frames.slice(liveFrameCount),
+      );
+      // The revealed declaration is in BOTH windows, so the comparison
+      // below is not vacuously true over an empty intersection.
+      expect(Object.keys(livePayloads)).toContain(declarationId);
+      expect(Object.keys(replayPayloads)).toContain(declarationId);
+
+      // "replay and live payload fields ... SHALL be equivalent": every
+      // event this viewer holds twice carries identical payload fields.
+      const shared = Object.keys(livePayloads).filter((id) =>
+        Object.hasOwn(replayPayloads, id),
+      );
+      expect(shared.length).toBeGreaterThan(1);
+      for (const id of shared) {
+        expect(replayPayloads[id]).toEqual(livePayloads[id]);
+      }
+
+      // "... plus projection digests": one digest over the whole shared
+      // slice, so a single differing field anywhere fails the row even
+      // if the per-event loop above were ever narrowed.
+      expect(payloadDigest(replayPayloads, shared)).toEqual(
+        payloadDigest(livePayloads, shared),
+      );
+    } finally {
+      await fixture.cleanup();
+    }
+  });
 });
 
 // ---------------------------------------------------------------------------
@@ -454,6 +606,22 @@ function viewerDigest(tap: IWireTap): string {
     );
   }
   return rows.join('\n');
+}
+
+/**
+ * A stable digest over one viewer's payloads for a fixed id list.
+ * Ordered by id so two capture windows that saw the same events in a
+ * different frame order still compare equal - the claim is about
+ * payload equivalence, not about arrival order.
+ */
+function payloadDigest(
+  payloads: Readonly<Record<string, unknown>>,
+  ids: readonly string[],
+): string {
+  return [...ids]
+    .sort()
+    .map((id) => `${id}|${JSON.stringify(payloads[id] ?? null)}`)
+    .join('\n');
 }
 
 function deliveryNumbers(frames: readonly WireFrame[]): number[] {

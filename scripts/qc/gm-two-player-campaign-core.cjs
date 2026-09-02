@@ -3,7 +3,7 @@ const crypto = require('node:crypto');
 const net = require('node:net');
 const path = require('node:path');
 const GROUP_CATALOG =
-  'fixture-smoke:26,membership-smoke:15,evidence-smoke:27,fault-smoke:28,smoke:15,authority-pack1:21,exactly-once-pack:21,fault-pack:21,token-pack:21,restart-pack:21,resilience-pack:21,privacy-pack:30,authority:29,visibility:30,combat:31,campaign:32,failure:32,performance:33,all:34,traceability:34,quality:34,manual-setup:34,scope:34';
+  'fixture-smoke:26,membership-smoke:15,evidence-smoke:27,fault-smoke:28,smoke:15,authority-pack1:21,exactly-once-pack:21,fault-pack:21,token-pack:21,restart-pack:21,resilience-pack:21,privacy-pack:30,proposal-pack:30,authority:29,visibility:30,combat:31,campaign:32,failure:32,performance:33,all:34,traceability:34,quality:34,manual-setup:34,scope:34';
 const REGISTERED_GROUPS = Object.freeze(
   Object.fromEntries(
     GROUP_CATALOG.split(',').map((entry) => {
@@ -54,12 +54,13 @@ function buildRunPlan({ group, runId, repoRoot }) {
     'token-pack': ['e2e/gm-two-player-token.pack.spec.ts'],
     'restart-pack': ['e2e/gm-two-player-restart.pack.spec.ts'],
     'resilience-pack': ['e2e/gm-two-player-resilience.pack.spec.ts'],
-    // `visibility` remains reserved for the complete E2E-19..30 pack;
-    // `privacy-pack` is the tactical-channel subset that is provable
-    // today (E2E-20/21/23/24/27). E2E-22 and E2E-26 are blocked on the
-    // reveal-versus-committed `intentId` divergence and E2E-19/25/28/29/30
-    // on absent surfaces - all named in the spec's own header.
+    // `visibility` remains reserved for the complete E2E-19..30 pack.
+    // `privacy-pack` is the tactical-channel subset (E2E-20/21/22/23/
+    // 24/26/27); `proposal-pack` is the campaign-channel arbitration
+    // subset (E2E-30). E2E-19/25/28/29 stay deferred on absent
+    // surfaces - each named, with its evidence, in its spec's header.
     'privacy-pack': ['e2e/gm-two-player-privacy.pack.spec.ts'],
+    'proposal-pack': ['e2e/gm-two-player-proposals.pack.spec.ts'],
   };
   const specs = SPEC_BY_GROUP[group];
   if (!specs) {

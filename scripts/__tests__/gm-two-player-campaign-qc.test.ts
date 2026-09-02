@@ -5,7 +5,7 @@ const repoRoot = path.resolve(__dirname, '../..');
 const runner = path.join(repoRoot, 'scripts/qc/run-gm-two-player-campaign.mjs');
 const core = require('../qc/gm-two-player-campaign-core.cjs');
 const groups =
-  'fixture-smoke,membership-smoke,evidence-smoke,fault-smoke,smoke,authority-pack1,exactly-once-pack,fault-pack,token-pack,restart-pack,resilience-pack,privacy-pack,authority,visibility,combat,campaign,failure,performance,all,traceability,quality,manual-setup,scope'.split(
+  'fixture-smoke,membership-smoke,evidence-smoke,fault-smoke,smoke,authority-pack1,exactly-once-pack,fault-pack,token-pack,restart-pack,resilience-pack,privacy-pack,proposal-pack,authority,visibility,combat,campaign,failure,performance,all,traceability,quality,manual-setup,scope'.split(
     ',',
   );
 /** The server command a non-respawning implemented group is planned with. */
@@ -208,6 +208,7 @@ describe('GM and two-player campaign QC runner', () => {
       'restart-pack',
       'resilience-pack',
       'privacy-pack',
+      'proposal-pack',
     ];
     for (const group of groups.filter(
       (group) => !implemented.includes(group),
@@ -228,6 +229,27 @@ describe('GM and two-player campaign QC runner', () => {
       expect(result.stderr).toContain('INVALID_RUN_ID');
     },
   );
+
+  it('relays a non-zero Playwright status instead of reporting success', () => {
+    // Any CI gate on this runner gates on the launcher's exit code, so a
+    // launcher that normalised a failing Playwright run to 0 would make
+    // every pack unfalsifiable. `--project` with no such project is the
+    // cheapest non-zero Playwright status there is: it is refused during
+    // project filtering, before the web server starts, so this row costs
+    // seconds and boots nothing.
+    const result = spawnSync(
+      process.execPath,
+      [
+        path.join(repoRoot, 'scripts/playwright/run-playwright.mjs'),
+        'test',
+        '--project=no-such-project-exists',
+      ],
+      { cwd: repoRoot, encoding: 'utf8' },
+    );
+    expect(result.stderr).toContain('no-such-project-exists');
+    expect(result.status).not.toBe(0);
+    expect(result.signal).toBeNull();
+  });
 
   it('refuses foreign database paths', () => {
     const root = path.join(repoRoot, '.sisyphus/e2e-runtime');
