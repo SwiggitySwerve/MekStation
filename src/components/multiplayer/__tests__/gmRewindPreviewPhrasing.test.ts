@@ -52,11 +52,11 @@ function preview(overrides: Partial<PreviewOk> = {}): PreviewOk {
 
 describe('rewind refusal phrasing', () => {
   it('sweeps every member of the closed refusal union', () => {
-    // Deliberately a tripwire. The union is closed at eleven today; when a
-    // twelfth lands, the phrasing record stops compiling AND this count
-    // goes red, so the member cannot reach a GM unphrased. Bump it in the
-    // same edit that writes its sentence.
-    expect(GM_REWIND_REFUSAL_REASONS).toHaveLength(13);
+    // Deliberately a tripwire. The union is closed at sixteen today
+    // (preview members plus the three commit-only refusals); when a
+    // seventeenth lands, the phrasing record stops compiling AND this
+    // count goes red, so the member cannot reach a GM unphrased.
+    expect(GM_REWIND_REFUSAL_REASONS).toHaveLength(16);
     for (const reason of GM_REWIND_REFUSAL_REASONS) {
       const phrasing = describeRewindRefusal({
         kind: 'refused',
