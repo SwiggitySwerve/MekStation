@@ -60,6 +60,16 @@ export interface IImportedCampaignBaseline {
   /** The journal command that committed the baseline. */
   readonly baselineCommandId: string;
   readonly importedAt: string;
+  /**
+   * The GM decision that settled an ownership the durable claims left
+   * ambiguous (umbrella task 8.2). Absent when the claims settled it on
+   * their own - which is what lets a later reader tell a mapping that was
+   * READ from the records apart from one a person DECIDED.
+   */
+  readonly ownershipRemapping?: {
+    readonly decidedByParticipantId: string;
+    readonly decidedAt: string;
+  };
 }
 
 export interface ICampaignCutoverMarker {
