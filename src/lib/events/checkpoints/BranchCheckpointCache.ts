@@ -44,11 +44,18 @@
  * refuses to return it - a base that verified and then failed is a typed
  * `accelerated-recovery-rejected`, never a state.
  *
- * NOT claimed: a checkpoint on a non-root branch. `replay_checkpoints`
- * still pins `branch_id = 'root'` (migration 10), mirroring the journal's
- * own root pin, so no branch whose events cannot exist can be cached.
- * The key, the writer and the reader are all branch-generic; lifting both
- * pins belongs with branch activation.
+ Both root pins are now lifted - the journal's by migration 26 and this
+ * table's by migration 27 - so a checkpoint on a candidate branch is
+ * storable, and the branch in the derived key is what keeps two branches'
+ * caches apart at the same head. That was unobservable while the pin
+ * stood: with only `root` storable, dropping the branch from the key
+ * changed nothing, which is why the mutant for it was equivalent and is
+ * not any more.
+ *
+ * NOT claimed: anything PRODUCES a candidate-branch checkpoint. Recording
+ * one is a caller's act, and the caller that will is the retroactive
+ * rebuild's replay; nothing on either side of this module records for a
+ * branch it did not first activate.
  *
  * @spec openspec/changes/harden-gm-two-player-campaign-sessions/specs/event-store/spec.md
  */
