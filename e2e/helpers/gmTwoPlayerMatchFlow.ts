@@ -324,6 +324,32 @@ export function tapErrorFrames(page: Page): {
   };
 }
 
+/**
+ * The host's own unit id on the rendered board.
+ *
+ * Ending a phase needs both players (finding #88), so a partition
+ * scenario cannot AdvancePhase while the guest is offline. GoProne is
+ * the unilateral command the host can still commit, and it needs this
+ * id. `side player` is the viewer's own tokens — on the host page that
+ * is the host-owned unit, matching the privacy pack's unitIdOnSide.
+ */
+export async function hostOwnedUnitId(page: Page): Promise<string> {
+  const tokens = page.locator('[data-testid^="unit-token-"]');
+  await expect
+    .poll(() => tokens.count(), { timeout: 30_000 })
+    .toBeGreaterThan(0);
+  const total = await tokens.count();
+  for (let index = 0; index < total; index += 1) {
+    const token = tokens.nth(index);
+    const label = (await token.getAttribute('aria-label')) ?? '';
+    if (!label.includes('side player')) continue;
+    const testId = (await token.getAttribute('data-testid')) ?? '';
+    if (!testId.startsWith('unit-token-')) continue;
+    return testId.slice('unit-token-'.length);
+  }
+  throw new Error('No host-owned unit token on the board');
+}
+
 /** Arm one scoped, one-shot fault through the guarded route. */
 export async function armScopedFault(
   request: APIRequestContext,
