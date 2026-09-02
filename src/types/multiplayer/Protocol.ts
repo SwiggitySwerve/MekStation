@@ -755,6 +755,13 @@ export const ErrorCodeSchema = z.enum([
   // Campaign progression refused until every retained participant has
   // acknowledged the campaign event-log head.
   'CAMPAIGN_NOT_CONVERGED',
+  // add-authoritative-history-branches (task 2.2) — an engine-mutating
+  // command arrived while a correction lease is rebuilding this match's
+  // history. Retryable and non-fatal: the connection stays open, no
+  // event is appended, and the stream reopens on lease expiry, release,
+  // or activation. Deliberately NOT a resync instruction — the head a
+  // client would resync to is the one the rebuild is replacing.
+  'PROJECTION_REBUILDING',
 ]);
 export type IErrorCode = z.infer<typeof ErrorCodeSchema>;
 
