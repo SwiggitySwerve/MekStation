@@ -1,31 +1,23 @@
 /**
  * Campaign Activity Log Page
  *
- * Full 200-entry activity log surfaced from the campaign store
- * (`add-campaign-command-center` Wave 6.1.B, task 5.1). The
- * dashboard's <ActivityLogCard> shows the last 10 entries per
- * category — this page is the operator's drill-down view with a
- * category filter + free-text search.
- *
- * Wave 6.1.B ships the basic filter + search. The full date-range
- * filter (also called out by the proposal) is deliberately deferred
- * — the activity log carries `campaignDay` already, and the existing
- * filter pattern composes cleanly when a follow-up adds the
- * date-range picker.
- *
- * @spec openspec/changes/add-campaign-command-center/specs/campaign-system/spec.md
+ * Full activity list for one campaign. Both this table and the
+ * dashboard card call `useCampaignActivityFeed` so they cannot drift
+ * by one surface still reading the browser FIFO.
  */
 
 import React, { useMemo, useState } from 'react';
-import { useStore } from 'zustand';
 
-import type {
-  ActivityLogCategory,
-  IActivityLogEntry,
-} from '@/types/campaign/ActivityLog';
+import type { ICampaignActivityDisplayRow } from '@/lib/campaign/activity/campaignActivityDisplay';
+import type { ActivityLogCategory } from '@/types/campaign/ActivityLog';
 
 import { CampaignNavigation } from '@/components/campaign/CampaignNavigation';
 import { PageLayout } from '@/components/ui';
+import {
+  campaignActivityFeedNotice,
+  displayRowsFromCampaignActivityFeed,
+} from '@/lib/campaign/activity/campaignActivityDisplay';
+import { useCampaignActivityFeed } from '@/lib/campaign/hooks/useCampaignActivityFeed';
 import {
   getLoadedCampaign,
   renderPendingCampaignPage,
@@ -45,22 +37,24 @@ const CATEGORY_LABELS: Record<ActivityLogCategory, string> = {
 
 export default function CampaignActivityLogPage(): React.ReactElement {
   const shell = useCampaignPageShell('Activity Log');
-  const entries = useStore(shell.store, (state) => state.activityLog);
+  const campaignId =
+    shell.routeCampaignId ?? (typeof shell.id === 'string' ? shell.id : '');
+  const feed = useCampaignActivityFeed(campaignId);
+  const rows = displayRowsFromCampaignActivityFeed(feed);
+  const notice = campaignActivityFeedNotice(feed);
+  const sourceLabel = feed.source === 'local' ? feed.sourceLabel : undefined;
   const [category, setCategory] = useState<ActivityLogCategory | 'all'>('all');
   const [search, setSearch] = useState('');
 
-  const filtered = useMemo<readonly IActivityLogEntry[]>(() => {
+  const filtered = useMemo<readonly ICampaignActivityDisplayRow[]>(() => {
+    if (notice) return [];
     const lowerSearch = search.trim().toLowerCase();
-    return entries
-      .filter((e) => (category === 'all' ? true : e.category === category))
-      .filter((e) =>
-        lowerSearch === ''
-          ? true
-          : e.message.toLowerCase().includes(lowerSearch),
-      )
-      .slice()
-      .reverse();
-  }, [entries, category, search]);
+    return rows.filter((entry) => {
+      if (category !== 'all' && entry.category !== category) return false;
+      if (lowerSearch === '') return true;
+      return entry.message.toLowerCase().includes(lowerSearch);
+    });
+  }, [rows, notice, category, search]);
 
   const pending = renderPendingCampaignPage(shell, {
     title: 'Activity Log',
@@ -73,7 +67,7 @@ export default function CampaignActivityLogPage(): React.ReactElement {
   return (
     <PageLayout
       title="Activity Log"
-      subtitle={`${campaign.name} — ${entries.length} entries`}
+      subtitle={`${campaign.name} — ${notice ? 0 : rows.length} entries`}
       maxWidth="wide"
       breadcrumbs={shell.breadcrumbs}
     >
@@ -83,92 +77,105 @@ export default function CampaignActivityLogPage(): React.ReactElement {
         coopSession={campaign.coopSession}
       />
 
-      <div className="my-4 flex flex-wrap items-center gap-2">
-        <label
-          htmlFor="activity-log-category-filter"
-          className="text-xs text-slate-400"
+      {sourceLabel ? (
+        <p
+          data-testid="activity-log-source-label"
+          className="mt-4 text-xs text-slate-400"
         >
-          Category:
-        </label>
-        <select
-          id="activity-log-category-filter"
-          data-testid="activity-log-category-filter"
-          value={category}
-          onChange={(e) =>
-            setCategory(e.target.value as ActivityLogCategory | 'all')
-          }
-          className="rounded border border-slate-600 bg-slate-900 px-2 py-1 text-sm text-slate-200"
-        >
-          <option value="all">All categories</option>
-          {ACTIVITY_LOG_CATEGORIES.map((cat) => (
-            <option key={cat} value={cat}>
-              {CATEGORY_LABELS[cat]}
-            </option>
-          ))}
-        </select>
+          {sourceLabel}
+        </p>
+      ) : null}
 
-        <label
-          htmlFor="activity-log-search"
-          className="ml-4 text-xs text-slate-400"
-        >
-          Search:
-        </label>
-        <input
-          id="activity-log-search"
-          data-testid="activity-log-search"
-          type="search"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder="Filter messages…"
-          className="rounded border border-slate-600 bg-slate-900 px-2 py-1 text-sm text-slate-200"
-        />
-      </div>
+      {notice ? (
+        <p data-testid={notice.testid} className="mt-4 text-sm text-slate-300">
+          {notice.message}
+        </p>
+      ) : (
+        <>
+          <div className="my-4 flex flex-wrap items-center gap-2">
+            <label
+              htmlFor="activity-log-category-filter"
+              className="text-xs text-slate-400"
+            >
+              Category:
+            </label>
+            <select
+              id="activity-log-category-filter"
+              data-testid="activity-log-category-filter"
+              value={category}
+              onChange={(e) =>
+                setCategory(e.target.value as ActivityLogCategory | 'all')
+              }
+              className="rounded border border-slate-600 bg-slate-900 px-2 py-1 text-sm text-slate-200"
+            >
+              <option value="all">All categories</option>
+              {ACTIVITY_LOG_CATEGORIES.map((cat) => (
+                <option key={cat} value={cat}>
+                  {CATEGORY_LABELS[cat]}
+                </option>
+              ))}
+            </select>
 
-      <table
-        data-testid="activity-log-table"
-        className="w-full border-collapse text-sm"
-      >
-        <thead>
-          <tr className="border-b border-slate-700 text-xs tracking-wide text-slate-400 uppercase">
-            <th className="py-2 text-left">Day</th>
-            <th className="py-2 text-left">Category</th>
-            <th className="py-2 text-left">Message</th>
-            <th className="py-2 text-right">Time</th>
-          </tr>
-        </thead>
-        <tbody>
-          {filtered.length === 0 ? (
-            <tr>
-              <td
-                colSpan={4}
-                data-testid="activity-log-empty"
-                className="py-6 text-center text-xs text-slate-500"
-              >
-                No matching entries.
-              </td>
-            </tr>
-          ) : (
-            filtered.map((entry) => (
-              <tr
-                key={entry.id}
-                data-testid={`activity-log-row-${entry.id}`}
-                className="border-b border-slate-800"
-              >
-                <td className="py-2 font-mono text-slate-400">
-                  {entry.campaignDay}
-                </td>
-                <td className="py-2 text-slate-300">
-                  {CATEGORY_LABELS[entry.category]}
-                </td>
-                <td className="py-2 text-slate-200">{entry.message}</td>
-                <td className="py-2 text-right font-mono text-xs text-slate-500">
-                  {entry.timestamp.slice(0, 19).replace('T', ' ')}
-                </td>
+            <label
+              htmlFor="activity-log-search"
+              className="ml-4 text-xs text-slate-400"
+            >
+              Search:
+            </label>
+            <input
+              id="activity-log-search"
+              data-testid="activity-log-search"
+              type="search"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Filter messages…"
+              className="rounded border border-slate-600 bg-slate-900 px-2 py-1 text-sm text-slate-200"
+            />
+          </div>
+
+          <table
+            data-testid="activity-log-table"
+            className="w-full border-collapse text-sm"
+          >
+            <thead>
+              <tr className="border-b border-slate-700 text-xs tracking-wide text-slate-400 uppercase">
+                <th className="py-2 text-left">Day</th>
+                <th className="py-2 text-left">Category</th>
+                <th className="py-2 text-left">Message</th>
               </tr>
-            ))
-          )}
-        </tbody>
-      </table>
+            </thead>
+            <tbody>
+              {filtered.length === 0 ? (
+                <tr>
+                  <td
+                    colSpan={3}
+                    data-testid="activity-log-empty"
+                    className="py-6 text-center text-xs text-slate-500"
+                  >
+                    No matching entries.
+                  </td>
+                </tr>
+              ) : (
+                filtered.map((entry) => (
+                  <tr
+                    key={entry.id}
+                    data-testid={`activity-log-row-${entry.id}`}
+                    className="border-b border-slate-800"
+                  >
+                    <td className="py-2 font-mono text-slate-400">
+                      {entry.campaignDay}
+                    </td>
+                    <td className="py-2 text-slate-300">
+                      {CATEGORY_LABELS[entry.category]}
+                    </td>
+                    <td className="py-2 text-slate-200">{entry.message}</td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </>
+      )}
     </PageLayout>
   );
 }
