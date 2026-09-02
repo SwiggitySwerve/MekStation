@@ -186,6 +186,28 @@ describe('GM and two-player campaign QC runner', () => {
       'e2e/gm-two-player-privacy.pack.spec.ts',
       '--workers=1',
     ]);
+
+    // The failure pack is the E2E-61..70 subset (umbrella 22.2). It runs
+    // on the PLAIN server, deliberately: none of its rows kills the
+    // process, and the relaunching wrapper is the exception, never the
+    // default. The server-command assertion below is the pin - a future
+    // row that needs a respawn must add the group to RESPAWNING_GROUPS
+    // and change this line, rather than acquiring a wrapper by accident.
+    const failurePlan = core.buildRunPlan({
+      group: 'failure',
+      runId: 'task-32-failure',
+      repoRoot,
+    });
+    expect(failurePlan.args).toEqual([
+      path.join(repoRoot, 'scripts/playwright/run-playwright.mjs'),
+      'test',
+      '--project=chromium',
+      'e2e/gm-two-player-failure.pack.spec.ts',
+      '--workers=1',
+    ]);
+    expect(failurePlan.environment.MEKSTATION_E2E_SERVER_COMMAND).toBe(
+      'node server.js',
+    );
   });
 
   it('types unknown and future groups before browser startup', () => {
@@ -211,6 +233,9 @@ describe('GM and two-player campaign QC runner', () => {
       'proposal-pack',
       'three-context-pack',
       'two-device-pack',
+      // 22.2's E2E-61..70 subset. `campaign`, `performance` and `all`
+      // stay unimplemented and must keep answering NOT_IMPLEMENTED.
+      'failure',
     ];
     for (const group of groups.filter(
       (group) => !implemented.includes(group),
