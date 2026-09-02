@@ -46,7 +46,11 @@ import type {
   GuestProposalResult,
 } from '@/types/campaign/CoopCampaign';
 
-import { toCampaignLifecyclePosture } from '@/lib/campaign/lifecycle/campaignLifecycleState';
+import {
+  campaignRefusalFromServerErrorCode,
+  deriveGmLifecyclePosture,
+  toCampaignLifecyclePosture,
+} from '@/lib/campaign/lifecycle/campaignLifecycleState';
 import { campaignSyncPostureFromMirrorStatus } from '@/lib/campaign/replica/campaignSyncUxState';
 import { buildCoopCampaignAuthorityProjection } from '@/lib/command-screen';
 import { INVALID_CAMPAIGN_INTENT } from '@/types/campaign/CampaignSync';
@@ -216,6 +220,18 @@ export interface CampaignCoopRouteSurfaceProps {
    * surfaces - a guest is never handed the full stream.
    */
   readonly auditEvents?: readonly ICampaignEvent[];
+  /**
+   * The error code of the last refusal the campaign server sent this
+   * host, verbatim off the wire. Mapped to a posture by the single door
+   * in `campaignLifecycleState` - the surface never invents one.
+   */
+  readonly lastRefusalCode?: string | null;
+  /**
+   * Clears that refusal so the host can retry. The block is a hint from
+   * the last refusal, not a live subscription; the server is still the
+   * authority and re-refuses if the condition holds.
+   */
+  readonly onClearRefusal?: () => void;
   readonly guestMirrorSummary?: {
     readonly status: 'connecting' | 'synced' | 'missing-token' | 'paused';
     readonly balance?: number;
@@ -259,6 +275,8 @@ export function CampaignCoopRouteSurface(
     proposalTransport = defaultUnavailableTransport,
     proposingPlayerId = 'co-op-guest',
     auditEvents = [],
+    lastRefusalCode = null,
+    onClearRefusal = () => {},
     guestMirrorSummary,
   } = props;
 
@@ -282,6 +300,19 @@ export function CampaignCoopRouteSurface(
         pendingProposalCount: pendingProposals.length,
       }),
     [campaign?.coopSession?.mode, pendingProposals.length, routeId],
+  );
+  // The host's posture. `lastRefusalCode` is a raw wire code, so it goes
+  // through the mapper rather than being trusted as a posture.
+  const gmLifecycle = useMemo(
+    () =>
+      deriveGmLifecyclePosture({
+        refusal:
+          lastRefusalCode === null
+            ? null
+            : campaignRefusalFromServerErrorCode(lastRefusalCode),
+        pendingProposalCount: pendingProposals.length,
+      }),
+    [lastRefusalCode, pendingProposals.length],
   );
   // The guest's posture. `refusal` is null by construction: no route in
   // `buildActionsForRoute` raises an `AdvanceDay` proposal, and
@@ -323,6 +354,8 @@ export function CampaignCoopRouteSurface(
           pending={pendingProposals}
           onDecide={onDecide}
           authorityProjection={authorityProjection}
+          lifecycle={gmLifecycle}
+          onClearLifecycleRefusal={onClearRefusal}
         />
         {/*
           Per-event scope audit (task 3.6). The GM sees the full stream

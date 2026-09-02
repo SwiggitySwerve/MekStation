@@ -63,6 +63,11 @@ export function CampaignCoopRouteSurfaceConnected({
   // Host-side audit stream (task 3.6). Guests never populate this.
   const [auditEvents, setAuditEvents] = useState<readonly ICampaignEvent[]>([]);
   const [pending, setPending] = useState<readonly IPendingProposal[]>([]);
+  // The last refusal the campaign server sent this host, verbatim. Held
+  // as the raw wire code rather than a posture so the mapping stays in
+  // one place and this component cannot invent a posture the server
+  // never sent.
+  const [lastRefusalCode, setLastRefusalCode] = useState<string | null>(null);
   const [runtimeReady, setRuntimeReady] = useState(false);
   const latestCampaignRef = useRef<ICampaign | null>(campaign);
   latestCampaignRef.current = campaign;
@@ -115,6 +120,23 @@ export function CampaignCoopRouteSurfaceConnected({
     if (!transport) return () => undefined;
 
     return transport.onFrame((message) => {
+      // Umbrella 19.2: the server's refusal is the ONLY authority on
+      // whether a progression command will be taken, and it arrives on
+      // this same frame stream. Holding the last one is what lets the GM
+      // surface gate the control the server would refuse instead of
+      // letting the host press it and find out.
+      if (message.kind === 'Error') {
+        setLastRefusalCode(message.code);
+      }
+      // A committed campaign event means the server accepted a write, so
+      // the standing refusal is stale. Clearing it here is deliberately
+      // OPTIMISTIC - the block is a hint, not a convergence
+      // subscription - and the server re-refuses if the condition still
+      // holds. Without this a host who converged would stay gated
+      // forever on a message that no longer describes anything.
+      if (message.kind === 'CampaignEvent') {
+        setLastRefusalCode(null);
+      }
       // Task 3.6: keep the GM's received stream so the scope audit panel
       // can show how each event was classified at emission. Host-only -
       // this accumulation never runs on a guest surface.
@@ -271,6 +293,8 @@ export function CampaignCoopRouteSurfaceConnected({
       onDecide={onDecide}
       proposalTransport={proposalTransport}
       proposingPlayerId={proposingPlayerId}
+      lastRefusalCode={lastRefusalCode}
+      onClearRefusal={() => setLastRefusalCode(null)}
       guestMirrorSummary={guestMirrorSummary}
     />
   );
