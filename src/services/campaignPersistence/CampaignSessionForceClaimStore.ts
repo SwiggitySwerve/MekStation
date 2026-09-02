@@ -142,3 +142,41 @@ export function readCampaignSessionForceHolder(input: {
     | undefined;
   return row?.participant_id ?? null;
 }
+
+/**
+ * The forces `participantId` holds for this mission, ascending by id.
+ *
+ * The mirror of `readCampaignSessionForceHolder`: that one asks "whose is
+ * this force", this one asks "what does this holder own". Scenario
+ * materialization needs the second question - it starts from a player
+ * slot and has to find the slot's force, not the other way round - and
+ * answering it by scanning every force in the campaign would make the
+ * read O(forces) against a table that already carries the
+ * (campaign, session, mission, participant) index this query uses.
+ *
+ * Returns an empty list rather than null: a holder with no claims and an
+ * unknown holder are the same fact here, and neither is an error.
+ */
+export function readCampaignSessionForcesHeldBy(input: {
+  readonly campaignId: string;
+  readonly sessionId: string;
+  readonly missionId: string;
+  readonly participantId: string;
+}): readonly string[] {
+  return (
+    getSQLiteService()
+      .getDatabase()
+      .prepare(
+        `SELECT force_id FROM campaign_session_force_claim
+          WHERE campaign_id = ? AND session_id = ?
+            AND mission_id = ? AND participant_id = ?
+          ORDER BY force_id`,
+      )
+      .all(
+        input.campaignId,
+        input.sessionId,
+        input.missionId,
+        input.participantId,
+      ) as { readonly force_id: string }[]
+  ).map((row) => row.force_id);
+}
