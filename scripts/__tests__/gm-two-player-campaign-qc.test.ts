@@ -5,7 +5,7 @@ const repoRoot = path.resolve(__dirname, '../..');
 const runner = path.join(repoRoot, 'scripts/qc/run-gm-two-player-campaign.mjs');
 const core = require('../qc/gm-two-player-campaign-core.cjs');
 const groups =
-  'fixture-smoke,membership-smoke,evidence-smoke,fault-smoke,smoke,authority-pack1,exactly-once-pack,fault-pack,token-pack,restart-pack,resilience-pack,authority,visibility,combat,campaign,failure,performance,all,traceability,quality,manual-setup,scope'.split(
+  'fixture-smoke,membership-smoke,evidence-smoke,fault-smoke,smoke,authority-pack1,exactly-once-pack,fault-pack,token-pack,restart-pack,resilience-pack,privacy-pack,authority,visibility,combat,campaign,failure,performance,all,traceability,quality,manual-setup,scope'.split(
     ',',
   );
 /** The server command a non-respawning implemented group is planned with. */
@@ -171,6 +171,21 @@ describe('GM and two-player campaign QC runner', () => {
       'e2e/gm-two-player-token.pack.spec.ts',
       '--workers=1',
     ]);
+
+    // The privacy pack is the tactical-channel subset of E2E-19..30.
+    // Falsification: point the group at another spec and this reds.
+    const privacyPlan = core.buildRunPlan({
+      group: 'privacy-pack',
+      runId: 'task-30-privacy-pack',
+      repoRoot,
+    });
+    expect(privacyPlan.args).toEqual([
+      path.join(repoRoot, 'scripts/playwright/run-playwright.mjs'),
+      'test',
+      '--project=chromium',
+      'e2e/gm-two-player-privacy.pack.spec.ts',
+      '--workers=1',
+    ]);
   });
 
   it('types unknown and future groups before browser startup', () => {
@@ -192,6 +207,7 @@ describe('GM and two-player campaign QC runner', () => {
       'token-pack',
       'restart-pack',
       'resilience-pack',
+      'privacy-pack',
     ];
     for (const group of groups.filter(
       (group) => !implemented.includes(group),
