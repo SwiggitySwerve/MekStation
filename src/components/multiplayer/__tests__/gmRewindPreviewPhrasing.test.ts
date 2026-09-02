@@ -56,7 +56,7 @@ describe('rewind refusal phrasing', () => {
     // twelfth lands, the phrasing record stops compiling AND this count
     // goes red, so the member cannot reach a GM unphrased. Bump it in the
     // same edit that writes its sentence.
-    expect(GM_REWIND_REFUSAL_REASONS).toHaveLength(11);
+    expect(GM_REWIND_REFUSAL_REASONS).toHaveLength(13);
     for (const reason of GM_REWIND_REFUSAL_REASONS) {
       const phrasing = describeRewindRefusal({
         kind: 'refused',
