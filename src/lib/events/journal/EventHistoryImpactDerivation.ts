@@ -115,13 +115,84 @@ function stableDigest(
   return first;
 }
 
+/** What a comparison between two heads found, before anything is sealed. */
+export interface IImpactBetweenHeads {
+  /** Viewers whose projection differs between the two heads. */
+  readonly changedViewerIds: readonly string[];
+  /** The manifest entries an activation of this replacement would seal. */
+  readonly entries: readonly IAffectedArtifact[];
+}
+
+export interface IImpactBetweenHeadsInput {
+  readonly priorEvents: readonly IProjectableBranchEvent[];
+  /** The replacement history: a verified candidate, or a truncation. */
+  readonly candidateEvents: readonly IProjectableBranchEvent[];
+  readonly viewerIds: readonly string[];
+  readonly probe: IViewerProjectionProbe;
+  /** The revision the replacement rejoins history at. */
+  readonly baseRevision: number;
+  /** Checkpoint rows already read from storage by the caller. */
+  readonly checkpoints: readonly IAffectedArtifact[];
+}
+
+/**
+ * The comparison itself, with nothing around it: no database, no branch
+ * store, no seal, and no possibility of a write.
+ *
+ * Extracted so the GM's PREVIEW of a rewind and the ACTIVATION that
+ * follows it run the same comparison rather than two implementations
+ * that agree until one is edited. The preview is only trustworthy if it
+ * reports what activation would actually do, and the cheapest way to
+ * guarantee that is for there to be one derivation.
+ *
+ * The impure halves stay outside deliberately: materialising the two
+ * heads and reading the checkpoint rows are the caller's job, because
+ * they are what differs between a sealed candidate (read through its
+ * branch row) and a preview (read as a truncation of the prior branch).
+ */
+export function deriveImpactBetween(
+  input: IImpactBetweenHeadsInput,
+): IImpactBetweenHeads {
+  const changedViewerIds: string[] = [];
+  for (const viewerId of input.viewerIds) {
+    const before = stableDigest(
+      input.probe,
+      viewerId,
+      input.priorEvents,
+      'prior',
+    );
+    const after = stableDigest(
+      input.probe,
+      viewerId,
+      input.candidateEvents,
+      'candidate',
+    );
+    if (before !== after) changedViewerIds.push(viewerId);
+  }
+  return Object.freeze({
+    changedViewerIds: Object.freeze([...changedViewerIds]),
+    entries: Object.freeze([
+      ...changedViewerIds.map((viewerId) => ({
+        artifactKind: 'projection' as const,
+        artifactId: viewerId,
+        // The revision the replacement rejoins history at is what stales
+        // every projection derived past it.
+        sourceRevision: input.baseRevision,
+      })),
+      ...input.checkpoints,
+    ]),
+  });
+}
+
 /**
  * Checkpoints staled by the replacement: those recorded ABOVE the base
  * revision. One AT the base describes history the candidate keeps, so it
  * survives; everything above it was derived from events the replacement
  * supersedes.
+ *
+ * Exported because the preview asks the same question of the same rows.
  */
-function staleCheckpoints(
+export function readStaleCheckpoints(
   db: Database.Database,
   stream: IEventHistoryStreamRef,
   baseRevision: number,
@@ -187,40 +258,28 @@ export async function deriveAndSealCandidateImpact<TState>(
     ),
   );
 
-  const changedViewerIds: string[] = [];
-  for (const viewerId of request.viewerIds) {
-    const before = stableDigest(request.probe, viewerId, priorEvents, 'prior');
-    const after = stableDigest(
-      request.probe,
-      viewerId,
-      verified.events,
-      'candidate',
-    );
-    if (before !== after) changedViewerIds.push(viewerId);
-  }
-
-  const entries: readonly IAffectedArtifact[] = [
-    ...changedViewerIds.map((viewerId) => ({
-      artifactKind: 'projection' as const,
-      artifactId: viewerId,
-      // The revision the replacement rejoins history at is what stales
-      // every projection derived past it.
-      sourceRevision: candidate.baseRevision,
-    })),
-    ...staleCheckpoints(db, stream, candidate.baseRevision),
-  ];
+  // The comparison is the SHARED one. Everything this function adds is
+  // the sealing around it, which is exactly what the preview omits.
+  const derived = deriveImpactBetween({
+    priorEvents,
+    candidateEvents: verified.events,
+    viewerIds: request.viewerIds,
+    probe: request.probe,
+    baseRevision: candidate.baseRevision,
+    checkpoints: readStaleCheckpoints(db, stream, candidate.baseRevision),
+  });
 
   const header = new SQLiteEventHistoryArtifactManifestStore(
     db,
   ).sealArtifactManifest(
     stream,
     candidate.branchId,
-    entries,
+    derived.entries,
     request.derivedAt,
   );
   return Object.freeze({
     header,
-    entries,
-    changedViewerIds: Object.freeze([...changedViewerIds]),
+    entries: derived.entries,
+    changedViewerIds: derived.changedViewerIds,
   });
 }
