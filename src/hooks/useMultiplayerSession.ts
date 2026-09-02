@@ -40,6 +40,7 @@ import type {
   IConnectOptions,
   IMultiplayerClient,
 } from '@/lib/multiplayer/client';
+import type { TacticalLifecycleProjectionSignal } from '@/lib/multiplayer/tacticalLifecycleState';
 import type {
   IGameEvent,
   IGameIntent,
@@ -171,6 +172,14 @@ export interface IUseMultiplayerSessionResult {
   readonly closedInfo: IMatchClosedInfo | null;
   /** Public client delivery/connection facts for the tactical lifecycle strip. */
   readonly clientLifecycle?: IClientLifecycleState;
+  /**
+   * The authoritative-history signal the server's refusals produce
+   * (umbrella 19.2, 3b-i). `PROJECTION_REBUILDING` while a correction
+   * lease is rebuilding this match's history; `null` otherwise. The
+   * tactical surface derives its `rebuilding` posture from this, and
+   * gates commands on that posture.
+   */
+  readonly projectionSignal: TacticalLifecycleProjectionSignal | null;
 }
 
 // =============================================================================
@@ -209,6 +218,8 @@ export function useMultiplayerSession(
   const [clientLifecycle, setClientLifecycle] = useState<IClientLifecycleState>(
     EMPTY_CLIENT_LIFECYCLE,
   );
+  const [projectionSignal, setProjectionSignal] =
+    useState<TacticalLifecycleProjectionSignal | null>(null);
   // The full, uncapped game-event log the mirror is rebuilt from. Kept
   // in React state (not just a ref) so a new event triggers a rebuild +
   // re-render; kept SEPARATE from the capped `events` tail because the
@@ -234,6 +245,7 @@ export function useMultiplayerSession(
       setClosedInfo,
       setClientLifecycle,
       setMirrorLog,
+      setProjectionSignal,
     });
 
     return connectMultiplayerSession({
@@ -251,6 +263,7 @@ export function useMultiplayerSession(
       setLobbyState,
       setMirrorLog,
       setPausedInfo,
+      setProjectionSignal,
       setStatus,
       url,
     });
@@ -313,6 +326,7 @@ export function useMultiplayerSession(
     pausedInfo,
     closedInfo,
     clientLifecycle,
+    projectionSignal,
   };
 }
 

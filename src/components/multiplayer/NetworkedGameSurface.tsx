@@ -44,6 +44,7 @@ import {
   buildNetworkedTacticalAuthorityProjection,
   extractPlayerSafeCommandResults,
 } from '@/lib/command-screen';
+import { tacticalCommandAvailability } from '@/lib/multiplayer/tacticalCommandGate';
 import {
   deriveTacticalLifecyclePosture,
   deriveTacticalWireFacts,
@@ -181,6 +182,20 @@ export function NetworkedGameSurface({
       }),
     [clientLifecycle, projectionSignal, tacticalWireFacts],
   );
+  // The lifecycle's answer to "may this client command at all" (19.2).
+  // Derived HERE, from the posture this surface already computes, so the
+  // gate cannot disagree with the banner sitting above the controls.
+  const commandGate = useMemo(
+    () => tacticalCommandAvailability(tacticalLifecycle),
+    [tacticalLifecycle],
+  );
+  // `status === 'paused'` is kept as its own arm rather than folded into
+  // the gate. It is a MATCH fact (a peer dropped, the server paused the
+  // match) and it drives the pause OVERLAY as well as the controls; the
+  // gate answers a different question - whether this client's view is
+  // authoritative enough to command from. `blocked` appears on both
+  // sides because the gate refuses it too, and the overlay-side arm is
+  // what keeps the map covered.
   const interactionPaused =
     status === 'paused' || tacticalLifecycle.state === 'blocked';
   const authorityProjection = useMemo(
@@ -347,6 +362,7 @@ export function NetworkedGameSurface({
             }
             targetUnitId={targetUnitId}
             paused={paused}
+            commandGate={commandGate}
             onSendIntent={handleSendIntent}
           />
         )}
