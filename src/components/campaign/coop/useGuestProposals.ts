@@ -111,6 +111,14 @@ function describeResolution(result: GuestProposalResult): {
       };
     case 'pending':
       return { status: 'pending', label: '' };
+    case 'stale-head':
+      // Not "not possible" - the proposal was fine and the campaign moved
+      // under it. Saying it was rejected would send the player off to
+      // change something that needs no changing.
+      return {
+        status: 'stale-head',
+        label: 'The campaign moved on - resync and propose again',
+      };
     default: {
       const exhaustive: never = result;
       void exhaustive;

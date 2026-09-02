@@ -762,6 +762,11 @@ export const ErrorCodeSchema = z.enum([
   // or activation. Deliberately NOT a resync instruction — the head a
   // client would resync to is the one the rebuild is replacing.
   'PROJECTION_REBUILDING',
+  // Another writer moved the campaign head between this command's replay
+  // and its append. Non-fatal and NOT the client's fault: the connection
+  // stays open, nothing was appended, and the frame carries where the
+  // head actually is plus what to do about it.
+  'CAMPAIGN_STALE_HEAD',
 ]);
 export type IErrorCode = z.infer<typeof ErrorCodeSchema>;
 
@@ -778,6 +783,22 @@ export const ErrorMessageSchema = z.object({
   code: ErrorCodeSchema,
   reason: z.string().optional(),
   intentId: z.string().min(1).optional(),
+  /**
+   * Where the authority's head is, for a refusal caused by the head
+   * moving. Optional because most error codes have no head to report.
+   */
+  conflictHead: z
+    .object({
+      branchId: z.string().min(1),
+      revision: z.number().int().nonnegative(),
+    })
+    .optional(),
+  /**
+   * What the client should do next. Carried on the frame rather than
+   * inferred from the code, so a client that does not recognise a code
+   * still knows the move.
+   */
+  recoveryAction: z.string().min(1).optional(),
 });
 export type IErrorMessage = z.infer<typeof ErrorMessageSchema>;
 
