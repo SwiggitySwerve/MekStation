@@ -60,6 +60,10 @@ import {
 } from '../helpers/scenarioPackLoading';
 import { waitForPageReady } from '../helpers/wait';
 import {
+  encounterPackSeededEntries,
+  groupPackSeededEntriesByPack,
+} from './packSeededGroups';
+import {
   PACK_SEEDED_SWEPT_ENTRIES,
   SWEPT_NOW_ENTRIES,
   type CheckTarget,
@@ -265,138 +269,138 @@ function campaignIdFromUrl(url: string): string | undefined {
 }
 
 // =============================================================================
-// Group 2: navigation-pack-seeded campaign screens (task 5.1, design D5/D10a).
-// One `loadCampaignPack` call per worker (test.beforeAll below), amortized
-// across the 16 direct-goto subroutes + the 1 in-page-discovery mission-launch
-// screen -- "seed once, sweep many". The stamped campaign id is read from the
-// loader's post-navigation URL (`campaignIdFromUrl` above) -- the one
-// consumer-visible id surface the scenario-packs spec's Front-Door Loading
-// Contract actually promises (design D5). The loader's return value is never
-// read here: it is an uncontracted loader-implementation surface (task 5.1,
-// e2e-testing spec delta "Dynamic segments come from front-door observables").
+// Group 2: the campaign-pack-seeded screens (task 5.1, design D5/D10a;
+// umbrella 19.4 finding #39).
+//
+// ONE DESCRIBE BLOCK PER CAMPAIGN PACK, built from
+// `groupPackSeededEntriesByPack` rather than a `pack === 'navigation'`
+// filter written here. That literal is what lost two routes: when
+// `/gameplay/campaigns/[id]` and `/gameplay/campaigns/[id]/finances` were
+// repointed at the co-op packs so the co-op surfaces would mount, they
+// matched no block at all and the sweep quietly shrank from 51 screens to
+// 49. Grouping by whatever packs the inventory actually names means a
+// future repoint adds a block instead of dropping a screen, and the Jest
+// guard (`src/__tests__/unit/layoutSweep/packSeededSweepCoverage.test.ts`)
+// reads the same function to prove it.
+//
+// Each group makes one `loadCampaignPack` call per worker (test.beforeAll),
+// amortized across that pack's direct-goto subroutes plus any
+// in-page-discovery screen it seeds -- "seed once, sweep many". The stamped
+// campaign id is read from the loader's post-navigation URL
+// (`campaignIdFromUrl` above) -- the one consumer-visible id surface the
+// scenario-packs spec's Front-Door Loading Contract actually promises
+// (design D5). The loader's return value is never read here: it is an
+// uncontracted loader-implementation surface (task 5.1, e2e-testing spec
+// delta "Dynamic segments come from front-door observables").
 // =============================================================================
 
-const navigationPackEntries = PACK_SEEDED_SWEPT_ENTRIES.filter(
-  (entry) => entry.pack === 'navigation' && entry.navigation === 'direct-goto',
-);
-const missionLaunchEntry = PACK_SEEDED_SWEPT_ENTRIES.find(
-  (entry) => entry.navigation === 'in-page-discovery',
-);
-const gameDetailEntry = PACK_SEEDED_SWEPT_ENTRIES.find(
-  (entry) => entry.pack === 'combat',
-);
+for (const group of groupPackSeededEntriesByPack(PACK_SEEDED_SWEPT_ENTRIES)) {
+  test.describe(`Viewport layout sweep -- pack-seeded (${group.packId})`, () => {
+    let campaignId: string | undefined;
 
-test.describe('Viewport layout sweep -- pack-seeded (navigation)', () => {
-  let campaignId: string | undefined;
-
-  test.beforeAll(async ({ browser }, testInfo) => {
-    const context = await browser.newContext();
-    const seedPage = await context.newPage();
-    await loadCampaignPack(seedPage, 'navigation-briefing', {
-      workerIndex: testInfo.workerIndex,
+    test.beforeAll(async ({ browser }, testInfo) => {
+      const context = await browser.newContext();
+      const seedPage = await context.newPage();
+      await loadCampaignPack(seedPage, group.campaignPackId, {
+        workerIndex: testInfo.workerIndex,
+      });
+      // Read the stamped campaign id from the loader's post-navigation URL --
+      // never from the loader's return value (see the module-header comment
+      // and `campaignIdFromUrl` above).
+      campaignId = campaignIdFromUrl(seedPage.url());
+      await context.close();
     });
-    // Read the stamped campaign id from the loader's post-navigation URL --
-    // never from the loader's return value (see the module-header comment
-    // and `campaignIdFromUrl` above).
-    campaignId = campaignIdFromUrl(seedPage.url());
-    await context.close();
+
+    for (const entry of group.entries.filter(
+      (candidate) => candidate.navigation === 'direct-goto',
+    )) {
+      test(`${entry.label} [${entry.id}]`, async ({ page }) => {
+        test.setTimeout(60_000);
+        if (!campaignId) {
+          throw new Error(
+            `${entry.id}: ${group.campaignPackId} pack was not loaded (test.beforeAll did not set campaignId)`,
+          );
+        }
+        if (!entry.routeTemplate) {
+          throw new Error(
+            `${entry.id}: direct-goto pack-seeded entry declares no routeTemplate`,
+          );
+        }
+
+        await page.goto(entry.routeTemplate.replace('{id}', campaignId), {
+          waitUntil: 'domcontentloaded',
+        });
+        await waitForPageReady(page);
+
+        for (const viewport of SWEEP_VIEWPORTS) {
+          await page.setViewportSize({
+            width: viewport.width,
+            height: viewport.height,
+          });
+          await page.waitForTimeout(VIEWPORT_SETTLE_MS);
+          await runViewportChecks(page, entry, viewport);
+        }
+      });
+    }
+
+    // In-page-discovery screens (design D10a): reached by front-door
+    // discovery from this pack's missions screen, never by constructing a
+    // mission id, and never by actuating the launch control
+    // (`launch-mission-direct`). The discovery click targets the mission's
+    // own `mission-launch-{missionId}` link (missions.tsx), landing on the
+    // briefing route exactly as a user would, mirroring
+    // `navigation-briefing.parity.spec.ts`'s own discovery. Today only the
+    // navigation pack seeds one; the loop means a co-op pack that seeds a
+    // mission gets the same treatment without another bespoke block.
+    for (const entry of group.entries.filter(
+      (candidate) => candidate.navigation === 'in-page-discovery',
+    )) {
+      test(`${entry.label} [${entry.id}]`, async ({ page }) => {
+        test.setTimeout(60_000);
+        if (!campaignId) {
+          throw new Error(
+            `${entry.id}: ${group.campaignPackId} pack was not loaded (test.beforeAll did not set campaignId)`,
+          );
+        }
+
+        await page.goto(`/gameplay/campaigns/${campaignId}/missions`, {
+          waitUntil: 'domcontentloaded',
+        });
+        await waitForPageReady(page);
+
+        const launchDiscoveryLink = page
+          .locator('[data-testid^="mission-launch-"]')
+          .first();
+        await expect(launchDiscoveryLink).toBeVisible({ timeout: 20_000 });
+        await launchDiscoveryLink.click();
+        await waitForPageReady(page);
+
+        for (const viewport of SWEEP_VIEWPORTS) {
+          await page.setViewportSize({
+            width: viewport.width,
+            height: viewport.height,
+          });
+          await page.waitForTimeout(VIEWPORT_SETTLE_MS);
+          await runViewportChecks(page, entry, viewport);
+        }
+      });
+    }
   });
-
-  for (const entry of navigationPackEntries) {
-    test(`${entry.label} [${entry.id}]`, async ({ page }) => {
-      test.setTimeout(60_000);
-      if (!campaignId) {
-        throw new Error(
-          `${entry.id}: navigation-briefing pack was not loaded (test.beforeAll did not set campaignId)`,
-        );
-      }
-      if (!entry.routeTemplate) {
-        throw new Error(
-          `${entry.id}: direct-goto pack-seeded entry declares no routeTemplate`,
-        );
-      }
-
-      await page.goto(entry.routeTemplate.replace('{id}', campaignId), {
-        waitUntil: 'domcontentloaded',
-      });
-      await waitForPageReady(page);
-
-      for (const viewport of SWEEP_VIEWPORTS) {
-        await page.setViewportSize({
-          width: viewport.width,
-          height: viewport.height,
-        });
-        await page.waitForTimeout(VIEWPORT_SETTLE_MS);
-        await runViewportChecks(page, entry, viewport);
-      }
-    });
-  }
-
-  // The mission-launch screen (design D10a): front-door in-page discovery
-  // from the pack-seeded missions screen. Never constructs a mission id and
-  // never actuates the launch control (`launch-mission-direct`) -- the
-  // discovery click targets the mission's own `mission-launch-{missionId}`
-  // link (missions.tsx), landing on the briefing route exactly as a user
-  // would, mirroring `navigation-briefing.parity.spec.ts`'s own discovery.
-  test(
-    missionLaunchEntry
-      ? `${missionLaunchEntry.label} [${missionLaunchEntry.id}]`
-      : 'mission launch briefing (undeclared)',
-    async ({ page }) => {
-      test.setTimeout(60_000);
-      if (!missionLaunchEntry) {
-        throw new Error(
-          'screenInventory.ts declares no in-page-discovery pack-seeded entry',
-        );
-      }
-      if (!campaignId) {
-        throw new Error(
-          `${missionLaunchEntry.id}: navigation-briefing pack was not loaded (test.beforeAll did not set campaignId)`,
-        );
-      }
-
-      await page.goto(`/gameplay/campaigns/${campaignId}/missions`, {
-        waitUntil: 'domcontentloaded',
-      });
-      await waitForPageReady(page);
-
-      const launchDiscoveryLink = page
-        .locator('[data-testid^="mission-launch-"]')
-        .first();
-      await expect(launchDiscoveryLink).toBeVisible({ timeout: 20_000 });
-      await launchDiscoveryLink.click();
-      await waitForPageReady(page);
-
-      for (const viewport of SWEEP_VIEWPORTS) {
-        await page.setViewportSize({
-          width: viewport.width,
-          height: viewport.height,
-        });
-        await page.waitForTimeout(VIEWPORT_SETTLE_MS);
-        await runViewportChecks(page, missionLaunchEntry, viewport);
-      }
-    },
-  );
-});
+}
 
 // =============================================================================
-// Group 3: the combat-pack-seeded game session screen (task 5.1, design D5).
-// A single screen -- no amortization to do, `loadEncounterPack` runs once
-// per test.
+// Group 3: the combat-pack-seeded game session screens (task 5.1, design D5).
+// `loadEncounterPack` runs once per test -- a single screen today, so there
+// is no amortization to do. Selected by `encounterPackSeededEntries`, which
+// is a POSITIVE filter on the combat pack rather than "whatever the campaign
+// grouping did not claim": an entry naming an unknown pack must fall out of
+// both sides and turn the coverage guard red, not get swept here by default.
 // =============================================================================
 
 test.describe('Viewport layout sweep -- pack-seeded (combat)', () => {
-  test(
-    gameDetailEntry
-      ? `${gameDetailEntry.label} [${gameDetailEntry.id}]`
-      : 'game session detail (undeclared)',
-    async ({ page }, testInfo) => {
+  for (const entry of encounterPackSeededEntries(PACK_SEEDED_SWEPT_ENTRIES)) {
+    test(`${entry.label} [${entry.id}]`, async ({ page }, testInfo) => {
       test.setTimeout(60_000);
-      if (!gameDetailEntry) {
-        throw new Error(
-          'screenInventory.ts declares no combat pack-seeded entry',
-        );
-      }
 
       await loadEncounterPack(page, 'combat-midbattle', {
         workerIndex: testInfo.workerIndex,
@@ -408,8 +412,8 @@ test.describe('Viewport layout sweep -- pack-seeded (combat)', () => {
           height: viewport.height,
         });
         await page.waitForTimeout(VIEWPORT_SETTLE_MS);
-        await runViewportChecks(page, gameDetailEntry, viewport);
+        await runViewportChecks(page, entry, viewport);
       }
-    },
-  );
+    });
+  }
 });
