@@ -22,19 +22,37 @@
  * @spec openspec/changes/add-shared-campaign-state/tasks.md (tasks 2.1-2.3)
  */
 
+import type { AuthorityRecoveryPort } from '@/lib/events/checkpoints/AuthorityRecoveryPort';
 import type {
   ICampaignAuthoritativeState,
   ICampaignEvent,
 } from '@/types/campaign/CampaignSync';
 
+import {
+  AuthorityRecoveryBlockedError,
+  referenceRecoveryPort,
+} from '@/lib/events/checkpoints/AuthorityRecoveryPort';
+
 import type { ICampaignEventStore } from './ICampaignEventStore';
 
-import { replayCampaignEvents } from './applyCampaignEvent';
+import { applyCampaignEvent, replayCampaignEvents } from './applyCampaignEvent';
 
 export class CampaignEventLog {
   constructor(
     private readonly campaignId: string,
     private readonly store: ICampaignEventStore,
+    /**
+     * How this log rebuilds state (umbrella 15.3). The default is the
+     * reference path - read everything, fold it - so a log constructed
+     * the way every existing call site constructs it behaves exactly as
+     * it did before the port existed. A caller that hands a
+     * checkpoint-backed port gets acceleration and the typed blocked
+     * verdict without any other change here.
+     */
+    private readonly recovery: AuthorityRecoveryPort<
+      ICampaignEvent,
+      ICampaignAuthoritativeState
+    > = referenceRecoveryPort(),
   ) {}
 
   /**
@@ -76,8 +94,32 @@ export class CampaignEventLog {
    * state" — the result equals the host's authoritative state.
    */
   async reconstructState(): Promise<ICampaignAuthoritativeState> {
-    const events = await this.store.getEvents(this.campaignId, 0);
-    return replayCampaignEvents(this.campaignId, events);
+    const verdict = await this.recovery({
+      authorityId: this.campaignId,
+      // A campaign with no events is a fresh campaign, not a corrupt
+      // one - it folds to the empty state, as it always has.
+      emptyHistory: 'empty-state',
+      read: (fromExclusive) =>
+        this.store.getEvents(this.campaignId, fromExclusive + 1),
+      revisionOf: (event) => event.sequence,
+      // From scratch this is verbatim the shared reducer's own loop; onto
+      // a cached base it is that loop's body. One reducer either way.
+      fold: (events, base) =>
+        base === undefined
+          ? replayCampaignEvents(this.campaignId, events)
+          : events.reduce(
+              (state, event) => applyCampaignEvent(state, event),
+              base,
+            ),
+    });
+    // `reconstructState`'s contract is a state. A blocked authority has
+    // none, and both live callers - the D10 divergence rebuild and the
+    // outcome inbox - assign the result straight to host state, so
+    // returning anything here would publish a partial rebuild.
+    if (verdict.kind === 'blocked') {
+      throw new AuthorityRecoveryBlockedError(verdict);
+    }
+    return verdict.state;
   }
 }
 
