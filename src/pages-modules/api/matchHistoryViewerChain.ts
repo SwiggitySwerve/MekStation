@@ -17,7 +17,9 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 import type { JsonValue } from '@/lib/multiplayer/server/projection/ViewerProjectionTypes';
 
 import { SQLiteActionAuditRepository } from '@/lib/events/audit/SQLiteActionAuditRepository';
+import { SQLiteEventHistoryArtifactManifestStore } from '@/lib/events/journal/EventHistoryArtifactManifest';
 import { SQLiteEventJournal } from '@/lib/events/journal/SQLiteEventJournal';
+import { SQLiteEventHistoryBranchStore } from '@/lib/events/journal/SQLiteEventHistoryBranchStore';
 import { SQLitePrivateRecordRepository } from '@/lib/events/privacy/SQLitePrivateRecordRepository';
 import { authenticateRequest } from '@/lib/multiplayer/server/auth';
 import {
@@ -29,6 +31,11 @@ import { MatchSeatMembershipSource } from '@/lib/multiplayer/server/authorizatio
 import { SQLiteDeliveryEpochStore } from '@/lib/multiplayer/server/delivery/SQLiteDeliveryEpochStore';
 import { getDefaultMatchStore } from '@/lib/multiplayer/server/getDefaultMatchStore';
 import { ViewerHistoryService } from '@/lib/multiplayer/server/history/ViewerHistoryService';
+import {
+  projectViewerHistoryLineage,
+  type IViewerHistoryLineage,
+  type IViewerHistoryLineageStores,
+} from '@/lib/multiplayer/server/history/ViewerHistoryLineage';
 import { matchWireAudienceDefinition } from '@/lib/multiplayer/server/projection/MatchWireAudienceCatalog';
 import {
   ViewerAudienceProjectorRegistry,
@@ -120,6 +127,43 @@ export function createViewerHistoryService(): ViewerHistoryService {
     auditRepo: new SQLiteActionAuditRepository(db),
     privateRepo: new SQLitePrivateRecordRepository(db),
   });
+}
+
+/**
+ * Branch + manifest readers on the API SQLite handle — never a match
+ * file. Match seats never stamp role `gm`, so the host principal is
+ * the GM audience for this HTTP surface.
+ */
+export function createViewerHistoryLineageStores(): IViewerHistoryLineageStores {
+  const db = getSQLiteService().getDatabase();
+  return {
+    branches: new SQLiteEventHistoryBranchStore(db),
+    manifests: new SQLiteEventHistoryArtifactManifestStore(db),
+  };
+}
+
+export const DEFAULT_MATCH_HISTORY_STREAM_TYPE = 'match';
+
+/** Optional streamType for timeline lineage; invalid/missing stays `match`. */
+export function matchHistoryLineageStreamType(req: NextApiRequest): string {
+  const streamType = queryStringParam(req, 'streamType');
+  if (streamType && STREAM_TYPE_PATTERN.test(streamType)) return streamType;
+  return DEFAULT_MATCH_HISTORY_STREAM_TYPE;
+}
+
+export async function readMatchHistoryLineage(
+  caller: IMatchHistoryCaller,
+  streamType: string,
+): Promise<IViewerHistoryLineage> {
+  const meta = await getDefaultMatchStore().getMatchMeta(caller.matchId);
+  return projectViewerHistoryLineage(
+    createViewerHistoryLineageStores(),
+    { streamType, streamId: caller.matchId },
+    {
+      audience: caller.playerId === meta.hostPlayerId ? 'gm' : 'player',
+      viewerId: caller.playerId,
+    },
+  );
 }
 
 /**

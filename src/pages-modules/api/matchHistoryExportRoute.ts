@@ -15,16 +15,22 @@
 
 import type { NextApiRequest, NextApiResponse } from 'next';
 
+import type { IViewerHistoryLineage } from '@/lib/multiplayer/server/history/ViewerHistoryLineage';
 import type { IViewerHistoryExport } from '@/lib/multiplayer/server/history/ViewerHistoryTypes';
 
 import {
   createViewerHistoryService,
   prepareMatchHistoryGet,
+  readMatchHistoryLineage,
   rejectInvalidStreamType,
   rejectMatchHistoryFailure,
 } from '@/pages-modules/api/matchHistoryViewerChain';
 
-type ResponseBody = IViewerHistoryExport | { readonly error: string };
+export type IMatchHistoryExportBody = IViewerHistoryExport & {
+  readonly lineage: IViewerHistoryLineage;
+};
+
+type ResponseBody = IMatchHistoryExportBody | { readonly error: string };
 
 export default async function handler(
   req: NextApiRequest,
@@ -42,7 +48,10 @@ export default async function handler(
       caller.matchId,
       { streamType, streamId: caller.matchId },
     );
-    res.status(200).json(body);
+    // Same streamType the export already authorized, so timeline and
+    // export lineage compare as the same object for one viewer.
+    const lineage = await readMatchHistoryLineage(caller, streamType);
+    res.status(200).json({ ...body, lineage });
   } catch (error) {
     rejectMatchHistoryFailure(res, error, 'failed to export match history');
   }
