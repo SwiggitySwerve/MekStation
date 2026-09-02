@@ -10,7 +10,9 @@
  * the `BREAKPOINTS` constant (zero-production-touch): the AABB overlap math
  * mirrors `LayoutValidator.boxesOverlap` but is reimplemented locally rather
  * than imported, so armor-pip customizer layout code stays decoupled from
- * e2e assertion plumbing.
+ * e2e assertion plumbing. `BREAKPOINTS` is now reached indirectly, through
+ * `./sweepViewports` -- which owns `SWEEP_VIEWPORTS` and is re-exported at
+ * the foot of this file, so no importer of this module had to change.
  */
 
 import {
@@ -20,8 +22,6 @@ import {
   type Page,
 } from '@playwright/test';
 import sharp from 'sharp';
-
-import { BREAKPOINTS } from '../../src/constants/layout';
 
 // ============================================================================
 // expectNoHorizontalOverflow -- promoted near-verbatim from
@@ -359,47 +359,10 @@ export async function expectNoOverlap(
 }
 
 // ============================================================================
-// SWEEP_VIEWPORTS -- design D4. The four historical project widths; three
-// bind BREAKPOINTS.MD/LG/XL by import (never copied), 375 is a documented
-// device literal below the SM breakpoint.
+// SWEEP_VIEWPORTS -- design D4. Defined in `./sweepViewports` (a
+// Playwright-free module the Jest-side sweep-coverage guard can import
+// transitively) and re-exported here so every existing importer of
+// `helpers/layout` is unaffected.
 // ============================================================================
 
-/** One viewport the sweep resizes to and re-checks layout invariants at. */
-export interface SweepViewport {
-  readonly label: string;
-  readonly width: number;
-  readonly height: number;
-}
-
-/**
- * The four viewports the layout sweep loops per screen. Widths match the
- * four deleted responsive Playwright projects (design D2) so the sweep
- * preserves their coverage as a parameter dimension instead of suite
- * duplication. `BREAKPOINTS.SM` (640) is deliberately not swept -- no
- * historical project and no device class the app targets used it.
- */
-export const SWEEP_VIEWPORTS: readonly SweepViewport[] = [
-  {
-    // Below the SM breakpoint -- iPhone-SE class device width. No
-    // BREAKPOINTS key exists for it, deliberately: it matches the deleted
-    // Mobile Chrome project and ~8 existing specs' hardcoded 375.
-    label: 'mobile-375',
-    width: 375,
-    height: 667,
-  },
-  {
-    label: 'tablet-portrait-768',
-    width: BREAKPOINTS.MD,
-    height: 1024,
-  },
-  {
-    label: 'tablet-landscape-1024',
-    width: BREAKPOINTS.LG,
-    height: 768,
-  },
-  {
-    label: 'desktop-1280',
-    width: BREAKPOINTS.XL,
-    height: 720,
-  },
-] as const;
+export { SWEEP_VIEWPORTS, type SweepViewport } from './sweepViewports';
