@@ -34,6 +34,7 @@ import type {
 } from '@/lib/campaign/lifecycle/campaignLifecycleState';
 import type { IPendingProposal } from '@/lib/multiplayer/server/CampaignGmArbiter';
 
+import { CAMPAIGN_CONFLICT_REBASE_ACTION } from '@/lib/campaign/authority/campaignConflictDecision';
 import {
   _resetCampaignSyncTransportsForTest,
   registerCampaignSyncTransport,
@@ -253,9 +254,51 @@ describe('the guest reads the same refusal the host does', () => {
       />,
     );
 
+    // Same vocabulary as the host reads - and since #93 that vocabulary
+    // is the honest one: the control clears a local hint, so it says so.
     expect(screen.getByTestId('guest-lifecycle-recovery')).toHaveTextContent(
-      'Resync to active head',
+      'Check again',
     );
+    expect(
+      screen.getByTestId('guest-lifecycle-recovery-description'),
+    ).toHaveTextContent(/superseded branch/i);
+  });
+
+  it('never puts a movement promise on the guest control either', () => {
+    // Finding #93's rendered half on the guest side. Both label sources
+    // are swept: the local table, and a server-supplied action - which is
+    // literally `rebase-onto-active-head` and would, on the button, promise
+    // the guest a movement that pressing cannot perform.
+    for (const serverAction of [null, CAMPAIGN_CONFLICT_REBASE_ACTION]) {
+      const { unmount } = render(
+        <GuestProposalSurface
+          api={guestApi()}
+          actions={GUEST_ACTIONS}
+          syncPosture={guestUnder(refusal('STALE_BRANCH', serverAction))}
+        />,
+      );
+
+      expect(
+        screen.getByTestId('guest-lifecycle-recovery').textContent ?? '',
+      ).not.toMatch(/resync|rebase/i);
+      unmount();
+    }
+  });
+
+  it("shows the guest the server's instruction verbatim, beside the control", () => {
+    render(
+      <GuestProposalSurface
+        api={guestApi()}
+        actions={GUEST_ACTIONS}
+        syncPosture={guestUnder(
+          refusal('STALE_BRANCH', CAMPAIGN_CONFLICT_REBASE_ACTION),
+        )}
+      />,
+    );
+
+    expect(
+      screen.getByTestId('guest-lifecycle-recovery-server-action'),
+    ).toHaveTextContent(CAMPAIGN_CONFLICT_REBASE_ACTION);
   });
 
   it('tells the guest to wait out a rebuild, with no button to press', () => {

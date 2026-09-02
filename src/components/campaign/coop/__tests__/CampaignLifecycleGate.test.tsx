@@ -105,6 +105,9 @@ function refusedPosture(): IGmLifecyclePosture {
       label: 'Check again',
       description: 'Waiting for every participant to catch up.',
       actionable: true,
+      // No server-named action on this one: the convergence refusal
+      // arrives as a wire `Error` frame, which carries no action field.
+      serverAction: null,
     },
   });
 }
