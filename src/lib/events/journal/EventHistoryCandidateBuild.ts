@@ -69,6 +69,23 @@ const CANDIDATE_REASON_TAG = 'correction-rebuild';
 export interface ICandidateBuildRequest
   extends IEventHistoryStreamRef, IHeldCorrectionLease {
   readonly createdAt: string;
+  /**
+   * Where to CUT, when that is not where the correction is FENCED
+   * (umbrella 16.2, finding #87).
+   *
+   * These were one number, and conflating them made a rewind impossible
+   * to express. The lease's expected revision must equal the live head -
+   * that is fencing, and it is how an owner learns somebody else moved
+   * the stream while it was away. But a rewind's whole purpose is to
+   * anchor a replacement BELOW the head and leave the facts above it
+   * behind, so a candidate that could only ever be cut at the head could
+   * only ever replay history forward.
+   *
+   * Absent, this is the lease's expected revision, which is exactly what
+   * every existing caller got. Present, it is validated against the
+   * lease rather than trusted - see `resolveCandidateBaseRevision`.
+   */
+  readonly baseRevision?: number;
 }
 
 /** The lease a candidate's reason names. */
@@ -155,13 +172,14 @@ export function createCorrectionCandidateBranch(
     leases.assertExpectedHeadIsCurrent(stream, lease);
 
     const parent = requireParentBranch(db, stream, lease);
-    const base = requireBaseEvent(db, stream, lease);
+    const baseRevision = resolveCandidateBaseRevision(lease, request);
+    const base = requireBaseEvent(db, stream, lease, baseRevision);
     const candidate: IEventHistoryBranch = {
       ...stream,
       branchId: mintCandidateBranchId(),
       parentBranchId: lease.expectedBranchId,
       ancestorDepth: parent.ancestorDepth + 1,
-      baseRevision: lease.expectedRevision,
+      baseRevision,
       baseEventId: base.eventId,
       baseDigest: base.eventDigest,
       status: 'building',
@@ -178,6 +196,47 @@ export function createCorrectionCandidateBranch(
     seedCandidateJournalHead(db, candidate);
     return authorized.requireBranch(stream, candidate.branchId);
   })();
+}
+
+/**
+ * The revision the candidate is cut at, validated against the lease
+ * (umbrella 16.2, finding #87).
+ *
+ * A requested base is never trusted, because the lease is what the caller
+ * proved and the base is what the caller asked for. Three refusals, each
+ * naming a different wrong belief:
+ *
+ * - Above the fenced head: that is history the stream does not have yet,
+ *   and a candidate anchored there would claim a future.
+ * - Below revision 1: a child branch anchors to a real base EVENT, and
+ *   revision 0 is the revision with no event. `assertValidBranchRecord`
+ *   would refuse the record anyway; refusing here names the parameter
+ *   that was wrong instead of the record that was built from it.
+ * - Not a safe integer: the same rule every revision in this leaf carries.
+ *
+ * Equal to the fenced head is legal and is the default - that is an
+ * ordinary forward correction, which is all this function could express
+ * before.
+ */
+function resolveCandidateBaseRevision(
+  lease: IEventHistoryCorrectionLease,
+  request: ICandidateBuildRequest,
+): number {
+  const requested = request.baseRevision;
+  if (requested === undefined) return lease.expectedRevision;
+  if (!Number.isSafeInteger(requested) || requested < 1) {
+    throw new EventHistoryBranchError(
+      'invalid-branch-record',
+      `A candidate base revision must be a safe integer of 1 or more, not ${requested}`,
+    );
+  }
+  if (requested > lease.expectedRevision) {
+    throw new EventHistoryBranchError(
+      'branch-integrity',
+      `A candidate may not be cut at revision ${requested}, above the head its lease fenced at ${lease.expectedRevision}`,
+    );
+  }
+  return requested;
 }
 
 /**
@@ -246,20 +305,30 @@ function requireBaseEvent(
   db: Database.Database,
   stream: IEventHistoryStreamRef,
   lease: IEventHistoryCorrectionLease,
+  baseRevision: number,
 ): IBaseEvent {
   const row = db
     .prepare(
       `SELECT event_id AS eventId, event_digest AS eventDigest
        FROM event_journal_events
-       WHERE stream_type = ? AND stream_id = ? AND stream_revision = ?`,
+       WHERE stream_type = ? AND stream_id = ? AND branch_id = ?
+         AND stream_revision = ?`,
     )
-    .get(stream.streamType, stream.streamId, lease.expectedRevision) as
-    | IBaseEvent
-    | undefined;
+    .get(
+      stream.streamType,
+      stream.streamId,
+      // The PARENT's event, named explicitly. A revision is only unique
+      // WITHIN a branch, so once a stream holds more than one branch this
+      // query without a branch answers with whichever row it happens to
+      // reach - and anchoring a candidate to a sibling's event would build
+      // a replacement on history its own parent never held.
+      lease.expectedBranchId,
+      baseRevision,
+    ) as IBaseEvent | undefined;
   if (row === undefined) {
     throw new EventHistoryBranchError(
       'branch-integrity',
-      `Stream ${stream.streamType}/${stream.streamId} has no event at revision ${lease.expectedRevision} to anchor a candidate to`,
+      `Stream ${stream.streamType}/${stream.streamId} has no event at revision ${baseRevision} on branch '${lease.expectedBranchId}' to anchor a candidate to`,
     );
   }
   return row;
