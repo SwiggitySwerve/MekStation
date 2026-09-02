@@ -32,11 +32,23 @@ import type {
 
 import { InteractiveSession } from '@/engine/InteractiveSession';
 import { quarantineAuthorityCorruption } from '@/lib/events/checkpoints/AuthorityQuarantine';
-import { referenceRecoveryPort } from '@/lib/events/checkpoints/AuthorityRecoveryPort';
+import {
+  BranchCheckpointCache,
+  checkpointRecoveryPort,
+  referenceRecoveryPort,
+} from '@/lib/events/checkpoints/AuthorityRecoveryPort';
+import { getSQLiteService } from '@/services/persistence/SQLiteService';
 import { hydrateGameSessionFromEvents } from '@/utils/gameplay/gameSession';
 
 import type { IMatchMeta, IMatchStore } from './IMatchStore';
 
+import { revisionForMatchSequence } from './history/matchStoreBranchSegmentReader';
+import { matchStoreHistoryReader } from './MatchCheckpointHistory';
+import {
+  createMatchSessionProjector,
+  foldMatchSession,
+  matchAuthoritativePipeline,
+} from './MatchSessionProjector';
 import { ServerMatchHost } from './ServerMatchHost';
 
 /**
@@ -119,9 +131,13 @@ export async function recoverActiveMatches(
   const hosts = new Map<string, ServerMatchHost>();
   const failed: string[] = [];
   const blocked: IMatchRecoveryBlock[] = [];
-  // The reference port: read everything, fold it - verbatim what this
-  // sweep already did. What it adds is a NAME for each refusal.
-  const recovery = referenceRecoveryPort<IGameEvent, IGameSession>();
+  // InMemory / uninitialized SQLite keeps the reference port, so the
+  // existing blocked-verdict suite stays byte-identical. A live SQLite
+  // handle is the only thing that can offer a checkpoint.
+  const sqlite = getSQLiteService();
+  const cache = sqlite.isInitialized()
+    ? new BranchCheckpointCache(sqlite.getDatabase())
+    : null;
 
   if (!isRecoverableMatchStore(store)) {
     // The in-memory dev store has nothing to recover after a restart;
@@ -140,13 +156,48 @@ export async function recoverActiveMatches(
 
   for (const meta of active) {
     try {
+      const projector =
+        cache === null ? null : createMatchSessionProjector(meta.matchId);
+      const pipeline =
+        projector === null
+          ? null
+          : matchAuthoritativePipeline(meta.matchId, projector);
+      const history =
+        cache === null ? null : matchStoreHistoryReader(store, meta.matchId);
+      let headRevision = 0;
+      if (cache !== null) {
+        const log = await store.getEvents(meta.matchId, 0);
+        const last = log[log.length - 1];
+        headRevision =
+          last === undefined ? 0 : revisionForMatchSequence(last.sequence);
+      }
+      const recovery =
+        cache !== null && pipeline !== null && history !== null
+          ? checkpointRecoveryPort<IGameEvent, IGameSession>({
+              cache,
+              pipeline,
+              headRevision,
+              history,
+              parse: (stateJson) =>
+                foldMatchSession(
+                  meta.matchId,
+                  (JSON.parse(stateJson) as IGameSession).events,
+                ),
+            })
+          : referenceRecoveryPort<IGameEvent, IGameSession>();
       const verdict = await recovery({
         authorityId: meta.matchId,
         // An `active` match with no events is malformed, not a fresh one.
         emptyHistory: 'corrupt',
-        read: (fromExclusive) =>
-          store.getEvents(meta.matchId, fromExclusive + 1),
-        revisionOf: (event) => event.sequence,
+        // Exclusive: a checkpoint names the last revision it covers.
+        // revision = sequence + 1, and getEvents returns sequence >=
+        // fromSeq, so reading at R yields the event at revision R+1.
+        // The old `fromExclusive + 1` assumed revision === sequence and
+        // skipped that first tail event (the 15.3 A5-match kill).
+        // AUTHORITY_HISTORY_START is -1; both stores clamp fromSeq <= 0
+        // to 0, so a full-log read is unchanged.
+        read: (fromExclusive) => store.getEvents(meta.matchId, fromExclusive),
+        revisionOf: (event) => revisionForMatchSequence(event.sequence),
         // A match log carries no digests, so lineage and digest checks
         // do not apply to it (the detector skips them for an authority
         // that carries none). Sequence continuity and event-identity
@@ -157,7 +208,7 @@ export async function recoverActiveMatches(
           previousDigest: null,
           digest: null,
         }),
-        fold: (events) => hydrateGameSessionFromEvents(meta.matchId, events),
+        fold: (events, base) => foldMatchSession(meta.matchId, events, base),
       });
       // A refused authority is named and skipped. Nothing partial is
       // built from it: no session, no host, no registration.
@@ -184,6 +235,23 @@ export async function recoverActiveMatches(
           );
         }
         continue;
+      }
+      if (
+        cache !== null &&
+        pipeline !== null &&
+        history !== null &&
+        headRevision >= 1
+      ) {
+        const digest = await history.chainDigestAt(headRevision);
+        if (digest !== null) {
+          cache.record(
+            pipeline,
+            headRevision,
+            digest,
+            verdict.state,
+            verdict.state.updatedAt,
+          );
+        }
       }
       const session = await InteractiveSession.fromSessionAsync(verdict.state);
       const host = await ServerMatchHost.recover(meta.matchId, store, session);
