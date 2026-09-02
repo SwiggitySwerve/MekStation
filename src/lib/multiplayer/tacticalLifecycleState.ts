@@ -1,5 +1,9 @@
 /** Persistent lifecycle posture for the networked tactical match surface. */
 
+import type {
+  LifecycleProjectionSignal,
+  LifecycleState,
+} from '@/lib/lifecycle/lifecycleState';
 import type { IClientLifecycleState } from '@/lib/multiplayer/client';
 
 import {
@@ -8,17 +12,14 @@ import {
   type GameSide,
 } from '@/types/gameplay/GameSessionInterfaces';
 
-export type TacticalLifecycleState =
-  | 'pending'
-  | 'sealed'
-  | 'finalized'
-  | 'syncing'
-  | 'reconnecting'
-  | 'behind'
-  | 'blocked'
-  | 'rewound'
-  | 'rebuilding'
-  | 'live';
+/**
+ * Aliased to the shared vocabulary (umbrella 19.1) rather than redeclared.
+ * The campaign and GM surfaces name their postures from the same union, and
+ * the compiler is what keeps the three from drifting apart - a name added or
+ * renamed here is added or renamed everywhere, which is the whole point of
+ * having one vocabulary.
+ */
+export type TacticalLifecycleState = LifecycleState;
 
 /**
  * Reserved for `add-authoritative-history-branches`. The tactical client does
@@ -26,9 +27,7 @@ export type TacticalLifecycleState =
  * live match can rewind or rebuild today. The branch can pass its typed signal
  * to this model without changing this banner or its locators.
  */
-export type TacticalLifecycleProjectionSignal =
-  | 'PROJECTION_REWOUND'
-  | 'PROJECTION_REBUILDING';
+export type TacticalLifecycleProjectionSignal = LifecycleProjectionSignal;
 
 export interface ITacticalLifecyclePosture {
   readonly state: TacticalLifecycleState;
