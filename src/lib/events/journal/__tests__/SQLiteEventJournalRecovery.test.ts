@@ -2,7 +2,10 @@ import type Database from 'better-sqlite3';
 
 import type * as Journal from '../EventJournalContract';
 
+import { _branchCreationSeamForTests } from '../EventHistoryBranchContract';
 import { canonicalizeEventDigestV1 } from '../EventJournalCanonicalizer';
+import { canonicalizeCommandIdentityV1 } from '../EventJournalCommandIdentity';
+import { SQLiteEventHistoryBranchStore } from '../SQLiteEventHistoryBranchStore';
 import {
   openVerifiedSQLiteEventJournal,
   SQLiteEventJournalRecoveryError,
@@ -18,6 +21,9 @@ type Tamper = Readonly<{
 
 const DIGEST_A = 'a'.repeat(64);
 const DIGEST_B = 'b'.repeat(64);
+const CANDIDATE_A = 'candidate-1';
+const CANDIDATE_B = 'candidate-2';
+const STREAM = { streamType: 'test', streamId: 'alpha' } as const;
 
 function command(): Journal.IAppendEventBatch<Payload> {
   return {
@@ -61,6 +67,157 @@ function suffixCommand(
       },
     ],
   };
+}
+
+/** Last event of a committed root batch. C1a's seed copies this pair. */
+async function commitRoot(
+  harness: SQLiteEventJournalTestHarness,
+): Promise<Journal.IStoredEvent<Payload>> {
+  const result = await harness.current().append(command());
+  if (result.kind !== 'committed') throw new Error('Expected commit');
+  return result.events[result.events.length - 1];
+}
+
+function installGenesis(db: Database.Database): void {
+  new SQLiteEventHistoryBranchStore(db).backfillGenesisBranches();
+}
+
+function insertCandidateBranch(
+  db: Database.Database,
+  branchId: string,
+  base: Journal.IStoredEvent<Payload>,
+): void {
+  new SQLiteEventHistoryBranchStore(
+    db,
+    _branchCreationSeamForTests(),
+  ).createBranch({
+    ...STREAM,
+    branchId,
+    parentBranchId: 'root',
+    ancestorDepth: 1,
+    baseRevision: base.streamRevision,
+    baseEventId: base.eventId,
+    baseDigest: base.eventDigest,
+    status: 'building',
+    createdBy: 'gm-1',
+    reason: 'authorized rewind',
+    createdAt: '2026-09-02T00:00:00.000Z',
+  });
+}
+
+/** The same INSERT C1a's seedCandidateJournalHead writes. */
+function insertCandidateHead(
+  db: Database.Database,
+  branchId: string,
+  streamRevision: number,
+  eventDigest: string,
+): void {
+  db.prepare(
+    `INSERT INTO event_journal_stream_heads
+       (stream_type, stream_id, branch_id, stream_revision, event_digest)
+     VALUES (?, ?, ?, ?, ?)`,
+  ).run(
+    STREAM.streamType,
+    STREAM.streamId,
+    branchId,
+    streamRevision,
+    eventDigest,
+  );
+}
+
+async function seedCandidate(
+  harness: SQLiteEventJournalTestHarness,
+  branchId: string,
+): Promise<Journal.IStoredEvent<Payload>> {
+  const base = await commitRoot(harness);
+  const db = harness.database();
+  installGenesis(db);
+  insertCandidateBranch(db, branchId, base);
+  insertCandidateHead(db, branchId, base.streamRevision, base.eventDigest);
+  return base;
+}
+
+/**
+ * The writer will not append onto a C1a seed head: verifyHead looks
+ * for an event on THIS branch at the base, and the base event lives
+ * on the parent. Commit from genesis first (the writer can do that),
+ * then retarget the row to the chain the writer would have written
+ * had the seed been honored — revision base+1, predecessor = digest.
+ */
+async function commitCandidateFromGenesis(
+  harness: SQLiteEventJournalTestHarness,
+  branchId: string,
+): Promise<{
+  readonly base: Journal.IStoredEvent<Payload>;
+  readonly event: Journal.IStoredEvent<Payload>;
+  readonly command: Journal.IAppendEventBatch<Payload>;
+}> {
+  const base = await commitRoot(harness);
+  const db = harness.database();
+  installGenesis(db);
+  insertCandidateBranch(db, branchId, base);
+  const command = {
+    ...suffixCommand(2, 0),
+    expectedBranchId: branchId,
+  };
+  const result = await harness.current().append(command);
+  if (result.kind !== 'committed') {
+    throw new Error('Expected candidate commit');
+  }
+  return { base, event: result.events[0], command };
+}
+
+function rewireCandidateOnto(
+  db: Database.Database,
+  event: Journal.IStoredEvent<Payload>,
+  streamRevision: number,
+  previousDigest: string,
+  command: Journal.IAppendEventBatch<Payload>,
+): void {
+  const rewritten = {
+    ...event,
+    streamRevision,
+    previousStreamEventDigest: previousDigest,
+  };
+  const eventDigest = canonicalizeEventDigestV1(rewritten).digest;
+  mutateImmutable(db, 'event_journal_events_no_update', () => {
+    db.prepare(
+      `UPDATE event_journal_events
+       SET stream_revision = ?, previous_stream_event_digest = ?, event_digest = ?
+       WHERE event_id = ?`,
+    ).run(streamRevision, previousDigest, eventDigest, event.eventId);
+  });
+  db.prepare(
+    `UPDATE event_journal_stream_heads
+     SET stream_revision = ?, event_digest = ?
+     WHERE stream_type = ? AND stream_id = ? AND branch_id = ?`,
+  ).run(
+    streamRevision,
+    eventDigest,
+    event.streamType,
+    event.streamId,
+    event.branchId,
+  );
+  const commandDigest = canonicalizeCommandIdentityV1({
+    ...command,
+    expectedRevision: streamRevision - 1,
+  }).digest;
+  mutateImmutable(db, 'event_journal_batches_no_update', () => {
+    db.prepare(
+      `UPDATE event_journal_batches
+       SET first_stream_revision = ?, last_stream_revision = ?, command_digest = ?
+       WHERE command_id = ?`,
+    ).run(streamRevision, streamRevision, commandDigest, event.commandId);
+  });
+}
+
+/** Pre-migration-23 shape: lineage tables gone, journal rows untouched. */
+function dropHistoryBranchTables(db: Database.Database): void {
+  db.exec(`
+    DROP TABLE IF EXISTS event_history_supersessions;
+    DROP TABLE IF EXISTS event_history_effective_heads;
+    DROP TABLE IF EXISTS event_history_branches;
+  `);
 }
 
 function mutateImmutable(
@@ -280,4 +437,193 @@ describe('SQLite event journal verified opening', () => {
       await harness.dispose();
     }
   });
+});
+
+describe('SQLite event journal candidate seed recovery', () => {
+  it('finding #86-adjacent: a C1a candidate head with no events is not journal corruption', async () => {
+    const harness = await SQLiteEventJournalTestHarness.create();
+    try {
+      await seedCandidate(harness, CANDIDATE_A);
+      await expect(
+        openVerifiedSQLiteEventJournal<Payload>(harness.database()),
+      ).resolves.toBeDefined();
+    } finally {
+      await harness.dispose();
+    }
+  });
+
+  it('finding #96: an event-less head on a branch that does not exist is still corruption', async () => {
+    const harness = await SQLiteEventJournalTestHarness.create();
+    try {
+      const base = await commitRoot(harness);
+      installGenesis(harness.database());
+      insertCandidateHead(
+        harness.database(),
+        CANDIDATE_A,
+        base.streamRevision,
+        base.eventDigest,
+      );
+      await expect(
+        openVerifiedSQLiteEventJournal<Payload>(harness.database()),
+      ).rejects.toThrow('Stream head count differs');
+    } finally {
+      await harness.dispose();
+    }
+  });
+
+  it('finding #96: a seed whose revision disagrees with its branch record is refused', async () => {
+    const harness = await SQLiteEventJournalTestHarness.create();
+    try {
+      const base = await commitRoot(harness);
+      const db = harness.database();
+      installGenesis(db);
+      insertCandidateBranch(db, CANDIDATE_A, base);
+      insertCandidateHead(
+        db,
+        CANDIDATE_A,
+        base.streamRevision - 1,
+        base.eventDigest,
+      );
+      await expect(openVerifiedSQLiteEventJournal<Payload>(db)).rejects.toThrow(
+        'Candidate seed disagrees with its branch record',
+      );
+    } finally {
+      await harness.dispose();
+    }
+  });
+
+  it('finding #96: a seed whose digest disagrees with its branch record is refused', async () => {
+    const harness = await SQLiteEventJournalTestHarness.create();
+    try {
+      const base = await commitRoot(harness);
+      const db = harness.database();
+      installGenesis(db);
+      insertCandidateBranch(db, CANDIDATE_A, base);
+      insertCandidateHead(db, CANDIDATE_A, base.streamRevision, DIGEST_A);
+      await expect(openVerifiedSQLiteEventJournal<Payload>(db)).rejects.toThrow(
+        'Candidate seed disagrees with its branch record',
+      );
+    } finally {
+      await harness.dispose();
+    }
+  });
+
+  it('finding #96: two seeds on two candidates of the same stream are both admitted', async () => {
+    const harness = await SQLiteEventJournalTestHarness.create();
+    try {
+      const base = await commitRoot(harness);
+      const db = harness.database();
+      installGenesis(db);
+      insertCandidateBranch(db, CANDIDATE_A, base);
+      insertCandidateBranch(db, CANDIDATE_B, base);
+      insertCandidateHead(
+        db,
+        CANDIDATE_A,
+        base.streamRevision,
+        base.eventDigest,
+      );
+      insertCandidateHead(
+        db,
+        CANDIDATE_B,
+        base.streamRevision,
+        base.eventDigest,
+      );
+      await expect(
+        openVerifiedSQLiteEventJournal<Payload>(db),
+      ).resolves.toBeDefined();
+    } finally {
+      await harness.dispose();
+    }
+  });
+
+  it('finding #96: a candidate branch that later has events is treated as event-backed', async () => {
+    const harness = await SQLiteEventJournalTestHarness.create();
+    try {
+      const { base, event, command } = await commitCandidateFromGenesis(
+        harness,
+        CANDIDATE_A,
+      );
+      const db = harness.database();
+      rewireCandidateOnto(
+        db,
+        event,
+        base.streamRevision + 1,
+        base.eventDigest,
+        command,
+      );
+      await expect(
+        openVerifiedSQLiteEventJournal<Payload>(db),
+      ).resolves.toBeDefined();
+      // Resetting the head to the branch seed must fail as a chain
+      // disagreement, not pass as a seed: events exist on this branch.
+      db.prepare(
+        `UPDATE event_journal_stream_heads
+         SET stream_revision = ?, event_digest = ?
+         WHERE stream_type = ? AND stream_id = ? AND branch_id = ?`,
+      ).run(
+        base.streamRevision,
+        base.eventDigest,
+        STREAM.streamType,
+        STREAM.streamId,
+        CANDIDATE_A,
+      );
+      await expect(openVerifiedSQLiteEventJournal<Payload>(db)).rejects.toThrow(
+        'Stored stream head disagrees with its final event',
+      );
+    } finally {
+      await harness.dispose();
+    }
+  });
+
+  it('finding #97: a candidate whose first event claims revision 1 is refused', async () => {
+    const harness = await SQLiteEventJournalTestHarness.create();
+    try {
+      const { event } = await commitCandidateFromGenesis(harness, CANDIDATE_A);
+      await expect(
+        openVerifiedSQLiteEventJournal<Payload>(harness.database()),
+      ).rejects.toThrow(`Stream chain is invalid at event ${event.eventId}`);
+    } finally {
+      await harness.dispose();
+    }
+  });
+
+  it('finding #97: a candidate whose first event chains from the wrong digest is refused', async () => {
+    const harness = await SQLiteEventJournalTestHarness.create();
+    try {
+      const { base, event, command } = await commitCandidateFromGenesis(
+        harness,
+        CANDIDATE_A,
+      );
+      rewireCandidateOnto(
+        harness.database(),
+        event,
+        base.streamRevision + 1,
+        DIGEST_A,
+        command,
+      );
+      await expect(
+        openVerifiedSQLiteEventJournal<Payload>(harness.database()),
+      ).rejects.toThrow(`Stream chain is invalid at event ${event.eventId}`);
+    } finally {
+      await harness.dispose();
+    }
+  });
+
+  it('finding #97: root chain still starts at genesis', async () => {
+    const harness = await SQLiteEventJournalTestHarness.create();
+    try {
+      await commitRoot(harness);
+      installGenesis(harness.database());
+      await expect(
+        openVerifiedSQLiteEventJournal<Payload>(harness.database()),
+      ).resolves.toBeDefined();
+    } finally {
+      await harness.dispose();
+    }
+  });
+
+  // A row for a database from before migration 23 (no branch table) was tried
+  // and withdrawn: dropping the table under its foreign-key children is not
+  // how an older database looks, and there is no honest fixture for one in
+  // this harness. The guard stays a table-existence check in the module.
 });
