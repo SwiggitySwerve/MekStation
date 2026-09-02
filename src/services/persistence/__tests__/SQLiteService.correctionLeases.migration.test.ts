@@ -103,9 +103,18 @@ describe('event history correction lease SQLite migration', () => {
     expect(
       db.prepare('SELECT MAX(version) AS version FROM migrations').get(),
     ).toEqual({ version: MIGRATION_HEAD });
-    expect(EVENT_HISTORY_CORRECTION_LEASES_MIGRATION.version).toBe(
-      MIGRATION_HEAD,
-    );
+    // This migration is no longer the head - later migrations follow
+    // it - so the pin is membership in the catalog at or below the
+    // head, plus proof the ladder actually applied it.
+    expect(MIGRATIONS).toContain(EVENT_HISTORY_CORRECTION_LEASES_MIGRATION);
+    expect(
+      EVENT_HISTORY_CORRECTION_LEASES_MIGRATION.version,
+    ).toBeLessThanOrEqual(MIGRATION_HEAD);
+    expect(
+      db
+        .prepare('SELECT version FROM migrations WHERE version = ?')
+        .get(EVENT_HISTORY_CORRECTION_LEASES_MIGRATION.version),
+    ).toEqual({ version: EVENT_HISTORY_CORRECTION_LEASES_MIGRATION.version });
 
     const tables = db
       .prepare(

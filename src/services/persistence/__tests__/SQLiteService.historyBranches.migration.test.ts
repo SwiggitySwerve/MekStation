@@ -137,6 +137,10 @@ describe('event history branches SQLite migration', () => {
       )
       .all() as Array<{ readonly name: string }>;
     expect(tables.map(({ name }) => name)).toEqual([
+      // Migrations 24 and 25 add later additive siblings that share
+      // the prefix; they are not among the three this migration made.
+      'event_history_artifact_manifest_entries',
+      'event_history_artifact_manifests',
       'event_history_branches',
       // Migration 24's correction-lease table shares the prefix; it is a
       // later additive sibling of these three, not one of them.
