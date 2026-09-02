@@ -403,7 +403,10 @@ describe('POST /api/matches/[id]/rewind-commit', () => {
   });
 
   it('answers 404 for a match nobody has created, not a body the client could mistake for success', async () => {
-    const { status, json } = await call({ bearer: host.wire, id: 'no-such-match' });
+    const { status, json } = await call({
+      bearer: host.wire,
+      id: 'no-such-match',
+    });
 
     expect(status).toBe(404);
     expect(json.kind).toBeUndefined();
