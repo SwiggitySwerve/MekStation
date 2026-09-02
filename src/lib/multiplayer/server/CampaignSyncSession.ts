@@ -37,6 +37,7 @@
 import type { ICampaignEvent } from '@/types/campaign/CampaignSync';
 
 import { freezeCampaignEvent } from '@/lib/campaign/sync/campaignEventScope';
+import { projectCampaignForViewer } from '@/lib/campaign/sync/campaignViewerProjection';
 import { generateRoomCode, normalizeRoomCode } from '@/lib/p2p/roomCodes';
 import { nowIso } from '@/types/multiplayer/Protocol';
 
@@ -452,7 +453,7 @@ export class CampaignSyncSession {
     const buffered: ICampaignEvent[] = [];
     const liveUnsub = this.host.subscribe((event) => buffered.push(event));
     const revision = await this.currentRevision();
-    const baseline = this.buildBaselineEvent(revision);
+    const baseline = await this.buildBaselineEvent(revision, participantId);
     delivered.push(baseline);
     sink(baseline);
 
@@ -542,7 +543,7 @@ export class CampaignSyncSession {
     if (gap > RESYNC_SNAPSHOT_GAP) {
       // Large-gap path — a fresh baseline is cheaper than the tail.
       const revision = Math.max(0, highest - 1);
-      const baseline = this.buildBaselineEvent(revision);
+      const baseline = await this.buildBaselineEvent(revision, participantId);
       delivered.push(baseline);
       sink(baseline);
       if (participantId !== undefined) {
@@ -735,25 +736,52 @@ export class CampaignSyncSession {
 
   /**
    * Build the framing `CampaignSnapshotPublished` event delivered as a
-   * guest's baseline. It carries the host's current authoritative
-   * state. The framing `sequence` is `-1` so it is unambiguously a
+   * guest's baseline, PROJECTED for the viewer receiving it (umbrella
+   * 12.1). The framing `sequence` is `-1` so it is unambiguously a
    * baseline frame and can never collide with a real log event
    * (sequence 0+) — the guest's `applySnapshot` adopts the payload
    * wholesale regardless of sequence.
+   *
+   * This used to serialize `host.buildSnapshotPayload()` — the FULL
+   * folded authoritative state — to every admitted viewer. The 11.1
+   * boundary filters EVENTS, so a gm-scoped fact was withheld from a
+   * player's live stream and then handed to them anyway, folded into the
+   * baseline they hydrate from: the withheld fact's EFFECT arrived even
+   * though the fact did not. `projectCampaignStreamForGrant` had already
+   * reasoned this through for the grant arm; this is the legacy arm
+   * joining it on the shared contract rather than keeping a second
+   * policy.
+   *
+   * Only the STATE is projected. `matchId` and `revision` stay as they
+   * were: the legacy client resumes by that number and the ack gate
+   * reads it, and replacing the journal sequence with delivery-space
+   * numbering is the deferral recorded in `campaignWireScopeBoundary`,
+   * owned elsewhere. Narrowing the state does not touch it.
    */
-  private buildBaselineEvent(
+  private async buildBaselineEvent(
     revision: number,
-  ): ICampaignEvent<'CampaignSnapshotPublished'> {
+    participantId: string | undefined,
+  ): Promise<ICampaignEvent<'CampaignSnapshotPublished'>> {
+    const viewer = this.wireViewer(participantId);
+    // The whole log, not the host's cached state: the fold has to be of
+    // the events this viewer may see, and only the log carries scopes.
+    const events = await this.host.getEventLog().getCampaignEvents(0);
+    const projection = projectCampaignForViewer(
+      this.host.campaignId,
+      events,
+      (scope) => campaignScopeAdmits(scope, viewer),
+    );
     return freezeCampaignEvent({
       type: 'CampaignSnapshotPublished',
       sequence: -1,
       campaignId: this.host.campaignId,
       ts: nowIso(),
       authorPlayerId: this.host.getHostPlayerId(),
-      // Delivery baseline of the shared ledger; filtered snapshots are task 3.4.
+      // The baseline of what THIS viewer may see. A viewer admitted to
+      // every scope folds the whole log, which is the host's own state.
       scope: 'campaign',
       payload: {
-        ...this.host.buildSnapshotPayload(),
+        state: projection.state,
         matchId: this.matchId,
         revision,
       },

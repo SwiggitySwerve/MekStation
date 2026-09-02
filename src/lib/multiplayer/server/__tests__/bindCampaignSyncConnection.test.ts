@@ -72,7 +72,13 @@ async function makeRegistry(
 }
 
 async function flushAsyncHandlers(): Promise<void> {
-  for (let i = 0; i < 8; i += 1) {
+  // 32, matching bindCampaignSyncConnection.reconcile.test.ts. This is a
+  // microtask DRAIN, not an assertion: it counts how far the harness
+  // pumps the socket handler's promise chain before reading `sent`.
+  // Projecting the join baseline (umbrella 12.1) reads the campaign log,
+  // which put hydration past 8 ticks. Nothing about what the rows assert
+  // changes - only how long the harness waits before asserting it.
+  for (let i = 0; i < 32; i += 1) {
     await Promise.resolve();
   }
 }
