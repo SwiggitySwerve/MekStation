@@ -286,6 +286,18 @@ describe('CampaignHostRegistry', () => {
     expect(remaining[0].playerId).toBe('pid_guest');
   });
 
+  it('labels a database-free host EPHEMERAL rather than letting it pass for durable', async () => {
+    // The counterpart row, and the one that matters: this suite runs
+    // with no initialized database, so the host is on the dev adapter.
+    // Reporting that honestly is what stops a recovery path from
+    // treating an in-memory log as campaign authority.
+    const registry = new CampaignHostRegistry();
+
+    const entry = await registry.register('match-campaign', snapshot());
+
+    expect(entry.eventStoreDurability).toBe('ephemeral');
+  });
+
   it('exposes a resettable process singleton', async () => {
     const registry = getCampaignHostRegistry();
     await registry.register('match-campaign', snapshot());
@@ -360,6 +372,18 @@ describe('CampaignHostRegistry', () => {
           activeBranch: 'rewind-alpha',
         }),
       );
+    });
+
+    it('hosts the campaign on the durable journal, and says so', async () => {
+      // Task 8.1: the registry no longer decides this inline. What is
+      // pinned here is the OUTCOME a real database produces - a caller
+      // reading `eventStoreDurability` must be told 'journal', because
+      // recovery treats that answer as permission to rebuild from the log.
+      const registry = new CampaignHostRegistry();
+
+      const entry = await registry.register('match-campaign', snapshot());
+
+      expect(entry.eventStoreDurability).toBe('journal');
     });
 
     it('starts a fresh session at revision 0 with the genesis branch', async () => {
