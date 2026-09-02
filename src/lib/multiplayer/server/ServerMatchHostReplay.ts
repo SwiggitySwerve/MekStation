@@ -56,6 +56,12 @@ export interface IServerMatchHostReplayContext {
   readonly maybeResume: () => void;
   readonly viewerResolver: AuthorizedViewerResolver;
   readonly deliveryCursors: ViewerDeliveryCursors;
+  /**
+   * Last authority sequence still on the activated branch. Null when
+   * no rewind rebuilt this host — ReplayChunk then reads the store
+   * exactly as before.
+   */
+  readonly rewindReplayCeiling: number | null;
 }
 
 /**
@@ -199,15 +205,35 @@ function authoritySequenceForReplayItem(
   return typeof record.sequence === 'number' ? record.sequence : null;
 }
 
+/**
+ * The single ReplayChunk gather. Activation does not delete
+ * mp_match_events rows past the cut, so a raw store read would
+ * resurface superseded facts. When a rewind set a ceiling, drop
+ * those rows here. When it did not, return the store promise
+ * unchanged so the no-rebuild path stays byte-identical.
+ */
 export function getEventsFromSeq(
-  ctx: Pick<IServerMatchHostReplayContext, 'matchId' | 'store'>,
+  ctx: Pick<
+    IServerMatchHostReplayContext,
+    'matchId' | 'store' | 'rewindReplayCeiling'
+  >,
   seq: number,
 ): Promise<readonly IGameEvent[]> {
-  return ctx.store.getEvents(ctx.matchId, seq);
+  const stored = ctx.store.getEvents(ctx.matchId, seq);
+  const ceiling = ctx.rewindReplayCeiling;
+  if (ceiling == null) {
+    return stored;
+  }
+  return stored.then((events) =>
+    events.filter((event) => event.sequence <= ceiling),
+  );
 }
 
 export async function handleReconnectRequest(
-  ctx: Pick<IServerMatchHostReplayContext, 'matchId' | 'store'>,
+  ctx: Pick<
+    IServerMatchHostReplayContext,
+    'matchId' | 'store' | 'rewindReplayCeiling'
+  >,
   request: IReconnectRequestEnvelope,
   channel: Pick<
     IGameSessionChannel,
@@ -229,7 +255,10 @@ export async function handleReconnectRequest(
 }
 
 export function bindReconnectChannel(
-  ctx: Pick<IServerMatchHostReplayContext, 'matchId' | 'store'>,
+  ctx: Pick<
+    IServerMatchHostReplayContext,
+    'matchId' | 'store' | 'rewindReplayCeiling'
+  >,
   channel: Pick<
     IGameSessionChannel,
     | 'broadcastRejection'

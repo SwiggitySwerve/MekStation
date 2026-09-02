@@ -154,6 +154,15 @@ export class ViewerDeliveryCursors {
   forget(playerId: string): void {
     this.delivered.delete(playerId);
   }
+
+  /**
+   * Drop every viewer's counter. A rewind makes the old stream a
+   * different history: resuming those numbers would replay superseded
+   * frames, including hidden facts the new head no longer holds.
+   */
+  discardAll(): void {
+    this.delivered.clear();
+  }
 }
 
 function isContiguousFromZero(

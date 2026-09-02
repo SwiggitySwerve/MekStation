@@ -80,6 +80,8 @@ export interface IServerMatchHostInternals extends IServerMatchHostCaptureContex
   readonly acceptedIntents: AcceptedIntentTracker;
   readonly viewerResolver: AuthorizedViewerResolver;
   readonly deliveryCursors: ViewerDeliveryCursors;
+  /** Null until a rewind rebuild bounds ReplayChunk to the new head. */
+  readonly rewindReplayCeiling: number | null;
   /** Append-once sink for terminal command refusals (umbrella 18.2). */
   readonly commandRejectionAudit?: ICommandRejectionAuditPort;
   readonly rollbackBlockReason?: MatchRollbackBlockedReason;
@@ -127,6 +129,7 @@ export function buildReplayContext(
     maybeResume: host.maybeResume,
     viewerResolver: host.viewerResolver,
     deliveryCursors: host.deliveryCursors,
+    rewindReplayCeiling: host.rewindReplayCeiling,
   };
 }
 
