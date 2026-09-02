@@ -43,7 +43,11 @@ const PIN_REGISTRY = new ReplaySchemaRegistry({
       eventType: 'probe_damage',
       targetSchemaVersion: 1,
       schemas: [
-        { schemaVersion: 1, schemaId: 'probe.damage.v1', parse: (p: unknown) => p },
+        {
+          schemaVersion: 1,
+          schemaId: 'probe.damage.v1',
+          parse: (p: unknown) => p,
+        },
       ],
       transitions: [],
     },
@@ -92,7 +96,9 @@ describe('admitCoordinatedOutcomeCorrection', () => {
         causationEventIds: [],
         occurredAt: AT,
         payload: { amount: index },
-        entityRefs: [{ entityType: 'unit', entityId: 'unit-a', role: 'subject' }],
+        entityRefs: [
+          { entityType: 'unit', entityId: 'unit-a', role: 'subject' },
+        ],
       })),
     });
     expect(result.kind).toBe('committed');
@@ -153,11 +159,20 @@ describe('admitCoordinatedOutcomeCorrection', () => {
     return {
       branches: rows('event_history_branches', 'branch_id'),
       heads: rows('event_history_effective_heads', 'stream_id'),
-      supersessions: rows('event_history_supersessions', 'superseded_branch_id'),
+      supersessions: rows(
+        'event_history_supersessions',
+        'superseded_branch_id',
+      ),
       leases: rows('event_history_correction_leases', 'lease_id'),
-      manifests: rows('event_history_artifact_manifests', 'candidate_branch_id'),
+      manifests: rows(
+        'event_history_artifact_manifests',
+        'candidate_branch_id',
+      ),
       journal: rows('event_journal_events', 'stream_revision'),
-      inbox: rows('campaign_combat_outcome_inbox', 'outcome_id, outcome_version'),
+      inbox: rows(
+        'campaign_combat_outcome_inbox',
+        'outcome_id, outcome_version',
+      ),
     };
   }
 
@@ -190,7 +205,10 @@ describe('admitCoordinatedOutcomeCorrection', () => {
       gm(),
       intent({ outcomeVersion: 3 }),
     );
-    expect(result).toMatchObject({ kind: 'refused', reason: 'version-not-next' });
+    expect(result).toMatchObject({
+      kind: 'refused',
+      reason: 'version-not-next',
+    });
     expect(census()).toStrictEqual(before);
   });
 
@@ -216,7 +234,10 @@ describe('admitCoordinatedOutcomeCorrection', () => {
       gm('player'),
       intent(),
     );
-    expect(result).toMatchObject({ kind: 'refused', reason: 'gm-role-required' });
+    expect(result).toMatchObject({
+      kind: 'refused',
+      reason: 'gm-role-required',
+    });
     expect(census()).toStrictEqual(before);
   });
 

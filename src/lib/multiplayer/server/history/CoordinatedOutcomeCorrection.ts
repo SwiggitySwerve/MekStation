@@ -67,8 +67,7 @@ export const COORDINATED_OUTCOME_CORRECTION_REFUSAL_PHRASING: Readonly<
     'Only the game master for this match can request a coordinated outcome correction.',
   'actor-mismatch':
     'This request was signed by a different account than the one holding game master authority here.',
-  'state-not-owned':
-    'This match is not under your game master authority.',
+  'state-not-owned': 'This match is not under your game master authority.',
   'outcome-not-delivered':
     'No campaign has taken delivery of this outcome, so the door is still the plain combat rewind.',
   'version-not-next':
