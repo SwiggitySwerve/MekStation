@@ -16,6 +16,7 @@ import { ACTION_AUDIT_MIGRATION } from './SQLiteService.actionAudit.migration';
 import { CAMPAIGN_GRANTS_MIGRATION } from './SQLiteService.campaignGrants.migration';
 import { CAMPAIGN_HOST_INSTANCE_MIGRATION } from './SQLiteService.campaignHostInstance.migration';
 import { CAMPAIGN_COMBAT_OUTCOME_INBOX_MIGRATION } from './SQLiteService.campaignOutcomeInbox.migration';
+import { EVENT_HISTORY_CORRECTION_LEASES_MIGRATION } from './SQLiteService.correctionLeases.migration';
 import { DELIVERY_EPOCHS_MIGRATION } from './SQLiteService.deliveryEpochs.migration';
 import { EVENT_JOURNAL_MIGRATION } from './SQLiteService.eventJournal.migration';
 import { EVENT_HISTORY_BRANCHES_MIGRATION } from './SQLiteService.historyBranches.migration';
@@ -393,4 +394,5 @@ export const MIGRATIONS: readonly IMigration[] = [
   CAMPAIGN_COMBAT_OUTCOME_INBOX_MIGRATION,
   PRIVATE_ACCESS_WRITE_MIGRATION,
   EVENT_HISTORY_BRANCHES_MIGRATION,
+  EVENT_HISTORY_CORRECTION_LEASES_MIGRATION,
 ];

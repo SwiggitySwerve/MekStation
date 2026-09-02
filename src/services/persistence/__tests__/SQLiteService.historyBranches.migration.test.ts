@@ -37,12 +37,20 @@ describe('event history branches SQLite migration', () => {
     return getSQLiteService().getDatabase();
   }
 
-  /** Re-run only this migration, the way a lost record after a crash does. */
+  /**
+   * Re-run this migration, the way a lost record after a crash does.
+   *
+   * The runner applies everything ABOVE `MAX(version)`, so the records from
+   * this migration upward have to go - dropping only this one leaves the
+   * head above it and the ladder skips the replay entirely. That was
+   * invisible while this migration was the head; migration 24 made it
+   * visible.
+   */
   function replayMigration(): Database.Database {
     resetSQLiteService();
     const raw = new Database(dbPath);
     raw
-      .prepare('DELETE FROM migrations WHERE version = ?')
+      .prepare('DELETE FROM migrations WHERE version >= ?')
       .run(EVENT_HISTORY_BRANCHES_MIGRATION.version);
     raw.close();
     return database();
@@ -108,7 +116,18 @@ describe('event history branches SQLite migration', () => {
     expect(
       db.prepare('SELECT MAX(version) AS version FROM migrations').get(),
     ).toEqual({ version: MIGRATION_HEAD });
-    expect(EVENT_HISTORY_BRANCHES_MIGRATION.version).toBe(MIGRATION_HEAD);
+    // This migration is no longer the head - later migrations follow it -
+    // so the pin is that it is IN the catalog at or below the head, and
+    // that the ladder actually applied it.
+    expect(MIGRATIONS).toContain(EVENT_HISTORY_BRANCHES_MIGRATION);
+    expect(EVENT_HISTORY_BRANCHES_MIGRATION.version).toBeLessThanOrEqual(
+      MIGRATION_HEAD,
+    );
+    expect(
+      db
+        .prepare('SELECT version FROM migrations WHERE version = ?')
+        .get(EVENT_HISTORY_BRANCHES_MIGRATION.version),
+    ).toEqual({ version: EVENT_HISTORY_BRANCHES_MIGRATION.version });
 
     const tables = db
       .prepare(
@@ -119,6 +138,9 @@ describe('event history branches SQLite migration', () => {
       .all() as Array<{ readonly name: string }>;
     expect(tables.map(({ name }) => name)).toEqual([
       'event_history_branches',
+      // Migration 24's correction-lease table shares the prefix; it is a
+      // later additive sibling of these three, not one of them.
+      'event_history_correction_leases',
       'event_history_effective_heads',
       'event_history_supersessions',
     ]);
