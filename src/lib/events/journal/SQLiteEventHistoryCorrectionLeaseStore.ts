@@ -46,7 +46,6 @@ import type {
 } from './EventHistoryCorrectionLeaseContract';
 import type { SQLiteEventHistoryBranchStore } from './SQLiteEventHistoryBranchStore';
 
-import { EVENT_HISTORY_GENESIS_DIGEST } from './EventHistoryBranchContract';
 import {
   EventHistoryCorrectionLeaseError,
   SYSTEM_EVENT_HISTORY_CLOCK,
@@ -54,6 +53,7 @@ import {
   assertValidCorrectionLeaseRequest,
   mintCorrectionLeaseId,
 } from './EventHistoryCorrectionLeaseContract';
+import { readEffectiveStreamHead } from './EventHistoryEffectiveStreamHead';
 import { validateExpectedBranchHead } from './EventHistoryExpectedHead';
 
 const LEASE_COLUMNS = `stream_type AS streamType, stream_id AS streamId, lease_id AS leaseId, owner, actor, reason, fencing_epoch AS fencingEpoch, expected_branch_id AS expectedBranchId, expected_revision AS expectedRevision, expected_digest AS expectedDigest, expected_generation AS expectedGeneration, acquired_at_ms AS acquiredAtMs, expires_at_ms AS expiresAtMs, state`;
@@ -324,20 +324,14 @@ export class SQLiteEventHistoryCorrectionLeaseStore {
   }
 
   /**
-   * The journal's revision and digest for this stream. A stream with no
-   * events yet has no head row; it sits at revision 0 on the genesis
-   * digest, which is the same "nothing has happened yet" a root branch
-   * records - not an error and not a missing head.
+   * The journal's revision and digest for this stream's effective branch.
+   * A stream with no effective branch, or no head row on the one it has,
+   * sits at revision 0 on the genesis digest - not an error and not a
+   * missing head. Both fields are required: acquisition compares
+   * binding.expectedDigest against head.digest.
    */
   private readJournalHead(stream: IEventHistoryStreamRef): IJournalHead {
-    const row = this.db
-      .prepare(
-        `SELECT stream_revision AS revision, event_digest AS digest
-         FROM event_journal_stream_heads
-         WHERE stream_type = ? AND stream_id = ?`,
-      )
-      .get(stream.streamType, stream.streamId) as IJournalHead | undefined;
-    return row ?? { revision: 0, digest: EVENT_HISTORY_GENESIS_DIGEST };
+    return readEffectiveStreamHead(this.db, this.branches, stream);
   }
 
   private staleHead(
