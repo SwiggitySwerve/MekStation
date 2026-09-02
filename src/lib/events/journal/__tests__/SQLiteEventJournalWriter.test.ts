@@ -1,37 +1,51 @@
-import Database from 'better-sqlite3';
+import type Database from 'better-sqlite3';
+import { mkdtemp, rm } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import path from 'node:path';
 
-import { EVENT_JOURNAL_MIGRATION } from '@/services/persistence/SQLiteService.eventJournal.migration';
+import {
+  getSQLiteService,
+  resetSQLiteService,
+} from '@/services/persistence/SQLiteService';
 
 import type * as Journal from '../EventJournalContract';
-
+import { SQLiteEventHistoryBranchStore } from '../SQLiteEventHistoryBranchStore';
 import { SQLiteEventJournalWriter } from '../SQLiteEventJournalWriter';
 
 type Payload = Readonly<{ value: string }>;
 const NOW = '2026-08-01T12:00:00.000Z';
+const CANDIDATE = 'candidate-1';
+const OTHER_DIGEST = 'b'.repeat(64);
 
 describe('SQLiteEventJournalWriter', () => {
+  let dir: string;
   let db: Database.Database;
   let writer: SQLiteEventJournalWriter<Payload>;
   let sequence: number;
 
-  beforeEach(() => {
-    db = new Database(':memory:');
-    db.pragma('foreign_keys = ON');
-    db.exec(EVENT_JOURNAL_MIGRATION.up);
+  beforeEach(async () => {
+    dir = await mkdtemp(path.join(tmpdir(), 'event-journal-writer-'));
+    resetSQLiteService();
+    getSQLiteService({ path: path.join(dir, 'writer.db') }).initialize();
+    db = getSQLiteService().getDatabase();
     writer = new SQLiteEventJournalWriter(db, () => NOW);
     sequence = 1;
   });
-  afterEach(() => db.close());
+  afterEach(async () => {
+    resetSQLiteService();
+    await rm(dir, { recursive: true, force: true, maxRetries: 3 });
+  });
 
   function command(
     expectedRevision = 0,
     count = 1,
+    branchId = 'root',
   ): Journal.IAppendEventBatch<Payload> {
     const commandId = `command-${sequence++}`;
     return {
       streamType: 'test',
       streamId: 'alpha',
-      expectedBranchId: 'root',
+      expectedBranchId: branchId,
       expectedRevision,
       commandId,
       principal: {
@@ -158,5 +172,129 @@ describe('SQLiteEventJournalWriter', () => {
     expect(await writer.getCommandReceipt(failed.commandId)).toBeNull();
     db.exec('DROP TRIGGER fail_head');
     expect((await committed(command())).events[0].commitPosition).toBe(1);
+  });
+
+  /**
+   * Finding #98: a candidate head is planted at the parent event, which
+   * does not exist on this branch. W1/W5 are red today; W2-W4 already
+   * refuse and stay that way unless the seed check is too loose.
+   */
+  function plantCandidateSeed(input: {
+    readonly branchId?: string;
+    readonly baseRevision: number;
+    readonly baseEventId: string;
+    readonly baseDigest: string;
+    readonly headRevision: number;
+    readonly headDigest: string;
+  }): void {
+    db.prepare(
+      `INSERT INTO event_history_branches
+         (stream_type, stream_id, branch_id, parent_branch_id, ancestor_depth,
+          base_revision, base_event_id, base_digest, status, created_by,
+          reason, created_at)
+       VALUES ('test', 'alpha', ?, 'root', 1, ?, ?, ?, 'building',
+               'host-1', 'correction-rebuild:test:1:writer-seed', ?)`,
+    ).run(
+      input.branchId ?? CANDIDATE,
+      input.baseRevision,
+      input.baseEventId,
+      input.baseDigest,
+      NOW,
+    );
+    db.prepare(
+      `INSERT INTO event_journal_stream_heads
+         (stream_type, stream_id, branch_id, stream_revision, event_digest)
+       VALUES ('test', 'alpha', ?, ?, ?)`,
+    ).run(input.branchId ?? CANDIDATE, input.headRevision, input.headDigest);
+  }
+
+  async function seedRootThenBranchTables() {
+    const first = await committed(command());
+    // The production runner already applied journal, baseline, branches
+    // (v23), and the SQL pin lift (v26). Genesis is backfilled from
+    // live stream heads, so it has to run AFTER the first root commit.
+    new SQLiteEventHistoryBranchStore(db).backfillGenesisBranches();
+    return first.events[0];
+  }
+
+  it('W1: the first append onto a seeded candidate branch commits and chains from the base digest', async () => {
+    const base = await seedRootThenBranchTables();
+    plantCandidateSeed({
+      baseRevision: base.streamRevision,
+      baseEventId: base.eventId,
+      baseDigest: base.eventDigest,
+      headRevision: base.streamRevision,
+      headDigest: base.eventDigest,
+    });
+    const next = await committed(command(base.streamRevision, 1, CANDIDATE));
+    expect(next.events[0].branchId).toBe(CANDIDATE);
+    expect(next.events[0].streamRevision).toBe(base.streamRevision + 1);
+    expect(next.events[0].previousStreamEventDigest).toBe(base.eventDigest);
+  });
+
+  it('W2: a head row with no event and NO branch record is still refused', async () => {
+    await seedRootThenBranchTables();
+    db.prepare(
+      `INSERT INTO event_journal_stream_heads
+         (stream_type, stream_id, branch_id, stream_revision, event_digest)
+       VALUES ('test', 'alpha', 'orphan-head', 1, ?)`,
+    ).run(OTHER_DIGEST);
+    await expect(writer.append(command(1, 1, 'orphan-head'))).rejects.toThrow(
+      'Stream head has no final committed event',
+    );
+  });
+
+  it('W3: a seed whose branch record base revision differs from the head revision is refused', async () => {
+    const base = await seedRootThenBranchTables();
+    plantCandidateSeed({
+      baseRevision: base.streamRevision + 1,
+      baseEventId: base.eventId,
+      baseDigest: base.eventDigest,
+      headRevision: base.streamRevision,
+      headDigest: base.eventDigest,
+    });
+    await expect(
+      writer.append(command(base.streamRevision, 1, CANDIDATE)),
+    ).rejects.toThrow('Stream head has no final committed event');
+  });
+
+  it('W4: a seed whose base digest differs from the head digest is refused', async () => {
+    const base = await seedRootThenBranchTables();
+    plantCandidateSeed({
+      baseRevision: base.streamRevision,
+      baseEventId: base.eventId,
+      baseDigest: OTHER_DIGEST,
+      headRevision: base.streamRevision,
+      headDigest: base.eventDigest,
+    });
+    await expect(
+      writer.append(command(base.streamRevision, 1, CANDIDATE)),
+    ).rejects.toThrow('Stream head has no final committed event');
+  });
+
+  it('W5: a second append onto the candidate (now event-backed) still verifies against its own last event, not the seed', async () => {
+    const base = await seedRootThenBranchTables();
+    plantCandidateSeed({
+      baseRevision: base.streamRevision,
+      baseEventId: base.eventId,
+      baseDigest: base.eventDigest,
+      headRevision: base.streamRevision,
+      headDigest: base.eventDigest,
+    });
+    const firstOnCandidate = await committed(
+      command(base.streamRevision, 1, CANDIDATE),
+    );
+    const second = await committed(
+      command(firstOnCandidate.events[0].streamRevision, 1, CANDIDATE),
+    );
+    expect(second.events[0].previousStreamEventDigest).toBe(
+      firstOnCandidate.events[0].eventDigest,
+    );
+    expect(second.events[0].previousStreamEventDigest).not.toBe(
+      base.eventDigest,
+    );
+    expect(second.events[0].streamRevision).toBe(
+      firstOnCandidate.events[0].streamRevision + 1,
+    );
   });
 });

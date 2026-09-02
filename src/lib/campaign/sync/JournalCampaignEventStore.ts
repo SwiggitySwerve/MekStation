@@ -13,7 +13,10 @@
  * Mapping: `streamType 'campaign'`, `streamId <campaignId>`, root branch;
  * `ICampaignEvent.sequence` N lives at journal `streamRevision` N + 1, so
  * an append of sequence N carries `expectedRevision` N and a sequence
- * collision surfaces as the journal's typed revision conflict.
+ * collision surfaces as the journal's typed revision conflict. That
+ * equation is the default. An explicit `expectedRevision` overrides it
+ * so a batch can land on a branch whose head is not the campaign
+ * sequence (finding #70).
  *
  * Cutover flag: `CAMPAIGN_JOURNAL_AUTHORITY_ENABLED` stays `false` — the
  * production factory keeps returning the in-memory store until the D10
@@ -178,6 +181,12 @@ function toJournalBatch(input: {
   readonly expectedPostStateDigest: string | null;
   readonly intentFingerprint?: string | null;
   readonly principal?: IResolvedJournalPrincipal;
+  /**
+   * The journal revision the batch must land on. Absent, the first
+   * event's sequence is used - today's value, so every existing caller
+   * is byte-identical.
+   */
+  readonly expectedRevision?: number;
 }): IAppendEventBatch<ICampaignJournalEnvelope> {
   if (input.events.length === 0) {
     throw new Error('A campaign command batch must contain at least one event');
@@ -191,7 +200,7 @@ function toJournalBatch(input: {
     streamType: CAMPAIGN_STREAM_TYPE,
     streamId: input.campaignId,
     expectedBranchId: input.branchId ?? ROOT_EVENT_BRANCH_ID,
-    expectedRevision: input.events[0].sequence,
+    expectedRevision: input.expectedRevision ?? input.events[0].sequence,
     commandId: input.commandId,
     events: input.events.map((event, index) =>
       toAppendEvent(
@@ -233,6 +242,13 @@ export async function appendCampaignCommandBatch(
      * where it always did.
      */
     readonly branchId?: string;
+    /**
+     * The journal revision this batch must land on. Absent, the first
+     * event's sequence is used - today's value. Present, it is the
+     * branch head the batch was aimed at, which diverges from sequence
+     * the moment a candidate is not root (finding #70).
+     */
+    readonly expectedRevision?: number;
   },
 ): Promise<CampaignBatchAppendResult> {
   const batch = toJournalBatch(input);

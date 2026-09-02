@@ -9,7 +9,10 @@ import {
   normalizeStringSetV1,
 } from './EventJournalCanonicalizer';
 import { canonicalizeCommandIdentityV1 } from './EventJournalCommandIdentity';
-import { CURRENT_EVENT_CANONICALIZER_VERSION } from './EventJournalContract';
+import {
+  CURRENT_EVENT_CANONICALIZER_VERSION,
+  ROOT_EVENT_BRANCH_ID,
+} from './EventJournalContract';
 import * as Schemas from './EventJournalSchemas';
 
 type DbRow = Readonly<Record<string, unknown>>;
@@ -291,10 +294,56 @@ export class SQLiteEventJournalWriter<TPayload = unknown> {
         input.expectedBranchId,
         head.streamRevision,
       ) as SQLiteEventRow | undefined;
-    if (!row) integrity('Stream head has no final committed event');
-    if (this.hydrateEvent(row).eventDigest !== head.eventDigest) {
-      return integrity('Stream head disagrees with its final committed event');
+    if (row) {
+      if (this.hydrateEvent(row).eventDigest !== head.eventDigest) {
+        return integrity(
+          'Stream head disagrees with its final committed event',
+        );
+      }
+      return;
     }
+    // The candidate head is seeded at the PARENT event. That row lives
+    // on the parent branch, so this lookup is supposed to miss. The
+    // branch record is the proof the head is that seed. Accepting it
+    // does not pick a different digest: appendInTransaction still
+    // chains the first new event from head.eventDigest.
+    if (this.isSeededCandidateHead(input, head)) return;
+    integrity('Stream head has no final committed event');
+  }
+
+  /**
+   * A head with no event on this branch is legal only as a non-root
+   * candidate seed: the branch record's base revision and digest must
+   * equal the head's. Root is never a seed — its events live on itself,
+   * and a genesis row at revision 0 must not excuse a root head with
+   * nothing committed. A database that never grew
+   * event_history_branches keeps today's refusal.
+   */
+  private isSeededCandidateHead(
+    input: Journal.IAppendEventBatch<TPayload>,
+    head: HeadRow,
+  ): boolean {
+    if (input.expectedBranchId === ROOT_EVENT_BRANCH_ID) return false;
+    const present = this.db
+      .prepare(
+        `SELECT 1 AS ok FROM sqlite_master WHERE type = 'table' AND name = 'event_history_branches'`,
+      )
+      .get() as { readonly ok: number } | undefined;
+    if (present === undefined) return false;
+    const seed = this.db
+      .prepare(
+        `SELECT base_revision AS baseRevision, base_digest AS baseDigest
+           FROM event_history_branches
+          WHERE stream_type = ? AND stream_id = ? AND branch_id = ?`,
+      )
+      .get(input.streamType, input.streamId, input.expectedBranchId) as
+      | { readonly baseRevision: number; readonly baseDigest: string }
+      | undefined;
+    return (
+      seed !== undefined &&
+      seed.baseRevision === head.streamRevision &&
+      seed.baseDigest === head.eventDigest
+    );
   }
 
   private insertReceipt(receipt: Journal.ICommandReceipt): void {

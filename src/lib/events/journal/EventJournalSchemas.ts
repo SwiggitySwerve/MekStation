@@ -5,7 +5,6 @@ import type * as JournalContract from './EventJournalContract';
 import {
   EVENT_ACTOR_KINDS,
   EVENT_JOURNAL_MAX_PAGE_SIZE,
-  ROOT_EVENT_BRANCH_ID,
 } from './EventJournalContract';
 
 const DurableIdSchema = z.string().trim().min(1);
@@ -104,11 +103,14 @@ export const CommandReceiptSchema = z
     recordedAt: TimestampSchema,
   })
   .strict() satisfies z.ZodType<JournalContract.ICommandReceipt>;
+// A read names the branch it walks. The SQL already filters by branch_id;
+// pinning this query to root refused every candidate-branch read at the
+// schema while the stored rows underneath were legal (finding #99).
 export const ReadStreamQuerySchema = z
   .object({
     streamType: DurableIdSchema,
     streamId: DurableIdSchema,
-    branchId: z.literal(ROOT_EVENT_BRANCH_ID),
+    branchId: DurableIdSchema,
     afterRevision: SafeNonnegativeIntegerSchema,
     limit: PageSizeSchema,
   })
