@@ -71,7 +71,10 @@ import {
   runFastForwardBattle,
 } from '../fastForwardCombatRunner';
 import { buildFastForwardFixture } from '../fastForwardFixture';
-import { initializeInProcessApiDatabase } from '../inProcessApiRouter';
+import {
+  createInProcessApiFetch,
+  initializeInProcessApiDatabase,
+} from '../inProcessApiRouter';
 
 jest.mock('@/engine/adapters/CompendiumAdapter', () => ({
   adaptUnit: jest.fn(),
@@ -378,6 +381,124 @@ describe('runFastForwardBattle', () => {
     expect(result).toBeNull();
   });
 
+  describe('launch authority gate (umbrella 10.3)', () => {
+    /**
+     * Bring the fixture to a bridged encounter, which is the point the
+     * launch gate sits in front of.
+     */
+    async function bridgeOneScenario() {
+      const fixture = buildFastForwardFixture({
+        useRoleBasedSalaries: false,
+      });
+      const store = useCampaignStore();
+      store.getState().switchCampaign(fixture.campaign);
+      const dayOneReport = await store.getState().advanceDay();
+      if (!dayOneReport) throw new Error('day 1 advanceDay() returned null');
+      const afterDayOne = dayOneReport.campaign as ICampaignWithBridgeState;
+      const scenarioId = afterDayOne.bridgedScenarioIds?.[0];
+      if (!scenarioId)
+        throw new Error('no scenario bridged on the fixture Monday');
+      const bridgedEncounter = afterDayOne.bridgedEncounters?.[scenarioId];
+      if (!bridgedEncounter?.campaignMeta) {
+        throw new Error(`bridged encounter ${scenarioId} has no campaignMeta`);
+      }
+      return {
+        scenarioId,
+        bridgedEncounter,
+        campaignMeta: bridgedEncounter.campaignMeta,
+      };
+    }
+
+    /**
+     * The real in-process fetch, with only the launch-authority call
+     * answered by the test. Everything else still runs the production
+     * handlers, so "nothing was created" is a real claim about real
+     * routes rather than about a stubbed world.
+     */
+    function fetchWithAuthority(answer: {
+      readonly status: number;
+      readonly body: unknown;
+    }) {
+      const real = createInProcessApiFetch();
+      const calls: string[] = [];
+      const impl = (async (input: unknown, init?: RequestInit) => {
+        const url = String(input);
+        calls.push(url);
+        if (url.endsWith('/launch-authority')) {
+          return {
+            ok: answer.status >= 200 && answer.status < 300,
+            status: answer.status,
+            json: async () => answer.body,
+          } as Response;
+        }
+        return real(input as RequestInfo, init);
+      }) as unknown as typeof fetch;
+      return { impl, calls };
+    }
+
+    const STALE = {
+      kind: 'refused',
+      code: 'STALE_REVISION',
+      reason: 'launch head is stale (STALE_REVISION)',
+      activeHead: { branchId: 'root', revision: 9, effectiveGeneration: 1 },
+      resyncAction: 'resync-to-active-head',
+    };
+
+    it('refuses a stale head and creates no forces or encounter', async () => {
+      const { scenarioId, bridgedEncounter, campaignMeta } =
+        await bridgeOneScenario();
+      const { impl, calls } = fetchWithAuthority({
+        status: 409,
+        body: STALE,
+      });
+
+      await expect(
+        runFastForwardBattle(
+          {
+            scenarioId,
+            contractId: campaignMeta.contractId,
+            encounterId: bridgedEncounter.id,
+          },
+          {
+            fetchImpl: impl,
+            expectedHead: {
+              branchId: 'root',
+              revision: 1,
+              effectiveGeneration: 1,
+            },
+          },
+        ),
+      ).rejects.toThrow(/STALE_REVISION/);
+
+      // The gate is the ORDERING: a refusal that let the forces exist
+      // first would be a report, not a gate.
+      expect(calls.filter((url) => url.startsWith('/api/forces'))).toEqual([]);
+    });
+
+    it('never asks for authority when no head is supplied', async () => {
+      const { scenarioId, bridgedEncounter, campaignMeta } =
+        await bridgeOneScenario();
+      const { impl, calls } = fetchWithAuthority({
+        status: 409,
+        body: STALE,
+      });
+
+      // No expectedHead means ungated - the pre-10.3 behaviour, kept
+      // structurally. A refusing authority must not even be consulted.
+      await runFastForwardBattle(
+        {
+          scenarioId,
+          contractId: campaignMeta.contractId,
+          encounterId: bridgedEncounter.id,
+        },
+        { fetchImpl: impl },
+      );
+
+      expect(calls.filter((url) => url.endsWith('/launch-authority'))).toEqual(
+        [],
+      );
+    });
+  });
   it('wires into fastForwardCampaign() via createFastForwardCombatRunner() — the group-2 callback drives the real runner end-to-end', async () => {
     const fixture = buildFastForwardFixture({ useRoleBasedSalaries: false });
     const details: string[] = [];

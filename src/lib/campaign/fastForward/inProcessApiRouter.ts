@@ -80,10 +80,25 @@ function defineRoute(
   return { method, pattern, paramNames, handler };
 }
 
+import campaignLaunchAuthorityHandler from '@/pages-modules/api/campaignLaunchAuthorityRoute';
 // Static method+path -> real handler module table (design D3). Order does
 // not matter for correctness — every pattern is anchored (`^…$`) and
 // method-scoped, so no two entries can both match the same request.
+import campaignHeadHandler from '@/pages-modules/api/campaignLaunchHeadRoute';
+
 const ROUTES: readonly RouteDefinition[] = [
+  defineRoute(
+    'GET',
+    /^\/api\/campaigns\/([^/]+)\/head$/,
+    ['id'],
+    campaignHeadHandler,
+  ),
+  defineRoute(
+    'POST',
+    /^\/api\/campaigns\/([^/]+)\/launch-authority$/,
+    ['id'],
+    campaignLaunchAuthorityHandler,
+  ),
   defineRoute('POST', /^\/api\/forces$/, [], forcesHandler),
   defineRoute('GET', /^\/api\/forces\/([^/]+)$/, ['id'], forceByIdHandler),
   defineRoute(

@@ -1,10 +1,12 @@
 import { useCallback, useEffect, useState } from 'react';
 
 import type { DayReport } from '@/lib/campaign/dayAdvancement';
+import type { CampaignLaunchHeadRead } from '@/lib/campaign/encounter/readCampaignLaunchHead';
 import type { MaybePromise } from '@/stores/campaign/useCampaignStore.types';
 import type { IDailyBattleAuditEntry } from '@/types/campaign/IDailyBattleAuditEntry';
 import type { ICombatOutcome } from '@/types/combat/CombatOutcome';
 
+import { readCampaignLaunchHead } from '@/lib/campaign/encounter/readCampaignLaunchHead';
 import { useCampaignStore } from '@/stores/campaign/useCampaignStore';
 
 interface UseCampaignDayReportsOptions {
@@ -210,4 +212,33 @@ export function useOutcomeApplyErrors(): Readonly<Record<string, string>> {
     });
   }, [store]);
   return errors;
+}
+
+/**
+ * The authoritative head this campaign may launch from.
+ *
+ * Read ONCE per campaign, at hydration, and held for the life of the
+ * page. Deliberately not re-read at launch time: a head read a moment
+ * before it is sent always matches, so the comparison it feeds would
+ * prove nothing. The window between hydration and launch is exactly
+ * where another client can advance the campaign, and catching that is
+ * the point.
+ */
+export function useCampaignLaunchHead(
+  campaignId: string | undefined,
+): CampaignLaunchHeadRead | null {
+  const [launchHead, setLaunchHead] = useState<CampaignLaunchHeadRead | null>(
+    null,
+  );
+  useEffect(() => {
+    if (!campaignId) return () => undefined;
+    let cancelled = false;
+    void readCampaignLaunchHead(campaignId).then((head) => {
+      if (!cancelled) setLaunchHead(head);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [campaignId]);
+  return launchHead;
 }
