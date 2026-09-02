@@ -231,6 +231,36 @@ describe('SQLite event journal verified opening', () => {
     }
   });
 
+  it.failing(
+    'finding #86-adjacent: a C1a candidate head with no events is not journal corruption',
+    async () => {
+      // WHY THIS IS FAILING RATHER THAN FIXED. C1a seeds a candidate
+      // `event_journal_stream_heads` row at the base revision with no
+      // events on that branch yet. Recovery scans every head row and
+      // compares the count to distinct (stream, branch) event chains, so
+      // the extra head is reported as 'Stream head count differs'. The
+      // recovery module is out of this seam; do not change it here.
+      const harness = await SQLiteEventJournalTestHarness.create();
+      try {
+        const result = await harness.current().append(command());
+        if (result.kind !== 'committed') throw new Error('Expected commit');
+        harness
+          .database()
+          .prepare(
+            `INSERT INTO event_journal_stream_heads
+               (stream_type, stream_id, branch_id, stream_revision, event_digest)
+             VALUES ('test', 'alpha', 'candidate-1', 2, ?)`,
+          )
+          .run(DIGEST_B);
+        await expect(
+          openVerifiedSQLiteEventJournal(harness.database()),
+        ).resolves.toBeDefined();
+      } finally {
+        await harness.dispose();
+      }
+    },
+  );
+
   it('rejects an active caller transaction without ending it', async () => {
     const harness = await SQLiteEventJournalTestHarness.create();
     try {
