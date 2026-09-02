@@ -18,6 +18,7 @@ import type { InteractiveSession } from '@/engine/InteractiveSession';
 import type { CommandAvailability } from '@/types/gameplay/TacticalCommandInterfaces';
 
 import { createDemoSession } from '@/__fixtures__/gameplay';
+import { useP2PMirrorStore } from '@/lib/p2p/p2pMirrorStore';
 import { useGameplayStore } from '@/stores/useGameplayStore';
 import { GameSide } from '@/types/gameplay';
 
@@ -109,9 +110,11 @@ describe('game-session page P2P command gate', () => {
     mockCapturedLayout.commandGate = undefined;
     mockRoute.id = 'p2p-ROOM01';
     useGameplayStore.getState().resetLocalMatchStatus();
+    useP2PMirrorStore.getState().reset();
   });
   afterEach(() => {
     useGameplayStore.getState().resetLocalMatchStatus();
+    useP2PMirrorStore.getState().reset();
   });
 
   it('hands the layout a refusal once the P2P peer is gone', () => {
@@ -151,6 +154,41 @@ describe('game-session page P2P command gate', () => {
     mockRoute.id = 'demo-game-001';
     seedStore();
     useGameplayStore.getState().setLocalMatchStatus('hostPending');
+    render(<GameSessionPage />);
+    expect(mockCapturedLayout.commandGate).toBeUndefined();
+  });
+  it("hands the layout a refusal once this match's mirror diverged", () => {
+    // store -> gate -> page. The callback-to-store half is pinned by
+    // `useP2PMirrorDivergenceWiring`; together they cover the path with
+    // no unmeasured hop.
+    seedStore();
+    useP2PMirrorStore
+      .getState()
+      .recordDivergence('p2p-ROOM01', { kind: 'truncated', position: 2 });
+    render(<GameSessionPage />);
+    expect(mockCapturedLayout.commandGate?.available).toBe(false);
+  });
+
+  it('ignores a divergence that belongs to another match', () => {
+    seedStore();
+    useP2PMirrorStore
+      .getState()
+      .recordDivergence('p2p-ROOM99', { kind: 'truncated', position: 2 });
+    render(<GameSessionPage />);
+    expect(mockCapturedLayout.commandGate).toStrictEqual({ available: true });
+  });
+
+  it('hands the layout no gate in single player even after a divergence', () => {
+    // R7: the carve-out holds regardless of what the mirror store says.
+    // A local battle has no peer whose history could disagree.
+    mockRoute.id = 'demo-game-001';
+    seedStore();
+    useP2PMirrorStore.getState().recordDivergence('demo-game-001', {
+      kind: 'replaced',
+      position: 1,
+      storedId: 'id-b',
+      receivedId: 'id-x',
+    });
     render(<GameSessionPage />);
     expect(mockCapturedLayout.commandGate).toBeUndefined();
   });

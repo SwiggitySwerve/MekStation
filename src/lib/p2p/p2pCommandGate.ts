@@ -35,6 +35,8 @@
 import type { LocalMatchStatus } from '@/stores/useGameplayStore';
 import type { CommandAvailability } from '@/types/gameplay/TacticalCommandInterfaces';
 
+import type { IP2PMirrorDivergence } from './p2pMirrorStore';
+
 /**
  * Why each status refuses, in words a player can act on.
  *
@@ -56,7 +58,26 @@ const P2P_GATE_REASONS: Readonly<
 };
 
 /**
- * Whether tactical commands may be issued in this P2P match status.
+ * Why a diverged mirror refuses.
+ *
+ * Its own words, and deliberately not the peer-loss wording: a peer who
+ * left may come back, and that refusal says so. A board that disagreed
+ * with the peer's history does not heal by waiting, so telling the
+ * player to wait would be a lie. No digits, like its siblings - the
+ * position the prefix broke at is a diagnostic, not something a player
+ * can act on, and it is read aloud through `aria-describedby`.
+ */
+const P2P_DIVERGENCE_REASON =
+  "Your copy of this battle disagreed with your opponent's and was rebuilt from theirs. Rejoin the match to pick up their version before commanding again.";
+
+/**
+ * Whether tactical commands may be issued in this P2P match.
+ *
+ * DIVERGENCE OUTRANKS A MISSING PEER. Both can be true at once - a
+ * divergence is detected on a replay the peer just streamed, and that
+ * peer can drop a moment later - and of the two, "what you are looking
+ * at is not what they have" is the fact that must be said, because it
+ * is the one that does not resolve on its own.
  *
  * Total over the store's union by construction - the reason map is
  * keyed by every member except `live`, so a status added to the store
@@ -65,7 +86,11 @@ const P2P_GATE_REASONS: Readonly<
  */
 export function p2pCommandAvailability(
   status: LocalMatchStatus,
+  divergence: IP2PMirrorDivergence | null = null,
 ): CommandAvailability {
+  if (divergence !== null) {
+    return { available: false, reason: P2P_DIVERGENCE_REASON };
+  }
   if (status === 'live') return { available: true };
   return { available: false, reason: P2P_GATE_REASONS[status] };
 }
