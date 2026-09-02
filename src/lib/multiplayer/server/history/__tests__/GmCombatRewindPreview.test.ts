@@ -414,6 +414,30 @@ describe('previewGmCombatRewind', () => {
     expect(probeCalls).toEqual([]);
   });
 
+  it('says a match with no authoritative history has none, and asks no probe', async () => {
+    // FINDING #48/#53: nothing writes match events to the journal, so a
+    // real match has no stream-head row and therefore no genesis branch.
+    // That is an ANSWER this surface gives, not an exception it raises -
+    // `readEffectiveHead`, never `requireEffectiveHead`, exactly as
+    // `campaignLaunchHead` decided for the same reason.
+    const unregistered = 'stream-unregistered';
+
+    const result = await previewGmCombatRewind(deps(), gmAuthority(), {
+      matchId: unregistered,
+      targetRevision: 1,
+      expectedBranchId: 'root',
+      expectedRevision: 2,
+      expectedDigest: 'e'.repeat(64),
+      expectedGeneration: 1,
+    });
+
+    expect(result.kind).toBe('refused');
+    if (result.kind !== 'refused') return;
+    expect(result.reason).toBe('no-authoritative-history');
+    // Nothing was derived to answer it.
+    expect(probeCalls).toEqual([]);
+  });
+
   it('refuses while another correction holds the lease', async () => {
     // A real lease through the shipped store, answered by the DEFAULT
     // durable reader - no seam, so this is the production consult.

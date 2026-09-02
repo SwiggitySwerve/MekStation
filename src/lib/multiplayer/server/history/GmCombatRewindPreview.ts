@@ -89,6 +89,16 @@ export type GmCombatRewindPreviewRefusal =
   | 'PROJECTION_REBUILDING'
   /** A campaign has taken delivery of this combat's outcome (13.4). */
   | 'campaign-receipt-delivered'
+  /** The branch machinery has no effective head for this match at all. */
+  | 'no-authoritative-history'
+  /**
+   * The match runs with fog of war, whose projection depends on engine
+   * state a preview caller does not hold. Emitted by the ROUTE, never by
+   * this module - the module cannot see the match config. In the union
+   * anyway so callers branch on ONE closed vocabulary, the same way
+   * `actor-mismatch` is named here but unproducible by this caller.
+   */
+  | 'fog-preview-unsupported'
   /** The head the GM named is not the one the authority holds. */
   | 'STALE_BRANCH'
   | 'STALE_REVISION'
@@ -226,6 +236,22 @@ export async function previewGmCombatRewind(
     return refuse(
       'campaign-receipt-delivered',
       `A campaign has taken delivery of outcome '${outcomeId}'; a combat-only rewind cannot unmake what it was spent on`,
+    );
+  }
+
+  // A match the branch machinery has never heard of. FINDING #48/#53:
+  // nothing writes match events to the journal, so a real match has no
+  // stream-head row and the genesis backfill never gives it a root
+  // branch. That is an ANSWER this surface gives, not an exception it
+  // raises - `readEffectiveHead`, deliberately never
+  // `requireEffectiveHead`, the same call and the same reason
+  // `campaignLaunchHead` chose it. Asked BEFORE the expected-head
+  // comparison, because that comparison reads the active head and would
+  // throw here instead of answering.
+  if (deps.branches.readEffectiveHead(stream) === null) {
+    return refuse(
+      'no-authoritative-history',
+      `Match '${request.matchId}' has no authoritative history to rewind; nothing has been recorded against its stream`,
     );
   }
 

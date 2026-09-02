@@ -79,6 +79,15 @@ export const GM_REWIND_REFUSAL_PHRASING: Readonly<
     'The revision you named is not behind the current head, so there is nothing to take back.',
   'rewind-target-below-branch-base':
     'The revision you named comes before this branch begins, so a rewind cannot reach it.',
+  // The two members below are answered by the preview ROUTE, not the
+  // module: a match with no authoritative history yet, and a fogged match
+  // the preview cannot honestly describe. They arrived with the route and
+  // the compiler refused this map until each had its sentence, which is
+  // exactly the tripwire the total record exists to be.
+  'no-authoritative-history':
+    'This match has no authoritative history to rewind yet. Play a turn first, then ask again.',
+  'fog-preview-unsupported':
+    'This match uses fog of war, and a rewind preview cannot yet show what each player would see. No rewind was made.',
 });
 
 /**
