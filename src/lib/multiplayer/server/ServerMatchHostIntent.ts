@@ -7,8 +7,13 @@ import type {
 } from '@/types/multiplayer/Protocol';
 
 import { GameStatus } from '@/types/gameplay/GameSessionInterfaces';
-import { intentHasForbiddenDiceField } from '@/types/multiplayer/Protocol';
+import {
+  intentHasForbiddenDiceField,
+  nowIso,
+} from '@/types/multiplayer/Protocol';
 
+import type { ICommandRejectionAuditPort } from './audit/CommandRejectionAudit';
+import type { IAuthorizedViewer } from './authorization/AuthorizedViewer';
 import type { IMatchStore } from './IMatchStore';
 import type {
   JournalAuthorityRecovery,
@@ -27,7 +32,6 @@ import {
 import {
   HumanActionAuthorizationError,
   authorizeHumanAction,
-  type IHumanActionRequest,
 } from './authorization/HumanActionAuthorizationGate';
 import { MembershipSourceUnavailableError } from './authorization/MatchSeatMembershipSource';
 import {
@@ -37,6 +41,10 @@ import {
 import { isSpectatorPlayer } from './lobby/spectatorSeats';
 import { dispatchToEngine } from './ServerMatchHostEngineDispatch';
 import { stampIntentIdOnNewEvents } from './ServerMatchHostEvents';
+import {
+  commandRequestFromIntent,
+  readActorUnitId,
+} from './ServerMatchHostIntentClaims';
 import { commitJournalAuthorityCommand } from './ServerMatchHostJournalAuthority';
 import { isLobbyIntentKind } from './ServerMatchHostLobbyIntents';
 import {
@@ -113,6 +121,13 @@ export interface IServerMatchHostIntentContext extends IServerMatchHostCaptureCo
    * set for replay-attack detection (design D7).
    */
   readonly acceptedIntents: AcceptedIntentTracker;
+  /**
+   * Append-once rejection-audit sink (umbrella 18.2). Optional because a
+   * host without a durable database - a browser session, a unit-test
+   * harness - must still be able to refuse a command; absent means the
+   * refusal simply goes unrecorded, never that it is withheld.
+   */
+  readonly commandRejectionAudit?: ICommandRejectionAuditPort;
   /** Present only when durable rollback facts prohibit command admission. */
   readonly rollbackBlockReason?: MatchRollbackBlockedReason;
   /** Present when this host was created with journal authority on. */
@@ -188,19 +203,24 @@ export async function handleIntent(
     return [err];
   }
 
-  const commandRefusal = await refuseUnauthorizedCommand(
+  const authorization = await refuseUnauthorizedCommand(
     ctx,
     envelope,
     verifiedPrincipalId,
   );
-  if (commandRefusal) {
-    return commandRefusal;
+  if ('refusal' in authorization) {
+    return authorization.refusal;
   }
+  // The gate already resolved this viewer from durable membership.
+  // Carrying it forward is what lets every refusal below name a
+  // SERVER-derived actor on its audit row without resolving twice.
+  const viewer = authorization.viewer;
 
   const foreignUnitRefusal = await refuseForeignUnitCommand(
     ctx,
     envelope,
     verifiedPrincipalId,
+    viewer,
   );
   if (foreignUnitRefusal) {
     return foreignUnitRefusal;
@@ -210,14 +230,13 @@ export async function handleIntent(
   // intent is rejected with a non-fatal RATE_LIMITED error; the
   // connection stays open and no event is appended.
   if (!ctx.rateLimiter.tryConsume(connectionKey)) {
-    const err = errorMessage(
-      ctx.matchId,
+    return rejectCommand(
+      ctx,
+      envelope,
+      viewer,
       'RATE_LIMITED',
       'Intent rate limit exceeded',
-      envelope.intentId,
     );
-    ctx.broadcast(err);
-    return [err];
   }
 
   // Design D7 — replay-attack protection. An intent whose id the
@@ -230,25 +249,23 @@ export async function handleIntent(
     ctx.acceptedIntents.isDuplicate(envelope.intentId) &&
     ctx.journalAuthority?.enabled !== true
   ) {
-    const err = errorMessage(
-      ctx.matchId,
+    return rejectCommand(
+      ctx,
+      envelope,
+      viewer,
       'DUPLICATE_INTENT',
       'Intent id already accepted for this match',
-      envelope.intentId,
     );
-    ctx.broadcast(err);
-    return [err];
   }
 
   if (ctx.isPaused) {
-    const err = errorMessage(
-      ctx.matchId,
+    return rejectCommand(
+      ctx,
+      envelope,
+      viewer,
       'MATCH_PAUSED',
       'Match is paused waiting for a peer to reconnect',
-      envelope.intentId,
     );
-    ctx.broadcast(err);
-    return [err];
   }
 
   if (ctx.session.getSession().currentState.status === GameStatus.Completed) {
@@ -271,25 +288,23 @@ export async function handleIntent(
     // refuse the very first intent of such a match.
     //
     // Lobby intents are unaffected - they return above, before this.
-    const err = errorMessage(
-      ctx.matchId,
+    return rejectCommand(
+      ctx,
+      envelope,
+      viewer,
       'INVALID_INTENT',
       'match-already-completed',
-      envelope.intentId,
     );
-    ctx.broadcast(err);
-    return [err];
   }
 
   if (intentHasForbiddenDiceField(envelope.intent)) {
-    const err = errorMessage(
-      ctx.matchId,
+    return rejectCommand(
+      ctx,
+      envelope,
+      viewer,
       'INVALID_INTENT',
       'client-rolls-forbidden',
-      envelope.intentId,
     );
-    ctx.broadcast(err);
-    return [err];
   }
 
   if (ctx.journalAuthority?.enabled) {
@@ -302,14 +317,13 @@ export async function handleIntent(
   try {
     dispatchToEngine(ctx.session, envelope.intent);
   } catch (e) {
-    const err = errorMessage(
-      ctx.matchId,
+    return rejectCommand(
+      ctx,
+      envelope,
+      viewer,
       'INVALID_INTENT',
       e instanceof Error ? e.message : 'Engine rejected intent',
-      envelope.intentId,
     );
-    ctx.broadcast(err);
-    return [err];
   }
 
   // The engine accepted the intent. Record its id so a later replay of
@@ -375,27 +389,71 @@ function rejectMismatchedPrincipal(
 }
 
 /**
+ * Terminal command refusal WITH its audit row, in that order.
+ *
+ * The row is appended before the Error frame is built or broadcast, so
+ * a reader who can observe the refusal on the wire can already observe
+ * the record of it - "append then reject" cannot quietly become
+ * "reject then append". Recording is deliberately best-effort (see
+ * `CommandRejectionAudit`'s NEVER FATAL law): the command is refused
+ * either way, and a failed audit must not upgrade a clean refusal into
+ * an internal error.
+ */
+function rejectCommand(
+  ctx: IServerMatchHostIntentContext,
+  envelope: IIntent,
+  viewer: IAuthorizedViewer,
+  code: Extract<IServerMessage, { kind: 'Error' }>['code'],
+  reason: string,
+): readonly IServerMessage[] {
+  ctx.commandRejectionAudit?.recordCommandRejection({
+    viewer,
+    matchId: ctx.matchId,
+    commandId: envelope.intentId ?? null,
+    intent: envelope.intent,
+    occurredAt: nowIso(),
+  });
+  const err = errorMessage(ctx.matchId, code, reason, envelope.intentId);
+  ctx.broadcast(err);
+  return [err];
+}
+
+/**
+ * Outcome of the command gate: either the frames to return, or the
+ * server-derived viewer every later refusal records as its actor.
+ */
+type CommandAuthorizationResult =
+  | { readonly refusal: readonly IServerMessage[] }
+  | { readonly viewer: IAuthorizedViewer };
+
+/**
  * Rechecks command authorization through the human-action gate before
  * any engine dispatch or store append. Broadcasts a typed Error and
- * returns it on refusal; returns null when the viewer may proceed.
+ * returns it on refusal; returns the branded viewer when the caller may
+ * proceed.
+ *
+ * A refusal HERE is deliberately not audited to `action_audit`: the row
+ * requires a server-derived participant and role, and the whole content
+ * of this refusal is that no such viewer resolved. Recording a row with
+ * a client-supplied actor would be worse than recording nothing.
  */
 async function refuseUnauthorizedCommand(
   ctx: IServerMatchHostIntentContext,
   envelope: IIntent,
   verifiedPrincipalId: IntentVerifiedPrincipal,
-): Promise<readonly IServerMessage[] | null> {
+): Promise<CommandAuthorizationResult> {
   const principalId =
     verifiedPrincipalId === SERVER_INTERNAL_INTENT_CALLER
       ? envelope.playerId
       : verifiedPrincipalId;
   try {
-    await authorizeHumanAction(
+    const viewer = await authorizeHumanAction(
       ctx.viewerResolver,
       principalId,
       ctx.matchId,
       commandRequestFromIntent(envelope.intent),
     );
-    return null;
+    return { viewer };
   } catch (error) {
     if (error instanceof MembershipSourceUnavailableError) {
       const infra = errorMessage(
@@ -405,7 +463,7 @@ async function refuseUnauthorizedCommand(
         envelope.intentId,
       );
       ctx.broadcast(infra);
-      return [infra];
+      return { refusal: [infra] };
     }
     if (
       error instanceof HumanActionAuthorizationError ||
@@ -418,7 +476,7 @@ async function refuseUnauthorizedCommand(
         envelope.intentId,
       );
       ctx.broadcast(err);
-      return [err];
+      return { refusal: [err] };
     }
     throw error;
   }
@@ -456,6 +514,7 @@ async function refuseForeignUnitCommand(
   ctx: IServerMatchHostIntentContext,
   envelope: IIntent,
   verifiedPrincipalId: IntentVerifiedPrincipal,
+  viewer: IAuthorizedViewer,
 ): Promise<readonly IServerMessage[] | null> {
   if (verifiedPrincipalId === SERVER_INTERNAL_INTENT_CALLER) return null;
 
@@ -485,72 +544,13 @@ async function refuseForeignUnitCommand(
 
   if (callerSide === unitSide) return null;
 
-  const err = errorMessage(
-    ctx.matchId,
+  return rejectCommand(
+    ctx,
+    envelope,
+    viewer,
     'AUTH_REJECTED',
     'unit-not-owned',
-    envelope.intentId,
   );
-  ctx.broadcast(err);
-  return [err];
-}
-
-/**
- * The unit a command ACTS WITH, which is the only one ownership
- * constrains. Attacks name their actor `attackerId`; everything
- * unit-scoped else names it `unitId`. `targetId` is pointedly not read —
- * shooting a unit you do not own is the entire game.
- */
-function readActorUnitId(intent: IIntent['intent']): string | null {
-  return (
-    readOptionalStringField(intent, 'unitId') ??
-    readOptionalStringField(intent, 'attackerId') ??
-    null
-  );
-}
-
-/**
- * Builds the command-kind gate request from fields the intent payload
- * actually named. Unknown keys are ignored; unit ids are not force ids.
- */
-function commandRequestFromIntent(
-  intent: IIntent['intent'],
-): IHumanActionRequest {
-  const claimedForceIds = readClaimedForceIds(intent);
-  const claimedParticipantId = readOptionalStringField(intent, 'participantId');
-  if (claimedParticipantId === undefined) {
-    return { kind: 'command', claimedForceIds };
-  }
-  return { kind: 'command', claimedForceIds, claimedParticipantId };
-}
-
-/**
- * Collects forceId / forceIds claims from an intent payload. Missing
- * fields yield an empty list (no force-scope escalation to check).
- */
-function readClaimedForceIds(intent: IIntent['intent']): readonly string[] {
-  const ids: string[] = [];
-  const forceId = readOptionalStringField(intent, 'forceId');
-  if (forceId !== undefined) ids.push(forceId);
-  const listed = Reflect.get(intent, 'forceIds');
-  if (!Array.isArray(listed)) return ids;
-  for (const item of listed) {
-    if (typeof item === 'string' && item.length > 0) ids.push(item);
-  }
-  return ids;
-}
-
-/**
- * Reads a non-empty string property if the payload owns that key.
- */
-function readOptionalStringField(
-  intent: IIntent['intent'],
-  key: string,
-): string | undefined {
-  if (!Object.prototype.hasOwnProperty.call(intent, key)) return undefined;
-  const candidate = Reflect.get(intent, key);
-  if (typeof candidate !== 'string' || candidate.length === 0) return undefined;
-  return candidate;
 }
 
 /**

@@ -24,6 +24,7 @@ import type {
   IServerMessage,
 } from '@/types/multiplayer/Protocol';
 
+import type { ICommandRejectionAuditPort } from './audit/CommandRejectionAudit';
 import type { AuthorizedViewerResolver } from './authorization/AuthorizedViewer';
 import type { IMatchStore } from './IMatchStore';
 import type { MatchRollbackBlockedReason } from './matchRollbackReaderSelection';
@@ -79,6 +80,8 @@ export interface IServerMatchHostInternals extends IServerMatchHostCaptureContex
   readonly acceptedIntents: AcceptedIntentTracker;
   readonly viewerResolver: AuthorizedViewerResolver;
   readonly deliveryCursors: ViewerDeliveryCursors;
+  /** Append-once sink for terminal command refusals (umbrella 18.2). */
+  readonly commandRejectionAudit?: ICommandRejectionAuditPort;
   readonly rollbackBlockReason?: MatchRollbackBlockedReason;
   readonly journalAuthority?: IJournalAuthorityHostHandle;
 }
@@ -153,6 +156,7 @@ export function buildIntentContext(
     rateLimiter: host.rateLimiter,
     acceptedIntents: host.acceptedIntents,
     viewerResolver: host.viewerResolver,
+    commandRejectionAudit: host.commandRejectionAudit,
     rollbackBlockReason: host.rollbackBlockReason,
     journalAuthority: host.journalAuthority,
   };
