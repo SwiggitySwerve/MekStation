@@ -7,6 +7,10 @@ import {
   getSQLiteService,
   resetSQLiteService,
 } from '@/services/persistence/SQLiteService';
+import { MIGRATIONS } from '@/services/persistence/SQLiteService.migrations';
+
+/** The migration head, derived from the catalog rather than a literal. */
+const MIGRATION_HEAD = Math.max(...MIGRATIONS.map(({ version }) => version));
 
 describe('campaign combat outcome inbox SQLite migration', () => {
   let dir: string;
@@ -59,7 +63,7 @@ describe('campaign combat outcome inbox SQLite migration', () => {
     const db = database();
     expect(
       db.prepare('SELECT MAX(version) AS version FROM migrations').get(),
-    ).toEqual({ version: 22 }); // 22 = private-access write purpose (task 11.2)
+    ).toEqual({ version: MIGRATION_HEAD }); // the migration head
 
     insertReceipt(db);
     expect(() => insertReceipt(db)).toThrow(/UNIQUE constraint failed/);

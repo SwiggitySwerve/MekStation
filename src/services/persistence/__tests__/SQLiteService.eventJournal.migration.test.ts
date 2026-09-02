@@ -7,6 +7,14 @@ import {
   getSQLiteService,
   resetSQLiteService,
 } from '@/services/persistence/SQLiteService';
+import { MIGRATIONS } from '@/services/persistence/SQLiteService.migrations';
+
+/**
+ * The migration head, derived from the catalog rather than pinned to a
+ * literal: a new migration must not silently rot this assertion into a
+ * claim about a version that is no longer last.
+ */
+const MIGRATION_HEAD = Math.max(...MIGRATIONS.map(({ version }) => version));
 
 const DIGEST_A = 'a'.repeat(64);
 const RECORDED_AT = '2026-08-01T00:00:00.000Z';
@@ -153,7 +161,7 @@ describe('event journal SQLite migration', () => {
     expect(tables.map(({ name }) => name)).toEqual(expectedTables);
     expect(
       db.prepare('SELECT MAX(version) AS version FROM migrations').get(),
-    ).toEqual({ version: 22 }); // 22 = private-access write purpose (task 11.2)
+    ).toEqual({ version: MIGRATION_HEAD }); // the migration head
     expect(db.prepare('SELECT * FROM event_journal_store_state').all()).toEqual(
       [{ singleton_id: 1, last_commit_position: 0 }],
     );
@@ -172,7 +180,7 @@ describe('event journal SQLite migration', () => {
     ).toEqual([{ singleton_id: 1, last_commit_position: 7 }]);
     expect(
       reopened.prepare('SELECT COUNT(*) AS count FROM migrations').get(),
-    ).toEqual({ count: 21 });
+    ).toEqual({ count: MIGRATIONS.length - 1 }); // one record deleted above
   });
 
   it('enforces root, safe-range, batch-range, chain, uniqueness, and foreign-key constraints', () => {
