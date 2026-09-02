@@ -5,12 +5,27 @@
  * ones, which carry `revokedAt`). POST issues a new grant. DELETE
  * revokes one by `grantId`.
  *
- * Every verb runs through the share service, which gates on D2 authority:
- * only a SOURCE may hand out or withdraw access to a campaign. The
- * refusal reasons map to distinct statuses so a caller can tell "you do
- * not own this" from "there is no such campaign" from "that request was
- * malformed" - collapsing them is the failure mode task 1.5 removed from
- * the neighbouring routes.
+ * TWO independent gates, because they answer different questions and
+ * conflating them was finding #21:
+ *
+ * - D2 authority (`not-source`): does THIS SERVER own the campaign as a
+ *   source? A property of the campaign. Every browser this server serves
+ *   reads the same answer, co-op guests included, so it authorizes
+ *   nobody on its own.
+ * - Caller authority (`not-campaign-gm`): is the VERIFIED CALLER the
+ *   campaign's active GM? Sharing is the GM's administration surface -
+ *   the roster names every grantee principal and the DELETE withdraws
+ *   another participant's access - so it is gated on the same durable
+ *   `campaign_session_participant` seat the campaign socket admits on.
+ *
+ * Before the caller gate existed this route was fully unauthenticated:
+ * any client that knew a campaign id could read every grantee's
+ * principal id, issue itself a grant, or revoke another player's access.
+ *
+ * The refusal reasons map to distinct statuses so a caller can tell "you
+ * do not own this" from "there is no such campaign" from "that request
+ * was malformed" - collapsing them is the failure mode task 1.5 removed
+ * from the neighbouring routes.
  *
  * The issuer's PRIVATE key never reaches this route: the client signs
  * the token with its unlocked vault identity and this endpoint only pins
@@ -29,11 +44,13 @@ import {
   listShareGrants,
   revokeShareGrant,
 } from '@/lib/campaign/grants/campaignShareService';
+import { authenticateRequest } from '@/lib/multiplayer/server/auth';
 import {
   initializeApiDatabase,
   queryStringParam,
   sendCaughtApiError,
 } from '@/pages-modules/api/routeHelpers';
+import { readCampaign } from '@/services/campaignPersistence/CampaignPersistenceService';
 import { getSQLiteService } from '@/services/persistence/SQLiteService';
 
 type ErrorResponse = { error: string; reason?: CampaignShareRefusalReason };
@@ -47,8 +64,27 @@ type GrantsResponse = readonly ICampaignGrant[] | ICampaignGrant;
 function statusForRefusal(reason: CampaignShareRefusalReason): number {
   if (reason === 'campaign-not-found') return 404;
   if (reason === 'not-source') return 403;
+  if (reason === 'not-campaign-gm') return 403;
   if (reason === 'campaign-unreadable') return 500;
   return 400;
+}
+
+/**
+ * The session scope a token for this campaign must carry, read from the
+ * campaign's OWN stored co-op session rather than from the request.
+ * `undefined` when the campaign runs no co-op session: a scoped token
+ * then fails closed in `authenticateRequest`, and an unscoped one still
+ * has to clear the GM gate, which a campaign with no seats refuses.
+ */
+function expectedScopeForCampaign(
+  campaignId: string,
+): { readonly kind: 'campaign-session'; readonly id: string } | undefined {
+  const read = readCampaign(campaignId);
+  if (read.kind !== 'ok') return undefined;
+  const matchId = read.record.body.coopSession?.matchId;
+  return typeof matchId === 'string' && matchId.length > 0
+    ? { kind: 'campaign-session', id: matchId }
+    : undefined;
 }
 
 /** Body of a POST issue request, validated before it reaches the store. */
@@ -92,10 +128,21 @@ export default async function handler(
   try {
     const db = getSQLiteService().getDatabase();
     const nowIso = new Date().toISOString();
+    // Identity first, for every verb including the read: the roster IS
+    // the private material here, so an unauthenticated GET is the leak.
+    const auth = await authenticateRequest(
+      req,
+      undefined,
+      expectedScopeForCampaign(id),
+    );
+    if (!auth.ok) {
+      res.status(401).json({ error: `Unauthorized: ${auth.reason}` });
+      return;
+    }
 
     switch (req.method) {
       case 'GET': {
-        const listed = listShareGrants(db, id);
+        const listed = listShareGrants(db, id, auth.playerId);
         if (listed.kind !== 'ok') {
           res
             .status(statusForRefusal(listed.reason))
@@ -113,6 +160,7 @@ export default async function handler(
         }
         const issued = issueShareGrant(db, {
           campaignId: id,
+          callerId: auth.playerId,
           participantId: req.body.participantId,
           issuerPublicKey: req.body.issuerPublicKey,
           scopes: req.body.scopes,
@@ -135,7 +183,13 @@ export default async function handler(
           res.status(400).json({ error: 'missing grantId' });
           return;
         }
-        const revoked = revokeShareGrant(db, id, grantId, nowIso);
+        const revoked = revokeShareGrant(
+          db,
+          id,
+          grantId,
+          nowIso,
+          auth.playerId,
+        );
         if (revoked.kind !== 'ok') {
           res
             .status(statusForRefusal(revoked.reason))
