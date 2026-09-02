@@ -56,6 +56,9 @@ function posture(state: CampaignSyncUxState): ICampaignLifecyclePosture {
     lifecycleState: LIFECYCLE_NAME[state],
     message: `Synchronization posture: ${state}.`,
     commandsEnabled: state === 'live',
+    // These rows drive the banner from a SYNC state, and no sync state
+    // is a refusal - only a refusal carries a recovery.
+    recovery: null,
   };
 }
 
@@ -104,7 +107,7 @@ const DECISION_AND_PROJECTION_POSTURES: ReadonlyArray<
     toCampaignLifecyclePosture(deriveCampaignSyncUxPosture(CONVERGED_SYNC), {
       proposalAwaitingGm: false,
       lastProposalCommitted: false,
-      refusal: 'PROJECTION_REWOUND',
+      refusal: { code: 'PROJECTION_REWOUND', recoveryAction: null },
     }),
   ],
   [
@@ -112,7 +115,7 @@ const DECISION_AND_PROJECTION_POSTURES: ReadonlyArray<
     toCampaignLifecyclePosture(deriveCampaignSyncUxPosture(CONVERGED_SYNC), {
       proposalAwaitingGm: false,
       lastProposalCommitted: false,
-      refusal: 'PROJECTION_REBUILDING',
+      refusal: { code: 'PROJECTION_REBUILDING', recoveryAction: null },
     }),
   ],
 ];
@@ -219,7 +222,8 @@ describe('GM lifecycle banner a11y', () => {
         pending={[]}
         onDecide={() => {}}
         lifecycle={deriveGmLifecyclePosture({
-          refusal,
+          refusal:
+            refusal === null ? null : { code: refusal, recoveryAction: null },
           pendingProposalCount: 0,
         })}
       />,
@@ -236,7 +240,8 @@ describe('GM lifecycle banner a11y', () => {
         pending={[]}
         onDecide={() => {}}
         lifecycle={deriveGmLifecyclePosture({
-          refusal,
+          refusal:
+            refusal === null ? null : { code: refusal, recoveryAction: null },
           pendingProposalCount: 0,
         })}
       />,
@@ -293,7 +298,7 @@ describe('GM lifecycle banner a11y', () => {
         pending={[]}
         onDecide={() => {}}
         lifecycle={deriveGmLifecyclePosture({
-          refusal: 'CAMPAIGN_NOT_CONVERGED',
+          refusal: { code: 'CAMPAIGN_NOT_CONVERGED', recoveryAction: null },
           pendingProposalCount: 0,
         })}
       />,

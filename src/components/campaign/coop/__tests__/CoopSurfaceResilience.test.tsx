@@ -56,7 +56,7 @@ function renderRefused() {
       pending={[pendingProposal('p1')]}
       onDecide={() => {}}
       lifecycle={deriveGmLifecyclePosture({
-        refusal: 'CAMPAIGN_NOT_CONVERGED',
+        refusal: { code: 'CAMPAIGN_NOT_CONVERGED', recoveryAction: null },
         pendingProposalCount: 1,
       })}
     />,
@@ -115,7 +115,7 @@ describe('refusal text persists until acted on', () => {
           pending={[pendingProposal('p1'), pendingProposal(`p-extra-${pass}`)]}
           onDecide={() => {}}
           lifecycle={deriveGmLifecyclePosture({
-            refusal: 'CAMPAIGN_NOT_CONVERGED',
+            refusal: { code: 'CAMPAIGN_NOT_CONVERGED', recoveryAction: null },
             pendingProposalCount: 2,
           })}
         />,
@@ -139,7 +139,7 @@ describe('refusal text persists until acted on', () => {
         onDecide={() => {}}
         onClearLifecycleRefusal={onClear}
         lifecycle={deriveGmLifecyclePosture({
-          refusal: 'CAMPAIGN_NOT_CONVERGED',
+          refusal: { code: 'CAMPAIGN_NOT_CONVERGED', recoveryAction: null },
           pendingProposalCount: 1,
         })}
       />,
