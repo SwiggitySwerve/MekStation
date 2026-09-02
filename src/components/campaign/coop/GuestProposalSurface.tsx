@@ -98,6 +98,14 @@ export function GuestProposalSurface({
   syncPosture,
   className = '',
 }: GuestProposalSurfaceProps): React.ReactElement {
+  // The newest RESOLVED proposal, which is what the announcement speaks.
+  // Newest rather than first: `useGuestProposals` appends, so the last
+  // resolved entry is the decision that just arrived - announcing the
+  // first would replay an answer the player heard several decisions ago.
+  const newestDecision = [...api.proposals]
+    .reverse()
+    .find((entry) => entry.status !== 'pending');
+
   return (
     <section
       data-testid="guest-proposal-surface"
@@ -180,6 +188,27 @@ export function GuestProposalSurface({
           );
         })}
       </div>
+
+      {/*
+        The decision announcement (umbrella 19.3). Separate from the feed
+        below rather than a live region wrapped around it: the feed holds
+        pending rows too, so a region around the whole list would re-read
+        the entire queue on every change, which is how live regions turn
+        into noise people learn to ignore. This carries the newest RESOLVED
+        outcome and nothing else, and is empty - therefore silent - until
+        the GM has actually decided something.
+      */}
+      <p
+        data-testid="guest-decision-announcement"
+        role="status"
+        aria-live="polite"
+        aria-atomic="true"
+        className="sr-only"
+      >
+        {newestDecision === undefined
+          ? ''
+          : `${newestDecision.proposal.intent.kind}: ${newestDecision.outcomeLabel}`}
+      </p>
 
       {/* Proposal feed — pending indicators and resolved outcomes. */}
       {api.proposals.length > 0 && (

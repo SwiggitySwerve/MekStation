@@ -21,7 +21,11 @@ import type { LifecycleState } from '@/lib/lifecycle/lifecycleState';
 
 import { CampaignSyncStateBanner } from '@/components/campaign/coop/CampaignSyncStateBanner';
 import { HostGmReviewSurface } from '@/components/campaign/coop/HostGmReviewSurface';
-import { deriveGmLifecyclePosture } from '@/lib/campaign/lifecycle/campaignLifecycleState';
+import {
+  deriveGmLifecyclePosture,
+  toCampaignLifecyclePosture,
+} from '@/lib/campaign/lifecycle/campaignLifecycleState';
+import { deriveCampaignSyncUxPosture } from '@/lib/campaign/replica/campaignSyncUxState';
 
 const STATES: readonly CampaignSyncUxState[] = [
   'blocked',
@@ -54,6 +58,95 @@ function posture(state: CampaignSyncUxState): ICampaignLifecyclePosture {
     commandsEnabled: state === 'live',
   };
 }
+
+/**
+ * The four lifecycle postures the campaign surface reaches that no SYNC
+ * state maps onto (umbrella 19.4). `pending` and `finalized` come from
+ * the guest's own proposal traffic; `rewound` and `rebuilding` from the
+ * reserved projection signals. They are DERIVED through the real
+ * function rather than written as literals, so a row here cannot pass
+ * against a posture the product could never build.
+ *
+ * `sealed` is absent on purpose and is not an omission: a campaign has
+ * no declare-then-reveal phase, so `deriveGuestLifecycleState` cannot
+ * return it. The tactical surface, which does have one, covers it.
+ */
+const CONVERGED_SYNC = {
+  connection: 'connected',
+  refusedReason: null,
+  awaitingRebaseline: false,
+  deliveredSequence: 3,
+  appliedSequence: 3,
+  joinCompleted: true,
+} as const;
+
+const DECISION_AND_PROJECTION_POSTURES: ReadonlyArray<
+  readonly [LifecycleState, ICampaignLifecyclePosture]
+> = [
+  [
+    'pending',
+    toCampaignLifecyclePosture(deriveCampaignSyncUxPosture(CONVERGED_SYNC), {
+      proposalAwaitingGm: true,
+      lastProposalCommitted: false,
+      refusal: null,
+    }),
+  ],
+  [
+    'finalized',
+    toCampaignLifecyclePosture(deriveCampaignSyncUxPosture(CONVERGED_SYNC), {
+      proposalAwaitingGm: false,
+      lastProposalCommitted: true,
+      refusal: null,
+    }),
+  ],
+  [
+    'rewound',
+    toCampaignLifecyclePosture(deriveCampaignSyncUxPosture(CONVERGED_SYNC), {
+      proposalAwaitingGm: false,
+      lastProposalCommitted: false,
+      refusal: 'PROJECTION_REWOUND',
+    }),
+  ],
+  [
+    'rebuilding',
+    toCampaignLifecyclePosture(deriveCampaignSyncUxPosture(CONVERGED_SYNC), {
+      proposalAwaitingGm: false,
+      lastProposalCommitted: false,
+      refusal: 'PROJECTION_REBUILDING',
+    }),
+  ],
+];
+
+describe('campaign lifecycle postures beyond the sync vocabulary', () => {
+  it.each(DECISION_AND_PROJECTION_POSTURES)(
+    'derives %s rather than accepting it as a literal',
+    (expected, built) => {
+      expect(built.lifecycleState).toBe(expected);
+    },
+  );
+
+  it.each(DECISION_AND_PROJECTION_POSTURES)(
+    'renders %s with no axe violations',
+    async (_expected, built) => {
+      const { container } = render(<CampaignSyncStateBanner posture={built} />);
+
+      expect(await axe(container)).toHaveNoViolations();
+    },
+  );
+
+  it.each(DECISION_AND_PROJECTION_POSTURES)(
+    'announces %s through a polite, atomic live region',
+    (_expected, built) => {
+      render(<CampaignSyncStateBanner posture={built} />);
+
+      const status = screen.getByRole('status');
+      expect(status).toHaveAttribute('aria-live', 'polite');
+      expect(status).toHaveAttribute('aria-atomic', 'true');
+      expect(status).not.toHaveAttribute('aria-live', 'assertive');
+      expect(status.textContent ?? '').not.toMatch(/\d/);
+    },
+  );
+});
 
 describe('campaign sync banner a11y', () => {
   it.each(STATES)('renders %s with no axe violations', async (state) => {
@@ -149,11 +242,45 @@ describe('GM lifecycle banner a11y', () => {
       />,
     );
 
-    const status = screen.getByRole('status');
+    // The surface now carries TWO status regions - the posture strip and
+    // the decision announcement (19.3) - so this resolves the posture one
+    // by testid and then asserts it is AMONG the elements exposed as
+    // `status`. That keeps the original point of the row: the posture
+    // reaches the accessibility tree a screen reader walks, not merely a
+    // hook only tests can see.
+    const status = screen.getByTestId('gm-lifecycle-state');
+    expect(screen.getAllByRole('status')).toContain(status);
     expect(status).toHaveAttribute('aria-live', 'polite');
     expect(status).toHaveAttribute('aria-atomic', 'true');
     expect(status).not.toHaveAttribute('aria-live', 'assertive');
-    // No digits, for the same reason the guest banner carries none.
+    // No digits, for the same reason the guest banner carries none. This
+    // rule governs the POSTURE, which is derived from stream distance;
+    // the decision announcement beside it names the host's own proposal
+    // and is not bound by it.
+    expect(status.textContent ?? '').not.toMatch(/\d/);
+  });
+
+  it('announces the pending posture, which no refusal produces', () => {
+    // `pending` is the one GM posture that comes from the QUEUE rather
+    // than a refusal, so the refusal-driven rows above never reach it -
+    // and 19.4 asks for every state, not every code path.
+    render(
+      <HostGmReviewSurface
+        pending={[]}
+        onDecide={() => {}}
+        lifecycle={deriveGmLifecyclePosture({
+          refusal: null,
+          pendingProposalCount: 2,
+        })}
+      />,
+    );
+
+    const status = screen.getByTestId('gm-lifecycle-state');
+    expect(status).toHaveAttribute('data-state', 'pending');
+    expect(screen.getAllByRole('status')).toContain(status);
+    expect(status).toHaveAttribute('aria-live', 'polite');
+    // Two proposals are queued, and the announcement still carries no
+    // digit: a spoken count is a number on screen by another route.
     expect(status.textContent ?? '').not.toMatch(/\d/);
   });
 
