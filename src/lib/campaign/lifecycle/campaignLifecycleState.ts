@@ -59,11 +59,11 @@
 import type {
   ICampaignSyncUxPosture,
   CampaignSyncUxState,
-} from "@/lib/campaign/replica/campaignSyncUxState";
+} from '@/lib/campaign/replica/campaignSyncUxState';
 import type {
   LifecycleProjectionSignal,
   LifecycleState,
-} from "@/lib/lifecycle/lifecycleState";
+} from '@/lib/lifecycle/lifecycleState';
 
 /**
  * Every refusal a campaign surface can be put into a posture by.
@@ -78,7 +78,9 @@ import type {
  * new UI.
  */
 export type CampaignLifecycleRefusalCode =
-  "CAMPAIGN_NOT_CONVERGED" | "STALE_BRANCH" | LifecycleProjectionSignal;
+  | 'CAMPAIGN_NOT_CONVERGED'
+  | 'STALE_BRANCH'
+  | LifecycleProjectionSignal;
 
 /**
  * A refusal as RECEIVED: the code, plus whatever the server said to do
@@ -169,7 +171,7 @@ export interface IGmRecoveryAction {
  */
 export type GmReachableState = Extract<
   LifecycleState,
-  "pending" | "blocked" | "rewound" | "rebuilding" | "live"
+  'pending' | 'blocked' | 'rewound' | 'rebuilding' | 'live'
 >;
 
 /** The GM posture. */
@@ -207,16 +209,16 @@ export interface IGmLifecycleInput {
 }
 
 const GUEST_MESSAGES: Readonly<Record<LifecycleState, string>> = {
-  pending: "Your proposal is awaiting the campaign GM.",
-  sealed: "Your proposal is sealed until the GM reveals it.",
-  finalized: "The campaign GM decided your latest proposal.",
-  syncing: "Loading the shared campaign…",
-  reconnecting: "Reconnecting to the campaign owner…",
-  behind: "Catching up on recent campaign activity…",
-  blocked: "This shared campaign is not accepting commands right now.",
-  rewound: "The campaign projection was rewound to an authoritative branch.",
-  rebuilding: "Rebuilding the campaign projection from authoritative history…",
-  live: "Up to date with the campaign owner.",
+  pending: 'Your proposal is awaiting the campaign GM.',
+  sealed: 'Your proposal is sealed until the GM reveals it.',
+  finalized: 'The campaign GM decided your latest proposal.',
+  syncing: 'Loading the shared campaign…',
+  reconnecting: 'Reconnecting to the campaign owner…',
+  behind: 'Catching up on recent campaign activity…',
+  blocked: 'This shared campaign is not accepting commands right now.',
+  rewound: 'The campaign projection was rewound to an authoritative branch.',
+  rebuilding: 'Rebuilding the campaign projection from authoritative history…',
+  live: 'Up to date with the campaign owner.',
 };
 
 /**
@@ -230,8 +232,8 @@ const GUEST_MESSAGES: Readonly<Record<LifecycleState, string>> = {
 const GM_MESSAGES: Readonly<
   Record<Exclude<GmReachableState, RefusalPostureState>, string>
 > = {
-  pending: "Guest proposals are awaiting your review.",
-  live: "Campaign is up to date.",
+  pending: 'Guest proposals are awaiting your review.',
+  live: 'Campaign is up to date.',
 };
 
 /**
@@ -249,13 +251,13 @@ const GM_MESSAGES: Readonly<
 const REFUSAL_MESSAGES: Readonly<Record<CampaignLifecycleRefusalCode, string>> =
   {
     CAMPAIGN_NOT_CONVERGED:
-      "Campaign progression is paused until every participant catches up.",
+      'Campaign progression is paused until every participant catches up.',
     STALE_BRANCH:
-      "This view is on a superseded branch of campaign history, so the campaign will not take commands from it.",
+      'This view is on a superseded branch of campaign history, so the campaign will not take commands from it.',
     PROJECTION_REWOUND:
-      "The campaign projection was rewound to an authoritative branch.",
+      'The campaign projection was rewound to an authoritative branch.',
     PROJECTION_REBUILDING:
-      "Rebuilding the campaign projection from authoritative history…",
+      'Rebuilding the campaign projection from authoritative history…',
   };
 
 /**
@@ -294,40 +296,40 @@ const REFUSAL_MESSAGES: Readonly<Record<CampaignLifecycleRefusalCode, string>> =
  * label: naming them differently would be describing one action three ways,
  * and two of those descriptions would be wrong (finding #93).
  */
-const CLEAR_HINT_LABEL = "Check again";
+const CLEAR_HINT_LABEL = 'Check again';
 
 const RECOVERIES: Readonly<
   Record<CampaignLifecycleRefusalCode, IGmRecoveryAction>
 > = {
   CAMPAIGN_NOT_CONVERGED: {
-    code: "CAMPAIGN_NOT_CONVERGED",
+    code: 'CAMPAIGN_NOT_CONVERGED',
     label: CLEAR_HINT_LABEL,
     description:
-      "Progression resumes once every participant has caught up. Checking again retries against the campaign server.",
+      'Progression resumes once every participant has caught up. Checking again retries against the campaign server.',
     actionable: true,
     serverAction: null,
   },
   STALE_BRANCH: {
-    code: "STALE_BRANCH",
+    code: 'STALE_BRANCH',
     label: CLEAR_HINT_LABEL,
     description:
-      "This view is on a superseded branch of campaign history. Checking again asks the campaign server to judge the next command afresh; while the branch is superseded it will refuse again.",
+      'This view is on a superseded branch of campaign history. Checking again asks the campaign server to judge the next command afresh; while the branch is superseded it will refuse again.',
     actionable: true,
     serverAction: null,
   },
   PROJECTION_REWOUND: {
-    code: "PROJECTION_REWOUND",
+    code: 'PROJECTION_REWOUND',
     label: CLEAR_HINT_LABEL,
     description:
-      "The campaign projection was rewound to an authoritative branch. Checking again asks the campaign server to judge the next command afresh.",
+      'The campaign projection was rewound to an authoritative branch. Checking again asks the campaign server to judge the next command afresh.',
     actionable: true,
     serverAction: null,
   },
   PROJECTION_REBUILDING: {
-    code: "PROJECTION_REBUILDING",
-    label: "Wait for rebuild",
+    code: 'PROJECTION_REBUILDING',
+    label: 'Wait for rebuild',
     description:
-      "The campaign projection is being rebuilt from authoritative history. It reopens on its own when the rebuild finishes.",
+      'The campaign projection is being rebuilt from authoritative history. It reopens on its own when the rebuild finishes.',
     actionable: false,
     serverAction: null,
   },
@@ -346,7 +348,7 @@ const RECOVERIES: Readonly<
  */
 function resolveRecovery(refusal: ICampaignCommandRefusal): IGmRecoveryAction {
   const local = RECOVERIES[refusal.code];
-  if (refusal.recoveryAction === null || refusal.recoveryAction === "") {
+  if (refusal.recoveryAction === null || refusal.recoveryAction === '') {
     return local;
   }
   return { ...local, serverAction: refusal.recoveryAction };
@@ -366,8 +368,8 @@ function resolveRecovery(refusal: ICampaignCommandRefusal): IGmRecoveryAction {
  * action field - so the refusal it produces never names a recovery.
  */
 const WIRE_REFUSALS: Readonly<Record<string, CampaignLifecycleRefusalCode>> = {
-  CAMPAIGN_NOT_CONVERGED: "CAMPAIGN_NOT_CONVERGED",
-  PROJECTION_REBUILDING: "PROJECTION_REBUILDING",
+  CAMPAIGN_NOT_CONVERGED: 'CAMPAIGN_NOT_CONVERGED',
+  PROJECTION_REBUILDING: 'PROJECTION_REBUILDING',
 };
 
 export function campaignRefusalFromServerErrorCode(
@@ -383,14 +385,14 @@ export function campaignRefusalFromServerErrorCode(
  * never heard of cannot be mistaken for one it has.
  */
 const STALE_COMMAND_CODES: ReadonlySet<string> = new Set([
-  "STALE_BRANCH",
-  "STALE_REVISION",
-  "STALE_GENERATION",
+  'STALE_BRANCH',
+  'STALE_REVISION',
+  'STALE_GENERATION',
 ]);
 
 function readStringField(body: object, key: string): string | null {
   const value = Reflect.get(body, key);
-  return typeof value === "string" && value.length > 0 ? value : null;
+  return typeof value === 'string' && value.length > 0 ? value : null;
 }
 
 /**
@@ -426,19 +428,19 @@ function readStringField(body: object, key: string): string | null {
 export function campaignRefusalFromCommandRefusal(
   body: unknown,
 ): ICampaignCommandRefusal | null {
-  if (typeof body !== "object" || body === null) return null;
-  const recoveryAction = readStringField(body, "recoveryAction");
-  const kind = Reflect.get(body, "kind");
-  if (kind === "conflict") {
-    return { code: "STALE_BRANCH", recoveryAction };
+  if (typeof body !== 'object' || body === null) return null;
+  const recoveryAction = readStringField(body, 'recoveryAction');
+  const kind = Reflect.get(body, 'kind');
+  if (kind === 'conflict') {
+    return { code: 'STALE_BRANCH', recoveryAction };
   }
-  if (kind !== "blocked") return null;
-  const reason = readStringField(body, "reason");
-  if (reason === "PROJECTION_REBUILDING") {
-    return { code: "PROJECTION_REBUILDING", recoveryAction };
+  if (kind !== 'blocked') return null;
+  const reason = readStringField(body, 'reason');
+  if (reason === 'PROJECTION_REBUILDING') {
+    return { code: 'PROJECTION_REBUILDING', recoveryAction };
   }
   if (reason !== null && STALE_COMMAND_CODES.has(reason)) {
-    return { code: "STALE_BRANCH", recoveryAction };
+    return { code: 'STALE_BRANCH', recoveryAction };
   }
   return null;
 }
@@ -455,23 +457,23 @@ export function campaignRefusalFromCommandRefusal(
  */
 type RefusalPostureState = Extract<
   LifecycleState,
-  "blocked" | "rewound" | "rebuilding"
+  'blocked' | 'rewound' | 'rebuilding'
 >;
 
 function refusalState(
   refusal: CampaignLifecycleRefusalCode,
 ): RefusalPostureState {
   switch (refusal) {
-    case "PROJECTION_REBUILDING":
-      return "rebuilding";
-    case "PROJECTION_REWOUND":
-      return "rewound";
+    case 'PROJECTION_REBUILDING':
+      return 'rebuilding';
+    case 'PROJECTION_REWOUND':
+      return 'rewound';
     // A stale branch and an unconverged campaign are both "the server
     // will not take this command from you yet", which is what `blocked`
     // says. The recovery text is what distinguishes them for a human.
-    case "STALE_BRANCH":
-    case "CAMPAIGN_NOT_CONVERGED":
-      return "blocked";
+    case 'STALE_BRANCH':
+    case 'CAMPAIGN_NOT_CONVERGED':
+      return 'blocked';
     default:
       return assertNever(refusal);
   }
@@ -480,21 +482,21 @@ function refusalState(
 /** Maps the shipped sync vocabulary onto the shared one. */
 function lifecycleFromSyncState(state: CampaignSyncUxState): LifecycleState {
   switch (state) {
-    case "blocked":
-      return "blocked";
+    case 'blocked':
+      return 'blocked';
     // `resyncing` (a rebaseline landed) and `catching-up` (a first load)
     // are both "the stream is being brought into line" - the shared
     // vocabulary calls that `syncing`. The distinction survives in the
     // unchanged `state`/`data-sync-state` for the readers that want it.
-    case "resyncing":
-    case "catching-up":
-      return "syncing";
-    case "retrying":
-      return "reconnecting";
-    case "behind":
-      return "behind";
-    case "live":
-      return "live";
+    case 'resyncing':
+    case 'catching-up':
+      return 'syncing';
+    case 'retrying':
+      return 'reconnecting';
+    case 'behind':
+      return 'behind';
+    case 'live':
+      return 'live';
     default:
       return assertNever(state);
   }
@@ -538,10 +540,10 @@ function deriveGuestLifecycleState(
   // The decided/undecided postures only mean anything on a converged
   // view. Reporting "awaiting the GM" while the replica is mid-backfill
   // would name the wrong reason for the wait.
-  if (mapped !== "live") return mapped;
-  if (facts.proposalAwaitingGm) return "pending";
-  if (facts.lastProposalCommitted) return "finalized";
-  return "live";
+  if (mapped !== 'live') return mapped;
+  if (facts.proposalAwaitingGm) return 'pending';
+  if (facts.lastProposalCommitted) return 'finalized';
+  return 'live';
 }
 
 /**
@@ -564,12 +566,12 @@ export function deriveGmLifecyclePosture(
       // Only the convergence refusal is decided against the intent, so
       // only it leaves the non-progression commands enabled. A rebuild
       // or a stale branch is refused before the intent is read.
-      commandsEnabled: input.refusal.code === "CAMPAIGN_NOT_CONVERGED",
+      commandsEnabled: input.refusal.code === 'CAMPAIGN_NOT_CONVERGED',
       recovery: resolveRecovery(input.refusal),
     };
   }
   const state: LifecycleState =
-    input.pendingProposalCount > 0 ? "pending" : "live";
+    input.pendingProposalCount > 0 ? 'pending' : 'live';
   return {
     state,
     message: GM_MESSAGES[state],
