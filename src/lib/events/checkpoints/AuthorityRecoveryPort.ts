@@ -43,7 +43,13 @@
  * (`ReplayProjectorRegistry` says so in its own header). Both doors go
  * through the same two shipped kernels; a projector binding for the
  * campaign vocabulary is what would collapse them into one, and that
- * belongs to the campaign-journal work, not here.
+ * belongs to the campaign-journal work, not here. Concretely, the two
+ * doors collapse when the campaign-journal cutover (task 5.7) registers a
+ * `ReplayProjector` carrying the campaign authority's projector identity
+ * and whose every decision applies `applyCampaignEvent` - at that point
+ * this port's campaign binding is replaced by
+ * `BranchCheckpointCache.recover`, and the fold seam below becomes dead
+ * weight rather than a second path.
  *
  * @spec openspec/changes/harden-gm-two-player-campaign-sessions/specs/event-store/spec.md
  */
