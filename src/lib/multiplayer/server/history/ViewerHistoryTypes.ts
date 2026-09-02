@@ -158,6 +158,17 @@ export interface IViewerHistoryExport {
   readonly stream: IViewerSafeProjection;
   readonly timeline: readonly IViewerTimelineEntry[];
   readonly privateRecords: readonly ViewerHistoryPrivateRecord[];
+  /**
+   * Per-viewer projection digest over `timeline` (umbrella 12.2), from
+   * the shared `viewerTimelineDigest`. A `readTimeline` caller computes
+   * the identical number from its own rows, which is how "player
+   * timeline and export agree" is asserted rather than eyeballed.
+   *
+   * Safe to carry on a player export: it is a hash of the rows this
+   * viewer already received, so it discloses nothing they do not hold
+   * and cannot answer a question about rows they did not.
+   */
+  readonly timelineDigest: string;
 }
 
 /**

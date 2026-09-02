@@ -79,10 +79,19 @@ export interface ICampaignViewerProjection {
  *    at sequence 0, stamped `campaign`) shared rather than making every
  *    restricted viewer start from an empty campaign.
  *
- * `projectCampaignStreamForGrant` states rule 2 in its own words and
- * implements the conservative form of it - it drops EVERY full-state
- * snapshot for a partially-scoped grant, having no need of the ordering
- * refinement. Same law, two surfaces; this is the shareable statement.
+ * `projectCampaignStreamForGrant` (:254-266) states the same DANGER and
+ * answers it with a blanket rule instead: a partially-scoped grant
+ * receives no full-state snapshot at all, genesis included. Seam 1 called
+ * that "the conservative form of the same law"; seam 2 probed it, and
+ * that claim was wrong. The two rules give the same player different
+ * opening ledgers from the same committed stream, which
+ * `campaignGenesisArmParity.test.ts` pins from both sides.
+ *
+ * They cannot be reconciled here. Doing it soundly needs a fact neither
+ * arm carries - whether a full-state baseline is a pre-scope genesis or
+ * an imported campaign's whole state - and that is a schema addition on
+ * the baseline event, owned by the campaign-journal migration work. Rule
+ * 2 is therefore the LEGACY arm's law, not a claim about the grant arm.
  */
 export function campaignViewerVisibleEvents(
   events: readonly ICampaignEvent[],
@@ -123,14 +132,30 @@ function campaignFactMaterial(event: ICampaignEvent): Record<string, unknown> {
 }
 
 /**
+ * The ONE hash law every viewer-projection digest goes through, on every
+ * surface and in every vocabulary.
+ *
+ * Exported because the surfaces that must agree do not share a data
+ * shape: campaign events here, folded ledger state on the snapshot arm,
+ * action-audit rows on the timeline and export arms (see
+ * `viewerTimelineDigest`). What they CAN share is the canonicalization
+ * and the hash - so two surfaces that project the same viewer-visible
+ * facts land on the same number, and a surface that quietly projects
+ * something else does not. Two hash call sites would be two laws.
+ */
+export function viewerProjectionHash(material: unknown): string {
+  return sha256Sync(canonicalizeJsonV1(material));
+}
+
+/**
  * Digest over the ordered viewer-visible facts. This is the half a
- * surface that carries EVENTS can compare - live, replay, timeline,
- * export.
+ * surface that carries EVENTS can compare - live, replay, and the
+ * stream half of export.
  */
 export function campaignViewerFactsDigest(
   visible: readonly ICampaignEvent[],
 ): string {
-  return sha256Sync(canonicalizeJsonV1(visible.map(campaignFactMaterial)));
+  return viewerProjectionHash(visible.map(campaignFactMaterial));
 }
 
 /**
@@ -141,7 +166,7 @@ export function campaignViewerFactsDigest(
 export function campaignViewerStateDigest(
   state: ICampaignAuthoritativeState,
 ): string {
-  return sha256Sync(canonicalizeJsonV1(state));
+  return viewerProjectionHash(state);
 }
 
 /**
@@ -155,7 +180,7 @@ export function campaignViewerProjectionDigest(
   factsDigest: string,
   stateDigest: string,
 ): string {
-  return sha256Sync(canonicalizeJsonV1({ factsDigest, stateDigest }));
+  return viewerProjectionHash({ factsDigest, stateDigest });
 }
 
 /**

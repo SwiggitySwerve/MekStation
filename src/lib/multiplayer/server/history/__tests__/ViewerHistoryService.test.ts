@@ -99,6 +99,7 @@ import {
   VIEWER_PRIVATE_DEFAULT_EXPORT_KEYS,
   isGmTimelineEntry,
 } from '../ViewerHistoryTypes';
+import { viewerTimelineDigest } from '../viewerTimelineDigest';
 
 const CREATED_AT = '2026-08-21T23:00:00.000Z';
 const RECORDED_AT = '2026-08-21T22:30:00.000Z';
@@ -993,6 +994,84 @@ describe('ViewerHistoryService', function () {
       }
       expect(gmOwn.committedFirstRevision).toBe(PLAYER_FIRST_REV);
       expect(gmEntries[1]?.actorPrincipalId).toBe(OTHER_ROW.principalId);
+    });
+
+    /**
+     * Umbrella 12.2 - the timeline and export arms' half of
+     * `Timeline and Export Use the Same Viewer Projection`.
+     *
+     * These arms are audit-row shaped: no scope stamp, no sequence, no
+     * ledger fold, so they share the contract's HASH law rather than its
+     * event vocabulary (viewerTimelineDigest). "The export contains the
+     * same authorized facts and no additional private fields" becomes a
+     * number the two surfaces either match on or do not.
+     */
+    it.each([
+      ['GM', () => GM_ROW.principalId],
+      ['Player 1', () => PLAYER_ROW.principalId],
+      ['Player 2', () => OTHER_ROW.principalId],
+    ])(
+      'timeline and export digest identically for %s',
+      async function (_label, principalOf) {
+        const journal = new InMemoryEventJournal(recordedAt);
+        await appendEvent(journal, {
+          expectedRevision: 0,
+          eventType: 'public_notice',
+          payload: { headline: 'PARITY-PUBLIC' },
+          commandId: 'cmd-parity-public',
+        });
+        const { history, audit } = makeHistory(journal);
+        if (!(audit instanceof SQLiteActionAuditRepository)) {
+          throw new Error('expected real SQLite action-audit repository');
+        }
+        seedAudit(audit);
+        const principalId = principalOf();
+
+        const entries = await history.readTimeline(principalId, SESSION_ID, {
+          campaignSessionId: SESSION_ID,
+        });
+        const exported = await history.exportForViewer(
+          principalId,
+          SESSION_ID,
+          {
+            streamType: STREAM_TYPE,
+            streamId: SESSION_ID,
+          },
+        );
+
+        // Falsification: have exportForViewer digest the raw audit rows
+        // instead of the timeline it returns, and this reds for both
+        // players (the GM row would survive, which is the point of
+        // running all three).
+        expect(exported.timelineDigest).toBe(viewerTimelineDigest(entries));
+        expect(exported.timelineDigest).toBe(
+          viewerTimelineDigest(exported.timeline),
+        );
+      },
+    );
+
+    it('the GM and the two players get three different timeline digests', async function () {
+      // Without this the parity rows could pass on a constant: the
+      // digest has to witness the redaction, not just exist.
+      const journal = new InMemoryEventJournal(recordedAt);
+      const { history, audit } = makeHistory(journal);
+      if (!(audit instanceof SQLiteActionAuditRepository)) {
+        throw new Error('expected real SQLite action-audit repository');
+      }
+      seedAudit(audit);
+
+      const digests: string[] = [];
+      for (const principalId of [
+        GM_ROW.principalId,
+        PLAYER_ROW.principalId,
+        OTHER_ROW.principalId,
+      ]) {
+        const entries = await history.readTimeline(principalId, SESSION_ID, {
+          campaignSessionId: SESSION_ID,
+        });
+        digests.push(viewerTimelineDigest(entries));
+      }
+      expect(new Set(digests).size).toBe(3);
     });
   });
 

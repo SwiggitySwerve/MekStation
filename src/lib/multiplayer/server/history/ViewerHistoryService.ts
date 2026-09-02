@@ -58,6 +58,8 @@ import type {
   ViewerHistoryReadResult,
 } from './ViewerHistoryTypes';
 
+import { viewerTimelineDigest } from './viewerTimelineDigest';
+
 /** Constant id-free refusal shared with the human-action gate. */
 const SAFE_REFUSAL = 'Authorization refused';
 
@@ -157,7 +159,17 @@ export class ViewerHistoryService {
       matchId,
       request,
     );
-    return Object.freeze({ stream, timeline, privateRecords });
+    return Object.freeze({
+      stream,
+      timeline,
+      privateRecords,
+      // Computed from the timeline this export actually carries, through
+      // the same function readTimeline's caller uses. Deriving it from
+      // the rows rather than recomputing from the repository is what
+      // makes the two arms provably the same projection instead of two
+      // that happen to agree today.
+      timelineDigest: viewerTimelineDigest(timeline),
+    });
   }
 
   /**
