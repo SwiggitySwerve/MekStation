@@ -61,6 +61,15 @@ function buildRunPlan({ group, runId, repoRoot }) {
     // surfaces - each named, with its evidence, in its spec's header.
     'privacy-pack': ['e2e/gm-two-player-privacy.pack.spec.ts'],
     'proposal-pack': ['e2e/gm-two-player-proposals.pack.spec.ts'],
+    // `performance` is the controlled loopback latency/catch-up/memory
+    // pack (E2E-71/72/73, umbrella 23.2). It is registered as its own
+    // selector rather than folded into `smoke` because its budgets gate
+    // only the recorded controlled class - running it on an arbitrary
+    // machine alongside other work reports that machine, not the
+    // product. The strict backing is unchanged: the group runs the real
+    // three-context spec under the same one-worker plan as every other
+    // pack.
+    performance: ['e2e/gm-two-player-performance.pack.spec.ts'],
     // The three-context privacy journey belongs to
     // `add-authority-audit-and-privacy-proof` PR 10, not to this
     // umbrella, but this runner is where CI gating lives - and the
