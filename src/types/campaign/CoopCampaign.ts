@@ -180,12 +180,15 @@ export interface IProposalVetoError {
  *   - `mechanically-rejected`— CO1 validation failed before any review;
  *     nothing committed.
  *   - `pending`              — `host-review` mode, awaiting the host.
+ *   - `stale-head`           — the proposal was fine and the campaign
+ *     moved under it; resync and propose again.
  */
 export type ProposalResolutionStatus =
   | 'committed'
   | 'vetoed'
   | 'mechanically-rejected'
-  | 'pending';
+  | 'pending'
+  | 'stale-head';
 
 /**
  * The result of submitting a guest proposal to the `CampaignMatchHost`.
@@ -217,6 +220,19 @@ export type GuestProposalResult =
   | {
       readonly status: 'pending';
       readonly proposalId: string;
+    }
+  /**
+   * The proposal was fine and the head moved under it.
+   *
+   * Its own status because folding it into `mechanically-rejected` would
+   * tell the GM their proposal was invalid when it was not - and would
+   * send them to fix a proposal that needs no fixing. The recovery is to
+   * resync and re-propose.
+   */
+  | {
+      readonly status: 'stale-head';
+      readonly proposalId: string;
+      readonly refusal: import('./CampaignSync').ICampaignStaleHeadRefusal;
     };
 
 /**

@@ -15,6 +15,7 @@ import {
 import { computeCampaignStateDigest } from '@/lib/campaign/sync/JournalCampaignEventStore';
 import { nowIso } from '@/types/multiplayer/Protocol';
 
+import type { ICampaignBatchCommitHost } from './campaignHostBatchCommit';
 import type { UnsequencedCampaignEvent } from './CampaignMatchHostIntent';
 
 import { validateCampaignIntent } from './CampaignMatchHostIntent';
@@ -35,6 +36,32 @@ interface ICampaignOutcomeInboxHost {
   readonly reconstructState: () => Promise<ICampaignAuthoritativeState>;
   readonly markDivergence: () => void;
   readonly publish: (event: ICampaignEvent) => void;
+}
+
+/**
+ * Adapt the batch-commit context to this module's vocabulary.
+ *
+ * The two describe the same host with different field names; building
+ * the second by hand duplicated seven closures over the same state, and
+ * a divergence between them would be invisible until one path wrote
+ * state the other could not see.
+ */
+export function outcomeInboxHostFrom(
+  base: ICampaignBatchCommitHost,
+  hostPlayerId: string,
+  eventStore: ICampaignEventStore,
+): ICampaignOutcomeInboxHost {
+  return {
+    campaignId: base.campaignId,
+    hostPlayerId,
+    eventStore,
+    getState: base.readState,
+    setState: base.writeState,
+    nextSequence: base.nextSequence,
+    reconstructState: base.rebuildState,
+    markDivergence: base.markDivergence,
+    publish: base.publish,
+  };
 }
 
 export async function commitCampaignOutcomeConsequences(
