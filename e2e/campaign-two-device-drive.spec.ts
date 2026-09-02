@@ -10,7 +10,13 @@
  *
  * Driven here, end to end, across two real servers:
  *
- *   share    - the source issues a scoped, signed grant
+ *   share    - the source issues a scoped, signed grant. Deliberately
+ *              WITHOUT a bearer token: this campaign has no co-op
+ *              session and therefore no participants, so there is no
+ *              principal to authorize against and the share endpoint
+ *              asks for nothing it could not check (finding #33, the
+ *              #29 boundary). The dial below DOES present one - it is
+ *              bound to the stored grant, so there the check is real.
  *   redeem   - the CONSUMING server redeems it and records a replica
  *   dial     - the consuming server starts syncing toward the source
  *   offline  - the replica serves its own copy with the source stopped
@@ -27,6 +33,10 @@ import { webcrypto } from 'node:crypto';
 import { mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
+
+import { issuePlayerToken } from '@/lib/multiplayer/client/issuePlayerToken';
+import { generateKeyPair } from '@/services/vault/IdentityService';
+import { encodeTokenForWire } from '@/types/multiplayer/Player';
 
 /** The consuming device's server. Playwright's own webServer is the source. */
 interface ISecondServer {
@@ -161,6 +171,30 @@ interface IGrantRecord {
  * whatever key a token happens to carry — the trust anchor task 2.1
  * exists to enforce.
  */
+/**
+ * A self-issued bearer token for the replica-sync calls below.
+ *
+ * `replica-sync` dials a socket and writes what comes back into this
+ * device's store, so every verb needs a named caller. Minting one needs
+ * no server: the token is signed by a vault identity and verified from
+ * the public key it carries. That it is this cheap is exactly why the
+ * SHARE endpoint does not ask for one on a campaign with no
+ * participants - there, a token would prove nothing there was anything
+ * to check against (finding #33, the #29 boundary).
+ */
+async function bearerToken(): Promise<string> {
+  const keys = await generateKeyPair();
+  const token = await issuePlayerToken({
+    id: 'identity-two-device-drive',
+    displayName: 'Two Device Drive',
+    publicKey: Buffer.from(keys.publicKey).toString('base64'),
+    privateKey: Buffer.from(keys.privateKey).toString('base64'),
+    friendCode: 'AAAA-BBBB-CCCC-DDDD',
+    createdAt: new Date().toISOString(),
+  });
+  return encodeTokenForWire(token);
+}
+
 async function issuerKeyPair(): Promise<{
   publicKey: string;
   privateKey: CryptoKey;
@@ -346,9 +380,11 @@ test.describe('live two-device campaign drive', () => {
     expect(replicaRecord.instanceId).not.toBe(sourceRecord.instanceId);
 
     // --- the source refuses to be told it is a replica ----------------
+    const wire = await bearerToken();
     const sourceSync = await request.post(
       `${sourceOrigin}/api/campaigns/${campaignId}/replica-sync`,
       {
+        headers: { Authorization: `Bearer ${wire}` },
         data: {
           sourceSocketUrl: `${deviceB.origin.replace('http', 'ws')}/api/multiplayer/socket`,
           matchId: 'match-drive',
@@ -363,6 +399,7 @@ test.describe('live two-device campaign drive', () => {
     const started = await request.post(
       `${deviceB.origin}/api/campaigns/${campaignId}/replica-sync`,
       {
+        headers: { Authorization: `Bearer ${wire}` },
         data: {
           sourceSocketUrl: `${sourceOrigin.replace('http', 'ws')}/api/multiplayer/socket`,
           matchId: 'match-drive',
@@ -376,6 +413,7 @@ test.describe('live two-device campaign drive', () => {
     // --- offline read: B serves its own copy, source or no source -----
     await request.delete(
       `${deviceB.origin}/api/campaigns/${campaignId}/replica-sync?grantId=${grant.grantId}`,
+      { headers: { Authorization: `Bearer ${wire}` } },
     );
 
     const offlineRead = await request.get(
