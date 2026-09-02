@@ -26,7 +26,7 @@
 
 import React from 'react';
 
-import type { ICampaignSyncUxPosture } from '@/lib/campaign/replica/campaignSyncUxState';
+import type { ICampaignLifecyclePosture } from '@/lib/campaign/lifecycle/campaignLifecycleState';
 import type { ICampaignIntent } from '@/types/campaign/CampaignSync';
 import type { ICommandAuthorityProjection } from '@/types/command-screen';
 
@@ -62,7 +62,7 @@ export interface GuestProposalSurfaceProps {
    * no replica behind them, which keeps the pre-5.6 behaviour for them
    * rather than silently disabling controls that were always safe.
    */
-  readonly syncPosture?: ICampaignSyncUxPosture;
+  readonly syncPosture?: ICampaignLifecyclePosture;
   /** Optional class override for the surface container. */
   readonly className?: string;
 }

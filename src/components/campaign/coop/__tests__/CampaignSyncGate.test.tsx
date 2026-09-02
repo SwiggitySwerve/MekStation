@@ -12,9 +12,10 @@
 import { render, screen } from '@testing-library/react';
 import React from 'react';
 
-import type { ICampaignSyncUxPosture } from '@/lib/campaign/replica/campaignSyncUxState';
+import type { ICampaignLifecyclePosture } from '@/lib/campaign/lifecycle/campaignLifecycleState';
 import type { ICampaignIntent } from '@/types/campaign/CampaignSync';
 
+import { toCampaignLifecyclePosture } from '@/lib/campaign/lifecycle/campaignLifecycleState';
 import { deriveCampaignSyncUxPosture } from '@/lib/campaign/replica/campaignSyncUxState';
 
 import { GuestProposalSurface } from '../GuestProposalSurface';
@@ -42,16 +43,25 @@ function idleApi(pendingKinds: readonly string[] = []) {
 
 function posture(
   overrides: Partial<Parameters<typeof deriveCampaignSyncUxPosture>[0]> = {},
-): ICampaignSyncUxPosture {
-  return deriveCampaignSyncUxPosture({
-    connection: 'connected',
-    refusedReason: null,
-    awaitingRebaseline: false,
-    deliveredSequence: 3,
-    appliedSequence: 3,
-    joinCompleted: true,
-    ...overrides,
-  });
+): ICampaignLifecyclePosture {
+  // The lifecycle name rides ON the shipped sync posture, so these rows
+  // keep asserting `data-sync-state` exactly as they did.
+  return toCampaignLifecyclePosture(
+    deriveCampaignSyncUxPosture({
+      connection: 'connected',
+      refusedReason: null,
+      awaitingRebaseline: false,
+      deliveredSequence: 3,
+      appliedSequence: 3,
+      joinCompleted: true,
+      ...overrides,
+    }),
+    {
+      proposalAwaitingGm: false,
+      lastProposalCommitted: false,
+      refusal: null,
+    },
+  );
 }
 
 describe('guest command gate', () => {
