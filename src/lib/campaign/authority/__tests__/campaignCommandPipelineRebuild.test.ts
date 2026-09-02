@@ -151,9 +151,14 @@ describe('campaign commands during a history rebuild', () => {
     // `blocked`, not `rejected`: the campaign can perfectly well afford
     // this. A caller that could not tell the two apart would give up on
     // a command that will succeed the moment the rebuild lands.
+    // The action rides WITH the refusal. Reporting only the code left
+    // the client with a reason and no recovery, so its
+    // `recoveryAction` was null on the one refusal that actually has an
+    // answer - wait for the rebuild, then retry.
     expect(result).toEqual({
       kind: 'blocked',
       reason: 'PROJECTION_REBUILDING',
+      recoveryAction: 'retry-after-rebuild',
     });
     // The refusal wrote nothing into the history the rebuild is about to
     // replace.

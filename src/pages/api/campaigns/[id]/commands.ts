@@ -166,7 +166,11 @@ export default async function handler(
         res.status(422).json({ kind: 'rejected', reason: result.reason });
         return;
       case 'blocked':
-        res.status(409).json({ kind: 'blocked', reason: result.reason });
+        res.status(409).json({
+          kind: 'blocked',
+          reason: result.reason,
+          recoveryAction: result.recoveryAction,
+        });
         return;
       case 'conflict':
         // The whole conflict, not a fragment of it: why, where the head

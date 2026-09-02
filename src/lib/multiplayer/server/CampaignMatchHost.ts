@@ -48,21 +48,18 @@ import type {
 import { applyCampaignEvent } from '@/lib/campaign/sync/applyCampaignEvent';
 import { CampaignEventLog } from '@/lib/campaign/sync/campaignEventLog';
 import { freezeCampaignEvent } from '@/lib/campaign/sync/campaignEventScope';
-import {
-  CampaignEventSequenceCollisionError,
-  CampaignProjectionDivergenceError,
-  type ICampaignEventStore,
-} from '@/lib/campaign/sync/ICampaignEventStore';
-import { computeCampaignStateDigest } from '@/lib/campaign/sync/JournalCampaignEventStore';
+import { type ICampaignEventStore } from '@/lib/campaign/sync/ICampaignEventStore';
 import { INVALID_CAMPAIGN_INTENT } from '@/types/campaign/CampaignSync';
 import { parseCampaignIntent } from '@/types/campaign/campaignSyncSchemas';
 import { nowIso } from '@/types/multiplayer/Protocol';
 
+import type { ICampaignBatchCommitHost } from './campaignHostBatchCommit';
 import type {
   CampaignIntentValidation,
   UnsequencedCampaignEvent,
 } from './CampaignMatchHostIntent';
 
+import { commitCampaignEventBatch } from './campaignHostBatchCommit';
 import {
   CampaignIntentIdentityConflictError,
   campaignIntentIdentityDeps,
@@ -118,6 +115,27 @@ export class CampaignMatchHost {
    * the flag is diagnostic — it records that a divergence occurred.
    */
   private divergenceDetected = false;
+  /**
+   * The single-writer lock, as a promise chain.
+   *
+   * `commitEventsAsBatch` claims the next sequence across an `await`, and
+   * validation reads `this.state` before it, so two doors in flight
+   * resolve the same base AND validate against the same pre-state. The
+   * comment at the collision throw already called this host a single
+   * writer; this is where that stops being an assumption.
+   *
+   * A chain rather than an explicit queue because there is no priority or
+   * cancellation to express - the same idiom the persistence store uses
+   * to serialize its writes.
+   */
+  private commitChain: Promise<unknown> = Promise.resolve();
+  /**
+   * Depth of the held lock. Only doors take it; `commitEvents` asserts on
+   * it. A lock reachable without being held is a lock with a hole, and
+   * the assert is what makes the single-writer claim enforced rather than
+   * remembered.
+   */
+  private lockDepth = 0;
 
   constructor(options: ICampaignMatchHostOptions) {
     this.campaignId = options.campaignId;
@@ -132,6 +150,29 @@ export class CampaignMatchHost {
     return this.divergenceDetected;
   };
 
+  /**
+   * Run one door's whole critical section - validate AND commit - with
+   * nothing else from this host interleaved.
+   *
+   * The SPAN matters more than the lock. A mutex around the commit alone
+   * fixes the sequence numbering and leaves the ledger race untouched,
+   * because two intents validated against the same pre-state are both
+   * approved before either of them appends.
+   *
+   * The chain is rejection-proof: a door that throws must not wedge every
+   * later door behind a permanently rejected promise.
+   */
+  private runExclusive<T>(work: () => Promise<T>): Promise<T> {
+    const queued = this.commitChain.then(() => {
+      this.lockDepth += 1;
+      return work().finally(() => {
+        this.lockDepth -= 1;
+      });
+    });
+    this.commitChain = queued.catch(() => undefined);
+    return queued;
+  }
+
   // ---------------------------------------------------------------------------
   // Lifecycle
   // ---------------------------------------------------------------------------
@@ -144,7 +185,9 @@ export class CampaignMatchHost {
    * `CampaignSyncSession` calls this when a host opens a campaign for
    * co-op; it then issues the room code.
    */
-  open = async (): Promise<void> => {
+  open = async (): Promise<void> => this.runExclusive(() => this.openLocked());
+
+  private openLocked = async (): Promise<void> => {
     if (this.opened || this.closed) return;
     this.opened = true;
     // A recovered durable campaign already has its baseline and tail. Do not
@@ -283,7 +326,12 @@ export class CampaignMatchHost {
    * returning, so a test can assert on either the return value or the
    * subscriber buffer.
    */
-  handleIntent = async (rawIntent: unknown): Promise<CampaignIntentResult> => {
+  handleIntent = async (rawIntent: unknown): Promise<CampaignIntentResult> =>
+    this.runExclusive(() => this.handleIntentLocked(rawIntent));
+
+  private handleIntentLocked = async (
+    rawIntent: unknown,
+  ): Promise<CampaignIntentResult> => {
     // Step 1 — closed check.
     if (this.closed) {
       return {
@@ -354,6 +402,11 @@ export class CampaignMatchHost {
    */
   applyHostIntent = async (
     intent: ICampaignIntent,
+  ): Promise<CampaignIntentResult> =>
+    this.runExclusive(() => this.applyHostIntentLocked(intent));
+
+  private applyHostIntentLocked = async (
+    intent: ICampaignIntent,
   ): Promise<CampaignIntentResult> => {
     if (this.closed) {
       return {
@@ -413,6 +466,12 @@ export class CampaignMatchHost {
   creditSalvagePool = async (
     value: number,
     reason: string,
+  ): Promise<CampaignIntentResult> =>
+    this.runExclusive(() => this.creditSalvagePoolLocked(value, reason));
+
+  private creditSalvagePoolLocked = async (
+    value: number,
+    reason: string,
   ): Promise<CampaignIntentResult> => {
     if (this.closed) {
       return {
@@ -456,6 +515,20 @@ export class CampaignMatchHost {
    * post-battle roster.
    */
   applyRosterUnitChange = async (
+    campaignId: string,
+    change: 'added' | 'removed' | 'repaired',
+    unit: {
+      readonly unitId: string;
+      readonly designation: string;
+      readonly status: 'operational' | 'damaged' | 'destroyed';
+    },
+    intentTag: string,
+  ): Promise<CampaignIntentResult> =>
+    this.runExclusive(() =>
+      this.applyRosterUnitChangeLocked(campaignId, change, unit, intentTag),
+    );
+
+  private applyRosterUnitChangeLocked = async (
     campaignId: string,
     change: 'added' | 'removed' | 'repaired',
     unit: {
@@ -536,16 +609,26 @@ export class CampaignMatchHost {
    */
   _commitEventsForTests = async (
     events: readonly UnsequencedCampaignEvent[],
-  ): Promise<readonly ICampaignEvent[]> => {
-    return this.commitEvents(events);
-  };
+  ): Promise<readonly ICampaignEvent[]> =>
+    this.runExclusive(() => this.commitEvents(events));
 
   private async commitEvents(
     events: readonly UnsequencedCampaignEvent[],
     identity?: ICampaignIntentCommandIdentity,
   ): Promise<readonly ICampaignEvent[]> {
+    // The enforcement of the single-writer claim the collision throw
+    // below already asserts. Reaching a commit without the lock means a
+    // door was added that forgot to take it, and the symptom would
+    // otherwise be an intermittent sequence collision in production
+    // rather than a failure here.
+    if (this.lockDepth === 0) {
+      throw new Error(
+        'CampaignMatchHost.commitEvents reached without the single-writer lock held',
+      );
+    }
     if (this.eventStore.appendCommandBatch) {
-      return this.commitEventsAsBatch(
+      return commitCampaignEventBatch(
+        this.batchHost(),
         events,
         this.eventStore.appendCommandBatch,
         identity,
@@ -571,9 +654,7 @@ export class CampaignMatchHost {
       // never drift.
       this.state = applyCampaignEvent(this.state, event);
       // Broadcast to every connected client.
-      this.subscribers.forEach((subscriber) => {
-        subscriber(event);
-      });
+      this.publish(event);
       committed.push(event);
     }
     return committed;
@@ -589,74 +670,26 @@ export class CampaignMatchHost {
    * from the durable journal, and never deletes or compensates the
    * committed batch.
    */
-  private async commitEventsAsBatch(
-    events: readonly UnsequencedCampaignEvent[],
-    appendCommandBatch: NonNullable<ICampaignEventStore['appendCommandBatch']>,
-    identity?: ICampaignIntentCommandIdentity,
-  ): Promise<readonly ICampaignEvent[]> {
-    const base = await this.log.nextSequence();
-    const sequenced = events.map((unsequenced, index) =>
-      freezeCampaignEvent({
-        ...unsequenced,
-        sequence: base + index,
-      } as ICampaignEvent),
-    );
-    // Derive the expected post-state on a scratch projection — the live
-    // state is untouched until the batch is durably committed.
-    let expected = this.state;
-    for (const event of sequenced) {
-      expected = applyCampaignEvent(expected, event);
-    }
-    const expectedDigest = computeCampaignStateDigest(expected);
-    const result = await appendCommandBatch(this.campaignId, {
-      // A supplied client identity is namespaced by campaign so its derived
-      // journal event ids cannot collide in the journal's global id space.
-      // The sequence fallback is for server events or legacy callers without
-      // an intent id; it never dedupes by design because no retry identity was
-      // offered.
-      commandId:
-        identity?.commandId ?? `campaign-cmd:${this.campaignId}:${base}`,
-      intentFingerprint: identity?.intentFingerprint,
-      events: sequenced,
-      expectedPostStateDigest: expectedDigest,
-    });
-    if (result.kind === 'duplicate-command') {
-      return result.receipt.events;
-    }
-    if (result.kind === 'command-identity-conflict') {
-      throw new CampaignIntentIdentityConflictError(result.commandId);
-    }
-    if (result.kind !== 'committed') {
-      // Single-writer host: a lost race or duplicate command here is a
-      // server bug, surfaced exactly like the legacy path's collision.
-      throw new CampaignEventSequenceCollisionError(this.campaignId, base);
-    }
-    // Verify-after-apply: re-apply the COMMITTED batch to the live
-    // projection and compare digests. Inequality means the projection
-    // can no longer be trusted (nondeterministic reducer, concurrent
-    // mutation): publish no success, rebuild from the journal, keep the
-    // committed batch untouched.
-    let applied = this.state;
-    for (const event of sequenced) {
-      applied = applyCampaignEvent(applied, event);
-    }
-    const appliedDigest = computeCampaignStateDigest(applied);
-    if (appliedDigest !== expectedDigest) {
-      this.divergenceDetected = true;
-      this.state = await this.log.reconstructState();
-      throw new CampaignProjectionDivergenceError(
-        this.campaignId,
-        expectedDigest,
-        appliedDigest,
-      );
-    }
-    this.state = applied;
-    for (const event of sequenced) {
-      this.subscribers.forEach((subscriber) => {
-        subscriber(event);
-      });
-    }
-    return sequenced;
+  /** Fan one committed event out to every subscriber. */
+  private publish(event: ICampaignEvent): void {
+    this.subscribers.forEach((subscriber) => subscriber(event));
+  }
+
+  /** The five things the batch pipeline reads and moves, named once. */
+  private batchHost(): ICampaignBatchCommitHost {
+    return {
+      campaignId: this.campaignId,
+      nextSequence: () => this.log.nextSequence(),
+      readState: () => this.state,
+      writeState: (state) => {
+        this.state = state;
+      },
+      rebuildState: () => this.log.reconstructState(),
+      markDivergence: () => {
+        this.divergenceDetected = true;
+      },
+      publish: (event) => this.publish(event),
+    };
   }
 
   /** Guest-event author: CO1 has one host/guest pair and no player id on
