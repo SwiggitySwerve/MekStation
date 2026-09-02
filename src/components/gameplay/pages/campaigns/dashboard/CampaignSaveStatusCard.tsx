@@ -7,6 +7,15 @@
  * (tasks 5.2). When the save-state is `conflict` it offers keep-local /
  * take-server resolution.
  *
+ * It also surfaces a LAUNCH conflict (umbrella 10.3): a launch the
+ * authority refused because the campaign moved under this client. It
+ * shares this card because it is the same question - "your view is
+ * stale" - but it is deliberately a separate block with a separate
+ * action. A save conflict has two versions and the user must choose;
+ * a stale head has exactly one honest move, which is to resync to the
+ * head the authority holds. Offering "Keep My Version" for a branch
+ * head would invite insisting on a world that no longer exists.
+ *
  * @spec openspec/changes/add-campaign-persistence/specs/campaign-persistence/spec.md
  * @spec openspec/changes/add-campaign-persistence/design.md (D5, D6)
  */
@@ -62,6 +71,10 @@ export function CampaignSaveStatusCard(): React.ReactElement {
   const resolveConflictTakeServer = useCampaignPersistenceStore(
     (s) => s.resolveConflictTakeServer,
   );
+  const launchConflict = useCampaignPersistenceStore((s) => s.launchConflict);
+  const clearLaunchConflict = useCampaignPersistenceStore(
+    (s) => s.clearLaunchConflict,
+  );
 
   const handleSaveNow = useCallback(() => {
     void saveCampaign();
@@ -74,6 +87,16 @@ export function CampaignSaveStatusCard(): React.ReactElement {
   const handleTakeServer = useCallback(() => {
     void resolveConflictTakeServer();
   }, [resolveConflictTakeServer]);
+
+  // `resync-to-active-head` in this app is take-server: discard the
+  // stale local view and adopt the record the authority holds. Reusing
+  // the existing action rather than inventing a second resync keeps one
+  // definition of "catch up to the server".
+  const handleResyncLaunch = useCallback(() => {
+    void resolveConflictTakeServer().then(() => {
+      clearLaunchConflict();
+    });
+  }, [clearLaunchConflict, resolveConflictTakeServer]);
 
   const status = describeSaveState(saveState);
 
@@ -111,8 +134,27 @@ export function CampaignSaveStatusCard(): React.ReactElement {
               to keep.
             </p>
           )}
+          {launchConflict && (
+            <p
+              className="mt-1 text-sm text-red-400"
+              data-testid="campaign-launch-conflict"
+            >
+              Launch refused ({launchConflict.code}): the campaign has moved on
+              to revision {launchConflict.activeHead.revision}. Resync to launch
+              from the current state.
+            </p>
+          )}
         </div>
         <div className="flex items-center gap-2">
+          {launchConflict && (
+            <Button
+              variant="primary"
+              onClick={handleResyncLaunch}
+              data-testid="campaign-launch-resync-btn"
+            >
+              Resync to Current
+            </Button>
+          )}
           {saveState === 'conflict' ? (
             <>
               <Button

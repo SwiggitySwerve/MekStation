@@ -43,6 +43,7 @@ import path from 'node:path';
 import type { IInteractiveSessionLinkage } from '@/engine/InteractiveSession.types';
 import type { FastForwardBattleRunner } from '@/lib/campaign/fastForward/fastForwardCampaign';
 import type { ICampaignWithBridgeState } from '@/lib/campaign/processors/scenarioEncounterBridgeProcessor';
+import type { IExpectedBranchHead } from '@/lib/events/journal/EventHistoryExpectedHead';
 import type { IRosterUnitProjection } from '@/types/campaign/RosterUnitProjection';
 import type { IEncounter } from '@/types/encounter';
 import type { IForce } from '@/types/force';
@@ -53,6 +54,10 @@ import { buildPreparedBattleData } from '@/components/gameplay/pages/preBattleSe
 import { publishCombatOutcome } from '@/engine/combatOutcomeBus';
 import { GameEngine } from '@/engine/GameEngine';
 import { materializeCampaignMissionEncounter } from '@/lib/campaign/encounter/materializeCampaignMissionEncounter';
+import {
+  ownedForcesFromAuthority,
+  requestLaunchAuthority,
+} from '@/lib/campaign/encounter/requestLaunchAuthority';
 import {
   type CanonicalCombatCatalogSnapshot,
   admitCampaignLaunch,
@@ -79,6 +84,20 @@ export interface FastForwardCombatRunnerOptions {
   /** Defaults to a fresh `createInProcessApiFetch()` (design D3). */
   readonly fetchImpl?: FetchImpl;
   readonly catalog?: CanonicalCombatCatalogSnapshot;
+  /**
+   * The head this run is entitled to launch from (umbrella 10.3).
+   *
+   * Supplied by the caller rather than read here, and deliberately so:
+   * a runner that read the head immediately before each battle would
+   * always match it, and the comparison would be vacuous. A caller
+   * driving many battles reads once and passes the same head to all of
+   * them, so the gate spans the whole run and catches a campaign that
+   * moved partway through it.
+   *
+   * Absent means ungated - the pre-10.3 behaviour, preserved
+   * structurally rather than by a flag read.
+   */
+  readonly expectedHead?: IExpectedBranchHead;
 }
 
 /**
@@ -337,12 +356,31 @@ export async function runFastForwardBattle(
     missions: new Map([[missionId, missionView]]),
   };
 
+  // 10.3: ask the authority BEFORE materializing. A refusal is relayed
+  // into the materializer, whose own gate throws before its first POST,
+  // so nothing is created for a launch that was never entitled to run.
+  const ownedForces =
+    options.expectedHead === undefined
+      ? undefined
+      : ownedForcesFromAuthority(
+          await requestLaunchAuthority({
+            campaignId: campaign.id,
+            missionId,
+            expectedHead: options.expectedHead,
+            ...(campaign.coopSession?.matchId === undefined
+              ? {}
+              : { sessionId: campaign.coopSession.matchId }),
+            fetchImpl,
+          }),
+        );
+
   const materialized = await materializeCampaignMissionEncounter({
     campaign: campaignView,
     missionId,
     rosterUnits: launchRoster,
     catalog,
     fetchImpl,
+    ...(ownedForces === undefined ? {} : { ownedForces }),
   });
 
   // Task 3.3(c): read the created forces back through the router rather
@@ -447,7 +485,14 @@ export function createFastForwardCombatRunner(
   options: FastForwardCombatRunnerOptions = {},
 ): FastForwardBattleRunner {
   return async (handoff) => {
-    const detail = await runFastForwardBattle(handoff, options);
+    // The driver owns the run-wide head; per-call options still win so
+    // a caller can override for one battle.
+    const detail = await runFastForwardBattle(handoff, {
+      ...(handoff.expectedHead === undefined
+        ? {}
+        : { expectedHead: handoff.expectedHead }),
+      ...options,
+    });
     if (!detail) {
       return null;
     }

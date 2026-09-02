@@ -48,6 +48,30 @@ export type CampaignSaveState =
   | 'error'
   | 'conflict';
 
+/**
+ * A launch the authority refused because the campaign moved under
+ * this client.
+ *
+ * Kept alongside the save conflict rather than folded into it: both
+ * are "your view is stale", but their recoveries differ. A save
+ * conflict offers keep-local / take-server, because two versions of
+ * the campaign exist and somebody must choose. A launch refusal has
+ * only one honest move - resync to the head the authority holds -
+ * and offering "keep my version" for a branch head would invite the
+ * user to insist on a world that no longer exists.
+ */
+export interface ICampaignLaunchConflict {
+  /** STALE_BRANCH / STALE_REVISION / STALE_GENERATION / ownership. */
+  readonly code: string;
+  readonly reason: string;
+  readonly activeHead: {
+    readonly branchId: string;
+    readonly revision: number;
+    readonly effectiveGeneration: number;
+  };
+  readonly resyncAction: string;
+}
+
 export type CampaignPersistenceSaveResult =
   | {
       readonly status: 'saved';
@@ -74,6 +98,8 @@ interface CampaignPersistenceState {
   baseVersion: number;
   errorMessage: string | null;
   conflictServerRecord: SerializedCampaign | null;
+  /** Set when a launch was refused for a stale head or ownership. */
+  launchConflict: ICampaignLaunchConflict | null;
   lastPersistedCampaign: ICampaign | null;
   /**
    * True when the browser holds a campaign this server has never seen and
@@ -94,6 +120,8 @@ interface CampaignPersistenceActions {
   resolveConflictKeepLocal: () => Promise<CampaignPersistenceSaveResult>;
   resolveConflictTakeServer: () => Promise<boolean>;
   clearError: () => void;
+  reportLaunchConflict: (conflict: ICampaignLaunchConflict) => void;
+  clearLaunchConflict: () => void;
   reset: () => void;
 }
 
@@ -121,6 +149,7 @@ const INITIAL_STATE: CampaignPersistenceState = {
   baseVersion: 0,
   errorMessage: null,
   conflictServerRecord: null,
+  launchConflict: null,
   lastPersistedCampaign: null,
   legacyUnadopted: false,
 };
@@ -805,6 +834,15 @@ function createPersistenceActions(
           ? { saveState: 'idle', errorMessage: null }
           : {},
       );
+    },
+    // A launch refusal is recorded, never thrown away into a message
+    // string: the code and the active head are what let the surface offer
+    // a resync instead of "something went wrong".
+    reportLaunchConflict: (conflict) => {
+      set({ launchConflict: conflict });
+    },
+    clearLaunchConflict: () => {
+      set({ launchConflict: null });
     },
     reset: () => {
       clearAutoSaveTimer();
