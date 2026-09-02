@@ -1,17 +1,23 @@
 /**
  * GM + two-player campaign authority pack 1.
  *
- * MOVED to the next pack pending the join-arm live-delivery finding
- * (umbrella 21.1 Progress): E2E-03 and E2E-08 - a committed campaign
- * command's event reaches NO connected campaign client today (grant-arm
- * guests attach epoch-projection subscribers that push nothing; even
- * the direct host-arm frame did not arrive raw=1). Retained letter:
+ * E2E-03 and E2E-08 are LIVE again: the join-arm live-delivery finding
+ * that blocked them (umbrella 21.1 Progress, finding #12 - a committed
+ * command's event reached NO connected campaign client) is resolved by
+ * the delivery unification: every join arm now attaches the same
+ * scoped live sink (`CampaignSyncSession.attachLiveParticipant`), and
+ * grant-arm guests are retained in the convergence set. The letters:
  * E2E-03: WHEN an accepted campaign command produces a player-visible fact
  * THEN read-only SQLite evidence SHALL show the committed batch before either
  * eligible player renders it.
  * E2E-08: WHEN a client resends the same command and idempotency identity
  * THEN the store SHALL contain one receipt and one event batch and the client
- * SHALL render one effect.
+ * SHALL render one effect. NOTE: because guests now sit in the
+ * convergence set, the resend is preceded by each guest acknowledging
+ * the post-advance revision - otherwise the duplicate would be refused
+ * CAMPAIGN_NOT_CONVERGED and the scenario would pass for the wrong
+ * reason (refusal, not idempotency). The spec asserts no Error frame
+ * reached the GM so the dedupe, not a refusal, carried the row.
  * E2E-17: WHEN a participant cold-reloads an active match after the invite
  * code expired THEN the route SHALL recover by durable session and match
  * identity while a newcomer using the invite is rejected.
@@ -45,6 +51,11 @@ type Frame = {
   readonly kind: string;
   readonly eventType: string | null;
   readonly eventDay: number | null;
+  /**
+   * The event's journal sequence, captured so E2E-08 can acknowledge
+   * the post-advance revision before resending the duplicate intent.
+   */
+  readonly eventSequence: number | null;
 };
 type Client = { readonly page: Page; readonly identity: Identity };
 type Clients = {
@@ -95,6 +106,106 @@ test('E2E-18 quiet heartbeats keep three campaign clients connected @authority-e
     await clients.gm.page.waitForTimeout(HEARTBEAT_TIMEOUT_MS + 15_000);
     expect(await connected(clients)).toBe(true);
     expect(await heartbeatsSeen(clients)).toBe(true);
+  } finally {
+    await closeSockets(fixture);
+    await fixture.cleanup();
+  }
+});
+
+test('E2E-03 a committed command is durable before every eligible player renders it @authority-e2e', async ({
+  baseURL,
+  browser,
+  request,
+}) => {
+  test.setTimeout(120_000);
+  const fixture = await createGmTwoPlayerCampaignFixture({
+    browser,
+    request,
+    baseURL: baseURL ?? '',
+  });
+  try {
+    const session = await openSession(fixture);
+    const clients = await connectClients(fixture, session);
+    await acknowledge(clients, session);
+
+    const commandId = await advance(clients.gm, session, 'e2e03-advance');
+
+    // The durable half FIRST: read-only SQLite evidence shows the
+    // committed batch. The broadcast only ever runs after the durable
+    // append, so the batch existing here is the commit the renders
+    // below are downstream of.
+    const batch = await committedBatch(fixture, session, commandId);
+    expect(batch.event_count).toBeGreaterThan(0);
+
+    // Then the player-visible fact reaches EVERY connected client
+    // exactly once - the delivery-unification letter. Before finding
+    // #12 was fixed this is precisely what failed live: the batch
+    // committed and no browser rendered it.
+    await renderedOnce(clients.gm.page, 1);
+    await renderedOnce(clients.playerOne.page, 1);
+    await renderedOnce(clients.playerTwo.page, 1);
+  } finally {
+    await closeSockets(fixture);
+    await fixture.cleanup();
+  }
+});
+
+test('E2E-08 a resent command identity commits once and renders once @authority-e2e', async ({
+  baseURL,
+  browser,
+  request,
+}) => {
+  test.setTimeout(120_000);
+  const fixture = await createGmTwoPlayerCampaignFixture({
+    browser,
+    request,
+    baseURL: baseURL ?? '',
+  });
+  try {
+    const session = await openSession(fixture);
+    const clients = await connectClients(fixture, session);
+    await acknowledge(clients, session);
+
+    const commandId = await advance(clients.gm, session, 'e2e08-duplicate');
+    const batch = await committedBatch(fixture, session, commandId);
+    await renderedOnce(clients.gm.page, 1);
+    await renderedOnce(clients.playerOne.page, 1);
+    await renderedOnce(clients.playerTwo.page, 1);
+
+    // Guests sit in the convergence set since the delivery unification,
+    // so the resend must happen from a CONVERGED session: each guest
+    // acknowledges the post-advance revision it was actually delivered.
+    // Without this the duplicate is refused CAMPAIGN_NOT_CONVERGED and
+    // the row would pass for the wrong reason (refusal, not
+    // idempotency).
+    await ackDeliveredDay(clients.playerOne, session, 1);
+    await ackDeliveredDay(clients.playerTwo, session, 1);
+    // The acks travel on the guests' sockets and the resend on the
+    // GM's; cross-socket ordering is not guaranteed, so give the server
+    // a bounded beat to record convergence before the duplicate lands.
+    await clients.gm.page.waitForTimeout(1_500);
+
+    // The same command identity again, verbatim.
+    await hostIntent(clients.gm, session, 'e2e08-duplicate');
+    // A bounded settle window: a wrongful second commit or second
+    // broadcast needs time to arrive before "still exactly one" means
+    // anything.
+    await clients.gm.page.waitForTimeout(3_000);
+
+    // One receipt and one event batch in the store...
+    const rows = batches(fixture, session, commandId);
+    expect(rows).toHaveLength(1);
+    expect(rows[0]?.event_count).toBe(batch.event_count);
+    // ...no refusal carried the row (the dedupe did)...
+    expect(await errorFramesSeen(clients.gm.page)).toEqual([]);
+    // ...and every client still rendered exactly one effect: the day
+    // advanced once and never re-advanced.
+    await renderedOnce(clients.gm.page, 1);
+    await renderedOnce(clients.playerOne.page, 1);
+    await renderedOnce(clients.playerTwo.page, 1);
+    expect(await daySeen(clients.gm.page, 2)).toBe(false);
+    expect(await daySeen(clients.playerOne.page, 2)).toBe(false);
+    expect(await daySeen(clients.playerTwo.page, 2)).toBe(false);
   } finally {
     await closeSockets(fixture);
     await fixture.cleanup();
@@ -311,6 +422,10 @@ async function connectSocket(
                 payload && typeof payload.newDay === 'number'
                   ? payload.newDay
                   : null,
+              eventSequence:
+                event && typeof event.sequence === 'number'
+                  ? event.sequence
+                  : null,
             });
             if (frame.kind === 'CampaignSnapshot') {
               window.clearTimeout(timeout);
@@ -479,6 +594,54 @@ async function renderedOnce(page: Page, day: number): Promise<void> {
         String(error),
     );
   }
+}
+
+/**
+ * Acknowledges the revision a client was actually DELIVERED for the
+ * given day's CampaignDayAdvanced frame. The sequence is read from the
+ * captured frame rather than guessed, because the ack guard refuses a
+ * claim about a revision the session never handed this participant.
+ */
+async function ackDeliveredDay(
+  client: Client,
+  session: Session,
+  day: number,
+): Promise<void> {
+  const state = await socketState(client.page);
+  const frame = state.frames.find(
+    (candidate) =>
+      candidate.eventType === 'CampaignDayAdvanced' &&
+      candidate.eventDay === day &&
+      candidate.eventSequence !== null,
+  );
+  if (!frame || frame.eventSequence === null) {
+    throw new Error(
+      'No delivered CampaignDayAdvanced frame to acknowledge for day=' + day,
+    );
+  }
+  await send(client.page, {
+    kind: 'CampaignAck',
+    matchId: session.matchId,
+    ts: new Date().toISOString(),
+    playerId: client.identity.playerId,
+    campaignId: session.campaignId,
+    revision: frame.eventSequence,
+  });
+}
+
+/** Error frames a socket captured; empty means no refusal arrived. */
+async function errorFramesSeen(page: Page): Promise<readonly Frame[]> {
+  const state = await socketState(page);
+  return state.frames.filter((frame) => frame.kind === 'Error');
+}
+
+/** True when a CampaignDayAdvanced frame for `day` reached the socket. */
+async function daySeen(page: Page, day: number): Promise<boolean> {
+  const state = await socketState(page);
+  return state.frames.some(
+    (frame) =>
+      frame.eventType === 'CampaignDayAdvanced' && frame.eventDay === day,
+  );
 }
 
 async function socketState(page: Page): Promise<SocketState> {

@@ -349,6 +349,62 @@ export class CampaignSyncSession {
     };
   }
 
+  /**
+   * The ONE live-delivery attach point (finding #12, delivery
+   * unification). Every join arm — the host connection, a rejoining
+   * member, and the room-code guest served through grants — registers
+   * its socket sink here, so which arm admitted a client can no longer
+   * decide whether a committed event reaches them. Before this, the
+   * host arm subscribed an UNSCOPED sink directly on the host and the
+   * grant arm subscribed projection wakeups that pushed no raw frames;
+   * a committed command could then reach one arm's clients and not
+   * another's, which is exactly the live failure the finding recorded.
+   *
+   * Scope admission runs per recipient through the same 11.1 boundary
+   * `joinMember` always used (the GM viewer admits every scope, so host
+   * delivery is unchanged in content). Delivery bookkeeping advances
+   * regardless of admission — the recorded 11.1 trade-off: a withheld
+   * fact must not make convergence wait forever.
+   */
+  attachLiveParticipant = (
+    rawSink: CampaignGuestSink,
+    participantId?: string,
+  ): (() => void) => {
+    const sink = this.admitToWire(rawSink, participantId);
+    return this.host.subscribe((event) => {
+      sink(event);
+      // Delivery is recorded where delivery HAPPENS, and only after the
+      // sink took the frame. This is what lets the ack guard refuse a
+      // claim about a frame that was never sent.
+      if (participantId !== undefined) {
+        this.noteDelivered(participantId, event.sequence);
+      }
+    });
+  };
+
+  /**
+   * Retain a participant whose BASELINE was hydrated outside this
+   * session - the grant arm, whose snapshot is the scoped projection
+   * rather than the session baseline. Seeded converged at the revision
+   * their hydration reflects, exactly as `joinMember` seeds its own
+   * members; without this the launch gate never waited on grant-arm
+   * clients at all (the bookkeeping half of finding #12), so they could
+   * be arbitrarily far behind while progression read as converged.
+   *
+   * Never the GM, for the same reason `joinMember` refuses to retain
+   * them. Plain assignment, for `joinMember`'s rehydration reason.
+   */
+  retainHydratedParticipant = (
+    participantId: string,
+    revision: number,
+  ): void => {
+    if (participantId === this.host.getHostPlayerId()) return;
+    this.retained.set(participantId, {
+      acknowledged: revision,
+      delivered: revision,
+    });
+  };
+
   joinGuest = async (
     roomCode: string,
     sink: CampaignGuestSink,
@@ -416,7 +472,10 @@ export class CampaignSyncSession {
     }
     liveUnsub();
 
-    if (participantId !== undefined) {
+    if (
+      participantId !== undefined &&
+      participantId !== this.host.getHostPlayerId()
+    ) {
       // A member is converged the moment they are hydrated: the baseline
       // they were handed IS `revision`, so seeding here rather than at
       // their first acknowledgement stops someone who just walked in from
@@ -427,21 +486,19 @@ export class CampaignSyncSession {
       // Plain assignment, not a max: a re-join reads the CURRENT head
       // and the head never falls, so rehydration can only raise this.
       // Guarding a fall that cannot happen made a bad value permanent.
+      //
+      // Never the GM: since the delivery unification the host arm
+      // hydrates through this method too, and retaining the campaign's
+      // own authority would gate the GM's next command on the GM's
+      // acknowledgement of their previous one - the authority waiting
+      // for itself.
       this.retained.set(participantId, {
         acknowledged: revision,
         delivered: deliveredRevision,
       });
     }
 
-    const unsubscribe = this.host.subscribe((event) => {
-      sink(event);
-      // Delivery is recorded where delivery HAPPENS, and only after the
-      // sink took the frame. This is what lets the ack guard refuse a
-      // claim about a frame that was never sent.
-      if (participantId !== undefined) {
-        this.noteDelivered(participantId, event.sequence);
-      }
-    });
+    const unsubscribe = this.attachLiveParticipant(rawSink, participantId);
 
     return { ok: true, delivered, disconnect: unsubscribe };
   };
@@ -481,12 +538,6 @@ export class CampaignSyncSession {
     const highest = await this.host.getEventLog().nextSequence();
     const gap = highest - 1 - lastSeq;
     const delivered: ICampaignEvent[] = [];
-    const liveSink: CampaignGuestSink = (event) => {
-      sink(event);
-      if (participantId !== undefined) {
-        this.noteDelivered(participantId, event.sequence);
-      }
-    };
 
     if (gap > RESYNC_SNAPSHOT_GAP) {
       // Large-gap path — a fresh baseline is cheaper than the tail.
@@ -497,7 +548,7 @@ export class CampaignSyncSession {
       if (participantId !== undefined) {
         this.noteDelivered(participantId, revision);
       }
-      const unsubscribe = this.host.subscribe(liveSink);
+      const unsubscribe = this.attachLiveParticipant(rawSink, participantId);
       return {
         ok: true,
         delivered,
@@ -515,7 +566,7 @@ export class CampaignSyncSession {
         this.noteDelivered(participantId, event.sequence);
       }
     }
-    const unsubscribe = this.host.subscribe(liveSink);
+    const unsubscribe = this.attachLiveParticipant(rawSink, participantId);
     return { ok: true, delivered, snapshotted: false, disconnect: unsubscribe };
   };
 

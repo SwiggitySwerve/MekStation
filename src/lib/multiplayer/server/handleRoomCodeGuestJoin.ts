@@ -41,6 +41,7 @@ import type { ICampaignSessionMembershipPort } from './bindCampaignSyncConnectio
 import type { ICampaignHostRegistryEntry } from './CampaignHostRegistry';
 import type { ICampaignGrantChannelDeps } from './handleCampaignGrantJoin';
 
+import { campaignEventWireFrame } from './campaignEventWireFrame';
 import { attachRoomCodeGuestLiveSession } from './roomCodeGuestLiveFanout';
 
 export type RoomCodeGuestJoinOutcome = 'served' | 'fallback' | 'rejected';
@@ -136,12 +137,13 @@ export async function handleRoomCodeGuestJoin(
     return 'rejected';
   }
 
-  const nowIso = deps.grantChannel.nowIso();
+  const channel = deps.grantChannel;
+  const nowIso = channel.nowIso();
   const issuer = await resolveRoomCodeGuestIssuer(deps.issuer);
   let resolved;
   try {
     resolved = resolveOrIssueRoomCodeGuestGrant({
-      grantStore: deps.grantChannel.projectDeps.grantStore,
+      grantStore: channel.projectDeps.grantStore,
       campaignId: deps.entry.campaignId,
       participantId: deps.verifiedPlayerId,
       issuer,
@@ -160,26 +162,57 @@ export async function handleRoomCodeGuestJoin(
     replica.setConnectionStatus('disconnected');
   });
 
-  const projectDeps = projectDepsOverHostLog(
-    deps.grantChannel.projectDeps,
-    deps.entry,
-  );
+  const projectDeps = projectDepsOverHostLog(channel.projectDeps, deps.entry);
   const principal = mintVerifiedPrincipal(grant.participantId);
   const lastCursor = await replica.lastCursor(grant.campaignId, grant.grantId);
 
   const pendingLive: IServerMessage[] = [];
   let snapshotReleased = false;
   /**
-   * Holds CampaignEvent frames until the client baseline is published
-   * so applyEvent cannot run against an empty mirror.
+   * Holds live frames until the client baseline is published so
+   * applyEvent cannot run against an empty mirror. Only the unified
+   * live sink below feeds this gate: the grant channel stopped
+   * emitting client frames when live delivery was unified (finding
+   * #12), so nothing else can slip past the baseline.
    */
   const sendAfterSnapshot = function (message: IServerMessage): void {
-    if (!snapshotReleased && message.kind === 'CampaignEvent') {
+    if (!snapshotReleased) {
       pendingLive.push(message);
       return;
     }
     deps.send(message);
   };
+  // The SAME scoped live attach every other join arm uses (finding
+  // #12, delivery unification). Attached BEFORE the hydration reads so
+  // a commit landing mid-hydration cannot fall between "not in the
+  // snapshot" and "not yet subscribed"; the gate above buffers it until
+  // the baseline is out, and re-applying an event the snapshot already
+  // folded is safe because campaign payloads are absolute. The grant
+  // channel below keeps the durable replica caught up; it no longer
+  // carries the client wire.
+  //
+  // Retention FIRST, then attach, so the delivered watermark the attach
+  // records cannot land on a participant the session does not know yet.
+  // This is the bookkeeping half of the finding: a grant-arm guest used
+  // to receive frames from a path the session never heard of, so the
+  // launch gate read converged while they were arbitrarily behind and
+  // their CampaignAck was refused unknown-participant.
+  const joinHead = Math.max(
+    0,
+    (await deps.entry.host.getEventLog().nextSequence()) - 1,
+  );
+  deps.entry.syncSession.retainHydratedParticipant(
+    deps.verifiedPlayerId,
+    joinHead,
+  );
+  const detachLive = deps.entry.syncSession.attachLiveParticipant(function (
+    event,
+  ) {
+    sendAfterSnapshot(
+      campaignEventWireFrame(deps.matchId, event, channel.nowIso()),
+    );
+  }, deps.verifiedPlayerId);
+  deps.cleanupFns.add(detachLive);
   const fanout = liveFanoutDeps(
     deps,
     grant.campaignId,
@@ -187,7 +220,6 @@ export async function handleRoomCodeGuestJoin(
     principal,
     projectDeps,
     replica,
-    sendAfterSnapshot,
   );
 
   if (lastCursor === null) {
@@ -222,7 +254,12 @@ export async function handleRoomCodeGuestJoin(
   );
   await sendReplicaSnapshot(deps, grant.campaignId, grant.grantId, replica);
   snapshotReleased = true;
-  pendingLive.length = 0;
+  // Flushed, not dropped: the buffer can only hold commits that landed
+  // AFTER this join attached its live sink - never replayed history -
+  // and dropping those would lose a live event the rejoiner's snapshot
+  // may not have folded yet. (The drop existed for grant-channel
+  // catch-up frames, which no longer reach the client at all.)
+  flushPendingLive(pendingLive, deps.send);
   return 'served';
 }
 
@@ -380,8 +417,9 @@ async function sendReplicaSnapshot(
 
 /**
  * Packs live-session deps after grantChannel has already been proven
- * non-null by handleRoomCodeGuestJoin. send is snapshot-gated so
- * catch-up cannot precede the client baseline.
+ * non-null by handleRoomCodeGuestJoin. Ingest-only since the delivery
+ * unification: the session keeps the durable replica caught up and
+ * never carries the client wire.
  */
 function liveFanoutDeps(
   joinDeps: IHandleRoomCodeGuestJoinDeps,
@@ -390,7 +428,6 @@ function liveFanoutDeps(
   principal: ReturnType<typeof mintVerifiedPrincipal>,
   projectDeps: IProjectCampaignStreamDeps,
   replica: SQLiteCampaignReplicaStore,
-  send: (message: IServerMessage) => void,
 ) {
   const channel = joinDeps.grantChannel;
   if (channel == null) {
@@ -406,7 +443,6 @@ function liveFanoutDeps(
     replica,
     cleanupFns: joinDeps.cleanupFns,
     nowIso: channel.nowIso,
-    send,
     closeTyped: joinDeps.closeTyped,
   };
 }
