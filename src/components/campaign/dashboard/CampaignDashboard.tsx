@@ -4,7 +4,8 @@
  * Mounted at `/gameplay/campaigns/[id]` (replacing the previous tile-grid
  * index) per `add-campaign-command-center` task 4.2. The dashboard reads
  * a single `IDashboardSummary` snapshot via `useCampaignDashboardSummary`
- * and dispatches day-advance to the existing campaign store actions.
+ * plus `useCampaignActivityFeed` for Recent Activity, and dispatches
+ * day-advance to the existing campaign store actions.
  *
  * Wave 6.1.B ships the dashboard as the unconditional landing surface
  * for a campaign detail route. The "operator can opt back to the
@@ -19,6 +20,8 @@ import React from 'react';
 
 import type { MaybePromise } from '@/stores/campaign/useCampaignStore.types';
 
+import { displayRowsFromCampaignActivityFeed } from '@/lib/campaign/activity/campaignActivityDisplay';
+import { useCampaignActivityFeed } from '@/lib/campaign/hooks/useCampaignActivityFeed';
 import { useCampaignDashboardSummary } from '@/lib/campaign/hooks/useCampaignDashboardSummary';
 import { useCampaignStore } from '@/stores/campaign/useCampaignStore';
 
@@ -47,6 +50,11 @@ export function CampaignDashboard({
 }: ICampaignDashboardProps = {}): React.ReactElement | null {
   const summary = useCampaignDashboardSummary();
   const store = useCampaignStore();
+  // Feed is the activity contract. The summary no longer carries the
+  // browser FIFO, so a seated pair cannot compile local leftovers into
+  // the card even by accident.
+  const feed = useCampaignActivityFeed(summary?.campaignId ?? '');
+  const activityRows = displayRowsFromCampaignActivityFeed(feed);
 
   if (!summary) {
     return null;
@@ -93,7 +101,8 @@ export function CampaignDashboard({
       />
       <ActivityLogCard
         campaignId={summary.campaignId}
-        entries={summary.activityLog}
+        rows={activityRows}
+        feed={feed}
       />
       <OperationsQueueCard
         campaignId={summary.campaignId}
