@@ -32,6 +32,11 @@ import { sha256 } from 'js-sha256';
 
 import type { SQLiteEventHistoryBranchStore } from '@/lib/events/journal/SQLiteEventHistoryBranchStore';
 import type {
+  ICampaignSessionParticipantPort,
+  IEventHistoryBranchPort,
+  IParticipantDeliveryCursorPort,
+} from '@/lib/events/storeCapabilityPorts';
+import type {
   ICampaignAuthoritativeState,
   ICampaignEvent,
 } from '@/types/campaign/CampaignSync';
@@ -50,6 +55,7 @@ import {
 import { SQLiteEventJournalWriter } from '@/lib/events/journal/SQLiteEventJournalWriter';
 
 import { resolveCampaignBranchId } from './campaignBranchRule';
+import { appendCampaignCombatOutcomeBatch } from './campaignCombatOutcomeInbox';
 import { campaignEventEntityRefs } from './campaignEventEntityRefs';
 import {
   readCampaignJournalEvents,
@@ -59,9 +65,9 @@ import {
   CampaignEventSequenceCollisionError,
   type CampaignCombatOutcomeInboxResult,
   type ICampaignCommandReceipt,
-  type ICampaignCombatOutcomeReceipt,
   type ICampaignEventStore,
 } from './ICampaignEventStore';
+import { bindJournalCapabilityPorts } from './journalCapabilityPorts';
 import { InMemoryCampaignEventStore } from './InMemoryCampaignEventStore';
 
 /** The journal stream type every campaign stream lives under (design D1). */
@@ -172,7 +178,7 @@ export function envelopeOf(
   return stored.payload.campaignEvent;
 }
 
-function toJournalBatch(input: {
+export function toJournalBatch(input: {
   readonly campaignId: string;
   /** Genesis unless a caller resolved a branch. */
   readonly branchId?: string;
@@ -277,126 +283,10 @@ export async function appendCampaignCommandBatch(
   return { kind: 'integrity-conflict' };
 }
 
-interface ICampaignCombatOutcomeInboxRow {
-  readonly outcome_id: string;
-  readonly outcome_version: number;
-  readonly campaign_id: string;
-  readonly command_id: string;
-  readonly command_digest: string;
-  readonly first_stream_revision: number;
-  readonly last_stream_revision: number;
-  readonly first_commit_position: number;
-  readonly last_commit_position: number;
-  readonly received_at: string;
-}
-
-function receiptOf(
-  row: ICampaignCombatOutcomeInboxRow,
-): ICampaignCombatOutcomeReceipt {
-  return {
-    outcomeId: row.outcome_id,
-    outcomeVersion: row.outcome_version,
-    campaignId: row.campaign_id,
-    commandId: row.command_id,
-    commandDigest: row.command_digest,
-    firstStreamRevision: row.first_stream_revision,
-    lastStreamRevision: row.last_stream_revision,
-    firstCommitPosition: row.first_commit_position,
-    lastCommitPosition: row.last_commit_position,
-    receivedAt: row.received_at,
-  };
-}
-
-/**
- * Commit campaign consequences and their combat-outcome receipt as one
- * transaction. The receipt lookup happens before journal append, so a replay
- * returns the original range without entering the consequence path.
- */
-let failReceiptInsertForTests = false;
-
-/** Test-only: crash between the consequence append and the receipt
- * insert, inside the extension transaction - the crash seam the
- * rollback proof drives without depending on engine CHECK behavior. */
-export function _setFailReceiptInsertForTests(fail: boolean): void {
-  failReceiptInsertForTests = fail;
-}
-
-export async function appendCampaignCombatOutcomeBatch(
-  journal: SQLiteEventJournalWriter<ICampaignJournalEnvelope>,
-  input: {
-    readonly campaignId: string;
-    readonly outcomeId: string;
-    readonly outcomeVersion: number;
-    readonly commandId: string;
-    readonly events: readonly ICampaignEvent[];
-    readonly expectedPostStateDigest: string;
-  },
-): Promise<CampaignCombatOutcomeInboxResult> {
-  const batch = toJournalBatch(input);
-  return journal.appendWithExtension(batch, (db, append) => {
-    const accepted = db
-      .prepare(
-        `SELECT outcome_id, outcome_version, campaign_id, command_id,
-                command_digest, first_stream_revision, last_stream_revision,
-                first_commit_position, last_commit_position, received_at
-           FROM campaign_combat_outcome_inbox
-          WHERE outcome_id = ?`,
-      )
-      .get(input.outcomeId) as ICampaignCombatOutcomeInboxRow | undefined;
-    if (accepted) {
-      const receipt = receiptOf(accepted);
-      if (receipt.outcomeVersion === input.outcomeVersion) {
-        return { kind: 'duplicate', receipt };
-      }
-      return {
-        kind: 'outcome-version-conflict',
-        outcomeId: input.outcomeId,
-        acceptedVersion: receipt.outcomeVersion,
-        receivedVersion: input.outcomeVersion,
-      };
-    }
-
-    const appended = append();
-    if (appended.kind !== 'committed') {
-      if (appended.kind === 'revision-conflict') {
-        return {
-          kind: 'sequence-conflict',
-          expectedNextSequence: appended.expectedRevision,
-          actualNextSequence: appended.actualRevision,
-        };
-      }
-      if (appended.kind === 'command-identity-conflict') {
-        return { kind: 'duplicate-command', commandId: appended.commandId };
-      }
-      return { kind: 'integrity-conflict' };
-    }
-    const receipt: ICampaignCombatOutcomeReceipt = {
-      outcomeId: input.outcomeId,
-      outcomeVersion: input.outcomeVersion,
-      campaignId: input.campaignId,
-      commandId: appended.receipt.commandId,
-      commandDigest: appended.receipt.commandDigest,
-      firstStreamRevision: appended.receipt.firstStreamRevision,
-      lastStreamRevision: appended.receipt.lastStreamRevision,
-      firstCommitPosition: appended.receipt.firstCommitPosition,
-      lastCommitPosition: appended.receipt.lastCommitPosition,
-      receivedAt: appended.receipt.recordedAt,
-    };
-    if (failReceiptInsertForTests) {
-      throw new Error('test-crash-before-receipt-insert');
-    }
-    db.prepare(
-      `INSERT INTO campaign_combat_outcome_inbox
-         (outcome_id, outcome_version, campaign_id, command_id, command_digest,
-          first_stream_revision, last_stream_revision, first_commit_position,
-          last_commit_position, received_at)
-       VALUES (@outcomeId, @outcomeVersion, @campaignId, @commandId,
-               @commandDigest, @firstStreamRevision, @lastStreamRevision,
-               @firstCommitPosition, @lastCommitPosition, @receivedAt)`,
-    ).run(receipt);
-    return { kind: 'committed', receipt };
-  });
-}
+export {
+  appendCampaignCombatOutcomeBatch,
+  _setFailReceiptInsertForTests,
+} from './campaignCombatOutcomeInbox';
 
 /**
  * `ICampaignEventStore` over the shared journal. Single-event appends are
@@ -407,6 +297,24 @@ export async function appendCampaignCombatOutcomeBatch(
 export { CampaignStaleBranchError } from './campaignBranchRule';
 
 export class JournalCampaignEventStore implements ICampaignEventStore {
+  // Port members are assigned at construction by bindJournalCapabilityPorts; declare keeps them on the type with no runtime emit and no class/interface merge.
+  declare readBranch: IEventHistoryBranchPort['readBranch'];
+  declare requireBranch: IEventHistoryBranchPort['requireBranch'];
+  declare readEffectiveHead: IEventHistoryBranchPort['readEffectiveHead'];
+  declare requireEffectiveHead: IEventHistoryBranchPort['requireEffectiveHead'];
+  declare createBranch: IEventHistoryBranchPort['createBranch'];
+  declare transitionBranchStatus: IEventHistoryBranchPort['transitionBranchStatus'];
+  declare bindCampaignSessionParticipant: ICampaignSessionParticipantPort['bindCampaignSessionParticipant'];
+  declare activeCampaignSessionMembership: ICampaignSessionParticipantPort['activeCampaignSessionMembership'];
+  declare isActiveCampaignGm: ICampaignSessionParticipantPort['isActiveCampaignGm'];
+  declare campaignHasAnyActiveSeat: ICampaignSessionParticipantPort['campaignHasAnyActiveSeat'];
+  declare isActiveCampaignSeat: ICampaignSessionParticipantPort['isActiveCampaignSeat'];
+  declare listActiveCampaignSessionParticipants: ICampaignSessionParticipantPort['listActiveCampaignSessionParticipants'];
+  declare revokeCampaignSessionParticipant: ICampaignSessionParticipantPort['revokeCampaignSessionParticipant'];
+  declare isRevokedCampaignSessionParticipant: ICampaignSessionParticipantPort['isRevokedCampaignSessionParticipant'];
+  declare readParticipantDeliveryCursor: IParticipantDeliveryCursorPort['readParticipantDeliveryCursor'];
+  declare recordParticipantAcknowledgement: IParticipantDeliveryCursorPort['recordParticipantAcknowledgement'];
+
   public constructor(
     private readonly journal: IEventJournal<ICampaignJournalEnvelope>,
     /**
@@ -418,7 +326,11 @@ export class JournalCampaignEventStore implements ICampaignEventStore {
      * activation move it without touching this class.
      */
     private readonly branches?: SQLiteEventHistoryBranchStore,
-  ) {}
+  ) {
+    // Branch methods stay undefined when branches is omitted so the
+    // structural guard cannot report a store that has no branch table.
+    bindJournalCapabilityPorts(this, branches);
+  }
 
   /** The branch this command lands on - see `campaignBranchRule`. */
   private resolveBranchId(campaignId: string, requested?: string): string {

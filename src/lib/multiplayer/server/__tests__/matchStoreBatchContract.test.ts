@@ -12,22 +12,59 @@
  * downstream test that happens to use one of them.
  */
 
+import Database from 'better-sqlite3';
+import { mkdtemp, rm } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import path from 'node:path';
+
 import type { IEventHistoryBranch } from '@/lib/events/journal/EventHistoryBranchContract';
-import type { IParticipantAckAuthorization } from '@/lib/events/storeCapabilityPorts';
+import type {
+  ICampaignSessionParticipantPort,
+  IEventHistoryBranchPort,
+  IParticipantAckAuthorization,
+  IParticipantDeliveryCursorPort,
+} from '@/lib/events/storeCapabilityPorts';
 
 import { InMemoryCampaignEventStore } from '@/lib/campaign/sync/InMemoryCampaignEventStore';
-import { EventHistoryBranchError } from '@/lib/events/journal/EventHistoryBranchContract';
+import { JournalCampaignEventStore } from '@/lib/campaign/sync/JournalCampaignEventStore';
+import { InMemoryEventJournal } from '@/lib/events/journal/InMemoryEventJournal';
+import {
+  _branchCreationSeamForTests,
+  EventHistoryBranchError,
+} from '@/lib/events/journal/EventHistoryBranchContract';
+import { SQLiteEventHistoryBranchStore } from '@/lib/events/journal/SQLiteEventHistoryBranchStore';
+import { hasHistoryBranchStore } from '@/lib/events/storeCapabilityPorts';
+import { mintVerifiedPrincipal } from '@/lib/multiplayer/server/authorization/AuthorizedViewer';
+import {
+  getSQLiteService,
+  resetSQLiteService,
+} from '@/services/persistence/SQLiteService';
 import {
   GameEventType,
   GamePhase,
   type IGameEvent,
 } from '@/types/gameplay/GameSessionInterfaces';
 
+import * as CampaignSessionParticipantStore from '@/services/campaignPersistence/CampaignSessionParticipantStore';
+
+jest.mock('@/services/campaignPersistence/CampaignSessionParticipantStore', () => {
+  const actual = jest.requireActual<
+    typeof import('@/services/campaignPersistence/CampaignSessionParticipantStore')
+  >('@/services/campaignPersistence/CampaignSessionParticipantStore');
+  return {
+    ...actual,
+    isRevokedCampaignSessionParticipant: jest.fn(
+      actual.isRevokedCampaignSessionParticipant,
+    ),
+  };
+});
+
 import type {
   IMatchCommandBatch,
   MatchBatchAppendResult,
 } from '../matchCommandBatch';
 
+import { createCampaignSessionMembershipPort } from '../campaignSessionMembershipPort';
 import { DurableMatchStore } from '../DurableMatchStore';
 import { MatchNotFoundError, type IMatchMeta } from '../IMatchStore';
 import { InMemoryMatchStore } from '../InMemoryMatchStore';
@@ -240,7 +277,10 @@ function sampleBranch(): IEventHistoryBranch {
     ancestorDepth: 0,
     baseRevision: 0,
     baseEventId: null,
-    baseDigest: 'digest-unused-while-seam-disabled',
+    // CHECK requires 64 lowercase hex chars. The disabled-seam row
+    // never inserts; the durable isolation seed goes through the
+    // test seam and must satisfy the column.
+    baseDigest: 'a'.repeat(64),
     status: 'building',
     createdBy: 'contract',
     reason: 'prefix-port-contract',
@@ -281,20 +321,92 @@ function cursorAuth(): IParticipantAckAuthorization {
   };
 }
 
+type CapabilityPortStore = IEventHistoryBranchPort &
+  ICampaignSessionParticipantPort &
+  IParticipantDeliveryCursorPort;
+
+const SQLITE_PORT_STORES = new Set([
+  'DurableMatchStore',
+  'JournalCampaignEventStore',
+]);
+
 /**
- * In-memory builders only. DurableMatchStore / JournalCampaignEventStore
- * join this describe in the next seam.
+ * Four builders. The two SQLite ones share one temp-file SQLiteService
+ * brought up through the full migration catalog — never a hand-picked
+ * subset — because participant, cursor, and branch tables live there.
  */
-const inMemoryPortStores: ReadonlyArray<
-  readonly [string, () => InMemoryMatchStore | InMemoryCampaignEventStore]
+const portStores: ReadonlyArray<
+  readonly [string, () => CapabilityPortStore]
 > = [
   ['InMemoryMatchStore', () => new InMemoryMatchStore({ quiet: true })],
   ['InMemoryCampaignEventStore', () => new InMemoryCampaignEventStore()],
+  [
+    'DurableMatchStore',
+    () => {
+      const store = new DurableMatchStore({
+        path: matchDbPath,
+        capabilityDb: () => getSQLiteService().getDatabase(),
+      });
+      closeables.push(store);
+      return store;
+    },
+  ],
+  [
+    'JournalCampaignEventStore',
+    () =>
+      new JournalCampaignEventStore(
+        new InMemoryEventJournal(() => BOUND_AT),
+        new SQLiteEventHistoryBranchStore(getSQLiteService().getDatabase()),
+      ),
+  ],
 ];
 
-describe.each(inMemoryPortStores)(
+let sqliteDir: string | undefined;
+let matchDbPath = '';
+let closeables: Array<{ close: () => void }> = [];
+
+function matchFileHasBranchTable(): boolean {
+  const db = new Database(matchDbPath, { fileMustExist: true });
+  try {
+    const row = db
+      .prepare(
+        `SELECT name FROM sqlite_master
+         WHERE type = 'table' AND name = 'event_history_branches'`,
+      )
+      .get() as { name: string } | undefined;
+    return row !== undefined;
+  } finally {
+    db.close();
+  }
+}
+
+describe.each(portStores)(
   '%s optional capability ports',
   (_name, build) => {
+    beforeEach(async () => {
+      closeables = [];
+      if (!SQLITE_PORT_STORES.has(_name)) return;
+      sqliteDir = await mkdtemp(path.join(tmpdir(), 'capability-ports-'));
+      matchDbPath = path.join(sqliteDir, 'multiplayer-matches.db');
+      resetSQLiteService();
+      getSQLiteService({
+        path: path.join(sqliteDir, 'mekstation.db'),
+      }).initialize();
+    });
+
+    afterEach(async () => {
+      for (const handle of closeables) {
+        handle.close();
+      }
+      closeables = [];
+      if (!SQLITE_PORT_STORES.has(_name)) return;
+      resetSQLiteService();
+      if (sqliteDir !== undefined) {
+        await rm(sqliteDir, { recursive: true, force: true, maxRetries: 3 });
+        sqliteDir = undefined;
+      }
+    });
+
     it('exposes the three optional ports', () => {
       const store = build();
       expect(typeof store.readBranch).toBe('function');
@@ -411,7 +523,7 @@ describe.each(inMemoryPortStores)(
       };
       expect(store.readParticipantDeliveryCursor(key)).toBeNull();
       const request = {
-        principal: { principalId: 'viewer-1' },
+        principal: mintVerifiedPrincipal('viewer-1'),
         grantId: 'grant-1',
         deliveryEpochId: 'epoch-1',
         ackedSequence: 1,
@@ -435,7 +547,7 @@ describe.each(inMemoryPortStores)(
       const store = build();
       const gap = await store.recordParticipantAcknowledgement(
         {
-          principal: { principalId: 'viewer-1' },
+          principal: mintVerifiedPrincipal('viewer-1'),
           grantId: 'grant-1',
           deliveryEpochId: 'epoch-1',
           ackedSequence: 9,
@@ -445,5 +557,105 @@ describe.each(inMemoryPortStores)(
       );
       expect(gap).toEqual({ kind: 'gap', highestAssigned: 3 });
     });
+
+    it('an ack without authorization is not-authorized', async () => {
+      const denied = await build().recordParticipantAcknowledgement(
+        {
+          principal: mintVerifiedPrincipal('viewer-1'),
+          grantId: 'grant-1',
+          deliveryEpochId: 'epoch-1',
+          ackedSequence: 1,
+        },
+        {
+          grant: null,
+          viewerAuthorized: false,
+          currentEpochId: 'epoch-1',
+          highestAssigned: 3,
+        },
+        BOUND_AT,
+      );
+      expect(denied).toEqual({
+        kind: 'not-authorized',
+        reason: 'not-authorized',
+      });
+    });
+
+    it('a live grant does not authorize a viewer the resolver refuses', async () => {
+      // The grant alone is not authority: the viewer check must refuse
+      // even when the grant row is present and active.
+      const denied = await build().recordParticipantAcknowledgement(
+        {
+          principal: mintVerifiedPrincipal('viewer-1'),
+          grantId: 'grant-1',
+          deliveryEpochId: 'epoch-1',
+          ackedSequence: 1,
+        },
+        { ...cursorAuth(), viewerAuthorized: false },
+        BOUND_AT,
+      );
+      expect(denied).toEqual({
+        kind: 'not-authorized',
+        reason: 'not-authorized',
+      });
+    });
+
+    if (_name === 'DurableMatchStore') {
+      it('the durable store keeps branch rows in the campaign database, never in the match file', () => {
+        const store = build();
+        expect(() => store.createBranch(sampleBranch())).toThrow(
+          EventHistoryBranchError,
+        );
+        const seeded = sampleBranch();
+        new SQLiteEventHistoryBranchStore(
+          getSQLiteService().getDatabase(),
+          _branchCreationSeamForTests(),
+        ).createBranch(seeded);
+        expect(store.readBranch(STREAM, seeded.branchId)).toEqual(seeded);
+        expect(matchFileHasBranchTable()).toBe(false);
+        expect(
+          getSQLiteService()
+            .getDatabase()
+            .prepare(
+              `SELECT name FROM sqlite_master
+               WHERE type = 'table' AND name = 'event_history_branches'`,
+            )
+            .get(),
+        ).toEqual({ name: 'event_history_branches' });
+      });
+    }
   },
 );
+
+describe('JournalCampaignEventStore branch port absence', () => {
+  it('hasHistoryBranchStore is false when branches is omitted', () => {
+    const store = new JournalCampaignEventStore(
+      new InMemoryEventJournal(() => BOUND_AT),
+    );
+    expect(hasHistoryBranchStore(store)).toBe(false);
+    expect(store.readBranch).toBeUndefined();
+    expect(store.readEffectiveHead).toBeUndefined();
+  });
+});
+
+describe('campaignSessionMembershipPort isRevoked forwarding', () => {
+  let dir: string;
+
+  beforeEach(async () => {
+    dir = await mkdtemp(path.join(tmpdir(), 'membership-is-revoked-'));
+    resetSQLiteService();
+    getSQLiteService({ path: path.join(dir, 'mekstation.db') }).initialize();
+  });
+
+  afterEach(async () => {
+    resetSQLiteService();
+    jest.clearAllMocks();
+    await rm(dir, { recursive: true, force: true, maxRetries: 3 });
+  });
+
+  it('isRevoked calls isRevokedCampaignSessionParticipant', () => {
+    createCampaignSessionMembershipPort().isRevoked('c', 's', 'p');
+    expect(
+      CampaignSessionParticipantStore.isRevokedCampaignSessionParticipant,
+    ).toHaveBeenCalledWith('c', 's', 'p');
+  });
+});
