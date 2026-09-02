@@ -31,8 +31,6 @@
 
 import React, { useCallback, useId, useRef, useState } from 'react';
 
-import type { GmCombatRewindPreviewResult } from '@/lib/multiplayer/server/history/GmCombatRewindPreview';
-
 import type { GmRewindPreviewOutcome } from './gmRewindPreviewPhrasing';
 
 import { GmRewindPreviewDialog } from './GmRewindPreviewDialog';
@@ -40,7 +38,7 @@ import { dispatchWhenArmed, rewindPreviewArm } from './gmRewindPreviewPhrasing';
 
 export interface INetworkedGmRewindControlsProps {
   /** Asks the authority what a rewind would touch. Commits nothing. */
-  readonly onPreviewRewind?: () => Promise<GmCombatRewindPreviewResult>;
+  readonly onPreviewRewind?: () => Promise<GmRewindPreviewOutcome>;
   /** Applies the previewed rewind. Absent until task 3b-iv builds one. */
   readonly onConfirmRewind?: () => void;
 }

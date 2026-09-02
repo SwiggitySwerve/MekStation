@@ -1,19 +1,16 @@
 import Link from 'next/link';
-import React, { useMemo, useState } from 'react';
+import React from 'react';
 
 import type {
   CampaignOperationPriority,
   ICampaignOperationsSummary,
   IDayAdvanceSummary,
 } from '@/lib/campaign/hooks/useCampaignDashboardSummary';
-import type {
-  ActivityLogCategory,
-  IActivityLogEntry,
-} from '@/types/campaign/ActivityLog';
-
-import { ACTIVITY_LOG_CATEGORIES } from '@/types/campaign/ActivityLog';
 
 import { DashboardCard } from './CampaignDashboardCardShell';
+
+export { ActivityLogCard } from './CampaignDashboardActivityLogCard';
+export type { IActivityLogCardProps } from './CampaignDashboardActivityLogCard';
 
 const OPERATION_PRIORITY_STYLES: Record<
   CampaignOperationPriority,
@@ -175,97 +172,6 @@ export function DayAdvanceCard({
         >
           No events upcoming.
         </p>
-      )}
-    </DashboardCard>
-  );
-}
-
-const CATEGORY_LABELS: Record<ActivityLogCategory, string> = {
-  battle: 'Battle',
-  personnel: 'Personnel',
-  medical: 'Medical',
-  finances: 'Finances',
-  acquisitions: 'Acquisitions',
-  technical: 'Technical',
-  travel: 'Travel',
-};
-
-export interface IActivityLogCardProps {
-  readonly campaignId: string;
-  readonly entries: readonly IActivityLogEntry[];
-}
-
-export function ActivityLogCard({
-  campaignId,
-  entries,
-}: IActivityLogCardProps): React.ReactElement {
-  const [activeCategory, setActiveCategory] =
-    useState<ActivityLogCategory>('battle');
-  const filtered = useMemo(
-    () =>
-      entries
-        .filter((entry) => entry.category === activeCategory)
-        .slice(-10)
-        .reverse(),
-    [entries, activeCategory],
-  );
-  return (
-    <DashboardCard
-      title="Recent Activity"
-      testid="dashboard-card-activity-log"
-      footer={
-        <Link
-          href={`/gameplay/campaigns/${campaignId}/log`}
-          className="text-xs text-sky-400 hover:text-sky-200"
-        >
-          View full log →
-        </Link>
-      }
-    >
-      <nav
-        role="tablist"
-        className="-mb-px flex flex-wrap gap-1 border-b border-slate-700"
-      >
-        {ACTIVITY_LOG_CATEGORIES.map((cat) => (
-          <button
-            key={cat}
-            type="button"
-            role="tab"
-            data-testid={`activity-log-tab-${cat}`}
-            aria-selected={cat === activeCategory}
-            onClick={() => setActiveCategory(cat)}
-            className={
-              cat === activeCategory
-                ? 'border-b-2 border-sky-400 px-2 py-1 text-xs text-sky-200'
-                : 'px-2 py-1 text-xs text-slate-400 hover:text-slate-200'
-            }
-          >
-            {CATEGORY_LABELS[cat]}
-          </button>
-        ))}
-      </nav>
-      {filtered.length === 0 ? (
-        <p
-          data-testid="activity-log-empty"
-          className="mt-3 text-xs text-slate-500"
-        >
-          No {CATEGORY_LABELS[activeCategory].toLowerCase()} entries yet.
-        </p>
-      ) : (
-        <ul className="mt-3 space-y-1 text-xs text-slate-200">
-          {filtered.map((entry) => (
-            <li
-              key={entry.id}
-              data-testid={`activity-log-entry-${entry.id}`}
-              className="flex justify-between gap-2"
-            >
-              <span className="truncate">{entry.message}</span>
-              <span className="shrink-0 font-mono text-slate-500">
-                Day {entry.campaignDay}
-              </span>
-            </li>
-          ))}
-        </ul>
       )}
     </DashboardCard>
   );

@@ -223,4 +223,24 @@ describe('campaign dashboard active-contract summary', () => {
     );
     unmount();
   });
+
+  it('no longer exposes activityLog on the dashboard summary', () => {
+    const campaign = createCampaign('Summary Feed Cutover Co.', 'mercenary');
+    const store = useCampaignStore();
+    act(() => {
+      store.setState({ campaign });
+    });
+
+    const { result, unmount } = renderHook(() => useCampaignDashboardSummary());
+    expect(result.current).not.toBeNull();
+    expect(result.current !== null && 'activityLog' in result.current).toBe(
+      false,
+    );
+    if (result.current) {
+      // @ts-expect-error activityLog was removed so the FIFO cannot compile into the card
+      const removed = result.current.activityLog;
+      void removed;
+    }
+    unmount();
+  });
 });

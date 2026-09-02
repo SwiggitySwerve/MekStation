@@ -8,10 +8,12 @@
  *
  * - **The actor is the token, never the body.** A route that read the
  *   caller from the request would let anyone preview - and later rewind -
- *   wearing the host's identity.
+ *   wearing the host's identity. The private review record uses that
+ *   same branded principal.
  * - **A refused caller learns nothing.** Not the impact, not whether the
- *   match exists. The probe is the only thing that can compute the
- *   impact, so "was the probe asked" is the assertion.
+ *   match exists, and not a leftover private_record row. The probe is
+ *   the only thing that can compute the impact, so "was the probe asked"
+ *   is the assertion.
  *
  * @spec openspec/changes/harden-gm-two-player-campaign-sessions/specs/gm-combat-interventions/spec.md
  */
@@ -24,6 +26,7 @@ import { mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 
+import type { IAffectedArtifact } from '@/lib/events/journal/EventHistoryArtifactManifest';
 import type { IMatchMeta } from '@/lib/multiplayer/server/IMatchStore';
 import type { IGameEvent } from '@/types/gameplay/GameSessionInterfaces';
 import type { IVaultIdentity } from '@/types/vault';
@@ -408,4 +411,129 @@ describe('POST /api/matches/[id]/rewind-preview', () => {
     expect(status).toBe(405);
     expect(json.kind).toBeUndefined();
   });
+
+  /**
+   * Rows written by GmPrivatePreviewRecordWriter into `private_record`
+   * (record_kind `gm-draft`). Actor is the access-audit principal plus
+   * the payload's branded actorId — never a body field.
+   */
+  function loadGmDrafts(): readonly IStoredRewindPreviewDraft[] {
+    const rows = db
+      .prepare(
+        `SELECT r.payload AS payload, a.actor_principal_id AS actorId
+           FROM private_record r
+           LEFT JOIN private_access_audit a
+             ON a.opaque_ref = r.opaque_ref
+            AND a.purpose = 'write'
+            AND a.result = 'granted'
+          WHERE r.record_kind = 'gm-draft'
+          ORDER BY r.opaque_ref`,
+      )
+      .all() as readonly IPrivateDraftRow[];
+    return rows.map((row) => {
+      const parsed = JSON.parse(row.payload) as IStoredRewindPreviewPayload;
+      return {
+        actorId: row.actorId,
+        derivedSummary: parsed.derivedSummary,
+        preview: parsed.preview,
+      };
+    });
+  }
+
+  it('records exactly one private preview whose actor is the token principal', async () => {
+    const { status } = await call({
+      bearer: host.wire,
+      body: body({ actorId: guest.playerId }),
+    });
+
+    expect(status).toBe(200);
+    const drafts = loadGmDrafts();
+    expect(drafts).toHaveLength(1);
+    const draft = drafts[0];
+    if (draft === undefined) {
+      throw new Error('expected one gm-draft private_record row');
+    }
+    expect(draft.actorId).toBe(host.playerId);
+    expect(draft.preview.actorId).toBe(host.playerId);
+    expect(draft.preview.targetRevision).toBe(2);
+    expect(draft.preview.stream).toEqual({
+      streamType: 'match',
+      streamId: MATCH_ID,
+    });
+    expect(draft.preview.branchId).toBe('root');
+    expect(Array.isArray(draft.preview.entries)).toBe(true);
+    expect(draft.preview.changedViewerIds.length).toBeGreaterThan(0);
+  });
+
+  it('records nothing when a seated non-host or missing history is refused', async () => {
+    const forbidden = await call({ bearer: guest.wire });
+    expect(forbidden.status).toBe(403);
+    expect(loadGmDrafts()).toHaveLength(0);
+
+    db.prepare(
+      `DELETE FROM event_history_effective_heads WHERE stream_id = ?`,
+    ).run(MATCH_ID);
+    const missing = await call({ bearer: host.wire });
+    expect(missing.status).toBe(404);
+    expect(loadGmDrafts()).toHaveLength(0);
+  });
+
+  it('omits the private preview record from the public preview body', async () => {
+    const { status, json } = await call({ bearer: host.wire });
+
+    expect(status).toBe(200);
+    expect(json.kind).toBe('preview');
+    expect(json).toEqual({
+      kind: 'preview',
+      matchId: MATCH_ID,
+      targetRevision: 2,
+      priorHead: json.priorHead,
+      changedViewerIds: json.changedViewerIds,
+      entries: json.entries,
+    });
+    expect(json).not.toHaveProperty('opaqueRef');
+    expect(json).not.toHaveProperty('derivedSummary');
+    expect(json).not.toHaveProperty('payload');
+    expect(JSON.stringify(json)).not.toContain('gm-draft');
+  });
+
+  it('records two private previews for two successful calls', async () => {
+    const first = await call({ bearer: host.wire });
+    const second = await call({
+      bearer: host.wire,
+      body: body({ targetRevision: 1 }),
+    });
+
+    expect(first.status).toBe(200);
+    expect(second.status).toBe(200);
+    const drafts = loadGmDrafts();
+    expect(drafts).toHaveLength(2);
+    expect(drafts.map((draft) => draft.preview.targetRevision).sort()).toEqual([
+      1, 2,
+    ]);
+  });
 });
+
+interface IPrivateDraftRow {
+  readonly payload: string;
+  readonly actorId: string;
+}
+
+interface IStoredRewindPreviewPayload {
+  readonly derivedSummary: string;
+  readonly preview: {
+    readonly actorId: string;
+    readonly stream: {
+      readonly streamType: string;
+      readonly streamId: string;
+    };
+    readonly branchId: string;
+    readonly targetRevision: number;
+    readonly entries: readonly IAffectedArtifact[];
+    readonly changedViewerIds: readonly string[];
+  };
+}
+
+interface IStoredRewindPreviewDraft extends IStoredRewindPreviewPayload {
+  readonly actorId: string;
+}
