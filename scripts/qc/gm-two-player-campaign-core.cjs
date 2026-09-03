@@ -66,8 +66,9 @@ function buildRunPlan({ group, runId, repoRoot }) {
     // MEKSTATION_E2E_SERVER_COMMAND).
     'authority-order': ['e2e/gm-two-player-authority-order.pack.spec.ts'],
     // E2E-01/02 (umbrella 21.1 PR3-c). IN RESPAWNING_GROUPS: both rows
-    // arm process-exit-after-commit and kill the server. The genesis /
-    // branch clauses stay expected-fail until the journal cutover.
+    // arm process-exit-after-commit and kill the server. The plan also
+    // sets MEKSTATION_E2E_CAMPAIGN_JOURNAL_AUTHORITY=1 so genesis is
+    // live under the fixture arm, not the production cutover flag.
     'authority-recovery': ['e2e/gm-two-player-authority-recovery.pack.spec.ts'],
     // `visibility` remains reserved for the complete E2E-19..30 pack.
     // `privacy-pack` is the tactical-channel subset (E2E-20/21/22/23/
@@ -145,6 +146,18 @@ function buildRunPlan({ group, runId, repoRoot }) {
   const port = String(deriveFixturePort(runId));
   const planMembers = group === 'all' ? ALL_GROUP_MEMBERS : [group];
   const needsRespawn = planMembers.some((name) => RESPAWNING_GROUPS.has(name));
+  // `authority` is a union whose leaf list is not `planMembers`; expand
+  // it so the journal fixture arm follows authority-recovery into
+  // `authority` and `all` the same way the respawn wrapper does for
+  // groups that are themselves in RESPAWNING_GROUPS.
+  const expandedMembers =
+    group === 'all'
+      ? ALL_GROUP_MEMBERS
+      : group === 'authority'
+        ? AUTHORITY_GROUP_MEMBERS
+        : [group];
+  const armsJournalAuthorityFixture =
+    expandedMembers.includes('authority-recovery');
   return {
     command: process.execPath,
     args: [
@@ -166,6 +179,9 @@ function buildRunPlan({ group, runId, repoRoot }) {
       MEKSTATION_E2E_SERVER_COMMAND: needsRespawn
         ? 'node scripts/e2e/relaunching-server.mjs'
         : 'node server.js',
+      ...(armsJournalAuthorityFixture
+        ? { MEKSTATION_E2E_CAMPAIGN_JOURNAL_AUTHORITY: '1' }
+        : {}),
     },
   };
 }

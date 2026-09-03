@@ -10,15 +10,13 @@
  * force ownership, readiness revision, branch, and cursors SHALL remain
  * authoritative.
  *
- * WHY the genesis/branch rows use test.fail: finding #48 — no production
- * path writes campaign events to the journal, so
- * EVENT_HISTORY_GENESIS_BACKFILL_SQL has no stream head and
- * awaitGenesisBranch returns skipped while
- * CAMPAIGN_JOURNAL_AUTHORITY_ENABLED is false. The letter
- * is not weakened. Nightly `npx playwright test --project=chromium`
- * runs every gm-two-player* spec; test.fail keeps that clause from
- * failing nightly, and an unexpected pass is the cutover flip. Do not
- * use test.skip.
+ * The genesis/branch rows are live under the fixture arm: the QC
+ * authority-recovery group (and the authority/all unions that include
+ * it) start the server with
+ * MEKSTATION_E2E_CAMPAIGN_JOURNAL_AUTHORITY=1 while
+ * NEXT_PUBLIC_E2E_MODE=true. Finding #48 still holds in production —
+ * CAMPAIGN_JOURNAL_AUTHORITY_ENABLED stays false, so no production
+ * path writes campaign events to the journal. Do not use test.skip.
  *
  * WHY this group is in RESPAWNING_GROUPS: both rows arm
  * process-exit-after-commit and kill the server.
@@ -32,7 +30,6 @@ import {
   assertCursorsNotRewound,
   assertGenesisBranchRecovers,
   boundPlayingSeats,
-  JOURNAL_CUTOVER_FAIL_REASON,
   readAuthorizedBaseline,
   readParticipants,
   readStoredCampaign,
@@ -66,7 +63,7 @@ test('E2E-01 durable campaign cold recovery @authority-recovery @E2E-01', async 
   }
 });
 
-test('E2E-01 genesis branch recovers @authority-recovery @E2E-01 @until-journal-cutover', async ({
+test('E2E-01 genesis branch recovers @authority-recovery @E2E-01', async ({
   baseURL,
   browser,
   request,
@@ -79,8 +76,6 @@ test('E2E-01 genesis branch recovers @authority-recovery @E2E-01 @until-journal-
     markReady: false,
   });
   try {
-    // Scoped to this clause only — setup reds stay real reds.
-    test.fail(true, JOURNAL_CUTOVER_FAIL_REASON);
     assertGenesisBranchRecovers(drive);
   } finally {
     await drive.fixture.cleanup();
@@ -116,7 +111,7 @@ test('E2E-02 participant ownership survives restart @authority-recovery @E2E-02'
   }
 });
 
-test('E2E-02 effective branch remains authoritative @authority-recovery @E2E-02 @until-journal-cutover', async ({
+test('E2E-02 effective branch remains authoritative @authority-recovery @E2E-02', async ({
   baseURL,
   browser,
   request,
@@ -134,7 +129,6 @@ test('E2E-02 effective branch remains authoritative @authority-recovery @E2E-02 
     await fireHostDeath(drive, request);
     await reloadAll(drive);
     const after = snapshotOwnership(drive);
-    test.fail(true, JOURNAL_CUTOVER_FAIL_REASON);
     expect(after.effectiveBranchId).not.toBeNull();
     expect(after.effectiveBranchId).toBe(before.effectiveBranchId);
     assertGenesisBranchRecovers(drive);
