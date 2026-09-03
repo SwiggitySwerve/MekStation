@@ -150,12 +150,13 @@ it('keeps non-BattleMech scope rows auditable without making them BattleMech blo
       'actions.wireIntents.MarkSeatAi',
       'actions.wireIntents.OccupySeat',
       'actions.wireIntents.ReassignSeat',
+      'actions.wireIntents.RewindRequest',
       'actions.wireIntents.SetAiSlot',
       'actions.wireIntents.SetHumanSlot',
       'actions.wireIntents.SetReady',
     ]),
   );
-  expect(outOfScopeRows).toHaveLength(148);
+  expect(outOfScopeRows).toHaveLength(149);
   expect(
     outOfScopeRows.find(
       (row) =>
@@ -491,6 +492,7 @@ it('keeps non-BattleMech scope rows auditable without making them BattleMech blo
     'actions.wireIntents.MarkSeatAi',
     'actions.wireIntents.OccupySeat',
     'actions.wireIntents.ReassignSeat',
+    'actions.wireIntents.RewindRequest',
     'actions.wireIntents.SetAiSlot',
     'actions.wireIntents.SetHumanSlot',
     'actions.wireIntents.SetReady',

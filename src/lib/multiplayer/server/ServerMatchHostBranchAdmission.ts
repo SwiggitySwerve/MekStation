@@ -9,9 +9,12 @@
  * superseded, the command is stale: answering anything else would
  * append onto history the authority has already left.
  *
- * Active only when the store exposes IEventHistoryBranchPort. A store
- * without those methods cannot have activated a replacement, so every
- * existing in-memory host test stays byte-identical.
+ * Active only when the store exposes IEventHistoryBranchPort and that
+ * port is ready. Method presence alone is not enough: DurableMatchStore
+ * always binds the six members, but the campaign database they read
+ * may never have been opened. Crashing a live match for that is worse
+ * than skipping admission — a store that cannot read a head cannot
+ * have activated a replacement.
  *
  * Rewind cuts (any payload carrying targetRevision) stay on the GM
  * commit HTTP route. If one reaches this path, only the match host
@@ -25,7 +28,10 @@ import type { IIntent, IServerMessage } from '@/types/multiplayer/Protocol';
 
 import { EXPECTED_HEAD_RESYNC_ACTION } from '@/lib/events/journal/EventHistoryExpectedHead';
 import { ROOT_EVENT_BRANCH_ID } from '@/lib/events/journal/EventJournalContract';
-import { hasHistoryBranchStore } from '@/lib/events/storeCapabilityPorts';
+import {
+  hasHistoryBranchStore,
+  isHistoryBranchStoreReady,
+} from '@/lib/events/storeCapabilityPorts';
 import { nowIso } from '@/types/multiplayer/Protocol';
 
 import type { IMatchStore } from './IMatchStore';
@@ -94,6 +100,7 @@ export async function refuseLiveBranchAdmission(
   actorId: string,
 ): Promise<readonly IServerMessage[] | null> {
   if (!hasHistoryBranchStore(ctx.store)) return null;
+  if (!isHistoryBranchStoreReady(ctx.store)) return null;
 
   if (envelope.intent.kind === 'RewindRequest') {
     return answerAcceptedForGmReview(ctx, envelope);

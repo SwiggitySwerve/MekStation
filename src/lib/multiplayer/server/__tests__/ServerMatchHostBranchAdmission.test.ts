@@ -14,7 +14,10 @@ import { createMinimalGrid } from '@/engine/GameEngine.helpers';
 import { _branchCreationSeamForTests } from '@/lib/events/journal/EventHistoryBranchContract';
 import { EXPECTED_HEAD_RESYNC_ACTION } from '@/lib/events/journal/EventHistoryExpectedHead';
 import { SQLiteEventHistoryBranchStore } from '@/lib/events/journal/SQLiteEventHistoryBranchStore';
-import { hasHistoryBranchStore } from '@/lib/events/storeCapabilityPorts';
+import {
+  hasHistoryBranchStore,
+  isHistoryBranchStoreReady,
+} from '@/lib/events/storeCapabilityPorts';
 import {
   getSQLiteService,
   resetSQLiteService,
@@ -309,5 +312,26 @@ describe('ServerMatchHost live branch admission', () => {
     );
     expect(errorOf(frames, 'STALE_BRANCH')).toBeUndefined();
     expect((await stripped.getEvents(matchId)).length).toBeGreaterThan(0);
+  });
+
+  it('a durable store without an initialized campaign database is inert (no throw, no refusal)', async () => {
+    // Predicted red before the readiness probe: handleIntent opened
+    // the campaign singleton from readEffectiveHead and threw
+    // "Database not initialized. Call initialize() first."
+    resetSQLiteService();
+    const isolated = new DurableMatchStore({ path: ':memory:' });
+    try {
+      expect(hasHistoryBranchStore(isolated)).toBe(true);
+      expect(isHistoryBranchStoreReady(isolated)).toBe(false);
+      const matchId = 'inert-uninitialized-db';
+      const host = await makeHost(matchId, isolated);
+      const frames = await host.handleIntent(
+        envelope(matchId, 'pid_opp', { kind: 'AdvancePhase' }, 'inert-db-1'),
+      );
+      expect(errorOf(frames, 'STALE_BRANCH')).toBeUndefined();
+      expect((await isolated.getEvents(matchId)).length).toBeGreaterThan(0);
+    } finally {
+      isolated.close();
+    }
   });
 });
