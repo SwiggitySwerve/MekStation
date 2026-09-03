@@ -244,10 +244,13 @@ async function lifecycleState(page: Page): Promise<string> {
 async function armFault(
   request: APIRequestContext,
   kind: string,
+  matchId: string,
 ): Promise<void> {
   const armed = await request.post('/api/e2e/fault', {
     headers: { [RUN_ID_HEADER]: runId() },
-    data: { kind, mode: 'once' },
+    // `matchId` is REQUIRED since the lever gained session scope
+    // (finding #72): an arm that names no session is refused 400.
+    data: { kind, mode: 'once', matchId },
   });
   expect(armed.status(), await armed.text()).toBe(200);
 }
@@ -598,7 +601,7 @@ test('E2E-15 a host restart recovers every authority clause before a new command
       });
     }
 
-    await armFault(request, 'process-exit-after-commit');
+    await armFault(request, 'process-exit-after-commit', match.matchId);
     // The next command commits, then the process dies before it publishes.
     // The click itself may hang on the dead socket - fire and move on.
     await advancePhase(hostPage, guestPage).catch(() => undefined);

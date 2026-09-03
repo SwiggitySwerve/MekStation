@@ -30,12 +30,17 @@ See [`openspec/specs/`](../openspec/specs/) for 38 comprehensive specifications 
 - [Coding Standards](./development/coding-standards.md) - TypeScript, React, and code style guidelines
 - [Troubleshooting](./development/troubleshooting.md) - Common issues and solutions
 - [Overview & Deep Dive](./overview.md) - Features, APIs, rules, roadmap
+- [GM Two-Player Campaign Contributing](./development/gm-two-player-campaign-contributing.md) - Store ports, rewind modules, and live-pack conventions
 
 ### Architecture
 
 - [Project Structure](./architecture/project-structure.md) - Current file organization
 - [Campaign Combat Loop](./architecture/campaign-combat-loop.md) - End-to-end round trip from contract to campaign state (Wave 5 closure)
 - [Aerospace Combat 2D](./architecture/aerospace-combat-2d.md) - Aerospace-specific combat layer
+
+### Features
+
+- [GM Two-Player Campaign](./features/gm-two-player-campaign.md) - Operator view of authority, delivery, rewind, evidence, and performance
 
 ### Contributing
 

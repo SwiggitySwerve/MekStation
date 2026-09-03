@@ -1015,6 +1015,25 @@ export class ServerMatchHost {
   /** Test/observability: most recent broadcast sequence (or -1). */
   highestSeq = (): number => this.lastBroadcastSeq;
 
+  /** Test/observability: frames issued to this viewer. */
+  viewerIssued = (playerId: string): number =>
+    this.deliveryCursors.issued(playerId);
+
+  /** Test/observability: unacked window that admit() compares to the cap. */
+  viewerUnacked = (playerId: string): number =>
+    this.deliveryCursors.unacked(playerId);
+
+  /** Test/observability: authority resume start for this delivery cursor. */
+  viewerFirstMissedAuthority = (
+    playerId: string,
+    cursor: number,
+  ): number | null =>
+    this.deliveryCursors.firstMissedAuthoritySequence(playerId, cursor);
+
+  /** Test/observability: this viewer is in the recoverable-behind isolation. */
+  viewerIsolated = (playerId: string): boolean =>
+    this.deliveryCursors.isIsolated(playerId);
+
   /** Test/observability: pull the live session (for assertions). */
   getSessionForTests = (): IGameSession => this.session.getSession();
 
@@ -1249,17 +1268,35 @@ export class ServerMatchHost {
     playerId: string,
     deliverySequence: number,
   ): Promise<void> => {
-    if (!hasViewerDeliveryAcknowledgementStore(this.store)) return;
-    try {
-      await this.store.acknowledgeViewerDelivery({
-        matchId: this.matchId,
+    const wasIsolated = this.deliveryCursors.isIsolated(playerId);
+    this.deliveryCursors.acknowledge(playerId, deliverySequence);
+    if (hasViewerDeliveryAcknowledgementStore(this.store)) {
+      try {
+        await this.store.acknowledgeViewerDelivery({
+          matchId: this.matchId,
+          playerId,
+          deliverySequence,
+        });
+      } catch (error) {
+        logger.warn(
+          "[ServerMatchHost] delivery ack persist failed; the client's next ack retries the same receipt",
+          error,
+        );
+      }
+    }
+    if (!wasIsolated || this.deliveryCursors.isIsolated(playerId)) return;
+    // Isolation cleared: resume the same way a reconnect does. The
+    // delivery cursor is the last applied frame;
+    // firstMissedAuthoritySequence is the replay start. Do not start
+    // from the live head — that would skip the gap this viewer was owed.
+    for (const attached of this.lifecycle.attachedSockets()) {
+      if (attached.playerId !== playerId) continue;
+      await this.handleSessionJoin(
+        attached.socket,
         playerId,
+        undefined,
+        this.matchId,
         deliverySequence,
-      });
-    } catch (error) {
-      logger.warn(
-        "[ServerMatchHost] delivery ack persist failed; the client's next ack retries the same receipt",
-        error,
       );
     }
   };
