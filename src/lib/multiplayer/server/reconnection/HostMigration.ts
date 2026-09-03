@@ -41,7 +41,6 @@ import type { IServerMessage } from '@/types/multiplayer/Protocol';
 import { nowIso } from '@/types/multiplayer/Protocol';
 
 import type { IMatchMeta, IMatchStore } from '../IMatchStore';
-
 import type { ICampaignGmHostProbe } from './campaignGmHostProbe';
 
 /**

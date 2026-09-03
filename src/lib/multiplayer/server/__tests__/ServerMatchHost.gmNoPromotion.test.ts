@@ -3,12 +3,13 @@
  * a tactical player to host.
  */
 
+import type { IGameUnit } from '@/types/gameplay/GameSessionInterfaces';
+import type { IServerMessage } from '@/types/multiplayer/Protocol';
+
 import { createMinimalGrid } from '@/engine/GameEngine.helpers';
 import { SeededRandom } from '@/simulation/core/SeededRandom';
 import { createEmptyCampaignState } from '@/types/campaign/CampaignSync';
-import type { IGameUnit } from '@/types/gameplay/GameSessionInterfaces';
 import { defaultSeats } from '@/types/multiplayer/Lobby';
-import type { IServerMessage } from '@/types/multiplayer/Protocol';
 
 import { InMemoryMatchStore } from '../InMemoryMatchStore';
 import { ServerMatchHost, type IMatchSocket } from '../ServerMatchHost';

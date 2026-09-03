@@ -6,14 +6,15 @@
  * green because they take the existing D4 successor path.
  */
 
+import type { IServerMessage } from '@/types/multiplayer/Protocol';
+
 import { buildNetworkedTacticalAuthorityProjection } from '@/lib/command-screen/commandAuthorityProjection';
 import { createEmptyCampaignState } from '@/types/campaign/CampaignSync';
 import { defaultSeats } from '@/types/multiplayer/Lobby';
-import type { IServerMessage } from '@/types/multiplayer/Protocol';
 
 import type { IMatchMeta } from '../../IMatchStore';
-import { InMemoryMatchStore } from '../../InMemoryMatchStore';
 
+import { InMemoryMatchStore } from '../../InMemoryMatchStore';
 import { bindCampaignGmHostProbe } from '../campaignGmHostProbe';
 import {
   migrateHostIfNeeded,
