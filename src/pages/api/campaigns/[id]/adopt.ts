@@ -31,7 +31,7 @@ import {
   CAMPAIGN_ALREADY_ADOPTED_REASON,
   maybeAdoptLegacyCampaign,
 } from '@/lib/campaign/authority/campaignLegacyAdoption';
-import { CAMPAIGN_JOURNAL_AUTHORITY_ENABLED } from '@/lib/campaign/sync/JournalCampaignEventStore';
+import { isCampaignJournalAuthorityEnabled } from '@/lib/campaign/sync/campaignJournalAuthorityEnabled';
 import { SQLiteEventJournal } from '@/lib/events/journal/SQLiteEventJournal';
 import {
   initializeApiDatabase as initCampaignDb,
@@ -142,7 +142,7 @@ export default async function handler(
     // incoming envelope is what carries the imported revision; the record
     // this server is about to write is a copy, not the source snapshot.
     const adoption = await maybeAdoptLegacyCampaign({
-      enabled: CAMPAIGN_JOURNAL_AUTHORITY_ENABLED,
+      enabled: isCampaignJournalAuthorityEnabled(),
       envelope: body.envelope,
       importedAt: new Date().toISOString(),
       journal: () =>

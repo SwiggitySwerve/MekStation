@@ -226,4 +226,34 @@ describe('co-op campaign creation authority checkpoint', () => {
       ),
     ).toBeNull();
   });
+
+  it('refuses creation under the e2e journal-authority arm when the campaign has no genesis branch', async () => {
+    // The checkpoint skips its genesis-branch step whenever the flag it is
+    // handed is false, so this row proves the route hands it the resolver's
+    // answer rather than the production constant: with both keys set and no
+    // genesis marker on record, creation must fail closed.
+    const savedMode = process.env.NEXT_PUBLIC_E2E_MODE;
+    const savedArm = process.env.MEKSTATION_E2E_CAMPAIGN_JOURNAL_AUTHORITY;
+    process.env.NEXT_PUBLIC_E2E_MODE = 'true';
+    process.env.MEKSTATION_E2E_CAMPAIGN_JOURNAL_AUTHORITY = '1';
+    try {
+      const { campaignId } = persistHostCampaign();
+      const harness = mockReqRes(coopCreateBody(campaignId));
+
+      await handler(harness.req, harness.res);
+
+      expect(harness.result.statusCode).toBe(500);
+    } finally {
+      restoreEnv('NEXT_PUBLIC_E2E_MODE', savedMode);
+      restoreEnv('MEKSTATION_E2E_CAMPAIGN_JOURNAL_AUTHORITY', savedArm);
+    }
+  });
 });
+
+function restoreEnv(key: string, value: string | undefined): void {
+  if (value === undefined) {
+    delete process.env[key];
+  } else {
+    process.env[key] = value;
+  }
+}

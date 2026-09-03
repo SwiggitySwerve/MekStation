@@ -311,6 +311,16 @@ export default defineConfig({
       ...(campRuntimeRouted && process.env.MEKSTATION_NEXT_DIST_DIR
         ? { MEKSTATION_NEXT_DIST_DIR: process.env.MEKSTATION_NEXT_DIST_DIR }
         : {}),
+      // Fixture-only journal authority. Playwright's webServer.env is a
+      // whitelist, so the QC plan's opt-in never reaches server.js unless
+      // it is forwarded here. Absent the key, production-shaped e2e stays
+      // on the hardcoded false cutover flag.
+      ...(process.env.MEKSTATION_E2E_CAMPAIGN_JOURNAL_AUTHORITY
+        ? {
+            MEKSTATION_E2E_CAMPAIGN_JOURNAL_AUTHORITY:
+              process.env.MEKSTATION_E2E_CAMPAIGN_JOURNAL_AUTHORITY,
+          }
+        : {}),
     },
   },
 });

@@ -175,6 +175,18 @@ describe('GM and two-player campaign QC runner', () => {
     expect(
       authorityRecoveryPlan.environment.MEKSTATION_E2E_SERVER_COMMAND,
     ).toBe('node scripts/e2e/relaunching-server.mjs');
+    // Predicted red of this pin before the core set the fixture env:
+    // toEqual printed `-   "MEKSTATION_E2E_CAMPAIGN_JOURNAL_AUTHORITY": "1"`.
+    expect(authorityRecoveryPlan.environment).toEqual({
+      PLAYWRIGHT_E2E_RUN_ID: 'task-21-authority-recovery',
+      MEKSTATION_E2E_PORT: String(
+        core.deriveFixturePort('task-21-authority-recovery'),
+      ),
+      MEKSTATION_E2E_REUSE_EXISTING_SERVER: 'false',
+      PORT: String(core.deriveFixturePort('task-21-authority-recovery')),
+      MEKSTATION_E2E_SERVER_COMMAND: 'node scripts/e2e/relaunching-server.mjs',
+      MEKSTATION_E2E_CAMPAIGN_JOURNAL_AUTHORITY: '1',
+    });
     // Every other group keeps the plain server - the wrapper is the
     // exception, never the default.
     expect(faultSmokeServerCommand(core, repoRoot)).toBe('node server.js');
@@ -309,6 +321,9 @@ describe('GM and two-player campaign QC runner', () => {
     expect(authorityPlan.environment.MEKSTATION_E2E_SERVER_COMMAND).toBe(
       'node scripts/e2e/relaunching-server.mjs',
     );
+    expect(authorityPlan.environment.MEKSTATION_E2E_CAMPAIGN_JOURNAL_AUTHORITY).toBe(
+      '1',
+    );
 
     // `all` is the union of every registered SPEC_BY_GROUP entry.
     // Predicted red of this pin today, before `all` had a SPEC_BY_GROUP
@@ -354,6 +369,9 @@ describe('GM and two-player campaign QC runner', () => {
     // rule in the core.
     expect(allPlan.environment.MEKSTATION_E2E_SERVER_COMMAND).toBe(
       'node scripts/e2e/relaunching-server.mjs',
+    );
+    expect(allPlan.environment.MEKSTATION_E2E_CAMPAIGN_JOURNAL_AUTHORITY).toBe(
+      '1',
     );
   });
 
