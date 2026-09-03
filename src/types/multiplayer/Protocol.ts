@@ -339,6 +339,18 @@ export const ForfeitMatchIntentSchema = z.object({
 });
 export type IForfeitMatchIntent = z.infer<typeof ForfeitMatchIntentSchema>;
 
+/**
+ * Player-safe rewind REQUEST. Derives no combat event: the host
+ * records it for GM review. A rewind CUT (targetRevision on any
+ * other kind) is GM-only and belongs on the commit route.
+ */
+export const RewindRequestIntentSchema = z.object({
+  kind: z.literal('RewindRequest'),
+  targetRevision: z.number().int().nonnegative(),
+  reason: z.string().min(1),
+});
+export type IRewindRequestIntent = z.infer<typeof RewindRequestIntentSchema>;
+
 export const IntentPayloadSchema = z.discriminatedUnion('kind', [
   MoveIntentSchema,
   StandIntentSchema,
@@ -361,6 +373,7 @@ export const IntentPayloadSchema = z.discriminatedUnion('kind', [
   LaunchMatchIntentSchema,
   MarkSeatAiIntentSchema,
   ForfeitMatchIntentSchema,
+  RewindRequestIntentSchema,
 ]);
 export type IIntentPayload = z.infer<typeof IntentPayloadSchema>;
 
@@ -767,6 +780,12 @@ export const ErrorCodeSchema = z.enum([
   // stays open, nothing was appended, and the frame carries where the
   // head actually is plus what to do about it.
   'CAMPAIGN_STALE_HEAD',
+  // Umbrella 14.2 — live combat branch admission. Not a client-claimed
+  // expected-head field (finding #38). The frame carries conflictHead
+  // and recoveryAction from EventHistoryExpectedHead.
+  'STALE_BRANCH',
+  // A rewind-cut payload reached the live intent path from a non-host.
+  'GM_ONLY',
 ]);
 export type IErrorCode = z.infer<typeof ErrorCodeSchema>;
 
