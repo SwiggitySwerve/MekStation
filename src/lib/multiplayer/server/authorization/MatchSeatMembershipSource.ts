@@ -9,6 +9,11 @@
  * path in; AI seats never produce membership (no principal occupies
  * them as a human).
  *
+ * Role is `gm` only when the durable campaign_session_participant
+ * row for this principal is seat `gm` (the same row box 9.3 reads).
+ * Spectator occupancy is membership, not GM identity; a watcher and a
+ * tactical player both stay `player` unless that row exists.
+ *
  * MEMBERSHIP EPOCH (the IMembershipSource invariant): the session
  * epoch is derived deterministically from the durable membership-
  * relevant state itself (canonical hash of the seat occupancy or the
@@ -23,7 +28,16 @@ import { sha256 } from 'js-sha256';
 
 import type { IMatchSeat } from '@/types/multiplayer/Lobby';
 
-import type { IMembershipRecord, IMembershipSource } from './AuthorizedViewer';
+import {
+  hasParticipantStore,
+  isParticipantStoreReady,
+} from '@/lib/events/storeCapabilityPorts';
+
+import type {
+  IMembershipRecord,
+  IMembershipSource,
+  ViewerRole,
+} from './AuthorizedViewer';
 
 import {
   MatchNotFoundError,
@@ -81,6 +95,34 @@ function ownedSeats(
   );
 }
 
+/**
+ * Viewer role for a seated or rostered member.
+ * WHAT: `gm` only when the durable campaign participant row is seat `gm`.
+ * WHY: that row is GM identity (creation checkpoint / 9.3 probe). Missing
+ * port, unreadied store, no coop campaign, or no gm row stay `player`
+ * so tactical matches stay unchanged.
+ */
+function deriveMembershipRole(
+  store: IMatchStore,
+  meta: IMatchMeta,
+  principalId: string,
+): ViewerRole {
+  const campaignId = meta.coopCampaign?.campaignId;
+  if (campaignId === undefined) return 'player';
+  if (!hasParticipantStore(store) || !isParticipantStoreReady(store)) {
+    return 'player';
+  }
+  const membership = store.activeCampaignSessionMembership(
+    campaignId,
+    meta.matchId,
+    principalId,
+  );
+  if (membership !== null && membership.seat === 'gm') {
+    return 'gm';
+  }
+  return 'player';
+}
+
 export class MatchSeatMembershipSource implements IMembershipSource {
   public constructor(private readonly store: IMatchStore) {}
 
@@ -110,6 +152,7 @@ export class MatchSeatMembershipSource implements IMembershipSource {
     if (seats === null) {
       // Pre-lobby durable roster (Wave-1 matches).
       if (!meta.playerIds.includes(principalId)) return null;
+      const role = deriveMembershipRole(this.store, meta, principalId);
       return {
         principalId,
         principalKind: 'human',
@@ -117,7 +160,7 @@ export class MatchSeatMembershipSource implements IMembershipSource {
         campaignSessionId: meta.matchId,
         matchId: meta.matchId,
         participantId: principalId,
-        role: 'player',
+        role,
         ownedForceIds: [],
         membershipRevision: epoch,
         active: true,
@@ -139,6 +182,7 @@ export class MatchSeatMembershipSource implements IMembershipSource {
       );
       const onRoster = meta.playerIds.includes(principalId);
       if (meta.status === 'lobby' && (openHumanSeat || onRoster)) {
+        const role = deriveMembershipRole(this.store, meta, principalId);
         return {
           principalId,
           principalKind: 'human',
@@ -146,7 +190,7 @@ export class MatchSeatMembershipSource implements IMembershipSource {
           campaignSessionId: meta.matchId,
           matchId: meta.matchId,
           participantId: principalId,
-          role: 'player',
+          role,
           ownedForceIds: [],
           membershipRevision: epoch,
           active: true,
@@ -159,6 +203,7 @@ export class MatchSeatMembershipSource implements IMembershipSource {
       .map((seat) => seat.slotId);
     const primary = owned[0];
     if (primary === undefined) return null;
+    const role = deriveMembershipRole(this.store, meta, principalId);
     return {
       principalId,
       principalKind: 'human',
@@ -166,8 +211,8 @@ export class MatchSeatMembershipSource implements IMembershipSource {
       campaignSessionId: meta.matchId,
       matchId: meta.matchId,
       participantId: primary.slotId,
-      role: 'player',
-      ownedForceIds: playingSlotIds,
+      role,
+      ownedForceIds: role === 'gm' ? [] : playingSlotIds,
       membershipRevision: epoch,
       active: true,
     };

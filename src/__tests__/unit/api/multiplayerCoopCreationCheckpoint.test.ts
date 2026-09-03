@@ -26,6 +26,7 @@ import path from 'node:path';
 
 import type { IMatchMeta } from '@/lib/multiplayer/server/IMatchStore';
 
+import { _resetRateLimitBucketsForTests } from '@/lib/api/security';
 import {
   CAMPAIGN_CREATION_MISSION_ID,
   playerSlotPlaceholderId,
@@ -137,6 +138,7 @@ function coopCreateBody(campaignId: string): unknown {
   return {
     config: { mapRadius: 8, turnLimit: 20, fogOfWar: false },
     layout: '1v1',
+    hostSeatKind: 'spectator',
     displayName: 'Host',
     coopCampaign: {
       campaignId,
@@ -164,6 +166,7 @@ describe('co-op campaign creation authority checkpoint', () => {
     getSQLiteService({ path: path.join(dir, 'creation.db') }).initialize();
     _resetDefaultMatchStore();
     _resetCampaignHostRegistry();
+    _resetRateLimitBucketsForTests();
   });
 
   afterEach(async () => {
@@ -212,6 +215,56 @@ describe('co-op campaign creation authority checkpoint', () => {
     expect(slotTwoHolder).toBe(playerSlotPlaceholderId(2));
   });
 
+  it('leaves both human seats empty and seats the GM as a spectator', async () => {
+    const { campaignId } = persistHostCampaign();
+    const harness = mockReqRes(coopCreateBody(campaignId));
+
+    await handler(harness.req, harness.res);
+    expect(harness.result.statusCode).toBe(201);
+    const body = harness.result.body;
+    if (!body || 'error' in body) {
+      throw new Error(`Expected a created match, got ${JSON.stringify(body)}`);
+    }
+
+    const seats = body.meta.seats ?? [];
+    const humans = seats.filter((seat) => seat.kind === 'human');
+    const spectator = seats.find((seat) => seat.kind === 'spectator');
+    expect(humans).toHaveLength(2);
+    expect(humans.every((seat) => seat.occupant === null)).toBe(true);
+    expect(spectator?.occupant?.playerId).toBe('pid_host');
+    expect(spectator?.slotId).toBe('spectator-1');
+    expect(body.meta.unitBootstrap).toHaveLength(2);
+    expect(
+      (body.meta.unitBootstrap ?? []).every(
+        (entry) => entry.side === 'player' || entry.side === 'opponent',
+      ),
+    ).toBe(true);
+  });
+
+  it('seats the GM as a spectator when a co-op body names no host seat kind', async () => {
+    // The panel sends the kind explicitly; an older or hand-built client
+    // that omits it must still land the GM outside the human seats.
+    const { campaignId } = persistHostCampaign();
+    const body = coopCreateBody(campaignId) as Record<string, unknown>;
+    delete body.hostSeatKind;
+    const harness = mockReqRes(body);
+
+    await handler(harness.req, harness.res);
+    expect(harness.result.statusCode).toBe(201);
+    const created = harness.result.body;
+    if (!created || 'error' in created) {
+      throw new Error(
+        `Expected a created match, got ${JSON.stringify(created)}`,
+      );
+    }
+
+    const seats = created.meta.seats ?? [];
+    const humans = seats.filter((seat) => seat.kind === 'human');
+    const spectator = seats.find((seat) => seat.kind === 'spectator');
+    expect(humans.every((seat) => seat.occupant === null)).toBe(true);
+    expect(spectator?.occupant?.playerId).toBe('pid_host');
+  });
+
   it('refuses creation when the authoritative campaign record is absent', async () => {
     const harness = mockReqRes(coopCreateBody('campaign-never-persisted'));
 
@@ -226,4 +279,34 @@ describe('co-op campaign creation authority checkpoint', () => {
       ),
     ).toBeNull();
   });
+
+  it('refuses creation under the e2e journal-authority arm when the campaign has no genesis branch', async () => {
+    // The checkpoint skips its genesis-branch step whenever the flag it is
+    // handed is false, so this row proves the route hands it the resolver's
+    // answer rather than the production constant: with both keys set and no
+    // genesis marker on record, creation must fail closed.
+    const savedMode = process.env.NEXT_PUBLIC_E2E_MODE;
+    const savedArm = process.env.MEKSTATION_E2E_CAMPAIGN_JOURNAL_AUTHORITY;
+    process.env.NEXT_PUBLIC_E2E_MODE = 'true';
+    process.env.MEKSTATION_E2E_CAMPAIGN_JOURNAL_AUTHORITY = '1';
+    try {
+      const { campaignId } = persistHostCampaign();
+      const harness = mockReqRes(coopCreateBody(campaignId));
+
+      await handler(harness.req, harness.res);
+
+      expect(harness.result.statusCode).toBe(500);
+    } finally {
+      restoreEnv('NEXT_PUBLIC_E2E_MODE', savedMode);
+      restoreEnv('MEKSTATION_E2E_CAMPAIGN_JOURNAL_AUTHORITY', savedArm);
+    }
+  });
 });
+
+function restoreEnv(key: string, value: string | undefined): void {
+  if (value === undefined) {
+    delete process.env[key];
+  } else {
+    process.env[key] = value;
+  }
+}

@@ -228,6 +228,7 @@ export function CampaignCoopEntryPanel(): React.ReactElement {
         body: JSON.stringify({
           config,
           layout: '1v1',
+          hostSeatKind: 'spectator',
           displayName: auth.displayName,
           coopCampaign: {
             campaignId: createdCampaign.id,

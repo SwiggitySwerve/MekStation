@@ -86,6 +86,18 @@ async function flushInitialEventPersist(): Promise<void> {
 }
 
 describe('MatchHostRegistry unit bootstrap', () => {
+  it('1v1 bootstrap seeds two playing units and none for a spectator host', () => {
+    const bootstrap = buildDefaultMatchUnitBootstrap('1v1', 6);
+    expect(bootstrap).toHaveLength(2);
+    expect(bootstrap.map((entry) => entry.side)).toEqual([
+      GameSide.Player,
+      GameSide.Opponent,
+    ]);
+    expect(
+      bootstrap.every((entry) => !entry.unitId.includes('spectator')),
+    ).toBe(true);
+  });
+
   it('keeps default start hexes inside the generated map radius', () => {
     const bootstrap = buildDefaultMatchUnitBootstrap('4v4', 1);
 
