@@ -20,6 +20,7 @@ import path from 'node:path';
 import type { IEventHistoryStreamRef } from '@/lib/events/journal/EventHistoryBranchContract';
 import type { ICorrectionLeaseHandle } from '@/lib/events/journal/EventHistoryCorrectionLeaseContract';
 import type { IGameEvent } from '@/types/gameplay/GameSessionInterfaces';
+import type { IIntent } from '@/types/multiplayer/Protocol';
 
 import { InteractiveSession } from '@/engine/InteractiveSession';
 import { readEffectiveStreamHead } from '@/lib/events/journal/EventHistoryEffectiveStreamHead';
@@ -36,7 +37,6 @@ import {
   GamePhase,
   GameSide,
 } from '@/types/gameplay/GameSessionInterfaces';
-import type { IIntent } from '@/types/multiplayer/Protocol';
 import {
   advancePhase,
   createGameSession,
