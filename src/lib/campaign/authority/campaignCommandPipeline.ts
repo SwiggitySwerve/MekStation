@@ -48,9 +48,9 @@ import type {
 } from '@/types/campaign/CampaignSync';
 
 import { readDurableStreamRebuild } from '@/lib/events/journal/EventHistoryDurableRebuild';
-import { readDurableCampaignArtifactUse } from '@/lib/interventions/GmCampaignArtifactUseDurable';
 import { EXPECTED_HEAD_RESYNC_ACTION } from '@/lib/events/journal/EventHistoryExpectedHead';
 import { ROOT_EVENT_BRANCH_ID } from '@/lib/events/journal/EventJournalContract';
+import { readDurableCampaignArtifactUse } from '@/lib/interventions/GmCampaignArtifactUseDurable';
 import { validateCampaignIntent } from '@/lib/multiplayer/server/CampaignMatchHostIntent';
 
 import type { CampaignAuthorityMode } from './campaignAuthorityMode';

@@ -1,11 +1,10 @@
 import { EventEmitter } from 'node:events';
 
+import type { CampaignArtifactUseReader } from '@/lib/interventions/GmCampaignArtifactUseDurable';
 import type {
   IClientMessage,
   IServerMessage,
 } from '@/types/multiplayer/Protocol';
-
-import type { CampaignArtifactUseReader } from '@/lib/interventions/GmCampaignArtifactUseDurable';
 
 import { createEmptyCampaignState } from '@/types/campaign/CampaignSync';
 import { nowIso } from '@/types/multiplayer/Protocol';

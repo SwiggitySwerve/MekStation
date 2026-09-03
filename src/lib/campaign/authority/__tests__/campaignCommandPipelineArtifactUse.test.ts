@@ -20,14 +20,14 @@ import type { IAffectedArtifact } from '@/lib/events/journal/EventHistoryArtifac
 import type { CampaignArtifactUseReader } from '@/lib/interventions/GmCampaignArtifactUseDurable';
 import type { ICampaignIntent } from '@/types/campaign/CampaignSync';
 
-import { CAMPAIGN_STREAM_TYPE } from '@/lib/campaign/sync/JournalCampaignEventStore';
 import { readCampaignJournalEvents } from '@/lib/campaign/sync/campaignJournalReads';
+import { CAMPAIGN_STREAM_TYPE } from '@/lib/campaign/sync/JournalCampaignEventStore';
 import { activateCandidateBranch } from '@/lib/events/journal/EventHistoryActivation';
 import { SQLiteEventHistoryArtifactManifestStore } from '@/lib/events/journal/EventHistoryArtifactManifest';
 import { createCorrectionCandidateBranch } from '@/lib/events/journal/EventHistoryCandidateBuild';
+import { InMemoryEventJournal } from '@/lib/events/journal/InMemoryEventJournal';
 import { SQLiteEventHistoryBranchStore } from '@/lib/events/journal/SQLiteEventHistoryBranchStore';
 import { SQLiteEventHistoryCorrectionLeaseStore } from '@/lib/events/journal/SQLiteEventHistoryCorrectionLeaseStore';
-import { InMemoryEventJournal } from '@/lib/events/journal/InMemoryEventJournal';
 import { SQLiteEventJournal } from '@/lib/events/journal/SQLiteEventJournal';
 import {
   getSQLiteService,
