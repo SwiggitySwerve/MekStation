@@ -2286,18 +2286,20 @@ describe('bindCampaignSyncConnection', () => {
       const entry = registry.get('match-campaign');
       expect(entry).not.toBeNull();
       if (entry === null) return;
-      jest.spyOn(entry.syncSession, 'evaluateScenarioLaunch').mockResolvedValue({
-        ok: false,
-        reason: 'correction-pending',
-        requiredRevision: 4,
-        sagaKey: {
-          matchId: 'match-1',
-          outcomeId: 'outcome-1',
-          outcomeVersion: 2,
-        },
-        state: 'target-pending',
-        behind: [],
-      });
+      jest
+        .spyOn(entry.syncSession, 'evaluateScenarioLaunch')
+        .mockResolvedValue({
+          ok: false,
+          reason: 'correction-pending',
+          requiredRevision: 4,
+          sagaKey: {
+            matchId: 'match-1',
+            outcomeId: 'outcome-1',
+            outcomeVersion: 2,
+          },
+          state: 'target-pending',
+          behind: [],
+        });
 
       sendHostIntent(host, {
         kind: 'AdvanceDay',
@@ -2324,13 +2326,15 @@ describe('bindCampaignSyncConnection', () => {
       const entry = registry.get('match-campaign');
       expect(entry).not.toBeNull();
       if (entry === null) return;
-      jest.spyOn(entry.syncSession, 'evaluateScenarioLaunch').mockResolvedValue({
-        ok: false,
-        reason: 'replacement-artifacts-unverified',
-        requiredRevision: 3,
-        branchId: 'candidate-1',
-        behind: [],
-      });
+      jest
+        .spyOn(entry.syncSession, 'evaluateScenarioLaunch')
+        .mockResolvedValue({
+          ok: false,
+          reason: 'replacement-artifacts-unverified',
+          requiredRevision: 3,
+          branchId: 'candidate-1',
+          behind: [],
+        });
 
       sendHostIntent(host, {
         kind: 'AdvanceDay',
@@ -2355,14 +2359,16 @@ describe('bindCampaignSyncConnection', () => {
       const entry = registry.get('match-campaign');
       expect(entry).not.toBeNull();
       if (entry === null) return;
-      jest.spyOn(entry.syncSession, 'evaluateScenarioLaunch').mockResolvedValue({
-        ok: false,
-        reason: 'branch-not-active',
-        requiredRevision: 2,
-        branchId: 'candidate-1',
-        status: 'building',
-        behind: [],
-      });
+      jest
+        .spyOn(entry.syncSession, 'evaluateScenarioLaunch')
+        .mockResolvedValue({
+          ok: false,
+          reason: 'branch-not-active',
+          requiredRevision: 2,
+          branchId: 'candidate-1',
+          status: 'building',
+          behind: [],
+        });
 
       sendHostIntent(host, {
         kind: 'AdvanceDay',

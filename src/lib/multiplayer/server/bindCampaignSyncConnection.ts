@@ -32,13 +32,13 @@ import {
   admitBoundCampaignParticipation,
   captureCampaignConnectionBaseline,
 } from './authorizeCampaignParticipation';
-import { formatCampaignProgressionRefusalReason } from './CampaignProgressionGate';
 import { campaignEventWireFrame } from './campaignEventWireFrame';
 import {
   createCampaignGrantChannelDepsFromSqlite,
   createCampaignReplicaStoreFromSqlite,
 } from './campaignGrantChannelDeps';
 import { getCampaignHostRegistry } from './CampaignHostRegistry';
+import { formatCampaignProgressionRefusalReason } from './CampaignProgressionGate';
 import {
   handleCampaignGrantAck,
   type IBoundGrantSession,

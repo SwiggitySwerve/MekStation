@@ -42,6 +42,7 @@ import { generateRoomCode, normalizeRoomCode } from '@/lib/p2p/roomCodes';
 import { nowIso } from '@/types/multiplayer/Protocol';
 
 import type { CampaignMatchHost } from './CampaignMatchHost';
+
 import {
   evaluateCampaignProgressionClauses,
   PROGRESSION_BLOCKED_BEHIND,
@@ -49,7 +50,6 @@ import {
   type ICampaignParticipantConvergence,
   type ICampaignProgressionReaders,
 } from './CampaignProgressionGate';
-
 import {
   campaignScopeAdmits,
   type ICampaignWireViewer,
