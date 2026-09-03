@@ -301,6 +301,7 @@ describe('GM and two-player campaign QC runner', () => {
       'e2e/gm-two-player-restart.pack.spec.ts',
       'e2e/gm-two-player-resilience.pack.spec.ts',
       'e2e/gm-two-player-authority-order.pack.spec.ts',
+      'e2e/gm-two-player-authority-recovery.pack.spec.ts',
       'e2e/gm-two-player-privacy.pack.spec.ts',
       'e2e/gm-two-player-proposals.pack.spec.ts',
       'e2e/gm-two-player-performance.pack.spec.ts',
