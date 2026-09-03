@@ -1,9 +1,8 @@
 /**
- * Logical truncation by supersession marks (seam 14.4-b).
- *
- * Predicted red on shipped code is named in each row. Durable runs on a
- * temp file so open/migrate is the real constructor path; the in-memory
- * twin shares the observable rows.
+ * Logical truncation by moving the live tail into sibling tables
+ * (seam 14.4-b). Predicted red on shipped code is named in each row.
+ * Durable runs on a temp file so open/migrate is the real constructor
+ * path; the in-memory twin shares the observable rows.
  */
 
 import Database from 'better-sqlite3';
@@ -20,7 +19,10 @@ import {
 import type { IMatchMeta } from '../IMatchStore';
 
 import { DurableMatchStore } from '../DurableMatchStore';
-import { MATCH_STORE_SUPERSESSION_USER_VERSION } from '../DurableMatchStore.supersede';
+import {
+  EVENTS_SUPERSEDED_TABLE,
+  MATCH_STORE_SUPERSESSION_USER_VERSION,
+} from '../DurableMatchStore.supersede';
 import { InMemoryMatchStore } from '../InMemoryMatchStore';
 
 const AT = '2026-09-02T12:00:00.000Z';
@@ -138,6 +140,29 @@ describe.each([
     expect(receipt?.commandId).toBe('cmd-prefix');
   });
 
+  it('a receipt whose last event sits exactly at the cut is superseded too', async () => {
+    // Receipts record event SEQUENCES as first/last. A one-event batch at
+    // the cut sequence is the tail's first command: moving receipts only
+    // strictly past the cut would leave it live and getLastCommandReceipt
+    // would answer a command whose event the store no longer holds.
+    await store.createMatch(meta());
+    await store.appendCommandBatch(MATCH_ID, {
+      commandId: 'cmd-prefix',
+      actorId: 'p1',
+      expectedRevision: 0,
+      events: [event(0), event(1)],
+    });
+    await store.appendCommandBatch(MATCH_ID, {
+      commandId: 'cmd-at-cut',
+      actorId: 'p1',
+      expectedRevision: 2,
+      events: [event(2)],
+    });
+    await store.supersedeFrom(MATCH_ID, CUT, AT);
+    const receipt = await store.getLastCommandReceipt(MATCH_ID);
+    expect(receipt?.commandId).toBe('cmd-prefix');
+  });
+
   it('pending outbox row of the superseded tail is never drained', async () => {
     await seedTwoBatches(store);
     expect(
@@ -194,7 +219,7 @@ describe('DurableMatchStore supersession migrate', () => {
     await rm(dir, { recursive: true, force: true, maxRetries: 3 });
   });
 
-  it('migration is idempotent and keeps existing rows with superseded_at NULL', async () => {
+  it('migration is idempotent and keeps existing live rows; sibling stays empty', async () => {
     const first = new DurableMatchStore({ path: dbPath });
     await first.createMatch(meta());
     await first.appendEvent(MATCH_ID, event(0));
@@ -212,19 +237,20 @@ describe('DurableMatchStore supersession migrate', () => {
     try {
       const version = Number(raw.pragma('user_version', { simple: true }));
       expect(version).toBe(MATCH_STORE_SUPERSESSION_USER_VERSION);
-      const marks = raw
+      const liveRows = raw
         .prepare(
-          `SELECT sequence, superseded_at FROM mp_match_events
+          `SELECT sequence FROM mp_match_events
            WHERE match_id = ? ORDER BY sequence`,
         )
-        .all(MATCH_ID) as Array<{
-        sequence: number;
-        superseded_at: string | null;
-      }>;
-      expect(marks).toEqual([
-        { sequence: 0, superseded_at: null },
-        { sequence: 1, superseded_at: null },
-      ]);
+        .all(MATCH_ID) as Array<{ sequence: number }>;
+      expect(liveRows).toEqual([{ sequence: 0 }, { sequence: 1 }]);
+      const sibling = raw
+        .prepare(
+          `SELECT COUNT(*) AS n FROM ${EVENTS_SUPERSEDED_TABLE}
+           WHERE match_id = ?`,
+        )
+        .get(MATCH_ID) as { n: number };
+      expect(sibling.n).toBe(0);
     } finally {
       raw.close();
     }
@@ -312,5 +338,18 @@ describe('DurableMatchStore supersession migrate', () => {
       'evt-1-reused',
     ]);
     store.close();
+
+    const rawAfter = new Database(dbPath);
+    try {
+      const moved = rawAfter
+        .prepare(
+          `SELECT sequence FROM ${EVENTS_SUPERSEDED_TABLE}
+           WHERE match_id = ? ORDER BY sequence`,
+        )
+        .all(MATCH_ID) as Array<{ sequence: number }>;
+      expect(moved).toEqual([{ sequence: 1 }]);
+    } finally {
+      rawAfter.close();
+    }
   });
 });

@@ -36,6 +36,7 @@ import {
 import { foldMatchSession } from '@/lib/multiplayer/server/MatchSessionProjector';
 import { getSQLiteService } from '@/services/persistence/SQLiteService';
 import { isGameEvent } from '@/types/gameplay/GameSessionInterfaces';
+import { nowIso } from '@/types/multiplayer/Protocol';
 
 export interface IRewindRebuildRequest {
   readonly branchId: string;
@@ -52,6 +53,7 @@ export interface IRewindRebuildHost {
   readonly store: IMatchStore;
   readonly journalRandomSeed: number;
   readonly journalDiceSeed: number;
+  nowIso(): string;
   reseedDice(diceSeed: number): void;
   replaceSession(session: InteractiveSession): void;
   resetIntentWindow(events: readonly IGameEvent[]): void;
@@ -125,7 +127,7 @@ export async function tryFoldActivatedRewindBranch(
     head.branchId,
     streamHead.revision,
   );
-  // Mark the store tail here, not in commit. 15.2 checkpoint law is
+  // Move the store tail here, not in commit. 15.2 checkpoint law is
   // unchanged: an old-head checkpoint is already unattested by digest
   // against this activated prefix.
   await supersedeActivatedTail(store, matchId, streamHead.revision);
@@ -148,6 +150,7 @@ export async function rebuildHostFromActivatedBranch(
       host.store,
       host.matchId,
       input.effectiveRevision,
+      host.nowIso(),
     );
     const folded = foldMatchSession(host.matchId, events);
     // fromSessionAsync reseeds from config.seed. Stamp the host's
@@ -165,8 +168,8 @@ export async function rebuildHostFromActivatedBranch(
     // Broadcast cursor and replay ceiling are the rebuilt session's
     // last sequence so drain/assign start after the cut. The engine
     // numbers new events from that in-memory log. supersedeFrom has
-    // already marked the store tail, so the next persist reuses the
-    // cut sequence. Rows stay on disk; this is not a journal cutover.
+    // already moved the store tail, so the next persist reuses the
+    // cut sequence. Superseded bytes stay in sibling tables.
     const headSequence = last === undefined ? -1 : last.sequence;
     host.resetBroadcastCursor(headSequence);
     host.setRewindReplayCeiling(headSequence);
@@ -241,9 +244,10 @@ async function supersedeActivatedTail(
   store: IMatchStore,
   matchId: string,
   throughRevision: number,
+  at: string = nowIso(),
 ): Promise<void> {
   if (store.supersedeFrom == null) return;
-  await store.supersedeFrom(matchId, throughRevision, new Date().toISOString());
+  await store.supersedeFrom(matchId, throughRevision, at);
 }
 
 async function seatedPlayerIds(

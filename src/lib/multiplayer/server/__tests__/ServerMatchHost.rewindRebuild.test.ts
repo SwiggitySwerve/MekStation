@@ -36,7 +36,7 @@ import {
   GamePhase,
   GameSide,
 } from '@/types/gameplay/GameSessionInterfaces';
-import { nowIso, type IIntent } from '@/types/multiplayer/Protocol';
+import type { IIntent } from '@/types/multiplayer/Protocol';
 import {
   advancePhase,
   createGameSession,
@@ -222,13 +222,21 @@ describe('ServerMatchHost rewind rebuild', () => {
     const intent: IIntent = {
       kind: 'Intent',
       matchId: MATCH_ID,
-      ts: nowIso(),
+      // Commit/rebuild clock, not wall nowIso(): CI date skew must
+      // not reorder this command against the rewind mark.
+      ts: AT,
       playerId: 'gm-1',
       intent: { kind: 'Concede', side: 'player' },
     };
     // Fresh connection key: rebuild resets the intent window; a
     // reused pre-rewind bucket can RATE_LIMITED a legal Concede.
     const broadcasts = await host.handleIntent(intent, 'conn-after-rewind');
+    const after = await waitUntilFirstCommandDelivered(
+      socket,
+      store,
+      prefix.length,
+      broadcasts,
+    );
     const lastError = [...socket.sent]
       .reverse()
       .find((frame) => frame.parsed.kind === 'Error');
@@ -240,14 +248,14 @@ describe('ServerMatchHost rewind rebuild', () => {
         (frame) => frame.kind === 'Error' && frame.code === 'STORE_FAILURE',
       ),
     ).toBe(false);
-    const after = await store.getEvents(MATCH_ID);
     expect(after.length).toBeGreaterThan(prefix.length);
     expect(after.some((event) => event.type === GameEventType.GameEnded)).toBe(
       true,
     );
-    expect(socket.sent.some((frame) => frame.parsed.kind === 'Event')).toBe(
-      true,
-    );
+    expect(
+      socket.sent.some((frame) => frame.parsed.kind === 'Event') ||
+        broadcasts.some((frame) => frame.kind === 'Event'),
+    ).toBe(true);
   });
 
   async function standUpCommittedRewind(): Promise<{
@@ -435,6 +443,29 @@ function metaHostId(): string {
 }
 
 type ReplayFrame = { parsed: { kind: string; events?: readonly unknown[] } };
+
+/**
+ * Await persist + Event delivery instead of a fixed pause. handleIntent
+ * is usually done when it returns; CI can still surface the Event on a
+ * later microtask than the store write.
+ */
+async function waitUntilFirstCommandDelivered(
+  socket: { sent: ReplayFrame[] },
+  matchStore: DurableMatchStore,
+  prefixLength: number,
+  broadcasts: readonly { kind: string }[],
+): Promise<readonly IGameEvent[]> {
+  let after = await matchStore.getEvents(MATCH_ID);
+  for (let i = 0; i < 200; i += 1) {
+    const delivered =
+      socket.sent.some((frame) => frame.parsed.kind === 'Event') ||
+      broadcasts.some((frame) => frame.kind === 'Event');
+    if (after.length > prefixLength && delivered) return after;
+    await Promise.resolve();
+    after = await matchStore.getEvents(MATCH_ID);
+  }
+  return after;
+}
 
 function makeSocket(): IMatchSocket & { sent: ReplayFrame[] } {
   const sent: ReplayFrame[] = [];

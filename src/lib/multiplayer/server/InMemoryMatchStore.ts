@@ -286,8 +286,9 @@ export class InMemoryMatchStore
 
   /**
    * Drop the live tail from `fromSequence` inclusive. Same observable
-   * behaviour as the durable mark: head, getEvents, last-receipt, and
-   * pending outbox all answer the prefix so the cut sequence is free.
+   * behaviour as the durable sibling move: head, getEvents,
+   * last-receipt, and pending outbox all answer the prefix so the cut
+   * sequence is free.
    */
   supersedeFrom = async (
     matchId: string,

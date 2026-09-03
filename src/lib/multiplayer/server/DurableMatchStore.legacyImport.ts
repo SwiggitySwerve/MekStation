@@ -50,6 +50,8 @@ export const LEGACY_IMPORT_SCHEMA_SQL = `
     evidence_digest       TEXT NOT NULL CHECK (length(evidence_digest) = 64),
     evidence_byte_length  INTEGER NOT NULL CHECK (evidence_byte_length >= 0),
     UNIQUE (match_id, sequence),
+    -- Parent must stay PRIMARY KEY (match_id, sequence). A partial
+    -- live unique is not a legal SQLite FK parent; import/prune fail.
     FOREIGN KEY (match_id, sequence)
       REFERENCES mp_match_events(match_id, sequence) ON DELETE CASCADE
   );

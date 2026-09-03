@@ -531,10 +531,10 @@ export interface IMatchStore
   getLastCommandReceipt?(matchId: string): Promise<IMatchCommandReceipt | null>;
 
   /**
-   * Mark the live match-log tail as superseded from `fromSequence`
-   * inclusive. A rewind activation uses this so the next append can
-   * reuse the cut sequence. Optional: a store without it still has
-   * the old full-log unique space.
+   * Move the live match-log tail from `fromSequence` inclusive into
+   * superseded sibling storage. A rewind activation uses this so the
+   * next append can reuse the cut sequence. Optional: a store without
+   * it still has the old full-log unique space.
    */
   supersedeFrom?(
     matchId: string,

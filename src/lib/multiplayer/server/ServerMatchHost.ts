@@ -518,6 +518,7 @@ export class ServerMatchHost {
       store: this.store,
       journalRandomSeed: this.journalRandomSeed,
       journalDiceSeed: this.journalDiceSeed,
+      nowIso,
       reseedDice: (diceSeed) => {
         this.capture = new ServerMatchHostCapture(
           new SeededDiceRoller(new SeededRandom(diceSeed)),
@@ -532,10 +533,8 @@ export class ServerMatchHost {
       resetBroadcastCursor: (sequence) => {
         // Live drain starts after this sequence so a new engine event
         // is the next number after the cut, not after the old store
-        // head. The store still holds superseded mp_match_events rows
-        // (activation does not delete them); appendEvent will collide
-        // if persist reuses those sequences. That store cutover is a
-        // later gap — this reset does not rewrite the journal.
+        // head. supersedeFrom has already moved the store tail into
+        // sibling tables, so persist can reuse the cut sequence.
         this.lastBroadcastSeq = sequence;
       },
       discardViewerDeliveries: () => {

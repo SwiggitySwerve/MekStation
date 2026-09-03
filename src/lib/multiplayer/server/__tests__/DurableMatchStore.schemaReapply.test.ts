@@ -99,9 +99,8 @@ describe('DurableMatchStore SCHEMA_SQL re-apply', () => {
     applyStore(dbPath);
     const db = openRaw(dbPath);
     try {
-      // Quoted from DurableMatchStore.ts SCHEMA_SQL:
-      // match_id, command_id, actor_id, first_revision, last_revision,
-      // event_count, fingerprint, post_digest, committed_at, superseded_at
+      // Quoted from DurableMatchStore.ts SCHEMA_SQL. Live tables keep
+      // the original PK columns; superseded_at lives only on siblings.
       expect(columnNames(db, RECEIPTS)).toStrictEqual([
         'match_id',
         'command_id',
@@ -112,13 +111,16 @@ describe('DurableMatchStore SCHEMA_SQL re-apply', () => {
         'fingerprint',
         'post_digest',
         'committed_at',
-        'superseded_at',
       ]);
-      // Quoted from DurableMatchStore.ts SCHEMA_SQL after the
-      // supersession migrate (outbox PK is dropped; mark stays last):
-      // match_id, sequence, command_id, event_json, created_at,
-      // published_at, superseded_at
       expect(columnNames(db, OUTBOX)).toStrictEqual([
+        'match_id',
+        'sequence',
+        'command_id',
+        'event_json',
+        'created_at',
+        'published_at',
+      ]);
+      expect(columnNames(db, 'mp_match_outbox_superseded')).toStrictEqual([
         'match_id',
         'sequence',
         'command_id',
