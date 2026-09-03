@@ -47,6 +47,7 @@ import type {
 } from './CoordinatedOutcomeCorrectionSaga';
 import type { ICampaignCombatOutcomeReplacementReceipt } from './CoordinatedOutcomeCorrectionTarget.steps';
 
+import { throwForE2EFault } from '../DurableMatchStore';
 import {
   blockCoordinatedCorrection,
   readCoordinatedCorrectionSaga,
@@ -133,6 +134,13 @@ function notReady(
   );
 }
 
+function isCorrectionExitThrow(error: unknown): boolean {
+  return (
+    error instanceof Error &&
+    error.message === 'test-correction-exit-after-target-mint'
+  );
+}
+
 function sagaIsReadyForTarget(state: CoordinatedCorrectionSagaState): boolean {
   return (
     state === 'manifest-sealed' ||
@@ -191,6 +199,11 @@ export async function recordCoordinatedCorrectionTarget(
       );
     }
 
+    // Crash window: the random candidate id is durable on the saga,
+    // replay has not started. A retry reuses that id. Unit form throws;
+    // e2e form of this kind would exit. Do not swallow this throw below.
+    throwForE2EFault('correction-exit-after-target-mint', accepted.matchId);
+
     if (failAfterCandidatePersistForTests) {
       throw new Error('test-crash-after-candidate-persist');
     }
@@ -238,6 +251,9 @@ export async function recordCoordinatedCorrectionTarget(
     }
     return Object.freeze({ kind: 'pending', receipt, saga: next });
   } catch (error) {
+    if (isCorrectionExitThrow(error)) {
+      throw error;
+    }
     if (isRetryableLeaseRefusal(error)) {
       return notReady(saga.state, reasonFromUnknown(error));
     }

@@ -24,6 +24,7 @@ import { SQLiteEventHistoryArtifactManifestStore } from '@/lib/events/journal/Ev
 
 import type { CoordinatedOutcomeCorrectionResult } from './CoordinatedOutcomeCorrection';
 
+import { throwForE2EFault } from '../DurableMatchStore';
 import { supersedeMatchStoreFrom } from '../DurableMatchStore.supersede';
 import {
   classifyOutboxReplacement,
@@ -226,7 +227,8 @@ export function recordCoordinatedCorrectionSource(
   const key = sagaKeyOf(accepted);
   const fromSequence = firstSupersededMatchSequence(accepted.targetRevision);
 
-  return matchDb.transaction((): RecordCoordinatedCorrectionSourceResult => {
+  const result = matchDb.transaction(
+    (): RecordCoordinatedCorrectionSourceResult => {
     const slot = readCombatOutcomeSlot(matchDb, accepted.matchId);
     const replacement = classifyOutboxReplacement(
       slot,
@@ -270,7 +272,13 @@ export function recordCoordinatedCorrectionSource(
       throw new Error('coordinated-correction saga row missing after insert');
     }
     return Object.freeze({ kind: 'recorded', saga });
-  })();
+    },
+  )();
+  // Crash window: this match-store transaction is committed; the
+  // journal seal has not started. A retry sees `source-recorded` and
+  // skips this step. Unit form throws; e2e form of this kind would exit.
+  throwForE2EFault('correction-exit-after-source', accepted.matchId);
+  return result;
 }
 
 function resolveManifestStore(
