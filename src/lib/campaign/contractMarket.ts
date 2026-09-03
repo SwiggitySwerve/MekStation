@@ -20,6 +20,7 @@ import type {
   CampaignArtifactUseConsult,
   InvalidatedCampaignArtifactRefusal,
 } from '@/lib/interventions/GmCampaignArtifactUseGuard';
+
 import { ICampaign } from '@/types/campaign/Campaign';
 import {
   AtBContractType,

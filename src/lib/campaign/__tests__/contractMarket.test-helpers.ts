@@ -8,11 +8,11 @@
  * - Helper functions: name generation, random ranges, random selection
  */
 
+import { isInvalidatedCampaignArtifactRefusal } from '@/lib/interventions/GmCampaignArtifactUseGuard';
 import {
   ICampaign,
   createDefaultCampaignOptions,
 } from '@/types/campaign/Campaign';
-import { isInvalidatedCampaignArtifactRefusal } from '@/lib/interventions/GmCampaignArtifactUseGuard';
 import { CampaignType } from '@/types/campaign/CampaignType';
 import {
   AtBContractType,
