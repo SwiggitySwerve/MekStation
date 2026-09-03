@@ -17,6 +17,7 @@ const RESPAWNING_GROUPS = new Set([
   'restart-pack',
   'resilience-pack',
   'authority-recovery',
+  'authority',
 ]);
 const SAFE_RUN_ID = /^[a-z0-9](?:[a-z0-9-]{0,78}[a-z0-9])?$/i;
 function typedError(code, detail) {
@@ -51,7 +52,8 @@ function buildRunPlan({ group, runId, repoRoot }) {
       'e2e/gm-two-player-fixture.smoke.spec.ts',
       'e2e/gm-two-player-membership.smoke.spec.ts',
     ],
-    // `authority` remains reserved for the complete E2E-01..18 pack.
+    // `authority` is the complete E2E-01..18 union, expanded below
+    // after every titled member has a SPEC_BY_GROUP entry.
     'authority-pack1': ['e2e/gm-two-player-authority.pack1.spec.ts'],
     'exactly-once-pack': ['e2e/gm-two-player-exactly-once.pack.spec.ts'],
     'fault-pack': ['e2e/gm-two-player-fault.pack.spec.ts'],
@@ -61,8 +63,7 @@ function buildRunPlan({ group, runId, repoRoot }) {
     // E2E-04/07 (umbrella 21.1). Deliberately NOT in RESPAWNING_GROUPS:
     // neither row kills the server, and the relaunching wrapper is the
     // exception, never the default (see the lookup on
-    // MEKSTATION_E2E_SERVER_COMMAND). `authority` stays reserved for
-    // the complete E2E-01..18 pack and still answers NOT_IMPLEMENTED.
+    // MEKSTATION_E2E_SERVER_COMMAND).
     'authority-order': ['e2e/gm-two-player-authority-order.pack.spec.ts'],
     // E2E-01/02 (umbrella 21.1 PR3-c). IN RESPAWNING_GROUPS: both rows
     // arm process-exit-after-commit and kill the server. The genesis /
@@ -103,16 +104,34 @@ function buildRunPlan({ group, runId, repoRoot }) {
     // future respawning row has to say so out loud.
     failure: ['e2e/gm-two-player-failure.pack.spec.ts'],
   };
+  // `authority` expands to the eight titled E2E-01..18 packs, in the
+  // same pin order those packs already occupy in SPEC_BY_GROUP.
+  // Specs are de-duplicated so pack1 (03/08/18) appears once. The
+  // union is in RESPAWNING_GROUPS because restart-pack, resilience-pack,
+  // and authority-recovery kill the server.
+  const AUTHORITY_GROUP_MEMBERS = Object.freeze([
+    'authority-pack1',
+    'exactly-once-pack',
+    'fault-pack',
+    'token-pack',
+    'restart-pack',
+    'resilience-pack',
+    'authority-order',
+    'authority-recovery',
+  ]);
+  SPEC_BY_GROUP.authority = [
+    ...new Set(AUTHORITY_GROUP_MEMBERS.flatMap((name) => SPEC_BY_GROUP[name])),
+  ];
   // `all` expands to every group that already has a SPEC_BY_GROUP
   // entry. Reserved catalog names that still throw stay out
-  // (`authority` until 21.4; `campaign` until a live E2E-46..60 row
-  // exists; visibility, combat, evidence-smoke, fault-smoke, and the
-  // other 34-owned placeholders). Specs are de-duplicated so the
-  // `smoke` umbrella does not run fixture-smoke and membership-smoke
-  // twice. The composite respawns if ANY member is in
-  // RESPAWNING_GROUPS (today restart-pack and resilience-pack),
-  // because a row that kills the server cannot recover behind the
-  // plain `node server.js` child Playwright owns.
+  // (`campaign` until a live E2E-46..60 row exists; visibility, combat,
+  // evidence-smoke, fault-smoke, and the other 34-owned placeholders).
+  // Specs are de-duplicated so the `smoke` umbrella and the `authority`
+  // union do not run their members twice. The composite respawns if ANY
+  // member is in RESPAWNING_GROUPS (today restart-pack, resilience-pack,
+  // authority-recovery, and the authority union), because a row that
+  // kills the server cannot recover behind the plain `node server.js`
+  // child Playwright owns.
   const ALL_GROUP_MEMBERS = Object.freeze(
     Object.keys(SPEC_BY_GROUP).filter((name) => name !== 'all'),
   );
