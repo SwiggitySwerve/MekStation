@@ -156,9 +156,8 @@ function buildRunPlan({ group, runId, repoRoot }) {
       : group === 'authority'
         ? AUTHORITY_GROUP_MEMBERS
         : [group];
-  const armsJournalAuthorityFixture = expandedMembers.includes(
-    'authority-recovery',
-  );
+  const armsJournalAuthorityFixture =
+    expandedMembers.includes('authority-recovery');
   return {
     command: process.execPath,
     args: [

@@ -321,9 +321,9 @@ describe('GM and two-player campaign QC runner', () => {
     expect(authorityPlan.environment.MEKSTATION_E2E_SERVER_COMMAND).toBe(
       'node scripts/e2e/relaunching-server.mjs',
     );
-    expect(authorityPlan.environment.MEKSTATION_E2E_CAMPAIGN_JOURNAL_AUTHORITY).toBe(
-      '1',
-    );
+    expect(
+      authorityPlan.environment.MEKSTATION_E2E_CAMPAIGN_JOURNAL_AUTHORITY,
+    ).toBe('1');
 
     // `all` is the union of every registered SPEC_BY_GROUP entry.
     // Predicted red of this pin today, before `all` had a SPEC_BY_GROUP
