@@ -207,10 +207,13 @@ async function waitForQuiescence(matchId: string): Promise<number> {
 async function armFault(
   request: APIRequestContext,
   kind: string,
+  matchId: string,
 ): Promise<void> {
   const armed = await request.post('/api/e2e/fault', {
     headers: { [RUN_ID_HEADER]: runId() },
-    data: { kind, mode: 'once' },
+    // `matchId` is REQUIRED since the lever gained session scope
+    // (finding #72): an arm that names no session is refused 400.
+    data: { kind, mode: 'once', matchId },
   });
   expect(armed.status(), await armed.text()).toBe(200);
 }
@@ -312,7 +315,7 @@ test('E2E-05 a death before commit leaves no authoritative row after restart @E2
   try {
     const eventsBefore = countMatchEvents(match.matchId);
 
-    await armFault(request, 'process-exit-before-commit');
+    await armFault(request, 'process-exit-before-commit', match.matchId);
     // The next command dies mid-transaction WITH the process. The click
     // itself may hang on the dead socket - fire and move on.
     await advancePhase(hostPage, guestPage).catch(() => undefined);
@@ -370,7 +373,7 @@ test('E2E-06 a death after commit replays the committed result once @E2E-06', as
   try {
     const eventsBefore = countMatchEvents(match.matchId);
 
-    await armFault(request, 'process-exit-after-commit');
+    await armFault(request, 'process-exit-after-commit', match.matchId);
     await advancePhase(hostPage, guestPage).catch(() => undefined);
     await waitForServerBack(request);
 
