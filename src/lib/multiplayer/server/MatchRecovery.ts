@@ -50,6 +50,7 @@ import {
   matchAuthoritativePipeline,
 } from './MatchSessionProjector';
 import { ServerMatchHost } from './ServerMatchHost';
+import { tryFoldActivatedRewindBranch } from './ServerMatchHostRewindRebuild';
 
 /**
  * Capability a store must expose to be recoverable: the standard
@@ -156,6 +157,28 @@ export async function recoverActiveMatches(
 
   for (const meta of active) {
     try {
+      // A committed rewind leaves a non-root effective branch. Fold
+      // that path here — the store log is still the untruncated line.
+      const rewound = await tryFoldActivatedRewindBranch(store, meta.matchId);
+      if (rewound !== null) {
+        const session = await InteractiveSession.fromSessionAsync(rewound);
+        const host = await ServerMatchHost.recover(
+          meta.matchId,
+          store,
+          session,
+        );
+        const last = rewound.events[rewound.events.length - 1];
+        // Same ceiling the live rebuild sets: store getEvents still
+        // walks the untruncated log, so join replay must stop here.
+        host.boundReplayToEffectiveHead(
+          last === undefined ? -1 : last.sequence,
+        );
+        // Skip restorePersistedViewerDeliveries: those rows name the
+        // superseded stream. Next join replays the new head.
+        await host.resumePendingEventPublications();
+        hosts.set(meta.matchId, host);
+        continue;
+      }
       const projector =
         cache === null ? null : createMatchSessionProjector(meta.matchId);
       const pipeline =

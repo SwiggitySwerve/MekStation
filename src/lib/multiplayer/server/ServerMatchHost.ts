@@ -60,6 +60,7 @@ import {
   matchLogStorage,
   type MatchLogStorage,
 } from '@/lib/p2p/matchLogStorage';
+import { SeededRandom } from '@/simulation/core/SeededRandom';
 import {
   type IIntent,
   type IEventMessage,
@@ -120,6 +121,7 @@ import {
 } from './reconnection/HostMigration';
 import { IntentRateLimiter } from './reconnection/IntentRateLimiter';
 import { PendingPeerTracker } from './reconnection/PendingPeerTracker';
+import { SeededDiceRoller } from './RollCapture';
 import { ServerMatchBroadcaster } from './ServerMatchBroadcaster';
 import {
   buildHostSession,
@@ -157,6 +159,11 @@ import {
   handleSessionJoin,
   sendReplay,
 } from './ServerMatchHostReplay';
+import {
+  rebuildHostFromActivatedBranch,
+  type IRewindRebuildHost,
+  type IRewindRebuildRequest,
+} from './ServerMatchHostRewindRebuild';
 import { ServerMatchSocketLifecycle } from './ServerMatchSocketLifecycle';
 
 type ReconnectMetadataReader = Pick<MatchLogStorage, 'getMatchMetadata'>;
@@ -256,7 +263,7 @@ export class ServerMatchHost {
    * `RollCapture` swap + per-event stamping). A dedicated collaborator
    * so the host stays a thin orchestrator.
    */
-  private readonly capture: ServerMatchHostCapture;
+  private capture: ServerMatchHostCapture;
 
   /**
    * Wave 5: server-side `CombatOutcomeReady` publish safety net. A
@@ -279,6 +286,10 @@ export class ServerMatchHost {
    * the replay window does not reopen.
    */
   private acceptedIntents = new AcceptedIntentTracker();
+  /** Viewers who must resync from the rewound head, ignoring lastSeq. */
+  private readonly rewindResyncViewers = new Set<string>();
+  /** After rewind, replay never walks the superseded store tail. */
+  private rewindReplayCeiling: number | null = null;
 
   /**
    * Construct directly from an existing `InteractiveSession`. Used by
@@ -480,6 +491,67 @@ export class ServerMatchHost {
       );
     }
   };
+
+  /**
+   * Rebuild the live engine from the activated rewind branch. The
+   * commit route calls this after `kind === 'committed'`.
+   */
+  rebuildFromActivatedBranch = (input: IRewindRebuildRequest): Promise<void> =>
+    rebuildHostFromActivatedBranch(this.rewindRebuildPort(), input);
+
+  /**
+   * Bound ReplayChunk to the activated head after a rewind fold
+   * (live rebuild or boot). The store tail stays in place.
+   */
+  boundReplayToEffectiveHead = (sequence: number): void => {
+    this.rewindReplayCeiling = sequence;
+  };
+
+  viewerDeliveryIssuedForTests = (playerId: string): number =>
+    this.deliveryCursors.issued(playerId);
+
+  d6ForTests = (): number => this.capture.d6();
+
+  private rewindRebuildPort(): IRewindRebuildHost {
+    return {
+      matchId: this.matchId,
+      store: this.store,
+      journalRandomSeed: this.journalRandomSeed,
+      journalDiceSeed: this.journalDiceSeed,
+      reseedDice: (diceSeed) => {
+        this.capture = new ServerMatchHostCapture(
+          new SeededDiceRoller(new SeededRandom(diceSeed)),
+        );
+      },
+      replaceSession: (session) => {
+        this.session = session;
+      },
+      resetIntentWindow: (events) => {
+        this.acceptedIntents = AcceptedIntentTracker.fromEventLog(events);
+      },
+      resetBroadcastCursor: (sequence) => {
+        // Live drain starts after this sequence so a new engine event
+        // is the next number after the cut, not after the old store
+        // head. The store still holds superseded mp_match_events rows
+        // (activation does not delete them); appendEvent will collide
+        // if persist reuses those sequences. That store cutover is a
+        // later gap — this reset does not rewrite the journal.
+        this.lastBroadcastSeq = sequence;
+      },
+      discardViewerDeliveries: () => {
+        this.deliveryCursors.discardAll();
+      },
+      markViewersForResync: (playerIds) => {
+        this.rewindResyncViewers.clear();
+        for (const playerId of playerIds) {
+          this.rewindResyncViewers.add(playerId);
+        }
+      },
+      setRewindReplayCeiling: (sequence) => {
+        this.boundReplayToEffectiveHead(sequence);
+      },
+    };
+  }
 
   // ---------------------------------------------------------------------------
   // Socket management
@@ -784,7 +856,12 @@ export class ServerMatchHost {
             playerId,
             deliveryCursor,
           );
-    const resumeFrom = firstMissed ?? afterLastHeld;
+    // A rewind marks every seat: their lastSeq names the superseded
+    // stream. Resume from the new head, not past a fact that is gone.
+    const resumeFrom = this.rewindResyncViewers.has(playerId)
+      ? 0
+      : (firstMissed ?? afterLastHeld);
+    this.rewindResyncViewers.delete(playerId);
     await handleSessionJoin(
       buildReplayContext(this.internals()),
       socket,
@@ -1042,6 +1119,7 @@ export class ServerMatchHost {
       acceptedIntents: this.acceptedIntents,
       viewerResolver: this.viewerResolver,
       deliveryCursors: this.deliveryCursors,
+      rewindReplayCeiling: this.rewindReplayCeiling,
       commandRejectionAudit: this.commandRejectionAudit ?? undefined,
       rollbackBlockReason: this.rollbackBlockReason ?? undefined,
       journalAuthority:

@@ -49,6 +49,7 @@ import { MatchSeatMembershipSource } from '@/lib/multiplayer/server/authorizatio
 import { getDefaultMatchStore } from '@/lib/multiplayer/server/getDefaultMatchStore';
 import { commitGmCombatRewind } from '@/lib/multiplayer/server/history/GmCombatRewindCommit';
 import { matchStreamRef } from '@/lib/multiplayer/server/history/GmCombatRewindPreview';
+import { getMatchHostRegistry } from '@/lib/multiplayer/server/MatchHostRegistry';
 import {
   buildGmCombatRewindCommitDeps,
   isRewindCommitBody,
@@ -200,6 +201,16 @@ export default async function handler(
     );
 
     if (result.kind === 'committed') {
+      // Look up only — never getOrCreate. An empty registry means
+      // nobody is connected; MatchRecovery folds this branch on boot.
+      const liveHost = getMatchHostRegistry().get(matchId);
+      if (liveHost !== null) {
+        await liveHost.rebuildFromActivatedBranch({
+          branchId: result.activatedBranchId,
+          effectiveRevision: body.targetRevision,
+          effectiveGeneration: result.effectiveGeneration,
+        });
+      }
       res.status(200).json(result);
       return;
     }
