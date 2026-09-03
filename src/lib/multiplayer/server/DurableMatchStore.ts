@@ -326,15 +326,25 @@ export type E2EFaultKind =
   | 'append-outbox-insert'
   | 'append-head-update'
   | 'process-exit-before-commit'
-  | 'process-exit-after-commit';
+  | 'process-exit-after-commit'
+  | 'correction-exit-after-source'
+  | 'correction-exit-after-target-mint';
 
-/** Every fault kind the lever can arm, in batch-lifecycle order. */
+/**
+ * Every fault kind the lever can arm. Append kinds follow batch
+ * lifecycle; process-exit kinds kill the e2e process; correction-exit
+ * kinds are the 17.4 crash windows (unit form throws, e2e form would
+ * exit — `throwForE2EFault` does not call `process.exit`).
+ * LAW-40: a new union member without a list entry is a length drift.
+ */
 export const E2E_FAULT_KINDS: readonly E2EFaultKind[] = [
   'append-event-insert',
   'append-outbox-insert',
   'append-head-update',
   'process-exit-before-commit',
   'process-exit-after-commit',
+  'correction-exit-after-source',
+  'correction-exit-after-target-mint',
 ];
 
 /**
@@ -380,6 +390,8 @@ const armedE2EFaults: Record<E2EFaultKind, IE2EFaultScope | null> = {
   'append-head-update': null,
   'process-exit-before-commit': null,
   'process-exit-after-commit': null,
+  'correction-exit-after-source': null,
+  'correction-exit-after-target-mint': null,
 };
 let exitProcessForE2EFault: (code: number) => void = process.exit;
 
@@ -517,6 +529,18 @@ export function _resetE2EFaultsForTests(): void {
 export function exitForE2EFault(kind: E2EFaultKind, matchId: string): void {
   if (!consumeE2EFault(kind, matchId)) return;
   exitProcessForE2EFault(1);
+  throw new Error(`test-${kind}`);
+}
+
+/**
+ * Unit form of a correction-exit kind: consume both arms (in-graph +
+ * sentinel) at the firing point, then throw. The e2e form of these
+ * kinds would `process.exit` the way `process-exit-*` does via
+ * `exitForE2EFault`. That is not wired here so a jest worker can
+ * observe the crash window and retry.
+ */
+export function throwForE2EFault(kind: E2EFaultKind, matchId: string): void {
+  if (!consumeE2EFault(kind, matchId)) return;
   throw new Error(`test-${kind}`);
 }
 
