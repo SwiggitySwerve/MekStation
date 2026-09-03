@@ -23,8 +23,8 @@
 import type { IEventHistoryEffectiveHead } from '@/lib/events/journal/EventHistoryBranchContract';
 import type { IIntent, IServerMessage } from '@/types/multiplayer/Protocol';
 
-import { ROOT_EVENT_BRANCH_ID } from '@/lib/events/journal/EventJournalContract';
 import { EXPECTED_HEAD_RESYNC_ACTION } from '@/lib/events/journal/EventHistoryExpectedHead';
+import { ROOT_EVENT_BRANCH_ID } from '@/lib/events/journal/EventJournalContract';
 import { hasHistoryBranchStore } from '@/lib/events/storeCapabilityPorts';
 import { nowIso } from '@/types/multiplayer/Protocol';
 

@@ -31,10 +31,10 @@ import {
 
 import type { IMatchMeta, IMatchStore } from '../IMatchStore';
 
-import { LIVE_BRANCH_ADMISSION_PHRASING } from '../ServerMatchHostBranchAdmission';
 import { DurableMatchStore } from '../DurableMatchStore';
 import { InMemoryMatchStore } from '../InMemoryMatchStore';
 import { ServerMatchHost } from '../ServerMatchHost';
+import { LIVE_BRANCH_ADMISSION_PHRASING } from '../ServerMatchHostBranchAdmission';
 
 const AT = '2026-09-02T00:00:00.000Z';
 describe('ServerMatchHost live branch admission', () => {
@@ -149,14 +149,23 @@ describe('ServerMatchHost live branch admission', () => {
     intent: IIntent['intent'],
     intentId: string,
   ): IIntent {
-    return { kind: 'Intent', matchId, ts: nowIso(), playerId, intent, intentId };
+    return {
+      kind: 'Intent',
+      matchId,
+      ts: nowIso(),
+      playerId,
+      intent,
+      intentId,
+    };
   }
 
   function errorOf(
     frames: readonly { kind: string; code?: string }[],
     code: string,
   ) {
-    return frames.find((frame) => frame.kind === 'Error' && frame.code === code);
+    return frames.find(
+      (frame) => frame.kind === 'Error' && frame.code === code,
+    );
   }
 
   function journalCount(): number {
@@ -302,4 +311,3 @@ describe('ServerMatchHost live branch admission', () => {
     expect((await stripped.getEvents(matchId)).length).toBeGreaterThan(0);
   });
 });
-

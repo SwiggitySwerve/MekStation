@@ -34,13 +34,13 @@ import {
   authorizeHumanAction,
 } from './authorization/HumanActionAuthorizationGate';
 import { MembershipSourceUnavailableError } from './authorization/MatchSeatMembershipSource';
-import { refuseLiveBranchFromIntent } from './ServerMatchHostBranchAdmission';
 import { hasMatchStreamRebuildReader } from './IMatchStore';
 import {
   runLegacyShadowComparison,
   shadowAudienceInput,
 } from './journalAuthorityShadow';
 import { isSpectatorPlayer } from './lobby/spectatorSeats';
+import { refuseLiveBranchFromIntent } from './ServerMatchHostBranchAdmission';
 import { dispatchToEngine } from './ServerMatchHostEngineDispatch';
 import { stampIntentIdOnNewEvents } from './ServerMatchHostEvents';
 import {
