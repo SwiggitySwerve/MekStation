@@ -61,7 +61,6 @@ jest.mock('@/lib/campaign/encounter/campaignOwnedForceMaterialization', () => {
   };
 });
 
-
 const NOW = '3025-07-04T00:00:00.000Z';
 const SESSION_ID = 'match-1';
 const MISSION_ID = 'mission-1';
