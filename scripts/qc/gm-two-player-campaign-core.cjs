@@ -3,7 +3,7 @@ const crypto = require('node:crypto');
 const net = require('node:net');
 const path = require('node:path');
 const GROUP_CATALOG =
-  'fixture-smoke:26,membership-smoke:15,evidence-smoke:27,fault-smoke:28,smoke:15,authority-pack1:21,exactly-once-pack:21,fault-pack:21,token-pack:21,restart-pack:21,resilience-pack:21,authority-order:21,privacy-pack:30,proposal-pack:30,three-context-pack:30,two-device-pack:30,authority:29,visibility:30,combat:31,campaign:32,failure:32,performance:33,all:34,traceability:34,quality:34,manual-setup:34,scope:34';
+  'fixture-smoke:26,membership-smoke:15,evidence-smoke:27,fault-smoke:28,smoke:15,authority-pack1:21,exactly-once-pack:21,fault-pack:21,token-pack:21,restart-pack:21,resilience-pack:21,authority-order:21,authority-recovery:21,privacy-pack:30,proposal-pack:30,three-context-pack:30,two-device-pack:30,authority:29,visibility:30,combat:31,campaign:32,failure:32,performance:33,all:34,traceability:34,quality:34,manual-setup:34,scope:34';
 const REGISTERED_GROUPS = Object.freeze(
   Object.fromEntries(
     GROUP_CATALOG.split(',').map((entry) => {
@@ -13,7 +13,11 @@ const REGISTERED_GROUPS = Object.freeze(
   ),
 );
 // Groups whose specs terminate the server process mid-scenario.
-const RESPAWNING_GROUPS = new Set(['restart-pack', 'resilience-pack']);
+const RESPAWNING_GROUPS = new Set([
+  'restart-pack',
+  'resilience-pack',
+  'authority-recovery',
+]);
 const SAFE_RUN_ID = /^[a-z0-9](?:[a-z0-9-]{0,78}[a-z0-9])?$/i;
 function typedError(code, detail) {
   return Object.assign(new Error(`${code} ${detail}`), { code, detail });
@@ -60,6 +64,10 @@ function buildRunPlan({ group, runId, repoRoot }) {
     // MEKSTATION_E2E_SERVER_COMMAND). `authority` stays reserved for
     // the complete E2E-01..18 pack and still answers NOT_IMPLEMENTED.
     'authority-order': ['e2e/gm-two-player-authority-order.pack.spec.ts'],
+    // E2E-01/02 (umbrella 21.1 PR3-c). IN RESPAWNING_GROUPS: both rows
+    // arm process-exit-after-commit and kill the server. The genesis /
+    // branch clauses stay expected-fail until the journal cutover.
+    'authority-recovery': ['e2e/gm-two-player-authority-recovery.pack.spec.ts'],
     // `visibility` remains reserved for the complete E2E-19..30 pack.
     // `privacy-pack` is the tactical-channel subset (E2E-20/21/22/23/
     // 24/26/27); `proposal-pack` is the campaign-channel arbitration
