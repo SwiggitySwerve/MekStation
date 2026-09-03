@@ -34,6 +34,7 @@ import {
   authorizeHumanAction,
 } from './authorization/HumanActionAuthorizationGate';
 import { MembershipSourceUnavailableError } from './authorization/MatchSeatMembershipSource';
+import { refuseLiveBranchFromIntent } from './ServerMatchHostBranchAdmission';
 import { hasMatchStreamRebuildReader } from './IMatchStore';
 import {
   runLegacyShadowComparison,
@@ -204,10 +205,12 @@ export async function handleIntent(
     return [err];
   }
 
-  const rebuildRefusal = refuseDuringHistoryRebuild(ctx, envelope);
-  if (rebuildRefusal) {
-    return rebuildRefusal;
-  }
+  // A rebuild in progress refuses first; only a live stream consults the
+  // branch port (inert when the store has none).
+  const refusal =
+    refuseDuringHistoryRebuild(ctx, envelope) ??
+    (await refuseLiveBranchFromIntent(ctx, envelope, verifiedPrincipalId));
+  if (refusal) return refusal;
 
   const authorization = await refuseUnauthorizedCommand(
     ctx,

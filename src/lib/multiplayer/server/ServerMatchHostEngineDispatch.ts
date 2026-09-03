@@ -19,7 +19,8 @@ type EngineIntent = Exclude<
       | 'SetReady'
       | 'LaunchMatch'
       | 'MarkSeatAi'
-      | 'ForfeitMatch';
+      | 'ForfeitMatch'
+      | 'RewindRequest';
   }
 >;
 
