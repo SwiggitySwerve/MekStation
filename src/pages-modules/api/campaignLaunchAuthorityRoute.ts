@@ -22,6 +22,10 @@
  * `sessionId` therefore gets its head validated and nothing else, which
  * leaves the flat-roster launch exactly as it is today.
  *
+ * After the head resolves, the N+1 progression gate runs here (17.3-b)
+ * so a candidate branch, a pending correction, or a behind cursor
+ * refuses the launch. AdvanceDay still uses refuseUnconvergedProgression.
+ *
  * @spec openspec/changes/harden-gm-two-player-campaign-sessions/specs/campaign-management/spec.md
  *   ("Scenario Materialization Uses Authoritative Owned Forces")
  */
@@ -42,6 +46,13 @@ import {
 import { materializeOwnedPlayerForces } from '@/lib/campaign/encounter/campaignOwnedForceMaterialization';
 import { validateExpectedBranchHead } from '@/lib/events/journal/EventHistoryExpectedHead';
 import { SQLiteEventHistoryBranchStore } from '@/lib/events/journal/SQLiteEventHistoryBranchStore';
+import { createDurableCampaignProgressionReaders } from '@/lib/multiplayer/server/campaignProgressionReaders.durable';
+import {
+  evaluateCampaignLaunchProgression,
+  resolveCampaignLaunchProgressionReaders,
+  toCampaignLaunchProgressionRefusal,
+  type CampaignLaunchProgressionRefusalBody,
+} from '@/pages-modules/api/campaignLaunchProgressionGate';
 import {
   initializeApiDatabase,
   rejectMissingQueryString,
@@ -65,6 +76,7 @@ export type CampaignLaunchAuthorityResponse =
 type ResponseBody =
   | CampaignLaunchAuthorityResponse
   | Extract<OwnedForceMaterializationResult, { kind: 'refused' }>
+  | CampaignLaunchProgressionRefusalBody
   | { readonly error: string };
 
 interface IRequestBody {
@@ -163,6 +175,27 @@ export default function handler(
     }
     if (head.kind === 'no-authoritative-stream') {
       res.status(200).json({ kind: 'no-authoritative-stream' });
+      return;
+    }
+
+    // N+1 gate after the head is known, before any launch proceeds.
+    // Session-free: durable readers + cursor rows, not a host entry.
+    const gate = evaluateCampaignLaunchProgression({
+      campaignId: id,
+      sessionId: body.sessionId,
+      requiredRevision: head.revision,
+      readers: resolveCampaignLaunchProgressionReaders(
+        createDurableCampaignProgressionReaders,
+      ),
+    });
+    if (!gate.ok) {
+      res.status(409).json(
+        toCampaignLaunchProgressionRefusal(gate, {
+          branchId: head.branchId,
+          revision: head.revision,
+          effectiveGeneration: head.effectiveGeneration,
+        }),
+      );
       return;
     }
 

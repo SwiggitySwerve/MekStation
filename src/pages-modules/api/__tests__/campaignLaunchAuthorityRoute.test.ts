@@ -17,6 +17,12 @@ import { mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 
+import type {
+  EventHistoryBranchStatus,
+  IEventHistoryBranch,
+} from '@/lib/events/journal/EventHistoryBranchContract';
+import type { ICampaignProgressionReaders } from '@/lib/multiplayer/server/CampaignProgressionGate';
+import type { ICoordinatedCorrectionSaga } from '@/lib/multiplayer/server/history/CoordinatedOutcomeCorrectionSaga';
 import type { ICampaign } from '@/types/campaign/Campaign';
 
 import {
@@ -24,22 +30,42 @@ import {
   playerSlotPlaceholderId,
 } from '@/lib/campaign/authority/campaignCreationCheckpoint';
 import { appendCampaignGenesis } from '@/lib/campaign/authority/campaignSourceGenesis';
+import { materializeOwnedPlayerForces } from '@/lib/campaign/encounter/campaignOwnedForceMaterialization';
 import { buildPopulatedCampaign } from '@/lib/campaign/persistence/__tests__/campaignFixture';
 import { buildSerializedCampaign } from '@/lib/campaign/persistence/campaignEnvelope';
 import { CAMPAIGN_STREAM_TYPE } from '@/lib/campaign/sync/JournalCampaignEventStore';
 import { SQLiteEventHistoryBranchStore } from '@/lib/events/journal/SQLiteEventHistoryBranchStore';
 import { SQLiteEventJournal } from '@/lib/events/journal/SQLiteEventJournal';
+import { createDurableCampaignProgressionReaders } from '@/lib/multiplayer/server/campaignProgressionReaders.durable';
 import handler from '@/pages-modules/api/campaignLaunchAuthorityRoute';
+import {
+  _setCampaignLaunchProgressionReadersForTests,
+  CAMPAIGN_LAUNCH_NOT_CONVERGED,
+  evaluateCampaignLaunchProgression,
+} from '@/pages-modules/api/campaignLaunchProgressionGate';
 import { saveCampaign } from '@/services/campaignPersistence/CampaignPersistenceService';
 import { claimCampaignSessionForce } from '@/services/campaignPersistence/CampaignSessionForceClaimStore';
+import { bindCampaignSessionParticipant } from '@/services/campaignPersistence/CampaignSessionParticipantStore';
 import {
   getSQLiteService,
   resetSQLiteService,
 } from '@/services/persistence/SQLiteService';
 
+jest.mock('@/lib/campaign/encounter/campaignOwnedForceMaterialization', () => {
+  const actual = jest.requireActual<
+    typeof import('@/lib/campaign/encounter/campaignOwnedForceMaterialization')
+  >('@/lib/campaign/encounter/campaignOwnedForceMaterialization');
+  return {
+    ...actual,
+    materializeOwnedPlayerForces: jest.fn(actual.materializeOwnedPlayerForces),
+  };
+});
+
 const NOW = '3025-07-04T00:00:00.000Z';
 const SESSION_ID = 'match-1';
 const MISSION_ID = 'mission-1';
+const PLAYER_1 = 'player-1';
+const PLAYER_2 = 'player-2';
 
 interface IResult {
   statusCode: number;
@@ -171,6 +197,120 @@ function bodyFor(world: IWorld, overrides: Record<string, unknown> = {}) {
   };
 }
 
+/**
+ * Bind the two tactical seats the convergence clause reads.
+ * WHY: force claims are not the retained roster; a missing seat is
+ * invisible to the gate and would make the behind row vacuously green.
+ */
+function bindPlayers(campaignId: string): void {
+  bindCampaignSessionParticipant({
+    campaignId,
+    sessionId: SESSION_ID,
+    participantId: PLAYER_1,
+    seat: 'player',
+    boundAt: NOW,
+  });
+  bindCampaignSessionParticipant({
+    campaignId,
+    sessionId: SESSION_ID,
+    participantId: PLAYER_2,
+    seat: 'player',
+    boundAt: NOW,
+  });
+}
+
+/**
+ * Write one durable ack watermark. WHY: launch reads
+ * campaign_participant_cursor, not the session map.
+ */
+function seedCursor(
+  campaignId: string,
+  participantId: string,
+  ackedSequence: number,
+): void {
+  getSQLiteService()
+    .getDatabase()
+    .prepare(
+      `INSERT INTO campaign_participant_cursor
+         (campaign_id, grant_id, participant_id, delivery_epoch_id,
+          acked_sequence, updated_at)
+       VALUES (?, ?, ?, 'epoch-1', ?, ?)`,
+    )
+    .run(
+      campaignId,
+      `grant-${participantId}`,
+      participantId,
+      ackedSequence,
+      NOW,
+    );
+}
+
+/**
+ * CampaignSyncSession.test.ts branch fixture, copied so this suite
+ * can inject the same candidate head without opening a host.
+ */
+function branchRecord(
+  campaignId: string,
+  branchId: string,
+  status: EventHistoryBranchStatus,
+): IEventHistoryBranch {
+  const isRoot = branchId === 'root';
+  return {
+    streamType: 'campaign',
+    streamId: campaignId,
+    branchId,
+    parentBranchId: isRoot ? null : 'root',
+    ancestorDepth: isRoot ? 0 : 1,
+    baseRevision: isRoot ? 0 : 1,
+    baseEventId: isRoot ? null : 'evt-1',
+    baseDigest: 'digest',
+    status,
+    createdBy: 'gm',
+    reason: 'test',
+    createdAt: '2026-01-01T00:00:00.000Z',
+  };
+}
+
+/**
+ * CampaignSyncSession.test.ts saga fixture at the named state.
+ * WHY: the route must refuse correction-pending with the same key.
+ */
+function sagaRecord(
+  state: ICoordinatedCorrectionSaga['state'],
+): ICoordinatedCorrectionSaga {
+  return {
+    matchId: 'match-1',
+    outcomeId: 'outcome-1',
+    outcomeVersion: 2,
+    targetRevision: 4,
+    state,
+    blockedReason: null,
+    sourceRecordedAt: '2026-01-01T00:00:00.000Z',
+    manifestSealedAt: '2026-01-01T00:00:01.000Z',
+    targetRecordedAt:
+      state === 'target-pending' || state === 'completed'
+        ? '2026-01-01T00:00:02.000Z'
+        : null,
+    updatedAt: '2026-01-01T00:00:03.000Z',
+    candidateBranchId: 'candidate-1',
+  };
+}
+
+/**
+ * In-memory progression readers, same shape as CampaignSyncSession.
+ */
+function readers(
+  overrides: Partial<ICampaignProgressionReaders>,
+): ICampaignProgressionReaders {
+  return {
+    readEffectiveHead: () => null,
+    readBranch: () => null,
+    readSagaForCampaign: () => null,
+    readManifestVerdict: () => null,
+    ...overrides,
+  };
+}
+
 describe('POST /api/campaigns/:id/launch-authority', () => {
   let dir: string;
 
@@ -181,6 +321,8 @@ describe('POST /api/campaigns/:id/launch-authority', () => {
   });
 
   afterEach(async () => {
+    _setCampaignLaunchProgressionReadersForTests(undefined);
+    jest.restoreAllMocks();
     resetSQLiteService();
     await rm(dir, { recursive: true, force: true, maxRetries: 3 });
   });
@@ -352,5 +494,145 @@ describe('POST /api/campaigns/:id/launch-authority', () => {
     handler(req, res);
 
     expect(result.statusCode).toBe(405);
+  });
+
+  it('refuses a launch when a retained participant is behind the head', async () => {
+    const world = await buildWorld();
+    bindPlayers(world.campaign.id);
+    seedCursor(world.campaign.id, PLAYER_1, world.revision);
+    const materialize = jest.mocked(materializeOwnedPlayerForces);
+    materialize.mockClear();
+    const { req, res, result } = post(
+      world.campaign.id,
+      bodyFor(world, { sessionId: SESSION_ID }),
+    );
+
+    handler(req, res);
+
+    expect(result.statusCode).toBe(409);
+    expect(result.body).toMatchObject({
+      kind: 'refused',
+      // Pinned to the literal, not the constant: the lifecycle state machine
+      // matches this exact string to keep commands enabled on a refusal, so a
+      // drift in the route's vocabulary must fail here rather than move both
+      // sides of the comparison together.
+      code: 'CAMPAIGN_NOT_CONVERGED',
+      clause: 'participants-behind',
+      behind: [{ participantId: PLAYER_2, acknowledgedRevision: 0 }],
+      requiredRevision: world.revision,
+    });
+    expect((result.body as { reason: string }).reason).toContain(
+      'participants-behind',
+    );
+    expect((result.body as { kind: string }).kind).not.toBe('materialized');
+    expect(materialize).not.toHaveBeenCalled();
+  });
+
+  it('refuses a launch while the effective head is still a candidate', async () => {
+    const world = await buildWorld();
+    _setCampaignLaunchProgressionReadersForTests(
+      readers({
+        readEffectiveHead: () => ({
+          streamType: 'campaign',
+          streamId: world.campaign.id,
+          branchId: 'candidate-1',
+          effectiveGeneration: 1,
+          installedAt: '2026-01-01T00:00:00.000Z',
+        }),
+        readBranch: () =>
+          branchRecord(world.campaign.id, 'candidate-1', 'building'),
+      }),
+    );
+    const materialize = jest.mocked(materializeOwnedPlayerForces);
+    materialize.mockClear();
+    const { req, res, result } = post(
+      world.campaign.id,
+      bodyFor(world, { sessionId: SESSION_ID }),
+    );
+
+    handler(req, res);
+
+    expect(result.statusCode).toBe(409);
+    expect(result.body).toMatchObject({
+      kind: 'refused',
+      code: CAMPAIGN_LAUNCH_NOT_CONVERGED,
+      clause: 'branch-not-active',
+      branchId: 'candidate-1',
+      status: 'building',
+    });
+    expect((result.body as { reason: string }).reason).toContain(
+      'branch-not-active',
+    );
+    expect(materialize).not.toHaveBeenCalled();
+  });
+
+  it('refuses a launch while a correction saga is still target-pending', async () => {
+    const world = await buildWorld();
+    const pending = sagaRecord('target-pending');
+    _setCampaignLaunchProgressionReadersForTests(
+      readers({ readSagaForCampaign: () => pending }),
+    );
+    const materialize = jest.mocked(materializeOwnedPlayerForces);
+    materialize.mockClear();
+    const { req, res, result } = post(
+      world.campaign.id,
+      bodyFor(world, { sessionId: SESSION_ID }),
+    );
+
+    handler(req, res);
+
+    expect(result.statusCode).toBe(409);
+    expect(result.body).toMatchObject({
+      kind: 'refused',
+      code: CAMPAIGN_LAUNCH_NOT_CONVERGED,
+      clause: 'correction-pending',
+      sagaKey: {
+        matchId: pending.matchId,
+        outcomeId: pending.outcomeId,
+        outcomeVersion: pending.outcomeVersion,
+      },
+      state: 'target-pending',
+    });
+    expect((result.body as { reason: string }).reason).toContain(
+      'correction-pending',
+    );
+    expect(materialize).not.toHaveBeenCalled();
+  });
+
+  it('proceeds when every clause is satisfied and every cursor is at the head', async () => {
+    const world = await buildWorld();
+    bindPlayers(world.campaign.id);
+    seedCursor(world.campaign.id, PLAYER_1, world.revision);
+    seedCursor(world.campaign.id, PLAYER_2, world.revision);
+    const { req, res, result } = post(
+      world.campaign.id,
+      bodyFor(world, { sessionId: SESSION_ID }),
+    );
+
+    handler(req, res);
+
+    expect(result.statusCode).toBe(200);
+    expect((result.body as { kind: string }).kind).toBe('materialized');
+  });
+
+  it('with SQLite uninitialized answers exactly what it answers today', async () => {
+    resetSQLiteService();
+    expect(getSQLiteService().isInitialized()).toBe(false);
+    expect(
+      evaluateCampaignLaunchProgression({
+        campaignId: 'campaign-never-persisted',
+        sessionId: SESSION_ID,
+        requiredRevision: 1,
+        readers: createDurableCampaignProgressionReaders(),
+      }),
+    ).toEqual({ ok: true, requiredRevision: 1 });
+    const { req, res, result } = post('campaign-never-persisted', {
+      expectedHead: { branchId: 'root', revision: 0, effectiveGeneration: 1 },
+      missionId: MISSION_ID,
+    });
+
+    handler(req, res);
+
+    expect(result.statusCode).toBe(404);
   });
 });

@@ -32,11 +32,9 @@
  * plausible defect.
  *
  * NON-CLAIM: the GM viewer is minted by a test membership source.
- * `MatchSeatMembershipSource` - the only membership source a match host
- * has - returns `role: 'player'` for every seat and can never mint a
- * GM (verified by reading it). A production GM membership for a
- * standalone match does not exist yet; the GM arm therefore proves the
- * PROJECTION, not that a match can currently seat a GM.
+ * `MatchSeatMembershipSource` emits `role: 'gm'` only for a durable
+ * campaign gm seat. A standalone tactical match still mints `player`.
+ * The GM arm here proves the PROJECTION, not live campaign seating.
  *
  * @spec openspec/changes/harden-gm-two-player-campaign-sessions/specs/audit-timeline/spec.md
  * @spec openspec/changes/harden-gm-two-player-campaign-sessions/specs/gm-authority-redaction/spec.md

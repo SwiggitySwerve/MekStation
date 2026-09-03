@@ -87,6 +87,24 @@ describe('POST /api/multiplayer/matches fog config', () => {
     _resetDefaultMatchStore();
   });
 
+  it('seats a tactical host in the first human seat and adds no spectator', async () => {
+    const { req, res, result } = mockReqRes({
+      config: { mapRadius: 8, turnLimit: 20 },
+      layout: '1v1',
+      displayName: 'Host',
+    });
+
+    await handler(req, res);
+
+    const seats = createdMeta(result).seats ?? [];
+    const humans = seats.filter((seat) => seat.kind === 'human');
+    expect(humans).toHaveLength(2);
+    expect(humans[0]?.slotId).toBe('alpha-1');
+    expect(humans[0]?.occupant?.playerId).toBe('pid_host');
+    expect(humans[1]?.occupant).toBeNull();
+    expect(seats.some((seat) => seat.kind === 'spectator')).toBe(false);
+  });
+
   it('defaults omitted fog config to false in match metadata', async () => {
     const { req, res, result } = mockReqRes({
       config: { mapRadius: 8, turnLimit: 20 },
