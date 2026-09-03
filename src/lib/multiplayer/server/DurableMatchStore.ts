@@ -74,17 +74,17 @@ import {
   readJournalAuthorityBaseline,
 } from './DurableMatchStore.journalAuthorityBaseline';
 import {
-  LIVE_ROW_SQL,
-  migrateMatchStoreSupersession,
-  supersedeMatchStoreFrom,
-} from './DurableMatchStore.supersede';
-import {
   createDurableLegacyImportStore,
   LEGACY_IMPORT_SCHEMA_SQL,
   readDurableImportedEventSources,
   readDurableLegacyImportMarker,
   type IImportedEventSourceRow,
 } from './DurableMatchStore.legacyImport';
+import {
+  LIVE_ROW_SQL,
+  migrateMatchStoreSupersession,
+  supersedeMatchStoreFrom,
+} from './DurableMatchStore.supersede';
 import {
   insertViewerDeliveryRecord,
   selectViewerDeliveryRecords,

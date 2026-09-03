@@ -237,8 +237,7 @@ describe('ServerMatchHost rewind rebuild', () => {
     ).toBeUndefined();
     expect(
       broadcasts.some(
-        (frame) =>
-          frame.kind === 'Error' && frame.code === 'STORE_FAILURE',
+        (frame) => frame.kind === 'Error' && frame.code === 'STORE_FAILURE',
       ),
     ).toBe(false);
     const after = await store.getEvents(MATCH_ID);

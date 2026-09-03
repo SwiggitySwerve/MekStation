@@ -243,11 +243,7 @@ async function supersedeActivatedTail(
   throughRevision: number,
 ): Promise<void> {
   if (store.supersedeFrom == null) return;
-  await store.supersedeFrom(
-    matchId,
-    throughRevision,
-    new Date().toISOString(),
-  );
+  await store.supersedeFrom(matchId, throughRevision, new Date().toISOString());
 }
 
 async function seatedPlayerIds(

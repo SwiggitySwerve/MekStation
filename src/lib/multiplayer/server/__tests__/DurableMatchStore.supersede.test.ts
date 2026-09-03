@@ -17,9 +17,10 @@ import {
   type IGameEvent,
 } from '@/types/gameplay/GameSessionInterfaces';
 
+import type { IMatchMeta } from '../IMatchStore';
+
 import { DurableMatchStore } from '../DurableMatchStore';
 import { MATCH_STORE_SUPERSESSION_USER_VERSION } from '../DurableMatchStore.supersede';
-import type { IMatchMeta } from '../IMatchStore';
 import { InMemoryMatchStore } from '../InMemoryMatchStore';
 
 const AT = '2026-09-02T12:00:00.000Z';
@@ -75,7 +76,10 @@ async function seedTwoBatches(store: Store): Promise<void> {
 
 describe.each([
   ['InMemoryMatchStore', (): Store => new InMemoryMatchStore({ quiet: true })],
-  ['DurableMatchStore', (): Store => new DurableMatchStore({ path: ':memory:' })],
+  [
+    'DurableMatchStore',
+    (): Store => new DurableMatchStore({ path: ':memory:' }),
+  ],
 ] as const)('%s supersedeFrom', (_name, build) => {
   let store: Store;
 
@@ -120,7 +124,9 @@ describe.each([
     });
     expect(result.kind).toBe('committed');
     // Today: old rows included (0,1,2,3 plus the new 2).
-    const sequences = (await store.getEvents(MATCH_ID)).map((row) => row.sequence);
+    const sequences = (await store.getEvents(MATCH_ID)).map(
+      (row) => row.sequence,
+    );
     expect(sequences).toEqual([0, 1, 2]);
   });
 
@@ -135,12 +141,16 @@ describe.each([
   it('pending outbox row of the superseded tail is never drained', async () => {
     await seedTwoBatches(store);
     expect(
-      (await store.listPendingPublications(MATCH_ID)).map((row) => row.sequence),
+      (await store.listPendingPublications(MATCH_ID)).map(
+        (row) => row.sequence,
+      ),
     ).toEqual([0, 1, 2, 3]);
     await store.supersedeFrom(MATCH_ID, CUT, AT);
     // Today: republished (2 and 3 still pending).
     expect(
-      (await store.listPendingPublications(MATCH_ID)).map((row) => row.sequence),
+      (await store.listPendingPublications(MATCH_ID)).map(
+        (row) => row.sequence,
+      ),
     ).toEqual([0, 1]);
   });
 
@@ -207,7 +217,10 @@ describe('DurableMatchStore supersession migrate', () => {
           `SELECT sequence, superseded_at FROM mp_match_events
            WHERE match_id = ? ORDER BY sequence`,
         )
-        .all(MATCH_ID) as Array<{ sequence: number; superseded_at: string | null }>;
+        .all(MATCH_ID) as Array<{
+        sequence: number;
+        superseded_at: string | null;
+      }>;
       expect(marks).toEqual([
         { sequence: 0, superseded_at: null },
         { sequence: 1, superseded_at: null },

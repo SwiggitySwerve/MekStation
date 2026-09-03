@@ -89,9 +89,7 @@ function receiptsNeedMark(db: Database.Database): boolean {
 export function matchStoreNeedsSupersessionMigrate(
   db: Database.Database,
 ): boolean {
-  return (
-    eventsNeedRebuild(db) || outboxNeedRebuild(db) || receiptsNeedMark(db)
-  );
+  return eventsNeedRebuild(db) || outboxNeedRebuild(db) || receiptsNeedMark(db);
 }
 
 function stampSupersessionUserVersion(db: Database.Database): void {
@@ -214,9 +212,7 @@ function rebuildOutboxTable(db: Database.Database): void {
 function addReceiptsMark(db: Database.Database): void {
   if (!tableExists(db, 'mp_command_receipts')) return;
   if (hasColumn(db, 'mp_command_receipts', 'superseded_at')) return;
-  db.exec(
-    `ALTER TABLE mp_command_receipts ADD COLUMN superseded_at TEXT`,
-  );
+  db.exec(`ALTER TABLE mp_command_receipts ADD COLUMN superseded_at TEXT`);
 }
 
 /**
