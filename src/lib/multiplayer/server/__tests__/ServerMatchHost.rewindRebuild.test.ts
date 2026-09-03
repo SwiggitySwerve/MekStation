@@ -22,6 +22,7 @@ import type { ICorrectionLeaseHandle } from '@/lib/events/journal/EventHistoryCo
 import type { IGameEvent } from '@/types/gameplay/GameSessionInterfaces';
 import type { IIntent } from '@/types/multiplayer/Protocol';
 
+import type { IRewindRebuildHost } from '../ServerMatchHostRewindRebuild';
 import { InteractiveSession } from '@/engine/InteractiveSession';
 import { readEffectiveStreamHead } from '@/lib/events/journal/EventHistoryEffectiveStreamHead';
 import { SQLiteEventHistoryBranchStore } from '@/lib/events/journal/SQLiteEventHistoryBranchStore';
@@ -186,6 +187,35 @@ describe('ServerMatchHost rewind rebuild', () => {
     });
     expect(releaseSpy).toHaveBeenCalled();
     releaseSpy.mockRestore();
+  });
+
+  it('a rebuild that fails before the session is replaced claims no served branch', async () => {
+    // The claim must follow replaceSession: a host whose rebuild threw
+    // still serves the identity it had, so the admission keeps refusing
+    // live intents on the branch it never adopted.
+    const { host, result } = await standUpCommittedRewind();
+    // replaceSession lives on the rebuild port the host hands out, so the
+    // injection wraps that port and leaves every other member real.
+    type PortHost = { rewindRebuildPort(): IRewindRebuildHost };
+    const portHost = host as unknown as PortHost;
+    const realPort = portHost.rewindRebuildPort();
+    const replaceSpy = jest
+      .spyOn(portHost, 'rewindRebuildPort')
+      .mockImplementation(() => ({
+        ...realPort,
+        replaceSession: () => {
+          throw new Error('injected: session replacement failed');
+        },
+      }));
+    await expect(
+      host.rebuildFromActivatedBranch({
+        branchId: result.activatedBranchId,
+        effectiveRevision: TARGET_REVISION,
+        effectiveGeneration: result.effectiveGeneration,
+      }),
+    ).rejects.toThrow('injected');
+    expect(host.servedBranchId()).toBeNull();
+    replaceSpy.mockRestore();
   });
 
   it('no live host: commit still answers committed and boot folds the activated branch', async () => {

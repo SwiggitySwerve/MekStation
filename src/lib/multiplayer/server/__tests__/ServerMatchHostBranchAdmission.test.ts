@@ -204,6 +204,22 @@ describe('ServerMatchHost live branch admission', () => {
     expect((await store.getEvents(matchId)).length).toBe(before);
   });
 
+  it('a host rebuilt onto the activated branch admits live intents on it', async () => {
+    const matchId = 'served-activated';
+    seedStream(matchId);
+    activateReplacement(matchId);
+    const host = await makeHost(matchId);
+    // Same writer rebuildFromActivatedBranch uses after replaceSession.
+    // This suite has no journal materialization for a full rebuild.
+    host.adoptServedBranch('candidate-1');
+    const before = (await store.getEvents(matchId)).length;
+    const frames = await host.handleIntent(
+      envelope(matchId, 'pid_opp', { kind: 'AdvancePhase' }, 'served-1'),
+    );
+    expect(errorOf(frames, 'STALE_BRANCH')).toBeUndefined();
+    expect((await store.getEvents(matchId)).length).toBeGreaterThan(before);
+  });
+
   it('intent on a superseded effective branch refused', async () => {
     const matchId = 'stale-superseded';
     seedStream(matchId);

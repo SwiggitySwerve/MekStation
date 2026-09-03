@@ -56,6 +56,8 @@ export interface IRewindRebuildHost {
   nowIso(): string;
   reseedDice(diceSeed: number): void;
   replaceSession(session: InteractiveSession): void;
+  /** After replaceSession only — a failed rebuild must not claim this. */
+  setServedBranchId(branchId: string): void;
   resetIntentWindow(events: readonly IGameEvent[]): void;
   resetBroadcastCursor(sequence: number): void;
   discardViewerDeliveries(): void;
@@ -103,14 +105,22 @@ export async function readActivatedBranchGameEvents(
   return events;
 }
 
+/** Boot fold result: the truncated session and the branch it serves. */
+export interface IFoldedActivatedRewind {
+  readonly session: IGameSession;
+  readonly branchId: string;
+}
+
 /**
  * Fold the live effective candidate when a rewind has left root.
  * Null means "no rewind" — boot keeps the checkpoint door.
+ * branchId is the folded head so recovery can mark the host as
+ * serving that path (live intents name no branch).
  */
 export async function tryFoldActivatedRewindBranch(
   store: IMatchStore,
   matchId: string,
-): Promise<IGameSession | null> {
+): Promise<IFoldedActivatedRewind | null> {
   const sqlite = getSQLiteService();
   if (!sqlite.isInitialized()) return null;
   const db = sqlite.getDatabase();
@@ -131,7 +141,7 @@ export async function tryFoldActivatedRewindBranch(
   // unchanged: an old-head checkpoint is already unattested by digest
   // against this activated prefix.
   await supersedeActivatedTail(store, matchId, streamHead.revision);
-  return foldMatchSession(matchId, events);
+  return { session: foldMatchSession(matchId, events), branchId: head.branchId };
 }
 
 export async function rebuildHostFromActivatedBranch(
@@ -162,6 +172,9 @@ export async function rebuildHostFromActivatedBranch(
     };
     const session = await InteractiveSession.fromSessionAsync(seeded);
     host.replaceSession(session);
+    // Claim only after replaceSession returns — a throw above must
+    // leave servedBranchId on the previous identity.
+    host.setServedBranchId(input.branchId);
     host.reseedDice(host.journalDiceSeed);
     const last = events[events.length - 1];
     host.resetIntentWindow(events);

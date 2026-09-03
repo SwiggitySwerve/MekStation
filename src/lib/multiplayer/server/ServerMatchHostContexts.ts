@@ -82,6 +82,8 @@ export interface IServerMatchHostInternals extends IServerMatchHostCaptureContex
   readonly deliveryCursors: ViewerDeliveryCursors;
   /** Null until a rewind rebuild bounds ReplayChunk to the new head. */
   readonly rewindReplayCeiling: number | null;
+  /** Null = host still serves the root/baseline live-path identity. */
+  readonly servedBranchId: string | null;
   /** Append-once sink for terminal command refusals (umbrella 18.2). */
   readonly commandRejectionAudit?: ICommandRejectionAuditPort;
   readonly rollbackBlockReason?: MatchRollbackBlockedReason;
@@ -162,6 +164,7 @@ export function buildIntentContext(
     commandRejectionAudit: host.commandRejectionAudit,
     rollbackBlockReason: host.rollbackBlockReason,
     journalAuthority: host.journalAuthority,
+    servedBranchId: host.servedBranchId,
   };
 }
 

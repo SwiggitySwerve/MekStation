@@ -290,6 +290,12 @@ export class ServerMatchHost {
   private readonly rewindResyncViewers = new Set<string>();
   /** After rewind, replay never walks the superseded store tail. */
   private rewindReplayCeiling: number | null = null;
+  /**
+   * Branch this host serves after a successful rewind rebuild or boot
+   * fold. Null = root/baseline live-path identity. Admission treats
+   * this as the live path so post-rewind commands can extend it.
+   */
+  private liveServedBranchId: string | null = null;
 
   /**
    * Construct directly from an existing `InteractiveSession`. Used by
@@ -507,6 +513,21 @@ export class ServerMatchHost {
     this.rewindReplayCeiling = sequence;
   };
 
+  /**
+   * Branch the host actually serves. Null means the live-path identity
+   * (root / baseline). The admission view projects this; it is not
+   * the store's effective head (that can move before rebuild).
+   */
+  servedBranchId = (): string | null => this.liveServedBranchId;
+
+  /**
+   * After replaceSession (or a recovered fold) the host serves this
+   * activated branch. A failed rebuild must not call this.
+   */
+  adoptServedBranch = (branchId: string): void => {
+    this.liveServedBranchId = branchId;
+  };
+
   viewerDeliveryIssuedForTests = (playerId: string): number =>
     this.deliveryCursors.issued(playerId);
 
@@ -526,6 +547,9 @@ export class ServerMatchHost {
       },
       replaceSession: (session) => {
         this.session = session;
+      },
+      setServedBranchId: (branchId) => {
+        this.adoptServedBranch(branchId);
       },
       resetIntentWindow: (events) => {
         this.acceptedIntents = AcceptedIntentTracker.fromEventLog(events);
@@ -1119,6 +1143,7 @@ export class ServerMatchHost {
       viewerResolver: this.viewerResolver,
       deliveryCursors: this.deliveryCursors,
       rewindReplayCeiling: this.rewindReplayCeiling,
+      servedBranchId: this.servedBranchId(),
       commandRejectionAudit: this.commandRejectionAudit ?? undefined,
       rollbackBlockReason: this.rollbackBlockReason ?? undefined,
       journalAuthority:

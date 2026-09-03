@@ -161,13 +161,17 @@ export async function recoverActiveMatches(
       // that path here — the store log is still the untruncated line.
       const rewound = await tryFoldActivatedRewindBranch(store, meta.matchId);
       if (rewound !== null) {
-        const session = await InteractiveSession.fromSessionAsync(rewound);
+        const session = await InteractiveSession.fromSessionAsync(
+          rewound.session,
+        );
         const host = await ServerMatchHost.recover(
           meta.matchId,
           store,
           session,
         );
-        const last = rewound.events[rewound.events.length - 1];
+        // Fold already left root; the recovered host serves that path.
+        host.adoptServedBranch(rewound.branchId);
+        const last = rewound.session.events[rewound.session.events.length - 1];
         // Same ceiling the live rebuild sets: store getEvents still
         // walks the untruncated log, so join replay must stop here.
         host.boundReplayToEffectiveHead(
