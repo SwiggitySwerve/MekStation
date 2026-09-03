@@ -148,8 +148,17 @@ const NON_WIRE_CODES = [
  * a real refusal from the command-admission gate, so a guard still
  * calling it unreachable would be guarding a lie. `rewound` is emitted by
  * nothing, in any vocabulary, and stays.
+ *
+ * `sealed` joins it, with an honest caveat: this one lands green on the
+ * day it is added. The host posture cannot even name it (its state is
+ * `GmReachableState`, which excludes it at compile time) and the guest
+ * producers are exhaustive over a narrowed union, so the sweep confirms
+ * a property the type system already enforces rather than falsifying a
+ * reachable path. It is worth pinning anyway: a campaign has no
+ * declare-then-reveal phase, and if a future producer widens either
+ * union this row is what notices.
  */
-const RESERVED_STATES = ['rewound'] as const;
+const RESERVED_STATES = ['rewound', 'sealed'] as const;
 
 const LIVE_REFUSALS: readonly CampaignLifecycleRefusalCode[] = [
   'CAMPAIGN_NOT_CONVERGED',
