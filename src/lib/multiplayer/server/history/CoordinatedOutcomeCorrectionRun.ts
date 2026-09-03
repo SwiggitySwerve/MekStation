@@ -105,9 +105,7 @@ function targetAlreadyDone(
   state: CoordinatedCorrectionSagaState | null,
 ): boolean {
   return (
-    state === 'target-pending' ||
-    state === 'completed' ||
-    state === 'blocked'
+    state === 'target-pending' || state === 'completed' || state === 'blocked'
   );
 }
 

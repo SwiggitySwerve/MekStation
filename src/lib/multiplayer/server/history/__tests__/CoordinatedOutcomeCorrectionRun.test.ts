@@ -730,11 +730,9 @@ describe('runCoordinatedCorrection restart over the same match file', () => {
 
   function mintOn(db: Database.Database): string {
     const branches = new SQLiteEventHistoryBranchStore(db);
-    const leases = new SQLiteEventHistoryCorrectionLeaseStore(
-      db,
-      branches,
-      { nowMs: () => Date.parse(AT) },
-    );
+    const leases = new SQLiteEventHistoryCorrectionLeaseStore(db, branches, {
+      nowMs: () => Date.parse(AT),
+    });
     const head = db
       .prepare(
         `SELECT stream_revision AS revision, event_digest AS digest
