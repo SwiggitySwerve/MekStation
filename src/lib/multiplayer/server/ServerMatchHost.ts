@@ -116,6 +116,10 @@ import {
 import { ViewerDeliveryCursors } from './projection/ViewerDeliveryCursors';
 import { AcceptedIntentTracker } from './reconnection/AcceptedIntentTracker';
 import {
+  bindCampaignGmHostProbe,
+  type ICampaignGmHostProbe,
+} from './reconnection/campaignGmHostProbe';
+import {
   migrateHostIfNeeded,
   type IHostMigrationResult,
 } from './reconnection/HostMigration';
@@ -251,6 +255,14 @@ export class ServerMatchHost {
   private readonly pendingPeers = new PendingPeerTracker();
 
   /**
+   * Durable GM-host probe (LAW 62). Bound at construction from the
+   * store's optional participant port so this class never value-imports
+   * SQLite. Absent a ready GM row the probe is a silent no, which is
+   * why ordinary tactical matches still migrate.
+   */
+  private readonly campaignGmHost: ICampaignGmHostProbe;
+
+  /**
    * Wave 4: when at least one human seat is `pending`, the host pauses
    * engine-mutating intents (`Move`, `Attack`, `AdvancePhase`,
    * `Concede`). Lobby intents — including the `MarkSeatAi`/
@@ -326,6 +338,7 @@ export class ServerMatchHost {
     } = {},
   ) {
     this.session = session;
+    this.campaignGmHost = bindCampaignGmHostProbe(store);
     this.deliveryCursors = new ViewerDeliveryCursors(
       bindViewerDeliveryPersist(matchId, store),
     );
@@ -723,9 +736,11 @@ export class ServerMatchHost {
    * `playerId` runs two independent paths:
    *   - design D4 — if the dropped player held `hostPlayerId`, host
    *     migration promotes the longest-connected surviving human seat
-   *     so privileged operations stay available.
+   *     so privileged operations stay available. Campaign GM hosts
+   *     refuse that promotion; `hostPlayerId` stays the GM.
    *   - design D5 — the dropped seat enters the pending/grace path so
-   *     the match pauses rather than aborting.
+   *     the match pauses rather than aborting. GM refusal still takes
+   *     this path so the session reaches the durable paused state.
    * Migration runs first so a privileged op issued during the pause
    * window is authorized against the already-migrated host.
    */
@@ -736,8 +751,9 @@ export class ServerMatchHost {
 
   /**
    * Design D4 — promote a survivor to `hostPlayerId` when the host's
-   * connection is lost. A no-op when `playerId` was not the host or
-   * when no human seat survives (the grace path then handles it).
+   * connection is lost. A no-op when `playerId` was not the host, when
+   * no human seat survives, or when the dropped host is the campaign GM
+   * (the grace path then pauses the match with hostPlayerId unchanged).
    */
   private async migrateHostIfNeeded(
     playerId: string,
@@ -748,6 +764,7 @@ export class ServerMatchHost {
         store: this.store,
         connectedSince: () => this.lifecycle.snapshotConnectedSince(),
         broadcast: (message) => this.broadcast(message),
+        campaignGmHost: this.campaignGmHost,
       },
       playerId,
     );

@@ -194,6 +194,24 @@ export function hasParticipantStore<T extends object>(
   );
 }
 
+/**
+ * True when the participant port can be queried now.
+ * WHY: DurableMatchStore assigns the methods even before SQLiteService
+ * is initialized; calling them then throws. No readiness probe means
+ * the tables already live on the store (in-memory).
+ */
+export function isParticipantStoreReady<T extends object>(store: T): boolean {
+  const candidate = store as Partial<ICampaignSessionParticipantPort> &
+    Partial<IHistoryBranchStoreReadiness>;
+  if (typeof candidate.activeCampaignSessionMembership !== 'function') {
+    return false;
+  }
+  if (typeof candidate.isCapabilityDbAvailable !== 'function') {
+    return true;
+  }
+  return candidate.isCapabilityDbAvailable();
+}
+
 export function hasDeliveryCursorStore<T extends object>(
   store: T,
 ): store is T & IParticipantDeliveryCursorPort {
