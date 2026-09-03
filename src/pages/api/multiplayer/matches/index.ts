@@ -42,7 +42,12 @@ import { setAiSlot } from '@/lib/multiplayer/server/lobby/lobbyStateMachine';
 import { buildDefaultMatchUnitBootstrap } from '@/lib/multiplayer/server/matchUnitBootstrap';
 import { generateRoomCode } from '@/lib/p2p/roomCodes';
 import { rejectUnexpectedMethod } from '@/pages-modules/api/routeHelpers';
-import { defaultSeats, type IMatchSeat } from '@/types/multiplayer/Lobby';
+import {
+  defaultSeats,
+  defaultSeatsWithSpectatorHost,
+  type IMatchSeat,
+  type SeatKind,
+} from '@/types/multiplayer/Lobby';
 
 interface ICreateMatchResponse {
   matchId: string;
@@ -150,13 +155,32 @@ function normalizePlayerIds(
     : [hostPlayerId, ...incomingPlayerIds];
 }
 
+/**
+ * Which seat kind the creating host occupies.
+ * WHAT: caller `hostSeatKind`, else spectator on co-op create, else human.
+ * WHY: the GM must not inherit a tactical seat; omitted kind on a plain
+ * tactical POST keeps today's first-human occupy.
+ */
+function resolveHostSeatKind(
+  body: CreateMultiplayerMatchBody,
+): Extract<SeatKind, 'human' | 'spectator'> {
+  if (body.hostSeatKind === 'human' || body.hostSeatKind === 'spectator') {
+    return body.hostSeatKind;
+  }
+  return body.coopCampaign === undefined ? 'human' : 'spectator';
+}
+
 function buildLobbyPresentation(
   body: CreateMultiplayerMatchBody,
   hostPlayerId: string,
 ): { roomCode?: string; seats?: IMatchSeat[] } {
   if (!body.layout) return {};
 
-  let seats = defaultSeats(body.layout);
+  const hostSeatKind = resolveHostSeatKind(body);
+  let seats =
+    hostSeatKind === 'spectator'
+      ? defaultSeatsWithSpectatorHost(body.layout)
+      : defaultSeats(body.layout);
   if (body.aiSlots) {
     for (const slotId of body.aiSlots) {
       seats = setAiSlot(seats, slotId);
@@ -167,11 +191,15 @@ function buildLobbyPresentation(
     playerId: hostPlayerId,
     displayName: body.displayName ?? hostPlayerId,
   };
-  const target = seats.find((s) => s.kind === 'human' && !s.occupant);
+  const target = seats.find((s) => s.kind === hostSeatKind && !s.occupant);
   const occupiedSeats = target
     ? seats.map((s) =>
         s.slotId === target.slotId
-          ? { ...s, occupant: hostRef, ready: false }
+          ? {
+              ...s,
+              occupant: hostRef,
+              ready: hostSeatKind === 'spectator',
+            }
           : s,
       )
     : seats;

@@ -137,6 +137,7 @@ function coopCreateBody(campaignId: string): unknown {
   return {
     config: { mapRadius: 8, turnLimit: 20, fogOfWar: false },
     layout: '1v1',
+    hostSeatKind: 'spectator',
     displayName: 'Host',
     coopCampaign: {
       campaignId,
@@ -210,6 +211,56 @@ describe('co-op campaign creation authority checkpoint', () => {
     });
     expect(slotOneHolder).toBe(playerSlotPlaceholderId(1));
     expect(slotTwoHolder).toBe(playerSlotPlaceholderId(2));
+  });
+
+  it('leaves both human seats empty and seats the GM as a spectator', async () => {
+    const { campaignId } = persistHostCampaign();
+    const harness = mockReqRes(coopCreateBody(campaignId));
+
+    await handler(harness.req, harness.res);
+    expect(harness.result.statusCode).toBe(201);
+    const body = harness.result.body;
+    if (!body || 'error' in body) {
+      throw new Error(`Expected a created match, got ${JSON.stringify(body)}`);
+    }
+
+    const seats = body.meta.seats ?? [];
+    const humans = seats.filter((seat) => seat.kind === 'human');
+    const spectator = seats.find((seat) => seat.kind === 'spectator');
+    expect(humans).toHaveLength(2);
+    expect(humans.every((seat) => seat.occupant === null)).toBe(true);
+    expect(spectator?.occupant?.playerId).toBe('pid_host');
+    expect(spectator?.slotId).toBe('spectator-1');
+    expect(body.meta.unitBootstrap).toHaveLength(2);
+    expect(
+      (body.meta.unitBootstrap ?? []).every(
+        (entry) => entry.side === 'player' || entry.side === 'opponent',
+      ),
+    ).toBe(true);
+  });
+
+  it('seats the GM as a spectator when a co-op body names no host seat kind', async () => {
+    // The panel sends the kind explicitly; an older or hand-built client
+    // that omits it must still land the GM outside the human seats.
+    const { campaignId } = persistHostCampaign();
+    const body = coopCreateBody(campaignId) as Record<string, unknown>;
+    delete body.hostSeatKind;
+    const harness = mockReqRes(body);
+
+    await handler(harness.req, harness.res);
+    expect(harness.result.statusCode).toBe(201);
+    const created = harness.result.body;
+    if (!created || 'error' in created) {
+      throw new Error(
+        `Expected a created match, got ${JSON.stringify(created)}`,
+      );
+    }
+
+    const seats = created.meta.seats ?? [];
+    const humans = seats.filter((seat) => seat.kind === 'human');
+    const spectator = seats.find((seat) => seat.kind === 'spectator');
+    expect(humans.every((seat) => seat.occupant === null)).toBe(true);
+    expect(spectator?.occupant?.playerId).toBe('pid_host');
   });
 
   it('refuses creation when the authoritative campaign record is absent', async () => {

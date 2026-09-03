@@ -1,8 +1,8 @@
 /**
- * Seat membership never emits role `gm` (finding #55). The private-record
- * writer rechecks membership and then requires that role, so a combat
- * host must be remapped for that write only. The live wire still sees
- * `player`; teaching the seat source to emit `gm` is a different seam.
+ * Private-record writes require role `gm`. Campaign GMs now emit that
+ * role from the durable seat; a tactical host still arrives as
+ * `player`. This wrapper remaps the match host for that write only so
+ * rewind private records keep working on non-campaign matches.
  */
 
 import type {

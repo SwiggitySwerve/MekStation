@@ -147,6 +147,7 @@ export const CreateMultiplayerMatchBodySchema = z
       .optional(),
     layout: TeamLayoutSchema.optional(),
     aiSlots: z.array(z.string().trim().min(1).max(64)).max(8).optional(),
+    hostSeatKind: z.enum(['human', 'spectator']).optional(),
     coopCampaign: CoopCampaignRegistrationSchema.optional(),
   })
   .strict()

@@ -283,6 +283,7 @@ describe('CampaignsListPage — co-op entry points', () => {
         });
         expect(body).toMatchObject({
           layout: '1v1',
+          hostSeatKind: 'spectator',
           displayName: 'Host Player',
           config: { mapRadius: 8, turnLimit: 20 },
           coopCampaign: { campaignId: 'campaign-host-1' },
