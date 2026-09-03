@@ -786,6 +786,10 @@ export const ErrorCodeSchema = z.enum([
   'STALE_BRANCH',
   // A rewind-cut payload reached the live intent path from a non-host.
   'GM_ONLY',
+  // Umbrella 15.4 binder: recovery refused this match's authority and
+  // quarantined the session. Distinct from UNKNOWN_MATCH so a known
+  // corrupt match is not described as missing.
+  'MATCH_QUARANTINED',
 ]);
 export type IErrorCode = z.infer<typeof ErrorCodeSchema>;
 

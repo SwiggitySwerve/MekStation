@@ -36,6 +36,12 @@ export interface IMatchHostRegistryLike {
     matchId: string,
     options?: { diceSeed?: number },
   ): Promise<HostLike | null>;
+  /**
+   * WHAT: reports a recovery-time quarantine for this match id.
+   * WHY: a null host is otherwise UNKNOWN_MATCH; a quarantined session
+   * is known and must close with MATCH_QUARANTINED.
+   */
+  isQuarantined?(matchId: string): boolean;
 }
 
 export interface IBindMultiplayerSocketConnectionDeps {
@@ -44,7 +50,9 @@ export interface IBindMultiplayerSocketConnectionDeps {
   verifiedPlayerId: string;
   diceSeed?: number;
   connectionKey?: string;
-  registry?: Pick<MatchHostRegistry, 'getOrCreate'> | IMatchHostRegistryLike;
+  registry?:
+    | Pick<MatchHostRegistry, 'getOrCreate' | 'isQuarantined'>
+    | IMatchHostRegistryLike;
   logger?: Pick<Console, 'error' | 'warn' | 'log'>;
 }
 
@@ -114,9 +122,10 @@ export async function bindMultiplayerSocketConnection({
   const options = diceSeed != null ? { diceSeed } : {};
   const host = await registry.getOrCreate(matchId, options);
   if (!host) {
-    send(socket, errorFrame(matchId, 'UNKNOWN_MATCH', 'unknown-match'));
-    send(socket, closeFrame(matchId, 'UNKNOWN_MATCH', 'unknown-match'));
-    socket.close(1008, 'unknown-match');
+    const refusal = refusalForMissingHost(registry, matchId);
+    send(socket, errorFrame(matchId, refusal.code, refusal.reason));
+    send(socket, closeFrame(matchId, refusal.code, refusal.reason));
+    socket.close(1008, refusal.reason);
     return null;
   }
 
@@ -287,6 +296,22 @@ async function dispatchEnvelope({
       );
       return;
   }
+}
+
+/**
+ * WHAT: picks MATCH_QUARANTINED or UNKNOWN_MATCH when getOrCreate is null.
+ * WHY: null used to mean only "unknown"; a quarantined match is known
+ * and must not be described as missing.
+ */
+function refusalForMissingHost(
+  registry: IBindMultiplayerSocketConnectionDeps['registry'],
+  matchId: string,
+): { readonly code: IErrorCode; readonly reason: string } {
+  const check = registry?.isQuarantined;
+  if (typeof check === 'function' && check(matchId)) {
+    return { code: 'MATCH_QUARANTINED', reason: 'match-quarantined' };
+  }
+  return { code: 'UNKNOWN_MATCH', reason: 'unknown-match' };
 }
 
 function nextConnectionKey(matchId: string, playerId: string): string {
