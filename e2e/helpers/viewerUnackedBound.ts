@@ -97,10 +97,7 @@ export function installAckSwallow(
 }
 
 /** Pass-through tap that can inject on the page's own socket. */
-export function installIntentTap(
-  page: Page,
-  socketUrls: string[],
-): IIntentTap {
+export function installIntentTap(page: Page, socketUrls: string[]): IIntentTap {
   const sent: string[] = [];
   let serverHandle: { send: (message: string) => void } | null = null;
   return {

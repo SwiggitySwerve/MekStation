@@ -646,28 +646,41 @@ test('E2E-14 a viewer that stops acknowledging is bounded and recovers alone @E2
     // — a mid-burst refuse is allowed (ServerMatchHostViewerBound).
     await driveTwoMoreAdvances(gmTap, gmPage);
     await expect
-      .poll(() => {
-        const snap = readViewerBoundEvidence(match.matchId);
-        const p2 = snap.byPlayer[p2Token.playerId]?.issued ?? 0;
-        const gm = snap.byPlayer[gmToken.playerId]?.issued ?? 0;
-        const p1 = snap.byPlayer[p1Token.playerId]?.issued ?? 0;
-        return p2 === p2IssuedAtCap && gm > gmIssuedAtCap && p1 > p1IssuedAtCap;
-      }, { timeout: 30_000 })
+      .poll(
+        () => {
+          const snap = readViewerBoundEvidence(match.matchId);
+          const p2 = snap.byPlayer[p2Token.playerId]?.issued ?? 0;
+          const gm = snap.byPlayer[gmToken.playerId]?.issued ?? 0;
+          const p1 = snap.byPlayer[p1Token.playerId]?.issued ?? 0;
+          return (
+            p2 === p2IssuedAtCap && gm > gmIssuedAtCap && p1 > p1IssuedAtCap
+          );
+        },
+        { timeout: 30_000 },
+      )
       .toBe(true);
     const afterHold = readViewerBoundEvidence(match.matchId);
-    expect(afterHold.byPlayer[p2Token.playerId]?.issued ?? 0).toBe(p2IssuedAtCap);
+    expect(afterHold.byPlayer[p2Token.playerId]?.issued ?? 0).toBe(
+      p2IssuedAtCap,
+    );
     expect(afterHold.byPlayer[gmToken.playerId]?.issued ?? 0).toBeGreaterThan(
       gmIssuedAtCap,
     );
     expect(afterHold.byPlayer[p1Token.playerId]?.issued ?? 0).toBeGreaterThan(
       p1IssuedAtCap,
     );
-    await expect(gmPage.getByTestId('phase-name')).not.toHaveText(p2PhaseAtCap, {
-      timeout: 60_000,
-    });
-    await expect(p1Page.getByTestId('phase-name')).not.toHaveText(p2PhaseAtCap, {
-      timeout: 60_000,
-    });
+    await expect(gmPage.getByTestId('phase-name')).not.toHaveText(
+      p2PhaseAtCap,
+      {
+        timeout: 60_000,
+      },
+    );
+    await expect(p1Page.getByTestId('phase-name')).not.toHaveText(
+      p2PhaseAtCap,
+      {
+        timeout: 60_000,
+      },
+    );
     await expect(p2Page.getByTestId('phase-name')).toHaveText(p2PhaseAtCap);
     // behind / syncing / reconnecting is tactical-lifecycle-state. Isolation
     // without a later delivery does not flip client.ready, so the banner
@@ -700,19 +713,22 @@ test('E2E-14 a viewer that stops acknowledging is bounded and recovers alone @E2
     });
 
     await expect
-      .poll(() => {
-        const snap = readViewerBoundEvidence(match.matchId);
-        const row = snap.byPlayer[p2Token.playerId];
-        const rows = deliveryRowsFor(snap, p2Token.playerId);
-        const caughtUp =
-          row !== undefined &&
-          row.issued > p2IssuedAtCap &&
-          row.lastAcked === row.issued - 1;
-        const resumedGap = rows.some(
-          (entry) => entry.authoritySequence === firstMissed,
-        );
-        return caughtUp && resumedGap;
-      }, { timeout: 90_000 })
+      .poll(
+        () => {
+          const snap = readViewerBoundEvidence(match.matchId);
+          const row = snap.byPlayer[p2Token.playerId];
+          const rows = deliveryRowsFor(snap, p2Token.playerId);
+          const caughtUp =
+            row !== undefined &&
+            row.issued > p2IssuedAtCap &&
+            row.lastAcked === row.issued - 1;
+          const resumedGap = rows.some(
+            (entry) => entry.authoritySequence === firstMissed,
+          );
+          return caughtUp && resumedGap;
+        },
+        { timeout: 90_000 },
+      )
       .toBe(true);
     const recovered = readViewerBoundEvidence(match.matchId);
     const p2Recovered = recovered.byPlayer[p2Token.playerId];
@@ -720,9 +736,7 @@ test('E2E-14 a viewer that stops acknowledging is bounded and recovers alone @E2
     expect(p2Recovered?.lastAcked).toBe((p2Recovered?.issued ?? 1) - 1);
     const p2Rows = deliveryRowsFor(recovered, p2Token.playerId);
     assertContiguousFromZero(p2Rows);
-    const resumed = p2Rows.find(
-      (row) => row.authoritySequence === firstMissed,
-    );
+    const resumed = p2Rows.find((row) => row.authoritySequence === firstMissed);
     expect(resumed).toBeDefined();
     expect(firstMissed).toBeLessThan(liveHeadDuringGap);
     expect(resumed?.authoritySequence).not.toBe(liveHeadDuringGap);

@@ -61,9 +61,7 @@ export function playerUnacked(
  * One read-only snapshot. issued is COUNT(*) (the product's issued),
  * not MAX(delivery_sequence) — that max is the last 0-based index.
  */
-export function readViewerBoundEvidence(
-  matchId: string,
-): IViewerBoundEvidence {
+export function readViewerBoundEvidence(matchId: string): IViewerBoundEvidence {
   // eslint-disable-next-line @typescript-eslint/no-require-imports
   const Database = require('better-sqlite3') as typeof import('better-sqlite3');
   const db = new Database(
@@ -190,9 +188,10 @@ export function firstAuthorityAfter(
   return first;
 }
 
-function identityFromSent(
-  sent: readonly string[],
-): { matchId: string; playerId: string } {
+function identityFromSent(sent: readonly string[]): {
+  matchId: string;
+  playerId: string;
+} {
   for (const raw of sent) {
     try {
       const frame = JSON.parse(raw) as {
