@@ -36,7 +36,7 @@
 
 import type Database from 'better-sqlite3';
 
-import { EVENT_HISTORY_ARTIFACT_KINDS } from '@/services/persistence/SQLiteService.artifactManifest.migration';
+import { EVENT_HISTORY_ARTIFACT_KINDS } from '@/services/persistence/SQLiteService.artifactManifestKinds.migration';
 import { sha256Sync } from '@/utils/events/hashUtils';
 
 import type { IEventHistoryStreamRef } from './EventHistoryBranchContract';
