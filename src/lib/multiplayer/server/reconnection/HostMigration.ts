@@ -26,7 +26,11 @@
  * `hostPlayerId` STAYS migrated for the rest of the match even if the
  * original host reconnects — promoting back would cause a privilege
  * ping-pong. Reconnect simply re-streams events; it never re-abducts
- * host privilege.
+ * host privilege. Exception: when the dropped host holds the durable
+ * campaign GM seat (`campaign_session_participant.seat = 'gm'`),
+ * migration is refused, `hostPlayerId` never changes, and that same
+ * GM reconnecting still holds host-gm authority. Ordinary non-campaign
+ * matches are unchanged.
  *
  * @spec openspec/changes/harden-multiplayer-transport/specs/multiplayer-server/spec.md
  */
@@ -37,6 +41,8 @@ import type { IServerMessage } from '@/types/multiplayer/Protocol';
 import { nowIso } from '@/types/multiplayer/Protocol';
 
 import type { IMatchMeta, IMatchStore } from '../IMatchStore';
+
+import type { ICampaignGmHostProbe } from './campaignGmHostProbe';
 
 /**
  * The slice of host state `migrateHostIfNeeded` needs. The host
@@ -49,6 +55,13 @@ export interface IHostMigrationContext {
   /** Player ids that currently have at least one attached socket. */
   readonly connectedSince: () => ReadonlyMap<string, number>;
   readonly broadcast: (message: IServerMessage) => void;
+  /**
+   * Optional durable GM probe. WHEN omitted, D4 migration is unchanged
+   * (plain tactical matches; tests that pin successor promotion).
+   * WHEN present and it answers true, the dropped host is the campaign
+   * GM and privilege must stay put.
+   */
+  readonly campaignGmHost?: ICampaignGmHostProbe;
 }
 
 /**
@@ -62,13 +75,19 @@ export interface IHostMigrationResult {
   readonly newHostPlayerId?: string;
   /** The prior host player id when `migrated` is true. */
   readonly previousHostPlayerId?: string;
+  /**
+   * Why migration did not happen. Only set for the campaign-GM refusal
+   * so existing `{ migrated: false }` returns stay byte-identical.
+   */
+  readonly reason?: 'campaign-gm';
 }
 
 /**
  * If `droppedPlayerId` held host privilege, promote the
  * longest-connected surviving human seat to `hostPlayerId`. Safe to
  * call for any dropped player — it is a no-op when the dropped player
- * was not the host, or when no surviving human seat exists.
+ * was not the host, when no surviving human seat exists, or when the
+ * dropped host is the durable campaign GM.
  */
 export async function migrateHostIfNeeded(
   ctx: IHostMigrationContext,
@@ -88,6 +107,9 @@ export async function migrateHostIfNeeded(
   if (meta.status !== 'active') {
     return { migrated: false };
   }
+
+  const gmRefusal = await refuseIfCampaignGm(ctx, meta, droppedPlayerId);
+  if (gmRefusal !== null) return gmRefusal;
 
   const successor = pickSuccessor(
     meta.seats ?? [],
@@ -122,6 +144,33 @@ export async function migrateHostIfNeeded(
     newHostPlayerId: successor,
     previousHostPlayerId: droppedPlayerId,
   };
+}
+
+/**
+ * Refuse D4 promotion when the dropped host is this match's campaign
+ * GM. WHY: co-op GM authority must pause in place, not migrate to a
+ * tactical player. No campaign id, no probe, or a false probe all
+ * return null so successor promotion stays byte-identical.
+ */
+async function refuseIfCampaignGm(
+  ctx: IHostMigrationContext,
+  meta: IMatchMeta,
+  droppedPlayerId: string,
+): Promise<IHostMigrationResult | null> {
+  const campaignId = meta.coopCampaign?.campaignId;
+  if (campaignId === undefined || campaignId.length === 0) {
+    return null;
+  }
+  if (ctx.campaignGmHost === undefined) {
+    return null;
+  }
+  const isCampaignGm = await ctx.campaignGmHost.isCampaignGmHost({
+    matchId: ctx.matchId,
+    campaignId,
+    playerId: droppedPlayerId,
+  });
+  if (!isCampaignGm) return null;
+  return { migrated: false, reason: 'campaign-gm' };
 }
 
 /**
