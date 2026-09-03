@@ -89,13 +89,15 @@ describe('bindCampaignGmHostProbe', () => {
     const probe = bindCampaignGmHostProbe(
       new InMemoryMatchStore({ quiet: true }),
     );
-    await expect(
-      probe.isCampaignGmHost({
+    // `await` rather than `.resolves`: the port's contract admits either
+    // a boolean or a promise, and this binder answers synchronously.
+    expect(
+      await probe.isCampaignGmHost({
         matchId: MATCH_ID,
         campaignId: CAMPAIGN_ID,
         playerId: GM_ID,
       }),
-    ).resolves.toBe(false);
+    ).toBe(false);
   });
 
   it('answers false when the capability database is not initialized', async () => {
