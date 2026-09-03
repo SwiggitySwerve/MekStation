@@ -251,6 +251,48 @@ describe('GM and two-player campaign QC runner', () => {
     expect(performancePlan.environment.MEKSTATION_E2E_SERVER_COMMAND).toBe(
       'node server.js',
     );
+
+    // `all` is the union of every registered SPEC_BY_GROUP entry.
+    // Predicted red of this pin today, before `all` had a SPEC_BY_GROUP
+    // entry: the group was already in GROUP_CATALOG (owner 34) and
+    // missing from the implemented set, so
+    // `types unknown and future groups` expected
+    // `[3, '[qc:gm-two-player-campaign] NOT_IMPLEMENTED group=all owner=34']`
+    // and `buildRunPlan({ group: 'all' })` threw the same
+    // NOT_IMPLEMENTED. The plan pin plus implemented membership keep a
+    // silent skip from looking like a pass.
+    const allPlan = core.buildRunPlan({
+      group: 'all',
+      runId: 'task-34-all',
+      repoRoot,
+    });
+    expect(allPlan.args).toEqual([
+      path.join(repoRoot, 'scripts/playwright/run-playwright.mjs'),
+      'test',
+      '--project=chromium',
+      'e2e/gm-two-player-fixture.smoke.spec.ts',
+      'e2e/gm-two-player-membership.smoke.spec.ts',
+      'e2e/gm-two-player-authority.pack1.spec.ts',
+      'e2e/gm-two-player-exactly-once.pack.spec.ts',
+      'e2e/gm-two-player-fault.pack.spec.ts',
+      'e2e/gm-two-player-token.pack.spec.ts',
+      'e2e/gm-two-player-restart.pack.spec.ts',
+      'e2e/gm-two-player-resilience.pack.spec.ts',
+      'e2e/gm-two-player-authority-order.pack.spec.ts',
+      'e2e/gm-two-player-privacy.pack.spec.ts',
+      'e2e/gm-two-player-proposals.pack.spec.ts',
+      'e2e/gm-two-player-performance.pack.spec.ts',
+      'e2e/authority-privacy-three-context.spec.ts',
+      'e2e/campaign-two-device-drive.spec.ts',
+      'e2e/gm-two-player-failure.pack.spec.ts',
+      '--workers=1',
+    ]);
+    // restart-pack and resilience-pack are members, so the composite
+    // must use the relaunching wrapper. A future member that respawns
+    // stays covered by the "any member" rule in the core.
+    expect(allPlan.environment.MEKSTATION_E2E_SERVER_COMMAND).toBe(
+      'node scripts/e2e/relaunching-server.mjs',
+    );
   });
 
   it('archives the performance report inside the run-owned evidence root', () => {
@@ -301,10 +343,12 @@ describe('GM and two-player campaign QC runner', () => {
       'proposal-pack',
       'three-context-pack',
       'two-device-pack',
-      // 22.2's E2E-61..70 subset and 23.x's performance pack. `campaign` and `all`
-      // stay unimplemented and must keep answering NOT_IMPLEMENTED.
+      // 22.2's E2E-61..70 subset, 23.x's performance pack, and the
+      // 22.4 `all` composite. `campaign` stays unimplemented until a
+      // live E2E-46..60 campaign-channel row exists.
       'failure',
       'performance',
+      'all',
     ];
     for (const group of groups.filter(
       (group) => !implemented.includes(group),

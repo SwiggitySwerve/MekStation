@@ -95,11 +95,29 @@ function buildRunPlan({ group, runId, repoRoot }) {
     // future respawning row has to say so out loud.
     failure: ['e2e/gm-two-player-failure.pack.spec.ts'],
   };
+  // `all` expands to every group that already has a SPEC_BY_GROUP
+  // entry. Reserved catalog names that still throw stay out
+  // (`authority` until 21.4; `campaign` until a live E2E-46..60 row
+  // exists; visibility, combat, evidence-smoke, fault-smoke, and the
+  // other 34-owned placeholders). Specs are de-duplicated so the
+  // `smoke` umbrella does not run fixture-smoke and membership-smoke
+  // twice. The composite respawns if ANY member is in
+  // RESPAWNING_GROUPS (today restart-pack and resilience-pack),
+  // because a row that kills the server cannot recover behind the
+  // plain `node server.js` child Playwright owns.
+  const ALL_GROUP_MEMBERS = Object.freeze(
+    Object.keys(SPEC_BY_GROUP).filter((name) => name !== 'all'),
+  );
+  SPEC_BY_GROUP.all = [
+    ...new Set(ALL_GROUP_MEMBERS.flatMap((name) => SPEC_BY_GROUP[name])),
+  ];
   const specs = SPEC_BY_GROUP[group];
   if (!specs) {
     throw typedError('NOT_IMPLEMENTED', `group=${group} owner=${owner}`);
   }
   const port = String(deriveFixturePort(runId));
+  const planMembers = group === 'all' ? ALL_GROUP_MEMBERS : [group];
+  const needsRespawn = planMembers.some((name) => RESPAWNING_GROUPS.has(name));
   return {
     command: process.execPath,
     args: [
@@ -117,8 +135,8 @@ function buildRunPlan({ group, runId, repoRoot }) {
       // Groups whose scenarios kill the server run behind the relaunching
       // wrapper - Playwright cannot restart a webServer child it did not
       // kill, so the wrapper owns the respawn and the readiness gate waits
-      // it back.
-      MEKSTATION_E2E_SERVER_COMMAND: RESPAWNING_GROUPS.has(group)
+      // it back. `all` uses the same rule via its members.
+      MEKSTATION_E2E_SERVER_COMMAND: needsRespawn
         ? 'node scripts/e2e/relaunching-server.mjs'
         : 'node server.js',
     },
