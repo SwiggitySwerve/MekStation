@@ -8,8 +8,10 @@
 import {
   buildSlotId,
   defaultSeats,
+  defaultSeatsWithSpectatorHost,
   seatLayoutSpec,
   SIDE_NAMES,
+  SPECTATOR_SIDE,
   totalSeatCount,
   type TeamLayout,
 } from '../Lobby';
@@ -76,5 +78,19 @@ describe('defaultSeats', () => {
       'bravo-1',
       'bravo-2',
     ]);
+  });
+
+  it('keeps 1v1 as two empty humans and appends one spectator for a non-playing host', () => {
+    const seats = defaultSeatsWithSpectatorHost('1v1');
+    const humans = seats.filter((seat) => seat.kind === 'human');
+    expect(defaultSeats('1v1')).toHaveLength(2);
+    expect(humans).toHaveLength(2);
+    expect(humans.every((seat) => seat.occupant === null)).toBe(true);
+    expect(seats[2]).toMatchObject({
+      slotId: 'spectator-1',
+      side: SPECTATOR_SIDE,
+      kind: 'spectator',
+      occupant: null,
+    });
   });
 });

@@ -47,6 +47,11 @@ function startHexFor(
   };
 }
 
+/**
+ * Default units for a layout's playing seats.
+ * WHAT: one bootstrap entry per layout human/AI slot, never per occupant.
+ * WHY: a spectator-seated GM owns no units; the two 1v1 players still spawn.
+ */
 export function buildDefaultMatchUnitBootstrap(
   layout: TeamLayout | undefined,
   mapRadius: number,
