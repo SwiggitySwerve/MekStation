@@ -14,28 +14,16 @@
  * rows keep their meaning once the earlier clauses are satisfied.
  */
 
-import type Database from 'better-sqlite3';
-
 import type {
   EventHistoryBranchStatus,
   IEventHistoryBranch,
   IEventHistoryEffectiveHead,
-  IEventHistoryStreamRef,
 } from '@/lib/events/journal/EventHistoryBranchContract';
 
-import { campaignStreamRef } from '@/lib/campaign/authority/campaignLaunchHead';
-import { SQLiteEventHistoryArtifactManifestStore } from '@/lib/events/journal/EventHistoryArtifactManifest';
-import { SQLiteEventHistoryBranchStore } from '@/lib/events/journal/SQLiteEventHistoryBranchStore';
-import { getSQLiteService } from '@/services/persistence/SQLiteService';
-
-import { DurableMatchStore } from './DurableMatchStore';
-import { getDefaultMatchStore } from './getDefaultMatchStore';
-import {
-  readCoordinatedCorrectionSagaByOutcomeId,
-  sagaKeyOf,
-  type CoordinatedCorrectionSagaState,
-  type ICoordinatedCorrectionSaga,
-  type ICoordinatedCorrectionSagaKey,
+import type {
+  CoordinatedCorrectionSagaState,
+  ICoordinatedCorrectionSaga,
+  ICoordinatedCorrectionSagaKey,
 } from './history/CoordinatedOutcomeCorrectionSaga';
 
 /** Convergence: a retained participant has not applied the live head. */
@@ -81,10 +69,10 @@ export type CampaignManifestVerdict =
  */
 export interface ICampaignProgressionReaders {
   readonly readEffectiveHead: (
-    stream: IEventHistoryStreamRef,
+    campaignId: string,
   ) => IEventHistoryEffectiveHead | null;
   readonly readBranch: (
-    stream: IEventHistoryStreamRef,
+    campaignId: string,
     branchId: string,
   ) => IEventHistoryBranch | null;
   /**
@@ -95,7 +83,7 @@ export interface ICampaignProgressionReaders {
     campaignId: string,
   ) => ICoordinatedCorrectionSaga | null;
   readonly readManifestVerdict: (
-    stream: IEventHistoryStreamRef,
+    campaignId: string,
     branchId: string,
   ) => CampaignManifestVerdict | null;
 }
@@ -145,12 +133,13 @@ export function evaluateCampaignProgressionClauses(input: {
   readonly readers: ICampaignProgressionReaders | undefined;
 }): CampaignProgressionRefusal | null {
   if (input.readers === undefined) return null;
-  const stream = campaignStreamRef(input.campaignId);
   const requiredRevision = input.requiredRevision;
 
-  const head = input.readers.readEffectiveHead(stream);
+  const head = input.readers.readEffectiveHead(input.campaignId);
   const branch =
-    head === null ? null : input.readers.readBranch(stream, head.branchId);
+    head === null
+      ? null
+      : input.readers.readBranch(input.campaignId, head.branchId);
   if (branch !== null && branch.status !== PROGRESSION_BRANCH_ACTIVE_STATUS) {
     return {
       ok: false,
@@ -168,7 +157,11 @@ export function evaluateCampaignProgressionClauses(input: {
       ok: false,
       reason: PROGRESSION_BLOCKED_CORRECTION_PENDING,
       requiredRevision,
-      sagaKey: sagaKeyOf(saga),
+      sagaKey: {
+        matchId: saga.matchId,
+        outcomeId: saga.outcomeId,
+        outcomeVersion: saga.outcomeVersion,
+      },
       state: saga.state,
       behind: [],
     };
@@ -180,7 +173,10 @@ export function evaluateCampaignProgressionClauses(input: {
     artifactBranchId !== undefined &&
     artifactBranchId.length > 0
   ) {
-    const verdict = input.readers.readManifestVerdict(stream, artifactBranchId);
+    const verdict = input.readers.readManifestVerdict(
+      input.campaignId,
+      artifactBranchId,
+    );
     if (verdict !== null && verdict.kind === 'unverified') {
       return {
         ok: false,
@@ -226,114 +222,5 @@ export function formatCampaignProgressionRefusalReason(
         `branch-not-active branchId ${gate.branchId} status ${gate.status}; ` +
         `requiredRevision ${gate.requiredRevision}`
       );
-  }
-}
-
-/**
- * Production readers. Each call returns null when SQLiteService has not
- * been initialized, so suites that never open a campaign journal keep
- * the convergence-only answer.
- */
-export function createDurableCampaignProgressionReaders(): ICampaignProgressionReaders {
-  return {
-    readEffectiveHead: (stream) => {
-      const db = journalDbOrNull();
-      if (db === null) return null;
-      try {
-        return new SQLiteEventHistoryBranchStore(db).readEffectiveHead(stream);
-      } catch {
-        return null;
-      }
-    },
-    readBranch: (stream, branchId) => {
-      const db = journalDbOrNull();
-      if (db === null) return null;
-      try {
-        return new SQLiteEventHistoryBranchStore(db).readBranch(
-          stream,
-          branchId,
-        );
-      } catch {
-        return null;
-      }
-    },
-    readSagaForCampaign: (campaignId) => readDurableSagaForCampaign(campaignId),
-    readManifestVerdict: (stream, branchId) =>
-      readDurableManifestVerdict(stream, branchId),
-  };
-}
-
-function journalDbOrNull(): Database.Database | null {
-  const service = getSQLiteService();
-  if (!service.isInitialized()) return null;
-  try {
-    return service.getDatabase();
-  } catch {
-    return null;
-  }
-}
-
-function matchStoreDbOrNull(): Database.Database | null {
-  const store = getDefaultMatchStore();
-  if (!(store instanceof DurableMatchStore)) return null;
-  try {
-    return store.getDatabase();
-  } catch {
-    return null;
-  }
-}
-
-/**
- * Inbox has `outcome_id` and no `match_id`, so the saga is looked up
- * by outcome id on the match-store file (not the journal).
- */
-function readDurableSagaForCampaign(
-  campaignId: string,
-): ICoordinatedCorrectionSaga | null {
-  const journal = journalDbOrNull();
-  if (journal === null) return null;
-  const outcomeId = readLatestInboxOutcomeId(journal, campaignId);
-  if (outcomeId === null) return null;
-  const matchDb = matchStoreDbOrNull();
-  if (matchDb === null) return null;
-  return readCoordinatedCorrectionSagaByOutcomeId(matchDb, outcomeId);
-}
-
-function readLatestInboxOutcomeId(
-  journal: Database.Database,
-  campaignId: string,
-): string | null {
-  try {
-    const row = journal
-      .prepare(
-        `SELECT outcome_id AS outcomeId
-           FROM campaign_combat_outcome_inbox
-          WHERE campaign_id = ?
-          ORDER BY received_at DESC, outcome_version DESC
-          LIMIT 1`,
-      )
-      .get(campaignId) as { readonly outcomeId: string } | undefined;
-    return row === undefined ? null : row.outcomeId;
-  } catch {
-    return null;
-  }
-}
-
-function readDurableManifestVerdict(
-  stream: IEventHistoryStreamRef,
-  branchId: string,
-): CampaignManifestVerdict | null {
-  const db = journalDbOrNull();
-  if (db === null) return null;
-  try {
-    const manifests = new SQLiteEventHistoryArtifactManifestStore(db);
-    if (manifests.readArtifactManifest(stream, branchId) === null) {
-      return { kind: 'unverified' };
-    }
-    manifests.verifyArtifactManifest(stream, branchId);
-    return { kind: 'verified' };
-  } catch {
-    // Missing table, missing seal, or digest mismatch: all unverifiable.
-    return { kind: 'unverified' };
   }
 }

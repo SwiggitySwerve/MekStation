@@ -27,7 +27,7 @@ import {
 } from './CampaignGmArbiter';
 import { CampaignMatchHost } from './CampaignMatchHost';
 import { participationIsFresh } from './campaignParticipationFreshness';
-import { createDurableCampaignProgressionReaders } from './CampaignProgressionGate';
+import { createDurableCampaignProgressionReaders } from './campaignProgressionReaders.durable';
 import { CampaignSyncSession } from './CampaignSyncSession';
 import { selectCampaignEventStore } from './getCampaignEventStore';
 import { getDefaultMatchStore } from './getDefaultMatchStore';
