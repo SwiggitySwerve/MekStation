@@ -104,10 +104,7 @@ function fetchAnswering(
   ) => { readonly status: number; readonly body: unknown },
 ): typeof fetch {
   const impl = jest.fn(
-    async (
-      input: RequestInfo | URL,
-      init?: RequestInit,
-    ): Promise<Response> => {
+    async (input: RequestInfo | URL, init?: RequestInit): Promise<Response> => {
       const url = typeof input === 'string' ? input : String(input);
       const { status, body } = handler(url, init);
       return {
@@ -390,7 +387,8 @@ describe('launchMissionFromPage', () => {
     expect(launchCoopMissionMock).not.toHaveBeenCalled();
     expect(useCampaignPersistenceStore.getState().launchConflict).toEqual({
       code: 'STALE_REVISION',
-      reason: 'Campaign launch refused (STALE_REVISION): launch head is stale (STALE_REVISION)',
+      reason:
+        'Campaign launch refused (STALE_REVISION): launch head is stale (STALE_REVISION)',
       activeHead: ACTIVE,
       resyncAction: 'resync-to-active-head',
     });
