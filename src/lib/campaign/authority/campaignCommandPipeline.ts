@@ -39,6 +39,8 @@
 import type { IEventHistoryStreamRef } from '@/lib/events/journal/EventHistoryBranchContract';
 import type { StreamRebuildRefusal } from '@/lib/events/journal/EventHistoryCommandAdmission';
 import type { IEventJournal } from '@/lib/events/journal/EventJournalContract';
+import type { CampaignArtifactUseReader } from '@/lib/interventions/GmCampaignArtifactUseDurable';
+import type { InvalidatedCampaignArtifactRefusal } from '@/lib/interventions/GmCampaignArtifactUseGuard';
 import type {
   ICampaignAuthoritativeState,
   ICampaignEvent,
@@ -48,6 +50,7 @@ import type {
 import { readDurableStreamRebuild } from '@/lib/events/journal/EventHistoryDurableRebuild';
 import { EXPECTED_HEAD_RESYNC_ACTION } from '@/lib/events/journal/EventHistoryExpectedHead';
 import { ROOT_EVENT_BRANCH_ID } from '@/lib/events/journal/EventJournalContract';
+import { readDurableCampaignArtifactUse } from '@/lib/interventions/GmCampaignArtifactUseDurable';
 import { validateCampaignIntent } from '@/lib/multiplayer/server/CampaignMatchHostIntent';
 
 import type { CampaignAuthorityMode } from './campaignAuthorityMode';
@@ -156,7 +159,12 @@ export type CampaignCommandResult =
       readonly kind: 'divergent';
       readonly expectedDigest: string;
       readonly actualDigest: string;
-    };
+    }
+  /**
+   * The effective branch sealed this artifact. Not `rejected`: the
+   * client needs the branch and revision, not a reason string.
+   */
+  | InvalidatedCampaignArtifactRefusal;
 
 /**
  * Reads whether a correction lease is rebuilding a stream's history.
@@ -179,6 +187,16 @@ export interface ICampaignCommandDeps {
    * answers null, which is the same answer it gave before this gate.
    */
   readonly rebuild?: CampaignRebuildReader;
+  /**
+   * Seam for a caller that wants to answer later-use itself.
+   * Absent means the DURABLE reader, deliberately: the shipped route
+   * builds these deps from the journal and the authority alone, so a
+   * required field would have left production ungated while the suite
+   * passed. An in-memory journal has no manifest table and the reader
+   * answers null (usable), which is the same answer it gave before
+   * this gate.
+   */
+  readonly artifactUse?: CampaignArtifactUseReader;
 }
 
 export interface ICampaignCommandRequest {
@@ -346,6 +364,27 @@ export async function executeCampaignCommand(
       recoveryAction: decision.recoveryAction,
       conflictingFields: decision.conflictingFields,
     };
+  }
+
+  // AcceptContract names the contract id. Every other guest intent
+  // names none: AllocateSalvage carries value + recoveredUnit and no
+  // matchId; HirePilot, SpendFunds, AdvanceDay, and RemoveParticipant
+  // name no sealed artifact. Do not invent ids.
+  const namedArtifact =
+    request.intent.kind === 'AcceptContract'
+      ? {
+          artifactKind: 'contract' as const,
+          artifactId: request.intent.payload.contract.contractId,
+        }
+      : null;
+  if (namedArtifact !== null) {
+    const refused = (deps.artifactUse ?? readDurableCampaignArtifactUse)(
+      campaignStreamRef(request.campaignId),
+      namedArtifact,
+    );
+    if (refused !== null) {
+      return refused;
+    }
   }
 
   const validation = validateCampaignIntent(

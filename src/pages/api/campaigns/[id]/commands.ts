@@ -187,6 +187,18 @@ export default async function handler(
           actualSequence: result.actualSequence,
         });
         return;
+      case 'invalidated-artifact':
+        // Same 409 as conflict: nothing was appended. The body is the
+        // sealed branch and revision, not a reason string, so the
+        // client can name which correction made this id stale.
+        res.status(409).json({
+          kind: 'invalidated-artifact',
+          artifactKind: result.artifactKind,
+          artifactId: result.artifactId,
+          branchId: result.branchId,
+          revision: result.revision,
+        });
+        return;
       case 'divergent':
         res.status(500).json({
           kind: 'divergent',

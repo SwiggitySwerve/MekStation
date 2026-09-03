@@ -1,6 +1,7 @@
 import type { ICampaignGrantLiveSource } from '@/lib/campaign/delivery/campaignGrantChannelSession';
 import type { ICampaignGrantSigner } from '@/lib/campaign/grants/ICampaignGrantStore';
 import type { SQLiteCampaignReplicaStore } from '@/lib/campaign/replica/SQLiteCampaignReplicaStore';
+import type { CampaignArtifactUseReader } from '@/lib/interventions/GmCampaignArtifactUseDurable';
 import type { ICampaignEvent } from '@/types/campaign/CampaignSync';
 import type {
   ICampaignClientMessage,
@@ -9,7 +10,9 @@ import type {
   IServerMessage,
 } from '@/types/multiplayer/Protocol';
 
+import { campaignStreamRef } from '@/lib/campaign/authority/campaignLaunchHead';
 import { reconcileCoopBattle } from '@/lib/campaign/coop/reconcileCoopBattle';
+import { readDurableCampaignArtifactUse } from '@/lib/interventions/GmCampaignArtifactUseDurable';
 import { normalizeRoomCode } from '@/lib/p2p/roomCodes';
 import { CAMPAIGN_STALE_HEAD } from '@/types/campaign/CampaignSync';
 import {
@@ -166,6 +169,14 @@ export interface IBindCampaignSyncConnectionDeps {
    * a process-local keypair once.
    */
   roomCodeGrantIssuer?: ICampaignGrantSigner;
+  /**
+   * Later-use consult for ReconcileBattle salvage/matchId.
+   * Absent means the DURABLE reader: this binder is server-only, so
+   * the default is bound here rather than inside reconcileCoopBattle
+   * (that module is value-imported by coopHostRegistry / the client
+   * graph; LAW 62 forbids pulling SQLite across that seam).
+   */
+  artifactUse?: CampaignArtifactUseReader;
 }
 
 export interface IBoundCampaignSyncConnection {
@@ -212,6 +223,7 @@ export async function bindCampaignSyncConnection({
   roomCodeGrantIssuer,
   membership,
   forceClaims,
+  artifactUse,
 }: IBindCampaignSyncConnectionDeps): Promise<IBoundCampaignSyncConnection | null> {
   const entry = registry.getOrCreate
     ? await registry.getOrCreate(matchId)
@@ -270,6 +282,7 @@ export async function bindCampaignSyncConnection({
       roomCodeGrantIssuer,
       membership,
       forceClaims,
+      artifactUse,
     });
   });
   socket.on('close', cleanup);
@@ -295,6 +308,7 @@ interface IHandleInboundDeps {
   roomCodeGrantIssuer?: ICampaignGrantSigner;
   membership?: ICampaignSessionMembershipPort | null;
   forceClaims?: ICampaignForceClaimPort | null;
+  artifactUse?: CampaignArtifactUseReader;
 }
 
 async function handleInbound({
@@ -314,6 +328,7 @@ async function handleInbound({
   roomCodeGrantIssuer,
   membership,
   forceClaims,
+  artifactUse,
 }: IHandleInboundDeps): Promise<void> {
   // Keep the campaign path aligned with the match binder: any inbound
   // frame refreshes the connection before it reaches intent dispatch.
@@ -424,6 +439,7 @@ async function handleInbound({
       roomCodeGrantIssuer,
       membership,
       forceClaims,
+      artifactUse,
     });
   } catch (error) {
     logger.error('[campaign-sync] dispatch failed', error);
@@ -453,6 +469,7 @@ interface IDispatchCampaignEnvelopeDeps {
   roomCodeGrantIssuer?: ICampaignGrantSigner;
   membership?: ICampaignSessionMembershipPort | null;
   forceClaims?: ICampaignForceClaimPort | null;
+  artifactUse?: CampaignArtifactUseReader;
 }
 
 async function dispatchCampaignEnvelope({
@@ -471,6 +488,7 @@ async function dispatchCampaignEnvelope({
   roomCodeGrantIssuer,
   membership,
   forceClaims,
+  artifactUse,
 }: IDispatchCampaignEnvelopeDeps): Promise<void> {
   switch (envelope.kind) {
     case 'CampaignJoin':
@@ -554,6 +572,7 @@ async function dispatchCampaignEnvelope({
         entry,
         matchId,
         membership,
+        artifactUse,
       });
       return;
     case 'CampaignParticipation':
@@ -675,12 +694,14 @@ async function handleCampaignHostIntent({
   entry,
   matchId,
   membership,
+  artifactUse,
 }: {
   envelope: Extract<ICampaignClientMessage, { kind: 'CampaignHostIntent' }>;
   socket: IWireCampaignSocket;
   entry: ICampaignHostRegistryEntry;
   matchId: string;
   membership?: ICampaignSessionMembershipPort | null;
+  artifactUse?: CampaignArtifactUseReader;
 }): Promise<void> {
   if (envelope.playerId !== entry.hostPlayerId) {
     send(
@@ -709,6 +730,27 @@ async function handleCampaignHostIntent({
 
   if (envelope.intent.kind === 'ReconcileBattle') {
     const battleMatchId = envelope.intent.payload.matchId;
+    // Salvage's artifactId is the combat matchId. Consult before the
+    // outcome is applied or recorded so a stale battle writes nothing.
+    const refused = (artifactUse ?? readDurableCampaignArtifactUse)(
+      campaignStreamRef(entry.campaignId),
+      { artifactKind: 'salvage', artifactId: battleMatchId },
+    );
+    if (refused !== null) {
+      send(socket, {
+        ...errorFrame(
+          matchId,
+          'INVALID_INTENT',
+          'invalidated-artifact',
+          envelope.intent.intentId,
+        ),
+        artifactKind: refused.artifactKind,
+        artifactId: refused.artifactId,
+        branchId: refused.branchId,
+        revision: refused.revision,
+      });
+      return;
+    }
     if (entry.hasReconciledBattle(battleMatchId)) {
       return;
     }

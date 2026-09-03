@@ -1,5 +1,6 @@
 import { EventEmitter } from 'node:events';
 
+import type { CampaignArtifactUseReader } from '@/lib/interventions/GmCampaignArtifactUseDurable';
 import type {
   IClientMessage,
   IServerMessage,
@@ -176,5 +177,84 @@ describe('bindCampaignSyncConnection ReconcileBattle routing', () => {
       guestSocket.sent.filter((message) => message.kind === 'CampaignEvent'),
     ).toHaveLength(3);
     expect(runBatchExclusive).toHaveBeenCalledTimes(1);
+  });
+
+  it('refuses a ReconcileBattle whose matchId is invalidated and applies nothing', async () => {
+    const hostSocket = new MockWireSocket();
+    const registry = await makeRegistry();
+    const entry = registry.get('campaign-sync-match-1');
+    expect(entry).not.toBeNull();
+    const runBatchExclusive = jest.spyOn(entry!.host, 'runBatchExclusive');
+    const artifactUse: CampaignArtifactUseReader = jest.fn(() => ({
+      kind: 'invalidated-artifact',
+      artifactKind: 'salvage',
+      artifactId: 'combat-match-1',
+      branchId: 'cand-use-1',
+      revision: 3,
+    }));
+
+    await bindCampaignSyncConnection({
+      socket: hostSocket,
+      registry,
+      matchId: 'campaign-sync-match-1',
+      verifiedPlayerId: 'host-player-1',
+      logger: quietLogger,
+      replicaStore: null,
+      artifactUse,
+    });
+
+    hostSocket.inbound({
+      kind: 'CampaignJoin',
+      matchId: 'campaign-sync-match-1',
+      ts: nowIso(),
+      playerId: 'host-player-1',
+      role: 'host',
+      roomCode: 'ABC234',
+    });
+    await flushAsyncHandlers();
+    hostSocket.sent.length = 0;
+
+    hostSocket.inbound({
+      kind: 'CampaignHostIntent',
+      matchId: 'campaign-sync-match-1',
+      ts: nowIso(),
+      playerId: 'host-player-1',
+      intent: {
+        kind: 'ReconcileBattle',
+        campaignId: 'campaign-1',
+        intentId: 'coop-recon-combat-match-1',
+        payload: {
+          campaignId: 'campaign-1',
+          matchId: 'combat-match-1',
+          fundsDelta: -25_000,
+          fundsReason: 'Co-op mission resolution (combat-match-1)',
+          salvageValue: 50_000,
+          rosterChanges: [],
+        },
+      },
+    });
+    await flushAsyncHandlers();
+
+    expect(runBatchExclusive).not.toHaveBeenCalled();
+    expect(artifactUse).toHaveBeenCalledWith(
+      { streamType: 'campaign', streamId: 'campaign-1' },
+      { artifactKind: 'salvage', artifactId: 'combat-match-1' },
+    );
+    expect(
+      hostSocket.sent.filter((message) => message.kind === 'CampaignEvent'),
+    ).toHaveLength(0);
+    expect(
+      hostSocket.sent.filter((message) => message.kind === 'Error'),
+    ).toEqual([
+      expect.objectContaining({
+        kind: 'Error',
+        code: 'INVALID_INTENT',
+        reason: 'invalidated-artifact',
+        artifactKind: 'salvage',
+        artifactId: 'combat-match-1',
+        branchId: 'cand-use-1',
+        revision: 3,
+      }),
+    ]);
   });
 });
