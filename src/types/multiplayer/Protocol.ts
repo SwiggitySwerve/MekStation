@@ -818,6 +818,15 @@ export const ErrorMessageSchema = z.object({
    * still knows the move.
    */
   recoveryAction: z.string().min(1).optional(),
+  /**
+   * Present when this Error is an invalidated-artifact refusal. Same
+   * Error frame (not a new transport); the client needs the sealed
+   * branch and revision, not a reason string alone.
+   */
+  artifactKind: z.string().min(1).optional(),
+  artifactId: z.string().min(1).optional(),
+  branchId: z.string().min(1).optional(),
+  revision: z.number().int().nonnegative().optional(),
 });
 export type IErrorMessage = z.infer<typeof ErrorMessageSchema>;
 
