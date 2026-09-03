@@ -290,6 +290,12 @@ export class ServerMatchHost {
   private readonly rewindResyncViewers = new Set<string>();
   /** After rewind, replay never walks the superseded store tail. */
   private rewindReplayCeiling: number | null = null;
+  /**
+   * Branch this host serves after a successful rewind rebuild or boot
+   * fold. Null = root/baseline live-path identity. Admission treats
+   * this as the live path so post-rewind commands can extend it.
+   */
+  private liveServedBranchId: string | null = null;
 
   /**
    * Construct directly from an existing `InteractiveSession`. Used by
@@ -507,6 +513,21 @@ export class ServerMatchHost {
     this.rewindReplayCeiling = sequence;
   };
 
+  /**
+   * Branch the host actually serves. Null means the live-path identity
+   * (root / baseline). The admission view projects this; it is not
+   * the store's effective head (that can move before rebuild).
+   */
+  servedBranchId = (): string | null => this.liveServedBranchId;
+
+  /**
+   * After replaceSession (or a recovered fold) the host serves this
+   * activated branch. A failed rebuild must not call this.
+   */
+  adoptServedBranch = (branchId: string): void => {
+    this.liveServedBranchId = branchId;
+  };
+
   viewerDeliveryIssuedForTests = (playerId: string): number =>
     this.deliveryCursors.issued(playerId);
 
@@ -518,6 +539,7 @@ export class ServerMatchHost {
       store: this.store,
       journalRandomSeed: this.journalRandomSeed,
       journalDiceSeed: this.journalDiceSeed,
+      nowIso,
       reseedDice: (diceSeed) => {
         this.capture = new ServerMatchHostCapture(
           new SeededDiceRoller(new SeededRandom(diceSeed)),
@@ -526,16 +548,17 @@ export class ServerMatchHost {
       replaceSession: (session) => {
         this.session = session;
       },
+      setServedBranchId: (branchId) => {
+        this.adoptServedBranch(branchId);
+      },
       resetIntentWindow: (events) => {
         this.acceptedIntents = AcceptedIntentTracker.fromEventLog(events);
       },
       resetBroadcastCursor: (sequence) => {
         // Live drain starts after this sequence so a new engine event
         // is the next number after the cut, not after the old store
-        // head. The store still holds superseded mp_match_events rows
-        // (activation does not delete them); appendEvent will collide
-        // if persist reuses those sequences. That store cutover is a
-        // later gap — this reset does not rewrite the journal.
+        // head. supersedeFrom has already moved the store tail into
+        // sibling tables, so persist can reuse the cut sequence.
         this.lastBroadcastSeq = sequence;
       },
       discardViewerDeliveries: () => {
@@ -1120,6 +1143,7 @@ export class ServerMatchHost {
       viewerResolver: this.viewerResolver,
       deliveryCursors: this.deliveryCursors,
       rewindReplayCeiling: this.rewindReplayCeiling,
+      servedBranchId: this.servedBranchId(),
       commandRejectionAudit: this.commandRejectionAudit ?? undefined,
       rollbackBlockReason: this.rollbackBlockReason ?? undefined,
       journalAuthority:

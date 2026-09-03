@@ -3,11 +3,14 @@
  * command semantics (umbrella 14.2).
  *
  * The combat wire names no expected head (finding #38). Live intents
- * therefore append to the match's original identity (`main` from the
- * baseline, `root` from journal genesis). When the stream's effective
- * head is a replacement branch, or that head's own status is
- * superseded, the command is stale: answering anything else would
- * append onto history the authority has already left.
+ * therefore append to the branch the host actually serves. Null
+ * servedBranchId is the original identity (`main` from the baseline,
+ * `root` from journal genesis). A host still serving that identity
+ * while the store activated a replacement, or a head whose own status
+ * is superseded, is stale: answering would append onto history the
+ * authority has already left. After a rewind rebuild the host serves
+ * the activated candidate, so that head is the live path and the
+ * match can be extended (14.4).
  *
  * Active only when the store exposes IEventHistoryBranchPort and that
  * port is ready. Method presence alone is not enough: DurableMatchStore
@@ -36,9 +39,16 @@ import { nowIso } from '@/types/multiplayer/Protocol';
 
 import type { IMatchStore } from './IMatchStore';
 
+import { hasMatchStreamRebuildReader } from './IMatchStore';
 import { MATCH_BASELINE_BRANCH_ID } from './matchAuthorityBaseline';
+import { errorMessage } from './ServerMatchHostPublication';
 
-/** Live intents never name a branch; these two ids are that identity. */
+/**
+ * Live intents name no branch; their identity is the branch the host
+ * serves. These two ids are that identity when servedBranchId is null
+ * (root / baseline). A rebuilt host adds the activated candidate via
+ * servedBranchId — do not treat every non-root head as stale.
+ */
 const LIVE_PATH_BRANCH_IDS: ReadonlySet<string> = new Set([
   MATCH_BASELINE_BRANCH_ID,
   ROOT_EVENT_BRANCH_ID,
@@ -62,6 +72,8 @@ export interface IBranchAdmissionHost {
   readonly matchId: string;
   readonly store: IMatchStore;
   readonly broadcast: (message: IServerMessage) => void;
+  /** Null = host still serves the root/baseline live-path identity. */
+  readonly servedBranchId: string | null;
 }
 
 /**
@@ -82,6 +94,7 @@ export async function refuseLiveBranchFromIntent(
     matchId: host.matchId,
     store: host.store,
     broadcast: host.broadcast,
+    servedBranchId: host.servedBranchId,
   };
   const actorId =
     typeof verifiedPrincipalId === 'string'
@@ -131,10 +144,65 @@ export async function refuseLiveBranchAdmission(
   if (effective?.status === 'superseded') {
     return refuseStale(ctx, envelope, head, revision);
   }
-  if (!LIVE_PATH_BRANCH_IDS.has(head.branchId)) {
+  // Admit the default live-path ids or the branch this host serves.
+  // A host still serving root while the store activated a candidate
+  // stays STALE_BRANCH (14.2 unrebuilt row).
+  const onLivePath =
+    LIVE_PATH_BRANCH_IDS.has(head.branchId) ||
+    head.branchId === ctx.servedBranchId;
+  if (!onLivePath) {
     return refuseStale(ctx, envelope, head, revision);
   }
   return null;
+}
+
+/**
+ * Refuses an engine-mutating command while a correction lease is
+ * rebuilding this match's authoritative history (task 2.2; umbrella
+ * 14.3).
+ *
+ * A STREAM-level refusal, deliberately shaped like the rollback-blocked
+ * one above rather than like `rejectCommand`: the whole content of the
+ * refusal is that this stream's history is being replaced, which is true
+ * regardless of who asked and of whether they were entitled to ask. It
+ * therefore runs before the authorization gate, and writes no
+ * `action_audit` row — that row requires a server-derived viewer this
+ * function has deliberately not resolved.
+ *
+ * Placed AFTER lobby routing, and that placement is the guarantee, not a
+ * convention: seat occupancy, readiness and launch return above, so a
+ * rewind cannot lock players out of their own lobby for its duration.
+ *
+ * Nothing is queued. The verdict is a synchronous read and the function
+ * returns the frames — there is no timer and no promise a caller holds,
+ * so "refused during rebuild" cannot quietly become "applied after
+ * activation".
+ *
+ * Only the retry ACTION rides out on the wire. The lease id, owner and
+ * fencing epoch are authority facts (design D5) and naming a rebuild's
+ * owner to a player is a disclosure this refusal does not need to make.
+ *
+ * A store without the rebuild capability answers null: no durable lease
+ * table means no correction can be in progress. Consuming ONLY the
+ * rebuild arm of the shared admission is likewise deliberate — the
+ * combat wire carries no client-claimed expected head, so the staleness
+ * arm has nothing here to compare and cannot be honestly answered.
+ */
+export function refuseDuringHistoryRebuild(
+  ctx: IBranchAdmissionHost,
+  envelope: IIntent,
+): readonly IServerMessage[] | null {
+  if (!hasMatchStreamRebuildReader(ctx.store)) return null;
+  const rebuilding = ctx.store.readMatchStreamRebuild(ctx.matchId);
+  if (rebuilding === null) return null;
+  const err = errorMessage(
+    ctx.matchId,
+    rebuilding.code,
+    rebuilding.action,
+    envelope.intentId,
+  );
+  ctx.broadcast(err);
+  return [err];
 }
 
 /**

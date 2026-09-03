@@ -13,10 +13,11 @@
  *     `IMatchMeta` JSON blob, plus a denormalized `status` /
  *     `room_code` column for cheap server-side filtering and invite
  *     resolution.
- *   - `mp_match_events` — one row per `(match_id, sequence)` holding the
- *     serialized `IGameEvent` JSON blob. `(match_id, sequence)` is the
- *     PRIMARY KEY so the storage layer's unique constraint enforces the
- *     `appendEvent` sequence-collision guarantee.
+ *   - `mp_match_events` — one row per live `(match_id, sequence)` holding
+ *     the serialized `IGameEvent` JSON blob. PRIMARY KEY (match_id,
+ *     sequence) so `mp_imported_legacy_events` can attach by that
+ *     composite. A rewind MOVEs the discarded tail into
+ *     `mp_match_events_superseded`; live reads see only this table.
  *
  * Key invariants (mirror of `IMatchStore`):
  *   - `appendEvent` is transactional all-or-nothing — a sequence
@@ -79,6 +80,11 @@ import {
   readDurableLegacyImportMarker,
   type IImportedEventSourceRow,
 } from './DurableMatchStore.legacyImport';
+import {
+  deleteSupersededRowsForMatches,
+  migrateMatchStoreSupersession,
+  supersedeMatchStoreFrom,
+} from './DurableMatchStore.supersede';
 import {
   insertViewerDeliveryRecord,
   selectViewerDeliveryRecords,
@@ -150,9 +156,9 @@ const SCHEMA_SQL = `
   );
 
   CREATE TABLE IF NOT EXISTS mp_match_events (
-    match_id   TEXT NOT NULL,
-    sequence   INTEGER NOT NULL,
-    event_json TEXT NOT NULL,
+    match_id       TEXT NOT NULL,
+    sequence       INTEGER NOT NULL,
+    event_json     TEXT NOT NULL,
     PRIMARY KEY (match_id, sequence),
     FOREIGN KEY (match_id) REFERENCES mp_matches(match_id) ON DELETE CASCADE
   );
@@ -172,12 +178,12 @@ const SCHEMA_SQL = `
   );
 
   CREATE TABLE IF NOT EXISTS mp_match_outbox (
-    match_id     TEXT NOT NULL,
-    sequence     INTEGER NOT NULL,
-    command_id   TEXT NOT NULL,
-    event_json   TEXT NOT NULL,
-    created_at   TEXT NOT NULL,
-    published_at TEXT,
+    match_id       TEXT NOT NULL,
+    sequence       INTEGER NOT NULL,
+    command_id     TEXT NOT NULL,
+    event_json     TEXT NOT NULL,
+    created_at     TEXT NOT NULL,
+    published_at   TEXT,
     PRIMARY KEY (match_id, sequence),
     FOREIGN KEY (match_id) REFERENCES mp_matches(match_id) ON DELETE CASCADE
   );
@@ -604,6 +610,9 @@ export class DurableMatchStore
     this.db.exec(VIEWER_DELIVERY_SCHEMA_SQL);
     this.db.exec(VIEWER_DELIVERY_ACK_SCHEMA_SQL);
     this.db.exec(JOURNAL_AUTHORITY_BASELINE_SCHEMA_SQL);
+    // Sibling superseded tables only. Live PKs stay the original
+    // unique space so the legacy importer FK remains valid.
+    migrateMatchStoreSupersession(this.db);
     // Capability tables are not in this.db — see durableCapabilityPorts.
     bindDurableCapabilityPorts(this, options);
   }
@@ -735,10 +744,13 @@ export class DurableMatchStore
           : { kind: 'integrity-conflict', commandId: batch.commandId };
       }
 
+      // Live head only. The superseded tail lives in the sibling
+      // table, so MAX here is the prefix (or the new extension).
       const head = this.db
         .prepare(
           `SELECT COALESCE(MAX(sequence) + 1, 0) AS next
-           FROM mp_match_events WHERE match_id = ?`,
+           FROM mp_match_events
+           WHERE match_id = ?`,
         )
         .get(matchId) as { next: number };
       if (head.next !== batch.expectedRevision) {
@@ -937,6 +949,20 @@ export class DurableMatchStore
     return row ? receiptFrom(row) : null;
   };
 
+  /**
+   * Move the live tail from `fromSequence` inclusive into sibling
+   * tables. Called from the rewind rebuild / boot fold after
+   * activation — never from commit.
+   */
+  supersedeFrom = async (
+    matchId: string,
+    fromSequence: number,
+    at: string,
+  ): Promise<void> => {
+    if (!this.getMatchRow(matchId)) throw new MatchNotFoundError(matchId);
+    supersedeMatchStoreFrom(this.db, matchId, fromSequence, at);
+  };
+
   getJournalAuthorityStarted = async (
     matchId: string,
   ): Promise<IMatchJournalAuthorityStarted | null> => {
@@ -954,13 +980,14 @@ export class DurableMatchStore
     // SQLite transaction.
     //
     // The collision is detected by an EXPLICIT check inside the
-    // transaction (a SELECT for the existing `(matchId, sequence)`
-    // row) rather than by catching the `(match_id, sequence)` PRIMARY
-    // KEY violation — the explicit check is deterministic and
-    // independent of how a given better-sqlite3 build phrases /
-    // surfaces its `SqliteError`. The PRIMARY KEY constraint remains as
-    // a defense-in-depth backstop against a concurrent writer that
-    // races between the check and the INSERT.
+    // transaction (a SELECT for the existing live `(matchId, sequence)`
+    // row) rather than by catching the unique-index violation — the
+    // explicit check is deterministic and independent of how a given
+    // better-sqlite3 build phrases / surfaces its `SqliteError`. The
+    // live PK remains as a defense-in-depth backstop against a
+    // concurrent writer that races between the check and the INSERT.
+    // A superseded row at this sequence is not a collision: it was
+    // moved into the sibling table by supersedeFrom.
     const tx = this.db.transaction((mId: string, evt: IGameEvent) => {
       const existing = this.db
         .prepare(
@@ -1246,17 +1273,30 @@ export class DurableMatchStore
   /**
    * Reap `completed` matches whose `updatedAt` is older than the
    * 7-day retention window. Returns the number of matches pruned. The
-   * `ON DELETE CASCADE` foreign key drops their event rows too.
+   * `ON DELETE CASCADE` foreign key drops their live event rows;
+   * sibling superseded tables are cleared first so prune cannot fail
+   * on a leftover FK or leave orphan marks.
    */
   pruneExpiredMatches = (now: number = Date.now()): number => {
     const cutoff = new Date(now - COMPLETED_MATCH_RETENTION_MS).toISOString();
-    const result = this.db
-      .prepare(
-        `DELETE FROM mp_matches
-         WHERE status = 'completed' AND updated_at < ?`,
-      )
-      .run(cutoff);
-    return result.changes;
+    return this.db.transaction(() => {
+      const expired = this.db
+        .prepare(
+          `SELECT match_id FROM mp_matches
+           WHERE status = 'completed' AND updated_at < ?`,
+        )
+        .all(cutoff) as Array<{ match_id: string }>;
+      deleteSupersededRowsForMatches(
+        this.db,
+        expired.map((row) => row.match_id),
+      );
+      return this.db
+        .prepare(
+          `DELETE FROM mp_matches
+           WHERE status = 'completed' AND updated_at < ?`,
+        )
+        .run(cutoff).changes;
+    })();
   };
 
   /** Number of matches currently tracked. Test/observability only. */

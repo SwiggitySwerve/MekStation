@@ -36,6 +36,7 @@ import {
 import { foldMatchSession } from '@/lib/multiplayer/server/MatchSessionProjector';
 import { getSQLiteService } from '@/services/persistence/SQLiteService';
 import { isGameEvent } from '@/types/gameplay/GameSessionInterfaces';
+import { nowIso } from '@/types/multiplayer/Protocol';
 
 export interface IRewindRebuildRequest {
   readonly branchId: string;
@@ -52,8 +53,11 @@ export interface IRewindRebuildHost {
   readonly store: IMatchStore;
   readonly journalRandomSeed: number;
   readonly journalDiceSeed: number;
+  nowIso(): string;
   reseedDice(diceSeed: number): void;
   replaceSession(session: InteractiveSession): void;
+  /** After replaceSession only — a failed rebuild must not claim this. */
+  setServedBranchId(branchId: string): void;
   resetIntentWindow(events: readonly IGameEvent[]): void;
   resetBroadcastCursor(sequence: number): void;
   discardViewerDeliveries(): void;
@@ -101,14 +105,22 @@ export async function readActivatedBranchGameEvents(
   return events;
 }
 
+/** Boot fold result: the truncated session and the branch it serves. */
+export interface IFoldedActivatedRewind {
+  readonly session: IGameSession;
+  readonly branchId: string;
+}
+
 /**
  * Fold the live effective candidate when a rewind has left root.
  * Null means "no rewind" — boot keeps the checkpoint door.
+ * branchId is the folded head so recovery can mark the host as
+ * serving that path (live intents name no branch).
  */
 export async function tryFoldActivatedRewindBranch(
-  store: IMatchEventSource,
+  store: IMatchStore,
   matchId: string,
-): Promise<IGameSession | null> {
+): Promise<IFoldedActivatedRewind | null> {
   const sqlite = getSQLiteService();
   if (!sqlite.isInitialized()) return null;
   const db = sqlite.getDatabase();
@@ -125,7 +137,14 @@ export async function tryFoldActivatedRewindBranch(
     head.branchId,
     streamHead.revision,
   );
-  return foldMatchSession(matchId, events);
+  // Move the store tail here, not in commit. 15.2 checkpoint law is
+  // unchanged: an old-head checkpoint is already unattested by digest
+  // against this activated prefix.
+  await supersedeActivatedTail(store, matchId, streamHead.revision);
+  return {
+    session: foldMatchSession(matchId, events),
+    branchId: head.branchId,
+  };
 }
 
 export async function rebuildHostFromActivatedBranch(
@@ -140,6 +159,12 @@ export async function rebuildHostFromActivatedBranch(
       input.branchId,
       input.effectiveRevision,
     );
+    await supersedeActivatedTail(
+      host.store,
+      host.matchId,
+      input.effectiveRevision,
+      host.nowIso(),
+    );
     const folded = foldMatchSession(host.matchId, events);
     // fromSessionAsync reseeds from config.seed. Stamp the host's
     // journal random seed so the rebuilt stream is the same provenance
@@ -150,16 +175,17 @@ export async function rebuildHostFromActivatedBranch(
     };
     const session = await InteractiveSession.fromSessionAsync(seeded);
     host.replaceSession(session);
+    // Claim only after replaceSession returns — a throw above must
+    // leave servedBranchId on the previous identity.
+    host.setServedBranchId(input.branchId);
     host.reseedDice(host.journalDiceSeed);
     const last = events[events.length - 1];
     host.resetIntentWindow(events);
     // Broadcast cursor and replay ceiling are the rebuilt session's
     // last sequence so drain/assign start after the cut. The engine
-    // numbers new events from that in-memory log. mp_match_events
-    // still has the superseded tail, so the store's next free
-    // sequence is still old-head+1 and appendEvent will collide if
-    // persist reuses a cut sequence. That journal-cutover gap is
-    // left honest — this rebuild does not delete or renumber rows.
+    // numbers new events from that in-memory log. supersedeFrom has
+    // already moved the store tail, so the next persist reuses the
+    // cut sequence. Superseded bytes stay in sibling tables.
     const headSequence = last === undefined ? -1 : last.sequence;
     host.resetBroadcastCursor(headSequence);
     host.setRewindReplayCeiling(headSequence);
@@ -223,6 +249,21 @@ function releaseHeldLease(
     // Already released or taken over — the stream is open or fenced
     // by its new owner. The rebuilt session is what matters.
   }
+}
+
+/**
+ * revision = sequence + 1, so the first discarded store sequence
+ * equals the kept through-revision. No-op on a store without the
+ * method (dev adapters that have not grown it yet).
+ */
+async function supersedeActivatedTail(
+  store: IMatchStore,
+  matchId: string,
+  throughRevision: number,
+  at: string = nowIso(),
+): Promise<void> {
+  if (store.supersedeFrom == null) return;
+  await store.supersedeFrom(matchId, throughRevision, at);
 }
 
 async function seatedPlayerIds(

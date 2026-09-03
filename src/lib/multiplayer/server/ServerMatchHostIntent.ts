@@ -34,13 +34,15 @@ import {
   authorizeHumanAction,
 } from './authorization/HumanActionAuthorizationGate';
 import { MembershipSourceUnavailableError } from './authorization/MatchSeatMembershipSource';
-import { hasMatchStreamRebuildReader } from './IMatchStore';
 import {
   runLegacyShadowComparison,
   shadowAudienceInput,
 } from './journalAuthorityShadow';
 import { isSpectatorPlayer } from './lobby/spectatorSeats';
-import { refuseLiveBranchFromIntent } from './ServerMatchHostBranchAdmission';
+import {
+  refuseDuringHistoryRebuild,
+  refuseLiveBranchFromIntent,
+} from './ServerMatchHostBranchAdmission';
 import { dispatchToEngine } from './ServerMatchHostEngineDispatch';
 import { stampIntentIdOnNewEvents } from './ServerMatchHostEvents';
 import {
@@ -134,6 +136,8 @@ export interface IServerMatchHostIntentContext extends IServerMatchHostCaptureCo
   readonly rollbackBlockReason?: MatchRollbackBlockedReason;
   /** Present when this host was created with journal authority on. */
   readonly journalAuthority?: IJournalAuthorityHostHandle;
+  /** Branch this host serves (null = root/baseline); the admission admits it. */
+  readonly servedBranchId: string | null;
 }
 
 /**
@@ -206,7 +210,8 @@ export async function handleIntent(
   }
 
   // A rebuild in progress refuses first; only a live stream consults the
-  // branch port (inert when the store has none).
+  // branch port (inert without one). The admission projects its own view,
+  // servedBranchId included, so a rebuilt host is admitted on its branch.
   const refusal =
     refuseDuringHistoryRebuild(ctx, envelope) ??
     (await refuseLiveBranchFromIntent(ctx, envelope, verifiedPrincipalId));
@@ -391,55 +396,6 @@ function rejectMismatchedPrincipal(
     ctx.matchId,
     'AUTH_REJECTED',
     'player-mismatch',
-    envelope.intentId,
-  );
-  ctx.broadcast(err);
-  return [err];
-}
-
-/**
- * Refuses an engine-mutating command while a correction lease is
- * rebuilding this match's authoritative history (task 2.2; umbrella
- * 14.3).
- *
- * A STREAM-level refusal, deliberately shaped like the rollback-blocked
- * one above rather than like `rejectCommand`: the whole content of the
- * refusal is that this stream's history is being replaced, which is true
- * regardless of who asked and of whether they were entitled to ask. It
- * therefore runs before the authorization gate, and writes no
- * `action_audit` row — that row requires a server-derived viewer this
- * function has deliberately not resolved.
- *
- * Placed AFTER lobby routing, and that placement is the guarantee, not a
- * convention: seat occupancy, readiness and launch return above, so a
- * rewind cannot lock players out of their own lobby for its duration.
- *
- * Nothing is queued. The verdict is a synchronous read and the function
- * returns the frames — there is no timer and no promise a caller holds,
- * so "refused during rebuild" cannot quietly become "applied after
- * activation".
- *
- * Only the retry ACTION rides out on the wire. The lease id, owner and
- * fencing epoch are authority facts (design D5) and naming a rebuild's
- * owner to a player is a disclosure this refusal does not need to make.
- *
- * A store without the rebuild capability answers null: no durable lease
- * table means no correction can be in progress. Consuming ONLY the
- * rebuild arm of the shared admission is likewise deliberate — the
- * combat wire carries no client-claimed expected head, so the staleness
- * arm has nothing here to compare and cannot be honestly answered.
- */
-function refuseDuringHistoryRebuild(
-  ctx: IServerMatchHostIntentContext,
-  envelope: IIntent,
-): readonly IServerMessage[] | null {
-  if (!hasMatchStreamRebuildReader(ctx.store)) return null;
-  const rebuilding = ctx.store.readMatchStreamRebuild(ctx.matchId);
-  if (rebuilding === null) return null;
-  const err = errorMessage(
-    ctx.matchId,
-    rebuilding.code,
-    rebuilding.action,
     envelope.intentId,
   );
   ctx.broadcast(err);
