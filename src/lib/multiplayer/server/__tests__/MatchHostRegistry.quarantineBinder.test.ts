@@ -57,7 +57,6 @@ import { InMemoryMatchStore } from '../InMemoryMatchStore';
 import { MatchHostRegistry } from '../MatchHostRegistry';
 import { buildDefaultMatchUnitBootstrap } from '../matchUnitBootstrap';
 import { ServerMatchHost } from '../ServerMatchHost';
-
 import {
   isolationLiveHost,
   isolationMatchMeta,
