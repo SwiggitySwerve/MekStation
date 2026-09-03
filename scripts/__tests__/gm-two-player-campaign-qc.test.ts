@@ -274,6 +274,42 @@ describe('GM and two-player campaign QC runner', () => {
       'node server.js',
     );
 
+    // `authority` is the E2E-01..18 union (umbrella 21.4). Predicted
+    // red of this pin today, before `authority` had a SPEC_BY_GROUP
+    // entry: the group was already in GROUP_CATALOG (owner 29) and
+    // missing from the implemented set, so
+    // `types unknown and future groups` expected
+    // `[3, '[qc:gm-two-player-campaign] NOT_IMPLEMENTED group=authority owner=29']`
+    // and `buildRunPlan({ group: 'authority' })` threw the same
+    // NOT_IMPLEMENTED. The plan pin plus implemented membership keep a
+    // silent skip from looking like a pass.
+    const authorityPlan = core.buildRunPlan({
+      group: 'authority',
+      runId: 'task-29-authority',
+      repoRoot,
+    });
+    expect(authorityPlan.args).toEqual([
+      path.join(repoRoot, 'scripts/playwright/run-playwright.mjs'),
+      'test',
+      '--project=chromium',
+      'e2e/gm-two-player-authority.pack1.spec.ts',
+      'e2e/gm-two-player-exactly-once.pack.spec.ts',
+      'e2e/gm-two-player-fault.pack.spec.ts',
+      'e2e/gm-two-player-token.pack.spec.ts',
+      'e2e/gm-two-player-restart.pack.spec.ts',
+      'e2e/gm-two-player-resilience.pack.spec.ts',
+      'e2e/gm-two-player-authority-order.pack.spec.ts',
+      'e2e/gm-two-player-authority-recovery.pack.spec.ts',
+      '--workers=1',
+    ]);
+    // restart-pack, resilience-pack, and authority-recovery kill the
+    // server, so the union uses the relaunching wrapper. Finding #102
+    // (the union of respawning packs poisons later packs) applies here
+    // as much as to `all`.
+    expect(authorityPlan.environment.MEKSTATION_E2E_SERVER_COMMAND).toBe(
+      'node scripts/e2e/relaunching-server.mjs',
+    );
+
     // `all` is the union of every registered SPEC_BY_GROUP entry.
     // Predicted red of this pin today, before `all` had a SPEC_BY_GROUP
     // entry: the group was already in GROUP_CATALOG (owner 34) and
@@ -310,9 +346,12 @@ describe('GM and two-player campaign QC runner', () => {
       'e2e/gm-two-player-failure.pack.spec.ts',
       '--workers=1',
     ]);
-    // restart-pack and resilience-pack are members, so the composite
-    // must use the relaunching wrapper. A future member that respawns
-    // stays covered by the "any member" rule in the core.
+    // restart-pack, resilience-pack, authority-recovery, and the
+    // `authority` union are members, so the composite must use the
+    // relaunching wrapper. `authority`'s eight specs already appear
+    // earlier as leaf packs; the Set de-dup keeps each path once. A
+    // future member that respawns stays covered by the "any member"
+    // rule in the core.
     expect(allPlan.environment.MEKSTATION_E2E_SERVER_COMMAND).toBe(
       'node scripts/e2e/relaunching-server.mjs',
     );
@@ -367,9 +406,11 @@ describe('GM and two-player campaign QC runner', () => {
       'proposal-pack',
       'three-context-pack',
       'two-device-pack',
-      // 22.2's E2E-61..70 subset, 23.x's performance pack, and the
-      // 22.4 `all` composite. `campaign` stays unimplemented until a
-      // live E2E-46..60 campaign-channel row exists.
+      // 21.4's E2E-01..18 union, 22.2's E2E-61..70 subset, 23.x's
+      // performance pack, and the 22.4 `all` composite. `campaign`
+      // stays unimplemented until a live E2E-46..60 campaign-channel
+      // row exists.
+      'authority',
       'failure',
       'performance',
       'all',
