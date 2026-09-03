@@ -28,7 +28,7 @@ import {
 } from '@/lib/campaign/authority/campaignAuthority';
 import { maybeAppendCampaignGenesisOnCreate } from '@/lib/campaign/authority/campaignSourceGenesis';
 import { resolveCampaignAuthorityFromStores } from '@/lib/campaign/authority/resolveCampaignAuthorityFromStores';
-import { CAMPAIGN_JOURNAL_AUTHORITY_ENABLED } from '@/lib/campaign/sync/JournalCampaignEventStore';
+import { isCampaignJournalAuthorityEnabled } from '@/lib/campaign/sync/campaignJournalAuthorityEnabled';
 import { EXPECTED_HEAD_RESYNC_ACTION } from '@/lib/events/journal/EventHistoryExpectedHead';
 import { SQLiteEventJournal } from '@/lib/events/journal/SQLiteEventJournal';
 import {
@@ -243,10 +243,10 @@ export default async function handler(
         }
         // Task 1.1 journal half: under journal authority, creation appends
         // the genesis snapshot and journal-native marker BEFORE the create
-        // is acknowledged. Inert while the cutover flag is off (the lazy
+        // is acknowledged. Inert while the resolver is off (the lazy
         // journal factory constructs nothing on the disabled path).
         const genesis = await maybeAppendCampaignGenesisOnCreate({
-          enabled: CAMPAIGN_JOURNAL_AUTHORITY_ENABLED,
+          enabled: isCampaignJournalAuthorityEnabled(),
           created: body.baseVersion === 0,
           envelope: result.record,
           occurredAt: new Date().toISOString(),

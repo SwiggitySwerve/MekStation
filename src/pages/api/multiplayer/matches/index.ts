@@ -33,7 +33,7 @@ import {
 } from '@/lib/api/securitySchemas';
 import { commitCampaignCreationCheckpoint } from '@/lib/campaign/authority/campaignCreationCheckpoint';
 import { campaignCreationCheckpointPorts } from '@/lib/campaign/authority/campaignCreationCheckpointPorts';
-import { CAMPAIGN_JOURNAL_AUTHORITY_ENABLED } from '@/lib/campaign/sync/JournalCampaignEventStore';
+import { isCampaignJournalAuthorityEnabled } from '@/lib/campaign/sync/campaignJournalAuthorityEnabled';
 import { authenticateRequest } from '@/lib/multiplayer/server/auth';
 import { getCampaignHostRegistry } from '@/lib/multiplayer/server/CampaignHostRegistry';
 import { getDefaultMatchStore } from '@/lib/multiplayer/server/getDefaultMatchStore';
@@ -260,7 +260,11 @@ async function commitCoopCampaignAuthority(
     campaignId,
     sessionId: matchId,
     gmParticipantId: hostPlayerId,
-    journalAuthorityEnabled: CAMPAIGN_JOURNAL_AUTHORITY_ENABLED,
+    // The creation checkpoint skips its genesis-branch step when this is
+    // false, so the fixture arm must reach it here as well as on the
+    // campaign PUT route, or a journal-native campaign creates a match
+    // with no genesis branch to recover.
+    journalAuthorityEnabled: isCampaignJournalAuthorityEnabled(),
     committedAt: new Date().toISOString(),
   });
   if (checkpoint.kind === 'failed') {
