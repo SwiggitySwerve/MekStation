@@ -18,7 +18,10 @@ import type {
 
 import { AUTHORITY_HISTORY_START } from '@/lib/events/checkpoints/AuthorityRecoveryPort';
 import { BranchCheckpointCache } from '@/lib/events/checkpoints/BranchCheckpointCache';
+import { readEffectiveStreamHead } from '@/lib/events/journal/EventHistoryEffectiveStreamHead';
+import { SQLiteEventHistoryBranchStore } from '@/lib/events/journal/SQLiteEventHistoryBranchStore';
 import { digestReplayCheckpointState } from '@/lib/events/replay/ReplayCheckpointCompatibility';
+import { buildGmCombatRewindCommitDeps } from '@/pages-modules/api/rewindCommitDeps';
 import {
   getSQLiteService,
   resetSQLiteService,
@@ -35,7 +38,12 @@ import type { IMatchEventSource } from '../history/matchStoreBranchSegmentReader
 import type { IMatchMeta, IMatchStore } from '../IMatchStore';
 
 import { DurableMatchStore } from '../DurableMatchStore';
-import { revisionForMatchSequence } from '../history/matchStoreBranchSegmentReader';
+import { commitGmCombatRewind } from '../history/GmCombatRewindCommit';
+import { matchStreamRef } from '../history/GmCombatRewindPreview';
+import {
+  matchStoreBranchSegmentReader,
+  revisionForMatchSequence,
+} from '../history/matchStoreBranchSegmentReader';
 import { InMemoryMatchStore } from '../InMemoryMatchStore';
 import { matchStoreHistoryReader } from '../MatchCheckpointHistory';
 import { recoverActiveMatches } from '../MatchRecovery';
@@ -204,6 +212,124 @@ describe('match recovery checkpoint door', () => {
       expect(offer).not.toBeNull();
       expect(offer!.metadata.revision).toBe(HEAD_REVISION);
     });
+  });
+
+  it('boot after a committed rewind yields the rewound session', async () => {
+    const store = new DurableMatchStore({ path: path.join(dir, 'rewind.db') });
+    getSQLiteService({
+      path: path.join(dir, 'rewind-journal.db'),
+    }).initialize();
+    await writeLog(store);
+    const db = getSQLiteService().getDatabase();
+    // Same alignment as the rewind-commit route: journal id/digest must
+    // be the match-store reader's, or candidate verification refuses.
+    const stream = matchStreamRef(MATCH_ID);
+    const chained = await matchStoreBranchSegmentReader(store).read(stream, {
+      kind: 'prefix',
+      branchId: 'root',
+      fromRevision: 0,
+      throughRevision: HEAD_REVISION,
+      baseEventId: null,
+      baseDigest: '0'.repeat(64),
+    });
+    const headEvent = chained[chained.length - 1];
+    if (headEvent === undefined) {
+      throw new Error('match-store reader returned no events');
+    }
+    db.prepare(
+      `INSERT INTO event_journal_batches (
+         command_id, command_digest, canonicalizer_version, stream_type,
+         stream_id, branch_id, event_count, first_stream_revision,
+         last_stream_revision, first_commit_position, last_commit_position,
+         recorded_at)
+       VALUES (?, ?, 1, 'match', ?, 'root', ?, 1, ?, 1, ?, ?)`,
+    ).run(
+      `cmd-${MATCH_ID}`,
+      'a'.repeat(64),
+      MATCH_ID,
+      chained.length,
+      chained.length,
+      chained.length,
+      RECORDED_AT,
+    );
+    const insert = db.prepare(
+      `INSERT INTO event_journal_events (
+         event_id, command_id, stream_type, stream_id, branch_id,
+         stream_revision, commit_position, command_index, event_type,
+         event_version, correlation_id, actor_kind, actor_id,
+         authority_type, authority_id, occurred_at, recorded_at,
+         canonicalizer_version, previous_stream_event_digest, event_digest,
+         payload_json)
+       VALUES (?, ?, 'match', ?, 'root', ?, ?, ?, ?, 1, ?, 'human', ?,
+               'host', ?, ?, ?, 1, ?, ?, '{}')`,
+    );
+    chained.forEach((event, index) => {
+      insert.run(
+        event.eventId,
+        `cmd-${MATCH_ID}`,
+        MATCH_ID,
+        event.streamRevision,
+        index + 1,
+        index,
+        event.eventType,
+        `corr-${MATCH_ID}`,
+        META.hostPlayerId,
+        MATCH_ID,
+        RECORDED_AT,
+        RECORDED_AT,
+        event.previousStreamEventDigest,
+        event.eventDigest,
+      );
+    });
+    db.prepare(
+      `INSERT INTO event_journal_stream_heads
+         (stream_type, stream_id, branch_id, stream_revision, event_digest)
+       VALUES ('match', ?, 'root', ?, ?)`,
+    ).run(MATCH_ID, headEvent.streamRevision, headEvent.eventDigest);
+    expect(
+      new SQLiteEventHistoryBranchStore(db).backfillGenesisBranches(),
+    ).toBe(1);
+    const branches = new SQLiteEventHistoryBranchStore(db);
+    const streamHead = readEffectiveStreamHead(db, branches, stream);
+    const effective = branches.readEffectiveHead(stream);
+    if (effective === null) {
+      throw new Error('genesis backfill left no effective head');
+    }
+    const committed = await commitGmCombatRewind(
+      buildGmCombatRewindCommitDeps({
+        store,
+        meta: META,
+        priorHeadRevision: streamHead.revision,
+        nowIso: () => RECORDED_AT,
+      }),
+      {
+        actorId: META.hostPlayerId,
+        role: 'gm',
+        gameId: MATCH_ID,
+        ownedStateRefs: [`game:${MATCH_ID}`],
+      },
+      {
+        matchId: MATCH_ID,
+        targetRevision: BASE_REVISION,
+        expectedBranchId: streamHead.branchId,
+        expectedRevision: streamHead.revision,
+        expectedDigest: streamHead.digest,
+        expectedGeneration: effective.effectiveGeneration,
+        actor: META.hostPlayerId,
+        reason: 'authorized combat rewind',
+      },
+    );
+    expect(committed).toMatchObject({ kind: 'committed' });
+    const recovered = await recoverActiveMatches(store);
+    const host = recovered.hosts.get(MATCH_ID);
+    expect(host).toBeDefined();
+    const prefix = EVENTS.filter(
+      (event) => revisionForMatchSequence(event.sequence) <= BASE_REVISION,
+    );
+    expect(host!.getSessionForTests().currentState.phase).toBe(
+      foldMatchSession(MATCH_ID, prefix).currentState.phase,
+    );
+    store.close();
   });
 
   it('falls back to the reference port when SQLite is not initialized', async () => {

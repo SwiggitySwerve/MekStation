@@ -267,6 +267,15 @@ export class ViewerDeliveryCursors {
     if (this.isolationResume.has(playerId)) return;
     this.isolationResume.set(playerId, authoritySequence);
   }
+
+  /**
+   * Drop every viewer's counter. A rewind makes the old stream a
+   * different history: resuming those numbers would replay superseded
+   * frames, including hidden facts the new head no longer holds.
+   */
+  discardAll(): void {
+    this.delivered.clear();
+  }
 }
 
 function isContiguousFromZero(
