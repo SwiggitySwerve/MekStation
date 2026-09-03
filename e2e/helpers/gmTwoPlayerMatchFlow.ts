@@ -183,6 +183,11 @@ export async function launchOneVersusOne(input: {
   readonly guestName: string;
   readonly hostPassword: string;
   readonly guestPassword: string;
+  /**
+   * Create-form turn limit. Default 5 matches the other packs; E2E-14
+   * passes 50 because a 5-turn match ends before unacked can reach 64.
+   */
+  readonly turnLimit?: string;
 }): Promise<{
   readonly match: IMatchHandle;
   readonly hostToken: IMatchToken;
@@ -197,7 +202,7 @@ export async function launchOneVersusOne(input: {
   await hostPage.getByPlaceholder('Vault password').fill(input.hostPassword);
   await hostPage.getByLabel('Display name').fill(input.hostName);
   await hostPage.getByLabel('Map radius').fill('4');
-  await hostPage.getByLabel('Turn limit').fill('5');
+  await hostPage.getByLabel('Turn limit').fill(input.turnLimit ?? '5');
   const created = hostPage.waitForResponse(
     (response) =>
       response.url().endsWith('/api/multiplayer/matches') &&
