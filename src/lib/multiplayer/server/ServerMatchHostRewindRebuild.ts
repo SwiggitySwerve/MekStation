@@ -106,7 +106,7 @@ export async function readActivatedBranchGameEvents(
  * Null means "no rewind" — boot keeps the checkpoint door.
  */
 export async function tryFoldActivatedRewindBranch(
-  store: IMatchEventSource,
+  store: IMatchStore,
   matchId: string,
 ): Promise<IGameSession | null> {
   const sqlite = getSQLiteService();
@@ -125,6 +125,10 @@ export async function tryFoldActivatedRewindBranch(
     head.branchId,
     streamHead.revision,
   );
+  // Mark the store tail here, not in commit. 15.2 checkpoint law is
+  // unchanged: an old-head checkpoint is already unattested by digest
+  // against this activated prefix.
+  await supersedeActivatedTail(store, matchId, streamHead.revision);
   return foldMatchSession(matchId, events);
 }
 
@@ -138,6 +142,11 @@ export async function rebuildHostFromActivatedBranch(
       host.store,
       host.matchId,
       input.branchId,
+      input.effectiveRevision,
+    );
+    await supersedeActivatedTail(
+      host.store,
+      host.matchId,
       input.effectiveRevision,
     );
     const folded = foldMatchSession(host.matchId, events);
@@ -155,11 +164,9 @@ export async function rebuildHostFromActivatedBranch(
     host.resetIntentWindow(events);
     // Broadcast cursor and replay ceiling are the rebuilt session's
     // last sequence so drain/assign start after the cut. The engine
-    // numbers new events from that in-memory log. mp_match_events
-    // still has the superseded tail, so the store's next free
-    // sequence is still old-head+1 and appendEvent will collide if
-    // persist reuses a cut sequence. That journal-cutover gap is
-    // left honest — this rebuild does not delete or renumber rows.
+    // numbers new events from that in-memory log. supersedeFrom has
+    // already marked the store tail, so the next persist reuses the
+    // cut sequence. Rows stay on disk; this is not a journal cutover.
     const headSequence = last === undefined ? -1 : last.sequence;
     host.resetBroadcastCursor(headSequence);
     host.setRewindReplayCeiling(headSequence);
@@ -223,6 +230,24 @@ function releaseHeldLease(
     // Already released or taken over — the stream is open or fenced
     // by its new owner. The rebuilt session is what matters.
   }
+}
+
+/**
+ * revision = sequence + 1, so the first discarded store sequence
+ * equals the kept through-revision. No-op on a store without the
+ * method (dev adapters that have not grown it yet).
+ */
+async function supersedeActivatedTail(
+  store: IMatchStore,
+  matchId: string,
+  throughRevision: number,
+): Promise<void> {
+  if (store.supersedeFrom == null) return;
+  await store.supersedeFrom(
+    matchId,
+    throughRevision,
+    new Date().toISOString(),
+  );
 }
 
 async function seatedPlayerIds(

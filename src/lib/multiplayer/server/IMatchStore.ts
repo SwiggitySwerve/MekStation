@@ -450,8 +450,8 @@ export interface IMatchStore
   appendEvent(matchId: string, event: IGameEvent): Promise<void>;
 
   /**
-   * Return all events with sequence >= `fromSeq` (default 0) in
-   * ascending sequence order. An unknown match throws
+   * Return all live (unsuperseded) events with sequence >= `fromSeq`
+   * (default 0) in ascending sequence order. An unknown match throws
    * `MatchNotFoundError`.
    */
   getEvents(matchId: string, fromSeq?: number): Promise<readonly IGameEvent[]>;
@@ -529,6 +529,18 @@ export interface IMatchStore
    * rewrites or synthesizes the receipt.
    */
   getLastCommandReceipt?(matchId: string): Promise<IMatchCommandReceipt | null>;
+
+  /**
+   * Mark the live match-log tail as superseded from `fromSequence`
+   * inclusive. A rewind activation uses this so the next append can
+   * reuse the cut sequence. Optional: a store without it still has
+   * the old full-log unique space.
+   */
+  supersedeFrom?(
+    matchId: string,
+    fromSequence: number,
+    at: string,
+  ): Promise<void>;
 
   getJournalAuthorityStarted?(
     matchId: string,

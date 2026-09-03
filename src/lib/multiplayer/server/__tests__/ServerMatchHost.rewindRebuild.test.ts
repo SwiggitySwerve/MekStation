@@ -31,7 +31,12 @@ import {
   resetSQLiteService,
 } from '@/services/persistence/SQLiteService';
 import { SeededRandom } from '@/simulation/core/SeededRandom';
-import { GamePhase, GameSide } from '@/types/gameplay/GameSessionInterfaces';
+import {
+  GameEventType,
+  GamePhase,
+  GameSide,
+} from '@/types/gameplay/GameSessionInterfaces';
+import { nowIso, type IIntent } from '@/types/multiplayer/Protocol';
 import {
   advancePhase,
   createGameSession,
@@ -110,6 +115,10 @@ describe('ServerMatchHost rewind rebuild', () => {
     await host.handleSessionJoin(socket, 'gm-1');
     expect(host.viewerDeliveryIssuedForTests('gm-1')).toBeGreaterThan(0);
 
+    // Snapshot before rebuild: getEvents after supersedeFrom is the
+    // prefix only, so the superseded-id set has to come from the
+    // pre-mark log.
+    const stored = await store.getEvents(MATCH_ID);
     await host.rebuildFromActivatedBranch({
       branchId: result.activatedBranchId,
       effectiveRevision: TARGET_REVISION,
@@ -127,7 +136,6 @@ describe('ServerMatchHost rewind rebuild', () => {
     // The wire strips the authority sequence (players never receive it),
     // so the bound is proven by identity: every replayed event is one of
     // the prefix events at or below the cut, and no superseded id leaks.
-    const stored = await store.getEvents(MATCH_ID);
     const prefixIds = new Set(
       stored
         .filter(
@@ -201,6 +209,48 @@ describe('ServerMatchHost rewind rebuild', () => {
     );
   });
 
+  it('first command after a committed rewind persists and is delivered', async () => {
+    const { host, result } = await standUpCommittedRewind();
+    await host.rebuildFromActivatedBranch({
+      branchId: result.activatedBranchId,
+      effectiveRevision: TARGET_REVISION,
+      effectiveGeneration: result.effectiveGeneration,
+    });
+    const prefix = await store.getEvents(MATCH_ID);
+    const socket = makeSocket();
+    host.attachSocket(socket, 'gm-1');
+    const intent: IIntent = {
+      kind: 'Intent',
+      matchId: MATCH_ID,
+      ts: nowIso(),
+      playerId: 'gm-1',
+      intent: { kind: 'Concede', side: 'player' },
+    };
+    // Fresh connection key: rebuild resets the intent window; a
+    // reused pre-rewind bucket can RATE_LIMITED a legal Concede.
+    const broadcasts = await host.handleIntent(intent, 'conn-after-rewind');
+    const lastError = [...socket.sent]
+      .reverse()
+      .find((frame) => frame.parsed.kind === 'Error');
+    expect(
+      lastError === undefined ? undefined : JSON.stringify(lastError.parsed),
+    ).toBeUndefined();
+    expect(
+      broadcasts.some(
+        (frame) =>
+          frame.kind === 'Error' && frame.code === 'STORE_FAILURE',
+      ),
+    ).toBe(false);
+    const after = await store.getEvents(MATCH_ID);
+    expect(after.length).toBeGreaterThan(prefix.length);
+    expect(after.some((event) => event.type === GameEventType.GameEnded)).toBe(
+      true,
+    );
+    expect(socket.sent.some((frame) => frame.parsed.kind === 'Event')).toBe(
+      true,
+    );
+  });
+
   async function standUpCommittedRewind(): Promise<{
     readonly host: ServerMatchHost;
     readonly result: Extract<
@@ -222,7 +272,15 @@ describe('ServerMatchHost rewind rebuild', () => {
         foldMatchSession(MATCH_ID, events),
       ),
       new SeededDiceRoller(new SeededRandom(SEED)),
-      { recovered: true, randomSeed: SEED, diceSeed: SEED },
+      {
+        recovered: true,
+        randomSeed: SEED,
+        diceSeed: SEED,
+        // appendEvent play log has no journal-started fact. The
+        // recovered default is blocked:recovery-selection-missing and
+        // would INTERNAL_ERROR every post-rebuild command.
+        rollbackReader: { kind: 'legacy-compatible' },
+      },
     );
     const result = await commitRewind(meta);
     // toMatchObject prints kind/reason/detail when commit still refuses.

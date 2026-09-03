@@ -194,10 +194,7 @@ export class InMemoryMatchStore
         : { kind: 'integrity-conflict', commandId: batch.commandId };
     }
 
-    const head =
-      rec.events.length === 0
-        ? 0
-        : rec.events[rec.events.length - 1].sequence + 1;
+    const head = liveHeadSequence(rec.events);
     if (head !== batch.expectedRevision) {
       return {
         kind: 'revision-conflict',
@@ -285,6 +282,32 @@ export class InMemoryMatchStore
       }
     }
     return latest;
+  };
+
+  /**
+   * Drop the live tail from `fromSequence` inclusive. Same observable
+   * behaviour as the durable mark: head, getEvents, last-receipt, and
+   * pending outbox all answer the prefix so the cut sequence is free.
+   */
+  supersedeFrom = async (
+    matchId: string,
+    fromSequence: number,
+    _at: string,
+  ): Promise<void> => {
+    const rec = this.records.get(matchId);
+    if (!rec) throw new MatchNotFoundError(matchId);
+    rec.events = rec.events.filter((event) => event.sequence < fromSequence);
+    for (const sequence of Array.from(rec.sequences)) {
+      if (sequence >= fromSequence) rec.sequences.delete(sequence);
+    }
+    for (const sequence of Array.from(rec.publications.keys())) {
+      if (sequence >= fromSequence) rec.publications.delete(sequence);
+    }
+    for (const [commandId, receipt] of Array.from(rec.receipts.entries())) {
+      if (receipt.lastRevision >= fromSequence) {
+        rec.receipts.delete(commandId);
+      }
+    }
   };
 
   getJournalAuthorityStarted = async (
@@ -488,4 +511,10 @@ export class InMemoryMatchStore
     this.roomCodeIndex.clear();
     this.clearPorts();
   };
+}
+
+/** Next free sequence over the live (unsuperseded) events. */
+function liveHeadSequence(events: readonly IGameEvent[]): number {
+  const last = events[events.length - 1];
+  return last === undefined ? 0 : last.sequence + 1;
 }
