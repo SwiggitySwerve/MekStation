@@ -19,9 +19,9 @@
  *   - `hostDisconnected` pauses the session — the guest mirror is
  *     frozen and stays read-only; no campaign-tier host migration.
  *   - `evaluateScenarioLaunch` decides whether PROGRESSION (not
- *     delivery) may happen, by checking that every retained participant
- *     has acknowledged the campaign's current revision, and naming the
- *     ones who have not.
+ *     delivery) may happen: active branch, completed correction saga,
+ *     verified replacement artifacts, then every retained participant
+ *     acknowledging the campaign's current revision.
  *
  * Socket wiring lives in `bindCampaignSyncConnection`: it passes the
  * verified playerId into `joinMember` / `joinGuest` / `resyncGuest`,
@@ -43,6 +43,13 @@ import { nowIso } from '@/types/multiplayer/Protocol';
 
 import type { CampaignMatchHost } from './CampaignMatchHost';
 
+import {
+  evaluateCampaignProgressionClauses,
+  PROGRESSION_BLOCKED_BEHIND,
+  type CampaignProgressionGate,
+  type ICampaignParticipantConvergence,
+  type ICampaignProgressionReaders,
+} from './CampaignProgressionGate';
 import {
   campaignScopeAdmits,
   type ICampaignWireViewer,
@@ -79,35 +86,15 @@ export interface ICampaignJoinResult {
   readonly disconnect: () => void;
 }
 
-/**
- * A retained participant's place on the campaign's revision line — the
- * highest campaign revision they have reported applying.
- */
-export interface ICampaignParticipantConvergence {
-  readonly participantId: string;
-  readonly acknowledgedRevision: number;
-}
-
-/**
- * The one reason this gate refuses a scenario launch. A named constant
- * rather than a free string so the surface that SHOWS the reason cannot
- * drift from the surface that decides it.
- */
-export const PROGRESSION_BLOCKED_BEHIND = 'participants-behind' as const;
-
-/**
- * The launch gate's answer. The refusal carries WHO is behind and how
- * far, not merely that someone is: a bare `false` leaves the GM with a
- * disabled button and no way to find out what they are waiting for.
- */
-export type CampaignProgressionGate =
-  | { readonly ok: true; readonly requiredRevision: number }
-  | {
-      readonly ok: false;
-      readonly reason: typeof PROGRESSION_BLOCKED_BEHIND;
-      readonly requiredRevision: number;
-      readonly behind: readonly ICampaignParticipantConvergence[];
-    };
+export {
+  PROGRESSION_BLOCKED_BEHIND,
+  PROGRESSION_BLOCKED_BRANCH_NOT_ACTIVE,
+  PROGRESSION_BLOCKED_CORRECTION_PENDING,
+  PROGRESSION_BLOCKED_REPLACEMENT_UNVERIFIED,
+  type CampaignProgressionGate,
+  type ICampaignParticipantConvergence,
+  type ICampaignProgressionReaders,
+} from './CampaignProgressionGate';
 
 /** What recording a participant's acknowledgement did. */
 export type CampaignAckOutcome =
@@ -196,13 +183,18 @@ export class CampaignSyncSession {
    * would block launches on ghosts.
    */
   private readonly retained = new Map<string, IRetainedParticipant>();
+  private readonly progressionReaders: ICampaignProgressionReaders | undefined;
 
   constructor(
     host: CampaignMatchHost,
-    options: { readonly matchId?: string } = {},
+    options: {
+      readonly matchId?: string;
+      readonly progressionReaders?: ICampaignProgressionReaders;
+    } = {},
   ) {
     this.host = host;
     this.matchId = options.matchId ?? host.campaignId;
+    this.progressionReaders = options.progressionReaders;
   }
 
   /**
@@ -668,12 +660,17 @@ export class CampaignSyncSession {
    * What blocks is a participant who is ABSENT while the campaign moves
    * on, or present and short of the head.
    *
-   * This answers CONVERGENCE ONLY. It does not consult `paused` or
-   * `opened`, so it returns `ok` on a session whose GM has gone — the
-   * GM-loss refusal is its own guard (`refusedWhilePaused` in
-   * `bindCampaignSyncConnection.ts`, umbrella 9.3) and duplicating it
-   * here would give two places to keep in step. A caller must apply
-   * BOTH.
+   * Extra clauses (active branch, completed saga, verified replacement
+   * artifacts) run first when readers are injected. Convergence stays
+   * last so a campaign that is still replacing an outcome cannot hide
+   * behind a "everyone caught up" answer, and so existing behind rows
+   * keep their meaning once those clauses pass.
+   *
+   * It does not consult `paused` or `opened`, so it returns `ok` on a
+   * session whose GM has gone — the GM-loss refusal is its own guard
+   * (`refusedWhilePaused` in `bindCampaignSyncConnection.ts`, umbrella
+   * 9.3) and duplicating it here would give two places to keep in step.
+   * A caller must apply BOTH.
    *
    * The required revision is read LIVE from the log head rather than
    * cached, for the same reason `getParticipationRecords` filters
@@ -694,6 +691,12 @@ export class CampaignSyncSession {
    */
   evaluateScenarioLaunch = async (): Promise<CampaignProgressionGate> => {
     const requiredRevision = await this.currentRevision();
+    const clauseRefusal = evaluateCampaignProgressionClauses({
+      campaignId: this.host.campaignId,
+      requiredRevision,
+      readers: this.progressionReaders,
+    });
+    if (clauseRefusal !== null) return clauseRefusal;
     const behind: ICampaignParticipantConvergence[] = [];
     this.retained.forEach((entry, participantId) => {
       if (entry.acknowledged < requiredRevision) {

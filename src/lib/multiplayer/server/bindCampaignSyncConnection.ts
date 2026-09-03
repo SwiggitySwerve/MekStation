@@ -38,6 +38,7 @@ import {
   createCampaignReplicaStoreFromSqlite,
 } from './campaignGrantChannelDeps';
 import { getCampaignHostRegistry } from './CampaignHostRegistry';
+import { formatCampaignProgressionRefusalReason } from './CampaignProgressionGate';
 import {
   handleCampaignGrantAck,
   type IBoundGrantSession,
@@ -659,10 +660,11 @@ function readProposalIntentKind(proposal: unknown): string | null {
 }
 
 /**
- * Refuses AdvanceDay while any retained participant is behind. Sends
- * CAMPAIGN_NOT_CONVERGED naming who is behind and the revision they
- * must reach; returns true when the commit must not happen. Progression
- * only - other intent kinds are deliberately never gated, so delivery
+ * Refuses AdvanceDay when the N+1 gate is closed. Sends
+ * CAMPAIGN_NOT_CONVERGED on the same Error frame for every reason
+ * (behind, correction-pending, unverified artifacts, inactive branch);
+ * returns true when the commit must not happen. Progression only -
+ * other intent kinds are deliberately never gated, so delivery
  * to healthy clients keeps flowing while someone lags.
  */
 async function refuseUnconvergedProgression(
@@ -673,15 +675,12 @@ async function refuseUnconvergedProgression(
 ): Promise<boolean> {
   const gate = await entry.syncSession.evaluateScenarioLaunch();
   if (gate.ok) return false;
-  const behind = gate.behind
-    .map((row) => `${row.participantId}:${row.acknowledgedRevision}`)
-    .join(',');
   send(
     socket,
     errorFrame(
       matchId,
       'CAMPAIGN_NOT_CONVERGED',
-      `participants-behind ${behind}; requiredRevision ${gate.requiredRevision}`,
+      formatCampaignProgressionRefusalReason(gate),
       correlationId,
     ),
   );

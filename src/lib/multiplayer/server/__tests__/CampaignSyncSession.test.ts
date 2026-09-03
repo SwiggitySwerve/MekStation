@@ -9,6 +9,12 @@
  * @spec openspec/changes/add-shared-campaign-state/specs/coop-campaign-sync/spec.md
  */
 
+import type {
+  EventHistoryBranchStatus,
+  IEventHistoryBranch,
+} from '@/lib/events/journal/EventHistoryBranchContract';
+import type { ICampaignProgressionReaders } from '@/lib/multiplayer/server/CampaignProgressionGate';
+import type { ICoordinatedCorrectionSaga } from '@/lib/multiplayer/server/history/CoordinatedOutcomeCorrectionSaga';
 import type { ICampaignEvent } from '@/types/campaign/CampaignSync';
 
 import { InMemoryCampaignEventStore } from '@/lib/campaign/sync/InMemoryCampaignEventStore';
@@ -18,12 +24,16 @@ import {
   RESYNC_SNAPSHOT_GAP,
 } from '@/lib/multiplayer/server/CampaignSyncSession';
 import { isValidRoomCode } from '@/lib/p2p/roomCodes';
+import { getSQLiteService } from '@/services/persistence/SQLiteService';
 import { createEmptyCampaignState } from '@/types/campaign/CampaignSync';
 
 const CAMPAIGN_ID = 'campaign-session';
 const HOST_ID = 'host-player';
 
-function newSession(balance = 600_000): {
+function newSession(
+  balance = 600_000,
+  progressionReaders?: ICampaignProgressionReaders,
+): {
   host: CampaignMatchHost;
   session: CampaignSyncSession;
 } {
@@ -33,7 +43,13 @@ function newSession(balance = 600_000): {
     eventStore: new InMemoryCampaignEventStore(),
     initialState: { ...createEmptyCampaignState(CAMPAIGN_ID), balance },
   });
-  return { host, session: new CampaignSyncSession(host) };
+  return {
+    host,
+    session: new CampaignSyncSession(
+      host,
+      progressionReaders === undefined ? {} : { progressionReaders },
+    ),
+  };
 }
 
 describe('CampaignSyncSession — host opens a shared campaign', () => {
@@ -233,14 +249,16 @@ describe('CampaignSyncSession — scenario progression requires convergence', ()
    * shape the spec scenario describes: a campaign that moved on while a
    * participant has not said they applied the move.
    */
-  async function twoMembersOneEventBehind(): Promise<{
+  async function twoMembersOneEventBehind(
+    progressionReaders?: ICampaignProgressionReaders,
+  ): Promise<{
     host: CampaignMatchHost;
     session: CampaignSyncSession;
     playerOneSaw: ICampaignEvent[];
     playerTwoSaw: ICampaignEvent[];
     stop: () => void;
   }> {
-    const { host, session } = newSession();
+    const { host, session } = newSession(600_000, progressionReaders);
     await session.open();
     const playerOneSaw: ICampaignEvent[] = [];
     const playerTwoSaw: ICampaignEvent[] = [];
@@ -609,5 +627,189 @@ describe('CampaignSyncSession — scenario progression requires convergence', ()
     // And they are genuinely at 3, not merely absent from the ledger.
     expect(session.noteParticipantAcknowledged('latecomer', 3)).toBe('stale');
     latecomer.disconnect();
+  });
+
+  function branchRecord(
+    branchId: string,
+    status: EventHistoryBranchStatus,
+  ): IEventHistoryBranch {
+    const isRoot = branchId === 'root';
+    return {
+      streamType: 'campaign',
+      streamId: CAMPAIGN_ID,
+      branchId,
+      parentBranchId: isRoot ? null : 'root',
+      ancestorDepth: isRoot ? 0 : 1,
+      baseRevision: isRoot ? 0 : 1,
+      baseEventId: isRoot ? null : 'evt-1',
+      baseDigest: 'digest',
+      status,
+      createdBy: 'gm',
+      reason: 'test',
+      createdAt: '2026-01-01T00:00:00.000Z',
+    };
+  }
+
+  function sagaRecord(
+    state: ICoordinatedCorrectionSaga['state'],
+  ): ICoordinatedCorrectionSaga {
+    return {
+      matchId: 'match-1',
+      outcomeId: 'outcome-1',
+      outcomeVersion: 2,
+      targetRevision: 4,
+      state,
+      blockedReason: null,
+      sourceRecordedAt: '2026-01-01T00:00:00.000Z',
+      manifestSealedAt: '2026-01-01T00:00:01.000Z',
+      targetRecordedAt:
+        state === 'target-pending' || state === 'completed'
+          ? '2026-01-01T00:00:02.000Z'
+          : null,
+      updatedAt: '2026-01-01T00:00:03.000Z',
+      candidateBranchId: 'candidate-1',
+    };
+  }
+
+  function readers(
+    overrides: Partial<ICampaignProgressionReaders>,
+  ): ICampaignProgressionReaders {
+    return {
+      readEffectiveHead: () => null,
+      readBranch: () => null,
+      readSagaForCampaign: () => null,
+      readManifestVerdict: () => null,
+      ...overrides,
+    };
+  }
+
+  it('refuses branch-not-active when the effective head is still a candidate', async () => {
+    const { session, stop } = await twoMembersOneEventBehind(
+      readers({
+        readEffectiveHead: () => ({
+          streamType: 'campaign',
+          streamId: CAMPAIGN_ID,
+          branchId: 'candidate-1',
+          effectiveGeneration: 1,
+          installedAt: '2026-01-01T00:00:00.000Z',
+        }),
+        readBranch: () => branchRecord('candidate-1', 'building'),
+      }),
+    );
+    session.noteParticipantAcknowledged('player-1', 1);
+    session.noteParticipantAcknowledged('player-2', 1);
+
+    expect(await session.evaluateScenarioLaunch()).toEqual({
+      ok: false,
+      reason: 'branch-not-active',
+      requiredRevision: 1,
+      branchId: 'candidate-1',
+      status: 'building',
+      behind: [],
+    });
+    stop();
+  });
+
+  it('refuses correction-pending when the saga is still at target-pending', async () => {
+    const pending = sagaRecord('target-pending');
+    const { session, stop } = await twoMembersOneEventBehind(
+      readers({ readSagaForCampaign: () => pending }),
+    );
+    session.noteParticipantAcknowledged('player-1', 1);
+    session.noteParticipantAcknowledged('player-2', 1);
+
+    expect(await session.evaluateScenarioLaunch()).toEqual({
+      ok: false,
+      reason: 'correction-pending',
+      requiredRevision: 1,
+      sagaKey: {
+        matchId: pending.matchId,
+        outcomeId: pending.outcomeId,
+        outcomeVersion: pending.outcomeVersion,
+      },
+      state: 'target-pending',
+      behind: [],
+    });
+    stop();
+  });
+
+  it('does not refuse correction-pending when the saga is completed', async () => {
+    const { session, stop } = await twoMembersOneEventBehind(
+      readers({
+        readSagaForCampaign: () => sagaRecord('completed'),
+        readManifestVerdict: () => ({ kind: 'verified' }),
+      }),
+    );
+    session.noteParticipantAcknowledged('player-1', 1);
+    session.noteParticipantAcknowledged('player-2', 1);
+
+    expect(await session.evaluateScenarioLaunch()).toEqual({
+      ok: true,
+      requiredRevision: 1,
+    });
+    stop();
+  });
+
+  it('refuses replacement-artifacts-unverified when the sealed manifest fails verify', async () => {
+    const { session, stop } = await twoMembersOneEventBehind(
+      readers({
+        readSagaForCampaign: () => sagaRecord('completed'),
+        readManifestVerdict: () => ({ kind: 'unverified' }),
+      }),
+    );
+    session.noteParticipantAcknowledged('player-1', 1);
+    session.noteParticipantAcknowledged('player-2', 1);
+
+    expect(await session.evaluateScenarioLaunch()).toEqual({
+      ok: false,
+      reason: 'replacement-artifacts-unverified',
+      requiredRevision: 1,
+      branchId: 'candidate-1',
+      behind: [],
+    });
+    stop();
+  });
+
+  it('with every extra clause satisfied still refuses participants who are behind', async () => {
+    const { session, stop } = await twoMembersOneEventBehind(
+      readers({
+        readEffectiveHead: () => ({
+          streamType: 'campaign',
+          streamId: CAMPAIGN_ID,
+          branchId: 'root',
+          effectiveGeneration: 1,
+          installedAt: '2026-01-01T00:00:00.000Z',
+        }),
+        readBranch: () => branchRecord('root', 'effective'),
+        readSagaForCampaign: () => sagaRecord('completed'),
+        readManifestVerdict: () => ({ kind: 'verified' }),
+      }),
+    );
+    session.noteParticipantAcknowledged('player-1', 1);
+
+    const gate = await session.evaluateScenarioLaunch();
+    expect(gate.ok).toBe(false);
+    if (!gate.ok) {
+      expect(gate.reason).toBe('participants-behind');
+      expect(gate.requiredRevision).toBe(1);
+      expect(gate.behind).toEqual([
+        { participantId: 'player-2', acknowledgedRevision: 0 },
+      ]);
+    }
+    stop();
+  });
+
+  it('with no readers injected and SQLite uninitialized answers exactly the convergence-only gate', async () => {
+    expect(getSQLiteService().isInitialized()).toBe(false);
+    const { session, stop } = await twoMembersOneEventBehind();
+    session.noteParticipantAcknowledged('player-1', 1);
+
+    expect(await session.evaluateScenarioLaunch()).toEqual({
+      ok: false,
+      reason: 'participants-behind',
+      requiredRevision: 1,
+      behind: [{ participantId: 'player-2', acknowledgedRevision: 0 }],
+    });
+    stop();
   });
 });

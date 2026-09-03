@@ -27,6 +27,7 @@ import {
 } from './CampaignGmArbiter';
 import { CampaignMatchHost } from './CampaignMatchHost';
 import { participationIsFresh } from './campaignParticipationFreshness';
+import { createDurableCampaignProgressionReaders } from './campaignProgressionReaders.durable';
 import { CampaignSyncSession } from './CampaignSyncSession';
 import { selectCampaignEventStore } from './getCampaignEventStore';
 import { getDefaultMatchStore } from './getDefaultMatchStore';
@@ -290,7 +291,10 @@ export class CampaignHostRegistry {
       eventStore: eventStore.store,
       initialState: snapshot.state,
     });
-    const syncSession = new CampaignSyncSession(host, { matchId });
+    const syncSession = new CampaignSyncSession(host, {
+      matchId,
+      progressionReaders: createDurableCampaignProgressionReaders(),
+    });
     // `null` means the invite already expired - see `getOrCreate`. It
     // opens the session without one rather than minting a fresh code,
     // so rehydration cannot re-open a door that launching closed.

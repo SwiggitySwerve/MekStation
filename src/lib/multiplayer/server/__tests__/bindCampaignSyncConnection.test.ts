@@ -2280,6 +2280,114 @@ describe('bindCampaignSyncConnection', () => {
       expect(sawError(host, 'CAMPAIGN_NOT_CONVERGED')).toBe(false);
       expect(registry.get('match-campaign')?.host.getState().day).toBe(1);
     });
+
+    it('answers correction-pending on the same CAMPAIGN_NOT_CONVERGED frame', async () => {
+      const { registry, host } = await openHostAndGuest();
+      const entry = registry.get('match-campaign');
+      expect(entry).not.toBeNull();
+      if (entry === null) return;
+      jest
+        .spyOn(entry.syncSession, 'evaluateScenarioLaunch')
+        .mockResolvedValue({
+          ok: false,
+          reason: 'correction-pending',
+          requiredRevision: 4,
+          sagaKey: {
+            matchId: 'match-1',
+            outcomeId: 'outcome-1',
+            outcomeVersion: 2,
+          },
+          state: 'target-pending',
+          behind: [],
+        });
+
+      sendHostIntent(host, {
+        kind: 'AdvanceDay',
+        intentId: 'advance-correction-pending',
+        payload: { days: 1 },
+      });
+      await flushAsyncHandlers();
+
+      const error = host.sent.find(
+        (message) =>
+          message.kind === 'Error' && message.code === 'CAMPAIGN_NOT_CONVERGED',
+      );
+      expect(error?.kind).toBe('Error');
+      if (error?.kind !== 'Error') return;
+      expect(error.reason).toContain('correction-pending');
+      expect(error.reason).toContain('match-1');
+      expect(error.reason).toContain('outcome-1');
+      expect(error.reason).toContain('target-pending');
+      expect(error.reason).toContain('requiredRevision 4');
+    });
+
+    it('answers replacement-artifacts-unverified on the same CAMPAIGN_NOT_CONVERGED frame', async () => {
+      const { registry, host } = await openHostAndGuest();
+      const entry = registry.get('match-campaign');
+      expect(entry).not.toBeNull();
+      if (entry === null) return;
+      jest
+        .spyOn(entry.syncSession, 'evaluateScenarioLaunch')
+        .mockResolvedValue({
+          ok: false,
+          reason: 'replacement-artifacts-unverified',
+          requiredRevision: 3,
+          branchId: 'candidate-1',
+          behind: [],
+        });
+
+      sendHostIntent(host, {
+        kind: 'AdvanceDay',
+        intentId: 'advance-unverified-artifacts',
+        payload: { days: 1 },
+      });
+      await flushAsyncHandlers();
+
+      const error = host.sent.find(
+        (message) =>
+          message.kind === 'Error' && message.code === 'CAMPAIGN_NOT_CONVERGED',
+      );
+      expect(error?.kind).toBe('Error');
+      if (error?.kind !== 'Error') return;
+      expect(error.reason).toContain('replacement-artifacts-unverified');
+      expect(error.reason).toContain('candidate-1');
+      expect(error.reason).toContain('requiredRevision 3');
+    });
+
+    it('answers branch-not-active on the same CAMPAIGN_NOT_CONVERGED frame', async () => {
+      const { registry, host } = await openHostAndGuest();
+      const entry = registry.get('match-campaign');
+      expect(entry).not.toBeNull();
+      if (entry === null) return;
+      jest
+        .spyOn(entry.syncSession, 'evaluateScenarioLaunch')
+        .mockResolvedValue({
+          ok: false,
+          reason: 'branch-not-active',
+          requiredRevision: 2,
+          branchId: 'candidate-1',
+          status: 'building',
+          behind: [],
+        });
+
+      sendHostIntent(host, {
+        kind: 'AdvanceDay',
+        intentId: 'advance-branch-not-active',
+        payload: { days: 1 },
+      });
+      await flushAsyncHandlers();
+
+      const error = host.sent.find(
+        (message) =>
+          message.kind === 'Error' && message.code === 'CAMPAIGN_NOT_CONVERGED',
+      );
+      expect(error?.kind).toBe('Error');
+      if (error?.kind !== 'Error') return;
+      expect(error.reason).toContain('branch-not-active');
+      expect(error.reason).toContain('candidate-1');
+      expect(error.reason).toContain('building');
+      expect(error.reason).toContain('requiredRevision 2');
+    });
   });
 });
 

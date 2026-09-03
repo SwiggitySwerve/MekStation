@@ -353,6 +353,33 @@ export function readCoordinatedCorrectionSaga(
   return readSagaRow(matchDb, key);
 }
 
+/**
+ * Inbox receipts carry `outcome_id` and not `match_id`, so the N+1 gate
+ * indexes the match-store saga by outcome id. Latest version wins when
+ * more than one correction exists for the same outcome.
+ *
+ * Does not migrate: a match store that predates this table has no saga,
+ * and a launch gate must not create schema as a side effect of reading.
+ */
+export function readCoordinatedCorrectionSagaByOutcomeId(
+  matchDb: Database.Database,
+  outcomeId: string,
+): ICoordinatedCorrectionSaga | null {
+  try {
+    const row = matchDb
+      .prepare(
+        `SELECT ${SAGA_COLUMNS} FROM ${COORDINATED_CORRECTION_SAGA_TABLE}
+          WHERE outcome_id = ?
+          ORDER BY outcome_version DESC, updated_at DESC
+          LIMIT 1`,
+      )
+      .get(outcomeId) as ICoordinatedCorrectionSaga | undefined;
+    return row === undefined ? null : row;
+  } catch {
+    return null;
+  }
+}
+
 export function blockCoordinatedCorrection(
   matchDb: Database.Database,
   key: ICoordinatedCorrectionSagaKey,

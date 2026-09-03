@@ -1307,6 +1307,13 @@ export class DurableMatchStore
     return row.n;
   };
 
+  /**
+   * The match-file SQLite handle. Coordinated-correction saga rows live
+   * here, not in the campaign journal, so the N+1 gate has to read this
+   * connection rather than `getSQLiteService()`.
+   */
+  getDatabase = (): Database.Database => this.db;
+
   /** Close the underlying SQLite handle. Call on server shutdown. */
   close = (): void => {
     try {
