@@ -18,6 +18,10 @@
  * @module lib/campaign/processors/salvageProcessor
  */
 
+import type {
+  CampaignArtifactUseConsult,
+  InvalidatedCampaignArtifactRefusal,
+} from '@/lib/interventions/GmCampaignArtifactUseGuard';
 import type { ICampaign } from '@/types/campaign/Campaign';
 import type {
   ISalvageAllocation,
@@ -225,13 +229,37 @@ function toReport(allocation: ISalvageAllocation): ISalvageReport {
  * Apply salvage for one outcome without going through the day pipeline.
  * Useful for tests, REPL, and direct UI-driven flows.
  */
+export type ApplySalvageResult =
+  | {
+      readonly campaign: ICampaignWithSalvageState;
+      readonly summary: ISalvageProcessed;
+    }
+  | InvalidatedCampaignArtifactRefusal;
+
+export function applySalvage(
+  outcome: ICombatOutcome,
+  campaign: ICampaignWithSalvageState,
+  consultArtifactUse: CampaignArtifactUseConsult,
+): ApplySalvageResult;
 export function applySalvage(
   outcome: ICombatOutcome,
   campaign: ICampaignWithSalvageState,
 ): {
   campaign: ICampaignWithSalvageState;
   summary: ISalvageProcessed;
-} {
+};
+export function applySalvage(
+  outcome: ICombatOutcome,
+  campaign: ICampaignWithSalvageState,
+  consultArtifactUse?: CampaignArtifactUseConsult,
+): ApplySalvageResult {
+  // Refuse before compute-and-persist: an invalidated matchId must not
+  // grow salvage allocations or the reported-id set.
+  const refused = consultArtifactUse?.({
+    artifactKind: 'salvage',
+    artifactId: outcome.matchId,
+  });
+  if (refused) return refused;
   const result = processOutcome(campaign, outcome);
   return { campaign: result.campaign, summary: result.summary };
 }

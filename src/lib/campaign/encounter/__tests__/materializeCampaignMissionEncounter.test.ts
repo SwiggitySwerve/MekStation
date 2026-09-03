@@ -1,4 +1,5 @@
 import type { OwnedForceMaterializationResult } from '@/lib/campaign/encounter/campaignOwnedForceMaterialization';
+import type { CampaignArtifactUseConsult } from '@/lib/interventions/GmCampaignArtifactUseGuard';
 import type { ICampaign } from '@/types/campaign/Campaign';
 import type { IRosterUnitProjection } from '@/types/campaign/RosterUnitProjection';
 
@@ -713,6 +714,141 @@ describe('materializeCampaignMissionEncounter', () => {
       // Three player units means three OpFor units. Sizing off the caller's
       // `rosterUnits` (length 1 here) would field a lopsided battle.
       expect(assignmentBodies(calls)).toHaveLength(6);
+    });
+  });
+
+  describe('invalidated campaign artifacts (16.4-b)', () => {
+    const SCN = 'scn-contract-1-3025-06-15-force-alpha';
+    const ENC = 'enc-scn-contract-1-3025-06-15-force-alpha';
+    const REFUSAL = {
+      kind: 'invalidated-artifact' as const,
+      artifactKind: 'scenario' as const,
+      artifactId: SCN,
+      branchId: 'cand-use-1',
+      revision: 3,
+    };
+
+    function refuse(
+      kind: 'scenario' | 'encounter',
+      id: string,
+    ): CampaignArtifactUseConsult {
+      return (artifact) =>
+        artifact.artifactKind === kind && artifact.artifactId === id
+          ? {
+              kind: 'invalidated-artifact',
+              artifactKind: kind,
+              artifactId: id,
+              branchId: 'cand-use-1',
+              revision: 3,
+            }
+          : null;
+    }
+
+    it('launching an invalidated scenario draft appends nothing and answers invalidated-artifact', async () => {
+      const calls: FetchCall[] = [];
+      const result = await materializeCampaignMissionEncounter({
+        campaign: makeCampaign([SCN]),
+        missionId: 'contract-1',
+        rosterUnits: makeRoster(),
+        catalog: readyCatalog,
+        fetchImpl: makeMaterializationFetch(calls),
+        consultArtifactUse: refuse('scenario', SCN),
+      });
+      expect(result).toStrictEqual(REFUSAL);
+      expect(calls).toHaveLength(0);
+    });
+
+    it('materializing an invalidated encounter appends nothing and answers invalidated-artifact', async () => {
+      const calls: FetchCall[] = [];
+      const result = await materializeCampaignMissionEncounter({
+        campaign: makeCampaign([ENC]),
+        missionId: 'contract-1',
+        rosterUnits: makeRoster(),
+        catalog: readyCatalog,
+        fetchImpl: makeMaterializationFetch(calls),
+        consultArtifactUse: refuse('encounter', ENC),
+      });
+      expect(result).toStrictEqual({
+        kind: 'invalidated-artifact',
+        artifactKind: 'encounter',
+        artifactId: ENC,
+        branchId: 'cand-use-1',
+        revision: 3,
+      });
+      expect(calls).toHaveLength(0);
+    });
+
+    it('a valid scenario id still launches', async () => {
+      const calls: FetchCall[] = [];
+      // The mission's scenario exists but is not launch-ready, so the door
+      // materializes a replacement: a consult answering null must leave that
+      // path untouched.
+      const materializeFetch = makeMaterializationFetch(calls, 'enc-organic');
+      const fetchImpl = jest.fn(async (input, init) => {
+        const call = { url: requestUrl(input), init };
+        if (call.url === `/api/encounters/${SCN}`) {
+          calls.push(call);
+          return jsonResponse({ encounter: { id: SCN } });
+        }
+        if (call.url === `/api/encounters/${SCN}/validate`) {
+          calls.push(call);
+          return jsonResponse({
+            validation: {
+              valid: false,
+              errors: ['Player force must be selected'],
+              warnings: [],
+            },
+          });
+        }
+        return materializeFetch(input, init);
+      }) as unknown as typeof fetch;
+      const result = await materializeCampaignMissionEncounter({
+        campaign: makeCampaign([SCN]),
+        missionId: 'contract-1',
+        rosterUnits: makeRoster(),
+        catalog: readyCatalog,
+        fetchImpl,
+        consultArtifactUse: () => null,
+      });
+      expect(result).toEqual({
+        encounterId: 'enc-organic',
+        reused: false,
+        missionScenarioIds: ['enc-organic', SCN],
+      });
+      expect(calls.length).toBeGreaterThan(0);
+    });
+
+    it('a valid encounter id still materializes', async () => {
+      const calls: FetchCall[] = [];
+      const fetchImpl = jest.fn(async (input, init) => {
+        const call = { url: requestUrl(input), init };
+        calls.push(call);
+        if (call.url === `/api/encounters/${ENC}`) {
+          return jsonResponse({ encounter: { id: ENC } });
+        }
+        if (call.url === `/api/encounters/${ENC}/validate`) {
+          return jsonResponse({
+            validation: { valid: true, errors: [], warnings: [] },
+          });
+        }
+        throw new Error(
+          `Unexpected fetch: ${init?.method ?? 'GET'} ${call.url}`,
+        );
+      }) as unknown as typeof fetch;
+      const result = await materializeCampaignMissionEncounter({
+        campaign: makeCampaign([ENC]),
+        missionId: 'contract-1',
+        rosterUnits: makeRoster(),
+        catalog: readyCatalog,
+        fetchImpl,
+        consultArtifactUse: () => null,
+      });
+      expect(result).toEqual({
+        encounterId: ENC,
+        reused: true,
+        missionScenarioIds: [ENC],
+      });
+      expect(calls.length).toBeGreaterThan(0);
     });
   });
 });

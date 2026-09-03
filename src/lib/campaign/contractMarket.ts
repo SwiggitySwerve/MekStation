@@ -16,6 +16,10 @@
  * @module lib/campaign/contractMarket
  */
 
+import type {
+  CampaignArtifactUseConsult,
+  InvalidatedCampaignArtifactRefusal,
+} from '@/lib/interventions/GmCampaignArtifactUseGuard';
 import { ICampaign } from '@/types/campaign/Campaign';
 import {
   AtBContractType,
@@ -268,7 +272,24 @@ export function generateAtBContracts(
 export function acceptContract(
   campaign: ICampaign,
   contract: IContract,
-): ICampaign {
+  consultArtifactUse: CampaignArtifactUseConsult,
+): ICampaign | InvalidatedCampaignArtifactRefusal;
+export function acceptContract(
+  campaign: ICampaign,
+  contract: IContract,
+): ICampaign;
+export function acceptContract(
+  campaign: ICampaign,
+  contract: IContract,
+  consultArtifactUse?: CampaignArtifactUseConsult,
+): ICampaign | InvalidatedCampaignArtifactRefusal {
+  // A correction that sealed this contractId must refuse re-entry before
+  // the missions map grows. The duplicate throw below is unchanged.
+  const refused = consultArtifactUse?.({
+    artifactKind: 'contract',
+    artifactId: contract.id,
+  });
+  if (refused) return refused;
   if (campaign.missions.has(contract.id)) {
     throw new Error(`Contract ${contract.id} already exists in campaign`);
   }

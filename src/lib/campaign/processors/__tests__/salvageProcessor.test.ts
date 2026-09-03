@@ -183,6 +183,52 @@ describe('applySalvage', () => {
     expect(allocation?.mercenaryAward.candidates).toHaveLength(0);
     expect(allocation?.employerAward.candidates).toHaveLength(0);
   });
+
+  it('a salvage roll for an invalidated matchId appends nothing', () => {
+    const campaign = makeCampaign();
+    const outcome = makeOutcome();
+    const result = applySalvage(outcome, campaign, (artifact) =>
+      artifact.artifactKind === 'salvage' &&
+      artifact.artifactId === outcome.matchId
+        ? {
+            kind: 'invalidated-artifact',
+            artifactKind: 'salvage',
+            artifactId: outcome.matchId,
+            branchId: 'cand-use-1',
+            revision: 3,
+          }
+        : null,
+    );
+    expect(result).toStrictEqual({
+      kind: 'invalidated-artifact',
+      artifactKind: 'salvage',
+      artifactId: outcome.matchId,
+      branchId: 'cand-use-1',
+      revision: 3,
+    });
+    expect(campaign.salvageAllocations).toBeUndefined();
+    expect(campaign.salvageReportedBattleIds).toBeUndefined();
+  });
+
+  it('a valid matchId still allocates salvage', () => {
+    const contract = createContract({
+      id: 'contract-1',
+      name: 'Test',
+      employerId: 'davion',
+      targetId: 'liao',
+      salvageRights: 'Integrated',
+    });
+    const campaign = makeCampaign(contract);
+    const outcome = makeOutcome();
+    const result = applySalvage(outcome, campaign, () => null);
+    expect(result).toMatchObject({
+      summary: { allocationCreated: true },
+    });
+    if (!('campaign' in result)) {
+      throw new Error('expected salvage to apply');
+    }
+    expect(result.campaign.salvageAllocations?.[outcome.matchId]).toBeDefined();
+  });
 });
 
 // =============================================================================
