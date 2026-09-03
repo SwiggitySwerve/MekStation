@@ -8,6 +8,7 @@
  * - Helper functions: name generation, random ranges, random selection
  */
 
+import { isInvalidatedCampaignArtifactRefusal } from '@/lib/interventions/GmCampaignArtifactUseGuard';
 import {
   ICampaign,
   createDefaultCampaignOptions,
@@ -515,6 +516,42 @@ describe('Contract Market', () => {
       acceptContract(campaign, contract);
 
       expect(campaign.missions.size).toBe(0);
+    });
+
+    it('accepting an invalidated contract appends nothing', () => {
+      const campaign = createTestCampaign();
+      const contract = createTestContract();
+      const result = acceptContract(campaign, contract, (artifact) =>
+        artifact.artifactKind === 'contract' &&
+        artifact.artifactId === contract.id
+          ? {
+              kind: 'invalidated-artifact',
+              artifactKind: 'contract',
+              artifactId: contract.id,
+              branchId: 'cand-use-1',
+              revision: 3,
+            }
+          : null,
+      );
+      expect(result).toStrictEqual({
+        kind: 'invalidated-artifact',
+        artifactKind: 'contract',
+        artifactId: contract.id,
+        branchId: 'cand-use-1',
+        revision: 3,
+      });
+      expect(campaign.missions.size).toBe(0);
+    });
+
+    it('a valid contract id still accepts', () => {
+      const campaign = createTestCampaign();
+      const contract = createTestContract();
+      const updated = acceptContract(campaign, contract, () => null);
+      if (isInvalidatedCampaignArtifactRefusal(updated)) {
+        throw new Error('expected contract to accept');
+      }
+      expect(updated.missions.has(contract.id)).toBe(true);
+      expect(updated.missions.size).toBe(1);
     });
 
     it('should throw error for duplicate contract', () => {

@@ -11,6 +11,11 @@ import {
   type CanonicalCombatCatalogSnapshot,
   admitRosterUnitSource,
 } from '@/lib/campaign/readiness/canonicalCatalogAdmission';
+import {
+  refuseCampaignLaunchArtifacts,
+  type CampaignArtifactUseConsult,
+  type InvalidatedCampaignArtifactRefusal,
+} from '@/lib/interventions/GmCampaignArtifactUseGuard';
 import { logger } from '@/utils/logger';
 
 import type { OwnedForceMaterializationResult } from './campaignOwnedForceMaterialization';
@@ -49,6 +54,8 @@ export interface MaterializeCampaignMissionEncounterInput {
    * Absent on the single-player path, which keeps its flat roster.
    */
   readonly ownedForces?: OwnedForceMaterializationResult;
+  /** 16.4-b consult; omit to keep callers byte-identical. */
+  readonly consultArtifactUse?: CampaignArtifactUseConsult;
 }
 
 export interface MaterializeCampaignMissionEncounterResult {
@@ -109,6 +116,16 @@ function assertLaunchRoster(
   }
 }
 
+export async function materializeCampaignMissionEncounter(
+  input: MaterializeCampaignMissionEncounterInput & {
+    readonly consultArtifactUse: CampaignArtifactUseConsult;
+  },
+): Promise<
+  MaterializeCampaignMissionEncounterResult | InvalidatedCampaignArtifactRefusal
+>;
+export async function materializeCampaignMissionEncounter(
+  input: MaterializeCampaignMissionEncounterInput,
+): Promise<MaterializeCampaignMissionEncounterResult>;
 export async function materializeCampaignMissionEncounter({
   campaign,
   missionId,
@@ -116,7 +133,17 @@ export async function materializeCampaignMissionEncounter({
   catalog,
   fetchImpl = fetch,
   ownedForces,
-}: MaterializeCampaignMissionEncounterInput): Promise<MaterializeCampaignMissionEncounterResult> {
+  consultArtifactUse,
+}: MaterializeCampaignMissionEncounterInput): Promise<
+  MaterializeCampaignMissionEncounterResult | InvalidatedCampaignArtifactRefusal
+> {
+  const refused = consultArtifactUse
+    ? refuseCampaignLaunchArtifacts(
+        consultArtifactUse,
+        campaign.missions.get(missionId)?.scenarioIds ?? [],
+      )
+    : null;
+  if (refused) return refused;
   try {
     assertOwnedForcesCurrent(ownedForces);
     assertSourceCatalogAdmission(rosterUnits, catalog);
