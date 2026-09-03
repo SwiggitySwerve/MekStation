@@ -21,9 +21,9 @@ import type { IEventHistoryStreamRef } from '@/lib/events/journal/EventHistoryBr
 
 import { SQLiteEventHistoryArtifactManifestStore } from '@/lib/events/journal/EventHistoryArtifactManifest';
 
-import { supersedeMatchStoreFrom } from '../DurableMatchStore.supersede';
-
 import type { CoordinatedOutcomeCorrectionResult } from './CoordinatedOutcomeCorrection';
+
+import { supersedeMatchStoreFrom } from '../DurableMatchStore.supersede';
 import {
   classifyOutboxReplacement,
   readCombatOutcomeSlot,
@@ -87,9 +87,7 @@ export type RecordCoordinatedCorrectionSourceResult =
 
 export interface ICoordinatedCorrectionManifestStores {
   /** Journal connection, or a store already bound to it. */
-  readonly journal:
-    | Database.Database
-    | SQLiteEventHistoryArtifactManifestStore;
+  readonly journal: Database.Database | SQLiteEventHistoryArtifactManifestStore;
   /** Match-store connection that holds the saga row. Not the journal. */
   readonly matchDb: Database.Database;
 }
@@ -291,7 +289,9 @@ export function sealCoordinatedCorrectionManifest(
 
   const stream = accepted.stream ?? matchStreamRef(accepted.matchId);
   const manifests = resolveManifestStore(journalDbOrStores.journal);
-  if (manifests.readArtifactManifest(stream, accepted.candidateBranchId) === null) {
+  if (
+    manifests.readArtifactManifest(stream, accepted.candidateBranchId) === null
+  ) {
     manifests.sealArtifactManifest(
       stream,
       accepted.candidateBranchId,

@@ -11,10 +11,6 @@ import { tmpdir } from 'node:os';
 import path from 'node:path';
 
 import type { IAffectedArtifact } from '@/lib/events/journal/EventHistoryArtifactManifest';
-import {
-  CombatEndReason,
-  type ICombatOutcome,
-} from '@/types/combat/CombatOutcome';
 import type { IGameEvent } from '@/types/gameplay/GameSessionInterfaces';
 
 import { SQLiteEventHistoryArtifactManifestStore } from '@/lib/events/journal/EventHistoryArtifactManifest';
@@ -28,6 +24,10 @@ import {
   getSQLiteService,
   resetSQLiteService,
 } from '@/services/persistence/SQLiteService';
+import {
+  CombatEndReason,
+  type ICombatOutcome,
+} from '@/types/combat/CombatOutcome';
 import {
   GameEventType,
   GamePhase,
@@ -72,7 +72,10 @@ function matchDatabase(store: DurableMatchStore): Database.Database {
   return db as Database.Database;
 }
 
-function matchEvent(sequence: number, id = `match-event-${sequence}`): IGameEvent {
+function matchEvent(
+  sequence: number,
+  id = `match-event-${sequence}`,
+): IGameEvent {
   return {
     id,
     gameId: MATCH_ID,
@@ -119,7 +122,9 @@ async function seedMatchTail(store: DurableMatchStore): Promise<void> {
 }
 
 function liveSequences(store: DurableMatchStore): Promise<readonly number[]> {
-  return store.getEvents(MATCH_ID).then((events) => events.map((e) => e.sequence));
+  return store
+    .getEvents(MATCH_ID)
+    .then((events) => events.map((e) => e.sequence));
 }
 
 function record(store: DurableMatchStore, outcomeJson = JSON_A) {
@@ -241,7 +246,9 @@ describe('recordCoordinatedCorrectionSource', () => {
     })();
     expect(failure).toContain('injected outbox failure');
     expect(await liveSequences(store)).toEqual([0, 1, 2, 3]);
-    expect(readSupersededMatchEvents(matchDatabase(store), MATCH_ID)).toEqual([]);
+    expect(readSupersededMatchEvents(matchDatabase(store), MATCH_ID)).toEqual(
+      [],
+    );
     expect(
       readCoordinatedCorrectionSaga(matchDatabase(store), sagaKeyOf(ACCEPTED)),
     ).toBeNull();
@@ -286,7 +293,9 @@ describe('recordCoordinatedCorrectionSource', () => {
     expect(outbox?.publishedAt).toBeNull();
     // listPendingPublications reads mp_match_outbox only — not the combat slot.
     expect(
-      (await store.listPendingPublications(MATCH_ID)).map((row) => row.sequence),
+      (await store.listPendingPublications(MATCH_ID)).map(
+        (row) => row.sequence,
+      ),
     ).toEqual([0, 1]);
   });
 
@@ -300,7 +309,9 @@ describe('recordCoordinatedCorrectionSource', () => {
 
     const result = record(store);
     expect(result.kind).toBe('recorded');
-    expect(readRecordedOutcomeJson(matchDatabase(store), MATCH_ID)).toBe(JSON_A);
+    expect(readRecordedOutcomeJson(matchDatabase(store), MATCH_ID)).toBe(
+      JSON_A,
+    );
     const row = matchDatabase(store)
       .prepare(
         `SELECT outcome_version AS outcomeVersion, outcome_json AS outcomeJson,
@@ -337,7 +348,9 @@ describe('recordCoordinatedCorrectionSource', () => {
       ),
     ).toEqual([2, 3]);
     expect(outboxRowCount(store)).toBe(1);
-    expect(readRecordedOutcomeJson(matchDatabase(store), MATCH_ID)).toBe(JSON_A);
+    expect(readRecordedOutcomeJson(matchDatabase(store), MATCH_ID)).toBe(
+      JSON_A,
+    );
     expect(
       readCoordinatedCorrectionSaga(matchDatabase(store), sagaKeyOf(ACCEPTED)),
     ).toMatchObject({ state: 'source-recorded', outcomeVersion: 2 });
@@ -357,7 +370,9 @@ describe('recordCoordinatedCorrectionSource', () => {
     expect(
       readCoordinatedCorrectionSaga(matchDatabase(store), sagaKeyOf(ACCEPTED)),
     ).toBeNull();
-    expect(readRecordedOutcomeJson(matchDatabase(store), MATCH_ID)).toBe(JSON_B);
+    expect(readRecordedOutcomeJson(matchDatabase(store), MATCH_ID)).toBe(
+      JSON_B,
+    );
     expect(outboxRowCount(store)).toBe(1);
   });
 
@@ -538,10 +553,9 @@ describe('sealCoordinatedCorrectionManifest', () => {
       readCoordinatedCorrectionSaga(matchDatabase(store), sagaKeyOf(ACCEPTED)),
     ).toMatchObject({ state: 'blocked', blockedReason });
     expect(
-      new SQLiteEventHistoryArtifactManifestStore(journalDb).readArtifactManifest(
-        STREAM,
-        candidateBranchId,
-      ),
+      new SQLiteEventHistoryArtifactManifestStore(
+        journalDb,
+      ).readArtifactManifest(STREAM, candidateBranchId),
     ).toBeNull();
   });
 });
