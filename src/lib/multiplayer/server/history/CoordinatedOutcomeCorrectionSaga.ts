@@ -24,6 +24,7 @@ import { SQLiteEventHistoryArtifactManifestStore } from '@/lib/events/journal/Ev
 
 import type { CoordinatedOutcomeCorrectionResult } from './CoordinatedOutcomeCorrection';
 
+import { throwForE2EFault } from '../DurableMatchStore';
 import { supersedeMatchStoreFrom } from '../DurableMatchStore.supersede';
 import {
   classifyOutboxReplacement,
@@ -226,51 +227,63 @@ export function recordCoordinatedCorrectionSource(
   const key = sagaKeyOf(accepted);
   const fromSequence = firstSupersededMatchSequence(accepted.targetRevision);
 
-  return matchDb.transaction((): RecordCoordinatedCorrectionSourceResult => {
-    const slot = readCombatOutcomeSlot(matchDb, accepted.matchId);
-    const replacement = classifyOutboxReplacement(
-      slot,
-      accepted.outcomeVersion,
-      input.outcomeJson,
-    );
-    if (replacement === 'refuse') {
-      return refuseImmutable(key);
-    }
+  const result = matchDb.transaction(
+    (): RecordCoordinatedCorrectionSourceResult => {
+      const slot = readCombatOutcomeSlot(matchDb, accepted.matchId);
+      const replacement = classifyOutboxReplacement(
+        slot,
+        accepted.outcomeVersion,
+        input.outcomeJson,
+      );
+      if (replacement === 'refuse') {
+        return refuseImmutable(key);
+      }
 
-    const existing = readSagaRow(matchDb, key);
-    if (existing !== null) {
-      return Object.freeze({ kind: 'recorded', saga: existing });
-    }
+      const existing = readSagaRow(matchDb, key);
+      if (existing !== null) {
+        return Object.freeze({ kind: 'recorded', saga: existing });
+      }
 
-    matchDb
-      .prepare(
-        `INSERT INTO ${COORDINATED_CORRECTION_SAGA_TABLE} (
+      matchDb
+        .prepare(
+          `INSERT INTO ${COORDINATED_CORRECTION_SAGA_TABLE} (
            match_id, outcome_id, outcome_version, target_revision, state,
            blocked_reason, source_recorded_at, manifest_sealed_at,
            target_recorded_at, updated_at, candidate_branch_id
          ) VALUES (?, ?, ?, ?, 'source-recorded', NULL, ?, NULL, NULL, ?, NULL)`,
-      )
-      .run(
+        )
+        .run(
+          accepted.matchId,
+          accepted.outcomeId,
+          accepted.outcomeVersion,
+          accepted.targetRevision,
+          input.at,
+          input.at,
+        );
+
+      supersedeMatchStoreFrom(
+        matchDb,
         accepted.matchId,
-        accepted.outcomeId,
-        accepted.outcomeVersion,
-        accepted.targetRevision,
-        input.at,
+        fromSequence,
         input.at,
       );
 
-    supersedeMatchStoreFrom(matchDb, accepted.matchId, fromSequence, input.at);
+      if (replacement === 'write') {
+        writeReplacementOutboxSlot(matchDb, accepted, input, slot);
+      }
 
-    if (replacement === 'write') {
-      writeReplacementOutboxSlot(matchDb, accepted, input, slot);
-    }
-
-    const saga = readSagaRow(matchDb, key);
-    if (saga === null) {
-      throw new Error('coordinated-correction saga row missing after insert');
-    }
-    return Object.freeze({ kind: 'recorded', saga });
-  })();
+      const saga = readSagaRow(matchDb, key);
+      if (saga === null) {
+        throw new Error('coordinated-correction saga row missing after insert');
+      }
+      return Object.freeze({ kind: 'recorded', saga });
+    },
+  )();
+  // Crash window: this match-store transaction is committed; the
+  // journal seal has not started. A retry sees `source-recorded` and
+  // skips this step. Unit form throws; e2e form of this kind would exit.
+  throwForE2EFault('correction-exit-after-source', accepted.matchId);
+  return result;
 }
 
 function resolveManifestStore(
