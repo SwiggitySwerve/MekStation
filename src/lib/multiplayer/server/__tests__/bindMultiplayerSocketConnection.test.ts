@@ -111,6 +111,44 @@ describe('bindMultiplayerSocketConnection', () => {
     });
   });
 
+  it('closes a quarantined match with MATCH_QUARANTINED rather than UNKNOWN_MATCH', async () => {
+    const socket = new MockWireSocket();
+    const isQuarantined = jest.fn(
+      (matchId: string) => matchId === 'match-gapped',
+    );
+    const registry: IMatchHostRegistryLike = {
+      getOrCreate: jest.fn().mockResolvedValue(null),
+      isQuarantined,
+    };
+
+    await bindMultiplayerSocketConnection({
+      socket,
+      registry,
+      matchId: 'match-gapped',
+      verifiedPlayerId: 'pid_host',
+      logger: quietLogger,
+    });
+
+    expect(registry.getOrCreate).toHaveBeenCalledWith('match-gapped', {});
+    expect(isQuarantined).toHaveBeenCalledWith('match-gapped');
+    expect(socket.sent).toEqual([
+      expect.objectContaining({
+        kind: 'Error',
+        matchId: 'match-gapped',
+        code: 'MATCH_QUARANTINED',
+      }),
+      expect.objectContaining({
+        kind: 'Close',
+        matchId: 'match-gapped',
+        code: 'MATCH_QUARANTINED',
+      }),
+    ]);
+    expect(socket.closes[0]).toMatchObject({
+      code: 1008,
+      reason: 'match-quarantined',
+    });
+  });
+
   it('refuses a SessionJoin claiming another player and replays nothing', async () => {
     // Impersonation at the door. The envelope carries a playerId the
     // connection never proved, and the reply must be a refusal - not a
