@@ -15,6 +15,7 @@ import Database from 'better-sqlite3';
 import { ACTION_AUDIT_MIGRATION } from './SQLiteService.actionAudit.migration';
 import { ACTION_AUDIT_SESSION_IDENTITY_MIGRATION } from './SQLiteService.actionAuditSessionIdentity.migration';
 import { EVENT_HISTORY_ARTIFACT_MANIFEST_MIGRATION } from './SQLiteService.artifactManifest.migration';
+import { EVENT_HISTORY_ARTIFACT_MANIFEST_KINDS_MIGRATION } from './SQLiteService.artifactManifestKinds.migration';
 import { JOURNAL_BRANCH_PIN_MIGRATION } from './SQLiteService.branchPin.migration';
 import { CAMPAIGN_GRANTS_MIGRATION } from './SQLiteService.campaignGrants.migration';
 import { CAMPAIGN_HOST_INSTANCE_MIGRATION } from './SQLiteService.campaignHostInstance.migration';
@@ -405,4 +406,5 @@ export const MIGRATIONS: readonly IMigration[] = [
   REPLAY_CHECKPOINTS_BRANCH_MIGRATION,
   ACTION_AUDIT_SESSION_IDENTITY_MIGRATION,
   PRIVATE_RECORD_REJECTION_ONCE_MIGRATION,
+  EVENT_HISTORY_ARTIFACT_MANIFEST_KINDS_MIGRATION,
 ];

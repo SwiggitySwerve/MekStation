@@ -3,6 +3,10 @@ import { mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 
+import type { ICampaignJournalEnvelope } from '@/lib/campaign/sync/JournalCampaignEventStore';
+import type { ICampaignEvent } from '@/types/campaign/CampaignSync';
+
+import { appendCampaignCommandBatch } from '@/lib/campaign/sync/JournalCampaignEventStore';
 import { SQLiteService } from '@/services/persistence/SQLiteService';
 
 import type { EventHistoryArtifactManifestErrorCode } from '../EventHistoryArtifactManifest';
@@ -11,6 +15,7 @@ import type { EventHistoryBranchErrorCode } from '../EventHistoryBranchContract'
 import type { EventHistoryCorrectionLeaseErrorCode } from '../EventHistoryCorrectionLeaseContract';
 import type { IHeldCorrectionLease } from '../EventHistoryCorrectionLeaseContract';
 
+import { createCorrectionCandidateBranch } from '../EventHistoryCandidateBuild';
 import { activateCandidateBranch } from '../EventHistoryActivation';
 import { EventHistoryArtifactManifestError } from '../EventHistoryArtifactManifest';
 import { SQLiteEventHistoryArtifactManifestStore } from '../EventHistoryArtifactManifest';
@@ -391,6 +396,104 @@ describe('activateCandidateBranch', () => {
       }
     }
     expect(reason).toBe('STALE_BRANCH');
+  });
+
+  it('activation over a campaign candidate returns sealed campaign artifact ids', async () => {
+    const campaign = {
+      streamType: 'campaign' as const,
+      streamId: 'camp-activate',
+    };
+    const campaignJournal = new SQLiteEventJournal<ICampaignJournalEnvelope>(
+      db,
+      () => AT,
+    );
+    const funds = (sequence: number): ICampaignEvent => ({
+      type: 'FundsChanged',
+      sequence,
+      campaignId: campaign.streamId,
+      ts: AT,
+      authorPlayerId: 'gm-1',
+      scope: 'campaign',
+      payload: { delta: sequence, reason: `f-${sequence}`, balance: sequence },
+    });
+    for (const sequence of [1, 2] as const) {
+      const appended = await appendCampaignCommandBatch(campaignJournal, {
+        campaignId: campaign.streamId,
+        commandId: `camp-cmd-${sequence}`,
+        events: [funds(sequence)],
+        expectedPostStateDigest: null,
+        expectedRevision: sequence - 1,
+      });
+      expect(appended.kind).toBe('committed');
+    }
+    branches().backfillGenesisBranches();
+    const head = db
+      .prepare(
+        `SELECT stream_revision AS revision, event_digest AS digest
+         FROM event_journal_stream_heads
+         WHERE stream_id = ? AND branch_id = 'root'`,
+      )
+      .get(campaign.streamId) as { revision: number; digest: string };
+    const lease = leases().acquireCorrectionLease({
+      ...campaign,
+      owner: 'host-1',
+      actor: 'gm-1',
+      reason: REASON,
+      ttlMs: TTL_MS,
+      expectedBranchId: 'root',
+      expectedRevision: head.revision,
+      expectedDigest: head.digest,
+      expectedGeneration: 1,
+    });
+    const candidate = createCorrectionCandidateBranch(db, leases(), {
+      ...campaign,
+      leaseId: lease.leaseId,
+      owner: lease.owner,
+      fencingEpoch: lease.fencingEpoch,
+      createdAt: AT,
+      baseRevision: 2,
+    });
+    const campaignArtifacts: readonly IAffectedArtifact[] = [
+      {
+        artifactKind: 'scenario',
+        artifactId: 'scn-c-3025-06-15-force-a',
+        sourceRevision: 2,
+      },
+      {
+        artifactKind: 'contract',
+        artifactId: 'contract-c',
+        sourceRevision: 2,
+      },
+      { artifactKind: 'salvage', artifactId: 'match-c', sourceRevision: 2 },
+    ];
+    manifests().sealArtifactManifest(
+      campaign,
+      candidate.branchId,
+      campaignArtifacts,
+      AT,
+    );
+    const result = activateCandidateBranch(
+      db,
+      branches(),
+      leases(),
+      manifests(),
+      {
+        stream: campaign,
+        candidateBranchId: candidate.branchId,
+        held: {
+          leaseId: lease.leaseId,
+          owner: lease.owner,
+          fencingEpoch: lease.fencingEpoch,
+        },
+        reason: REASON,
+        activatedAt: AT,
+      },
+    );
+    expect(result.invalidations.map((entry) => entry.artifactId)).toEqual([
+      'contract-c',
+      'match-c',
+      'scn-c-3025-06-15-force-a',
+    ]);
   });
 
   it('serial order - lease first: the activation is refused on the lease', () => {
