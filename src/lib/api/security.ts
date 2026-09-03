@@ -31,6 +31,15 @@ export const API_MUTATION_RATE_LIMIT: IRateLimitPolicy = {
   windowMs: 60_000,
 };
 
+/**
+ * Test-only: clear every rate-limit bucket so suites that drive a mutation
+ * route more than its per-minute allowance from one fake client do not
+ * read the limiter's refusal as the behaviour under test.
+ */
+export function _resetRateLimitBucketsForTests(): void {
+  buckets.clear();
+}
+
 export function shouldBypassRateLimitForE2E(): boolean {
   return (
     process.env.NEXT_PUBLIC_E2E_MODE === 'true' &&

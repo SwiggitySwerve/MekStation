@@ -26,6 +26,7 @@ import path from 'node:path';
 
 import type { IMatchMeta } from '@/lib/multiplayer/server/IMatchStore';
 
+import { _resetRateLimitBucketsForTests } from '@/lib/api/security';
 import {
   CAMPAIGN_CREATION_MISSION_ID,
   playerSlotPlaceholderId,
@@ -165,6 +166,7 @@ describe('co-op campaign creation authority checkpoint', () => {
     getSQLiteService({ path: path.join(dir, 'creation.db') }).initialize();
     _resetDefaultMatchStore();
     _resetCampaignHostRegistry();
+    _resetRateLimitBucketsForTests();
   });
 
   afterEach(async () => {
