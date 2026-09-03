@@ -29,7 +29,10 @@ function openBeforeMigration(file: string): Database.Database {
   const db = new Database(file);
   db.pragma('foreign_keys = ON');
   for (const migration of MIGRATIONS) {
-    if (migration.version >= EVENT_HISTORY_ARTIFACT_MANIFEST_KINDS_MIGRATION.version) {
+    if (
+      migration.version >=
+      EVENT_HISTORY_ARTIFACT_MANIFEST_KINDS_MIGRATION.version
+    ) {
       continue;
     }
     const apply = db.transaction((): void => {
@@ -113,7 +116,9 @@ describe('event history artifact manifest campaign kinds (migration 30)', () => 
     applyMigration(db);
     seedBranches(db, 'campaign');
     for (const kind of CAMPAIGN_KINDS) {
-      expect(() => insertEntry(db, 'campaign', kind, `id-${kind}`)).not.toThrow();
+      expect(() =>
+        insertEntry(db, 'campaign', kind, `id-${kind}`),
+      ).not.toThrow();
     }
     expect(() => insertEntry(db, 'campaign', 'screenshot', 'nope')).toThrow(
       /CHECK constraint failed/,
@@ -135,7 +140,9 @@ describe('event history artifact manifest campaign kinds (migration 30)', () => 
         .all(),
     ).toEqual([{ kind: 'replay', id: 'replay-1' }]);
     EVENT_HISTORY_ARTIFACT_MANIFEST_KINDS_MIGRATION.up(db);
-    expect(() => insertEntry(db, 'match', 'scenario', 'scn-kept')).not.toThrow();
+    expect(() =>
+      insertEntry(db, 'match', 'scenario', 'scn-kept'),
+    ).not.toThrow();
     expect(
       db
         .prepare(

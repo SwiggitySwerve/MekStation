@@ -15,11 +15,11 @@ import type { EventHistoryBranchErrorCode } from '../EventHistoryBranchContract'
 import type { EventHistoryCorrectionLeaseErrorCode } from '../EventHistoryCorrectionLeaseContract';
 import type { IHeldCorrectionLease } from '../EventHistoryCorrectionLeaseContract';
 
-import { createCorrectionCandidateBranch } from '../EventHistoryCandidateBuild';
 import { activateCandidateBranch } from '../EventHistoryActivation';
 import { EventHistoryArtifactManifestError } from '../EventHistoryArtifactManifest';
 import { SQLiteEventHistoryArtifactManifestStore } from '../EventHistoryArtifactManifest';
 import { EventHistoryBranchError } from '../EventHistoryBranchContract';
+import { createCorrectionCandidateBranch } from '../EventHistoryCandidateBuild';
 import { EventHistoryCorrectionLeaseError } from '../EventHistoryCorrectionLeaseContract';
 import { SQLiteEventHistoryBranchStore } from '../SQLiteEventHistoryBranchStore';
 import { SQLiteEventHistoryCorrectionLeaseStore } from '../SQLiteEventHistoryCorrectionLeaseStore';

@@ -14,8 +14,8 @@ import type { ICampaignJournalEnvelope } from '@/lib/campaign/sync/JournalCampai
 import type { ICampaignEvent } from '@/types/campaign/CampaignSync';
 
 import { appendCampaignCommandBatch } from '@/lib/campaign/sync/JournalCampaignEventStore';
-import { createCorrectionCandidateBranch } from '@/lib/events/journal/EventHistoryCandidateBuild';
 import { SQLiteEventHistoryArtifactManifestStore } from '@/lib/events/journal/EventHistoryArtifactManifest';
+import { createCorrectionCandidateBranch } from '@/lib/events/journal/EventHistoryCandidateBuild';
 import { SQLiteEventHistoryBranchStore } from '@/lib/events/journal/SQLiteEventHistoryBranchStore';
 import { SQLiteEventHistoryCorrectionLeaseStore } from '@/lib/events/journal/SQLiteEventHistoryCorrectionLeaseStore';
 import { SQLiteEventJournal } from '@/lib/events/journal/SQLiteEventJournal';
@@ -23,6 +23,7 @@ import {
   getSQLiteService,
   resetSQLiteService,
 } from '@/services/persistence/SQLiteService';
+
 import { CAMPAIGN_AFFECTED_FAMILIES } from '../GmCampaignAffectedFamilies';
 import {
   deriveAndSealCampaignImpact,
@@ -258,7 +259,9 @@ describe('deriveAndSealCampaignImpact', () => {
       ],
     });
     expect(
-      derived.entries.filter((entry) => entry.artifactKind === 'external-effect'),
+      derived.entries.filter(
+        (entry) => entry.artifactKind === 'external-effect',
+      ),
     ).toEqual([
       {
         artifactKind: 'external-effect',
