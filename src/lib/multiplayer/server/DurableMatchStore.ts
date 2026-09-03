@@ -46,6 +46,7 @@ import type { StreamRebuildRefusal } from '@/lib/events/journal/EventHistoryComm
 import type {
   ICampaignSessionParticipantPort,
   IEventHistoryBranchPort,
+  IHistoryBranchStoreReadiness,
   IParticipantDeliveryCursorPort,
 } from '@/lib/events/storeCapabilityPorts';
 import type { ICombatOutcome } from '@/types/combat/CombatOutcome';
@@ -559,6 +560,7 @@ export class DurableMatchStore
     IViewerDeliveryStore
 {
   // Port members are assigned at construction by bindDurableCapabilityPorts; declare keeps them on the type with no runtime emit and no class/interface merge.
+  declare isCapabilityDbAvailable: IHistoryBranchStoreReadiness['isCapabilityDbAvailable'];
   declare readBranch: IEventHistoryBranchPort['readBranch'];
   declare requireBranch: IEventHistoryBranchPort['requireBranch'];
   declare readEffectiveHead: IEventHistoryBranchPort['readEffectiveHead'];

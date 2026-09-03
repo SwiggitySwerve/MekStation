@@ -138,6 +138,16 @@ export const MEKSTATION_WIRE_INTENT_SOURCE_REFS = {
   SetAiSlot: MEKSTATION_LOBBY_WIRE_INTENT_SOURCE_REFS,
   SetHumanSlot: MEKSTATION_LOBBY_WIRE_INTENT_SOURCE_REFS,
   SetReady: MEKSTATION_LOBBY_WIRE_INTENT_SOURCE_REFS,
+  RewindRequest: [
+    wireProtocolSourceRef(
+      'MekStation Protocol defines RewindRequest as a non-mutating player rewind request carrying targetRevision and a reason, not a BattleMech combat action.',
+      'L342-L351',
+    ),
+    wireDispatchSourceRef(
+      'MekStation dispatchToEngine excludes RewindRequest from EngineIntent so it is not treated as a BattleMech combat action.',
+      'L10-L25',
+    ),
+  ],
 } satisfies Record<
   IIntentPayload['kind'],
   readonly ICombatFeatureSourceReference[]

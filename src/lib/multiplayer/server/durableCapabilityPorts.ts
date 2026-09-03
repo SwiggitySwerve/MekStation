@@ -18,6 +18,7 @@ import type {
 import type {
   ICampaignSessionParticipantPort,
   IEventHistoryBranchPort,
+  IHistoryBranchStoreReadiness,
   IParticipantDeliveryCursorPort,
 } from '@/lib/events/storeCapabilityPorts';
 
@@ -27,6 +28,7 @@ import { getSQLiteService } from '@/services/persistence/SQLiteService';
 
 type CapabilityTarget = Partial<
   IEventHistoryBranchPort &
+    IHistoryBranchStoreReadiness &
     ICampaignSessionParticipantPort &
     IParticipantDeliveryCursorPort
 >;
@@ -35,11 +37,15 @@ export function bindDurableCapabilityPorts(
   store: CapabilityTarget,
   options: { readonly capabilityDb?: () => Database.Database },
 ): void {
+  const customCapabilityDb = options.capabilityDb;
   const getCapabilityDb =
-    options.capabilityDb ?? (() => getSQLiteService().getDatabase());
+    customCapabilityDb ?? (() => getSQLiteService().getDatabase());
   // Lazy: existing DurableMatchStore tests never initialize
   // SQLiteService, and must not start doing so just because the
-  // methods now exist.
+  // methods now exist. The readiness probe is how a caller learns that
+  // the default getter would throw instead of opening campaign tables.
+  const isCapabilityDbAvailable = (): boolean =>
+    customCapabilityDb !== undefined || getSQLiteService().isInitialized();
   let branches: SQLiteEventHistoryBranchStore | undefined;
   const branchStore = (): SQLiteEventHistoryBranchStore => {
     if (branches === undefined) {
@@ -49,6 +55,7 @@ export function bindDurableCapabilityPorts(
     return branches;
   };
   Object.assign(store, {
+    isCapabilityDbAvailable,
     readBranch: (stream: IEventHistoryStreamRef, branchId: string) =>
       branchStore().readBranch(stream, branchId),
     requireBranch: (stream: IEventHistoryStreamRef, branchId: string) =>

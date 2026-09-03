@@ -128,6 +128,19 @@ export interface IParticipantDeliveryCursorPort {
 }
 
 /**
+ * Optional campaign-database probe bound by durable compose.
+ *
+ * DurableMatchStore always assigns the six branch methods, so
+ * hasHistoryBranchStore is true even when the process never called
+ * SQLiteService.initialize(). Callers that would open campaign tables
+ * must ask this separately instead of treating method presence as
+ * "the database is open."
+ */
+export interface IHistoryBranchStoreReadiness {
+  isCapabilityDbAvailable(): boolean;
+}
+
+/**
  * Structural capability guard, matching hasPublicationOutbox: it checks
  * the methods EXIST and nothing else.
  */
@@ -143,6 +156,26 @@ export function hasHistoryBranchStore<T extends object>(
     typeof candidate.createBranch === 'function' &&
     typeof candidate.transitionBranchStatus === 'function'
   );
+}
+
+/**
+ * True when the store exposes a branch port that can be used now.
+ *
+ * In-memory and journal stores have no probe: their tables already
+ * live on the store. A durable compose that still needs the campaign
+ * singleton answers false until that database is initialized (or the
+ * caller supplied its own capabilityDb).
+ */
+export function isHistoryBranchStoreReady<T extends object>(store: T): boolean {
+  const candidate = store as Partial<IEventHistoryBranchPort> &
+    Partial<IHistoryBranchStoreReadiness>;
+  if (typeof candidate.readBranch !== 'function') {
+    return false;
+  }
+  if (typeof candidate.isCapabilityDbAvailable !== 'function') {
+    return true;
+  }
+  return candidate.isCapabilityDbAvailable();
 }
 
 export function hasParticipantStore<T extends object>(

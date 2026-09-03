@@ -33,6 +33,7 @@ export const NON_COMBAT_WIRE_INTENT_KINDS = [
   'MarkSeatAi',
   'OccupySeat',
   'ReassignSeat',
+  'RewindRequest',
   'SetAiSlot',
   'SetHumanSlot',
   'SetReady',
@@ -185,5 +186,12 @@ export const WIRE_INTENT_KIND_ACTION_SUPPORT = {
     'Protocol and dispatch source refs classify SetReady as a lobby readiness intent rejected before BattleMech engine dispatch',
     'Lobby readiness intent; not a BattleMech combat action',
     MEKSTATION_WIRE_INTENT_SOURCE_REFS.SetReady,
+  ),
+  RewindRequest: outOfScope(
+    'RewindRequest',
+    'wire-intent',
+    'Protocol accepts RewindRequest as a non-mutating GM-review request refused before BattleMech engine dispatch',
+    'Player rewind request; derives no combat event',
+    MEKSTATION_WIRE_INTENT_SOURCE_REFS.RewindRequest,
   ),
 } satisfies Record<IIntentPayload['kind'], ICombatActionSupportEntry>;
