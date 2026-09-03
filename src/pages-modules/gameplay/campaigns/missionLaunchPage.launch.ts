@@ -1,6 +1,7 @@
 import type { NextRouter } from 'next/router';
 
 import type { ICoopParticipationRecord } from '@/lib/campaign/coop/coopRuntimeSession';
+import type { CampaignLaunchHeadRead } from '@/lib/campaign/encounter/readCampaignLaunchHead';
 import type { IMissionReadinessProjection } from '@/lib/campaign/readiness/missionReadinessProjection';
 import type { useCampaignStore } from '@/stores/campaign/useCampaignStore';
 import type { ICampaign } from '@/types/campaign/Campaign';
@@ -14,6 +15,12 @@ import {
   getCoopRuntimeSessionByMatch,
 } from '@/lib/campaign/coop/coopRuntimeSession';
 import { materializeCampaignMissionEncounter } from '@/lib/campaign/encounter/materializeCampaignMissionEncounter';
+import { assertOwnedForcesCurrent } from '@/lib/campaign/encounter/materializeCampaignMissionEncounter.ownedForces';
+import { readCampaignLaunchHead } from '@/lib/campaign/encounter/readCampaignLaunchHead';
+import {
+  classifyLaunchFailure,
+  resolveLaunchForces,
+} from '@/lib/campaign/encounter/requestLaunchAuthority';
 import { fetchCanonicalCatalogSnapshot } from '@/lib/campaign/readiness/canonicalCatalogAdmission';
 import { selectedRosterUnitsForLaunch } from '@/lib/campaign/readiness/missionReadinessProjection';
 import {
@@ -54,7 +61,7 @@ interface ILaunchMissionInput {
   readonly localPlayerId: string;
   readonly localChoice: CoopParticipationChoice;
   readonly readinessProjection: IMissionReadinessProjection;
-  readonly router: NextRouter;
+  readonly router: Pick<NextRouter, 'push'>;
   readonly store: CampaignPageStore;
   readonly setLaunchError: (error: string | null) => void;
   readonly setIsLaunching: (isLaunching: boolean) => void;
@@ -155,6 +162,43 @@ export function coopLaunchReadiness(
   return { bothChosen, noDeploy, canLaunch: bothChosen && !noDeploy };
 }
 
+/**
+ * Name the journal revision the server head reported, or omit it.
+ *
+ * Why: sequence N lives at journal revision N+1, so a runtime-derived
+ * revision is reliably one too low. Only a `head` answer is a number
+ * this launch may send.
+ */
+function catalogRevisionFromLaunchHead(
+  launchHead: CampaignLaunchHeadRead,
+): number | undefined {
+  return launchHead.kind === 'head' ? launchHead.revision : undefined;
+}
+
+/**
+ * Surface a launch failure as the dashboard's typed conflict or a message.
+ *
+ * Why: a stale head must reach `reportLaunchConflict` so the existing
+ * dashboard card can render it. Folding it into a bare string would hide
+ * the resync action.
+ */
+function surfacePageLaunchFailure(
+  error: unknown,
+  setLaunchError: (error: string | null) => void,
+): void {
+  const failure = classifyLaunchFailure(error);
+  if (failure.kind === 'conflict') {
+    useCampaignPersistenceStore
+      .getState()
+      .reportLaunchConflict(failure.conflict);
+    setLaunchError(
+      `Launch refused (${failure.conflict.code}): the campaign has moved on to revision ${failure.conflict.activeHead.revision}.`,
+    );
+    return;
+  }
+  setLaunchError(failure.message);
+}
+
 async function launchCoopMissionFromPage({
   campaign,
   localChoice,
@@ -186,9 +230,16 @@ async function launchCoopMissionFromPage({
       await import('@/lib/campaign/coop/launchCoopMission');
     const catalog = await fetchCanonicalCatalogSnapshot();
     const runtime = getCoopRuntimeSessionByMatch(matchId);
-    const revision = runtime
-      ? Math.max(0, (await runtime.host.getEventLog().nextSequence()) - 1)
-      : 0;
+    useCampaignPersistenceStore.getState().clearLaunchConflict();
+    const launchHead = await readCampaignLaunchHead(campaign.id);
+    const ownedForces = await resolveLaunchForces({
+      campaignId: campaign.id,
+      missionId: missionKey,
+      launchHead,
+      sessionId: matchId,
+    });
+    assertOwnedForcesCurrent(ownedForces);
+    const revision = catalogRevisionFromLaunchHead(launchHead);
     const result = await launchCoopMission(
       buildLaunchEncounter(campaign, missionKey),
       contributions,
@@ -197,7 +248,7 @@ async function launchCoopMissionFromPage({
         snapshot: {
           campaignId: campaign.id,
           matchId,
-          revision: runtime ? revision : undefined,
+          revision,
           catalog,
         },
         expected: { campaignId: campaign.id, matchId, revision },
@@ -227,11 +278,7 @@ async function launchCoopMissionFromPage({
         : `/gameplay/campaigns/${campaign.id}`;
     void router.push(destination);
   } catch (error) {
-    setLaunchError(
-      error instanceof Error
-        ? error.message
-        : 'Failed to load co-op launch runtime',
-    );
+    surfacePageLaunchFailure(error, setLaunchError);
   }
 }
 
@@ -260,11 +307,19 @@ async function launchSinglePlayerMissionFromPage({
 
     const rosterUnits = selectedRosterUnitsForLaunch(readinessProjection);
     const catalog = await fetchCanonicalCatalogSnapshot();
+    useCampaignPersistenceStore.getState().clearLaunchConflict();
+    const launchHead = await readCampaignLaunchHead(campaign.id);
+    const ownedForces = await resolveLaunchForces({
+      campaignId: campaign.id,
+      missionId: missionKey,
+      launchHead,
+    });
     const result = await materializeCampaignMissionEncounter({
       campaign,
       missionId: missionKey,
       rosterUnits,
       catalog,
+      ...(ownedForces === undefined ? {} : { ownedForces }),
     });
     await syncLaunchedMission(campaign, missionKey, result.encounterId, store);
     await router.push(
@@ -275,9 +330,7 @@ async function launchSinglePlayerMissionFromPage({
       }),
     );
   } catch (error) {
-    setLaunchError(
-      error instanceof Error ? error.message : 'Failed to launch mission',
-    );
+    surfacePageLaunchFailure(error, setLaunchError);
   } finally {
     setIsLaunching(false);
   }

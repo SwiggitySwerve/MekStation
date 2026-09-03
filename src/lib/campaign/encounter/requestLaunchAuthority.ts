@@ -20,10 +20,14 @@ import type {
   IOwnedSlotForce,
   OwnedForceMaterializationResult,
 } from '@/lib/campaign/encounter/campaignOwnedForceMaterialization';
+import type { CampaignLaunchHeadRead } from '@/lib/campaign/encounter/readCampaignLaunchHead';
 import type {
   IActiveBranchHead,
   IExpectedBranchHead,
 } from '@/lib/events/journal/EventHistoryExpectedHead';
+import type { ICampaignLaunchConflict } from '@/stores/campaign/useCampaignPersistenceStore';
+
+import { CampaignOwnedForceStaleError } from '@/lib/campaign/encounter/materializeCampaignMissionEncounter.ownedForces';
 
 export type LaunchAuthorityRefusalCode = string;
 
@@ -179,4 +183,83 @@ export function ownedForcesFromAuthority(
     return authority as OwnedForceMaterializationResult;
   }
   return undefined;
+}
+
+export interface IResolveLaunchForcesInput {
+  readonly campaignId: string;
+  readonly missionId: string;
+  readonly launchHead: CampaignLaunchHeadRead | null;
+  readonly sessionId?: string;
+  readonly fetchImpl?: typeof fetch;
+}
+
+/**
+ * Resolve owned forces from a held launch head, or proceed ungated.
+ *
+ * Why: the dashboard and the mission-launch page must send the same
+ * expected head through the same authority route. A null or non-head
+ * answer (no stream, unread, unavailable) is not a head to compare, so
+ * the launch proceeds ungated, which is the ordinary single-player
+ * answer while the campaign has no effective branch.
+ */
+export async function resolveLaunchForces(
+  input: IResolveLaunchForcesInput,
+): Promise<OwnedForceMaterializationResult | undefined> {
+  const { launchHead } = input;
+  if (launchHead === null || launchHead.kind !== 'head') return undefined;
+  return ownedForcesFromAuthority(
+    await requestLaunchAuthority({
+      campaignId: input.campaignId,
+      missionId: input.missionId,
+      // Send exactly the wire contract. `launchHead` also carries the
+      // reader's own `kind` discriminant, and putting that on the wire
+      // would ship a field whose name already means something different
+      // in the route's RESPONSE vocabulary.
+      expectedHead: {
+        branchId: launchHead.branchId,
+        revision: launchHead.revision,
+        effectiveGeneration: launchHead.effectiveGeneration,
+      },
+      ...(input.sessionId === undefined ? {} : { sessionId: input.sessionId }),
+      ...(input.fetchImpl === undefined ? {} : { fetchImpl: input.fetchImpl }),
+    }),
+  );
+}
+
+/**
+ * Classify a launch failure into the surface that can act on it.
+ *
+ * Why: a stale head must stay a typed conflict with the head that IS
+ * current, so the dashboard card can offer resync. An unavailable
+ * authority is retryable and explicitly not a conflict: nobody answered,
+ * so there is no head to resync to.
+ */
+export function classifyLaunchFailure(
+  error: unknown,
+):
+  | { readonly kind: 'conflict'; readonly conflict: ICampaignLaunchConflict }
+  | { readonly kind: 'message'; readonly message: string } {
+  if (error instanceof CampaignOwnedForceStaleError) {
+    return {
+      kind: 'conflict',
+      conflict: {
+        code: error.code,
+        reason: error.message,
+        activeHead: error.activeHead,
+        resyncAction: error.resyncAction,
+      },
+    };
+  }
+  if (error instanceof CampaignLaunchAuthorityUnavailableError) {
+    return {
+      kind: 'message',
+      message: `Launch could not be authorised (${error.reason}). Retry in a moment.`,
+    };
+  }
+  const message =
+    error instanceof Error ? error.message : 'failed to generate mission';
+  return {
+    kind: 'message',
+    message: `Mission could not be launched: ${message}`,
+  };
 }
