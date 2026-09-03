@@ -144,6 +144,11 @@ export async function replayCampaignReplacement(
       branchId: input.candidateBranchId,
       expectedRevision: anchor.revision,
     });
+    if (result.kind === 'command-identity-conflict') {
+      // Candidate-scoped command id is the retry key. A prior attempt
+      // already wrote this group; continue so a re-run converges.
+      continue;
+    }
     if (result.kind !== 'committed') {
       throw new Error(
         `Replacement replay of command '${group.commandId}' onto '${input.candidateBranchId}' was refused: ${result.kind}`,

@@ -8,8 +8,9 @@
  * cross-store transaction. A crash between them is visible as a saga
  * row still in `source-recorded`.
  *
- * `target-pending` and `completed` are reserved for 17.2-b (campaign
- * receipt + consequence batch). This file does not write them.
+ * `target-pending` is written by 17.2-b after the campaign replacement
+ * receipt lands. `completed` stays reserved for 17.3. This file still
+ * does not write those states.
  *
  * @spec openspec/changes/harden-gm-two-player-campaign-sessions/specs/campaign-combat-loop/spec.md
  */
@@ -69,6 +70,12 @@ export interface ICoordinatedCorrectionSaga {
   readonly manifestSealedAt: string | null;
   readonly targetRecordedAt: string | null;
   readonly updatedAt: string;
+  /**
+   * Campaign-stream candidate minted by 17.2-b. Null until the target
+   * half persists it. The id is random, so it must live on the saga
+   * row before any journal write or a retry would mint a second branch.
+   */
+  readonly candidateBranchId: string | null;
 }
 
 export interface IRecordCoordinatedCorrectionSourceInput {
@@ -110,7 +117,7 @@ const SAGA_COLUMNS = `match_id AS matchId, outcome_id AS outcomeId,
   outcome_version AS outcomeVersion, target_revision AS targetRevision,
   state, blocked_reason AS blockedReason, source_recorded_at AS sourceRecordedAt,
   manifest_sealed_at AS manifestSealedAt, target_recorded_at AS targetRecordedAt,
-  updated_at AS updatedAt`;
+  updated_at AS updatedAt, candidate_branch_id AS candidateBranchId`;
 
 /**
  * CREATE IF NOT EXISTS only. A second open is a no-op, same as
@@ -137,10 +144,28 @@ export function migrateCoordinatedCorrectionSaga(db: Database.Database): void {
       manifest_sealed_at  TEXT,
       target_recorded_at  TEXT,
       updated_at          TEXT NOT NULL,
+      candidate_branch_id TEXT,
       PRIMARY KEY (match_id, outcome_id, outcome_version),
       FOREIGN KEY (match_id) REFERENCES mp_matches(match_id) ON DELETE CASCADE
     );
   `);
+  ensureCandidateBranchColumn(db);
+}
+
+/**
+ * CREATE TABLE IF NOT EXISTS does not add columns to an existing row.
+ * Guard the ALTER with table_info so a match store that already ran
+ * 17.2-a still receives the 17.2-b candidate id without a rebuild.
+ */
+function ensureCandidateBranchColumn(db: Database.Database): void {
+  const cols = db.pragma(
+    `table_info(${COORDINATED_CORRECTION_SAGA_TABLE})`,
+  ) as Array<{ name: string }>;
+  if (cols.some((col) => col.name === 'candidate_branch_id')) return;
+  db.exec(
+    `ALTER TABLE ${COORDINATED_CORRECTION_SAGA_TABLE}
+       ADD COLUMN candidate_branch_id TEXT`,
+  );
 }
 
 /**
@@ -222,8 +247,8 @@ export function recordCoordinatedCorrectionSource(
         `INSERT INTO ${COORDINATED_CORRECTION_SAGA_TABLE} (
            match_id, outcome_id, outcome_version, target_revision, state,
            blocked_reason, source_recorded_at, manifest_sealed_at,
-           target_recorded_at, updated_at
-         ) VALUES (?, ?, ?, ?, 'source-recorded', NULL, ?, NULL, NULL, ?)`,
+           target_recorded_at, updated_at, candidate_branch_id
+         ) VALUES (?, ?, ?, ?, 'source-recorded', NULL, ?, NULL, NULL, ?, NULL)`,
       )
       .run(
         accepted.matchId,
