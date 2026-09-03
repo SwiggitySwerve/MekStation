@@ -262,6 +262,31 @@ export function defaultSeats(layout: TeamLayout): IMatchSeat[] {
 }
 
 /**
+ * One empty spectator slot, 1-indexed like playing seats.
+ * WHAT: a `kind: 'spectator'` row the host can occupy without a human seat.
+ * WHY: `defaultSeats` only emits playing seats; the co-op GM must not inherit one.
+ */
+export function emptySpectatorSeat(seatNumber: number): IMatchSeat {
+  return {
+    slotId: buildSpectatorSlotId(seatNumber),
+    side: SPECTATOR_SIDE,
+    seatNumber,
+    occupant: null,
+    kind: 'spectator',
+    ready: true,
+  };
+}
+
+/**
+ * Playing seats for `layout` plus one empty spectator for a non-playing host.
+ * WHAT: 1v1 stays two unoccupied human seats plus `spectator-1`.
+ * WHY: LAYOUT_SPECS must not grow a third tactical seat; the GM sits beside them.
+ */
+export function defaultSeatsWithSpectatorHost(layout: TeamLayout): IMatchSeat[] {
+  return [...defaultSeats(layout), emptySpectatorSeat(1)];
+}
+
+/**
  * Compute the total seat count for a layout. Used by the `MATCH_FULL`
  * gate when a sixth player tries to join a `2v2` and similar checks.
  */

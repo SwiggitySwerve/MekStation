@@ -27,16 +27,16 @@
  * directly - the dialog surface injects its own producer and never comes
  * through here - so deleting either one would leave a caller unguarded.
  *
- * "GM" ON THIS ROUTE MEANS THE MATCH'S CURRENT HOST. Finding #55: no
- * production match viewer ever resolves as `role: 'gm'` -
- * `MatchSeatMembershipSource` hardcodes `'player'` at every return. So
- * the viewer is branded first (which proves server-derived, active,
- * human membership) and the GM role is then derived from
+ * "GM" ON THIS ROUTE MEANS THE MATCH'S CURRENT HOST. The viewer is
+ * branded first (server-derived, active, human membership). Campaign
+ * GMs now resolve as `role: 'gm'` from the durable
+ * `campaign_session_participant` seat; a tactical host still resolves
+ * as `player`. This route then derives preview authority from
  * `meta.hostPlayerId`, the same privileged identity the lobby already
- * enforces host-only intents against. Teaching the membership source to
- * emit `'gm'` is the eventual home and is its own seam: that role is
- * what `projectEventForViewerClass` keys on, so changing it would change
- * the live wire's field policy for the host.
+ * enforces host-only intents against, so a tactical host remains the
+ * rewind GM without changing live-wire field policy for non-campaign
+ * matches. `projectEventForViewerClass` keys on membership role; only
+ * a campaign GM row changes that projection.
  *
  * `campaignSessionId` IS the matchId for combat - `authorizeHumanAction`
  * passes its third argument straight through to the resolver. That is
