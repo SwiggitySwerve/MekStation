@@ -6,21 +6,21 @@
 
 import type Database from 'better-sqlite3';
 
-import type { IEventJournal } from '@/lib/events/journal/EventJournalContract';
-import type { ICampaignEvent } from '@/types/campaign/CampaignSync';
 import type { IRetainedSourceEvent } from '@/lib/campaign/rebuild/CampaignReplacementReplay';
 import type { ICampaignJournalEnvelope } from '@/lib/campaign/sync/JournalCampaignEventStore';
 import type { IEventHistoryCorrectionLease } from '@/lib/events/journal/EventHistoryCorrectionLeaseContract';
+import type { IEventJournal } from '@/lib/events/journal/EventJournalContract';
+import type { ICampaignEvent } from '@/types/campaign/CampaignSync';
 
 import { campaignStreamRef } from '@/lib/campaign/authority/campaignLaunchHead';
 import { readCampaignBranchAnchor } from '@/lib/campaign/rebuild/CampaignBranchAnchor';
 import { replayCampaignReplacement } from '@/lib/campaign/rebuild/CampaignReplacementReplay';
 import { appendCampaignCommandBatch } from '@/lib/campaign/sync/JournalCampaignEventStore';
+import { SQLiteEventHistoryArtifactManifestStore } from '@/lib/events/journal/EventHistoryArtifactManifest';
 import { EventHistoryBranchError } from '@/lib/events/journal/EventHistoryBranchContract';
 import { createCorrectionCandidateBranch } from '@/lib/events/journal/EventHistoryCandidateBuild';
 import { EventHistoryCorrectionLeaseError } from '@/lib/events/journal/EventHistoryCorrectionLeaseContract';
 import { readEffectiveStreamHead } from '@/lib/events/journal/EventHistoryEffectiveStreamHead';
-import { SQLiteEventHistoryArtifactManifestStore } from '@/lib/events/journal/EventHistoryArtifactManifest';
 import { SQLiteEventHistoryBranchStore } from '@/lib/events/journal/SQLiteEventHistoryBranchStore';
 import { SQLiteEventHistoryCorrectionLeaseStore } from '@/lib/events/journal/SQLiteEventHistoryCorrectionLeaseStore';
 import { deriveAndSealCampaignImpact } from '@/lib/interventions/GmCampaignImpactDerivation';
@@ -149,13 +149,7 @@ export function persistSagaCandidateBranchId(
         WHERE match_id = ? AND outcome_id = ? AND outcome_version = ?
           AND candidate_branch_id IS NULL`,
     )
-    .run(
-      candidateBranchId,
-      at,
-      key.matchId,
-      key.outcomeId,
-      key.outcomeVersion,
-    );
+    .run(candidateBranchId, at, key.matchId, key.outcomeId, key.outcomeVersion);
 }
 
 export function acquireTargetCorrectionLease(
@@ -288,9 +282,7 @@ export async function appendReplacementConsequenceBatch(
       lastStreamRevision: prior.lastStreamRevision,
     });
   }
-  throw new Error(
-    `Replacement consequence batch refused: ${result.kind}`,
-  );
+  throw new Error(`Replacement consequence batch refused: ${result.kind}`);
 }
 
 export function insertReplacementReceipt(
@@ -337,7 +329,9 @@ export async function sealCampaignImpactIfNeeded(
 ): Promise<void> {
   const stream = campaignStreamRef(input.campaignId);
   const manifests = new SQLiteEventHistoryArtifactManifestStore(campaignDb);
-  if (manifests.readArtifactManifest(stream, input.candidateBranchId) !== null) {
+  if (
+    manifests.readArtifactManifest(stream, input.candidateBranchId) !== null
+  ) {
     return;
   }
   const branch = new SQLiteEventHistoryBranchStore(campaignDb).requireBranch(
@@ -368,6 +362,8 @@ export function advanceSagaToTargetPending(
     )
     .run(at, at, key.matchId, key.outcomeId, key.outcomeVersion);
   if (readCoordinatedCorrectionSaga(matchDb, key) === null) {
-    throw new Error('coordinated-correction saga row missing after target advance');
+    throw new Error(
+      'coordinated-correction saga row missing after target advance',
+    );
   }
 }

@@ -35,10 +35,10 @@
 
 import type Database from 'better-sqlite3';
 
-import type { IEventJournal } from '@/lib/events/journal/EventJournalContract';
-import type { ICampaignEvent } from '@/types/campaign/CampaignSync';
 import type { IRetainedSourceEvent } from '@/lib/campaign/rebuild/CampaignReplacementReplay';
 import type { ICampaignJournalEnvelope } from '@/lib/campaign/sync/JournalCampaignEventStore';
+import type { IEventJournal } from '@/lib/events/journal/EventJournalContract';
+import type { ICampaignEvent } from '@/types/campaign/CampaignSync';
 
 import type {
   CoordinatedCorrectionSagaState,
@@ -133,9 +133,7 @@ function notReady(
   );
 }
 
-function sagaIsReadyForTarget(
-  state: CoordinatedCorrectionSagaState,
-): boolean {
+function sagaIsReadyForTarget(state: CoordinatedCorrectionSagaState): boolean {
   return (
     state === 'manifest-sealed' ||
     state === 'target-pending' ||

@@ -10,11 +10,11 @@ import { mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 
+import type { IRetainedSourceEvent } from '@/lib/campaign/rebuild/CampaignReplacementReplay';
+import type { ICampaignJournalEnvelope } from '@/lib/campaign/sync/JournalCampaignEventStore';
 import type { IAffectedArtifact } from '@/lib/events/journal/EventHistoryArtifactManifest';
 import type { ICampaignEvent } from '@/types/campaign/CampaignSync';
 import type { IGameEvent } from '@/types/gameplay/GameSessionInterfaces';
-import type { ICampaignJournalEnvelope } from '@/lib/campaign/sync/JournalCampaignEventStore';
-import type { IRetainedSourceEvent } from '@/lib/campaign/rebuild/CampaignReplacementReplay';
 
 import { campaignStreamRef } from '@/lib/campaign/authority/campaignLaunchHead';
 import {
@@ -32,7 +32,10 @@ import {
   getSQLiteService,
   resetSQLiteService,
 } from '@/services/persistence/SQLiteService';
-import { GameEventType, GamePhase } from '@/types/gameplay/GameSessionInterfaces';
+import {
+  GameEventType,
+  GamePhase,
+} from '@/types/gameplay/GameSessionInterfaces';
 
 import {
   recordCoordinatedCorrectionSource,
@@ -42,15 +45,15 @@ import {
   type IAcceptedCoordinatedOutcomeCorrection,
 } from '../CoordinatedOutcomeCorrectionSaga';
 import {
-  insertReplacementReceipt,
-  readReplacementReceipt,
-} from '../CoordinatedOutcomeCorrectionTarget.steps';
-import {
   _setFailAfterCandidatePersistForTests,
   CAMPAIGN_COMBAT_OUTCOME_REPLACEMENT_TABLE,
   coordinatedCorrectionConsequenceCommandId,
   recordCoordinatedCorrectionTarget,
 } from '../CoordinatedOutcomeCorrectionTarget';
+import {
+  insertReplacementReceipt,
+  readReplacementReceipt,
+} from '../CoordinatedOutcomeCorrectionTarget.steps';
 
 const MATCH_ID = 'stream-1';
 const CAMPAIGN_ID = 'campaign-target-1';
@@ -405,7 +408,9 @@ describe('recordCoordinatedCorrectionTarget', () => {
       commandId: first.receipt.commandId,
     });
     expect(
-      new SQLiteEventHistoryArtifactManifestStore(journalDb).readArtifactManifest(
+      new SQLiteEventHistoryArtifactManifestStore(
+        journalDb,
+      ).readArtifactManifest(
         campaignStreamRef(CAMPAIGN_ID),
         first.receipt.candidateBranchId,
       ),
@@ -553,7 +558,10 @@ describe('recordCoordinatedCorrectionTarget', () => {
            FROM event_journal_stream_heads
           WHERE stream_id = ? AND branch_id = 'root'`,
       )
-      .get(CAMPAIGN_ID) as { readonly revision: number; readonly digest: string };
+      .get(CAMPAIGN_ID) as {
+      readonly revision: number;
+      readonly digest: string;
+    };
     leases.acquireCorrectionLease({
       ...stream,
       owner: 'host-other',
