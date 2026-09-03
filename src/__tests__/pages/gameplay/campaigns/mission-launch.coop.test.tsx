@@ -73,6 +73,11 @@ jest.mock('@/stores/campaign/useCampaignPersistenceStore', () => {
     markDirty: (...args: unknown[]) => mockMarkCampaignDirty(...args),
     saveCampaign: (...args: unknown[]) => mockPersistCampaign(...args),
     saveState: 'idle' as const,
+    // The launch path clears any prior launch conflict before it reads
+    // the server head and reports a fresh one on a stale refusal.
+    launchConflict: null,
+    clearLaunchConflict: () => {},
+    reportLaunchConflict: () => {},
   };
   return {
     useCampaignPersistenceStore: Object.assign(
