@@ -5,24 +5,17 @@
  * match, participants, active branch, receipts, cursors, pending outbox, and
  * authorized projections SHALL recover before new commands are enabled.
  *
- * E2E-14 IS NOT IN THIS PACK, AND NOT BECAUSE NOBODY TRIED. Its letter is:
- * "WHEN Player 2 frame consumption is delayed until its bounded queue limit
- * is reached THEN the GM and Player 1 SHALL continue receiving eligible facts
- * while Player 2 enters a recoverable behind state." The bounded queue is
- * `ServerMatchBroadcaster.MAX_BUFFERED_BYTES` (1_048_576), tested against the
- * server socket's own `bufferedAmount`. A stall lever DOES exist and was
- * measured: CDP `Network.emulateNetworkConditions` at ~1 KB/s drove a real
- * Chromium page's server-side `bufferedAmount` to 4,015,158 bytes, and a
- * blocked renderer held it at 3,883,446 bytes - so, contrary to the usual
- * assumption, DevTools throttling does reach WebSocket here. What is missing
- * is VOLUME, not backpressure. Measured from this pack's own run database:
- * mean durable event 470 bytes, 3 events per committed command, so roughly
- * 590 commands would have to queue on one stalled socket before the cap is
- * crossed - more commands than a turn-limited match contains, let alone a
- * test budget. Closing E2E-14 honestly needs an e2e-mode-gated override of
- * that cap, the same shape as the shipped fault-kind seams; with a small cap
- * the existing throttle lever reaches it in a handful of commands. That is a
- * product-side seam, so it is not written here.
+ * E2E-14: WHEN Player 2 frame consumption is delayed until its bounded
+ * queue limit is reached THEN the GM and Player 1 SHALL continue receiving
+ * eligible facts while Player 2 enters a recoverable behind state.
+ * The bound is unacked frames (`MAX_VIEWER_UNACKED` = 64 on
+ * `ViewerDeliveryCursors`), not `bufferedAmount` (finding #19: that stays
+ * 0 on match traffic). The row swallows only Player 2's outgoing
+ * DeliveryAck frames, drives legal Movement + AdvancePhase until that
+ * viewer's unacked window hits the cap, then disarms and remounts the
+ * spectate page (same vault + Watch match) so SessionJoin replay uses
+ * firstMissedAuthoritySequence. Drive lives in
+ * `e2e/helpers/viewerUnackedBound.ts`. This row does not kill the server.
  *
  * ACTIVE BRANCH IS DEFERRED, NOT FAKED. Of E2E-15's eight recovery clauses,
  * seven are observable against the shipped surface and are asserted below.
@@ -82,7 +75,7 @@
  * cannot restart a webServer child it did not kill, so the wrapper owns the
  * respawn and the readiness gate sequences "wait until it is back".
  *
- * @tags @resilience-pack @tactical @E2E-15
+ * @tags @resilience-pack @tactical @E2E-14 @E2E-15
  */
 
 import {
@@ -92,6 +85,24 @@ import {
   type Browser,
   type Page,
 } from '@playwright/test';
+
+import { assertNoBearerInUrls } from './helpers/tokenPackUrlSweep';
+import {
+  assertContiguousFromZero,
+  deliveryRowsFor,
+  driveTwoMoreAdvances,
+  driveUntilPlayer2Capped,
+  firstAuthorityAfter,
+  installAckSwallow,
+  installIntentTap,
+  launchThreeViewersToMovement,
+  P2_VAULT_PASSWORD,
+  playerUnacked,
+  readViewerBoundEvidence,
+  recoverSpectatorAfterIsolation,
+  unitTokenIds,
+  VIEWER_UNACKED_CAP,
+} from './helpers/viewerUnackedBound';
 
 type Identity = { readonly id: string; readonly displayName: string };
 type Token = { readonly token: string; readonly playerId: string };
@@ -573,6 +584,171 @@ async function closeLive(
   await live.hostPage.context().close();
   await live.guestPage.context().close();
 }
+
+test('E2E-14 a viewer that stops acknowledging is bounded and recovers alone @E2E-14', async ({
+  browser,
+  request,
+}) => {
+  test.setTimeout(420_000);
+  const gmPage = await openContextPage(browser);
+  const p1Page = await openContextPage(browser);
+  const p2Page = await openContextPage(browser);
+  const socketUrls: string[] = [];
+  const requestUrls: string[] = [];
+  const gmTap = installIntentTap(gmPage, socketUrls);
+  const p2Drop = installAckSwallow(p2Page, socketUrls);
+  // Routes must be on before any socket opens; arm() is what starts
+  // the stall, so Movement still arrives on Player 2 first.
+  await Promise.all([
+    gmTap.install(),
+    p2Drop.install(),
+    p1Page.routeWebSocket(
+      (url) => {
+        if (url.pathname !== '/api/multiplayer/socket') return false;
+        socketUrls.push(url.toString());
+        return true;
+      },
+      (route) => {
+        const server = route.connectToServer();
+        route.onMessage((message) => server.send(message));
+        server.onMessage((message) => route.send(message));
+      },
+    ),
+  ]);
+  for (const page of [gmPage, p1Page, p2Page]) {
+    page.on('request', (req) => requestUrls.push(req.url()));
+  }
+
+  const live = await launchThreeViewersToMovement({
+    request,
+    gmPage,
+    p1Page,
+    p2Page,
+  });
+  const { match, gmToken, p1Token, p2Token } = live;
+  try {
+    p2Drop.arm();
+    const isolated = await driveUntilPlayer2Capped({
+      gmPage,
+      p2PlayerId: p2Token.playerId,
+      gmTap,
+    });
+    const p2IssuedAtCap = isolated.byPlayer[p2Token.playerId]?.issued ?? 0;
+    const gmIssuedAtCap = isolated.byPlayer[gmToken.playerId]?.issued ?? 0;
+    const p1IssuedAtCap = isolated.byPlayer[p1Token.playerId]?.issued ?? 0;
+    expect(playerUnacked(isolated, p2Token.playerId)).toBeGreaterThanOrEqual(
+      VIEWER_UNACKED_CAP,
+    );
+    const p2PhaseAtCap = await p2Page.getByTestId('phase-name').innerText();
+    const p2BehindState = await lifecycleState(p2Page);
+
+    // Two further commands: isolation is "stopped growing", not "exactly 64"
+    // — a mid-burst refuse is allowed (ServerMatchHostViewerBound).
+    await driveTwoMoreAdvances(gmTap, gmPage);
+    await expect
+      .poll(() => {
+        const snap = readViewerBoundEvidence(match.matchId);
+        const p2 = snap.byPlayer[p2Token.playerId]?.issued ?? 0;
+        const gm = snap.byPlayer[gmToken.playerId]?.issued ?? 0;
+        const p1 = snap.byPlayer[p1Token.playerId]?.issued ?? 0;
+        return p2 === p2IssuedAtCap && gm > gmIssuedAtCap && p1 > p1IssuedAtCap;
+      }, { timeout: 30_000 })
+      .toBe(true);
+    const afterHold = readViewerBoundEvidence(match.matchId);
+    expect(afterHold.byPlayer[p2Token.playerId]?.issued ?? 0).toBe(p2IssuedAtCap);
+    expect(afterHold.byPlayer[gmToken.playerId]?.issued ?? 0).toBeGreaterThan(
+      gmIssuedAtCap,
+    );
+    expect(afterHold.byPlayer[p1Token.playerId]?.issued ?? 0).toBeGreaterThan(
+      p1IssuedAtCap,
+    );
+    await expect(gmPage.getByTestId('phase-name')).not.toHaveText(p2PhaseAtCap, {
+      timeout: 60_000,
+    });
+    await expect(p1Page.getByTestId('phase-name')).not.toHaveText(p2PhaseAtCap, {
+      timeout: 60_000,
+    });
+    await expect(p2Page.getByTestId('phase-name')).toHaveText(p2PhaseAtCap);
+    // behind / syncing / reconnecting is tactical-lifecycle-state. Isolation
+    // without a later delivery does not flip client.ready, so the banner
+    // often stays live; the frozen cursor is the shipped posture then.
+    if (/^(behind|syncing|reconnecting)$/.test(p2BehindState)) {
+      expect(p2BehindState).toMatch(/^(behind|syncing|reconnecting)$/);
+    }
+
+    const lastHeldAuth =
+      deliveryRowsFor(isolated, p2Token.playerId).at(-1)?.authoritySequence ??
+      -1;
+    const liveHeadDuringGap = afterHold.maxSequence;
+    const firstMissed = firstAuthorityAfter(afterHold, lastHeldAuth, [
+      gmToken.playerId,
+      p1Token.playerId,
+    ]);
+
+    p2Drop.disarm();
+    // In-place ack cannot fire: the client only acks after apply, and
+    // an isolated viewer is sent no live frames. Spectate has no lobby
+    // sessionStorage door — remount + same vault is this viewer's
+    // SessionJoin (handleSessionJoin + stampReplayDeliveries).
+    await recoverSpectatorAfterIsolation(p2Page, P2_VAULT_PASSWORD);
+    const gmPhase = await gmPage.getByTestId('phase-name').innerText();
+    await expect(p2Page.getByTestId('phase-name')).toHaveText(gmPhase, {
+      timeout: 90_000,
+    });
+    await expect(p1Page.getByTestId('phase-name')).toHaveText(gmPhase, {
+      timeout: 30_000,
+    });
+
+    await expect
+      .poll(() => {
+        const snap = readViewerBoundEvidence(match.matchId);
+        const row = snap.byPlayer[p2Token.playerId];
+        const rows = deliveryRowsFor(snap, p2Token.playerId);
+        const caughtUp =
+          row !== undefined &&
+          row.issued > p2IssuedAtCap &&
+          row.lastAcked === row.issued - 1;
+        const resumedGap = rows.some(
+          (entry) => entry.authoritySequence === firstMissed,
+        );
+        return caughtUp && resumedGap;
+      }, { timeout: 90_000 })
+      .toBe(true);
+    const recovered = readViewerBoundEvidence(match.matchId);
+    const p2Recovered = recovered.byPlayer[p2Token.playerId];
+    expect(p2Recovered?.issued ?? 0).toBeGreaterThan(p2IssuedAtCap);
+    expect(p2Recovered?.lastAcked).toBe((p2Recovered?.issued ?? 1) - 1);
+    const p2Rows = deliveryRowsFor(recovered, p2Token.playerId);
+    assertContiguousFromZero(p2Rows);
+    const resumed = p2Rows.find(
+      (row) => row.authoritySequence === firstMissed,
+    );
+    expect(resumed).toBeDefined();
+    expect(firstMissed).toBeLessThan(liveHeadDuringGap);
+    expect(resumed?.authoritySequence).not.toBe(liveHeadDuringGap);
+
+    const gmTokens = await unitTokenIds(gmPage);
+    const p2Tokens = await unitTokenIds(p2Page);
+    expect(new Set(p2Tokens).size).toBe(p2Tokens.length);
+    expect([...p2Tokens].sort()).toEqual([...gmTokens].sort());
+
+    assertNoBearerInUrls(socketUrls, [
+      gmToken.token,
+      p1Token.token,
+      p2Token.token,
+    ]);
+    assertNoBearerInUrls(requestUrls, [
+      gmToken.token,
+      p1Token.token,
+      p2Token.token,
+    ]);
+  } finally {
+    await deleteIdentities(request, live.identityIds).catch(() => undefined);
+    await gmPage.context().close();
+    await p1Page.context().close();
+    await p2Page.context().close();
+  }
+});
 
 test('E2E-15 a host restart recovers every authority clause before a new command is enabled @E2E-15', async ({
   browser,
