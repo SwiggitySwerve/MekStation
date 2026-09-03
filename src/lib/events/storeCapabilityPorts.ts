@@ -166,9 +166,7 @@ export function hasHistoryBranchStore<T extends object>(
  * singleton answers false until that database is initialized (or the
  * caller supplied its own capabilityDb).
  */
-export function isHistoryBranchStoreReady<T extends object>(
-  store: T,
-): boolean {
+export function isHistoryBranchStoreReady<T extends object>(store: T): boolean {
   const candidate = store as Partial<IEventHistoryBranchPort> &
     Partial<IHistoryBranchStoreReadiness>;
   if (typeof candidate.readBranch !== 'function') {
