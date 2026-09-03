@@ -22,7 +22,6 @@ import type { ICorrectionLeaseHandle } from '@/lib/events/journal/EventHistoryCo
 import type { IGameEvent } from '@/types/gameplay/GameSessionInterfaces';
 import type { IIntent } from '@/types/multiplayer/Protocol';
 
-import type { IRewindRebuildHost } from '../ServerMatchHostRewindRebuild';
 import { InteractiveSession } from '@/engine/InteractiveSession';
 import { readEffectiveStreamHead } from '@/lib/events/journal/EventHistoryEffectiveStreamHead';
 import { SQLiteEventHistoryBranchStore } from '@/lib/events/journal/SQLiteEventHistoryBranchStore';
@@ -45,6 +44,7 @@ import {
 } from '@/utils/gameplay/gameSession';
 
 import type { IMatchMeta } from '../IMatchStore';
+import type { IRewindRebuildHost } from '../ServerMatchHostRewindRebuild';
 
 import { DurableMatchStore } from '../DurableMatchStore';
 import { commitGmCombatRewind } from '../history/GmCombatRewindCommit';

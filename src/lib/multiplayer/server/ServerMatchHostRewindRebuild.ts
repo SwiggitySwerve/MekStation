@@ -141,7 +141,10 @@ export async function tryFoldActivatedRewindBranch(
   // unchanged: an old-head checkpoint is already unattested by digest
   // against this activated prefix.
   await supersedeActivatedTail(store, matchId, streamHead.revision);
-  return { session: foldMatchSession(matchId, events), branchId: head.branchId };
+  return {
+    session: foldMatchSession(matchId, events),
+    branchId: head.branchId,
+  };
 }
 
 export async function rebuildHostFromActivatedBranch(
