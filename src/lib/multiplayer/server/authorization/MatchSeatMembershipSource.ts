@@ -26,11 +26,12 @@
 
 import { sha256 } from 'js-sha256';
 
+import type { IMatchSeat } from '@/types/multiplayer/Lobby';
+
 import {
   hasParticipantStore,
   isParticipantStoreReady,
 } from '@/lib/events/storeCapabilityPorts';
-import type { IMatchSeat } from '@/types/multiplayer/Lobby';
 
 import type {
   IMembershipRecord,

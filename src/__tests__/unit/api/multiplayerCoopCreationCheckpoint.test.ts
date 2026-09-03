@@ -251,7 +251,9 @@ describe('co-op campaign creation authority checkpoint', () => {
     expect(harness.result.statusCode).toBe(201);
     const created = harness.result.body;
     if (!created || 'error' in created) {
-      throw new Error(`Expected a created match, got ${JSON.stringify(created)}`);
+      throw new Error(
+        `Expected a created match, got ${JSON.stringify(created)}`,
+      );
     }
 
     const seats = created.meta.seats ?? [];

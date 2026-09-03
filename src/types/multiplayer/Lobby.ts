@@ -282,7 +282,9 @@ export function emptySpectatorSeat(seatNumber: number): IMatchSeat {
  * WHAT: 1v1 stays two unoccupied human seats plus `spectator-1`.
  * WHY: LAYOUT_SPECS must not grow a third tactical seat; the GM sits beside them.
  */
-export function defaultSeatsWithSpectatorHost(layout: TeamLayout): IMatchSeat[] {
+export function defaultSeatsWithSpectatorHost(
+  layout: TeamLayout,
+): IMatchSeat[] {
   return [...defaultSeats(layout), emptySpectatorSeat(1)];
 }
 
