@@ -15,6 +15,7 @@ import type { ICoopParticipationRecord } from '@/lib/campaign/coop/coopRuntimeSe
 import type { LaunchCoopMissionResult } from '@/lib/campaign/coop/launchCoopMission';
 import type { IMissionReadinessProjection } from '@/lib/campaign/readiness/missionReadinessProjection';
 import type { IForce } from '@/types/campaign/Force';
+import type { SerializedCampaign } from '@/types/campaign/SerializedCampaign';
 import type { IEncounter } from '@/types/encounter';
 
 import { getCoopRuntimeSessionByMatch } from '@/lib/campaign/coop/coopRuntimeSession';
@@ -397,6 +398,75 @@ describe('launchMissionFromPage', () => {
     );
   });
 
+  it('reads the server head for a single-player launch and asks the launch door with it', async () => {
+    globalThis.fetch = fetchAnswering((url) => {
+      if (url.endsWith('/head')) {
+        return { status: 200, body: SERVER_HEAD };
+      }
+      if (url.endsWith('/launch-authority')) {
+        return {
+          status: 200,
+          body: { kind: 'materialized', head: SERVER_HEAD, slots: [] },
+        };
+      }
+      return { status: 404, body: {} };
+    });
+    useCampaignPersistenceStore.setState({
+      saveCampaign: jest.fn(async () => ({
+        status: 'saved' as const,
+        record: {} as SerializedCampaign,
+      })),
+    });
+
+    const force = makeForce('force-root');
+    const mission = makeMission();
+    const campaign = {
+      ...createCampaign('Gray Dawn', 'mercenary'),
+      id: 'campaign-1',
+      rootForceId: force.id,
+      forces: new Map([[force.id, force]]),
+      missions: new Map([[mission.id, mission]]),
+    };
+    const router = { push: jest.fn() };
+
+    await launchMissionFromPage({
+      campaign,
+      campaignKey: campaign.id,
+      missionKey: 'mission-1',
+      matchId: null,
+      localForce: force,
+      localPlayerId: 'host',
+      localChoice: 'deploy',
+      readinessProjection: readyProjection(),
+      router,
+      store: fakeStore(),
+      setLaunchError: jest.fn(),
+      setIsLaunching: jest.fn(),
+    });
+
+    const fetchMock = globalThis.fetch as jest.Mock;
+    expect(fetchMock).toHaveBeenCalledWith(
+      '/api/campaigns/campaign-1/head',
+      expect.anything(),
+    );
+    const authorityCall = fetchMock.mock.calls.find((call) =>
+      String(call[0]).includes('/launch-authority'),
+    );
+    expect(authorityCall).toBeDefined();
+    const authorityBody = JSON.parse(String(authorityCall?.[1]?.body)) as {
+      expectedHead: unknown;
+      sessionId?: unknown;
+    };
+    expect(authorityBody.expectedHead).toEqual({
+      branchId: SERVER_HEAD.branchId,
+      revision: SERVER_HEAD.revision,
+      effectiveGeneration: SERVER_HEAD.effectiveGeneration,
+    });
+    expect(authorityBody.sessionId).toBeUndefined();
+    expect(materializeMock.mock.calls[0]?.[0]).toHaveProperty('ownedForces');
+    expect(router.push).toHaveBeenCalled();
+  });
+
   it('still launches a single-player campaign with no effective branch', async () => {
     globalThis.fetch = fetchAnswering((url) => {
       if (url.endsWith('/head')) {
@@ -405,7 +475,12 @@ describe('launchMissionFromPage', () => {
       return { status: 404, body: {} };
     });
     useCampaignPersistenceStore.setState({
-      saveCampaign: jest.fn(async () => ({ status: 'skipped' as const })),
+      // A saved checkpoint; the launch path reads only the status, never
+      // the record, so the record is a typed placeholder.
+      saveCampaign: jest.fn(async () => ({
+        status: 'saved' as const,
+        record: {} as SerializedCampaign,
+      })),
     });
 
     const force = makeForce('force-root');
