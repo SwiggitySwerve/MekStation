@@ -5,7 +5,7 @@ const repoRoot = path.resolve(__dirname, '../..');
 const runner = path.join(repoRoot, 'scripts/qc/run-gm-two-player-campaign.mjs');
 const core = require('../qc/gm-two-player-campaign-core.cjs');
 const groups =
-  'fixture-smoke,membership-smoke,evidence-smoke,fault-smoke,smoke,authority-pack1,exactly-once-pack,fault-pack,token-pack,restart-pack,resilience-pack,authority-order,privacy-pack,proposal-pack,three-context-pack,two-device-pack,authority,visibility,combat,campaign,failure,performance,all,traceability,quality,manual-setup,scope'.split(
+  'fixture-smoke,membership-smoke,evidence-smoke,fault-smoke,smoke,authority-pack1,exactly-once-pack,fault-pack,token-pack,restart-pack,resilience-pack,authority-order,authority-recovery,privacy-pack,proposal-pack,three-context-pack,two-device-pack,authority,visibility,combat,campaign,failure,performance,all,traceability,quality,manual-setup,scope'.split(
     ',',
   );
 /** The server command a non-respawning implemented group is planned with. */
@@ -153,6 +153,28 @@ describe('GM and two-player campaign QC runner', () => {
     expect(authorityOrderPlan.environment.MEKSTATION_E2E_SERVER_COMMAND).toBe(
       'node server.js',
     );
+
+    // Predicted red of this pin today, before the catalog grew the
+    // group: Object.keys(REGISTERED_GROUPS) lacked `authority-recovery`,
+    // so the first expect(toEqual(groups)) printed
+    // `-   "authority-recovery",` after `authority-order`. The group is
+    // pinned here so that absence stays a red, not a silent skip.
+    const authorityRecoveryPlan = core.buildRunPlan({
+      group: 'authority-recovery',
+      runId: 'task-21-authority-recovery',
+      repoRoot,
+    });
+    expect(authorityRecoveryPlan.args).toEqual([
+      path.join(repoRoot, 'scripts/playwright/run-playwright.mjs'),
+      'test',
+      '--project=chromium',
+      'e2e/gm-two-player-authority-recovery.pack.spec.ts',
+      '--workers=1',
+    ]);
+    // E2E-01/02 kill the process, so this group needs the wrapper.
+    expect(
+      authorityRecoveryPlan.environment.MEKSTATION_E2E_SERVER_COMMAND,
+    ).toBe('node scripts/e2e/relaunching-server.mjs');
     // Every other group keeps the plain server - the wrapper is the
     // exception, never the default.
     expect(faultSmokeServerCommand(core, repoRoot)).toBe('node server.js');
@@ -279,6 +301,7 @@ describe('GM and two-player campaign QC runner', () => {
       'e2e/gm-two-player-restart.pack.spec.ts',
       'e2e/gm-two-player-resilience.pack.spec.ts',
       'e2e/gm-two-player-authority-order.pack.spec.ts',
+      'e2e/gm-two-player-authority-recovery.pack.spec.ts',
       'e2e/gm-two-player-privacy.pack.spec.ts',
       'e2e/gm-two-player-proposals.pack.spec.ts',
       'e2e/gm-two-player-performance.pack.spec.ts',
@@ -339,6 +362,7 @@ describe('GM and two-player campaign QC runner', () => {
       'restart-pack',
       'resilience-pack',
       'authority-order',
+      'authority-recovery',
       'privacy-pack',
       'proposal-pack',
       'three-context-pack',
