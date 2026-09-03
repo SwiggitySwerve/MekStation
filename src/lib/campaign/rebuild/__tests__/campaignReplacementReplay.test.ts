@@ -211,6 +211,44 @@ describe('campaign replacement replay', () => {
     });
   });
 
+  it('R2b: replaying a group that already landed converges instead of failing', async () => {
+    // The candidate-scoped command id IS the retry key. A target-side
+    // re-run replays the same retained commands; the journal answers
+    // command-identity-conflict for the group it already holds, and the
+    // replay must treat that as convergence or no retry could ever finish.
+    const campaignId = 'campaign-r2b';
+    await seedPair(campaignId);
+    const candidate = mintAt(campaignId, 2);
+    const events = [{ commandId: 'C-next', event: fundsEvent(campaignId, 4) }];
+    const first = await replayCampaignReplacement(journal, db, {
+      campaignId,
+      candidateBranchId: candidate.branchId,
+      events,
+    });
+    expect(first).toHaveLength(1);
+    const rowsAfterFirst = db
+      .prepare(
+        `SELECT COUNT(*) AS count FROM event_journal_events
+          WHERE stream_id = ? AND branch_id = ?`,
+      )
+      .get(campaignId, candidate.branchId) as { count: number };
+    await expect(
+      replayCampaignReplacement(journal, db, {
+        campaignId,
+        candidateBranchId: candidate.branchId,
+        events,
+      }),
+    ).resolves.toEqual([]);
+    expect(
+      db
+        .prepare(
+          `SELECT COUNT(*) AS count FROM event_journal_events
+            WHERE stream_id = ? AND branch_id = ?`,
+        )
+        .get(campaignId, candidate.branchId),
+    ).toStrictEqual(rowsAfterFirst);
+  });
+
   it('R3: sequence differs from revision when a command is dropped', async () => {
     const campaignId = 'campaign-r3';
     const { candidate } = await replayDropped(campaignId);
