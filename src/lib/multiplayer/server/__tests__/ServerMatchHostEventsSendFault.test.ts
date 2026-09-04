@@ -21,13 +21,14 @@ import {
 import { defaultSeats } from '@/types/multiplayer/Lobby';
 import { type IIntent, nowIso } from '@/types/multiplayer/Protocol';
 
+import type { IMatchStore } from '../IMatchStore';
+
 import {
   DurableMatchStore,
   _armE2EFaultOnce,
   _resetE2EFaultsForTests,
   throwForPostCommitSendFault,
 } from '../DurableMatchStore';
-import type { IMatchStore } from '../IMatchStore';
 import { InMemoryMatchStore } from '../InMemoryMatchStore';
 import { ServerMatchHost } from '../ServerMatchHost';
 
