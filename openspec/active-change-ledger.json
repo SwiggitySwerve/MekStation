@@ -47,6 +47,12 @@
       "status": "proposed",
       "reason": "Server-authoritative campaign state with source/replica instance model, share grants, and scope-filtered event broadcast (GM full view, players receive only in-scope events) on the existing hash-chained SQLite event journal; driven by the 2026-08-07 visual-audit finding that campaigns are browser-local. CAMP-01H / PR 1245 landed on main at 2a8a46183; implementation remains gated on the later parent 9.1 receipt. Reconciled 2026-08-20 (council decision 2026-08-20-campaign-journal-reconciliation-and-next-work): sole surviving home for campaign journal work; absorbed the superseded adopt-campaign-event-journal-authority (design D10 + rewritten D4 + Group 5); journal-bound implementation gates on the narrow dependencies named in its tasks preamble.",
       "lastReviewed": "2026-08-20"
+    },
+    {
+      "name": "adopt-combat-journal-cutover-and-gm-rewind",
+      "status": "proposed",
+      "reason": "Owner ruling 2026-09-04 on the 2026-09-03 inventory-and-sync council: GM combat rewind is withdrawn from harden-gm-two-player-campaign-sessions because the combat match stream is never journaled in production (finding #48) and the umbrella delta would otherwise merge SHALLs the code violates on archive. This successor owns the six match-stream journal cutover seams, the moved gm-combat-interventions requirements (preview/commit phases, replacement-branch creation and activation, STALE_BRANCH rejection, per-viewer fog rebuild), the closes of umbrella boxes 14.1/14.2/14.4/14.5 by receipt, the 80-scenario reconcile, and the un-gate of rows E2E-40 to 44 and E2E-76, which run in the umbrella as strict expected failures tagged @until-journal-cutover. Unfunded until scheduled; its box 0.1 is the first deliverable when it opens.",
+      "lastReviewed": "2026-09-04"
     }
   ]
 }
