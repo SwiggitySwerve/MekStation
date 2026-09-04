@@ -175,9 +175,10 @@ export interface IUseMultiplayerSessionResult {
   /**
    * The authoritative-history signal the server's refusals produce
    * (umbrella 19.2, 3b-i). `PROJECTION_REBUILDING` while a correction
-   * lease is rebuilding this match's history; `null` otherwise. The
-   * tactical surface derives its `rebuilding` posture from this, and
-   * gates commands on that posture.
+   * lease is rebuilding this match's history; a typed STALE_BRANCH
+   * payload while live combat branch admission refuses; `null`
+   * otherwise. The tactical surface derives rebuilding or blocked from
+   * this, and gates commands on that posture.
    */
   readonly projectionSignal: TacticalLifecycleProjectionSignal | null;
 }

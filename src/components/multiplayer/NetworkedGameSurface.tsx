@@ -392,6 +392,7 @@ export function NetworkedGameSurface({
             targetUnitId={targetUnitId}
             paused={paused}
             commandGate={commandGate}
+            recoveryAction={tacticalLifecycle.recoveryAction ?? null}
             onSendIntent={handleSendIntent}
           />
         )}
