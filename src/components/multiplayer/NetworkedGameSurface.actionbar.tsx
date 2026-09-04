@@ -40,6 +40,7 @@ import {
   NETWORKED_ACTION_REFUSAL_ID,
   type IActionControlContext,
 } from './NetworkedGameSurface.actionContext';
+import { BranchRecoveryInstruction } from './NetworkedGameSurface.branchRecovery';
 import { WaitingForOpponentIndicator } from './NetworkedGameSurface.overlays';
 
 // =============================================================================
@@ -66,6 +67,11 @@ export interface INetworkedActionBarProps {
    * stream, and the three convergence states. Absent means ungated.
    */
   readonly commandGate?: CommandAvailability;
+  /**
+   * Server recoveryAction from a branch refusal, rendered verbatim.
+   * Absent or empty means the bar names no recovery of its own.
+   */
+  readonly recoveryAction?: string | null;
   /** Forward an intent to the server. The bar never resolves locally. */
   readonly onSendIntent: (
     intent: ReturnType<typeof declareMovementIntent>,
@@ -100,6 +106,7 @@ export function NetworkedActionBar({
   targetUnitId,
   paused,
   commandGate,
+  recoveryAction = null,
   onSendIntent,
 }: INetworkedActionBarProps): React.ReactElement {
   const phase = session.currentState.phase;
@@ -132,6 +139,7 @@ export function NetworkedActionBar({
     targetUnitId,
     onSendIntent,
     commandGate,
+    recoveryAction,
   });
 
   // When the gate is closed and the match is live, show the passive
@@ -157,6 +165,7 @@ export function NetworkedActionBar({
           }
         />
         <GateRefusalDescription context={controlContext} />
+        <BranchRecoveryInstruction recoveryAction={controlContext.recoveryAction} />
       </div>
     );
   }
@@ -191,6 +200,7 @@ export function NetworkedActionBar({
       />
 
       <GateRefusalDescription context={controlContext} />
+      <BranchRecoveryInstruction recoveryAction={controlContext.recoveryAction} />
     </div>
   );
 }

@@ -138,6 +138,21 @@ export function sendClientIntent(
   client.send(intent);
 }
 
+/**
+ * WHAT: Maps a client-emitted error payload onto the tactical projection channel.
+ * WHY: handleClientError used to drop every non-rebuild code, so a STALE_BRANCH
+ * frame never reached the surface; this is the single admission point.
+ */
+export function mapClientErrorToProjectionSignal(
+  payload: unknown,
+): TacticalLifecycleProjectionSignal | null {
+  if (typeof payload !== 'object' || payload === null) return null;
+  if (payload instanceof Error) return null;
+  const code = Reflect.get(payload, 'code');
+  if (typeof code !== 'string') return null;
+  return projectionSignalFromServerError(code, payload);
+}
+
 function createMultiplayerEventHandler(
   context: EventHandlerContext,
 ): (raw: unknown) => void {
@@ -267,12 +282,12 @@ function handleClientError(
     return;
   }
   if (typeof err.code === 'string' && err.code !== 'CLIENT_ERROR') {
-    // A projection refusal is BOTH a refusal and a posture. The toast
-    // keeps its channel (a player asked for something and did not get
-    // it); the signal is what makes the surface stop offering more.
-    // Only a rebuild refusal lights it - an unrelated refusal arriving
-    // mid-rebuild must not clear a posture it knows nothing about.
-    const signal = projectionSignalFromServerError(err.code);
+    // A projection or branch refusal is BOTH a refusal and a posture.
+    // The toast keeps its channel (a player asked for something and did
+    // not get it); the signal is what makes the surface stop offering
+    // more. An unrelated refusal arriving mid-rebuild must not clear a
+    // posture it knows nothing about.
+    const signal = mapClientErrorToProjectionSignal(err);
     if (signal !== null) setters.setProjectionSignal(signal);
     setters.setIntentError({ code: err.code, reason: err.reason });
     return;

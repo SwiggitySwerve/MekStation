@@ -216,6 +216,23 @@ describe('networked action bar command gate', () => {
     );
   });
 
+  it('shows the server recovery action and disables commands for a stale-branch block', () => {
+    renderSurface({
+      projectionSignal: {
+        code: 'STALE_BRANCH',
+        conflictHead: { branchId: 'root', revision: 7 },
+        recoveryAction: 'resync-to-active-head',
+      },
+    });
+
+    expect(screen.getByTestId('tactical-branch-recovery-action')).toHaveTextContent(
+      'resync-to-active-head',
+    );
+    for (const testId of CONTROL_TEST_IDS) {
+      expect(screen.getByTestId(testId)).toBeDisabled();
+    }
+  });
+
   it('sends nothing while a control is gated', () => {
     const { onSendGameIntent } = renderSurface({
       projectionSignal: 'PROJECTION_REBUILDING',
