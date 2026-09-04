@@ -159,6 +159,13 @@ describe('campaign commands during a history rebuild', () => {
       kind: 'blocked',
       reason: 'PROJECTION_REBUILDING',
       recoveryAction: 'retry-after-rebuild',
+      // CHANGE spec campaign-persistence lines 80-85: the refusal names
+      // the active branch and revision so the client can wait on a head
+      // it can actually see, not guess.
+      activeHead: {
+        branchId: 'root',
+        revision: before,
+      },
     });
     // The refusal wrote nothing into the history the rebuild is about to
     // replace.
