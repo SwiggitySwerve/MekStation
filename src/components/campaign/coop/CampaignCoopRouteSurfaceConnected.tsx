@@ -68,6 +68,11 @@ export function CampaignCoopRouteSurfaceConnected({
   // one place and this component cannot invent a posture the server
   // never sent.
   const [lastRefusalCode, setLastRefusalCode] = useState<string | null>(null);
+  // The server names the recovery it wants next to its refusal code; the
+  // surface renders that wording verbatim, so it travels with the code.
+  const [lastRefusalAction, setLastRefusalAction] = useState<string | null>(
+    null,
+  );
   const [runtimeReady, setRuntimeReady] = useState(false);
   const latestCampaignRef = useRef<ICampaign | null>(campaign);
   latestCampaignRef.current = campaign;
@@ -127,6 +132,7 @@ export function CampaignCoopRouteSurfaceConnected({
       // letting the host press it and find out.
       if (message.kind === 'Error') {
         setLastRefusalCode(message.code);
+        setLastRefusalAction(message.recoveryAction ?? null);
       }
       // A committed campaign event means the server accepted a write, so
       // the standing refusal is stale. Clearing it here is deliberately
@@ -136,6 +142,7 @@ export function CampaignCoopRouteSurfaceConnected({
       // forever on a message that no longer describes anything.
       if (message.kind === 'CampaignEvent') {
         setLastRefusalCode(null);
+        setLastRefusalAction(null);
       }
       // Task 3.6: keep the GM's received stream so the scope audit panel
       // can show how each event was classified at emission. Host-only -
@@ -213,9 +220,11 @@ export function CampaignCoopRouteSurfaceConnected({
       // again" frame exists and the server stays the enforcer.
       if (message.kind === 'Error') {
         setLastRefusalCode(message.code);
+        setLastRefusalAction(message.recoveryAction ?? null);
       }
       if (message.kind === 'CampaignEvent') {
         setLastRefusalCode(null);
+        setLastRefusalAction(null);
       }
       const event = campaignEventFromMessage(message);
       if (!event) return;
@@ -311,7 +320,11 @@ export function CampaignCoopRouteSurfaceConnected({
       proposalTransport={proposalTransport}
       proposingPlayerId={proposingPlayerId}
       lastRefusalCode={lastRefusalCode}
-      onClearRefusal={() => setLastRefusalCode(null)}
+      lastRefusalAction={lastRefusalAction}
+      onClearRefusal={() => {
+        setLastRefusalCode(null);
+        setLastRefusalAction(null);
+      }}
       guestMirrorSummary={guestMirrorSummary}
     />
   );

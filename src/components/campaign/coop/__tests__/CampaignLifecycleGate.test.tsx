@@ -343,6 +343,18 @@ describe('campaign refusal lifecycle over the wire', () => {
     };
   }
 
+  /** The head moved under the GM: the server names the resync it wants. */
+  function staleHeadFrame() {
+    return {
+      kind: 'Error',
+      matchId: MATCH_ID,
+      ts: '3025-01-01T00:00:01.000Z',
+      code: 'CAMPAIGN_STALE_HEAD',
+      reason: 'expected revision 3, active head is revision 4',
+      recoveryAction: 'resync-to-active-head',
+    };
+  }
+
   /** A committed progression event - proof the server took a write. */
   function dayAdvancedFrame() {
     return {
@@ -434,6 +446,25 @@ describe('campaign refusal lifecycle over the wire', () => {
       'blocked',
     );
     expect(screen.getByTestId('approve-p-day')).toBeDisabled();
+  });
+
+  it('carries the server resync action to the GM surface on a stale head', async () => {
+    await mountHostDashboard();
+    emit(advanceDayProposalFrame());
+    expect(screen.getByTestId('approve-p-day')).toBeEnabled();
+
+    emit(staleHeadFrame());
+
+    expect(screen.getByTestId('gm-lifecycle-state')).toHaveAttribute(
+      'data-state',
+      'blocked',
+    );
+    expect(screen.getByTestId('approve-p-day')).toBeDisabled();
+    // The wording is the server's, verbatim: the surface must not invent
+    // or paraphrase the recovery it was told to show.
+    expect(
+      screen.getByText('Server instruction: resync-to-active-head'),
+    ).toBeInTheDocument();
   });
 
   it('lifts the block once a campaign event proves the server took a write', async () => {

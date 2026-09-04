@@ -227,6 +227,11 @@ export interface CampaignCoopRouteSurfaceProps {
    */
   readonly lastRefusalCode?: string | null;
   /**
+   * The recovery action the server named beside that code, verbatim off
+   * the wire. Rendered as the server's instruction; never invented here.
+   */
+  readonly lastRefusalAction?: string | null;
+  /**
    * Clears that refusal so the host can retry. The block is a hint from
    * the last refusal, not a live subscription; the server is still the
    * authority and re-refuses if the condition holds.
@@ -276,6 +281,7 @@ export function CampaignCoopRouteSurface(
     proposingPlayerId = 'co-op-guest',
     auditEvents = [],
     lastRefusalCode = null,
+    lastRefusalAction = null,
     onClearRefusal = () => {},
     guestMirrorSummary,
   } = props;
@@ -309,10 +315,13 @@ export function CampaignCoopRouteSurface(
         refusal:
           lastRefusalCode === null
             ? null
-            : campaignRefusalFromServerErrorCode(lastRefusalCode),
+            : campaignRefusalFromServerErrorCode(
+                lastRefusalCode,
+                lastRefusalAction,
+              ),
         pendingProposalCount: pendingProposals.length,
       }),
-    [lastRefusalCode, pendingProposals.length],
+    [lastRefusalAction, lastRefusalCode, pendingProposals.length],
   );
   // The guest's posture.
   //
@@ -340,10 +349,18 @@ export function CampaignCoopRouteSurface(
         refusal:
           lastRefusalCode === null
             ? null
-            : campaignRefusalFromServerErrorCode(lastRefusalCode),
+            : campaignRefusalFromServerErrorCode(
+                lastRefusalCode,
+                lastRefusalAction,
+              ),
       },
     );
-  }, [guestMirrorSummary, lastRefusalCode, proposalsApi.proposals]);
+  }, [
+    guestMirrorSummary,
+    lastRefusalAction,
+    lastRefusalCode,
+    proposalsApi.proposals,
+  ]);
 
   // Single-player campaigns mount neither co-op surface.
   if (!campaign?.coopSession) {
