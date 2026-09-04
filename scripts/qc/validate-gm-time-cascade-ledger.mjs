@@ -1,9 +1,15 @@
 #!/usr/bin/env node
+import fs from 'node:fs';
+import path from 'node:path';
 import {
   buildLedgerQcManifest,
+  issue,
   parseArgs,
   printLedgerQcResult,
+  repoRoot,
 } from './gm-ledger-qc-core.mjs';
+
+const TIME_CASCADE_LANE_ID = 'verify:qc:gm:time-cascade';
 
 const requiredSurface = {
   id: 'time-cascade-gm-ledger',
@@ -18,6 +24,14 @@ const requiredSurface = {
     'GmCampaignInterventionBoundaries.test.ts',
     'GmCampaignInterventionControlPlane.test.tsx',
     'marketProcessors.test.ts',
+    'dayPipeline.test.ts',
+    'GmCampaignRewindImpactPreview.test.ts',
+    'GmCampaignAffectedFamilies.test.ts',
+    'GmCampaignImpactDerivation.test.ts',
+    'GmCampaignArtifactUseGuard.test.ts',
+    'campaignCommandPipelineRebuild.test.ts',
+    'campaignCommandPipelineArtifactUse.test.ts',
+    'EventHistoryActivation.test.ts',
   ],
   specIncludes: [
     'time-cascade-system',
@@ -294,20 +308,75 @@ const defaultSourceAnchors = [
   },
 ];
 
+/** WHAT: True when a commandIncludes token is a Jest suite the named lane must execute.
+ *  WHY: Registry command strings can drift from package.json; Section-16 coverage is the live lane. */
+function isTimeCascadeLaneSuiteToken(token) {
+  return token.endsWith('.test.ts') || token.endsWith('.test.tsx');
+}
+
+/** WHAT: Read the verify:qc:gm:time-cascade script, honoring MEKSTATION_PACKAGE_JSON_PATH.
+ *  WHY: The 16.5 gate must inspect the command that actually runs, including test mutants. */
+function readTimeCascadeLaneCommand() {
+  const packageJsonPath =
+    process.env.MEKSTATION_PACKAGE_JSON_PATH ??
+    path.join(repoRoot, 'package.json');
+  const parsed = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
+  const lane = parsed.scripts?.[TIME_CASCADE_LANE_ID];
+  return typeof lane === 'string' ? lane : '';
+}
+
+/** WHAT: Re-score suite commandIncludes against the live npm lane and refresh fail/pass.
+ *  WHY: New tokens go red until the lane names them; dropping any one from the lane must fail. */
+function applyTimeCascadeLaneCoverage(manifest) {
+  const laneCommand = readTimeCascadeLaneCommand();
+  const issues = [];
+  for (const item of manifest.issues) {
+    if (
+      item.code === 'command-missing' &&
+      isTimeCascadeLaneSuiteToken(item.commandToken)
+    ) {
+      continue;
+    }
+    issues.push(item);
+  }
+  for (const token of requiredSurface.commandIncludes) {
+    if (!isTimeCascadeLaneSuiteToken(token) || laneCommand.includes(token)) {
+      continue;
+    }
+    issues.push(
+      issue(
+        'error',
+        'command-missing',
+        `${requiredSurface.id} must expose a command containing ${token}.`,
+        { surfaceId: requiredSurface.id, commandToken: token },
+      ),
+    );
+  }
+  const errors = issues.filter((item) => item.severity === 'error');
+  const warnings = issues.filter((item) => item.severity === 'warning');
+  manifest.issues = issues;
+  manifest.errors = errors;
+  manifest.warnings = warnings;
+  manifest.status = errors.length > 0 ? 'fail' : 'pass';
+  return manifest;
+}
+
 const options = parseArgs(process.argv.slice(2));
-const manifest = buildLedgerQcManifest({
-  entityLabel: 'GM time cascade ledger',
-  tokenLabel: 'GM time cascade ledger',
-  sourceAnchorsEnvVar: 'MEKSTATION_GM_TIME_CASCADE_ANCHORS_PATH',
-  requiredSurface,
-  requiredDomains,
-  requiredFamilies,
-  defaultSourceAnchors,
-  extraRequirements: {
-    requiredProcessors,
-    requiredCampaignRoots,
-  },
-});
+const manifest = applyTimeCascadeLaneCoverage(
+  buildLedgerQcManifest({
+    entityLabel: 'GM time cascade ledger',
+    tokenLabel: 'GM time cascade ledger',
+    sourceAnchorsEnvVar: 'MEKSTATION_GM_TIME_CASCADE_ANCHORS_PATH',
+    requiredSurface,
+    requiredDomains,
+    requiredFamilies,
+    defaultSourceAnchors,
+    extraRequirements: {
+      requiredProcessors,
+      requiredCampaignRoots,
+    },
+  }),
+);
 
 if (options.json) {
   console.log(JSON.stringify(manifest, null, 2));
