@@ -5,10 +5,12 @@ import type {
 } from '@/types/gameplay/GameSessionInterfaces';
 import type { IEventMessage } from '@/types/multiplayer/Protocol';
 
+import { throwForPostCommitSendFault } from './DurableMatchStore';
 import type { IMatchMeta, IMatchStore } from './IMatchStore';
 import type { RollCapture } from './RollCapture';
 import type { ServerMatchBroadcaster } from './ServerMatchBroadcaster';
 import type { ServerMatchSocketLifecycle } from './ServerMatchSocketLifecycle';
+import type { IMatchSocket } from './ServerMatchSocketTypes';
 
 import {
   mintVerifiedPrincipal,
@@ -366,11 +368,43 @@ async function publishEvent(
     // `assign` and the rejoin re-delivers frames the viewer already
     // applied (15 frames, 12 distinct), which the resume row catches.
     if (!ctx.broadcaster.admitForSend(recipient.socket)) continue;
-    ctx.broadcaster.safeSend(recipient.socket, {
-      ...guarded.value,
-      deliverySequence,
-    });
+    try {
+      sendNumberedLiveFrame(
+        ctx.matchId,
+        ctx.broadcaster,
+        recipient.socket,
+        {
+          ...guarded.value,
+          deliverySequence,
+        },
+      );
+    } catch (error) {
+      if (
+        error instanceof Error &&
+        error.message === 'test-post-commit-send'
+      ) {
+        continue;
+      }
+      throw error;
+    }
   }
+}
+
+/**
+ * WHAT: fire the one-shot post-commit send fault, then send this
+ * viewer's numbered live frame.
+ * WHY: the fault must throw at this per-viewer send, not inside the
+ * shared broadcaster, so one failed recipient cannot rewrite
+ * authority or stop the remaining fan-out.
+ */
+function sendNumberedLiveFrame(
+  matchId: string,
+  broadcaster: ServerMatchBroadcaster,
+  socket: IMatchSocket,
+  message: IEventMessage,
+): void {
+  throwForPostCommitSendFault(matchId);
+  broadcaster.safeSend(socket, message);
 }
 
 /**

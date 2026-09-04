@@ -452,12 +452,13 @@ describe('runCoordinatedCorrection', () => {
     };
   }
 
-  it('pins seven one-shot fault kinds including the two correction-exit windows', () => {
-    expect(E2E_FAULT_KINDS).toHaveLength(7);
+  it('pins eight one-shot fault kinds including the two correction-exit windows', () => {
+    expect(E2E_FAULT_KINDS).toHaveLength(8);
     expect(E2E_FAULT_KINDS).toEqual(
       expect.arrayContaining([
         'correction-exit-after-source',
         'correction-exit-after-target-mint',
+        'post-commit-send',
       ]),
     );
   });
