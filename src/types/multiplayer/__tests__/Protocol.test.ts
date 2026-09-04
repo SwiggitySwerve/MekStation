@@ -19,6 +19,7 @@ import {
   ClientMessageSchema,
   ErrorMessageSchema,
   IntentSchema,
+  intentHasForbiddenDiceField,
   ServerMessageSchema,
   SessionJoinSchema,
   HEARTBEAT_INTERVAL_MS,
@@ -214,6 +215,23 @@ describe('Protocol envelope schemas', () => {
         intent: { kind: 'AdvancePhase' as const },
       };
       expect(IntentSchema.safeParse(env).success).toBe(true);
+    });
+
+    it('strips a smuggled roll key so the schema cannot see it', () => {
+      // Documents why the socket door must read the raw envelope.
+      const envelope = {
+        kind: 'Intent' as const,
+        matchId: 'm',
+        ts: nowIso(),
+        playerId: 'p',
+        intent: { kind: 'AdvancePhase' as const, roll: 6 },
+      };
+      const parsed = IntentSchema.parse(envelope);
+      expect('roll' in parsed.intent).toBe(false);
+      expect(
+        intentHasForbiddenDiceField({ kind: 'AdvancePhase', roll: 6 }),
+      ).toBe(true);
+      expect(intentHasForbiddenDiceField({ kind: 'AdvancePhase' })).toBe(false);
     });
 
     it('parses a Concede intent', () => {
