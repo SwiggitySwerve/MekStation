@@ -36,6 +36,8 @@ export interface IActionControlContext {
   readonly refusalReason: string | null;
   /** `aria-describedby` for a refused control; `undefined` otherwise. */
   readonly describedBy: string | undefined;
+  /** Server recoveryAction, verbatim, or null when the frame named none. */
+  readonly recoveryAction: string | null;
 }
 
 export interface IActionControlContextInput {
@@ -50,6 +52,7 @@ export interface IActionControlContextInput {
   readonly targetUnitId: string | null;
   readonly onSendIntent: NetworkedIntentSender;
   readonly commandGate: CommandAvailability | undefined;
+  readonly recoveryAction?: string | null;
 }
 
 /**
@@ -85,5 +88,9 @@ export function buildActionControlContext(
     refused,
     refusalReason,
     describedBy: refused ? NETWORKED_ACTION_REFUSAL_ID : undefined,
+    recoveryAction:
+      input.recoveryAction === undefined || input.recoveryAction === ''
+        ? null
+        : input.recoveryAction,
   };
 }

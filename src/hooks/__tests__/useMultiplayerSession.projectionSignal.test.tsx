@@ -177,4 +177,44 @@ describe('useMultiplayerSession projection signal', () => {
     expect(result.current.intentError?.code).toBe('RATE_LIMITED');
     unmount();
   });
+
+  it('lights the blocked branch-refusal signal from a server STALE_BRANCH refusal', async () => {
+    const sockets: MockSocket[] = [];
+    const { result, unmount } = mountSession(sockets);
+
+    await waitFor(() => expect(sockets).toHaveLength(1));
+    act(() => {
+      sockets[0].onopen?.({});
+      sockets[0].emit({
+        kind: 'Error',
+        matchId: 'match-1',
+        ts,
+        code: 'STALE_BRANCH',
+        reason: 'not the effective branch',
+        conflictHead: { branchId: 'root', revision: 7 },
+        recoveryAction: 'resync-to-active-head',
+      });
+    });
+
+    expect(result.current.projectionSignal).toEqual({
+      code: 'STALE_BRANCH',
+      conflictHead: { branchId: 'root', revision: 7 },
+      recoveryAction: 'resync-to-active-head',
+    });
+    expect(
+      deriveTacticalLifecyclePosture({
+        client: result.current.clientLifecycle ?? {
+          blockedBySequenceCollision: false,
+          pendingIntentCount: 0,
+          ready: true,
+          reconnectScheduled: false,
+          recoveringFromGap: false,
+        },
+        finalizationLanded: false,
+        projectionSignal: result.current.projectionSignal ?? null,
+        sealedChoiceAwaitingReveal: false,
+      }).state,
+    ).toBe('blocked');
+    unmount();
+  });
 });

@@ -12,7 +12,8 @@
  * saga (17.2) consumes that answer. The N+1 gate (17.3) is a later
  * seam. A plain rewind onto a delivered receipt is still refused
  * `campaign-receipt-delivered` in GmCombatRewindCommit; this file does
- * not call that commit.
+ * not call that commit. `expectedDigest` binds the inbox
+ * `command_digest` of the delivered (outcomeId, version) pair.
  *
  * Not a combat-wire IntentPayload kind and not a GameEventType: those
  * unions are engine/lobby vocabulary, and an admitted combat intent
@@ -36,9 +37,10 @@ export const COORDINATED_OUTCOME_CORRECTION_KIND =
 
 /**
  * Closed refusal set. Authorization members come from the shared GM
- * rule; the two new ones are this door's (must already be delivered,
- * version must be exactly next); the rest reuse the expected-head
- * vocabulary the rewind already answers.
+ * rule; the three new ones are this door's (must already be delivered,
+ * version must be exactly next, expectedDigest must name the delivered
+ * receipt); the rest reuse the expected-head vocabulary the rewind
+ * already answers.
  */
 export const COORDINATED_OUTCOME_CORRECTION_REFUSALS = [
   'gm-role-required',
@@ -46,6 +48,7 @@ export const COORDINATED_OUTCOME_CORRECTION_REFUSALS = [
   'state-not-owned',
   'outcome-not-delivered',
   'version-not-next',
+  'expected-digest-mismatch',
   'no-authoritative-history',
   'STALE_BRANCH',
   'STALE_REVISION',
@@ -56,8 +59,8 @@ export type CoordinatedOutcomeCorrectionRefusal =
   (typeof COORDINATED_OUTCOME_CORRECTION_REFUSALS)[number];
 
 /**
- * One operator sentence per reason. Total Record over the union so a
- * tenth member fails compilation until someone writes its sentence
+ * One operator sentence per reason. Total Record over the union so an
+ * eleventh member fails compilation until someone writes its sentence
  * (LAW 40, same tripwire as GM_REWIND_REFUSAL_PHRASING).
  */
 export const COORDINATED_OUTCOME_CORRECTION_REFUSAL_PHRASING: Readonly<
@@ -72,6 +75,8 @@ export const COORDINATED_OUTCOME_CORRECTION_REFUSAL_PHRASING: Readonly<
     'No campaign has taken delivery of this outcome, so the door is still the plain combat rewind.',
   'version-not-next':
     'The new outcome version must be exactly the delivered version plus one.',
+  'expected-digest-mismatch':
+    'The expected digest does not match the digest of the delivered outcome being corrected.',
   'no-authoritative-history':
     'This match has no authoritative history to correct against.',
   STALE_BRANCH:
@@ -84,9 +89,11 @@ export const COORDINATED_OUTCOME_CORRECTION_REFUSAL_PHRASING: Readonly<
 
 /**
  * GM-only intent. `outcomeVersion` is the NEW version and must equal
- * the inbox's delivered version + 1. The four expected* fields are the
- * same head the rewind commit binds; admission compares them and the
- * saga (17.2) will reuse them when it takes the lease.
+ * the inbox's delivered version + 1. `expectedDigest` is the inbox
+ * `command_digest` of that delivered receipt. The other expected*
+ * fields are the same head the rewind commit binds; admission
+ * compares them and the saga (17.2) will reuse them when it takes
+ * the lease.
  */
 export interface ICoordinatedOutcomeCorrectionIntent {
   readonly kind: typeof COORDINATED_OUTCOME_CORRECTION_KIND;
@@ -130,24 +137,46 @@ function refuse(
 }
 
 /**
- * Highest inbox version for this outcome, or null when no campaign has
- * taken delivery. Presence is the 13.4 fact; the number is the
- * discriminator the next command must increment.
+ * Highest inbox receipt for this outcome, or null when no campaign has
+ * taken delivery. WHAT: version plus the persisted command_digest.
+ * WHY: presence is the 13.4 fact, the number is the next-command
+ * discriminator, and commandDigest is the binding expectedDigest must
+ * name so a caller cannot advertise a digest it did not observe.
  */
-export function readDeliveredOutcomeVersion(
+export function readDeliveredOutcomeReceipt(
   db: Database.Database,
   outcomeId: string,
-): number | null {
+): {
+  readonly outcomeVersion: number;
+  readonly commandDigest: string;
+} | null {
   const row = db
     .prepare(
-      `SELECT outcome_version AS outcomeVersion
+      `SELECT outcome_version AS outcomeVersion,
+              command_digest AS commandDigest
          FROM campaign_combat_outcome_inbox
         WHERE outcome_id = ?
         ORDER BY outcome_version DESC
         LIMIT 1`,
     )
-    .get(outcomeId) as { readonly outcomeVersion: number } | undefined;
-  return row === undefined ? null : row.outcomeVersion;
+    .get(outcomeId) as
+    | { readonly outcomeVersion: number; readonly commandDigest: string }
+    | undefined;
+  return row === undefined ? null : row;
+}
+
+/**
+ * Compare the caller's expectedDigest to the inbox command_digest.
+ * WHAT: empty or unequal strings are a miss. WHY: the intent
+ * advertises this binding and admission is the only door; without
+ * the check any string proceeds. Equality is the same law the inbox
+ * uses for expected versus applied post-state digests.
+ */
+function deliveredOutcomeDigestMatches(
+  expectedDigest: string,
+  deliveredDigest: string,
+): boolean {
+  return expectedDigest !== '' && expectedDigest === deliveredDigest;
 }
 
 /**
@@ -173,21 +202,31 @@ export function admitCoordinatedOutcomeCorrection(
 
   // Mirror of 13.4: a coordinated correction only exists after delivery.
   // An undelivered outcome still uses the plain rewind.
-  const deliveredVersion = readDeliveredOutcomeVersion(
-    deps.db,
-    intent.outcomeId,
-  );
-  if (deliveredVersion === null) {
+  const delivered = readDeliveredOutcomeReceipt(deps.db, intent.outcomeId);
+  if (delivered === null) {
     return refuse(
       'outcome-not-delivered',
       `Outcome '${intent.outcomeId}' has no campaign receipt; use the combat rewind until delivery`,
     );
   }
+  const deliveredVersion = delivered.outcomeVersion;
 
   if (intent.outcomeVersion !== deliveredVersion + 1) {
     return refuse(
       'version-not-next',
       `Outcome version ${intent.outcomeVersion} is not the next discriminator after delivered ${deliveredVersion}`,
+    );
+  }
+
+  if (
+    !deliveredOutcomeDigestMatches(
+      intent.expectedDigest,
+      delivered.commandDigest,
+    )
+  ) {
+    return refuse(
+      'expected-digest-mismatch',
+      `expectedDigest does not match the delivered outcome digest for '${intent.outcomeId}' version ${deliveredVersion}`,
     );
   }
 
