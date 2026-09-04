@@ -3,7 +3,7 @@ const crypto = require('node:crypto');
 const net = require('node:net');
 const path = require('node:path');
 const GROUP_CATALOG =
-  'fixture-smoke:26,membership-smoke:15,evidence-smoke:27,fault-smoke:28,smoke:15,authority-pack1:21,exactly-once-pack:21,fault-pack:21,token-pack:21,restart-pack:21,resilience-pack:21,authority-order:21,authority-recovery:21,privacy-pack:30,proposal-pack:30,three-context-pack:30,two-device-pack:30,authority:29,visibility:30,combat:31,campaign:32,failure:32,performance:33,all:34,traceability:34,quality:34,manual-setup:34,scope:34';
+  'fixture-smoke:26,membership-smoke:15,evidence-smoke:27,fault-smoke:28,smoke:15,authority-pack1:21,exactly-once-pack:21,fault-pack:21,token-pack:21,restart-pack:21,resilience-pack:21,authority-order:21,authority-recovery:21,privacy-pack:30,proposal-pack:30,three-context-pack:30,two-device-pack:30,authority:29,visibility:30,combat:31,campaign:32,failure:32,performance:33,cleanup-ownership:22,all:34,traceability:34,quality:34,manual-setup:34,scope:34';
 const REGISTERED_GROUPS = Object.freeze(
   Object.fromEntries(
     GROUP_CATALOG.split(',').map((entry) => {
@@ -104,6 +104,12 @@ function buildRunPlan({ group, runId, repoRoot }) {
     // suite pins this group's server command to `node server.js` so a
     // future respawning row has to say so out loud.
     failure: ['e2e/gm-two-player-failure.pack.spec.ts'],
+    // E2E-79 (umbrella 22.3). Ownership-scoped leftover proof for
+    // sockets, the run's own server, database connections, and
+    // per-run artifacts on both the finish and abort paths. Not in
+    // RESPAWNING_GROUPS: these rows spawn a child they own rather
+    // than killing Playwright's webServer.
+    'cleanup-ownership': ['e2e/gm-two-player-cleanup-ownership.spec.ts'],
   };
   // `authority` expands to the eight titled E2E-01..18 packs, in the
   // same pin order those packs already occupy in SPEC_BY_GROUP.
