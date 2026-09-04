@@ -19,7 +19,9 @@
  * The manifest is the third leg: it DECLARES what the run intended to
  * capture, so an artifact that never arrived is a detectable gap rather
  * than a silent absence. A bundle that only lists what happens to exist
- * cannot tell "not captured" from "captured and lost".
+ * cannot tell "not captured" from "captured and lost". Finalize is the
+ * completeness gate (E2E-78): a missing (kind × role) cell throws a
+ * typed error and writes no completeness-claiming manifest.
  *
  * @spec openspec/changes/harden-gm-two-player-campaign-sessions/tasks.md (20.4)
  */
@@ -37,21 +39,48 @@ const guards = require('../../scripts/qc/gm-two-player-campaign-core.cjs') as {
 };
 
 /** Artifact kinds the program's evidence gate expects. */
-export type EvidenceKind =
-  | 'trace'
-  | 'screenshot'
-  | 'socket-transcript'
-  | 'projection'
-  | 'latency'
-  | 'durable-rows'
-  | 'hashes'
-  | 'environment'
-  | 'cleanup-log';
+export const EVIDENCE_KINDS = [
+  'trace',
+  'screenshot',
+  'socket-transcript',
+  'projection',
+  'latency',
+  'durable-rows',
+  'hashes',
+  'environment',
+  'cleanup-log',
+] as const;
+
+export type EvidenceKind = (typeof EVIDENCE_KINDS)[number];
+
+/**
+ * Roles the completeness matrix requires. Names match the campaign
+ * fixture's three isolated contexts so a directory listing lines up
+ * with GM / Player 1 / Player 2 without opening every file.
+ */
+export const EVIDENCE_ROLES = [
+  'future-gm',
+  'future-player-1',
+  'future-player-2',
+] as const;
+
+export type EvidenceRole = (typeof EVIDENCE_ROLES)[number];
+
+export type EvidenceBundleErrorCode =
+  | 'EVIDENCE_SECRET_LEAK'
+  | 'EVIDENCE_FOREIGN_PATH'
+  | 'EVIDENCE_INCOMPLETE';
+
+export interface IMissingEvidenceCell {
+  readonly kind: EvidenceKind;
+  readonly role: EvidenceRole;
+}
 
 export class EvidenceBundleError extends Error {
   public constructor(
-    public readonly code: 'EVIDENCE_SECRET_LEAK' | 'EVIDENCE_FOREIGN_PATH',
+    public readonly code: EvidenceBundleErrorCode,
     detail: string,
+    public readonly missingCells: readonly IMissingEvidenceCell[] = [],
   ) {
     super(`${code} ${detail}`);
     this.name = 'EvidenceBundleError';
@@ -65,6 +94,14 @@ export interface IEvidenceEntry {
   readonly file: string;
   readonly sha256: string;
   readonly bytes: number;
+}
+
+/**
+ * Caller-owned escape for packs that record a subset by design.
+ * Never the default: omit the second argument for a complete-bundle finalize.
+ */
+export interface IFinalizeOptions {
+  readonly allowIncompleteEvidence: true;
 }
 
 /**
@@ -96,6 +133,41 @@ function assertNoSecrets(kind: EvidenceKind, body: string): void {
   }
 }
 
+/**
+ * Lists every declared (kind × role) cell with no captured artifact.
+ *
+ * WHAT: walks the 9×3 matrix and returns cells that have no write.
+ * WHY: finalize must name every gap from one definition of complete,
+ * so the throw and the tests cannot drift apart.
+ */
+export function listMissingEvidenceCells(
+  captured: readonly Pick<IEvidenceEntry, 'kind' | 'role'>[],
+): IMissingEvidenceCell[] {
+  const present = new Set(
+    captured.map((entry) => `${entry.kind}\0${entry.role}`),
+  );
+  const absent: IMissingEvidenceCell[] = [];
+  for (const kind of EVIDENCE_KINDS) {
+    for (const role of EVIDENCE_ROLES) {
+      if (!present.has(`${kind}\0${role}`)) {
+        absent.push({ kind, role });
+      }
+    }
+  }
+  return absent;
+}
+
+/**
+ * Names every missing cell for the typed incomplete-bundle error.
+ *
+ * WHAT: joins kind/role pairs into one stable detail string.
+ * WHY: the throw must name every gap, and a single formatter keeps
+ * the error text and the test assertions on the same wording.
+ */
+function formatMissingCells(cells: readonly IMissingEvidenceCell[]): string {
+  return cells.map((cell) => `${cell.kind}/${cell.role}`).join(', ');
+}
+
 export interface IEvidenceBundle {
   readonly root: string;
   /** Writes one artifact, refusing secrets and foreign paths. */
@@ -111,8 +183,31 @@ export interface IEvidenceBundle {
     role: string,
     why: string,
   ) => void;
-  /** Writes `manifest.json` and returns its path. */
-  readonly finalize: (environment: Record<string, string>) => string;
+  /** Writes `manifest.json` only when the kind×role matrix is complete. */
+  readonly finalize: (
+    environment: Record<string, string>,
+    options?: IFinalizeOptions,
+  ) => string;
+}
+
+/**
+ * Fills every declared (kind × role) cell with a tiny JSON body.
+ *
+ * WHAT: writes the 9×3 matrix the completeness gate requires.
+ * WHY: jest and the E2E-78 control must share one filling convention
+ * so a cell cannot be omitted in one suite and still count as present.
+ */
+export function writeCompleteEvidenceMatrix(bundle: IEvidenceBundle): void {
+  for (const kind of EVIDENCE_KINDS) {
+    for (const role of EVIDENCE_ROLES) {
+      bundle.write(
+        kind,
+        role,
+        'cell.json',
+        `{"kind":"${kind}","role":"${role}"}`,
+      );
+    }
+  }
 }
 
 /**
@@ -158,7 +253,15 @@ export function openEvidenceBundle(
     recordMissing: (kind, role, why) => {
       missing.push({ kind, role, why });
     },
-    finalize: (environment) => {
+    finalize: (environment, options) => {
+      const absent = listMissingEvidenceCells(entries);
+      if (absent.length > 0 && options?.allowIncompleteEvidence !== true) {
+        throw new EvidenceBundleError(
+          'EVIDENCE_INCOMPLETE',
+          `missing cells: ${formatMissingCells(absent)}`,
+          absent,
+        );
+      }
       const manifest = {
         runId,
         environment,

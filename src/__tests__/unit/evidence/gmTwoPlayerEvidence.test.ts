@@ -13,8 +13,11 @@ import os from 'node:os';
 import path from 'node:path';
 
 import {
+  EVIDENCE_KINDS,
+  EVIDENCE_ROLES,
   EvidenceBundleError,
   openEvidenceBundle,
+  writeCompleteEvidenceMatrix,
 } from '../../../../e2e/fixtures/gmTwoPlayerEvidence';
 
 let runtimeRoot: string;
@@ -121,7 +124,10 @@ describe('evidence bundle', () => {
     b.write('latency', 'future-gm', 'p95.json', '{"p95":120}');
     b.recordMissing('screenshot', 'future-player-2', 'context closed early');
 
-    const manifestPath = b.finalize({ node: 'v22.22.0' });
+    const manifestPath = b.finalize(
+      { node: 'v22.22.0' },
+      { allowIncompleteEvidence: true },
+    );
 
     const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8')) as {
       runId: string;
@@ -142,5 +148,48 @@ describe('evidence bundle', () => {
         why: 'context closed early',
       },
     ]);
+  });
+
+  it('refuses to finalize when a kind-role cell is absent', () => {
+    const b = bundle();
+    b.write('trace', 'future-gm', 'cell.json', '{"ok":true}');
+
+    try {
+      b.finalize({ node: 'v22.22.0' });
+      throw new Error('expected a refusal');
+    } catch (error) {
+      expect(error).toBeInstanceOf(EvidenceBundleError);
+      if (!(error instanceof EvidenceBundleError)) {
+        throw error;
+      }
+      expect(error.code).toBe('EVIDENCE_INCOMPLETE');
+      expect(error.missingCells).toHaveLength(
+        EVIDENCE_KINDS.length * EVIDENCE_ROLES.length - 1,
+      );
+      expect(error.missingCells).not.toContainEqual({
+        kind: 'trace',
+        role: 'future-gm',
+      });
+      expect(String(error)).toContain('screenshot/future-player-2');
+      expect(String(error)).toContain('cleanup-log/future-gm');
+      expect(String(error)).not.toContain('trace/future-gm');
+    }
+    expect(fs.existsSync(path.join(b.root, 'manifest.json'))).toBe(false);
+  });
+
+  it('finalizes a complete kind-role matrix', () => {
+    const b = bundle();
+    writeCompleteEvidenceMatrix(b);
+
+    const manifestPath = b.finalize({ node: 'v22.22.0' });
+
+    const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8')) as {
+      captured: { kind: string; role: string }[];
+      missing: unknown[];
+    };
+    expect(manifest.captured).toHaveLength(
+      EVIDENCE_KINDS.length * EVIDENCE_ROLES.length,
+    );
+    expect(manifest.missing).toEqual([]);
   });
 });
