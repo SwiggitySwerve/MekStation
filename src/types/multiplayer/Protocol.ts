@@ -817,6 +817,17 @@ export const ErrorMessageSchema = z.object({
     })
     .optional(),
   /**
+   * Campaign rebuild / launch-shaped head. Same {branchId, revision}
+   * pair as conflictHead; named activeHead so the campaign lifecycle
+   * door and the 17.3 launch refusal read one field.
+   */
+  activeHead: z
+    .object({
+      branchId: z.string().min(1),
+      revision: z.number().int().nonnegative(),
+    })
+    .optional(),
+  /**
    * What the client should do next. Carried on the frame rather than
    * inferred from the code, so a client that does not recognise a code
    * still knows the move.
