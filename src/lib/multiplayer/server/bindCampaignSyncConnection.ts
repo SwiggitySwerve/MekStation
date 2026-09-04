@@ -39,6 +39,7 @@ import {
 } from './campaignGrantChannelDeps';
 import { getCampaignHostRegistry } from './CampaignHostRegistry';
 import { formatCampaignProgressionRefusalReason } from './CampaignProgressionGate';
+import { refusedWhileCampaignRebuilding } from './campaignSyncRebuildAdmission';
 import {
   handleCampaignGrantAck,
   type IBoundGrantSession,
@@ -48,7 +49,6 @@ import {
   type ICampaignGrantChannelDeps,
 } from './handleCampaignGrantJoin';
 import { handleRoomCodeGuestJoin } from './handleRoomCodeGuestJoin';
-import { refusedWhileCampaignRebuilding } from './campaignSyncRebuildAdmission';
 import { ServerMatchBroadcaster } from './ServerMatchBroadcaster';
 import { ServerMatchSocketLifecycle } from './ServerMatchSocketLifecycle';
 
@@ -556,9 +556,11 @@ async function dispatchCampaignEnvelope({
       }
       // CHANGE spec campaign-persistence lines 80-85: refuse before
       // dispatch so a proposal cannot commit into a rebuilding stream.
-      if (refusedWhileCampaignRebuilding(entry.campaignId, matchId, (message) =>
-        send(socket, message),
-      )) {
+      if (
+        refusedWhileCampaignRebuilding(entry.campaignId, matchId, (message) =>
+          send(socket, message),
+        )
+      ) {
         return;
       }
       await handleCampaignProposal({ envelope, socket, entry, matchId });

@@ -7,12 +7,12 @@
  * @spec openspec/changes/harden-gm-two-player-campaign-sessions/specs/campaign-persistence/spec.md
  */
 
+import type Database from 'better-sqlite3';
+
 import { EventEmitter } from 'node:events';
 import { mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
-
-import type Database from 'better-sqlite3';
 
 import type { ICampaignJournalEnvelope } from '@/lib/campaign/sync/JournalCampaignEventStore';
 import type {
@@ -25,12 +25,12 @@ import { CAMPAIGN_STREAM_TYPE } from '@/lib/campaign/sync/JournalCampaignEventSt
 import { SQLiteEventHistoryBranchStore } from '@/lib/events/journal/SQLiteEventHistoryBranchStore';
 import { SQLiteEventHistoryCorrectionLeaseStore } from '@/lib/events/journal/SQLiteEventHistoryCorrectionLeaseStore';
 import { SQLiteEventJournal } from '@/lib/events/journal/SQLiteEventJournal';
-import { createEmptyCampaignState } from '@/types/campaign/CampaignSync';
-import { nowIso } from '@/types/multiplayer/Protocol';
 import {
   getSQLiteService,
   resetSQLiteService,
 } from '@/services/persistence/SQLiteService';
+import { createEmptyCampaignState } from '@/types/campaign/CampaignSync';
+import { nowIso } from '@/types/multiplayer/Protocol';
 
 import type { IMatchSocket } from '../ServerMatchSocketTypes';
 
@@ -288,7 +288,9 @@ describe('bindCampaignSyncConnection during a campaign history rebuild', () => {
       },
     });
     await flushAsyncHandlers();
-    expect(registry.get(MATCH_ID)?.arbiter.getPendingProposals().length).toBe(1);
+    expect(registry.get(MATCH_ID)?.arbiter.getPendingProposals().length).toBe(
+      1,
+    );
     socket.sent.length = 0;
     const before = streamRevision();
     acquireLease();
@@ -305,7 +307,9 @@ describe('bindCampaignSyncConnection during a campaign history rebuild', () => {
 
     expectRebuildRefusal(socket, before);
     expect(streamRevision()).toBe(before);
-    expect(registry.get(MATCH_ID)?.arbiter.getPendingProposals().length).toBe(1);
+    expect(registry.get(MATCH_ID)?.arbiter.getPendingProposals().length).toBe(
+      1,
+    );
     expect(registry.get(MATCH_ID)?.host.getState().balance).toBe(1_000_000);
   });
 
