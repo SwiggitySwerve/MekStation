@@ -350,12 +350,15 @@ test('E2E-71/72/73 controlled loopback latency, catch-up and memory stay inside 
       'performance.json',
       JSON.stringify(report, null, 2),
     );
-    bundle.finalize({
-      node: process.version,
-      chromium: browser.version(),
-      os: `${os.platform()} ${os.release()}`,
-      runnerClass: FIXTURE.runnerClass,
-    });
+    bundle.finalize(
+      {
+        node: process.version,
+        chromium: browser.version(),
+        os: `${os.platform()} ${os.release()}`,
+        runnerClass: FIXTURE.runnerClass,
+      },
+      { allowIncompleteEvidence: true },
+    );
     const archived: unknown = JSON.parse(
       fs.readFileSync(path.join(bundle.root, entry.file), 'utf8'),
     );

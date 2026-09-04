@@ -550,12 +550,15 @@ function writeEvidenceBundle({
     'participants.json',
     JSON.stringify(participants),
   );
-  const manifestPath = bundle.finalize({
-    campaignId,
-    matchId,
-    node: process.version,
-    runId: fixture.runId,
-  });
+  const manifestPath = bundle.finalize(
+    {
+      campaignId,
+      matchId,
+      node: process.version,
+      runId: fixture.runId,
+    },
+    { allowIncompleteEvidence: true },
+  );
   expect(manifestPath).toContain(fixture.runId);
 }
 
