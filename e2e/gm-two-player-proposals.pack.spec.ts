@@ -15,32 +15,22 @@
  *   SHALL see two actor-specific review items and resolving one SHALL
  *   not alter the other."
  *
- * DEFERRED, WITH THE PRODUCT DEFECT THAT BLOCKS IT - E2E-29 ("WHEN one
- * proposal is vetoed and another times out THEN neither SHALL mutate
- * campaign state and each SHALL clear only its own pending UI"):
+ * E2E-29: "WHEN one proposal is vetoed and another times out THEN
+ *   neither SHALL mutate campaign state and each SHALL clear only its
+ *   own pending UI." Production wirings pass
+ *   PRODUCTION_PROPOSAL_TIMEOUT_MS (120_000). The watchdog auto-veto
+ *   is a CampaignDecision to the whole match; each guest filters on
+ *   its own proposalId.
  *
- *   NO PRODUCTION SURFACE TIMES A PROPOSAL OUT. `CampaignGmArbiter`
- *   arms its auto-veto timer only when `proposalTimeoutMs > 0`
- *   (`src/lib/multiplayer/server/CampaignGmArbiter.ts`, `submit`), and
- *   BOTH production wirings construct the arbiter with
- *   `{ proposalTimeoutMs: 0 }` -
- *   `src/lib/multiplayer/server/CampaignHostRegistry.ts` (the co-op
- *   session this pack opens) and `src/lib/campaign/coop/
- *   coopRuntimeSession.ts`. `autoVetoForTimeout` is reachable from the
- *   unarmed timer and from `CampaignGmArbiter.test.ts` alone, so the
- *   "another times out" half of the letter has no product behaviour to
- *   observe: a browser scenario could only reach it by calling a server
- *   internal the product never calls, which would report the whole
- *   letter while proving the half this pack already covers. Deferred
- *   rather than half-claimed, in the same discipline this pack's
- *   sibling applies to E2E-28. The veto half IS exercised below as the
- *   resolution E2E-30 asks for; what is missing is the timeout half and
- *   the state-mutation clause that pairs with it.
- *
- * @tags @proposal-pack @campaign @E2E-30
+ * @tags @proposal-pack @campaign @E2E-29 @E2E-30
  */
 
-import { expect, test, type Page } from '@playwright/test';
+import {
+  expect,
+  test,
+  type APIRequestContext,
+  type Page,
+} from '@playwright/test';
 
 import { createGmTwoPlayerCampaignFixture } from './fixtures/gmTwoPlayerCampaign';
 
@@ -52,6 +42,9 @@ type StoredToken = {
   readonly playerId: string;
   readonly displayName: string;
 };
+
+/** Production watchdog from campaignGmArbiterTimeout.ts. No env override. */
+const PRODUCTION_PROPOSAL_TIMEOUT_MS = 120_000;
 
 test('E2E-30 concurrent proposals stay attributable and independently resolvable @proposal-pack @E2E-30', async ({
   baseURL,
@@ -176,6 +169,94 @@ test('E2E-30 concurrent proposals stay attributable and independently resolvable
     await expect(
       playerOne.page.getByTestId('guest-proposal-committed'),
     ).toHaveCount(0);
+  } finally {
+    await fixture.cleanup();
+  }
+});
+
+test('E2E-29 veto and timeout commit nothing and clear only own pending UI @proposal-pack @E2E-29', async ({
+  baseURL,
+  browser,
+  request,
+}) => {
+  // 120 s watchdog plus fixture/join; no env override shortens the wait.
+  test.setTimeout(300_000);
+  const fixture = await createGmTwoPlayerCampaignFixture({
+    browser,
+    request,
+    baseURL: baseURL ?? '',
+  });
+  try {
+    const gm = clientByRole(fixture, 'future-gm');
+    const playerOne = clientByRole(fixture, 'future-player-1');
+    const playerTwo = clientByRole(fixture, 'future-player-2');
+    for (const client of [gm, playerOne, playerTwo]) {
+      await reuseFixtureIssuedToken(client.page, fixture.session.id);
+    }
+
+    const tapOne = tapCampaignDecisions(playerOne.page);
+    const tapTwo = tapCampaignDecisions(playerTwo.page);
+    await tapOne.install();
+    await tapTwo.install();
+
+    const roomCode = await openCoopSession(gm.page, fixture.seed);
+    await joinGuestByRoomCode(playerOne, roomCode, fixture.seed);
+    await joinGuestByRoomCode(playerTwo, roomCode, fixture.seed);
+    const campaignId = campaignIdFromUrl(gm.page);
+    const headBefore = await readCampaignHeadRevision(request, campaignId);
+
+    await openProposalSurface(playerOne.page, campaignId);
+    await openProposalSurface(playerTwo.page, campaignId);
+    await Promise.all([
+      playerOne.page.getByTestId('guest-action-SpendFunds').click(),
+      playerTwo.page.getByTestId('guest-action-SpendFunds').click(),
+    ]);
+    await expect(
+      playerOne.page.getByTestId('guest-proposal-pending'),
+    ).toBeVisible({ timeout: 20_000 });
+    await expect(
+      playerTwo.page.getByTestId('guest-proposal-pending'),
+    ).toBeVisible({ timeout: 20_000 });
+
+    const reviewItems = gm.page.locator('[data-testid^="pending-proposal-"]');
+    await expect(reviewItems).toHaveCount(2, { timeout: 30_000 });
+    const proposalOne = await proposalIdOf(
+      reviewItems.filter({ hasText: playerOne.identity.playerId }),
+    );
+    const proposalTwo = await proposalIdOf(
+      reviewItems.filter({ hasText: playerTwo.identity.playerId }),
+    );
+
+    // Finding #101: veto-<id> only opens VetoConfirmationDialog.
+    await gm.page.getByTestId(`veto-${proposalOne}`).click();
+    await gm.page.getByTestId('veto-confirm').click();
+
+    await expect(
+      playerOne.page.getByTestId('guest-proposal-vetoed'),
+    ).toBeVisible({ timeout: 20_000 });
+    await expect(
+      playerTwo.page.getByTestId('guest-proposal-pending'),
+    ).toBeVisible();
+    await expect(
+      playerTwo.page.getByTestId('guest-proposal-vetoed'),
+    ).toHaveCount(0);
+    await expectBothTapsSaw(tapOne, tapTwo, proposalOne);
+    await expect(
+      playerTwo.page.getByTestId('guest-proposal-vetoed'),
+    ).toBeVisible({
+      timeout: PRODUCTION_PROPOSAL_TIMEOUT_MS + 30_000,
+    });
+    await expect(
+      playerOne.page.getByTestId('guest-proposal-vetoed'),
+    ).toBeVisible();
+    await expect(
+      playerOne.page.getByTestId('guest-proposal-pending'),
+    ).toHaveCount(0);
+    await expectBothTapsSaw(tapOne, tapTwo, proposalTwo);
+
+    expect(await readCampaignHeadRevision(request, campaignId)).toEqual(
+      headBefore,
+    );
   } finally {
     await fixture.cleanup();
   }
@@ -341,4 +422,100 @@ async function proposalIdOf(
     throw new Error(`review item carried no proposal id: "${testId}"`);
   }
   return testId.slice(prefix.length);
+}
+
+type DecisionTap = {
+  readonly frames: readonly { readonly proposalId: string }[];
+  readonly install: () => Promise<void>;
+};
+
+/**
+ * WHAT: observer-only tap of server CampaignDecision frames on this page.
+ * WHY: auto-veto is broadcast to the whole match; the letter requires both
+ * guests to receive both decisions while clearing only their own pending UI.
+ */
+function tapCampaignDecisions(page: Page): DecisionTap {
+  const frames: { readonly proposalId: string }[] = [];
+  return {
+    frames,
+    install: () =>
+      page.routeWebSocket(
+        (url) => url.pathname === '/api/multiplayer/socket',
+        (route) => {
+          const server = route.connectToServer();
+          route.onMessage((message) => {
+            server.send(message);
+          });
+          server.onMessage((message) => {
+            try {
+              const frame: unknown = JSON.parse(String(message));
+              if (
+                typeof frame === 'object' &&
+                frame !== null &&
+                'kind' in frame &&
+                frame.kind === 'CampaignDecision' &&
+                'proposalId' in frame &&
+                typeof frame.proposalId === 'string' &&
+                frame.proposalId.length > 0
+              ) {
+                frames.push({ proposalId: frame.proposalId });
+              }
+            } catch {
+              // Non-JSON frames pass through unrecorded.
+            }
+            route.send(message);
+          });
+        },
+      ),
+  };
+}
+
+/**
+ * WHAT: wait until both guest taps recorded a CampaignDecision for id.
+ * WHY: the server fans the frame out to the whole match; UI filtering is
+ * asserted separately against each guest's pending test ids.
+ */
+async function expectBothTapsSaw(
+  tapOne: DecisionTap,
+  tapTwo: DecisionTap,
+  proposalId: string,
+): Promise<void> {
+  const seen = (tap: DecisionTap): number =>
+    tap.frames.filter((frame) => frame.proposalId === proposalId).length;
+  await expect.poll(() => seen(tapOne), { timeout: 20_000 }).toBeGreaterThan(0);
+  await expect.poll(() => seen(tapTwo), { timeout: 20_000 }).toBeGreaterThan(0);
+}
+
+/**
+ * WHAT: HTTP journal head plus campaigns-table version for one campaign.
+ * WHY: veto and timeout must leave both unchanged; /head is the journal
+ * revision a launch names, and version is what sibling HTTP rows compare
+ * when no authoritative stream exists yet.
+ */
+async function readCampaignHeadRevision(
+  request: APIRequestContext,
+  campaignId: string,
+): Promise<{
+  readonly kind: string;
+  readonly revision: number | null;
+  readonly version: number | null;
+}> {
+  const encoded = encodeURIComponent(campaignId);
+  const headResponse = await request.get(`/api/campaigns/${encoded}/head`);
+  expect(headResponse.status(), await headResponse.text()).toBe(200);
+  const head = (await headResponse.json()) as {
+    kind?: unknown;
+    revision?: unknown;
+  };
+  if (typeof head.kind !== 'string') {
+    throw new Error('campaign head missing kind');
+  }
+  const campaignResponse = await request.get(`/api/campaigns/${encoded}`);
+  expect(campaignResponse.status(), await campaignResponse.text()).toBe(200);
+  const campaign = (await campaignResponse.json()) as { version?: unknown };
+  return {
+    kind: head.kind,
+    revision: typeof head.revision === 'number' ? head.revision : null,
+    version: typeof campaign.version === 'number' ? campaign.version : null,
+  };
 }

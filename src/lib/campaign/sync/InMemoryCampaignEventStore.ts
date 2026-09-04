@@ -23,6 +23,7 @@ import { InMemoryStoreCapabilityPorts } from '@/lib/events/inMemoryStoreCapabili
 import {
   CampaignEventSequenceCollisionError,
   type CampaignCommandBatchResult,
+  type ICampaignCommandBatchInput,
   type ICampaignCommandReceipt,
   type ICampaignEventStore,
 } from './ICampaignEventStore';
@@ -78,12 +79,7 @@ export class InMemoryCampaignEventStore
 
   appendCommandBatch = async (
     campaignId: string,
-    input: {
-      readonly commandId: string;
-      readonly intentFingerprint?: string | null;
-      readonly events: readonly ICampaignEvent[];
-      readonly expectedPostStateDigest: string;
-    },
+    input: ICampaignCommandBatchInput,
   ): Promise<CampaignCommandBatchResult> => {
     const record = this.getOrCreate(campaignId);
     const prior = record.commandReceipts.get(input.commandId);

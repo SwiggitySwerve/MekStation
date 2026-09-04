@@ -108,12 +108,36 @@ describe('tactical lifecycle posture', () => {
     ).toBe('rebuilding');
   });
 
+  it('maps a STALE_BRANCH Error frame onto blocked with the server recovery action', () => {
+    const frame = {
+      conflictHead: { branchId: 'root', revision: 7 },
+      recoveryAction: 'resync-to-active-head',
+    };
+    const signal = projectionSignalFromServerError('STALE_BRANCH', frame);
+    const posture = deriveTacticalLifecyclePosture({
+      client: LIVE_CLIENT,
+      finalizationLanded: false,
+      projectionSignal: signal,
+      sealedChoiceAwaitingReveal: false,
+    });
+
+    expect(signal).toEqual({
+      code: 'STALE_BRANCH',
+      conflictHead: frame.conflictHead,
+      recoveryAction: frame.recoveryAction,
+    });
+    expect(posture.state).toBe('blocked');
+    expect(posture.commandsEnabled).toBe(false);
+    expect(posture.recoveryAction).toBe('resync-to-active-head');
+    expect(posture.conflictHead).toEqual(frame.conflictHead);
+  });
+
   it('gives no projection signal to any other server error code', () => {
     // A SWEEP over the real wire enum, not a sample: a mapper that
     // answered 'rebuilding' for every refusal would turn a rate-limit
-    // into a frozen board.
+    // into a frozen board. STALE_BRANCH is the other admitted refusal.
     for (const code of ErrorCodeSchema.options) {
-      if (code === 'PROJECTION_REBUILDING') continue;
+      if (code === 'PROJECTION_REBUILDING' || code === 'STALE_BRANCH') continue;
       expect(projectionSignalFromServerError(code)).toBeNull();
     }
     expect(projectionSignalFromServerError(undefined)).toBeNull();

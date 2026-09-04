@@ -66,6 +66,7 @@ import {
 import {
   CampaignEventSequenceCollisionError,
   type CampaignCombatOutcomeInboxResult,
+  type ICampaignCommandBatchInput,
   type ICampaignCommandReceipt,
   type ICampaignEventStore,
 } from './ICampaignEventStore';
@@ -352,13 +353,7 @@ export class JournalCampaignEventStore implements ICampaignEventStore {
    */
   appendCommandBatch = async (
     campaignId: string,
-    input: {
-      readonly commandId: string;
-      readonly intentFingerprint?: string | null;
-      readonly events: readonly ICampaignEvent[];
-      readonly expectedPostStateDigest: string;
-      readonly branchId?: string;
-    },
+    input: ICampaignCommandBatchInput,
   ): Promise<CampaignBatchAppendResult> => {
     // Before the duplicate check: a command naming the wrong branch is
     // refused whether or not it was seen before.
@@ -379,6 +374,7 @@ export class JournalCampaignEventStore implements ICampaignEventStore {
       intentFingerprint: input.intentFingerprint,
       events: input.events,
       expectedPostStateDigest: input.expectedPostStateDigest,
+      expectedRevision: input.expectedRevision,
     });
   };
 

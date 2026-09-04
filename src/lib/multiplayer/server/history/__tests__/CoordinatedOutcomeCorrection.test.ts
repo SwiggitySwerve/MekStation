@@ -36,6 +36,7 @@ const AT = '2026-09-02T00:00:00.000Z';
 const HEAD = 4;
 const TARGET = 2;
 const OUTCOME = 'outcome-1';
+const INBOX_DIGEST = 'a'.repeat(64);
 
 const PIN_REGISTRY = new ReplaySchemaRegistry({
   events: [
@@ -112,7 +113,7 @@ describe('admitCoordinatedOutcomeCorrection', () => {
           first_stream_revision, last_stream_revision, first_commit_position,
           last_commit_position, received_at)
        VALUES (?, 1, 'campaign-1', 'cmd-1', ?, 1, 1, 1, 1, ?)`,
-    ).run(OUTCOME, 'a'.repeat(64), AT);
+    ).run(OUTCOME, INBOX_DIGEST, AT);
   }
 
   function digest(revision: number): string {
@@ -146,7 +147,7 @@ describe('admitCoordinatedOutcomeCorrection', () => {
       targetRevision: TARGET,
       expectedBranchId: 'root',
       expectedRevision: HEAD,
-      expectedDigest: digest(HEAD),
+      expectedDigest: INBOX_DIGEST,
       expectedGeneration: 1,
       actor: 'gm-1',
       ...overrides,
@@ -177,7 +178,7 @@ describe('admitCoordinatedOutcomeCorrection', () => {
   }
 
   it('GM correction at delivered+1 is accepted-pending-saga and writes only the admission', () => {
-    expect(COORDINATED_OUTCOME_CORRECTION_REFUSALS).toHaveLength(9);
+    expect(COORDINATED_OUTCOME_CORRECTION_REFUSALS).toHaveLength(10);
     seedInbox();
     const before = census();
     const result = admitCoordinatedOutcomeCorrection(
@@ -193,6 +194,55 @@ describe('admitCoordinatedOutcomeCorrection', () => {
       outcomeVersion: 2,
       deliveredVersion: 1,
       targetRevision: TARGET,
+    });
+    expect(census()).toStrictEqual(before);
+  });
+
+  it('matching expectedDigest is admitted (control)', () => {
+    seedInbox();
+    const before = census();
+    const result = admitCoordinatedOutcomeCorrection(
+      { db, branches: branches(), priorHeadRevision: HEAD },
+      gm(),
+      intent({ expectedDigest: INBOX_DIGEST }),
+    );
+    expect(result).toEqual({
+      kind: 'accepted-pending-saga',
+      matchId: MATCH_ID,
+      outcomeId: OUTCOME,
+      outcomeVersion: 2,
+      deliveredVersion: 1,
+      targetRevision: TARGET,
+    });
+    expect(census()).toStrictEqual(before);
+  });
+
+  it('mismatched expectedDigest is refused expected-digest-mismatch and writes nothing', () => {
+    seedInbox();
+    const before = census();
+    const result = admitCoordinatedOutcomeCorrection(
+      { db, branches: branches(), priorHeadRevision: HEAD },
+      gm(),
+      intent({ expectedDigest: 'b'.repeat(64) }),
+    );
+    expect(result).toMatchObject({
+      kind: 'refused',
+      reason: 'expected-digest-mismatch',
+    });
+    expect(census()).toStrictEqual(before);
+  });
+
+  it('empty expectedDigest is refused expected-digest-mismatch and writes nothing', () => {
+    seedInbox();
+    const before = census();
+    const result = admitCoordinatedOutcomeCorrection(
+      { db, branches: branches(), priorHeadRevision: HEAD },
+      gm(),
+      intent({ expectedDigest: '' }),
+    );
+    expect(result).toMatchObject({
+      kind: 'refused',
+      reason: 'expected-digest-mismatch',
     });
     expect(census()).toStrictEqual(before);
   });
