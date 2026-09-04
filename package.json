@@ -300,6 +300,7 @@
     "jest-environment-jsdom": "^30.0.0",
     "jest-environment-node": "^30.0.0",
     "json-schema-to-zod": "^2.8.1",
+    "kill-port": "^2.0.1",
     "lint-staged": "^16.2.7",
     "minimatch": "^3.1.5",
     "node-mocks-http": "^1.17.2",
