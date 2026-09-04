@@ -35,30 +35,75 @@ export type TacticalLifecycleState = LifecycleState;
  * cannot carry it at all. A producer landing is what earns the second
  * arm of the mapper - a row pins that absence rather than leaving it a
  * claim in a comment.
+ *
+ * `STALE_BRANCH` is the live combat branch-admission refusal. Campaign
+ * already folds it onto the existing `blocked` posture; this channel
+ * admits the same code here as a typed payload so the surface can
+ * carry the server's head and recovery action without a new state name.
  */
-export type TacticalLifecycleProjectionSignal = LifecycleProjectionSignal;
+export interface ITacticalConflictHead {
+  readonly branchId: string;
+  readonly revision: number;
+}
+
+export interface ITacticalBranchRefusal {
+  readonly code: 'STALE_BRANCH';
+  readonly conflictHead: ITacticalConflictHead | null;
+  readonly recoveryAction: string | null;
+}
+
+export type TacticalLifecycleProjectionSignal =
+  | LifecycleProjectionSignal
+  | ITacticalBranchRefusal;
+
+/**
+ * WHAT: Narrows the projection channel to a typed branch refusal.
+ * WHY: STALE_BRANCH is an object on a channel that is otherwise two
+ * string codes; callers must distinguish it without treating the payload
+ * as a bare string.
+ */
+export function isTacticalBranchRefusal(
+  signal: TacticalLifecycleProjectionSignal | null,
+): signal is ITacticalBranchRefusal {
+  return (
+    typeof signal === 'object' &&
+    signal !== null &&
+    signal.code === 'STALE_BRANCH'
+  );
+}
 
 /**
  * Turns a server `Error` frame's code into a projection signal.
  *
  * Deliberately total and deliberately narrow: every code that is not a
- * projection refusal answers `null`, so a rate-limit or a wrong-phase
- * rejection can never freeze the board. The parameter is a plain
- * `string | undefined` rather than `IErrorCode` because the client
- * surfaces whatever the wire sent - including a code from a newer
- * server this build does not know - and an unknown code must map to
- * "no signal" rather than throw.
+ * projection refusal or a live branch refusal answers `null`, so a
+ * rate-limit or a wrong-phase rejection can never freeze the board. The
+ * parameter is a plain `string | undefined` rather than `IErrorCode`
+ * because the client surfaces whatever the wire sent - including a code
+ * from a newer server this build does not know - and an unknown code
+ * must map to "no signal" rather than throw.
  */
 export function projectionSignalFromServerError(
   code: string | undefined,
+  frame?: unknown,
 ): TacticalLifecycleProjectionSignal | null {
-  return code === 'PROJECTION_REBUILDING' ? 'PROJECTION_REBUILDING' : null;
+  if (code === 'PROJECTION_REBUILDING') return 'PROJECTION_REBUILDING';
+  if (code === 'STALE_BRANCH') {
+    return {
+      code: 'STALE_BRANCH',
+      conflictHead: readConflictHead(frame),
+      recoveryAction: readRecoveryAction(frame),
+    };
+  }
+  return null;
 }
 
 export interface ITacticalLifecyclePosture {
   readonly state: TacticalLifecycleState;
   readonly commandsEnabled: boolean;
   readonly message: string;
+  readonly recoveryAction?: string | null;
+  readonly conflictHead?: ITacticalConflictHead | null;
 }
 
 export interface ITacticalLifecycleInput {
@@ -102,10 +147,15 @@ export function deriveTacticalLifecyclePosture(
   input: ITacticalLifecycleInput,
 ): ITacticalLifecyclePosture {
   const state = deriveState(input);
+  const branch = isTacticalBranchRefusal(input.projectionSignal)
+    ? input.projectionSignal
+    : null;
   return {
     state,
     commandsEnabled: state === 'live' || state === 'finalized',
     message: MESSAGES[state],
+    recoveryAction: branch?.recoveryAction ?? null,
+    conflictHead: branch?.conflictHead ?? null,
   };
 }
 
@@ -137,6 +187,7 @@ export function deriveTacticalWireFacts(
 
 function deriveState(input: ITacticalLifecycleInput): TacticalLifecycleState {
   if (input.client.blockedBySequenceCollision) return 'blocked';
+  if (isTacticalBranchRefusal(input.projectionSignal)) return 'blocked';
   switch (input.projectionSignal) {
     case 'PROJECTION_REBUILDING':
       return 'rebuilding';
@@ -188,6 +239,41 @@ function stringField(value: unknown, key: string): string | null {
   }
   const field = (value as Readonly<Record<string, unknown>>)[key];
   return typeof field === 'string' ? field : null;
+}
+
+/**
+ * WHAT: Reads the optional conflict head off an Error-frame-shaped object.
+ * WHY: The wire head is optional and untrusted; a malformed head must not
+ * invent a branch the server never named.
+ */
+function readConflictHead(frame: unknown): ITacticalConflictHead | null {
+  if (typeof frame !== 'object' || frame === null) return null;
+  const raw = Reflect.get(frame, 'conflictHead');
+  if (typeof raw !== 'object' || raw === null || Array.isArray(raw)) {
+    return null;
+  }
+  const branchId = Reflect.get(raw, 'branchId');
+  const revision = Reflect.get(raw, 'revision');
+  if (typeof branchId !== 'string' || branchId.length === 0) return null;
+  if (
+    typeof revision !== 'number' ||
+    !Number.isInteger(revision) ||
+    revision < 0
+  ) {
+    return null;
+  }
+  return { branchId, revision };
+}
+
+/**
+ * WHAT: Reads the optional recovery action off an Error-frame-shaped object.
+ * WHY: The surface renders this string verbatim; an empty or non-string
+ * value is treated as absent so the bar never invents wording.
+ */
+function readRecoveryAction(frame: unknown): string | null {
+  if (typeof frame !== 'object' || frame === null) return null;
+  const value = Reflect.get(frame, 'recoveryAction');
+  return typeof value === 'string' && value.length > 0 ? value : null;
 }
 
 function assertNever(value: never): never {

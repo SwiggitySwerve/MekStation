@@ -392,7 +392,12 @@ const SERVER_MESSAGE_HANDLERS: Record<
     // scope - the command is settled either way, and retrying it on the
     // next reconnect would just be refused again forever.
     settlePendingIntent(state, error.intentId);
-    emit('error', { code: error.code, reason: error.reason });
+    emit('error', {
+      code: error.code,
+      reason: error.reason,
+      conflictHead: error.conflictHead,
+      recoveryAction: error.recoveryAction,
+    });
   },
   Close: ({ message, state, emit }) => {
     const close = message as Extract<IServerMessage, { kind: 'Close' }>;

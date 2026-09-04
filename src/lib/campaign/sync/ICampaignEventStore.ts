@@ -102,6 +102,24 @@ export type CampaignCommandBatchResult =
   | { readonly kind: 'command-identity-conflict'; readonly commandId: string }
   | { readonly kind: 'integrity-conflict' };
 
+/**
+ * One command batch on the campaign store port.
+ *
+ * `expectedRevision` and `branchId` are optional so every existing
+ * caller stays byte-identical: absent revision still means the first
+ * event's sequence, and absent branch still means the store's own
+ * resolve (genesis, or the effective head when a branch store is in).
+ */
+export interface ICampaignCommandBatchInput {
+  readonly commandId: string;
+  /** Stable fingerprint of the client intent that owns this command id. */
+  readonly intentFingerprint?: string | null;
+  readonly events: readonly ICampaignEvent[];
+  readonly expectedPostStateDigest: string;
+  readonly expectedRevision?: number;
+  readonly branchId?: string;
+}
+
 /** Durable receipt proving one combat outcome version reached campaign authority. */
 export interface ICampaignCombatOutcomeReceipt {
   readonly outcomeId: string;
@@ -161,13 +179,7 @@ export interface ICampaignEventStore
    */
   readonly appendCommandBatch?: (
     campaignId: string,
-    input: {
-      readonly commandId: string;
-      /** Stable fingerprint of the client intent that owns this command id. */
-      readonly intentFingerprint?: string | null;
-      readonly events: readonly ICampaignEvent[];
-      readonly expectedPostStateDigest: string;
-    },
+    input: ICampaignCommandBatchInput,
   ) => Promise<CampaignCommandBatchResult>;
 
   /** Return the accepted receipt for a client command id, if one exists. */
