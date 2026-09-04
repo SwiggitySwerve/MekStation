@@ -378,14 +378,14 @@ export const IntentPayloadSchema = z.discriminatedUnion('kind', [
 export type IIntentPayload = z.infer<typeof IntentPayloadSchema>;
 
 /**
- * Per `add-authoritative-roll-arbitration` (Wave 3a): the server is the
- * SOLE source of randomness. Any intent that smuggles dice values
- * (`roll`, `rolls`, `diceValue`, etc.) must be rejected at the parse
- * step so a malicious or misbehaving client can't bias outcomes by
- * pre-supplying results. We test the entire intent payload as an
- * unknown record because zod's `discriminatedUnion` does not strip
- * unknown keys by default — extra fields would otherwise sail through
- * unchallenged.
+ * The server is the sole source of randomness. Any intent that smuggles
+ * dice values (`roll`, `rolls`, `diceValue`, etc.) must be refused so a
+ * client cannot bias outcomes. Zod `z.object` variants strip unknown
+ * keys, so this list is invisible to IntentSchema. The refusal is
+ * enforced at the socket door on the RAW envelope
+ * (bindMultiplayerSocketConnection.handleInbound) and again in
+ * ServerMatchHostIntent as defence in depth for callers that reach
+ * handleIntent directly.
  */
 const FORBIDDEN_DICE_KEYS = [
   'roll',
@@ -422,19 +422,14 @@ export function intentHasForbiddenDiceField(payload: unknown): boolean {
  * an `intentId` simply skips the duplicate check); the M2 client always
  * stamps one.
  */
-export const IntentSchema = z
-  .object({
-    kind: z.literal('Intent'),
-    matchId: matchIdSchema,
-    ts: tsSchema,
-    playerId: z.string().min(1),
-    intent: IntentPayloadSchema,
-    intentId: z.string().min(1).optional(),
-  })
-  .refine((envelope) => !intentHasForbiddenDiceField(envelope.intent), {
-    message: 'client-rolls-forbidden',
-    path: ['intent'],
-  });
+export const IntentSchema = z.object({
+  kind: z.literal('Intent'),
+  matchId: matchIdSchema,
+  ts: tsSchema,
+  playerId: z.string().min(1),
+  intent: IntentPayloadSchema,
+  intentId: z.string().min(1).optional(),
+});
 export type IIntent = z.infer<typeof IntentSchema>;
 
 /**

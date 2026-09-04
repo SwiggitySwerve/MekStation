@@ -302,6 +302,46 @@ describe('bindMultiplayerSocketConnection', () => {
     expect(socket.closes).toEqual([]);
   });
 
+  it('refuses an Intent that smuggles a client roll at the door, with the intentId, and dispatches nothing', async () => {
+    // The same envelope without a dice key already reaches handleIntent
+    // in the row above; this row is the raw-wire refusal only.
+    const socket = new MockWireSocket();
+    const host = makeHost();
+
+    await bindMultiplayerSocketConnection({
+      socket,
+      registry: makeRegistry(host),
+      matchId: 'match-live',
+      verifiedPlayerId: 'pid_host',
+      connectionKey: 'conn-host',
+      logger: quietLogger,
+    });
+
+    socket.inbound(
+      JSON.stringify({
+        kind: 'Intent',
+        matchId: 'match-live',
+        ts: new Date().toISOString(),
+        playerId: 'pid_host',
+        intentId: 'roll-1',
+        intent: { kind: 'AdvancePhase', roll: 6 },
+      }),
+    );
+    await flushAsyncHandlers();
+
+    expect(socket.sent).toHaveLength(1);
+    expect(socket.sent[0]).toEqual(
+      expect.objectContaining({
+        kind: 'Error',
+        code: 'INVALID_INTENT',
+        reason: 'client-rolls-forbidden',
+        intentId: 'roll-1',
+      }),
+    );
+    expect(host.handleIntent).not.toHaveBeenCalled();
+    expect(socket.closes).toEqual([]);
+  });
+
   it('rejects malformed payloads without dispatching to the host', async () => {
     const socket = new MockWireSocket();
     const host = makeHost();

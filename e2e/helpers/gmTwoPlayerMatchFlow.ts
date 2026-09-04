@@ -123,7 +123,15 @@ export async function advancePhase(...pages: readonly Page[]): Promise<void> {
           const page = pages[index];
           if (!page) continue;
           const control = page.getByTestId('advance-phase-button');
-          if ((await control.count()) === 1 && (await control.isEnabled())) {
+          // One DOM read with no auto-wait: `isEnabled()` waits up to
+          // its timeout for a control the phase transition just detached
+          // and throws inside this poll instead of answering false.
+          const enabled = await control.evaluateAll(
+            (nodes) =>
+              nodes.length === 1 &&
+              !(nodes[0] as HTMLButtonElement).disabled,
+          );
+          if (enabled) {
             activeIndex = index;
             return true;
           }
@@ -265,7 +273,11 @@ export async function launchOneVersusOne(input: {
  * would be proving something about the tap.
  */
 export function tapErrorFrames(page: Page): {
-  readonly frames: readonly { code?: string; reason?: string }[];
+  readonly frames: readonly {
+    code?: string;
+    reason?: string;
+    intentId?: string;
+  }[];
   readonly sent: readonly string[];
   /** Every server->client frame, verbatim, for exactly-once counting. */
   readonly received: readonly string[];
@@ -281,7 +293,7 @@ export function tapErrorFrames(page: Page): {
    */
   readonly inject: (frame: unknown) => void;
 } {
-  const frames: { code?: string; reason?: string }[] = [];
+  const frames: { code?: string; reason?: string; intentId?: string }[] = [];
   const sent: string[] = [];
   const received: string[] = [];
   let serverHandle: { send: (message: string) => void } | null = null;
@@ -315,9 +327,14 @@ export function tapErrorFrames(page: Page): {
                 kind?: string;
                 code?: string;
                 reason?: string;
+                intentId?: string;
               };
               if (frame.kind === 'Error') {
-                frames.push({ code: frame.code, reason: frame.reason });
+                frames.push({
+                  code: frame.code,
+                  reason: frame.reason,
+                  intentId: frame.intentId,
+                });
               }
             } catch {
               // Non-JSON frames pass through unrecorded.
