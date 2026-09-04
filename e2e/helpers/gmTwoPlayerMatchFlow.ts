@@ -128,8 +128,7 @@ export async function advancePhase(...pages: readonly Page[]): Promise<void> {
           // and throws inside this poll instead of answering false.
           const enabled = await control.evaluateAll(
             (nodes) =>
-              nodes.length === 1 &&
-              !(nodes[0] as HTMLButtonElement).disabled,
+              nodes.length === 1 && !(nodes[0] as HTMLButtonElement).disabled,
           );
           if (enabled) {
             activeIndex = index;
