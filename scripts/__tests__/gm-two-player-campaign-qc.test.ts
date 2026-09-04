@@ -5,7 +5,7 @@ const repoRoot = path.resolve(__dirname, '../..');
 const runner = path.join(repoRoot, 'scripts/qc/run-gm-two-player-campaign.mjs');
 const core = require('../qc/gm-two-player-campaign-core.cjs');
 const groups =
-  'fixture-smoke,membership-smoke,evidence-smoke,fault-smoke,smoke,authority-pack1,exactly-once-pack,fault-pack,token-pack,restart-pack,resilience-pack,authority-order,authority-recovery,privacy-pack,proposal-pack,three-context-pack,two-device-pack,authority,visibility,combat,campaign,failure,performance,cleanup-ownership,all,traceability,quality,manual-setup,scope'.split(
+  'fixture-smoke,membership-smoke,evidence-smoke,fault-smoke,smoke,authority-pack1,exactly-once-pack,fault-pack,token-pack,restart-pack,resilience-pack,authority-order,authority-recovery,privacy-pack,proposal-pack,three-context-pack,two-device-pack,authority,visibility,combat-pack1,combat,campaign,failure,performance,cleanup-ownership,all,traceability,quality,manual-setup,scope'.split(
     ',',
   );
 /** The server command a non-respawning implemented group is planned with. */
@@ -308,6 +308,28 @@ describe('GM and two-player campaign QC runner', () => {
       'node server.js',
     );
 
+    // `combat-pack1` is the E2E-31/32/34 subset (umbrella 21.3). The
+    // bare `combat` name stays reserved, same as privacy-pack versus
+    // visibility. Predicted red of this pin before the catalog grew
+    // the group: Object.keys(REGISTERED_GROUPS) lacked `combat-pack1`
+    // before `combat`. Absence from SPEC_BY_GROUP also left the group
+    // in the NOT_IMPLEMENTED loop.
+    const combatPack1Plan = core.buildRunPlan({
+      group: 'combat-pack1',
+      runId: 'task-21-combat-pack1',
+      repoRoot,
+    });
+    expect(combatPack1Plan.args).toEqual([
+      path.join(repoRoot, 'scripts/playwright/run-playwright.mjs'),
+      'test',
+      '--project=chromium',
+      'e2e/gm-two-player-combat.pack1.spec.ts',
+      '--workers=1',
+    ]);
+    expect(combatPack1Plan.environment.MEKSTATION_E2E_SERVER_COMMAND).toBe(
+      'node server.js',
+    );
+
     // `authority` is the E2E-01..18 union (umbrella 21.4). Predicted
     // red of this pin today, before `authority` had a SPEC_BY_GROUP
     // entry: the group was already in GROUP_CATALOG (owner 29) and
@@ -382,6 +404,7 @@ describe('GM and two-player campaign QC runner', () => {
       'e2e/campaign-two-device-drive.spec.ts',
       'e2e/gm-two-player-failure.pack.spec.ts',
       'e2e/gm-two-player-cleanup-ownership.spec.ts',
+      'e2e/gm-two-player-combat.pack1.spec.ts',
       '--workers=1',
     ]);
     // restart-pack, resilience-pack, authority-recovery, and the
@@ -455,6 +478,7 @@ describe('GM and two-player campaign QC runner', () => {
       'failure',
       'performance',
       'cleanup-ownership',
+      'combat-pack1',
       'all',
     ];
     for (const group of groups.filter(
