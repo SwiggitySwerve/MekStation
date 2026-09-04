@@ -21,7 +21,10 @@ import {
 import { defaultSeats } from '@/types/multiplayer/Lobby';
 import { type IIntent, nowIso } from '@/types/multiplayer/Protocol';
 
+import type { IMatchStore } from '../IMatchStore';
+
 import {
+  DurableMatchStore,
   _armE2EFaultOnce,
   _resetE2EFaultsForTests,
   throwForPostCommitSendFault,
@@ -159,11 +162,10 @@ function contiguousHead(numbers: readonly number[]): number {
  * WHAT: a 1v1 host with one admitted socket per player.
  * WHY: the fault is match-scoped, so two viewers are how a victim appears.
  */
-async function seatedHost() {
-  const store = new InMemoryMatchStore({ quiet: true });
+async function seatedHost(store: IMatchStore, matchId: string) {
   const now = new Date().toISOString();
   await store.createMatch({
-    matchId: MATCH,
+    matchId,
     hostPlayerId: 'pA',
     playerIds: ['pA', 'pB'],
     sideAssignments: [
@@ -185,7 +187,7 @@ async function seatedHost() {
     roomCode: 'SENDFLT',
   });
 
-  const host = ServerMatchHost.create(MATCH, store, {
+  const host = ServerMatchHost.create(matchId, store, {
     mapRadius: 6,
     turnLimit: 5,
     random: new SeededRandom(9),
@@ -215,11 +217,12 @@ async function seatedHost() {
 async function advance(
   host: Awaited<ReturnType<typeof seatedHost>>['host'],
   n: number,
+  matchId: string,
 ): Promise<void> {
   await host.handleIntent(
     {
       kind: 'Intent',
-      matchId: MATCH,
+      matchId,
       ts: nowIso(),
       playerId: 'pA',
       intentId: `adv-${n}`,
@@ -235,45 +238,56 @@ describe('ServerMatchHostEvents post-commit send fault', () => {
     _resetE2EFaultsForTests();
   });
 
-  it('throws on exactly one per-viewer send and leaves only that cursor unadvanced', async () => {
-    const { host, sockA, sockB } = await seatedHost();
-    await advance(host, 0);
-    const beforeA = deliveredSequences(sockA);
-    const beforeB = deliveredSequences(sockB);
-    expect(beforeA.length).toBeGreaterThan(0);
-    expect(beforeA).toEqual(beforeB);
+  /**
+   * WHAT: one `it` against in-memory and durable stores.
+   * WHY: finding #103 first blamed the durable store's rejoin; this
+   * matrix pins that both stores resume at the missed number.
+   */
+  describe.each([
+    ['in-memory', (): IMatchStore => new InMemoryMatchStore({ quiet: true })],
+    ['durable', (): IMatchStore => new DurableMatchStore({ path: ':memory:' })],
+  ] as const)('%s store', (storeName, createStore) => {
+    it('throws on exactly one per-viewer send and leaves only that cursor unadvanced', async () => {
+      const matchId = `${MATCH}-${storeName}`;
+      const { host, sockA, sockB } = await seatedHost(createStore(), matchId);
+      await advance(host, 0, matchId);
+      const beforeA = deliveredSequences(sockA);
+      const beforeB = deliveredSequences(sockB);
+      expect(beforeA.length).toBeGreaterThan(0);
+      expect(beforeA).toEqual(beforeB);
 
-    _armE2EFaultOnce('post-commit-send', { matchId: MATCH });
-    await advance(host, 1);
-    expect(() => throwForPostCommitSendFault(MATCH)).not.toThrow();
+      _armE2EFaultOnce('post-commit-send', { matchId });
+      await advance(host, 1, matchId);
+      expect(() => throwForPostCommitSendFault(matchId)).not.toThrow();
 
-    const afterA = deliveredSequences(sockA);
-    const afterB = deliveredSequences(sockB);
-    const missedByB = afterA.filter((value) => !afterB.includes(value));
-    const missedByA = afterB.filter((value) => !afterA.includes(value));
-    expect(missedByA.length + missedByB.length).toBeGreaterThan(0);
-    expect(missedByA.length === 0 || missedByB.length === 0).toBe(true);
+      const afterA = deliveredSequences(sockA);
+      const afterB = deliveredSequences(sockB);
+      const missedByB = afterA.filter((value) => !afterB.includes(value));
+      const missedByA = afterB.filter((value) => !afterA.includes(value));
+      expect(missedByA.length + missedByB.length).toBeGreaterThan(0);
+      expect(missedByA.length === 0 || missedByB.length === 0).toBe(true);
 
-    const victimIsA = missedByA.length > 0;
-    const victimBefore = victimIsA ? beforeA : beforeB;
-    const healthyAfter = victimIsA ? afterB : afterA;
-    const victimAfter = victimIsA ? afterA : afterB;
-    const missed = victimIsA ? missedByA[0] : missedByB[0];
-    expect(typeof missed).toBe('number');
-    expect(victimAfter).not.toContain(missed);
-    expect(healthyAfter).toContain(missed);
-    expect(contiguousHead(victimAfter)).toBe(contiguousHead(victimBefore));
+      const victimIsA = missedByA.length > 0;
+      const victimBefore = victimIsA ? beforeA : beforeB;
+      const healthyAfter = victimIsA ? afterB : afterA;
+      const victimAfter = victimIsA ? afterA : afterB;
+      const missed = victimIsA ? missedByA[0] : missedByB[0];
+      expect(typeof missed).toBe('number');
+      expect(victimAfter).not.toContain(missed);
+      expect(healthyAfter).toContain(missed);
+      expect(contiguousHead(victimAfter)).toBe(contiguousHead(victimBefore));
 
-    const victimId = victimIsA ? 'pA' : 'pB';
-    const lastHeld = contiguousHead(victimAfter);
-    const rejoined = makeSocket();
-    await host.handleSessionJoin(
-      rejoined as never,
-      victimId,
-      undefined,
-      MATCH,
-      lastHeld,
-    );
-    expect(deliveredSequences(rejoined)[0]).toBe(missed);
+      const victimId = victimIsA ? 'pA' : 'pB';
+      const lastHeld = contiguousHead(victimAfter);
+      const rejoined = makeSocket();
+      await host.handleSessionJoin(
+        rejoined as never,
+        victimId,
+        undefined,
+        matchId,
+        lastHeld,
+      );
+      expect(deliveredSequences(rejoined)[0]).toBe(missed);
+    });
   });
 });
