@@ -3,7 +3,7 @@ const crypto = require('node:crypto');
 const net = require('node:net');
 const path = require('node:path');
 const GROUP_CATALOG =
-  'fixture-smoke:26,membership-smoke:15,evidence-smoke:27,fault-smoke:28,smoke:15,authority-pack1:21,exactly-once-pack:21,fault-pack:21,token-pack:21,restart-pack:21,resilience-pack:21,authority-order:21,authority-recovery:21,privacy-pack:30,proposal-pack:30,three-context-pack:30,two-device-pack:30,authority:29,visibility:30,combat-pack1:31,combat:31,campaign:32,failure:32,performance:33,cleanup-ownership:22,all:34,traceability:34,quality:34,manual-setup:34,scope:34';
+  'fixture-smoke:26,membership-smoke:15,evidence-smoke:27,fault-smoke:28,smoke:15,authority-pack1:21,exactly-once-pack:21,fault-pack:21,token-pack:21,restart-pack:21,resilience-pack:21,authority-order:21,authority-recovery:21,privacy-pack:30,proposal-pack:30,three-context-pack:30,two-device-pack:30,authority:29,visibility:30,combat-pack1:31,rewind-pack:31,combat:31,campaign:32,failure:32,performance:33,cleanup-ownership:22,all:34,traceability:34,quality:34,manual-setup:34,scope:34';
 const REGISTERED_GROUPS = Object.freeze(
   Object.fromEntries(
     GROUP_CATALOG.split(',').map((entry) => {
@@ -115,6 +115,10 @@ function buildRunPlan({ group, runId, repoRoot }) {
     // subset (E2E-31/32/34), the same privacy-pack versus visibility
     // pattern. Not in RESPAWNING_GROUPS: no row kills the server.
     'combat-pack1': ['e2e/gm-two-player-combat.pack1.spec.ts'],
+    // Six E2E-40/41/42/43/44/76 rows. Strict expected failures owned
+    // by adopt-combat-journal-cutover-and-gm-rewind until the combat
+    // stream is journaled. Bare group name `rewind` stays free.
+    'rewind-pack': ['e2e/gm-two-player-rewind.pack.spec.ts'],
   };
   // `authority` expands to the eight titled E2E-01..18 packs, in the
   // same pin order those packs already occupy in SPEC_BY_GROUP.
@@ -138,8 +142,9 @@ function buildRunPlan({ group, runId, repoRoot }) {
   // entry. Reserved catalog names that still throw stay out
   // (`campaign` until a live E2E-46..60 row exists; visibility, combat
   // as the unused umbrella name, evidence-smoke, fault-smoke, and the
-  // other 34-owned placeholders). `combat-pack1` is implemented; the
-  // bare `combat` name stays reserved.
+  // other 34-owned placeholders). `combat-pack1` and `rewind-pack`
+  // are implemented; the bare `combat` name stays reserved and
+  // `rewind` stays free.
   // Specs are de-duplicated so the `smoke` umbrella and the `authority`
   // union do not run their members twice. The composite respawns if ANY
   // member is in RESPAWNING_GROUPS (today restart-pack, resilience-pack,
