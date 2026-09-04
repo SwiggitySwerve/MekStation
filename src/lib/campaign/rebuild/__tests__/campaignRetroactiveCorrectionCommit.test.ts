@@ -10,6 +10,7 @@ import { mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 
+import type { ICandidateVerificationOptions } from '@/lib/events/journal/EventHistoryCandidateVerification';
 import type { ICampaignBatchCommitHost } from '@/lib/multiplayer/server/campaignHostBatchCommit';
 import type { ICampaignEvent } from '@/types/campaign/CampaignSync';
 
@@ -20,7 +21,6 @@ import {
   JournalCampaignEventStore,
   type ICampaignJournalEnvelope,
 } from '@/lib/campaign/sync/JournalCampaignEventStore';
-import { createEmptyCampaignState } from '@/types/campaign/CampaignSync';
 import { SQLiteEventHistoryArtifactManifestStore } from '@/lib/events/journal/EventHistoryArtifactManifest';
 import { SQLiteEventHistoryBranchStore } from '@/lib/events/journal/SQLiteEventHistoryBranchStore';
 import { SQLiteEventHistoryCorrectionLeaseStore } from '@/lib/events/journal/SQLiteEventHistoryCorrectionLeaseStore';
@@ -32,8 +32,8 @@ import {
   getSQLiteService,
   resetSQLiteService,
 } from '@/services/persistence/SQLiteService';
+import { createEmptyCampaignState } from '@/types/campaign/CampaignSync';
 
-import type { ICandidateVerificationOptions } from '@/lib/events/journal/EventHistoryCandidateVerification';
 import type { IRetainedSourceEvent } from '../CampaignReplacementReplay';
 
 import {
