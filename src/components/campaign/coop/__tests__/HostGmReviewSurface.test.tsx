@@ -13,7 +13,12 @@ import React from 'react';
 
 import type { IPendingProposal } from '@/lib/multiplayer/server/CampaignGmArbiter';
 
+import {
+  campaignRefusalFromServerErrorCode,
+  deriveGmLifecyclePosture,
+} from '@/lib/campaign/lifecycle/campaignLifecycleState';
 import { buildCoopCampaignAuthorityProjection } from '@/lib/command-screen';
+import { EXPECTED_HEAD_RESYNC_ACTION } from '@/lib/events/journal/EventHistoryExpectedHead';
 
 import { HostGmReviewSurface } from '../HostGmReviewSurface';
 
@@ -164,5 +169,47 @@ describe('HostGmReviewSurface — decisions', () => {
 
     fireEvent.click(screen.getByTestId('veto-confirm'));
     expect(onDecide).toHaveBeenCalledWith('p1', 'veto');
+  });
+});
+
+describe('HostGmReviewSurface — blocked stale-head Approve', () => {
+  it('disables Approve and renders the server resync action under the blocked posture', () => {
+    const refusal = campaignRefusalFromServerErrorCode(
+      'CAMPAIGN_STALE_HEAD',
+      EXPECTED_HEAD_RESYNC_ACTION,
+    );
+    render(
+      <HostGmReviewSurface
+        pending={[pendingSpend('p1')]}
+        onDecide={() => {}}
+        lifecycle={deriveGmLifecyclePosture({
+          refusal,
+          pendingProposalCount: 1,
+        })}
+      />,
+    );
+
+    expect(screen.getByTestId('approve-p1')).toBeDisabled();
+    expect(
+      screen.getByTestId('gm-lifecycle-recovery-server-action'),
+    ).toHaveTextContent(EXPECTED_HEAD_RESYNC_ACTION);
+  });
+
+  it('keeps Approve enabled under the normal posture', () => {
+    render(
+      <HostGmReviewSurface
+        pending={[pendingSpend('p1')]}
+        onDecide={() => {}}
+        lifecycle={deriveGmLifecyclePosture({
+          refusal: null,
+          pendingProposalCount: 1,
+        })}
+      />,
+    );
+
+    expect(screen.getByTestId('approve-p1')).toBeEnabled();
+    expect(
+      screen.queryByTestId('gm-lifecycle-recovery-server-action'),
+    ).toBeNull();
   });
 });

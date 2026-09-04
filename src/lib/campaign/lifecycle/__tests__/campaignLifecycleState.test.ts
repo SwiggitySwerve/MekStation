@@ -332,7 +332,47 @@ describe('the two refusal doors', () => {
     expect(admitted).toStrictEqual([
       'CAMPAIGN_NOT_CONVERGED',
       'PROJECTION_REBUILDING',
+      'CAMPAIGN_STALE_HEAD',
     ]);
+  });
+
+  it('admits CAMPAIGN_STALE_HEAD as the blocked posture instead of dropping it', () => {
+    const mapped = campaignRefusalFromServerErrorCode('CAMPAIGN_STALE_HEAD');
+    expect(mapped).not.toBeNull();
+    expect(
+      deriveGmLifecyclePosture({
+        refusal: mapped,
+        pendingProposalCount: 0,
+      }).state,
+    ).toBe('blocked');
+  });
+
+  it('fills serverAction from the wire frame recoveryAction verbatim', () => {
+    const mapped = campaignRefusalFromServerErrorCode(
+      'CAMPAIGN_STALE_HEAD',
+      EXPECTED_HEAD_RESYNC_ACTION,
+    );
+    expect(
+      deriveGmLifecyclePosture({
+        refusal: mapped,
+        pendingProposalCount: 0,
+      }).recovery?.serverAction,
+    ).toBe(EXPECTED_HEAD_RESYNC_ACTION);
+  });
+
+  it('still resolves an already-admitted wire code exactly as before', () => {
+    expect(
+      campaignRefusalFromServerErrorCode('CAMPAIGN_NOT_CONVERGED'),
+    ).toStrictEqual({
+      code: 'CAMPAIGN_NOT_CONVERGED',
+      recoveryAction: null,
+    });
+    expect(
+      campaignRefusalFromServerErrorCode('PROJECTION_REBUILDING'),
+    ).toStrictEqual({
+      code: 'PROJECTION_REBUILDING',
+      recoveryAction: null,
+    });
   });
 
   it('turns away the command-vocabulary codes at the wire door', () => {
