@@ -122,6 +122,14 @@ export type CampaignCommandResult =
        * client rendering a refusal with no recovery at all.
        */
       readonly recoveryAction?: string;
+      /**
+       * Where the stream head is while this block holds.
+       *
+       * Present on a rebuild: CHANGE spec campaign-persistence lines
+       * 80-85 require PROJECTION_REBUILDING to name the active branch
+       * and revision. Absent on a configuration block that has no head.
+       */
+      readonly activeHead?: ICampaignConflictHead;
     }
   | ({
       /**
@@ -332,6 +340,13 @@ export async function executeCampaignCommand(
       // what to do next, and a client told only PROJECTION_REBUILDING has
       // to guess whether to wait or give up.
       recoveryAction: rebuilding.action,
+      // Sourced from the lease refusal the durable reader already built
+      // (rebuilding.activeHead). CHANGE spec campaign-persistence lines
+      // 80-85: the refusal names the active branch and revision.
+      activeHead: {
+        branchId: rebuilding.activeHead.branchId,
+        revision: rebuilding.activeHead.revision,
+      },
     };
   }
 

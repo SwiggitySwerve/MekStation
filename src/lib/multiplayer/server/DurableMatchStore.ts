@@ -328,13 +328,15 @@ export type E2EFaultKind =
   | 'process-exit-before-commit'
   | 'process-exit-after-commit'
   | 'correction-exit-after-source'
-  | 'correction-exit-after-target-mint';
+  | 'correction-exit-after-target-mint'
+  | 'post-commit-send';
 
 /**
  * Every fault kind the lever can arm. Append kinds follow batch
  * lifecycle; process-exit kinds kill the e2e process; correction-exit
  * kinds are the 17.4 crash windows (unit form throws, e2e form would
- * exit — `throwForE2EFault` does not call `process.exit`).
+ * exit — `throwForE2EFault` does not call `process.exit`);
+ * post-commit-send throws once at one per-viewer live send.
  * LAW-40: a new union member without a list entry is a length drift.
  */
 export const E2E_FAULT_KINDS: readonly E2EFaultKind[] = [
@@ -345,6 +347,7 @@ export const E2E_FAULT_KINDS: readonly E2EFaultKind[] = [
   'process-exit-after-commit',
   'correction-exit-after-source',
   'correction-exit-after-target-mint',
+  'post-commit-send',
 ];
 
 /**
@@ -392,6 +395,7 @@ const armedE2EFaults: Record<E2EFaultKind, IE2EFaultScope | null> = {
   'process-exit-after-commit': null,
   'correction-exit-after-source': null,
   'correction-exit-after-target-mint': null,
+  'post-commit-send': null,
 };
 let exitProcessForE2EFault: (code: number) => void = process.exit;
 
@@ -542,6 +546,16 @@ export function exitForE2EFault(kind: E2EFaultKind, matchId: string): void {
 export function throwForE2EFault(kind: E2EFaultKind, matchId: string): void {
   if (!consumeE2EFault(kind, matchId)) return;
   throw new Error(`test-${kind}`);
+}
+
+/**
+ * WHAT: consume the one-shot post-commit send arm and throw.
+ * WHY: ServerMatchHostEvents must fail exactly one per-viewer live
+ * send when armed, without adding a participant field to the
+ * match-scoped lever.
+ */
+export function throwForPostCommitSendFault(matchId: string): void {
+  throwForE2EFault('post-commit-send', matchId);
 }
 
 /** Test-only: crash the batch transaction at the head-update statement. */
