@@ -5,7 +5,6 @@ import type {
 } from '@/types/gameplay/GameSessionInterfaces';
 import type { IEventMessage } from '@/types/multiplayer/Protocol';
 
-import { throwForPostCommitSendFault } from './DurableMatchStore';
 import type { IMatchMeta, IMatchStore } from './IMatchStore';
 import type { RollCapture } from './RollCapture';
 import type { ServerMatchBroadcaster } from './ServerMatchBroadcaster';
@@ -17,6 +16,7 @@ import {
   type AuthorizedViewerResolver,
   type IAuthorizedViewer,
 } from './authorization/AuthorizedViewer';
+import { throwForPostCommitSendFault } from './DurableMatchStore';
 import {
   filterEventForPlayer,
   filterEventForSpectator,
@@ -369,20 +369,12 @@ async function publishEvent(
     // applied (15 frames, 12 distinct), which the resume row catches.
     if (!ctx.broadcaster.admitForSend(recipient.socket)) continue;
     try {
-      sendNumberedLiveFrame(
-        ctx.matchId,
-        ctx.broadcaster,
-        recipient.socket,
-        {
-          ...guarded.value,
-          deliverySequence,
-        },
-      );
+      sendNumberedLiveFrame(ctx.matchId, ctx.broadcaster, recipient.socket, {
+        ...guarded.value,
+        deliverySequence,
+      });
     } catch (error) {
-      if (
-        error instanceof Error &&
-        error.message === 'test-post-commit-send'
-      ) {
+      if (error instanceof Error && error.message === 'test-post-commit-send') {
         continue;
       }
       throw error;
