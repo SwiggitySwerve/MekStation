@@ -48,8 +48,13 @@
  * E2E-70: "WHEN one socket send fails after commit THEN journal and
  *   outbox authority SHALL remain intact, healthy recipients SHALL
  *   continue, and the failed participant SHALL recover from its
- *   cursor." The lever is match-scoped only, so the row arms the
- *   fault, drives one commit, and discovers the victim from the taps.
+ *   cursor." Mechanism proven: same-socket gap recovery (SessionJoin
+ *   on the open socket; ReplayStart/ReplayChunk at the missed number).
+ *   Victim is the tap whose live Event numbers contain a hole;
+ *   per-viewer numbering makes cross-tap subtraction invalid under fog.
+ *   `context.setOffline` is not used: Chromium does not close an
+ *   established WebSocket on that toggle, and the product does not need
+ *   a reconnect to resume.
  *
  * NOT CLAIMED HERE, and why:
  *
@@ -308,6 +313,30 @@ function rawFramesOfKind(
   kind: string,
 ): readonly string[] {
   return rawFrames.filter((raw) => parseWireFrame(raw)?.kind === kind);
+}
+
+/**
+ * WHAT: the delivery number a mid-match resume started from, or null.
+ * WHY: every viewer's first numbers arrive in the join's own ReplayChunk
+ * (from zero), so a live-Event-only hole scan misreads that prefix as a
+ * hole on both taps. The victim is the tap the server RESUMED: a
+ * ReplayStart whose fromDeliverySequence is above zero is the client's
+ * same-socket gap recovery being answered, and the healthy viewer never
+ * receives one. Delivery numbers are per viewer and fog withholds per
+ * viewer, so subtracting one tap's numbers from the other's names the
+ * wrong victim.
+ */
+function resumeStart(tap: ISocketTap): number | null {
+  for (const raw of rawFramesOfKind(tap.received, 'ReplayStart')) {
+    const from = parseWireFrame(raw)?.fromDeliverySequence;
+    if (typeof from === 'number' && from > 0) return from;
+  }
+  return null;
+}
+
+/** WHAT: live Event delivery numbers only. WHY: a hole is a live gap. */
+function liveEventNumbers(tap: ISocketTap): number[] {
+  return flattenDeliveryNumbers(rawFramesOfKind(tap.received, 'Event'));
 }
 
 function highWater(numbers: readonly number[]): number {
@@ -767,111 +796,67 @@ test.describe('GM two-player failure pack', () => {
         .poll(() => durableCounts(match.matchId).events, { timeout: 20_000 })
         .toBeGreaterThan(eventsBefore);
 
-      await expect
-        .poll(
-          () => {
-            const hostNumbers = flattenDeliveryNumbers(tap.received);
-            const guestNumbers = flattenDeliveryNumbers(guestTap.received);
-            const missedByGuest = hostNumbers.filter(
-              (value) => !guestNumbers.includes(value),
-            );
-            const missedByHost = guestNumbers.filter(
-              (value) => !hostNumbers.includes(value),
-            );
-            return missedByHost.length + missedByGuest.length;
-          },
-          { timeout: 20_000 },
-        )
-        .toBeGreaterThan(0);
-
       const censusAfterSend = journalOutboxCensus(match.matchId);
       await hostPage.waitForTimeout(1_000);
       expect(journalOutboxCensus(match.matchId)).toEqual(censusAfterSend);
 
-      const hostNumbers = flattenDeliveryNumbers(tap.received);
-      const guestNumbers = flattenDeliveryNumbers(guestTap.received);
-      const missedByGuest = hostNumbers.filter(
-        (value) => !guestNumbers.includes(value),
-      );
-      const missedByHost = guestNumbers.filter(
-        (value) => !hostNumbers.includes(value),
-      );
-      expect(missedByHost.length === 0 || missedByGuest.length === 0).toBe(
-        true,
-      );
+      await expect
+        .poll(
+          () => {
+            const hostResumed = resumeStart(tap) !== null;
+            const guestResumed = resumeStart(guestTap) !== null;
+            return Number(hostResumed) + Number(guestResumed);
+          },
+          { timeout: 30_000 },
+        )
+        .toBe(1);
 
-      const victimIsHost = missedByHost.length > 0;
-      const missed = victimIsHost ? missedByHost[0] : missedByGuest[0];
-      expect(typeof missed).toBe('number');
-      const healthyLive = flattenDeliveryNumbers(
-        rawFramesOfKind(
-          victimIsHost ? guestTap.received : tap.received,
-          'Event',
-        ),
-      );
-      expect(healthyLive).toContain(missed);
-
-      const victimPage = victimIsHost ? hostPage : guestPage;
-      const victimTap = victimIsHost ? tap : guestTap;
-      const heldReceived = victimTap.received.length;
-      const victimHead = contiguousHead(
-        flattenDeliveryNumbers(victimTap.received),
-      );
-      // The victim may hold frames beyond its pre-arm head (the fault is
-      // one-shot and later sends still land); what must be true is that its
-      // contiguous head sits strictly below the number it missed.
-      expect(victimHead).toBeLessThan(missed as number);
-
-      // FINDING (2026-09-03, two live runs on the production build): after a
-      // fault-skipped send, the reconnected victim did not receive the missed
-      // delivery number from the durable store's rejoin, while the jest row
-      // proves the identical resume on the in-memory store. The letter is
-      // not weakened: this clause is a STRICT expected failure, scoped here
-      // so the census and healthy-peer clauses above stay real reds, and an
-      // unexpected pass is the day the durable rejoin resumes. No test.skip.
-      test.fail(
-        true,
-        'E2E-70 resume clause: durable rejoin after a fault-skipped send does not replay the missed delivery @until-durable-rejoin-resume',
-      );
-      await victimPage.context().setOffline(true);
-      await victimPage.waitForTimeout(1_000);
-      await victimPage.context().setOffline(false);
-      await expect(
-        victimPage.getByTestId('networked-game-surface'),
-      ).toBeVisible({ timeout: 60_000 });
+      const hostResume = resumeStart(tap);
+      const guestResume = resumeStart(guestTap);
+      const victimTap = hostResume !== null ? tap : guestTap;
+      const healthyTap = hostResume !== null ? guestTap : tap;
+      const missed = hostResume ?? guestResume;
+      expect(resumeStart(healthyTap)).toBeNull();
+      if (missed === null) {
+        throw new Error('victim tap exposed no resume after poll');
+      }
+      // The hole the resume answered: the victim's LIVE stream skipped
+      // `missed` and carried the next number, which is what made its
+      // client ask; the healthy viewer's live stream has no such gap.
+      const victimLive = liveEventNumbers(victimTap);
+      expect(victimLive).not.toContain(missed);
+      expect(victimLive).toContain(missed + 1);
 
       await expect
         .poll(
           () => {
-            const catchup = victimTap.received.slice(heldReceived);
-            const replayStarts = catchup
+            const hasStart = victimTap.received
               .map((raw) => parseWireFrame(raw))
-              .filter((frame) => frame?.kind === 'ReplayStart');
-            const fromDelivery = replayStarts
-              .map((frame) => frame?.fromDeliverySequence)
-              .find((value) => value !== undefined);
-            const newcomers = flattenDeliveryNumbers(catchup);
-            return (
-              fromDelivery === missed ||
-              newcomers[0] === missed ||
-              newcomers.includes(missed as number)
+              .some(
+                (frame) =>
+                  frame?.kind === 'ReplayStart' &&
+                  frame.fromDeliverySequence === missed,
+              );
+            const chunkNumbers = flattenDeliveryNumbers(
+              rawFramesOfKind(victimTap.received, 'ReplayChunk'),
             );
+            return hasStart && chunkNumbers.includes(missed);
           },
           { timeout: 30_000 },
         )
         .toBe(true);
 
-      const catchup = victimTap.received.slice(heldReceived);
-      const replayStart = catchup
-        .map((raw) => parseWireFrame(raw))
-        .find((frame) => frame?.kind === 'ReplayStart');
-      const newcomers = flattenDeliveryNumbers(catchup);
-      if (replayStart?.fromDeliverySequence !== undefined) {
-        expect(replayStart.fromDeliverySequence).toBe(missed);
-      } else {
-        expect(newcomers[0]).toBe(missed);
-      }
-      expect(newcomers).toContain(missed);
+      const victimNumbers = Array.from(
+        new Set(flattenDeliveryNumbers(victimTap.received)),
+      ).sort((left, right) => left - right);
+      expect(contiguousHead(victimNumbers)).toBeGreaterThanOrEqual(missed + 1);
+
+      const healthyNumbers = Array.from(
+        new Set(flattenDeliveryNumbers(healthyTap.received)),
+      ).sort((left, right) => left - right);
+      expect(contiguousHead(healthyNumbers)).toBe(
+        healthyNumbers[healthyNumbers.length - 1] ?? -1,
+      );
 
       expect(journalOutboxCensus(match.matchId)).toEqual(censusAfterSend);
     } finally {
