@@ -48,6 +48,7 @@ import {
   type ICampaignGrantChannelDeps,
 } from './handleCampaignGrantJoin';
 import { handleRoomCodeGuestJoin } from './handleRoomCodeGuestJoin';
+import { refusedWhileCampaignRebuilding } from './campaignSyncRebuildAdmission';
 import { ServerMatchBroadcaster } from './ServerMatchBroadcaster';
 import { ServerMatchSocketLifecycle } from './ServerMatchSocketLifecycle';
 
@@ -553,10 +554,27 @@ async function dispatchCampaignEnvelope({
       if (refusedWhilePaused(entry, socket, matchId)) {
         return;
       }
+      // CHANGE spec campaign-persistence lines 80-85: refuse before
+      // dispatch so a proposal cannot commit into a rebuilding stream.
+      if (refusedWhileCampaignRebuilding(entry.campaignId, matchId, (message) =>
+        send(socket, message),
+      )) {
+        return;
+      }
       await handleCampaignProposal({ envelope, socket, entry, matchId });
       return;
     case 'CampaignDecision':
       if (refusedWhilePaused(entry, socket, matchId, envelope.proposalId)) {
+        return;
+      }
+      if (
+        refusedWhileCampaignRebuilding(
+          entry.campaignId,
+          matchId,
+          (message) => send(socket, message),
+          envelope.proposalId,
+        )
+      ) {
         return;
       }
       await handleCampaignDecision({ envelope, socket, entry, matchId });
@@ -564,6 +582,16 @@ async function dispatchCampaignEnvelope({
     case 'CampaignHostIntent':
       if (
         refusedWhilePaused(entry, socket, matchId, envelope.intent.intentId)
+      ) {
+        return;
+      }
+      if (
+        refusedWhileCampaignRebuilding(
+          entry.campaignId,
+          matchId,
+          (message) => send(socket, message),
+          envelope.intent.intentId,
+        )
       ) {
         return;
       }

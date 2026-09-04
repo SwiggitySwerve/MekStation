@@ -170,6 +170,12 @@ export default async function handler(
           kind: 'blocked',
           reason: result.reason,
           recoveryAction: result.recoveryAction,
+          // Same head field 17.3's launch refusal emits, plus the
+          // recoveryAction the socket already uses. A rebuild names both;
+          // a configuration block names neither a head nor an action.
+          ...(result.activeHead !== undefined
+            ? { activeHead: result.activeHead }
+            : {}),
         });
         return;
       case 'conflict':
