@@ -33,6 +33,36 @@ function writeJson(filePath: string, value: unknown): void {
   fs.writeFileSync(filePath, `${JSON.stringify(value, null, 2)}\n`);
 }
 
+const SECTION_16_LANE_TOKENS = [
+  'dayPipeline.test.ts',
+  'GmCampaignRewindImpactPreview.test.ts',
+  'GmCampaignAffectedFamilies.test.ts',
+  'GmCampaignImpactDerivation.test.ts',
+  'GmCampaignArtifactUseGuard.test.ts',
+  'campaignCommandPipelineRebuild.test.ts',
+  'campaignCommandPipelineArtifactUse.test.ts',
+  'EventHistoryActivation.test.ts',
+] as const;
+
+type PackageJsonScripts = {
+  scripts: Record<string, string>;
+};
+
+/** WHAT: Write a package.json whose time-cascade lane omits one required suite token.
+ *  WHY: The 16.5 row must fail on a dropped lane suite, not on an unrelated script edit. */
+function writeLaneWithoutToken(tempDir: string, token: string): string {
+  const packageJson = readJson<PackageJsonScripts>(
+    path.join(repoRoot, 'package.json'),
+  );
+  const lane = packageJson.scripts['verify:qc:gm:time-cascade'];
+  expect(typeof lane).toBe('string');
+  expect(lane).toContain(token);
+  packageJson.scripts['verify:qc:gm:time-cascade'] = lane.split(token).join('');
+  const packageJsonPath = path.join(tempDir, 'package.json');
+  writeJson(packageJsonPath, packageJson);
+  return packageJsonPath;
+}
+
 describe('GM time cascade QC validator', () => {
   let tempDir: string;
 
@@ -140,6 +170,20 @@ describe('GM time cascade QC validator', () => {
     expect(result.stdout).toContain('broken-time-cascade-anchor');
     expect(result.stdout).toContain('definitely-not-a-real-time-cascade-token');
   });
+
+  it.each(SECTION_16_LANE_TOKENS)(
+    'rejects the time-cascade lane when %s is dropped',
+    (token) => {
+      const packageJsonPath = writeLaneWithoutToken(tempDir, token);
+      const result = runValidator([], {
+        MEKSTATION_PACKAGE_JSON_PATH: packageJsonPath,
+      });
+
+      expect(result.status).toBe(1);
+      expect(result.stdout).toContain(token);
+      expect(result.stdout).toContain('must expose a command containing');
+    },
+  );
 
   it('rejects a missing time cascade QC surface', () => {
     const registry = readJson<{
