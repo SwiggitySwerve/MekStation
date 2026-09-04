@@ -155,6 +155,14 @@ function parseFrame(raw: string): Record<string, unknown> | null {
   }
 }
 
+/** WHAT: true when the tap recorded the door's client-rolls refusal for this id. WHY: the injected intentId is how the client correlates the Error. */
+function sawClientRollsRefusal(tap: ISocketTap, intentId: string): boolean {
+  return tap.frames.some(
+    (frame) =>
+      frame.reason === 'client-rolls-forbidden' && frame.intentId === intentId,
+  );
+}
+
 /** WHAT: Event delivery numbers after a watermark. WHY: both viewers must see one order. */
 function newEventDeliveries(
   tap: ISocketTap,
@@ -420,42 +428,25 @@ test('E2E-34 a client-supplied roll cannot influence the result and viewers see 
   test.setTimeout(240_000);
   await withMatch(browser, request, async (match) => {
     const hostUnitId = await unitIdOnSide(match.hostPage, 'player');
-    const guestUnitId = await unitIdOnSide(match.hostPage, 'opponent');
     const before = readStore(match.matchId);
-    const errorsBefore = match.hostTap.frames.length;
+    const goProneIntentId = `combat-e2e34-client-roll-${crypto.randomUUID()}`;
     match.hostTap.inject(
-      intentFrame(
-        match.matchId,
-        match.hostPlayerId,
-        `combat-e2e34-client-roll-${crypto.randomUUID()}`,
-        {
-          kind: 'GoProne',
-          unitId: hostUnitId,
-          roll: CLIENT_ROLL,
-        },
-      ),
+      intentFrame(match.matchId, match.hostPlayerId, goProneIntentId, {
+        kind: 'GoProne',
+        unitId: hostUnitId,
+        roll: CLIENT_ROLL,
+      }),
     );
-    // FINDING #104 (2026-09-03, live): no refusal reaches the wire for a
-    // client-supplied dice key. The envelope parse strips unknown keys before
-    // the schema refine and the host-level check inspect the intent, so the
-    // advertised client-rolls-forbidden refusal is unreachable from a socket
-    // (the jest coverage reaches it only by calling handleIntent directly).
-    // The letter demands only that no client roll influences the result, so
-    // this row accepts either outcome for the movement and proves the
-    // result clause on the attack below.
+    // Refusal is enforced at the socket door on the raw envelope.
     await expect
-      .poll(
-        () =>
-          match.hostTap.frames.length > errorsBefore ||
-          readStore(match.matchId).eventCount > before.eventCount,
-        { timeout: 20_000 },
-      )
+      .poll(() => sawClientRollsRefusal(match.hostTap, goProneIntentId), {
+        timeout: 20_000,
+      })
       .toBe(true);
-    // Initiative is the random resolution this row proves: it needs no
-    // carried weapon and no target in range. Walk the phases to the next
-    // initiative roll; whenever the HOST holds the advance, its AdvancePhase
-    // is injected carrying a forbidden client dice key, so the roll that
-    // follows had a client-supplied value to ignore.
+    expect(readStore(match.matchId).eventCount).toBe(before.eventCount);
+    // Initiative is the random resolution this row proves. Host-held
+    // AdvancePhase injections still carry a forbidden dice key and must
+    // be refused at the door; the phase then walks through the UI path.
     const hostWatermark = match.hostTap.received.length;
     const guestWatermark = match.guestTap.received.length;
     let hostInitiative: readonly number[] = [];
@@ -469,21 +460,20 @@ test('E2E-34 a client-supplied roll cannot influence the result and viewers see 
         (await hostControl.count()) === 1 &&
         (await hostControl.isEnabled())
       ) {
+        const advanceIntentId = `combat-e2e34-advance-${crypto.randomUUID()}`;
         match.hostTap.inject(
-          intentFrame(
-            match.matchId,
-            match.hostPlayerId,
-            `combat-e2e34-advance-${crypto.randomUUID()}`,
-            {
-              kind: 'AdvancePhase',
-              rolls: [CLIENT_ROLL, CLIENT_ROLL, CLIENT_ROLL, CLIENT_ROLL],
-            },
-          ),
+          intentFrame(match.matchId, match.hostPlayerId, advanceIntentId, {
+            kind: 'AdvancePhase',
+            rolls: [CLIENT_ROLL, CLIENT_ROLL, CLIENT_ROLL, CLIENT_ROLL],
+          }),
         );
-        await match.hostPage.waitForTimeout(500);
-      } else {
-        await advancePhase(match.guestPage, match.hostPage);
+        await expect
+          .poll(() => sawClientRollsRefusal(match.hostTap, advanceIntentId), {
+            timeout: 20_000,
+          })
+          .toBe(true);
       }
+      await advancePhase(match.guestPage, match.hostPage);
     }
     await expect
       .poll(

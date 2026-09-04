@@ -1,5 +1,6 @@
 import {
   ClientMessageSchema,
+  intentHasForbiddenDiceField,
   nowIso,
   type IClientMessage,
   type IErrorCode,
@@ -183,6 +184,23 @@ async function handleInbound({
     return;
   }
 
+  const clientRollsRefusal = rawClientRollsRefusal(parsedJson.value);
+  if (clientRollsRefusal !== null) {
+    logger.warn(
+      `[mp-socket] refused intent matchId=${matchId} reason=client-rolls-forbidden`,
+    );
+    send(
+      socket,
+      errorFrame(
+        matchId,
+        'INVALID_INTENT',
+        'client-rolls-forbidden',
+        clientRollsRefusal.intentId,
+      ),
+    );
+    return;
+  }
+
   const parsedEnvelope = ClientMessageSchema.safeParse(parsedJson.value);
   if (!parsedEnvelope.success) {
     logger.warn(`[mp-socket] malformed envelope matchId=${matchId}`);
@@ -333,6 +351,32 @@ function parseJsonPayload(
   }
 }
 
+/**
+ * WHAT: a client-rolls refusal payload from the RAW envelope, or null.
+ * WHY: schema parse strips unknown keys, so the wire defence must read
+ * the raw envelope; the host-level check stays as defence in depth for
+ * callers that reach handleIntent directly.
+ */
+function rawClientRollsRefusal(
+  raw: unknown,
+): { readonly intentId?: string } | null {
+  if (typeof raw !== 'object' || raw === null) {
+    return null;
+  }
+  const view = raw as {
+    kind?: unknown;
+    intent?: unknown;
+    intentId?: unknown;
+  };
+  if (view.kind !== 'Intent' || !intentHasForbiddenDiceField(view.intent)) {
+    return null;
+  }
+  if (typeof view.intentId === 'string' && view.intentId.length > 0) {
+    return { intentId: view.intentId };
+  }
+  return {};
+}
+
 function payloadToString(data: unknown): string | null {
   if (typeof data === 'string') return data;
   if (data instanceof Buffer) return data.toString('utf8');
@@ -366,6 +410,7 @@ function errorFrame(
   matchId: string,
   code: IErrorCode,
   reason: string,
+  intentId?: string,
 ): Extract<IServerMessage, { kind: 'Error' }> {
   return {
     kind: 'Error',
@@ -373,6 +418,7 @@ function errorFrame(
     ts: nowIso(),
     code,
     reason,
+    ...(intentId != null && intentId.length > 0 ? { intentId } : {}),
   };
 }
 
