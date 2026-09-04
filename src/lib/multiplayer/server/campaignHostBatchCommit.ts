@@ -152,6 +152,7 @@ export async function commitCampaignEventBatch(
     expected = applyCampaignEvent(expected, event);
   }
   const expectedDigest = computeCampaignStateDigest(expected);
+  const firstEvent = sequenced[0];
   const result = await appendCommandBatch(host.campaignId, {
     // A supplied client identity is namespaced by campaign so its derived
     // journal event ids cannot collide in the journal's global id space.
@@ -162,6 +163,11 @@ export async function commitCampaignEventBatch(
     intentFingerprint: identity?.intentFingerprint,
     events: sequenced,
     expectedPostStateDigest: expectedDigest,
+    // Same number toJournalBatch already used when the field was absent:
+    // the first event's sequence. Named here so the port can carry it.
+    ...(firstEvent === undefined
+      ? {}
+      : { expectedRevision: firstEvent.sequence }),
   });
   if (result.kind === 'duplicate-command') {
     return { kind: 'committed', events: result.receipt.events };
