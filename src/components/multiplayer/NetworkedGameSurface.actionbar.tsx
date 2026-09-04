@@ -165,7 +165,9 @@ export function NetworkedActionBar({
           }
         />
         <GateRefusalDescription context={controlContext} />
-        <BranchRecoveryInstruction recoveryAction={controlContext.recoveryAction} />
+        <BranchRecoveryInstruction
+          recoveryAction={controlContext.recoveryAction}
+        />
       </div>
     );
   }
@@ -200,7 +202,9 @@ export function NetworkedActionBar({
       />
 
       <GateRefusalDescription context={controlContext} />
-      <BranchRecoveryInstruction recoveryAction={controlContext.recoveryAction} />
+      <BranchRecoveryInstruction
+        recoveryAction={controlContext.recoveryAction}
+      />
     </div>
   );
 }

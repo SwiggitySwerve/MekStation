@@ -225,9 +225,9 @@ describe('networked action bar command gate', () => {
       },
     });
 
-    expect(screen.getByTestId('tactical-branch-recovery-action')).toHaveTextContent(
-      'resync-to-active-head',
-    );
+    expect(
+      screen.getByTestId('tactical-branch-recovery-action'),
+    ).toHaveTextContent('resync-to-active-head');
     for (const testId of CONTROL_TEST_IDS) {
       expect(screen.getByTestId(testId)).toBeDisabled();
     }

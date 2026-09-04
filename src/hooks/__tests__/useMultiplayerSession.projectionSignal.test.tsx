@@ -218,4 +218,3 @@ describe('useMultiplayerSession projection signal', () => {
     unmount();
   });
 });
-
