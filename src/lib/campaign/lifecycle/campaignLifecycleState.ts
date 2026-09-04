@@ -25,9 +25,11 @@
  * vocabularies and they do not overlap:
  *
  *   - the WIRE door (`campaignRefusalFromServerErrorCode`) takes a member
- *     of the socket's own `ErrorCodeSchema`. That enum contains
- *     `CAMPAIGN_NOT_CONVERGED` and `PROJECTION_REBUILDING` and does NOT
- *     contain `STALE_BRANCH` or `PROJECTION_REWOUND`;
+ *     of the socket's own `ErrorCodeSchema`. That 17-member enum
+ *     contains `CAMPAIGN_NOT_CONVERGED`, `PROJECTION_REBUILDING`,
+ *     `CAMPAIGN_STALE_HEAD`, and `STALE_BRANCH`. It does not contain
+ *     `PROJECTION_REWOUND`. This door admits the first three; the
+ *     tactical `STALE_BRANCH` member is turned away here;
  *   - the COMMAND door (`campaignRefusalFromCommandRefusal`) takes the
  *     refusal body `/api/campaigns/[id]/commands` answers with. That is
  *     where staleness lives: `ExpectedHeadRefusalCode` in
@@ -357,26 +359,43 @@ function resolveRecovery(refusal: ICampaignCommandRefusal): IGmRecoveryAction {
 /**
  * The WIRE door: a member of the socket's `ErrorCodeSchema` to a refusal.
  *
- * Exactly two of that enum's thirteen members are campaign lifecycle
- * refusals. Everything else - `RATE_LIMITED`, `MATCH_PAUSED`,
- * `AUTH_REJECTED` and the rest - returns null, so a posture the product
- * cannot reach cannot be reached by accident either. `STALE_BRANCH` and
- * `PROJECTION_REWOUND` are not members of that enum at all and so cannot
- * arrive here however this function is written.
+ * Three of that enum's 17 members are campaign lifecycle refusals:
+ * `CAMPAIGN_NOT_CONVERGED`, `PROJECTION_REBUILDING`, and
+ * `CAMPAIGN_STALE_HEAD` (mapped onto the existing blocked posture).
+ * Everything else - `RATE_LIMITED`, `MATCH_PAUSED`, `AUTH_REJECTED`,
+ * the tactical `STALE_BRANCH`, and the rest - returns null, so a
+ * posture the product cannot reach cannot be reached by accident
+ * either. `PROJECTION_REWOUND` is not a member of that enum.
  *
- * A wire `Error` frame carries `code`, `reason` and `intentId` - no
- * action field - so the refusal it produces never names a recovery.
+ * A wire `Error` frame may carry `recoveryAction` and `conflictHead`.
+ * This door forwards `recoveryAction` so the recovery can render the
+ * server's wording verbatim.
  */
 const WIRE_REFUSALS: Readonly<Record<string, CampaignLifecycleRefusalCode>> = {
   CAMPAIGN_NOT_CONVERGED: 'CAMPAIGN_NOT_CONVERGED',
   PROJECTION_REBUILDING: 'PROJECTION_REBUILDING',
+  CAMPAIGN_STALE_HEAD: 'STALE_BRANCH',
 };
 
+/**
+ * WHAT: map a wire error code to a campaign refusal, carrying the
+ * server's named recovery when the frame supplied one.
+ * WHY: dropping `CAMPAIGN_STALE_HEAD` left Approve live after a lost
+ * head race, and hardcoding `recoveryAction` to null hid the resync.
+ */
 export function campaignRefusalFromServerErrorCode(
   code: string,
+  recoveryAction: string | null = null,
 ): ICampaignCommandRefusal | null {
   const refusal = WIRE_REFUSALS[code];
-  return refusal === undefined ? null : { code: refusal, recoveryAction: null };
+  if (refusal === undefined) {
+    return null;
+  }
+  return {
+    code: refusal,
+    recoveryAction:
+      recoveryAction === null || recoveryAction === '' ? null : recoveryAction,
+  };
 }
 
 /**
