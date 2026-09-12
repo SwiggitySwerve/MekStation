@@ -359,55 +359,64 @@ Persisted campaign roster units SHALL use the closed source values `canonical` o
 - **THEN** it SHALL remain invalid and non-launchable
 - **AND** validation MUST NOT rewrite, omit, or normalize it to `canonical`
 
-### Requirement: Canonical combat catalog readiness is explicit
+### Requirement: Combat catalog readiness is explicit
 
-Campaign launch SHALL consume one runtime-only canonical catalog snapshot in state `loading`, `ready`, or `unavailable`. Browser loading SHALL validate `/api/units?includeBV=true`; Node fast-forward loading SHALL use `NodeCanonicalUnitService`; failure MUST NOT become an empty successful catalog.
+Campaign launch SHALL consume a runtime-only catalog snapshot in state loading, ready, or unavailable. Browser loading SHALL validate the canonical /api/units response and may extend a ready snapshot with exact server-approved references from /api/units/custom/combat-catalog. Node fast-forward loading SHALL continue to use NodeCanonicalUnitService without custom admission. Catalog failure MUST NOT become an empty successful response.
 
 #### Scenario: Ready catalog resolves an exact reference
 
-- **WHEN** a canonical roster unit's exact `unitRef` exists in a ready catalog
+- **WHEN** a canonical roster unit's exact unitRef exists in a ready canonical catalog
 - **THEN** readiness SHALL mark that source reference launch-eligible
+- **WHEN** a custom roster unit's exact custom-* reference exists in the ready snapshot's customCombatRefs
+- **THEN** readiness SHALL admit that selected custom source under the custom-unit-combat requirements
 
-#### Scenario: Loading or unavailable catalog blocks visibly
+#### Scenario: Catalog failure preserves supported boundaries
 
-- **WHEN** the catalog is loading, malformed, failed, or unavailable
-- **THEN** readiness SHALL preserve the roster unit with a stable retryable blocker
-- **AND** encounter materialization SHALL NOT begin
+- **WHEN** the canonical catalog is loading, malformed, failed, or unavailable
+- **THEN** readiness SHALL preserve the roster and expose its condition-specific blocker before materialization
+- **WHEN** only the optional custom catalog fails or is malformed
+- **THEN** valid canonical readiness SHALL remain usable
+- **AND** custom references SHALL remain blocked without inferred eligibility
 
-### Requirement: Campaign launch requires an authoritative canonical source
+### Requirement: Campaign launch requires an authoritative source
 
-Every launch boundary SHALL receive an explicit runtime catalog snapshot and SHALL admit only selected units whose source is `canonical` and whose exact `unitRef` is present in the ready snapshot.
+Production mission-launch, campaign dashboard, and headless fast-forward entry points SHALL supply an explicit runtime catalog snapshot and SHALL share the admission guard. Co-op launch receives that snapshot through the mission launch page. `buildMissionReadinessProjection` uses the same lower-level admission function and SHALL NOT by itself prove a production snapshot handoff. With a ready snapshot, the guard SHALL admit selected canonical references only through exact canonical membership and selected custom references only through exact customCombatRefs membership. It SHALL preserve campaign, roster-instance, source-reference, and revision identity before caller-specific lookup, routing, or mutation.
 
-Mission launch, Mech Bay readiness, fast-forward, campaign dashboard readiness, `launchCoopMission`, and every materializer caller SHALL use one shared admission guard before diagnostics, lookup, routing, or mutation.
+The public materializer `catalog` parameter remains optional. Direct callers that omit a catalog MAY admit a canonical source when a nonempty `unitRef` is present; custom sources SHALL still require a ready snapshot with exact customCombatRefs membership. Optional direct, test, or helper callers SHALL NOT be taken as proof that a production snapshot was supplied. Fast-forward supplies a canonical-only snapshot and therefore continues to reject custom selections.
 
-#### Scenario: Canonical mixed-roster selection launches
+#### Scenario: Supported custom selection launches
 
-- **WHEN** a mixed roster contains custom rows plus a selected canonical row with an exact ready-catalog match
-- **THEN** the canonical selection SHALL launch once with the selected roster identity
-- **AND** the custom row SHALL remain visible but unselected and non-launchable
+- **GIVEN** a server-saved biped BattleMech accepted by the strict construction projection
+- **WHEN** its explicit custom source and exact reference are selected from a ready authoritative browser catalog
+- **THEN** the shared guard SHALL admit that exact custom reference through customCombatRefs membership and SHALL preserve the separate roster-instance identity
+- **AND** construction resolution and GameCreated snapshot retention remain as specified in custom-unit-combat and SHALL NOT be inferred from catalog membership alone
 
-#### Scenario: Custom selection is blocked without side effects
+#### Scenario: Mixed-roster selection preserves each identity
 
-- **WHEN** a selected roster contains a custom source, invalid source, forged ref, stale ref, or missing catalog membership
-- **THEN** readiness and launch SHALL return a stable blocker before encounter diagnostics or materialization
-- **AND** encounter lookup, reuse, creation, route calls, session launch, and mutation counts SHALL remain zero
+- **WHEN** a mixed roster selects eligible canonical and supported custom entries
+- **THEN** each selected entry SHALL be admitted through its matching source catalog
+- **AND** unselected entries SHALL remain unchanged
+- **AND** no custom entry SHALL be replaced with a stock unit
 
-#### Scenario: Catalog state is explicit
+#### Scenario: Invalid or unavailable custom selection has no side effects
 
-- **WHEN** the catalog is loading, malformed, failed, empty, or unavailable
-- **THEN** the launch surface SHALL show a retryable unavailable/loading state
-- **AND** it MUST NOT treat failure as an empty successful catalog or launch a canonical unit
+- **WHEN** a selected custom reference is local-only, unsupported, malformed, deleted, or absent from customCombatRefs
+- **THEN** the shared guard SHALL return a stable per-unit custom-source blocker
+- **AND** encounter lookup, reuse, creation, routing, session launch, and mutation SHALL NOT begin
+
+#### Scenario: Source and reference must agree
+
+- **WHEN** a source is invalid or a custom reference is forged under a canonical source
+- **THEN** launch SHALL reject before materialization without normalizing source or inferring a replacement
 
 #### Scenario: Co-op launch revalidates authority
 
-- **WHEN** a co-op launch receives a missing, foreign, stale, or revision-mismatched campaign snapshot
-- **THEN** launch SHALL reject before composition or `launchCampaignEncounter`
+- **WHEN** co-op launch receives a missing, foreign, stale, or revision-mismatched campaign snapshot
+- **THEN** launch SHALL reject before composition or launchCampaignEncounter
 - **AND** the client MUST NOT synthesize source identity, force membership, or a stock fallback
 
-#### Scenario: Every caller fails closed consistently
+#### Scenario: Canonical-only fast-forward
 
-- **WHEN** any named caller receives a custom, invalid, stale, missing, loading, unavailable, foreign, or revision-mismatched source/snapshot
-- **THEN** the shared guard SHALL return the same condition-specific stable blocker across callers before caller-specific work
-- **AND** custom or invalid selections SHALL retain per-unit canonical-combat-unavailable reasons, while loading or unavailable catalogs SHALL retain retryable surface status
-- **AND** lookup, reuse, creation, route, session, launch, and mutation observations SHALL all remain zero
-
+- **WHEN** fast-forward receives a selected custom source without a custom-capable catalog snapshot
+- **THEN** it SHALL reject that selection through the shared guard
+- **AND** canonical exact-reference behavior SHALL remain unchanged

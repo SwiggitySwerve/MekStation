@@ -66,7 +66,9 @@ once, keyed by `scenarioId`.
 ### Requirement: Campaign-Linked Encounter Launch
 
 The system SHALL launch a campaign-generated encounter into a `GameSession`
-stamped with campaign linkage. The launched encounter's player force SHALL contain every roster unit selected at mission launch — each with its canonical `unitRef` and its assigned pilot's `pilotRef` — and an opponent force sized to the player deployment. Roster units that cannot resolve to a canonical `unitRef` SHALL block launch with a per-unit reason; the system SHALL NOT substitute fallback units. The materialization contract is transport-agnostic: the roster-parity, opponent-sizing, and unresolvable-unit-blocking guarantees SHALL hold identically whether the `/api/forces` and `/api/encounters` handlers are reached through a live browser fetch or through an in-process fetch implementation that invokes the same handler modules directly (the headless campaign fast-forward path).
+stamped with campaign linkage. The launched encounter's player force SHALL contain every roster unit selected at mission launch, preserving each exact admitted `unitRef`, explicit source, and assigned pilot's `pilotRef`, with an opponent force sized to the player deployment. Browser launch SHALL admit canonical units and supported server-saved biped custom units present in the ready custom combat catalog, as specified in mission-contracts and custom-unit-combat. Unknown, unavailable, mismatched, or unsupported references SHALL block launch with a per-unit reason before force, encounter, or session mutation; the system SHALL NOT substitute fallback units.
+
+The roster-parity, opponent-sizing, and rejection-before-mutation guarantees SHALL apply both to browser fetch and to an in-process fetch implementation invoking the same handler modules. Their catalog scopes differ: the current headless campaign fast-forward path SHALL remain canonical-only and SHALL reject custom roster sources before materialization. Transport parity SHALL prove roster linkage, admission, and opponent sizing; it SHALL NOT imply custom-unit support in fast-forward, and it SHALL NOT prove scenario-composition fidelity. The materializer REST path patches a fixed radius-8, clear-terrain, north/south deployment, destroy-all configuration, independent of the scenario-derived OpFor target, victory conditions, and map configuration required of `buildEncounterFromScenario`. Fast-forward battles remain campaign-linkage-faithful and SHALL NOT be treated as scenario-composition-faithful.
 
 #### Scenario: Launching a generated encounter creates a linked session
 
@@ -84,12 +86,15 @@ stamped with campaign linkage. The launched encounter's player force SHALL conta
 
 #### Scenario: Opponent force is sized to the player deployment
 
-- **WHEN** an encounter is materialized for a mission launch with N selected player units
-- **THEN** the opponent force SHALL contain N units with canonical `unitRef`s selected deterministically for the encounter (repeat materializations of the same encounter yield the same opponent force)
+- **WHEN** an encounter is materialized for a mission launch whose actually fielded player force contains N units
+- **THEN** the opponent force SHALL contain N units with canonical `unitRef`s
+- **AND** representative selection SHALL be seeded from the campaign id and mission id before an encounter id exists
+- **AND** repeating materialization for the same campaign id and mission id SHALL yield the same opponent force
+- **AND** that selection SHALL NOT be treated as encounter-id seeding or as the bridge's BV-matched OpFor
 
 #### Scenario: Unresolvable roster unit blocks launch
 
-- **GIVEN** a selected roster unit with no resolvable canonical `unitRef`
+- **GIVEN** a selected roster unit whose exact reference and source are not admitted by the launch catalog
 - **WHEN** the player attempts to launch the mission
 - **THEN** the launch SHALL be blocked and the readiness surface SHALL name the unit and the reason
 - **AND** no encounter, force, or session SHALL be created with a substituted unit
@@ -99,8 +104,10 @@ stamped with campaign linkage. The launched encounter's player force SHALL conta
 - **GIVEN** a headless fast-forward run materializing an encounter for N selected roster units through an injected in-process fetch implementation backed by the real `/api/forces` and `/api/encounters` handler modules
 - **WHEN** the encounter is materialized
 - **THEN** the player force SHALL carry N assignments with each unit's `unitRef` and its pilot's `pilotRef` preserved
-- **AND** the opponent force SHALL be sized to N
-- **AND** a roster unit with no resolvable canonical `unitRef` SHALL block materialization with a per-unit reason, identically to the live browser transport
+- **AND** the opponent force SHALL be sized to the actually fielded player unit count N
+- **AND** a roster unit with no resolvable canonical `unitRef`, including a custom roster source, SHALL block headless materialization with a per-unit reason
+- **AND** the browser-only supported custom catalog exception SHALL NOT be inferred for fast-forward
+- **AND** transport parity SHALL NOT prove scenario-derived OpFor, victory, or map configuration
 
 ### Requirement: Automatic Outcome Enqueue
 
@@ -156,7 +163,7 @@ battle-effects processor block has drained.
 
 ### Requirement: Launched Campaign Sessions Start Battle-Ready
 
-A campaign-launched interactive session SHALL start with every deployed unit carrying its full canonical armor and structure values, and advancing out of the Initiative phase SHALL NOT produce a terminal battle outcome unless combat or withdrawal events justify it.
+A campaign-launched interactive session SHALL start with every deployed unit carrying its full armor and structure values from the admitted canonical definition or immutable custom combat snapshot, and advancing out of the Initiative phase SHALL NOT produce a terminal battle outcome unless combat or withdrawal events justify it.
 
 #### Scenario: Fresh campaign battle survives the initiative roll
 
@@ -164,7 +171,7 @@ A campaign-launched interactive session SHALL start with every deployed unit car
 - **WHEN** the player activates the Initiative-phase progression control once
 - **THEN** the session SHALL advance to the Movement phase with all eight units alive
 - **AND** no terminal outcome (victory, defeat, or draw) SHALL be recorded
-- **AND** every unit's armor and structure SHALL match its canonical record (no zero-HP units at battle start)
+- **AND** every unit's armor and structure SHALL match its canonical record or admitted custom combat snapshot (no zero-HP units at battle start)
 
 #### Scenario: Terminal outcomes require justifying events
 
