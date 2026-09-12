@@ -624,7 +624,7 @@ const DEFAULT_VERSION = '1.0.0';
 - **localStorage disabled**: All hooks handle localStorage errors gracefully by logging warnings and falling back to in-memory state
 - **Quota exceeded**: Write errors are logged but do not crash the application
 - **Concurrent saves**: `useGameStatePersistence` detects conflicts by comparing timestamps and throws an error to prevent data loss
-- **Unmount during save**: Cleanup functions clear timers and unsubscribe from stores to prevent memory leaks
+- **Unmount during save**: Cleanup clears the pending debounce and periodic autosave timers, removes the `beforeunload` listener, and `useAutoSaveIndicator` unsubscribes from storage-write receipt listeners and clears its success timer.
 
 ### Common Pitfalls
 
