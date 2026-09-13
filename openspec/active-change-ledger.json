@@ -73,12 +73,6 @@
       "lastReviewed": "2026-09-10"
     },
     {
-      "name": "repair-equipment-catalog",
-      "status": "in-progress",
-      "reason": "User-requested independent Electronics filtering, reliable mounted-weapon ammo choices, translucent catalog rows and optional Add and place with existing placement and edit-history authority.",
-      "lastReviewed": "2026-09-10"
-    },
-    {
       "name": "repair-record-sheet-rendering",
       "status": "in-progress",
       "reason": "User-requested record-sheet preview/PDF/print repair: shared SVG construction, bounded 4x PNG instead of 20x JPEG, correct Letter/A4 geometry and aspect, durable 20-300% manual zoom, Fit Width tracking until manual, last requested unit/paper render, URL cleanup, print popup reserved before the first await, recoverable async busy/errors, and readable critical tables within template bounds. Canonical specs are not edited in this change.",
