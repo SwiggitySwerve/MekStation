@@ -3,7 +3,7 @@
 **Status**: Active
 **Version**: 1.0
 **Last Updated**: 2026-02-13
-**Dependencies**: Core Entity Types, Equipment Database, Unit Entity Model
+**Dependencies**: Page unit types (`src/types/pages/UnitPageTypes.ts`), Canonical Unit Service, Unit Entity Model
 **Affects**: Compendium UI, Unit Services
 
 ---
@@ -25,7 +25,7 @@ Provides a side-by-side comparison interface for analyzing multiple BattleMech u
 - Loading states for catalog and individual units
 - Maximum capacity enforcement (4 units)
 
-**Out of Scope:**
+**Out of Scope (retained deferrals):**
 
 - Battle Value comparison and advanced analytics
 - Weapon loadout comparison
@@ -33,13 +33,15 @@ Provides a side-by-side comparison interface for analyzing multiple BattleMech u
 - Cost/C-Bill comparison
 - Export/sharing functionality
 - Saved comparison sets
+- A dedicated comparison API route
 
 ### Key Concepts
 
-- **Catalog Entry** (`IUnitEntry`): Lightweight unit metadata for search results (id, name, chassis, tonnage, tech base)
-- **Unit Details** (`IUnitDetails`): Full unit specification loaded for comparison (includes movement, engine, heat sinks, armor)
+- **Catalog Entry** (`IUnitEntry`): Lightweight unit metadata for search results. Live page type is `src/types/pages/UnitPageTypes.ts` (id, name, chassis, variant, tonnage, techBase, plus era, weightClass, unitType, optional year/role/rulesLevel/cost/bv). Comparison search still matches name OR chassis.
+- **Unit Details** (`IUnitDetails`): Full unit specification loaded for comparison. Live armor uses `allocation`, not `locations`.
 - **Comparison Capacity**: Maximum of 4 units can be compared simultaneously
 - **Responsive Comparison**: Desktop uses table layout, mobile uses stacked card layout
+- **Active route:** `/compare` (`src/pages/compare/index.tsx`) with presentational helpers in `src/components/pages/compare/ComparePage.components.tsx`
 
 ---
 
@@ -72,7 +74,7 @@ The system SHALL enforce a maximum of 4 units in the comparison workspace.
 
 The system SHALL provide a search-driven workflow for adding units to comparison.
 
-**Rationale**: Enables quick discovery and selection from 4,200+ unit catalog
+**Rationale**: Enables quick discovery and selection from the canonical unit catalog
 
 **Priority**: Critical
 
@@ -146,8 +148,13 @@ The system SHALL display 8 core statistics for each selected unit.
 
 **GIVEN** unit data is incomplete
 **WHEN** a statistic field is null or undefined
-**THEN** the display shows "—" (em dash)
+**THEN** the display follows the field's current component fallback:
+
+- missing Jump MP displays `0` via `unit.movement?.jump || 0`
+- missing Engine, Heat Sinks, or Armor displays `--` (ASCII double hyphen)
+- missing Walk MP displays `--` via the current truthiness fallback
 **AND** no error is thrown
+**AND** an em dash glyph remains a desired typography requirement not used by the current components
 
 #### Scenario: Run MP calculation
 
@@ -157,7 +164,7 @@ The system SHALL display 8 core statistics for each selected unit.
 
 **GIVEN** unit has no walk MP (null/undefined)
 **WHEN** Run MP is calculated
-**THEN** result is "—"
+**THEN** result is "--"
 
 ### Requirement: Responsive Layout
 
@@ -248,11 +255,12 @@ The system SHALL distinguish between catalog entries and full unit details.
 **WHEN** data is received
 **THEN** entry conforms to `IUnitDetails` interface including:
 
-- All `IUnitEntry` fields
+- Required `id` and `tonnage` fields
+- Optional identity fields such as `name`, `chassis`, `model`, `variant`, and `techBase`
 - `movement`: { walk, jump }
 - `engine`: { type, rating }
 - `heatSinks`: { count, type }
-- `armor`: { type, locations }
+- `armor`: { type, allocation }
 
 ### Requirement: Search Input State Management
 
@@ -284,7 +292,7 @@ The system SHALL manage search input state based on comparison capacity.
 
 ### Required Interfaces
 
-The implementation MUST use the following TypeScript interfaces:
+The implementation MUST use the comparison-contract shapes below. The code block is a partial comparison excerpt, not a replacement declaration for the live page types. The authoritative declarations are `src/types/pages/UnitPageTypes.ts`: `IUnitEntry` and `IUnitDetails` are independent interfaces, `IUnitDetails` requires only `id` and `tonnage` among the identity fields shown here, and `armor` uses `allocation`.
 
 ```typescript
 /**
@@ -325,43 +333,60 @@ interface IUnitEntry {
 /**
  * Full unit details for comparison display
  */
-interface IUnitDetails extends IUnitEntry {
+interface IUnitDetails {
   /**
-   * Model designation
-   * @example "AS7-D"
+   * Unit identifier (required by the live page type)
    */
-  readonly model: string;
+  id: string;
+
+  /**
+   * Optional display identity fields; details are not an IUnitEntry extension
+   */
+  name?: string;
+  chassis?: string;
+  model?: string;
+  variant?: string;
+
+  /**
+   * Unit mass (required by the live page type)
+   */
+  tonnage: number;
+
+  /**
+   * Optional technology identity field
+   */
+  techBase?: string;
 
   /**
    * Movement profile
    */
-  readonly movement?: {
-    readonly walk: number;
-    readonly jump: number;
+  movement?: {
+    walk: number;
+    jump: number;
   };
 
   /**
    * Engine specification
    */
-  readonly engine?: {
-    readonly type: string;
-    readonly rating: number;
+  engine?: {
+    type: string;
+    rating: number;
   };
 
   /**
    * Heat sink configuration
    */
-  readonly heatSinks?: {
-    readonly count: number;
-    readonly type: string;
+  heatSinks?: {
+    count: number;
+    type: string;
   };
 
   /**
    * Armor configuration
    */
-  readonly armor?: {
-    readonly type: string;
-    readonly locations: Record<string, { front: number; rear?: number }>;
+  armor?: {
+    type: string;
+    allocation: Record<string, number | { front: number; rear: number }>;
   };
 }
 ```
@@ -456,8 +481,9 @@ Output: runMP = 8
 
 **Special Cases**:
 
-- When `walkMP` is null/undefined: display "—"
-- When `walkMP` is 0: `runMP = 0`
+- When `walkMP` is null/undefined: display "--"
+- When `walkMP` is 0: current components treat `0` as missing via `|| '--'` and display "--" (parent product follow-up if zero walk must remain visible)
+- Jump MP uses `unit.movement?.jump || 0`, so missing jump displays 0 rather than "--"
 
 ### Total Armor Calculation
 
@@ -469,23 +495,23 @@ totalArmor = calculateTotalArmor(armor)
 
 **Where**:
 
-- `armor` = unit's armor configuration object
-- `calculateTotalArmor()` = utility function that sums all location armor points (front + rear)
+- `armor` = unit's armor configuration object (`IArmorConfig` with `allocation`)
+- `calculateTotalArmor()` = `src/types/pages/UnitPageTypes.ts` utility that sums numeric allocation values plus front + rear only when both object fields are numeric; a front-only object is not a valid `IArmorFrontRear` allocation and is not counted
 
 **Example**:
 
 ```
 Input: armor = {
   type: "Standard",
-  locations: {
-    head: { front: 9 },
+  allocation: {
+    head: 9,
     centerTorso: { front: 47, rear: 14 },
     leftTorso: { front: 32, rear: 10 },
     rightTorso: { front: 32, rear: 10 },
-    leftArm: { front: 34 },
-    rightArm: { front: 34 },
-    leftLeg: { front: 41 },
-    rightLeg: { front: 41 }
+    leftArm: 34,
+    rightArm: 34,
+    leftLeg: 41,
+    rightLeg: 41
   }
 }
 Calculation: 9 + 47 + 14 + 32 + 10 + 32 + 10 + 34 + 34 + 41 + 41 = 304
@@ -494,7 +520,7 @@ Output: "304 pts"
 
 **Special Cases**:
 
-- When `armor` is null/undefined: display "—"
+- When `armor` is null/undefined: display "--"
 
 ---
 
@@ -629,8 +655,9 @@ PageLayout
 
 **Mixed Tech Units**:
 
-- Display: "Mixed Tech"
-- Example: `techBase: "Mixed"` → "Mixed Tech"
+- Current components display `techBase.replace(/_/g, ' ')` only (`ComparePage.components.tsx`)
+- Example: `techBase: "Inner_Sphere"` → "Inner Sphere"
+- Example: `techBase: "Mixed"` remains "Mixed"; mapping Mixed → "Mixed Tech" is a retained desired label, not applied by that replace
 
 ---
 
@@ -638,18 +665,19 @@ PageLayout
 
 ### Required Specifications
 
-- **Core Entity Types**: Provides `IEntity` base interface
-- **Equipment Database**: Source of unit catalog data
-- **Unit Entity Model**: Defines `IUnitDetails` structure
+- **Page unit types**: `IUnitEntry`, `IUnitDetails`, and `calculateTotalArmor` in `src/types/pages/UnitPageTypes.ts`
+- **Unit Services**: Canonical unit index and detail via `CanonicalUnitService` (`openspec/specs/unit-services/spec.md`)
+- **Unit Entity Model**: Broader unit data structure (`openspec/specs/unit-entity-model/spec.md`)
 
 ### Required Utilities
 
-- **calculateTotalArmor**: Function to sum armor points across all locations
+- **calculateTotalArmor**: Sums `armor.allocation` (numbers plus front/rear objects)
 
 ### Required APIs
 
-- **GET /api/catalog**: Returns `IUnitEntry[]` for search
-- **GET /api/units?id={id}**: Returns `IUnitDetails` for comparison
+- **GET /api/catalog**: Returns `{ success: true, data: IUnitEntry[], count: number }` from `getCanonicalUnitService().getIndex()` (`src/pages/api/catalog.ts`)
+- **GET /api/units?id={id}**: Returns `{ success: true, data: IUnitDetails }` (`src/pages/api/units.ts`)
+- There is no `/api/compare` route
 
 ---
 
@@ -658,14 +686,14 @@ PageLayout
 ### Performance Considerations
 
 1. **Catalog Loading**: Fetch catalog once on mount, cache in state
-2. **Search Filtering**: Client-side filtering (4,200 units is manageable)
+2. **Search Filtering**: Client-side filtering of the catalog index (size figures such as 4,200 are estimates, not counted runtime proof)
 3. **Result Limiting**: Limit to 10 results to prevent DOM bloat
 4. **Lazy Loading**: Only fetch full unit details when added to comparison
 
 ### Edge Cases
 
 1. **API Failure**: Log error, do not add unit to comparison
-2. **Partial Data**: Display "—" for missing fields, do not crash
+2. **Partial Data**: Display "--" for missing Engine, Heat Sinks, Armor, and current Walk MP; display `0` for missing Jump MP; do not crash
 3. **Concurrent Adds**: Use `Set` for `loadingUnits` to prevent duplicate requests
 4. **Search Clear**: Clear search term after successful add to reset dropdown
 
@@ -730,7 +758,7 @@ setSearchTerm("");
 <CompareRow
   label="Walk MP"
   units={selectedUnits}
-  getValue={(u) => u.movement?.walk || "—"}
+  getValue={(u) => u.movement?.walk || "--"}
   mono
 />
 
@@ -748,7 +776,7 @@ setSearchTerm("");
 ```tsx
 <MobileStatRow
   label="Engine"
-  value={unit.engine ? `${unit.engine.type} ${unit.engine.rating}` : "—"}
+  value={unit.engine ? `${unit.engine.type} ${unit.engine.rating}` : "--"}
 />
 
 // Renders:
@@ -787,9 +815,9 @@ setSearchTerm("");
 
 ### Related Specifications
 
-- `core-entity-types/spec.md` - Base entity interfaces
-- `unit-entity-model/spec.md` - Full unit data structure
-- `equipment-database/spec.md` - Catalog data source
+- `equipment-database/spec.md` - Equipment definitions; not the unit catalog source
+- `unit-services/spec.md` - Canonical unit index and detail APIs
+- `compendium-browser/spec.md` - Compendium unit browser (separate from `/compare`)
 
 ### External Dependencies
 
@@ -809,3 +837,8 @@ setSearchTerm("");
 - Documented responsive layout (desktop table vs mobile cards)
 - Defined capacity enforcement (4 units max)
 - Specified data type distinction (IUnitEntry vs IUnitDetails)
+
+
+### Current implementation evidence boundary
+
+`/compare` (`src/pages/compare/index.tsx`, `ComparePage.components.tsx`) consumes `GET /api/catalog` and `GET /api/units?id={id}` only — no `/api/compare`. Missing Engine, Heat Sinks, Armor, and current Walk MP render `--`; missing Jump MP renders `0`; armor uses `calculateTotalArmor(armor)` and the function sums `armor.allocation`; search is name or chassis, top 10; `MAX_COMPARE = 4`. Out-of-scope deferrals remain unimplemented. Source presence is not browser proof or runtime acceptance.
