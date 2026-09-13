@@ -847,6 +847,12 @@ product-repair gap.
 
 Every per-type renderer SHALL have at least one Jest snapshot test with a representative fixture, and the snapshot SHALL be committed alongside the renderer.
 
+Current source snapshots in `recordSheetSnapshots.test.ts` lock the
+skeleton string renderers (`renderVehicleSVG`, `renderAerospaceSVG`,
+`renderBattleArmorSVG`, `renderInfantrySVG`, `renderProtoMechSVG`).
+Canonical templated-path snapshots remain a desired gate; existing
+snapshots are not browser or production proof.
+
 **Priority**: High
 
 #### Scenario: Snapshot captures geometry regression
@@ -863,15 +869,13 @@ The system SHALL provide a shared `TemplateRecordSheetRenderer` module in
 `src/services/printing/svgRecordSheetRenderer/` that owns the
 canonical-template rendering pipeline independent of unit type.
 
-The shared renderer SHALL expose `loadTemplate(path)`,
-`applyBindings(texts)`, `applyPips(pipFills)`, and `getSVGString()`. It
-SHALL reuse the existing `loadSVGTemplate`, `setTextContent`, canvas
-rasterization, and jsPDF code paths verbatim — no fork of the proven
-mech logic.
+The shared renderer SHALL expose instance methods `loadTemplate(path)`,
+`applyBindings(texts)`, `applyPips(fills, applicator)`, `mount()`,
+`unmount()`, `awaitFontsReady()`, and `getSVGString()`. Rasterization
+reuses `renderToCanvasHighDPI`; PDF export remains on `RecordSheetService.exportPDF`.
 
-The mech renderer `SVGRecordSheetRenderer` SHALL be refactored into a
-thin consumer of `TemplateRecordSheetRenderer` with no observable
-change to its rendered output.
+The mech renderer `SVGRecordSheetRenderer` SHALL be a thin consumer of
+`TemplateRecordSheetRenderer`.
 
 **Priority**: Critical
 
@@ -887,16 +891,22 @@ change to its rendered output.
 
 - **GIVEN** a loaded template and a `texts` map keyed by element ID
 - **WHEN** `applyBindings(texts)` is called
-- **THEN** for each entry it SHALL locate the element via
-  `getElementById` and set `textContent`, leaving elements absent from
+- **THEN** for each entry it SHALL locate the element via the root subtree
+  (`elementById`, mount-safe) and set `textContent`, leaving elements absent from
   the map unchanged
 
 #### Scenario: Mech path is behaviour-preserving after refactor
 
-- **GIVEN** the mech renderer refactored to consume `TemplateRecordSheetRenderer`
-- **WHEN** the existing mech record-sheet snapshot tests run
-- **THEN** every mech snapshot SHALL match its committed baseline with
-  no diff
+- **GIVEN** the mech renderer consuming `TemplateRecordSheetRenderer`
+- **WHEN** the existing mech record-sheet Jest tests run
+- **THEN** they SHALL pin the public `SVGRecordSheetRenderer` surface
+- **AND** the refactor SHALL retain a no-output-regression comparison for
+  representative mech SVG output
+- **AND** those tests are not browser, full-font, or production proof
+- **AND** current source evidence includes skeleton renderer snapshots in
+  `recordSheetSnapshots.test.ts`; this specification makes no claim that a
+  fresh Jest run passed or that canonical templated-path snapshots already
+  exist
 
 ---
 
@@ -908,14 +918,16 @@ generalizing the dynamic layout logic currently in `armor.ts`.
 
 The pip engine SHALL support the `grouped`-layout element-lookup
 fallback: when a region's primary element ID is absent, it SHALL retry
-with `getElementById(id + "grouped")`, mirroring MegaMekLab
-`PrintEntity.java`. It SHALL expose the alternate-clustering flag from
-MegaMekLab `ArmorPipLayout.java` so callers can request clustered pip
+with `id + "grouped"`, mirroring MegaMekLab `PrintEntity.java`. It SHALL
+expose the alternate-clustering flag from MegaMekLab `ArmorPipLayout.java`
+(`clustered` / `groupByFive`) so callers can request clustered pip
 placement.
 
-The pip engine SHALL require the template SVG to be mounted in a live
-DOM before measurement, because region rect geometry is read via
-`getBBox()`.
+Current source measures region geometry from `<rect>` `x/y/width/height`
+via `Bounds.fromRect`. A live off-screen mount (`TemplateRecordSheetRenderer.mount`)
+is required only when a caller measures with `getBBox()` or needs
+web-font text measurement. Small-unit pip grids layout before mount and
+do not use `getBBox()`.
 
 **Priority**: Critical
 
@@ -934,12 +946,13 @@ DOM before measurement, because region rect geometry is read via
 - **WHEN** the pip engine resolves that region
 - **THEN** it SHALL use the `grouped` element and lay out pips against it
 
-#### Scenario: Pip measurement requires a live-mounted SVG
+#### Scenario: Pip measurement requires a live-mounted SVG only for getBBox
 
-- **GIVEN** a template SVG that has not been mounted into the document
-- **WHEN** the pip engine attempts region measurement
-- **THEN** it SHALL require the SVG be mounted off-screen first, and
-  the renderer SHALL perform that mount before invoking the pip engine
+- **GIVEN** a caller that measures region geometry via `getBBox()`
+- **WHEN** the pip engine needs those bounds
+- **THEN** the SVG SHALL be mounted off-screen first
+- **AND** `TemplateRecordSheetRenderer.mount` SHALL perform that mount
+- **AND** attribute-based `Bounds.fromRect` layout SHALL still run without a live mount
 
 ---
 
@@ -951,7 +964,9 @@ The system SHALL provide one adapter folder per Wave-1 family
 pure modules: `selectTemplate.ts` and `bindings.ts`.
 
 `selectTemplate.ts` SHALL be a pure function mapping a unit to a
-`templateKey` string. `bindings.ts` SHALL be a pure function mapping
+`templateKey` string. Wave-1 vehicle keys follow `{subtype}_{turret}_standard`
+for Tracked / Wheeled / Hover / VTOL only; Naval / Submarine / WiGE / Rail
+throw and are out of templated scope. `bindings.ts` SHALL be a pure function mapping
 the unit's `IRecordSheetData` variant to a `{ texts, pips }` structure
 keyed against the template's real element IDs, including a typed
 per-family `PipCounts` contract computed from unit stats.
@@ -1015,7 +1030,7 @@ templated SVG. The template path SHALL be wrapped in `try/catch`; on
 asset-load failure or template-parse failure it SHALL invoke the
 existing skeleton renderer for that family and return the skeleton SVG.
 
-The skeleton renderers SHALL NOT be deleted or modified by this change.
+The skeleton renderers SHALL remain available as the runtime fallback.
 
 **Priority**: Critical
 
@@ -1039,9 +1054,10 @@ The skeleton renderers SHALL NOT be deleted or modified by this change.
 
 - **GIVEN** a vehicle, aerospace, or protomech unit open in the
   customizer
-- **WHEN** the user invokes Save PDF via `PreviewTab.handleExportPDF`
-- **THEN** `RecordSheetService.exportPDF` SHALL render through the
-  templated path, with skeleton fallback on failure
+- **WHEN** the user activates Download PDF
+- **THEN** `exportUnitRecordSheetPDF` SHALL call `RecordSheetService.exportPDF`
+  with data extracted from that unit
+- **AND** `exportPDF` SHALL render through the templated path, with skeleton fallback on failure
 
 ---
 
@@ -1078,7 +1094,6 @@ the unit's actual armor and structure statistics.
 - **THEN** the pip-element count per location SHALL equal that
   location's armor or structure value
 
-
 ### Requirement: Infantry and Battle Armor Record Sheet Adapters
 
 The system SHALL provide one adapter folder per Wave-2 family
@@ -1092,7 +1107,8 @@ Wave-1 per-family adapters.
 **per-unit block** template key — `conventional_infantry_platoon` for
 an infantry platoon and `battle_armor_squad` for a Battle Armor squad
 — and SHALL NOT return the multi-slot outer sheet key
-(`conventional_infantry_default` / `battle_armor_default`).
+(`conventional_infantry_default` / `battle_armor_default`). Those
+composite outer sheets are an explicit deferral.
 
 `bindings.ts` SHALL be a pure function mapping the unit's
 `IRecordSheetData` variant (`IInfantryRecordSheetData` /
@@ -1126,8 +1142,8 @@ loading — they SHALL be deterministic pure functions.
   pip count for each suit in the squad
 - **WHEN** the battlearmor `bindings` function runs
 - **THEN** the returned `pips` SHALL include a typed `PipCounts`
-  structure whose per-trooper counts equal each trooper's actual armor
-  pip value
+  structure whose per-trooper `armorPips` values equal each trooper's
+  actual armor; the pip grid then draws `armorPips + 1`
 
 #### Scenario: Infantry bindings produce a typed PipCounts contract
 
@@ -1150,8 +1166,8 @@ loading — they SHALL be deterministic pure functions.
 
 The shared pip engine SHALL support a Battle Armor per-trooper pip
 grid: a layout that places one armor pip cluster per trooper column
-across the 4–6 trooper columns of a Battle Armor squad, each cluster
-sized to that trooper's per-suit armor pip count.
+across the 4–6 trooper columns of a Battle Armor squad. Each cluster
+SHALL render `armorPips + 1` circles (MegaMek trooper pip plus armor).
 
 This is an extension of the Wave-1 pip engine, not a modification of
 its existing per-location pip layout. The existing per-location pip
@@ -1164,9 +1180,11 @@ layout used by the mech and Wave-1 families SHALL be unchanged.
 - **GIVEN** a 5-trooper Battle Armor squad with a per-suit armor pip
   count and a template exposing 5 trooper-column pip regions
 - **WHEN** the Battle Armor per-trooper pip grid lays out the squad
-- **THEN** it SHALL emit one pip cluster per trooper column, and each
-  cluster SHALL contain exactly that trooper's per-suit armor pip
-  count
+- **THEN** it SHALL emit one pip cluster per trooper column
+- **AND** each cluster SHALL contain `armorPips + 1` pip elements,
+  matching MegaMek `PrintBattleArmor` (`getOArmor(trooper) + 1`)
+- **AND** the Wave-2 fidelity gate SHALL assert that rendered per-column
+  count, not the armor-only count
 
 #### Scenario: Trooper-count range
 
@@ -1248,7 +1266,7 @@ platoon block for infantry.
 - **WHEN** the squad is rendered through the templated path and the
   output SVG is parsed
 - **THEN** the pip-element count for each trooper column SHALL equal
-  that trooper's armor pip value from the fixture
+  that trooper's `armorPips + 1` rendered count from the fixture
 
 #### Scenario: Infantry pip count matches platoon size
 
@@ -1288,8 +1306,9 @@ and that the skeleton renderer's output does not.
 - **GIVEN** an `IInfantryRecordSheetData` payload and an
   `IBattleArmorRecordSheetData` payload
 - **WHEN** `isTemplatedUnit()` is called on each
-- **THEN** it SHALL return `true` for both, the inverse of the Wave-1
-  exclusion behaviour
+- **THEN** it SHALL return `true` for both
+- **AND** it SHALL also return `true` for `vehicle`, `aerospace`, and
+  `protomech`, and `false` for `mech`
 
 #### Scenario: Rendered SVG is template-derived, not skeleton output
 
@@ -1313,15 +1332,12 @@ download. The unit object's discriminated type hint (`type` / `unitType`) SHALL
 resolve via `dispatchTargetFromUnit` to the matching non-mech dispatch kind
 (`vehicle`, `aerospace`, `battlearmor`, `infantry`, `protomech`).
 
-This requirement covers only the customizer→service call seam. The
-`RecordSheetService`, the per-type SVG renderers, the record-sheet templates, and
-the per-type data extractors are unchanged.
+This requirement covers the customizer-to-service call seam. Preview, PDF, and
+Print share the filled SVG pipeline defined by this specification, with typed
+extractors and the selected paper size.
 
-**Rationale**: The Wave-1/2 templated-record-sheet changes built per-type renderers
-and extractors, and `RecordSheetService` already dispatches per unit type — but the
-only callers of `extractData` were the mech-only `PreviewTab` and
-`RecordSheetPreview`. Without this seam the non-mech renderers are unreachable from
-the customizer UI.
+**Rationale**: Each customizer unit family must reach its matching extractor and
+renderer through the visible preview, export, and print controls.
 
 **Priority**: High
 
@@ -1338,8 +1354,9 @@ the customizer UI.
 
 - **GIVEN** a non-mech unit configured in its customizer
 - **WHEN** the user clicks Download PDF in the Preview tab
-- **THEN** the per-type preview component SHALL call
-  `RecordSheetService.exportPDF` with data extracted from the unit object
+- **THEN** the per-type preview SHALL call `exportUnitRecordSheetPDF`
+  with the unit object (which calls `RecordSheetService.extractData` then
+  `exportPDF`)
 - **AND** the generated PDF SHALL be the record sheet for that unit's type
 
 #### Scenario: Dispatch resolves to the correct non-mech kind
@@ -1352,18 +1369,19 @@ the customizer UI.
 
 ### Requirement: Record Sheet Preview Component Is Unit-Type Aware
 
-The `RecordSheetPreview` component (the on-canvas preview surface) SHALL NOT
-hard-depend on the BattleMech store. It SHALL be dispatched by unit type (a
-`RecordSheetPreviewForType` dispatcher, or per-type canvas components), so that the
-preview canvas reads only the per-type store of the unit being previewed.
+The record-sheet preview dispatch boundary SHALL be unit-type aware. A
+`RecordSheetPreviewForType` dispatcher, or the descriptor registry's per-type
+preview components, SHALL select the preview for the active unit family. Each
+non-mech preview SHALL read only its matching per-type store. The concrete
+BattleMech `RecordSheetPreview` component is permitted to read the BattleMech
+store because it is mounted only inside that store context.
 
-**Rationale**: `RecordSheetPreview` independently calls `useUnitStore` and
-`extractData`; even with a fixed Preview tab, the canvas would still crash inside a
-non-mech customizer unless it too is made unit-type-aware.
+**Rationale**: Store selection must follow the active unit family to avoid missing
+providers and incorrectly rendered construction data.
 
 **Priority**: High
 
-#### Scenario: Preview canvas reads the matching per-type store
+#### Scenario: Preview canvas reads the matching non-mech store
 
 - **GIVEN** a non-mech customizer
 - **WHEN** the record-sheet preview canvas renders
@@ -1371,8 +1389,9 @@ non-mech customizer unless it too is made unit-type-aware.
 - **AND** it SHALL NOT call `useUnitStore`
 - **AND** rendering SHALL NOT throw a missing-provider error
 
-#### Scenario: Mech preview canvas unchanged
+#### Scenario: BattleMech preview uses its own store
 
 - **GIVEN** the BattleMech customizer
 - **WHEN** the record-sheet preview canvas renders
-- **THEN** it SHALL render the existing mech preview canvas with no behaviour change
+- **THEN** it SHALL render the BattleMech preview from its BattleMech store
+- **AND** SHALL apply the shared paper, zoom, current-request, and rendering contracts
