@@ -2,7 +2,16 @@
 
 ## Purpose
 
-Provides a searchable, filterable equipment catalog UI for adding equipment to BattleMech units.
+Provides a searchable, filterable equipment catalog UI for adding equipment to the active unit in the customizer.
+
+This capability is the **customizer catalog**, not the read-only Compendium catalog at `/compendium/equipment` (`openspec/specs/compendium-browser/spec.md`). Both surfaces load equipment definitions through `EquipmentLookupService`; they do not share `useEquipmentStore` filter, sort, or pagination state.
+
+## Active route and data authority
+
+- **Route:** `src/pages/customizer/[[...slug]].tsx` (`/customizer`, `/customizer/[unitId]`, `/customizer/[unitId]/equipment` via tab `id: 'equipment'`). No standalone `/equipment` page. UI: `EquipmentBrowser.tsx`, `CompactFilterBar.tsx`, `EquipmentCatalogCard.tsx`.
+- **Data authority:** `getEquipmentLookupService()` (`src/services/equipment/EquipmentLookupService.ts`). Jump Jets and Heat Sinks omitted via `EXCLUDED_MISC_CATEGORIES`.
+- **Store:** `useEquipmentStore` + `useEquipmentStore.filters.ts` (`filterEquipment`, `CATALOG_OTHER_CATEGORIES`); `useEquipmentBrowser` loads `getAllEquipment()` and syncs unit year/tech base/weapon IDs from unit or vehicle store context. Compendium `/compendium/equipment` uses page-local state and `GET /api/equipment/catalog` — shared definitions, not shared store.
+- **Tray vs catalog Other:** catalog `CATALOG_OTHER_CATEGORIES` is MISC_EQUIPMENT, MOVEMENT, STRUCTURAL. Tray `OTHER_CATEGORIES` also includes PHYSICAL_WEAPON and ARTILLERY. Do not treat them as one filter.
 
 ## Requirements
 
@@ -20,20 +29,27 @@ The Equipment Browser SHALL include all equipment types from the equipment datab
 #### Scenario: Variable property display
 
 - **WHEN** physical weapon is displayed in equipment table
-- **THEN** weight shows as 0 (variable based on mech tonnage)
-- **AND** critical slots show as 0 (variable based on mech tonnage)
-- **AND** the equipment can be added to the unit loadout
+- **THEN** variable weight and critical slots are labeled Variable rather than presented as fixed zero values
+- **AND** expanded details explain that values are calculated for the active unit when added
+- **AND** Add or Add and place uses the existing construction calculations
 
 ### Requirement: Equipment Table Display
 
-The system SHALL display equipment in a sortable table format.
+The system SHALL display a dense catalog whose desktop header and collapsed rows share aligned columns.
 
-#### Scenario: Table columns
+#### Scenario: Desktop catalog columns
 
-- **WHEN** equipment table is rendered
-- **THEN** columns show Name, Category, Tech, Weight, Crits, Damage, Heat
-- **AND** columns are sortable by clicking headers
-- **AND** sort direction indicator shows current sort
+- **WHEN** the equipment catalog is rendered at desktop width
+- **THEN** Name, Type, Tons, Slots, Heat, and Add occupy one six-column grid
+- **AND** Name, Tons, and Slots expose sort controls and the selected sort direction
+- **AND** the sticky header remains in the same scroll region as the catalog rows
+
+#### Scenario: Narrow catalog
+
+- **WHEN** the catalog is displayed at a narrow viewport
+- **THEN** each row retains its equipment name, technology, weight or variable-property summary, detail toggle, and accessible Add control
+- **AND** the Sort menu exposes Name, Tons, and Slots without requiring desktop columns
+- **AND** expanding details makes weapon and equipment statistics available
 
 ### Requirement: Equipment Filtering
 
@@ -43,7 +59,8 @@ The system SHALL provide filters for narrowing equipment selection.
 
 - **WHEN** user selects tech base filter (IS, Clan, All)
 - **THEN** only equipment matching the filter is displayed
-- **AND** filter defaults to unit's tech base
+- **AND** dedicated `filters.techBase` defaults to null (all tech bases)
+- **AND** `filters.hideUnavailable` defaults to true, which additionally hides items whose introduction year is after `unitContext.unitYear` or whose tech base is incompatible with `unitContext.unitTechBase` when unit context exists
 
 #### Scenario: Category filter
 
@@ -63,10 +80,14 @@ The system SHALL provide toggle buttons for category filtering with exclusive an
 
 #### Scenario: Exclusive selection (single click)
 
-- **WHEN** user clicks a category button
+- **WHEN** user clicks an ordinary category button
 - **THEN** only that category is selected
 - **AND** all other categories are deselected
 - **AND** equipment list shows only items in that category
+- **WHEN** the selected category is Other (`MISC_EQUIPMENT`)
+- **THEN** the catalog selects `MISC_EQUIPMENT`, `MOVEMENT`, and `STRUCTURAL`
+- **AND** Electronics, Physical, and Artillery remain excluded unless selected
+  independently or admitted through an explicit secondary classification
 
 #### Scenario: Multi-select (Ctrl+click)
 
@@ -83,20 +104,20 @@ The system SHALL provide toggle buttons for category filtering with exclusive an
 
 ### Requirement: Combined "Other" Category
 
-The system SHALL treat "Other" as a combined category for non-primary equipment.
+The system SHALL treat Other as the remaining utility categories while providing Electronics as an independent primary filter.
 
-#### Scenario: Other category contents
+#### Scenario: Independent Electronics selection
 
-- **WHEN** "Other" category is selected
-- **THEN** equipment list includes Electronics category items
-- **AND** equipment list includes Misc Equipment category items
-- **AND** equipment list includes items with additionalCategories containing MISC_EQUIPMENT
+- **WHEN** Electronics is selected
+- **THEN** the list includes Electronics and its explicit secondary classifications
+- **AND** ammunition visibility does not determine whether Electronics can be found
 
-#### Scenario: Dual-category equipment visibility
+#### Scenario: Other and multiple selection
 
-- **WHEN** equipment has additionalCategories (e.g., AMS)
-- **THEN** equipment appears when its primary category is selected
-- **AND** equipment appears when any of its additionalCategories is selected
+- **WHEN** Other is selected or combined with another category
+- **THEN** utility equipment and explicit secondary classifications are included
+- **AND** Electronics requires independent selection or explicit Other classification
+- **AND** Show All clears legacy and multiple-category restrictions
 
 ### Requirement: Excluded Equipment
 
@@ -115,9 +136,9 @@ The system SHALL paginate large equipment lists.
 #### Scenario: Pagination controls
 
 - **WHEN** equipment list exceeds page size
-- **THEN** pagination controls show page numbers
-- **AND** previous/next buttons are enabled appropriately
-- **AND** page size can be changed (10, 25, 50, 100)
+- **THEN** pagination controls show current/last page with first/previous/next/last enabled appropriately
+- **AND** store default `pagination.pageSize` is 25; `setPageSize` exists on the store/hook
+- **AND** a visible 10/25/50/100 page-size control remains a desired requirement not on the current `EquipmentBrowser` footer
 
 ### Requirement: Add Equipment Action
 
@@ -149,8 +170,8 @@ The system SHALL handle loading and error states gracefully.
 #### Scenario: Loading state
 
 - **WHEN** equipment data is loading
-- **THEN** loading skeleton is displayed
-- **AND** filters are disabled
+- **THEN** the catalog shows a loading status (current `EquipmentBrowser` text: "Loading equipment...")
+- **AND** a distinct skeleton remains desired; retry is offered after a load error
 
 #### Scenario: Error state
 
@@ -158,69 +179,45 @@ The system SHALL handle loading and error states gracefully.
 - **THEN** error message is displayed
 - **AND** retry button is available
 
-### Requirement: Range Brackets Column
+### Requirement: Weapon Range Details
 
-The Equipment Browser SHALL display weapon range brackets in the equipment table.
+The Equipment Browser SHALL expose available weapon range data in an expandable catalog row.
 
-#### Scenario: Range column display for weapons
+#### Scenario: Weapon with range data
 
-- **WHEN** equipment is a weapon (energy, ballistic, missile, artillery, physical)
-- **THEN** Range column displays Short/Medium/Long values in "S/M/L" format
-- **AND** values are separated by forward slashes (e.g., "3/6/9")
+- **WHEN** the user expands a weapon row with range data
+- **THEN** details show Range (S / M / L) using the short, medium, and long values
+- **AND** a nonzero minimum range is shown separately
+- **AND** these details remain available on desktop and narrow viewports
 
-#### Scenario: Range column display for non-weapons
+#### Scenario: Equipment without weapon ranges
 
-- **WHEN** equipment is not a weapon (ammo, electronics, misc)
-- **THEN** Range column displays dash (-)
-
-#### Scenario: Partial range data
-
-- **WHEN** weapon has only long range defined (e.g., minimum range weapons)
-- **THEN** Range column displays only the long range value
-
-#### Scenario: Mobile range display
-
-- **WHEN** viewport is mobile width
-- **THEN** Range column appears after Damage column
-- **AND** column header shows "RNG"
-- **AND** column content aligns with header
+- **WHEN** an item has no weapon-range data
+- **THEN** its details do not invent ranges or reserve a misleading range column
 
 ### Requirement: Category Filter Bar Layout
 
-The equipment browser category filter buttons SHALL be displayed in a balanced grid for even row distribution.
+The equipment catalog SHALL separate search and visibility controls from an independently scrollable category strip.
 
-#### Scenario: Filter button layout
+#### Scenario: Category strip
 
-- **WHEN** category filter buttons render
-- **THEN** buttons are displayed in BalancedGrid component
-- **AND** minItemWidth is 85px to account for icon+label width
-- **AND** gap is 4px between buttons
+- **WHEN** the catalog filters render
+- **THEN** the Equipment categories group provides All, Energy, Ballistic, Missile, Artillery, Physical, Ammo, Electronics, and Other
+- **AND** each button exposes its text name, pressed state, and at least a 44px hit target
+- **AND** narrow widths scroll the strip horizontally without overflowing the document
 
-#### Scenario: Balanced row distribution
+#### Scenario: Search and visibility
 
-- **WHEN** 8 category buttons render (Energy, Ballistic, Missile, Artillery, Physical, Ammo, Other, All)
-- **THEN** buttons are distributed as 4+4 across two rows when container is narrow
-- **AND** buttons show in single row when container is wide enough
-- **AND** NOT as 7+1 or 5+3 uneven distribution
-
-#### Scenario: Fallback grid template
-
-- **WHEN** grid is in fallback state (before measurement)
-- **THEN** uses `repeat(auto-fill, minmax(40px, 1fr))`
-- **AND** allows natural wrapping until balanced calculation is ready
-
-#### Scenario: Button content
-
-- **WHEN** category button renders
-- **THEN** icon emoji is always visible
-- **AND** text label is hidden on mobile (hidden sm:inline)
-- **AND** this affects actual button width vs minItemWidth calculation
+- **WHEN** the user searches equipment or opens Filters
+- **THEN** search and the Prototype, One-shot, Ammo without weapon, and Unavailable toggles remain independently operable
+- **AND** the interface explains ammunition compatibility and category multi-selection
+- **AND** enabled visibility filters remain observable and can be cleared
 
 ### Requirement: useEquipmentBrowser Orchestrator Hook
 
 The system SHALL provide a `useEquipmentBrowser` hook that orchestrates equipment browsing with filtering, sorting, and pagination.
 
-**Source**: `src/hooks/useEquipmentBrowser.ts:170-351`
+**Source**: `src/hooks/useEquipmentBrowser.ts` (`useEquipmentBrowser`, `EquipmentBrowserState`)
 
 #### Scenario: Hook initialization
 
@@ -265,9 +262,9 @@ The system SHALL provide a `useEquipmentBrowser` hook that orchestrates equipmen
 
 ### Requirement: useEquipmentCalculations Hook
 
-The system SHALL provide a `useEquipmentCalculations` hook that computes total weight, critical slots, and heat for mounted equipment.
+The system SHALL provide a `useEquipmentCalculations` hook that computes total weight, critical slots, and heat for **mounted** equipment. This hook is loadout/tray totaling (`@spec openspec/specs/equipment-tray/spec.md`), not catalog filtering.
 
-**Source**: `src/hooks/useEquipmentCalculations.ts:110-160`
+**Source**: `src/hooks/useEquipmentCalculations.ts` (`useEquipmentCalculations`)
 
 #### Scenario: Equipment totals calculation
 
@@ -305,9 +302,9 @@ The system SHALL provide a `useEquipmentCalculations` hook that computes total w
 
 ### Requirement: useEquipmentFiltering Hook
 
-The system SHALL provide a `useEquipmentFiltering` hook that filters equipment by category and separates allocated/unallocated items.
+The system SHALL provide a `useEquipmentFiltering` hook that filters **mounted loadout** equipment by category and separates allocated/unallocated items. This hook uses tray `OTHER_CATEGORIES` from `src/components/customizer/equipment/equipmentConstants.ts`, not catalog `CATALOG_OTHER_CATEGORIES`.
 
-**Source**: `src/hooks/useEquipmentFiltering.ts:22-65`
+**Source**: `src/hooks/useEquipmentFiltering.ts` (`useEquipmentFiltering`)
 
 #### Scenario: Category filtering
 
@@ -319,13 +316,10 @@ The system SHALL provide a `useEquipmentFiltering` hook that filters equipment b
 
 #### Scenario: Other category expansion
 
-- **GIVEN** activeCategory is MISC_EQUIPMENT
+- **GIVEN** activeCategory is MISC_EQUIPMENT on the loadout-tray hook
 - **WHEN** filtering is applied
-- **THEN** equipment in MISC_EQUIPMENT category is included
-- **AND** equipment in PHYSICAL_WEAPON category is included
-- **AND** equipment in MOVEMENT category is included
-- **AND** equipment in ARTILLERY category is included
-- **AND** equipment in STRUCTURAL category is included
+- **THEN** equipment in tray `OTHER_CATEGORIES` is included: MISC_EQUIPMENT, PHYSICAL_WEAPON, MOVEMENT, ARTILLERY, and STRUCTURAL
+- **AND** this expansion SHALL NOT be used as the customizer catalog Other set (`CATALOG_OTHER_CATEGORIES` excludes PHYSICAL_WEAPON, ARTILLERY, and ELECTRONICS)
 
 #### Scenario: Allocated/unallocated grouping
 
@@ -339,7 +333,7 @@ The system SHALL provide a `useEquipmentFiltering` hook that filters equipment b
 
 The system SHALL provide a `useEquipmentRegistry` hook that tracks equipment registry initialization state.
 
-**Source**: `src/hooks/useEquipmentRegistry.ts:25-59`
+**Source**: `src/hooks/useEquipmentRegistry.ts` (`useEquipmentRegistry`)
 
 #### Scenario: Registry initialization tracking
 
@@ -376,7 +370,7 @@ The system SHALL provide a `useEquipmentRegistry` hook that tracks equipment reg
 
 The system SHALL provide a `useEquipmentStore` Zustand store that manages equipment catalog state including filters, search, pagination, and sorting.
 
-**Source**: `src/stores/useEquipmentStore.ts:213-583`
+**Source**: `src/stores/useEquipmentStore.ts` (`useEquipmentStore`, `EquipmentStoreState`)
 
 #### Scenario: Store initialization
 
@@ -443,8 +437,9 @@ The system SHALL provide a `useEquipmentStore` Zustand store that manages equipm
 
 - **GIVEN** user Ctrl+clicks "Other" (MISC_EQUIPMENT) category
 - **WHEN** `selectCategory(MISC_EQUIPMENT, true)` is called
-- **THEN** all OTHER_COMBINED_CATEGORIES are toggled together
-- **AND** MISC_EQUIPMENT and ELECTRONICS are both added or removed
+- **THEN** all CATALOG_OTHER_CATEGORIES are toggled together
+- **AND** MISC_EQUIPMENT, MOVEMENT, and STRUCTURAL are added or removed together
+- **AND** independently selected ELECTRONICS is preserved
 - **AND** filtered equipment reflects the combined category selection
 
 #### Scenario: Show all categories
@@ -470,7 +465,7 @@ The system SHALL provide a `useEquipmentStore` Zustand store that manages equipm
 - **WHEN** `toggleHideOneShot()` is called
 - **THEN** filters.hideOneShot is toggled
 - **AND** pagination resets to page 1
-- **AND** filtered equipment excludes items with name containing 'one-shot'
+- **AND** filtered equipment excludes items whose name matches `/(?:one[ -]shot|\((?:i-)?os\))/i`
 
 #### Scenario: Hide unavailable toggle
 
@@ -493,10 +488,10 @@ The system SHALL provide a `useEquipmentStore` Zustand store that manages equipm
 
 - **GIVEN** hideAmmoWithoutWeapon is true and unit has weapons
 - **WHEN** filtering is applied
-- **THEN** ammo name is normalized (replace '-' with '/')
-- **AND** weapon ID is normalized (replace '-' with '/')
-- **AND** ammo is included if normalized ammo name contains normalized weapon ID
-- **AND** ammo is included if ammo name contains weapon ID without separator
+- **THEN** declared compatibleWeaponIds are compared with mounted weapon IDs
+- **AND** declarations take precedence over the fallback
+- **AND** only ammunition without compatibility declarations may use an exact normalized identity or complete normalized mounted-weapon name
+- **AND** partial names SHALL NOT admit ammunition for a different weapon
 
 #### Scenario: Sorting by column
 
@@ -506,7 +501,8 @@ The system SHALL provide a `useEquipmentStore` Zustand store that manages equipm
 - **AND** sort.direction toggles between 'asc' and 'desc' if same column
 - **AND** sort.direction is 'asc' if different column
 - **AND** pagination resets to page 1
-- **AND** filtered equipment is sorted by the selected column
+- **AND** filtered equipment is sorted by `compareEquipment` in `src/stores/useEquipmentStore.filters.ts`
+- **AND** catalog headers currently sort name/weight/criticalSlots; store `SortColumn` also has category, techBase, damage, heat, but damage/heat getters currently compare `item.name` (parent product follow-up)
 
 #### Scenario: Pagination controls
 
@@ -554,6 +550,95 @@ The system SHALL provide a `useEquipmentStore` Zustand store that manages equipm
 - **AND** filtered equipment is sliced to return only items in range
 - **AND** returned array contains at most pageSize items
 
+### Requirement: Ammunition compatibility filtering
+
+The catalog SHALL use declared compatible weapon identities, with conservative exact identity matching for imported records lacking declarations, and SHALL not use partial weapon-name matches.
+
+#### Scenario: Compatible mounted weapon
+
+- **GIVEN** a mounted SRM, LRM, Gauss or Clan weapon is declared compatible
+- **WHEN** hiding ammunition without a compatible weapon
+- **THEN** its ammunition remains available subject to independent availability filters
+- **AND** AC/2 does not admit AC/20 ammunition
+
+#### Scenario: Missing imported compatibility metadata
+
+- **GIVEN** imported ammunition lacks compatibility declarations
+- **WHEN** matching mounted equipment
+- **THEN** only a conservative exact identity or full normalized weapon-name match admits it
+- **AND** explicit declarations take precedence over fallback
+
+#### Scenario: No weapons or no unit
+
+- **WHEN** a unit has no compatible weapons and unmatched ammunition is hidden
+- **THEN** no ammunition is shown
+- **AND** non-ammunition remains unaffected
+- **WHEN** browsing without a unit
+- **THEN** the filter does not assume an empty loadout
+
+### Requirement: Current catalog results
+
+The visible list, result count and pages SHALL reflect the same current filter and active-unit context.
+
+#### Scenario: Weapon edits and unit switching
+
+- **WHEN** weapons are added, removed, undone, redone or the active unit changes
+- **THEN** compatible ammo updates without another filter interaction
+- **AND** pagination uses the same filtered result and resets appropriately
+
+#### Scenario: Independent visibility constraints
+
+- **WHEN** category, search, prototype, one-shot or availability controls change
+- **THEN** enabled constraints apply consistently
+- **AND** ammo compatibility does not hide unrelated categories
+- **AND** Show All leaves no invisible legacy category restriction
+
+### Requirement: Translucent catalog rows
+
+The catalog SHALL use translucent category-colored row backgrounds with opaque readable content and controls.
+
+#### Scenario: Desktop and mobile catalog
+
+- **WHEN** rows render in supported themes and viewport sizes
+- **THEN** category colors remain recognizable without fully opaque fills
+- **AND** text, focus, selection, details and Add controls remain readable and operable
+- **AND** desktop headings and matching name, type, numeric and action cells share one six-column grid with a sticky header in the same scrolling region
+- **AND** ordinary collapsed desktop rows are no taller than 48px while Add keeps a 44px hit target around a smaller plus control
+
+### Requirement: Add and place from catalog
+
+The catalog SHALL offer optional Add and place with preview and validation through the existing Critical Slots authority.
+
+#### Scenario: Valid placement
+
+- **WHEN** that row's details are expanded and a legal location is confirmed
+- **THEN** a new equipment instance is added and assigned legal slots
+- **AND** weight and critical slots include variable-equipment calculations
+- **AND** one Undo reverses the whole operation and Redo restores it
+- **AND** the result survives browser-draft recovery
+
+#### Scenario: Illegal, fixed or stale placement
+
+- **WHEN** a location is restricted, occupied, lacks contiguous space, conflicts with configuration or changes before confirmation
+- **THEN** the action explains the rejection
+- **AND** no partial addition or history entry remains
+- **AND** fixed OmniMech equipment is not moved or overwritten
+
+#### Scenario: Cancellation, read-only and split allocation
+
+- **WHEN** the chooser is cancelled or the unit is read-only
+- **THEN** no edit occurs
+- **WHEN** equipment requires split allocation unsupported by a single-location action
+- **THEN** the catalog explains that Critical Slots is required
+- **AND** no partial placement occurs
+
+#### Scenario: Existing Add action
+
+- **WHEN** Add is used without placement
+- **THEN** a copy is added unassigned through the existing workflow
+- **AND** the collapsed-row Add control is a plus that keeps the Add name accessible
+- **AND** Add and place is not shown until that row's details are expanded
+
 ## Hook Architecture
 
 ---
@@ -562,7 +647,7 @@ The system SHALL provide a `useEquipmentStore` Zustand store that manages equipm
 
 ### EquipmentBrowserState Interface
 
-**Source**: `src/hooks/useEquipmentBrowser.ts:30-92`
+**Source**: `src/hooks/useEquipmentBrowser.ts` (`EquipmentBrowserState`)
 
 ```typescript
 interface EquipmentBrowserState {
@@ -631,7 +716,7 @@ interface EquipmentBrowserState {
 
 ### ICategorySummary Interface
 
-**Source**: `src/hooks/useEquipmentCalculations.ts:28-33`
+**Source**: `src/hooks/useEquipmentCalculations.ts` (`ICategorySummary`)
 
 ```typescript
 interface ICategorySummary {
@@ -644,7 +729,7 @@ interface ICategorySummary {
 
 ### EquipmentCalculations Interface
 
-**Source**: `src/hooks/useEquipmentCalculations.ts:38-57`
+**Source**: `src/hooks/useEquipmentCalculations.ts` (`EquipmentCalculations`)
 
 ```typescript
 interface EquipmentCalculations {
@@ -662,7 +747,7 @@ interface EquipmentCalculations {
 
 ### SortColumn Type
 
-**Source**: `src/stores/useEquipmentStore.ts:34-41`
+**Source**: `src/stores/useEquipmentStore.ts` (`SortColumn`)
 
 ```typescript
 type SortColumn =
@@ -677,7 +762,7 @@ type SortColumn =
 
 ### SortDirection Type
 
-**Source**: `src/stores/useEquipmentStore.ts:29`
+**Source**: `src/stores/useEquipmentStore.ts` (`SortDirection`)
 
 ```typescript
 type SortDirection = 'asc' | 'desc';
@@ -685,7 +770,7 @@ type SortDirection = 'asc' | 'desc';
 
 ### UnitContext Interface
 
-**Source**: `src/stores/useEquipmentStore.ts:47-54`
+**Source**: `src/stores/useEquipmentStore.ts` (`UnitContext`)
 
 ```typescript
 interface UnitContext {
@@ -697,7 +782,7 @@ interface UnitContext {
 
 ### EquipmentFilters Interface
 
-**Source**: `src/stores/useEquipmentStore.ts:59-84`
+**Source**: `src/stores/useEquipmentStore.ts` (`EquipmentFilters`)
 
 ```typescript
 interface EquipmentFilters {
@@ -718,7 +803,7 @@ interface EquipmentFilters {
 
 ### PaginationState Interface
 
-**Source**: `src/stores/useEquipmentStore.ts:89-93`
+**Source**: `src/stores/useEquipmentStore.ts` (`PaginationState`)
 
 ```typescript
 interface PaginationState {
@@ -730,7 +815,7 @@ interface PaginationState {
 
 ### SortState Interface
 
-**Source**: `src/stores/useEquipmentStore.ts:98-101`
+**Source**: `src/stores/useEquipmentStore.ts` (`SortState`)
 
 ```typescript
 interface SortState {
@@ -739,26 +824,28 @@ interface SortState {
 }
 ```
 
-### OTHER_COMBINED_CATEGORIES Constant
+### CATALOG_OTHER_CATEGORIES Constant
 
-**Source**: `src/stores/useEquipmentStore.ts:21-24`
+**Source**: `src/stores/useEquipmentStore.filters.ts` (`CATALOG_OTHER_CATEGORIES`)
 
 The "Other" category (MISC_EQUIPMENT) SHALL include the following combined categories:
 
 ```typescript
-const OTHER_COMBINED_CATEGORIES: readonly EquipmentCategory[] = [
+const CATALOG_OTHER_CATEGORIES: readonly EquipmentCategory[] = [
   EquipmentCategory.MISC_EQUIPMENT,
-  EquipmentCategory.ELECTRONICS,
+  EquipmentCategory.MOVEMENT,
+  EquipmentCategory.STRUCTURAL,
 ];
 ```
 
-**Note**: The equipment tray uses a different OTHER_CATEGORIES definition that includes PHYSICAL_WEAPON, MOVEMENT, ARTILLERY, and STRUCTURAL. The equipment browser uses a narrower definition focused on non-weapon equipment.
+**Note**: The equipment tray uses a different OTHER_CATEGORIES definition that includes PHYSICAL_WEAPON, MOVEMENT, ARTILLERY, and STRUCTURAL. The equipment browser groups miscellaneous, movement, and structural utility equipment; Electronics is independently selectable. Explicit secondary classifications remain eligible.
 
 ---
 
 ## Non-Goals
 
-- Equipment database management (handled by `equipmentLookupService`)
+- Read-only Compendium equipment catalog at `/compendium/equipment` (handled by `openspec/specs/compendium-browser/spec.md`)
+- Equipment database management and JSON/fallback loading (handled by `EquipmentLookupService` / `openspec/specs/equipment-services/spec.md`)
 - Equipment registry initialization logic (handled by `EquipmentRegistry`)
 - Equipment mounting and critical slot allocation (handled by unit stores and critical slot allocation system)
 - Equipment validation rules (handled by construction rules)

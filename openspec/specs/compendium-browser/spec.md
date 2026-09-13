@@ -2,15 +2,16 @@
 
 ## Purpose
 
-Provides a comprehensive reference browser for canonical BattleTech units, equipment, and construction rules. The Compendium serves as the primary knowledge base for the MekStation application, offering searchable, filterable access to 4,200+ units, equipment catalog, and TechManual construction rules.
+Provides a comprehensive reference browser for canonical BattleTech units, equipment, and construction rules. The Compendium is the read-only knowledge-base surface: unit index, equipment catalog, chassis index, and construction-rule reference. Figures such as "4,200+ units" are MegaMek-derived pagination examples, not counted runtime proof.
 
 ## Scope
 
 **In Scope:**
 
-- Compendium hub page with navigation to unit database, equipment catalog, and rules reference
+- Compendium hub page with navigation to the unit database, BattleMech chassis
+  index, equipment catalog, and rules reference
 - Unit browser with advanced filtering (tech base, weight class, rules level, year/tonnage/BV ranges), sorting (10 columns), and pagination (50 items/page)
-- Equipment browser with category/tech base/rules level filters, three view modes (grid/list/table), and pagination (36 items/page)
+- Read-only Compendium equipment catalog with category/tech base/rules level filters, three view modes (grid/list/table), and pagination (36 items/page)
 - Rules reference page with 7 construction rule sections, anchor navigation, and scroll tracking
 - CompendiumAdapter for converting canonical unit data to game engine format
 - API integration with `/api/catalog`, `/api/units?id=`, `/api/equipment/catalog`, `/api/equipment?id=`
@@ -18,9 +19,18 @@ Provides a comprehensive reference browser for canonical BattleTech units, equip
 **Out of Scope:**
 
 - Compendium data sources and BLK file parsing (handled by data layer)
-- Unit editing or customization (handled by Unit Builder)
-- Equipment selection for unit construction (handled by Equipment Browser in builder context)
+- Unit editing or customization (handled by Unit Builder / customizer)
+- Equipment selection for unit construction (handled by the customizer Equipment Browser in `openspec/specs/equipment-browser/spec.md`)
 - Campaign-specific unit management (handled by Force Builder)
+
+## Active routes and data authority
+
+Pages Router files under `src/pages/compendium/` are the live URL contract (inventory only, not runtime proof): `/compendium` (`index.tsx`); `/compendium/units` and `/compendium/units/[id]`; `/compendium/chassis`; `/compendium/equipment` and `/compendium/equipment/[id]`; `/compendium/rules` plus `/compendium/rules/[id]` redirect.
+
+- **Unit index:** `GET /api/catalog` (`src/pages/api/catalog.ts` → `getCanonicalUnitService().getIndex()`). Page-local filters in `src/components/compendium/units/UnitsFilters.tsx`; `ITEMS_PER_PAGE = 50` in `units.constants.ts`. Types: `IUnitEntry` / `IUnitDetails` in `src/types/pages/UnitPageTypes.ts`.
+- **Equipment catalog:** `GET /api/equipment/catalog` and `GET /api/equipment?id=` call `getEquipmentLookupService()` (`src/services/equipment/EquipmentLookupService.ts`). Compendium equipment uses page-local `FilterState`/`ViewMode`, not `useEquipmentStore`. Definitions are shared with the customizer; filter/sort/pagination/unit-context state are not.
+- **Rules ids:** `structure`, `engine`, `armor`, `heatsinks`, `gyro`, `movement`, `criticals`. Valid `/compendium/rules/[id]` redirects to `/compendium/rules#{id}`; invalid id redirects to `/compendium/rules`; unrecognized hashes on the combined page are ignored.
+- **Adapter:** `src/engine/adapters/CompendiumAdapter.ts` (`adaptUnit`, `adaptUnitFromData`) with `CompendiumAdapter.armor.ts`, `.movement.ts`, `.weapons.ts`, `.weaponData.ts`, and `CompendiumWeaponData.ts`. Live types: `src/engine/types.ts`.
 
 ## Key Concepts
 
@@ -28,9 +38,15 @@ Provides a comprehensive reference browser for canonical BattleTech units, equip
 
 The main entry point for the Compendium section, providing:
 
+- **Chassis Index Link**: A direct link to `/compendium/chassis` for browsing
+  canonical BattleMech chassis identities, aliases, and variants
 - **Featured Navigation Cards**: Large, visually distinct cards for Unit Database and Equipment Catalog
 - **Quick Reference Panel**: Sticky sidebar with key construction constants (78 critical slots, 10 min heat sinks, 9 max head armor, 10% structure weight)
 - **Construction Rules Preview**: Inline navigation to 7 rule sections with search filtering
+
+The chassis index is a catalog identity surface backed by the canonical
+BattleMech unit index. It groups variants under a stable chassis identity and
+does not imply that a 3D model or other visual asset has been acquired.
 
 ### Unit Browser
 
@@ -41,15 +57,14 @@ A high-performance table view for browsing 4,200+ canonical units:
 - **Pagination**: 50 units per page with page navigation controls
 - **Advanced Filters**: Collapsible panel for year/tonnage/BV range filters
 
-### Equipment Browser
+### Equipment Browser (Compendium catalog)
 
-A flexible catalog view with multiple display modes:
+A read-only catalog at `/compendium/equipment`, distinct from the customizer Equipment Browser:
 
-- **ViewMode**: Three display modes (grid, list, table) for different browsing preferences
-- **Category Filtering**: Filter by equipment category (weapons, electronics, ammunition, etc.)
-- **Tech Base Filtering**: Filter by Inner Sphere, Clan, or all tech bases
-- **Rules Level Filtering**: Filter by Introductory, Standard, Advanced, or Experimental
-- **Pagination**: 36 items per page (optimized for grid layout)
+- **ViewMode**: Three display modes (grid, list, table); page state defaults to `table`
+- **Local FilterState**: search, category, techBase, rulesLevel in `src/pages/compendium/equipment/index.tsx`
+- **Pagination**: `ITEMS_PER_PAGE = 36` in `src/components/compendium/equipment/equipment.constants.ts`
+- **Detail links**: `next/link` to `/compendium/equipment/[id]` from `src/components/compendium/equipment/EquipmentViews.tsx`
 
 ### Rules Reference
 
@@ -62,24 +77,27 @@ A single-page reference with all construction rules:
 
 ### CompendiumAdapter
 
-Converts canonical unit data to game engine format:
+Converts canonical unit data to game engine format (`src/engine/adapters/CompendiumAdapter.ts`):
 
-- **Weapon Database**: Static lookup table for 16 common weapons (lasers, autocannons, missiles)
-- **Location Mapping**: Converts uppercase location keys (HEAD, CENTER_TORSO) to lowercase (head, center_torso)
-- **Structure Lookup**: Uses STANDARD_STRUCTURE_TABLE to determine hit points by tonnage
+- **Weapon resolution**: `getWeaponData` prefers official catalog lookup, then the static 16-weapon `WEAPON_DATABASE` fallback
+- **Location Mapping**: `LOCATION_KEY_MAP` in `CompendiumAdapter.armor.ts` converts uppercase keys (HEAD, CENTER_TORSO) to lowercase (head, center_torso)
+- **Structure Lookup**: `getStructureForTonnage` uses `STANDARD_STRUCTURE_TABLE` from `src/utils/gameplay/damage`
 - **Armor Extraction**: Handles both simple (number) and complex (front/rear) armor values
-- **Movement Calculation**: Derives runMP (walk × 1.5) and jumpMP from unit data
-- **Async/Sync Adaptation**: Provides both `adaptUnit` (async, loads from service) and `adaptUnitFromData` (sync, uses pre-loaded data)
+- **Movement Calculation**: `calculateMovement` in `CompendiumAdapter.movement.ts` derives runMP (ceil(walk × 1.5)) and jumpMP
+- **Async/Sync Adaptation**: `adaptUnit` (async; canonical miss returns null; unsupported `custom-*` refs throw) and `adaptUnitFromData` (sync)
 ## Requirements
 ### Requirement: Compendium Hub Navigation
 
-The Compendium hub page SHALL provide clear navigation to all three major sections.
+The Compendium hub page SHALL provide clear navigation to all four major sections: Units, Chassis index, Equipment, and Rules.
 
 #### Scenario: Hub page layout
 
 - **GIVEN** user navigates to `/compendium`
 - **WHEN** page loads
-- **THEN** two featured cards are displayed: "Unit Database" and "Equipment Catalog"
+- **THEN** the page provides navigation to all four major sections: Units,
+  Chassis index, Equipment, and Rules
+- **AND** the Chassis index link targets `/compendium/chassis`
+- **AND** two featured cards are displayed: "Unit Database" and "Equipment Catalog"
 - **AND** featured cards use distinct accent colors (emerald for units, cyan for equipment)
 - **AND** featured cards include decorative grid backgrounds and gradient glows
 - **AND** Quick Reference panel displays 4 construction constants
@@ -91,6 +109,17 @@ The Compendium hub page SHALL provide clear navigation to all three major sectio
 - **WHEN** user clicks "Unit Database" card
 - **THEN** browser navigates to `/compendium/units`
 - **AND** unit browser loads with default filters (no filters active)
+
+#### Scenario: Chassis index navigation
+
+- **GIVEN** user is on the Compendium hub
+- **WHEN** user clicks the "Chassis index" link
+- **THEN** browser navigates to `/compendium/chassis`
+- **AND** the chassis browser loads canonical chassis identities and their
+  variants
+- **AND** the chassis identity data is supplied by the canonical
+  BattleMech chassis index defined by
+  `openspec/specs/battlemech-chassis-index/spec.md`
 
 #### Scenario: Equipment Catalog navigation
 
@@ -104,7 +133,8 @@ The Compendium hub page SHALL provide clear navigation to all three major sectio
 - **GIVEN** user is on Compendium hub
 - **WHEN** user clicks a rule category link (e.g., "Structure")
 - **THEN** browser navigates to `/compendium/rules#structure`
-- **AND** rules page scrolls to the Structure section
+- **AND** Heat Sinks links use `#heatsinks` (not `#heat-sinks`)
+- **AND** rules page scrolls to the matching section
 
 #### Scenario: Hub search filtering
 
@@ -542,26 +572,26 @@ The rules reference page SHALL provide anchor navigation and scroll tracking for
 
 ### Requirement: CompendiumAdapter Weapon Database
 
-The CompendiumAdapter SHALL provide a static weapon database for 16 common weapons.
+The CompendiumAdapter SHALL resolve weapon stats through `getWeaponData` (`src/engine/adapters/CompendiumAdapter.weaponData.ts`). Resolution SHALL prefer official catalog lookup and SHALL fall back to the static 16-weapon `WEAPON_DATABASE` in `src/engine/adapters/CompendiumWeaponData.ts`. Catalog presence is not runtime proof that every id resolves.
 
 #### Scenario: Weapon lookup
 
-- **GIVEN** CompendiumAdapter is initialized
+- **GIVEN** CompendiumAdapter weapon helpers are loaded
 - **WHEN** `getWeaponData("medium-laser")` is called
 - **THEN** weapon data is returned with id, name, shortRange, mediumRange, longRange, damage, heat, minRange, ammoPerTon, destroyed
-- **AND** medium laser has shortRange = 3, mediumRange = 6, longRange = 9, damage = 5, heat = 3
+- **AND** the static fallback medium laser has shortRange = 3, mediumRange = 6, longRange = 9, damage = 5, heat = 3
 
 #### Scenario: Weapon database coverage
 
-- **GIVEN** CompendiumAdapter is initialized
-- **WHEN** weapon database is queried
-- **THEN** database includes 16 weapons: small-laser, medium-laser, large-laser, ppc, ac-2, ac-5, ac-10, ac-20, lrm-5, lrm-10, lrm-15, lrm-20, srm-2, srm-4, srm-6, machine-gun
+- **GIVEN** the static fallback table is queried
+- **WHEN** `WEAPON_DATABASE` keys are enumerated
+- **THEN** the fallback includes 16 weapons: small-laser, medium-laser, large-laser, ppc, ac-2, ac-5, ac-10, ac-20, lrm-5, lrm-10, lrm-15, lrm-20, srm-2, srm-4, srm-6, machine-gun
 
 #### Scenario: Unknown weapon lookup
 
-- **GIVEN** CompendiumAdapter is initialized
+- **GIVEN** CompendiumAdapter weapon helpers are loaded
 - **WHEN** `getWeaponData("unknown-weapon")` is called
-- **THEN** undefined is returned
+- **THEN** undefined is returned when neither catalog lookup nor `WEAPON_DATABASE` contains the id
 
 ### Requirement: CompendiumAdapter Location Mapping
 
@@ -673,6 +703,8 @@ The CompendiumAdapter SHALL provide both async and sync adaptation methods.
 - **GIVEN** unit ID "invalid-unit" does not exist in canonical unit service
 - **WHEN** `adaptUnit("invalid-unit")` is called
 - **THEN** null is returned
+- **WHEN** `adaptUnit` is called with an unsupported `custom-*` id
+- **THEN** the adapter throws rather than returning null
 
 #### Scenario: Sync adaptation
 
@@ -776,6 +808,8 @@ interface SortState {
 
 ### Equipment Browser FilterState
 
+Page-local Compendium catalog filters (`src/pages/compendium/equipment/index.tsx`). Not `useEquipmentStore`.
+
 ```typescript
 interface FilterState {
   search: string;
@@ -809,6 +843,8 @@ interface IWeaponData {
 ```
 
 ### CompendiumAdapter IAdaptedUnit
+
+Live `IAdaptedUnit` is declared in `src/engine/types.ts` and extends `IUnitGameState` (additional combat/movement fields, optional `customUnitDefinition`). The fields below are the adapter-populated comparison surface used by this spec:
 
 ```typescript
 interface IAdaptedUnit {
@@ -879,15 +915,15 @@ interface IAdaptUnitOptions {
 
 - **Unit Browser**: Units with missing year/BV data are excluded from year/BV range filters
 - **Equipment Browser**: Equipment with no category displays without category badge
-- **Rules Reference**: Invalid section IDs in URL hash redirect to rules index
+- **Rules Reference**: Invalid `/compendium/rules/[id]` path ids redirect to `/compendium/rules`; unrecognized hashes on the combined page are ignored
 - **CompendiumAdapter**: Invalid tonnage falls back to 50-ton structure table
 
 ### Common Pitfalls
 
 - **Unit Browser**: Forgetting to reset pagination to page 1 when filters change leads to empty results
-- **Equipment Browser**: Not handling both simple (number) and complex (front/rear) armor formats causes data loss
+- **Equipment Browser**: Mixing Compendium page-local filters with customizer `useEquipmentStore` state produces inconsistent catalogs
 - **Rules Reference**: Using scroll event listeners instead of IntersectionObserver causes performance issues
-- **CompendiumAdapter**: Forgetting to convert uppercase location keys to lowercase causes location mismatch in game engine
+- **CompendiumAdapter**: Forgetting to convert uppercase location keys to lowercase causes location mismatch in game engine; treating `custom-*` misses as `null` instead of a throw hides unsupported combat refs
 
 ## Examples
 
@@ -1146,23 +1182,25 @@ console.log(mediumLaser?.shortRange); // 3
 
 ### Depends On
 
-- **Core Entity Types**: Uses `IUnitEntry`, `IUnitDetails`, `EquipmentEntry` interfaces
+- **Page unit types**: Uses `IUnitEntry` and `IUnitDetails` from `src/types/pages/UnitPageTypes.ts`
 - **Core Enumerations**: Uses `TechBase`, `WeightClass`, `RulesLevel`, `EquipmentCategory` enums
-- **Unit Services**: Uses `CanonicalUnitService` for loading unit data
+- **Unit Services**: Uses `CanonicalUnitService` (`GET /api/catalog`, `GET /api/units?id=`) for unit index and detail
+- **Equipment Services**: Uses `EquipmentLookupService` (`GET /api/equipment/catalog`, `GET /api/equipment?id=`) for catalog definitions
 - **Game Session Interfaces**: Uses `GameSide`, `LockState`, `Facing`, `MovementType` enums
 - **Damage System**: Uses `STANDARD_STRUCTURE_TABLE` for structure lookup
 
 ### Used By
 
-- **Unit Builder**: Uses CompendiumAdapter to load canonical units for customization
-- **Force Builder**: Uses unit browser to select units for force composition
+- **Customizer / Unit Builder**: May load canonical units; equipment *add* flows are owned by `equipment-browser`, not this spec
+- **Force Builder**: May link users to the unit browser; force composition is out of scope here
 - **Game Session**: Uses CompendiumAdapter to initialize units for combat
-- **Campaign System**: Uses unit browser to browse available units for acquisition
+- **Campaign System**: May link users to the unit browser for acquisition browsing
 
 ## References
 
 - **BattleTech TechManual**: Construction rules and formulas
 - **MegaMek mm-data**: Canonical unit data source (4,200+ units)
-- **Equipment Database Spec**: `openspec/specs/equipment-database/spec.md`
+- **Equipment Database Spec**: `openspec/specs/equipment-database/spec.md` (definition schema; lookup/API authority is `equipment-services`)
+- **Equipment Browser Spec**: `openspec/specs/equipment-browser/spec.md` (customizer add-to-unit catalog; does not share Compendium page state)
 - **Unit Entity Model Spec**: `openspec/specs/unit-entity-model/spec.md`
 - **Game Session Management Spec**: `openspec/specs/game-session-management/spec.md`
