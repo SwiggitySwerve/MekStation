@@ -235,14 +235,16 @@ MegaMek tracks engine hits (1 / 2 / 3 → MP penalty escalation, 3rd hit destroy
 
 ---
 
-## Migration notes
+## Migration status
 
-This spec replaces the implicit conventions previously held by `useCampaignRosterStore` and the cast-through hacks in integration tests. Execution PRs (deferred from this session) SHALL:
+This spec replaces the implicit conventions previously held by `useCampaignRosterStore` and the cast-through hacks in integration tests. Four type/source migration boundaries are complete in this candidate. That is source-type completion, not full runtime proof of deploy, post-battle, repair, or roster journeys.
 
-1. Promote `unitCombatStates` to `ICampaign` (1 type file + 3 test cast-removals).
-2. Replace `useCampaignRosterStore`'s `units: ICampaignUnitState[]` with the projection type (rename to avoid `IUnitDamageState` collision).
-3. Migrate `RosterStateCards.tsx` damage bar to read `currentArmorPerLocation` against `IUnitMaxState`.
-4. Delete `ICampaignUnitState` from `CampaignInterfaces.types.ts` and `CampaignInterfaces.runtime.ts`.
-5. Remove local `ICampaignInput` interfaces in `postBattleProcessor` and `repairQueueBuilderProcessor` — accept `ICampaign` directly.
+1. **Promote `unitCombatStates` to `ICampaign` (1 type file + 3 test cast-removals). — Completed as a type boundary.** `ICampaign.unitCombatStates` in `src/types/campaign/Campaign.ts` is the canonical post-deploy map. No remaining work is a missing type field.
+2. **Replace `useCampaignRosterStore`'s `units: ICampaignUnitState[]` with the projection type (rename to avoid `IUnitDamageState` collision). — Completed as a type boundary.** Store `units` is `IRosterUnitProjection[]` (`src/types/campaign/RosterUnitProjection.ts`). Current damage remains on `ICampaign.unitCombatStates[unitId]`. No live `ICampaignUnitState` declaration or reference remains. A separate carry-forward payload in `campaignRosterStore.types.ts` still uses the colliding name `IUnitDamageState`; that is not the roster `units` array.
+3. **Migrate `RosterStateCards.tsx` damage bar to read `currentArmorPerLocation` against `IUnitMaxState`. — Not closed.** `RosterStateCards.tsx` selects canonical `IUnitCombatState` from `campaign.unitCombatStates[unitId]`, but `computeDamageBarData` still uses the destroyed-component/location heuristic (`destroyedCount * 2 + destroyedLocationCount * 4`) because the card has no `IUnitMaxState` companion. The desired max-state percentage in the damage-bar scenario is unchanged. This remaining heuristic is `R9.roster-damage` after `R2.camp-7`.
+4. **Delete `ICampaignUnitState` from `CampaignInterfaces.types.ts` and `CampaignInterfaces.runtime.ts`. — Completed as a type boundary.** The legacy roster-unit state is deleted; those modules document the independent `IRosterUnitProjection[]` store and campaign-level `unitCombatStates` map.
+5. **Remove local `ICampaignInput` interfaces in `postBattleProcessor` and `repairQueueBuilderProcessor` — accept `ICampaign` directly. — Completed for the named legacy interfaces.** Neither processor has a local `ICampaignInput`; both use `ICampaign` with typed extensions (`ICampaignWithBattleState`, `IPostBattleCampaignExtensions`). Integration/order proof for those processors is still required.
+
+This cutover does not complete every campaign migration or runtime journey.
 
 Pre-release context (zero released users, hard-cutover policy): no Zustand `persist` migration callback required. First load post-deletion rebuilds localStorage from defaults.
