@@ -284,7 +284,7 @@ The system SHALL format duration in milliseconds to human-readable strings with 
 
 The system SHALL manage drill-down navigation between tabs with filter context, breadcrumb trails, and scroll position preservation.
 
-**Source**: `src/utils/simulation-viewer/navigation.ts:47-162`
+**Source**: `src/utils/simulation-viewer/navigation.ts:navigationManager,createDrillDownHandler`
 
 #### Scenario: Navigate to target tab with filters
 
@@ -362,7 +362,7 @@ The system SHALL provide an Encounter History page component displaying battle l
 
 The system SHALL provide a Campaign Dashboard page component displaying roster, force status, financial overview, progression, top performers, and warnings.
 
-**Source**: `src/components/simulation-viewer/pages/CampaignDashboard.tsx:175-569`
+**Source**: `src/components/simulation-viewer/pages/CampaignDashboard.tsx:CampaignDashboard`, see `src/components/simulation-viewer/pages/CampaignDashboard.overviewSections.tsx` and `src/components/simulation-viewer/pages/CampaignDashboard.alertSections.tsx`
 
 #### Scenario: Render campaign dashboard with metrics
 
@@ -408,7 +408,7 @@ The system SHALL provide a Campaign Dashboard page component displaying roster, 
 
 The system SHALL provide an Analysis & Bugs page component displaying invariant status, anomaly alerts, violation log, and threshold configuration.
 
-**Source**: `src/components/simulation-viewer/pages/AnalysisBugs.tsx:255-642`
+**Source**: `src/components/simulation-viewer/pages/AnalysisBugs.tsx:AnalysisBugs`
 
 #### Scenario: Render analysis page with invariants
 
