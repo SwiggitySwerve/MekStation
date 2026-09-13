@@ -99,7 +99,7 @@ The system SHALL display sync status for vault items and connections.
 
 The system SHALL provide export functionality for units, pilots, and forces via the `useVaultExport` hook.
 
-**Source**: `src/hooks/useVaultExport.ts:94-246`
+**Source**: `src/hooks/useVaultExport.ts:useVaultExport`
 
 #### Scenario: Export units successfully
 
@@ -154,7 +154,7 @@ The system SHALL provide export functionality for units, pilots, and forces via 
 
 The system SHALL provide import functionality for bundles via the `useVaultImport` hook.
 
-**Source**: `src/hooks/useVaultImport.ts:96-312`
+**Source**: `src/hooks/useVaultImport.ts:useVaultImport`
 
 #### Scenario: Select and preview bundle file
 
@@ -230,7 +230,7 @@ The system SHALL provide import functionality for bundles via the `useVaultImpor
 
 The `useVaultExport` hook SHALL manage export state including loading, result, and error states.
 
-**Source**: `src/hooks/useVaultExport.ts:50-88`
+**Source**: `src/hooks/useVaultExport.ts:UseVaultExportState,UseVaultExportActions`
 
 #### Scenario: Export state lifecycle
 
@@ -254,7 +254,7 @@ The `useVaultExport` hook SHALL manage export state including loading, result, a
 
 The `useVaultImport` hook SHALL manage import state including file selection, preview, conflicts, and result.
 
-**Source**: `src/hooks/useVaultImport.ts:39-90`
+**Source**: `src/hooks/useVaultImport.ts:UseVaultImportState,UseVaultImportActions`
 
 #### Scenario: Import state lifecycle
 
@@ -281,7 +281,7 @@ The `useVaultImport` hook SHALL manage import state including file selection, pr
 
 A signed, shareable bundle of content.
 
-**Source**: `src/types/vault/VaultInterfaces.ts:111-120`
+**Source**: `src/types/vault/VaultImportExportTypes.ts:IShareableBundle`
 
 ```typescript
 interface IShareableBundle {
@@ -300,7 +300,7 @@ interface IShareableBundle {
 
 Metadata about a shareable bundle.
 
-**Source**: `src/types/vault/VaultInterfaces.ts:82-106`
+**Source**: `src/types/vault/VaultImportExportTypes.ts:IBundleMetadata`
 
 ```typescript
 interface IBundleMetadata {
@@ -334,7 +334,7 @@ interface IBundleMetadata {
 
 Content types that can be shared.
 
-**Source**: `src/types/vault/VaultInterfaces.ts:77`
+**Source**: `src/types/vault/VaultCoreTypes.ts:ShareableContentType`
 
 ```typescript
 type ShareableContentType = 'unit' | 'pilot' | 'force' | 'encounter';
@@ -344,7 +344,7 @@ type ShareableContentType = 'unit' | 'pilot' | 'force' | 'encounter';
 
 Exportable unit data (subset of full unit for sharing).
 
-**Source**: `src/types/vault/VaultInterfaces.ts:269-287`
+**Source**: `src/types/vault/VaultImportExportTypes.ts:IExportableUnit`
 
 ```typescript
 interface IExportableUnit {
@@ -372,7 +372,7 @@ interface IExportableUnit {
 
 Exportable pilot data.
 
-**Source**: `src/types/vault/VaultInterfaces.ts:292-304`
+**Source**: `src/types/vault/VaultImportExportTypes.ts:IExportablePilot`
 
 ```typescript
 interface IExportablePilot {
@@ -394,7 +394,7 @@ interface IExportablePilot {
 
 Exportable force data (with nested pilots and units).
 
-**Source**: `src/types/vault/VaultInterfaces.ts:309-327`
+**Source**: `src/types/vault/VaultImportExportTypes.ts:IExportableForce`
 
 ```typescript
 interface IExportableForce {
@@ -422,7 +422,7 @@ interface IExportableForce {
 
 Result of an export operation (discriminated union).
 
-**Source**: `src/types/vault/VaultInterfaces.ts:179`
+**Source**: `src/types/vault/VaultImportExportTypes.ts:IExportResult`
 
 ```typescript
 type IExportResult = ResultType<IExportData, IExportError>;
@@ -447,7 +447,7 @@ interface IExportError {
 
 Result of an import operation (discriminated union).
 
-**Source**: `src/types/vault/VaultInterfaces.ts:243`
+**Source**: `src/types/vault/VaultImportExportTypes.ts:IImportResult`
 
 ```typescript
 type IImportResult = ResultType<IImportData, IImportError>;
@@ -472,7 +472,7 @@ interface IImportError {
 
 Conflict detected during import.
 
-**Source**: `src/types/vault/VaultInterfaces.ts:184-202`
+**Source**: `src/types/vault/VaultImportExportTypes.ts:IImportConflict`
 
 ```typescript
 interface IImportConflict {
@@ -500,7 +500,7 @@ interface IImportConflict {
 
 Options for importing content.
 
-**Source**: `src/types/vault/VaultInterfaces.ts:207-219`
+**Source**: `src/types/vault/VaultImportExportTypes.ts:IImportOptions`
 
 ```typescript
 interface IImportOptions {
@@ -522,7 +522,7 @@ interface IImportOptions {
 
 Handler callbacks for import operations.
 
-**Source**: `src/types/vault/VaultInterfaces.ts:341-345`
+**Source**: `src/types/vault/VaultImportExportTypes.ts:IImportHandlers`
 
 ```typescript
 interface IImportHandlers<T> {
@@ -549,7 +549,7 @@ type ItemSaver<T> = (item: T, source: IImportSource) => Promise<string>;
 
 Bundle preview data (hook-specific type).
 
-**Source**: `src/hooks/useVaultImport.ts:29-37`
+**Source**: `src/hooks/useVaultImport.ts:BundlePreview`
 
 ```typescript
 interface BundlePreview {
@@ -567,7 +567,7 @@ interface BundlePreview {
 
 API response from `/api/vault/sign` endpoint.
 
-**Source**: `src/hooks/useVaultExport.ts:28-33`
+**Source**: `src/hooks/useVaultExport.ts` file-local `SignBundleResponse` (not exported)
 
 ```typescript
 interface SignBundleResponse {

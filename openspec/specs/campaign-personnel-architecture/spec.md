@@ -12,9 +12,9 @@
 
 ### Purpose
 
-Crystallize the canonical architecture for personnel data in a campaign. Distinguish three orthogonal stores (vault, roster, force assignment) and codify the migration path away from the legacy `IPerson` god-type that conflated all three concerns. This spec is the source-of-truth for the post-`migrate-personnel-to-roster-employment` end state and for the in-flight `wire-iperson-hard-cutover` PRs that complete the cutover.
+Crystallize the canonical architecture for personnel data in a campaign. Distinguish three orthogonal stores (vault, roster, force assignment) and codify the completed migration away from the legacy `IPerson` god-type that conflated all three concerns. This spec is the source-of-truth for the post-`migrate-personnel-to-roster-employment` and post-`wire-iperson-hard-cutover` end state.
 
-This spec supersedes the implicit conventions previously held by `derivePersonnelFromRoster`, `syncRosterFromPersonnel`, and the `ICampaign.personnel: Map<string, IPerson>` legacy field. After PR4 of `wire-iperson-hard-cutover` lands, the bridge functions are deleted and `campaign.personnel` no longer exists.
+This spec supersedes the implicit conventions previously held by `derivePersonnelFromRoster`, `syncRosterFromPersonnel`, and the `ICampaign.personnel: Map<string, IPerson>` legacy field. The completed hard cutover deleted those bridge functions and the `campaign.personnel` field.
 
 ### Scope
 
@@ -25,8 +25,8 @@ This spec supersedes the implicit conventions previously held by `derivePersonne
 - Pre-join template: helpers operating in a loop receive a `Map<pilotId, IPilot>` from vault to avoid N² `find()` calls.
 - NPC handling contract: domain helpers explicitly document whether they skip NPC entries (statblock-only, no vault pilot).
 - Delta-return contract for cross-store mutations: helpers that mutate state return delta objects keyed by store, not in-place mutations.
-- Bridge function deletion: `derivePersonnelFromRoster` and `syncRosterFromPersonnel` are NOT permanent infrastructure; they exist only during the cutover.
-- `IPerson` deletion: the legacy god-type is removed entirely from `src/types/`.
+- Bridge function deletion: `derivePersonnelFromRoster` and `syncRosterFromPersonnel` existed only during the cutover and are deleted from `src/stores/campaign/useCampaignStore.ts`.
+- `IPerson` deletion: the legacy `export interface IPerson` god-type is removed from `src/types/campaign/Person.ts` (that file now exports `IInjury` / `createInjury` only). Remaining `IPersonTraits`, `IPersonnel*` names, and historical comments are not the deleted type.
 
 **Out of Scope:**
 
@@ -42,7 +42,7 @@ This spec supersedes the implicit conventions previously held by `derivePersonne
 - **Vault** (`usePilotStore`) — long-lived persistent pilot identities. One pilot can be hired by multiple campaigns over their career. Owns: identity, vault skills, lifetime career stats, awards, ability/SPA progression.
 - **Roster** (`useCampaignRosterStore`) — per-campaign employment record. Joins to vault via `pilotId`. Owns: campaign-scoped wounds, recovery time, salary override, hire date, departure reason, campaign XP earned, campaign kills, campaign missions.
 - **Force assignment** — slot-mirrored on `ICampaignRosterEntry.assignedUnitId`; the canonical force structure lives elsewhere.
-- **Bridge functions** — `derivePersonnelFromRoster()` and `syncRosterFromPersonnel()` synthesize the legacy `IPerson` shape from `(entry, pilot)`. Transitional infrastructure only.
+- **Cross-store helper boundary** — production helpers consume `(entry: ICampaignRosterEntry, pilot: IPilot | null)` directly. Legacy bridge functions and the `IPerson` shape are transitional history only and are deleted after the hard cutover.
 
 ---
 
@@ -72,7 +72,7 @@ The system SHALL maintain personnel data across three stores with no overlapping
 
 ### Requirement: ICampaignRosterEntry carries the campaign-scoped fields production needs
 
-`ICampaignRosterEntry` SHALL carry the per-campaign personnel fields that production helpers branch on. The bridge function `rosterEntryToPerson` SHALL forward these fields verbatim, NOT synthesize defaults. (Per Council #4 2026-05-02; replaces the prior implicit "bridge synthesizes everything" assumption that produced 4 live bugs in salaryService role-categorization, getBestAvailableDoctor filtering, rankService promotion gating, and aging/vocationalTrainingProcessor trait persistence.)
+`ICampaignRosterEntry` SHALL carry the per-campaign personnel fields that production helpers branch on. Production helpers SHALL read these fields directly from the roster entry and pilot arguments, NOT synthesize a legacy `IPerson` value or defaults. (Per Council #4 2026-05-02; replaces the prior implicit "bridge synthesizes everything" assumption that produced 4 live bugs in salaryService role-categorization, getBestAvailableDoctor filtering, rankService promotion gating, and aging/vocationalTrainingProcessor trait persistence.)
 
 #### Scenario: Required campaign-scoped fields
 
@@ -85,11 +85,13 @@ The system SHALL maintain personnel data across three stores with no overlapping
 - **WHEN** a campaign-specific behavior applies to a roster entry
 - **THEN** the corresponding optional field exists on the entry: `traits?: IPersonTraits`, `lastPromotionDate?: Date`, `isFounder?: boolean`, `isCommander?: boolean`, in addition to pre-existing optional fields (`salary?`, `departureReason?`, etc.).
 
-#### Scenario: Bridge forwards instead of synthesizing
+#### Scenario: Helpers consume roster fields directly
 
-- **WHEN** `rosterEntryToPerson(entry, pilot)` runs
-- **THEN** it forwards `primaryRole`, `traits`, `rankIndex`, `lastPromotionDate`, `isFounder`, `isCommander` verbatim from the roster entry
-- **AND** it SHALL NOT hardcode `primaryRole: PILOT`, `rankIndex: 0`, omit `traits`, or omit `lastPromotionDate`.
+- **WHEN** a cross-store helper accepts `(entry: ICampaignRosterEntry, pilot: IPilot | null)`
+- **THEN** it reads `primaryRole`, `traits`, `rankIndex`, `lastPromotionDate`, `isFounder`, and `isCommander` directly from the split inputs
+- **AND** it SHALL NOT synthesize a legacy `IPerson`, hardcode `primaryRole: PILOT` or `rankIndex: 0`, or omit roster fields.
+
+**Source**: `src/types/campaign/CampaignRosterEntry.ts::ICampaignRosterEntry`; `src/lib/finances/salaryService.ts::calculatePersonSalary`; `src/lib/campaign/processors/vocationalTrainingProcessor.ts::isEligibleForVocational`; `src/lib/campaign/utils/pilotLookup.ts::buildPilotLookup`.
 
 #### Scenario: Live bug regression coverage
 
@@ -155,14 +157,14 @@ Helpers that change state in multiple stores SHALL return delta objects keyed by
 - **THEN** it returns `{ vault: { pilotId, skillUpdates }, roster: { pilotId, xpDelta } }`
 - **AND** the calling processor commits each delta to the right store in one atomic transaction.
 
-### Requirement: Bridge functions are transitional infrastructure
+### Requirement: Bridge functions are deleted post-cutover
 
-`derivePersonnelFromRoster()` and `syncRosterFromPersonnel()` SHALL exist only during the `wire-iperson-hard-cutover` migration. After PR4 of that change lands, both functions SHALL be deleted.
+`derivePersonnelFromRoster()` and `syncRosterFromPersonnel()` SHALL NOT exist in `src/` after archived PR4 of `wire-iperson-hard-cutover`. Production helpers consume `(entry, pilot | null)` directly.
 
 #### Scenario: Bridge functions absent post-PR4
 
 - **WHEN** searching `src/` for `derivePersonnelFromRoster` or `syncRosterFromPersonnel`
-- **THEN** the count SHALL be 0 (after PR4 lands).
+- **THEN** the count SHALL be 0.
 
 #### Scenario: Lossy Critical→Wounded round-trip is fixed
 
@@ -172,7 +174,7 @@ Helpers that change state in multiple stores SHALL return delta objects keyed by
 
 ### Requirement: ICampaign.personnel field is removed entirely
 
-`ICampaign` SHALL NOT contain a `personnel` field after PR4 of `wire-iperson-hard-cutover` lands. Production code SHALL read personnel via `useCampaignRosterStore` + `usePilotStore` directly.
+`ICampaign` SHALL NOT contain a `personnel` field. Production code SHALL read personnel via `useCampaignRosterStore` + `usePilotStore` directly.
 
 #### Scenario: Legacy field absent
 
@@ -186,27 +188,29 @@ Helpers that change state in multiple stores SHALL return delta objects keyed by
 
 ### Requirement: IPerson type is deleted from src/
 
-After PR5 of `wire-iperson-hard-cutover` lands, `IPerson` SHALL have zero references in `src/`. The `rosterEntryToPerson.ts` shim and its tests SHALL also be deleted.
+The completed PR5 of `wire-iperson-hard-cutover` deleted `export interface IPerson` from `src/types/campaign/Person.ts` and deleted `src/lib/campaign/utils/rosterEntryToPerson.ts` plus its tests. A raw substring search for `IPerson` SHALL NOT be treated as deletion proof: `IPersonTraits`, `IPersonnel*` market/activity types, and historical comments remain.
 
-#### Scenario: IPerson grep returns zero
+#### Scenario: Deleted IPerson type and shim are absent
 
-- **WHEN** `grep -rn "IPerson" src/`
-- **THEN** the count SHALL be 0 (after PR5 lands).
+- **WHEN** searching `src/` with the exact-interface pattern `\bexport\s+interface\s+IPerson\b` or the shim name `rosterEntryToPerson`
+- **THEN** neither the god-type nor the shim file SHALL exist
+- **AND** `src/types/campaign/Person.ts` SHALL still export `IInjury` / `createInjury`
+- **AND** remaining `IPersonTraits` / `IPersonnel*` identifiers SHALL NOT be counted as the deleted type.
 
 #### Scenario: rosterEntryToPerson shim absent
 
 - **WHEN** searching for `src/lib/campaign/utils/rosterEntryToPerson.ts`
-- **THEN** the file SHALL NOT exist (after PR5 lands).
+- **THEN** the file SHALL NOT exist.
 
 ### Requirement: Cross-spec consumption boundaries
 
-Other specs that reference personnel data SHALL consume the split contract defined here (vault + roster + force assignment) and SHALL NOT reference the deleted `IPerson` type after PR5 of `wire-iperson-hard-cutover` lands.
+Other specs that reference personnel data SHALL consume the split contract defined here (vault + roster + force assignment) and SHALL NOT reference the deleted `IPerson` type.
 
 #### Scenario: personnel-management spec consumes the architecture
 
 - **WHEN** `personnel-management/spec.md` describes Person Entity attributes
 - **THEN** the attributes are split between vault (`usePilotStore.IPilot`) and roster (`useCampaignRosterStore.ICampaignRosterEntry`) per this spec
-- **AND** legacy `IPerson` references in `personnel-management/spec.md` are updated post-PR5 to reference the split.
+- **AND** legacy `IPerson` references in `personnel-management/spec.md` were updated in PR5 to reference the split.
 
 #### Scenario: personnel-progression spec consumes the contract
 
@@ -217,6 +221,13 @@ Other specs that reference personnel data SHALL consume the split contract defin
 
 ## Migration notes
 
-This spec is authored post-PR1 of `wire-iperson-hard-cutover` (already shipped as PR #486 — test fixture migration). PR2-PR5 implement the remainder per Council #2's staged cutover. Implementation tracked at `openspec/changes/wire-iperson-hard-cutover/`.
+The `wire-iperson-hard-cutover` change is archived at `openspec/changes/archive/2026-05-03-wire-iperson-hard-cutover/`. Four completed migration boundaries after shipped PR1 (#486 fixture migration) and PR1.5 (roster-field extension) are:
+
+1. PR2 helper-signature migration to `(entry: ICampaignRosterEntry, pilot: IPilot | null)` (PR #496)
+2. PR3 `dayAdvancement` + processor repointing off `campaign.personnel` (PR #497)
+3. PR4 deletion of `derivePersonnelFromRoster`, `syncRosterFromPersonnel`, and `ICampaign.personnel` (PR #498)
+4. PR5 deletion of `export interface IPerson` and the `rosterEntryToPerson` shim (PR #499)
+
+This cutover does not complete every campaign migration or runtime journey. The max-state roster damage heuristic remains a separate `R9.roster-damage` repair after `R2.camp-7`.
 
 Pre-release context (zero released users, hard-cutover policy): no Zustand `persist` migration callback required. First load post-PR4 rebuilds localStorage from defaults.

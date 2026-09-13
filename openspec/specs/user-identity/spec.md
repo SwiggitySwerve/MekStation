@@ -825,9 +825,9 @@ const matches = friendCodeMatchesPublicKey('ABCD-EFGH-JKLM-NPQR', publicKeyBytes
 - `src/services/vault/IdentityService.ts` - Core identity operations
 - `src/services/vault/IdentityRepository.ts` - Database persistence
 - `src/pages/api/vault/identity/index.ts` - API endpoints
-- `src/types/vault/VaultInterfaces.ts` - TypeScript interfaces
+- `src/types/vault/VaultCoreTypes.ts` - TypeScript identity interfaces (barrel: `src/types/vault/VaultInterfaces.ts`)
 - `src/__tests__/api/vault/identity.test.ts` - API tests
-- `src/__tests__/services/vault/IdentityService.test.ts` - Service tests
+- `src/services/vault/__tests__/IdentityService.test.ts` - Service tests
 
 ---
 
