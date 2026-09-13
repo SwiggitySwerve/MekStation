@@ -8,7 +8,16 @@ Defines Customizer Tabs requirements for Tab Navigation, Tab Component Props, Un
 
 ### Requirement: Tab Navigation
 
-The customizer SHALL provide a tabbed navigation interface with seven tabs: Overview, Structure, Armor, Equipment, Criticals, Fluff, and Preview.
+The default BattleMech workbench SHALL provide a tabbed navigation interface
+with seven tabs in this order: Overview, Structure, Armor, Equipment, Critical
+Slots, Fluff, and Preview. Other unit families SHALL use their per-type tab
+registry and conditional tab visibility; registry order is owned by that
+per-type definition and may differ from the default workbench order.
+
+**Source**: `src/components/customizer/tabs/CustomizerTabs.tsx::DEFAULT_CUSTOMIZER_TABS`
+defines the default workbench order. `src/components/customizer/shared/tabRegistry.tsx::MECH_TABS`
+and `::getTabSpecsForUnitType` define the registry-driven surface, including
+its separate Preview-before-Fluff order.
 
 #### Scenario: User navigates between tabs
 
@@ -404,7 +413,12 @@ The customizer settings store SHALL manage armor diagram display mode with two o
 
 ### Requirement: Armor Diagram Variant Selection
 
-The customizer settings store SHALL manage armor diagram design variant with five options: clean-tech, neon-operator, tactical-hud, premium-material, and megamek.
+The customizer settings store SHALL manage four selectable armor diagram
+styles, using stable IDs with the current display labels: `clean-tech`
+(Standard), `neon-operator` (Glow), `tactical-hud` (HUD), and
+`premium-material` (Chromatic). The persisted `megamek` value is retained only
+for legacy migration and SHALL resolve to `clean-tech` before rendering; it is
+not a selectable style.
 
 **Source**: `src/stores/useCustomizerSettingsStore.ts:19-24`
 
@@ -591,16 +605,16 @@ export type ArmorDiagramVariant =
   | 'neon-operator'
   | 'tactical-hud'
   | 'premium-material'
-  | 'megamek';
+  | 'megamek'; // legacy persisted value; never selectable
 ```
 
 **Values**:
 
-- `'clean-tech'`: Minimalist design with clean lines (default)
-- `'neon-operator'`: High-contrast neon aesthetic
-- `'tactical-hud'`: Military HUD-inspired design
-- `'premium-material'`: Material Design-inspired variant
-- `'megamek'`: Classic MegaMek visual style
+- `'clean-tech'`: Standard display label; minimalist design with clean lines (default)
+- `'neon-operator'`: Glow display label; high-contrast neon aesthetic
+- `'tactical-hud'`: HUD display label; military HUD-inspired design
+- `'premium-material'`: Chromatic display label; material-inspired variant
+- `'megamek'`: Legacy persisted value only; resolves to `clean-tech` and is not selectable
 
 **Source**: `src/stores/useCustomizerSettingsStore.ts:19-24`
 

@@ -8,21 +8,26 @@ The armor diagram in the customizer supports multiple visual design variants. Us
 
 ### Requirement: Multiple Design Variants
 
-The system SHALL provide 6 distinct armor diagram designs for user selection.
+The system SHALL provide four distinct armor diagram designs for user selection.
 
 #### Scenario: Available variants
 
 - **WHEN** the armor diagram is rendered
-- **THEN** the system supports these variants:
-  - Clean Tech (default)
-  - Neon Operator
-  - Tactical HUD
-  - Premium Material
-  - MegaMek
-  - MegaMek Classic (NEW - uses mm-data assets)
+- **THEN** the system supports these selectable styles and stable IDs:
+  - Standard (`clean-tech`, default; Clean Tech design)
+  - Glow (`neon-operator`, Neon Operator design)
+  - HUD (`tactical-hud`, Tactical HUD design)
+  - Chromatic (`premium-material`, Premium Material design)
 - **AND** each variant maintains identical functionality
 - **AND** each variant displays all locations for the current configuration
 - **AND** each variant applies consistently to all mech configurations (Biped, Quad, Tripod, LAM, QuadVee)
+
+**Source**: `src/components/customizer/armor/shared/VariantConstants.ts::ALL_VARIANTS`
+and `::VARIANT_NAMES` define the four selectable IDs and Standard/Glow/HUD/
+Chromatic labels. `src/components/customizer/armor/ArmorDiagramQuickSettings.tsx`
+maps that list to the persisted settings selector. The separate
+`src/components/customizer/armor/ArmorDiagramSelector.tsx` uses its UAT-facing
+Clean Tech/Neon Operator/Tactical HUD/Premium Material descriptions.
 
 ### Requirement: Clean Tech Variant
 
@@ -118,18 +123,24 @@ The system SHALL persist the user's variant selection.
 - **AND** selection is restored on page reload
 - **AND** selection applies across all customizer sessions
 
-### Requirement: MegaMek Variant
+### Requirement: Retired Variant Migration
 
-The system SHALL provide a MegaMek variant with classic styling.
+The system SHALL resolve the legacy persisted megamek value to clean-tech before rendering. Retaining this legacy value in the settings type SHALL NOT make it a selectable style.
 
-#### Scenario: MegaMek visual elements
+#### Scenario: Reload retired preference
 
-- **WHEN** MegaMek variant is active
-- **THEN** diagram uses realistic mech contour silhouette
-- **AND** locations use solid fills with shadow/outline effects
-- **AND** armor values are displayed as plain text with drop shadow
-- **AND** capacity is shown below values (e.g., "/ 32")
-- **AND** selected location shows classic blue highlight
+- **GIVEN** existing local settings contain the retired megamek variant
+- **WHEN** settings are hydrated or a diagram resolves its style
+- **THEN** the `clean-tech` style (displayed as Standard) SHALL be used with the same construction data
+- **AND** the selector SHALL offer only Standard (`clean-tech`), Glow (`neon-operator`), HUD (`tactical-hud`), and Chromatic (`premium-material`)
+
+**Source**: `src/stores/useCustomizerSettingsStore.ts::resolveArmorDiagramVariant`
+resolves the retained `megamek` value to `clean-tech`; the selectable list is
+`src/components/customizer/armor/shared/VariantConstants.ts::ALL_VARIANTS`.
+`MegaMekDiagram` remains reachable for a direct `megamek` value passed to
+`src/components/customizer/tabs/ArmorDiagramPanel.tsx`; normal settings
+hydration and setters resolve `megamek` to `clean-tech` before `ArmorTab` passes
+the variant to that panel.
 
 ### Requirement: Variant Configuration Compatibility
 
@@ -167,50 +178,34 @@ All visual variants SHALL render correctly on all mech configurations.
 
 ### Requirement: Shared Variant Location Renderer
 
-The system SHALL use a shared component for rendering location content across all configurations.
+The system SHALL use `VariantLocation` from `VariantLocationRenderer.tsx` for rendering location content in
+Quad, Tripod, LAM, and QuadVee configurations. Biped diagrams SHALL use their
+direct `BipedArmorSurface` route for location content.
 
 #### Scenario: Location content rendering
 
-- **WHEN** an armor location is rendered in any diagram
-- **THEN** the system SHALL select appropriate variant renderer (CleanTech, Neon, Tactical, Premium, or MegaMek)
+- **WHEN** an armor location is rendered in a Quad, Tripod, LAM, or QuadVee diagram
+- **THEN** the system SHALL select appropriate variant renderer (CleanTech, Neon, Tactical, or Premium)
 - **AND** renderer SHALL display armor value using variant-specific typography
 - **AND** renderer SHALL display capacity indicator using variant-specific format
 - **AND** renderer SHALL apply variant-specific fill patterns and effects
 
-### Requirement: MegaMek Classic Variant
+#### Scenario: Biped location content rendering
 
-The system SHALL provide a "MegaMek Classic" armor diagram variant that matches MegaMekLab's visual style.
+- **WHEN** an armor location is rendered in a Biped diagram
+- **THEN** the system SHALL use the direct `BipedArmorSurface` route
+- **AND** the selected variant SHALL remain available to that surface for variant-specific styling
 
-**Rationale**: Users familiar with MegaMekLab expect visual parity; using official assets ensures authenticity.
+### Requirement: Default Armor Variant
 
-**Priority**: High
+The system SHALL use Clean Tech when no supported style has been selected.
 
-#### Scenario: MegaMek Classic rendering
+#### Scenario: First use
 
-- **WHEN** user selects "MegaMek Classic" variant in Settings
-- **THEN** armor diagram SHALL render using mm-data pip SVG assets
-- **AND** visual appearance SHALL match MegaMekLab's armor diagram
-- **AND** pips are displayed as circles arranged per location
-
-#### Scenario: MegaMek Classic pip loading
-
-- **WHEN** armor diagram renders for a location
-- **THEN** load pip SVG matching current armor value
-- **AND** display correct number of filled circles
-- **AND** rear armor uses separate rear pip SVGs for torso locations
-
-#### Scenario: MegaMek Classic click interaction
-
-- **WHEN** user clicks on a location in MegaMek Classic variant
-- **THEN** invisible click target overlay registers the click
-- **AND** location is selected for editing
-- **AND** hover state displays on mouse enter
-
-#### Scenario: MegaMek Classic default
-
-- **GIVEN** user has not explicitly chosen a variant
-- **WHEN** armor diagram renders
-- **THEN** MegaMek Classic SHALL be the default variant
+- **GIVEN** no persisted supported variant preference
+- **WHEN** the customizer armor diagram renders
+- **THEN** Clean Tech SHALL be selected
+- **AND** record-sheet template rendering SHALL remain independent of the armor-diagram style selector
 
 ## Component Reference
 
@@ -220,8 +215,12 @@ The system SHALL provide a "MegaMek Classic" armor diagram variant that matches 
 | NeonOperatorDiagram    | `armor/variants/NeonOperatorDiagram.tsx`    | Neon Operator variant    |
 | TacticalHUDDiagram     | `armor/variants/TacticalHUDDiagram.tsx`     | Tactical HUD variant     |
 | PremiumMaterialDiagram | `armor/variants/PremiumMaterialDiagram.tsx` | Premium Material variant |
+| MegaMekDiagram          | `armor/variants/MegaMekDiagram.tsx`          | Retained legacy/direct-compatibility renderer for raw `megamek` panel inputs; normal settings migration resolves to Clean Tech; not selectable |
 | MechSilhouette         | `armor/shared/MechSilhouette.tsx`           | SVG path definitions     |
+| VariantLocation         | `armor/shared/VariantLocationRenderer.tsx`  | Shared location interaction and variant dispatch |
+| VariantStyles           | `armor/shared/VariantStyles.tsx`            | Shared variant style definitions |
 | ArmorFills             | `armor/shared/ArmorFills.tsx`               | Gradients and filters    |
+| ArmorDiagramSvgFrame    | `armor/shared/ArmorDiagramSvgFrame.tsx`    | Shared SVG diagram frame |
 
 ## Shared Resources
 

@@ -8,20 +8,22 @@ Defines Customizer Responsive Layout requirements for Adaptive Tab Navigation, R
 
 ### Requirement: Adaptive Tab Navigation
 
-The customizer tabs SHALL display in an adaptive format based on viewport width.
+The customizer tabs SHALL display labeled, horizontally scrollable tabs. Icon
+visibility SHALL follow the tab strip's compact mode, while layout behavior
+SHALL follow the available horizontal space.
 
-#### Scenario: Icon-only tabs on small screens
+#### Scenario: Labeled tabs in compact mode
 
-- **WHEN** viewport width is below 640px (sm breakpoint)
-- **THEN** tabs display icons only without text labels
-- **AND** each tab has minimum 44px touch target height
-- **AND** tabs are horizontally scrollable when they overflow
+- **WHEN** the customizer tab strip is rendered in compact mode
+- **THEN** tabs SHALL retain visible text labels and minimum 44px touch target height
+- **AND** icons SHALL be hidden for the compact navigation
+- **AND** tabs SHALL remain horizontally scrollable when they overflow
 
-#### Scenario: Icon and label tabs on larger screens
+#### Scenario: Labeled tabs outside compact mode
 
-- **WHEN** viewport width is 640px or greater
-- **THEN** tabs display both icons and text labels
-- **AND** horizontal scrolling is available if needed
+- **WHEN** the customizer tab strip is rendered outside compact mode
+- **THEN** labels SHALL remain visible with their configured icons
+- **AND** horizontal scrolling SHALL remain available when needed
 
 #### Scenario: Tab scroll indicators
 
@@ -29,39 +31,43 @@ The customizer tabs SHALL display in an adaptive format based on viewport width.
 - **THEN** gradient fade indicators appear on the overflow side
 - **AND** users can scroll horizontally to see all tabs
 
+**Source**: `src/components/customizer/tabs/CustomizerTabs.tsx::CustomizerTabs`
+(`compact`, horizontal overflow, 44px targets, and left/right fades); the
+active workbench passes `compact` from
+`src/components/customizer/UnitEditorWithRouting.tsx`.
+
 ---
 
 ### Requirement: Responsive Loadout Sidebar
 
-The loadout tray SHALL adapt its presentation based on viewport width and user preference.
+The loadout tray SHALL use a desktop sidebar or drawer and a mobile status bar with an expandable equipment list, according to the active workbench layout.
 
-#### Scenario: Bottom sheet on mobile
+#### Scenario: Mobile loadout
 
-- **WHEN** viewport width is below 768px (md breakpoint)
-- **THEN** loadout displays as a draggable bottom sheet
-- **AND** bottom sheet has collapsed, half, and expanded states
-- **AND** swipe gestures control sheet expansion
+- **WHEN** viewport width is below the 768px desktop breakpoint
+- **THEN** a loadout status bar SHALL expose equipment and construction statistics
+- **AND** activating its control SHALL toggle between collapsed status and an expanded full-screen list
+- **AND** closing the list SHALL return to the status bar
+- **AND** the expanded preference SHALL persist through the existing local editor storage
 
-#### Scenario: Collapsed sidebar on medium screens
+#### Scenario: Desktop sidebar and drawer
 
-- **WHEN** viewport width is between 768px and 1024px
-- **THEN** sidebar defaults to collapsed state (40px width)
-- **AND** expand toggle button is prominently visible
-- **AND** equipment count badge is shown in collapsed state
+- **WHEN** the desktop layout displays the sidebar
+- **THEN** its expanded state SHALL follow the user's persisted toggle rather than automatic collapse on resize
+- **WHEN** the workbench hides the permanent sidebar and the user opens Unit loadout
+- **THEN** a dismissible named drawer SHALL show the same loadout and placement actions
 
-#### Scenario: Expanded sidebar on large screens
+**Source**: `src/components/customizer/equipment/ResponsiveLoadoutTray.tsx`
+(`GlobalLoadoutTray`, named drawer, and mobile `BottomSheetTray` wiring);
+`src/components/customizer/equipment/BottomSheetTray.tsx` (persisted expanded
+state, status bar, full-screen list, close, and placement callbacks); and
+`src/hooks/usePersistedState.ts` (separate tray persistence keys).
 
-- **WHEN** viewport width is 1024px or greater
-- **THEN** sidebar defaults to expanded state (240px width)
-- **AND** user can collapse it manually if desired
+#### Scenario: Layout does not change equipment
 
-#### Scenario: Manual sidebar toggle
-
-- **WHEN** user clicks the expand/collapse toggle
-- **THEN** sidebar transitions smoothly between states
-- **AND** preference persists during the session
-
----
+- **WHEN** the user expands, collapses, closes, or resizes the loadout surface
+- **THEN** the active unit's equipment and assignments SHALL remain unchanged
+- **AND** the document SHALL remain within the viewport
 
 ### Requirement: Responsive Content Layout
 
@@ -90,42 +96,41 @@ Tab content layouts SHALL adapt to available horizontal space.
 
 ### Requirement: Responsive Unit Info Banner
 
-The unit statistics banner SHALL display information clearly at all viewport sizes.
+The unit statistics banner SHALL display information clearly in compact and
+non-compact workbench layouts.
 
-#### Scenario: Compact stats on mobile
+#### Scenario: Compact stats in compact mode
 
-- **WHEN** viewport width is below 640px
-- **THEN** movement stats show abbreviated label "W/R/J"
+- **WHEN** the unit information banner is rendered in compact mode
+- **THEN** movement stats SHALL retain the labels Walk, Run, and Jump
 - **AND** stat values use smaller font sizes
 - **AND** stats wrap to multiple lines if needed
 
-#### Scenario: Full stats on larger screens
+#### Scenario: Full stats outside compact mode
 
-- **WHEN** viewport width is 640px or greater
+- **WHEN** the unit information banner is rendered outside compact mode
 - **THEN** movement stats show full label "Walk / Run / Jump"
 - **AND** all stats display in a single row when space permits
+
+**Source**: `src/components/customizer/shared/UnitInfoBanner.tsx` (the
+`compact` rendering branch and movement labels); the active workbench passes
+`compact` from `src/components/customizer/UnitEditorWithRouting.tsx`.
 
 ---
 
 ### Requirement: Touch-Friendly Interactions
 
-All interactive elements SHALL be touch-friendly on mobile devices.
+Mobile editing controls SHALL provide accessible touch targets and explicit loadout actions.
 
 #### Scenario: Minimum touch target size
 
-- **WHEN** rendering buttons, tabs, or interactive elements
-- **THEN** touch targets are at least 44x44 pixels on mobile
-- **AND** adequate spacing prevents accidental taps
+- **WHEN** mobile loadout or catalog controls render
+- **THEN** their primary buttons SHALL provide at least 44px touch targets
+- **AND** focus and accessible names SHALL remain available
 
-#### Scenario: Swipe gestures for bottom sheet
+#### Scenario: Open, close, and assign from the mobile list
 
-- **WHEN** user swipes up on the bottom sheet handle
-- **THEN** sheet expands to the next state (collapsed → half → expanded)
-- **WHEN** user swipes down on the bottom sheet handle
-- **THEN** sheet contracts to the previous state
-
-#### Scenario: Drag equipment on touch devices
-
-- **WHEN** user long-presses equipment in the bottom sheet
-- **THEN** drag mode is activated for slot assignment
-- **AND** visual feedback indicates the item is being dragged
+- **WHEN** the user activates the loadout status control
+- **THEN** the expanded list SHALL open without requiring a swipe or long press
+- **AND** explicit selection, removal, unassignment, and supported quick-assignment controls SHALL use the existing equipment authority
+- **AND** no intermediate half-height state SHALL be required
