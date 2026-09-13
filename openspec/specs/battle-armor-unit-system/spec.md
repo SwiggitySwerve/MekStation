@@ -727,21 +727,25 @@ Actions SHALL set the relevant fields plus `isModified: true` and `lastModifiedA
 
 ### Tab Layout
 
-The customizer SHALL provide a two-tab interface:
+The customizer tab registry (`BATTLE_ARMOR_TABS` in `shared/tabRegistry.tsx`) uses these nine labels, in this order: Overview; Chassis; Squad; Manipulators; Modular Weapons; AP Weapons; Jump/UMU; Preview; Fluff.
 
-#### Tab: Structure & Chassis
-
-- **Identity Section**: Chassis name (text input), Model/Variant (text input), Tech Base (select: IS/Clan)
-- **Chassis Configuration Section**: Chassis Type (select: Biped/Quad), Weight Class (select: all 5), Weight/Trooper in kg (number input, min 400, max 2000, step 50)
-- **Movement Section**: Motion Type (select: Foot/Jump/VTOL/UMU), Ground MP (number, 0-5), Jump MP (number, 0-5)
-- **Manipulators Section**: Left Manipulator (select: all 11 types), Right Manipulator (select: all 11 types)
-
-#### Tab: Squad & Equipment
-
-- **Squad Configuration Section**: Squad Size (number, 1-6), Armor/Trooper (number, 0-14), total squad armor display
-- **Mount Options Section**: Anti-Personnel Mount (checkbox), Modular Mount (checkbox), Turret Mount (checkbox)
-- **Equipment Browser**: Integrated `EquipmentBrowser` component for adding equipment
-- **Mounted Equipment List**: Shows each mounted item with location selector (5 locations) and remove button, "Clear All" button when equipment exists
+- **Overview**: `overviewSpecFor(UnitType.BATTLE_ARMOR)` via dispatch wrapper `OverviewTabForType`, resolving to `BattleArmorOverviewTab`.
+- **Chassis**: `BattleArmorChassisTab` is an alias of implemented `BattleArmorStructureTab`. Current Chassis body still renders identity, chassis configuration, movement, and manipulators:
+  - **Identity Section**: Chassis name (text input), Model/Variant (text input), Tech Base (select: IS/Clan)
+  - **Chassis Configuration Section**: Chassis Type (select: Biped/Quad), Weight Class (select: all 5), Weight/Trooper in kg (number input, min 400, max 2000, step 50)
+  - **Movement Section**: Motion Type (select: Foot/Jump/VTOL/UMU), Ground MP (number, 0-5), Jump MP (number, 0-5)
+  - **Manipulators Section**: Left Manipulator (select: all 11 types), Right Manipulator (select: all 11 types)
+- **Squad**: `BattleArmorSquadTab`. Current Squad body still renders squad configuration, mount options, the equipment browser, and the mounted list:
+  - **Squad Configuration Section**: Squad Size (number, 1-6), Armor/Trooper (number, 0-14), total squad armor display
+  - **Mount Options Section**: Anti-Personnel Mount (checkbox), Modular Mount (checkbox), Turret Mount (checkbox)
+  - **Equipment Browser**: Integrated `EquipmentBrowser` component for adding equipment
+  - **Mounted Equipment List**: Shows each mounted item with location selector (5 locations) and remove button, "Clear All" button when equipment exists
+- **Manipulators**: `BattleArmorManipulatorsTab` (`PlaceholderTab`). Deferred: per-arm manipulator selection.
+- **Modular Weapons**: `BattleArmorModularWeaponsTab` (`PlaceholderTab`). Deferred: modular-mount weapon selection plus weight/crit tracking.
+- **AP Weapons**: `BattleArmorAPWeaponsTab` (`PlaceholderTab`). Deferred: one AP weapon slot plus weight/crit accounting.
+- **Jump/UMU**: `BattleArmorJumpUMUTab` (`PlaceholderTab`). Deferred: Jump/UMU mobility selection plus MP/weight accounting.
+- **Preview**: `previewSpecFor(UnitType.BATTLE_ARMOR)` via dispatch wrapper `PreviewTabForType`, resolving to `BattleArmorPreviewTab`.
+- **Fluff**: `SHARED_FLUFF`, component `FluffTab`.
 
 ### Diagram Sidebar
 
@@ -807,9 +811,19 @@ The handler SHALL extend `AbstractUnitTypeHandler<IBattleArmor>`:
 | `src/stores/useBattleArmorStore.ts` | Zustand store factory, context, hooks |
 | `src/stores/battleArmorStoreRegistry.ts` | Registry for active store instances |
 | `src/services/units/handlers/BattleArmorUnitHandler.ts` | BLK parsing, validation, calculations |
+| `src/components/customizer/shared/tabRegistry.tsx` | Battle Armor tab registry (`BATTLE_ARMOR_TABS`); Overview/Preview dispatch wrappers |
+| `src/components/customizer/shared/customizerTypeRegistry.tsx` | Resolves `BattleArmorOverviewTab` / `BattleArmorPreviewTab` |
+| `src/components/customizer/tabs/NonMechOverviewTabs.tsx` | `BattleArmorOverviewTab` |
+| `src/components/customizer/tabs/FluffTab.tsx` | Shared Fluff tab |
 | `src/components/customizer/battlearmor/BattleArmorCustomizer.tsx` | Main customizer with tabs |
-| `src/components/customizer/battlearmor/BattleArmorStructureTab.tsx` | Structure/chassis tab UI              |
+| `src/components/customizer/battlearmor/BattleArmorChassisTab.tsx` | Canonical Chassis alias of `BattleArmorStructureTab` |
+| `src/components/customizer/battlearmor/BattleArmorStructureTab.tsx` | Chassis implementation target |
 | `src/components/customizer/battlearmor/BattleArmorSquadTab.tsx` | Squad/equipment tab UI |
+| `src/components/customizer/battlearmor/BattleArmorManipulatorsTab.tsx` | Placeholder: per-arm manipulator selection |
+| `src/components/customizer/battlearmor/BattleArmorModularWeaponsTab.tsx` | Placeholder: modular-mount weapon selection plus weight/crit tracking |
+| `src/components/customizer/battlearmor/BattleArmorAPWeaponsTab.tsx` | Placeholder: one AP weapon slot plus weight/crit accounting |
+| `src/components/customizer/battlearmor/BattleArmorJumpUMUTab.tsx` | Placeholder: Jump/UMU mobility selection plus MP/weight accounting |
+| `src/components/customizer/battlearmor/BattleArmorPreviewTab.tsx` | Preview tab |
 | `src/components/customizer/battlearmor/BattleArmorDiagram.tsx` | Squad visual diagram |
 | `src/services/validation/rules/personnel/PersonnelCategoryRules.ts` | Shared validation rules               |
 
