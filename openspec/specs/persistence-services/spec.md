@@ -2,15 +2,17 @@
 
 ## Purpose
 
-Defines Persistence Services requirements for Database Initialization, Generic Put Operation, Generic Get Operation, and Generic Delete Operation, preserving the source-of-truth scope introduced by archived change add-service-layer.
+Defines the SQLite repository requirements for saved custom units and version history, and the retained generic persistence-service requirements. Server library persistence and browser-local services have separate authority.
 
 ## Requirements
 
 ### Requirement: Database Initialization
 
-The system SHALL initialize SQLite database on application startup.
+The server persistence layer SHALL initialize SQLite before serving custom-unit and version repository operations.
 
-**Rationale**: Database must exist before any storage operations. SQLite replaces IndexedDB for cross-platform support.
+**Rationale**: The server repository requires an initialized database. SQLite is authoritative for server-saved custom units and versions; IndexedDB remains for legacy/local services, and editor drafts use browser-local persistence. No browser component may import the SQLite implementation.
+
+**Source**: `src/pages-modules/api/routeHelpers.ts:24-40`, `src/pages/api/units/custom/index.ts:34-52`, `src/services/persistence/SQLiteService.ts:68-100`
 
 **Priority**: Critical
 
