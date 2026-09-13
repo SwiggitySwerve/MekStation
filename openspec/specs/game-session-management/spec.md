@@ -2377,7 +2377,7 @@ The system SHALL support adding units from the compendium, adapting them for gam
 - **AND** the unit SHALL be added to `game.playerForce.units`
 - **AND** force totals SHALL be recalculated via `calculateForceTotals(units)`
 
-**Source**: `src/stores/useQuickGameStore.ts:94-116`, `src/types/quickgame/QuickGameInterfaces.ts:280-302`
+**Source**: `src/stores/useQuickGameStore.ts:addUnit`, `src/types/quickgame/QuickGameInterfaces.ts:createQuickGameUnit`
 
 #### Scenario: Configure unit pilot skills
 
@@ -2389,7 +2389,7 @@ The system SHALL support adding units from the compendium, adapting them for gam
 - **AND** `isDirty` SHALL be set to true
 - **AND** the unit's BV SHALL remain unchanged (BV recalculation is out of scope for quick games)
 
-**Source**: `src/stores/useQuickGameStore.ts:143-169`
+**Source**: `src/stores/useQuickGameStore.ts:updateUnitSkills`
 
 #### Scenario: Unit adaptation for game engine
 
@@ -2404,7 +2404,7 @@ The system SHALL support adding units from the compendium, adapting them for gam
   - `armor`, `structure`: location-based damage tracking
 - **AND** the adapted unit SHALL be passed to GameEngine for session creation
 
-**Source**: `src/stores/useQuickGameStore.ts:371-387`, `src/engine/adapters/CompendiumAdapter.ts` (referenced)
+**Source**: `src/stores/useQuickGameStore.actions.ts:startBattle,startSpectatorMode`, `src/stores/useQuickGameStore.helpers.ts:adaptUnits`, `src/engine/adapters/CompendiumAdapter.ts:adaptUnit`
 
 ### Requirement: Session Storage Persistence Behavior
 
@@ -2419,7 +2419,7 @@ The system SHALL persist quick game state to session storage, survive page refre
 - **AND** `isDirty` SHALL be set to true
 - **AND** the persistence SHALL be handled automatically by zustand persist middleware
 
-**Source**: `src/stores/useQuickGameStore.ts:628-635`, `src/types/quickgame/QuickGameInterfaces.ts:335`
+**Source**: `src/stores/useQuickGameStore.ts:partialize`, `src/types/quickgame/QuickGameInterfaces.ts:IQuickGameInstance`
 
 #### Scenario: Restore after page refresh
 
@@ -2431,7 +2431,7 @@ The system SHALL persist quick game state to session storage, survive page refre
 - **AND** `restoreFromSession()` SHALL return true
 - **AND** the user SHALL be able to continue from the same step (SelectUnits, ConfigureScenario, Review, Playing, Results)
 
-**Source**: `src/stores/useQuickGameStore.ts:616-621`
+**Source**: `src/stores/useQuickGameStore.ts:restoreFromSession`
 
 #### Scenario: Clear on tab close
 
@@ -2448,10 +2448,10 @@ The system SHALL persist quick game state to session storage, survive page refre
 - **GIVEN** the store has `game`, `isLoading`, `error`, and `isDirty` fields
 - **WHEN** the persist middleware serializes state
 - **THEN** only the `game` field SHALL be persisted
-- **AND** `isLoading`, `error`, and `isDirty` SHALL NOT be persisted (transient UI state)
+- **AND** `isLoading`, `error`, `isDirty`, and `seedOverride` SHALL NOT be persisted (transient UI state)
 - **AND** on restore, `isLoading` and `error` SHALL be initialized to false/null
 
-**Source**: `src/stores/useQuickGameStore.ts:631-633`
+**Source**: `src/stores/useQuickGameStore.ts:partialize`
 
 ### Requirement: Game Engine Integration
 
@@ -2464,7 +2464,7 @@ The system SHALL integrate with GameEngine for auto-resolved battles and Interac
 - **THEN** `isLoading` SHALL be set to true
 - **AND** all player units SHALL be adapted via `adaptUnit(sourceUnitId, {side: GameSide.Player, gunnery, piloting})`
 - **AND** all opponent units SHALL be adapted via `adaptUnit(sourceUnitId, {side: GameSide.Opponent, gunnery, piloting})`
-- **AND** a GameEngine instance SHALL be created with `seed: Date.now()`
+- **AND** a GameEngine instance SHALL be created with `seed: seedOverride ?? Date.now()`
 - **AND** `engine.runToCompletion(playerAdapted, opponentAdapted, gameUnits)` SHALL be called
 - **AND** the engine SHALL run the full battle simulation (all turns, all phases) until completion
 - **AND** the resulting IGameSession SHALL be passed to `useGameplayStore.getState().setSession(session)`
@@ -2476,7 +2476,7 @@ The system SHALL integrate with GameEngine for auto-resolved battles and Interac
 - **AND** `game.events` SHALL be set to `session.events` (full event log)
 - **AND** `isLoading` SHALL be set to false
 
-**Source**: `src/stores/useQuickGameStore.ts:361-460`, `src/engine/GameEngine.ts:132-285`
+**Source**: `src/stores/useQuickGameStore.actions.ts:startBattle`, `src/engine/GameEngine.ts:runToCompletion`
 
 #### Scenario: Launch spectator mode via InteractiveSession
 
@@ -2492,7 +2492,7 @@ The system SHALL integrate with GameEngine for auto-resolved battles and Interac
 - **AND** `isLoading` SHALL be set to false
 - **AND** the gameplay store SHALL manage turn-by-turn AI execution
 
-**Source**: `src/stores/useQuickGameStore.ts:462-551`, `src/engine/GameEngine.ts:290-304`
+**Source**: `src/stores/useQuickGameStore.actions.ts:startSpectatorMode`, `src/engine/GameEngine.ts:createInteractiveSession`
 
 #### Scenario: Handoff to gameplay store
 
@@ -2504,7 +2504,7 @@ The system SHALL integrate with GameEngine for auto-resolved battles and Interac
 - **AND** the quick game store SHALL remain in Results or Playing step
 - **AND** the user SHALL be able to return to the quick game UI to start a new game via `playAgain()`
 
-**Source**: `src/stores/useQuickGameStore.ts:426`, `src/stores/useGameplayStore.ts` (referenced)
+**Source**: `src/stores/useQuickGameStore.actions.ts:startBattle,startSpectatorMode`, `src/stores/useGameplayStore.ts` (referenced)
 
 ### Requirement: Scenario Generation Integration
 
@@ -2532,7 +2532,7 @@ The system SHALL generate scenarios using the scenario generator service and cre
 - **AND** `game.scenario` SHALL be set to the generated scenario
 - **AND** `isLoading` SHALL be set to false
 
-**Source**: `src/stores/useQuickGameStore.ts:191-277`, `src/services/generators` (referenced)
+**Source**: `src/stores/useQuickGameStore.actions.ts:generateScenario`, `src/services/generators/ScenarioGeneratorService.ts:ScenarioGeneratorService`, `src/services/generators/OpForGeneratorService.ts:OpForGeneratorService` (referenced)
 
 #### Scenario: Scenario generation failure
 
@@ -2542,7 +2542,7 @@ The system SHALL generate scenarios using the scenario generator service and cre
 - **AND** `isLoading` SHALL remain false
 - **AND** no scenario SHALL be generated
 
-**Source**: `src/stores/useQuickGameStore.ts:198-201`
+**Source**: `src/stores/useQuickGameStore.actions.ts:generateScenario`
 
 ### Requirement: Status Color Mapping
 
@@ -2697,7 +2697,7 @@ The Quick Game Store is a Zustand store that manages standalone quick game sessi
 
 **Implementation**: `src/stores/useQuickGameStore.ts`
 
-**Source**: `src/stores/useQuickGameStore.ts:1-681`, `src/types/quickgame/QuickGameInterfaces.ts:1-336`, `src/engine/GameEngine.ts:1-631`
+**Source**: `src/stores/useQuickGameStore.ts:useQuickGameStore`, `src/types/quickgame/QuickGameInterfaces.ts`, `src/engine/GameEngine.ts:GameEngine`
 
 ---
 
@@ -2705,7 +2705,7 @@ The Quick Game Store is a Zustand store that manages standalone quick game sessi
 
 The quick session workflow orchestrates the complete flow from unit selection through battle resolution. This section documents the detailed integration between the quick game store, compendium adapter, game engine, and gameplay store.
 
-**Source**: `src/stores/useQuickGameStore.ts:361-551`, `src/engine/GameEngine.ts:113-328`, `src/engine/adapters/CompendiumAdapter.ts`
+**Source**: `src/stores/useQuickGameStore.actions.ts:startBattle,startSpectatorMode`, `src/engine/GameEngine.ts:runToCompletion,createInteractiveSession`, `src/engine/adapters/CompendiumAdapter.ts:adaptUnit`
 
 ---
 
@@ -2927,7 +2927,7 @@ interface IQuickGameUnitRequest {
 }
 ```
 
-**Source**: `src/types/quickgame/QuickGameInterfaces.ts:79-102`
+**Source**: `src/types/quickgame/QuickGameInterfaces.ts:IQuickGameUnitRequest`
 
 ### IQuickGameUnit
 
@@ -2953,7 +2953,7 @@ interface IQuickGameUnit {
 }
 ```
 
-**Source**: `src/types/quickgame/QuickGameInterfaces.ts:39-74`
+**Source**: `src/types/quickgame/QuickGameInterfaces.ts:IQuickGameUnit`
 
 ### IAdaptedUnit
 
@@ -2970,7 +2970,7 @@ interface IAdaptedUnit {
 }
 ```
 
-**Source**: `src/engine/types.ts` (referenced)
+**Source**: `src/engine/types.ts:IAdaptedUnit` (referenced)
 
 ### GameStatus
 
@@ -2982,7 +2982,7 @@ enum GameStatus {
 }
 ```
 
-**Source**: `src/types/gameplay/GameSessionInterfaces.ts` (referenced)
+**Source**: `src/types/gameplay/GameSessionCoreTypes.ts:GameStatus` (referenced)
 
 ### Faction
 
@@ -2998,7 +2998,7 @@ enum Faction {
 }
 ```
 
-**Source**: `src/constants/scenario/rats.ts` (referenced)
+**Source**: `src/constants/scenario/rats/ratTypes.ts:Faction` (referenced)
 
 ### QUICK_GAME_STORAGE_KEY
 
@@ -3006,4 +3006,4 @@ enum Faction {
 export const QUICK_GAME_STORAGE_KEY = 'mekstation-quick-game';
 ```
 
-**Source**: `src/types/quickgame/QuickGameInterfaces.ts:335`
+**Source**: `src/types/quickgame/QuickGameInterfaces.ts:QUICK_GAME_STORAGE_KEY`
