@@ -131,7 +131,8 @@ The system SHALL persist all settings to localStorage.
 
 - **WHEN** any setting is changed
 - **THEN** value is immediately saved to localStorage
-- **AND** key is 'mekstation-app-settings'
+- **AND** the setting store writes to the exact persistence key listed in
+  **Settings Persistence Keys** below
 - **AND** values persist across browser sessions
 
 #### Scenario: Settings reset
@@ -147,7 +148,8 @@ Components SHALL access settings via Zustand store.
 #### Scenario: Store usage
 
 - **WHEN** a component needs a setting value
-- **THEN** it uses `useAppSettingsStore` hook
+- **THEN** it uses the applicable settings store, including
+  `useCustomizerSettingsStore` for customizer settings
 - **AND** component re-renders when setting changes
 - **AND** no prop drilling is required
 
@@ -207,8 +209,8 @@ The system SHALL provide a GlobalStyleProvider component that connects settings 
 | fontSize                 | FontSize            | 'medium'     | Base font size                             |
 | animationLevel           | AnimationLevel      | 'full'       | Animation amount                           |
 | compactMode              | boolean             | false        | Reduce spacing                             |
-| uiTheme                  | UITheme             | 'default'    | Global UI theme (auto-syncs armor diagram) |
-| armorDiagramVariant      | ArmorDiagramVariant | 'clean-tech' | Diagram design (synced from uiTheme)       |
+| uiTheme                  | UITheme             | 'default'    | Global UI theme (independent of armor diagram) |
+| armorDiagramVariant      | ArmorDiagramVariant | 'clean-tech' | Diagram design (independent customizer setting) |
 | showArmorDiagramSelector | boolean             | true         | Show UAT selector                          |
 | sidebarDefaultCollapsed  | boolean             | false        | Start collapsed                            |
 | confirmOnClose           | boolean             | true         | Confirm unsaved                            |
@@ -216,13 +218,26 @@ The system SHALL provide a GlobalStyleProvider component that connects settings 
 | highContrast             | boolean             | false        | Increase contrast                          |
 | reduceMotion             | boolean             | false        | Minimize animation                         |
 
+### Settings Persistence Keys
+
+Settings are split across four persisted Zustand stores. Each scope writes to
+its own exact localStorage key:
+
+| Store                         | Settings scope                                                     | localStorage key                    |
+| ----------------------------- | ------------------------------------------------------------------ | ----------------------------------- |
+| `useAppearanceStore`          | `accentColor`, `fontSize`, `animationLevel`, `compactMode`, `uiTheme` | `mekstation-appearance`             |
+| `useAccessibilityStore`       | `highContrast`, `reduceMotion`                                    | `mekstation-accessibility`          |
+| `useCustomizerSettingsStore`  | `armorDiagramMode`, `armorDiagramVariant`, `showArmorDiagramSelector` | `mekstation-customizer-settings`    |
+| `useUIBehaviorStore`          | `sidebarDefaultCollapsed`, `confirmOnClose`, `showTooltips`       | `mekstation-ui-behavior`            |
+
 ## Component Reference
 
 | Component               | Location                        | Purpose                   |
 | ----------------------- | ------------------------------- | ------------------------- |
-| Settings Page           | `pages/settings.tsx`            | Main settings UI          |
-| useAppSettingsStore     | `stores/useAppSettingsStore.ts` | Settings state management |
-| ArmorDiagramGridPreview | `armor/ArmorDiagramPreview.tsx` | Live variant preview      |
+| Settings Page           | `src/pages/settings.tsx`        | Main settings UI          |
+| useCustomizerSettingsStore | `src/stores/useCustomizerSettingsStore.ts` | Customizer settings state management |
+| CustomizerSettings        | `src/components/settings/CustomizerSettings.tsx` | Settings form and store integration |
+| ArmorDiagramModePreview   | `src/components/customizer/armor/ArmorDiagramPreview.tsx` | Live armor-diagram mode preview |
 
 ## UI Components
 

@@ -414,7 +414,7 @@ Each pilot-damage point SHALL add +1 to every future PSR's TN.
 
 The `pendingPSRs` queue SHALL be cleared when the game state transitions from the End phase of one turn into the first phase of the next turn. PSRs that have not been resolved by the end of their turn of origin do NOT carry over into subsequent turns.
 
-This behavior is **already implemented** in `src/utils/gameplay/gameState/phaseManagement.ts::applyTurnStarted` (lines 45-72; clear at line 60), citing `wire-piloting-skill-rolls` task 1.3 and TW p.52. The original audit incorrectly flagged `applyPhaseChanged` as the implementation site — the live behavior is correctly attached to `TurnStarted` events, NOT phase transitions (per the archived change's deliberate task-1.3 decision: "PSRs within a turn are deliberately NOT cleared at phase change — they accumulate and resolve in the End phase").
+This behavior is **already implemented** in `src/utils/gameplay/gameState/phaseManagement.ts::applyTurnStarted` (current function body at lines 52-87; `pendingPSRs: []` at line 80), and `src/utils/gameplay/gameState/eventDispatch.ts` maps `GameEventType.TurnStarted` to it at line 201. This cites `wire-piloting-skill-rolls` task 1.3 and TW p.52. The original audit incorrectly flagged `applyPhaseChanged` as the implementation site — the live behavior is correctly attached to `TurnStarted` events, NOT phase transitions (per the archived change's deliberate task-1.3 decision: "PSRs within a turn are deliberately NOT cleared at phase change — they accumulate and resolve in the End phase").
 
 This requirement is therefore **regression-protection-only**: it adds an explicit test scenario that locks in the existing `applyTurnStarted` clear behavior so a future refactor cannot silently drop it. No production code change is required.
 
@@ -566,11 +566,11 @@ For PSRs that fire OUTSIDE of movement-step resolution (damage-induced, heat-ind
 
 ### Requirement: PSR Reason Code Discriminated Field
 
-`IPSRTriggeredPayload`, `IPSRResolvedPayload`, and `IUnitFellPayload` SHALL carry a `reasonCode?: PSRTrigger` field discriminated against the canonical 27-value `PSRTrigger` enum at `src/utils/gameplay/pilotingSkillRolls/types.ts`. The field is OPTIONAL on every payload to preserve back-compat with NDJSON event streams written before this contract.
+`IPSRTriggeredPayload`, `IPSRResolvedPayload`, and `IUnitFellPayload` SHALL carry a `reasonCode?: PSRTrigger` field discriminated against the canonical 34-value `PSRTrigger` enum at `src/types/gameplay/PSRTriggerCodes.ts` (re-exported by `src/utils/gameplay/pilotingSkillRolls/types.ts`). The field is OPTIONAL on every payload to preserve back-compat with NDJSON event streams written before this contract.
 
 The free-string `reason` field on the same payloads SHALL be RETAINED unchanged for display continuity. Display consumers (`EventLogDisplay`, the Python `format-event-log.py`) read `reason` to render human-readable text. Filter / aggregate consumers (`EventLogQuery`, `MetricsCollector`, scenario tests) read `reasonCode` for machine-readable filtering.
 
-The 27 canonical codes (cross-referenced against MegaMek's `Server.processPilotingRolls` and `MovePathHandler.checkSkid` taxonomy):
+The 34 canonical codes (cross-referenced against MegaMek's `Server.processPilotingRolls` and `MovePathHandler.checkSkid` taxonomy):
 
 | Code | Category | Trigger |
 |---|---|---|
@@ -586,6 +586,7 @@ The 27 canonical codes (cross-referenced against MegaMek's `Server.processPiloti
 | `charged` | movement | Target was charged (physical attack target) |
 | `dfa_target` | movement | Target was hit by death-from-above |
 | `pushed` | movement | Target was pushed (physical attack target) |
+| `domino_effect` | movement | Unit was forced along an occupied-hex domino displacement chain |
 | `kick_miss` | movement | Attacker missed a kick (self-PSR) |
 | `charge_miss` | movement | Attacker missed a charge (self-PSR) |
 | `dfa_miss` | movement | Attacker missed a DFA (self-PSR) |
@@ -595,15 +596,20 @@ The 27 canonical codes (cross-referenced against MegaMek's `Server.processPiloti
 | `entering_water` | movement | Unit entered a water hex |
 | `exiting_water` | movement | Unit exited a water hex |
 | `skidding` | movement | Skid PSR triggered by unstable ground |
+| `swamp_bog_down` | movement | Unit entered swamp and bogged down |
+| `airmek_landing` | movement | AirMek landing-control PSR triggered |
 | `running_damaged_hip` | movement | Unit ran with a damaged hip |
 | `running_damaged_gyro` | movement | Unit ran with a damaged gyro |
+| `controlled_sideslip` | movement | Controlled lateral movement required a PSR |
+| `flanking_and_turning` | movement | Running or sprinting unit turned after moving more than one hex |
+| `out_of_control` | movement | Movement became out of control and required a PSR |
 | `building_collapse` | movement | Building under unit's footprint collapsed |
 | `masc_failure` | movement | MASC system failed during attempted run |
 | `supercharger_failure` | movement | Supercharger failed during attempted run |
 | `heat_shutdown` | heat | Heat-induced shutdown PSR |
 | `standing_up` | recovery | Prone unit attempting to stand |
 
-The runner SHALL populate `reasonCode` at the PSR factory boundary — every factory in `src/utils/gameplay/pilotingSkillRolls/{combat,damage,environment,system,phaseChecks}Factories.ts` SHALL emit both `reason` (human string, unchanged) AND `reasonCode` (the matching `PSRTrigger` enum value) in the same `IPSRTriggeredPayload` returned to callers.
+The runner SHALL populate `reasonCode` at the PSR factory boundary — every factory in `src/utils/gameplay/pilotingSkillRolls/combatFactories.ts`, `damageFactories.ts`, `environmentFactories.ts`, and `systemFactories.ts`, and every phase-check adapter in `phaseChecks.ts`, SHALL populate `reasonCode` (the matching `PSRTrigger` enum value) on the returned `IPendingPSR`; when that PSR is emitted as an `IPSRTriggeredPayload`, the event boundary SHALL carry the optional field alongside `reason` (human string, unchanged).
 
 #### Scenario: Factory populates reasonCode alongside reason
 
@@ -641,7 +647,7 @@ export type PSRReasonCategory = 'movement' | 'damage' | 'heat' | 'recovery';
 export function getPSRReasonCategory(code: PSRTrigger): PSRReasonCategory;
 ```
 
-The function SHALL deterministically map every `PSRTrigger` value to exactly one of the four categories per the table in `Requirement: PSR Reason Code Discriminated Field`. The helper enables consumers (the readable formatter, metrics aggregators) to bucket PSRs without enumerating all 27 codes.
+The function SHALL deterministically map every `PSRTrigger` value to exactly one of the four categories per the table in `Requirement: PSR Reason Code Discriminated Field`. The helper enables consumers (the readable formatter, metrics aggregators) to bucket PSRs without enumerating all 34 codes.
 
 #### Scenario: Recovery-PSR (StandingUp) lands in recovery bucket
 
@@ -657,12 +663,12 @@ The function SHALL deterministically map every `PSRTrigger` value to exactly one
 - **THEN** the payload SHALL have `reasonCode: PSRTrigger.Shutdown`
 - **AND** `getPSRReasonCategory(payload.reasonCode)` SHALL equal `'heat'`
 
-#### Scenario: getPSRReasonCategory is deterministic over all 27 codes
+#### Scenario: getPSRReasonCategory is deterministic over all 34 codes
 
-- **GIVEN** the full set of `PSRTrigger` enum values (27 codes)
+- **GIVEN** the full set of `PSRTrigger` enum values (34 codes)
 - **WHEN** `getPSRReasonCategory` is called for each
 - **THEN** every code SHALL map to exactly one of `'movement' | 'damage' | 'heat' | 'recovery'`
-- **AND** the partition SHALL match the category column in the spec's 27-code table
+- **AND** the partition SHALL match the category column in the spec's 34-code table
 
 ### Requirement: AirMek Landing PSR Trigger
 

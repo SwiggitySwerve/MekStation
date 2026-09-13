@@ -28,6 +28,15 @@ import {
  */
 const DEFAULT_PRIORITY = 100;
 
+type ValidationRuleLevel = 0 | 1 | 2;
+
+interface RuleEntry {
+  readonly rule: IUnitValidationRule;
+  readonly level: ValidationRuleLevel;
+  readonly priority: number;
+  readonly registrationOrder: number;
+}
+
 /**
  * Internal rule wrapper that implements IUnitValidationRule
  */
@@ -212,35 +221,63 @@ export class UnitValidationRegistry implements IUnitValidationRegistry {
     }
 
     // Collect rules from all levels
-    const rules: IUnitValidationRule[] = [];
+    const rules: RuleEntry[] = [];
+    let registrationOrder = 0;
 
     // 1. Add universal rules
-    rules.push(...Array.from(this.universalRules.values()));
+    rules.push(
+      ...Array.from(this.universalRules.values()).map((rule) => ({
+        rule,
+        level: 0 as const,
+        priority: rule.priority,
+        registrationOrder: registrationOrder++,
+      })),
+    );
 
     // 2. Add category rules
     const category = getCategoryForUnitType(unitType);
     if (category) {
       const categoryMap = this.categoryRules.get(category);
       if (categoryMap) {
-        rules.push(...Array.from(categoryMap.values()));
+        rules.push(
+          ...Array.from(categoryMap.values()).map((rule) => ({
+            rule,
+            level: 1 as const,
+            priority: rule.priority,
+            registrationOrder: registrationOrder++,
+          })),
+        );
       }
     }
 
     // 3. Add unit-type-specific rules
     const unitTypeMap = this.unitTypeRules.get(unitType);
     if (unitTypeMap) {
-      rules.push(...Array.from(unitTypeMap.values()));
+      rules.push(
+        ...Array.from(unitTypeMap.values()).map((rule) => ({
+          rule,
+          level: 2 as const,
+          priority: rule.priority,
+          registrationOrder: registrationOrder++,
+        })),
+      );
     }
 
     // 4. Resolve inheritance (overrides and extends)
     const resolved = this.resolveInheritance(rules);
 
-    // 5. Sort by priority
-    resolved.sort((a, b) => a.priority - b.priority);
+    // 5. Sort by level, then priority
+    resolved.sort(
+      (a, b) =>
+        a.level - b.level ||
+        a.priority - b.priority ||
+        a.registrationOrder - b.registrationOrder,
+    );
 
     // Cache and return
-    this.resolvedRulesCache.set(unitType, resolved);
-    return resolved;
+    const resolvedRules = resolved.map(({ rule }) => rule);
+    this.resolvedRulesCache.set(unitType, resolvedRules);
+    return resolvedRules;
   };
 
   /**
@@ -326,39 +363,49 @@ export class UnitValidationRegistry implements IUnitValidationRegistry {
    * - Override: Completely replace a parent rule
    * - Extend: Run after a parent rule
    */
-  private resolveInheritance(
-    rules: IUnitValidationRule[],
-  ): IUnitValidationRule[] {
-    const ruleMap = new Map<string, IUnitValidationRule>();
-    const extendedRules: IUnitValidationRule[] = [];
+  private resolveInheritance(rules: RuleEntry[]): RuleEntry[] {
+    const ruleMap = new Map<string, RuleEntry>();
+    const extendedRules: RuleEntry[] = [];
 
     // First pass: collect all rules and handle overrides
-    for (const rule of rules) {
+    for (const entry of rules) {
+      const { rule } = entry;
+
       if (rule.overrides) {
-        // This rule overrides another - remove the parent
+        // This rule overrides another - remove the parent.
         ruleMap.delete(rule.overrides);
       }
 
       if (rule.extends) {
-        // This rule extends another - keep both, mark for chaining
-        extendedRules.push(rule);
+        // This rule extends another - keep both, mark for chaining.
+        extendedRules.push(entry);
       } else {
-        // Standard rule - add to map (may override previous)
-        ruleMap.set(rule.id, rule);
+        // Standard rule - add to map (may override previous).
+        ruleMap.set(rule.id, entry);
       }
     }
 
     // Second pass: add extending rules
     for (const extRule of extendedRules) {
       // Check if the parent rule exists
-      const parentRule = ruleMap.get(extRule.extends!);
+      const parentRule = ruleMap.get(extRule.rule.extends!);
       if (parentRule) {
         // Create a wrapper that runs both rules
-        const chainedRule = this.createChainedRule(parentRule, extRule);
-        ruleMap.set(parentRule.id, chainedRule);
+        const chainedRule = this.createChainedRule(
+          parentRule.rule,
+          extRule.rule,
+        );
+        ruleMap.set(parentRule.rule.id, {
+          rule: chainedRule,
+          // A chain is one resolved entry. Keep the extended parent's
+          // scheduling metadata while executing parent then child atomically.
+          level: parentRule.level,
+          priority: parentRule.priority,
+          registrationOrder: parentRule.registrationOrder,
+        });
       } else {
         // Parent not found, just add the extending rule
-        ruleMap.set(extRule.id, extRule);
+        ruleMap.set(extRule.rule.id, extRule);
       }
     }
 

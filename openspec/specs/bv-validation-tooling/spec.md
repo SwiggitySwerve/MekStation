@@ -153,12 +153,12 @@ The validation tooling SHALL organize specialized scripts into subdirectories:
 
 #### Scenario: Data migration subdirectory usage
 
-**GIVEN** unit index needs BV values added from validation report
-**WHEN** developer runs `npx tsx scripts/data-migration/add-bv-to-index.ts`
-**THEN** script reads validation report, updates index.json with BV values, and writes updated file
-**AND** unit browser displays BV values without recalculating on every load
+**GIVEN** the BV harness needs a committed MegaMek/MUL reference dataset
+**WHEN** developer inspects `scripts/data-migration/`
+**THEN** `scripts/validate-bv.ts` resolves reference BV from `scripts/data-migration/megamek-bv-cache.json` (or `mul-bv-cache.json` when present)
+**AND** a historical index-hydration example such as `scripts/data-migration/add-bv-to-index.ts` is not currently committed
 
-**Source**: `scripts/data-migration/` directory (5 scripts)
+**Source**: `scripts/data-migration/megamek-bv-cache.json`; `scripts/validate-bv.ts` (`DEFAULT_REFERENCE_DIR`)
 
 ### Requirement: Validation Methodology
 
@@ -180,7 +180,7 @@ The validation tooling SHALL support a systematic methodology for improving BV a
 **GIVEN** validation report shows 50 units undercalculated by 1-2%
 **WHEN** developer runs `npx tsx scripts/trace-1pct-band.ts` to sample units
 **AND** developer runs `npx tsx scripts/analyze-1to5-range.js` to identify common pattern (e.g., missing cockpit modifier)
-**AND** developer implements fix in `src/utils/construction/battleValueCalculator.ts`
+**AND** developer implements the production calculation or dispatch fix in `src/utils/construction/battleValueCalculations.ts` (or the JSON adapter in `src/utils/construction/bvAdapter.ts` when the adapter is the defect)
 **AND** developer runs `npm run validate:bv` to regenerate report
 **THEN** 45 of 50 units move to "exact" or "within 1%" status
 **AND** no previously-accurate units regress to "outside 1%" status
@@ -245,9 +245,9 @@ Validation scripts SHALL use TypeScript with configuration optimized for script 
 
 **Source**: `scripts/tsconfig.json:1-36`
 
-#### Scenario: Script execution with tsx
+#### Scenario: Hypothetical script execution with tsx
 
-**GIVEN** developer writes a new validation script `scripts/check-new-pattern.ts`
+**GIVEN** developer writes a new, hypothetical validation script `scripts/check-new-pattern.ts` (this example file is not currently committed)
 **WHEN** developer runs `npx tsx scripts/check-new-pattern.ts`
 **THEN** tsx compiles TypeScript on-the-fly using `scripts/tsconfig.json`
 **AND** script imports from `src/` using `@/` path alias (baseUrl: "../src")
@@ -308,11 +308,13 @@ The BV prewarm cache at `.cache/swarm-bv-cache.json` SHALL key on the catalog `i
 
 ### Requirement: Validation Report Path Is Explicit and Overridable
 
-The BV prewarmer SHALL accept an optional `bvReportPath` option to allow tests and alternate environments to point at a different validation report (e.g., a fixture report in `src/__tests__/fixtures/`). The default path MUST be `${process.cwd()}/validation-output/bv-validation-report.json`. The same overridability MUST apply to `cacheFilePath`.
+The BV prewarmer SHALL accept an optional `bvReportPath` option to allow tests and alternate environments to point at a different validation report. The default path MUST be `path.resolve(process.cwd(), 'validation-output/bv-validation-report.json')`. The same overridability MUST apply to `cacheFilePath` (default `path.resolve(process.cwd(), '.cache/swarm-bv-cache.json')`). This optional-path contract is the documented boundary; a dedicated committed fixture file is not part of it.
+
+**Source**: `src/services/encounter/bvCatalogPrewarmer.ts::PrewarmOptions,resolvePrewarmPaths`
 
 #### Scenario: Test passes a fixture report path
 
-- **GIVEN** a unit test with a fixture BV report at `src/services/encounter/__tests__/fixtures/bv-report-fixture.json`
+- **GIVEN** a unit test supplies a report-shaped fixture path (a dedicated `bv-report-fixture.json` under the test tree is pending proof and is not currently committed)
 - **WHEN** the test calls `prewarmCatalogBV(catalog, service, version, { bvReportPath: <fixture> })`
 - **THEN** the prewarmer MUST load BV from the fixture, NOT from the production validation-output path
 

@@ -1,9 +1,9 @@
 ## 1. Vault/Campaign Boundary (first implementation wave; starts only after CAMP-01F/G/H merge — frozen-contract precondition)
 
-- [ ] 1.1 Add the vault-side version counter: monotonic published version on custom-unit (and pilot) saves, resolvable by `(vaultId, version)`; expose current version in the custom-unit index API.
+- [ ] 1.1 Complete and verify the vault-side version contract, reusing existing custom-unit SQLite versions and explicitly admitting the pilot producer: monotonic published version on custom-unit (and pilot) saves, resolvable by `(vaultId, version)`; expose current version in the custom-unit index API.
 - [ ] 1.2 Add `unitSource: 'canonical' | 'custom'` and `sourceVersion` to `IRosterUnitProjection` and the campaign creation flow; mint instance ids unconditionally.
-- [ ] 1.3 Delete the `UNIT_TEMPLATES` name/tonnage OR-match in `CreateCampaignPage.submit.ts`; root-force membership uses the minted instance id (D3).
-- [ ] 1.4 Add the `SerializedCampaign` v1→v2 migration rung: absent `unitSource` → legacy canonical; present-unrecognized → invalid/non-launchable (D4); migration tests both directions.
+- [x] 1.3 Preserve the resolved D3 identity seam in `CreateCampaignPage.submit.ts`: the former `UNIT_TEMPLATES` name/tonnage OR-match is absent, and root-force membership uses the minted instance id for every source. Add/retain a regression assertion before the vault boundary implementation wave so name/tonnage inference cannot return. (Bounded identity prerequisite only; parent evidence and live source 2026-09-12. It does not satisfy the exact-main receipt, approval, or three-witness gates and does not close remaining vault/campaign implementation tasks or prove runtime/production authority.)
+- [ ] 1.4 Admit and implement the next `SerializedCampaign` provenance rung (v2→v3 unless a separately reviewed compatible alternative is chosen), preserving the existing v2 authority metadata: absent `unitSource` → legacy canonical; present-unrecognized → invalid/non-launchable (D4); migration tests both directions.
 - [ ] 1.5 Re-digest the CAMP contract for the roster-shape change as its own declared, reviewed seam (`camp01-authority-receipt.contract.mjs` + affected wave rows).
 - [ ] 1.6 Reconcile the living `openspec/specs/campaign-instances/spec.md` via this change's delta (archive flow) and cross-link `vault-campaign-boundary`.
 - [ ] 1.7 Campaigns index: add the create/draw-from-vault entry (fixes the dead-end index — no CTA exists today) and the drift/refit-prompt affordance in the campaign mech bay (version drift surfaced, never auto-applied).
@@ -24,7 +24,7 @@
 - [ ] 3.1 Route preview panel (duration, itemized costs, arrival date, affordability) wired to the preview API; side-effect-free.
 - [ ] 3.2 Opportunity markers with window display on hover/selection; redaction-aware provenance.
 - [ ] 3.3 Travel-in-progress rendering with second-commit suppression until arrival.
-- [ ] 3.4 Update the shipped travel-action tests to the new commit contract (the modified requirement's scenarios).
+- [ ] 3.4 Update the existing travel-action tests to the new commit contract (the modified requirement's scenarios). Preview/commit source is not acceptance closure.
 
 ## 4. Isometric Battlefield View
 
@@ -32,7 +32,7 @@
 - [ ] 4.2 Picking: isometric click → hex id inversion with shared parity tests against the 2D map (same click → same hex/unit identity).
 - [ ] 4.3 Overlay parity: movement range, firing arcs, targeting rendered from the same underlying data as the 2D map.
 - [ ] 4.4 View toggle with preserved selection/pending intents; persisted player preference; 2D remains default and fallback.
-- [ ] 4.5 Performance: 30 FPS floor on 4v4 standard boards with degradation-over-drop; renderer substrate decision (canvas extension vs lightweight WebGL) made against this floor — any new dependency gets its own justification.
+- [ ] 4.5 Performance: 30 FPS floor on 4v4 standard boards with degradation-over-drop; evaluate the existing SVG 2.5D renderer against this floor before considering a separately proposed replacement — any new dependency gets its own justification.
 
 ## 5. Verification
 

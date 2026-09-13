@@ -208,20 +208,23 @@ The Loadout Tray SHALL group mounted equipment by category with collapsible sect
 
 ### Requirement: Structural Slot Components
 
-The system SHALL distinguish between user-added equipment and structural slot components.
+The system SHALL distinguish between user-added equipment, structural slot
+components, and fixed system entries in the loadout tray.
 
-#### Scenario: Structural components excluded from tray
+#### Scenario: Structural components grouped separately from mounted equipment
 
 - **WHEN** unit has Endo Steel internal structure
-- **THEN** Endo Steel slots are NOT shown in loadout tray
-- **AND** Endo Steel is managed via Structure tab
+- **THEN** Endo Steel slots are NOT shown in the Unassigned or Mounted equipment groups
+- **AND** Endo Steel type selection is managed via the Structure tab
+- **AND** any non-removable structural entry is grouped under Fixed systems
 - **BUT** Endo Steel slots appear in Critical Slots display
 
 #### Scenario: Ferro-Fibrous armor handling
 
 - **WHEN** unit has Ferro-Fibrous armor
-- **THEN** Ferro-Fibrous slots are NOT shown in loadout tray
-- **AND** Ferro-Fibrous is managed via Armor tab
+- **THEN** Ferro-Fibrous slots are NOT shown in the Unassigned or Mounted equipment groups
+- **AND** Ferro-Fibrous type selection is managed via the Armor tab
+- **AND** any non-removable structural entry is grouped under Fixed systems
 - **BUT** Ferro-Fibrous slots appear in Critical Slots display
 
 #### Scenario: Unhittable slot display in Criticals
@@ -291,6 +294,14 @@ Structural slot items SHALL NOT be removable via the equipment tray.
 - **WHEN** user wants to change structure/armor type
 - **THEN** user SHALL use Structure or Armor configuration tab
 - **AND** equipment tray SHALL automatically sync
+
+#### Scenario: Structural slot allocation remains editable
+
+- **GIVEN** a non-removable Endo Steel or Ferro-Fibrous slot item
+- **WHEN** the user assigns or unassigns its critical-slot location through the tray or Critical Slots surface
+- **THEN** location changes SHALL follow the distributed-slot, capacity and location restrictions in critical-slot-allocation
+- **AND** changing its location SHALL NOT remove the structural item or change the selected structure/armor type
+- **AND** fixed OmniMech equipment SHALL retain its separate location-mutation restrictions
 
 ### Requirement: Context Menu Quick Assignment
 

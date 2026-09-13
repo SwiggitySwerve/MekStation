@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Defines the data storage architecture using a combination of static JSON files for official data and IndexedDB for user-created custom data. This hybrid approach enables fast initial load of bundled data while supporting persistent user customization.
+Defines static JSON storage for official data, server-side SQLite storage for saved custom units and versions, and browser-local storage for editing drafts and remaining local services. Each layer has a distinct authority and lifetime.
 
 ## Requirements
 
@@ -39,41 +39,32 @@ The system SHALL store official equipment and units in static JSON files.
 
 ### Requirement: Dynamic Data Storage
 
-The system SHALL store user-created data in IndexedDB.
+Library-save-supported customizer tabs SHALL persist library designs through the custom-unit REST API and server-side UnitRepository, with SQLite `custom_units` and `unit_versions` records. Browser draft storage and remaining IndexedDB services SHALL remain separate from a successful server library save.
 
-**Rationale**: IndexedDB provides persistent browser storage for custom units and equipment.
+**Source**: `src/components/customizer/tabs/MultiUnitTabsUnitState.ts:23-39`, `src/components/customizer/tabs/useMultiUnitTabsController.dialogs.ts:151-320`, `src/services/units/UnitRepository.ts:72-235`, `src/services/persistence/SQLiteService.migrations.ts:77-104`
 
-**Priority**: Critical
+#### Scenario: Save a library design
 
-#### Scenario: IndexedDB database
+- **GIVEN** a tab supports library save
+- **WHEN** the customizer receives a successful `CustomUnitApiService.create` or `.save` response with an id and positive integer version
+- **THEN** the server SHALL create or update the authoritative custom-unit row and version history
+- **AND** the customizer SHALL record that returned library identity and version as its library-save receipt
+- **AND** a failed or receipt-less response SHALL NOT mark the draft as a library save
 
-- **GIVEN** the application needs custom data storage
-- **WHEN** initializing persistence
-- **THEN** create database named "mekstation"
-- **AND** database version SHALL be incremented for schema changes
+#### Scenario: Browser draft recovery
 
-#### Scenario: Custom units store
+- **WHEN** an editor draft is written locally or reloaded
+- **THEN** its construction and last known library-save receipt SHALL be recovered independently
+- **AND** a browser write alone SHALL NOT claim that the server library version changed
+- **AND** a browser-draft failure after a successful library response SHALL preserve the successful server outcome while warning that the draft write failed
+- **AND** session Undo/Redo SHALL follow customizer-edit-recovery
 
-- **GIVEN** IndexedDB is initialized
-- **THEN** "custom-units" object store SHALL exist
-- **AND** store SHALL use unit ID as key
-- **AND** store SHALL contain serialized ISerializedUnit data
+#### Scenario: Remaining IndexedDB consumers
 
-#### Scenario: Custom equipment store
-
-- **GIVEN** IndexedDB is initialized
-- **THEN** "custom-equipment" object store SHALL exist
-- **AND** store SHALL use equipment ID as key
-- **AND** store SHALL support weapons, ammunition, and misc equipment
-
-#### Scenario: Custom formulas store
-
-- **GIVEN** IndexedDB is initialized
-- **THEN** "custom-formulas" object store SHALL exist
-- **AND** store SHALL contain variable equipment formulas
-- **AND** formulas SHALL be keyed by equipment ID
-
----
+- **WHEN** a legacy or local-only service initializes IndexedDB
+- **THEN** its `custom-units`, `unit-metadata`, and `custom-formulas` stores SHALL retain their existing behavior
+- **AND** those records SHALL NOT be represented as a customizer library-save receipt or server combat eligibility
+- **AND** custom-equipment storage SHALL NOT be assumed to exist without a separately implemented schema
 
 ### Requirement: Equipment Database Schema
 
@@ -247,8 +238,9 @@ The system SHALL provide efficient query capabilities.
 #### Scenario: Combined data sources
 
 - **WHEN** querying equipment or units
-- **THEN** results SHALL include both official (static) and custom (IndexedDB) data
+- **THEN** a local merged query MAY include both official (static) and IndexedDB custom data
 - **AND** custom items MAY override official items with same ID
+- **AND** that local result SHALL NOT establish a server library-save receipt
 
 ---
 

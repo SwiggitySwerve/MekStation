@@ -2,8 +2,16 @@
 
 ## Purpose
 
-Provides services for loading, browsing, searching, and managing BattleMech units. Supports both canonical (official) units loaded from static JSON files and custom user-created units stored in IndexedDB. Includes unit factory service for converting serialized data to runtime objects.
+Provides services for loading, browsing, searching, and managing BattleMech units. Supports both canonical (official) units loaded from static JSON files and server-saved custom units accessed through CustomUnitApiService and the SQLite-backed custom-unit API, alongside the remaining local IndexedDB CustomUnitService. Includes unit factory service for converting serialized data to runtime objects.
+
+## Service authority
+
+`CustomUnitApiService` describes the current customizer library-save, loading, and version-history flow. The retained `CustomUnitService` separately persists browser IndexedDB data and does not define that flow. Browser drafts and per-unit session Undo/Redo are governed by customizer-edit-recovery. Server version reversion and restoring a saved version into an unsaved draft are distinct operations. Persistence or a library-save receipt does not establish combat eligibility.
+
+**Source**: `src/components/customizer/tabs/useMultiUnitTabsController.dialogs.ts:151-320`, `src/components/customizer/tabs/restoreLibraryVersionToDraft.ts:56-98`, `src/services/units/CustomUnitApiService.ts:60-95`, `src/services/units/CustomUnitService.ts:51-181`, `src/services/units/VersionRepository.ts:123-215`
+
 ## Requirements
+
 ### Requirement: Canonical Unit Index Loading
 
 The system SHALL load a lightweight unit index on application startup for search and browsing.
@@ -97,7 +105,7 @@ The system SHALL provide create, read, update, and delete operations for custom 
 #### Scenario: Create custom unit
 
 - **GIVEN** a valid IFullUnit object
-- **WHEN** CustomUnitService.create(unit) is called
+- **WHEN** CustomUnitApiService.create(unit, chassis, variant) is called
 - **THEN** POST to /api/units/custom endpoint
 - **AND** return the generated unique ID
 - **AND** unit is stored as version 1
@@ -105,14 +113,14 @@ The system SHALL provide create, read, update, and delete operations for custom 
 #### Scenario: Read custom unit
 
 - **GIVEN** a custom unit exists with ID "custom-123"
-- **WHEN** CustomUnitService.getById("custom-123") is called
+- **WHEN** CustomUnitApiService.getById("custom-123") is called
 - **THEN** GET from /api/units/custom/custom-123
 - **AND** return the complete IFullUnit with version metadata
 
 #### Scenario: Update custom unit (save)
 
 - **GIVEN** a custom unit exists with ID "custom-123" at version 3
-- **WHEN** CustomUnitService.save("custom-123", modifiedUnit) is called
+- **WHEN** CustomUnitApiService.save("custom-123", modifiedUnit) is called
 - **THEN** PUT to /api/units/custom/custom-123
 - **AND** increment version to 4
 - **AND** store previous version in history
@@ -120,7 +128,7 @@ The system SHALL provide create, read, update, and delete operations for custom 
 #### Scenario: Delete custom unit
 
 - **GIVEN** a custom unit exists with ID "custom-123"
-- **WHEN** CustomUnitService.delete("custom-123") is called
+- **WHEN** CustomUnitApiService.delete("custom-123") is called
 - **THEN** DELETE /api/units/custom/custom-123
 - **AND** remove unit and all version history
 
@@ -137,14 +145,14 @@ The system SHALL list all custom units as index entries.
 #### Scenario: List all custom units
 
 - **GIVEN** the user has saved 5 custom units
-- **WHEN** CustomUnitService.list() is called
+- **WHEN** CustomUnitApiService.list() is called
 - **THEN** GET /api/units/custom
 - **AND** return array of 5 UnitIndexEntry objects with version info
 
 #### Scenario: Empty custom units
 
 - **GIVEN** no custom units have been created
-- **WHEN** CustomUnitService.list() is called
+- **WHEN** CustomUnitApiService.list() is called
 - **THEN** return empty array
 
 ---
@@ -441,14 +449,14 @@ The system SHALL provide access to unit version history.
 #### Scenario: List version history
 
 - **GIVEN** unit "custom-123" has 5 versions
-- **WHEN** CustomUnitService.getVersionHistory("custom-123") is called
+- **WHEN** CustomUnitApiService.getVersionHistory("custom-123") is called
 - **THEN** GET /api/units/custom/custom-123/versions
 - **AND** return array of version metadata (version number, saved timestamp, notes)
 
 #### Scenario: Get specific version
 
 - **GIVEN** unit "custom-123" has version 3 in history
-- **WHEN** CustomUnitService.getVersion("custom-123", 3) is called
+- **WHEN** CustomUnitApiService.getVersion("custom-123", 3) is called
 - **THEN** GET /api/units/custom/custom-123/versions/3
 - **AND** return full unit data as it was at version 3
 
@@ -466,7 +474,7 @@ The system SHALL allow reverting a unit to a previous version.
 
 - **GIVEN** unit "custom-123" is at version 5
 - **AND** version 3 exists in history
-- **WHEN** CustomUnitService.revert("custom-123", 3) is called
+- **WHEN** CustomUnitApiService.revert("custom-123", 3) is called
 - **THEN** POST /api/units/custom/custom-123/revert/3
 - **AND** create new version 6 with data from version 3
 - **AND** current version becomes 6 (not 3)
@@ -474,7 +482,7 @@ The system SHALL allow reverting a unit to a previous version.
 #### Scenario: Revert to non-existent version
 
 - **GIVEN** unit "custom-123" only has versions 1-5
-- **WHEN** CustomUnitService.revert("custom-123", 10) is called
+- **WHEN** CustomUnitApiService.revert("custom-123", 10) is called
 - **THEN** return error "Version 10 not found"
 
 ---
@@ -490,10 +498,9 @@ The system SHALL export custom units as JSON files.
 #### Scenario: Export single unit
 
 - **GIVEN** a custom unit "custom-123"
-- **WHEN** CustomUnitService.export("custom-123") is called
+- **WHEN** CustomUnitApiService.exportUnit("custom-123") is called
 - **THEN** GET /api/units/custom/custom-123/export
-- **AND** return JSON file with ISerializedUnitEnvelope format
-- **AND** filename defaults to "{chassis}-{variant}.json"
+- **AND** return an ISerializedUnitEnvelope
 
 #### Scenario: Export envelope format
 
@@ -518,7 +525,7 @@ The system SHALL import units from JSON files.
 #### Scenario: Import valid JSON
 
 - **GIVEN** a valid unit JSON file
-- **WHEN** CustomUnitService.import(file) is called
+- **WHEN** CustomUnitApiService.importUnit(fileData) is called
 - **THEN** POST /api/units/import with file content
 - **AND** validate JSON structure
 - **AND** check for name conflicts
@@ -535,7 +542,7 @@ The system SHALL import units from JSON files.
 #### Scenario: Import invalid JSON
 
 - **GIVEN** an invalid or corrupted JSON file
-- **WHEN** CustomUnitService.import(file) is called
+- **WHEN** CustomUnitApiService.importUnit(fileData) is called
 - **THEN** return error with validation details
 - **AND** do not create any unit
 
@@ -954,6 +961,27 @@ The UnitSearchService SHALL expose an accessor over the merged canonical + custo
 - **WHEN** getAllUnits() is called
 - **THEN** it SHALL return an empty set rather than throwing
 - **AND** after initialize() resolves, getAllUnits() SHALL return the full merged canonical + custom set
+
+
+### Requirement: Server-backed Customizer Library Service
+
+Library-save-supported customizer tabs SHALL use CustomUnitApiService to save, load, list, and inspect versions through `/api/units/custom` and its unit/version routes. A successful server response with a complete id/version SHALL establish the library-save receipt.
+
+**Source**: `src/components/customizer/tabs/MultiUnitTabsUnitState.ts:23-39`, `src/components/customizer/tabs/useMultiUnitTabsController.dialogs.ts:46-62, 151-320`, `src/services/units/CustomUnitApiService.ts:153-233, 331-414`
+
+#### Scenario: Save and reload a server design
+
+- **WHEN** the customizer receives a successful save response
+- **THEN** it SHALL retain the returned library id and version separately from source provenance
+- **AND** subsequent library loading SHALL resolve that exact server id
+- **AND** failure or a response without a complete receipt SHALL preserve the draft without inventing a successful receipt
+- **AND** a later browser-draft write failure SHALL not change the completed server library receipt
+
+#### Scenario: Restore history to a draft
+
+- **WHEN** the editor restores a server version into the selected draft
+- **THEN** the operation SHALL be one undoable local edit under customizer-edit-recovery
+- **AND** it SHALL NOT rewrite or revert the server history merely by previewing or restoring the draft
 
 ## Data Model Requirements
 

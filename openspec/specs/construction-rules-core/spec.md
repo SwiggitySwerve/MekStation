@@ -96,7 +96,8 @@ The system SHALL enforce engine rating limits based on unit type.
 
 The system SHALL provide bidirectional mapping between full location names and standard abbreviations.
 
-**Source**: `src/utils/locationUtils.ts:1-26`
+**Source**: `src/utils/locationUtils.ts#getLocationShorthand`
+**Source**: `src/utils/locationUtils.ts#getLocationFullName`
 
 #### Scenario: Location shorthand lookup
 
@@ -123,7 +124,8 @@ The system SHALL provide bidirectional mapping between full location names and s
 
 The system SHALL define centralized layout constants for responsive design and z-index layering.
 
-**Source**: `src/constants/layout.ts:1-103`
+**Source**: `src/constants/layout.ts#SIDEBAR`
+**Source**: `src/constants/layout.ts#Z_INDEX`
 
 #### Scenario: Sidebar dimension constants
 
@@ -144,7 +146,7 @@ The system SHALL define centralized layout constants for responsive design and z
 
 ### LOCATION_SHORTCUTS Record
 
-**Source**: `src/utils/locationUtils.ts:1-14`
+**Source**: `src/utils/locationUtils.ts#LOCATION_SHORTCUTS`
 
 ```typescript
 const LOCATION_SHORTCUTS: Record<string, string> = {
@@ -171,7 +173,7 @@ const LOCATION_SHORTCUTS: Record<string, string> = {
 
 ### SIDEBAR Constants Object
 
-**Source**: `src/constants/layout.ts:12-25`
+**Source**: `src/constants/layout.ts#SIDEBAR`
 
 ```typescript
 export const SIDEBAR = {
@@ -192,7 +194,7 @@ export const SIDEBAR = {
 
 ### Z_INDEX Constants Object
 
-**Source**: `src/constants/layout.ts:31-50`
+**Source**: `src/constants/layout.ts#Z_INDEX`
 
 ```typescript
 export const Z_INDEX = {

@@ -4,6 +4,18 @@
 
 Defines Record Sheet Export requirements for Record Sheet Data Model, SVG Template Rendering, PDF Generation, and Preview Rendering, preserving the source-of-truth scope introduced by archived change add-record-sheet-pdf-export.
 
+Executable printing and preview code is the authority for current behavior. SHALL statements remain desired requirements unless a scenario names current source behavior. Explicit deferrals are not shipped.
+
+## Current behavior and evidence limits
+
+The shared scalable viewer covers BattleMech, vehicle, aerospace, Battle Armor, ProtoMech, and Infantry customizers. BattleMech `PreviewTab` reads `useUnitStore`; other families mount per-type previews through `PreviewTabForType` and the customizer registry. Toolbar Download PDF and Print call `exportUnitRecordSheetPDF` and `printUnitRecordSheet` in `RecordSheetCanvasPreview`.
+
+Source and test references describe code contracts only. They do not prove browser behavior, installed-font rendering, or production output.
+
+Record-sheet markup requests `Eurostile` (with Century Gothic, Trebuchet MS, and Arial fallbacks) and `Times New Roman, Times, serif`. Rasterization and print await `document.fonts.ready` when available. Full-font MegaMekLab visual matching remains desired rather than proven.
+
+Templates resolve through `MmDataAssetService.loadSVG` in local, jsDelivr CDN, then GitHub raw order. The mech renderer wraps the shared template renderer; both use that chain. Biped premade armor and structure pips instead fetch `/record-sheets/biped_pips/` directly and do not use the fallback chain.
+
 ## Requirements
 ### Requirement: Record Sheet Data Model
 
@@ -12,8 +24,6 @@ The system SHALL define data structures for record sheet generation.
 **Rationale**: Typed interfaces ensure correct data mapping from unit configuration to printable format.
 
 **Priority**: Critical
-
-**Status**: IMPLEMENTED ✓
 
 #### Scenario: Record sheet data extraction
 
@@ -32,16 +42,17 @@ The system SHALL define data structures for record sheet generation.
 
 ### Requirement: SVG Template Rendering
 
-The system SHALL use configuration-specific SVG templates from mm-data CDN for all mech types.
+The system SHALL use configuration-specific SVG templates from mm-data assets for all mech types.
 
-Templates are fetched from externalized mm-data assets at runtime, with proper error handling for network failures.
+Templates SHALL resolve through `MmDataAssetService.loadSVG` (local bundled path, then jsDelivr CDN, then GitHub raw). For a supported non-mech templated family, a template-path failure is first caught by `renderTemplated` and returned through that family's skeleton renderer; a rendering failure that escapes any applicable fallback is surfaced to the preview canvas rather than crashing the customizer.
 
-#### Scenario: Template loading from CDN
+#### Scenario: Template loading from bundled path with CDN fallback
 
-- **WHEN** record sheet renders for a unit
-- **THEN** fetch template from `/record-sheets/templates_us/` (or `templates_iso/` for A4)
-- **AND** template URL is constructed based on MechConfiguration
-- **AND** network errors are caught and displayed to user
+- **WHEN** a record sheet template loads for a unit
+- **THEN** request `/record-sheets/templates_us/` (or `templates_iso/` for A4) through `MmDataAssetService.loadSVG`
+- **AND** the local public path is attempted first; CDN and GitHub raw are fallbacks, not the only source
+- **AND** a failure that escapes any applicable renderer fallback is logged with `logger` (not `console`) and drawn as the preview render-error sheet
+- **AND** a supported non-mech template failure is first caught by `renderTemplated` and returns that family's skeleton output before preview error handling
 
 #### Scenario: Configuration-specific template loading
 
@@ -55,26 +66,27 @@ Templates are fetched from externalized mm-data assets at runtime, with proper e
 
 ### Requirement: PDF Generation
 
-The system SHALL generate PDF record sheets client-side using jsPDF.
+The system SHALL generate PDF record sheets client-side using jsPDF from the same filled SVG used for preview and print.
 
-**Rationale**: Client-side generation works offline and is portable to Electron desktop app.
+Preview and PDF rasterization SHALL use the bounded 4x lossless path described below.
+
+**Rationale**: Client-side generation works offline and is portable to Electron. A bounded lossless raster keeps line art sharp without an unshippable buffer.
 
 **Priority**: Critical
 
-**Status**: IMPLEMENTED ✓
-
 #### Scenario: Export PDF
 
-- **WHEN** user clicks Download PDF button
-- **THEN** generate PDF document from SVG template
-- **AND** trigger browser download with filename "{chassis}-{model}.pdf"
-- **AND** PDF is Letter/A4 size, print-ready
+- **WHEN** the user activates Download PDF
+- **THEN** generate a PDF document from the shared filled SVG
+- **AND** trigger a browser download with filename "{chassis}-{model}.pdf"
+- **AND** the file is nonempty and begins with the PDF header
+- **AND** the PDF page is the requested Letter (612×792 pt) or A4 (approximately 595.28×841.89 pt) size
 
 #### Scenario: PDF content
 
 - **GIVEN** a valid unit configuration
 - **WHEN** PDF is generated
-- **THEN** PDF contains rendered SVG with:
+- **THEN** the PDF contains the rendered SVG with:
   - Unit header with name, tonnage, tech base, BV
   - Movement block with Walk/Run/Jump MP
   - Armor diagram with pip visualization
@@ -83,148 +95,228 @@ The system SHALL generate PDF record sheets client-side using jsPDF.
   - Heat sink count and type
   - Critical hit tables for each location
   - Pilot data section (blank for tabletop)
+- **AND** critical tables remain inside their template rectangles, preserve every slot and grouping, and stay readable at print size
 
 #### Scenario: PDF BV calculation
 
-- **WHEN** PDF export is initiated
-- **THEN** BV is calculated using CalculationService.calculateBattleValue()
-- **AND** BV is included in unitConfig passed to RecordSheetService
+- **WHEN** BattleMech PDF export is initiated from the customizer Preview tab
+- **THEN** BV is calculated using `getCalculationService().calculateBattleValue()` on the projected `IEditableMech`
+- **AND** BV is included in `unitConfig` passed to `RecordSheetService.extractData`
 - **AND** BV appears in the header section of the exported PDF
+- **AND** non-mech customizer preview tabs do not call `CalculationService.calculateBattleValue`; they export the BV already present on the extracted record-sheet payload
 
-#### Scenario: PDF quality
+#### Scenario: PDF quality and paper geometry
 
 - **WHEN** PDF is generated
-- **THEN** use 20x DPI multiplier for print quality
-- **AND** use JPEG format for canvas-to-PDF embedding
-- **AND** ensure sharp text and lines at print resolution
+- **THEN** rasterize the shared SVG at a bounded 4x DPI multiplier using the requested `PAPER_DIMENSIONS` and the SVG viewBox
+- **AND** BattleMech `addDocumentMargins` expands that template's own content box into the selected paper (Letter 612×792 pt from 576×756, A4 595×842 pt from 559×806) rather than forcing Letter onto ISO templates
+- **AND** `renderToCanvasHighDPI` fits the SVG viewBox into paper with `fitRect` (no stretch); after mech margins the viewBox is already paper-sized
+- **AND** non-mech templated rendering currently skips `addDocumentMargins`; letterbox-free paper expansion for those families remains desired
+- **AND** embed the raster as lossless PNG through the existing jsPDF API with FAST compression
+- **AND** object URLs created for the raster are revoked on success and on error (`URL.revokeObjectURL` in a `finally`)
+- **AND** the PDF page uses the jsPDF Letter or A4 format: Letter 612×792 pt and A4 approximately 595.28×841.89 pt; the raster and image-placement dimensions remain the application paper constants of 612×792 and 595×842
+
+#### Scenario: Export uses the click snapshot
+
+- **GIVEN** Download PDF has started for a unit and paper size
+- **WHEN** the user switches unit or paper before the download finishes
+- **THEN** the PDF is generated from that original unit and paper snapshot
+- **AND** completing the download SHALL NOT change the active preview selection
+
+#### Scenario: Export busy and failure recovery
+
+- **WHEN** export is in progress or fails
+- **THEN** the toolbar exposes a recoverable busy or error state
+- **AND** a second Download PDF while busy does not start a duplicate in-flight export
+- **AND** a later retry can produce a valid PDF
 
 ### Requirement: Preview Rendering
 
-The system SHALL render a live preview of the record sheet in the browser.
+The system SHALL render a live preview of the record sheet in the browser from the same filled SVG used for PDF export and print.
 
-**Rationale**: Users need to see changes immediately as they edit the unit.
+**Rationale**: Users need to see the current unit at the current paper size without a 20x canvas or stale renders.
 
 **Priority**: High
 
-**Status**: IMPLEMENTED
-
 #### Scenario: Preview display
 
-- **WHEN** PreviewTab is active
-- **THEN** RecordSheetPreview component renders current unit via SVG template
+- **WHEN** a customizer Preview tab is active
+- **THEN** the preview renders the current unit via `RecordSheetService.renderPreview` from the shared filled SVG
 - **AND** preview updates when unit configuration changes
-- **AND** preview maintains aspect ratio of paper size
+- **AND** the visible canvas maintains the aspect ratio of the selected paper size (Letter 612:792, A4 595:842)
+- **AND** A4 preview is not a Letter viewBox letterboxed into A4 CSS
+- **AND** the document does not overflow the viewport horizontally
 
 #### Scenario: Preview DPI and quality
 
 - **WHEN** preview canvas renders
-- **THEN** use 20x DPI multiplier for crisp text at all zoom levels
-- **AND** support zoom range from 20% to 300%
+- **THEN** use a bounded 4x DPI multiplier
+- **AND** size the raster to the requested paper dimensions rather than a hardcoded Letter canvas
+- **AND** the backing canvas is 2448×3168 for Letter and 2380×3368 for A4 after render
+- **AND** support displayed zoom from 20% to 300%
+- **AND** object URLs created for the raster are revoked on success and on error
 
 #### Scenario: Preview BV calculation
 
-- **WHEN** record sheet preview renders
-- **THEN** BV is calculated using CalculationService.calculateBattleValue()
-- **AND** BV is passed to unitConfig for template population
+- **WHEN** a BattleMech record sheet preview renders
+- **THEN** BV is calculated using `getCalculationService().calculateBattleValue()`
+- **AND** BV is passed on `unitConfig` for template population
 - **AND** BV updates reactively when unit configuration changes
+- **AND** non-mech previews SHALL display the extracted payload BV and SHALL NOT call the BattleMech calculation service
 
-#### Scenario: Preview updates on unit tab switch
+#### Scenario: Last requested unit and paper own the preview
 
-- **GIVEN** multiple unit tabs are open
-- **AND** user is on the Preview tab
-- **WHEN** user switches to a different unit tab
-- **THEN** the preview canvas SHALL re-render with the newly selected unit's data
-- **AND** all displayed values (tonnage, name, armor, equipment) SHALL match the active unit
-- **AND** no stale data from the previous unit SHALL appear in the preview
+- **GIVEN** multiple unit tabs are open or paper size changes while a preview render is in flight
+- **WHEN** the user switches unit or paper size
+- **THEN** only the last requested unit and paper combination is committed to the preview canvas
+- **AND** all displayed values match that unit
+- **AND** no stale preview from an earlier unit or paper size remains
+- **AND** zoom-only changes do not regenerate the sheet
+- **AND** this last-request rule applies to preview commits, not to an in-flight Download PDF or Print snapshot taken at click
+
+#### Scenario: Readable critical tables
+
+- **WHEN** preview or PDF renders critical tables
+- **THEN** every slot stays inside the template `crits_*` rectangle
+- **AND** slot order, empty and Roll Again entries, hittable versus unhittable styling, system-component non-grouping, copy identity, and multi-slot grouping including the 6/7 boundary are preserved
+- **AND** names remain readable without clipped overlap or extreme font shrink
+
+#### Scenario: Async busy and error recovery
+
+- **WHEN** a preview render fails
+- **THEN** the canvas draws an explicit render-error sheet
+- **AND** selecting a unit or paper again retries by rendering that request
+- **AND** the preview does not provide a dedicated Retry control and SHALL NOT automatically suppress the error placeholder
+- **WHEN** a later preview request supersedes an in-flight render
+- **THEN** the stale request SHALL NOT overwrite the current canvas
+- **AND** unmount does not commit into a disposed canvas
+- **AND** the toolbar Print and Download PDF controls keep their explicit busy and retry states
+
+
+#### Scenario: Infantry shares scalable and staged preview behavior
+
+- **GIVEN** an Infantry unit displayed in its own customizer store context
+- **WHEN** the user adjusts zoom, changes paper, or switches the active unit while rendering
+- **THEN** the shared manual and fit controls SHALL govern the displayed scale
+- **AND** rendering SHALL use a staging canvas and only the latest request may commit to the visible canvas
+- **AND** an older successful or failed render SHALL NOT overwrite the current unit
+- **AND** print and export SHALL continue to use the Infantry data extractor without requiring a BattleMech store
 
 ### Requirement: Zoom Controls
 
-The system SHALL provide floating zoom controls in the preview area.
+The system SHALL provide zoom controls in the preview area with Current zoom output, Zoom in, Zoom out, Fit Width, and Fit Page.
 
-**Rationale**: Users need to zoom in for detail and fit the sheet to their screen.
+**Rationale**: Users need durable manual zoom and explicit fit modes that do not fight each other on resize.
 
 **Priority**: High
-
-**Status**: IMPLEMENTED ✓
 
 #### Scenario: Zoom control display
 
 - **WHEN** preview is displayed
-- **THEN** show floating control panel in bottom-right corner
-- **AND** controls have semi-transparent dark background
-- **AND** controls include zoom percentage display
+- **THEN** show zoom controls labeled Current zoom, Zoom in, Zoom out, Fit Width, and Fit Page
+- **AND** Current zoom reports the displayed percentage
 
 #### Scenario: Zoom in/out
 
-- **WHEN** user clicks zoom in (+) button
-- **THEN** increase zoom by 15%
+- **WHEN** the user activates Zoom in
+- **THEN** increase zoom by 15 percentage points
 - **AND** cap at maximum 300%
+- **AND** the mode becomes manual
 
-- **WHEN** user clicks zoom out (−) button
-- **THEN** decrease zoom by 15%
+- **WHEN** the user activates Zoom out
+- **THEN** decrease zoom by 15 percentage points
 - **AND** cap at minimum 20%
+- **AND** the mode becomes manual
 
-#### Scenario: Fit to width
+#### Scenario: Manual zoom survives resize and render
 
-- **WHEN** user clicks fit width (↔) button
-- **THEN** calculate scale to fit container width
-- **AND** apply calculated zoom level
+- **GIVEN** the user has chosen a manual zoom between 20% and 300%
+- **WHEN** the preview container resizes, the sheet re-renders, the unit changes, or paper size changes
+- **THEN** after layout settlement the manual zoom percentage remains
+- **AND** only the selected paper's aspect is applied at that zoom
+- **AND** ResizeObserver SHALL NOT recompute a fit mode
 
-#### Scenario: Fit to height
+#### Scenario: Fit Width
 
-- **WHEN** user clicks fit height (↕) button
-- **THEN** calculate scale to fit container height
-- **AND** apply calculated zoom level
+- **WHEN** the user activates Fit Width
+- **THEN** calculate scale to fit container width, clamped to 20–300%
+- **AND** the canvas CSS width matches the visible scroll viewport content width, capped at 3× paper width, within 2px
+- **AND** while Fit Width remains selected, resize recomputes that width fit to the same CSS-width contract
+- **AND** a later Zoom in or Zoom out ends Fit Width tracking and keeps the new manual zoom across resize
 
----
+#### Scenario: Fit Page
+
+- **WHEN** the user activates Fit Page, or preview first opens
+- **THEN** calculate scale to fit the container while preserving paper aspect, clamped to 20–300%
+- **AND** while Fit Page remains selected, resize recomputes only Fit Page
+- **AND** explicit fit modes SHALL NOT recompute a mode the user did not select
 
 ### Requirement: Print Functionality
 
-The system SHALL support browser print of the record sheet.
+The system SHALL support browser print of the record sheet from the same filled SVG used for preview and PDF, and SHALL reserve the print popup before any async wait.
 
-**Rationale**: Users may prefer browser print dialog for direct printing.
+**Rationale**: Popup blockers discard windows opened after `await`. Print uses the unit and paper snapshot from the click.
 
 **Priority**: Medium
 
-**Status**: IMPLEMENTED ✓
-
 #### Scenario: Print action
 
-- **WHEN** user clicks Print button in PreviewTab
-- **THEN** open browser print dialog
-- **AND** print content matches preview display
-- **AND** print uses appropriate page margins
+- **WHEN** the user activates Print
+- **THEN** open the browser print popup synchronously before the first await
+- **AND** print content is the shared filled SVG for the unit and paper snapshot taken at click, inlined in the reserved browser window
+- **AND** a later preview unit or paper change does not alter that print or the active selection
+- **AND** the owned window is not closed before print can consume the page
 
----
+#### Scenario: Print blocked or failed
+
+- **WHEN** the popup is blocked or sheet generation or print-window preparation fails
+- **THEN** the toolbar exposes a recoverable error
+- **AND** an owned failed window is closed
+- **AND** a later Print retry may succeed
+- **AND** the legacy canvas print API remains callable
+
+#### Scenario: Inline SVG print geometry and lifetime
+
+- **GIVEN** the shared SVG is prepared for printing
+- **WHEN** its root has no valid viewBox
+- **THEN** derive a root viewBox from its intrinsic dimensions so it scales to the selected paper
+- **AND** preserve existing valid viewBoxes, including negative-margin origins
+- **AND** page sizing targets only the root SVG, preserving nested artwork dimensions
+- **AND** the owned print window closes after the afterprint event, or during failure cleanup
 
 ### Requirement: Armor Pip Visualization
 
-The system SHALL render armor pips using mm-data SVG assets fetched from CDN for biped mechs, and ArmorPipLayout algorithm for other configurations.
+The system SHALL render armor pips using local mm-data pip SVGs for biped mechs, and `ArmorPipLayout` (via `layoutPipsInGroup`) for other configurations.
 
-#### Scenario: Biped armor pip loading from CDN
+Biped premade pip files are fetched from `/record-sheets/biped_pips/`. That path is not the `MmDataAssetService` three-source chain. Full pip-asset presence is not proven by this specification.
+
+#### Scenario: Biped armor pip loading from local pip assets
 
 - **WHEN** armor diagram renders for BIPED configuration
 - **THEN** fetch pip SVGs from `/record-sheets/biped_pips/Armor_<Location>_<Count>_Humanoid.svg`
-- **AND** extract path elements from `<switch><g>` structure in pip SVG
-- **AND** insert paths into template's `canonArmorPips` group
-- **AND** parent group transform handles correct positioning (no double-transform)
+- **AND** extract `path` elements from the pip SVG
+- **AND** insert paths into the template's `canonArmorPips` group (falling back to `armorPips`)
+- **AND** parent group transform handles positioning (no extra location-group transform)
+- **AND** a missing pip file is logged with `logger.warn` and does not block other locations
 
 #### Scenario: Non-biped armor pip generation
 
-- **WHEN** armor diagram renders for QUAD, TRIPOD, LAM, or QUADVEE configuration
-- **THEN** use ArmorPipLayout algorithm to generate pips dynamically
-- **AND** pips are positioned within template's pip area rect elements
+- **WHEN** armor diagram renders for QUAD or TRIPOD configuration
+- **THEN** use `ArmorPipLayout.addPips` through `layoutPipsInGroup` against that configuration's pip-group IDs
+- **AND** pips are positioned within the template's pip-area rect elements
+- **AND** LAM and QUADVEE currently take the same dynamic path but resolve pip-group IDs through the biped map; dedicated LAM/QUADVEE group maps remain a desired repair, not current source behavior
 
 ### Requirement: Structure Pip Visualization
 
-The system SHALL render internal structure pips using mm-data SVG assets fetched from CDN for biped mechs.
+The system SHALL render internal structure pips using local mm-data pip SVGs for biped mechs, and `ArmorPipLayout` for other configurations.
 
-#### Scenario: Biped structure pip loading from CDN
+#### Scenario: Biped structure pip loading from local pip assets
 
 - **GIVEN** a BIPED mech with specific tonnage
 - **WHEN** structure section renders
 - **THEN** fetch pip SVGs from `/record-sheets/biped_pips/BipedIS<Tonnage>_<Location>.svg`
-- **AND** insert paths into template's structure pip group
+- **AND** insert paths into the template's structure pip group
+- **AND** a missing pip file is logged with `logger.warn` and does not block other locations
 
 ### Requirement: Equipment Table Rendering
 
@@ -234,20 +326,19 @@ The system SHALL render a weapons and equipment table with combat statistics.
 
 **Priority**: High
 
-**Status**: IMPLEMENTED ✓
-
 #### Scenario: Equipment columns
 
-- **WHEN** equipment table renders
-- **THEN** display columns: Qty, Type, Loc, Heat, Damage, Min, Short, Med, Long
+- **WHEN** the BattleMech equipment table renders
+- **THEN** display abbreviated columns: Qty, Type, Loc, Ht, Dmg, Min, Sht, Med, Lng
 - **AND** include damage type codes: [DE]=Direct Energy, [DB]=Direct Ballistic, [M,C,S]=Missile
 - **AND** ammunition shows shots remaining in parentheses
+- **AND** skeleton non-mech tables omit Heat/Min and use Qty, Type, Loc, Dmg, Sht, Med, Lng
 
 #### Scenario: Equipment table positioning
 
-- **WHEN** equipment table renders
-- **THEN** insert rows into `inventory` element area in template
-- **AND** use Eurostile font family with web-safe fallbacks
+- **WHEN** the BattleMech equipment table renders
+- **THEN** insert rows into the `inventory` element area in the template
+- **AND** request CSS family `Eurostile, Arial, sans-serif` (full Eurostile webfont is not bundled)
 - **AND** truncate long equipment names to fit column width
 
 ---
@@ -260,8 +351,6 @@ The system SHALL render critical hit tables for each location matching MegaMekLa
 
 **Priority**: High
 
-**Status**: IMPLEMENTED ✓
-
 #### Scenario: Critical slot display
 
 - **WHEN** critical slots section renders
@@ -272,19 +361,21 @@ The system SHALL render critical hit tables for each location matching MegaMekLa
 #### Scenario: Critical table title positioning
 
 - **WHEN** location title renders
-- **THEN** position title X at `rectX + rectWidth * 0.075` (7.5% indent from left edge)
-- **AND** position title Y at `rectY - 4` pixels (above the rect boundary with clearance)
+- **THEN** position title X at `contentX(rectX)` (`rectX + BAR_WIDTH + BAR_MARGIN + NUMBER_WIDTH`)
+- **AND** position title Y at `rectY - HEADER_CLEARANCE` (7px in `criticalTableHelper.ts`)
 - **AND** use `text-anchor: start` (left-aligned)
-- **AND** use Times New Roman serif font
+- **AND** request CSS family `Times New Roman, Times, serif` (full Times webfont is not bundled)
 - **AND** use bold font weight
-- **AND** use font size of `baseFontSize * 1.25` (8.75px with 7px base)
+- **AND** use font size of `SLOT_FONT_SIZE * 1.25` (8.75px with 7px base)
+- **AND** a MegaMekLab 7.5% left indent and `rectY - 4` clearance remain a desired visual-match target if they diverge from these constants
 
 #### Scenario: Critical slot font sizing
 
 - **WHEN** critical slot entries render
-- **THEN** use constant 7px font size for ALL locations regardless of slot count
-- **AND** use Times New Roman serif font family
-- **AND** this matches MegaMekLab's `DEFAULT_CRITICAL_SLOT_ENTRY_FONT_SIZE = 7f`
+- **THEN** start at constant `SLOT_FONT_SIZE` 7px for all locations
+- **AND** request CSS family `Times New Roman, Times, serif`
+- **AND** `fitCriticalText` MAY shrink to `MIN_SLOT_FONT_SIZE` 6px using the Times-width table without `getBBox`
+- **AND** this matches MegaMekLab's `DEFAULT_CRITICAL_SLOT_ENTRY_FONT_SIZE = 7f` as the starting size; sub-7px shrink is source behavior to keep names inside the rect
 
 #### Scenario: Critical slot line height calculation
 
@@ -312,7 +403,7 @@ The system SHALL render critical hit tables for each location matching MegaMekLa
 #### Scenario: Critical slot font styling
 
 - **WHEN** critical slot text renders
-- **THEN** use Times New Roman serif font (matching MegaMekLab)
+- **THEN** request CSS family `Times New Roman, Times, serif`
 - **AND** bold hittable equipment (weapons, system components)
 - **AND** use normal weight for unhittable equipment (Endo Steel, Ferro-Fibrous, TSM)
 - **AND** use normal weight black text for "Roll Again" entries
@@ -336,14 +427,15 @@ The system SHALL add proper margins around the record sheet.
 
 **Priority**: Medium
 
-**Status**: IMPLEMENTED ✓
-
 #### Scenario: Page margins
 
-- **WHEN** SVG template is loaded
-- **THEN** expand viewBox to add 18pt margins on all sides
-- **AND** center original content within new dimensions
-- **AND** final dimensions match US Letter (612×792 points)
+- **WHEN** a BattleMech SVG template is loaded
+- **THEN** `addDocumentMargins` reads the root SVG content dimensions and centers them within the requested paper dimensions
+- **AND** US templates expand 576×756 content to 612×792 Letter with 18pt margins
+- **AND** ISO templates expand 559×806 content to 595×842 A4 with 18pt margins
+- **AND** nested logo viewBoxes SHALL NOT determine page dimensions
+- **AND** the footer position follows the selected template geometry
+- **AND** the non-mech `renderViaTemplate` path does not currently call `addDocumentMargins`; paper fit for those families is a retained desired requirement, not current templated-path behavior
 
 ---
 
@@ -355,14 +447,12 @@ The system SHALL display copyright information at the bottom of the record sheet
 
 **Priority**: Medium
 
-**Status**: IMPLEMENTED ✓
-
 #### Scenario: Copyright display
 
-- **WHEN** record sheet renders
-- **THEN** replace %d placeholder with current year
-- **AND** use Eurostile bold font at 7.5px
-- **AND** position footer centered at bottom with margin space
+- **WHEN** a BattleMech record sheet renders
+- **THEN** replace the `%d` placeholder with the current year
+- **AND** request Eurostile bold at 7.5px with web-safe fallbacks (full Eurostile webfont is not bundled)
+- **AND** position the footer from `footerTranslateForRoot` so it follows selected template geometry
 
 ### Requirement: Paper Size Selection
 
@@ -374,13 +464,14 @@ The system SHALL support both US Letter and A4 paper sizes for record sheet expo
 
 #### Scenario: Paper size setting
 
-- **WHEN** user opens Settings > Export > Record Sheet Paper Size
-- **THEN** options SHALL include "US Letter (8.5×11)" and "A4 (210×297mm)"
-- **AND** selection persists to local storage
+- **WHEN** the user opens a customizer Preview tab
+- **THEN** its Paper Size control offers US Letter and A4
+- **AND** the selected size controls that preview and subsequent PDF and Print actions
+- **AND** a newly mounted Preview tab defaults to US Letter; the current implementation does not persist a global paper-size preference
 
 #### Scenario: Template directory selection
 
-- **GIVEN** user has selected paper size preference
+- **GIVEN** the user has selected a paper size in the Preview toolbar
 - **WHEN** record sheet template loads
 - **THEN** load from `templates_us/` for US Letter
 - **OR** load from `templates_iso/` for A4
@@ -483,10 +574,10 @@ The system SHALL support armor allocation for all mech configuration types.
 #### Scenario: IArmorAllocation interface completeness
 
 - **WHEN** allocating armor to a mech
-- **THEN** interface SHALL include standard locations (head, centerTorso, etc.)
-- **AND** interface SHALL include quad locations (frontLeftLeg, frontRightLeg, rearLeftLeg, rearRightLeg)
-- **AND** interface SHALL include tripod location (centerLeg)
-- **AND** optional locations use TypeScript optional property syntax (?:)
+- **THEN** `IArmorAllocation` in `src/types/construction/ArmorAllocation.ts` SHALL include standard locations (head, centerTorso, and torso rears)
+- **AND** it SHALL include quad locations (frontLeftLeg, frontRightLeg, rearLeftLeg, rearRightLeg)
+- **AND** it SHALL include the tripod location (centerLeg)
+- **AND** current source uses required keys initialized to zero rather than optional `?:` properties
 
 ### Requirement: Asset Loading Error Handling
 
@@ -494,15 +585,16 @@ The system SHALL handle missing or failed asset loads gracefully with user feedb
 
 #### Scenario: Template fetch failure
 
-- **WHEN** template SVG fails to load from CDN
-- **THEN** display error message on preview canvas
-- **AND** log error to console with path and status code
+- **WHEN** template SVG fails to load from local, CDN, and raw sources
+- **THEN** a supported non-mech templated family first catches the failure in `renderTemplated` and returns its family skeleton output
+- **AND** if no applicable fallback handles the failure, display the render-error sheet on the preview canvas
+- **AND** log the failure with `logger` including path and status
 - **AND** do not crash the application
 
 #### Scenario: Pip SVG fetch failure
 
-- **WHEN** a pip SVG fails to load
-- **THEN** log warning to console
+- **WHEN** a biped premade pip SVG fails to load
+- **THEN** log a warning with `logger.warn`
 - **AND** continue rendering without that location's pips
 - **AND** do not block other pip loading
 
@@ -517,21 +609,24 @@ SPAs.
 - **GIVEN** a record sheet is generated for a unit whose assigned pilot
   owns `weapon_specialist` with designation "Medium Laser" and
   `iron_man`
-- **WHEN** `RecordSheetService` renders the SVG template
-- **THEN** a block titled "Special Abilities" SHALL appear below the
-  pilot block
+- **WHEN** `RecordSheetService.extractData` is called with those ability refs
+  and the SVG is filled
+- **THEN** a block titled "SPECIAL ABILITIES" SHALL appear in the pilot area
 - **AND** the block SHALL contain at least two lines — one per owned
   SPA
 - **AND** each line SHALL include the displayName and the designation
   in parentheses when present (e.g. "Weapon Specialist (Medium Laser)")
 - **AND** each line SHALL include a one-line truncated description from
   the catalog
+- **AND** current source builds this via `buildSPASection` / `renderSPASection`
+  on the BattleMech template path; templated non-mech bindings do not
+  inject the block (skeleton fallbacks do)
 
 #### Scenario: Pilot with zero abilities omits the block
 
 - **GIVEN** a record sheet is generated for a unit whose assigned pilot
   has an empty `abilities` array
-- **WHEN** `RecordSheetService` renders the SVG template
+- **WHEN** `buildSPASection` runs
 - **THEN** no Special Abilities block SHALL be emitted
 - **AND** the record sheet SHALL NOT reserve vertical space for an
   empty block
@@ -543,28 +638,35 @@ SPAs.
 - **WHEN** the record sheet renders
 - **THEN** the Special Abilities block SHALL wrap or truncate so that
   no content is drawn past the record sheet's bottom border
+- **AND** current source implements this no-overflow behavior by capping
+  printable entries at `MAX_PRINTABLE_SPA_ENTRIES` (6) and abbreviating the
+  rest with a `+N more` footer
 
 ### Requirement: Data Extractor for Abilities
 
-The record-sheet data extraction layer SHALL expose an `extractAbilities`
-helper that resolves pilot ability ids to canonical definitions via the
-SPA catalog.
+The record-sheet data extraction layer SHALL resolve pilot ability ids to
+canonical definitions via the SPA catalog. Desired helper name
+`extractAbilities` is retained; current source is `buildSPASection` in
+`src/services/printing/recordsheet/spaSection.ts`.
 
 #### Scenario: Extractor resolves known ids
 
 - **GIVEN** a pilot whose `abilities` array contains two canonical SPA
   ids and one legacy-alias id
-- **WHEN** `extractAbilities(unit)` is called
-- **THEN** the helper SHALL return three resolved entries, each a
-  `{ spa: ISPADefinition, designation?: ISPADesignation }` tuple
-- **AND** entries SHALL be grouped by category in the returned list
+- **WHEN** `buildSPASection(abilities)` is called
+- **THEN** the helper SHALL return `ISPASectionData` with resolved
+  `ISPASectionEntry` rows in its `entries` field
+  (`displayName`, `headline`, `truncatedDescription`, `category`)
+- **AND** the returned `entries` SHALL be sorted by category then displayName
+- **AND** a `{ spa: ISPADefinition, designation?: ISPADesignation }` tuple
+  return shape remains a desired type-level contract, not current source
 
 #### Scenario: Extractor skips unknown ids
 
 - **GIVEN** a pilot whose `abilities` array includes one id unknown to
   the catalog
-- **WHEN** `extractAbilities(unit)` is called
-- **THEN** the unknown id SHALL be omitted from the returned list
+- **WHEN** `buildSPASection(abilities)` is called
+- **THEN** the unknown id SHALL be omitted from the returned `entries`
 - **AND** no error SHALL be thrown
 
 ### Requirement: Discriminated Per-Type Record Sheet Data Model
@@ -618,8 +720,7 @@ infantry and battle-armor families the renderer SHALL use the per-unit
 `battle_armor_squad`) and render one unit per page.
 
 The vehicle, aerospace, protomech, infantry, and battle-armor skeleton
-renderers SHALL remain available as the runtime fallback and SHALL NOT
-be deleted by this change.
+renderers SHALL remain available as the runtime fallback.
 
 **Priority**: Critical
 
@@ -713,27 +814,44 @@ The `RecordSheetService` SHALL route `extractData(unit)` to a type-specific extr
 
 ### Requirement: SPA Block Positioning Per Type
 
-The Special Abilities SVG section (shipped in Phase 5) SHALL be anchored within each per-type renderer's pilot area, not at a mech-only coordinate.
+The Special Abilities SVG section SHALL be anchored within each per-type
+renderer's crew or trooper area, not only at the BattleMech pilot
+coordinate.
+
+Current source: BattleMech `renderSPASection` uses (360, 690). Skeleton
+vehicle/aerospace/infantry/protomech/battle-armor string renderers pass a
+per-family origin into `buildSPASectionString`. Templated `bindVehicle` /
+`bindBattleArmor` / other family bindings do not inject SPA. Per-type SPA
+on the templated path is a retained desired requirement and an explicit
+product-repair gap.
 
 **Priority**: High
 
 #### Scenario: Vehicle SPA block anchored in crew area
 
 - **GIVEN** a vehicle with a driver who has the Melee Specialist SPA
-- **WHEN** the vehicle renderer runs
-- **THEN** the Special Abilities block SHALL render within the crew section of the vehicle sheet, not at the mech pilot coordinate (360, 690)
+- **WHEN** the skeleton `vehicleRenderer` runs
+- **THEN** the Special Abilities block SHALL render via `buildSPASectionString` at the skeleton crew/footer origin, not at the mech coordinate (360, 690)
+- **AND** injecting that block from `bindVehicle` on the templated path remains a desired requirement (current templated bindings omit SPA)
 
 #### Scenario: BattleArmor SPA block per-trooper
 
 - **GIVEN** a point where trooper 1 has Marksman SPA
-- **WHEN** the battlearmor renderer runs
-- **THEN** the SPA SHALL display next to trooper 1's pilot block, not on a shared sheet footer
+- **WHEN** the skeleton `battleArmorRenderer` runs
+- **THEN** the SPA SHALL display below the trooper armor columns, not on a shared sheet footer
+- **AND** per-trooper templated-path SPA placement remains a desired requirement (current `bindBattleArmor` omits SPA)
 
 ---
 
 ### Requirement: Snapshot Test Coverage
 
 Every per-type renderer SHALL have at least one Jest snapshot test with a representative fixture, and the snapshot SHALL be committed alongside the renderer.
+
+Current source snapshots in `recordSheetSnapshots.test.ts` lock the
+skeleton string renderers (`renderVehicleSVG`, `renderAerospaceSVG`,
+`renderBattleArmorSVG`, `renderInfantrySVG`, `renderProtoMechSVG`).
+Canonical templated-path snapshots remain a desired gate; existing
+snapshots are not browser or production proof.
 
 **Priority**: High
 
@@ -751,15 +869,13 @@ The system SHALL provide a shared `TemplateRecordSheetRenderer` module in
 `src/services/printing/svgRecordSheetRenderer/` that owns the
 canonical-template rendering pipeline independent of unit type.
 
-The shared renderer SHALL expose `loadTemplate(path)`,
-`applyBindings(texts)`, `applyPips(pipFills)`, and `getSVGString()`. It
-SHALL reuse the existing `loadSVGTemplate`, `setTextContent`, canvas
-rasterization, and jsPDF code paths verbatim — no fork of the proven
-mech logic.
+The shared renderer SHALL expose instance methods `loadTemplate(path)`,
+`applyBindings(texts)`, `applyPips(fills, applicator)`, `mount()`,
+`unmount()`, `awaitFontsReady()`, and `getSVGString()`. Rasterization
+reuses `renderToCanvasHighDPI`; PDF export remains on `RecordSheetService.exportPDF`.
 
-The mech renderer `SVGRecordSheetRenderer` SHALL be refactored into a
-thin consumer of `TemplateRecordSheetRenderer` with no observable
-change to its rendered output.
+The mech renderer `SVGRecordSheetRenderer` SHALL be a thin consumer of
+`TemplateRecordSheetRenderer`.
 
 **Priority**: Critical
 
@@ -775,16 +891,22 @@ change to its rendered output.
 
 - **GIVEN** a loaded template and a `texts` map keyed by element ID
 - **WHEN** `applyBindings(texts)` is called
-- **THEN** for each entry it SHALL locate the element via
-  `getElementById` and set `textContent`, leaving elements absent from
+- **THEN** for each entry it SHALL locate the element via the root subtree
+  (`elementById`, mount-safe) and set `textContent`, leaving elements absent from
   the map unchanged
 
 #### Scenario: Mech path is behaviour-preserving after refactor
 
-- **GIVEN** the mech renderer refactored to consume `TemplateRecordSheetRenderer`
-- **WHEN** the existing mech record-sheet snapshot tests run
-- **THEN** every mech snapshot SHALL match its committed baseline with
-  no diff
+- **GIVEN** the mech renderer consuming `TemplateRecordSheetRenderer`
+- **WHEN** the existing mech record-sheet Jest tests run
+- **THEN** they SHALL pin the public `SVGRecordSheetRenderer` surface
+- **AND** the refactor SHALL retain a no-output-regression comparison for
+  representative mech SVG output
+- **AND** those tests are not browser, full-font, or production proof
+- **AND** current source evidence includes skeleton renderer snapshots in
+  `recordSheetSnapshots.test.ts`; this specification makes no claim that a
+  fresh Jest run passed or that canonical templated-path snapshots already
+  exist
 
 ---
 
@@ -796,14 +918,16 @@ generalizing the dynamic layout logic currently in `armor.ts`.
 
 The pip engine SHALL support the `grouped`-layout element-lookup
 fallback: when a region's primary element ID is absent, it SHALL retry
-with `getElementById(id + "grouped")`, mirroring MegaMekLab
-`PrintEntity.java`. It SHALL expose the alternate-clustering flag from
-MegaMekLab `ArmorPipLayout.java` so callers can request clustered pip
+with `id + "grouped"`, mirroring MegaMekLab `PrintEntity.java`. It SHALL
+expose the alternate-clustering flag from MegaMekLab `ArmorPipLayout.java`
+(`clustered` / `groupByFive`) so callers can request clustered pip
 placement.
 
-The pip engine SHALL require the template SVG to be mounted in a live
-DOM before measurement, because region rect geometry is read via
-`getBBox()`.
+Current source measures region geometry from `<rect>` `x/y/width/height`
+via `Bounds.fromRect`. A live off-screen mount (`TemplateRecordSheetRenderer.mount`)
+is required only when a caller measures with `getBBox()` or needs
+web-font text measurement. Small-unit pip grids layout before mount and
+do not use `getBBox()`.
 
 **Priority**: Critical
 
@@ -822,12 +946,13 @@ DOM before measurement, because region rect geometry is read via
 - **WHEN** the pip engine resolves that region
 - **THEN** it SHALL use the `grouped` element and lay out pips against it
 
-#### Scenario: Pip measurement requires a live-mounted SVG
+#### Scenario: Pip measurement requires a live-mounted SVG only for getBBox
 
-- **GIVEN** a template SVG that has not been mounted into the document
-- **WHEN** the pip engine attempts region measurement
-- **THEN** it SHALL require the SVG be mounted off-screen first, and
-  the renderer SHALL perform that mount before invoking the pip engine
+- **GIVEN** a caller that measures region geometry via `getBBox()`
+- **WHEN** the pip engine needs those bounds
+- **THEN** the SVG SHALL be mounted off-screen first
+- **AND** `TemplateRecordSheetRenderer.mount` SHALL perform that mount
+- **AND** attribute-based `Bounds.fromRect` layout SHALL still run without a live mount
 
 ---
 
@@ -839,7 +964,9 @@ The system SHALL provide one adapter folder per Wave-1 family
 pure modules: `selectTemplate.ts` and `bindings.ts`.
 
 `selectTemplate.ts` SHALL be a pure function mapping a unit to a
-`templateKey` string. `bindings.ts` SHALL be a pure function mapping
+`templateKey` string. Wave-1 vehicle keys follow `{subtype}_{turret}_standard`
+for Tracked / Wheeled / Hover / VTOL only; Naval / Submarine / WiGE / Rail
+throw and are out of templated scope. `bindings.ts` SHALL be a pure function mapping
 the unit's `IRecordSheetData` variant to a `{ texts, pips }` structure
 keyed against the template's real element IDs, including a typed
 per-family `PipCounts` contract computed from unit stats.
@@ -903,7 +1030,7 @@ templated SVG. The template path SHALL be wrapped in `try/catch`; on
 asset-load failure or template-parse failure it SHALL invoke the
 existing skeleton renderer for that family and return the skeleton SVG.
 
-The skeleton renderers SHALL NOT be deleted or modified by this change.
+The skeleton renderers SHALL remain available as the runtime fallback.
 
 **Priority**: Critical
 
@@ -927,9 +1054,10 @@ The skeleton renderers SHALL NOT be deleted or modified by this change.
 
 - **GIVEN** a vehicle, aerospace, or protomech unit open in the
   customizer
-- **WHEN** the user invokes Save PDF via `PreviewTab.handleExportPDF`
-- **THEN** `RecordSheetService.exportPDF` SHALL render through the
-  templated path, with skeleton fallback on failure
+- **WHEN** the user activates Download PDF
+- **THEN** `exportUnitRecordSheetPDF` SHALL call `RecordSheetService.exportPDF`
+  with data extracted from that unit
+- **AND** `exportPDF` SHALL render through the templated path, with skeleton fallback on failure
 
 ---
 
@@ -966,7 +1094,6 @@ the unit's actual armor and structure statistics.
 - **THEN** the pip-element count per location SHALL equal that
   location's armor or structure value
 
-
 ### Requirement: Infantry and Battle Armor Record Sheet Adapters
 
 The system SHALL provide one adapter folder per Wave-2 family
@@ -980,7 +1107,8 @@ Wave-1 per-family adapters.
 **per-unit block** template key — `conventional_infantry_platoon` for
 an infantry platoon and `battle_armor_squad` for a Battle Armor squad
 — and SHALL NOT return the multi-slot outer sheet key
-(`conventional_infantry_default` / `battle_armor_default`).
+(`conventional_infantry_default` / `battle_armor_default`). Those
+composite outer sheets are an explicit deferral.
 
 `bindings.ts` SHALL be a pure function mapping the unit's
 `IRecordSheetData` variant (`IInfantryRecordSheetData` /
@@ -1014,8 +1142,8 @@ loading — they SHALL be deterministic pure functions.
   pip count for each suit in the squad
 - **WHEN** the battlearmor `bindings` function runs
 - **THEN** the returned `pips` SHALL include a typed `PipCounts`
-  structure whose per-trooper counts equal each trooper's actual armor
-  pip value
+  structure whose per-trooper `armorPips` values equal each trooper's
+  actual armor; the pip grid then draws `armorPips + 1`
 
 #### Scenario: Infantry bindings produce a typed PipCounts contract
 
@@ -1038,8 +1166,8 @@ loading — they SHALL be deterministic pure functions.
 
 The shared pip engine SHALL support a Battle Armor per-trooper pip
 grid: a layout that places one armor pip cluster per trooper column
-across the 4–6 trooper columns of a Battle Armor squad, each cluster
-sized to that trooper's per-suit armor pip count.
+across the 4–6 trooper columns of a Battle Armor squad. Each cluster
+SHALL render `armorPips + 1` circles (MegaMek trooper pip plus armor).
 
 This is an extension of the Wave-1 pip engine, not a modification of
 its existing per-location pip layout. The existing per-location pip
@@ -1052,9 +1180,11 @@ layout used by the mech and Wave-1 families SHALL be unchanged.
 - **GIVEN** a 5-trooper Battle Armor squad with a per-suit armor pip
   count and a template exposing 5 trooper-column pip regions
 - **WHEN** the Battle Armor per-trooper pip grid lays out the squad
-- **THEN** it SHALL emit one pip cluster per trooper column, and each
-  cluster SHALL contain exactly that trooper's per-suit armor pip
-  count
+- **THEN** it SHALL emit one pip cluster per trooper column
+- **AND** each cluster SHALL contain `armorPips + 1` pip elements,
+  matching MegaMek `PrintBattleArmor` (`getOArmor(trooper) + 1`)
+- **AND** the Wave-2 fidelity gate SHALL assert that rendered per-column
+  count, not the armor-only count
 
 #### Scenario: Trooper-count range
 
@@ -1136,7 +1266,7 @@ platoon block for infantry.
 - **WHEN** the squad is rendered through the templated path and the
   output SVG is parsed
 - **THEN** the pip-element count for each trooper column SHALL equal
-  that trooper's armor pip value from the fixture
+  that trooper's `armorPips + 1` rendered count from the fixture
 
 #### Scenario: Infantry pip count matches platoon size
 
@@ -1176,8 +1306,9 @@ and that the skeleton renderer's output does not.
 - **GIVEN** an `IInfantryRecordSheetData` payload and an
   `IBattleArmorRecordSheetData` payload
 - **WHEN** `isTemplatedUnit()` is called on each
-- **THEN** it SHALL return `true` for both, the inverse of the Wave-1
-  exclusion behaviour
+- **THEN** it SHALL return `true` for both
+- **AND** it SHALL also return `true` for `vehicle`, `aerospace`, and
+  `protomech`, and `false` for `mech`
 
 #### Scenario: Rendered SVG is template-derived, not skeleton output
 
@@ -1201,15 +1332,12 @@ download. The unit object's discriminated type hint (`type` / `unitType`) SHALL
 resolve via `dispatchTargetFromUnit` to the matching non-mech dispatch kind
 (`vehicle`, `aerospace`, `battlearmor`, `infantry`, `protomech`).
 
-This requirement covers only the customizer→service call seam. The
-`RecordSheetService`, the per-type SVG renderers, the record-sheet templates, and
-the per-type data extractors are unchanged.
+This requirement covers the customizer-to-service call seam. Preview, PDF, and
+Print share the filled SVG pipeline defined by this specification, with typed
+extractors and the selected paper size.
 
-**Rationale**: The Wave-1/2 templated-record-sheet changes built per-type renderers
-and extractors, and `RecordSheetService` already dispatches per unit type — but the
-only callers of `extractData` were the mech-only `PreviewTab` and
-`RecordSheetPreview`. Without this seam the non-mech renderers are unreachable from
-the customizer UI.
+**Rationale**: Each customizer unit family must reach its matching extractor and
+renderer through the visible preview, export, and print controls.
 
 **Priority**: High
 
@@ -1226,8 +1354,9 @@ the customizer UI.
 
 - **GIVEN** a non-mech unit configured in its customizer
 - **WHEN** the user clicks Download PDF in the Preview tab
-- **THEN** the per-type preview component SHALL call
-  `RecordSheetService.exportPDF` with data extracted from the unit object
+- **THEN** the per-type preview SHALL call `exportUnitRecordSheetPDF`
+  with the unit object (which calls `RecordSheetService.extractData` then
+  `exportPDF`)
 - **AND** the generated PDF SHALL be the record sheet for that unit's type
 
 #### Scenario: Dispatch resolves to the correct non-mech kind
@@ -1240,18 +1369,19 @@ the customizer UI.
 
 ### Requirement: Record Sheet Preview Component Is Unit-Type Aware
 
-The `RecordSheetPreview` component (the on-canvas preview surface) SHALL NOT
-hard-depend on the BattleMech store. It SHALL be dispatched by unit type (a
-`RecordSheetPreviewForType` dispatcher, or per-type canvas components), so that the
-preview canvas reads only the per-type store of the unit being previewed.
+The record-sheet preview dispatch boundary SHALL be unit-type aware. A
+`RecordSheetPreviewForType` dispatcher, or the descriptor registry's per-type
+preview components, SHALL select the preview for the active unit family. Each
+non-mech preview SHALL read only its matching per-type store. The concrete
+BattleMech `RecordSheetPreview` component is permitted to read the BattleMech
+store because it is mounted only inside that store context.
 
-**Rationale**: `RecordSheetPreview` independently calls `useUnitStore` and
-`extractData`; even with a fixed Preview tab, the canvas would still crash inside a
-non-mech customizer unless it too is made unit-type-aware.
+**Rationale**: Store selection must follow the active unit family to avoid missing
+providers and incorrectly rendered construction data.
 
 **Priority**: High
 
-#### Scenario: Preview canvas reads the matching per-type store
+#### Scenario: Preview canvas reads the matching non-mech store
 
 - **GIVEN** a non-mech customizer
 - **WHEN** the record-sheet preview canvas renders
@@ -1259,8 +1389,9 @@ non-mech customizer unless it too is made unit-type-aware.
 - **AND** it SHALL NOT call `useUnitStore`
 - **AND** rendering SHALL NOT throw a missing-provider error
 
-#### Scenario: Mech preview canvas unchanged
+#### Scenario: BattleMech preview uses its own store
 
 - **GIVEN** the BattleMech customizer
 - **WHEN** the record-sheet preview canvas renders
-- **THEN** it SHALL render the existing mech preview canvas with no behaviour change
+- **THEN** it SHALL render the BattleMech preview from its BattleMech store
+- **AND** SHALL apply the shared paper, zoom, current-request, and rendering contracts

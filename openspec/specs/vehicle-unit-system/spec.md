@@ -940,22 +940,23 @@ interface VehicleState {
 
 ## Source Files
 
-| File                                                            | Lines | Purpose                                                                                       |
-| --------------------------------------------------------------- | ----- | --------------------------------------------------------------------------------------------- |
-| `src/types/unit/VehicleInterfaces.ts`                           | 223   | IVehicle, ISupportVehicle, IVTOL, ITurretConfiguration, IVehicleMountedEquipment, type guards |
-| `src/stores/vehicleState.ts`                                    | 461   | VehicleState, VehicleActions, factory functions, armor allocation helpers                     |
-| `src/stores/useVehicleStore.ts`                                 | 577   | Zustand store factory, persistence, React context, hooks                                      |
-| `src/services/units/handlers/VehicleUnitHandler.ts`             | 602   | Combat vehicle BLK parsing, validation, serialization, calculations                           |
-| `src/services/units/handlers/SupportVehicleUnitHandler.ts`      | 504   | Support vehicle BLK parsing, BAR system, size classes, calculations                           |
-| `src/services/validation/rules/vehicle/VehicleCategoryRules.ts` | 319   | VAL-VEH-001 through VAL-VEH-005 validation rules                                              |
-| `src/components/customizer/vehicle/VehicleCustomizer.tsx`       | 181   | Main customizer with 4-tab layout                                                             |
-| `src/components/customizer/vehicle/VehicleStructureTab.tsx`     | 402   | Chassis, engine, movement, turret type, special features                                      |
-| `src/components/customizer/vehicle/VehicleArmorTab.tsx`         | 539   | Armor type, tonnage, per-location allocation, diagram                                         |
-| `src/components/customizer/vehicle/VehicleEquipmentTab.tsx`     | 306   | Equipment browser, mounted equipment, location selection                                      |
-| `src/components/customizer/vehicle/VehicleTurretTab.tsx`        | 394   | Turret configuration, turret weapon management                                                |
-| `src/components/customizer/vehicle/VehicleStatusBar.tsx`        | 299   | Compact stats bar (tonnage, movement, armor, weight free)                                     |
-| `src/components/customizer/vehicle/VehicleDiagram.tsx`          | 396   | SVG vehicle diagram with armor values                                                         |
-| `src/services/construction/constructionConstants.ts`            | —     | VEHICLE_TONNAGE, VTOL_TONNAGE, SUPPORT_VEHICLE_TONNAGE ranges                                 |
+| File | Purpose |
+| --- | --- |
+| `src/types/unit/VehicleInterfaces.ts` | IVehicle, ISupportVehicle, IVTOL, ITurretConfiguration, IVehicleMountedEquipment, type guards |
+| `src/stores/vehicleState.ts` | VehicleState, VehicleActions, factory functions, armor allocation helpers |
+| `src/stores/useVehicleStore.ts` | Zustand store factory, persistence, React context, hooks |
+| `src/services/units/handlers/VehicleUnitHandler.ts` | Combat vehicle BLK parsing, validation, serialization, calculations |
+| `src/services/units/handlers/SupportVehicleUnitHandler.ts` | Support vehicle BLK parsing, BAR system, size classes, calculations |
+| `src/services/validation/rules/vehicle/VehicleCategoryRules.ts` | VAL-VEH-001 through VAL-VEH-005 validation rules                                              |
+| `src/components/customizer/vehicle/VehicleCustomizer.tsx` | Main customizer with registry-driven seven tabs (Overview, Structure, Armor, Turret, Equipment, Preview, Fluff) |
+| `src/components/customizer/vehicle/VehicleStructureTab.tsx` | Chassis, engine, movement, turret type, special features |
+| `src/components/customizer/vehicle/VehicleArmorTab.tsx` | Armor type, tonnage, per-location allocation, diagram |
+| `src/components/customizer/vehicle/VehicleEquipmentTab.tsx` | Equipment browser, mounted equipment, location selection |
+| `src/components/customizer/vehicle/VehicleTurretTab.tsx` | Turret configuration, turret weapon management |
+| `src/components/customizer/vehicle/VehicleStatusBar.tsx` | Compact stats bar (tonnage, movement, armor, weight free) |
+| `src/components/customizer/vehicle/VehicleDiagram.tsx` | Deprecated compatibility wrapper delegating to `VehicleArmorDiagram`; preserve legacy imports |
+| `src/components/customizer/vehicle/VehicleArmorDiagram.tsx` | Primary SVG vehicle armor diagram with armor values |
+| `src/services/construction/constructionConstants.ts` | VEHICLE_TONNAGE, VTOL_TONNAGE, SUPPORT_VEHICLE_TONNAGE ranges |
 
 ## Dependencies
 

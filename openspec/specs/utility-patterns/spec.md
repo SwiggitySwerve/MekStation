@@ -48,7 +48,7 @@ This specification defines shared utility patterns used throughout MekStation fo
 
 The system SHALL provide a `debounce<T>()` utility function that creates a debounced version of any function, delaying execution until after a specified delay has elapsed since the last invocation.
 
-**Source**: `src/utils/debounce.ts:33-64`
+**Source**: `src/utils/debounce.ts#debounce`
 
 **Rationale**: Prevents excessive function calls during rapid user input (search queries, validation, API calls), improving performance and reducing server load.
 
@@ -87,7 +87,7 @@ The system SHALL provide a `debounce<T>()` utility function that creates a debou
 
 The system SHALL provide a `useDebounce<T>()` React hook that debounces a value by delaying updates until after a specified delay has elapsed since the last change.
 
-**Source**: `src/hooks/useDebounce.ts:40-56`
+**Source**: `src/hooks/useDebounce.ts#useDebounce`
 
 **Rationale**: Prevents excessive re-renders and expensive computations during rapid state changes (search input, slider values, form fields).
 
@@ -119,7 +119,7 @@ The system SHALL provide a `useDebounce<T>()` React hook that debounces a value 
 
 The system SHALL provide a `useDebouncedCallback<T>()` React hook that creates a debounced version of a callback function with a stable reference and cancel method.
 
-**Source**: `src/hooks/useDebounce.ts:86-119`
+**Source**: `src/hooks/useDebounce.ts#useDebouncedCallback`
 
 **Rationale**: Provides a stable debounced callback reference that can be safely used in dependency arrays, preventing unnecessary re-renders while supporting callback updates.
 
@@ -160,7 +160,7 @@ The system SHALL provide a `useDebouncedCallback<T>()` React hook that creates a
 
 The system SHALL provide type guard functions for validating BattleTech domain entities at runtime, enabling safe type narrowing in TypeScript.
 
-**Source**: `src/utils/typeGuards.ts:18-256`
+**Source**: `src/utils/typeGuards.ts#isEntity, #isWeightedComponent, #isSlottedComponent, #isPlaceableComponent, #isTechBaseEntity, #isTemporalEntity, #isValuedComponent, #isDocumentedEntity`
 
 **Rationale**: Enables runtime validation of data from external sources (API responses, user input, database queries) with TypeScript type narrowing.
 
@@ -233,7 +233,7 @@ The system SHALL provide type guard functions for validating BattleTech domain e
 
 The system SHALL provide assertion functions that throw errors when values do not match expected types, enabling fail-fast validation with optional context messages.
 
-**Source**: `src/utils/typeGuards.ts:217-255`
+**Source**: `src/utils/typeGuards.ts#assertEntity, #assertWeightedComponent, #assertTechBaseEntity`
 
 **Rationale**: Provides clear error messages for invalid data, preventing silent failures and improving debugging.
 
@@ -264,7 +264,7 @@ The system SHALL provide assertion functions that throw errors when values do no
 
 The system SHALL provide validator functions for checking if string values are valid enum members, enabling safe enum parsing from external sources.
 
-**Source**: `src/utils/typeGuards.ts:196-213`
+**Source**: `src/utils/typeGuards.ts#isValidTechBase, #isValidRulesLevel, #isValidEra`
 
 **Rationale**: Validates enum values from API responses, user input, or database queries before casting to enum types.
 
@@ -302,7 +302,7 @@ The system SHALL provide validator functions for checking if string values are v
 
 The system SHALL provide UUID v4 generation and validation utilities using the `uuid` library, enabling consistent unique identifier management across the application.
 
-**Source**: `src/utils/uuid.ts:1-38`
+**Source**: `src/utils/uuid.ts#generateUUID, #isValidUUID, #generateUnitId, #isValidUnitId`
 
 **Rationale**: Provides consistent UUID generation for unit identification, enabling multi-user support and shareable unit URLs.
 

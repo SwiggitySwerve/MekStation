@@ -202,35 +202,38 @@ The system SHALL provide a toolbar with auto-mode toggles and manual actions.
 
 ### Requirement: Unallocated Equipment Display
 
-The system SHALL display unallocated equipment in a categorized sidebar or inline section.
+The system SHALL expose unallocated equipment through the active customizer workbench loadout surface. The loadout surface SHALL follow the existing equipment-tray capability in `openspec/specs/equipment-tray/spec.md`, with categorized sections and placement actions defined by `openspec/specs/mobile-loadout-tray/spec.md` and responsive behavior defined by `openspec/specs/customizer-responsive-layout/spec.md`.
 
 #### Scenario: Category organization
 
 - **WHEN** unallocated equipment exists
-- **THEN** equipment is grouped by category
-- **AND** categories are collapsible
-- **AND** equipment count badges are shown
+- **THEN** the active loadout surface shows an Unassigned section with an item count
+- **AND** the surface provides its supported category grouping or filtering controls
+- **AND** the section remains collapsible according to the referenced equipment-tray capability
 
-#### Scenario: Inline unassigned display on Critical Slots tab
+#### Scenario: Workbench loadout authority
 
-- **WHEN** the Critical Slots tab is active
+- **WHEN** the Critical Slots tab is active in the customizer workbench
 - **AND** unallocated equipment exists
-- **THEN** unassigned equipment SHALL display as vertical chip bars in a horizontal scrollable row
-- **AND** each chip SHALL use the VerticalSlotChip component
+- **THEN** unassigned equipment SHALL be provided by the active `ResponsiveLoadoutTray` surface
+- **AND** desktop and drawer paths SHALL use the grouped `GlobalLoadoutTray` capability
+- **AND** the mobile path SHALL use the responsive bottom-sheet and mobile loadout-list capability
+- **AND** the workbench contract SHALL not require an inline `VerticalSlotChip` layout inside `CriticalSlotsTab`
 
-#### Scenario: Inline section hidden when all placed
+#### Scenario: Empty unassigned state
 
-- **WHEN** the Critical Slots tab is active
+- **WHEN** the active loadout surface is visible
 - **AND** all equipment is allocated to locations
-- **THEN** the inline unassigned equipment section SHALL be hidden
+- **THEN** the surface SHALL render its defined empty or collapsed Unassigned state
+- **AND** the Critical Slots tab SHALL continue to render the location grids without an inline unassigned section
 
-#### Scenario: Chip selection interaction
+#### Scenario: Loadout selection interaction
 
-- **WHEN** user taps an unassigned equipment chip
-- **THEN** the chip becomes selected with a ring highlight
+- **WHEN** user selects unassigned equipment from the active loadout surface
+- **THEN** the item becomes selected using the surface's accessible selection state
 - **AND** valid placement slots are highlighted in the location grids
-- **WHEN** user taps the same chip again
-- **THEN** the chip becomes deselected
+- **WHEN** user selects the same item again or cancels selection
+- **THEN** the item becomes deselected
 
 ### Requirement: Click-to-Select Placed Equipment
 
@@ -257,47 +260,3 @@ The system SHALL allow clicking on placed equipment to select it for reassignmen
 - **OR** user presses Escape
 - **THEN** selection is cleared
 - **AND** equipment remains in original location
-
-### Requirement: VerticalSlotChip Component
-
-The VerticalSlotChip component SHALL be a rotated version of SlotRow with identical visual styling.
-
-#### Scenario: Responsive width matching SlotRow height at each breakpoint
-
-- **GIVEN** SlotRow has different heights at different breakpoints (mobile ~22px, sm+ ~30px)
-- **WHEN** a VerticalSlotChip is rendered
-- **THEN** its width SHALL match SlotRow height at each breakpoint
-- **AND** mobile width SHALL be 22px (w-[22px])
-- **AND** sm+ width SHALL be 30px (sm:w-[30px])
-- **AND** flex-shrink-0 SHALL prevent compression in flex containers
-
-#### Scenario: Same color logic as SlotRow
-
-- **WHEN** a VerticalSlotChip renders equipment
-- **THEN** it SHALL use classifyEquipment() and getEquipmentColors() for color determination
-- **AND** the colors SHALL match exactly what SlotRow would display for the same equipment name
-
-#### Scenario: Consistent abbreviations with SlotRow
-
-- **WHEN** equipment names are displayed in VerticalSlotChip or SlotRow
-- **THEN** both SHALL use abbreviateEquipmentName() for consistent display
-- **AND** (Clan) SHALL be abbreviated to (C)
-- **AND** (Inner Sphere) SHALL be abbreviated to (IS)
-- **AND** Ferro-Fibrous SHALL be abbreviated to Ferro-Fib
-- **AND** Endo Steel SHALL NOT be abbreviated (kept as full name)
-- **AND** tooltip SHALL show full unabbreviated name
-
-#### Scenario: Rotated text orientation with responsive sizing
-
-- **WHEN** equipment name is displayed in VerticalSlotChip
-- **THEN** text SHALL use writing-mode: vertical-rl
-- **AND** text SHALL be rotated 180 degrees to read bottom-to-top
-- **AND** text size SHALL be responsive: text-[10px] on mobile, sm:text-sm on larger screens
-- **AND** text sizing SHALL match SlotRow text sizing at each breakpoint
-
-#### Scenario: No auto-sizing beyond breakpoint scaling
-
-- **WHEN** VerticalSlotChip is placed in a flex container
-- **THEN** it SHALL NOT grow or shrink beyond its breakpoint-defined width (flex-shrink-0)
-- **AND** width changes SHALL only occur at Tailwind breakpoints (sm, md, lg)
-- **AND** chips SHALL pack tightly with minimal gap (gap-1)

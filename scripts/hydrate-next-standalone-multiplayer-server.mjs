@@ -35,8 +35,66 @@ function assertExists(filePath, label) {
   }
 }
 
-function copyDir(source, target) {
+function isPathOutside(parent, candidate) {
+  const relative = path.relative(path.resolve(parent), path.resolve(candidate));
+  return (
+    path.isAbsolute(relative) ||
+    relative === '..' ||
+    relative.startsWith(`..${path.sep}`)
+  );
+}
+
+function assertSafeDestinationPath(boundary, candidate, label) {
+  const resolvedBoundary = path.resolve(boundary);
+  const resolvedCandidate = path.resolve(candidate);
+  if (isPathOutside(resolvedBoundary, resolvedCandidate)) {
+    throw new Error(
+      `Unsafe hydration destination (${label}) escapes ${rel(resolvedBoundary)}: ${rel(resolvedCandidate)}`,
+    );
+  }
+
+  let current = resolvedBoundary;
+  const relative = path.relative(resolvedBoundary, resolvedCandidate);
+  const components = relative ? relative.split(path.sep) : [];
+  for (const component of components) {
+    current = path.join(current, component);
+    let stats;
+    try {
+      stats = fs.lstatSync(current);
+    } catch (error) {
+      if (error?.code === 'ENOENT') break;
+      throw error;
+    }
+    if (stats.isSymbolicLink()) {
+      throw new Error(
+        `Unsafe hydration destination (${label}) contains a symlink or junction: ${rel(current)}`,
+      );
+    }
+  }
+}
+
+function assertDistinctRealpaths(source, target, label) {
+  const sourceRealpath = fs.realpathSync.native(source);
+  let targetRealpath;
+  try {
+    targetRealpath = fs.realpathSync.native(target);
+  } catch (error) {
+    if (error?.code === 'ENOENT') return;
+    throw error;
+  }
+  const normalize = (value) =>
+    process.platform === 'win32' ? value.toLowerCase() : value;
+  if (normalize(sourceRealpath) === normalize(targetRealpath)) {
+    throw new Error(
+      `Unsafe hydration destination (${label}) resolves to its source: ${rel(target)}`,
+    );
+  }
+}
+
+function copyDir(source, target, label = 'directory') {
   assertExists(source, 'source directory');
+  assertSafeDestinationPath(standaloneDir, target, label);
+  assertDistinctRealpaths(source, target, label);
   fs.rmSync(target, { recursive: true, force: true });
   fs.cpSync(source, target, { recursive: true, force: true });
 }
@@ -59,18 +117,24 @@ function copyRuntimeLoaders() {
     copyDir(
       path.join(root, 'node_modules', dirName),
       path.join(standaloneDir, 'node_modules', dirName),
+      `runtime loader ${dirName}`,
     );
   }
   for (const dirName of runtimeScopedDirs) {
     copyDir(
       path.join(root, 'node_modules', dirName),
       path.join(standaloneDir, 'node_modules', dirName),
+      `runtime loader ${dirName}`,
     );
   }
 }
 
 function copyPublicAssets() {
-  copyDir(path.join(root, 'public'), path.join(standaloneDir, 'public'));
+  copyDir(
+    path.join(root, 'public'),
+    path.join(standaloneDir, 'public'),
+    'public assets',
+  );
   assertExists(
     path.join(
       standaloneDir,
@@ -97,11 +161,72 @@ function copyNextStaticAssets() {
   copyDir(
     path.join(nextDir, 'static'),
     path.join(standaloneDir, '.next', 'static'),
+    'Next static assets',
   );
   assertExists(
     path.join(standaloneDir, '.next', 'static', 'chunks'),
     'standalone Next static chunks',
   );
+}
+
+function validateHydrationDestinations() {
+  assertSafeDestinationPath(root, standaloneDir, 'Next standalone output');
+
+  const destinations = [
+    [standaloneConfigPath, 'standalone config'],
+    [generatedServerPath, 'standalone server'],
+    [path.join(standaloneDir, 'tsconfig.json'), 'standalone TypeScript config'],
+    [path.join(standaloneDir, 'src'), 'standalone source tree'],
+    ...runtimeModuleDirs.map((dirName) => [
+      path.join(standaloneDir, 'node_modules', dirName),
+      `runtime loader ${dirName}`,
+    ]),
+    ...runtimeScopedDirs.map((dirName) => [
+      path.join(standaloneDir, 'node_modules', dirName),
+      `runtime loader ${dirName}`,
+    ]),
+    [path.join(standaloneDir, 'public'), 'public assets'],
+    [
+      path.join(standaloneDir, megaMekBVCacheRelativePath),
+      'standalone MegaMek BV cache',
+    ],
+    [path.join(standaloneDir, '.next', 'static'), 'Next static assets'],
+  ];
+
+  for (const [destination, label] of destinations) {
+    assertSafeDestinationPath(standaloneDir, destination, label);
+  }
+
+  const sourceTargetPairs = [
+    [
+      path.join(root, 'src'),
+      path.join(standaloneDir, 'src'),
+      'standalone source tree',
+    ],
+    ...runtimeModuleDirs.map((dirName) => [
+      path.join(root, 'node_modules', dirName),
+      path.join(standaloneDir, 'node_modules', dirName),
+      `runtime loader ${dirName}`,
+    ]),
+    ...runtimeScopedDirs.map((dirName) => [
+      path.join(root, 'node_modules', dirName),
+      path.join(standaloneDir, 'node_modules', dirName),
+      `runtime loader ${dirName}`,
+    ]),
+    [
+      path.join(root, 'public'),
+      path.join(standaloneDir, 'public'),
+      'public assets',
+    ],
+    [
+      path.join(nextDir, 'static'),
+      path.join(standaloneDir, '.next', 'static'),
+      'Next static assets',
+    ],
+  ];
+  for (const [source, target, label] of sourceTargetPairs) {
+    assertDistinctRealpaths(source, target, label);
+  }
 }
 
 function main() {
@@ -122,6 +247,7 @@ function main() {
     path.join(root, 'node_modules', '@esbuild'),
     'esbuild native package scope',
   );
+  validateHydrationDestinations();
 
   const generatedServer = fs.readFileSync(generatedServerPath, 'utf8');
   const nextConfigJson =
@@ -146,7 +272,11 @@ function main() {
     path.join(root, 'tsconfig.json'),
     path.join(standaloneDir, 'tsconfig.json'),
   );
-  copyDir(path.join(root, 'src'), path.join(standaloneDir, 'src'));
+  copyDir(
+    path.join(root, 'src'),
+    path.join(standaloneDir, 'src'),
+    'standalone source tree',
+  );
   copyRuntimeLoaders();
   copyPublicAssets();
   copyMegaMekBVCache();

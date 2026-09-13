@@ -140,7 +140,7 @@ Toasts SHALL be accessible to screen readers.
 
 The useSyncNotifications hook SHALL provide notification functions for P2P sync events.
 
-**Source**: `src/hooks/useSyncNotifications.ts:130-338`
+**Source**: `src/hooks/useSyncNotifications.ts#useSyncNotifications; src/hooks/useSyncNotifications.helpers.ts#buildShareReceivedToast, #buildConflictToast, #buildSyncCompleteToast, #buildConnectionChangedToast`
 
 #### Scenario: Share received notification
 
@@ -223,7 +223,7 @@ The useSyncNotifications hook SHALL provide notification functions for P2P sync 
 
 The useSyncToasts hook SHALL connect P2P sync events to the toast notification system.
 
-**Source**: `src/hooks/useSyncToasts.ts:16-80`
+**Source**: `src/hooks/useSyncToasts.ts#useSyncToasts`
 
 #### Scenario: App-root mounting
 
@@ -292,16 +292,16 @@ The useSyncToasts hook SHALL connect P2P sync events to the toast notification s
 
 ### SyncNotificationEvent
 
-**Source**: `src/hooks/useSyncNotifications.ts:27-34`
+**Source**: `src/hooks/useSyncNotifications.ts#SyncNotificationEvent`
 
 ```typescript
 export interface SyncNotificationEvent {
-  readonly type:
+  type:
     | 'share_received'
     | 'conflict_detected'
     | 'sync_complete'
     | 'connection_changed';
-  readonly data?: unknown;
+  data?: unknown;
 }
 ```
 
@@ -309,14 +309,14 @@ Discriminated union type for sync notification events.
 
 ### ShareReceivedData
 
-**Source**: `src/hooks/useSyncNotifications.ts:36-41`
+**Source**: `src/hooks/useSyncNotifications.ts#ShareReceivedData`
 
 ```typescript
 export interface ShareReceivedData {
-  readonly itemName: string;
-  readonly itemType: ShareableContentType | 'folder';
-  readonly fromContactName: string;
-  readonly itemCount?: number;
+  itemName: string;
+  itemType: ShareableContentType | 'folder';
+  fromContactName: string;
+  itemCount?: number;
 }
 ```
 
@@ -324,13 +324,13 @@ Data payload for share_received events.
 
 ### SyncCompleteData
 
-**Source**: `src/hooks/useSyncNotifications.ts:43-47`
+**Source**: `src/hooks/useSyncNotifications.ts#SyncCompleteData`
 
 ```typescript
 export interface SyncCompleteData {
-  readonly peerName: string;
-  readonly changesReceived: number;
-  readonly changesSent: number;
+  peerName: string;
+  changesReceived: number;
+  changesSent: number;
 }
 ```
 
@@ -338,12 +338,12 @@ Data payload for sync_complete events.
 
 ### ConnectionChangedData
 
-**Source**: `src/hooks/useSyncNotifications.ts:49-52`
+**Source**: `src/hooks/useSyncNotifications.ts#ConnectionChangedData`
 
 ```typescript
 export interface ConnectionChangedData {
-  readonly peerName: string;
-  readonly state: P2PConnectionState;
+  peerName: string;
+  state: P2PConnectionState;
 }
 ```
 
@@ -351,21 +351,21 @@ Data payload for connection_changed events.
 
 ### UseSyncNotificationsOptions
 
-**Source**: `src/hooks/useSyncNotifications.ts:54-66`
+**Source**: `src/hooks/useSyncNotifications.ts#UseSyncNotificationsOptions`
 
 ```typescript
 export interface UseSyncNotificationsOptions {
   /** Whether notifications are enabled */
-  readonly enabled?: boolean;
+  enabled?: boolean;
   /** Callback when user clicks to view shared item */
-  readonly onViewShare?: (
+  onViewShare?: (
     itemId: string,
     itemType: ShareableContentType | 'folder',
   ) => void;
   /** Callback when user clicks to resolve conflict */
-  readonly onResolveConflict?: (conflict: ISyncConflict) => void;
+  onResolveConflict?: (conflict: ISyncConflict) => void;
   /** Callback when user clicks to view sync details */
-  readonly onViewSyncDetails?: () => void;
+  onViewSyncDetails?: () => void;
 }
 ```
 
@@ -373,18 +373,18 @@ Configuration options for useSyncNotifications hook.
 
 ### UseSyncNotificationsReturn
 
-**Source**: `src/hooks/useSyncNotifications.ts:68-77`
+**Source**: `src/hooks/useSyncNotifications.ts#UseSyncNotificationsReturn`
 
 ```typescript
 export interface UseSyncNotificationsReturn {
   /** Notify about a received share */
-  readonly notifyShareReceived: (data: ShareReceivedData) => void;
+  notifyShareReceived: (data: ShareReceivedData) => void;
   /** Notify about a detected conflict */
-  readonly notifyConflictDetected: (conflict: ISyncConflict) => void;
+  notifyConflictDetected: (conflict: ISyncConflict) => void;
   /** Notify about sync completion */
-  readonly notifySyncComplete: (data: SyncCompleteData) => void;
+  notifySyncComplete: (data: SyncCompleteData) => void;
   /** Notify about connection state change */
-  readonly notifyConnectionChanged: (data: ConnectionChangedData) => void;
+  notifyConnectionChanged: (data: ConnectionChangedData) => void;
 }
 ```
 
@@ -392,28 +392,35 @@ Return value of useSyncNotifications hook.
 
 ### ISyncConflict
 
-**Source**: `src/types/vault.ts` (referenced in useSyncNotifications.ts:16)
+**Source**: `src/types/vault/VaultSyncTypes.ts#ISyncConflict`
 
 ```typescript
 export interface ISyncConflict {
-  readonly id: string;
-  readonly itemName: string;
-  readonly contentType: ShareableContentType;
-  // ... additional conflict resolution fields
+  id: string;
+  contentType: ShareableContentType | 'folder';
+  itemId: string;
+  itemName: string;
+  localVersion: number;
+  localHash: string;
+  remoteVersion: number;
+  remoteHash: string;
+  remotePeerId: string;
+  detectedAt: string;
+  resolution: 'pending' | 'local' | 'remote' | 'merged' | 'forked';
 }
 ```
 
-Represents a sync conflict requiring user resolution.
+Represents a sync conflict requiring user resolution. This is the live definition, not an excerpt.
 
 ### P2PConnectionState
 
-**Source**: `src/types/vault.ts` (referenced in useSyncNotifications.ts:18)
+**Source**: `src/types/vault/VaultSyncTypes.ts#P2PConnectionState`
 
 ```typescript
 export type P2PConnectionState =
+  | 'disconnected'
   | 'connecting'
   | 'connected'
-  | 'disconnected'
   | 'failed';
 ```
 
@@ -421,7 +428,7 @@ Connection state for P2P sync peers.
 
 ### ShareableContentType
 
-**Source**: `src/types/vault.ts` (referenced in useSyncNotifications.ts:19)
+**Source**: `src/types/vault/VaultCoreTypes.ts#ShareableContentType`
 
 ```typescript
 export type ShareableContentType = 'unit' | 'pilot' | 'force' | 'encounter';
@@ -431,20 +438,26 @@ Content types that can be shared via P2P sync.
 
 ### SyncEvent
 
-**Source**: `src/lib/p2p` (referenced in useSyncToasts.ts:10)
+**Source**: `src/lib/p2p/types.ts#SyncEvent`
 
 ```typescript
 export type SyncEvent =
   | { type: 'connected'; roomCode: string }
   | { type: 'disconnected'; reason?: string }
-  | { type: 'peer-joined'; peer: { name?: string } }
-  | { type: 'peer-left' }
-  | { type: 'sync-completed' }
-  | { type: 'conflict' }
-  | { type: 'error'; message?: string };
+  | { type: 'peer-joined'; peer: IPeer }
+  | { type: 'peer-left'; peerId: string }
+  | { type: 'sync-started'; itemId: string }
+  | { type: 'sync-completed'; itemId: string }
+  | {
+      type: 'conflict';
+      itemId: string;
+      localVersion: unknown;
+      remoteVersion: unknown;
+    }
+  | { type: 'error'; message: string };
 ```
 
-Discriminated union of P2P sync events emitted by the sync system.
+Discriminated union of P2P sync events emitted by the sync system. `IPeer` is the live type at `src/lib/p2p/types.ts#IPeer`; it is referenced here rather than inlined.
 
 ---
 

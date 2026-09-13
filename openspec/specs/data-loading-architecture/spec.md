@@ -50,36 +50,67 @@ The system SHALL organize data files in a hierarchical directory structure under
 
 ### Requirement: Equipment JSON Files
 
-The system SHALL store equipment definitions in JSON files organized by category.
+The system SHALL store official equipment definitions in JSON files organized by
+category and discovered through the generated official equipment index.
 
 **Rationale**: Separating equipment by category improves load times and maintainability.
 
 **Priority**: Critical
 
-#### Scenario: Weapon files
+#### Scenario: Indexed equipment file map
 
-- **GIVEN** weapon equipment needs to be loaded
-- **WHEN** accessing `public/data/equipment/official/weapons/`
-- **THEN** weapons SHALL be organized as:
-  - `energy.json` - Lasers, PPCs, flamers
-  - `ballistic.json` - Autocannons, machine guns, Gauss
-  - `missile.json` - LRMs, SRMs, MRMs
-  - `physical.json` - Hatchets, swords, claws
-
-#### Scenario: Other equipment files
-
-- **GIVEN** non-weapon equipment needs to be loaded
-- **WHEN** accessing `public/data/equipment/official/`
-- **THEN** equipment SHALL be in category files:
-  - `ammunition.json` - All ammunition types
-  - `electronics.json` - Sensors, ECM, targeting systems
-  - `miscellaneous.json` - MASC, TSM, jump jets, heat sinks
-
-#### Scenario: Equipment index
-
-- **GIVEN** equipment files have been loaded
+- **GIVEN** official equipment needs to be loaded
 - **WHEN** accessing `public/data/equipment/official/index.json`
-- **THEN** index SHALL list all equipment files and item counts
+- **THEN** the index SHALL contain `version`, `generatedAt`, `files`, and
+  `totalItems` fields
+- **AND** `files` SHALL map each logical item group to a relative JSON path
+- **AND** the logical groups SHALL be nested under `weapons`, `ammunition`,
+  `electronics`, and `miscellaneous`
+- **AND** `totalItems` SHALL expose the generated category count for each of
+  those four categories
+- **AND** corpus validation SHALL independently reconcile loaded identifiers and
+  file contents rather than treating this metadata as completeness proof
+
+#### Scenario: Split category files
+
+- **GIVEN** a category is listed in the official index
+- **WHEN** the loader resolves its file map
+- **THEN** it SHALL load every mapped file, including the current split files
+  under `weapons/`, `ammunition/`, `electronics/`, and `miscellaneous/`
+- **AND** the loader SHALL not assume one aggregate file such as
+  `weapons/energy.json` or `ammunition.json` exists
+- **AND** the present category map SHALL remain the authority for that
+  category's file topology
+
+#### Scenario: Missing index or category map recovery
+
+- **GIVEN** official equipment is being loaded
+- **WHEN** `index.json` cannot be read or a category map is unavailable
+- **THEN** `loadOfficialEquipmentSource` SHALL recover using
+  `EquipmentLoaderConfig` default file lists rather than failing the whole load
+- **AND** `files.weapons` SHALL use `Object.values` when present, otherwise
+  `DEFAULT_WEAPON_FILES`
+- **AND** `ammunition`, `electronics`, and `miscellaneous` SHALL use
+  `getIndexedFileList(entry, DEFAULT_*)`, which returns the map values for a
+  non-array object and otherwise the fallback list
+- **AND** a missing index or category map SHALL NOT by itself append a
+  `result.errors` entry
+- **AND** `readJsonFile` MAY log a path-bearing warning for a failed index read
+- **AND** a valid present category map SHALL remain topology authority for that
+  category
+
+#### Scenario: Indexed equipment catalog shape
+
+- **GIVEN** the current official index is read
+- **THEN** `version` SHALL identify the index format
+- **AND** `generatedAt` SHALL be an ISO timestamp supplied by the generator
+- **AND** `files` SHALL contain logical keys and relative file paths rather than
+  embedding every equipment item
+- **AND** `totalItems` SHALL contain category-level generated counts rather
+  than a single aggregate item array
+- **AND** consumers SHALL treat those counts as index metadata; official
+  validation remains responsible for checking source rows and identifier
+  uniqueness
 
 ---
 
@@ -311,13 +342,18 @@ The system SHALL provide fallback equipment definitions for critical constructio
   - Targeting computers (IS, Clan)
   - Movement enhancements (MASC IS, MASC Clan, TSM, Supercharger)
 
-#### Scenario: Fallback lookup order
+#### Scenario: Fallback lookup order for runtime utilities
 
 - **GIVEN** equipment is requested by ID
 - **WHEN** resolving the equipment definition
 - **THEN** system SHALL first attempt JSON loader lookup
 - **AND** if loader is not loaded or returns null, system SHALL use fallback definition
 - **AND** fallback SHALL contain all required fields (id, name, weight, criticalSlots, etc.)
+
+Fallback definitions are a runtime utility safety net while the asynchronous
+loader is unavailable. They do not represent official catalog coverage and
+SHALL NOT satisfy official catalog validation or parity checks; those checks
+must use source-backed entries loaded from the official files.
 
 #### Scenario: Fallback completeness
 

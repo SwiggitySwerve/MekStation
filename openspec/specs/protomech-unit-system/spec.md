@@ -727,10 +727,15 @@ Actions SHALL set the relevant fields plus `isModified: true` and `lastModifiedA
 
 ### Component Hierarchy
 
-The ProtoMech customizer SHALL use a single-tab layout:
+The ProtoMech customizer SHALL use the shared registry-driven tab shell. The
+current registry exposes Overview, Structure, Armor, Main Gun, Equipment,
+conditional Glider, Preview, and Fluff tabs. Equipment construction remains a
+planned follow-up while its registered tab body is a placeholder.
 
-- `ProtoMechCustomizer` - Root component, wraps children in store context
-- `ProtoMechStructureTab` - Main configuration panel
+- `ProtoMechCustomizer` - Root component, wraps children in store context and renders the active registered tab
+- `ProtoMechStructureTab` - Structure/chassis/armor configuration panel
+- `ProtoMechEquipmentTab` - Registered equipment surface; construction body remains planned
+- `ProtoMechPreviewTab` - Store-backed record-sheet preview and print toolbar
 
 ### ProtoMechCustomizer
 
@@ -738,7 +743,7 @@ The ProtoMech customizer SHALL use a single-tab layout:
 - **THEN** it SHALL accept a `store: StoreApi<ProtoMechStore>` prop
 - **AND** wrap children in `ProtoMechStoreContext.Provider`
 - **AND** display a header with "ProtoMech Configuration"
-- **AND** render `ProtoMechStructureTab` as the main content
+- **AND** render the active registry-selected tab, defaulting to `structure`
 
 ### ProtoMechStructureTab Sections
 
@@ -813,16 +818,18 @@ The handler SHALL extend `AbstractUnitTypeHandler<IProtoMech>`:
 
 ## Implementation Files
 
-| File                                                                | Purpose                                              | Lines |
-| ------------------------------------------------------------------- | ---------------------------------------------------- | ----- |
-| `src/types/unit/PersonnelInterfaces.ts`                             | IProtoMech, IProtoMechMountedEquipment, type guards  | ~410  |
-| `src/stores/protoMechState.ts`                                      | State interface, armor allocation, defaults, factory | ~372  |
-| `src/stores/useProtoMechStore.ts`                                   | Zustand store factory, context, hooks                | ~421  |
-| `src/stores/protoMechStoreRegistry.ts`                              | Registry for active store instances                  | ~217  |
-| `src/services/units/handlers/ProtoMechUnitHandler.ts`               | BLK parsing, validation, calculations                | ~456  |
-| `src/components/customizer/protomech/ProtoMechCustomizer.tsx`       | Main customizer with store context                   | ~67   |
-| `src/components/customizer/protomech/ProtoMechStructureTab.tsx`     | Structure/chassis/armor tab UI                       | ~285  |
-| `src/services/validation/rules/personnel/PersonnelCategoryRules.ts` | Shared validation rules (Infantry/BA focused)        | ~203  |
+| File                                                                | Purpose                                              |
+| ------------------------------------------------------------------- | ---------------------------------------------------- |
+| `src/types/unit/PersonnelInterfaces.ts`                             | IProtoMech, IProtoMechMountedEquipment, type guards  |
+| `src/stores/protoMechState.ts`                                      | State interface, armor allocation, defaults, factory |
+| `src/stores/useProtoMechStore.ts`                                   | Zustand store factory, context, hooks                |
+| `src/stores/protoMechStoreRegistry.ts`                              | Registry for active store instances                  |
+| `src/services/units/handlers/ProtoMechUnitHandler.ts`               | BLK parsing, validation, calculations                |
+| `src/components/customizer/protomech/ProtoMechCustomizer.tsx`       | Registry-driven customizer with store context        |
+| `src/components/customizer/protomech/ProtoMechStructureTab.tsx`     | Structure/chassis/armor tab UI                       |
+| `src/components/customizer/protomech/ProtoMechEquipmentTab.tsx`     | Registered equipment tab; construction placeholder    |
+| `src/components/customizer/protomech/ProtoMechPreviewTab.tsx`       | Store-backed record-sheet preview and print toolbar  |
+| `src/services/validation/rules/personnel/PersonnelCategoryRules.ts` | Shared validation rules (Infantry/BA focused)        |
 
 ## Known Limitations
 
@@ -833,4 +840,9 @@ The handler SHALL extend `AbstractUnitTypeHandler<IProtoMech>`:
 - The `isSquadUnit` type guard in `BaseUnitInterfaces.ts` does not include `PROTOMECH`, though `IProtoMech` extends `ISquadUnit`
 - No ProtoMech-specific validation rules in `PersonnelCategoryRules.ts` — all ProtoMech validation is in the handler's `validateTypeSpecificRules`
 - Glider cost increase is 50,000 C-bills but no additional movement or weight penalties are modeled
-- Customizer has only one tab (Structure) — no separate equipment or preview tabs yet
+- Equipment is registered as a tab but remains a placeholder pending
+  `add-protomech-construction`; the Preview tab is available through the
+  shared record-sheet preview path
+- The active store clamps tonnage to 2-9 tons. Structure UI options for
+  Ultraheavy 10-15 ton variants remain outside the supported store contract
+  until their construction rules are resolved

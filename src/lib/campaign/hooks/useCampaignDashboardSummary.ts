@@ -8,12 +8,11 @@
  * which keeps each card decoupled from store layout drift and lets the
  * tests stub a fixture summary instead of standing up real stores.
  *
- * The hook is intentionally a pure selector — it produces a snapshot of
- * the current state. No subscriptions, no side effects. Components that
- * need live updates re-render when their consumed store slices change
- * (the standard Zustand pattern); the hook's caller controls reactivity.
+ * The hook subscribes to campaign and roster store slices through Zustand
+ * selectors and memoizes the derived summary. Store updates to consumed
+ * slices re-render the hook; deriving the summary has no other side effects.
  *
- * @spec openspec/changes/add-campaign-command-center/specs/campaign-system/spec.md
+ * @spec openspec/specs/campaign-system/spec.md
  */
 
 import { useMemo } from 'react';

@@ -66,7 +66,7 @@ The system SHALL support C3i (Improved) networks with a maximum of 6 units per n
 
 When a unit in a C3 network attacks a target, the system SHALL calculate the range from ALL networked units to the target and use the BEST (shortest) range bracket for to-hit calculation. This replaces the attacker's actual range bracket.
 
-**Source**: `src/utils/gameplay/toHit.ts:103-136` (range bracket calculation), `src/utils/gameplay/toHit.ts:32-38` (range modifiers)
+**Source**: `src/utils/gameplay/toHit/c3.ts:selectC3RangeBracket` (range bracket calculation), `src/utils/gameplay/toHit/constants.ts:RANGE_MODIFIERS` (range modifiers)
 
 #### Scenario: Networked unit uses best range bracket
 
@@ -98,7 +98,7 @@ When a unit in a C3 network attacks a target, the system SHALL calculate the ran
 
 When the C3 Master unit is destroyed, the entire C3 Master/Slave network SHALL dissolve immediately. All slave units lose C3 targeting benefits.
 
-**Source**: `src/utils/gameplay/electronicWarfare.ts:674-693` (equipment destruction pattern)
+**Source**: `src/utils/gameplay/c3Network/state.ts:destroyC3Unit` (C3 network destruction behavior)
 
 #### Scenario: Master destruction dissolves network
 
@@ -112,7 +112,7 @@ When the C3 Master unit is destroyed, the entire C3 Master/Slave network SHALL d
 
 When an attacker or target is within an active enemy ECM bubble, C3 network targeting benefits SHALL be denied for that attack. The network remains formed but the targeting benefit is blocked.
 
-**Source**: `src/utils/gameplay/electronicWarfare.ts:5` (ECM nullifies C3), `openspec/specs/ecm-electronic-warfare/spec.md:30-33` (Guardian ECM nullifies C3)
+**Source**: `src/utils/gameplay/electronicWarfare/status.ts:resolveC3ECMDisruption` (ECM nullifies C3), `openspec/specs/ecm-electronic-warfare/spec.md:30-33` (Guardian ECM nullifies C3)
 
 #### Scenario: ECM blocks C3 targeting benefit
 
@@ -136,7 +136,7 @@ When an attacker or target is within an active enemy ECM bubble, C3 network targ
 
 C3 equipment SHALL have the following weight, slot, and compatibility properties.
 
-**Source**: `src/types/equipment/ElectronicsTypes.ts:24` (ElectronicsCategory.C3), `data/equipment/electronics/c3.json`
+**Source**: `src/types/equipment/ElectronicsTypes.ts:24` (ElectronicsCategory.C3), `public/data/equipment/official/electronics/c3.json`
 
 #### Scenario: C3 Master Computer specifications
 
@@ -167,7 +167,7 @@ C3 equipment SHALL have the following weight, slot, and compatibility properties
 - **THEN** the installation SHALL be rejected
 - **AND** the validation error SHALL state "C3 Slave cannot be combined with C3 Improved"
 
-**Source**: `src/services/validation/rules/equipment/EquipmentUnitTypeRules.ts:378-380`
+**Source**: `src/services/validation/rules/equipment/EquipmentUnitTypeRules.ts:EquipmentUnitTypeCompatibility`
 
 ## Dependencies
 
@@ -180,4 +180,4 @@ C3 equipment SHALL have the following weight, slot, and compatibility properties
 ### Used By
 
 - **combat-resolution**: C3 targeting modifies to-hit calculations during attack resolution
-- **battle-value-system**: C3 modifier affects unit battle value (`src/types/validation/BattleValue.ts:278`)
+- **battle-value-system**: C3 modifier affects unit battle value (`src/types/validation/BattleValue.ts:BVModifiers.c3Modifier`)

@@ -2,6 +2,7 @@ import { IAmmunition } from '@/types/equipment/AmmunitionTypes';
 import { IElectronics } from '@/types/equipment/ElectronicsTypes';
 import { IMiscEquipment } from '@/types/equipment/MiscEquipmentTypes';
 import { IWeapon } from '@/types/equipment/weapons/interfaces';
+import { logger } from '@/utils/logger';
 
 import type {
   IEquipmentIndexData,
@@ -40,6 +41,16 @@ export interface IEquipmentOfficialLoadTargets {
   readonly ammunition: Map<string, IAmmunition>;
   readonly electronics: Map<string, IElectronics>;
   readonly miscEquipment: Map<string, IMiscEquipment>;
+}
+
+function recordFileLoadFailure(
+  errors: string[],
+  category: string,
+  filePath: string,
+): void {
+  const message = `Failed to load ${category} from ${filePath} (missing, unreadable, or malformed)`;
+  errors.push(message);
+  logger.error(`[EquipmentOfficialLoader] ${message}`);
 }
 
 export async function loadOfficialEquipmentSource(
@@ -97,6 +108,7 @@ export async function loadOfficialEquipmentSource(
           itemsLoaded++;
         });
       } else {
+        recordFileLoadFailure(errors, 'weapons', weaponFile);
         warnings.push(`Failed to load weapons from ${weaponFile}`);
       }
     }
@@ -125,6 +137,7 @@ export async function loadOfficialEquipmentSource(
           itemsLoaded++;
         });
       } else {
+        recordFileLoadFailure(errors, 'ammunition', ammoFile);
         warnings.push(`Failed to load ammunition from ${ammoFile}`);
       }
     }
@@ -153,6 +166,7 @@ export async function loadOfficialEquipmentSource(
           itemsLoaded++;
         });
       } else {
+        recordFileLoadFailure(errors, 'electronics', elecFile);
         warnings.push(`Failed to load electronics from ${elecFile}`);
       }
     }
@@ -179,6 +193,7 @@ export async function loadOfficialEquipmentSource(
           itemsLoaded++;
         });
       } else {
+        recordFileLoadFailure(errors, 'miscellaneous equipment', miscFile);
         warnings.push(
           `Failed to load miscellaneous equipment from ${miscFile}`,
         );

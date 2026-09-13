@@ -49,9 +49,36 @@ Desktop release artifacts SHALL include a bundled Next.js standalone server with
 #### Scenario: Record sheet templates and pips are accessible in packaged mode
 
 - **GIVEN** the desktop application is running in packaged mode
-- **WHEN** the UI requests `/record-sheets/templates/mek_biped_default.svg`
+- **WHEN** the UI requests `/record-sheets/templates_us/mek_biped_default.svg` for Letter or `/record-sheets/templates_iso/mek_biped_default.svg` for A4
 - **THEN** the request SHALL succeed
 - **AND** subsequent requests for `/record-sheets/biped_pips/*` SHALL succeed
+
+**Source**: `src/services/assets/MmDataAssetService.ts` desired Letter/A4 URL map. Packaged-mode access is the requirement; this spec does not infer asset acquisition or full packaged proof.
+
+---
+
+### Requirement: Standalone hydration destination safety
+
+Standalone hydration SHALL validate its output destinations before writing configuration, copying runtime files, or removing existing output directories.
+
+#### Scenario: An output path aliases a shared dependency directory
+
+- **GIVEN** a hydration destination or an existing path component below the checkout root is a symbolic link or directory junction
+- **WHEN** standalone hydration validates its destinations
+- **THEN** hydration SHALL fail with a path-bearing diagnostic before any output write or removal
+- **AND** shared source files and existing output configuration SHALL remain unchanged
+
+#### Scenario: Output containment and source identity
+
+- **WHEN** a hydration destination escapes its declared output boundary or resolves to its source directory
+- **THEN** hydration SHALL reject that destination before any write or removal
+
+#### Scenario: Ordinary physical output
+
+- **GIVEN** distinct physical source and standalone output directories within the checkout
+- **WHEN** hydration completes
+- **THEN** the standalone output SHALL contain the required runtime dependencies, public assets, source tree and static files
+- **AND** source dependency files SHALL remain unchanged
 
 ---
 

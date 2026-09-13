@@ -21,8 +21,9 @@ Once linear replay, schema safety, combat/campaign authority, and cross-stream r
 ## Dependencies
 
 - This change is the branch/correction implementation slice of `harden-gm-two-player-campaign-sessions`.
-- It depends on the journal foundation, replay/schema safety, membership/projection/private-audit gates, combat authority, campaign authority, and target-scoped effect receipts.
+- It depends on the journal foundation, replay/schema safety, membership/projection/private-audit gates, combat authority, and campaign authority for the corresponding branch seams. The branch storage/port infrastructure may land before combat-journal cutover; PR 1-3 are covered by the September 2 cross-stream predecessor-receipt-only exemption in `tasks.md`. PR 1-3 still retain their own exact-main proof, independent review, and package-specific approval/behavior receipts. The full exact-main cross-stream terminal/archive/prune gate remains required before receipt-consuming PR 4+.
 - It is the final entity-history wave; before archive/sync, overlapping umbrella deltas SHALL be reconciled through the program wave map.
+- Live Branch PR 3 rewind acceptance follows `adopt-combat-journal-cutover-and-gm-rewind` S1-S4 and its journal correctness/cutover gates. That cutover consumes the branch storage/port seam and does not require this whole change to be complete or archived. Target-scoped effect receipts remain a prerequisite for the campaign replacement and coordinated post-receipt seams.
 
 ## Capabilities
 

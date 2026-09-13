@@ -8,7 +8,7 @@ Defines Unit Validation Framework requirements for Validation Hierarchy, Unit Ty
 
 ### Requirement: Validation Hierarchy
 
-The system SHALL implement a four-level validation hierarchy for unit validation.
+The system SHALL implement a three-level validation hierarchy for unit validation.
 
 #### Scenario: Universal rules apply to all units
 
@@ -31,8 +31,9 @@ The system SHALL implement a four-level validation hierarchy for unit validation
 #### Scenario: Rule execution order
 
 - **WHEN** running full validation
-- **THEN** rules SHALL execute in order: universal, category, unit-type
-- **AND** within each level, rules SHALL execute by priority (ascending)
+- **THEN** resolved entries SHALL execute in order: universal, category, unit-type
+- **AND** within each level, resolved entries SHALL execute by priority (ascending)
+- **AND** an inheritance chain SHALL be treated as one resolved entry at the extended parent's level and priority
 
 ---
 
@@ -88,6 +89,18 @@ The system SHALL support rule inheritance with override and extend capabilities.
 - **WHEN** resolving inheritance
 - **THEN** unit-type rules take precedence over category rules
 - **AND** category rules take precedence over universal rules
+
+#### Scenario: Extension chains retain parent scheduling metadata
+
+- **GIVEN** a category rule VAL-MECH-P with priority 100
+- **AND** a category sibling rule VAL-MECH-S with priority 50
+- **AND** a unit-type rule VAL-BM-C with priority 1 that extends VAL-MECH-P
+- **AND** a unit-type rule VAL-BM-U with priority 0
+- **WHEN** resolving inheritance for a BattleMech
+- **THEN** the effective VAL-MECH-P plus VAL-BM-C chain SHALL remain at the category level with priority 100
+- **AND** the resolved entry SHALL expose VAL-MECH-P as its ID and priority 100
+- **AND** validation SHALL execute VAL-MECH-S, then VAL-MECH-P, then VAL-BM-C, then VAL-BM-U
+- **AND** the parent rule SHALL execute before its extension within the combined entry
 
 ---
 

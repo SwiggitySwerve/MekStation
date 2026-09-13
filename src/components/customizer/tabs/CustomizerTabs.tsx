@@ -2,7 +2,8 @@
  * Customizer Tabs Component
  *
  * Tabbed navigation for unit configuration sections.
- * Responsive: Shows stacked icons and labels on mobile, inline on larger screens.
+ * Compact: hides icons, keeps labels, start-justifies a scrollable strip
+ * with 44px targets. Default: icons+labels, even justification.
  *
  * @spec openspec/specs/customizer-tabs/spec.md
  * @spec openspec/specs/customizer-responsive-layout/spec.md
@@ -171,10 +172,9 @@ export const DEFAULT_CUSTOMIZER_TABS: CustomizerTabConfig[] = [
 /**
  * Customizer section tabs
  *
- * Responsive behavior:
- * - Mobile (<640px): Stacked icons and labels, minimum 44px touch targets
- * - Desktop (>=640px): Icons + labels
- * - Scroll indicators appear when tabs overflow
+ * Compact: hides icons, keeps labels, start-justified scrollable strip
+ * with 44px targets. Default: icons+labels, even justification.
+ * Scroll indicators appear when tabs overflow.
  */
 export function CustomizerTabs({
   tabs,

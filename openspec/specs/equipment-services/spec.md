@@ -642,31 +642,84 @@ The system SHALL load equipment definitions from JSON files at runtime.
 
 - **GIVEN** the application is initializing
 - **WHEN** EquipmentLoaderService.loadOfficialEquipment() is called
-- **THEN** load all JSON files from `public/data/equipment/official/`
-- **AND** register each item in the EquipmentRegistry
-- **AND** return IEquipmentLoadResult with success status and item count
+- **THEN** `loadOfficialEquipmentSource` SHALL discover files from
+  `public/data/equipment/official/index.json` when that index is available
+- **AND** load every mapped JSON file into the loader category maps
+- **AND** when the index or a category map is unavailable, recover with the
+  matching `EquipmentLoaderConfig` default file list as a separate recovery
+  case; a present category map remains topology authority
+- **AND** return IEquipmentLoadResult with success, itemsLoaded, errors, and
+  warnings
 
 #### Scenario: Load weapon categories
 
 - **GIVEN** official equipment is being loaded
 - **WHEN** processing weapon files
-- **THEN** load `weapons/energy.json`, `weapons/ballistic.json`, `weapons/missile.json`, `weapons/physical.json`
+- **THEN** read the `weapons` file map from
+  `public/data/equipment/official/index.json`
+- **AND** load every mapped split file (currently including
+  `weapons/energy-laser.json`, `weapons/energy-ppc.json`,
+  `weapons/energy-other.json`, the split ballistic and missile files, and
+  `weapons/physical.json`)
+- **AND** do not require obsolete aggregate paths such as
+  `weapons/energy.json` or `weapons/ballistic.json`
 - **AND** convert raw JSON to typed IWeapon objects
 
 #### Scenario: Load other equipment
 
 - **GIVEN** official equipment is being loaded
 - **WHEN** processing non-weapon files
-- **THEN** load `ammunition.json`, `electronics.json`, `miscellaneous.json`
+- **THEN** read the `ammunition`, `electronics`, and `miscellaneous` file maps
+  from `public/data/equipment/official/index.json`
+- **AND** load each mapped split file under its category directory
+- **AND** do not require obsolete aggregate paths such as `ammunition.json`,
+  `electronics.json`, or `miscellaneous.json`
 - **AND** convert to appropriate typed objects (IAmmunition, IElectronics, IMiscEquipment)
 
 #### Scenario: Equipment load failure
 
-- **GIVEN** a JSON file is malformed or missing
-- **WHEN** loading equipment
-- **THEN** log error with file path and details
-- **AND** continue loading remaining files
-- **AND** include error in IEquipmentLoadResult.errors array
+- **GIVEN** a mapped official JSON file is missing, unreadable, or fails JSON
+  parse
+- **WHEN** `EquipmentLoaderService.loadOfficialEquipment()` processes the
+  current file list
+- **THEN** `readJsonFile` SHALL return null after a path-bearing warning
+- **AND** `loadOfficialEquipmentSource` SHALL record a path-bearing error and
+  warning
+- **AND** continue loading remaining files across `weapons`, `ammunition`,
+  `electronics`, and `miscellaneous`
+- **AND** keep successfully converted rows in the category maps
+- **AND** count those retained rows in `IEquipmentLoadResult.itemsLoaded`
+- **AND** return `success: false`
+- **AND** `getIsLoaded()` SHALL equal `result.success` (false)
+- **AND** `getLoadErrors()` SHALL equal `result.errors`
+- **AND** this continuation SHALL apply only to read, JSON-parse, missing, and
+  unreadable failures — not to schema-drift throws
+
+#### Scenario: Strict schema-bridge drift stops traversal
+
+- **GIVEN** `NODE_ENV` is not `production` and
+  `MEKSTATION_STRICT_SCHEMA_BRIDGE=1`
+- **AND** a mapped file reads as JSON but `validateShapeFromFile` finds
+  schema-invalid rows
+- **WHEN** `loadOfficialEquipmentSource` runs the schema-bridge gate
+- **THEN** `validateShape` SHALL throw before converting that file's rows
+- **AND** the outer catch in `loadOfficialEquipmentSource` SHALL stop remaining
+  file traversal
+- **AND** the catch SHALL append `Failed to load equipment: ${e}` to `errors`
+- **AND** return `success: false` with `itemsLoaded` equal to rows converted
+  before the throw
+- **AND** `getIsLoaded()` SHALL equal `result.success` (false)
+- **AND** this path SHALL NOT continue remaining mapped files
+
+#### Scenario: Successful retry after partial load failure
+
+- **GIVEN** a previous official load recorded file-level errors while retaining
+  successful rows
+- **WHEN** `loadOfficialEquipment()` is called again and every mapped file loads
+- **THEN** return `IEquipmentLoadResult` with `success: true`, empty `errors`,
+  and empty `warnings`
+- **AND** `getIsLoaded()` SHALL equal `result.success` (true)
+- **AND** `getLoadErrors()` SHALL be empty
 
 ---
 
@@ -873,8 +926,13 @@ The EquipmentLoaderService SHALL track its loading state and provide status info
 
 - **GIVEN** the equipment loader has been instantiated
 - **WHEN** calling `getIsLoaded()`
-- **THEN** return `true` if `loadOfficialEquipment()` completed successfully
-- **AND** return `false` before loading or if loading failed
+- **THEN** return `true` only if the last `loadOfficialEquipment()` returned
+  `IEquipmentLoadResult.success`
+- **AND** return `false` before the first load, or when that result recorded any
+  file-level errors
+- **AND** `getIsLoaded()` SHALL equal that result's `success` flag
+- **AND** retained successful rows SHALL remain queryable from the loader maps
+  even when this flag is false
 
 #### Scenario: Get total count
 
@@ -886,8 +944,10 @@ The EquipmentLoaderService SHALL track its loading state and provide status info
 
 - **GIVEN** the equipment loader attempted to load data
 - **WHEN** calling `getLoadErrors()`
-- **THEN** return array of error messages from failed file loads
-- **AND** return empty array if no errors occurred
+- **THEN** return the path-bearing error messages from the last official load
+- **AND** include failures from each of the four indexed categories when those
+  mapped files fail
+- **AND** return an empty array after a clean successful load or retry
 
 ---
 
@@ -918,8 +978,10 @@ The EquipmentLookupService SHALL support async initialization and track data sou
 
 - **GIVEN** the lookup service has initialized
 - **WHEN** calling `getDataSource()`
-- **THEN** return `'json'` if JSON loader provided sufficient items (≥100)
-- **AND** return `'fallback'` if using hardcoded fallback data
+- **THEN** return `'json'` only if the last official load succeeded
+  (`IEquipmentLoadResult.success`) and loaded at least 100 items
+- **AND** return `'fallback'` if that load failed, recorded file-level errors,
+  or loaded fewer than 100 items
 
 #### Scenario: Get load result
 
@@ -932,42 +994,60 @@ The EquipmentLookupService SHALL support async initialization and track data sou
 
 ### Requirement: Equipment Lookup Fallback Behavior
 
-Equipment utility functions SHALL fall back to hardcoded definitions when JSON data is unavailable.
+Equipment utility functions SHALL fall back to hardcoded definitions when JSON
+data is unavailable.
 
 **Rationale**: Construction utilities must work immediately without waiting for async loading.
 
 **Priority**: Critical
 
+This fallback is limited to runtime utility lookup. It is not official catalog
+data and SHALL NOT be used to satisfy official equipment validation, combat
+parity, or catalog completeness checks. Those checks must report a missing
+source-backed row as a gap.
+
 #### Scenario: Heat sink equipment lookup
 
 - **GIVEN** heat sink equipment is requested
 - **WHEN** calling `getHeatSinkEquipment(type)`
-- **THEN** system SHALL first try `equipmentLoaderService.getMiscEquipmentById(id)`
-- **AND** if not found, return from `HEAT_SINK_FALLBACKS[id]`
+- **THEN** system SHALL call `getEquipmentLoader()` and use JSON data only when
+  `getIsLoaded()` is true
+- **AND** then try `getMiscEquipmentById(id)`
+- **AND** if the loader is not loaded or the ID is missing, return from
+  `HEAT_SINK_FALLBACKS[id]`
 - **AND** fallback SHALL include all standard heat sink types
 
 #### Scenario: Jump jet equipment lookup
 
 - **GIVEN** jump jet equipment is requested
 - **WHEN** calling `getJumpJetEquipment(tonnage, type)`
-- **THEN** system SHALL first try `equipmentLoaderService.getMiscEquipmentById(id)`
-- **AND** if not found, return from `JUMP_JET_FALLBACKS[id]`
+- **THEN** system SHALL call `getEquipmentLoader()` and use JSON data only when
+  `getIsLoaded()` is true
+- **AND** then try `getMiscEquipmentById(id)`
+- **AND** if the loader is not loaded or the ID is missing, return from
+  `JUMP_JET_FALLBACKS[id]`
 - **AND** fallback SHALL include light/medium/heavy standard and improved jets
 
 #### Scenario: Targeting computer equipment lookup
 
 - **GIVEN** targeting computer equipment is requested
 - **WHEN** calling `getTargetingComputerEquipment(techBase)`
-- **THEN** system SHALL first try `equipmentLoaderService.getElectronicsById(id)`
-- **AND** if not found, return from `TARGETING_COMPUTER_FALLBACKS[id]`
+- **THEN** system SHALL call `getEquipmentLoader()` and use JSON data only when
+  `getIsLoaded()` is true
+- **AND** then try `getElectronicsById(id)`
+- **AND** if the loader is not loaded or the ID is missing, return from
+  `TARGETING_COMPUTER_FALLBACKS[id]`
 - **AND** fallback SHALL include IS and Clan targeting computers
 
 #### Scenario: Enhancement equipment lookup
 
 - **GIVEN** movement enhancement equipment is requested (MASC, TSM, Supercharger)
 - **WHEN** calling `getEnhancementEquipment(type, techBase)`
-- **THEN** system SHALL first try `equipmentLoaderService.getMiscEquipmentById(id)`
-- **AND** if not found, return from `ENHANCEMENT_FALLBACKS[id]`
+- **THEN** system SHALL call `getEquipmentLoader()` and use JSON data only when
+  `getIsLoaded()` is true
+- **AND** then try `getMiscEquipmentById(id)`
+- **AND** if the loader is not loaded or the ID is missing, return from
+  `ENHANCEMENT_FALLBACKS[id]`
 - **AND** fallback SHALL include MASC (IS/Clan), TSM, and Supercharger
 
 ---

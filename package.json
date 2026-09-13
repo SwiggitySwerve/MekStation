@@ -9,10 +9,10 @@
     "email": "swervelabs@proton.me"
   },
   "scripts": {
-    "dev": "npx kill-port 3600 --silent && node server.js",
-    "dev:e2e": "npx kill-port 3600 --silent && next dev --webpack --port 3600",
-    "build": "node scripts/next/run-next.mjs build --webpack && node scripts/hydrate-next-standalone-multiplayer-server.mjs",
-    "build:analyze": "ANALYZE=true next build --webpack",
+    "dev": "npx kill-port 3600 --silent && npm run sync:mm-data-config && node server.js",
+    "dev:e2e": "npx kill-port 3600 --silent && npm run sync:mm-data-config && next dev --webpack --port 3600",
+    "build": "npm run sync:mm-data-config && node scripts/next/run-next.mjs build --webpack && node scripts/hydrate-next-standalone-multiplayer-server.mjs",
+    "build:analyze": "npm run sync:mm-data-config && ANALYZE=true next build --webpack",
     "start": "node .next/standalone/server.js",
     "lint": "oxlint",
     "lint:fix": "oxlint --fix",
@@ -40,8 +40,8 @@
     "storybook:build": "storybook build -o storybook-static",
     "coverage:analyze": "npm run test:coverage && node scripts/analysis/coverage-analysis.js",
     "analyze": "npm run build:analyze && npx webpack-bundle-analyzer .next/static/chunks/*.js",
-    "build:profile": "next build --webpack --profile",
-    "build:debug": "next build --webpack --debug",
+    "build:profile": "npm run sync:mm-data-config && next build --webpack --profile",
+    "build:debug": "npm run sync:mm-data-config && next build --webpack --debug",
     "perf:test": "node scripts/performance/measure-bundle-size.js",
     "convert:mtf": "python scripts/megameklab-conversion/mtf_converter.py",
     "convert:blk": "python scripts/megameklab-conversion/blk_vehicle_converter.py && python scripts/megameklab-conversion/blk_aerospace_converter.py && python scripts/megameklab-conversion/blk_battlearmor_converter.py && python scripts/megameklab-conversion/blk_infantry_converter.py && python scripts/megameklab-conversion/blk_protomech_converter.py",
@@ -50,6 +50,7 @@
     "convert:blk:battlearmor": "python scripts/megameklab-conversion/blk_battlearmor_converter.py",
     "convert:blk:infantry": "python scripts/megameklab-conversion/blk_infantry_converter.py",
     "convert:blk:protomech": "python scripts/megameklab-conversion/blk_protomech_converter.py",
+    "sync:mm-data-config": "node scripts/mm-data/sync-browser-config.mjs",
     "fetch:assets": "npx tsx scripts/mm-data/fetch-assets.ts",
     "fetch:assets:local": "npx tsx scripts/mm-data/fetch-assets.ts --prefer-local",
     "fetch:assets:force": "npx tsx scripts/mm-data/fetch-assets.ts --force",
@@ -313,7 +314,8 @@
     "tsconfig-paths": "^4.2.0",
     "tsx": "4.22.4",
     "typescript": "^5.8.3",
-    "webpack-bundle-analyzer": "^4.10.1"
+    "webpack-bundle-analyzer": "^4.10.1",
+    "yaml": "^2.9.0"
   },
   "overrides": {
     "brace-expansion": "5.0.8",

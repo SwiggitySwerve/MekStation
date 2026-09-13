@@ -77,11 +77,8 @@ export class EquipmentLoaderService {
       electronics: this.electronics,
       miscEquipment: this.miscEquipment,
     });
-
-    if (result.success) {
-      this.isLoaded = true;
-      this.loadErrors = result.errors;
-    }
+    this.loadErrors = result.errors;
+    this.isLoaded = result.success;
 
     return result;
   };

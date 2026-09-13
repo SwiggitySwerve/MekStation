@@ -107,6 +107,51 @@ The system SHALL provide a script to synchronize assets from mm-data repository.
 - **AND** include git commit hash of mm-data repo
 - **AND** include sync timestamp
 
+### Requirement: Browser Manifest Synchronization
+
+The system SHALL provide a deterministic startup sync that copies the tracked
+`config/mm-data-assets.json` bytes to `public/config/mm-data-assets.json`.
+The sync SHALL run before each browser development or build entrypoint:
+`dev`, `dev:e2e`, `build`, `build:analyze`, `build:profile`, and
+`build:debug`. It SHALL not acquire or rewrite record-sheet assets.
+
+The browser copy SHALL remain byte-identical to the tracked source so that
+`MmDataAssetService` can load the registered templates from `/config/mm-data-assets.json`
+and retain its existing URL fallback chain: local `/record-sheets/<path>`, then
+jsDelivr CDN, then GitHub raw when an asset is absent locally. Synchronizing the
+manifest SHALL not change that asset URL or fallback behavior.
+
+The sync command SHALL support a check mode that exits non-zero when the source
+or browser copy is missing or their bytes differ. A normal sync SHALL create a
+missing browser copy, refresh drift, and avoid writing an unchanged copy.
+
+**Priority**: Critical
+
+#### Scenario: Development and build entrypoint sync
+
+- **WHEN** any listed development or build entrypoint starts
+- **THEN** the tracked manifest SHALL be synchronized before browser code is
+  served or packaged
+- **AND** the existing port cleanup, environment settings, build arguments,
+  hydration, and other startup behavior SHALL remain in place
+
+#### Scenario: Drift and missing input handling
+
+- **GIVEN** the tracked source manifest is missing, the browser copy is
+  missing, or the browser copy differs from the source
+- **WHEN** the sync command runs in check mode
+- **THEN** it SHALL exit non-zero with an actionable error
+- **AND** it SHALL report SHA-256 hashes for successful source and target
+  comparisons
+
+#### Scenario: Byte-identical unchanged sync
+
+- **GIVEN** `public/config/mm-data-assets.json` already matches
+  `config/mm-data-assets.json`
+- **WHEN** the normal sync command runs
+- **THEN** it SHALL report an unchanged result
+- **AND** it SHALL avoid rewriting the browser copy
+
 ### Requirement: Location Bounds Configuration
 
 The system SHALL define click target bounds for each armor location.

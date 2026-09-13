@@ -1,9 +1,9 @@
 # Auto-Save and State Persistence Specification
 
 **Status**: Active
-**Version**: 1.0
-**Last Updated**: 2026-02-13
-**Dependencies**: toast-notifications (useToast), unit-services (useUnitStoreApi)
+**Version**: 1.1
+**Last Updated**: 2026-09-12
+**Dependencies**: toast-notifications (useToast)
 **Affects**: unit-builder, game-session-management
 
 ---
@@ -18,7 +18,7 @@ This specification defines the auto-save and state persistence subsystem for Mek
 
 **In Scope:**
 
-- Auto-save indicator with debounced toast notifications
+- Auto-save indicator with receipt-driven toast notifications
 - Generic localStorage-backed state hook with JSON serialization
 - Game state persistence with autosave intervals and debouncing
 - Conflict detection for concurrent save operations
@@ -36,7 +36,7 @@ This specification defines the auto-save and state persistence subsystem for Mek
 
 ### Key Concepts
 
-- **Auto-Save Indicator**: Visual feedback (toast) shown after state changes are persisted, debounced to avoid notification spam
+- **Auto-Save Indicator**: Visual feedback (toast) shown after a completed customizer-draft storage write receipt for the active `AutoSaveIndicatorTarget`
 - **Persisted State**: React state synchronized with localStorage, supporting functional updates and JSON serialization
 - **Game State Persistence**: Full game state autosave with configurable intervals, debouncing, conflict detection, and unsaved change warnings
 - **Conflict Detection**: Timestamp-based detection of concurrent save operations to prevent data loss
@@ -46,33 +46,34 @@ This specification defines the auto-save and state persistence subsystem for Mek
 ## Requirements
 ### Requirement: Auto-Save Indicator
 
-The system SHALL provide a `useAutoSaveIndicator` hook that subscribes to unit store changes and displays a success toast after a debounce period.
+The system SHALL provide a `useAutoSaveIndicator` hook that accepts an `AutoSaveIndicatorTarget` (`unitId` and `unitType`) or null, subscribes to completed storage write receipts for that target's customizer draft key, and displays draft-persistence toasts from those receipts.
 
-**Source**: `src/hooks/useAutoSaveIndicator.ts:6-40`
+**Source**: `src/hooks/useAutoSaveIndicator.ts#useAutoSaveIndicator`
 
 **Rationale**: Users need visual confirmation that their work is being saved without intrusive notifications on every keystroke.
 
 **Priority**: High
 
-#### Scenario: Show toast after debounce period
+#### Scenario: Show success toast after saved write receipt
 
-**GIVEN** the unit store's `lastModifiedAt` timestamp changes
-**WHEN** 500ms elapse without further changes
-**THEN** a success toast SHALL be displayed with message "Saved", variant "success", and duration 1500ms
+**GIVEN** the hook is mounted with an `AutoSaveIndicatorTarget`
+**WHEN** a completed storage write receipt arrives for the derived draft storage key with status `saved`
+**THEN** a 500ms success timer SHALL start, replacing any previous success timer
+**AND** after 500ms without another matching receipt, a success toast SHALL be displayed with message "Draft saved in this browser", variant "success", and duration 1500ms
 
-#### Scenario: Debounce rapid changes
+#### Scenario: Show error toast on failed write receipt
 
-**GIVEN** the unit store's `lastModifiedAt` timestamp changes multiple times within 500ms
-**WHEN** the debounce timer is active
-**THEN** the previous timer SHALL be cleared and a new 500ms timer SHALL start
-**AND** only one toast SHALL be shown after the final change
+**GIVEN** the hook is mounted with an `AutoSaveIndicatorTarget`
+**WHEN** a completed storage write receipt arrives for the derived draft storage key with status `failed`
+**THEN** an error toast SHALL be displayed with message "Draft could not be saved in this browser" and variant "error"
+**AND** any pending success timer SHALL be cleared
 
 #### Scenario: Cleanup on unmount
 
-**GIVEN** the hook is mounted and subscribed to the unit store
+**GIVEN** the hook is mounted and subscribed to storage write receipts
 **WHEN** the component unmounts
-**THEN** the store subscription SHALL be unsubscribed
-**AND** any active debounce timer SHALL be cleared
+**THEN** the receipt subscription SHALL be unsubscribed
+**AND** any active success timer SHALL be cleared
 
 ### Requirement: Persisted State Hook
 
@@ -155,7 +156,7 @@ The system SHALL provide a `STORAGE_KEYS` constant object with predefined localS
 
 The system SHALL provide a `useGameStatePersistence` hook that autosaves game state to localStorage with configurable intervals, debouncing, conflict detection, and unsaved change warnings.
 
-**Source**: `src/hooks/useGameStatePersistence.ts:118-340`
+**Source**: `src/hooks/useGameStatePersistence.ts:useGameStatePersistence`
 
 **Rationale**: Game sessions can be long and complex; autosave prevents data loss from browser crashes or accidental tab closures.
 
@@ -595,7 +596,7 @@ const DEFAULT_VERSION = '1.0.0';
 ### Depends On
 
 - **toast-notifications**: `useToast` hook for displaying save feedback
-- **unit-services**: `useUnitStoreApi` for subscribing to unit store changes
+- **client-safe-storage**: `subscribeToStorageWriteReceipts` for completed customizer-draft write receipts used by `useAutoSaveIndicator`
 - **logger**: `logger.warn()` for logging localStorage errors
 
 ### Used By
@@ -611,7 +612,7 @@ const DEFAULT_VERSION = '1.0.0';
 
 ### Performance Considerations
 
-- **Debouncing**: Auto-save indicator debounces for 500ms to avoid toast spam during rapid edits
+- **Receipt-driven indicator**: `useAutoSaveIndicator` toasts from completed storage write receipts for the target draft key; a 500ms success timer collapses rapid saved receipts, and failed receipts emit an error toast immediately
 - **Autosave debouncing**: Game state autosave debounces for 1000ms to reduce localStorage writes
 - **Periodic autosave**: Game state autosave runs every 30 seconds (configurable) as a safety net
 - **JSON serialization**: All persisted state uses JSON.stringify/parse, which can be slow for large objects
@@ -623,7 +624,7 @@ const DEFAULT_VERSION = '1.0.0';
 - **localStorage disabled**: All hooks handle localStorage errors gracefully by logging warnings and falling back to in-memory state
 - **Quota exceeded**: Write errors are logged but do not crash the application
 - **Concurrent saves**: `useGameStatePersistence` detects conflicts by comparing timestamps and throws an error to prevent data loss
-- **Unmount during save**: Cleanup functions clear timers and unsubscribe from stores to prevent memory leaks
+- **Unmount during save**: Cleanup clears the pending debounce and periodic autosave timers, removes the `beforeunload` listener, and `useAutoSaveIndicator` unsubscribes from storage-write receipt listeners and clears its success timer.
 
 ### Common Pitfalls
 
@@ -649,10 +650,10 @@ const DEFAULT_VERSION = '1.0.0';
 
 ```typescript
 import { useAutoSaveIndicator } from '@/hooks/useAutoSaveIndicator';
+import { UnitType } from '@/types/unit/BattleMechInterfaces';
 
-function UnitBuilder() {
-  // Subscribe to unit store changes and show save toast
-  useAutoSaveIndicator();
+function UnitBuilder({ unitId }: { unitId: string }) {
+  useAutoSaveIndicator({ unitId, unitType: UnitType.BATTLEMECH });
 
   return <div>Unit Builder UI</div>;
 }
@@ -660,11 +661,11 @@ function UnitBuilder() {
 
 **Behavior**:
 
-1. User edits unit (e.g., changes armor allocation)
-2. Unit store's `lastModifiedAt` timestamp updates
-3. Hook detects change and starts 500ms debounce timer
-4. If no further changes occur within 500ms, toast is shown: "Saved" (success, 1500ms duration)
-5. If user makes another change within 500ms, timer resets
+1. Hook derives the customizer draft storage key from `AutoSaveIndicatorTarget`
+2. Hook subscribes to completed storage write receipts for that key
+3. A matching `saved` receipt starts a 500ms success timer, then toasts "Draft saved in this browser" (success, 1500ms duration)
+4. A matching `failed` receipt toasts "Draft could not be saved in this browser" (error) and clears any pending success timer
+5. Unmount unsubscribes from receipts and clears the success timer
 
 ### Example 2: Persisted State for Sidebar
 
@@ -771,6 +772,10 @@ function GameSession() {
 ---
 
 ## Changelog
+
+### Version 1.1 (2026-09-12)
+
+- Reconciled the auto-save indicator contract and example with target-scoped completed storage write receipts and draft-persistence toasts.
 
 ### Version 1.0 (2026-02-13)
 

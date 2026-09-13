@@ -541,7 +541,7 @@ The system SHALL calculate additional shares for officers based on rank.
 
 The system SHALL provide a Zustand store for pilot management with CRUD operations via API routes.
 
-**Source**: `src/stores/usePilotStore.ts:118-484`
+**Source**: `src/stores/usePilotStore.ts:usePilotStore`
 
 #### Scenario: Load pilots from API
 
@@ -661,7 +661,7 @@ The system SHALL provide a Zustand store for pilot management with CRUD operatio
 
 The system SHALL provide filtering and selection capabilities in the pilot store.
 
-**Source**: `src/stores/usePilotStore.ts:493-524`
+**Source**: `src/stores/usePilotStore.ts:useFilteredPilots,usePilotById,selectPilot`
 
 #### Scenario: Filter by active status
 
@@ -704,7 +704,7 @@ The system SHALL provide filtering and selection capabilities in the pilot store
 
 The system SHALL define skill value bounds and defaults for pilot skills.
 
-**Source**: `src/constants/PilotConstants.ts:18-34`
+**Source**: `src/constants/PilotConstants.ts:MIN_SKILL_VALUE,MAX_SKILL_VALUE,DEFAULT_PILOT_SKILLS,isValidSkillValue`
 
 #### Scenario: Skill value bounds
 
@@ -749,7 +749,7 @@ The system SHALL define skill value bounds and defaults for pilot skills.
 
 The system SHALL define XP costs for skill improvement with progressive scaling.
 
-**Source**: `src/constants/PilotConstants.ts:70-114`
+**Source**: `src/constants/PilotConstants.ts:GUNNERY_IMPROVEMENT_COSTS,PILOTING_IMPROVEMENT_COSTS,getGunneryImprovementCost,getPilotingImprovementCost`
 
 #### Scenario: Gunnery improvement costs
 
@@ -785,7 +785,7 @@ The system SHALL define XP costs for skill improvement with progressive scaling.
 
 The system SHALL provide predefined pilot templates for quick generation.
 
-**Source**: `src/constants/PilotConstants.ts:123-159`
+**Source**: `src/constants/PilotConstants.ts:PILOT_TEMPLATES,getPilotTemplate`
 
 #### Scenario: Green pilot template
 
@@ -825,7 +825,7 @@ The system SHALL provide predefined pilot templates for quick generation.
 
 The system SHALL provide helper functions for skill rating labels and calculations.
 
-**Source**: `src/constants/PilotConstants.ts:168-191`
+**Source**: `src/constants/PilotConstants.ts:getSkillLabel,getPilotRating,getEffectiveSkill`
 
 #### Scenario: Skill label for elite pilot
 
@@ -861,7 +861,7 @@ The system SHALL provide helper functions for skill rating labels and calculatio
 
 The system SHALL define wound limits and skill penalties.
 
-**Source**: `src/constants/PilotConstants.ts:40-44`
+**Source**: `src/constants/PilotConstants.ts:MAX_WOUNDS,WOUND_SKILL_PENALTY`
 
 #### Scenario: Maximum wounds before death
 
@@ -1006,7 +1006,7 @@ The system SHALL define a single per-campaign roster entry type that holds the e
 
 ### PilotStoreState
 
-**Source**: `src/stores/usePilotStore.ts:53-66`
+**Source**: `src/stores/usePilotStore.types.ts:PilotStoreState`
 
 ```typescript
 interface PilotStoreState {
@@ -1027,7 +1027,7 @@ interface PilotStoreState {
 
 ### PilotStoreActions
 
-**Source**: `src/stores/usePilotStore.ts:68-110`
+**Source**: `src/stores/usePilotStore.types.ts:PilotStoreActions`
 
 ```typescript
 interface PilotStoreActions {
@@ -1077,7 +1077,7 @@ interface PilotStoreActions {
 
 ### ListPilotsResponse
 
-**Source**: `src/stores/usePilotStore.ts:26-29`
+**Source**: `src/stores/usePilotStore.types.ts:ListPilotsResponse`
 
 ```typescript
 interface ListPilotsResponse {
@@ -1088,7 +1088,7 @@ interface ListPilotsResponse {
 
 ### IPilot
 
-**Source**: `src/types/pilot/PilotInterfaces.ts:337-358`
+**Source**: `src/types/pilot/PilotInterfaces.ts:IPilot`
 
 ```typescript
 interface IPilot extends IEntity, IPilotIdentity {
@@ -1117,7 +1117,7 @@ interface IPilot extends IEntity, IPilotIdentity {
 
 ### IPilotStatblock
 
-**Source**: `src/types/pilot/PilotInterfaces.ts:406-416`
+**Source**: `src/types/pilot/PilotInterfaces.ts:IPilotStatblock`
 
 ```typescript
 interface IPilotStatblock {
@@ -1134,7 +1134,7 @@ interface IPilotStatblock {
 
 ### PilotStatus
 
-**Source**: `src/types/pilot/PilotInterfaces.ts:28-36`
+**Source**: `src/types/pilot/PilotInterfaces.ts:PilotStatus`
 
 ```typescript
 enum PilotStatus {
@@ -1148,7 +1148,7 @@ enum PilotStatus {
 
 ### PilotExperienceLevel
 
-**Source**: `src/types/pilot/PilotInterfaces.ts:44-49`
+**Source**: `src/types/pilot/PilotInterfaces.ts:PilotExperienceLevel`
 
 ```typescript
 enum PilotExperienceLevel {
@@ -1161,7 +1161,7 @@ enum PilotExperienceLevel {
 
 ### IPilotIdentity
 
-**Source**: `src/types/pilot/PilotInterfaces.ts:321-332`
+**Source**: `src/types/pilot/PilotInterfaces.ts:IPilotIdentity`
 
 ```typescript
 interface IPilotIdentity {
@@ -1180,7 +1180,7 @@ interface IPilotIdentity {
 
 ### ICreatePilotOptions
 
-**Source**: `src/types/pilot/PilotInterfaces.ts:367-381`
+**Source**: `src/types/pilot/PilotInterfaces.ts:ICreatePilotOptions`
 
 ```typescript
 interface ICreatePilotOptions {
@@ -1201,7 +1201,7 @@ interface ICreatePilotOptions {
 
 ### PilotType
 
-**Source**: `src/types/pilot/PilotInterfaces.ts:19-24`
+**Source**: `src/types/pilot/PilotInterfaces.ts:PilotType`
 
 ```typescript
 enum PilotType {
@@ -1214,7 +1214,7 @@ enum PilotType {
 
 ### IPilotSkills
 
-**Source**: `src/types/pilot/PilotInterfaces.ts:59-64`
+**Source**: `src/types/pilot/PilotInterfaces.ts:IPilotSkills`
 
 ```typescript
 interface IPilotSkills {
@@ -1227,7 +1227,7 @@ interface IPilotSkills {
 
 ### IPilotTemplate
 
-**Source**: `src/types/pilot/PilotInterfaces.ts:385-396`
+**Source**: `src/types/pilot/PilotInterfaces.ts:IPilotTemplate`
 
 ```typescript
 interface IPilotTemplate {
@@ -1246,7 +1246,7 @@ interface IPilotTemplate {
 
 ### Pilot Constants
 
-**Source**: `src/constants/PilotConstants.ts:18-34, 40-44, 70-94`
+**Source**: `src/constants/PilotConstants.ts:DEFAULT_PILOT_SKILLS,MAX_WOUNDS,WOUND_SKILL_PENALTY,GUNNERY_IMPROVEMENT_COSTS,PILOTING_IMPROVEMENT_COSTS`
 
 ```typescript
 // Skill bounds

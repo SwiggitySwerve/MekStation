@@ -389,16 +389,40 @@ describe('Unit Validation Initialization', () => {
       }
     });
 
-    it('should have rules sorted by priority', () => {
+    it('should preserve hierarchy order and priority within each level', () => {
       initializeUnitValidationRules();
       const registry = getUnitValidationRegistry();
 
       const rules = registry.getRulesForUnitType(UnitType.BATTLEMECH);
+      const levelByRuleId = new Map<string, number>();
 
-      // Verify rules are sorted by priority (ascending)
-      for (let i = 1; i < rules.length; i++) {
-        expect(rules[i].priority).toBeGreaterThanOrEqual(rules[i - 1].priority);
+      for (const rule of registry.getUniversalRules()) {
+        levelByRuleId.set(rule.id, 0);
       }
+      for (const rule of registry.getCategoryRules(UnitCategory.MECH)) {
+        levelByRuleId.set(rule.id, 1);
+      }
+      for (const rule of registry.getUnitTypeRules(UnitType.BATTLEMECH)) {
+        levelByRuleId.set(rule.id, 2);
+      }
+
+      // Rules must execute by hierarchy level first, then priority within a level.
+      let previousLevel = -1;
+      let previousPriority = -Infinity;
+      for (const rule of rules) {
+        const level = levelByRuleId.get(rule.id);
+        expect(level).toBeDefined();
+
+        if (level !== previousLevel) {
+          expect(level).toBeGreaterThan(previousLevel);
+          previousLevel = level!;
+          previousPriority = -Infinity;
+        }
+        expect(rule.priority).toBeGreaterThanOrEqual(previousPriority);
+        previousPriority = rule.priority;
+      }
+
+      expect(previousLevel).toBe(2);
     });
   });
 

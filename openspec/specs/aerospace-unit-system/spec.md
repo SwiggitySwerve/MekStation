@@ -1341,7 +1341,7 @@ const state = createDefaultAerospaceState(options);
 - `src/types/unit/BaseUnitInterfaces.ts` — Base aerospace unit interface
 - `src/services/units/handlers/AerospaceUnitHandler.ts` — BLK handler
 - `src/services/validation/rules/aerospace/AerospaceCategoryRules.ts` — Validation rules
-- `src/components/customizer/aerospace/` — UI components (6 files)
+- `src/components/customizer/aerospace/` — aerospace customizer UI components
 
 ---
 
@@ -1349,6 +1349,8 @@ const state = createDefaultAerospaceState(options);
 
 ### Version 1.0 (2026-02-13)
 
-- Initial specification documenting fully-implemented aerospace unit system
+- Initial specification documenting the implemented aerospace state, BLK parsing,
+  validation rules, and customizer/renderer seams; aerospace deserialization
+  remains planned
 - Covers state management, BLK parsing, validation rules, and customizer UI
 - Documents all three aerospace unit types: ASF, Conventional Fighter, Small Craft
