@@ -49,9 +49,11 @@ Desktop release artifacts SHALL include a bundled Next.js standalone server with
 #### Scenario: Record sheet templates and pips are accessible in packaged mode
 
 - **GIVEN** the desktop application is running in packaged mode
-- **WHEN** the UI requests `/record-sheets/templates/mek_biped_default.svg`
+- **WHEN** the UI requests `/record-sheets/templates_us/mek_biped_default.svg` for Letter or `/record-sheets/templates_iso/mek_biped_default.svg` for A4
 - **THEN** the request SHALL succeed
 - **AND** subsequent requests for `/record-sheets/biped_pips/*` SHALL succeed
+
+**Source**: `src/services/assets/MmDataAssetService.ts` desired Letter/A4 URL map. Packaged-mode access is the requirement; this spec does not infer asset acquisition or full packaged proof.
 
 ---
 
