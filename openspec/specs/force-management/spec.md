@@ -147,7 +147,7 @@ Forces SHALL be stored and retrieved from database.
 
 The system SHALL provide a Zustand store for force state management in the UI.
 
-**Source**: `src/stores/useForceStore.ts:61-74`
+**Source**: `src/stores/useForceStore.ts:useForceStore`
 
 #### Scenario: Store initialization
 
@@ -170,7 +170,7 @@ The system SHALL provide a Zustand store for force state management in the UI.
 - **AND** store SHALL set isLoading to false
 - **AND** on error, store SHALL set error message
 
-**Source**: `src/stores/useForceStore.ts:145-158`
+**Source**: `src/stores/useForceStore.apiActions.ts:loadForcesAction`
 
 #### Scenario: Get force by ID
 
@@ -179,7 +179,7 @@ The system SHALL provide a Zustand store for force state management in the UI.
 - **THEN** store SHALL return force matching ID
 - **AND** return undefined if not found
 
-**Source**: `src/stores/useForceStore.ts:161-163`
+**Source**: `src/stores/useForceStore.ts:getForce`
 
 #### Scenario: Select force
 
@@ -189,7 +189,7 @@ The system SHALL provide a Zustand store for force state management in the UI.
 - **AND** getSelectedForce() SHALL return the selected force
 - **AND** selectForce(null) SHALL clear selection
 
-**Source**: `src/stores/useForceStore.ts:247-256`
+**Source**: `src/stores/useForceStore.ts:selectForce`
 
 #### Scenario: Search forces
 
@@ -199,7 +199,7 @@ The system SHALL provide a Zustand store for force state management in the UI.
 - **AND** getFilteredForces() SHALL return forces matching query
 - **AND** search SHALL match against name, affiliation, description (case-insensitive)
 
-**Source**: `src/stores/useForceStore.ts:482-498`
+**Source**: `src/stores/useForceStore.ts:getFilteredForces`
 
 #### Scenario: Get force summaries
 
@@ -210,13 +210,13 @@ The system SHALL provide a Zustand store for force state management in the UI.
 - **AND** summaries SHALL be ordered with children after parents
 - **AND** root forces (no parentId) SHALL have depth 0
 
-**Source**: `src/stores/useForceStore.ts:501-531`
+**Source**: `src/stores/useForceStore.helpers.ts:getForceSummariesLogic`
 
 ### Requirement: Force CRUD via API Routes
 
 The system SHALL provide force CRUD operations via API routes using fetch.
 
-**Source**: `src/stores/useForceStore.ts:25-46`
+**Source**: `src/stores/useForceStore.apiActions.ts:createForceApiActions`
 
 #### Scenario: Create force via store
 
@@ -228,7 +228,7 @@ The system SHALL provide force CRUD operations via API routes using fetch.
 - **AND** store SHALL return new force ID
 - **AND** on failure, store SHALL set error and return null
 
-**Source**: `src/stores/useForceStore.ts:166-190`
+**Source**: `src/stores/useForceStore.apiActions.ts:createForceAction`
 
 #### Scenario: Update force via store
 
@@ -239,7 +239,7 @@ The system SHALL provide force CRUD operations via API routes using fetch.
 - **AND** on success, store SHALL reload forces and return true
 - **AND** on failure, store SHALL set error and return false
 
-**Source**: `src/stores/useForceStore.ts:193-216`
+**Source**: `src/stores/useForceStore.apiActions.ts:updateForceAction`
 
 #### Scenario: Delete force via store
 
@@ -251,7 +251,7 @@ The system SHALL provide force CRUD operations via API routes using fetch.
 - **AND** on success, store SHALL reload forces and return true
 - **AND** on failure, store SHALL set error and return false
 
-**Source**: `src/stores/useForceStore.ts:219-244`
+**Source**: `src/stores/useForceStore.apiActions.ts:deleteForceAction`
 
 #### Scenario: Clone force via store
 
@@ -262,13 +262,13 @@ The system SHALL provide force CRUD operations via API routes using fetch.
 - **AND** on success, store SHALL reload forces and return new force ID
 - **AND** on failure, store SHALL set error and return null
 
-**Source**: `src/stores/useForceStore.ts:459-479`
+**Source**: `src/stores/useForceStore.apiActions.ts:cloneForceAction`
 
 ### Requirement: Force Validation via Store
 
 The system SHALL provide force validation through the store with caching.
 
-**Source**: `src/stores/useForceStore.ts:54-55`
+**Source**: `src/stores/useForceStore.apiActions.ts:validateForceAction`
 
 #### Scenario: Validate force composition
 
@@ -279,7 +279,7 @@ The system SHALL provide force validation through the store with caching.
 - **AND** store SHALL cache validation in validations Map
 - **AND** on error, store SHALL return null
 
-**Source**: `src/stores/useForceStore.ts:441-456`
+**Source**: `src/stores/useForceStore.apiActions.ts:validateForceAction`
 
 #### Scenario: Cached validation retrieval
 
@@ -288,13 +288,13 @@ The system SHALL provide force validation through the store with caching.
 - **THEN** cached IForceValidation SHALL be available by force ID
 - **AND** cache SHALL persist until store reset
 
-**Source**: `src/stores/useForceStore.ts:73`
+**Source**: `src/stores/useForceStore.types.ts:ForceStoreState`
 
 ### Requirement: Assignment Operations via Store
 
 The system SHALL provide assignment operations through the store.
 
-**Source**: `src/stores/useForceStore.ts:48-51`
+**Source**: `src/stores/useForceStore.apiActions.ts:createForceApiActions`
 
 #### Scenario: Assign pilot to slot
 
@@ -304,7 +304,7 @@ The system SHALL provide assignment operations through the store.
 - **AND** store SHALL reload forces on success
 - **AND** store SHALL return true on success, false on failure
 
-**Source**: `src/stores/useForceStore.ts:259-285`
+**Source**: `src/stores/useForceStore.apiActions.ts:assignPilotAction`
 
 #### Scenario: Assign unit to slot
 
@@ -314,7 +314,7 @@ The system SHALL provide assignment operations through the store.
 - **AND** store SHALL reload forces on success
 - **AND** store SHALL return true on success, false on failure
 
-**Source**: `src/stores/useForceStore.ts:287-310`
+**Source**: `src/stores/useForceStore.apiActions.ts:assignUnitAction`
 
 #### Scenario: Assign both pilot and unit
 
@@ -324,7 +324,7 @@ The system SHALL provide assignment operations through the store.
 - **AND** store SHALL reload forces on success
 - **AND** store SHALL return true on success, false on failure
 
-**Source**: `src/stores/useForceStore.ts:312-336`
+**Source**: `src/stores/useForceStore.apiActions.ts:assignPilotAndUnitAction`
 
 #### Scenario: Clear assignment
 
@@ -334,7 +334,7 @@ The system SHALL provide assignment operations through the store.
 - **AND** store SHALL reload forces on success
 - **AND** store SHALL return true on success, false on failure
 
-**Source**: `src/stores/useForceStore.ts:338-359`
+**Source**: `src/stores/useForceStore.apiActions.ts:clearAssignmentAction`
 
 #### Scenario: Swap two assignments
 
@@ -344,7 +344,7 @@ The system SHALL provide assignment operations through the store.
 - **AND** store SHALL reload forces on success
 - **AND** store SHALL return true on success, false on failure
 
-**Source**: `src/stores/useForceStore.ts:361-384`
+**Source**: `src/stores/useForceStore.apiActions.ts:swapAssignmentsAction`
 
 #### Scenario: Set assignment position
 
@@ -355,7 +355,7 @@ The system SHALL provide assignment operations through the store.
 - **AND** store SHALL reload forces on success
 - **AND** store SHALL return true on success, false on failure
 
-**Source**: `src/stores/useForceStore.ts:386-415`
+**Source**: `src/stores/useForceStore.apiActions.ts:setAssignmentPositionAction`
 
 #### Scenario: Promote assignment to lead
 
@@ -365,7 +365,7 @@ The system SHALL provide assignment operations through the store.
 - **AND** store SHALL reload forces on success
 - **AND** store SHALL return true on success, false on failure
 
-**Source**: `src/stores/useForceStore.ts:417-438`
+**Source**: `src/stores/useForceStore.apiActions.ts:promoteToLeadAction`
 
 ### Requirement: Custom Unit Name Resolution in Force Display
 
@@ -407,7 +407,7 @@ Force display surfaces — the force detail page and the pre-battle force review
 
 ### IForce
 
-**Source**: `src/types/force/ForceInterfaces.ts:138-161`
+**Source**: `src/types/force/ForceInterfaces.ts:IForce`
 
 ```typescript
 interface IForce extends IEntity {
@@ -427,7 +427,7 @@ interface IForce extends IEntity {
 
 ### IForceSummary
 
-**Source**: `src/types/force/ForceInterfaces.ts:201-210`
+**Source**: `src/types/force/ForceInterfaces.ts:IForceSummary`
 
 ```typescript
 interface IForceSummary {
@@ -444,7 +444,7 @@ interface IForceSummary {
 
 ### IForceValidation
 
-**Source**: `src/types/force/ForceInterfaces.ts:219-237`
+**Source**: `src/types/force/ForceInterfaces.ts:IForceValidation`
 
 ```typescript
 interface IForceValidation {
@@ -470,7 +470,7 @@ interface IForceValidationWarning {
 
 ### ICreateForceRequest
 
-**Source**: `src/types/force/ForceInterfaces.ts:166-172`
+**Source**: `src/types/force/ForceInterfaces.ts:ICreateForceRequest`
 
 ```typescript
 interface ICreateForceRequest {
@@ -484,7 +484,7 @@ interface ICreateForceRequest {
 
 ### IUpdateForceRequest
 
-**Source**: `src/types/force/ForceInterfaces.ts:177-184`
+**Source**: `src/types/force/ForceInterfaces.ts:IUpdateForceRequest`
 
 ```typescript
 interface IUpdateForceRequest {
@@ -499,7 +499,7 @@ interface IUpdateForceRequest {
 
 ### ForcePosition
 
-**Source**: `src/types/force/ForceInterfaces.ts:41-54`
+**Source**: `src/types/force/ForceInterfaces.ts:ForcePosition`
 
 ```typescript
 enum ForcePosition {
@@ -514,7 +514,7 @@ enum ForcePosition {
 
 ### ListForcesResponse
 
-**Source**: `src/stores/useForceStore.ts:25-28`
+**Source**: `src/stores/useForceStore.types.ts:ListForcesResponse`
 
 ```typescript
 interface ListForcesResponse {
@@ -525,7 +525,7 @@ interface ListForcesResponse {
 
 ### CreateForceResponse
 
-**Source**: `src/stores/useForceStore.ts:30-35`
+**Source**: `src/stores/useForceStore.types.ts:CreateForceResponse`
 
 ```typescript
 interface CreateForceResponse {
@@ -556,7 +556,7 @@ The force store uses the following API route patterns:
 | Set assignment position | PUT    | `/api/forces/assignments/{assignmentId}/position` | `{ position: ForcePosition }`                      | AssignmentResponse    |
 | Promote to lead         | POST   | `/api/forces/assignments/{assignmentId}/promote`  | -                                                  | AssignmentResponse    |
 
-**Source**: `src/stores/useForceStore.ts:145-438`
+**Source**: `src/stores/useForceStore.apiActions.ts:createForceApiActions`
 
 ## Non-Goals
 

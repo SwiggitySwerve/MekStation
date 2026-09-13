@@ -190,7 +190,7 @@ The system SHALL allow salvage to offset repair costs.
 
 The system SHALL provide a Zustand store (`useRepairStore`) for managing repair state across campaigns with localStorage persistence.
 
-**Source**: `src/stores/useRepairStore.ts:37-163`
+**Source**: `src/stores/useRepairStore.ts:useRepairStore`
 
 **Rationale**: Centralized state management for repair jobs, repair bays, and salvage inventory with automatic persistence ensures data survives page refreshes and provides a single source of truth for repair operations.
 
@@ -224,7 +224,7 @@ The system SHALL provide a Zustand store (`useRepairStore`) for managing repair 
 
 The system SHALL manage the complete lifecycle of repair jobs from creation through completion.
 
-**Source**: `src/stores/useRepairStore.ts:220-422`
+**Source**: `src/stores/useRepairStore.storeActions.ts:createRepairJobAction,startJobAction,completeJobAction,cancelJobAction`
 
 **Rationale**: Repair jobs progress through distinct states (Pending → InProgress → Completed) with validation at each transition to ensure resource availability and bay capacity constraints.
 
@@ -280,7 +280,7 @@ The system SHALL manage the complete lifecycle of repair jobs from creation thro
 
 The system SHALL advance repair progress when time passes in the campaign.
 
-**Source**: `src/stores/useRepairStore.ts:505-554`
+**Source**: `src/stores/useRepairStore.storeActions.ts:advanceRepairsAction`
 
 **Rationale**: Repair jobs take time to complete. As campaign time advances (missions complete, days pass), active repair jobs progress toward completion based on bay efficiency.
 
@@ -306,7 +306,7 @@ The system SHALL advance repair progress when time passes in the campaign.
 
 The system SHALL allow selective repair of individual items within a repair job.
 
-**Source**: `src/stores/useRepairStore.ts:325-359`
+**Source**: `src/stores/useRepairStore.storeActions.ts:toggleRepairItem,selectAllItems,deselectAllItems`
 
 **Rationale**: Players may not have resources to repair everything at once. Selective repair allows prioritizing critical repairs (structure, weapons) over cosmetic repairs (armor).
 
@@ -340,7 +340,7 @@ The system SHALL allow selective repair of individual items within a repair job.
 
 The system SHALL manage salvaged parts inventory and allow using salvage to offset repair costs.
 
-**Source**: `src/stores/useRepairStore.ts:565-645`
+**Source**: `src/stores/useRepairStore.storeActions.ts:addSalvageAction,createSalvageForRepairAction`
 
 **Rationale**: Salvaged components from destroyed enemy units can be used to replace destroyed components, reducing repair costs. Salvage has condition and quality ratings that affect usability.
 
@@ -374,7 +374,7 @@ The system SHALL manage salvaged parts inventory and allow using salvage to offs
 
 The system SHALL validate repair jobs against available resources before execution.
 
-**Source**: `src/stores/useRepairStore.ts:647-666`
+**Source**: `src/stores/useRepairStore.storeActions.ts:validateJob`
 
 **Rationale**: Prevent starting repairs that cannot be completed due to insufficient C-Bills or supplies. Provide clear feedback on resource shortfalls.
 
@@ -409,7 +409,7 @@ The system SHALL validate repair jobs against available resources before executi
 
 The system SHALL allow limited field repairs using supplies instead of C-Bills.
 
-**Source**: `src/stores/useRepairStore.ts:556-563`
+**Source**: `src/stores/useRepairStore.storeActions.ts:applyFieldRepair`
 
 **Rationale**: Between missions, field repairs can restore up to 25% of armor per location using supplies. This provides emergency repairs without returning to base.
 
@@ -435,7 +435,7 @@ The system SHALL allow limited field repairs using supplies instead of C-Bills.
 
 The system SHALL calculate repair costs based on damage type, armor/structure type, and damage severity.
 
-**Source**: `src/types/repair/RepairInterfaces.ts:318-345`
+**Source**: `src/types/repair/repairCalculations.ts:calculateArmorRepairCost,calculateStructureRepairCost`
 
 **Rationale**: Different damage types have different repair costs. Armor is cheaper than structure. Advanced armor/structure types cost more to repair. Critical damage (>50% location damage) costs 1.5× more.
 
@@ -469,7 +469,7 @@ The system SHALL calculate repair costs based on damage type, armor/structure ty
 
 The system SHALL calculate repair time based on damage type and quantity.
 
-**Source**: `src/types/repair/RepairInterfaces.ts:349-359`
+**Source**: `src/types/repair/repairCalculations.ts:calculateArmorRepairTime,calculateStructureRepairTime`
 
 **Rationale**: Armor repairs are fast (1 hour per 10 points). Structure repairs are slow (2 hours per point). Component replacements take 4 hours each.
 
@@ -491,7 +491,7 @@ The system SHALL calculate repair time based on damage type and quantity.
 
 The system SHALL calculate total cost and time for a repair job based on selected items.
 
-**Source**: `src/types/repair/RepairInterfaces.ts:362-381`
+**Source**: `src/types/repair/repairCalculations.ts:calculateTotalRepairCost,calculateTotalRepairTime`
 
 **Rationale**: Only selected items contribute to total cost and time. This allows players to defer non-critical repairs.
 
@@ -519,7 +519,7 @@ The system SHALL calculate total cost and time for a repair job based on selecte
 
 The system SHALL calculate field repair results based on damage assessment and available supplies.
 
-**Source**: `src/types/repair/RepairInterfaces.ts:385-432`
+**Source**: `src/types/repair/repairCalculations.ts:calculateFieldRepair`
 
 **Rationale**: Field repairs restore up to 25% of max armor per location, limited by available supplies. Supplies are consumed at 0.5 per armor point.
 
@@ -553,7 +553,7 @@ The system SHALL calculate field repair results based on damage assessment and a
 
 The system SHALL sort repair jobs by priority and creation date.
 
-**Source**: `src/types/repair/RepairInterfaces.ts:729-739`
+**Source**: `src/types/repair/repairAssessment.ts:sortJobsByPriority`
 
 **Rationale**: Lower priority numbers indicate higher priority. When priorities are equal, older jobs are processed first.
 
@@ -575,7 +575,7 @@ The system SHALL sort repair jobs by priority and creation date.
 
 The system SHALL match salvage parts to repair items by component name and condition.
 
-**Source**: `src/types/repair/RepairInterfaces.ts:711-725`
+**Source**: `src/types/repair/repairAssessment.ts:findMatchingSalvage`
 
 **Rationale**: Salvage can only be used for component replacements (not armor/structure). Component names must match exactly (case-insensitive). Salvage must be at least 50% condition.
 
@@ -627,7 +627,7 @@ enum RepairJobStatus {
 
 /**
  * A complete repair job for a unit.
- * @source src/types/repair/RepairInterfaces.ts:195-228
+ * @source src/types/repair/repairTypes.ts:IRepairJob
  */
 interface IRepairJob {
   readonly id: string;
@@ -649,7 +649,7 @@ interface IRepairJob {
 
 /**
  * A single repair item (one type of repair for one location).
- * @source src/types/repair/RepairInterfaces.ts:173-192
+ * @source src/types/repair/repairTypes.ts:IRepairItem
  */
 interface IRepairItem {
   readonly id: string;
@@ -664,7 +664,7 @@ interface IRepairItem {
 
 /**
  * Repair bay configuration.
- * @source src/types/repair/RepairInterfaces.ts:234-246
+ * @source src/types/repair/repairTypes.ts:IRepairBay
  */
 interface IRepairBay {
   readonly capacity: number;
@@ -675,7 +675,7 @@ interface IRepairBay {
 
 /**
  * Default repair bay for campaigns.
- * @source src/types/repair/RepairInterfaces.ts:251-256
+ * @source src/types/repair/repairTypes.ts:DEFAULT_REPAIR_BAY
  */
 const DEFAULT_REPAIR_BAY: IRepairBay = {
   capacity: 2,
@@ -686,7 +686,7 @@ const DEFAULT_REPAIR_BAY: IRepairBay = {
 
 /**
  * Complete damage assessment for a unit.
- * @source src/types/repair/RepairInterfaces.ts:141-166
+ * @source src/types/repair/repairTypes.ts:IDamageAssessment
  */
 interface IDamageAssessment {
   readonly unitId: string;
@@ -704,7 +704,7 @@ interface IDamageAssessment {
 
 /**
  * Campaign salvage inventory.
- * @source src/types/repair/RepairInterfaces.ts:303-310
+ * @source src/types/repair/repairTypes.ts:ISalvageInventory
  */
 interface ISalvageInventory {
   readonly parts: readonly ISalvagedPart[];
@@ -713,7 +713,7 @@ interface ISalvageInventory {
 
 /**
  * A salvaged part.
- * @source src/types/repair/RepairInterfaces.ts:283-300
+ * @source src/types/repair/repairTypes.ts:ISalvagedPart
  */
 interface ISalvagedPart {
   readonly id: string;
@@ -727,7 +727,7 @@ interface ISalvagedPart {
 
 /**
  * Field repair result.
- * @source src/types/repair/RepairInterfaces.ts:263-276
+ * @source src/types/repair/repairTypes.ts:IFieldRepairResult
  */
 interface IFieldRepairResult {
   readonly unitId: string;
@@ -739,7 +739,7 @@ interface IFieldRepairResult {
 
 /**
  * Repair job validation result.
- * @source src/types/repair/RepairInterfaces.ts:591-599
+ * @source src/types/repair/repairTypes.ts:IRepairJobValidationResult
  */
 interface IRepairJobValidationResult {
   readonly valid: boolean;
