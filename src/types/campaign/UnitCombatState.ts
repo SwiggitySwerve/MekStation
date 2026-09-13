@@ -59,7 +59,7 @@ export interface IUnitCombatState {
   readonly heatEnd: number;
   /** Ammo remaining per bin id. */
   readonly ammoRemaining: Readonly<Record<string, number>>;
-  /** True when CT structure is zero or unit was tagged destroyed. */
+  /** Deployment eligibility flag; isUnitCombatReady also checks CT structure. */
   readonly combatReady: boolean;
   /** Match id of the most recent applied outcome (null if untouched). */
   readonly lastCombatOutcomeId: string | null;

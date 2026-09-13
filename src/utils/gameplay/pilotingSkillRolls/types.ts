@@ -61,9 +61,9 @@ export interface IPSRBatchResult {
 
 /**
  * Per `structure-psr-reason-as-discriminated-code` (PR E): the four
- * coarse buckets that partition the 27-code `PSRTrigger` taxonomy.
+ * coarse buckets that partition `PSRTrigger`.
  * Consumers (the readable formatter, metrics aggregators) bucket PSRs
- * by category instead of enumerating all 27 codes.
+ * by category instead of enumerating individual codes.
  *
  * @spec openspec/specs/piloting-skill-rolls/spec.md
  *   Requirement: PSR Reason Category Bucket Helper
