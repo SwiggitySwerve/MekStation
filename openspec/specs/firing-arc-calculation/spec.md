@@ -255,7 +255,7 @@ shade a unit's arcs without reimplementing the arc math.
 
 ### Requirement: Firing Arc Stamped on Every Attack Event
 
-Every `AttackDeclared` and `AttackResolved` event emitted by `weaponAttack.ts` SHALL carry a `firingArc` field with one of the canonical values `'front' | 'left' | 'right' | 'rear'`. The arc MUST be computed from the attacker's facing and the relative bearing to the target at the moment the attack is declared, using the existing arc utilities in `src/utils/gameplay/firingArc/` (or successor location). Downstream hit-location resolution depends on this field — emitting it incorrectly produces wrong hit-location tables.
+Every `AttackDeclared` and `AttackResolved` event emitted by the weapon attack phase (`src/simulation/runner/phases/weaponAttack.ts`, delegating through `weaponAttackShotContext.ts`, `weaponAttackShots.ts`, and `weaponAttackHitResolution.ts`) SHALL carry a `firingArc` field with one of the canonical values 'front' | 'left' | 'right' | 'rear'. The arc MUST be computed from the attacker's facing and the relative bearing to the target at the moment the attack is declared, using `determineArc` in `src/utils/gameplay/firingArcs.ts` (the classifier) or `calculateFiringArc` in `src/utils/gameplay/firingArc.ts` (the hit-location-oriented wrapper). Downstream hit-location resolution depends on this field — emitting it incorrectly produces wrong hit-location tables.
 
 #### Scenario: Atlas attacks target directly in front
 

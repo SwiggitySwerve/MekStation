@@ -327,7 +327,7 @@ interface ITargetState {
 
 ### Modifier Integration
 
-The hull-down to-hit modifier integrates with the existing `calculateHullDownModifier()` function in `src/utils/gameplay/toHit.ts`. When a target is hull-down, the normal partial-cover modifier is suppressed and the source-backed +2 hull-down terrain modifier is applied instead.
+The hull-down to-hit modifier integrates with the existing `calculateHullDownModifier()` function in `src/utils/gameplay/toHit/environmentModifiers.ts`. When a target is hull-down, the normal partial-cover modifier is suppressed and the source-backed +2 hull-down terrain modifier is applied instead.
 
 ### Hit Location Integration
 
@@ -404,9 +404,9 @@ const result = determineHitLocationFromRoll(FiringArc.Left, roll, {
 ### Related Documentation
 
 - `openspec/specs/to-hit-resolution/spec.md` — Partial cover modifier (+1)
-- `src/utils/gameplay/toHit.ts:299-312` — `calculatePartialCoverModifier()` implementation
+- `src/utils/gameplay/toHit/environmentModifiers.ts:calculatePartialCoverModifier` — `calculatePartialCoverModifier()` implementation
 - `src/utils/gameplay/hitLocation.ts:142-166` — `determineHitLocation()` / `determineHitLocationFromRoll()`
-- `src/types/gameplay/CombatInterfaces.ts:597-607` — `ITargetState` interface
+- `src/types/gameplay/CombatContextTypes.ts:ITargetState` — `ITargetState` interface
 - `src/constants/scenario/templates.ts:171` — Hull-down deployment flag
 
 ---
