@@ -11,6 +11,7 @@ import {
 
 import type * as Journal from '../EventJournalContract';
 
+import { canonicalizeCommandIdentityV1 } from '../EventJournalCommandIdentity';
 import { SQLiteEventHistoryBranchStore } from '../SQLiteEventHistoryBranchStore';
 import { SQLiteEventJournalWriter } from '../SQLiteEventJournalWriter';
 
@@ -298,5 +299,425 @@ describe('SQLiteEventJournalWriter', () => {
     expect(second.events[0].streamRevision).toBe(
       firstOnCandidate.events[0].streamRevision + 1,
     );
+  });
+
+  /** Fixture rollback error mapped by the caller after writer unwind. */
+  class PreparedExtensionRollbackError extends Error {
+    public constructor() {
+      super('prepared-extension-rollback');
+      this.name = 'PreparedExtensionRollbackError';
+    }
+  }
+
+  type SnapshotContext = Readonly<{ sourceId: string }>;
+  type PreparedReady = {
+    readonly kind: 'ready';
+    readonly context: SnapshotContext;
+    readonly raw: Journal.IAppendEventBatch<Payload>;
+  };
+  type PreparedPrepare<TResult> = (
+    db: Database.Database,
+  ) => PreparedReady | { readonly kind: 'refused'; readonly result: TResult };
+  type PreparedExtend<TResult> = (
+    db: Database.Database,
+    context: SnapshotContext,
+    append: () => Journal.EventJournalAppendResult<Payload>,
+  ) => TResult;
+  type RelevantCounts = Readonly<{
+    batches: number;
+    events: number;
+    refs: number;
+    causations: number;
+    heads: number;
+    highWater: number;
+    sources: number;
+    extensions: number;
+  }>;
+
+  describe('appendPreparedWithExtension', () => {
+    beforeEach(() => {
+      db.exec(`
+        CREATE TABLE prepared_source_fixture (
+          id TEXT PRIMARY KEY,
+          body TEXT NOT NULL
+        );
+        CREATE TABLE prepared_extension_fixture (
+          id INTEGER PRIMARY KEY,
+          note TEXT NOT NULL
+        );
+      `);
+      db.prepare(
+        `INSERT INTO prepared_source_fixture (id, body) VALUES (?, ?)`,
+      ).run('src-1', 'baseline-A');
+    });
+
+    function relevantCounts(): RelevantCounts {
+      return db
+        .prepare(
+          `SELECT
+             (SELECT COUNT(*) FROM event_journal_batches) AS batches,
+             (SELECT COUNT(*) FROM event_journal_events) AS events,
+             (SELECT COUNT(*) FROM event_journal_entity_refs) AS refs,
+             (SELECT COUNT(*) FROM event_journal_causations) AS causations,
+             (SELECT COUNT(*) FROM event_journal_stream_heads) AS heads,
+             (SELECT last_commit_position FROM event_journal_store_state WHERE singleton_id = 1) AS highWater,
+             (SELECT COUNT(*) FROM prepared_source_fixture) AS sources,
+             (SELECT COUNT(*) FROM prepared_extension_fixture) AS extensions`,
+        )
+        .get() as RelevantCounts;
+    }
+
+    async function reopenWriter(): Promise<void> {
+      resetSQLiteService();
+      getSQLiteService({ path: path.join(dir, 'writer.db') }).initialize();
+      db = getSQLiteService().getDatabase();
+      writer = new SQLiteEventJournalWriter(db, () => NOW);
+    }
+
+    function ready(raw: Journal.IAppendEventBatch<Payload>): PreparedReady {
+      return { kind: 'ready', context: { sourceId: 'src-1' }, raw };
+    }
+
+    function insertExtension(handle: Database.Database, note: string): void {
+      handle
+        .prepare(`INSERT INTO prepared_extension_fixture (note) VALUES (?)`)
+        .run(note);
+    }
+
+    function unusedExtend(reason: string): PreparedExtend<never> {
+      return () => {
+        throw new Error(reason);
+      };
+    }
+
+    function sourceBody(): string {
+      return (
+        db
+          .prepare(
+            `SELECT body FROM prepared_source_fixture WHERE id = 'src-1'`,
+          )
+          .get() as { readonly body: string }
+      ).body;
+    }
+
+    function extensionNotes(): readonly string[] {
+      return (
+        db
+          .prepare(`SELECT note FROM prepared_extension_fixture ORDER BY id`)
+          .all() as Array<{ readonly note: string }>
+      ).map(({ note }) => note);
+    }
+
+    function requireCommitted(
+      appended: Journal.EventJournalAppendResult<Payload>,
+    ): Journal.ICommittedEventBatch<Payload> {
+      if (appended.kind !== 'committed') {
+        throw new Error(`Expected commit, got ${appended.kind}`);
+      }
+      return appended;
+    }
+
+    it('canonicalizes the prepare snapshot and keeps it after close/reopen', async () => {
+      const first = await committed(command());
+      const highWater = (await writer.captureHighWater()).commitPosition;
+      let preparedRaw: Journal.IAppendEventBatch<Payload> | undefined;
+      const result = await writer.appendPreparedWithExtension(
+        (handle) => {
+          const source = handle
+            .prepare(`SELECT body FROM prepared_source_fixture WHERE id = ?`)
+            .get('src-1') as { readonly body: string };
+          const water = handle
+            .prepare(
+              `SELECT last_commit_position AS commitPosition FROM event_journal_store_state WHERE singleton_id = 1`,
+            )
+            .get() as { readonly commitPosition: number };
+          const head = handle
+            .prepare(
+              `SELECT stream_revision AS streamRevision FROM event_journal_stream_heads WHERE stream_type = 'test' AND stream_id = 'alpha' AND branch_id = 'root'`,
+            )
+            .get() as { readonly streamRevision: number } | undefined;
+          expect(source.body).toBe('baseline-A');
+          expect(water.commitPosition).toBe(highWater);
+          expect(head?.streamRevision).toBe(first.events[0].streamRevision);
+          const raw = command(first.events[0].streamRevision);
+          (raw.events as Journal.IEventToAppend<Payload>[])[0] = {
+            ...raw.events[0],
+            payload: {
+              value: `source:${source.body}|hw:${water.commitPosition}|rev:${head?.streamRevision ?? 0}`,
+            },
+          };
+          preparedRaw = raw;
+          return ready(raw);
+        },
+        (handle, context, append) => {
+          handle
+            .prepare(`UPDATE prepared_source_fixture SET body = ? WHERE id = ?`)
+            .run('mutated-B', context.sourceId);
+          insertExtension(handle, 'accepted');
+          return requireCommitted(append());
+        },
+      );
+      expect(result.kind).toBe('committed');
+      if (result.kind !== 'committed' || preparedRaw === undefined) {
+        throw new Error('Prepared commit did not return a stored batch');
+      }
+      expect(result.events[0].payload.value).toBe(
+        `source:baseline-A|hw:${highWater}|rev:${first.events[0].streamRevision}`,
+      );
+      expect(sourceBody()).toBe('mutated-B');
+      expect(result.receipt.commandDigest).toBe(
+        canonicalizeCommandIdentityV1(preparedRaw).digest,
+      );
+
+      await reopenWriter();
+      expect(await writer.append(preparedRaw)).toEqual(result);
+      expect(await writer.getCommandReceipt(preparedRaw.commandId)).toEqual(
+        result.receipt,
+      );
+      const stored = db
+        .prepare(
+          `SELECT payload_json AS payloadJson FROM event_journal_events WHERE command_id = ?`,
+        )
+        .get(preparedRaw.commandId) as { readonly payloadJson: string };
+      expect(stored.payloadJson).toContain('baseline-A');
+      expect(stored.payloadJson).not.toContain('mutated-B');
+      expect(sourceBody()).toBe('mutated-B');
+      expect(extensionNotes()).toEqual(['accepted']);
+    });
+
+    it('returns a refused prepare without parse, extend, or table changes', async () => {
+      const before = relevantCounts();
+      let extendCalls = 0;
+      const refused = await writer.appendPreparedWithExtension(
+        () => ({ kind: 'refused', result: { status: 'blocked' as const } }),
+        () => {
+          extendCalls += 1;
+          throw new Error('extend must not run after refuse');
+        },
+      );
+      expect(refused).toEqual({ status: 'blocked' });
+      expect(extendCalls).toBe(0);
+      expect(relevantCounts()).toEqual(before);
+      expect(await writer.getCommandReceipt('command-missing')).toBeNull();
+    });
+
+    it('rejects a malformed prepared batch and duplicate event IDs without publishing', async () => {
+      const before = relevantCounts();
+      await expect(
+        writer.appendPreparedWithExtension(
+          () => ready({ ...command(), events: [] }),
+          (handle, _context, append) => {
+            insertExtension(handle, 'malformed');
+            return append();
+          },
+        ),
+      ).rejects.toThrow();
+      expect(relevantCounts()).toEqual(before);
+
+      const repeated = command(0, 2);
+      (repeated.events as Journal.IEventToAppend<Payload>[])[1] = {
+        ...repeated.events[1],
+        eventId: repeated.events[0].eventId,
+      };
+      await expect(
+        writer.appendPreparedWithExtension(
+          () => ready(repeated),
+          (handle, _context, append) => {
+            insertExtension(handle, 'duplicate');
+            return append();
+          },
+        ),
+      ).rejects.toThrow('Duplicate eventId');
+      expect(relevantCounts()).toEqual(before);
+    });
+
+    it('rolls back journal and extension rows when prepare, parse, append, or extend throw', async () => {
+      const before = relevantCounts();
+      await expect(
+        writer.appendPreparedWithExtension(() => {
+          throw new Error('prepare exploded');
+        }, unusedExtend('extend must not run after prepare throw')),
+      ).rejects.toThrow('prepare exploded');
+      expect(relevantCounts()).toEqual(before);
+
+      await expect(
+        writer.appendPreparedWithExtension(
+          () => ready({ ...command(), commandId: '' }),
+          (handle, _context, append) => {
+            insertExtension(handle, 'parse');
+            return append();
+          },
+        ),
+      ).rejects.toThrow();
+      expect(relevantCounts()).toEqual(before);
+
+      const existing = await committed(command());
+      const afterCommit = relevantCounts();
+      const colliding = command(1);
+      (colliding.events as Journal.IEventToAppend<Payload>[])[0] = {
+        ...colliding.events[0],
+        eventId: existing.events[0].eventId,
+      };
+      await expect(
+        writer.appendPreparedWithExtension(
+          () => ready(colliding),
+          (handle, _context, append) => {
+            insertExtension(handle, 'append-constraint');
+            return append();
+          },
+        ),
+      ).rejects.toMatchObject({
+        code: expect.stringMatching(/^SQLITE_CONSTRAINT/),
+      });
+      expect(relevantCounts()).toEqual(afterCommit);
+
+      await expect(
+        writer.appendPreparedWithExtension(
+          () => ready(command(1)),
+          (handle) => {
+            insertExtension(handle, 'extend-before-append');
+            throw new Error('extend exploded before append');
+          },
+        ),
+      ).rejects.toThrow('extend exploded before append');
+      expect(relevantCounts()).toEqual(afterCommit);
+    });
+
+    it('propagates a dedicated post-append rollback error for the caller to map outside the writer', async () => {
+      const before = relevantCounts();
+      const raw = command();
+      let mapped:
+        | { readonly kind: 'refused'; readonly cause: string }
+        | undefined;
+      try {
+        await writer.appendPreparedWithExtension(
+          () => ready(raw),
+          (handle, _context, append) => {
+            requireCommitted(append());
+            insertExtension(handle, 'post-append');
+            throw new PreparedExtensionRollbackError();
+          },
+        );
+      } catch (error) {
+        if (error instanceof PreparedExtensionRollbackError) {
+          mapped = { kind: 'refused', cause: error.message };
+        } else {
+          throw error;
+        }
+      }
+      expect(mapped).toEqual({
+        kind: 'refused',
+        cause: 'prepared-extension-rollback',
+      });
+      expect(relevantCounts()).toEqual(before);
+      expect(await writer.getCommandReceipt(raw.commandId)).toBeNull();
+    });
+
+    it('rejects thenable prepare, refused-result, and extend returns before commit', async () => {
+      const thenableMessage = /thenable results are rejected before commit/;
+      // Prepare is a synchronous callback. Generic TResult does not
+      // statically exclude Promises; the runtime guard enforces that
+      // refused.result and extend returns are not thenable before commit.
+      function callableThenable(value: unknown): unknown {
+        return Object.assign(() => value, {
+          then(
+            onFulfilled?: (result: unknown) => unknown,
+            onRejected?: (reason: unknown) => unknown,
+          ) {
+            return Promise.resolve(value).then(onFulfilled, onRejected);
+          },
+        });
+      }
+      const kinds = ['promise', 'callable'] as const;
+      const seams = ['prepare', 'refused.result', 'extend'] as const;
+      const outcomes: Array<{
+        readonly seam: string;
+        readonly rejected: boolean;
+        readonly message: string;
+        readonly unchanged: boolean;
+        readonly receipt: Journal.ICommandReceipt | null;
+      }> = [];
+      for (const kind of kinds) {
+        const wrap = (value: unknown): unknown =>
+          kind === 'promise' ? Promise.resolve(value) : callableThenable(value);
+        for (const seam of seams) {
+          const raw = command();
+          const snapshot = relevantCounts();
+          let rejected = false;
+          let message = 'resolved';
+          const prepareFn = (seam === 'prepare'
+            ? () => wrap(ready(raw))
+            : seam === 'refused.result'
+              ? () => ({
+                  kind: 'refused' as const,
+                  result: wrap('async-refusal'),
+                })
+              : () => ready(raw)) as unknown as PreparedPrepare<unknown>;
+          const extendFn: PreparedExtend<unknown> =
+            seam === 'extend'
+              ? (handle, _context, append) => {
+                  requireCommitted(append());
+                  insertExtension(handle, `${kind}-thenable-extend`);
+                  return wrap('async-extend');
+                }
+              : unusedExtend(`extend must not run after ${kind} ${seam}`);
+          try {
+            await writer.appendPreparedWithExtension(prepareFn, extendFn);
+          } catch (error) {
+            rejected = true;
+            message = error instanceof Error ? error.message : String(error);
+          }
+          outcomes.push({
+            seam: `${kind}:${seam}`,
+            rejected,
+            message,
+            unchanged:
+              JSON.stringify(relevantCounts()) === JSON.stringify(snapshot),
+            receipt: await writer.getCommandReceipt(raw.commandId),
+          });
+        }
+      }
+      expect(outcomes).toEqual(
+        kinds.flatMap((kind) =>
+          seams.map((seam) => ({
+            seam: `${kind}:${seam}`,
+            rejected: true,
+            message: expect.stringMatching(thenableMessage),
+            unchanged: true,
+            receipt: null,
+          })),
+        ),
+      );
+    });
+  });
+
+  it('keeps appendWithExtension parse-then-transaction order and typed conflicts', async () => {
+    let extendCalls = 0;
+    await expect(
+      writer.appendWithExtension({ ...command(), events: [] }, () => {
+        extendCalls += 1;
+        throw new Error('extend must not run before parse');
+      }),
+    ).rejects.toThrow();
+    expect(extendCalls).toBe(0);
+
+    const first = await committed(command());
+    expect(
+      await writer.appendWithExtension(command(0), (_db, append) => append()),
+    ).toEqual({
+      kind: 'revision-conflict',
+      expectedRevision: 0,
+      actualRevision: 1,
+    });
+    const replay = command(0);
+    expect(
+      await writer.appendWithExtension(
+        { ...replay, commandId: first.receipt.commandId },
+        (_db, append) => append(),
+      ),
+    ).toEqual({
+      kind: 'command-identity-conflict',
+      commandId: first.receipt.commandId,
+    });
   });
 });
