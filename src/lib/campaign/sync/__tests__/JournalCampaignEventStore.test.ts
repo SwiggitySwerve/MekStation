@@ -19,12 +19,31 @@ import { mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 
-import type { ICampaignEvent } from '@/types/campaign/CampaignSync';
+import type { IStoredEvent } from '@/lib/events/journal/EventJournalContract';
+import type {
+  ICampaignAuthoritativeState,
+  ICampaignEvent,
+} from '@/types/campaign/CampaignSync';
+import type { IContract } from '@/types/campaign/Mission';
 
+import { canonicalizeJsonV1 } from '@/lib/events/journal/EventJournalCanonicalizer';
 import { InMemoryEventJournal } from '@/lib/events/journal/InMemoryEventJournal';
 import { SQLiteEventJournal } from '@/lib/events/journal/SQLiteEventJournal';
 import { EVENT_JOURNAL_MIGRATION } from '@/services/persistence/SQLiteService.eventJournal.migration';
+import { AtBContractType } from '@/types/campaign/contracts/contractTypes';
+import { MissionStatus } from '@/types/campaign/enums/MissionStatus';
+import { Money } from '@/types/campaign/Money';
+import { createPaymentTerms } from '@/types/campaign/PaymentTerms';
+import { AtBMoraleLevel } from '@/types/campaign/scenario/scenarioTypes';
 
+import type { CampaignSourcePrivateReplayReason } from '../../authority/campaignSourcePrivateEnvelope';
+
+import {
+  buildCampaignSourcePrivateEnvelope,
+  campaignSourcePrivateOf,
+  CampaignSourcePrivateReplayError,
+  replayCampaignSourceContracts,
+} from '../../authority/campaignSourcePrivateEnvelope';
 import {
   CampaignEventSequenceCollisionError,
   type ICampaignEventStore,
@@ -35,11 +54,74 @@ import {
   CAMPAIGN_JOURNAL_AUTHORITY_ENABLED,
   computeCampaignStateDigest,
   createDefaultCampaignEventStore,
+  envelopeOf,
   JournalCampaignEventStore,
   type ICampaignJournalEnvelope,
 } from '../JournalCampaignEventStore';
 
 const NOW = '3025-01-03T00:00:00.000Z';
+
+/**
+ * Canonical bytes, event digest and state digest a PRE-private-field
+ * envelope produced. Pinned from the base commit so a private field that
+ * is ever written unconditionally -- as `{}` or as an enumerable
+ * `undefined` -- changes the digest of history that has not changed and
+ * turns these rows red.
+ */
+const LEGACY_CANONICAL_PAYLOAD =
+  '{"campaignEvent":{"authorPlayerId":"pid-host","campaignId":"campaign-journal","payload":{"newDay":1},"scope":"campaign","sequence":0,"ts":"3025-01-03T00:00:00.000Z","type":"CampaignDayAdvanced"},"expectedPostStateDigest":null,"intentFingerprint":null}';
+const LEGACY_EVENT_DIGEST =
+  '061d860fbbcb6481e837dcc2c036253317688f201ab0276dc24389f52d99db42';
+const LEGACY_STATE: ICampaignAuthoritativeState = {
+  campaignId: 'campaign-journal',
+  day: 3,
+  balance: 4_850_000,
+  rosterUnits: {},
+  pilots: {},
+  contracts: {
+    'offer-taken': {
+      contractId: 'offer-taken',
+      name: 'Garrison Duty on Galatea',
+      employerFactionId: 'house-davion',
+    },
+  },
+  factionStanding: { 'house-davion': 2 },
+  salvagePool: 0,
+};
+const LEGACY_STATE_DIGEST =
+  'b05fc8809b072a0ce1c2a189ad2018be1ca566fa43fd1a77b54824bd135063bc';
+
+/** A full `IContract` -- every field the compact wire fact omits. */
+function fullContract(id: string): IContract {
+  return {
+    id,
+    name: 'Garrison Duty on Galatea',
+    status: MissionStatus.ACTIVE,
+    type: 'contract',
+    systemId: 'galatea',
+    scenarioIds: [],
+    createdAt: NOW,
+    updatedAt: NOW,
+    employerId: 'house-davion',
+    targetId: 'house-liao',
+    paymentTerms: createPaymentTerms({
+      basePayment: new Money(1_250_000),
+      successPayment: new Money(500_000),
+      partialPayment: new Money(250_000),
+      failurePayment: new Money(0),
+      salvagePercent: 35,
+      transportPayment: new Money(100_000),
+      supportPayment: new Money(75_000),
+    }),
+    salvageRights: 'Integrated',
+    salvagePercent: 35,
+    hostileTerritory: true,
+    exchangeSalvage: false,
+    commandRights: 'Independent',
+    moraleLevel: AtBMoraleLevel.OVERWHELMING,
+    atbContractType: AtBContractType.GARRISON_DUTY,
+  };
+}
 
 function campaignEvent(
   sequence: number,
@@ -396,5 +478,305 @@ describe('JournalCampaignEventStore (real SQLite restart)', () => {
     });
     expect(stale.kind).toBe('sequence-conflict');
     reopened.close();
+  });
+});
+
+describe('source-only private envelope (real SQLite reopen)', () => {
+  let directory: string;
+
+  beforeEach(() => {
+    directory = mkdtempSync(path.join(tmpdir(), 'campaign-private-'));
+  });
+  afterEach(() => {
+    rmSync(directory, { recursive: true, force: true });
+  });
+
+  /**
+   * Opens a migrated file-backed journal. Separate from the restart suite
+   * above so a private-envelope failure cannot be read as a restart bug.
+   */
+  function openJournal(file: string): {
+    readonly db: Database.Database;
+    readonly journal: SQLiteEventJournal<ICampaignJournalEnvelope>;
+  } {
+    const db = new Database(file);
+    db.pragma('foreign_keys = ON');
+    return { db, journal: new SQLiteEventJournal(db, () => NOW) };
+  }
+
+  it('recovers the full contract and market from the private field while envelopeOf stays compact', async () => {
+    const file = path.join(directory, 'private.sqlite');
+    const first = new Database(file);
+    first.pragma('journal_mode = WAL');
+    first.pragma('foreign_keys = ON');
+    first.exec(EVENT_JOURNAL_MIGRATION.up);
+    const journal = new SQLiteEventJournal<ICampaignJournalEnvelope>(
+      first,
+      () => NOW,
+    );
+
+    const sourceRecordBody = JSON.stringify({
+      id: 'campaign-journal',
+      contractMarket: {
+        offers: [fullContract('offer-remaining'), fullContract('offer-taken')],
+        declinedOfferIds: ['offer-declined'],
+      },
+    });
+    const accepted = fullContract('offer-taken');
+    const committed = await appendCampaignCommandBatch(journal, {
+      campaignId: 'campaign-journal',
+      commandId: 'command-accept-contract',
+      events: [
+        campaignEvent(0, 'ContractAccepted', {
+          contract: {
+            contractId: 'offer-taken',
+            name: accepted.name,
+            employerFactionId: accepted.employerId,
+          },
+        }),
+      ],
+      expectedPostStateDigest: null,
+      sourcePrivate: buildCampaignSourcePrivateEnvelope({
+        baseline: {
+          sourceRecordBody,
+          sourceRowVersion: 7,
+          rootPublicRevision: 1,
+        },
+        acceptedContract: accepted,
+        remainingMarket: {
+          offers: [fullContract('offer-remaining')],
+          declinedOfferIds: ['offer-declined'],
+        },
+      }),
+    });
+    expect(committed.kind).toBe('committed');
+    first.close();
+
+    // Cold reopen: nothing in-process survives.
+    const reopened = openJournal(file);
+    const rows = await reopened.journal.readStream({
+      streamType: 'campaign',
+      streamId: 'campaign-journal',
+      branchId: 'root',
+      afterRevision: 0,
+      limit: 10,
+    });
+    expect(rows).toHaveLength(1);
+    const stored = rows[0];
+
+    // (a) The SOURCE recovers the full private detail from the journal.
+    const replayed = replayCampaignSourceContracts(rows);
+    expect(replayed.acceptedContracts).toHaveLength(1);
+    const recovered = replayed.acceptedContracts[0];
+    expect(recovered.employerId).toBe('house-davion');
+    expect(recovered.targetId).toBe('house-liao');
+    expect(recovered.salvageRights).toBe('Integrated');
+    expect(recovered.commandRights).toBe('Independent');
+    expect(recovered.moraleLevel).toBe(AtBMoraleLevel.OVERWHELMING);
+    expect(recovered.atbContractType).toBe(AtBContractType.GARRISON_DUTY);
+    expect(recovered.paymentTerms.basePayment).toBeInstanceOf(Money);
+    expect(recovered.paymentTerms.basePayment.amount).toBe(1_250_000);
+    expect(
+      replayed.remainingMarket.offers.map(function (offer) {
+        return offer.id;
+      }),
+    ).toEqual(['offer-remaining']);
+    // Replay starts from the persisted source body, never the compact genesis.
+    expect(replayed.baseline.sourceRecordBody).toBe(sourceRecordBody);
+    expect(replayed.baseline.sourceRowVersion).toBe(7);
+    expect(
+      replayed.baselineMarket.offers.map(function (offer) {
+        return offer.id;
+      }),
+    ).toEqual(['offer-remaining', 'offer-taken']);
+
+    // (b) The wire narrowing on the SAME row yields only the compact fact.
+    const wire = envelopeOf(stored);
+    expect(wire.type).toBe('ContractAccepted');
+    expect(JSON.stringify(wire)).not.toContain('house-liao');
+    expect(JSON.stringify(wire)).not.toContain('Integrated');
+    expect(JSON.stringify(wire)).not.toContain('offer-remaining');
+    expect(Object.keys(wire)).not.toContain('sourcePrivate');
+    reopened.db.close();
+  });
+
+  it('leaves a legacy envelope byte-identical and its digests unchanged', async () => {
+    const file = path.join(directory, 'legacy.sqlite');
+    const db = new Database(file);
+    db.pragma('journal_mode = WAL');
+    db.pragma('foreign_keys = ON');
+    db.exec(EVENT_JOURNAL_MIGRATION.up);
+    const journal = new SQLiteEventJournal<ICampaignJournalEnvelope>(
+      db,
+      () => NOW,
+    );
+    const committed = await appendCampaignCommandBatch(journal, {
+      campaignId: 'campaign-journal',
+      commandId: 'command-legacy',
+      events: [campaignEvent(0)],
+      expectedPostStateDigest: null,
+    });
+    expect(committed.kind).toBe('committed');
+    db.close();
+
+    const reopened = openJournal(file);
+    const rows = await reopened.journal.readStream({
+      streamType: 'campaign',
+      streamId: 'campaign-journal',
+      branchId: 'root',
+      afterRevision: 0,
+      limit: 10,
+    });
+    const stored = rows[0];
+
+    // Conditional absence: not `{}`, not an enumerable `undefined`.
+    expect(Object.hasOwn(stored.payload, 'sourcePrivate')).toBe(false);
+    expect(campaignSourcePrivateOf(stored)).toBeNull();
+    expect(canonicalizeJsonV1(stored.payload)).toBe(LEGACY_CANONICAL_PAYLOAD);
+    expect(stored.eventDigest).toBe(LEGACY_EVENT_DIGEST);
+    expect(computeCampaignStateDigest(LEGACY_STATE)).toBe(LEGACY_STATE_DIGEST);
+    reopened.db.close();
+  });
+
+  /**
+   * Unwraps a typed replay refusal. A bare `toThrow()` would pass on a
+   * TypeError and would not prove "no silent compact fallback", so this
+   * rethrows anything that is not the typed error and fails outright when
+   * the read RETURNS -- a returned compact fallback is the exact regression
+   * these rows exist to catch.
+   */
+  function refusalReasonOf(
+    read: () => unknown,
+  ): CampaignSourcePrivateReplayReason {
+    try {
+      read();
+    } catch (error) {
+      if (error instanceof CampaignSourcePrivateReplayError)
+        return error.reason;
+      throw error;
+    }
+    throw new Error('expected a typed replay refusal, but the read returned');
+  }
+
+  /** Commits one private payload to a fresh file journal and returns the stored row. */
+  async function storePrivate(
+    name: string,
+    sourcePrivate: ICampaignJournalEnvelope['sourcePrivate'],
+  ): Promise<IStoredEvent<ICampaignJournalEnvelope>> {
+    const file = path.join(directory, name);
+    const db = new Database(file);
+    db.pragma('journal_mode = WAL');
+    db.pragma('foreign_keys = ON');
+    db.exec(EVENT_JOURNAL_MIGRATION.up);
+    const journal = new SQLiteEventJournal<ICampaignJournalEnvelope>(
+      db,
+      () => NOW,
+    );
+    const committed = await appendCampaignCommandBatch(journal, {
+      campaignId: 'campaign-journal',
+      commandId: `command-${name}`,
+      events: [campaignEvent(0)],
+      expectedPostStateDigest: null,
+      sourcePrivate,
+    });
+    expect(committed.kind).toBe('committed');
+    db.close();
+
+    const reopened = openJournal(file);
+    const rows = await reopened.journal.readStream({
+      streamType: 'campaign',
+      streamId: 'campaign-journal',
+      branchId: 'root',
+      afterRevision: 0,
+      limit: 10,
+    });
+    reopened.db.close();
+    return rows[0];
+  }
+
+  /** A well-formed private payload; each refusal row corrupts one field of it. */
+  function wellFormedPrivate(): NonNullable<
+    ICampaignJournalEnvelope['sourcePrivate']
+  > {
+    return buildCampaignSourcePrivateEnvelope({
+      baseline: {
+        sourceRecordBody: JSON.stringify({ id: 'campaign-journal' }),
+        sourceRowVersion: 4,
+        rootPublicRevision: 1,
+      },
+      acceptedContract: fullContract('offer-taken'),
+      remainingMarket: { offers: [], declinedOfferIds: [] },
+    });
+  }
+
+  it('refuses an unsupported private schema version rather than falling back', async () => {
+    const built = wellFormedPrivate();
+    const stored = await storePrivate('schema.sqlite', {
+      ...built,
+      schemaVersion: built.schemaVersion + 1,
+    });
+
+    expect(() => campaignSourcePrivateOf(stored)).toThrow(
+      CampaignSourcePrivateReplayError,
+    );
+    expect(refusalReasonOf(() => campaignSourcePrivateOf(stored))).toBe(
+      'unsupported-schema',
+    );
+  });
+
+  it('refuses a captured baseline whose digest does not match its own body', async () => {
+    const built = wellFormedPrivate();
+    const stored = await storePrivate('identity.sqlite', {
+      ...built,
+      baseline: { ...built.baseline, sourceBodyDigest: 'f'.repeat(64) },
+    });
+
+    expect(() => campaignSourcePrivateOf(stored)).toThrow(
+      CampaignSourcePrivateReplayError,
+    );
+    expect(refusalReasonOf(() => campaignSourcePrivateOf(stored))).toBe(
+      'source-identity-mismatch',
+    );
+  });
+
+  it('refuses to replay a stream that carries no private payload', async () => {
+    const file = path.join(directory, 'nopriv.sqlite');
+    const db = new Database(file);
+    db.pragma('journal_mode = WAL');
+    db.pragma('foreign_keys = ON');
+    db.exec(EVENT_JOURNAL_MIGRATION.up);
+    const journal = new SQLiteEventJournal<ICampaignJournalEnvelope>(
+      db,
+      () => NOW,
+    );
+    const committed = await appendCampaignCommandBatch(journal, {
+      campaignId: 'campaign-journal',
+      commandId: 'command-nopriv',
+      events: hireBatch(0),
+      expectedPostStateDigest: null,
+    });
+    expect(committed.kind).toBe('committed');
+    db.close();
+
+    const reopened = openJournal(file);
+    const rows = await reopened.journal.readStream({
+      streamType: 'campaign',
+      streamId: 'campaign-journal',
+      branchId: 'root',
+      afterRevision: 0,
+      limit: 10,
+    });
+    expect(rows).toHaveLength(2);
+
+    // The compact wire projection is NOT an acceptable substitute here: it
+    // does not carry these facts at all, so a silent fallback would report
+    // "no contracts" for a campaign that may well have some.
+    expect(() => replayCampaignSourceContracts(rows)).toThrow(
+      CampaignSourcePrivateReplayError,
+    );
+    expect(refusalReasonOf(() => replayCampaignSourceContracts(rows))).toBe(
+      'no-private-payload',
+    );
+    reopened.db.close();
   });
 });
