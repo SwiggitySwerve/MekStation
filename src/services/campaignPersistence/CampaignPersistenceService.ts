@@ -38,6 +38,10 @@ import {
 import { hydrateCampaignRecord } from '@/lib/campaign/authority/campaignAuthorityHydrate';
 import { getOrCreateHostInstanceId } from '@/lib/campaign/authority/campaignHostInstance';
 import { toCampaignSummary } from '@/lib/campaign/persistence';
+import {
+  storedReplayFenceOf,
+  withoutClientFence,
+} from '@/services/campaignPersistence/campaignSourceMaterialization';
 import { getSQLiteService } from '@/services/persistence/SQLiteService';
 import { logger } from '@/utils/logger';
 
@@ -124,14 +128,41 @@ export function saveCampaign(
       return prepared;
     }
 
+    // The `sourceReplayFence` guard, beside the `baseVersion` CAS and ahead
+    // of it, because it catches what the CAS cannot: a whole-envelope PUT
+    // whose base version is CURRENT but whose body was minted without ever
+    // seeing the source materialization that produced that version. The CAS
+    // would wave that through and the materialization would be gone.
+    //
+    // A client never sets this field — the stored fence is the only one that
+    // counts — so carrying the stored value back is exactly what a PUT that
+    // has seen the materialization does, and is impossible for one that has
+    // not. Recovery is the same 409 the stale-write guard already produces,
+    // carrying the current record, whose fence says what the client was
+    // standing behind. Bridging that into a refresh the client can act on
+    // without a reload is task 6.4's; this guard is what makes the gap
+    // refuse loudly instead of losing the mission silently.
+    const storedFence =
+      row === undefined ? null : storedReplayFenceOf(row.payload);
+    if (
+      storedFence !== null &&
+      envelope.sourceReplayFence?.rootPublicRevision !==
+        storedFence.rootPublicRevision
+    ) {
+      return conflictFromStoredRow(row, prepared.record, hostInstanceId);
+    }
+
     if (baseVersion !== currentVersion) {
       return conflictFromStoredRow(row, prepared.record, hostInstanceId);
     }
 
     const nextVersion = baseVersion + 1;
     const stored: SerializedCampaign = {
-      ...prepared.record,
+      ...withoutClientFence(prepared.record),
       version: nextVersion,
+      // Conditional, never an enumerable `undefined`: an unfenced row stays
+      // byte-identical to what it was before this field existed.
+      ...(storedFence === null ? {} : { sourceReplayFence: storedFence }),
     };
 
     db.prepare(

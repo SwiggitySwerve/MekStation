@@ -13,9 +13,14 @@
  * controls onto a replica, and it also means a dashboard that never
  * touched the server issues no request at all.
  *
- * Grants are fetched only for a source. A replica may not list them and
- * the server would refuse, so asking would be a guaranteed-failed
- * request whose answer the panel already knows.
+ * Grants are fetched only for a source whose local player could be the
+ * campaign's GM. The endpoint answers TWO questions before it returns a
+ * list - is this campaign a source, and is this caller the GM - and the
+ * stored authority only answers the first. On a shared co-op server both
+ * browsers read the SAME record, so `source` is true for the guest too;
+ * narrowing on the local co-op role is what keeps a guest from issuing a
+ * guaranteed-refused request whose answer the panel already knows. A
+ * replica is excluded by the authority alone, as before.
  *
  * @spec openspec/changes/design-campaign-authority-and-sync/specs/campaign-replication/spec.md
  */
@@ -23,6 +28,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 
 import type { ICampaignGrant } from '@/lib/campaign/grants/ICampaignGrantStore';
+import type { CoopSessionMode } from '@/types/campaign/CoopSession';
 import type { CampaignAuthority } from '@/types/campaign/SerializedCampaign';
 
 import { readCoopCampaignToken } from '@/lib/campaign/coop/coopCampaignAuthTokenStore';
@@ -39,12 +45,22 @@ export interface CampaignSharePanelConnectedProps {
    * it there is nothing to present and the server answers 401.
    */
   readonly matchId?: string | null;
+  /**
+   * This browser's role in the campaign's co-op session, when it runs
+   * one. Unlike the stored authority, which describes the CAMPAIGN and
+   * therefore reads identically in every browser a shared server serves,
+   * this is a property of the LOCAL player - the only fact on hand that
+   * distinguishes the GM from a guest sitting on the same record.
+   * Absent means single-player, where the local player is the owner.
+   */
+  readonly coopMode?: CoopSessionMode | null;
 }
 
 /**
- * Reads the campaign's grants. A refusal (for example a replica, which
- * may not list) yields an empty set rather than an error surface - the
- * panel already explains the replica case from the authority alone.
+ * Reads the campaign's grants. A refusal yields an empty set rather than
+ * an error surface: the panel already explains the replica case from the
+ * authority alone, and a caller-gate refusal is now prevented upstream
+ * rather than absorbed here.
  */
 /**
  * The bearer header for this campaign's share endpoint, or an empty set
@@ -85,7 +101,7 @@ async function fetchGrants(
 export function CampaignSharePanelConnected(
   props: CampaignSharePanelConnectedProps,
 ): React.ReactElement | null {
-  const { campaignId, matchId = null } = props;
+  const { campaignId, matchId = null, coopMode = null } = props;
   // Defensive read: a share panel must never be the reason a campaign
   // dashboard fails to render. Absent metadata degrades to "unknown
   // authority", which renders nothing - the same safe answer as "not
@@ -101,14 +117,18 @@ export function CampaignSharePanelConnected(
   const [grants, setGrants] = useState<readonly ICampaignGrant[]>([]);
 
   const isSource = authority !== null && authority.role === 'source';
+  // A co-op guest shares the host's record, so it passes the source gate
+  // on a fact about the CAMPAIGN while failing the server's caller gate
+  // on a fact about ITSELF. Only the local role separates the two.
+  const mayListGrants = isSource && coopMode !== 'guest';
 
   const load = useCallback(async (): Promise<void> => {
-    if (!isSource) {
+    if (!mayListGrants) {
       setGrants([]);
       return;
     }
     setGrants(await fetchGrants(campaignId, matchId));
-  }, [campaignId, isSource, matchId]);
+  }, [campaignId, mayListGrants, matchId]);
 
   useEffect(() => {
     void load();
