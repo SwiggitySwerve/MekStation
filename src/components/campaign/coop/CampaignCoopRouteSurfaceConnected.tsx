@@ -88,6 +88,15 @@ export function CampaignCoopRouteSurfaceConnected({
   // back holding nothing catches up completely, while one that came back
   // quoting a cursor past that baseline's own `sequence: -1` would
   // REJECT its own hydration frame and backfill nothing.
+  //
+  // RESIDUAL, deliberately not closed here: a MOUNT starts empty and so
+  // always adopts, but the effect below re-runs on a `roomCode` or
+  // `matchId` change WITHOUT unmounting, and that reconnect keeps this
+  // ref. Such a surface quotes a cursor above 0, rejects the baseline it
+  // is hydrated with, and therefore misses anything committed during the
+  // socket gap until the next full mount. Same adopt-at-0 rule the guest
+  // mirror already carries for a large-gap resync; closing it for both
+  // roles needs its own red-first row.
   const hostFold = useRef<ICampaignAuthoritativeFold>(
     EMPTY_CAMPAIGN_AUTHORITATIVE_FOLD,
   );
@@ -137,11 +146,15 @@ export function CampaignCoopRouteSurfaceConnected({
       role: 'host',
       roomCode,
       // Quote the cursor this surface holds, exactly as the guest does
-      // below. The campaign server's host arm hydrates a GM with a full
-      // baseline regardless, so this changes nothing for a GM who IS the
-      // registered host; it matters for the D9 case - a GM connecting
-      // from ANOTHER device is not the registered host and is routed
-      // down the same cursor-resumable replica path a guest takes.
+      // below, so the two roles connect the same way (D9). On the wire
+      // this is currently INERT for a host and is not claimed otherwise:
+      // a cold connect holds -1, which the transport omits, and no arm
+      // reachable from a host connection reads `lastSeq` - the host arm
+      // and the membership rejoin both call `joinMember` unconditionally
+      // and the grant/replica route never reads it, leaving only the
+      // fallback resync arm a host does not take. It is carried so the
+      // cursor is already correct when the cutover routes a GM replica
+      // down the resumable path.
       lastSeq: hostFold.current.lastSequence,
     });
     if (!transport) return () => undefined;
