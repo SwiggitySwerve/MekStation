@@ -82,6 +82,8 @@ function registerLiveCampaign(campaign: ICampaign | null): void {
 
 // --- Fetch capture ---
 
+const BASE_VERSION = 7;
+
 interface CapturedRequest {
   readonly url: string;
   readonly init: RequestInit;
@@ -108,6 +110,34 @@ function savedResponse(): Response {
   } as Response;
 }
 
+/**
+ * The typed 409 the PUT boundary returns when the compare-and-swap
+ * refuses a stale write - which is exactly what a landed keepalive flush
+ * leaves behind, since the client never read its response and so never
+ * advanced `baseVersion`.
+ */
+function conflictResponse(): Response {
+  return {
+    ok: false,
+    status: 409,
+    json: async () => ({
+      kind: 'conflict',
+      reason: 'base-state-unavailable',
+      recoveryAction: 'resync-to-active-head',
+      conflictingFields: [],
+      currentVersion: BASE_VERSION + 1,
+      current: {
+        schemaVersion: 1,
+        campaignId: 'flushed-campaign',
+        savedAt: new Date().toISOString(),
+        originDeviceId: 'device',
+        version: BASE_VERSION + 1,
+        body: {},
+      },
+    }),
+  } as Response;
+}
+
 function stubFetch(): void {
   jest
     .spyOn(globalThis, 'fetch')
@@ -118,8 +148,6 @@ function stubFetch(): void {
 }
 
 // --- Arrange helpers ---
-
-const BASE_VERSION = 7;
 
 /** The discard-time flush, invoked the way a discarding document would. */
 function flush(): void {
@@ -154,6 +182,13 @@ function makeOversizedCampaign(base: ICampaign): ICampaign {
       (_, index) => `${filler}${index}`,
     ),
   };
+}
+
+/** Let a queued save run its fetch, its json() read and its state write. */
+async function drainMicrotasks(): Promise<void> {
+  for (let tick = 0; tick < 12; tick += 1) {
+    await Promise.resolve();
+  }
 }
 
 interface FlushBody {
@@ -406,5 +441,49 @@ describe('the document-discard events that drive the flush', () => {
     fireVisibilityChange('hidden');
 
     expect(captured).toHaveLength(0);
+  });
+
+  it('re-arms the ordinary save when a document the flush assumed lost becomes visible again', async () => {
+    // A hidden transition fires on every ordinary tab switch, where the
+    // document is NOT discarded. The flush was never an acknowledgement,
+    // so an acknowledged save is still owed - and nothing else re-arms the
+    // debounce until the next mutation, which may never come.
+    fireVisibilityChange('hidden');
+    expect(captured).toHaveLength(1);
+
+    fireVisibilityChange('visible');
+    jest.advanceTimersByTime(AUTO_SAVE_DEBOUNCE_MS);
+    await Promise.resolve();
+    await Promise.resolve();
+
+    expect(captured).toHaveLength(2);
+    // The ordinary acknowledged PUT, not a second best-effort flush.
+    expect(captured[1].init.keepalive).toBeUndefined();
+  });
+
+  it('reaches the existing conflict flow when the flush landed and the re-armed save is stale', async () => {
+    fireVisibilityChange('hidden');
+    // The keepalive write landed: the server counter moved, and the client
+    // - which never read that response - still holds the old baseVersion.
+    jest
+      .spyOn(globalThis, 'fetch')
+      .mockImplementation((input: RequestInfo | URL, init?: RequestInit) => {
+        captured.push({ url: String(input), init: init ?? {} });
+        return Promise.resolve(conflictResponse());
+      });
+
+    fireVisibilityChange('visible');
+    jest.advanceTimersByTime(AUTO_SAVE_DEBOUNCE_MS);
+    await drainMicrotasks();
+
+    // Pinned, not redesigned: this lands in the conflict state the store
+    // already models, carrying the server's typed reason and its record,
+    // and take-server remains the single resolution the UI already offers.
+    const state = useCampaignPersistenceStore.getState();
+    expect(state.saveState).toBe('conflict');
+    expect(state.saveConflict?.reason).toBe('base-state-unavailable');
+    expect(state.saveConflict?.recoveryAction).toBe('resync-to-active-head');
+    expect(state.conflictServerRecord?.version).toBe(BASE_VERSION + 1);
+    expect(state.dirty).toBe(true);
   });
 });

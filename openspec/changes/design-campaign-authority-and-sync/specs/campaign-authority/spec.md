@@ -175,6 +175,12 @@ The client persistence layer SHALL make exactly one bounded, best-effort durable
 - **WHEN** the discard or hidden transition occurs
 - **THEN** no durable write SHALL be issued
 
+#### Scenario: A hidden transition the document survives still reaches an acknowledged save
+- **GIVEN** a flush was issued on a hidden transition and the document was not discarded
+- **WHEN** the document becomes visible again
+- **THEN** the client SHALL schedule an ordinary acknowledged save carrying the reconciled state, because an unread flush is not an acknowledgement
+- **AND** the client SHALL NOT be left holding pending mutations with no write scheduled
+
 #### Scenario: An envelope past the keepalive body cap is skipped with a diagnostic, never fired silently
 - **GIVEN** a pending envelope whose serialized request body exceeds the 64 KiB a browser allows a keepalive request to carry
 - **WHEN** the document is discarded or becomes hidden

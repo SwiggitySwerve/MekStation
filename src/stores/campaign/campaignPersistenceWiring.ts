@@ -47,12 +47,17 @@ function handlePageHide(): void {
 
 /**
  * A hidden transition is the discard signal mobile browsers actually
- * deliver; a visible one is a return, not a departure.
+ * deliver. A visible one is a return: the document the flush treated as
+ * departing is still here, so the acknowledged save it could not perform
+ * is reconciled rather than left owing.
  */
 function handleVisibilityChange(): void {
+  const store = useCampaignPersistenceStore.getState();
   if (document.visibilityState === 'hidden') {
-    useCampaignPersistenceStore.getState().flushPendingMutations();
+    store.flushPendingMutations();
+    return;
   }
+  store.reconcileAfterDiscardFlush();
 }
 
 /** Idempotent, and a no-op wherever there is no document (SSR). */

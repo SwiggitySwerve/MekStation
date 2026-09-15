@@ -168,6 +168,12 @@ interface CampaignPersistenceActions {
    */
   flushPendingMutations: () => void;
   /**
+   * Re-arm the ordinary save after a discard-time flush the document
+   * turned out to survive (an ordinary tab switch, not a close). Called
+   * by the wiring's visible-transition listener.
+   */
+  reconcileAfterDiscardFlush: () => void;
+  /**
    * Adopt the server's record and continue from there.
    *
    * The ONLY resolution. `resolveConflictKeepLocal` used to sit beside
@@ -876,6 +882,22 @@ function fireKeepaliveFlush(campaignId: string, body: string): void {
 }
 
 /**
+ * Arm the debounced ordinary save. The single definition of what it means
+ * for an acknowledged write to be pending, shared by `markDirty` and by
+ * the post-flush reconciliation.
+ */
+function armAutoSaveTimer(set: PersistenceSet, get: PersistenceGet): void {
+  clearAutoSaveTimer();
+  autoSaveTimer = setTimeout(() => {
+    autoSaveTimer = null;
+    if (get().saveState === 'conflict') {
+      return;
+    }
+    void performSave(set, get);
+  }, AUTO_SAVE_DEBOUNCE_MS);
+}
+
+/**
  * One bounded, best-effort write of the pending envelope before the
  * document is discarded (task 1.6). Deliberately NOT an acknowledgement:
  * it does not clear `dirty`, does not advance `baseVersion`, and does not
@@ -940,6 +962,45 @@ function flushPendingMutationsAction(
   };
 }
 
+/**
+ * A hidden transition fires on every ordinary tab switch, minimise and app
+ * switch - cases where the document is NOT discarded. The flush treats
+ * them as a departure because it cannot tell the difference in advance;
+ * this is the other half of that bet, run once the document is proven to
+ * have survived.
+ *
+ * An unread flush is not an acknowledgement, so the client still owes an
+ * acknowledged save, and nothing else would re-arm the debounce until the
+ * next mutation - which may never come, leaving the campaign dirty with
+ * no pending write. Re-arming here cannot break the "the discard path and
+ * the timer cannot both write" invariant: the document came back, so
+ * there is no discard in flight.
+ */
+function reconcileAfterDiscardFlushAction(
+  set: PersistenceSet,
+  get: PersistenceGet,
+): CampaignPersistenceStore['reconcileAfterDiscardFlush'] {
+  return () => {
+    const state = get();
+    // Nothing was flushed, nothing is owed, or the write path is closed
+    // for the same reasons the flush itself declines. A conflict is left
+    // alone deliberately: auto-save is disabled there until the player
+    // resolves it, and re-arming would fight that.
+    if (
+      !pendingFlushIssued ||
+      !state.dirty ||
+      state.legacyUnadopted ||
+      state.saveState === 'conflict'
+    ) {
+      return;
+    }
+    if (isCoopCampaign(readLiveCampaign())) {
+      return;
+    }
+    armAutoSaveTimer(set, get);
+  };
+}
+
 function markDirtyAction(
   set: PersistenceSet,
   get: PersistenceGet,
@@ -957,13 +1018,7 @@ function markDirtyAction(
     if (isCoopCampaign(readLiveCampaign())) {
       return;
     }
-    autoSaveTimer = setTimeout(() => {
-      autoSaveTimer = null;
-      if (get().saveState === 'conflict') {
-        return;
-      }
-      void performSave(set, get);
-    }, AUTO_SAVE_DEBOUNCE_MS);
+    armAutoSaveTimer(set, get);
   };
 }
 
@@ -1007,6 +1062,7 @@ function createPersistenceActions(
     saveCampaign: saveCampaignAction(set, get),
     markDirty: markDirtyAction(set, get),
     flushPendingMutations: flushPendingMutationsAction(set, get),
+    reconcileAfterDiscardFlush: reconcileAfterDiscardFlushAction(set, get),
     adoptLegacyCampaign: () => runAdoptLegacyCampaign(set, get),
     resolveConflictTakeServer: resolveConflictTakeServerAction(set, get),
     clearError: () => {
