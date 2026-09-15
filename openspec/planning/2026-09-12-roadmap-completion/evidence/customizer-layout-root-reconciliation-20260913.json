@@ -1,0 +1,44 @@
+{
+  "capturedAt": "2026-09-13T01:34:21.897Z",
+  "status": "owned-root-drafts-reconciled",
+  "main": "8f72371064675740d2ea710b869f7c7673e4c11d",
+  "rootHead": "be7f85b867aa3e8576e5e3d27e309276203bc24b",
+  "indexSha256": "a65b683940b6449651a074132f39d8b8da156ef5620af6aa1b62eb7c8698b953",
+  "indexUnchanged": true,
+  "files": [
+    {
+      "path": "openspec/specs/customizer-responsive-layout/spec.md",
+      "priorSha256": "84e8df2101a8d15bb6a7c0bb7056798b332e1abb26df931e770294848b8161e9",
+      "currentSha256": "d3575a6b666f0dcabb5c9d80e8f8ba91039b0d7bbd82476d4454eb16a4e1e687",
+      "afterSha256": "d3575a6b666f0dcabb5c9d80e8f8ba91039b0d7bbd82476d4454eb16a4e1e687",
+      "gitLfSha256": "d3575a6b666f0dcabb5c9d80e8f8ba91039b0d7bbd82476d4454eb16a4e1e687",
+      "backup": ".sisyphus/roadmap-completion-20260912/customizer-layout-root-reconciliation-20260913/before/openspec/specs/customizer-responsive-layout/spec.md"
+    },
+    {
+      "path": "openspec/specs/customizer-tabs/spec.md",
+      "priorSha256": "629be4cd39cbd9abf71f89d79bf2c39f3a948877b6fbd799fbe33889f470ea85",
+      "currentSha256": "629be4cd39cbd9abf71f89d79bf2c39f3a948877b6fbd799fbe33889f470ea85",
+      "afterSha256": "0c3631c6f6205e36a6da1b5ec4202797d02dd900f803ac1cc75c971ee6bb3994",
+      "gitLfSha256": "0475750424d3747e8a5fc3207ed73cecadf838154ea115e4124131a391da5404",
+      "backup": ".sisyphus/roadmap-completion-20260912/customizer-layout-root-reconciliation-20260913/before/openspec/specs/customizer-tabs/spec.md"
+    },
+    {
+      "path": "openspec/specs/overview-basic-info/spec.md",
+      "priorSha256": "c703cb1c943cffe3b013ee7b8ca161101cea608ad8515024313fb7899c9a25e9",
+      "currentSha256": "c703cb1c943cffe3b013ee7b8ca161101cea608ad8515024313fb7899c9a25e9",
+      "afterSha256": "4530c174c24f635bb7621f0b3a900f19fe3071482a68216e37c8f822dbca2bdf",
+      "gitLfSha256": "ede16eb549f9b6a318d469093b4cea1e63ba560bdfedcc652a840016e6349048",
+      "backup": ".sisyphus/roadmap-completion-20260912/customizer-layout-root-reconciliation-20260913/before/openspec/specs/overview-basic-info/spec.md"
+    },
+    {
+      "path": "openspec/specs/armor-diagram-variants/spec.md",
+      "priorSha256": "9f9c0c7f2338e12b6cc2b200e3e0a07af7d2676f41a93269fd62b263a47479ab",
+      "currentSha256": "9f9c0c7f2338e12b6cc2b200e3e0a07af7d2676f41a93269fd62b263a47479ab",
+      "afterSha256": "97d49cd85226dccd4045fa9ed691692ffd73cc064c05c8a5e1e4184bc6693cb1",
+      "gitLfSha256": "bb1eb6a83f7e199043a6e13b567cff06f9eea3c50b414a82c4dee461e1dedb6d",
+      "backup": ".sisyphus/roadmap-completion-20260912/customizer-layout-root-reconciliation-20260913/before/openspec/specs/armor-diagram-variants/spec.md"
+    }
+  ],
+  "otherTrackedDirtyFilesVerifiedDuringRecovery": 133,
+  "qualification": "Attempt1 replaced responsive-layout, then stopped before replacing tabs on CRLF-versus-Git-LF mismatch. Earlier attempt-1-failure.json incorrectly said no file replaced and is superseded here. All original bytes were preserved. Recovery verified normalized Git equality before writing all final reviewed working bytes. Other tracked dirty byte hashes were retained only from recovery preflight, not first attempt."
+}

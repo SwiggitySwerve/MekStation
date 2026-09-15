@@ -1,0 +1,28 @@
+{
+  "at": "2026-09-13T00:37:45.165Z",
+  "mainSha": "f39c2b71c1788507733fa78571d85156951fb2a0",
+  "parentAcceptance": "evidence/campaign-catalog-main-parent-acceptance-20260913.json",
+  "indexUnchanged": true,
+  "indexSha256": "a65b683940b6449651a074132f39d8b8da156ef5620af6aa1b62eb7c8698b953",
+  "otherDirtyFilesVerified": 120,
+  "files": [
+    {
+      "path": "openspec/specs/campaign-combat-loop/spec.md",
+      "beforeSha256": "c03ac3ebfb07e8c4eae7a35c9b313a932926d108f19f085c362116b8707b30f5",
+      "afterSha256": "c862ad4277355d53b9f0cc1344c7de28ad5eaa45df253c3f6f9ba4f21280b6ba",
+      "backup": ".sisyphus/roadmap-completion-20260912/campaign-catalog-root-reconciliation-20260913/before/openspec/specs/campaign-combat-loop/spec.md"
+    },
+    {
+      "path": "openspec/specs/mission-contracts/spec.md",
+      "beforeSha256": "8c5fc183460634fffbd55d4ec9a933ce5a3fad328ed1880df00594d44bfd6b85",
+      "afterSha256": "e7c8285915e24c049e85563f0871b122e123e0aa75fbe8f93f19fa126e4e3959",
+      "backup": ".sisyphus/roadmap-completion-20260912/campaign-catalog-root-reconciliation-20260913/before/openspec/specs/mission-contracts/spec.md"
+    },
+    {
+      "path": "openspec/specs/custom-unit-combat/spec.md",
+      "beforeSha256": "df766a26eee41c0af3a47c5099850e4ba7bb227b9d2ea1f2eea2a9f27218eb20",
+      "afterSha256": "803ac906accad431daa8e84cef924c00733b0896b5c511e28fbc5da29bdfaba5",
+      "backup": ".sisyphus/roadmap-completion-20260912/campaign-catalog-root-reconciliation-20260913/before/openspec/specs/custom-unit-combat/spec.md"
+    }
+  ]
+}

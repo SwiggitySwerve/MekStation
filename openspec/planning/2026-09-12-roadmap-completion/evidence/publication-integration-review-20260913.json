@@ -1,0 +1,29 @@
+{
+  "at": "2026-09-13T21:19:42.935Z",
+  "reviewer": "/root/publication_gate_review",
+  "model": "gpt-5.6-terra",
+  "effort": "high",
+  "verdict": "engineering-approved-pending-checks-and-browser-proof",
+  "reviews": [
+    {
+      "pr": 1667,
+      "original": "77d9a9480a3a47b1849f166db01278f93f3d8094",
+      "head": "581a1de84a25a2c2aaa99b5b454e30c22b2658ec",
+      "main": "44b94adbbb333a9d4965e057b34290e19fc0e781",
+      "files": 3,
+      "reviewedBlobsIdentical": true,
+      "requiredAdditionalProof": "Integrated production Chromium, zero retries; runtime dependencies changed since original base."
+    },
+    {
+      "pr": 1668,
+      "original": "6f795eb515aad090186e01f373447b3bb6d7801c",
+      "head": "0d9d9ab88cad60767b8fce87a4c6ad4cc32e5dbd",
+      "main": "44b94adbbb333a9d4965e057b34290e19fc0e781",
+      "files": 2,
+      "reviewedBlobsIdentical": true,
+      "requiredAdditionalProof": "Exact-head remote CI; exact-main 36 focused tests across three suites."
+    }
+  ],
+  "gateScope": "Ordinary API and fixture-A prerequisites do not invoke later CAMP exact-head eligible non-author APPROVED or three witnesses. All actual branch protection, blocking comments and required checks remain binding.",
+  "qualification": "Parent-authored receipt of native reviewer report; not a GitHub approval."
+}

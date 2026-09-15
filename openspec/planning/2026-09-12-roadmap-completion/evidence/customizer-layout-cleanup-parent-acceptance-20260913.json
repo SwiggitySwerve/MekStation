@@ -1,0 +1,19 @@
+{
+  "capturedAt": "2026-09-13T01:41:27.478Z",
+  "status": "accepted-owned-cleanup",
+  "main": "8f72371064675740d2ea710b869f7c7673e4c11d",
+  "pr": 1655,
+  "exportedFiles": 36,
+  "sourceBytesExportedBeforeRemoval": true,
+  "worktreeRemoved": true,
+  "sharedDependencyTargetPreserved": true,
+  "cleanupReceipt": {
+    "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/customizer-layout-cleanup-20260913.json",
+    "sha256": "6e792fc26e05ada7be08e5914c3215c6a015acf4ec253e1030f81cfa9565132d"
+  },
+  "rootReconciliation": {
+    "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/customizer-layout-root-reconciliation-20260913.json",
+    "sha256": "542c3345a8a90bc00b2f128561581117df259492c6c8e52adb9307795da37a91"
+  },
+  "qualification": "Attempt1 replaced responsive-layout, then stopped before replacing tabs on CRLF-versus-Git-LF mismatch. Earlier attempt-1-failure.json incorrectly said no file replaced and is superseded here. All original bytes were preserved. Recovery verified normalized Git equality before writing all final reviewed working bytes. Other tracked dirty byte hashes were retained only from recovery preflight, not first attempt."
+}

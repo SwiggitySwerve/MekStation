@@ -1,0 +1,32 @@
+{
+  "at": "2026-09-13T05:27:24.830Z",
+  "status": "reconciled",
+  "main": "5b229be21e87815f10ce6521dda77b52eef75e3c",
+  "files": [
+    {
+      "path": "openspec/specs/campaign-unit-combat-state/spec.md",
+      "before": "1f1a01edd4ab3297c1fa2db096b21ea0f5edf6eb9c3e0f39967d2480a960e860",
+      "after": "a75aeb0e4ebcb0c0f8a6fabaaf08256ffe55161d434b6ce5e37650f80577a87d"
+    },
+    {
+      "path": "openspec/specs/e2e-testing/spec.md",
+      "before": "8343333453231871fe46b838584c6d95bbd74015f62cf31a703af2b18e189cdb",
+      "after": "8b559b973c27fd45df8117018b1a19380d179f67cb87dc21001d7006726fa25b"
+    },
+    {
+      "path": "openspec/specs/battlemech-chassis-index/spec.md",
+      "before": "a457321ebc660e46c10c8c77efa50e4d4ea1f4423593ab4f5d605a8872bd3243",
+      "after": "37a63513bfa6124d062c51845ebb12d2853c7768cb2bd8f15c1d528ae8f108a3"
+    },
+    {
+      "path": "openspec/specs/customizer-edit-recovery/spec.md",
+      "before": "c8c5db4877efdc44c8a19a76946e01835d939ad60d1903ed6b6186fbb1d7379c",
+      "after": "4fae1069a8687858ecdcb48589e8b87c50a1ad9d23d87970cf3b6d29b7de8051"
+    }
+  ],
+  "indexBefore": "a65b683940b6449651a074132f39d8b8da156ef5620af6aa1b62eb7c8698b953",
+  "indexAfter": "a65b683940b6449651a074132f39d8b8da156ef5620af6aa1b62eb7c8698b953",
+  "otherDirtyFilesVerified": 564,
+  "preflight": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/final-canonical-root-reconciliation-20260913/preflight.json",
+  "limit": "Only four accepted proposals replaced; root remains dirty on original main checkout"
+}

@@ -1,0 +1,23 @@
+{
+  "capturedAt": "2026-09-13T00:32:20.106Z",
+  "status": "accepted-owned-cleanup",
+  "receipt": {
+    "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/battlearmor-autosave-cleanup-20260913.json",
+    "sha256": "9de0885de4816e89b03ba2ccc816f796a860468acd6f4e8401bbd32e32fa03bc"
+  },
+  "exportedArtifactsReopened": 372,
+  "sourceBytesBeforeRemoval": true,
+  "failures": [
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/battlearmor-cleanup-20260913.cjs",
+      "sha256": "18c356bbf84d2aa54308972ffb41c3afd7f998d71dbc4192b6680ad93b52d369",
+      "reproduction": ".sisyphus/roadmap-completion-20260912/battlearmor-cleanup-20260913.cjs.syntax-reproduction.json"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/battlearmor-cleanup-20260913-attempt2.cjs",
+      "sha256": "3213bc35a8fe423c292cf04177325fe49ec7a041ad9177688bcc1e0cb5a970e0",
+      "reproduction": ".sisyphus/roadmap-completion-20260912/battlearmor-cleanup-20260913-attempt2.cjs.syntax-reproduction.json"
+    }
+  ],
+  "qualification": "Two earlier driver versions failed during parsing before execution; retained source and fresh syntax-only reproductions document errors. Third driver passed syntax, exported and reopened372 artifacts before non-force removal, and verified expected refs/index afterward."
+}

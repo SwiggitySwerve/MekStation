@@ -1,0 +1,41 @@
+{
+  "at": "2026-09-13T05:09:34.619Z",
+  "status": "reconciled-by-verified-three-way-merge",
+  "main": "f16e758b09f776ef5abd51b87ea8472f4f3c0efe",
+  "base": "4ee8989f4909505319c6c916d4fbcbadf86ec782",
+  "files": [
+    {
+      "path": "openspec/changes/design-campaign-authority-and-sync/proposal.md",
+      "beforeSha256": "fada46aab39743c6a1ab375693abf8fe8710dfb00c4024d24dea38666c12da92",
+      "afterSha256": "4dea616fbf4f28ee9867afe425756e25d2ff95d2628431c5a7dad80abe6da28a",
+      "mergeExit": 0,
+      "merged": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/r2-prepared-journal-root-reconciliation-20260913/merged/openspec/changes/design-campaign-authority-and-sync/proposal.md"
+    },
+    {
+      "path": "openspec/changes/design-campaign-authority-and-sync/design.md",
+      "beforeSha256": "c47040115b4bfd21b011230c9101be4e273f1667c0e33d7692b5fc59abb45064",
+      "afterSha256": "36465d864640a7e2a453218687a465f075b52629c44cc1f3dfe06e263ace5fd5",
+      "mergeExit": 0,
+      "merged": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/r2-prepared-journal-root-reconciliation-20260913/merged/openspec/changes/design-campaign-authority-and-sync/design.md"
+    },
+    {
+      "path": "openspec/changes/design-campaign-authority-and-sync/tasks.md",
+      "beforeSha256": "9eefb5fa17acddd89253e91f182f4349553cfe5b66d08ba1fe61ccaa9c9223ea",
+      "afterSha256": "b21354d8eabe42cf0cd9da41a366a4e0f21101e33109bbbf3453e89c1c732665",
+      "mergeExit": 0,
+      "merged": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/r2-prepared-journal-root-reconciliation-20260913/merged/openspec/changes/design-campaign-authority-and-sync/tasks.md"
+    },
+    {
+      "path": "openspec/changes/design-campaign-authority-and-sync/specs/campaign-authority/spec.md",
+      "beforeSha256": "a4a4a80418f7da6df147fd5c88ea7b41bb736e204498d29c7ad1a5f72150b811",
+      "afterSha256": "a8a5fbb882fd51a222c191e7d6c9127ea79bf1e9f5d2f3d6435563c67014d0b0",
+      "mergeExit": 0,
+      "merged": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/r2-prepared-journal-root-reconciliation-20260913/merged/openspec/changes/design-campaign-authority-and-sync/specs/campaign-authority/spec.md"
+    }
+  ],
+  "indexBefore": "a65b683940b6449651a074132f39d8b8da156ef5620af6aa1b62eb7c8698b953",
+  "indexAfter": "a65b683940b6449651a074132f39d8b8da156ef5620af6aa1b62eb7c8698b953",
+  "otherDirtyFilesVerified": 555,
+  "preflight": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/r2-prepared-journal-root-reconciliation-20260913/preflight.json",
+  "qualification": "Supplementary review flagged root lacking candidate final edits. Parent verified root bytes exactly match original admission and pre-PR main baseline, backed up all four, and performed conflict-free three-way merges matching accepted main; prior root edits preserved. No root index changes."
+}

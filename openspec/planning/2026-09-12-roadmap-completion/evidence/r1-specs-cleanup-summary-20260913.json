@@ -1,0 +1,78 @@
+{
+  "at": "2026-09-13T05:29:33.775Z",
+  "status": "accepted-cleanup-receipt-aggregation",
+  "prefixes": [
+    {
+      "prefix": "customizer-five-specs",
+      "path": "evidence/customizer-specs-cleanup-20260912.json",
+      "sha256": "a0ca268e0d27dc34ddc792a5832ce8796981a8a8d76eb0123b8fa5b584061ae8"
+    },
+    {
+      "prefix": "data-services",
+      "path": "evidence/spec-data-services-cleanup-20260912.json",
+      "sha256": "8f86ee0f97b7fd1e35cc4b501bf9aeb5c2d04871ca2fa2868a1155626a52fe79"
+    },
+    {
+      "prefix": "source-anchors",
+      "path": "evidence/source-anchors-cleanup-20260912.json",
+      "sha256": "dd67fb0bfd3b9732607e213a5853c720a7f72d723ac9b08a626a80e26a4293ba"
+    },
+    {
+      "prefix": "campaign-catalog-contracts",
+      "path": "evidence/campaign-catalog-cleanup-parent-acceptance-20260913.json",
+      "sha256": "645be3a8c07f8c442a505ed5ff5ffbb8b35e67b44eef59ba0d4db470434c7337"
+    },
+    {
+      "prefix": "battlearmor-autosave-details",
+      "path": "evidence/battlearmor-autosave-cleanup-parent-acceptance-20260913.json",
+      "sha256": "a98978bee096f5db1a8d88da7d206c0cc388e1bbe5ef185c13253d7d7310f1f8"
+    },
+    {
+      "prefix": "combat-reference-contracts",
+      "path": "evidence/combat-reference-cleanup-parent-acceptance-20260913.json",
+      "sha256": "45afca6d467c18377fc352a1a28ec9545fc32f31a9857bcfa045431dc7ede844"
+    },
+    {
+      "prefix": "customizer-layout-details",
+      "path": "evidence/customizer-layout-cleanup-parent-acceptance-20260913.json",
+      "sha256": "ca42cc5bb545e82a1c1e28c0d8fbe6a0a1da2435c39ecd25b286d4ab07b48481"
+    },
+    {
+      "prefix": "server-persistence-authority",
+      "path": "evidence/server-persistence-cleanup-parent-acceptance-20260913.json",
+      "sha256": "a8e99f7a2e48b30b4351d8575aa8132a0013bef0b82f6bdbc9397d735a95cd86"
+    },
+    {
+      "prefix": "catalog-browser-comparison",
+      "path": "evidence/catalog-browser-cleanup-parent-acceptance-20260913.json",
+      "sha256": "a102d8990a8caa8e916a24bb7466ee474cabc40d908ccc0333f77d7235bca85e"
+    },
+    {
+      "prefix": "record-sheet-export-contract",
+      "path": "evidence/record-sheet-cleanup-parent-acceptance-20260913.json",
+      "sha256": "e61ec7fae5f77d447fe5aa4ce5367d47aa96551c03a383395f12c44e56f3885d"
+    },
+    {
+      "prefix": "campaign-store-references",
+      "path": "evidence/campaign-store-cleanup-parent-acceptance-20260913.json",
+      "sha256": "2ea9969fc074ced88540937a3e7c6c2076a2c0eaa842b574533c36b42900913b"
+    },
+    {
+      "prefix": "unit-comparison-contract",
+      "path": "evidence/unit-comparison-cleanup-parent-acceptance-20260913.json",
+      "sha256": "0aee812faf3a6c979b55d35e36c7bab700a52542f5f1911ea9cf0115bd5f601d"
+    },
+    {
+      "prefix": "remaining-reference-specs",
+      "path": "evidence/remaining-reference-cleanup-parent-acceptance-20260913.json",
+      "sha256": "5fa2029fb1d7de2ec473d1b9675f866b9f1857736df857b7f289b284c1a87664"
+    },
+    {
+      "prefix": "final-canonical-proposals",
+      "path": "evidence/final-canonical-cleanup-parent-acceptance-20260913.json",
+      "sha256": "bba9aba3c13eae906b874d14a50630a5e7c284570b4e8dfd6c7f75a31e3d7707"
+    }
+  ],
+  "scope": "All14canonical-specification prefixes have parent-accepted ownedcleanup receipts. This aggregation references those exact receipts; it performs no new filesystem removal.",
+  "qualification": "The initial terminal node record omitted the required cleanupReceipt field; validation rejected it. This adds an explicit aggregate cleanup reference without changing validator or scope."
+}

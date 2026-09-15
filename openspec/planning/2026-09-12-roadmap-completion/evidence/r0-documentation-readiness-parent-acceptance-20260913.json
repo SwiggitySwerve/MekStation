@@ -1,0 +1,238 @@
+{
+  "createdAt": "2026-09-13T10:39:14.224Z",
+  "node": "R0.publish",
+  "status": "parent-accepted-local-documentation-reconciliation",
+  "rootHead": "be7f85b867aa3e8576e5e3d27e309276203bc24b",
+  "fetchedMain": "44b94adbbb333a9d4965e057b34290e19fc0e781",
+  "files": [
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/README.md",
+      "sha256": "64548bacc1b32c638e9f1a9a2ef29b220118703ce143f3cf2af989a1dc3cf138",
+      "physicalLines": 42,
+      "localChangedLines": 6
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/PUBLICATION.md",
+      "sha256": "35c53b223164bfd97d517ff8b57e7f13e3c61b2e48d59de5951b882934f86646",
+      "physicalLines": 31,
+      "localChangedLines": 6
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/PR-SLICES.md",
+      "sha256": "bf921d8a1bc82320c2dff3e5b25500b870bd5635b4cf4d5bbd94190ac9f06105",
+      "physicalLines": 134,
+      "localChangedLines": 2
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/WORKERS.md",
+      "sha256": "db8310478270c4b885c70b2153edf262a2a598063af9f65eb5aa7c4f57f566ec",
+      "physicalLines": 81,
+      "localChangedLines": 4
+    },
+    {
+      "path": "openspec/planning/ACTIVE-CHANGES-ROADMAP.md",
+      "sha256": "2f2fb891e6b18ee3523c899a6a0ae574f9b55ec76a45c795e3c2cae1380e9b5f",
+      "physicalLines": 11,
+      "localChangedLines": 2
+    },
+    {
+      "path": "docs/audits/2026-09-12-customizer-spec-reconciliation/README.md",
+      "sha256": "e4e08f5f3d3da07fa3928d501e7c6f08763fbc93652e866676e152eef0601ddb",
+      "physicalLines": 42,
+      "localChangedLines": 43
+    },
+    {
+      "path": "docs/audits/2026-09-12-customizer-spec-reconciliation/inventory-overview.md",
+      "sha256": "caf2562214a80903099a81bc06b43b9ef0c8aa6271c54693d8df54acc36cd7fa",
+      "physicalLines": 366,
+      "localChangedLines": 109
+    }
+  ],
+  "scope": [
+    "Correct current versus immutable admission counts: 13 original packages, 376 tasks, 40 dispositioned inventory rows, 73 nodes; 12 current local active packages.",
+    "Replace stale repair, routing archive, CI module, journal precursor and original archive publication wording with scoped accepted receipt states.",
+    "Repair the two routing links; retain the 220-entry catalog bytes and every current local Markdown target.",
+    "Correct occupied-v2 vault migration wording, source-only matrix classifications, and three separate browser-run identities.",
+    "Reflect current worker capacity and retained Grok/Cursor failures without changing routes, hooks or configuration."
+  ],
+  "verification": {
+    "existingReceiptsReopened": "8 delivered/archived nodes, 33 canonical receipt references and fetched-main ancestry; no fresh product execution.",
+    "requiredSpecChecks": [
+      {
+        "name": "roadmap-accounting",
+        "exit": 0,
+        "stdout": {
+          "path": ".sisyphus/roadmap-completion-20260912/r0-publication-readiness-parent-20260913/gates/roadmap-accounting.stdout.log",
+          "sha256": "b185e5f101786a05e7aa9bd0cde15778607fa047fbdbec8a15158c89753c23fc"
+        },
+        "stderr": {
+          "path": ".sisyphus/roadmap-completion-20260912/r0-publication-readiness-parent-20260913/gates/roadmap-accounting.stderr.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      {
+        "name": "openspec-all-strict",
+        "exit": 0,
+        "stdout": {
+          "path": ".sisyphus/roadmap-completion-20260912/r0-publication-readiness-parent-20260913/gates/openspec-all-strict.stdout.log",
+          "sha256": "ddae8bde53c78d9c156dcfc92b95d7c1cced51d2fda83d26f7365563c18fad64"
+        },
+        "stderr": {
+          "path": ".sisyphus/roadmap-completion-20260912/r0-publication-readiness-parent-20260913/gates/openspec-all-strict.stderr.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      {
+        "name": "purpose",
+        "exit": 0,
+        "stdout": {
+          "path": ".sisyphus/roadmap-completion-20260912/r0-publication-readiness-parent-20260913/gates/purpose.stdout.log",
+          "sha256": "7c0ef64ff56416c105f73466d23eccbde4a97e9f1b2062a2a740d39278d03317"
+        },
+        "stderr": {
+          "path": ".sisyphus/roadmap-completion-20260912/r0-publication-readiness-parent-20260913/gates/purpose.stderr.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      {
+        "name": "terminology",
+        "exit": 0,
+        "stdout": {
+          "path": ".sisyphus/roadmap-completion-20260912/r0-publication-readiness-parent-20260913/gates/terminology.stdout.log",
+          "sha256": "bdbe0930343b85db1da1466f5741a982ea339a819fcd9bdb3427152a0dbae573"
+        },
+        "stderr": {
+          "path": ".sisyphus/roadmap-completion-20260912/r0-publication-readiness-parent-20260913/gates/terminology.stderr.log",
+          "sha256": "f5ec7216925150bc0d6290d1e76f823d11133dee2f226980fd63d0782d5a713b"
+        }
+      },
+      {
+        "name": "openspec-ci",
+        "exit": 0,
+        "stdout": {
+          "path": ".sisyphus/roadmap-completion-20260912/r0-publication-readiness-parent-20260913/gates/openspec-ci.stdout.log",
+          "sha256": "8c41df6c33246420ed1806218780c2df69b5ad4e7c594b993b07594ee959ccb2"
+        },
+        "stderr": {
+          "path": ".sisyphus/roadmap-completion-20260912/r0-publication-readiness-parent-20260913/gates/openspec-ci.stderr.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    ],
+    "initialDriver": "Retained failed status at scoped formatting; diff step was not reached.",
+    "formatCorrection": "Existing formatter changed table padding only; write and check passed under two-core affinity. All catalog bytes and normalized document content remained unchanged.",
+    "formatterScope": "Configured formatter checked the two audit Markdown files; planning Markdown remains under existing ignore policy. All seven files passed final local whitespace and link checks.",
+    "failedAttempts": [
+      "Parent terminal-state checker first expected complete for archived routing.",
+      "Parent no-index diff wrapper first misclassified content-difference exit1.",
+      "First formatter correction driver failed JavaScript syntax before editing."
+    ],
+    "finalProcesses": [
+      {
+        "pid": 36920,
+        "absent": true
+      },
+      {
+        "pid": 51608,
+        "absent": true
+      },
+      {
+        "pid": 65032,
+        "absent": true
+      }
+    ]
+  },
+  "review": {
+    "leader": "Parent Astra final validator",
+    "workers": [
+      "Luna/high: bounded roadmap README proposal; independent four-file orchestration review.",
+      "Terra/high: audit README reconciliation and bounded corrections.",
+      "Terra/high: overview source/receipt reconciliation."
+    ],
+    "parentCorrections": "Earlier browser attribution and stale migration/triage claims were corrected before acceptance; prior artifacts retained."
+  },
+  "publication": {
+    "state": "not-ready-for-publication",
+    "overviewTargetsAbsentFromFetchedMain": [
+      "docs/audits/2026-09-12-customizer-spec-reconciliation/inventory.md",
+      "docs/audits/2026-09-12-customizer-spec-reconciliation/README.md",
+      "openspec/changes/add-customizer-pr-regression-gate/proposal.md",
+      "openspec/changes/add-customizer-pr-regression-gate/tasks.md",
+      "openspec/changes/archive/2026-09-12-add-customizer-edit-recovery/tasks.md",
+      "openspec/changes/archive/2026-09-12-establish-battlemech-chassis-index/tasks.md",
+      "openspec/changes/archive/2026-09-12-repair-equipment-catalog/tasks.md"
+    ],
+    "otherPrerequisites": "Plain-text roadmap, admission, policy and routing-receipt references prevent treating four standalone planning contracts as a complete prefix.",
+    "guards": "Six exact payload approvals remain pending; no retry, push, PR, commit, fetch or alternative export occurred. Remeasure each eventual prefix against its actual base and keep the 15-file/500-line contract."
+  },
+  "preservation": {
+    "rootIndexSha256": "a65b683940b6449651a074132f39d8b8da156ef5620af6aa1b62eb7c8698b953",
+    "inventorySha256": "fe9d25951ee79c34c74f0b8f64aee51dbd94265b30a057ae735ca83301376822",
+    "admissionSnapshotSha256": "dd2b997e6e2e3adf85130d3196ee9f2838fc900019ff36f8bd3495f3caf58b68",
+    "catalogByteIdentical": true,
+    "originalTasksAndDispositions": "Unchanged; no checkbox or runtime gate closed."
+  },
+  "rawEvidence": [
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/r0-publication-readiness-parent-20260913/initial-link-audit.json",
+      "sha256": "0bdf789be4fb2ee682ce1b09fe67edd4acc7b28fcec7e1db8803588a9104d866"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/r0-publication-readiness-parent-20260913/completed-node-source-check.json",
+      "sha256": "3f98baac5b32d8e7a50b3a1ff73b4f6591968a7d536c1808e0907ef67311102e"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/r0-publication-readiness-parent-20260913/review.json",
+      "sha256": "14e8a5bfc75c896782e6cb1781d4b380a5b168fbd3eb32471f64fe9ec48f2cdf"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/r0-publication-readiness-parent-20260913/readme-parent-integration.json",
+      "sha256": "27ee9e44223fdfcb6e41cbba18b4c51d7011c4ff079fbe1d4c6bf57a08fe783b"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/r0-publication-readiness-parent-20260913/orchestration-parent-integration.json",
+      "sha256": "ba91a00685a362ef6a410022ac24d051998a3b3946a9646a8353cf17984b6348"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/r0-publication-readiness-parent-20260913/overview-parent-integration.json",
+      "sha256": "c9ecade0558d1610cbad737e7993a04c5610f4cdc03090b648806cfb40d175f1"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/r0-publication-readiness-parent-20260913/browser-proof-attribution-review.json",
+      "sha256": "09d0d71e6fa8df617e18587b032c4ed14f8888d0171d2ac0adb56b6f90aeffb7"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/r0-publication-readiness-parent-20260913/gates/doc-gates.json",
+      "sha256": "aa8625f4bca967b51e600208ebfdc48e3a6b5855586d85910bcc9292e5a0fc17"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/r0-publication-readiness-parent-20260913/gates/terminal-verification.json",
+      "sha256": "01099ff128ab2cc93823046c81e861fb38614dc31e06b043cfa00530ec86a3a5"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/r0-publication-readiness-parent-20260913/format-correction/terminal-failure.json",
+      "sha256": "17eb0d065097bb52bebdbd80b6e87c5413415157141f537d373862ab50dce0dc"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/r0-publication-readiness-parent-20260913/format-correction/attempt2/result.json",
+      "sha256": "5ecbc9969ce9ce6c9fc15bfc57424e36d7b22459509b9ed96db58466aac66833"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/r0-publication-readiness-parent-20260913/format-correction/attempt2/affinity.json",
+      "sha256": "57c3c129a2ac4d4a5ee4d90106b058df600e0f3d03fec661cfcc4a47123d01ca"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/r0-publication-readiness-parent-20260913/formatting-semantic-verification.json",
+      "sha256": "80e0c5f4da72f70b406142f503d49d350a8bbd01c3b1cfc4d35df8303ef26928"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/r0-publication-readiness-parent-20260913/final-document-check.json",
+      "sha256": "f8cb896010d7478a4e5b0bfcebf96f93ee2f4a780c78c8cc96a7b31be6aa3599"
+    }
+  ],
+  "rawEvidenceAvailability": "Raw artifacts remain Git-ignored local evidence. This receipt does not claim they are published.",
+  "limits": [
+    "Local documentation acceptance only. No production/browser/CAMP verification or main proof added.",
+    "Historical source receipts, failed attempts, root dirty work, unrelated research, all owned worktrees and existing publication payloads preserved."
+  ]
+}

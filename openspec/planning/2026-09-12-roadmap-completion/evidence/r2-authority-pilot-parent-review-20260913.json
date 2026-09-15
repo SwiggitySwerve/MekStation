@@ -1,0 +1,132 @@
+{
+  "capturedAt": "2026-09-13T01:49:06.966Z",
+  "status": "protocol-clarifications-reviewed-implementation-not-admitted",
+  "reviewer": "Parent Astra non-author review of Terra revision",
+  "sources": [
+    {
+      "path": "src/stores/campaign/campaignCommandActions.ts",
+      "sha256": "e8d454d312299ea366e818699243c5eac37f2dbc962e5866cacb185c3c3641d3",
+      "gitBlobOid": "9526d7bacda906543a743676bdf57de34945cba7"
+    },
+    {
+      "path": "src/lib/campaign/contractMarket.ts",
+      "sha256": "cbd10abe80c3f65c49d52c68777f3d3414c3198ca79d1c0e9fb9ec02e3af53aa",
+      "gitBlobOid": "af24b76651aa0970f7e059276f473c0b320d1136"
+    },
+    {
+      "path": "src/pages/api/campaigns/[id]/commands.ts",
+      "sha256": "6e6dd0bf1f06e8e2fb165887e7d8e5e059b95cf85014ae748416f328b5d3e59a",
+      "gitBlobOid": "c8675532bddb69168e508324c2843fab89df4970"
+    },
+    {
+      "path": "src/services/campaignPersistence/CampaignSessionParticipantStore.ts",
+      "sha256": "d56f53075fe0d6f2dd69a9f91077a70b788994c36980cc802cfe84d9f528a668",
+      "gitBlobOid": "f16ec9942909246b541cef0389d382406d567c4e"
+    },
+    {
+      "path": "src/types/campaign/CoopSession.ts",
+      "sha256": "a5ee8e22c8b18f5811ca126c1c2e295bec070c49a215f856b15b97582110967d",
+      "gitBlobOid": "16f08407b77e462d99c3e0349e1358f722c12c38"
+    },
+    {
+      "path": "src/types/campaign/CampaignSync.ts",
+      "sha256": "9cb0a6191c5812a7be3b3c2e36d70a5a5c8fbe2a5970b0fef87f5eb1ab193559",
+      "gitBlobOid": "d9540526b96e9043557f7306b162a8fcc66174e1"
+    },
+    {
+      "path": "src/lib/campaign/sync/applyCampaignEvent.ts",
+      "sha256": "ef304f28771412faa7efd82036508d12a4b3b7c4380aa5e16fc348d3a6a31890",
+      "gitBlobOid": "7d916199bd66c620e79906df0e81f84901cf3bfb"
+    },
+    {
+      "path": "src/lib/campaign/authority/campaignSourceGenesis.ts",
+      "sha256": "242d561f032206f6e2e9a390573decd903b2ce58b34d5d7dae2fc8172f7f86f8",
+      "gitBlobOid": "7cfabf440b5d56599363a942d0989ad9042a06c9"
+    },
+    {
+      "path": "src/lib/campaign/coop/campaignAuthoritativeState.ts",
+      "sha256": "34b53ceca1f9d5a08316be784422211057d707801771dc6ab69d846f56f2cb53",
+      "gitBlobOid": "a73c0f28bc13f6e5d8273839bddaca9b4f364884"
+    },
+    {
+      "path": "src/lib/campaign/authority/campaignCommandPipeline.ts",
+      "sha256": "309e129c8eea1bd8fdbab79242cbc6de07c2ed8565241021a3b391879e174ea7",
+      "gitBlobOid": "c2bd85d68f7e9c12c91929187bf2cde3f446edc6"
+    },
+    {
+      "path": "src/lib/campaign/sync/JournalCampaignEventStore.ts",
+      "sha256": "0b352cd89fe64ee7d8c817fdae5855cce5e1198d097eb3bea772d71f0686ebf0",
+      "gitBlobOid": "58bfac1178ac11e6a513b02d579b04d22b1acd62"
+    },
+    {
+      "path": "src/lib/campaign/authority/campaignAuthorityMigration.ts",
+      "sha256": "6f8548f8d51ea137359121e490c2b91217e1415ff7679b29ad206c587a049bf5",
+      "gitBlobOid": "2e7cdb3d89266d1b9aaf751cd0f378ac8d3a3a26"
+    },
+    {
+      "path": "src/lib/campaign/persistence/campaignCacheKey.ts",
+      "sha256": "d498d8dd032eaa72c2dcb9b70380bc81f7c917e7b3b1b8102d7d903fca62bba3",
+      "gitBlobOid": "2c1c361c3a46073c377407be932064439ebda602"
+    },
+    {
+      "path": "src/stores/campaign/useCampaignPersistenceStore.ts",
+      "sha256": "2dfc3710956db8f4e11e2fb8fae58372611dcf104074b4db6a6827626a87a51a",
+      "gitBlobOid": "04e2dcd900ab053275a459cff146973170d36c14"
+    },
+    {
+      "path": "src/services/campaignPersistence/CampaignPersistenceService.ts",
+      "sha256": "8af424a1bafbaca814e27bd9aeb8cd9e9c4511465b5d1522c023cbc7fb5a1f30",
+      "gitBlobOid": "e4bd624e3890b558632a70a0b059454f4eadd044"
+    }
+  ],
+  "patch": {
+    "path": ".sisyphus/roadmap-completion-20260912/r2-authority-pilot-terra-revision-2-20260913/openspec-r2-authority-client-revision-2-draft.patch",
+    "sha256": "8e4dbca21f4b0e38f49f2486f938e47eded57c2ec8169683ce00efa884f9b244",
+    "rows": [
+      {
+        "path": "openspec/changes/design-campaign-authority-and-sync/tasks.md",
+        "added": 6,
+        "deleted": 0
+      },
+      {
+        "path": "openspec/changes/design-campaign-authority-and-sync/design.md",
+        "added": 6,
+        "deleted": 0
+      },
+      {
+        "path": "openspec/changes/design-campaign-authority-and-sync/specs/campaign-authority/spec.md",
+        "added": 34,
+        "deleted": 0
+      },
+      {
+        "path": "openspec/changes/design-campaign-authority-and-sync/specs/campaign-persistence/spec.md",
+        "added": 17,
+        "deleted": 0
+      }
+    ],
+    "applyCheckExit": 0
+  },
+  "report": {
+    "path": ".sisyphus/roadmap-completion-20260912/r2-authority-pilot-terra-revision-2-20260913/report.json",
+    "sha256": "3198f86091dc95d2daccce68a0068201d9692989f9822e2261402911d823a9a1"
+  },
+  "acceptedClarifications": [
+    "Existing active-seat server authorization remains explicit; host restriction is a UI producer condition only.",
+    "Server derives retry fingerprint and checks receipt before removed-offer validation.",
+    "Expected revision can refresh without changing command identity.",
+    "Duplicate response uses compatible current materialization with separately recorded committed-command revision.",
+    "Client/host dependency cycle requires a preparatory materializer prefix."
+  ],
+  "remainingAdmissionWork": [
+    "P0 projection and wire compatibility must be specified against existing summary-based AcceptContract producers and old events, then characterized at the executable boundary.",
+    "P0.5 exact files and typed input/output need admission; current proposal returns acknowledgedCommandRevision without an explicit command receipt input. Prefer the command pipeline attaching original receipt revision to materializer current-head output.",
+    "Materialization concurrency must bind response snapshot/digest/head consistently when later commands arrive.",
+    "Only after these are concrete may parent adjust dependency prefixes and admit P1 implementation."
+  ],
+  "limits": [
+    "63-line copied-package draft remains unapplied and unmerged.",
+    "Worker reported scoped strict validation; this parent checks source and standard patch application only.",
+    "No product/runtime/CAMP/approval/witness/cutover proof claimed; production flag remains false.",
+    "Historical input ledger hashes are dated captures, not current-state parity claims."
+  ]
+}

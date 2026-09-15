@@ -1,0 +1,368 @@
+{
+  "schemaVersion": 1,
+  "capturedAt": "2026-09-13T01:31:28.755Z",
+  "status": "accepted-exact-main-documentation-proof",
+  "pr": 1655,
+  "head": "8f72371064675740d2ea710b869f7c7673e4c11d",
+  "worktree": "E:\\Projects\\MekStation/.sisyphus/roadmap-completion-20260912/customizer-layout-specs/worktree",
+  "checks": [
+    {
+      "name": "openspec-all",
+      "bin": "C:/nvm4w/nodejs/node.exe",
+      "args": [
+        "C:/Users/wroll/AppData/Roaming/npm/node_modules/@fission-ai/openspec/bin/openspec.js",
+        "validate",
+        "--all",
+        "--strict",
+        "--no-interactive"
+      ],
+      "startedAt": "2026-09-13T01:27:52.345Z",
+      "endedAt": "2026-09-13T01:27:55.646Z",
+      "exit": 0,
+      "signal": null,
+      "logs": {
+        "stdout": {
+          "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/customizer-layout-main-verification-20260913/openspec-all.stdout.log",
+          "sha256": "2754dbee9c7f3c73dafb72bec4284c7de4a886d9f795955954f8d77c5768a12d"
+        },
+        "stderr": {
+          "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/customizer-layout-main-verification-20260913/openspec-all.stderr.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "name": "spec-purpose-validate-strict",
+      "bin": "C:/nvm4w/nodejs/node.exe",
+      "args": [
+        "C:/nvm4w/nodejs/node_modules/npm/bin/npm-cli.js",
+        "run",
+        "spec:purpose:validate:strict"
+      ],
+      "startedAt": "2026-09-13T01:27:55.646Z",
+      "endedAt": "2026-09-13T01:28:09.252Z",
+      "exit": 0,
+      "signal": null,
+      "logs": {
+        "stdout": {
+          "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/customizer-layout-main-verification-20260913/spec-purpose-validate-strict.stdout.log",
+          "sha256": "7ed8874b5b5c28ec9ecc29e0df9538399a07c37d2270f4d37512a28b91cf01a3"
+        },
+        "stderr": {
+          "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/customizer-layout-main-verification-20260913/spec-purpose-validate-strict.stderr.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "name": "terminology-validate-strict",
+      "bin": "C:/nvm4w/nodejs/node.exe",
+      "args": [
+        "C:/nvm4w/nodejs/node_modules/npm/bin/npm-cli.js",
+        "run",
+        "terminology:validate:strict"
+      ],
+      "startedAt": "2026-09-13T01:28:09.253Z",
+      "endedAt": "2026-09-13T01:28:30.877Z",
+      "exit": 0,
+      "signal": null,
+      "logs": {
+        "stdout": {
+          "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/customizer-layout-main-verification-20260913/terminology-validate-strict.stdout.log",
+          "sha256": "d15011da7521e031b3bea845889b040bc9e0f3dee6f2e974e2fd7ba0697781a0"
+        },
+        "stderr": {
+          "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/customizer-layout-main-verification-20260913/terminology-validate-strict.stderr.log",
+          "sha256": "9d6be785d3bc99ff6f9bab10b0610f2270a06d7b7f608bc6d154f569b9c20137"
+        }
+      }
+    },
+    {
+      "name": "qc-openspec-ci-validate",
+      "bin": "C:/nvm4w/nodejs/node.exe",
+      "args": [
+        "C:/nvm4w/nodejs/node_modules/npm/bin/npm-cli.js",
+        "run",
+        "qc:openspec-ci:validate"
+      ],
+      "startedAt": "2026-09-13T01:28:30.877Z",
+      "endedAt": "2026-09-13T01:28:31.285Z",
+      "exit": 0,
+      "signal": null,
+      "logs": {
+        "stdout": {
+          "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/customizer-layout-main-verification-20260913/qc-openspec-ci-validate.stdout.log",
+          "sha256": "f01feb11318234aab4764fe76151b78c06905527212a8f8723626fcf616b71d6"
+        },
+        "stderr": {
+          "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/customizer-layout-main-verification-20260913/qc-openspec-ci-validate.stderr.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    },
+    {
+      "name": "diff-check",
+      "bin": "git",
+      "args": [
+        "diff",
+        "--check"
+      ],
+      "startedAt": "2026-09-13T01:28:31.285Z",
+      "endedAt": "2026-09-13T01:28:31.367Z",
+      "exit": 0,
+      "signal": null,
+      "logs": {
+        "stdout": {
+          "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/customizer-layout-main-verification-20260913/diff-check.stdout.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stderr": {
+          "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/customizer-layout-main-verification-20260913/diff-check.stderr.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    }
+  ],
+  "files": [
+    {
+      "path": "openspec/specs/customizer-responsive-layout/spec.md",
+      "bytes": 5809,
+      "sha256": "d3575a6b666f0dcabb5c9d80e8f8ba91039b0d7bbd82476d4454eb16a4e1e687",
+      "gitBlobSha1": "6ead2196374a1195b61dd60e2f542a954a34d456"
+    },
+    {
+      "path": "openspec/specs/customizer-tabs/spec.md",
+      "bytes": 27797,
+      "sha256": "0c3631c6f6205e36a6da1b5ec4202797d02dd900f803ac1cc75c971ee6bb3994",
+      "gitBlobSha1": "436d5a085aba057a1090903153b510db7646bcfe"
+    },
+    {
+      "path": "openspec/specs/overview-basic-info/spec.md",
+      "bytes": 3676,
+      "sha256": "4530c174c24f635bb7621f0b3a900f19fe3071482a68216e37c8f822dbca2bdf",
+      "gitBlobSha1": "c053239b539d33769741cdd1cc300cd22d156f94"
+    },
+    {
+      "path": "openspec/specs/armor-diagram-variants/spec.md",
+      "bytes": 11165,
+      "sha256": "97d49cd85226dccd4045fa9ed691692ffd73cc064c05c8a5e1e4184bc6693cb1",
+      "gitBlobSha1": "e1c8a77796a612cea02f5164ee5bc26c92f21de0"
+    },
+    {
+      "path": "src/components/customizer/tabs/CustomizerTabs.tsx",
+      "gitBlobSha1": "4a226b0b4e4b09de8dc9a615c85e313942ee5e95",
+      "sha256": "8f73b9810e760ad778d39e4a870fb2d1e11d8cfdc7865fc419fa95336d5b76eb",
+      "gitBlobLength": 40,
+      "sha256Length": 64,
+      "gitBlobEqualPrior": true,
+      "sha256EqualPrior": true
+    },
+    {
+      "path": "src/components/customizer/UnitEditorWithRouting.tsx",
+      "gitBlobSha1": "b8c28a173ab3d752c929f0b1404f325de1913f2b",
+      "sha256": "9445c9882b8110b2e1bdc0e25f7bab90fadd9e6ec7af2ca1e2e05dbef2ed0d83",
+      "gitBlobLength": 40,
+      "sha256Length": 64,
+      "gitBlobEqualPrior": true,
+      "sha256EqualPrior": true
+    },
+    {
+      "path": "src/components/customizer/equipment/ResponsiveLoadoutTray.tsx",
+      "gitBlobSha1": "9a6d1deeb2e3fd2910fccbd99434053932f454b2",
+      "sha256": "4a0be6a8cacefa4864d2d466a718c560b88f4757f239a0f81521334eedb473a5",
+      "gitBlobLength": 40,
+      "sha256Length": 64,
+      "gitBlobEqualPrior": true,
+      "sha256EqualPrior": true
+    },
+    {
+      "path": "src/components/customizer/equipment/BottomSheetTray.tsx",
+      "gitBlobSha1": "69116efa81be558627e45d1e763cb609b411a3de",
+      "sha256": "24b6622620f5a7b0a68119de876a1bf6a55eafb3c16e6eae4b5305b829e03f5b",
+      "gitBlobLength": 40,
+      "sha256Length": 64,
+      "gitBlobEqualPrior": true,
+      "sha256EqualPrior": true
+    },
+    {
+      "path": "src/hooks/usePersistedState.ts",
+      "gitBlobSha1": "53d0447992069ee2590533a36ab5e986d9b5dacd",
+      "sha256": "450d673a03f927c2e59c7eab3eef5a8ff74553920e9eec402ea261baf50add23",
+      "gitBlobLength": 40,
+      "sha256Length": 64,
+      "gitBlobEqualPrior": true,
+      "sha256EqualPrior": true
+    },
+    {
+      "path": "src/components/customizer/shared/UnitInfoBanner.tsx",
+      "gitBlobSha1": "1571258dd9ee968b96bae09b3b709f5f99037498",
+      "sha256": "c8981b6c38c36e6b39c557c87bdbaed2a710d61b85d87307823caf9344b9c506",
+      "gitBlobLength": 40,
+      "sha256Length": 64,
+      "gitBlobEqualPrior": true,
+      "sha256EqualPrior": true
+    },
+    {
+      "path": "src/components/customizer/shared/tabRegistry.tsx",
+      "gitBlobSha1": "d380d5e68ec7fa3bdb1d3836ef614a240c4e3a37",
+      "sha256": "8fc21041a01af69629cfc368c28ff6056dfb763f5db94178d03ad30d91e86969",
+      "gitBlobLength": 40,
+      "sha256Length": 64,
+      "gitBlobEqualPrior": true,
+      "sha256EqualPrior": true
+    },
+    {
+      "path": "src/components/customizer/tabs/OverviewTab.tsx",
+      "gitBlobSha1": "c9b7c721fe8d27384fb30ae656b89e75f5d92036",
+      "sha256": "1f8a5b47cfeae027a5e87f807b3eb237ae8d8733ef7185ddfb4047ed42ebdc5f",
+      "gitBlobLength": 40,
+      "sha256Length": 64,
+      "gitBlobEqualPrior": true,
+      "sha256EqualPrior": true
+    },
+    {
+      "path": "src/stores/unitStoreIdentityActions.ts",
+      "gitBlobSha1": "012fa67c2f59bad82ac30d94fdfb6764bb572b28",
+      "sha256": "abc0d4adda2d81dbd928dc99be728b1679d1e3c7a09b061bdf3aeca7bd94edf7",
+      "gitBlobLength": 40,
+      "sha256Length": 64,
+      "gitBlobEqualPrior": true,
+      "sha256EqualPrior": true
+    },
+    {
+      "path": "src/stores/useEquipmentStore.filters.ts",
+      "gitBlobSha1": "bca30b6a8c8c5e0fcec34ba106723edd19c1520c",
+      "sha256": "1ad606e3f3f122d3899cbd1462e590e958c19d553e43853d1a033757398097b8",
+      "gitBlobLength": 40,
+      "sha256Length": 64,
+      "gitBlobEqualPrior": true,
+      "sha256EqualPrior": true
+    },
+    {
+      "path": "src/types/enums/RulesLevel.ts",
+      "gitBlobSha1": "3f125f3d2abdf0b47ebc90474b131478d08ba84b",
+      "sha256": "ef1b9808916c93539fb8aaaeff53822500a2c796eb1907f75d4d172b8ceb509e",
+      "gitBlobLength": 40,
+      "sha256Length": 64,
+      "gitBlobEqualPrior": true,
+      "sha256EqualPrior": true
+    },
+    {
+      "path": "src/stores/useCustomizerSettingsStore.ts",
+      "gitBlobSha1": "27bee3bc506675038fa57cac47ba56c6e44b553a",
+      "sha256": "4a8d1c8b61d974fef6ab493d3bd852c1222bf6a0dfbe495fa19f7e9154c43f29",
+      "gitBlobLength": 40,
+      "sha256Length": 64,
+      "gitBlobEqualPrior": true,
+      "sha256EqualPrior": true
+    },
+    {
+      "path": "src/components/customizer/armor/shared/VariantConstants.ts",
+      "gitBlobSha1": "cb63a074fce45ba9026dbc05db212c87f7cea602",
+      "sha256": "ed1e7eeb507ad7127130f268ae77e2252db43f3d609520fef74ba88abd34769f",
+      "gitBlobLength": 40,
+      "sha256Length": 64,
+      "gitBlobEqualPrior": true,
+      "sha256EqualPrior": true
+    },
+    {
+      "path": "src/components/customizer/armor/ArmorDiagramQuickSettings.tsx",
+      "gitBlobSha1": "79f3afa3c9ea7f671097dd00bb48e42eef9de8e9",
+      "sha256": "1e09249ace2aeb686bafa645f6bf97b78f6dda147ec7671f57b612286935c027",
+      "gitBlobLength": 40,
+      "sha256Length": 64,
+      "gitBlobEqualPrior": true,
+      "sha256EqualPrior": true
+    },
+    {
+      "path": "src/components/customizer/armor/ArmorDiagramSelector.tsx",
+      "gitBlobSha1": "f01837f7b4b0f6f01ee903b5384c7ec0a62623db",
+      "sha256": "df70a63e53800bc99f992677fa89002adf3ea930635019b2cbfc2947b4ac6e8f",
+      "gitBlobLength": 40,
+      "sha256Length": 64,
+      "gitBlobEqualPrior": true,
+      "sha256EqualPrior": true
+    },
+    {
+      "path": "src/components/customizer/tabs/ArmorDiagramPanel.tsx",
+      "gitBlobSha1": "afacae7056bb21d3b0fccc78a322711300f812b7",
+      "sha256": "8bc3a3cc5636e0f200344ef96057db876060d9ab559e3cde9a4cd1a06166f4af",
+      "gitBlobLength": 40,
+      "sha256Length": 64,
+      "gitBlobEqualPrior": true,
+      "sha256EqualPrior": true
+    },
+    {
+      "path": "src/components/customizer/tabs/ArmorTab.tsx",
+      "gitBlobSha1": "14c314d56f3ee6c7467c95988a5d53534dba0893",
+      "sha256": "86107f535cc14812beff61018de64166b72e6a221c4063b232ec6396fcd3ce9c",
+      "gitBlobLength": 40,
+      "sha256Length": 64,
+      "gitBlobEqualPrior": true,
+      "sha256EqualPrior": true
+    },
+    {
+      "path": "src/components/customizer/armor/shared/VariantLocationRenderer.tsx",
+      "gitBlobSha1": "27cf4e9e51639b19a5b51d93711817a60fc30f25",
+      "sha256": "b7e22ba3468927c7f28f7272774b6946a7f51f85a24bc96ee218bbb6d50c1110",
+      "gitBlobLength": 40,
+      "sha256Length": 64,
+      "gitBlobEqualPrior": true,
+      "sha256EqualPrior": true
+    },
+    {
+      "path": "src/components/customizer/armor/variants/BipedArmorDiagram.tsx",
+      "gitBlobSha1": "3e5eeee4168abc9fb9e1bfcc5c00aaf84c45867f",
+      "sha256": "919e49fe88f4b49794c192f466a666345bb7ace5ccd2baef4e794b79d68fdfcc",
+      "gitBlobLength": 40,
+      "sha256Length": 64,
+      "gitBlobEqualPrior": true,
+      "sha256EqualPrior": true
+    },
+    {
+      "path": "src/components/customizer/armor/variants/QuadArmorDiagram.tsx",
+      "gitBlobSha1": "fd101923f70a660f56db3422d754fc67036490dd",
+      "sha256": "78dc8f71c95d3d56eaa27d3cb498f32a96887a74f5a688d7b385b5675e12f423",
+      "gitBlobLength": 40,
+      "sha256Length": 64,
+      "gitBlobEqualPrior": true,
+      "sha256EqualPrior": true
+    },
+    {
+      "path": "src/components/customizer/armor/variants/TripodArmorDiagram.tsx",
+      "gitBlobSha1": "db96e09f061bc42e8c78590f57b71bb46b810969",
+      "sha256": "22ee2e9911482c4c9d8b97fed3c546c4d3124ce8b3b3db67629b1c7d55637ebf",
+      "gitBlobLength": 40,
+      "sha256Length": 64,
+      "gitBlobEqualPrior": true,
+      "sha256EqualPrior": true
+    },
+    {
+      "path": "src/components/customizer/armor/variants/LAMArmorDiagram.tsx",
+      "gitBlobSha1": "2d14adabc070b0241409b3f58021fffff0f1ee51",
+      "sha256": "f3e59f3c22519c34471180e706f8a6dc7803225608bbe5cbf822d5f74465c843",
+      "gitBlobLength": 40,
+      "sha256Length": 64,
+      "gitBlobEqualPrior": true,
+      "sha256EqualPrior": true
+    },
+    {
+      "path": "src/components/customizer/armor/variants/QuadVeeArmorDiagram.tsx",
+      "gitBlobSha1": "5f4028f4b4e0dcfd4268aaa4efeea9a5a7452623",
+      "sha256": "41cd2d4d15ca85600490d66b9a33c9e1c962ed32ac7f695a2073d1dd4c6149d2",
+      "gitBlobLength": 40,
+      "sha256Length": 64,
+      "gitBlobEqualPrior": true,
+      "sha256EqualPrior": true
+    }
+  ],
+  "priorAcceptance": {
+    "path": "E:\\Projects\\MekStation/openspec/planning/2026-09-12-roadmap-completion/evidence/customizer-layout-parent-acceptance-20260913.json",
+    "sha256": "ac06b57d5089666aecc6bc51bd2c657f54f1fa1f5ea28accd0d01d37df7e710b"
+  },
+  "qualification": "Prior read-only worker scope-equivalence report was insufficient; parent ran all gates on detached exact merged main with retained raw logs.",
+  "limits": [
+    "No new product/build/browser runtime proof",
+    "Root reconciliation and owned cleanup still required"
+  ]
+}

@@ -1,0 +1,132 @@
+{
+  "capturedAt": "2026-09-13T00:28:47.344Z",
+  "status": "findings-accepted-design-not-yet-admitted",
+  "report": {
+    "path": ".sisyphus/roadmap-completion-20260912/r2-authority-admission-xhigh/report.json",
+    "sha256": "749ab26fa8216b990ec7dcf1bbcce558169fe9b2075ed2bb182ef6b667dd86a1"
+  },
+  "sources": [
+    {
+      "path": "src/stores/campaign/useCampaignPersistenceStore.ts",
+      "sha256": "2dfc3710956db8f4e11e2fb8fae58372611dcf104074b4db6a6827626a87a51a"
+    },
+    {
+      "path": "src/stores/campaign/campaignCommandActions.ts",
+      "sha256": "e8d454d312299ea366e818699243c5eac37f2dbc962e5866cacb185c3c3641d3"
+    },
+    {
+      "path": "src/stores/campaign/useCampaignStore.dayActions.ts",
+      "sha256": "87474d70c47a8c52c05912b4f68508bafbb1d8defecc164f91ea0a29311683b6"
+    },
+    {
+      "path": "src/pages/api/campaigns/[id].ts",
+      "sha256": "a0144a7cd574719a51328d49318d46fb82c5bc57fed4b707ccf2eacc603b946a"
+    },
+    {
+      "path": "src/pages/api/campaigns/[id]/commands.ts",
+      "sha256": "6e6dd0bf1f06e8e2fb165887e7d8e5e059b95cf85014ae748416f328b5d3e59a"
+    },
+    {
+      "path": "src/lib/campaign/authority/campaignCommandPipeline.ts",
+      "sha256": "309e129c8eea1bd8fdbab79242cbc6de07c2ed8565241021a3b391879e174ea7"
+    },
+    {
+      "path": "src/lib/campaign/authority/campaignAuthorityMode.ts",
+      "sha256": "a9595befd3a738d96bc382c3869a31f0ff98518c0879556b4f6921600032fc3e"
+    },
+    {
+      "path": "src/lib/campaign/authority/resolveCampaignAuthorityFromStores.ts",
+      "sha256": "fffe5d3b85694ef805d118f95bdb5ac56263a8fc86cfaa4972482556f9668e34"
+    },
+    {
+      "path": "src/lib/campaign/authority/campaignSourceGenesis.ts",
+      "sha256": "242d561f032206f6e2e9a390573decd903b2ce58b34d5d7dae2fc8172f7f86f8"
+    },
+    {
+      "path": "src/lib/campaign/sync/JournalCampaignEventStore.ts",
+      "sha256": "0b352cd89fe64ee7d8c817fdae5855cce5e1198d097eb3bea772d71f0686ebf0"
+    },
+    {
+      "path": "src/lib/campaign/sync/applyCampaignEvent.ts",
+      "sha256": "ef304f28771412faa7efd82036508d12a4b3b7c4380aa5e16fc348d3a6a31890"
+    },
+    {
+      "path": "src/types/campaign/CampaignSync.ts",
+      "sha256": "9cb0a6191c5812a7be3b3c2e36d70a5a5c8fbe2a5970b0fef87f5eb1ab193559"
+    }
+  ],
+  "inputResults": [
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/DELIVERY.md",
+      "capturedSha256": "600ba0983727d469e4167849a0b2be751839bf405c373aef62492d7ca35e4838",
+      "currentSha256": "600ba0983727d469e4167849a0b2be751839bf405c373aef62492d7ca35e4838",
+      "equal": true
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/WORKERS.md",
+      "capturedSha256": "8379850a9a558115fd2f3cb4a2571ab88ce5e6957fe71b558e4d920b9dae894d",
+      "currentSha256": "8379850a9a558115fd2f3cb4a2571ab88ce5e6957fe71b558e4d920b9dae894d",
+      "equal": true
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/roadmap.json",
+      "capturedSha256": "86c3363198c44c18b0dd14272c54f3a73fe34020646d620b93c2d11b3cec8107",
+      "currentSha256": "5742df44b2dd49c1ce4e65a054ce10ecaac14b7c45ab32c4ca9b9b8b28634e9b",
+      "equal": false
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/r0-contracts-completion-20260912.json",
+      "capturedSha256": "9549ca24ca2dc006eef27ec3dd0605c9d08d3c5319d7550094e59f39684db784",
+      "currentSha256": "9549ca24ca2dc006eef27ec3dd0605c9d08d3c5319d7550094e59f39684db784",
+      "equal": true
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/r2-next-admission-discovery/report.json",
+      "capturedSha256": "23cc8a076ae9e625686e0f9971c533a5e8b793ccf2024154b5ed8268aa896d38",
+      "currentSha256": "23cc8a076ae9e625686e0f9971c533a5e8b793ccf2024154b5ed8268aa896d38",
+      "equal": true
+    },
+    {
+      "path": "openspec/changes/design-campaign-authority-and-sync/tasks.md",
+      "capturedSha256": "9eefb5fa17acddd89253e91f182f4349553cfe5b66d08ba1fe61ccaa9c9223ea",
+      "currentSha256": "9eefb5fa17acddd89253e91f182f4349553cfe5b66d08ba1fe61ccaa9c9223ea",
+      "equal": true
+    },
+    {
+      "path": "openspec/changes/design-campaign-authority-and-sync/specs/campaign-authority/spec.md",
+      "capturedSha256": "a4a4a80418f7da6df147fd5c88ea7b41bb736e204498d29c7ad1a5f72150b811",
+      "currentSha256": "a4a4a80418f7da6df147fd5c88ea7b41bb736e204498d29c7ad1a5f72150b811",
+      "equal": true
+    },
+    {
+      "path": "openspec/changes/design-campaign-authority-and-sync/specs/campaign-persistence/spec.md",
+      "capturedSha256": "198e39c7956d9f2c42fcc5997397105c284b27eef04f22cc79d2e872b375ecfc",
+      "currentSha256": "198e39c7956d9f2c42fcc5997397105c284b27eef04f22cc79d2e872b375ecfc",
+      "equal": true
+    },
+    {
+      "path": "openspec/changes/design-campaign-authority-and-sync/design.md",
+      "capturedSha256": "c47040115b4bfd21b011230c9101be4e273f1667c0e33d7692b5fc59abb45064",
+      "currentSha256": "c47040115b4bfd21b011230c9101be4e273f1667c0e33d7692b5fc59abb45064",
+      "equal": true
+    },
+    {
+      "path": "openspec/changes/design-campaign-authority-and-sync/proposal.md",
+      "capturedSha256": "fada46aab39743c6a1ab375693abf8fe8710dfb00c4024d24dea38666c12da92",
+      "currentSha256": "fada46aab39743c6a1ab375693abf8fe8710dfb00c4024d24dea38666c12da92",
+      "equal": true
+    }
+  ],
+  "parentFindings": [
+    "Whole-envelope persistence carries arbitrary ICampaign state and SerializedCampaign version; commands accept six typed intents and a distinct replayed projection. Global transport replacement would lose semantics.",
+    "acceptContractOffer changes missions and contractMarket; ContractAccepted reducer changes contracts only. This is a reproduced source mismatch, not an executable failing test yet.",
+    "Fourteen proposed implementation/test files plus four proposed delta files cannot be one15-file prefix. A changed-line fit was not measured. These paths are a candidate inventory, not an accepted capped implementation plan.",
+    "An authenticated active campaign seat is enforced by the server route; proposed source-seat-only client scope needs explicit definition and must not imply that the current gate is stricter than active-seat membership.",
+    "Need a concrete minimal contract design and executable characterization before client rewiring. Define idempotent retry, full accepted mission/offer semantics and cache-revision mapping; preserve blocked mode and disabled production flag."
+  ],
+  "next": "Bounded design/spec-delta proposal with exact original requirement mapping; separate implementation and verification prefixes after parent review.",
+  "nonClaims": [
+    "No new runtime verification, production cutover, full R2.authority acceptance, or R2.authority-client implementation approval.",
+    "Ledger input changed through parent-owned delivery during review; source inputs above remain exact."
+  ]
+}

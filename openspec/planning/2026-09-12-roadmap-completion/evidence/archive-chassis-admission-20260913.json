@@ -1,0 +1,45 @@
+{
+  "at": "2026-09-13T06:46:13.051Z",
+  "base": "44b94adbbb333a9d4965e057b34290e19fc0e781",
+  "branch": "codex/roadmap-archive-chassis-20260913",
+  "wt": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/archive-chassis",
+  "package": "establish-battlemech-chassis-index",
+  "moves": [
+    {
+      "source": "openspec/changes/establish-battlemech-chassis-index/.openspec.yaml",
+      "target": "openspec/changes/archive/2026-09-12-establish-battlemech-chassis-index/.openspec.yaml",
+      "blobOid": "e8cda9e50ea0cab62490e3e8f3e824b831aca6f0"
+    },
+    {
+      "source": "openspec/changes/establish-battlemech-chassis-index/design.md",
+      "target": "openspec/changes/archive/2026-09-12-establish-battlemech-chassis-index/design.md",
+      "blobOid": "8cd88f4c75b4521e7e205f3a6328d14ab7d2fc4c"
+    },
+    {
+      "source": "openspec/changes/establish-battlemech-chassis-index/proposal.md",
+      "target": "openspec/changes/archive/2026-09-12-establish-battlemech-chassis-index/proposal.md",
+      "blobOid": "172d6564cb1ebb7d25c00c7170a23f59c0c456e3"
+    },
+    {
+      "source": "openspec/changes/establish-battlemech-chassis-index/specs/battlemech-chassis-index/spec.md",
+      "target": "openspec/changes/archive/2026-09-12-establish-battlemech-chassis-index/specs/battlemech-chassis-index/spec.md",
+      "blobOid": "31bd743ece8b81fe1203847def09a50c9dcf31e0"
+    },
+    {
+      "source": "openspec/changes/establish-battlemech-chassis-index/tasks.md",
+      "target": "openspec/changes/archive/2026-09-12-establish-battlemech-chassis-index/tasks.md",
+      "blobOid": "34196248de7dd37f35f182f15456e685ca76c84d"
+    }
+  ],
+  "ledgerPath": "openspec/active-change-ledger.json",
+  "proofs": [
+    "evidence/archive-original-static-build-parent-acceptance-20260913.json",
+    "evidence/archive-original-browser-parent-review-20260913.json"
+  ],
+  "scope": "Five byte-exact archive moves plus removal of only this active ledger object; no product or checkbox change",
+  "caps": {
+    "files": 11,
+    "changedLines": 500
+  },
+  "browserQualification": "Chassis9/9 at frozen5b229; one equipment-loader consoleerror retained separately; archive sources identical on44b94"
+}

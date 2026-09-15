@@ -1,0 +1,13 @@
+{
+  "at": "2026-09-13T02:29:38.005Z",
+  "startedAt": "2026-09-13T02:26:11.998Z",
+  "driverPid": 60536,
+  "pid": 33964,
+  "model": "cursor-grok-4.6-high",
+  "effort": "high",
+  "workspace": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/campaign-store-specs",
+  "effectiveModel": "Cursor Grok 4.6 High",
+  "sessionId": "34e616ab-55e5-4f1c-8e26-c28667b6d4ec",
+  "status": "running-not-accepted",
+  "rawIgnored": true
+}

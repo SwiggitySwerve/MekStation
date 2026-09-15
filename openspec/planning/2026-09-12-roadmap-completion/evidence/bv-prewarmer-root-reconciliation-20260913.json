@@ -1,0 +1,14 @@
+{
+  "at": "2026-09-13T06:03:15.699Z",
+  "status": "reconciled",
+  "pr": 1665,
+  "main": "9091428c0dc79a187ad5c56a2c0ac3acb72f2187",
+  "test": "src/services/encounter/__tests__/bvCatalogPrewarmer.test.ts",
+  "before": "89609dc4fe6fbd48e4d7b7924a5cb2e30ab549049bfed1da2a301bf46105638f",
+  "after": "f95344692550def0ec705297a212bd9cb8cde2b737574d9aef15447f07171c13",
+  "indexBefore": "a65b683940b6449651a074132f39d8b8da156ef5620af6aa1b62eb7c8698b953",
+  "indexAfter": "a65b683940b6449651a074132f39d8b8da156ef5620af6aa1b62eb7c8698b953",
+  "otherDirtyFilesVerified": 578,
+  "preflight": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/bv-prewarmer-root-reconciliation-20260913/preflight.json",
+  "limit": "Only original local BV test reconciled; root remains dirty at original main HEAD"
+}

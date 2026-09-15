@@ -1,0 +1,26 @@
+{
+  "at": "2026-09-13T06:52:07.989Z",
+  "state": "local-commit-build-accepted-publication-pending",
+  "head": "6f795eb515aad090186e01f373447b3bb6d7801c",
+  "source": [
+    {
+      "rel": "src/lib/events/journal/SQLiteEventJournalWriter.ts",
+      "sha256": "82a319953c24d5f98a143d38f509c11d6ce3420ee55738a7444190fbfd180a4d",
+      "gitOid": "c8fe11dd94fc2fc12d5309fa5ff0d1c80fb644a7"
+    },
+    {
+      "rel": "src/lib/events/journal/__tests__/SQLiteEventJournalWriter.test.ts",
+      "sha256": "c3daafceb06743fca9452e3b559d43f3e621185bd97094a4177382bbbd6e3cdd",
+      "gitOid": "0048637278d7b4a9c96bd05bf1e4786efe8db1eb"
+    }
+  ],
+  "normalGitCommitExit": 0,
+  "normalBuildAndHydrationObservedIn": "stderr",
+  "driverExit": 1,
+  "driverQualification": "Postcommit false negative searched stdout only; actual Git commit0 and clean exactHEAD accepted. Do not recommit or rerun build.",
+  "qualification": {
+    "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/r2-prepared-journal-api-delivery-20260913/attempt-3/superseding-qualification.json",
+    "sha256": "41f3998a5f2cd1b52cbfa6f9f893d28b52446e8b6e3d1ed13a20b7f997a20c81"
+  },
+  "commandsVerified": 12
+}

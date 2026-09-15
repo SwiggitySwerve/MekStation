@@ -1,0 +1,197 @@
+{
+  "at": "2026-09-13T06:36:22.670Z",
+  "base": "5b229be21e87815f10ce6521dda77b52eef75e3c",
+  "report": {
+    "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/archive-original-browser-proof-20260913/attempt-3-report.json",
+    "sha256": "a07f3750254d0d17427e96a046edcb760f74f6a081305feb75e2ee9ddfa89c95"
+  },
+  "verifiedArtifacts": [
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\archive-original-browser-proof-20260913\\invoke-archive-browser-proof.attempt-3.ps1",
+      "sha256": "5598035661b103acbdb6f6550f1509c44ee774593a07aade6e76f0387335e70e"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\archive-original-browser-proof-20260913\\attempt-3-customizerequipment-b4ef37efae314341b03e5e8fb62c29de\\preserved-failed-playwright-artifacts.json",
+      "sha256": "6ea823ac6bd56fd9570a5ca6040d7b9d73d31bea1d70b8735d4cab63d0940444"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\archive-original-browser-proof-20260913\\attempt-3-customizerequipment-b4ef37efae314341b03e5e8fb62c29de\\result.json",
+      "sha256": "7e72bb459e9b74d37593a594cd1594bf40bf9609dfcd6d3f225d2fe3b6e38c9a"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\archive-original-browser-proof-20260913\\attempt-3-customizerequipment-b4ef37efae314341b03e5e8fb62c29de\\customizer-equipment.stdout.log",
+      "sha256": "a0df3ff32649b04b38e487f72168377602a725b7834501504e9aab6079d97b54"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\archive-original-browser-proof-20260913\\attempt-3-customizerequipment-b4ef37efae314341b03e5e8fb62c29de\\customizer-equipment.stderr.log",
+      "sha256": "916628117966c9e337a86188b1cccfcd7f0145f844d3fe29ba76eb569c2903cf"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\archive-original-browser-proof-20260913\\attempt-3-chassis-b6cd483c50c44e4aaa4d63f9bced0e1d\\result.json",
+      "sha256": "a3de6e6eee0b9fb4ba0c963d3e701d164f7738972aba4743bc3076c1b26c72c9"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\archive-original-browser-proof-20260913\\attempt-3-chassis-b6cd483c50c44e4aaa4d63f9bced0e1d\\chassis-browser.stdout.log",
+      "sha256": "98cf0de3001a3d22c179cf84619da712fc1321893313ae927233d7f2ff6eaec6"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\archive-original-browser-proof-20260913\\attempt-3-chassis-b6cd483c50c44e4aaa4d63f9bced0e1d\\chassis-browser.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\archive-original-browser-proof-20260913\\attempt-3-chassis-b6cd483c50c44e4aaa4d63f9bced0e1d\\chassis-server.stdout.log",
+      "sha256": "5e46b8d549db8a8bf48657cd3beda1bb2eafd208e7687dc1994123354221d271"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\archive-original-browser-proof-20260913\\attempt-3-chassis-b6cd483c50c44e4aaa4d63f9bced0e1d\\chassis-server.stderr.log",
+      "sha256": "6db10ebdb408c6352c41ef83338ded2689b114ddc7f5c816a36f8514bd5c5c76"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\archive-original-browser-proof-20260913\\auxiliary-selector-proof-proposal.md",
+      "sha256": "7ee772b6ea2527854b1aba0c8938f668d9f4ec276c8fc8b2b95c38da6f3e7473"
+    }
+  ],
+  "chassis": {
+    "checksPassed": 9,
+    "testExit": 0,
+    "ownedServerPid": 57888,
+    "readyStatus": 204,
+    "port": 3642,
+    "portFree": true,
+    "audit": {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/archive-original-browser-proof-20260913/attempt-3-chassis-b6cd483c50c44e4aaa4d63f9bced0e1d/browser-verification.json",
+      "sha256": "6641692634a0c7ccf7f73317e6b456d65e5b8c57d16de4705ea9adc138ae42d7"
+    },
+    "consoleQualification": {
+      "pageErrors": [],
+      "consoleErrors": [
+        "[EquipmentOfficialLoader] Failed to load miscellaneous equipment from miscellaneous/other.json (missing, unreadable, or malformed)"
+      ],
+      "triage": {
+        "classification": "cause not established; not accepted as a missing-asset or product defect",
+        "sourceAndHydratedAndRootFile": "public/data/equipment/official/miscellaneous/other.json",
+        "sameSha256": "b7869542cce710059bad2134f4fe3bb5a4e3a961a7f475954a7e3083d85d80aa",
+        "bytes": 103002,
+        "parsedItems": 299,
+        "limit": "Nine scoped chassis assertions passed; no clean-console claim. No data or loader change."
+      }
+    }
+  },
+  "customizerEquipment": {
+    "passed": 3,
+    "failed": 1,
+    "testExit": 1,
+    "ownedServerPid": 62044,
+    "readyStatus": 204,
+    "port": 3641,
+    "portFree": true,
+    "failure": "Committed original undo/armor case ambiguous generic spinbutton at line70; auxiliary namedselector diagnostic separately admitted but not run"
+  },
+  "limits": [
+    "Original committed browser suite remains 3/4, not passed",
+    "Archive moves not yet accepted",
+    "Blocked77d9publication untouched"
+  ],
+  "sourceFingerprintsVerified": [
+    {
+      "path": "package.json",
+      "sha256": "eeebcb46214017104ed9cad6feab8f4a7e941816552585fb8230731d6931ad17"
+    },
+    {
+      "path": "playwright.config.ts",
+      "sha256": "762eab86f455ce7029fd48bb0b54d728d6bb819d919d8ef7f927a7ee3044329f"
+    },
+    {
+      "path": "scripts/playwright/run-playwright.mjs",
+      "sha256": "b25d7ea88d9e01dee09d29b25cc9a9d51bc56e739eab9d97e22960a4f50cc311"
+    },
+    {
+      "path": "server.js",
+      "sha256": "e4f973d2cfa7f4c25775e4ce9315b7398655a6a17cfc799793545de84a59ecf6"
+    },
+    {
+      "path": "openspec/changes/add-customizer-edit-recovery/tasks.md",
+      "sha256": "e5cdccf04354576f4e87b26c49a8718a7d0077601ac78e6ec77cbbac36345814"
+    },
+    {
+      "path": "openspec/changes/establish-battlemech-chassis-index/tasks.md",
+      "sha256": "c8a9311e7f83ceb012b52dd3190c8491f191e22e70f742d751136d09d6e4fc05"
+    },
+    {
+      "path": "openspec/changes/repair-equipment-catalog/tasks.md",
+      "sha256": "8eb02dc97e9be437f695887e363f6f4ff39697c20c6c9c5e831e893576f1a987"
+    },
+    {
+      "path": "openspec/specs/customizer-edit-recovery/spec.md",
+      "sha256": "4fae1069a8687858ecdcb48589e8b87c50a1ad9d23d87970cf3b6d29b7de8051"
+    },
+    {
+      "path": "openspec/specs/battlemech-chassis-index/spec.md",
+      "sha256": "37a63513bfa6124d062c51845ebb12d2853c7768cb2bd8f15c1d528ae8f108a3"
+    },
+    {
+      "path": "openspec/specs/equipment-browser/spec.md",
+      "sha256": "c94ed1594e0a066128693929c0ec28317da2f863530428802df9cf33c08a0151"
+    },
+    {
+      "path": "e2e/customizer-edit-recovery.spec.ts",
+      "sha256": "f04641daff42dea7ff459c56d7a3efbb87463ade8c62d11a0f931e37a364b4e0"
+    },
+    {
+      "path": "e2e/customizer-equipment-catalog.spec.ts",
+      "sha256": "379c1884d33696c76e0ec6c415cd3e7b30affbbb23f876cd4742b5ae88674087"
+    },
+    {
+      "path": "e2e/compendium.spec.ts",
+      "sha256": "12e6a407a355609b4c49ed5efc11fd13da09a3c6bd0a255bb60654a87a84207d"
+    },
+    {
+      "path": "src/stores/unit/__tests__/unitEditHistory.test.ts",
+      "sha256": "eced8d477fa0f211343815be1d9813f4770d67e558ca410152d87bbde05ea8b4"
+    },
+    {
+      "path": "src/components/customizer/tabs/__tests__/useSavedHistoryDialog.test.tsx",
+      "sha256": "d1c28c81645be959c98deb0aa2833c25ca8ab825822224fb539824fca73ac37a"
+    },
+    {
+      "path": "src/components/customizer/tabs/__tests__/customizerRecoveryBoundaries.test.tsx",
+      "sha256": "4cfd0b2189658cdb062f0c4e798b01f6d4c496ca4a51e9a95079022bc6411c1f"
+    },
+    {
+      "path": "src/components/customizer/tabs/__tests__/restoreLibraryVersionToDraft.test.ts",
+      "sha256": "92de94ffcece8afd521320345652cfeb8f82b3917405986bfb1356ec27619987"
+    },
+    {
+      "path": "src/services/units/chassis/__tests__/chassisIndex.test.ts",
+      "sha256": "fc54c61581450a5460e8631d41d59b76039a069abb1271a3643d740df1ca1692"
+    },
+    {
+      "path": "src/__tests__/api/chassis.test.ts",
+      "sha256": "b1549680b856fd71b9e0dfcbf76762b6fb83bd5a3fa99b7dd9ed2a1d8f9affca"
+    },
+    {
+      "path": "docs/audits/2026-09-10-chassis-index/verify-browser.mjs",
+      "sha256": "b9e351e16a72ea7416db98260efea5d9c2269cdcd0439570b745685d927de2ae"
+    },
+    {
+      "path": "src/__tests__/stores/equipmentCatalogFilters.test.ts",
+      "sha256": "d600d32d4c63bf96376edf0c2a615005036add86f884c3894667f89c163127b8"
+    },
+    {
+      "path": "src/hooks/__tests__/useEquipmentBrowser.catalog.test.tsx",
+      "sha256": "64ad7408593f37f7849c24e5808d2b1872ac64559c4162b26e5b823581a265e5"
+    },
+    {
+      "path": "src/stores/unit/__tests__/catalogEquipmentPlacement.test.ts",
+      "sha256": "90549d1a88e5914366174a69625fb6f894807ca85a9095408e95d0ab7136e03d"
+    },
+    {
+      "path": "src/components/customizer/equipment/__tests__/CatalogPlacementDialog.test.tsx",
+      "sha256": "fecf1bddf4ae032d0693e48c4cd04922ec12154d3fef8cc1206774ed342b7e14"
+    },
+    {
+      "path": "src/components/customizer/equipment/__tests__/EquipmentCatalogCard.test.tsx",
+      "sha256": "ff587397aab649ae9c6efc325fcd859ddce8b91bd116315a76bca0dd8a8b8df5"
+    }
+  ]
+}

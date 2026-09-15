@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 1,
+  "receiptId": "customizer-layout-independent-review-20260913",
+  "capturedAt": "2026-09-13T00:37:04.5306727Z",
+  "reviewType": "independent-source-to-spec-static-review",
+  "scope": "Four-spec customizer documentation patch only: responsive-layout, tabs, overview-basic-info, armor-diagram-variants.",
+  "candidate": {
+    "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/customizer-layout-specs/worktree",
+    "branch": "codex/roadmap-customizer-layout-specs-20260912",
+    "headGitOid": "e29d71677ea3f090d2ea0c3e1ee7cadd5db030c0",
+    "baseGitOid": "e29d71677ea3f090d2ea0c3e1ee7cadd5db030c0",
+    "finalDiff": {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/customizer-layout-specs/final.diff",
+      "sha256": "e42e271cb22a5222c9de00fbde129e0f54cbd3a9a64c931ce8e574f990ebbf06",
+      "bytes": 20902,
+      "baseToAfterNumstat": { "added": 134, "deleted": 113, "changedLines": 247 }
+    }
+  },
+  "artifacts": {
+    "reviewReport": {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/customizer-layout-independent-review/report.json",
+      "sha256": "9e7bf661d094047ac5cdf36be321b9791bb670bb998bbf9193269532a816f443",
+      "bytes": 13320
+    },
+    "identityManifest": {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/customizer-layout-independent-review/identity-manifest.json",
+      "sha256": "d39ca773955c672b3e1cee5e6f22445ee285d3140c4d9b28b861e9e034f11445",
+      "bytes": 10738
+    }
+  },
+  "validation": {
+    "openspecStrictValidation": "four commands exit 0",
+    "scopedDiffCheck": "exit 0",
+    "identity": "source blob SHA-1s are full 40 and equal fresh commit/worktree blobs; candidate head/base corrected from 39-character report prefixes to full 40-character Git OID",
+    "diffComparison": "final.diff equals fresh generated diff after CRLF normalization"
+  },
+  "status": "reviewed-with-findings",
+  "openFindingIds": ["CLR-001", "CLR-003", "CLR-004", "CLR-005"],
+  "coverageLimitIds": ["CLR-COV-001", "CLR-COV-002", "CLR-COV-003"],
+  "parentAction": "Parent final validator must decide the four P2 source/spec wording and scope findings before admission; no implementation or source edits were made by this review."
+}

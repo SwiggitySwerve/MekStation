@@ -1,0 +1,150 @@
+{
+  "at": "2026-09-13T05:47:17.617Z",
+  "base": "5b229be21e87815f10ce6521dda77b52eef75e3c",
+  "exactBaseLedgerSha256": "d9faceb665f174d9c5e4a3eae09d1f580f602e7591f70d4432fb327fdc452e5e",
+  "rows": [
+    {
+      "name": "add-customizer-edit-recovery",
+      "files": [
+        {
+          "source": "openspec/changes/add-customizer-edit-recovery/.openspec.yaml",
+          "archive": "openspec/changes/archive/2026-09-12-add-customizer-edit-recovery/.openspec.yaml",
+          "sourceSha256": "2a52e9c6669beaf79129adb7d7843db88cd99fe4e3a1ece75baa3dfc41ded489",
+          "rootArchiveSha256": "2a52e9c6669beaf79129adb7d7843db88cd99fe4e3a1ece75baa3dfc41ded489",
+          "rawEqual": true,
+          "normalizedEqual": true
+        },
+        {
+          "source": "openspec/changes/add-customizer-edit-recovery/design.md",
+          "archive": "openspec/changes/archive/2026-09-12-add-customizer-edit-recovery/design.md",
+          "sourceSha256": "48c494f813e6f5265225408dd764b58b430b3e8a1050fb0ba56fe4465c361e71",
+          "rootArchiveSha256": "3d82768540ea8753849e7a88de28c8276dfbd70da8788341e19a043bfed862b8",
+          "rawEqual": false,
+          "normalizedEqual": true
+        },
+        {
+          "source": "openspec/changes/add-customizer-edit-recovery/proposal.md",
+          "archive": "openspec/changes/archive/2026-09-12-add-customizer-edit-recovery/proposal.md",
+          "sourceSha256": "fbddfadb20a2222d25b68378c608c71cc79215e1c6e361d7522b91b913eb5a6d",
+          "rootArchiveSha256": "7a770494461348b47f6c15914b64976fd3683eaae97c23d5eb7a20c0db48c2a6",
+          "rawEqual": false,
+          "normalizedEqual": true
+        },
+        {
+          "source": "openspec/changes/add-customizer-edit-recovery/specs/customizer-edit-recovery/spec.md",
+          "archive": "openspec/changes/archive/2026-09-12-add-customizer-edit-recovery/specs/customizer-edit-recovery/spec.md",
+          "sourceSha256": "b5afc7c36636e525b14ad1dcffb23cc7f133a4463cb8a1d4eda2d1528ffae6cd",
+          "rootArchiveSha256": "9bae78ece95fb0345c9146423c41018d858fc0fa8ee376d03350b736547d5482",
+          "rawEqual": false,
+          "normalizedEqual": true
+        },
+        {
+          "source": "openspec/changes/add-customizer-edit-recovery/tasks.md",
+          "archive": "openspec/changes/archive/2026-09-12-add-customizer-edit-recovery/tasks.md",
+          "sourceSha256": "e5cdccf04354576f4e87b26c49a8718a7d0077601ac78e6ec77cbbac36345814",
+          "rootArchiveSha256": "e5cdccf04354576f4e87b26c49a8718a7d0077601ac78e6ec77cbbac36345814",
+          "rawEqual": true,
+          "normalizedEqual": true
+        }
+      ],
+      "exactBaseLedgerContainsId": true,
+      "requiredLedgerAction": "Remove only this change entry in its own archive prefix; preserve all other entries"
+    },
+    {
+      "name": "establish-battlemech-chassis-index",
+      "files": [
+        {
+          "source": "openspec/changes/establish-battlemech-chassis-index/.openspec.yaml",
+          "archive": "openspec/changes/archive/2026-09-12-establish-battlemech-chassis-index/.openspec.yaml",
+          "sourceSha256": "2a52e9c6669beaf79129adb7d7843db88cd99fe4e3a1ece75baa3dfc41ded489",
+          "rootArchiveSha256": "2a52e9c6669beaf79129adb7d7843db88cd99fe4e3a1ece75baa3dfc41ded489",
+          "rawEqual": true,
+          "normalizedEqual": true
+        },
+        {
+          "source": "openspec/changes/establish-battlemech-chassis-index/design.md",
+          "archive": "openspec/changes/archive/2026-09-12-establish-battlemech-chassis-index/design.md",
+          "sourceSha256": "fa2ea4cb1971b047411da6161cf1b824c55ddc7c6a64b40bcd383c1cf9a83132",
+          "rootArchiveSha256": "fa2ea4cb1971b047411da6161cf1b824c55ddc7c6a64b40bcd383c1cf9a83132",
+          "rawEqual": true,
+          "normalizedEqual": true
+        },
+        {
+          "source": "openspec/changes/establish-battlemech-chassis-index/proposal.md",
+          "archive": "openspec/changes/archive/2026-09-12-establish-battlemech-chassis-index/proposal.md",
+          "sourceSha256": "426dbb908e21d86d01ca6056a3e22176093650115bdb7ea603ea94cf35b45320",
+          "rootArchiveSha256": "426dbb908e21d86d01ca6056a3e22176093650115bdb7ea603ea94cf35b45320",
+          "rawEqual": true,
+          "normalizedEqual": true
+        },
+        {
+          "source": "openspec/changes/establish-battlemech-chassis-index/specs/battlemech-chassis-index/spec.md",
+          "archive": "openspec/changes/archive/2026-09-12-establish-battlemech-chassis-index/specs/battlemech-chassis-index/spec.md",
+          "sourceSha256": "7d8f8d8e184156be1a3a7e8b8b679aa7d41f322ac76e82469896e68097abd8b4",
+          "rootArchiveSha256": "7d8f8d8e184156be1a3a7e8b8b679aa7d41f322ac76e82469896e68097abd8b4",
+          "rawEqual": true,
+          "normalizedEqual": true
+        },
+        {
+          "source": "openspec/changes/establish-battlemech-chassis-index/tasks.md",
+          "archive": "openspec/changes/archive/2026-09-12-establish-battlemech-chassis-index/tasks.md",
+          "sourceSha256": "c8a9311e7f83ceb012b52dd3190c8491f191e22e70f742d751136d09d6e4fc05",
+          "rootArchiveSha256": "c8a9311e7f83ceb012b52dd3190c8491f191e22e70f742d751136d09d6e4fc05",
+          "rawEqual": true,
+          "normalizedEqual": true
+        }
+      ],
+      "exactBaseLedgerContainsId": true,
+      "requiredLedgerAction": "Remove only this change entry in its own archive prefix; preserve all other entries"
+    },
+    {
+      "name": "repair-equipment-catalog",
+      "files": [
+        {
+          "source": "openspec/changes/repair-equipment-catalog/.openspec.yaml",
+          "archive": "openspec/changes/archive/2026-09-12-repair-equipment-catalog/.openspec.yaml",
+          "sourceSha256": "2a52e9c6669beaf79129adb7d7843db88cd99fe4e3a1ece75baa3dfc41ded489",
+          "rootArchiveSha256": "2a52e9c6669beaf79129adb7d7843db88cd99fe4e3a1ece75baa3dfc41ded489",
+          "rawEqual": true,
+          "normalizedEqual": true
+        },
+        {
+          "source": "openspec/changes/repair-equipment-catalog/design.md",
+          "archive": "openspec/changes/archive/2026-09-12-repair-equipment-catalog/design.md",
+          "sourceSha256": "5f4de195fed5bd23538dac89b5984195155b621b8a1adf9014634d33d18bda5d",
+          "rootArchiveSha256": "5f4de195fed5bd23538dac89b5984195155b621b8a1adf9014634d33d18bda5d",
+          "rawEqual": true,
+          "normalizedEqual": true
+        },
+        {
+          "source": "openspec/changes/repair-equipment-catalog/proposal.md",
+          "archive": "openspec/changes/archive/2026-09-12-repair-equipment-catalog/proposal.md",
+          "sourceSha256": "297970b80417cfc50d5172982f0e0763082079c58537e9648521e5d43a7addd2",
+          "rootArchiveSha256": "297970b80417cfc50d5172982f0e0763082079c58537e9648521e5d43a7addd2",
+          "rawEqual": true,
+          "normalizedEqual": true
+        },
+        {
+          "source": "openspec/changes/repair-equipment-catalog/specs/equipment-browser/spec.md",
+          "archive": "openspec/changes/archive/2026-09-12-repair-equipment-catalog/specs/equipment-browser/spec.md",
+          "sourceSha256": "b1f07228f4b3a282a25caa9f1085fa928c5fb4d3fab5af142f388fd46579b6f3",
+          "rootArchiveSha256": "b1f07228f4b3a282a25caa9f1085fa928c5fb4d3fab5af142f388fd46579b6f3",
+          "rawEqual": true,
+          "normalizedEqual": true
+        },
+        {
+          "source": "openspec/changes/repair-equipment-catalog/tasks.md",
+          "archive": "openspec/changes/archive/2026-09-12-repair-equipment-catalog/tasks.md",
+          "sourceSha256": "8eb02dc97e9be437f695887e363f6f4ff39697c20c6c9c5e831e893576f1a987",
+          "rootArchiveSha256": "8eb02dc97e9be437f695887e363f6f4ff39697c20c6c9c5e831e893576f1a987",
+          "rawEqual": true,
+          "normalizedEqual": true
+        }
+      ],
+      "exactBaseLedgerContainsId": true,
+      "requiredLedgerAction": "Remove only this change entry in its own archive prefix; preserve all other entries"
+    }
+  ],
+  "scope": "Parent confirms archive input equivalence, not runtime or archive completion",
+  "correction": "Earlier no-op ledger observation applies dirtyroot only. All three IDs exist on exact5b229 main."
+}

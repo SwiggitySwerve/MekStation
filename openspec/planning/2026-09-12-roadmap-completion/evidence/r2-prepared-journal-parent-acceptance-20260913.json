@@ -1,0 +1,282 @@
+{
+  "at": "2026-09-13T04:59:45.003Z",
+  "status": "accepted-specification-contract",
+  "base": "186ecf4063187eacf23bbc1a4ad8b0e75579b1f9",
+  "wt": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/r2-prepared-journal-specs",
+  "changedLines": 128,
+  "docs": [
+    {
+      "path": "openspec/changes/design-campaign-authority-and-sync/design.md",
+      "sha256": "36465d864640a7e2a453218687a465f075b52629c44cc1f3dfe06e263ace5fd5"
+    },
+    {
+      "path": "openspec/changes/design-campaign-authority-and-sync/proposal.md",
+      "sha256": "4dea616fbf4f28ee9867afe425756e25d2ff95d2628431c5a7dad80abe6da28a"
+    },
+    {
+      "path": "openspec/changes/design-campaign-authority-and-sync/tasks.md",
+      "sha256": "b21354d8eabe42cf0cd9da41a366a4e0f21101e33109bbbf3453e89c1c732665"
+    },
+    {
+      "path": "openspec/changes/design-campaign-authority-and-sync/specs/campaign-authority/spec.md",
+      "sha256": "a8a5fbb882fd51a222c191e7d6c9127ea79bf1e9f5d2f3d6435563c67014d0b0"
+    }
+  ],
+  "files": [
+    {
+      "path": "openspec/changes/design-campaign-authority-and-sync/design.md",
+      "sha256": "36465d864640a7e2a453218687a465f075b52629c44cc1f3dfe06e263ace5fd5",
+      "gitOid": "6583d6eaf3e319afe952cc01fb6e62099f247b06"
+    },
+    {
+      "path": "openspec/changes/design-campaign-authority-and-sync/proposal.md",
+      "sha256": "4dea616fbf4f28ee9867afe425756e25d2ff95d2628431c5a7dad80abe6da28a",
+      "gitOid": "25eaa752330c6a46bdd6fbfb46850624e3c2bc47"
+    },
+    {
+      "path": "openspec/changes/design-campaign-authority-and-sync/tasks.md",
+      "sha256": "b21354d8eabe42cf0cd9da41a366a4e0f21101e33109bbbf3453e89c1c732665",
+      "gitOid": "9038899f3f7fd63436e46d357dd43d63a3e6ba2b"
+    },
+    {
+      "path": "openspec/changes/design-campaign-authority-and-sync/specs/campaign-authority/spec.md",
+      "sha256": "a8a5fbb882fd51a222c191e7d6c9127ea79bf1e9f5d2f3d6435563c67014d0b0",
+      "gitOid": "5b7b358cc7fdf1a9c24ec050adc1cc82727b1aa5"
+    },
+    {
+      "path": "src/stores/campaign/campaignCommandActions.ts",
+      "sha256": "e8d454d312299ea366e818699243c5eac37f2dbc962e5866cacb185c3c3641d3",
+      "gitOid": "9526d7bacda906543a743676bdf57de34945cba7"
+    },
+    {
+      "path": "src/pages/gameplay/campaigns/[id]/contract-market.tsx",
+      "sha256": "e0df625f1063f017fd4d9c8b726751b813072153cbbc9928923a3d11f084d0c5",
+      "gitOid": "04a73bdc96e0022131284fa42361bf5bc803ab43"
+    },
+    {
+      "path": "src/pages/api/campaigns/[id]/commands.ts",
+      "sha256": "6e6dd0bf1f06e8e2fb165887e7d8e5e059b95cf85014ae748416f328b5d3e59a",
+      "gitOid": "c8675532bddb69168e508324c2843fab89df4970"
+    },
+    {
+      "path": "src/lib/campaign/authority/campaignCommandPipeline.ts",
+      "sha256": "309e129c8eea1bd8fdbab79242cbc6de07c2ed8565241021a3b391879e174ea7",
+      "gitOid": "c2bd85d68f7e9c12c91929187bf2cde3f446edc6"
+    },
+    {
+      "path": "src/lib/campaign/sync/JournalCampaignEventStore.ts",
+      "sha256": "0b352cd89fe64ee7d8c817fdae5855cce5e1198d097eb3bea772d71f0686ebf0",
+      "gitOid": "58bfac1178ac11e6a513b02d579b04d22b1acd62"
+    },
+    {
+      "path": "src/lib/campaign/sync/campaignJournalReads.ts",
+      "sha256": "da1a58974d9aa5f99f73c0d2631e9ea7d96dd33170db99dff75c3e0b19d7d83f",
+      "gitOid": "64b76078cb3226ae402b2df94f5ea83fa891724e"
+    },
+    {
+      "path": "src/lib/campaign/sync/campaignEventScope.ts",
+      "sha256": "d7b122b0faf70e8867d800684c085dd600f1c6f91a167af785d332149855cd13",
+      "gitOid": "88d6b1e861f73667b391b1c99b62a07a99370fab"
+    },
+    {
+      "path": "src/lib/campaign/coop/roomCodeGuestHydration.ts",
+      "sha256": "fbabeb104bacc4f2428a71cfd3b7d1dd015eb09a3decdf1b97f27cb149e03a77",
+      "gitOid": "19359be05b8036e395555bd6467ff70fdd616ee9"
+    },
+    {
+      "path": "src/lib/campaign/delivery/projectCampaignStreamForGrant.ts",
+      "sha256": "74f1bd9d726dbc4d5ee89892d499b96493d4f995ee5f0946d7de7845f51a6aac",
+      "gitOid": "4fc8e7b745e9da10df6fa3aada9a9b13b54c1806"
+    },
+    {
+      "path": "src/lib/events/journal/EventJournalCanonicalizer.ts",
+      "sha256": "a0159e724b31bd9274ec26f395b3b23cc11fd96d0ef81fe6ec4de363ab8e1fa0",
+      "gitOid": "5acedcca9af0ad14fd9cc1b80a0d48fea5f6c8b6"
+    },
+    {
+      "path": "src/lib/events/journal/SQLiteEventJournalWriter.ts",
+      "sha256": "4ebf449448ef2ea7636d1a4dbfbfb5de2d868fa5591585f2dfe8f004bd0dece9",
+      "gitOid": "e9d053ae5d8f0ea264516ab9d37eb9462fb392d0"
+    },
+    {
+      "path": "src/lib/campaign/authority/campaignSourceGenesis.ts",
+      "sha256": "242d561f032206f6e2e9a390573decd903b2ce58b34d5d7dae2fc8172f7f86f8",
+      "gitOid": "7cfabf440b5d56599363a942d0989ad9042a06c9"
+    },
+    {
+      "path": "src/lib/campaign/authority/campaignAuthorityMigration.ts",
+      "sha256": "6f8548f8d51ea137359121e490c2b91217e1415ff7679b29ad206c587a049bf5",
+      "gitOid": "2e7cdb3d89266d1b9aaf751cd0f378ac8d3a3a26"
+    },
+    {
+      "path": "src/services/campaignPersistence/CampaignPersistenceService.ts",
+      "sha256": "8af424a1bafbaca814e27bd9aeb8cd9e9c4511465b5d1522c023cbc7fb5a1f30",
+      "gitOid": "e4bd624e3890b558632a70a0b059454f4eadd044"
+    },
+    {
+      "path": "src/types/campaign/CampaignSync.ts",
+      "sha256": "9cb0a6191c5812a7be3b3c2e36d70a5a5c8fbe2a5970b0fef87f5eb1ab193559",
+      "gitOid": "d9540526b96e9043557f7306b162a8fcc66174e1"
+    },
+    {
+      "path": "src/types/campaign/SerializedCampaign.ts",
+      "sha256": "ec7a1d39d7f2372582ed29d4539e36fb4ba560fc79a3917aa3afe1852835ec05",
+      "gitOid": "bdd873020ba2440ad1ce4113b12e9f8034d2129b"
+    },
+    {
+      "path": "src/lib/campaign/contracts/contractMarketConstants.ts",
+      "sha256": "6ec0801e059390be8c477be2dc2ed47fd6486b723c9f336fb052c5051e69859c",
+      "gitOid": "6cd5c54735e2759fe0572e5cf9341bf87e710d30"
+    },
+    {
+      "path": "src/lib/campaign/contracts/contractPayment.ts",
+      "sha256": "9892748c692bd64dd8950a049cc5f5b5495c12fb40e223a2627831e3ca7bef98",
+      "gitOid": "c80b4b1227a255e09779bb3f152f9198058d6987"
+    },
+    {
+      "path": "src/lib/campaign/contractMarket.ts",
+      "sha256": "cbd10abe80c3f65c49d52c68777f3d3414c3198ca79d1c0e9fb9ec02e3af53aa",
+      "gitOid": "af24b76651aa0970f7e059276f473c0b320d1136"
+    },
+    {
+      "path": "src/services/persistence/SQLiteService.ts",
+      "sha256": "13b09094392ac13633812d0c542cd81f2bf377cb7bba99e944d98d6d35adca67",
+      "gitOid": "f50cf6e8864a20b073e57150989f72ab2272099c"
+    },
+    {
+      "path": "src/lib/events/journal/SQLiteEventJournal.ts",
+      "sha256": "9e580666d821f107de9bf8604d91ca65eabe9c609a80e430e27fc7503274927f",
+      "gitOid": "4152f90ede7e28a58c02c4ae90d9c94bcc1a7ca1"
+    },
+    {
+      "path": "src/lib/events/journal/EventJournalContract.ts",
+      "sha256": "6e3d6e5f55094bb228ce3495b58e524b08f3eedc94a809fb331be858351dc63c",
+      "gitOid": "1a9fb6b484239e37ab3246f1b704c40b8de8f3f6"
+    }
+  ],
+  "commands": [
+    {
+      "name": "openspec-all-strict",
+      "exe": "C:/nvm4w/nodejs/node.exe",
+      "args": [
+        "C:/Users/wroll/AppData/Roaming/npm/node_modules/@fission-ai/openspec/bin/openspec.js",
+        "validate",
+        "--all",
+        "--strict",
+        "--no-interactive"
+      ],
+      "startedAt": "2026-09-13T04:57:20.187Z",
+      "endedAt": "2026-09-13T04:57:22.749Z",
+      "exit": 0,
+      "signal": null,
+      "stdout": {
+        "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/r2-prepared-journal-parent-gates-main-sync-20260913/openspec-all-strict.stdout.log",
+        "sha256": "2754dbee9c7f3c73dafb72bec4284c7de4a886d9f795955954f8d77c5768a12d"
+      },
+      "stderr": {
+        "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/r2-prepared-journal-parent-gates-main-sync-20260913/openspec-all-strict.stderr.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "spec:purpose:validate:strict",
+      "exe": "C:/nvm4w/nodejs/node.exe",
+      "args": [
+        "C:/nvm4w/nodejs/node_modules/npm/bin/npm-cli.js",
+        "run",
+        "spec:purpose:validate:strict"
+      ],
+      "startedAt": "2026-09-13T04:57:22.755Z",
+      "endedAt": "2026-09-13T04:57:24.974Z",
+      "exit": 0,
+      "signal": null,
+      "stdout": {
+        "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/r2-prepared-journal-parent-gates-main-sync-20260913/spec-purpose-validate-strict.stdout.log",
+        "sha256": "fd7a8276e7684c94ed0df747ec5665c137f47610c144ec15061ecef533d307cc"
+      },
+      "stderr": {
+        "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/r2-prepared-journal-parent-gates-main-sync-20260913/spec-purpose-validate-strict.stderr.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "terminology:validate:strict",
+      "exe": "C:/nvm4w/nodejs/node.exe",
+      "args": [
+        "C:/nvm4w/nodejs/node_modules/npm/bin/npm-cli.js",
+        "run",
+        "terminology:validate:strict"
+      ],
+      "startedAt": "2026-09-13T04:57:24.980Z",
+      "endedAt": "2026-09-13T04:57:39.217Z",
+      "exit": 0,
+      "signal": null,
+      "stdout": {
+        "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/r2-prepared-journal-parent-gates-main-sync-20260913/terminology-validate-strict.stdout.log",
+        "sha256": "d15011da7521e031b3bea845889b040bc9e0f3dee6f2e974e2fd7ba0697781a0"
+      },
+      "stderr": {
+        "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/r2-prepared-journal-parent-gates-main-sync-20260913/terminology-validate-strict.stderr.log",
+        "sha256": "f5f9ca241c5644c5bf075a193c6a9328bea141cd6193fee3af92eab043585907"
+      }
+    },
+    {
+      "name": "qc:openspec-ci:validate",
+      "exe": "C:/nvm4w/nodejs/node.exe",
+      "args": [
+        "C:/nvm4w/nodejs/node_modules/npm/bin/npm-cli.js",
+        "run",
+        "qc:openspec-ci:validate"
+      ],
+      "startedAt": "2026-09-13T04:57:39.230Z",
+      "endedAt": "2026-09-13T04:57:39.691Z",
+      "exit": 0,
+      "signal": null,
+      "stdout": {
+        "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/r2-prepared-journal-parent-gates-main-sync-20260913/qc-openspec-ci-validate.stdout.log",
+        "sha256": "f01feb11318234aab4764fe76151b78c06905527212a8f8723626fcf616b71d6"
+      },
+      "stderr": {
+        "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/r2-prepared-journal-parent-gates-main-sync-20260913/qc-openspec-ci-validate.stderr.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "diff-check",
+      "exe": "git",
+      "args": [
+        "diff",
+        "--check",
+        "--",
+        "openspec/changes/design-campaign-authority-and-sync/design.md",
+        "openspec/changes/design-campaign-authority-and-sync/proposal.md",
+        "openspec/changes/design-campaign-authority-and-sync/tasks.md",
+        "openspec/changes/design-campaign-authority-and-sync/specs/campaign-authority/spec.md"
+      ],
+      "startedAt": "2026-09-13T04:57:39.699Z",
+      "endedAt": "2026-09-13T04:57:39.768Z",
+      "exit": 0,
+      "signal": null,
+      "stdout": {
+        "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/r2-prepared-journal-parent-gates-main-sync-20260913/diff-check.stdout.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stderr": {
+        "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/r2-prepared-journal-parent-gates-main-sync-20260913/diff-check.stderr.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    }
+  ],
+  "review": {
+    "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/r2-prepared-journal-final-review-terra-20260913/superseding-final-acceptance.json",
+    "sha256": "9c9b513fb7e13e7378b0fb422da9c7bd9516e0662f176df31d2aa1d05c4a315a",
+    "disposition": "PASS"
+  },
+  "parentReview": "Read complete four-document delta and concrete writer ordering/conflict paths; checked final synchronous-result and rollback propagation contract against source. All26candidate file hashes unchanged across fast-forward.",
+  "qualifications": [
+    "Terra structured review is valid; malformed Markdown companion containing unexpanded variables is preserved and not used as evidence.",
+    "No product implementation or production cutover is admitted by specification delivery. P0a implementation needs separate bounded admission; P0b and P1 remain subsequent gates.",
+    "26 existing package checkbox tokens unchanged; no new original task occurrences. CAMP review/witness gates and PR1–PR3 exemption remain.",
+    "OpenSpec paths are formatter-excluded; five separate documentation gates are actual proof."
+  ]
+}

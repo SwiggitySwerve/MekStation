@@ -1,0 +1,41 @@
+{
+  "capturedAt": "2026-09-13T01:19:57.860Z",
+  "status": "verified-inference-available",
+  "route": "cursor-grok-4.6-high",
+  "effectiveModel": "Cursor Grok 4.6 High",
+  "effort": "high",
+  "startedAt": "2026-09-13T01:15:40.660Z",
+  "endedAt": "2026-09-13T01:16:29.147Z",
+  "exit": 0,
+  "result": "ROUTE_READY",
+  "sessionId": "ec7f9b3a-f3b5-4d5f-9f7d-e2d69d487d14",
+  "usage": {
+    "inputTokens": 28285,
+    "outputTokens": 40,
+    "cacheReadTokens": 4736,
+    "cacheWriteTokens": 0
+  },
+  "artifacts": [
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/cursor-grok-route-20260913/discovery.json",
+      "sha256": "52d5aece0a40bf3e9bc84f97e8313cfd2f5d8c48e90e6aa5ae90caa5ca77a03b"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/cursor-grok-route-20260913/probe-start.json",
+      "sha256": "fc8ce516819045b10b00898d24077104259f53f664fd2f3d878896be9d160411"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/cursor-grok-route-20260913/probe-exit.json",
+      "sha256": "a5ee627dc37219564fe5648d11a4d9c9333f8777a2568d578366277e86c977d6"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/cursor-grok-route-20260913/probe.stdout.jsonl",
+      "sha256": "a87afc5ddc0b7b403ec27904a618ae1c363063fef4e76952c512a3b06a635f30"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/cursor-grok-route-20260913/probe.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "qualification": "Outer shell poll timed out; driver terminal receipt independently read exit0. Direct Grok CLI quota failure remains unchanged. No global config/login/install or model-generated tool action in probe."
+}

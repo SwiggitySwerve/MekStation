@@ -1,0 +1,39 @@
+{
+  "at": "2026-09-13T07:33:25.885Z",
+  "baseline": "44b94adbbb333a9d4965e057b34290e19fc0e781",
+  "ownedCheckout": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/archive-chassis",
+  "independentReviewer": "/root/chassis_archive_review_terra",
+  "model": "gpt-5.6-terra",
+  "effort": "high",
+  "state": "local-verified",
+  "parentAcceptance": "Five exact blob-preserving archive moves, only six-line active ledger removal, empty source dirs removed nonrecursively. Independent review approved correction. Required strict terminology gate passes; separate legacy terminology check reports seven violations and remains qualified.",
+  "evidence": [
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/chassis-separate-review-20260913/report-after-empty-directory-removal.json",
+      "sha256": "4bd807115e8bf08e4ce0daadd5ea1c94fff47b90ee54ee509bbec090257e4d17"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/chassis-separate-review-20260913/report.json",
+      "sha256": "a17416d266ada0e372b014acc96aa9fbdaa767916ccdcff4ea384b04131df802"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/chassis-parent-gates-20260913/affected-gates.json",
+      "sha256": "e31ee4bde64500298843363b3489d8e33b19e45309074f17ca744f2ba0bcbad0"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/chassis-parent-gates-20260913/empty-directory-correction.json",
+      "sha256": "232c5e71ba5d133ed89518a225af1373b584a9ff88f0cebef6c42ff29407ff43"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/chassis-parent-gates-20260913/preflight.json",
+      "sha256": "a5243d91c5100a35412cb5e9a559a9d5f97e45e44bb052d4e3c3ee627ba70f2e"
+    }
+  ],
+  "pending": [
+    "normal commit",
+    "PR and protected checks",
+    "guarded merge",
+    "exact-main archive checks",
+    "root reconciliation and owned cleanup"
+  ]
+}

@@ -1,0 +1,98 @@
+{
+  "capturedAt": "2026-09-13T00:36:33.5323878Z",
+  "status": "passed-tooling-regression-only",
+  "qualification": "Frozen CAMP-01 authority-receipt tooling regression proof only. This does not constitute actual CAMP approval, three-witness acceptance, runtime acceptance, controller/browser/server/build acceptance, remote CI acceptance, or source/spec approval.",
+  "acceptedCheckout": {
+    "path": ".sisyphus/roadmap-completion-20260912/worktrees/camp-receipt-verification",
+    "branch": "codex/roadmap-camp-receipt-verification-20260912",
+    "head": "92d04fc6bcc2e49fd40d63d6f0cfd2a9c72eb14c",
+    "gitStatusShortBranch": "## codex/roadmap-camp-receipt-verification-20260912",
+    "cachedDiffExit": 0,
+    "sourceChanges": false
+  },
+  "runtime": {
+    "node": "v22.22.0",
+    "rootRuntimePath": "E:/Projects/MekStation/node_modules",
+    "worktreeRuntimePath": ".sisyphus/roadmap-completion-20260912/worktrees/camp-receipt-verification/node_modules",
+    "worktreeRuntimeLinkType": "Junction",
+    "worktreeRuntimeTarget": "E:/Projects/MekStation/node_modules",
+    "initialWorktreeNodeModulesPresent": false,
+    "installPerformed": false
+  },
+  "command": {
+    "actualCommand": ["npm.cmd", "run", "qc:camp01-authority-receipt:test"],
+    "workingDirectory": ".sisyphus/roadmap-completion-20260912/worktrees/camp-receipt-verification",
+    "packageScript": "jest --watchAll=false --runTestsByPath scripts/__tests__/camp01-anchor-authority.test.ts scripts/__tests__/camp01-authority-receipt-qc.test.ts scripts/__tests__/camp01-authority-receipt-validator.test.ts scripts/__tests__/camp01-authority-receipt-writer.test.ts scripts/__tests__/camp01-camp00-listener-adapter.test.ts scripts/__tests__/camp01-capture-reopen-adversarial.test.ts scripts/__tests__/camp01-capture-transaction.test.ts scripts/__tests__/camp01-cleanup-authority.test.ts scripts/__tests__/camp01-durable-export.test.ts scripts/__tests__/camp01-durable-facts.test.ts scripts/__tests__/camp01-durable-facts-refs.test.ts scripts/__tests__/camp01-g-report-normalizer.test.ts scripts/__tests__/camp01-repair-registry.test.ts scripts/__tests__/camp01-github-provenance.test.ts scripts/__tests__/camp01-git-trust.test.ts scripts/__tests__/camp01-h-composition.test.ts scripts/__tests__/camp01-h-report-normalizer.test.ts scripts/__tests__/camp01-playwright-normalizer.test.ts scripts/__tests__/camp01-proof-environment.test.ts scripts/__tests__/camp01-repository-lifecycle-adversarial.test.ts scripts/__tests__/camp01-runner-isolation.test.ts scripts/__tests__/camp01-target-authority.test.ts scripts/__tests__/run-camp01-authority-receipt.test.ts scripts/__tests__/run-viewport-sweep.test.ts scripts/__tests__/ux-walkthrough-recorder-privacy.test.ts --runInBand",
+    "testFileCount": 25,
+    "runInBand": true,
+    "exitCode": 0,
+    "durationSeconds": 379.839
+  },
+  "results": {
+    "testSuites": {"passed": 25, "failed": 0, "total": 25},
+    "tests": {"passed": 731, "failed": 0, "skipped": 10, "total": 741},
+    "snapshots": 0
+  },
+  "skippedTests": [
+    {"file":"scripts/__tests__/camp01-g-report-normalizer.test.ts","name":"rejects a POSIX reports-directory symlink without writing through it","reason":"platform-specific POSIX symlink case skipped on win32"},
+    {"file":"scripts/__tests__/camp01-h-report-normalizer.test.ts","name":"rejects a POSIX reports-directory symlink without writing through it","reason":"platform-specific POSIX symlink case skipped on win32"},
+    {"file":"scripts/__tests__/camp01-target-authority.test.ts","name":"rejects a POSIX symlink in the target ancestor chain","reason":"platform-specific POSIX symlink case skipped on win32"},
+    {"file":"scripts/__tests__/camp01-target-authority.test.ts","name":"rejects a POSIX symlink in the observed tree","reason":"platform-specific POSIX symlink case skipped on win32"},
+    {"file":"scripts/__tests__/camp01-target-authority.test.ts","name":"rejects a POSIX symlink at the allowed run-root terminal","reason":"platform-specific POSIX symlink case skipped on win32"},
+    {"file":"scripts/__tests__/camp01-target-authority.test.ts","name":"rejects a symlinked proof location before worktree creation","reason":"platform-specific POSIX symlink case skipped on win32"},
+    {"file":"scripts/__tests__/camp01-durable-export.test.ts","name":"rejects a POSIX symlink in the durable path chain","reason":"platform-specific POSIX symlink case skipped on win32"},
+    {"file":"scripts/__tests__/camp01-durable-export.test.ts","name":"rejects a POSIX symlink at the durable destination","reason":"platform-specific POSIX symlink case skipped on win32"},
+    {"file":"scripts/__tests__/camp01-playwright-normalizer.test.ts","name":"[C07-J2] rejects a POSIX symlink raw report without publishing normalized output","reason":"platform-specific POSIX symlink case skipped on win32"},
+    {"file":"scripts/__tests__/camp01-cleanup-authority.test.ts","name":"rejects a POSIX reparse target","reason":"platform-specific POSIX reparse case skipped on win32"}
+  ],
+  "process": {
+    "launcher": {
+      "processId": 68528,
+      "processName": "cmd",
+      "startUtc": "2026-09-13T00:26:13.4829026Z",
+      "endUtc": "2026-09-13T00:32:43.2927803Z",
+      "exitCode": 0
+    },
+    "observedProcessCount": 227,
+    "matchingProcessesAfterRun": [],
+    "record": ".sisyphus/roadmap-completion-20260912/r2-receipts-verification/process-record.json"
+  },
+  "sourceInputHashes": {
+    "package.json": "eeebcb46214017104ed9cad6feab8f4a7e941816552585fb8230731d6931ad17",
+    "tests": {
+      "scripts/__tests__/camp01-anchor-authority.test.ts": "f89832053b4c11fc4239899ac562282fa049c003980fbfaa9d8e1c718687b49d",
+      "scripts/__tests__/camp01-authority-receipt-qc.test.ts": "4c1891dee70509131a9695bcf0b96d2dfbfea3bdc98dd0545006e2351ed72861",
+      "scripts/__tests__/camp01-authority-receipt-validator.test.ts": "f04d56fb17be4eccf98e18aafb1202bc971e90138a899ed3aa1572321485820d",
+      "scripts/__tests__/camp01-authority-receipt-writer.test.ts": "e5cce4bd587721eef1b7addf1d4ed246d22200b8620b679eaee8a72978345f6c",
+      "scripts/__tests__/camp01-camp00-listener-adapter.test.ts": "234191655a35407eb6184e4ee200f037752dbd57f5a0c995b1b3323de1c8de46",
+      "scripts/__tests__/camp01-capture-reopen-adversarial.test.ts": "a87afb155398702fd16b74e4ea9a261d798d863b4152676e022cf6c915c92728",
+      "scripts/__tests__/camp01-capture-transaction.test.ts": "7e3b0445123ab70c465f2428e048e08e193d4d098d484d45521f8d9b8e757b53",
+      "scripts/__tests__/camp01-cleanup-authority.test.ts": "4eab5a2e5b6d49effe306554d3ea134d0ab407e0851b090dbf8354865bb83db0",
+      "scripts/__tests__/camp01-durable-export.test.ts": "28ec6b4b04b871d8ee0748f30e335cfac8514e6ed38f509ace3a9269ae2bb68f",
+      "scripts/__tests__/camp01-durable-facts.test.ts": "83d3ec42a76a3028a6984b7f547fb2de69034720837d22d11936ec5062b297a3",
+      "scripts/__tests__/camp01-durable-facts-refs.test.ts": "41a3b43a73561b6158275c1b177e1937a01862da5eb52859671e7527944a84ec",
+      "scripts/__tests__/camp01-g-report-normalizer.test.ts": "925f4cef15ce8e042e98bee4cb2e1cf4523c8cc1f500eb61dcbb7fe5f18880be",
+      "scripts/__tests__/camp01-repair-registry.test.ts": "a644ac4773b571c5e50ca1ffd76dd5b895532e569ebd77cc8f97ad651b2d4e06",
+      "scripts/__tests__/camp01-github-provenance.test.ts": "8ea3b4c06e71db057f7b29d4a206744e60781a574f5a0546fc68efd188bcf0e2",
+      "scripts/__tests__/camp01-git-trust.test.ts": "e8b8d2801180519bcf2d2c651fb1315806f68841829d5488433e05c962e13a7b",
+      "scripts/__tests__/camp01-h-composition.test.ts": "e973ace2e09acd7795a9c5e3ff84018aa7a64a8b879b0bb53329308226a69832",
+      "scripts/__tests__/camp01-h-report-normalizer.test.ts": "f33c8f224ec5d8d9ea8414768cbea5cdeda9bd01feef47c05b8dff7c458fb619",
+      "scripts/__tests__/camp01-playwright-normalizer.test.ts": "357248607f858906ff50c1802b553680b6397449a22a2723d4804986339a771d",
+      "scripts/__tests__/camp01-proof-environment.test.ts": "d366e2247ad6226aafb879767f5abfa89f72a61856a6bd08072fc1f1e61f582a",
+      "scripts/__tests__/camp01-repository-lifecycle-adversarial.test.ts": "0df5d535761f62fb4a23ddbe9d0fa1441ea8851688bda306ea86c122cc405f27",
+      "scripts/__tests__/camp01-runner-isolation.test.ts": "b52d6223ee4a5d7085e1869eaa090c8adc3ca95776026addaa400ad353e9710b",
+      "scripts/__tests__/camp01-target-authority.test.ts": "a983958e4b1f5a1718a89999f3c81c9b74b612876b08ab208fded27ef3d665e3",
+      "scripts/__tests__/run-camp01-authority-receipt.test.ts": "8c12a50bdbe5f60649e5f656dfe95dd2129fde4738a0762532865f2274ace0cf",
+      "scripts/__tests__/run-viewport-sweep.test.ts": "2bd804e7d33c3234e58d3a024df0b64d02c63dbb5422a459d97967b47aff74bf",
+      "scripts/__tests__/ux-walkthrough-recorder-privacy.test.ts": "6d9bfd20acdbe8594ec91e7412793c8882837daaeed6ba6d354caca9207f5d03"
+    }
+  },
+  "artifacts": [
+    {"path":".sisyphus/roadmap-completion-20260912/r2-receipts-verification/camp01-jest.stdout.log","bytes":1428,"sha256":"cc8242b4a50d719be74453eb5bddcda07fe14c6870236477637b854483b7ebb5"},
+    {"path":".sisyphus/roadmap-completion-20260912/r2-receipts-verification/camp01-jest.stderr.log","bytes":3235,"sha256":"99f41eb4ed56c3c869e86ac42644b75782ec9fdfb8677508cf48be508312546a"},
+    {"path":".sisyphus/roadmap-completion-20260912/r2-receipts-verification/process-record.json","bytes":2301908,"sha256":"d8740c24818c9f7dac7855e6e28f365f9e5bc5eaa3fa154a573208c706a52d4d"},
+    {"path":".sisyphus/roadmap-completion-20260912/r2-receipts-verification/report.json","bytes":9694,"sha256":"41e96ff3779a5683e2843b5ba0d46527057b2182e684ecc94c1d497b6ce66ceb"}
+  ],
+  "flatArtifacts": true,
+  "scopeExclusions": ["controller", "browser", "server", "build", "remote CI activation", "source/spec/flag edits", "stage/commit/push", "ledger mutation", "dependency installation"]
+}

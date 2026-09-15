@@ -1,0 +1,44 @@
+{
+  "at": "2026-09-13T02:09:15.266Z",
+  "status": "prepared-not-dispatched",
+  "wt": "E:\\Projects\\MekStation/.sisyphus/roadmap-completion-20260912/worktrees/campaign-store-specs",
+  "branch": "codex/roadmap-campaign-store-specs-20260913",
+  "base": "106bfbc76886a6f19f1ac00143cfa1708f33f19f",
+  "head": "106bfbc76886a6f19f1ac00143cfa1708f33f19f",
+  "files": [
+    {
+      "path": "openspec/specs/force-management/spec.md",
+      "rootSha256": "1e119db35f60fb9e9418176862afe3d23b59130dee7b050914842b990944c757",
+      "backup": "E:\\Projects\\MekStation/.sisyphus/roadmap-completion-20260912/campaign-store-specs-admission-20260913/before/openspec/specs/force-management/spec.md",
+      "candidateSha256": "1e119db35f60fb9e9418176862afe3d23b59130dee7b050914842b990944c757"
+    },
+    {
+      "path": "openspec/specs/personnel-management/spec.md",
+      "rootSha256": "631325c73e3332b68cfb59410c80e649187e060e3340b8eebc9fcb39972dea21",
+      "backup": "E:\\Projects\\MekStation/.sisyphus/roadmap-completion-20260912/campaign-store-specs-admission-20260913/before/openspec/specs/personnel-management/spec.md",
+      "candidateSha256": "631325c73e3332b68cfb59410c80e649187e060e3340b8eebc9fcb39972dea21"
+    },
+    {
+      "path": "openspec/specs/repair/spec.md",
+      "rootSha256": "4f51961216066a37180bd05d3cdebbcfa510f60e5fea9459a7c51f443ac8cce7",
+      "backup": "E:\\Projects\\MekStation/.sisyphus/roadmap-completion-20260912/campaign-store-specs-admission-20260913/before/openspec/specs/repair/spec.md",
+      "candidateSha256": "4f51961216066a37180bd05d3cdebbcfa510f60e5fea9459a7c51f443ac8cce7"
+    },
+    {
+      "path": "openspec/specs/game-session-management/spec.md",
+      "rootSha256": "52843d4febc0354f597c6f0f6685b23145168a44c008cf253e02e2f3c4d802d6",
+      "backup": "E:\\Projects\\MekStation/.sisyphus/roadmap-completion-20260912/campaign-store-specs-admission-20260913/before/openspec/specs/game-session-management/spec.md",
+      "candidateSha256": "52843d4febc0354f597c6f0f6685b23145168a44c008cf253e02e2f3c4d802d6"
+    }
+  ],
+  "numstat": "31\t31\topenspec/specs/force-management/spec.md\n16\t16\topenspec/specs/game-session-management/spec.md\n14\t14\topenspec/specs/personnel-management/spec.md\n22\t22\topenspec/specs/repair/spec.md",
+  "changedLines": 166,
+  "maxFiles": 4,
+  "maxChangedLines": 500,
+  "indexBefore": "a65b683940b6449651a074132f39d8b8da156ef5620af6aa1b62eb7c8698b953",
+  "indexAfter": "a65b683940b6449651a074132f39d8b8da156ef5620af6aa1b62eb7c8698b953",
+  "worker": "Cursor Grok 4.6 High when capacity permits",
+  "scope": "Existing four-spec reference reconciliation; validate exact source anchors and adjacent behavior, preserve deferrals; no product/runtime completion claim",
+  "rawAdmission": ".sisyphus/roadmap-completion-20260912/campaign-store-specs-admission-20260913/admission.json",
+  "rawIgnored": true
+}
