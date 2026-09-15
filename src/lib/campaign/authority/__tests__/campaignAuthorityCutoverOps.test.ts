@@ -137,6 +137,20 @@ describe('campaign authority cutover operator surfaces', () => {
       expect(writes).toEqual([]);
     });
 
+    it('names the state first, before asking for a snapshot at all', async () => {
+      // The order of the two refusals is the point. A campaign that
+      // already cut over has no maintained snapshot, so checking the
+      // snapshot first would report 'snapshot-absent' for a campaign whose
+      // actual answer is "it is not a candidate" - sending an operator to
+      // look for a missing record instead of telling them the campaign has
+      // already moved.
+      stored.set(CAMPAIGN_ID, createJournalNativeMarker(CAMPAIGN_ID));
+
+      const outcome = await runCampaignParityCutover(deps, CAMPAIGN_ID);
+
+      expect(outcome).toEqual({ kind: 'not-shadowing', state: 'journal' });
+    });
+
     it('refuses when no snapshot projection is available to compare', async () => {
       // Defaulting to an empty campaign would either block a healthy one
       // or "prove" equality against an empty journal.
