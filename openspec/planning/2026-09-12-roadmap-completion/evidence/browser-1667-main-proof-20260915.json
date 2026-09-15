@@ -1,0 +1,248 @@
+{
+  "evidenceKind": "browser-1667-main-proof",
+  "roadmapNode": "R1.browser",
+  "timestampUtc": "2026-09-15T07:11:54Z",
+  "verdict": "MIXED",
+  "verdictReason": "Two zero-retry runs on the identical exact-main production build disagree. Attempt-1: 11/12 (e2e/customizer-record-sheet-rendering.spec.ts:322 failed). Attempt-2: 12/12. A clean 12/12 exists, but the suite is demonstrably non-deterministic on this build, so R1.browser should not be recorded as an unqualified green.",
+  "attemptSummary": {
+    "attempt1": { "passed": 11, "failed": 1, "exitCode": 1, "verdict": "FAIL" },
+    "attempt2": { "passed": 12, "failed": 0, "exitCode": 0, "verdict": "PASS" }
+  },
+  "determinism": "attempt-1 failure not reproduced on identical build (single re-run)",
+  "determinismNote": "Attempt-2 ran on the byte-identical build (BUILD_ID 1789455586707 and standalone server sha256 unchanged, no rebuild) at the same HEAD with the same command, env, port and Node, and all 12 cases passed. Two runs cannot establish a flake rate and a green re-run does not retire the defect: the only proven fact is that e2e/customizer-record-sheet-rendering.spec.ts:322 is non-deterministic on exact main.",
+  "prReference": "PR #1667 \"test(customizer): verify production print and export workflows\", squash-merged as b39b8291706c36b9ad0c876a5e1b11e5b3612b7d",
+  "commitTested": "b39b8291706c36b9ad0c876a5e1b11e5b3612b7d",
+  "treeTested": "fae65e2c0d13242bafaf30cdc956c475f038d63b",
+  "reviewedCommit": "77d9a9480a3a47b1849f166db01278f93f3d8094",
+  "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/browser",
+  "attemptDir": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/browser-main-proof-20260915/attempt-1",
+  "attemptReceipt": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/browser-main-proof-20260915/attempt-1/result.json",
+  "preconditionCheck": {
+    "gitStatusPorcelainEmptyBefore": true,
+    "gitStatusPorcelainEmptyAfter": true,
+    "headBeforeCheckout": "dc28fd4aa38b9b411954a52b6355aa8fbfff37c7",
+    "headBeforeCheckoutBranch": "codex/roadmap-customizer-browser-20260912",
+    "headBeforeCheckoutDiscrepancy": "The task brief expected the worktree to be at 581a1de84; it was actually at dc28fd4aa38b9b411954a52b6355aa8fbfff37c7 on branch codex/roadmap-customizer-browser-20260912. The tree was clean, so the checkout to b39b8291 was unaffected.",
+    "headAfterCheckout": "b39b8291706c36b9ad0c876a5e1b11e5b3612b7d",
+    "detached": true,
+    "ignoredPathsOnly": [".husky/_/", ".next/", "node_modules/", "playwright-report/", "public/config/", "public/record-sheets/biped_pips/", "public/record-sheets/templates_iso/", "public/record-sheets/templates_us/", "test-results/", "tsconfig.tsbuildinfo"],
+    "nodeVersion": "v22.22.0",
+    "npmVersion": "11.6.2",
+    "port3639FreeBeforeRun": true,
+    "port3600Touched": false,
+    "recordSheetAssetsPresent": {
+      "public/record-sheets/biped_pips": 504,
+      "public/record-sheets/templates_iso": 25,
+      "public/record-sheets/templates_us": 25,
+      "public/config": 1,
+      "note": "Gitignored but present on disk; hydrated into .next/standalone/public (555 files). Nothing was downloaded or fetched."
+    }
+  },
+  "specBlobEquality": {
+    "claim": "The three customizer specs are byte-identical at the merge commit and the reviewed commit, so the reviewed source is exactly what was executed.",
+    "mergeCommit": "b39b8291706c36b9ad0c876a5e1b11e5b3612b7d",
+    "reviewedCommit": "77d9a9480a3a47b1849f166db01278f93f3d8094",
+    "allEqual": true,
+    "blobs": {
+      "e2e/customizer-equipment-catalog.spec.ts": {
+        "b39b8291": "a36276a657b357b244ea4ee174d29150f4398030",
+        "77d9a948": "a36276a657b357b244ea4ee174d29150f4398030",
+        "equal": true
+      },
+      "e2e/customizer-record-sheet-rendering.spec.ts": {
+        "b39b8291": "a9166d1d49ab77756598452b7e9b664d88d1f0f1",
+        "77d9a948": "a9166d1d49ab77756598452b7e9b664d88d1f0f1",
+        "equal": true
+      },
+      "e2e/customizer-edit-recovery.spec.ts": {
+        "b39b8291": "c7ee9d7ed0523dd78a41279673be51515ca9f119",
+        "77d9a948": "c7ee9d7ed0523dd78a41279673be51515ca9f119",
+        "equal": true
+      }
+    }
+  },
+  "commands": [
+    {
+      "phase": "production build",
+      "argv": ["npm", "run", "build"],
+      "env": { "NEXT_PUBLIC_E2E_MODE": "true", "NEXT_PUBLIC_E2E_TEST": "true" },
+      "exitCode": 0,
+      "startedAtUtc": "2026-09-15T06:59:43Z",
+      "endedAtUtc": "2026-09-15T07:02:07Z",
+      "durationSeconds": 144,
+      "standaloneServerExists": true,
+      "standaloneServerPath": ".next/standalone/server.js",
+      "standaloneServerSha256": "e4f973d2cfa7f4c25775e4ce9315b7398655a6a17cfc799793545de84a59ecf6",
+      "logPath": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/browser-main-proof-20260915/attempt-1/build.stdout.log",
+      "logSha256": "27ce75ac1176695dd389e872b76bbe30729b835e19b3f93133b4afc35d5d2310",
+      "stderrLogPath": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/browser-main-proof-20260915/attempt-1/build.stderr.log",
+      "stderrLogSha256": "0258730b9d218725084e750b0df22402126bc8a1aee78dbca68ed974e51367fa",
+      "stderrNote": "3.5 MB of webpack.Progress noise only; no build errors."
+    },
+    {
+      "phase": "production Chromium Playwright run",
+      "argv": ["node", "scripts/playwright/run-playwright.mjs", "test", "e2e/customizer-equipment-catalog.spec.ts", "e2e/customizer-record-sheet-rendering.spec.ts", "e2e/customizer-edit-recovery.spec.ts", "--project=chromium", "--retries=0", "--workers=1", "--trace=retain-on-failure"],
+      "env": {
+        "MEKSTATION_E2E_PORT": "3639",
+        "MEKSTATION_E2E_SERVER_COMMAND": "node .next/standalone/server.js",
+        "MEKSTATION_E2E_SERVER_TIMEOUT_MS": "300000",
+        "MEKSTATION_E2E_REUSE_EXISTING_SERVER": "false",
+        "HOSTNAME": "127.0.0.1",
+        "NEXT_PUBLIC_E2E_MODE": "true",
+        "NEXT_PUBLIC_E2E_TEST": "true",
+        "PW_TEST_HTML_REPORT_OPEN": "never"
+      },
+      "exitCode": 1,
+      "startedAtUtc": "2026-09-15T07:03:44Z",
+      "endedAtUtc": "2026-09-15T07:05:24Z",
+      "summaryLine": "1 failed ... 11 passed (1.7m)",
+      "logPath": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/browser-main-proof-20260915/attempt-1/playwright.stdout.log",
+      "logSha256": "30cde033a4d95e4fcd11b93fc69be2f1867d323414233d52e43ec60da0cb0f61",
+      "stderrLogPath": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/browser-main-proof-20260915/attempt-1/playwright.stderr.log",
+      "stderrLogSha256": "2dfb9a6212c18baf950f9001378b6145cd0f9ce417c34046bed4325d584a4f18"
+    }
+  ],
+  "server": {
+    "mode": "production standalone",
+    "modeEvidence": "server.js forces NODE_ENV=production and dev=false when isStandaloneRuntime holds, which it does because server.next-config.json and .next sit beside the entry point. Emitted MEKSTATION_LISTENER_READY with boundAddress 127.0.0.1, family IPv4, port 3639.",
+    "pid": 24392,
+    "port": 3639,
+    "portChoiceNote": "3639 was free and was used as specified; the 3641 fallback was not needed.",
+    "prodEvidenceFlagAvoided": "The wrapper's --prod-evidence mode was deliberately NOT used because it hardcodes 'npx kill-port 3600' and PORT=3600, which is the user dev-server port. The standalone production server was instead pointed at the owned port via MEKSTATION_E2E_SERVER_COMMAND plus MEKSTATION_E2E_PORT.",
+    "startedBy": "Playwright webServer plugin",
+    "stoppedAfterRun": true,
+    "stopEvidence": "No LISTENING socket remained on 3639 after the run (TIME_WAIT client sockets only) and tasklist filtered to PID 24392 reported no such task. No process was killed by this session."
+  },
+  "results": {
+    "expectedCases": 12,
+    "ranCases": 12,
+    "passed": 11,
+    "failed": 1,
+    "skipped": 0,
+    "retries": 0,
+    "workers": 1,
+    "perFile": {
+      "e2e/customizer-equipment-catalog.spec.ts": { "expected": 3, "passed": 3, "failed": 0 },
+      "e2e/customizer-record-sheet-rendering.spec.ts": { "expected": 6, "passed": 5, "failed": 1 },
+      "e2e/customizer-edit-recovery.spec.ts": { "expected": 3, "passed": 3, "failed": 0 }
+    },
+    "failures": [
+      {
+        "file": "e2e/customizer-record-sheet-rendering.spec.ts",
+        "line": 322,
+        "title": "Print writes one current sheet into the reserved window at the selected paper @customizer",
+        "durationSeconds": 14.7,
+        "assertion": "expect.poll(backingSize).toEqual({width:2380,height:3368}) - Timeout 10000ms exceeded while waiting on the predicate",
+        "expected": { "width": 2380, "height": 3368 },
+        "received": { "width": 2448, "height": 3168 },
+        "failingStep": "waitForBacking(page, A4) at spec line 371, immediately after switching back to the 'Atlas AS7-D' tab and selecting Paper Size 'a4'. The canvas backing store stayed at Letter (2448x3168) instead of resizing to A4 (2380x3368).",
+        "artifacts": "<worktree>/test-results/customizer-record-sheet-re-29763-e-selected-paper-customizer-chromium/ (test-failed-1.png, error-context.md, trace.zip)",
+        "retried": false,
+        "retryPolicy": "--retries=0 as instructed; no blind retry was performed and no source was modified."
+      }
+    ]
+  },
+  "attempt2": {
+    "attemptDir": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/browser-main-proof-20260915/attempt-2",
+    "attemptReceipt": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/browser-main-proof-20260915/attempt-2/result.json",
+    "verdict": "PASS",
+    "rebuilt": false,
+    "sameBuildEvidence": {
+      "buildIdBefore": "1789455586707",
+      "buildIdAfter": "1789455586707",
+      "buildIdAttempt1": "1789455586707",
+      "standaloneServerSha256": "e4f973d2cfa7f4c25775e4ce9315b7398655a6a17cfc799793545de84a59ecf6",
+      "standaloneServerSha256Attempt1": "e4f973d2cfa7f4c25775e4ce9315b7398655a6a17cfc799793545de84a59ecf6",
+      "headUnchanged": "b39b8291706c36b9ad0c876a5e1b11e5b3612b7d",
+      "workingTreeCleanBeforeAndAfter": true,
+      "sourceModified": false
+    },
+    "argv": ["node", "scripts/playwright/run-playwright.mjs", "test", "e2e/customizer-equipment-catalog.spec.ts", "e2e/customizer-record-sheet-rendering.spec.ts", "e2e/customizer-edit-recovery.spec.ts", "--project=chromium", "--retries=0", "--workers=1", "--trace=retain-on-failure"],
+    "env": {
+      "MEKSTATION_E2E_PORT": "3639",
+      "MEKSTATION_E2E_SERVER_COMMAND": "node .next/standalone/server.js",
+      "MEKSTATION_E2E_SERVER_TIMEOUT_MS": "300000",
+      "MEKSTATION_E2E_REUSE_EXISTING_SERVER": "false",
+      "HOSTNAME": "127.0.0.1",
+      "NEXT_PUBLIC_E2E_MODE": "true",
+      "NEXT_PUBLIC_E2E_TEST": "true",
+      "PW_TEST_HTML_REPORT_OPEN": "never"
+    },
+    "nodeVersion": "v22.22.0",
+    "exitCode": 0,
+    "startedAtUtc": "2026-09-15T07:10:50Z",
+    "endedAtUtc": "2026-09-15T07:11:54Z",
+    "summaryLine": "12 passed (1.1m)",
+    "results": {
+      "expectedCases": 12,
+      "ranCases": 12,
+      "passed": 12,
+      "failed": 0,
+      "skipped": 0,
+      "retries": 0,
+      "workers": 1,
+      "perFile": {
+        "e2e/customizer-equipment-catalog.spec.ts": { "expected": 3, "passed": 3, "failed": 0 },
+        "e2e/customizer-record-sheet-rendering.spec.ts": { "expected": 6, "passed": 6, "failed": 0 },
+        "e2e/customizer-edit-recovery.spec.ts": { "expected": 3, "passed": 3, "failed": 0 }
+      },
+      "attempt1FailingCaseOutcome": {
+        "file": "e2e/customizer-record-sheet-rendering.spec.ts",
+        "line": 322,
+        "outcome": "passed",
+        "durationSeconds": 6.2,
+        "attempt1DurationSeconds": 14.7
+      }
+    },
+    "server": {
+      "mode": "production standalone",
+      "pid": 41660,
+      "port": 3639,
+      "portWasFreeBeforeRun": true,
+      "stoppedAfterRun": true,
+      "stopEvidence": "No LISTENING socket on 3639 after the run; tasklist filtered to PID 41660 reports no such task. No process was killed by this session.",
+      "port3600Touched": false
+    },
+    "retainedTraceDirs": [],
+    "retainedTraceNote": "Zero failures, so --trace=retain-on-failure produced no trace.zip, no error-context.md and no test-failed screenshots. Files remaining under test-results/ are deliberate test attachments only (catalog/recovery PNGs, exported PDFs).",
+    "logs": {
+      "stdout": {
+        "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/browser-main-proof-20260915/attempt-2/playwright.stdout.log",
+        "bytes": 2509,
+        "sha256": "6c791d14597e95ea2146868c0572e919179afc168cd52d9c8cba9aab81aed1ad"
+      },
+      "stderr": {
+        "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/browser-main-proof-20260915/attempt-2/playwright.stderr.log",
+        "bytes": 143,
+        "sha256": "2dfb9a6212c18baf950f9001378b6145cd0f9ce417c34046bed4325d584a4f18"
+      }
+    }
+  },
+  "attempt1FailureForensics": {
+    "preservedArtifacts": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/browser-main-proof-20260915/attempt-1-retained-artifacts/customizer-record-sheet-re-29763-e-selected-paper-customizer-chromium/ (error-context.md, test-failed-1.png, trace.zip)",
+    "preservationNote": "Copied out of the worktree BEFORE attempt-2 ran; Playwright's outputDir clean deleted the original directory at the start of attempt-2.",
+    "failingStep": "waitForBacking(page, A4) at spec line 371, reached from line 368 (click tab 'Atlas AS7-D') then line 370 (selectOption 'a4').",
+    "paperSizeControlStateAtTimeout": "LETTER, not A4.",
+    "paperSizeControlQuote": "combobox \"Paper Size:\" [ref=e152] [cursor=pointer]: - option \"Letter (8.5\\\" x 11\\\")\" [selected] - option \"A4 (210mm x 297mm)\"",
+    "canvasStateAtTimeout": "Canvas backing store remained 2448x3168 (Letter) for the full 10s poll; expected 2380x3368 (A4). Consistent with the control never having settled on A4 rather than with a canvas that failed to re-render at a correct setting.",
+    "didCanvasRerender": "No re-render to A4 geometry was observed. The zoom status read 78% with 'Fit Page' pressed, and the battlemech-record-sheet-canvas testid stayed attached throughout the poll, so the preview was mounted and responsive but never resized.",
+    "selectOptionOutcome": "The Playwright action 'selectOption' with options [{valueOrLabel:'a4'}] against internal:role=combobox[name=\"Paper Size\"i] recorded NO error in the trace, i.e. Playwright considered the selection applied. The DOM nonetheless showed Letter selected when the snapshot was taken 10s later.",
+    "tabState": "tab \"Atlas AS7-D\" [active] [selected]; tab \"Preview\" [selected]. The intended unit and tab were correct, so the failure is isolated to the paper-size control.",
+    "consoleErrors": "NOT DETERMINED. The retained trace contains no console entries at all (event types present: context-options, before/after actions, screencast-frame, frame-snapshot, log, input; the only 3 'event' records are page / page / pageClosed for the print popup). Absence of console errors therefore CANNOT be claimed from this artefact.",
+    "visibleErrorUi": "No error alert was present in the failure snapshot. The only alert node is the app live region 'alert [ref=e329]: MekStation'; notably there was no 'Could not open print window' alert.",
+    "hypothesis": "INFERENCE, NOT VERIFIED: a successful selectOption whose value is Letter again 10s later is the signature of the preview's controlled paper-size state being overwritten by an asynchronous re-render/rehydration triggered by the immediately preceding tab switch back to 'Atlas AS7-D', which races the selection and reverts it. This was NOT proven: no console capture, no state instrumentation, and no second observation of the failure exist. It is offered as the lead to investigate, not as a root cause.",
+    "notInvestigatedFurther": "No source was read for the paper-size component, no fix was attempted, and no source file was modified."
+  },
+  "followUp": "e2e/customizer-record-sheet-rendering.spec.ts:322 is non-deterministic on exact main b39b8291 (1 fail, 1 pass in two zero-retry runs). This warrants a tracked investigation of the paper-size control's behaviour across a unit-tab switch; it should not be closed on the strength of the green re-run.",
+  "nonClaims": [
+    "Native OS printing is NOT claimed. The print tests run against an in-page print harness that stubs window.print and window.open; no OS print dialog, print spooler, or physical/virtual printer was exercised.",
+    "Pixel fidelity is NOT claimed. Assertions cover canvas backing-store dimensions, CSS box geometry, aspect ratios, SVG type-field text and PDF page boxes, not rendered pixel appearance, fonts, or visual diffing.",
+    "Other browser engines are NOT claimed. Only --project=chromium was run; Firefox, WebKit and the mobile-touch project were not exercised.",
+    "Remote CI activation is NOT claimed. This is a local Windows run; no GitHub Actions or Concourse workflow was triggered, modified, or observed.",
+    "PDF content correctness beyond header bytes, nonzero size and single-page box dimensions is NOT claimed.",
+    "Two runs do NOT establish a flake rate. The attempt-1 failure is confirmed non-deterministic on this build, but its frequency, trigger and root cause are all unknown.",
+    "The attempt-1 root-cause hypothesis (tab-switch re-render reverting the paper-size control) is INFERENCE from a DOM snapshot plus a no-error selectOption action. It was not verified and must not be cited as a finding.",
+    "Absence of browser console errors during the attempt-1 failure is NOT claimed: the retained trace captured no console entries at all.",
+    "Attempt-2's green result does NOT retire the defect and does NOT make R1.browser an unqualified pass."
+  ]
+}

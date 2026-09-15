@@ -1,0 +1,44 @@
+{
+  "node": "R2.camp-2/3/4 (frozen journey unblock) + design-campaign-authority-and-sync campaign-replication",
+  "artefact": "guest-share-panel-grants-1720-main-proof-20260915",
+  "capturedAtUtc": "2026-09-15T14:49:25.048Z",
+  "pr": 1720,
+  "slice": "stop a co-op guest asking for the GM share grants it cannot list (proved product defect; unblocks verify:qc:coop-campaign-journey)",
+  "reviewedHead": "44ceed8cc80ed3a20d4098a233316870c1b5a99f",
+  "mergeCommit": "f685a5391f6e69b73932cdef5323dd2d247e55a6",
+  "worktree": ".sisyphus/roadmap-completion-20260912/worktrees/r2-prepared-journal-api (detached at the merge commit; Node v24.15.0)",
+  "files": [
+    "src/components/campaign/share/CampaignSharePanelConnected.tsx",
+    "src/components/campaign/share/__tests__/CampaignSharePanelConnected.test.tsx",
+    "src/components/gameplay/pages/campaigns/dashboard/CampaignDashboardPage.tsx"
+  ],
+  "blobEquality": {
+    "diffLines": 0,
+    "identical": true
+  },
+  "gates": {
+    "jest": {
+      "scope": "src/components/campaign/share",
+      "result": "see jest.log",
+      "exit": 0,
+      "sha256": "9011dbc4911d199fa73a5aa81b68d009ad4945091a25e26583d63726604d6762"
+    },
+    "tsc": {
+      "exit": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "openspecStrict": {
+      "exit": 0,
+      "sha256": "a6f1b01bad6ef535f7ae511fd2b0e725e382bcb462449ef4386723e0ec97eff3"
+    },
+    "qcOpenspecCi": {
+      "exit": 0,
+      "sha256": "1d2b3ffbba3922d328cc2b02fa1de7ccedad6b3382227fa903deccf9a0d5900c"
+    }
+  },
+  "acceptance": "exact-main accepted; the frozen journey re-run at the reviewed tree was exit 0 with zero 403s (fix receipt); a re-run of the camp-01b/01c/01d journey legs on a main containing this merge is owed for their command-level receipts",
+  "owed": [
+    "camp-01b/01c/01d journey legs re-run on main >= f685a5391",
+    "owner D1 (guest sees the share panel) and D2 (CI wiring for the journey)"
+  ]
+}

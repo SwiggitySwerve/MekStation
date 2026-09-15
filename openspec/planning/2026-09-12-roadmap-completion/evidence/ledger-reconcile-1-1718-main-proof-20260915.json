@@ -1,0 +1,43 @@
+{
+  "node": "ledgerReconciliation",
+  "artefact": "ledger-reconcile-1-1718-main-proof-20260915",
+  "capturedAtUtc": "2026-09-15T13:59:48.908Z",
+  "pr": 1718,
+  "slice": "ledger/tasks reconciliation batch 1 (openspec-only, 3 commits)",
+  "reviewedHead": "98cac987d663bb5c294dc97f3cae942d213cdf02",
+  "mergeCommit": "e07ce0ef9672c3e8e578d7773c979e03f5e92c27",
+  "worktree": ".sisyphus/roadmap-completion-20260912/worktrees/browser (detached at the merge commit)",
+  "runtime": {
+    "node": "v22.22.0"
+  },
+  "files": [
+    "openspec/active-change-ledger.json",
+    "openspec/changes/adopt-combat-journal-cutover-and-gm-rewind/tasks.md",
+    "openspec/changes/design-campaign-authority-and-sync/tasks.md",
+    "openspec/changes/add-camp01-authority-receipts/tasks.md"
+  ],
+  "blobEquality": {
+    "diffLines": 0,
+    "identical": true
+  },
+  "gates": {
+    "openspecStrict": {
+      "exit": 0,
+      "sha256": "a6f1b01bad6ef535f7ae511fd2b0e725e382bcb462449ef4386723e0ec97eff3"
+    },
+    "purposeStrict": {
+      "exit": 0,
+      "sha256": "cf8bd51ed2860c30ffc2c0039bae29644d45ed4f0f887c908f8eb923f6f13f9d"
+    },
+    "terminologyStrict": {
+      "exit": 0,
+      "sha256": "87384ccaf4c3cbfc6f903aabd5fa7e557af1e45a4afae3ee1cccd7c1e8b21e85"
+    },
+    "qcOpenspecCi": {
+      "exit": 0,
+      "sha256": "1d2b3ffbba3922d328cc2b02fa1de7ccedad6b3382227fa903deccf9a0d5900c"
+    },
+    "ledgerJson": "parses"
+  },
+  "acceptance": "exact-main accepted; canonical ledger and task rows on main now agree with the batch-1 receipts"
+}

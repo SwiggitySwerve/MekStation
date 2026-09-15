@@ -1,0 +1,73 @@
+{
+  "pr": 1667,
+  "branch": "codex/roadmap-customizer-browser-20260912",
+  "reviewedCommit": "77d9a9480a3a47b1849f166db01278f93f3d8094",
+  "finalHead": "dc28fd4aa38b9b411954a52b6355aa8fbfff37c7",
+  "headAtSessionStart": "958c49e41cb76c9fe37f78e8d076f9ab2acf4157",
+  "anomaly": "GitHub auto-merge (SQUASH) was armed on this PR at 2026-09-15T06:19:59Z by SwiggitySwerve, before this session began. Auto-merge fired at 06:52:32Z the moment the last required check went green. This session did NOT execute step 6 (gh pr merge). Ordering was still controlled by this session gating the content guard before running update-branch.",
+  "contentGuard": {
+    "preUpdate": {
+      "fileSetEqualToReviewed": true,
+      "files": [
+        "e2e/customizer-edit-recovery.spec.ts",
+        "e2e/customizer-record-sheet-rendering.spec.ts",
+        "e2e/helpers/recordSheetPrintHarness.ts"
+      ],
+      "blobEquality": {
+        "e2e/customizer-edit-recovery.spec.ts": "c7ee9d7ed0523dd78a41279673be51515ca9f119",
+        "e2e/customizer-record-sheet-rendering.spec.ts": "a9166d1d49ab77756598452b7e9b664d88d1f0f1",
+        "e2e/helpers/recordSheetPrintHarness.ts": "36b0ba9f5a368cdf16a3a1bca8caabe97de23215"
+      },
+      "blobEqualityNote": "identical between reviewed commit 77d9a9480 and session-start head 958c49e41 (which was already a merge of main into the branch)",
+      "result": "PASS"
+    },
+    "postUpdate": {
+      "fileSet": "unchanged - exactly the 3 reviewed files, no files added by the update merge",
+      "blobEquality": "all 3 still identical to reviewed commit 77d9a9480",
+      "result": "PASS"
+    }
+  },
+  "updateBranch": {
+    "performedByThisSession": true,
+    "oldHead": "958c49e41cb76c9fe37f78e8d076f9ab2acf4157",
+    "newHead": "dc28fd4aa38b9b411954a52b6355aa8fbfff37c7",
+    "expectedHeadShaGuard": "958c49e41cb76c9fe37f78e8d076f9ab2acf4157",
+    "reason": "branch was BEHIND after #1669, #1670, #1672 and #1671 merged to main"
+  },
+  "checksAtTerminal": {
+    "Lint and Test": "pass",
+    "Build Test / win": "pass",
+    "Build Test / mac": "pass",
+    "Build Test / linux": "pass",
+    "otherChecksCount": 26,
+    "otherChecksBuckets": { "pass": 26 },
+    "totalChecks": 30,
+    "pollLog": "06:47:53 2 pending -> 06:52:42 30 pass/0 pending (state already MERGED at that snapshot)"
+  },
+  "premergeReceipt": {
+    "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/browser-1667-final-20260915-premerge.json",
+    "ready": false,
+    "failures": ["PR identity changed", "Branch state requires review: UNKNOWN"],
+    "note": "Gate run post-hoc, after auto-merge had already landed the PR. Both failures are race artifacts (main had advanced to the merge commit; a merged PR reports no mergeable state). Not a substantive gate failure: all four required checks were green on the exact head that merged, and merged content is blob-identical to the gated head and to the reviewed commit."
+  },
+  "mergeCommit": "b39b8291706c36b9ad0c876a5e1b11e5b3612b7d",
+  "mergeCommitParents": ["4cf52fe731e1adb4fb43050d882a485f34f67398"],
+  "mergeStyle": "squash (single parent)",
+  "mergedAt": "2026-09-15T06:52:32Z",
+  "mergedBy": "SwiggitySwerve (via armed auto-merge)",
+  "mergedContentVerification": "The merge commit changes exactly the 3 reviewed files, with blob SHAs identical to the gated final head dc28fd4aa and to reviewed commit 77d9a9480.",
+  "mainAfter": "b39b8291706c36b9ad0c876a5e1b11e5b3612b7d",
+  "worktree": {
+    "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/browser",
+    "cleanBeforeFF": true,
+    "branch": "codex/roadmap-customizer-browser-20260912",
+    "fastForward": "ff-only 581a1de84 -> dc28fd4aa",
+    "result": "SUCCESS",
+    "note": "remote branch auto-deleted on merge (delete_branch_on_merge=true)"
+  },
+  "timestamps": {
+    "guardStartedAt": "2026-09-15T06:47:05Z",
+    "checksTerminalAt": "2026-09-15T06:52:42Z",
+    "receiptWrittenAt": "2026-09-15T06:53:40Z"
+  }
+}

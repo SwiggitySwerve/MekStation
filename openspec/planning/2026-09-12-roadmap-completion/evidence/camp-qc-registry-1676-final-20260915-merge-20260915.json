@@ -1,0 +1,66 @@
+{
+  "pr": 1676,
+  "branch": "codex/roadmap-camp-qc-registry-20260915",
+  "reviewedCommit": "5c764fc8f15b8b48b9395ec2e5e8021262d00499",
+  "finalHead": "09d83886965b56ac7e3d30090a7bcc68bb627388",
+  "anomaly": null,
+  "autoMergeArmed": false,
+  "contentGuard": {
+    "preUpdate": {
+      "fileSetEqualToReviewed": true,
+      "files": ["docs/qc/mekstation-qc-registry.json"],
+      "diffstat": "1 file changed, 4 insertions(+), 4 deletions(-)",
+      "blobEquality": "trivially satisfied - reviewed commit == PR head (5c764fc8f)",
+      "result": "PASS"
+    },
+    "postUpdate": {
+      "fileSet": "unchanged - single file, no files added by the update merge",
+      "diffstat": "1 file changed, 4 insertions(+), 4 deletions(-)",
+      "blobEquality": { "docs/qc/mekstation-qc-registry.json": "equal (c0d170e927c61d00da4bc4f855213e0da641e18a)" },
+      "result": "PASS"
+    }
+  },
+  "updateBranch": {
+    "performedByThisSession": true,
+    "oldHead": "5c764fc8f15b8b48b9395ec2e5e8021262d00499",
+    "newHead": "09d83886965b56ac7e3d30090a7bcc68bb627388",
+    "expectedHeadShaGuard": "5c764fc8f15b8b48b9395ec2e5e8021262d00499",
+    "reason": "branch was BEHIND after #1675 merged to main"
+  },
+  "checksAtTerminal": {
+    "Lint and Test": "pass",
+    "Build Test / win": "pass",
+    "Build Test / mac": "pass",
+    "Build Test / linux": "pass",
+    "otherChecksCount": 26,
+    "otherChecksBuckets": { "pass": 26 },
+    "totalChecks": 30,
+    "pollLog": "07:08:22 EMPTY (runs not yet registered) -> 07:14:47 30 pass/0 pending"
+  },
+  "premergeReceipt": {
+    "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/camp-qc-registry-1676-final-20260915-premerge.json",
+    "ready": true,
+    "failures": []
+  },
+  "mergeCommit": "0df5ed2bfb53e7bf8e42f601179f50c367f65725",
+  "mergeCommitParents": ["b7d650997a1f1e7ed90ed8f806daefd199637150"],
+  "mergeStyle": "squash (single parent)",
+  "mergeCommand": "gh pr merge 1676 --squash --match-head-commit 09d83886965b56ac7e3d30090a7bcc68bb627388",
+  "mergedAt": "2026-09-15T07:15:04Z",
+  "mergedBy": "this session (step 6 executed)",
+  "mergedContentVerification": "The merge commit changes exactly docs/qc/mekstation-qc-registry.json with blob c0d170e92, identical to the gated final head 09d838869.",
+  "mainAfter": "0df5ed2bfb53e7bf8e42f601179f50c367f65725",
+  "worktree": {
+    "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/camp-receipt-verification",
+    "fastForward": "NOT PERFORMED - per coordinator instruction, another lane is using this worktree on a different branch",
+    "observedBranchAtCheck": "codex/roadmap-camp-live-probe-fix-20260915",
+    "observedHeadAtCheck": "f7a94d769ccb0da8546f3953c0489c6c7b4b60aa",
+    "result": "SKIPPED (intentional)"
+  },
+  "timestamps": {
+    "guardStartedAt": "2026-09-15T07:07:40Z",
+    "checksTerminalAt": "2026-09-15T07:14:47Z",
+    "mergedAt": "2026-09-15T07:15:04Z",
+    "receiptWrittenAt": "2026-09-15T07:24:00Z"
+  }
+}

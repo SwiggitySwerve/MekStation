@@ -1,0 +1,594 @@
+{
+  "schema": "ledger-reconcile-local/v2",
+  "artefact": "ledger-reconcile-2-local-20260915",
+  "batch": 2,
+  "at": "2026-09-15",
+  "scope": "openspec-only ledger + task-row reconciliation bound strictly to merged, exact-main-verified receipts written AFTER batch 1's base. No product code, no spec delta edits, no push, no PR, no sub-agents.",
+  "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/reconcile-1",
+  "runtime": {
+    "node": "v22.22.0"
+  },
+  "branch": {
+    "name": "codex/roadmap-ledger-reconcile-2-20260915",
+    "createdFrom": "origin/main after git fetch origin",
+    "baseSha": "4e5a74b9fddda382945277b15d76e2e09397d56c",
+    "baseSubject": "feat(combat): refuse to mirror a rewound match stream (#1717)",
+    "preflight": "git status --porcelain EMPTY on the reused reconcile-1 worktree before checkout; EMPTY again after the commit",
+    "batch1Base": "2b98ce5b049e7b63a38161057961d0185bb42a31",
+    "batch1MergeInBase": "e07ce0ef9672c3e8e578d7773c979e03f5e92c27 (PR #1718) - batch 1 is in this base"
+  },
+  "commits": [
+    {
+      "sha": "b1b47e653e8b0abf44a99590bb1b22bb8b6c810e",
+      "subject": "spec(openspec): reconcile ledger and task rows with merged exact-main receipts (batch 2)",
+      "author": "Wes Rollings <wrollings@gmail.com>",
+      "committer": "Wes Rollings <wrollings@gmail.com>",
+      "aiAttribution": "none",
+      "hooks": "on (pretty-quick/lint-staged ran oxfmt over the 5 staged json/md files; the pre-commit full build self-skipped - no TypeScript staged)",
+      "shortstat": "5 files changed, 30 insertions(+), 13 deletions(-)",
+      "pushed": false
+    }
+  ],
+  "caps": {
+    "fileLimit": 15,
+    "filesTouched": 5,
+    "lineLimit": 500,
+    "linesChanged": 43,
+    "splitNeeded": false
+  },
+  "liveAncestryChecks": {
+    "method": "git fetch origin, then `git merge-base --is-ancestor <sha> origin/main` for every cited merge commit PLUS `gh pr view <n> --json state,mergedAt,mergeCommit`. The untracked roadmap.json was read for navigation only and was never treated as merge-state truth (batch 1's one required edit was a stale-state defect of exactly that kind).",
+    "results": [
+      {
+        "pr": 1704,
+        "state": "MERGED",
+        "mergedAt": "2026-09-15T11:56:59Z",
+        "mergeCommit": "8cacf20a65880e42304c4e885b395525c820f775",
+        "ancestorOfOriginMain": true
+      },
+      {
+        "pr": 1705,
+        "state": "MERGED",
+        "mergedAt": "2026-09-15T13:34:03Z",
+        "mergeCommit": "293d21bb0e3874768f3b0269115d465313230f4d",
+        "ancestorOfOriginMain": true
+      },
+      {
+        "pr": 1709,
+        "state": "MERGED",
+        "mergedAt": "2026-09-15T12:45:20Z",
+        "mergeCommit": "a11ef14fdf586b96eb30d49329b1a99b63281725",
+        "ancestorOfOriginMain": true
+      },
+      {
+        "pr": 1710,
+        "state": "MERGED",
+        "mergedAt": "2026-09-15T13:05:30Z",
+        "mergeCommit": "83887b7467deba22c1b0b6aa6fb1be8ba6bc4600",
+        "ancestorOfOriginMain": true
+      },
+      {
+        "pr": 1711,
+        "state": "MERGED",
+        "mergedAt": "2026-09-15T13:25:28Z",
+        "mergeCommit": "1e43090c505f0b3d97fb71f099a9060e1936438c",
+        "ancestorOfOriginMain": true
+      },
+      {
+        "pr": 1712,
+        "state": "MERGED",
+        "mergedAt": "2026-09-15T13:52:07Z",
+        "mergeCommit": "3323b6995051fe660794f854dd1174ac55805321",
+        "ancestorOfOriginMain": true
+      },
+      {
+        "pr": 1713,
+        "state": "MERGED",
+        "mergedAt": "2026-09-15T14:15:19Z",
+        "mergeCommit": "4d7d17c3def5aa1989bd4819654f3eeec1fcc400",
+        "ancestorOfOriginMain": true
+      },
+      {
+        "pr": 1715,
+        "state": "MERGED",
+        "mergedAt": "2026-09-15T13:15:33Z",
+        "mergeCommit": "273ed7883420d6198094d6d23abde855cc327510",
+        "ancestorOfOriginMain": true
+      },
+      {
+        "pr": 1716,
+        "state": "MERGED",
+        "mergedAt": "2026-09-15T14:22:23Z",
+        "mergeCommit": "faf03445d421fc2b9a52c20d5dddfbdb5f82cb02",
+        "ancestorOfOriginMain": true
+      },
+      {
+        "pr": 1717,
+        "state": "MERGED",
+        "mergedAt": "2026-09-15T14:33:47Z",
+        "mergeCommit": "4e5a74b9fddda382945277b15d76e2e09397d56c",
+        "ancestorOfOriginMain": true,
+        "note": "this base SHA itself"
+      },
+      {
+        "pr": 1719,
+        "state": "MERGED",
+        "mergedAt": "2026-09-15T14:06:38Z",
+        "mergeCommit": "2b3075d821560a1c2a19a503c4cb883be4f1bf45",
+        "ancestorOfOriginMain": true
+      },
+      {
+        "pr": 1686,
+        "state": "MERGED",
+        "mergeCommit": "69ae5374455eb3b4cb0d1cb3d918477c9fba9e68",
+        "ancestorOfOriginMain": true
+      },
+      {
+        "pr": 1687,
+        "state": "MERGED",
+        "mergeCommit": "6a658c4ac3c4947d3e8dcd33e312e0655f0deda1",
+        "ancestorOfOriginMain": true
+      },
+      {
+        "pr": 1688,
+        "state": "MERGED",
+        "mergeCommit": "e7cbe9e00de224715dc7233b6028b66312ab5877",
+        "ancestorOfOriginMain": true
+      },
+      {
+        "pr": 1694,
+        "state": "MERGED",
+        "mergeCommit": "c40a394f6030cc18157384518a4e62550d6b3727",
+        "ancestorOfOriginMain": true
+      }
+    ]
+  },
+  "perEditTable": [
+    {
+      "id": "E1",
+      "file": "openspec/changes/adopt-combat-journal-cutover-and-gm-rewind/tasks.md",
+      "row": "1.4 (S4 restart recovery)",
+      "verdict": "PARTIAL",
+      "before": "Progress note read \"only A is merged - PR #1704 ...; PR #1705 (B) is NOT merged and has no main proof; box stays OPEN\"",
+      "after": "\"both prefixes now merged and main-verified\" with B PR #1705 293d21bb0 and its exact-main proof cited (blob-identical to reviewed head 32c08e47b; jest / typecheck / openspec strict / qc:openspec-ci all exit 0); adds that B delivers the divergence-refusal and create-path gap rows (the 1.7 seeding tripwire) and closes nothing else; the SECOND clause sentence now reads \"explicitly NOT claimed by EITHER receipt (B's own non-claims repeat it verbatim)\"",
+      "boundReceipts": [
+        "evidence/r4-s4-a-1704-main-proof-20260915.json",
+        "evidence/r4-s4-b-1705-main-proof-20260915.json"
+      ],
+      "noFlipBecause": "the box's second clause - proving restart recovery with the umbrella's restart pack (E2E-05/06/15) against a REWOUND match - is unclaimed by both receipts. #1705's own nonClaims say so verbatim."
+    },
+    {
+      "id": "E2",
+      "file": "openspec/changes/adopt-combat-journal-cutover-and-gm-rewind/tasks.md",
+      "row": "1.5 (S5-a sequence-versus-revision offset)",
+      "verdict": "FLIP",
+      "before": "- [ ] 1.5 ... (no sub-bullet)",
+      "after": "- [x] 1.5 ... plus a Receipt sub-bullet citing both merged prefixes, the review's completeness findings, and the carried residuals",
+      "boundReceipts": [
+        "evidence/r4-s5-a-1716-main-proof-20260915.json",
+        "evidence/r4-s5-b-1717-main-proof-20260915.json",
+        "evidence/r4-s5-explicit-offsets-review-20260915.json",
+        "evidence/r4-s5-explicit-offsets-local-20260915.json"
+      ],
+      "literalTextTest": {
+        "clause1": "\"make the sequence-versus-revision offset explicit at every derivation site\" - SATISFIED. MATCH_FIRST_SEQUENCE / nextMatchSequenceAfter / journalHeadRevisionForNextMatchSequence are colocated with revisionForMatchSequence; DurableMatchStore's commit-time check, InMemoryMatchStore.liveHeadSequence, ServerMatchHostBranchAdmission and the mirror's renamed nextMatchSequence input all route through them. Independent review axis 1 verdict PASS with completeness proved by grep: the only surviving `sequence + 1` in production IS the canonical definition.",
+        "clause2": "\"re-pin the four suites that encode it\" - SATISFIED. Review axis 5 verdict PASS: `grep -rln revisionForMatchSequence src --include=*.test.ts` at the reviewed head returns exactly the four suites, all four assert through the named helpers, and the reader suite's pre-existing literal row is additionally asserted through revisionForMatchSequence so a reader that stopped calling the function cannot keep it green on a literal."
+      },
+      "mutantMatrixDecision": "The S5 mutant matrix is NOT part of 1.5's literal text. design.md:13 attaches it to the SEAM (\"Hardest seam; carries its own mutant matrix\"), and S5 is split across tasks 1.5 (S5-a) and 1.6 (S5-b). Both merged receipts and review finding RE-5 place it at 1.6; RE-5's own words: \"Task 1.5's own text and the admission brief's charter do not name a matrix, so deferring it to 1.6 ... is defensible - but silence is not\", and the deferral is now stated rather than silent. Kill-coverage was checked by inspection (7 mutants reasoned, review axis 6).",
+      "residualsNamedOnTheRow": [
+        "S5 mutant matrix owed at 1.6 (seam obligation, not a clause of 1.5)",
+        "S5-R1: the typed `rewound-stream` refusal is permanent for a rewound stream until 1.6 sources the expected revision from the journal head; once 1.7 seeds the mirror at creation every rewound match pins the shadow mismatch counter above zero and the S7 receipt must say so",
+        "mode off, so neither guard nor refusal is reachable in production"
+      ]
+    },
+    {
+      "id": "E3",
+      "file": "openspec/changes/enable-saved-custom-unit-combat/tasks.md",
+      "row": "line 3 - strict projection / server reader / catalog endpoint / picker merge",
+      "verdict": "FLIP",
+      "before": "- [ ]",
+      "after": "- [x] + Receipt sub-bullet",
+      "boundReceipts": [
+        "evidence/r2-combat-s6-consolidated-20260915.json",
+        "evidence/r2-combat-s1-s4-verification-20260915.json"
+      ],
+      "rationale": "S6 checkboxProposal = CHECK, confidence high, residual null. Proven at 4d7d17c3d by the 13-suite/69-test matrix plus the live browser proof of the catalog endpoint and picker merge. The no-auth note on combat-catalog.ts is carried as an owner-visible design note, explicitly not a gap against this text."
+    },
+    {
+      "id": "E4",
+      "file": "openspec/changes/enable-saved-custom-unit-combat/tasks.md",
+      "row": "line 4 - carry the immutable snapshot through seeded setup and GameCreated",
+      "verdict": "PARTIAL",
+      "before": "- [ ]",
+      "after": "- [ ] + Progress sub-bullet naming the residual",
+      "boundReceipts": [
+        "evidence/r2-combat-s6-consolidated-20260915.json (perTaskLineTable.rows[1])"
+      ],
+      "noFlipBecause": "S6 proposed CHECK-WITH-NOTE, not CHECK, and the residual is INSIDE this row's literal text: co-op happy-path snapshot carriage onto GameCreated is structural (inherited via EncounterService as the single materializer) and is not asserted by any test in the 13-file matrix. S5 (#1712/#1713) proves co-op DENIALS, which is line 7's concern, not positive carriage."
+    },
+    {
+      "id": "E5",
+      "file": "openspec/changes/enable-saved-custom-unit-combat/tasks.md",
+      "row": "line 5 - recover AND rewind from validated recorded construction",
+      "verdict": "PARTIAL",
+      "before": "- [ ]",
+      "after": "- [ ] + Progress sub-bullet naming the residual",
+      "boundReceipts": [
+        "evidence/r2-combat-s6-consolidated-20260915.json (perTaskLineTable.rows[2])"
+      ],
+      "noFlipBecause": "HELD as directed. S6 proposed CHECK-WITH-NOTE and said explicitly \"If the owner reads 'rewind' as a hard requirement rather than shorthand, this line should be HELD rather than checked\". The 'rewind' clause has ZERO named coverage bound to recorded custom construction, grep-verified at 4d7d17c3d (empty intersection between src tests containing 'rewind' and those containing customConstruction|recordedConstruction|CustomCombatSnapshot). Severity moderate; a follow-up row lane owns the single binding assertion."
+    },
+    {
+      "id": "E6",
+      "file": "openspec/changes/enable-saved-custom-unit-combat/tasks.md",
+      "row": "line 6 - redaction for owners, opponents, spectators, and recovery streams",
+      "verdict": "PARTIAL",
+      "before": "- [ ]",
+      "after": "- [ ] + Progress sub-bullet naming the residual",
+      "boundReceipts": [
+        "evidence/r2-combat-s6-consolidated-20260915.json (perTaskLineTable.rows[3])",
+        "evidence/r2-combat-s1-s4-verification-20260915.json (S4 contingent gap)"
+      ],
+      "noFlipBecause": "S6 proposed CHECK-WITH-NOTE and the residual is one of the four streams the text names. Re-confirmed at 4d7d17c3d: zero hits for MatchRecovery|recoveryStream|recovery in the visibility and transport suites (the transport suite's third channel is reconnect), and zero hits for fogOfWar|redact|detach in MatchRecovery.ts. Coverage of the recovery stream is transitive through matchUnitBootstrap's shared detach."
+    },
+    {
+      "id": "E7",
+      "file": "openspec/changes/enable-saved-custom-unit-combat/tasks.md",
+      "row": "line 7 - shared catalog admission and campaign consumers; reject before materialization",
+      "verdict": "FLIP",
+      "before": "- [ ]",
+      "after": "- [x] + Receipt sub-bullet carrying the three accepted S5 residuals",
+      "boundReceipts": [
+        "evidence/r2-combat-s5-1712-main-proof-20260915.json",
+        "evidence/r2-combat-s5-rows-1713-main-proof-20260915.json",
+        "evidence/r2-combat-s5-review-20260915.json",
+        "evidence/r2-combat-s6-consolidated-20260915.json (perTaskLineTable.rows[4])"
+      ],
+      "rationale": "S6 checkboxProposal = CHECK, confidence high, 'reviewed, mutation-proven, exact-main accepted'; the S5 follow-up review's own verdict is 'taskLine7 PROVEN for co-op' with 11 mutations and no survivors. The three residuals are outside the literal text: (1) 'stale' and 'revision-mismatched' share one product branch so four adjectives map to three denial codes - a product shape, not a coverage hole; (2) browser rows 1-2 are branch duplicates; (3) OE-2, the literal 'before composition' assertion is exactly what #1713's unit-level rows added."
+    },
+    {
+      "id": "E8",
+      "file": "openspec/changes/enable-saved-custom-unit-combat/tasks.md",
+      "row": "line 8 - verify focused tests, SQLite reopen/recovery, browser handoff with server readback, static/build/spec checks",
+      "verdict": "FLIP",
+      "before": "- [ ]",
+      "after": "- [x] + Receipt sub-bullet with every gate's exit code and log sha256, plus the two declared boundaries",
+      "boundReceipts": [
+        "evidence/r2-combat-s6-consolidated-20260915.json (all seven gate logs, perTaskLineTable.rows[5])"
+      ],
+      "rationale": "S6 checkboxProposal = CHECK, confidence high, 'this receipt IS the line-8 artefact'. Each of the four literal clauses maps to a log produced in that session with a recorded sha256. The primary residual - a production COMBAT LAUNCH / terminal / post-battle browser flow - is OUTSIDE this row's text: the admission brief assigns it to node R2.combat-browser, whose own acceptance names it verbatim, and R2.combat-browser dependsOn R2.combat so nothing is blocked by closing this.",
+      "residualsNamedOnTheRow": [
+        "BROWSER SCOPE: e2e/saved-custom-combat.spec.ts proves persistence, catalog admission, picker, identity separation, Mech Bay and cold reload with server readback; production combat launch and terminal/post-battle flow belong to R2.combat-browser",
+        "BUILD ENV: the acceptance build carried NEXT_PUBLIC_E2E_MODE/NEXT_PUBLIC_E2E_TEST so one build served both the acceptance line and the browser artefact; a flag-free vanilla build was not separately run"
+      ],
+      "coherenceNote": "Checking line 8 while lines 4-6 stay open is deliberate and not a contradiction: line 8's clauses are gate outcomes, every one of which passed at 4d7d17c3d, while the residuals on 4/5/6 are coverage gaps inside existing test surfaces rather than failing gates. The trailing sentence of tasks.md records this split explicitly."
+    },
+    {
+      "id": "E9",
+      "file": "openspec/changes/enable-saved-custom-unit-combat/tasks.md",
+      "row": "trailing policy sentence",
+      "verdict": "NOTE",
+      "before": "\"Acceptance evidence is recorded separately; these checkboxes remain unchanged until explicitly requested.\"",
+      "after": "same sentence plus: requested and reconciled 2026-09-15 at exact main 4d7d17c3d; three rows flipped and three held with the residual named on the row; the three held rows are held despite S6's CHECK-WITH-NOTE because each residual is a clause of that row's own literal text rather than a boundary outside it",
+      "rationale": "The file's own policy line says the boxes move only on explicit request; the reconciliation batch IS that request, and saying so keeps the file self-consistent."
+    },
+    {
+      "id": "E10",
+      "file": "openspec/changes/design-campaign-authority-and-sync/tasks.md",
+      "row": "1.6 P-A crash-window flush",
+      "verdict": "PARTIAL (note corrected)",
+      "before": "\"... and the case (a) tab-close discard repair PR #1711 1e43090c5 (merged; exact-main acceptance recorded separately in the roadmap).\"",
+      "after": "\"... PR #1711 1e43090c5 (exact-main proof evidence/r2-client-crash-window-close-1711-main-proof-20260915.json - blob-identical to the reviewed head d28288b1e, typecheck 0, oxfmt 0, openspec strict 0, qc:openspec-ci 0), so all three commits of the stack are merged and main-verified.\"",
+      "boundReceipts": [
+        "evidence/r2-client-crash-window-proof-1709-main-proof-20260915.json",
+        "evidence/r2-client-flush-reconcile-1710-main-proof-20260915.json",
+        "evidence/r2-client-crash-window-close-1711-main-proof-20260915.json"
+      ],
+      "noFlipBecause": "Residual unchanged and already stated verbatim in the surrounding note: the flush is honoured only for CLOSE-shaped discards. Chromium 143 aborts the keepalive fetch before dispatch on a NAVIGATION departure (measured 0/15 about:blank, 1/2 same-origin, 11/11 tab close), so the 'hard reload' half of this box's own 'hard reload or close' wording is uncovered and cannot be closed until owner decision OD-flush-mechanism settles the mechanism (a new POST surface for sendBeacon, or fetchLater()). Also carried: the reconciliation re-arms a save but does not re-validate the cache head or resync baseVersion.",
+      "batch1Relation": "batch 1 rewrote this note under its review's RE-1; batch 2 only replaces the now-stale 'exact-main acceptance recorded separately in the roadmap' pointer with the artefact that now exists."
+    },
+    {
+      "id": "E11",
+      "file": "openspec/changes/design-campaign-authority-and-sync/tasks.md",
+      "row": "6.3 boundary proofs for 6.1 and 6.2",
+      "verdict": "PARTIAL",
+      "before": "- [ ] 6.3 ... (no sub-bullet)",
+      "after": "- [ ] 6.3 ... + Progress sub-bullet",
+      "boundReceipts": [
+        "evidence/r2-63-leak-row-1719-main-proof-20260915.json",
+        "evidence/r2-63-room-code-leak-row-local-20260915.json",
+        "evidence/r2-63-room-code-leak-row-review-20260915.json",
+        "evidence/r2-p0b-s1-1686-main-proof-20260915.json",
+        "evidence/r2-p0b-s2-1687-main-proof-20260915.json",
+        "evidence/r2-p0b-s3-1688-main-proof-20260915.json"
+      ],
+      "noFlipBecause": "The text quoted on the row: \"Falsify each boundary 1:1: deleting the `envelopeOf` narrowing must turn the leak rows red while the compact control stays green ... Producer rows live in src/lib/campaign/authority/__tests__/campaignCommandPipeline.test.ts\". The falsification pass has been run for the two leak boundaries (mutating envelopeOf in projectCampaignStreamForGrant.ts turns the room-code row and the grant suite red while four same-file controls stay green) but NOT for the producer rows - the residual #1719's own acceptance line records verbatim as 'producer-row 1:1 falsification pass remains the recorded residual'. Independently, 6.1's borrowed-handle CAS write and durable sourceReplayFence are unshipped, so these boundaries are not yet the whole 6.1 surface.",
+      "rowsPresentOnMain": "six, per the #1719 acceptance line"
+    },
+    {
+      "id": "E12",
+      "file": "openspec/changes/design-campaign-authority-and-sync/tasks.md",
+      "rows": "6.1 / 6.2 / 6.4",
+      "verdict": "NO CHANGE",
+      "rationale": "Directed: 6.1's remaining clauses (borrowed-handle CAS + durable sourceReplayFence + baseline capture under the P0a prepared transaction), 6.2a's client half and 6.2b routing, and the unsized 6.4 bridge are unmerged or owner-blocked. Batch 1 already named their open clauses verbatim; nothing new merged against them after batch 1's base."
+    },
+    {
+      "id": "E13",
+      "file": "openspec/changes/add-saved-custom-unit-campaign-roster/tasks.md",
+      "rows": "0.4, 1.5, 2.1, 2.2, 3.2, 4.3, 5.3, 6.1, 7.1",
+      "verdict": "NOTE (no flips)",
+      "notesAdded": [
+        {
+          "row": "0.4 camp-00",
+          "tier": "COMMAND-LEVEL ONLY, green",
+          "exactMain": "819ff6fd86696f88b7a9f23540b5caa2ca0a5ace",
+          "detail": "frozen command array green, 17 frozen assertions true",
+          "receipt": "evidence/camp00-receipt-run-main-819ff6f-20260915.json",
+          "gate": "controller tier (writer/validator never invoked; command-result.json + receipt-manifest.json absent; proof-02-triage and proof-02-required-repairs predecessor receipts do not exist) + githubReviewGate (non-author exact-head APPROVED review, soloException false) on a single-collaborator repository"
+        },
+        {
+          "row": "1.5 camp-01a",
+          "tier": "COMMAND-LEVEL ONLY, green",
+          "exactMain": "aa26a94f11c0d497df7f62b685de8ab6f9fafaae",
+          "detail": "exit 0, 3/3 suites, 29/29 tests; self-written wave-result.json status passed, 9 frozen assertions, exact key-set match",
+          "receipt": "evidence/camp01a-receipt-run-main-20260915.json",
+          "gate": "controller tier fails fast on the missing camp-00 predecessor receipt + githubReviewGate; the archived child's PR #1230 / 2026-08-12 council-review claim was NOT relied upon (that document is absent from origin/main)"
+        },
+        {
+          "row": "2.1",
+          "tier": "coverage gap CLOSED",
+          "detail": "PR #1715 273ed7883 pins the buildCampaignAuthoritativeState roster guards with a one-mutation-at-a-time campaign, distinct kill set per row; review APPROVE, no required edits",
+          "receipt": "evidence/r2-camp-2-s2-1715-main-proof-20260915.json",
+          "gate": "box still rides the owner-blocked camp-01b receipt in 2.2"
+        },
+        {
+          "row": "2.2 camp-01b",
+          "tier": "NO command-level receipt claimed",
+          "exactMain": "83887b7467deba22c1b0b6aa6fb1be8ba6bc4600",
+          "detail": "commandSequence[0] green (4/4 suites, 42/42 tests, 6 frozen assertions, exact key-set match); commandSequence[1] `npm run verify:qc:coop-campaign-journey` exits 1 - jest leg 9/9 and the two-browser journey pass, e2e/coop-campaign-ui-audit.spec.ts fails deterministically (re-run once, same signature) on a blanket console-error assertion collecting four 403s",
+          "receipt": "evidence/camp01bc-receipt-run-main-20260915.json",
+          "gate": "same shared failing leg for 01b/01c/01d + controller predecessor chain unbroken back to camp-00 + githubReviewGate"
+        },
+        {
+          "row": "3.2 camp-01c",
+          "tier": "NO command-level receipt claimed",
+          "exactMain": "83887b7467deba22c1b0b6aa6fb1be8ba6bc4600",
+          "detail": "commandSequence[0] green with 7 frozen assertions and exact key-set match; commandSequence[1] is the SAME failing package script",
+          "receipt": "evidence/camp01bc-receipt-run-main-20260915.json",
+          "gate": "controller predecessor camp-01b + githubReviewGate"
+        },
+        {
+          "row": "4.3 camp-01d",
+          "tier": "NO command-level receipt claimed",
+          "exactMain": "83887b7467deba22c1b0b6aa6fb1be8ba6bc4600",
+          "detail": "commandSequence[0] green (3/3 suites, 14/14 tests, 7 frozen assertions incl. four ===0 and one ===1); commandSequence[1] qc:command:readiness-stable:quick green (4/4 suites, 44/44 tests); commandSequence[2] is the SAME failing package script",
+          "receipt": "evidence/camp01bc-receipt-run-main-20260915.json",
+          "gate": "controller predecessor camp-01c + githubReviewGate"
+        },
+        {
+          "row": "5.3 camp-01e",
+          "tier": "COMMAND-LEVEL ONLY, green",
+          "exactMain": "4d7d17c3def5aa1989bd4819654f3eeec1fcc400",
+          "detail": "both frozen arrays green, wave-result.json status passed, 7 frozen assertions, exact key-set match, canonicalArgvDigest recomputed and matching",
+          "receipt": "evidence/camp01efg-receipt-run-main-20260915.json",
+          "gate": "captureContract screenshots (desktop.png, mobile-390x844.png) not produced - only the writer issues the bound artifact directory; controller predecessor camp-01d + githubReviewGate"
+        },
+        {
+          "row": "6.1 camp-01f",
+          "tier": "COMMAND-LEVEL ONLY, green",
+          "exactMain": "4d7d17c3def5aa1989bd4819654f3eeec1fcc400",
+          "detail": "both frozen arrays green, wave-result.json status passed, exact key-set match",
+          "receipt": "evidence/camp01efg-receipt-run-main-20260915.json",
+          "gate": "reporterContract reports not produced; controller predecessor camp-01e + githubReviewGate"
+        },
+        {
+          "row": "7.1 camp-01g",
+          "tier": "COMMAND-LEVEL ONLY, green",
+          "exactMain": "4d7d17c3def5aa1989bd4819654f3eeec1fcc400",
+          "detail": "all three frozen arrays green; cross-wave tally 7 of 7 pinned commands green, 27 of 27 frozen assertions converted, 0 failed",
+          "receipt": "evidence/camp01efg-receipt-run-main-20260915.json",
+          "gate": "reporterContract reports not produced; controller predecessor camp-01f + githubReviewGate; note added that the cross-path admission evidence this box supplies to adopt-campaign-event-journal-authority PR 3 task 3.0 sits at the receipt tier this run did not reach"
+        }
+      ],
+      "explicitNonFlip": "No roster checkbox was flipped. Every one of these boxes requires a controller-registered and/or PR-provenanced receipt directory that no agent lane can produce while the repository has one collaborator and soloException is false."
+    },
+    {
+      "id": "E14",
+      "file": "openspec/active-change-ledger.json",
+      "verdict": "NOTE (4 entries refreshed; 6 lines changed, no structural change)",
+      "entries": [
+        {
+          "name": "enable-saved-custom-unit-combat",
+          "lastReviewed": "2026-09-09 -> 2026-09-15",
+          "reasonChange": "records the S6 consolidated receipt at 4d7d17c3d, all five R2.combat acceptance lines satisfied, the three flips, the three held rows with their in-text residuals, and the two declared boundaries"
+        },
+        {
+          "name": "add-saved-custom-unit-campaign-roster",
+          "lastReviewed": "2026-08-14 -> 2026-09-15",
+          "reasonChange": "records the command-level tier reached per wave (camp-00 / 01a / 01e / 01f / 01g green; 01b / 01c / 01d not claimed on the shared failing coop-campaign-journey leg), the unbroken controller predecessor chain, the githubReviewGate owner block, and the 2.1 gap closed by #1715"
+        },
+        {
+          "name": "adopt-combat-journal-cutover-and-gm-rewind",
+          "lastReviewed": "2026-09-15 (unchanged)",
+          "reasonChange": "six merged prefixes -> nine (adds S4-B #1705, S5-A #1716, S5-B #1717); 1.5 moves from open to closed; 1.4's open clause restated as 'both merged, restart pack against a rewound match claimed by neither receipt'; adds the S5 carried residuals"
+        },
+        {
+          "name": "design-campaign-authority-and-sync",
+          "lastReviewed": "2026-09-15 (unchanged)",
+          "reasonChange": "CORRECTION of a stale-state defect: the entry still read 'browser half owed to unmerged PRs #1710/#1711'. Both merged (13:05Z and 13:25Z), live-verified as ancestors of origin/main. Rewritten to record the whole crash-window stack main-verified with the navigation-discard residual under OD-flush-mechanism, plus 6.3's six rows on main with the producer-row falsification residual. Not in the directed edit list, but it is the same class of defect batch 1's review caught (RE-1) and the ledger is one of the files this batch touches."
+        }
+      ]
+    }
+  ],
+  "deferralsPreservedVerbatim": {
+    "history81to83": "not touched - add-authoritative-history-branches was not edited by this batch",
+    "modeFlips": "every mode flip stays OFF; no receipt in this batch claims otherwise and every note that mentions mode repeats it",
+    "campReviewAndWitnessGates": "githubReviewGate (non-dismissed exact-head APPROVED review by a NON-AUTHOR with WRITE/MAINTAIN/ADMIN, soloException false) and the CAMP-01H three-session witness gate are preserved verbatim on every roster note; none is claimed satisfied"
+  },
+  "receiptsReadButNotActedOn": [
+    {
+      "artefact": "evidence/r1-remote-closure-20260915.json",
+      "reason": "closureVerdict CLOSABLE-NOW with proposedCheckboxFlips explicitly empty - all 20 boxes already [x] on main. Its ledger observation about add-customizer-pr-regression-gate was already actioned by batch 1 (entry now reads the 2026-09-15 review with the CLOSABLE-NOW verdict), so nothing was owed here."
+    },
+    {
+      "artefact": "evidence/r2-receipts-closure-20260915.json",
+      "reason": "closureVerdict CLOSABLE-EXCEPT-OWNER-GATE(6.1,6.2); all 19 add-camp01-authority-receipts boxes already [x] on main and the receipt proposes no tasks.md edit. Its 5.3 narrowing and the 4.1 F/G annotation are roadmap.json / that package's own bookkeeping, outside this batch's four task files. Its own note that 5.3's last open sub-requirement is a Node 22 typecheck/lint/format run is recorded here rather than written into a file this batch does not own."
+    },
+    {
+      "artefact": "evidence/proof02-final-rerun-main-e048a43-20260915.json",
+      "reason": "OBSERVATION-SET-EQUALITY-HOLDS at e048a43cd (13/13, exit 0, all four prior non-passing observations resolved, no new ones). It changes no box in this batch's files. Its blocking finding is recorded for the owner: validateProof02Triage unconditionally calls assertProofCauseGraph, and assertCauseGraph rejects an empty array, so an ALL-GREEN reproduction makes the proof-02-triage artifact unwritable as the contract stands - executed proof, not inference. The contract must either admit an empty disposition set for an all-green reproduction or gain an explicit all-green terminal form. This is a prerequisite of roster task 0.4's predecessor list."
+    }
+  ],
+  "validators": {
+    "runAt": "worktree HEAD b1b47e653 tree (pre-commit, same content)",
+    "outputDir": ".sisyphus/roadmap-completion-20260912/reconcile-2-20260915/",
+    "results": [
+      {
+        "command": "npx openspec validate --all --strict",
+        "exit": 0,
+        "result": "Totals: 232 passed, 0 failed (232 items)",
+        "log": "openspec-strict.log",
+        "sha256": "a6f1b01bad6ef535f7ae511fd2b0e725e382bcb462449ef4386723e0ec97eff3",
+        "note": "byte-identical hash to the openspecStrict gate recorded in the S4-B, S5-A, S5-B, 1711 and 1719 main proofs"
+      },
+      {
+        "command": "npm run spec:purpose:validate:strict",
+        "exit": 0,
+        "result": "Files scanned: 220; Errors: 0; Tracked source-of-truth debt: 0",
+        "log": "purpose-strict.log",
+        "sha256": "cd0183b62b4aa2a169bb2f59e9cdbe18c24f76c900714a61e55937c333bf2cf1"
+      },
+      {
+        "command": "npm run terminology:validate:strict",
+        "exit": 0,
+        "log": "terminology-strict.log",
+        "sha256": "c7531b99680d809855ea00b0357447133c1436e84ea0e9f9f7807300cd904eba"
+      },
+      {
+        "command": "npm run qc:openspec-ci:validate",
+        "exit": 0,
+        "result": "workflowContracts=8/8 workflowJobContracts=1/1 aggregatorNeeds=19/19 protectedContexts=4 packageScripts=3/3 activeOpenSpecChanges=12 accountedActiveOpenSpecChanges=12 errors=0",
+        "log": "qc-openspec-ci.log",
+        "sha256": "8c41df6c33246420ed1806218780c2df69b5ad4e7c594b993b07594ee959ccb2"
+      }
+    ]
+  },
+  "tally": {
+    "FLIP": 4,
+    "PARTIAL": 5,
+    "NOTE": 12,
+    "NO_CHANGE": 1
+  },
+  "nonClaims": [
+    "NOT PUSHED. No branch was pushed and no PR was opened.",
+    "No product, test, script, spec-delta or workflow file was modified - the diff is five openspec bookkeeping files.",
+    "No sub-agent was spawned; no stash, no reset --hard, no clean.",
+    "No roadmap.json edit was made. roadmap.json is untracked and was read for navigation only; every merge-state fact in this artefact comes from a live `gh pr view` plus `git merge-base --is-ancestor` against a freshly fetched origin/main.",
+    "The four camp receipt runs are COMMAND-LEVEL only and flip no camp receipt checkbox; this batch only records the tier each reached and the gate above it.",
+    "No githubReviewGate, CAMP-01H witness gate, or journal/combat mode flag is claimed satisfied by anything here.",
+    "No test suite, browser proof or build was executed by this batch beyond the four validators; every test/gate figure quoted in the notes is carried from a cited merged receipt with its own recorded exit code, and is attributed as such on the row.",
+    "The enable-saved-custom-unit-combat line-8 build caveat is carried forward, not resolved: a flag-free vanilla production build has still not been run at 4d7d17c3d."
+  ],
+  "reviewEdits": {
+    "review": "evidence/ledger-reconcile-2-review-20260915.json",
+    "verdict": "APPROVE-WITH-REQUIRED-EDITS",
+    "reviewSummary": "Review PASSed every literal-text spot check (1.5 flip, combat lines 3-8 FLIP/PARTIAL split, design-campaign 1.6 and 6.3 notes), confirmed all 16 cited shas are ancestors of origin/main, confirmed no checkbox line moved in the roster file, confirmed no deferral was reopened or weakened, and confirmed no AI attribution. Its only required edits are four wording-only staleness corrections of the same class batch 1 caught under its own RE-1. Two review observations needed no edit: the literal `git diff origin/main..HEAD` command reads as a false positive because origin/main advanced two commits (#1720, #1721) past this batch base, while `git diff b1b47e653^..b1b47e653` is exactly 5 openspec files / 43 lines; and the ledger-reason refresh for design-campaign-authority-and-sync was judged in scope under batch 1 precedent.",
+    "appliedInCommit": {
+      "sha": "d17c1ae8f2ee6caba7e205671566176e58d5f4b4",
+      "subject": "spec(openspec): record #1720 fix on the CAMP journey notes (review RE-1..RE-4)",
+      "author": "Wes Rollings <wrollings@gmail.com>",
+      "committer": "Wes Rollings <wrollings@gmail.com>",
+      "aiAttribution": "none",
+      "hooks": "on (lint-staged oxfmt over the 2 staged json/md files; pre-commit build self-skipped, no TypeScript staged)",
+      "shortstat": "2 files changed, 4 insertions(+), 4 deletions(-)",
+      "checkboxesChanged": "NONE - verified with `git diff -U0 | grep -E \"^[+-]- \\[\"` returning no matches before commit"
+    },
+    "triggeringPr": {
+      "pr": 1720,
+      "title": "fix(campaign): stop a co-op guest asking for the GM share grants it cannot list",
+      "mergeCommit": "f685a5391f6e69b73932cdef5323dd2d247e55a6",
+      "mergedAtUtc": "2026-09-15T14:47:55Z",
+      "relationToThisBatch": "merged AFTER this batch base 4e5a74b9f (14:33:47Z) and BEFORE the batch commit b1b47e653 was authored (14:54:47Z), so the roster notes described an already-fixed defect as a standing failure",
+      "liveVerificationThisSession": "`gh pr view 1720 --json state,mergedAt,mergeCommit` -> MERGED / 2026-09-15T14:47:55Z / f685a5391f6e69b73932cdef5323dd2d247e55a6, and `git merge-base --is-ancestor f685a5391f6e69b73932cdef5323dd2d247e55a6 origin/main` -> true, against origin/main freshly fetched at tip 15ca7b25b61473901909ac9954feb7677f1985f4. Not carried from the review artefact."
+    },
+    "edits": [
+      {
+        "id": "RE-1",
+        "file": "openspec/changes/add-saved-custom-unit-campaign-roster/tasks.md",
+        "row": "2.2 (camp-01b) receipt-tier note",
+        "before": "the SECOND array, `npm run verify:qc:coop-campaign-journey`, exits 1 - its 9-suite jest leg (138/138) and `e2e/coop-campaign-two-browser-journey.spec.ts` pass while `e2e/coop-campaign-ui-audit.spec.ts` fails deterministically (re-run once, same signature) on a blanket console-error assertion collecting four 403 responses. Because the frozen array did not run green end to end, nothing above the partial tier exists",
+        "after": "the SECOND array, `npm run verify:qc:coop-campaign-journey`, exits 1 - its 9-suite jest leg (138/138) and `e2e/coop-campaign-two-browser-journey.spec.ts` pass while `e2e/coop-campaign-ui-audit.spec.ts` fails deterministically (re-run once, same signature) on a blanket console-error assertion collecting four 403 responses. This defect is now fixed on main: PR #1720 (merge f685a5391f6e69b73932cdef5323dd2d247e55a6, merged 2026-09-15T14:47:55Z, after this batch's base 4e5a74b9f) stops the co-op guest dashboard from requesting GM share grants it cannot list, and PR #1720's own frozen-journey rerun on a fresh E2E build recorded exit 0 with zero 403s; only the `verify:qc:coop-campaign-journey` re-run against main at or after f685a5391 for this row remains owed, and it has not been performed here. Because the frozen array captured in this receipt did not run green end to end, nothing above the partial tier exists",
+        "appliedVerbatimFromReview": true,
+        "checkboxChanged": false
+      },
+      {
+        "id": "RE-2",
+        "file": "openspec/changes/add-saved-custom-unit-campaign-roster/tasks.md",
+        "row": "3.2 (camp-01c) receipt-tier note",
+        "before": "the SECOND array is the SAME `npm run verify:qc:coop-campaign-journey` package script as `camp-01b` and fails identically (exit 1, same single spec, same four-403 signature) - one failing leg shared by three waves, and not in any wave's own assertion surface.",
+        "after": "the SECOND array is the SAME `npm run verify:qc:coop-campaign-journey` package script as `camp-01b` and fails identically (exit 1, same single spec, same four-403 signature) - one failing leg shared by three waves, and not in any wave's own assertion surface. This shared defect is now fixed on main by PR #1720 (merge f685a5391f6e69b73932cdef5323dd2d247e55a6, merged 2026-09-15T14:47:55Z, after this batch's base); only the `verify:qc:coop-campaign-journey` re-run against main at or after f685a5391 is owed for this row, and it has not been performed here.",
+        "appliedVerbatimFromReview": true,
+        "checkboxChanged": false
+      },
+      {
+        "id": "RE-3",
+        "file": "openspec/changes/add-saved-custom-unit-campaign-roster/tasks.md",
+        "row": "4.3 (camp-01d) receipt-tier note",
+        "before": "the THIRD array is the same shared `npm run verify:qc:coop-campaign-journey` script and fails identically. See `openspec/planning/2026-09-12-roadmap-completion/evidence/camp01bc-receipt-run-main-20260915.json`.",
+        "after": "the THIRD array is the same shared `npm run verify:qc:coop-campaign-journey` script and fails identically. This shared defect is now fixed on main by PR #1720 (merge f685a5391f6e69b73932cdef5323dd2d247e55a6, merged 2026-09-15T14:47:55Z, after this batch's base); only the `verify:qc:coop-campaign-journey` re-run against main at or after f685a5391 is owed for this row, and it has not been performed here. See `openspec/planning/2026-09-12-roadmap-completion/evidence/camp01bc-receipt-run-main-20260915.json`.",
+        "appliedVerbatimFromReview": true,
+        "checkboxChanged": false
+      },
+      {
+        "id": "RE-4",
+        "file": "openspec/active-change-ledger.json",
+        "row": "allowedActiveChanges[add-saved-custom-unit-campaign-roster].reason",
+        "before": "all three share verify:qc:coop-campaign-journey as their final array and it fails deterministically on e2e/coop-campaign-ui-audit.spec.ts collecting four 403 responses.",
+        "after": "all three share verify:qc:coop-campaign-journey as their final array and it fails deterministically on e2e/coop-campaign-ui-audit.spec.ts collecting four 403 responses. That defect is now fixed on main by PR #1720 (merge f685a5391f, merged 2026-09-15T14:47:55Z, after this batch's base); only the re-run against main at or after f685a5391 is owed for camp-01b/01c/01d.",
+        "appliedVerbatimFromReview": true,
+        "checkboxChanged": false
+      }
+    ],
+    "explicitNonClaims": [
+      "The `verify:qc:coop-campaign-journey` re-run against main at or after f685a5391 was NOT performed by this batch, and no note or ledger line claims it was. Every one of the four edits states the re-run remains owed.",
+      "No checkbox changed. Rows 2.2, 3.2 and 4.3 stay `- [ ]`; the camp-01b/01c/01d command-level receipt tier is still unclaimed because the captured runs predate #1720, and the controller and PR-provenanced tiers are separately owner-blocked (missing predecessor chain back to camp-00; githubReviewGate with soloException false).",
+      "The #1720 zero-403 rerun figure is attributed to PR #1720’s own body on the row, not re-measured here.",
+      "No product, test, script or spec-delta file was touched; the RE commit is 2 openspec bookkeeping files."
+    ],
+    "validatorsAfterReviewEdits": {
+      "outputDir": ".sisyphus/roadmap-completion-20260912/reconcile-2-20260915/re-edits/",
+      "results": [
+        {
+          "command": "npx openspec validate --all --strict",
+          "exit": 0,
+          "result": "Totals: 232 passed, 0 failed (232 items)",
+          "log": "re-edits/openspec-strict.log",
+          "sha256": "a6f1b01bad6ef535f7ae511fd2b0e725e382bcb462449ef4386723e0ec97eff3"
+        },
+        {
+          "command": "npm run spec:purpose:validate:strict",
+          "exit": 0,
+          "result": "Files scanned: 220; Errors: 0",
+          "log": "re-edits/purpose-strict.log",
+          "sha256": "cd0183b62b4aa2a169bb2f59e9cdbe18c24f76c900714a61e55937c333bf2cf1"
+        },
+        {
+          "command": "npm run terminology:validate:strict",
+          "exit": 0,
+          "result": "No terminology violations found; all 315 file(s) compliant",
+          "log": "re-edits/terminology-strict.log",
+          "sha256": "0b5a5f72ade560b7b6ce9a99427442632162d8bebef47b0ec21882b6e62c37c0"
+        },
+        {
+          "command": "npm run qc:openspec-ci:validate",
+          "exit": 0,
+          "result": "workflowContracts=8/8 workflowJobContracts=1/1 aggregatorNeeds=19/19 protectedContexts=4 packageScripts=3/3 activeOpenSpecChanges=12 accountedActiveOpenSpecChanges=12 errors=0",
+          "log": "re-edits/qc-openspec-ci.log",
+          "sha256": "8c41df6c33246420ed1806218780c2df69b5ad4e7c594b993b07594ee959ccb2"
+        }
+      ],
+      "allExitZero": true,
+      "note": "openspec-strict, purpose and qc-openspec-ci log hashes are byte-identical to the pre-review run; the terminology log hash differs only because its output carries a run-scoped Node MODULE_TYPELESS_PACKAGE_JSON warning line, and its result is unchanged (0 violations, 315 files compliant)."
+    }
+  }
+}

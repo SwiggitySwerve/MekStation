@@ -1,0 +1,361 @@
+{
+  "schema": "camp01bcd-receipt-run-main/v1",
+  "runAt": "2026-09-15",
+  "lane": "camp01bcd-receipt-rerun-main-231c784 (GP-JUSTIFIED: bounded command-level receipt re-run on exact main >= f685a5391, the #1720 guest share-panel grants fix; read-only with respect to the repo -- no edits, no commits, no push, no PR, no memory writes, no sub-agents)",
+  "task": "Re-run the frozen command-level receipt for roadmap R2.camp-2 (camp-01b), R2.camp-3 (camp-01c) and R2.camp-4 (camp-01d) on a main containing PR #1720, to close the 'owed' item recorded in evidence/guest-share-panel-grants-1720-main-proof-20260915.json: 'camp-01b/01c/01d journey legs re-run on main >= f685a5391'. Supersedes the FAILED-PRODUCT verdicts in evidence/camp01bc-receipt-run-main-20260915.json, whose failure (four 403s on GET /api/campaigns/<id>/grants in e2e/coop-campaign-ui-audit.spec.ts) was root-caused in evidence/grants-403-journey-diagnosis-20260915.json and fixed by PR #1720.",
+
+  "verdict": {
+    "camp-01b": "COMMAND-LEVEL RECEIPT PRODUCED, FULL GREEN: frozen commandSequence[0] (the 4-file jest run) is GREEN (exit 0, 4/4 suites, 42/42 tests) and its self-writing test emitted wave-result.json (schema camp01-wave-result/v1, status passed) with all 6 frozen assertions at their expected values and an exact key-set match against WAVE_CONTRACTS['camp-01b'].assertions. Frozen commandSequence[1] (`npm run verify:qc:coop-campaign-journey`) is now GREEN (exit 0): its 9-suite jest leg passed 9/9 suites and 142/142 tests, and BOTH e2e/coop-campaign-two-browser-journey.spec.ts and e2e/coop-campaign-ui-audit.spec.ts passed with ZERO console-error occurrences (0 matches for '403' in the log). No flake re-run was needed -- the row ran green on the first attempt.",
+    "camp-01c": "COMMAND-LEVEL RECEIPT PRODUCED, FULL GREEN: frozen commandSequence[0] (the 3-file jest run) is GREEN (exit 0, 3/3 suites, 86/86 tests) and its self-writing test emitted wave-result.json (status passed) with all 7 frozen assertions at their expected values and an exact key-set match against WAVE_CONTRACTS['camp-01c'].assertions. Frozen commandSequence[1] is the SAME `npm run verify:qc:coop-campaign-journey` script and is now GREEN identically to camp-01b (exit 0, 9/9 suites, 142/142 tests, 2 Playwright specs passed, 0 occurrences of '403'). No flake re-run needed.",
+    "camp-01d": "COMMAND-LEVEL RECEIPT PRODUCED, FULL GREEN: frozen commandSequence[0] (the 3-file jest run) is GREEN (exit 0, 3/3 suites, 18/18 tests) and its self-writing test emitted wave-result.json (status passed) with all 7 frozen assertions at their expected values -- including the four `===0` and one `===1` numeric keys -- and an exact key-set match against WAVE_CONTRACTS['camp-01d'].assertions. Frozen commandSequence[1] (`npm run qc:command:readiness-stable:quick`) is GREEN (exit 0, 4/4 suites, 48/48 tests). Frozen commandSequence[2] is the SAME `npm run verify:qc:coop-campaign-journey` script and is now GREEN identically (exit 0, 9/9 suites, 142/142 tests, 2 Playwright specs passed, 0 occurrences of '403'). No flake re-run needed.",
+    "sharedFix": "All three waves' failing tail (`npm run verify:qc:coop-campaign-journey`, package.json:199) is now green because PR #1720 (merge f685a5391f6e69b73932cdef5323dd2d247e55a6) applied the minimal correct fix identified in evidence/grants-403-journey-diagnosis-20260915.json: the co-op guest's dashboard no longer issues GET /api/campaigns/<id>/grants, because CampaignSharePanelConnected's fetch precondition was narrowed from `isSource` alone to `isSource && coopMode !== 'guest'`. The jest leg's test count rose from 138 to 142 (camp-01b/c) and camp-01d's commandSequence[0] rose from 14 to 18 and commandSequence[1] from 44 to 48 tests, consistent with the fix's PR adding the unit test that pins 'a guest-mode panel issues no grants request' plus adjacent coverage."
+  },
+
+  "exactMain": {
+    "priorReceiptRunSha": "83887b7467deba22c1b0b6aa6fb1be8ba6bc4600",
+    "guestShareFixMergeCommit": "f685a5391f6e69b73932cdef5323dd2d247e55a6",
+    "guestShareFixReviewedHead": "44ceed8cc80ed3a20d4098a233316870c1b5a99f",
+    "guestShareFixPr": 1720,
+    "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/archive-original-main-proof",
+    "headShaThisRun": "231c7848aa0850b616a84581ff3c54e1d5ddb6bf",
+    "ancestryVerifiedBy": "`git merge-base --is-ancestor f685a5391f6e69b73932cdef5323dd2d247e55a6 HEAD` -> exit 0 (ANCESTOR_OK), checked before the build and re-checked after all runs with the same result",
+    "workingTreeCleanBeforeRuns": true,
+    "workingTreeCleanAfterRuns": true,
+    "workingTreeCleanVerifiedBy": "`git status --porcelain` empty both times; only run output landed in gitignored trees (.gitignore test-results/ and .sisyphus/*)",
+    "noCheckoutPerformed": "this lane did not check out any other ref in this worktree; HEAD was 231c7848a before and after",
+    "npmCiRerun": false,
+    "npmCiRerunRationale": "the worktree's existing Node 22 node_modules ran both frozen jest commands, the 9-suite journey jest leg, the readiness-stable slice, and a full Playwright chromium run successfully; no reinstall was performed. package-lock.json equality between the worktree's install and this SHA was NOT independently verified by this lane."
+  },
+
+  "frozenContract": {
+    "source": "scripts/qc/camp01-authority-receipt.contract.mjs -> WAVE_CONTRACTS['camp-01b'], ['camp-01c'] and ['camp-01d']",
+    "sourceSha256": "8d360592e96831322faa86d53e1348fa4ac6ef33b504fe7db34d22c7437f0bd3",
+    "sourceSha256MatchesPriorReceiptRunRecord": true,
+    "verifiedBy": "sha256sum scripts/qc/camp01-authority-receipt.contract.mjs in this worktree at HEAD 231c7848a; matches the 8d360592... value recorded verbatim in evidence/camp01bc-receipt-run-main-20260915.json frozenContract.sourceSha256",
+    "contractUnmodifiedByThisLane": "no file under scripts/ was edited; git status --porcelain empty throughout",
+    "commandArraysNotIndependentlyReVerifiedAgainstTheModule": "this lane re-ran the exact argv strings recorded in evidence/camp01bc-receipt-run-main-20260915.json (which that lane verified against the checked-out contract module's canonicalArgvDigest for each wave); this lane did not re-import WAVE_CONTRACTS to re-derive the digests, since the contract file's byte-hash is unchanged from that verified record"
+  },
+
+  "buildFacts": {
+    "required": true,
+    "requiredBecause": "each wave's frozen journey command (`npm run verify:qc:coop-campaign-journey`, package.json:199) ends in `node scripts/playwright/run-playwright.mjs test --project=chromium e2e/coop-campaign-two-browser-journey.spec.ts e2e/coop-campaign-ui-audit.spec.ts --workers=1`; playwright.config.ts starts a webServer, served here from the standalone production build",
+    "command": "NEXT_PUBLIC_E2E_MODE=true NEXT_PUBLIC_E2E_TEST=true npm run build",
+    "prodEvidenceFlagUsed": false,
+    "cwd": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/archive-original-main-proof",
+    "exit": 0,
+    "startedAtUtc": "2026-09-15T15:39:00Z (build.starttime.txt)",
+    "endedAtUtc": "see build.endtime.txt",
+    "buildId": "1789486469114",
+    "buildIdUnchangedAcrossAllRuns": true,
+    "standaloneServer": "present (.next/standalone/server.js); build's own JSON summary confirms hydratedStandaloneServer, nextConfig, runtimeLoaders, publicAssets, megaMekBVCache and nextStaticAssets all resolved under .next/standalone",
+    "node": "v22.22.0",
+    "npm": "11.6.2",
+    "storeExposure": {
+      "chunk": ".next/standalone/.next/static/chunks/pages/_app-6057a14194795b3d.js",
+      "marker": "window.__E2E_MODE__=!0",
+      "occurrences": 1,
+      "zustandStoreMarkerPresent": true,
+      "verdict": "CONFIRMED -- the standalone _app chunk carries the E2E-mode flag and the Zustand store-exposure marker the e2e helpers drive campaign seeding through",
+      "log": "app-chunk-store-exposure.txt"
+    },
+    "twoCoreBudgetCheck": "a Win32_Process node.exe scan for 'next build|jest|playwright|run-playwright' before the build and before the first test run found NOTHING running; the build and all runs proceeded immediately without any wait. No process was killed at any point."
+  },
+
+  "envDeviations": {
+    "statement": "argv for every frozen command was byte-identical to the values recorded in evidence/camp01bc-receipt-run-main-20260915.json, which in turn matched the contract's commandSequence. The same two env-only deviations from the contract's implicit defaults were required by this lane's guardrails, unchanged from the prior run.",
+    "deviation1": {
+      "what": "webServer command substituted: MEKSTATION_E2E_SERVER_COMMAND='node .next/standalone/server.js' with HOSTNAME=127.0.0.1 and MEKSTATION_E2E_PORT=3639",
+      "why": "this lane's charter forbids port 3600 entirely; playwright.config.ts's default webServer.command (`npm run dev`) both kill-ports 3600 and serves on it absent an override. The standalone-server + port-3639 substitution matches the pattern used by every prior receipt lane in this series.",
+      "riskAcknowledged": "UNVERIFIED whether the frozen row's default dev-server path produces the identical outcome. This lane did not run the dev-server variant."
+    },
+    "deviation2": {
+      "what": "CAMP01_ARTIFACT_DIR and CAMP01_RUN_ID were exported ONLY for each wave's jest commandSequence entry that self-writes wave-result.json; the journey command and the readiness-stable command ran with neither set",
+      "why": "scripts/qc/camp01-runner-isolation.mjs treats the four CAMP01_* identity keys as an all-or-nothing tuple and the Playwright runner would hard-fail on a partial context; this mirrors the prior receipt run's documented deviation2 exactly",
+      "consequence": "neither wave's journey/readiness-stable command contributed to wave-result.json; each wave's wave-result.json was written entirely by commandSequence[0]"
+    },
+    "envNotSetBeyondTheAbove": "no CAMP01_INVOCATION_ID, CAMP01_EXECUTION_ID, CAMP01_NEXT_DIST_DIR, MEKSTATION_NEXT_DIST_DIR, CI, or reporter env was set by this lane."
+  },
+
+  "waves": {
+    "camp-01b": {
+      "commands": [
+        {
+          "index": 0,
+          "argv": "npm test -- --watchAll=false --runTestsByPath src/types/campaign/__tests__/CampaignSync.test.ts src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx src/lib/multiplayer/server/__tests__/CampaignHostRegistry.test.ts src/lib/campaign/sync/__tests__/sharedCampaignState.integration.test.ts --runInBand",
+          "argvUnaltered": true,
+          "exit": 0,
+          "startedAtUtc": "2026-09-15T15:39:00Z",
+          "endedAtUtc": "2026-09-15T15:39:20Z",
+          "suites": { "passed": 4, "total": 4 },
+          "tests": { "passed": 42, "total": 42 },
+          "log": "camp-01b/cmd1-jest.log",
+          "logSha256": "130f2fbc124d8d9ce4297ade68a583cb930b5bc677d03d3dc6f8d5842ed4d2ad",
+          "logBytes": 3093
+        },
+        {
+          "index": 1,
+          "argv": "npm run verify:qc:coop-campaign-journey",
+          "argvUnaltered": true,
+          "env": {
+            "MEKSTATION_E2E_SERVER_COMMAND": "node .next/standalone/server.js",
+            "HOSTNAME": "127.0.0.1",
+            "MEKSTATION_E2E_PORT": "3639"
+          },
+          "exit": 0,
+          "startedAtUtc": "2026-09-15T15:39:34Z",
+          "endedAtUtc": "2026-09-15T15:40:29Z",
+          "jestLeg": { "suites": { "passed": 9, "total": 9 }, "tests": { "passed": 142, "total": 142 } },
+          "playwrightLeg": {
+            "tally": "2 passed (36.9s)",
+            "specs": [
+              "e2e/coop-campaign-two-browser-journey.spec.ts:260:7",
+              "e2e/coop-campaign-ui-audit.spec.ts:312:7"
+            ]
+          },
+          "consoleErrorCount403": 0,
+          "flakeReRunNeeded": false,
+          "log": "camp-01b/cmd2-journey.log",
+          "logSha256": "693a4525707e412b772a6153e81f6ef39f7b10e37d125ee7a3906cb6b51c450f",
+          "logBytes": 19078
+        }
+      ],
+      "waveResult": {
+        "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/camp01bcd-rerun-main-20260915/camp-01b/artifacts/wave-result.json",
+        "runId": "camp01-18200852f5be78d43566b69fe805ce1f",
+        "bytes": 334,
+        "sha256": "f2382a6d4eb7b1cb91bc261f363b1c4ffb0c77d7c7552fa15aa38b73c2887ebb",
+        "content": {
+          "schema": "camp01-wave-result/v1",
+          "wave": "camp-01b",
+          "status": "passed",
+          "assertions": {
+            "campaignIdMatched===true": true,
+            "forceMembershipMatched===true": true,
+            "guestMirrorHydrated===true": true,
+            "matchIdMatched===true": true,
+            "revisionMatched===true": true,
+            "sourceIdentityMatched===true": true
+          }
+        }
+      },
+      "assertionTally": { "totalFrozenAssertions": 6, "passed": 6, "failed": 0, "exactKeySetMatchAgainstFrozenContract": true }
+    },
+
+    "camp-01c": {
+      "commands": [
+        {
+          "index": 0,
+          "argv": "npm test -- --watchAll=false --runTestsByPath src/types/multiplayer/__tests__/Protocol.test.ts src/lib/multiplayer/server/__tests__/bindCampaignSyncConnection.test.ts src/lib/campaign/coop/__tests__/coopRuntimeSession.test.ts --runInBand",
+          "argvUnaltered": true,
+          "exit": 0,
+          "startedAtUtc": "2026-09-15T15:40:48Z",
+          "endedAtUtc": "2026-09-15T15:40:52Z",
+          "suites": { "passed": 3, "total": 3 },
+          "tests": { "passed": 86, "total": 86 },
+          "log": "camp-01c/cmd1-jest.log",
+          "logSha256": "03e07cd572b071d0d201a9e74f5abb551fb500a803ee1a23fc8e5a8871e7534c",
+          "logBytes": 2998
+        },
+        {
+          "index": 1,
+          "argv": "npm run verify:qc:coop-campaign-journey",
+          "argvUnaltered": true,
+          "note": "byte-identical to camp-01b's commandSequence[1]; run separately for this wave as the row pins it",
+          "env": {
+            "MEKSTATION_E2E_SERVER_COMMAND": "node .next/standalone/server.js",
+            "HOSTNAME": "127.0.0.1",
+            "MEKSTATION_E2E_PORT": "3639"
+          },
+          "exit": 0,
+          "startedAtUtc": "2026-09-15T15:41:08Z",
+          "endedAtUtc": "2026-09-15T15:41:46Z",
+          "jestLeg": { "suites": { "passed": 9, "total": 9 }, "tests": { "passed": 142, "total": 142 } },
+          "playwrightLeg": { "tally": "2 passed (29.8s)" },
+          "consoleErrorCount403": 0,
+          "flakeReRunNeeded": false,
+          "log": "camp-01c/cmd2-journey.log",
+          "logSha256": "af72977b8af98a87848c28ecd093b47aa9b00e880e93a6a62a4a347d23d88d02",
+          "logBytes": 19087
+        }
+      ],
+      "waveResult": {
+        "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/camp01bcd-rerun-main-20260915/camp-01c/artifacts/wave-result.json",
+        "runId": "camp01-1d929f7aa6815dc81110687faec21a10",
+        "bytes": 381,
+        "sha256": "0156b87a381aab609b3d760b715ec77f3b06a8d8ebd55a801a82098fb9dac89c",
+        "content": {
+          "schema": "camp01-wave-result/v1",
+          "wave": "camp-01c",
+          "status": "passed",
+          "assertions": {
+            "authorizedChoiceAccepted===true": true,
+            "foreignForceRejected===true": true,
+            "forgedIdentityRejected===true": true,
+            "fullForceRejected===true": true,
+            "serverPlayerDerived===true": true,
+            "serverRoleDerived===true": true,
+            "staleRevisionRejected===true": true
+          }
+        }
+      },
+      "assertionTally": { "totalFrozenAssertions": 7, "passed": 7, "failed": 0, "exactKeySetMatchAgainstFrozenContract": true }
+    },
+
+    "camp-01d": {
+      "commands": [
+        {
+          "index": 0,
+          "argv": "npm test -- --watchAll=false --runTestsByPath src/lib/campaign/fastForward/__tests__/fastForwardCombatRunner.test.ts src/components/gameplay/pages/campaigns/dashboard/__tests__/CampaignDashboardPage.reactivity.test.tsx src/lib/campaign/coop/__tests__/launchCoopMission.test.ts --runInBand",
+          "argvUnaltered": true,
+          "exit": 0,
+          "startedAtUtc": "2026-09-15T15:41:56Z",
+          "endedAtUtc": "2026-09-15T15:42:03Z",
+          "suites": { "passed": 3, "total": 3 },
+          "tests": { "passed": 18, "total": 18 },
+          "log": "camp-01d/cmd1-jest.log",
+          "logSha256": "73b76e7ea8f08350aa9b81174e879cc18e18f1908476030f5d45219c3f0b75df",
+          "logBytes": 971
+        },
+        {
+          "index": 1,
+          "argv": "npm run qc:command:readiness-stable:quick",
+          "argvUnaltered": true,
+          "resolvesTo": "node scripts/qc/validate-playable-command-screen-slices.mjs --run --slice=readiness-stable, spawning jest over missionReadinessProjection.test.ts / mission-launch.coop.test.tsx / MechBay.test.ts / materializeCampaignMissionEncounter.test.ts",
+          "needsServerOrPort": false,
+          "exit": 0,
+          "startedAtUtc": "2026-09-15T15:42:19Z",
+          "endedAtUtc": "2026-09-15T15:42:25Z",
+          "sliceManifest": "slices=1/6 errors=0 warnings=0",
+          "suites": { "passed": 4, "total": 4 },
+          "tests": { "passed": 48, "total": 48 },
+          "log": "camp-01d/cmd2-readiness-stable.log",
+          "logSha256": "d79119163386784a004c5221c7a295019c2fff79d049a196dee5aef3bba125bf",
+          "logBytes": 2046
+        },
+        {
+          "index": 2,
+          "argv": "npm run verify:qc:coop-campaign-journey",
+          "argvUnaltered": true,
+          "env": {
+            "MEKSTATION_E2E_SERVER_COMMAND": "node .next/standalone/server.js",
+            "HOSTNAME": "127.0.0.1",
+            "MEKSTATION_E2E_PORT": "3639"
+          },
+          "exit": 0,
+          "startedAtUtc": "2026-09-15T15:42:33Z",
+          "endedAtUtc": "2026-09-15T15:42:59Z",
+          "jestLeg": { "suites": { "passed": 9, "total": 9 }, "tests": { "passed": 142, "total": 142 } },
+          "playwrightLeg": { "tally": "2 passed (17.3s)" },
+          "consoleErrorCount403": 0,
+          "flakeReRunNeeded": false,
+          "log": "camp-01d/cmd3-journey.log",
+          "logSha256": "b2217048b75c8485e1240cbedf3101c6e055d19eb9e8d2427145f543c4c558ae",
+          "logBytes": 19079
+        }
+      ],
+      "waveResult": {
+        "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/camp01bcd-rerun-main-20260915/camp-01d/artifacts/wave-result.json",
+        "runId": "camp01-c9a3d8ba7bec20af9e113b787839bb80",
+        "bytes": 440,
+        "sha256": "af7cbb6be3c18bb4285633a82bdd71bd3797ff022265111fe10162b55c77a1f5",
+        "content": {
+          "schema": "camp01-wave-result/v1",
+          "wave": "camp-01d",
+          "status": "passed",
+          "assertions": {
+            "blockedSelection.createEncounterCount===0": 0,
+            "blockedSelection.encounterLookupCount===0": 0,
+            "blockedSelection.launchEncounterCount===0": 0,
+            "blockedSelection.reuseResultCount===0": 0,
+            "canonicalSelection.launchEncounterCount===1": 1,
+            "canonicalSelection.launchSucceeded===true": true,
+            "catalogReady===true": true
+          }
+        }
+      },
+      "assertionTally": { "totalFrozenAssertions": 7, "passed": 7, "failed": 0, "exactKeySetMatchAgainstFrozenContract": true }
+    }
+  },
+
+  "comparisonToPriorFailingRun": {
+    "priorRun": "evidence/camp01bc-receipt-run-main-20260915.json, at exact main 83887b746 (predates PR #1720)",
+    "priorFailure": "all three waves' final frozen command (verify:qc:coop-campaign-journey) failed 4/4 times with the identical 4x '403 Forbidden' console-error signature at e2e/coop-campaign-ui-audit.spec.ts:843",
+    "thisRun": "at exact main >= f685a5391 (contains PR #1720), the identical command passed 3/3 times (once per wave) with 0 occurrences of '403' in any log and 0 flake re-runs needed",
+    "testCountDelta": "jest leg of verify:qc:coop-campaign-journey rose from 138/138 to 142/142 tests (prior run) to (this run); camp-01d's commandSequence[0] rose from 14/14 to 18/18 and commandSequence[1] from 44/44 to 48/48 -- consistent with PR #1720 adding coverage for the guest-mode no-request behavior, not a scope change to any wave's own frozen assertions (which are unchanged in count and key-set across both runs)"
+  },
+
+  "logs": [
+    { "path": ".../build.starttime.txt" },
+    { "path": ".../build.endtime.txt" },
+    { "path": ".../build.stdout.log", "bytes": 7013, "sha256": "6e3d00ac9718ba2a6ccfd7bfaf4a7b5287ef47a584a993d00c3061a6e581e3d9" },
+    { "path": ".../build.stderr.log", "bytes": 3740666, "sha256": "b6f5222fb0f074e612834ebebe2930b51facd1e1ec19e49c72156b034d660675" },
+    { "path": ".../app-chunk-store-exposure.txt", "bytes": 93, "sha256": "a98ade1ec4217ade2b590a8f41dde7cd92a8954c58a27d1b2f67e59eaeb37975" },
+    { "path": ".../camp-01b/run-id.txt", "sha256": "0a870728346cd91057d4d67fde98e09f70c15234e319f321d6d7afc6e3ab0877" },
+    { "path": ".../camp-01b/cmd1-jest.log", "bytes": 3093, "sha256": "130f2fbc124d8d9ce4297ade68a583cb930b5bc677d03d3dc6f8d5842ed4d2ad" },
+    { "path": ".../camp-01b/cmd2-journey.log", "bytes": 19078, "sha256": "693a4525707e412b772a6153e81f6ef39f7b10e37d125ee7a3906cb6b51c450f" },
+    { "path": ".../camp-01b/artifacts/wave-result.json", "bytes": 334, "sha256": "f2382a6d4eb7b1cb91bc261f363b1c4ffb0c77d7c7552fa15aa38b73c2887ebb" },
+    { "path": ".../camp-01c/run-id.txt", "sha256": "4d7fc9c28f4e1c4222b220aa51de91bfaea5243af7436547e725d8de793ae4ea" },
+    { "path": ".../camp-01c/cmd1-jest.log", "bytes": 2998, "sha256": "03e07cd572b071d0d201a9e74f5abb551fb500a803ee1a23fc8e5a8871e7534c" },
+    { "path": ".../camp-01c/cmd2-journey.log", "bytes": 19087, "sha256": "af72977b8af98a87848c28ecd093b47aa9b00e880e93a6a62a4a347d23d88d02" },
+    { "path": ".../camp-01c/artifacts/wave-result.json", "bytes": 381, "sha256": "0156b87a381aab609b3d760b715ec77f3b06a8d8ebd55a801a82098fb9dac89c" },
+    { "path": ".../camp-01d/run-id.txt", "sha256": "e401d8147e165f007f9bd64b5ba97c22cd852288945babb5f936375a6d0ea7fe" },
+    { "path": ".../camp-01d/cmd1-jest.log", "bytes": 971, "sha256": "73b76e7ea8f08350aa9b81174e879cc18e18f1908476030f5d45219c3f0b75df" },
+    { "path": ".../camp-01d/cmd2-readiness-stable.log", "bytes": 2046, "sha256": "d79119163386784a004c5221c7a295019c2fff79d049a196dee5aef3bba125bf" },
+    { "path": ".../camp-01d/cmd3-journey.log", "bytes": 19079, "sha256": "b2217048b75c8485e1240cbedf3101c6e055d19eb9e8d2427145f543c4c558ae" },
+    { "path": ".../camp-01d/artifacts/wave-result.json", "bytes": 440, "sha256": "af7cbb6be3c18bb4285633a82bdd71bd3797ff022265111fe10162b55c77a1f5" }
+  ],
+  "logRootDir": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/camp01bcd-rerun-main-20260915/",
+
+  "environmentHygiene": {
+    "portsUsed": "3639 only, via MEKSTATION_E2E_PORT; every Playwright webServer bound 127.0.0.1:3639",
+    "port3600": "never bound, never kill-ported, never referenced by any command this lane ran",
+    "portsFreeBeforeRuns": "Get-NetTCPConnection -State Listen filter on 3600/3639 returned nothing before the build",
+    "portsAfterRuns": "`netstat -ano | findstr :3639` shows only 127.0.0.1 TIME_WAIT ephemeral client-socket entries (closed connections cycling out); no LISTEN entry on 3600 or 3639, no PID to report",
+    "orphanProcesses": "Win32_Process node.exe filtered on 'archive-original-main-proof|standalone|playwright' after all runs -> none",
+    "processesKilled": "none -- every run exited on its own; no wait was needed since no competing next build/jest/playwright process was found at either checkpoint",
+    "otherLaneContention": "none observed at build start or at the pre-run checkpoint"
+  },
+
+  "twoCoreBudgetLog": {
+    "beforeBuild": "Win32_Process node.exe filter for 'next build|jest|playwright|run-playwright' -> empty result; proceeded immediately, no poll loop needed",
+    "beforeTestRuns": "same filter re-checked immediately before camp-01b's first jest run -> empty result; proceeded immediately"
+  },
+
+  "roadmapTaskVerdicts": {
+    "R2.camp-2 / task 2.2 receipt clause": {
+      "verdict": "COMMAND-LEVEL RECEIPT NOW PRODUCED AND FULL GREEN on main >= f685a5391 (this run). Controller-registered and PR-provenanced tiers remain owner-blocked (unchanged from the prior run's ownerBlocked findings -- not re-verified by this lane; see nonClaims)."
+    },
+    "R2.camp-3 / task 3.2 receipt clause": {
+      "verdict": "COMMAND-LEVEL RECEIPT NOW PRODUCED AND FULL GREEN on main >= f685a5391 (this run). Controller-registered and PR-provenanced tiers remain owner-blocked."
+    },
+    "R2.camp-4 / task 4.3 receipt clause": {
+      "verdict": "COMMAND-LEVEL RECEIPT NOW PRODUCED AND FULL GREEN on main >= f685a5391 (this run). Controller-registered and PR-provenanced tiers remain owner-blocked."
+    }
+  },
+
+  "tierStatement": "This artifact is a COMMAND-LEVEL RECEIPT ONLY: it proves that, at exact main 231c7848a (an ancestor-verified descendant of f685a5391), every frozen commandSequence entry for camp-01b, camp-01c and camp-01d runs to a green exit, that each wave's self-writing test emits a wave-result.json matching its frozen assertion contract exactly, and that the previously-filed 403 failure no longer reproduces. It is NOT a controller-registered receipt (qc:camp01-authority-receipt:write/:validate were not invoked; no wave-cleanup.json or receipt-manifest.json/command-result.json exists for any wave) and NOT a PR-provenanced receipt (no GitHub review-gate facts were re-queried by this lane). Both of those tiers were reported OWNER-BLOCKED by the prior receipt run for reasons independent of this fix (missing predecessor chain in the durable evidence tree; solo-collaborator repository with no non-author reviewer available) and this lane did not attempt to re-verify or resolve either blocker. This run does NOT by itself constitute a CAMP witness or close roadmap tasks 2.2/3.2/4.3 in full -- it closes exactly the 'owed' command-level re-run item recorded in evidence/guest-share-panel-grants-1720-main-proof-20260915.json.",
+
+  "nonClaims": [
+    "This lane did NOT invoke qc:camp01-authority-receipt:write or :validate for any wave; no receipt directory was written; command-result.json and receipt-manifest.json remain absent for all three waves.",
+    "This lane did NOT re-verify the controllerPredecessorGate or githubReviewGate status recorded in evidence/camp01bc-receipt-run-main-20260915.json's ownerBlocked section; those findings are carried forward, not re-measured.",
+    "This lane did NOT re-run `gh` queries against the repository's collaborator/PR/review state.",
+    "This lane did NOT independently re-derive WAVE_CONTRACTS' canonicalArgvDigest values in-session; it relied on the contract module's unchanged byte-hash (8d360592...) plus the argv strings already verified against that digest by the prior receipt run.",
+    "This lane did NOT run the frozen row's default `npm run dev` webServer path; port 3600 remained forbidden and unused throughout.",
+    "This lane did NOT verify package-lock.json equality between the worktree's existing node_modules install and HEAD 231c7848a; no npm ci was run.",
+    "No product, spec, script, test, task, roadmap, or contract file was created, modified, committed, pushed, or PR'd by this lane. `git status --porcelain` was empty before and after every command.",
+    "No branch was created, moved, or deleted in this worktree.",
+    "`--prod-evidence` was never passed to scripts/playwright/run-playwright.mjs.",
+    "Port 3600 was never used, bound, or kill-ported.",
+    "No flake re-run was performed on any leg -- every command passed on its first and only execution.",
+    "No sub-agents were spawned for any part of this lane's work.",
+    "CI coverage is unchanged: these are local runs only, not CI-gated results. The D2 owner decision (wire verify:qc:coop-campaign-journey into CI, recorded in evidence/grants-403-journey-diagnosis-20260915.json) remains open and unaddressed by this lane.",
+    "This artifact does not itself resolve owner decision D1 (what a shared-server guest's authority should read) recorded in evidence/grants-403-journey-diagnosis-20260915.json -- that remains owned by design-campaign-authority-and-sync."
+  ],
+
+  "inputs": [
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/camp01bc-receipt-run-main-20260915.json (frozen invocation, env rules, prior FAILED-PRODUCT verdicts and their root-cause pointer)",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/guest-share-panel-grants-1720-main-proof-20260915.json (the PR #1720 fix record and its 'owed' re-run item)",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/grants-403-journey-diagnosis-20260915.json (root-cause diagnosis, gate identification, minimal-correct-fix proposal that PR #1720 implemented)",
+    "scripts/qc/camp01-authority-receipt.contract.mjs (WAVE_CONTRACTS['camp-01b'], ['camp-01c'] and ['camp-01d']; sha256 re-verified at HEAD 231c7848a to match the prior run's recorded hash)"
+  ]
+}

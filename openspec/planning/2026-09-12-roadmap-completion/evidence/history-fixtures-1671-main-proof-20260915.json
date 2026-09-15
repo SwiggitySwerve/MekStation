@@ -1,0 +1,60 @@
+{
+  "proof": "history-fixtures-1671-main-proof",
+  "date": "2026-09-15",
+  "headTested": "b39b8291706c36b9ad0c876a5e1b11e5b3612b7d",
+  "headSubject": "test(customizer): verify production print and export workflows (#1667)",
+  "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/r2-prepared-journal-api",
+  "commitTested": {
+    "commit": "870f93856d5b09eb1ed7191be94a5a3e9e52103c",
+    "subject": "test(history): use canonical genesis roots in fixtures",
+    "mergeCommit": "4cf52fe73",
+    "note": "Reviewed commit for PR #1671; merge commit for PR #1671 is 4cf52fe73."
+  },
+  "step1_blobIdentity": {
+    "command": "git ls-tree 870f93856d -- <3 files>  vs  git ls-tree b39b8291 -- <3 files>",
+    "logFile": "proofC-blobs.txt",
+    "sha256": "6b6f58adf634da0ec7942642ecf85c04df32aa02143a2da1fe542ab72740ffcc",
+    "identical": true,
+    "blobs": [
+      {
+        "path": "src/lib/events/journal/__tests__/EventHistoryArtifactManifest.test.ts",
+        "oidAt870f93856d": "32054032581812f520c4081ba89bce8e788fddbf",
+        "oidAtB39b8291": "32054032581812f520c4081ba89bce8e788fddbf"
+      },
+      {
+        "path": "src/services/persistence/__tests__/SQLiteService.artifactManifest.migration.test.ts",
+        "oidAt870f93856d": "5e79a3dc4ccbbff91f659c8e4e8b02c49d6afea5",
+        "oidAtB39b8291": "5e79a3dc4ccbbff91f659c8e4e8b02c49d6afea5"
+      },
+      {
+        "path": "src/services/persistence/__tests__/SQLiteService.correctionLeases.migration.test.ts",
+        "oidAt870f93856d": "44fd5f1a55d2e573be0c5a04d63c6a8403b45502",
+        "oidAtB39b8291": "44fd5f1a55d2e573be0c5a04d63c6a8403b45502"
+      }
+    ]
+  },
+  "step2_testRuns": [
+    {
+      "runtime": "Node v22.22.0 (C:/Users/wroll/AppData/Local/nvm/v22.22.0) — worktree default per task instructions",
+      "command": "node node_modules/jest/bin/jest.js --runInBand --coverage=false --runTestsByPath src/lib/events/journal/__tests__/EventHistoryArtifactManifest.test.ts src/services/persistence/__tests__/SQLiteService.artifactManifest.migration.test.ts src/services/persistence/__tests__/SQLiteService.correctionLeases.migration.test.ts",
+      "exit": 1,
+      "result": "FAILED — Test Suites: 3 failed, 3 total; Tests: 27 failed, 27 total",
+      "failureReason": "better-sqlite3 native binding compiled for NODE_MODULE_VERSION 137 (Node 24), but Node 22 requires NODE_MODULE_VERSION 127 — module was rebuilt for Node 24 in this worktree earlier per task instructions' known caveat. No rebuild was performed; rerun under Node 24 instead.",
+      "logFile": "proofC-jest-node22.log",
+      "sha256": "1aa201c5bafc18488226e3fd9e4851a066c122fdd1dfe2f9704b2010aa95ec21"
+    },
+    {
+      "runtime": "Node v24.15.0 (C:/nvm4w/nodejs) — used per task fallback instruction for NODE_MODULE_VERSION mismatch",
+      "command": "node node_modules/jest/bin/jest.js --runInBand --coverage=false --runTestsByPath src/lib/events/journal/__tests__/EventHistoryArtifactManifest.test.ts src/services/persistence/__tests__/SQLiteService.artifactManifest.migration.test.ts src/services/persistence/__tests__/SQLiteService.correctionLeases.migration.test.ts",
+      "exit": 0,
+      "result": "PASSED — Test Suites: 3 passed, 3 total; Tests: 27 passed, 27 total",
+      "logFile": "proofC-jest-node24.log",
+      "sha256": "a1be1546096cd0475c4b269cd460b10320a250aaa7a76f03111c4efb2ebd7147"
+    }
+  ],
+  "runtimeUsedForPassingResult": "Node v24.15.0 (C:/nvm4w/nodejs/node.exe)",
+  "expectedVsActual": "Expected 27 tests / 3 suites — CONFIRMED under Node 24; Node 22 run failed only due to the pre-existing native-module version mismatch (no rebuild performed, as instructed).",
+  "discrepancies": "none (matches task's documented caveat about better-sqlite3 having been rebuilt for Node 24 in this worktree)",
+  "logDirectory": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/main-proof-docs-20260915",
+  "sha256Manifest": "sha256sums.txt in the same log directory"
+}

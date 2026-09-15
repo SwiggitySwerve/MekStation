@@ -1,0 +1,37 @@
+{
+  "evidenceKind": "exact-main-proof",
+  "prReference": 1689,
+  "commitTested": "2af7b22598e1ec40ba405e86182daf862d04c526",
+  "reviewedCommit": "fb1d643064e057625ef5d66e0ad137da47a1b399",
+  "blob": "blob main 5986a0c9e0742e8e684053d7d7df13beafb1e614 reviewed 5986a0c9e0742e8e684053d7d7df13beafb1e614",
+  "fileSha256": "ed52fabd4c9eb830c5137c965d8249b563e2c929b8cc3893fd9a5829f2aa7646 *scripts/__tests__/openspec-ci-quality-qc.test.ts",
+  "commands": [
+    {
+      "argv": [
+        "node",
+        "node_modules/jest/bin/jest.js",
+        "--runInBand",
+        "--coverage=false",
+        "--runTestsByPath",
+        "scripts/__tests__/openspec-ci-quality-qc.test.ts"
+      ],
+      "result": "jest exit 0\nTest Suites: 1 passed, 1 total\nTests:       28 passed, 28 total"
+    },
+    {
+      "argv": [
+        "npm",
+        "run",
+        "qc:openspec-ci:validate"
+      ],
+      "result": "qcci exit 0"
+    }
+  ],
+  "logSha256": [
+    "6a5e71b911601fc2ea625850d58c599dfdb28e4cf49c5d12092b9ddc3b89c08c */e/Projects/MekStation/.sisyphus/roadmap-completion-20260912/main-proof-1689-20260915/jest.stderr.log",
+    "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 */e/Projects/MekStation/.sisyphus/roadmap-completion-20260912/main-proof-1689-20260915/jest.stdout.log",
+    "8c41df6c33246420ed1806218780c2df69b5ad4e7c594b993b07594ee959ccb2 */e/Projects/MekStation/.sisyphus/roadmap-completion-20260912/main-proof-1689-20260915/qcci.log"
+  ],
+  "nodeVersion": "v22.22.0",
+  "timestampUtc": "2026-09-15T08:37:34.059Z",
+  "parentAcceptance": "parent Astra ran and accepted"
+}

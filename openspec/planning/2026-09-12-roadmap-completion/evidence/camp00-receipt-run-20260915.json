@@ -1,0 +1,106 @@
+{
+  "schema": "camp00-receipt-run-report/v1",
+  "runAt": "2026-09-15",
+  "lane": "camp-receipts (disposable checkout, GP-JUSTIFIED)",
+  "task": "roadmap R2.camp-0 task 0.4 (add-camp01-authority-receipts / CAMP-00 loopback listener receipt) -- produce the raw run artefact only",
+  "disposableWorktree": {
+    "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/camp00-disposable-20260915",
+    "createdVia": "git -C E:/Projects/MekStation fetch origin main && git -C E:/Projects/MekStation worktree add --detach <path> origin/main",
+    "commit": "5fac5a58c95c351cbfe37a7ab16fbb371b8022df",
+    "commitSubject": "docs(openspec): record the customizer gate observations for tasks 3.1, 3.3 and 5.4 (#1692)",
+    "leftInPlace": true,
+    "note": "parent lane removes this worktree at cleanup; not removed by this run"
+  },
+  "npmCi": {
+    "command": "npm ci",
+    "cwd": "<disposableWorktree>",
+    "exitCode": 0,
+    "durationSeconds": 22,
+    "nativeModuleFailure": false,
+    "notes": "1088 packages added; postinstall mm-data asset check passed (v0.3.1, 524 files); husky prepare ran; 15 npm audit advisories (7 moderate, 7 high, 1 critical) present but unrelated to this task -- not investigated or remediated"
+  },
+  "nodeToolchain": {
+    "pathPrepend": "/c/Users/wroll/AppData/Local/nvm/v22.22.0",
+    "nodeVersion": "v22.22.0",
+    "npmVersion": "11.6.2"
+  },
+  "scriptContractFindings": {
+    "sourceFiles": [
+      "scripts/validate-multiplayer-packaged-socket.mjs (runCamp00Authority, function starts at the line beginning 'async function runCamp00Authority()')",
+      "scripts/qc/camp01-camp00-listener-adapter.mjs (convertCamp00Observation, OBSERVATION_KEYS, RUN_ID regex)",
+      "scripts/qc/camp01-authority-receipt.contract.mjs (WAVE_CONTRACTS['camp-00'] -- 17 frozen assertions)",
+      "scripts/qc/camp01-authority-receipt.mjs (writeReceipt -- full PR-gated controller path, NOT used by this lane)",
+      "scripts/qc/validate-camp01-authority-receipt.mjs (qc:camp01-authority-receipt:validate CLI -- NOT applicable to a raw run, see notes)"
+    ],
+    "envContractConfirmed": {
+      "CAMP01_ARTIFACT_DIR": "required, truthy-checked only; finalizeObservation() writes listener-observation.json directly into this directory",
+      "CAMP01_RUN_ID": "required, truthy-checked by the writer script itself, but consumed downstream as parentRunId and MUST match ^camp01-[0-9a-f]{32}$ to pass camp01-camp00-listener-adapter.mjs's RUN_ID regex and assertObservation() equality check",
+      "CAMP01_NEXT_DIST_DIR": "required, truthy-checked only by the writer -- its VALUE is not actually consumed; the writer always builds into '<repoRoot>/.next' regardless of this variable's value (distRel is hardcoded to '.next' inside runCamp00Authority)"
+    },
+    "portFinding": "No hardcoded port. runCamp00Authority() calls bindPort(0) to obtain an OS-assigned ephemeral port bound to 127.0.0.1 for both the initial and restarted server instances. The module-level 'defaultPort = 3700 + (pid % 1000)' constant exists but is only used by the separate non-camp00 (npm-run-start) code path in main(), never by runCamp00Authority(). No STOP condition triggered.",
+    "deviationFromTaskPrompt": "Task prompt suggested CAMP01_RUN_ID=camp00-20260915-<utc-timestamp>. That format does NOT satisfy the ^camp01-[0-9a-f]{32}$ contract enforced by camp01-camp00-listener-adapter.mjs (used for validation) and by scripts/qc/camp01-authority-receipt.mjs's own runId generator. Used camp01-d86ec7a4da3c25f0c1a252d312b8a8a6 (camp01- prefix + 32 lowercase hex chars from crypto.randomBytes(16)) instead, so the artefact would validate against the adapter's own regex.",
+    "fullControllerOutOfScope": "scripts/qc/camp01-authority-receipt.mjs writeReceipt() and scripts/qc/validate-camp01-authority-receipt.mjs are the full PR-gated receipt pipeline (real 40-hex commit SHA, run-root matching .sisyphus/evidence/playtest/camp00-loopback-<sha>, provenance/registryContext/reviewedHead with real PR numbers and reviewer approvals). Per the task's own framing (closure externally gated on a real second-collaborator review, soloException=false), this lane did not attempt that pipeline -- it invoked runCamp00Authority() directly via its three env vars, matching the task's literal instructions."
+  },
+  "run": {
+    "argv": ["node", "scripts/validate-multiplayer-packaged-socket.mjs"],
+    "npmEquivalent": "npm run validate:multiplayer:packaged-socket (identical -- package.json maps this script 1:1 to the same node invocation)",
+    "cwd": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/camp00-disposable-20260915",
+    "env": {
+      "CAMP01_ARTIFACT_DIR": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/camp00-receipt-20260915/artifacts",
+      "CAMP01_RUN_ID": "camp01-d86ec7a4da3c25f0c1a252d312b8a8a6",
+      "CAMP01_NEXT_DIST_DIR": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/camp00-disposable-20260915/.next"
+    },
+    "exitCode": 1,
+    "durationSeconds": 252,
+    "outcome": "FAILED",
+    "failurePoint": "WebSocket join against the FIRST (initial) packaged server instance, before finalizeObservation() was ever reached",
+    "errorMessage": "Error: Socket errored before ReplayEnd: Unexpected server response: 400\nUrl: ws://127.0.0.1:53288/api/multiplayer/socket?matchId=f63aabc6-7583-4607-8ab5-86d7367729e9&token=<redacted-wire-token>",
+    "stackTrace": "at Timeout._onTimeout (validate-multiplayer-packaged-socket.mjs:337:13) -- thrown from inside the ws.once('error', ...) handler's setTimeout(reject, 500) callback",
+    "crashCharacterAsObserved": "Node printed an uncaught top-level exception (not a clean process.exitCode=1 with a caught error message) -- consistent with this rejection becoming an unhandled promise rejection rather than being caught by runCamp00Authority()'s own try/finally.",
+    "serverProcess": {
+      "port": 53288,
+      "boundAddress": "127.0.0.1",
+      "pidRecorded": false,
+      "note": "the script does not print the spawned child PID to stdout; no PID was captured. Process is confirmed not running post-run (see postRunCleanupCheck)."
+    }
+  },
+  "postRunCleanupCheck": {
+    "orphanNodeProcessSearch": "Get-CimInstance Win32_Process -Filter \"Name='node.exe'\" filtered for CommandLine matching 'camp00-disposable-20260915' or 'standalone' -- zero matches",
+    "port53288State": "Get-NetTCPConnection -LocalPort 53288 showed a single TimeWait entry (127.0.0.1:53288 <-> 127.0.0.1:50702), not Listen -- confirms the socket was closed, no active listener remains",
+    "listeningPortsInEphemeralRange": "Get-NetTCPConnection -State Listen for 40000-60000 showed no MekStation-related listeners (all entries pre-existed / belong to unrelated local tooling on this machine, none touched)",
+    "noListenerRemains": true
+  },
+  "nextDirCleanupAnomaly": {
+    "expected": "runCamp00Authority()'s finally block calls fs.rmSync(nextDist, {recursive:true, force:true}) unconditionally, so .next should be removed even on failure",
+    "observed": ".next was NOT removed after the failed run -- it still contained BUILD_ID and build-manifest.json (a partial/successful webpack build output, not the full standalone tree) after the process exited",
+    "likelyExplanation": "UNVERIFIED / INFERENCE: the crash pattern (uncaught top-level exception attributed to a Timeout callback rather than a caught rejection) suggests the rejection surfaced as an unhandled promise rejection outside the awaited chain runCamp00Authority() is wrapped in, which would let Node terminate the process before the enclosing async function's finally block executes. Not confirmed by stepping through with a debugger -- flagged as an observation, not a diagnosed root cause.",
+    "artifactDirAfterRun": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/camp00-receipt-20260915/artifacts remained empty -- no listener-observation.json, no temp file",
+    "leftAsIs": true,
+    "reasonLeftAsIs": "this is diagnostic evidence of the failure; the disposable worktree (including this leftover .next) is removed wholesale by the parent lane at cleanup, so no manual rm was performed"
+  },
+  "receiptArtifact": {
+    "produced": false,
+    "path": null,
+    "sha256": null,
+    "reason": "run failed before finalizeObservation() was reached; no listener-observation.json was ever written"
+  },
+  "adapterValidation": {
+    "attempted": false,
+    "reason": "no observation artifact exists to validate -- scripts/qc/camp01-camp00-listener-adapter.mjs's convertCamp00Observation() requires an existing listener-observation.json in the artifact directory; nothing was run against it",
+    "validateOnlyCliChecked": "scripts/qc/validate-camp01-authority-receipt.mjs (npm run qc:camp01-authority-receipt:validate) was read but not invoked -- it operates on a fully finalized receipt directory under .sisyphus/evidence/playtest/camp00-loopback-<40-hex-sha>/<camp01-run-id>/ produced by the full writeReceipt() controller (real PR provenance, registryContext, reviewedHead), which this lane's scope explicitly excludes"
+  },
+  "assertionCounts": {
+    "totalFrozenAssertions": 17,
+    "passed": 0,
+    "failed": 0,
+    "notReached": 17,
+    "note": "none of the 17 camp-00 assertions in WAVE_CONTRACTS are computed until finalizeObservation() runs; the run failed upstream of that point on the very first WS join attempt"
+  },
+  "nonClaims": [
+    "No closure of roadmap task 0.4 is claimed -- closure requires a real second-collaborator review (soloException=false) per the task's own framing, which this lane cannot provide",
+    "No passing CAMP-00 receipt or observation artifact was produced -- this run failed",
+    "No fix was attempted for the WS-400 failure or the .next cleanup anomaly -- out of scope; investigation and repair are separate work",
+    "No approvals of any kind were sought or granted",
+    "This report reflects exactly one run of runCamp00Authority(), as instructed (\"run ONCE\") -- no retry was attempted"
+  ]
+}

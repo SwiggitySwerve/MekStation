@@ -1,0 +1,58 @@
+{
+  "node": "R2.camp-0",
+  "artefact": "camp01-live-adversarial-first-green-run-20260915",
+  "capturedAtUtc": "2026-09-15T10:20:49.677Z",
+  "workflow": {
+    "name": "CAMP-01 Live Adversarial Evidence",
+    "id": 329205862,
+    "trigger": "push to main"
+  },
+  "run": {
+    "id": 34957164072,
+    "url": "https://github.com/SwiggitySwerve/MekStation/actions/runs/34957164072",
+    "headSha": "fec1359bfcb93889d1ad7237725d4be44e7cfbaf",
+    "mergedPr": 1679,
+    "conclusion": "success",
+    "createdAt": "2026-09-15T10:17:34Z",
+    "updatedAt": "2026-09-15T10:20:01Z",
+    "jobs": [
+      "Publish Live Evidence (ubuntu-latest): success",
+      "Publish Live Evidence (windows-latest): success",
+      "Live Tier Signal: success"
+    ]
+  },
+  "probeSummaryPerHost": {
+    "linux": {
+      "passed": 8,
+      "failed": 0,
+      "skippedWithReason": 3,
+      "skippedAsExpected": 3,
+      "skippedUnexpectedly": 0,
+      "strictSkips": false,
+      "exitCode": 0
+    },
+    "windows": {
+      "passed": 8,
+      "failed": 0,
+      "skippedWithReason": 3,
+      "skippedAsExpected": 3,
+      "skippedUnexpectedly": 0,
+      "strictSkips": false,
+      "exitCode": 0
+    }
+  },
+  "artifacts": [
+    "camp01-live-adversarial-Windows (3328 bytes)",
+    "camp01-live-adversarial-Linux (3023 bytes)"
+  ],
+  "priorRunsOnUnfixedMain": [
+    "34956213645 on 69ae53744: failure",
+    "34955000139 on 7f4ade5b6: failure"
+  ],
+  "source": "gh run view --log lines for both Publish Live Evidence jobs (npm run qc:camp01-live-adversarial summary JSON), captured in .sisyphus/roadmap-completion-20260912/main-proof-1679-20260915/camp01-run-34957164072.json",
+  "limits": [
+    "3 probes per host skipped as expected (host lacks a capability the workflow does not provision); strict-skips was false",
+    "remote run proves the live probe suite on CI hosts; it is not the CAMP eligible non-author APPROVED review nor the three-witness gate, which stay owner-blocked",
+    "local full run (17/17) was on the lane worktree before merge; the CI probe set is the workflow-registered subset"
+  ]
+}

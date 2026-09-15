@@ -1,0 +1,88 @@
+{
+  "schema": "camp00-validator-fix-review/v1",
+  "reviewedAt": "2026-09-15",
+  "reviewer": "independent (read-only, GP-JUSTIFIED subagent)",
+  "subjectCommit": "2d38ede7c005312272aed5e63c9b6b2c2ca96b57",
+  "baseCommit": "f8abc1844760137dcc9d4e4c6eaff17157052bee",
+  "worktreeReviewed": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/camp00-disposable-20260915",
+  "worktreeCleanAtReview": true,
+
+  "findings": [
+    {
+      "item": "1. Carrier parity",
+      "status": "CONFIRMED",
+      "evidence": [
+        "src/lib/multiplayer/socketCredentialProtocol.ts:25-33 defines WS_PROTOCOL_VERSION='mekstation.v1', WS_CREDENTIAL_PREFIX='mekstation.token.', toBase64Url identical regex chain.",
+        "server.js:280-281 declares the same two constants verbatim (pre-existing mirror, untouched by this commit).",
+        "scripts/validate-multiplayer-packaged-socket.mjs:23-33 (new) declares the same two constants verbatim plus a byte-identical toBase64Url/credentialProtocols pair.",
+        "openAndJoin diff: `const url = wsUrl;` (dropped `&token=${encodeURIComponent(wireToken)}`) and `new WebSocket(url, credentialProtocols(wireToken), { perMessageDeflate: false })` — this is the `ws` package's `new WebSocket(address, protocols, options)` 3-arg form, correct for a Node `ws` client (distinct from the browser-native 2-arg form client.ts:690-693 uses via its factory, which is also correct for that context).",
+        "Diffed the full function: no other statement in openAndJoin changed besides the url/WebSocket construction lines and the added replayPromise.catch guard."
+      ]
+    },
+    {
+      "item": "2. Catch guard semantics",
+      "status": "CONFIRMED — does not swallow",
+      "evidence": [
+        "scripts/validate-multiplayer-packaged-socket.mjs:301 constructs replayPromise; :381 attaches `replayPromise.catch(() => {});`; :428 `await replayPromise;` still inside the same try block, followed by `finally { ws.close(); }`.",
+        "`.catch()` on a promise creates a NEW derived promise and registers a rejection handler on the original for the unhandledRejection tracker; it does not mutate or consume replayPromise's own settled state. The later `await replayPromise` at :428 still throws the original rejection, propagating out of openAndJoin normally.",
+        "This is the standard 'observe now, handle later' pattern and is correctly applied here — no required edit."
+      ]
+    },
+    {
+      "item": "3. Frozen contract + evidence integrity",
+      "status": "CONFIRMED",
+      "evidence": [
+        "`git diff f8abc1844 2d38ede7c -- scripts/qc/camp01-authority-receipt.contract.mjs` is EMPTY — the file is byte-identical between base and commit.",
+        "camp-00 row (contract.mjs:27 region) argv is `[['@npm','run','validate:multiplayer:packaged-socket']]`, canonicalArgvDigest `8e4005d9f13011f8229bbd457d23a9297a1fc17f0d843c70a1da4bb37c04a501` — matches the value cited in both evidence files; unchanged.",
+        "Recomputed sha256 of both changed files at commit 2d38ede7c independently: scripts/validate-multiplayer-packaged-socket.mjs -> bfb232970ec3813a42471742262fda8a55454c9d17b0cdd0914a0ed4a790620c; scripts/__tests__/packagedSocketValidatorCredentialMirror.test.ts -> f531c00497bb7ffbdc23c258ce8c9945d9c46bfaf5c23168a5b5ae2649cf6cf6 — both match camp00-validator-fix-local-20260915.json exactly.",
+        "adapter-validate.log (.sisyphus/roadmap-completion-20260912/camp00-validator-fix-20260915/adapter-validate.log) shows waveStatus=passed, assertionCount=17, allTrue=true, all 17 named camp-00 assertions individually true — matches the JSON's assertionResults block verbatim."
+      ]
+    },
+    {
+      "item": "4. Test quality and placement",
+      "status": "CONFIRMED",
+      "evidence": [
+        "red-mirror-test.log tail shows the pre-fix run against base f8abc1844: 'Test Suites: 1 failed, 1 passed, 2 total / Tests: 4 failed, 4 passed, 8 total', with the failing assertion at packagedSocketValidatorCredentialMirror.test.ts:114 (`replayPromise.catch(() => {})`) shown failing, and the sibling serverCredentialMirror.test.ts passing 4/4 (proves the harness itself was sound).",
+        "encodes-credential test (lines 50-92 of the new test) uses a regex to lift the validator's literal `function toBase64Url(base64) {...}` body out of the source, constructs it with `new Function(...)`, and compares its OUTPUT against the real module's toBase64Url across 7 fixtures ('', 'abc', 'a+b/c', 'a+b/c=', 'a+b/c==', '++//++//', a realistic base64-of-JSON token) — this is a genuine behavioural/executed comparison, not a string diff.",
+        "jest.config.js unitJestConfig: roots include '<rootDir>/scripts', testMatch includes '**/__tests__/**/*.(test|spec).(js|ts|tsx)' — scripts/__tests__/packagedSocketValidatorCredentialMirror.test.ts is picked up by the default 'unit' project (independently reran it: PASS unit scripts/__tests__/...test.ts).",
+        ".oxlintrc.json ignorePatterns includes '**/scripts/**' — both changed files fall outside oxlint's scope by project configuration, so the recorded oxlint 'pass' is vacuous (0 files linted), exactly as the author's evidence honestly disclosed rather than presented as a quality signal."
+      ]
+    },
+    {
+      "item": "5. Hygiene",
+      "status": "CONFIRMED",
+      "evidence": [
+        "`git log -1 --format='%an <%ae> / %cn <%ce>' 2d38ede7c` -> 'Wes Rollings <wrollings@gmail.com> / Wes Rollings <wrollings@gmail.com>'.",
+        "Subject line 'fix(qc): send the packaged-socket credential on the subprotocol like the client' is conventional-commit compliant.",
+        "`git log -1 --format=%B 2d38ede7c | grep -iE 'co-authored-by|generated with|claude'` -> no match (NONE FOUND).",
+        "`git show --name-only --format='' 2d38ede7c` lists exactly scripts/__tests__/packagedSocketValidatorCredentialMirror.test.ts and scripts/validate-multiplayer-packaged-socket.mjs — server.js is not in the commit.",
+        "Cap check: camp-00 row caps at maxFiles=4/maxChangedLines=180; actual is 2 files / 152 changed lines (36+2 in the .mjs, 116 new in the test) — within cap.",
+        "`git status --short` in the reviewed worktree is empty both before and after this review — no uncommitted drift."
+      ]
+    }
+  ],
+
+  "independentTestExecution": {
+    "focusedMirrorTests": {
+      "command": "npx jest --watchAll=false --runTestsByPath scripts/__tests__/packagedSocketValidatorCredentialMirror.test.ts src/lib/multiplayer/__tests__/serverCredentialMirror.test.ts --runInBand",
+      "result": "Test Suites: 2 passed, 2 total / Tests: 8 passed, 8 total (0.838 s)",
+      "matchesAuthorClaim": true
+    },
+    "typecheck": {
+      "command": "npx tsc --noEmit --skipLibCheck",
+      "result": "clean (zero-byte output), ran in 78s",
+      "matchesAuthorClaim": true
+    },
+    "notRun": [
+      "Full camp-01 umbrella suite (265s, author already ran and logged it; redundant to rerun for this review)",
+      "The live packaged-socket validator run itself (185s build+run; author already produced listener-observation.json with independently-verified sha256 and adapter conversion; rerunning was out of scope for a read-only diff/test review)"
+    ]
+  },
+
+  "verdict": "APPROVE",
+  "verdictRationale": "All five review points check out against independent re-derivation: constant/behavioural parity across the three carrier copies is byte-exact, the WebSocket call shape is correct for the `ws` package, the catch guard is the standard non-swallowing 'observe early, await later' pattern and does not hide the error from its real consumer, the frozen contract row is provably untouched (empty diff) with the 17 camp-00 assertions independently confirmed true via the adapter log, the new test is a genuine behavioural mirror pinned in the right jest project and honestly disclosed as outside oxlint's scope, and commit hygiene (author, conventional-commit subject, no AI attribution, no server.js change, cap compliance) is clean. No edits required.",
+  "residualNotes": [
+    "Not this reviewer's scope, but carried over from the author's own nonClaims: the desktop Electron packaged-build smoke and the npm-run-start (non-CAMP01_*) path share openAndJoin and were not re-exercised; the fix should apply to both by inspection but that is inference, not measurement, per the author's own disclosure.",
+    "The branch was not rebased onto the 2 commits of origin/main drift that landed mid-lane (7f4ade5b6, c40a394f6); neither touches scripts/ or server.js so this is low risk, but it is unverified on the newer base."
+  ]
+}

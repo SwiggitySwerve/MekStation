@@ -1,0 +1,101 @@
+{
+  "schema": "browser-main-proof-2-20260915/attempt-1/v1",
+  "purpose": "R1.browser closeout re-run: production build + Playwright proof for customizer equipment-catalog, record-sheet-rendering, and edit-recovery specs on main",
+  "timestamp": "2026-09-15T08:32:42Z",
+  "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/browser",
+  "head": {
+    "sha": "bce2049d74ce6e48b5d0813fb506ada701257e47",
+    "subject": "docs(openspec): archive verified customizer edit recovery package (#1683)",
+    "expectedShaOrNewer": "bce2049d74ce6e48b5d0813fb506ada701257e47",
+    "matchesExpected": true,
+    "containsPr1682Commit": true,
+    "pr1682Commit": "79de4f19591f72c3d5295c2ac71118589027ed36",
+    "ancestryVerified": "git merge-base --is-ancestor 79de4f19591f72c3d5295c2ac71118589027ed36 HEAD -> ANCESTOR_OK"
+  },
+  "environment": {
+    "node": "v22.22.0",
+    "npm": "11.6.2",
+    "platform": "win32 (Git Bash)"
+  },
+  "build": {
+    "command": "NEXT_PUBLIC_E2E_MODE=true NEXT_PUBLIC_E2E_TEST=true npm run build",
+    "exitCode": 0,
+    "startIso": "2026-09-15T08:26:02Z",
+    "endIso": "2026-09-15T08:30:23Z",
+    "durationSec": 261,
+    "buildId": "1789460769679",
+    "standaloneServerExists": true,
+    "standaloneServerPath": ".next/standalone/server.js",
+    "logFile": "build.log",
+    "logSha256": "9445019494fda50be3ee3d767b0190085ac8ddccab60bf01a029cf4329f06591"
+  },
+  "server": {
+    "command": "node .next/standalone/server.js",
+    "hostname": "127.0.0.1",
+    "port": 3639,
+    "portPreflightFree": true,
+    "listenerReadyLog": "MEKSTATION_LISTENER_READY {\"schema\":\"mekstation-packaged-listener-ready/v1\",\"configuredHostname\":\"127.0.0.1\",\"boundAddress\":\"127.0.0.1\",\"family\":\"IPv4\",\"port\":3639}",
+    "pid": null,
+    "pidNote": "run-playwright.mjs manages the webServer child process internally and does not print its PID; teardown verified instead by post-run port scan.",
+    "postRunListenerCheck": "netstat -ano | grep ':3639' | grep -i LISTENING -> no match (exit 1); only client-side TIME_WAIT entries observed, consistent with normal HTTP connection cleanup and full server teardown."
+  },
+  "playwright": {
+    "command": "MEKSTATION_E2E_SERVER_COMMAND='node .next/standalone/server.js' HOSTNAME=127.0.0.1 MEKSTATION_E2E_PORT=3639 node scripts/playwright/run-playwright.mjs test e2e/customizer-equipment-catalog.spec.ts e2e/customizer-record-sheet-rendering.spec.ts e2e/customizer-edit-recovery.spec.ts --project=chromium --retries=0 --workers=1 --trace=retain-on-failure",
+    "exitCode": 0,
+    "startIso": "2026-09-15T08:30:59Z",
+    "endIso": "2026-09-15T08:32:42Z",
+    "durationSec": 103,
+    "summaryLine": "12 passed (1.6m)",
+    "perFileCounts": {
+      "e2e/customizer-edit-recovery.spec.ts": { "passed": 3, "failed": 0 },
+      "e2e/customizer-equipment-catalog.spec.ts": { "passed": 3, "failed": 0 },
+      "e2e/customizer-record-sheet-rendering.spec.ts": { "passed": 6, "failed": 0 }
+    },
+    "totalPassed": 12,
+    "totalFailed": 0,
+    "anyRetriesUsed": false,
+    "traceRetainedForFailures": "n/a - no failures occurred",
+    "logFile": "playwright.log",
+    "logSha256": "3a62324ad19cb4ac6bc8a1597c11c7c73b273460cb4392025d3c07219849c467"
+  },
+  "blobComparisons": {
+    "method": "git rev-parse <commit>:<path>",
+    "results": [
+      {
+        "path": "e2e/customizer-equipment-catalog.spec.ts",
+        "headBlob": "a36276a657b357b244ea4ee174d29150f4398030",
+        "referenceCommit": "77d9a9480a3a47b1849f166db01278f93f3d8094",
+        "referenceLabel": "reviewed",
+        "referenceBlob": "a36276a657b357b244ea4ee174d29150f4398030",
+        "identical": true
+      },
+      {
+        "path": "e2e/customizer-edit-recovery.spec.ts",
+        "headBlob": "c7ee9d7ed0523dd78a41279673be51515ca9f119",
+        "referenceCommit": "77d9a9480a3a47b1849f166db01278f93f3d8094",
+        "referenceLabel": "reviewed",
+        "referenceBlob": "c7ee9d7ed0523dd78a41279673be51515ca9f119",
+        "identical": true
+      },
+      {
+        "path": "e2e/customizer-record-sheet-rendering.spec.ts",
+        "headBlob": "42b57c7bd6e4e896f31161c54a1536edec735481",
+        "referenceCommit": "9b59a19f8ada676e8cb504905751ac91a9a9905c",
+        "referenceLabel": "settle applied",
+        "referenceBlob": "42b57c7bd6e4e896f31161c54a1536edec735481",
+        "identical": true
+      }
+    ],
+    "allIdentical": true
+  },
+  "nonClaims": [
+    "native OS printing (Playwright emulates the Print flow; no assertion is made about a real OS print dialog or physical printer output)",
+    "pixel fidelity (no pixel-diff/visual-regression assertion was run in this proof)",
+    "other engines (only --project=chromium was executed; Firefox and WebKit were not run)"
+  ],
+  "worktreeFinalState": {
+    "detached": true,
+    "headSha": "bce2049d74ce6e48b5d0813fb506ada701257e47",
+    "gitStatusPorcelainClean": true
+  }
+}

@@ -1,0 +1,196 @@
+{
+  "schema": "camp01a-receipt-run-main/v1",
+  "runAt": "2026-09-15",
+  "lane": "camp01a-receipt-run-main (GP-JUSTIFIED; existing archive-original-main-proof worktree, detached at exact main)",
+  "task": "roadmap R2.camp-1 task 1.5 (add-saved-custom-unit-campaign-roster 1.5) -- CAMP-01A frozen wave RECEIPT RUN at exact main, mirroring R2.camp-0's camp00-receipt-run-main pattern",
+  "verdict": "EXACT-MAIN COMMAND-LEVEL RECEIPT PRODUCED: the frozen camp-01a command array ran green at exact main (exit 0) and self-wrote wave-result.json (schema camp01-wave-result/v1, status passed) with all 9 frozen assertions converting to their expected values, exact key set matching WAVE_CONTRACTS['camp-01a'].assertions. The controller-registered durable receipt and the PR-provenanced directory task 1.5's literal text also names are NOT produced and remain owner-blocked -- see nonClaims and ownerBlocked below.",
+
+  "exactMain": {
+    "sha": "aa26a94f11c0d497df7f62b685de8ab6f9fafaae",
+    "subject": "feat(campaign): let the source record follow the accepted contract in the same commit (#1706)",
+    "isOriginMainTip": true,
+    "originMainAtFetch": "aa26a94f11c0d497df7f62b685de8ab6f9fafaae",
+    "originMainReconfirmedAfterRun": "aa26a94f11c0d497df7f62b685de8ab6f9fafaae (re-fetched post-run; no drift)",
+    "expectedShaFromTaskCharter": "aa26a94f1 (at or after)",
+    "verifiedBy": "git fetch origin && git checkout --detach origin/main; git rev-parse HEAD == git rev-parse origin/main, checked both before and after the test run",
+    "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/archive-original-main-proof",
+    "priorWorktreeHead": "819ff6fd86696f88b7a9f23540b5caa2ca0a5ace (the SHA this same worktree was pinned to for the r2-camp-1-admission-brief read; origin/main advanced by one commit, #1706, between that brief and this run)",
+    "workingTreeCleanBeforeCheckout": true,
+    "workingTreeCleanAfterRun": true,
+    "npmCiRerun": false,
+    "npmCiRerunRationale": "no package.json/package-lock.json change between the two SHAs was checked separately; the worktree's existing Node 22 node_modules ran the frozen jest suite successfully (exit 0, 3/3 suites, 29/29 tests), which is itself evidence the install was adequate for this SHA. No reinstall performed."
+  },
+
+  "frozenContract": {
+    "source": "scripts/qc/camp01-authority-receipt.contract.mjs -> WAVE_CONTRACTS['camp-01a']",
+    "sourceSha256": "8d360592e96831322faa86d53e1348fa4ac6ef33b504fe7db34d22c7437f0bd3",
+    "sourceSha256MatchesCamp00ReceiptRecord": true,
+    "note": "identical contract-file hash to the one recorded in evidence/camp00-receipt-run-main-819ff6f-20260915.json, confirming the contract module is unmodified between 819ff6fd8 and aa26a94f1",
+    "wave": "camp-01a",
+    "commandId": "camp-01a",
+    "childChange": "add-campaign-roster-source-readiness",
+    "commandSequence": [["@npm", "test", "--", "--watchAll=false", "--runTestsByPath", "src/types/campaign/__tests__/RosterUnitSource.test.ts", "src/lib/campaign/readiness/__tests__/missionReadinessProjection.test.ts", "src/lib/campaign/encounter/__tests__/materializeCampaignMissionEncounter.test.ts", "--runInBand"]],
+    "canonicalArgvDigest": "5c08026e8fa784f59f4744cfa7faf163908634eb4b7f7da658f343a0d8fc5eca",
+    "runRootTemplate": ".sisyphus/evidence/playtest/camp01a-catalog-<sha>",
+    "artifacts": ["command-result.json", "receipt-manifest.json", "wave-result.json"],
+    "assertionCount": 9,
+    "predecessors": ["camp-00"],
+    "capSubject": "product-pr",
+    "maxFiles": 10,
+    "maxChangedLines": 400,
+    "reporterContracts": [],
+    "contractUnmodified": "no file under scripts/qc or scripts/ was edited by this lane; git status --porcelain empty before and after",
+    "noAdapterNeeded": "unlike camp-00, camp-01a needs no separate adapter script -- the frozen jest suite (RosterUnitSource.test.ts) self-writes wave-result.json directly in the camp01-wave-result/v1 shape when CAMP01_ARTIFACT_DIR/CAMP01_RUN_ID are set (confirmed by direct read of the test file at this SHA, lines matching the r2-camp-1-admission-brief's citation exactly)"
+  },
+
+  "invocation": {
+    "cwd": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/archive-original-main-proof",
+    "command": "npm test -- --watchAll=false --runTestsByPath src/types/campaign/__tests__/RosterUnitSource.test.ts src/lib/campaign/readiness/__tests__/missionReadinessProjection.test.ts src/lib/campaign/encounter/__tests__/materializeCampaignMissionEncounter.test.ts --runInBand",
+    "argvUnaltered": true,
+    "resolvesTo": "jest --watchAll=false --runTestsByPath <the three files> --runInBand (via the mekstation-app package.json 'test' script)",
+    "matchesFrozenCommandSequence": true,
+    "env": {
+      "PATH prepend": "/c/Users/wroll/AppData/Local/nvm/v22.22.0",
+      "CAMP01_ARTIFACT_DIR": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/camp01a-receipt-main-20260915/artifacts",
+      "CAMP01_RUN_ID": "camp01-a48b73f8fc87db9b80142df7e316b4cc"
+    },
+    "envRationale": "RosterUnitSource.test.ts's 'publishes CAMP-01A wave-result.json when the controller artifact dir is set' test only performs its assertion matrix and self-write when both process.env.CAMP01_ARTIFACT_DIR and process.env.CAMP01_RUN_ID are set (source line: 'if (!artifactDir || !runId) return;'); no CAMP01_NEXT_DIST_DIR or other env var is required by this test (unlike camp-00's runCamp00Authority branch), so only these two were set -- no env beyond what the contract/test requires. CAMP01_RUN_ID was generated via crypto.randomBytes(16).toString('hex') prefixed 'camp01-', matching the ^camp01-[0-9a-f]{32}$ shape used by the sibling camp00 lane and validated in-session by regex before use.",
+    "runOnce": true,
+    "node": "v22.22.0",
+    "npm": "11.6.2",
+    "startedAt": "2026-09-15T12:28:30Z",
+    "endedAt": "2026-09-15T12:28:34Z",
+    "durationSeconds": 4,
+    "exitCode": 0
+  },
+
+  "testResults": {
+    "suites": {
+      "passed": 3,
+      "total": 3,
+      "names": [
+        "src/lib/campaign/encounter/__tests__/materializeCampaignMissionEncounter.test.ts",
+        "src/lib/campaign/readiness/__tests__/missionReadinessProjection.test.ts",
+        "src/types/campaign/__tests__/RosterUnitSource.test.ts"
+      ]
+    },
+    "tests": {
+      "passed": 29,
+      "total": 29
+    },
+    "snapshots": 0
+  },
+
+  "receiptArtifacts": {
+    "produced": true,
+    "handEdited": false,
+    "waveResult": {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/camp01a-receipt-main-20260915/artifacts/wave-result.json",
+      "bytes": 416,
+      "sha256": "93c041a8b6b0c590699055734b4eb3903b36ed7b9278a6f5047b639f576c9473",
+      "producedBy": "RosterUnitSource.test.ts's self-writing 'publishes CAMP-01A wave-result.json when the controller artifact dir is set' test case, inside the frozen jest command -- no separate adapter or write step was run by this lane",
+      "content": {
+        "schema": "camp01-wave-result/v1",
+        "wave": "camp-01a",
+        "runId": "camp01-a48b73f8fc87db9b80142df7e316b4cc",
+        "status": "passed",
+        "assertions": {
+          "blockerPresent===true": true,
+          "canonicalExactRefResolved===true": true,
+          "downgradeRejected===true": true,
+          "encounterLookupCount===0": 0,
+          "legacySourceResolvedCanonical===true": true,
+          "mutationCount===0": 0,
+          "reuseResultCount===0": 0,
+          "routeCallCount===0": 0,
+          "unknownSourceRejected===true": true
+        }
+      }
+    },
+    "onlyArtifactInDirectory": true,
+    "note": "command-result.json and receipt-manifest.json, two of the three artifacts the camp-01a row declares, were NOT produced -- those are written only by the controller (qc:camp01-authority-receipt:write), which this lane did not invoke. Only wave-result.json, the artifact the frozen jest suite itself writes, exists in the artifact directory."
+  },
+
+  "assertionTally": {
+    "totalFrozenAssertions": 9,
+    "passed": 9,
+    "failed": 0,
+    "notReached": 0,
+    "exactKeySetMatchAgainstFrozenContract": true,
+    "verifiedBy": "node script: sorted Object.keys(waveResult.assertions) JSON.stringify compared to sorted WAVE_CONTRACTS['camp-01a'].assertions at this SHA -- equal (true); then each key's actual value checked against its expected value (true for *===true keys, 0 for *===0 keys) -- all 9 matched",
+    "assertions": {
+      "legacySourceResolvedCanonical===true": true,
+      "unknownSourceRejected===true": true,
+      "canonicalExactRefResolved===true": true,
+      "blockerPresent===true": true,
+      "encounterLookupCount===0": true,
+      "reuseResultCount===0": true,
+      "routeCallCount===0": true,
+      "mutationCount===0": true,
+      "downgradeRejected===true": true
+    }
+  },
+
+  "logs": [
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/camp01a-receipt-main-20260915/camp01a-run.log",
+      "sha256": "24534f890e31417a31df3911d13dab89ab41798cf49a14158523399c2014700e",
+      "content": "header (SHA, node/npm versions, env vars, argv) + npm banner + jest PASS lines for all 3 suites + summary (29 passed / 29 total, 1.365 s) + EXITCODE=0 + endedAt"
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/camp01a-receipt-main-20260915/run-id.txt",
+      "sha256": "b3809740b1eb46c8d4cfd41c048f60e04c17cff1225102bf05fc743f609a5e6c",
+      "content": "camp01-a48b73f8fc87db9b80142df7e316b4cc"
+    }
+  ],
+
+  "task_1_5_verdict": {
+    "verdict": "EXACT-MAIN COMMAND-LEVEL RECEIPT PRODUCED",
+    "scope": "command-level receipt only",
+    "whatIsProven": "at exact main aa26a94f1, the immutable camp-01a row's pinned command array (npm test -- --watchAll=false --runTestsByPath <3 files> --runInBand, canonicalArgvDigest 5c08026e8f...) executes green (exit 0, 3/3 suites, 29/29 tests, ~4 s) and its self-writing test case emits a wave-result.json of status=passed carrying all 9 frozen assertions converting to their expected values, with the exact key set the contract row freezes.",
+    "whatIsNotProven": "the controller-registered durable receipt under .sisyphus/evidence/playtest/camp01a-catalog-<sha>/ (command-result.json + receipt-manifest.json + wave-result.json, written by qc:camp01-authority-receipt:write and checked by qc:camp01-authority-receipt:validate) was NOT produced by this lane; neither the reviewed-head nor exact-main controller invocations named in task 1.5's literal text were run.",
+    "strictCapPreserved": "no product, spec, script, or contract code was touched, so the camp-01a product-pr cap (10 files / 400 lines) is trivially intact at 0/0; the reporterContracts list is empty for this row and nothing was reported into it."
+  },
+
+  "ownerBlocked": {
+    "predecessorCamp00Gate": {
+      "authority": "scripts/qc/camp01-durable-facts.mjs resolvePreflightFacts(); WAVE_CONTRACTS['camp-01a'].predecessors === ['camp-00']",
+      "requirement": "the controller's own readIndex() must recognize an existing exact-main-mode receipt for camp-00 in the durable evidence tree (.sisyphus/evidence/playtest/camp00-loopback-<sha>/), plus a matching wave-cleanup.json entry, before it will run camp-01a in controller mode.",
+      "status": "UNMET as of this run -- camp-00's own command-level receipt (evidence/camp00-receipt-run-main-819ff6f-20260915.json) explicitly did NOT invoke the controller writer/validator and wrote its artifacts outside the durable tree, so no controller-recognized camp-00 receipt exists yet.",
+      "consequence": "any attempt to run qc:camp01-authority-receipt:write --wave=camp-01a today would fail fast with 'predecessor receipt missing: camp-00', independent of anything this lane did."
+    },
+    "githubReviewGate": {
+      "authority": "roadmap node R2.camp-1 githubReviewGate + add-saved-custom-unit-campaign-roster P.2 + scripts/qc/camp01-github-provenance.mjs",
+      "requirement": "a non-dismissed APPROVED review on the exact head, by a NON-AUTHOR with WRITE / MAINTAIN / ADMIN on repository id 1014984218 (SwiggitySwerve/MekStation, base main)",
+      "soloException": false,
+      "status": "OWNER-BLOCKED REGARDLESS of this run",
+      "explicitNonClaim": "This lane does NOT claim the githubReviewGate is satisfied, and nothing in this artefact should be read as satisfying it. The gate requires a real second-collaborator APPROVED review; soloException=false means no self-approval carve-out exists. No agent lane can produce that. Task 1.5 therefore cannot close on the strength of this receipt alone, identically to camp-00's task 0.4."
+    },
+    "archivedChildChangeUnverifiableClaim": {
+      "observation": "openspec/changes/archive/2026-08-20-add-campaign-roster-source-readiness/tasks.md affirmatively claims tasks 3.2/3.3 (the receipt-run steps) are done, attested by 'durable reviewed-head + exact-main + cleanup receipts' and a council-review document at openspec/council-decisions/2026-08-12-camp01-wave-execution-review.md.",
+      "verification": "git cat-file -e origin/main:openspec/council-decisions/2026-08-12-camp01-wave-execution-review.md -> fatal: path does not exist in origin/main (re-confirmed at aa26a94f1, one commit past the SHA the r2-camp-1-admission-brief checked at 819ff6fd8 -- the file is still absent). No camp01a receipt directory exists anywhere in the repository or the local .sisyphus/evidence/playtest durable-evidence tree.",
+      "actionTaken": "NONE. This claim was neither cited as satisfying task 1.5 nor relied upon by this lane's run. Recorded per the r2-camp-1-admission-brief's explicit instruction not to treat PR #1230, the '23/23 readmitted' figure, or the 2026-08-12 council review as satisfying task 1.5."
+    }
+  },
+
+  "nonClaims": [
+    "No closure of roadmap task 1.5 is claimed. Both the controllerPredecessorGate (camp-00 has no controller-recognized receipt yet) and the githubReviewGate (real non-author APPROVED review; soloException=false) are owner-blocked regardless of this run's outcome.",
+    "No camp01a receipt DIRECTORY was written; qc:camp01-authority-receipt:write and :validate were NOT invoked. The only artifact produced is wave-result.json, self-written by the frozen jest suite's own test case.",
+    "No command-result.json or receipt-manifest.json exists -- two of the three artifacts the camp-01a row declares are absent, so validateReceiptDirectory (if it were run) would reject this artefact set as a receipt directory. It is not one and is not presented as one.",
+    "No product code, script, spec, task, roadmap, or contract file was modified, committed, pushed, or PR'd by this lane.",
+    "No approvals of any kind were sought or granted.",
+    "The run was executed ONCE; no retry, no cherry-picking of a green attempt.",
+    "No repair was attempted -- tasks 1.1-1.4 were audited (per the r2-camp-1-admission-brief) as already fully shipped with no gap requiring code changes; this lane performed only the run named in SLICE-1 of that brief and did not re-examine or re-derive that audit's per-task findings.",
+    "The archived child change's tasks.md claim of a prior receipt (PR #1230, 23/23 readmitted, the 2026-08-12 council review) is NOT relied upon, cited, or treated as evidence by this receipt; its cited council-review document is confirmed absent from origin/main at this SHA.",
+    "CI coverage is unchanged: this is a local jest run only, not a CI-gated result."
+  ],
+
+  "inputs": [
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/camp00-receipt-run-main-819ff6f-20260915.json (pattern mirrored)",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/r2-camp-1-admission-brief-20260915.json (frozenContractRow, recommendedFirstSlice=SLICE-1, orderedSlicePlan)",
+    "scripts/qc/camp01-authority-receipt.contract.mjs (WAVE_CONTRACTS['camp-01a'] read at aa26a94f1)",
+    "src/types/campaign/__tests__/RosterUnitSource.test.ts (self-write mechanism read at aa26a94f1)",
+    "openspec/changes/add-saved-custom-unit-campaign-roster/tasks.md (task 1.5 literal text)",
+    "openspec/changes/archive/2026-08-20-add-campaign-roster-source-readiness/tasks.md (the unverifiable prior-completion claim, checked again at this SHA and found still unverifiable)"
+  ]
+}

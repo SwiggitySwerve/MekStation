@@ -1,0 +1,168 @@
+{
+  "evidenceKind": "independent-review",
+  "subject": {
+    "branch": "codex/roadmap-ledger-reconcile-2-20260915",
+    "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/reconcile-1",
+    "baseSha": "4e5a74b9fddda382945277b15d76e2e09397d56c",
+    "commit": "b1b47e653e8b0abf44a99590bb1b22bb8b6c810e",
+    "commitSubject": "spec(openspec): reconcile ledger and task rows with merged exact-main receipts (batch 2)",
+    "commitAuthoredAtUtc": "2026-09-15T14:54:47Z",
+    "diffStatVsOwnParent": "5 files changed, 30 insertions(+), 13 deletions(-) -- verified via `git diff --stat b1b47e653^..b1b47e653`",
+    "batch1Precedent": "openspec/planning/2026-09-12-roadmap-completion/evidence/ledger-reconcile-1-review-20260915.json (PR #1718, verdict APPROVE-WITH-REQUIRED-EDITS, RE-1 was a stale-merge-state claim of the same class as this batch's RE-1/RE-2 below)"
+  },
+  "verdict": "APPROVE-WITH-REQUIRED-EDITS",
+  "requiredEdits": [
+    {
+      "id": "RE-1",
+      "file": "openspec/changes/add-saved-custom-unit-campaign-roster/tasks.md",
+      "row": "2.2 (camp-01b) Receipt-tier note",
+      "issue": "The note states the frozen `verify:qc:coop-campaign-journey` chain 'fails deterministically (re-run once, same signature) on a blanket console-error assertion collecting four 403 responses' as a standing, current fact. PR #1720 (title 'fix(campaign): stop a co-op guest asking for the GM share grants it cannot list', merge commit f685a5391f6e69b73932cdef5323dd2d247e55a6) fixed exactly this defect and merged to origin/main at 2026-09-15T14:47:55Z -- 7 minutes BEFORE this batch's own commit was authored (2026-09-15T14:54:47Z / 08:54:47-06:00), and confirmed an ancestor of origin/main via `git merge-base --is-ancestor f685a5391 origin/main`. PR #1720's own body states its root-cause fix was verified by re-running the frozen journey once on a fresh E2E standalone build: 'exit 0, 9 jest suites / 138 tests, both Playwright specs green, zero 403s in the log.' The row's own cited receipt (camp01bc-receipt-run-main-20260915.json) independently traces the four 403s to `GET /api/campaigns/<id>/grants` failing the `not-campaign-gm` gate -- the exact defect #1720's diagnosis and fix target. The row is silent about #1720 entirely, so it now describes a fixed defect as an unqualified standing failure.",
+      "impact": "Does not change the checkbox (2.2 correctly stays unchecked -- the receipt-tier claim, still PARTIAL/no command-level receipt, remains correct because the cited run predates #1720 and the camp-01b/c/d command-level receipt tier is separately blocked by the githubReviewGate). But the specific factual claim that the journey 'fails deterministically' is now stale on current main, which is the same class of defect batch 1's review caught under RE-1.",
+      "recommendedFix": "Append, without claiming the re-run has been performed: a sentence noting PR #1720 (merge f685a5391f, merged 2026-09-15T14:47:55Z, after this batch's base 4e5a74b9f) fixes the root cause on main, and that the `verify:qc:coop-campaign-journey` re-run against main at or after f685a5391 for this row remains owed and has not been performed here.",
+      "oldText": "the SECOND array, `npm run verify:qc:coop-campaign-journey`, exits 1 - its 9-suite jest leg (138/138) and `e2e/coop-campaign-two-browser-journey.spec.ts` pass while `e2e/coop-campaign-ui-audit.spec.ts` fails deterministically (re-run once, same signature) on a blanket console-error assertion collecting four 403 responses. Because the frozen array did not run green end to end, nothing above the partial tier exists",
+      "newText": "the SECOND array, `npm run verify:qc:coop-campaign-journey`, exits 1 - its 9-suite jest leg (138/138) and `e2e/coop-campaign-two-browser-journey.spec.ts` pass while `e2e/coop-campaign-ui-audit.spec.ts` fails deterministically (re-run once, same signature) on a blanket console-error assertion collecting four 403 responses. This defect is now fixed on main: PR #1720 (merge f685a5391f6e69b73932cdef5323dd2d247e55a6, merged 2026-09-15T14:47:55Z, after this batch's base 4e5a74b9f) stops the co-op guest dashboard from requesting GM share grants it cannot list, and PR #1720's own frozen-journey rerun on a fresh E2E build recorded exit 0 with zero 403s; only the `verify:qc:coop-campaign-journey` re-run against main at or after f685a5391 for this row remains owed, and it has not been performed here. Because the frozen array captured in this receipt did not run green end to end, nothing above the partial tier exists"
+    },
+    {
+      "id": "RE-2",
+      "file": "openspec/changes/add-saved-custom-unit-campaign-roster/tasks.md",
+      "row": "3.2 (camp-01c) Receipt-tier note",
+      "issue": "Same defect as RE-1: states the shared `verify:qc:coop-campaign-journey` failure ('same four-403 signature') as a current fact with no mention that PR #1720 fixes the root cause on main (merged before this batch's commit).",
+      "impact": "Same as RE-1 -- checkbox correctly stays unchecked; factual currency only.",
+      "recommendedFix": "Same pattern as RE-1, without claiming the re-run happened.",
+      "oldText": "the SECOND array is the SAME `npm run verify:qc:coop-campaign-journey` package script as `camp-01b` and fails identically (exit 1, same single spec, same four-403 signature) - one failing leg shared by three waves, and not in any wave's own assertion surface.",
+      "newText": "the SECOND array is the SAME `npm run verify:qc:coop-campaign-journey` package script as `camp-01b` and fails identically (exit 1, same single spec, same four-403 signature) - one failing leg shared by three waves, and not in any wave's own assertion surface. This shared defect is now fixed on main by PR #1720 (merge f685a5391f6e69b73932cdef5323dd2d247e55a6, merged 2026-09-15T14:47:55Z, after this batch's base); only the `verify:qc:coop-campaign-journey` re-run against main at or after f685a5391 is owed for this row, and it has not been performed here."
+    },
+    {
+      "id": "RE-3",
+      "file": "openspec/changes/add-saved-custom-unit-campaign-roster/tasks.md",
+      "row": "4.3 (camp-01d) Receipt-tier note",
+      "issue": "Same defect as RE-1/RE-2 for the third shared leg.",
+      "impact": "Same as RE-1 -- checkbox correctly stays unchecked; factual currency only.",
+      "recommendedFix": "Same pattern as RE-1, without claiming the re-run happened.",
+      "oldText": "the THIRD array is the same shared `npm run verify:qc:coop-campaign-journey` script and fails identically. See `openspec/planning/2026-09-12-roadmap-completion/evidence/camp01bc-receipt-run-main-20260915.json`.",
+      "newText": "the THIRD array is the same shared `npm run verify:qc:coop-campaign-journey` script and fails identically. This shared defect is now fixed on main by PR #1720 (merge f685a5391f6e69b73932cdef5323dd2d247e55a6, merged 2026-09-15T14:47:55Z, after this batch's base); only the `verify:qc:coop-campaign-journey` re-run against main at or after f685a5391 is owed for this row, and it has not been performed here. See `openspec/planning/2026-09-12-roadmap-completion/evidence/camp01bc-receipt-run-main-20260915.json`."
+    },
+    {
+      "id": "RE-4",
+      "file": "openspec/active-change-ledger.json",
+      "row": "add-saved-custom-unit-campaign-roster.reason",
+      "issue": "The ledger reason string repeats the same stale framing: 'all three share verify:qc:coop-campaign-journey as their final array and it fails deterministically on e2e/coop-campaign-ui-audit.spec.ts collecting four 403 responses' with no mention that PR #1720 (merged before this batch's commit) fixes the underlying defect on main. Same class as RE-1 through RE-3, in the other file this batch edits.",
+      "impact": "Cosmetic/factual-currency only; the ledger's own downstream conclusions (owner-blocked githubReviewGate, missing command-level receipts) are unaffected.",
+      "recommendedFix": "Same pattern: append a clause noting #1720 fixes the root cause on main and only the re-run is owed.",
+      "oldText": "all three share verify:qc:coop-campaign-journey as their final array and it fails deterministically on e2e/coop-campaign-ui-audit.spec.ts collecting four 403 responses.",
+      "newText": "all three share verify:qc:coop-campaign-journey as their final array and it fails deterministically on e2e/coop-campaign-ui-audit.spec.ts collecting four 403 responses. That defect is now fixed on main by PR #1720 (merge f685a5391f, merged 2026-09-15T14:47:55Z, after this batch's base); only the re-run against main at or after f685a5391 is owed for camp-01b/01c/01d."
+    }
+  ],
+  "ancestryTable": {
+    "method": "git fetch origin (executed fresh this review), then `git merge-base --is-ancestor <sha> origin/main` per cited sha, cross-checked with `gh pr view <n> --json state,mergeCommit,mergedAt`",
+    "originMainAtReviewTime": "15ca7b25b61473901909ac9954feb7677f1985f4",
+    "results": [
+      { "pr": 1704, "sha": "8cacf20a65880e42304c4e885b395525c820f775", "ancestor": true, "ghState": "MERGED" },
+      { "pr": 1705, "sha": "293d21bb0e3874768f3b0269115d465313230f4d", "ancestor": true, "ghState": "MERGED" },
+      { "pr": 1709, "sha": "a11ef14fdf586b96eb30d49329b1a99b63281725", "ancestor": true, "ghState": "MERGED" },
+      { "pr": 1710, "sha": "83887b7467deba22c1b0b6aa6fb1be8ba6bc4600", "ancestor": true, "ghState": "MERGED" },
+      { "pr": 1711, "sha": "1e43090c505f0b3d97fb71f099a9060e1936438c", "ancestor": true, "ghState": "MERGED" },
+      { "pr": 1712, "sha": "3323b6995051fe660794f854dd1174ac55805321", "ancestor": true, "ghState": "MERGED" },
+      { "pr": 1713, "sha": "4d7d17c3def5aa1989bd4819654f3eeec1fcc400", "ancestor": true, "ghState": "MERGED" },
+      { "pr": 1715, "sha": "273ed7883420d6198094d6d23abde855cc327510", "ancestor": true, "ghState": "MERGED" },
+      { "pr": 1716, "sha": "faf03445d421fc2b9a52c20d5dddfbdb5f82cb02", "ancestor": true, "ghState": "MERGED" },
+      { "pr": 1717, "sha": "4e5a74b9fddda382945277b15d76e2e09397d56c", "ancestor": true, "ghState": "MERGED", "note": "this batch's stated base" },
+      { "pr": 1719, "sha": "2b3075d821560a1c2a19a503c4cb883be4f1bf45", "ancestor": true, "ghState": "MERGED" },
+      { "pr": 1686, "sha": "69ae5374455eb3b4cb0d1cb3d918477c9fba9e68", "ancestor": true },
+      { "pr": 1687, "sha": "6a658c4ac3c4947d3e8dcd33e312e0655f0deda1", "ancestor": true },
+      { "pr": 1688, "sha": "e7cbe9e00de224715dc7233b6028b66312ab5877", "ancestor": true },
+      { "pr": 1694, "sha": "c40a394f6030cc18157384518a4e62550d6b3727", "ancestor": true },
+      { "pr": 1720, "sha": "f685a5391f6e69b73932cdef5323dd2d247e55a6", "ancestor": true, "ghState": "MERGED", "mergedAt": "2026-09-15T14:47:55Z", "note": "merged AFTER this batch's base (4e5a74b9f, 14:33:47Z) and BEFORE this batch's own commit was authored (14:54:47Z) -- see RE-1 through RE-4" },
+      { "pr": 1721, "sha": "15ca7b25b61473901909ac9954feb7677f1985f4", "ancestor": true, "note": "current origin/main tip; merged after this batch's base, unrelated to any cited claim, not required by rule 1" }
+    ],
+    "allCitedShasAncestorsOfOriginMain": true
+  },
+  "diffScopeCheck": {
+    "literalCommand": "git diff --stat origin/main..HEAD",
+    "literalResult": "13 files changed, 52 insertions(+), 792 deletions(-) -- includes non-openspec files (src/components/campaign/share/CampaignSharePanelConnected.tsx, its __tests__ file, CampaignDashboardPage.tsx, campaignAcceptContractCommand.ts, CampaignPersistenceService.ts, campaignSourceMaterialization.ts, SerializedCampaign.ts, campaignSourceReplayFence.test.ts)",
+    "rootCause": "origin/main advanced TWO commits past this batch's stated base (4e5a74b9f) between when the branch was cut and when this review ran: PR #1721 (15ca7b25b, source materialization/fence-bound borrowed-handle write) and PR #1720 (f685a5391, guest share-grants 403 fix). `git diff origin/main..HEAD` against a moving target attributes those two PRs' main-side changes as apparent deletions in HEAD. Confirmed via `git log 4e5a74b9f..origin/main --oneline` (exactly those 2 commits) and `git merge-base --is-ancestor 4e5a74b9f origin/main` (true).",
+    "isolatedBatchDiff": "git diff --stat b1b47e653^..b1b47e653 shows exactly 5 files, all under openspec/, 30 insertions(+) 13 deletions(-), 43 lines total -- matches the artefact's caps.filesTouched=5 / linesChanged=43 exactly.",
+    "verdict": "Rule 4 is satisfied in substance (the batch's own commit is openspec-only and within caps) but the literal command specified in the dispatch is now a false positive on a moving origin/main. This is an environmental drift condition, not a defect in the batch's commit, and requires no edit to the batch."
+  },
+  "aiAttributionCheck": {
+    "command": "git log -1 --format=%B b1b47e653e8b0abf44a99590bb1b22bb8b6c810e",
+    "result": "spec(openspec): reconcile ledger and task rows with merged exact-main receipts (batch 2)\\n\\n(no body, no trailers)",
+    "aiAttributionFound": false
+  },
+  "directedListCompliance": {
+    "directedList": [
+      "adopt-combat-journal-cutover-and-gm-rewind tasks.md 1.4/1.5",
+      "enable-saved-custom-unit-combat tasks.md lines 3-8",
+      "design-campaign-authority-and-sync tasks.md 1.6/6.3 (6.1/6.2/6.4 untouched)",
+      "add-saved-custom-unit-campaign-roster tasks.md CAMP NOTE rows only"
+    ],
+    "verification": [
+      { "file": "adopt-combat-journal-cutover-and-gm-rewind/tasks.md", "checkboxDiffLines": "only 1.5 flips '- [ ]' -> '- [x]'; 1.4 checkbox line untouched (still '- [ ]', receipt-bearing sub-bullet text edited only); 1.3/1.6 checkbox lines not present in the diff at all", "compliant": true },
+      { "file": "enable-saved-custom-unit-combat/tasks.md", "checkboxDiffLines": "lines 3,7,8 confirmed '- [x]' on the current file; lines 4,5,6 confirmed still '- [ ]' on the current file (`grep -n \"^- \\[\" openspec/changes/enable-saved-custom-unit-combat/tasks.md`)", "compliant": true },
+      { "file": "design-campaign-authority-and-sync/tasks.md", "checkboxDiffLines": "1.6 checkbox line confirmed still '- [ ]' (only its Progress sub-bullet text changed); 6.3 checkbox line confirmed still '- [ ]' (only its Progress sub-bullet added); 6.1/6.2/6.4 confirmed still '- [ ]' with ZERO diff lines touching them (`grep -n \"^- \\[.\\] 6\\.[1-4]\"` shows no +/- markers for those three in the commit diff)", "compliant": true },
+      { "file": "add-saved-custom-unit-campaign-roster/tasks.md", "checkboxDiffLines": "confirmed NO checkbox line ('- [ ]' -> '- [x]') changed anywhere in this file's diff -- every added line is a '  - Progress'/'  - Receipt tier reached' note sub-bullet under an already-open box (0.4, 1.5, 2.1, 2.2, 3.2, 4.3, 5.3, 6.1, 7.1)", "compliant": true }
+    ],
+    "outOfListButNotAViolation": {
+      "note": "openspec/active-change-ledger.json 'reason' prose was also refreshed for enable-saved-custom-unit-combat, adopt-combat-journal-cutover-and-gm-rewind and design-campaign-authority-and-sync (the last one self-flagged by the artefact as 'not in the directed edit list, but the same class of defect batch 1's review caught'). These are free-text status summaries, not task-row checkboxes, and the ledger is one of the 5 files this batch is scoped to touch; batch 1 set this same precedent (its own ledger-reason refreshes were reviewed and approved). Not a rule-3 violation, but the RE-1-class staleness on the roster ledger entry is RE-4 above.",
+      "compliant": true
+    },
+    "noDeferralReopenedOrRemoved": {
+      "checked": "grep of the roster/combat/journal-cutover/design-campaign diffs for mode-flag or gate-relaxation language",
+      "result": "every note explicitly repeats 'mode stays off' / githubReviewGate and CAMP-01H witness gate 'preserved verbatim' / 'none is claimed satisfied'; no deferral text removed or weakened",
+      "compliant": true
+    }
+  },
+  "literalTextSpotChecks": [
+    {
+      "edit": "1.5 flip (journal-cutover)",
+      "receiptsRead": ["r4-s5-a-1716-main-proof-20260915.json", "r4-s5-b-1717-main-proof-20260915.json", "r4-s5-explicit-offsets-review-20260915.json"],
+      "location": "read from E:/Projects/MekStation/openspec/planning/2026-09-12-roadmap-completion/evidence/ (untracked session artefacts; absent from the reconcile-1 worktree, which only carries 3 tracked evidence files -- git worktrees do not share untracked files, so these were read from the primary checkout, same repo)",
+      "finding": "Both PR main-proofs confirmed: mergeCommit fields match the cited shas exactly, blobEquality.identical=true for both, all four gates (jest/tsc/openspecStrict/qcOpenspecCi) exit 0 with the exact sha256 values quoted in the batch's local artefact. The independent review's actual verdict is 'APPROVE-WITH-REQUIRED-EDITS' (5 doc-only stale-comment REs, no behavioral defect) -- the batch's characterization ('confirmed complete by independent review', citing RE-5's verbatim wording on the mutant-matrix deferral) is an accurate, non-cherry-picked summary of that review; it does not claim a clean PASS it didn't get.",
+      "verdict": "PASS"
+    },
+    {
+      "edit": "enable-saved-custom-unit-combat lines 3-8",
+      "receiptsRead": ["r2-combat-s6-consolidated-20260915.json"],
+      "finding": "perTaskLineTable.rows[] verdicts (line 3 PROVEN, line 4/5/6 PROVEN-WITH-RESIDUAL, matching text and residual wording almost verbatim) and checkboxProposals.proposedRows[] (line 3 CHECK high-confidence, line 4/6 CHECK-WITH-NOTE, line 5 CHECK-WITH-NOTE but explicitly 'should be HELD rather than checked' if 'rewind' read as a hard requirement) match the batch's FLIP/PARTIAL split exactly -- the batch held line 5 open per the receipt's own conditional guidance rather than checking it against a lenient reading. mainShaVerification confirms origin/main resolved to the pinned SHA 4d7d17c3d with zero drift at capture time.",
+      "verdict": "PASS"
+    },
+    {
+      "edit": "design-campaign 1.6 progress-note correction",
+      "receiptsRead": ["r2-client-crash-window-close-1711-main-proof-20260915.json"],
+      "finding": "PR #1711 confirmed merged (mergeCommit 1e43090c5 matches), blobEquality.identical=true, all gates exit 0 -- the batch's replacement of the stale 'neither of which is merged' framing (a residual from batch 1's own RE-1 fix that had gone stale again as #1711 merged later) with 'all three commits of the stack are merged and main-verified' is accurate.",
+      "verdict": "PASS"
+    },
+    {
+      "edit": "design-campaign 6.3 progress-note",
+      "receiptsRead": ["r2-63-leak-row-1719-main-proof-20260915.json"],
+      "finding": "acceptance field reads verbatim 'exact-main accepted; task 6.3 six rows all present on main; producer-row 1:1 falsification pass remains the recorded residual' -- matches the batch's noFlipBecause text exactly, including which specific falsification pass is still owed.",
+      "verdict": "PASS"
+    },
+    {
+      "edit": "roster CAMP NOTE rows (2.2/3.2/4.3) four-403 claim",
+      "receiptsRead": ["camp01bc-receipt-run-main-20260915.json"],
+      "finding": "Receipt confirms the four-403 signature and traces it to `GET /api/campaigns/<id>/grants` failing the `not-campaign-gm` gate -- exactly the defect PR #1720's body diagnoses and fixes. See requiredEdits RE-1/RE-2/RE-3/RE-4 above.",
+      "verdict": "REQUIRED EDIT (RE-1 through RE-4)"
+    }
+  ],
+  "validators": {
+    "runInWorktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/reconcile-1",
+    "results": [
+      { "command": "npx openspec validate --all --strict", "exit": 0, "output": "Totals: 232 passed, 0 failed (232 items)" },
+      { "command": "npm run spec:purpose:validate:strict", "exit": 0, "output": "Files scanned: 220; Errors: 0; Tracked source-of-truth debt: 0" },
+      { "command": "npm run terminology:validate:strict", "exit": 0, "output": "Found 315 file(s) to scan; No terminology violations found; all compliant" },
+      { "command": "npm run qc:openspec-ci:validate", "exit": 0, "output": "workflowContracts=8/8 workflowJobContracts=1/1 aggregatorNeeds=19/19 protectedContexts=4 packageScripts=3/3 activeOpenSpecChanges=12 accountedActiveOpenSpecChanges=12 errors=0" }
+    ],
+    "allExitZero": true,
+    "matchesArtefactClaims": true
+  },
+  "hygiene": {
+    "pushed": false,
+    "gitStatusPorcelainEmptyAtStart": true,
+    "noFilesModifiedByThisReview": true,
+    "noSubAgentsSpawned": true,
+    "readOnlyOperations": "git fetch/log/diff/show/merge-base, gh pr view (read-only), node/npm validator runs, python3/cat reads of untracked evidence JSON in the primary checkout"
+  },
+  "reviewerNote": "GP-JUSTIFIED independent read-mostly review per dispatch. No file written outside this evidence JSON; no commit, push, or PR; no sub-agents. Every ancestry claim was verified with a fresh `git fetch origin` in this session, not trusted from the artefact's own table.",
+  "timestampUtc": "2026-09-15T15:20:00Z"
+}

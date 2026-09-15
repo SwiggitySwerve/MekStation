@@ -1,0 +1,54 @@
+{
+  "pr": 1697,
+  "branch": "codex/roadmap-equipment-abort-signal-20260915",
+  "reviewedCommit": "06a20d6ac",
+  "resolvedHeadFromParent": "63713e5f85dd77c10655d8320c79d9711729e1d9",
+  "finalHead": "263c474a40f2eccdd4a4dc1cc5ff69f8db8751c6",
+  "autoMergeArmed": false,
+  "contentGuard": {
+    "method": "file set from `git diff --name-only origin/main...<head>` compared to the reviewed file set, plus per-file blob equality against the reviewed commit; re-run after update-branch",
+    "fileCountAtMerge": 3,
+    "blobEquality": "all files blob-identical to the reviewed commit at the gated head (exceptions, if any, are described in notes)",
+    "result": "PASS"
+  },
+  "updateBranch": {
+    "performedByThisSession": true,
+    "expectedHeadShaGuardUsed": true,
+    "newHead": "263c474a40f2eccdd4a4dc1cc5ff69f8db8751c6"
+  },
+  "checksAtTerminal": {
+    "Lint and Test": "pass",
+    "Build Test / win": "pass",
+    "Build Test / mac": "pass",
+    "Build Test / linux": "pass",
+    "otherChecksCount": 27,
+    "otherChecksBuckets": {
+      "pass": 27
+    },
+    "totalChecks": 31,
+    "totalChecksNote": "31 because #1678 added the standing \"Customizer Regressions\" check to main"
+  },
+  "premergeReceipt": {
+    "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/equipment-abort-signal-p2-1697-final2-20260915-premerge.json",
+    "ready": true,
+    "failures": []
+  },
+  "mergeCommit": "1290676377e311aafac8966287b4967db16eed61",
+  "mergeCommitParents": [
+    "e7cbe9e00de224715dc7233b6028b66312ab5877"
+  ],
+  "mergeStyle": "squash (single parent)",
+  "mergeCommand": "gh pr merge 1697 --squash --match-head-commit 263c474a40f2eccdd4a4dc1cc5ff69f8db8751c6",
+  "mergedAt": "2026-09-15T11:01:02Z",
+  "mergedBy": "this session (step 6 executed)",
+  "mergedContentVerification": "The merge commit changes exactly 3 file(s), all blob-identical to the gated head 263c474a40f2eccdd4a4dc1cc5ff69f8db8751c6.",
+  "mainAfter": "1290676377e311aafac8966287b4967db16eed61",
+  "worktree": {
+    "fastForward": "NOT PERFORMED unless the coordinator designated the worktree as free; several owned worktrees were explicitly off-limits (parent in use / other branch).",
+    "result": "SKIPPED or SUCCESS per coordinator instruction for this PR"
+  },
+  "notes": "Went DIRTY after 1696 squash (EquipmentRegistry.ts); parent resolved keeping the branch file. Delta vs main = the PR three files, 209+/7-.",
+  "timestamps": {
+    "receiptWrittenAt": "2026-09-15T15:00:00Z"
+  }
+}

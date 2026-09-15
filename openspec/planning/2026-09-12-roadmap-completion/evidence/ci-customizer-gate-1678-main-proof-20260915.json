@@ -1,0 +1,81 @@
+{
+  "proof": "PROOF 1 - PR #1678 (CI prefix 2) merge-to-main verification",
+  "date": "2026-09-15",
+  "pr": 1678,
+  "mergeCommit": "0f86b4ee9e7b8fb7ffdad499bc60209e5358586b",
+  "reviewedHead": "c3f2fc80e271c940d9d14730ec1eda9ffe21ba8d",
+  "ghPrViewMergeCommit": "0f86b4ee9e7b8fb7ffdad499bc60209e5358586b",
+  "filesChanged": [
+    ".github/workflows/nightly-validation.yml",
+    ".github/workflows/pr-checks.yml",
+    "openspec/active-change-ledger.json",
+    "openspec/changes/add-customizer-pr-regression-gate/.openspec.yaml",
+    "openspec/changes/add-customizer-pr-regression-gate/design.md",
+    "openspec/changes/add-customizer-pr-regression-gate/proposal.md",
+    "openspec/changes/add-customizer-pr-regression-gate/specs/e2e-testing/spec.md",
+    "openspec/changes/add-customizer-pr-regression-gate/tasks.md",
+    "scripts/qc/validate-openspec-ci-quality.mjs"
+  ],
+  "blobEquality": {
+    "method": "git rev-parse <commit>:<path> compared between 0f86b4ee9 and c3f2fc80e",
+    "matchedFiles": [
+      ".github/workflows/nightly-validation.yml",
+      ".github/workflows/pr-checks.yml",
+      "openspec/changes/add-customizer-pr-regression-gate/.openspec.yaml",
+      "openspec/changes/add-customizer-pr-regression-gate/design.md",
+      "openspec/changes/add-customizer-pr-regression-gate/proposal.md",
+      "openspec/changes/add-customizer-pr-regression-gate/specs/e2e-testing/spec.md",
+      "openspec/changes/add-customizer-pr-regression-gate/tasks.md",
+      "scripts/qc/validate-openspec-ci-quality.mjs"
+    ],
+    "result": "all 8 files blob-identical between the merge commit and the reviewed head"
+  },
+  "ledgerDivergence": {
+    "file": "openspec/active-change-ledger.json",
+    "method": "git diff 0f86b4ee9^ 0f86b4ee9 -- openspec/active-change-ledger.json",
+    "finding": "3-way merge added exactly one entry: the add-customizer-pr-regression-gate change (status in-progress, lastReviewed 2026-09-12); no other hunk present",
+    "confirmedOnlyIntendedEntryAdded": true
+  },
+  "validations": {
+    "qcOpenspecCiValidate": {
+      "command": "npm run qc:openspec-ci:validate",
+      "exitCode": 0,
+      "result": "workflowContracts=8/8 workflowJobContracts=1/1 aggregatorNeeds=19/19 protectedContexts=4 packageScripts=3/3 activeOpenSpecChanges=13 accountedActiveOpenSpecChanges=13 errors=0",
+      "expectedMatch": true
+    },
+    "openspecValidateAllStrict": {
+      "command": "npx openspec validate --all --strict",
+      "exitCode": 0,
+      "result": "Totals: 233 passed, 0 failed (233 items)"
+    },
+    "specPurposeValidateStrict": {
+      "command": "npm run spec:purpose:validate:strict",
+      "exitCode": 0,
+      "result": "Files scanned: 220, Errors: 0, Tracked source-of-truth debt: 0"
+    },
+    "terminologyValidateStrict": {
+      "command": "npm run terminology:validate:strict",
+      "exitCode": 0,
+      "result": "319 file(s) scanned, No terminology violations found"
+    },
+    "focusedJest": {
+      "command": "node node_modules/jest/bin/jest.js --runInBand --coverage=false --runTestsByPath scripts/__tests__/openspec-ci-quality-qc.test.ts",
+      "exitCode": 0,
+      "result": "Test Suites: 1 passed, 1 total; Tests: 5 passed, 5 total",
+      "expectedMatch": "5/5 on main since prefixes 3/4 are not merged -- confirmed"
+    }
+  },
+  "ciRunCheck": {
+    "command": "gh run list --commit 0f86b4ee9e7b8fb7ffdad499bc60209e5358586b --json databaseId,name,conclusion",
+    "runsFound": [
+      { "databaseId": 34945430885, "name": "Build and Release", "conclusion": "success" },
+      { "databaseId": 34945406786, "name": "Auto Version and Release", "conclusion": "success" },
+      { "databaseId": 34945406828, "name": "CAMP-01 Live Adversarial Evidence", "conclusion": "failure" }
+    ],
+    "prChecksWorkflowRunOnMain": false,
+    "note": "No 'pr-checks' (or equivalently named PR CI) workflow run was found against this merge commit on main -- only Build and Release, Auto Version and Release (both success), and CAMP-01 Live Adversarial Evidence (failure) executed on the commit."
+  },
+  "logDirectory": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/main-proof-1678-1682-campproof-20260915/",
+  "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/archive-original-main-proof",
+  "nodeVersion": "v22.22.0"
+}

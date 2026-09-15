@@ -1,0 +1,53 @@
+{
+  "evidenceKind": "api-1668-main-proof",
+  "timestampUtc": "2026-09-15T06:30:35Z",
+  "prReference": "PR #1668 \"feat(journal): add prepared append transaction\", squash-merged as 79c789e2ab3a3d94b86194fffd3ea6a468cd13c9",
+  "commitTested": "79c789e2ab3a3d94b86194fffd3ea6a468cd13c9",
+  "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/r2-prepared-journal-api",
+  "preconditionCheck": {
+    "gitStatusPorcelainEmpty": true,
+    "headMatchedExpected79c789e2a": true
+  },
+  "environmentNote": "Initial run failed (exit 1, all 15 tests in gate 01 erroring) with a better-sqlite3 NODE_MODULE_VERSION mismatch (binary built for 127, active nvm4w node v24.15.0 requires 137) -- a global Node version drift since the 2026-09-13 gate run, unrelated to the source under test. Ran `npm rebuild better-sqlite3` (worktree-local; node_modules is gitignored; git status confirmed empty before and after) to restore ABI compatibility, then re-ran both suites cleanly.",
+  "commands": [
+    {
+      "argv": ["node", "node_modules/jest/bin/jest.js", "--runInBand", "--runTestsByPath", "src/lib/events/journal/__tests__/SQLiteEventJournalWriter.test.ts"],
+      "exitCode": 0,
+      "testSuitesSummary": "1 passed, 1 total",
+      "testsSummary": "15 passed, 15 total",
+      "logPath": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/main-proof-api-deferrals-20260915/01-writer15.stderr.log",
+      "logSha256": "f0b218d781838c68f464d148902556468b01a1dd131e47520543eac736067ef0"
+    },
+    {
+      "argv": ["node", "node_modules/jest/bin/jest.js", "--runInBand", "--runTestsByPath", "src/lib/events/journal/__tests__/SQLiteEventJournal.test.ts", "src/lib/events/journal/__tests__/SQLiteEventJournalRecovery.test.ts"],
+      "exitCode": 0,
+      "testSuitesSummary": "2 passed, 2 total",
+      "testsSummary": "21 passed, 21 total",
+      "logPath": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/main-proof-api-deferrals-20260915/02-journal-recovery21.stderr.log",
+      "logSha256": "72735adbfffa14b7583d82cd166e00ac1b2344d665cd1b15b270944403f6bea0"
+    }
+  ],
+  "combinedTotals": {
+    "suites": 3,
+    "tests": 36,
+    "claimedMatch": "36 tests / 3 suites -- CONFIRMED"
+  },
+  "blobComparison": {
+    "sourceFile": {
+      "path": "src/lib/events/journal/SQLiteEventJournalWriter.ts",
+      "headBlob": "c8fe11dd94fc2fc12d5309fa5ff0d1c80fb644a7",
+      "reviewedCommit": "6f795eb515aad090186e01f373447b3bb6d7801c",
+      "reviewedBlob": "c8fe11dd94fc2fc12d5309fa5ff0d1c80fb644a7",
+      "identical": true
+    },
+    "testFile": {
+      "path": "src/lib/events/journal/__tests__/SQLiteEventJournalWriter.test.ts",
+      "headBlob": "0048637278d7b4a9c96bd05bf1e4786efe8db1eb",
+      "reviewedCommit": "6f795eb515aad090186e01f373447b3bb6d7801c",
+      "reviewedBlob": "0048637278d7b4a9c96bd05bf1e4786efe8db1eb",
+      "identical": true
+    }
+  },
+  "crossCheckWithOriginalGateRun": "v2/v3/v4 (spec-purpose, terminology, qc:openspec-ci) stdout sha256 in the accompanying r6 proof run are byte-identical to gates 07/08/09 recorded in .sisyphus/roadmap-completion-20260912/r2-prepared-journal-api-full-gates-20260913/gate-results.json (2026-09-13), and gate 06 (openspec validate) stdout+stderr sha256 also match exactly, corroborating deterministic output across the environment fix.",
+  "fullResultAndLogs": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/main-proof-api-deferrals-20260915/result.json"
+}

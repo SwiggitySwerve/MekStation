@@ -1,0 +1,78 @@
+{
+  "pr": 1670,
+  "branch": "codex/roadmap-archive-equipment-20260913",
+  "reviewedCommit": "0f26b709f33ecb5513058844e8077d61b5a2a3ed",
+  "finalHead": "b8d69e2e5ad83ecbce039e9ef5ed527f5fdb2c08",
+  "anomaly": "GitHub auto-merge (SQUASH) was armed on this PR at 2026-09-15T06:19:43Z by SwiggitySwerve, before this merge-manager session began. Auto-merge fired the moment the required checks went green (06:29:19Z), during this session's check-polling loop. This session therefore did NOT execute step 6 (gh pr merge); the merge that landed is byte-identical to the head this session gated and content-verified.",
+  "contentGuard": {
+    "preUpdate": {
+      "fileSetEqualToReviewed": true,
+      "blobEquality": "trivially satisfied - reviewed commit == PR head (0f26b709f)",
+      "result": "PASS"
+    },
+    "postUpdate": {
+      "fileSet": [
+        "openspec/active-change-ledger.json",
+        "openspec/changes/archive/2026-09-12-repair-equipment-catalog/.openspec.yaml",
+        "openspec/changes/archive/2026-09-12-repair-equipment-catalog/design.md",
+        "openspec/changes/archive/2026-09-12-repair-equipment-catalog/proposal.md",
+        "openspec/changes/archive/2026-09-12-repair-equipment-catalog/specs/equipment-browser/spec.md",
+        "openspec/changes/archive/2026-09-12-repair-equipment-catalog/tasks.md"
+      ],
+      "noFilesAddedBeyondReviewedSet": true,
+      "blobEquality": {
+        "openspec/changes/archive/2026-09-12-repair-equipment-catalog/.openspec.yaml": "equal",
+        "openspec/changes/archive/2026-09-12-repair-equipment-catalog/design.md": "equal",
+        "openspec/changes/archive/2026-09-12-repair-equipment-catalog/proposal.md": "equal",
+        "openspec/changes/archive/2026-09-12-repair-equipment-catalog/specs/equipment-browser/spec.md": "equal",
+        "openspec/changes/archive/2026-09-12-repair-equipment-catalog/tasks.md": "equal",
+        "openspec/active-change-ledger.json": "NOT byte-equal (reviewed f801d6ac4 vs post-update 991d14f84) - expected: shared file 3-way merged with #1669's ledger edit"
+      },
+      "ledgerAdjudication": "Diff of the ledger against its own base is IDENTICAL before and after the update-branch merge: both remove exactly the 'repair-equipment-catalog' in-progress entry. Only the hunk line offset moved (@@ -72 -> @@ -66) because #1669 removed its own entry earlier in the file. Clean combination, no content drift.",
+      "result": "PASS"
+    }
+  },
+  "updateBranch": {
+    "performedByThisSession": true,
+    "oldHead": "0f26b709f33ecb5513058844e8077d61b5a2a3ed",
+    "newHead": "b8d69e2e5ad83ecbce039e9ef5ed527f5fdb2c08",
+    "expectedHeadShaGuard": "0f26b709f33ecb5513058844e8077d61b5a2a3ed",
+    "reason": "branch was BEHIND after #1669 merged to main"
+  },
+  "checksAtTerminal": {
+    "Lint and Test": "pass",
+    "Build Test / win": "pass",
+    "Build Test / mac": "pass",
+    "Build Test / linux": "pass",
+    "otherChecksCount": 26,
+    "otherChecksBuckets": { "pass": 26 },
+    "totalChecks": 30,
+    "pollLog": "06:25:59 6 pass/23 pending -> 06:29:55 30 pass/0 pending"
+  },
+  "premergeReceipt": {
+    "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/archive-equipment-1670-final-20260915-premerge.json",
+    "ready": false,
+    "failures": ["PR identity changed", "Branch state requires review: UNKNOWN"],
+    "note": "Gate was run AFTER auto-merge had already landed the PR (06:29:19Z); both failures are artifacts of that race - 'PR identity changed' because main had advanced to the merge commit, 'UNKNOWN' branch state because a merged PR has no mergeable state. Not a substantive gate failure: all four required checks were green on the exact head that merged."
+  },
+  "mergeCommit": "a018f717ac01a9127a2bec4f652cd73b5dea8d94",
+  "mergeCommitParents": ["c3b4cc1e3ace35ff95b7999d9680a5d657ca344f"],
+  "mergeStyle": "squash (single parent)",
+  "mergedAt": "2026-09-15T06:29:19Z",
+  "mergedBy": "SwiggitySwerve (via armed auto-merge)",
+  "mergedContentVerification": "All 6 files in the merge commit have blob SHAs identical to the gated final head b8d69e2e5.",
+  "mainAfter": "a018f717ac01a9127a2bec4f652cd73b5dea8d94",
+  "worktree": {
+    "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/archive-equipment",
+    "cleanBeforeFF": true,
+    "branch": "codex/roadmap-archive-equipment-20260913",
+    "fastForward": "ff-only 0f26b709f -> b8d69e2e5",
+    "result": "SUCCESS",
+    "note": "fast-forwarded against the fetched commit object; remote branch auto-deleted on merge (delete_branch_on_merge=true)"
+  },
+  "timestamps": {
+    "guardStartedAt": "2026-09-15T06:25:10Z",
+    "checksTerminalAt": "2026-09-15T06:29:55Z",
+    "receiptWrittenAt": "2026-09-15T06:32:00Z"
+  }
+}

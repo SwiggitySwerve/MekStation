@@ -1,0 +1,71 @@
+{
+  "pr": 1681,
+  "branch": "codex/roadmap-history-sql-integrity-20260915",
+  "reviewedCommit": "79667696c6900c9ba88141e3a0baf5681fbbd8b3",
+  "blobReferenceCommit": "fd335ee371c522957544c96b1e7f62772075b504",
+  "blobReferenceNote": "coordinator-supplied earlier reviewed local commit; PR head blobs are identical to it",
+  "finalHead": "79667696c6900c9ba88141e3a0baf5681fbbd8b3",
+  "anomaly": null,
+  "autoMergeArmed": false,
+  "contentGuard": {
+    "fileSetSize": 11,
+    "fileSetAsSpecified": true,
+    "files": [
+      "src/services/persistence/SQLiteService.historyBranchesIntegrity.migration.ts",
+      "src/services/persistence/SQLiteService.migrations.ts",
+      "src/services/persistence/__tests__/SQLiteService.actionAudit.migration.test.ts",
+      "src/services/persistence/__tests__/SQLiteService.actionAuditSessionIdentity.migration.test.ts",
+      "src/services/persistence/__tests__/SQLiteService.campaignGrants.migration.test.ts",
+      "src/services/persistence/__tests__/SQLiteService.deliveryEpochs.migration.test.ts",
+      "src/services/persistence/__tests__/SQLiteService.historyBranches.migration.test.ts",
+      "src/services/persistence/__tests__/SQLiteService.privateRecordRejectionOnce.migration.test.ts",
+      "src/services/persistence/__tests__/SQLiteService.privateRecords.migration.test.ts",
+      "src/services/persistence/__tests__/SQLiteService.replayCheckpoints.migration.test.ts",
+      "src/services/persistence/__tests__/SQLiteService.replayCheckpointsBranch.migration.test.ts"
+    ],
+    "diffstat": "11 files changed, 166 insertions(+), 1 deletion(-)",
+    "blobEquality": "all 11 blobs identical to fd335ee37",
+    "result": "PASS"
+  },
+  "updateBranch": {
+    "performedByThisSession": false,
+    "reason": "NOT NEEDED - head 79667696c was already UP-TO-DATE with origin/main (bcc34f7cd) when the guard ran; the parent had already based it on post-#1674 main",
+    "oldHead": null,
+    "newHead": null
+  },
+  "checksAtTerminal": {
+    "Lint and Test": "pass",
+    "Build Test / win": "pass",
+    "Build Test / mac": "pass",
+    "Build Test / linux": "pass",
+    "otherChecksCount": 26,
+    "otherChecksBuckets": { "pass": 26 },
+    "totalChecks": 30,
+    "pollLog": "07:47:49 2 pending -> 07:54:09 30 pass / 0 pending"
+  },
+  "premergeReceipt": {
+    "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/history-sql-integrity-1681-final-20260915-premerge.json",
+    "ready": true,
+    "failures": []
+  },
+  "mergeCommit": "1f84beef2967ce071f25ffa1b6f94240d9507b58",
+  "mergeCommitParents": ["bcc34f7cdbd144eafb9709fff5c9bb8936fcb3b7"],
+  "mergeStyle": "squash (single parent)",
+  "mergeCommand": "gh pr merge 1681 --squash --match-head-commit 79667696c6900c9ba88141e3a0baf5681fbbd8b3",
+  "mergedAt": "2026-09-15T07:54:42Z",
+  "mergedBy": "this session (step 6 executed)",
+  "mergedContentVerification": "The merge commit changes exactly the 11 guarded files, all blob-identical to the gated head.",
+  "mainAfter": "1f84beef2967ce071f25ffa1b6f94240d9507b58",
+  "worktree": {
+    "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/history-runtime-integrity",
+    "fastForward": "NOT PERFORMED - per coordinator instruction (parent uses this worktree)",
+    "result": "SKIPPED (intentional)"
+  },
+  "hookNote": "A PreToolUse infrastructure hook fired on the database-skill trigger during this merge, matched by the SQLiteService.*.migration filenames in the PR file list. No database operation was performed by the merge manager (no DB reads, no entity edits, no migration authoring), so the skills were not applicable; recorded here for transparency.",
+  "timestamps": {
+    "guardStartedAt": "2026-09-15T07:47:10Z",
+    "checksTerminalAt": "2026-09-15T07:54:13Z",
+    "mergedAt": "2026-09-15T07:54:42Z",
+    "receiptWrittenAt": "2026-09-15T08:17:30Z"
+  }
+}

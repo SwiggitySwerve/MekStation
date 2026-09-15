@@ -1,0 +1,72 @@
+{
+  "pr": 1736,
+  "branch": "codex/roadmap-ledger-reconcile-3-20260915",
+  "reviewedCommit": "82ce7c59f4e16d38257141afc6f987004efdc778",
+  "finalHead": "fc4a1ecf1036027e59f7e6a47a208d6aa09c888d",
+  "anomaly": null,
+  "autoMergeArmed": false,
+  "contentGuard": {
+    "preUpdate": {
+      "fileSetEqualToReviewed": true,
+      "fileCount": 6,
+      "files": [
+        "openspec/active-change-ledger.json",
+        "openspec/changes/add-saved-custom-unit-campaign-roster/tasks.md",
+        "openspec/changes/adopt-combat-journal-cutover-and-gm-rewind/tasks.md",
+        "openspec/changes/design-campaign-authority-and-sync/tasks.md",
+        "openspec/changes/enable-saved-custom-unit-combat/tasks.md",
+        "openspec/specs/campaign-unit-combat-state/spec.md"
+      ],
+      "diffstat": "6 files changed, 17 insertions(+), 15 deletions(-) (32 lines, as described)",
+      "blobEquality": "trivially satisfied - reviewed commit == PR head (82ce7c59f)",
+      "result": "PASS"
+    },
+    "postUpdate": {
+      "fileSet": "unchanged - same 6 files, no files added by the update merge",
+      "diffstat": "6 files changed, 17 insertions(+), 15 deletions(-)",
+      "blobEquality": "all 6 files still byte-identical to the reviewed head - NONE of the openspec files conflicted, so no take-main resolution was needed",
+      "result": "PASS"
+    }
+  },
+  "updateBranch": {
+    "performedByThisSession": true,
+    "oldHead": "82ce7c59f4e16d38257141afc6f987004efdc778",
+    "newHead": "fc4a1ecf1036027e59f7e6a47a208d6aa09c888d",
+    "expectedHeadShaGuard": "82ce7c59f4e16d38257141afc6f987004efdc778",
+    "reason": "branch was BEHIND (base efd8a136d; main had advanced to 17525370e via #1734 and #1735)"
+  },
+  "checksAtTerminal": {
+    "Lint and Test": "pass",
+    "Build Test / win": "pass",
+    "Build Test / mac": "pass",
+    "Build Test / linux": "pass",
+    "otherChecksCount": 27,
+    "otherChecksBuckets": { "pass": 27 },
+    "totalChecks": 31,
+    "pollLog": "17:12:46 2 pending -> 17:17:47 31 pass / 0 pending",
+    "flakeNote": "The selected-paper print flake (which red-gated #1705, #1722 and #1730 earlier in this session) did NOT fire on this run; Customizer Regressions passed first time, so no rerun was needed."
+  },
+  "premergeReceipt": {
+    "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/ledger-reconcile-3-1736-final-20260915-premerge.json",
+    "ready": true,
+    "failures": []
+  },
+  "mergeCommit": "cd416634a3d783131e4564050bd388a923f11cdb",
+  "mergeCommitParents": ["17525370e00bfd8f022783f2bf1f6b9250422ca6"],
+  "mergeStyle": "squash (single parent)",
+  "mergeCommand": "gh pr merge 1736 --squash --match-head-commit fc4a1ecf1036027e59f7e6a47a208d6aa09c888d",
+  "mergedAt": "2026-09-15T17:18:11Z",
+  "mergedBy": "this session (step 6 executed)",
+  "mergedContentVerification": "The merge commit changes exactly the 6 guarded files, all blob-identical to the gated head fc4a1ecf1.",
+  "mainAfter": "cd416634a3d783131e4564050bd388a923f11cdb",
+  "worktree": {
+    "fastForward": "NOT PERFORMED - no owned worktree was designated for this PR",
+    "result": "N/A"
+  },
+  "timestamps": {
+    "guardStartedAt": "2026-09-15T17:11:30Z",
+    "checksTerminalAt": "2026-09-15T17:17:47Z",
+    "mergedAt": "2026-09-15T17:18:11Z",
+    "receiptWrittenAt": "2026-09-15T17:19:00Z"
+  }
+}

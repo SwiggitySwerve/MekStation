@@ -1,0 +1,71 @@
+{
+  "pr": 1671,
+  "branch": "codex/roadmap-history-fixtures-20260913",
+  "reviewedCommit": "870f93856d5b09eb1ed7191be94a5a3e9e52103c",
+  "finalHead": "4228d6bb264a1bcdc7cec0ba9e35a68b05a018bb",
+  "anomaly": "GitHub auto-merge (SQUASH) was armed on this PR at 2026-09-15T06:19:40Z by SwiggitySwerve, before this session began. Auto-merge fired at 06:46:15Z, between this session's last green poll (06:46:10Z, 30 pass / state OPEN) and the pre-merge gate invocation. This session did NOT execute step 6 (gh pr merge). Ordering was still controlled by this session gating the content guard before running update-branch.",
+  "contentGuard": {
+    "preUpdate": {
+      "fileSetEqualToReviewed": true,
+      "files": [
+        "src/lib/events/journal/__tests__/EventHistoryArtifactManifest.test.ts",
+        "src/services/persistence/__tests__/SQLiteService.artifactManifest.migration.test.ts",
+        "src/services/persistence/__tests__/SQLiteService.correctionLeases.migration.test.ts"
+      ],
+      "blobEquality": "trivially satisfied - reviewed commit == PR head (870f93856)",
+      "result": "PASS"
+    },
+    "postUpdate": {
+      "fileSet": "unchanged - same 3 files, no files added by the update merge",
+      "blobEquality": {
+        "src/lib/events/journal/__tests__/EventHistoryArtifactManifest.test.ts": "equal",
+        "src/services/persistence/__tests__/SQLiteService.artifactManifest.migration.test.ts": "equal",
+        "src/services/persistence/__tests__/SQLiteService.correctionLeases.migration.test.ts": "equal"
+      },
+      "result": "PASS"
+    }
+  },
+  "updateBranch": {
+    "performedByThisSession": true,
+    "oldHead": "870f93856d5b09eb1ed7191be94a5a3e9e52103c",
+    "newHead": "4228d6bb264a1bcdc7cec0ba9e35a68b05a018bb",
+    "expectedHeadShaGuard": "870f93856d5b09eb1ed7191be94a5a3e9e52103c",
+    "reason": "branch was BEHIND after #1669, #1670 and #1672 merged to main"
+  },
+  "checksAtTerminal": {
+    "Lint and Test": "pass",
+    "Build Test / win": "pass",
+    "Build Test / mac": "pass",
+    "Build Test / linux": "pass",
+    "otherChecksCount": 26,
+    "otherChecksBuckets": { "pass": 26 },
+    "totalChecks": 30,
+    "pollLog": "06:38:49 2 pending -> 06:46:10 30 pass/0 pending (full ~7.5 min run; this PR touches src/ test files)"
+  },
+  "premergeReceipt": {
+    "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/history-fixtures-1671-final-20260915-premerge.json",
+    "ready": false,
+    "failures": ["PR identity changed", "Branch state requires review: UNKNOWN"],
+    "note": "Gate run seconds after auto-merge landed the PR. Both failures are race artifacts (main had advanced to the merge commit; a merged PR reports no mergeable state). Not a substantive gate failure: all four required checks were green on the exact head that merged, and merged content is blob-identical to the gated head."
+  },
+  "mergeCommit": "4cf52fe731e1adb4fb43050d882a485f34f67398",
+  "mergeCommitParents": ["13e4b9ea1c3d37c231eb21d0e977c3eeaa7593d5"],
+  "mergeStyle": "squash (single parent)",
+  "mergedAt": "2026-09-15T06:46:15Z",
+  "mergedBy": "SwiggitySwerve (via armed auto-merge)",
+  "mergedContentVerification": "All 3 files in the merge commit have blob SHAs identical to the gated final head 4228d6bb2.",
+  "mainAfter": "4cf52fe731e1adb4fb43050d882a485f34f67398",
+  "worktree": {
+    "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/history-fixtures",
+    "cleanBeforeFF": true,
+    "branch": "codex/roadmap-history-fixtures-20260913",
+    "fastForward": "ff-only 870f93856 -> 4228d6bb2",
+    "result": "SUCCESS",
+    "note": "remote branch auto-deleted on merge (delete_branch_on_merge=true)"
+  },
+  "timestamps": {
+    "guardStartedAt": "2026-09-15T06:38:00Z",
+    "checksTerminalAt": "2026-09-15T06:46:10Z",
+    "receiptWrittenAt": "2026-09-15T06:47:30Z"
+  }
+}
