@@ -5,8 +5,10 @@
  * thin `IRosterUnitProjection` for identity + readiness, then reads
  * canonical damage state via a `useShallow`-style memoized selector
  * against `useCampaignStore.campaign.unitCombatStates[unitId]`. The
- * selector returns a derived shape (totalDamage, destroyedCount, names)
- * so unrelated campaign-store writes don't trigger re-renders.
+ * selector returns a derived shape (damagePercent, destroyedCount, names)
+ * so unrelated campaign-store writes don't trigger re-renders. The damage
+ * figure itself is diffed against the unit's `IUnitMaxState` companion on
+ * `campaign.unitMaxStates[unitId]`.
  *
  * @spec openspec/specs/campaign-unit-combat-state/spec.md
  */
@@ -15,7 +17,10 @@ import { useStore } from 'zustand';
 
 import type { ICampaignRosterEntry } from '@/types/campaign/CampaignRosterEntry';
 import type { IRosterUnitProjection } from '@/types/campaign/RosterUnitProjection';
-import type { IUnitCombatState } from '@/types/campaign/UnitCombatState';
+import type {
+  IUnitCombatState,
+  IUnitMaxState,
+} from '@/types/campaign/UnitCombatState';
 
 import { Badge } from '@/components/ui';
 import { SvgIcon } from '@/components/ui/SvgIcon';
@@ -90,40 +95,82 @@ interface IDamageBarData {
   /** First three destroyed component names for display. */
   readonly destroyedNames: readonly string[];
   /**
-   * Crude total-damage proxy used by the legacy display-bar width
-   * calculation. Without an `IUnitMaxState` companion we approximate
-   * "how damaged" with destroyed component + location counts. Repair
-   * tickets diff against the max-state for accurate values; this is a
-   * display heuristic only.
+   * Percent (0-100) of the unit's construction armor + structure points
+   * currently lost, diffed against its `IUnitMaxState` companion. `null`
+   * when no percentage can be derived — the card then says so rather
+   * than substituting a stock maximum or showing a fabricated 0%.
    */
-  readonly totalDamage: number;
+  readonly damagePercent: number | null;
+  /**
+   * True when the unit has canonical combat state but no construction
+   * maxima to diff it against. Drives the explicit "unavailable"
+   * affordance; never conflated with "undamaged".
+   */
+  readonly maximaUnavailable: boolean;
 }
 
 const EMPTY_DAMAGE_BAR: IDamageBarData = {
   hasDestroyedComponents: false,
   destroyedCount: 0,
   destroyedNames: [],
-  totalDamage: 0,
+  damagePercent: null,
+  maximaUnavailable: false,
 };
+
+/**
+ * Diff current armor + structure against the unit's construction maxima.
+ *
+ * Sums the points named by the max-state and the points still present,
+ * so one percentage covers both armor and internal structure. Locations
+ * absent from the max-state are skipped — the repair-queue builder
+ * treats an unknown maximum the same way (`buildTicketsFromUnitState`)
+ * rather than inventing one. A max-state with no positive points is
+ * "unknown", not "0% damaged", so it returns `null`.
+ */
+function computeDamagePercent(
+  combatState: IUnitCombatState,
+  maxState: IUnitMaxState,
+): number | null {
+  let maxPoints = 0;
+  let lostPoints = 0;
+
+  for (const [location, max] of Object.entries(maxState.maxArmorPerLocation)) {
+    if (max <= 0) continue;
+    const current = combatState.currentArmorPerLocation[location] ?? max;
+    maxPoints += max;
+    lostPoints += Math.min(max, Math.max(0, max - current));
+  }
+
+  for (const [location, max] of Object.entries(
+    maxState.maxStructurePerLocation,
+  )) {
+    if (max <= 0) continue;
+    const current = combatState.currentStructurePerLocation[location] ?? max;
+    maxPoints += max;
+    lostPoints += Math.min(max, Math.max(0, max - current));
+  }
+
+  if (maxPoints <= 0) return null;
+  return Math.round((lostPoints / maxPoints) * 100);
+}
 
 /**
  * Compute damage-bar inputs from canonical combat state.
  *
  * Pure function — extracted so the selector can call it with a stable
  * input (the slice of state) and produce a stable output (cached via
- * shallow equality on the four fields).
+ * shallow equality on the returned fields).
  */
 function computeDamageBarData(
   combatState: IUnitCombatState | undefined,
+  maxState: IUnitMaxState | undefined,
 ): IDamageBarData {
   if (!combatState) return EMPTY_DAMAGE_BAR;
 
   const destroyedCount = combatState.destroyedComponents.length;
-  const destroyedLocationCount = combatState.destroyedLocations.length;
-  // Each destroyed component contributes ~10% damage to the bar so it
-  // visibly fills as crits accumulate. The legacy code multiplied
-  // damage points × 5 with a 100 cap; this is the canonical-state analog.
-  const totalDamage = destroyedCount * 2 + destroyedLocationCount * 4;
+  const damagePercent = maxState
+    ? computeDamagePercent(combatState, maxState)
+    : null;
 
   return {
     hasDestroyedComponents: destroyedCount > 0,
@@ -131,7 +178,8 @@ function computeDamageBarData(
     destroyedNames: combatState.destroyedComponents
       .slice(0, 3)
       .map((c) => c.name),
-    totalDamage,
+    damagePercent,
+    maximaUnavailable: damagePercent === null,
   };
 }
 
@@ -159,11 +207,13 @@ function useDamageBarData(unitId: string): IDamageBarData {
     return (state: ReturnType<typeof storeApi.getState>): IDamageBarData => {
       const next = computeDamageBarData(
         state.campaign?.unitCombatStates[unitId],
+        state.campaign?.unitMaxStates?.[unitId],
       );
       if (
         prev.hasDestroyedComponents === next.hasDestroyedComponents &&
         prev.destroyedCount === next.destroyedCount &&
-        prev.totalDamage === next.totalDamage &&
+        prev.damagePercent === next.damagePercent &&
+        prev.maximaUnavailable === next.maximaUnavailable &&
         prev.destroyedNames.length === next.destroyedNames.length &&
         prev.destroyedNames.every((n, i) => n === next.destroyedNames[i])
       ) {
@@ -220,17 +270,38 @@ export function RosterUnitCard({
 
       {!isDestroyed && (
         <div className="space-y-2">
-          {damageBar.totalDamage > 0 && (
+          {damageBar.damagePercent !== null && damageBar.damagePercent > 0 && (
             <div className="flex items-center gap-2">
               <span className="text-text-theme-muted w-16 text-xs">Damage</span>
               <div className="bg-surface-raised h-1.5 flex-1 overflow-hidden rounded-full">
                 <div
                   className="h-full bg-gradient-to-r from-yellow-500 to-red-500 transition-all"
-                  style={{
-                    width: `${Math.min(100, damageBar.totalDamage * 5)}%`,
-                  }}
+                  style={{ width: `${damageBar.damagePercent}%` }}
                 />
               </div>
+              <span
+                className="text-text-theme-muted w-9 text-right text-xs"
+                data-testid="roster-unit-damage-percent"
+              >
+                {damageBar.damagePercent}%
+              </span>
+            </div>
+          )}
+
+          {/*
+            No construction maxima for this unit: say so. A stock
+            substitute or a 0% placeholder would both read as "undamaged",
+            which is the exact failure the destroyed-count heuristic had.
+          */}
+          {damageBar.maximaUnavailable && (
+            <div className="flex items-center gap-2">
+              <span className="text-text-theme-muted w-16 text-xs">Damage</span>
+              <span
+                className="text-text-theme-muted text-xs italic"
+                data-testid="roster-unit-damage-unavailable"
+              >
+                Maxima unavailable
+              </span>
             </div>
           )}
 
