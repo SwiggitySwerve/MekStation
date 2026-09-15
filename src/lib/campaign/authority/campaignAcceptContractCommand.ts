@@ -41,6 +41,7 @@ import {
   toJournalBatch,
   type ICampaignJournalEnvelope,
 } from '../sync/JournalCampaignEventStore';
+import { buildCampaignSourcePrivateEnvelope } from './campaignSourcePrivateEnvelope';
 
 /**
  * The branch a campaign command commits to.
@@ -240,12 +241,20 @@ export async function appendDurableAcceptContract(
         return { kind: 'refused', result: notDurable('offer-absent') };
       }
 
-      // This prefix establishes only that the offer IS durable. Deriving
-      // the committed compact fact from it, and writing the full contract
-      // to the journal-private envelope, is the next prefix - so the fact
-      // committed here is still the caller's, exactly as before.
+      // Validation runs against the SERVER-DERIVED compact fact, so the
+      // faction-standing gate judges the employer the source stored rather
+      // than the one the caller typed.
       const validation = validateCampaignIntent(
-        intent,
+        {
+          ...intent,
+          payload: {
+            contract: {
+              contractId: offer.id,
+              name: offer.name,
+              employerFactionId: offer.employerId,
+            },
+          },
+        },
         priorState,
         request.authorPlayerId,
         request.ts,
@@ -286,6 +295,20 @@ export async function appendDurableAcceptContract(
           commandId: request.commandId,
           events: sequenced,
           expectedPostStateDigest: digest,
+          sourcePrivate: buildCampaignSourcePrivateEnvelope({
+            baseline: {
+              sourceRecordBody: source.sourceRecordBody,
+              sourceRowVersion: source.sourceRowVersion,
+              rootPublicRevision: priorEvents.length,
+            },
+            acceptedContract: offer,
+            remainingMarket: {
+              ...source.market,
+              offers: source.market.offers.filter(
+                (one) => one.id !== contractId,
+              ),
+            },
+          }),
         }),
       };
     },

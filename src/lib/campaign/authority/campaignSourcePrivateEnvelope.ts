@@ -163,8 +163,14 @@ export function campaignSourcePrivateOf(
       `Unsupported source-private schema version ${stamped.schemaVersion}`,
     );
   }
-  // Self-consistency of the captured baseline: bytes and digest must agree
-  // before anything folded from them is treated as source truth.
+  // Self-consistency of the captured baseline ONLY: these bytes and this
+  // digest must agree before anything folded from them is treated as source
+  // truth. `source-identity-mismatch` therefore says nothing about whether
+  // the baseline matches the campaign's CURRENT source row or public head -
+  // `rootPublicRevision` is recorded here but never compared. Capturing a
+  // baseline whose revision is the one the command actually rode is a
+  // PRODUCER obligation, discharged under the producer's own prepared
+  // transaction; this reader cannot detect a producer that got it wrong.
   const actual = computeCampaignSourceBodyDigest(
     stamped.baseline.sourceRecordBody,
   );
