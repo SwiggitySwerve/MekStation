@@ -237,15 +237,12 @@ export async function recoverActiveMatches(
         // quarantineAuthorityCorruption draws that same line.
         continue;
       }
-      if (journal.kind === 'journal') {
-        await registerRecoveredHost(
-          hosts,
-          store,
-          meta.matchId,
-          foldMatchSession(meta.matchId, journal.events),
-        );
-        continue;
-      }
+      // A `journal` verdict does NOT get its own tail. It joins the
+      // block below with the head as `headRevision`, so the four
+      // properties that live inside the port — the empty-history
+      // refusal, the event-identity integrity check, quarantine
+      // eligibility, and the checkpoint refresh — apply to a
+      // journal-path match exactly as they do to a legacy one (S4-R4).
       const projector =
         cache === null ? null : createMatchSessionProjector(meta.matchId);
       const pipeline =
@@ -255,7 +252,14 @@ export async function recoverActiveMatches(
       const history =
         cache === null ? null : matchStoreHistoryReader(store, meta.matchId);
       let headRevision = 0;
-      if (cache !== null) {
+      if (journal.kind === 'journal') {
+        // Stated by the consult rather than re-derived from the log's
+        // last sequence. On this arm the two agree by construction —
+        // disagreement is what `diverged` above already refused — and
+        // taking the head is what keeps "rebuilt to the journal head"
+        // true if that check ever loosens.
+        headRevision = journal.headRevision;
+      } else if (cache !== null) {
         const log = await store.getEvents(meta.matchId, 0);
         const last = log[log.length - 1];
         headRevision =
@@ -286,7 +290,20 @@ export async function recoverActiveMatches(
         // skipped that first tail event (the 15.3 A5-match kill).
         // AUTHORITY_HISTORY_START is -1; both stores clamp fromSeq <= 0
         // to 0, so a full-log read is unchanged.
-        read: (fromExclusive) => store.getEvents(meta.matchId, fromExclusive),
+        read: async (fromExclusive) => {
+          const tail = await store.getEvents(meta.matchId, fromExclusive);
+          // ONE read, so the exclusive-bound translation above lives in
+          // exactly one place for both arms. The journal head is a
+          // CEILING on top of it — the same bound the consult states on
+          // the events it returns — never a second offset convention.
+          return journal.kind === 'journal'
+            ? tail.filter(
+                (event) =>
+                  revisionForMatchSequence(event.sequence) <=
+                  journal.headRevision,
+              )
+            : tail;
+        },
         revisionOf: (event) => revisionForMatchSequence(event.sequence),
         // A match log carries no digests, so lineage and digest checks
         // do not apply to it (the detector skips them for an authority
