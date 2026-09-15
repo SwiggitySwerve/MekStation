@@ -3,6 +3,18 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+import {
+  requiredAggregatorNeeds,
+  requiredPackageScripts,
+  requiredProtectedContexts,
+  requiredWorkflowJobContracts,
+  requiredWorkflowTokens,
+} from './openspec-ci-contracts.mjs';
+import {
+  parseWorkflowJobs,
+  validateJobTokens,
+} from './openspec-workflow-contracts.mjs';
+
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(__dirname, '..', '..');
 
@@ -21,108 +33,6 @@ const openspecChangesPath =
 const activeOpenSpecLedgerPath =
   process.env.MEKSTATION_ACTIVE_OPENSPEC_LEDGER_PATH ??
   path.join(repoRoot, 'openspec', 'active-change-ledger.json');
-
-const requiredProtectedContexts = [
-  'Lint and Test',
-  'Build Test / win',
-  'Build Test / mac',
-  'Build Test / linux',
-];
-
-const requiredAggregatorNeeds = [
-  'lint',
-  'format-check',
-  'typecheck',
-  'unit-test-shards',
-  'perf-smoke-tests',
-  'statistical-proof-pr',
-  'perf-budget-pr',
-  'coverage-floor',
-  'a11y-tests',
-  'validate-bv',
-  'validate-combat',
-  'storybook-build',
-  'schema-bridge',
-  'determinism-audit',
-  'e2e-smoke',
-  'seam-anchors',
-  'desktop-typecheck',
-  'desktop-tests',
-];
-
-const requiredWorkflowTokens = [
-  {
-    id: 'openspec-targets-main-prs',
-    tokens: ['pull_request:', 'branches:', '- main'],
-  },
-  {
-    id: 'lint-runs-package-script',
-    tokens: ['name: Lint', 'run: npm run lint'],
-  },
-  {
-    id: 'format-check-runs-package-script',
-    tokens: ['name: Format Check', 'run: npm run format:check'],
-  },
-  {
-    id: 'typecheck-runs-typescript',
-    tokens: ['name: Type Check', 'run: npx tsc --noEmit'],
-  },
-  {
-    id: 'schema-bridge-is-strict',
-    tokens: [
-      'name: Schema Bridge',
-      'npm run schema:gen-check',
-      'run_schema_validation_only.py --shape all --strict',
-      'npx jest src/types/contracts --ci --no-coverage',
-    ],
-  },
-  {
-    id: 'combat-and-bv-gates-run',
-    tokens: [
-      'name: Validate BV Parity',
-      'run: npm run validate:bv',
-      'name: Validate Combat Suite',
-      'run: npm run validate:combat',
-    ],
-  },
-  {
-    id: 'browser-smoke-runs-playwright',
-    tokens: [
-      'name: E2E Smoke',
-      'npx playwright test e2e/tactical-map-visual-smoke.spec.ts --project=chromium',
-    ],
-  },
-  {
-    id: 'desktop-build-required-platforms',
-    tokens: [
-      'name: Build Test / ${{ matrix.platform }}',
-      'platform: linux',
-      'platform: win',
-      'platform: mac',
-      'npx electron-builder --dir --publish never',
-    ],
-  },
-];
-
-const requiredPackageScripts = [
-  {
-    id: 'qc:openspec-ci:validate',
-    tokens: ['validate-openspec-ci-quality.mjs'],
-  },
-  {
-    id: 'verify:qc',
-    tokens: ['qc:openspec-ci:validate', 'qc:validate', 'qc:lifecycle:status'],
-  },
-  {
-    id: 'verify:rules',
-    tokens: [
-      'validate:combat:gaps',
-      '--expect-total=0',
-      '--expect-total=149',
-      'openspec validate --all --strict',
-    ],
-  },
-];
 
 function parseArgs(argv) {
   return { json: argv.includes('--json') };
@@ -165,24 +75,6 @@ function accountedActiveOpenSpecChanges(ledgerPath) {
         typeof entry.lastReviewed === 'string' ? entry.lastReviewed : '',
     }))
     .sort((a, b) => a.name.localeCompare(b.name));
-}
-
-function workflowJobBlock(workflow, jobId) {
-  const escapedJobId = jobId.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  const match = new RegExp(
-    `(?:^|\\n)  ${escapedJobId}:[\\s\\S]*?(?=\\n  [a-zA-Z0-9_-]+:\\n|$)`,
-  ).exec(workflow);
-  return match?.[0] ?? '';
-}
-
-function parseAggregatorNeeds(workflow) {
-  const block = workflowJobBlock(workflow, 'lint-and-test');
-  const match = /needs:\s*\[\s*([\s\S]*?)\s*\]/m.exec(block);
-  if (!match) return [];
-  return match[1]
-    .split(',')
-    .map((entry) => entry.trim())
-    .filter(Boolean);
 }
 
 function validateTokens(text, contract, errors, kind) {
@@ -233,12 +125,21 @@ function main() {
   const branchProtection = readText(branchProtectionPath);
   const packageJson = readJson(packageJsonPath);
   const errors = [];
+  const workflowJobs = parseWorkflowJobs(workflow, errors);
 
   const workflowContracts = requiredWorkflowTokens.map((contract) =>
     validateTokens(workflow, contract, errors, 'workflow'),
   );
+  const workflowJobContracts = requiredWorkflowJobContracts.map((contract) =>
+    validateJobTokens(workflowJobs, contract, errors),
+  );
 
-  const aggregatorNeeds = parseAggregatorNeeds(workflow);
+  const rawAggregatorNeeds = workflowJobs['lint-and-test']?.needs;
+  const aggregatorNeeds = Array.isArray(rawAggregatorNeeds)
+    ? rawAggregatorNeeds
+    : typeof rawAggregatorNeeds === 'string'
+      ? [rawAggregatorNeeds]
+      : [];
   for (const jobId of requiredAggregatorNeeds) {
     if (!aggregatorNeeds.includes(jobId)) {
       errors.push(
@@ -306,6 +207,7 @@ function main() {
     branchProtectionPath: path.relative(repoRoot, branchProtectionPath),
     activeOpenSpecLedgerPath: path.relative(repoRoot, activeOpenSpecLedgerPath),
     workflowContracts,
+    workflowJobContracts,
     aggregatorNeeds: {
       expected: requiredAggregatorNeeds,
       actual: aggregatorNeeds,
@@ -322,7 +224,7 @@ function main() {
     console.log(JSON.stringify(manifest, null, 2));
   } else {
     console.log(
-      `[qc:openspec-ci] workflowContracts=${workflowContracts.length}/${requiredWorkflowTokens.length} aggregatorNeeds=${aggregatorNeeds.length}/${requiredAggregatorNeeds.length} protectedContexts=${requiredProtectedContexts.length} packageScripts=${packageScripts.length}/${requiredPackageScripts.length} activeOpenSpecChanges=${activeChanges.length} accountedActiveOpenSpecChanges=${accountedActiveChanges.length} errors=${errors.length}`,
+      `[qc:openspec-ci] workflowContracts=${workflowContracts.length}/${requiredWorkflowTokens.length} workflowJobContracts=${workflowJobContracts.length}/${requiredWorkflowJobContracts.length} aggregatorNeeds=${aggregatorNeeds.length}/${requiredAggregatorNeeds.length} protectedContexts=${requiredProtectedContexts.length} packageScripts=${packageScripts.length}/${requiredPackageScripts.length} activeOpenSpecChanges=${activeChanges.length} accountedActiveOpenSpecChanges=${accountedActiveChanges.length} errors=${errors.length}`,
     );
     for (const entry of errors) {
       console.log(`ERROR ${entry.code}: ${entry.message}`);

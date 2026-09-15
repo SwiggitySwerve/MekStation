@@ -167,6 +167,12 @@ describe('SQLiteEventHistoryBranchStore', () => {
     expect(subject.requireEffectiveHead(withBaseline).effectiveGeneration).toBe(
       3,
     );
+    expect(subject.readEffectiveHead(withBaseline)).toEqual({
+      ...withBaseline,
+      branchId: 'root',
+      effectiveGeneration: 3,
+      installedAt: expect.any(String),
+    });
     // Absent a stored generation, 1 - and again not the revision 5.
     expect(subject.requireEffectiveHead(without).effectiveGeneration).toBe(1);
     expect(subject.requireEffectiveHead(without).branchId).toBe('root');
@@ -243,6 +249,20 @@ describe('SQLiteEventHistoryBranchStore', () => {
         ),
       ),
     ).toBe('invalid-branch-record');
+    expect(
+      codeOf(() =>
+        subject.createBranch(
+          child({
+            branchId: 'forged-root',
+            parentBranchId: null,
+            ancestorDepth: 0,
+            baseRevision: 0,
+            baseEventId: null,
+            baseDigest: DIGEST_A,
+          }),
+        ),
+      ),
+    ).toBe('invalid-branch-record');
     // Identity slot already taken.
     expect(codeOf(() => subject.createBranch(child()))).toBe(
       'duplicate-branch',
@@ -300,6 +320,52 @@ describe('SQLiteEventHistoryBranchStore', () => {
     expect(subject.requireEffectiveHead(STREAM).branchId).toBe('root');
     expect(subject.requireBranch(STREAM, 'candidate-1').status).toBe(
       'building',
+    );
+  });
+
+  it('refuses a persisted legacy root whose digest is not genesis', () => {
+    seedStream('stream-1', 4);
+    const subject = store();
+    subject.backfillGenesisBranches();
+
+    // This only builds a legacy/raw-SQL corruption fixture. The store must
+    // refuse it and must not repair or substitute authority for this row.
+    db.exec('DROP TRIGGER IF EXISTS event_history_branches_immutable_lineage');
+    db.prepare(
+      `UPDATE event_history_branches SET base_digest = ?
+       WHERE stream_type = 'match' AND stream_id = 'stream-1'
+         AND branch_id = 'root'`,
+    ).run(DIGEST_A);
+
+    expect(codeOf(() => subject.readBranch(STREAM, 'root'))).toBe(
+      'branch-integrity',
+    );
+    expect(codeOf(() => subject.readEffectiveHead(STREAM))).toBe(
+      'branch-integrity',
+    );
+  });
+
+  it('refuses an already-corrupt effective-head pointer without falling back', () => {
+    seedStream('stream-1', 4);
+    const subject = store(true);
+    subject.backfillGenesisBranches();
+    subject.createBranch(child());
+
+    // This models a legacy/raw-SQL corruption fixture. Production writes are
+    // guarded in SQLite; the read must still refuse rather than invent root.
+    db.exec(
+      'DROP TRIGGER IF EXISTS event_history_effective_heads_branch_must_be_effective_on_update',
+    );
+    db.prepare(
+      `UPDATE event_history_effective_heads SET branch_id = 'candidate-1'
+       WHERE stream_type = 'match' AND stream_id = 'stream-1'`,
+    ).run();
+
+    expect(codeOf(() => subject.readEffectiveHead(STREAM))).toBe(
+      'branch-integrity',
+    );
+    expect(codeOf(() => subject.requireEffectiveHead(STREAM))).toBe(
+      'branch-integrity',
     );
   });
 

@@ -11,7 +11,10 @@ import { tmpdir } from 'node:os';
 import path from 'node:path';
 
 import { createMinimalGrid } from '@/engine/GameEngine.helpers';
-import { _branchCreationSeamForTests } from '@/lib/events/journal/EventHistoryBranchContract';
+import {
+  _branchCreationSeamForTests,
+  EVENT_HISTORY_GENESIS_DIGEST,
+} from '@/lib/events/journal/EventHistoryBranchContract';
 import { EXPECTED_HEAD_RESYNC_ACTION } from '@/lib/events/journal/EventHistoryExpectedHead';
 import { SQLiteEventHistoryBranchStore } from '@/lib/events/journal/SQLiteEventHistoryBranchStore';
 import {
@@ -37,7 +40,10 @@ import type { IMatchMeta, IMatchStore } from '../IMatchStore';
 import { DurableMatchStore } from '../DurableMatchStore';
 import { InMemoryMatchStore } from '../InMemoryMatchStore';
 import { ServerMatchHost } from '../ServerMatchHost';
-import { LIVE_BRANCH_ADMISSION_PHRASING } from '../ServerMatchHostBranchAdmission';
+import {
+  HISTORY_INTEGRITY_BLOCKED_REASON,
+  LIVE_BRANCH_ADMISSION_PHRASING,
+} from '../ServerMatchHostBranchAdmission';
 
 const AT = '2026-09-02T00:00:00.000Z';
 describe('ServerMatchHost live branch admission', () => {
@@ -180,9 +186,9 @@ describe('ServerMatchHost live branch admission', () => {
   }
 
   it('LAW-40 tripwires name every live-path refusal and RewindRequest', () => {
-    expect(Object.keys(LIVE_BRANCH_ADMISSION_PHRASING)).toHaveLength(2);
+    expect(Object.keys(LIVE_BRANCH_ADMISSION_PHRASING)).toHaveLength(3);
     expect(ErrorCodeSchema.options).toEqual(
-      expect.arrayContaining(['STALE_BRANCH', 'GM_ONLY']),
+      expect.arrayContaining(['STALE_BRANCH', 'GM_ONLY', 'MATCH_QUARANTINED']),
     );
     expect(NON_COMBAT_WIRE_INTENT_KINDS).toContain('RewindRequest');
   });
@@ -220,23 +226,56 @@ describe('ServerMatchHost live branch admission', () => {
     expect((await store.getEvents(matchId)).length).toBeGreaterThan(before);
   });
 
-  it('intent on a superseded effective branch refused', async () => {
-    const matchId = 'stale-superseded';
+  it('a persisted head naming a superseded branch is MATCH_QUARANTINED, appends nothing, and the host survives', async () => {
+    const matchId = 'head-names-superseded';
     seedStream(matchId);
-    branches().transitionBranchStatus(
-      { streamType: 'match', streamId: matchId },
-      'root',
-      'superseded',
-    );
+    // Raw rows on purpose: activation supersedes the prior branch and
+    // installs the replacement head in ONE transaction (event-store
+    // delta, "Branch Activation Is Verified, Compare-and-Swap, and
+    // Atomic"), so a head left naming a superseded branch is corruption.
+    db.prepare(
+      `UPDATE event_history_branches SET status = 'superseded'
+        WHERE stream_type = 'match' AND stream_id = ? AND branch_id = 'root'`,
+    ).run(matchId);
+    const stranded = db
+      .prepare(
+        `SELECT branch_id AS branchId FROM event_history_effective_heads
+          WHERE stream_type = 'match' AND stream_id = ?`,
+      )
+      .get(matchId) as { branchId: string };
+    expect(stranded.branchId).toBe('root');
+
     const host = await makeHost(matchId);
+    const before = (await store.getEvents(matchId)).length;
+    const journalBefore = journalCount();
     const frames = await host.handleIntent(
-      envelope(matchId, 'pid_opp', { kind: 'AdvancePhase' }, 'sup-1'),
+      envelope(matchId, 'pid_opp', { kind: 'AdvancePhase' }, 'corrupt-1'),
     );
-    expect(errorOf(frames, 'STALE_BRANCH')).toMatchObject({
-      code: 'STALE_BRANCH',
-      recoveryAction: EXPECTED_HEAD_RESYNC_ACTION,
-      conflictHead: { branchId: 'root' },
+    const refusal = errorOf(frames, 'MATCH_QUARANTINED');
+    expect(refusal).toMatchObject({
+      code: 'MATCH_QUARANTINED',
+      reason: HISTORY_INTEGRITY_BLOCKED_REASON,
     });
+    // No head can be trusted, so none is named: a conflictHead here
+    // would invite a resync onto the corrupt row.
+    expect(refusal).not.toHaveProperty('conflictHead');
+    expect(refusal).not.toHaveProperty('recoveryAction');
+    expect(errorOf(frames, 'STALE_BRANCH')).toBeUndefined();
+    expect((await store.getEvents(matchId)).length).toBe(before);
+    expect(journalCount()).toBe(journalBefore);
+
+    // The refusal is a frame, not a crash: the host is still alive and
+    // answers the next intent the same way instead of throwing out of
+    // handleIntent and killing the match.
+    const again = await host.handleIntent(
+      envelope(matchId, 'pid_opp', { kind: 'AdvancePhase' }, 'corrupt-2'),
+    );
+    expect(errorOf(again, 'MATCH_QUARANTINED')).toMatchObject({
+      code: 'MATCH_QUARANTINED',
+      reason: HISTORY_INTEGRITY_BLOCKED_REASON,
+    });
+    expect((await store.getEvents(matchId)).length).toBe(before);
+    expect(journalCount()).toBe(journalBefore);
   });
 
   it("a targetRevision-bearing intent from a player refused GM_ONLY while the host's passes admission (and is then handled as today)", async () => {
@@ -305,7 +344,7 @@ describe('ServerMatchHost live branch admission', () => {
       ancestorDepth: 0,
       baseRevision: 0,
       baseEventId: null,
-      baseDigest: 'c'.repeat(64),
+      baseDigest: EVENT_HISTORY_GENESIS_DIGEST,
       status: 'effective',
       createdBy: 'gm-1',
       reason: 'replacement',
