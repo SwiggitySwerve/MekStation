@@ -134,6 +134,7 @@ async function rowName(row: Locator) {
 test('electronics and compatible ammo update without changing unrelated filters @customizer', async ({
   page,
 }, testInfo) => {
+  expect(1, 'roadmap R1.ci task 5.4 negative probe: intentional failure, never merge').toBe(2);
   await loadAtlas(page);
   const search = page.getByRole('textbox', {
     name: 'Search equipment',
