@@ -290,12 +290,25 @@ function deliberatelyFailingSpec(playwrightTestPath) { return `import playwright
 const { expect, test } = playwrightTest;
 test.describe('Layout sweep helpers self-test',()=>{test.describe('expectClickable',()=>{test('fails a display:none target',()=>expect('actual').toBe('expected'));});});\n`; }
 
-function failingPlaywrightConfig(baseConfigPath, testDirectory) {
+// This config is written into an out-of-repo `mkdtemp` scratch directory, and
+// Playwright resolves script-valued keys against the CONFIG FILE's own
+// directory rather than the process cwd. So every repo-root-relative path the
+// base config declares must be dropped or absolutized here, or it is looked up
+// under the scratch root and the CLI dies at config load before any test runs
+// (`globalSetup: './e2e/globalSetup.ts'` did exactly that from #1544 onward).
+// Dropping the lifecycle hooks rather than absolutizing them is deliberate:
+// they are server-dependent machinery, and `webServer` is undefined here on
+// purpose. `globalTeardown` is pre-empted -- the base declares none today.
+// `scripts/__tests__/camp01-live-browser-adversarial.test.ts` holds this
+// override list against the real config so the next such key cannot slip.
+export function failingPlaywrightConfig(baseConfigPath, testDirectory) {
   return `import baseConfig from ${JSON.stringify(baseConfigPath)};
 export default {
   ...baseConfig,
   testDir: ${JSON.stringify(testDirectory)},
   webServer: undefined,
+  globalSetup: undefined,
+  globalTeardown: undefined,
   fullyParallel: false,
   retries: 0,
   workers: 1,

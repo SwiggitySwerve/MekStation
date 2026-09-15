@@ -59,7 +59,10 @@ import {
   grantAllowsScope,
   grantHoldsEveryScope,
 } from '../grants/campaignGrantGuards';
-import { CAMPAIGN_STREAM_TYPE } from '../sync/JournalCampaignEventStore';
+import {
+  CAMPAIGN_STREAM_TYPE,
+  envelopeOf,
+} from '../sync/JournalCampaignEventStore';
 import {
   CAMPAIGN_GRANT_DELIVERY_REFUSED_REASON,
   CAMPAIGN_GRANT_PROJECTOR_VERSION,
@@ -249,7 +252,11 @@ export async function projectCampaignStreamForGrant(
   }[] = [];
   const entitledToFullState = grantHoldsEveryScope(grant);
   for (const stored of storedEvents) {
-    const event = stored.payload.campaignEvent;
+    // D12: the SINGLE narrowing from a stored row to a wire campaign event.
+    // Never `stored.payload.*` inline here -- a journal-private sibling of
+    // `campaignEvent` (the full contract, the remaining market) must be
+    // unreachable from this path by construction, not by reviewer vigilance.
+    const event = envelopeOf(stored);
     if (!grantAllowsScope(grant, event.scope)) continue;
     // A stored CampaignSnapshotPublished carries the FULL authoritative
     // state and `applyCampaignEvent` REPLACES state wholesale with it.
