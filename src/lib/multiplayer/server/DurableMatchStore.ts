@@ -1001,7 +1001,10 @@ export class DurableMatchStore
           matchId,
           commandId: batch.commandId,
           actorId: batch.actorId,
-          expectedRevision: batch.expectedRevision,
+          // The batch's `expectedRevision` IS the match's next
+          // sequence; the mirror names the translation and refuses
+          // when the stream is no longer on the live path.
+          nextMatchSequence: batch.expectedRevision,
           events: batch.events,
           expectedPostStateDigest: batch.expectedPostStateDigest,
         },
