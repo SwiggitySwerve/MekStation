@@ -205,6 +205,21 @@ describe('journal-authority "started" derived from the mirrored stream', () => {
     expect(await marker()).toBeNull();
   });
 
+  it('offers exactly one derivation of started, not two', async () => {
+    // S7-b (task 1.3, sub-prefix 3). `isMatchJournalAuthorityStartedDerived`
+    // was added beside the outcome function in S3-a so a caller could be
+    // repointed incrementally; the S3-b review measured that it has zero
+    // production consumers once both call sites read the outcome. A
+    // boolean projection nobody calls is a second shape of the question
+    // task 1.3 exists to leave exactly one of, so the module surface
+    // itself is the assertion.
+    const surface = await import('../matchJournalAuthorityStartedDerived');
+
+    expect(Object.keys(surface).sort()).toEqual([
+      'deriveMatchJournalAuthorityStartedHead',
+    ]);
+  });
+
   it('refuses typed rather than answering not-started on a corrupt head', async () => {
     await store.appendCommandBatch!(MATCH_ID, batch());
     // A head naming a non-effective branch is persisted corruption, not
