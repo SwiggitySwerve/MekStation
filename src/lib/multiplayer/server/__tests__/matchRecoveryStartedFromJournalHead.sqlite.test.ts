@@ -259,11 +259,15 @@ describe('recovered rollback reader selected from the mirrored journal head', ()
     // Reopen the match database the way production does when the
     // campaign singleton was never initialized: same rows, same ports,
     // no capability database behind them. A head EXISTS here and cannot
-    // be read, so the decision falls back to the marker.
+    // be read, and after the retirement an unreadable head reads as no
+    // head - the marker beside it is no longer consulted.
     store.close();
     resetSQLiteService();
     store = new DurableMatchStore({ path: matchDbPath });
     expect(store.isCapabilityDbAvailable()).toBe(false);
+    expect(
+      (await store.getJournalAuthorityStarted(MATCH_ID))?.head.branchId,
+    ).toBe('stale-marker-branch');
 
     const decision = await selectRecoveredMatchRollbackReader(
       MATCH_ID,

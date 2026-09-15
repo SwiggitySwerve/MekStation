@@ -3,14 +3,14 @@
  * sub-prefix): answer "has journal authority started for this match
  * stream?" from S1's real journal state.
  *
- * WHY THIS EXISTS. Two facts currently claim to answer that question.
+ * WHY THIS EXISTS. Two facts USED TO claim to answer that question.
  * The `mp_journal_authority_started` marker (written by the older,
- * still-off task-2.3/2.4 path) is one; S1's mirror, which installs the
+ * still-off task-2.3/2.4 path) was one; S1's mirror, which installs the
  * stream head and the match's genesis / effective-head row on the
- * first committed batch, is the other. Task 1.3 retires the marker so
- * there is ONE source of "started" — this module is that source, added
- * BESIDE the marker read so a caller can be repointed in a later slice
- * with the two answers still separately observable.
+ * first committed batch, is the other. This module was added BESIDE the
+ * marker read so callers could be repointed a slice at a time; task
+ * 1.3's sub-prefix 3 finished that, so it is now the ONE source of
+ * "started" and no production code reads the marker at all.
  *
  * THE DEFINITION. Started means the stream has an effective head
  * installed in `event_history_effective_heads`. That row is chosen
@@ -69,10 +69,16 @@ export interface IMatchJournalAuthorityStartedHead {
  *
  * `not-started` is a positive statement about the stream. `unavailable`
  * says the store COULD have journalled this match and cannot answer
- * right now — collapsing that into `not-started` is what would let a
- * started match be routed back to the legacy reader, across the one-way
- * boundary `matchRollbackReaderSelection` states at its `started == null`
- * branch.
+ * right now.
+ *
+ * THE DISTINCTION CARRIES NO OBSERVABLE BEHAVIOUR TODAY. Until task
+ * 1.3's sub-prefix 3, `unavailable` reached the retired marker arm and
+ * `not-started` did not; with that arm gone both route to the legacy
+ * reader, and a mutant collapsing the two survives the whole scoped
+ * suite. The tri-state is retained because S7-d's durable per-match
+ * migration state is what gives `unavailable` a distinct answer again
+ * (a refusal, rather than a legacy fallback). If S7-d's shape changes
+ * such that it never will, this should collapse rather than linger.
  */
 export type MatchJournalAuthorityStartedOutcome =
   | {
