@@ -303,7 +303,7 @@ describe('recovery has one source of started after the marker retires', () => {
     expect(decision).toEqual({ kind: 'legacy-compatible' });
   });
 
-  it('still selects the legacy reader for an admitted match whose head is unreadable', async () => {
+  it('still selects the legacy reader for an admitted match whose head is unreadable, which S7-d must flip to a refusal', async () => {
     // The bound on this slice, and the row S7-d turns red. Admission is
     // not mirroring: this match was admitted at mode enabled and then
     // recovered with no campaign database, so it has an admission
