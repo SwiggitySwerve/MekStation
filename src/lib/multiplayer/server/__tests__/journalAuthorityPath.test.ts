@@ -159,21 +159,25 @@ describe('combat journal-authority path', () => {
     );
   });
 
-  it('STARTED FACT: written once on the first commit; later commands leave it', async () => {
+  it('STARTED FACT: no command writes one; the receipts are what commit', async () => {
+    // Task 1.3, sub-prefix 3 retired the marker write. This row used to
+    // assert the write happened once and stayed put; it now asserts the
+    // stronger successor property - it never happens - while keeping
+    // the part that always mattered, that each command still commits
+    // its own receipt at its own revisions.
     const { host, store } = await makeHost({
       matchId: 'match-started-once',
       journalAuthority: true,
     });
     await host.handleIntent(intent('lock-1', host.matchId));
-    const first = await store.getJournalAuthorityStarted!(host.matchId);
-    expect(first).not.toBeNull();
-    expect(first?.commandId).toBe('lock-1');
+    expect(await store.getJournalAuthorityStarted!(host.matchId)).toBeNull();
+    const first = await store.getCommandReceipt!(host.matchId, 'lock-1');
     expect(first?.firstRevision).toBe(2);
-    expect(first?.head.digest).toEqual(expect.any(String));
 
     await host.handleIntent(intent('lock-2', host.matchId));
-    const second = await store.getJournalAuthorityStarted!(host.matchId);
-    expect(second).toEqual(first);
+    expect(await store.getJournalAuthorityStarted!(host.matchId)).toBeNull();
+    const second = await store.getCommandReceipt!(host.matchId, 'lock-2');
+    expect(second?.firstRevision).toBe((first?.lastRevision ?? -1) + 1);
   });
 
   it('CONSUME-NOT-REDISPATCH: flag-on dice stream matches flag-off', async () => {

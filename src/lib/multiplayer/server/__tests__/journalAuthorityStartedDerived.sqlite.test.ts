@@ -47,7 +47,7 @@ import {
   _resetProcessShadowStatsForTests,
   _setCombatJournalAuthorityModeForTests,
 } from '../matchJournalAuthority';
-import { isMatchJournalAuthorityStartedDerived } from '../matchJournalAuthorityStartedDerived';
+import { deriveMatchJournalAuthorityStartedHead } from '../matchJournalAuthorityStartedDerived';
 
 const MATCH_ID = 'match-derived-started';
 const AT = '2026-09-15T00:00:00.000Z';
@@ -126,8 +126,17 @@ function marker(): Promise<IMatchJournalAuthorityStarted | null> {
   return store.getJournalAuthorityStarted(MATCH_ID);
 }
 
+/**
+ * The boolean these rows are written around, projected at the CALL SITE
+ * now that the module offers only the outcome. S7-b retired the
+ * exported projection: a second export of the same question is the
+ * drift task 1.3 removes, and a test helper cannot drift from
+ * production because nothing in production reads it.
+ */
 function derived(): boolean {
-  return isMatchJournalAuthorityStartedDerived(store, MATCH_ID);
+  return (
+    deriveMatchJournalAuthorityStartedHead(store, MATCH_ID).kind === 'started'
+  );
 }
 
 beforeEach(async () => {
@@ -203,6 +212,21 @@ describe('journal-authority "started" derived from the mirrored stream', () => {
 
     expect(derived()).toBe(true);
     expect(await marker()).toBeNull();
+  });
+
+  it('offers exactly one derivation of started, not two', async () => {
+    // S7-b (task 1.3, sub-prefix 3). `isMatchJournalAuthorityStartedDerived`
+    // was added beside the outcome function in S3-a so a caller could be
+    // repointed incrementally; the S3-b review measured that it has zero
+    // production consumers once both call sites read the outcome. A
+    // boolean projection nobody calls is a second shape of the question
+    // task 1.3 exists to leave exactly one of, so the module surface
+    // itself is the assertion.
+    const surface = await import('../matchJournalAuthorityStartedDerived');
+
+    expect(Object.keys(surface).sort()).toEqual([
+      'deriveMatchJournalAuthorityStartedHead',
+    ]);
   });
 
   it('refuses typed rather than answering not-started on a corrupt head', async () => {
