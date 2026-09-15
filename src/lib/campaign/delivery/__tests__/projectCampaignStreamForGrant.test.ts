@@ -7,6 +7,11 @@
  * unavailable, never an empty page.
  */
 
+import type { ICampaignEvent } from '@/types/campaign/CampaignSync';
+import type { IContract } from '@/types/campaign/Mission';
+
+import { buildCampaignSourcePrivateEnvelope } from '@/lib/campaign/authority/campaignSourcePrivateEnvelope';
+import { appendCampaignCommandBatch } from '@/lib/campaign/sync/JournalCampaignEventStore';
 import {
   AuthorizedViewerError,
   AuthorizedViewerResolver,
@@ -14,6 +19,11 @@ import {
 } from '@/lib/multiplayer/server/authorization/AuthorizedViewer';
 import { SQLiteDeliveryEpochStore } from '@/lib/multiplayer/server/delivery/SQLiteDeliveryEpochStore';
 import { getSQLiteService } from '@/services/persistence/SQLiteService';
+import { AtBContractType } from '@/types/campaign/contracts/contractTypes';
+import { MissionStatus } from '@/types/campaign/enums/MissionStatus';
+import { Money } from '@/types/campaign/Money';
+import { createPaymentTerms } from '@/types/campaign/PaymentTerms';
+import { AtBMoraleLevel } from '@/types/campaign/scenario/scenarioTypes';
 
 import { DELIVERY_EPOCH_STALE_MESSAGE } from '../campaignDeliveryTypes';
 import {
@@ -23,7 +33,9 @@ import {
 import { projectCampaignStreamForGrant } from '../projectCampaignStreamForGrant';
 import {
   BrokenCampaignGrantStore,
+  EVENT_TS,
   ISSUED_AT,
+  PARTICIPANT_GM,
   PARTICIPANT_PLAYER,
   REVOKED_AT,
   appendScopeScript,
@@ -324,5 +336,174 @@ describe('projectCampaignStreamForGrant', () => {
     await expect(
       brokenMembership.lookupMembership(PARTICIPANT_PLAYER, 'campaign-x'),
     ).rejects.toBeInstanceOf(MembershipSourceUnavailableError);
+  });
+});
+
+/**
+ * Source-only leak rows (design D12, task 6.1). A restricted campaign-scope
+ * guest AND the GM all-scopes grant are projected over the SAME stored row,
+ * so the GM is a same-shape control rather than a wider one: grant scope
+ * does not govern this boundary, `envelopeOf` does.
+ */
+describe('projectCampaignStreamForGrant source-only private envelope', () => {
+  let harness: Awaited<ReturnType<typeof openCampaignDeliveryHarness>>;
+
+  beforeEach(async () => {
+    harness = await openCampaignDeliveryHarness();
+  });
+
+  afterEach(async () => {
+    await closeCampaignDeliveryHarness(harness);
+  });
+
+  const PRIVATE_MARKERS: readonly string[] = [
+    'house-liao',
+    'Integrated',
+    AtBMoraleLevel.OVERWHELMING,
+    AtBContractType.GARRISON_DUTY,
+    'offer-remaining',
+    '1250000',
+  ];
+
+  /** A full contract; every field here is source-only under D12. */
+  function privateContract(id: string): IContract {
+    return {
+      id,
+      name: 'Garrison Duty on Galatea',
+      status: MissionStatus.ACTIVE,
+      type: 'contract',
+      systemId: 'galatea',
+      scenarioIds: [],
+      createdAt: EVENT_TS,
+      updatedAt: EVENT_TS,
+      employerId: 'house-davion',
+      targetId: 'house-liao',
+      paymentTerms: createPaymentTerms({
+        basePayment: new Money(1_250_000),
+        successPayment: new Money(500_000),
+        partialPayment: new Money(250_000),
+        failurePayment: new Money(0),
+        salvagePercent: 35,
+        transportPayment: new Money(100_000),
+        supportPayment: new Money(75_000),
+      }),
+      salvageRights: 'Integrated',
+      commandRights: 'Independent',
+      moraleLevel: AtBMoraleLevel.OVERWHELMING,
+      atbContractType: AtBContractType.GARRISON_DUTY,
+    } as IContract;
+  }
+
+  async function commitAcceptedContract(campaignId: string): Promise<void> {
+    const result = await appendCampaignCommandBatch(harness.journal, {
+      campaignId,
+      commandId: `cmd-${campaignId}-accept`,
+      events: [
+        {
+          sequence: 0,
+          campaignId,
+          ts: EVENT_TS,
+          authorPlayerId: 'pid-host',
+          type: 'ContractAccepted',
+          scope: 'campaign',
+          payload: {
+            contract: {
+              contractId: 'offer-taken',
+              name: 'Garrison Duty on Galatea',
+              employerFactionId: 'house-davion',
+            },
+          },
+        } as ICampaignEvent,
+      ],
+      expectedPostStateDigest: null,
+      sourcePrivate: buildCampaignSourcePrivateEnvelope({
+        baseline: {
+          sourceRecordBody: JSON.stringify({ id: campaignId }),
+          sourceRowVersion: 3,
+          rootPublicRevision: 1,
+        },
+        acceptedContract: privateContract('offer-taken'),
+        remainingMarket: {
+          offers: [privateContract('offer-remaining')],
+          declinedOfferIds: [],
+        },
+      }),
+    });
+    if (result.kind !== 'committed') {
+      throw new Error(`expected committed append, got ${result.kind}`);
+    }
+  }
+
+  it.each([
+    ['restricted campaign-scope guest', PARTICIPANT_PLAYER, ['campaign']],
+    ['GM all-scopes grant', PARTICIPANT_GM, ['campaign', 'gm']],
+  ])(
+    'withholds the private contract and market from a %s',
+    async (_name, participantId, scopes) => {
+      const campaignId = 'campaign-private-leak';
+      const grant = issueTestGrant(harness, {
+        campaignId,
+        participantId,
+        scopes,
+      });
+      await commitAcceptedContract(campaignId);
+
+      const page = await projectCampaignStreamForGrant(harness.deps, {
+        principal: mintGrantPrincipal(participantId),
+        grantId: grant.grantId,
+        cursor: null,
+      });
+      expect(page.kind).toBe('page');
+      if (page.kind !== 'page') return;
+      expect(page.items).toHaveLength(1);
+
+      const wire = JSON.stringify(page.items);
+      for (const marker of PRIVATE_MARKERS) {
+        expect(wire).not.toContain(marker);
+      }
+      // The compact wire fact is still delivered in full.
+      expect(wire).toContain('offer-taken');
+      expect(wire).toContain('house-davion');
+    },
+  );
+
+  it('still commits the delivered identity to the whole stored payload', async () => {
+    const campaignId = 'campaign-private-identity';
+    const grant = issueTestGrant(harness, {
+      campaignId,
+      participantId: PARTICIPANT_PLAYER,
+      scopes: ['campaign'],
+    });
+    await commitAcceptedContract(campaignId);
+
+    const page = await projectCampaignStreamForGrant(harness.deps, {
+      principal: mintGrantPrincipal(PARTICIPANT_PLAYER),
+      grantId: grant.grantId,
+      cursor: null,
+    });
+    expect(page.kind).toBe('page');
+    if (page.kind !== 'page') return;
+
+    const rows = await harness.journal.readStream({
+      streamType: 'campaign',
+      streamId: campaignId,
+      branchId: 'root',
+      afterRevision: 0,
+      limit: 10,
+    });
+    // EXPECTED, not a leak of values: the digest material covers `payload`,
+    // so the delivery identity is a one-way commitment over the private
+    // bytes. Pinned honestly rather than pretending it leaves no trace.
+    expect(Object.hasOwn(rows[0].payload, 'sourcePrivate')).toBe(true);
+    const identities = getSQLiteService()
+      .getDatabase()
+      .prepare(
+        `SELECT projected_event_identity AS identity
+         FROM delivery_event_mapping WHERE delivery_epoch_id = ?`,
+      )
+      .all(page.deliveryEpochId) as { identity: string }[];
+    expect(identities.map((row) => row.identity)).toEqual([
+      rows[0].eventDigest,
+    ]);
   });
 });

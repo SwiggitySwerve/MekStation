@@ -29,6 +29,7 @@ import {
   MATCH_BASELINE_FIRST_GENERATION,
 } from './matchAuthorityBaseline';
 import * as matchJournalAuthority from './matchJournalAuthority';
+import { deriveMatchJournalAuthorityStartedHead } from './matchJournalAuthorityStartedDerived';
 import {
   decideCommandBatch,
   digestCommandPostState,
@@ -183,28 +184,48 @@ export async function commitJournalAuthorityCommand(
   const expectedRevision = events[0].sequence;
   const commandId =
     envelope.intentId ?? `match-cmd:${ctx.matchId}:${expectedRevision}`;
-  const existingStarted = ctx.store.getJournalAuthorityStarted
-    ? await ctx.store.getJournalAuthorityStarted(ctx.matchId)
-    : null;
+  // "Has this stream started?" is now the mirrored head's answer. The
+  // marker-presence term beside it is not a second source of that fact:
+  // it is the write-once guard belonging to the legacy marker write
+  // below, which is still live until sub-prefix (3) deletes both
+  // together. A store that cannot answer the derived question (no
+  // branch port, or a closed capability database) leaves the guard as
+  // the only signal, which is the pre-repoint behaviour exactly.
+  //
+  // A corrupt head throws here, between this function's two try blocks,
+  // so it is caught and typed into the same fail-closed STORE_FAILURE
+  // shape the store's own append failures take, rather than escaping
+  // the command path uncaught.
+  let alreadyStarted: boolean;
+  try {
+    alreadyStarted =
+      deriveMatchJournalAuthorityStartedHead(ctx.store, ctx.matchId).kind ===
+        'started' ||
+      (ctx.store.getJournalAuthorityStarted
+        ? await ctx.store.getJournalAuthorityStarted(ctx.matchId)
+        : null) != null;
+  } catch (e) {
+    const reason = e instanceof Error ? e.message : 'started read failed';
+    return persistenceFailure(ctx, journal, envelope, reason);
+  }
   const last = events[events.length - 1];
-  const started: IMatchJournalAuthorityStarted | undefined =
-    existingStarted != null
-      ? undefined
-      : {
-          matchId: ctx.matchId,
-          commandId,
-          firstRevision: events[0].sequence,
-          lastRevision: last.sequence,
-          head: {
-            streamType: 'match',
-            streamId: ctx.matchId,
-            branchId: MATCH_BASELINE_BRANCH_ID,
-            revision: last.sequence,
-            digest: decided.postStateDigest,
-            effectiveGeneration: MATCH_BASELINE_FIRST_GENERATION,
-          },
-          committedAt: '',
-        };
+  const started: IMatchJournalAuthorityStarted | undefined = alreadyStarted
+    ? undefined
+    : {
+        matchId: ctx.matchId,
+        commandId,
+        firstRevision: events[0].sequence,
+        lastRevision: last.sequence,
+        head: {
+          streamType: 'match',
+          streamId: ctx.matchId,
+          branchId: MATCH_BASELINE_BRANCH_ID,
+          revision: last.sequence,
+          digest: decided.postStateDigest,
+          effectiveGeneration: MATCH_BASELINE_FIRST_GENERATION,
+        },
+        committedAt: '',
+      };
 
   let result;
   try {

@@ -28,6 +28,7 @@
 import type { IGameEvent } from '@/types/gameplay/GameSessionInterfaces';
 
 import { canonicalizeJsonV1 } from '@/lib/events/journal/EventJournalCanonicalizer';
+import { ROOT_EVENT_BRANCH_ID } from '@/lib/events/journal/EventJournalContract';
 import { sha256Sync } from '@/utils/events/hashUtils';
 
 /** Where a baseline's history came from. */
@@ -64,6 +65,28 @@ export const MATCH_BASELINE_BRANCH_ID = 'main';
  * statement about today rather than a placeholder.
  */
 export const MATCH_BASELINE_FIRST_GENERATION = 1;
+
+/**
+ * The two branch identities a match stream answers on while it has
+ * never been rewound: the journal's genesis `root`, and the baseline
+ * branch S1's mirror backfills a mirrored stream onto.
+ *
+ * Both name the SAME single line of history the match store holds —
+ * `matchStoreBranchSegmentReader` refuses every branch but `root` by
+ * name precisely because that store has only the one line. So the set
+ * is the answer to "does this head mean a rewind happened?", and it is
+ * declared here, beside the baseline id, so the live admission consult
+ * and restart recovery cannot drift on it.
+ */
+const LIVE_PATH_BRANCH_IDS: ReadonlySet<string> = new Set([
+  MATCH_BASELINE_BRANCH_ID,
+  ROOT_EVENT_BRANCH_ID,
+]);
+
+/** True when this branch id is an un-rewound stream's own identity. */
+export function isLivePathBranchId(branchId: string): boolean {
+  return LIVE_PATH_BRANCH_IDS.has(branchId);
+}
 
 /** The revision a complete stream begins at. */
 const STREAM_FIRST_REVISION = 0;

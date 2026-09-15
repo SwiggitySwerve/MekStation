@@ -45,6 +45,7 @@ import type { IMatchMeta, IMatchStore } from './IMatchStore';
 
 import { revisionForMatchSequence } from './history/matchStoreBranchSegmentReader';
 import { matchStoreHistoryReader } from './MatchCheckpointHistory';
+import { consultMatchRecoveryJournalHead } from './MatchRecoveryJournalHead';
 import {
   createMatchSessionProjector,
   foldMatchSession,
@@ -123,6 +124,31 @@ export async function rebuildSessionFromEvents(
 }
 
 /**
+ * Build the host for a rebuilt session and register it.
+ *
+ * Shared by the journal-head path and the legacy checkpoint path so the
+ * two cannot drift on the order the cursors are restored in: the
+ * undelivered-only broadcast consults the persisted cursors, so the
+ * drain of publications the dead process never sent has to run after
+ * the restore, not before it (umbrella 7.1).
+ */
+async function registerRecoveredHost(
+  hosts: Map<string, ServerMatchHost>,
+  store: IMatchStore,
+  matchId: string,
+  state: IGameSession,
+): Promise<void> {
+  const session = await InteractiveSession.fromSessionAsync(
+    state,
+    readServerCustomCombatDefinition,
+  );
+  const host = await ServerMatchHost.recover(matchId, store, session);
+  await host.restorePersistedViewerDeliveries();
+  await host.resumePendingEventPublications();
+  hosts.set(matchId, host);
+}
+
+/**
  * Recover every `active` match in the durable store. For each match,
  * the event log is replayed into an `InteractiveSession` and a
  * `ServerMatchHost` is re-instantiated via `ServerMatchHost.recover`.
@@ -186,6 +212,38 @@ export async function recoverActiveMatches(
         // superseded stream. Next join replays the new head.
         await host.resumePendingEventPublications();
         hosts.set(meta.matchId, host);
+        continue;
+      }
+      // No rewind. The journal head still answers for a mirrored
+      // stream: which branch, and how far. S4 of the cutover.
+      const journal = await consultMatchRecoveryJournalHead(
+        store,
+        meta.matchId,
+      );
+      if (journal.kind === 'diverged') {
+        // eslint-disable-next-line no-console
+        console.warn(
+          `[MatchRecovery] match ${meta.matchId} is not recoverable (partial-history)`,
+          journal.evidence,
+        );
+        failed.push(meta.matchId);
+        blocked.push({
+          matchId: meta.matchId,
+          reason: 'partial-history',
+          evidence: journal.evidence,
+        });
+        // Not quarantined on purpose: a mirror that fell behind is a
+        // desynchronized copy, not authority data that is wrong, and
+        // quarantineAuthorityCorruption draws that same line.
+        continue;
+      }
+      if (journal.kind === 'journal') {
+        await registerRecoveredHost(
+          hosts,
+          store,
+          meta.matchId,
+          foldMatchSession(meta.matchId, journal.events),
+        );
         continue;
       }
       const projector =
@@ -285,18 +343,7 @@ export async function recoverActiveMatches(
           );
         }
       }
-      const session = await InteractiveSession.fromSessionAsync(
-        verdict.state,
-        readServerCustomCombatDefinition,
-      );
-      const host = await ServerMatchHost.recover(meta.matchId, store, session);
-      await host.restorePersistedViewerDeliveries();
-      // Drain publications the dead process committed but never sent
-      // (umbrella 7.1). AFTER the cursor restore on purpose: the
-      // undelivered-only broadcast consults those cursors to skip
-      // viewers who already hold a frame.
-      await host.resumePendingEventPublications();
-      hosts.set(meta.matchId, host);
+      await registerRecoveredHost(hosts, store, meta.matchId, verdict.state);
     } catch (e) {
       // eslint-disable-next-line no-console
       console.warn(
