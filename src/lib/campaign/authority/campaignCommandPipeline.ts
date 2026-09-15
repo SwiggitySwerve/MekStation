@@ -48,11 +48,10 @@ import type {
 } from '@/types/campaign/CampaignSync';
 
 import { readDurableStreamRebuild } from '@/lib/events/journal/EventHistoryDurableRebuild';
-import { EXPECTED_HEAD_RESYNC_ACTION } from '@/lib/events/journal/EventHistoryExpectedHead';
-import { ROOT_EVENT_BRANCH_ID } from '@/lib/events/journal/EventJournalContract';
 import { readDurableCampaignArtifactUse } from '@/lib/interventions/GmCampaignArtifactUseDurable';
 import { validateCampaignIntent } from '@/lib/multiplayer/server/CampaignMatchHostIntent';
 
+import type { CampaignOfferDurabilityReason } from './campaignAcceptContractCommand';
 import type { CampaignAuthorityMode } from './campaignAuthorityMode';
 import type {
   CampaignConflictBase,
@@ -69,6 +68,11 @@ import {
   JournalCampaignEventStore,
   type ICampaignJournalEnvelope,
 } from '../sync/JournalCampaignEventStore';
+import {
+  appendDurableAcceptContract,
+  campaignCommandBranchId,
+  lostRaceConflict,
+} from './campaignAcceptContractCommand';
 import { diffCampaignFields } from './campaignCommandFieldSet';
 import { decideCampaignConflict } from './campaignConflictDecision';
 import { campaignStreamRef } from './campaignLaunchHead';
@@ -82,19 +86,6 @@ import { campaignStreamRef } from './campaignLaunchHead';
 export type CampaignCommandConflictReason =
   | CampaignConflictRefusalReason
   | 'lost-race';
-
-/**
- * The branch a campaign command commits to.
- *
- * A constant because `JournalCampaignEventStore` pins campaign streams to
- * the genesis branch, so this is a FACT about the pipeline rather than an
- * assumption about the journal. When the root-branch pin is lifted this
- * becomes a read of the resolved effective branch, and this function is
- * the only place that has to change.
- */
-function campaignCommandBranchId(): string {
-  return ROOT_EVENT_BRANCH_ID;
-}
 
 /** Every way a command can fail to commit, kept distinguishable. */
 export type CampaignCommandResult =
@@ -158,6 +149,22 @@ export type CampaignCommandResult =
       /** This exact command already committed. Not an error. */
       readonly kind: 'duplicate';
       readonly commandId: string;
+    }
+  | {
+      /**
+       * The named offer is not in the contract market the persisted source
+       * record holds (task 6.2a; design D13).
+       *
+       * A KIND of its own, not another `rejected` reason string, because it
+       * is not a rules refusal: the campaign may well be able to take this
+       * contract, and the offer may well arrive a moment later when the
+       * debounced whole-envelope PUT lands. A caller that could not tell
+       * this apart from `insufficient-standing` would give up on the one
+       * that a retry fixes and retry the one that never will.
+       */
+      readonly kind: 'offer-not-durable';
+      readonly contractId: string;
+      readonly reason: CampaignOfferDurabilityReason;
     }
   | {
       /**
@@ -303,6 +310,25 @@ function resolveCommandBase(
 }
 
 /**
+ * Acknowledge from the stream, not from the intent. Replaying is what makes
+ * a projector bug visible instead of self-confirming.
+ */
+async function acknowledgeCommit(
+  store: JournalCampaignEventStore,
+  campaignId: string,
+  events: readonly ICampaignEvent[],
+  expectedDigest: string,
+): Promise<CampaignCommandResult> {
+  const committedEvents = await store.getEvents(campaignId, 0);
+  const projected = replayCampaignEvents(campaignId, committedEvents);
+  const actualDigest = computeCampaignStateDigest(projected);
+  if (actualDigest !== expectedDigest) {
+    return { kind: 'divergent', expectedDigest, actualDigest };
+  }
+  return { kind: 'committed', events, state: projected };
+}
+
+/**
  * Runs one command against the campaign's journal.
  *
  * Only a journal-authority campaign is eligible. A snapshot-authority
@@ -402,6 +428,28 @@ export async function executeCampaignCommand(
     }
   }
 
+  // Task 6.2a: an acceptance is authorised by the offer the SOURCE holds,
+  // read under this command's own prepared transaction. It leaves the
+  // shared path here because its validation input - the compact contract -
+  // is not known until that read has happened.
+  if (request.intent.kind === 'AcceptContract') {
+    const outcome = await appendDurableAcceptContract(
+      deps.journal,
+      request,
+      request.intent,
+      priorEvents,
+      priorState,
+    );
+    return outcome.kind === 'refused'
+      ? outcome.result
+      : acknowledgeCommit(
+          store,
+          request.campaignId,
+          outcome.events,
+          outcome.expectedDigest,
+        );
+  }
+
   const validation = validateCampaignIntent(
     request.intent,
     priorState,
@@ -437,28 +485,10 @@ export async function executeCampaignCommand(
     expectedPostStateDigest: expectedDigest,
   });
   if (appended.kind === 'sequence-conflict') {
-    return {
-      kind: 'conflict',
-      reason: 'lost-race',
-      // The head from the FAILED APPEND, never the one replayed above:
-      // by definition something committed in between, so the replayed
-      // revision is already history and sending a client back to it
-      // would send it somewhere that no longer exists.
-      // `actualNextSequence` carries the journal's `actualRevision`, and
-      // for a campaign stream the next sequence and the revision are the
-      // same number (sequence N lives at revision N + 1), so this needs
-      // no conversion - only the right source.
-      head: {
-        branchId: campaignCommandBranchId(),
-        revision: appended.actualNextSequence,
-      },
-      // A lost race is not a field collision: this command never got to
-      // be compared against anything. Resync is the honest advice.
-      recoveryAction: EXPECTED_HEAD_RESYNC_ACTION,
-      conflictingFields: [],
-      expectedSequence: appended.expectedNextSequence,
-      actualSequence: appended.actualNextSequence,
-    };
+    return lostRaceConflict(
+      appended.expectedNextSequence,
+      appended.actualNextSequence,
+    );
   }
   if (appended.kind === 'command-identity-conflict') {
     return { kind: 'duplicate', commandId: appended.commandId };
@@ -467,14 +497,10 @@ export async function executeCampaignCommand(
     return { kind: 'rejected', reason: 'journal-rejected-batch' };
   }
 
-  // Acknowledge from the stream, not from the intent. Replaying is what
-  // makes a projector bug visible instead of self-confirming.
-  const committedEvents = await store.getEvents(request.campaignId, 0);
-  const projected = replayCampaignEvents(request.campaignId, committedEvents);
-  const actualDigest = computeCampaignStateDigest(projected);
-  if (actualDigest !== expectedDigest) {
-    return { kind: 'divergent', expectedDigest, actualDigest };
-  }
-
-  return { kind: 'committed', events: sequenced, state: projected };
+  return acknowledgeCommit(
+    store,
+    request.campaignId,
+    sequenced,
+    expectedDigest,
+  );
 }
