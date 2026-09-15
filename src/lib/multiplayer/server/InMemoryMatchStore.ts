@@ -26,6 +26,7 @@ import type {
   IMatchJournalAuthorityStarted,
 } from './matchJournalAuthority';
 
+import { nextMatchSequenceAfter } from './history/matchStoreBranchSegmentReader';
 import {
   MatchNotFoundError,
   MatchStoreSequenceCollisionError,
@@ -514,8 +515,12 @@ export class InMemoryMatchStore
   };
 }
 
-/** Next free sequence over the live (unsuperseded) events. */
+/**
+ * Next free sequence over the live (unsuperseded) events. Through the
+ * named derivation so this store and `DurableMatchStore`'s commit-time
+ * check cannot drift on the offset.
+ */
 function liveHeadSequence(events: readonly IGameEvent[]): number {
   const last = events[events.length - 1];
-  return last === undefined ? 0 : last.sequence + 1;
+  return nextMatchSequenceAfter(last === undefined ? null : last.sequence);
 }

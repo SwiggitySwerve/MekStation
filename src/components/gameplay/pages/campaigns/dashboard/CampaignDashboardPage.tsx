@@ -360,10 +360,15 @@ export default function CampaignDashboardPage(): React.ReactElement {
       {/*
        * Share surface (task 2.2). Reads the campaign's STORED authority,
        * so a replica shows the shared-copy notice rather than share
-       * controls that the server would refuse anyway.
+       * controls that the server would refuse anyway. The local co-op
+       * role goes with it: on a shared server a guest reads the HOST's
+       * record, so the authority alone cannot tell the two browsers
+       * apart, and only the mode keeps a guest from asking for the GM's
+       * grant list.
        */}
       <CampaignSharePanelConnected
         campaignId={campaign.id}
+        coopMode={campaign.coopSession?.mode}
         matchId={getCoopMatchId(campaign.coopSession)}
       />
 

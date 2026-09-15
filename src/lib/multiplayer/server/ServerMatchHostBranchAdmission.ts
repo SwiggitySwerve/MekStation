@@ -51,6 +51,7 @@ import { nowIso } from '@/types/multiplayer/Protocol';
 
 import type { IMatchStore } from './IMatchStore';
 
+import { nextMatchSequenceAfter } from './history/matchStoreBranchSegmentReader';
 import { hasMatchStreamRebuildReader } from './IMatchStore';
 import { isLivePathBranchId } from './matchAuthorityBaseline';
 import { errorMessage } from './ServerMatchHostPublication';
@@ -157,7 +158,11 @@ export async function refuseLiveBranchAdmission(
 
   const events = await ctx.store.getEvents(ctx.matchId);
   const last = events.length === 0 ? undefined : events[events.length - 1];
-  const revision = last === undefined ? 0 : last.sequence + 1;
+  // The live head revision is the store's next sequence - the same
+  // offset the commit-time check and the mirror carry, named once.
+  const revision = nextMatchSequenceAfter(
+    last === undefined ? null : last.sequence,
+  );
 
   // The head's own branch status is deliberately NOT re-read. That arm
   // answered STALE_BRANCH on a `superseded` head; it is unreachable BY
