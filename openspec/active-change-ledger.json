@@ -50,9 +50,9 @@
     },
     {
       "name": "adopt-combat-journal-cutover-and-gm-rewind",
-      "status": "proposed",
-      "reason": "Owner ruling 2026-09-04 on the 2026-09-03 inventory-and-sync council: GM combat rewind is withdrawn from harden-gm-two-player-campaign-sessions because the combat match stream is never journaled in production (finding #48) and the umbrella delta would otherwise merge SHALLs the code violates on archive. This successor owns the six match-stream journal cutover seams, the moved gm-combat-interventions requirements (preview/commit phases, replacement-branch creation and activation, STALE_BRANCH rejection, per-viewer fog rebuild), the closes of umbrella boxes 14.1/14.2/14.4/14.5 by receipt, the 80-scenario reconcile, and the un-gate of rows E2E-40 to 44 and E2E-76, which run in the umbrella as strict expected failures tagged @until-journal-cutover. Unfunded until scheduled; its box 0.1 is the first deliverable when it opens.",
-      "lastReviewed": "2026-09-04"
+      "status": "in-progress",
+      "reason": "Owner ruling 2026-09-04 on the 2026-09-03 inventory-and-sync council: GM combat rewind is withdrawn from harden-gm-two-player-campaign-sessions because the combat match stream is never journaled in production (finding #48) and the umbrella delta would otherwise merge SHALLs the code violates on archive. This successor owns the six match-stream journal cutover seams, the moved gm-combat-interventions requirements (preview/commit phases, replacement-branch creation and activation, STALE_BRANCH rejection, per-viewer fog rebuild), the closes of umbrella boxes 14.1/14.2/14.4/14.5 by receipt, the 80-scenario reconcile, and the un-gate of rows E2E-40 to 44 and E2E-76, which run in the umbrella as strict expected failures tagged @until-journal-cutover. Reviewed 2026-09-15 against exact main: the change has opened and is no longer unfunded - six prefixes are merged and main-verified (S1 #1684 95042d919, S2 #1691 823bdf3ac, S3a #1693 f8abc1844, S3b-A #1702 28e114300, S3b-B #1703 f6c5bd15a, S4-A #1704 8cacf20a6), closing boxes 0.2 and 1.2, while 0.1 (the 80-scenario reconcile) is still undelivered and 1.1/1.3/1.4 carry dated residuals (rewind-route preview unclaimed; marker retirement routed to the 1.7 cutover; S4 split B #1705 unmerged and the restart-pack-against-a-rewound-match clause unclaimed).",
+      "lastReviewed": "2026-09-15"
     },
     {
       "name": "enable-saved-custom-unit-combat",
