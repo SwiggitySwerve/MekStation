@@ -518,6 +518,29 @@ export interface IMatchStore
     batch: IMatchCommandBatch,
   ): Promise<MatchBatchAppendResult>;
 
+  /**
+   * Mirror a freshly created match's opening events into the journal so
+   * the stream has a head before any command batch commits (task 1.7
+   * preparation, S7-a).
+   *
+   * WHY IT IS A SEPARATE ENTRY POINT. The opening events are persisted
+   * one at a time through `appendEvent`, which is not the batch
+   * boundary `appendCommandBatch` mirrors - so without this the journal
+   * stayed empty until the first command, and that command declared a
+   * revision derived from a match log that had already run ahead of the
+   * head. Calling it is idempotent: the command identity is derived
+   * from the match id, so a second call recognises its own prior seed.
+   *
+   * OPTIONAL as a structural flag, exactly as `appendCommandBatch` is.
+   * A store without a journal simply does not offer it, and never
+   * throws for a mirror outcome: a failed seed is recorded on the same
+   * shadow tripwire every other mirror refusal reaches.
+   */
+  seedJournalFromInitialEvents?(
+    matchId: string,
+    events: readonly IGameEvent[],
+  ): Promise<void>;
+
   getCommandReceipt?(
     matchId: string,
     commandId: string,

@@ -40,6 +40,7 @@ scripts/**
 !scripts/AGENTS.md
 !scripts/expand-unit-type-requirements.mjs
 !scripts/print-combat-validation-gaps.ts
+!scripts/campaign-authority-cutover.ts
 !scripts/maintenance/
 !scripts/maintenance/scan-maintenance.mjs
 !scripts/e2e/
