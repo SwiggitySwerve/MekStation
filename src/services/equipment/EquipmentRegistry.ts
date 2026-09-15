@@ -30,6 +30,7 @@ import {
   parseLegacyMegaMekId,
   addMiscEquipmentAliases,
 } from './aliases';
+import { createEquipmentLoadAbort } from './equipmentLoadAbort';
 import {
   EquipmentLoaderService,
   getEquipmentLoader,
@@ -104,9 +105,25 @@ export class EquipmentRegistry {
       return;
     }
 
-    // Ensure equipment is loaded
+    // Ensure equipment is loaded. A hard navigation cancels the fetches this
+    // kicks off, so tie them to the document's own lifetime rather than
+    // letting the browser cancel them behind the loader's back.
     if (!this.loader.getIsLoaded()) {
-      await this.loader.loadOfficialEquipment();
+      const abort = createEquipmentLoadAbort();
+      try {
+        const result = await this.loader.loadOfficialEquipment(
+          undefined,
+          abort.signal,
+        );
+        // An interrupted load leaves the corpus partial. Stay unready so a
+        // surviving document (bfcache restore, cancelled navigation) reloads
+        // it instead of serving half a catalog forever.
+        if (result.interrupted) {
+          return;
+        }
+      } finally {
+        abort.dispose();
+      }
     }
 
     // Build name-to-ID mappings for all equipment
