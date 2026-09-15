@@ -71,6 +71,12 @@
       "status": "in-progress",
       "reason": "User-requested record-sheet preview/PDF/print repair: shared SVG construction, bounded 4x PNG instead of 20x JPEG, correct Letter/A4 geometry and aspect, durable 20-300% manual zoom, Fit Width tracking until manual, last requested unit/paper render, URL cleanup, print popup reserved before the first await, recoverable async busy/errors, and readable critical tables within template bounds. Canonical specs are not edited in this change.",
       "lastReviewed": "2026-09-10"
+    },
+    {
+      "name": "add-customizer-pr-regression-gate",
+      "status": "in-progress",
+      "reason": "User-requested customizer verification follow-up: dedicated asset-backed PR browser regressions, zero retries, required aggregator membership, scoped workflow mutation checks, and print/PDF failure-recovery coverage. Local verification and remote CI activation remain distinct.",
+      "lastReviewed": "2026-09-12"
     }
   ]
 }
