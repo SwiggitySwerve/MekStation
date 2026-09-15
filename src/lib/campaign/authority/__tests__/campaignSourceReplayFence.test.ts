@@ -23,12 +23,16 @@
  *        swapping those two blocks turns it - and only it - red;
  *  - (c) a replay standing BEHIND the row's watermark has nothing to refuse
  *        it, so it would re-apply and regress the row;
- *
- * Rows (d) the rival-PUT conflict path, (e) the P0a prepared-transaction
- * baseline capture, and (f) the whole-envelope overwrite rejection follow in
- * the next commit: they pin the same product code from the PUT side and from
- * the journal side, and are separated here only to keep each commit's diff
- * reviewable.
+ *  - (d) the write has no CAS predicate, so a rival whole-envelope PUT that
+ *        already won is silently overwritten rather than conflicted;
+ *  - (f) a whole-envelope PUT carrying the correct `baseVersion` but no
+ *        fence overwrites the materialized row and drops the mission.
+ * (e) passes before and after: the P0a prepared-transaction baseline capture
+ * is 6.2a-3's, and this file pins it against the new write so the fence and
+ * the baseline cannot drift apart. Its assertion is the discriminating one --
+ * the captured `sourceRowVersion` is the PRE-materialization version, which
+ * is only true if the capture happened inside the same transaction, before
+ * the row moved.
  *
  * Real SQLite on a temp file with a cold reopen, because every property here
  * is durable: a fence that lives only in process memory fences nothing.
@@ -43,12 +47,14 @@ import { tmpdir } from 'node:os';
 import path from 'node:path';
 
 import type { ICampaignJournalEnvelope } from '@/lib/campaign/sync/JournalCampaignEventStore';
+import type { ICampaignContractMarket } from '@/types/campaign/CampaignCommandExtensions';
 import type { ICampaignIntent } from '@/types/campaign/CampaignSync';
-import type { IContract } from '@/types/campaign/Mission';
+import type { IContract, IMission } from '@/types/campaign/Mission';
 import type { SerializedCampaign } from '@/types/campaign/SerializedCampaign';
 
 import { readCampaignJournalEvents } from '@/lib/campaign/sync/campaignJournalReads';
 import { SQLiteEventJournal } from '@/lib/events/journal/SQLiteEventJournal';
+import { saveCampaign } from '@/services/campaignPersistence/CampaignPersistenceService';
 import { materializeCampaignSourceRow } from '@/services/campaignPersistence/campaignSourceMaterialization';
 import {
   getSQLiteService,
@@ -65,6 +71,7 @@ import type { CampaignAuthorityMode } from '../campaignAuthorityMode';
 
 import { importCampaignBaseline } from '../campaignAuthorityMigration';
 import { executeCampaignCommand } from '../campaignCommandPipeline';
+import { campaignSourcePrivateOf } from '../campaignSourcePrivateEnvelope';
 
 const NOW = '3025-01-03T00:00:00.000Z';
 const CAMPAIGN_ID = 'campaign-replay-fence';
@@ -118,6 +125,11 @@ function acceptContract(contractId: string): ICampaignIntent {
 }
 
 type StoredRow = { readonly version: number; readonly payload: string };
+type StoredBody = {
+  readonly name?: string;
+  readonly missions?: ReadonlyArray<readonly [string, IMission]>;
+  readonly contractMarket?: ICampaignContractMarket;
+};
 
 function readRow(db: Database.Database): StoredRow {
   return db
@@ -127,6 +139,10 @@ function readRow(db: Database.Database): StoredRow {
 
 function recordOf(row: StoredRow): SerializedCampaign {
   return JSON.parse(row.payload) as SerializedCampaign;
+}
+
+function bodyOf(row: StoredRow): StoredBody {
+  return (JSON.parse(row.payload) as { readonly body: StoredBody }).body;
 }
 
 describe('source materialization is fenced against replay and overwrite', () => {
@@ -343,5 +359,100 @@ describe('source materialization is fenced against replay and overwrite', () => 
     const after = readRow(db);
     expect(after.version).toBe(row.version);
     expect(after.payload).toBe(row.payload);
+  });
+
+  it('(d) takes the conflict path when a whole-envelope PUT already won the CAS', async () => {
+    seedOneOffer();
+    const db = getSQLiteService().getDatabase();
+    const before = readRow(db);
+    const events = await readCampaignJournalEvents(journal, CAMPAIGN_ID);
+
+    // The rival PUT lands first and takes the row to SEEDED_VERSION + 1.
+    const rival = saveCampaign(recordOf(before), SEEDED_VERSION);
+    expect(rival.kind).toBe('ok');
+
+    // The materialization still holds the version it read, so its CAS loses.
+    const materialized = materializeCampaignSourceRow(db, {
+      campaignId: CAMPAIGN_ID,
+      expectedRowVersion: SEEDED_VERSION,
+      fenceRevision: events.length,
+      record: {
+        ...recordOf(before),
+        body: { ...recordOf(before).body, name: 'MATERIALIZED OVER THE TOP' },
+      },
+      nextVersion: SEEDED_VERSION + 1,
+    });
+
+    expect(materialized).toStrictEqual({
+      kind: 'conflict',
+      currentVersion: SEEDED_VERSION + 1,
+    });
+    const after = readRow(db);
+    expect(after.version).toBe(SEEDED_VERSION + 1);
+    expect(bodyOf(after).name).toBe('Grey Death Legion');
+    expect(recordOf(after).sourceReplayFence).toBeUndefined();
+  });
+
+  it('(e) captured the P0a baseline under the prepared transaction, before the row moved', async () => {
+    const row = await materializeOnce();
+
+    resetSQLiteService();
+    const reopened = new Database(databasePath);
+    const rows = reopened
+      .prepare(
+        `SELECT payload_json AS payloadJson FROM event_journal_events
+          WHERE stream_id = ? ORDER BY stream_revision`,
+      )
+      .all(CAMPAIGN_ID) as readonly { payloadJson: string }[];
+    reopened.close();
+    const carriers = rows.map((one) => ({
+      payload: JSON.parse(one.payloadJson) as ICampaignJournalEnvelope,
+    }));
+    const facts = campaignSourcePrivateOf(carriers[carriers.length - 1]);
+    expect(facts).not.toBeNull();
+    if (facts === null) return;
+
+    // The discriminating assertion. The baseline records the version the row
+    // held BEFORE this acceptance moved it, which is only possible if the
+    // read happened inside the same prepared transaction as the append and
+    // the fenced row write - `SQLiteEventJournalWriter.appendPreparedWithExtension`.
+    expect(facts.baseline.sourceRowVersion).toBe(SEEDED_VERSION);
+    expect(row.version).toBe(SEEDED_VERSION + 1);
+    // Three numbers that stay distinct: the captured source row version, the
+    // pre-append capture revision, and the row's materialization watermark.
+    expect(facts.baseline.rootPublicRevision).toBeLessThan(
+      recordOf(row).sourceReplayFence?.rootPublicRevision ?? -1,
+    );
+    // The baseline body is the PRE-acceptance record: it still holds the
+    // offer the acceptance consumed, so replay starts from the source record
+    // rather than from the compact genesis snapshot.
+    expect(facts.baseline.sourceRecordBody).toContain(STORED_ID);
+  });
+
+  it('(f) rejects a later generic whole-envelope overwrite that carries no fence', async () => {
+    const row = await materializeOnce();
+    const materialized = recordOf(row);
+    expect(materialized.sourceReplayFence).toBeDefined();
+
+    // A client PUT minted from a campaign it rendered before the acceptance:
+    // the `baseVersion` is CURRENT, so the existing CAS lets it through, and
+    // the body it carries has no mission and no knowledge of the fence.
+    const { sourceReplayFence: _dropped, ...unfenced } = materialized;
+    const result = saveCampaign(
+      { ...unfenced, body: { ...materialized.body, missions: [] } },
+      row.version,
+    );
+
+    expect(result.kind).toBe('conflict');
+    if (result.kind !== 'conflict') return;
+    // The conflict carries the stored record, and that record carries the
+    // fence - so the client can see exactly what it was standing behind.
+    expect(result.current.sourceReplayFence).toStrictEqual(
+      materialized.sourceReplayFence,
+    );
+
+    const after = readRow(getSQLiteService().getDatabase());
+    expect(after.payload).toBe(row.payload);
+    expect(bodyOf(after).missions?.[0]?.[0]).toBe(STORED_ID);
   });
 });
