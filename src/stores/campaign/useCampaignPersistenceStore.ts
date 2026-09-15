@@ -249,6 +249,7 @@ let saveChain: Promise<unknown> = Promise.resolve();
 export function __resetCampaignPersistenceCoordinationForTests(): void {
   inFlightLoad = null;
   saveChain = Promise.resolve();
+  pendingFlushIssued = false;
 }
 
 type PersistenceSet = Parameters<StateCreator<CampaignPersistenceStore>>[0];
@@ -904,9 +905,6 @@ function flushPendingMutationsAction(
     if (isCoopCampaign(campaign)) {
       return;
     }
-    // First, so the discard path and the armed timer cannot both write.
-    clearAutoSaveTimer();
-
     const { baseVersion } = state;
     const envelope = buildSerializedCampaign(
       campaign,
@@ -930,6 +928,13 @@ function flushPendingMutationsAction(
       });
       return;
     }
+    // Only on the branch that actually writes, so the discard path and the
+    // armed timer cannot both write. Clearing it earlier would also cancel
+    // the ordinary save on the over-cap branch above - and that save has no
+    // keepalive cap, so killing it there would destroy a write that was
+    // about to succeed and lose the very mutation this flush exists to
+    // rescue.
+    clearAutoSaveTimer();
     pendingFlushIssued = true;
     fireKeepaliveFlush(campaignId, body);
   };

@@ -139,6 +139,23 @@ function seedDirtyCampaign(campaign: ICampaign): void {
   useCampaignPersistenceStore.getState().markDirty();
 }
 
+/**
+ * A campaign whose serialized body clears the 64 KiB keepalive budget.
+ * `processedBattleIds` rides the serialized body verbatim, so it is the
+ * cheapest stand-in for the unbounded per-campaign collections that will
+ * eventually push a real envelope past the cap.
+ */
+function makeOversizedCampaign(base: ICampaign): ICampaign {
+  const filler = 'battle-'.padEnd(256, 'x');
+  return {
+    ...base,
+    processedBattleIds: Array.from(
+      { length: 400 },
+      (_, index) => `${filler}${index}`,
+    ),
+  };
+}
+
 interface FlushBody {
   envelope: { campaignId: string; version: number; body: { name: string } };
   baseVersion: number;
@@ -260,17 +277,7 @@ describe('pending client mutations are flushed before the document is discarded'
   });
 
   it('skips an over-cap envelope with a typed diagnostic rather than firing it', () => {
-    // `processedBattleIds` rides the serialized body verbatim, so it is the
-    // cheapest way to push the request past the keepalive budget the way
-    // the unbounded per-campaign collections eventually will.
-    const filler = 'battle-'.padEnd(256, 'x');
-    const oversized: ICampaign = {
-      ...campaign,
-      processedBattleIds: Array.from(
-        { length: 400 },
-        (_, index) => `${filler}${index}`,
-      ),
-    };
+    const oversized = makeOversizedCampaign(campaign);
     seedDirtyCampaign(oversized);
 
     flush();
@@ -284,6 +291,29 @@ describe('pending client mutations are flushed before the document is discarded'
       KEEPALIVE_FLUSH_BODY_CAP_BYTES,
     );
     expect(flushSkip?.campaignId).toBe(oversized.id);
+  });
+
+  it('leaves the ordinary debounced save armed when it skips an over-cap envelope', async () => {
+    // The armed save has NO keepalive cap - `putLiveCampaign` is a plain
+    // fetch - so cancelling it on the branch that then fires nothing would
+    // destroy a write that was about to succeed, and lose a mutation this
+    // change was written to rescue.
+    const oversized = makeOversizedCampaign(campaign);
+    seedDirtyCampaign(oversized);
+
+    flush();
+    expect(captured).toHaveLength(0);
+    expect(useCampaignPersistenceStore.getState().flushSkip?.reason).toBe(
+      'envelope-over-keepalive-cap',
+    );
+
+    jest.advanceTimersByTime(AUTO_SAVE_DEBOUNCE_MS);
+    await Promise.resolve();
+    await Promise.resolve();
+
+    expect(captured).toHaveLength(1);
+    // The ordinary uncapped PUT, not a second keepalive attempt.
+    expect(captured[0].init.keepalive).toBeUndefined();
   });
 
   it('never claims the revision it did not read: dirty and baseVersion survive', async () => {
