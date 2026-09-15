@@ -50,6 +50,11 @@ jest.mock('next/router', () => ({
   }),
 }));
 
+// The catalog the launch page fetches. Tests override the refs so a
+// custom-source roster row can be present, absent, or foreign.
+let mockCanonicalUnitRefs: string[] = ['atlas-as7-d'];
+let mockCustomCombatRefs: string[] | undefined;
+
 jest.mock('@/lib/campaign/readiness/canonicalCatalogAdmission', () => {
   const actual = jest.requireActual<
     typeof import('@/lib/campaign/readiness/canonicalCatalogAdmission')
@@ -57,10 +62,21 @@ jest.mock('@/lib/campaign/readiness/canonicalCatalogAdmission', () => {
   return {
     ...actual,
     fetchCanonicalCatalogSnapshot: jest.fn(async () =>
-      actual.readyCanonicalCatalog(['atlas-as7-d']),
+      actual.readyCanonicalCatalog(mockCanonicalUnitRefs, mockCustomCombatRefs),
     ),
   };
 });
+
+// The co-op runtime roster is where the launch page reads each selected
+// unit's persisted source identity from, so it has to be controllable.
+const mockGetCoopRuntimeSessionByMatch = jest.fn();
+jest.mock('@/lib/campaign/coop/coopRuntimeSession', () => ({
+  ...jest.requireActual<
+    typeof import('@/lib/campaign/coop/coopRuntimeSession')
+  >('@/lib/campaign/coop/coopRuntimeSession'),
+  getCoopRuntimeSessionByMatch: (matchId: string) =>
+    mockGetCoopRuntimeSessionByMatch(matchId),
+}));
 
 jest.mock('@/components/campaign/CampaignNavigation', () => ({
   CampaignNavigation: () => <nav data-testid="campaign-navigation" />,
@@ -198,6 +214,9 @@ describe('CoopMissionLaunchPage - staged participation sync', () => {
         readiness: 'Ready',
       },
     ];
+    mockCanonicalUnitRefs = ['atlas-as7-d'];
+    mockCustomCombatRefs = undefined;
+    mockGetCoopRuntimeSessionByMatch.mockReset().mockReturnValue(undefined);
     _resetCoopRuntimeSessions();
   });
 
@@ -458,5 +477,217 @@ describe('CoopMissionLaunchPage - staged participation sync', () => {
 
     expect(mockMaterializeCampaignMissionEncounter).not.toHaveBeenCalled();
     expect(mockRouterPush).not.toHaveBeenCalled();
+  });
+});
+
+// =============================================================================
+// Co-op launch revalidates custom-source authority
+//
+// mission-contracts "Campaign launch requires an authoritative canonical
+// source" / Scenario "Co-op launch revalidates authority": a missing,
+// foreign or mislabelled custom-source reference SHALL reject before
+// composition or encounter launch, and the client SHALL NOT synthesize
+// source identity, force membership, construction authority, or a stock
+// fallback.
+// =============================================================================
+
+interface ICoopRosterUnitFixture {
+  readonly unitId: string;
+  readonly designation: string;
+  readonly unitRef: string;
+  readonly unitSource: string;
+}
+
+/** A co-op runtime whose host projection carries the given roster rows. */
+function coopRuntimeWithRoster(units: readonly ICoopRosterUnitFixture[]) {
+  const rosterUnits = Object.fromEntries(
+    units.map((unit) => [unit.unitId, unit]),
+  );
+  return { host: { getState: () => ({ rosterUnits }) } };
+}
+
+/**
+ * An encounter launcher that records whether composition ever reached
+ * the repository. A denied launch must leave every counter at zero.
+ */
+function spyLauncherService() {
+  const created: string[] = [];
+  const launched: string[] = [];
+  const service = {
+    createEncounter: (input: { readonly name: string }) => {
+      created.push(input.name);
+      return { success: true, id: 'repo-enc-coop-1' };
+    },
+    updateEncounter: () => ({ success: true, id: 'repo-enc-coop-1' }),
+    setPlayerForce: () => ({ success: true, id: 'repo-enc-coop-1' }),
+    launchEncounter: async (id: string) => {
+      launched.push(id);
+      return { success: true, id };
+    },
+    getEncounter: () => ({ gameSessionId: 'game-session-coop-1' }),
+  };
+  return { service, created, launched };
+}
+
+/**
+ * Route the page's launch through the REAL `launchCoopMission` so the
+ * shared admission guard actually runs, with the repository replaced by
+ * a spy. Loaded lazily so the other suites keep the light mock.
+ */
+function useRealCoopLaunch(service: unknown): void {
+  mockLaunchCoopMission.mockImplementation(async (...args: unknown[]) => {
+    const { launchCoopMission } = jest.requireActual<
+      typeof import('@/lib/campaign/coop/launchCoopMission')
+    >('@/lib/campaign/coop/launchCoopMission');
+    return launchCoopMission(
+      args[0] as Parameters<typeof launchCoopMission>[0],
+      args[1] as Parameters<typeof launchCoopMission>[1],
+      service as Parameters<typeof launchCoopMission>[2],
+      args[3] as Parameters<typeof launchCoopMission>[3],
+    );
+  });
+}
+
+describe('CoopMissionLaunchPage - custom-source authority revalidation', () => {
+  const HOST_UNIT = 'u-host-1';
+  const GUEST_UNIT = 'u-guest-1';
+  const CUSTOM_REF = 'custom-coop-atlas';
+
+  function customRoster(unitRef: string, unitSource = 'custom') {
+    return coopRuntimeWithRoster([
+      { unitId: HOST_UNIT, designation: 'Saved Atlas', unitRef, unitSource },
+      {
+        unitId: GUEST_UNIT,
+        designation: 'Atlas',
+        unitRef: 'atlas-as7-d',
+        unitSource: 'canonical',
+      },
+    ]);
+  }
+
+  async function renderAndLaunchCoop(): Promise<void> {
+    const baseCampaign = createCampaign('Co-op Custom Authority', 'mercenary');
+    const rootForce = makeForce(baseCampaign.rootForceId, [HOST_UNIT]);
+    mockGetCampaign.mockReturnValue({
+      ...baseCampaign,
+      id: 'campaign-coop-1',
+      forces: new Map([[rootForce.id, rootForce]]),
+      coopSession: createHostCoopSession('ABC234', 'match-launch-1'),
+    });
+    publishCoopParticipation({
+      matchId: 'match-launch-1',
+      missionId: 'mission-alpha',
+      playerId: 'guest',
+      role: 'guest',
+      choice: 'deploy',
+      force: makeForce('force-guest', [GUEST_UNIT]),
+    });
+
+    await act(async () => {
+      render(<CoopMissionLaunchPage />);
+    });
+    const launchButton = await screen.findByTestId('coop-launch-mission');
+    await waitFor(() => {
+      expect(launchButton).not.toBeDisabled();
+    });
+    await act(async () => {
+      launchButton.click();
+    });
+  }
+
+  beforeEach(() => {
+    mockRouterPush.mockReset();
+    mockGetCampaign.mockReset();
+    mockLaunchCoopMission.mockReset();
+    mockCanonicalUnitRefs = ['atlas-as7-d'];
+    mockCustomCombatRefs = [];
+    mockGetCoopRuntimeSessionByMatch.mockReset();
+    _resetCoopRuntimeSessions();
+  });
+
+  it('rejects a co-op launch whose custom-source reference is missing from the custom combat catalog', async () => {
+    const spy = spyLauncherService();
+    useRealCoopLaunch(spy.service);
+    mockCustomCombatRefs = [];
+    mockGetCoopRuntimeSessionByMatch.mockReturnValue(customRoster(CUSTOM_REF));
+
+    await renderAndLaunchCoop();
+
+    expect(await screen.findByTestId('coop-launch-error')).toHaveTextContent(
+      'cannot launch yet',
+    );
+    expect(spy.created).toEqual([]);
+    expect(spy.launched).toEqual([]);
+    expect(mockRouterPush).not.toHaveBeenCalled();
+  });
+
+  // Same membership branch as the row above (roster_source_custom); the
+  // discriminator is a POPULATED catalog that simply does not list this
+  // ref. Deliberately not called "foreign": in the spec, foreign names a
+  // mismatched campaign SNAPSHOT (snapshot_foreign), which is pinned in
+  // src/lib/campaign/coop/__tests__/launchCoopMission.test.ts, not here.
+  it('rejects a co-op launch whose custom-source reference is not a member of a populated custom combat catalog', async () => {
+    const spy = spyLauncherService();
+    useRealCoopLaunch(spy.service);
+    mockCustomCombatRefs = ['custom-other-owner'];
+    mockGetCoopRuntimeSessionByMatch.mockReturnValue(customRoster(CUSTOM_REF));
+
+    await renderAndLaunchCoop();
+
+    expect(await screen.findByTestId('coop-launch-error')).toHaveTextContent(
+      'cannot launch yet',
+    );
+    expect(spy.created).toEqual([]);
+    expect(spy.launched).toEqual([]);
+    expect(mockRouterPush).not.toHaveBeenCalled();
+  });
+
+  it('rejects a co-op launch whose custom catalog reference is labelled a canonical source', async () => {
+    const spy = spyLauncherService();
+    useRealCoopLaunch(spy.service);
+    mockCustomCombatRefs = [CUSTOM_REF];
+    mockGetCoopRuntimeSessionByMatch.mockReturnValue(
+      customRoster(CUSTOM_REF, 'canonical'),
+    );
+
+    await renderAndLaunchCoop();
+
+    expect(await screen.findByTestId('coop-launch-error')).toHaveTextContent(
+      'custom catalog reference under a canonical source',
+    );
+    expect(spy.created).toEqual([]);
+    expect(spy.launched).toEqual([]);
+    expect(mockRouterPush).not.toHaveBeenCalled();
+  });
+
+  it('admits a co-op launch whose custom-source reference has exact custom catalog membership', async () => {
+    const spy = spyLauncherService();
+    useRealCoopLaunch(spy.service);
+    mockCustomCombatRefs = [CUSTOM_REF];
+    mockGetCoopRuntimeSessionByMatch.mockReturnValue(customRoster(CUSTOM_REF));
+
+    await renderAndLaunchCoop();
+
+    expect(screen.queryByTestId('coop-launch-error')).toBeNull();
+    expect(spy.launched).toEqual(['repo-enc-coop-1']);
+    // The selected saved identity reached the launch guard unchanged —
+    // no stock stand-in, no synthesized source.
+    const admission = mockLaunchCoopMission.mock.calls[0]?.[3] as {
+      readonly selectedUnits: readonly {
+        readonly unitId: string;
+        readonly unitRef?: string;
+        readonly unitSource?: unknown;
+      }[];
+    };
+    expect(admission.selectedUnits).toContainEqual(
+      expect.objectContaining({
+        unitId: HOST_UNIT,
+        unitRef: CUSTOM_REF,
+        unitSource: 'custom',
+      }),
+    );
+    expect(mockRouterPush).toHaveBeenCalledWith(
+      '/gameplay/encounters/repo-enc-coop-1?campaignId=campaign-coop-1&missionId=mission-alpha',
+    );
   });
 });

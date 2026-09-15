@@ -14,9 +14,9 @@
     },
     {
       "name": "add-authoritative-history-branches",
-      "status": "proposed",
-      "reason": "Wave 7 of the entity-history program: add immutable branch lineage, verified replacement-branch activation, domain-command revalidation instead of generic merge, and recoverable combat/campaign correction sagas after linear authority and effect receipts are proven.",
-      "lastReviewed": "2026-07-30"
+      "status": "in-progress",
+      "reason": "Wave 7 of the entity-history program: add immutable branch lineage, verified replacement-branch activation, domain-command revalidation instead of generic merge, and recoverable combat/campaign correction sagas after linear authority and effect receipts are proven. Reviewed 2026-09-15 against exact main: PR 1 storage/resolver work is merged and main-verified (tasks 1.1-1.4 checked; PRs #1671 4cf52fe73, #1674 bcc34f7cd, #1681 1f84beef2), so the entry is no longer merely proposed; 1.5 (independent lineage/security review on merged main) and 1.6 (exact-main resolver rerun plus branch/worktree prune) stay open, section 2 activation is blocked on add-cross-stream-effect-receipts, and the 8.1-8.3 deferrals stand verbatim.",
+      "lastReviewed": "2026-09-15"
     },
     {
       "name": "add-saved-custom-unit-campaign-roster",
@@ -39,20 +39,20 @@
     {
       "name": "design-vault-campaign-separation-and-maps",
       "status": "proposed",
-      "reason": "Vault/campaign separation (immutable versioned templates to campaign instance copies per the 2026-08-06 council decision and D1), starmap travel economy with dynamic opportunities, and the isometric battlefield view. CAMP-01H / PR 1245 landed on main at 2a8a46183; implementation remains gated on the later parent 9.1 receipt. P1 1.1-1.5 not started.",
-      "lastReviewed": "2026-08-14"
+      "reason": "Vault/campaign separation (immutable versioned templates to campaign instance copies per the 2026-08-06 council decision and D1), starmap travel economy with dynamic opportunities, and the isometric battlefield view. CAMP-01H / PR 1245 landed on main at 2a8a46183; implementation remains gated on the later parent 9.1 receipt. P1 1.3 landed 2026-09-12 as a bounded identity prerequisite only (the D3 seam in CreateCampaignPage.submit.ts, with the regression assertion); 1.1, 1.2, 1.4 and 1.5 are not started, and 1.3 does not satisfy the exact-main receipt, approval or three-witness gates. Task 1.4 already names the v2->v3 rung, which matches CURRENT_CAMPAIGN_SCHEMA_VERSION = 2 at src/lib/campaign/persistence/campaignMigration.ts:25 on main; no wording change was needed.",
+      "lastReviewed": "2026-09-15"
     },
     {
       "name": "design-campaign-authority-and-sync",
-      "status": "proposed",
-      "reason": "Server-authoritative campaign state with source/replica instance model, share grants, and scope-filtered event broadcast (GM full view, players receive only in-scope events) on the existing hash-chained SQLite event journal; driven by the 2026-08-07 visual-audit finding that campaigns are browser-local. CAMP-01H / PR 1245 landed on main at 2a8a46183; implementation remains gated on the later parent 9.1 receipt. Reconciled 2026-08-20 (council decision 2026-08-20-campaign-journal-reconciliation-and-next-work): sole surviving home for campaign journal work; absorbed the superseded adopt-campaign-event-journal-authority (design D10 + rewritten D4 + Group 5); journal-bound implementation gates on the narrow dependencies named in its tasks preamble.",
-      "lastReviewed": "2026-08-20"
+      "status": "in-progress",
+      "reason": "Server-authoritative campaign state with source/replica instance model, share grants, and scope-filtered event broadcast (GM full view, players receive only in-scope events) on the existing hash-chained SQLite event journal; driven by the 2026-08-07 visual-audit finding that campaigns are browser-local. CAMP-01H / PR 1245 landed on main at 2a8a46183; implementation remains gated on the later parent 9.1 receipt. Reconciled 2026-08-20 (council decision 2026-08-20-campaign-journal-reconciliation-and-next-work): sole surviving home for campaign journal work; absorbed the superseded adopt-campaign-event-journal-authority (design D10 + rewritten D4 + Group 5); journal-bound implementation gates on the narrow dependencies named in its tasks preamble. Reviewed 2026-09-15 against exact main: 26 of 30 boxes are checked and further work merged and main-verified this date - task 1.6 P-A discard flush (jsdom half, PR #1694), the Group 6 source-only contract projection opened by D12 with P0b landing as PRs #1686/#1687/#1688 and 6.2a market durability as PRs #1698/#1699/#1700 plus the source-row stack #1706/#1707/#1708. Still open: 1.6 (browser half owed to unmerged PRs #1710/#1711; navigation-discard residual under owner decision OD-flush-mechanism), 6.1 (the borrowed-handle CAS campaign write with a durable sourceReplayFence in CampaignPersistenceService.ts, and the baseline capture under the P0a prepared transaction), 6.2 (6.2a's client half - the acknowledged save before submitting in contract-market.tsx handleAccept - is unimplemented, and 6.2b acceptance routing is blocked on the single-player identity/seat owner decision), 6.3 and 6.4.",
+      "lastReviewed": "2026-09-15"
     },
     {
       "name": "adopt-combat-journal-cutover-and-gm-rewind",
-      "status": "proposed",
-      "reason": "Owner ruling 2026-09-04 on the 2026-09-03 inventory-and-sync council: GM combat rewind is withdrawn from harden-gm-two-player-campaign-sessions because the combat match stream is never journaled in production (finding #48) and the umbrella delta would otherwise merge SHALLs the code violates on archive. This successor owns the six match-stream journal cutover seams, the moved gm-combat-interventions requirements (preview/commit phases, replacement-branch creation and activation, STALE_BRANCH rejection, per-viewer fog rebuild), the closes of umbrella boxes 14.1/14.2/14.4/14.5 by receipt, the 80-scenario reconcile, and the un-gate of rows E2E-40 to 44 and E2E-76, which run in the umbrella as strict expected failures tagged @until-journal-cutover. Unfunded until scheduled; its box 0.1 is the first deliverable when it opens.",
-      "lastReviewed": "2026-09-04"
+      "status": "in-progress",
+      "reason": "Owner ruling 2026-09-04 on the 2026-09-03 inventory-and-sync council: GM combat rewind is withdrawn from harden-gm-two-player-campaign-sessions because the combat match stream is never journaled in production (finding #48) and the umbrella delta would otherwise merge SHALLs the code violates on archive. This successor owns the six match-stream journal cutover seams, the moved gm-combat-interventions requirements (preview/commit phases, replacement-branch creation and activation, STALE_BRANCH rejection, per-viewer fog rebuild), the closes of umbrella boxes 14.1/14.2/14.4/14.5 by receipt, the 80-scenario reconcile, and the un-gate of rows E2E-40 to 44 and E2E-76, which run in the umbrella as strict expected failures tagged @until-journal-cutover. Reviewed 2026-09-15 against exact main: the change has opened and is no longer unfunded - six prefixes are merged and main-verified (S1 #1684 95042d919, S2 #1691 823bdf3ac, S3a #1693 f8abc1844, S3b-A #1702 28e114300, S3b-B #1703 f6c5bd15a, S4-A #1704 8cacf20a6), closing boxes 0.2 and 1.2, while 0.1 (the 80-scenario reconcile) is still undelivered and 1.1/1.3/1.4 carry dated residuals (rewind-route preview unclaimed; marker retirement routed to the 1.7 cutover; S4 split B #1705 unmerged and the restart-pack-against-a-rewound-match clause unclaimed).",
+      "lastReviewed": "2026-09-15"
     },
     {
       "name": "enable-saved-custom-unit-combat",
@@ -69,8 +69,8 @@
     {
       "name": "add-customizer-pr-regression-gate",
       "status": "in-progress",
-      "reason": "User-requested customizer verification follow-up: dedicated asset-backed PR browser regressions, zero retries, required aggregator membership, scoped workflow mutation checks, and print/PDF failure-recovery coverage. Local verification and remote CI activation remain distinct.",
-      "lastReviewed": "2026-09-12"
+      "reason": "User-requested customizer verification follow-up: dedicated asset-backed PR browser regressions, zero retries, required aggregator membership, scoped workflow mutation checks, and print/PDF failure-recovery coverage. Local verification and remote CI activation remain distinct. Reviewed 2026-09-15 against exact main e7cbe9e00: all 20 tasks are checked and proven, remote CI activation included - the customizer-regressions job exists on main and is the 17th of the 19 members of the Lint and Test aggregator, and it ran SUCCESS on live PRs #1690 and #1692. Closure verdict CLOSABLE-NOW; status stays in-progress only because the change directory is not archived yet.",
+      "lastReviewed": "2026-09-15"
     }
   ]
 }

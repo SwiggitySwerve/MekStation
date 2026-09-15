@@ -6,6 +6,7 @@
  * @spec openspec/changes/add-encounter-system/specs/encounter-system/spec.md
  */
 
+import { parseCustomCombatDefinition } from '@/services/units/customCombatDefinition';
 import {
   IEncounter,
   ICreateEncounterInput,
@@ -22,6 +23,7 @@ import {
 import { IForce, ForceType, ForcePosition, ForceStatus } from '@/types/force';
 import { createGameSession } from '@/utils/gameplay/gameSessionCore';
 
+import atlas from '../../../../public/data/units/battlemechs/2-star-league/standard/Atlas AS7-D.json';
 import { IEncounterOperationResult } from '../EncounterRepository';
 
 // =============================================================================
@@ -325,6 +327,60 @@ function createMockForce(
   };
   mockForces.set(id, force);
   return force;
+}
+
+/**
+ * Build a force whose single assignment carries a saved-custom reference.
+ *
+ * Why: `assignmentsToGameUnits` stamps `unitRef` from the assignment's
+ * `unitId`, so a `custom-*` assignment id is what makes launch take the
+ * saved-construction materialization branch instead of the canonical one.
+ */
+function createMockCustomForce(
+  id: string,
+  name: string,
+  unitRef: string,
+): IForce {
+  const force: IForce = {
+    id,
+    name,
+    forceType: ForceType.Lance,
+    status: ForceStatus.Active,
+    childIds: [],
+    assignments: [
+      {
+        id: `${id}-assign-1`,
+        pilotId: `${id}-pilot-1`,
+        unitId: unitRef,
+        position: ForcePosition.Member,
+        slot: 1,
+      },
+    ],
+    stats: {
+      totalBV: 5000,
+      totalTonnage: 100,
+      assignedPilots: 1,
+      assignedUnits: 1,
+      emptySlots: 3,
+      averageSkill: { gunnery: 4, piloting: 5 },
+    },
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  };
+  mockForces.set(id, force);
+  return force;
+}
+
+/** A schema-valid saved-construction snapshot keyed to `unitRef`. */
+function customCombatSnapshotFor(unitRef: string): unknown {
+  const snapshot = parseCustomCombatDefinition(
+    { ...atlas, id: unitRef },
+    unitRef,
+  );
+  if (!snapshot) {
+    throw new Error(`expected Atlas construction to project for ${unitRef}`);
+  }
+  return snapshot;
 }
 
 function clearMocks(): void {
@@ -916,6 +972,103 @@ describe('EncounterService', () => {
 
       expect(result.success).toBe(false);
       expect(result.error).toBe('Encounter is already completed');
+    });
+
+    // =========================================================================
+    // Co-op launch revalidates custom-source authority at materialization
+    //
+    // mission-contracts "Campaign launch requires an authoritative canonical
+    // source" / Scenario "Co-op launch revalidates authority": server
+    // materialization SHALL re-resolve the selected saved construction
+    // before recording combat, and SHALL NOT fall back to a stock unit.
+    // =========================================================================
+
+    it('rejects a co-op launch whose custom-source reference no longer resolves at materialization time', async () => {
+      const playerForce = createMockCustomForce(
+        'force-coop-host',
+        'Co-op Host Lance',
+        'custom-coop-atlas',
+      );
+      const opponentForce = createMockForce('force-o', 'Opponent');
+      const createResult = service.createEncounter({
+        name: 'Co-op Stale Custom Launch',
+        template: ScenarioTemplateType.Skirmish,
+      });
+      service.setPlayerForce(createResult.id!, playerForce.id);
+      service.setOpponentForce(createResult.id!, opponentForce.id);
+
+      // The design was deleted from the library after readiness admitted
+      // it, so the authoritative reader no longer resolves the reference.
+      const result = await service.launchEncounter(createResult.id!, {
+        readCustom: async () => null,
+      });
+
+      expect(result.success).toBe(false);
+      expect(result.error).toContain('custom-coop-atlas');
+      expect(result.error).toContain('no authoritative definition');
+      expect(createGameSession).not.toHaveBeenCalled();
+    });
+
+    it('rejects a co-op launch whose custom-source reference resolves to a foreign identity', async () => {
+      const playerForce = createMockCustomForce(
+        'force-coop-host',
+        'Co-op Host Lance',
+        'custom-coop-atlas',
+      );
+      const opponentForce = createMockForce('force-o', 'Opponent');
+      const createResult = service.createEncounter({
+        name: 'Co-op Foreign Custom Launch',
+        template: ScenarioTemplateType.Skirmish,
+      });
+      service.setPlayerForce(createResult.id!, playerForce.id);
+      service.setOpponentForce(createResult.id!, opponentForce.id);
+
+      // Another owner's saved design answered the lookup. Identity is the
+      // source unitRef, so the mismatch must refuse rather than record it.
+      const result = await service.launchEncounter(createResult.id!, {
+        readCustom: async () => customCombatSnapshotFor('custom-other-owner'),
+      });
+
+      expect(result.success).toBe(false);
+      expect(result.error).toContain('identity mismatch');
+      expect(createGameSession).not.toHaveBeenCalled();
+    });
+
+    it('materializes a co-op launch whose custom-source reference still resolves exactly', async () => {
+      const playerForce = createMockCustomForce(
+        'force-coop-host',
+        'Co-op Host Lance',
+        'custom-coop-atlas',
+      );
+      const opponentForce = createMockForce('force-o', 'Opponent');
+      const createResult = service.createEncounter({
+        name: 'Co-op Valid Custom Launch',
+        template: ScenarioTemplateType.Skirmish,
+      });
+      service.setPlayerForce(createResult.id!, playerForce.id);
+      service.setOpponentForce(createResult.id!, opponentForce.id);
+
+      const result = await service.launchEncounter(createResult.id!, {
+        readCustom: async (unitId: string) =>
+          unitId === 'custom-coop-atlas'
+            ? customCombatSnapshotFor('custom-coop-atlas')
+            : null,
+      });
+
+      expect(result.success).toBe(true);
+      expect(createGameSession).toHaveBeenCalledTimes(1);
+      const sessionUnits = (createGameSession as jest.Mock).mock.calls.at(
+        -1,
+      )?.[1] as readonly {
+        unitRef: string;
+        customUnitDefinition?: { id?: string };
+      }[];
+      const custom = sessionUnits.find(
+        (unit) => unit.unitRef === 'custom-coop-atlas',
+      );
+      // The recorded snapshot is the selected construction, never a stock
+      // stand-in with the same chassis.
+      expect(custom?.customUnitDefinition?.id).toBe('custom-coop-atlas');
     });
   });
 
