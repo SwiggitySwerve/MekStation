@@ -377,6 +377,35 @@ describe('accepted contract materializes into the source record', () => {
     expect(after.version).toBe(before.version);
   });
 
+  it('(c2) refuses a body whose market is structurally wrong, appending nothing', async () => {
+    seedSourceRecord({ missions: [], contractMarket: { offers: 'nope' } });
+
+    const result = await run(acceptContract(STORED_ID), 'cmd-bad-market');
+
+    expect(result).toStrictEqual({
+      kind: 'offer-not-durable',
+      contractId: STORED_ID,
+      reason: 'source-record-absent',
+    });
+    expect(await journal.getCommandReceipt('cmd-bad-market')).toBeNull();
+  });
+
+  it('(c3) refuses a body whose missions field is not the serialized map, appending nothing', async () => {
+    seedSourceRecord({
+      missions: { not: 'a map' },
+      contractMarket: { offers: [offer(STORED_ID)], declinedOfferIds: [] },
+    });
+
+    const result = await run(acceptContract(STORED_ID), 'cmd-bad-missions');
+
+    expect(result).toStrictEqual({
+      kind: 'offer-not-durable',
+      contractId: STORED_ID,
+      reason: 'source-record-absent',
+    });
+    expect(await journal.getCommandReceipt('cmd-bad-missions')).toBeNull();
+  });
+
   it('(f) refuses a stored record whose authority parses as a replica, appending nothing', async () => {
     seedSourceRecord(
       {
@@ -503,5 +532,33 @@ describe('accepted contract materializes into the source record', () => {
     const after = readRow(db);
     expect(after.payload).toBe(before.payload);
     expect(after.version).toBe(before.version);
+  });
+
+  it('(e) answers the SAME actor re-submitting a committed acceptance from the reduced market, not the command log', async () => {
+    seedSourceRecord({
+      missions: [],
+      contractMarket: { offers: [offer(STORED_ID)], declinedOfferIds: [] },
+    });
+    const first = await run(acceptContract(STORED_ID), 'cmd-retry', AUTHOR);
+    expect(first.kind).toBe('committed');
+    const db = getSQLiteService().getDatabase();
+    const afterFirst = readRow(db);
+
+    // Consequence of the row write, pinned so it is a decision rather than a
+    // surprise: `prepare` reads the market BEFORE the append can consult the
+    // command log, so this retry refuses `offer-absent` where it previously
+    // answered `duplicate` (the identity arm - the retry's events carry new
+    // sequences, so its command digest differs from the committed one).
+    // Exactly-once is 6.2b's to own; what matters here is that the retry
+    // writes NOTHING a second time, and says so in the offer's vocabulary.
+    const retry = await run(acceptContract(STORED_ID), 'cmd-retry', AUTHOR);
+    expect(retry).toStrictEqual({
+      kind: 'offer-not-durable',
+      contractId: STORED_ID,
+      reason: 'offer-absent',
+    });
+    const afterRetry = readRow(db);
+    expect(afterRetry.version).toBe(afterFirst.version);
+    expect(afterRetry.payload).toBe(afterFirst.payload);
   });
 });
