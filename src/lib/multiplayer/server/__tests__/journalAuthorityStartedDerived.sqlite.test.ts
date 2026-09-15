@@ -47,7 +47,7 @@ import {
   _resetProcessShadowStatsForTests,
   _setCombatJournalAuthorityModeForTests,
 } from '../matchJournalAuthority';
-import { isMatchJournalAuthorityStartedDerived } from '../matchJournalAuthorityStartedDerived';
+import { deriveMatchJournalAuthorityStartedHead } from '../matchJournalAuthorityStartedDerived';
 
 const MATCH_ID = 'match-derived-started';
 const AT = '2026-09-15T00:00:00.000Z';
@@ -126,8 +126,17 @@ function marker(): Promise<IMatchJournalAuthorityStarted | null> {
   return store.getJournalAuthorityStarted(MATCH_ID);
 }
 
+/**
+ * The boolean these rows are written around, projected at the CALL SITE
+ * now that the module offers only the outcome. S7-b retired the
+ * exported projection: a second export of the same question is the
+ * drift task 1.3 removes, and a test helper cannot drift from
+ * production because nothing in production reads it.
+ */
 function derived(): boolean {
-  return isMatchJournalAuthorityStartedDerived(store, MATCH_ID);
+  return (
+    deriveMatchJournalAuthorityStartedHead(store, MATCH_ID).kind === 'started'
+  );
 }
 
 beforeEach(async () => {

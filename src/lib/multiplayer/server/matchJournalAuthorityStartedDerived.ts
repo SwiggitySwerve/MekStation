@@ -122,21 +122,3 @@ export function deriveMatchJournalAuthorityStartedHead(
     },
   };
 }
-
-/**
- * True when the match's stream has an effective head installed by the
- * mirror.
- *
- * A thin projection of the outcome above so the two answers cannot
- * drift. An `unavailable` store answers false here: callers that only
- * want a boolean are not deciding the one-way legacy/journal boundary,
- * and the recovery site that IS deciding it reads the outcome instead.
- */
-export function isMatchJournalAuthorityStartedDerived(
-  store: object,
-  matchId: string,
-): boolean {
-  return (
-    deriveMatchJournalAuthorityStartedHead(store, matchId).kind === 'started'
-  );
-}
