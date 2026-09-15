@@ -205,6 +205,17 @@ export default async function handler(
           revision: result.revision,
         });
         return;
+      case 'offer-not-durable':
+        // 409, not 422: the campaign did not break a rule. The offer this
+        // command names has not reached the source record yet, which an
+        // acknowledged save fixes - so the client must be able to tell
+        // this apart from a rules refusal it can never retry past.
+        res.status(409).json({
+          kind: 'offer-not-durable',
+          contractId: result.contractId,
+          reason: result.reason,
+        });
+        return;
       case 'divergent':
         res.status(500).json({
           kind: 'divergent',
