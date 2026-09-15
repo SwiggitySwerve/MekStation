@@ -1,0 +1,201 @@
+{
+  "recordedAt": "2026-09-12T17:41:20.699Z",
+  "node": "R9.equipment-loader",
+  "pr": 1640,
+  "prHead": "b909a164ef78fef53f87818405ab7643974dd551",
+  "mergeCommit": "a538a2d3b2b05252e1c80cc60395c72953f4c979",
+  "testedMain": "a538a2d3b2b05252e1c80cc60395c72953f4c979",
+  "checkout": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\equipment-loader",
+  "files": [
+    {
+      "path": "src/services/equipment/EquipmentOfficialLoader.ts",
+      "sha256": "92b520e154648bae97219f3d92c3fb7521a99e9f9fc51e2a1b1c4c039c4d73fb"
+    },
+    {
+      "path": "src/services/equipment/EquipmentLoaderService.ts",
+      "sha256": "5bbdcbb90898beee29a4dd4677de9498efb890235e410cc175391711fbb47b9c"
+    },
+    {
+      "path": "src/services/equipment/__tests__/EquipmentOfficialLoader.failure.test.ts",
+      "sha256": "b4a6dd8c09d9ba15519e48964a5860f5884c9ca3d35541d26a98cad75823586f"
+    }
+  ],
+  "focused": "3 suites,109 tests passed on exact merged main",
+  "steps": [
+    {
+      "name": "focused",
+      "executable": "C:\\nvm4w\\nodejs\\node.exe",
+      "args": [
+        "node_modules/jest/bin/jest.js",
+        "--runInBand",
+        "--selectProjects",
+        "unit",
+        "--runTestsByPath",
+        "src/services/equipment/__tests__/EquipmentOfficialLoader.failure.test.ts",
+        "src/__tests__/service/equipment/EquipmentLoaderService.test.ts",
+        "src/services/equipment/__tests__/EquipmentLoaderService.schemaBridge.test.ts"
+      ],
+      "startedAt": "2026-09-12T17:31:29.305Z",
+      "log": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\equipment-loader-checks\\main-1-static-focused.log",
+      "running": false,
+      "pid": 19832,
+      "code": 0,
+      "finishedAt": "2026-09-12T17:31:46.466Z",
+      "logSha256": "1fa434df6ab33725aacc70ce6518260e1dab5b6bfb7212f133697a8871285c53"
+    },
+    {
+      "name": "typecheck",
+      "executable": "C:\\nvm4w\\nodejs\\node.exe",
+      "args": [
+        "C:/nvm4w/nodejs/node_modules/npm/bin/npm-cli.js",
+        "run",
+        "typecheck"
+      ],
+      "startedAt": "2026-09-12T17:31:46.471Z",
+      "log": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\equipment-loader-checks\\main-1-static-typecheck.log",
+      "running": false,
+      "pid": 69316,
+      "code": 0,
+      "finishedAt": "2026-09-12T17:31:57.056Z",
+      "logSha256": "d140a6ce62dda0946fe30dd882dbb8209f05be72c8fa8850e5634755a399e50f"
+    },
+    {
+      "name": "lint",
+      "executable": "C:\\nvm4w\\nodejs\\node.exe",
+      "args": [
+        "C:/nvm4w/nodejs/node_modules/npm/bin/npm-cli.js",
+        "run",
+        "lint"
+      ],
+      "startedAt": "2026-09-12T17:31:57.063Z",
+      "log": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\equipment-loader-checks\\main-1-static-lint.log",
+      "running": false,
+      "pid": 18100,
+      "code": 0,
+      "finishedAt": "2026-09-12T17:31:58.306Z",
+      "logSha256": "c535d93645653127a6e5ccb68904a8d98e70ead598d76cca163986eb3259c2dd"
+    },
+    {
+      "name": "format",
+      "executable": "C:\\nvm4w\\nodejs\\node.exe",
+      "args": [
+        "C:/nvm4w/nodejs/node_modules/npm/bin/npm-cli.js",
+        "run",
+        "format:check"
+      ],
+      "startedAt": "2026-09-12T17:31:58.311Z",
+      "log": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\equipment-loader-checks\\main-1-static-format.log",
+      "running": false,
+      "pid": 64392,
+      "code": 0,
+      "finishedAt": "2026-09-12T17:32:14.256Z",
+      "logSha256": "e97a336888e1bdfeaa41624dc1ba10e4cba406cb706a83440945665f001d3fbb"
+    },
+    {
+      "name": "specs",
+      "executable": "C:\\nvm4w\\nodejs\\node.exe",
+      "args": [
+        "C:/Users/wroll/AppData/Roaming/npm/node_modules/@fission-ai/openspec/bin/openspec.js",
+        "validate",
+        "--all",
+        "--strict"
+      ],
+      "startedAt": "2026-09-12T17:32:14.259Z",
+      "log": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\equipment-loader-checks\\main-1-static-specs.log",
+      "running": false,
+      "pid": 16336,
+      "code": 0,
+      "finishedAt": "2026-09-12T17:32:15.394Z",
+      "logSha256": "e21ee5a93b949a4d54b08178b22d10d3ab304c1b55e46a00f05c1cfc9b56c76e"
+    },
+    {
+      "name": "purpose",
+      "executable": "C:\\nvm4w\\nodejs\\node.exe",
+      "args": [
+        "C:/nvm4w/nodejs/node_modules/npm/bin/npm-cli.js",
+        "run",
+        "spec:purpose:validate:strict"
+      ],
+      "startedAt": "2026-09-12T17:32:15.400Z",
+      "log": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\equipment-loader-checks\\main-1-static-purpose.log",
+      "running": false,
+      "pid": 31456,
+      "code": 0,
+      "finishedAt": "2026-09-12T17:32:16.844Z",
+      "logSha256": "8820e4f93b604d425ca370d68ccd79b089ba5ec1d72ce47be48013f58726b888"
+    },
+    {
+      "name": "terminology",
+      "executable": "C:\\nvm4w\\nodejs\\node.exe",
+      "args": [
+        "C:/nvm4w/nodejs/node_modules/npm/bin/npm-cli.js",
+        "run",
+        "terminology:validate:strict"
+      ],
+      "startedAt": "2026-09-12T17:32:16.848Z",
+      "log": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\equipment-loader-checks\\main-1-static-terminology.log",
+      "running": false,
+      "pid": 61268,
+      "code": 0,
+      "finishedAt": "2026-09-12T17:32:25.614Z",
+      "logSha256": "2c2329c7066c5097a2fb0cdebc02bbe66178a414ffbd8f96574569ce4b31c7a1"
+    },
+    {
+      "name": "ci-qc",
+      "executable": "C:\\nvm4w\\nodejs\\node.exe",
+      "args": [
+        "C:/nvm4w/nodejs/node_modules/npm/bin/npm-cli.js",
+        "run",
+        "qc:openspec-ci:validate"
+      ],
+      "startedAt": "2026-09-12T17:32:25.621Z",
+      "log": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\equipment-loader-checks\\main-1-static-ci-qc.log",
+      "running": false,
+      "pid": 43404,
+      "code": 0,
+      "finishedAt": "2026-09-12T17:32:25.900Z",
+      "logSha256": "f01feb11318234aab4764fe76151b78c06905527212a8f8723626fcf616b71d6"
+    },
+    {
+      "name": "build",
+      "executable": "C:\\nvm4w\\nodejs\\node.exe",
+      "args": [
+        "C:/nvm4w/nodejs/node_modules/npm/bin/npm-cli.js",
+        "run",
+        "build"
+      ],
+      "startedAt": "2026-09-12T17:35:13.941Z",
+      "log": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\equipment-loader-checks\\main-1-build-build.log",
+      "running": false,
+      "pid": 69992,
+      "code": 0,
+      "finishedAt": "2026-09-12T17:37:14.794Z",
+      "logSha256": "935701e23b11b01e0c40b80dcb12bb0d68a1939705bd9cfa75175040c17e430c"
+    }
+  ],
+  "statusArtifacts": [
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/equipment-loader-checks/main-1-static-status.json",
+      "sha256": "b998eb220ae75eef8a94f460cae108ffda47b84f5c1e559dee0bdd276f352654"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/equipment-loader-checks/main-1-build-status.json",
+      "sha256": "d552723c6412807deae342a6edaa705936b742d1a753deb777330568fd678451"
+    }
+  ],
+  "allNineGatesPassed": true,
+  "sourceTreeEqualsReviewedCandidate": true,
+  "mergeEvidence": "equipment-loader-merge-20260912.json",
+  "cleanupStatus": "admitted after export/read-back; not yet executed",
+  "ownedIgnoredManifest": [
+    "!! .husky/_/",
+    "!! .next/",
+    "!! node_modules/",
+    "!! tsconfig.tsbuildinfo"
+  ],
+  "limits": [
+    "No overlapping test totals added",
+    "Partial-load diagnostics boundary only; broader catalog-schema, reload coordination and browser behavior are not claimed",
+    "Raw log files remain in ignored parent evidence directory, not in Git"
+  ]
+}

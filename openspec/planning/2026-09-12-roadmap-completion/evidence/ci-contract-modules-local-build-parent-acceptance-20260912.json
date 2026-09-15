@@ -1,0 +1,26 @@
+{
+  "acceptedAt": "2026-09-12T20:59:04.063Z",
+  "head": "6573e98e65a631963c5b0a980f3a724ba7d37989",
+  "receipt": "ci-contract-modules-local-build-20260912.json",
+  "receiptSha256": "136cc19b29ebfce3a9f7c4f17e0730401254994e26939dee1e6005908b37886d",
+  "correction": "ci-contract-modules-local-build-20260912-correction.json",
+  "correctionSha256": "48bc0460845b5e07bafa107d5bc19826d669aa0ebaa5009ab70be98e5c12c90f",
+  "rehashedArtifacts": 200,
+  "assertions": {
+    "sourceHashesUnchanged": true,
+    "yamlUnchanged": true,
+    "candidateRuntimeUnchanged": true,
+    "rootRuntimeUnchanged": true,
+    "candidateGitStatusUnchanged": true,
+    "rootGitStatusUnchanged": true,
+    "noE2eEnvironmentFlags": true
+  },
+  "absentPids": [
+    35192,
+    66460
+  ],
+  "limits": [
+    "This is candidate-local proof on the current integrated base.",
+    "Remote CI and independent main-branch production proof remain pending parent acceptance and publication."
+  ]
+}

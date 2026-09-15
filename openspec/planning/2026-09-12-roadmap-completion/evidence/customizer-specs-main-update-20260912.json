@@ -1,0 +1,34 @@
+{
+  "recordedAt": "2026-09-12T17:50:33.845Z",
+  "pr": 1641,
+  "previousHead": "06d423d5a8139fa1532349e91a1ec209cca2a000",
+  "head": "eece56d47e394d2b7d46e44d66d9166664b7f606",
+  "base": "a538a2d3b2b05252e1c80cc60395c72953f4c979",
+  "method": "GitHub merge update with expected_head_sha; local fast-forward only",
+  "parentReview": "Exact five source hashes unchanged; only accepted loader main integrated",
+  "files": [
+    {
+      "path": "openspec/specs/aerospace-unit-system/spec.md",
+      "sha256": "c664246362054e9bc183381d99c60f106eb349e0d186cdc467534170fbaad0b3"
+    },
+    {
+      "path": "openspec/specs/app-settings/spec.md",
+      "sha256": "65dc02ac16a000a0322c71b173f88a59ca8e9f56f37ee40a74bf6d18f290d5a6"
+    },
+    {
+      "path": "openspec/specs/critical-slots-display/spec.md",
+      "sha256": "08abd446de493fc1191e9b911368b5f8a66d7311da27694d04a7297cca5b0e4e"
+    },
+    {
+      "path": "openspec/specs/equipment-tray/spec.md",
+      "sha256": "cebacfa9f94c801f2e8e137c1342793d8db73290e9795f2ad23010b2d3a8fdc5"
+    },
+    {
+      "path": "openspec/specs/protomech-unit-system/spec.md",
+      "sha256": "191c5b3536c66d26dadac03da3f6de172574171ce1359ee3441120d308e1d8e8"
+    }
+  ],
+  "limits": [
+    "All required new-head checks must pass before guarded merge"
+  ]
+}

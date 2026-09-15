@@ -1,0 +1,248 @@
+{
+  "schemaVersion": 1,
+  "evidenceId": "campaign-contracts-delivery-preflight-20260912",
+  "status": "ready-for-parent-commit",
+  "capturedAt": "2026-09-12T21:24:32.789Z",
+  "candidate": {
+    "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/campaign-contracts",
+    "oldBase": "d3540bfea33a2ba8eb86d28759743590615f7c53",
+    "targetBase": "da524f7f501b0485e3d8e67e973fce075670922c",
+    "head": "da524f7f501b0485e3d8e67e973fce075670922c"
+  },
+  "disjointBaseAdvance": {
+    "command": [
+      "git.exe",
+      "diff",
+      "--name-only",
+      "d3540bfea33a2ba8eb86d28759743590615f7c53..da524f7f501b0485e3d8e67e973fce075670922c"
+    ],
+    "paths": [
+      "package-lock.json",
+      "package.json",
+      "scripts/qc/openspec-ci-contracts.mjs",
+      "scripts/qc/openspec-workflow-contracts.mjs"
+    ],
+    "raw": {
+      "path": "base-advance-disjoint.stdout.log",
+      "bytes": 111,
+      "sha256": "b005714716d456c24c6a47498b8cba028b97c96a4b222d8296f8f247bee2ab70"
+    }
+  },
+  "checks": [
+    {
+      "name": "openspec-strict",
+      "command": [
+        "C:/nvm4w/nodejs/node.exe",
+        "C:/Users/wroll/AppData/Roaming/npm/node_modules/@fission-ai/openspec/bin/openspec.js",
+        "validate",
+        "design-campaign-authority-and-sync",
+        "--strict"
+      ],
+      "cwd": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/campaign-contracts",
+      "exitCode": 0,
+      "signal": null,
+      "spawnError": null,
+      "stdout": {
+        "path": "openspec-strict.stdout.log",
+        "bytes": 53,
+        "sha256": "96dbe86c53dde147f419cc23e062ad0fb400e9f7d0a146f204162c5944e56876"
+      },
+      "stderr": {
+        "path": "openspec-strict.stderr.log",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "purpose-strict",
+      "command": [
+        "C:/nvm4w/nodejs/node.exe",
+        "C:/nvm4w/nodejs/node_modules/npm/bin/npm-cli.js",
+        "run",
+        "spec:purpose:validate:strict"
+      ],
+      "cwd": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/campaign-contracts",
+      "exitCode": 0,
+      "signal": null,
+      "spawnError": null,
+      "stdout": {
+        "path": "purpose-strict.stdout.log",
+        "bytes": 306,
+        "sha256": "10c8840a149879f766cb98639dbb45a69b11e8b85bfb5f2807c98417359cbfe9"
+      },
+      "stderr": {
+        "path": "purpose-strict.stderr.log",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "terminology-strict",
+      "command": [
+        "C:/nvm4w/nodejs/node.exe",
+        "C:/nvm4w/nodejs/node_modules/npm/bin/npm-cli.js",
+        "run",
+        "terminology:validate:strict"
+      ],
+      "cwd": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/campaign-contracts",
+      "exitCode": 0,
+      "signal": null,
+      "spawnError": null,
+      "stdout": {
+        "path": "terminology-strict.stdout.log",
+        "bytes": 311,
+        "sha256": "f900b2f139d48a4fce3da66f12105cdd633a1cfe6dc8102211bcf03cc6a1cce7"
+      },
+      "stderr": {
+        "path": "terminology-strict.stderr.log",
+        "bytes": 576,
+        "sha256": "7ed41b4d1c40dd49d7f7197a3dd0084836ae94a552c9cfa9984ffe42957cc1b9"
+      }
+    },
+    {
+      "name": "candidate-qc",
+      "command": [
+        "C:/nvm4w/nodejs/node.exe",
+        "C:/nvm4w/nodejs/node_modules/npm/bin/npm-cli.js",
+        "run",
+        "qc:openspec-ci:validate"
+      ],
+      "cwd": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/campaign-contracts",
+      "exitCode": 0,
+      "signal": null,
+      "spawnError": null,
+      "stdout": {
+        "path": "candidate-qc.stdout.log",
+        "bytes": 268,
+        "sha256": "f01feb11318234aab4764fe76151b78c06905527212a8f8723626fcf616b71d6"
+      },
+      "stderr": {
+        "path": "candidate-qc.stderr.log",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "staged-diff-check",
+      "command": [
+        "git.exe",
+        "diff",
+        "--cached",
+        "--check",
+        "--",
+        "openspec/changes/design-campaign-authority-and-sync/proposal.md",
+        "openspec/changes/design-campaign-authority-and-sync/design.md",
+        "openspec/changes/design-campaign-authority-and-sync/tasks.md"
+      ],
+      "cwd": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/campaign-contracts",
+      "exitCode": 0,
+      "signal": null,
+      "spawnError": null,
+      "stdout": {
+        "path": "staged-diff-check.stdout.log",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stderr": {
+        "path": "staged-diff-check.stderr.log",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    }
+  ],
+  "sourceHashes": {
+    "openspec/changes/design-campaign-authority-and-sync/proposal.md": {
+      "workingTreeSha256": "fada46aab39743c6a1ab375693abf8fe8710dfb00c4024d24dea38666c12da92",
+      "stagedBytesSha256": "fada46aab39743c6a1ab375693abf8fe8710dfb00c4024d24dea38666c12da92",
+      "stagedObjectSha256": "bf78d96e701ae3e60eee2356d21edb3f57a3f0f2",
+      "bytes": 6376
+    },
+    "openspec/changes/design-campaign-authority-and-sync/design.md": {
+      "workingTreeSha256": "c47040115b4bfd21b011230c9101be4e273f1667c0e33d7692b5fc59abb45064",
+      "stagedBytesSha256": "c47040115b4bfd21b011230c9101be4e273f1667c0e33d7692b5fc59abb45064",
+      "stagedObjectSha256": "107628891a74c1b1bbde1ed4a4851fbc79f79f04",
+      "bytes": 15082
+    },
+    "openspec/changes/design-campaign-authority-and-sync/tasks.md": {
+      "workingTreeSha256": "9eefb5fa17acddd89253e91f182f4349553cfe5b66d08ba1fe61ccaa9c9223ea",
+      "stagedBytesSha256": "9eefb5fa17acddd89253e91f182f4349553cfe5b66d08ba1fe61ccaa9c9223ea",
+      "stagedObjectSha256": "8656ea89d9854190b0db4395ebe91c35d1ef13f5",
+      "bytes": 97659
+    }
+  },
+  "staged": {
+    "paths": [
+      "openspec/changes/design-campaign-authority-and-sync/design.md",
+      "openspec/changes/design-campaign-authority-and-sync/proposal.md",
+      "openspec/changes/design-campaign-authority-and-sync/tasks.md"
+    ],
+    "numstat": [
+      "1\t1\topenspec/changes/design-campaign-authority-and-sync/design.md",
+      "1\t1\topenspec/changes/design-campaign-authority-and-sync/proposal.md",
+      "2\t0\topenspec/changes/design-campaign-authority-and-sync/tasks.md"
+    ],
+    "changedLines": 6,
+    "status": {
+      "path": "candidate-status.stdout.log",
+      "bytes": 196,
+      "sha256": "3eaba0626350aec935d8fd2041ea9fe6af2ac9f440a3d3f871e76e724461527c"
+    },
+    "names": {
+      "path": "staged-names.stdout.log",
+      "bytes": 187,
+      "sha256": "00dd0957c46a09b2ab536fb7d010ece78a6561fcc4405df33ac5e0acd95baf8b"
+    },
+    "numstatLog": {
+      "path": "staged-numstat.stdout.log",
+      "bytes": 199,
+      "sha256": "cb0952f8f3507391d1a3bee7c0a9117fa89c07a2d2a59bb17b2e625551595f01"
+    }
+  },
+  "hook": {
+    "coreHooksPath": ".husky/_",
+    "sourcePath": ".husky/pre-commit",
+    "sourceSha256": "e69afc50012b56535dbccd3e19d963820d66d72b6bfe86572341857c7c3ff2c6",
+    "generatedPath": ".husky/_/pre-commit",
+    "generatedSha256": "34fe496008be71d8fdd446b2cce81e4bb0406109c130eafc583fbd9fe33244e2",
+    "runtime": "root node_modules/husky/bin.js used; no install"
+  },
+  "dependencyMetadata": {
+    "packageDiffAgainstOriginMain": {
+      "path": "package-origin-main.diff.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "packageDiffExpectedOutsideScope": true
+  },
+  "review": {
+    "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/campaign-contracts-independent-review-20260912.json",
+    "sha256": "e75644cbc238179f6348fb5f843ef90fe648d6de38f2a492e3c5a76c929f92a0"
+  },
+  "formatter": {
+    "status": "qualified-excluded",
+    "reason": "OpenSpec is listed in both .oxfmtignore and .prettierignore; staged git diff --check passed."
+  },
+  "prBody": {
+    "text": "## Campaign contract wording repair\n\nQualifies the dated browser-local campaign audit as historical motivation, records current server-backed campaign read/save/load/route behavior, and keeps browser storage as cache/legacy-adoption input. Separates the historical CAMP-01F/G/H implementation opening from current exact-main receipts, eligible approval, CAMP three-witness, and disabled journal-authority gates.\n\nValidation: focused strict OpenSpec, purpose, terminology, candidate CI-contract QC, and staged diff checks passed.\n\nLimits: this documentation delivery does not claim production journal cutover, live two-process convergence, or current CAMP authority acceptance.",
+    "sha256": "f708e48c9bda19545d960d626180b18b0b8843cd95d2d4e838af82a825980267"
+  },
+  "assertions": {
+    "targetHead": true,
+    "baseAdvanceDisjoint": true,
+    "statusExactlyOwned": true,
+    "stagedExactlyOwned": true,
+    "changedLinesExpected": true,
+    "sourceHashes64": true,
+    "workingMatchesStaged": true,
+    "reviewAccepted": true,
+    "normalHookPrepared": true,
+    "noHookBypass": true,
+    "docChecksPassed": true,
+    "formatterQualifiedExcluded": true,
+    "noPackageStaging": true
+  },
+  "limits": [
+    "Preflight only; no commit or push was performed.",
+    "Remote CI, production journal cutover, live two-process convergence, and current CAMP authority acceptance remain open."
+  ]
+}

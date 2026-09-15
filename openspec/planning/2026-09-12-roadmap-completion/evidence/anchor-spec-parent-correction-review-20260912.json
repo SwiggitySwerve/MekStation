@@ -1,0 +1,141 @@
+{
+  "schemaVersion": 1,
+  "receiptId": "anchor-spec-parent-correction-review-20260912",
+  "status": "ready_for_parent_acceptance",
+  "candidate": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/spec-source-anchors",
+  "head": "e58642acede495c45b3b4d4e606dffaa52ccab18",
+  "branch": "codex/roadmap-spec-source-anchors-20260912",
+  "scope": {
+    "acceptedFiles": [
+      "openspec/specs/auto-save-persistence/spec.md",
+      "openspec/specs/battle-armor-unit-system/spec.md",
+      "openspec/specs/toast-notifications/spec.md",
+      "openspec/specs/utility-patterns/spec.md",
+      "openspec/specs/vehicle-unit-system/spec.md"
+    ],
+    "stagedExactFive": true,
+    "unstagedCandidateChanges": false,
+    "productSourceEdited": false,
+    "mainPrefixChangedLines": 229,
+    "currentStagedChangedLines": 235,
+    "currentStagedInsertions": 127,
+    "currentStagedDeletions": 108,
+    "exactDiffCap": 350,
+    "withinExactDiffCap": true
+  },
+  "parentCorrection": {
+    "lane": "grok-autosave-history-1",
+    "status": "finished",
+    "code": 0,
+    "finishedAt": "2026-09-12T20:59:12.265Z",
+    "driverPid": 55976,
+    "childPid": 35180,
+    "statusSha256": "e3f96a52ee6db4d390fe0f31b4cd169880f85ae13e7e63bb2ea7524706a42da8",
+    "eventsSha256": "cc0b103632de7942c388a32884aef00d00b22560e951e5b6296aaed38121bf88",
+    "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "beforeSpec": {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/grok-autosave-history-1/before-spec.md",
+      "sha256": "67340c792bb73b99ad94bc1452d85f7624aa49785b64a92ed5e736f4c9e664cc",
+      "bytes": 29862,
+      "lineEndings": "CRLF",
+      "crlfCount": 783
+    },
+    "candidateWorking": {
+      "sha256": "306107c87f251545f6751a2d64b9a708d29a90a21e47fe3d216278f84c2fd5e8",
+      "bytes": 29947,
+      "lineEndings": "CRLF",
+      "crlfCount": 787
+    },
+    "candidateIndexAfterRestage": {
+      "sha256": "a2688cf3b5f710d2ecf6e21780e80e33728dcc46817df121cd661b626519da69",
+      "bytes": 29160,
+      "lineEndings": "LF",
+      "lfCount": 787,
+      "eolNormalizationOnly": true
+    },
+    "literalCorrectionDiff": {
+      "insertions": 7,
+      "deletions": 3,
+      "changedBlocks": 4,
+      "verifiedChanges": [
+        "Version 1.0 -> 1.1",
+        "Last Updated 2026-02-13 -> 2026-09-12",
+        "new Version 1.1 (2026-09-12) entry",
+        "restored original Version 1.0 historical auto-save bullet"
+      ],
+      "otherBehavioralClausesChanged": false
+    }
+  },
+  "acceptedFileHashes": [
+    {
+      "file": "openspec/specs/auto-save-persistence/spec.md",
+      "priorWorkingSha256": "67340c792bb73b99ad94bc1452d85f7624aa49785b64a92ed5e736f4c9e664cc",
+      "currentWorkingSha256": "306107c87f251545f6751a2d64b9a708d29a90a21e47fe3d216278f84c2fd5e8",
+      "currentIndexSha256": "a2688cf3b5f710d2ecf6e21780e80e33728dcc46817df121cd661b626519da69"
+    },
+    {
+      "file": "openspec/specs/battle-armor-unit-system/spec.md",
+      "priorWorkingSha256": "3223fcc7ca638ba7b832bf94154a423a13ca7269b05653a846b8f7982b0cdd14",
+      "currentWorkingSha256": "3223fcc7ca638ba7b832bf94154a423a13ca7269b05653a846b8f7982b0cdd14",
+      "currentIndexSha256": "3223fcc7ca638ba7b832bf94154a423a13ca7269b05653a846b8f7982b0cdd14"
+    },
+    {
+      "file": "openspec/specs/toast-notifications/spec.md",
+      "priorWorkingSha256": "5cd76fa006d8f107cc0fafcffe102168b66843785e02ca30bfd365ba09437d21",
+      "currentWorkingSha256": "5cd76fa006d8f107cc0fafcffe102168b66843785e02ca30bfd365ba09437d21",
+      "currentIndexSha256": "5cd76fa006d8f107cc0fafcffe102168b66843785e02ca30bfd365ba09437d21"
+    },
+    {
+      "file": "openspec/specs/utility-patterns/spec.md",
+      "priorWorkingSha256": "e76d729a60a426b218a29fb5b9bcd4ac4f933b8028ccf453446922982f51b985",
+      "currentWorkingSha256": "e76d729a60a426b218a29fb5b9bcd4ac4f933b8028ccf453446922982f51b985",
+      "currentIndexSha256": "e76d729a60a426b218a29fb5b9bcd4ac4f933b8028ccf453446922982f51b985"
+    },
+    {
+      "file": "openspec/specs/vehicle-unit-system/spec.md",
+      "priorWorkingSha256": "213363c794edaa1ffa9eb00df8c759cfd5e8c06bf78f7e61a48b8617bbc32b8d",
+      "currentWorkingSha256": "213363c794edaa1ffa9eb00df8c759cfd5e8c06bf78f7e61a48b8617bbc32b8d",
+      "currentIndexSha256": "213363c794edaa1ffa9eb00df8c759cfd5e8c06bf78f7e61a48b8617bbc32b8d"
+    }
+  ],
+  "targetedChecks": {
+    "strictAutoSave": {
+      "command": "C:/nvm4w/nodejs/node.exe C:/Users/wroll/AppData/Roaming/npm/node_modules/@fission-ai/openspec/bin/openspec.js validate auto-save-persistence --type spec --strict",
+      "exitCode": 0,
+      "stdoutSha256": "fc632f645577e2a4007d5efd99d17e9dcc1c29d5c0161c37448a77522dc84762",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "workingDiffCheck": {"exitCode": 0,"stdoutSha256":"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855","stderrSha256":"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"},
+    "stagedDiffCheck": {"exitCode": 0,"stdoutSha256":"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855","stderrSha256":"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"},
+    "explicitAutoSavePrettierAdvisory": {"exitCode": 0,"stdoutSha256":"17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20","stderrSha256":"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"}
+  },
+  "carriedForwardChecks": {
+    "source": "E:/Projects/MekStation/openspec/planning/2026-09-12-roadmap-completion/evidence/source-anchors-delivery-preflight-20260912.json",
+    "sourceSha256": "073aa0c097c6001f703ea0bb042e575f9d9ddbb12d645ce4ce33199cad6feb32",
+    "limit": "Carried only because the new correction changes four autosave history lines; no product or other spec content changed.",
+    "checks": [
+      "strict-battle-armor-unit-system",
+      "strict-toast-notifications",
+      "strict-utility-patterns",
+      "strict-vehicle-unit-system",
+      "purpose-strict",
+      "terminology-strict",
+      "ci-qc"
+    ],
+    "prettierQualification": "The prior aggregate Prettier result is ignore-qualified because .prettierignore excludes openspec/. No force-format or formatting edit was used."
+  },
+  "debts": {
+    "battleArmor": "Separate follow-up remains: spec.md:730 says two tabs while tabRegistry.tsx:339-379 defines nine.",
+    "autoSave": "Separate follow-up remains: spec.md:627 says cleanup unsubscribes from stores; verify against useGameStatePersistence.helpers.ts:93-147.",
+    "broadened": false
+  },
+  "rawArtifacts": {
+    "directory": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/source-anchors-delivery",
+    "correctionStrictStdoutLog": "parent-correction-strict-autosave.stdout.log",
+    "correctionDiffLogs": [
+      "parent-correction-diff-check.stdout.log",
+      "parent-correction-staged-diff-check.stdout.log"
+    ],
+    "prBody": "pr-body.md"
+  }
+}

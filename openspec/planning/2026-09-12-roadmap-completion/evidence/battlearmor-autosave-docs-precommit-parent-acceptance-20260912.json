@@ -1,0 +1,596 @@
+{
+  "schemaVersion": 1,
+  "capturedAt": "2026-09-12T22:22:54.876Z",
+  "status": "accepted-for-normal-hook-commit",
+  "preflight": {
+    "path": ".sisyphus/roadmap-completion-20260912/battlearmor-autosave-docs-delivery/portable-preflight-20260912.json",
+    "sha256": "52b8b96a9408982f83dd36cfe04cab7092cc1adb7f1a2b6c6a411c184fdd19d1"
+  },
+  "artifacts": [
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/battlearmor-autosave-docs-delivery/accepted-hashes-after-ff.exit",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/battlearmor-autosave-docs-delivery/accepted-hashes-after-ff.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/battlearmor-autosave-docs-delivery/accepted-hashes-after-ff.stdout.log",
+      "sha256": "7b5985148a17014cbff474c47c1af6b1084544d0de536d157840d90ed96f9ecc"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/battlearmor-autosave-docs-delivery/candidate-qc.exit",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/battlearmor-autosave-docs-delivery/candidate-qc.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/battlearmor-autosave-docs-delivery/candidate-qc.stdout.log",
+      "sha256": "f01feb11318234aab4764fe76151b78c06905527212a8f8723626fcf616b71d6"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/battlearmor-autosave-docs-delivery/eol-after-ff.exit",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/battlearmor-autosave-docs-delivery/eol-after-ff.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/battlearmor-autosave-docs-delivery/eol-after-ff.stdout.log",
+      "sha256": "f0ef79872108100a5eeab114ab3eef57feccc2d573e5e2eb729ee27cda66ab16"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/battlearmor-autosave-docs-delivery/fast-forward.exit",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/battlearmor-autosave-docs-delivery/fast-forward.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/battlearmor-autosave-docs-delivery/fast-forward.stdout.log",
+      "sha256": "ea370ac4a2aad35edaa10b9263605ee6aea4be33fc8e531a812144f810840649"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/battlearmor-autosave-docs-delivery/fast-forward-before.exit",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/battlearmor-autosave-docs-delivery/fast-forward-before.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/battlearmor-autosave-docs-delivery/fast-forward-before.stdout.log",
+      "sha256": "71a789dc8b1402419494ecb772b7b2527d3a810fbbd9248f885a1c635565e7ff"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/battlearmor-autosave-docs-delivery/final-candidate-status.exit",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/battlearmor-autosave-docs-delivery/final-candidate-status.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/battlearmor-autosave-docs-delivery/final-candidate-status.stdout.log",
+      "sha256": "43872f79bf0d579fd8be549d60b11e5508a0cc63afe547ddfa1d58782fcc06f4"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/battlearmor-autosave-docs-delivery/final-head.exit",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/battlearmor-autosave-docs-delivery/final-head.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/battlearmor-autosave-docs-delivery/final-head.stdout.log",
+      "sha256": "f9fc2c08e3da8a2e2ccb789d16a3649db3d98b77558e56f70454576cd6c8dabb"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/battlearmor-autosave-docs-delivery/final-staged-name-status.exit",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/battlearmor-autosave-docs-delivery/final-staged-name-status.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/battlearmor-autosave-docs-delivery/final-staged-name-status.stdout.log",
+      "sha256": "56ba3cb1f421547ee568862b8d9a24b5671a6c597ac3122a9808afa4578a8906"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/battlearmor-autosave-docs-delivery/final-status.exit",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/battlearmor-autosave-docs-delivery/final-status.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/battlearmor-autosave-docs-delivery/final-status.stdout.log",
+      "sha256": "43872f79bf0d579fd8be549d60b11e5508a0cc63afe547ddfa1d58782fcc06f4"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/battlearmor-autosave-docs-delivery/final-verification.exit",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/battlearmor-autosave-docs-delivery/final-verification.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/battlearmor-autosave-docs-delivery/final-verification.stdout.log",
+      "sha256": "5387abdf512e5283ea4df7512fec364c65d5c46b372fbfdff0b716c74a13a9ba"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/battlearmor-autosave-docs-delivery/gate-qualification-generation.exit",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/battlearmor-autosave-docs-delivery/gate-qualification-generation.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/battlearmor-autosave-docs-delivery/gate-qualification-generation.stdout.log",
+      "sha256": "bb47c5a8d81c17cac2f68a09e229cfff1fd8eba700c4069ae9bdc02911114dda"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/battlearmor-autosave-docs-delivery/hooks-content.exit",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/battlearmor-autosave-docs-delivery/hooks-content.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/battlearmor-autosave-docs-delivery/hooks-content.stdout.log",
+      "sha256": "342f07351cba3dc528e70f3c97b10775a5acff3b0d82f948a224ae1c612c55f6"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/battlearmor-autosave-docs-delivery/hooks-files.exit",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/battlearmor-autosave-docs-delivery/hooks-files.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/battlearmor-autosave-docs-delivery/hooks-files.stdout.log",
+      "sha256": "68490091e12e04d5ce675a18919a87feea2af28b2f4046922e847f07c0ea3dcb"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/battlearmor-autosave-docs-delivery/hooks-path.exit",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/battlearmor-autosave-docs-delivery/hooks-path.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/battlearmor-autosave-docs-delivery/hooks-path.stdout.log",
+      "sha256": "6badc70e7ab6707b8126920f5881cf95e44ca73c2969738e5bf972018555005b"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/battlearmor-autosave-docs-delivery/openspec-all-strict.exit",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/battlearmor-autosave-docs-delivery/openspec-all-strict.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/battlearmor-autosave-docs-delivery/openspec-all-strict.stdout.log",
+      "sha256": "16c5c323579e9f348bc2adb0830ebd7bb199a73726ab1098c72331305dcca967"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/battlearmor-autosave-docs-delivery/original-receipt-bytes.exit",
+      "sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/battlearmor-autosave-docs-delivery/original-receipt-bytes.stderr.log",
+      "sha256": "44bf567196925d01a9bacd6980f631dd0d3801e33eb58883ca3d7b33658f81ec"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/battlearmor-autosave-docs-delivery/original-receipt-bytes.stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/battlearmor-autosave-docs-delivery/original-receipt-hash.exit",
+      "sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/battlearmor-autosave-docs-delivery/original-receipt-hash.stderr.log",
+      "sha256": "4f8b8ac9f66c4d883c01c68919bd384b7f901e915544a854d81cb36151d7e995"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/battlearmor-autosave-docs-delivery/original-receipt-hash.stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/battlearmor-autosave-docs-delivery/original-receipt-presence.stdout.log",
+      "sha256": "b872509d9a04307797751f4d45df84955a659958374d53ef81bbcb4f15c4af53"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/battlearmor-autosave-docs-delivery/original-receipt-summary.exit",
+      "sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/battlearmor-autosave-docs-delivery/original-receipt-summary.stderr.log",
+      "sha256": "04bb353e5050c0009d5aab0aece1b384fa2c2d54f4511208e678ffba3a43a8bf"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/battlearmor-autosave-docs-delivery/original-receipt-summary.stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/battlearmor-autosave-docs-delivery/package-hook-config.exit",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/battlearmor-autosave-docs-delivery/package-hook-config.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/battlearmor-autosave-docs-delivery/package-hook-config.stdout.log",
+      "sha256": "8d1b4f97f93425df0dea2b86b0408704065ec579509983bbf4d84f92ae50eb70"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/battlearmor-autosave-docs-delivery/portable-preflight-generation.exit",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/battlearmor-autosave-docs-delivery/portable-preflight-generation.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/battlearmor-autosave-docs-delivery/portable-preflight-generation.stdout.log",
+      "sha256": "eeb1a29c87e1cfa3a68feff1842453b89a00ca8adb1aa9c70a6608e9a8356d7a"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/battlearmor-autosave-docs-delivery/post-ff-head.exit",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/battlearmor-autosave-docs-delivery/post-ff-head.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/battlearmor-autosave-docs-delivery/post-ff-head.stdout.log",
+      "sha256": "f9fc2c08e3da8a2e2ccb789d16a3649db3d98b77558e56f70454576cd6c8dabb"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/battlearmor-autosave-docs-delivery/post-ff-status.exit",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/battlearmor-autosave-docs-delivery/post-ff-status.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/battlearmor-autosave-docs-delivery/post-ff-status.stdout.log",
+      "sha256": "71a789dc8b1402419494ecb772b7b2527d3a810fbbd9248f885a1c635565e7ff"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/battlearmor-autosave-docs-delivery/pr-body.exit",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/battlearmor-autosave-docs-delivery/preflight-receipt-generation.exit",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/battlearmor-autosave-docs-delivery/preflight-receipt-generation.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/battlearmor-autosave-docs-delivery/preflight-receipt-generation.stdout.log",
+      "sha256": "281642d65f1284d83fcc9bd7ecfa0571fa2cc93db8dbf2d6487f6a234e4257e7"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/battlearmor-autosave-docs-delivery/published-receipt-bytes.exit",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/battlearmor-autosave-docs-delivery/published-receipt-bytes.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/battlearmor-autosave-docs-delivery/published-receipt-bytes.stdout.log",
+      "sha256": "a635704c8b374b1ee53f97e38c5754599e25e252254bf8e24d411eb2b712a1d4"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/battlearmor-autosave-docs-delivery/published-receipt-cmp.exit",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/battlearmor-autosave-docs-delivery/published-receipt-hashes.exit",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/battlearmor-autosave-docs-delivery/published-receipt-hashes.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/battlearmor-autosave-docs-delivery/published-receipt-hashes.stdout.log",
+      "sha256": "67d04d4bfca170887c5b56816fb95d8692472eacc270d6a28c60b397d231205e"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/battlearmor-autosave-docs-delivery/publish-review-copy.exit",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/battlearmor-autosave-docs-delivery/publish-review-copy.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/battlearmor-autosave-docs-delivery/publish-review-copy.stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/battlearmor-autosave-docs-delivery/purpose-strict.exit",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/battlearmor-autosave-docs-delivery/purpose-strict.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/battlearmor-autosave-docs-delivery/purpose-strict.stdout.log",
+      "sha256": "0a07b130cc0b93c2ecf9b9b74ee7edd62b014da22229cd8d05ec0fe452ffd35a"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/battlearmor-autosave-docs-delivery/raw-file-inventory.exit",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/battlearmor-autosave-docs-delivery/raw-file-inventory.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/battlearmor-autosave-docs-delivery/raw-file-inventory.stdout.log",
+      "sha256": "9720f2ddf3e34385d1033bf95fe2026e81be25b480ce12bcda5a1dfd841d4333"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/battlearmor-autosave-docs-delivery/receipt-manifest-bind.exit",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/battlearmor-autosave-docs-delivery/receipt-manifest-bind.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/battlearmor-autosave-docs-delivery/receipt-manifest-bind.stdout.log",
+      "sha256": "0599e802cdb6e2d8ab2297c8789aceadf78967cf57db90e899aba1f319e661b8"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/battlearmor-autosave-docs-delivery/source-current-hashes.exit",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/battlearmor-autosave-docs-delivery/source-current-hashes.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/battlearmor-autosave-docs-delivery/source-current-hashes.stdout.log",
+      "sha256": "dd8668c4a5d03f1f41c9d281492fb222d43aeb5ddfc3df63dc2fd20acb57296e"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/battlearmor-autosave-docs-delivery/source-index-hash.exit",
+      "sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/battlearmor-autosave-docs-delivery/source-index-hash.stderr.log",
+      "sha256": "1cbb45d0ad96228742ec21a10f8c5b5a1df0bc11d53a102ed3653e9555b22d6d"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/battlearmor-autosave-docs-delivery/source-index-hash.stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/battlearmor-autosave-docs-delivery/source-index-hash-root.exit",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/battlearmor-autosave-docs-delivery/source-index-hash-root.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/battlearmor-autosave-docs-delivery/source-index-hash-root.stdout.log",
+      "sha256": "3ef7ce5939bb8c9601df9887a940fc356269505cac55fee9512ab6d4fdfe67ba"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/battlearmor-autosave-docs-delivery/stage.exit",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/battlearmor-autosave-docs-delivery/stage.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/battlearmor-autosave-docs-delivery/stage.stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/battlearmor-autosave-docs-delivery/staged-check.exit",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/battlearmor-autosave-docs-delivery/staged-check.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/battlearmor-autosave-docs-delivery/staged-check.stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/battlearmor-autosave-docs-delivery/staged-eol-and-source.exit",
+      "sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/battlearmor-autosave-docs-delivery/staged-eol-and-source.stderr.log",
+      "sha256": "6ef779107657208ded0a9ccd8f309ff4b1e410a0f586a5e00b2394ffab0c5671"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/battlearmor-autosave-docs-delivery/staged-eol-and-source.stdout.log",
+      "sha256": "994daa12706c144511ec487d12afff3144c974b59b3bf5f7a922d3a98fee72cf"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/battlearmor-autosave-docs-delivery/staged-eol-and-source-corrected.exit",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/battlearmor-autosave-docs-delivery/staged-eol-and-source-corrected.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/battlearmor-autosave-docs-delivery/staged-eol-and-source-corrected.stdout.log",
+      "sha256": "5847a6463f556f105aa3b5ea97c88d369592342a798f327744a7265519fff0a1"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/battlearmor-autosave-docs-delivery/staged-name-status.exit",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/battlearmor-autosave-docs-delivery/staged-name-status.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/battlearmor-autosave-docs-delivery/staged-name-status.stdout.log",
+      "sha256": "56ba3cb1f421547ee568862b8d9a24b5671a6c597ac3122a9808afa4578a8906"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/battlearmor-autosave-docs-delivery/staged-numstat.exit",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/battlearmor-autosave-docs-delivery/staged-numstat.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/battlearmor-autosave-docs-delivery/staged-numstat.stdout.log",
+      "sha256": "1cde11906f11164df7d63f5f4066a7dd04b600359b0708def31a3e4805243379"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/battlearmor-autosave-docs-delivery/staged-status.exit",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/battlearmor-autosave-docs-delivery/staged-status.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/battlearmor-autosave-docs-delivery/staged-status.stdout.log",
+      "sha256": "43872f79bf0d579fd8be549d60b11e5508a0cc63afe547ddfa1d58782fcc06f4"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/battlearmor-autosave-docs-delivery/terminology-strict.exit",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/battlearmor-autosave-docs-delivery/terminology-strict.stderr.log",
+      "sha256": "18c0af932059ce70e2a70f3a67e8329c358b718f08e8aef45e42caa39783aa69"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/battlearmor-autosave-docs-delivery/terminology-strict.stdout.log",
+      "sha256": "f900b2f139d48a4fce3da66f12105cdd633a1cfe6dc8102211bcf03cc6a1cce7"
+    }
+  ],
+  "candidate": {
+    "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/battlearmor-autosave-docs",
+    "branch": "codex/roadmap-battlearmor-autosave-docs-20260912",
+    "baseBefore": "583b3e9bf954506a3b5fbac0359165e9407cf264",
+    "headBefore": "583b3e9bf954506a3b5fbac0359165e9407cf264",
+    "headAfter": "92d04fc6bcc2e49fd40d63d6f0cfd2a9c72eb14c",
+    "originMain": "92d04fc6bcc2e49fd40d63d6f0cfd2a9c72eb14c",
+    "allowedFiles": [
+      "openspec/specs/battle-armor-unit-system/spec.md",
+      "openspec/specs/auto-save-persistence/spec.md"
+    ],
+    "changedLines": 48,
+    "stagedPaths": [
+      "openspec/specs/auto-save-persistence/spec.md",
+      "openspec/specs/battle-armor-unit-system/spec.md"
+    ]
+  },
+  "sourceInventory": {
+    "indexPath": "source-hashes-20260912.json",
+    "indexSha256": "20f690a5e3d2d9b412c03b01538429ce1935611589eb5b4d7d9cdb5718812178",
+    "fullHashes": {
+      "openspec/specs/battle-armor-unit-system/spec.md": {
+        "bytes": 29520,
+        "sha256": "63bac7a76e828d74076926155533537a422e6a25f4ae9ee135c8c85b183a7f19"
+      },
+      "openspec/specs/auto-save-persistence/spec.md": {
+        "bytes": 29287,
+        "sha256": "60fc6006476c650e7620273c0232393bc2d70279b0dead61195452bcf95cd4bb"
+      },
+      "src/components/customizer/shared/tabRegistry.tsx": {
+        "bytes": 20324,
+        "sha256": "8fc21041a01af69629cfc368c28ff6056dfb763f5db94178d03ad30d91e86969"
+      },
+      "src/components/customizer/shared/customizerTypeRegistry.tsx": {
+        "bytes": 16927,
+        "sha256": "3dee33c775272ae6a881ce8f41717d7fb03cff7957d1b73a7fbc6e497c871528"
+      },
+      "src/components/customizer/tabs/NonMechOverviewTabs.tsx": {
+        "bytes": 12143,
+        "sha256": "03d867c046b1d1148cbef5fb93d641f4504d773a89cffd069173fabc959c4e74"
+      },
+      "src/components/customizer/tabs/FluffTab.tsx": {
+        "bytes": 9181,
+        "sha256": "fee8149766b35066a4217ddb312a959c13080567e879ca6c46cd5dc03de09d59"
+      },
+      "src/components/customizer/battlearmor/BattleArmorChassisTab.tsx": {
+        "bytes": 655,
+        "sha256": "7dad4940b2108434f865d2272495b6823c7e194b7459547d47a7e6a8558f8d9e"
+      },
+      "src/components/customizer/battlearmor/BattleArmorStructureTab.tsx": {
+        "bytes": 9779,
+        "sha256": "9316c46923b36a4f61e6b563e43aec9638ff0ee04ab7e154c7540956ad482d0e"
+      },
+      "src/components/customizer/battlearmor/BattleArmorSquadTab.tsx": {
+        "bytes": 9081,
+        "sha256": "3267919d82e7cde40def13cfe89bcc61bab07638fdba10734114039c82f8bf4e"
+      },
+      "src/components/customizer/battlearmor/BattleArmorManipulatorsTab.tsx": {
+        "bytes": 999,
+        "sha256": "bbf1ad3cad529a449fcdd00c1395515d68790db38ed7d21d5b798df38036961a"
+      },
+      "src/components/customizer/battlearmor/BattleArmorModularWeaponsTab.tsx": {
+        "bytes": 982,
+        "sha256": "55839dd7a9b81a5c9aeaf5b33b7c739f9ea2a58f23dc76c14e97748a66f9b6e0"
+      },
+      "src/components/customizer/battlearmor/BattleArmorAPWeaponsTab.tsx": {
+        "bytes": 930,
+        "sha256": "e8f7c0afbcefcff321ef434dff6c4cd045bfb1a566a02cc11161bb19777a21c2"
+      },
+      "src/components/customizer/battlearmor/BattleArmorJumpUMUTab.tsx": {
+        "bytes": 951,
+        "sha256": "34593d0b6213b479686b62cb22375eb2b8d3e5c8050db41ae3703516025348a7"
+      },
+      "src/components/customizer/battlearmor/BattleArmorPreviewTab.tsx": {
+        "bytes": 3245,
+        "sha256": "bf759b4c8879b31ec3c7791f5a31cc9ad4786fd83394c022688859f4b8e8e87d"
+      },
+      "src/types/unit/PersonnelInterfaces.ts": {
+        "bytes": 11169,
+        "sha256": "023335d20fdbf82706be71f87e2c0ac99a088e05172ff87cef80d8955818681d"
+      },
+      "src/types/construction/UnitLocation.ts": {
+        "bytes": 7023,
+        "sha256": "815c241cb559714d3e8b1e18727be472d61a928b4ba1153d49287200f308924b"
+      }
+    },
+    "sourceHashRaw": "source-current-hashes.stdout.log"
+  },
+  "qualifications": [
+    "OpenSpec files excluded from formatter; full all-items gate passed.",
+    "Grok attempt exhausted; retained bytes independently reviewed and checked.",
+    "Nine registered tabs and four explicit placeholders preserved; no runtime closure."
+  ]
+}

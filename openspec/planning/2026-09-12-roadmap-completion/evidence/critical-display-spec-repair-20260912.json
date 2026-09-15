@@ -1,0 +1,97 @@
+{
+  "schemaVersion": 1,
+  "evidenceId": "critical-display-spec-repair-20260912",
+  "capturedAt": "2026-09-12",
+  "worktree": "E:/Projects/MekStation",
+  "baseline": "be7f85b867aa3e8576e5e3d27e309276203bc24b",
+  "acceptedWorkbenchBaseline": "45a94017a449519491726c52083abc1c7bd1e7e3",
+  "scope": "Canonical documentation repair for critical-slots-display only. No product code, tests, generated data, roadmap, task, checkbox, ledger, server, browser, build, or Git state mutation.",
+  "ownedPaths": [
+    "openspec/specs/critical-slots-display/spec.md",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/critical-display-spec-repair-20260912.json",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/critical-display-spec-repair-20260912.raw.txt"
+  ],
+  "preexistingWorktreeNote": "The checkout was already dirty with unrelated reconciliation, workflow, source, test, audit, and planning changes. They were preserved.",
+  "decision": "repair-stale-inline-loadout-contract",
+  "sourceHistoryBasis": {
+    "acceptedCommit": {
+      "sha": "45a94017a449519491726c52083abc1c7bd1e7e3",
+      "date": "2026-09-09T20:30:25-06:00",
+      "subject": "Establish customizer and application UI baseline (#1634)",
+      "relevantDiff": "UnitEditorWithRouting and UnitEditorWithRoutingTabContent established the workbench shell; CriticalSlotsTab retained only a non-workbench inline fallback guarded by hideLoadoutTray && !workbench."
+    },
+    "activeCallChain": [
+      "UnitEditorWithRouting.tsx:261-266 passes workbench=true to UnitEditorWithRoutingTabContent.",
+      "UnitEditorWithRoutingTabContent.tsx:56-62 passes hideLoadoutTray={!workbench}, therefore false on the production workbench path.",
+      "CriticalSlotsTab.tsx:226-239 guards the inline unassigned section with hideLoadoutTray && !workbench, so it is unreachable from that path.",
+      "UnitEditorWithRouting.tsx:268-290 mounts ResponsiveLoadoutTray beside the workbench content.",
+      "ResponsiveLoadoutTray.tsx:115-190 routes desktop/sidebar/drawer through GlobalLoadoutTray and mobile through BottomSheetTray; BottomSheetTray.tsx:210-224 mounts MobileLoadoutList."
+    ],
+    "acceptedDesignSearch": "git show --stat confirms the accepted baseline changed the three routing/critical-tab files; the live source search confirms VerticalSlotChip has no active workbench import/use."
+  },
+  "repair": {
+    "path": "openspec/specs/critical-slots-display/spec.md",
+    "beforeSha256": "3befc509d6a013d03043eddfa1098d009bfe4da3dd6adcf7617d92b838a3fbd5",
+    "afterSha256": "08abd446de493fc1191e9b911368b5f8a66d7311da27694d04a7297cca5b0e4e",
+    "changedLines": {
+      "added": 19,
+      "removed": 60
+    },
+    "anchors": {
+      "unallocatedEquipmentDisplay": "203-236",
+      "clickToSelectPlacedEquipmentPreserved": "238-262"
+    },
+    "before": "Canonical text required an inline horizontal row of VerticalSlotChip bars on the Critical Slots tab and specified VerticalSlotChip sizing, color, abbreviations, rotation, and flex behavior.",
+    "after": "Canonical text assigns unallocated equipment to the active workbench loadout surface, references equipment-tray, mobile-loadout-tray, and customizer-responsive-layout capabilities, and preserves selection/placement behavior without requiring the obsolete inline chip layout.",
+    "preserved": [
+      "Location grid and slot count requirements",
+      "Configuration-aware side-torso engine slot display and color coding",
+      "Drag/drop feedback, multi-slot continuity, assignment/removal, toolbar actions, and placed-equipment reassignment",
+      "Existing accessibility and responsive requirements outside the stale inline chip contract"
+    ],
+    "implementationDisposition": "VerticalSlotChip.tsx and its tests remain untouched as historical standalone evidence; no implementation deletion or test weakening was performed."
+  },
+  "sourceHashes": {
+    "src/components/customizer/UnitEditorWithRouting.tsx": "9445c9882b8110b2e1bdc0e25f7bab90fadd9e6ec7af2ca1e2e05dbef2ed0d83",
+    "src/components/customizer/UnitEditorWithRoutingTabContent.tsx": "4a0685ef8e327dced5041c339941482aee1a44cf1b9f1aac9959c0bb153768fb",
+    "src/components/customizer/tabs/CriticalSlotsTab.tsx": "28fd7f3a62ff56aa8800625a6eee9257da772e17cf05dc10677994ef3331465d",
+    "src/components/customizer/equipment/ResponsiveLoadoutTray.tsx": "4a0be6a8cacefa4864d2d466a718c560b88f4757f239a0f81521334eedb473a5",
+    "src/components/customizer/equipment/GlobalLoadoutTray.tsx": "73a38ffc7a33eaf42bddfebdddad8a9f9a0ba3736715e47392bde48f736aab92",
+    "src/components/customizer/equipment/BottomSheetTray.tsx": "24b6622620f5a7b0a68119de876a1bf6a55eafb3c16e6eae4b5305b829e03f5b",
+    "src/components/customizer/mobile/MobileLoadoutList.tsx": "917799e4d1b66eef65e3d06174ffb0ced93c18461173537d1bace0a78fcd8c07",
+    "src/components/customizer/critical-slots/VerticalSlotChip.tsx": "af94e9e3a8832f8370b4b2575fbaecd2082cd6edf3c150ca9e5b6d82ce292ddc",
+    "openspec/specs/equipment-tray/spec.md": "7f8a1b314cc583c355ff51e7eb7640724ee8a40abe2af9bc5900a63487304e4b",
+    "openspec/specs/mobile-loadout-tray/spec.md": "3031708b018e4f1b09726e16184d79da8a1604b65734a68ef69445aa328394e4",
+    "openspec/specs/customizer-responsive-layout/spec.md": "84e8df2101a8d15bb6a7c0bb7056798b332e1abb26df931e770294848b8161e9"
+  },
+  "checks": [
+    {
+      "command": "/c/nvm4w/nodejs/node.exe node_modules/oxfmt/bin/oxfmt --check --ignore-path=.gitignore openspec/specs/critical-slots-display/spec.md",
+      "exitCode": 0,
+      "result": "All matched files use the correct format."
+    },
+    {
+      "command": "/c/nvm4w/nodejs/node.exe /c/Users/wroll/AppData/Roaming/npm/node_modules/@fission-ai/openspec/bin/openspec.js validate critical-slots-display --strict",
+      "exitCode": 0,
+      "result": "Specification 'critical-slots-display' is valid"
+    },
+    {
+      "command": "git diff --check -- openspec/specs/critical-slots-display/spec.md",
+      "exitCode": 0,
+      "result": "No whitespace errors"
+    }
+  ],
+  "failedAttempts": [
+    {
+      "command": "/c/nvm4w/nodejs/node.exe node_modules/oxfmt/bin/oxfmt --write openspec/specs/critical-slots-display/spec.md",
+      "exitCode": 2,
+      "stderr": "Expected at least one target file",
+      "correction": "The repository .prettierignore excludes openspec; reran the same scoped formatter with --ignore-path=.gitignore."
+    }
+  ],
+  "rawLogPath": "openspec/planning/2026-09-12-roadmap-completion/evidence/critical-display-spec-repair-20260912.raw.txt",
+  "limits": [
+    "No runtime, browser, server, build, or test proof was run; this was a canonical-spec repair only.",
+    "Parent owns independent review, integration, and Git delivery."
+  ]
+}

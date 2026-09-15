@@ -1,0 +1,20 @@
+{
+  "at": "2026-09-12T20:15:32.973Z",
+  "scope": "R9.hydration-safety local normal-hook commit acceptance",
+  "head": "52548461e43598b907e0969b1515aab8574ed939",
+  "base": "ca0687d25264033376862347e494ddf15cd92bec",
+  "log": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\hydration-safety-delivery\\commit.log",
+  "logSha256": "76566ac2e5ec18b09d2c810442f887a6213f54231e6a04f2ab48998296887dd4",
+  "sourceHashes": {
+    "openspec/specs/release-build-system/spec.md": "22e8f7b16d286c9ebba16440e372b68b868fb4a0fa90b3e9004acfa10b5a3473",
+    "scripts/__tests__/standalone-hydration-path-safety.test.ts": "ee5afed78035cf09a82d6ed7749493a4e8ac06b65f8a013f585fc2f308cb17ee",
+    "scripts/hydrate-next-standalone-multiplayer-server.mjs": "9e8866647d092ad42f51d191f8c6af175a9a98b3779cfa0682d590713898af60"
+  },
+  "runtimeBefore": "674008a685c5087585226d6fc1256b817e7258ab22e59e46ff2722dd3044511b",
+  "runtimeAfter": "674008a685c5087585226d6fc1256b817e7258ab22e59e46ff2722dd3044511b",
+  "exitCode": 0,
+  "limits": [
+    "Local Windows candidate proof; no main proof or native Linux proof",
+    "Next integration with manifest requires independent current-head CI and exact-main proof"
+  ]
+}

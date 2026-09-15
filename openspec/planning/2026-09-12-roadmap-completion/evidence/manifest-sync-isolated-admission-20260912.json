@@ -1,0 +1,44 @@
+{
+  "createdAt": "2026-09-12T17:21:49.927Z",
+  "name": "manifest-sync",
+  "branch": "codex/roadmap-manifest-sync-20260912",
+  "cwd": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\manifest-sync",
+  "base": "6c4eac5c7b7a2aece3aab0443ce606943db6cf0b",
+  "review": "manifest-sync-final-xhigh-review-20260912.json",
+  "files": [
+    {
+      "path": "scripts/mm-data/sync-browser-config.mjs",
+      "rootSha256": "d47ca5eaa81a7a8488c25b828cc6b04a8e30f93311952dc002c718c60d6820dc",
+      "candidateSha256": "d47ca5eaa81a7a8488c25b828cc6b04a8e30f93311952dc002c718c60d6820dc"
+    },
+    {
+      "path": "scripts/__tests__/mm-data-browser-config.test.ts",
+      "rootSha256": "20534720de14d2e2c94cfa17763d8cd75c82b7ae7a9deb6d9ec095a33fa9dce4",
+      "candidateSha256": "20534720de14d2e2c94cfa17763d8cd75c82b7ae7a9deb6d9ec095a33fa9dce4"
+    },
+    {
+      "path": "package.json",
+      "rootSha256": "0cbe570cc8b2ffdabcf1c273a75b739bf6693965239a913f524661291e6c2e32",
+      "candidateSha256": "0cbe570cc8b2ffdabcf1c273a75b739bf6693965239a913f524661291e6c2e32"
+    },
+    {
+      "path": "openspec/specs/mm-data-asset-integration/spec.md",
+      "rootSha256": "5beabebfe54b2a2e3e9aadd0ab87e480062eed0de257507571681b69c2a74dd7",
+      "candidateSha256": "5beabebfe54b2a2e3e9aadd0ab87e480062eed0de257507571681b69c2a74dd7"
+    }
+  ],
+  "exclusion": null,
+  "worktreePorcelain": "worktree E:/Projects/MekStation\nHEAD be7f85b867aa3e8576e5e3d27e309276203bc24b\nbranch refs/heads/main\n\nworktree C:/tmp/MekStation-gameplay-audit-a72208b0-2\nHEAD a72208b08de5f8a1bef49f61db3ddc46a54012e8\ndetached\n\nworktree C:/tmp/MekStation-gm2p-spec-886508048\nHEAD 5b546a39ec29dd2e79c845946dc84b3619ee25ee\nbranch refs/heads/codex/continue-gm-two-player-campaign\n\nworktree C:/Users/wroll/.codex/worktrees/af7e/MekStation\nHEAD 327f10787d529a95328bef05e3732ebb02efbee7\ndetached\n\nworktree C:/Users/wroll/.codex/worktrees/combat-event-durability/MekStation\nHEAD 85e7138feaea0333c2dafbd2f974ef5977450af1\ndetached\n\nworktree C:/Users/wroll/.codex/worktrees/combat-turn-rail/MekStation\nHEAD 67805c8302f78c5205921cafbee9d4544783fb96\ndetached\n\nworktree E:/CodexWorktrees/MekStation-maintain\nHEAD 2c775907ae285e27dd7103c8c29e061fcc6d91e4\nbranch refs/heads/maintain/modularity-hard-guardrail-wave1\n\nworktree E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/browser\nHEAD 77d9a9480a3a47b1849f166db01278f93f3d8094\nbranch refs/heads/codex/roadmap-customizer-browser-20260912\n\nworktree E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/customizer-specs\nHEAD 6c4eac5c7b7a2aece3aab0443ce606943db6cf0b\nbranch refs/heads/codex/roadmap-customizer-specs-20260912\n\nworktree E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/equipment-loader\nHEAD b909a164ef78fef53f87818405ab7643974dd551\nbranch refs/heads/codex/roadmap-equipment-loader-20260912\n\nworktree E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/manifest-sync\nHEAD 6c4eac5c7b7a2aece3aab0443ce606943db6cf0b\nbranch refs/heads/codex/roadmap-manifest-sync-20260912\n\nworktree E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/validation-order\nHEAD 6c4eac5c7b7a2aece3aab0443ce606943db6cf0b\nbranch refs/heads/codex/roadmap-validation-order-20260912\n\nworktree E:/Projects/mekstation-l66\nHEAD 74bd093a65c483ed8d25e4d91adddf3677368090\ndetached\n\nworktree E:/Projects/mekstation-l83\nHEAD 7f821e7795db67ba60010b44c15aeb5f86d2838e\ndetached\n\nworktree E:/Projects/mekstation-l89\nHEAD 439af6bca6c54cf60472e8d7e9c191a962ee93ab\ndetached",
+  "status": "M openspec/specs/mm-data-asset-integration/spec.md\n M package.json\n?? scripts/__tests__/mm-data-browser-config.test.ts",
+  "trackedNumstat": "45\t0\topenspec/specs/mm-data-asset-integration/spec.md\n7\t6\tpackage.json",
+  "untrackedLineCounts": [
+    {
+      "path": "scripts/mm-data/sync-browser-config.mjs",
+      "lines": 160
+    },
+    {
+      "path": "scripts/__tests__/mm-data-browser-config.test.ts",
+      "lines": 192
+    }
+  ]
+}

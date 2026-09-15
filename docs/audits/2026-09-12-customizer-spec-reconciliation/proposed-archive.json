@@ -1,0 +1,125 @@
+{
+  "status": "Archived with explicit user authorization; all 15 original files passed SHA-256 verification. See archive-result.json.",
+  "generatedAt": "2026-09-12T09:32:03.505Z",
+  "proposedAction": "Move these three completed packages to dated archive paths, verify original file SHA-256 values, then remove only their active-ledger entries.",
+  "excluded": {
+    "name": "repair-record-sheet-rendering",
+    "reason": "Excluded from the three-package archive approved at 09:42 UTC because Infantry task 6.1 was then open. The later authorized fix and its acceptance are recorded separately; this manifest remains the exact three-package archive record."
+  },
+  "packages": [
+    {
+      "name": "repair-equipment-catalog",
+      "source": "openspec/changes/repair-equipment-catalog",
+      "destination": "openspec/changes/archive/2026-09-12-repair-equipment-catalog",
+      "sourceExists": false,
+      "destinationExists": true,
+      "tasks": {
+        "complete": 11,
+        "open": 0
+      },
+      "files": [
+        {
+          "path": ".openspec.yaml",
+          "bytes": 40,
+          "sha256": "2a52e9c6669beaf79129adb7d7843db88cd99fe4e3a1ece75baa3dfc41ded489"
+        },
+        {
+          "path": "design.md",
+          "bytes": 3357,
+          "sha256": "5f4de195fed5bd23538dac89b5984195155b621b8a1adf9014634d33d18bda5d"
+        },
+        {
+          "path": "proposal.md",
+          "bytes": 1900,
+          "sha256": "297970b80417cfc50d5172982f0e0763082079c58537e9648521e5d43a7addd2"
+        },
+        {
+          "path": "specs/equipment-browser/spec.md",
+          "bytes": 4954,
+          "sha256": "b1f07228f4b3a282a25caa9f1085fa928c5fb4d3fab5af142f388fd46579b6f3"
+        },
+        {
+          "path": "tasks.md",
+          "bytes": 1481,
+          "sha256": "8eb02dc97e9be437f695887e363f6f4ff39697c20c6c9c5e831e893576f1a987"
+        }
+      ]
+    },
+    {
+      "name": "establish-battlemech-chassis-index",
+      "source": "openspec/changes/establish-battlemech-chassis-index",
+      "destination": "openspec/changes/archive/2026-09-12-establish-battlemech-chassis-index",
+      "sourceExists": false,
+      "destinationExists": true,
+      "tasks": {
+        "complete": 6,
+        "open": 0
+      },
+      "files": [
+        {
+          "path": ".openspec.yaml",
+          "bytes": 40,
+          "sha256": "2a52e9c6669beaf79129adb7d7843db88cd99fe4e3a1ece75baa3dfc41ded489"
+        },
+        {
+          "path": "design.md",
+          "bytes": 3351,
+          "sha256": "fa2ea4cb1971b047411da6161cf1b824c55ddc7c6a64b40bcd383c1cf9a83132"
+        },
+        {
+          "path": "proposal.md",
+          "bytes": 1218,
+          "sha256": "426dbb908e21d86d01ca6056a3e22176093650115bdb7ea603ea94cf35b45320"
+        },
+        {
+          "path": "specs/battlemech-chassis-index/spec.md",
+          "bytes": 2848,
+          "sha256": "7d8f8d8e184156be1a3a7e8b8b679aa7d41f322ac76e82469896e68097abd8b4"
+        },
+        {
+          "path": "tasks.md",
+          "bytes": 1014,
+          "sha256": "c8a9311e7f83ceb012b52dd3190c8491f191e22e70f742d751136d09d6e4fc05"
+        }
+      ]
+    },
+    {
+      "name": "add-customizer-edit-recovery",
+      "source": "openspec/changes/add-customizer-edit-recovery",
+      "destination": "openspec/changes/archive/2026-09-12-add-customizer-edit-recovery",
+      "sourceExists": false,
+      "destinationExists": true,
+      "tasks": {
+        "complete": 5,
+        "open": 0
+      },
+      "files": [
+        {
+          "path": ".openspec.yaml",
+          "bytes": 40,
+          "sha256": "2a52e9c6669beaf79129adb7d7843db88cd99fe4e3a1ece75baa3dfc41ded489"
+        },
+        {
+          "path": "design.md",
+          "bytes": 2923,
+          "sha256": "3d82768540ea8753849e7a88de28c8276dfbd70da8788341e19a043bfed862b8"
+        },
+        {
+          "path": "proposal.md",
+          "bytes": 1127,
+          "sha256": "7a770494461348b47f6c15914b64976fd3683eaae97c23d5eb7a20c0db48c2a6"
+        },
+        {
+          "path": "specs/customizer-edit-recovery/spec.md",
+          "bytes": 3608,
+          "sha256": "9bae78ece95fb0345c9146423c41018d858fc0fa8ee376d03350b736547d5482"
+        },
+        {
+          "path": "tasks.md",
+          "bytes": 729,
+          "sha256": "e5cdccf04354576f4e87b26c49a8718a7d0077601ac78e6ec77cbbac36345814"
+        }
+      ]
+    }
+  ]
+}

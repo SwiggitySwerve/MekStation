@@ -1,0 +1,119 @@
+{
+  "schemaVersion": 1,
+  "evidenceId": "manifest-sync-isolated-static-20260912",
+  "recordedAt": "2026-09-12",
+  "node": "R9.manifest-sync",
+  "worktree": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\manifest-sync",
+  "branch": "codex/roadmap-manifest-sync-20260912",
+  "head": "6c4eac5c7b7a2aece3aab0443ce606943db6cf0b",
+  "admission": "openspec/planning/2026-09-12-roadmap-completion/evidence/manifest-sync-isolated-admission-20260912.json",
+  "candidateHashes": {
+    "status": "allMatch",
+    "rawStatus": ".sisyphus/roadmap-completion-20260912/manifest-sync-checks/hash-status.json",
+    "files": [
+      {
+        "path": "scripts/mm-data/sync-browser-config.mjs",
+        "expectedSha256": "d47ca5eaa81a7a8488c25b828cc6b04a8e30f93311952dc002c718c60d6820dc",
+        "actualSha256": "d47ca5eaa81a7a8488c25b828cc6b04a8e30f93311952dc002c718c60d6820dc"
+      },
+      {
+        "path": "scripts/__tests__/mm-data-browser-config.test.ts",
+        "expectedSha256": "20534720de14d2e2c94cfa17763d8cd75c82b7ae7a9deb6d9ec095a33fa9dce4",
+        "actualSha256": "20534720de14d2e2c94cfa17763d8cd75c82b7ae7a9deb6d9ec095a33fa9dce4"
+      },
+      {
+        "path": "package.json",
+        "expectedSha256": "0cbe570cc8b2ffdabcf1c273a75b739bf6693965239a913f524661291e6c2e32",
+        "actualSha256": "0cbe570cc8b2ffdabcf1c273a75b739bf6693965239a913f524661291e6c2e32"
+      },
+      {
+        "path": "openspec/specs/mm-data-asset-integration/spec.md",
+        "expectedSha256": "5beabebfe54b2a2e3e9aadd0ab87e480062eed0de257507571681b69c2a74dd7",
+        "actualSha256": "5beabebfe54b2a2e3e9aadd0ab87e480062eed0de257507571681b69c2a74dd7"
+      }
+    ]
+  },
+  "staticChecks": [
+    {
+      "id": "focused-jest",
+      "command": "npm.cmd test -- --runInBand scripts/__tests__/mm-data-browser-config.test.ts",
+      "exit": 0,
+      "tests": 4,
+      "passed": 4,
+      "log": ".sisyphus/roadmap-completion-20260912/manifest-sync-checks/01-focused-jest.log",
+      "logSha256": "767c6030ad59a6eeff668e202b69d9d9b440b8a4496726814a62c4a15c39f1b1"
+    },
+    {
+      "id": "typecheck",
+      "command": "npm.cmd run typecheck",
+      "exit": 0,
+      "log": ".sisyphus/roadmap-completion-20260912/manifest-sync-checks/02-typecheck.log",
+      "logSha256": "18be9a0c3a5fa319f42089ecbdf1dbbceb0f1fa51295e6ef72e844ad66c5aca9"
+    },
+    {
+      "id": "lint",
+      "command": "npm.cmd run lint",
+      "exit": 0,
+      "warnings": 83,
+      "errors": 0,
+      "log": ".sisyphus/roadmap-completion-20260912/manifest-sync-checks/03-lint.log",
+      "logSha256": "c5587a0f268a883603cacf21151a0a6b7d452d416d117e9c20510e74a60662d5"
+    },
+    {
+      "id": "format-check",
+      "command": "npm.cmd run format:check",
+      "exit": 0,
+      "log": ".sisyphus/roadmap-completion-20260912/manifest-sync-checks/04-format-check.log",
+      "logSha256": "0bad0dd2d8c479df78f68c95d5b18ac6089ac22a4f1bbad8c121306e42d0ec26"
+    },
+    {
+      "id": "openspec-all-strict",
+      "command": "openspec.cmd validate --all --strict",
+      "exit": 0,
+      "passed": 231,
+      "failed": 0,
+      "log": ".sisyphus/roadmap-completion-20260912/manifest-sync-checks/05-openspec-all-strict.log",
+      "logSha256": "a7b07a8598b314030853df76249637453d5469c0dd1c97bdefd0ac8990214dc4"
+    },
+    {
+      "id": "spec-purpose-strict",
+      "command": "npm.cmd run spec:purpose:validate:strict",
+      "exit": 0,
+      "errors": 0,
+      "trackedSourceOfTruthDebt": 0,
+      "log": ".sisyphus/roadmap-completion-20260912/manifest-sync-checks/06-purpose-strict.log",
+      "logSha256": "534eeb6bfa68f2ca6f5a541aced1d5274b6a8a3eeea91262337e49a58a316378"
+    },
+    {
+      "id": "terminology-strict",
+      "command": "npm.cmd run terminology:validate:strict",
+      "exit": 0,
+      "violations": 0,
+      "log": ".sisyphus/roadmap-completion-20260912/manifest-sync-checks/07-terminology-strict.log",
+      "logSha256": "88af2ad365008e9b7ff963b4600648a5e0c7cade7ac17075bf6f8e67506eb0cc"
+    },
+    {
+      "id": "ci-qc",
+      "command": "npm.cmd run qc:openspec-ci:validate",
+      "exit": 0,
+      "workflowContracts": "8/8",
+      "aggregatorNeeds": "18/18",
+      "protectedContexts": "4",
+      "packageScripts": "3/3",
+      "activeOpenSpecChanges": "14/14",
+      "errors": 0,
+      "log": ".sisyphus/roadmap-completion-20260912/manifest-sync-checks/08-ci-qc.log",
+      "logSha256": "8a4c11ce32346b3565af7f9c7b0f7dc6886deda61e1c7f24bdc8cd4ae45b05ec"
+    }
+  ],
+  "environment": {
+    "node": "C:/nvm4w/nodejs/node.exe v22.22.0",
+    "npm": "11.6.2",
+    "candidateNodeModulesPresent": true,
+    "candidatePackageLockPresent": true
+  },
+  "limits": [
+    "Static checks only. No build, dev/server, browser, asset sync/fetch/acquisition, install, or Git mutation was performed.",
+    "Lint exit 0 includes 83 pre-existing warnings and no errors; no warning suppression was added."
+  ]
+}

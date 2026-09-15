@@ -1,0 +1,284 @@
+{
+  "baselineHead": "be7f85b867aa3e8576e5e3d27e309276203bc24b",
+  "recordedAt": "2026-09-12T10:37:35.422Z",
+  "checks": [
+    {
+      "name": "browser-production-followups-red",
+      "args": [
+        "scripts/playwright/run-playwright.mjs",
+        "test",
+        "e2e/customizer-edit-recovery.spec.ts",
+        "e2e/customizer-record-sheet-rendering.spec.ts",
+        "--grep",
+        "Infantry preview|explicit Structure",
+        "--project=chromium",
+        "--retries=0",
+        "--workers=1",
+        "--trace=retain-on-failure",
+        "--reporter=line",
+        "--output=.sisyphus/customizer-followups-20260912/browser-red-results"
+      ],
+      "startedAt": "2026-09-12T09:48:09.061Z",
+      "driverPid": 70020,
+      "running": false,
+      "pid": 65252,
+      "code": 1,
+      "finishedAt": "2026-09-12T09:48:38.123Z",
+      "log": "evidence/followups/browser-production-followups-red.log",
+      "sha256": "2d9c639081d41ccb481a8c32b69cfc88abe8462beb6461d525e4c5a083bb2b06"
+    },
+    {
+      "name": "focused-followups",
+      "args": [
+        "node_modules/jest/bin/jest.js",
+        "--runTestsByPath",
+        "src/components/customizer/infantry/__tests__/InfantryPreviewTab.test.tsx",
+        "src/components/customizer/__tests__/CustomizerWithRouter.routing.test.tsx",
+        "src/hooks/__tests__/useCustomizerRouter.recovery.test.tsx",
+        "src/hooks/__tests__/useCustomizerRouter.test.ts",
+        "--runInBand",
+        "--silent"
+      ],
+      "startedAt": "2026-09-12T10:19:42.736Z",
+      "driverPid": 42644,
+      "running": false,
+      "pid": 66984,
+      "code": 0,
+      "finishedAt": "2026-09-12T10:19:46.330Z",
+      "log": "evidence/followups/focused-followups.log",
+      "sha256": "569196f168fbed5269b486b8f02c086c2636fffdf7f79fd1b96ad7656fe99f41"
+    },
+    {
+      "name": "ci-followups",
+      "args": [
+        "node_modules/jest/bin/jest.js",
+        "scripts/__tests__/openspec-ci-quality-qc.test.ts",
+        "--runInBand",
+        "--silent"
+      ],
+      "startedAt": "2026-09-12T10:17:55.538Z",
+      "driverPid": 32324,
+      "running": false,
+      "pid": 21888,
+      "code": 0,
+      "finishedAt": "2026-09-12T10:18:00.233Z",
+      "log": "evidence/followups/ci-followups.log",
+      "sha256": "3144f8fde067958b16404e4c950620c152b107823dd013cd387c087f5a02fcd6"
+    },
+    {
+      "name": "preview-followups",
+      "args": [
+        "node_modules/jest/bin/jest.js",
+        "--selectProjects",
+        "unit",
+        "--runInBand",
+        "--silent",
+        "--testPathPattern",
+        "src/components/customizer/preview/__tests__|src/components/customizer/(vehicle|aerospace|battlearmor|protomech|infantry)/__tests__/.*Preview|src/hooks/__tests__/useCustomizerRouter|src/components/customizer/__tests__/CustomizerWithRouter"
+      ],
+      "startedAt": "2026-09-12T10:21:35.096Z",
+      "driverPid": 41384,
+      "running": false,
+      "pid": 45708,
+      "code": 0,
+      "finishedAt": "2026-09-12T10:21:42.169Z",
+      "log": "evidence/followups/preview-followups.log",
+      "sha256": "529d1a48c1ab57d8f2160a6a4ada30e7865a9b63505fa39056820f8916ecdf2b"
+    },
+    {
+      "name": "typecheck-followups",
+      "args": [
+        "node_modules/typescript/bin/tsc",
+        "--noEmit",
+        "--incremental",
+        "false"
+      ],
+      "startedAt": "2026-09-12T10:20:34.142Z",
+      "driverPid": 25824,
+      "running": false,
+      "pid": 44232,
+      "code": 2,
+      "finishedAt": "2026-09-12T10:21:21.981Z",
+      "log": "evidence/followups/typecheck-followups.log",
+      "sha256": "0400846ffc37c2a89be60fe9a9c5fb6395a3c13d3fa046f930cca6322747a9d4"
+    },
+    {
+      "name": "typecheck-followups-final",
+      "args": [
+        "node_modules/typescript/bin/tsc",
+        "--noEmit",
+        "--incremental",
+        "false"
+      ],
+      "startedAt": "2026-09-12T10:21:56.812Z",
+      "driverPid": 64068,
+      "running": false,
+      "pid": 74788,
+      "code": 0,
+      "finishedAt": "2026-09-12T10:22:48.260Z",
+      "log": "evidence/followups/typecheck-followups-final.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "lint-followups",
+      "args": ["node_modules/oxlint/bin/oxlint", "--deny-warnings=false"],
+      "startedAt": "2026-09-12T10:21:56.856Z",
+      "driverPid": 26628,
+      "running": false,
+      "pid": 69780,
+      "code": 1,
+      "finishedAt": "2026-09-12T10:21:56.959Z",
+      "log": "evidence/followups/lint-followups.log",
+      "sha256": "c796e4256a4a82ddb08c21a2c7cf986f317624fe1097c9337abc2a7d6e2ffa8c"
+    },
+    {
+      "name": "lint-followups-final",
+      "args": ["node_modules/oxlint/bin/oxlint"],
+      "startedAt": "2026-09-12T10:22:44.577Z",
+      "driverPid": 39984,
+      "running": false,
+      "pid": 72836,
+      "code": 0,
+      "finishedAt": "2026-09-12T10:22:45.227Z",
+      "log": "evidence/followups/lint-followups-final.log",
+      "sha256": "c50da1808bccb7aab28947c3a9b8fa08adf01de4f58857fb250007c380a5b2ad"
+    },
+    {
+      "name": "router-final",
+      "args": [
+        "node_modules/jest/bin/jest.js",
+        "--runTestsByPath",
+        "src/components/customizer/__tests__/CustomizerWithRouter.routing.test.tsx",
+        "--runInBand",
+        "--silent"
+      ],
+      "startedAt": "2026-09-12T10:22:44.700Z",
+      "driverPid": 66392,
+      "running": false,
+      "pid": 69068,
+      "code": 0,
+      "finishedAt": "2026-09-12T10:22:47.869Z",
+      "log": "evidence/followups/router-final.log",
+      "sha256": "0ba18d8f7c769ba94c7d445ccce1987920dedd3ae49f75dc5c9001f6f125c7e0"
+    },
+    {
+      "name": "build-followups",
+      "args": ["scripts/next/run-next.mjs", "build", "--webpack"],
+      "startedAt": "2026-09-12T10:20:34.091Z",
+      "driverPid": 58572,
+      "running": false,
+      "pid": 33580,
+      "code": 0,
+      "finishedAt": "2026-09-12T10:24:52.310Z",
+      "log": "evidence/followups/build-followups.log",
+      "sha256": "ac6c801e9ce14d568d66d42a0db94434609397a595e147ae4486df5abcffd980"
+    },
+    {
+      "name": "browser-production-followups",
+      "args": [
+        "scripts/playwright/run-playwright.mjs",
+        "test",
+        "e2e/customizer-equipment-catalog.spec.ts",
+        "e2e/customizer-record-sheet-rendering.spec.ts",
+        "e2e/customizer-edit-recovery.spec.ts",
+        "--project=chromium",
+        "--retries=0",
+        "--workers=1",
+        "--trace=retain-on-failure",
+        "--reporter=line",
+        "--output=.sisyphus/customizer-followups-20260912/browser-results"
+      ],
+      "startedAt": "2026-09-12T10:25:30.756Z",
+      "driverPid": 13356,
+      "running": false,
+      "pid": 44776,
+      "code": 1,
+      "finishedAt": "2026-09-12T10:26:59.682Z",
+      "log": "evidence/followups/browser-production-followups.log",
+      "sha256": "8e37837897f924f2d1f7f8abfeeb04c4bce6ff75a094819b60ba98b7366e8d73"
+    },
+    {
+      "name": "browser-production-followups-final",
+      "args": [
+        "scripts/playwright/run-playwright.mjs",
+        "test",
+        "e2e/customizer-equipment-catalog.spec.ts",
+        "e2e/customizer-record-sheet-rendering.spec.ts",
+        "e2e/customizer-edit-recovery.spec.ts",
+        "--project=chromium",
+        "--retries=0",
+        "--workers=1",
+        "--trace=retain-on-failure",
+        "--reporter=line",
+        "--output=.sisyphus/customizer-followups-20260912/browser-final-results"
+      ],
+      "startedAt": "2026-09-12T10:28:24.074Z",
+      "driverPid": 37636,
+      "running": false,
+      "pid": 24848,
+      "code": 0,
+      "finishedAt": "2026-09-12T10:29:33.418Z",
+      "log": "evidence/followups/browser-production-followups-final.log",
+      "sha256": "610a127b1517789e98e0121b0dafd681b911db671a046bdd0965a426a5febba6"
+    }
+  ],
+  "additionalEvidence": [
+    {
+      "log": "evidence/followups/infantry-characterization.log",
+      "sha256": "d97c1204f6987153e7ff93bf787a680fe0ad95c117e40e25f8816e922ccbb14f"
+    },
+    {
+      "log": "evidence/followups/hydration.log",
+      "sha256": "440b61a33c9099385a826c2e28f12f7729dc1535a21e2e81aad6bfca0b427c85"
+    },
+    {
+      "log": "evidence/followups/openspec-strict.log",
+      "sha256": "c13cf7480bc2562c40acacd5a3dfb53b6eb0a48fa1b64b7b6495fb77d89a8581"
+    },
+    {
+      "log": "evidence/followups/openspec-strict-final.log",
+      "sha256": "a836b5558a82c59baac801efe60fcee0c1badffc4ef5734c772700c776da2e32"
+    },
+    {
+      "log": "evidence/followups/spec-purpose.log",
+      "sha256": "7c0ef64ff56416c105f73466d23eccbde4a97e9f1b2062a2a740d39278d03317"
+    },
+    {
+      "log": "evidence/followups/ci-contracts.log",
+      "sha256": "733ab69d272db2fd5d9a47b9a4fc4ff307b5ac517131ebd2a2f41b734f2e2c68"
+    },
+    {
+      "log": "evidence/followups/format-owned.log",
+      "sha256": "9a8ab72d3d47ffc623c5774fd6372881a621b5f4eae906d757ad652fa670663f"
+    }
+  ],
+  "summary": {
+    "browserCases": 12,
+    "browserRetries": 0,
+    "browserPassed": true,
+    "affectedSuites": 12,
+    "affectedTests": 40,
+    "ciContractTests": 28,
+    "strictSpecifications": 233,
+    "canonicalPurposeChecks": 220,
+    "typecheckPassed": true,
+    "lintErrors": 0,
+    "lintWarnings": 84,
+    "buildAndHydrationPassed": true,
+    "remoteCiObserved": false
+  },
+  "interpretation": [
+    "Pre-fix browser run intentionally rejected missing Infantry controls and explicit Structure precedence.",
+    "Old Infantry source intentionally failed the two new component tests; final source bytes were restored and verified.",
+    "Initial type check caught a mock typing error; corrected final type check passed.",
+    "Initial lint invocation had an invalid CLI argument; canonical oxlint invocation passed without weakening checks.",
+    "Initial strict spec check caught a requirement outside the Requirements section; corrected validation passed all 233.",
+    "First rebuilt browser run: 10 passed, 2 failed due to broad armor selector and exact paper label mismatch. Precise named selectors corrected, final full run 12 passed.",
+    "Prior verification.json is historical first-phase evidence; test counts overlap and must not be summed as unique tests."
+  ],
+  "limits": [
+    "No remote PR/check activation; no commit or push.",
+    "No full nightly, Firefox/WebKit, desktop packaging, physical printing, or broad CAMP journey run.",
+    "Whole-repository formatting has six unrelated pre-existing research files; owned formatting checked separately."
+  ]
+}

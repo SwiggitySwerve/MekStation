@@ -1,0 +1,122 @@
+{
+  "receiptVersion": 1,
+  "generatedAt": "2026-09-12",
+  "task": "battlearmor-autosave-debt",
+  "mode": "read-only source characterization and Grok edit brief",
+  "baseline": {
+    "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/spec-source-anchors",
+    "requestedAnchor": "d6957f0800e649842d8555528d1a0244de55153a",
+    "observedHead": "92c96251267d2f7864cc92d3767b6e6115865337",
+    "observedHeadParent": "da524f7f501b0485e3d8e67e973fce075670922c",
+    "observedStatus": "clean",
+    "anchorContentCheck": "Scoped files are byte-identical between requested anchor and observed clean head; each git diff --quiet check exited 0.",
+    "commands": [
+      { "command": "git -C <worktree> rev-parse HEAD", "exitCode": 0 },
+      { "command": "git -C <worktree> status --short", "exitCode": 0 },
+      { "command": "git -C <worktree> show --no-patch --format='%H%n%P%n%s' d6957f0800e649842d8555528d1a0244de55153a", "exitCode": 0 }
+    ],
+    "scopedDiffChecks": [
+      { "path": "openspec/specs/battle-armor-unit-system/spec.md", "command": "git diff --quiet d6957f0800e649842d8555528d1a0244de55153a 92c96251267d2f7864cc92d3767b6e6115865337 -- openspec/specs/battle-armor-unit-system/spec.md", "exitCode": 0 },
+      { "path": "openspec/specs/auto-save-persistence/spec.md", "command": "git diff --quiet d6957f0800e649842d8555528d1a0244de55153a 92c96251267d2f7864cc92d3767b6e6115865337 -- openspec/specs/auto-save-persistence/spec.md", "exitCode": 0 },
+      { "path": "openspec/specs/multi-unit-tabs/spec.md", "command": "git diff --quiet d6957f0800e649842d8555528d1a0244de55153a 92c96251267d2f7864cc92d3767b6e6115865337 -- openspec/specs/multi-unit-tabs/spec.md", "exitCode": 0 },
+      { "path": "src/components/customizer/shared/tabRegistry.tsx", "command": "git diff --quiet d6957f0800e649842d8555528d1a0244de55153a 92c96251267d2f7864cc92d3767b6e6115865337 -- src/components/customizer/shared/tabRegistry.tsx", "exitCode": 0 },
+      { "path": "src/components/customizer/battlearmor/BattleArmorCustomizer.tsx", "command": "git diff --quiet d6957f0800e649842d8555528d1a0244de55153a 92c96251267d2f7864cc92d3767b6e6115865337 -- src/components/customizer/battlearmor/BattleArmorCustomizer.tsx", "exitCode": 0 },
+      { "path": "src/hooks/useAutoSaveIndicator.ts", "command": "git diff --quiet d6957f0800e649842d8555528d1a0244de55153a 92c96251267d2f7864cc92d3767b6e6115865337 -- src/hooks/useAutoSaveIndicator.ts", "exitCode": 0 },
+      { "path": "src/hooks/useGameStatePersistence.helpers.ts", "command": "git diff --quiet d6957f0800e649842d8555528d1a0244de55153a 92c96251267d2f7864cc92d3767b6e6115865337 -- src/hooks/useGameStatePersistence.helpers.ts", "exitCode": 0 },
+      { "path": "src/hooks/usePersistedState.ts", "command": "git diff --quiet d6957f0800e649842d8555528d1a0244de55153a 92c96251267d2f7864cc92d3767b6e6115865337 -- src/hooks/usePersistedState.ts", "exitCode": 0 },
+      { "path": "src/stores/utils/clientSafeStorage.ts", "command": "git diff --quiet d6957f0800e649842d8555528d1a0244de55153a 92c96251267d2f7864cc92d3767b6e6115865337 -- src/stores/utils/clientSafeStorage.ts", "exitCode": 0 }
+    ]
+  },
+  "findings": {
+    "battleArmor": {
+      "spec": "openspec/specs/battle-armor-unit-system/spec.md",
+      "incorrectRequirementLines": "730-744",
+      "additionalTabSpecificRefs": "No other tab-specific requirement or scenario in this spec; generic initialTab/onTabChange is at 762-766 and inventory is at 810-813.",
+      "canonicalScenario": "openspec/specs/multi-unit-tabs/spec.md:344-348",
+      "registry": "src/components/customizer/shared/tabRegistry.tsx:334-379",
+      "tabs": [
+        { "label": "Overview", "component": "OverviewTabForType -> BattleArmorOverviewTab", "refs": "tabRegistry.tsx:151-163,339-340; customizerTypeRegistry.tsx:344-360; NonMechOverviewTabs.tsx:184+" },
+        { "label": "Chassis", "component": "BattleArmorChassisTab -> BattleArmorStructureTab", "refs": "tabRegistry.tsx:341-346; BattleArmorChassisTab.tsx:1-14" },
+        { "label": "Squad", "component": "BattleArmorSquadTab", "refs": "tabRegistry.tsx:347-352" },
+        { "label": "Manipulators", "component": "BattleArmorManipulatorsTab (PlaceholderTab)", "refs": "tabRegistry.tsx:353-358; BattleArmorManipulatorsTab.tsx:22-35" },
+        { "label": "Modular Weapons", "component": "BattleArmorModularWeaponsTab (PlaceholderTab)", "refs": "tabRegistry.tsx:359-364; BattleArmorModularWeaponsTab.tsx:21-34" },
+        { "label": "AP Weapons", "component": "BattleArmorAPWeaponsTab (PlaceholderTab)", "refs": "tabRegistry.tsx:365-370; BattleArmorAPWeaponsTab.tsx:21-34" },
+        { "label": "Jump/UMU", "component": "BattleArmorJumpUMUTab (PlaceholderTab)", "refs": "tabRegistry.tsx:371-375; BattleArmorJumpUMUTab.tsx:21-34" },
+        { "label": "Preview", "component": "PreviewTabForType -> BattleArmorPreviewTab", "refs": "tabRegistry.tsx:171-184,376-377; customizerTypeRegistry.tsx:359-360" },
+        { "label": "Fluff", "component": "FluffTab", "refs": "tabRegistry.tsx:186-192,378" }
+      ],
+      "deferred": [
+        "Manipulators: per-arm selection",
+        "Modular Weapons: modular-mount weapon selection and weight/crits",
+        "AP Weapons: one AP slot and weight/crits",
+        "Jump/UMU: mobility selection and MP/weight"
+      ],
+      "sourceInventory": "Lines 810-813 omit the registry, dispatchers/resolved components, canonical Chassis alias, and four placeholder bodies; Squad and Diagram rows remain valid."
+    },
+    "autosave": {
+      "spec": "openspec/specs/auto-save-persistence/spec.md",
+      "staleLine": 627,
+      "staleText": "Cleanup functions clear timers and unsubscribe from stores to prevent memory leaks",
+      "actualCleanup": [
+        "useGameStateAutosave clears debounce timeout and periodic interval (useGameStatePersistence.helpers.ts:93-128).",
+        "useBeforeUnloadWarning removes beforeunload listener (useGameStatePersistence.helpers.ts:131-147).",
+        "useAutoSaveIndicator unsubscribes storage-write receipt listener and clears 500ms success timer (useAutoSaveIndicator.ts:61-97; clientSafeStorage.ts:40-45).",
+        "usePersistedState has no timer, event listener, or store-subscription cleanup (usePersistedState.ts:27-52)."
+      ],
+      "recommendedReplacement": "Cleanup clears the pending debounce and periodic autosave timers, removes the beforeunload listener, and useAutoSaveIndicator unsubscribes from storage-write receipt listeners and clears its success timer."
+    }
+  },
+  "testedSHA": {
+    "openspec/specs/battle-armor-unit-system/spec.md": "3223fcc7ca638ba7b832bf94154a423a13ca7269b05653a846b8f7982b0cdd14",
+    "openspec/specs/auto-save-persistence/spec.md": "a2688cf3b5f710d2ecf6e21780e80e33728dcc46817df121cd661b626519da69",
+    "openspec/specs/multi-unit-tabs/spec.md": "01203085f466aea6c9d51dbee1427968375b85940802cc9a3f0dbbaf98b6d6c6",
+    "src/components/customizer/shared/tabRegistry.tsx": "8fc21041a01af69629cfc368c28ff6056dfb763f5db94178d03ad30d91e86969",
+    "src/components/customizer/battlearmor/BattleArmorCustomizer.tsx": "d347aba3c66df9ca73f2a58bea633f161227b477ac3105e28aab9d02a8adc6ec",
+    "src/components/customizer/tabs/OverviewTabForType.tsx": "f21763a67aefd86d80ac58936f4b6c42edb20785dc91b0bbd39356e661aa3353",
+    "src/components/customizer/tabs/NonMechOverviewTabs.tsx": "03d867c046b1d1148cbef5fb93d641f4504d773a89cffd069173fabc959c4e74",
+    "src/components/customizer/battlearmor/BattleArmorChassisTab.tsx": "7dad4940b2108434f865d2272495b6823c7e194b7459547d47a7e6a8558f8d9e",
+    "src/components/customizer/battlearmor/BattleArmorStructureTab.tsx": "9316c46923b36a4f61e6b563e43aec9638ff0ee04ab7e154c7540956ad482d0e",
+    "src/components/customizer/battlearmor/BattleArmorSquadTab.tsx": "3267919d82e7cde40def13cfe89bcc61bab07638fdba10734114039c82f8bf4e",
+    "src/components/customizer/battlearmor/BattleArmorManipulatorsTab.tsx": "bbf1ad3cad529a449fcdd00c1395515d68790db38ed7d21d5b798df38036961a",
+    "src/components/customizer/battlearmor/BattleArmorModularWeaponsTab.tsx": "55839dd7a9b81a5c9aeaf5b33b7c739f9ea2a58f23dc76c14e97748a66f9b6e0",
+    "src/components/customizer/battlearmor/BattleArmorAPWeaponsTab.tsx": "e8f7c0afbcefcff321ef434dff6c4cd045bfb1a566a02cc11161bb19777a21c2",
+    "src/components/customizer/battlearmor/BattleArmorJumpUMUTab.tsx": "34593d0b6213b479686b62cb22375eb2b8d3e5c8050db41ae3703516025348a7",
+    "src/components/customizer/tabs/PreviewTabForType.tsx": "78061336970b67e6731df0a93070b49f15c2733e157ed438abce9640ce979dd9",
+    "src/components/customizer/battlearmor/BattleArmorPreviewTab.tsx": "bf759b4c8879b31ec3c7791f5a31cc9ad4786fd83394c022688859f4b8e8e87d",
+    "src/components/customizer/tabs/FluffTab.tsx": "fee8149766b35066a4217ddb312a959c13080567e879ca6c46cd5dc03de09d59",
+    "src/components/customizer/shared/customizerTypeRegistry.tsx": "3dee33c775272ae6a881ce8f41717d7fb03cff7957d1b73a7fbc6e497c871528",
+    "src/hooks/useAutoSaveIndicator.ts": "d58ba168abd899b35680d208ecdb908b22491a1abbdfa7ff84d2f613cee3e216",
+    "src/hooks/useGameStatePersistence.helpers.ts": "aa197b5060e305ba4333aac4435ea807950a94592284e97ed07cff2a3c334bed",
+    "src/hooks/usePersistedState.ts": "450d673a03f927c2e59c7eab3eef5a8ff74553920e9eec402ea261baf50add23",
+    "src/stores/utils/clientSafeStorage.ts": "3de38733661870e7b9a85ce16ed9507aecd71bddd036cb6572084a9334a06c49"
+  },
+  "editBrief": {
+    "path": ".sisyphus/roadmap-completion-20260912/battlearmor-autosave-debt/edit-brief.md",
+    "sha256": "9cc7d38ff76e60a1d7c154f895b2b768b8c17086a0b7ce6648d9d56d2c743157",
+    "lineCount": 50,
+    "allowedEditFiles": [
+      "openspec/specs/battle-armor-unit-system/spec.md",
+      "openspec/specs/auto-save-persistence/spec.md"
+    ],
+    "noEditsExecuted": true
+  },
+  "rawEvidence": [
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/battlearmor-autosave-debt/checks/source-characterization-raw.txt",
+      "sha256": "ba69c73e60a4082e53b76f10d2e97817ce880af85deba9a0f01e30c4fbf4fe2f",
+      "command": "read-only registry/spec/autosave line extraction and scoped SHA256 inventory",
+      "exitCode": 0
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/battlearmor-autosave-debt/checks/anchor-reconciliation-raw.txt",
+      "sha256": "a7f05f145955bb66aff01b0ba55bf29272dfcde2e2cdf780c0ba4e9fa38ca5f6",
+      "command": "read-only anchor/head/status and scoped git diff checks",
+      "exitCode": 0
+    }
+  ],
+  "limits": [
+    "No source or spec files changed.",
+    "No build, tests, server, install, checkout, reset, stash, commit, or push.",
+    "Observed worktree head differed from requested anchor; scoped content equality was verified with nine diff-exit-0 checks before attribution."
+  ]
+}

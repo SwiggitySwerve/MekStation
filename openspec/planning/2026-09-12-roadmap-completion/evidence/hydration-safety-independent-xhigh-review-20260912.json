@@ -1,0 +1,72 @@
+{
+  "schemaVersion": 1,
+  "evidenceId": "hydration-safety-independent-xhigh-review-20260912",
+  "recordedAt": "2026-09-12T17:06:19.7087494Z",
+  "reviewer": "/root/hydration_review_xhigh",
+  "model": "gpt-5.6-luna",
+  "effort": {
+    "level": "xhigh",
+    "elapsed": {
+      "windowStart": "2026-09-12T17:00:04.701Z",
+      "windowEnd": "2026-09-12T17:06:19.7087494Z",
+      "seconds": 375.0077494,
+      "meaning": "Measured wall-clock window from the implementation receipt timestamp through review capture; no performance or cost inference."
+    },
+    "performanceOrCostClaim": false
+  },
+  "scope": "Independent bounded source/test/spec review in E:/Projects/MekStation. No real hydrator, build, server, install, dependency mutation, or Git mutation. Focused tests used temporary fixture roots only.",
+  "baseline": {
+    "head": "be7f85b867aa3e8576e5e3d27e309276203bc24b",
+    "priorPathReviewSha256": "a28503cecaa4363ded91f7ce0ba2d0e3594b0df6164c1e54b99c5d521369e45d",
+    "priorImplementationReviewSha256": "7abf86b24fe7c63d6bcec287174e1b8ae03333b86f359f37dc3cd8eecf567eef"
+  },
+  "files": [
+    {
+      "path": "scripts/hydrate-next-standalone-multiplayer-server.mjs",
+      "sha256": "9e8866647d092ad42f51d191f8c6af175a9a98b3779cfa0682d590713898af60",
+      "priorImplementationSha256": "9e8866647d092ad42f51d191f8c6af175a9a98b3779cfa0682d590713898af60",
+      "reviewedLines": "38-100, 172-230, 232-250, 266-283"
+    },
+    {
+      "path": "scripts/__tests__/standalone-hydration-path-safety.test.ts",
+      "sha256": "ee5afed78035cf09a82d6ed7749493a4e8ac06b65f8a013f585fc2f308cb17ee",
+      "reviewedLines": "18-137",
+      "status": "new focused safety fixture"
+    },
+    {
+      "path": "openspec/specs/release-build-system/spec.md",
+      "sha256": "841d5da7ed35f33cc5034984bd33103cddfed0d2008f54702e7e5efeca1dc75b",
+      "reviewedLines": "58-79",
+      "status": "matching canonical safety clause; unrelated one-line record-sheet reference repair preserved"
+    }
+  ],
+  "actualHazard": {
+    "classification": "setup-triggered product safety defect",
+    "finding": "The prior output node_modules junction resolved to the shared root. Recursive removal of a runtime package target could therefore remove the shared root package before the following copy operation.",
+    "repairAssessment": "The live hydrator now rejects symlink/junction destination components and equal source/target realpaths before writes or removals; copyDir repeats the checks at its destructive boundary."
+  },
+  "verification": {
+    "node": "C:\\nvm4w\\nodejs\\node.exe",
+    "platform": "win32",
+    "focusedCommand": "C:/nvm4w/nodejs/node.exe node_modules/jest/bin/jest.js --runInBand --selectProjects unit --runTestsByPath scripts/__tests__/hydrate-next-standalone-multiplayer-server.test.ts scripts/__tests__/standalone-hydration-path-safety.test.ts",
+    "focusedExitCode": 0,
+    "focusedResult": "2 suites passed, 4 tests passed",
+    "nodeCheck": "exit 0",
+    "diffCheck": "exit 0",
+    "rawEvidence": "openspec/planning/2026-09-12-roadmap-completion/evidence/hydration-safety-independent-xhigh-review-20260912.raw.log",
+    "rawEvidenceSha256": "6ccef378be1404e20980f48308f59b192f8b72b4fef116ebab650824f9d9dfd5"
+  },
+  "findings": [],
+  "alignment": [
+    "Preflight destination validation occurs before the first configuration write, copy, or recursive removal.",
+    "Lexical output containment, lstat symlink/junction rejection, and source/target realpath identity checks match the canonical safety clause.",
+    "The physical-output fixture preserves source and target sentinels and confirms a physical standalone node_modules directory.",
+    "The Windows fixture preserves the source sentinel, pre-existing standalone config, and junction after a safe exit-1 diagnostic."
+  ],
+  "limits": [
+    "The current run exercised the Windows junction branch; Linux symlink execution was not run in this review.",
+    "Concurrent post-preflight replacement, mount/bind alias races, and other hostile concurrent filesystem threats are outside this repair and were not treated as defects.",
+    "No real shared dependency tree was touched, and no build, install, server, or post-repair equipment-loader proof is claimed."
+  ],
+  "conclusion": "No blocking defect found in the admitted hydrator, focused safety test, or matching release-build-system clause."
+}

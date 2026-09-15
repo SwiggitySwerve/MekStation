@@ -1,0 +1,53 @@
+{
+  "recordedAt": "2026-09-12T17:24:55.227Z",
+  "node": "R1.specs",
+  "scope": [
+    "openspec/specs/aerospace-unit-system/spec.md",
+    "openspec/specs/app-settings/spec.md",
+    "openspec/specs/critical-slots-display/spec.md",
+    "openspec/specs/equipment-tray/spec.md",
+    "openspec/specs/protomech-unit-system/spec.md"
+  ],
+  "files": [
+    {
+      "path": "openspec/specs/aerospace-unit-system/spec.md",
+      "expectedSha256": "c664246362054e9bc183381d99c60f106eb349e0d186cdc467534170fbaad0b3",
+      "actualSha256": "c664246362054e9bc183381d99c60f106eb349e0d186cdc467534170fbaad0b3"
+    },
+    {
+      "path": "openspec/specs/app-settings/spec.md",
+      "expectedSha256": "65dc02ac16a000a0322c71b173f88a59ca8e9f56f37ee40a74bf6d18f290d5a6",
+      "actualSha256": "65dc02ac16a000a0322c71b173f88a59ca8e9f56f37ee40a74bf6d18f290d5a6"
+    },
+    {
+      "path": "openspec/specs/critical-slots-display/spec.md",
+      "expectedSha256": "08abd446de493fc1191e9b911368b5f8a66d7311da27694d04a7297cca5b0e4e",
+      "actualSha256": "08abd446de493fc1191e9b911368b5f8a66d7311da27694d04a7297cca5b0e4e"
+    },
+    {
+      "path": "openspec/specs/equipment-tray/spec.md",
+      "expectedSha256": "cebacfa9f94c801f2e8e137c1342793d8db73290e9795f2ad23010b2d3a8fdc5",
+      "actualSha256": "cebacfa9f94c801f2e8e137c1342793d8db73290e9795f2ad23010b2d3a8fdc5"
+    },
+    {
+      "path": "openspec/specs/protomech-unit-system/spec.md",
+      "expectedSha256": "191c5b3536c66d26dadac03da3f6de172574171ce1359ee3441120d308e1d8e8",
+      "actualSha256": "191c5b3536c66d26dadac03da3f6de172574171ce1359ee3441120d308e1d8e8"
+    }
+  ],
+  "review": {
+    "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/customizer-five-spec-final-xhigh-review-20260912.json",
+    "sha256": "adffefbb61411053aed9e5b0391bc02482b6f64c398ab8170e130dbe197f22f1"
+  },
+  "verification": "customizer-five-spec-isolated-verification-20260912.json",
+  "verifiedRawLogs": 6,
+  "changedLines": 179,
+  "numstat": "4\t2\topenspec/specs/aerospace-unit-system/spec.md\n22\t7\topenspec/specs/app-settings/spec.md\n19\t60\topenspec/specs/critical-slots-display/spec.md\n17\t6\topenspec/specs/equipment-tray/spec.md\n27\t15\topenspec/specs/protomech-unit-system/spec.md",
+  "acceptance": "Local documentation repair accepted; publication and exact-main proof pending",
+  "limits": [
+    "No product build, server, browser, test, or runtime proof was run.",
+    "Markdown formatting proof covers exactly the five canonical specs; ignored and unrelated files are outside scope.",
+    "The terminology command emitted the existing Node MODULE_TYPELESS_PACKAGE_JSON warning while exiting 0; no warning remediation was attempted.",
+    "Parent owns commit, integration, and final acceptance decisions."
+  ]
+}
