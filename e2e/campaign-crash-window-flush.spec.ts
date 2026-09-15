@@ -34,14 +34,18 @@ import {
 test.describe.configure({ timeout: 150_000 });
 
 /**
- * Status of the reconciliation PUT after a flush the document survived. The
- * flush does not advance `baseVersion`, so the server row sits one ahead of
- * the client's compare-and-swap token and the reconciled save is REFUSED.
- * Pinned rather than accepted loosely: the spec scenario claims an
- * "ordinary acknowledged save", and this measures how far that holds in a
- * real browser — the scheduling half only.
+ * Status of the reconciliation PUT after a flush the document survived.
+ *
+ * The flush still does not advance `baseVersion` — it never reads its
+ * response, so it cannot. The returning document EARNS the revision
+ * instead, by reading the record back and checking it is the one this
+ * client wrote; only then is the ordinary save armed, and it carries the
+ * earned token. Pinned rather than accepted loosely: the spec scenario
+ * claims an "ordinary acknowledged save", and 200 is the whole of that
+ * claim holding in a real browser. This measured 409 before the
+ * reconciliation read existed.
  */
-const RECONCILE_PUT_STATUS = 409;
+const RECONCILE_PUT_STATUS = 200;
 
 interface CampaignRecord {
   readonly version: number;
@@ -311,6 +315,10 @@ test('a hidden transition flushes without acknowledging, and returning re-arms a
       description: String(reconciled.status()),
     });
     expect(reconciled.status()).toBe(RECONCILE_PUT_STATUS);
+    // The acknowledgement the spec scenario demands: an accepted save, not
+    // a conflict banner produced by the flush's own successful write.
+    await expect(page.getByText('Unsaved changes')).toBeHidden();
+    await expect(page.getByText('Save refused')).toBeHidden();
   });
 });
 

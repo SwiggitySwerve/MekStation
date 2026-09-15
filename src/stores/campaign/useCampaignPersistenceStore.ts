@@ -35,6 +35,7 @@ import {
 } from '@/lib/campaign/persistence/campaignCacheKey';
 import { backfillLegacyRosterUnitRefs } from '@/lib/campaign/wizard/legacyRosterUnitBackfill';
 import { Money } from '@/types/campaign/Money';
+import { sha256Sync, toCanonicalJson } from '@/utils/events/hashUtils';
 
 import { getCampaignStoreForRoster } from './campaignStoreAccessor';
 import { useCampaignRosterStore } from './useCampaignRosterStore';
@@ -170,7 +171,9 @@ interface CampaignPersistenceActions {
   /**
    * Re-arm the ordinary save after a discard-time flush the document
    * turned out to survive (an ordinary tab switch, not a close). Called
-   * by the wiring's visible-transition listener.
+   * by the wiring's visible-transition listener. Reads the record back
+   * first, so a flush that provably landed hands the re-armed save the
+   * revision it earned instead of a token the server has moved past.
    */
   reconcileAfterDiscardFlush: () => void;
   /**
@@ -233,6 +236,31 @@ let autoSaveTimer: ReturnType<typeof setTimeout> | null = null;
 let pendingFlushIssued = false;
 
 /**
+ * What the last discard-time flush actually sent, or `null`.
+ *
+ * The flush never reads its response, so nothing here is a claim that the
+ * write landed - it is the EVIDENCE a later read is checked against. The
+ * revision the write would have produced and a digest of the envelope it
+ * carried are both needed: a row at `baseVersion + 1` alone could equally
+ * be another device's write, and adopting that would hand this client a
+ * compare-and-swap token for a record it has never seen.
+ *
+ * Kept beside `pendingFlushIssued` rather than folded into it because it
+ * outlives it: a mutation after the flush clears `pendingFlushIssued`
+ * (genuinely new pending work) while the flush's own write is still the
+ * thing the server row has to be reconciled against.
+ */
+interface IIssuedCampaignFlush {
+  readonly campaignId: string;
+  /** The compare-and-swap token the flush wrote against. */
+  readonly baseVersion: number;
+  /** Digest of the envelope fields the server stores verbatim. */
+  readonly envelopeDigest: string;
+}
+
+let issuedFlush: IIssuedCampaignFlush | null = null;
+
+/**
  * The load currently in flight, if any. `baseVersion` is the compare-and-swap
  * token for the next write, and a load replaces it with the server's current
  * version. A save that reads the token while a load is running would send a
@@ -256,6 +284,38 @@ export function __resetCampaignPersistenceCoordinationForTests(): void {
   inFlightLoad = null;
   saveChain = Promise.resolve();
   pendingFlushIssued = false;
+  issuedFlush = null;
+}
+
+/**
+ * Digest of the envelope fields a write carries THROUGH the server
+ * unchanged.
+ *
+ * `version`, `instanceId` and `authority` are deliberately excluded: the
+ * server pins all three on persist (`prepareCampaignWrite`), so including
+ * them would make a record we ourselves wrote fail its own comparison.
+ * What is left - schema, id, `savedAt`, origin device and the whole body -
+ * is what `saveCampaign` stores verbatim, and `savedAt` is minted per
+ * envelope build, so the digest identifies THIS write rather than merely
+ * a state that looks like ours.
+ *
+ * `toCanonicalJson` rather than the journal canonicalizer: the comparison
+ * spans a real JSON round-trip through the server's row, and this helper
+ * models exactly that (key-sorted `JSON.stringify`, so an
+ * `undefined`-valued key is absent on both sides), where the journal's
+ * strict JCS encoder rejects `undefined` outright and would throw on the
+ * discard path.
+ */
+function flushedEnvelopeDigest(envelope: SerializedCampaign): string {
+  return sha256Sync(
+    toCanonicalJson({
+      schemaVersion: envelope.schemaVersion,
+      campaignId: envelope.campaignId,
+      savedAt: envelope.savedAt,
+      originDeviceId: envelope.originDeviceId,
+      body: envelope.body,
+    }),
+  );
 }
 
 type PersistenceSet = Parameters<StateCreator<CampaignPersistenceStore>>[0];
@@ -543,10 +603,27 @@ async function putLiveCampaign(
   };
 }
 
+/**
+ * The one client read of a campaign record.
+ *
+ * Extracted so the post-flush reconciliation reads through exactly the
+ * path a load uses - same route, same no-store policy - instead of
+ * opening a second read surface that could drift from it.
+ */
+function fetchCampaignRecord(id: string): Promise<Response> {
+  return fetch(`/api/campaigns/${encodeURIComponent(id)}`, {
+    cache: 'no-store',
+  });
+}
+
 function applySavedRecord(
   set: PersistenceSet,
   record: SerializedCampaign,
 ): void {
+  // An acknowledged record supersedes whatever a best-effort flush may
+  // have written: there is nothing left for a later visible transition to
+  // reconcile against.
+  issuedFlush = null;
   const persistedCampaign = deserializeCampaignRecord(record);
   writeCachedCampaignKey(record);
   set({
@@ -711,9 +788,7 @@ async function runLoad(set: PersistenceSet, id: string): Promise<boolean> {
   {
     set({ saveState: 'saving', errorMessage: null });
     try {
-      const response = await fetch(`/api/campaigns/${encodeURIComponent(id)}`, {
-        cache: 'no-store',
-      });
+      const response = await fetchCampaignRecord(id);
       if (response.status === 404) {
         // Not every missing record is an error. A campaign the browser
         // rehydrated from storage that this server has never held is a
@@ -958,8 +1033,61 @@ function flushPendingMutationsAction(
     // rescue.
     clearAutoSaveTimer();
     pendingFlushIssued = true;
+    // What was sent, so a later read can be checked against it rather
+    // than assumed to be ours. Recorded BEFORE the request, because the
+    // response is never read and this is the only trace the write leaves.
+    issuedFlush = {
+      campaignId,
+      baseVersion,
+      envelopeDigest: flushedEnvelopeDigest(envelope),
+    };
     fireKeepaliveFlush(campaignId, body);
   };
+}
+
+/**
+ * Adopt the revision the flush provably wrote, or leave the client
+ * exactly where it was.
+ *
+ * "Provably" is the whole of it. The record must sit at the revision OUR
+ * write would have produced AND digest to the envelope WE sent. Version
+ * alone is not evidence: another device writing at the same moment also
+ * lands `baseVersion + 1`, and adopting that would hand this client a
+ * compare-and-swap token for a record it has never read - the silent
+ * overwrite the strict CAS exists to prevent. When either check fails, or
+ * the read does, nothing is adopted and the ordinary save carries the old
+ * token into the server's judgement, exactly as it does today.
+ */
+async function adoptFlushedRevision(
+  set: PersistenceSet,
+  flushed: IIssuedCampaignFlush,
+): Promise<boolean> {
+  try {
+    const response = await fetchCampaignRecord(flushed.campaignId);
+    if (!response.ok) {
+      return false;
+    }
+    const record = migrateClientRecord(
+      (await response.json()) as SerializedCampaign,
+    );
+    if (record.version !== flushed.baseVersion + 1) {
+      return false;
+    }
+    if (flushedEnvelopeDigest(record) !== flushed.envelopeDigest) {
+      return false;
+    }
+    applySavedRecord(set, record);
+    // The flush still is not an acknowledgement. What is adopted is the
+    // compare-and-swap token, NOT the claim that this client has nothing
+    // left to write - the spec requires the returning document to reach
+    // an ordinary ACKNOWLEDGED save, and the re-armed save is what earns
+    // it and clears the pending state.
+    set({ dirty: true });
+    return true;
+  } catch {
+    // A read that never answered is not evidence either way.
+    return false;
+  }
 }
 
 /**
@@ -975,19 +1103,28 @@ function flushPendingMutationsAction(
  * no pending write. Re-arming here cannot break the "the discard path and
  * the timer cannot both write" invariant: the document came back, so
  * there is no discard in flight.
+ *
+ * Re-arming ALONE is not enough, though, and that was the measured bug: a
+ * flush that LANDED moved the server row to `baseVersion + 1` while this
+ * client, which never read the response, still holds `baseVersion`, so
+ * the re-armed save is refused 409 and the player is shown a conflict
+ * produced by the fix's own successful write. So the token is earned the
+ * only honest way - by READING the record back and checking it is the one
+ * we wrote - before the save is armed.
  */
 function reconcileAfterDiscardFlushAction(
   set: PersistenceSet,
   get: PersistenceGet,
 ): CampaignPersistenceStore['reconcileAfterDiscardFlush'] {
   return () => {
+    const flushed = issuedFlush;
     const state = get();
     // Nothing was flushed, nothing is owed, or the write path is closed
     // for the same reasons the flush itself declines. A conflict is left
     // alone deliberately: auto-save is disabled there until the player
     // resolves it, and re-arming would fight that.
     if (
-      !pendingFlushIssued ||
+      flushed === null ||
       !state.dirty ||
       state.legacyUnadopted ||
       state.saveState === 'conflict'
@@ -997,7 +1134,28 @@ function reconcileAfterDiscardFlushAction(
     if (isCoopCampaign(readLiveCampaign())) {
       return;
     }
-    armAutoSaveTimer(set, get);
+    // Consumed: one reconciliation per flush, so a second visible
+    // transition does not re-read a record already accounted for.
+    issuedFlush = null;
+    // A mutation since the flush armed its own save carrying the STALE
+    // token. Drop it - this reconciliation owns the next write, and it
+    // arms one on every path below.
+    clearAutoSaveTimer();
+    const reconciliation = adoptFlushedRevision(set, flushed).then(
+      (adopted) => {
+        armAutoSaveTimer(set, get);
+        return adopted;
+      },
+    );
+    // Published the way a load is, for the reason the load guard already
+    // states: this read may replace `baseVersion`, so a write that starts
+    // meanwhile waits for it instead of sending a superseded token.
+    inFlightLoad = reconciliation;
+    void reconciliation.finally(() => {
+      if (inFlightLoad === reconciliation) {
+        inFlightLoad = null;
+      }
+    });
   };
 }
 
@@ -1086,6 +1244,7 @@ function createPersistenceActions(
       inFlightLoad = null;
       saveChain = Promise.resolve();
       pendingFlushIssued = false;
+      issuedFlush = null;
       set({ ...INITIAL_STATE });
     },
   };
