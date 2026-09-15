@@ -3,6 +3,7 @@ import { mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 
+import { EVENT_HISTORY_GENESIS_DIGEST } from '@/lib/events/journal/EventHistoryBranchContract';
 import {
   getSQLiteService,
   resetSQLiteService,
@@ -62,7 +63,7 @@ describe('event history correction lease SQLite migration', () => {
           reason, created_at)
        VALUES ('match', ?, 'root', NULL, 0, 0, NULL, ?, 'effective',
                'migration', 'genesis', '2026-09-02T00:00:00.000Z')`,
-    ).run(streamId, DIGEST_A);
+    ).run(streamId, EVENT_HISTORY_GENESIS_DIGEST);
   }
 
   function insertLease(

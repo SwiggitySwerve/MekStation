@@ -1,0 +1,172 @@
+{
+  "at": "2026-09-13T09:48:46.023Z",
+  "status": "source-validation-complete",
+  "node": "R4.matrix",
+  "taskKey": "adopt-combat-journal-cutover-and-gm-rewind#0.1@9",
+  "baseline": {
+    "head": "be7f85b867aa3e8576e5e3d27e309276203bc24b",
+    "originMain": "44b94adbbb333a9d4965e057b34290e19fc0e781"
+  },
+  "counts": {
+    "real": 34,
+    "strict-expected-failure": 6,
+    "missing": 40
+  },
+  "notepad": {
+    "path": "openspec/changes/adopt-combat-journal-cutover-and-gm-rewind/notepad.md",
+    "sha256": "4ae60bcd1f7044b6cfe03d95255815f359e86b7f3ec470c24a6a2ed560785d30"
+  },
+  "rawArtifacts": [
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/r4-matrix-parent-20260913/matrix.json",
+      "sha256": "d226f00a7565d7fd0dc7df79cb66b2371acc12cbc7d455c07fe093806bc2278b"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/r4-matrix-parent-20260913/static-test-index.json",
+      "sha256": "d0743a3dd96f92a59be9935658e2b00cd0174ae75ca21eff7692ffd9df226a56"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/r4-matrix-parent-20260913/runner-plans.json",
+      "sha256": "110af612d794789feddf902ea432ee937e482c48e902c44f4f2c25ced6de6ddf"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/r4-matrix-01-40-terra-20260913/report.json",
+      "sha256": "a2cbdb807133db47712d47a025326bb5ecc085e7322f7a1d9aaef5c66b8f3ef0"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/r4-matrix-01-40-terra-20260913/report-v2.json",
+      "sha256": "a665cd382cdbb2b729aeb019f07763d87e34a3f65d0cc22853a4a822836292e8"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/r4-matrix-41-80-terra-20260913/report.json",
+      "sha256": "9e7a494ef073d5e5a59388afbe3012ce3f4bfd8c62eaffd069c5e1f639199955"
+    }
+  ],
+  "sourceHashesReopened": [
+    {
+      "path": "e2e/gm-two-player-authority-order.pack.spec.ts",
+      "sha256": "9e3d06274848dfbc2af05be17a8cae46046781d0861bf780a8788ef67ce9eacf"
+    },
+    {
+      "path": "e2e/gm-two-player-authority-recovery.pack.spec.ts",
+      "sha256": "18434f65370fc2ab68b115dec04580574fc490aa0af1dc6c2657cf5ae2fda585"
+    },
+    {
+      "path": "e2e/gm-two-player-authority.pack1.spec.ts",
+      "sha256": "22c76d8a45d3bffcd9fe4d356b9e7715a79b4376b3130c8f15b2a6881106272f"
+    },
+    {
+      "path": "e2e/gm-two-player-combat.pack1.spec.ts",
+      "sha256": "fefc5cdc38e46b4a6cdfdff92a41199b275a31ea7f2913f1c27e154a88c60875"
+    },
+    {
+      "path": "e2e/gm-two-player-exactly-once.pack.spec.ts",
+      "sha256": "0c7d6542005d0de3e1cfb4826d81ea66539924a17bc64dd5a90de3b95aa7a7b6"
+    },
+    {
+      "path": "e2e/gm-two-player-fault.pack.spec.ts",
+      "sha256": "b7fdff0b6b5d96b0327796e49f690ef0d83d493e18ca0efe1d688ec5bb670518"
+    },
+    {
+      "path": "e2e/gm-two-player-privacy.pack.spec.ts",
+      "sha256": "36122222b079da986b40687f3ad72bef5e18d8e0ee3e8ee2a049f7e5097e66df"
+    },
+    {
+      "path": "e2e/gm-two-player-proposals.pack.spec.ts",
+      "sha256": "97e0e21958d936df351ac25e79eda229ea8e101d777063fc62330a1b464ede65"
+    },
+    {
+      "path": "e2e/gm-two-player-resilience.pack.spec.ts",
+      "sha256": "08e7f8bbb13ad53046cb8bb8c2fcf8557c5068c45762cb32949fd4ad0903bb84"
+    },
+    {
+      "path": "e2e/gm-two-player-restart.pack.spec.ts",
+      "sha256": "e88da32e43acccdf5bd6e8f657cdbb3168d9db87934d6462e86d55f69b9abf0f"
+    },
+    {
+      "path": "e2e/gm-two-player-rewind.pack.spec.ts",
+      "sha256": "61868e1e63f39d49579d280a00392d29672e90786f9795e09ff72421592bc307"
+    },
+    {
+      "path": "e2e/gm-two-player-token.pack.spec.ts",
+      "sha256": "0bfd10b4c807758087b301f29d7ea5ce9b98d85eb09636eac68d7924c5c03d09"
+    },
+    {
+      "path": "openspec/changes/harden-gm-two-player-campaign-sessions/specs/e2e-testing/spec.md",
+      "sha256": "ab398fccb1ac3b926e5df7dc8bc5c757273731b9ec0e59aa24ac493d3b696d5d"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/r9-remaining-publication-parent-acceptance-20260913/roadmap-before.json",
+      "sha256": "d7f57cee4af5b08146c42560fb5d3f520947fec5ef7a1d8ee9c252fcd8b83de9",
+      "qualification": "Worker read admitted matrix ledger before parent publication metadata refresh; source scope/dependencies unchanged."
+    },
+    {
+      "path": "scripts/__tests__/gm-two-player-campaign-qc.test.ts",
+      "sha256": "5e90a037676db049627a23129f53c4efb7e6cfbd76185da3b46f30d5b038574e"
+    },
+    {
+      "path": "scripts/qc/gm-two-player-campaign-core.cjs",
+      "sha256": "ca0b4b35288fa79615940026767439176871ebbd5129a34fd7c4eea4519dc548"
+    },
+    {
+      "path": "openspec/changes/harden-gm-two-player-campaign-sessions/tasks.md",
+      "sha256": "0d7497efe3f1eb70a5351a4f027d4cbde92191a9f3ef392cd813bb8b8ac31cb4"
+    },
+    {
+      "path": "e2e/gm-two-player-failure.pack.spec.ts",
+      "sha256": "3326d78cea487bdba2c52c40ae6d9d21d6c22b402c340b4123635e7f92059118"
+    },
+    {
+      "path": "e2e/gm-two-player-performance.pack.spec.ts",
+      "sha256": "affd8826c0c3f327e937dc394b239e8573c2f747ec82207d37f4a8700cc13a5d"
+    },
+    {
+      "path": "e2e/gm-two-player-fixture.smoke.spec.ts",
+      "sha256": "e408ee0cf6b9aa0805e61ac4f7eb92a6e12e26c9d66c8690ff084f35ec0ec099"
+    },
+    {
+      "path": "e2e/gm-two-player-cleanup-ownership.spec.ts",
+      "sha256": "4529a3bb46962bf298f818e1cb0e3a8d6be385dd4a01ab367448957e5917ff85"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/r4-matrix-parent-20260913/static-test-index.json",
+      "sha256": "d0743a3dd96f92a59be9935658e2b00cd0174ae75ca21eff7692ffd9df226a56"
+    },
+    {
+      "path": "AGENTS.md",
+      "sha256": "45bfe43b5adb67aae85e53b532ab97f200e011c974c99d4c837bfd7cdd6b3a4a"
+    },
+    {
+      "path": "e2e/AGENTS.md",
+      "sha256": "9d8ba8ecbf721dc8b5b02dd257b265fb8e7f98175812c1388502be8ffa1f1c86"
+    },
+    {
+      "path": "openspec/changes/harden-gm-two-player-campaign-sessions/implementation-plan.md",
+      "sha256": "82f8b7f004553865b7ec974969e2c228f78a31f396a5e24c8419771c64cb959b"
+    },
+    {
+      "path": "playwright.config.ts",
+      "sha256": "762eab86f455ce7029fd48bb0b54d728d6bb819d919d8ef7f927a7ee3044329f"
+    },
+    {
+      "path": "package.json",
+      "sha256": "eeebcb46214017104ed9cad6feab8f4a7e941816552585fb8230731d6931ad17"
+    }
+  ],
+  "corrections": [
+    "Rejected initial header-derived timeout absence; E2E29 assertions await production timeout and preserve head.",
+    "Actual scenario heading lines and declaration titles replace arithmetic/paraphrased anchors.",
+    "E2E24 and27 missing pre-serialization/recovery/export assertions remain explicit.",
+    "Historical roadmap requirement links are not runtime evidence.",
+    "Existing GM correction writer existence from R6 disposition is not overridden by stale test headers.",
+    "Successors normalized to existing domain nodes; R6.umbrella owns full integrated acceptance."
+  ],
+  "limits": [
+    "Real means source assertions, not a passing runtime scenario or satisfaction of shared catalog contracts.",
+    "No test, server, browser, performance, deployment, production cutover or new main proof executed.",
+    "80 mapped rows do not imply80 passingtests; historical34/80 retained separately.",
+    "All product dependencies, exact-head approval/main proof, and publication requirements remain.",
+    "Ignored raw evidence is local and is not represented as included in Git."
+  ],
+  "parentAcceptance": "evidence/r4-matrix-parent-acceptance-20260913.json"
+}

@@ -3,6 +3,7 @@ import { mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 
+import { EVENT_HISTORY_GENESIS_DIGEST } from '@/lib/events/journal/EventHistoryBranchContract';
 import {
   getSQLiteService,
   resetSQLiteService,
@@ -58,7 +59,7 @@ describe('event history artifact manifest SQLite migration', () => {
           reason, created_at)
        VALUES ('match', 'stream-1', 'root', NULL, 0, 0, NULL, ?, 'effective',
                'migration', 'genesis', '2026-09-02T00:00:00.000Z')`,
-    ).run(DIGEST_A);
+    ).run(EVENT_HISTORY_GENESIS_DIGEST);
     db.prepare(
       `INSERT INTO event_history_branches
          (stream_type, stream_id, branch_id, parent_branch_id, ancestor_depth,
