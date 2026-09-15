@@ -813,3 +813,140 @@ describe('CampaignSyncSession — scenario progression requires convergence', ()
     stop();
   });
 });
+
+describe('CampaignSyncSession — a committed removal detaches the live socket', () => {
+  /**
+   * Two members joined and holding live sinks, then the GM commits an
+   * audited `RemoveParticipant` through the host's own door — the exact
+   * shape `bindCampaignSyncConnection` drives, which hands the committed
+   * events straight to `applyCommittedParticipantRemoval`.
+   *
+   * The removal is COMMITTED rather than hand-built so these rows cannot
+   * pass against an event the production path would never produce.
+   */
+  async function removedAndSeated(): Promise<{
+    host: CampaignMatchHost;
+    session: CampaignSyncSession;
+    removal: ICampaignEvent<'ParticipantRemoved'>;
+    removedSaw: ICampaignEvent[];
+    seatedSaw: ICampaignEvent[];
+    removedDisconnect: () => void;
+    seatedDisconnect: () => void;
+  }> {
+    const { host, session } = newSession();
+    await session.open();
+    const removedSaw: ICampaignEvent[] = [];
+    const seatedSaw: ICampaignEvent[] = [];
+    const removed = await session.joinMember(
+      (e) => removedSaw.push(e),
+      'player-1',
+    );
+    const seated = await session.joinMember(
+      (e) => seatedSaw.push(e),
+      'player-2',
+    );
+
+    const result = await host.applyHostIntent({
+      kind: 'RemoveParticipant',
+      campaignId: CAMPAIGN_ID,
+      intentId: 'remove-player-1',
+      payload: { participantId: 'player-1', reason: 'stalled the turn timer' },
+    });
+    if (!result.ok)
+      throw new Error(`the removal was refused: ${result.reason}`);
+    const removal = result.events.find(
+      (event): event is ICampaignEvent<'ParticipantRemoved'> =>
+        event.type === 'ParticipantRemoved',
+    );
+    if (removal === undefined) {
+      throw new Error('the removal committed no ParticipantRemoved event');
+    }
+    session.applyCommittedParticipantRemoval(removal);
+
+    // The removal event itself fanned out before it was applied, which is
+    // production's own ordering. These rows are about what happens AFTER.
+    removedSaw.length = 0;
+    seatedSaw.length = 0;
+    return {
+      host,
+      session,
+      removal,
+      removedSaw,
+      seatedSaw,
+      removedDisconnect: removed.disconnect,
+      seatedDisconnect: seated.disconnect,
+    };
+  }
+
+  it('stops delivering committed facts to the removed participant', async () => {
+    const { host, removedSaw, seatedSaw, removedDisconnect, seatedDisconnect } =
+      await removedAndSeated();
+
+    await host.handleIntent({
+      kind: 'AdvanceDay',
+      campaignId: CAMPAIGN_ID,
+      intentId: 'advance-after-removal',
+      payload: {},
+    });
+
+    // The seated participant still receives it — the channel is live, so
+    // silence on the other sink would otherwise mean nothing.
+    expect(seatedSaw.map((e) => e.type)).toEqual(['CampaignDayAdvanced']);
+    // ...and the removed participant's ALREADY-BOUND sink receives
+    // nothing. Revocation reaches the socket already in the room, not
+    // only the durable doors a later request would knock on.
+    expect(removedSaw).toEqual([]);
+
+    removedDisconnect();
+    seatedDisconnect();
+  });
+
+  it('survives the removed socket disconnecting after the removal', async () => {
+    // The socket's own `cleanupFns` still run on close, so the detach the
+    // removal already invoked is invoked again. That second call must be
+    // a no-op rather than a throw, and must not take the seated
+    // participant's delivery with it.
+    const { host, removedSaw, seatedSaw, removedDisconnect, seatedDisconnect } =
+      await removedAndSeated();
+
+    expect(() => removedDisconnect()).not.toThrow();
+    expect(() => removedDisconnect()).not.toThrow();
+
+    await host.handleIntent({
+      kind: 'AdvanceDay',
+      campaignId: CAMPAIGN_ID,
+      intentId: 'advance-after-double-detach',
+      payload: {},
+    });
+
+    expect(seatedSaw.map((e) => e.type)).toEqual(['CampaignDayAdvanced']);
+    expect(removedSaw).toEqual([]);
+
+    seatedDisconnect();
+  });
+
+  it('is idempotent when a recovery pass replays the same removal', async () => {
+    // `healCommittedParticipantRemovals` re-walks every committed removal
+    // before admission on later frames, so this method is called again
+    // with the same event. Draining a participant who has no live
+    // attachment left must change nothing for anybody else.
+    const { host, session, removal, removedSaw, seatedSaw, seatedDisconnect } =
+      await removedAndSeated();
+
+    expect(() =>
+      session.applyCommittedParticipantRemoval(removal),
+    ).not.toThrow();
+
+    await host.handleIntent({
+      kind: 'AdvanceDay',
+      campaignId: CAMPAIGN_ID,
+      intentId: 'advance-after-replay',
+      payload: {},
+    });
+
+    expect(seatedSaw.map((e) => e.type)).toEqual(['CampaignDayAdvanced']);
+    expect(removedSaw).toEqual([]);
+
+    seatedDisconnect();
+  });
+});
