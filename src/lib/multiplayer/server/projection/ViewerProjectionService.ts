@@ -262,6 +262,11 @@ export class ViewerProjectionService {
     for (const stored of storedEvents) {
       const decision = projector.decisionFor(stored.eventType);
       if (decision === undefined) throwProjectionFailed();
+      // D12 boundary note: the WHOLE stored payload is handed to the
+      // registered projector. No `campaign` projector is registered today,
+      // but one added here would route stored campaign envelopes --
+      // `sourcePrivate` included -- past `envelopeOf`. Register it only
+      // behind a decision that narrows through `envelopeOf` first.
       if (!isVisibleToViewer(viewer, decision, stored.payload)) continue;
       const payload = projectPayload(decision, stored.payload, viewer);
       const fact = freezeFact(stored.eventType, identified.length + 1, payload);
