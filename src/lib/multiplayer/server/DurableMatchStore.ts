@@ -57,6 +57,7 @@ import { readDurableStreamRebuild } from '@/lib/events/journal/EventHistoryDurab
 import { normalizeRoomCode } from '@/lib/p2p/roomCodes';
 import { isSqliteUniqueConstraintError } from '@/services/persistence/sqliteConstraintErrors';
 
+import type { ICapabilityDatabaseHandle } from './durableCapabilityPorts';
 import type {
   IMatchCommandBatch,
   IMatchCommandReceipt,
@@ -118,6 +119,11 @@ import {
   matchCommandFingerprint,
   matchesCommandFingerprint,
 } from './matchCommandBatch';
+import {
+  getCombatJournalAuthorityMode,
+  recordProcessShadowComparison,
+} from './matchJournalAuthority';
+import { mirrorMatchBatchToJournal } from './MatchStreamJournalMirror';
 
 // =============================================================================
 // Constants
@@ -605,6 +611,7 @@ export class DurableMatchStore
 {
   // Port members are assigned at construction by bindDurableCapabilityPorts; declare keeps them on the type with no runtime emit and no class/interface merge.
   declare isCapabilityDbAvailable: IHistoryBranchStoreReadiness['isCapabilityDbAvailable'];
+  declare capabilityDatabase: ICapabilityDatabaseHandle['capabilityDatabase'];
   declare readBranch: IEventHistoryBranchPort['readBranch'];
   declare requireBranch: IEventHistoryBranchPort['requireBranch'];
   declare readEffectiveHead: IEventHistoryBranchPort['readEffectiveHead'];
@@ -957,7 +964,56 @@ export class DurableMatchStore
       };
     });
 
-    return tx();
+    const result = tx();
+    if (result.kind === 'committed') {
+      await this.mirrorCommittedBatch(matchId, batch);
+    }
+    return result;
+  };
+
+  /**
+   * Mirror a committed batch into the journal (S1 of the combat
+   * cutover). Deliberately AFTER `tx()`: the journal lives in the
+   * campaign file and cannot join this transaction, and the command is
+   * already durable here. A mirror failure therefore never fails the
+   * command — it is recorded on the shadow tripwire S6 consults, so a
+   * journal that fell behind cannot be promoted to authority.
+   */
+  private mirrorCommittedBatch = async (
+    matchId: string,
+    batch: IMatchCommandBatch,
+  ): Promise<void> => {
+    if (getCombatJournalAuthorityMode() === 'off') return;
+    // Method presence is not an open database: a process that never
+    // initialized SQLiteService has the ports bound and would throw.
+    if (!this.isCapabilityDbAvailable()) return;
+    let reason: string;
+    try {
+      const mirrored = await mirrorMatchBatchToJournal(
+        this.capabilityDatabase(),
+        {
+          matchId,
+          commandId: batch.commandId,
+          actorId: batch.actorId,
+          expectedRevision: batch.expectedRevision,
+          events: batch.events,
+          expectedPostStateDigest: batch.expectedPostStateDigest,
+        },
+      );
+      if (mirrored.kind === 'mirrored') return;
+      reason = mirrored.kind;
+    } catch (error) {
+      reason = error instanceof Error ? error.message : 'mirror failed';
+    }
+    recordProcessShadowComparison({
+      intentId: batch.commandId,
+      equal: false,
+      eventCountLive: batch.events.length,
+      eventCountShadow: 0,
+      liveDigest: batch.expectedPostStateDigest ?? '',
+      shadowDigest: '',
+      reason: `journal-mirror:${reason}`,
+    });
   };
 
   getCommandReceipt = async (
