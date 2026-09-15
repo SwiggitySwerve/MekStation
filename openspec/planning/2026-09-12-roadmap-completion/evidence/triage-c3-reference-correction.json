@@ -1,0 +1,122 @@
+{
+  "schemaVersion": 1,
+  "evidenceId": "triage-c3-reference-correction",
+  "capturedAt": "2026-09-12",
+  "scope": "Reference-only correction owned by this review: two stale positive source references in the C3 network targeting specification. No product code, roadmap, inventory, task, or product validation files were changed.",
+  "ownedPaths": [
+    "openspec/specs/c3-network-targeting/spec.md",
+    "openspec/planning/2026-09-12-roadmap-completion/evidence/triage-c3-reference-correction.json"
+  ],
+  "preexistingWorktreeNote": "The specification already contained unrelated reference repairs when this task began. Those edits were preserved. This task added exactly two source-reference replacements.",
+  "specHash": {
+    "path": "openspec/specs/c3-network-targeting/spec.md",
+    "beforeSha256": "E52B99784C4D6F2984ABE302C1C4CA3A481F5A7B69947CBE3261D26C78F05D23",
+    "afterSha256": "C34FE3348EE43CF57474204D423B23DBD44D32FBCA1245FE2E7202DE12ED14C9"
+  },
+  "replacements": [
+    {
+      "specLine": 101,
+      "before": "src/utils/gameplay/electronicWarfare/state.ts:destroyEquipment",
+      "after": "src/utils/gameplay/c3Network/state.ts:destroyC3Unit",
+      "reason": "The C3 master-destruction requirement is implemented by destroyC3Unit. Its master-slave branch removes the complete network when the destroyed member has role master.",
+      "sourceEvidence": [
+        {
+          "path": "src/utils/gameplay/c3Network/state.ts",
+          "lines": "105-150",
+          "mapping": "Lines 105-112 document destruction behavior; lines 114-117 define destroyC3Unit; lines 128-130 remove the full master-slave network for a destroyed master; lines 133-149 remove a non-master member or dissolve a one-member remainder."
+        },
+        {
+          "path": "src/utils/gameplay/c3Network/index.ts",
+          "lines": "7-16",
+          "mapping": "The C3 module barrel exports destroyC3Unit from ./state, confirming the corrected implementation is the public C3 state API."
+        }
+      ]
+    },
+    {
+      "specLine": 139,
+      "before": "data/equipment/electronics/c3.json",
+      "after": "public/data/equipment/official/electronics/c3.json",
+      "reason": "The repository's canonical C3 catalog is under public/data/equipment/official/electronics, and the old data/equipment/electronics path is absent.",
+      "sourceEvidence": [
+        {
+          "path": "src/types/equipment/ElectronicsTypes.ts",
+          "lines": "20-25",
+          "mapping": "ElectronicsCategory.C3 is the canonical C3 System category."
+        },
+        {
+          "path": "src/services/equipment/EquipmentNameMapper.ts",
+          "lines": "173-188",
+          "mapping": "Canonical display names map to catalog IDs c3-master, c3-slave, and c3i."
+        },
+        {
+          "path": "public/data/equipment/official/index.json",
+          "lines": "32-36",
+          "mapping": "The official equipment index registers electronics/c3.json as the c3 electronics file."
+        },
+        {
+          "path": "src/services/equipment/EquipmentOfficialLoader.ts",
+          "lines": "132-153",
+          "mapping": "The official loader reads indexed electronics files and converts each item into the electronics lookup map."
+        },
+        {
+          "path": "public/data/equipment/official/electronics/c3.json",
+          "lines": "1-53",
+          "mapping": "The catalog contains c3-master (lines 8-21), c3-slave (lines 24-37), and c3i / Improved C3 Computer (lines 40-53), including the specified weights and critical slots."
+        }
+      ]
+    }
+  ],
+  "pathChecks": {
+    "oldPath": "data/equipment/electronics/c3.json",
+    "oldPathExists": false,
+    "canonicalPath": "public/data/equipment/official/electronics/c3.json",
+    "canonicalPathExists": true
+  },
+  "sourceHashes": [
+    {
+      "path": "src/utils/gameplay/c3Network/state.ts",
+      "sha256": "7F67F25D3A57D6BC21C785FDAD4E271088AA739D969AC4E0624FF82420CB705D"
+    },
+    {
+      "path": "src/services/equipment/EquipmentNameMapper.ts",
+      "sha256": "E22C3D9BFE946D5E04CD0064B73B892F95E54C8CC5B500877D40A92B9CCD6455"
+    },
+    {
+      "path": "src/types/equipment/ElectronicsTypes.ts",
+      "sha256": "5BA4F3D1A370ADF3EBBC4B232F4457F012A19E2B23109FDF86C673D1F6D9AFF8"
+    },
+    {
+      "path": "src/services/equipment/EquipmentOfficialLoader.ts",
+      "sha256": "31FF5F6AF073037E82677E9B3A3C148A846956B69E09206F08D26F65727A064C"
+    },
+    {
+      "path": "public/data/equipment/official/index.json",
+      "sha256": "09B1979AD0FB18EA35872D1E393E14F80589EBC54AA472577E7B99B503BFD650"
+    },
+    {
+      "path": "public/data/equipment/official/electronics/c3.json",
+      "sha256": "18315853FDAFCFEE92DB1BFE27066ED57AF630D71DC1CE85C9C8B6C7A86F65BE"
+    },
+    {
+      "path": "src/utils/gameplay/c3Network/index.ts",
+      "sha256": "3ECCD63D1F7C39DFC7CBC3F72F5896C168BF5C03B17D93B6F896D936BC32E710"
+    }
+  ],
+  "validation": [
+    {
+      "command": "npx.cmd openspec validate c3-network-targeting --strict",
+      "exitCode": 0,
+      "result": "Specification 'c3-network-targeting' is valid"
+    },
+    {
+      "command": "git diff --check -- openspec/specs/c3-network-targeting/spec.md",
+      "exitCode": 0,
+      "result": "No whitespace errors"
+    }
+  ],
+  "limits": [
+    "This is a source-reference and path correction only; no product tests, build, browser proof, or runtime behavior validation was requested or run.",
+    "The evidence proves the replacement targets resolve through the current C3 state implementation and official catalog index/loader chain. It does not prove every catalog consumer or the full C3 gameplay contract.",
+    "The source line mappings are anchored to the captured live files and their recorded SHA-256 hashes; future edits may move line numbers."
+  ]
+}

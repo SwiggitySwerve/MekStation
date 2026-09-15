@@ -1,0 +1,15 @@
+{
+  "at": "2026-09-12T12:29:23.649Z",
+  "pr": {
+    "headRefOid": "0ffe4971ee29f6ad8fc2fa1ca30817b2d890c167",
+    "mergeCommit": {
+      "oid": "b2755ee72f64618fefd4d0a7c83297fef409193e"
+    },
+    "mergedAt": "2026-09-12T12:29:08Z",
+    "state": "MERGED",
+    "url": "https://github.com/SwiggitySwerve/MekStation/pull/1638"
+  },
+  "main": "b2755ee72f64618fefd4d0a7c83297fef409193e",
+  "identicalTrees": true,
+  "worktree": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\infantry"
+}

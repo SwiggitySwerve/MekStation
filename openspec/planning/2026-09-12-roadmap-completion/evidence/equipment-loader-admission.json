@@ -1,0 +1,25 @@
+{
+  "recordedAt": "2026-09-12T14:32:15.322Z",
+  "node": "R9.equipment-loader",
+  "baseline": "6c4eac5c7b7a2aece3aab0443ce606943db6cf0b",
+  "branch": "codex/roadmap-equipment-loader-20260912",
+  "canonicalWorktreePath": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\equipment-loader",
+  "gitDirectory": "E:/Projects/MekStation/.git/worktrees/equipment-loader",
+  "gitCommonDirectory": "E:/Projects/MekStation/.git",
+  "files": [
+    {
+      "path": "src/services/equipment/EquipmentOfficialLoader.ts",
+      "sha256": "92b520e154648bae97219f3d92c3fb7521a99e9f9fc51e2a1b1c4c039c4d73fb"
+    },
+    {
+      "path": "src/services/equipment/EquipmentLoaderService.ts",
+      "sha256": "5bbdcbb90898beee29a4dd4677de9498efb890235e410cc175391711fbb47b9c"
+    },
+    {
+      "path": "src/services/equipment/__tests__/EquipmentOfficialLoader.failure.test.ts",
+      "sha256": "90a1f879fd0a07c271a2b3a2e98fc99def7f8bee43fea0f99b61f70ea8023938"
+    }
+  ],
+  "status": " M src/services/equipment/EquipmentLoaderService.ts\n M src/services/equipment/EquipmentOfficialLoader.ts\n?? src/services/equipment/__tests__/EquipmentOfficialLoader.failure.test.ts\n",
+  "cleanup": "Keep until merged and verified at exact main; verify identity, branch/head and clean ownership before removal. Shared node_modules junction must not be recursively followed."
+}

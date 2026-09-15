@@ -1,0 +1,70 @@
+{
+  "at": "2026-09-12T12:51:32.855Z",
+  "status": "complete",
+  "worktreesRemoved": [
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\routing",
+      "head": "6c4eac5c7b7a2aece3aab0443ce606943db6cf0b",
+      "gitDir": "E:/Projects/MekStation/.git/worktrees/routing"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\infantry",
+      "head": "b2755ee72f64618fefd4d0a7c83297fef409193e",
+      "gitDir": "E:/Projects/MekStation/.git/worktrees/infantry"
+    }
+  ],
+  "refResults": [
+    {
+      "ref": "refs/heads/codex/roadmap-routing-precedence-20260912",
+      "expected": "aff3a051a0f52e0b35005ea1b3b7406381f577dc",
+      "state": "deleted-with-expected-OID"
+    },
+    {
+      "ref": "refs/remotes/origin/codex/roadmap-routing-precedence-20260912",
+      "expected": "aff3a051a0f52e0b35005ea1b3b7406381f577dc",
+      "state": "deleted-with-expected-OID"
+    },
+    {
+      "ref": "refs/heads/codex/roadmap-infantry-preview-20260912",
+      "expected": "0ffe4971ee29f6ad8fc2fa1ca30817b2d890c167",
+      "state": "deleted-with-expected-OID"
+    },
+    {
+      "ref": "refs/remotes/origin/codex/roadmap-infantry-preview-20260912",
+      "expected": "0ffe4971ee29f6ad8fc2fa1ca30817b2d890c167",
+      "state": "deleted-with-expected-OID"
+    },
+    {
+      "ref": "refs/heads/codex/roadmap-routing-closure-20260912",
+      "expected": "579609a96acde6ce0c5a3ebe370abc4cd0838837",
+      "state": "deleted-with-expected-OID"
+    },
+    {
+      "ref": "refs/remotes/origin/codex/roadmap-routing-closure-20260912",
+      "expected": "579609a96acde6ce0c5a3ebe370abc4cd0838837",
+      "state": "deleted-with-expected-OID"
+    }
+  ],
+  "remoteBranches": "All three exact remote refs verified absent; no remote deletion request was needed",
+  "exportsReopened": [
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\exports\\routing-browser\\playwright-report\\index.html",
+      "sha256": "22bcc3a75f07302811f0e86c2495bd27ef8665135b0a4b49755e6f0d59209121"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\exports\\routing-browser\\test-results\\.last-run.json",
+      "sha256": "91d1c43004802cd49950d78eb11c8fa7d05da8ffffe219a8b13b2f561bc00903"
+    }
+  ],
+  "rawLogsRetainedAt": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912",
+  "preservedWorktrees": "worktree E:/Projects/MekStation\nHEAD be7f85b867aa3e8576e5e3d27e309276203bc24b\nbranch refs/heads/main\n\nworktree C:/tmp/MekStation-gameplay-audit-a72208b0-2\nHEAD a72208b08de5f8a1bef49f61db3ddc46a54012e8\ndetached\n\nworktree C:/tmp/MekStation-gm2p-spec-886508048\nHEAD 5b546a39ec29dd2e79c845946dc84b3619ee25ee\nbranch refs/heads/codex/continue-gm-two-player-campaign\n\nworktree C:/Users/wroll/.codex/worktrees/af7e/MekStation\nHEAD 327f10787d529a95328bef05e3732ebb02efbee7\ndetached\n\nworktree C:/Users/wroll/.codex/worktrees/combat-event-durability/MekStation\nHEAD 85e7138feaea0333c2dafbd2f974ef5977450af1\ndetached\n\nworktree C:/Users/wroll/.codex/worktrees/combat-turn-rail/MekStation\nHEAD 67805c8302f78c5205921cafbee9d4544783fb96\ndetached\n\nworktree E:/CodexWorktrees/MekStation-maintain\nHEAD 2c775907ae285e27dd7103c8c29e061fcc6d91e4\nbranch refs/heads/maintain/modularity-hard-guardrail-wave1\n\nworktree E:/Projects/mekstation-l66\nHEAD 74bd093a65c483ed8d25e4d91adddf3677368090\ndetached\n\nworktree E:/Projects/mekstation-l83\nHEAD 7f821e7795db67ba60010b44c15aeb5f86d2838e\ndetached\n\nworktree E:/Projects/mekstation-l89\nHEAD 439af6bca6c54cf60472e8d7e9c191a962ee93ab\ndetached\n\n",
+  "rootHead": "be7f85b867aa3e8576e5e3d27e309276203bc24b",
+  "attempts": [
+    "evidence/routing-removal-observation.json",
+    "infantry-remove-status.json"
+  ],
+  "ownedPortsClearAtPreflight": [
+    3637,
+    3638
+  ]
+}

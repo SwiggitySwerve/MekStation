@@ -1,0 +1,178 @@
+{
+  "schemaVersion": 1,
+  "evidenceId": "triage-c3-verification",
+  "capturedAt": "2026-09-12T13:26:34.8304515Z",
+  "scope": "Runtime proof for the C3 network targeting implementation, limited to the two requested focused Jest suites and their imported C3 fragments. No product or spec files were changed.",
+  "command": {
+    "executable": "npx.cmd",
+    "args": [
+      "jest",
+      "--runInBand",
+      "--watchAll=false",
+      "src/utils/gameplay/__tests__/c3Network.test.ts",
+      "src/utils/gameplay/c3Network/__tests__/automaticFormation.test.ts"
+    ],
+    "workdir": "E:\\Projects\\MekStation",
+    "environment": {
+      "NODE_ENV": "",
+      "NODE_OPTIONS": "",
+      "CI": "",
+      "JEST_WORKERS": ""
+    }
+  },
+  "result": {
+    "exitCode": 0,
+    "testSuitesPassed": 2,
+    "testSuitesTotal": 2,
+    "testsPassed": 69,
+    "testsTotal": 69,
+    "snapshots": 0,
+    "durationSeconds": 2.322,
+    "logPath": ".sisyphus/roadmap-completion-20260912/triage-proof/c3-jest-focused-proof.log"
+  },
+  "rawCommandLog": {
+    "path": ".sisyphus/roadmap-completion-20260912/triage-proof/c3-jest-focused-proof.log",
+    "sha256": "0559D79F7D596705BF87C2F9C03F1A044E6584C93DDC91C9749EDF923945F37D"
+  },
+  "statusAndHashRecord": {
+    "path": ".sisyphus\\roadmap-completion-20260912\\triage-proof\\c3-status-and-hashes.json",
+    "sha256": "73C302F042A6E49121255BCF782F5766FB5282A1EFFAC818C1E2BC441A0F1B77"
+  },
+  "sourceAndTestHashes": [
+    {
+      "path": "src/utils/gameplay/c3Network.ts",
+      "beforeSha256": "8E43A925F8D0527BF3A6138CFA762BF6654A9C01C31EE7EC85C8D52B06A1669B",
+      "afterSha256": "8E43A925F8D0527BF3A6138CFA762BF6654A9C01C31EE7EC85C8D52B06A1669B",
+      "unchanged": true
+    },
+    {
+      "path": "src/utils/gameplay/c3Network/automaticFormation.ts",
+      "beforeSha256": "5EA9F5CFCA13D27F0374982E46CC0227B50F460DA04884ED677D13C6F26C3437",
+      "afterSha256": "5EA9F5CFCA13D27F0374982E46CC0227B50F460DA04884ED677D13C6F26C3437",
+      "unchanged": true
+    },
+    {
+      "path": "src/utils/gameplay/c3Network/creation.ts",
+      "beforeSha256": "3543C1FE2FF7EE2B4D382D6F7580C0C0ACB87903E723F84023949445AC682BC2",
+      "afterSha256": "3543C1FE2FF7EE2B4D382D6F7580C0C0ACB87903E723F84023949445AC682BC2",
+      "unchanged": true
+    },
+    {
+      "path": "src/utils/gameplay/c3Network/index.ts",
+      "beforeSha256": "3ECCD63D1F7C39DFC7CBC3F72F5896C168BF5C03B17D93B6F896D936BC32E710",
+      "afterSha256": "3ECCD63D1F7C39DFC7CBC3F72F5896C168BF5C03B17D93B6F896D936BC32E710",
+      "unchanged": true
+    },
+    {
+      "path": "src/utils/gameplay/c3Network/state.ts",
+      "beforeSha256": "7F67F25D3A57D6BC21C785FDAD4E271088AA739D969AC4E0624FF82420CB705D",
+      "afterSha256": "7F67F25D3A57D6BC21C785FDAD4E271088AA739D969AC4E0624FF82420CB705D",
+      "unchanged": true
+    },
+    {
+      "path": "src/utils/gameplay/c3Network/stateHydration.ts",
+      "beforeSha256": "6A2D053C897FCBC11D26820BF00B6A03201B38B9982E37AD9CD1A5A6AC027771",
+      "afterSha256": "6A2D053C897FCBC11D26820BF00B6A03201B38B9982E37AD9CD1A5A6AC027771",
+      "unchanged": true
+    },
+    {
+      "path": "src/utils/gameplay/c3Network/targeting.ts",
+      "beforeSha256": "D87DF7ED22AE403BF02498F48B9D06B8B12CD27804DFA489EF8BE922BABFB851",
+      "afterSha256": "D87DF7ED22AE403BF02498F48B9D06B8B12CD27804DFA489EF8BE922BABFB851",
+      "unchanged": true
+    },
+    {
+      "path": "src/utils/gameplay/c3Network/types.ts",
+      "beforeSha256": "8C7E662C5576FC8C99DDE2AF231914858688383E638F6F7E8F37F090A054A288",
+      "afterSha256": "8C7E662C5576FC8C99DDE2AF231914858688383E638F6F7E8F37F090A054A288",
+      "unchanged": true
+    },
+    {
+      "path": "src/utils/gameplay/__tests__/c3Network.test.ts",
+      "beforeSha256": "BE8FC3739876FFA7D9A4D8754457B907B2186EF2909F0990D338EF6E914D8F04",
+      "afterSha256": "BE8FC3739876FFA7D9A4D8754457B907B2186EF2909F0990D338EF6E914D8F04",
+      "unchanged": true
+    },
+    {
+      "path": "src/utils/gameplay/__tests__/c3Network.01.fragment.ts",
+      "beforeSha256": "FFA2138D57F4C4500DD5156E8C6E3D819CD59B0A063BAACA1BD2661F33E39F46",
+      "afterSha256": "FFA2138D57F4C4500DD5156E8C6E3D819CD59B0A063BAACA1BD2661F33E39F46",
+      "unchanged": true
+    },
+    {
+      "path": "src/utils/gameplay/__tests__/c3Network.02.fragment.ts",
+      "beforeSha256": "90D35CF60C49DFF5D2F68EF0C29427B4A41BFB202874EDA18C03515BD0EFA6A6",
+      "afterSha256": "90D35CF60C49DFF5D2F68EF0C29427B4A41BFB202874EDA18C03515BD0EFA6A6",
+      "unchanged": true
+    },
+    {
+      "path": "src/utils/gameplay/__tests__/c3Network.03.fragment.ts",
+      "beforeSha256": "0B4EE92F64C41A0029B36D93C775FE6EE692D290537C189AD6D10CC2D68A8622",
+      "afterSha256": "0B4EE92F64C41A0029B36D93C775FE6EE692D290537C189AD6D10CC2D68A8622",
+      "unchanged": true
+    },
+    {
+      "path": "src/utils/gameplay/__tests__/c3Network.04.fragment.ts",
+      "beforeSha256": "0CCD959AE22B8C3BC733FC8C8B5C5AF20772F7F63F2625D696EC74492FBFD1C1",
+      "afterSha256": "0CCD959AE22B8C3BC733FC8C8B5C5AF20772F7F63F2625D696EC74492FBFD1C1",
+      "unchanged": true
+    },
+    {
+      "path": "src/utils/gameplay/c3Network/__tests__/automaticFormation.test.ts",
+      "beforeSha256": "1E7A75A944FEC402098AF4C730FE8C6160A338FB1FC13D344B17EDE76F9F3FE4",
+      "afterSha256": "1E7A75A944FEC402098AF4C730FE8C6160A338FB1FC13D344B17EDE76F9F3FE4",
+      "unchanged": true
+    }
+  ],
+  "importedFragmentScope": [
+    {
+      "path": "src/utils/gameplay/__tests__/c3Network.01.fragment.ts",
+      "describes": 4,
+      "tests": 27,
+      "expectCalls": 39,
+      "assertions": "C3 master/slave formation and rejection boundaries; C3i formation; Nova CEWS formation; C3 state creation, membership, position, ECM, and operational updates."
+    },
+    {
+      "path": "src/utils/gameplay/__tests__/c3Network.02.fragment.ts",
+      "describes": 2,
+      "tests": 6,
+      "expectCalls": 14,
+      "assertions": "C3 master destruction and slave removal; C3i peer loss and no-network destruction."
+    },
+    {
+      "path": "src/utils/gameplay/__tests__/c3Network.03.fragment.ts",
+      "describes": 1,
+      "tests": 11,
+      "expectCalls": 27,
+      "assertions": "Best-range targeting, optional LOS gating, ECM-disrupted attacker/spotter exclusion, destroyed-spotter exclusion, C3i parity, and out-of-range handling."
+    },
+    {
+      "path": "src/utils/gameplay/__tests__/c3Network.04.fragment.ts",
+      "describes": 3,
+      "tests": 9,
+      "expectCalls": 28,
+      "assertions": "ECM disruption/preservation, calculateToHitWithC3 range modifiers, and bracket ordering."
+    },
+    {
+      "path": "src/utils/gameplay/c3Network/__tests__/automaticFormation.test.ts",
+      "describes": 1,
+      "tests": 16,
+      "expectCalls": 47,
+      "assertions": "Conservative per-side mounted C3/C3i/Nova formation, boosted comm implant access, singleton/incomplete/ambiguous/mixed/oversized denials, and support-row boundaries."
+    }
+  ],
+  "validation": {
+    "command": "npx.cmd jest --runInBand --watchAll=false src/utils/gameplay/__tests__/c3Network.test.ts src/utils/gameplay/c3Network/__tests__/automaticFormation.test.ts",
+    "exitCode": 0,
+    "suites": "2/2",
+    "tests": "69/69",
+    "snapshots": "0",
+    "durationSeconds": 2.322
+  },
+  "limits": [
+    "Focused Jest proof covers the two requested suites and their imported C3 fragments. It does not prove browser/UI behavior, persistence, multiplayer authority, catalog loading, or the full application integration surface.",
+    "The test fixtures construct representative game-state and equipment-role inputs; they do not prove every production hydration or external data source.",
+    "All hashed C3 source and focused test files were unchanged across this run; unrelated dirty-tree state was left untouched."
+  ],
+  "parentDiagnosis": "Focused runtime proof passed; no failure diagnosis or broad repair is indicated."
+}

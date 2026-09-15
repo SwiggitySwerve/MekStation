@@ -1,0 +1,44 @@
+{
+  "at": "2026-09-12T12:06:53.115Z",
+  "baseline": "47c4464840eaa7c62044533621eb265a4ab71215",
+  "branch": "codex/roadmap-routing-closure-20260912",
+  "worktree": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\routing",
+  "originalFiles": [
+    {
+      "path": "openspec/changes/fix-customizer-explicit-tab-precedence/.openspec.yaml",
+      "sha256": "a4ed664eb8476e85e347872f52baefe664358318725d07ee4e28ea918d6fd9d4"
+    },
+    {
+      "path": "openspec/changes/fix-customizer-explicit-tab-precedence/design.md",
+      "sha256": "2328c2f8821202ef7aac04351767b9e57572d001be6a18fbfc408ecda4a326fe"
+    },
+    {
+      "path": "openspec/changes/fix-customizer-explicit-tab-precedence/proposal.md",
+      "sha256": "41762fe61062760b75aa0e799600e9f79ad982453400ea7913ec3d41cb9a7a46"
+    },
+    {
+      "path": "openspec/changes/fix-customizer-explicit-tab-precedence/specs/customizer-routing/spec.md",
+      "sha256": "6ddd0e574a13367a81224650aeda5fee91af142f8e98b82880d76d30fc2517cd"
+    },
+    {
+      "path": "openspec/changes/fix-customizer-explicit-tab-precedence/tasks.md",
+      "sha256": "e86f8bd194ff5fd88b421bd9172d39b8c0852dee9ba7872efefad7246f4234c1"
+    }
+  ],
+  "canonicalDeltaExactMatch": true,
+  "validationRepair": {
+    "reason": "Strict terminology exposed two existing main violations. Apply two exact wording replacements so archive closure meets its required gate.",
+    "files": [
+      [
+        "openspec/changes/establish-battlemech-chassis-index/specs/battlemech-chassis-index/spec.md",
+        "technology base",
+        "tech base"
+      ],
+      [
+        "openspec/changes/harden-gm-two-player-campaign-sessions/tasks.md",
+        "armour",
+        "armor"
+      ]
+    ]
+  }
+}

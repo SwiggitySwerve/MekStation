@@ -1,0 +1,31 @@
+{
+  "at": "2026-09-12T11:26:49.630Z",
+  "taskCount": 376,
+  "checkboxSequencesUnchanged": true,
+  "changedTaskFiles": [
+    {
+      "path": "openspec/changes/add-authoritative-history-branches/tasks.md",
+      "oldSha256": "a6ee805e801f45abe5f1b0452a876102b351255eb2921f2e166b1b9107366601",
+      "currentSha256": "b68c9186a2c5dcdeb03411f1f5f9cb91bd365d7d4437e3faf7f0822e0f4f9040",
+      "scope": "Wording repair only; original task occurrence and checkbox sequence preserved"
+    },
+    {
+      "path": "openspec/changes/add-cross-stream-effect-receipts/tasks.md",
+      "oldSha256": "84b26c9daa8807970dc2382091afd6a86ff9e22fe53b2d56e0f18f9ede57826c",
+      "currentSha256": "df8269c0f5342f2fb74079fc25c67c1a05dd1d07261644ceba7a480dcce94184",
+      "scope": "Wording repair only; original task occurrence and checkbox sequence preserved"
+    },
+    {
+      "path": "openspec/changes/design-vault-campaign-separation-and-maps/tasks.md",
+      "oldSha256": "10db5ad0b4c3e9f356f88219a2cf238b88470e8d004a1431a6a9e7be38447877",
+      "currentSha256": "6d2e4ec703b9abf22521d85c5dd4ad2dea070bba94790b2d7d1b5c3396541531",
+      "scope": "Wording repair only; original task occurrence and checkbox sequence preserved"
+    }
+  ],
+  "findings": [
+    "History prerequisite split matches existing PR1–3 exemption; full PR4+ terminal/archive/prune gate retained",
+    "Vault current versions/travel/isometric implementations acknowledged; preserve v2 authority schema, admit next provenance rung and pilot version producer",
+    "Existing legacy D3 encoding normalized to valid UTF-8 in targeted design repair",
+    "Replaced two visible corrupted punctuation markers in cross-stream prerequisite prose without changing its gates"
+  ]
+}

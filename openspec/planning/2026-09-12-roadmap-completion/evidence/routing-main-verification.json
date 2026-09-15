@@ -1,0 +1,188 @@
+{
+  "at": "2026-09-12T12:05:06.530Z",
+  "mainSha": "47c4464840eaa7c62044533621eb265a4ab71215",
+  "identicalTrees": true,
+  "checks": [
+    {
+      "name": "focused-main-1",
+      "status": {
+        "name": "focused-main-1",
+        "args": [
+          "node_modules/jest/bin/jest.js",
+          "--runInBand",
+          "--runTestsByPath",
+          "src/hooks/__tests__/useCustomizerRouter.test.ts",
+          "src/hooks/__tests__/useCustomizerRouter.recovery.test.tsx",
+          "src/components/customizer/__tests__/CustomizerWithRouter.routing.test.tsx",
+          "src/lib/campaign/customizer/__tests__/campaignCustomizerRoute.test.ts"
+        ],
+        "cwd": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\routing",
+        "startedAt": "2026-09-12T12:00:34.465Z",
+        "driverPid": 18968,
+        "running": false,
+        "pid": 40612,
+        "code": 0,
+        "finishedAt": "2026-09-12T12:00:36.878Z"
+      },
+      "log": ".sisyphus/roadmap-completion-20260912/routing-checks/focused-main-1.log",
+      "sha256": "df88742e0589b4754e5693b19869b545be1d1e327a48f7c7215ccba93238d568"
+    },
+    {
+      "name": "typecheck-main-1",
+      "status": {
+        "name": "typecheck-main-1",
+        "args": [
+          "node_modules/typescript/bin/tsc",
+          "--noEmit",
+          "--incremental",
+          "false"
+        ],
+        "cwd": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\routing",
+        "startedAt": "2026-09-12T12:02:35.849Z",
+        "driverPid": 40880,
+        "running": false,
+        "pid": 32524,
+        "code": 0,
+        "finishedAt": "2026-09-12T12:03:10.091Z"
+      },
+      "log": ".sisyphus/roadmap-completion-20260912/routing-checks/typecheck-main-1.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "lint-main-1",
+      "status": {
+        "name": "lint-main-1",
+        "args": [
+          "C:/nvm4w/nodejs/node_modules/npm/bin/npm-cli.js",
+          "run",
+          "lint"
+        ],
+        "cwd": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\routing",
+        "startedAt": "2026-09-12T12:02:35.869Z",
+        "driverPid": 51220,
+        "running": false,
+        "pid": 35128,
+        "code": 0,
+        "finishedAt": "2026-09-12T12:02:36.632Z"
+      },
+      "log": ".sisyphus/roadmap-completion-20260912/routing-checks/lint-main-1.log",
+      "sha256": "e2a9c2c3f00d740e9b4e63d07d3d475f9f9fdc1f9b1872916a639d3712985e53"
+    },
+    {
+      "name": "format-main-1",
+      "status": {
+        "name": "format-main-1",
+        "args": [
+          "C:/nvm4w/nodejs/node_modules/npm/bin/npm-cli.js",
+          "run",
+          "format:check"
+        ],
+        "cwd": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\routing",
+        "startedAt": "2026-09-12T12:02:35.874Z",
+        "driverPid": 77772,
+        "running": false,
+        "pid": 69116,
+        "code": 0,
+        "finishedAt": "2026-09-12T12:02:49.062Z"
+      },
+      "log": ".sisyphus/roadmap-completion-20260912/routing-checks/format-main-1.log",
+      "sha256": "344803162ecae29176d2a2fa03b6d6c4f9a95fd1bb7dd6828f064825c4e57d51"
+    },
+    {
+      "name": "spec-main-1",
+      "status": {
+        "name": "spec-main-1",
+        "args": [
+          "C:/nvm4w/nodejs/node_modules/npm/bin/npm-cli.js",
+          "exec",
+          "--",
+          "openspec",
+          "validate",
+          "--all",
+          "--strict"
+        ],
+        "cwd": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\routing",
+        "startedAt": "2026-09-12T12:02:35.883Z",
+        "driverPid": 71384,
+        "running": false,
+        "pid": 30376,
+        "code": 0,
+        "finishedAt": "2026-09-12T12:02:38.201Z"
+      },
+      "log": ".sisyphus/roadmap-completion-20260912/routing-checks/spec-main-1.log",
+      "sha256": "749c0403cd63049e2a19c1b3d26d389e4476ef4afac7ec2aa473501a5179076f"
+    },
+    {
+      "name": "build-main-1",
+      "status": {
+        "name": "build-main-1",
+        "args": [
+          "scripts/next/run-next.mjs",
+          "build",
+          "--webpack"
+        ],
+        "cwd": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\routing",
+        "startedAt": "2026-09-12T12:00:34.469Z",
+        "driverPid": 62456,
+        "running": false,
+        "pid": 83276,
+        "code": 0,
+        "finishedAt": "2026-09-12T12:02:20.556Z"
+      },
+      "log": ".sisyphus/roadmap-completion-20260912/routing-checks/build-main-1.log",
+      "sha256": "57540873863cdc2f599f10dc0d65e4d16189e0abc52920e18dd9233d75c31cf8"
+    },
+    {
+      "name": "hydrate-main-1",
+      "status": {
+        "name": "hydrate-main-1",
+        "args": [
+          "scripts/hydrate-next-standalone-multiplayer-server.mjs"
+        ],
+        "cwd": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\routing",
+        "startedAt": "2026-09-12T12:03:12.931Z",
+        "driverPid": 20636,
+        "running": false,
+        "pid": 29660,
+        "code": 0,
+        "finishedAt": "2026-09-12T12:03:17.951Z"
+      },
+      "log": ".sisyphus/roadmap-completion-20260912/routing-checks/hydrate-main-1.log",
+      "sha256": "440b61a33c9099385a826c2e28f12f7729dc1535a21e2e81aad6bfca0b427c85"
+    },
+    {
+      "name": "browser-main-1",
+      "status": {
+        "name": "browser-main-1",
+        "args": [
+          "scripts/playwright/run-playwright.mjs",
+          "test",
+          "e2e/customizer-edit-recovery.spec.ts",
+          "--project=chromium",
+          "--grep",
+          "explicit Structure",
+          "--retries=0",
+          "--workers=1",
+          "--trace=retain-on-failure"
+        ],
+        "cwd": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\routing",
+        "startedAt": "2026-09-12T12:03:47.295Z",
+        "driverPid": 14900,
+        "running": false,
+        "pid": 25092,
+        "code": 0,
+        "finishedAt": "2026-09-12T12:04:12.234Z"
+      },
+      "log": ".sisyphus/roadmap-completion-20260912/routing-checks/browser-main-1.log",
+      "sha256": "07dedce188366a5b04efd304874c678214e08438d7842c821a2c6dd022e41398"
+    }
+  ],
+  "focusedTests": 12,
+  "focusedSuites": 4,
+  "browserCases": 1,
+  "retries": 0,
+  "nonclaims": [
+    "Full campaign loader/persistence and campaign hard navigation are outside this bounded routing regression",
+    "The new customizer CI job is not yet published"
+  ]
+}

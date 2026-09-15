@@ -1,0 +1,234 @@
+{
+  "at": "2026-09-12T12:11:45.627Z",
+  "baseline": "47c4464840eaa7c62044533621eb265a4ab71215",
+  "branch": "codex/roadmap-infantry-preview-20260912",
+  "owned": [
+    {
+      "path": "src/components/customizer/infantry/InfantryPreviewTab.tsx",
+      "sha256": "4f36e0194dfe25bcd36bcc7dfdbd32a0b3e4d84df4e83c65a49564452297225c"
+    },
+    {
+      "path": "src/components/customizer/infantry/InfantryRecordSheetPreview.tsx",
+      "sha256": "48c7d7b38bf3b05f9bdd8a901b3dd5ba4f463495480405d7efbf18b59663d555"
+    },
+    {
+      "path": "src/components/customizer/infantry/__tests__/InfantryPreviewTab.test.tsx",
+      "sha256": "806f08894e841ca9df0aba4057076b1c9a9f183f6ccf3c841e25036da47b903e"
+    },
+    {
+      "path": "openspec/changes/repair-record-sheet-rendering/specs/record-sheet-export/spec.md",
+      "sha256": "1bcd5a301b4ae7d9171df01c04a052ea788c1b3cd1d48f612c635d5648069ed3"
+    },
+    {
+      "path": "openspec/changes/repair-record-sheet-rendering/tasks.md",
+      "sha256": "21d78bd98e240b9f431134edec9c6fd04fadacd6f50ee72085afc9fee8be9403"
+    }
+  ],
+  "red": {
+    "status": {
+      "name": "red-1",
+      "args": [
+        "node_modules/jest/bin/jest.js",
+        "--runInBand",
+        "--runTestsByPath",
+        "src/components/customizer/infantry/__tests__/InfantryPreviewTab.test.tsx"
+      ],
+      "cwd": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\infantry",
+      "startedAt": "2026-09-12T11:57:07.807Z",
+      "driverPid": 54368,
+      "running": false,
+      "pid": 35024,
+      "code": 1,
+      "finishedAt": "2026-09-12T11:58:10.331Z"
+    },
+    "log": ".sisyphus/roadmap-completion-20260912/infantry-checks/red-1.log",
+    "sha256": "68fcd4fabbd16dc47306853f50359ec0526e07ff3acc8d9b69fac49d448fb6d7",
+    "failedTests": 2,
+    "passedTests": 4
+  },
+  "checks": [
+    {
+      "name": "focused-1",
+      "status": {
+        "name": "focused-1",
+        "args": [
+          "node_modules/jest/bin/jest.js",
+          "--runInBand",
+          "--runTestsByPath",
+          "src/components/customizer/infantry/__tests__/InfantryPreviewTab.test.tsx"
+        ],
+        "cwd": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\infantry",
+        "startedAt": "2026-09-12T12:01:18.430Z",
+        "driverPid": 1720,
+        "running": false,
+        "pid": 56324,
+        "code": 0,
+        "finishedAt": "2026-09-12T12:01:22.895Z"
+      },
+      "log": ".sisyphus/roadmap-completion-20260912/infantry-checks/focused-1.log",
+      "sha256": "44a6abbe4a2998836460bce7d9c0c3a9ea756fbef4a6bd8e9b3f381d2093e80e"
+    },
+    {
+      "name": "typecheck-1",
+      "status": {
+        "name": "typecheck-1",
+        "args": [
+          "node_modules/typescript/bin/tsc",
+          "--noEmit",
+          "--incremental",
+          "false"
+        ],
+        "cwd": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\infantry",
+        "startedAt": "2026-09-12T12:01:18.433Z",
+        "driverPid": 17996,
+        "running": false,
+        "pid": 69512,
+        "code": 0,
+        "finishedAt": "2026-09-12T12:02:13.593Z"
+      },
+      "log": ".sisyphus/roadmap-completion-20260912/infantry-checks/typecheck-1.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "lint-1",
+      "status": {
+        "name": "lint-1",
+        "args": [
+          "C:/nvm4w/nodejs/node_modules/npm/bin/npm-cli.js",
+          "run",
+          "lint"
+        ],
+        "cwd": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\infantry",
+        "startedAt": "2026-09-12T12:01:18.440Z",
+        "driverPid": 67488,
+        "running": false,
+        "pid": 1556,
+        "code": 0,
+        "finishedAt": "2026-09-12T12:01:20.279Z"
+      },
+      "log": ".sisyphus/roadmap-completion-20260912/infantry-checks/lint-1.log",
+      "sha256": "b92c10f07980d4cf5a0a6e8a18fbea2e015b5e04c2df0a5f5abd32b6f147aa76"
+    },
+    {
+      "name": "format-1",
+      "status": {
+        "name": "format-1",
+        "args": [
+          "C:/nvm4w/nodejs/node_modules/npm/bin/npm-cli.js",
+          "run",
+          "format:check"
+        ],
+        "cwd": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\infantry",
+        "startedAt": "2026-09-12T12:01:18.450Z",
+        "driverPid": 49640,
+        "running": false,
+        "pid": 26656,
+        "code": 0,
+        "finishedAt": "2026-09-12T12:01:39.059Z"
+      },
+      "log": ".sisyphus/roadmap-completion-20260912/infantry-checks/format-1.log",
+      "sha256": "5a7267b824d8144a4f239c2da331f686e1482897784eeba6c2073ab84128699e"
+    },
+    {
+      "name": "spec-1",
+      "status": {
+        "name": "spec-1",
+        "args": [
+          "C:/nvm4w/nodejs/node_modules/npm/bin/npm-cli.js",
+          "exec",
+          "--",
+          "openspec",
+          "validate",
+          "--all",
+          "--strict"
+        ],
+        "cwd": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\infantry",
+        "startedAt": "2026-09-12T12:01:18.456Z",
+        "driverPid": 16052,
+        "running": false,
+        "pid": 78644,
+        "code": 0,
+        "finishedAt": "2026-09-12T12:01:22.119Z"
+      },
+      "log": ".sisyphus/roadmap-completion-20260912/infantry-checks/spec-1.log",
+      "sha256": "749c0403cd63049e2a19c1b3d26d389e4476ef4afac7ec2aa473501a5179076f"
+    },
+    {
+      "name": "ci-contract-1",
+      "status": {
+        "name": "ci-contract-1",
+        "args": [
+          "scripts/qc/validate-openspec-ci-quality.mjs"
+        ],
+        "cwd": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\infantry",
+        "startedAt": "2026-09-12T12:01:18.464Z",
+        "driverPid": 7292,
+        "running": false,
+        "pid": 63880,
+        "code": 0,
+        "finishedAt": "2026-09-12T12:01:18.613Z"
+      },
+      "log": ".sisyphus/roadmap-completion-20260912/infantry-checks/ci-contract-1.log",
+      "sha256": "c968e046e95971f5a7ac68d0db299bc701def40bc6087d19c9ac4be2cf776bf3"
+    },
+    {
+      "name": "build-1",
+      "status": {
+        "name": "build-1",
+        "args": [
+          "scripts/next/run-next.mjs",
+          "build",
+          "--webpack"
+        ],
+        "cwd": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\infantry",
+        "startedAt": "2026-09-12T12:05:06.549Z",
+        "driverPid": 16596,
+        "running": false,
+        "pid": 63612,
+        "code": 0,
+        "finishedAt": "2026-09-12T12:06:58.786Z"
+      },
+      "log": ".sisyphus/roadmap-completion-20260912/infantry-checks/build-1.log",
+      "sha256": "3d5963cb6b3c5f4969498aa3221338ffba7841be77c7e752c694209d93b8b1dc"
+    }
+  ],
+  "focusedTests": 6,
+  "review": {
+    "agent": "/root/infantry_review",
+    "model": "gpt-5.6-luna",
+    "effort": "high",
+    "result": "No actionable defects; parent reviewed source and shared-hook boundary"
+  },
+  "nonclaims": [
+    "Full production browser/mobile/PDF acceptance belongs to R1.browser before package closure",
+    "New Infantry regression covers stale success; shared hook also rejects stale failure"
+  ],
+  "attempts": [
+    {
+      "command": "npm exec -- oxfmt openspec/changes/repair-record-sheet-rendering/tasks.md",
+      "exit": 2,
+      "reason": "OpenSpec is intentionally excluded by repository .prettierignore; use OpenSpec validation, retain full formatter pass without changing exclusions."
+    }
+  ],
+  "candidateCommit": "0ffe4971ee29f6ad8fc2fa1ca30817b2d890c167",
+  "commitHook": {
+    "status": {
+      "at": "2026-09-12T12:11:45.756Z",
+      "cwd": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\infantry",
+      "driverPid": 53144,
+      "running": false,
+      "args": [
+        "commit",
+        "-m",
+        "fix(customizer): share Infantry zoom and staged rendering"
+      ],
+      "pid": 72688,
+      "code": 0,
+      "finishedAt": "2026-09-12T12:14:00.125Z",
+      "commit": "0ffe4971ee29f6ad8fc2fa1ca30817b2d890c167"
+    },
+    "log": ".sisyphus/roadmap-completion-20260912/infantry-checks/commit-1.log",
+    "sha256": "0185019384ae5fa6e201bca5fea6c65ebe84dcc1d9e2c111c6a5b86c68f185fa",
+    "ownedHashesUnchanged": true
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "at": "2026-09-12T12:26:33.601Z",
+  "node": "R1.browser",
+  "state": "proposal-awaiting-Infantry-main-acceptance",
+  "baseline": "47c4464840eaa7c62044533621eb265a4ab71215",
+  "files": [
+    {
+      "path": "e2e/helpers/recordSheetPrintHarness.ts",
+      "sha256": "1cd6bfbc47854db09f1b00f84085189eca768a2b70da510e78fa8928f645a2c6"
+    },
+    {
+      "path": "e2e/customizer-record-sheet-rendering.spec.ts",
+      "sha256": "575545d4993fcc4b39011affc683bcedf9cac8503a2c66e6c770b0c24978cf7b"
+    },
+    {
+      "path": "e2e/customizer-edit-recovery.spec.ts",
+      "sha256": "6a52c53e932a97e5b17ddda42bf306bf0cf99522016ed8711b1152dd2ec2a81a"
+    }
+  ],
+  "changedLines": {
+    "newHelper": 245,
+    "renderingScenarios": 186,
+    "selectorOnly": 4,
+    "total": 435
+  },
+  "decision": "One coherent three-file production browser proof PR fits the default 500-line cap. The helper and all four new scenarios can land together. Do not add unnecessary intermediate PRs solely because the initial proposal split them.",
+  "selectorScope": "The explicit-tab browser scenario already merged in PR1637. Only the Armor tonnage selector remains local (3additions/1deletion); establish its ambiguity on the isolated full suite before admitting the bounded locator repair. PR1639 contains no e2e files.",
+  "acceptance": "Fresh E2E-enabled production build/hydration; full declared twelve-case Chromium customizer surface with zero retries, real print-popup capture, popup/canvas failure recovery, PDF geometry and Infantry mobile/zoom. OS print dialog and other browser engines remain outside this proof."
+}

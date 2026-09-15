@@ -1,0 +1,2228 @@
+{
+  "at": "2026-09-12T13:08:48.844Z",
+  "source": "E:\\Projects\\MekStation",
+  "target": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\browser",
+  "method": "Existing local assets only; each copied file hash verified; no acquisition",
+  "files": [
+    {
+      "path": "public/record-sheets/biped_pips/Armor_CT_10_Humanoid.svg",
+      "sha256": "41969c5e4eb4eef2e12fc458e531f883e9a717af154f7e4ea61315ad56484050"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_CT_11_Humanoid.svg",
+      "sha256": "ef8a2b7f27f12a23fa0d0b703844845b97500d160e74927c09cbb6d9aa907638"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_CT_12_Humanoid.svg",
+      "sha256": "4f605acb7f0ca992bc0699d0038fee3b333d97d1adcda6798382299cc2741d69"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_CT_13_Humanoid.svg",
+      "sha256": "0a510a0898d1a85444d23f1aae2fe8766ac83527de594c358a876dc88197533f"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_CT_14_Humanoid.svg",
+      "sha256": "aa467d2e9c1a5f9ba00c10f8c228f23bcc083005509b08f213b41081a1fb980c"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_CT_15_Humanoid.svg",
+      "sha256": "4277031f3ff77462a3f96558011382059405ad3f9f10a3f83c1a831687f30dae"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_CT_16_Humanoid.svg",
+      "sha256": "5f29764e770d373498a17f69f5127b9b1c06f022a73b7fb7d053d421c1635260"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_CT_17_Humanoid.svg",
+      "sha256": "a628bfd17a290af300d15d4d0da1d116d4ae903e71852d9db436f64895af3ef2"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_CT_18_Humanoid.svg",
+      "sha256": "7151404c9ed9ecb5703a4e8ffecb44b3f745a57d3c8c488c2b39909625e00365"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_CT_19_Humanoid.svg",
+      "sha256": "16c3bc2b4608f89a7c03add010769042b77c66e2ecc077daff5b370920500fd1"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_CT_1_Humanoid.svg",
+      "sha256": "1db236597a8688e4c4b167e1f6796a0f20815cdb3d0fdf210014ab2ce7e63e14"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_CT_20_Humanoid.svg",
+      "sha256": "826fa6fb36ea68b9f2429fd96c1d479a9bb760cbb8270417bfb09c2658a5f279"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_CT_21_Humanoid.svg",
+      "sha256": "fa1bbdeff79b91fbf284616b6b98d40b7f28ab188e4be789ef259db034f9908a"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_CT_22_Humanoid.svg",
+      "sha256": "296819d2acbc150cbbc17e8db9abfa9654a204d570141f10fc69673ad66e4d5d"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_CT_23_Humanoid.svg",
+      "sha256": "15cc5436f8073819706732dc58cae67c238aaac0166533b4f240a97349c74ef8"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_CT_24_Humanoid.svg",
+      "sha256": "f41a244883328d94660b012716ba8f8bf77319d1d4cd33f67e4c67f721e30b95"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_CT_25_Humanoid.svg",
+      "sha256": "b1a0add6ef8773922d4c76089447c5118f1e7a6194c31816d2aed4a0ccb8aeec"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_CT_26_Humanoid.svg",
+      "sha256": "0586145a376dcef9f37fd1b3d9cd450458f2648d7995b6bdd1effbd6e97dc5e5"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_CT_27_Humanoid.svg",
+      "sha256": "eb3524099e6566a886d14ff9f71881dca12baaf7694cd033765263f8c79f7002"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_CT_28_Humanoid.svg",
+      "sha256": "ba203a4e86896984c2f379887f6e35b09719b2267fdc4f24a23cd79c362f2116"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_CT_29_Humanoid.svg",
+      "sha256": "c68d28ab4f396a6cf43c91aa960cd94b8555410f595bd3549d47a9d701ef9fa4"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_CT_2_Humanoid.svg",
+      "sha256": "dce551764e132ceaff77af4b9c9c999f3c50a4190208fea03deb9c2aa8bbf0a3"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_CT_30_Humanoid.svg",
+      "sha256": "33cf500ab53e386aa0e15671beb19b1d240ef5f146b11103d37c83e2444578bf"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_CT_31_Humanoid.svg",
+      "sha256": "c2f4f40a831c4ab6040f525c761e33ec3ec98d5adcd6aa599bd5444f103a35af"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_CT_32_Humanoid.svg",
+      "sha256": "30231c8d1fcf5b043a27742e0e42fc2d66dce372e7e718c085b60143a4a7f2e5"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_CT_33_Humanoid.svg",
+      "sha256": "f71c71d15fa5039f25a30f4f88a58787d39b6d74cb2ccb0504fcbac81a13e1e1"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_CT_34_Humanoid.svg",
+      "sha256": "a96312cdc3b67b8c0c8ce8b5797f2168f6fdb9875534e98bc4829315222ed5d3"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_CT_35_Humanoid.svg",
+      "sha256": "6d6b0b43afa2fc9af8ca2e227c608c4310783db385991d6a5c92fc3feaa073ea"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_CT_36_Humanoid.svg",
+      "sha256": "5efdaa113c4903ccc09a021d8ce2886d8d23749ed584fa0af06453723dc6d277"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_CT_37_Humanoid.svg",
+      "sha256": "0cd01bc9475ff941e9a64248ed73a8cdc0beb7ac3753c93d9e23f27ce1976589"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_CT_38_Humanoid.svg",
+      "sha256": "92fd07ccb5035679df7fc8a7f90aa7ee00e9fa2a67d8f1ea7db4720e41a40f86"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_CT_39_Humanoid.svg",
+      "sha256": "ff0a7252883a487836e2c7c4c2f14253f98f1112d5fe89097ec15cd66951c385"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_CT_3_Humanoid.svg",
+      "sha256": "c5c248c2172121656d166d41340f3aac9ea966fb188dd66d68ef239ec8d9d10d"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_CT_40_Humanoid.svg",
+      "sha256": "b0ac020f90ee896b85029e10293910439a3cb2ebbae571a72b6ae4f65aad30f8"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_CT_41_Humanoid.svg",
+      "sha256": "f0251d7ceea925446d4572b33e6cf816697d8ec4aaa89f00952c16ed9b9adf34"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_CT_42_Humanoid.svg",
+      "sha256": "a44dcf6a2d660ccb44c2affc9792698a0e0f54dc1cf25a596b02e824bdef1746"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_CT_43_Humanoid.svg",
+      "sha256": "d9bdf63d6e892cc7eb2068d350a6d18e655ef26908a095706741f66667dab966"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_CT_44_Humanoid.svg",
+      "sha256": "c65cc58282d4f2e9c0295039a4570c24a7ca4990e488261d2d6e42aee2e667ce"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_CT_45_Humanoid.svg",
+      "sha256": "2cbf179496a6654b05a7b4cede38cfaa8d2c92dba7d350ba68b9938781859bf9"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_CT_46_Humanoid.svg",
+      "sha256": "846bdeece971b591b7211d3b28a5e9769dfdf2d8bd504076d74ae5db83d0d0db"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_CT_47_Humanoid.svg",
+      "sha256": "d085c9b2744dc710b36b9b682bfd66c51a2d0032d9a891a27e6e6d16eb418141"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_CT_48_Humanoid.svg",
+      "sha256": "3dd07972416d71e95a6499edadf44078a3ddd1a50e7caa95061da57158f4faaf"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_CT_49_Humanoid.svg",
+      "sha256": "885c5484ebb572e9e93907eeb47a60a7e1613082308752babd21e5754369597b"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_CT_4_Humanoid.svg",
+      "sha256": "22a41c31911cb21e9ac406a1bf2124795bf25eb9b3acbf259bce344208d745cd"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_CT_50_Humanoid.svg",
+      "sha256": "30863398969059230a7ea4748b0967dde8d58b835192f1afb03e59f947ce83c5"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_CT_51_Humanoid.svg",
+      "sha256": "90083096a909b5ac283d2449352c8ae8cddee5c10d68020a05b8891e064ecdcc"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_CT_5_Humanoid.svg",
+      "sha256": "0121a7f80ed18e6db7f16897ac35cbc48dfddaec14d31859cd39d66b4f475e33"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_CT_6_Humanoid.svg",
+      "sha256": "98368d05963377475e2b1c056873b5f33c99d8a7ca9d7aad1979e0531399ab88"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_CT_7_Humanoid.svg",
+      "sha256": "86ceb080c549bb12375eef2f48410030856c76e4f62177b19322253a9d59d159"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_CT_8_Humanoid.svg",
+      "sha256": "94eb44c750f016cc1b43439cb1ef1cdf6506876382028b38bd0721c4ada07780"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_CT_9_Humanoid.svg",
+      "sha256": "0cf58d88594b61e2224f47fc5ae5121938f34403f8f865b66f3da488c73fcc1a"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_CT_R_10_Humanoid.svg",
+      "sha256": "22f00b3e909138f2f4c382026e484579eeb79f624d19851c119321033ca850c4"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_CT_R_11_Humanoid.svg",
+      "sha256": "abbeca62b95904529c9331e7dc562180b6d65ee4092c2aeaee5b33d286216bd6"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_CT_R_12_Humanoid.svg",
+      "sha256": "e564ff49dc305dfd378979aaea49b2f2ed49ef3d4befda4af13dcf940dc4aa83"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_CT_R_13_Humanoid.svg",
+      "sha256": "32f90e24ca57002464bd205294baea5614981ec51eb88dfbbcf79b7ae289a496"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_CT_R_14_Humanoid.svg",
+      "sha256": "74feeb3cc6ad8d26c8435f2cd299969124ebdfa13172bcc0af91f43e39cdc1a0"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_CT_R_15_Humanoid.svg",
+      "sha256": "26e3bd858e51b49d483036d84096e0b5104af3cd181c65eb8ecf0975b8f55ff4"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_CT_R_16_Humanoid.svg",
+      "sha256": "a7d1c5351ce0686fa75f2e84d6187ec3df2f17e55ef58f24d9ba24121f0d9394"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_CT_R_17_Humanoid.svg",
+      "sha256": "0b9c56ab144d936bcb27cff7c9bc3c9ac7b30c2dc335dd646da4eb0f0850c7d6"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_CT_R_18_Humanoid.svg",
+      "sha256": "6acd591effc685dbcd4cf294b9acb0817c691abea39053c14b360fde378032e1"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_CT_R_19_Humanoid.svg",
+      "sha256": "f5ebfe25d3cecaad2ccb5c8e35e611c70e40db09f871c34ebc546f18f3094eac"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_CT_R_1_Humanoid.svg",
+      "sha256": "79738e6f5bf0ad7f971165632c0eda2a929851d77130066230d685e75e156da8"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_CT_R_20_Humanoid.svg",
+      "sha256": "38ecb60d7f4e8ca9d93da7e095b19b4837c7ca8e4e404e1861747a346f872a27"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_CT_R_21_Humanoid.svg",
+      "sha256": "3764a03c112160e37b81e478156ce0ad782528cd9b6034086875d9b0818a1dba"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_CT_R_2_Humanoid.svg",
+      "sha256": "0c34b5f3564fed30642a118a11e1cca3a156361cf5892b24e128345e0d3072d6"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_CT_R_3_Humanoid.svg",
+      "sha256": "bda726ee05a13572c85f441ee3d25c4a3a658ff8cb8038d53ef32721f6853fca"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_CT_R_4_Humanoid.svg",
+      "sha256": "9ad19e4b6aa71f3429bbd9db4b1065c213ff5111322d59baba05b22eaf36b80e"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_CT_R_5_Humanoid.svg",
+      "sha256": "8a95b15b07fb03aadf18c5981c7ac002c84e287fe04c0f053e2e3cfaf0d70fc3"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_CT_R_6_Humanoid.svg",
+      "sha256": "2774705203e03923fc6966dfb1dc74a506bae7270a911cd3f765e0307e34b80b"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_CT_R_7_Humanoid.svg",
+      "sha256": "77bf7a628203d0350187b70ea08fae4bebbb48c172d126bc6bcb32236ba46f15"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_CT_R_8_Humanoid.svg",
+      "sha256": "cae25cb15d3fdedae0be9b7cc29e0adfb08af2d4b0329c730aad2609fc0476c4"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_CT_R_9_Humanoid.svg",
+      "sha256": "263fb2e5db1a34434fb81845d25d5006dfec859d3ffad24e20bcc7c0405c89ca"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_Head_1_Humanoid.svg",
+      "sha256": "3234c85fad6b5cf836fa8ac3353db278419ca240f6a8f8d444e8edfb70a37015"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_Head_2_Humanoid.svg",
+      "sha256": "f2ed32bd50f391b7c709bee59c1c326de48404f1a1b8d4bfd5ef7d2b54e4b3e8"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_Head_3_Humanoid.svg",
+      "sha256": "0aed2c88b53667bb1b1b55c75b4a87202221c97475951dd225e517c033fc8a8b"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_Head_4_Humanoid.svg",
+      "sha256": "cfccc91658643691a56749930356da6b8f4146d0d1339344d9aa393709d890c3"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_Head_5_Humanoid.svg",
+      "sha256": "4b637e49db36b0a52ff0f614bf21941978673dad9aaf07bed3f4d54e606470f3"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_Head_6_Humanoid.svg",
+      "sha256": "a0b15652cf063321c6f2d7c6a2a703ac5af2da1c40eb7f20f3ff3c533dc8d554"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_Head_7_Humanoid.svg",
+      "sha256": "d9d56dfe1ce66b932dbefb52b6a30bf6ee43191c3a7c31c11ef05a31bdb1cf4b"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_Head_8_Humanoid.svg",
+      "sha256": "c64b7f5dbba4f9e01a67ed6461c49cded38f9bac1eac79a9fdba0a52661d093c"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_Head_9_Humanoid.svg",
+      "sha256": "14d74fcc22d07f60facde1385ffa8b6502d463be5fb29af3c3f31f1a7fc6130d"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_LArm_10_Humanoid.svg",
+      "sha256": "24d50ed0a4dc590a1f7a65bbeec219b2638f11efae12c6000568686f052f6fa8"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_LArm_11_Humanoid.svg",
+      "sha256": "61473c777f602013410915f5dc94515e4c64694defaaf0f2957c3b028857b274"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_LArm_12_Humanoid.svg",
+      "sha256": "c05881ee93f171f5472b4b463dcd4093f6a7edd31eec713541e4722b395bd748"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_LArm_13_Humanoid.svg",
+      "sha256": "bf876f2fa1581d970e7fd43becc4cd081511b51b82b365d9b1d043e7ff053a09"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_LArm_14_Humanoid.svg",
+      "sha256": "98ebf177699faf8be9e99923fef45ffe06f47e4edbb20942c6b092eb24ecfeea"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_LArm_15_Humanoid.svg",
+      "sha256": "21d9d8b873e37f38167098a2c888cb571c9e3c8d4bf10234a186a26d2f506650"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_LArm_16_Humanoid.svg",
+      "sha256": "b9ae059381433385d6c835913a98bb8d45782a37280a21e0068a7546f13784ee"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_LArm_17_Humanoid.svg",
+      "sha256": "e914765cf695f0924d18986beb2fc7f003599d09562040fcba7d524395af50c8"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_LArm_18_Humanoid.svg",
+      "sha256": "795dfcc5f1c81dad9aae058c6c006fc29094f76de34757826e9114d11c944d67"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_LArm_19_Humanoid.svg",
+      "sha256": "b224639171b7211f4ec0924cc36c96a4e94557f7e06fd7bb023d78fd2f82ebce"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_LArm_1_Humanoid.svg",
+      "sha256": "a0d46a880902bbc6af49407026c8deccd024e7af1ed88107db684b1c0d08e6ee"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_LArm_20_Humanoid.svg",
+      "sha256": "13f3269757b68492991eecb0d6d305ac84fe595eb00d2328ad06ed6a00bda96f"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_LArm_21_Humanoid.svg",
+      "sha256": "f155a1436a2cb81d7d1d7b11184a464cc6e89b8d9ea5a6a2d2a245a83e2baff2"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_LArm_22_Humanoid.svg",
+      "sha256": "03c35acff14b9e246a9daef3b8ea49348d04ab2e7f636df198e17e19454ff39f"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_LArm_23_Humanoid.svg",
+      "sha256": "99b772087be9884f07665a1c4deb46c819f98bc396470dbaab0265ed4f83dbb0"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_LArm_24_Humanoid.svg",
+      "sha256": "fab231a237dd952e945ef12c45dac0f59b51112716c25b7b6ab354efc7583c0f"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_LArm_25_Humanoid.svg",
+      "sha256": "6d0ba6f0919db6dc57e6739ba9f9479422cc04e096add5a3703e12d9539aad5b"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_LArm_26_Humanoid.svg",
+      "sha256": "db50b9789e04fe413ccedbfe2adc127f390ec25ccfe69f91558a15e563159813"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_LArm_27_Humanoid.svg",
+      "sha256": "ce5946f8e5696fdb67c50ed274b9a5b767e4ff61bbd371eae0cd0f36dab39caf"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_LArm_28_Humanoid.svg",
+      "sha256": "f805c10e6bfe2c88898b6e5800601fb5b44b376b895ec77f71a38d4f012639aa"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_LArm_29_Humanoid.svg",
+      "sha256": "a317c0e9de7841f9b7fcc94ea6538544e969fdbd78a8cf4fa5dc13c758a40084"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_LArm_2_Humanoid.svg",
+      "sha256": "e5e9344ad50e08075db65be86454a4db84bdcf3ff16f3c301713b8c731b262d6"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_LArm_30_Humanoid.svg",
+      "sha256": "1fd8fceb704602aec302318ca6c2b6ec21a990304f91d7f32cb9f7f9a46acdc7"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_LArm_31_Humanoid.svg",
+      "sha256": "3cb2c62ce5a366a9a27e40da840aaabcab7195c2d8268e316eb58c5d17207914"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_LArm_32_Humanoid.svg",
+      "sha256": "f365e4a54e5b7814550f3afb64c0ac066cc3a91dcaee8e907ddd945d14993de7"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_LArm_33_Humanoid.svg",
+      "sha256": "fe1ab3ee634357519b04e0c4a953dc8447e33589e7ac94679a4185a0939f89cd"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_LArm_34_Humanoid.svg",
+      "sha256": "ef27f79dcdfa7196f5ac8b14bbb0e08ee72f5c4803d9fb1b4655d1861c9b9752"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_LArm_3_Humanoid.svg",
+      "sha256": "1a6f9c662d6b85708a1a0ded757b49721bb84c07576b78ca6746fd9578ba9af6"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_LArm_4_Humanoid.svg",
+      "sha256": "93db44e4c89d127982b454260793b5d2e8ec472598b26562415d5a84c8af094c"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_LArm_5_Humanoid.svg",
+      "sha256": "2047de634a1857c15da1be2860bd58c5376082462aceca2a5f1974f6283f7867"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_LArm_6_Humanoid.svg",
+      "sha256": "7c54e06f6a1aa5bd986985313329b641f074f98ffae6ed4a6d9c6bff274d60b5"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_LArm_7_Humanoid.svg",
+      "sha256": "45855b7840b44994459ce38d61cc2eddc026c41beda32271d6e5269c07d6db4b"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_LArm_8_Humanoid.svg",
+      "sha256": "01606c4ab6a52512349b78926c5f4f7b17ef9bc3d1effca7b1d173b950de6a9d"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_LArm_9_Humanoid.svg",
+      "sha256": "b28637df40335d6acf18a5488e1f75992e711a91f7e9f7d85d2e012d57aa7782"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_LLeg_10_Humanoid.svg",
+      "sha256": "2170ecb5ff6d96fd60974d2b5fd587585b2f71104eeed4762e65418b7e2ad5be"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_LLeg_11_Humanoid.svg",
+      "sha256": "661aa793ee6a5480b5738c68e50984459eaa77503c76d38567d50505f304a78f"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_LLeg_12_Humanoid.svg",
+      "sha256": "e81d917f1c9e0ddcb6df6a55153081105ead5d042911c97ad01ae90d26eaf3e0"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_LLeg_13_Humanoid.svg",
+      "sha256": "57fb00d1fdfb9d0b5c642f02e1b6113d2d6c81a8e91d15b93606aad3cdf01fdf"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_LLeg_14_Humanoid.svg",
+      "sha256": "8c51cf8b7ea364218d681060dc0e0aa0f2ce2703ac801fe20a6d443ea7dde9e7"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_LLeg_15_Humanoid.svg",
+      "sha256": "924a7d331d25fd93c641d1de616f842e6b1f26714d9bc3ac9df5c87e60ba97cf"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_LLeg_16_Humanoid.svg",
+      "sha256": "297542c8945b0ea0728844b0406221bc0d0d08d076491ec26ad3731f22172439"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_LLeg_17_Humanoid.svg",
+      "sha256": "38d7c32f6c806ba08aa9a599bf50042891ddee9d7eb3c9653c00836983cf462f"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_LLeg_18_Humanoid.svg",
+      "sha256": "87b719efd4cb0d7b44b8bab7b4e61b50b85f475757f8820f37f5c1f3aa1731c9"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_LLeg_19_Humanoid.svg",
+      "sha256": "389385c9c200f7eb3ba55bbc59f548dec135f379319b18838882a1ebb363d84f"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_LLeg_1_Humanoid.svg",
+      "sha256": "61a84eeca8fb3ab74dcab0dbc51667f83a2cc74937c5016489a2654d0347a4c3"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_LLeg_20_Humanoid.svg",
+      "sha256": "cc151f3612ef3f8afe789b1baf638ef26859b3f076b9d9f23a6c48556c027607"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_LLeg_21_Humanoid.svg",
+      "sha256": "ffbc1a550da2989c1cb065efe6776dfe3bef8a77e37be9641e42f8cb5a1e9b75"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_LLeg_22_Humanoid.svg",
+      "sha256": "e325701d0494ec824d7282176f78543e8d125bc4e392201f89eb71fc9d1855cf"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_LLeg_23_Humanoid.svg",
+      "sha256": "54cd3c7b18d8bde7fcae31edbfcc58382cb9de3be91c899ddc9d3a66ffa1db0c"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_LLeg_24_Humanoid.svg",
+      "sha256": "c238808805693227fbc085a2b7a3f5fbd0d6b48e14b90ddefe027d6fb876b07e"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_LLeg_25_Humanoid.svg",
+      "sha256": "c20ad61c516e84e9795c4cbd1e0afc56c2e50b6d6c770744ee0caa5e39f5f30a"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_LLeg_26_Humanoid.svg",
+      "sha256": "00374272300e7f16c28dbd173e74de880ef13efced8153bca1027d93d8029cb5"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_LLeg_27_Humanoid.svg",
+      "sha256": "a6f4522b8f03b0bcbfa0dccfd8808c4507558930df0193de7f0dc2e56ef146ec"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_LLeg_28_Humanoid.svg",
+      "sha256": "3b97302c15c4a20c10e26704f8ad029b815280d7794717a5fe4136d907340ae9"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_LLeg_29_Humanoid.svg",
+      "sha256": "4dcdb719c0fc5cee431e6d2ad74e8eff856eadf4e36f4fcb8a5a74e5b48a02a5"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_LLeg_2_Humanoid.svg",
+      "sha256": "78d7d1cd8d2da2f064d3af985012fde9ec31de06fc00ce30821118c6be04149e"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_LLeg_30_Humanoid.svg",
+      "sha256": "191c6bbcf4b676bca3384b310058ef38b9eb28de218d9e9c4f03764d15e76c11"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_LLeg_31_Humanoid.svg",
+      "sha256": "e4493ad99b74204d9a7518361a18dc7e8f082472cb47b993a6ed81a83eef745e"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_LLeg_32_Humanoid.svg",
+      "sha256": "e9077d424201ec5f1c27edeb2c36fe3708308b6d4d77ad149e5d7a967769ef6b"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_LLeg_33_Humanoid.svg",
+      "sha256": "6ef7ffa088c2cee61690462161ee832b859692d62b3c0f8bc0068ccd0c80bdd4"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_LLeg_34_Humanoid.svg",
+      "sha256": "e0935fd441cfe331fe0ebddbc4c5f14f102002c4702c3457845e6af9c9ddb3ac"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_LLeg_35_Humanoid.svg",
+      "sha256": "5d6b4a6239095103efec02531b9655e2a5cd0791fed26463d8486788e106d85e"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_LLeg_36_Humanoid.svg",
+      "sha256": "68bdc3eb86fa0763eb1e024c699b7b2c61eb46a507250a1b5b78160c1590e5d1"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_LLeg_37_Humanoid.svg",
+      "sha256": "0a40a03006ff7bea66b6fd7a37407158c96c01c444ce22656236b90dfa7518ad"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_LLeg_38_Humanoid.svg",
+      "sha256": "f2aae94efd3436c0f8460caedbc34eab8afff5b178f388713b26774927ae7083"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_LLeg_39_Humanoid.svg",
+      "sha256": "d410f2274193d24d73c7d9a459dde266159fdc0584ac1236a3877779399aaec0"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_LLeg_3_Humanoid.svg",
+      "sha256": "c13b383de7d899c0c230bac7fabd6680ff832b6998b9ee1ace44f5fc62422c98"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_LLeg_40_Humanoid.svg",
+      "sha256": "7d2966b6953df07278aa4a92e2dd23c231d1dc9977d8385c67a4114fe668238a"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_LLeg_41_Humanoid.svg",
+      "sha256": "68f1faf1402b51388f4799e6fe19fd668a855aadfc9ab7d4e5f8961cd0e2cc13"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_LLeg_42_Humanoid.svg",
+      "sha256": "928e7efac69121a9d07d08478ebe35999877b95c02db2122ffd8e2d4121a1833"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_LLeg_43_Humanoid.svg",
+      "sha256": "815796acddd400929013f0fcc39c01e563f5b96a97a5175c4924283fbf50732a"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_LLeg_4_Humanoid.svg",
+      "sha256": "7027fbbc3dee2c9d384df724a860aede44fc954b7c7f1b26b89a9e1958644f01"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_LLeg_5_Humanoid.svg",
+      "sha256": "7e98b4e8396d8f61a8b502338f6d5839cb81f74f8ac7765c8a3c66e03ee5558e"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_LLeg_6_Humanoid.svg",
+      "sha256": "a8f2d27f2f5d375a7dccabbd62f9f4e4f305962a6fa6b098bd5c4c9079e8b3aa"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_LLeg_7_Humanoid.svg",
+      "sha256": "1347773c39c261240e6206d91b23dbe563e80a92094438a55285b2104e07cd62"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_LLeg_8_Humanoid.svg",
+      "sha256": "2a9442c06b4c06fffbedb381d0458cf3a943b8ddbdc232fc4141d923feb9039d"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_LLeg_9_Humanoid.svg",
+      "sha256": "88ef9c67ee30a343faee33b6563b68f0bf000a5bfcb411ab4e9a2d42cddba984"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_LT_10_Humanoid.svg",
+      "sha256": "0c650e7c7ef61cd0fc91e42ee15c9f72b6e5a42472d00965229073a5667e0eb8"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_LT_11_Humanoid.svg",
+      "sha256": "d55bfbed6b9d2782aef715efd284bf6154f6c560cde8630685d3f51d993bd0b8"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_LT_12_Humanoid.svg",
+      "sha256": "97c289e60d7624263d9156b63012b5630ccb7146e049c8bf354f4adabadfa169"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_LT_13_Humanoid.svg",
+      "sha256": "2f2f7d758f54324f64ccd6e469f5ddb919c0cbc2ffd6a7519296dfc746cc6ebd"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_LT_14_Humanoid.svg",
+      "sha256": "3fa9a85307ededbb8f5bc9134693cef5100471fe08f9f4c6b7173d43a532c2b5"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_LT_15_Humanoid.svg",
+      "sha256": "c3a4a4210139ba4ef93d7cbf762f7f6bcb5c97820060aa588eb2d348e5e80f56"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_LT_16_Humanoid.svg",
+      "sha256": "f5afd02e129f2f3b11d9022f7403ba7bdde1e6653bbf9e27189ac15f3ce65a51"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_LT_17_Humanoid.svg",
+      "sha256": "abc975e2346a0791bc61adc7c2244bb7d853428caeec9d6b4ef0c2c5508f3ee6"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_LT_18_Humanoid.svg",
+      "sha256": "251cfa299aa648bd8a157841aaa6abf59a37fdc66110c7658cb213c7bf650669"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_LT_19_Humanoid.svg",
+      "sha256": "56d729cb65a412fd3c0080ffde0da8d0cf6de9baa42767bc704aaa73308a8d52"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_LT_1_Humanoid.svg",
+      "sha256": "e76c00a7d5478d65acdba3903807a5cefe06cc3a3a77c39937bd79120767c8e1"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_LT_20_Humanoid.svg",
+      "sha256": "9852cec36542bbca5af543bffcfb7bc3a579c5a35a083f69c6b9ff11f3402daf"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_LT_21_Humanoid.svg",
+      "sha256": "91f2b662f793f61e8ae822d2e8398db72b54eefeedbce783c35d7a106f835947"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_LT_22_Humanoid.svg",
+      "sha256": "69be9b3a352e97be3e9306f2aa07316beded5c42a326dbf27e6f93a8169368bc"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_LT_23_Humanoid.svg",
+      "sha256": "7ed179c307e06790a8617d9d5d8794e8de563d6aa6ad5c3600dbb73cd981750c"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_LT_24_Humanoid.svg",
+      "sha256": "ed89dd3f8d107c15aa63ba55ab4db65d724236cc27df6ae51d6786a94bdb2778"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_LT_25_Humanoid.svg",
+      "sha256": "aed68ba3e42ddca97ad256ab530a626bdd421f626b12041fc4e66eee63bc6a52"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_LT_26_Humanoid.svg",
+      "sha256": "86945b3b16c4a5026b15752b2922f4fd6dcc885ad3de68173788051e81150331"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_LT_27_Humanoid.svg",
+      "sha256": "926b42fb0a7598d4fc0d6732cecddfb076ad5af334a252660213e39b10ce9634"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_LT_28_Humanoid.svg",
+      "sha256": "ab61262d0feaefee4cf028e76e620fc26ccb4504bb3324c378bce04186dbf2de"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_LT_29_Humanoid.svg",
+      "sha256": "40452876ea5849fd5f19aa51a079988f09a87d6a9427e41cb595865a42ca6940"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_LT_2_Humanoid.svg",
+      "sha256": "dfba0072a9a09e1185d6ebeb63980b1eaef2831a188b61dde3b4c2586f3e4eb9"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_LT_30_Humanoid.svg",
+      "sha256": "4bca675a037d233f93591b5620197e19aa8313467fe0ec84fdb19bf1195a842c"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_LT_31_Humanoid.svg",
+      "sha256": "a3adab0f26c055878261221574654f210f9cd75089ea578d750cf7e656a631f1"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_LT_32_Humanoid.svg",
+      "sha256": "2d8038b924eacb1fd8300290262adc50811053b47e09a0a567b302cfa19f7e35"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_LT_33_Humanoid.svg",
+      "sha256": "1ce91307799d14063c929f42ec120acf9660b53b3ab9c72c6c4411c16ba4e9fd"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_LT_34_Humanoid.svg",
+      "sha256": "90f09ffcb69330086f70b292e3808fbf951ba9a09ba358903554923930f7c5c7"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_LT_3_Humanoid.svg",
+      "sha256": "18c01fa39f2de7efdca50ba2374e005a733b835d95e959120239edbdee48e605"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_LT_4_Humanoid.svg",
+      "sha256": "7f756afad0145e60409353d2549a2a51201a9fa3dfe3a80d583409b693ffb090"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_LT_5_Humanoid.svg",
+      "sha256": "8175957bfaa1e26d6d0019d3679364a26e82d6c97af2f165a37ed2cd70ce341b"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_LT_6_Humanoid.svg",
+      "sha256": "474af7a6b431af844ee5fdc2e02b9bbdeb21670a340a9919b31f96ae3d529c72"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_LT_7_Humanoid.svg",
+      "sha256": "abc7e7e7e8a391149ac897d291e153c3da6f52b5517bd8f4bd202b7b207a6f91"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_LT_8_Humanoid.svg",
+      "sha256": "0efd69b140f134460bbaf3cbf069d0a81d401288feca35378bb4c97d54997af6"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_LT_9_Humanoid.svg",
+      "sha256": "a2cb153b952f26967f867a6482ce30c869aa359c13411ef9dddb6bd3e7b2e235"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_LT_R_10_Humanoid.svg",
+      "sha256": "da29362a5ca5ba099b5e1d744e3a799b2e0db4d8198a723880ccd50a23a74003"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_LT_R_11_Humanoid.svg",
+      "sha256": "a631848b6dbbcdd01e8c122e2be185c2702360c957cfc210e741ff1428a12124"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_LT_R_12_Humanoid.svg",
+      "sha256": "1c95db5b89b2b8f94c10147d46ac73eb0a34ca02b10f3c80fc20be9742f301a1"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_LT_R_13_Humanoid.svg",
+      "sha256": "094c325e0d11d5b0cd7a3040c2840850ba3d50cce1e5476a14be1b4e6f2f6b1d"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_LT_R_14_Humanoid.svg",
+      "sha256": "df11f04dc55c3bec70abc51361aead55da56e2ef241c3667858bef31475f5a5e"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_LT_R_15_Humanoid.svg",
+      "sha256": "30d754aa1939b8bc2fa9ca9de8ccf9f98dc8ee7dd2b42f94fb45fe437f22f29d"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_LT_R_1_Humanoid.svg",
+      "sha256": "404f1ffb3afd803e856659a80c8ef0d20c32ed3b7c145c4e40b01333be6830bb"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_LT_R_2_Humanoid.svg",
+      "sha256": "54a6b931da6da132fed91f012b0a78e039019fc732496f31cc7a54d681248286"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_LT_R_3_Humanoid.svg",
+      "sha256": "89c405824aac2db2e13e47d7cf870186fb08b58ad430e66ef89ba1e373940dc2"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_LT_R_4_Humanoid.svg",
+      "sha256": "3d70ab1b678b25955d1ee94b52aad7eadc5b15c497f0fc8aa2261d5190765e97"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_LT_R_5_Humanoid.svg",
+      "sha256": "6a7bf0ac156700b3aa70569cb044bb93a66875a61aaf063e6ce267a60d17382a"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_LT_R_6_Humanoid.svg",
+      "sha256": "4a04f1048a470aa58d89a5cb2d0f8ec3e95cb1434941521b2d5bc0229b8ccd45"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_LT_R_7_Humanoid.svg",
+      "sha256": "f2521be483060e4f36f7defd4bdc40698a2d260645a792d349abab529fe14fc2"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_LT_R_8_Humanoid.svg",
+      "sha256": "d54264b0f9e4eccab757a3a7e816bfffa3b0e8d5c034508523d9cd34b897d1fd"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_LT_R_9_Humanoid.svg",
+      "sha256": "fa9dab02da4b5cbbcf0d26306fd4091dc9de96821ac2b3a5e2c95bb23f273dfd"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_RArm_10_Humanoid.svg",
+      "sha256": "7277fbc3300c4ffdfb80320a26e19ae4ea63880ce52a991dd6d2c3ff83f9496d"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_RArm_11_Humanoid.svg",
+      "sha256": "99f128a4a049327e38abb63e88286dacb91b1577bc7afba3c51751c3163bca40"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_RArm_12_Humanoid.svg",
+      "sha256": "f7e4f446c8369e256725475b381c979819732fac3714939e75930a57deba401d"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_RArm_13_Humanoid.svg",
+      "sha256": "0535b5e28e56d5a4514d4496200bf7215afafc5460d7828392886671ade2211a"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_RArm_14_Humanoid.svg",
+      "sha256": "08630c6b048f7205e8312746bef92e07e274598642685e648218c7434daf8cc5"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_RArm_15_Humanoid.svg",
+      "sha256": "ce47678500d08a92f98898015149738dca48c05226655215ba9b32e1f57e5acd"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_RArm_16_Humanoid.svg",
+      "sha256": "74483d5014daea8a120fba1abad13caaecf720ea66ab2ccb8bbcbea86d330e3f"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_RArm_17_Humanoid.svg",
+      "sha256": "b117ab33f74d4e869ca234ae2e17e1a4209b05643c8f86471673731886bf2123"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_RArm_18_Humanoid.svg",
+      "sha256": "3e55bbde39ea25a0d1049e9e6d061b15ee6136206ef3da5fcff42a61672f487f"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_RArm_19_Humanoid.svg",
+      "sha256": "2dbb5eea8f4936b2b907e2e8ab57efe7ff2a3b6750f3b76f32ddacc5eb820675"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_RArm_1_Humanoid.svg",
+      "sha256": "d934b4c06048e7ce4a168a92b499098f1864c3bca6b7d26867217245dfe5cef3"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_RArm_20_Humanoid.svg",
+      "sha256": "e777c7e3b409e046874063e562652ffb2c469eea69cd2a63b3fe19cabd1c760f"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_RArm_21_Humanoid.svg",
+      "sha256": "28127f06298f21a8b555cd7c6ff6189def86c1059149190922b5246321ccc966"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_RArm_22_Humanoid.svg",
+      "sha256": "09ba904d3c0c0192af5df07e7fbe5879e6e4599b3d6fe387f1453c28c270631e"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_RArm_23_Humanoid.svg",
+      "sha256": "c603a329d761f4059946d505c185fd4cc5627dfa1f58933a5b9cbcfc78f42267"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_RArm_24_Humanoid.svg",
+      "sha256": "1dadcc9776c6ebd4fe6ddc2f3ea7de7df087700ced3c9c869768c0a9b1c1938d"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_RArm_25_Humanoid.svg",
+      "sha256": "b390c0256e7e555eda4b037f529ab55f6d1b44554fd4266c805dc10443cc78c7"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_RArm_26_Humanoid.svg",
+      "sha256": "6780ba8b0da529fc2cd077a869f6d0ce335fcbddd302d00684704d7f3db60185"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_RArm_27_Humanoid.svg",
+      "sha256": "55fe87e0c2847bd057cdf31dcb725c7e91fbdf564a3766aa1b42ac9c3565af55"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_RArm_28_Humanoid.svg",
+      "sha256": "7fbb251fe92775976bd9b8767077a2c1bfa1bbbcde9d26329f31261cf2f45554"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_RArm_29_Humanoid.svg",
+      "sha256": "8ea9fafc81ac7191e9867963d9093c243552902da15ad52217a3fcea396c020b"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_RArm_2_Humanoid.svg",
+      "sha256": "91113ad5e322225fcd0b82463fd26bd4f3a59715976da39ee17a9a5bfb21a4f6"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_RArm_30_Humanoid.svg",
+      "sha256": "9341452a6a520a3f3af31059e45ffc15c8363e423134f771584864f706f5791f"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_RArm_31_Humanoid.svg",
+      "sha256": "e661cf5840a9ed7e4cd691332156e1e7fce993d2e98e4503d727234948fe52c7"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_RArm_32_Humanoid.svg",
+      "sha256": "3c67b9107bc02419aca12944e4ae2fdfea09978a2dd8e6b73436fcc7bd0b7d86"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_RArm_33_Humanoid.svg",
+      "sha256": "a7fd89fc597fb3347aa4899ef58d600781eb08b8bb4ab2d10d271a5b452a7aab"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_RArm_34_Humanoid.svg",
+      "sha256": "7ce8adf89cefb808bab19fd5d526ae5cff235674986563e3bc80dc6c5bf5f361"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_RArm_3_Humanoid.svg",
+      "sha256": "f3a8842e62c25e24859005370ce81b68dcf916f27b5ec4717143c106959f8166"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_RArm_4_Humanoid.svg",
+      "sha256": "ec22c729ddafe2185c3539caab7b8cf2f330f76a2429e09c553f00b1209ad10a"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_RArm_5_Humanoid.svg",
+      "sha256": "80f488788ee1dbb3c7b89fda216c5acd097a9773e54da303c64d54ef0bce9956"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_RArm_6_Humanoid.svg",
+      "sha256": "96d05e160ae22c90e6610afcc72d0ff684659d95c893f79926290a408437c907"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_RArm_7_Humanoid.svg",
+      "sha256": "50f9ea566f3ea3d096fb8b492ac2bb050927b5b967506b5ddd7aec999711959d"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_RArm_8_Humanoid.svg",
+      "sha256": "c6f4033ec73c03301db12189189b27e4e2a48be805f3ab2d22a2f9a13642b6ef"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_RArm_9_Humanoid.svg",
+      "sha256": "523f5866310c65114f68f263faa29b1b3759f15c4c87ef929e4170f7a817d0a7"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_RLeg_10_Humanoid.svg",
+      "sha256": "f37444bbd613edccd40d8425a22173a98d5f510f79063d2c4dbcf439eb0c273d"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_RLeg_11_Humanoid.svg",
+      "sha256": "2977319a507f05756db21c596d8867736e14181e1142a1054f31ea82561d3261"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_RLeg_12_Humanoid.svg",
+      "sha256": "a69171496e358c507a430488f7d32cadc4e33207f1dac3c430afa5097bb8503e"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_RLeg_13_Humanoid.svg",
+      "sha256": "50b77059920189023ec73d7698d6f112c220f0e89dced6d308be1688a108d9e9"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_RLeg_14_Humanoid.svg",
+      "sha256": "4584ce02a4b3c01867b3b88b9fa3f04acbd5ae39b544a38c1c93524a1a8caa81"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_RLeg_15_Humanoid.svg",
+      "sha256": "d5087cb3ded50459ce7cb486117c91bc121f2ca5ee93d1460db9f400538657e5"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_RLeg_16_Humanoid.svg",
+      "sha256": "2a6b651e5a73b99a8e8dd097bc880d3d0fb55f633f92975173ad7128193bba89"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_RLeg_17_Humanoid.svg",
+      "sha256": "64ff099a6c66040e9dfdd230b66514e2901f270baeff06626fec3afaf95d9bd1"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_RLeg_18_Humanoid.svg",
+      "sha256": "f35ba1badcb9d70d557caa3a5420aed2958d5daf30ad0bb78e5037e1e3d0a059"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_RLeg_19_Humanoid.svg",
+      "sha256": "0d45e38f45f13b3f4c60fca33860ac8b857e183a5924c3b7739fcf7d38fcbb9a"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_RLeg_1_Humanoid.svg",
+      "sha256": "425d51fd545b1904801d42687990d9412e935b8a2a5cfc19dd1b29fbf2f6a916"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_RLeg_20_Humanoid.svg",
+      "sha256": "f36d874996fdaa536f9a64e6719fc63c7cc465a698e9def19469eb7066b53bcb"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_RLeg_21_Humanoid.svg",
+      "sha256": "aeffbb9e1bba8f4edbc7f35b48310a3a6dd88c71aa552160b41a24eca0f5b0f4"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_RLeg_22_Humanoid.svg",
+      "sha256": "8804d3c65ab8925525430bb6a0d6cd68c59cc455e66eed5c1acdb91fdc6f6926"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_RLeg_23_Humanoid.svg",
+      "sha256": "a04a911f87afac2d4152bd19f3668a20063bdd19cb6ceb06fd40561d054b9c5f"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_RLeg_24_Humanoid.svg",
+      "sha256": "8714e352969feecdf263efa285de13fd15340a3d9e4fd7a40a42f315571a3407"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_RLeg_25_Humanoid.svg",
+      "sha256": "b67cf34d14c6b752c6a48deabafc1ee5a3dcb63d12bc9edc75e5e4a8844124cd"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_RLeg_26_Humanoid.svg",
+      "sha256": "6660d5f7a13a76dfe89705e285b3f88db68927d7ee6d788f1502627317627d37"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_RLeg_27_Humanoid.svg",
+      "sha256": "f5ecfa7d5f08cdc0cce0f1b18b95b86e9fac29fbb466895b43402770e69d46d2"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_RLeg_28_Humanoid.svg",
+      "sha256": "6045535a1b1546566bcc2c7b02b69012a1db3200e339cf2fa461d35116b176c1"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_RLeg_29_Humanoid.svg",
+      "sha256": "1f863ab203ef03dab96d1d311a50355f754db6731af4f5f6baeafc3f548dec1d"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_RLeg_2_Humanoid.svg",
+      "sha256": "adf06ba8ff4341f33061c61a3d55f7a748e2b2ce59c74822506c7bf0a503f641"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_RLeg_30_Humanoid.svg",
+      "sha256": "42899838b9ef1feddd9a7aa33a537ed1ac66e3e13c2e00829c160ee9a6048950"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_RLeg_31_Humanoid.svg",
+      "sha256": "7b96ef0424909485d8530099be756e9f23ea20c1554575dca3d21ec2fe1fea9f"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_RLeg_32_Humanoid.svg",
+      "sha256": "0b8a18f2da058af81cca49952c88f1ea25e6e6cc0fe05e64d1495b713dbc1eb3"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_RLeg_33_Humanoid.svg",
+      "sha256": "8393e969c1823eaa124afcd7c45e50b69d50ed0c3423cdb896cb915c968d22fb"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_RLeg_34_Humanoid.svg",
+      "sha256": "deeb92a63f07395dbb4b0b1cc5e2561d5750ee6a5fb5072161508a98b30913d3"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_RLeg_35_Humanoid.svg",
+      "sha256": "f15e353a6ad92064293b8d532ef91bb6c079c652ea587e11cc7159e1f6e7133f"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_RLeg_36_Humanoid.svg",
+      "sha256": "707cfbf28b9a210f2d1ceb07be250e09b20f4ecb7732659c6ab2991e4e0ccbaf"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_RLeg_37_Humanoid.svg",
+      "sha256": "f7796135553e73e13b47a547eb9a8fbabead005c2fe510e69ab55fc62cd7db19"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_RLeg_38_Humanoid.svg",
+      "sha256": "c2faf8246c0ae18e9b41159544cc9ecb7919939ceb558f1f37cc711df2b37812"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_RLeg_39_Humanoid.svg",
+      "sha256": "4f0ec378e1e0a3fa7e78a0f43b29fbf59ebb6e8833472f890877d9bef170e3b9"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_RLeg_3_Humanoid.svg",
+      "sha256": "c71174af87c1c23654d30330c3312c903a81e79f6aba4250fabb9ef53a8416a6"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_RLeg_40_Humanoid.svg",
+      "sha256": "7581a9cf2874eda860d2221b8bb62b99f6510e87d9f092bd55c4ec4e30727e68"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_RLeg_41_Humanoid.svg",
+      "sha256": "74745a3d26232288bf4a2ccb37bd93540364ec87f9d8fa8f6cab7f92a79d1787"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_RLeg_42_Humanoid.svg",
+      "sha256": "2118beabded8e9eae85ae778ad3a6c343136b8523d59c376c901663d54f062b6"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_RLeg_43_Humanoid.svg",
+      "sha256": "241127de51efc6ffd76f514138e4aa4638372be094c4dcdd7615277252d52e48"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_RLeg_4_Humanoid.svg",
+      "sha256": "12e0844fa5d697717755a44c20fd78ff21094e43e0d8e740afb8bd22f4d0dab1"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_RLeg_5_Humanoid.svg",
+      "sha256": "b349bc93f8f3b96673c99347e2b8efa20aab63a346882b2ff30a3dd97cdd67df"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_RLeg_6_Humanoid.svg",
+      "sha256": "c1714a32aebaa805c62862609161aa65449453618922babd9f962c19c3d334f6"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_RLeg_7_Humanoid.svg",
+      "sha256": "09e95052903c10fa91bcf49413d5ca71ffd257b88e3acd0ab53fe1c16f7422c2"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_RLeg_8_Humanoid.svg",
+      "sha256": "033f3745cd446b43a0fe7f4ad2949859893ef1ae704d25bd961101b03bb223ee"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_RLeg_9_Humanoid.svg",
+      "sha256": "e4f1c29186470d9446e8b3f13ff6ca0248bcf24a5acaa608e42a9e9151eacca8"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_RT_10_Humanoid.svg",
+      "sha256": "1168ad1b30ccf507fe779e97a3e983faa684675fc2a3888077b1932c677437cc"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_RT_11_Humanoid.svg",
+      "sha256": "4d99fa0b455a7b2f90ef02169f3e987db5595136eadb33299d884f81b3d4d149"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_RT_12_Humanoid.svg",
+      "sha256": "4e4a51ac2033f06ae67f3cb874a25c38114f87974aadd1dd30a8c0dfcae940c1"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_RT_13_Humanoid.svg",
+      "sha256": "c83890b4520de4330986693e0aff6a836e612c66393b2baf7b7a2465b4d120f1"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_RT_14_Humanoid.svg",
+      "sha256": "f1abd3d4ef61cf2dcc2e482a80a655ada8afa38e9e5aba35323cc7b58158beea"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_RT_15_Humanoid.svg",
+      "sha256": "1473172877032904e3bf340c955812dcc6eafd4d9a0fa8107fe626383eac46e6"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_RT_16_Humanoid.svg",
+      "sha256": "898636fb12c75032dfd1a2378c771de04df162441c9d61e9d26d63df2427b12f"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_RT_17_Humanoid.svg",
+      "sha256": "fc7b5d23e7425371434918d9515e912ed0a7b3093528ea4c1c64e30675609bfd"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_RT_18_Humanoid.svg",
+      "sha256": "8ad177f53e41c8c7b12a69233759772f14da4cdb780c3255292564a08e8966ee"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_RT_19_Humanoid.svg",
+      "sha256": "428f761b141b3748f30fa76e1a7bc060cb0944372bf5eeafee23ceb244814706"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_RT_1_Humanoid.svg",
+      "sha256": "3822c2bec078c23183dfc28c0c488f8557cda293156ab37cb344b099b5903f1c"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_RT_20_Humanoid.svg",
+      "sha256": "1355e00017436d17f62785bc3c6260958200cfeade86bed3a06b91a6313a0c8e"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_RT_21_Humanoid.svg",
+      "sha256": "a8013262d391be35e0ba8e0865ab1c2a6c8212c3dc912190712517a714e3508b"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_RT_22_Humanoid.svg",
+      "sha256": "0fac717e5ea3418c13c25ddf845244c4dd53c36979aed9fc6f1f24fe1bc4dfa5"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_RT_23_Humanoid.svg",
+      "sha256": "c0d4300dbc1e4d23c0ea85daaa5c7fe7a51a37b1284d787ce7296650f669f245"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_RT_24_Humanoid.svg",
+      "sha256": "dc673f181b5f2560df10007e1103b585c211149f29bff9f388a00c5f8f75e3ed"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_RT_25_Humanoid.svg",
+      "sha256": "5555d3c10ed130f1b944f2f78be8900278d179ad096d55666f7637297d939222"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_RT_26_Humanoid.svg",
+      "sha256": "2a410aef596d8e255b1c554a724c439f2c2d5ebc6cf75fd3a35024891b91512e"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_RT_27_Humanoid.svg",
+      "sha256": "46f4a1611863d4c3c5b6fec9e77e4d9fc956c50c425f1abb774c25c036b359c5"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_RT_28_Humanoid.svg",
+      "sha256": "951caf2c1bb8e12401a8b0064bfa060eabbcd0f9705d340c0eaab5b6d74d76a7"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_RT_29_Humanoid.svg",
+      "sha256": "46ad850351f62eca241ac16700155f2211ae675148cd40bce487dbed5ade8e1b"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_RT_2_Humanoid.svg",
+      "sha256": "57bfd92364dddc2e6a630e614528520f826f82c7dc58dc6953a10139ed138b64"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_RT_30_Humanoid.svg",
+      "sha256": "fe4039dac726d016813fc5f335a576cd9c44ef22fde16d9b8c0b39937d5f6fd2"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_RT_31_Humanoid.svg",
+      "sha256": "1e7b64d5075aa44530eebffdd62028ba9bf1aa073f4e8be3a71f598f058e4a48"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_RT_32_Humanoid.svg",
+      "sha256": "50f84798c6982b711bc8537201f4e67b1be8307687d0e0dac2419689407d364b"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_RT_33_Humanoid.svg",
+      "sha256": "b14d5f33e62bd13c98865fe8ec60446fe39e2564254c4c3cbb7f504a1004ada7"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_RT_34_Humanoid.svg",
+      "sha256": "47600386b08c858f5c51cfdf509e18306ad5b6408a7069cbb28c453c2feeaf9e"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_RT_3_Humanoid.svg",
+      "sha256": "ebbe874580ebf67bce5bb8d73cd694ce7fa4774557450e667ac59431ba8b7574"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_RT_4_Humanoid.svg",
+      "sha256": "88da613142192bac722711a98d63c1cfd055030a9035dea1a44bca209379fd90"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_RT_5_Humanoid.svg",
+      "sha256": "a82ca537874e0cf2682077330e4ce4161982ef9176e87bf670cfcf1f48aebe1d"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_RT_6_Humanoid.svg",
+      "sha256": "3b77855c36bf189757a79595f82250b38bcfb4baf735058b29f56adcb0a833b9"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_RT_7_Humanoid.svg",
+      "sha256": "cbe73c7bef8b353ace496b30b5b6e4b92ecd183361a985940c244d735d2fa878"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_RT_8_Humanoid.svg",
+      "sha256": "1e3c496e85d6cab48c926ab1a203eb9fb9311eca5dd3c5578a32b75423180fd9"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_RT_9_Humanoid.svg",
+      "sha256": "4015e0ed1a661f81a834d04d49fdf1fe9ea62b84d3a83f83648b3ddfc94b6fbe"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_RT_R_10_Humanoid.svg",
+      "sha256": "5fb9cc7a13cc4a23a57529e4597058441cdaaac42d93a23cc0e2ebe5f6c1d53b"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_RT_R_11_Humanoid.svg",
+      "sha256": "b448ea318a5d6db57c83cd145ac70efa991258a1b7402d6eb17e595d87fbc89b"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_RT_R_12_Humanoid.svg",
+      "sha256": "1c5b7060174ee006cbefe677460c126a2aaa4867210d7167b56781d0e8e8e3d3"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_RT_R_13_Humanoid.svg",
+      "sha256": "fae8e0a24a13a9101deaec03288999bc3644b62ddd5f12f3cbe045e910df516c"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_RT_R_14_Humanoid.svg",
+      "sha256": "741fe9e01f50f69a843060f7552e6a512bb562791e8953ed04d19df41ee59728"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_RT_R_15_Humanoid.svg",
+      "sha256": "3657ba482cd3fb454888556f5617587bc85f79e4f11f13c685351678168891c2"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_RT_R_1_Humanoid.svg",
+      "sha256": "f4795e132592c2e7d5639d45534a346fa4dbfbb8d554a311773487dc72e37aa3"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_RT_R_2_Humanoid.svg",
+      "sha256": "e9e7b176bc021683af7ae5d5171e57633f405d724cd1290af9db3331f6412511"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_RT_R_3_Humanoid.svg",
+      "sha256": "46c0ec57d99ed90732699925bf760a610ddc8e2e72d97e67e970e639bd4ffc3f"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_RT_R_4_Humanoid.svg",
+      "sha256": "8cd036143000eac4cdba676d93120d99f364505c29c29c0bdd00e5695fd1bea6"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_RT_R_5_Humanoid.svg",
+      "sha256": "cf6c98a71ed0fb81c80d69867af88b3f42012652fec8783422acc1ca0c8a392c"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_RT_R_6_Humanoid.svg",
+      "sha256": "1df85e116ee95517de1e6660b0e044ce4873a69bbb368a3666bd14ead723c346"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_RT_R_7_Humanoid.svg",
+      "sha256": "3389fd57db4d28e4a71218ee571ee76bb1fd553bf66dcd80545c0365905d8bc0"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_RT_R_8_Humanoid.svg",
+      "sha256": "7fc3d214c4e77a5601c071414f9b14d7bebda81a81b28d038a3aa61600e756a5"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/Armor_RT_R_9_Humanoid.svg",
+      "sha256": "8f7a49df22b1c155017a9aaea6c4782628cadf776dbb58db9af4e1fc428b6645"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS10.svg",
+      "sha256": "79a9c52b421c91d6767fc3171cb836e469a86ec01d43de1b51394d899095a702"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS100.svg",
+      "sha256": "d1187b9bf5a14cabd8214799287567ff712c541110c187224f8a827197b8ef59"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS100_CT.svg",
+      "sha256": "85bf464cf1a1b6695742c35caef3dffd6e4e49fa74a80c32a02abdecec09a0bf"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS100_HD.svg",
+      "sha256": "231f3a2ae9e2dee0354619fb3660a76364d0c708f266e6877b170bb51d420d5f"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS100_LA.svg",
+      "sha256": "76d144f185062809a671b32de4309c6adb1c00ebfc33876f70d68d38c8ef8a38"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS100_LL.svg",
+      "sha256": "b3ede7ed9aa70d858ad097f42ca34a4e3cc11f30aaf1a2a741e836c27711ae74"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS100_LT.svg",
+      "sha256": "4fd9bb0b64554f79e6e699ff412c76130cee1707de6148fbf55b070b47101779"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS100_RA.svg",
+      "sha256": "a0bbc037f2f1180935cf22fbd21c745092ea4d6b63ba0820cd4ca7e24da89ce4"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS100_RL.svg",
+      "sha256": "45d0a93e3b1653e51c1e582706eaad41d31ceabf268f4766b3eda364defa6a8d"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS100_RT.svg",
+      "sha256": "d86f29751f9a5d5bbb27d901e4e63cc80282625478f7cc40dd148854fbc1d4b2"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS10_CT.svg",
+      "sha256": "e1117fd71b8c04f56aac006d1dda2be6b22e498fa613e1181c8663e0616111b3"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS10_HD.svg",
+      "sha256": "67786aa6460275782c54c096ac66e10feada9250d98ad8dc85524ae0efe22a15"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS10_LA.svg",
+      "sha256": "7b0532550b18e4241f95fdf34572692b836f447ebf67e5451e7289c4b38e6bd4"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS10_LL.svg",
+      "sha256": "a848efc177bcd9c12555209a48880f3699af43f8e4ccb530f3b3019d0a559a10"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS10_LT.svg",
+      "sha256": "f62fb100e91b516185d70cf862c8ccc3f277e4a762247b04a52ed1d20ba627be"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS10_RA.svg",
+      "sha256": "0470fd91ccf7c19d4354a077248d0320f11c5238b805360567d8f190393d0c2d"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS10_RL.svg",
+      "sha256": "140cb4beb6a0e054568f6a4f89c89fc49728b6577f951d7733773f38f1b34946"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS10_RT.svg",
+      "sha256": "2cfbadb2fd65aaf3fffa198bc6bf45d9a8c69adba9b0375af7fd65602959b479"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS15.svg",
+      "sha256": "1deab78c9bd86f451ca440745460dfb4dc04dc8f6868ec15a0426f7312167331"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS15_CT.svg",
+      "sha256": "1b2671bc8cb28d1423e64ccfd12fc7ebf22332fd1cb09753ef123eb6135ab624"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS15_HD.svg",
+      "sha256": "67786aa6460275782c54c096ac66e10feada9250d98ad8dc85524ae0efe22a15"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS15_LA.svg",
+      "sha256": "ff7740e04c7017b19a54c40570d212913419fd334bfc5b9b465654410cd49709"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS15_LL.svg",
+      "sha256": "ebad997efdc0beaf7ab99747ad2578e5468aa93bec4805e1724024624964706f"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS15_LT.svg",
+      "sha256": "c836e229b6807bfaa4ab799309ebbde5ea25e6d8c6cf2d77649f88970bf7c3ce"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS15_RA.svg",
+      "sha256": "867aba35cd89523a06947f090f348d3f7d038810439122d0d79340d9522118e6"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS15_RL.svg",
+      "sha256": "6e1471d4f668c1453cf09174faf5737c52bd48f49bb5c78767c01a46175b1709"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS15_RT.svg",
+      "sha256": "bc403d753e82c47e18c717d50e91f8d605eb916037fc927cde852c175bdbcbb6"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS20.svg",
+      "sha256": "fd97de4af9657d7e138fbdc4b4f73350cc240c5c2391e8f1b57c25254628bece"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS20_CT.svg",
+      "sha256": "85a3e38de8afb687d70ad37d9188f3c66c5a9c0f4b615326fdd27b0c4553d63f"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS20_HD.svg",
+      "sha256": "90724249e844639f340fcc8ae15af6e5fc39683a91dd3849291b43de2de0b56b"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS20_LA.svg",
+      "sha256": "a2b6a15cb4c47b268f85812fcaba1b9783269b6e4c75ea46ce8c75c02e2050c6"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS20_LL.svg",
+      "sha256": "7758f3b1c70da23b03c9201291c0f22532f65c99acac7b6c3931bc9aa5fcb67e"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS20_LT.svg",
+      "sha256": "550be956c61ae3ac9ecdaf877d7a6f56f53cbfa2eef8357acd041089b9a48f0a"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS20_RA.svg",
+      "sha256": "b18689e6c7c3853899585ac8fad087a7d103dff580a57f973cd9d7b2e2584e81"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS20_RL.svg",
+      "sha256": "0542681615a96e9d494f922fefa5990c22306775a61da1990750840d5cf50a60"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS20_RT.svg",
+      "sha256": "a37b1af0379363299befd9972c11462c05ec28e7f1d32bcda69c9e87041874ce"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS25.svg",
+      "sha256": "35b5f00512c44a9b9f28fd636e791e855b23d13a40360b8f3dffc5c60b8978d5"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS25_CT.svg",
+      "sha256": "e6efe359a11ba06bfef98054394c0b30e5a9adee0aa4c53ac8e5aa8a93f8c39e"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS25_HD.svg",
+      "sha256": "90724249e844639f340fcc8ae15af6e5fc39683a91dd3849291b43de2de0b56b"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS25_LA.svg",
+      "sha256": "3dc93352985c6a5394dde689164314c47d62afd7144691fa5c280bfad015905f"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS25_LL.svg",
+      "sha256": "0f30c1a0e53c35b08f0670c1edf44cd3a25dc435082d507cc3a40d87b2b11654"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS25_LT.svg",
+      "sha256": "86e937f72cfae385b629b9247c21b41f77736e2075df540a094ec4e9341fa48b"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS25_RA.svg",
+      "sha256": "b0a8e491e019db0d33fa533fdb4286a58006c31cfd6917ee05feda7a9e05652a"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS25_RL.svg",
+      "sha256": "302f0fe3309d790cb3f72b2f928853081a4787d093623ffeedbd5f27ecb18192"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS25_RT.svg",
+      "sha256": "d9de580a6973d709671991ea976e468aa96ccba60d50d5f15b1ccee5e8b38d57"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS30.svg",
+      "sha256": "3b16f873afcb393e0988d35603dbd438118e2c3ef98d2191f879c96bf86e3e87"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS30_CT.svg",
+      "sha256": "3c334806ca7736d048e3f918dcc2ba4655718e4ffa7e74984859fe4b85640d58"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS30_HD.svg",
+      "sha256": "90724249e844639f340fcc8ae15af6e5fc39683a91dd3849291b43de2de0b56b"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS30_LA.svg",
+      "sha256": "39f703d05b1124de7cc02eeb045cbf582f7b262e4f8adf06a4a8e727a393b563"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS30_LL.svg",
+      "sha256": "62140d8b220e9ace97445b29e12bfa3a4e9540ea7142c88bcd8e824cc4b17cc7"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS30_LT.svg",
+      "sha256": "871305d1bd4ca35cd45288b32242a975df447515409cefc0e58acfd4cd8f73d9"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS30_RA.svg",
+      "sha256": "354e06ed67d426fd9cc5c1bdb04d819cb771917be93e4785138ff77b9f3e73bf"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS30_RL.svg",
+      "sha256": "c8686921652bc280d1825333d4ae6bb85486989119cf793d5f50a408c6743479"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS30_RT.svg",
+      "sha256": "9455d0b7663471c47a3d00c07a9b6ec506b2681ca81e7f1199275d3f02072091"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS35.svg",
+      "sha256": "d5e076b1b2fcdc1089bf51e6e6281e18b2d9046cb6bb882f84dc7eee9c5e59b8"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS35_CT.svg",
+      "sha256": "119a0d44e1870da2e97f140c40ec1ca8ae2787dd2dfa0fe14c11a08508acdbd4"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS35_HD.svg",
+      "sha256": "90724249e844639f340fcc8ae15af6e5fc39683a91dd3849291b43de2de0b56b"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS35_LA.svg",
+      "sha256": "2b6245019d8e09aa34d08322d92cbb14085b81ed313bc5b3cff264d49f12a6eb"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS35_LL.svg",
+      "sha256": "f5624afc81bcb2624edb7bd94fab7b448789b3b065580f4bf5c2a024e746dfbf"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS35_LT.svg",
+      "sha256": "d9261bd48bd7e5be2923ec18709a9fbba000b929fa55a68aff1a5df2305c5e40"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS35_RA.svg",
+      "sha256": "a99c91a2f1e6cb8055e63574e78b41fc9045069662fc4a736d57d7bd77247b50"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS35_RL.svg",
+      "sha256": "1cbd624124441c848fae216fdbf672a9cc4f726ce439296672489ed4f3fc69e7"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS35_RT.svg",
+      "sha256": "754d45ad6da38eb561fe370b7198db365b850c0ace6b63eb53ae7c9ca6164488"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS40.svg",
+      "sha256": "52af1d4d7e0fe0c8830228f5c47c8b9ed71155024a495df6d4b45587c319d4fe"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS40_CT.svg",
+      "sha256": "8b49f6232bcce81d7b619f67dc65521ee3c185a68f48ba274888499512fd643d"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS40_HD.svg",
+      "sha256": "90724249e844639f340fcc8ae15af6e5fc39683a91dd3849291b43de2de0b56b"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS40_LA.svg",
+      "sha256": "31585606becd151fbdc0ac341ae6d4e265555e5204e32c0675cc00d78a3df41b"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS40_LL.svg",
+      "sha256": "654a3535d6bc34edc3a9d905ba74c5bf5766e7782f7a4d6693d3da1a44d9e80b"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS40_LT.svg",
+      "sha256": "d1b0f12a270f55984c8a36fdbda27edf9404fe44e50470f8cea17d590cc776c4"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS40_RA.svg",
+      "sha256": "c2befb54652026e1730c196413836236d44bf3e9a840c31d6744ddcfb7318438"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS40_RL.svg",
+      "sha256": "591c4090725e44fd2c98ef30dece9997989195ba5f5b091a32bbd148f542fd1d"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS40_RT.svg",
+      "sha256": "b05986e1b9850e3a309ef92994aee76bd1234b936cf772523323faf4f6301358"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS45.svg",
+      "sha256": "e3f361961d54fdfdf799146f806bd1c56f320c6f6eb9d2dc4268dcf43df7954b"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS45_CT.svg",
+      "sha256": "cb86551e293e07cbe1c96ee5a380a76d61c2c861d9dee6a70f2905915d8af993"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS45_HD.svg",
+      "sha256": "90724249e844639f340fcc8ae15af6e5fc39683a91dd3849291b43de2de0b56b"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS45_LA.svg",
+      "sha256": "f188dbbf1f8c449f4c20756974081f75cfd8396615cb2b21ff013783960d8549"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS45_LL.svg",
+      "sha256": "9f2e70b004e381994c05c3191a6c29fa3a2442c398f502d2d196ec25528010bb"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS45_LT.svg",
+      "sha256": "fb1d4d34772f7bbe9228ce2d38911e548f7b0d57e55ea0271e47287d3fc5e1cf"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS45_RA.svg",
+      "sha256": "81d83dabdf837263fde222b8600fd92c389c5f98a6a0e214cfe09c4f4b06ca55"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS45_RL.svg",
+      "sha256": "3f875195afad7e24809d3ba799064202b4f12539a472a8e328e6be20e4f398d5"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS45_RT.svg",
+      "sha256": "2f0ad3b7a8665c210e06f246b28a11a8ac9e6605ca08d5e2944320438c35f55e"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS50.svg",
+      "sha256": "ca089b6073cb4d6569bc1f6c88f78e9b21d955760322f72b930d069a1249edbc"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS50_CT.svg",
+      "sha256": "701d81425dc749ec9043d3465eccec0be3d9c0f35a5239c3d716c8638d4e8ac6"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS50_HD.svg",
+      "sha256": "e9d6de3fa2a18ffe0bb7950b32fc9631445f7ab8086bca18ce052a02550a709a"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS50_LA.svg",
+      "sha256": "8a1a59ede73beb049198428fe55d6a21f7a4ce5b4257488fd8447c853afb05ee"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS50_LL.svg",
+      "sha256": "d7c1b77b5e1cf715fac3ffd374a340832308d9b4970027ba5f0f49f45e50efc8"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS50_LT.svg",
+      "sha256": "18786cb1a150e548f709328ab224abd47d4453146ed7a33e9a37374a3ce721a8"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS50_RA.svg",
+      "sha256": "0e225661336dfeb2a8d6733c7cb30da7f385886f287b8f9f2ca7c50240d307e1"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS50_RL.svg",
+      "sha256": "572cc3ec1ca9bb107f6308066715be8297bd376bb89c477500775d3711190919"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS50_RT.svg",
+      "sha256": "7f61bbc43d75c3d47364b862c213f6a00bf5d483bc510644e871b7f385c42223"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS55.svg",
+      "sha256": "83e57182cc468e02e6bddc4670faa9428e374be76ab5e29729059934b0264e7d"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS55_CT.svg",
+      "sha256": "3476aabd2ef97b0ac578f2118a017057906a491d845b59ccf9c3bbdc5dec8bda"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS55_HD.svg",
+      "sha256": "90724249e844639f340fcc8ae15af6e5fc39683a91dd3849291b43de2de0b56b"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS55_LA.svg",
+      "sha256": "a3825db02962df6f4dd97e1909b9a7d411cbf023ea5ea88d68b41679c77252e9"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS55_LL.svg",
+      "sha256": "16b09e1655792ed5836552200462acb7c534fdb9885a3161703d1bef67e5bad7"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS55_LT.svg",
+      "sha256": "c664fbad45a30c86545a3c35806c43ad8788a7c95d82dcd7672e137039aeff38"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS55_RA.svg",
+      "sha256": "4940bf727e256339edc78b5dd8207e60fabf807bae0cc6f20239216b4f431382"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS55_RL.svg",
+      "sha256": "ecc973e8734e66b5f2ba25321849a81aeb65572178472869cfb4a1c02a54d86b"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS55_RT.svg",
+      "sha256": "1d86df07875d11d61128e1621862fa9c036e8491707ce8992702ea30e2950c3b"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS60.svg",
+      "sha256": "fcf8ca8d8cf6031e949b301c5fa44233c8a4900c0b01067ecb31642f51ae1839"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS60_CT.svg",
+      "sha256": "08545366086b17c0e4b267ea34e1db0cd88a3abd538868235c5b7538a88b5461"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS60_HD.svg",
+      "sha256": "e9d6de3fa2a18ffe0bb7950b32fc9631445f7ab8086bca18ce052a02550a709a"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS60_LA.svg",
+      "sha256": "de33f22e06871c5a358d157a71cb1838a1ce69415c577b6d24063cceb78126c8"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS60_LL.svg",
+      "sha256": "6ab87f74fe5367e84cf0efd268efc78fe9ad166862e40a92f5425a7f98ca72fe"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS60_LT.svg",
+      "sha256": "1a22b66ed4927ca2025dc2852263a1619f8eed3104cb5c3367e8fb324e8cf3da"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS60_RA.svg",
+      "sha256": "313a277d2fc17b77eaf2c02a63e14837b011e30c961a9c7d53ee4ceeab2b5333"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS60_RL.svg",
+      "sha256": "062614f95918959cf6da3dc15d3cd004a4f6d64ee4dad21c1aa20c0c770b80da"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS60_RT.svg",
+      "sha256": "35409923bb50ee3ff93a1e9803e8d58c844b55aad2452301e64a37af5d8f37f3"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS65.svg",
+      "sha256": "bb9abd9a6144cb01f90c9426b0b4c5c27f8f1863f1f5dd148f813ea661e454c2"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS65_CT.svg",
+      "sha256": "afe131d201e32b17da1715b60a9b1795031daa41f6a07b1ed7eff1b1948e2afe"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS65_HD.svg",
+      "sha256": "e9d6de3fa2a18ffe0bb7950b32fc9631445f7ab8086bca18ce052a02550a709a"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS65_LA.svg",
+      "sha256": "2971fba8abc9c02119bca8a9ecd652b7c32f038aa1421d36ffee1a3d28ac8b0e"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS65_LL.svg",
+      "sha256": "0934808678c04651a4c5d90f256681d955de3d12f5e90cc82667c4c8a21f63cc"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS65_LT.svg",
+      "sha256": "bec7e286bc308c10669eb6289f95aa4ed572265121e3828c6244e499038f24c1"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS65_RA.svg",
+      "sha256": "60e32dcb6b9c30a2aa3910d184941d277939f1547853542084a909e6d9f4c6df"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS65_RL.svg",
+      "sha256": "683f97214647a4ae6916b243c1bee08a3df288f3d3889aa9c7d23978f4239a25"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS65_RT.svg",
+      "sha256": "03ecc0745acc4bf46084d74130feb6d65e1a21c55eb4c680ce37661851131e4b"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS70.svg",
+      "sha256": "262fbdc4116ad7c0456aaae3733b802c391582b3d65c2c5ae37e2586b605ef36"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS70_CT.svg",
+      "sha256": "41763be46129f1fa21c7f8b745def5cf21e38243ee9cf25f08e5ebd2721704e8"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS70_HD.svg",
+      "sha256": "e9d6de3fa2a18ffe0bb7950b32fc9631445f7ab8086bca18ce052a02550a709a"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS70_LA.svg",
+      "sha256": "94f8c11f99484faaebe6596b92ed7ac69dd117267d63a962fe956b7f99bc05ac"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS70_LL.svg",
+      "sha256": "0934808678c04651a4c5d90f256681d955de3d12f5e90cc82667c4c8a21f63cc"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS70_LT.svg",
+      "sha256": "bec7e286bc308c10669eb6289f95aa4ed572265121e3828c6244e499038f24c1"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS70_RA.svg",
+      "sha256": "be8a827e1953c4f784974259d59c16f4f4dda500d7dcee4ebe4876c68adb470b"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS70_RL.svg",
+      "sha256": "683f97214647a4ae6916b243c1bee08a3df288f3d3889aa9c7d23978f4239a25"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS70_RT.svg",
+      "sha256": "03ecc0745acc4bf46084d74130feb6d65e1a21c55eb4c680ce37661851131e4b"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS75.svg",
+      "sha256": "91bb977dc1d17018962275f5f115b67453d39cbcd07c692661ba0c20fa24b02c"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS75_CT.svg",
+      "sha256": "403339ea4ad7b1e27a7c395634a52f5dd3c35d190b9e38c0ef6b44e4936db30b"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS75_HD.svg",
+      "sha256": "e9d6de3fa2a18ffe0bb7950b32fc9631445f7ab8086bca18ce052a02550a709a"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS75_LA.svg",
+      "sha256": "7d8b8bd1bd4ef0eedafb54cf3a88d701257162182bdb2b367e87d0237bb8c715"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS75_LL.svg",
+      "sha256": "9265ce55c39247596ac69368679ec3280b398add17f8c4f54ab7542a76ba23cf"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS75_LT.svg",
+      "sha256": "b622efbf60dfa4af722d812b3f1e12143ba05ccb04af6cc1a2c6f7d2e6d13700"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS75_RA.svg",
+      "sha256": "194fbe9712233a185b2704f89a3377f8cb202601842e17707dd4866f0c0fe269"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS75_RL.svg",
+      "sha256": "88fa20a71f9ab1250798362c0d018c8da86c3360425ebf1c8501cda7b7da29c4"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS75_RT.svg",
+      "sha256": "26e4ef7f676ade6b0929cbde046959a95b1ac6543bc15c81024c94cb0cdf2adf"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS80.svg",
+      "sha256": "eb4b537c859a02d3b08c45976a751d6e8f4dd70d46095625d499486c382fc07d"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS80_CT.svg",
+      "sha256": "823bdad6cfd2d150510d228c4ec04893cfcc2dd55ed018d73e4b81a0dff69b3b"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS80_HD.svg",
+      "sha256": "e9d6de3fa2a18ffe0bb7950b32fc9631445f7ab8086bca18ce052a02550a709a"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS80_LA.svg",
+      "sha256": "7f1b603bcae675eaa998d163da8cebacad8e40cc573d32d9c412422435efe1b8"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS80_LL.svg",
+      "sha256": "5ff4bc52a347a83332bc97bd7eeb614d50f3e608ae5c90a766c8c940c8bd715b"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS80_LT.svg",
+      "sha256": "7123bb7b6508e4d02db001f65536d40052358f54b4fcaab17f08a88856e4bdd2"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS80_RA.svg",
+      "sha256": "b8d52c3187d54725d6695949a15fe2a26d4474bf3013b36508b6fa101694e086"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS80_RL.svg",
+      "sha256": "2e52da6cd4cbf189c364f5bd6b87018c57a2c65b5851acdd633c3f4f0ab2c815"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS80_RT.svg",
+      "sha256": "3e2a3dad0aa91a10ef29a4d1226f52ee3b0aae03d1a04a9695019eacb28269e2"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS85.svg",
+      "sha256": "0dfffa0373cd6d9cd6763490d398d0c089f23efe0bca12ca05689cb2dcc26168"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS85_CT.svg",
+      "sha256": "ae6a373105c0a31f023ac27b450e137ddc01fcca7f6f3775f65dfde7717c112b"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS85_HD.svg",
+      "sha256": "5ef843e65c19d953a2701957efff79f9540caf2db04a4ac305a7dbdac0bde22d"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS85_LA.svg",
+      "sha256": "d04b0e8fb18d19435bedd992c3dc732fa820bd54beda57b91ca5095a13f3cc21"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS85_LL.svg",
+      "sha256": "5cde44559bcf6d6723a28a0efba8022323a3a45f0ca6e3fa341c190a533c2f94"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS85_LT.svg",
+      "sha256": "3f3ef780dc038f9539e0b768e99eb80eda6447d1c6875a963bfdf3f5b5e01444"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS85_RA.svg",
+      "sha256": "eb656ddd5dcc366fa48ce06c2dd2de6f4aafa3da47d9556d744995f2b5c92d50"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS85_RL.svg",
+      "sha256": "f4c70a5a3ed62979d3db4180556ef196919cf58710456b4635e312d6afd2af52"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS85_RT.svg",
+      "sha256": "815ae99c2ff55ab0f1e43447c2d26f32d390ca2c7c7e49b4847e789694beaae8"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS90.svg",
+      "sha256": "99806f10fbe94a82ff62405d6c4d53dfdb859f65713ca064334076dc8065b459"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS90_CT.svg",
+      "sha256": "95025969cb9bd7f7eca4c53dae83c5a9267f7946e7d2e1ae15be436f394f0f45"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS90_HD.svg",
+      "sha256": "231f3a2ae9e2dee0354619fb3660a76364d0c708f266e6877b170bb51d420d5f"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS90_LA.svg",
+      "sha256": "f83733f2d371e9c2b45251b405eb7a343a5f13d00948b6bb863fc3f2367c298d"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS90_LL.svg",
+      "sha256": "f07c9ba91d044354e7deb722accef736ea2200c7c0c5f53e7071c48e8306bd1f"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS90_LT.svg",
+      "sha256": "9720a23d823a10b619efa35e76a59fea17fc822c897c7247298d3d751287e42b"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS90_RA.svg",
+      "sha256": "2602fa2789e901b8e67c00ab5ef7f94cfc3820cd388e64f7a8884e9ab218da3d"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS90_RL.svg",
+      "sha256": "0b62c1f26d9bc73ecaab7e33fd38ac1a74b2a39178e49977f0bd8241376e4455"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS90_RT.svg",
+      "sha256": "0c2e71bb2b5aec888f54d464ff2249b78280dc36c4dc5cb0d0d1b70c446efe3b"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS95.svg",
+      "sha256": "4f7a0de37bfb850f1b8371f16e5936859b649e22c7ffe801f04891e7ba48e556"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS95_CT.svg",
+      "sha256": "734dbb3341884b1b3dd018d53511129af8f38042e3c3e34b99b4f62757f2ae99"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS95_HD.svg",
+      "sha256": "5ef843e65c19d953a2701957efff79f9540caf2db04a4ac305a7dbdac0bde22d"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS95_LA.svg",
+      "sha256": "b7a70b0b32390e0e16734f0e921c607c5d8dd8f28ba1e704b39e699d56a81fd7"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS95_LL.svg",
+      "sha256": "2c9ad1cb9f28cae1c57016c7c7f8263b1b1b97e2b33b4989880bf839ea2472d8"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS95_LT.svg",
+      "sha256": "e345fe5edaf8fa31ac7e8c7637f8e07f96ff881d6079967f98f1d26bbc232a18"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS95_RA.svg",
+      "sha256": "b4c4e601f802948df06a9aaabc26da503ed80bdf0dea6badd7abd0785855f34c"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS95_RL.svg",
+      "sha256": "5b444963b97cabc6ec13ec35d6c5996a0da09de691eff8eded24c132238c9614"
+    },
+    {
+      "path": "public/record-sheets/biped_pips/BipedIS95_RT.svg",
+      "sha256": "83656976c2279d11ee48bee281e0f126bdef81452a643e561b8450f61f348cb6"
+    },
+    {
+      "path": "public/record-sheets/mm-data-version.json",
+      "sha256": "f4088bd172f487faf0a67712ad62caddfce010558389c7ae22c92de7597ccb5a"
+    },
+    {
+      "path": "public/record-sheets/templates_iso/battle_armor_default.svg",
+      "sha256": "9902f733479ebf3416de07e81378262a72c79ff79c914aa628abf8db73640c96"
+    },
+    {
+      "path": "public/record-sheets/templates_iso/battle_armor_squad.svg",
+      "sha256": "4200a7fd192a7b359207b816d1075b0ed4309161403065a4a57ed202c2997d97"
+    },
+    {
+      "path": "public/record-sheets/templates_iso/conventional_infantry_default.svg",
+      "sha256": "bae43998cbf814e476ad1114e8b454139ef76b011e4ac561d6c4445321cf29ac"
+    },
+    {
+      "path": "public/record-sheets/templates_iso/conventional_infantry_platoon.svg",
+      "sha256": "35471fe9714c147bcceab57f7b7fc41131f1988eba3d1a5d25383d559192b885"
+    },
+    {
+      "path": "public/record-sheets/templates_iso/conventional_infantry_tables.svg",
+      "sha256": "cd7fb4d8452b40c46595a1ea2e1d091befdafdca86f750c38a261750402b14a9"
+    },
+    {
+      "path": "public/record-sheets/templates_iso/fighter_aerospace_default.svg",
+      "sha256": "b822ae89bb076ae5b2afe27df725b89ddcbf753e0038c0ad58974d2113b35eeb"
+    },
+    {
+      "path": "public/record-sheets/templates_iso/fighter_conventional_default.svg",
+      "sha256": "67a37e7661843f93b1ea7e4ae39a9ef77f155200ee02c9675d4dcd71d956b370"
+    },
+    {
+      "path": "public/record-sheets/templates_iso/mek_biped_default.svg",
+      "sha256": "fc0025c33761f9ae8ca106094b42c55f5a959d755b780114eba334abb2cd3f6b"
+    },
+    {
+      "path": "public/record-sheets/templates_iso/mek_biped_toheat.svg",
+      "sha256": "2527f8cb7e3735e7dbd4f65234888af40f2b09e4a13f268fcb2dbfd030f10445"
+    },
+    {
+      "path": "public/record-sheets/templates_iso/mek_lam_default.svg",
+      "sha256": "993d4492fdcb748fdecb51c4b8bbc2fc8f8d508db623528c25ccceb68692f9e6"
+    },
+    {
+      "path": "public/record-sheets/templates_iso/mek_lam_toheat.svg",
+      "sha256": "9a5cff35e53099ac935c3c9bff8fb8aa923931dfbff1d077edd94b86adfbc562"
+    },
+    {
+      "path": "public/record-sheets/templates_iso/mek_quadvee_default.svg",
+      "sha256": "339aad702bfbd43a3eeedc46952dbe22b913942bf8534309c18ef5db13ac0f01"
+    },
+    {
+      "path": "public/record-sheets/templates_iso/mek_quadvee_toheat.svg",
+      "sha256": "8310da86c2186d904767502a8881ad13e15949a86e2a21ed815df0689f29100a"
+    },
+    {
+      "path": "public/record-sheets/templates_iso/mek_quad_default.svg",
+      "sha256": "333880b12f9f00e2881eda25ce6e40279cbdb58092ef26267e5ec4ed465085d2"
+    },
+    {
+      "path": "public/record-sheets/templates_iso/mek_quad_toheat.svg",
+      "sha256": "652749462260b42198765f348e3b99786723aad5a225315b2407c73fb0514697"
+    },
+    {
+      "path": "public/record-sheets/templates_iso/mek_tripod_default.svg",
+      "sha256": "f1f794137b18833ac6dce30613e925f919d578bc5d03b5902f3f4a666006fa0e"
+    },
+    {
+      "path": "public/record-sheets/templates_iso/mek_tripod_toheat.svg",
+      "sha256": "947e96ef68fa72108bb7934076c3a1e2502204f681c53bc5f3f9bfa82403ba03"
+    },
+    {
+      "path": "public/record-sheets/templates_iso/protomek_biped.svg",
+      "sha256": "47892c0514d3a7c984670fcf46a6ed7a922906f7586c827cac387ddc4441b84c"
+    },
+    {
+      "path": "public/record-sheets/templates_iso/protomek_glider.svg",
+      "sha256": "ebf54312973b1c9e11f6cff68d23de6615a7e9ed3eb9ea243810b743c136e442"
+    },
+    {
+      "path": "public/record-sheets/templates_iso/protomek_quad.svg",
+      "sha256": "7bce98f96ed684a468e7c013b224444117e1f228ec4c8bf043d0f140ecb397dd"
+    },
+    {
+      "path": "public/record-sheets/templates_iso/vehicle_dualturret_standard.svg",
+      "sha256": "adbca6760a9923dddd2433bdad6ad64c0065a6efba7be8850d374c47f732997d"
+    },
+    {
+      "path": "public/record-sheets/templates_iso/vehicle_noturret_standard.svg",
+      "sha256": "8425d2d26a429df68db028f5aa022541aaf2ce3a5ea6435665b454cd883f1e73"
+    },
+    {
+      "path": "public/record-sheets/templates_iso/vehicle_turret_standard.svg",
+      "sha256": "f41a7b85c7bdfdd0b83f1f01c0274a5ae5f756fbb8ab77313e9701395e7a9dc9"
+    },
+    {
+      "path": "public/record-sheets/templates_iso/vtol_noturret_standard.svg",
+      "sha256": "4046e6f0579bc8293284a58a56f98a8222c635fb4491393f07bb4ef494f19743"
+    },
+    {
+      "path": "public/record-sheets/templates_iso/vtol_turret_standard.svg",
+      "sha256": "6b995976c7aa8fc7832446c61b2389a39f548991350c7b028be141ce21708ab0"
+    },
+    {
+      "path": "public/record-sheets/templates_us/battle_armor_default.svg",
+      "sha256": "2139d6da64a32c4ea24b290270abd41fcabb500bbe9e699eba59cb8d6e6f711e"
+    },
+    {
+      "path": "public/record-sheets/templates_us/battle_armor_squad.svg",
+      "sha256": "10c19f18a4c3bc5cc3ceca5b69ba864a1e646ccbdc9d5521e1b3f8c25aee979f"
+    },
+    {
+      "path": "public/record-sheets/templates_us/conventional_infantry_default.svg",
+      "sha256": "e2b5826c7eaa7e2933e211b7d1cec0e7f4cdae97fcb3a2824c52d83e95420c67"
+    },
+    {
+      "path": "public/record-sheets/templates_us/conventional_infantry_platoon.svg",
+      "sha256": "66fb249ca14e0606e7f7df422396e91ee222742752269ed4366325bb8275105f"
+    },
+    {
+      "path": "public/record-sheets/templates_us/conventional_infantry_tables.svg",
+      "sha256": "8012773c2a784e48c6fe15a48c5610b37ae55909f62093c69a9574d470d0996e"
+    },
+    {
+      "path": "public/record-sheets/templates_us/fighter_aerospace_default.svg",
+      "sha256": "dd4dfe3e30db29944bbae7403aa5eb44b6cf8ec2ba9a439bbdcaeb2c9d6ef723"
+    },
+    {
+      "path": "public/record-sheets/templates_us/fighter_conventional_default.svg",
+      "sha256": "282c0fae5f9fba9c2f630f9211e08efc9169be34c051c35105e5011f651f9ae0"
+    },
+    {
+      "path": "public/record-sheets/templates_us/mek_biped_default.svg",
+      "sha256": "ae8427c38b15fe1c685cfae9fb8681c9b420b1b6664ed4c445b0bed03fd16d58"
+    },
+    {
+      "path": "public/record-sheets/templates_us/mek_biped_toheat.svg",
+      "sha256": "e7b116a9d786b6ffbc2b2709b204897b36e0bda767916eb309f88b78fb1d43bf"
+    },
+    {
+      "path": "public/record-sheets/templates_us/mek_lam_default.svg",
+      "sha256": "52641bf89a8a548558e0186e7dde7b1ad25064c500167ea50b750b694ee40338"
+    },
+    {
+      "path": "public/record-sheets/templates_us/mek_lam_toheat.svg",
+      "sha256": "c3decc319b7bc8ecefd677c632a204aa3f92ef4694de3f2359fdf88609e7ac2f"
+    },
+    {
+      "path": "public/record-sheets/templates_us/mek_quadvee_default.svg",
+      "sha256": "2567d91e91d464c6958da63517ebbaf658a7d827873f77d50c3e310dcf42c22e"
+    },
+    {
+      "path": "public/record-sheets/templates_us/mek_quadvee_toheat.svg",
+      "sha256": "dfa5fa3f144ce74414b072bd67c855bdca342755b2fc8d1ca3ce97e5f1fa5d52"
+    },
+    {
+      "path": "public/record-sheets/templates_us/mek_quad_default.svg",
+      "sha256": "45e69abf767239c8a02a01074f23a34f8bf02393a7b0101051cd16d3c1d5e8a1"
+    },
+    {
+      "path": "public/record-sheets/templates_us/mek_quad_toheat.svg",
+      "sha256": "a6c88d810e6d016006b5596c917b592f8eea7e2936ce3290de3782da0b2560b2"
+    },
+    {
+      "path": "public/record-sheets/templates_us/mek_tripod_default.svg",
+      "sha256": "8d5be3b285653c9caebf063f5a62105b42cddea097baffd1d65ce1586d7d4dcc"
+    },
+    {
+      "path": "public/record-sheets/templates_us/mek_tripod_toheat.svg",
+      "sha256": "79bedff0c1d5c0dca665881fde5102d33b52dfd7286e51af6ce668e3ab0cea1c"
+    },
+    {
+      "path": "public/record-sheets/templates_us/protomek_biped.svg",
+      "sha256": "ce320cd98a883f684dd3a226d228c436f9fd6671e4b134c77d7a97d9ea392b93"
+    },
+    {
+      "path": "public/record-sheets/templates_us/protomek_glider.svg",
+      "sha256": "1b14190b84f7078cf1647f1d42948273ea3d75568a79cdce0cec27b0dfdbab38"
+    },
+    {
+      "path": "public/record-sheets/templates_us/protomek_quad.svg",
+      "sha256": "05151f3ad4aba56599c0969ab3ab7ef7e06e145aecce679121deaac3574b5a02"
+    },
+    {
+      "path": "public/record-sheets/templates_us/vehicle_dualturret_standard.svg",
+      "sha256": "9a5648d8d21de07c568a346e36877895355b86ef483c6933c4c32b04be4bbdb6"
+    },
+    {
+      "path": "public/record-sheets/templates_us/vehicle_noturret_standard.svg",
+      "sha256": "d557969dba94e1f787458dce9344243897911f3754200f61bff57c7558fa1927"
+    },
+    {
+      "path": "public/record-sheets/templates_us/vehicle_turret_standard.svg",
+      "sha256": "6fc3558b8f2cccfeb2cfcc01acf17a88cf8115f5640d81e89e9559340ba3533a"
+    },
+    {
+      "path": "public/record-sheets/templates_us/vtol_noturret_standard.svg",
+      "sha256": "5c0a8f4834e93df347319cace5d886fcac2145b4a397bd53bbad223b83260aa6"
+    },
+    {
+      "path": "public/record-sheets/templates_us/vtol_turret_standard.svg",
+      "sha256": "d75e9ffc538a3717c8b7d6c4be01fff6f4ce839eb99bb84ffb89969717adaec9"
+    }
+  ]
+}

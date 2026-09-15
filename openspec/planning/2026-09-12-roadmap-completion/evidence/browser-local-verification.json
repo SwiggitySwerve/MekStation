@@ -1,0 +1,150 @@
+{
+  "at": "2026-09-12T13:31:39.323Z",
+  "node": "R1.browser",
+  "baseline": "6c4eac5c7b7a2aece3aab0443ce606943db6cf0b",
+  "branch": "codex/roadmap-customizer-browser-20260912",
+  "owned": [
+    {
+      "path": "e2e/helpers/recordSheetPrintHarness.ts",
+      "sha256": "1cd6bfbc47854db09f1b00f84085189eca768a2b70da510e78fa8928f645a2c6"
+    },
+    {
+      "path": "e2e/customizer-record-sheet-rendering.spec.ts",
+      "sha256": "c582b223f11d0e672d3ce609db030b5ffc6613b821a5ca6c146386feb4fd08fd"
+    },
+    {
+      "path": "e2e/customizer-edit-recovery.spec.ts",
+      "sha256": "6a52c53e932a97e5b17ddda42bf306bf0cf99522016ed8711b1152dd2ec2a81a"
+    }
+  ],
+  "changedLines": 470,
+  "checks": [
+    {
+      "name": "build-1",
+      "args": [
+        "C:/nvm4w/nodejs/node_modules/npm/bin/npm-cli.js",
+        "run",
+        "build"
+      ],
+      "cwd": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\browser",
+      "startedAt": "2026-09-12T13:09:06.049Z",
+      "driverPid": 70076,
+      "running": false,
+      "pid": 7748,
+      "code": 0,
+      "finishedAt": "2026-09-12T13:11:48.106Z",
+      "log": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\browser-checks\\build-1.log",
+      "logSha256": "0fc8523cbab24ceb468c5a0b2e3b6735f1096e309cc45269e041b266a22ddcaa",
+      "statusSha256": "bfa188f171085af597c32ace2779be769fb4c9dba2194cedffe0db2cdb337c54"
+    },
+    {
+      "name": "browser-green-3",
+      "args": [
+        "scripts/playwright/run-playwright.mjs",
+        "test",
+        "e2e/customizer-equipment-catalog.spec.ts",
+        "e2e/customizer-record-sheet-rendering.spec.ts",
+        "e2e/customizer-edit-recovery.spec.ts",
+        "--project=chromium",
+        "--retries=0",
+        "--workers=1",
+        "--trace=retain-on-failure"
+      ],
+      "cwd": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\browser",
+      "startedAt": "2026-09-12T13:25:39.071Z",
+      "driverPid": 27692,
+      "running": false,
+      "pid": 62432,
+      "code": 0,
+      "finishedAt": "2026-09-12T13:26:45.237Z",
+      "log": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\browser-checks\\browser-green-3.log",
+      "logSha256": "59cda29352b396bf1b83c1186960f1a608ac1a73561934268234811fa9c00953",
+      "statusSha256": "45a90752b52da9011aee400ff447ba030ebe6b893c6ec113ef2edbb948b80601"
+    },
+    {
+      "name": "typecheck-4",
+      "args": [
+        "C:/nvm4w/nodejs/node_modules/npm/bin/npm-cli.js",
+        "run",
+        "typecheck"
+      ],
+      "cwd": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\browser",
+      "startedAt": "2026-09-12T13:25:39.078Z",
+      "driverPid": 59312,
+      "running": false,
+      "pid": 70848,
+      "code": 0,
+      "finishedAt": "2026-09-12T13:25:48.246Z",
+      "log": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\browser-checks\\typecheck-4.log",
+      "logSha256": "d140a6ce62dda0946fe30dd882dbb8209f05be72c8fa8850e5634755a399e50f",
+      "statusSha256": "e5b9c8fc30231f4f8d548fc4079bbcb059dd8f60d6589acd897c50b2c216d492"
+    },
+    {
+      "name": "format-4",
+      "args": [
+        "C:/nvm4w/nodejs/node_modules/npm/bin/npm-cli.js",
+        "run",
+        "format:check"
+      ],
+      "cwd": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\browser",
+      "startedAt": "2026-09-12T13:25:39.101Z",
+      "driverPid": 34320,
+      "running": false,
+      "pid": 23168,
+      "code": 0,
+      "finishedAt": "2026-09-12T13:25:52.264Z",
+      "log": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\browser-checks\\format-4.log",
+      "logSha256": "5be30e92eb84244a933ebd76f57e5d6d9884f792d8355d5e0f7942b7ac4f983b",
+      "statusSha256": "38970d1690a736e47528fc7795753efff95eab29e7ae04bd10ee807105ea180b"
+    },
+    {
+      "name": "lint-4",
+      "args": [
+        "C:/nvm4w/nodejs/node_modules/npm/bin/npm-cli.js",
+        "run",
+        "lint"
+      ],
+      "cwd": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\browser",
+      "startedAt": "2026-09-12T13:25:39.110Z",
+      "driverPid": 64124,
+      "running": false,
+      "pid": 73296,
+      "code": 0,
+      "finishedAt": "2026-09-12T13:25:39.805Z",
+      "log": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\browser-checks\\lint-4.log",
+      "logSha256": "4b176902b50619c84f2acfa901899eb5aba314d9383ebabd0826c915fe39fe3c",
+      "statusSha256": "52834cf4f475a46d817b01019e7265a3cd4e41652c3e12a531ae8974bccc3f7f"
+    }
+  ],
+  "review": {
+    "agent": "/root/browser_review",
+    "model": "gpt-5.6-luna",
+    "effort": "high",
+    "result": "No remaining blocker; final12case productionrun passed after pending-print snapshot and Infantry identity assertions.",
+    "withdrawn": "Stale SVG finding did not apply to current transitions."
+  },
+  "environment": {
+    "build": {
+      "NEXT_PUBLIC_E2E_MODE": "true",
+      "NEXT_PUBLIC_E2E_TEST": "true"
+    },
+    "browser": {
+      "CI": "true",
+      "HOSTNAME": "127.0.0.1",
+      "MEKSTATION_E2E_PORT": "3639",
+      "MEKSTATION_E2E_SERVER_COMMAND": "node .next/standalone/server.js",
+      "retries": 0,
+      "workers": 1
+    }
+  },
+  "redEvidence": "evidence/browser-red-verification.json",
+  "retainedFailedAttempt": "browser-green-2: Paper Size disabled whilebusy; finalcase uses unit switching instead without bypassing controls.",
+  "limits": [
+    "OS print dialog",
+    "Pixel-level PDF fidelity",
+    "Other browser engines",
+    "Remote CI activation",
+    "Whole rendering package closure"
+  ],
+  "initiatingCheckout": "Final strengthened test remains isolated; no copy-back performed."
+}

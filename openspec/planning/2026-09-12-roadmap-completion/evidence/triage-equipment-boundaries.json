@@ -1,0 +1,215 @@
+{
+  "schemaVersion": 1,
+  "evidenceId": "triage-equipment-boundaries",
+  "capturedAt": "2026-09-12",
+  "worktree": "E:/Projects/MekStation",
+  "scope": "Bounded read-only inventory of the equipment-database and overview-basic-info rows. Source, current-spec, contract, and existing-test inspection only; no tests, builds, servers, task/checklist, roadmap, Git, source, or spec edits.",
+  "instructionHashes": {
+    "AGENTS.md": "45bfe43b5adb67aae85e53b532ab97f200e011c974c99d4c837bfd7cdd6b3a4a",
+    "openspec/AGENTS.md": "2e3ed0d1414822aa99ce25abba57a01b01036abb4dc1d377219545fc8b360492"
+  },
+  "inventoryRows": [
+    {
+      "id": "equipment-database",
+      "path": "openspec/specs/equipment-database/spec.md",
+      "initialStatus": "needs-proof",
+      "priorNote": "fallback boundary with equipment-services needs explicit owner decision; current no-fallback requirement is official-validation scoped",
+      "primaryNode": "R9.triage",
+      "state": "unreconciled"
+    },
+    {
+      "id": "overview-basic-info",
+      "path": "openspec/specs/overview-basic-info/spec.md",
+      "initialStatus": "needs-proof",
+      "priorNote": "rules-level placeholder claim needs current behavior check before changing",
+      "primaryNode": "R9.triage",
+      "state": "unreconciled"
+    }
+  ],
+  "rows": [
+    {
+      "id": "equipment-database",
+      "originalConcern": "Resolve ownership of the no-fallback rule between official validation and the runtime catalog, then check the live loader/validator boundary.",
+      "finding": "The current specifications already draw the intended boundary. equipment-database requires source-backed official ranged, ammunition, and physical rows for catalog-backed combat validation and requires a named gap when an official row is absent; static or synthetic fallback rows cannot satisfy that coverage. equipment-services and data-loading-architecture separately permit hardcoded definitions only as a runtime utility safety net while JSON is unavailable and explicitly exclude official validation, combat parity, and completeness checks. The live official combat checks build from official catalog files, reject missing or synthetic official rows, and keep the legacy static weapon database as a strict subset. The construction BV resolver likewise returns resolved:false and zero values for an absent catalog entry rather than manufacturing an official row. This confirms the original fallback-boundary concern is already corrected and should not be broadened to interactive/offline utility browsing.",
+      "proposedDisposition": {
+        "state": "dispositioned",
+        "disposition": "existing-with-bounded-followup",
+        "text": "Close the original fallback-ownership concern as existing/corrected: runtime utility fallback is owned by equipment-services/data-loading-architecture, while official validation remains source-backed and gap-reporting under equipment-database/combat-catalog-rules-parity. Keep one separate loader-result contract followup because the current per-file failure path does not match the equipment-services error-array wording."
+      },
+      "sourceRefs": [
+        {
+          "path": "openspec/specs/equipment-database/spec.md",
+          "lines": "236-259",
+          "sha256": "7fa464e9f879c64df2cd496d00f097af240aa2a32097e24909ac329686bfb310",
+          "role": "Official coverage and no-fallback requirement"
+        },
+        {
+          "path": "openspec/specs/equipment-services/spec.md",
+          "lines": "674-680,928-956",
+          "sha256": "a4a503b0a943b7053c6f0442233044a21098f5f3f27aae84e9ab089de2a02d15",
+          "role": "Load-result contract and runtime-only fallback boundary"
+        },
+        {
+          "path": "openspec/specs/data-loading-architecture/spec.md",
+          "lines": "311-340",
+          "sha256": "02cb19e2be214cf3462de1a8e12ae2cd52fa6e78d70fbcc85b0e512d0593c6e9",
+          "role": "Critical construction fallback scope and exclusion from official checks"
+        },
+        {
+          "path": "src/services/equipment/EquipmentOfficialLoader.ts",
+          "lines": "45-101,104-129,188-201",
+          "sha256": "31ff5f6af073037e82677e9b3a3c148a846956b69e09206f08d26f65727a064c",
+          "role": "Index-driven official loader and per-file warning/result behavior"
+        },
+        {
+          "path": "src/services/equipment/EquipmentFileReader.ts",
+          "lines": "5-45",
+          "sha256": "2e19b8d2beadb9e66b4e82db7b8514889c4328875d74157a5c604328d2d40d1a",
+          "role": "Missing, malformed, and fetch-failure conversion to null with warning"
+        },
+        {
+          "path": "src/services/equipment/EquipmentLookupService.ts",
+          "lines": "80-159",
+          "sha256": "b76fc24376c6f6d75bafabb2e1acc7728f40d895eca44a83c3fa7b8fd6d8ce1f",
+          "role": "JSON-source threshold and runtime hardcoded fallback selection"
+        },
+        {
+          "path": "src/utils/equipment/equipmentAggregation.ts",
+          "lines": "52-76,152-178",
+          "sha256": "77a5fe8344c7b9921dd189de31163ff8a95771382d38e19b4312f4f58deebdd2",
+          "role": "Static runtime fallback aggregation and synthetic physical utility rows"
+        },
+        {
+          "path": "openspec/specs/combat-catalog-rules-parity/spec.md",
+          "lines": "7-33,67-85",
+          "sha256": "93d0987a19d3349fbfe9acb043fd7a66cc525357a11631a70a6f620452427a1f",
+          "role": "Parity gate requires source-backed official rows and rejects runtime fallback"
+        },
+        {
+          "path": "src/simulation/runner/__tests__/battlemechCombatCatalog.01.covers-every-official-ranged-weapon-physical-weapon-an.fragment.ts",
+          "lines": "173-236,253-265",
+          "sha256": "04c7284b532a5ce880aee48f87d225e260c5dbb4b000b85cb5158169611352a5",
+          "role": "Official row coverage, missing/synthetic rejection, and static-subset assertions"
+        },
+        {
+          "path": "src/engine/adapters/CompendiumAdapter.weapons.ts",
+          "lines": "46-54",
+          "sha256": "41392fc193fa17f7de471f52b0731506ee94650345aafde936c7310348e16ef3",
+          "role": "Adapter skips an unresolved weapon instead of creating a placeholder"
+        },
+        {
+          "path": "src/utils/construction/equipmentBV/resolution.ts",
+          "lines": "59-115",
+          "sha256": "7deefae558a373f21b539971efde06983fce74ab355103e67a830b5ee79d1e63",
+          "role": "Source-backed BV resolution returns resolved:false for absent IDs"
+        },
+        {
+          "path": "public/data/equipment/official/index.json",
+          "lines": "1-1",
+          "sha256": "09b1979ad0fb18ea35872d1e393e14f80589ebc54aa472577e7b99b503bfd650",
+          "role": "Live official catalog index; every indexed file path was present at capture"
+        }
+      ],
+      "existingRelevantTests": [
+        {
+          "path": "src/services/equipment/__tests__/EquipmentLoaderService.schemaBridge.test.ts",
+          "sha256": "9dba7bac94c6f15e0e3d09b12e8417d789dd075809b0a1948d13cfa867e1b27b",
+          "coverage": "Schema-shape drift warning paths for weapon, ammunition, electronics, miscellaneous, and physical data.",
+          "limit": "Does not characterize a missing or malformed indexed file's IEquipmentLoadResult.errors versus warnings/success."
+        },
+        {
+          "path": "src/__tests__/service/equipment/EquipmentLoaderService.test.ts",
+          "sha256": "71505e9c46ac7174d41237a28c8b77c2625f92252e4f5f7475d44ccdadc39a69",
+          "coverage": "Loader service initialization and result behavior on the normal catalog path.",
+          "limit": "No bounded missing-indexed-file result assertion identified."
+        },
+        {
+          "path": "src/utils/construction/__tests__/equipmentBVResolver.test.ts",
+          "sha256": "98217ec964159d1e6d906491db72c02d88652efc068b48bad2988748b4b11950",
+          "coverage": "Known and unknown equipment/ammunition IDs preserve resolved true/false semantics.",
+          "limit": "Construction resolution proof does not exercise the async official loader failure result."
+        }
+      ],
+      "residuals": [
+        {
+          "id": "equipment-load-result-error-semantics",
+          "finding": "equipment-services says a malformed or missing file is logged as an error and included in IEquipmentLoadResult.errors. readJsonFile catches the failure and returns null after logger.warn; EquipmentOfficialLoader converts each null file to warnings and computes success from errors.length, so a partial file failure can leave errors empty and success true.",
+          "scope": "Equipment loading contract only; this does not reopen the official-validation no-fallback boundary."
+        }
+      ],
+      "smallestNextAction": "Add one focused characterization test for loadOfficialEquipment with an indexed file missing or malformed, assert the current errors/warnings/success result, then make the owning loader contract and implementation agree in a separately admitted followup."
+    },
+    {
+      "id": "overview-basic-info",
+      "originalConcern": "Verify whether the rules-level placeholder claim remains true in live behavior before changing the spec.",
+      "finding": "The placeholder claim is current. OverviewTab renders the rules-level select and its change handler only calls setRulesLevel. The identity action modifies the unit identity state and includes rulesLevel in the persisted identity projection. The equipment browser receives unit year, tech base, and weapon IDs as context; its availability predicate gates only hideUnavailable, introductionYear, and techBase. A separate hidePrototype filter may inspect an item's rulesLevel, but changing the unit's selected rulesLevel does not feed that filter or impose general equipment availability filtering. No source/spec correction is indicated.",
+      "proposedDisposition": {
+        "state": "dispositioned",
+        "disposition": "existing",
+        "text": "Close the inventory concern as an existing, live-correct placeholder. Preserve the validation-only/metadata scope: future rules-level filtering remains a product change and this evidence does not claim that behavior exists."
+      },
+      "sourceRefs": [
+        {
+          "path": "openspec/specs/overview-basic-info/spec.md",
+          "lines": "9-36",
+          "sha256": "c703cb1c943cffe3b013ee7b8ca161101cea608ad8515024313fb7899c9a25e9",
+          "role": "Rules-level options, persistence, and explicit placeholder behavior"
+        },
+        {
+          "path": "src/components/customizer/tabs/OverviewTab.tsx",
+          "lines": "157-162,322-336",
+          "sha256": "1f8a5b47cfeae027a5e87f807b3eb237ae8d8733ef7185ddfb4047ed42ebdc5f",
+          "role": "Live select and setter boundary"
+        },
+        {
+          "path": "src/stores/unitStoreIdentityActions.ts",
+          "lines": "79-102",
+          "sha256": "abc0d4adda2d81dbd928dc99be728b1679d1e3c7a09b061bdf3aeca7bd94edf7",
+          "role": "State mutation and persistence projection"
+        },
+        {
+          "path": "src/hooks/useEquipmentBrowser.ts",
+          "lines": "92-103,104-160,209-219,221-250",
+          "sha256": "d8dbc3b057ce32cdb4a4ef4b7a64fe68ca6b2932570d710b880d236c23187552",
+          "role": "Browser context is year/tech base/weapon IDs and standalone mode remains available"
+        },
+        {
+          "path": "src/stores/useEquipmentStore.filters.ts",
+          "lines": "125-158",
+          "sha256": "1ad606e3f3f122d3899cbd1462e590e958c19d553e43853d1a033757398097b8",
+          "role": "Separate prototype rules-level filter and year/tech availability predicate"
+        }
+      ],
+      "existingRelevantTests": [
+        {
+          "path": "src/hooks/__tests__/useEquipmentBrowser.catalog.test.tsx",
+          "sha256": "190dc9cfae1dc59de8530480836acc9f98e9119a0e377766231a4555dea86242",
+          "coverage": "Equipment browser context and availability behavior for selected units, including year changes and hideUnavailable.",
+          "limit": "No dedicated test found for changing the Overview rules-level select itself."
+        },
+        {
+          "path": "src/hooks/__tests__/useEquipmentBrowser.test.ts",
+          "sha256": "176ce3779fd392cbb2e17b1fd685a20f63294896c7873b18ea627a818e978954",
+          "coverage": "Standalone/no-context browser behavior, loading, and defaults.",
+          "limit": "Does not exercise OverviewTab persistence wiring."
+        },
+        {
+          "path": "src/__tests__/stores/equipmentCatalogFilters.test.ts",
+          "sha256": "31f1fa2ec091944e461b587ebbe8064c52e041d46be5a3799b76e3c7264785fa",
+          "coverage": "Store filter behavior across categories, availability-related controls, and catalog queries.",
+          "limit": "No unit rulesLevel-to-general-availability path exists to test."
+        }
+      ],
+      "proofLimits": [
+        "This is a source/spec boundary confirmation; no tests, builds, servers, or interactive UI run were performed.",
+        "The evidence confirms current wiring and the explicit placeholder contract, not future rules-level filtering or a complete UI persistence acceptance run."
+      ],
+      "smallestNextAction": "No corrective action for this inventory row. If the placeholder is later implemented, add a focused rule-level availability test at the filter boundary and update the spec in that separately scoped change."
+    }
+  ],
+  "verification": [
+    "Exact SHA-256 values were captured for every referenced current spec, source, test, instruction, and official catalog index file.",
+    "All indexed official equipment file paths were present at capture; no catalog files were edited.",
+    "Only this new evidence artifact is owned by this inventory; no tests, builds, servers, source/spec files, roadmap rows, task checkboxes, or Git state were changed."
+  ]
+}
