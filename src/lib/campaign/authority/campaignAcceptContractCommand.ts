@@ -23,11 +23,13 @@ import type {
   ICampaignEvent,
   ICampaignIntent,
 } from '@/types/campaign/CampaignSync';
+import type { SerializedCampaign } from '@/types/campaign/SerializedCampaign';
 
 import { rehydrateContractMarket } from '@/lib/campaign/persistence/missionSerialization';
 import { EXPECTED_HEAD_RESYNC_ACTION } from '@/lib/events/journal/EventHistoryExpectedHead';
 import { ROOT_EVENT_BRANCH_ID } from '@/lib/events/journal/EventJournalContract';
 import { validateCampaignIntent } from '@/lib/multiplayer/server/CampaignMatchHostIntent';
+import { materializeCampaignSourceRow } from '@/services/campaignPersistence/campaignSourceMaterialization';
 import { MissionStatus } from '@/types/campaign/enums/MissionStatus';
 import { isContract } from '@/types/campaign/Mission';
 
@@ -328,12 +330,21 @@ function readCampaignSourceMarket(
  * holding the pre-acceptance version therefore loses the CAS and takes the
  * existing 409 path. Closing that window is task 6.4's bridge, not this
  * write's job; this write is what makes the window honest.
+ *
+ * The record is handed back unserialized and WITHOUT a fence: stamping the
+ * `sourceReplayFence` belongs to `materializeCampaignSourceRow`, which is the
+ * thing that actually performs the write and therefore the only thing that
+ * can record a watermark guaranteed to match it.
  */
 function nextSourceRecordAfterAccept(
   source: ICampaignSourceMarketRead,
   contractId: string,
   acceptedOffer: StoredOffer,
-): { readonly version: number; readonly payload: string } {
+): {
+  readonly expectedRowVersion: number;
+  readonly version: number;
+  readonly record: SerializedCampaign;
+} {
   const version = source.sourceRowVersion + 1;
   const nextBody = {
     ...source.storedBody,
@@ -347,12 +358,13 @@ function nextSourceRecordAfterAccept(
     },
   };
   return {
+    expectedRowVersion: source.sourceRowVersion,
     version,
-    payload: JSON.stringify({
+    record: {
       ...source.storedRecord,
       version,
       body: nextBody,
-    }),
+    } as unknown as SerializedCampaign,
   };
 }
 
@@ -385,9 +397,17 @@ interface IPreparedAcceptContext {
   readonly digest: string;
   /** The row the source record becomes, applied only after the append. */
   readonly sourceRecord: {
+    readonly expectedRowVersion: number;
     readonly version: number;
-    readonly payload: string;
+    readonly record: SerializedCampaign;
   };
+  /**
+   * The journal revision the materialized row will stand AT: every prior
+   * campaign event plus the ones this acceptance appends. Strictly greater
+   * than any fence the row can already carry, which is why a committing
+   * acceptance never meets its own no-op or stale-replay guard.
+   */
+  readonly fenceRevision: number;
 }
 
 /** What the prepared accept path hands back to the shared acknowledgement. */
@@ -514,6 +534,7 @@ export async function appendDurableAcceptContract(
         context: {
           events: sequenced,
           digest,
+          fenceRevision: priorEvents.length + sequenced.length,
           // Computed here, where the source read is in hand, and APPLIED
           // below only once the append has committed - `prepare` stays
           // read-only, and the row never moves for a command that did not.
@@ -569,13 +590,27 @@ export async function appendDurableAcceptContract(
       // plus reduced market are one write, so the state the spec calls
       // unreachable - a ledger holding an acceptance the source record does
       // not - has no window to exist in.
-      db.prepare(
-        'UPDATE campaigns SET payload = ?, version = ? WHERE id = ?',
-      ).run(
-        context.sourceRecord.payload,
-        context.sourceRecord.version,
-        request.campaignId,
-      );
+      //
+      // Routed through the service's fenced writer (task 6.1) rather than
+      // written raw, so the write carries the compare-and-swap predicate and
+      // leaves the durable `sourceReplayFence` a later replay is judged by.
+      const materialized = materializeCampaignSourceRow(db, {
+        campaignId: request.campaignId,
+        expectedRowVersion: context.sourceRecord.expectedRowVersion,
+        fenceRevision: context.fenceRevision,
+        record: context.sourceRecord.record,
+        nextVersion: context.sourceRecord.version,
+      });
+      if (materialized.kind !== 'ok') {
+        // Unreachable from here: the row read, the append and this write are
+        // one immediate transaction, and the new fence is strictly above any
+        // the row can hold. Throwing rather than returning a refusal is
+        // deliberate - it rolls the transaction back, append included, so a
+        // ledger entry can never survive a materialization that did not.
+        throw new Error(
+          `Source materialization did not apply: ${materialized.kind}`,
+        );
+      }
       return {
         kind: 'appended',
         events: context.events,
