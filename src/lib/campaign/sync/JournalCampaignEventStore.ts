@@ -30,6 +30,7 @@
 
 import { sha256 } from 'js-sha256';
 
+import type { ICampaignSourcePrivateEnvelope } from '@/lib/campaign/authority/campaignSourcePrivateEnvelope';
 import type { SQLiteEventHistoryBranchStore } from '@/lib/events/journal/SQLiteEventHistoryBranchStore';
 import type {
   ICampaignSessionParticipantPort,
@@ -93,6 +94,15 @@ export interface ICampaignJournalEnvelope {
   readonly expectedPostStateDigest: string | null;
   /** Stable identity of the client intent that produced this command. */
   readonly intentFingerprint: string | null;
+  /**
+   * Journal-private source facts (D12, task 6.1) -- a SIBLING of
+   * `campaignEvent`, so `envelopeOf` cannot carry it to any wire read path.
+   * OPTIONAL and conditionally constructed: a row with no admitted private
+   * payload omits the key entirely, which is what keeps legacy canonical
+   * bytes and digests unchanged. Never `{}` and never an enumerable
+   * `undefined`.
+   */
+  readonly sourcePrivate?: ICampaignSourcePrivateEnvelope;
 }
 
 export type CampaignBatchAppendFailure =
@@ -150,7 +160,13 @@ function toAppendEvent(
   event: ICampaignEvent,
   expectedPostStateDigest: string | null,
   intentFingerprint: string | null,
+  sourcePrivate: ICampaignSourcePrivateEnvelope | null,
 ): IEventToAppend<ICampaignJournalEnvelope> {
+  const base = {
+    campaignEvent: event,
+    expectedPostStateDigest,
+    intentFingerprint,
+  };
   return {
     // Deterministic per (command, index): a retried command re-derives the
     // same ids (retry identity rides the journal's command-identity check,
@@ -163,11 +179,10 @@ function toAppendEvent(
     correlationId: commandId,
     causationEventIds: [],
     occurredAt: event.ts,
-    payload: {
-      campaignEvent: event,
-      expectedPostStateDigest,
-      intentFingerprint,
-    },
+    // Conditional absence: the key is added only when a private payload
+    // exists, so a legacy-shaped row canonicalizes to exactly the bytes it
+    // always did (the canonicalizer hashes the enumerable own keys).
+    payload: sourcePrivate === null ? base : { ...base, sourcePrivate },
     // Task 5.3: the full durable identity chain (campaign, campaign-unit,
     // canonical/saved source, pilot, contract, session) per event type.
     entityRefs: campaignEventEntityRefs(campaignId, event),
@@ -188,6 +203,12 @@ export function toJournalBatch(input: {
   readonly events: readonly ICampaignEvent[];
   readonly expectedPostStateDigest: string | null;
   readonly intentFingerprint?: string | null;
+  /**
+   * Journal-private source facts for this command (D12). Rides the
+   * TERMINAL event, exactly like `expectedPostStateDigest`, so it commits
+   * atomically with the batch. Absent leaves every payload byte-identical.
+   */
+  readonly sourcePrivate?: ICampaignSourcePrivateEnvelope | null;
   readonly principal?: IResolvedJournalPrincipal;
   /**
    * The journal revision the batch must land on. Absent, the first
@@ -220,6 +241,9 @@ export function toJournalBatch(input: {
           ? input.expectedPostStateDigest
           : null,
         input.intentFingerprint ?? null,
+        index === input.events.length - 1
+          ? (input.sourcePrivate ?? null)
+          : null,
       ),
     ),
     principal:
@@ -242,6 +266,8 @@ export async function appendCampaignCommandBatch(
     readonly events: readonly ICampaignEvent[];
     readonly expectedPostStateDigest: string | null;
     readonly intentFingerprint?: string | null;
+    /** Journal-private source facts for this command (D12); rides the terminal event. */
+    readonly sourcePrivate?: ICampaignSourcePrivateEnvelope | null;
     /** Override the derived human principal (e.g. migration imports). */
     readonly principal?: IResolvedJournalPrincipal;
     /**
