@@ -12,8 +12,18 @@
  * campaign object — so a reference-identity check is a reliable dirty
  * signal.
  *
+ * The same install/uninstall pair owns the discard-time flush listeners
+ * (task 1.6): `pagehide` and a hidden `visibilitychange` are where a
+ * document goes away, and the pending envelope has to reach the server
+ * before it does. `beforeunload` is deliberately NOT registered - it
+ * fires nowhere `pagehide` does not, and registering it disables bfcache
+ * in some engines, which is a regression in a fix whose whole purpose is
+ * not losing state.
+ *
  * @spec openspec/changes/add-campaign-persistence/specs/campaign-persistence/spec.md
  * @spec openspec/changes/add-campaign-persistence/design.md (D6)
+ * @spec openspec/changes/design-campaign-authority-and-sync/specs/campaign-authority/spec.md
+ *   - Requirement: Pending client mutations are flushed before the document is discarded
  */
 
 import type { ICampaign } from '@/types/campaign/Campaign';
@@ -27,6 +37,48 @@ let unsubscribe: (() => void) | null = null;
 /** The campaign object reference last observed by the subscription. */
 let lastCampaign: ICampaign | null = null;
 
+/** True while the discard-flush listeners are registered. */
+let discardListenersInstalled = false;
+
+/** A document being discarded: flush whatever the debounce still holds. */
+function handlePageHide(): void {
+  useCampaignPersistenceStore.getState().flushPendingMutations();
+}
+
+/**
+ * A hidden transition is the discard signal mobile browsers actually
+ * deliver. A visible one is a return: the document the flush treated as
+ * departing is still here, so the acknowledged save it could not perform
+ * is reconciled rather than left owing.
+ */
+function handleVisibilityChange(): void {
+  const store = useCampaignPersistenceStore.getState();
+  if (document.visibilityState === 'hidden') {
+    store.flushPendingMutations();
+    return;
+  }
+  store.reconcileAfterDiscardFlush();
+}
+
+/** Idempotent, and a no-op wherever there is no document (SSR). */
+function installDiscardFlushListeners(): void {
+  if (discardListenersInstalled || typeof window === 'undefined') {
+    return;
+  }
+  window.addEventListener('pagehide', handlePageHide);
+  document.addEventListener('visibilitychange', handleVisibilityChange);
+  discardListenersInstalled = true;
+}
+
+function uninstallDiscardFlushListeners(): void {
+  if (!discardListenersInstalled) {
+    return;
+  }
+  window.removeEventListener('pagehide', handlePageHide);
+  document.removeEventListener('visibilitychange', handleVisibilityChange);
+  discardListenersInstalled = false;
+}
+
 /**
  * Install the campaign-store -> persistence-store dirty bridge. Idempotent
  * — a second call is a no-op while a subscription is already installed.
@@ -37,6 +89,10 @@ let lastCampaign: ICampaign | null = null;
  * marks dirty.
  */
 export function installCampaignPersistenceWiring(): void {
+  // Before the store check: the discard flush reads the persistence store
+  // directly, so it stays useful even where the campaign-store accessor
+  // is not registered yet.
+  installDiscardFlushListeners();
   if (unsubscribe !== null) {
     return;
   }
@@ -65,6 +121,7 @@ export function installCampaignPersistenceWiring(): void {
  * Tear down the dirty bridge. Used by tests and store resets.
  */
 export function uninstallCampaignPersistenceWiring(): void {
+  uninstallDiscardFlushListeners();
   if (unsubscribe !== null) {
     unsubscribe();
     unsubscribe = null;

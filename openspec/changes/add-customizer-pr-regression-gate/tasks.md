@@ -13,9 +13,9 @@
 
 ## 3. CI contract validation
 
-- [x] 3.1 Extract the validator's declarative contracts into `scripts/qc/openspec-workflow-contracts.mjs`, parse YAML jobs and executable `run`/`env`/`with` fields, and add job-scoped `requiredWorkflowJobContracts` with `workflow-job-token-missing` / `workflow-job-missing` reporting.
+- [x] 3.1 Wire the validator's declarative contracts into the `scripts/qc/openspec-workflow-contracts.mjs` module (module pre-existed via #1647; this change wired the validator into it), parsing YAML jobs and executable `run`/`env`/`with` fields, and adding job-scoped `requiredWorkflowJobContracts` with `workflow-job-token-missing` / `workflow-job-missing` reporting.
 - [x] 3.2 Pin the three-file gate command, zero-retry flag, trace mode, job-local asset fetch, strict asset step, production-build and standalone-server environments, exact step conditions/order, 20-minute bound, no job-level `if`, absent-or-literal-false `continue-on-error`, and aggregator membership.
-- [x] 3.3 Add mutation tests proving a relocated command, dropped flag or pack, changed environment, removed asset prerequisite, disabled/unbounded/non-blocking step or job, deleted job, and unwired aggregator each fail — and that a matching substring elsewhere in the workflow does not satisfy the contract.
+- [x] 3.3 Add mutation tests proving a relocated command, dropped flag or pack, changed environment, removed asset prerequisite, disabled/unbounded/non-blocking step or job, deleted job, and unwired aggregator each fail — and that a matching substring elsewhere in the workflow does not satisfy the contract. Merged via #1689 (2af7b22598e1ec40ba405e86182daf862d04c526, 28/28 passing) and #1690 (3bf096346c1077a82b7d03d8a5ec70111c07c187, 37/37 passing).
 
 ## 4. Customizer browser regressions
 
@@ -29,7 +29,7 @@
 - [x] 5.1 Run the focused validator Jest suite and `format:check` on owned files.
 - [x] 5.2 List the customizer Playwright tests to confirm the gate's selection resolves to the intended set.
 - [x] 5.3 Parent: execute all three customizer files in a real Chromium browser against the hydrated production standalone server; 10/10 passed in about 69 seconds on local port 3636. Evidence: `.sisyphus/spec-reconciliation-20260912/browser-production-ip.log`.
-- [ ] 5.4 Parent: observe the new `Customizer Regressions` check run on a pull request and confirm the aggregator blocks on it.
+- [x] 5.4 Parent: observe the new `Customizer Regressions` check run on a pull request and confirm the aggregator blocks on it. Evidence: positive observation on PR #1678 (run 34940815550, job 104289034959, SUCCESS; `Lint and Test` aggregator SUCCESS) and negative probe PR #1680 (run 34941958817, job 104292621602, FAILURE; `Lint and Test` aggregator FAILURE; closed unmerged).
 
 ## 6. Authorized follow-ups
 
