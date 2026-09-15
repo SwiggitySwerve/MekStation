@@ -6,11 +6,10 @@
  * therefore append to the branch the host actually serves. Null
  * servedBranchId is the original identity (`main` from the baseline,
  * `root` from journal genesis). A host still serving that identity
- * while the store activated a replacement, or a head whose own status
- * is superseded, is stale: answering would append onto history the
- * authority has already left. After a rewind rebuild the host serves
- * the activated candidate, so that head is the live path and the
- * match can be extended (14.4).
+ * while the store activated a replacement is stale: answering would
+ * append onto history the authority has already left. After a rewind
+ * rebuild the host serves the activated candidate, so that head is the
+ * live path and the match can be extended (14.4).
  *
  * Active only when the store exposes IEventHistoryBranchPort and that
  * port is ready. Method presence alone is not enough: DurableMatchStore
@@ -24,11 +23,25 @@
  * passes; a player is GM_ONLY. A player RewindRequest is the one
  * non-mutating door: it derives no event and answers
  * accepted-for-gm-review.
+ *
+ * Persisted corruption is a THIRD answer, not a crash. Both consults
+ * refuse a head not naming an effective branch with a typed
+ * `branch-integrity` error — correctly: the event-store delta's "Branch
+ * Activation Is Verified, Compare-and-Swap, and Atomic" lands the
+ * supersession and the replacement head in ONE transaction, so such a
+ * head is state no activation can produce. Propagating it out of
+ * handleIntent would kill a live match, so it becomes MATCH_QUARANTINED
+ * — that delta's "typed truthful blocked state", already the wire's
+ * word for a KNOWN match whose authority was refused. Not STALE_BRANCH,
+ * which owes an active head to resync to; not PROJECTION_REBUILDING,
+ * which promises a retry wins.
  */
 
 import type { IEventHistoryEffectiveHead } from '@/lib/events/journal/EventHistoryBranchContract';
+import type { StreamRebuildRefusal } from '@/lib/events/journal/EventHistoryCommandAdmission';
 import type { IIntent, IServerMessage } from '@/types/multiplayer/Protocol';
 
+import { EventHistoryBranchError } from '@/lib/events/journal/EventHistoryBranchContract';
 import { EXPECTED_HEAD_RESYNC_ACTION } from '@/lib/events/journal/EventHistoryExpectedHead';
 import { ROOT_EVENT_BRANCH_ID } from '@/lib/events/journal/EventJournalContract';
 import {
@@ -55,6 +68,14 @@ const LIVE_PATH_BRANCH_IDS: ReadonlySet<string> = new Set([
 ]);
 
 /**
+ * What a client refused over persisted history corruption is told. Not
+ * a recovery action: there is none it can take until the authority
+ * repairs the branch tables.
+ */
+export const HISTORY_INTEGRITY_BLOCKED_REASON =
+  'history-integrity-blocked' as const;
+
+/**
  * LAW-40: total Record over the live-path refusal codes. A new code
  * without a reason sentence fails compilation, and the count row
  * fails if a member is added or dropped silently.
@@ -62,9 +83,13 @@ const LIVE_PATH_BRANCH_IDS: ReadonlySet<string> = new Set([
 export const LIVE_BRANCH_ADMISSION_PHRASING = {
   STALE_BRANCH: EXPECTED_HEAD_RESYNC_ACTION,
   GM_ONLY: 'gm-role-required',
+  MATCH_QUARANTINED: HISTORY_INTEGRITY_BLOCKED_REASON,
 } as const satisfies Record<LiveBranchAdmissionCode, string>;
 
-export type LiveBranchAdmissionCode = 'STALE_BRANCH' | 'GM_ONLY';
+export type LiveBranchAdmissionCode =
+  | 'STALE_BRANCH'
+  | 'GM_ONLY'
+  | 'MATCH_QUARANTINED';
 
 export const ACCEPTED_FOR_GM_REVIEW = 'accepted-for-gm-review' as const;
 
@@ -133,17 +158,28 @@ export async function refuseLiveBranchAdmission(
 
   // Shipped IEventHistoryBranchPort keys every read by stream, then id.
   const stream = { streamType: 'match' as const, streamId: ctx.matchId };
-  const head = ctx.store.readEffectiveHead(stream);
+  let head: IEventHistoryEffectiveHead | null;
+  try {
+    head = ctx.store.readEffectiveHead(stream);
+  } catch (error) {
+    if (!isBranchIntegrityFailure(error)) throw error;
+    return refuse(ctx, envelope, 'MATCH_QUARANTINED');
+  }
   if (head === null) return null;
 
   const events = await ctx.store.getEvents(ctx.matchId);
   const last = events.length === 0 ? undefined : events[events.length - 1];
   const revision = last === undefined ? 0 : last.sequence + 1;
 
-  const effective = ctx.store.readBranch(stream, head.branchId);
-  if (effective?.status === 'superseded') {
-    return refuseStale(ctx, envelope, head, revision);
-  }
+  // The head's own branch status is deliberately NOT re-read. That arm
+  // answered STALE_BRANCH on a `superseded` head; it is unreachable BY
+  // CONSTRUCTION (readEffectiveHead refuses unless the branch it names
+  // is effective; the in-memory port drops the head row in the same call
+  // that moves a branch off `effective`) and could only fire BETWEEN
+  // these two reads, reporting the branch the authority just LEFT as the
+  // active head — what the gm-combat delta's "Player command targets
+  // stale branch" forbids ("`STALE_BRANCH` with the active head").
+  //
   // Admit the default live-path ids or the branch this host serves.
   // A host still serving root while the store activated a candidate
   // stays STALE_BRANCH (14.2 unrebuilt row).
@@ -193,7 +229,16 @@ export function refuseDuringHistoryRebuild(
   envelope: IIntent,
 ): readonly IServerMessage[] | null {
   if (!hasMatchStreamRebuildReader(ctx.store)) return null;
-  const rebuilding = ctx.store.readMatchStreamRebuild(ctx.matchId);
+  // This consult reads the stream's effective head too, so it is the
+  // FIRST place persisted corruption surfaces on the intent path, ahead
+  // of the branch admission. Same translation, same reason.
+  let rebuilding: StreamRebuildRefusal | null;
+  try {
+    rebuilding = ctx.store.readMatchStreamRebuild(ctx.matchId);
+  } catch (error) {
+    if (!isBranchIntegrityFailure(error)) throw error;
+    return refuse(ctx, envelope, 'MATCH_QUARANTINED');
+  }
   if (rebuilding === null) return null;
   const err = errorMessage(
     ctx.matchId,
@@ -215,6 +260,18 @@ export function namesRewindCut(intent: IIntent['intent']): boolean {
     return false;
   }
   return typeof Reflect.get(intent, 'targetRevision') === 'number';
+}
+
+/**
+ * Persisted corruption only. Every other `EventHistoryBranchError` code
+ * names a caller mistake this path cannot make, and folding those into
+ * a quarantine frame would hide a real defect — they rethrow.
+ */
+function isBranchIntegrityFailure(error: unknown): boolean {
+  return (
+    error instanceof EventHistoryBranchError &&
+    error.code === 'branch-integrity'
+  );
 }
 
 function refuseStale(
