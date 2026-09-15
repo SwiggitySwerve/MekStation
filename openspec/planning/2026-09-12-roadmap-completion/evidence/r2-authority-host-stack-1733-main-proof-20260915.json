@@ -1,0 +1,76 @@
+{
+  "slice": "R2.authority-host H0 + H1/H2: host live fold through the shared mirror fold and reconnect cursor",
+  "pr": 1733,
+  "prHead": "c4d408afaef38103455127712e8239b05e8bc31c",
+  "mergeCommit": "be71efec018481b08e44281cca0c2e21f07456f3",
+  "verifiedAtUtc": "2026-09-15T16:46:16.854Z",
+  "worktree": "archive-original-main-proof (detached at merge commit, Node v22.22.0)",
+  "blobEquality": {
+    "files": [
+      "src/components/campaign/coop/CampaignCoopRouteSurfaceConnected.tsx",
+      "src/components/campaign/coop/__tests__/CampaignCoopRouteSurfaceConnected.hostProjection.test.tsx",
+      "src/components/campaign/coop/pendingProposalFromWire.ts",
+      "src/lib/campaign/coop/campaignAuthoritativeFold.ts",
+      "src/lib/campaign/coop/campaignMirrorProjection.ts",
+      "src/lib/p2p/campaignMirrorStore.ts"
+    ],
+    "command": "git diff --stat <prHead> <merge> -- <files>",
+    "result": "empty (0 bytes)"
+  },
+  "packaging": "single squash of H0 (455) + H1H2 (373) + comment edits (18) = 828 lines; harness-floor overage recorded; #1732 closed superseded with its branch retained",
+  "gates": {
+    "jest": {
+      "scope": "src/lib/campaign/coop src/components/campaign src/stores/campaign src/lib/campaign/sync",
+      "exit": 0,
+      "suites": 82,
+      "tests": 750
+    },
+    "tsc": {
+      "exit": 0,
+      "outputBytes": 0
+    },
+    "openspecStrict": {
+      "exit": 0
+    },
+    "specPurposeStrict": {
+      "exit": 0
+    },
+    "terminologyStrict": {
+      "exit": 0
+    },
+    "qcOpenspecCi": {
+      "exit": 0
+    }
+  },
+  "logs": {
+    "jest": {
+      "path": ".sisyphus/roadmap-completion-20260912/main-proof-1733-20260915/jest.log",
+      "sha256": "e1f68ed2776d830feb1d2655b65e6222aa7497a39b0fee7842072c1385afc623"
+    },
+    "openspec": {
+      "path": ".sisyphus/roadmap-completion-20260912/main-proof-1733-20260915/openspec.log",
+      "sha256": "a6f1b01bad6ef535f7ae511fd2b0e725e382bcb462449ef4386723e0ec97eff3"
+    },
+    "purpose": {
+      "path": ".sisyphus/roadmap-completion-20260912/main-proof-1733-20260915/purpose.log",
+      "sha256": "629026f25215446af06f7491ea5757f56e6f66d00cb70d6d432438cb6cb9adf7"
+    },
+    "qcOpenspecCi": {
+      "path": ".sisyphus/roadmap-completion-20260912/main-proof-1733-20260915/qc-openspec-ci.log",
+      "sha256": "8c41df6c33246420ed1806218780c2df69b5ad4e7c594b993b07594ee959ccb2"
+    },
+    "terminology": {
+      "path": ".sisyphus/roadmap-completion-20260912/main-proof-1733-20260915/terminology.log",
+      "sha256": "21788dce67e88419a3a1847a8cbe40b73a390d06ad69a8ef48e2881c5ef35eea"
+    },
+    "tsc": {
+      "path": ".sisyphus/roadmap-completion-20260912/main-proof-1733-20260915/tsc.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "limits": [
+    "jsdom component-level only; live browser witness stays with R2.authority-live",
+    "F-R1 in-mount reconnect hazard disclosed, not fixed",
+    "cutover owner flag: #1724 refreshAfterCommittedCommand is a second whole-record writer with no production call site yet"
+  ]
+}

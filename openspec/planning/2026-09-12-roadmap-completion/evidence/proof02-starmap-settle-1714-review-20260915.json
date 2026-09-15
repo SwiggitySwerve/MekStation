@@ -1,0 +1,112 @@
+{
+  "schema": "pr-review/v1",
+  "artefact": "proof02-starmap-settle-1714-review-20260915",
+  "generatedAtUtc": "2026-09-15T13:10:00Z",
+  "generatedBy": "agent:proof02-starmap-settle-review (GP-JUSTIFIED read-only independent review; no edits, no commits, no pushes)",
+  "subject": {
+    "pr": 1714,
+    "repo": "E:/Projects/MekStation",
+    "commit": "b0a190f2774455d5c4e16f7ce2039614b688eb11",
+    "branch": "codex/roadmap-proof02-starmap-settle-20260915",
+    "base": "1290676377e311aafac8966287b4967db16eed61",
+    "filesChanged": 1,
+    "file": "e2e/campaign-starmap-logistics.spec.ts",
+    "stat": "+17 / -0"
+  },
+  "verdict": "APPROVE",
+  "requiredEdits": [],
+  "items": [
+    {
+      "id": 1,
+      "check": "Settle armed BEFORE the mutating click and awaited BEFORE the reload, matching the campaign-acquisition-browser.spec.ts precedent",
+      "result": "PASS",
+      "findings": [
+        "e2e/campaign-starmap-logistics.spec.ts:213 - `const travelSaved = page.waitForResponse(...)` is armed immediately before `await page.getByTestId('starmap-travel-btn').click()` (diff hunk @@ -210,6 +210,22 @@, inserted directly above the pre-existing click line).",
+        "e2e/campaign-starmap-logistics.spec.ts:269 - `await travelSaved;` is awaited immediately before `await page.reload({ waitUntil: 'networkidle' })` at line 270 (diff hunk @@ -250,6 +266,7 @@).",
+        "Precedent cited: e2e/campaign-acquisition-browser.spec.ts:125-128 (`const seedSaved = page.waitForResponse(...)` armed before the mutating `page.evaluate` save call, awaited at line 143 before `page.goto`) and lines 175-178/206-209 (`addSaved`/`advanceSaved`, each armed before its mutating click and awaited immediately before the following `page.reload({ waitUntil: 'networkidle' })` at lines 195 and 217). Read directly from the file in this session; matches the new spec's shape exactly (arm -> mutate -> read-only assertions -> await -> reload)."
+      ]
+    },
+    {
+      "id": 2,
+      "check": "Waited response predicate is specific and cannot be satisfied by an unrelated request",
+      "result": "PASS",
+      "findings": [
+        "Predicate at e2e/campaign-starmap-logistics.spec.ts:214-218 requires all three of: `response.request().method() === 'PUT'`, `response.url().includes('/api/campaigns/${seeded.campaignId}')`, and `response.ok()`.",
+        "The campaignId is a per-test seeded UUID-shaped id (`seedTravelCampaign` -> `createCampaign(...)`), so the URL substring check is scoped to this test's own campaign record and cannot match another campaign's PUT or an unrelated endpoint.",
+        "Identical predicate shape (method + id-scoped URL + ok()) as the three precedent waits in campaign-acquisition-browser.spec.ts, which is the established pattern in this suite for this exact race."
+      ]
+    },
+    {
+      "id": 3,
+      "check": "No assertion weakened or removed, no diagnostics-gate or allowance change, no product file touched",
+      "result": "PASS",
+      "findings": [
+        "`git show b0a190f27` confirms the diff is purely additive: +17/-0 across two hunks, both insertions. No existing line was deleted or modified.",
+        "Only e2e/campaign-starmap-logistics.spec.ts changed (1 file per `git show`/PR metadata). e2e/helpers/browserDiagnosticsModel.ts and e2e/helpers/browserDiagnostics.ts are untouched -- confirmed by the single-file diff and corroborated by the fix evidence's explicit non-claim.",
+        "No source file under src/ or openspec/ appears in the diff."
+      ]
+    },
+    {
+      "id": 4,
+      "check": "Probe evidence supports the claimed cause, and the fix follows from it",
+      "result": "PASS",
+      "findings": [
+        "proof02-starmap-third-cause-fix-20260915.json probe marks: afterTravelClick at atMs=1949 dirty=true; atSpecReloadPoint at atMs=1951 dirty=true, baseVersion=2 -- i.e. dirty=true 2ms after the click and at the exact point the pre-fix spec called page.reload, inside the 2000ms AUTO_SAVE_DEBOUNCE_MS window.",
+        "Counterfactual mark afterOrdinaryPut at atMs=3919 (dirty flips false, baseVersion 2->3): a real PUT /api/campaigns/<id> was issued at t=3914ms and answered 200 at t=3917ms when the spec waits instead of reloading -- roughly 3.9s from test start, matching the task's cited ~3.9s figure.",
+        "This is consistent with r2-client-discard-flush-diagnosis-20260915.json rootCause: Chromium 143 aborts a `keepalive` fetch issued from `pagehide` specifically on a NAVIGATION discard (vs. a tab close, which completes normally) -- explaining why the pre-fix reload produced a fatal aborted PUT.",
+        "proof02-browser-rerun-main-1290676-20260915.json independently reproduced this exact third cause on main 1290676377e3 in two separate runs (11:17:45.896Z and 11:21:02.711Z, different campaign ids, both a single fatal requestfailed PUT /api/campaigns/<id> net::ERR_ABORTED), so the cause the fix targets is a real, reproduced-twice failure, not a one-off guess.",
+        "The fix (settle the ordinary PUT before reloading) directly removes the race the probe measured: awaiting `travelSaved` before `page.reload` guarantees the debounced save has already landed, so the reload no longer discards the document while a write is in flight.",
+        "Post-fix evidence: run-quick-postfix and run-specA-postfix both report the starmap test green (13/13 and 1/1 respectively); log hashes verified below."
+      ]
+    },
+    {
+      "id": 5,
+      "check": "Hygiene: conventional subject, author, no AI attribution, within caps",
+      "result": "PASS",
+      "findings": [
+        "Commit subject: 'test(e2e): settle the pending campaign save before the starmap spec navigates' -- conventional `type(scope): description` form, accurately describes the change.",
+        "Full commit body is empty (verified via `git log -1 --format=%B`) -- no AI attribution trailer of any kind (no Co-Authored-By, no Generated-with line).",
+        "Author and committer both 'Wes Rollings <wrollings@gmail.com>' (verified via `git log -1 --format=%an <%ae> / %cn <%ce>`), matching the project's current-user identity block.",
+        "PR body (fetched via `gh pr view 1714`) also carries no AI attribution footer.",
+        "Size well within caps: 1 file changed, +17/-0."
+      ]
+    },
+    {
+      "id": 6,
+      "check": "The two findings the author listed but did not fix are accurately stated as findings, not claims of fixes",
+      "result": "PASS",
+      "findings": [
+        "PR body, verbatim closing paragraph: 'Findings recorded, not fixed here: campaign-economy-browser.spec.ts is red on this base for a different pre-existing reason (its campaign is seeded client-side only and never persisted, so the page logs 404 console errors); the pre-commit hook's bare npm run build leaves a worktree with a non-E2E build (NEXT_PUBLIC_E2E_MODE is baked at build time), so e2e runs after a commit must rebuild with the flags.' -- explicitly framed as findings/observations, with no verb implying resolution ('is red', 'leaves', not 'fixed'/'resolved').",
+        "Evidence file corroborates both findings with direct measurement rather than assertion: economy spec -- probe-economy-requests.stdout.log shows 0 PUT requests issued across the whole spec and run-economy-before-e2ebuild.stdout.log shows 146 fatal console/404 events, none an aborted PUT, so the failure class is genuinely different from the one this PR fixes and was correctly left unfixed (the evidence's own 'followUp' section shows the author explicitly tested and REFUTED a coordinator request to apply the same settle pattern there, rather than silently skipping it).",
+        "Build-flag finding is corroborated by a control pair (control-starmap-on-hookbuild vs. control-starmap-on-e2ebuild) proving a known-green spec fails identically on the non-instrumented build and passes once rebuilt with NEXT_PUBLIC_E2E_MODE=true -- this isolates the cause to the build, not the spec, and the finding is stated as a standing hazard for future lanes rather than as something this PR closes.",
+        "Neither finding is accompanied by any code change in this PR (single file, e2e/campaign-starmap-logistics.spec.ts only) -- consistent with 'recorded, not fixed'."
+      ]
+    }
+  ],
+  "logHashVerification": {
+    "method": "sha256sum computed directly against the log files under .sisyphus/roadmap-completion-20260912/proof02-starmap-fix-20260915/ and diffed against the values recorded in proof02-starmap-third-cause-fix-20260915.json",
+    "results": [
+      { "path": "probe-starmap-settle.stdout.log", "recorded": "2dd56e5e22cf24650182150ffb849cfbca418eea5466a861a86bcb19c2f851e1", "computed": "2dd56e5e22cf24650182150ffb849cfbca418eea5466a861a86bcb19c2f851e1", "match": true },
+      { "path": "probe-starmap-settle.stderr.log", "recorded": "2dfb9a6212c18baf950f9001378b6145cd0f9ce417c34046bed4325d584a4f18", "computed": "2dfb9a6212c18baf950f9001378b6145cd0f9ce417c34046bed4325d584a4f18", "match": true },
+      { "path": "run-quick-postfix.stdout.log", "recorded": "22153568b5dcad668070efc5acc6d5d8a957d554b27915b972b4de1a20b47f41", "computed": "22153568b5dcad668070efc5acc6d5d8a957d554b27915b972b4de1a20b47f41", "match": true },
+      { "path": "run-quick-postfix.stderr.log", "recorded": "2dfb9a6212c18baf950f9001378b6145cd0f9ce417c34046bed4325d584a4f18", "computed": "2dfb9a6212c18baf950f9001378b6145cd0f9ce417c34046bed4325d584a4f18", "match": true },
+      { "path": "run-specA-postfix.stdout.log", "recorded": "635915e6266cf1b775834f17afa3c5e7ab26ab79ff1c903ee2fdeae2eb898609", "computed": "635915e6266cf1b775834f17afa3c5e7ab26ab79ff1c903ee2fdeae2eb898609", "match": true },
+      { "path": "run-specA-postfix.stderr.log", "recorded": "2dfb9a6212c18baf950f9001378b6145cd0f9ce417c34046bed4325d584a4f18", "computed": "2dfb9a6212c18baf950f9001378b6145cd0f9ce417c34046bed4325d584a4f18", "match": true },
+      { "path": "gate-tsc.log", "recorded": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855", "computed": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855", "match": true },
+      { "path": "gate-oxfmt.log", "recorded": "5ac31ab31849ed102256697d3e60a651f1cc3f86187e3d81b2f4b8d4238a7367", "computed": "5ac31ab31849ed102256697d3e60a651f1cc3f86187e3d81b2f4b8d4238a7367", "match": true },
+      { "path": "commit.log", "recorded": "b65901bdb89e3f4313d7816a0ea67a38d2b31cf7238edd320784edac3ef2ad37", "computed": "b65901bdb89e3f4313d7816a0ea67a38d2b31cf7238edd320784edac3ef2ad37", "match": true }
+    ],
+    "allMatch": true,
+    "quickSuiteLogLine": {
+      "file": "run-quick-postfix.stdout.log",
+      "starmapLine": "ok  6 [chromium] \u203a e2e\\campaign-starmap-logistics.spec.ts:155:7 \u203a campaign starmap logistics \u203a previews, approves, and reloads campaign travel consequences @campaign @starmap @logistics (4.5s)",
+      "summaryLine": "13 passed (35.3s)",
+      "verified": true
+    }
+  },
+  "nonClaims": [
+    "This review did not run any Playwright tests, builds, or lint/tsc gates itself -- it verified evidence hashes and read the diff/precedent/PR metadata only, per the read-only mandate.",
+    "This review did not check whether PR #1714 has been merged, or whether CI has run against it.",
+    "No file other than this review artefact and a transient scratchpad placeholder was written; no product, spec, or e2e file was touched; no commit, push, or PR action was taken."
+  ]
+}

@@ -1,0 +1,80 @@
+{
+  "date": "2026-09-15",
+  "source": "openspec/planning/2026-09-12-roadmap-completion/evidence/r1-remote-disposition-brief-20260915.json",
+  "package": "add-customizer-pr-regression-gate",
+  "targetPr": 1678,
+  "targetHead": "c3f2fc80e271c940d9d14730ec1eda9ffe21ba8d",
+  "worktreeUsed": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/archive-original-main-proof",
+  "worktreeOriginalHead": "5b229be21e87815f10ce6521dda77b52eef75e3c",
+  "worktreeRestoredCorrectly": true,
+  "nodeVersion": "v22.22.0",
+  "evidenceDir": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/r1-remote-51-52-20260915",
+  "tasks": [
+    {
+      "taskKey": "add-customizer-pr-regression-gate#5.1",
+      "literalText": "Run the focused validator Jest suite and `format:check` on owned files.",
+      "checkboxStateInTasksMd": "[x]",
+      "briefAsked": {
+        "disposition": "c (requires new work: bounded re-verification slice)",
+        "smallestBoundedSlice": "Re-run the focused validator Jest suite and `npm run format:check` at PR #1678 head (c3f2fc80e2) and record a clean pass with exit codes.",
+        "expectedTest": "jest run over scripts/__tests__/openspec-ci-quality-qc.test.ts + format:check exit 0"
+      },
+      "whatRan": [
+        {
+          "command": "npx jest scripts/__tests__/openspec-ci-quality-qc.test.ts",
+          "cwd": "worktree at detached HEAD c3f2fc80e2",
+          "exitCode": 0,
+          "result": "Test Suites: 1 passed, 1 total; Tests: 5 passed, 5 total",
+          "log": "r1-remote-51-52-20260915/01-jest-openspec-ci-quality-qc.log",
+          "sha256": "9fab37ea6f6c3f2824eafcf11da0f3bb229ceeaa3b12729ce5041f8d8e2f82a7"
+        },
+        {
+          "command": "npx oxfmt --check <13 owned files listed below>",
+          "note": "npm run format:check runs `oxfmt --check .` repo-wide with no built-in path-scoping mechanism; scoped it to the PR's owned files by passing explicit paths (oxfmt supports positional PATH args) instead of running it unscoped against the whole repo, since the task asks for 'on owned files' specifically.",
+          "ownedFilesSource": "git diff --name-only 5b229be21 c3f2fc80e2 -- 'openspec/changes/add-customizer-pr-regression-gate/*' '.github/workflows/*' 'scripts/qc/validate-openspec-ci-quality.mjs' 'e2e/customizer-*.spec.ts' 'e2e/helpers/recordSheetPrintHarness.ts' 'openspec/active-change-ledger.json', plus scripts/__tests__/openspec-ci-quality-qc.test.ts added manually (13 files total, list at 02-owned-files-list.txt)",
+          "cwd": "worktree at detached HEAD c3f2fc80e2",
+          "exitCode": 0,
+          "result": "All matched files use the correct format. Finished in 68ms on 5 files using 16 threads. (Only the 5 JS/TS/mjs files among the 13 owned paths are oxfmt-formattable; the 2 workflow YAML, 1 JSON ledger, and 2 changed-package Markdown/YAML files are not oxfmt targets by design \u2014 same scope oxfmt would apply under the unscoped `npm run format:check`.)",
+          "log": "r1-remote-51-52-20260915/03-format-check-owned-files.log",
+          "sha256": "ae8b7e9a7f31d19a429d2c12b93aded85bcc35c3832fdea610a1ef0e75e52bdd"
+        }
+      ],
+      "result": "clean pass, both commands exit 0",
+      "closability": "closable-on-#1678-merge",
+      "reasoning": "Both named re-verification commands ran clean at the exact PR #1678 head with citable logs + sha256, matching the rigor already applied to 5.3/6.1/6.2. No further work owed for 5.1."
+    },
+    {
+      "taskKey": "add-customizer-pr-regression-gate#5.2",
+      "literalText": "List the customizer Playwright tests to confirm the gate's selection resolves to the intended set.",
+      "checkboxStateInTasksMd": "[x]",
+      "briefAsked": {
+        "disposition": "c (requires new work: bounded re-verification slice)",
+        "smallestBoundedSlice": "Run `node scripts/playwright/run-playwright.mjs test e2e/customizer-equipment-catalog.spec.ts e2e/customizer-record-sheet-rendering.spec.ts e2e/customizer-edit-recovery.spec.ts --project=chromium --list` and record the resolved case count/names against the intended 12-case set.",
+        "expectedTest": "--list output enumerates exactly the 12 expected titles, 0 unexpected extras"
+      },
+      "whatRan": [
+        {
+          "command": "node scripts/playwright/run-playwright.mjs test e2e/customizer-equipment-catalog.spec.ts e2e/customizer-record-sheet-rendering.spec.ts e2e/customizer-edit-recovery.spec.ts --project=chromium --list",
+          "cwd": "worktree at detached HEAD c3f2fc80e2",
+          "exitCode": 0,
+          "result": "Total: 12 tests in 3 files -- customizer-edit-recovery.spec.ts: 3, customizer-equipment-catalog.spec.ts: 3, customizer-record-sheet-rendering.spec.ts: 6. No unexpected extras; matches the 3+6+3=12 set corroborated indirectly elsewhere in the roadmap evidence. --list is a static enumeration (Playwright test discovery only) and did not launch a browser or webServer, consistent with the 'no browser runs' restriction on this task.",
+          "log": "r1-remote-51-52-20260915/04-playwright-list.log",
+          "sha256": "ab325925b2c08f2b888db92d8d26240efb4122c26bfb3313e9aa2ce16c09b7ca"
+        }
+      ],
+      "result": "clean pass, exit 0, exact intended 12-case set confirmed",
+      "closability": "closable-on-#1678-merge",
+      "reasoning": "The named dry-run command executed exactly as specified in the brief, produced a citable log + sha256, and the resolved set matches the intended 12 cases across the 3 owned spec files. No further work owed for 5.2."
+    }
+  ],
+  "stillOwed": [],
+  "excludedByTaskRestriction": [
+    "5.3/6.1/6.2 real-Chromium browser runs were NOT re-executed here (forbidden by this task's Playwright browser-run restriction); those already carry their own named .sisyphus log citations per the brief and were left untouched.",
+    "No push, PR, build, or source/spec edits were performed."
+  ],
+  "worktreeHygiene": {
+    "checkedOutTo": "c3f2fc80e2 (git checkout --detach)",
+    "restoredTo": "5b229be21 (git checkout 5b229be21)",
+    "postRestoreStatusPorcelain": "empty (clean)"
+  }
+}

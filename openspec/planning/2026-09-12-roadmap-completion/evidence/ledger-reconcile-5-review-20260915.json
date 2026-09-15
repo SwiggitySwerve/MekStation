@@ -1,0 +1,128 @@
+{
+  "artefact": "ledger-reconcile-5-review",
+  "date": "2026-09-15",
+  "reviewer": "independent review agent (read-only against the worktree; no repo file modified except this artefact; no push, no commit, no PR)",
+  "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/camp-receipt-verification",
+  "branch": "codex/roadmap-ledger-reconcile-5-20260915",
+  "commitsReviewed": ["0aa34b92885947f63e72fc47beb0f4cc44346317", "54d2057cb240807f744f2ee7a689198d6c1db00f"],
+  "baseCommit": "b81242d1b668bc5d1a6e067c463cc5b332652a09",
+  "originMainAtReviewTime": "288fe678ae4d53ef46f6c5dbe82c8e2b34b1f077 (main has advanced past the batch's own b81242d1b/376f5aa92 baseline via #1748, merged 2026-09-15T20:04:20Z, after this batch's commits)",
+  "precedent": "evidence/ledger-reconcile-4-review-20260915.json",
+
+  "verdict": {
+    "decision": "APPROVE",
+    "summary": "Task 1.3's flip to [x] is correct and well-supported: both cited PRs (#1744, #1745) are merged, ancestors of origin/main, exact-main-verified (blob-identical, all six gates exit 0), and independently reviewed APPROVE with zero blocking findings. Production code on main confirms task 1.3's literal text is discharged (no write or read of mp_journal_authority_started on any live path; recovery reads only the mirrored/derived head). The diff is openspec-only (3 files), touches only the 1.3 checkbox plus surrounding prose, carries no AI attribution, and all four validators pass. The primary checkout's disclosed accidental-edit-then-revert left no residue. One non-blocking, in-scope defect found: the committed prose in three places (ledger + task 1.3 note + task 1.7 note) claims PR #1746's main-proof receipt does not exist yet, but evidence/r4-s7b-3-1746-main-proof-20260915.json already existed (verifiedAtUtc 2026-09-15T19:50:02Z, file mtime 13:50:02 local) before the 0aa34b928 commit that makes the claim (13:58:26 local) - the claim was already stale at commit time, not just stale now. This does not affect the correctness of the 1.3 flip itself (which the note explicitly rests on #1744+#1745 alone), so it is not blocking, but it is a factual inaccuracy in checked-in openspec prose and should be corrected. A second instance of the identical pattern was found in an adjacent file (CO3 note, out of the review's core scope but from the same commit series) and is reported for completeness."
+  },
+
+  "ancestryTable": [
+    { "pr": 1744, "commit": "ca884fcc666cb7f3d7206f9cf8e5d2381d92133f", "ghState": "MERGED", "isAncestorOfFreshOriginMain": true, "cited": "task 1.3 flip basis" },
+    { "pr": 1745, "commit": "f8de824471ecb974eb8717a00a6a463392235940", "ghState": "MERGED", "isAncestorOfFreshOriginMain": true, "cited": "task 1.3 flip basis" },
+    { "pr": 1746, "commit": "b81242d1b668bc5d1a6e067c463cc5b332652a09", "ghState": "MERGED", "isAncestorOfFreshOriginMain": true, "cited": "merged but (per the row, now stale) claimed not-yet-main-proven; NOT cited toward the flip" },
+    { "pr": 1747, "commit": "376f5aa923070613b16cb4cdb1091c6f6fb04b13", "ghState": "MERGED", "isAncestorOfFreshOriginMain": true, "cited": "CO3 note (design-campaign-authority-and-sync), correctly marked merged there" },
+    { "pr": 1748, "commit": "288fe678ae4d53ef46f6c5dbe82c8e2b34b1f077", "ghState": "MERGED", "isAncestorOfFreshOriginMain": true, "cited": "CO3 note claims OPEN/unmerged - accurate at the row's own commit timestamp (merged 2026-09-15T20:04:20Z, 3 min after commit 54d2057cb at ~20:01:24Z); natural drift, not a defect" },
+    { "pr": 1751, "commit": null, "ghState": "OPEN", "isAncestorOfFreshOriginMain": false, "cited": "task 1.7 note (S7-c), correctly marked open/reviewed-not-merged" }
+  ],
+
+  "task1_3FlipCheck": {
+    "rowTextOnOriginMainPriorToThisWorktree": "- [ ] 1.3 S3: retire the `mp_journal_authority_started` marker write; one source of \"started\".",
+    "rowTextInThisWorktree": "- [x] 1.3 S3: retire the `mp_journal_authority_started` marker write; one source of \"started\".",
+    "closureBasisClaimed": "PRs #1744 and #1745 alone (both exact-main-verified); #1746 explicitly NOT cited toward closure",
+    "productionCodeVerification": {
+      "commandPathWritesNoMarker": "confirmed - ServerMatchHostJournalAuthority.ts on origin/main carries the comment 'NO STARTED MARKER IS WRITTEN HERE ANY MORE (task 1.3, sub-prefix 3)' and no production caller constructs a `journalAuthorityStarted:` batch field (git grep shows every construction site is in __tests__/)",
+      "recoveryReadsOnlyMirroredHead": "confirmed - ServerMatchHost.ts:1434 comment 'that arm is gone here' (the marker fallback read S3-b left is removed); no production caller of `getJournalAuthorityStarted` (git grep: only __tests__/ call sites)",
+      "residualsNamedOnRow": "confirmed present on the row: OQ-2 (marker table / IMatchStore read port / matchCommandBatch field remain as inert mechanism pending owner ruling), the unavailable->blocked refusal withdrawal (deferred to S7-d/1.7), and S7b-Q6 (fail-closed catch removed, inert at mode off)"
+    },
+    "r4S7bEvidenceChecked": {
+      "r4-s7b-local-20260915.json": "exists in primary checkout (untracked, as expected per the pattern established in ledger-reconcile-4)",
+      "r4-s7b-review-20260915.json": "exists; verdict APPROVE, 0 blocking, 6 non-blocking findings (all documentation/comment-level, none affecting task 1.3's discharge); axis1 explicitly concludes 'Task 1.3's literal text is DISCHARGED in production'",
+      "r4-s7b-1-1744-main-proof-20260915.json": "exists; blob-identical prHead-vs-merge diff (0 bytes) on the 5 touched files; jest 176/1363 exit 0, tsc/openspec/purpose/terminology/qcOpenspecCi all exit 0",
+      "r4-s7b-2-1745-main-proof-20260915.json": "exists; blob-identical (0 bytes) on the 4 touched files; jest 177/1366 exit 0, all other gates exit 0",
+      "r4-s7b-3-1746-main-proof-20260915.json": "EXISTS (contrary to the row's claim) - blob-identical (0 bytes) on the 4 touched files; jest 177/1367 exit 0, all other gates exit 0; verifiedAtUtc 2026-09-15T19:50:02.549Z"
+    },
+    "verdictOnFlip": "CORRECT. The flip does not depend on #1746 being main-verified (the note is explicit that closure rests on #1744+#1745 alone), and both of those are genuinely merged, ancestors of origin/main, exact-main-proven and independently reviewed APPROVE. The staleness described below is a wording accuracy issue about #1746, not a soundness issue for the flip."
+  },
+
+  "task1_7and5_7Check": {
+    "task1_7NoteClaimsS7cOrCO3Merged": false,
+    "task1_7NoteText": "S7-c ... PR #1751 `fix(recovery): route the journal arm through the checkpoint door` is OPEN (state confirmed live via `gh pr view 1751`, not merged) with independent review APPROVE, zero required edits",
+    "liveConfirmation": "gh pr view 1751 -> state OPEN, mergeCommit null. Matches the row exactly.",
+    "task5_7NoteClaimsCO3orFlagFlipMerged": false,
+    "task5_7NoteText": "#1747 ... MERGED ... confirmed an ancestor of origin/main; #1748, #1749 and #1750 ... remain OPEN, unmerged ... CO3 as a whole is therefore still QUEUED, not done ... CAMPAIGN_JOURNAL_AUTHORITY_ENABLED is untouched by this slice and stays hardcoded false",
+    "verdict": "PASS - neither note overclaims merge state or the flag flip anywhere in the diff."
+  },
+
+  "ledgerCorrectionMatchesMain": {
+    "verdict": "PASS - the ledger's `reason` field for adopt-combat-journal-cutover-and-gm-rewind is consistent with the tasks.md rows it summarizes (same PR numbers, same merged/not-yet-main-verified/open distinctions, same 'still open: 0.1, 1.1, 1.4, 1.7' list); `lastReviewed` stays `2026-09-15`, unchanged and correct."
+  },
+
+  "scopeCheck": {
+    "onlyRowsChanged": "PASS - `git diff b81242d1b..HEAD | grep -E '^[+-]- \\['` shows exactly one checkbox line changed (task 1.3, `[ ]` -> `[x]`); no other row in either tasks.md file was touched.",
+    "filesChanged": ["openspec/active-change-ledger.json", "openspec/changes/adopt-combat-journal-cutover-and-gm-rewind/tasks.md", "openspec/changes/design-campaign-authority-and-sync/tasks.md"],
+    "openspecOnlyDiff": true,
+    "diffStat": "3 files changed, 5 insertions(+), 2 deletions(-)",
+    "capsRespected": true,
+    "aiAttributionInCommits": false
+  },
+
+  "validators": {
+    "openspecValidateAllStrict": { "command": "npx openspec validate --all --strict", "exit": 0, "result": "232 passed, 0 failed" },
+    "specPurposeValidateStrict": { "command": "npm run spec:purpose:validate:strict", "exit": 0, "result": "220 files scanned, 0 errors, 0 tracked source-of-truth debt" },
+    "terminologyValidateStrict": { "command": "npm run terminology:validate:strict", "exit": 0, "result": "315 files scanned, 0 violations" },
+    "qcOpenspecCiValidate": { "command": "npm run qc:openspec-ci:validate", "exit": 0, "result": "workflowContracts=8/8 workflowJobContracts=1/1 aggregatorNeeds=19/19 protectedContexts=4 packageScripts=3/3 activeOpenSpecChanges=12 accountedActiveOpenSpecChanges=12 errors=0" }
+  },
+
+  "primaryCheckoutIntegrityCheck": {
+    "claim": "preparer disclosed an accidental edit to the primary checkout's copy of the journal cutover tasks.md, reverted with `git checkout --`",
+    "porcelainLineCount": { "command": "git -C E:/Projects/MekStation status --porcelain | wc -l", "result": 162, "expected": 162, "match": true },
+    "fileNotInDirtySet": { "command": "git -C E:/Projects/MekStation status --porcelain | grep -F adopt-combat-journal-cutover-and-gm-rewind/tasks.md", "result": "no output (not listed)", "pass": true },
+    "noStrayDiffAgainstHead": { "command": "git -C E:/Projects/MekStation diff --stat -- openspec/changes/adopt-combat-journal-cutover-and-gm-rewind/tasks.md", "result": "empty", "pass": true },
+    "verdict": "PASS - the revert fully restored the committed content; the primary checkout's dirty set is exactly the pre-existing 162 lines and does not include this file."
+  },
+
+  "requiredEdits": [
+    {
+      "id": "R1",
+      "blocking": false,
+      "severity": "low (factual accuracy of checked-in prose; does not change the flip's correctness)",
+      "reason": "evidence/r4-s7b-3-1746-main-proof-20260915.json exists (verifiedAtUtc 2026-09-15T19:50:02.549Z / file mtime 13:50:02 local), which is BEFORE commit 0aa34b928 (13:58:26 local) that asserts the receipt does not exist yet. The receipt shows PR #1746 blob-identical to its merge commit with all six gates (jest 177/1367, tsc, openspec-strict, spec-purpose-strict, terminology-strict, qc-openspec-ci) exiting 0 - i.e. #1746 IS exact-main-verified now, and arguably already was when the commit landed.",
+      "file": "openspec/active-change-ledger.json",
+      "old": "#1746 b81242d1b (dangling-derivation cleanup) is confirmed merged live but not yet exact-main-proven, so it is not cited toward the closure, which rests on #1744+#1745 alone.",
+      "new": "#1746 b81242d1b (dangling-derivation cleanup) is now also exact-main-verified (evidence/r4-s7b-3-1746-main-proof-20260915.json: jest exit 0 / 177 suites, tsc/openspec-strict/purpose/terminology/qc-openspec-ci all exit 0, blob-identical against its reviewed PR head); it is still not cited toward the closure, which rests on #1744+#1745 alone, since #1746 only retires the already-dead derived-projection surface and adds no clause of its own."
+    },
+    {
+      "id": "R2",
+      "blocking": false,
+      "severity": "low",
+      "reason": "Same stale claim, in task 1.3's own note.",
+      "file": "openspec/changes/adopt-combat-journal-cutover-and-gm-rewind/tasks.md",
+      "old": "but no `r4-s7b-3-1746-main-proof-20260915.json` receipt exists yet, so it is recorded merged-not-yet-main-verified and is NOT cited as proof of anything here.",
+      "new": "and `r4-s7b-3-1746-main-proof-20260915.json` now records it exact-main-verified too (jest exit 0 / 177 suites, tsc/openspec-strict/purpose/terminology/qc-openspec-ci all exit 0, blob-identical against its reviewed PR head); it is still not cited toward this box's closure, which rests on #1744+#1745 alone, since #1746 only retires the already-dead `isMatchJournalAuthorityStartedDerived` surface and adds no clause of its own."
+    },
+    {
+      "id": "R3",
+      "blocking": false,
+      "severity": "low",
+      "reason": "Same stale claim, in task 1.7's note.",
+      "file": "openspec/changes/adopt-combat-journal-cutover-and-gm-rewind/tasks.md",
+      "old": "but not yet exact-main-proven (no `r4-s7b-3-1746-main-proof-20260915.json`), so treated as merged-not-yet-main-verified here.",
+      "new": "and is now also exact-main-verified (`r4-s7b-3-1746-main-proof-20260915.json`)."
+    }
+  ],
+
+  "additionalFindingsOutOfCoreScope": [
+    {
+      "id": "A1",
+      "severity": "informational, non-blocking",
+      "type": "same staleness pattern in an adjacent file from the same commit series (not the 1.3/1.7 rows this review was scoped to, but found while checking receipt existence claims)",
+      "location": "openspec/changes/design-campaign-authority-and-sync/tasks.md, CO3 note (task 5.7), committed in 54d2057cb at 2026-09-15T14:01:24-06:00",
+      "text": "The row states 'No `r2-cutover-co3-*-main-proof-20260915.json` receipt exists for any of the four [#1747-#1750].' However `evidence/r2-cutover-co3-1-1747-main-proof-20260915.json` was created at 2026-09-15 13:58:05 local (verifiedAtUtc 2026-09-15T19:58:05.216Z), roughly 3 minutes before this commit landed. The receipt shows #1747 blob-identical to its merge commit with tsc/gates green.",
+      "impactOnCO3Status": "None - CO3 as a whole correctly stays QUEUED regardless, since the load-bearing #1750 convergence proof and #1749 remain unmerged and unproven; this is purely a receipt-inventory accuracy note about #1747 specifically.",
+      "suggestedWording": "\"No `r2-cutover-co3-*-main-proof-20260915.json` receipt exists for #1748, #1749 or #1750; `r2-cutover-co3-1-1747-main-proof-20260915.json` does exist and shows #1747 exact-main-verified, though this does not advance CO3's overall QUEUED status since the load-bearing convergence proof (#1750) is still unmerged.\"",
+      "blocking": false
+    }
+  ],
+
+  "openQuestionsNotResolvedByThisReview": [
+    "Whether the timing pattern (openspec prose committed claiming a receipt file 'does not exist yet' when the file already existed on disk in the primary checkout, seen twice in this same two-commit series - R1/R2/R3 for #1746 and A1 for #1747) reflects a systematic gap in the preparer's evidence-inventory step before drafting commit prose. Not something this review can fix by re-running anything; flagged for the preparer/process owner."
+  ]
+}

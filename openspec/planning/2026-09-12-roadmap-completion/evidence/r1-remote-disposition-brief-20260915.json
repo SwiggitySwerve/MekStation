@@ -1,0 +1,305 @@
+{
+  "brief": "r1-remote-disposition-brief",
+  "date": "2026-09-15",
+  "roadmapNode": "R1.remote",
+  "roadmapFile": "openspec/planning/2026-09-12-roadmap-completion/roadmap.json",
+  "nodeSummary": {
+    "title": "Prove remote CI activation, exact-main customizer and accepted closure",
+    "dependsOn": ["R1.ci", "R1.archives", "R1.references"],
+    "taskKeyCount": 20,
+    "taskKeysAllFromSinglePackage": "add-customizer-pr-regression-gate"
+  },
+  "sourceOfTaskText": {
+    "note": "openspec/changes/add-customizer-pr-regression-gate does NOT exist on origin/main (git ls-tree origin/main -- openspec/changes/add-customizer-pr-regression-gate/ is empty). The package exists only on branch codex/roadmap-ci-customizer-gate-20260915, PR #1678 (OPEN, base main, mergedAt null), head c3f2fc80e271c940d9d14730ec1eda9ffe21ba8d.",
+    "readCommand": "git show c3f2fc80e2:openspec/changes/add-customizer-pr-regression-gate/tasks.md",
+    "lineNumbersVerified": "cat -n against the same blob; every taskKey's @N matches the printed line number exactly (20/20)."
+  },
+  "aggregateCounts": {
+    "totalTasks": 20,
+    "checkboxChecked": 19,
+    "checkboxUnchecked": 1,
+    "unchecked": ["add-customizer-pr-regression-gate#5.4@32"],
+    "dispositionCounts": {
+      "a_closableNowByNamedEvidence": 7,
+      "b_closableOnceInFlightItemLands": 10,
+      "c_requiresNewWork": 2,
+      "d_explicitDeferralOrNonClaim": 0
+    },
+    "dispositionCountsNote": "Counts sum to 19 checked-task dispositions + task 5.4 counted under (a) even though its own checkbox is unchecked, because its CLOSURE is proven by evidence already in hand. See per-task table: 1.1,1.2,4.1,4.2,4.3,4.4,5.4 = (a); 2.1,2.2,2.3,2.4,2.5,3.1,3.2,3.3,6.1,6.2 = (b); 5.1,5.2 = (c)."
+  },
+  "headlineFinding": "The package's ONLY unchecked box (5.4, 'observe the Customizer Regressions check run on a PR and confirm the aggregator blocks on it') is the single most-evidenced item in the whole set: both directions are proven live on GitHub -- PR #1678 (positive: job runs for real, 335s, SUCCESS, all 31 required checks green) and PR #1680 (negative probe: injected failing assertion -> Customizer Regressions FAILURE -> Lint and Test aggregator FAILURE -> closed unmerged). Task 5.4 is closable now independent of PR #1678 merging. Conversely, 10 of the 19 CHECKED boxes (2.1-2.5, 3.1-3.3, 6.1-6.2 minus 4.x/1.x which are already on main) describe work that is checked in tasks.md but not yet present on origin/main -- it lives only in an open PR (#1678) or in un-pushed local worktree commits (prefix 3 tip 1d38c4cee1a, prefix 4 tip ba8fb32b791) that were never opened as pull requests.",
+  "perTask": [
+    {
+      "taskKey": "add-customizer-pr-regression-gate#1.1@3",
+      "literalText": "Author the proposal, design, and `e2e-testing` delta for the PR customizer browser gate, its job-scoped CI contracts, and the print/export failure-recovery coverage.",
+      "checkboxState": "[x]",
+      "disposition": "a",
+      "dispositionLabel": "closable now by named evidence",
+      "evidence": [
+        "PR #1678 file list (gh pr view 1678 --json files, read live 2026-09-15) adds openspec/changes/add-customizer-pr-regression-gate/{proposal.md,design.md,tasks.md,specs/e2e-testing/spec.md} in full.",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/r1-ci-prefixes-2-4-review-20260915.json Q3.1: 'proposal.md, design.md, tasks.md and specs/e2e-testing/spec.md are well-formed... spec delta opens with \"## ADDED Requirements\" and carries three \"### Requirement:\" blocks... 13 \"#### Scenario:\" blocks... design.md carries Context, Goals/Non-Goals, seven numbered Decisions, Risks/Trade-offs, Migration Plan and Open Questions.'",
+        "Q3.2 in the same file: `npx openspec validate --all --strict` at prefix-2 tip b3077f197 returned 'Totals: 233 passed, 0 failed (233 items)', exit 0."
+      ],
+      "notes": "The artefacts exist and are internally well-formed; they are not yet merged to main (see 2.x/3.x for the merge-gate distinction), but task 1.1's literal claim is about AUTHORSHIP, which is complete and verified."
+    },
+    {
+      "taskKey": "add-customizer-pr-regression-gate#1.2@4",
+      "literalText": "Record the historical baseline (two packs, five tests, no PR coverage) and the initial reconciled surface: three files and ten cases (`customizer-equipment-catalog.spec.ts` 3, `customizer-record-sheet-rendering.spec.ts` 5, `customizer-edit-recovery.spec.ts` 2).",
+      "checkboxState": "[x]",
+      "disposition": "a",
+      "dispositionLabel": "closable now by named evidence",
+      "evidence": [
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/browser-1667-main-proof-20260915.json perFile counts on exact-main b39b8291 (post the section-6 follow-up extension to 12 cases): customizer-equipment-catalog.spec.ts=3, customizer-record-sheet-rendering.spec.ts=6, customizer-edit-recovery.spec.ts=3 -- consistent with a 3/5/2=10 baseline plus the two follow-up cases added in 6.1 (one to record-sheet-rendering, one to edit-recovery).",
+        "Direct read: git show b39b8291:e2e/customizer-record-sheet-rendering.spec.ts has 6 test() declarations (lines 222,282,322,392,423,462); git cat-file confirms the file is present on main."
+      ],
+      "notes": "This task records a historical count claim (baseline + initial surface at authoring time), not a live-system assertion, so it is closable on the strength of the package's own well-formed proposal/design plus the now-observable superset (12 cases) on main."
+    },
+    {
+      "taskKey": "add-customizer-pr-regression-gate#2.1@8",
+      "literalText": "Add the independent `customizer-regressions` job to `.github/workflows/pr-checks.yml` -- `needs: [detect-changes, install-deps]`, per-step code/e2e gating, the shared setup and Playwright browser-cache pattern, and a 20-minute ceiling.",
+      "checkboxState": "[x]",
+      "disposition": "b",
+      "dispositionLabel": "closable once PR #1678 merges",
+      "evidence": [
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/r1-ci-workflow-prep-20260915.json reviewFindings.a_aggregatorBlocksMerge: 'verified: true... customizer-regressions added to needs: [detect-changes, install-deps] with the standard per-step detect-changes code/e2e skip gate (pr-checks.yml lines 578-648)... lint-and-test's needs array now includes customizer-regressions alongside the other 18 members.'",
+        "Live check (2026-09-15, this session): git cat-file -p 2d410f3ca4d7153497c94ee2944618ee735e99af:.github/workflows/pr-checks.yml has ZERO matches for 'customizer-regressions' -- confirms the job is NOT yet on origin/main.",
+        "gh pr view 1678 --json state,mergedAt (this session): state OPEN, mergedAt null."
+      ],
+      "notes": "Content is correct and independently re-verified against the draft; only the merge to main is outstanding."
+    },
+    {
+      "taskKey": "add-customizer-pr-regression-gate#2.2@9",
+      "literalText": "Give the job its own asset prerequisite: `fetch-assets: 'true'` on its checkout plus `npm run validate:assets:strict` before the browser starts.",
+      "checkboxState": "[x]",
+      "disposition": "b",
+      "dispositionLabel": "closable once PR #1678 merges",
+      "evidence": [
+        "r1-ci-workflow-prep-20260915.json reviewFindings.b_playwrightInvocationExact.detail: 'fetch-assets:true + validate:assets:strict at lines 596-602... before the browser step.'",
+        "ci-prefix2-1678-observation-20260915.json: PR #1678 'Customizer Regressions' job ran for real (335s, SUCCESS) rather than short-circuiting, which is positive runtime evidence this asset-prerequisite step actually executed and did not fail."
+      ],
+      "notes": "Same merge-gate as 2.1: correct on the branch, unmerged."
+    },
+    {
+      "taskKey": "add-customizer-pr-regression-gate#2.3@10",
+      "literalText": "Build with `NEXT_PUBLIC_E2E_MODE=true` and `NEXT_PUBLIC_E2E_TEST=true`, then run all three files via `node scripts/playwright/run-playwright.mjs test e2e/customizer-equipment-catalog.spec.ts e2e/customizer-record-sheet-rendering.spec.ts e2e/customizer-edit-recovery.spec.ts --project=chromium --retries=0 --trace=retain-on-failure` with `MEKSTATION_E2E_SERVER_COMMAND='node .next/standalone/server.js'` and `HOSTNAME='127.0.0.1'`; upload the report plus `test-results` on failure.",
+      "checkboxState": "[x]",
+      "disposition": "b",
+      "dispositionLabel": "closable once PR #1678 merges",
+      "evidence": [
+        "r1-ci-workflow-prep-20260915.json reviewFindings.b_playwrightInvocationExact: command string verified character-for-character against design.md Decision 3 and against the already-merged scripts/qc/openspec-ci-contracts.mjs requiredWorkflowJobContracts[0].requiredRuns[2].run; env vars on lines 635-637 match.",
+        "ci-prefix2-1678-observation-20260915.json: the job actually ran the browser suite (335s wall time) on PR #1678, corroborating the invocation is wired and executes."
+      ],
+      "notes": "No --workers=1 flag in the literal task text (a stale expectation surfaced in a separate orchestrator brief, not in tasks.md itself, per the reviewer's flagForOrchestrator note) -- so no contradiction of THIS task's own wording."
+    },
+    {
+      "taskKey": "add-customizer-pr-regression-gate#2.4@11",
+      "literalText": "Add `customizer-regressions` to the `lint-and-test` aggregator's `needs`; leave branch-protection context names untouched.",
+      "checkboxState": "[x]",
+      "disposition": "b",
+      "dispositionLabel": "closable once PR #1678 merges",
+      "evidence": [
+        "r1-ci-workflow-prep-20260915.json reviewFindings.a_aggregatorBlocksMerge (see 2.1).",
+        "ci-prefix2-1678-observation-20260915.json requiredChecks.aggregatorConsistency: 'GREEN, consistent with Customizer Regressions passing... evidence the new gate is wired INTO the aggregator's fan-out, not orphaned beside it.' checkTally rose from the session's usual 30 to 31 (exactly the new gate), and the four protected contexts (Lint and Test, Build Test / win|mac|linux) are unchanged."
+      ],
+      "notes": "Branch-protection context NAMES are confirmed unchanged (same four names); the aggregator wiring itself is proven both positively (#1678) and negatively (#1680, see 5.4)."
+    },
+    {
+      "taskKey": "add-customizer-pr-regression-gate#2.5@12",
+      "literalText": "Apply the same strict asset prerequisite and production build with E2E environment to the nightly `e2e-full` lane, retaining its unchanged 180-minute timeout.",
+      "checkboxState": "[x]",
+      "disposition": "b",
+      "dispositionLabel": "closable once PR #1678 merges",
+      "evidence": [
+        "r1-ci-workflow-prep-20260915.json reviewFindings.c_nightlyLaneConsistent: 'verified: true... fetch-assets:true... Validate record-sheet assets step... Build production app step with the same NEXT_PUBLIC_E2E_MODE/NEXT_PUBLIC_E2E_TEST env... full-suite Playwright invocation switched to run-playwright.mjs... timeout-minutes: 180 is unchanged (line 139, outside the diff hunk).'"
+      ],
+      "notes": "Reviewer flagged (non-blocking, out of scope for this task) a stale comment in nightly-validation.yml still describing the lane as running 'against the self-booted Next dev server' -- not factually false post-change, and the package's own proposal/design/tasks do not call for a comment rewrite, so it is not treated as a defect against this task's text."
+    },
+    {
+      "taskKey": "add-customizer-pr-regression-gate#3.1@16",
+      "literalText": "Extract the validator's declarative contracts into `scripts/qc/openspec-workflow-contracts.mjs`, parse YAML jobs and executable `run`/`env`/`with` fields, and add job-scoped `requiredWorkflowJobContracts` with `workflow-job-token-missing` / `workflow-job-missing` reporting.",
+      "checkboxState": "[x]",
+      "disposition": "b",
+      "dispositionLabel": "closable once PR #1678 merges",
+      "evidence": [
+        "Live check (this session): `git diff 2d410f3ca4 c3f2fc80e2 -- scripts/qc/validate-openspec-ci-quality.mjs` shows PR #1678 removes 108 lines of duplicated inline contract arrays from the CLI validator and adds imports from `./openspec-ci-contracts.mjs` and `./openspec-workflow-contracts.mjs` (24 insertions, 122 deletions net).",
+        "Live check: `scripts/qc/openspec-workflow-contracts.mjs` and `scripts/qc/openspec-ci-contracts.mjs` are BYTE-IDENTICAL between origin/main and c3f2fc80e2 (empty diff both ways) -- both files, including the `requiredWorkflowJobContracts` customizer-regressions entry and the `workflow-job-token-missing`/`workflow-job-missing` codes, were already added to main earlier by PR #1647 ('ci: add OpenSpec contract modules', commit da524f7f5), which predates this package."
+      ],
+      "notes": "TASK-TEXT NUANCE (see contradictions list): the phrase 'extract...into scripts/qc/openspec-workflow-contracts.mjs' overstates this task's own contribution -- the extraction and the job-scoped contract DATA already existed via PR #1647; what PR #1678 actually adds is wiring the CLI validator (validate-openspec-ci-quality.mjs) to CONSUME that pre-existing module instead of its own duplicated inline copy. The end state the task describes is real, but the origin story in the task text is imprecise. Disposition is still (b): the wiring lands with PR #1678."
+    },
+    {
+      "taskKey": "add-customizer-pr-regression-gate#3.2@17",
+      "literalText": "Pin the three-file gate command, zero-retry flag, trace mode, job-local asset fetch, strict asset step, production-build and standalone-server environments, exact step conditions/order, 20-minute bound, no job-level `if`, absent-or-literal-false `continue-on-error`, and aggregator membership.",
+      "checkboxState": "[x]",
+      "disposition": "b",
+      "dispositionLabel": "closable once PR #1678 merges",
+      "evidence": [
+        "Live check: `scripts/qc/openspec-ci-contracts.mjs` requiredWorkflowJobContracts[0] (id customizer-regressions-gate) already carries requiredNeeds, skipIf, changeGateIf, uploadFailureIf, setupAction and requiredRuns fields matching this task's list -- present on origin/main today (via PR #1647), unchanged by PR #1678.",
+        "r1-ci-prefixes-2-4-review-20260915.json commandsRun[6]: validator run against prefix-2 tip reports 'workflowContracts=8/8 workflowJobContracts=1/1 aggregatorNeeds=19/19... errors=0' -- i.e. once wired (PR #1678), the validator confirms every pinned field against the live workflow."
+      ],
+      "notes": "The pinned VALUES already exist on main (PR #1647); what is pending is the CLI validator actually being wired to enforce them (task 3.1) and the workflow itself carrying the job it checks (task 2.x) -- both land together with PR #1678. Until then the pin exists as inert data, not an enforced gate."
+    },
+    {
+      "taskKey": "add-customizer-pr-regression-gate#3.3@18",
+      "literalText": "Add mutation tests proving a relocated command, dropped flag or pack, changed environment, removed asset prerequisite, disabled/unbounded/non-blocking step or job, deleted job, and unwired aggregator each fail -- and that a matching substring elsewhere in the workflow does not satisfy the contract.",
+      "checkboxState": "[x]",
+      "disposition": "b",
+      "dispositionLabel": "closable once prefixes 3 and 4 land (stacked after PR #1678)",
+      "evidence": [
+        "r1-ci-prefixes-2-4-prep-20260915.json + r1-ci-prefixes-2-4-review-20260915.json: prefix 3 (branch codex/roadmap-ci-quality-test-20260915, tip 1d38c4cee1a) extends scripts/__tests__/openspec-ci-quality-qc.test.ts from 166 to 580 lines (28/28 passing, reviewer verdict APPROVE); prefix 4 (branch codex/roadmap-ci-quality-mutations-20260915, tip ba8fb32b7913) extends it further to 675 lines (37/37 passing, reviewer verdict APPROVE-WITH-REQUIRED-EDITS on the commit message only, RE-2).",
+        "Q4.2 in the review file: mutation assertions are real (spawnSync of the actual validator against single-mutation scratch copies; a helper asserts the mutation truly changed the block so no-op regexes cannot pass silently); three cases explicitly prove the substring-vs-job-scope distinction this task's text calls out (lines 256, 601, 623 of the 675-line file).",
+        "Live check (this session): both origin/main and PR #1678 (c3f2fc80e2) carry only the pre-existing 166-line baseline test file with ZERO customizer references -- neither prefix 3 nor prefix 4 content has reached any PR or main."
+      ],
+      "notes": "This is the LEAST-landed item in the package: unlike 2.x/3.1/3.2 (at least sitting in an open PR, #1678), prefix 3 and prefix 4 are fully coded and reviewer-approved but exist only as local, un-pushed worktree commits -- no branch has been pushed to GitHub and no PR has been opened for either. Closure path: merge PR #1678 -> push+open+merge a PR for prefix 3 (approved as-is, no edits) -> apply RE-2 (git history reword of ba8fb32b791's commit message to remove three unsupported claims) -> push+open+merge a PR for prefix 4. mergeGates MG-4 and MG-5 in the review file make this ordering explicit."
+    },
+    {
+      "taskKey": "add-customizer-pr-regression-gate#4.1@22",
+      "literalText": "Add a real-Print-UI regression asserting the reserved print document's page rule, root SVG geometry, single-sheet content, unit identity, window close after print, and unchanged preview selection, using a popup `print` recorder so no OS dialog is reached.",
+      "checkboxState": "[x]",
+      "disposition": "a",
+      "dispositionLabel": "closable now by named evidence",
+      "evidence": [
+        "Merged to main via PR #1667 ('test(customizer): verify production print and export workflows'), squash commit b39b8291706c36b9ad0c876a5e1b11e5b3612b7d -- confirmed via openspec/planning/2026-09-12-roadmap-completion/evidence/browser-1667-final-20260915-merge-20260915.json.",
+        "Live read (this session): `git show b39b8291:e2e/customizer-record-sheet-rendering.spec.ts` line 322 is exactly the test 'Print writes one current sheet into the reserved window at the selected paper @customizer'; the popup-print recorder lives in e2e/helpers/recordSheetPrintHarness.ts (also part of the #1667 file set)."
+      ],
+      "notes": "See also the caveat under 'crossCuttingCaveat' below: this exact test is the one found non-deterministic on exact-main in browser-1667-main-proof-20260915.json (a test-race, root-caused and fixed in paper-size-flake-diagnosis-20260915.json, fix not yet applied). That affects confidence in the test's CI stability, not the fact that the test itself was authored and merged as this task describes."
+    },
+    {
+      "taskKey": "add-customizer-pr-regression-gate#4.2@23",
+      "literalText": "Add a blocked-popup regression asserting the toolbar alert and successful `Retry print` recovery.",
+      "checkboxState": "[x]",
+      "disposition": "a",
+      "dispositionLabel": "closable now by named evidence",
+      "evidence": [
+        "Merged via PR #1667 (b39b8291). Live read: `git show b39b8291:e2e/customizer-record-sheet-rendering.spec.ts` line 392 is 'a blocked print popup surfaces a recoverable error and Retry prints @customizer'; line 411 asserts `getByRole('button', { name: 'Retry print', exact: true })`."
+      ],
+      "notes": null
+    },
+    {
+      "taskKey": "add-customizer-pr-regression-gate#4.3@24",
+      "literalText": "Add a canvas-export failure regression asserting the toolbar alert and successful `Retry PDF export` recovery ending in a real download.",
+      "checkboxState": "[x]",
+      "disposition": "a",
+      "dispositionLabel": "closable now by named evidence",
+      "evidence": [
+        "Merged via PR #1667 (b39b8291). Live read: line 423 is 'a failed canvas export surfaces Retry and recovers to a one-page PDF @customizer'; line 440 asserts a button named 'Retry PDF export'."
+      ],
+      "notes": null
+    },
+    {
+      "taskKey": "add-customizer-pr-regression-gate#4.4@25",
+      "literalText": "Add format-aware PDF inspection (header, one `/Type /Page`, `/Count 1`, `/MediaBox` matching Letter and A4) with no new dependency, and preserve the complete initial ten-case customizer selection.",
+      "checkboxState": "[x]",
+      "disposition": "a",
+      "dispositionLabel": "closable now by named evidence",
+      "evidence": [
+        "Merged via PR #1667 (b39b8291). Live read: `git show b39b8291:e2e/helpers/recordSheetPrintHarness.ts` lines 235-239 assert `bytes.startsWith('%PDF')`, exactly one `/Type /Pages`, exactly one `/Type /Page` (not Pages), `/Count 1`, and a regex-extracted `/MediaBox` compared against Letter/A4 dimensions.",
+        "r1-ci-workflow-prep-20260915.json reviewFindings.d_noNewDependency: 'Diffed only .github/workflows/*; no package.json or package-lock.json changes in this patch' for the CI-side work; the PDF-inspection code itself uses only Node's built-in fs/regex, no new package."
+      ],
+      "notes": "The 'preserve the complete initial ten-case selection' clause is satisfied: all original 10 cases remain present (see 1.2 evidence) plus the 2 follow-up cases from 6.1, for 12 total on main."
+    },
+    {
+      "taskKey": "add-customizer-pr-regression-gate#5.1@29",
+      "literalText": "Run the focused validator Jest suite and `format:check` on owned files.",
+      "checkboxState": "[x]",
+      "disposition": "c",
+      "dispositionLabel": "requires new work (smallest bounded slice named)",
+      "evidence": [
+        "No named log or artefact citation exists in the task text itself (unlike 5.3/6.1/6.2, which cite exact .sisyphus log paths).",
+        ".sisyphus/spec-reconciliation-20260912/ci-contracts-final.log (implementation-time, 2026-09-12) shows an INTERIM failing state of scripts/__tests__/openspec-ci-quality-qc.test.ts ('Tests: 1 failed, 27 passed, 28 total') -- useful as process history but not a clean final-pass citation for this task."
+      ],
+      "smallestBoundedSlice": {
+        "files": ["scripts/__tests__/openspec-ci-quality-qc.test.ts", "the package's owned files under openspec/changes/add-customizer-pr-regression-gate/ and .github/workflows/"],
+        "behavior": "Re-run the focused validator Jest suite and `npm run format:check` at PR #1678 head (c3f2fc80e2) and record a clean pass with exit codes, to produce a citable log matching the rigor already applied to 5.3/6.1/6.2.",
+        "test": "jest run over scripts/__tests__/openspec-ci-quality-qc.test.ts + format:check exit 0",
+        "cap": "single command pair, no source change; ~5 minutes"
+      },
+      "notes": "This agent's tool access is restricted to Read/Grep/Bash(read-only git/gh) for this brief, so the re-run itself was not performed here; it is deferred as a smallest-bounded-slice for a worker with npm/build access."
+    },
+    {
+      "taskKey": "add-customizer-pr-regression-gate#5.2@30",
+      "literalText": "List the customizer Playwright tests to confirm the gate's selection resolves to the intended set.",
+      "checkboxState": "[x]",
+      "disposition": "c",
+      "dispositionLabel": "requires new work (smallest bounded slice named)",
+      "evidence": [
+        "No named log or artefact citation exists in the task text itself.",
+        "Indirect corroboration only: browser-1667-main-proof-20260915.json results.perFile and the paper-size-flake-diagnosis file both show the three files resolving to 3+6+3=12 cases when actually RUN, which is suggestive but is not the same artefact as a `--list` dry-run output this task describes."
+      ],
+      "smallestBoundedSlice": {
+        "files": ["e2e/customizer-equipment-catalog.spec.ts", "e2e/customizer-record-sheet-rendering.spec.ts", "e2e/customizer-edit-recovery.spec.ts"],
+        "behavior": "Run `node scripts/playwright/run-playwright.mjs test e2e/customizer-equipment-catalog.spec.ts e2e/customizer-record-sheet-rendering.spec.ts e2e/customizer-edit-recovery.spec.ts --project=chromium --list` and record the resolved case count/names against the intended 12-case set.",
+        "test": "--list output enumerates exactly the 12 expected titles, 0 unexpected extras",
+        "cap": "single command, no source change; ~1 minute"
+      },
+      "notes": "Same tooling restriction as 5.1 applies to why this was not executed in this brief."
+    },
+    {
+      "taskKey": "add-customizer-pr-regression-gate#5.3@31",
+      "literalText": "Parent: execute all three customizer files in a real Chromium browser against the hydrated production standalone server; 10/10 passed in about 69 seconds on local port 3636. Evidence: `.sisyphus/spec-reconciliation-20260912/browser-production-ip.log`.",
+      "checkboxState": "[x]",
+      "disposition": "a",
+      "dispositionLabel": "closable now by named evidence",
+      "evidence": [
+        "Live read (this session): `.sisyphus/spec-reconciliation-20260912/browser-production-ip.log` tail confirms 'Running 10 tests using 1 worker' and '10 passed (1.1m)', enumerating all 10 baseline cases across the three files."
+      ],
+      "notes": "Timing in the log reads '(1.1m)' (~66s) which is consistent with the task's 'about 69 seconds' claim within the file's own rounding; port and file both match."
+    },
+    {
+      "taskKey": "add-customizer-pr-regression-gate#5.4@32",
+      "literalText": "Parent: observe the new `Customizer Regressions` check run on a pull request and confirm the aggregator blocks on it.",
+      "checkboxState": "[ ]",
+      "disposition": "a",
+      "dispositionLabel": "closable now by named evidence (checkbox is the only unchecked one in the package, and it is the best-evidenced)",
+      "evidence": [
+        "POSITIVE path: openspec/planning/2026-09-12-roadmap-completion/evidence/ci-prefix2-1678-observation-20260915.json -- PR #1678, run 34940815550, job 104289034959: 'Customizer Regressions' ran for real (335s, not skipped), conclusion SUCCESS; all 31 required checks (incl. the 'Lint and Test' aggregator) went green; checkTally total=31 pass=31 fail=0.",
+        "NEGATIVE path: openspec/planning/2026-09-12-roadmap-completion/evidence/ci-task54-negative-probe-20260915.json -- PR #1680 (base c3f2fc80e2, an intentional one-line failing assertion injected into e2e/customizer-equipment-catalog.spec.ts): 'Customizer Regressions' job 104292621602 conclusion FAILURE; 'Lint and Test' aggregator job 104294031008 conclusion FAILURE; decisive log line quotes the exact injected error string at the exact injected line (137). PR closed unmerged after the proof, branch and worktree cleaned up."
+      ],
+      "notes": "This is the strongest possible evidence for this task's literal claim: it proves the gate BOTH passes-through on success and BLOCKS the required aggregator on failure, on live GitHub Actions runs, not merely by static workflow-YAML review. Recommend checking this box off regardless of whether/when PR #1678 itself has merged, since the task's wording only asks to 'observe... on a pull request', which has now happened twice, once each way."
+    },
+    {
+      "taskKey": "add-customizer-pr-regression-gate#6.1@36",
+      "literalText": "Extend the same three-file selection to twelve cases: add real-browser Infantry zoom/paper/export coverage and explicit Structure versus persisted Preview navigation coverage. Both new cases failed against the pre-fix production build; evidence: `.sisyphus/spec-reconciliation-20260912/browser-production-followups-red.log`.",
+      "checkboxState": "[x]",
+      "disposition": "a",
+      "dispositionLabel": "closable now by named evidence",
+      "evidence": [
+        "Live read: `.sisyphus/spec-reconciliation-20260912/browser-production-followups-red.log` tail shows '2 failed': 'e2e/customizer-edit-recovery.spec.ts:346:5 explicit Structure URL overrides a saved Preview tab while omitted tabs restore it @customizer' and 'e2e/customizer-record-sheet-rendering.spec.ts:433:5 Infantry preview shares zoom, fit modes, paper geometry and export @customizer' -- matching the task's description of the two new cases (Infantry + explicit-Structure-vs-Preview) both failing pre-fix.",
+        "Both cases are present and merged to main: `git show b39b8291:e2e/customizer-record-sheet-rendering.spec.ts` line 462 is the Infantry test; the edit-recovery Structure-vs-Preview test is part of the same #1667 merge."
+      ],
+      "notes": null
+    },
+    {
+      "taskKey": "add-customizer-pr-regression-gate#6.2@37",
+      "literalText": "Run all twelve cases against the rebuilt production standalone server with zero retries and record the result. Passed 12/12 in about 69 seconds on port 3636. Evidence: `.sisyphus/spec-reconciliation-20260912/browser-production-followups-final.log`.",
+      "checkboxState": "[x]",
+      "disposition": "a",
+      "dispositionLabel": "closable now by named evidence",
+      "evidence": [
+        "Live read: `.sisyphus/spec-reconciliation-20260912/browser-production-followups-final.log` tail shows 'Running 12 tests using 1 worker' and '12 passed (1.1m)', enumerating all 12 cases across the three files (edit-recovery x3, equipment-catalog x3, record-sheet-rendering x6)."
+      ],
+      "notes": "This LOCAL 12/12 (2026-09-12, implementation-time, dirty local checkout per mergeGates MG-2 in r1-ci-prefixes-2-4-review) is distinct from the EXACT-MAIN 12/12 in browser-1667-main-proof-20260915.json (2026-09-15, attempt-2, clean detached checkout at b39b8291). Both exist and both are cited correctly by their respective tasks; they should not be conflated as the same proof."
+    }
+  ],
+  "contradictionsOrNuances": [
+    {
+      "taskKey": "add-customizer-pr-regression-gate#3.1@16",
+      "kind": "task-text imprecision, not a hard contradiction",
+      "detail": "The task's phrasing implies THIS package performed the extraction of declarative contracts into scripts/qc/openspec-workflow-contracts.mjs and the addition of job-scoped requiredWorkflowJobContracts. Live diff evidence shows that module (and the sibling scripts/qc/openspec-ci-contracts.mjs, which actually holds the requiredWorkflowJobContracts DATA) already existed on origin/main byte-for-byte before this package, added by the earlier, unrelated PR #1647 ('ci: add OpenSpec contract modules', da524f7f5). What PR #1678 actually contributes for 3.1 is wiring scripts/qc/validate-openspec-ci-quality.mjs to import and consume that pre-existing module instead of its own duplicated inline arrays (a 24-insertion/122-deletion diff). The end state is materially what the task describes; the causal story ('extract... into X') is not quite accurate."
+    },
+    {
+      "taskKey": "add-customizer-pr-regression-gate#4.1@22 (and by extension the R1.remote acceptance line 'Exact-main production browser rerun')",
+      "kind": "reliability caveat, not a contradiction of the task's own claim",
+      "detail": "browser-1667-main-proof-20260915.json's verdict is MIXED, not a clean pass: two zero-retry runs of the identical exact-main build (b39b8291) disagreed on exactly the test this task added (customizer-record-sheet-rendering.spec.ts:322, 'Print writes one current sheet...'), 11/12 then 12/12. paper-size-flake-diagnosis-20260915.json root-caused this as a genuine test race (workbench remount lands 15-50ms after the tab-click Playwright's action already resolved on, so a same-tick selectOption can target the outgoing unit's stale Preview instance) -- classified TEST RACE, high confidence, with a 2-line test-only fix designed (add an `expectSheetType` settle after the tab click) and PROVEN in isolation (probe: 9/10 fail without the settle, 0/10 fail with it) but NOT YET APPLIED to the actual spec file. The SAME flake also surfaced independently during the unrelated ci-task54-negative-probe-20260915.json run (PR #1680), corroborating the diagnosis. This does not falsify task 4.1's claim (the test was authored and merged as described); it does mean the R1.remote acceptance criterion 'Exact-main production browser rerun' cannot yet be called an unqualified green until the settle fix lands."
+    },
+    {
+      "taskKey": "add-customizer-pr-regression-gate#3.3@18",
+      "kind": "checkbox-vs-reality gap, most severe of the three noted",
+      "detail": "Unlike 2.x/3.1/3.2 (present in an OPEN pull request, #1678) the mutation-test code this task describes exists ONLY as two local, unpushed worktree commits (prefix 3 tip 1d38c4cee1a on branch codex/roadmap-ci-quality-test-20260915; prefix 4 tip ba8fb32b791 on branch codex/roadmap-ci-quality-mutations-20260915) that were never pushed to GitHub or opened as pull requests, per r1-ci-prefixes-2-4-prep-20260915.json's own scope statement ('nothing was pushed, merged, or opened as a pull request'). Both origin/main and PR #1678 currently carry only the pre-existing 166-line baseline test file (from #918/6f8abbe82) with zero customizer-related content. The [x] therefore reflects 'coded and reviewer-approved' rather than 'shipped', a materially different status than every other checked box in this package except arguably the CI-wiring items."
+    }
+  ],
+  "verificationMethodology": {
+    "toolsUsed": ["Bash: git fetch/show/log/diff/ls-tree/cat-file/rev-parse/merge-base (read-only)", "Bash: gh pr view (read-only)", "Read of local evidence JSON files and .sisyphus logs"],
+    "noEditsBuildsTestsPushesOrPrChanges": true,
+    "singleWriteAction": "This file."
+  }
+}

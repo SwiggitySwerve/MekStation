@@ -1,0 +1,40 @@
+{
+  "node": "R2.triage",
+  "artefact": "proof02-starmap-settle-1714-main-proof-20260915",
+  "capturedAtUtc": "2026-09-15T12:31:35.469Z",
+  "pr": 1714,
+  "slice": "proof-02 third cause: settle the pending campaign save before the starmap spec navigates (e2e only)",
+  "reviewedHead": "b0a190f2774455d5c4e16f7ce2039614b688eb11",
+  "mergeCommit": "e048a43cd251b7515af7ff23371148b904817ad2",
+  "worktree": ".sisyphus/roadmap-completion-20260912/worktrees/proof02-rerun (detached at the merge commit)",
+  "runtime": {
+    "node": "v22.22.0"
+  },
+  "files": [
+    "e2e/campaign-starmap-logistics.spec.ts"
+  ],
+  "blobEquality": {
+    "diffLines": 0,
+    "identical": true
+  },
+  "gates": {
+    "tsc": {
+      "exit": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "oxfmt": {
+      "exit": 0,
+      "sha256": "b560b34eb308570e413117efa13ef61deec685bd0f932358f6fe6718a17129e8"
+    },
+    "openspecStrict": {
+      "exit": 0,
+      "sha256": "a6f1b01bad6ef535f7ae511fd2b0e725e382bcb462449ef4386723e0ec97eff3"
+    },
+    "qcOpenspecCi": {
+      "exit": 0,
+      "sha256": "1d2b3ffbba3922d328cc2b02fa1de7ccedad6b3382227fa903deccf9a0d5900c"
+    },
+    "jest": "n/a (e2e-only change; browser runs 13/13 + 1/1 recorded in the fix receipt at the reviewed head)"
+  },
+  "acceptance": "exact-main accepted; a rerun of the frozen quick suite on a main containing this merge is the remaining step for the proof-02 observation-set decision"
+}

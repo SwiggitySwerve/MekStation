@@ -1,0 +1,69 @@
+{
+  "pr": 1757,
+  "branch": "codex/roadmap-ledger-reconcile-6-20260915",
+  "reviewedCommit": "56a22d40a2963754f3472761300bbbed8059f544",
+  "finalHead": "110147f39b673e58a409efc534708422d86073aa",
+  "anomaly": null,
+  "autoMergeArmed": false,
+  "contentGuard": {
+    "preUpdate": {
+      "fileSetEqualToReviewed": true,
+      "fileCount": 3,
+      "files": [
+        "openspec/active-change-ledger.json",
+        "openspec/changes/adopt-combat-journal-cutover-and-gm-rewind/tasks.md",
+        "openspec/changes/design-campaign-authority-and-sync/tasks.md"
+      ],
+      "diffstat": "3 files changed, 3 insertions(+), 1 deletion(-)",
+      "blobEquality": "trivially satisfied - reviewed commit == PR head (56a22d40a)",
+      "result": "PASS"
+    },
+    "postUpdate": {
+      "fileSet": "unchanged - same 3 files, no files added by the update merge",
+      "diffstat": "3 files changed, 3 insertions(+), 1 deletion(-)",
+      "blobEquality": "all 3 files still byte-identical to the reviewed head - no openspec file conflicted",
+      "result": "PASS"
+    }
+  },
+  "updateBranch": {
+    "performedByThisSession": true,
+    "oldHead": "56a22d40a2963754f3472761300bbbed8059f544",
+    "newHead": "110147f39b673e58a409efc534708422d86073aa",
+    "expectedHeadShaGuard": "56a22d40a2963754f3472761300bbbed8059f544",
+    "reason": "branch was BEHIND (main had advanced to 88290bd7e via #1756)"
+  },
+  "checksAtTerminal": {
+    "Lint and Test": "pass",
+    "Build Test / win": "pass",
+    "Build Test / mac": "pass",
+    "Build Test / linux": "pass",
+    "Customizer Regressions": "pass",
+    "Unit Tests (6/6)": "pass",
+    "otherChecksCount": 27,
+    "otherChecksBuckets": { "pass": 27 },
+    "totalChecks": 31,
+    "pollLog": "21:35:18 2 pending -> 21:39:27 31 pass / 0 pending",
+    "rerunsPerformed": 0
+  },
+  "premergeReceipt": {
+    "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/ledger-reconcile-6-1757-final-20260915-premerge.json",
+    "ready": true,
+    "failures": []
+  },
+  "mergeCommit": "1f67f814e3f04e8a38488de70ecd8396f9269ca6",
+  "mergeCommitParents": ["88290bd7e2833758f0282ba6ea9a01d182f9aaea"],
+  "mergeStyle": "squash (single parent)",
+  "mergeCommand": "gh pr merge 1757 --squash --match-head-commit 110147f39b673e58a409efc534708422d86073aa",
+  "mergedAt": "2026-09-15T21:39:43Z",
+  "mergedBy": "this session (step 6 executed)",
+  "mergedContentVerification": "The merge commit changes exactly the 3 guarded files, all blob-identical to the gated head 110147f39.",
+  "mainAfter": "1f67f814e3f04e8a38488de70ecd8396f9269ca6",
+  "sessionFinalItem": true,
+  "worktree": { "fastForward": "NOT PERFORMED - no owned worktree designated for this PR", "result": "N/A" },
+  "timestamps": {
+    "guardStartedAt": "2026-09-15T21:34:30Z",
+    "checksTerminalAt": "2026-09-15T21:39:27Z",
+    "mergedAt": "2026-09-15T21:39:43Z",
+    "receiptWrittenAt": "2026-09-15T21:40:30Z"
+  }
+}

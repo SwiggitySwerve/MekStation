@@ -1,0 +1,58 @@
+{
+  "slice": "QC fixture port derived below the ephemeral range (Unit Tests required-check reliability)",
+  "pr": 1742,
+  "prHead": "3bfc4387e9cf614478ee20329a9bfef48daa0eb8",
+  "mergeCommit": "9624b38f9ac7dfcc946e5eea4a68d7189691e48b",
+  "verifiedAtUtc": "2026-09-15T18:48:50.012Z",
+  "worktree": "r2-prepared-journal-api (detached at merge commit, ambient Node v24.15.0)",
+  "blobEquality": {
+    "files": [
+      "scripts/__tests__/gm-two-player-campaign-qc.test.ts",
+      "scripts/qc/gm-two-player-campaign-core.cjs"
+    ],
+    "command": "git diff --stat <prHead> <merge> -- <files>",
+    "result": "empty (0 bytes)"
+  },
+  "gates": {
+    "jest": {
+      "scope": "scripts/__tests__/gm-two-player-campaign-qc.test.ts",
+      "exit": 0,
+      "suites": 1,
+      "tests": 10
+    },
+    "portEvaluation": {
+      "runId": "task-26-foreign-listener",
+      "derived": 26692,
+      "before": 43692
+    },
+    "tsc": {
+      "exit": 0,
+      "outputBytes": 0
+    },
+    "openspecStrict": {
+      "exit": 0
+    }
+  },
+  "ci": "PR own run 31/31 first time incl. Unit Tests (6/6) and Customizer Regressions (merge manager)",
+  "logs": {
+    "jest": {
+      "path": ".sisyphus/roadmap-completion-20260912/main-proof-1742-20260915/jest.log",
+      "sha256": "6c191dd81e70617bac1e6901335da191b4f17be3d9cebd842de48923c3bd4e09"
+    },
+    "port": {
+      "path": ".sisyphus/roadmap-completion-20260912/main-proof-1742-20260915/port.log",
+      "sha256": "0695164e5b658f6739735cc50adb459f77374a22eff8e32217d0d94ba3c44c9b"
+    },
+    "tsc": {
+      "path": ".sisyphus/roadmap-completion-20260912/main-proof-1742-20260915/tsc.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "openspec": {
+      "path": ".sisyphus/roadmap-completion-20260912/main-proof-1742-20260915/openspec.log",
+      "sha256": "a6f1b01bad6ef535f7ae511fd2b0e725e382bcb462449ef4386723e0ec97eff3"
+    }
+  },
+  "limits": [
+    "single file jest on main; the runner allocator was never observed; one green CI sample each for the two flake fixes, watch for a quiet streak"
+  ]
+}

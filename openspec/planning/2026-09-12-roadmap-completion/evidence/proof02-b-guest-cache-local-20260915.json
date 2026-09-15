@@ -1,0 +1,124 @@
+{
+  "schema": "roadmap-completion/proof-evidence/v1",
+  "id": "proof02-B-guest-cache-stands",
+  "generatedAtUtc": "2026-09-15T09:20:00Z",
+  "generatedBy": "claude-opus-5 (Agent), worktree camp-receipt-verification",
+  "title": "PRODUCT-BUG fix: a guest replica's equal-revision cache no longer stands over a forced server refresh",
+  "upstreamDiagnosis": {
+    "file": "openspec/planning/2026-09-12-roadmap-completion/evidence/proof02-diagnosis-20260915.json",
+    "observationId": "B",
+    "classification": "PRODUCT-BUG",
+    "regressionOrigin": "f45bab0d2 (#1339, 2026-08-24) introduced the cacheStands short-circuit"
+  },
+  "buildIdentity": {
+    "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/camp-receipt-verification",
+    "baseBranch": "origin/main",
+    "baseSha": "95042d9196795afe33662954686c57cd4b1749a2",
+    "workBranch": "codex/roadmap-guest-cache-stands-20260915",
+    "commit": "8a2975c81e7bb3604630b79d9272b728d2e189e3",
+    "commitSubject": "fix(campaign): never let a guest replica's equal-revision cache stand over a server refresh",
+    "node": "v22.22.0",
+    "pushed": false,
+    "originMainDriftDuringSession": "origin/main advanced from the 95042d919 base to 5fac5a58c while this work was in flight (a concurrent merge by another session). The commit itself is unaffected: git diff --stat 95042d919..8a2975c81 is exactly the 4 files below. A rebase onto the newer head has NOT been performed here."
+  },
+  "rootCause": "src/stores/campaign/useCampaignPersistenceStore.ts runLoad computed cacheStands from evaluateCampaignCache (src/lib/campaign/persistence/campaignCacheKey.ts) alone, which compares only (instanceId, revision). For a source client that pair implies equal content, because only its own PUT moves the revision. For a GUEST the copy is a replica mutated by host broadcast and local session state, so it can diverge in content at a still revision; cacheStands was therefore true, loadedCampaign stayed the stale local copy and writeLiveCampaign was skipped, silently undoing the forced guest refresh at src/pages-modules/gameplay/campaigns/campaignPageShell.tsx:144-146 (guestNeedsServerRefresh, #1022).",
+  "fix": {
+    "productionChange": "src/stores/campaign/useCampaignPersistenceStore.ts — cacheStands additionally requires liveCampaign.coopSession?.mode !== 'guest' (9 added / 1 removed lines, of which 6 are the explanatory comment).",
+    "unchangedByDesign": "Host and single-player paths: a source client's copy IS what the server record was written from, so the keyed-cache policy is untouched for them.",
+    "replacementBranchAlreadyCorrect": "preserveGuestCoopSession (:252-266) keeps the guest coopSession across the whole-record replacement, so the co-op surfaces survive the refresh — verified by an assertion in the new test rows, not assumed."
+  },
+  "files": [
+    { "path": "src/stores/campaign/useCampaignPersistenceStore.ts", "added": 9, "removed": 1, "role": "production fix" },
+    { "path": "src/stores/campaign/__tests__/campaignCacheIdentity.test.ts", "added": 65, "removed": 2, "role": "red-first regression rows" },
+    { "path": "openspec/changes/design-campaign-authority-and-sync/specs/campaign-authority/spec.md", "added": 5, "removed": 0, "role": "spec carve-out: one scenario under 'Client storage is a cache, never a source'" },
+    { "path": "openspec/changes/design-campaign-authority-and-sync/tasks.md", "added": 1, "removed": 1, "role": "task 1.3 receipt names the carve-out; no checkbox change" }
+  ],
+  "shortstat": "4 files changed, 80 insertions(+), 4 deletions(-)",
+  "capCompliance": { "fileCap": 15, "filesTouched": 4, "lineCap": 500, "linesChanged": 84, "target": "< 80 lines", "targetMet": false, "note": "84 changed lines vs the <80 target; the overage is the 3 regression rows plus their 6-line rationale comment, all test/comment text. Under the hard 500-line cap." },
+  "redFirst": {
+    "log": ".sisyphus/roadmap-completion-20260912/proof02-b-20260915/red-jest-campaignCacheIdentity.log",
+    "sha256": "96f5d8660f5820d719720ea9f3532fe61a69549d3e82f880666c5569ea160918",
+    "result": "1 failed, 6 passed, 7 total",
+    "failingRow": "replaces a guest replica whose content diverged at the same revision — Expected: \"Wolf's Dragoons\", Received: \"__guest-client-stale__\"",
+    "pinRowsGreenBefore": [
+      "still lets a host copy stand at the same revision (host/solo behaviour unchanged)",
+      "replaces a guest replica the server has moved past (higher server revision — unchanged)"
+    ],
+    "note": "The two pin rows were green BEFORE the fix by construction — that is what makes them pins rather than proof. Only row 1 is the falsifying row."
+  },
+  "green": {
+    "log": ".sisyphus/roadmap-completion-20260912/proof02-b-20260915/green-jest-campaignCacheIdentity.log",
+    "sha256": "efb7e5b06fe00745bf0e59137ba0e741ce936b9e40050aa7de6530391d080909",
+    "result": "7 passed, 7 total"
+  },
+  "gates": [
+    {
+      "gate": "jest focused — src/stores/campaign + src/lib/campaign",
+      "command": "node node_modules/jest/bin/jest.js --maxWorkers=2 --coverage=false src/stores/campaign src/lib/campaign",
+      "result": "219 suites passed / 3209 tests passed / 0 failed (77.5 s)",
+      "log": ".sisyphus/roadmap-completion-20260912/proof02-b-20260915/green-jest-focused.log",
+      "sha256": "18c7fed6819089f514ca1d17638e142ebb897367990145293460019319f0b811"
+    },
+    {
+      "gate": "typecheck",
+      "command": "npx tsc --noEmit",
+      "result": "exit 0, no output",
+      "log": ".sisyphus/roadmap-completion-20260912/proof02-b-20260915/tsc.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "gate": "oxlint (changed files)",
+      "command": "npx oxlint src/stores/campaign/useCampaignPersistenceStore.ts src/stores/campaign/__tests__/campaignCacheIdentity.test.ts",
+      "result": "1 warning / 0 errors",
+      "warningIsPreExisting": "VERIFIED this session: the same file at base (change stashed) also reports exactly 1 warning / 0 errors. It is the max-lines-per-function warning on the store's zustand creator, not introduced here.",
+      "log": ".sisyphus/roadmap-completion-20260912/proof02-b-20260915/oxlint.log",
+      "sha256": "0703be80730eb91c83ba906ed46ef9344dff03dad5bed1c9945afa77fc0775b1"
+    },
+    {
+      "gate": "oxfmt (changed files)",
+      "command": "npx oxfmt src/stores/campaign/useCampaignPersistenceStore.ts src/stores/campaign/__tests__/campaignCacheIdentity.test.ts",
+      "result": "no output, no reformatting (diffstat unchanged after the run)",
+      "log": ".sisyphus/roadmap-completion-20260912/proof02-b-20260915/oxfmt.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "validators": [
+    {
+      "validator": "openspec validate --all --strict",
+      "result": "232 passed, 0 failed (232 items), exit 0",
+      "log": ".sisyphus/roadmap-completion-20260912/proof02-b-20260915/openspec-validate.log",
+      "sha256": "a6f1b01bad6ef535f7ae511fd2b0e725e382bcb462449ef4386723e0ec97eff3"
+    },
+    {
+      "validator": "npm run spec:purpose:validate:strict",
+      "note": "The prompt named 'spec:purpose'; no such script exists in package.json. The strict purpose lint is spec:purpose:validate:strict.",
+      "result": "220 files scanned, 0 errors, 0 tracked source-of-truth debt, exit 0",
+      "log": ".sisyphus/roadmap-completion-20260912/proof02-b-20260915/spec-purpose.log",
+      "sha256": "f027fb6a8fe7102014fa318e894aec6c45f773b072c568da602992b5f34bea0a"
+    },
+    {
+      "validator": "npm run terminology:validate:strict",
+      "result": "no violations; 315 files compliant, exit 0",
+      "log": ".sisyphus/roadmap-completion-20260912/proof02-b-20260915/terminology.log",
+      "sha256": "772257ddaa933520815cd4dab928df8c79f9bccfc1dae8e290c7b8ed1b5a7f35"
+    }
+  ],
+  "specCarveOut": {
+    "requirement": "Client storage is a cache, never a source",
+    "scenarioAdded": "A guest replica never lets an equal-revision cached copy stand over a server refresh",
+    "rationale": "The existing scenario 'Stale cache is refreshed, not trusted' scopes staleness to revision N < head M only, so a guest whose content diverged at EQUAL revision fell through it. The carve-out narrows when a cache may stand rather than weakening the keyed-cache policy for source clients.",
+    "taskNote": "design-campaign-authority-and-sync task 1.3 receipt names the carve-out inline. Checkbox state unchanged ([x] before and after)."
+  },
+  "nonClaims": [
+    "NOT re-run in a browser: a re-run of e2e/gm-campaign-ledger-control-plane.spec.ts (guest direct route) on exact main is OWED and is the integration proof this unit work does not supply. No Playwright was run in this session (explicitly out of scope).",
+    "No claim that the gm-campaign-ledger-control-plane spec now passes end to end — only that the unit-level decision the diagnosis identified as its failing cause now resolves the other way.",
+    "Observation A of the diagnosis (campaign-starmap-logistics aborted equipment fetches) is untouched here.",
+    "Not pushed, no PR, no merge. Branch codex/roadmap-guest-cache-stands-20260915 is local to the camp-receipt-verification worktree.",
+    "The full unit suite was not run — only the focused src/stores/campaign + src/lib/campaign batteries (219 suites). A broader regression outside those trees is not excluded by this evidence.",
+    "The 'environment independence' of the bug (dev vs standalone) is carried forward from the upstream diagnosis as an INFERENCE; it was not independently re-measured here."
+  ],
+  "worktreeRestoration": {
+    "requirement": "restore the worktree to codex/roadmap-camp-live-probe-fix-20260915 at 71a22399f, keeping codex/roadmap-guest-cache-stands-20260915",
+    "status": "performed after this file was written — see the session report"
+  }
+}

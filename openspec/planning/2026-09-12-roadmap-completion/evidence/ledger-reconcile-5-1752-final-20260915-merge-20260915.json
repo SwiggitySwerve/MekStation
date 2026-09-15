@@ -1,0 +1,56 @@
+{
+  "pr": 1752,
+  "branch": "codex/roadmap-ledger-reconcile-5-20260915",
+  "reviewedCommit": "8a3f4bd5b1080ec82cdb6beea16d885c720a0049",
+  "finalHead": "0107aad2bc640540bf950590d5686703dee61ebc",
+  "autoMergeArmed": false,
+  "contentGuard": {
+    "method": "file set from `git diff --name-only origin/main...<head>` vs the PR's own reviewed files, plus per-file blob equality against the reviewed commit; re-run after update-branch",
+    "fileCountAtMerge": 3,
+    "diffstat": "5 insertions(+), 2 deletions(-)",
+    "blobEquality": "all files blob-identical to the reviewed commit at the gated head unless noted",
+    "result": "PASS"
+  },
+  "updateBranch": {
+    "performedByThisSession": true,
+    "expectedHeadShaGuardUsed": true,
+    "newHead": "0107aad2bc640540bf950590d5686703dee61ebc"
+  },
+  "checksAtTerminal": {
+    "Lint and Test": "pass",
+    "Build Test / win": "pass",
+    "Build Test / mac": "pass",
+    "Build Test / linux": "pass",
+    "Customizer Regressions": "pass",
+    "Unit Tests (6/6)": "pass",
+    "otherChecksCount": 27,
+    "otherChecksBuckets": {
+      "pass": 27
+    },
+    "totalChecks": 31,
+    "rerunsPerformed": 0
+  },
+  "premergeReceipt": {
+    "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/ledger-reconcile-5-1752-final-20260915-premerge.json",
+    "ready": true,
+    "failures": []
+  },
+  "mergeCommit": "55abb652a633b30ee578c1131b2c1bddf8cc6b1b",
+  "mergeCommitParents": [
+    "a265a544a2256c7098afdc10a968492c2454cd77"
+  ],
+  "mergeStyle": "squash (single parent)",
+  "mergeCommand": "gh pr merge 1752 --squash --match-head-commit 0107aad2bc640540bf950590d5686703dee61ebc",
+  "mergedAt": "2026-09-15T20:33:32Z",
+  "mergedBy": "this session (step 6 executed)",
+  "mergedContentVerification": "The merge commit changes exactly 3 file(s), all blob-identical to the gated head 0107aad2bc640540bf950590d5686703dee61ebc.",
+  "mainAfter": "55abb652a633b30ee578c1131b2c1bddf8cc6b1b",
+  "worktree": {
+    "fastForward": "NOT PERFORMED - no owned worktree designated for this PR",
+    "result": "N/A"
+  },
+  "notes": "openspec-only; no file conflicted, all three blobs byte-identical to the reviewed head after update-branch.",
+  "timestamps": {
+    "receiptWrittenAt": "2026-09-15T20:35:00Z"
+  }
+}

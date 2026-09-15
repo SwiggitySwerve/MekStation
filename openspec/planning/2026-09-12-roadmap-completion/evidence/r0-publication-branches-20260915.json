@@ -1,0 +1,77 @@
+{
+  "generatedAt": "2026-09-15T22:40:00.000Z",
+  "base": "1f67f814e3f04e8a38488de70ecd8396f9269ca6",
+  "worktree": ".sisyphus/roadmap-completion-20260912/worktrees/publish",
+  "prs": [],
+  "failures": [
+    {
+      "order": 1,
+      "id": "receipts-20260912-01",
+      "branch": "codex/roadmap-r0-publish-receipts-20260912-01-20260915",
+      "headSha": "25888119eb944baf41ff23bab661fb14d9d80ac0",
+      "pushed": false,
+      "prCreated": false,
+      "stage": "post-commit hash verification (step e)",
+      "reason": "husky pre-commit hook ran `npx lint-staged`, which runs `oxfmt --write` on staged *.json files. oxfmt rewrote 6 of the 98 tracked JSON files by normalizing CRLF line endings to LF, changing their committed blob content and sha256 relative to the byte-for-byte root source copy. Per the operating instructions this is a formatter rewrite and the run must stop without pushing.",
+      "mismatchedFiles": [
+        {
+          "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/campaign-contract-inventory-20260912.json",
+          "rootSha256": "98b69a3717da9a3aa6f1e8e9884ef422c96080f3be84ca0489209f0654c2044a",
+          "committedSha256": "a89e775c84c6bc09ae114b05922352ce4b18c02568f3b470ff56df1c1956ee4b",
+          "rootBytes": 14857,
+          "committedBytes": 14542,
+          "deltaBytes": 315,
+          "cause": "CRLF-to-LF normalization by oxfmt (delta bytes == count of CR characters in root file)"
+        },
+        {
+          "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/hydration-safety-cleanup-20260912.json",
+          "rootSha256": "49bbd5f80b76cd2709b5b125464b066d3f89fae84bd1b49aee2eb1960c6ae97a",
+          "committedSha256": "f8957d8ef9237ca5984a7dfb595d5410111b946017c9b65bc76d859b132df47a",
+          "rootBytes": 17037,
+          "committedBytes": 16603,
+          "deltaBytes": 434,
+          "cause": "CRLF-to-LF normalization by oxfmt (delta bytes == count of CR characters in root file)"
+        },
+        {
+          "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/hydration-safety-main-verification-20260912.json",
+          "rootSha256": "495a9ca59be4d6adc1419d86ee12f660d78f23b38802ceb637849944e357a0a0",
+          "committedSha256": "cef9ffc7c222978324a500959219f5598c09eecf7ef2d30ae6a20a3f918a63e1",
+          "rootBytes": 14683,
+          "committedBytes": 14385,
+          "deltaBytes": 298,
+          "cause": "CRLF-to-LF normalization by oxfmt (delta bytes == count of CR characters in root file)"
+        },
+        {
+          "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/manifest-sync-main-verification-20260912.json",
+          "rootSha256": "9d989bd1cb77dd27c67b8513630bf8e1fc04b3411cb43ebd2c46bff8f31ecae6",
+          "committedSha256": "c2a64bd8e26cbd87f483f87f39ce395518dda4467419bfd3111e9716695f6b67",
+          "rootBytes": 21377,
+          "committedBytes": 20900,
+          "deltaBytes": 477,
+          "cause": "CRLF-to-LF normalization by oxfmt (delta bytes == count of CR characters in root file)"
+        },
+        {
+          "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/next-spec-prefix-inventory-20260912.json",
+          "rootSha256": "3a22ba17e36b05bb89819fc5f7628c50aaf43fb09a64112df12f56d6788e015a",
+          "committedSha256": "34f5b53138bb74ea7b54cdeb6d57f30e261817078e55deea5c811a4e4a391e49",
+          "rootBytes": 52883,
+          "committedBytes": 51821,
+          "deltaBytes": 1062,
+          "cause": "CRLF-to-LF normalization by oxfmt (delta bytes == count of CR characters in root file)"
+        },
+        {
+          "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/prerequisite-contracts-cleanup-20260912.json",
+          "rootSha256": "bc586b710c49458e186871067462028f275236cf512e3fc2cf32bf6997a4989f",
+          "committedSha256": "a8420a954e696d2c04c3ee2d4597268df88385fe2555de7dccb0d3d83f6254f5",
+          "rootBytes": 90055,
+          "committedBytes": 88280,
+          "deltaBytes": 1775,
+          "cause": "CRLF-to-LF normalization by oxfmt (delta bytes == count of CR characters in root file)"
+        }
+      ],
+      "otherFilesVerified": "the remaining 92 tracked files in this batch plus the freshly generated manifest matched root byte-for-byte (sha256 verified)",
+      "runStopped": true,
+      "note": "Per operating instructions this halts the entire 18-PR run. The branch codex/roadmap-r0-publish-receipts-20260912-01-20260915 exists locally in the publish worktree with one commit (25888119eb944baf41ff23bab661fb14d9d80ac0) but was NOT pushed and no PR was created. No other branch in the plan was started. The worktree is currently checked out on this failed branch with a clean working tree (commit exists, nothing pending)."
+    }
+  ]
+}

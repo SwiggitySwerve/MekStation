@@ -1,0 +1,63 @@
+{
+  "pr": 1754,
+  "branch": "codex/roadmap-r2-authority-live-2-fixture-20260915",
+  "reviewedCommit": "fff510d9bdf6e1387fcb5dc1b5f731a75ecc80ed",
+  "finalHead": "d55b59a531e86824af547f1ecb3db04bcb50c8b0",
+  "autoMergeArmed": false,
+  "contentGuard": {
+    "method": "file set from `git diff --name-only origin/main...<head>` vs the PR's own reviewed files, plus per-file blob equality against the reviewed commit; re-run after update-branch",
+    "fileCountAtMerge": 1,
+    "files": [
+      "e2e/helpers/campaignJournalPrivacyFixture.ts"
+    ],
+    "diffstat": "246 insertions(+)",
+    "blobEquality": "all files blob-identical to the reviewed commit at the gated head",
+    "srcTouched": false,
+    "result": "PASS"
+  },
+  "updateBranch": {
+    "performedByThisSession": true,
+    "expectedHeadShaGuardUsed": true,
+    "oldHead": "fff510d9bdf6e1387fcb5dc1b5f731a75ecc80ed",
+    "newHead": "d55b59a531e86824af547f1ecb3db04bcb50c8b0",
+    "reason": "branch was BEHIND"
+  },
+  "checksAtTerminal": {
+    "Lint and Test": "pass",
+    "Build Test / win": "pass",
+    "Build Test / mac": "pass",
+    "Build Test / linux": "pass",
+    "Customizer Regressions": "pass",
+    "Unit Tests (6/6)": "pass",
+    "otherChecksCount": 27,
+    "otherChecksBuckets": {
+      "pass": 27
+    },
+    "totalChecks": 31,
+    "rerunsPerformed": 0
+  },
+  "premergeReceipt": {
+    "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/r2-authority-live-2-1754-final-20260915-premerge.json",
+    "ready": true,
+    "failures": []
+  },
+  "mergeCommit": "bb9b87447b9bde2e7909e452a0f86b6c91437499",
+  "mergeCommitParents": [
+    "ef36274384341f7158ac5870bd6b7a2265913567"
+  ],
+  "mergeStyle": "squash (single parent)",
+  "mergeCommand": "gh pr merge 1754 --squash --match-head-commit d55b59a531e86824af547f1ecb3db04bcb50c8b0",
+  "mergedAt": "2026-09-15T20:53:18Z",
+  "mergedBy": "this session (step 6 executed)",
+  "mergedContentVerification": "The merge commit changes exactly 1 file(s), all blob-identical to the gated head d55b59a531e86824af547f1ecb3db04bcb50c8b0.",
+  "mainAfter": "bb9b87447b9bde2e7909e452a0f86b6c91437499",
+  "dirtyEncountered": false,
+  "worktree": {
+    "fastForward": "NOT PERFORMED - no owned worktree designated for this PR",
+    "result": "N/A"
+  },
+  "notes": "Stayed MERGEABLE after 1753 squash; update-branch collapsed the cumulative 3-file diff to its own fixture file. e2e-only.",
+  "timestamps": {
+    "receiptWrittenAt": "2026-09-15T21:02:00Z"
+  }
+}

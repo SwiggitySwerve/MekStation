@@ -1,0 +1,131 @@
+{
+  "task": "Diagnose recurring CI flake: scripts/__tests__/gm-two-player-campaign-qc.test.ts > \"refuses and preserves a ready foreign server on the fixture port\"",
+  "date": "2026-09-15",
+  "ci_failures": [
+    {
+      "pr": 1741,
+      "source": "C:/Users/wroll/AppData/Local/Temp/claude/E--Projects-MekStation/3fac2eeb-fbc9-4c2f-8110-147e00cd50fe/scratchpad/1741-unit6.log",
+      "job": "Unit Tests (6/6)",
+      "shard": "6/6",
+      "assertion_error": "listen EADDRINUSE: address already in use :::43692",
+      "failing_line": "scripts/__tests__/gm-two-player-campaign-qc.test.ts:567:36 (server.once('error', reject).listen(port, resolve))",
+      "port": 43692,
+      "timing": {
+        "shard_start": "2026-09-15T18:01:03.07Z (jest process start / 'Running one project: unit')",
+        "failure_reported": "2026-09-15T18:01:08.9419127Z",
+        "elapsed_before_failure_s": "~5.9s, after only 3 PASS lines from other files had already printed",
+        "shard_total_time_s": 71.063
+      },
+      "note": "Two log occurrences (line 272 inline failure, line 2860 'Summary of all failing tests') are Jest re-printing the SAME single failure, not two separate runs/retries within this job."
+    },
+    {
+      "pr": 1720,
+      "source": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/port-binding-flake-20260915/ci-1720.log",
+      "job": "Unit Tests (6/6)",
+      "run_id": 34982536757,
+      "run_attempt_that_failed": 1,
+      "failed_job_id": 104426779565,
+      "head_sha": "44ceed8cc80ed3a20d4098a233316870c1b5a99f",
+      "shard": "6/6",
+      "assertion_error": "listen EADDRINUSE: address already in use :::43692",
+      "failing_line": "scripts/__tests__/gm-two-player-campaign-qc.test.ts:567:36",
+      "port": 43692,
+      "timing": {
+        "shard_start": "2026-09-15T14:36:12.99Z",
+        "failure_reported": "2026-09-15T14:36:18.8978163Z",
+        "elapsed_before_failure_s": "~5.9s",
+        "shard_total_time_s": 77.561
+      },
+      "outcome": "Merge manager reran the job (attempt 2) and it went green (all jobs success, including Unit Tests (6/6))."
+    }
+  ],
+  "same_assertion_verdict": "SAME. Identical error string, identical port number (43692), identical failing file:line (567:36), identical shard (6/6), near-identical elapsed time before failure (~5.9s from shard start in both). This is the same flake recurring, not two different bugs.",
+  "code_reading": {
+    "failing_test": {
+      "file": "scripts/__tests__/gm-two-player-campaign-qc.test.ts",
+      "lines": "562-575",
+      "behavior": "Derives the 'fixture port' for a fixed literal runId ('task-26-foreign-listener') via core.deriveFixturePort(runId), binds a real net.createServer() on that port itself first (simulating a foreign/already-running process squatting on the port), then spawns the real QC runner (scripts/qc/run-gm-two-player-campaign.mjs) via spawnSync with --group=fixture-smoke and that same run-id, and asserts the runner detects the collision, exits with status 4, and prints 'PORT_IN_USE port=<port>' to stderr. The failure happens at the test's OWN first bind (line 567), before the runner is ever invoked -- meaning something OTHER than this test's own server was already bound to port 43692 when net.createServer().listen(port) ran."
+    },
+    "port_derivation": {
+      "file": "scripts/qc/gm-two-player-campaign-core.cjs",
+      "lines": "33-38",
+      "function": "deriveFixturePort(runId)",
+      "formula": "37000 + (sha256(runId) readUInt32BE(0) % 10000)",
+      "verified_deterministic": "Same runId always yields the same port; both CI failures produced exactly 43692 for runId='task-26-foreign-listener', confirming the function is a pure/deterministic hash, not itself flaky.",
+      "range": "[37000, 46999] -- entirely inside the Linux kernel's default ephemeral/local port range (net.ipv4.ip_local_port_range, default 32768-60999). This is a well-known Linux default; NOT queried live on the actual GitHub-hosted runner for this run (no shell access to that ephemeral VM) -- flagged as EXPECTED / not directly probed on that instance."
+    },
+    "other_deriveFixturePort_consumers": {
+      "search": "grep -rl deriveFixturePort across the repo (via Grep tool; cross-checked with bash grep -rl createServer across src/ and scripts/)",
+      "hits": [
+        "scripts/qc/gm-two-player-campaign-core.cjs (definition, line 33)",
+        "scripts/__tests__/gm-two-player-campaign-qc.test.ts (this file; also uses it at lines 61, 63, 183, 186 for OTHER runIds -- 'task-26-membership-smoke', 'task-21-authority-recovery' -- only to build expected environment-variable strings for plan assertions, never to bind a real socket)",
+        "e2e/gm-two-player-cleanup-ownership.spec.ts (lines ~38, 189; spawns a real owned child process bound to a deriveFixturePort-derived port for its OWN runId, but this file lives under e2e/ and is excluded from the 'unit' Jest project -- see jest.config.js:41-48 -- so it never runs inside the 'Unit Tests (N/6)' CI job/VM that produced these failures)"
+      ],
+      "conclusion": "No other unit-project test file derives or binds port 43692 specifically, and no test in THIS file leaks a real listener on it -- ruled out as the direct cause (see next section)."
+    },
+    "ruled_out_same_process_leak": {
+      "method": "Read every test in the file that runs BEFORE the flaky one (lines 29-548) to check whether any of them cause the real runner to actually bind a network server before this test executes in the same synchronous spawnSync-driven process.",
+      "finding": "'types unknown and future groups before browser startup' (line 470) only exercises groups NOT YET implemented (UNKNOWN_GROUP / NOT_IMPLEMENTED exits) or invalid run-ids (INVALID_RUN_ID exits) -- these are refused before any server starts. 'relays a non-zero Playwright status...' (line 527) explicitly targets a Playwright project-filter failure that, per its own comment, 'boots nothing' -- 'refused during project filtering, before the web server starts'. No test before the flaky one ever opens a real listening socket. spawnSync is synchronous, so even if one had, the child process would have fully exited (or the call would still be blocking) before the next test's code runs.",
+      "conclusion": "The port-43692 collision is not caused by a leftover listener from an earlier test in this same file/process."
+    },
+    "jest_parallelism": {
+      "workflow": ".github/workflows/pr-checks.yml:133-154",
+      "finding": "unit-test-shards job runs `npx jest --selectProjects unit --ci --shard=${{ matrix.shard }}/6` with no --maxWorkers override, on runs-on: ubuntu-latest. Jest's --ci default worker heuristic spawns multiple worker PROCESSES (one per available core minus one, GitHub-hosted 'ubuntu-latest' standard runners currently provision 4 vCPUs) that execute DIFFERENT test files from the shard truly concurrently on the same VM.",
+      "relevance": "This is the concurrency surface that is absent when the file is run in isolation locally with --maxWorkers=1 (see local_runs below): on the real CI job, dozens of other unit test files' processes, npm/git/cache network I/O, and Node's own runtime are all competing for the OS's local/ephemeral port allocator on the SAME machine at the moment this test tries to claim its fixed port."
+    }
+  },
+  "hypothesis": {
+    "statement": "deriveFixturePort() picks a fixed 'reserved' port per runId, but the chosen range (37000-46999) sits entirely inside the Linux kernel's default ephemeral port range (32768-60999) used to auto-assign LOCAL/source ports for outbound connections and other ephemeral sockets. Under real CI load (multiple concurrent Jest worker processes plus npm/git/actions network I/O on one shared ubuntu-latest VM), the kernel can transiently grab port 43692 as an ephemeral source port for some unrelated socket at the exact instant this test calls server.listen(43692), producing EADDRINUSE. Because the collision depends on unpredictable OS-level port allocation timing rather than any bug in the test/runner logic, it reproduces only under concurrent system load and not in isolated/serial local runs.",
+    "supporting_evidence": [
+      "Same exact port (43692) failed identically on two independent PRs/commits/CI runs -> the port itself is deterministic, ruling out a bug where the test computes a wrong/colliding port at random.",
+      "No other repo file binds or derives this specific port (grep-verified) and no earlier test in the same file/process leaks a real listener (code-read verified) -> rules out an in-repo, in-process cause.",
+      "5/5 local re-runs of the isolated file with --maxWorkers=1 all passed (see local_runs) -> the failure needs concurrent system load that a solo local run does not create.",
+      "The chosen port range (37000-46999) is a subset of the standard Linux ephemeral range (32768-60999) -- textbook setup for this exact flake class."
+    ],
+    "confidence": "Moderate-high. The elimination of in-repo causes (port math, sibling test leaks, cross-file/cross-job collisions) is verified by direct code reading and grep. The specific claim that the OS ephemeral allocator is the proximate culprit (vs. some other transient process on the GitHub-hosted runner grabbing the port) is an INFERENCE -- it was not directly observed on the failing runner (no live access to that ephemeral VM to netstat at the failure instant)."
+  },
+  "local_runs": {
+    "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/archive-original-main-proof (detached at main, untouched)",
+    "command": "npx jest scripts/__tests__/gm-two-player-campaign-qc.test.ts --selectProjects unit --maxWorkers=1 --ci",
+    "repetitions": 5,
+    "results": [
+      { "run": 1, "result": "PASS", "time_s": 7.665, "flaky_test_time_ms": 66 },
+      { "run": 2, "result": "PASS", "time_s": 3.406, "flaky_test_time_ms": 64 },
+      { "run": 3, "result": "PASS", "time_s": 3.552, "flaky_test_time_ms": 188 },
+      { "run": 4, "result": "PASS", "time_s": 2.753, "flaky_test_time_ms": 69 },
+      { "run": 5, "result": "PASS", "time_s": 2.725, "flaky_test_time_ms": 69 }
+    ],
+    "summary": "5/5 passed. No local reproduction under isolated, single-worker conditions -- consistent with the hypothesis that this flake requires concurrent OS-level port pressure only present on the busy multi-worker CI VM."
+  },
+  "ranked_fix_candidates": [
+    {
+      "rank": 1,
+      "title": "Move deriveFixturePort's output range out of the OS ephemeral port range",
+      "file_line": "scripts/qc/gm-two-player-campaign-core.cjs:36",
+      "change": "Replace `return 37000 + (bytes.readUInt32BE(0) % 10000);` with a base clear of the default Linux/Windows/macOS ephemeral ranges, e.g. `return 20000 + (bytes.readUInt32BE(0) % 10000);` (20000-29999), or any fixed band below 32768.",
+      "why_this_is_the_correct_fix": "Addresses the root cause identified above -- a deliberately-fixed 'reserved' port picked from a range the OS itself uses for transient/ephemeral allocation. This is not a workaround for the unit test; it also protects the REAL fixture-smoke E2E runs (outside this one test) from the same class of collision in production CI usage of deriveFixturePort.",
+      "red_first_mutation_pin": "Add a unit assertion (in scripts/__tests__/gm-two-player-campaign-qc.test.ts, alongside the existing catalog test) that `core.deriveFixturePort(runId) < 32768` (and, if the code enforces a floor, `>= <chosen floor>`) for every runId literal already used in this file plus a handful of extra synthetic runIds. Write this test FIRST against the CURRENT code (37000 base) to watch it fail, confirming it actually exercises the range, then apply the range fix and watch it pass. This pins the port-selection contract so a future regression back into the ephemeral range fails immediately instead of flaking in CI weeks later.",
+      "acceptable": true
+    },
+    {
+      "rank": 2,
+      "title": "Explicit env-var port override instead of re-deriving in two places",
+      "file_line": "scripts/qc/gm-two-player-campaign-core.cjs:33-38 and scripts/__tests__/gm-two-player-campaign-qc.test.ts:564",
+      "change": "Have the test allocate its own guaranteed-free port via net.createServer().listen(0) to get an OS-assigned free port, then pass that port to the runner explicitly (e.g. via a --port/env override) instead of relying on both the test and the runner independently re-deriving the SAME fixed port from the runId.",
+      "why_secondary": "Larger change -- requires adding a port-override contract to run-gm-two-player-campaign.mjs's CLI/env surface that does not exist today, and does not fix the same collision risk for real (non-test) fixture-smoke runs, which still rely purely on deriveFixturePort's range. Rank 1 fixes the shared root cause with a 1-line change; this only fixes the test.",
+      "acceptable": true
+    },
+    {
+      "rank": "not acceptable",
+      "title": "Widen the test's implicit timeout, add jest.retryTimes(), or wrap the test in a retry loop",
+      "why_rejected": "Explicitly excluded by the task brief and correctly so: none of these touch the actual confirmed root cause (a fixed port chosen inside the OS's ephemeral allocation range). They would only lower the observed flake frequency in CI while leaving the identical collision risk live for any real (non-test) caller of deriveFixturePort, and would mask a genuine, fixable port-selection bug behind noise-suppression.",
+      "acceptable": false
+    }
+  ],
+  "non_claims": [
+    "Did not netstat/lsof the actual failing GitHub-hosted runner VM at the moment of failure -- no access to that ephemeral VM. The 'OS ephemeral port allocator' culprit is the best-supported inference after ruling out every in-repo cause, not a directly observed fact.",
+    "Did not confirm the exact vCPU count / Jest worker count GitHub's current 'ubuntu-latest' standard runner provisions at the time of these two runs; cited from general knowledge of GitHub-hosted runner specs, not queried live via the GitHub API for this run.",
+    "Did not attempt to force-reproduce the flake locally under artificial concurrent port pressure (e.g. spawning many competing sockets) -- the 5 local runs were plain isolated repro attempts per the task's local-repetition cap, and none reproduced the failure.",
+    "Did not implement or land either ranked fix -- diagnosis only, per the bounded scope of this task (no repo edits)."
+  ]
+}

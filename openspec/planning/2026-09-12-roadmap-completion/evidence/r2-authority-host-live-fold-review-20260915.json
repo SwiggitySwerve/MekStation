@@ -1,0 +1,352 @@
+{
+  "node": "R2.authority-host",
+  "artefact": "r2-authority-host-live-fold-review-20260915",
+  "role": "independent review; read-only on the repo (mutants applied and restored), writes only this evidence JSON",
+  "reviewedAtUtc": "2026-09-15T00:00:00.000Z",
+  "verdict": "APPROVE-WITH-REQUIRED-EDITS",
+  "verdictSummary": "The code is correct, the D9 'one fold' claim is empirically proven (a single mutation in the shared fold module kills BOTH the host suite and the guest mirror-store suite), all three of the receipt's brief-corrections are true as written, red-first is verifiable from a hash-matched log, every gate reproduces green, and the merge against a 4-commit-advanced origin/main is clean with zero file overlap. Two REQUIRED EDITS are comment/disclosure only, no behavior change: (1) an undisclosed residual I proved with a probe -- an in-mount reconnect (the effect's own dep array re-running, e.g. on invite rotation) leaves the ref-held fold at a cursor that REJECTS the server's sequence:-1 hydration baseline, so commits landing in that socket gap are silently dropped from the host view; the ref comment implies the ref design avoids exactly this, and it only avoids it across remounts; (2) H2's stated D9 justification is not supported by the routing -- no arm reachable from the host effect reads envelope.lastSeq.",
+
+  "baseline": {
+    "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/archive-edit-recovery-20260915",
+    "branch": "codex/roadmap-r2-authority-host-live-fold-20260915",
+    "headVerified": "769c6a145f96d5d80237e4f6fc8f0eb7d3b937a2",
+    "h0Verified": "467719ce0d1b7c8da37101a04ca06b646a00167f",
+    "mergeBaseWithOriginMain": "f685a5391f6e69b73932cdef5323dd2d247e55a6",
+    "worktreeCleanAtStart": true,
+    "worktreeCleanAtEnd": true,
+    "primaryCheckoutContaminationCheck": "git status --short on src/lib/campaign/coop, src/components/campaign/coop, src/lib/p2p in E:/Projects/MekStation returned EMPTY -- no mutant leaked into the primary checkout",
+    "command": "git log --oneline -5; git status --short; git rev-parse HEAD"
+  },
+
+  "axis1_d9Conformance": {
+    "verdict": "PASS -- proven empirically, not merely by reading",
+    "exactlyOneFold": {
+      "module": "src/lib/campaign/coop/campaignAuthoritativeFold.ts",
+      "theOnlyBroadcastStreamFold": "campaignAuthoritativeFold.ts:108 is the only applyCampaignEvent call site that folds the live broadcast frame stream for a VIEWER. Verified by `grep -rn 'applyCampaignEvent(' src --include=*.ts --include=*.tsx | grep -v __tests__`: the other 11 sites are server-side or different-phase concerns -- campaignHostBatchCommit.ts:124/152/209 (source-side atomic commit), campaignViewerProjection.ts:199 and foldCampaignGrantDelivery.ts:47/82/87 and roomCodeGuestHydration.ts:81 (server-side grant projection / join hydration), campaignEventLog.ts:111, CampaignMatchHostOutcomeInbox.ts:129, campaignActivityProjection.ts:221 (activity feed). None is a second viewer fold.",
+      "guestStoreDelegation": "src/lib/p2p/campaignMirrorStore.ts:236-253 (applySnapshot) and :258-269 (applyEvent) now call foldCampaignSnapshot / foldCampaignEvent; the inline reducer bodies are deleted in the diff.",
+      "hostCallSite": "src/components/campaign/coop/CampaignCoopRouteSurfaceConnected.tsx:195 `const folded = foldCampaignFrame(hostFold.current, auditable);` inside the existing `if (auditable)` block, reached from the host effect's onFrame at :160.",
+      "noHostOnlyPipeline": "CONFIRMED. The host branch introduces no reducer, no store, and no projection of its own; it holds ICampaignAuthoritativeFold in a component ref (:91) and calls the two shared functions."
+    },
+    "sharedGuardThenProject": {
+      "helper": "src/lib/campaign/coop/campaignMirrorProjection.ts:49-56 projectAuthoritativeStateOntoCampaign",
+      "hostBranch": "CampaignCoopRouteSurfaceConnected.tsx:153 (inside projectHostFoldToCampaign, :152-158)",
+      "guestBranch": "CampaignCoopRouteSurfaceConnected.tsx:244 (inside projectMirrorToCampaign)",
+      "bothRolesShareIt": true,
+      "thirdConsumerNoted": "src/stores/campaign/useCampaignStore.actions.ts:144 calls the underlying applyAuthoritativeStateToGuestCampaign directly, WITHOUT the guard. Read at :130-151: this is the guest JOIN/hydration action constructing the campaign object from a join snapshot, not a live-stream fold, so the 'is this the campaign I am bound to' guard is meaningless there. Pre-existing, not introduced by this slice, and it does not weaken the 'both LIVE surfaces share the guard-then-project step' claim."
+    },
+    "empiricalProofOfOneFold": "Mutant M4 (see mutant table) disabled snapshot adoption inside campaignAuthoritativeFold.ts ONLY. It killed 2 rows of the new host suite AND 1 row of src/lib/p2p/__tests__/campaignMirrorStore.test.ts ('applySnapshot seeds the mirror from a baseline'). A single edit in one module breaking both roles is direct evidence there is one fold and both roles run through it -- this is the strongest available proof of the D9 'same mechanism, no special path' claim, and it is stronger than the receipt's own narrative argument.",
+    "hostOnlyUiPreserved": {
+      "verdict": "PASS -- preserved verbatim; the fold is purely additive",
+      "evidence": "Diffed src/components/campaign/coop/CampaignCoopRouteSurfaceConnected.tsx at 769c6a145 and read the final effect at :131-222. Retained unchanged: the Error-frame refusal capture setLastRefusalCode/setLastRefusalAction (:167-170), the optimistic refusal clear on CampaignEvent (:176-179), the host-only audit accumulation setAuditEvents (:185), the CampaignProposal pending upsert (:199-215), and the CampaignDecision pending removal (:216-221). The ONLY additions inside onFrame are lines :186-198 (the fold + projection), placed inside the pre-existing `if (auditable)` block.",
+      "mirrorStorePausedSemantics": "applySnapshot still returns `paused: false` on an accepted snapshot (campaignMirrorStore.ts:250) -- the zustand-facing behavior the receipt claims is preserved, confirmed in the diff."
+    }
+  },
+
+  "axis2_correctionsAssessment": [
+    {
+      "id": "F1",
+      "claim": "bindCampaignSyncConnection routes a verified host to joinMember with a full baseline and never reads envelope.lastSeq; the lastSeq resync arm is guest-only",
+      "assessment": "TRUE, and my own reading finds it is even more strongly true than the receipt states",
+      "evidence": [
+        "src/lib/multiplayer/server/bindCampaignSyncConnection.ts:947-948 -- `const role: 'host' | 'guest' = verifiedPlayerId === entry.hostPlayerId ? 'host' : 'guest';`",
+        "bindCampaignSyncConnection.ts:957 `if (role === 'host') {` ... :1001 `const gmJoin = await entry.syncSession.joinMember(...)` called UNCONDITIONALLY, then :1017 acknowledge() and :1018 `return;`. envelope.lastSeq is never referenced anywhere in that arm.",
+        "`grep -n lastSeq src/lib/multiplayer/server/bindCampaignSyncConnection.ts` returns exactly three hits -- :1074 (comment), :1082 (`if (envelope.lastSeq !== undefined) {`), :1109 (passed to resyncGuest). All three are AFTER the host arm's :1018 return.",
+        "src/lib/multiplayer/server/CampaignSyncSession.ts:448 and :538 -- joinMember builds buildBaselineEvent; :779 stamps that baseline `sequence: -1`."
+      ],
+      "reviewerAddition": "The receipt rests H2's remaining justification on 'a GM connecting from another device ... is routed down the same cursor-resumable replica path a guest takes'. I could not substantiate that, and it is the basis of required edit RE-2. Between the host arm and the lastSeq arm sit two more arms that also ignore the cursor: the membership-active rejoin at :1022-1040 (another unconditional joinMember) and the grant/replica route handleRoomCodeGuestJoin at :1099. `grep -n lastSeq src/lib/multiplayer/server/handleRoomCodeGuestJoin.ts` returns NOTHING -- the grant/replica route never reads the cursor. The :1082 arm's own comment at :1091-1093 says it 'is only reached when the grant/replica route fell back (for example explicit unavailable adapters)'. So no arm reachable from this component's HOST effect consumes lastSeq."
+    },
+    {
+      "id": "F2",
+      "claim": "the projection previously rebuilt factionStandings from a Record<string, number> and lost accoladeLevel/censureLevel/history/lastChangeDate; it now merges",
+      "assessment": "TRUE",
+      "evidence": [
+        "src/types/campaign/factionStanding/IFactionStanding.ts:62-71 -- IFactionStanding carries factionId, regard, level, accoladeLevel, censureLevel, lastChangeDate?, history. The ledger side is Readonly<Record<string, number>> (regard only).",
+        "The diff of src/lib/campaign/coop/campaignMirrorProjection.ts shows the old body opening `const result: Record<string, IFactionStanding> = {};` and unconditionally writing accoladeLevel: 0, censureLevel: 0, history: [] for every faction -- i.e. a rebuild that erased them.",
+        "The new body (campaignMirrorProjection.ts:80-101) seeds `{ ...current }`, and per faction does `existing ? { ...existing, regard, level: getStandingLevel(regard) } : {<fresh seed>}`."
+      ],
+      "reviewerAddition": "Correctly classified as information loss prevented inline rather than filed, per the pending-task file-decision rubric. Mutant M3 proves the merge is load-bearing and uniquely pinned. Note the merge is a widening of guest behavior too (a guest record that ever held this metadata would now keep it); the receipt's 'guest behavior is unchanged in practice' is the right hedge and the 78-suite scoped run finds no guest regression."
+    },
+    {
+      "id": "F3",
+      "claim": "the baseline is stamped sequence: -1 and the adopt rule pins the cursor to 0, so a module-scoped cursor would reject hydration -- hence the component ref",
+      "assessment": "TRUE as to the mechanism, INCOMPLETE as to the mitigation -- this is required edit RE-1",
+      "evidence": [
+        "src/lib/multiplayer/server/CampaignSyncSession.ts:779 -- the baseline event is stamped `sequence: -1`.",
+        "src/lib/campaign/coop/campaignAuthoritativeFold.ts:118-121 (foldCampaignFrame) -- `event.sequence < 0 ? 0 : undefined` is passed as resumeSequence, pinning a baseline to cursor 0.",
+        "campaignAuthoritativeFold.ts:74-76 -- `if (fold.state !== null && adopted < fold.lastSequence) { return null; }`. With a held cursor above 0 the baseline is therefore rejected, exactly as the receipt says.",
+        "src/lib/p2p/campaignMirrorStore.ts is a zustand module singleton created via `create<CampaignMirrorStore>()` with no factory -- the receipt's stated reason for not reusing it is accurate."
+      ],
+      "reviewerAddition": "The ref DOES solve the remount case (a fresh mount starts at EMPTY_CAMPAIGN_AUTHORITATIVE_FOLD, lastSequence -1, and adopts the baseline). It does NOT solve the in-mount case, because the host effect's dep array [campaignId, coopMode, matchId, roomCode, store] re-runs the connect on a live surface while the ref survives. I proved this with a probe -- see finding F-R1."
+    }
+  ],
+
+  "axis3_redFirst": {
+    "verdict": "PASS",
+    "h0CommitVerified": "git show 467719ce0 --stat -> 1 file changed, 455 insertions(+), 0 deletions; the sole file is src/components/campaign/coop/__tests__/CampaignCoopRouteSurfaceConnected.hostProjection.test.tsx (test-only, matches the receipt exactly)",
+    "redLogHashVerified": true,
+    "redLogPath": ".sisyphus/roadmap-completion-20260912/r2-authority-host-20260915/h0-red-20260915.log",
+    "redLogSha256Recomputed": "12d09abb51fe8a98e45b7066eecd17307b0299eb3d1b7b9def5709201dd68b2b",
+    "redLogSha256InReceipt": "12d09abb51fe8a98e45b7066eecd17307b0299eb3d1b7b9def5709201dd68b2b",
+    "allTenReceiptHashesRecomputedAndMatched": "YES -- sha256sum over every .log in .sisyphus/roadmap-completion-20260912/r2-authority-host-20260915/ reproduces all 10 digests the receipt lists (h0-red, h1-h2-green-newsuite, h1-h2-green-scoped, h1-h2-green-consumers, tsc, oxlint, oxfmt, openspec-validate, commit-h0, commit-h1-h2). No evidence file has been edited since capture.",
+    "redRowsReadFromTheLog": "Tests: 6 failed, 1 passed, 7 total. Every failure is a value assertion on the stale value, none is a thrown error: 950000 vs received 1000000; '3025-01-04T00:00:00.000Z' vs '3025-01-01T00:00:00.000Z'; 600000 vs 1000000; 820000 vs 1000000; 30 vs 12; -1 vs undefined. This matches the receipt's rows verbatim and satisfies 'failed for the right reason'.",
+    "greenReproducedIndependently": "npx jest --maxWorkers=2 on the new suite at HEAD: 7 passed, 7 total, exit 0 (my own run, not the preparer's log)",
+    "noRedReproductionAttempted": "Correct per the charter -- the H0 test file imports the fold module and cannot be relocated; the hash-verified log plus the M1 mutant (which re-creates the pre-fix host behavior in place and re-fails 5 of the 6 rows) together substitute for a re-run."
+  },
+
+  "axis4_mutants": {
+    "method": "Each mutant applied in the worktree with sed/python, the new suite run with --maxWorkers=2, then `git checkout -- <file>` and `git status --short` confirmed empty before the next mutant. Final worktree status: clean at 769c6a145.",
+    "table": [
+      {
+        "id": "M1",
+        "target": "src/components/campaign/coop/CampaignCoopRouteSurfaceConnected.tsx",
+        "mutation": "host branch skips the shared projection -- `projectHostFoldToCampaign();` replaced with a comment",
+        "result": "KILLED -- 5 failed, 2 passed",
+        "rowsFailed": [
+          "advances the host campaign store when its own approved proposal commits",
+          "advances the host campaign date when its own day advance commits",
+          "backfills the host view from the baseline a reconnect hydrates with",
+          "projects the same store state for the host and the guest from identical frames",
+          "keeps standing metadata the ledger cannot carry when it folds"
+        ],
+        "rowsSurvived": [
+          "quotes the cursor it holds when the host surface reconnects",
+          "leaves a single-player campaign alone"
+        ],
+        "interpretation": "This mutant reconstructs the pre-H1 host behavior in place and reproduces the red state, which is the in-session substitute for re-running H0's red."
+      },
+      {
+        "id": "M2",
+        "target": "src/components/campaign/coop/CampaignCoopRouteSurfaceConnected.tsx",
+        "mutation": "cursor not threaded -- the `lastSeq: hostFold.current.lastSequence,` line deleted from the connect options",
+        "result": "KILLED -- 1 failed, 6 passed",
+        "rowsFailed": ["quotes the cursor it holds when the host surface reconnects"],
+        "interpretation": "H2 is pinned by exactly one row and that row is specific to H2 -- clean separation, no overlap with the H1 rows."
+      },
+      {
+        "id": "M3",
+        "target": "src/lib/campaign/coop/campaignMirrorProjection.ts",
+        "mutation": "factionStandings merge reverted to rebuild -- seed `{}` instead of `{ ...current }` and force the per-faction `existing` lookup to undefined",
+        "result": "KILLED -- 1 failed, 6 passed",
+        "rowsFailed": ["keeps standing metadata the ledger cannot carry when it folds"],
+        "interpretation": "Correction F2 is load-bearing and uniquely pinned."
+      },
+      {
+        "id": "M4",
+        "target": "src/lib/campaign/coop/campaignAuthoritativeFold.ts",
+        "mutation": "shared snapshot adoption disabled -- an early `return null` added to foldCampaignSnapshot (reviewer-designed, aimed at the D9 'one fold' claim rather than at a slice behavior)",
+        "result": "KILLED ON BOTH ROLES -- host suite 2 failed / 5 passed; guest suite src/lib/p2p/__tests__/campaignMirrorStore.test.ts 1 failed / 10 passed ('applySnapshot seeds the mirror from a baseline')",
+        "rowsFailed": [
+          "host: backfills the host view from the baseline a reconnect hydrates with",
+          "host: keeps standing metadata the ledger cannot carry when it folds",
+          "guest: applySnapshot seeds the mirror from a baseline"
+        ],
+        "interpretation": "THE KEY RESULT. One mutation in one module breaks both the host surface and the guest mirror store, which is direct empirical proof of D9 'same mechanism, no special path'. Note the host/guest PARITY row survived M4 -- expected and worth stating, since a parity assertion detects divergence, not symmetric breakage; the parity row alone would not have caught a fold regression."
+      },
+      {
+        "id": "PROBE-1",
+        "target": "the test file (reviewer-added row, then reverted)",
+        "mutation": "NOT a mutant -- a probe asserting that an in-mount reconnect (invite rotation re-running the effect without unmounting) adopts the server's hydration baseline",
+        "result": "FAILED -- Expected 123456, Received 700000",
+        "interpretation": "CONFIRMS finding F-R1 below. The residual is real and currently undisclosed."
+      },
+      {
+        "id": "PROBE-2",
+        "target": "the test file (reviewer-added row, then reverted)",
+        "mutation": "NOT a mutant -- a probe asserting that switching to a different host co-op campaign in-mount does not carry the previous campaign's fold into the new campaign's projection",
+        "result": "PASSED -- hypothesis REFUTED",
+        "interpretation": "I suspected cross-campaign contamination, because projectAuthoritativeStateOntoCampaign guards `current.id !== campaignId` but never checks that the FOLD's state belongs to campaignId, and the ref is not reset on a campaignId change. The probe refutes it in practice: applyCampaignEvent's payloads are absolute-valued (FundsChanged carries `balance`, CampaignDayAdvanced carries `newDay`), so the first frame for the new campaign overwrites rather than accumulates. Recorded as refuted rather than dropped, because the guard gap is latent: a future delta-valued event type would make it real."
+      }
+    ]
+  },
+
+  "axis5_gates": {
+    "allRunByTheReviewerOnHEAD_769c6a145": true,
+    "table": [
+      {
+        "gate": "new suite",
+        "command": "npx jest --maxWorkers=2 src/components/campaign/coop/__tests__/CampaignCoopRouteSurfaceConnected.hostProjection.test.tsx",
+        "exit": 0,
+        "result": "7 passed, 7 total (1 suite)"
+      },
+      {
+        "gate": "scoped suites",
+        "command": "npx jest --maxWorkers=2 src/lib/campaign/coop src/components/campaign/coop src/stores/campaign src/lib/p2p src/lib/campaign/sync",
+        "exit": 0,
+        "result": "78 suites passed, 812 tests passed, 0 failed",
+        "note": "The receipt's own scoped run was wider (86 suites / 861 tests -- it also included the coop integration specs, CampaignSync, handleRoomCodeGuestJoin and the campaign dashboard). Mine is the charter-named minimum plus src/lib/p2p and src/lib/campaign/sync. Both green; the difference in counts is scope, not disagreement."
+      },
+      {
+        "gate": "typecheck",
+        "command": "npx tsc --noEmit -p tsconfig.json",
+        "exit": 0,
+        "result": "no diagnostics"
+      },
+      {
+        "gate": "format",
+        "command": "npx oxfmt --check <the 6 changed files>",
+        "exit": 0,
+        "result": "all matched files use the correct format (6 files)"
+      },
+      {
+        "gate": "lint (changed files)",
+        "command": "npx oxlint <the 6 changed files>",
+        "exit": 0,
+        "result": "0 warnings, 0 errors (5 files linted; the .test.tsx is excluded by config)"
+      },
+      {
+        "gate": "lint (folder budget)",
+        "command": "npx oxlint src/components/campaign/coop src/lib/campaign/coop src/lib/p2p",
+        "exit": 0,
+        "result": "0 warnings, 0 errors across 52 files",
+        "note": "Confirms the receipt's stated reason for the pendingProposalFromWire extraction: the connected surface is 417 lines total, and the folder is at 0 warnings against the 400-code-line modularity budget."
+      },
+      {
+        "gate": "openspec",
+        "command": "npx openspec validate --all --strict",
+        "exit": 0,
+        "result": "232 passed, 0 failed -- identical to the receipt and to the base"
+      }
+    ]
+  },
+
+  "axis6_scopeHygiene": {
+    "verdict": "PASS on every item",
+    "pureMove": {
+      "claim": "pendingProposalFromWire.ts is a pure move",
+      "verified": "MECHANICALLY IDENTICAL. Extracted the deleted region from `git show 769c6a145^:...CampaignCoopRouteSurfaceConnected.tsx` starting at `function pendingProposalFromWire`, extracted the new module from its `export function pendingProposalFromWire` with the `export ` prefix normalized, and diffed: byte-identical, exit 0. All five helpers (isPendingProposal, isGuestProposal, readCampaignBalance, readRelevantStanding, describeProposalEffect) moved unchanged; only a module docstring and three type imports were added."
+    },
+    "noSpecOrCheckboxEdits": "CONFIRMED -- `git diff --name-only f685a5391 HEAD | grep -E 'openspec/|\\.md$'` returns NOTHING. No spec, no tasks.md, no checkbox, no .md of any kind.",
+    "flagNotRead": "CONFIRMED -- `git diff f685a5391 HEAD | grep CAMPAIGN_JOURNAL_AUTHORITY_ENABLED` returns nothing.",
+    "caps": {
+      "maxFiles": 15,
+      "filesTouchedTotal": 6,
+      "h0Insertions": 455,
+      "h1h2Insertions": 373,
+      "h1h2Deletions": 158,
+      "capPerSliceIs500": true,
+      "bothSlicesUnderCap": true,
+      "verdict": "PASS -- and the split rationale in the receipt is honest: 828 total insertions could not have been one slice under a 500-line cap."
+    },
+    "noAiAttribution": "CONFIRMED -- `git log f685a5391..HEAD --format=%B | grep -iE 'claude|co-authored|generated with|anthropic'` returns nothing in either commit message.",
+    "commitAuthor": "Wes Rollings <wrollings@gmail.com> on both commits, matching the machine-local identity block."
+  },
+
+  "axis7_mergeTree": {
+    "originMainFetchedAt": "8c8f8221c4c1882f671d8fad7c2386ef9d10ca44",
+    "originMainAdvancedBy": [
+      "15ca7b25b (#1721)",
+      "fbb3f2c81 (#1722)",
+      "231c7848a (#1724)",
+      "8c8f8221c (#1726)"
+    ],
+    "mergeBase": "f685a5391f6e69b73932cdef5323dd2d247e55a6",
+    "command": "git merge-tree --write-tree origin/main HEAD",
+    "exit": 0,
+    "conflicts": [],
+    "resultTree": "818adb93a20f44349804e6cb8e94f9e9e4e9b13a",
+    "fileOverlap": "ZERO. `comm -12` between the two change sets is empty. Main's 8 changed files are campaignSourceReplayFence.test.ts, campaignAcceptContractCommand.ts, customCombatRecovery.recoveryDelivery.test.ts, CampaignPersistenceService.ts, campaignSourceMaterialization.ts, campaignCommandAckRefresh.test.ts, useCampaignPersistenceStore.ts, SerializedCampaign.ts -- none is one of this branch's 6.",
+    "semanticInteractionChecked": {
+      "concern": "#1724 adds refreshAfterCommittedCommand, which routes through runLoad -> writeLiveCampaign -> switchCampaign, i.e. a WHOLE-RECORD replacement of useCampaignStore.campaign. That is a second writer to the exact object the host fold now projects onto, so a stale refetch landing after a fold could clobber the fresh view -- the very defect this slice fixes.",
+      "measured": "NOT REACHABLE TODAY. `git grep -n refreshAfterCommittedCommand origin/main -- src` (excluding its own definition file) returns exactly ONE hit: src/stores/campaign/__tests__/campaignCommandAckRefresh.test.ts:284. The bridge has no production call site on origin/main -- it is dormant, exercised only by its own suite.",
+      "verdict": "No interaction today. Flagged for the cutover owner: when task 5.7 routes host commands through /commands and this bridge is wired, the ack-refresh and the host fold become two writers to useCampaignStore.campaign and their ordering needs a deliberate decision. Not this slice's job and not a merge blocker.",
+      "evidenceLines": [
+        "origin/main:src/stores/campaign/useCampaignPersistenceStore.ts:419-422 writeLiveCampaign -> switchCampaign",
+        "origin/main:src/stores/campaign/useCampaignPersistenceStore.ts:1318-1357 refreshAfterCommittedCommandAction"
+      ]
+    }
+  },
+
+  "findings": [
+    {
+      "id": "F-R1",
+      "severity": "MEDIUM (disclosure; no code change required in this slice)",
+      "title": "An in-mount reconnect rejects the server's own hydration baseline, and the ref comment implies it cannot",
+      "file": "src/components/campaign/coop/CampaignCoopRouteSurfaceConnected.tsx:84-91 (the comment) and :131-145 (the effect whose dep array re-runs the connect)",
+      "mechanism": "The host effect's dep array is [campaignId, coopMode, matchId, roomCode, store]. A change to roomCode (invite rotation) or matchId re-runs the effect -- tearing down and reopening the transport -- WITHOUT unmounting the component, so the hostFold ref survives at whatever cursor it reached. The server hydrates every host (re)connection with buildBaselineEvent stamped sequence: -1 (CampaignSyncSession.ts:779), which foldCampaignFrame pins to cursor 0 (campaignAuthoritativeFold.ts:118-121), and foldCampaignSnapshot then rejects it because `adopted (0) < fold.lastSequence` (campaignAuthoritativeFold.ts:74-76). The baseline -- which is precisely what carries the commits that landed during the socket gap -- is dropped, and the live tail resumes on top of a fold that is missing them.",
+      "proof": "PROBE-1: a reviewer-added row mounting a host, folding to cursor 7, re-rendering with a rotated room code, then emitting a baseline at revision 9 carrying balance 123456. Result: Expected 123456, Received 700000 -- the baseline was rejected. Probe reverted; worktree clean.",
+      "whyItMatters": "The ref comment at :84-91 explains the ref choice by describing this exact hazard ('one that came back quoting a cursor past that baseline's own sequence: -1 would REJECT its own hydration frame and backfill nothing') and implies the ref avoids it. The ref avoids it only across REMOUNTS. Within a mount the hazard is live, and H2 is what makes the reconnect quote a cursor at all. In a slice whose entire purpose is curing host-view staleness, a residual path that silently re-introduces staleness must be named.",
+      "notARegression": "Correct -- before this slice the host never updated at all, so this is a narrowing of the defect, not a widening. Probability is low (the gap is the GM's own socket reopen, and the GM is the party committing). This is why the required edit is disclosure, not a code fix: the candidate fixes (resetting the fold on effect re-run, which would defeat H2; or making a sequence:-1 baseline an unconditional replace, which changes shared GUEST semantics) are both out of this slice's scope and would need their own red-first row.",
+      "relationToTheReceipt": "The receipt's nonClaims already disclose the same adopt-at-0 rule as a pre-existing hazard FOR GUESTS ('a guest holding a cursor above 0 would reject a large-gap resync baseline ... is UNCHANGED by this slice'). It does not disclose that the host now has an instance of it. That asymmetry is the gap."
+    },
+    {
+      "id": "F-R2",
+      "severity": "LOW (claim accuracy)",
+      "title": "H2's stated D9 justification is not supported by the server routing",
+      "file": "src/components/campaign/coop/CampaignCoopRouteSurfaceConnected.tsx:138-144 (comment) and the H1+H2 commit message body",
+      "claimAsWritten": "'it matters for the D9 case - a GM connecting from ANOTHER device is not the registered host and is routed down the same cursor-resumable replica path a guest takes.'",
+      "measured": "No arm reachable from this component's HOST effect consumes envelope.lastSeq. (a) If the second device's verified principal matches entry.hostPlayerId it takes the host arm (bindCampaignSyncConnection.ts:947-1018) -- unconditional joinMember, cursor never read. (b) If it does not, the next arm is the membership-active rejoin at :1022-1040 -- also an unconditional joinMember, cursor never read. (c) Next is the grant/replica route handleRoomCodeGuestJoin at :1099 -- `grep -n lastSeq src/lib/multiplayer/server/handleRoomCodeGuestJoin.ts` returns NOTHING. (d) Only then comes the :1082 lastSeq arm, whose own comment at :1091-1093 says it 'is only reached when the grant/replica route fell back (for example explicit unavailable adapters)'. Separately, a GM whose local campaign record says mode 'guest' never reaches this effect at all -- the guest effect handles them, and it threaded lastSeq before this slice.",
+      "alsoTrue": "H2 is inert on the wire even in the arm it could reach, on a cold connect: campaignSyncTransport.ts:215 emits `...(lastSeq >= 0 ? { lastSeq } : {})`, and hostFold starts at lastSequence -1, so a fresh mount sends no cursor at all. H2's only live effect is on an in-mount effect re-run -- the same path as F-R1.",
+      "assessment": "H2 is harmless, is pinned by a discriminating test row (M2), and is defensible as role symmetry and as forward-preparation for the cutover. The code is fine; only the justification overstates. Correct the comment rather than remove the cursor.",
+      "explicitlyNotDisputed": "The receipt's own F1 already concedes 'For a GM who IS the registered host, H2 changes nothing on the wire' and the nonClaims say 'H2 is NOT claimed to fix host reconnect backfill'. The claim discipline is good; it is the one remaining positive justification that does not hold."
+    },
+    {
+      "id": "F-R3",
+      "severity": "INFO (no action)",
+      "title": "The mirror-store refactor adds two spurious zustand notifications",
+      "file": "src/lib/p2p/campaignMirrorStore.ts:236-253",
+      "detail": "Before the refactor, applySnapshot returned EARLY -- before calling set() -- when the frame was not a CampaignSnapshotPublished or failed to parse. Those two guards now live inside foldCampaignSnapshot, so set() is entered and the reducer returns {}. I verified against the repo's zustand (5.0.8) that `set(() => ({}))` DOES notify subscribers: two no-op sets produced 2 listener notifications.",
+      "impact": "None observable. `grep -rn 'useCampaignMirrorStore.subscribe' src` returns no call sites, so the only subscribers are React selector hooks, which compare the selected slice with Object.is and will not re-render. Recorded for completeness because it is a real behavioral delta the receipt does not mention, not because it needs fixing."
+    },
+    {
+      "id": "F-R4",
+      "severity": "INFO (no action)",
+      "title": "The host effect gained a !campaignId guard that is practically unreachable",
+      "file": "src/components/campaign/coop/CampaignCoopRouteSurfaceConnected.tsx:132",
+      "detail": "The guard widened from `coopMode !== 'host' || !matchId || !roomCode` to include `|| !campaignId`. Since campaignId = campaign?.id and coopMode = campaign?.coopSession?.mode, a null campaign already fails the coopMode check, so the new clause can only fire on an empty-string id. It mirrors the guest effect's existing guard (:231) and is needed for the type narrowing the projection call requires. No reachable behavior change; the refusal/audit/pending UI is not lost in any realistic state.",
+      "alsoChecked": "`store` was added to the dep array. useCampaignStore() returns a module-level singleton (src/stores/campaign/useCampaignStore.ts:168-185, `campaignStoreInstance` memoized), so the reference is stable and the added dep causes no reconnect churn."
+    },
+    {
+      "id": "F-R5",
+      "severity": "POSITIVE",
+      "title": "Test quality is high and the suite is genuinely discriminating",
+      "detail": "The suite drives the REAL component and the real frame decoders -- jest.requireActual keeps campaignEventFromMessage, parseCampaignCoopSnapshot and applyCampaignEvent live and fakes only connectStoredCampaignSyncTransport (test file :52-57), with openCoopRuntimeSession/subscribeCoopPendingProposals stubbed (:62-69) so the rows stay on the view side. Every row is pinned by at least one mutant, no row is redundant (M1/M2/M3 each kill a distinct set), and the single-player row is a genuine negative control (asserts connectMock was never called). The parity row's limitation -- it cannot catch symmetric breakage, as M4 showed -- is inherent to parity assertions, not a defect."
+    }
+  ],
+
+  "requiredEdits": [
+    {
+      "id": "RE-1",
+      "rationale": "F-R1 -- name the in-mount residual where the comment currently implies the ref design removes the hazard.",
+      "file": "src/components/campaign/coop/CampaignCoopRouteSurfaceConnected.tsx",
+      "old": "  // The GM's own fold of the stream it publishes. Held here rather than\n  // in a module-scoped store on purpose: the campaign server hydrates\n  // every host connection with a fresh baseline, so a surface that comes\n  // back holding nothing catches up completely, while one that came back\n  // quoting a cursor past that baseline's own `sequence: -1` would\n  // REJECT its own hydration frame and backfill nothing.\n",
+      "new": "  // The GM's own fold of the stream it publishes. Held here rather than\n  // in a module-scoped store on purpose: the campaign server hydrates\n  // every host connection with a fresh baseline, so a surface that comes\n  // back holding nothing catches up completely, while one that came back\n  // quoting a cursor past that baseline's own `sequence: -1` would\n  // REJECT its own hydration frame and backfill nothing.\n  //\n  // RESIDUAL, deliberately not closed here: a MOUNT starts empty and so\n  // always adopts, but the effect below re-runs on a `roomCode` or\n  // `matchId` change WITHOUT unmounting, and that reconnect keeps this\n  // ref. Such a surface quotes a cursor above 0, rejects the baseline it\n  // is hydrated with, and therefore misses anything committed during the\n  // socket gap until the next full mount. Same adopt-at-0 rule the guest\n  // mirror already carries for a large-gap resync; closing it for both\n  // roles needs its own red-first row.\n"
+    },
+    {
+      "id": "RE-2",
+      "rationale": "F-R2 -- the cited D9 routing does not exist; state what H2 actually buys.",
+      "file": "src/components/campaign/coop/CampaignCoopRouteSurfaceConnected.tsx",
+      "old": "      // Quote the cursor this surface holds, exactly as the guest does\n      // below. The campaign server's host arm hydrates a GM with a full\n      // baseline regardless, so this changes nothing for a GM who IS the\n      // registered host; it matters for the D9 case - a GM connecting\n      // from ANOTHER device is not the registered host and is routed\n      // down the same cursor-resumable replica path a guest takes.\n",
+      "new": "      // Quote the cursor this surface holds, exactly as the guest does\n      // below, so the two roles connect the same way (D9). On the wire\n      // this is currently INERT for a host and is not claimed otherwise:\n      // a cold connect holds -1, which the transport omits, and no arm\n      // reachable from a host connection reads `lastSeq` - the host arm\n      // and the membership rejoin both call `joinMember` unconditionally\n      // and the grant/replica route never reads it, leaving only the\n      // fallback resync arm a host does not take. It is carried so the\n      // cursor is already correct when the cutover routes a GM replica\n      // down the resumable path.\n"
+    },
+    {
+      "id": "RE-3",
+      "rationale": "F-R1 -- the receipt discloses the adopt-at-0 hazard for guests but not the host instance this slice creates.",
+      "file": "openspec/planning/2026-09-12-roadmap-completion/evidence/r2-authority-host-live-fold-local-20260915.json",
+      "location": "the `nonClaims` array",
+      "old": "\"The pre-existing hazard that a guest holding a cursor above 0 would reject a large-gap resync baseline (the same sequence -1 / adopt-at-0 rule) is UNCHANGED by this slice and is not claimed fixed.\"",
+      "new": "\"The pre-existing hazard that a guest holding a cursor above 0 would reject a large-gap resync baseline (the same sequence -1 / adopt-at-0 rule) is UNCHANGED by this slice and is not claimed fixed.\",\n    \"The host now has its own instance of that same rule: the host effect re-runs on a roomCode/matchId change WITHOUT unmounting, so that reconnect keeps the ref-held fold, quotes a cursor above 0, and rejects the hydration baseline - missing anything committed during the socket gap until the next full mount. The component ref closes the REMOUNT case only. Not claimed fixed; proven by review probe, not by a shipped row.\""
+    }
+  ],
+
+  "packagingRecommendation": {
+    "recommendation": "SHIP AS TWO PRs, H0 first then H1+H2 -- as stacked, exactly as committed",
+    "rationale": [
+      "The cap forces it: 828 total insertions against a 500-line node cap cannot be one slice, and the 455/373 split is the natural seam (test-only, then production).",
+      "The red-first discipline is only legible as two commits -- H0 standing alone at a commit where 6 of 7 rows fail on the stale value is the proof the fix addresses the cause. Squashing destroys that evidence.",
+      "H1 and H2 should NOT be split further, and the receipt's reason is sound and now independently confirmed: H2 is a single argument inside the very effect H1 rewrites (CampaignCoopRouteSurfaceConnected.tsx:145 sits inside the connect options H1 edits), so a third commit buys nothing but another full pre-commit build. M2 confirms H2 is separately pinned by its own row anyway, which is the reviewability H2 would otherwise have needed a commit for."
+    ],
+    "mergeOrder": "Either order relative to current main is safe -- zero file overlap and a clean merge-tree. No rebase required.",
+    "beforeOpeningThePRs": "Apply RE-1 and RE-2 (comment-only, in the H1+H2 commit) and RE-3 (receipt). None changes behavior, so the existing green gates and the hash-matched logs remain valid; re-run oxfmt --check on the component after the comment edits, since comment reflow is what oxfmt would object to.",
+    "doNotBlockOn": "F-R1's underlying code hazard. Closing it touches shared guest adoption semantics and belongs to the cutover work (5.7) or to a bounded follow-up with its own red-first row, not to this node."
+  },
+
+  "reviewerNonClaims": [
+    "No browser or live proof was run by this review. Everything here is jsdom component-level plus static reading of the server routing; I did not exercise a socket, the campaign server, or a real two-process source/replica.",
+    "I did not run `next build` (explicitly out of scope) and did not run the full test suite -- only the new suite, the scoped 78-suite run, and the guest mirror-store suite under M4.",
+    "I did not verify the receipt's wider 86-suite/861-test scoped run; I ran a narrower 78-suite/812-test scope and it was green. The delta is scope, not a disagreement, and I did not reconcile the two lists row by row.",
+    "The merge assessment is textual (merge-tree) plus a targeted semantic check of the one adjacent new surface (#1724). I did not build or test the merged tree, because doing so would have required checking out a merge, which the charter forbids.",
+    "F-R2's routing analysis is a static read of bindCampaignSyncConnection.ts and handleRoomCodeGuestJoin.ts. I did not drive a real second-device GM connection, so 'no reachable arm reads lastSeq' is a code-path claim, not a live observation.",
+    "I did not review the H0 test file for coverage of paths beyond the 7 rows it declares, nor assess whether the node's acceptance needs rows this suite does not have.",
+    "No repo file was modified persistently: every mutant and both probes were reverted with `git checkout --` and `git status --short` confirmed empty after each. The worktree ends at 769c6a145, clean."
+  ]
+}

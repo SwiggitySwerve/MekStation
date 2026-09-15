@@ -1,0 +1,477 @@
+{
+  "schemaVersion": 1,
+  "evidenceId": "r1-ci-prefixes-2-4-review-20260915",
+  "capturedAt": "2026-09-15",
+  "reviewer": {
+    "role": "independent reviewer (not the author)",
+    "mode": "read-only",
+    "scope": "R1.ci stacked prefixes 2, 3 and 4 for openspec/changes/add-customizer-pr-regression-gate",
+    "writesPerformed": [
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/r1-ci-prefixes-2-4-review-20260915.json"
+    ],
+    "authorEvidenceRead": [
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/r1-ci-prefixes-2-4-prep-20260915.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/r1-ci-workflow-prep-20260915.json"
+    ]
+  },
+  "subject": {
+    "base": {
+      "ref": "origin/main at branch-cut",
+      "sha": "13e4b9ea1c3d37c231eb21d0e977c3eeaa7593d5"
+    },
+    "originMainAtReview": {
+      "sha": "4cf52fe731e1adb4fb43050d882a485f34f67398",
+      "note": "origin/main advanced past the branch base since prep. git diff --stat 13e4b9ea1 origin/main -- scripts/qc/ .github/workflows/ is EMPTY, so there is no drift in any file these prefixes touch."
+    },
+    "prefixes": [
+      {
+        "id": 2,
+        "branch": "codex/roadmap-ci-customizer-gate-20260915",
+        "commits": [
+          "6e21b530bb58de0cadbaec82d53a9d31195ece43",
+          "b3077f197f0844da8afaa80e8ecd30ae662a9fd5"
+        ],
+        "tip": "b3077f197f0844da8afaa80e8ecd30ae662a9fd5"
+      },
+      {
+        "id": 3,
+        "branch": "codex/roadmap-ci-quality-test-20260915",
+        "commits": ["1d38c4cee1a4c0dec8d5b6ddda4d35eb4be5da13"],
+        "tip": "1d38c4cee1a4c0dec8d5b6ddda4d35eb4be5da13"
+      },
+      {
+        "id": 4,
+        "branch": "codex/roadmap-ci-quality-mutations-20260915",
+        "commits": ["ba8fb32b7913d1890fb85a053f8cdf037e21f542"],
+        "tip": "ba8fb32b7913d1890fb85a053f8cdf037e21f542"
+      }
+    ]
+  },
+  "environment": {
+    "gateRunnerWorktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/archive-original-main-proof",
+    "headRecordedBeforeUse": "5b229be21e87815f10ce6521dda77b52eef75e3c",
+    "statusPorcelainBeforeUse": "empty",
+    "method": "git checkout --detach <prefix commit> per gate wave",
+    "headRestoredAfter": "5b229be21e87815f10ce6521dda77b52eef75e3c",
+    "statusPorcelainAfterRestore": "empty",
+    "jestNode": "C:/Users/wroll/AppData/Local/nvm/v22.22.0/node.exe"
+  },
+  "q1_workflowCorrectness": {
+    "verdict": "PASS",
+    "findings": [
+      {
+        "id": "Q1.1",
+        "question": "Does customizer-regressions run only when detect-changes reports code/e2e changes?",
+        "answer": "Yes, by per-STEP gating, not a job-level if. .github/workflows/pr-checks.yml at 6e21b530b, the new block starting at the line '  customizer-regressions:' declares 'needs: [detect-changes, install-deps]', 'runs-on: ubuntu-latest', 'timeout-minutes: 20' and NO job-level 'if:'. Every working step carries \"if: needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true'\", and the first step is \"- name: Skip (no code or e2e changes)\" with \"if: needs.detect-changes.outputs.code != 'true' && needs.detect-changes.outputs.e2e != 'true'\". The detect-changes 'code' filter includes '.github/workflows/**' and '.github/actions/**', so a PR that edits this workflow triggers its own gate.",
+        "verified": "git show 6e21b530b -- .github/workflows/pr-checks.yml; git show 6e21b530b:.github/workflows/pr-checks.yml lines 1-80"
+      },
+      {
+        "id": "Q1.2",
+        "question": "Does the lint-and-test aggregator include it in needs and fail on its failure, while docs-only PRs still pass?",
+        "answer": "Yes on all three. The diff adds the line '        customizer-regressions,' to the lint-and-test needs list, bringing it to 19 members. The aggregator step runs jq over toJSON(needs) selecting '.value.result != \"success\"' and exits 1 on any hit, so a failed customizer-regressions turns the required 'Lint and Test' context red. Docs-only PRs: detect-changes and install-deps both always run and succeed (install-deps carries no 'if:'), so customizer-regressions itself RUNS, executes only the echo Skip step, and reports 'success' — the needs chain stays green. This is also consistent with the aggregator's own comment ('no needed job carries a job-level `if:`, so anything other than success means a real failure upstream'), which the new job honors because it gates per-step.",
+        "verified": "git show 6e21b530b:.github/workflows/pr-checks.yml lines 690-790; validator aggregatorNeeds=19/19"
+      },
+      {
+        "id": "Q1.3",
+        "question": "Is the Playwright argv exactly the frozen contract string in scripts/qc/openspec-ci-contracts.mjs?",
+        "answer": "Yes, byte-exact. openspec-ci-contracts.mjs line 146 holds run: 'node scripts/playwright/run-playwright.mjs test e2e/customizer-equipment-catalog.spec.ts e2e/customizer-record-sheet-rendering.spec.ts e2e/customizer-edit-recovery.spec.ts --project=chromium --retries=0 --trace=retain-on-failure'. openspec-workflow-contracts.mjs line 127 matches with strict equality (steps.filter(step => step?.run === requiredRun.run)), and the live validator reports workflowJobContracts=1/1 with errors=0, which is only reachable on an exact string match. The --retries=0 / --trace=retain-on-failure pairing is also semantically necessary: playwright.config.ts line 105 sets retries: 2 on CI and line 142 sets trace: 'on-first-retry', which records nothing at zero retries.",
+        "verified": "read of both contract modules; npm run qc:openspec-ci:validate exit 0 at b3077f197"
+      },
+      {
+        "id": "Q1.4",
+        "question": "Is production server startup consistent with scripts/playwright/run-playwright.mjs and playwright.config.ts?",
+        "answer": "Yes. (a) PORT — playwright.config.ts line 3 defaults e2ePort to 3600, line 299 forces PORT: String(e2ePort) into webServer.env, and line 9 sets baseURL to http://localhost:3600; the Next standalone server reads PORT, so the workflow correctly omits it. (b) MEKSTATION_E2E_SERVER_COMMAND — playwright.config.ts line 288 reads process.env.MEKSTATION_E2E_SERVER_COMMAND ?? 'npm run dev'; run-playwright.mjs lines 67-78 spread ...process.env first and only override that key under --prod-evidence (not passed here), so the workflow value survives intact. (c) HOSTNAME — node_modules/playwright/lib/plugins/webServerPlugin.js lines 88-92 merge { ...DEFAULT_ENVIRONMENT_VARIABLES, ...process.env, ...this._options.env }, so webServer.env is NOT a whitelist in the installed runtime and HOSTNAME='127.0.0.1' reaches the standalone server. (d) NEXT_PUBLIC_* — the workflow sets NEXT_PUBLIC_E2E_MODE and NEXT_PUBLIC_E2E_TEST on the BUILD step, which is correct: NEXT_PUBLIC_ values are inlined at build time and the config's runtime NEXT_PUBLIC_E2E_MODE (line 300) cannot reach a prebuilt standalone bundle. (e) standalone hydration — package.json build is 'npm run sync:mm-data-config && node scripts/next/run-next.mjs build --webpack && node scripts/hydrate-next-standalone-multiplayer-server.mjs', and that hydrate script copies public/ into .next/standalone/public (lines 132-136) and .next/static into .next/standalone/.next/static (lines 160-168) with assertExists guards (lines 188-193), so record-sheet assets fetched before the build are actually served.",
+        "verified": "reads of playwright.config.ts, scripts/playwright/run-playwright.mjs, node_modules/playwright/lib/plugins/webServerPlugin.js, scripts/hydrate-next-standalone-multiplayer-server.mjs, package.json"
+      },
+      {
+        "id": "Q1.5",
+        "question": "Is the asset fetch step consistent with .github/actions/setup-node-and-install inputs?",
+        "answer": "Yes. The composite action declares exactly three inputs — node-version, skip-nextjs-cache, fetch-assets (action.yml lines 4-16). The job passes node-version: '22' and fetch-assets: 'true'; no unknown input name is used. Step ordering is correct and contract-enforced: setup (fetch-assets) then npm run validate:assets:strict then npm run build then the browser run, checked positionally by openspec-workflow-contracts.mjs lines 182-196.",
+        "verified": "read of .github/actions/setup-node-and-install/action.yml"
+      },
+      {
+        "id": "Q1.6",
+        "question": "Any new action, dependency, secret, or permission beyond the approved YAML declaration?",
+        "answer": "No. The only 'uses:' lines the diff adds are actions/checkout@v6, ./.github/actions/setup-node-and-install, actions/cache@v5 and actions/upload-artifact@v7 — all already present in pr-checks.yml at the base 13e4b9ea1 (22, 20, 2 and 4 occurrences respectively). Zero added 'permissions:' keys, zero 'secrets.' references, zero GITHUB_TOKEN use. The only runtime dependency the change relies on is the 'yaml' devDependency (^2.9.0, lockfile 2.9.0), which already landed with the contract modules in #1647 under the approved exception recorded in ci-yaml-dependency-user-approval-20260912.json.",
+        "verified": "grep of git show 6e21b530b for '^\\+.*uses:' and for permissions:/secrets./GITHUB_TOKEN; counts against git show 13e4b9ea1:.github/workflows/pr-checks.yml; package.json and package-lock.json read"
+      },
+      {
+        "id": "Q1.7",
+        "question": "Nightly lane",
+        "answer": "nightly-validation.yml e2e-full retains timeout-minutes: 180 and gains fetch-assets: 'true', 'npm run validate:assets:strict', and the E2E production build, plus MEKSTATION_E2E_SERVER_COMMAND and HOSTNAME on the run step — which also switches the runner from 'npx playwright test' to 'node scripts/playwright/run-playwright.mjs test'. This is spec'd (proposal 'What Changes' bullet 5, design Decision 2, tasks 2.5, and the final sentence of the spec delta's first Requirement). RESIDUAL: it moves the ENTIRE 642-test nightly suite from the dev server to the standalone production server with no executed proof in this session or in the author's prep (Playwright was declared out of scope there). Failure mode is a noisy nightly, not a blocked PR.",
+        "verified": "git show 6e21b530b:.github/workflows/nightly-validation.yml lines 125-200"
+      }
+    ]
+  },
+  "q2_validatorWiring": {
+    "verdict": "PASS",
+    "findings": [
+      {
+        "id": "Q2.1",
+        "answer": "Imports resolve and every symbol is consumed. scripts/qc/validate-openspec-ci-quality.mjs lines 6-16 import requiredAggregatorNeeds, requiredPackageScripts, requiredProtectedContexts, requiredWorkflowJobContracts and requiredWorkflowTokens from ./openspec-ci-contracts.mjs, and parseWorkflowJobs and validateJobTokens from ./openspec-workflow-contracts.mjs. Proven at runtime by exit 0 with non-zero counters for each."
+      },
+      {
+        "id": "Q2.2",
+        "answer": "No dead references. The diff deletes the four inlined tables plus both regex helpers workflowJobBlock and parseAggregatorNeeds, and no caller of either helper remains. This closes the moduleWiringAbsent finding recorded in ci-module-independent-review-20260912.json — the two contract modules were dead code on main until b3077f197 imported them."
+      },
+      {
+        "id": "Q2.3",
+        "answer": "Aggregator needs are parsed from YAML, not by regex: main() reads workflowJobs['lint-and-test']?.needs with an Array/scalar-string normalisation branch the old regex form lacked. Observed aggregatorNeeds=19/19, and the 19 members were counted by hand in the workflow: lint, format-check, typecheck, unit-test-shards, perf-smoke-tests, statistical-proof-pr, perf-budget-pr, coverage-floor, a11y-tests, validate-bv, validate-combat, storybook-build, schema-bridge, determinism-audit, e2e-smoke, seam-anchors, customizer-regressions, desktop-typecheck, desktop-tests."
+      },
+      {
+        "id": "Q2.4",
+        "answer": "workflowJobContracts is reported in BOTH surfaces: it is added to the --json manifest object and to the human summary line as workflowJobContracts=${workflowJobContracts.length}/${requiredWorkflowJobContracts.length}. Observed workflowJobContracts=1/1."
+      }
+    ],
+    "negativeProbes": [
+      {
+        "id": "PROBE-A",
+        "mutation": "scratch copy of pr-checks.yml with --retries=0 rewritten to --retries=1 (sed; 3 occurrences workflow-wide)",
+        "invocation": "MEKSTATION_PR_WORKFLOW_PATH=<scratch> node scripts/qc/validate-openspec-ci-quality.mjs",
+        "executedNotReasoned": true,
+        "exitCode": 1,
+        "errors": 2,
+        "errorCodes": ["workflow-job-token-missing", "workflow-job-condition-invalid"],
+        "reproducesAuthorClaim": true,
+        "note": "The validator DOES accept a path override (MEKSTATION_PR_WORKFLOW_PATH), so this was run rather than inferred. The reported error is scoped to the customizer-regressions job even though the sed touched other jobs too."
+      },
+      {
+        "id": "PROBE-B",
+        "mutation": "scratch copy of pr-checks.yml with the single line '        customizer-regressions,' removed from the lint-and-test needs list; the job block itself left intact (verified post-mutation: 1 occurrence of the job header, 0 of the aggregator entry)",
+        "invocation": "MEKSTATION_PR_WORKFLOW_PATH=<scratch> node scripts/qc/validate-openspec-ci-quality.mjs",
+        "executedNotReasoned": true,
+        "exitCode": 1,
+        "errors": 1,
+        "errorCodes": ["aggregator-need-missing"],
+        "message": "Lint and Test aggregator must require customizer-regressions.",
+        "observedCounts": "aggregatorNeeds=18/19, workflowJobContracts=1/1",
+        "reproducesAuthorClaim": true,
+        "note": "New probe not present in the author's evidence. Confirms the aggregator-membership arm has teeth independently of the job-scoped contract arm."
+      }
+    ]
+  },
+  "q3_packageFiles": {
+    "verdict": "PASS with one convention deviation",
+    "findings": [
+      {
+        "id": "Q3.1",
+        "answer": "proposal.md, design.md, tasks.md and specs/e2e-testing/spec.md are well-formed. The spec delta opens with '## ADDED Requirements' and carries three '### Requirement:' blocks, RFC-2119 SHALL/SHALL NOT throughout, and 13 '#### Scenario:' blocks in GIVEN/WHEN/THEN/AND form. design.md carries Context, Goals/Non-Goals, seven numbered Decisions, Risks/Trade-offs, Migration Plan and Open Questions."
+      },
+      {
+        "id": "Q3.2",
+        "answer": "npx openspec validate --all --strict at b3077f197: 'Totals: 233 passed, 0 failed (233 items)', exit 0."
+      },
+      {
+        "id": "Q3.3",
+        "answer": "The ledger entry shape matches siblings exactly — { name, status: 'in-progress', reason, lastReviewed } appended as 6 insertions / 0 deletions. The diff touches nothing else in openspec/active-change-ledger.json; the root checkout's other dirty ledger edits (removals of establish-battlemech-chassis-index, add-customizer-edit-recovery and repair-equipment-catalog, plus the repair-record-sheet-rendering reason rewrite) were correctly NOT carried in."
+      },
+      {
+        "id": "Q3.4",
+        "answer": "No task claims a 12-case REMOTE proof. 5.4 ('observe the new Customizer Regressions check run on a pull request and confirm the aggregator blocks on it') is the only unchecked box and is precisely the remote-observation task. 5.3 claims a LOCAL 10/10 and 6.2 a LOCAL 12/12; both cite logs that exist on disk — .sisyphus/spec-reconciliation-20260912/browser-production-followups-final.log tails with '12 passed (1.1m)' over the three files, with record-sheet cases at lines 282/322/363/394/433."
+      },
+      {
+        "id": "Q3.5",
+        "severity": "minor",
+        "answer": "CONVENTION DEVIATION: the package adds a 3-line README.md. README.md appears in 0 of 557 archived change packages and 0 of the 11 other active packages — it is unprecedented in this repo. (.openspec.yaml, by contrast, IS conventional: 103 archived packages and 10 of 12 active packages carry it, and the added file matches their two-key shape.) Removing README.md also restores prefix-2 cap headroom from 4 lines to 7."
+      }
+    ]
+  },
+  "q4_prefixes3and4": {
+    "verdict": "PASS with a commit-message defect on prefix 4",
+    "findings": [
+      {
+        "id": "Q4.1",
+        "answer": "File bytes match the stated sha256 exactly. git show 1d38c4cee:scripts/__tests__/openspec-ci-quality-qc.test.ts | sha256sum = ed52fabd4c9eb830c5137c965d8249b563e2c929b8cc3893fd9a5829f2aa7646 (580 lines). git show ba8fb32b7:... | sha256sum = 37cc951ad23379e647b2217750932f18c1843c247ee1f4a3e7e36da79b97b026 (675 lines). Both identical to the values in the review brief and in the author's prep evidence. Base file at 13e4b9ea1 is 166 lines, so 166+414=580 and 580+95=675 reconcile with the diff stats. Note the file is EXTENDED, not replaced: both commits are pure insertions (0 deletions)."
+      },
+      {
+        "id": "Q4.2",
+        "answer": "Assertions are real, not tautological. Every customizer case spawns the ACTUAL validator as a child process (spawnSync of scripts/qc/validate-openspec-ci-quality.mjs, test lines 79-85) against a single-mutation scratch copy of the real workflow, then asserts a specific error code plus jobId plus, where applicable, the exact missing token. The helper mutateCustomizerJob (lines 43-55) asserts the mutation actually changed the block (expect(mutated).not.toBe(block)), so a no-op regex cannot silently pass. Three cases prove the substring-vs-job-scope distinction explicitly by asserting the token IS still present elsewhere while the contract still fails: line 256 expect(relocated).toContain(CUSTOMIZER_GATE_COMMAND); line 601 expect(unfetched).toContain(\"fetch-assets: 'true'\"); line 623 expect(unchecked).toContain('run: npm run validate:assets:strict')."
+      },
+      {
+        "id": "Q4.3",
+        "answer": "Counts reproduce exactly. Prefix 3 at 1d38c4cee: 1 suite, 28 passed, 28 total, 0 skipped, exit 0 (11.853 s). Prefix 4 at ba8fb32b7: 1 suite, 37 passed, 37 total, 0 skipped, exit 0 (5.54 s). Both run with C:/Users/wroll/AppData/Local/nvm/v22.22.0/node.exe node_modules/jest/bin/jest.js --runInBand --runTestsByPath scripts/__tests__/openspec-ci-quality-qc.test.ts in the gate-runner worktree."
+      },
+      {
+        "id": "Q4.4",
+        "answer": "No skipped and no only. A grep of the 675-line prefix-4 file for '.only', '.skip', 'xit(' and 'xdescribe' returns zero matches, and jest reported 0 skipped on both runs."
+      },
+      {
+        "id": "Q4.5",
+        "severity": "required-edit",
+        "answer": "COMMIT MESSAGE DEFECT on ba8fb32b7. The body enumerates coverage the commit does not add. The commit adds exactly one new it.each block of 9 entries (diff lines +331..+409): NEXT_PUBLIC_E2E_TEST env, 20-minute timeout, job name, required needs, skip condition, upload failure condition, setup action identity, cache condition, and required in-job step order. The body instead claims: (a) 'a job-level if' — that case ('rejects disabled job') was added by prefix 3, not here; (b) 'an unsafe run shell at workflow or job or step scope' — NO such test exists in either prefix; a grep of the 675-line file for 'shell' returns zero matches; (c) 'an artifact upload that drops its retention or paths' — NO such test exists; a grep for 'retention' returns zero matches. The added upload case mutates the step's 'if:', and prefix 3's 'artifact upload replaced by echo' mutates its 'uses:'. The subject line's count ('nine further') IS correct. Net effect: the message overstates mutation coverage in a way a future reader would rely on."
+      }
+    ]
+  },
+  "q5_hygiene": {
+    "verdict": "PASS",
+    "findings": [
+      {
+        "id": "Q5.1",
+        "answer": "Caps respected and independently recomputed. Prefix 2: 10 files, 373 insertions + 123 deletions = 496 changed lines against caps of 15 files / 500 lines, leaving 4 lines of headroom. Prefix 3: 1 file, 414 lines. Prefix 4: 1 file, 95 lines."
+      },
+      {
+        "id": "Q5.2",
+        "answer": "Conventional commits throughout: 'ci:', 'ci(qc):', 'test(qc):', 'test(qc):'. No commitlint config exists in the repo (no commitlint.config.js / .commitlintrc), so there is no machine check; all four match the repo's observed history style."
+      },
+      {
+        "id": "Q5.3",
+        "answer": "Author AND committer on all four commits are Wes Rollings <wrollings@gmail.com>, matching the machine-local identity block in CLAUDE.md."
+      },
+      {
+        "id": "Q5.4",
+        "answer": "No AI attribution. No Co-Authored-By line, no 'Generated with', and no Claude/Codex/AI reference in any of the four commit messages."
+      },
+      {
+        "id": "Q5.5",
+        "answer": "No unrelated changes. Prefix 2 touches exactly the two workflow files, the validator, the six package files and the single ledger entry. Prefixes 3 and 4 touch exactly one test file each. No e2e spec, product source, or formatting churn is carried, and the root checkout's 160+ dirty paths were not pulled in."
+      },
+      {
+        "id": "Q5.6",
+        "answer": "No upstream configured on any of the three branches. git rev-parse --abbrev-ref --symbolic-full-name <branch>@{upstream} returns 'fatal: no upstream configured for branch ...' for all three. Nothing is pushed."
+      }
+    ]
+  },
+  "q6_orderingAndGates": {
+    "verdict": "CONFIRMED - prefix 2 must land after PR #1667",
+    "findings": [
+      {
+        "id": "Q6.1",
+        "answer": "Confirmed independently. On origin/main (4cf52fe73) and identically at the branch base 13e4b9ea1, the three spec files carry 3 / 2 / 3 cases (grep -cE '^\\s*test\\(' over git show <ref>:<file>) — 8 cases, not the 12 the package contracts. PR #1667 (codex/roadmap-customizer-browser-20260912, 'test(customizer): verify production print and export workflows') is state OPEN with mergedAt null per gh pr view 1667. Until it merges, the pr-checks.yml job comment ('catalog (3), record sheets (6), edit recovery (3)'), proposal.md, design.md, tasks.md 6.1/6.2, and the spec delta's 'e2e/customizer-record-sheet-rendering.spec.ts (6 cases) ... twelve cases total' all describe a surface main does not have, and the gate would execute 8 cases. The change would still run green, so the failure is silent overclaiming, not a red check. This matches the author's blocker B1."
+      },
+      {
+        "id": "Q6.2",
+        "answer": "Task 3.3 ('Add mutation tests proving a relocated command, dropped flag or pack, changed environment, removed asset prerequisite, disabled/unbounded/non-blocking step or job, deleted job, and unwired aggregator each fail - and that a matching substring elsewhere does not satisfy the contract') is checked [x] in prefix 2 but its evidence lands in prefixes 3 and 4. It is CLOSED by the two jest runs reproduced here (28/28 at 1d38c4cee, 37/37 at ba8fb32b7). Every clause maps to a named case: relocated command -> 'rejects the gate command when it only exists outside the customizer job'; dropped flag -> 'allows Playwright retries' and 'keeps the retry-only trace mode'; dropped pack -> 'drops one of the three spec packs'; changed environment -> 'production hooks removed', 'development server substituted', 'invalid standalone hostname', 'NEXT_PUBLIC_E2E_TEST env'; removed asset prerequisite -> 'whose own checkout does not fetch record-sheet assets' and 'without the strict record-sheet asset check'; disabled/unbounded/non-blocking -> 'gate step disabled with if false', 'disabled job', '20-minute timeout', and four continue-on-error variants; deleted job -> 'rejects a deleted customizer-regressions job'; unwired aggregator -> 'rejects an aggregator that stops requiring the customizer gate'; substring-elsewhere -> the three toContain assertions listed in Q4.2."
+      },
+      {
+        "id": "Q6.3",
+        "answer": "Task 5.4 is correctly left [ ] and can ONLY be closed by remote observation: the first PR carrying prefix 2 must show a 'Customizer Regressions' check run, and a deliberate or natural failure of it must be shown to turn the required 'Lint and Test' context red. Nothing local can close it. Separately owed before prefix 2 is merge-ready (author blocker B2): a 12-case production browser proof on exact main-with-#1667, since the existing 5.3/6.2 logs were produced on 2026-09-12 against a dirty local checkout on port 3636."
+      },
+      {
+        "id": "Q6.4",
+        "answer": "Intra-stack ordering is correct and necessary: prefixes 3 and 4 assert against requiredWorkflowJobContracts, which only takes effect once prefix 2's validator imports the contract modules, and their mutation helpers read the live pr-checks.yml customizer-regressions block that prefix 2 introduces. Merge order must be 2 -> 3 -> 4."
+      }
+    ]
+  },
+  "verdicts": {
+    "prefix2": {
+      "commits": [
+        "6e21b530bb58de0cadbaec82d53a9d31195ece43",
+        "b3077f197f0844da8afaa80e8ecd30ae662a9fd5"
+      ],
+      "verdict": "APPROVE-WITH-REQUIRED-EDITS",
+      "rationale": "Workflow, validator wiring, package and hygiene are all correct and independently reproduced green: validator exit 0 with workflowJobContracts=1/1 and aggregatorNeeds=19/19; both negative probes exit 1 with the expected codes; openspec strict 233/233. One convention deviation must be fixed (RE-1), and two author-declared merge gates remain open (MG-1, MG-2)."
+    },
+    "prefix3": {
+      "commits": ["1d38c4cee1a4c0dec8d5b6ddda4d35eb4be5da13"],
+      "verdict": "APPROVE",
+      "rationale": "Bytes match the stated sha256, 28/28 reproduce against the prefix-2 validator, assertions are genuine single-mutation probes of a spawned validator rather than tautologies, no skipped/only, single file, clean message and identity. Merge after prefix 2."
+    },
+    "prefix4": {
+      "commits": ["ba8fb32b7913d1890fb85a053f8cdf037e21f542"],
+      "verdict": "APPROVE-WITH-REQUIRED-EDITS",
+      "rationale": "Bytes match the stated sha256, 37/37 reproduce, and the 9 added cases are real, each failing the validator on a single mutation. The commit-message body, however, describes coverage that does not exist (unsafe run shell at three scopes; artifact retention/paths) and attributes a case prefix 3 added. The message must be corrected before this lands."
+    }
+  },
+  "requiredEdits": [
+    {
+      "prefix": 2,
+      "id": "RE-1",
+      "severity": "minor",
+      "file": "openspec/changes/add-customizer-pr-regression-gate/README.md",
+      "edit": "Drop the file from prefix 2 (git history reword/rebase, or amend b3077f197). README.md has 0 precedent across 557 archived and 11 other active OpenSpec change packages in this repo, and its 3 lines duplicate the proposal's opening sentence. Removing it restores the change to the repo's package convention and lifts cap headroom from 4 to 7 lines.",
+      "blocking": true
+    },
+    {
+      "prefix": 4,
+      "id": "RE-2",
+      "severity": "moderate",
+      "file": "commit message of ba8fb32b7913d1890fb85a053f8cdf037e21f542",
+      "edit": "Reword the body (git history reword) to enumerate what the commit actually adds - NEXT_PUBLIC_E2E_TEST env, the 20-minute job timeout, the job name, the required needs list, the skip-step condition, the upload failure condition, the setup-action identity, the browser-cache step condition, and the required in-job step order - and REMOVE the three unsupported claims: 'a job-level if' (added by prefix 3), 'an unsafe run shell at workflow or job or step scope' (no such test exists), and 'an artifact upload that drops its retention or paths' (no such test exists).",
+      "blocking": true
+    }
+  ],
+  "mergeGates": [
+    {
+      "id": "MG-1",
+      "prefix": 2,
+      "statement": "PR #1667 must merge first. Independently verified OPEN with mergedAt null; the record-sheet spec on main carries 2 of the contracted 6 cases.",
+      "blocking": true,
+      "matchesAuthorBlocker": "B1"
+    },
+    {
+      "id": "MG-2",
+      "prefix": 2,
+      "statement": "A 12-case production browser proof on exact main (with #1667 merged) is owed; the existing 5.3/6.2 logs were produced on 2026-09-12 against a dirty local checkout.",
+      "blocking": true,
+      "matchesAuthorBlocker": "B2"
+    },
+    {
+      "id": "MG-3",
+      "prefix": 2,
+      "statement": "tasks.md 5.4 is closable only after the first PR carrying prefix 2 shows the Customizer Regressions check run and the aggregator blocking on its failure. The package cannot be archived before that.",
+      "blocking": false,
+      "matchesAuthorBlocker": "B3"
+    },
+    {
+      "id": "MG-4",
+      "prefix": 3,
+      "statement": "Merge only after prefix 2: the suite asserts against requiredWorkflowJobContracts and reads the customizer-regressions job from the live workflow.",
+      "blocking": true
+    },
+    {
+      "id": "MG-5",
+      "prefix": 4,
+      "statement": "Merge only after prefix 3.",
+      "blocking": true
+    }
+  ],
+  "residualRisks": [
+    {
+      "id": "RR-1",
+      "severity": "moderate",
+      "statement": "Four validator branches are unreachable by the current suite: workflow-run-shell-unsafe (openspec-workflow-contracts.mjs lines 40-50), the job-level defaults.run.shell check (lines 106-108), the per-step shell checks (lines 143-147 and 177-180), and the upload retention-days / path assertion (lines 197-210). workflow-yaml-invalid (lines 52-61) is only asserted negatively (one test asserts its ABSENCE). Greps for 'shell' and 'retention' in the 675-line suite return zero matches. The prefix-4 commit message claims otherwise; see RE-2. Recommend a follow-up prefix adding those four cases rather than growing prefix 4."
+    },
+    {
+      "id": "RR-2",
+      "severity": "moderate",
+      "statement": "The nightly e2e-full lane moves the ENTIRE 642-test suite from 'npm run dev' to 'node .next/standalone/server.js' through run-playwright.mjs. Spec'd (design Decision 2, tasks 2.5) but unproven - no Playwright ran in this review or in the author's prep. Any dev-server-dependent spec surfaces as a nightly failure, not a PR failure."
+    },
+    {
+      "id": "RR-3",
+      "severity": "low",
+      "statement": "The nightly lane carries NO automated contract: requiredWorkflowJobContracts parses pr-checks.yml only, so a future weakening of the nightly asset/build prerequisite is caught by review alone. Matches author blocker B4."
+    },
+    {
+      "id": "RR-4",
+      "severity": "low",
+      "statement": "The test helper mutateCustomizerJob (test lines 47-49) delimits the job block with workflow.indexOf('\\n  desktop-typecheck:\\n', start). Inserting any job between customizer-regressions and desktop-typecheck silently widens the mutated block; it only fails loudly if desktop-typecheck is renamed or removed."
+    },
+    {
+      "id": "RR-5",
+      "severity": "low",
+      "statement": "Prefix 2 lands at 496 of 500 changed lines (4 lines headroom, 7 if RE-1 is applied). Any further addition forces another stacked split."
+    },
+    {
+      "id": "RR-6",
+      "severity": "low",
+      "statement": "Between prefix 2 and prefix 3 merging, main carries tasks.md 3.3 checked with no mutation tests present. Transient, a consequence of the mandated line cap, and tracked by MG-4; the evidence itself exists and was reproduced in this review."
+    },
+    {
+      "id": "RR-7",
+      "severity": "informational",
+      "statement": "playwright.config.ts lines 314-317 assert that Playwright's webServer.env is a whitelist. The installed runtime merges { ...DEFAULT, ...process.env, ...options.env } (node_modules/playwright/lib/plugins/webServerPlugin.js lines 88-92), so the comment is stale. PRE-EXISTING, not introduced here, and harmless to this gate - but it is the reason HOSTNAME reaches the standalone server, so a future reader trusting that comment would mis-analyse this job."
+    }
+  ],
+  "commandsRun": [
+    {
+      "cmd": "git status --porcelain and git rev-parse HEAD in the gate-runner worktree (before)",
+      "exit": 0,
+      "result": "porcelain empty; HEAD 5b229be21e87815f10ce6521dda77b52eef75e3c as expected"
+    },
+    {
+      "cmd": "git log -1 --format and git show --stat for 6e21b530b, b3077f197, 1d38c4cee, ba8fb32b7",
+      "exit": 0,
+      "result": "author and committer Wes Rollings <wrollings@gmail.com> on all four; stats 2f/94+1, 8f/279+122, 1f/414+0, 1f/95+0"
+    },
+    {
+      "cmd": "git merge-base 6e21b530b origin/main; git rev-parse 6e21b530b^",
+      "exit": 0,
+      "result": "both 13e4b9ea1c3d37c231eb21d0e977c3eeaa7593d5 (stated base confirmed)"
+    },
+    {
+      "cmd": "git diff --stat 13e4b9ea1 origin/main -- scripts/qc/ .github/workflows/",
+      "exit": 0,
+      "result": "empty - no drift in any touched path despite origin/main advancing to 4cf52fe73"
+    },
+    {
+      "cmd": "git show <ref>:scripts/__tests__/openspec-ci-quality-qc.test.ts | sha256sum (1d38c4cee, ba8fb32b7)",
+      "exit": 0,
+      "result": "ed52fabd4c9eb830c5137c965d8249b563e2c929b8cc3893fd9a5829f2aa7646 (580 lines) and 37cc951ad23379e647b2217750932f18c1843c247ee1f4a3e7e36da79b97b026 (675 lines) - both match the brief"
+    },
+    {
+      "cmd": "git checkout --detach b3077f197 (gate-runner worktree)",
+      "exit": 0,
+      "result": "HEAD b3077f197f0844da8afaa80e8ecd30ae662a9fd5"
+    },
+    {
+      "cmd": "npm run qc:openspec-ci:validate",
+      "exit": 0,
+      "result": "workflowContracts=8/8 workflowJobContracts=1/1 aggregatorNeeds=19/19 protectedContexts=4 packageScripts=3/3 activeOpenSpecChanges=13 accountedActiveOpenSpecChanges=13 errors=0"
+    },
+    {
+      "cmd": "npx openspec validate --all --strict",
+      "exit": 0,
+      "result": "Totals: 233 passed, 0 failed (233 items)"
+    },
+    {
+      "cmd": "MEKSTATION_PR_WORKFLOW_PATH=<scratch probeA: --retries=0 -> --retries=1> node scripts/qc/validate-openspec-ci-quality.mjs",
+      "exit": 1,
+      "result": "errors=2: workflow-job-token-missing (the exact gate command) + workflow-job-condition-invalid (step order)"
+    },
+    {
+      "cmd": "MEKSTATION_PR_WORKFLOW_PATH=<scratch probeB: aggregator entry removed, job kept> node scripts/qc/validate-openspec-ci-quality.mjs",
+      "exit": 1,
+      "result": "errors=1: aggregator-need-missing; aggregatorNeeds=18/19, workflowJobContracts=1/1"
+    },
+    {
+      "cmd": "git checkout --detach 1d38c4cee; node22 jest --runInBand --runTestsByPath scripts/__tests__/openspec-ci-quality-qc.test.ts",
+      "exit": 0,
+      "result": "1 suite, 28 passed, 28 total, 0 skipped (11.853 s)"
+    },
+    {
+      "cmd": "git checkout --detach ba8fb32b7; node22 jest --runInBand --runTestsByPath scripts/__tests__/openspec-ci-quality-qc.test.ts",
+      "exit": 0,
+      "result": "1 suite, 37 passed, 37 total, 0 skipped (5.54 s)"
+    },
+    {
+      "cmd": "gh pr view 1667 --json number,title,state,mergedAt,headRefName",
+      "exit": 0,
+      "result": "state OPEN, mergedAt null, head codex/roadmap-customizer-browser-20260912"
+    },
+    {
+      "cmd": "git show <ref>:e2e/customizer-*.spec.ts | grep -cE '^\\s*test\\(' for 13e4b9ea1 and origin/main",
+      "exit": 0,
+      "result": "catalog 3, record-sheet 2, edit-recovery 3 at BOTH refs - 8 of the contracted 12"
+    },
+    {
+      "cmd": "git rev-parse --abbrev-ref --symbolic-full-name <branch>@{upstream} for all three branches",
+      "exit": 128,
+      "result": "'fatal: no upstream configured' for all three (expected; nothing pushed)"
+    },
+    {
+      "cmd": "README.md and .openspec.yaml precedent census over openspec/changes and openspec/changes/archive",
+      "exit": 0,
+      "result": "README.md: 0 of 557 archived, 0 of 11 other active. .openspec.yaml: 103 archived, 10 of 12 active."
+    },
+    {
+      "cmd": "grep of the 675-line test file for shell / retention / .only / .skip / xit( / xdescribe",
+      "exit": 1,
+      "result": "zero matches for every pattern"
+    },
+    {
+      "cmd": "git checkout --detach 5b229be21 (restore); git status --porcelain",
+      "exit": 0,
+      "result": "HEAD restored to 5b229be21e87815f10ce6521dda77b52eef75e3c; porcelain empty"
+    }
+  ],
+  "authorEvidenceReconciliation": {
+    "agreementsReproduced": [
+      "prefix 2 validator exit 0 with the same eight counters",
+      "prefix 2 openspec strict 233 passed / 0 failed",
+      "prefix 2 retries negative probe exit 1 with errors=2 and the same two error codes",
+      "prefix 3 focused jest 28/28",
+      "prefix 4 focused jest 37/37",
+      "both test-file sha256 values and line counts",
+      "prefix sizes 10 files / 496 lines, 1 file / 414 lines, 1 file / 95 lines",
+      "blockers B1 (PR #1667 gate, case counts 3/2/3 on main), B2, B3, B4 and B5"
+    ],
+    "newFindingsNotInAuthorEvidence": [
+      "RE-2: the prefix-4 commit message body misdescribes its own added coverage",
+      "RR-1: four validator branches (three run-shell checks plus the upload retention/paths assertion) have zero test coverage, contradicting the prefix-4 message",
+      "Q3.5 / RE-1: README.md is unprecedented in this repo's OpenSpec packages (0 of 568)",
+      "PROBE-B: independent aggregator-unwiring probe (the author ran only the retries probe)",
+      "RR-7: playwright.config.ts's webServer.env whitelist comment is stale against the installed Playwright runtime"
+    ],
+    "authorClaimsNotDisputed": "No claim in r1-ci-prefixes-2-4-prep-20260915.json was found to be overstated. Its 'validatorDefects: found 0' assertion is confirmed by independent reading and by the two executed negative probes."
+  }
+}

@@ -1,0 +1,45 @@
+{
+  "slice": "R2.authority-live rows part 1: Node-side campaign socket helper",
+  "pr": 1753,
+  "prHead": "c4fa75854a936b40e27713b88c6c7a05e45f33b3",
+  "mergeCommit": "ef36274384341f7158ac5870bd6b7a2265913567",
+  "verifiedAtUtc": "2026-09-15T20:47:27.492Z",
+  "worktree": "r2-prepared-journal-api (detached at merge commit)",
+  "blobEquality": {
+    "files": [
+      "e2e/helpers/campaignJournalDrive.ts",
+      "e2e/helpers/campaignJournalSocket.ts"
+    ],
+    "command": "git diff --stat <prHead> <merge> -- <files>",
+    "result": "empty (0 bytes)"
+  },
+  "gates": {
+    "tsc": {
+      "exit": 0,
+      "outputBytes": 0
+    },
+    "oxfmt": {
+      "exit": 0
+    },
+    "openspecStrict": {
+      "exit": 0
+    }
+  },
+  "logs": {
+    "tsc": {
+      "path": ".sisyphus/roadmap-completion-20260912/main-proof-1753-20260915/tsc.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "oxfmt": {
+      "path": ".sisyphus/roadmap-completion-20260912/main-proof-1753-20260915/oxfmt.log",
+      "sha256": "8c64fecb1fb16abd185db6893efb6740a32b90bf9ebd265ea71ccb52d5c253bc"
+    },
+    "openspec": {
+      "path": ".sisyphus/roadmap-completion-20260912/main-proof-1753-20260915/openspec.log",
+      "sha256": "a6f1b01bad6ef535f7ae511fd2b0e725e382bcb462449ef4386723e0ec97eff3"
+    }
+  },
+  "limits": [
+    "inert helper until #1755 lands; the runtime proof runs at #1755 merge commit; oxlint ignores e2e/**"
+  ]
+}

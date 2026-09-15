@@ -1,0 +1,408 @@
+{
+  "schema": "proof02-starmap-third-cause-fix/v1",
+  "node": "R2.triage",
+  "artefact": "proof02-starmap-third-cause-fix-20260915",
+  "generatedAtUtc": "2026-09-15T12:40:00Z",
+  "generatedBy": "agent:proof02-starmap-third-cause-fix (GP-JUSTIFIED single-spec diagnose-then-fix; test-side edits only)",
+  "purpose": "Diagnose and fix the THIRD cause recorded in proof02-browser-rerun-main-1290676-20260915.json: campaign-starmap-logistics failing the browser-diagnostics gate on one fatal aborted PUT /api/campaigns/<id> issued from the starmap page.",
+  "inputs": {
+    "rerunEvidence": "openspec/planning/2026-09-12-roadmap-completion/evidence/proof02-browser-rerun-main-1290676-20260915.json",
+    "discardFlushDiagnosis": "openspec/planning/2026-09-12-roadmap-completion/evidence/r2-client-discard-flush-diagnosis-20260915.json"
+  },
+  "environment": {
+    "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/proof02-rerun",
+    "baseCommit": "1290676377e311aafac8966287b4967db16eed61",
+    "branchCreated": "codex/roadmap-proof02-starmap-settle-20260915",
+    "gitStatusPorcelainAtStart": "empty (clean)",
+    "gitStatusPorcelainAtEnd": "empty (clean)",
+    "buildIdUsedForAllTestRuns": "1789470531485",
+    "buildIdAfterCommit": "1789472247303",
+    "buildIdNote": "All four Playwright runs below ran against the pre-existing standalone build 1789470531485 (the exact artefact the rerun evidence measured). The pre-commit hook then ran `npm run build` because a .ts file was staged, which rewrote .next and produced BUILD_ID 1789472247303. No test run was made against 1789472247303; this is recorded rather than glossed.",
+    "node": "v22.22.0",
+    "port": 3639,
+    "portDiscipline": "Verified no LISTENING socket on 3639 before every run and after the last run. Port contention and a concurrent `next build` in the sibling `browser` worktree (PID 31620) were waited out with a 15s poll loop on three occasions; nothing was killed, signalled or otherwise touched. Two-core budget honoured: node.exe command lines were enumerated via Win32_Process and every run and the commit build were held while any `next build` or playwright process was live.",
+    "prodEvidenceFlag": "never used"
+  },
+  "question1_whereDoesItNavigateWhileDirty": {
+    "answer": "e2e/campaign-starmap-logistics.spec.ts — `await page.reload({ waitUntil: 'networkidle' })`, at line 253 of the pre-fix file (line 270 post-fix). It is the only document-unloading navigation after the campaign is mutated; the two earlier `page.goto` calls both happen before any pending write (the seeding fixture ends on an acknowledged 200 PUT).",
+    "mutationThatDirtiedTheStore": {
+      "specLine": "e2e/campaign-starmap-logistics.spec.ts:213 (pre-fix) — `await page.getByTestId('starmap-travel-btn').click();`",
+      "whatItDoes": "Approves the Terra -> Luthien jump: advances currentSystemId, currentDate, the travel-fee transaction and the activity log. Every campaign mutation produces a new ICampaign reference, which `installCampaignPersistenceWiring`'s subscription turns into `markDirty()` (src/stores/campaign/campaignPersistenceWiring.ts:104-117), arming the debounced ordinary save.",
+      "notTheSelect": "The preceding `starmap-destination-select` selectOption is NOT a campaign mutation — measured dirty=false immediately after it."
+    },
+    "debounce": "AUTO_SAVE_DEBOUNCE_MS = 2000 (src/stores/campaign/useCampaignPersistenceStore.ts:42), armed by `armAutoSaveTimer` (same file, ~line 897-906).",
+    "whyTheFlushFiresAtAll": "`flushPendingMutationsAction` (src/stores/campaign/useCampaignPersistenceStore.ts:915-...) returns early unless `state.dirty` is true. The probe measures dirty=true at the reload point, so the pagehide flush is entitled to fire and does — as a `keepalive` PUT, which Chromium 143 aborts before dispatch on a NAVIGATION (r2-client-discard-flush-diagnosis-20260915.json rootCause; probes P2/P3/P5/P7/P8, 0/15 on navigation vs 11/11 on tab close).",
+    "whyFatal": "e2e/helpers/browserDiagnosticsModel.ts:43-63 — `isFatalBrowserDiagnosticEvent` forgives net::ERR_ABORTED for reads but keeps aborted API WRITES fatal (url matches /\\/api(\\/|\\?|$)/ and method not in GET/HEAD/OPTIONS). Correct in general and correct here: the write genuinely was lost."
+  },
+  "probe": {
+    "id": "PROBE-STARMAP-SETTLE",
+    "method": "Scratch spec `e2e/zz-probe-starmap-settle.spec.ts` (client-side request/response/requestfailed listeners on /api/campaigns, plus direct reads of `window.__ZUSTAND_STORES__.campaignPersistence`). Chosen over the diagnosis lane's server-side `--require` hook because the question is 'was the store dirty at the navigation point, and does an ordinary PUT land if we wait' — both answerable in-page, at one run of 22s and zero server instrumentation. The scratch spec was DELETED before the commit; `git status --porcelain` is empty.",
+    "command": "MEKSTATION_E2E_SERVER_COMMAND='node .next/standalone/server.js' HOSTNAME=127.0.0.1 MEKSTATION_E2E_PORT=3639 node scripts/playwright/run-playwright.mjs test e2e/zz-probe-starmap-settle.spec.ts --project=chromium --retries=0 --workers=1",
+    "exit": 0,
+    "campaignId": "campaign-1789472004362-rpqkezl",
+    "marks": [
+      {
+        "mark": "beforeMutation (starmap loaded)",
+        "atMs": 1802,
+        "dirty": false,
+        "saveState": "saved",
+        "baseVersion": 2
+      },
+      {
+        "mark": "afterSelect (destination select)",
+        "atMs": 1855,
+        "dirty": false,
+        "saveState": "saved",
+        "baseVersion": 2
+      },
+      {
+        "mark": "afterTravelClick (travel approved)",
+        "atMs": 1949,
+        "dirty": true,
+        "saveState": "saved",
+        "baseVersion": 2
+      },
+      {
+        "mark": "atSpecReloadPoint (the exact point the real spec calls page.reload)",
+        "atMs": 1951,
+        "dirty": true,
+        "saveState": "saved",
+        "baseVersion": 2
+      },
+      {
+        "mark": "afterOrdinaryPut (counterfactual: waited instead of reloading)",
+        "atMs": 3919,
+        "dirty": false,
+        "saveState": "saved",
+        "baseVersion": 3
+      }
+    ],
+    "decisiveFindings": [
+      "DIRTY AT THE NAVIGATION: at t=1951ms — 2ms after the travel click and ~1.95s inside the 2000ms debounce — the persistence store reports dirty=true, baseVersion=2. That is the state the pre-fix spec unloads the document in.",
+      "THE ORDINARY WRITE DOES LAND IF THE SPEC WAITS: with no navigation, exactly one PUT /api/campaigns/<id> was issued at t=3914ms and answered 200 at t=3917ms (~1.97s after the click, i.e. the debounce firing normally). dirty then flipped to false and baseVersion advanced 2 -> 3.",
+      "ZERO requestfailed events in the probe run — the abort is produced by the navigation, not by the request.",
+      "COLLATERAL OBSERVATION (reported, not claimed as a defect): pre-fix, the server record stayed at baseVersion=2 through the reload, yet the spec's post-reload assertions passed. The reload was therefore reading the travel state from the client cache, not from the server. The spec never asserted server durability, so this is not a broken assertion — but settling the PUT makes the post-reload read a genuinely server-backed one, which strengthens rather than weakens the test."
+    ],
+    "logs": [
+      {
+        "path": "probe-starmap-settle.stdout.log",
+        "sha256": "2dd56e5e22cf24650182150ffb849cfbca418eea5466a861a86bcb19c2f851e1"
+      },
+      {
+        "path": "probe-starmap-settle.stderr.log",
+        "sha256": "2dfb9a6212c18baf950f9001378b6145cd0f9ce417c34046bed4325d584a4f18"
+      }
+    ]
+  },
+  "isTheNavigationTheBehaviourUnderTest": {
+    "verdict": "NO — the reload is under test, but the reload-inside-the-debounce is not.",
+    "reasoning": "The test is named 'previews, approves, and reloads campaign travel consequences'. The reload is deliberate and its assertions (currentSystemId, currentDate, transaction count, activity categories survive a hard reload) are the point. What is incidental is the TIMING: the reload happens 2ms after the mutation purely because the intervening assertions are read-only DOM checks. Nothing in the spec, its tags, or its assertions expresses an intent to reload mid-save. No assertion was weakened, removed, or retimed; one wait was added, and the reload and every assertion after it are unchanged.",
+    "precedentIsExact": "e2e/campaign-acquisition-browser.spec.ts is the same spec shape (withBrowserDiagnostics + mutate-then-reload) and already does exactly this: it arms `page.waitForResponse(PUT /api/campaigns/<id> && ok)` before the mutating click and awaits it immediately before `page.reload({ waitUntil: 'networkidle' })` (lines ~125/175/206). e2e/campaign-organic-contract.spec.ts:207 and e2e/helpers/campaignFlow.ts:179-187 carry the same pattern with the rationale in comments. The fix copies that pattern rather than inventing one."
+  },
+  "fix": {
+    "file": "e2e/campaign-starmap-logistics.spec.ts",
+    "filesChanged": 1,
+    "linesChanged": "+17 / -0",
+    "change": "Arm `const travelSaved = page.waitForResponse(PUT /api/campaigns/<campaignId> && response.ok(), { timeout: 30_000 })` immediately before the `starmap-travel-btn` click (post-fix line 222), and `await travelSaved;` immediately before `page.reload({ waitUntil: 'networkidle' })` (post-fix line 269).",
+    "whatWasNotDone": [
+      "The diagnostics gate was NOT widened. e2e/helpers/browserDiagnosticsModel.ts is untouched.",
+      "No allowance, ignore-list, expected-failure row, or knownFailureCode was added anywhere.",
+      "No product source file was edited. No spec (openspec) file was edited.",
+      "No assertion was removed, relaxed, or retimed."
+    ]
+  },
+  "runs": [
+    {
+      "id": "run-quick-postfix",
+      "label": "frozen receipt invocation, post-fix",
+      "command": "MEKSTATION_E2E_SERVER_COMMAND='node .next/standalone/server.js' HOSTNAME=127.0.0.1 MEKSTATION_E2E_PORT=3639 npm run qc:command:browser:quick",
+      "expands_to": "node scripts/playwright/run-playwright.mjs test --project=chromium e2e/campaign-starmap-logistics.spec.ts e2e/campaign-customizer-handoff.spec.ts e2e/gm-campaign-ledger-control-plane.spec.ts --workers=1",
+      "exit": 0,
+      "summaryLine": "13 passed (35.3s)",
+      "totalTests": 13,
+      "expected": "13/13",
+      "result": "13/13 GREEN",
+      "starmapTest": "ok 6 [chromium] e2e\\campaign-starmap-logistics.spec.ts:155:7 previews, approves, and reloads campaign travel consequences @campaign @starmap @logistics (4.5s)",
+      "serverLine": "MEKSTATION_LISTENER_READY {\"configuredHostname\":\"127.0.0.1\",\"boundAddress\":\"127.0.0.1\",\"family\":\"IPv4\",\"port\":3639}",
+      "logs": [
+        {
+          "path": "run-quick-postfix.stdout.log",
+          "sha256": "22153568b5dcad668070efc5acc6d5d8a957d554b27915b972b4de1a20b47f41"
+        },
+        {
+          "path": "run-quick-postfix.stderr.log",
+          "sha256": "2dfb9a6212c18baf950f9001378b6145cd0f9ce417c34046bed4325d584a4f18"
+        }
+      ]
+    },
+    {
+      "id": "run-specA-postfix",
+      "label": "starmap spec alone, once more",
+      "command": "MEKSTATION_E2E_SERVER_COMMAND='node .next/standalone/server.js' HOSTNAME=127.0.0.1 MEKSTATION_E2E_PORT=3639 node scripts/playwright/run-playwright.mjs test e2e/campaign-starmap-logistics.spec.ts --project=chromium --retries=0 --workers=1",
+      "exit": 0,
+      "summaryLine": "1 passed (10.3s)",
+      "result": "GREEN",
+      "logs": [
+        {
+          "path": "run-specA-postfix.stdout.log",
+          "sha256": "635915e6266cf1b775834f17afa3c5e7ab26ab79ff1c903ee2fdeae2eb898609"
+        },
+        {
+          "path": "run-specA-postfix.stderr.log",
+          "sha256": "2dfb9a6212c18baf950f9001378b6145cd0f9ce417c34046bed4325d584a4f18"
+        }
+      ]
+    }
+  ],
+  "stderrNote": "All three post-probe stderr logs hash identically (2dfb9a62...): each contains only the benign '[WebServer] Yjs was already imported' line, the same hash the rerun evidence records.",
+  "gates": {
+    "tsc": {
+      "command": "npx tsc --noEmit",
+      "exit": 0,
+      "output": "empty",
+      "log": {
+        "path": "gate-tsc.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    "oxfmt": {
+      "command": "npx oxfmt --check e2e/campaign-starmap-logistics.spec.ts",
+      "exit": 0,
+      "output": "All matched files use the correct format.",
+      "log": {
+        "path": "gate-oxfmt.log",
+        "sha256": "5ac31ab31849ed102256697d3e60a651f1cc3f86187e3d81b2f4b8d4238a7367"
+      }
+    },
+    "preCommitHook": {
+      "ran": true,
+      "bypassed": false,
+      "steps": "npx lint-staged (oxlint --fix, oxfmt --write, tsc --noEmit --skipLibCheck) then `npm run build` because a .ts file was staged",
+      "exit": 0
+    }
+  },
+  "commit": {
+    "sha": "b0a190f2774455d5c4e16f7ce2039614b688eb11",
+    "branch": "codex/roadmap-proof02-starmap-settle-20260915",
+    "base": "1290676377e311aafac8966287b4967db16eed61",
+    "subject": "test(e2e): settle the pending campaign save before the starmap spec navigates",
+    "body": "(none)",
+    "author": "Wes Rollings <wrollings@gmail.com>",
+    "committer": "Wes Rollings <wrollings@gmail.com>",
+    "aiAttribution": "none",
+    "stat": "1 file changed, 17 insertions(+)",
+    "pushed": false,
+    "prOpened": false,
+    "log": {
+      "path": "commit.log",
+      "sha256": "b65901bdb89e3f4313d7816a0ea67a38d2b31cf7238edd320784edac3ef2ad37"
+    }
+  },
+  "otherSpecsExposedToTheSameEvent": {
+    "method": "The fatal event can only be REPORTED by a spec whose body runs inside `withBrowserDiagnostics` (e2e/helpers/browserDiagnostics.ts assertNoErrors). `grep -rl withBrowserDiagnostics e2e --include=*.spec.ts` returns exactly 7 specs; each was then checked for (a) a campaign mutation followed by (b) a document-unloading navigation, and (c) whether it already settles a PUT.",
+    "diagnosticsGatedSpecs": 7,
+    "candidates": [
+      {
+        "file": "e2e/campaign-economy-browser.spec.ts",
+        "confidence": "HIGH — same shape as the fixed spec",
+        "detail": "Four mutate-then-reload pairs with ZERO PUT settles: repair-ticket-down click (:405) -> page.reload (:438); salvage-accept click (:454) -> page.reload (:464); loan-submit click (:481) -> page.reload (:496); day-advance-one-day click (:514) -> page.reload (:525). Each click is a campaign-store mutation and each reload is a document unload.",
+        "observed": "NOT OBSERVED failing — this spec is not in qc:command:browser:quick and was not run in this session. Whether the abort actually fires depends on how long the intervening assertions take versus the 2000ms debounce.",
+        "notFixed": true
+      },
+      {
+        "file": "e2e/campaign-stepper-mobile.spec.ts",
+        "confidence": "LOW",
+        "detail": "wizard-next-btn clicks (:87-89) then page.reload (:105), no PUT settle. The clicks are wizard-step advances before campaign submission, so the persistence store most likely holds no campaign yet — `flushPendingMutationsAction` returns early when there is no campaign/campaignId. Listed for completeness only.",
+        "observed": "NOT OBSERVED failing; not run in this session.",
+        "notFixed": true
+      }
+    ],
+    "alreadyProtected": [
+      "e2e/campaign-acquisition-browser.spec.ts — 3 PUT settles (the pattern this fix copies)",
+      "e2e/campaign-organic-contract.spec.ts — settles the contract accept before its navigations (:207)",
+      "e2e/campaign-subroute-recovery.spec.ts — 1 PUT settle (:183)",
+      "e2e/campaign-flow.spec.ts — 1 PUT settle (:259)",
+      "e2e/campaign-starmap-logistics.spec.ts — fixed by this commit"
+    ],
+    "outOfScope": "Specs with campaign mutations and navigations that are NOT wrapped in withBrowserDiagnostics (e.g. ux-deep-play-audit, coop-campaign-ui-audit, integration.spec.ts, audit-capture) can lose the same write, but cannot surface it as this fatal event because no diagnostics gate is attached. They are not listed as candidates for this event; whether they should be gated is a separate question this file does not open.",
+    "noFixesApplied": "Per the task, no other spec was modified."
+  },
+  "artifacts": {
+    "directory": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/proof02-starmap-fix-20260915/",
+    "files": [
+      {
+        "path": "probe-starmap-settle.stdout.log",
+        "sha256": "2dd56e5e22cf24650182150ffb849cfbca418eea5466a861a86bcb19c2f851e1"
+      },
+      {
+        "path": "probe-starmap-settle.stderr.log",
+        "sha256": "2dfb9a6212c18baf950f9001378b6145cd0f9ce417c34046bed4325d584a4f18"
+      },
+      {
+        "path": "run-quick-postfix.stdout.log",
+        "sha256": "22153568b5dcad668070efc5acc6d5d8a957d554b27915b972b4de1a20b47f41"
+      },
+      {
+        "path": "run-quick-postfix.stderr.log",
+        "sha256": "2dfb9a6212c18baf950f9001378b6145cd0f9ce417c34046bed4325d584a4f18"
+      },
+      {
+        "path": "run-specA-postfix.stdout.log",
+        "sha256": "635915e6266cf1b775834f17afa3c5e7ab26ab79ff1c903ee2fdeae2eb898609"
+      },
+      {
+        "path": "run-specA-postfix.stderr.log",
+        "sha256": "2dfb9a6212c18baf950f9001378b6145cd0f9ce417c34046bed4325d584a4f18"
+      },
+      {
+        "path": "gate-tsc.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": "gate-oxfmt.log",
+        "sha256": "5ac31ab31849ed102256697d3e60a651f1cc3f86187e3d81b2f4b8d4238a7367"
+      },
+      {
+        "path": "commit.log",
+        "sha256": "b65901bdb89e3f4313d7816a0ea67a38d2b31cf7238edd320784edac3ef2ad37"
+      }
+    ]
+  },
+  "nonClaims": [
+    "No product source file, openspec spec, proposal, task list, roadmap.json or documentation file was edited. The only tracked change is one e2e spec.",
+    "No push, no PR, no merge. The commit sits on a local branch in the proof02-rerun worktree.",
+    "--prod-evidence was never used.",
+    "NO PRODUCT DEFECT IS CLAIMED. The client behaved exactly as its requirement asks (campaign-authority spec.md:157-158 obliges the client to ISSUE a best-effort write, not to guarantee it lands); the browser's refusal to dispatch a keepalive request on a navigation is the Chromium 143 behaviour already measured in r2-client-discard-flush-diagnosis-20260915.json. The spec, not the product, was navigating at the wrong moment.",
+    "This file does not rewrite the 2026-08-12 proof-02-triage audit doc, does not close R2.triage, and does not claim observation-set equality with the 2026-08-12 historical anchor (that anchor remains a DEV-server run; these remain STANDALONE-build runs, so the build-mode caveat recorded in proof02-browser-quick-20260915.json still applies).",
+    "The two exposure candidates listed above were identified by grep and code reading only. Neither was run, neither was observed failing, and neither was fixed.",
+    "All Playwright runs here used build 1789470531485. The pre-commit hook rebuilt the worktree to 1789472247303 AFTER the last run; no test was run against that build id."
+  ],
+  "followUp": {
+    "requestedAtUtc": "2026-09-15T12:55:00Z",
+    "request": "Coordinator follow-up: second commit on the same branch applying the identical settle pattern to e2e/campaign-economy-browser.spec.ts at the four mutate-then-reload pairs, after proving the before-state.",
+    "outcome": "NOT APPLIED - the premise was measured and REFUTED. No second commit exists. HEAD remains b0a190f2774455d5c4e16f7ce2039614b688eb11.",
+    "whyNotApplied": "campaign-economy-browser.spec.ts never persists its campaign to the server, so it issues ZERO PUT requests for its whole lifetime. Arming waitForResponse(PUT && ok) at the four pairs would have blocked 30s each and then failed the spec with four timeouts. The HIGH-confidence rating this file gave that spec in otherSpecsExposedToTheSameEvent was explicitly grep-and-code-reading only, flagged NOT OBSERVED; direct measurement now retires it.",
+    "premiseCorrection1_buildWasNotE2EInstrumented": {
+      "coordinatorPremise": "run that spec alone once BEFORE the edit against the current standalone build (1789472247303, test-only tree so the build is valid)",
+      "verdict": "FALSE - build 1789472247303 is a valid compile but is NOT E2E-instrumented, so no e2e spec can pass on it.",
+      "cause": "The pre-commit hook runs a bare `npm run build` with no environment. NEXT_PUBLIC_* values are baked at build time, so NEXT_PUBLIC_E2E_MODE was not \"true\" in that build and src/lib/e2e/storeExposure.ts:31 returns early - window.__ZUSTAND_STORES__ is never assigned. Every campaign spec then dies in its store-readiness wait.",
+      "firstObservation": {
+        "run": "run-economy-before.stdout.log",
+        "buildId": "1789472247303",
+        "exit": 1,
+        "result": "TimeoutError: page.waitForFunction: Timeout 10000ms exceeded at waitForCampaignStoresReady (campaign-economy-browser.spec.ts:33) - died in seeding, never reached a mutate-then-reload pair."
+      },
+      "control": {
+        "run": "control-starmap-on-hookbuild.stdout.log",
+        "question": "Is that the spec, or the build?",
+        "method": "Ran campaign-starmap-logistics - green minutes earlier on build 1789470531485 - against the same 1789472247303 build.",
+        "exit": 1,
+        "result": "FAILED identically: TimeoutError page.waitForFunction Timeout 15000ms exceeded. A known-green spec failing the same way isolates the fault to the build, not the spec.",
+        "verdict": "Build confirmed as the cause."
+      },
+      "remedy": {
+        "command": "NEXT_PUBLIC_E2E_MODE=true NEXT_PUBLIC_E2E_TEST=true npm run build",
+        "exit": 0,
+        "newBuildId": "1789472881854",
+        "staticProof": "In .next/static/chunks/pages/_app-b1f0a984517e6f88.js the string NEXT_PUBLIC_E2E_MODE occurs 0 times and the exposure runs unconditionally (window.__E2E_MODE__=!0,window.__ZUSTAND_STORES__={campaign:...}) - the guard was constant-folded away, which only happens when the flag is true at build time. The prior chunk (_app-23031eb966fc36a7.js) still carried the runtime check \"true\"===X.env.NEXT_PUBLIC_E2E_MODE.",
+        "control": {
+          "run": "control-starmap-on-e2ebuild.stdout.log",
+          "exit": 0,
+          "result": "campaign-starmap-logistics: 1 passed (8.6s) - build 1789472881854 verified sound and E2E-instrumented before any economy measurement was trusted."
+        },
+        "standingHazard": "Every commit that stages a .ts file leaves the worktree with a NON-E2E build, because the pre-commit hook rebuilds without the flags. Any lane that runs e2e immediately after a commit must rebuild with NEXT_PUBLIC_E2E_MODE=true NEXT_PUBLIC_E2E_TEST=true first, or it will measure a store-exposure timeout and misread it as a spec failure."
+      }
+    },
+    "premiseCorrection2_specIsNotExposedToTheEvent": {
+      "coordinatorPremise": "apply the identical settle pattern ... at the four mutate-then-reload pairs you listed",
+      "verdict": "REFUTED by measurement. The spec cannot produce the aborted-PUT event.",
+      "beforeRunOnValidBuild": {
+        "run": "run-economy-before-e2ebuild.stdout.log",
+        "buildId": "1789472881854",
+        "exit": 1,
+        "bodyCompleted": true,
+        "bodyCompletedNote": "The failure is at helpers/browserDiagnostics.ts:140 (assertNoErrors), which runs AFTER the test body - so all four mutate-then-reload pairs executed.",
+        "abortedPutObserved": false,
+        "whatActuallyFailed": "146 fatal events, ALL of type console/consoleType=error, text \"Failed to load resource: the server responded with a status of 404 (Not Found)\", location.url = /api/campaigns/<campaignId> and /api/campaigns/<campaignId>/head.",
+        "requestfailedEventsPresent": "7, every one a GET (equipment JSON and campaign GETs). isFatalBrowserDiagnosticEvent forgives aborted GETs, so none of them is fatal. Not one aborted PUT."
+      },
+      "decisiveProbe": {
+        "id": "PROBE-ECONOMY-REQUESTS",
+        "method": "Temporary in-spec request/response/requestfailed listeners on /api/campaigns, dumped at the end of the body. The edit was reverted with `git checkout --` immediately after; `git status --porcelain` is empty.",
+        "run": "probe-economy-requests.stdout.log",
+        "exit": 1,
+        "putRequestCount": 0,
+        "result": "Across the entire spec - dashboard, repair-bay, salvage, finances, day-advance and all four reloads - the page issued ZERO PUT requests. Every /api/campaigns/<id> and /api/campaigns/<id>/head GET answered 404.",
+        "rootCause": "campaign-economy-browser.spec.ts seeds its campaign purely client-side (createCampaign + campaignStore.setState) and never calls persistCampaignThroughDashboard, saveCampaign, or adopt - grep for all three returns nothing, whereas campaign-starmap-logistics.spec.ts:162 does persist. The server therefore never holds the campaign: it 404s on every read, there is no acknowledged base version to save against, and the persistence store has nothing to PUT (the legacyUnadopted / missing-campaignId guards at useCampaignPersistenceStore.ts:924 and 1000 keep both the debounced save and the discard flush inert).",
+        "consequenceIfTheEditHadBeenApplied": "Each of the four waitForResponse(PUT && ok) arms would have waited its full 30s timeout and then failed. The spec would have gone from one pre-existing failure to that failure plus four timeouts."
+      }
+    },
+    "separateFindingNotFixed": {
+      "spec": "e2e/campaign-economy-browser.spec.ts",
+      "state": "RED on this base commit for a cause unrelated to anything in this task",
+      "failure": "146 fatal console 404s, because the campaign is client-only while every page it visits tries to load that campaign from the server.",
+      "notFixedBecause": "Out of scope for this task, and the fix is not a wait - it is either persisting the seeded campaign (a real behavioural change to the fixture) or accepting that these routes read server-side. That is a decision for the owner of this spec, not a settle-pattern edit.",
+      "latentDefectNoticedInPassing": "waitForCampaignStoresReady at campaign-economy-browser.spec.ts:33-44 passes { timeout: 15_000 } as page.waitForFunction SECOND positional parameter, which Playwright treats as the page-function ARG, not as options. The 15s intent is silently discarded and the default timeout applies. campaign-starmap-logistics.spec.ts:23-34 gets this right by passing undefined as the arg. Reported, not fixed."
+    },
+    "gates": {
+      "note": "No source edit survives this follow-up, so no gate run applies to it. tsc and oxfmt --check were run for the first commit and are recorded under the top-level gates key. The working tree is clean at b0a190f27."
+    },
+    "commit": {
+      "secondCommit": "NONE - nothing was changed, so nothing was committed.",
+      "headUnchanged": "b0a190f2774455d5c4e16f7ce2039614b688eb11"
+    },
+    "campaignStepperMobile": "Left listed as a LOW-confidence candidate and untouched, as instructed. Given the economy result, its LOW rating should be read as likely-zero too: it has no persisted campaign either.",
+    "artifacts": [
+      {
+        "path": "run-economy-before.stdout.log",
+        "sha256": "d70d7d9a664b6671d089f292b6d269b40dde1cbe3d34f5f7b534be087114932b",
+        "note": "before-run on the NON-E2E hook build 1789472247303 - store-exposure timeout"
+      },
+      {
+        "path": "control-starmap-on-hookbuild.stdout.log",
+        "sha256": "c075d7ce29258d8ce852a3bbc950297fc3c507fc6a524d6991695b93b7012540",
+        "note": "control proving the build, not the spec, was at fault"
+      },
+      {
+        "path": "rebuild-e2e.stdout.log",
+        "sha256": "d82c123e27219db94f3db5b4ed57fae12e2bf070c49f3148edb3f76eccaf73a4",
+        "note": "rebuild with NEXT_PUBLIC_E2E_MODE=true -> BUILD_ID 1789472881854"
+      },
+      {
+        "path": "control-starmap-on-e2ebuild.stdout.log",
+        "sha256": "8e0e358c175684a5de63819cfc5dfd8e1c203d4bb74b023271bd52d0d74f9b2e",
+        "note": "control proving build 1789472881854 is sound (starmap 1 passed)"
+      },
+      {
+        "path": "run-economy-before-e2ebuild.stdout.log",
+        "sha256": "5c4fd12dadd5571f164a3fa9bc182f60f9cb376031c7ae2a766df33071dc8804",
+        "note": "the real before-run: 146 console-404 fatals, zero aborted PUTs"
+      },
+      {
+        "path": "probe-economy-requests.stdout.log",
+        "sha256": "56268edb8357c6b200df2ffdd57e1117cc8a190a8aa90f265c3f5ae8da4dcd25",
+        "note": "decisive probe: 0 PUT requests in the entire spec"
+      },
+      {
+        "path": "run-economy-before-e2ebuild.stderr.log",
+        "sha256": "2dfb9a6212c18baf950f9001378b6145cd0f9ce417c34046bed4325d584a4f18"
+      },
+      {
+        "path": "probe-economy-requests.stderr.log",
+        "sha256": "2dfb9a6212c18baf950f9001378b6145cd0f9ce417c34046bed4325d584a4f18"
+      },
+      {
+        "path": "control-starmap-on-e2ebuild.stderr.log",
+        "sha256": "2dfb9a6212c18baf950f9001378b6145cd0f9ce417c34046bed4325d584a4f18"
+      }
+    ],
+    "nonClaims": [
+      "No after-runs exist, because no edit was made. The two after-runs the follow-up asked for are not reported as done, skipped, or passing.",
+      "No second commit. No push. No PR.",
+      "campaign-economy-browser.spec.ts was NOT fixed and is left RED on this base commit for the pre-existing client-only-campaign reason described above.",
+      "The temporary request-logger edit to that spec was reverted; the working tree is clean and HEAD is unchanged.",
+      "The worktree build is now 1789472881854 (E2E-instrumented), not the 1789472247303 the pre-commit hook left. This is an improvement for any following lane, but it is a different build id from the 1789470531485 the first commit runs used.",
+      "No product source file, openspec spec, or documentation file was edited at any point in this task."
+    ]
+  }
+}

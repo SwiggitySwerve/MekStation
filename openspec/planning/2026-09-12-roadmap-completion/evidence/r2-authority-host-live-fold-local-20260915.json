@@ -1,0 +1,385 @@
+{
+  "node": "R2.authority-host",
+  "artefact": "r2-authority-host-live-fold-local-20260915",
+  "slices": ["H0", "H1", "H2"],
+  "capturedAtUtc": "2026-09-15T00:00:00.000Z",
+  "role": "local implementation receipt; no push, no PR, no spec edits, no checkbox flips",
+  "admissionBrief": "openspec/planning/2026-09-12-roadmap-completion/evidence/r2-authority-host-admission-brief-20260915.json",
+  "base": {
+    "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/archive-edit-recovery-20260915",
+    "branch": "codex/roadmap-r2-authority-host-live-fold-20260915",
+    "baseRef": "origin/main",
+    "baseSha": "f685a5391f6e69b73932cdef5323dd2d247e55a6",
+    "startingWorktreeClean": true,
+    "startingBranch": "codex/roadmap-r2-64-cas-bridge-20260915"
+  },
+  "commits": [
+    {
+      "sha": "467719ce0d1b7c8da37101a04ca06b646a00167f",
+      "slice": "H0",
+      "author": "Wes Rollings <wrollings@gmail.com>",
+      "subject": "test(campaign): reproduce host-view staleness on committed co-op events",
+      "files": 1,
+      "insertions": 455,
+      "deletions": 0,
+      "state": "RED at this commit by design: 6 of 7 rows fail on the stale value"
+    },
+    {
+      "sha": "769c6a145f96d5d80237e4f6fc8f0eb7d3b937a2",
+      "slice": "H1 + H2",
+      "author": "Wes Rollings <wrollings@gmail.com>",
+      "subject": "fix(campaign): fold committed co-op events into the host view through the shared projection",
+      "files": 5,
+      "insertions": 373,
+      "deletions": 158,
+      "state": "GREEN: all 7 rows pass"
+    },
+    {
+      "sha": "5973dc7fbe1250563f0b48801c7bd173ff165c1f",
+      "slice": "review required edits (RE-1, RE-2)",
+      "author": "Wes Rollings <wrollings@gmail.com>",
+      "subject": "docs(campaign): name the in-mount reconnect residual and correct the host cursor rationale",
+      "files": 1,
+      "insertions": 18,
+      "deletions": 5,
+      "state": "comment-only; no behavior change. See reviewEdits below."
+    }
+  ],
+  "files": [
+    {
+      "path": "src/components/campaign/coop/__tests__/CampaignCoopRouteSurfaceConnected.hostProjection.test.tsx",
+      "change": "added (test-only)",
+      "insertions": 455,
+      "deletions": 0
+    },
+    {
+      "path": "src/lib/campaign/coop/campaignAuthoritativeFold.ts",
+      "change": "added",
+      "insertions": 130,
+      "deletions": 0,
+      "why": "the ONE fold from broadcast frames to ICampaignAuthoritativeState; pure functions carrying the guest mirror store's applySnapshot/applyEvent rules verbatim so host and guest cannot drift"
+    },
+    {
+      "path": "src/lib/p2p/campaignMirrorStore.ts",
+      "change": "modified",
+      "insertions": 23,
+      "deletions": 47,
+      "why": "applySnapshot/applyEvent now delegate to campaignAuthoritativeFold; the zustand-facing behavior (including clearing paused on an accepted snapshot) is preserved"
+    },
+    {
+      "path": "src/lib/campaign/coop/campaignMirrorProjection.ts",
+      "change": "modified",
+      "insertions": 57,
+      "deletions": 10,
+      "why": "adds projectAuthoritativeStateOntoCampaign (the shared guard-then-project step both roles now call) and merges faction standings instead of rebuilding them"
+    },
+    {
+      "path": "src/components/campaign/coop/CampaignCoopRouteSurfaceConnected.tsx",
+      "change": "modified",
+      "insertions": 56,
+      "deletions": 101,
+      "why": "H1 host fold + projection; H2 connect cursor; wire-proposal helpers moved out"
+    },
+    {
+      "path": "src/components/campaign/coop/pendingProposalFromWire.ts",
+      "change": "added (pure move, no behavior change)",
+      "insertions": 107,
+      "deletions": 0,
+      "why": "the host fold pushed the connected surface past the repo's configured oxlint max-lines budget (400 code lines, warn level); moving the React-free wire parsing out returns the folder to 0 warnings"
+    }
+  ],
+  "shortstat": "6 files changed, 828 insertions(+), 158 deletions(-)",
+  "caps": {
+    "maxFiles": 15,
+    "filesTouched": 6,
+    "maxNonGeneratedLines": 500,
+    "totalInsertions": 828,
+    "splitApplied": true,
+    "splitRationale": "828 insertions exceed the node's 500-line cap in a single slice, so the work is stacked as two commits, each under the cap: H0 test-only (455 insertions) and H1+H2 production (373 insertions, 158 deletions). H1 and H2 were NOT split further: H2 is a one-argument change inside the same effect H1 rewrites, and a third commit would have cost another full pre-commit build for no reviewable benefit. Reported rather than assumed."
+  },
+  "d9Citation": {
+    "source": "openspec/changes/design-campaign-authority-and-sync/design.md:45-46",
+    "heading": "D9 - GM view is a grant property, not a hosting property",
+    "quoted": "The GM's full view comes from holding the all-scopes grant. Usually the GM hosts the source, but a GM connecting from another device gets a full-scope replica - same mechanism, no special path. Host-as-GM arbitration from coop-campaign-sync is unchanged: commands still commit at the source.",
+    "howHonoured": "No host-flavoured reducer or projection was introduced. The fold rules were EXTRACTED from the guest mirror store into campaignAuthoritativeFold and the store now delegates to them, so exactly one fold exists; the guard-then-project step was extracted into projectAuthoritativeStateOntoCampaign and both role branches call it. The host's only role-specific code is where its fold is held (a component ref) and the host-only refusal / audit / pending UI, all of which is preserved unchanged.",
+    "preambleAlignment": "design-campaign-authority-and-sync tasks.md (2026-08-22 residual) rejected 'mirroring the broadcast into the host store' because it 'would duplicate the guest mirror machinery'. No machinery was duplicated: sharing the fold is the opposite of a second mirror store."
+  },
+  "redFirst": {
+    "capturedAgainst": "production files restored to baseSha content (component, mirror store, projection); only the new test file and the not-yet-imported fold module were present in the tree",
+    "log": ".sisyphus/roadmap-completion-20260912/r2-authority-host-20260915/h0-red-20260915.log",
+    "sha256": "12d09abb51fe8a98e45b7066eecd17307b0299eb3d1b7b9def5709201dd68b2b",
+    "result": "6 failed, 1 passed, 7 total",
+    "failedForTheRightReason": "every failure is a value assertion on the STALE value, not a thrown error",
+    "rows": [
+      {
+        "row": "advances the host campaign store when its own approved proposal commits",
+        "red": "Expected 950000, received 1000000 (the balance the page loaded with)"
+      },
+      {
+        "row": "advances the host campaign date when its own day advance commits",
+        "red": "Expected 3025-01-04T00:00:00.000Z, received 3025-01-01T00:00:00.000Z"
+      },
+      {
+        "row": "backfills the host view from the baseline a reconnect hydrates with",
+        "red": "Expected 600000, received 1000000"
+      },
+      {
+        "row": "projects the same store state for the host and the guest from identical frames",
+        "red": "host projected 1000000 where the guest projected 820000"
+      },
+      {
+        "row": "keeps standing metadata the ledger cannot carry when it folds",
+        "red": "Expected regard 30, received 12 (no fold happened at all)"
+      },
+      {
+        "row": "quotes the cursor it holds when the host surface reconnects",
+        "red": "Expected lastSeq -1 on the first connect, received undefined (no cursor threaded at all)"
+      },
+      {
+        "row": "leaves a single-player campaign alone",
+        "red": "PASSED red and green - the single-player pin, asserting a solo campaign never reaches the co-op transport"
+      }
+    ]
+  },
+  "green": [
+    {
+      "gate": "new suite (7 rows)",
+      "log": ".sisyphus/roadmap-completion-20260912/r2-authority-host-20260915/h1-h2-green-newsuite-20260915.log",
+      "sha256": "80c6c5d67b4d2e203eddfc23468bdd5ed4860db12a84ac455304e9a219b8ad22",
+      "result": "7 passed, 7 total"
+    },
+    {
+      "gate": "scoped: src/lib/campaign/coop + src/components/campaign/coop + src/lib/p2p + src/lib/campaign/sync + coop integration + CampaignSync + handleRoomCodeGuestJoin + campaign dashboard + src/stores/campaign",
+      "log": ".sisyphus/roadmap-completion-20260912/r2-authority-host-20260915/h1-h2-green-scoped-20260915.log",
+      "sha256": "50e38470a3e9f968c7ba35e9af16543f6a76467318b655bc46a4086d03891252",
+      "result": "86 suites passed, 861 tests passed, 0 failed"
+    },
+    {
+      "gate": "earlier consumer-only run, superseded by the scoped run above and kept for the record",
+      "log": ".sisyphus/roadmap-completion-20260912/r2-authority-host-20260915/h1-h2-green-consumers-20260915.log",
+      "sha256": "e824f7e6abb6865a1f3d27c28c230c5b840f414d46cf404208b929ad5a22ea45",
+      "result": "46 suites passed, 463 tests passed"
+    }
+  ],
+  "gates": {
+    "tsc": {
+      "command": "npx tsc --noEmit --skipLibCheck",
+      "exit": 0,
+      "log": ".sisyphus/roadmap-completion-20260912/r2-authority-host-20260915/tsc-20260915.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "note": "empty log = no diagnostics"
+    },
+    "oxlint": {
+      "command": "npx oxlint src/lib/campaign/coop src/lib/p2p src/components/campaign/coop",
+      "exit": 0,
+      "result": "0 warnings, 0 errors across 52 files",
+      "log": ".sisyphus/roadmap-completion-20260912/r2-authority-host-20260915/oxlint-20260915.log",
+      "sha256": "77b36ffd033564f7de7cef95ee3a99db122a6c48f3d33948705af573764dd069"
+    },
+    "oxfmt": {
+      "command": "npx oxfmt --check src/lib/campaign/coop src/lib/p2p src/components/campaign/coop",
+      "exit": 0,
+      "result": "all matched files use the correct format (97 files)",
+      "log": ".sisyphus/roadmap-completion-20260912/r2-authority-host-20260915/oxfmt-20260915.log",
+      "sha256": "dba33c96352c943b163a842654ff2559f0ca10ee71a7ae07f6cc83a6fbbf7857"
+    },
+    "openspecValidate": {
+      "command": "npx openspec validate --all --strict",
+      "exit": 0,
+      "result": "232 passed, 0 failed",
+      "log": ".sisyphus/roadmap-completion-20260912/r2-authority-host-20260915/openspec-validate-20260915.log",
+      "sha256": "a6f1b01bad6ef535f7ae511fd2b0e725e382bcb462449ef4386723e0ec97eff3"
+    },
+    "preCommitHook": {
+      "enabled": true,
+      "ran": "lint-staged (oxlint --fix, oxfmt --write, tsc --noEmit) plus a full npm run build on both commits",
+      "logs": [
+        ".sisyphus/roadmap-completion-20260912/r2-authority-host-20260915/commit-h0-20260915.log",
+        ".sisyphus/roadmap-completion-20260912/r2-authority-host-20260915/commit-h1-h2-20260915.log"
+      ],
+      "sha256": [
+        "dcb9979d01791ab921a05a934214a5d800f4b45e9d943cedc6ccdab2bb826c52",
+        "a945850a662ffc5c313b521ae7ab15d98031763d35a4f81ae4b2d58c8c5a106c"
+      ],
+      "result": "both builds succeeded (standalone hydration reported ok: true)"
+    }
+  },
+  "findingsCorrectingTheAdmissionBrief": [
+    {
+      "id": "F1",
+      "brief": "q2.reconnectDoesNotBackfillHost asserts a host reconnect has no mechanism analogous to the guest's cursor-resumable backfill, because the connect omits lastSeq.",
+      "measured": "bindCampaignSyncConnection.ts:947-1010 derives role from verifiedPlayerId === entry.hostPlayerId, and the role === 'host' arm calls entry.syncSession.joinMember(...) UNCONDITIONALLY - it never reads envelope.lastSeq. CampaignSyncSession.joinMember (:435-497) always sends buildBaselineEvent (:764-791) followed by the tail after that revision. The envelope.lastSeq !== undefined resync arm (:1082-1122) sits on the guest / room-code path only.",
+      "consequence": "What actually makes a host reconnect backfill is H1 folding the hydration BASELINE, not H2's cursor. For a GM who IS the registered host, H2 changes nothing on the wire. H2 still earns its place for the D9 case the brief itself cites: a GM connecting from another device is not the registered host, is routed down the guest / replica arm, and that arm is cursor-driven.",
+      "claimDiscipline": "This artefact does NOT claim H2 fixes host reconnect backfill. H1 does."
+    },
+    {
+      "id": "F2",
+      "brief": "q2.reusableProjectionFn says applyAuthoritativeStateToGuestCampaign is reusable for the host's own view with no modification.",
+      "measured": "Its buildFactionStandings REBUILT campaign.factionStandings from the ledger's Record<string, number>. IFactionStanding (src/types/campaign/factionStanding/IFactionStanding.ts:63-72) also carries accoladeLevel, censureLevel, lastChangeDate and history, none of which the ledger round-trips. Reusing it unmodified on the host would have silently erased them from the host's own richer record.",
+      "consequence": "The projection now MERGES: regard and the derived level update in place, everything else on an existing standing is kept, and a fresh entry is seeded only for a faction the record has never seen. Pinned by the row 'keeps standing metadata the ledger cannot carry when it folds'. Guest behavior is unchanged in practice - a guest mirror never held that metadata.",
+      "claimDiscipline": "Information loss prevented inline rather than filed, per the pending-task file-decision rubric."
+    },
+    {
+      "id": "F3",
+      "brief": "The H1 charter suggested reusing useCampaignMirrorStore's applyEvent/applySnapshot with a host-scoped instance.",
+      "measured": "useCampaignMirrorStore is a zustand singleton with no factory, and it is read by CampaignCoopEntryPanel and by the surface's own guest-only guestMirrorSummary; populating it from the host would have made a host look like a guest mirror. A second host store would have been exactly the duplication the tasks.md preamble rejected.",
+      "consequence": "The fold rules were extracted to pure functions instead and the mirror store delegates to them. The host holds its fold in a component ref.",
+      "deliberateNonSymmetry": "The host's fold is component-scoped while the guest's mirror store is module-scoped. This is intentional and commented at the ref: the baseline frame is stamped sequence -1, and the shared adopt rule pins such a frame to cursor 0, so a host returning with a held cursor above 0 would REJECT its own hydration baseline and backfill nothing. Starting empty makes every host reconnect converge completely."
+    }
+  ],
+  "behaviorPinnedByTheSuite": [
+    "A host-role surface receiving a committed FundsChanged frame for its own campaign advances useCampaignStore's balance (H1 live case).",
+    "A host-role surface receiving a committed CampaignDayAdvanced frame advances the campaign date (H1 live case).",
+    "A host surface that unmounts, misses commits, and remounts catches up from the hydration baseline plus the live tail (H1 reconnect case).",
+    "Host and guest surfaces driven by IDENTICAL frames land on identical campaign-store balance and date (H1 parity).",
+    "Faction standing accolade / censure / history survive a fold (H1 no-loss).",
+    "The host's connect quotes the cursor its fold holds: -1 on a cold connect, the reached sequence on a reconnect (H2).",
+    "A single-player campaign never reaches the co-op transport and its store is untouched (SP pin)."
+  ],
+  "nonClaims": [
+    "No spec file was edited, no SHALL was contradicted, and no tasks.md checkbox was flipped. openspec validate --all --strict is green at 232/232, unchanged from the base.",
+    "CAMPAIGN_JOURNAL_AUTHORITY_ENABLED was not read, set, or flipped. No flag or mode was changed.",
+    "The write path is untouched: CampaignMatchHost, CampaignGmArbiter, CampaignSyncSession and bindCampaignSyncConnection have no edits. This is a read-side (event-consumption) change only.",
+    "The persisted-record staleness at /api/campaigns/[id] (GET returns the pre-commit SerializedCampaign) is NOT addressed and was not touched - that is task 6.4 / R2.authority-client. This slice deliberately reads the live projection instead of refetching, which is the node's 'without client substitution' clause.",
+    "H2 is NOT claimed to fix host reconnect backfill - see finding F1. For a GM who is the registered host the server ignores lastSeq entirely.",
+    "No browser or live proof was run. Evidence is jsdom component-level, driving the real frame decoders (campaignEventFromMessage, parseCampaignCoopSnapshot, applyCampaignEvent) through a hand-driven transport; the socket, the campaign server and the runtime session are not exercised end to end.",
+    "openCoopRuntimeSession and subscribeCoopPendingProposals are stubbed in the new suite, so the arbiter's own commit path is not re-proven there (it is covered by coopRuntimeSession.test.ts and CampaignMatchHost.test.ts, both green in the scoped run).",
+    "No push, no PR, no branch published. The branch exists only in the worktree.",
+    "The pre-existing hazard that a guest holding a cursor above 0 would reject a large-gap resync baseline (the same sequence -1 / adopt-at-0 rule) is UNCHANGED by this slice and is not claimed fixed.",
+    "The host now has its own instance of that same rule: the host effect re-runs on a roomCode/matchId change WITHOUT unmounting, so that reconnect keeps the ref-held fold, quotes a cursor above 0, and rejects the hydration baseline - missing anything committed during the socket gap until the next full mount. The component ref closes the REMOUNT case only. Not claimed fixed; proven by review probe, not by a shipped row.",
+    "pendingProposalFromWire.ts is a pure move; its behavior is unchanged and is covered by the existing HostGmReviewSurface / CampaignLifecycleGate suites, green in the scoped run."
+  ],
+  "packaging": {
+    "decision": "SINGLE SQUASH on PR #1733, carrying H0 + H1H2 + the review comment commit. The originally-published two-PR stack is withdrawn.",
+    "decidedBy": "coordinator, after the branches were pushed and both PRs opened",
+    "reason": "A red-first TEST-ONLY PR cannot pass the protected checks by construction: six of the seven rows fail at 467719ce0, and that failure is the deliverable. #1732 was the right shape for keeping the red state addressable and the wrong shape for merging.",
+    "prs": {
+      "merging": {
+        "number": 1733,
+        "branch": "codex/roadmap-r2-authority-host-live-fold-20260915",
+        "head": "5973dc7fbe1250563f0b48801c7bd173ff165c1f",
+        "base": "main",
+        "state": "OPEN",
+        "title": "feat(campaign): fold live authoritative updates on the host through the shared mirror fold"
+      },
+      "closed": {
+        "number": 1732,
+        "branch": "codex/roadmap-r2-authority-host-h0-20260915",
+        "head": "467719ce0d1b7c8da37101a04ca06b646a00167f",
+        "state": "CLOSED - superseded by #1733",
+        "branchRetained": true,
+        "branchRetentionReason": "The stack base is kept ONLY as red-first evidence. The branch stays published and is NOT deleted, so the red state remains checkable at a real ref rather than only in a log file. It is not a merge candidate.",
+        "remoteRefVerified": "git ls-remote --heads origin codex/roadmap-r2-authority-host-h0-20260915 -> 467719ce0d1b7c8da37101a04ca06b646a00167f"
+      }
+    },
+    "capArithmetic": {
+      "nodeCap": 500,
+      "squashedInsertions": 828,
+      "breakdown": [
+        { "part": "red-first suite (H0, 467719ce0)", "insertions": 455 },
+        { "part": "product change (H1 + H2, 769c6a145)", "insertions": 373 },
+        { "part": "comment-only review edits (5973dc7fb)", "insertions": 18 }
+      ],
+      "arithmetic": "455 + 373 = 828 insertions in the squashed commit, against a 500-line node cap.",
+      "classification": "HARNESS-FLOOR OVERAGE, recorded rather than hidden.",
+      "whyIrreducible": "828 is the smallest GREEN commit that carries the product change. The suite is RED without H1H2, and H1H2 is UNPINNED without the suite, so red-first discipline and a passing protected check cannot both hold below 828 lines. 455 of the 828 are the test file; the product change itself is 373. This is a floor the harness imposes, not scope that could have been trimmed.",
+      "supersedes": "The `caps` section above records the earlier two-slice split (each under 500). That split is no longer the shipping shape; it survives as the commit history inside this single PR."
+    }
+  },
+  "reviewEdits": {
+    "verdict": "APPROVE-WITH-REQUIRED-EDITS",
+    "reviewArtefact": "openspec/planning/2026-09-12-roadmap-completion/evidence/r2-authority-host-live-fold-review-20260915.json",
+    "commit": {
+      "sha": "5973dc7fbe1250563f0b48801c7bd173ff165c1f",
+      "subject": "docs(campaign): name the in-mount reconnect residual and correct the host cursor rationale",
+      "author": "Wes Rollings <wrollings@gmail.com>",
+      "files": 1,
+      "insertions": 18,
+      "deletions": 5,
+      "kind": "comment-only; no behavior change, no test change"
+    },
+    "applied": [
+      {
+        "id": "RE-1",
+        "finding": "F-R1",
+        "file": "src/components/campaign/coop/CampaignCoopRouteSurfaceConnected.tsx",
+        "what": "The hostFold ref comment now names the in-mount reconnect residual verbatim as the review specified, instead of implying the ref design removes the adopt-at-0 hazard outright."
+      },
+      {
+        "id": "RE-2",
+        "finding": "F-R2",
+        "file": "src/components/campaign/coop/CampaignCoopRouteSurfaceConnected.tsx",
+        "what": "The connect-cursor comment no longer claims a D9 replica routing that does not exist. It now states that no arm reachable from a host connection reads envelope.lastSeq, that the cursor is inert on the wire for a host today, and that it is carried as role symmetry and forward-preparation for the cutover."
+      },
+      {
+        "id": "RE-3",
+        "finding": "F-R1",
+        "file": "this evidence JSON",
+        "what": "nonClaims now discloses the host instance of the adopt-at-0 rule alongside the pre-existing guest one, closing the asymmetry the review named."
+      }
+    ],
+    "gatesAfterEdits": [
+      {
+        "gate": "oxfmt --check on the component and the new suite",
+        "exit": 0,
+        "result": "all matched files use the correct format (2 files)",
+        "log": ".sisyphus/roadmap-completion-20260912/r2-authority-host-20260915/oxfmt-reviewedits-20260915.log",
+        "sha256": "42de7ea233c0decf4c1ae6329fb16651e64789054e66376de3b951e3a147350f"
+      },
+      {
+        "gate": "oxlint src/components/campaign/coop src/lib/campaign/coop src/lib/p2p",
+        "exit": 0,
+        "result": "0 warnings, 0 errors across 52 files"
+      },
+      {
+        "gate": "jest src/components/campaign/coop src/lib/campaign/coop src/lib/p2p",
+        "exit": 0,
+        "result": "40 suites passed, 398 tests passed, 0 failed",
+        "log": ".sisyphus/roadmap-completion-20260912/r2-authority-host-20260915/reviewedits-green-20260915.log",
+        "sha256": "a9903b62c960cee74d0227f7cfab34e4ca0124e6529e4d11f1087c5cbfa78b04"
+      },
+      {
+        "gate": "pre-commit hook (lint-staged + full npm run build)",
+        "exit": 0,
+        "log": ".sisyphus/roadmap-completion-20260912/r2-authority-host-20260915/commit-reviewedits-20260915.log",
+        "sha256": "76f6ae3735ca75482c78886831b2c7158d053a92e3f895ba638c84e15a2c0ea8"
+      }
+    ],
+    "reviewerMutants": {
+      "M1": "host branch skips the shared projection -> KILLED, 5 failed / 2 passed; reconstructs the pre-H1 red state in place",
+      "M2": "connect cursor line deleted -> KILLED by exactly one row, the H2 row; clean separation from the H1 rows",
+      "M3": "faction-standing merge reverted to a rebuild -> KILLED by exactly the no-loss row; correction F2 is load-bearing",
+      "M4": "early return null in the SHARED foldCampaignSnapshot -> KILLED ON BOTH ROLES (host suite 2 failed, guest campaignMirrorStore suite 1 failed). This is the empirical proof of the D9 'one fold, no special path' claim: one mutation in one module breaks host and guest alike. The host/guest PARITY row survived M4, as expected - a parity assertion detects divergence, not symmetric breakage, so it alone would not have caught a fold regression."
+    }
+  },
+  "fR1Disclosure": {
+    "title": "An in-mount reconnect rejects the server's own hydration baseline",
+    "severity": "MEDIUM (disclosure; no code change in this slice)",
+    "mechanism": "The host effect's dep array is [campaignId, coopMode, matchId, roomCode, store]. A roomCode change (invite rotation) or a matchId change re-runs the effect - tearing down and reopening the transport - WITHOUT unmounting, so the hostFold ref survives at whatever cursor it reached. The server hydrates every host (re)connection with buildBaselineEvent stamped sequence -1 (CampaignSyncSession.ts:779); foldCampaignFrame pins such a frame to cursor 0 (campaignAuthoritativeFold.ts:118-121); foldCampaignSnapshot then rejects it because adopted (0) < fold.lastSequence (campaignAuthoritativeFold.ts:74-76). The baseline is exactly what carries the commits that landed during the socket gap, so those commits are dropped and the live tail resumes on a fold that is missing them.",
+    "proof": "Reviewer PROBE-1: mount a host, fold to cursor 7, re-render with a rotated room code, emit a baseline at revision 9 carrying balance 123456. Result: Expected 123456, Received 700000 - the baseline was rejected. Probe reverted; reviewer worktree clean.",
+    "notARegression": "Before this slice the host never updated at all, so this narrows the defect rather than widening it.",
+    "probability": "LOW. The window is the GM's own socket reopen, triggered only by an invite rotation or a matchId change, and the GM is the party committing - so the commits most likely to fall in the gap are the GM's own, which the GM has just issued. It resolves on the next full mount.",
+    "whyNotFixedHere": "Both candidate fixes reach outside this slice. Resetting the fold on effect re-run would defeat H2's cursor entirely. Making a sequence -1 baseline an unconditional replace changes the SHARED guest semantics: the same adopt-at-0 rule is what the guest mirror relies on for its own large-gap resync, so the change would need a red-first row on both roles, not a host-only edit. Either is its own slice.",
+    "namedInCode": "src/components/campaign/coop/CampaignCoopRouteSurfaceConnected.tsx, the hostFold ref comment, as of commit 5973dc7fb."
+  },
+  "cutoverOwnerFlag": {
+    "raisedBy": "review axis7_mergeTree.semanticInteractionChecked",
+    "concern": "#1724 (231c7848a on origin/main) adds refreshAfterCommittedCommand, which routes through runLoad -> writeLiveCampaign -> switchCampaign, a WHOLE-RECORD replacement of useCampaignStore.campaign. That is a second writer to the exact object the host fold now projects onto, so a stale refetch landing after a fold could clobber the fresh view - the very defect this slice fixes.",
+    "measuredToday": "NOT REACHABLE. git grep for refreshAfterCommittedCommand on origin/main, excluding its own definition file, returns exactly one hit: src/stores/campaign/__tests__/campaignCommandAckRefresh.test.ts:284. The bridge has no production call site and is exercised only by its own suite.",
+    "evidenceLines": [
+      "origin/main:src/stores/campaign/useCampaignPersistenceStore.ts:419-422 writeLiveCampaign -> switchCampaign",
+      "origin/main:src/stores/campaign/useCampaignPersistenceStore.ts:1318-1357 refreshAfterCommittedCommandAction"
+    ],
+    "decisionOwed": "When task 5.7 routes host commands through /commands and this bridge is wired, the ack-refresh and the host fold become two writers to useCampaignStore.campaign and their ordering needs a deliberate decision. Not this slice's job and not a merge blocker.",
+    "mergeStatus": "git merge-tree --write-tree origin/main HEAD is clean with ZERO file overlap; main's 8 changed files since the merge base include none of this branch's 6."
+  },
+  "remainingForR2AuthorityCutover": [
+    "Task 6.4: bridge SerializedCampaign.baseVersion (client CAS) to the journal's expectedRevision after a committed acceptance. Untouched here; the owner has not pre-selected refetch versus widening /commands.",
+    "Task 6.2b: route the single-player client accept path through the source command pipeline. Blocked on the recorded owner decision about a single-player principal / seat.",
+    "Task 5.7: the cutover itself - reviewed flag states (new / legacy / shadowing / journal / blocked), parity gate, no fallback on a missing journal stream, D10-compatible rollback. Unstarted on origin/main; CAMPAIGN_JOURNAL_AUTHORITY_ENABLED remains false.",
+    "Reconciliation of the checked-but-nonclaim rows in Groups 1/3/4/5 (1.2, 1.3, 4.3, 4.5, 5.7), per R2.authority-live's acceptance.",
+    "The CampaignGmArbiter second-AcceptContract-writer residual (admission brief q7), assigned by the tasks.md preamble to a re-opening of Group 3 rather than to a new bounded PR.",
+    "A real two-process source / replica convergence proof (append / restart / catch-up / revocation / redaction). Everything reviewed and added here is in-process.",
+    "A live browser witness that a GM sees an approved co-op proposal without reloading. This slice makes the jsdom assertion true; it does not replace the live witness R2.authority-live's acceptance names."
+  ]
+}

@@ -1,0 +1,212 @@
+{
+  "node": "R2.authority",
+  "artefact": "r2-63-room-code-leak-row-local-20260915",
+  "task": "design-campaign-authority-and-sync task 6.3 -- the missing room-code-hydration leak row",
+  "capturedAtUtc": "2026-09-15T00:00:00.000Z",
+  "scope": "test-only; one falsification row with mutation proof. No push, no PR.",
+  "base": {
+    "branch": "codex/roadmap-r2-63-room-code-leak-row-20260915",
+    "branchedFrom": "origin/main",
+    "baseSha": "83887b7467deba22c1b0b6aa6fb1be8ba6bc4600",
+    "note": "base is NEWER than the residual brief's recorded originMainAtFetch 2b98ce5b049e7b63a38161057961d0185bb42a31; the brief's 5-of-6 finding was re-verified against this base by grep before any edit (roomCodeGuestHydration.test.ts at 83887b746 carried zero references to campaignSourcePrivateEnvelope / envelopeOf / any private contract field).",
+    "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/archive-edit-recovery-20260915",
+    "preflightWorktreeClean": true
+  },
+  "commit": {
+    "sha": "751749480b5ed0a70f8f90be9ab4503a83081255",
+    "message": "test(campaign): falsify a source-private leak through room-code hydration",
+    "author": "Wes Rollings <wrollings@gmail.com>",
+    "aiAttribution": "none",
+    "hooks": "on (pre-commit ran the full next build; log 09-commit.log)",
+    "pushed": false
+  },
+  "files": [
+    {
+      "path": "src/lib/campaign/coop/__tests__/roomCodeGuestHydration.test.ts",
+      "kind": "test-only",
+      "change": "added imports + one describe block with one it()"
+    }
+  ],
+  "shortstat": "1 file changed, 244 insertions(+)",
+  "caps": {
+    "filesLimit": 15,
+    "filesTouched": 1,
+    "linesLimit": 500,
+    "linesChanged": 244
+  },
+  "productionFilesTouched": [],
+  "specFilesTouched": [],
+  "checkboxesFlipped": [],
+  "theRow": {
+    "file": "src/lib/campaign/coop/__tests__/roomCodeGuestHydration.test.ts",
+    "describe": "room-code guest hydration source-only private envelope (line 158)",
+    "it": "withholds the private contract and market from the recomposed guest snapshot (line 270)",
+    "pathExercised": "the real handleRoomCodeGuestJoin.hydrateFirstJoin path: real file-backed SQLite journal harness (openCampaignDeliveryHarness) -> appendCampaignCommandBatch with a sourcePrivate sibling carrying the full IContract + remaining market -> buildScopedCampaignSnapshot for a restricted campaign-scope grant (which itself calls projectCampaignStreamForGrant, whose single narrowing is envelopeOf) -> buildRoomCodeGuestHydration over built.page.items with a host-log genesis seed -> roomCodeGuestClientSnapshotEvent.",
+    "positiveShapeAssertions": [
+      "expect(hydration.state.contracts).toEqual({ 'offer-taken': { contractId, name, employerFactionId } }) -- toEqual on the WHOLE contracts map, so any extra key on the hydrated ledger entry fails; this is a positive pin on the exact ICampaignAcceptedContract projection shape, not an absence-of-key check.",
+      "expect(accepted[0]).toEqual({ deliverySequence: 2, event: { type, campaignId, ts, authorPlayerId, scope, payload: { contract: {3 compact fields} } } }) -- the whole replica delivery item the guest receives, pinned exactly."
+    ],
+    "negativeByteScan": "PRIVATE_MARKERS = ['house-liao','Integrated','overwhelming','GARRISON_DUTY','offer-remaining','1250000','sourcePrivate'] scanned against JSON.stringify of THREE guest surfaces: hydration.replicaItems (replica backfill page), hydration.state (recomposed snapshot), and the client CampaignSnapshotPublished frame.",
+    "notEmptyControl": "surfaces[1] positively contains 'offer-taken' and 'house-davion' -- the compact fact is still delivered in full, so the row proves withholding rather than an empty hydration.",
+    "sourceSideStillBinds": [
+      "Object.hasOwn(rows[0].payload, 'sourcePrivate') === true -- the private sibling IS on the stored row (the accepted D12 residual, pinned honestly).",
+      "projection.baseline.sourceBodyDigest === computeCampaignSourceBodyDigest(projection.baseline.sourceRecordBody) -- the captured baseline digest binds.",
+      "replayCampaignSourceContracts(rows) recovers acceptedContracts[0].targetId === 'house-liao', .salvageRights === 'Integrated', and remainingMarket.offers[0].id === 'offer-remaining' -- every fact the guest was denied is still recoverable source-side."
+    ]
+  },
+  "firstRun": {
+    "expectation": "GREEN against the real product (P0b S3, PR #1688, already routed projectCampaignStreamForGrant.ts through envelopeOf)",
+    "result": "GREEN",
+    "command": "node node_modules/jest/bin/jest.js --maxWorkers=2 --coverage=false src/lib/campaign/coop/__tests__/roomCodeGuestHydration.test.ts",
+    "summary": "Test Suites: 1 passed, 1 total; Tests: 5 passed, 5 total (4 pre-existing + 1 new)",
+    "log": ".sisyphus/roadmap-completion-20260912/r2-63-leak-row-20260915/01-first-run.log",
+    "logSha256": "4acb7f12e5d0b2a82b5f5ff811a41738ca53ff32a32c39e055e9fad872dea506",
+    "redOnFirstRun": false,
+    "realLeakFound": false
+  },
+  "mutation": {
+    "site": "src/lib/campaign/delivery/projectCampaignStreamForGrant.ts:259 (the single D12 narrowing)",
+    "rationale": "The room-code hydration surface has no narrowing of its own -- it re-folds the projector's items. Mutating the SHARED envelopeOf boundary is therefore the mutation that proves the room-code row is actually bound to that boundary rather than passing for an unrelated reason.",
+    "oneLineDiff": {
+      "before": "    const event = envelopeOf(stored);",
+      "after": "    const event = { ...envelopeOf(stored), payload: { ...envelopeOf(stored).payload, ...stored.payload } } as unknown as ICampaignEvent;"
+    },
+    "diffFile": ".sisyphus/roadmap-completion-20260912/r2-63-leak-row-20260915/02-mutation.diff",
+    "diffSha256": "d88de12de43bc8533995227f5d2533606c530ec2f6a2d9d96127a347e142ffa5",
+    "kill": {
+      "result": "RED",
+      "summary": "Test Suites: 1 failed, 1 total; Tests: 1 failed, 4 passed, 5 total",
+      "failingRow": "withholds the private contract and market from the recomposed guest snapshot",
+      "firstAssertionToFire": "roomCodeGuestHydration.test.ts:315 expect(accepted[0]).toEqual({...}) -- the POSITIVE exact-shape pin on the replica delivery item; the jest diff shows the whole private payload (employerId, targetId house-liao, paymentTerms basePayment 1250000, salvageRights Integrated, moraleLevel overwhelming, offer-remaining, schemaVersion 1) present on the delivered event.",
+      "controlsThatStayedGreen": "the 4 pre-existing rows in the same file (composeRoomCodeGuestState genesis funds, in-scope incremental fold, replica cursor mapping, replica-fold equivalence) all stayed green -- same-file, same-shape control.",
+      "log": ".sisyphus/roadmap-completion-20260912/r2-63-leak-row-20260915/03-mutation-run.log",
+      "logSha256": "4bb0916d86d64aa2d3ac3494ea9992c6f1dcee5f99f638853eb029bc44946edf"
+    },
+    "crossCheck": {
+      "why": "Confirms the mutation is a genuine bypass of the shared boundary and not an artefact only the new row notices.",
+      "suite": "src/lib/campaign/delivery/__tests__/projectCampaignStreamForGrant.test.ts",
+      "result": "RED under the same mutation: Tests: 3 failed, 5 passed, 8 total -- both existing S3 leak rows (restricted campaign-scope guest AND GM all-scopes control) died, plus 'reuses sequences on reconnect and pages by cursor without renumbering'.",
+      "log": ".sisyphus/roadmap-completion-20260912/r2-63-leak-row-20260915/04-mutation-grant-crosscheck.log",
+      "logSha256": "71366037539f92cb7ca30136b32c61e53a6ed62ed4b1926c817440a0365f9ecf"
+    },
+    "restored": "git checkout -- src/lib/campaign/delivery/projectCampaignStreamForGrant.ts; git status --porcelain then showed only the test file modified. Verified before the gates and before the commit."
+  },
+  "gates": [
+    {
+      "gate": "touched suite + src/lib/campaign/delivery + src/lib/campaign/sync",
+      "command": "node node_modules/jest/bin/jest.js --maxWorkers=2 --coverage=false src/lib/campaign/coop src/lib/campaign/delivery src/lib/campaign/sync",
+      "result": "PASS -- Test Suites: 32 passed, 32 total; Tests: 180 passed, 180 total",
+      "exit": 0,
+      "log": ".sisyphus/roadmap-completion-20260912/r2-63-leak-row-20260915/05-gate-suites.log",
+      "logSha256": "0987c0fcfe14231f6af43d840834f2aa53401392c3ac6a0ea24ae59371939ee7"
+    },
+    {
+      "gate": "tsc",
+      "command": "npx tsc --noEmit -p tsconfig.json",
+      "result": "PASS -- no output",
+      "exit": 0,
+      "log": ".sisyphus/roadmap-completion-20260912/r2-63-leak-row-20260915/06-tsc.log",
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "gate": "oxfmt on changed files",
+      "command": "npx oxfmt --check src/lib/campaign/coop/__tests__/roomCodeGuestHydration.test.ts",
+      "result": "PASS -- All matched files use the correct format",
+      "exit": 0,
+      "log": ".sisyphus/roadmap-completion-20260912/r2-63-leak-row-20260915/07-oxfmt.log",
+      "logSha256": "88eed75077b7c77afcc7ff45e99b3a6a41a77693ba8387009e396edf6b56fdbd"
+    },
+    {
+      "gate": "openspec validate --all --strict",
+      "command": "npx openspec validate --all --strict",
+      "result": "PASS -- Totals: 232 passed, 0 failed (232 items)",
+      "exit": 0,
+      "log": ".sisyphus/roadmap-completion-20260912/r2-63-leak-row-20260915/08-openspec.log",
+      "logSha256": "a6f1b01bad6ef535f7ae511fd2b0e725e382bcb462449ef4386723e0ec97eff3"
+    }
+  ],
+  "task63RowInventory": {
+    "verdict": "ALL SIX named rows are now PRESENT on this branch (5 already on origin/main, 1 added by this commit). The tasks.md 6.3 checkbox was NOT flipped -- out of scope for this dispatch.",
+    "rows": [
+      {
+        "row": "1. Reopen boundary: commit an accepted contract carrying full detail, reopen, assert the source recovers it from the private field while envelopeOf yields only the compact fact",
+        "status": "PRESENT (pre-existing, main)",
+        "citation": "src/lib/campaign/sync/__tests__/JournalCampaignEventStore.test.ts:484 describe('source-only private envelope (real SQLite reopen)'); the row itself at :507 it('recovers the full contract and market from the private field while envelopeOf stays compact')"
+      },
+      {
+        "row": "2. Leak rows in projectCampaignStreamForGrant.test.ts (no employer/target/payment terms/salvage rights/morale/AtB type/market offer reaches a campaign-scope delivery item), with the GM all-scopes grant as a same-shape control",
+        "status": "PRESENT (pre-existing, main; landed by P0b S3 / PR #1688)",
+        "citation": "src/lib/campaign/delivery/__tests__/projectCampaignStreamForGrant.test.ts:348 describe('projectCampaignStreamForGrant source-only private envelope'); the it.each row at :441 'withholds the private contract and market from a %s' (cases: restricted campaign-scope guest, GM all-scopes grant)"
+      },
+      {
+        "row": "3. Leak rows in src/lib/campaign/coop/__tests__/roomCodeGuestHydration.test.ts (no private field reaches a recomposed hydration snapshot)",
+        "status": "PRESENT -- ADDED BY THIS COMMIT (751749480); this was the one missing row",
+        "citation": "src/lib/campaign/coop/__tests__/roomCodeGuestHydration.test.ts:158 describe('room-code guest hydration source-only private envelope'); the row at :270 it('withholds the private contract and market from the recomposed guest snapshot')"
+      },
+      {
+        "row": "4. Legacy row: a pre-private envelope canonicalizes to identical bytes and an identical state digest",
+        "status": "PRESENT (pre-existing, main)",
+        "citation": "src/lib/campaign/sync/__tests__/JournalCampaignEventStore.test.ts:603 it('leaves a legacy envelope byte-identical and its digests unchanged')"
+      },
+      {
+        "row": "5. Producer rows live in src/lib/campaign/authority/__tests__/campaignCommandPipeline.test.ts",
+        "status": "PRESENT as the named location, populated by the 6.2a / 6.2a-3 stack",
+        "citation": "src/lib/campaign/authority/__tests__/campaignCommandPipeline.test.ts exists, alongside campaignCommandPipelineOfferDurability.test.ts, campaignCommandPipelineArtifactUse.test.ts, campaignCommandPipelineRebuild.test.ts and campaignAcceptContractSourceRow.test.ts. NON-CLAIM carried from the residual brief and NOT discharged here: task 6.3's own falsification-1:1 methodology was never separately run against the PRODUCER rows -- the location and substantive coverage exist, the 1:1 producer falsification does not."
+      },
+      {
+        "row": "6. Accepted residual row: projectedEventIdentity on a delivered item still equals the stored eventDigest computed over the whole payload, pinned as EXPECTED",
+        "status": "PRESENT (pre-existing, main)",
+        "citation": "src/lib/campaign/delivery/__tests__/projectCampaignStreamForGrant.test.ts:470 it('still commits the delivered identity to the whole stored payload')"
+      }
+    ]
+  },
+  "nonClaims": [
+    "NOT pushed, no PR opened, no branch published. HEAD 751749480 is local to the worktree branch codex/roadmap-r2-63-room-code-leak-row-20260915.",
+    "NO production file was modified by the commit. The only production edit in this session was the deliberate, temporary falsification mutation to projectCampaignStreamForGrant.ts, restored with `git checkout --` before the gates and before the commit; the commit's shortstat (1 file changed, 244 insertions) is the proof it is not in the tree.",
+    "NO spec file edited and NO checkbox flipped. tasks.md 6.3 remains unchecked on this branch; whether 6.3 is now closable is an owner call, not a claim made here.",
+    "This row does NOT discharge task 6.1 or 6.2. It is a boundary proof over machinery already on main (#1686-1688); it adds no producer, no flag flip, no HTTP surface change.",
+    "This row does NOT prove the private payload leaves no trace on the wire. It explicitly pins the OPPOSITE as EXPECTED on the source side (Object.hasOwn(rows[0].payload,'sourcePrivate') === true), consistent with design.md's accepted D12 residual that projectedEventIdentity is a one-way commitment over the private bytes. Row 6 in projectCampaignStreamForGrant.test.ts owns that residual for the delivery surface; this row does not re-prove it for the replica surface.",
+    "The producer-side 1:1 falsification named in 6.3 was NOT run here (see row 5 above) -- that gap survives this commit.",
+    "The mutation kill is evidence about the SHARED envelopeOf boundary. It does not prove roomCodeGuestHydration.ts has an independent guard -- it proves the opposite, which is the point: the room-code surface inherits the boundary and would leak the instant envelopeOf stopped narrowing.",
+    "CAMPAIGN_JOURNAL_AUTHORITY_ENABLED was not read, set, or flipped; no live/browser evidence was gathered. Every claim above traces to a jest/tsc/oxfmt/openspec run logged in this directory."
+  ],
+  "logsDir": ".sisyphus/roadmap-completion-20260912/r2-63-leak-row-20260915/",
+  "logs": [
+    {
+      "file": "01-first-run.log",
+      "sha256": "4acb7f12e5d0b2a82b5f5ff811a41738ca53ff32a32c39e055e9fad872dea506"
+    },
+    {
+      "file": "02-mutation.diff",
+      "sha256": "d88de12de43bc8533995227f5d2533606c530ec2f6a2d9d96127a347e142ffa5"
+    },
+    {
+      "file": "03-mutation-run.log",
+      "sha256": "4bb0916d86d64aa2d3ac3494ea9992c6f1dcee5f99f638853eb029bc44946edf"
+    },
+    {
+      "file": "04-mutation-grant-crosscheck.log",
+      "sha256": "71366037539f92cb7ca30136b32c61e53a6ed62ed4b1926c817440a0365f9ecf"
+    },
+    {
+      "file": "05-gate-suites.log",
+      "sha256": "0987c0fcfe14231f6af43d840834f2aa53401392c3ac6a0ea24ae59371939ee7"
+    },
+    {
+      "file": "06-tsc.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "file": "07-oxfmt.log",
+      "sha256": "88eed75077b7c77afcc7ff45e99b3a6a41a77693ba8387009e396edf6b56fdbd"
+    },
+    {
+      "file": "08-openspec.log",
+      "sha256": "a6f1b01bad6ef535f7ae511fd2b0e725e382bcb462449ef4386723e0ec97eff3"
+    },
+    {
+      "file": "09-commit.log",
+      "sha256": "4ac19cd15d377f9f32ff9aedb9b4c01f5082d6ec99a4ca7edbd8514f8c9554e1"
+    }
+  ]
+}

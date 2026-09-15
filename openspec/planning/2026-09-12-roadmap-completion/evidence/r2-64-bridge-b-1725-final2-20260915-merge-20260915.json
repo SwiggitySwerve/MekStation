@@ -1,0 +1,53 @@
+{
+  "pr": 1725,
+  "branch": "codex/roadmap-r2-64-cas-bridge-20260915",
+  "reviewedCommit": "8866e7e7343cc9ec1b40758295cfcdebc787b39d",
+  "resolvedHeadFromParent": "2a9152efbcc61be5430d16c13ef54832f1c59e07",
+  "finalHead": "c956158185679ed51b2e277dd4af9eee1e768fca",
+  "autoMergeArmed": false,
+  "contentGuard": {
+    "method": "file set from `git diff --name-only origin/main...<head>` vs the reviewed file set, plus per-file blob equality against the reviewed commit; re-run after update-branch",
+    "fileCountAtMerge": 1,
+    "blobEquality": "all files blob-identical to the reviewed commit at the gated head",
+    "result": "PASS"
+  },
+  "updateBranch": {
+    "performedByThisSession": true,
+    "expectedHeadShaGuardUsed": true,
+    "newHead": "c956158185679ed51b2e277dd4af9eee1e768fca"
+  },
+  "checksAtTerminal": {
+    "Lint and Test": "pass",
+    "Build Test / win": "pass",
+    "Build Test / mac": "pass",
+    "Build Test / linux": "pass",
+    "otherChecksCount": 27,
+    "otherChecksBuckets": {
+      "pass": 27
+    },
+    "totalChecks": 31
+  },
+  "premergeReceipt": {
+    "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/r2-64-bridge-b-1725-final2-20260915-premerge.json",
+    "ready": true,
+    "failures": []
+  },
+  "mergeCommit": "dc8b8f65d2d8b8562ce721ee4f3a9ca81a7a6a11",
+  "mergeCommitParents": [
+    "8c8f8221c4c1882f671d8fad7c2386ef9d10ca44"
+  ],
+  "mergeStyle": "squash (single parent)",
+  "mergeCommand": "gh pr merge 1725 --squash --match-head-commit c956158185679ed51b2e277dd4af9eee1e768fca",
+  "mergedAt": "2026-09-15T15:44:30Z",
+  "mergedBy": "this session (step 6 executed)",
+  "mergedContentVerification": "The merge commit changes exactly 1 file(s), all blob-identical to the gated head c956158185679ed51b2e277dd4af9eee1e768fca.",
+  "mainAfter": "dc8b8f65d2d8b8562ce721ee4f3a9ca81a7a6a11",
+  "worktree": {
+    "fastForward": "NOT PERFORMED - coordinator designated the owned worktrees as off-limits for these PRs",
+    "result": "SKIPPED (intentional)"
+  },
+  "notes": "Reported DIRTY after 1724 squash; parent resolved keeping the branch test file. Delta vs main = campaignCommandAckRefresh.test.ts +114 only.",
+  "timestamps": {
+    "receiptWrittenAt": "2026-09-15T17:02:00Z"
+  }
+}
