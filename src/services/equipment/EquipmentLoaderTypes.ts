@@ -8,6 +8,12 @@ export interface IEquipmentLoadResult {
   readonly itemsLoaded: number;
   readonly errors: string[];
   readonly warnings: string[];
+  /**
+   * Set only when the load was cancelled part-way through because the document
+   * was unloading. An interrupted load is incomplete, not partially failed:
+   * `errors` stays empty and the caller should retry rather than report.
+   */
+  readonly interrupted?: boolean;
 }
 
 export interface IEquipmentValidationResult {

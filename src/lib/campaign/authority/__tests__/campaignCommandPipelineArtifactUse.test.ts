@@ -140,7 +140,7 @@ describe('campaign command pipeline artifact use', () => {
       }
     });
 
-    it('commits when artifactUse is absent and SQLite is not initialized', async () => {
+    it('reaches the durability gate when artifactUse is absent and SQLite is not initialized', async () => {
       resetSQLiteService();
       expect(getSQLiteService().isInitialized()).toBe(false);
       const result = await executeCampaignCommand(
@@ -153,7 +153,15 @@ describe('campaign command pipeline artifact use', () => {
           ts: NOW,
         },
       );
-      expect(result.kind).toBe('committed');
+      // The default later-use reader still answers "usable" rather than
+      // throwing on an uninitialized SQLite - the command gets PAST it and
+      // stops one step later, at task 6.2a's source-market read, which an
+      // in-memory journal has no transaction to perform.
+      expect(result).toStrictEqual({
+        kind: 'offer-not-durable',
+        contractId: CONTRACT_ID,
+        reason: 'source-read-unavailable',
+      });
     });
   });
 
@@ -168,6 +176,7 @@ describe('campaign command pipeline artifact use', () => {
       getSQLiteService({ path: path.join(dir, 'use.db') }).initialize();
       db = getSQLiteService().getDatabase();
       journal = new SQLiteEventJournal<ICampaignJournalEnvelope>(db, () => NOW);
+      seedDurableMarket();
       const imported = await importCampaignBaseline(journal, {
         campaignId: CAMPAIGN_ID,
         state: {
@@ -184,6 +193,54 @@ describe('campaign command pipeline artifact use', () => {
       resetSQLiteService();
       await rm(dir, { recursive: true, force: true, maxRetries: 3 });
     });
+
+    /**
+     * Task 6.2a: an AcceptContract is now authorised by the offer the
+     * persisted source record holds. These rows are about the artifact-use
+     * consult, so the market carries every id they name - otherwise they
+     * would stop at the durability gate and stop proving anything.
+     */
+    function seedDurableMarket(): void {
+      const offers = [CONTRACT_ID, 'contract-never-named'].map((id) => ({
+        id,
+        name: `Offer ${id}`,
+        status: 'Active',
+        type: 'contract',
+        systemId: 'galatea',
+        scenarioIds: [],
+        employerId: 'davion',
+        targetId: 'liao',
+        paymentTerms: {},
+        salvageRights: 'Integrated',
+        commandRights: 'Independent',
+      }));
+      const body = {
+        name: 'Artifact Use Fixture',
+        factionId: 'mercenary',
+        currentDate: '3025-01-03',
+        contractMarket: { offers, declinedOfferIds: [] },
+      };
+      db.prepare(
+        `INSERT OR REPLACE INTO campaigns
+           (id, version, schema_version, name, faction_id, campaign_date,
+            balance, saved_at, origin_device_id, payload)
+         VALUES (?, 1, 1, ?, ?, ?, 0, ?, 'device-1', ?)`,
+      ).run(
+        CAMPAIGN_ID,
+        body.name,
+        body.factionId,
+        body.currentDate,
+        NOW,
+        JSON.stringify({
+          campaignId: CAMPAIGN_ID,
+          version: 1,
+          schemaVersion: 1,
+          body,
+          savedAt: NOW,
+          originDeviceId: 'device-1',
+        }),
+      );
+    }
 
     async function seedAndMint(): Promise<{
       branchId: string;
