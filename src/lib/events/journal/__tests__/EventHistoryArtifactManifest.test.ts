@@ -3,6 +3,7 @@ import { mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 
+import { EVENT_HISTORY_GENESIS_DIGEST } from '@/lib/events/journal/EventHistoryBranchContract';
 import { SQLiteService } from '@/services/persistence/SQLiteService';
 
 import type {
@@ -68,7 +69,7 @@ describe('SQLiteEventHistoryArtifactManifestStore', () => {
           reason, created_at)
        VALUES ('match', 'stream-1', 'root', NULL, 0, 0, NULL, ?, 'effective',
                'migration', 'genesis', ?)`,
-    ).run(DIGEST_A, DERIVED_AT);
+    ).run(EVENT_HISTORY_GENESIS_DIGEST, DERIVED_AT);
     db.prepare(
       `INSERT INTO event_history_branches
          (stream_type, stream_id, branch_id, parent_branch_id, ancestor_depth,
