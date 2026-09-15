@@ -1,0 +1,54 @@
+{
+  "pr": 1698,
+  "branch": "codex/roadmap-r2-p1-62a1i-prepared-accept-20260915",
+  "reviewedCommit": "8ebd33899",
+  "resolvedHeadFromParent": "3a90ed53053664d48b6d193b52a44006c2c2ca95",
+  "finalHead": "bd2e5619e7c35bac5a61d87d73847c872fc1320d",
+  "autoMergeArmed": false,
+  "contentGuard": {
+    "method": "file set from `git diff --name-only origin/main...<head>` compared to the reviewed file set, plus per-file blob equality against the reviewed commit; re-run after update-branch",
+    "fileCountAtMerge": 4,
+    "blobEquality": "all files blob-identical to the reviewed commit at the gated head (exceptions, if any, are described in notes)",
+    "result": "PASS"
+  },
+  "updateBranch": {
+    "performedByThisSession": true,
+    "expectedHeadShaGuardUsed": true,
+    "newHead": "bd2e5619e7c35bac5a61d87d73847c872fc1320d"
+  },
+  "checksAtTerminal": {
+    "Lint and Test": "pass",
+    "Build Test / win": "pass",
+    "Build Test / mac": "pass",
+    "Build Test / linux": "pass",
+    "otherChecksCount": 27,
+    "otherChecksBuckets": {
+      "pass": 27
+    },
+    "totalChecks": 31,
+    "totalChecksNote": "31 because #1678 added the standing \"Customizer Regressions\" check to main"
+  },
+  "premergeReceipt": {
+    "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/r2-p1-62a1i-1698-final2-20260915-premerge.json",
+    "ready": true,
+    "failures": []
+  },
+  "mergeCommit": "818e654e0ac7c98b8a4b53c2f35be9e4b7643152",
+  "mergeCommitParents": [
+    "1290676377e311aafac8966287b4967db16eed61"
+  ],
+  "mergeStyle": "squash (single parent)",
+  "mergeCommand": "gh pr merge 1698 --squash --match-head-commit bd2e5619e7c35bac5a61d87d73847c872fc1320d",
+  "mergedAt": "2026-09-15T11:09:22Z",
+  "mergedBy": "this session (step 6 executed)",
+  "mergedContentVerification": "The merge commit changes exactly 4 file(s), all blob-identical to the gated head bd2e5619e7c35bac5a61d87d73847c872fc1320d.",
+  "mainAfter": "818e654e0ac7c98b8a4b53c2f35be9e4b7643152",
+  "worktree": {
+    "fastForward": "NOT PERFORMED unless the coordinator designated the worktree as free; several owned worktrees were explicitly off-limits (parent in use / other branch).",
+    "result": "SKIPPED or SUCCESS per coordinator instruction for this PR"
+  },
+  "notes": "Cherry-picked docs commits conflicted with main; parent resolved taking main openspec files. Post-update the diff vs main collapsed to exactly the PR four own files, 461+/49-, with NO P0b or openspec file remaining - the coordinator stop condition was checked and passed.",
+  "timestamps": {
+    "receiptWrittenAt": "2026-09-15T15:00:00Z"
+  }
+}

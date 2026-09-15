@@ -1,0 +1,306 @@
+{
+  "artefact": "independent review",
+  "node": "R4.S1",
+  "reviewer": {
+    "role": "INDEPENDENT REVIEWER (journal/persistence scope) — not the author",
+    "mode": "read-only; no edits, commits, pushes, sub-agents or builds",
+    "reviewedAt": "2026-09-15"
+  },
+  "subject": {
+    "commit": "784373c39",
+    "commitSubject": "feat(combat): mirror committed match batches into the authoritative journal",
+    "branch": "codex/roadmap-r4-s1-journal-batches-20260915",
+    "base": "d2fd6da05",
+    "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/history-sql-integrity",
+    "change": "openspec/changes/adopt-combat-journal-cutover-and-gm-rewind",
+    "tasks": ["1.1 (S1 slice)", "0.2 (verification only)"],
+    "authorEvidence": "openspec/planning/2026-09-12-roadmap-completion/evidence/r4-s1-journal-batches-local-20260915.json"
+  },
+
+  "verdict": "APPROVE",
+  "verdictHistory": [
+    { "commit": "784373c39", "verdict": "APPROVE-WITH-REQUIRED-EDITS", "requiredEdits": ["RE-1", "RE-2", "RE-3", "RE-4"] },
+    { "commit": "a1fd1aaa1", "verdict": "APPROVE", "note": "all four required edits verified applied; no remaining required edits. See the `recheck` section." }
+  ],
+  "firstPassVerdict": "APPROVE-WITH-REQUIRED-EDITS",
+  "verdictSummary": "The journal mirror is correct at the storage boundary, honestly non-atomic across the two database files, correctly gated behind mode 'off', and its tests are real (temp-file SQLite, separate verification connection, cold reopen, genuine behavioural red). Four edits are required: remove a dead test parameter, bring the diff back under the 500-line node cap (a concrete 12-line trim exists — no prefix split needed), cover the shadow-tripwire wiring that the entire cross-DB-non-atomicity honesty argument rests on and which currently has ZERO test coverage, and qualify design decision D-S1-5 which is false on a rewound stream.",
+
+  "findings": [
+    {
+      "question": "Q1 — correctness of the journal mirror",
+      "verdict": "PASS",
+      "detail": [
+        "ONE journal-side transaction confirmed. mirrorMatchBatchToJournal (src/lib/multiplayer/server/MatchStreamJournalMirror.ts:139-179) delegates to SQLiteEventJournalWriter.appendPreparedWithExtension, whose whole body — prepare, canonicalize, append, extension callback — runs inside `this.db.transaction(() => {...}).immediate()` (src/lib/events/journal/SQLiteEventJournalWriter.ts:112-136). The genesis install at MatchStreamJournalMirror.ts:171 (`branches.backfillGenesisBranches()`) is therefore INSIDE that transaction; its own `this.db.transaction(...)()` (SQLiteEventHistoryBranchStore.ts:70-72) is a better-sqlite3 nested transaction, i.e. a SAVEPOINT joining the outer one, not a second commit.",
+        "Contiguity. appendInTransaction assigns `streamRevision = actualRevision + commandIndex + 1` (SQLiteEventJournalWriter.ts:214) and `commitPosition = firstPosition + commandIndex` (:215), with a chained `previousStreamEventDigest` (:219,:222). Proven live: the new suite asserts `rows.map(r => r.revision)` equals `[1, 2]` for a two-event batch at expectedRevision 0 (matchStreamJournalMirror.sqlite.test.ts:173) — reproduced green by this reviewer.",
+        "Canonical payloads. toMatchJournalBatch stores the whole IGameEvent unaltered as `payload.matchEvent` (MatchStreamJournalMirror.ts:107-111); the doc at :45-49 gives the reason (a stored projection would make S6 compare a projection against itself). The test asserts the round-tripped matchEvent.id values are ['evt-0','evt-1'] read back over a SEPARATE connection (test:175-181).",
+        "Stream head advance is a guarded CAS: `ON CONFLICT(...) DO UPDATE ... WHERE stream_revision = @expectedRevision AND event_digest = @expectedDigest`, with `if (result.changes !== 1) integrity(...)` (SQLiteEventJournalWriter.ts:456-469).",
+        "Genesis + effective head both installed by EVENT_HISTORY_GENESIS_BACKFILL_SQL (src/services/persistence/SQLiteService.historyBranches.migration.ts:104-139): one INSERT into event_history_branches (:105-119) and one into event_history_effective_heads (:121-138), both `WHERE NOT EXISTS` per stream, the head honouring match_authority_baseline.effective_generation via COALESCE (:125-131). The test asserts the effective-head row names the same branch as the event rows at generation 1 (test:184-186).",
+        "Ordering (append THEN backfill) is safe: the backfill selects FROM event_journal_stream_heads, which has no row before the append, and there is NO foreign key from event_journal_events / event_journal_stream_heads to event_history_branches (the only FKs in the migration are branches→branches :170, effective_heads→branches :191, supersessions→branches :213/:216). So writing events on branch 'main' before its branch row exists cannot violate a constraint.",
+        "Mirror runs only AFTER the match transaction commits: DurableMatchStore.ts:964-968 — `const result = tx(); if (result.kind === 'committed') { await this.mirrorCommittedBatch(matchId, batch); } return result;`. `tx` is the better-sqlite3 transaction function built at DurableMatchStore.ts:777; it returns only after COMMIT, and the transaction BODY is untouched by this diff (the sole deletion in the whole commit is the old `return tx()`).",
+        "mode 'off' byte-identical — traced, not merely tested: mirrorCommittedBatch returns on its FIRST statement `if (getCombatJournalAuthorityMode() === 'off') return;` (DurableMatchStore.ts:983) before touching isCapabilityDbAvailable, the capability handle, or the tripwire. No write of any kind occurs. The regression test additionally pins zero rows in all three journal tables (test:245-255)."
+      ],
+      "residualNotes": [
+        "The genesis backfill is stream-agnostic: it inserts a genesis branch + effective head for EVERY journal stream that lacks one, not just this match, and stamps created_by='migration' at combat-commit time. The author discloses this (D-S1-4 'ACCEPTED SIDE EFFECT'). It is the same invariant the migration asserts at startup, so it widens WHEN the invariant is enforced rather than introducing a new rule — but it does mean a combat command can write rows for an unrelated stream."
+      ]
+    },
+
+    {
+      "question": "Q2 — concurrency / idempotency / divergence",
+      "verdict": "PASS with residual risks",
+      "detail": [
+        "Duplicate command identity: appendInTransaction reads the stored receipt first (SQLiteEventJournalWriter.ts:175-182). Same commandId + SAME digest replays the cached commit (hydrateBatch, :180) — deliberate idempotent replay, no new rows. Same commandId + DIFFERENT digest returns {kind:'command-identity-conflict'} (:181), which the mirror maps to {kind:'duplicate-command'} (MatchStreamJournalMirror.ts:167-169), and the surrounding transaction commits having written nothing (the refusal is produced before any INSERT).",
+        "Expected-head mismatch: the head SELECT plus `if (actualRevision !== input.expectedRevision) return {kind:'revision-conflict', ...}` (SQLiteEventJournalWriter.ts:184-198) happens BEFORE the high-water allocation, receipt insert, event inserts and head advance (:253-261) — so a mismatch writes nothing. The mirror maps it to the typed revision-conflict (MatchStreamJournalMirror.ts:160-166). Proven live at the real boundary: the refusal is exactly {kind:'revision-conflict', expectedRevision:1, actualRevision:2} AND row count and head are unchanged (test:224-242). The behavioural red log shows this same assertion failing with actualRevision: 0 before wiring — a real red.",
+        "Journal throw after the match tx committed: the whole mirror call is wrapped in try/catch at DurableMatchStore.ts:988-1006; a throw becomes `reason = error.message` and falls through to recordProcessShadowComparison({... equal:false, reason:'journal-mirror:'+reason}) (:1009-1017). The host does NOT crash, and the match-side result is still returned to the caller (:968). recordProcessShadowComparison increments processShadowMismatches (matchJournalAuthority.ts:70-75), which journalAuthorityAdmission.ts:221 consults as processMismatchCount — so the 'un-flips admission' claim is real wiring, verified.",
+        "One statement sits OUTSIDE the try: `if (!this.isCapabilityDbAvailable()) return;` (DurableMatchStore.ts:985). Traced — its implementation is `customCapabilityDb !== undefined || getSQLiteService().isInitialized()` (durableCapabilityPorts.ts:59-60); isInitialized() is a boolean read, so the exposure is negligible. Noted, not blocking.",
+        "Multi-process guard: the journal head is protected by TWO mechanisms. (a) `.immediate()` (SQLiteEventJournalWriter.ts:136) issues BEGIN IMMEDIATE, taking the write lock at transaction START, so the read-head-then-append sequence is serialized across processes on the same campaign file. (b) advanceHead's conditional upsert is an explicit CAS on (stream_revision, event_digest) with `changes !== 1` raising an integrity refusal (SQLiteEventJournalWriter.ts:456-469). Two hosts appending to the same match stream therefore cannot interleave; the loser sees a revision-conflict.",
+        "Intra-process ordering is preserved, but implicitly. mirrorCommittedBatch's body runs synchronously up to its first await, and appendPreparedWithExtension performs the ENTIRE journal write synchronously inside db.transaction(...).immediate() before returning its promise. So batch N's journal rows land before appendCommandBatch yields, and batch N+1's tx() cannot run first. This is correct today but rests entirely on better-sqlite3 transactions being synchronous — if the journal writer ever becomes genuinely async, mirrors for the same match will reorder and every subsequent batch will conflict forever."
+      ],
+      "residualRisksRaised": [
+        "SQLITE_BUSY is a normal-operation drop path, not only a failure path. SQLiteService sets journal_mode = WAL and foreign_keys = ON but NO busy_timeout (src/services/persistence/SQLiteService.ts:83-86). In WAL there is still one writer at a time, so a mirror append contending with any other campaign writer throws SQLITE_BUSY immediately. That is swallowed into the tripwire, the batch is never re-mirrored (the author's disclosed 'NO catch-up'), and the stream then refuses every later batch with revision-conflict. The author frames no-catch-up as an exceptional-failure consequence; this makes it reachable under ordinary concurrent campaign load. Inert at mode 'off'; must be closed before S6 flips the flag.",
+        "Rewind truncates the match side but never the journal side. The match store derives expectedRevision from `COALESCE(MAX(sequence)+1, 0) FROM mp_match_events` with the comment 'Live head only. The superseded tail lives in the sibling table' (DurableMatchStore.ts:792-799). After a supersession MAX(sequence) drops while the journal head — which is append-only — does not, so design decision D-S1-5's identity ('the match store's next-sequence already equals the journal head's revision') is TRUE ONLY ON A STREAM THAT HAS NEVER BEEN REWOUND. Since GM rewind is the literal subject of this change, S5-b (task 1.6, 'the expected revision for a commit comes from the journal head') must land before any rewound match is mirrored."
+      ]
+    },
+
+    {
+      "question": "Q3 — cross-DB atomicity non-claim honesty and design permission",
+      "verdict": "PASS",
+      "detail": [
+        "Stated honestly and in three places in the code itself, not only in the evidence: MatchStreamJournalMirror.ts:15-21 ('The cross-file pair is deliberately NOT atomic at S1'), DurableMatchStore.ts:967-975 ('the journal lives in the campaign file and cannot join this transaction'), durableCapabilityPorts.ts:29-35. The commit body repeats it. Evidence design decision D-S1-2 matches the code.",
+        "The design permits it. design.md:9 defines S1 as 'mirror and genesis' and says explicitly it 'discharges no SHALL by itself (a 200 computed off an unread shadow is not a receipt)'. Nothing in design.md mandates a single cross-file transaction at S1.",
+        "No SHALL contradicted. The change's only spec delta is specs/gm-combat-interventions/spec.md; every SHALL there governs rewind preview / finalization / STALE_BRANCH / rebuild / activation (lines 12, 16, 20, 24, 27, 31, 34, 38, 42, 47, 51, 55, 59, 62, 66, 70, 74). None is exercised at mode 'off', and the one that touches durability — line 12's 'SHALL append an immutable correction fact through the authoritative transaction' — governs GM finalization (task 2.1), which this seam does not implement.",
+        "FORWARD RISK (not a contradiction today): that same line-12 SHALL will require a single authoritative transaction once the mode flips. The current two-file split cannot provide one. The author defers this to S4/S6; the S6 receipt will have to answer it explicitly."
+      ]
+    },
+
+    {
+      "question": "Q4 — mode gating",
+      "verdict": "PASS",
+      "detail": [
+        "Default unchanged: COMBAT_JOURNAL_AUTHORITY_MODE = 'off' at matchJournalAuthority.ts:18-19. That file is NOT in the diff — `git show --name-status 784373c39` lists exactly four files, none of them matchJournalAuthority.ts.",
+        "The write path is reached only through the shipped test-only override _setCombatJournalAuthorityModeForTests (matchJournalAuthority.ts:34-38), set to 'shadow' in the suite's beforeEach (test:152) and reset to null in afterEach (test:158). Production reads the const via getCombatJournalAuthorityMode() (:29-31).",
+        "No admission relaxation. admitJournalAuthority is untouched; this commit only ADDS a mismatch source to the existing tripwire.",
+        "No rewind-route acceptance is claimed. The evidence's nonClaims explicitly declines task 1.1's clause 'Both rewind routes answer a real preview on a live match' and claims only the precondition GmCombatRewindCommit gates on. Confirmed: neither rewind route is referenced by any changed file."
+      ]
+    },
+
+    {
+      "question": "Q5 — tests and the pre-existing failures",
+      "verdict": "PASS on reality and pre-existence; GAP on tripwire coverage",
+      "detail": [
+        "Red is real and TWO-STAGE. red-20260915.log is a module-resolution red ('Cannot find module ../MatchStreamJournalMirror', 0 tests). red-behavioral-20260915.log is the important one: the module exists but is UNWIRED, and 4 of 5 tests fail on behaviour — e.g. the revision-conflict assertion receives actualRevision: 0 where 2 is expected. The 5th (mode 'off') passes in red, correctly: it is the byte-identical baseline and must pass on both sides. Line numbers in the red log (251-256) are higher than in the committed file (224-240), consistent with the author's disclosed trimming passes.",
+        "The 5 scenarios are at the REAL SQLite boundary, not a double: two temp-file databases under mkdtemp (test:146-151), the store opened as production opens it (test:90-95), and — crucially — every assertion reads through queryCampaign, which opens its OWN `new Database(...)` handle with fileMustExist: true and closes it (test:98-107). Nothing in-process answers for the rows. Not tautological.",
+        "The cold reopen is genuine: store closed, resetSQLiteService(), re-initialize on the same file, new store, then readEffectiveHead (test:193-203).",
+        "Pre-existing failures CONFIRMED unrelated. Both failing suites' files are unchanged by this commit, and so is all of src/lib/events/journal/. Every failure stack originates in the TEST FIXTURE's own call — `at Object.createBranch (matchStoreBatchContract.test.ts:613:9)` and `at Object.createBranch (ServerMatchHostBranchAdmission.test.ts:300:11)` — refused by prefix-C validation (EventHistoryBranchContract.ts:224 assertValidBranchRecord, and SQLiteEventHistoryBranchStore.ts:148 readEffectiveHead's non-effective-branch refusal). No stack touches MatchStreamJournalMirror, mirrorCommittedBatch, or any changed line. The author's baseline-two-suites log (sha256 verified) shows the identical 3 failures with '2 failed, 2 total; 3 failed, 72 passed, 75 total' against the untouched base tree. The arithmetic reconciles: 75 + 5 new = 80, which is what this reviewer's run reported.",
+        "GAP — the tripwire path has ZERO coverage. `grep -rn 'journal-mirror' src/` returns exactly ONE production hit, DurableMatchStore.ts:1016 (the other two matches are the test's temp-directory name strings). No test asserts that a refused or throwing mirror increments the tripwire, yet design decision D-S1-3 and the commit body both rest on it ('records any failure through the existing shadow tripwire, which un-flips admission'). The suite's 'duplicate command' scenario does not reach the mirror at all: the match store refuses first (DurableMatchStore.ts:786-789), so the mirror's own duplicate-command arm (MatchStreamJournalMirror.ts:167-169) and its integrity-conflict arm (:170) are both unexecuted. A tripwire test is cheap — _resetProcessShadowStatsForTests and getProcessShadowMismatchCount are already exported (matchJournalAuthority.ts:86, :77)."
+      ],
+      "revertProof": {
+        "method": "git stash was forbidden and the subject checkout was not altered. Pre-existence was established three ways instead: (1) `git diff --name-only d2fd6da05 784373c39` over both failing suite files and all of src/lib/events/journal/ returns empty — the failing code and its fixtures are byte-identical at base; (2) every failure stack roots in the test file's own createBranch call, not in any changed line; (3) the author's baseline-two-suites-20260915.log, whose sha256 this reviewer recomputed and matched, shows the same 3 failures at the base tree.",
+        "logHashesVerified": "ALL EIGHT logs in .sisyphus/roadmap-completion-20260912/r4-s1-20260915/ match the sha256 values recorded in the author's evidence, including the empty-file hash e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 for typecheck (zero diagnostics)."
+      }
+    },
+
+    {
+      "question": "Q6 — the 507-vs-500 line cap",
+      "verdict": "OVER CAP by 7; a concrete 12-line trim exists — no split needed",
+      "detail": [
+        "A clean two-prefix split is technically possible but NOT recommended. The obvious ordering (genesis/effective-head as S1a, event mirror as S1b) is IMPOSSIBLE: the backfill selects FROM event_journal_stream_heads, which has no row until the append lands, so S1a would be a provable no-op. The reverse (mirror as S1a, genesis as S1b) works and has no forward dependency — there is no FK from events/heads to branches — but S1b's production delta would be ONE line (branches.backfillGenesisBranches()) plus its doc comment. Spending a roadmap prefix on one line is worse than trimming.",
+        "TRIM PATH — 12 lines, zero why-comments and zero assertions lost:",
+        "(a) DEAD CODE, -3: the test's batch() helper takes `overrides: Partial<IMatchCommandBatch> = {}` and spreads `...overrides` (matchStreamJournalMirror.sqlite.test.ts:73-84), but ALL SIX call sites are no-arg — lines 167, 190, 207, 210, 218, 248 are every occurrence of `batch(` in the file. Collapse the signature to `function batch(): IMatchCommandBatch {` and drop line 82.",
+        "(b) DUPLICATED TYPE, -3: effectiveHeadRow (test:132-143) writes the same object type literal twice — once as the return annotation (:133-134) and once as the queryCampaign generic (:135-138). Hoist one `interface IHeadRow` next to the existing IJournalRow (:109-113) and use it in both positions.",
+        "(c) TRIPLICATED WHY-COMMENT, -6: the 'the journal lives in the other file, so no transaction spans both' rationale appears THREE times — MatchStreamJournalMirror.ts:15-21, DurableMatchStore.ts:967-975, durableCapabilityPorts.ts:29-35. The two wiring-site copies are where a reader needs it (they explain why the call is outside tx() and why a raw handle is bound). Compress the mirror-header copy to the two sentences that are actually unique there — that the journal side IS indivisible and the cross-file pair deliberately is not — and drop the now-doubled separator line.",
+        "507 - 12 = 495, under the 500 cap with 5 lines of headroom, which is enough to pay for the required tripwire test if it is written tightly (reset in afterEach, advance the head out of band, assert the count moved 0 to 1)."
+      ]
+    },
+
+    {
+      "question": "Q7 — hygiene",
+      "verdict": "PASS",
+      "detail": [
+        "Conventional commit: 'feat(combat): mirror committed match batches into the authoritative journal'. Body states the one-transaction journal side, the deliberate cross-file non-atomicity, that the mode stays 'off', and — as task 1.1 requires — 'No SHALL is discharged by this seam alone.'",
+        "Author AND committer are Wes Rollings <wrollings@gmail.com>.",
+        "No AI attribution anywhere in the message.",
+        "No openspec/** edits; tasks.md boxes 0.2 and 1.1 remain unticked, per the worker rule.",
+        "No unrelated changes: exactly 4 files, all under src/lib/multiplayer/server/, and the single deletion in the whole diff is the `return tx()` line being replaced by its committed-then-mirror form.",
+        "Lint/format/typecheck logs verified by hash; the one oxlint warning (max-lines on DurableMatchStore.ts) is pre-existing — that file was already far over the 400-line cap at base."
+      ]
+    }
+  ],
+
+  "requiredEdits": [
+    {
+      "id": "RE-1",
+      "severity": "required",
+      "file": "src/lib/multiplayer/server/__tests__/matchStreamJournalMirror.sqlite.test.ts:73-84",
+      "edit": "Remove the dead `overrides: Partial<IMatchCommandBatch> = {}` parameter and the `...overrides` spread from batch(). All six call sites (lines 167, 190, 207, 210, 218, 248) are no-arg, so the parameter is unreachable configuration."
+    },
+    {
+      "id": "RE-2",
+      "severity": "required",
+      "file": "the diff as a whole",
+      "edit": "Bring the changed-line count to 500 or below (currently 507). Apply the three trims in finding Q6: (a) RE-1 above, -3; (b) hoist one IHeadRow interface for effectiveHeadRow's doubled type literal at test:132-143, -3; (c) compress the triplicated 'journal lives in the other file' paragraph at MatchStreamJournalMirror.ts:15-21 to its two unique sentences, keeping BOTH wiring-site copies at DurableMatchStore.ts:967-975 and durableCapabilityPorts.ts:29-35, -6. Do NOT split into S1a/S1b: the genesis-first ordering is impossible (the backfill reads a stream-heads row that does not exist before the append) and the mirror-first ordering leaves a one-line second prefix."
+    },
+    {
+      "id": "RE-3",
+      "severity": "required",
+      "file": "src/lib/multiplayer/server/__tests__/matchStreamJournalMirror.sqlite.test.ts (new scenario) — or, if the line budget cannot carry it, the S1 receipt",
+      "edit": "Cover the shadow-tripwire path, or state plainly that it is unproven. `grep -rn 'journal-mirror' src/` has exactly one production hit — DurableMatchStore.ts:1016 — so nothing proves that a refused or throwing mirror increments the counter journalAuthorityAdmission.ts:221 consults, even though design decision D-S1-3, the commit body and the entire honesty case for the cross-DB non-atomicity rest on it. _resetProcessShadowStatsForTests (matchJournalAuthority.ts:86) and getProcessShadowMismatchCount (:77) are already exported, so the test is roughly 12 lines: reset, advance the journal head out of band so the next mirror hits revision-conflict, commit a batch, assert the count went 0 to 1 and that the match-side result is still 'committed'. PREFERRED: write the test. ACCEPTABLE FALLBACK: add an explicit non-claim to the evidence stating the tripwire wiring is asserted by inspection only."
+    },
+    {
+      "id": "RE-4",
+      "severity": "required (receipt text only, no code)",
+      "file": "openspec/planning/2026-09-12-roadmap-completion/evidence/r4-s1-journal-batches-local-20260915.json",
+      "edit": "Qualify design decision D-S1-5. The identity 'the match store's next-sequence equals the journal head's revision' holds ONLY on a stream that has never been rewound: the match store derives expectedRevision from `COALESCE(MAX(sequence)+1,0) FROM mp_match_events`, whose 'superseded tail lives in the sibling table' (DurableMatchStore.ts:792-799), while the journal head is append-only and never truncates. Since GM rewind is this change's subject, record that S1's mirror must not be enabled on a rewound match before S5-b (task 1.6) sources the expected revision from the journal head."
+    }
+  ],
+
+  "residualRisks": [
+    {
+      "id": "RR-1",
+      "severity": "high (inert at mode 'off'; blocking before S6)",
+      "risk": "No busy_timeout pragma. SQLiteService sets only journal_mode = WAL and foreign_keys = ON (src/services/persistence/SQLiteService.ts:83-86), so a mirror append contending with any other campaign writer throws SQLITE_BUSY immediately. Combined with the disclosed no-catch-up behaviour, a single lock collision permanently desynchronizes that match stream — every later batch then returns revision-conflict. The author frames no-catch-up as an exceptional-failure consequence; the missing busy timeout makes it reachable under ordinary concurrent load. Must be closed by S4 (recovery) or S6 (parity gate) before the mode flips."
+    },
+    {
+      "id": "RR-2",
+      "severity": "medium",
+      "risk": "Intra-process mirror ordering is preserved only because better-sqlite3 transactions are synchronous: the entire journal write completes inside appendPreparedWithExtension before appendCommandBatch yields. If the writer ever becomes genuinely async, mirrors for the same match will reorder and the stream will conflict forever. Worth an explicit invariant comment at DurableMatchStore.ts:966-968."
+    },
+    {
+      "id": "RR-3",
+      "severity": "medium",
+      "risk": "backfillGenesisBranches() is stream-agnostic — a combat command can insert genesis branch + effective-head rows for UNRELATED journal streams that happen to lack them, stamped created_by='migration' (migration :112). Disclosed by the author as an accepted side effect; flagged here because it means a match commit writes outside its own stream."
+    },
+    {
+      "id": "RR-4",
+      "severity": "medium",
+      "risk": "Forward SHALL tension: specs/gm-combat-interventions/spec.md:12 requires finalization to 'append an immutable correction fact through the authoritative transaction'. The two-file split cannot provide a single transaction. Not contradicted at S1 (mode 'off', no rewind route touched), but the S6 receipt must answer it rather than inherit the S1 deferral silently."
+    },
+    {
+      "id": "RR-5",
+      "severity": "low",
+      "risk": "The mirror's duplicate-command (MatchStreamJournalMirror.ts:167-169) and integrity-conflict (:170) arms are never executed by any test — the match store refuses duplicates before the mirror is reached (DurableMatchStore.ts:786-789). RE-3's tripwire test would cover one of the two."
+    },
+    {
+      "id": "RR-6",
+      "severity": "low",
+      "risk": "this.isCapabilityDbAvailable() at DurableMatchStore.ts:985 sits outside the try/catch. Traced to a boolean read (customCapabilityDb !== undefined || getSQLiteService().isInitialized(), durableCapabilityPorts.ts:59-60), so the exposure is negligible, but a throw there would fail a command whose match transaction already committed."
+    },
+    {
+      "id": "RR-7",
+      "severity": "informational",
+      "risk": "Task 1.1's full text also requires 'Both rewind routes answer a real preview on a live match'. The author explicitly does NOT claim it and defers to S2+. Correct for an S1 slice, but the orchestrator must keep box 1.1 unticked until that clause lands — as it currently is."
+    }
+  ],
+
+  "commandsRun": [
+    { "cmd": "export PATH=/c/Users/wroll/AppData/Local/nvm/v22.22.0:$PATH; node --version", "exit": 0, "out": "v22.22.0" },
+    { "cmd": "git status --porcelain (subject worktree)", "exit": 0, "out": "clean; HEAD 784373c39 on codex/roadmap-r4-s1-journal-batches-20260915 — checkout unchanged by this review" },
+    { "cmd": "git diff --stat d2fd6da05 784373c39", "exit": 0, "out": "4 files changed, 507 insertions(+), 1 deletion(-)" },
+    { "cmd": "git show -s --format='%an <%ae>%n%cn <%ce>%n%B' 784373c39", "exit": 0, "out": "author + committer Wes Rollings <wrollings@gmail.com>; conventional subject; no AI attribution" },
+    { "cmd": "git show --name-status --format='' 784373c39", "exit": 0, "out": "M DurableMatchStore.ts / A MatchStreamJournalMirror.ts / A matchStreamJournalMirror.sqlite.test.ts / M durableCapabilityPorts.ts — no openspec/** entry" },
+    { "cmd": "git diff --name-only d2fd6da05 784373c39 -- matchStoreBatchContract.test.ts ServerMatchHostBranchAdmission.test.ts src/lib/events/journal/", "exit": 0, "out": "(empty) — untouched" },
+    { "cmd": "node node_modules/jest/bin/jest.js --maxWorkers=2 --coverage=false matchStreamJournalMirror.sqlite.test.ts matchStoreBatchContract.test.ts ServerMatchHostBranchAdmission.test.ts", "exit": 0, "out": "2 failed, 1 passed, 3 suites; 3 failed, 77 passed, 80 tests — new suite 5/5 green; the 3 failures are the prefix-C fixture failures, stacks rooted in the test files' own createBranch calls" },
+    { "cmd": "sha256sum .sisyphus/roadmap-completion-20260912/r4-s1-20260915/*.log", "exit": 0, "out": "all 8 hashes match the author's evidence exactly" },
+    { "cmd": "grep -rn 'journal-mirror' src/ --include=*.ts", "exit": 0, "out": "1 production hit (DurableMatchStore.ts:1016) plus 2 unrelated temp-dir name strings in the test — no test coverage of the tripwire" },
+    { "cmd": "grep -rn 'getProcessShadowMismatchCount' src/ --include=*.ts", "exit": 0, "out": "consumed at journalAuthorityAdmission.ts:221 — the 'un-flips admission' wiring is real" },
+    { "cmd": "grep -n 'busy_timeout|pragma(' src/services/persistence/SQLiteService.ts", "exit": 0, "out": "journal_mode = WAL (:83), foreign_keys = ON (:86), wal_checkpoint (:115) — no busy_timeout" },
+    { "cmd": "grep -n 'batch()' matchStreamJournalMirror.sqlite.test.ts", "exit": 0, "out": "6 call sites, all no-arg — the overrides parameter is dead" },
+    { "cmd": "grep -rn 'SHALL' openspec/changes/adopt-combat-journal-cutover-and-gm-rewind/specs/", "exit": 0, "out": "single delta file gm-combat-interventions/spec.md; all SHALLs govern rewind preview/finalization/STALE_BRANCH/rebuild/activation" }
+  ],
+
+  "reviewerNonClaims": [
+    "NOT run: the full focused gate (src/lib/multiplayer/server + src/lib/events/journal + src/lib/campaign/authority). The author's green-focused log was verified by sha256 and its 3 failures independently reproduced instead.",
+    "NOT run: typecheck, oxlint, oxfmt — verified by log hash only, all matching the evidence.",
+    "NOT run: any multi-process race against a real match stream. The .immediate() plus head-CAS argument in Q2 is read from the source, not measured.",
+    "NOT verified: task 0.2's fetched-main SHA b7d650997 and the port shape recorded against it — that verification is the author's and was not re-run here.",
+    "NOT attempted: a rebase onto current origin/main.",
+    "The subject worktree's checkout was not modified; no git stash, no new worktree, and no write other than this review file."
+  ],
+
+  "recheck": {
+    "reviewedAt": "2026-09-15",
+    "commit": "a1fd1aaa1",
+    "commitSubject": "refactor(combat): apply R4.S1 review edits to the journal mirror",
+    "predecessorPreserved": "yes — `git log --oneline -3` shows a1fd1aaa1 on top of 784373c39 on top of d2fd6da05; the reviewed commit is not amended away.",
+    "verdict": "APPROVE — all four required edits verified applied; no remaining required edits.",
+
+    "perEdit": [
+      {
+        "id": "RE-1",
+        "status": "APPLIED — verified",
+        "evidence": "matchStreamJournalMirror.sqlite.test.ts: `function batch(overrides: Partial<IMatchCommandBatch> = {}): IMatchCommandBatch {` becomes `function batch(): IMatchCommandBatch {`, and the `...overrides,` spread line is deleted. The dead parameter is gone."
+      },
+      {
+        "id": "RE-2",
+        "status": "APPLIED — verified, cap met",
+        "evidence": "`git diff --shortstat d2fd6da05 a1fd1aaa1` = `4 files changed, 499 insertions(+), 1 deletion(-)` — 499 <= the 500-line node cap, down from 507. The delta commit is `3 files changed, 97 insertions(+), 105 deletions(-)`.",
+        "trimsVerifiedNonDestructive": [
+          "The three trims this review actually prescribed all landed: the dead parameter (RE-1); a hoisted `interface IHeadRow` replacing effectiveHeadRow's doubled type literal; and the triplicated cross-file paragraph compressed at the MIRROR header only — `ONE TRANSACTION, JOURNAL SIDE ONLY ... the cross-file pair is deliberately NOT atomic at S1 (see the wiring sites in `DurableMatchStore` and `durableCapabilityPorts`)` — with BOTH wiring-site copies retained as required.",
+          "No why-comment was deleted outright. Every compressed block keeps its load-bearing sentence: MIRROR-NOT-AUTHORITY, the S6-parity reason for storing the unaltered IGameEvent, the deterministic-event-id rationale, the genesis-after-append / NOT-EXISTS rationale, and the honest-principal note all survive in shortened form.",
+          "The extra helper `mirrorDirect(commandId, expectedRevision)` replaces two inline call objects and is used by both the revision-conflict scenario and the new tripwire scenario. No assertion was removed: the revision-conflict test still asserts the full typed refusal object AND unchanged row count AND unchanged head."
+        ],
+        "overTrimNoted": "Two trims went past verbosity into FIXTURE FIDELITY and were not prescribed by this review: `sideAssignments` in meta() reduced from two real assignments to `[]`, and event() stripped of `gameId` and `turn`. No assertion is deleted and the suite is green, but the 'payloads canonical, the whole IGameEvent unaltered' claim is now round-tripped over a 5-field object rather than a realistic game event. Recorded as residual RR-8 — not a blocker, and not worth spending the 5 lines of remaining headroom to reverse."
+      },
+      {
+        "id": "RE-3",
+        "status": "APPLIED — verified, and the test is sound",
+        "evidence": "New scenario `records a failed mirror on the tripwire admission consults` (matchStreamJournalMirror.sqlite.test.ts). Traced end to end: a first batch commits and mirrors to head 2; `mirrorDirect('cmd-out-of-band', 2)` pushes the journal head to 3 OUT OF BAND; `_resetProcessShadowStatsForTests()` zeroes the counter; then a real `appendCommandBatch` at expectedRevision 2 succeeds on the match side (mp_match_events MAX(sequence)+1 is still 2) but its mirror aims below the journal head and is refused. The test asserts BOTH `result.kind === 'committed'` and `getProcessShadowMismatchCount() === 1`.",
+        "nonTautological": "The assertion fails if the recordProcessShadowComparison call at DurableMatchStore.ts:1009-1017 is removed (counter stays 0) and fails if the mirror stops refusing (counter stays 0). It runs through the PRODUCTION wiring, not a direct call to the tripwire.",
+        "minorGap": "The test does not assert the `reason` string `journal-mirror:revision-conflict`, only that the count moved. Acceptable — in this suite the mirror is the only possible recorder.",
+        "noCollateral": "journalAuthorityAdmission.test.ts:225 (`expect(getProcessShadowMismatchCount()).toBe(0)`) still PASSES — jest gives each test file its own module registry, so the new mismatch source does not leak across files. Verified by running it alongside."
+      },
+      {
+        "id": "RE-4",
+        "status": "APPLIED — verified in BOTH places",
+        "evidence": "Code: the REVISION OFFSET block in MatchStreamJournalMirror.ts now reads `... TRUE ONLY ON A STREAM NEVER REWOUND: the store reads `MAX(sequence) + 1` over LIVE rows and a rewind MOVES the discarded tail into `mp_match_events_superseded`, while the journal head is append-only. The mirror must not be enabled on a rewound match until S5-b (task 1.6) sources the expected revision from the journal head.` Evidence: the author's evidence JSON now carries decision `D-S1-8` (2 occurrences).",
+        "tableNameVerified": "`mp_match_events_superseded` is a REAL table, not an invented name — `EVENTS_SUPERSEDED_TABLE = 'mp_match_events_superseded'` at src/lib/multiplayer/server/DurableMatchStore.supersede.ts:32, with its index at :44 and the same name in DurableMatchStore.ts:20's header ('live reads see only this table')."
+      }
+    ],
+
+    "droppedResultPayloadFields": {
+      "change": "`MatchJournalMirrorResult` narrowed: the `mirrored` arm loses `branchId` / `firstRevision` / `lastRevision`, the `duplicate-command` arm loses `commandId`; the extension's `TContext` generic changes from `string` (the branch id) to `null`.",
+      "consumersChecked": "CONFIRMED ZERO CONSUMERS. `grep -rn 'mirrorMatchBatchToJournal|MatchJournalMirrorResult' src/` returns only the module itself, its own test, and the single production call site. That call site reads exactly two things — `if (mirrored.kind === 'mirrored') return;` and `reason = mirrored.kind;` (DurableMatchStore.ts:1003-1004). No dropped field had a reader.",
+      "typecheckClean": "`node node_modules/typescript/bin/tsc -p tsconfig.json --noEmit` exits 0 at a1fd1aaa1, so the exported-type narrowing breaks nothing repo-wide.",
+      "branchIdStillCorrect": "Dropping the threaded context does NOT change behaviour: `branchId` is still read inside the transaction (`branches.readEffectiveHead(stream)` then `effective?.branchId ?? MATCH_BASELINE_BRANCH_ID`) and still passed to `toMatchJournalBatch(input, branchId)`. Only the unused hand-back to the caller is gone.",
+      "note": "This is an API narrowing motivated by line count rather than design. Defensible as YAGNI and reversible in one line, but S2/S6 may well want the receipt revisions back; recorded as residual RR-9."
+    },
+
+    "commandsRun": [
+      { "cmd": "git log --oneline -3", "exit": 0, "out": "a1fd1aaa1 / 784373c39 / d2fd6da05 — predecessor preserved" },
+      { "cmd": "git diff --shortstat d2fd6da05 a1fd1aaa1", "exit": 0, "out": "4 files changed, 499 insertions(+), 1 deletion(-) — UNDER the 500 cap" },
+      { "cmd": "git diff --shortstat 784373c39 a1fd1aaa1", "exit": 0, "out": "3 files changed, 97 insertions(+), 105 deletions(-)" },
+      { "cmd": "git diff 784373c39 a1fd1aaa1", "exit": 0, "out": "read in full; every hunk accounted for above" },
+      { "cmd": "git show -s --format='%an <%ae>%n%cn <%ce>%n%B' a1fd1aaa1", "exit": 0, "out": "author + committer Wes Rollings <wrollings@gmail.com>; conventional `refactor(combat):` subject; body names RE-1..RE-4; NO AI attribution" },
+      { "cmd": "git diff --name-only d2fd6da05 a1fd1aaa1", "exit": 0, "out": "4 files, all under src/lib/multiplayer/server/ — still no openspec/** edit" },
+      { "cmd": "grep -rn 'mirrorMatchBatchToJournal|MatchJournalMirrorResult' src/ --include=*.ts", "exit": 0, "out": "module + test + one call site only — dropped fields have no consumers" },
+      { "cmd": "grep -rn 'mp_match_events_superseded' src/ --include=*.ts", "exit": 0, "out": "DurableMatchStore.supersede.ts:32 defines it — the RE-4 comment names a real table" },
+      { "cmd": "grep -c 'D-S1-8' <author evidence json>", "exit": 0, "out": "2 — the evidence records the new decision" },
+      { "cmd": "node node_modules/jest/bin/jest.js --maxWorkers=2 --coverage=false --verbose matchStreamJournalMirror.sqlite.test.ts", "exit": 0, "out": "Test Suites: 1 passed; Tests: 6 passed, 6 total — the expected 6/6" },
+      { "cmd": "node node_modules/jest/bin/jest.js --maxWorkers=2 --coverage=false matchStreamJournalMirror + matchStoreBatchContract + ServerMatchHostBranchAdmission + journalAuthorityAdmission", "exit": 0, "out": "2 failed, 2 passed, 4 suites; 3 failed, 86 passed, 89 tests — S1 and journalAuthorityAdmission both PASS; the same 3 prefix-C fixture failures persist, unchanged in identity and count" },
+      { "cmd": "node node_modules/typescript/bin/tsc -p tsconfig.json --noEmit", "exit": 0, "out": "clean — no diagnostics after the exported-type narrowing" }
+    ],
+
+    "carriedResidualRisks": "RR-1 through RR-7 from the first pass all still stand — none of them was in scope for these edits. RR-4 (the forward 'authoritative transaction' SHALL tension) and RR-1 (no busy_timeout) remain the two that must be answered before S6 flips the mode. RR-2's implicit synchronous-ordering invariant is still uncommented at DurableMatchStore.ts:966-968. RR-5 narrows: the mirror's duplicate-command arm is still unexecuted, but its revision-conflict arm is now covered through production wiring by the RE-3 test.",
+
+    "newResidualRisks": [
+      {
+        "id": "RR-8",
+        "severity": "low",
+        "risk": "Fixture fidelity traded for cap headroom: meta().sideAssignments is now `[]` and event() no longer carries `gameId` or `turn`. The suite is green and no assertion was deleted, but the canonical-payload round trip now exercises a thinner object than a real IGameEvent. If S6's parity comparison ever depends on those fields, this fixture will not have pinned them."
+      },
+      {
+        "id": "RR-9",
+        "severity": "low",
+        "risk": "`MatchJournalMirrorResult` was narrowed for line count rather than design — the mirrored arm no longer returns branchId / firstRevision / lastRevision. Zero consumers today (verified), typecheck clean, trivially restorable; flagged only so a later seam does not read the narrowing as a deliberate contract decision."
+      }
+    ],
+
+    "remainingRequiredEdits": [],
+
+    "recheckNonClaims": [
+      "NOT re-run: the full focused gate (multiplayer/server + events/journal + campaign/authority). Four suites were run instead — the S1 suite, the two prefix-C failing suites, and journalAuthorityAdmission (the tripwire's consumer).",
+      "NOT re-run: oxlint / oxfmt at a1fd1aaa1. Typecheck WAS re-run (exit 0) because the commit narrows an exported type.",
+      "NOT verified: whether the author regenerated the gate logs under .sisyphus/.../r4-s1-20260915/ for a1fd1aaa1; the hashes checked in the first pass belong to 784373c39.",
+      "The subject worktree's checkout was not modified; no git stash, no new worktree, and no write other than this review file."
+    ]
+  }
+}

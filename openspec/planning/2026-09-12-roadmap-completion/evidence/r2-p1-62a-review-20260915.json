@@ -1,0 +1,263 @@
+{
+  "node": "r2-p1-62a-market-durability",
+  "artefact": "r2-p1-62a-review-20260915",
+  "role": "independent reviewer (general-purpose, GP-JUSTIFIED: read-only privacy/journal/concurrency review with test execution; needs Read/Grep/Bash)",
+  "capturedAtUtc": "2026-09-15T00:00:00.000Z",
+  "reviewedBy": "not the author of the stack under review",
+  "subject": {
+    "task": "design-campaign-authority-and-sync tasks.md 6.2a (P1 market durability); design D13",
+    "base": "0364a57c8c893a308731bff62da3a55dd31c58cb",
+    "prefixes": [
+      { "order": 1, "sha": "8ebd33899034c26f384062d18249739eefa084ae", "branch": "codex/roadmap-r2-p1-62a1i-prepared-accept-20260915" },
+      { "order": 2, "sha": "5cc05c6714a10ac34c73a553f930c42d4a1c3f98", "branch": "codex/roadmap-r2-p1-62a1ii-refusal-rows-20260915" },
+      { "order": 3, "sha": "b46433b1f52b5be58490e4f8f5c64f728a52d100", "branch": "codex/roadmap-r2-p1-62a2-first-acceptance-20260915" }
+    ],
+    "reference": "b09a0f89fd2e1a47c4b66368630f8b2de406a0b3",
+    "authorEvidence": "openspec/planning/2026-09-12-roadmap-completion/evidence/r2-p1-62a-local-20260915.json"
+  },
+  "verdict": {
+    "prefix1_8ebd33899": "APPROVE",
+    "prefix2_5cc05c671": "APPROVE",
+    "prefix3_b46433b1f": "APPROVE",
+    "overall": "APPROVE",
+    "blockingScope": "No required edits. Every defect found is either (a) a claim-calibration issue in a comment or in the author's own evidence, (b) an accepted residual the change explicitly non-claims and the spec/design already records, or (c) pre-existing behaviour this stack does not regress. Two of them (R1, R3) would require rewriting commits whose trees are pinned byte-identical to the reference b09a0f89f and whose per-prefix gates are already green; the cost of re-splitting exceeds the benefit of a 2% cap correction and a row title. They are recorded as carry-forward items for 6.2b instead."
+  },
+  "verificationRun": {
+    "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/r2-prepared-journal-api",
+    "runtime": "ambient node v24.15.0, better-sqlite3 12.11.1 (both measured in-session)",
+    "perLevel": [
+      { "level": "prefix 1 @ 8ebd33899", "gate": "npx jest src/lib/campaign src/lib/events/journal", "observed": "217 suites / 3145 tests passed", "authorClaimed": "217 / 3145", "match": true },
+      { "level": "prefix 1 @ 8ebd33899", "gate": "npx tsc --noEmit", "observed": "clean, exit 0", "match": true },
+      { "level": "prefix 2 @ 5cc05c671", "gate": "npx jest src/lib/campaign src/lib/events/journal", "observed": "218 suites / 3147 tests passed", "authorClaimed": "218 / 3147", "match": true },
+      { "level": "prefix 2 @ 5cc05c671", "gate": "npx tsc --noEmit", "observed": "clean, exit 0", "match": true },
+      { "level": "prefix 3 @ b46433b1f (stack tip)", "gate": "npx jest src/lib/campaign src/lib/events/journal", "observed": "218 suites / 3150 tests passed", "authorClaimed": "218 / 3150", "match": true },
+      { "level": "prefix 3 @ b46433b1f", "gate": "npx tsc --noEmit", "observed": "clean, exit 0", "match": true },
+      { "level": "prefix 3 @ b46433b1f", "gate": "npx jest <new suite> standalone, 3 consecutive runs", "observed": "5 passed / 5 total each run; no file-ordering flake reproduced" },
+      { "level": "prefix 3 @ b46433b1f", "gate": "npx jest src/lib/campaign/authority src/lib/events/journal --runInBand", "observed": "40 suites / 363 tests passed" },
+      { "level": "prefix 3 @ b46433b1f", "gate": "npx oxlint src/lib/campaign/authority/ + the commands route", "observed": "0 warnings, 0 errors (20 files)" },
+      { "level": "prefix 3 @ b46433b1f", "gate": "npx oxfmt --check on all 6 changed files", "observed": "all matched files use the correct format" }
+    ],
+    "treeIdentity": {
+      "command": "git diff --stat b09a0f89f b46433b1f",
+      "observed": "empty",
+      "treeSha": "524e250a43a0bd71dd89e7a6516e9d1443a62fdb on BOTH b46433b1f and b09a0f89f",
+      "verdict": "byte-identity claim CONFIRMED independently"
+    },
+    "redEvidence": [
+      {
+        "log": ".sisyphus/roadmap-completion-20260912/r2-p1-62a-20260915/red-62a.log",
+        "sha256Observed": "a6c000a9360c0877a30fd7b78aa2b8b7e784bb845d1de5a5a7b900db524798e1",
+        "sha256Claimed": "a6c000a9360c0877a30fd7b78aa2b8b7e784bb845d1de5a5a7b900db524798e1",
+        "match": true,
+        "content": "5 failed / 5 total. Opened and read in full. Every failure is the RIGHT failure: rows 1-2 received a committed result whose compact fact carried employerFactionId 'caller-supplied-employer' / name 'CALLER SUPPLIED NAME' where the row expected the typed refusal; rows 3-5 received the same caller-supplied pair where the row expected the stored offer's 'house-davion' / 'Garrison duty (contract-stored)'. Not a compile error, not a missing-import failure, not an empty-suite pass.",
+        "caveat": "Line numbers in the red log (214 / 331 / 399) do not match the shipped suite (202 / 315 / 389) because the doc blocks were compressed after the red run, as the author records under capBreach.accounting.trimsAlreadyApplied. The assertion text quoted in the log is identical to the shipped assertions, so the log is still probative; it is not line-identical with the file it certifies."
+      },
+      {
+        "log": ".sisyphus/roadmap-completion-20260912/r2-p1-62a-20260915/red-62a1i-artifactuse.log",
+        "sha256Observed": "e4bc1ed48a4a67c51386a4efcbdc0d84cdcde18419404064d5d83386c144c807",
+        "sha256Claimed": "e4bc1ed48a4a67c51386a4efcbdc0d84cdcde18419404064d5d83386c144c807",
+        "match": true,
+        "content": "1 failed, 4 passed. The failing row is the in-memory 'reaches the durability gate' row, receiving a committed result where it expects offer-not-durable / source-read-unavailable. The 3 sealed-branch rows pass at base with the seeder already present, which is what makes them regression cover rather than new claims."
+      }
+    ]
+  },
+  "findings": [
+    {
+      "id": "Q1",
+      "topic": "Transaction shape (market read + append in ONE prepared transaction)",
+      "verdict": "CORRECT - proven by construction, not by the new rows",
+      "evidence": [
+        "src/lib/events/journal/SQLiteEventJournalWriter.ts:112-136 - `return this.db .transaction(() => { const prepared = prepare(this.db); ... const result = extend(this.db, prepared.context, () => this.appendInTransaction(...)); ... }) .immediate();`. `prepare` is invoked at :114, INSIDE the transaction body, and `.immediate()` at :136 makes BEGIN IMMEDIATE take the write lock before the callback runs. The read and the append are therefore structurally one immediate write transaction; there is no code path in which prepare runs outside it.",
+        "src/lib/campaign/authority/campaignAcceptContractCommand.ts:229-234 - the call site passes the market read as the prepare callback: `return prepared.appendPreparedWithExtension<...>((db) => { const source = readCampaignSourceMarket(db, request.campaignId); ... }`.",
+        "src/lib/campaign/authority/campaignAcceptContractCommand.ts:138-160 - `readCampaignSourceMarket(db, campaignId)` takes the BORROWED handle, issues exactly one `SELECT version, payload FROM campaigns WHERE id = ?`, is synchronous, retains no statement and performs no write. It satisfies the prepared-transaction contract stated at SQLiteEventJournalWriter.ts:88-97 ('`prepare` is contractually read-only ... MUST finish synchronously ... no await, returned thenables, timers, microtasks').",
+        "No second read exists outside the transaction: `readCampaignSourceMarket` has exactly one call site, and it is inside `prepare`."
+      ],
+      "staleReadNote": "`priorEvents` (campaignCommandPipeline.ts:379) IS read outside the transaction and is used inside prepare for `priorEvents.length` (the sequence base, the expectedRevision via toJournalBatch, and the digest fold). That is SAFE and not a defect: `appendInTransaction` re-reads the stream head inside the transaction and returns `revision-conflict` on mismatch (SQLiteEventJournalWriter.ts:178-190), which campaignAcceptContractCommand.ts:317-320 maps to the typed `lostRaceConflict`. A command racing another commit is refused, never committed on a stale base. This is the same shape the pre-existing non-accept path already had.",
+      "busyHandling": {
+        "question": "Is SQLITE_BUSY a typed refusal or a crash?",
+        "answer": "A CRASH, not a typed refusal - but pre-existing and not a regression.",
+        "chain": "A BUSY that outlasts the busy timeout is thrown by better-sqlite3 out of `.immediate()`, propagates unchanged out of `appendPreparedWithExtension` (SQLiteEventJournalWriter.ts:97 documents 'Thrown failures propagate unchanged'), out of `appendDurableAcceptContract` (no try/catch anywhere in campaignAcceptContractCommand.ts), out of `executeCampaignCommand`, and lands in the route's catch at src/pages/api/campaigns/[id]/commands.ts:232-234 -> `sendCaughtApiError` -> src/pages-modules/api/routeHelpers.ts:96-102 `res.status(500).json({ error: apiErrorMessage(error, fallback) })` with :20-22 `return error instanceof Error ? error.message : fallback` - i.e. an untyped 500 echoing the raw SQLite message.",
+        "notARegression": "The pre-existing non-accept path also runs `.immediate()` (SQLiteEventJournalWriter.ts:74-80, reached via `append`/`appendWithExtension`), so BUSY already surfaced the same way before this change. The stack introduces no new BUSY-to-crash surface, only a longer critical section (see R4)."
+      },
+      "busyTimeoutRR1": {
+        "s1ReviewClaim": "RR-1 recorded busy_timeout as absent.",
+        "measured": "Absent as an EXPLICIT pragma - src/services/persistence/SQLiteService.ts:79-86 sets only `journal_mode = WAL` and `foreign_keys = ON`, with `new Database(this.config.path)` at :79 taking no options. But better-sqlite3 applies its own default: measured in-session against this worktree's better-sqlite3 12.11.1, `new Database(f).pragma('busy_timeout')` returns `[{\"timeout\":5000}]`. The effective busy timeout is 5000 ms, not 0.",
+        "correction": "RR-1 is accurate about the missing explicit pragma and inaccurate if read as 'the connection fails BUSY immediately'. The 5 s C-level default stands.",
+        "practicalScope": "Contention needs TWO connections to the same file. `getSQLiteService()` is a process singleton handing out ONE `Database` handle (SQLiteService.ts:91-98), and better-sqlite3 is synchronous, so within one Node process every writer already serializes on the thread and can never contend. The test's rival is a SEPARATE `new Database(databasePath)` (campaignCommandPipelineOfferDurability.test.ts:345), which production does not have. BUSY is therefore reachable only across processes (a second host on the same file), which is not a configuration this app ships today."
+      }
+    },
+    {
+      "id": "Q2",
+      "topic": "Offer source (persisted campaigns row, never the private baseline; caller body never trusted)",
+      "verdict": "CORRECT",
+      "evidence": [
+        "campaignAcceptContractCommand.ts:142-147 - the read is `SELECT version, payload FROM campaigns WHERE id = ?`, i.e. the persisted `SerializedCampaign` record, exactly what D13 specifies (design.md:133: 'The read is of the source body taken under the command's OWN prepared transaction, never of a previously-stored private baseline').",
+        "campaignAcceptContractCommand.ts:132-136 - the module's own comment states the reason and is accurate: `replayCampaignSourceContracts` refuses with `no-private-payload` on a stream with no prior private row, so a stored-baseline read would deadlock every first acceptance.",
+        "The first-acceptance row PINS this rather than asserting it: __tests__/campaignCommandPipelineOfferDurability.test.ts:233-242 reads the pre-command stream and asserts `replayCampaignSourceContracts(before)` THROWS `CampaignSourcePrivateReplayError`, then :244-247 asserts the command commits anyway. That is the non-tautological form - a stored-baseline implementation fails this row.",
+        "Server-derivation: campaignAcceptContractCommand.ts:250-255 builds the validated payload as `{ contractId: offer.id, name: offer.name, employerFactionId: offer.employerId }` - the exact opaque `IContract.employerId`, no alias table, no case folding, satisfying the spec wording.",
+        "Caller-divergence is ASSERTED, not assumed: the intent fixture at test:96-104 deliberately carries `name: 'CALLER SUPPLIED NAME'` and `employerFactionId: 'caller-supplied-employer'`, and test:251-257 asserts the committed payload is `{contractId: STORED_ID, name: stored.name, employerFactionId: stored.employerId}`. The same assertion is repeated on the rollback retry (test:334-340) and the rival row (test:402-408). A caller-derived implementation fails all three; red-62a.log shows exactly that failure at base."
+      ],
+      "callerObjectUse": "The caller's `contract` object is used for exactly two things, both correct: (a) the artifact-use consult's artifactId (campaignCommandPipeline.ts:414-421) - pre-existing and unchanged, and it is the id BEING REQUESTED; (b) the lookup key `intent.payload.contract.contractId` (campaignAcceptContractCommand.ts:220) and the echo in the refusal body. Nothing else on the caller object reaches the commit.",
+      "provenanceCaveat": "The gate proves DURABILITY, not PROVENANCE. `PUT /api/campaigns/[id]` explicitly 'trusts the caller for the deep envelope shape' (src/pages/api/campaigns/[id].ts:92-93 comment; the guard at :104-112 checks only campaignId / schemaVersion / body-is-object) and carries NO authentication at all (admission brief OB-2, independently re-read this session). So a caller can PUT a fabricated `contractMarket` and then have the server 'derive' that fabrication back. This is not a defect of the change - it is exactly the property D13 admits ('Contract-market offers are ALREADY source-record facts', design.md:127) - and the module comment at campaignAcceptContractCommand.ts:209-211 ('Deriving the committed name or employer from it would let a browser mint a contract the source never stored') stays literally true, since a PUT-then-accept IS a contract the source stored. Recorded so no later reader over-reads 'server-derived' as 'server-minted'."
+    },
+    {
+      "id": "Q3",
+      "topic": "Privacy - full contract + reduced market private-only, envelopeOf still the single narrowing, 409 body clean",
+      "verdict": "CORRECT - nothing new on the wire",
+      "evidence": [
+        "campaignAcceptContractCommand.ts:293-312 - the full `IContract` and the reduced market go to `toJournalBatch({... sourcePrivate: buildCampaignSourcePrivateEnvelope({...})})`; `toJournalBatch` (JournalCampaignEventStore.ts:198-232) rides `sourcePrivate` on the terminal event's envelope, and JournalCampaignEventStore.ts:99 states 'so `envelopeOf` cannot carry it to any wire read path'.",
+        "The public compact fact contains only the three-field contract (campaignAcceptContractCommand.ts:250-255 -> validateCampaignIntent -> `mk('ContractAccepted', { contract })` at CampaignMatchHostIntent.ts:197-200). No payment terms, no salvage rights, no target, no market.",
+        "Pinned by the suite: test:288-292 asserts `campaignSourcePrivateOf(terminal)` is non-null AND `JSON.stringify(terminal.payload.campaignEvent)` does not contain 'paymentTerms'.",
+        "envelopeOf narrowing is UNCHANGED and not bypassed: the only non-test `envelopeOf` call sites are projectCampaignStreamForGrant.ts:259, campaignJournalReads.ts:41 and :63, JournalCampaignEventStore.ts:296 and :423, and GmCampaignImpactDerivation.ts:157 - none of which this stack touches. The acknowledgement path goes THROUGH it: campaignCommandPipeline.ts:316-331 `acknowledgeCommit` calls `store.getEvents`, which maps `envelopeOf` at JournalCampaignEventStore.ts:296 / :423.",
+        "The `committed` HTTP body (commands.ts:151-156) returns `result.events` (the compact events) and `result.state` (the compact `ICampaignAuthoritativeState`). No private field can reach it.",
+        "The new 409 body (commands.ts:208-217) is `{kind: 'offer-not-durable', contractId, reason}` - `contractId` is the caller's own id echoed back and `reason` is a closed 3-value enum. It leaks nothing the caller did not send."
+      ],
+      "unchangedResiduals": [
+        "OB-1 (ViewerProjectionService.ts:265-269 bypasses envelopeOf): untouched, still not registered for CAMPAIGN_STREAM_TYPE, and the prefix-3 doc comment does not change it.",
+        "OB-2 (unauthenticated `GET /api/campaigns/:id` returns the full `SerializedCampaign` including `contractMarket` with every full `IContract`): untouched by this stack and already owned by the separately-scoped route-auth-guard work. Worth noting for the program owner that after 6.2a the SAME bytes the private envelope protects are the bytes that route already serves unauthenticated - so the privacy win here is real on the journal wire and bounded by OB-2 on the HTTP CRUD surface."
+      ]
+    },
+    {
+      "id": "Q4",
+      "topic": "Refusal kind distinctness, sub-reason correctness, uniform fail-closed on in-memory journals",
+      "verdict": "CORRECT",
+      "evidence": [
+        "campaignCommandPipeline.ts:153-168 - `offer-not-durable` is a KIND of its own on `CampaignCommandResult`, not another `rejected` reason string, with a comment giving the exact operational reason ('A caller that could not tell this apart from `insufficient-standing` would give up on the one that a retry fixes'). This satisfies tasks.md 6.2a's 'a typed reason DISTINCT from every rules refusal' and spec.md:203.",
+        "Sub-reasons map correctly: `source-read-unavailable` when the journal exposes no prepared transaction (campaignAcceptContractCommand.ts:226-227); `source-record-absent` when the read returns null - no campaigns row, no `body`, or no rehydratable `contractMarket` (:234-237 with :147 / :152 / :154); `offer-absent` when the market exists and lacks the id (:238-242).",
+        "Fail-closed is uniform and there is NO fallback branch to the caller's contract anywhere in the module - verified by reading all 341 lines.",
+        "Exhaustiveness at the route is real: commands.ts:226-230 keeps `const exhaustive: never = result;`, so adding the kind without the 409 case would have been a tsc error, not a silent 500."
+      ],
+      "inMemoryProductionImpact": {
+        "question": "Is refusing every in-memory journal with source-read-unavailable acceptable for existing production paths?",
+        "answer": "YES - no production path loses capability. Verified this session, not taken from the author's note.",
+        "grepEvidence": [
+          "`executeCampaignCommand` has exactly ONE non-test caller: src/pages/api/campaigns/[id]/commands.ts:139. (The other grep hits - HostGmReviewSurface.tsx:91, campaignLifecycleState.ts:199, CampaignMatchHost.ts:16 - are comments.)",
+          "That caller builds the journal at commands.ts:130 as `new SQLiteEventJournal<ICampaignJournalEnvelope>(getSQLiteService().getDatabase(), ...)`, and `SQLiteEventJournal extends SQLiteEventJournalWriter` (SQLiteEventJournal.ts:11-14), so it always carries `appendPreparedWithExtension`.",
+          "`new InMemoryEventJournal` appears in only two non-test places: journalCapabilityPorts.ts:71 `UNUSED_ACK_JOURNAL` (its own comment: 'The shipped ack never reads the journal; the type still requires one'), and the self-referential factory at InMemoryEventJournal.ts:50. Neither reaches the command pipeline."
+        ],
+        "structuralDetection": "The capability probe is structural (campaignAcceptContractCommand.ts:176-183, `typeof candidate.appendPreparedWithExtension === 'function'`) rather than an `instanceof`, which is the right call for a test-double-friendly seam, and `PreparedCampaignJournal` borrows the signature from the concrete writer via `Pick<>` (:170-174) so the two cannot drift."
+      }
+    },
+    {
+      "id": "Q5",
+      "topic": "validateCampaignIntent coupling; co-op host path unaffected",
+      "verdict": "CORRECT - co-op host path is untouched",
+      "evidence": [
+        "`src/lib/multiplayer/server/CampaignMatchHostIntent.ts` is NOT in the stack diff. Verified: `git diff --stat 0364a57c8 b46433b1f` lists exactly 6 files, none of them that one.",
+        "The validator is CALLED differently, not changed: campaignAcceptContractCommand.ts:247-261 calls it with the SERVER-DERIVED contract substituted, inside prepare, so the faction-standing gate at CampaignMatchHostIntent.ts:193-196 (`state.factionStanding[contract.employerFactionId] ?? 0`) now judges the employer the source stored. That is the coupling the admission brief named (CampaignMatchHostIntent.ts:126) and it is discharged correctly.",
+        "The co-op host callers are unaffected because they never went through this pipeline: CampaignMatchHost.doors.ts:134 (`applyGuestIntentLocked`) and :161 (`applyHostIntentLocked`), CampaignGmArbiter.ts:425, CampaignMatchHostOutcomeInbox.ts:150 all call `validateCampaignIntent` directly with the caller's intent and commit via `commitValidated`."
+      ],
+      "residual": "Those co-op host paths are a SECOND AcceptContract writer with NO durability gate - they still validate and commit the caller-supplied contract body. This is a RECORDED residual, not a new gap: design.md:141 states D13 'does not retire the 409 retry-noise residual or the co-op dual-writer residual recorded in the tasks preamble'. Flagged here so the eventual cutover does not assume 6.2a closed every acceptance writer.",
+      "minorNote": "`resolveCommandBase` (campaignCommandPipeline.ts:260-274) still runs `validateCampaignIntent` on the CALLER's intent when `expectedRevision` is behind head, so the conflict advice's `touchedFields` for an AcceptContract are computed from the caller's employer rather than the stored one. Advisory output only - it cannot change what commits, because the conflict refusal at :401-408 returns before the durable branch and the durable branch re-validates. Pre-existing shape; worth a line in 6.2b if the conflict surface is revisited."
+    },
+    {
+      "id": "Q6",
+      "topic": "Tests - red logs, non-tautology, the SqliteError workaround",
+      "verdict": "SOUND, with two rows weaker than their names",
+      "rowByRow": [
+        { "row": "offer-absent (test:190-210)", "assessment": "STRONG. Asserts the exact result object, an unchanged journal length, AND no receipt for the commandId. Red-proven." },
+        { "row": "source-record-absent (test:212-221)", "assessment": "GOOD. Red-proven, exact result object, no receipt. Weaker than row 1 only in that it does not also pin journal length; with no campaigns row and no receipt this is adequate." },
+        { "row": "first acceptance, no prior private row (test:223-293)", "assessment": "STRONGEST ROW IN THE STACK. Pins the pre-command `no-private-payload` throw (so a stored-baseline implementation fails it), the server-derived compact fact against a deliberately divergent caller body, a COLD REOPEN of the temp DB before reading the private facts back (so durability is proven, not in-process state), the captured `sourceRecordBody` round-tripping to the seeded body byte-for-byte, `sourceRowVersion === 7`, the reduced market missing exactly the accepted offer, `declinedOfferIds` preserved, and the wire payload free of 'paymentTerms'." },
+        { "row": "post-read rollback (test:295-341)", "assessment": "STRONG for ATOMICITY - unchanged journal length, no receipt, unchanged high-water, and a retry that re-derives from the stored offer. It does NOT discriminate read-inside-transaction from read-immediately-before-BEGIN; it proves the append is atomic with whatever prepare produced." },
+        { "row": "rival writer / SQLITE_BUSY (test:343-414)", "assessment": "WEAKER THAN ITS NAME. The rival writes from inside a trigger on the `event_journal_events` INSERT, i.e. from inside OUR transaction's critical section. It would therefore get SQLITE_BUSY even if the market read had happened just BEFORE `BEGIN IMMEDIATE`, and the committed fact would still name 'house-davion' because the rival never commits in either case. So the row proves 'the append holds a write lock and a rival cannot interleave with it' - not 'the read and the append are one transaction'. Its red at base (red-62a.log) is the caller-supplied-fact mismatch, not a transaction-window failure, which confirms the row never discriminated on the window. The window property IS established, but by construction at SQLiteEventJournalWriter.ts:112-136, not by this row; the row's own comment at test:395-398 cites that mechanism correctly, so the calibration gap is in the row TITLE and in the author's redFirst row-5 claim, not in the code." }
+      ],
+      "sqliteErrorWorkaround": {
+        "finding": "SOUND.",
+        "reasoning": "The row captures the rejection via `.then(() => null, (error) => error)` (test:315-318) and then asserts `(failure)?.name === 'SqliteError'` plus `String(failure)` containing the injected message (test:319-320). Both are realm-independent, which is the correct response to the documented cross-realm `instanceof Error` failure. Critically it is NOT tautological: if the implementation did not throw, `failure` is `null`, `?.name` is `undefined`, and the row fails. The only theoretical hole - a non-Error object carrying `name: 'SqliteError'` - is unreachable here.",
+        "durability": "The underlying tool finding (native-module errors failing `instanceof Error` under jest depending on which suites shared the module registry) is a genuine, durable, cross-project gotcha and is correctly recorded as `durable: true` in the author evidence.",
+        "flakeProbe": "Re-ran the new suite standalone 3x and the authority+journal set with `--runInBand` (40 suites / 363 tests) at the tip. No ordering flake reproduced; the workaround holds in both modes."
+      }
+    },
+    {
+      "id": "Q7",
+      "topic": "Caps, partition argument, commit hygiene",
+      "verdict": "CAPS: accept the 2% overage. PARTITION ARGUMENT: does not hold as written (see R1). HYGIENE: clean.",
+      "measuredDiffstats": [
+        { "prefix": 1, "observed": "4 files changed, 461 insertions(+), 49 deletions(-)", "claimed": "same", "match": true },
+        { "prefix": 2, "observed": "1 file changed, 218 insertions(+)", "claimed": "same", "match": true },
+        { "prefix": 3, "observed": "3 files changed, 241 insertions(+), 15 deletions(-)", "claimed": "same", "match": true },
+        { "stack": "6 files changed, 907 insertions(+), 51 deletions(-)", "claimed": "same", "match": true }
+      ],
+      "whereThe49DeletionsActuallyAre": "NOT the fixture repoint, as the review brief hypothesised. 47 of 49 are in `campaignCommandPipeline.ts` (the inline lost-race block, the old `campaignCommandBranchId`, and the old inline post-commit replay, all extracted). Only 2 are in `campaignCommandPipelineArtifactUse.test.ts` (the renamed `it` title and the single `expect(result.kind).toBe('committed')` line). The fixture repoint is 59 of the 61 changed lines there and is almost entirely INSERTIONS.",
+      "hygiene": {
+        "conventionalCommits": "PASS - `feat(campaign):`, `test(campaign):`, `feat(campaign):`.",
+        "author": "PASS - all three commits: author AND committer `Wes Rollings <wrollings@gmail.com>`.",
+        "aiAttribution": "PASS - no Co-Authored-By, no 'Generated with', no Claude/Codex reference in any of the three bodies.",
+        "checkbox": "PASS - `tasks.md` at b46433b1f still shows `- [ ] 6.2`; zero `- [x] 6.2*` lines.",
+        "specEdits": "PASS - the stack diff (0364a57c8..b46433b1f) touches 6 files, all under `src/`. The two cherry-picks are openspec-docs-only: 911a1a5eb = design.md + spec.md + tasks.md (3 files, 66+/3-), 0364a57c8 = design.md + spec.md + tasks.md (3 files, 18+/5-).",
+        "commitBodies": "Unusually good: each names its prefix number, its red-first evidence, and an explicit NON-CLAIMS block. Prefix 2's body openly states its rows arrive green at their parent rather than burying it."
+      }
+    }
+  ],
+  "carryForward": [
+    {
+      "id": "R1",
+      "severity": "evidence-accuracy (non-blocking)",
+      "prefix": 1,
+      "finding": "The author's `split.whyThreeNotTwo.whyNoPartitionDoesBetter` claims a smaller partition than prefix 1 'would require either (a) exporting the module-private readCampaignSourceMarket ... or (b) inventing a throwaway plain-append fallback'. Neither is true for prefix 1 specifically. Prefix 1 contains ZERO of the new suite, so the '~150 indivisible scaffolding' argument - which is about a suite-carrying prefix - does not apply to it. A third option exists: split prefix 1 into (A) a PURE REFACTOR commit that moves `campaignCommandBranchId`, extracts `lostRaceConflict` and extracts `acknowledgeCommit` into the new module with no behaviour change and no test change (~120 changed lines, the 47 deletions plus their replacements), and (B) the durable-accept wiring plus the refusal kind plus the 409 plus the fixture repoint (~340 insertions, ~2 deletions). Both land under 500 on either reading, and because it is only a reordering of the same additions the final tree stays byte-identical to b09a0f89f.",
+      "recommendation": "ACCEPT the 2% overage rather than re-split. Re-splitting now would discard three already-green per-prefix gate runs and re-open the byte-identity evidence for a 10-line cap correction on the insertions+deletions reading (461 insertions is already inside the cap on the insertions reading). The item worth carrying is the EVIDENCE claim: the JSON asserts an impossibility that is merely an inconvenience, and a future reader will cite it as precedent for skipping a partition that was in fact available."
+    },
+    {
+      "id": "R2",
+      "severity": "minor (doc-vs-code divergence)",
+      "prefix": 1,
+      "finding": "campaignAcceptContractCommand.ts:119-121 documents `null` as covering 'no row, an unreadable body, or a body with no `contractMarket`'. The code does not cover an unreadable body: :148 `JSON.parse(row.payload)` THROWS a SyntaxError on a malformed payload, and :153 `rehydrateContractMarket(body.contractMarket)` reaches `market.offers.map(...)` (missionSerialization.ts:74) which throws a TypeError when `contractMarket` is present but malformed (e.g. `{}`). Only `body === undefined` and `market === undefined` return null. Both throws are reachable: `PUT /api/campaigns/[id]` does not validate the deep envelope shape (src/pages/api/campaigns/[id].ts:92-93, guard at :104-112) and carries no authentication.",
+      "safetyAssessment": "FAIL-CLOSED, so not a correctness or privacy defect: a throw inside `prepare` rolls the whole transaction back (SQLiteEventJournalWriter.ts:112-136, with its own 'rolls back journal and extension rows when prepare, parse, append, or extend throw' row in SQLiteEventJournalWriter.test.ts) and nothing is appended. The cost is an untyped 500 echoing the raw parser message instead of the typed `source-record-absent` the taxonomy promises.",
+      "exactEditIfTaken": "Either (preferred) wrap :148-154 so an unparseable payload or an unrehydratable market returns `null` - which routes it to `source-record-absent` and makes the taxonomy total over the reachable input space - or (minimum) delete the words 'an unreadable body,' from the comment at :120 so the doc stops promising a branch the code does not have.",
+      "recommendation": "Carry into 6.2b, which already touches this module and this taxonomy. Not worth breaking the pinned byte-identical tree for on its own."
+    },
+    {
+      "id": "R3",
+      "severity": "minor (claim calibration)",
+      "prefix": 3,
+      "finding": "The rival-writer row is titled 'closes the window between the market read and the append to a concurrent writer' (test:343) and the author's redFirst row 5 claims it proves the read and the append are one transaction. As analysed under Q6, it cannot fail if the read were moved to just before `BEGIN IMMEDIATE`, so it does not discriminate that property. Its red at base was the derivation mismatch, not a window failure.",
+      "recommendation": "Keep the row - it is genuine regression cover for 'a rival cannot interleave with the append' and a useful pin on `.immediate()` semantics. Correct the TITLE and the evidence claim to what it proves ('a concurrent writer is serialized against the committed append'), and let the window property rest where it actually lives: `prepare` is invoked inside the transaction body at SQLiteEventJournalWriter.ts:114, which the row's own comment at test:395-398 already cites."
+    },
+    {
+      "id": "R4",
+      "severity": "informational (latent, no production caller today)",
+      "prefix": 1,
+      "finding": "The change materially LENGTHENS the write-lock critical section for an acceptance. Before, only the append ran inside `.immediate()`; now the campaigns-row SELECT, the `JSON.parse`, the market rehydration, `validateCampaignIntent`, the event sequencing, a full `replayCampaignEvents` fold over the whole prior stream and `computeCampaignStateDigest` all run inside it (campaignAcceptContractCommand.ts:233-313). The replay is O(stream length) and grows with campaign age.",
+      "whyItIsNotAFindingAgainstThisStack": "Within a single Node process there is exactly one `Database` handle (SQLiteService.ts:91-98) and better-sqlite3 is synchronous, so writers already serialize on the thread and the longer section costs latency, not contention. Cross-process contention needs a second host on the same file, which is not a shipped configuration, and there is no production caller of AcceptContract through this route yet (`CAMPAIGN_JOURNAL_AUTHORITY_ENABLED` stays false; contract-market.tsx handleAccept is unchanged).",
+      "recommendation": "Record against the cutover, not against 6.2a. If a second writer process ever appears, the 5 s default busy timeout plus an O(stream) fold inside the lock is the combination to re-measure - and the BUSY-to-untyped-500 chain under Q1 becomes user-visible at that point."
+    },
+    {
+      "id": "R5",
+      "severity": "informational (correctly non-claimed)",
+      "prefix": "stack",
+      "finding": "Double acceptance of the SAME contract with DIFFERENT commandIds is still reachable. `validateCampaignIntent`'s AcceptContract arm (CampaignMatchHostIntent.ts:189-201) checks only faction standing - there is no 'already accepted' rule - and 6.2a deliberately does NOT reduce the persisted market on commit, so the offer remains in the campaigns row and passes the durability gate again. The journal's duplicate check is command-identity based and runs at append time (SQLiteEventJournalWriter.ts:169-177), i.e. after the offer read, so it catches a retry of the same commandId and nothing else.",
+      "assessment": "Correctly identified and correctly deferred by the author (designNotes: 'It becomes load-bearing the moment 6.2b writes the reduced market back, and 6.2b owns it'). tasks.md:101 places both the pre-read duplicate lookup and the source-record write in the 6.2b paragraph, so this is faithful to the task text and not scope skipped."
+    },
+    {
+      "id": "R6",
+      "severity": "informational (process)",
+      "prefix": 2,
+      "finding": "Prefix 2's two rows arrive GREEN at their parent 8ebd33899 - independently confirmed, since prefix 2's own gate run is 218/3147 with no failures. Their red-first evidence is against the pre-split base 0364a57c8 only.",
+      "assessment": "ACCEPTABLE and fully disclosed, both in the evidence JSON and verbatim in the commit body. It is an artifact of the wiring-before-rows boundary, which the author correctly notes is the only available ordering (the rows cannot be red or green without the routing that produces the refusals). Recorded so the stack's red-first discipline is not later read as per-prefix when it is per-stack."
+    },
+    {
+      "id": "R7",
+      "severity": "informational (deviation from task text)",
+      "prefix": 2,
+      "finding": "tasks.md:101 names the failing test's home as `src/lib/campaign/authority/__tests__/campaignCommandPipeline.test.ts`. The rows landed in a NEW file, `__tests__/campaignCommandPipelineOfferDurability.test.ts`.",
+      "assessment": "Justified and better. The suite needs a real temp-file SQLite database, an `SQLiteService` lifecycle, a campaigns-row seeder and a cold reopen; folding that into the existing pipeline suite would have imposed a heavyweight fixture on rows that do not need it. The new file's header states the property and the reason (test:10-13). Recorded only so the task-text-to-artefact trace is explicit."
+    }
+  ],
+  "specAndTaskConformance": {
+    "spec.md:200-206 (An offer the source record does not hold is refused, never trusted from the caller)": "COVERED by test rows 1 and 2 (typed refusal distinct from every rules refusal, nothing appended) and by the absence of any caller-fallback branch in the module.",
+    "spec.md:208-212 (The first acceptance on a campaign reads its market without a prior private payload)": "COVERED by test row 3, which asserts the `no-private-payload` throw on the pre-command stream BEFORE asserting the command commits.",
+    "spec.md:106 (server-derived name and employer from the stored offer using exact opaque employerId with no invented aliases)": "COVERED by campaignAcceptContractCommand.ts:250-255 and pinned by test:251-257 / :334-340 / :402-408.",
+    "spec.md:106 (Full private HTTP readback SHALL remain blocked)": "RESPECTED - no new read surface; the only route change is a 409 refusal body carrying an echoed contractId and an enum.",
+    "spec.md:184 (An accepted contract is written exactly once, by exactly one writer)": "NOT CLAIMED by this stack, and correctly so - 6.2b owns the client half; the author's non-claims say so explicitly.",
+    "design.md:127-141 (D13)": "CONFORMANT - source-side materialization only, no new table, no market event, no new wire field, no producer, no flag flip. `CAMPAIGN_JOURNAL_AUTHORITY_ENABLED` stays false.",
+    "P0b OB-3": "DISCHARGED by prefix 3's doc comment at campaignSourcePrivateEnvelope.ts:166-173, which takes exactly the second option OB-3 offered ('add a one-line comment saying the private-vs-public revision check is a producer obligation'). The comment is accurate: `rootPublicRevision` is recorded at :144 and compared nowhere.",
+    "P0b OB-4": "UNCHANGED and now slightly more relevant - `rehydrateCampaignMission` returns a non-contract input unchanged (missionSerialization.ts:45-47), so a malformed stored offer could yield an undefined `name` / `employerId` in the compact fact. NOT a regression: the `/commands` route guard validates only `intent.kind` and `intent.campaignId` (commands.ts:63-76), so the pre-change caller-derived fact was equally unvalidated. The change moves the trust boundary from an unvalidated REQUEST body to an unvalidated PERSISTED row, which is strictly the better of the two."
+  },
+  "worktreeState": {
+    "foundOn": "codex/roadmap-r2-p1-62a2-first-acceptance-20260915 @ b46433b1f (clean)",
+    "briefAsserted": "codex/roadmap-r2-p1-62a-market-durability-20260915 @ b46433b1f",
+    "discrepancy": "The review brief's branch claim was inaccurate at the time this reviewer attached. Both refs point at the same commit b46433b1f, so the tree is identical either way.",
+    "leftOn": "codex/roadmap-r2-p1-62a-market-durability-20260915 @ b46433b1f52b5be58490e4f8f5c64f728a52d100, working tree CLEAN (per the brief's explicit instruction, not the as-found branch).",
+    "mutations": "NONE beyond `git checkout` between the three stack branches. No edits, no commits, no pushes, no builds, no sub-agents. The only file written by this reviewer is this artefact."
+  }
+}

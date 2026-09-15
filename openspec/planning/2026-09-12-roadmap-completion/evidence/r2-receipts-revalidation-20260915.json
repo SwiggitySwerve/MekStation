@@ -1,0 +1,504 @@
+{
+  "schema": "r2-receipts-revalidation/v1",
+  "at": "2026-09-15T06:45:25.420Z",
+  "status": "dispositions-produced-no-task-closed",
+  "scope": "Verification and disposition only for openspec/changes/add-camp01-authority-receipts (roadmap node R2.receipts). No product source, spec, or tasks.md edit was made.",
+  "mainShaTested": "c3b4cc1e3ace35ff95b7999d9680a5d657ca344f",
+  "mainHeadSubject": "docs(openspec): archive verified chassis index package (#1669)",
+  "worktree": {
+    "path": ".sisyphus/roadmap-completion-20260912/worktrees/camp-receipt-verification",
+    "branch": "codex/roadmap-camp-receipt-verification-20260912",
+    "headBefore": "92d04fc6bcc2e49fd40d63d6f0cfd2a9c72eb14c",
+    "headAfter": "c3b4cc1e3ace35ff95b7999d9680a5d657ca344f",
+    "detached": true,
+    "cleanBefore": true,
+    "cleanAfter": true,
+    "nodeModulesPresent": true,
+    "node": "v24.15.0",
+    "npm": "11.19.1",
+    "environmentNotes": [
+      "The sibling-lane better-sqlite3 NODE_MODULE_VERSION 127-vs-137 gotcha was NOT encountered: the camp01 umbrella exercises no SQLite-backed suite and completed exit 0 without any \"compiled against a different Node.js version\" error. No npm rebuild was run, so node_modules was left untouched and git status --porcelain stayed empty before and after."
+    ]
+  },
+  "acceptanceCommand": {
+    "command": "npm run qc:camp01-authority-receipt:test",
+    "resolvedScript": "jest --watchAll=false --runTestsByPath <25 files> --runInBand",
+    "workingDirectory": ".sisyphus/roadmap-completion-20260912/worktrees/camp-receipt-verification",
+    "exitCode": 0,
+    "suites": {
+      "passed": 25,
+      "failed": 0,
+      "total": 25
+    },
+    "tests": {
+      "passed": 731,
+      "skipped": 10,
+      "failed": 0,
+      "total": 741
+    },
+    "durationSeconds": 300.822,
+    "log": {
+      "path": ".sisyphus/roadmap-completion-20260912/r2-receipts-revalidation-20260915/camp01-umbrella.log",
+      "sha256": "af38482d3555302e260941602ab758e6ca04ebca49d771fd530708767a055273",
+      "bytes": 4674
+    },
+    "matchesPriorEvidence": {
+      "prior": "openspec/planning/2026-09-12-roadmap-completion/evidence/r2-receipts-tooling-parent-acceptance-20260913.json",
+      "priorTestedHead": "92d04fc6bcc2e49fd40d63d6f0cfd2a9c72eb14c",
+      "priorCounts": "731 passed / 10 skipped, 25 suites, exit 0",
+      "identical": true
+    }
+  },
+  "supplementaryRuns": [
+    {
+      "what": "the three tracked camp01 suites the acceptance umbrella does not run",
+      "command": "npx jest --runTestsByPath scripts/__tests__/camp01-capture-policy-aggregation.test.ts scripts/__tests__/camp01-live-signal.test.ts scripts/__tests__/camp01-live-status-report.test.ts --maxWorkers=2",
+      "exitCode": 0,
+      "suites": 3,
+      "tests": {
+        "passed": 21,
+        "total": 21
+      },
+      "log": {
+        "path": ".sisyphus/roadmap-completion-20260912/r2-receipts-revalidation-20260915/camp01-outside-umbrella.log",
+        "sha256": "3151fda7d48dc78677143ba8e5b6c011abbf6e15dad4a748a1a3162b0ff3929e"
+      }
+    },
+    {
+      "what": "strict OpenSpec validation",
+      "command": "npx openspec validate --all --strict",
+      "exitCode": 0,
+      "result": "233 passed, 0 failed (233 items)"
+    },
+    {
+      "what": "QC registry validation",
+      "command": "npm run qc:validate",
+      "exitCode": 1,
+      "result": "QC registry: 27 surfaces, 4 errors, 0 warnings"
+    }
+  ],
+  "summary": {
+    "totalTaskOccurrences": 19,
+    "allCheckedInTasksMd": true,
+    "counts": {
+      "closable-now": 15,
+      "external-gate-required": 2,
+      "further-implementation-required": 2
+    },
+    "closableNow": [
+      "1.1",
+      "1.2",
+      "2.0",
+      "2.1",
+      "2.2",
+      "2.3",
+      "2.4",
+      "3.1",
+      "3.2",
+      "3.3",
+      "3.4",
+      "4.1",
+      "4.2",
+      "4.3",
+      "5.2"
+    ],
+    "externalGateRequired": [
+      "6.1",
+      "6.2"
+    ],
+    "furtherImplementationRequired": [
+      "5.1",
+      "5.3"
+    ]
+  },
+  "tasks": [
+    {
+      "id": "1.1",
+      "section": "1 Immutable Contract (PROOF-1)",
+      "checkbox": "x",
+      "requires": "Add camp01-authority-receipt.contract.mjs with the strict v1 schema, canonical repository/fetch identity, frozen ten-child set, twelve logical @node|@npm command rows/run roots and reviewed digests, frozen E/H capture contracts, F/G reporter contracts, PROOF/H repair-row extensions, predecessors, caps, bootstrap ref, artifacts and assertions.",
+      "disposition": "closable-now",
+      "evidence": [
+        "scripts/qc/camp01-authority-receipt.contract.mjs present on main; camp-proof frozen row read at :24 (commandId \"camp-proof\", canonicalArgvDigest 68e44c6b37134fb790026e615b26ddda39fb68cbf49921be33e1d1a1bd4d48a0, bootstrapProductRef refs/heads/codex/implement-camp01-authority-receipts).",
+        "camp-01f/camp-01g reporterContracts read live via module import: F reportSchema camp01-campaign-persistence-authority/v1 -> reports/campaign-persistence-authority.json; G reportSchema camp01-mech-bay-authority/v1 -> reports/mech-bay-authority.json.",
+        "camp-01h reporterContracts enumerate 01-ux-audit-deep..06-viewport-layout-sweep."
+      ],
+      "gaps": []
+    },
+    {
+      "id": "1.2",
+      "section": "1 Immutable Contract (PROOF-1)",
+      "checkbox": "x",
+      "requires": "Contract tests that recompute every digest and reject unknown fields/ids, executable-token drift, root/argv/order/chaining drift, capture-contract drift, F/G reporter drift, invalid repair declarations, wrong PROOF/H roots, cause-graph pathologies, gate/cleanup/cap/provenance gaps, unsafe retained values, H observation/final/report drift.",
+      "disposition": "closable-now",
+      "evidence": [
+        "scripts/__tests__/camp01-authority-receipt-qc.test.ts is member 2 of the qc:camp01-authority-receipt:test umbrella and passed in this session run at main c3b4cc1e3ace35ff95b7999d9680a5d657ca344f.",
+        "assertFixedContract freeze row + literal 21-entry artifact-set pin landed by PROOF-5G1 (#1200) per tasks.md:78."
+      ],
+      "gaps": []
+    },
+    {
+      "id": "2.0",
+      "section": "2 Writer and Validator (PROOF-2)",
+      "checkbox": "x",
+      "requires": "PROOF-2A writer baseline: scripts/qc/camp01-authority-receipt.mjs writer, receipt-directory validation, H identity issuance, PROOF-02 normalization, schemas module, focused writer tests, two package entries.",
+      "disposition": "closable-now",
+      "evidence": [
+        "scripts/qc/camp01-authority-receipt.mjs and scripts/qc/camp01-authority-receipt.schemas.mjs present in git ls-files on main.",
+        "scripts/__tests__/camp01-authority-receipt-writer.test.ts passed in the umbrella run (13.153 s)."
+      ],
+      "gaps": []
+    },
+    {
+      "id": "2.1",
+      "section": "2 Writer and Validator (PROOF-2)",
+      "checkbox": "x",
+      "requires": "Strict argument/provenance parsing, random parent run identity, exclusive staging, immutable sequence execution, writer-owned command-result.json, closed D10 artifact/manifest/cap schemas and canonical bytes, kind/source-bound exact-set digest-only identity registry, atomic single-child publication, privacy allowlisting.",
+      "disposition": "closable-now",
+      "evidence": [
+        "Writer + validator suites green in the umbrella.",
+        "A real writer-produced command-result.json read out of the operator durable root carries exactly the closed key set schema,wave,sha,treeSha,runId,commandId,canonicalArgvDigest,executionEnvironmentDigest,mode,provenance,capProvenance,identityRegistry,invocations,observedTestIds,captureAttestations,artifactDigests,trackedTreeClean,inputManifestMatched,durableReceiptRevalidated."
+      ],
+      "gaps": []
+    },
+    {
+      "id": "2.2",
+      "section": "2 Writer and Validator (PROOF-2)",
+      "checkbox": "x",
+      "requires": "Exact producer/reporter/schema/source/status/id/path/digest-owner validation incl. CAMP-01F and CAMP-01G identity/recovery facts, parent/witness/execution/label/status, observation fact-wrapper/report-fingerprint, final complete fact/evidence, combat, reconciliation, exact-main-to-reviewed-head cap, manifest-file-type, capture attestations; reject stale/cross-run/duplicate/omitted/reordered/substituted/tampered/incomplete/abnormal-exit/predicate/witness drift.",
+      "disposition": "closable-now",
+      "evidence": [
+        "camp01-authority-receipt-validator.test.ts, camp01-capture-reopen-adversarial.test.ts, camp01-h-composition.test.ts all green in the umbrella.",
+        "Exact-main camp-proof receipt capProvenance.reviewedHeadReceiptManifestDigest sha256:c27ba1c4105031337319360ca96343d5f0279ccaabbba645d9008773c13255cd recomputed in this session from the reviewed-head receipt-manifest.json bytes and matched exactly, proving the exact-main-to-reviewed-head cap linkage is a real byte binding."
+      ],
+      "gaps": []
+    },
+    {
+      "id": "2.3",
+      "section": "2 Writer and Validator (PROOF-2)",
+      "checkbox": "x",
+      "requires": "Complete PROOF-02 reproduction publication for exit 0/1, null fingerprints only for passed observations and writer-derived non-null fingerprints for failed/missing, self-digest-free exact-byte artifacts, zero-command triage with exact observation-set equality and outcome-specific disposition validation.",
+      "disposition": "closable-now",
+      "evidence": [
+        "camp01-playwright-normalizer.test.ts and camp01-authority-receipt-validator.test.ts green in the umbrella.",
+        "Durable proof02-reproduction and two proof02-triage receipt directories exist in the operator durable root."
+      ],
+      "gaps": []
+    },
+    {
+      "id": "2.4",
+      "section": "2 Writer and Validator (PROOF-2)",
+      "checkbox": "x",
+      "requires": "CAMP-01H parent/three-child identity issuance, follower-ineligible observations with complete observed/unavailable typed facts after six ordinary exit-0/1 attempts, exact one-to-many failed-report/finding/cause-row mapping with canonical source id/fingerprint, reconciliation, and fresh finals whose complete authority plus six invocations/reports/wave/assertions pass after every repair/cleanup or blocker.",
+      "disposition": "closable-now",
+      "evidence": [
+        "scripts/__tests__/camp01-h-composition.test.ts (the PROOF-5G1/5G2/5G3 suite, 125 camp-01h rows per tasks.md:80) passed in the umbrella at 16.71 s.",
+        "Two camp01h-journey-* durable receipt directories exist in the operator durable root."
+      ],
+      "gaps": []
+    },
+    {
+      "id": "3.1",
+      "section": "3 Exact-SHA Controller (PROOF-3)",
+      "checkbox": "x",
+      "requires": "run-camp01-authority-receipt.mjs plus its register-pr-target / proof / cleanup CLI and state contract; subject-specific product/audit/none provenance, merged-spec PROOF/H repair registration with exact closed source-set equality, ten-child/predecessor/cap preflight, reviewed-head observation/final and exact-main detached worktrees, clean manifests, non-reparse row-root confinement.",
+      "disposition": "closable-now",
+      "evidence": [
+        "scripts/qc/run-camp01-authority-receipt.mjs present; parseProof at :56, buildProvenanceRecord exported at :35-39, parseSpecTuple at :98, parseOwnedTuple at :100, parseTuple at :102, row-root check \"row root mismatch\" at :71.",
+        "scripts/__tests__/run-camp01-authority-receipt.test.ts green in the umbrella."
+      ],
+      "gaps": []
+    },
+    {
+      "id": "3.2",
+      "section": "3 Exact-SHA Controller (PROOF-3)",
+      "checkbox": "x",
+      "requires": "Pin Node/npm/Git/System32 absolute binaries, expand only @node|@npm, run fixed bootstrap, construct child environments from zero with writer temp/profile and empty npm configs, bind tool/config/lockfile/environment digests, reject PATH/CWD/credential/proxy/Git/Node/npm/CI/cloud/product/Playwright ambient drift.",
+      "disposition": "closable-now",
+      "evidence": [
+        "scripts/qc/camp01-proof-environment.mjs present; scripts/__tests__/camp01-proof-environment.test.ts green in the umbrella."
+      ],
+      "gaps": []
+    },
+    {
+      "id": "3.3",
+      "section": "3 Exact-SHA Controller (PROOF-3)",
+      "checkbox": "x",
+      "requires": "Verified Git binary, literal HTTPS URL, disabled config/credentials/proxies/prompts, writer-owned empty bare proof repository; fetched head/main OIDs must equal pinned GitHub API identity before verifying PR heads/merges, approvals, ledger and ancestry with mocked GitHub/transport adapters.",
+      "disposition": "closable-now",
+      "evidence": [
+        "scripts/qc/camp01-git-trust.mjs and scripts/qc/camp01-github-provenance.mjs present; camp01-git-trust.test.ts, camp01-github-provenance.test.ts and camp01-target-authority.test.ts green in the umbrella.",
+        "camp01-github-provenance.mjs:19 ALLOWED_PERMISSIONS = new Set([WRITE, MAINTAIN, ADMIN]); :144 verifyCitation; :148 strict approval arm (APPROVED + non-dismissed + review.commit_id === pull.head.sha + self approval rejected + permission gate); :201 resourceEndpoint pins /repos/SwiggitySwerve/MekStation."
+      ],
+      "gaps": [
+        "The approval clause itself is satisfied only through the PROOF-6B0 solo-maintainer reduction in practice — see tasks 6.1/6.2 and gate G1."
+      ]
+    },
+    {
+      "id": "3.4",
+      "section": "3 Exact-SHA Controller (PROOF-3)",
+      "checkbox": "x",
+      "requires": "Exclusive durable export, non-self-referential command-result/receipt-manifest digest ownership and recomputation, atomic rename, reopen validation, separate detached-proof and subject-bound owned target records, single-use exact-reviewed-head CAMP-PROOF bootstrap, strict pre-edit creation for PR-owning rows, no owned target for reproduction, independent non-force removal, owned-ref exact-OID compare-delete, writer-owned follower cleanup receipts.",
+      "disposition": "closable-now",
+      "evidence": [
+        "scripts/qc/camp01-durable-export.mjs, camp01-cleanup-authority.mjs, camp01-durable-facts.mjs present; camp01-durable-export.test.ts, camp01-cleanup-authority.test.ts, camp01-durable-facts.test.ts, camp01-durable-facts-refs.test.ts, camp01-repository-lifecycle-adversarial.test.ts all green in the umbrella.",
+        "Live cleanup receipt read this session: .camp01-cleanups/camp-proof-camp01-53e393cb2a4ec80d24d6e367a47f20e1-wave-cleanup.json carries receiptDigest sha256:f6f3f619ef07343f9d82245cd961ab87465ab192a607b1e32877f21cea068946 and all five predicates true (productWorktreeRemoved, proofWorktreeRemoved, localWaveBranchRemoved, initiatingTrackedTreeClean, durableReceiptRevalidated)."
+      ],
+      "gaps": []
+    },
+    {
+      "id": "4.1",
+      "section": "4 Runner Integration (PROOF-4)",
+      "checkbox": "x",
+      "requires": "Opt-in routing for fresh empty browser profile/storage/runtime database, Next/results/HTML/snapshots/traces/videos/screenshots, the CAMP-01F persistence and CAMP-01G Mech Bay authority reporters, UX/H runners and six normalized H reports; PNG rows seed only exact fixtures and use a guarded capture transaction with monotonic DOM/app-write counters, capture-relevant mutation barrier, fixture-only allowlist, equal canonical pre/post state digests, digest-only attestation bound to invocation/path/PNG; remove declared runtime only; preserve defaults without CAMP.",
+      "disposition": "closable-now",
+      "evidence": [
+        "scripts/qc/camp01-proof-environment.mjs, camp01-runner-isolation.mjs, camp01-capture-transaction.mjs, camp01-playwright-normalizer.mjs, camp01-g-report-normalizer.mjs, camp01-h-report-normalizer.mjs, camp01-ux-report-normalizer.mjs, camp01-h-composition-publisher.mjs all present on main; their suites are green in the umbrella.",
+        "F/G reporter obligation: the frozen F test id is at e2e/campaign-customizer-handoff.spec.ts:409 and the frozen G test id at :528; both reporter contracts name producerId scripts/playwright/run-playwright.mjs; and real wave receipts carrying reports/campaign-persistence-authority.json and reports/mech-bay-authority.json exist in the operator durable root (camp01f-persistence-f8668762a…, camp01g-mech-bay-d79b04efb…)."
+      ],
+      "gaps": [
+        "DECLARATION/RECEIPT MISMATCH (bookkeeping, not capability): tasks.md:44 binds task 4.1 F/G reporter obligations to \"the 4C2/4C3 receipts\", and NO PROOF-4C2 or PROOF-4C3 receipt line exists in tasks.md. The obligation was instead discharged inside the product wave series (real camp-01f/camp-01g receipts exist). The parent should either record a receipt line or amend the 4C2/4C3 binding.",
+        "The F/G delivery evidence is NOT repo-resident: it lives in E:/Projects/MekStation-proof/.sisyphus/evidence/playtest and cannot be re-verified from main alone."
+      ]
+    },
+    {
+      "id": "4.2",
+      "section": "4 Runner Integration (PROOF-4)",
+      "checkbox": "x",
+      "requires": "run-viewport-sweep.mjs importing H final three logical arrays and the shared verified resolver, @node expanded to the verified absolute executable before sequential shell:false spawning, first-failure propagation, tests of both logical and expanded equality; chained package script replaced by this single command.",
+      "disposition": "closable-now",
+      "evidence": [
+        "scripts/__tests__/run-viewport-sweep.test.ts green in the umbrella; :389-391 pins scripts[\"verify:qc:viewport-sweep\"] to the single command."
+      ],
+      "gaps": []
+    },
+    {
+      "id": "4.3",
+      "section": "4 Runner Integration (PROOF-4)",
+      "checkbox": "x",
+      "requires": "Package commands for controller, focused receipt writing, validation and tests, without adding a dependency.",
+      "disposition": "closable-now",
+      "evidence": [
+        "package.json carries qc:camp01-authority-receipt:controller (node scripts/qc/run-camp01-production.mjs), :write, :validate, :test; all four are literal-pinned at scripts/__tests__/run-viewport-sweep.test.ts:378-388."
+      ],
+      "gaps": [
+        "The :test pin is a literal-string equality against the camp01TestFiles array (run-viewport-sweep.test.ts:155, asserted :386-388). It does NOT assert that the array equals the tracked set of camp01 suites, so suites can drift outside the umbrella silently — three have (see slice C3)."
+      ]
+    },
+    {
+      "id": "5.1",
+      "section": "5 Adversarial Verification (PROOF-5)",
+      "checkbox": "x",
+      "requires": "Injected Git process/transport adapter asserting verified executable, literal fetch URL, disabled config/credentials/proxies/rewrites, API OID equality/mismatch, with production unable to accept the adapter; real temporary Git repositories/worktrees for proof/export/reopen/cleanup, dirty/reparse/ref/OID races with no deletion, caps/compare-delete/export collisions, durable post-removal validation; AND visibly rendered non-fixture profile/database/storage sentinels injected before the guard and through a test seam after the initial guard but before screenshot, proving barrier/counters or unequal post-state reject and publish no PNG/export; then reject missing/extra/reordered/substituted/tampered durable capture attestations on reopen.",
+      "disposition": "further-implementation-required",
+      "evidence": [
+        "Hermetic tier GREEN: camp01-git-trust.test.ts, camp01-github-provenance.test.ts, camp01-repository-lifecycle-adversarial.test.ts, camp01-capture-transaction.test.ts, camp01-capture-reopen-adversarial.test.ts all passed in the umbrella at c3b4cc1e3.",
+        "Cited historical live-tier CI runs verified to exist this session: run 31170491634 (PROOF-5D5, head 406f7eb0a01c60062991bef8bad9cf2d2964614b, conclusion success) and run 31173800715 (PROOF-5D6, head 9d6744e39afec648d807bcf37a0a6ee4a0865c2e, conclusion FAILURE) — the failure is exactly the LIVE-TIER CORRECTION disclosed at tasks.md:68 and root-caused in PR #1190 (merge 2ff3b0e834cd72d6fe3e6b9fb10cac5c306b97a5)."
+      ],
+      "gaps": [
+        "LIVE-TIER REGRESSION on current main: workflow \"CAMP-01 Live Adversarial Evidence\" (id 329205862) run 34936659219 at head c3b4cc1e3ace35ff95b7999d9680a5d657ca344f concluded FAILURE. Both legs report {passed:7,failed:1,skippedWithReason:3,exitCode:1}; the Live Tier Signal job names the failing probe on BOTH legs: proof5d5-playwright-failure-traversal.",
+        "Sustained, not a flake: the same both-leg failure of the same probe is present on run 33679587353 (2026-09-02) and every workflow run in the most recent 100-run page (2026-09-02 through 2026-09-15) concluded failure.",
+        "tasks.md:54 declares the live tier \"publishes machine-readable pass/fail artifacts and is not optional manual evidence\", so this red probe is inside 5.1 scope, not adjacent to it."
+      ]
+    },
+    {
+      "id": "5.2",
+      "section": "5 Adversarial Verification (PROOF-5)",
+      "checkbox": "x",
+      "requires": "Prove independent approvals and PROOF pass/fail/missing triage; reject cause self-links/cycles/alias chains/multiple or nonterminal roots; simulate failures before save, readiness, session, command, terminal and post-battle persistence so each partial observation sources its canonical repair then a fresh complete final passes; reject unavailable finals, invalid failures/ranks/relationships/identity/caps/manifests, and nondurable consumers.",
+      "disposition": "closable-now",
+      "evidence": [
+        "camp01-h-composition.test.ts (5G1 23 rows -> 5G2 57 rows -> 5G3 125 camp-01h rows per tasks.md:78-80), camp01-durable-facts.test.ts, camp01-repair-registry.test.ts all green in the umbrella.",
+        "Cause-graph topology half discharged by PROOF-5F (#1188 ddb841696) per tasks.md:71."
+      ],
+      "gaps": [
+        "The \"independent approvals\" clause is proven only against MOCKED GitHub/transport adapters. The live independence gate is unsatisfiable in this repository (gate G1).",
+        "tasks.md:74 explicitly declares that the composed camp-01h receipt proves the machinery composes/validates/reopens/cleans up and does NOT constitute the three authority-evidenced play sessions camp-01h names."
+      ]
+    },
+    {
+      "id": "5.3",
+      "section": "5 Adversarial Verification (PROOF-5)",
+      "checkbox": "x",
+      "requires": "Run focused Jest, Node 22 nonincremental typecheck, lint, format check, strict OpenSpec/QC validation, and applicable viewport/runner smoke checks; keep each product PR below 15 files/500 changed lines.",
+      "disposition": "further-implementation-required",
+      "evidence": [
+        "Focused Jest GREEN: npm run qc:camp01-authority-receipt:test at c3b4cc1e3 -> exit 0, 25 suites, 731 passed / 10 skipped / 741 total, 300.822 s.",
+        "Strict OpenSpec GREEN: npx openspec validate --all --strict -> exit 0, 233 passed / 0 failed. (Receipts record 238/238; the lower count reflects archived changes, not a regression.)"
+      ],
+      "gaps": [
+        "QC VALIDATION RED on current main: npm run qc:validate -> exit 1, \"QC registry: 27 surfaces, 4 errors, 0 warnings\". All four errors are on surface multiplayer-coop-sync whose specRefs[1..3] and activeChangeRefs[0] point at prove-live-coop-campaign-journey, which is archived as 2026-07-07-prove-live-coop-campaign-journey. Cause is outside this package, but 5.3 literally requires strict OpenSpec/QC validation to pass.",
+        "Node 22 nonincremental typecheck, lint and format check were NOT run this session (repo-wide, out of the assigned budget) — UNVERIFIED for current main.",
+        "Live-tier smoke shares the 5.1 regression (proof5d5-playwright-failure-traversal red on both hosts)."
+      ]
+    },
+    {
+      "id": "6.1",
+      "section": "6 Receipt Handoff (PROOF-6)",
+      "checkbox": "x",
+      "requires": "Produce and validate a reviewed-head camp-proof receipt with exact spec/product provenance, then obtain INDEPENDENT REVIEW and merge with a SHA guard.",
+      "disposition": "external-gate-required",
+      "evidence": [
+        "Receipt artifact exists and was read this session: E:/Projects/MekStation-proof/.sisyphus/evidence/playtest/camp-proof-9d15fcf4b624f0268853bdecf17c6ce09f02ed54/camp01-1c1f410d20e9fd30140cdb0c366a6a11/ with command-result.json mode=reviewed-head, sha=9d15fcf4b624f0268853bdecf17c6ce09f02ed54, commandId=camp-proof.",
+        "Its receipt-manifest.json bytes hash to sha256:c27ba1c4105031337319360ca96343d5f0279ccaabbba645d9008773c13255cd, which is byte-for-byte the reviewedHeadReceiptManifestDigest cited by the exact-main receipt.",
+        "Live GitHub read: PR #1216 head = 9d15fcf4b624f0268853bdecf17c6ce09f02ed54, merge_commit_sha = 48f806f973504cbe38bdd62203a004d20902240f, user = SwiggitySwerve, merged_by = SwiggitySwerve."
+      ],
+      "gaps": [
+        "GATE G1 UNMET — the \"independent review\" leg was satisfied by the PROOF-6B0 solo-maintainer sentinel, not by an eligible non-author APPROVED review. PROVEN cryptographically this session: the receipt provenance.specTupleId tuple-034b16867cc46eeb0a34e843acd44ab0 equals the 32-hex prefix of sha256(JSON.stringify({\"childChange\":\"add-camp01-authority-receipts\",\"prNumber\":\"1215\",\"mergeSha\":\"d2c27d85087a094e2734b92aee629a542a9d097a\",\"approvalId\":\"solo-maintainer\",\"reviewer\":\"SwiggitySwerve\"})), and ownedPrTupleId tuple-c761c535a639816e34a3590f8c01b3cb equals the prefix of sha256(JSON.stringify({\"kind\":\"product\",\"prNumber\":\"1216\",\"headSha\":\"9d15fcf4b624f0268853bdecf17c6ce09f02ed54\",\"approvalId\":\"solo-maintainer\",\"reviewer\":\"SwiggitySwerve\",\"mergeSha\":\"48f806f973504cbe38bdd62203a004d20902240f\"})).",
+        "Live GitHub read: PR #1216 has 0 reviews; PR #1215 has 0 reviews; collaborator set is exactly [\"SwiggitySwerve\"] with permission \"admin\".",
+        "The durable receipt is NOT repo-resident (git ls-files .sisyphus/evidence returns 189 files, none under camp-proof-*). It exists only in the operator clone E:/Projects/MekStation-proof.",
+        "NOTE (not a validation failure): tupleId at camp01-github-provenance.mjs:182-187 now wraps the value as {wave,value}; the on-disk receipt ids re-derive only WITHOUT the wave wrapper, so the stored tuple ids are not reproducible under current main code. validateProvenance (camp01-authority-receipt.schemas.mjs:163) only checks registry membership and never recomputes the tuple id, so the receipt still validates."
+      ]
+    },
+    {
+      "id": "6.2",
+      "section": "6 Receipt Handoff (PROOF-6)",
+      "checkbox": "x",
+      "requires": "Produce and validate a fresh exact-main camp-proof receipt, export/reopen it, publish/revalidate cleanup, prune only the creation-bound branch/worktrees, and block PROOF-02 until every cleanup predicate is true.",
+      "disposition": "external-gate-required",
+      "evidence": [
+        "Exact-main receipt read this session: camp-proof-48f806f973504cbe38bdd62203a004d20902240f/camp01-53e393cb2a4ec80d24d6e367a47f20e1/ with mode=exact-main, wave=camp-proof, sha=48f806f973504cbe38bdd62203a004d20902240f, commandId=camp-proof, canonicalArgvDigest=68e44c6b37134fb790026e615b26ddda39fb68cbf49921be33e1d1a1bd4d48a0 (equal to the frozen contract row at camp01-authority-receipt.contract.mjs:24), invocations=[{invocationId:camp-proof-command-01, exitCode:0, status:passed}].",
+        "receipt-manifest.json bytes hash to sha256:f6f3f619ef07343f9d82245cd961ab87465ab192a607b1e32877f21cea068946 — byte-identical to the digest tasks.md:99 records for task 6.2.",
+        "capProvenance baseSha d2c27d85087a094e2734b92aee629a542a9d097a equals the live merge_commit_sha of PR #1215; headSha 9d15fcf4b624f0268853bdecf17c6ce09f02ed54 equals the live head of PR #1216; fileCount 1, changedLineCount 1, binaryEntries false.",
+        "Cleanup receipt camp-proof-camp01-53e393cb2a4ec80d24d6e367a47f20e1-wave-cleanup.json: schema camp01-cleanup/v1, receiptDigest matching, all five predicates true.",
+        "Production A4 composition verified in source: camp01-durable-facts.mjs:101-112 createProductionDependencies -> :250-263 productionAnchor composes fetchCheckRuns from fetchGitHubResource with resource check-runs (camp01-github-provenance.mjs:201)."
+      ],
+      "gaps": [
+        "GATE G1 UNMET — same solo-maintainer sentinel provenance as 6.1 (the ownedPrTupleId brute-force match above is the exact-main tuple, carrying mergeSha 48f806f97…).",
+        "Export/reopen and anchor admission are attested only by the operator narrative at tasks.md:99; the durable root is outside the repository so no in-repo artifact records the A1-A4 anchor verdicts.",
+        "PROOF-6A2 mutant M-B4 re-open trigger (tasks.md:88): the composed REST leg has no hermetic composition row — camp01-anchor-authority.test.ts:30-31 always injects a fake fetchCheckRuns. The disposition rests on the 6B/6C production run having traversed a real cap-owning durable admission, which is narrative-only.",
+        "tasks.md:99 itself binds: \"NO artifact here may be cited as evidence that the three authority-evidenced play sessions occurred.\""
+      ]
+    }
+  ],
+  "externalGates": [
+    {
+      "id": "G1",
+      "name": "Eligible non-author GitHub APPROVED review on the exact head",
+      "blocks": [
+        "6.1",
+        "6.2",
+        "5.2 (independent-approvals clause)"
+      ],
+      "exactGate": {
+        "ownedProductPr": {
+          "number": 1216,
+          "headSha": "9d15fcf4b624f0268853bdecf17c6ce09f02ed54",
+          "mergeSha": "48f806f973504cbe38bdd62203a004d20902240f",
+          "author": "SwiggitySwerve",
+          "mergedBy": "SwiggitySwerve",
+          "reviewsLive": 0
+        },
+        "citedSpecPr": {
+          "number": 1215,
+          "mergeSha": "d2c27d85087a094e2734b92aee629a542a9d097a",
+          "author": "SwiggitySwerve",
+          "reviewsLive": 0
+        },
+        "programSpecTuples": "ten --program-spec tuples, all cited to the same PR #1215 merge per tasks.md:97"
+      },
+      "reviewerEligibilityRule": {
+        "codeCitation": "scripts/qc/camp01-github-provenance.mjs:148 — review.state === \"APPROVED\"; review.dismissed_at null/undefined; review.commit_id === pull.head.sha; review.user.login !== pull.user.login (\"self approval rejected\"); reviewer permission in ALLOWED_PERMISSIONS (:19 = WRITE|MAINTAIN|ADMIN) confirmed by a separate /collaborators/<login>/permission lookup.",
+        "packageSpecText": "openspec/changes/add-camp01-authority-receipts/specs/journey-qc/spec.md:60 — \"...accept only a non-dismissed exact-head approval by a non-author with WRITE|MAINTAIN|ADMIN, EXCEPT under the solo-maintainer reduction...\"; scenario clause at :67.",
+        "rosterSpecText": "openspec/changes/add-saved-custom-unit-campaign-roster/specs/journey-qc/spec.md:46 — \"...a non-dismissed exact-head approval from an authorized non-author; fork, remote, base, reviewer-permission, or API-identity drift SHALL fail\"."
+      },
+      "soloMaintainerException": {
+        "codeCitation": "scripts/qc/camp01-github-provenance.mjs:147 — approvalId === \"solo-maintainer\" arm: collaborator list must be exactly [reviewer]; pull.user.login === reviewer; for merged citations merged_by.login === reviewer; permission must be ADMIN; returns reviewId \"solo-maintainer\".",
+        "specText": "openspec/changes/add-camp01-authority-receipts/specs/journey-qc/spec.md:60 — declares the sentinel \"a REDUCTION of the independent-review claim, not satisfaction of it; receipts produced under the sentinel attest self-reviewed provenance\" and that the arm \"SHALL reject the moment more than one collaborator exists\".",
+        "declaration": "tasks.md:90 (PROOF-6B0), receipt at tasks.md:91.",
+        "distinctionFromRosterP2": "The roster clause at roster spec :46 is the UNREDUCED requirement and is NOT amended by PROOF-6B0 — PROOF-6B0 reduced only the two clauses inside add-camp01-authority-receipts and the roster \"authors-may-be-same\" clause. A camp-proof receipt produced under the sentinel therefore satisfies the package requirement as reduced and does NOT satisfy the roster non-author clause. Prior evidence camp-historical-approval-sample-20260913.json states the same conclusion: \"Neither merge metadata nor solo-maintainer receipts satisfy current roster P.2.\""
+      },
+      "satisfiabilityNow": "STRUCTURALLY UNSATISFIABLE for the existing camp-proof receipts. Live reads 2026-09-15: /repos/SwiggitySwerve/MekStation/collaborators -> [\"SwiggitySwerve\"]; pulls/1215/reviews -> 0; pulls/1216/reviews -> 0; owner permission -> admin. GitHub forbids self-approval and forbids approving already-merged PRs, so no approval can ever be attached to #1215/#1216. Satisfying G1 requires (i) adding a second collaborator with WRITE|MAINTAIN|ADMIN, (ii) re-running the full camp-proof cycle on a fresh owned product PR under the uninterrupted reviewed-head -> merge -> exact-main -> cleanup law (tasks.md:95), and (iii) a real APPROVED review on that new exact head before merge. This session cannot manufacture any of the three."
+    },
+    {
+      "id": "G2",
+      "name": "Three authority-evidenced play sessions (camp-01h threeSessionWitnessCount === 3)",
+      "blocks": [
+        "the long-horizon CAMP-01 acceptance goal, explicitly NOT tasks 5.x/6.x"
+      ],
+      "declaration": "tasks.md:74 (acceptance-decoupling declaration), :89 (H-witness reduction), :99 (PROOF-6 constraint), :106 (CAMP-R3 vacuous-assertion disposition).",
+      "historicalVsCurrentCustomH": {
+        "rule": "Historical receipt validation cannot close later current-custom H claims.",
+        "basis": [
+          "The camp-01h receipts in the operator durable root are dated 2026-08-12 and were produced under the REDUCED claim (prove-saved-custom-unit-campaign-journey/specs/journey-qc/spec.md:5 REDUCED CLAIM paragraph), which states in normative text that it reduces rather than satisfies the saved-custom-unit boundary claim.",
+          "The product surface has MOVED since those receipts. CAMP-R3 (tasks.md:106) re-measured on 2026-08-20: unitSource 16, RosterUnitSource 8, rosterInstanceId 0. Re-measured in THIS session at c3b4cc1e3 over tracked src/ excluding tests: unitSource 23, RosterUnitSource 14, rosterInstanceId 0, savedDesignId 0, serverSessionId 0, terminalResultId 0, postBattleConsequenceId 0, readinessBlockerId 0. The CAMP-R3 measurement is therefore stale again, and 6 of the 8 named fact-slot entities still have no product implementation.",
+          "tasks.md:74 records that all 46 camp-01h wave assertions are self-declared (validateWave, schemas.mjs:131, checks only suffix/type/literal) and that all 18 H trace-evidence ids are writer-minted by deriveEvidenceId, so a fixture-authored receipt and a real-producer receipt are byte-indistinguishable to every validator."
+        ]
+      },
+      "satisfiabilityNow": "Requires the nine unstarted CAMP-01 product child changes plus an authority-report producer layer. Not manufacturable in this session and not owned by this package."
+    }
+  ],
+  "implementationSlices": [
+    {
+      "id": "C1",
+      "owns": [
+        "5.1",
+        "5.3 (live-tier smoke leg)"
+      ],
+      "title": "Restore the live probe proof5d5-playwright-failure-traversal (red on both hosts since at least 2026-09-02)",
+      "behavior": "The probe writes a deliberately failing Playwright spec plus a derived config, runs it through scripts/playwright/run-playwright.mjs under a camp-01h invocation identity, and asserts exitCode===1, signal===null, report.complete===true, exactly one failed observation, no surviving invocation runtime, and no partial publication. On current main it throws before that oracle can pass.",
+      "files": [
+        "scripts/qc/camp01-live-browser-adversarial.mjs (probe registration :45; implementation playwrightFailureTraversalProbe :247-~300; file is 380 lines)",
+        "scripts/playwright/run-playwright.mjs (launcher; last touched by #1617 5d5307125 and #1544 8486a98ec)",
+        "playwright.config.ts (base config the probe derives from)",
+        "scripts/qc/camp01-playwright-normalizer.mjs (normalized report the oracle reads)"
+      ],
+      "test": "Diagnose first (run `npm run qc:camp01-live-adversarial` locally on a Chromium-provisioned host, or read the Linux.json artifact of run 34936659219). Then add the regression pin: either a Jest row in scripts/__tests__/camp01-playwright-normalizer.test.ts that covers the drifted launcher/normalizer contract, or a guard-death re-proof recorded in the live artifact. Both legs must return exitCode 0.",
+      "estimateChangedLines": "20-60 production + 10-25 proving rows",
+      "note": "Diagnosis not performed here — the failing probe id is verified, the root cause is NOT. Do not assume the #1617 launcher change is the cause without bisecting."
+    },
+    {
+      "id": "C2",
+      "owns": [
+        "5.3 (strict QC validation leg)"
+      ],
+      "title": "Repoint the multiplayer-coop-sync QC registry surface at the archived change so npm run qc:validate exits 0",
+      "behavior": "validate-qc-registry.mjs reports 4 errors: specRefs[1..3] do not resolve and activeChangeRefs[0] does not resolve to an active change; prove-live-coop-campaign-journey is archived as 2026-07-07-prove-live-coop-campaign-journey.",
+      "files": [
+        "docs/qc/mekstation-qc-registry.json:1334-1336 (three specRefs) and :1338 (activeChangeRefs)"
+      ],
+      "test": "npm run qc:validate exits 0 with 0 errors.",
+      "estimateChangedLines": "4",
+      "note": "Root cause is outside this package (an archive sweep that did not update the registry), but it keeps 5.3 red on current main."
+    },
+    {
+      "id": "C3",
+      "owns": [
+        "4.3 (umbrella completeness), hygiene"
+      ],
+      "title": "Make the camp01 umbrella self-completing instead of literal-only",
+      "behavior": "The camp01TestFiles pin (run-viewport-sweep.test.ts:155, asserted :386-388) only proves package.json matches the literal array; it never proves the array equals the tracked camp01 suite set. Three tracked suites are currently outside the umbrella: camp01-capture-policy-aggregation.test.ts, camp01-live-signal.test.ts, camp01-live-status-report.test.ts (all green when run separately, 21 tests).",
+      "files": [
+        "scripts/__tests__/run-viewport-sweep.test.ts (:155-176 array, :386-388 assertion)",
+        "package.json (qc:camp01-authority-receipt:test)"
+      ],
+      "test": "Add a row asserting camp01TestFiles equals the sorted glob of scripts/__tests__/camp01-*.test.ts (plus the declared non-camp01 members), then add the three missing suites. Umbrella becomes 28 suites / 752 tests.",
+      "estimateChangedLines": "10-20 in the test + 3 entries in each of the two pins"
+    }
+  ],
+  "bookkeepingFindings": [
+    "tasks.md:44 binds task 4.1 F/G reporter obligations to PROOF-4C2/4C3 receipts that were never written; the obligation was discharged inside the product wave series instead (real camp-01f/camp-01g receipts with reports/campaign-persistence-authority.json and reports/mech-bay-authority.json exist in the operator durable root). Either record the receipt lines or amend the binding.",
+    "The entire durable evidence root is outside the repository (E:/Projects/MekStation-proof/.sisyphus/evidence/playtest, 25 wave directories plus .camp01-cleanups). git ls-files .sisyphus/evidence on main returns 189 files, none of them camp-proof or camp-01x receipts. Every section-6 claim is therefore verifiable only on the operator machine.",
+    "tupleId (camp01-github-provenance.mjs:182-187) now wraps as {wave,value}; the stored receipt tuple ids re-derive only without the wrapper. validateProvenance (schemas.mjs:163) checks registry membership and never recomputes, so historical receipts still validate — but a fresh run today would mint different tuple ids for identical citations.",
+    "openspec/active-change-ledger.json keeps add-camp01-authority-receipts at status in-progress, lastReviewed 2026-08-14, \"Remains active until the later parent 9.1 exact-main receipt gate.\"",
+    "PROOF-6A2 mutant M-B4 (tasks.md:88) carries a named re-open trigger for the composed REST anchor leg; camp01-anchor-authority.test.ts:30-31 still injects a fake fetchCheckRuns, so no hermetic composition row exists.",
+    "C09-L1 provisioned production-context live execution remains the one open live-evidence item declared at tasks.md:80."
+  ],
+  "citationsVerifiedThisSession": [
+    "scripts/qc/camp01-authority-receipt.contract.mjs:24",
+    "scripts/qc/camp01-github-provenance.mjs:19,:102,:111,:123,:132,:144,:147,:148,:149,:177,:179,:182-187,:201",
+    "scripts/qc/camp01-authority-receipt.schemas.mjs:163",
+    "scripts/qc/camp01-durable-facts.mjs:101-112,:250-263",
+    "scripts/qc/run-camp01-authority-receipt.mjs:35-39,:56,:71,:98,:100,:102",
+    "scripts/qc/camp01-live-browser-adversarial.mjs:45,:247",
+    "scripts/__tests__/run-viewport-sweep.test.ts:155,:380-391",
+    "scripts/__tests__/camp01-anchor-authority.test.ts:30-31",
+    "openspec/changes/add-camp01-authority-receipts/specs/journey-qc/spec.md:60,:67",
+    "openspec/changes/add-saved-custom-unit-campaign-roster/specs/journey-qc/spec.md:5,:46",
+    "openspec/changes/prove-saved-custom-unit-campaign-journey/specs/journey-qc/spec.md:5",
+    "e2e/campaign-customizer-handoff.spec.ts:409,:528",
+    "docs/qc/mekstation-qc-registry.json:1334-1338",
+    "openspec/changes/add-camp01-authority-receipts/tasks.md:4,:6,:12,:14-18,:23-37,:41-50,:54-80,:84-99,:100-109"
+  ],
+  "disclaimer": "No task is claimed closed. These are dispositions for the parent to accept or reject."
+}

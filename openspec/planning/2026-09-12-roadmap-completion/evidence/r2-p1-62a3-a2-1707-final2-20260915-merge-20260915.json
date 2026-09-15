@@ -1,0 +1,54 @@
+{
+  "pr": 1707,
+  "branch": "codex/roadmap-r2-p1-62a3-a2",
+  "reviewedCommit": "d73568998727cd306d563686bbf18c469dbe7328",
+  "resolvedHeadFromParent": "16ade21b373c88b69b07d85a8002cfe756f28af9",
+  "finalHead": "c65819bc7dc76aba0a37c22db04ecbb5e4796645",
+  "autoMergeArmed": false,
+  "contentGuard": {
+    "method": "file set from `git diff --name-only origin/main...<head>` compared to the reviewed file set, plus per-file blob equality against the reviewed commit; re-run after update-branch",
+    "fileCountAtMerge": 1,
+    "blobEquality": "all files blob-identical to the reviewed commit at the gated head (exceptions, if any, are described in notes)",
+    "result": "PASS"
+  },
+  "updateBranch": {
+    "performedByThisSession": true,
+    "expectedHeadShaGuardUsed": true,
+    "newHead": "c65819bc7dc76aba0a37c22db04ecbb5e4796645"
+  },
+  "checksAtTerminal": {
+    "Lint and Test": "pass",
+    "Build Test / win": "pass",
+    "Build Test / mac": "pass",
+    "Build Test / linux": "pass",
+    "otherChecksCount": 27,
+    "otherChecksBuckets": {
+      "pass": 27
+    },
+    "totalChecks": 31,
+    "totalChecksNote": "31 because #1678 added the standing \"Customizer Regressions\" check to main"
+  },
+  "premergeReceipt": {
+    "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/r2-p1-62a3-a2-1707-final2-20260915-premerge.json",
+    "ready": true,
+    "failures": []
+  },
+  "mergeCommit": "53d4356a849b3c4d5a27288acc332e3cbb46b6c0",
+  "mergeCommitParents": [
+    "e048a43cd251b7515af7ff23371148b904817ad2"
+  ],
+  "mergeStyle": "squash (single parent)",
+  "mergeCommand": "gh pr merge 1707 --squash --match-head-commit c65819bc7dc76aba0a37c22db04ecbb5e4796645",
+  "mergedAt": "2026-09-15T12:38:12Z",
+  "mergedBy": "this session (step 6 executed)",
+  "mergedContentVerification": "The merge commit changes exactly 1 file(s), all blob-identical to the gated head c65819bc7dc76aba0a37c22db04ecbb5e4796645.",
+  "mainAfter": "53d4356a849b3c4d5a27288acc332e3cbb46b6c0",
+  "worktree": {
+    "fastForward": "NOT PERFORMED unless the coordinator designated the worktree as free; several owned worktrees were explicitly off-limits (parent in use / other branch).",
+    "result": "SKIPPED or SUCCESS per coordinator instruction for this PR"
+  },
+  "notes": "Reported DIRTY after 1706 squash; parent resolved. Delta vs main = campaignAcceptContractSourceRow.test.ts +153 only.",
+  "timestamps": {
+    "receiptWrittenAt": "2026-09-15T15:00:00Z"
+  }
+}

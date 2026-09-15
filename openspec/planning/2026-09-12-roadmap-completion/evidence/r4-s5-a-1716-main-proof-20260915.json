@@ -1,0 +1,48 @@
+{
+  "node": "R4.S5",
+  "artefact": "r4-s5-a-1716-main-proof-20260915",
+  "capturedAtUtc": "2026-09-15T14:25:00.970Z",
+  "pr": 1716,
+  "slice": "R4.S5 commit A: name the sequence-to-revision offset at each site (task 1.5)",
+  "reviewedHead": "18b6762024f04782bdd1ad8e4bd81de6658b79c9",
+  "mergeCommit": "faf03445d421fc2b9a52c20d5dddfbdb5f82cb02",
+  "worktree": ".sisyphus/roadmap-completion-20260912/worktrees/r2-prepared-journal-api (detached at the merge commit; Node v24.15.0, better-sqlite3 rebuilt for Node 24 in this worktree — deviation from the Node 22 CI runtime recorded)",
+  "files": [
+    "src/lib/multiplayer/server/history/matchStoreBranchSegmentReader.ts",
+    "src/lib/multiplayer/server/DurableMatchStore.ts",
+    "src/lib/multiplayer/server/InMemoryMatchStore.ts",
+    "src/lib/multiplayer/server/MatchStreamJournalMirror.ts",
+    "src/lib/multiplayer/server/ServerMatchHostBranchAdmission.ts",
+    "+ the four re-pinned suites"
+  ],
+  "blobEquality": {
+    "command": "git diff --stat 18b676202 faf03445d -- src/lib/multiplayer/server",
+    "diffLines": 0,
+    "identical": true
+  },
+  "gates": {
+    "jest": {
+      "scope": "src/lib/multiplayer/server src/lib/events/journal",
+      "result": "see jest.log",
+      "exit": 0,
+      "sha256": "a96e5b8145945a9fb88dff217db6468b364dbed1d65399515944f8401f894258"
+    },
+    "tsc": {
+      "exit": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "openspecStrict": {
+      "exit": 0,
+      "sha256": "a6f1b01bad6ef535f7ae511fd2b0e725e382bcb462449ef4386723e0ec97eff3"
+    },
+    "qcOpenspecCi": {
+      "exit": 0,
+      "sha256": "1d2b3ffbba3922d328cc2b02fa1de7ccedad6b3382227fa903deccf9a0d5900c"
+    }
+  },
+  "acceptance": "exact-main accepted",
+  "nonClaims": [
+    "B #1717 (rewound-stream guard) pending",
+    "mode off"
+  ]
+}

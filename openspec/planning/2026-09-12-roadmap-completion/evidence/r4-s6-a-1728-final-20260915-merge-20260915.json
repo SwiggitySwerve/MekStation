@@ -1,0 +1,51 @@
+{
+  "pr": 1728,
+  "branch": "codex/roadmap-r4-s6-a-consult-20260915",
+  "reviewedCommit": "75adfbb3fc9305d0429d825d95e3f7cb760d621d",
+  "finalHead": "bc962390bcc56abccef6555e87dad5c4b7f300c8",
+  "autoMergeArmed": false,
+  "contentGuard": {
+    "method": "file set from `git diff --name-only origin/main...<head>` vs the reviewed file set, plus per-file blob equality against the reviewed commit; re-run after update-branch",
+    "fileCountAtMerge": 4,
+    "blobEquality": "all files blob-identical to the reviewed commit at the gated head",
+    "result": "PASS"
+  },
+  "updateBranch": {
+    "performedByThisSession": true,
+    "expectedHeadShaGuardUsed": true,
+    "newHead": "bc962390bcc56abccef6555e87dad5c4b7f300c8"
+  },
+  "checksAtTerminal": {
+    "Lint and Test": "pass",
+    "Build Test / win": "pass",
+    "Build Test / mac": "pass",
+    "Build Test / linux": "pass",
+    "otherChecksCount": 27,
+    "otherChecksBuckets": {
+      "pass": 27
+    },
+    "totalChecks": 31
+  },
+  "premergeReceipt": {
+    "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/r4-s6-a-1728-final-20260915-premerge.json",
+    "ready": true,
+    "failures": []
+  },
+  "mergeCommit": "16e7346f20303acd518df8c21c7b2ff04a22fe0a",
+  "mergeCommitParents": [
+    "392c207de703049565b70ca6fe17005aca8f0641"
+  ],
+  "mergeStyle": "squash (single parent)",
+  "mergeCommand": "gh pr merge 1728 --squash --match-head-commit bc962390bcc56abccef6555e87dad5c4b7f300c8",
+  "mergedAt": "2026-09-15T16:07:24Z",
+  "mergedBy": "this session (step 6 executed)",
+  "mergedContentVerification": "The merge commit changes exactly 4 file(s), all blob-identical to the gated head bc962390bcc56abccef6555e87dad5c4b7f300c8.",
+  "mainAfter": "16e7346f20303acd518df8c21c7b2ff04a22fe0a",
+  "worktree": {
+    "fastForward": "NOT PERFORMED - coordinator designated the owned worktrees as off-limits for these PRs",
+    "result": "SKIPPED (intentional)"
+  },
+  "timestamps": {
+    "receiptWrittenAt": "2026-09-15T17:02:00Z"
+  }
+}

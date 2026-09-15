@@ -1,0 +1,52 @@
+{
+  "node": "R4.S4",
+  "artefact": "r4-s4-a-1704-main-proof-20260915",
+  "capturedAtUtc": "2026-09-15T11:59:33.531Z",
+  "pr": 1704,
+  "slice": "R4.S4 commit A: rebuild the live host from the journal head on restart (task 1.4 first clause); fold widened to live-path branch ids; typed partial-history divergence block; MatchRecoveryJournalHead consult",
+  "reviewedHead": "d950bb65ca5e2c6db98e2743b1d7bff4ab32e8aa (manager update-branch; delta vs main verified = S4 A 494+/31-)",
+  "mergeCommit": "8cacf20a65880e42304c4e885b395525c820f775",
+  "worktree": ".sisyphus/roadmap-completion-20260912/worktrees/archive-original-main-proof (detached at the merge commit)",
+  "runtime": {
+    "node": "v22.22.0"
+  },
+  "files": [
+    "src/lib/multiplayer/server/MatchRecovery.ts",
+    "src/lib/multiplayer/server/MatchRecoveryJournalHead.ts",
+    "src/lib/multiplayer/server/ServerMatchHostBranchAdmission.ts",
+    "src/lib/multiplayer/server/ServerMatchHostRewindRebuild.ts",
+    "src/lib/multiplayer/server/__tests__/matchRecoveryJournalHead.sqlite.test.ts",
+    "src/lib/multiplayer/server/matchAuthorityBaseline.ts"
+  ],
+  "blobEquality": {
+    "command": "git diff --stat d950bb65c 8cacf20a6 -- src/lib/multiplayer/server",
+    "diffLines": 0,
+    "identical": true
+  },
+  "gates": {
+    "jest": {
+      "scope": "src/lib/multiplayer/server src/lib/events/journal",
+      "result": "171 suites / 1330 tests passed",
+      "exit": 0,
+      "sha256": "af15215f63a44f9d4cd633ce3ef69d43769295f58611dbd7cd389acc656e5dd1"
+    },
+    "tsc": {
+      "exit": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "openspecStrict": {
+      "exit": 0,
+      "sha256": "a6f1b01bad6ef535f7ae511fd2b0e725e382bcb462449ef4386723e0ec97eff3"
+    },
+    "qcOpenspecCi": {
+      "exit": 0,
+      "sha256": "1d2b3ffbba3922d328cc2b02fa1de7ccedad6b3382227fa903deccf9a0d5900c"
+    }
+  },
+  "acceptance": "exact-main accepted",
+  "nonClaims": [
+    "#1705 (B rows) pending",
+    "mode off; seeding owed by 1.7; S4-R4 carried to S5/S6",
+    "task 1.4 second clause (umbrella restart pack vs a rewound match) not claimed"
+  ]
+}

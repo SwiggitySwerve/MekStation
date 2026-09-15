@@ -1,0 +1,179 @@
+{
+  "artefact": "r2-p1-62a3-source-row-review-20260915",
+  "task": "6.2a-3 independent review — the source record follows the accepted contract in the same commit (blocker B2 from the 6.2b STOP brief)",
+  "date": "2026-09-15",
+  "role": "INDEPENDENT REVIEWER (not the author). GP-JUSTIFIED: read-only code review with test re-runs.",
+  "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/r2-prepared-journal-api",
+  "branch": "codex/roadmap-r2-p1-62a3-source-row-split-20260915",
+  "readOnlyDiscipline": {
+    "headAtStart": "dcaa8fcc7322fc2934baa2aebb816f095fc4f8c0",
+    "headAtEnd": "dcaa8fcc7322fc2934baa2aebb816f095fc4f8c0",
+    "porcelainAtStart": "(empty)",
+    "porcelainAtEnd": "(empty)",
+    "noCheckoutChanged": "No `git checkout`, no commit, no push, no branch move, no sub-agent, no build.",
+    "oneTemporaryProbe": "For axis 4 a throwaway jest file `src/lib/campaign/authority/__tests__/zzReviewProbe.reviewtmp.test.ts` was created, run, and DELETED in the same session. `git status --porcelain` re-verified empty afterwards (output above). No tracked file was modified at any point. The probe's six measured results are reported under `axis4`.",
+    "node": "v24.15.0 (ambient — this worktree's better-sqlite3 is built for Node 24, not switched)"
+  },
+
+  "verdict": {
+    "commitA": {
+      "sha": "66360fd1f05d7934bc917dec5cd5efeb563c4ae9",
+      "subject": "feat(campaign): let the source record follow the accepted contract in the same commit",
+      "verdict": "APPROVE-WITH-REQUIRED-EDITS",
+      "oneLine": "The transactional placement is correct and the row the write produces is byte-faithful to what the client's own acceptance produces. Two fail-closed gaps around the NEW write must be closed or argued: the write bypasses the D2 source-mutation gate every other writer of the `campaigns` table honors, and an offer that is an object but not a contract either throws untyped out of the prepared transaction or is materialized into the source record as a malformed mission."
+    },
+    "commitB": {
+      "sha": "dcaa8fcc7322fc2934baa2aebb816f095fc4f8c0",
+      "subject": "test(campaign): pin the malformed-shape refusals and the same-actor re-submit after an accepted contract",
+      "verdict": "APPROVE",
+      "oneLine": "Test-only, 57 lines, three rows whose red is verified in red.log and whose green is verified at HEAD in this session. No product file touched. Nothing to change."
+    }
+  },
+
+  "requiredEdits": [
+    {
+      "id": "RE-1",
+      "commit": "A",
+      "severity": "blocking",
+      "title": "The new `UPDATE campaigns` bypasses the D2 source-mutation gate. Close it or record why it cannot bite.",
+      "evidence": "src/lib/campaign/authority/campaignAcceptContractCommand.ts:477-483 writes the `campaigns` row directly. Every other writer of that table runs `evaluateSourceMutationGate` first: `saveCampaign` via `prepareCampaignWrite` (src/services/campaignPersistence/CampaignPersistenceService.ts:363 for the incoming record and :397 for the STORED one), and `storeReplicaCampaign` refuses `would-overwrite-source` at :208-211. `readCampaignSourceMarket` (:195-243 at HEAD) reads the row with no role check at all. Before this commit no campaign command touched that table, so this is NEW exposure introduced by the row write, not a pre-existing seam.",
+      "reachability": "UNVERIFIED. It requires a `campaigns` row whose stored record has `authority.role === 'replica'` while the campaign's migration marker reads `journal` (the command path gates on the MARKER — src/lib/campaign/authority/resolveCampaignAuthorityFromStores.ts:43-82 — not on any role). No in-session tool result demonstrates a path that creates that pair, and none demonstrates that it is impossible.",
+      "minimalFix": "In `readCampaignSourceMarket`, after `storedRecord` parses, refuse (`return null` → the existing typed `source-record-absent`) when the record's `authority` PARSES and its role is not `source`. It must stay tolerant of a record carrying no parseable authority — every pre-D2 row, and every row the existing suite seeds, has none — so the guard is `parsed-and-not-source`, never `not-parsed-as-source`. One sibling test row: a replica-role stored record refuses and appends nothing.",
+      "acceptableAlternative": "A recorded non-reachability argument instead of code: a comment at the UPDATE naming why a replica-role row can never carry a `journal` marker, plus the same argument in the evidence JSON. Either discharges RE-1; the reviewer does not require the code guard specifically."
+    },
+    {
+      "id": "RE-2",
+      "commit": "A",
+      "severity": "blocking",
+      "title": "An offer that is an object but not a contract is either an untyped 500 or a malformed mission written into the source record.",
+      "evidence": "MEASURED this session with the temporary probe. (P1) With the stored market holding `offers: [{ \"id\": \"contract-stored\" }]` — an object, so it passes the new `storedOffers` guard, and `isContract` returns false at src/types/campaign/Mission.ts:384-396 so `rehydrateCampaignMission` leaves it untouched — the command reaches `computeCampaignStateDigest` and throws `EventJournalCanonicalizationError: JCS cannot represent undefined`, raised at src/lib/events/journal/EventJournalCanonicalizer.ts:40 through src/lib/campaign/authority/campaignAcceptContractCommand.ts:414, UNTYPED, out of the prepared transaction. `validateCampaignIntent` does not stop it because `CONTRACT_MIN_STANDING = 0` (src/types/campaign/CampaignSync.ts:117) so `0 < 0` is false. (P2) With a contract-SHAPED offer whose `paymentTerms` is `{}`, the command COMMITS and the row gains `[\"contract-stored\", { ... \"paymentTerms\": {}, \"status\": \"Active\" }]` — measured payload. Before this commit that shape only reached the journal-private envelope; now it is written into the source record as a mission.",
+      "split": "P1's throw is PRE-EXISTING at base b46433b1f (the same offer lookup, the same digest computation). P2's materialization into the `campaigns` row is NEW, introduced by this commit. Both are one input away from the R2 class this slice explicitly took on — and the commit's own header at :180-186 states the purpose of the widening is that a source record that cannot be read correctly 'must be refused rather than rewritten'.",
+      "minimalFix": "Gate the offer lookup on `isContract(offer)` (already exported from src/types/campaign/Mission.ts and already the predicate `rehydrateCampaignMission` uses), refusing the existing typed `offer-absent` (or `source-record-absent`) instead of proceeding. One condition at :368-372 plus one test row closes both halves.",
+      "noteOnScope": "The reviewer accepts that the commit's literal claim — `readCampaignSourceMarket` is total — is TRUE and was verified (probes P4/P5/P6 plus rows c/c2/c3 all refuse typed). The gap is that the PREPARED TRANSACTION is not total, which is the property the R2 carry-forward is actually about."
+    }
+  ],
+
+  "axes": {
+    "axis1_transactionPlacement": {
+      "verdict": "PASS",
+      "singleImmediateTransaction": "src/lib/events/journal/SQLiteEventJournalWriter.ts:112-136 — `this.db.transaction(() => { prepare(this.db); ...; extend(this.db, context, () => this.appendInTransaction(...)) }).immediate()`. One transaction wraps BOTH hooks on the SAME handle. `extend` receives `append` as a THUNK, so the caller chooses what runs after the append, still inside that transaction.",
+      "updateIsInsideAndAfterCommit": "src/lib/campaign/authority/campaignAcceptContractCommand.ts:454 `const appended = append();`, then the three refusal arms at :455-471, then `UPDATE campaigns SET payload = ?, version = ? WHERE id = ?` at :477-483. The UPDATE is reached only on `appended.kind === 'committed'`.",
+      "rowWithoutCommittedEvent": "NOT REACHABLE by any arm read in this session. Every pre-append refusal (`source-record-absent` :363-365, `offer-absent` :369-372, the two rules refusals :380-405) returns from `prepare` before `append` is ever called. The three post-append refusals (`revision-conflict`, `command-identity-conflict`, non-`committed`) return before :477.",
+      "commitWithoutRow": "NOT REACHABLE for a throw. The only statements between `append()` returning `committed` and the UPDATE are three `if` comparisons, which cannot throw. A throw from the UPDATE itself (disk-full, corruption) propagates out of the `.immediate()` transaction and rolls back the append with it — so the pair is atomic in both directions. Pinned by row (b), re-run green this session.",
+      "prepareStaysReadOnly": "PASS. `prepare` only reads the row and COMPUTES the next payload (`nextSourceRecordAfterAccept` at :266-296, called at :424-428 into `IPreparedAcceptContext`); `extend` applies it. No write statement exists in the prepare callback. This honors the read-only contract documented at SQLiteEventJournalWriter.ts:83-97.",
+      "residualNote": "`appendInTransaction` returns `committed` (via `hydrateBatch`, SQLiteEventJournalWriter.ts:175-182 → :275-277) for an IDEMPOTENT REPLAY — same commandId, same command digest — without writing any new event. The UPDATE would then fire and bump `version` on a command that wrote nothing new. Not reachable in the ordinary flow (after the first acceptance the offer is gone from the row, so `prepare` refuses `offer-absent` first, which is precisely what row (e) measures), and in the exotic case where it fires — a `campaigns` row restored behind a journal that kept the receipt — the write is arguably the correct repair. Recorded as a NON-BLOCKING observation, not a required edit."
+    },
+
+    "axis2_rowFidelity": {
+      "verdict": "PASS (with two bounded notes)",
+      "clientParity": "VERIFIED against the client's own path, read this session. `acceptContractOffer` (src/stores/campaign/campaignCommandActions.ts:454-495) finds the offer in `contractMarket.offers`, refuses when `missions` already holds the id, calls `acceptContractEngine` and rebuilds the market. `acceptContract` (src/lib/campaign/contractMarket.ts:282-309) mutates exactly one thing: `{ ...contract, status: MissionStatus.ACTIVE }` appended to a copy of the missions Map. `serializeCampaign.ts:148` writes `Array.from(campaign.missions.entries())`, so the accepted pair lands LAST. `nextSourceRecordAfterAccept` (:266-296) produces the same three facts: prior entries under that id dropped, `[contractId, { ...storedOffer, status: ACTIVE }]` appended last, `offers` filtered by id, `declinedOfferIds` preserved. Match.",
+      "serverIsStrictlyMorePreserving": "The client rebuilds the market as `{ offers, declinedOfferIds }`, dropping any other key; the server spreads `...storedMarket`. `ICampaignContractMarket` (src/types/campaign/CampaignCommandExtensions.ts:38-44) has exactly those two fields, so today the two are identical and the server's form is the safer one.",
+      "rawRoundTrip": "PASS. `JSON.stringify({ ...storedRecord, version, body: nextBody })` — re-assigning an existing key inside a spread keeps its ORIGINAL position, so `version` and `body` do not move and every sibling key (`campaignId`, `schemaVersion`, `savedAt`, `originDeviceId`, `authority`, `instanceId`, anything else the envelope carries) round-trips byte-identically. One shape change: a body that carried NO `missions` key gains one at the end — unavoidable, and it is the field the acceptance changes.",
+      "moneyFidelity": "`Money.toJSON()` returns the plain amount (src/types/campaign/Money.ts:113) and `rehydrateMoney` accepts a number, a `{amount}`, a `{centsValue}` or a `Money` (src/lib/campaign/persistence/missionSerialization.ts:19-27). For a well-formed stored offer the client's rehydrate→re-serialize round trip is the identity, so the server's raw copy and the client's normalized copy agree byte-for-byte.",
+      "versionAdvancedConsistently": "PASS. Both the COLUMN and the envelope's own `version` move to `sourceRowVersion + 1` (:279, :291). That matches `saveCampaign`'s CAS semantics: the compare is against the COLUMN (src/services/campaignPersistence/CampaignPersistenceService.ts:110-113 and :126-131) and the envelope is what GET hands back, so a client that refetches after an acceptance gets a `baseVersion` the next PUT will win with. Test (a) asserts both, plus the stale-baseVersion 409, plus a cold reopen. Re-run green this session.",
+      "denormalizedColumns": "An acceptance changes none of `name`, `faction_id`, `campaign_date`, `balance` — correct to leave them. `saved_at` IS left stale: the row's payload advances but the column does not. Its only consumer is the campaign-list recency sort (`ORDER BY saved_at DESC`, CampaignPersistenceService.ts:282, backed by `idx_campaigns_saved_at`, SQLiteService.migrations.ts:345), so an authoritatively-accepted campaign does not move up the list. NON-BLOCKING; name it if the coordinator wants it closed.",
+      "boundedDivergenceNote": "For a DEGENERATE offer the two writers diverge: the client normalizes `paymentTerms` through `createPaymentTerms` (src/types/campaign/PaymentTerms.ts:257-270), which fills all seven keys from defaults, while the server copies the stored object raw. Measured in probe P2: `paymentTerms: {}` stays `{}` on the server path. Not reachable for a well-formed offer; folded into RE-2, which refuses the degenerate offer outright.",
+      "mechanismVsDesignText": "tasks.md:101 and design.md D13 (:139) describe the mechanism as '6.1's contract-only replay fold applied to the SAME commit'. `replayCampaignSourceContracts` (src/lib/campaign/authority/campaignSourcePrivateEnvelope.ts:220-249) produces `acceptedContracts` and `remainingMarket` but NO missions map and no next source body, so there was no existing function to reuse; the direct splice is new logic, not a duplicated fold, and using the RAW stored offer gives better byte fidelity than the fold's rehydrated form would. Reviewer judgement: the implementation satisfies the design's INTENT (one commit produces both projections) even though it does not literally call the fold. NON-BLOCKING, recorded so the divergence from the task text is not discovered later as a surprise."
+    },
+
+    "axis3_behaviourChange_duplicateToOfferAbsent": {
+      "verdict": "PASS — acceptable under the spec; no consumer breaks today; 6.2b's client routing DOES need the note, and the note exists.",
+      "whatChanged": "A same-actor identical re-submit used to answer `{ kind: 'duplicate', commandId }` from the command-identity arm; it now answers `{ kind: 'offer-not-durable', contractId, reason: 'offer-absent' }`, because `prepare` reads the reduced market before the append can consult the command log. Verified in red.log (received `{\"commandId\":\"cmd-retry\",\"kind\":\"duplicate\"}`) and green at HEAD (row (e), re-run this session).",
+      "specJudgement": "ACCEPTABLE. The requirement at spec.md:184-192 is about how many WRITES an acceptance produces, not about which vocabulary a retry is answered in; it says nothing about retry semantics, and the requirement's own text assigns the exactly-once obligation to the writer, which the implementer explicitly does not claim to discharge. Both answers mean 'nothing further was written', and row (e) additionally asserts the row is byte-identical after the retry. No SHALL is contradicted.",
+      "consumerSweep": "MEASURED. `grep -rn \"offer-not-durable|offer-absent|source-record-absent\" src/ --include=*.ts --include=*.tsx` excluding tests returns 9 hits and every one is a PRODUCER: campaignAcceptContractCommand.ts (:70, :72, :184, :352, :364, :371), campaignCommandPipeline.ts:165 (the union member), and src/pages/api/campaigns/[id]/commands.ts:208-217 (the 409 mapping). There is no consumer. Separately, no file under src/ outside `pages/api` issues a request to `/api/campaigns/[id]/commands` at all — the only two mentions are prose comments in campaignLifecycleState.ts:34 and :418 — so no client can observe the change today. Nothing breaks.",
+      "theHazardFor62b": "The API route maps `duplicate` to HTTP 200 with the comment 'A retry is not a failure. The command committed once, which is exactly what the caller wanted' (commands.ts:157-164), and maps `offer-not-durable` to HTTP 409 with the comment 'The offer this command names has not reached the source record yet, which an acknowledged save fixes' (commands.ts:208-217). After this change, a same-actor retry of an acceptance that ALREADY COMMITTED takes the second path — and that path's advice is actively wrong for this case: saving and retrying will never make the offer reappear, because this actor consumed it. A 6.2b client that reads `offer-absent` as 'flush and retry' would loop.",
+      "doesTheNoteExist": "YES, in three places: the implementer's evidence `observationsForTheNextSlice[0]`, commit B's message body, and the inline comment at the row (e) test. Reviewer recommendation (NON-BLOCKING, but do it): carry the same sentence into the 6.2b charter / brief so the next slice meets it as an input, since evidence JSONs are not what an implementer reads first. The tasks.md 6.2b text at line 101 currently states 'duplicate receipt lookup happens BEFORE the offer read' — which is no longer what the code does; that sentence is now stale and should be corrected when 6.2b is written (a tasks edit, correctly out of scope for this slice)."
+    },
+
+    "axis4_refusalTotality": {
+      "verdict": "PARTIAL — `readCampaignSourceMarket` is total as claimed; the prepared transaction is NOT. See RE-2.",
+      "whatIsTotal": "`readCampaignSourceMarket` (:195-243) never throws. `JSON.parse` is in try/catch; `asRecord` rejects arrays as well as non-objects; a non-object `contractMarket` refuses; `offers` must be an array of objects; `missions` must be absent or an array of arrays. Downstream, `rehydrateContractMarket` (missionSerialization.ts:68-77) cannot throw on any input that clears those guards, because `isContract` (Mission.ts:384-396) requires `paymentTerms` to be a non-null object before `rehydratePaymentTerms` dereferences it, and `createPaymentTerms` is total over `Partial`.",
+      "probesRun": [
+        "P1 — offers `[{id: 'contract-stored'}]` (object, not a contract): UNTYPED THROW `EventJournalCanonicalizationError: JCS cannot represent undefined` out of the prepared transaction, at campaignAcceptContractCommand.ts:414 → computeCampaignStateDigest → EventJournalCanonicalizer.ts:40. This is the one the axis asked for. Pre-existing at base; see RE-2.",
+        "P2 — contract-shaped offer with `paymentTerms: {}`: COMMITS, and the row gains that mission verbatim with `status: 'Active'`. New exposure; see RE-2.",
+        "P3 — `missions: [[]]` (an empty pair): commits; the empty entry survives into the row unchanged alongside the accepted pair. No throw. Server is more conservative than the client here (the client's `rehydrateMissionMap` would coerce it). NON-ISSUE.",
+        "P4 — `contractMarket` absent entirely: typed `source-record-absent`. PASS.",
+        "P5 — offer whose `id` is the number 5: typed `offer-absent`. PASS.",
+        "P6 — the whole stored payload is a JSON ARRAY `[1,2,3]`: typed `source-record-absent`. PASS — this is the case `asRecord`'s `!Array.isArray` arm exists for, and it works."
+      ],
+      "probeHarness": "Temporary jest file, real better-sqlite3 on a temp path, `importCampaignBaseline` for the stream, the campaigns row seeded exactly as the committed suite seeds it, `executeCampaignCommand` with `{ kind: 'journal' }` authority. Deleted after the run; worktree re-verified clean."
+    },
+
+    "axis5_tests": {
+      "verdict": "PASS (one evidence-accuracy nit, non-blocking)",
+      "redLogJudgement": "READ IN FULL at E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/r2-p1-62a3-20260915/red.log. sha256 re-computed this session: a40ae2fb30356c7a76144588ab5cd01a3451d7197205cdd9cdd0b2184bde353e — MATCHES the evidence. Trailer: `Tests: 6 failed, 1 passed, 7 total`. Every red reason was inspected against its claimed cause and every one matches:",
+      "redRows": {
+        "(a)": "`toStrictEqual` at test:243 on `body.missions` — the claimed 'missions was []'. MATCH.",
+        "(b)": "Absent from the failure list; 1 passed. The claimed pass-both-sides atomicity pin. MATCH.",
+        "(c)": "`SyntaxError: Expected property name or '}' in JSON at position 2`, stack `campaignAcceptContractCommand.ts:148 → readCampaignSourceMarket:234 → SQLiteEventJournalWriter.ts:114 (prepare) → :136 (.immediate)`. An UNTYPED throw out of the prepared transaction, exactly as claimed, and exactly the R2 carry-forward. MATCH.",
+        "(c2)": "`TypeError: market.offers.map is not a function` at missionSerialization.ts:74. MATCH.",
+        "(c3)": "Received shows a COMMITTED result carrying a `ContractAccepted` at sequence 1 with the SERVER-derived `employerFactionId: 'house-davion'` — i.e. the base command committed because it never looked at `missions`. MATCH.",
+        "(d)": "Received shows a COMMITTED `ContractAccepted` at sequence 2 under `authorPlayerId: 'pid-guest'` — the second actor's double acceptance, carry-forward R5. MATCH.",
+        "(e)": "Received `{ \"commandId\": \"cmd-retry\", \"kind\": \"duplicate\" }`. MATCH — this is the base behaviour the change replaces."
+      },
+      "redLogNit": "The evidence's `redFirst.method` says the red was captured with the 'test file kept at HEAD'. It was not, quite: red.log's row (e) is titled '... not the cached batch' and its inlined source comment reads '// what matters here is that the retry writes NOTHING a second time.', while the HEAD blob titles it '... not the command log' and carries a longer comment. So the red was taken against an EARLIER revision of the test file. The assertions are identical in both revisions and the received values are what matter, so the red-first claim itself stands — but the method sentence is inaccurate and should be corrected rather than left to be discovered. NON-BLOCKING.",
+      "measuredRunsThisSession": [
+        {
+          "command": "node node_modules/jest/bin/jest.js --maxWorkers=2 --coverage=false src/lib/campaign/authority/__tests__/campaignAcceptContractSourceRow.test.ts",
+          "at": "HEAD dcaa8fcc7",
+          "result": "7 passed, 7 total, 1 suite, exit 0. All seven named rows (a)(b)(c)(c2)(c3)(d)(e) green."
+        },
+        {
+          "command": "node node_modules/jest/bin/jest.js --maxWorkers=2 --coverage=false src/lib/campaign src/lib/events/journal",
+          "at": "HEAD dcaa8fcc7",
+          "result": "Test Suites: 219 passed, 219 total. Tests: 3157 passed, 3157 total. 0 failed. exit 0. Time 47.6s. Reproduces the implementer's figures exactly."
+        },
+        {
+          "command": "npx tsc --noEmit --skipLibCheck",
+          "at": "HEAD dcaa8fcc7",
+          "result": "exit 0, no diagnostics."
+        },
+        {
+          "command": "npx oxfmt --check <both changed files>",
+          "at": "HEAD dcaa8fcc7",
+          "result": "All matched files use the correct format. (2 files)"
+        },
+        {
+          "command": "npx oxlint src/lib/campaign/authority/",
+          "at": "HEAD dcaa8fcc7",
+          "result": "0 warnings, 0 errors on 20 files."
+        }
+      ],
+      "notRun": "Full repo suite, build, e2e — out of review charter, matching the implementer's own non-claims. NOTE: `e2eJournalAuthorityArmed()` (src/lib/campaign/sync/campaignJournalAuthorityEnabled.ts:37) can arm journal authority in e2e, so the row write is not structurally unreachable from an e2e run; no e2e was executed by either side."
+    },
+
+    "axis6_hygiene": {
+      "verdict": "PASS on everything except the accepted cap overage on A",
+      "caps": "MEASURED `git diff --numstat`. A = 379 (test, +379/-0) + 175 (product, +164/-11) = 554 changed lines, OVER the ≤500 cap by 54 — matching the recorded arithmetic and the coordinator's recorded acceptance on the grounds that the product half is 175 lines. B = 57 changed lines, PASS. Reviewer concurs with the acceptance: the 379 is the charter-mandated red-first proof, and the only shapes that reach ≤500 either split the product change from half its proof or drop a required row.",
+      "conventionalSubjects": "PASS. `feat(campaign): ...` and `test(campaign): ...`, both imperative, both scoped.",
+      "aiAttribution": "PASS — none. `git log b46433b1f..HEAD --format=%B | grep -inE 'co-authored|claude|anthropic|generated with|robot-emoji'` returns nothing. Author and committer are `Wes Rollings <wrollings@gmail.com>` on both commits.",
+      "paths": "PASS. `git diff --name-only b46433b1f dcaa8fcc7` returns exactly two paths, both under src/: `src/lib/campaign/authority/campaignAcceptContractCommand.ts` and `src/lib/campaign/authority/__tests__/campaignAcceptContractSourceRow.test.ts`. No openspec/, no .sisyphus/, no docs, no config.",
+      "specEdits": "PASS — none. No file under openspec/ is touched, so no SHALL was edited and no checkbox was flipped. tasks.md rows 6.2 / 6.4 remain `- [ ]`.",
+      "flag": "PASS. `CAMPAIGN_JOURNAL_AUTHORITY_ENABLED = false` at src/lib/campaign/sync/JournalCampaignEventStore.ts:84, unchanged and outside the diff.",
+      "treeIdentity": "PASS. `git rev-parse 1474efb71^{tree} HEAD^{tree}` returns 5976937ec56ce2ebb7d42dd7c4f07723feb61783 for BOTH. `git diff 1474efb71 HEAD --stat` is empty. The split stack's final tree is byte-identical to the reference monolith.",
+      "splitContents": "PASS. Commit A's test blob carries rows (a)(b)(c)(d) only; commit B adds (c2)(c3)(e) and touches no product file. Verified by `git show <sha>:<path> | grep 'it('` on both."
+    }
+  },
+
+  "nonBlockingNotes": [
+    "The 6.2b STOP brief's `recommendedNextStep.sequencingNote` says B2 'must land in the SAME slice as the client's removal of the local apply. Splitting them in either order leaves a window in which the spec's unreachable state is reachable.' This stack lands B2 alone. Reviewer judgement: the concern does not bite, and landing B2 alone STRICTLY REDUCES reachable bad states. The half the brief worries about — both writes occurring — needs the client to route AcceptContract through `/commands` while still applying locally, and no file under src/ issues a request to that route at all (measured). The half that WAS reachable before this commit — the compact ledger holding an acceptance the source record does not — is what this commit closes for the `/commands` path. Recorded so the coordinator is not surprised by the apparent departure from the brief.",
+    "The co-op host remains a second, ungated AcceptContract writer: `CampaignGmArbiter` (src/lib/multiplayer/server/CampaignGmArbiter.ts:557, :576) approves AcceptContract proposals outside `/api/campaigns/[id]/commands`, so that path neither reduces the row's market nor gains a mission from this write. The spec's forbidden state therefore remains reachable through it. The implementer non-claims this explicitly and correctly; it must be brought under the obligation or explicitly excluded before the exactly-once SHALL at spec.md:185 can be discharged by anyone.",
+    "IMPRECISE NON-CLAIM in the implementer's evidence: 'CAMPAIGN_JOURNAL_AUTHORITY_ENABLED is false, so every command is still refused campaign-not-on-journal-authority before it commits.' The command route does not consult that constant. `executeCampaignCommand` gates on `deps.authority.kind !== 'journal'` (campaignCommandPipeline.ts:344-348) and the API resolves authority from the MIGRATION MARKER (`resolveCampaignAuthorityFromStores`, :43-82), which reaches `state: 'journal'` through `createJournalNativeMarker` / the advance-after-shadow-parity transition (campaignAuthorityMigration.ts:153-161, :289) with no reference to the flag. Whether any production path reaches a `journal` marker today is UNVERIFIED by this review. The claim's conclusion may well hold; its stated reason does not.",
+    "`saved_at` is left stale by the row write (the payload advances, the column does not). Sole consumer is the campaign-list recency sort. Cosmetic; name it if you want it closed.",
+    "Representation split to watch at the 5.7 parity check: the journal-private envelope records `remainingMarket` from the REHYDRATED market (`source.market`, :438-445) while the row records `contractMarket` from the RAW one (`source.storedMarket`, :283-286). Semantically equal, not necessarily byte-equal for a stored offer whose Money fields are not already in canonical form. A byte-wise parity check between the fold's `remainingMarket` and the row's market would need to normalize first.",
+    "An idempotent replay (same commandId, same digest) returns `committed` from `hydrateBatch` without writing a new event, and the UPDATE would then fire and bump `version`. Not reachable in the ordinary flow because `prepare` refuses `offer-absent` first. Recorded, not required.",
+    "tasks.md:101's 6.2b text — 'duplicate receipt lookup happens BEFORE the offer read' — is now stale: the offer read happens first, which is exactly why row (e)'s answer changed. Correct it when 6.2b is written; a tasks edit is correctly out of scope for this slice."
+  ],
+
+  "whatTheReviewerVerifiedDirectly": [
+    "Read the full product diff of commit A and the full test blobs at A and at B.",
+    "Read `appendPreparedWithExtension` and `appendInTransaction` in src/lib/events/journal/SQLiteEventJournalWriter.ts (:60-137, :171-206, :275-295).",
+    "Read the client acceptance path end to end: campaignCommandActions.ts:454-495, contractMarket.ts:282-309, serializeCampaign.ts:148, missionSerialization.ts:1-77, Money.ts:113, PaymentTerms.ts:257-270, Mission.ts:384-396.",
+    "Read `saveCampaign`, `prepareCampaignWrite` and `storeReplicaCampaign` in CampaignPersistenceService.ts (:102-158, :200-240, :354-409) and `evaluateSourceMutationGate` in campaignAuthority.ts:119-127.",
+    "Read the spec requirement at openspec/changes/design-campaign-authority-and-sync/specs/campaign-authority/spec.md:184-192, design.md D13 (:127-141), and tasks.md rows 6.2 / 6.4.",
+    "Read the 6.2b STOP brief's B2 blocker and sequencing note (evidence/r2-p1-62b-local-20260915.json).",
+    "Swept for consumers of `duplicate`, `offer-not-durable`, `offer-absent`, `source-record-absent`, and for any src/ caller of the `/commands` route.",
+    "Re-ran the focused suite, the two named batteries, tsc, oxlint and oxfmt at HEAD; re-computed red.log's sha256 and read every failure block in it.",
+    "Ran a six-case throwaway probe for axis 4 and deleted it."
+  ]
+}

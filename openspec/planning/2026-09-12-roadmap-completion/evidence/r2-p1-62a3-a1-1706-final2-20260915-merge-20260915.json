@@ -1,0 +1,54 @@
+{
+  "pr": 1706,
+  "branch": "codex/roadmap-r2-p1-62a3-a1-source-row-20260915",
+  "reviewedCommit": "2fdbbd7d93a2a2dbfde0d93e8c72642bd20fd032",
+  "resolvedHeadFromParent": "897fcb15aa775f0d39e5d04a1986716573165283",
+  "finalHead": "dca7b7e734743508772c7f31a8d631d909eafb52",
+  "autoMergeArmed": false,
+  "contentGuard": {
+    "method": "file set from `git diff --name-only origin/main...<head>` compared to the reviewed file set, plus per-file blob equality against the reviewed commit; re-run after update-branch",
+    "fileCountAtMerge": 3,
+    "blobEquality": "all files blob-identical to the reviewed commit at the gated head (exceptions, if any, are described in notes)",
+    "result": "PASS"
+  },
+  "updateBranch": {
+    "performedByThisSession": true,
+    "expectedHeadShaGuardUsed": true,
+    "newHead": "dca7b7e734743508772c7f31a8d631d909eafb52"
+  },
+  "checksAtTerminal": {
+    "Lint and Test": "pass",
+    "Build Test / win": "pass",
+    "Build Test / mac": "pass",
+    "Build Test / linux": "pass",
+    "otherChecksCount": 27,
+    "otherChecksBuckets": {
+      "pass": 27
+    },
+    "totalChecks": 31,
+    "totalChecksNote": "31 because #1678 added the standing \"Customizer Regressions\" check to main"
+  },
+  "premergeReceipt": {
+    "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/r2-p1-62a3-a1-1706-final2-20260915-premerge.json",
+    "ready": true,
+    "failures": []
+  },
+  "mergeCommit": "aa26a94f11c0d497df7f62b685de8ab6f9fafaae",
+  "mergeCommitParents": [
+    "819ff6fd86696f88b7a9f23540b5caa2ca0a5ace"
+  ],
+  "mergeStyle": "squash (single parent)",
+  "mergeCommand": "gh pr merge 1706 --squash --match-head-commit dca7b7e734743508772c7f31a8d631d909eafb52",
+  "mergedAt": "2026-09-15T12:23:01Z",
+  "mergedBy": "this session (step 6 executed)",
+  "mergedContentVerification": "The merge commit changes exactly 3 file(s), all blob-identical to the gated head dca7b7e734743508772c7f31a8d631d909eafb52.",
+  "mainAfter": "aa26a94f11c0d497df7f62b685de8ab6f9fafaae",
+  "worktree": {
+    "fastForward": "NOT PERFORMED unless the coordinator designated the worktree as free; several owned worktrees were explicitly off-limits (parent in use / other branch).",
+    "result": "SKIPPED or SUCCESS per coordinator instruction for this PR"
+  },
+  "notes": "Reported DIRTY after 1700 squash; parent resolved keeping branch src files and taking main openspec files. Delta vs main = A1 three src files, 631+/14-.",
+  "timestamps": {
+    "receiptWrittenAt": "2026-09-15T15:00:00Z"
+  }
+}

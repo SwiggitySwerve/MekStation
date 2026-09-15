@@ -1,0 +1,49 @@
+{
+  "node": "R2.authority",
+  "artefact": "r2-p1-62a2-1700-main-proof-20260915",
+  "capturedAtUtc": "2026-09-15T11:39:53.107Z",
+  "pr": 1700,
+  "slice": "P1 6.2a prefix 2: derive the accepted contract from the stored offer on first acceptance (completes 6.2a prefixes 1(i), 1(ii), 2)",
+  "reviewedHead": "ace1303a45416eaab1df33a1cee55fda8f281949 (parent DIRTY resolution; PR delta vs main verified = its 3 files 241+/15-)",
+  "mergeCommit": "21b98e64b05e7a3bfac3f622a0200857f8bf3418",
+  "worktree": ".sisyphus/roadmap-completion-20260912/worktrees/archive-original-main-proof (detached at the merge commit)",
+  "runtime": {
+    "node": "v22.22.0"
+  },
+  "files": [
+    "src/lib/campaign/authority/__tests__/campaignCommandPipelineOfferDurability.test.ts",
+    "src/lib/campaign/authority/campaignAcceptContractCommand.ts",
+    "src/lib/campaign/authority/campaignSourcePrivateEnvelope.ts"
+  ],
+  "blobEquality": {
+    "command": "git diff --stat <head> 21b98e64b -- src/lib/campaign/authority",
+    "diffLines": 0,
+    "identical": true
+  },
+  "gates": {
+    "jest": {
+      "scope": "src/lib/campaign/authority src/lib/campaign/sync src/lib/events/journal",
+      "result": "53 suites / 453 tests passed",
+      "exit": 0,
+      "sha256": "cea1121ed9e5f8c8bf6df081ee4cd26f7185d76cfc87ce812721fbbf342a426d"
+    },
+    "tsc": {
+      "exit": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "openspecStrict": {
+      "exit": 0,
+      "sha256": "a6f1b01bad6ef535f7ae511fd2b0e725e382bcb462449ef4386723e0ec97eff3"
+    },
+    "qcOpenspecCi": {
+      "exit": 0,
+      "sha256": "1d2b3ffbba3922d328cc2b02fa1de7ccedad6b3382227fa903deccf9a0d5900c"
+    }
+  },
+  "acceptance": "exact-main accepted; 6.2a prefixes 1-2 fully on main",
+  "nonClaims": [
+    "6.2a-3 source-row stack (#1706-#1708) pending",
+    "6.2b blocked on the owner identity/seat decision",
+    "6.4 unsized"
+  ]
+}

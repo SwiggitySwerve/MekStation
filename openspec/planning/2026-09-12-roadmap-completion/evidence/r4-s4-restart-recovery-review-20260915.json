@@ -1,0 +1,226 @@
+{
+  "artefact": "r4-s4-restart-recovery-review",
+  "date": "2026-09-15",
+  "reviewer": "independent reviewer (journal/authority scope, not the author)",
+  "mode": "read-only - no edits, no commits, no pushes, no sub-agents, no builds. Worktree checkout never changed: HEAD dbc0a29711cb4b9cef83e76c63d8a4c1387f7ee3 and `git status --porcelain` empty (0 lines) verified at start AND at end.",
+  "roadmapNode": "R4.S4",
+  "package": "openspec/changes/adopt-combat-journal-cutover-and-gm-rewind",
+  "task": "1.4 (S4) - restart recovery rebuilds the live host from the journal head and the effective branch",
+  "subject": {
+    "base": "7330ed0f8fb487678e87346a31c3c6ca306f98f0 (S3b commit B, PR #1703)",
+    "commitA": "5cd7df07bee1ddb655d78a648d90c3ab21e385f9 - feat(combat): rebuild the live host from the journal head on restart (494 ins / 31 del / 6 files)",
+    "commitB": "dbc0a29711cb4b9cef83e76c63d8a4c1387f7ee3 - test(combat): pin the restart divergence refusal and the create-path gap (73 ins / 1 file)",
+    "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/history-runtime-integrity",
+    "branch": "codex/roadmap-r4-s4-restart-recovery-20260915",
+    "node": "v22.22.0 (measured in-session: `node --version` -> v22.22.0, `which node` -> /c/Users/wroll/AppData/Local/nvm/v22.22.0/node)"
+  },
+  "verdict": {
+    "commitA": "APPROVE",
+    "commitB": "APPROVE",
+    "overall": "APPROVE",
+    "requiredEdits": [],
+    "summary": "Every claim in the author's receipt that I could check independently checked out, including the two numbers most likely to be wrong (171 suites / 1332 tests, and tsc zero diagnostics) and all six referenced log sha256 hashes. The measured defect is real and the fix is a semantics-preserving widening at two of three call sites and a no-op move at the third. The seeding restriction is permitted by design.md's own S4 wording. One reviewer-added risk (S4-R4) is recorded below: the author's S4-R2 materially understates what the journal path skips. It is inert on this snapshot and does not block these commits, but it must be carried into S5/S6."
+  },
+  "measuredRuns": [
+    {
+      "gate": "focused jest, author's exact scope",
+      "cmd": "node node_modules/jest/bin/jest.js --maxWorkers=2 --coverage=false src/lib/multiplayer/server src/lib/events/journal",
+      "exit": 0,
+      "result": "Test Suites: 171 passed, 171 total; Tests: 1332 passed, 1332 total; Time 48.218 s",
+      "matchesAuthorClaim": true,
+      "note": "Exactly the 171/1332 the receipt claims. Author's base measurement of 170/1328 implies this slice adds exactly one suite and four tests, which is the four-row file."
+    },
+    {
+      "gate": "typecheck",
+      "cmd": "node node_modules/typescript/bin/tsc --noEmit -p tsconfig.json",
+      "exit": 0,
+      "result": "0 lines of output (zero diagnostics)",
+      "matchesAuthorClaim": true
+    },
+    {
+      "gate": "oxfmt --check (the 6 changed files)",
+      "cmd": "npx oxfmt --check $(git diff --name-only 7330ed0f8 HEAD)",
+      "exit": 0,
+      "result": "All matched files use the correct format. Finished in 15ms on 6 files.",
+      "matchesAuthorClaim": true
+    },
+    {
+      "gate": "oxlint (changed files)",
+      "exit": 0,
+      "result": "Found 0 warnings and 0 errors. Finished on 5 files.",
+      "matchesAuthorClaim": true
+    },
+    {
+      "gate": "log hash verification",
+      "cmd": "sha256sum over .sisyphus/roadmap-completion-20260912/r4-s4-20260915/",
+      "result": "ALL SIX CHECKED HASHES MATCH the receipt byte for byte: red-journal-head (90a278a9...), green-focused-final (839a2bb1...), typecheck-final (e3b0c442... = the empty-file hash, consistent with zero diagnostics), oxfmt-final (e5d898a9...), oxlint-final (94b3ae37...), rr1-busy-timeout (a6bfe664...).",
+      "matchesAuthorClaim": true
+    }
+  ],
+  "axis1_measuredDefectAndTheFix": {
+    "status": "PASS",
+    "defectIsRealAndMeasured": "CONFIRMED from source, not taken on trust.",
+    "chain": [
+      "MatchStreamJournalMirror.ts:132-133 - `const effective = branches.readEffectiveHead(stream); const branchId = effective?.branchId ?? MATCH_BASELINE_BRANCH_ID;` So a stream's FIRST mirrored batch names 'main', not 'root'.",
+      "MatchStreamJournalMirror.ts:147 - `branches.backfillGenesisBranches();` runs AFTER a committed append.",
+      "SQLiteService.historyBranches.migration.ts:121-138 (EVENT_HISTORY_GENESIS_BACKFILL_SQL) - `INSERT INTO event_history_effective_heads ... SELECT head.stream_type, head.stream_id, head.branch_id ... FROM event_journal_stream_heads AS head`. The effective head's branch_id is COPIED from the stream head, i.e. 'main'.",
+      "ServerMatchHostRewindRebuild.ts:141 at base - `if (head === null || head.branchId === ROOT_EVENT_BRANCH_ID) return null;` A 'main' head is NOT declined, so the fold proceeds.",
+      "matchStoreBranchSegmentReader.ts:88-95 - `if (segment.branchId !== ROOT_EVENT_BRANCH_ID) throw new EventHistoryBranchError('unknown-branch', \"A match store holds only the 'root' branch; '<id>' has no events\")`.",
+      "MatchRecovery.ts per-match try -> catch -> `failed.push(meta.matchId)`, no host."
+    ],
+    "redLogCorroboration": "red-journal-head-20260915.log lines 2 and 59 carry the verbatim string `[MatchRecovery] failed to rebuild match match-recovery-journal-head EventHistoryBranchError: A match store holds only the 'root' branch; 'main' has no events`. The quote in the receipt is accurate.",
+    "fixSemanticsDiffedNotJustTheMove": {
+      "site1_admission": "ServerMatchHostBranchAdmission.ts:174-175. Was `LIVE_PATH_BRANCH_IDS.has(head.branchId) || head.branchId === ctx.servedBranchId`; now `isLivePathBranchId(head.branchId) || head.branchId === ctx.servedBranchId`. The set moved verbatim (same two members, MATCH_BASELINE_BRANCH_ID + ROOT_EVENT_BRANCH_ID) from the module-private const at the old :58-61 to matchAuthorityBaseline.ts:80-83. PURE MOVE - admission behaviour is bit-identical for every input. Corroborated by the whole `src/lib/multiplayer/server` suite staying green with no pin edits.",
+      "site2_boot_fold": "ServerMatchHostRewindRebuild.ts:141. Was `head.branchId === ROOT_EVENT_BRANCH_ID`; now `isLivePathBranchId(head.branchId)`. This is a deliberate WIDENING - 'main' now also declines. Checked for regression: a genuine rewind's activated branch is a candidate id, never 'main' or 'root' (matchAuthorityBaseline.ts documents 'main' as the baseline identity, and the mirror only ever writes 'main' when NO effective head exists). So the widening removes exactly the mirrored-genesis false positive and cannot decline a real rewound stream.",
+      "site3_new_consult": "MatchRecoveryJournalHead.ts:115 - new call site, no prior semantics to preserve."
+    },
+    "sharedSetPlacement": "matchAuthorityBaseline.ts:69-83 - the set now sits beside MATCH_BASELINE_BRANCH_ID, which is one of its two members. Correct home; satisfies prefer-uniformity's no-two-definitions rule."
+  },
+  "axis2_ordinaryPathConsult": {
+    "status": "PASS",
+    "startedDerivedNotTheMarker": "CONFIRMED. MatchRecoveryJournalHead.ts:98 - `if (deriveMatchJournalAuthorityStartedHead(store, matchId).kind !== 'started') return { kind: 'legacy' };`. `mp_journal_authority_started` is never read in this module (grep: no reference). This is S3a/S3b's single source, reused rather than re-derived.",
+    "branchIdentityAndCeilingFromTheHead": "CONFIRMED. MatchRecoveryJournalHead.ts:103-115 reads `readEffectiveStreamHead(db, new SQLiteEventHistoryBranchStore(db), stream)` and returns `{branchId, headRevision}`; the returned event set is bounded at :126-128 by `revisionForMatchSequence(event.sequence) <= head.revision`.",
+    "unavailableToLegacy_soundness": "SOUND, and the apparent tension with S3b's resolution (B) is not a real one.",
+    "unavailableReasoning": [
+      "S3b's site (selectRecoveredMatchRollbackReader) routes between a JOURNAL rollback reader and a LEGACY rollback reader over genuinely different data, and its own module doc calls that a ONE-WAY boundary: collapsing `unavailable` into `not-started` there would send a started match to the legacy reader. Hence (B): `unavailable` falls through to the marker, i.e. journal-compatible. That is fail-toward-journal because journal is the side that can lose history there.",
+      "S4's site has NO such asymmetry, because S4 is a HEAD-AND-BRANCH read: both the journal arm and the legacy arm fold the SAME bytes out of `store.getEvents(matchId, 0)`. Under the divergence gate the two arms' event sets are provably identical (see axis 3). So `unavailable -> legacy` cannot route away from authority data - there is no second copy of the data to route away from.",
+      "Consistency with the sibling call site was checked directly: `tryFoldActivatedRewindBranch` (ServerMatchHostRewindRebuild.ts:135-136) answers `null` on `!sqlite.isInitialized()`, i.e. the same fall-through. Had S4 refused instead, recovery would hold two opinions in one loop iteration about whether the journal can speak.",
+      "Reachability of harm: `unavailable` requires the store to expose the branch port while its capability db is closed. Production wires `getCapabilityDb = customCapabilityDb ?? (() => getSQLiteService().getDatabase())` and `isCapabilityDbAvailable = customCapabilityDb !== undefined || getSQLiteService().isInitialized()` (durableCapabilityPorts.ts:54-60), so in production this readiness probe and the consult's own `sqlite.isInitialized()` check at MatchRecoveryJournalHead.ts:101 resolve against the SAME service. They cannot disagree."
+    ],
+    "silentDowngradeOfAReadableHead": "NONE FOUND. Three arms answer `legacy`: (1) derive != 'started' - by definition no head is readable; (2) `!sqlite.isInitialized()` - no db to read one from; (3) `!isLivePathBranchId(head.branchId)` at :115. Arm (3) is the only one that discards an actually-read head, and it is UNREACHABLE in the current wiring: `tryFoldActivatedRewindBranch` runs first (MatchRecovery.ts:190) and returns non-null for every non-live-path head when sqlite is initialized, so control never reaches the consult with such a head. Defensive, documented as such in the module's own doc block, and correct if the ordering ever changes. Recorded as a non-blocking note, not a defect."
+  },
+  "axis3_divergenceRefusal": {
+    "status": "PASS",
+    "whatIsCompared": "MatchRecoveryJournalHead.ts:118-125. BOTH: `logRevision !== head.revision` AND `events.length !== head.revision`, where `logRevision = revisionForMatchSequence(last.sequence)` and `revisionForMatchSequence(s) = s + 1` (matchStoreBranchSegmentReader.ts:49-51).",
+    "comparisonIsCorrect": "YES, and slightly stronger than the author's stated rationale. Match sequences are 0-based (DurableMatchStore `COALESCE(MAX(sequence) + 1, 0)`), so for N events the pair (max sequence = N-1, count = N) holds IF AND ONLY IF the sequence set is exactly {0..N-1}. Requiring both therefore makes SEQUENCE-GAP and DUPLICATE-SEQUENCE detectable, not just tail length. The author's justification ('a mirror can fall behind on one without the other when a tail is superseded') is a weaker statement than what the check actually buys; the check is right either way.",
+    "boundedRebuildIsANoOpToday": "CONFIRMED, and the author says so. Because the gate forces logRevision === head.revision, the filter at :126-128 passes every event. So the journal arm and the legacy arm fold an IDENTICAL event set. Stating the ceiling anyway is correct defensive practice for the day the gate loosens.",
+    "falsePositiveOnALegitimatelyRewoundMatch": "NO. A rewound stream's effective head is a candidate branch id, which is not on the live path, so `tryFoldActivatedRewindBranch` folds it and `continue`s before the consult runs (MatchRecovery.ts:190-215). The consult cannot see a rewound match.",
+    "KEY_QUESTION_shadowModeBlockAtBoot": {
+      "question": "At mode `shadow` the legacy log is still the authority. Can a head exist with a lagging mirror TODAY such that a shadow-mode match is blocked at boot by this refusal?",
+      "answer": "NO - not for any match this codebase can create. By construction, and the construction is measured, not assumed.",
+      "byConstructionReason": [
+        "`ServerMatchHost`'s constructor takes the fresh-match branch unconditionally for a non-recovered host and calls `void this.persistInitialEvents(sessionEvents)` (ServerMatchHost.ts:430). The engine has already appended GameCreated + GameStarted during construction, so EVERY fresh match has >= 2 opening events.",
+        "`persistInitialEvents` (ServerMatchHostEvents.ts:93-95) writes them one at a time through `ctx.store.appendEvent`, which is NOT the `appendCommandBatch` boundary the mirror hooks (DurableMatchStore.ts:982-1002 `mirrorCommittedBatch`).",
+        "So when the first real command batch runs, `batch.expectedRevision` is the match's next sequence (>= 2) while the journal stream is empty at revision 0. `mirrorMatchBatchToJournal` returns `revision-conflict` (MatchStreamJournalMirror.ts:140-146), the append does not commit, and `branches.backfillGenesisBranches()` at :147 is NEVER REACHED. No stream head row, therefore no effective head row.",
+        "Every later batch conflicts for the same reason - the journal never advances, the log always does - so the gap is permanent per match, not a one-batch race.",
+        "No head => `deriveMatchJournalAuthorityStartedHead` returns `not-started` (matchJournalAuthorityStartedDerived.ts:112) => the consult's first line answers `legacy` => the refusal arm is unreachable.",
+        "The migration backfill cannot install one either: EVENT_HISTORY_GENESIS_BACKFILL_SQL selects FROM `event_journal_stream_heads`, and for a match stream only the mirror ever writes that table."
+      ],
+      "thisIsExactlyWhatRow4PINS": "Prefix B's row 4 is the executable form of the argument above - it appends real opening events through `appendEvent`, commits a real follow-up batch, then asserts `getProcessShadowMismatchCount() === 1` AND `effectiveHeadBranchId() === null`, then recovers with `blocked` empty and the host present. It proves the gap; it does not assume it.",
+      "andRow1IsTestOnlyToday": "Row 1 reaches a head only via `commitFirstBatch`, whose own helper comment concedes it 'has to be the first batch on an empty log'. That shape does not occur in production while the create-path gap stands. The author does not claim otherwise, and row 1 is still the right way to pin the recovery mechanism.",
+      "verdict": "NOT A REQUIRED EDIT.",
+      "whyNotARequiredEdit": [
+        "Unreachable twice over on this snapshot: mode is 'off', and even at 'shadow' no head can be installed.",
+        "The suggested alternative - gating the refusal on mode 'enabled' - would be actively WORSE for uniformity. `matchJournalAuthorityStartedDerived.ts:35-41` states the governing principle in its own doc: 'THIS READS PERSISTED STATE, NEVER THE CUTOVER FLAG ... a stream mirrored while the mode was on keeps answering true after the mode goes off, because the rows are still there and the question is about the stream, not about this process's configuration.' A mode-gated refusal would make the same persisted state yield two different recovery answers depending on process configuration - reintroducing precisely the drift S3 removed.",
+        "The parent brief instructed 'refuse typed rather than silently preferring either', and fail-closed is the correct default for an authority seam.",
+        "There IS a real tripwire, and it is well chosen: row 4 goes RED the day task 1.7 seeds the mirror at creation, which is the same day heads start existing and the refusal becomes reachable. Whoever lands the seeding is forced to revisit this file."
+      ],
+      "whatS6MustDecideBeforeSeedingLands": "Once 1.7 seeds at creation, the cross-file pair is still explicitly non-atomic (MatchStreamJournalMirror.ts:13-16: 'the cross-file pair is deliberately NOT atomic at S1'; DurableMatchStore.ts:977-980: 'A mirror failure therefore never fails the command'). So any mirror failure - RR-1's >5 s lock, a crash between the two commits, an integrity-conflict - permanently desynchronizes a stream that now HAS a head, and at shadow mode this refusal would then block a healthy match whose legacy log is still the authority. S6 must pick one of: gate on 'enabled', add mirror catch-up, or accept the refusal with an operator repair path. Recording that decision is the disposition of S4-R1, which I am upholding as correctly flagged rather than downgrading."
+    }
+  },
+  "axis4_seedingDecision": {
+    "status": "PASS",
+    "designMdPermitsIt": "YES, on its literal wording. design.md line 12: '**S4 recovery.** Restart recovery rebuilds the live host from the journal head and the effective branch, not from the legacy event table alone.' The object of 'rebuilds ... from' is THE HEAD AND THE BRANCH. Nothing in that sentence requires the event BYTES to come from the journal tail, and 'not from the legacy event table ALONE' is satisfied by a rebuild the journal bounds and identifies.",
+    "task14LiteralText": "tasks.md:17 - `- [ ] 1.4 S4: restart recovery rebuilds the live host from the journal head and the effective branch; prove with the umbrella's restart pack against a rewound match.` Same head-and-branch wording. Checkbox verified still `[ ]`.",
+    "uniformityArgumentChecked": "The author's claim that the already-shipped rewound path also reads its bytes from the match store is CORRECT: `tryFoldActivatedRewindBranch` calls `readActivatedBranchGameEvents(store, matchId, head.branchId, streamHead.revision)` (ServerMatchHostRewindRebuild.ts:145-150) - store bytes, journal-supplied branch and ceiling. S4 applies the same mechanism to the ordinary path rather than inventing a second one.",
+    "byteIdenticalPinIsReal": "YES. Row 2 ('leaves the legacy rebuild unchanged for a stream the mirror never started') runs at mode 'off', appends real opening events via `appendEvent`, cold-reopens, asserts `effectiveHeadBranchId()` is null, then asserts no failures, no blocks, and a `digestReplayCheckpointState` equal to the pre-restart fold. It is green at base AND after - a genuine pin, not a new-behaviour row dressed as one.",
+    "createPathGapRowPROVESRatherThanAssumes": "YES, and this is the strongest row in the pair. Row 4 does not assert 'the mirror would refuse'; it RUNS the mirror through the real store path and observes two independent artefacts of the refusal: `getProcessShadowMismatchCount() === 1` (the shadow tripwire DurableMatchStore.ts:1008-1016 records on a failed mirror) and `effectiveHeadBranchId() === null`. Then it proves the consequence - recovery succeeds on the legacy path. That is a measurement.",
+    "jcsFixtureRoundTrip": "The `JSON.parse(JSON.stringify(...))` in `openingEvents()` is confined to the TEST fixture and is the same shape S3b and the checkpoint-door fixtures already use. No production input shaping was added; the canonicalizer contract is untouched, as instructed. Accepted."
+  },
+  "axis5_registerRecoveredHostExtraction": {
+    "status": "PASS",
+    "orderIdentical": "CONFIRMED by diffing the removed block against the extracted function. Removed from the legacy tail: `InteractiveSession.fromSessionAsync(verdict.state, readServerCustomCombatDefinition)` -> `ServerMatchHost.recover(matchId, store, session)` -> `restorePersistedViewerDeliveries()` -> `resumePendingEventPublications()` -> `hosts.set(matchId, host)`. `registerRecoveredHost` (MatchRecovery.ts:126-149) performs exactly those five steps in exactly that order. The cursor-restore-before-drain invariant (umbrella 7.1) is preserved, and its explanatory comment moved with it rather than being dropped.",
+    "rewoundPathBehaviourChange": "NONE, as required. The rewound arm (MatchRecovery.ts:190-215) still inlines its own distinct tail and was NOT routed through the extraction - correctly so, because it deliberately SKIPS `restorePersistedViewerDeliveries` (those rows name the superseded stream) and additionally calls `adoptServedBranch` and `boundReplayToEffectiveHead`. Feeding it through the shared helper would have been a real behaviour change; the author did not make that mistake.",
+    "onlyChangeToTheRewoundPath": "Its ENTRY CONDITION, via the widened live-path test in `tryFoldActivatedRewindBranch`. A genuinely rewound stream (candidate branch id) still enters and folds identically."
+  },
+  "axis6_rr1": {
+    "status": "PASS",
+    "measurementIsReal": "rr1-busy-timeout-20260915.log content is `busy_timeout = [{\"timeout\":5000}]`, sha256 a6bfe66451fec58a62aaf0ff70f98fa9b818810a8111ab24c0cf15b5d7080a7f - matches the receipt.",
+    "noPragmaChanged": "CONFIRMED - no pragma appears in the diff; the 6 changed files contain no SQLiteService edit.",
+    "correctionToTheS1ReviewAccepted": "The narrowing is right and honestly stated: better-sqlite3 applies a 5000 ms default busy timeout, so RR-1's premise ('throws SQLITE_BUSY immediately') was wrong at the driver level and the residual is 'a lock held longer than 5 s', not 'ordinary concurrent load'. Recording the correction against the prior receipt rather than silently inheriting it is the right move.",
+    "partialClosureClaimIsHonest": "S4 detects a fallen-behind mirror; it does not repair one. The receipt says exactly that."
+  },
+  "axis7_tests": {
+    "status": "PASS",
+    "redLogJudgedRowByRow": [
+      "Row 1 ('rebuilds a mirrored stream through its journal head') - RED for the RIGHT reason. The failure is the measured fold defect (EventHistoryBranchError on 'main'), which is precisely the bug this row exists to drive out. Legitimate.",
+      "Row 2 ('leaves the legacy rebuild unchanged') - GREEN at base. Correct: it is a pin, and a pin that went red at base would mean the slice was changing behaviour it promised not to.",
+      "Row 3 ('refuses typed when the journal head and the legacy log disagree') - RED, but MASKED. Its red reason in the log is the SAME fold defect, not the absence of the divergence refusal, so the red observation does not independently demonstrate that the refusal arm is necessary. I verified the necessity by construction instead: with the fold fixed but no refusal, the consult would answer `journal` (or fall to legacy) and `registerRecoveredHost` would succeed on a 3-event log, so `hosts.has(MATCH_ID)` would be true and the row would still fail its `blocked` assertion. The row therefore does discriminate - but a two-stage red (fix the fold, re-run, observe row 3 still red for the refusal reason) would have proven it rather than argued it. Non-blocking; recorded as S4-N2.",
+      "Row 4 ('stays on the legacy path for a created match') - GREEN at base and after. Its passing IS the finding, as the author says."
+    ],
+    "redLogTotals": "`Test Suites: 1 failed, 1 total` / `Tests: 2 failed, 2 passed, 4 total` - matches the receipt. Per-row markers at log lines 117-120 confirm which two failed.",
+    "myGreenRun": "Reproduced independently at HEAD: 171 suites / 1332 tests, exit 0. Identical to the author's claim.",
+    "tsc": "Reproduced: exit 0, zero diagnostics.",
+    "oxfmt": "Reproduced on the 6 changed files: 'All matched files use the correct format'.",
+    "fixtureQuality": "Genuinely strong. Two real temp-file SQLite databases (match db + campaign capability db), a COLD REOPEN of both before every recovery assertion (`coldReopen()` closes the store, `resetSQLiteService()`, reopens both), the mirror enabled only through `_setCombatJournalAuthorityModeForTests('shadow')` and reset in `afterEach`, and row 1 asserts `effectiveHeadBranchId() === MATCH_BASELINE_BRANCH_ID` BEFORE recovering so a green cannot come from a stream that quietly had no head. That pre-assert is the difference between a proof and a coincidence."
+  },
+  "axis8_hygiene": {
+    "status": "PASS",
+    "caps": "Prefix A 494 insertions / 6 files; prefix B 73 insertions / 1 file. Both inside <=500 lines / <=15 files. Verified by `git diff --shortstat` on each prefix. The combined 567 would have breached the insertions metric, and splitting rather than arguing the cap down is the right call. Prefix A is independently buildable (the author measured it; its own hook log shows a full pre-commit build).",
+    "conventionalSubjects": "`feat(combat): rebuild the live host from the journal head on restart` and `test(combat): pin the restart divergence refusal and the create-path gap`. Both conventional, both accurate to their contents (B is test-only: 1 file, +73, 0 deletions).",
+    "aiAttribution": "NONE. `git log 7330ed0f8..HEAD --format=%B | grep -icE 'claude|anthropic|co-authored|generated with'` returns 0. Author and committer are `Wes Rollings <wrollings@gmail.com>` on both commits.",
+    "openspecPaths": "UNTOUCHED. `git diff --name-only 7330ed0f8 HEAD -- openspec/` returns 0 files.",
+    "modeStillOff": "CONFIRMED. matchJournalAuthority.ts:18-19 - `export const COMBAT_JOURNAL_AUTHORITY_MODE = 'off' as CombatJournalAuthorityMode;`. Not in the diff.",
+    "task14Checkbox": "UNTOUCHED - tasks.md:17 still `- [ ] 1.4`.",
+    "hooksRan": "CONFIRMED, no bypass. commit-a-20260915.log and commit-b-20260915.log each end with full Next build output followed by the git commit summary line ('6 files changed, 494 insertions(+), 31 deletions(-)' and '1 file changed, 73 insertions(+)' respectively), which is what the project's pre-commit hook emits. Neither used --no-verify.",
+    "worktreeUntouchedByThisReview": "HEAD dbc0a2971 and `git status --porcelain` empty at start and at end. This receipt was written to the MAIN checkout, never into the worktree."
+  },
+  "reviewerAddedFindings": [
+    {
+      "id": "S4-R4",
+      "severity": "medium; inert on this snapshot; MUST be carried to S5/S6",
+      "title": "The journal arm bypasses checkpointRecoveryPort entirely, which is materially more than the 'checkpoint acceleration' the author's S4-R2 discloses.",
+      "site": "src/lib/multiplayer/server/MatchRecovery.ts:240-248 - the `journal.kind === 'journal'` arm calls `registerRecoveredHost(..., foldMatchSession(meta.matchId, journal.events))` and `continue`s, jumping over the whole checkpoint/recovery block at :250-341.",
+      "whatIsSkipped": [
+        "`emptyHistory: 'corrupt'` (MatchRecovery.ts:283) - the legacy arm BLOCKS an `active` match with no events as malformed. The journal arm would fold an empty event list and register a servable, empty host. Reachable only if a head is installed at revision 0 with a 0-event log, which needs an effective-head row whose `event_journal_stream_heads` row is missing (readEffectiveStreamHead falls back to revision 0 in exactly that case). Narrow, but it is a real difference in a fail-closed property.",
+        "`integrityOf` (MatchRecovery.ts:294-299) - the legacy arm validates sequence continuity AND event-identity uniqueness (`receiptId: event.id`). The journal arm's divergence gate recovers the sequence-continuity half (count + max-sequence together force {0..N-1}) but NOT event-identity uniqueness: two events sharing an id at distinct sequences pass the gate and would be caught by the legacy arm as duplicate-receipt.",
+        "`quarantineAuthorityCorruption` (MatchRecovery.ts:314-320) - never invoked on the journal arm. Deliberate for `partial-history` (correctly argued), but it also means genuine corruption shapes that WOULD be quarantinable are no longer reachable for a journal-path match.",
+        "`cache.record(...)` (MatchRecovery.ts:327-339) - the checkpoint is not refreshed. This is the only one S4-R2 names."
+      ],
+      "whyNotBlockingHere": "The journal arm is unreachable in production on this snapshot for the same create-path reason established in axis 3, and this slice is an explicitly scoped infrastructure seam whose mode is 'off'. Nothing is broken today.",
+      "whyItMattersLater": "The moment task 1.7 seeds the mirror at creation, EVERY match takes the journal arm, and all four properties above are lost fleet-wide in one step. That is a much larger change than 'loses checkpoint acceleration on the next boot'. Recommend S5/S6 either route the journal arm through `checkpointRecoveryPort` with the journal head as `headRevision`, or explicitly re-justify each dropped property.",
+      "recommendedNonBlockingAction": "Amend S4-R2 in r4-s4-restart-recovery-local-20260915.json to name the integrity detector, the empty-history refusal and the quarantine registration alongside the checkpoint cache. No code change requested in this slice."
+    },
+    {
+      "id": "S4-N1",
+      "severity": "informational",
+      "title": "The consult resolves its database handle independently of the store it was handed.",
+      "site": "src/lib/multiplayer/server/MatchRecoveryJournalHead.ts:100-107 - readiness and the head/revision read go through `getSQLiteService()`, while the `started` decision one line earlier went through the STORE's branch port (`deriveMatchJournalAuthorityStartedHead(store, matchId)`).",
+      "assessment": "Harmless today and in the S4 fixture, because both resolve to the same handle: production leaves `capabilityDb` unset so `durableCapabilityPorts.ts:54-56` defaults it to `() => getSQLiteService().getDatabase()`, and the test passes that exact thunk (matchRecoveryJournalHead.sqlite.test.ts:130). A store constructed with a genuinely different `capabilityDb` would let the derive answer 'started' from one database while the branch id and revision come from another. Worth routing through `store.capabilityDatabase()` when 1.7 makes heads real; not worth a change now.",
+      "note": "The derived head already carries `branchId`, so only `revision` strictly requires the second read."
+    },
+    {
+      "id": "S4-N2",
+      "severity": "informational",
+      "title": "Row 3's red is masked by the fold defect, so the divergence refusal's necessity is established by construction rather than by a distinct red observation.",
+      "detail": "See axis 7. The refusal is correct and its green assertion is exact (typed reason, empty hosts, `failed` exactly [MATCH_ID], evidence naming both revisions). Only the red-staging is weaker than the rest of the pair's method."
+    },
+    {
+      "id": "S4-N3",
+      "severity": "informational",
+      "title": "Dead-but-documented defensive branch.",
+      "detail": "MatchRecoveryJournalHead.ts:115 (`if (!isLivePathBranchId(head.branchId)) return { kind: 'legacy' };`) is unreachable given that `tryFoldActivatedRewindBranch` runs first and claims every non-live-path head. The module's doc block says so explicitly. Keeping it is defensible defensive coding; it should not be mistaken for a tested arm - no row covers it."
+    }
+  ],
+  "dispositionOfAuthorFlaggedRisks": {
+    "S4-R1": "UPHELD AS FLAGGED, not escalated to a required edit. Correctly identified, correctly scoped to S6/task 1.7, and genuinely unreachable today for a reason I verified independently (axis 3, KEY_QUESTION). Gating on mode 'enabled' would contradict the derived-started module's own stated principle that recovery reads persisted state and never the cutover flag, so implementing the gate now would be the worse change. The tripwire (row 4 going red when 1.7 seeds) is real and well placed.",
+    "S4-R2": "UPHELD BUT UNDERSTATED. See S4-R4 above - the journal arm skips the whole checkpoint recovery port, not merely the checkpoint cache write.",
+    "S4-R3": "ACCEPTED as informational. The forward reference to 'row 4' in prefix A's header is the same stacked-pair shape S3b shipped, and the FINAL tree is the fully tested file. No action."
+  },
+  "whatTask14StillOwes": {
+    "unclaimedClause": "`prove with the umbrella's restart pack against a rewound match` (tasks.md:17, second clause).",
+    "status": "NOT CLAIMED by this slice, and the receipt says so plainly in nonClaims ('NO RESTART-PACK E2E ... no `test.fail` mark was removed'). Verified: no e2e spec is touched in either commit.",
+    "whatRemains": [
+      "Run the umbrella restart pack (E2E-05 / E2E-06 / E2E-15) against a genuinely REWOUND match and remove whatever `test.fail` marks that pack carries for the restart arm.",
+      "This is the surface most exposed to S4's one behavioural change to the pre-existing rewound path - the widened live-path test in `tryFoldActivatedRewindBranch`. I reasoned above that a real rewound stream's candidate branch id is neither 'main' nor 'root' and therefore still folds, but that is an argument, not a live proof. The pack is what turns it into one.",
+      "Because the checkbox stays `[ ]`, the package's bookkeeping is honest about this. The clause should NOT be waved through when 1.4 is eventually ticked."
+    ],
+    "recommendedOwner": "The same slice that lands the rewound-match restart pack, or S6 if the pack's live surface is gated behind the cutover flag."
+  },
+  "nonClaimsOfThisReview": [
+    "I did not run the full `npm test`, any e2e, any browser or live proof, or any build. My gate scope was the author's focused jest scope, tsc, oxfmt and oxlint, plus log-hash verification.",
+    "I did not verify the author's BASE measurement (170 suites / 1328 tests at 7330ed0f8) by checking out the base - doing so would have moved the worktree checkout, which my charter forbids. I verified it indirectly: HEAD measures 171/1332 and the slice adds exactly one four-row suite, which is consistent.",
+    "I did not re-run the RED measurement (it requires reverting production changes in the worktree). I judged it from the log, whose sha256 matches, and whose per-row markers and stacks I read directly.",
+    "I made no edits to the worktree, the branch, or any file under it. This receipt is the only artefact I wrote, and it lives in the main checkout."
+  ]
+}

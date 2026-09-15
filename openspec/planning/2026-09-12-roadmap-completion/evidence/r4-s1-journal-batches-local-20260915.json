@@ -1,0 +1,421 @@
+{
+  "node": "R4.S1",
+  "title": "Committed match batches and journal heads",
+  "change": "openspec/changes/adopt-combat-journal-cutover-and-gm-rewind",
+  "tasksCovered": [
+    "adopt-combat-journal-cutover-and-gm-rewind#0.2@10 (verification only, NOT checked off)",
+    "adopt-combat-journal-cutover-and-gm-rewind#1.1@14 (S1 implementation, NOT checked off)"
+  ],
+  "generatedAt": "2026-09-15",
+  "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/history-sql-integrity",
+  "branch": "codex/roadmap-r4-s1-journal-batches-20260915",
+  "base": "d2fd6da059ed1616182cfc11a4ae33d665f8c940",
+  "commit": "784373c39fd605f42f24ec7e27f8297777b06ae5",
+  "commitAuthor": "Wes Rollings <wrollings@gmail.com>",
+  "commitSubject": "feat(combat): mirror committed match batches into the authoritative journal",
+  "aiAttribution": "none (per task brief and CLAUDE.md)",
+  "diff": {
+    "command": "git diff --shortstat d2fd6da05 HEAD (at a1fd1aaa1)",
+    "shortstat": "4 files changed, 499 insertions(+), 1 deletion(-)",
+    "files": [
+      {
+        "path": "src/lib/multiplayer/server/MatchStreamJournalMirror.ts",
+        "added": 161,
+        "removed": 0,
+        "kind": "new production module"
+      },
+      {
+        "path": "src/lib/multiplayer/server/__tests__/matchStreamJournalMirror.sqlite.test.ts",
+        "added": 268,
+        "removed": 0,
+        "kind": "new real-SQLite test (6 scenarios)"
+      },
+      {
+        "path": "src/lib/multiplayer/server/DurableMatchStore.ts",
+        "added": 57,
+        "removed": 1,
+        "kind": "commit-path wiring"
+      },
+      {
+        "path": "src/lib/multiplayer/server/durableCapabilityPorts.ts",
+        "added": 13,
+        "removed": 0,
+        "kind": "capability-db handle binding"
+      }
+    ],
+    "cap": {
+      "maxFiles": 15,
+      "actualFiles": 4,
+      "maxNonGeneratedLinesDefault": 500,
+      "actualNonGeneratedLines": 499,
+      "packageCeiling": 1000,
+      "status": "WITHIN CAP after the review edits (was 507 at 784373c39).",
+      "note": "Getting under 500 while ALSO adding RE-3's tripwire test needed about 36 lines of trim rather than the reviewer's 12: RE-3 (net +20) and RE-4's code comment (+6) were not in the reviewer's RE-2 arithmetic. Closed without a prefix split and without deleting any why-comment, by: the reviewer's three trims, one mirrorDirect() helper replacing two inline call objects, an empty sideAssignments fixture, and dropping result-payload fields no caller consumes (same dead-configuration rule as RE-1)."
+    }
+  },
+  "redGreen": {
+    "redOrder": "test written first, run before any production module existed, then run again with the module present but UNWIRED so the red is behavioural rather than a module-resolution error",
+    "red1": {
+      "description": "Test authored; no MatchStreamJournalMirror module exists.",
+      "log": ".sisyphus/roadmap-completion-20260912/r4-s1-20260915/red-20260915.log",
+      "sha256": "d82b0661632d811a089e74519a07857598091c1a1878818bd40c54b039d65971",
+      "exit": 1,
+      "result": "Test Suites: 1 failed, 1 total; Tests: 0 total",
+      "failure": "Cannot find module '../MatchStreamJournalMirror'"
+    },
+    "red2_behavioural": {
+      "description": "Module written, NOT yet wired into DurableMatchStore.appendCommandBatch. Proves the failures are 'no journal rows land', not a resolution accident.",
+      "log": ".sisyphus/roadmap-completion-20260912/r4-s1-20260915/red-behavioral-20260915.log",
+      "sha256": "64e8c43e7a26b671da78bdd0d926f3d5f3d5536630212f4ae7201909c0db7d04",
+      "exit": 1,
+      "result": "Test Suites: 1 failed, 1 total; Tests: 4 failed, 1 passed, 5 total",
+      "failures": [
+        "appends the batch at contiguous revisions and installs the heads -> journalRows() empty, expected revisions [1,2]",
+        "answers readEffectiveHead after a cold reopen -> readEffectiveHead(stream) === null",
+        "writes no journal rows for a duplicate command -> streamHead undefined, expected revision 2",
+        "refuses an expected-head mismatch typed and writes nothing -> actualRevision 0 (stream absent), expected 2"
+      ],
+      "passedInRed": "writes no journal rows while the cutover mode is off — correct: this is the byte-identical baseline and must pass before AND after."
+    },
+    "green": {
+      "log": ".sisyphus/roadmap-completion-20260912/r4-s1-20260915/green-focused-20260915.log",
+      "sha256": "d60456d27ac1a58313142de0c1f9730cc2c25b4926f2126d3d59acd9fe53101c",
+      "newSuiteResult": "5 passed, 5 total (matchStreamJournalMirror.sqlite.test.ts)"
+    }
+  },
+  "gates": [
+    {
+      "name": "focused jest",
+      "argv": [
+        "C:/Users/wroll/AppData/Local/nvm/v22.22.0/node.exe",
+        "node_modules/jest/bin/jest.js",
+        "--maxWorkers=2",
+        "--coverage=false",
+        "src/lib/multiplayer/server",
+        "src/lib/events/journal",
+        "src/lib/campaign/authority"
+      ],
+      "exit": 1,
+      "suites": "2 failed, 182 passed, 184 total",
+      "tests": "3 failed, 1430 passed, 1433 total",
+      "log": ".sisyphus/roadmap-completion-20260912/r4-s1-20260915/green-focused-20260915.log",
+      "sha256": "d60456d27ac1a58313142de0c1f9730cc2c25b4926f2126d3d59acd9fe53101c",
+      "verdict": "PRE-EXISTING FAILURES ONLY — not introduced by this commit; proven, not inferred (see preExistingFailures below)"
+    },
+    {
+      "name": "typecheck",
+      "argv": [
+        "C:/Users/wroll/AppData/Local/nvm/v22.22.0/node.exe",
+        "node_modules/typescript/bin/tsc",
+        "-p",
+        "tsconfig.json",
+        "--noEmit"
+      ],
+      "exit": 0,
+      "log": ".sisyphus/roadmap-completion-20260912/r4-s1-20260915/typecheck-20260915.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "note": "empty log = zero diagnostics"
+    },
+    {
+      "name": "lint (oxlint — this repo's linter; package.json \"lint\": \"oxlint\")",
+      "argv": [
+        "npx",
+        "oxlint",
+        "src/lib/multiplayer/server/MatchStreamJournalMirror.ts",
+        "src/lib/multiplayer/server/DurableMatchStore.ts",
+        "src/lib/multiplayer/server/durableCapabilityPorts.ts",
+        "src/lib/multiplayer/server/__tests__/matchStreamJournalMirror.sqlite.test.ts"
+      ],
+      "exit": 0,
+      "result": "Found 1 warning and 0 errors",
+      "warning": "eslint(max-lines): DurableMatchStore.ts has too many lines (1024, max 400) — PRE-EXISTING; that file was already 1391 raw lines at base d2fd6da05 and is over the cap without this commit.",
+      "log": ".sisyphus/roadmap-completion-20260912/r4-s1-20260915/oxlint-20260915.log",
+      "sha256": "2bd8f2c2753adccacfb659041f005b57292d381f5597f646a74214718697149a"
+    },
+    {
+      "name": "format check",
+      "argv": [
+        "npx",
+        "oxfmt",
+        "--check",
+        "<the same four files>"
+      ],
+      "exit": 0,
+      "result": "All matched files use the correct format.",
+      "log": ".sisyphus/roadmap-completion-20260912/r4-s1-20260915/oxfmt-20260915.log",
+      "sha256": "8061bc2cbf73cf3cc8f8e0c3e4ee7064032740fd07375d01294f19d752873740"
+    },
+    {
+      "name": "eslint (ATTEMPTED, NOT APPLICABLE)",
+      "argv": [
+        "npx",
+        "eslint",
+        "<changed files>"
+      ],
+      "exit": 2,
+      "result": "ESLint couldn't find an eslint.config.(js|mjs|cjs) file. This repo lints with oxlint, not eslint; the oxlint run above is the lint gate.",
+      "log": ".sisyphus/roadmap-completion-20260912/r4-s1-20260915/eslint-20260915.log",
+      "sha256": "a64678682421bfc282727de5938cf6bf51d13c73eb10848b561dc36a1c1ec5cc"
+    }
+  ],
+  "preExistingFailures": {
+    "method": "The two tracked files this commit edits were temporarily reverted with `git checkout --` (backups kept in the session scratchpad and restored immediately after); the two new untracked files do not participate in these suites. The two failing suites were then run against the untouched base tree.",
+    "baselineLog": ".sisyphus/roadmap-completion-20260912/r4-s1-20260915/baseline-two-suites-20260915.log",
+    "baselineSha256": "df8ee81c5eddae466d64cce46395827bbe199cbd136317a7c1d412c6beba8d3f",
+    "baselineResult": "Test Suites: 2 failed, 2 total; Tests: 3 failed, 72 passed, 75 total — the SAME 3 tests fail at base d2fd6da05 with none of this commit's code present.",
+    "failures": [
+      "matchStoreBatchContract.test.ts > DurableMatchStore optional capability ports > the durable store keeps branch rows in the campaign database, never in the match file — EventHistoryBranchError: 'A root branch has no base event, is anchored at revision 0, and uses the defined genesis digest' (fixture uses baseDigest 'a'.repeat(64))",
+      "ServerMatchHostBranchAdmission.test.ts > intent on a superseded effective branch refused — EventHistoryBranchError: \"Effective head 'root' for stream match/stale-superseded does not name an effective branch\"",
+      "ServerMatchHostBranchAdmission.test.ts > with an in-memory store that lacks the branch port every refusal is inert (pin the no-op) — same root-branch digest refusal"
+    ],
+    "attribution": "All three are fixtures colliding with the stricter root-branch / effective-head validation shipped by history prefix C (base commit d2fd6da05 'fix(history): guard persisted root and effective-head writes'). Out of this node's scope; flagged for the prefix-C owner.",
+    "arithmeticCheck": "1433 total - 5 new tests = 1428 = the focused-run total before this commit; 1430 passed - 5 new = 1425; failures unchanged at 3."
+  },
+  "designDecisions": [
+    {
+      "id": "D-S1-1",
+      "decision": "Extend the existing OFF-mode scaffold; do NOT build a second pipeline.",
+      "detail": "The mirror is gated on the shipped `getCombatJournalAuthorityMode()` from `matchJournalAuthority.ts`, and mirror failures are recorded through the shipped `recordProcessShadowComparison` tripwire that `shadowMismatchBlocksAdmission` already consults. No new mode, no new counter, no parallel decide/apply/verify path."
+    },
+    {
+      "id": "D-S1-2",
+      "decision": "The journal side is ONE transaction; the cross-database pair is deliberately NOT atomic.",
+      "detail": "`mp_match_events` lives in the match file (multiplayer-matches.db) and `event_journal_events` / `event_history_*` live in SQLiteService's campaign file (mekstation.db) — `durableCapabilityPorts.ts` doc-comment states this explicitly. No better-sqlite3 transaction can span two connections. What IS made indivisible is the journal side: event rows + `event_journal_stream_heads` advance + genesis branch + `event_history_effective_heads` row commit together via `SQLiteEventJournalWriter.appendPreparedWithExtension` (PR #1668's prepared append). The design's own S1 wording is 'mirror and genesis', and nothing reads the journal until S2, so a lagging mirror is a recoverable state rather than a divergence; S4 owns restart recovery and S6 owns the parity gate."
+    },
+    {
+      "id": "D-S1-3",
+      "decision": "Mirror AFTER the match transaction commits; a mirror failure never fails the combat command.",
+      "detail": "Keeps `mp_match_events` semantics byte-identical (the match tx body is untouched — the only edit is `return tx()` becoming `const result = tx(); if committed -> mirror; return result`). A refusal or throw is recorded as a shadow mismatch, which un-flips admission, so a silently-behind journal cannot later be promoted to authority."
+    },
+    {
+      "id": "D-S1-4",
+      "decision": "Genesis is installed by `SQLiteEventHistoryBranchStore.backfillGenesisBranches()`, not a hand-written INSERT.",
+      "detail": "That method runs the migration's own exported `EVENT_HISTORY_GENESIS_BACKFILL_SQL`, so the migration-time and commit-time definitions of 'genesis' cannot drift into two answers, and it honours an existing `match_authority_baseline.effective_generation` via COALESCE. It runs AFTER `append()` because it selects from `event_journal_stream_heads`, where the stream has no row until the append lands. It is NOT EXISTS-guarded, so later batches on the same match are no-ops. ACCEPTED SIDE EFFECT: the backfill is stream-agnostic — any other journal stream lacking a genesis branch also gets one. That is the same invariant the migration asserts at startup, not a new rule."
+    },
+    {
+      "id": "D-S1-5",
+      "decision": "`expectedRevision` passes through untranslated.",
+      "detail": "A match event carries a 0-based `sequence` and the journal numbers revisions from 1, so the match store's next-sequence (COALESCE(MAX(sequence)+1, 0)) already equals the journal head's revision. Proven by the test: a two-event batch at expectedRevision 0 occupies journal revisions 1 and 2 and leaves the head at 2. S5-a is the seam that makes every derivation site state the offset explicitly; this seam only relies on the identity. QUALIFIED BY REVIEW (RE-4): this identity is TRUE ONLY ON A STREAM THAT WAS NEVER REWOUND. The match store derives expectedRevision from COALESCE(MAX(sequence) + 1, 0) FROM mp_match_events over LIVE rows only - a rewind MOVEs the discarded tail into mp_match_events_superseded (DurableMatchStore.ts:792-799) - while the journal head is append-only and never truncates. On a rewound stream the match store next-sequence therefore falls BELOW the journal head and every mirror refuses revision-conflict forever. Recorded as a comment at the mirror site (MatchStreamJournalMirror.ts header, REVISION OFFSET paragraph)."
+    },
+    {
+      "id": "D-S1-6",
+      "decision": "Branch id for a match stream's genesis is `MATCH_BASELINE_BRANCH_ID` ('main'), not ROOT_EVENT_BRANCH_ID.",
+      "detail": "Matches what `ServerMatchHostJournalAuthority` and `genesisJournalAuthorityBaseline` already record for match streams. The journal writer accepts any non-empty branch id since umbrella task 16.2; the branch RULE above it, not the schema, decides which id is effective. The effective branch is re-read INSIDE the transaction, so a future activation moving the stream to a candidate is picked up without a second code path."
+    },
+    {
+      "id": "D-S1-7",
+      "decision": "New `capabilityDatabase()` member bound by `bindDurableCapabilityPorts`.",
+      "detail": "The mirror needs the raw campaign handle (it writes events, a head and a branch in one transaction — no narrow port expresses that). Bound in `durableCapabilityPorts.ts` rather than resolved inside DurableMatchStore so 'the journal lives in the other file' stays one module's knowledge. Guarded at the call site by the existing `isCapabilityDbAvailable()` probe, because method presence is not an open database."
+    },
+    {
+      "id": "D-S1-8",
+      "decision": "The mirror result carries only what a caller consumes.",
+      "detail": "Added at review time. The 'mirrored' arm dropped branchId/firstRevision/lastRevision and 'duplicate-command' dropped commandId: no caller or test read any of them, and the prepared-extension context went from the branch id to null for the same reason. Same dead-configuration rule the reviewer applied to the test helper in RE-1; a receipt-shaped result can be reintroduced by whichever seam actually needs it."
+    }
+  ],
+  "testScenarios": [
+    "appends the batch at contiguous revisions (1,2) on one branch, canonical payloads carry the unaltered IGameEvent, stream head at 2, effective head row on the same branch at generation 1",
+    "cold reopen (store closed, SQLiteService reset and re-initialized on the same file) — readEffectiveHead(stream) returns the same branch at generation 1",
+    "duplicate command (same identity) refused typed by the match store and writes no additional journal rows; head unchanged",
+    "expected-head mismatch aimed one revision below the head refused typed as {kind:'revision-conflict', expectedRevision:1, actualRevision:2} with row counts and head unchanged",
+    "mode 'off' regression — match events land, event_journal_events / event_journal_stream_heads / event_history_effective_heads all empty",
+    "NEW (RE-3) records a failed mirror on the tripwire admission consults - first batch commits, the journal head is pushed out of band via a direct mirror call, the counter is reset, then a second batch through the store commits while its mirror refuses revision-conflict: result.kind stays 'committed' AND getProcessShadowMismatchCount() goes 0 -> 1, proving the wiring into journalAuthorityAdmission.ts:221 that D-S1-3 and the cross-DB honesty argument depend on."
+  ],
+  "task_0_2_verification": {
+    "statement": "Verified on fetched exact main that add-authoritative-history-branches exposes the branch port this change activates through.",
+    "fetchedMainSha": "b7d650997a1f1e7ed90ed8f806daefd199637150",
+    "fetchedMainSubject": "spec(campaign-authority): admit source-only projection decision D12 for P0 producers (#1675)",
+    "fetchCommand": "git fetch origin main; git rev-parse origin/main",
+    "relationshipToThisWork": "NOT an ancestor of this node's base. `git merge-base d2fd6da05 b7d650997` = c3b4cc1e3ace35ff95b7999d9680a5d657ca344f — origin/main has advanced past the point history prefixes A/B/C branched from, so d2fd6da05 does not contain current main. This node is built on d2fd6da05 as instructed; a rebase onto main is a separate step.",
+    "portShape": {
+      "IEventHistoryBranchPort": {
+        "file": "src/lib/events/storeCapabilityPorts.ts",
+        "line": 39,
+        "members": [
+          "readBranch (40)",
+          "requireBranch (44)",
+          "readEffectiveHead (48)",
+          "requireEffectiveHead (51)",
+          "createBranch (54)",
+          "transitionBranchStatus (55)"
+        ]
+      },
+      "hasHistoryBranchStore": {
+        "file": "src/lib/events/storeCapabilityPorts.ts",
+        "line": 147,
+        "shape": "structural guard — checks the six methods EXIST and nothing else"
+      },
+      "isHistoryBranchStoreReady": {
+        "file": "src/lib/events/storeCapabilityPorts.ts",
+        "line": 169,
+        "note": "separate readiness probe; method presence is not an open campaign database"
+      },
+      "supersession": {
+        "read": {
+          "file": "src/lib/events/journal/SQLiteEventHistoryBranchStore.ts",
+          "line": 151,
+          "symbol": "readSupersessions(stream): readonly IEventHistorySupersession[]"
+        },
+        "write": {
+          "file": "src/lib/events/journal/EventHistoryActivation.ts",
+          "line": 204,
+          "symbol": "INSERT INTO event_history_supersessions",
+          "note": "the supersession WRITE is NOT on the branch store — it is inside the activation transaction, alongside `UPDATE event_history_effective_heads` at line 232. A consumer looking for a store-level supersede method will not find one; that is by design."
+        },
+        "storage": {
+          "file": "src/services/persistence/SQLiteService.historyBranches.migration.ts",
+          "tables": [
+            "event_history_branches (145)",
+            "event_history_effective_heads (183)",
+            "event_history_supersessions (196)"
+          ]
+        }
+      }
+    },
+    "verdict": "All three surfaces the task names are present and exported on exact main at the shape recorded above. Task 0.2's checkbox is left unticked per the brief (workers do not check boxes)."
+  },
+  "nonClaims": [
+    "NO SHALL is discharged by this seam alone — the task text itself demands this statement. S1 is plumbing: a 200 computed off an unread mirror is not a receipt.",
+    "NO production cutover. COMBAT_JOURNAL_AUTHORITY_MODE is still the literal 'off' in matchJournalAuthority.ts:18; nothing in this commit changes it. The write path is exercised only through the test-only `_setCombatJournalAuthorityModeForTests('shadow')` override.",
+    "NO mode flip and no admission change. `admitJournalAuthority` still requires mode === 'enabled'; this commit adds a mismatch SOURCE to the existing tripwire, never a relaxation of it.",
+    "NO rewind acceptance. Neither GM rewind route was exercised end-to-end here. The task-1.1 clause 'Both rewind routes answer a real preview on a live match' is NOT claimed: this commit establishes only the precondition GmCombatRewindCommit.ts:102-105 gates on (readEffectiveHead(stream) !== null), proven at the storage boundary and across a cold reopen. Proving the routes answer is deferred; it needs the preview/commit route harness and belongs with S2 (head reads) at the earliest.",
+    "NO S2/S3/S4/S5/S6 work. readEffectiveHead and the branch-admission consult still read what they read before (S2); the mp_journal_authority_started marker is untouched (S3); restart recovery still rebuilds from the legacy table (S4); no derivation site was re-pinned and the expected revision still comes from the match store, not the journal head (S5); there is no reviewed cutover flag, migration state, shadow-parity runner or rollback law (S6).",
+    "NO catch-up for a mirror that fell behind. A command the match store answers `duplicate-command` never reaches the mirror, so a batch whose mirror failed is not re-mirrored on retry. The stream then refuses every later mirror with `revision-conflict` and the tripwire count rises. That is visible-degradation-by-design at S1, not silent loss — closing it is S4/S6 work.",
+    "NO openspec/** edits. tasks.md boxes are unticked and no spec file was touched; no SHALL was found to be contradicted.",
+    "NO push, merge, PR, or rebase. The branch is local only.",
+    "The three failing tests in the focused run are pre-existing prefix-C fixture breakage (proven against the base tree above), NOT fixed here and NOT in this node's scope.",
+    "REWOUND STREAMS (RE-4): the mirror must NOT be enabled on a match whose stream has been rewound before S5-b (task 1.6) sources the expected revision from the journal head. The match store reads MAX(sequence) + 1 over live rows and a rewind moves the discarded tail to mp_match_events_superseded, while the journal head never truncates - so a rewound stream would refuse every mirror with revision-conflict. Since GM rewind is this change own subject, this is a hard precondition on the S6 flip, not a theoretical edge.",
+    "The mirror's 'duplicate-command' and 'integrity-conflict' arms remain unexecuted by any test (reviewer RR-5): the match store refuses duplicates before the mirror is reached. Only the revision-conflict arm is covered live.",
+    "NO busy_timeout fix. See reviewResidualsCarried RR-1 - recorded, deliberately NOT fixed in this slice."
+  ],
+  "unverified": [
+    "UNVERIFIED: behaviour of the mirror under a real concurrent two-process race. The revision guard is the journal writer's own shipped `.immediate()` transaction and is covered by its suite, but no multi-process race was run for a match stream in this session.",
+    "UNVERIFIED: the full repository test suite. Only src/lib/multiplayer/server, src/lib/events/journal and src/lib/campaign/authority were run, per the brief. e2e and the wider unit surface were not.",
+    "EXPECTED (not checked): rebasing this branch onto current origin/main (b7d650997) is clean. The merge-base shows main has advanced; no rebase was attempted."
+  ],
+  "logsDirectory": ".sisyphus/roadmap-completion-20260912/r4-s1-20260915/",
+  "runtime": {
+    "node": "C:/Users/wroll/AppData/Local/nvm/v22.22.0/node.exe (Node 22.22.0)",
+    "why": "the nvm4w default v24 breaks the better-sqlite3 ABI; no native module was rebuilt"
+  },
+  "headCommit": "a1fd1aaa1",
+  "commitNote": "Two commits on the branch: 784373c39 (S1 implementation) then a1fd1aaa1 (independent-review required edits). The original commit was NOT amended.",
+  "reviewResidualsCarried": {
+    "source": "openspec/planning/2026-09-12-roadmap-completion/evidence/r4-s1-journal-batches-review-20260915.json",
+    "note": "Carried from the independent review; none are fixed by this slice.",
+    "risks": [
+      {
+        "id": "RR-1",
+        "severity": "HIGH (inert at mode off; BLOCKING before S6)",
+        "risk": "No busy_timeout pragma. SQLiteService sets only journal_mode = WAL and foreign_keys = ON (SQLiteService.ts:83-86), so a mirror append contending with any other campaign writer throws SQLITE_BUSY immediately. That throw is swallowed into the tripwire by this slice catch, and because there is no catch-up the stream then returns revision-conflict forever. The missing busy timeout makes the disclosed no-catch-up behaviour reachable under ORDINARY concurrent load rather than only exceptional failure. MUST be closed by S4 (recovery) or S6 (parity gate) before the mode flips. NOT fixed here - out of this slice scope by instruction."
+      },
+      {
+        "id": "RR-2",
+        "severity": "medium",
+        "risk": "Intra-process mirror ordering holds only because better-sqlite3 transactions are synchronous. If the writer ever becomes genuinely async, mirrors for one match reorder and the stream conflicts forever."
+      },
+      {
+        "id": "RR-3",
+        "severity": "medium",
+        "risk": "backfillGenesisBranches() is stream-agnostic: a combat command can insert genesis rows for unrelated journal streams that lack them, stamped created_by='migration'. Disclosed as D-S1-4 accepted side effect; it means a match commit writes outside its own stream."
+      },
+      {
+        "id": "RR-4",
+        "severity": "medium",
+        "risk": "Forward SHALL tension: gm-combat-interventions/spec.md:12 requires finalization to append a correction fact through \"the authoritative transaction\", which the two-file split cannot provide. Not contradicted at S1 (mode off, no rewind route touched), but the S6 receipt must answer it rather than inherit the deferral silently."
+      },
+      {
+        "id": "RR-5",
+        "severity": "low",
+        "risk": "The mirror duplicate-command and integrity-conflict arms are never executed by a test."
+      },
+      {
+        "id": "RR-6",
+        "severity": "low",
+        "risk": "isCapabilityDbAvailable() sits outside the try/catch; traced to a boolean read, so exposure is negligible, but a throw there would fail a command whose match transaction already committed."
+      },
+      {
+        "id": "RR-7",
+        "severity": "informational",
+        "risk": "Task 1.1 'both rewind routes answer a real preview on a live match' clause is not claimed; box 1.1 must stay unticked until it lands."
+      }
+    ]
+  },
+  "correction": {
+    "reviewArtefact": "openspec/planning/2026-09-12-roadmap-completion/evidence/r4-s1-journal-batches-review-20260915.json",
+    "verdict": "APPROVE-WITH-REQUIRED-EDITS",
+    "correctionCommit": "a1fd1aaa1",
+    "correctionSubject": "refactor(combat): apply R4.S1 review edits to the journal mirror",
+    "amended": false,
+    "resolutions": [
+      {
+        "id": "RE-1",
+        "status": "DONE",
+        "resolution": "batch() lost its overrides: Partial<IMatchCommandBatch> = {} parameter and the ...overrides spread; the one call site that needed a variant (the tripwire test) spreads batch() inline instead."
+      },
+      {
+        "id": "RE-2",
+        "status": "DONE",
+        "resolution": "499 insertions vs base d2fd6da05, down from 507. No prefix split, as instructed. Reviewer trims applied: (a) dead parameter, (b) hoisted IHeadRow for the doubled type literal, (c) the triplicated cross-file paragraph compressed in MatchStreamJournalMirror.ts with BOTH wiring-site copies kept in DurableMatchStore.ts and durableCapabilityPorts.ts. Extra trims were needed because RE-3 and RE-4 add lines the reviewer -12 did not budget: one mirrorDirect() helper, an empty sideAssignments fixture, and D-S1-8 dead result payload."
+      },
+      {
+        "id": "RE-3",
+        "status": "DONE (the test was written; the receipt-only fallback was NOT taken)",
+        "resolution": "New scenario 'records a failed mirror on the tripwire admission consults' in matchStreamJournalMirror.sqlite.test.ts, using the already-exported _resetProcessShadowStatsForTests and getProcessShadowMismatchCount. It asserts BOTH halves of D-S1-3: the command still returns 'committed', and the counter journalAuthorityAdmission.ts:221 consults moves 0 -> 1. Suite is now 6/6 green."
+      },
+      {
+        "id": "RE-4",
+        "status": "DONE (receipt text AND a code comment)",
+        "resolution": "D-S1-5 qualified in this JSON, a new non-claim added, and the REVISION OFFSET paragraph at the head of MatchStreamJournalMirror.ts now states that the identity is true only on a never-rewound stream and that the mirror must not be enabled on a rewound match before S5-b."
+      }
+    ],
+    "gatesAfterCorrection": [
+      {
+        "name": "focused jest",
+        "argv": [
+          "node",
+          "node_modules/jest/bin/jest.js",
+          "--maxWorkers=2",
+          "--coverage=false",
+          "src/lib/multiplayer/server",
+          "src/lib/events/journal",
+          "src/lib/campaign/authority"
+        ],
+        "exit": 1,
+        "suites": "2 failed, 182 passed, 184 total",
+        "tests": "3 failed, 1431 passed, 1434 total",
+        "log": ".sisyphus/roadmap-completion-20260912/r4-s1-20260915/green-focused-re-20260915.log",
+        "sha256": "09fd9ca96666ee250f77d1fbb4d39b050cb292d1c15206e14f13cc48e467ae9d",
+        "verdict": "Same 2 suites / 3 tests as the proven pre-existing prefix-C baseline; passed count rose 1430 -> 1431 for the new tripwire test."
+      },
+      {
+        "name": "typecheck",
+        "argv": [
+          "node",
+          "node_modules/typescript/bin/tsc",
+          "-p",
+          "tsconfig.json",
+          "--noEmit"
+        ],
+        "exit": 0,
+        "log": ".sisyphus/roadmap-completion-20260912/r4-s1-20260915/typecheck-re-20260915.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "name": "oxlint (changed files)",
+        "exit": 0,
+        "result": "Found 1 warning and 0 errors - the same pre-existing max-lines warning on DurableMatchStore.ts",
+        "log": ".sisyphus/roadmap-completion-20260912/r4-s1-20260915/oxlint-re-20260915.log",
+        "sha256": "75bea9a8c91af9033c641f4f2dd04687c1f6bbf639f4155cf4ea9b139d9d4047"
+      },
+      {
+        "name": "oxfmt --check (changed files)",
+        "exit": 0,
+        "result": "All matched files use the correct format.",
+        "log": ".sisyphus/roadmap-completion-20260912/r4-s1-20260915/oxfmt-re-20260915.log",
+        "sha256": "cb36736ba39522369d3f582dcb3cfd398eff2636919aea70e78c25594ae34234"
+      }
+    ],
+    "runtimeNote": "Node resolved via the POSIX PATH form (export PATH=/c/Users/wroll/AppData/Local/nvm/v22.22.0:$PATH); node --version -> v22.22.0 confirmed before jest. The C:/ form silently fails under this shell. No native module was rebuilt."
+  }
+}

@@ -1,0 +1,65 @@
+{
+  "proof": "PROOF 1 -- PR #1675 (spec delta D12)",
+  "commitTested": {
+    "squashMerge": "b7d650997a1f1e7ed90ed8f806daefd199637150",
+    "squashMergeSubject": "spec(campaign-authority): admit source-only projection decision D12 for P0 producers (#1675)",
+    "reviewedHead": "6a277d376a5cb829066b4e08a309db3904af678d",
+    "reviewedHeadSubject": "spec(campaign-authority): correct D12 enforcement claim and narrow three SHALL overreaches"
+  },
+  "blobEquality": [
+    {
+      "path": "openspec/changes/design-campaign-authority-and-sync/design.md",
+      "squashMergeOid": "9980e96771d4fe4de4be5c4c9e78cce2e68a0e54",
+      "reviewedHeadOid": "9980e96771d4fe4de4be5c4c9e78cce2e68a0e54",
+      "match": true
+    },
+    {
+      "path": "openspec/changes/design-campaign-authority-and-sync/tasks.md",
+      "squashMergeOid": "bd52adf2294abee22bb7233fb744532e5c7c5426",
+      "reviewedHeadOid": "bd52adf2294abee22bb7233fb744532e5c7c5426",
+      "match": true
+    },
+    {
+      "path": "openspec/changes/design-campaign-authority-and-sync/specs/campaign-authority/spec.md",
+      "squashMergeOid": "e27f9b09ca91287e94f472aff77f02a7aefd49cf",
+      "reviewedHeadOid": "e27f9b09ca91287e94f472aff77f02a7aefd49cf",
+      "match": true
+    }
+  ],
+  "commands": [
+    {
+      "cmd": "npx openspec validate --all --strict",
+      "exitCode": 0,
+      "counts": "Totals: 232 passed, 0 failed (232 items)",
+      "logPath": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/main-proof-1675-1677-20260915/proof1-openspec-validate.log",
+      "sha256": "f7ed329ad5258ab87822b1a2ad278e273089696c5837f1184af003129402ccdb"
+    },
+    {
+      "cmd": "npm run spec:purpose:validate:strict",
+      "exitCode": 0,
+      "counts": "Files scanned: 220; Errors: 0; Tracked source-of-truth debt: 0",
+      "logPath": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/main-proof-1675-1677-20260915/proof1-spec-purpose-validate.log",
+      "sha256": "72f196b4042398cbd67db0451f104d1f0cfad0c89d517b94528b59cfa779faff"
+    },
+    {
+      "cmd": "npm run terminology:validate:strict",
+      "exitCode": 0,
+      "counts": "Found 315 file(s) to scan; No terminology violations found",
+      "logPath": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/main-proof-1675-1677-20260915/proof1-terminology-validate.log",
+      "sha256": "8e444352f13c39ea59e4d6092b5958dc6ec6982fee979595ab8966e48e0c3ef8"
+    },
+    {
+      "cmd": "npm run qc:openspec-ci:validate",
+      "exitCode": 0,
+      "counts": "workflowContracts=8/8 aggregatorNeeds=18/18 protectedContexts=4 packageScripts=3/3 activeOpenSpecChanges=12 accountedActiveOpenSpecChanges=12 errors=0",
+      "logPath": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/main-proof-1675-1677-20260915/proof1-qc-openspec-ci-validate.log",
+      "sha256": "8f1d5720c235c580ad88a2573fb64584b2b9659f69ddabfaf2e52e50a578dd66"
+    }
+  ],
+  "environment": {
+    "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/history-sql-integrity",
+    "node": "v22.22.0",
+    "checkoutMode": "git checkout --detach b7d650997a1f1e7ed90ed8f806daefd199637150"
+  },
+  "result": "PASS -- all three spec-delta blobs identical between squash merge and reviewed head; all four validation commands exited 0 with counts matching expectations."
+}

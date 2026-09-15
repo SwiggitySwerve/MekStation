@@ -1,0 +1,72 @@
+{
+  "pr": 1672,
+  "branch": "codex/roadmap-r4-matrix-20260913",
+  "reviewedCommit": "6d493d508fe797e9a4342cbc0bd41b13ff376be4",
+  "finalHead": "5a55960c47b7541d2f0fd54b94c036d19847a844",
+  "anomaly": "GitHub auto-merge (SQUASH) was armed on this PR at 2026-09-15T06:19:38Z by SwiggitySwerve, before this session began. Auto-merge fired at 06:37:21Z the moment the last required check went green, during this session's polling loop. This session did NOT execute step 6 (gh pr merge). Order was still controlled: this session gated the content guard BEFORE running update-branch, and update-branch is what made the PR eligible for auto-merge.",
+  "contentGuard": {
+    "preUpdate": {
+      "fileSetEqualToReviewed": true,
+      "files": [
+        "openspec/changes/adopt-combat-journal-cutover-and-gm-rewind/notepad.md",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/r4-matrix-local-verification-20260913.json",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/r4-matrix-parent-acceptance-20260913.json"
+      ],
+      "blobEquality": "trivially satisfied - reviewed commit == PR head (6d493d508)",
+      "result": "PASS"
+    },
+    "postUpdate": {
+      "fileSet": "unchanged - same 3 files, no files added by the update merge",
+      "blobEquality": {
+        "openspec/changes/adopt-combat-journal-cutover-and-gm-rewind/notepad.md": "equal",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/r4-matrix-local-verification-20260913.json": "equal",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/r4-matrix-parent-acceptance-20260913.json": "equal"
+      },
+      "note": "no overlap with main's ledger edits, so the update merge was byte-clean",
+      "result": "PASS"
+    }
+  },
+  "updateBranch": {
+    "performedByThisSession": true,
+    "oldHead": "6d493d508fe797e9a4342cbc0bd41b13ff376be4",
+    "newHead": "5a55960c47b7541d2f0fd54b94c036d19847a844",
+    "expectedHeadShaGuard": "6d493d508fe797e9a4342cbc0bd41b13ff376be4",
+    "reason": "branch was BEHIND after #1669 and #1670 merged to main"
+  },
+  "checksAtTerminal": {
+    "Lint and Test": "pass",
+    "Build Test / win": "pass",
+    "Build Test / mac": "pass",
+    "Build Test / linux": "pass",
+    "otherChecksCount": 26,
+    "otherChecksBuckets": { "pass": 26 },
+    "totalChecks": 30,
+    "pollLog": "06:32:35 2 pending -> 06:37:23 30 pass/0 pending (state already MERGED at that snapshot)"
+  },
+  "premergeReceipt": {
+    "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/r4-matrix-1672-final-20260915-premerge.json",
+    "ready": false,
+    "failures": ["PR identity changed", "Branch state requires review: UNKNOWN"],
+    "note": "Gate run post-hoc, after auto-merge had already landed the PR. Both failures are artifacts of that race (main had advanced to the merge commit; a merged PR reports no mergeable state). Not a substantive gate failure: all four required checks were green on the exact head that merged, and merged content is blob-identical to the gated head."
+  },
+  "mergeCommit": "13e4b9ea1c3d37c231eb21d0e977c3eeaa7593d5",
+  "mergeCommitParents": ["a018f717ac01a9127a2bec4f652cd73b5dea8d94"],
+  "mergeStyle": "squash (single parent)",
+  "mergedAt": "2026-09-15T06:37:21Z",
+  "mergedBy": "SwiggitySwerve (via armed auto-merge)",
+  "mergedContentVerification": "All 3 files in the merge commit have blob SHAs identical to the gated final head 5a55960c4.",
+  "mainAfter": "13e4b9ea1c3d37c231eb21d0e977c3eeaa7593d5",
+  "worktree": {
+    "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/r4-matrix",
+    "cleanBeforeFF": true,
+    "branch": "codex/roadmap-r4-matrix-20260913",
+    "fastForward": "ff-only 6d493d508 -> 5a55960c4",
+    "result": "SUCCESS",
+    "note": "remote branch auto-deleted on merge (delete_branch_on_merge=true)"
+  },
+  "timestamps": {
+    "guardStartedAt": "2026-09-15T06:31:40Z",
+    "checksTerminalAt": "2026-09-15T06:37:23Z",
+    "receiptWrittenAt": "2026-09-15T06:38:30Z"
+  }
+}
