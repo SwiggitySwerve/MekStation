@@ -9,7 +9,14 @@
  * a head living only in an open handle would pass in-process and refuse
  * `no-authoritative-history` after a restart.
  *
- * @spec openspec/changes/adopt-combat-journal-cutover-and-gm-rewind/design.md (S1)
+ * S5 (task 1.5) adds the other half: the module's REVISION OFFSET note
+ * warned that the untranslated passthrough is true only on a stream
+ * never rewound, and nothing enforced it. A rewound stream is built
+ * here with the real machinery - a candidate anchored below the head,
+ * a sealed manifest, a held lease, `activateCandidateBranch`, and the
+ * store tail moved into `mp_match_events_superseded`.
+ *
+ * @spec openspec/changes/adopt-combat-journal-cutover-and-gm-rewind/design.md (S1, S5)
  */
 
 import Database from 'better-sqlite3';
@@ -17,6 +24,10 @@ import { mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 
+import { activateCandidateBranch } from '@/lib/events/journal/EventHistoryActivation';
+import { SQLiteEventHistoryArtifactManifestStore } from '@/lib/events/journal/EventHistoryArtifactManifest';
+import { SQLiteEventHistoryBranchStore } from '@/lib/events/journal/SQLiteEventHistoryBranchStore';
+import { SQLiteEventHistoryCorrectionLeaseStore } from '@/lib/events/journal/SQLiteEventHistoryCorrectionLeaseStore';
 import {
   getSQLiteService,
   resetSQLiteService,
@@ -30,7 +41,9 @@ import {
 import type { IMatchCommandBatch } from '../matchCommandBatch';
 
 import { DurableMatchStore } from '../DurableMatchStore';
+import { nextMatchSequenceAfter } from '../history/matchStoreBranchSegmentReader';
 import { type IMatchMeta } from '../IMatchStore';
+import { MATCH_BASELINE_BRANCH_ID } from '../matchAuthorityBaseline';
 import {
   _resetProcessShadowStatsForTests,
   _setCombatJournalAuthorityModeForTests,
@@ -40,6 +53,9 @@ import { mirrorMatchBatchToJournal } from '../MatchStreamJournalMirror';
 
 const MATCH_ID = 'match-journal-mirror';
 const STREAM = { streamType: 'match', streamId: MATCH_ID } as const;
+const AT = '2026-09-15T00:00:00.000Z';
+const CANDIDATE_BRANCH_ID = 'candidate-rewind-1';
+const REWIND_REASON = 'authorized combat rewind';
 
 function meta(): IMatchMeta {
   const now = '2026-09-15T00:00:00.000Z';
@@ -81,12 +97,12 @@ let matchDbPath = '';
 let store: DurableMatchStore | undefined;
 
 /** Call the mirror directly, outside the match store's commit path. */
-function mirrorDirect(commandId: string, expectedRevision: number) {
+function mirrorDirect(commandId: string, nextMatchSequence: number) {
   return mirrorMatchBatchToJournal(getSQLiteService().getDatabase(), {
     matchId: MATCH_ID,
     commandId,
     actorId: 'p1',
-    expectedRevision,
+    nextMatchSequence,
     events: [event(2)],
   });
 }
@@ -144,6 +160,108 @@ function effectiveHeadRow(): IHeadRow | undefined {
        FROM event_history_effective_heads
       WHERE stream_type = ? AND stream_id = ?`,
   )[0];
+}
+
+/**
+ * Take the stream off the live path the way a committed GM rewind
+ * does. `cutRevision` is the last revision kept, so it is also the
+ * first DISCARDED store sequence (revision = sequence + 1), which is
+ * the number `supersedeActivatedTail` hands the store after a commit.
+ */
+async function rewindStream(cutRevision: number): Promise<string> {
+  const db = getSQLiteService().getDatabase();
+  const branches = new SQLiteEventHistoryBranchStore(db);
+  const leases = new SQLiteEventHistoryCorrectionLeaseStore(db, branches, {
+    nowMs: () => 1_000_000,
+  });
+  const manifests = new SQLiteEventHistoryArtifactManifestStore(db);
+  const head = db
+    .prepare(
+      `SELECT stream_revision AS revision, event_digest AS digest
+         FROM event_journal_stream_heads
+        WHERE stream_type = ? AND stream_id = ?`,
+    )
+    .get(STREAM.streamType, STREAM.streamId) as {
+    readonly revision: number;
+    readonly digest: string;
+  };
+  const base = db
+    .prepare(
+      `SELECT event_id AS eventId, event_digest AS digest
+         FROM event_journal_events
+        WHERE stream_type = ? AND stream_id = ? AND stream_revision = ?`,
+    )
+    .get(STREAM.streamType, STREAM.streamId, cutRevision) as {
+    readonly eventId: string;
+    readonly digest: string;
+  };
+  db.prepare(
+    `INSERT INTO event_history_branches
+       (stream_type, stream_id, branch_id, parent_branch_id, ancestor_depth,
+        base_revision, base_event_id, base_digest, status, created_by,
+        reason, created_at)
+     VALUES (?, ?, ?, ?, 1, ?, ?, ?, 'building', 'p1', ?, ?)`,
+  ).run(
+    STREAM.streamType,
+    STREAM.streamId,
+    CANDIDATE_BRANCH_ID,
+    MATCH_BASELINE_BRANCH_ID,
+    cutRevision,
+    base.eventId,
+    base.digest,
+    'correction-rebuild:lease:1:rewind',
+    AT,
+  );
+  manifests.sealArtifactManifest(
+    STREAM,
+    CANDIDATE_BRANCH_ID,
+    [{ artifactKind: 'checkpoint', artifactId: 'ckpt-1', sourceRevision: 2 }],
+    AT,
+  );
+  const lease = leases.acquireCorrectionLease({
+    ...STREAM,
+    owner: 'p1',
+    actor: 'p1',
+    reason: REWIND_REASON,
+    ttlMs: 30_000,
+    expectedBranchId: MATCH_BASELINE_BRANCH_ID,
+    expectedRevision: head.revision,
+    expectedDigest: head.digest,
+    expectedGeneration: 1,
+  });
+  const activated = activateCandidateBranch(db, branches, leases, manifests, {
+    stream: STREAM,
+    candidateBranchId: CANDIDATE_BRANCH_ID,
+    held: {
+      leaseId: lease.leaseId,
+      owner: lease.owner,
+      fencingEpoch: lease.fencingEpoch,
+    },
+    reason: REWIND_REASON,
+    activatedAt: AT,
+  });
+  await store!.supersedeFrom!(MATCH_ID, cutRevision, AT);
+  return activated.branchId;
+}
+
+/**
+ * The store's OWN commit-time next-sequence answer, read back through
+ * the only surface that reports it: a contiguous batch aimed at a
+ * sequence the stream can never be at is refused with `actualRevision`
+ * set to what the store computed - `nextMatchSequenceAfter` over its
+ * own `MAX(sequence)` read.
+ */
+async function storeNextSequence(probeId: string): Promise<number> {
+  const probe = await store!.appendCommandBatch!(MATCH_ID, {
+    commandId: probeId,
+    actorId: 'p1',
+    expectedRevision: 9_999,
+    events: [event(9_999, `${probeId}-evt`)],
+  });
+  if (probe.kind !== 'revision-conflict') {
+    throw new Error(`probe expected a revision conflict, got ${probe.kind}`);
+  }
+  return probe.actualRevision;
 }
 
 beforeEach(async () => {
@@ -264,5 +382,93 @@ describe('committed combat batches reach the journal', () => {
     expect(journalRows()).toHaveLength(0);
     expect(streamHeadRevision()).toBeUndefined();
     expect(effectiveHeadRow()).toBeUndefined();
+  });
+});
+
+describe('the sequence-versus-revision offset is named, not implied', () => {
+  it('refuses to mirror a batch against a rewound stream', async () => {
+    await store!.appendCommandBatch!(MATCH_ID, batch());
+    const branchId = await rewindStream(1);
+    const before = journalRows().length;
+
+    // The store's next sequence is 1 again after the tail moved out,
+    // while the journal head is still at 2. Passing that through
+    // untranslated would aim the mirror at a revision the journal has
+    // already committed on another branch.
+    const refused = await mirrorDirect('cmd-after-rewind', 1);
+
+    expect(refused).toEqual({ kind: 'rewound-stream', branchId });
+    expect(journalRows()).toHaveLength(before);
+    expect(streamHeadRevision()).toBe(2);
+    expect(effectiveHeadRow()?.branchId).toBe(branchId);
+  });
+
+  it('records the rewound refusal on the tripwire rather than skipping', async () => {
+    await store!.appendCommandBatch!(MATCH_ID, batch());
+    await rewindStream(1);
+    _resetProcessShadowStatsForTests();
+
+    const committed = await store!.appendCommandBatch!(MATCH_ID, {
+      ...batch(),
+      commandId: 'cmd-post-rewind',
+      expectedRevision: 1,
+      events: [event(1, 'evt-1-rebuilt')],
+    });
+
+    // The match store still commits: the mirror never fails a command.
+    expect(committed.kind).toBe('committed');
+    expect(getProcessShadowMismatchCount()).toBe(1);
+    expect(journalRows()).toHaveLength(2);
+  });
+
+  it('mirrors a never-rewound stream exactly as before', async () => {
+    await store!.appendCommandBatch!(MATCH_ID, batch());
+    _resetProcessShadowStatsForTests();
+
+    const second = await store!.appendCommandBatch!(MATCH_ID, {
+      ...batch(),
+      commandId: 'cmd-2',
+      expectedRevision: 2,
+      events: [event(2)],
+    });
+
+    expect(second.kind).toBe('committed');
+    const rows = journalRows();
+    expect(rows.map((row) => row.revision)).toEqual([1, 2, 3]);
+    expect(new Set(rows.map((row) => row.branchId))).toEqual(
+      new Set([MATCH_BASELINE_BRANCH_ID]),
+    );
+    expect(streamHeadRevision()).toBe(3);
+    expect(effectiveHeadRow()).toEqual({
+      branchId: MATCH_BASELINE_BRANCH_ID,
+      generation: 1,
+    });
+    expect(getProcessShadowMismatchCount()).toBe(0);
+  });
+
+  it('agrees with the store commit-time next sequence at 0, 1 and N', async () => {
+    expect(await storeNextSequence('probe-empty')).toBe(
+      nextMatchSequenceAfter(null),
+    );
+
+    await store!.appendCommandBatch!(MATCH_ID, {
+      ...batch(),
+      commandId: 'cmd-one',
+      expectedRevision: 0,
+      events: [event(0)],
+    });
+    expect(await storeNextSequence('probe-one')).toBe(
+      nextMatchSequenceAfter(0),
+    );
+
+    await store!.appendCommandBatch!(MATCH_ID, {
+      ...batch(),
+      commandId: 'cmd-many',
+      expectedRevision: 1,
+      events: [event(1), event(2), event(3)],
+    });
+    expect(await storeNextSequence('probe-many')).toBe(
+      nextMatchSequenceAfter(3),
+    );
   });
 });

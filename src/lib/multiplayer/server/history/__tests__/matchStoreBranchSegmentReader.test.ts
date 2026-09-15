@@ -11,8 +11,9 @@
  *
  * THE PINNING CONTRACT, and it is not an identity:
  *
- * - `mp_match_events` sequences start at **0**
- *   (`SELECT COALESCE(MAX(sequence) + 1, 0)`).
+ * - `mp_match_events` sequences start at **0** (the store reads
+ *   `SELECT MAX(sequence)` over the LIVE rows and derives the next
+ *   sequence through `nextMatchSequenceAfter`).
  * - Branch revision **0 means "nothing has happened yet"** - it is the
  *   root's `baseRevision` and what a stream with no head row reads as.
  * - Therefore **`revision = sequence + 1`**, the same off-by-one the
@@ -56,7 +57,12 @@ import {
 } from '@/types/gameplay/GameSessionInterfaces';
 
 import { previewGmCombatRewind } from '../GmCombatRewindPreview';
-import { matchStoreBranchSegmentReader } from '../matchStoreBranchSegmentReader';
+import {
+  journalHeadRevisionForNextMatchSequence,
+  matchStoreBranchSegmentReader,
+  nextMatchSequenceAfter,
+  revisionForMatchSequence,
+} from '../matchStoreBranchSegmentReader';
 
 const MATCH_ID = 'match-1';
 const STREAM = { streamType: 'match', streamId: MATCH_ID } as const;
@@ -104,6 +110,34 @@ function segment(
   };
 }
 
+/**
+ * The offset used to be three different statements in three files (an
+ * exported function here, a comment in the mirror, bare SQL in the
+ * store). S5 (task 1.5) gave the other two a name; this row is where
+ * the three names are pinned together, so moving one of them without
+ * the others fails here rather than in production.
+ */
+describe('the named sequence-versus-revision derivations', () => {
+  it('places sequences 0, 1 and N at revision N + 1', () => {
+    expect([0, 1, 7].map(revisionForMatchSequence)).toEqual([1, 2, 8]);
+  });
+
+  it('starts the next sequence at 0 and otherwise reuses the same offset', () => {
+    expect(nextMatchSequenceAfter(null)).toBe(0);
+    expect([0, 1, 7].map((last) => nextMatchSequenceAfter(last))).toEqual(
+      [0, 1, 7].map(revisionForMatchSequence),
+    );
+  });
+
+  it('equates the next sequence with the journal head revision', () => {
+    // Identity by arithmetic, invariant by the live-path guard: the
+    // mirror refuses a rewound stream rather than trusting this.
+    for (const next of [0, 1, 8]) {
+      expect(journalHeadRevisionForNextMatchSequence(next)).toBe(next);
+    }
+  });
+});
+
 describe('matchStoreBranchSegmentReader', () => {
   it('maps match sequence 0 onto branch revision 1', async () => {
     const read = await matchStoreBranchSegmentReader(source()).read(
@@ -114,6 +148,11 @@ describe('matchStoreBranchSegmentReader', () => {
     // The whole contract in one assertion. Sequence 0 is the FIRST event;
     // revision 0 is "nothing yet". Off by one, deliberately, and pinned.
     expect(read.map((event) => event.streamRevision)).toEqual([1, 2, 3, 4]);
+    // ... and through the named derivation, so a reader that stopped
+    // calling it cannot keep this row green on a literal.
+    expect(read.map((event) => event.streamRevision)).toEqual(
+      [0, 1, 2, 3].map(revisionForMatchSequence),
+    );
     expect(read.map((event) => event.eventId)).toEqual([
       'event-0',
       'event-1',

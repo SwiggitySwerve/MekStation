@@ -54,6 +54,7 @@ import { MATCH_BASELINE_BRANCH_ID } from '../matchAuthorityBaseline';
 import {
   _resetProcessShadowStatsForTests,
   _setCombatJournalAuthorityModeForTests,
+  getProcessShadowMismatchCount,
 } from '../matchJournalAuthority';
 import { recoverActiveMatches } from '../MatchRecovery';
 import { foldMatchSession } from '../MatchSessionProjector';
@@ -100,6 +101,18 @@ function twoSidedRoster(): IGameUnit[] {
       piloting: 5,
     },
   ] as IGameUnit[];
+}
+
+/** A legacy-only append, i.e. the shape that never reaches the mirror. */
+function unmirroredEvent(sequence: number): IGameEvent {
+  return {
+    id: `evt-${sequence}`,
+    sequence,
+    type: GameEventType.PhaseChanged,
+    timestamp: AT,
+    phase: GamePhase.Movement,
+    payload: { sequence },
+  } as unknown as IGameEvent;
 }
 
 let dir = '';
@@ -261,5 +274,65 @@ describe('restart recovery rebuilds the live host from the journal head', () => 
     expect(digestReplayCheckpointState(host!.getSessionForTests())).toBe(
       before,
     );
+  });
+
+  it('refuses typed when the journal head and the legacy log disagree, and serves nothing', async () => {
+    _setCombatJournalAuthorityModeForTests('shadow');
+    const events = await commitFirstBatch();
+    // One append straight past the batch boundary: the mirror never
+    // sees it, so the legacy log now runs one revision past the head.
+    // This is S1's disclosed no-catch-up (and RR-1's SQLITE_BUSY drop)
+    // reproduced at the store boundary where it actually happens.
+    await store.appendEvent(MATCH_ID, unmirroredEvent(events.length));
+    coldReopen();
+
+    const result = await recoverActiveMatches(store);
+
+    expect(result.hosts.has(MATCH_ID)).toBe(false);
+    expect(result.failed).toStrictEqual([MATCH_ID]);
+    expect(result.blocked).toStrictEqual([
+      {
+        matchId: MATCH_ID,
+        reason: 'partial-history',
+        evidence: [
+          `journal head '${MATCH_BASELINE_BRANCH_ID}' at revision ${events.length}; match log holds ${events.length + 1} events through revision ${events.length + 1}`,
+        ],
+      },
+    ]);
+  });
+
+  it('stays on the legacy path for a created match, because its opening events never reach the mirror', async () => {
+    // The create path at the store boundary: `ServerMatchHost.create`
+    // persists opening events through `appendEvent`
+    // (`ServerMatchHostEvents`), which is not the batch path S1's mirror
+    // hooks. The first real command batch therefore lands on a journal
+    // that is already behind and mirrors `revision-conflict`, installing
+    // NO head. THE OWED GAP: closing it means seeding the mirror at
+    // creation, which task 1.7 (S6) owns because shadow parity is the
+    // promise it falsifies. S4 is correct without it precisely because
+    // "no head" is the legacy path, byte-identical to before.
+    _setCombatJournalAuthorityModeForTests('shadow');
+    const events = await openingEvents();
+    for (const event of events) {
+      await store.appendEvent(MATCH_ID, event);
+    }
+    const followUp = unmirroredEvent(events.length);
+    const result = await store.appendCommandBatch!(MATCH_ID, {
+      commandId: 'cmd-after-create',
+      actorId: 'p1',
+      expectedRevision: followUp.sequence,
+      events: [followUp],
+      expectedPostStateDigest: null,
+    });
+    expect(result.kind).toBe('committed');
+    // The mirror ran and refused; the tripwire is how S6 finds out.
+    expect(getProcessShadowMismatchCount()).toBe(1);
+    expect(effectiveHeadBranchId()).toBeNull();
+
+    coldReopen();
+    const recovered = await recoverActiveMatches(store);
+
+    expect(recovered.blocked).toStrictEqual([]);
+    expect(recovered.hosts.has(MATCH_ID)).toBe(true);
   });
 });

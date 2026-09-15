@@ -28,6 +28,26 @@ import type { LaunchCoopMissionAdmission } from '../launchCoopMission';
 
 import { launchCoopMission } from '../launchCoopMission';
 
+// Records every composition attempt while still running the REAL
+// composer, so "rejected before composition" can be asserted literally
+// without changing behaviour for the suites above. `jest.spyOn` cannot
+// be used here: the transpiled ESM export is non-configurable.
+const mockComposeCoopEncounter = jest.fn();
+jest.mock('../composeCoopEncounter', () => {
+  const actual = jest.requireActual<typeof import('../composeCoopEncounter')>(
+    '../composeCoopEncounter',
+  );
+  return {
+    ...actual,
+    composeCoopEncounter: (
+      ...args: Parameters<typeof actual.composeCoopEncounter>
+    ) => {
+      mockComposeCoopEncounter(...args);
+      return actual.composeCoopEncounter(...args);
+    },
+  };
+});
+
 function makeForce(id: string, unitIds: string[]): IForce {
   return {
     id,
@@ -309,5 +329,134 @@ describe('launchCoopMission — blocked launch', () => {
         { flag: 'wx' },
       );
     }
+  });
+});
+
+// =============================================================================
+// Snapshot-level authority revalidation
+//
+// mission-contracts "Campaign launch requires an authoritative canonical
+// source" / Scenario "Co-op launch revalidates authority": "WHEN co-op
+// receives a missing, foreign, stale, or revision-mismatched campaign
+// snapshot THEN launch SHALL reject before composition or encounter
+// launch".
+//
+// These four adjectives describe the CAMPAIGN SNAPSHOT, not per-unit
+// source membership, and they are unreachable from the launch page
+// (missionLaunchPage.launch.ts builds `snapshot` and `expected` from the
+// same three in-page values), so they are pinned here at the unit level
+// where the mismatch can actually be constructed.
+//
+// Branch note, stated plainly: admitCampaignLaunch folds a campaignId
+// mismatch and a matchId mismatch into one `snapshot_foreign` denial,
+// and folds "stale" and "revision-mismatched" into one `snapshot_stale`
+// denial. Four adjectives, three denial codes; the rows below name the
+// four INPUTS so a regression in any one is reported by name.
+// =============================================================================
+
+describe('launchCoopMission - rejects a non-authoritative campaign snapshot', () => {
+  beforeEach(() => {
+    mockComposeCoopEncounter.mockClear();
+  });
+
+  /** An admission whose per-unit rows all admit, so only the snapshot can deny. */
+  function admissionWith(
+    snapshot: LaunchCoopMissionAdmission['snapshot'] | undefined,
+    expected: LaunchCoopMissionAdmission['expected'] = LAUNCH_ID,
+  ): LaunchCoopMissionAdmission {
+    return {
+      ...launchAdmission(),
+      expected,
+      snapshot,
+    } as LaunchCoopMissionAdmission;
+  }
+
+  it('rejects a MISSING campaign snapshot before composition or encounter launch', async () => {
+    const { service, launched } = fakeService();
+
+    const result = await launchCoopMission(
+      BASE_ENCOUNTER,
+      hostDeploy(),
+      service,
+      admissionWith(undefined),
+    );
+
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    expect(result.error).toBe(
+      'Canonical catalog is unavailable; retry launch after it reloads.',
+    );
+    // The refusal came from the guard, not from composition.
+    expect(result.compositionRejection).toBeUndefined();
+    expect(mockComposeCoopEncounter).not.toHaveBeenCalled();
+    expect(launched).toEqual([]);
+  });
+
+  it('rejects a FOREIGN campaign snapshot (campaignId mismatch) before composition or encounter launch', async () => {
+    const { service, launched } = fakeService();
+
+    const result = await launchCoopMission(
+      BASE_ENCOUNTER,
+      hostDeploy(),
+      service,
+      admissionWith({
+        ...LAUNCH_ID,
+        campaignId: 'campaign-someone-else',
+        catalog: READY_CATALOG,
+      }),
+    );
+
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    expect(result.error).toBe(
+      'Campaign catalog snapshot does not match this campaign.',
+    );
+    expect(result.compositionRejection).toBeUndefined();
+    expect(mockComposeCoopEncounter).not.toHaveBeenCalled();
+    expect(launched).toEqual([]);
+  });
+
+  it('rejects a FOREIGN campaign snapshot (matchId mismatch) before composition or encounter launch', async () => {
+    const { service, launched } = fakeService();
+
+    const result = await launchCoopMission(
+      BASE_ENCOUNTER,
+      hostDeploy(),
+      service,
+      admissionWith({
+        ...LAUNCH_ID,
+        matchId: 'match-someone-else',
+        catalog: READY_CATALOG,
+      }),
+    );
+
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    expect(result.error).toBe(
+      'Campaign catalog snapshot does not match this campaign.',
+    );
+    expect(result.compositionRejection).toBeUndefined();
+    expect(mockComposeCoopEncounter).not.toHaveBeenCalled();
+    expect(launched).toEqual([]);
+  });
+
+  it('rejects a STALE / REVISION-MISMATCHED campaign snapshot before composition or encounter launch', async () => {
+    const { service, launched } = fakeService();
+
+    const result = await launchCoopMission(
+      BASE_ENCOUNTER,
+      hostDeploy(),
+      service,
+      admissionWith({ ...LAUNCH_ID, revision: 0, catalog: READY_CATALOG }),
+    );
+
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    expect(result.error).toBe(
+      'Campaign catalog snapshot revision is stale or mismatched.',
+    );
+    expect(result.compositionRejection).toBeUndefined();
+    expect(mockComposeCoopEncounter).not.toHaveBeenCalled();
+    expect(launched).toEqual([]);
   });
 });
