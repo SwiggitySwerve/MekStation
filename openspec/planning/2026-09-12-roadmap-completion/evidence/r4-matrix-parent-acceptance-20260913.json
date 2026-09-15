@@ -1,0 +1,84 @@
+{
+  "at": "2026-09-13T09:53:47.037Z",
+  "status": "local-verified-source-inventory",
+  "node": "R4.matrix",
+  "taskKey": "adopt-combat-journal-cutover-and-gm-rewind#0.1@9",
+  "counts": {
+    "real": 34,
+    "strict-expected-failure": 6,
+    "missing": 40
+  },
+  "sourceReceipt": "evidence/r4-matrix-local-verification-20260913.json",
+  "notepad": {
+    "path": "openspec/changes/adopt-combat-journal-cutover-and-gm-rewind/notepad.md",
+    "sha256": "4ae60bcd1f7044b6cfe03d95255815f359e86b7f3ec470c24a6a2ed560785d30"
+  },
+  "independentReview": {
+    "path": ".sisyphus/roadmap-completion-20260912/r4-matrix-final-review-terra-20260913/review.json",
+    "sha256": "9f9b800e3ebf1fdf8453d794a57e4b58713faee1f20ca74c76008299b9f87396",
+    "verdict": "APPROVE for task0.1 source inventory only"
+  },
+  "gates": [
+    {
+      "name": "roadmap-accounting",
+      "exit": 0,
+      "startedAt": "2026-09-13T09:49:42.021Z",
+      "endedAt": "2026-09-13T09:49:42.106Z"
+    },
+    {
+      "name": "openspec-all-strict",
+      "exit": 0,
+      "startedAt": "2026-09-13T09:49:42.107Z",
+      "endedAt": "2026-09-13T09:49:43.253Z"
+    },
+    {
+      "name": "purpose",
+      "exit": 0,
+      "startedAt": "2026-09-13T09:49:43.253Z",
+      "endedAt": "2026-09-13T09:49:44.989Z"
+    },
+    {
+      "name": "terminology",
+      "exit": 0,
+      "startedAt": "2026-09-13T09:49:44.990Z",
+      "endedAt": "2026-09-13T09:51:50.567Z"
+    },
+    {
+      "name": "openspec-ci",
+      "exit": 0,
+      "startedAt": "2026-09-13T09:51:50.567Z",
+      "endedAt": "2026-09-13T09:51:51.454Z"
+    },
+    {
+      "name": "diff-check",
+      "exit": 0,
+      "startedAt": "2026-09-13T09:51:51.455Z",
+      "endedAt": "2026-09-13T09:51:51.493Z"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/r4-matrix-parent-20260913/doc-gates.json",
+      "sha256": "4279950897503ec376ce7222665f7dc3648f76a17676ba85976118bda7e30d53"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/r4-matrix-parent-20260913/affinity.json",
+      "sha256": "3cfe0054251c9f3ce86937b958b00f29738fb28ffc2a30b95015eb56a5967697"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/r4-matrix-final-review-terra-20260913/review.json",
+      "sha256": "9f9b800e3ebf1fdf8453d794a57e4b58713faee1f20ca74c76008299b9f87396"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/r9-remaining-publication-review-luna-20260913/review.json",
+      "sha256": "1236a0faf0388d8a9e3ccfd1bf36f1aa53109ac0e0732cc92de4b7f55c86cfa9"
+    }
+  ],
+  "toolTimeoutQualification": "The Git Bash wait timed out at60seconds; exact owned driverPIDs remained alive. No restart was issued. The original driver subsequently completed all6gates with exit0; durable logs were reopened.",
+  "limits": [
+    "No product/browser/runtime or new main proof; original task checkbox remains unchecked.",
+    "Local source mapping is not integrated roadmap acceptance.",
+    "Publication, protectedchecks and exact-main documentation acceptance remain pending.",
+    "All40finiteinventorydispositions and13packages376originaltasks preserved."
+  ]
+}
