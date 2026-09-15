@@ -8,10 +8,11 @@
  * CURRENT in-memory envelope, skipped with a typed diagnostic when the
  * browser would reject the body outright.
  *
- * The store action is exercised DIRECTLY here, without a DOM event, which
- * is why it is an action rather than a listener body. The `pagehide` and
- * `visibilitychange` listeners that call it are pinned separately, in
- * `campaignPersistenceWiring.test.ts`.
+ * The first block exercises the store action DIRECTLY, without a DOM
+ * event - which is why it is an action rather than a listener body. The
+ * second drives the same behaviour through the real `pagehide` and
+ * `visibilitychange` events the wiring module registers, so the listener
+ * install/uninstall pair is covered by the same file.
  *
  * @spec openspec/changes/design-campaign-authority-and-sync/specs/campaign-authority/spec.md
  *   - Requirement: Pending client mutations are flushed before the document is discarded
@@ -26,6 +27,10 @@ import type { ICampaign } from '@/types/campaign/Campaign';
 import { buildPopulatedCampaign } from '@/lib/campaign/persistence/__tests__/campaignFixture';
 import { createHostCoopSession } from '@/types/campaign/CoopSession';
 
+import {
+  installCampaignPersistenceWiring,
+  uninstallCampaignPersistenceWiring,
+} from '../campaignPersistenceWiring';
 import { registerCampaignStoreAccessor } from '../campaignStoreAccessor';
 import {
   AUTO_SAVE_DEBOUNCE_MS,
@@ -295,5 +300,81 @@ describe('pending client mutations are flushed before the document is discarded'
     expect(state.metadata.version).toBe(0);
     expect(state.saveState).not.toBe('saved');
     expect(switchCampaignSpy).not.toHaveBeenCalled();
+  });
+});
+
+// --- DOM discard triggers ---
+
+function setVisibility(state: 'hidden' | 'visible'): void {
+  Object.defineProperty(document, 'visibilityState', {
+    configurable: true,
+    get: () => state,
+  });
+}
+
+function firePagehide(): void {
+  window.dispatchEvent(new Event('pagehide'));
+}
+
+function fireVisibilityChange(state: 'hidden' | 'visible'): void {
+  setVisibility(state);
+  document.dispatchEvent(new Event('visibilitychange'));
+}
+
+describe('the document-discard events that drive the flush', () => {
+  let campaign: ICampaign;
+
+  beforeEach(() => {
+    jest.useFakeTimers();
+    captured.length = 0;
+    setVisibility('visible');
+    __resetCampaignPersistenceCoordinationForTests();
+    useCampaignPersistenceStore.getState().reset();
+    stubFetch();
+    campaign = { ...buildPopulatedCampaign(), name: 'Pending Rename' };
+    seedDirtyCampaign(campaign);
+    installCampaignPersistenceWiring();
+  });
+
+  afterEach(() => {
+    uninstallCampaignPersistenceWiring();
+    useCampaignPersistenceStore.getState().reset();
+    jest.useRealTimers();
+    jest.restoreAllMocks();
+  });
+
+  it('flushes on pagehide', () => {
+    firePagehide();
+
+    expect(captured).toHaveLength(1);
+    expect(captured[0].init.keepalive).toBe(true);
+  });
+
+  it('flushes on a hidden visibility transition', () => {
+    fireVisibilityChange('hidden');
+
+    expect(captured).toHaveLength(1);
+  });
+
+  it('does not flush when the document becomes visible', () => {
+    fireVisibilityChange('visible');
+
+    expect(captured).toHaveLength(0);
+  });
+
+  it('issues at most one write across a pagehide immediately followed by a hidden transition', () => {
+    firePagehide();
+    fireVisibilityChange('hidden');
+
+    expect(captured).toHaveLength(1);
+  });
+
+  it('stops flushing once the wiring is uninstalled', () => {
+    uninstallCampaignPersistenceWiring();
+
+    firePagehide();
+    fireVisibilityChange('hidden');
+
+    expect(captured).toHaveLength(0);
   });
 });
