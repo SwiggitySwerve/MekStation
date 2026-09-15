@@ -25,7 +25,6 @@ import {
   resolveBranchPath,
 } from '@/lib/events/journal/EventHistoryBranchResolver';
 import { readEffectiveStreamHead } from '@/lib/events/journal/EventHistoryEffectiveStreamHead';
-import { ROOT_EVENT_BRANCH_ID } from '@/lib/events/journal/EventJournalContract';
 import { SQLiteEventHistoryBranchStore } from '@/lib/events/journal/SQLiteEventHistoryBranchStore';
 import { SQLiteEventHistoryCorrectionLeaseStore } from '@/lib/events/journal/SQLiteEventHistoryCorrectionLeaseStore';
 import { matchStreamRef } from '@/lib/multiplayer/server/history/GmCombatRewindPreview';
@@ -33,6 +32,7 @@ import {
   matchStoreBranchSegmentReader,
   type IMatchEventSource,
 } from '@/lib/multiplayer/server/history/matchStoreBranchSegmentReader';
+import { isLivePathBranchId } from '@/lib/multiplayer/server/matchAuthorityBaseline';
 import { foldMatchSession } from '@/lib/multiplayer/server/MatchSessionProjector';
 import { getSQLiteService } from '@/services/persistence/SQLiteService';
 import { readServerCustomCombatDefinition } from '@/services/units/serverCustomCombatDefinition';
@@ -113,10 +113,20 @@ export interface IFoldedActivatedRewind {
 }
 
 /**
- * Fold the live effective candidate when a rewind has left root.
- * Null means "no rewind" — boot keeps the checkpoint door.
+ * Fold the live effective candidate when a rewind has left the live
+ * path. Null means "no rewind" — boot keeps the checkpoint door.
  * branchId is the folded head so recovery can mark the host as
  * serving that path (live intents name no branch).
+ *
+ * THE LIVE-PATH TEST IS THE SET, NOT `root` ALONE. S1's mirror installs
+ * a mirrored stream's genesis head on the BASELINE branch (`main`), so
+ * a healthy, never-rewound match now reaches this function with a
+ * non-root head. Folding it asks `matchStoreBranchSegmentReader` for a
+ * branch that is not `root`, which it refuses by name (`unknown-branch`)
+ * because the match store holds exactly one line of history — and that
+ * refusal used to fail the whole match at boot. There is no activated
+ * path on a live-path head and no tail to supersede; S4's ordinary
+ * recovery path owns those streams.
  */
 export async function tryFoldActivatedRewindBranch(
   store: IMatchStore,
@@ -128,7 +138,7 @@ export async function tryFoldActivatedRewindBranch(
   const branches = new SQLiteEventHistoryBranchStore(db);
   const stream = matchStreamRef(matchId);
   const head = branches.readEffectiveHead(stream);
-  if (head === null || head.branchId === ROOT_EVENT_BRANCH_ID) {
+  if (head === null || isLivePathBranchId(head.branchId)) {
     return null;
   }
   const streamHead = readEffectiveStreamHead(db, branches, stream);
