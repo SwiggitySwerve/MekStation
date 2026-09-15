@@ -38,6 +38,11 @@ Clients (browser stores and packaged-app local stores for replicas' UI) MAY cach
 - **WHEN** a client with a cached projection at revision N connects to an instance whose stream head is revision M > N
 - **THEN** the client SHALL apply events N+1..M (or refetch the projection) before rendering authoritative state
 
+#### Scenario: A guest replica never lets an equal-revision cached copy stand over a server refresh
+- **WHEN** a client whose co-op session mode is `guest` loads a campaign whose cached projection names the same instance at the same revision as the record the source returns
+- **THEN** the cached copy SHALL be replaced whole by the source's record, because a replica is mutated by host broadcast rather than by its own writes and so equal revision does not imply equal content
+- **AND** the local co-op session role SHALL be preserved across the replacement
+
 ### Requirement: Existing browser-local campaigns are adopted, not stranded
 The implementation SHALL provide a one-time adoption path that imports a browser-persisted campaign into the server store as the source instance, preserving its observable state, and thereafter demotes the browser copy to cache.
 
