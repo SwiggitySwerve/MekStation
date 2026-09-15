@@ -52,7 +52,6 @@ import {
 } from './EventHistoryBranchContract';
 
 const BRANCH_COLUMNS = `stream_type AS streamType, stream_id AS streamId, branch_id AS branchId, parent_branch_id AS parentBranchId, ancestor_depth AS ancestorDepth, base_revision AS baseRevision, base_event_id AS baseEventId, base_digest AS baseDigest, status, created_by AS createdBy, reason, created_at AS createdAt`;
-const HEAD_COLUMNS = `stream_type AS streamType, stream_id AS streamId, branch_id AS branchId, effective_generation AS effectiveGeneration, installed_at AS installedAt`;
 const SUPERSESSION_COLUMNS = `stream_type AS streamType, stream_id AS streamId, superseded_branch_id AS supersededBranchId, replacement_branch_id AS replacementBranchId, prior_generation AS priorGeneration, replacement_generation AS replacementGeneration, reason, recorded_at AS recordedAt`;
 
 export class SQLiteEventHistoryBranchStore {
@@ -86,7 +85,8 @@ export class SQLiteEventHistoryBranchStore {
       .get(stream.streamType, stream.streamId, branchId) as
       | IEventHistoryBranch
       | undefined;
-    return row ?? null;
+    if (row === undefined) return null;
+    return this.assertPersistedBranchIntegrity(row);
   }
 
   /** The same read, refusing rather than returning null. */
@@ -107,13 +107,14 @@ export class SQLiteEventHistoryBranchStore {
   public listBranches(
     stream: IEventHistoryStreamRef,
   ): readonly IEventHistoryBranch[] {
-    return this.db
+    const rows = this.db
       .prepare(
         `SELECT ${BRANCH_COLUMNS} FROM event_history_branches
          WHERE stream_type = ? AND stream_id = ?
          ORDER BY ancestor_depth, branch_id`,
       )
       .all(stream.streamType, stream.streamId) as IEventHistoryBranch[];
+    return rows.map((branch) => this.assertPersistedBranchIntegrity(branch));
   }
 
   public readEffectiveHead(
@@ -121,13 +122,42 @@ export class SQLiteEventHistoryBranchStore {
   ): IEventHistoryEffectiveHead | null {
     const row = this.db
       .prepare(
-        `SELECT ${HEAD_COLUMNS} FROM event_history_effective_heads
-         WHERE stream_type = ? AND stream_id = ?`,
+        `SELECT head.stream_type AS streamType, head.stream_id AS streamId,
+                head.branch_id AS branchId,
+                head.effective_generation AS effectiveGeneration,
+                head.installed_at AS installedAt,
+                branch.parent_branch_id AS parentBranchId,
+                branch.ancestor_depth AS ancestorDepth,
+                branch.base_revision AS baseRevision,
+                branch.base_event_id AS baseEventId,
+                branch.base_digest AS baseDigest,
+                branch.status, branch.created_by AS createdBy,
+                branch.reason, branch.created_at AS createdAt
+           FROM event_history_effective_heads AS head
+           LEFT JOIN event_history_branches AS branch
+             ON branch.stream_type = head.stream_type
+            AND branch.stream_id = head.stream_id
+            AND branch.branch_id = head.branch_id
+          WHERE head.stream_type = ? AND head.stream_id = ?`,
       )
       .get(stream.streamType, stream.streamId) as
-      | IEventHistoryEffectiveHead
+      | (IEventHistoryEffectiveHead & IEventHistoryBranch)
       | undefined;
-    return row ?? null;
+    if (row === undefined) return null;
+    if (row.status !== 'effective') {
+      throw new EventHistoryBranchError(
+        'branch-integrity',
+        `Effective head '${row.branchId}' for stream ${stream.streamType}/${stream.streamId} does not name an effective branch`,
+      );
+    }
+    this.assertPersistedBranchIntegrity(row);
+    return {
+      streamType: row.streamType,
+      streamId: row.streamId,
+      branchId: row.branchId,
+      effectiveGeneration: row.effectiveGeneration,
+      installedAt: row.installedAt,
+    };
   }
 
   /**
@@ -233,6 +263,22 @@ export class SQLiteEventHistoryBranchStore {
       .prepare(`SELECT COUNT(*) AS streams FROM event_history_effective_heads`)
       .get() as { readonly streams: number };
     return row.streams;
+  }
+
+  /** Refuse persisted corruption instead of returning a false authority. */
+  private assertPersistedBranchIntegrity(
+    branch: IEventHistoryBranch,
+  ): IEventHistoryBranch {
+    try {
+      assertValidBranchRecord(branch);
+    } catch (error) {
+      if (!(error instanceof EventHistoryBranchError)) throw error;
+      throw new EventHistoryBranchError(
+        'branch-integrity',
+        `Persisted branch '${branch.branchId}' in stream ${branch.streamType}/${branch.streamId} is malformed: ${error.message}`,
+      );
+    }
+    return branch;
   }
 
   /**

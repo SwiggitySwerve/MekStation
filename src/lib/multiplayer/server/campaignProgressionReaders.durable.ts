@@ -12,10 +12,12 @@
 
 import type Database from 'better-sqlite3';
 
-import type { IEventHistoryStreamRef } from '@/lib/events/journal/EventHistoryBranchContract';
-
 import { campaignStreamRef } from '@/lib/campaign/authority/campaignLaunchHead';
 import { SQLiteEventHistoryArtifactManifestStore } from '@/lib/events/journal/EventHistoryArtifactManifest';
+import {
+  EventHistoryBranchError,
+  type IEventHistoryStreamRef,
+} from '@/lib/events/journal/EventHistoryBranchContract';
 import { SQLiteEventHistoryBranchStore } from '@/lib/events/journal/SQLiteEventHistoryBranchStore';
 import { getSQLiteService } from '@/services/persistence/SQLiteService';
 
@@ -42,8 +44,8 @@ export function createDurableCampaignProgressionReaders(): ICampaignProgressionR
       if (db === null) return null;
       try {
         return new SQLiteEventHistoryBranchStore(db).readEffectiveHead(stream);
-      } catch {
-        return null;
+      } catch (error) {
+        return nullUnlessBranchIntegrity(error);
       }
     },
     readBranch: (campaignId, branchId) => {
@@ -55,14 +57,24 @@ export function createDurableCampaignProgressionReaders(): ICampaignProgressionR
           stream,
           branchId,
         );
-      } catch {
-        return null;
+      } catch (error) {
+        return nullUnlessBranchIntegrity(error);
       }
     },
     readSagaForCampaign: (campaignId) => readDurableSagaForCampaign(campaignId),
     readManifestVerdict: (campaignId, branchId) =>
       readDurableManifestVerdict(campaignStreamRef(campaignId), branchId),
   };
+}
+
+function nullUnlessBranchIntegrity(error: unknown): null {
+  if (
+    error instanceof EventHistoryBranchError &&
+    error.code === 'branch-integrity'
+  ) {
+    throw error;
+  }
+  return null;
 }
 
 function journalDbOrNull(): Database.Database | null {
