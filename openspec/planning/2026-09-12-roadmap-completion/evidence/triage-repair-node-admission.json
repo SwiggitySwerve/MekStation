@@ -1,0 +1,15 @@
+{
+  "capturedAt": "2026-09-12T14:09:50.991Z",
+  "reason": "Confirmed finite inventory concerns need explicit repair owners; original13-package376-task admission is unchanged.",
+  "addedNodes": [
+    "R9.equipment-loader",
+    "R9.validation-order"
+  ],
+  "nodeCount": 70,
+  "backup": {
+    "path": ".sisyphus/roadmap-completion-20260912/roadmap-before-two-inventory-repairs.json",
+    "sha256": "b07792cf0816c054bda1a741fea8e6284e8f0edc05cbd9c9f4db8e29109bac39"
+  },
+  "afterSha256": "e516eab9c697c77318a9029890c2eb796db553c8ee7b65ddda296b4609d9de89",
+  "sourceCommentPublicationOwner": "R1.references"
+}

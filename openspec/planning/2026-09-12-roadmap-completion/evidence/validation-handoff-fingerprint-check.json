@@ -1,0 +1,14 @@
+{
+  "recordedAt": "2026-09-12T16:24:58.689Z",
+  "receipt": "evidence/triage-validation-order-repair.json",
+  "matched": 21,
+  "mismatches": [
+    {
+      "row": "tab-management",
+      "path": "src/stores/useTabManagerStore.ts",
+      "recordedSha256": "f159a03bffd54e8e746440769bd867957c11bda9b4719671402d763993136e9",
+      "actualSha256": "f159a03bffd54e8e746440769bd867957c11bda9b4719671402d7639931369e9"
+    }
+  ],
+  "acceptance": "Not independently accepted. Verify receipt raw logs and review repair before isolated full gates; stale tab reference does not invalidate or prove unrelated validation-order source."
+}

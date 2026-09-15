@@ -1,0 +1,62 @@
+{
+  "at": "2026-09-12T11:22:23.232Z",
+  "scope": "In-memory JSON mutations only; no actual roadmap dispositions changed",
+  "results": [
+    {
+      "mode": "baseline",
+      "expectedExit": 0,
+      "actualExit": 0,
+      "passed": true,
+      "stdout": "ROADMAP VALIDATION PASSED: 68 nodes, 13 packages, 376 tasks, 40 triage rows",
+      "stderr": ""
+    },
+    {
+      "mode": "missing-camp",
+      "expectedExit": 1,
+      "actualExit": 1,
+      "passed": true,
+      "stdout": "",
+      "stderr": "ROADMAP VALIDATION FAILED (1 issue)\n- R2.camp-0 has invalid CAMP GitHub review gate"
+    },
+    {
+      "mode": "unknown-state",
+      "expectedExit": 1,
+      "actualExit": 1,
+      "passed": true,
+      "stdout": "",
+      "stderr": "ROADMAP VALIDATION FAILED (1 issue)\n- R0.plan has unknown state: DELIVERY.md"
+    },
+    {
+      "mode": "duplicate-task",
+      "expectedExit": 1,
+      "actualExit": 1,
+      "passed": true,
+      "stdout": "",
+      "stderr": "ROADMAP VALIDATION FAILED (8 issues)\n- duplicate roadmap task key: add-authoritative-history-branches#0.1@7\n- add-authoritative-history-branches#0.1@7.sourceId differs from snapshot\n- add-authoritative-history-branches#0.1@7.sourceLine differs from snapshot\n- add-authoritative-history-branches#0.1@7.text differs from snapshot\n- add-authoritative-history-branches#0.1@7.sourceTaskKey differs from snapshot\n- missing task occurrence: add-authoritative-history-branches#0.2@10\n- task assignment mismatch for add-authoritative-history-branches#0.1@7 at R0.contracts\n- task assignment mismatch for add-authoritative-history-branches#0.2@10 at R0.contracts"
+    },
+    {
+      "mode": "cycle",
+      "expectedExit": 1,
+      "actualExit": 1,
+      "passed": true,
+      "stdout": "",
+      "stderr": "ROADMAP VALIDATION FAILED (1 issue)\n- dependency cycle: R0.plan -> R0.plan"
+    },
+    {
+      "mode": "false-complete",
+      "expectedExit": 1,
+      "actualExit": 1,
+      "passed": true,
+      "stdout": "",
+      "stderr": "ROADMAP VALIDATION FAILED (1 issue)\n- R0.contracts terminal receipt lacks valid 40-hex main SHA"
+    },
+    {
+      "mode": "triage-progress",
+      "expectedExit": 0,
+      "actualExit": 0,
+      "passed": true,
+      "stdout": "ROADMAP VALIDATION PASSED: 68 nodes, 13 packages, 376 tasks, 40 triage rows",
+      "stderr": ""
+    }
+  ]
+}

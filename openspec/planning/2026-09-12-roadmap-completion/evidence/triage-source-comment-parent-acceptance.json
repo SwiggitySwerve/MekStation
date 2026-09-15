@@ -1,0 +1,30 @@
+{
+  "capturedAt": "2026-09-12T14:05:05.694Z",
+  "scope": "Parent independently reversed all three comment edits to their before fingerprints; executable source is unchanged.",
+  "receipt": {
+    "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/triage-source-comment-cleanup.json",
+    "sha256": "033871b792c779ab34a9e8f3f4d2c88bff78388d732380e105929e0ea7228883"
+  },
+  "files": [
+    {
+      "path": "src/utils/gameplay/pilotingSkillRolls/types.ts",
+      "beforeSha256": "01cb3533d1c9cb46e9fabe04852f9bfd95061489fa328b49359d6840c9088bc6",
+      "afterSha256": "754bfbd679763144963effd97cf7833c68ab5a243c18d1d384f2005b79b9e8fd",
+      "reverseMatches": true
+    },
+    {
+      "path": "src/types/campaign/UnitCombatState.ts",
+      "beforeSha256": "aac63f2c13032941fe20d16cd6ab767914b2c3d53f331b2a42de631ae3b780ab",
+      "afterSha256": "d347985ceaf08e0e3908dc42fc48bb63ed714eadcf52d598c5eb584852cbce8f",
+      "reverseMatches": true
+    },
+    {
+      "path": "src/lib/campaign/hooks/useCampaignDashboardSummary.ts",
+      "beforeSha256": "f321dd2465694e7bbfcc1e26c4529699f36a43094983de10f9177e01a7ff4e74",
+      "afterSha256": "f07cbff05ce9e732c659e51f8e5a7ef696b6554388aac5291f51fa20e10d191b",
+      "reverseMatches": true
+    }
+  ],
+  "publicationNode": "R1.references",
+  "runtimeProof": "No rerun needed for these exact comment-only edits. Prior test receipts remain historical with their original fingerprints."
+}

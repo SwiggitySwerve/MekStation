@@ -1,0 +1,20 @@
+{
+  "capturedAt": "2026-09-12T14:01:28.950Z",
+  "scope": "Parent acceptance of unit-comparison, user-identity and vault-sync finite reference concerns.",
+  "receipt": {
+    "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/triage-vault-references.json",
+    "sha256": "ac761487b83c983ae4ee67026500c29cfdbd771a8cca4b1e61485e47bd349ac4"
+  },
+  "verifiedFileHashes": 27,
+  "comparisonReverseReconstruction": {
+    "beforeSha256": "66961e636fa6111fa92ebc10e2eb191202e7f90caca6d249f66e1dea481b9f0d",
+    "afterSha256": "a57e0a86135ee6c5dcd2604d5f7d679ddd9d4a145edc39ad0fdb8cf44768306e",
+    "exact": true
+  },
+  "limits": [
+    "No new runtime test or browser run was performed.",
+    "The comparison UI and success/data contracts exist; a dedicated comparison API does not.",
+    "Vault campaign separation, version/provenance, travel and opportunity obligations remain with their admitted roadmap nodes.",
+    "Reference disposition does not close whole capabilities or main publication."
+  ]
+}

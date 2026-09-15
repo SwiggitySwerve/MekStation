@@ -1,0 +1,356 @@
+{
+  "schemaVersion": 1,
+  "evidenceId": "triage-gameplay-references",
+  "capturedAt": "2026-09-12",
+  "worktree": "E:/Projects/MekStation",
+  "scope": "Bounded source/spec reference inventory and authorized documentation corrections for firing-arc-calculation, hull-down-position, and piloting-skill-rolls. No product source, tasks, roadmap, or Git files were changed. No focused gameplay tests, builds, servers, or runtime commands were run.",
+  "inputInventory": {
+    "path": "docs/audits/2026-09-12-customizer-spec-reconciliation/inventory.json",
+    "sha256": "FE9D25951EE79C34C74F0B8F64AEE51DBD94265B30A057AE735CA83301376822",
+    "initialConcerns": {
+      "firing-arc-calculation": "missing gameplay/firingArc ref; unrelated to customizer",
+      "hull-down-position": "Cited toHit.ts and CombatInterfaces.ts ranges are invalid against current file sizes; confirm symbols and replace brittle ranges.",
+      "piloting-skill-rolls": "missing phaseManagement symbol ref; unrelated to customizer"
+    }
+  },
+  "rows": [
+    {
+      "id": "firing-arc-calculation",
+      "originalConcern": "The initial inventory said the canonical firing-arc spec lacked a gameplay/firingArc source reference.",
+      "currentStatus": "resolved_reference",
+      "proposedFiniteDisposition": {
+        "state": "dispositioned",
+        "disposition": "existing",
+        "text": "Close the original missing-wrapper-reference concern and the bounded producer-path concern. The canonical spec now traces the weapon attack phase barrel through weaponAttackShotContext.ts, weaponAttackShots.ts, and weaponAttackHitResolution.ts while retaining determineArc, calculateFiringArc, and hitLocation references. This is documentation-only and does not claim complete firing-arc or attack-event runtime coverage."
+      },
+      "specEvidence": {
+        "path": "openspec/specs/firing-arc-calculation/spec.md",
+        "sha256": "C91BFBC8A745AA68891EBFBD53815A228BAFA1B429816C617B02A26BB712EC8A",
+        "lines": [
+          {
+            "lines": "7",
+            "mapping": "The implementation note names src/utils/gameplay/firingArcs.ts."
+          },
+          {
+            "lines": "256-266",
+            "mapping": "The attack-event requirement now traces the weapon attack phase barrel through weaponAttackShotContext.ts, weaponAttackShots.ts, and weaponAttackHitResolution.ts; it names determineArc, calculateFiringArc, and hit-location resolution."
+          }
+        ],
+        "beforeSha256": "D173F32DC3F35082A5F32393A5E489FD98D2DD83A80410DAF4E85A01CB076A5C"
+      },
+      "resolvedReferenceMap": [
+        {
+          "path": "src/utils/gameplay/firingArcs.ts",
+          "sha256": "66D3E8C474693F3EF0A63F661CCDEF3606F0080BB486D827945AD4186E324AA1",
+          "lines": "65-103, 125-185, 199-245",
+          "mapping": "determineArc performs the hex-angle/facing classification; getArcHexes and the directional helpers enumerate arc geometry; canFireFromArc and targetsRearArmor provide weapon validation and rear-armor behavior."
+        },
+        {
+          "path": "src/utils/gameplay/firingArc.ts",
+          "sha256": "9658F2D79C8DDDFDB932D4FB44E92CF6721423B42D1B91F6EF700EEB18FCE4BC",
+          "lines": "40-55",
+          "mapping": "calculateFiringArc is the hit-location-oriented wrapper and delegates to determineArc, applying optional torso twist."
+        },
+        {
+          "path": "src/utils/gameplay/hitLocation.ts",
+          "sha256": "F9D4FC644EE2DFCAA8270D91FB6EFF111DBA1AA065C7B682DEB7244462F2E51B",
+          "lines": "105-118, 147-163",
+          "mapping": "getHitLocationTable selects the arc table and determineHitLocation/determineHitLocationFromRoll consume the arc."
+        },
+        {
+          "path": "src/simulation/runner/phases/weaponAttack.ts",
+          "sha256": "CD6F8D7FB40126E7D89F7618B0503C96966BCFBFD7E82A0E35467475AE2A919D",
+          "lines": "1",
+          "mapping": "This path exists only as a one-line barrel exporting runAttackPhase from weaponAttackRunner.ts; the spec's unqualified weaponAttack.ts wording is therefore not a precise event-producer path."
+        },
+        {
+          "path": "src/simulation/runner/phases/weaponAttackShotContext.ts",
+          "sha256": "76F54C6846183A9B6BB0E60F9392866C77652E89B104E55410ACEEF415A76876",
+          "lines": "226-271",
+          "mapping": "The live shot context computes firingArc with calculateFiringArc and returns it with the declared attack context."
+        },
+        {
+          "path": "src/simulation/runner/phases/weaponAttackShots.ts",
+          "sha256": "527461308D9875BA098AB2450142DDD32B59753420AE8C8AA046854A90616570",
+          "lines": "136-155",
+          "mapping": "The AttackDeclared payload receives firingArc at the actual event-emission seam."
+        },
+        {
+          "path": "src/simulation/runner/phases/weaponAttackHitResolution.ts",
+          "sha256": "BBFDB3B126B1AB00057699782CA05BE032B2B388ADE7C7EBF294EE4A6EE1FCAA",
+          "lines": "134-146",
+          "mapping": "The resolution path converts the event arc and passes hull-down options into determineHitLocation."
+        }
+      ],
+      "focusedTests": [
+        {
+          "path": "src/utils/gameplay/__tests__/firingArcs.test.ts",
+          "sha256": "DB90F9CD02D0CBF3A9273A271D1557AA5AE33CA6F6A15F46F64BE0A2982E6330",
+          "lines": "47-86, 217-340, 349-425",
+          "mapping": "Covers determineArc angles/boundaries, getArcHexes, directional helpers, weapon-arc validation, rear-armor classification, and integration examples."
+        },
+        {
+          "path": "src/utils/gameplay/__tests__/firingArc.test.ts",
+          "sha256": "41CA05438E8920DB24B93386AEC1602B7E0F0473428F357FBDFF7AD447369192",
+          "lines": "13-120",
+          "mapping": "Covers calculateFiringArc for all four arcs, multiple facings, same-hex behavior, and front-boundary cases."
+        },
+        {
+          "path": "src/simulation/runner/__tests__/weaponAttackEvents.test.ts",
+          "sha256": "1AA0FA9D4BEA1B48E5CED86C8F56CF09079A5CBB5CC7305F849D60F3E7FC4949",
+          "lines": "114-132",
+          "mapping": "Asserts an AttackDeclared payload contains firingArc."
+        }
+      ],
+      "smallestRelevantExactTestCommand": "npm.cmd test -- --watchAll=false --runTestsByPath src/utils/gameplay/__tests__/firingArcs.test.ts src/utils/gameplay/__tests__/firingArc.test.ts src/simulation/runner/__tests__/weaponAttackEvents.test.ts --runInBand",
+      "remainingMissingProof": [
+        "No focused gameplay test command was run under the assigned no-tests constraint, so the evidence remains static and hash-anchored.",
+        "The focused tests cover firing-arc helpers and an AttackDeclared payload, but do not prove every AttackResolved event and every weapon family uses the computed arc."
+      ]
+    },
+    {
+      "id": "hull-down-position",
+      "originalConcern": "The initial inventory cited toHit.ts and CombatInterfaces.ts line ranges that cannot contain the intended symbols in the current checkout.",
+      "currentStatus": "resolved_reference",
+      "proposedFiniteDisposition": {
+        "state": "dispositioned",
+        "disposition": "existing",
+        "text": "Close the stale-line-range concern. The current canonical spec points to the live environmentModifiers.ts, hitLocation.ts, and CombatContextTypes.ts symbols. The old files remain compatibility barrels, but their one-line and 13-line sizes explain why the former ranges were invalid. This closes reference inventory only and does not claim complete hull-down behavior."
+      },
+      "specEvidence": {
+        "path": "openspec/specs/hull-down-position/spec.md",
+        "sha256": "2D1A1356028EFC404F95BCDCC1A51D847CE1541B30DD1F8537E06E2F561987AE",
+        "lines": [
+          {
+            "lines": "326-334",
+            "mapping": "Implementation notes name calculateHullDownModifier in environmentModifiers.ts and determineHitLocationFromRoll in hitLocation.ts."
+          },
+          {
+            "lines": "397-410",
+            "mapping": "The references section names the current partial-cover helper, hit-location entry points, and ITargetState in CombatContextTypes.ts."
+          }
+        ]
+      },
+      "stalePathChecks": [
+        {
+          "path": "src/utils/gameplay/toHit.ts",
+          "exists": true,
+          "lineCount": 1,
+          "sha256": "89E7320CEDFB049DB93A57AA446494C6BBD63A45A0CA238A1D0A99A2FFDE557C",
+          "mapping": "Compatibility barrel: export * from './toHit/index'; it cannot support the former deep line-range citation."
+        },
+        {
+          "path": "src/types/gameplay/CombatInterfaces.ts",
+          "exists": true,
+          "lineCount": 13,
+          "sha256": "E56474F21FE827610A6BC32A386CDBE88107C0E2F595674DAD334F67597571B2",
+          "mapping": "Compatibility barrel re-exporting CombatContextTypes; it cannot support the former deep line-range citation."
+        }
+      ],
+      "resolvedReferenceMap": [
+        {
+          "path": "src/utils/gameplay/toHit/environmentModifiers.ts",
+          "sha256": "47CA090489BCE10D3C98EE2E934876826469D087408EA361F4B830F3EB5862CD",
+          "lines": "35-64",
+          "mapping": "calculatePartialCoverModifier and calculateHullDownModifier are real exports; hull-down returns a +2 terrain modifier and replaces partial cover at this helper boundary."
+        },
+        {
+          "path": "src/utils/gameplay/hitLocation.ts",
+          "sha256": "F9D4FC644EE2DFCAA8270D91FB6EFF111DBA1AA065C7B682DEB7244462F2E51B",
+          "lines": "169-205",
+          "mapping": "IHitLocationOptions carries hullDown; determineHitLocationFromRoll and buildHitLocationResult redirect front-arc leg hits to center_torso."
+        },
+        {
+          "path": "src/types/gameplay/CombatContextTypes.ts",
+          "sha256": "3B802834305B3905AC0AB973868FC4BD99915E3D6F07C1AB58A507AFA342D977",
+          "lines": "183-196",
+          "mapping": "ITargetState is the live target combat-state interface and declares optional hullDown tracking."
+        }
+      ],
+      "focusedTests": [
+        {
+          "path": "src/utils/gameplay/__tests__/toHit.16.calculatehulldownmodifier.test.ts",
+          "sha256": "160415389368FB9F640426D60B4FA4D07B7A5BDBB3E3F2C87CA4B85250EB864E",
+          "lines": "60-100, 122-147",
+          "mapping": "Covers null/non-null behavior, +2 value, terrain source, partial-cover override, and calculateToHit integration."
+        },
+        {
+          "path": "src/simulation/runner/phases/__tests__/weaponAttackPartialCover.test.ts",
+          "sha256": "127A6836F7122E60B6ECCB9804E9EAB6CA4BAE39ADC569AD04A0DFA3DC509912",
+          "lines": "146-164",
+          "mapping": "Covers a front-arc hull-down leg hit redirecting to center_torso while leaving the leg armor unchanged."
+        },
+        {
+          "path": "src/simulation/runner/__tests__/weaponAttackToHitModifiers.behavior.12.test.ts",
+          "sha256": "4FAF4AFF13D1B4F42FADE39835149FC751A10809706F1FA9267459A2B7A7B0B5",
+          "lines": "112-134",
+          "mapping": "Covers hull-down state threading into AttackDeclared, +2, terrain source, partial-cover suppression, and integrated catalog status."
+        }
+      ],
+      "smallestRelevantExactTestCommand": "npm.cmd test -- --watchAll=false --runTestsByPath src/utils/gameplay/__tests__/toHit.16.calculatehulldownmodifier.test.ts src/simulation/runner/phases/__tests__/weaponAttackPartialCover.test.ts --runInBand",
+      "remainingMissingProof": [
+        "No focused test command was run in this inventory, so the evidence is static and hash-anchored.",
+        "The cited tests cover the repaired helper seams and one runner redirect; they do not prove every hull-down entry/exit, terrain validity, cluster-hit, or vehicle boundary."
+      ]
+    },
+    {
+      "id": "piloting-skill-rolls",
+      "originalConcern": "The initial inventory said the piloting spec lacked a phaseManagement symbol reference.",
+      "currentStatus": "resolved_reference_and_scope",
+      "proposedFiniteDisposition": {
+        "state": "dispositioned",
+        "disposition": "existing-with-count-correction",
+        "text": "Close the original missing-phaseManagement concern and the stale PSR reference details. The canonical spec now names applyTurnStarted and TurnStarted dispatch, points the enum to PSRTriggerCodes.ts with the compatibility re-export noted, names phaseChecks.ts, and documents all 34 accepted codes. The prior 27 label was historical PR E wording and its table actually contained 28 rows; the six additional live codes were already represented by the current enum, exhaustive test, and runtime support catalog. This is documentation-only and does not claim complete PSR capability completion."
+      },
+      "specEvidence": {
+        "path": "openspec/specs/piloting-skill-rolls/spec.md",
+        "sha256": "788DF39BE79BC2833681927A844B77860B2ACEF9E2F666F60CD92694E543A8C6",
+        "lines": [
+          {
+            "lines": "413-432",
+            "mapping": "The regression requirement now names applyTurnStarted in gameState/phaseManagement.ts, the TurnStarted handler in eventDispatch.ts, and explicitly distinguishes applyPhaseChanged."
+          },
+          {
+            "lines": "567-612",
+            "mapping": "The reason-code requirement now points to PSRTriggerCodes.ts with the types.ts compatibility re-export, lists all 34 codes, and names the real combat, damage, environment, system, and phaseChecks.ts factory modules."
+          },
+          {
+            "lines": "640-671",
+            "mapping": "The category-helper requirement retains getPSRReasonCategory in types.ts and now describes the exhaustive 34-code partition."
+          }
+        ],
+        "beforeSha256": "C52B8ACC35583C570A2755A9B736544029462656B2565AAB78667E78CF420AB9"
+      },
+      "resolvedReferenceMap": [
+        {
+          "path": "src/utils/gameplay/gameState/phaseManagement.ts",
+          "sha256": "595ED42BE0857E2598C104F4B33BBF41045A85AB6B3A8D75ADB0C44E244A5D18",
+          "lines": "52-85",
+          "mapping": "applyTurnStarted clears pendingPSRs at the turn boundary while preserving applyPhaseChanged's within-turn queue behavior."
+        },
+        {
+          "path": "src/utils/gameplay/gameState/eventDispatch.ts",
+          "sha256": "0AA76B7924390E44BE15933A615FC06800A321CDC705B3C874F4B0F82984CA46",
+          "lines": "193-202",
+          "mapping": "EVENT_HANDLERS maps GameEventType.TurnStarted to applyTurnStarted and PhaseChanged separately to applyPhaseChanged."
+        },
+        {
+          "path": "src/utils/gameplay/pilotingSkillRolls/types.ts",
+          "sha256": "01CB3533D1C9CB46E9FABE04852F9BFD95061489FA328B49359D6840C9088BC6",
+          "lines": "8-17, 71-125",
+          "mapping": "types.ts re-exports PSRTrigger for compatibility and defines the total PSRReasonCategory mapping plus getPSRReasonCategory."
+        },
+        {
+          "path": "src/types/gameplay/PSRTriggerCodes.ts",
+          "sha256": "F99493B4CAB9020C38124801272B46BC39DC8AA0B7DBA1B50A28F0A4BE38BBBF",
+          "lines": "20-47",
+          "mapping": "The canonical PSRTrigger enum is actually defined here; the current spec's statement that it is defined in pilotingSkillRolls/types.ts is imprecise."
+        },
+        {
+          "path": "src/utils/gameplay/pilotingSkillRolls/combatFactories.ts",
+          "sha256": "98DFC466C3CD72D64D5867CFAB248477F7B572C08D824437E011DA47776D6E6B",
+          "lines": "18-131",
+          "mapping": "Real combat PSR factories named by the spec's factory family."
+        },
+        {
+          "path": "src/utils/gameplay/pilotingSkillRolls/damageFactories.ts",
+          "sha256": "1467F888769D429655F8D794C38670B130CF2F05715A6E55990BE21B9B6669D6",
+          "lines": "13-113",
+          "mapping": "Real damage PSR factories named by the spec's factory family."
+        },
+        {
+          "path": "src/utils/gameplay/pilotingSkillRolls/environmentFactories.ts",
+          "sha256": "338628BB70510B3F957DD2C8EF20EEE45EE5201A6C000E4F3AC62F0F30AF5060",
+          "lines": "54-249",
+          "mapping": "Real environment PSR factories named by the spec's factory family."
+        },
+        {
+          "path": "src/utils/gameplay/pilotingSkillRolls/systemFactories.ts",
+          "sha256": "1E2BB89F95A21ACDC7DEFCE5E9A7BD152C9CE694AF1A2EA9EB22355E7DC3F02D",
+          "lines": "60-181",
+          "mapping": "Real system PSR factories named by the spec's factory family."
+        },
+        {
+          "path": "src/utils/gameplay/pilotingSkillRolls/phaseChecks.ts",
+          "sha256": "2C4FCCE497601BBE294D61DF01F085B50590642EAE1DCEDC58D0D25CC34CD1FC",
+          "lines": "19-64",
+          "mapping": "The live phase-check module exports checkPhaseDamagePSR, createStandUpAttempt, and isGyroDestroyed. The spec's phaseChecksFactories.ts filename does not exist."
+        }
+      ],
+      "focusedTests": [
+        {
+          "path": "src/utils/gameplay/gameState/__tests__/phaseManagement.test.ts",
+          "sha256": "00EF16010398D4D5F67433AEFA175FC746BD00CFFBCE0493C8B2CC8018F5FB6C",
+          "lines": "124-196, 200-282",
+          "mapping": "Covers applyTurnStarted clearing pendingPSRs and applyPhaseChanged preserving them within a turn."
+        },
+        {
+          "path": "src/utils/gameplay/pilotingSkillRolls/__tests__/getPSRReasonCategory.test.ts",
+          "sha256": "FC0038F2DCC0787B1145AF7035448712BF03567C35018E058221F944D67D21DA",
+          "lines": "11-140",
+          "mapping": "Covers the helper's four buckets and exhaustive 34-code partition, which also exposes the current source/spec 27-versus-34 wording mismatch as a separate reference issue."
+        },
+        {
+          "path": "src/utils/gameplay/pilotingSkillRolls/__tests__/factoryReasonCode.test.ts",
+          "sha256": "ABFD336ED08018A64C946A2A5E35D40B342BCBE209A92D96470936B9D136769B",
+          "lines": "60-286",
+          "mapping": "Covers reasonCode population across combat, damage, environment, system, and phase-check factory families."
+        }
+      ],
+      "smallestRelevantExactTestCommand": "npm.cmd test -- --watchAll=false --runTestsByPath src/utils/gameplay/gameState/__tests__/phaseManagement.test.ts --runInBand",
+      "remainingMissingProof": [
+        "No focused gameplay test command was run under the assigned no-tests constraint, so the evidence remains static and hash-anchored.",
+        "This finite reference correction does not prove every PSR trigger path, queue lifecycle, or gameplay rule beyond the cited source and focused-test evidence."
+      ]
+    }
+  ],
+  "limits": [
+    "This record closes or classifies only the three original reference concerns and the directly encountered stale reference details; it does not review whole gameplay capabilities.",
+    "Source line mappings are anchored to the listed SHA-256 fingerprints and may move after later edits.",
+    "Focused test commands are recorded as the smallest relevant runnable commands and were intentionally not executed under the assigned no-tests constraint."
+  ],
+  "documentationCorrections": {
+    "capturedAt": "2026-09-12",
+    "evidenceBeforeSha256": "E83AB68EC6408701AAE8916CA1EEBAB1B5327B219F87EB0AC7BFC5EDF35EA32F",
+    "decision27vs34": "The historical PR E wording said 27 canonical codes, while its table already had 28 rows. The current PSRTrigger enum has exactly 34 members, getPSRReasonCategory.test.ts asserts all 34, and current runtime support includes the six previously omitted codes: domino_effect, swamp_bog_down, airmek_landing, controlled_sideslip, flanking_and_turning, and out_of_control. Because these six are already accepted and represented by live code, the canonical spec was synchronized to 34 rather than preserving the stale 27 count or expanding runtime scope.",
+    "edits": [
+      {
+        "path": "openspec/specs/firing-arc-calculation/spec.md",
+        "beforeSha256": "D173F32DC3F35082A5F32393A5E489FD98D2DD83A80410DAF4E85A01CB076A5C",
+        "afterSha256": "C91BFBC8A745AA68891EBFBD53815A228BAFA1B429816C617B02A26BB712EC8A",
+        "lines": "258",
+        "exactEdits": [
+          "Replaced generic weaponAttack.ts event-producer wording with the live weapon attack phase barrel and its weaponAttackShotContext.ts, weaponAttackShots.ts, and weaponAttackHitResolution.ts delegations."
+        ]
+      },
+      {
+        "path": "openspec/specs/piloting-skill-rolls/spec.md",
+        "beforeSha256": "C52B8ACC35583C570A2755A9B736544029462656B2565AAB78667E78CF420AB9",
+        "afterSha256": "788DF39BE79BC2833681927A844B77860B2ACEF9E2F666F60CD92694E543A8C6",
+        "lines": "569,573,588-605,612,650,666-671",
+        "exactEdits": [
+          "Pointed the canonical PSRTrigger enum to src/types/gameplay/PSRTriggerCodes.ts and retained the types.ts compatibility re-export note.",
+          "Replaced the nonexistent phaseChecksFactories.ts path with the real phaseChecks.ts module and the four existing factory modules.",
+          "Changed the stale 27-code prose and exhaustive scenarios to 34 and added the six already accepted live enum rows."
+        ]
+      }
+    ],
+    "validation": [
+      {
+        "command": "npx.cmd openspec validate firing-arc-calculation --strict",
+        "exitCode": 0,
+        "result": "Specification firing-arc-calculation is valid."
+      },
+      {
+        "command": "npx.cmd openspec validate piloting-skill-rolls --strict",
+        "exitCode": 0,
+        "result": "Specification piloting-skill-rolls is valid."
+      },
+      {
+        "command": "git diff --check -- openspec/specs/firing-arc-calculation/spec.md openspec/specs/piloting-skill-rolls/spec.md",
+        "exitCode": 0,
+        "result": "No whitespace errors reported."
+      }
+    ]
+  }
+}

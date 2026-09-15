@@ -1,0 +1,8 @@
+{
+  "at": "2026-09-12T11:21:58.817Z",
+  "mode": "missing-camp",
+  "expectedExit": 1,
+  "actualExit": 1,
+  "stdout": "",
+  "stderr": "ROADMAP VALIDATION FAILED (1 issue)\n- R2.camp-0 has invalid CAMP GitHub review gate\n"
+}
