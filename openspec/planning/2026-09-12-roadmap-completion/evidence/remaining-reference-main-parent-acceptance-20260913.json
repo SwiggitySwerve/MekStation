@@ -1,0 +1,248 @@
+{
+  "at": "2026-09-13T04:18:16.284Z",
+  "status": "main-verified",
+  "pr": 1661,
+  "head": "2067e5fb4578b1a8093481881fc64e21489e9138",
+  "main": "f7e926057bf0981ed34eda843de74e35d0792aa3",
+  "files": [
+    {
+      "path": "openspec/specs/bv-validation-tooling/spec.md",
+      "sha256": "5819cd29936fd9d2fadaf8f5d0769743fb89aa5a877a56d65683133d375dc76a",
+      "gitOid": "1cbe2bc1799f4d922f2676e0aba295b776400322"
+    },
+    {
+      "path": "openspec/specs/campaign-personnel-architecture/spec.md",
+      "sha256": "df31cdfe64a141ac5dde82ace4de44756513874cfa67ff57d8476f5eeeff15ad",
+      "gitOid": "748f393622f489c63b5ce7ea7ea8f8f6047e7ef1"
+    },
+    {
+      "path": "openspec/specs/release-build-system/spec.md",
+      "sha256": "75ef2de11f3baeeace8ec9651e3551810c2f53fc5d4ff1c70c2be29cd5da06f1",
+      "gitOid": "b15e2753f07b1dd86b38b583949c4a0e51ca3490"
+    },
+    {
+      "path": "openspec/specs/user-identity/spec.md",
+      "sha256": "faed932c4afaec49969b2879b80577a36180246e42522f721223a9500e99ed28",
+      "gitOid": "737e254e4aba206f4e68e184f5167cef54e16dc9"
+    },
+    {
+      "path": "openspec/specs/vault-sync/spec.md",
+      "sha256": "838ad698a97ddfaaa0ccbaf0df02eb77d382f7207f9ebe42487378a071a9592e",
+      "gitOid": "7c6a6d373166b2bb53c2748c7d3f5e71a833bf94"
+    },
+    {
+      "path": "scripts/validate-bv.ts",
+      "sha256": "b04956555e9949e48f5c5faadcb1168ee9ff348aa81cd4d5761b05588e05cb99",
+      "gitOid": "e2ee26318a5a17cfb571496d36f53aa0841666b5"
+    },
+    {
+      "path": "scripts/data-migration/megamek-bv-cache.json",
+      "sha256": "f6bd7ae2c1cbdfe340f93cfbd1b44b6c19ecf3c04adf11776a3003f6d763c32b",
+      "gitOid": "644568522b2bb6b649b0dbd9b5cfb2e19789aeff"
+    },
+    {
+      "path": "scripts/tsconfig.json",
+      "sha256": "cef7f7d81309b4e930c859b74df46adb4965f13e3843e9848d89ffe12af20ff4",
+      "gitOid": "1c32b9827a0dce652004d736b9773895d709054e"
+    },
+    {
+      "path": "src/services/encounter/bvCatalogPrewarmer.ts",
+      "sha256": "6ed37ea6aaa7954b2c603b1e3dd542dcd949668c7dff4ad2559cc9c45de3c589",
+      "gitOid": "37acb7787e4aca3f8313600b3c19ed4838815050"
+    },
+    {
+      "path": "src/utils/construction/battleValueCalculations.ts",
+      "sha256": "11dc0c7e8fd85e1d969a11473ce6b82a815144ec199a83cb374d10c43361ed44",
+      "gitOid": "3622158e7ee2bc38ae4de6ecd497b88ae5f8ae49"
+    },
+    {
+      "path": "src/utils/construction/bvAdapter.ts",
+      "sha256": "d7ed903b1571d3fe281aa590607581c448933c4b9a1d6e4a9e84c4bf15a5b19a",
+      "gitOid": "dabdd5735673c169d9c50d5f9f7ad3e6d4289217"
+    },
+    {
+      "path": "src/types/campaign/Person.ts",
+      "sha256": "5baf0d48f0df69fd08de7c164b888d09630479c5536d63ac4e0f41d15ede8bbb",
+      "gitOid": "1b1c8a64d1c35517dc97fa044a0f4372d879d1ae"
+    },
+    {
+      "path": "src/types/campaign/Campaign.ts",
+      "sha256": "b9b457ec6318b55270e2db8dc405bd3110313767136f7c92ce054a29ff8135c8",
+      "gitOid": "644ef1e6720591cf5eff6025923f69945d7092f6"
+    },
+    {
+      "path": "src/types/campaign/CampaignRosterEntry.ts",
+      "sha256": "81d8a842313e9b082bb608d5defa4a0a4368f0b2c58246253c431262633aae31",
+      "gitOid": "393c8d05c5cab9d057c069eb807c90a744866df6"
+    },
+    {
+      "path": "src/lib/finances/salaryService.ts",
+      "sha256": "6e69ba8240d5343346dc760d99e86d397a1410292e849c978d74efa334c1ccc3",
+      "gitOid": "a08356813a0d933d23c644822a9279ec0ebeb350"
+    },
+    {
+      "path": "src/lib/campaign/processors/vocationalTrainingProcessor.ts",
+      "sha256": "11517fd9c52832807f9a09f89d6ee8fd0287945d8330a1e89232a03f0212e48a",
+      "gitOid": "7b3e182d8c14e7d573e542a18c49334ccf3ce17f"
+    },
+    {
+      "path": "src/lib/campaign/utils/pilotLookup.ts",
+      "sha256": "49da4f1d5a45a60a0eac6d05119f83643f8db7554d9464b2fc5478d4d069d5e3",
+      "gitOid": "922ffcfbca06d3369a77e12d382ef008d666bdbb"
+    },
+    {
+      "path": "src/services/assets/MmDataAssetService.ts",
+      "sha256": "35ed4cf6b2c410e7f41b4eb4c16a06066551c890cfe41f9d64e95f9cbd835e6e",
+      "gitOid": "01dd2ee2e92eefbda282a52f44c6cb4a9dd9b9e7"
+    },
+    {
+      "path": "src/types/vault/VaultCoreTypes.ts",
+      "sha256": "42e19a2fde94f0ac3014a52812fb7a7e67cf75db5b101b7a9a313d96b57bdc68",
+      "gitOid": "2e58ea75dc0d00e47c1392507f22b6bb2df9f37a"
+    },
+    {
+      "path": "src/types/vault/VaultInterfaces.ts",
+      "sha256": "dd1abb87456ff38402588523788ccf1ee318f9c13a8b0cb50f5578d86f886261",
+      "gitOid": "138980ef6ff1ec3ed53e2660f305ee6e744400c5"
+    },
+    {
+      "path": "src/services/vault/__tests__/IdentityService.test.ts",
+      "sha256": "abe982edfb24e0b190d54f5ab8e0f883a1fe7105cadaa0ff5ea7b1ce23c87aeb",
+      "gitOid": "ca5e2ce47ad012e6cd248795f84a03fa7f2f72dd"
+    },
+    {
+      "path": "src/types/vault/VaultImportExportTypes.ts",
+      "sha256": "2bcce7bd876156ca442b9fb8a9f8b9df81c657713050f34dff21501a4e6f4140",
+      "gitOid": "12e5b3287062f2ea05bb028e17a3166a2ce9bfc8"
+    },
+    {
+      "path": "src/hooks/useVaultExport.ts",
+      "sha256": "fc6c9f4e02808555d499a35add2d81b0e675210a72032d72dd2fed562c1f6b80",
+      "gitOid": "5b49d2b3c0d0c4e39bce384c76e5cbf0c4823596"
+    },
+    {
+      "path": "src/hooks/useVaultImport.ts",
+      "sha256": "8f9617be78e42a7f63a29615d25a168ea5616e97b19bd5adfebec103d3829f7c",
+      "gitOid": "8e3d5317d032f65d81af874e3d9136dd1a62519c"
+    }
+  ],
+  "commands": [
+    {
+      "name": "openspec-all-strict",
+      "exe": "C:/nvm4w/nodejs/node.exe",
+      "args": [
+        "C:/Users/wroll/AppData/Roaming/npm/node_modules/@fission-ai/openspec/bin/openspec.js",
+        "validate",
+        "--all",
+        "--strict",
+        "--no-interactive"
+      ],
+      "startedAt": "2026-09-13T04:17:03.878Z",
+      "endedAt": "2026-09-13T04:17:05.708Z",
+      "exit": 0,
+      "signal": null,
+      "stdout": {
+        "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/remaining-reference-main-gates-20260913/openspec-all-strict.stdout.log",
+        "sha256": "2754dbee9c7f3c73dafb72bec4284c7de4a886d9f795955954f8d77c5768a12d"
+      },
+      "stderr": {
+        "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/remaining-reference-main-gates-20260913/openspec-all-strict.stderr.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "spec:purpose:validate:strict",
+      "exe": "C:/nvm4w/nodejs/node.exe",
+      "args": [
+        "C:/nvm4w/nodejs/node_modules/npm/bin/npm-cli.js",
+        "run",
+        "spec:purpose:validate:strict"
+      ],
+      "startedAt": "2026-09-13T04:17:05.717Z",
+      "endedAt": "2026-09-13T04:17:08.387Z",
+      "exit": 0,
+      "signal": null,
+      "stdout": {
+        "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/remaining-reference-main-gates-20260913/spec-purpose-validate-strict.stdout.log",
+        "sha256": "10f069c6d752c20dbd9bf6e738b05d76c0e35d7e606d091512a92783ebe1583f"
+      },
+      "stderr": {
+        "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/remaining-reference-main-gates-20260913/spec-purpose-validate-strict.stderr.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "terminology:validate:strict",
+      "exe": "C:/nvm4w/nodejs/node.exe",
+      "args": [
+        "C:/nvm4w/nodejs/node_modules/npm/bin/npm-cli.js",
+        "run",
+        "terminology:validate:strict"
+      ],
+      "startedAt": "2026-09-13T04:17:08.427Z",
+      "endedAt": "2026-09-13T04:17:24.863Z",
+      "exit": 0,
+      "signal": null,
+      "stdout": {
+        "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/remaining-reference-main-gates-20260913/terminology-validate-strict.stdout.log",
+        "sha256": "d15011da7521e031b3bea845889b040bc9e0f3dee6f2e974e2fd7ba0697781a0"
+      },
+      "stderr": {
+        "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/remaining-reference-main-gates-20260913/terminology-validate-strict.stderr.log",
+        "sha256": "f83d52142474d83e9cbe0b475d2c100d6448695849569b16763be1aaf8006de6"
+      }
+    },
+    {
+      "name": "qc:openspec-ci:validate",
+      "exe": "C:/nvm4w/nodejs/node.exe",
+      "args": [
+        "C:/nvm4w/nodejs/node_modules/npm/bin/npm-cli.js",
+        "run",
+        "qc:openspec-ci:validate"
+      ],
+      "startedAt": "2026-09-13T04:17:24.871Z",
+      "endedAt": "2026-09-13T04:17:25.249Z",
+      "exit": 0,
+      "signal": null,
+      "stdout": {
+        "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/remaining-reference-main-gates-20260913/qc-openspec-ci-validate.stdout.log",
+        "sha256": "f01feb11318234aab4764fe76151b78c06905527212a8f8723626fcf616b71d6"
+      },
+      "stderr": {
+        "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/remaining-reference-main-gates-20260913/qc-openspec-ci-validate.stderr.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "diff-check",
+      "exe": "git",
+      "args": [
+        "diff",
+        "--check",
+        "--",
+        "openspec/specs/bv-validation-tooling/spec.md",
+        "openspec/specs/campaign-personnel-architecture/spec.md",
+        "openspec/specs/release-build-system/spec.md",
+        "openspec/specs/user-identity/spec.md",
+        "openspec/specs/vault-sync/spec.md"
+      ],
+      "startedAt": "2026-09-13T04:17:25.254Z",
+      "endedAt": "2026-09-13T04:17:25.308Z",
+      "exit": 0,
+      "signal": null,
+      "stdout": {
+        "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/remaining-reference-main-gates-20260913/diff-check.stdout.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stderr": {
+        "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/remaining-reference-main-gates-20260913/diff-check.stderr.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    }
+  ],
+  "limits": [
+    "Five documentation gates on exact merged commit; no new product/browser/runtime proof",
+    "Raw ignored logs remain local evidence"
+  ],
+  "cleanup": "pending"
+}

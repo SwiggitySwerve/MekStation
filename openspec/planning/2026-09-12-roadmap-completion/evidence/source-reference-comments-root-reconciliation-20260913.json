@@ -1,0 +1,32 @@
+{
+  "at": "2026-09-13T06:44:11.750Z",
+  "state": "accepted",
+  "main": "44b94adbbb333a9d4965e057b34290e19fc0e781",
+  "files": [
+    {
+      "path": "src/components/customizer/tabs/CustomizerTabs.tsx",
+      "sha256": "d55189f7c34de84bfb2682fec40611aa6cd4a8b62fdf3594d87954a1cc7dcc5c",
+      "gitSha256": "d55189f7c34de84bfb2682fec40611aa6cd4a8b62fdf3594d87954a1cc7dcc5c"
+    },
+    {
+      "path": "src/utils/gameplay/pilotingSkillRolls/types.ts",
+      "sha256": "4b4225f3f55532537a2df67d621db2b58eea5cda864dcf9d80e2865401505a2b",
+      "gitSha256": "4b4225f3f55532537a2df67d621db2b58eea5cda864dcf9d80e2865401505a2b"
+    },
+    {
+      "path": "src/types/campaign/UnitCombatState.ts",
+      "sha256": "d347985ceaf08e0e3908dc42fc48bb63ed714eadcf52d598c5eb584852cbce8f",
+      "gitSha256": "d347985ceaf08e0e3908dc42fc48bb63ed714eadcf52d598c5eb584852cbce8f"
+    },
+    {
+      "path": "src/lib/campaign/hooks/useCampaignDashboardSummary.ts",
+      "sha256": "b4fb4d9e77892ed3803bdf104f7b80362c6b190da872fd681e241f6d8f2f1a63",
+      "gitSha256": "b4fb4d9e77892ed3803bdf104f7b80362c6b190da872fd681e241f6d8f2f1a63"
+    }
+  ],
+  "otherDirtyFilesPreserved": 587,
+  "indexBefore": "a65b683940b6449651a074132f39d8b8da156ef5620af6aa1b62eb7c8698b953",
+  "indexAfter": "a65b683940b6449651a074132f39d8b8da156ef5620af6aa1b62eb7c8698b953",
+  "rootHeadPreserved": "be7f85b867aa3e8576e5e3d27e309276203bc24b",
+  "rawEvidence": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\source-reference-comments-root-reconciliation-20260913"
+}

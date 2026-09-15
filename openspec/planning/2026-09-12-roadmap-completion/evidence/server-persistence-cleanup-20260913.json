@@ -1,0 +1,25 @@
+{
+  "capturedAt": "2026-09-13T01:44:31.466Z",
+  "wt": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/server-persistence-specs",
+  "main": "106bfbc76886a6f19f1ac00143cfa1708f33f19f",
+  "head": "0a273dc8a4f56c7f689cc9595766dfdbdc81c65e",
+  "branch": "codex/roadmap-server-persistence-specs-20260913",
+  "indexHash": "a65b683940b6449651a074132f39d8b8da156ef5620af6aa1b62eb7c8698b953",
+  "ignored": "!! .husky/_/\n!! node_modules/",
+  "dependencyJunctionTarget": "E:/Projects/MekStation/node_modules",
+  "sourceBytesExportedBeforeRemoval": true,
+  "manifestSha256": "ce5c873ab9ae351401b68fda38a8022b820cbdb8b58155192fd982e4d008b0b4",
+  "fileCount": 34,
+  "status": "owned-cleanup-verified",
+  "removed": true,
+  "rootIndexUnchanged": true,
+  "manifest": {
+    "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/server-persistence-cleanup-20260913/manifest.json",
+    "sha256": "ce5c873ab9ae351401b68fda38a8022b820cbdb8b58155192fd982e4d008b0b4"
+  },
+  "commands": {
+    "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/server-persistence-cleanup-20260913/commands.json",
+    "sha256": "37daeeb17b8c6547dd7f25f5c8637a6523da9ea148eed51be74e9ddee659e84e"
+  },
+  "qualification": "Non-force Git worktree removal, exact compare-guarded local and tracking ref deletion. Existing shared node_modules target preserved; all original raw evidence outside worktree retained."
+}

@@ -1,0 +1,60 @@
+{
+  "at": "2026-09-13T03:39:25.081Z",
+  "admission": {
+    "at": "2026-09-13T03:33:26.772Z",
+    "wt": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/remaining-reference-specs",
+    "branch": "codex/roadmap-remaining-reference-specs-20260913",
+    "base": "57098180595b62d68cb57b4224b724cfb82a9244",
+    "docs": [
+      "openspec/specs/bv-validation-tooling/spec.md",
+      "openspec/specs/campaign-personnel-architecture/spec.md",
+      "openspec/specs/release-build-system/spec.md",
+      "openspec/specs/user-identity/spec.md",
+      "openspec/specs/vault-sync/spec.md"
+    ],
+    "before": [
+      {
+        "path": "openspec/specs/bv-validation-tooling/spec.md",
+        "sha256": "07c82adf18d0f7082fbc2018cfe04f87e86708047efe229b588be473ac99d8ac",
+        "backup": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/remaining-reference-specs-20260913/before/openspec/specs/bv-validation-tooling/spec.md"
+      },
+      {
+        "path": "openspec/specs/campaign-personnel-architecture/spec.md",
+        "sha256": "0e86bfc6fdf0089b340e0db49b396b9001936ada3ede08acac054fc5c2e8ec55",
+        "backup": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/remaining-reference-specs-20260913/before/openspec/specs/campaign-personnel-architecture/spec.md"
+      },
+      {
+        "path": "openspec/specs/release-build-system/spec.md",
+        "sha256": "841d5da7ed35f33cc5034984bd33103cddfed0d2008f54702e7e5efeca1dc75b",
+        "backup": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/remaining-reference-specs-20260913/before/openspec/specs/release-build-system/spec.md"
+      },
+      {
+        "path": "openspec/specs/user-identity/spec.md",
+        "sha256": "1f96a710250a2c37dd93bd5d769e73b37988b5944ce8f6bd04fff3dec62a2d61",
+        "backup": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/remaining-reference-specs-20260913/before/openspec/specs/user-identity/spec.md"
+      },
+      {
+        "path": "openspec/specs/vault-sync/spec.md",
+        "sha256": "7d47f56e0886a44ca611f0f6d2b2432d8f10744275880224ee7c55998dd65b69",
+        "backup": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/remaining-reference-specs-20260913/before/openspec/specs/vault-sync/spec.md"
+      }
+    ],
+    "numstat": "4\t4\topenspec/specs/bv-validation-tooling/spec.md\n15\t13\topenspec/specs/campaign-personnel-architecture/spec.md\n1\t1\topenspec/specs/release-build-system/spec.md\n1\t1\topenspec/specs/user-identity/spec.md\n17\t17\topenspec/specs/vault-sync/spec.md\n",
+    "maxFiles": 5,
+    "maxChangedLines": 300
+  },
+  "worker": {
+    "startedAt": "2026-09-13T03:33:26.931Z",
+    "driverPid": 50896,
+    "pid": 52056,
+    "model": "cursor-grok-4.6-high",
+    "effort": "high",
+    "workspace": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/remaining-reference-specs",
+    "verifiedModel": "Cursor Grok 4.6 High",
+    "sessionId": "625e1c2a-1690-4589-8333-ad38789e6117"
+  },
+  "limits": [
+    "Five canonical reference drafts only; no product implementation or runtime proof",
+    "Parent independent acceptance and bounded Git delivery pending"
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "at": "2026-09-13T10:52:35.461Z",
+  "status": "automatic-approval-review-rejected-before-execution",
+  "node": "R6.deferrals",
+  "commit": "20bb868fc5f6e9c1db7602b255eac6c67a50eb7d",
+  "branch": "codex/roadmap-r6-deferrals-20260913",
+  "repository": "https://github.com/SwiggitySwerve/MekStation",
+  "payload": {
+    "path": ".sisyphus/roadmap-completion-20260912/r6-deferral-delivery-20260913/publication-payload.json",
+    "sha256": "791c17bed75eb05164f55530cf03c3affae0e06fe8387783a5782dbdbdc9e454"
+  },
+  "body": {
+    "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\r6-deferral-delivery-20260913\\pr-body-reviewed.md",
+    "sha256": "14249f4fa289275b3546edfb5b3eb77fe228e9be37dbbdb23f849b4277786900"
+  },
+  "reason": "The command executes the embedded git push and GitHub PR creation, externally publishing the reviewed receipt to a destination whose exact payload approval is explicitly still pending; the roadmap prohibits retrying publication without that approval.",
+  "execution": {
+    "publicationResultExists": false,
+    "push": false,
+    "prCreation": false
+  },
+  "approval": "New exact-payload question required; six earlier publication approvals do not cover this newly prepared receipt.",
+  "next": "Obtain explicit approval for this commit, branch, GitHub destination and reviewed PR body before any retry. Do not use another route."
+}

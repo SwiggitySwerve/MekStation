@@ -1,0 +1,223 @@
+{
+  "batch": "20260913-02",
+  "generatedAt": "2026-09-15T22:52:31.000Z",
+  "sourceBase": "1f67f814e3f04e8a38488de70ecd8396f9269ca6",
+  "files": [
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/r6-deferral-publication-block-20260913.json",
+      "bytes": 1387,
+      "sha256": "1537de37ffc3acff1f1117fe850b485bef89e15f83dee63ae8bf4a3292246a61",
+      "sourceSha256": "1537de37ffc3acff1f1117fe850b485bef89e15f83dee63ae8bf4a3292246a61"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/r6-deferral-source-parent-disposition-20260913.json",
+      "bytes": 4736,
+      "sha256": "9ff0b7a3a2e0394dc2a376ac5db55efc34c39903094bf318163e2f963dc265ae",
+      "sourceSha256": "9ff0b7a3a2e0394dc2a376ac5db55efc34c39903094bf318163e2f963dc265ae"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/r9-remaining-publication-refresh-20260913.json",
+      "bytes": 28323,
+      "sha256": "3852150d666c6c407195b1cecab3ff8d5535aaa51ab6f63b3da531f36537c622",
+      "sourceSha256": "3852150d666c6c407195b1cecab3ff8d5535aaa51ab6f63b3da531f36537c622"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/r9-seven-publication-notes-refresh-20260913.json",
+      "bytes": 6694,
+      "sha256": "4392029bd01d7209b908cb493a00270a41e9d8b9d6875dd19b2b610a6d78b8f9",
+      "sourceSha256": "4392029bd01d7209b908cb493a00270a41e9d8b9d6875dd19b2b610a6d78b8f9"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/record-sheet-cleanup-parent-acceptance-20260913.json",
+      "bytes": 8902,
+      "sha256": "e61ec7fae5f77d447fe5aa4ce5367d47aa96551c03a383395f12c44e56f3885d",
+      "sourceSha256": "e61ec7fae5f77d447fe5aa4ce5367d47aa96551c03a383395f12c44e56f3885d"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/record-sheet-prefix1-main-parent-acceptance-20260913.json",
+      "bytes": 7187,
+      "sha256": "0a831791ec714c3fef6b98e5976e7d039bc555cb9ad6a001565b3dbe1f5bab3e",
+      "sourceSha256": "0a831791ec714c3fef6b98e5976e7d039bc555cb9ad6a001565b3dbe1f5bab3e"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/record-sheet-prefix1-parent-acceptance-20260913.json",
+      "bytes": 7717,
+      "sha256": "54c3047ac4223c07dd162b57f06c99a188ff472b586a8a91ebef559163d1d8a2",
+      "sourceSha256": "54c3047ac4223c07dd162b57f06c99a188ff472b586a8a91ebef559163d1d8a2"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/record-sheet-prefix2-main-parent-acceptance-20260913.json",
+      "bytes": 7187,
+      "sha256": "65c7113d290e2ff26bb550876f3b15f517c22299f02ddbafc40fab17b12341df",
+      "sourceSha256": "65c7113d290e2ff26bb550876f3b15f517c22299f02ddbafc40fab17b12341df"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/record-sheet-prefix2-parent-acceptance-20260913.json",
+      "bytes": 7571,
+      "sha256": "05dc54a2138979e901718a737e1b73d9e270f5043c40b8272fd84fab8f3568cb",
+      "sourceSha256": "05dc54a2138979e901718a737e1b73d9e270f5043c40b8272fd84fab8f3568cb"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/record-sheet-prefix2-updated-head-acceptance-20260913.json",
+      "bytes": 7298,
+      "sha256": "7ace150489789114d5047e74a6887c613ceab195e27cf5b21118aac2b718aa3e",
+      "sourceSha256": "7ace150489789114d5047e74a6887c613ceab195e27cf5b21118aac2b718aa3e"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/record-sheet-root-reconciliation-20260913.json",
+      "bytes": 823,
+      "sha256": "23f7562d7572796c6a7117e1ac8dee160abef8a4ccca1baa0e6470241007158c",
+      "sourceSha256": "23f7562d7572796c6a7117e1ac8dee160abef8a4ccca1baa0e6470241007158c"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/remaining-canonical-parent-inventory-20260913.json",
+      "bytes": 16788,
+      "sha256": "900d1ce312838de45e34155b56514beb3b1e4ef656cbfb601699d8809747e0ab",
+      "sourceSha256": "900d1ce312838de45e34155b56514beb3b1e4ef656cbfb601699d8809747e0ab"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/remaining-canonical-spec-drafts-20260913.json",
+      "bytes": 3607,
+      "sha256": "42f66864670ca8c7bf456e04ea661a82bac279c798d2ed16e25f0a0c816b1c8f",
+      "sourceSha256": "42f66864670ca8c7bf456e04ea661a82bac279c798d2ed16e25f0a0c816b1c8f"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/remaining-reference-cleanup-parent-acceptance-20260913.json",
+      "bytes": 8578,
+      "sha256": "5fa2029fb1d7de2ec473d1b9675f866b9f1857736df857b7f289b284c1a87664",
+      "sourceSha256": "5fa2029fb1d7de2ec473d1b9675f866b9f1857736df857b7f289b284c1a87664"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/remaining-reference-main-parent-acceptance-20260913.json",
+      "bytes": 10197,
+      "sha256": "36302b7c3472a779187bb3623db4afa7eec3d1f84a71aa741e8c72fb4d91c9c1",
+      "sourceSha256": "36302b7c3472a779187bb3623db4afa7eec3d1f84a71aa741e8c72fb4d91c9c1"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/remaining-reference-parent-acceptance-20260913.json",
+      "bytes": 11563,
+      "sha256": "dd2930b407c8ab4d7da46fd94a62815ef35614fa2950fc62abf811af31d30ab8",
+      "sourceSha256": "dd2930b407c8ab4d7da46fd94a62815ef35614fa2950fc62abf811af31d30ab8"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/remaining-reference-root-reconciliation-20260913.json",
+      "bytes": 1775,
+      "sha256": "42f4a6d9c6a572683210660a1a5bbc9560c83230d0086989f0a81c0119d84afe",
+      "sourceSha256": "42f4a6d9c6a572683210660a1a5bbc9560c83230d0086989f0a81c0119d84afe"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/remaining-reference-specs-admission-20260913.json",
+      "bytes": 3166,
+      "sha256": "43e0464b5cc6d15f795dbe3d6825747d72a19111ea8719db55f5c4933a3082f6",
+      "sourceSha256": "43e0464b5cc6d15f795dbe3d6825747d72a19111ea8719db55f5c4933a3082f6"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/remaining-reference-updated-head-acceptance-20260913.json",
+      "bytes": 10297,
+      "sha256": "b98fc3074d4d0de8f4f53c27b718dd1b85b0836468c802c60b2363ddfd8e9047",
+      "sourceSha256": "b98fc3074d4d0de8f4f53c27b718dd1b85b0836468c802c60b2363ddfd8e9047"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/runtime-routing-refresh-20260913.json",
+      "bytes": 1703,
+      "sha256": "df61b3d4742cbb5a752c04214f65d47ac3d12b58d83dd020d2975616addf948a",
+      "sourceSha256": "df61b3d4742cbb5a752c04214f65d47ac3d12b58d83dd020d2975616addf948a"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/server-persistence-1656-initial-20260913-premerge.json",
+      "bytes": 14483,
+      "sha256": "01732575c9b072b1155cb5f4eaa7e456b4111412cdf0d24850fbe2fc2ad449b6",
+      "sourceSha256": "01732575c9b072b1155cb5f4eaa7e456b4111412cdf0d24850fbe2fc2ad449b6"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/server-persistence-cleanup-20260913.json",
+      "bytes": 1426,
+      "sha256": "38908f93eadf7e94a0cbfcd44eb5ed8e3459fcdd99ab5c31e96f6f4bfd53638f",
+      "sourceSha256": "38908f93eadf7e94a0cbfcd44eb5ed8e3459fcdd99ab5c31e96f6f4bfd53638f"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/server-persistence-cleanup-parent-acceptance-20260913.json",
+      "bytes": 942,
+      "sha256": "a8e99f7a2e48b30b4351d8575aa8132a0013bef0b82f6bdbc9397d735a95cd86",
+      "sourceSha256": "a8e99f7a2e48b30b4351d8575aa8132a0013bef0b82f6bdbc9397d735a95cd86"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/server-persistence-main-parent-acceptance-20260913.json",
+      "bytes": 8822,
+      "sha256": "b7ab5c789c6ddac73267e1f76876e24182b57bcd576bb190de759d895c76367b",
+      "sourceSha256": "b7ab5c789c6ddac73267e1f76876e24182b57bcd576bb190de759d895c76367b"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/server-persistence-parent-review-20260913.json",
+      "bytes": 12015,
+      "sha256": "d44248dfb08f1b83aa3c231c7e25612b557ab30046ff9ae9b97cbaac016773c7",
+      "sourceSha256": "d44248dfb08f1b83aa3c231c7e25612b557ab30046ff9ae9b97cbaac016773c7"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/server-persistence-root-reconciliation-20260913.json",
+      "bytes": 2184,
+      "sha256": "5e4751811e4340239dd6c67f5571bb58f611313d2295ab433ac63790bdac46ed",
+      "sourceSha256": "5e4751811e4340239dd6c67f5571bb58f611313d2295ab433ac63790bdac46ed"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/source-reference-comments-admission-20260913.json",
+      "bytes": 1361,
+      "sha256": "a8865ca06dad3cd637797965464b2640c8322625f16fd1ad07b489ece4e9e59d",
+      "sourceSha256": "a8865ca06dad3cd637797965464b2640c8322625f16fd1ad07b489ece4e9e59d"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/source-reference-comments-cleanup-parent-acceptance-20260913.json",
+      "bytes": 1062,
+      "sha256": "5ac4a6ad81de621412e52209b9b3273cf7d4feb7e7ce914c9561a5bb93faf325",
+      "sourceSha256": "5ac4a6ad81de621412e52209b9b3273cf7d4feb7e7ce914c9561a5bb93faf325"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/source-reference-comments-main-parent-acceptance-20260913.json",
+      "bytes": 5906,
+      "sha256": "4ec08d6a33a3e94b163e6f9b45466d0748612bc2d3247ff0f837fc802f2da733",
+      "sourceSha256": "4ec08d6a33a3e94b163e6f9b45466d0748612bc2d3247ff0f837fc802f2da733"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/source-reference-comments-parent-acceptance-20260913.json",
+      "bytes": 1601,
+      "sha256": "2992a80b07fa7b04b879d71c2719bb63b742dc774e9624c7e2432a6a3aaf2aa5",
+      "sourceSha256": "2992a80b07fa7b04b879d71c2719bb63b742dc774e9624c7e2432a6a3aaf2aa5"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/source-reference-comments-root-reconciliation-20260913.json",
+      "bytes": 1534,
+      "sha256": "59f5cccdc2d4de8c5a3e4719a50747b6aa03abfda9475b6cff673862cfb4d535",
+      "sourceSha256": "59f5cccdc2d4de8c5a3e4719a50747b6aa03abfda9475b6cff673862cfb4d535"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/unit-comparison-cleanup-parent-acceptance-20260913.json",
+      "bytes": 8523,
+      "sha256": "0aee812faf3a6c979b55d35e36c7bab700a52542f5f1911ea9cf0115bd5f601d",
+      "sourceSha256": "0aee812faf3a6c979b55d35e36c7bab700a52542f5f1911ea9cf0115bd5f601d"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/unit-comparison-main-parent-acceptance-20260913.json",
+      "bytes": 6096,
+      "sha256": "fa04a0cd61d0314c42496e1c8c866ac53f49dff8d464d3c059bb2114bdafb725",
+      "sourceSha256": "fa04a0cd61d0314c42496e1c8c866ac53f49dff8d464d3c059bb2114bdafb725"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/unit-comparison-parent-acceptance-20260913.json",
+      "bytes": 6538,
+      "sha256": "bee3d333e6040d9c6eeefd8d6f5f76a6b96d89306353eeed7c198f7dae33a0c2",
+      "sourceSha256": "bee3d333e6040d9c6eeefd8d6f5f76a6b96d89306353eeed7c198f7dae33a0c2"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/unit-comparison-root-reconciliation-20260913.json",
+      "bytes": 818,
+      "sha256": "a59906119f31143b8ced724d8e115d1f607cadb115db9f4c1cf9b33f552c792b",
+      "sourceSha256": "a59906119f31143b8ced724d8e115d1f607cadb115db9f4c1cf9b33f552c792b"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/unit-comparison-updated-head-acceptance-20260913.json",
+      "bytes": 6238,
+      "sha256": "70279edee718447222cd68c63530b9cf94a7ae0819c49b2a4f8fdd7da0e4f2c2",
+      "sourceSha256": "70279edee718447222cd68c63530b9cf94a7ae0819c49b2a4f8fdd7da0e4f2c2"
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "capturedAt": "2026-09-13T01:46:16.036Z",
+  "status": "accepted-owned-cleanup",
+  "main": "106bfbc76886a6f19f1ac00143cfa1708f33f19f",
+  "pr": 1656,
+  "exportedFiles": 34,
+  "sourceBytesExportedBeforeRemoval": true,
+  "worktreeRemoved": true,
+  "sharedDependencyTargetPreserved": true,
+  "cleanupReceipt": {
+    "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/server-persistence-cleanup-20260913.json",
+    "sha256": "38908f93eadf7e94a0cbfcd44eb5ed8e3459fcdd99ab5c31e96f6f4bfd53638f"
+  },
+  "rootReconciliation": {
+    "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/server-persistence-root-reconciliation-20260913.json",
+    "sha256": "5e4751811e4340239dd6c67f5571bb58f611313d2295ab433ac63790bdac46ed"
+  },
+  "qualification": "Outer shell poll timed out; actual Git removal and guarded ref mutation exits were captured by the completed driver and verified independently. No operation was restarted."
+}

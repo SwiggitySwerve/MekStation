@@ -1,0 +1,36 @@
+{
+  "capturedAt": "2026-09-13T01:43:08.310Z",
+  "status": "owned-root-drafts-reconciled",
+  "main": "106bfbc76886a6f19f1ac00143cfa1708f33f19f",
+  "indexUnchanged": true,
+  "indexHash": "a65b683940b6449651a074132f39d8b8da156ef5620af6aa1b62eb7c8698b953",
+  "files": [
+    {
+      "path": "openspec/specs/database-schema/spec.md",
+      "priorSha256": "070f03971f4892c76f193c0133f460927cfedda8be46ee1d6ffe2af876cfed5c",
+      "afterSha256": "bc713041e3e09835edfcc7c2ce2821e4f2ca59a51ac2e73b4cb96ce9917bcf63",
+      "gitLfSha256": "bc713041e3e09835edfcc7c2ce2821e4f2ca59a51ac2e73b4cb96ce9917bcf63",
+      "backup": ".sisyphus/roadmap-completion-20260912/server-persistence-root-reconciliation-20260913/before/openspec/specs/database-schema/spec.md"
+    },
+    {
+      "path": "openspec/specs/persistence-services/spec.md",
+      "priorSha256": "e9e398be3a93d2e7af12cdaac8814ab2de4f40a3fe7c30c5847f179858333420",
+      "afterSha256": "45fbb18e0b71f17856919c2b5cdeca5b007774c1099c42c3cbfc75a51a468898",
+      "gitLfSha256": "45fbb18e0b71f17856919c2b5cdeca5b007774c1099c42c3cbfc75a51a468898",
+      "backup": ".sisyphus/roadmap-completion-20260912/server-persistence-root-reconciliation-20260913/before/openspec/specs/persistence-services/spec.md"
+    },
+    {
+      "path": "openspec/specs/unit-services/spec.md",
+      "priorSha256": "98762341ef8c07e171452c8da69c9f7893f20f245fb03964d9deb60a3bc0204b",
+      "afterSha256": "32e1603943d525c26b74212cd588c6354bffd86a12b8bd71aa6b584f75e056a3",
+      "gitLfSha256": "32e1603943d525c26b74212cd588c6354bffd86a12b8bd71aa6b584f75e056a3",
+      "backup": ".sisyphus/roadmap-completion-20260912/server-persistence-root-reconciliation-20260913/before/openspec/specs/unit-services/spec.md"
+    }
+  ],
+  "otherTrackedDirtyFilesUnchanged": 134,
+  "preflight": {
+    "path": ".sisyphus/roadmap-completion-20260912/server-persistence-root-reconciliation-20260913/preflight.json",
+    "sha256": "1958ac473e678d96834ed6e90d1a458f55fce95629c06ba9c03069f2a90ecd49"
+  },
+  "qualification": "All prior drafts, final working bytes and normalized Git blobs checked before replacements. Original backups, unrelated tracked dirty bytes and root index preserved."
+}

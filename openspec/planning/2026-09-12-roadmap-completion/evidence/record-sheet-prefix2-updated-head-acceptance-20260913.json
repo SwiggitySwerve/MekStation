@@ -1,0 +1,172 @@
+{
+  "at": "2026-09-13T04:19:19.802Z",
+  "status": "local-verified",
+  "head": "0f252dd2bb6ba4899511b1e555bdb11fb5b478d2",
+  "mainBase": "f7e926057bf0981ed34eda843de74e35d0792aa3",
+  "files": [
+    {
+      "path": "openspec/specs/record-sheet-export/spec.md",
+      "sha256": "14f5688c087fd08f7bbda4f7f15b616f887554fe0d37adb100efcd5a0cf20456",
+      "gitOid": "d5cc7cff982cc648e80d1398fd232ca519d2169b"
+    },
+    {
+      "path": "src/services/printing/RecordSheetService.ts",
+      "sha256": "4641f9162c9ccb05e0bdcfb47ea80836bb896329183db93ee5ddb0685ac6bff2",
+      "gitOid": "69e7b4ef69ac1f94abc8a4d35f4209469b89b0b0"
+    },
+    {
+      "path": "src/components/customizer/preview/RecordSheetCanvasPreview.tsx",
+      "sha256": "0b79ff57ab9bd9bbd299af3bcee16786e242f316be2421ed6760ced5e88ab994",
+      "gitOid": "6d4da5b4168c3c9642fe1ca1c4fe67a8028b65d5"
+    },
+    {
+      "path": "src/services/printing/svgRecordSheetRenderer/renderer.ts",
+      "sha256": "d07fc05e2c7dcd80f91008e3e5f25ad922c046dc9a282b9c4c752067052419bf",
+      "gitOid": "1080445e92bd680bb6e637e2b5de979aafd8d7f4"
+    },
+    {
+      "path": "src/services/printing/svgRecordSheetRenderer/templateRecordSheetRenderer.ts",
+      "sha256": "93b4d49a7c8e29614985b0108075ec1d4398179a22dcaa23bf2af1e998bb8046",
+      "gitOid": "cc76e9308eaccf055a972cb94431a386badcf632"
+    },
+    {
+      "path": "src/services/printing/svgRecordSheetRenderer/armor.ts",
+      "sha256": "3421f0ee734a64a1719f3de81e5bd40e88506ab1b01189dd2c632ff0c46dae72",
+      "gitOid": "2e1aa9f5f8a70349403721d878d3e595f6ff0cf1"
+    },
+    {
+      "path": "src/services/printing/svgRecordSheetRenderer/structure.ts",
+      "sha256": "32f286744b661d97c75c5a00143090b9e79764fc739c5e79e8c694a818491982",
+      "gitOid": "9a97df5f0279e2a1b0a330ade772c55762a18695"
+    },
+    {
+      "path": "src/services/printing/svgRecordSheetRenderer/renderTemplated.ts",
+      "sha256": "8322c0fc5875108685122262c1f7c7020d89d5dad003b3d0df2b96534d5d7c49",
+      "gitOid": "11ce82102c8d8d529f66c12ab975ab937d4e2e17"
+    },
+    {
+      "path": "src/services/assets/MmDataAssetService.ts",
+      "sha256": "35ed4cf6b2c410e7f41b4eb4c16a06066551c890cfe41f9d64e95f9cbd835e6e",
+      "gitOid": "01dd2ee2e92eefbda282a52f44c6cb4a9dd9b9e7"
+    },
+    {
+      "path": "src/services/printing/recordsheet/spaSection.ts",
+      "sha256": "b16c58d8787cf3e16d7ecc96e8e50365d254662cbafa958ab69d2fab1f32449d",
+      "gitOid": "24fbc4ae5be43295fdc3ef2776fc833554cda9db"
+    }
+  ],
+  "commands": [
+    {
+      "name": "openspec-all-strict",
+      "exe": "C:/nvm4w/nodejs/node.exe",
+      "args": [
+        "C:/Users/wroll/AppData/Roaming/npm/node_modules/@fission-ai/openspec/bin/openspec.js",
+        "validate",
+        "--all",
+        "--strict",
+        "--no-interactive"
+      ],
+      "startedAt": "2026-09-13T04:17:31.357Z",
+      "endedAt": "2026-09-13T04:17:36.843Z",
+      "exit": 0,
+      "signal": null,
+      "stdout": {
+        "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/record-sheet-prefix2-parent-gates-main-sync-20260913/openspec-all-strict.stdout.log",
+        "sha256": "2754dbee9c7f3c73dafb72bec4284c7de4a886d9f795955954f8d77c5768a12d"
+      },
+      "stderr": {
+        "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/record-sheet-prefix2-parent-gates-main-sync-20260913/openspec-all-strict.stderr.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "spec:purpose:validate:strict",
+      "exe": "C:/nvm4w/nodejs/node.exe",
+      "args": [
+        "C:/nvm4w/nodejs/node_modules/npm/bin/npm-cli.js",
+        "run",
+        "spec:purpose:validate:strict"
+      ],
+      "startedAt": "2026-09-13T04:17:36.895Z",
+      "endedAt": "2026-09-13T04:17:44.556Z",
+      "exit": 0,
+      "signal": null,
+      "stdout": {
+        "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/record-sheet-prefix2-parent-gates-main-sync-20260913/spec-purpose-validate-strict.stdout.log",
+        "sha256": "466499d08af7455b9a717c16ce2752eb27302df5a5a6d158edaae48b919c7a22"
+      },
+      "stderr": {
+        "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/record-sheet-prefix2-parent-gates-main-sync-20260913/spec-purpose-validate-strict.stderr.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "terminology:validate:strict",
+      "exe": "C:/nvm4w/nodejs/node.exe",
+      "args": [
+        "C:/nvm4w/nodejs/node_modules/npm/bin/npm-cli.js",
+        "run",
+        "terminology:validate:strict"
+      ],
+      "startedAt": "2026-09-13T04:17:44.571Z",
+      "endedAt": "2026-09-13T04:17:57.903Z",
+      "exit": 0,
+      "signal": null,
+      "stdout": {
+        "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/record-sheet-prefix2-parent-gates-main-sync-20260913/terminology-validate-strict.stdout.log",
+        "sha256": "d15011da7521e031b3bea845889b040bc9e0f3dee6f2e974e2fd7ba0697781a0"
+      },
+      "stderr": {
+        "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/record-sheet-prefix2-parent-gates-main-sync-20260913/terminology-validate-strict.stderr.log",
+        "sha256": "002cacb28159be0748930db2189422ac50f32f74a4fe93bf25ddb135a13e77e2"
+      }
+    },
+    {
+      "name": "qc:openspec-ci:validate",
+      "exe": "C:/nvm4w/nodejs/node.exe",
+      "args": [
+        "C:/nvm4w/nodejs/node_modules/npm/bin/npm-cli.js",
+        "run",
+        "qc:openspec-ci:validate"
+      ],
+      "startedAt": "2026-09-13T04:17:57.936Z",
+      "endedAt": "2026-09-13T04:17:58.794Z",
+      "exit": 0,
+      "signal": null,
+      "stdout": {
+        "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/record-sheet-prefix2-parent-gates-main-sync-20260913/qc-openspec-ci-validate.stdout.log",
+        "sha256": "f01feb11318234aab4764fe76151b78c06905527212a8f8723626fcf616b71d6"
+      },
+      "stderr": {
+        "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/record-sheet-prefix2-parent-gates-main-sync-20260913/qc-openspec-ci-validate.stderr.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "diff-check",
+      "exe": "git",
+      "args": [
+        "diff",
+        "--check",
+        "--",
+        "openspec/specs/record-sheet-export/spec.md"
+      ],
+      "startedAt": "2026-09-13T04:17:58.812Z",
+      "endedAt": "2026-09-13T04:17:58.894Z",
+      "exit": 0,
+      "signal": null,
+      "stdout": {
+        "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/record-sheet-prefix2-parent-gates-main-sync-20260913/diff-check.stdout.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stderr": {
+        "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/record-sheet-prefix2-parent-gates-main-sync-20260913/diff-check.stderr.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    }
+  ],
+  "review": "evidence/record-sheet-prefix2-parent-acceptance-20260913.json",
+  "limits": [
+    "One143-line spec prefix unchanged after main integration; no new runtime proof"
+  ]
+}

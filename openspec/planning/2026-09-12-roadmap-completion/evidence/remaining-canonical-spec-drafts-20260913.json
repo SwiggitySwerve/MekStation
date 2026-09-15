@@ -1,0 +1,98 @@
+{
+  "capturedAt": "2026-09-13T01:52:18.010Z",
+  "main": "106bfbc76886a6f19f1ac00143cfa1708f33f19f",
+  "status": "current-root-spec-drafts-not-yet-matching-main",
+  "rows": [
+    {
+      "path": "openspec/specs/bv-validation-tooling/spec.md",
+      "gitDiffAdded": 4,
+      "gitDiffDeleted": 4,
+      "rootSha256": "07c82adf18d0f7082fbc2018cfe04f87e86708047efe229b588be473ac99d8ac"
+    },
+    {
+      "path": "openspec/specs/campaign-personnel-architecture/spec.md",
+      "gitDiffAdded": 15,
+      "gitDiffDeleted": 13,
+      "rootSha256": "0e86bfc6fdf0089b340e0db49b396b9001936ada3ede08acac054fc5c2e8ec55"
+    },
+    {
+      "path": "openspec/specs/campaign-unit-combat-state/spec.md",
+      "gitDiffAdded": 7,
+      "gitDiffDeleted": 7,
+      "rootSha256": "1f1a01edd4ab3297c1fa2db096b21ea0f5edf6eb9c3e0f39967d2480a960e860"
+    },
+    {
+      "path": "openspec/specs/compendium-browser/spec.md",
+      "gitDiffAdded": 24,
+      "gitDiffDeleted": 3,
+      "rootSha256": "547228e009cddcc14cfe8348e7f3626395e5d3dbd04ccc78fffb52a39ea4a0d3"
+    },
+    {
+      "path": "openspec/specs/e2e-testing/spec.md",
+      "gitDiffAdded": 118,
+      "gitDiffDeleted": 0,
+      "rootSha256": "8343333453231871fe46b838584c6d95bbd74015f62cf31a703af2b18e189cdb"
+    },
+    {
+      "path": "openspec/specs/equipment-browser/spec.md",
+      "gitDiffAdded": 155,
+      "gitDiffDeleted": 77,
+      "rootSha256": "6afa047791ac2c2c3afd90c6b51ac99602ca284f97ef5391f8578ceec82888dd"
+    },
+    {
+      "path": "openspec/specs/force-management/spec.md",
+      "gitDiffAdded": 31,
+      "gitDiffDeleted": 31,
+      "rootSha256": "1e119db35f60fb9e9418176862afe3d23b59130dee7b050914842b990944c757"
+    },
+    {
+      "path": "openspec/specs/game-session-management/spec.md",
+      "gitDiffAdded": 16,
+      "gitDiffDeleted": 16,
+      "rootSha256": "52843d4febc0354f597c6f0f6685b23145168a44c008cf253e02e2f3c4d802d6"
+    },
+    {
+      "path": "openspec/specs/personnel-management/spec.md",
+      "gitDiffAdded": 14,
+      "gitDiffDeleted": 14,
+      "rootSha256": "631325c73e3332b68cfb59410c80e649187e060e3340b8eebc9fcb39972dea21"
+    },
+    {
+      "path": "openspec/specs/record-sheet-export/spec.md",
+      "gitDiffAdded": 164,
+      "gitDiffDeleted": 84,
+      "rootSha256": "bce78f3d4efe4e1d88fadd54e973b0c40ba57acfa8a47f69789a0c075f0d713c"
+    },
+    {
+      "path": "openspec/specs/release-build-system/spec.md",
+      "gitDiffAdded": 1,
+      "gitDiffDeleted": 1,
+      "rootSha256": "841d5da7ed35f33cc5034984bd33103cddfed0d2008f54702e7e5efeca1dc75b"
+    },
+    {
+      "path": "openspec/specs/repair/spec.md",
+      "gitDiffAdded": 22,
+      "gitDiffDeleted": 22,
+      "rootSha256": "4f51961216066a37180bd05d3cdebbcfa510f60e5fea9459a7c51f443ac8cce7"
+    },
+    {
+      "path": "openspec/specs/unit-comparison/spec.md",
+      "gitDiffAdded": 7,
+      "gitDiffDeleted": 2,
+      "rootSha256": "a57e0a86135ee6c5dcd2604d5f7d679ddd9d4a145edc39ad0fdb8cf44768306e"
+    },
+    {
+      "path": "openspec/specs/user-identity/spec.md",
+      "gitDiffAdded": 1,
+      "gitDiffDeleted": 1,
+      "rootSha256": "1f96a710250a2c37dd93bd5d769e73b37988b5944ce8f6bd04fff3dec62a2d61"
+    },
+    {
+      "path": "openspec/specs/vault-sync/spec.md",
+      "gitDiffAdded": 17,
+      "gitDiffDeleted": 17,
+      "rootSha256": "7d47f56e0886a44ca611f0f6d2b2432d8f10744275880224ee7c55998dd65b69"
+    }
+  ],
+  "qualification": "Text parity ignores CRLF/LF differences and corrects index-only deletion artifacts. Diff counts are candidate admission hints, not reviewed implementation proof; active Cursor lanes retain isolated corrections outside root."
+}
