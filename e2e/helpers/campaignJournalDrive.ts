@@ -18,10 +18,24 @@ import { issuePlayerToken } from '@/lib/multiplayer/client/issuePlayerToken';
 import { generateKeyPair } from '@/services/vault/IdentityService';
 import { encodeTokenForWire } from '@/types/multiplayer/Player';
 
+/**
+ * One row of a viewer's scoped feed, narrowed to the fields the drives
+ * assert on. `message` is the redacted string the projection built for
+ * THIS viewer - the byte the privacy drive compares.
+ */
+export type ActivityEntry = {
+  ordinal: number;
+  message: string;
+  category: string;
+  campaignDay: number;
+  actorPlayerId: string;
+  occurredAt: string;
+};
+
 export type ActivityBody = {
   kind: string;
   viewerSeat?: string;
-  entries?: readonly unknown[];
+  entries?: readonly ActivityEntry[];
 };
 
 export type CommandBody = {
@@ -65,17 +79,37 @@ export async function hostIdentity(): Promise<{
   wireToken: string;
   playerId: string;
 }> {
+  return campaignIdentity(
+    'identity-co3-host',
+    'CO3 Host',
+    'CCCC-OOOO-3333-AAAA',
+  );
+}
+
+/**
+ * The same self-issued, UNSCOPED identity, parameterised.
+ *
+ * Extracted for the privacy drive, which needs FOUR principals rather
+ * than one - a GM, two seated guests, and a stranger holding a valid
+ * token and no seat. Unscoped for the reason `hostIdentity` already
+ * carries: `expectedScopeForCampaign` reads the scope from the
+ * campaign's own stored co-op session, and match creation writes none,
+ * so a scoped token fails closed as `scope-unchecked`.
+ * `server.js:368-378` accepts a scopeless token where a scope was
+ * expected, which is the transition residual that makes this work.
+ */
+export async function campaignIdentity(
+  id: string,
+  displayName: string,
+  friendCode: string,
+): Promise<{ wireToken: string; playerId: string }> {
   const keys = await generateKeyPair();
-  // Unscoped deliberately: `expectedScopeForCampaign` reads the scope
-  // from the campaign's OWN stored co-op session, and match creation
-  // does not write one into the envelope - so a SCOPED token would fail
-  // closed as `scope-unchecked`.
   const token = await issuePlayerToken({
-    id: 'identity-co3-host',
-    displayName: 'CO3 Host',
+    id,
+    displayName,
     publicKey: Buffer.from(keys.publicKey).toString('base64'),
     privateKey: Buffer.from(keys.privateKey).toString('base64'),
-    friendCode: 'CCCC-OOOO-3333-AAAA',
+    friendCode,
     createdAt: new Date().toISOString(),
   });
   return { wireToken: encodeTokenForWire(token), playerId: token.playerId };
@@ -100,16 +134,42 @@ export async function readActivity(
   sessionId: string,
   participantId: string,
 ): Promise<ActivityBody> {
+  const result = await requestActivity(
+    request,
+    origin,
+    campaignId,
+    sessionId,
+    participantId,
+  );
+  expect(
+    result.status,
+    `activity read failed on ${origin}: ${JSON.stringify(result.body)}`,
+  ).toBe(200);
+  return result.body as ActivityBody;
+}
+
+/**
+ * The same read, WITHOUT the 200 expectation.
+ *
+ * The privacy drive's central assertions are refusals - a revoked
+ * member and a stranger are both answered 403 - so it needs the status
+ * as a value rather than as a precondition. `readActivity` above is this
+ * function plus the expectation, so the two can never disagree about
+ * how the request is shaped.
+ */
+export async function requestActivity(
+  request: APIRequestContext,
+  origin: string,
+  campaignId: string,
+  sessionId: string,
+  participantId: string,
+): Promise<{ status: number; body: unknown }> {
   const response = await request.get(
     `${origin}/api/campaigns/${campaignId}/activity` +
       `?sessionId=${encodeURIComponent(sessionId)}` +
       `&participantId=${encodeURIComponent(participantId)}`,
   );
-  expect(
-    response.status(),
-    `activity read failed on ${origin}: ${await response.text()}`,
-  ).toBe(200);
-  return (await response.json()) as ActivityBody;
+  return { status: response.status(), body: await response.json() };
 }
 
 /**
@@ -132,19 +192,40 @@ export async function postCommand(
   wireToken: string,
   commandId: string,
 ): Promise<{ status: number; body: CommandBody }> {
+  return postIntentCommand(request, origin, campaignId, wireToken, commandId, {
+    campaignId,
+    intentId: `${commandId}-intent`,
+    kind: 'SpendFunds',
+    payload: { amount: SPEND_PER_COMMAND, reason: 'CO3 drive' },
+  });
+}
+
+/**
+ * The same POST carrying an arbitrary intent.
+ *
+ * The privacy drive needs it to establish, behaviourally rather than by
+ * reading the source, that `RemoveParticipant` is NOT reachable through
+ * this route: `campaignCommandPipeline.ts:503-508` calls
+ * `validateCampaignIntent` with four arguments, leaving its
+ * `hostPlayerId` parameter undefined, and
+ * `CampaignMatchHostIntent.ts:222-223` refuses the removal whenever the
+ * author is not that host. So the HTTP surface answers 422 `host-only`
+ * for every caller including the GM, and the removal this drive needs
+ * has to come from the socket.
+ */
+export async function postIntentCommand(
+  request: APIRequestContext,
+  origin: string,
+  campaignId: string,
+  wireToken: string,
+  commandId: string,
+  intent: Record<string, unknown>,
+): Promise<{ status: number; body: CommandBody }> {
   const response = await request.post(
     `${origin}/api/campaigns/${campaignId}/commands`,
     {
       headers: { Authorization: `Bearer ${wireToken}` },
-      data: {
-        commandId,
-        intent: {
-          campaignId,
-          intentId: `${commandId}-intent`,
-          kind: 'SpendFunds',
-          payload: { amount: SPEND_PER_COMMAND, reason: 'CO3 drive' },
-        },
-      },
+      data: { commandId, intent },
     },
   );
   return {
