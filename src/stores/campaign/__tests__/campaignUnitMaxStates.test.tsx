@@ -243,6 +243,29 @@ describe('campaign unit max-state population', () => {
     expect(maxStates['unit-1']).toBeDefined();
   });
 
+  it('leaves the entry absent when the ref contradicts the recorded source', async () => {
+    jest
+      .mocked(customUnitApiService.getById)
+      .mockResolvedValue(savedCustom as never);
+    seedCampaign();
+    // A canonical-source roster unit carrying a custom-* ref: resolving it
+    // by prefix alone would hand it the other authority's maxima.
+    useCampaignRosterStore.getState().addUnit(
+      projection({
+        unitId: 'unit-mismatch',
+        unitRef: CUSTOM_REF,
+        unitSource: 'canonical',
+      }),
+    );
+
+    await ensureCampaignUnitMaxStates();
+
+    expect(
+      store.getState().campaign?.unitMaxStates?.['unit-mismatch'],
+    ).toBeUndefined();
+    expect(customUnitApiService.getById).not.toHaveBeenCalled();
+  });
+
   it('backfills a missing entry when an existing campaign is loaded', async () => {
     const persisted = buildPopulatedCampaign();
     const envelope = buildSerializedCampaign(persisted, 'device-y', 3, {
