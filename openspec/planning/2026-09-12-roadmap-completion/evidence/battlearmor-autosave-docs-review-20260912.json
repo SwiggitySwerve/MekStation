@@ -1,0 +1,408 @@
+{
+  "schemaVersion": 1,
+  "evidenceId": "battlearmor-autosave-docs-review-20260912",
+  "status": "pass-with-limits",
+  "scope": "retained Grok Battle Armor/autosave documentation patch",
+  "candidate": {
+    "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/battlearmor-autosave-docs",
+    "branch": "codex/roadmap-battlearmor-autosave-docs-20260912",
+    "base": "583b3e9bf954506a3b5fbac0359165e9407cf264",
+    "head": "583b3e9bf954506a3b5fbac0359165e9407cf264",
+    "status": [
+      "M openspec/specs/auto-save-persistence/spec.md",
+      " M openspec/specs/battle-armor-unit-system/spec.md"
+    ],
+    "allowedFiles": [
+      "openspec/specs/battle-armor-unit-system/spec.md",
+      "openspec/specs/auto-save-persistence/spec.md"
+    ],
+    "numstat": {
+      "openspec/specs/auto-save-persistence/spec.md": {
+        "added": 1,
+        "deleted": 1
+      },
+      "openspec/specs/battle-armor-unit-system/spec.md": {
+        "added": 30,
+        "deleted": 16
+      }
+    },
+    "changedLines": 48
+  },
+  "worker": {
+    "statusPath": ".sisyphus/roadmap-completion-20260912/grok-battlearmor-autosave-docs-1/status.json",
+    "running": false,
+    "code": 1,
+    "driverPid": 29680,
+    "pid": 34940,
+    "finishedAt": "2026-09-12T21:48:15.788Z",
+    "terminalCapture": {
+      "commandExit": 0,
+      "stdout": {
+        "path": ".sisyphus/roadmap-completion-20260912/battlearmor-autosave-docs-review/worker-pids.stdout.log",
+        "bytes": 128,
+        "sha256": "d02849528c4255072f3191e03ca07f6efb647ab206bcd2881083e5086497bf74"
+      },
+      "stderr": {
+        "path": ".sisyphus/roadmap-completion-20260912/battlearmor-autosave-docs-review/worker-pids.stderr.log",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "interpretation": "Both tasklist filters reported no matching task."
+    }
+  },
+  "contentChecks": {
+    "labels": {
+      "expected": [
+        "Overview",
+        "Chassis",
+        "Squad",
+        "Manipulators",
+        "Modular Weapons",
+        "AP Weapons",
+        "Jump/UMU",
+        "Preview",
+        "Fluff"
+      ],
+      "parsed": [
+        "Overview",
+        "Chassis",
+        "Squad",
+        "Manipulators",
+        "Modular Weapons",
+        "AP Weapons",
+        "Jump/UMU",
+        "Preview",
+        "Fluff"
+      ],
+      "exactOrder": true,
+      "count": 9
+    },
+    "deferred": {
+      "expected": [
+        "per-arm manipulator selection",
+        "modular-mount weapon selection plus weight/crit tracking",
+        "one AP weapon slot plus weight/crit accounting",
+        "Jump/UMU mobility selection plus MP/weight accounting"
+      ],
+      "present": [
+        true,
+        true,
+        true,
+        true
+      ],
+      "allPresent": true
+    },
+    "chassisSquad": {
+      "chassisAlias": true,
+      "chassisBehavior": true,
+      "squadComponent": true,
+      "squadBehavior": true
+    },
+    "sourceInventory": {
+      "allPathsExist": true,
+      "paths": {
+        "src/components/customizer/shared/tabRegistry.tsx": true,
+        "src/components/customizer/shared/customizerTypeRegistry.tsx": true,
+        "src/components/customizer/tabs/NonMechOverviewTabs.tsx": true,
+        "src/components/customizer/tabs/FluffTab.tsx": true,
+        "src/components/customizer/battlearmor/BattleArmorChassisTab.tsx": true,
+        "src/components/customizer/battlearmor/BattleArmorStructureTab.tsx": true,
+        "src/components/customizer/battlearmor/BattleArmorSquadTab.tsx": true,
+        "src/components/customizer/battlearmor/BattleArmorManipulatorsTab.tsx": true,
+        "src/components/customizer/battlearmor/BattleArmorModularWeaponsTab.tsx": true,
+        "src/components/customizer/battlearmor/BattleArmorAPWeaponsTab.tsx": true,
+        "src/components/customizer/battlearmor/BattleArmorJumpUMUTab.tsx": true,
+        "src/components/customizer/battlearmor/BattleArmorPreviewTab.tsx": true
+      },
+      "registryLabels": [
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true
+      ],
+      "allRegistryLabelsPresent": true,
+      "dispatchAndResolved": true
+    },
+    "autosave": {
+      "onlyCleanupSentenceChanged": true,
+      "newSentencePresent": true,
+      "oldSentenceAbsent": true
+    },
+    "preservation": {
+      "datedHistory": true,
+      "checkboxesPreserved": true
+    },
+    "hashes": {
+      "battle": "63bac7a76e828d74076926155533537a422e6a25f4ae9ee135c8c85b183a7f19",
+      "autosave": "60fc6006476c650e7620273c0232393bc2d70279b0dead61195452bcf95cd4bb",
+      "sourceCheck": "351f45e6d29504fe062670353806ec0cc57fc0c247ede813fc1583d04f39a5d2"
+    }
+  },
+  "numericChecks": {
+    "enumCounts": {
+      "manipulatorType": 11,
+      "battleArmorWeightClass": 5,
+      "battleArmorChassisType": 2,
+      "battleArmorLocation": 7
+    },
+    "renderedLimits": {
+      "weightPerTrooper": true,
+      "groundMP": true,
+      "jumpMP": true,
+      "squadSize": true,
+      "armorPerTrooper": true
+    },
+    "renderedOptions": {
+      "manipulatorOptionsCount": 11,
+      "locationSelectorCount": 5
+    },
+    "specAssertions": {
+      "allFiveWeightClassText": true,
+      "manipulatorElevenText": true,
+      "weightText": true,
+      "movementText": true,
+      "squadText": true,
+      "locationText": true
+    },
+    "fullCustomizerRegistryPath": {
+      "exists": true,
+      "sha256": "3dee33c775272ae6a881ce8f41717d7fb03cff7957d1b73a7fbc6e497c871528"
+    },
+    "noContradiction": {
+      "fiveRenderedLocations": true,
+      "sevenEnumLocationsAreDistinct": true,
+      "specFiveLocationsDescribesRenderedSelector": true
+    }
+  },
+  "sourceHashesPath": ".sisyphus/roadmap-completion-20260912/battlearmor-autosave-docs-review/source-hashes.json",
+  "sourceHashes": {
+    "openspec/specs/battle-armor-unit-system/spec.md": {
+      "bytes": 29520,
+      "sha256": "63bac7a76e828d74076926155533537a422e6a25f4ae9ee135c8c85b183a7f19"
+    },
+    "openspec/specs/auto-save-persistence/spec.md": {
+      "bytes": 29287,
+      "sha256": "60fc6006476c650e7620273c0232393bc2d70279b0dead61195452bcf95cd4bb"
+    },
+    "src/components/customizer/shared/tabRegistry.tsx": {
+      "bytes": 20324,
+      "sha256": "8fc21041a01af69629cfc368c28ff6056dfb763f5db94178d03ad30d91e86969"
+    },
+    "src/components/customizer/shared/customizerTypeRegistry.tsx": {
+      "bytes": 16927,
+      "sha256": "3dee33c775272ae6a881ce8f41717d7fb03cff7957d1b73a7fbc6e497c871528"
+    },
+    "src/components/customizer/tabs/NonMechOverviewTabs.tsx": {
+      "bytes": 12143,
+      "sha256": "03d867c046b1d1148cbef5fb93d641f4504d773a89cffd069173fabc959c4e74"
+    },
+    "src/components/customizer/tabs/FluffTab.tsx": {
+      "bytes": 9181,
+      "sha256": "fee8149766b35066a4217ddb312a959c13080567e879ca6c46cd5dc03de09d59"
+    },
+    "src/components/customizer/battlearmor/BattleArmorChassisTab.tsx": {
+      "bytes": 655,
+      "sha256": "7dad4940b2108434f865d2272495b6823c7e194b7459547d47a7e6a8558f8d9e"
+    },
+    "src/components/customizer/battlearmor/BattleArmorStructureTab.tsx": {
+      "bytes": 9779,
+      "sha256": "9316c46923b36a4f61e6b563e43aec9638ff0ee04ab7e154c7540956ad482d0e"
+    },
+    "src/components/customizer/battlearmor/BattleArmorSquadTab.tsx": {
+      "bytes": 9081,
+      "sha256": "3267919d82e7cde40def13cfe89bcc61bab07638fdba10734114039c82f8bf4e"
+    },
+    "src/components/customizer/battlearmor/BattleArmorManipulatorsTab.tsx": {
+      "bytes": 999,
+      "sha256": "bbf1ad3cad529a449fcdd00c1395515d68790db38ed7d21d5b798df38036961a"
+    },
+    "src/components/customizer/battlearmor/BattleArmorModularWeaponsTab.tsx": {
+      "bytes": 982,
+      "sha256": "55839dd7a9b81a5c9aeaf5b33b7c739f9ea2a58f23dc76c14e97748a66f9b6e0"
+    },
+    "src/components/customizer/battlearmor/BattleArmorAPWeaponsTab.tsx": {
+      "bytes": 930,
+      "sha256": "e8f7c0afbcefcff321ef434dff6c4cd045bfb1a566a02cc11161bb19777a21c2"
+    },
+    "src/components/customizer/battlearmor/BattleArmorJumpUMUTab.tsx": {
+      "bytes": 951,
+      "sha256": "34593d0b6213b479686b62cb22375eb2b8d3e5c8050db41ae3703516025348a7"
+    },
+    "src/components/customizer/battlearmor/BattleArmorPreviewTab.tsx": {
+      "bytes": 3245,
+      "sha256": "bf759b4c8879b31ec3c7791f5a31cc9ad4786fd83394c022688859f4b8e8e87d"
+    },
+    "src/types/unit/PersonnelInterfaces.ts": {
+      "bytes": 11169,
+      "sha256": "023335d20fdbf82706be71f87e2c0ac99a088e05172ff87cef80d8955818681d"
+    },
+    "src/types/construction/UnitLocation.ts": {
+      "bytes": 7023,
+      "sha256": "815c241cb559714d3e8b1e18727be472d61a928b4ba1153d49287200f308924b"
+    }
+  },
+  "gates": {
+    "exits": {
+      "candidate-qc": 0,
+      "candidate-status": 0,
+      "diff-check": 0,
+      "diff-name-status": 0,
+      "diff-numstat": 0,
+      "openspec-all": 0,
+      "openspec-target-autosave": 0,
+      "openspec-target-battle": 0,
+      "purpose-strict": 0,
+      "terminology-strict": 0
+    },
+    "commands": {
+      "openspec-target-battle": "C:/nvm4w/nodejs/node.exe C:/Users/wroll/AppData/Roaming/npm/node_modules/@fission-ai/openspec/bin/openspec.js validate battle-armor-unit-system --type spec --strict --no-interactive",
+      "openspec-target-autosave": "C:/nvm4w/nodejs/node.exe C:/Users/wroll/AppData/Roaming/npm/node_modules/@fission-ai/openspec/bin/openspec.js validate auto-save-persistence --type spec --strict --no-interactive",
+      "openspec-all": "C:/nvm4w/nodejs/node.exe C:/Users/wroll/AppData/Roaming/npm/node_modules/@fission-ai/openspec/bin/openspec.js validate --specs --strict --no-interactive",
+      "purpose-strict": "C:/nvm4w/nodejs/node.exe C:/nvm4w/nodejs/node_modules/npm/bin/npm-cli.js run spec:purpose:validate:strict",
+      "terminology-strict": "C:/nvm4w/nodejs/node.exe C:/nvm4w/nodejs/node_modules/npm/bin/npm-cli.js run terminology:validate:strict",
+      "candidate-qc": "C:/nvm4w/nodejs/node.exe C:/nvm4w/nodejs/node_modules/npm/bin/npm-cli.js run qc:openspec-ci:validate",
+      "diff-check": "git diff --check 583b3e9bf954506a3b5fbac0359165e9407cf264 -- openspec/specs/battle-armor-unit-system/spec.md openspec/specs/auto-save-persistence/spec.md"
+    },
+    "rawStreams": {
+      "candidate-qc.stderr.log": {
+        "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\battlearmor-autosave-docs-review\\candidate-qc.stderr.log",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "candidate-qc.stdout.log": {
+        "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\battlearmor-autosave-docs-review\\candidate-qc.stdout.log",
+        "bytes": 268,
+        "sha256": "f01feb11318234aab4764fe76151b78c06905527212a8f8723626fcf616b71d6"
+      },
+      "candidate-status.stderr.log": {
+        "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\battlearmor-autosave-docs-review\\candidate-status.stderr.log",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "candidate-status.stdout.log": {
+        "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\battlearmor-autosave-docs-review\\candidate-status.stdout.log",
+        "bytes": 99,
+        "sha256": "71a789dc8b1402419494ecb772b7b2527d3a810fbbd9248f885a1c635565e7ff"
+      },
+      "diff-check.stderr.log": {
+        "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\battlearmor-autosave-docs-review\\diff-check.stderr.log",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "diff-check.stdout.log": {
+        "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\battlearmor-autosave-docs-review\\diff-check.stdout.log",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "diff-name-status.stderr.log": {
+        "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\battlearmor-autosave-docs-review\\diff-name-status.stderr.log",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "diff-name-status.stdout.log": {
+        "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\battlearmor-autosave-docs-review\\diff-name-status.stdout.log",
+        "bytes": 97,
+        "sha256": "56ba3cb1f421547ee568862b8d9a24b5671a6c597ac3122a9808afa4578a8906"
+      },
+      "diff-numstat.stderr.log": {
+        "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\battlearmor-autosave-docs-review\\diff-numstat.stderr.log",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "diff-numstat.stdout.log": {
+        "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\battlearmor-autosave-docs-review\\diff-numstat.stdout.log",
+        "bytes": 103,
+        "sha256": "1cde11906f11164df7d63f5f4066a7dd04b600359b0708def31a3e4805243379"
+      },
+      "openspec-all.stderr.log": {
+        "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\battlearmor-autosave-docs-review\\openspec-all.stderr.log",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "openspec-all.stdout.log": {
+        "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\battlearmor-autosave-docs-review\\openspec-all.stdout.log",
+        "bytes": 6278,
+        "sha256": "68800d689941c7d539d11013dcdbbe0df3a3cd91e25e28252c3c44d09726eb78"
+      },
+      "openspec-target-autosave.stderr.log": {
+        "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\battlearmor-autosave-docs-review\\openspec-target-autosave.stderr.log",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "openspec-target-autosave.stdout.log": {
+        "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\battlearmor-autosave-docs-review\\openspec-target-autosave.stdout.log",
+        "bytes": 47,
+        "sha256": "fc632f645577e2a4007d5efd99d17e9dcc1c29d5c0161c37448a77522dc84762"
+      },
+      "openspec-target-battle.stderr.log": {
+        "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\battlearmor-autosave-docs-review\\openspec-target-battle.stderr.log",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "openspec-target-battle.stdout.log": {
+        "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\battlearmor-autosave-docs-review\\openspec-target-battle.stdout.log",
+        "bytes": 50,
+        "sha256": "a1dc5c197406b364c97c0694296edc8b7f3186800ddbf6eabc921711201714be"
+      },
+      "purpose-strict.stderr.log": {
+        "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\battlearmor-autosave-docs-review\\purpose-strict.stderr.log",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "purpose-strict.stdout.log": {
+        "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\battlearmor-autosave-docs-review\\purpose-strict.stdout.log",
+        "bytes": 313,
+        "sha256": "0a07b130cc0b93c2ecf9b9b74ee7edd62b014da22229cd8d05ec0fe452ffd35a"
+      },
+      "terminology-strict.stderr.log": {
+        "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\battlearmor-autosave-docs-review\\terminology-strict.stderr.log",
+        "bytes": 590,
+        "sha256": "dd1c93b3c359ef10ac6aa3e1f3df08c6bafd64dcbbf3af155549efdb44846954"
+      },
+      "terminology-strict.stdout.log": {
+        "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\battlearmor-autosave-docs-review\\terminology-strict.stdout.log",
+        "bytes": 311,
+        "sha256": "f900b2f139d48a4fce3da66f12105cdd633a1cfe6dc8102211bcf03cc6a1cce7"
+      },
+      "worker-pids.stderr.log": {
+        "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\battlearmor-autosave-docs-review\\worker-pids.stderr.log",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "worker-pids.stdout.log": {
+        "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\battlearmor-autosave-docs-review\\worker-pids.stdout.log",
+        "bytes": 128,
+        "sha256": "d02849528c4255072f3191e03ca07f6efb647ab206bcd2881083e5086497bf74"
+      }
+    }
+  },
+  "formatter": {
+    "status": "excluded",
+    "reason": "OpenSpec formatting was explicitly excluded; no formatter command was run."
+  },
+  "findings": {
+    "verdict": "No actionable content correction found in retained patch.",
+    "numericBoundary": "No contradiction: 11 manipulator options, 5 weight classes, 400-2000kg step 50, Ground/Jump MP 0-5, squad 1-6, armor 0-14, and 5 visible location options match the reviewed component source. The underlying BattleArmorLocation enum has 7 values; two leg values are not exposed by the current Squad selector.",
+    "runtimeLimit": "This is documentation evidence only; it does not establish runtime completion, production cutover, CAMP authority witnesses, journal cutover, or live two-process proof.",
+    "grokLimit": "Worker status code 1 and max-turn termination are recorded; worker completion is not claimed."
+  },
+  "rawDirectory": ".sisyphus/roadmap-completion-20260912/battlearmor-autosave-docs-review",
+  "preparationInputs": {
+    "admission": ".sisyphus/roadmap-completion-20260912/battlearmor-autosave-docs/admission.json",
+    "sourceCheck": {
+      "path": ".sisyphus/roadmap-completion-20260912/battlearmor-autosave-docs/source-check.json",
+      "bytes": 14542,
+      "sha256": "351f45e6d29504fe062670353806ec0cc57fc0c247ede813fc1583d04f39a5d2"
+    },
+    "editBrief": {
+      "path": ".sisyphus/roadmap-completion-20260912/battlearmor-autosave-debt/edit-brief.md",
+      "bytes": 6532,
+      "sha256": "9cc7d38ff76e60a1d7c154f895b2b768b8c17086a0b7ce6648d9d56d2c743157"
+    }
+  }
+}

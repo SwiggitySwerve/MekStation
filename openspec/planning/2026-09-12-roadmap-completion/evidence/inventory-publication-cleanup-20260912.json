@@ -1,0 +1,81 @@
+{
+  "schemaVersion": 1,
+  "evidenceId": "inventory-publication-cleanup-20260912",
+  "capturedAt": "2026-09-12T21:16:47Z",
+  "scope": "Cleanup of the accepted inventory-publication checkout and its local/tracking refs only. Shared root, product sources, specs, ledgers, and preserved raw evidence were not edited.",
+  "acceptedExport": {
+    "publishedReceipt": "openspec/planning/2026-09-12-roadmap-completion/evidence/inventory-publication-main-verification-20260912.json",
+    "parentAcceptance": "openspec/planning/2026-09-12-roadmap-completion/evidence/inventory-publication-main-parent-acceptance-20260912.json",
+    "publishedSha256": "a7e9dd3610624b080865fac62e6eb0f1ac09f151e0a420d9f4bbf3ab75eb6e2c",
+    "parentReceiptSha256": "a7e9dd3610624b080865fac62e6eb0f1ac09f151e0a420d9f4bbf3ab75eb6e2c",
+    "parentMatches": true,
+    "rawReceipt": ".sisyphus/roadmap-completion-20260912/inventory-publication-main-verification-20260912.json",
+    "rawReceiptSha256": "a7e9dd3610624b080865fac62e6eb0f1ac09f151e0a420d9f4bbf3ab75eb6e2c",
+    "rawResult": "pass",
+    "gateCount": 14,
+    "rawStreamCheckCount": 70,
+    "rawStreamHashesMatch": true
+  },
+  "sourceInventory": {
+    "path": "docs/audits/2026-09-12-customizer-spec-reconciliation/inventory.json",
+    "sha256": "fe9d25951ee79c34c74f0b8f64aee51dbd94265b30a057ae735ca83301376822",
+    "bytes": 229674,
+    "lines": 4781
+  },
+  "identitiesBeforeCleanup": {
+    "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/inventory-publication",
+    "canonical": true,
+    "reparsePoint": false,
+    "head": "d3540bfea33a2ba8eb86d28759743590615f7c53",
+    "candidateBranch": "codex/roadmap-inventory-publication-20260912",
+    "candidateBranchOid": "1a8a1e6c1ffdd338292b1924860f72c5ef2eed00",
+    "candidateTree": "be2d5dd2d5a86de05320a6d897fcc82ea6da9a46",
+    "mergedTree": "be2d5dd2d5a86de05320a6d897fcc82ea6da9a46",
+    "worktreeClean": true,
+    "remoteBranchBefore": "absent",
+    "trackingRefBefore": "1a8a1e6c1ffdd338292b1924860f72c5ef2eed00 refs/remotes/origin/codex/roadmap-inventory-publication-20260912",
+    "driverTerminalBefore": true
+  },
+  "cleanupOperations": [
+    {
+      "operation": "git worktree remove E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/inventory-publication",
+      "exitCode": 0,
+      "stdout": "worktree-remove-exit=0\nowned-path-absent\n",
+      "stderr": ""
+    },
+    {
+      "operation": "compare expected OID 1a8a1e6c1ffdd338292b1924860f72c5ef2eed00, then git branch -d codex/roadmap-inventory-publication-20260912",
+      "exitCode": 0,
+      "stdout": "Deleted branch codex/roadmap-inventory-publication-20260912 (was 1a8a1e6c1).\nbranch-delete-exit=0\nlocal-ref-absent\n",
+      "stderr": "warning: deleting branch 'codex/roadmap-inventory-publication-20260912' that has been merged to\n         'refs/remotes/origin/codex/roadmap-inventory-publication-20260912', but not yet merged to HEAD\n"
+    },
+    {
+      "operation": "compare expected tracking OID 1a8a1e6c1ffdd338292b1924860f72c5ef2eed00, then git update-ref -d refs/remotes/origin/codex/roadmap-inventory-publication-20260912",
+      "exitCode": 0,
+      "stdout": "tracking-ref-delete-exit=0\ntracking-ref-absent\n",
+      "stderr": ""
+    }
+  ],
+  "postCleanupVerification": {
+    "pathAbsent": true,
+    "worktreeRegistrationAbsent": true,
+    "localRefAbsent": true,
+    "trackingRefAbsent": true,
+    "remoteRefAbsent": true,
+    "publishedSha256": "a7e9dd3610624b080865fac62e6eb0f1ac09f151e0a420d9f4bbf3ab75eb6e2c",
+    "parentReceiptSha256": "a7e9dd3610624b080865fac62e6eb0f1ac09f151e0a420d9f4bbf3ab75eb6e2c",
+    "parentMatches": true,
+    "rawReceiptSha256": "a7e9dd3610624b080865fac62e6eb0f1ac09f151e0a420d9f4bbf3ab75eb6e2c",
+    "rawPass": "pass",
+    "rawStreamChecks": true,
+    "rawStreamCheckCount": 70,
+    "gateCount": 14,
+    "driverTerminal": true,
+    "rawPostVerification": "{\n  \"pathAbsent\": true,\n  \"localRefAbsent\": true,\n  \"trackingRefAbsent\": true,\n  \"remoteRefAbsent\": true,\n  \"publishedSha256\": \"a7e9dd3610624b080865fac62e6eb0f1ac09f151e0a420d9f4bbf3ab75eb6e2c\",\n  \"parentReceiptSha256\": \"a7e9dd3610624b080865fac62e6eb0f1ac09f151e0a420d9f4bbf3ab75eb6e2c\",\n  \"parentMatches\": true,\n  \"rawReceiptSha256\": \"a7e9dd3610624b080865fac62e6eb0f1ac09f151e0a420d9f4bbf3ab75eb6e2c\",\n  \"rawPass\": \"pass\",\n  \"rawStreamChecks\": true,\n  \"rawStreamCheckCount\": 70,\n  \"gateCount\": 14,\n  \"sourceInventory\": {\n    \"path\": \"docs/audits/2026-09-12-customizer-spec-reconciliation/inventory.json\",\n    \"sha256\": \"fe9d25951ee79c34c74f0b8f64aee51dbd94265b30a057ae735ca83301376822\",\n    \"bytes\": 229674,\n    \"lines\": 4781,\n    \"mimeType\": \"application/json\",\n    \"fileDescription\": \"JSON text data\"\n  }\n}\n"
+  },
+  "result": "complete",
+  "limitations": [
+    "The branch deletion emitted Git's warning that the commit was merged to the stale local remote-tracking ref but not to the shared root HEAD; the deletion was compare-guarded against the exact expected OID and the tracking ref was then removed compare-guarded.",
+    "Shared root remains dirty and was not cleaned or reset."
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "at": "2026-09-12T22:44:09.708Z",
+  "status": "accepted-bytes-reconciled-focused-verification-pending",
+  "preflight": {
+    "path": ".sisyphus/roadmap-completion-20260912/ci-root-reconciliation-preflight/reconciliation-report.json",
+    "sha256": "767790535457b296d0f9b55eca8e8c4c82f0d744483f761e13cb518e57a18a19"
+  },
+  "sourceMain": "da524f7f501b0485e3d8e67e973fce075670922c",
+  "files": [
+    {
+      "path": "scripts/qc/openspec-workflow-contracts.mjs",
+      "beforeSha256": "de70258c69eb27100f52954d2aced6f415321d4dbd73e952bdb6533934308062",
+      "afterSha256": "4ae969ae69ad71af0cfc761c0b133bbc0862202e71138d38198231062f92f696",
+      "backup": ".sisyphus\\roadmap-completion-20260912\\ci-root-reconciliation-accepted\\before\\scripts\\qc\\openspec-workflow-contracts.mjs"
+    },
+    {
+      "path": "package.json",
+      "beforeSha256": "0cbe570cc8b2ffdabcf1c273a75b739bf6693965239a913f524661291e6c2e32",
+      "afterSha256": "eeebcb46214017104ed9cad6feab8f4a7e941816552585fb8230731d6931ad17",
+      "backup": ".sisyphus\\roadmap-completion-20260912\\ci-root-reconciliation-accepted\\before\\package.json"
+    },
+    {
+      "path": "package-lock.json",
+      "beforeSha256": "813adb8c95fd2d13a05214e504756ee72378769f7c33af242f8120ee2750b48a",
+      "afterSha256": "f923ca53a2d9fc69d56cd59b9f86d26fd4b3756ac488c138b64163f787bd7d36",
+      "backup": ".sisyphus\\roadmap-completion-20260912\\ci-root-reconciliation-accepted\\before\\package-lock.json"
+    }
+  ],
+  "indexHash": "a65b683940b6449651a074132f39d8b8da156ef5620af6aa1b62eb7c8698b953",
+  "testHash": "37cc951ad23379e647b2217750932f18c1843c247ee1f4a3e7e36da79b97b026",
+  "limits": "Approved YAML declarations and accepted workflow module only; no workflow activation, install, staging or root checkout movement."
+}

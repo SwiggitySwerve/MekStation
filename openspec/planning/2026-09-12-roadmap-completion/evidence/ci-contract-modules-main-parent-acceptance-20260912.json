@@ -1,0 +1,1102 @@
+{
+  "at": "2026-09-12T21:52:03.613Z",
+  "status": "accepted",
+  "main": "da524f7f501b0485e3d8e67e973fce075670922c",
+  "reviewedHead": "bc3a35a2a7c18708359734aa98bda21815e060d1",
+  "sourceFiles": 4,
+  "individualStaticChecks": 12,
+  "focusedTests": 5,
+  "shellMutationRefusals": 3,
+  "productionBuild": {
+    "exit": 0,
+    "evidence": ".sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/main-1/recovery-1/recovery-verification.json",
+    "sourceUnchanged": true
+  },
+  "metadataRootTestLines": 675,
+  "metadataRootTestSha256": "37cc951ad23379e647b2217750932f18c1843c247ee1f4a3e7e36da79b97b026",
+  "evidence": {
+    "repair": {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/ci-contract-modules-exit-evidence-repair-20260912.json",
+      "sha256": "b6c6749e9958566ae872375f79e0574286764105ec9255a5cc2da39c3839dcd2"
+    },
+    "audit": {
+      "path": ".sisyphus/roadmap-completion-20260912/ci-main-independent-audit/audit.json",
+      "sha256": "935f83f8f985e7f49dc8affdd37e9897e144a7b313f0ac5c635d97aee3080c69"
+    }
+  },
+  "referencesRehashed": [
+    {
+      "path": "E:\\Projects\\MekStation\\openspec\\planning\\2026-09-12-roadmap-completion\\evidence\\ci-contract-modules-main-verification-20260912.json",
+      "sha256": "3797f6acc55c4d9b38613bc1aaa52587f753d6f1f68d5adf5db8678fe242cd4c"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\ci-contract-modules-checks\\main-1\\recovery-1\\recovery-verification.json",
+      "sha256": "0fdcc066f89cc22d449cf5e3353ff212c33895ad80be78649645440813764469"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\ci-contract-modules-checks\\main-1\\main-driver.cjs",
+      "sha256": "b44ad895108ce108becfc35c5c3863dbc75a797df51aa9624647401e48965a1c"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\ci-contract-modules-checks\\main-1\\driver-failure.json",
+      "sha256": "32d7db151177e70b7b097a2e01b714e6458af4ff618859d84458a1815f90b933"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\ci-contract-modules-checks\\main-1\\recovery-driver.cjs",
+      "sha256": "a17714aa7edc390714effa9b9d69e3c3187a5cc0ac8d17745128225a12a5bdf2"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\ci-contract-modules-checks\\main-1\\metadata-main.cjs",
+      "sha256": "8dd585652786390d145c9ace86070cdda94d7ee158e180fe42a9090491eba6a2"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\ci-contract-modules-checks\\main-1\\before.json",
+      "sha256": "0977fc4ba88730b19ef6eaad178e9eaacf541651b28a38a27889753dd84f4dd7"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\ci-contract-modules-checks\\main-1\\recovery-1\\before.json",
+      "sha256": "206f8fe25b1ac00f05c3c7b7b3bc261ceb5b72bdb506ea6380cd3a4f3c4ffe55"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\ci-contract-modules-checks\\main-1\\recovery-1\\after.json",
+      "sha256": "5f643686a955159be4b29874a6077e929b16af2db4964dd0d929b3460aaf323c"
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/main-1/recovery-1/corrected-exact-yaml-metadata.stdout.log",
+      "sha256": "ae58ec21755bd333eb4120238b4ff2155641ae1369daf1fe6b3601aa10510ec4"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\ci-contract-modules-checks\\main-1\\node-check-ci-module.stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\ci-contract-modules-checks\\main-1\\node-check-ci-module.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\ci-contract-modules-checks\\main-1\\node-check-workflow-module.stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\ci-contract-modules-checks\\main-1\\node-check-workflow-module.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\ci-contract-modules-checks\\main-1\\dynamic-import-contract-modules.stdout.log",
+      "sha256": "0f83adc6354725ba28ac4f1a62a1996c39d4ff6d9f95e90c065a086fe7bc454b"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\ci-contract-modules-checks\\main-1\\dynamic-import-contract-modules.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\ci-contract-modules-checks\\main-1\\focused-jest-five-tests.stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\ci-contract-modules-checks\\main-1\\focused-jest-five-tests.stderr.log",
+      "sha256": "27242f0446fd3cd5194b342f5e13160011a64abbd72c77fc2fb706221b25946f"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\ci-contract-modules-checks\\main-1\\shell-override-negative-harness.stdout.log",
+      "sha256": "86d00062e3a450c5c794f352fcc7030390725cb6e386eef17215528f2887caeb"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\ci-contract-modules-checks\\main-1\\shell-override-negative-harness.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\ci-contract-modules-checks\\main-1\\typecheck.stdout.log",
+      "sha256": "d140a6ce62dda0946fe30dd882dbb8209f05be72c8fa8850e5634755a399e50f"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\ci-contract-modules-checks\\main-1\\typecheck.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\ci-contract-modules-checks\\main-1\\lint.stdout.log",
+      "sha256": "66078f7ef5aaff887eb4732318ba5c44d7c96da686a31a5249afd03b06c1bf6a"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\ci-contract-modules-checks\\main-1\\lint.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\ci-contract-modules-checks\\main-1\\format-check.stdout.log",
+      "sha256": "e061787ef26cca1d423e15e1670e9dc4eeb26ed88af0b78021267fb2fe75040e"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\ci-contract-modules-checks\\main-1\\format-check.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\ci-contract-modules-checks\\main-1\\openspec-validate-strict.stdout.log",
+      "sha256": "16c5c323579e9f348bc2adb0830ebd7bb199a73726ab1098c72331305dcca967"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\ci-contract-modules-checks\\main-1\\openspec-validate-strict.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\ci-contract-modules-checks\\main-1\\purpose-strict.stdout.log",
+      "sha256": "901c3cbcfa24be0f7b562b01015ca5232c1976e1362788ebbf1caeec5b96ea4b"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\ci-contract-modules-checks\\main-1\\purpose-strict.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\ci-contract-modules-checks\\main-1\\terminology-strict.stdout.log",
+      "sha256": "06c7961b0d4709a1010aba1f38caf9ab57eb82ce2c48ceb2422ed9d4b234db23"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\ci-contract-modules-checks\\main-1\\terminology-strict.stderr.log",
+      "sha256": "802da0b0c99563087ac4c18c88d9a5736a4c49ad08ba7d3c2837537c207585b5"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\ci-contract-modules-checks\\main-1\\candidate-ci-qc.stdout.log",
+      "sha256": "e73d2bc631637ff8806d9adbf1a31052b575044d797a04f184aec21f5b8e6985"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\ci-contract-modules-checks\\main-1\\candidate-ci-qc.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\ci-contract-modules-checks\\main-1\\recovery-1\\corrected-exact-yaml-metadata.stdout.log",
+      "sha256": "ae58ec21755bd333eb4120238b4ff2155641ae1369daf1fe6b3601aa10510ec4"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\ci-contract-modules-checks\\main-1\\recovery-1\\corrected-exact-yaml-metadata.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\ci-contract-modules-checks\\main-1\\recovery-1\\production-build.stdout.log",
+      "sha256": "b081d570f10280b957d065c3af7be1b2b98366e5ad37c40e610d427f8bc33251"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\ci-contract-modules-checks\\main-1\\recovery-1\\production-build.stderr.log",
+      "sha256": "85d93299a7d4c188400ccb7668aeba003808d04cc0c626eef34b4c46a5fa6090"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\ci-contract-modules-checks\\main-1\\recovery-1\\pid-absence.txt",
+      "sha256": "2c5d88cc1d234f9f2a33ae314bea2ee1b6b4fb4669490105047787102e650b58"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\ci-contract-modules-checks\\main-1\\initial-harness-fixture-failure\\main-driver.cjs",
+      "sha256": "276b34483eeaab45fd5e0ff82adbd9ebf6ff8e6ba756bb3e67549b54d9f28f3d"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\ci-contract-modules-checks\\main-1\\initial-harness-fixture-failure\\driver-failure.json",
+      "sha256": "0a1367f2ecaff6b82d8d5af32494e3de45ec8321c43881944a2bb6d0693819e7"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\ci-contract-modules-checks\\main-1\\initial-metadata-test-mismatch\\main-driver.cjs",
+      "sha256": "97cee08b34ff1acabbf348d0a83464e4c5659934b2d97e00e4d05bb378473068"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\ci-contract-modules-checks\\main-1\\initial-metadata-test-mismatch\\driver-failure.json",
+      "sha256": "219bfc1a7e2caf377e0cba58e7865c0ad5f03d91844bb1af2c00aecf75a445c5"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\node_modules\\tsx\\dist\\cli.mjs",
+      "sha256": "5d5b2a9f9cf4d6a8b44326b676417e00b42ad04037ed173b7af82ea8146a4fc0"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\node_modules\\ts-node\\dist\\bin.js",
+      "sha256": "057d8365dc9029bd453d9a22c3643b69a657c94d597f7cadfa49dcb222f87ea3"
+    },
+    {
+      "path": "C:/Users/wroll/AppData/Roaming/npm/node_modules/@fission-ai/openspec/bin/openspec.js",
+      "sha256": "ca136f0e9fd4951dcf93d8ed729ebc97b2d97d3980cd9dc9d42fc80e32e797c6"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\grok-ci-contracts-1\\resume-2-checks\\negative-harness.mjs",
+      "sha256": "bb89b5cf5483094b2e21a1491940e602fc410b58857ca62b933eb5e9e273eaf9"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\ci-contract-modules-checks\\main-1\\driver-failure.json",
+      "sha256": "32d7db151177e70b7b097a2e01b714e6458af4ff618859d84458a1815f90b933"
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/main-1/exit-evidence-repair/run-1/exit-evidence-repair.json",
+      "sha256": "bd356d5fea4bd644054d420f072a532b2c804a89b8013da8fc7cc770aa8b55e1"
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/main-1/exit-evidence-repair/exit-evidence-driver.cjs",
+      "sha256": "6298423d992f0c4d24dbbb6731d07f4a7c5654f560c594cc1cc1319ee505aca4"
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/main-1/exit-evidence-repair/run-1/node-check-ci-module.stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/main-1/exit-evidence-repair/run-1/node-check-ci-module.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/main-1/exit-evidence-repair/run-1/node-check-workflow-module.stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/main-1/exit-evidence-repair/run-1/node-check-workflow-module.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/main-1/exit-evidence-repair/run-1/dynamic-import-contract-modules.stdout.log",
+      "sha256": "0f83adc6354725ba28ac4f1a62a1996c39d4ff6d9f95e90c065a086fe7bc454b"
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/main-1/exit-evidence-repair/run-1/dynamic-import-contract-modules.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/main-1/exit-evidence-repair/run-1/focused-jest-five-tests.stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/main-1/exit-evidence-repair/run-1/focused-jest-five-tests.stderr.log",
+      "sha256": "ba001e3c9f8fdbd705e91850e61a65893112dca9abb63eb2819c5dc483be1be9"
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/main-1/exit-evidence-repair/run-1/shell-override-negative-harness.stdout.log",
+      "sha256": "86d00062e3a450c5c794f352fcc7030390725cb6e386eef17215528f2887caeb"
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/main-1/exit-evidence-repair/run-1/shell-override-negative-harness.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/main-1/exit-evidence-repair/run-1/typecheck.stdout.log",
+      "sha256": "d140a6ce62dda0946fe30dd882dbb8209f05be72c8fa8850e5634755a399e50f"
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/main-1/exit-evidence-repair/run-1/typecheck.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/main-1/exit-evidence-repair/run-1/lint.stdout.log",
+      "sha256": "486d6343d3802528d79430cafddf0e8a719574243f533d15344911328fd9df6d"
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/main-1/exit-evidence-repair/run-1/lint.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/main-1/exit-evidence-repair/run-1/format-check.stdout.log",
+      "sha256": "7ea44bd2e84bbdc5f5caf6c401845fbee89d158c52a26288f0f6abca5ac71a2e"
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/main-1/exit-evidence-repair/run-1/format-check.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/main-1/exit-evidence-repair/run-1/openspec-validate-strict.stdout.log",
+      "sha256": "16c5c323579e9f348bc2adb0830ebd7bb199a73726ab1098c72331305dcca967"
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/main-1/exit-evidence-repair/run-1/openspec-validate-strict.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/main-1/exit-evidence-repair/run-1/purpose-strict.stdout.log",
+      "sha256": "901c3cbcfa24be0f7b562b01015ca5232c1976e1362788ebbf1caeec5b96ea4b"
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/main-1/exit-evidence-repair/run-1/purpose-strict.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/main-1/exit-evidence-repair/run-1/terminology-strict.stdout.log",
+      "sha256": "06c7961b0d4709a1010aba1f38caf9ab57eb82ce2c48ceb2422ed9d4b234db23"
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/main-1/exit-evidence-repair/run-1/terminology-strict.stderr.log",
+      "sha256": "207bcbba8f375cb003f41f1cb339da350fdc5a77a304afa2d4c910f50b3df737"
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/main-1/exit-evidence-repair/run-1/candidate-ci-qc.stdout.log",
+      "sha256": "e73d2bc631637ff8806d9adbf1a31052b575044d797a04f184aec21f5b8e6985"
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/main-1/exit-evidence-repair/run-1/candidate-ci-qc.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\ci-contract-modules-checks\\main-1\\recovery-1\\corrected-exact-yaml-metadata.stdout.log",
+      "sha256": "ae58ec21755bd333eb4120238b4ff2155641ae1369daf1fe6b3601aa10510ec4"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\ci-contract-modules-checks\\main-1\\recovery-1\\corrected-exact-yaml-metadata.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\ci-contract-modules-checks\\main-1\\recovery-1\\production-build.stdout.log",
+      "sha256": "b081d570f10280b957d065c3af7be1b2b98366e5ad37c40e610d427f8bc33251"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\ci-contract-modules-checks\\main-1\\recovery-1\\production-build.stderr.log",
+      "sha256": "85d93299a7d4c188400ccb7668aeba003808d04cc0c626eef34b4c46a5fa6090"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\ci-contract-modules\\node_modules\\@esbuild\\win32-x64\\esbuild.exe",
+      "sha256": "cae1bbc86f4df800b01d99e28aea0a154b02243de6797e98f48a9b88a64a7be0"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\ci-contract-modules\\node_modules\\@esbuild\\win32-x64\\package.json",
+      "sha256": "5b41ac77d55bf2ae0de680d83a9095904e89523c6ef42460cffd0df5ef5a6947"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\ci-contract-modules\\node_modules\\@esbuild\\win32-x64\\README.md",
+      "sha256": "29cf512fa580b72392176bf694933ae0decaf18116fdeee917511b445411ce16"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\ci-contract-modules\\node_modules\\esbuild\\bin\\esbuild",
+      "sha256": "3d1037d9a128440856daec17f4358ebb465b73823858a88a5fe1ce702cc17944"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\ci-contract-modules\\node_modules\\esbuild\\install.js",
+      "sha256": "10f6fa3644d8d23d066ff67b0ae449074e75884503546a9fedb667f1dcb9ade2"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\ci-contract-modules\\node_modules\\esbuild\\lib\\main.d.ts",
+      "sha256": "161c8e0690c46021506e32fda85956d785b70f309ae97011fd27374c065cac9b"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\ci-contract-modules\\node_modules\\esbuild\\lib\\main.js",
+      "sha256": "0d1241812c443111d39475dfc66836003e9ef8b87e54d990dd67df29d20010e1"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\ci-contract-modules\\node_modules\\esbuild\\LICENSE.md",
+      "sha256": "b40ec5baec7bb34fa5b1c09521fa3cd52d5fad7adafed74932a2010d3612a681"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\ci-contract-modules\\node_modules\\esbuild\\package.json",
+      "sha256": "cb7d5b1fe478f8cbaae566a86031b6fdf5f7d444354f35d1cb3cba9adf6d2935"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\ci-contract-modules\\node_modules\\esbuild\\README.md",
+      "sha256": "6d481cd60ec3c679e5e395f547ab4221147f35642894f6b95a8df38fd25c87bd"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\ci-contract-modules\\node_modules\\tsx\\dist\\cjs\\api\\index.cjs",
+      "sha256": "a15d3802fd3286a8544c877b13b219f7c3e1a1ab21e83f758192b9f7210de718"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\ci-contract-modules\\node_modules\\tsx\\dist\\cjs\\api\\index.d.cts",
+      "sha256": "8c2b1a98cc24f9efb1d8705b3c3c1929d3a4f42273466da97df62c7b253eaeee"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\ci-contract-modules\\node_modules\\tsx\\dist\\cjs\\api\\index.d.mts",
+      "sha256": "8c2b1a98cc24f9efb1d8705b3c3c1929d3a4f42273466da97df62c7b253eaeee"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\ci-contract-modules\\node_modules\\tsx\\dist\\cjs\\api\\index.mjs",
+      "sha256": "600ba2de0ee0c1592a4b2306daf4a9db960c588c5562e68bc2b77fa7d2f5414c"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\ci-contract-modules\\node_modules\\tsx\\dist\\cjs\\index.cjs",
+      "sha256": "49069c795ff40f563ab0b1f3d32336e58f61f8d5dc7dece0173097eb0b4067ad"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\ci-contract-modules\\node_modules\\tsx\\dist\\cjs\\index.mjs",
+      "sha256": "ae97ad3e7f4a51370750712a5a4f940c21bac6c369fc3cd30d2472c7b339f76c"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\ci-contract-modules\\node_modules\\tsx\\dist\\cli.cjs",
+      "sha256": "cafff497ea8f0a25ab33acb1e7561328ab12c0664c2673ec489c6a2cd3b571a3"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\ci-contract-modules\\node_modules\\tsx\\dist\\cli.mjs",
+      "sha256": "5d5b2a9f9cf4d6a8b44326b676417e00b42ad04037ed173b7af82ea8146a4fc0"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\ci-contract-modules\\node_modules\\tsx\\dist\\client-D_mPDF5S.mjs",
+      "sha256": "3a59578e44917527095c006ecd29b6e61fe5bbf05d5bc809cc7cc6112beedbbd"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\ci-contract-modules\\node_modules\\tsx\\dist\\client-D3mGB526.cjs",
+      "sha256": "f39baa1746411223094df90350710061f9986e07396dd311e3a74ed3df1b63e7"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\ci-contract-modules\\node_modules\\tsx\\dist\\esm\\api\\index.cjs",
+      "sha256": "1e4e4b2dbb41d31b58b748d64c6b6f137f86b8113a010e99e13d92a7e260490d"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\ci-contract-modules\\node_modules\\tsx\\dist\\esm\\api\\index.d.cts",
+      "sha256": "eb9096c517da313cbedce8818d9cadb82bbf02cd6f4a65db4cee42ac01f4272c"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\ci-contract-modules\\node_modules\\tsx\\dist\\esm\\api\\index.d.mts",
+      "sha256": "eb9096c517da313cbedce8818d9cadb82bbf02cd6f4a65db4cee42ac01f4272c"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\ci-contract-modules\\node_modules\\tsx\\dist\\esm\\api\\index.mjs",
+      "sha256": "6108c0ae308c9399e240e9d6cb43d2a291f4a55418c982f3ae017f9357a86053"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\ci-contract-modules\\node_modules\\tsx\\dist\\esm\\index.cjs",
+      "sha256": "db3b7f0d773da7dc057826c14c2144f8e7642216478239fa0906ff5ed8813e3d"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\ci-contract-modules\\node_modules\\tsx\\dist\\esm\\index.mjs",
+      "sha256": "1c7ca3706f7cad59a29568f46592263c17dc0c462d3ded7866e5eddeebaff78e"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\ci-contract-modules\\node_modules\\tsx\\dist\\get-pipe-path-_tAJyU_v.mjs",
+      "sha256": "559be651995cc7188166ca09af99ea08b9b1453767e42fff203b53fa1a403217"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\ci-contract-modules\\node_modules\\tsx\\dist\\get-pipe-path-D4YM6rQt.cjs",
+      "sha256": "4676e923789ccd968968161547bcac8fb8337b76c0d033f6049332d0ac4025ec"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\ci-contract-modules\\node_modules\\tsx\\dist\\index-BWFBUo6r.cjs",
+      "sha256": "fe29b97b254312970fceb8995a519abc8751f26972c221281959a7d77858a464"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\ci-contract-modules\\node_modules\\tsx\\dist\\index-D9F1FXzN.cjs",
+      "sha256": "25149b5ccbb804aba96f2bacb4cf49f6657f606d37d559ed9ca0e2087362aba5"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\ci-contract-modules\\node_modules\\tsx\\dist\\index-gbaejti9.mjs",
+      "sha256": "76febbe946957c96066d1d59293c4a26fc874c05876394cf4c178e4f4d0b6ba8"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\ci-contract-modules\\node_modules\\tsx\\dist\\index-XurvG3JN.mjs",
+      "sha256": "128dc5756da9bec342781ee30127611c958f921e15016b06dd866de28d906245"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\ci-contract-modules\\node_modules\\tsx\\dist\\lexer-DgIbo0BU.cjs",
+      "sha256": "9b92935847bf0f6daade96b21c8271139ed8b48ef3fa59647af0ef1d36770db0"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\ci-contract-modules\\node_modules\\tsx\\dist\\lexer-DQCqS3nf.mjs",
+      "sha256": "6b77bebaee2dd7741177e287a78ef4329d9ef91f6939d09cfcf0029b3859f883"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\ci-contract-modules\\node_modules\\tsx\\dist\\loader.cjs",
+      "sha256": "f1d1dba840cb20875fcd1fd0932c0e6053e124845b0f93c079be5139aae08683"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\ci-contract-modules\\node_modules\\tsx\\dist\\loader.mjs",
+      "sha256": "7dcee7691241fdd4a59a52879597d22d603d770a764282724eaca7cab03b389f"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\ci-contract-modules\\node_modules\\tsx\\dist\\node-features-B9BBLzwu.mjs",
+      "sha256": "f324cd636e296f32b792c57719c3eccb759504bd88cb19ec3618740e086df211"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\ci-contract-modules\\node_modules\\tsx\\dist\\node-features-CQLdkVE6.cjs",
+      "sha256": "465bf87bb3a950640a443d3b3a395263043c7e7bf9fbaea4cd3111a50fc531a8"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\ci-contract-modules\\node_modules\\tsx\\dist\\package-Bj47PlGH.mjs",
+      "sha256": "31b587813befa47ca880321f641a6eba6a0a2e0fcd94d966d39cab68b570ad7f"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\ci-contract-modules\\node_modules\\tsx\\dist\\package-DMqO70yR.cjs",
+      "sha256": "9a5f5918de8055cf26c5df3fbdc61d3d2ead8303119a360a810a43d85ac6e6d6"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\ci-contract-modules\\node_modules\\tsx\\dist\\patch-repl.cjs",
+      "sha256": "33f5f6755270054783f4c568d0d48d4a79fecde965ec6f91ca27f0f949ba6da6"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\ci-contract-modules\\node_modules\\tsx\\dist\\patch-repl.mjs",
+      "sha256": "3850acac507aa554620693d272bed6b7ac1e1b8ab5af406581c632522ad8c872"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\ci-contract-modules\\node_modules\\tsx\\dist\\preflight.cjs",
+      "sha256": "5ef95c5c4b5875dbc270b9591676a2138e4df82bcebde945eebb1eadf721b192"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\ci-contract-modules\\node_modules\\tsx\\dist\\preflight.mjs",
+      "sha256": "ed9364ea1eb3dfd8477ab92cd4add34b163355b65727ba21eae0de463fd33ece"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\ci-contract-modules\\node_modules\\tsx\\dist\\register-BnTWPeIB.mjs",
+      "sha256": "d00720a0c2a5d07998fc2ca4b9f6a62c8ba9091dd2c134eb659b2ef24cbb16cc"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\ci-contract-modules\\node_modules\\tsx\\dist\\register-BOkp8V6j.cjs",
+      "sha256": "27207674d8a75f1332863ddbed1bfae0740861a092b92c418f7916b97a4129a1"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\ci-contract-modules\\node_modules\\tsx\\dist\\register-CKju0f8h.cjs",
+      "sha256": "bb60bafe25b4a742066387dfcdf8a057a3783658a3e02cfe542713dc86037975"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\ci-contract-modules\\node_modules\\tsx\\dist\\register-CqMfTiWi.mjs",
+      "sha256": "983f77efe73f7cd4ec9479e3809606f1e2f54f5e94457171c93107bd97ad4936"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\ci-contract-modules\\node_modules\\tsx\\dist\\repl.cjs",
+      "sha256": "bd40f96bdb621ee9a090ccb56ef42e63571a9ea0efe554a76693ebc98dafd50f"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\ci-contract-modules\\node_modules\\tsx\\dist\\repl.mjs",
+      "sha256": "f35d60ad607c0cfb6b468b303e2c3efab55a0de2275251e880ecbbfbaafcb92d"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\ci-contract-modules\\node_modules\\tsx\\dist\\require-CjvaJWEr.cjs",
+      "sha256": "933caf845ab6b9c6aa13b2a21dd08da71a3d45b5e4244d3f4bd47eceb808da3d"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\ci-contract-modules\\node_modules\\tsx\\dist\\require-DzmC1hVr.mjs",
+      "sha256": "f4ad896f108a89d5a721609a3c40900f4c577c42274cbbdd3d156e5df6c300b1"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\ci-contract-modules\\node_modules\\tsx\\dist\\suppress-warnings.cjs",
+      "sha256": "028063d20bd49083f03a0b1ed4f7a3d55fac1f64f5aca0e58e1ec61601f20ee7"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\ci-contract-modules\\node_modules\\tsx\\dist\\suppress-warnings.mjs",
+      "sha256": "4c7d8eb24f7c16282453bc18d649c310028a63d3850e6590338932cdd896017f"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\ci-contract-modules\\node_modules\\tsx\\dist\\temporary-directory-B83uKxJF.cjs",
+      "sha256": "da189099aba4a7aff1e0ca337cd71410a0f96abc66298403db041cb812cbd24c"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\ci-contract-modules\\node_modules\\tsx\\dist\\temporary-directory-BDDVQOvU.mjs",
+      "sha256": "918e7718e0579ae7d800c3dc9fc6c27626102198463bbb4051e40b2dbcf932b5"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\ci-contract-modules\\node_modules\\tsx\\dist\\types-Cxp8y2TL.d.ts",
+      "sha256": "f462b6fc33bc3f82d1551ac0678834dfff89192ce1e848eb0bb8ca5bfe8bc76f"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\ci-contract-modules\\node_modules\\tsx\\LICENSE",
+      "sha256": "8dded67841a9261a622c739fb61c81785e93765de852828ceeb9403d20a74581"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\ci-contract-modules\\node_modules\\tsx\\node_modules\\.bin\\esbuild",
+      "sha256": "020b954fd13a2c5ee8aabd5a73e24c10a4750099ed5e02f07dc7265c6758a054"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\ci-contract-modules\\node_modules\\tsx\\node_modules\\.bin\\esbuild.cmd",
+      "sha256": "b00afc3761267058834ab0968f58748f0422efe0eb0321540544770cafbf7a69"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\ci-contract-modules\\node_modules\\tsx\\node_modules\\.bin\\esbuild.ps1",
+      "sha256": "9a24efc13fb6ef9def6c5aaf7787e7203d0982e2ab8627b64a41eb033945b7f5"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\ci-contract-modules\\node_modules\\tsx\\node_modules\\@esbuild\\win32-x64\\esbuild.exe",
+      "sha256": "ec02ee9b14ab332416fedd10614dfb80eed5304d94f67745067c011934a8c3c3"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\ci-contract-modules\\node_modules\\tsx\\node_modules\\@esbuild\\win32-x64\\package.json",
+      "sha256": "4a63b84fa1059fef348e29e3a39c26168213bb7f0aa1ac0174e439cc1e62a9f8"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\ci-contract-modules\\node_modules\\tsx\\node_modules\\@esbuild\\win32-x64\\README.md",
+      "sha256": "29cf512fa580b72392176bf694933ae0decaf18116fdeee917511b445411ce16"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\ci-contract-modules\\node_modules\\tsx\\node_modules\\esbuild\\bin\\esbuild",
+      "sha256": "fe9a7b65a540d8df1a0f59941d52e7c1260c36fed9a2af3dd966f15381b6eb76"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\ci-contract-modules\\node_modules\\tsx\\node_modules\\esbuild\\install.js",
+      "sha256": "612294e278914443bdcf81cb17f54afec34dbdd2ebd999a6ee187912320cc315"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\ci-contract-modules\\node_modules\\tsx\\node_modules\\esbuild\\lib\\main.d.ts",
+      "sha256": "161c8e0690c46021506e32fda85956d785b70f309ae97011fd27374c065cac9b"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\ci-contract-modules\\node_modules\\tsx\\node_modules\\esbuild\\lib\\main.js",
+      "sha256": "8331fe1d8b3a07381f33cc425fcfaa94776e263113653f80ec3ba433e9657e73"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\ci-contract-modules\\node_modules\\tsx\\node_modules\\esbuild\\LICENSE.md",
+      "sha256": "b40ec5baec7bb34fa5b1c09521fa3cd52d5fad7adafed74932a2010d3612a681"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\ci-contract-modules\\node_modules\\tsx\\node_modules\\esbuild\\package.json",
+      "sha256": "d55d1d19fcc5b6079e4a71dd4111340c79c682bc36835ac7058a0c364c7db58a"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\ci-contract-modules\\node_modules\\tsx\\node_modules\\esbuild\\README.md",
+      "sha256": "6d481cd60ec3c679e5e395f547ab4221147f35642894f6b95a8df38fd25c87bd"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\ci-contract-modules\\node_modules\\tsx\\package.json",
+      "sha256": "b0d63b124b9b85b53d09cff256fa7832cb6a774f8b90ae1353e63df5275824b2"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\ci-contract-modules\\node_modules\\tsx\\README.md",
+      "sha256": "44e63909767a6f7b21d4103df9417e3ab88bae17a3bc77b93fdcfb94176e3211"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\ci-contract-modules\\node_modules\\ws\\browser.js",
+      "sha256": "010da44addea1d88b2b732540c3f1fd0cbcb28926b96623d4c64222e0ead2d0e"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\ci-contract-modules\\node_modules\\ws\\index.js",
+      "sha256": "924564d5be26d59b9682c4263f68320e48dde7240bd2d1ad17ec305537429dd2"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\ci-contract-modules\\node_modules\\ws\\lib\\buffer-util.js",
+      "sha256": "8b0a45739132f82e25ea13163780abf547ccfe989267f3eb7abb475beec92da3"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\ci-contract-modules\\node_modules\\ws\\lib\\constants.js",
+      "sha256": "391e823142b8b370e55a2fd32b022deaf03b8415c56000009674ebc86a0b4f86"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\ci-contract-modules\\node_modules\\ws\\lib\\event-target.js",
+      "sha256": "c45d3c6e12d170c860c0c3f1a050aa0f864d9806632b609a1e607d675aba128c"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\ci-contract-modules\\node_modules\\ws\\lib\\extension.js",
+      "sha256": "852564f0f6b460287043803eae732666fb5610f676874354fc89f06aa4e986ed"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\ci-contract-modules\\node_modules\\ws\\lib\\limiter.js",
+      "sha256": "e0469d4b83f6ba764b15f80e1766b75c136fbff68f048f4c050f0b1c7f065f69"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\ci-contract-modules\\node_modules\\ws\\lib\\permessage-deflate.js",
+      "sha256": "02c31796f0132a335d4efe7b7adcebadbb69543a1ce65ae04aaccc3530e27ab9"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\ci-contract-modules\\node_modules\\ws\\lib\\receiver.js",
+      "sha256": "a6ada33c9a2d54eaf595824b821ea89ca2c6395f89aa06755c52142148274884"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\ci-contract-modules\\node_modules\\ws\\lib\\sender.js",
+      "sha256": "d0791d30c3defd44dcabbddb879a901c757993fea2c00a7ffea01d53b23b4b77"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\ci-contract-modules\\node_modules\\ws\\lib\\stream.js",
+      "sha256": "a56fcb6e2b152097ee820b6f5410b1f71e59819b45d08d9f8bda588fe39070ec"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\ci-contract-modules\\node_modules\\ws\\lib\\subprotocol.js",
+      "sha256": "be3f6323d6f549568577dcba9004c1479d95c65a7abb0fe0c582875b9fac0b7c"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\ci-contract-modules\\node_modules\\ws\\lib\\validation.js",
+      "sha256": "41ce8e83d0d434132e1704895fedb91f6703a701b42d91c80954ab29b2845593"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\ci-contract-modules\\node_modules\\ws\\lib\\websocket-server.js",
+      "sha256": "6d8dd89a841748c80445fd5fcdb5ba8005369b53cc3525135e11304c8b9c55e5"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\ci-contract-modules\\node_modules\\ws\\lib\\websocket.js",
+      "sha256": "de5add831db49e159d3ee0adb1c5e042eba3af13166374c5584f4fc520d1e734"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\ci-contract-modules\\node_modules\\ws\\LICENSE",
+      "sha256": "2b29dcfe0d6471f7e8c92c5fb38c9f93edee10330937055440192f1832b1ecef"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\ci-contract-modules\\node_modules\\ws\\package.json",
+      "sha256": "5d9fcf3bb6aaa7c789b4a020b79e208e76fbc32b1989caf2c275db8cb04329de"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\ci-contract-modules\\node_modules\\ws\\README.md",
+      "sha256": "bb979132f3cbff08ce47f36d041e18071f8f534d01f591c0b129ba7abf1e480e"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\ci-contract-modules\\node_modules\\ws\\wrapper.mjs",
+      "sha256": "fe154662301fd558f935f9c217fccbe7a7dac02ff39e648a000589403ff27c7f"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\node_modules\\@esbuild\\win32-x64\\esbuild.exe",
+      "sha256": "cae1bbc86f4df800b01d99e28aea0a154b02243de6797e98f48a9b88a64a7be0"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\node_modules\\@esbuild\\win32-x64\\package.json",
+      "sha256": "5b41ac77d55bf2ae0de680d83a9095904e89523c6ef42460cffd0df5ef5a6947"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\node_modules\\@esbuild\\win32-x64\\README.md",
+      "sha256": "29cf512fa580b72392176bf694933ae0decaf18116fdeee917511b445411ce16"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\node_modules\\esbuild\\bin\\esbuild",
+      "sha256": "3d1037d9a128440856daec17f4358ebb465b73823858a88a5fe1ce702cc17944"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\node_modules\\esbuild\\install.js",
+      "sha256": "10f6fa3644d8d23d066ff67b0ae449074e75884503546a9fedb667f1dcb9ade2"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\node_modules\\esbuild\\lib\\main.d.ts",
+      "sha256": "161c8e0690c46021506e32fda85956d785b70f309ae97011fd27374c065cac9b"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\node_modules\\esbuild\\lib\\main.js",
+      "sha256": "0d1241812c443111d39475dfc66836003e9ef8b87e54d990dd67df29d20010e1"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\node_modules\\esbuild\\LICENSE.md",
+      "sha256": "b40ec5baec7bb34fa5b1c09521fa3cd52d5fad7adafed74932a2010d3612a681"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\node_modules\\esbuild\\package.json",
+      "sha256": "cb7d5b1fe478f8cbaae566a86031b6fdf5f7d444354f35d1cb3cba9adf6d2935"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\node_modules\\esbuild\\README.md",
+      "sha256": "6d481cd60ec3c679e5e395f547ab4221147f35642894f6b95a8df38fd25c87bd"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\node_modules\\tsx\\dist\\cjs\\api\\index.cjs",
+      "sha256": "a15d3802fd3286a8544c877b13b219f7c3e1a1ab21e83f758192b9f7210de718"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\node_modules\\tsx\\dist\\cjs\\api\\index.d.cts",
+      "sha256": "8c2b1a98cc24f9efb1d8705b3c3c1929d3a4f42273466da97df62c7b253eaeee"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\node_modules\\tsx\\dist\\cjs\\api\\index.d.mts",
+      "sha256": "8c2b1a98cc24f9efb1d8705b3c3c1929d3a4f42273466da97df62c7b253eaeee"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\node_modules\\tsx\\dist\\cjs\\api\\index.mjs",
+      "sha256": "600ba2de0ee0c1592a4b2306daf4a9db960c588c5562e68bc2b77fa7d2f5414c"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\node_modules\\tsx\\dist\\cjs\\index.cjs",
+      "sha256": "49069c795ff40f563ab0b1f3d32336e58f61f8d5dc7dece0173097eb0b4067ad"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\node_modules\\tsx\\dist\\cjs\\index.mjs",
+      "sha256": "ae97ad3e7f4a51370750712a5a4f940c21bac6c369fc3cd30d2472c7b339f76c"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\node_modules\\tsx\\dist\\cli.cjs",
+      "sha256": "cafff497ea8f0a25ab33acb1e7561328ab12c0664c2673ec489c6a2cd3b571a3"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\node_modules\\tsx\\dist\\cli.mjs",
+      "sha256": "5d5b2a9f9cf4d6a8b44326b676417e00b42ad04037ed173b7af82ea8146a4fc0"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\node_modules\\tsx\\dist\\client-D_mPDF5S.mjs",
+      "sha256": "3a59578e44917527095c006ecd29b6e61fe5bbf05d5bc809cc7cc6112beedbbd"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\node_modules\\tsx\\dist\\client-D3mGB526.cjs",
+      "sha256": "f39baa1746411223094df90350710061f9986e07396dd311e3a74ed3df1b63e7"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\node_modules\\tsx\\dist\\esm\\api\\index.cjs",
+      "sha256": "1e4e4b2dbb41d31b58b748d64c6b6f137f86b8113a010e99e13d92a7e260490d"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\node_modules\\tsx\\dist\\esm\\api\\index.d.cts",
+      "sha256": "eb9096c517da313cbedce8818d9cadb82bbf02cd6f4a65db4cee42ac01f4272c"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\node_modules\\tsx\\dist\\esm\\api\\index.d.mts",
+      "sha256": "eb9096c517da313cbedce8818d9cadb82bbf02cd6f4a65db4cee42ac01f4272c"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\node_modules\\tsx\\dist\\esm\\api\\index.mjs",
+      "sha256": "6108c0ae308c9399e240e9d6cb43d2a291f4a55418c982f3ae017f9357a86053"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\node_modules\\tsx\\dist\\esm\\index.cjs",
+      "sha256": "db3b7f0d773da7dc057826c14c2144f8e7642216478239fa0906ff5ed8813e3d"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\node_modules\\tsx\\dist\\esm\\index.mjs",
+      "sha256": "1c7ca3706f7cad59a29568f46592263c17dc0c462d3ded7866e5eddeebaff78e"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\node_modules\\tsx\\dist\\get-pipe-path-_tAJyU_v.mjs",
+      "sha256": "559be651995cc7188166ca09af99ea08b9b1453767e42fff203b53fa1a403217"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\node_modules\\tsx\\dist\\get-pipe-path-D4YM6rQt.cjs",
+      "sha256": "4676e923789ccd968968161547bcac8fb8337b76c0d033f6049332d0ac4025ec"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\node_modules\\tsx\\dist\\index-BWFBUo6r.cjs",
+      "sha256": "fe29b97b254312970fceb8995a519abc8751f26972c221281959a7d77858a464"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\node_modules\\tsx\\dist\\index-D9F1FXzN.cjs",
+      "sha256": "25149b5ccbb804aba96f2bacb4cf49f6657f606d37d559ed9ca0e2087362aba5"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\node_modules\\tsx\\dist\\index-gbaejti9.mjs",
+      "sha256": "76febbe946957c96066d1d59293c4a26fc874c05876394cf4c178e4f4d0b6ba8"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\node_modules\\tsx\\dist\\index-XurvG3JN.mjs",
+      "sha256": "128dc5756da9bec342781ee30127611c958f921e15016b06dd866de28d906245"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\node_modules\\tsx\\dist\\lexer-DgIbo0BU.cjs",
+      "sha256": "9b92935847bf0f6daade96b21c8271139ed8b48ef3fa59647af0ef1d36770db0"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\node_modules\\tsx\\dist\\lexer-DQCqS3nf.mjs",
+      "sha256": "6b77bebaee2dd7741177e287a78ef4329d9ef91f6939d09cfcf0029b3859f883"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\node_modules\\tsx\\dist\\loader.cjs",
+      "sha256": "f1d1dba840cb20875fcd1fd0932c0e6053e124845b0f93c079be5139aae08683"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\node_modules\\tsx\\dist\\loader.mjs",
+      "sha256": "7dcee7691241fdd4a59a52879597d22d603d770a764282724eaca7cab03b389f"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\node_modules\\tsx\\dist\\node-features-B9BBLzwu.mjs",
+      "sha256": "f324cd636e296f32b792c57719c3eccb759504bd88cb19ec3618740e086df211"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\node_modules\\tsx\\dist\\node-features-CQLdkVE6.cjs",
+      "sha256": "465bf87bb3a950640a443d3b3a395263043c7e7bf9fbaea4cd3111a50fc531a8"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\node_modules\\tsx\\dist\\package-Bj47PlGH.mjs",
+      "sha256": "31b587813befa47ca880321f641a6eba6a0a2e0fcd94d966d39cab68b570ad7f"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\node_modules\\tsx\\dist\\package-DMqO70yR.cjs",
+      "sha256": "9a5f5918de8055cf26c5df3fbdc61d3d2ead8303119a360a810a43d85ac6e6d6"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\node_modules\\tsx\\dist\\patch-repl.cjs",
+      "sha256": "33f5f6755270054783f4c568d0d48d4a79fecde965ec6f91ca27f0f949ba6da6"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\node_modules\\tsx\\dist\\patch-repl.mjs",
+      "sha256": "3850acac507aa554620693d272bed6b7ac1e1b8ab5af406581c632522ad8c872"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\node_modules\\tsx\\dist\\preflight.cjs",
+      "sha256": "5ef95c5c4b5875dbc270b9591676a2138e4df82bcebde945eebb1eadf721b192"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\node_modules\\tsx\\dist\\preflight.mjs",
+      "sha256": "ed9364ea1eb3dfd8477ab92cd4add34b163355b65727ba21eae0de463fd33ece"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\node_modules\\tsx\\dist\\register-BnTWPeIB.mjs",
+      "sha256": "d00720a0c2a5d07998fc2ca4b9f6a62c8ba9091dd2c134eb659b2ef24cbb16cc"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\node_modules\\tsx\\dist\\register-BOkp8V6j.cjs",
+      "sha256": "27207674d8a75f1332863ddbed1bfae0740861a092b92c418f7916b97a4129a1"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\node_modules\\tsx\\dist\\register-CKju0f8h.cjs",
+      "sha256": "bb60bafe25b4a742066387dfcdf8a057a3783658a3e02cfe542713dc86037975"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\node_modules\\tsx\\dist\\register-CqMfTiWi.mjs",
+      "sha256": "983f77efe73f7cd4ec9479e3809606f1e2f54f5e94457171c93107bd97ad4936"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\node_modules\\tsx\\dist\\repl.cjs",
+      "sha256": "bd40f96bdb621ee9a090ccb56ef42e63571a9ea0efe554a76693ebc98dafd50f"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\node_modules\\tsx\\dist\\repl.mjs",
+      "sha256": "f35d60ad607c0cfb6b468b303e2c3efab55a0de2275251e880ecbbfbaafcb92d"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\node_modules\\tsx\\dist\\require-CjvaJWEr.cjs",
+      "sha256": "933caf845ab6b9c6aa13b2a21dd08da71a3d45b5e4244d3f4bd47eceb808da3d"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\node_modules\\tsx\\dist\\require-DzmC1hVr.mjs",
+      "sha256": "f4ad896f108a89d5a721609a3c40900f4c577c42274cbbdd3d156e5df6c300b1"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\node_modules\\tsx\\dist\\suppress-warnings.cjs",
+      "sha256": "028063d20bd49083f03a0b1ed4f7a3d55fac1f64f5aca0e58e1ec61601f20ee7"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\node_modules\\tsx\\dist\\suppress-warnings.mjs",
+      "sha256": "4c7d8eb24f7c16282453bc18d649c310028a63d3850e6590338932cdd896017f"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\node_modules\\tsx\\dist\\temporary-directory-B83uKxJF.cjs",
+      "sha256": "da189099aba4a7aff1e0ca337cd71410a0f96abc66298403db041cb812cbd24c"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\node_modules\\tsx\\dist\\temporary-directory-BDDVQOvU.mjs",
+      "sha256": "918e7718e0579ae7d800c3dc9fc6c27626102198463bbb4051e40b2dbcf932b5"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\node_modules\\tsx\\dist\\types-Cxp8y2TL.d.ts",
+      "sha256": "f462b6fc33bc3f82d1551ac0678834dfff89192ce1e848eb0bb8ca5bfe8bc76f"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\node_modules\\tsx\\LICENSE",
+      "sha256": "8dded67841a9261a622c739fb61c81785e93765de852828ceeb9403d20a74581"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\node_modules\\tsx\\node_modules\\.bin\\esbuild",
+      "sha256": "020b954fd13a2c5ee8aabd5a73e24c10a4750099ed5e02f07dc7265c6758a054"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\node_modules\\tsx\\node_modules\\.bin\\esbuild.cmd",
+      "sha256": "b00afc3761267058834ab0968f58748f0422efe0eb0321540544770cafbf7a69"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\node_modules\\tsx\\node_modules\\.bin\\esbuild.ps1",
+      "sha256": "9a24efc13fb6ef9def6c5aaf7787e7203d0982e2ab8627b64a41eb033945b7f5"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\node_modules\\tsx\\node_modules\\@esbuild\\win32-x64\\esbuild.exe",
+      "sha256": "ec02ee9b14ab332416fedd10614dfb80eed5304d94f67745067c011934a8c3c3"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\node_modules\\tsx\\node_modules\\@esbuild\\win32-x64\\package.json",
+      "sha256": "4a63b84fa1059fef348e29e3a39c26168213bb7f0aa1ac0174e439cc1e62a9f8"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\node_modules\\tsx\\node_modules\\@esbuild\\win32-x64\\README.md",
+      "sha256": "29cf512fa580b72392176bf694933ae0decaf18116fdeee917511b445411ce16"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\node_modules\\tsx\\node_modules\\esbuild\\bin\\esbuild",
+      "sha256": "fe9a7b65a540d8df1a0f59941d52e7c1260c36fed9a2af3dd966f15381b6eb76"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\node_modules\\tsx\\node_modules\\esbuild\\install.js",
+      "sha256": "612294e278914443bdcf81cb17f54afec34dbdd2ebd999a6ee187912320cc315"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\node_modules\\tsx\\node_modules\\esbuild\\lib\\main.d.ts",
+      "sha256": "161c8e0690c46021506e32fda85956d785b70f309ae97011fd27374c065cac9b"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\node_modules\\tsx\\node_modules\\esbuild\\lib\\main.js",
+      "sha256": "8331fe1d8b3a07381f33cc425fcfaa94776e263113653f80ec3ba433e9657e73"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\node_modules\\tsx\\node_modules\\esbuild\\LICENSE.md",
+      "sha256": "b40ec5baec7bb34fa5b1c09521fa3cd52d5fad7adafed74932a2010d3612a681"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\node_modules\\tsx\\node_modules\\esbuild\\package.json",
+      "sha256": "d55d1d19fcc5b6079e4a71dd4111340c79c682bc36835ac7058a0c364c7db58a"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\node_modules\\tsx\\node_modules\\esbuild\\README.md",
+      "sha256": "6d481cd60ec3c679e5e395f547ab4221147f35642894f6b95a8df38fd25c87bd"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\node_modules\\tsx\\package.json",
+      "sha256": "b0d63b124b9b85b53d09cff256fa7832cb6a774f8b90ae1353e63df5275824b2"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\node_modules\\tsx\\README.md",
+      "sha256": "44e63909767a6f7b21d4103df9417e3ab88bae17a3bc77b93fdcfb94176e3211"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\node_modules\\ws\\browser.js",
+      "sha256": "010da44addea1d88b2b732540c3f1fd0cbcb28926b96623d4c64222e0ead2d0e"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\node_modules\\ws\\index.js",
+      "sha256": "924564d5be26d59b9682c4263f68320e48dde7240bd2d1ad17ec305537429dd2"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\node_modules\\ws\\lib\\buffer-util.js",
+      "sha256": "8b0a45739132f82e25ea13163780abf547ccfe989267f3eb7abb475beec92da3"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\node_modules\\ws\\lib\\constants.js",
+      "sha256": "391e823142b8b370e55a2fd32b022deaf03b8415c56000009674ebc86a0b4f86"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\node_modules\\ws\\lib\\event-target.js",
+      "sha256": "c45d3c6e12d170c860c0c3f1a050aa0f864d9806632b609a1e607d675aba128c"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\node_modules\\ws\\lib\\extension.js",
+      "sha256": "852564f0f6b460287043803eae732666fb5610f676874354fc89f06aa4e986ed"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\node_modules\\ws\\lib\\limiter.js",
+      "sha256": "e0469d4b83f6ba764b15f80e1766b75c136fbff68f048f4c050f0b1c7f065f69"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\node_modules\\ws\\lib\\permessage-deflate.js",
+      "sha256": "02c31796f0132a335d4efe7b7adcebadbb69543a1ce65ae04aaccc3530e27ab9"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\node_modules\\ws\\lib\\receiver.js",
+      "sha256": "a6ada33c9a2d54eaf595824b821ea89ca2c6395f89aa06755c52142148274884"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\node_modules\\ws\\lib\\sender.js",
+      "sha256": "d0791d30c3defd44dcabbddb879a901c757993fea2c00a7ffea01d53b23b4b77"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\node_modules\\ws\\lib\\stream.js",
+      "sha256": "a56fcb6e2b152097ee820b6f5410b1f71e59819b45d08d9f8bda588fe39070ec"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\node_modules\\ws\\lib\\subprotocol.js",
+      "sha256": "be3f6323d6f549568577dcba9004c1479d95c65a7abb0fe0c582875b9fac0b7c"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\node_modules\\ws\\lib\\validation.js",
+      "sha256": "41ce8e83d0d434132e1704895fedb91f6703a701b42d91c80954ab29b2845593"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\node_modules\\ws\\lib\\websocket-server.js",
+      "sha256": "6d8dd89a841748c80445fd5fcdb5ba8005369b53cc3525135e11304c8b9c55e5"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\node_modules\\ws\\lib\\websocket.js",
+      "sha256": "de5add831db49e159d3ee0adb1c5e042eba3af13166374c5584f4fc520d1e734"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\node_modules\\ws\\LICENSE",
+      "sha256": "2b29dcfe0d6471f7e8c92c5fb38c9f93edee10330937055440192f1832b1ecef"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\node_modules\\ws\\package.json",
+      "sha256": "5d9fcf3bb6aaa7c789b4a020b79e208e76fbc32b1989caf2c275db8cb04329de"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\node_modules\\ws\\README.md",
+      "sha256": "bb979132f3cbff08ce47f36d041e18071f8f534d01f591c0b129ba7abf1e480e"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\node_modules\\ws\\wrapper.mjs",
+      "sha256": "fe154662301fd558f935f9c217fccbe7a7dac02ff39e648a000589403ff27c7f"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\ci-contract-modules\\scripts\\qc\\openspec-ci-contracts.mjs",
+      "sha256": "ae81b758ae37fe0a796cd77c5e5a17a5fac0bd6d1a8b488b4d5955fca1234a99"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\ci-contract-modules\\scripts\\qc\\openspec-workflow-contracts.mjs",
+      "sha256": "4ae969ae69ad71af0cfc761c0b133bbc0862202e71138d38198231062f92f696"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\ci-contract-modules\\package.json",
+      "sha256": "eeebcb46214017104ed9cad6feab8f4a7e941816552585fb8230731d6931ad17"
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\ci-contract-modules\\package-lock.json",
+      "sha256": "f923ca53a2d9fc69d56cd59b9f86d26fd4b3756ac488c138b64163f787bd7d36"
+    }
+  ],
+  "runtimeFilesRehashed": 184,
+  "qualifications": [
+    "Reviewed and main commits have identical trees; their commit IDs differ normally after squash merge.",
+    "Original carried static exits are superseded by12 individually recorded exit0 checks.",
+    "Original recovery step startedAt fields mark completion; no per-step timing claim.",
+    "Root was and remains dirty; before/after source and runtime scope was preserved.",
+    "Shell mutation harness uses the preserved proposed workflow as a fixture; workflow activation remains pending."
+  ],
+  "cleanup": "authorized after export and exact ownership checks"
+}

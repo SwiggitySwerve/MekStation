@@ -1,0 +1,213 @@
+{
+  "schemaVersion": 1,
+  "evidenceId": "ci-yaml-dependency-proposal-max-20260912",
+  "capturedAt": "2026-09-12T17:43:16.8855666Z",
+  "status": "proposal-review-only",
+  "supersedes": {
+    "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/ci-four-prefix-readiness-max-20260912.json",
+    "sha256": "a53effe23bfbee3a8e7c6759918d1fdabac7536fec61961aac855b1907f843c7"
+  },
+  "worker": {
+    "id": "/root/ci_prefix_max",
+    "model": "gpt-5.6-luna",
+    "effort": "max",
+    "mode": "read-only source/spec/Git review"
+  },
+  "scope": {
+    "allowedWrites": [
+      ".sisyphus/roadmap-completion-20260912/ci-prefix-max/yaml-dev-dependency-origin-main.patch",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/ci-yaml-dependency-proposal-max-20260912.json"
+    ],
+    "prohibited": [
+      "Applying the proposal to live package files",
+      "Git staging, commits, push, merge, branch mutation, or publication",
+      "Builds, typecheck, servers, dependency copies, installs, network, or browser runs"
+    ],
+    "reviewOnlyReason": "The direct yaml declaration is a new root dependency declaration and the handoff prohibits new dependencies without explicit approval."
+  },
+  "baseline": {
+    "checkout": "E:/Projects/MekStation",
+    "branch": "main",
+    "checkoutHead": "be7f85b867aa3e8576e5e3d27e309276203bc24b",
+    "originMain": "a538a2d3b2b05252e1c80cc60395c72953f4c979",
+    "originMainCommitTime": "2026-09-12T11:30:22-06:00",
+    "relation": {
+      "mainVsOriginMain": "0 4",
+      "checkoutIsBehindFetchedOriginBy": 4
+    },
+    "defaultCap": {
+      "maxFiles": 15,
+      "maxChangedLines": 500,
+      "changedLineMetric": "additions plus deletions"
+    },
+    "workingTree": {
+      "packageJsonStatus": "modified",
+      "packageLockStatus": "clean",
+      "packageJsonVsOrigin": {
+        "additions": 7,
+        "deletions": 6
+      },
+      "packageJsonLiveSha256": "0cbe570cc8b2ffdabcf1c273a75b739bf6693965239a913f524661291e6c2e32",
+      "packageLockLiveSha256": "813adb8c95fd2d13a05214e504756ee72378769f7c33af242f8120ee2750b48a"
+    },
+    "originPackageBaselines": {
+      "package.json": {
+        "blob": "9827cb17d0a2fbd5b7753239b6e5286a89df1c56",
+        "sha256": "1bcd37456616146bf8c8bcf8da26a12c272f43a3ffce3c26928e31c97dabaa3d",
+        "bytes": 34731,
+        "rootYamlDeclaration": null
+      },
+      "package-lock.json": {
+        "blob": "3a228a13675928acb1c6c5f34520698042a2b6d8",
+        "sha256": "813adb8c95fd2d13a05214e504756ee72378769f7c33af242f8120ee2750b48a",
+        "bytes": 649504,
+        "rootYamlDeclaration": null
+      }
+    }
+  },
+  "dependencyFinding": {
+    "modulePrefixFiles": [
+      {
+        "path": "scripts/qc/openspec-ci-contracts.mjs",
+        "origin": "absent",
+        "lines": 174,
+        "bytes": 5219,
+        "sha256": "ae81b758ae37fe0a796cd77c5e5a17a5fac0bd6d1a8b488b4d5955fca1234a99"
+      },
+      {
+        "path": "scripts/qc/openspec-workflow-contracts.mjs",
+        "origin": "absent",
+        "lines": 204,
+        "bytes": 6521,
+        "sha256": "de70258c69eb27100f52954d2aced6f415321d4dbd73e952bdb6533934308062"
+      }
+    ],
+    "import": {
+      "path": "scripts/qc/openspec-workflow-contracts.mjs",
+      "line": 1,
+      "source": "import { parse as parseYaml } from 'yaml';"
+    },
+    "rootPackageJsonDirectYaml": null,
+    "rootPackageLockDirectYaml": null,
+    "existingLockRecord": {
+      "path": "packages[\"node_modules/yaml\"]",
+      "lockLine": 18228,
+      "version": "2.9.0",
+      "resolved": "https://registry.npmjs.org/yaml/-/yaml-2.9.0.tgz",
+      "integrity": "sha512-2AvhNX3mb8zd6Zy7INTtSpl1F15HW6Wnqj0srWlkKLcpYl/gMIMJiyuGq2KeI2YFxUPjdlB+3Lc10seMLtL4cA==",
+      "dev": true
+    },
+    "transitiveOwner": {
+      "path": "packages[\"node_modules/lint-staged\"].dependencies.yaml",
+      "lockLine": 13759,
+      "range": "^2.8.1"
+    },
+    "conclusion": "The module-only prefix is not unconditionally buildable from a clean package install: its workflow contract module imports yaml while neither root manifest declares yaml directly."
+  },
+  "proposal": {
+    "status": "not-applied",
+    "patchPath": ".sisyphus/roadmap-completion-20260912/ci-prefix-max/yaml-dev-dependency-origin-main.patch",
+    "patchSha256": "abcbac09b32a625d5b3233bd16b8fa5dc1d4509ceb45e23be207d29e4809d598",
+    "patchBytes": 702,
+    "patchLines": 24,
+    "baseOriginMain": "a538a2d3b2b05252e1c80cc60395c72953f4c979",
+    "declaration": {
+      "packageJson": "yaml@^2.9.0",
+      "packageLockRootMetadata": "yaml@^2.9.0"
+    },
+    "files": [
+      {
+        "path": "package.json",
+        "hunk": "root devDependencies, origin line 316",
+        "oldBlob": "9827cb17d0a2fbd5b7753239b6e5286a89df1c56",
+        "newBlob": "2ee336d6547b87886b7f4e26822a8861e4e81cbd",
+        "oldSha256": "1bcd37456616146bf8c8bcf8da26a12c272f43a3ffce3c26928e31c97dabaa3d",
+        "newSha256": "113efe43547293c2db34555d04e8beb668f6b263a5aeb2962fdefa0f92563667",
+        "oldBytes": 34731,
+        "newBytes": 34753,
+        "additions": 2,
+        "deletions": 1,
+        "changedLines": 3
+      },
+      {
+        "path": "package-lock.json",
+        "hunk": "packages[\"\"].devDependencies, origin line 98",
+        "oldBlob": "3a228a13675928acb1c6c5f34520698042a2b6d8",
+        "newBlob": "439b3e2c5efa71eb7aae251260b4d06cceb5033d",
+        "oldSha256": "813adb8c95fd2d13a05214e504756ee72378769f7c33af242f8120ee2750b48a",
+        "newSha256": "f923ca53a2d9fc69d56cd59b9f86d26fd4b3756ac488c138b64163f787bd7d36",
+        "oldBytes": 649504,
+        "newBytes": 649530,
+        "additions": 2,
+        "deletions": 1,
+        "changedLines": 3
+      }
+    ],
+    "total": {
+      "files": 2,
+      "additions": 4,
+      "deletions": 2,
+      "changedLines": 6
+    },
+    "lockTopology": {
+      "changed": false,
+      "retainedNodeRecord": "packages[\"node_modules/yaml\"] at version 2.9.0",
+      "newResolution": false,
+      "newIntegrity": false,
+      "newPackageRecord": false
+    },
+    "whyNeeded": "A clean install must be able to resolve the yaml import from the module's owning package metadata; relying on lint-staged's transitive range is not direct dependency ownership.",
+    "applicationConstraint": "Patch was generated against fetched origin/main and must not be applied to the dirty checkout without explicit approval and a fresh conflict review."
+  },
+  "capAssessment": {
+    "moduleOnlyPrefix": {
+      "files": 2,
+      "changedLines": 378,
+      "additions": 378,
+      "deletions": 0,
+      "filesRemaining": 13,
+      "changedLinesRemaining": 122,
+      "independentDelivery": false,
+      "blockingReason": "openspec-workflow-contracts.mjs line 1 imports yaml without a root direct declaration"
+    },
+    "modulePlusYamlProposal": {
+      "files": 4,
+      "changedLines": 384,
+      "additions": 382,
+      "deletions": 2,
+      "filesRemaining": 11,
+      "changedLinesRemaining": 116,
+      "underCap": true,
+      "structurallyDeliverable": true,
+      "approvalRequired": true
+    }
+  },
+  "actionablePrefixInstructions": [
+    "Base the prefix on fetched origin/main a538a2d3b2b05252e1c80cc60395c72953f4c979, not the dirty main checkout.",
+    "Include both new scripts/qc contract modules and both root metadata hunks from yaml-dev-dependency-origin-main.patch in the same first prefix.",
+    "Retain the existing packages[\"node_modules/yaml\"] version 2.9.0 record; do not regenerate, install, or alter lock resolution, integrity, or unrelated topology.",
+    "Resolve the explicit no-new-dependency approval gate before applying this proposal; until then the first prefix remains dependency-gated.",
+    "After approval and application, rerun the repository-required focused checks at the exact staged prefix; no such checks were run in this review."
+  ],
+  "verification": {
+    "performed": [
+      "Read fetched origin/main package manifests and verified absent root yaml declarations.",
+      "Read the existing lock node_modules/yaml record and lint-staged transitive range.",
+      "Computed origin, live, target, blob, and patch SHA-256 values in memory.",
+      "Verified the patch has exactly 2 file sections, 4 additions, 2 deletions, and 6 changed lines.",
+      "Verified both module paths are absent from fetched origin/main."
+    ],
+    "notRun": [
+      "Build, typecheck, lint, focused Jest, validator, OpenSpec, browser, or CI execution",
+      "npm install, npm ci, dependency copy, or network resolution",
+      "Git apply, staging, commit, branch mutation, merge, push, or publication"
+    ],
+    "mutationResult": "No live package file, lockfile, Git ref, or tracked source file was modified."
+  },
+  "reviewLimits": [
+    "This is a static proposal against fetched origin/main; it does not prove a clean install or CI execution.",
+    "The proposal is cap-compliant only when counted with the 378-line module prefix: 4 files and 384 changed lines.",
+    "The direct declaration is still a new dependency ownership change even though yaml 2.9.0 is already resolved transitively; explicit approval remains required.",
+    "Browser publication and all broader roadmap prefixes remain outside this bounded review."
+  ]
+}

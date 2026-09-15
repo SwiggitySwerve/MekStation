@@ -1,0 +1,70 @@
+{
+  "schemaVersion": 1,
+  "evidenceId": "ci-contract-modules-cleanup-20260912",
+  "capturedAt": "2026-09-12T22:09:06.3403148Z",
+  "scope": "CI contract modules exact-main proof cleanup only",
+  "export": {
+    "manifest": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-contract-modules-cleanup/export-manifest.json",
+    "manifestSha256": "dccc232a21304637b6bbebf1e7a06dc46a141aac1df0779c99a01f8b0118ee2a",
+    "exportDriver": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-contract-modules-cleanup/export-and-verify.cjs",
+    "exportDriverSha256": "8c9fd5f1e06906e5f9ecd2b110d7204fb7a4b1873321d3e0f97c8dd2f18ed539",
+    "rawProofFileCount": 173,
+    "parentAcceptedReferenceCount": 266,
+    "parentAcceptedReferencesAllExistAndMatch": true,
+    "acceptedSourceFileCount": 4,
+    "acceptedSourceHashes": {
+      "scripts/qc/openspec-ci-contracts.mjs": "ae81b758ae37fe0a796cd77c5e5a17a5fac0bd6d1a8b488b4d5955fca1234a99",
+      "scripts/qc/openspec-workflow-contracts.mjs": "4ae969ae69ad71af0cfc761c0b133bbc0862202e71138d38198231062f92f696",
+      "package.json": "eeebcb46214017104ed9cad6feab8f4a7e941816552585fb8230731d6931ad17",
+      "package-lock.json": "f923ca53a2d9fc69d56cd59b9f86d26fd4b3756ac488c138b64163f787bd7d36"
+    },
+    "candidateIgnoredUntracked": {
+      "manifest": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-contract-modules-cleanup/candidate-ignored-paths.nul",
+      "sha256": "8cb86f14d82d415001160a272042a051140fc65f011a012f1e1e853101ebabae",
+      "count": 57695,
+      "bytes": 2142087597,
+      "reparseOrSymlinkCount": 0,
+      "pathSetSha256": "88136ff136c0ef11433efd0219eb00e51442480ec47d04e14e16a0548a086bab"
+    },
+    "physicalTrees": {
+      "candidateNodeModules": {"files": 41506, "bytes": 761281843, "reparseOrSymlinkCount": 0, "pathSetSha256": "907375281595d817aadea7ad9de65f18823391e764c50d737b7811a7afa144ee"},
+      "candidateNext": {"files": 16170, "bytes": 1378604380, "reparseOrSymlinkCount": 0, "pathSetSha256": "7b90f45bc0054908bca1ed57c263077624ecb052134f118130bafaeb0a92d37c"},
+      "rootNodeModules": {"files": 41506, "bytes": 761281843, "reparseOrSymlinkCount": 0, "pathSetSha256": "907375281595d817aadea7ad9de65f18823391e764c50d737b7811a7afa144ee"},
+      "rootNext": {"files": 25408, "bytes": 4025254584, "reparseOrSymlinkCount": 8, "pathSetSha256": "a6b09ba6578ca00ed97dbde357819549587cc783be2c31beea722cfbf1fa3916"}
+    },
+    "remoteBranchInspection": {"path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-contract-modules-cleanup/remote-branch-before.txt", "sha256": "7bd6c84c14a241af30c00b6a4b21af6bad732cc1eb26e4411e5e7c814f9eafa3", "exit": 0, "remoteHeadOutput": ""}
+  },
+  "ownedRefsBeforeDeletion": {
+    "local": {"name": "codex/roadmap-ci-contract-modules-20260912", "objectId": "6573e98e65a631963c5b0a980f3a724ba7d37989"},
+    "remoteTracking": {"name": "origin/codex/roadmap-ci-contract-modules-20260912", "objectId": "bc3a35a2a7c18708359734aa98bda21815e060d1"},
+    "backup": {"name": "refs/roadmap-checkpoints/ci-modules-pre-main-20260912", "objectId": "55d09578ada78e578bfd59110b649470554973dd"}
+  },
+  "cleanupOperations": {
+    "worktreeRemove": {"command": "git -C E:/Projects/MekStation worktree remove E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/ci-contract-modules", "exit": 0, "logSha256": "22637340e473d7fdc5aa412edfea30930bf66e8b0fff4566bfd083fc81d0bd66"},
+    "localBranchDelete": {"command": "git branch -d codex/roadmap-ci-contract-modules-20260912", "exit": 0, "logSha256": "0a6e1d461f2b05c12b0ffb23e95630c904ee165c5d23b3dce9c88484ef54e10b"},
+    "remoteTrackingDelete": {"command": "git branch -dr origin/codex/roadmap-ci-contract-modules-20260912", "exit": 0, "logSha256": "5c01301a195c9671c68012fc4e87c0788039aada5153c2fbe25646cfad7c32c4"},
+    "backupRefDelete": {"command": "git update-ref -d refs/roadmap-checkpoints/ci-modules-pre-main-20260912 <expected-old-value>", "exit": 0, "logSha256": "89ea2b733113ab0b8c8381a054404ec75c6b22cf7f598240f1bb376b621c11b5"}
+  },
+  "postCleanup": {
+    "verifier": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-contract-modules-cleanup/post-verify.cjs",
+    "verifierSha256": "b6ba99fe3f046cc8d5c83b46345b61d822b146fc80d717c5a9e42346eff5644a",
+    "receipt": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-contract-modules-cleanup/post-verify.json",
+    "receiptSha256": "e343abf51c5c89ffcfc98f6e64272cb7e6f8b57ec0b6ee6bee9e5d508d6b6b1f",
+    "candidateRemoved": true,
+    "ownedRefsRemoved": true,
+    "rootHeadBeforeAfter": ["be7f85b867aa3e8576e5e3d27e309276203bc24b", "be7f85b867aa3e8576e5e3d27e309276203bc24b"],
+    "rootBranchBeforeAfter": ["main", "main"],
+    "rootStatusSha256BeforeAfter": ["490c7786d1d83fb2d95882f6ebe5b6ecc1315b9a7d4bdf1e717e3702b6498ce8", "490c7786d1d83fb2d95882f6ebe5b6ecc1315b9a7d4bdf1e717e3702b6498ce8"],
+    "rootSourceUnchanged": true,
+    "rootRuntimeNodeModulesUnchanged": true,
+    "rootRuntimeNextUnchanged": true,
+    "rootRuntimeReferenceCount": 94,
+    "rootRuntimeReferencesAllMatch": true,
+    "rootIndexSha256After": "a65b683940b6449651a074132f39d8b8da156ef5620af6aa1b62eb7c8698b953",
+    "rootStagedDiffExit": 0,
+    "ownedProcessesAbsent": true,
+    "postVerifierExit": 0
+  },
+  "limitations": ["The candidate worktree's disposable physical node_modules and .next trees were inventoried and then removed by non-force Git worktree removal; they were not copied into evidence.", "Root .next contains eight pre-existing reparse entries; the root generated-tree manifest records them and remained unchanged.", "The root index was verified unstaged-clean after metadata cleanup; its post-cleanup SHA-256 is recorded above."],
+  "ok": true
+}

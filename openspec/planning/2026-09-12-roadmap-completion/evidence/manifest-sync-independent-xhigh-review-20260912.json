@@ -1,0 +1,136 @@
+{
+  "schemaVersion": 1,
+  "evidenceId": "manifest-sync-independent-xhigh-review-20260912",
+  "recordedAt": "2026-09-12T17:03:14.0046705Z",
+  "node": "R9.manifest-sync",
+  "reviewer": {
+    "route": "Luna",
+    "reasoningEffort": "xhigh",
+    "mode": "independent bounded review"
+  },
+  "baseline": "6c4eac5c7b7a2aece3aab0443ce606943db6cf0b",
+  "testedHead": "be7f85b867aa3e8576e5e3d27e309276203bc24b",
+  "elapsed": {
+    "wallClock": "approximately 11 minutes",
+    "precision": "turn start was not instrumented; command-level evidence was recorded explicitly"
+  },
+  "scope": [
+    "scripts/mm-data/sync-browser-config.mjs",
+    "scripts/__tests__/mm-data-browser-config.test.ts",
+    "package.json sync:mm-data-config, dev, and build wiring",
+    "openspec/specs/mm-data-asset-integration/spec.md",
+    "read-only source authority config/mm-data-assets.json",
+    "read-only generated and stale standalone copies"
+  ],
+  "ownedFileSha256": {
+    "scripts/mm-data/sync-browser-config.mjs": "d47ca5eaa81a7a8488c25b828cc6b04a8e30f93311952dc002c718c60d6820dc",
+    "scripts/__tests__/mm-data-browser-config.test.ts": "7017472c112553b46b3603bc6e2245d7cb04eab7f1b1e4e2014e17f06f76d411",
+    "package.json": "7966172ad13cd1fe603738a963ffa39f05ab03b4d31cf9f63f356153f6d2e4f1",
+    "openspec/specs/mm-data-asset-integration/spec.md": "897b3b4d4e79398f917e77d0c9e46ffa087a800b7d7106c76da2ccc7866f9d6a"
+  },
+  "manifestEquality": {
+    "source": {
+      "path": "config/mm-data-assets.json",
+      "sha256": "6746a36beab5ce9a9beff240afe0f7609caace9010509ecf7d8c58c6dd8af8e6",
+      "bytes": 2687
+    },
+    "generatedPublic": {
+      "path": "public/config/mm-data-assets.json",
+      "sha256": "6746a36beab5ce9a9beff240afe0f7609caace9010509ecf7d8c58c6dd8af8e6",
+      "bytes": 2687,
+      "byteIdentical": true
+    },
+    "legacyStandalone": {
+      "path": ".next/standalone/public/config/mm-data-assets.json",
+      "sha256": "5131739497b797db0fd4fc7b66eec8738269ac37545163b4440aa0a4fdbae3c8",
+      "status": "stale existing artifact; unverified until parent build/hydration"
+    }
+  },
+  "verification": {
+    "focusedJest": {
+      "command": "C:/nvm4w/nodejs/node.exe ./node_modules/jest/bin/jest.js --runInBand scripts/__tests__/mm-data-browser-config.test.ts",
+      "exit": 0,
+      "suitesPassed": 1,
+      "testsPassed": 4
+    },
+    "format": {
+      "command": "npx.cmd oxfmt --check scripts/mm-data/sync-browser-config.mjs scripts/__tests__/mm-data-browser-config.test.ts",
+      "exit": 0
+    },
+    "lint": {
+      "command": "npx.cmd oxlint scripts/mm-data/sync-browser-config.mjs scripts/__tests__/mm-data-browser-config.test.ts",
+      "exit": 0,
+      "warnings": 0,
+      "errors": 0
+    },
+    "rootCheck": {
+      "command": "C:/nvm4w/nodejs/node.exe scripts/mm-data/sync-browser-config.mjs --root E:/Projects/MekStation --check",
+      "exit": 0,
+      "action": "unchanged",
+      "sourceSha256": "6746a36beab5ce9a9beff240afe0f7609caace9010509ecf7d8c58c6dd8af8e6",
+      "targetSha256": "6746a36beab5ce9a9beff240afe0f7609caace9010509ecf7d8c58c6dd8af8e6",
+      "mtimeStable": true
+    },
+    "crossPlatformPathCases": {
+      "absoluteWindowsRootFromParentCwd": "pass",
+      "rootEqualsSyntax": "pass",
+      "spaceContainingRoot": "pass",
+      "pathImplementation": "node:path; no hardcoded separator"
+    },
+    "missingInputPreservation": {
+      "missingSourceExit": 1,
+      "existingTargetPreserved": true,
+      "driftCheckExit": 1,
+      "driftTargetPreserved": true
+    }
+  },
+  "findings": [
+    {
+      "id": "F-001",
+      "severity": "blocker-for-clean-delivery",
+      "status": "confirmed",
+      "path": ".gitignore:38; scripts/mm-data/sync-browser-config.mjs; package.json:12,14,53",
+      "finding": "The new sync source is ignored by the repository-wide scripts/** rule and does not appear in git status or the tracked file list, while dev, build, and the named sync script invoke it.",
+      "impact": "A clean checkout that receives package.json but not a force-added sync source will fail before dev/build with MODULE_NOT_FOUND, recreating the admitted red condition. The new test is visible as untracked and also requires delivery.",
+      "requiredAction": "Parent delivery must explicitly track/force-add the ignored source and add the new test; no source mutation was made by this review."
+    },
+    {
+      "id": "G-001",
+      "severity": "test-gap",
+      "status": "confirmed",
+      "path": "scripts/__tests__/mm-data-browser-config.test.ts:145-154",
+      "finding": "The package wiring test checks only that dev and build contain the sync command. It does not assert that dev runs kill-port before sync and server.js after sync, or that build runs sync before Next build and standalone hydration.",
+      "impact": "A future reordering could satisfy the test while allowing the server or build to start before the generated browser manifest exists.",
+      "requiredAction": "Add order assertions or a small command-token contract if this workflow remains a maintained gate."
+    },
+    {
+      "id": "R-001",
+      "severity": "residual-boundary",
+      "status": "observed",
+      "path": "package.json:13,15,43-44",
+      "finding": "dev:e2e, build:analyze, build:profile, and build:debug bypass sync:mm-data-config.",
+      "impact": "Those alternate entry points can serve or package a missing/stale public manifest in a clean or drifted workspace.",
+      "disposition": "The added OpenSpec wording names the standard dev and production build commands, and the canonical dev/build scripts satisfy that wording. Parent should decide whether alternate entry points are in scope; no change was made under the bounded ownership."
+    }
+  ],
+  "assessment": {
+    "boundedImplementationBehavior": "pass under focused tests and direct CLI checks",
+    "sourceToPublicByteEquality": "verified",
+    "deterministicUnchangedWrite": "verified by mtime stability",
+    "missingInputAndDriftHandling": "verified; target preserved on failures",
+    "canonicalDevBuildWiring": "verified by source inspection; ordering test coverage is incomplete",
+    "cleanCheckoutDeliverability": "blocked until ignored source and untracked test are included",
+    "productionStandaloneAndHttp": "unverified; parent owns build, standalone equality, and HTTP proof"
+  },
+  "limits": [
+    "No asset acquisition, network, server, production build, standalone hydration, or HTTP request was performed.",
+    "config/mm-data-assets.json was read only; no source manifest or asset bytes were modified.",
+    "The stale .next/standalone copy remains pre-existing evidence and was not repaired.",
+    "Linux execution was not available in this Windows review; cross-platform confidence is based on node:path implementation plus Windows absolute, relative-to-parent, equals-form, and space-containing root cases.",
+    "No Git staging, commit, branch, or other delivery mutation was performed."
+  ],
+  "rawEvidence": {
+    "path": ".sisyphus/roadmap-completion-20260912/manifest-sync/independent-xhigh-review-raw.log",
+    "sha256": "aa54c233d0c9d2617ec0be08e447f350cb70b8d30ad46685d666095c62b5c9e6"
+  }
+}

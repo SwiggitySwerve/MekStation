@@ -1,0 +1,84 @@
+{
+  "recordedAt": "2026-09-12T17:36:24.402Z",
+  "node": "R9.manifest-sync",
+  "baseline": "6c4eac5c7b7a2aece3aab0443ce606943db6cf0b",
+  "files": [
+    {
+      "path": "scripts/mm-data/sync-browser-config.mjs",
+      "expectedSha256": "d47ca5eaa81a7a8488c25b828cc6b04a8e30f93311952dc002c718c60d6820dc",
+      "actualSha256": "d47ca5eaa81a7a8488c25b828cc6b04a8e30f93311952dc002c718c60d6820dc"
+    },
+    {
+      "path": "scripts/__tests__/mm-data-browser-config.test.ts",
+      "expectedSha256": "20534720de14d2e2c94cfa17763d8cd75c82b7ae7a9deb6d9ec095a33fa9dce4",
+      "actualSha256": "20534720de14d2e2c94cfa17763d8cd75c82b7ae7a9deb6d9ec095a33fa9dce4"
+    },
+    {
+      "path": "package.json",
+      "expectedSha256": "0cbe570cc8b2ffdabcf1c273a75b739bf6693965239a913f524661291e6c2e32",
+      "actualSha256": "0cbe570cc8b2ffdabcf1c273a75b739bf6693965239a913f524661291e6c2e32"
+    },
+    {
+      "path": "openspec/specs/mm-data-asset-integration/spec.md",
+      "expectedSha256": "5beabebfe54b2a2e3e9aadd0ab87e480062eed0de257507571681b69c2a74dd7",
+      "actualSha256": "5beabebfe54b2a2e3e9aadd0ab87e480062eed0de257507571681b69c2a74dd7"
+    }
+  ],
+  "changedLines": 410,
+  "numstat": "45\t0\topenspec/specs/mm-data-asset-integration/spec.md\n7\t6\tpackage.json\n192\t0\tscripts/__tests__/mm-data-browser-config.test.ts\n160\t0\tscripts/mm-data/sync-browser-config.mjs",
+  "staticVerification": "manifest-sync-isolated-static-20260912.json",
+  "review": "manifest-sync-final-xhigh-review-20260912.json",
+  "buildStatus": "manifest-sync-checks/local-1-build-status.json",
+  "buildStatusSha256": "c64c121297a24f1406e89a16ef96f4b610d55fa9a714d2cbff30737dd1e749b9",
+  "httpStatus": "manifest-sync-checks/local-1-http-status.json",
+  "httpStatusSha256": "a953ae8ccf3e20387b04872ac16138b0ee4f0d18db555cb6cda8927891178f2a",
+  "artifactHashes": [
+    {
+      "path": "config/mm-data-assets.json",
+      "sha256": "6746a36beab5ce9a9beff240afe0f7609caace9010509ecf7d8c58c6dd8af8e6"
+    },
+    {
+      "path": "public/config/mm-data-assets.json",
+      "sha256": "6746a36beab5ce9a9beff240afe0f7609caace9010509ecf7d8c58c6dd8af8e6"
+    },
+    {
+      "path": ".next/standalone/public/config/mm-data-assets.json",
+      "sha256": "6746a36beab5ce9a9beff240afe0f7609caace9010509ecf7d8c58c6dd8af8e6"
+    }
+  ],
+  "http": {
+    "url": "http://127.0.0.1:3651/config/mm-data-assets.json",
+    "status": 200,
+    "contentType": "application/json; charset=UTF-8",
+    "bytes": 2687,
+    "sha256": "6746a36beab5ce9a9beff240afe0f7609caace9010509ecf7d8c58c6dd8af8e6",
+    "expectedSha256": "6746a36beab5ce9a9beff240afe0f7609caace9010509ecf7d8c58c6dd8af8e6",
+    "nonMechEntries": [
+      "vehicle_turret_standard.svg",
+      "fighter_aerospace_default.svg",
+      "protomek_biped.svg",
+      "conventional_infantry_default.svg",
+      "battle_armor_default.svg"
+    ],
+    "bodyPath": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\manifest-sync-checks\\local-1-browser-response.json"
+  },
+  "ownedServerStop": {
+    "code": null,
+    "signal": "SIGTERM"
+  },
+  "runtimeSourcePreservation": {
+    "before": {
+      "count": 92,
+      "sha256": "2498f00fc3495f64d3317fd77adbba41d1055d52ac0d4fa66ccfe1a85c86e38a"
+    },
+    "after": {
+      "count": 92,
+      "sha256": "2498f00fc3495f64d3317fd77adbba41d1055d52ac0d4fa66ccfe1a85c86e38a"
+    }
+  },
+  "ignoredGeneratorExplicitlyStaged": true,
+  "limits": [
+    "Local production proof only; hooked commit, remote/main verification and cleanup remain pending",
+    "Manifest metadata proof does not establish asset rights, renderer completeness, or whole-family completion; no assets acquired"
+  ]
+}

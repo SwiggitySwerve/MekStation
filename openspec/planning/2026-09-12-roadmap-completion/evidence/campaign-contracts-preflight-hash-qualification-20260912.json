@@ -1,0 +1,6 @@
+{
+  "at": "2026-09-12T21:38:41.293Z",
+  "receipt": "campaign-contracts-delivery-preflight-20260912.json",
+  "qualification": "The original stagedObjectSha256 fields are 40-hex Git blob object IDs, not SHA-256. Exact staged and working content SHA-256 values were verified by the parent commit guard; see commit-result.json.",
+  "parentCommitEvidence": ".sisyphus/roadmap-completion-20260912/campaign-contracts-delivery/commit-result.json"
+}

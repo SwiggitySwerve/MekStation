@@ -1,0 +1,22 @@
+{
+  "recordedAt": "2026-09-12T16:37:38.704Z",
+  "sourceThread": "01a08285-d9c0-71e3-a26e-f8b5b916a3b2",
+  "thread": "01a09677-7d90-7571-ae98-ca3245c07754",
+  "rootHead": "be7f85b867aa3e8576e5e3d27e309276203bc24b",
+  "originMain": "6c4eac5c7b7a2aece3aab0443ce606943db6cf0b",
+  "statusEntries": 144,
+  "snapshotPath": ".sisyphus\\roadmap-completion-20260912\\continuation-2026-09-12T16-37-38-703Z\\snapshot.json",
+  "snapshotSha256": "3d8b082aee05462873749ef55e76452d3c8dab74f869da59fb5c3ee46ba1f745",
+  "routing": {
+    "global": "gpt-6-astra/xhigh",
+    "children": "gpt-5.6-luna/high",
+    "audit": "passed: 36 roles high/xhigh",
+    "capability": "skill_surface_mismatch localized to skills/.system/openai-docs/SKILL.md and skills/interview-protocol/SKILL.md; no relock or global changes"
+  },
+  "priorGate": {
+    "driverPid": 42676,
+    "terminal": true,
+    "processScanFoundNoActiveRoadmapNode": true
+  },
+  "publication": "Browser push/PR exact-payload approval still pending; no retry authorized"
+}

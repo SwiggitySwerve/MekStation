@@ -1,0 +1,298 @@
+{
+  "schemaVersion": 1,
+  "evidenceId": "hydration-safety-main-verification-20260912",
+  "recordedAt": "2026-09-12T20:43:35.2275058Z",
+  "worktree": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\hydration-safety",
+  "head": "7a537a1c4ea621b397f4b5216859f0548773fd61",
+  "reviewedTree": "ef940c470519f718e46a262e470d84633d6ef197",
+  "treeDiffToReviewedExit": 0,
+  "finalPorcelain": "",
+  "sourceReceipt": "E:\\Projects\\MekStation\\openspec\\planning\\2026-09-12-roadmap-completion\\evidence\\hydration-safety-grok-static-parent-acceptance-20260912.json",
+  "sourceBefore": [
+    {
+      "path": "scripts/hydrate-next-standalone-multiplayer-server.mjs",
+      "sha256": "9e8866647d092ad42f51d191f8c6af175a9a98b3779cfa0682d590713898af60"
+    },
+    {
+      "path": "scripts/__tests__/standalone-hydration-path-safety.test.ts",
+      "sha256": "ee5afed78035cf09a82d6ed7749493a4e8ac06b65f8a013f585fc2f308cb17ee"
+    },
+    {
+      "path": "openspec/specs/release-build-system/spec.md",
+      "sha256": "22e8f7b16d286c9ebba16440e372b68b868fb4a0fa90b3e9004acfa10b5a3473"
+    }
+  ],
+  "sourceAfter": [
+    {
+      "path": "scripts/hydrate-next-standalone-multiplayer-server.mjs",
+      "sha256": "9e8866647d092ad42f51d191f8c6af175a9a98b3779cfa0682d590713898af60"
+    },
+    {
+      "path": "scripts/__tests__/standalone-hydration-path-safety.test.ts",
+      "sha256": "ee5afed78035cf09a82d6ed7749493a4e8ac06b65f8a013f585fc2f308cb17ee"
+    },
+    {
+      "path": "openspec/specs/release-build-system/spec.md",
+      "sha256": "22e8f7b16d286c9ebba16440e372b68b868fb4a0fa90b3e9004acfa10b5a3473"
+    }
+  ],
+  "packageLockSha256Before": "813adb8c95fd2d13a05214e504756ee72378769f7c33af242f8120ee2750b48a",
+  "packageLockSha256After": "813adb8c95fd2d13a05214e504756ee72378769f7c33af242f8120ee2750b48a",
+  "runtimeSourceBefore": {
+    "count": 92,
+    "sha256": "2498f00fc3495f64d3317fd77adbba41d1055d52ac0d4fa66ccfe1a85c86e38a"
+  },
+  "runtimeSourceAfter": {
+    "count": 92,
+    "sha256": "2498f00fc3495f64d3317fd77adbba41d1055d52ac0d4fa66ccfe1a85c86e38a"
+  },
+  "focusedTests": {
+    "suites": 2,
+    "tests": 4,
+    "exitCode": 0,
+    "stdout": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\hydration-safety-checks\\main-1\\01-focused-jest.stdout.log",
+    "stdoutSha256": "ad5041414338223be9b2b2b5af0d92856a0f6b2740cbfcdf972e95777907fbc6",
+    "stderr": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\hydration-safety-checks\\main-1\\01-focused-jest.stderr.log",
+    "stderrSha256": "ab08211c7045283c3740206ceb7d58c31aac7aea118d508dbc86f141a2c26f8c",
+    "status": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\hydration-safety-checks\\main-1\\01-focused-jest.status.json",
+    "statusSha256": "5f354ec69d13dc0e7b7620d312a3fd3be376f9da6823aedde3609e6eecf27588",
+    "observedOutput": "Running one project: unit\nPASS unit scripts/__tests__/standalone-hydration-path-safety.test.ts\nPASS unit scripts/__tests__/hydrate-next-standalone-multiplayer-server.test.ts\n\nTest Suites: 2 passed, 2 total\nTests:       4 passed, 4 total\nSnapshots:   0 total\nTime:        15.858 s\nRan all test suites within paths \"scripts/__tests__/hydrate-next-standalone-multiplayer-server.test.ts\", \"scripts/__tests__/standalone-hydration-path-safety.test.ts\"."
+  },
+  "static": {
+    "driver": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\hydration-safety-checks\\main-1\\static-driver.cjs",
+    "driverSha256": "cd99c7f275060103e6dd6dfd1b067312da1a23d5d6d6877d7815665a33556bbd",
+    "summary": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\hydration-safety-checks\\main-1\\static-summary.json",
+    "summarySha256": "3d4e1edbcfb8f350237793bfcba486ec7be33d00f2e73ee1db368f8932047057",
+    "success": true,
+    "commands": [
+      {
+        "id": "focused-jest",
+        "command": "C:/nvm4w/nodejs/node.exe node_modules/jest/bin/jest.js --runInBand --selectProjects unit --runTestsByPath scripts/__tests__/hydrate-next-standalone-multiplayer-server.test.ts scripts/__tests__/standalone-hydration-path-safety.test.ts",
+        "executable": "C:/nvm4w/nodejs/node.exe",
+        "args": [
+          "node_modules/jest/bin/jest.js",
+          "--runInBand",
+          "--selectProjects",
+          "unit",
+          "--runTestsByPath",
+          "scripts/__tests__/hydrate-next-standalone-multiplayer-server.test.ts",
+          "scripts/__tests__/standalone-hydration-path-safety.test.ts"
+        ],
+        "exitCode": 0,
+        "signal": null,
+        "error": null,
+        "stdout": "main-1\\01-focused-jest.stdout.log",
+        "stdoutSha256": "ad5041414338223be9b2b2b5af0d92856a0f6b2740cbfcdf972e95777907fbc6",
+        "stderr": "main-1\\01-focused-jest.stderr.log",
+        "stderrSha256": "ab08211c7045283c3740206ceb7d58c31aac7aea118d508dbc86f141a2c26f8c",
+        "status": "main-1\\01-focused-jest.status.json",
+        "statusSha256": "5f354ec69d13dc0e7b7620d312a3fd3be376f9da6823aedde3609e6eecf27588"
+      },
+      {
+        "id": "node-check",
+        "command": "C:/nvm4w/nodejs/node.exe --check scripts/hydrate-next-standalone-multiplayer-server.mjs",
+        "executable": "C:/nvm4w/nodejs/node.exe",
+        "args": [
+          "--check",
+          "scripts/hydrate-next-standalone-multiplayer-server.mjs"
+        ],
+        "exitCode": 0,
+        "signal": null,
+        "error": null,
+        "stdout": "main-1\\02-node-check.stdout.log",
+        "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr": "main-1\\02-node-check.stderr.log",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "main-1\\02-node-check.status.json",
+        "statusSha256": "757a145e853bd8501439de1731ad3713f567e5e39900caea8ec9c96db491a0d7"
+      },
+      {
+        "id": "typecheck",
+        "command": "C:/nvm4w/nodejs/node.exe C:/nvm4w/nodejs/node_modules/npm/bin/npm-cli.js run typecheck",
+        "executable": "C:/nvm4w/nodejs/node.exe",
+        "args": [
+          "C:/nvm4w/nodejs/node_modules/npm/bin/npm-cli.js",
+          "run",
+          "typecheck"
+        ],
+        "exitCode": 0,
+        "signal": null,
+        "error": null,
+        "stdout": "main-1\\03-typecheck.stdout.log",
+        "stdoutSha256": "d140a6ce62dda0946fe30dd882dbb8209f05be72c8fa8850e5634755a399e50f",
+        "stderr": "main-1\\03-typecheck.stderr.log",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "main-1\\03-typecheck.status.json",
+        "statusSha256": "47d8c1a56b08060ee0b0892bf4608c367c57893b7d2b577246e92df748c7cc17"
+      },
+      {
+        "id": "lint",
+        "command": "C:/nvm4w/nodejs/node.exe C:/nvm4w/nodejs/node_modules/npm/bin/npm-cli.js run lint",
+        "executable": "C:/nvm4w/nodejs/node.exe",
+        "args": [
+          "C:/nvm4w/nodejs/node_modules/npm/bin/npm-cli.js",
+          "run",
+          "lint"
+        ],
+        "exitCode": 0,
+        "signal": null,
+        "error": null,
+        "stdout": "main-1\\04-lint.stdout.log",
+        "stdoutSha256": "62e38e5b66938d6ca247921f27fe6ec5b7f96282b8ab1ddb1c5dba02cde4588f",
+        "stderr": "main-1\\04-lint.stderr.log",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "main-1\\04-lint.status.json",
+        "statusSha256": "9c2d83ef66a2639b382273eb1096aee282e93c54194e822f89dd58e8e8bf518a"
+      },
+      {
+        "id": "format-check",
+        "command": "C:/nvm4w/nodejs/node.exe C:/nvm4w/nodejs/node_modules/npm/bin/npm-cli.js run format:check",
+        "executable": "C:/nvm4w/nodejs/node.exe",
+        "args": [
+          "C:/nvm4w/nodejs/node_modules/npm/bin/npm-cli.js",
+          "run",
+          "format:check"
+        ],
+        "exitCode": 0,
+        "signal": null,
+        "error": null,
+        "stdout": "main-1\\05-format-check.stdout.log",
+        "stdoutSha256": "efcdd5c3eeeef4779a95d52c815b0b575b9d7923379b55012d0eb0e0c66a160f",
+        "stderr": "main-1\\05-format-check.stderr.log",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "main-1\\05-format-check.status.json",
+        "statusSha256": "2dc2e10fae272d1ae220e5933217d44947c286b612e72d253d0132eae52ec504"
+      },
+      {
+        "id": "openspec-strict",
+        "command": "C:/nvm4w/nodejs/node.exe C:/Users/wroll/AppData/Roaming/npm/node_modules/@fission-ai/openspec/bin/openspec.js validate --all --strict",
+        "executable": "C:/nvm4w/nodejs/node.exe",
+        "args": [
+          "C:/Users/wroll/AppData/Roaming/npm/node_modules/@fission-ai/openspec/bin/openspec.js",
+          "validate",
+          "--all",
+          "--strict"
+        ],
+        "exitCode": 0,
+        "signal": null,
+        "error": null,
+        "stdout": "main-1\\06-openspec-strict.stdout.log",
+        "stdoutSha256": "16c5c323579e9f348bc2adb0830ebd7bb199a73726ab1098c72331305dcca967",
+        "stderr": "main-1\\06-openspec-strict.stderr.log",
+        "stderrSha256": "5bc31df123a2e521acdd2c0d9477b367feec506471a91065d0a6b32c09089ed5",
+        "status": "main-1\\06-openspec-strict.status.json",
+        "statusSha256": "6b2f0f030e9616fcaea38e61cb8cfa9bd79d620e21f25256dde7e0698ed183b6"
+      },
+      {
+        "id": "spec-purpose",
+        "command": "C:/nvm4w/nodejs/node.exe C:/nvm4w/nodejs/node_modules/npm/bin/npm-cli.js run spec:purpose:validate:strict",
+        "executable": "C:/nvm4w/nodejs/node.exe",
+        "args": [
+          "C:/nvm4w/nodejs/node_modules/npm/bin/npm-cli.js",
+          "run",
+          "spec:purpose:validate:strict"
+        ],
+        "exitCode": 0,
+        "signal": null,
+        "error": null,
+        "stdout": "main-1\\07-spec-purpose.stdout.log",
+        "stdoutSha256": "3db815e6a799b623c9a272e7e654cfebb5781820dfb1e8e2ddc7d7614cd24345",
+        "stderr": "main-1\\07-spec-purpose.stderr.log",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "main-1\\07-spec-purpose.status.json",
+        "statusSha256": "57bc3f6e2d12e734a58d40727dbcf79ba8b05cf9d285c09b6d8920295ef66b34"
+      },
+      {
+        "id": "terminology",
+        "command": "C:/nvm4w/nodejs/node.exe C:/nvm4w/nodejs/node_modules/npm/bin/npm-cli.js run terminology:validate:strict",
+        "executable": "C:/nvm4w/nodejs/node.exe",
+        "args": [
+          "C:/nvm4w/nodejs/node_modules/npm/bin/npm-cli.js",
+          "run",
+          "terminology:validate:strict"
+        ],
+        "exitCode": 0,
+        "signal": null,
+        "error": null,
+        "stdout": "main-1\\08-terminology.stdout.log",
+        "stdoutSha256": "f900b2f139d48a4fce3da66f12105cdd633a1cfe6dc8102211bcf03cc6a1cce7",
+        "stderr": "main-1\\08-terminology.stderr.log",
+        "stderrSha256": "566e8ccbce9fef91c00e4eb16a77f6e69e98b0d8c4406827b52cd3b7935ac21e",
+        "status": "main-1\\08-terminology.status.json",
+        "statusSha256": "96aa77fce2e0fabc5e009a094610660c2cbb7b37f33aaf1950bb029b178e865b"
+      },
+      {
+        "id": "ci-qc",
+        "command": "C:/nvm4w/nodejs/node.exe C:/nvm4w/nodejs/node_modules/npm/bin/npm-cli.js run qc:openspec-ci:validate",
+        "executable": "C:/nvm4w/nodejs/node.exe",
+        "args": [
+          "C:/nvm4w/nodejs/node_modules/npm/bin/npm-cli.js",
+          "run",
+          "qc:openspec-ci:validate"
+        ],
+        "exitCode": 0,
+        "signal": null,
+        "error": null,
+        "stdout": "main-1\\09-ci-qc.stdout.log",
+        "stdoutSha256": "f01feb11318234aab4764fe76151b78c06905527212a8f8723626fcf616b71d6",
+        "stderr": "main-1\\09-ci-qc.stderr.log",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "main-1\\09-ci-qc.status.json",
+        "statusSha256": "70db60562259084389297d1c48d2add6e88abd8add89b0ef6c9a08e36dcd85ca"
+      }
+    ],
+    "rawDirectory": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\hydration-safety-checks\\main-1"
+  },
+  "build": {
+    "driver": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\hydration-safety-checks\\main-1\\build-driver.cjs",
+    "driverSha256": "20a669c5da88a7b67cfb92d73f76bc570e8759feff7b0737ae4e35ca656628f2",
+    "status": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\hydration-safety-checks\\main-1-build-status.json",
+    "statusSha256": "3556f0e4c3b7942bb711d75a66a7bada20fbb76fc4a5bf946b5feb4b4e829b38",
+    "log": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\hydration-safety-checks\\main-1-build.log",
+    "logSha256": "912e7c96b1979d2fbf87036a7070b2911bbf243546adbdaa281b4979620c5b3f",
+    "success": true,
+    "exitCode": 0,
+    "driverPid": 29288,
+    "childPid": 82992,
+    "startedAt": "2026-09-12T20:37:59.214Z",
+    "finishedAt": "2026-09-12T20:41:19.913Z",
+    "manifestEquality": true,
+    "manifests": [
+      {
+        "path": "config/mm-data-assets.json",
+        "sha256": "6746a36beab5ce9a9beff240afe0f7609caace9010509ecf7d8c58c6dd8af8e6"
+      },
+      {
+        "path": "public/config/mm-data-assets.json",
+        "sha256": "6746a36beab5ce9a9beff240afe0f7609caace9010509ecf7d8c58c6dd8af8e6"
+      }
+    ],
+    "standaloneManifest": {
+      "path": ".next/standalone/public/config/mm-data-assets.json",
+      "sha256": "6746a36beab5ce9a9beff240afe0f7609caace9010509ecf7d8c58c6dd8af8e6"
+    },
+    "hydratedServer": {
+      "path": ".next/standalone/server.js",
+      "sha256": "e4f973d2cfa7f4c25775e4ce9315b7398655a6a17cfc799793545de84a59ecf6",
+      "exists": true
+    },
+    "hydratedConfig": {
+      "path": ".next/standalone/server.next-config.json",
+      "sha256": "45e3802de65535418edb0f89db88cde9c0698ad7191ec0f8bb1ede1cefa3fab0",
+      "exists": true
+    }
+  },
+  "processTermination": {
+    "buildDriverPid": 29288,
+    "buildChildPid": 82992,
+    "liveMatchingPids": [],
+    "listeners": [],
+    "verifiedAbsent": true
+  },
+  "scopeLimits": [
+    "No source, package, spec, Git, install, or asset acquisition changes were made during this proof.",
+    "The physical dependency inventory was used as-is.",
+    "This receipt proves Windows production build and fixture coverage; it does not claim Linux-native proof.",
+    "No browser or external HTTP proof was required for this hydration safety task."
+  ]
+}

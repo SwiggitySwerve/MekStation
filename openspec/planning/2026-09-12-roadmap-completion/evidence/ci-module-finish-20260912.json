@@ -1,0 +1,101 @@
+{
+  "receipt": "ci-module-finish-20260912",
+  "status": "local-verified",
+  "task": "R1.ci prefix 1 retained CI contract modules",
+  "baseline": {
+    "head": "ca0687d25264033376862347e494ddf15cd92bec",
+    "branch": "codex/roadmap-ci-contract-modules-20260912",
+    "candidate": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\ci-contract-modules"
+  },
+  "ownedPaths": [
+    "scripts/qc/openspec-ci-contracts.mjs",
+    "scripts/qc/openspec-workflow-contracts.mjs",
+    "package.json",
+    "package-lock.json"
+  ],
+  "productSourceChanged": true,
+  "sourceChange": "The retained validator module includes the bounded shell override repair. Formatting was applied to that same allowed module; no other product source was changed.",
+  "fileHashes": [
+    {
+      "path": ".github/workflows/pr-checks.yml",
+      "source": "proposed-root-workflow",
+      "bytes": 31400,
+      "sha256": "7b2664d3594939d2f6ecd089b036c233dd92c3da380e290070f28476da45cf42"
+    },
+    {
+      "path": "scripts/qc/openspec-ci-contracts.mjs",
+      "bytes": 5219,
+      "lines": 174,
+      "sha256": "ae81b758ae37fe0a796cd77c5e5a17a5fac0bd6d1a8b488b4d5955fca1234a99"
+    },
+    {
+      "path": "scripts/qc/openspec-workflow-contracts.mjs",
+      "bytes": 7882,
+      "lines": 243,
+      "sha256": "4ae969ae69ad71af0cfc761c0b133bbc0862202e71138d38198231062f92f696"
+    },
+    {
+      "path": "package.json",
+      "bytes": 34753,
+      "lines": 341,
+      "sha256": "113efe43547293c2db34555d04e8beb668f6b263a5aeb2962fdefa0f92563667"
+    },
+    {
+      "path": "package-lock.json",
+      "bytes": 649530,
+      "lines": 18391,
+      "sha256": "f923ca53a2d9fc69d56cd59b9f86d26fd4b3756ac488c138b64163f787bd7d36"
+    }
+  ],
+  "dependencyChange": "package.json and package-lock.json add yaml ^2.9.0",
+  "changedLinesUpperBound": 423,
+  "redEvidence": {
+    "path": ".sisyphus/roadmap-completion-20260912/ci-shell-override-repro/red-result.json",
+    "sha256": "63e2e3b77a85fa48bfedb21b3ae2e118aecb0ffdcaf25497db0c392a01a90a88",
+    "baselineErrors": 0,
+    "mutatedErrors": 0,
+    "unexpectedAcceptance": true
+  },
+  "verification": {
+    "evidenceDirectory": ".sisyphus/roadmap-completion-20260912/ci-module-finish",
+    "commandsReceipt": ".sisyphus/roadmap-completion-20260912/ci-module-finish/commands.json",
+    "commandsReceiptSha256": "817d081bb9b88f792120c35bf56aec499d3db681c11de0ea05315ca1c570ef5c",
+    "node": "C:/nvm4w/nodejs/node.exe",
+    "nodeChecks": {
+      "workflowModule": 0,
+      "ciModule": 0,
+      "dynamicImports": 0
+    },
+    "negativeHarness": {
+      "command": "resume-2-checks/negative-harness.mjs against proposed root .github/workflows/pr-checks.yml",
+      "status": 0,
+      "baselineErrorCount": 0,
+      "stepEchoShellErrorCount": 1,
+      "jobDefaultEchoShellErrorCount": 1,
+      "workflowDefaultEchoShellErrorCount": 1,
+      "allNegativesRejected": true,
+      "executedMutatedShell": false
+    },
+    "candidateCiQc": {
+      "command": "node scripts/qc/validate-openspec-ci-quality.mjs --json",
+      "status": 0,
+      "reportedStatus": "pass",
+      "reportedErrorCount": 0
+    },
+    "scopedFormatter": {
+      "command": "node_modules/.bin/oxfmt.cmd --check scripts/qc/openspec-ci-contracts.mjs scripts/qc/openspec-workflow-contracts.mjs package.json package-lock.json",
+      "status": 0
+    },
+    "gitDiffCheck": 0,
+    "workingTreeFiles": 4
+  },
+  "preserved": [
+    "All existing .sisyphus/roadmap-completion-20260912/grok-ci-contracts-1 artifacts",
+    "The original CI test surface; no product test file was added or modified",
+    "No install, build, server, Git mutation, or shell execution of a mutated workflow step"
+  ],
+  "limits": [
+    "This is candidate-local verification; parent review and integration remain required",
+    "The new declarative modules are not wired into the existing validator in this prefix; the later CI test prefix owns mutations"
+  ]
+}

@@ -1,0 +1,191 @@
+{
+  "schemaVersion": 1,
+  "reviewId": "anchor-spec-final-review-20260912",
+  "status": "accepted_with_scoped_existing_debt",
+  "decision": "accepted-retained-five-spec-source-anchor-prefix",
+  "capturedAt": "2026-09-12T20:42:03.941Z",
+  "candidate": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/spec-source-anchors",
+  "base": "ca0687d25264033376862347e494ddf15cd92bec",
+  "head": "ca0687d25264033376862347e494ddf15cd92bec",
+  "scope": {
+    "files": [
+      "openspec/specs/auto-save-persistence/spec.md",
+      "openspec/specs/battle-armor-unit-system/spec.md",
+      "openspec/specs/toast-notifications/spec.md",
+      "openspec/specs/utility-patterns/spec.md",
+      "openspec/specs/vehicle-unit-system/spec.md"
+    ],
+    "exactDiffCapChangedLines": 350,
+    "productSourceEdited": false,
+    "gitMutationPerformed": false
+  },
+  "beforeAfterHashes": [
+    {
+      "file": "openspec/specs/auto-save-persistence/spec.md",
+      "bytes": 29862,
+      "beforeBytes": 28877,
+      "beforeSha256": "c20a361aaffd95dca647a0cc5bdf767bec5b9c3ab4a835ddc2333a35923e5c5e",
+      "baseSha256": "3038161895af9592d2ac2547fcb11f01f7777c244abd83cf05340e4d7103f5a7",
+      "afterSha256": "67340c792bb73b99ad94bc1452d85f7624aa49785b64a92ed5e736f4c9e664cc"
+    },
+    {
+      "file": "openspec/specs/battle-armor-unit-system/spec.md",
+      "bytes": 27071,
+      "beforeBytes": 27071,
+      "beforeSha256": "3223fcc7ca638ba7b832bf94154a423a13ca7269b05653a846b8f7982b0cdd14",
+      "baseSha256": "e25ac8b4bdefe4196d07ba557d6ea177abd707a7e18b2b460e85fd0d5d2725d5",
+      "afterSha256": "3223fcc7ca638ba7b832bf94154a423a13ca7269b05653a846b8f7982b0cdd14"
+    },
+    {
+      "file": "openspec/specs/toast-notifications/spec.md",
+      "bytes": 14687,
+      "beforeBytes": 14395,
+      "beforeSha256": "66384b927915371d4e616bbad30c2a384c76730f7fefc68938c449adf526830d",
+      "baseSha256": "30b18323d6efd2eac8417b4c9d2a310a5121b5202ae7eb04ac370d869a465b8c",
+      "afterSha256": "5cd76fa006d8f107cc0fafcffe102168b66843785e02ca30bfd365ba09437d21"
+    },
+    {
+      "file": "openspec/specs/utility-patterns/spec.md",
+      "bytes": 24484,
+      "beforeBytes": 24484,
+      "beforeSha256": "e76d729a60a426b218a29fb5b9bcd4ac4f933b8028ccf453446922982f51b985",
+      "baseSha256": "ec021caae2a8e9ea87b28589b1afd64b19181dee58fc7ae0b10be01b736f81e7",
+      "afterSha256": "e76d729a60a426b218a29fb5b9bcd4ac4f933b8028ccf453446922982f51b985"
+    },
+    {
+      "file": "openspec/specs/vehicle-unit-system/spec.md",
+      "bytes": 39077,
+      "beforeBytes": 38999,
+      "beforeSha256": "aa39890beaccd57bfdee25d93a5c58c88421ff8205c8609ec539cff6fe4e6246",
+      "baseSha256": "fd2f3c0972ebcc97e3e162dfc9ca1e87570196a2a3b99d0780e2562f94d7557a",
+      "afterSha256": "213363c794edaa1ffa9eb00df8c759cfd5e8c06bf78f7e61a48b8617bbc32b8d"
+    }
+  ],
+  "diff": {
+    "paths": [
+      "openspec/specs/auto-save-persistence/spec.md",
+      "openspec/specs/battle-armor-unit-system/spec.md",
+      "openspec/specs/toast-notifications/spec.md",
+      "openspec/specs/utility-patterns/spec.md",
+      "openspec/specs/vehicle-unit-system/spec.md"
+    ],
+    "insertions": 122,
+    "deletions": 107,
+    "changedLines": 229,
+    "withinExactDiffCap": true,
+    "diffCheckExitCode": 0
+  },
+  "processEvidence": {
+    "checks": [
+      {
+        "pid": 73008,
+        "absent": true,
+        "stdoutLog": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/anchor-spec-final-review/pid-73008.stdout.log",
+        "stderrLog": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/anchor-spec-final-review/pid-73008.stderr.log",
+        "stdoutSha256": "943b315e065238b7073b033f534ef954b6b6461fb3f03a3f5b8555b11bc4c0a2",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "pid": 78388,
+        "absent": true,
+        "stdoutLog": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/anchor-spec-final-review/pid-78388.stdout.log",
+        "stderrLog": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/anchor-spec-final-review/pid-78388.stderr.log",
+        "stdoutSha256": "943b315e065238b7073b033f534ef954b6b6461fb3f03a3f5b8555b11bc4c0a2",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    ]
+  },
+  "gates": {
+    "allExitCodeZero": true,
+    "strictOpenSpec": [
+      "strict-auto-save-persistence",
+      "strict-battle-armor-unit-system",
+      "strict-toast-notifications",
+      "strict-utility-patterns",
+      "strict-vehicle-unit-system"
+    ],
+    "purposeStrict": "pass",
+    "terminologyStrict": "pass",
+    "candidateCiQc": "pass",
+    "markdownPrettier": "pass",
+    "markdownPrettierVersion": "3.9.6",
+    "rawLogDir": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/anchor-spec-final-review",
+    "runRecord": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/anchor-spec-final-review/review-run.json",
+    "runRecordSha256": "61b566547ed1240da4db9870f12af06c67b01f4f2e778fcb2915dd3af6886eeb"
+  },
+  "sourceAnchorReview": {
+    "tableFilesAllExist": true,
+    "symbolAnchorsAllFound": true,
+    "autoSave": {
+      "independentlyPublishable": true,
+      "resolvedFinding": "Receipt-driven useAutoSaveIndicator contract now matches the live target, receipt subscription, success/error messages, and timer behavior.",
+      "sourceEvidence": [
+        "src/hooks/useAutoSaveIndicator.ts:7-10",
+        "src/hooks/useAutoSaveIndicator.ts:54-97",
+        "src/stores/utils/clientSafeStorage.ts:10-18",
+        "src/stores/utils/clientSafeStorage.ts:40-44"
+      ],
+      "specEvidence": [
+        "openspec/specs/auto-save-persistence/spec.md:47-76",
+        "openspec/specs/auto-save-persistence/spec.md:611-668"
+      ],
+      "broaderDebounceDisposition": "scoped-and-consistent: the 500ms receipt success timer is described separately from the 1000ms game-state autosave debounce and 30s interval.",
+      "residualExistingDebt": {
+        "repairRequiredForThisPrefix": false,
+        "followup": "Review the generic Edge Cases sentence at openspec/specs/auto-save-persistence/spec.md:627 ('unsubscribe from stores') against the timer and beforeunload cleanup in src/hooks/useGameStatePersistence.helpers.ts:93-147 during a separate bounded documentation cleanup."
+      }
+    },
+    "toast": {
+      "independentlyPublishable": true,
+      "resolvedFinding": "Hook interfaces, ISyncConflict fields, P2PConnectionState order, ShareableContentType, and SyncEvent now match the live definitions; stale readonly modifiers and abbreviated unions are removed.",
+      "sourceEvidence": [
+        "src/hooks/useSyncNotifications.ts:36-86",
+        "src/types/vault/VaultSyncTypes.ts:56-92",
+        "src/types/vault/VaultCoreTypes.ts:75-78",
+        "src/lib/p2p/types.ts:229-242"
+      ],
+      "specEvidence": [
+        "openspec/specs/toast-notifications/spec.md:293-468"
+      ]
+    },
+    "vehicle": {
+      "independentlyPublishable": true,
+      "resolvedFinding": "VehicleCustomizer purpose now names the registry-driven seven-tab set.",
+      "sourceEvidence": [
+        "src/components/customizer/shared/tabRegistry.tsx:243-275"
+      ],
+      "specEvidence": [
+        "openspec/specs/vehicle-unit-system/spec.md:940-960"
+      ]
+    },
+    "utility": {
+      "independentlyPublishable": true,
+      "resolvedFinding": "All utility source anchors use stable symbol anchors and the scoped gates pass.",
+      "specEvidence": [
+        "openspec/specs/utility-patterns/spec.md:47-313"
+      ]
+    },
+    "battleArmor": {
+      "independentlyPublishable": false,
+      "disposition": "separate-existing-debt",
+      "reason": "The retained proposal still says the customizer has two tabs at openspec/specs/battle-armor-unit-system/spec.md:730 while the live BATTLE_ARMOR_TABS registry has nine entries at src/components/customizer/shared/tabRegistry.tsx:339-379.",
+      "followup": "Bounded R1 documentation repair: update the Battle Armor tab layout and implementation-file table to the nine registry entries, then rerun the same scoped gates. This is outside the current three-finding correction and does not block the accepted prefix under the explicit debt fence."
+    }
+  },
+  "priorReview": {
+    "rawDir": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/anchor-spec-finish-review",
+    "evidence": "E:/Projects/MekStation/openspec/planning/2026-09-12-roadmap-completion/evidence/anchor-spec-finish-review-20260912.json",
+    "evidenceSha256": "bd0d8ed7a7d7a7473fb78ed1e04d9a592dd709140a35782ea21165935f89f24f",
+    "preserved": true
+  },
+  "workerRecord": {
+    "lane": "grok-anchor-corrections-1",
+    "statusFile": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/grok-anchor-corrections-1/status.json",
+    "statusSha256": "fe4db113f7acad30ed3576b085b5de063dd8e969a5503d48eccaf1097adc88ea",
+    "reportSha256": "037de69cea7bfe36ebf944cac521f5c538d66102efa40b9f3e31a829398fe69c",
+    "eventsSha256": "22beedf96fc0c1968d58770176f1ae8a61f48138ca06e923366f3b6c3bda09c2",
+    "stopReason": "10-minute owned lane budget",
+    "code": null,
+    "completionClaim": false
+  }
+}

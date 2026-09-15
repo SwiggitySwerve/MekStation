@@ -1,0 +1,32 @@
+{
+  "recordedAt": "2026-09-12T16:50:27.491Z",
+  "node": "R9.manifest-sync",
+  "baseline": "6c4eac5c7b7a2aece3aab0443ce606943db6cf0b",
+  "rootHead": "be7f85b867aa3e8576e5e3d27e309276203bc24b",
+  "ownership": [
+    {
+      "path": "scripts/mm-data/sync-browser-config.mjs",
+      "beforeSha256": null
+    },
+    {
+      "path": "scripts/__tests__/mm-data-browser-config.test.ts",
+      "beforeSha256": null
+    },
+    {
+      "path": "package.json",
+      "beforeSha256": "1bcd37456616146bf8c8bcf8da26a12c272f43a3ffce3c26928e31c97dabaa3d"
+    },
+    {
+      "path": "openspec/specs/mm-data-asset-integration/spec.md",
+      "beforeSha256": "285080c853c8522a892bd0e577a98b00adf91fd5390e82cd7df7b13a029c0f0f"
+    }
+  ],
+  "reproduction": "A tracked non-mech-inclusive config exists, root ignored public config differs, and clean browser worktree public/standalone config is absent. Source fetch/build contains no sync step.",
+  "requiredRed": "A focused packaging regression proves the default served artifact missing/stale before adding deterministic sync; preserve raw red/green outputs.",
+  "constraints": [
+    "No asset acquisition or hand editing public config",
+    "No changes to dependencies, existing kill-port dev behavior, other scripts or specs",
+    "Worker may run focused tests, not build/server/typecheck",
+    "Parent owns isolated full gates/runtime request proof and Git delivery"
+  ]
+}

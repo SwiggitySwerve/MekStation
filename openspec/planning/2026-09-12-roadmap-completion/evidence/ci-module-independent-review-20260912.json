@@ -1,0 +1,202 @@
+{
+  "schemaVersion": 1,
+  "evidenceId": "ci-module-independent-review-20260912",
+  "capturedAt": "2026-09-12T20:13:36Z",
+  "status": "accepted-with-limits",
+  "review": "R1.ci prefix 1 independent read-only review",
+  "candidate": {
+    "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/ci-contract-modules",
+    "head": "ca0687d25264033376862347e494ddf15cd92bec",
+    "branch": "codex/roadmap-ci-contract-modules-20260912",
+    "workingTreeFiles": [
+      "package-lock.json",
+      "package.json",
+      "scripts/qc/openspec-ci-contracts.mjs",
+      "scripts/qc/openspec-workflow-contracts.mjs"
+    ],
+    "fileHashes": [
+      {
+        "path": "scripts/qc/openspec-ci-contracts.mjs",
+        "bytes": 5219,
+        "lines": 174,
+        "sha256": "ae81b758ae37fe0a796cd77c5e5a17a5fac0bd6d1a8b488b4d5955fca1234a99"
+      },
+      {
+        "path": "scripts/qc/openspec-workflow-contracts.mjs",
+        "bytes": 7882,
+        "lines": 243,
+        "sha256": "4ae969ae69ad71af0cfc761c0b133bbc0862202e71138d38198231062f92f696"
+      },
+      {
+        "path": "package.json",
+        "bytes": 34753,
+        "lines": 341,
+        "sha256": "113efe43547293c2db34555d04e8beb668f6b263a5aeb2962fdefa0f92563667"
+      },
+      {
+        "path": "package-lock.json",
+        "bytes": 649530,
+        "lines": 18391,
+        "sha256": "f923ca53a2d9fc69d56cd59b9f86d26fd4b3756ac488c138b64163f787bd7d36"
+      }
+    ]
+  },
+  "reviewDriver": {
+    "path": ".sisyphus/roadmap-completion-20260912/ci-module-independent-review/review-driver.cjs",
+    "sha256": "d72944f70308ba9b0a18dc0c9400ba1a03e94ff14a41710ad080904d86b7b4a6",
+    "statusPath": ".sisyphus/roadmap-completion-20260912/ci-module-independent-review/review-status.json",
+    "statusSha256": "2b9e2a0871e0893152c6569ca49b581a0b9b41b3a549c9e6752ee9df1e270982",
+    "exitCode": 0,
+    "running": false,
+    "timedOut": false,
+    "noMatchingProcessesObserved": true
+  },
+  "checks": [
+    {
+      "id": "node-check-workflow-module",
+      "command": ["C:/nvm4w/nodejs/node.exe", "--check", "scripts/qc/openspec-workflow-contracts.mjs"],
+      "exitCode": 0,
+      "stdout": ".sisyphus/roadmap-completion-20260912/ci-module-independent-review/node-check-workflow-module.stdout.log",
+      "stderr": ".sisyphus/roadmap-completion-20260912/ci-module-independent-review/node-check-workflow-module.stderr.log",
+      "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "node-check-ci-module",
+      "command": ["C:/nvm4w/nodejs/node.exe", "--check", "scripts/qc/openspec-ci-contracts.mjs"],
+      "exitCode": 0,
+      "stdout": ".sisyphus/roadmap-completion-20260912/ci-module-independent-review/node-check-ci-module.stdout.log",
+      "stderr": ".sisyphus/roadmap-completion-20260912/ci-module-independent-review/node-check-ci-module.stderr.log",
+      "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "dynamic-import-contract-modules",
+      "command": ["C:/nvm4w/nodejs/node.exe", "-e", "import both contract modules and report exports"],
+      "exitCode": 0,
+      "result": {
+        "workflowExports": ["parseWorkflowJobs", "validateJobTokens"],
+        "ciExports": ["requiredAggregatorNeeds", "requiredPackageScripts", "requiredProtectedContexts", "requiredWorkflowJobContracts", "requiredWorkflowTokens"],
+        "aggregatorNeeds": 19,
+        "jobContracts": 1
+      },
+      "stdout": ".sisyphus/roadmap-completion-20260912/ci-module-independent-review/dynamic-import-contract-modules.stdout.log",
+      "stderr": ".sisyphus/roadmap-completion-20260912/ci-module-independent-review/dynamic-import-contract-modules.stderr.log",
+      "stdoutSha256": "0f83adc6354725ba28ac4f1a62a1996c39d4ff6d9f95e90c065a086fe7bc454b",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "negative-shell-harness",
+      "command": ["C:/nvm4w/nodejs/node.exe", "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/grok-ci-contracts-1/resume-2-checks/negative-harness.mjs", "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/ci-contract-modules", "E:/Projects/MekStation/.github/workflows/pr-checks.yml"],
+      "exitCode": 0,
+      "result": {
+        "baselineErrorCount": 0,
+        "stepShellEchoErrorCount": 1,
+        "jobDefaultShellEchoErrorCount": 1,
+        "workflowDefaultShellEchoErrorCount": 1,
+        "allNegativesRejected": true,
+        "executedMutatedShell": false,
+        "errorCodes": ["workflow-job-condition-invalid", "workflow-run-shell-unsafe"]
+      },
+      "stdout": ".sisyphus/roadmap-completion-20260912/ci-module-independent-review/negative-shell-harness.stdout.log",
+      "stderr": ".sisyphus/roadmap-completion-20260912/ci-module-independent-review/negative-shell-harness.stderr.log",
+      "stdoutSha256": "34413f3227c98f9f1718355ff6e52130fa83d0f36be25b5ac9276651c39779a6",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "candidate-baseline-ci-qc",
+      "command": ["C:/nvm4w/nodejs/node.exe", "scripts/qc/validate-openspec-ci-quality.mjs", "--json"],
+      "exitCode": 0,
+      "result": {
+        "reportedStatus": "pass",
+        "reportedErrorCount": 0,
+        "workflowContracts": 8,
+        "aggregatorExpected": 18,
+        "aggregatorActual": 18,
+        "unaccountedActiveOpenSpecChanges": []
+      },
+      "stdout": ".sisyphus/roadmap-completion-20260912/ci-module-independent-review/candidate-baseline-ci-qc.stdout.log",
+      "stderr": ".sisyphus/roadmap-completion-20260912/ci-module-independent-review/candidate-baseline-ci-qc.stderr.log",
+      "stdoutSha256": "e73d2bc631637ff8806d9adbf1a31052b575044d797a04f184aec21f5b8e6985",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "metadata-and-preservation-check",
+      "command": ["C:/nvm4w/nodejs/node.exe", "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-module-independent-review/metadata-check.mjs"],
+      "exitCode": 0,
+      "result": {
+        "moduleWiringAbsent": true,
+        "browserOrWorkflowFilesChanged": false,
+        "activeValidatorLines": 335,
+        "lockResolutionUnchanged": true,
+        "rootDevDependencyYaml": "^2.9.0",
+        "resolvedYamlVersion": "2.9.0"
+      },
+      "stdout": ".sisyphus/roadmap-completion-20260912/ci-module-independent-review/metadata-and-preservation-check.stdout.log",
+      "stderr": ".sisyphus/roadmap-completion-20260912/ci-module-independent-review/metadata-and-preservation-check.stderr.log",
+      "stdoutSha256": "657bc1995c9ae5a21f06e911bfa1725315bcd44c09af14faee140ac4afb8f65b",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "dependencyAndPreservation": {
+    "packageChange": "root devDependency yaml ^2.9.0",
+    "resolvedYaml": {
+      "version": "2.9.0",
+      "resolved": "https://registry.npmjs.org/yaml/-/yaml-2.9.0.tgz",
+      "integrity": "sha512-2AvhNX3mb8zd6Zy7INTtSpl1F15HW6Wnqj0srWlkKLcpYl/gMIMJiyuGq2KeI2YFxUPjdlB+3Lc10seMLtL4cA=="
+    },
+    "lockResolutionUnchanged": true,
+    "original675LineTest": {
+      "path": "scripts/__tests__/openspec-ci-quality-qc.test.ts",
+      "lines": 675,
+      "bytes": 22500,
+      "sha256": "37cc951ad23379e647b2217750932f18c1843c247ee1f4a3e7e36da79b97b026"
+    },
+    "candidateBaselineTest": {
+      "lines": 166,
+      "bytes": 5373,
+      "sha256": "ea1132bffe763b1241e0d52b69c82b9f9c98955512e3c5014f19c6cb507bf5e9"
+    }
+  },
+  "approvedLaterWiringMetadata": {
+    "scope": "Later dependency-gated prefix; not part of candidate prefix 1",
+    "source": {
+      "readinessEvidence": "openspec/planning/2026-09-12-roadmap-completion/evidence/ci-four-prefix-readiness-max-20260912.json",
+      "readinessEvidenceSha256": "a53effe23bfbee3a8e7c6759918d1fdabac7536fec61961aac855b1907f843c7",
+      "rawReview": ".sisyphus/roadmap-completion-20260912/ci-prefix-max/review-raw.md",
+      "rawReviewSha256": "4522fec0684010d51e5b60e6bc3154351bbe1ae927335e4a9b96b247ab977c87"
+    },
+    "workflowCurrentDirtyRoot": {
+      "path": ".github/workflows/pr-checks.yml",
+      "bytes": 31400,
+      "sha256": "7b2664d3594939d2f6ecd089b036c233dd92c3da380e290070f28476da45cf42",
+      "observedComment": "record sheets (5), edit recovery (2)",
+      "requiredCorrectedComment": "record sheets (6), edit recovery (3)"
+    },
+    "ledger": {
+      "cleanOriginLines": 88,
+      "cleanOriginSha256": "d9faceb665f174d9c5e4a3eae09d1f580f602e7591f70d4432fb327fdc452e5e",
+      "originPlusSixLineTargetLines": 94,
+      "originPlusSixLineTargetSha256": "b9287e4fc86f1d97b23e9d6a52a204dda941d9f86729c8447e2f46d0b9cc8f35",
+      "currentDirtyRootLines": 76,
+      "currentDirtyRootSha256": "0626968fc8aa28dd2c761d20c323456efa653dce8358b8bb05e306dbddb88afb",
+      "currentDirtyRootIsTarget": false
+    }
+  },
+  "scopeResult": {
+    "accepted": [
+      "Both contract modules parse and dynamically import.",
+      "The final module rejects step, job-default, and workflow-default run-shell echo bypasses.",
+      "Baseline candidate CI contract validation remains passing with zero errors.",
+      "Candidate status contains only the four declared files; no browser, workflow, validator, or test file is changed.",
+      "The yaml lock resolution is unchanged and the recovered 675-line test is preserved in the shared root checkout."
+    ],
+    "limits": [
+      "Prefix 1 is intentionally unused; this proves module loading and contract behavior only, not live CI activation.",
+      "The workflow and ledger metadata above belong to later dependency-gated wiring and retain the observed stale/current dirty state; they are not accepted as prefix 1 changes.",
+      "No remote GitHub CI, production browser run, install, build, server, or workflow execution was performed.",
+      "Parent retains final integration, validation dispatch, and commit decisions."
+    ]
+  },
+  "rawEvidenceDirectory": ".sisyphus/roadmap-completion-20260912/ci-module-independent-review"
+}

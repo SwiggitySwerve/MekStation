@@ -1,0 +1,69 @@
+{
+  "schemaVersion": 1,
+  "recordedAt": "2026-09-12T16:48:16.811Z",
+  "reviewer": "/root/hydration_path_max",
+  "model": "gpt-5.6-luna",
+  "effort": "max",
+  "elapsed": "~5m33s recorded window (16:42:43.943Z trial request to 16:48:16.811Z probe; no performance inference)",
+  "scope": "Read-only topology/cause diagnosis. No hydrator, build, test, install, source, asset, or dependency mutation was performed by this review.",
+  "baseline": {
+    "worktree": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\equipment-loader",
+    "branch": "codex/roadmap-equipment-loader-20260912",
+    "head": "6c4eac5c7b7a2aece3aab0443ce606943db6cf0b",
+    "admittedSourceSha256": {
+      "src/services/equipment/EquipmentOfficialLoader.ts": "92b520e154648bae97219f3d92c3fb7521a99e9f9fc51e2a1b1c4c039c4d73fb",
+      "src/services/equipment/EquipmentLoaderService.ts": "5bbdcbb90898beee29a4dd4677de9498efb890235e410cc175391711fbb47b9c",
+      "src/services/equipment/__tests__/EquipmentOfficialLoader.failure.test.ts": "b4a6dd8c09d9ba15519e48964a5860f5884c9ca3d35541d26a98cad75823586f"
+    }
+  },
+  "failure": {
+    "command": "node C:/nvm4w/nodejs/node_modules/npm/bin/npm-cli.js run build",
+    "status": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\equipment-loader-checks\\attempt-2-status.json",
+    "exitCode": 1,
+    "finishedAt": "2026-09-12T16:42:29.808Z",
+    "buildLogSha256": "896f7b0f977c56c2daee8f27c12f2f97757cd83ae503467e24943347b04998b9",
+    "buildLogLine": 9460,
+    "error": "ENOENT: no such file or directory, lstat 'E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\equipment-loader\\node_modules\\tsx'",
+    "priorGates": "focused 109, typecheck, lint, format, strict specs, purpose, terminology, and CI QC exited 0; build reached prerender completion before hydration failed"
+  },
+  "topologyBeforeRestore": {
+    "equipmentNodeModules": {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\equipment-loader\\node_modules",
+      "type": "junction/symlink",
+      "linkTarget": "E:\\Projects\\MekStation\\node_modules",
+      "realpath": "E:\\Projects\\MekStation\\node_modules"
+    },
+    "equipmentStandaloneNodeModules": {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\equipment-loader\\.next\\standalone\\node_modules",
+      "type": "junction/symlink",
+      "linkTarget": "E:\\Projects\\MekStation\\node_modules",
+      "realpath": "E:\\Projects\\MekStation\\node_modules"
+    },
+    "afterFailure": "root node_modules/tsx was absent while shared .bin/tsx remained (sha256 ccf543c56fffe704c66222818bfc4e6bfe7330fa980d5d15c7f7d9db15cd2353); root .next/standalone/node_modules was physical and retained tsx 4.22.4",
+    "browserComparison": "browser/node_modules and browser/.next/standalone/node_modules are physical directories; both retained tsx 4.22.4 (package.json sha256 b0d63b124b9b85b53d09cff256fa7832cb6a774f8b90ae1353e63df5275824b2)",
+    "postRestoreProbe": "At 2026-09-12T16:48:16.811Z root tsx was restored, but both equipment junctions still resolved to the shared root; replace the worktree junction with an isolated physical dependency tree before rerun."
+  },
+  "scriptEvidence": {
+    "path": "scripts/hydrate-next-standalone-multiplayer-server.mjs",
+    "sha256": "1b02ad84794697ba2b47f4c51042ad0dc24392a8e9c0dbebcebff581646403b9",
+    "gitObject": "79060bbcc3ece689bb683f528cd689aba9113e5c",
+    "unchangedFromHeadAndBrowserAndMain": true,
+    "runNextSha256": "b5ee465788c19d8ee17a63de611c8e120ab2547d1c5576fa8eb94e0102e90cf0",
+    "lockEntry": "tsx 4.22.4; integrity sha512-X8EX+XV4QR5xCsrgxaED954zTDfY8KqlDtskKEL0cHhyS/P8b4IFOvGDQpsC9Q1XnLq915wEfwwY/zzskCtmhg==",
+    "relevantLines": "25 runtime dirs; 38-42 copyDir; 40 fs.rmSync(target,{recursive:true,force:true}); 41 fs.cpSync(source,target,...); 57-68 source root/node_modules to standalone/node_modules; package.json build line 14 invokes hydrator"
+  },
+  "cause": {
+    "classification": "setup-triggered product safety defect",
+    "chain": "The source existence check passed while tsx existed. copyDir then recursively removed target equipment-loader/.next/standalone/node_modules/tsx, whose junction realpath was the shared root node_modules/tsx. The following cpSync lstat therefore reported the source path missing. The surviving .bin/tsx and intact browser/root standalone copies corroborate deletion of the shared package rather than a loader-code failure.",
+    "productFollowup": "The hydrator should fail closed when a copy target is a symlink/junction or when source and target realpaths are equal; recursive removal must never traverse outside standaloneDir. This is a distinct bounded robustness follow-up."
+  },
+  "safeNextAction": [
+    "Parent completes the already-authorized exact tsx restoration and replaces only equipment-loader/node_modules with a physical isolated dependency tree verified against browser 4.22.4; do not rerun while either junction remains.",
+    "Recheck lstat/readlink/realpath for both node_modules paths, snapshot dependency hashes, then parent reruns the build/hydration gates and verifies the shared root remains unchanged.",
+    "Track the fail-closed hydrator guard as a separate small product change; do not fold it into the equipment-loader repair receipt."
+  ],
+  "limits": [
+    "No destructive reproduction was attempted because it would risk deleting shared dependencies.",
+    "This receipt proves the observed failure and causal path; it does not claim a post-repair build pass."
+  ]
+}

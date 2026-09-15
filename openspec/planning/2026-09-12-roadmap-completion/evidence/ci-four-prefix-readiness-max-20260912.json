@@ -1,0 +1,170 @@
+{
+  "schemaVersion": 1,
+  "evidenceId": "ci-four-prefix-readiness-max-20260912",
+  "capturedAt": "2026-09-12T17:30:52.0286805Z",
+  "status": "readiness-reviewed",
+  "worker": {
+    "id": "/root/ci_prefix_max",
+    "model": "gpt-5.6-luna",
+    "effort": "max",
+    "mode": "read-only source/spec/Git review"
+  },
+  "rawReview": ".sisyphus/roadmap-completion-20260912/ci-prefix-max/review-raw.md",
+  "receipt": ".sisyphus/roadmap-completion-20260912/ci-prefix-max/receipt.json",
+  "inputEvidenceSha256": {
+    "ci-admission-four-prefixes.json": "28b121a7f02e71a4c05fbbc07a4f131257280eac5906b8453d71c61d8443db79",
+    "ci-test-source-recovery.json": "6a2717e0c2607ee183d966dfd83b804b4970b85670eae55f4d8756ab1b3ec827",
+    "ci-test-recovery-verification.json": "5e1a56ad3a9b13457ecf62133b7ea105f343ffac20127529395dd0a8d00166f4",
+    "browser-commit.json": "959227b995bba3ecc6b1c5f0534f0aac8a17949aa2b0e11f6cddea6b6ecaa80d"
+  },
+  "baseline": {
+    "checkout": "E:/Projects/MekStation",
+    "branch": "main",
+    "checkoutHead": "be7f85b867aa3e8576e5e3d27e309276203bc24b",
+    "originMain": "6c4eac5c7b7a2aece3aab0443ce606943db6cf0b",
+    "checkoutDirty": true,
+    "browserCommit": "77d9a9480a3a47b1849f166db01278f93f3d8094",
+    "browserBase": "6c4eac5c7b7a2aece3aab0443ce606943db6cf0b",
+    "browserPublication": "blocked awaiting explicit user approval after automatic review rejection"
+  },
+  "decision": {
+    "prefix1Independent": true,
+    "prefix1Reason": "Two unused declarative contract modules only; no live workflow or validator behavior claim.",
+    "prefix2Requires": [
+      "prefix1 merged/main-verified",
+      "browser commit 77d9a9480 merged/main-verified",
+      "explicit direct yaml dependency ownership decision"
+    ],
+    "prefix3Requires": [
+      "prefix2 merged/main-verified"
+    ],
+    "prefix4Requires": [
+      "prefix3 merged/main-verified"
+    ],
+    "fullR1CiAccepted": false
+  },
+  "cap": {
+    "maxFiles": 15,
+    "maxNonGeneratedChangedLines": 500
+  },
+  "prefixes": [
+    {
+      "id": 1,
+      "scope": [
+        "scripts/qc/openspec-ci-contracts.mjs",
+        "scripts/qc/openspec-workflow-contracts.mjs"
+      ],
+      "fileCount": 2,
+      "changedLines": 378,
+      "targetHashes": {
+        "scripts/qc/openspec-ci-contracts.mjs": {
+          "lines": 174,
+          "bytes": 5219,
+          "sha256": "ae81b758ae37fe0a796cd77c5e5a17a5fac0bd6d1a8b488b4d5955fca1234a99",
+          "origin": "absent"
+        },
+        "scripts/qc/openspec-workflow-contracts.mjs": {
+          "lines": 204,
+          "bytes": 6521,
+          "sha256": "de70258c69eb27100f52954d2aced6f415321d4dbd73e952bdb6533934308062",
+          "origin": "absent"
+        }
+      }
+    },
+    {
+      "id": 2,
+      "scope": [
+        ".github/workflows/pr-checks.yml",
+        ".github/workflows/nightly-validation.yml",
+        "scripts/qc/validate-openspec-ci-quality.mjs",
+        "openspec/changes/add-customizer-pr-regression-gate/.openspec.yaml",
+        "openspec/changes/add-customizer-pr-regression-gate/README.md",
+        "openspec/changes/add-customizer-pr-regression-gate/design.md",
+        "openspec/changes/add-customizer-pr-regression-gate/proposal.md",
+        "openspec/changes/add-customizer-pr-regression-gate/specs/e2e-testing/spec.md",
+        "openspec/changes/add-customizer-pr-regression-gate/tasks.md",
+        "openspec/active-change-ledger.json"
+      ],
+      "fileCount": 10,
+      "changedLines": 496,
+      "breakdown": {
+        "prWorkflow": 76,
+        "nightlyWorkflow": 19,
+        "validator": 146,
+        "changePackage": 249,
+        "cleanLedgerEntry": 6
+      },
+      "capLinesRemaining": 4,
+      "cleanLedgerTarget": {
+        "originSha256": "d9faceb665f174d9c5e4a3eae09d1f580f602e7591f70d4432fb327fdc452e5e",
+        "targetSha256": "b9287e4fc86f1d97b23e9d6a52a204dda941d9f86729c8447e2f46d0b9cc8f35",
+        "targetLines": 94,
+        "currentDirtySha256": "0626968fc8aa28dd2c761d20c323456efa653dce8358b8bb05e306dbddb88afb"
+      },
+      "workflowTarget": {
+        "originPrChecksSha256": "79be09cf19f07e49e3b56364828dca0357b1e209bfdd16d8d68ccb26aad5c134",
+        "correctedPrChecksSha256": "16e06b1fb57a722531666bd849ec75e98da95413a2ad8467e208f86e7cc538b8",
+        "currentPreCorrectionPrChecksSha256": "7b2664d3594939d2f6ecd089b036c233dd92c3da380e290070f28476da45cf42",
+        "caseComment": "6 record-sheet and 3 recovery cases"
+      }
+    },
+    {
+      "id": 3,
+      "scope": [
+        "scripts/__tests__/openspec-ci-quality-qc.test.ts"
+      ],
+      "fileCount": 1,
+      "changedLines": 414,
+      "source": {
+        "path": ".sisyphus/roadmap-completion-20260912/ci-recovery/27-cached.ts",
+        "ignoredByGit": true,
+        "lines": 580,
+        "sha256": "ed52fabd4c9eb830c5137c965d8249b563e2c929b8cc3893fd9a5829f2aa7646"
+      }
+    },
+    {
+      "id": 4,
+      "scope": [
+        "scripts/__tests__/openspec-ci-quality-qc.test.ts"
+      ],
+      "fileCount": 1,
+      "changedLines": 95,
+      "source": {
+        "path": ".sisyphus/roadmap-completion-20260912/ci-recovery/ba-formatted-via-stdin.ts",
+        "ignoredByGit": true,
+        "lines": 675,
+        "sha256": "37cc951ad23379e647b2217750932f18c1843c247ee1f4a3e7e36da79b97b026"
+      },
+      "finalFocusedReceipt": "1 suite, 37 tests passed"
+    }
+  ],
+  "browserFiles": {
+    "e2e/helpers/recordSheetPrintHarness.ts": "1cd6bfbc47854db09f1b00f84085189eca768a2b70da510e78fa8928f645a2c6",
+    "e2e/customizer-record-sheet-rendering.spec.ts": "c582b223f11d0e672d3ce609db030b5ffc6613b821a5ca6c146386feb4fd08fd",
+    "e2e/customizer-edit-recovery.spec.ts": "6a52c53e932a97e5b17ddda42bf306bf0cf99522016ed8711b1152dd2ec2a81a",
+    "dirtyRootRenderingSha256": "575545d4993fcc4b39011affc683bcedf9cac8503a2c66e6c770b0c24978cf7b"
+  },
+  "traps": [
+    "Ignored ci-recovery fixtures must be copied to the tracked test path; they are not deliverable files.",
+    "Ignored mm-data assets must be fetched and strictly validated in the CI job checkout; do not commit assets.",
+    "The dirty ledger removes unrelated entries; append only the six-line gate entry to clean origin/main.",
+    "yaml is resolved only transitively at 2.9.0 through dev tooling; decide direct dependency ownership before Prefix 2.",
+    "Correct the stale workflow case comment from 5/2 to 6/3.",
+    "Do not include unrelated package sync edits or the dirty root browser rendering file."
+  ],
+  "checksObserved": [
+    "node --check passed for new modules and validator",
+    "direct module imports passed locally",
+    "YAML parse passed for current PR and nightly workflows",
+    "oxfmt check passed for modules, validator, and current CI test",
+    "targeted git diff --check passed for tracked CI paths",
+    "existing recovery receipt records focused Jest 37/37 at SHA 37cc951a..."
+  ],
+  "notRun": [
+    "build, typecheck, server, dependency copy, install, browser run, focused Jest rerun, remote CI, Git delivery, publication"
+  ],
+  "reviewLimits": [
+    "Local static checks do not prove GitHub workflow execution, branch protection, exact-main merge, or remote negative-probe evidence.",
+    "No acceptance or roadmap state was changed."
+  ]
+}

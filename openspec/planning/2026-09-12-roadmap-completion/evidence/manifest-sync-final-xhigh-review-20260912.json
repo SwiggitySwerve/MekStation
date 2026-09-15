@@ -1,0 +1,153 @@
+{
+  "schemaVersion": 1,
+  "evidenceId": "manifest-sync-final-xhigh-review-20260912",
+  "recordedAt": "2026-09-12T17:15:02.5886025Z",
+  "node": "R9.manifest-sync",
+  "reviewer": {
+    "route": "Luna",
+    "reasoningEffort": "xhigh",
+    "mode": "final independent delta review"
+  },
+  "baseline": "6c4eac5c7b7a2aece3aab0443ce606943db6cf0b",
+  "testedHead": "be7f85b867aa3e8576e5e3d27e309276203bc24b",
+  "elapsed": {
+    "wallClock": "approximately 5 minutes",
+    "precision": "turn start was not instrumented"
+  },
+  "scope": [
+    "manifest-sync-entrypoint-followup-20260912.json",
+    "scripts/mm-data/sync-browser-config.mjs",
+    "scripts/__tests__/mm-data-browser-config.test.ts",
+    "package.json six development/build entrypoints",
+    "openspec/specs/mm-data-asset-integration/spec.md",
+    "follow-up raw logs and hashes"
+  ],
+  "followupEvidence": {
+    "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/manifest-sync-entrypoint-followup-20260912.json",
+    "sha256": "4262b9a623b9bb89967c9162383e65cdb6751be96df56ee26610251ed4a3c5a8",
+    "validJson": true,
+    "entrypointsClaimed": 6,
+    "checksClaimed": 4
+  },
+  "currentFileSha256": {
+    "scripts/mm-data/sync-browser-config.mjs": "d47ca5eaa81a7a8488c25b828cc6b04a8e30f93311952dc002c718c60d6820dc",
+    "scripts/__tests__/mm-data-browser-config.test.ts": "20534720de14d2e2c94cfa17763d8cd75c82b7ae7a9deb6d9ec095a33fa9dce4",
+    "package.json": "0cbe570cc8b2ffdabcf1c273a75b739bf6693965239a913f524661291e6c2e32",
+    "openspec/specs/mm-data-asset-integration/spec.md": "5beabebfe54b2a2e3e9aadd0ab87e480062eed0de257507571681b69c2a74dd7"
+  },
+  "entrypointReview": {
+    "syncCommand": "npm run sync:mm-data-config",
+    "allSixPass": true,
+    "entrypoints": {
+      "dev": {
+        "order": [
+          "npx kill-port 3600 --silent",
+          "npm run sync:mm-data-config",
+          "node server.js"
+        ],
+        "preservedPortCleanup": true,
+        "preservedServer": true
+      },
+      "dev:e2e": {
+        "order": [
+          "npx kill-port 3600 --silent",
+          "npm run sync:mm-data-config",
+          "next dev --webpack --port 3600"
+        ],
+        "preservedPortCleanup": true,
+        "preservedArgs": true
+      },
+      "build": {
+        "order": [
+          "npm run sync:mm-data-config",
+          "node scripts/next/run-next.mjs build --webpack",
+          "node scripts/hydrate-next-standalone-multiplayer-server.mjs"
+        ],
+        "preservedBuildAndHydration": true
+      },
+      "build:analyze": {
+        "order": [
+          "npm run sync:mm-data-config",
+          "ANALYZE=true next build --webpack"
+        ],
+        "preservedAnalyzeEnvironment": true
+      },
+      "build:profile": {
+        "order": [
+          "npm run sync:mm-data-config",
+          "next build --webpack --profile"
+        ],
+        "preservedArgs": true
+      },
+      "build:debug": {
+        "order": [
+          "npm run sync:mm-data-config",
+          "next build --webpack --debug"
+        ],
+        "preservedArgs": true
+      }
+    }
+  },
+  "structuralRegressionReview": {
+    "path": "scripts/__tests__/mm-data-browser-config.test.ts:145-191",
+    "orderingGapClosed": true,
+    "method": "locates sync command and separately checks each prerequisite is before it and each downstream command is after it",
+    "wholeScriptSnapshotAvoided": true,
+    "focusedTestEvidence": {
+      "command": "npm.cmd test -- --runInBand scripts/__tests__/mm-data-browser-config.test.ts",
+      "exit": 0,
+      "passed": 4,
+      "total": 4,
+      "rawLog": ".sisyphus/roadmap-completion-20260912/manifest-sync/followup-jest-green.log",
+      "rawLogSha256": "f379c1cde4ec26ea8bb19806a92c1dbc6c923c3704177629a6e78704c88d7313"
+    }
+  },
+  "qualityEvidence": {
+    "format": {
+      "exit": 0,
+      "rawLog": ".sisyphus/roadmap-completion-20260912/manifest-sync/followup-format-check.log",
+      "rawLogSha256": "c0d25fe93fdc44350f43f014fd57afc39c47f761692e5fa19566f22170fb5c20"
+    },
+    "lint": {
+      "exit": 0,
+      "diagnostics": "0 warnings and 0 errors",
+      "rawLog": ".sisyphus/roadmap-completion-20260912/manifest-sync/followup-oxlint.log",
+      "rawLogSha256": "43c8d5cd030c056e15bc40a1b7a070ed5b0f50160c9ae39b842b7cd6232c07e8"
+    },
+    "rootCheck": {
+      "exit": 0,
+      "sourceSha256": "6746a36beab5ce9a9beff240afe0f7609caace9010509ecf7d8c58c6dd8af8e6",
+      "targetSha256": "6746a36beab5ce9a9beff240afe0f7609caace9010509ecf7d8c58c6dd8af8e6",
+      "rawLog": ".sisyphus/roadmap-completion-20260912/manifest-sync/check-root.log",
+      "rawLogSha256": "9cfe1bfced7b6d23b89450f46b4b19d262b22ae4ec60b98efd89ba9f659dcefb"
+    }
+  },
+  "findings": {
+    "closed": [
+      {
+        "id": "G-001",
+        "disposition": "closed",
+        "reason": "Structural ordering assertions now cover all six entrypoints."
+      },
+      {
+        "id": "R-001",
+        "disposition": "closed",
+        "reason": "dev:e2e and the three alternate build entrypoints now run sync before their downstream server/Next commands."
+      }
+    ],
+    "blockers": [],
+    "deliveryCondition": {
+      "id": "D-001",
+      "status": "parent-owned",
+      "condition": "The ignored scripts/mm-data/sync-browser-config.mjs source and untracked test must be explicitly included in final delivery.",
+      "impact": "This remains a packaging/staging condition, not an implementation blocker in the reviewed working tree.",
+      "parentActionAcknowledged": true
+    }
+  },
+  "limits": [
+    "No build, development server, standalone hydration, HTTP request, asset acquisition, network, or external browser state was used.",
+    "No Git command, staging, commit, or code/spec mutation was performed in this final delta review.",
+    "Production artifact equality remains parent-owned runtime proof; this review confirms the sync-before-build/hydration contract statically and through the focused regression."
+  ],
+  "verdict": "PASS: final delta has no implementation blockers; prior ordering and alternate-entrypoint gaps are closed. Parent-owned explicit inclusion of the ignored source/test remains the only delivery condition."
+}

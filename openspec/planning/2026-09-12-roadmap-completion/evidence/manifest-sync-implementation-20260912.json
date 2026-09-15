@@ -1,0 +1,90 @@
+{
+  "schemaVersion": 1,
+  "evidenceId": "manifest-sync-implementation-20260912",
+  "recordedAt": "2026-09-12",
+  "node": "R9.manifest-sync",
+  "baseline": "6c4eac5c7b7a2aece3aab0443ce606943db6cf0b",
+  "testedHead": "be7f85b867aa3e8576e5e3d27e309276203bc24b",
+  "scope": "Bounded deterministic source-to-public browser manifest synchronization. No asset acquisition, renderer changes, generated catalog edits, dependency changes, build, server, or HTTP proof was performed.",
+  "ownedFiles": [
+    {
+      "path": "scripts/mm-data/sync-browser-config.mjs",
+      "sha256": "d47ca5eaa81a7a8488c25b828cc6b04a8e30f93311952dc002c718c60d6820dc"
+    },
+    {
+      "path": "scripts/__tests__/mm-data-browser-config.test.ts",
+      "sha256": "7017472c112553b46b3603bc6e2245d7cb04eab7f1b1e4e2014e17f06f76d411"
+    },
+    {
+      "path": "package.json",
+      "sha256": "7966172ad13cd1fe603738a963ffa39f05ab03b4d31cf9f63f356153f6d2e4f1"
+    },
+    {
+      "path": "openspec/specs/mm-data-asset-integration/spec.md",
+      "sha256": "897b3b4d4e79398f917e77d0c9e46ffa087a800b7d7106c76da2ccc7866f9d6a"
+    }
+  ],
+  "manifestEquality": {
+    "source": {
+      "path": "config/mm-data-assets.json",
+      "sha256": "6746a36beab5ce9a9beff240afe0f7609caace9010509ecf7d8c58c6dd8af8e6"
+    },
+    "generatedPublic": {
+      "path": "public/config/mm-data-assets.json",
+      "sha256": "6746a36beab5ce9a9beff240afe0f7609caace9010509ecf7d8c58c6dd8af8e6",
+      "provenance": "written by sync-browser-config.mjs; ignored generated output"
+    },
+    "byteIdentical": true
+  },
+  "redGreen": {
+    "red": {
+      "command": "C:/nvm4w/nodejs/node.exe scripts/mm-data/sync-browser-config.mjs --check",
+      "exit": 1,
+      "assertion": "The admitted sync entry point was absent and the CLI failed with MODULE_NOT_FOUND.",
+      "rawLog": ".sisyphus/roadmap-completion-20260912/manifest-sync/red-before-implementation.log",
+      "sha256": "83afb3b3d863ce7a2eb93e2183a8e02d23531edb1657ed8620111197161c84b8"
+    },
+    "green": {
+      "command": "npm.cmd test -- --runInBand scripts/__tests__/mm-data-browser-config.test.ts",
+      "exit": 0,
+      "assertions": 4,
+      "tests": 4,
+      "rawLog": ".sisyphus/roadmap-completion-20260912/manifest-sync/focused-jest-green-after-format.log",
+      "sha256": "9f21b360208b31d3e76e52e6fe754ed51def4c6232797305cf5f18a523c30a73"
+    }
+  },
+  "focusedAssertions": [
+    "A stale fixture target is refreshed byte-for-byte and reports the source SHA-256.",
+    "A matching target passes --check and a subsequent normal sync reports unchanged without changing mtimeNs.",
+    "--check fails for missing target and drift; normal sync creates a missing target.",
+    "Normal and check invocations fail with an actionable error when the source is missing.",
+    "package.json wires sync:mm-data-config into dev after kill-port and into build before Next build/hydration without executing either startup command."
+  ],
+  "additionalChecks": [
+    {
+      "command": "C:/nvm4w/nodejs/node.exe scripts/mm-data/sync-browser-config.mjs",
+      "exit": 0,
+      "rawLog": ".sisyphus/roadmap-completion-20260912/manifest-sync/sync-root.log"
+    },
+    {
+      "command": "C:/nvm4w/nodejs/node.exe scripts/mm-data/sync-browser-config.mjs --check",
+      "exit": 0,
+      "rawLog": ".sisyphus/roadmap-completion-20260912/manifest-sync/check-root.log"
+    },
+    {
+      "command": "npx.cmd oxfmt --check scripts/mm-data/sync-browser-config.mjs scripts/__tests__/mm-data-browser-config.test.ts",
+      "exit": 0,
+      "rawLog": ".sisyphus/roadmap-completion-20260912/manifest-sync/format-check-after-format.log"
+    },
+    {
+      "command": "npx.cmd oxlint scripts/mm-data/sync-browser-config.mjs scripts/__tests__/mm-data-browser-config.test.ts",
+      "exit": 0,
+      "rawLog": ".sisyphus/roadmap-completion-20260912/manifest-sync/focused-oxlint.log",
+      "sha256": "43c8d5cd030c056e15bc40a1b7a070ed5b0f50160c9ae39b842b7cd6232c07e8"
+    }
+  ],
+  "limits": [
+    "The parent owns isolated full gates, production build/standalone equality, real browser HTTP request proof, review, and Git delivery.",
+    "No record-sheet asset bytes were fetched or modified by this implementation."
+  ]
+}

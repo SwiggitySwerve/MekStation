@@ -1,0 +1,19 @@
+{
+  "recordedAt": "2026-09-12T17:31:29.267Z",
+  "pr": {
+    "baseRefName": "main",
+    "headRefOid": "b909a164ef78fef53f87818405ab7643974dd551",
+    "mergeCommit": {
+      "oid": "a538a2d3b2b05252e1c80cc60395c72953f4c979"
+    },
+    "mergedAt": "2026-09-12T17:30:22Z",
+    "number": 1640,
+    "state": "MERGED",
+    "url": "https://github.com/SwiggitySwerve/MekStation/pull/1640"
+  },
+  "fetchedOriginMain": "a538a2d3b2b05252e1c80cc60395c72953f4c979",
+  "mainProofCheckout": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\equipment-loader",
+  "sourceTreeEqualsReviewedHead": true,
+  "premerge": "equipment-loader-attempt-1-premerge.json",
+  "cleanup": "Pending exact-main proof; candidate branch retained"
+}

@@ -1,0 +1,559 @@
+{
+  "schemaVersion": 1,
+  "evidenceId": "campaign-contracts-main-verification-20260912",
+  "status": "verified-merged-main-documentation",
+  "capturedAt": "2026-09-12T21:49:53.875Z",
+  "candidate": {
+    "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/campaign-contracts",
+    "previous": "00149fffa9fa4d9fd85dd88d13968151de0b3b0a",
+    "reviewed": "8a1310d5bde7d9e32cf6755f0ad3128ccf9ee9da",
+    "mergedMain": "2e07bc9b508f41cc3c90ea706b3c82f9df4d71ac",
+    "base": "583b3e9bf954506a3b5fbac0359165e9407cf264"
+  },
+  "handoff": {
+    "path": ".sisyphus/roadmap-completion-20260912/campaign-contracts-delivery/updated-head-1.json",
+    "unchanged": true
+  },
+  "sourceIdentityBefore": {
+    "openspec/changes/design-campaign-authority-and-sync/proposal.md": {
+      "workingTree": {
+        "sha256": "fada46aab39743c6a1ab375693abf8fe8710dfb00c4024d24dea38666c12da92",
+        "crlfNormalizedSha256": "fada46aab39743c6a1ab375693abf8fe8710dfb00c4024d24dea38666c12da92",
+        "bytes": 6376
+      },
+      "reviewedCommit": {
+        "gitBlobId": "bf78d96e701ae3e60eee2356d21edb3f57a3f0f2",
+        "sha256": "fada46aab39743c6a1ab375693abf8fe8710dfb00c4024d24dea38666c12da92",
+        "crlfNormalizedSha256": "fada46aab39743c6a1ab375693abf8fe8710dfb00c4024d24dea38666c12da92",
+        "bytes": 6376
+      },
+      "handoffSha256": "fada46aab39743c6a1ab375693abf8fe8710dfb00c4024d24dea38666c12da92"
+    },
+    "openspec/changes/design-campaign-authority-and-sync/design.md": {
+      "workingTree": {
+        "sha256": "c47040115b4bfd21b011230c9101be4e273f1667c0e33d7692b5fc59abb45064",
+        "crlfNormalizedSha256": "c47040115b4bfd21b011230c9101be4e273f1667c0e33d7692b5fc59abb45064",
+        "bytes": 15082
+      },
+      "reviewedCommit": {
+        "gitBlobId": "107628891a74c1b1bbde1ed4a4851fbc79f79f04",
+        "sha256": "c47040115b4bfd21b011230c9101be4e273f1667c0e33d7692b5fc59abb45064",
+        "crlfNormalizedSha256": "c47040115b4bfd21b011230c9101be4e273f1667c0e33d7692b5fc59abb45064",
+        "bytes": 15082
+      },
+      "handoffSha256": "c47040115b4bfd21b011230c9101be4e273f1667c0e33d7692b5fc59abb45064"
+    },
+    "openspec/changes/design-campaign-authority-and-sync/tasks.md": {
+      "workingTree": {
+        "sha256": "9eefb5fa17acddd89253e91f182f4349553cfe5b66d08ba1fe61ccaa9c9223ea",
+        "crlfNormalizedSha256": "9eefb5fa17acddd89253e91f182f4349553cfe5b66d08ba1fe61ccaa9c9223ea",
+        "bytes": 97659
+      },
+      "reviewedCommit": {
+        "gitBlobId": "8656ea89d9854190b0db4395ebe91c35d1ef13f5",
+        "sha256": "9eefb5fa17acddd89253e91f182f4349553cfe5b66d08ba1fe61ccaa9c9223ea",
+        "crlfNormalizedSha256": "9eefb5fa17acddd89253e91f182f4349553cfe5b66d08ba1fe61ccaa9c9223ea",
+        "bytes": 97659
+      },
+      "handoffSha256": "9eefb5fa17acddd89253e91f182f4349553cfe5b66d08ba1fe61ccaa9c9223ea"
+    }
+  },
+  "sourceIdentityAfter": {
+    "openspec/changes/design-campaign-authority-and-sync/proposal.md": {
+      "mergedMain": {
+        "gitBlobId": "bf78d96e701ae3e60eee2356d21edb3f57a3f0f2",
+        "sha256": "fada46aab39743c6a1ab375693abf8fe8710dfb00c4024d24dea38666c12da92",
+        "crlfNormalizedSha256": "fada46aab39743c6a1ab375693abf8fe8710dfb00c4024d24dea38666c12da92",
+        "bytes": 6376
+      },
+      "workingTree": {
+        "sha256": "fada46aab39743c6a1ab375693abf8fe8710dfb00c4024d24dea38666c12da92",
+        "crlfNormalizedSha256": "fada46aab39743c6a1ab375693abf8fe8710dfb00c4024d24dea38666c12da92",
+        "bytes": 6376
+      }
+    },
+    "openspec/changes/design-campaign-authority-and-sync/design.md": {
+      "mergedMain": {
+        "gitBlobId": "107628891a74c1b1bbde1ed4a4851fbc79f79f04",
+        "sha256": "c47040115b4bfd21b011230c9101be4e273f1667c0e33d7692b5fc59abb45064",
+        "crlfNormalizedSha256": "c47040115b4bfd21b011230c9101be4e273f1667c0e33d7692b5fc59abb45064",
+        "bytes": 15082
+      },
+      "workingTree": {
+        "sha256": "c47040115b4bfd21b011230c9101be4e273f1667c0e33d7692b5fc59abb45064",
+        "crlfNormalizedSha256": "c47040115b4bfd21b011230c9101be4e273f1667c0e33d7692b5fc59abb45064",
+        "bytes": 15082
+      }
+    },
+    "openspec/changes/design-campaign-authority-and-sync/tasks.md": {
+      "mergedMain": {
+        "gitBlobId": "8656ea89d9854190b0db4395ebe91c35d1ef13f5",
+        "sha256": "9eefb5fa17acddd89253e91f182f4349553cfe5b66d08ba1fe61ccaa9c9223ea",
+        "crlfNormalizedSha256": "9eefb5fa17acddd89253e91f182f4349553cfe5b66d08ba1fe61ccaa9c9223ea",
+        "bytes": 97659
+      },
+      "workingTree": {
+        "sha256": "9eefb5fa17acddd89253e91f182f4349553cfe5b66d08ba1fe61ccaa9c9223ea",
+        "crlfNormalizedSha256": "9eefb5fa17acddd89253e91f182f4349553cfe5b66d08ba1fe61ccaa9c9223ea",
+        "bytes": 97659
+      }
+    }
+  },
+  "commands": [
+    {
+      "id": "01-pre-head",
+      "command": [
+        "git.exe",
+        "rev-parse",
+        "HEAD"
+      ],
+      "cwd": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/campaign-contracts",
+      "startedAt": "2026-09-12T21:49:32.028Z",
+      "finishedAt": "2026-09-12T21:49:32.137Z",
+      "exitCode": 0,
+      "signal": null,
+      "spawnError": null,
+      "stdout": {
+        "path": "01-pre-head.stdout.log",
+        "bytes": 41,
+        "sha256": "7cd1960c3c944aa890a01bc338863ffbe6dc5d25602626d6bbe7802946375a52"
+      },
+      "stderr": {
+        "path": "01-pre-head.stderr.log",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "02-pre-status",
+      "command": [
+        "git.exe",
+        "status",
+        "--short",
+        "--branch"
+      ],
+      "cwd": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/campaign-contracts",
+      "startedAt": "2026-09-12T21:49:32.139Z",
+      "finishedAt": "2026-09-12T21:49:32.284Z",
+      "exitCode": 0,
+      "signal": null,
+      "spawnError": null,
+      "stdout": {
+        "path": "02-pre-status.stdout.log",
+        "bytes": 107,
+        "sha256": "38358187058bedf18def269e9f82f02823bae5d0b494fc179ef6b861d7a959fb"
+      },
+      "stderr": {
+        "path": "02-pre-status.stderr.log",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "03-pre-scope",
+      "command": [
+        "git.exe",
+        "diff",
+        "--name-only",
+        "00149fffa9fa4d9fd85dd88d13968151de0b3b0a..8a1310d5bde7d9e32cf6755f0ad3128ccf9ee9da",
+        "--",
+        "openspec/changes/design-campaign-authority-and-sync/proposal.md",
+        "openspec/changes/design-campaign-authority-and-sync/design.md",
+        "openspec/changes/design-campaign-authority-and-sync/tasks.md"
+      ],
+      "cwd": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/campaign-contracts",
+      "startedAt": "2026-09-12T21:49:32.286Z",
+      "finishedAt": "2026-09-12T21:49:32.332Z",
+      "exitCode": 0,
+      "signal": null,
+      "spawnError": null,
+      "stdout": {
+        "path": "03-pre-scope.stdout.log",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stderr": {
+        "path": "03-pre-scope.stderr.log",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "04-pre-reviewed-diff",
+      "command": [
+        "git.exe",
+        "diff",
+        "--quiet",
+        "00149fffa9fa4d9fd85dd88d13968151de0b3b0a",
+        "8a1310d5bde7d9e32cf6755f0ad3128ccf9ee9da",
+        "--",
+        "openspec/changes/design-campaign-authority-and-sync/proposal.md",
+        "openspec/changes/design-campaign-authority-and-sync/design.md",
+        "openspec/changes/design-campaign-authority-and-sync/tasks.md"
+      ],
+      "cwd": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/campaign-contracts",
+      "startedAt": "2026-09-12T21:49:32.333Z",
+      "finishedAt": "2026-09-12T21:49:32.379Z",
+      "exitCode": 0,
+      "signal": null,
+      "spawnError": null,
+      "stdout": {
+        "path": "04-pre-reviewed-diff.stdout.log",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stderr": {
+        "path": "04-pre-reviewed-diff.stderr.log",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "05-detach-to-merged-main",
+      "command": [
+        "git.exe",
+        "checkout",
+        "--detach",
+        "2e07bc9b508f41cc3c90ea706b3c82f9df4d71ac"
+      ],
+      "cwd": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/campaign-contracts",
+      "startedAt": "2026-09-12T21:49:32.745Z",
+      "finishedAt": "2026-09-12T21:49:33.221Z",
+      "exitCode": 0,
+      "signal": null,
+      "spawnError": null,
+      "stdout": {
+        "path": "05-detach-to-merged-main.stdout.log",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stderr": {
+        "path": "05-detach-to-merged-main.stderr.log",
+        "bytes": 97,
+        "sha256": "4d540ae2bb3076626e31597b761142ff5d30f812d709865481b1d185b359fedc"
+      }
+    },
+    {
+      "id": "06-post-head",
+      "command": [
+        "git.exe",
+        "rev-parse",
+        "HEAD"
+      ],
+      "cwd": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/campaign-contracts",
+      "startedAt": "2026-09-12T21:49:33.222Z",
+      "finishedAt": "2026-09-12T21:49:33.275Z",
+      "exitCode": 0,
+      "signal": null,
+      "spawnError": null,
+      "stdout": {
+        "path": "06-post-head.stdout.log",
+        "bytes": 41,
+        "sha256": "a94a1ca103ed743c05bb84ac10406980a558dea8f13970644fcf8eac0f255b5d"
+      },
+      "stderr": {
+        "path": "06-post-head.stderr.log",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "07-post-status",
+      "command": [
+        "git.exe",
+        "status",
+        "--short",
+        "--branch"
+      ],
+      "cwd": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/campaign-contracts",
+      "startedAt": "2026-09-12T21:49:33.276Z",
+      "finishedAt": "2026-09-12T21:49:33.408Z",
+      "exitCode": 0,
+      "signal": null,
+      "spawnError": null,
+      "stdout": {
+        "path": "07-post-status.stdout.log",
+        "bytes": 20,
+        "sha256": "ba051334ebc33f3162a4fd5be48615e03c8dac8ec7977e7c2752dbc1cf981841"
+      },
+      "stderr": {
+        "path": "07-post-status.stderr.log",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "08-merged-scope",
+      "command": [
+        "git.exe",
+        "diff",
+        "--numstat",
+        "583b3e9bf954506a3b5fbac0359165e9407cf264",
+        "2e07bc9b508f41cc3c90ea706b3c82f9df4d71ac",
+        "--",
+        "openspec/changes/design-campaign-authority-and-sync/proposal.md",
+        "openspec/changes/design-campaign-authority-and-sync/design.md",
+        "openspec/changes/design-campaign-authority-and-sync/tasks.md"
+      ],
+      "cwd": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/campaign-contracts",
+      "startedAt": "2026-09-12T21:49:33.409Z",
+      "finishedAt": "2026-09-12T21:49:33.456Z",
+      "exitCode": 0,
+      "signal": null,
+      "spawnError": null,
+      "stdout": {
+        "path": "08-merged-scope.stdout.log",
+        "bytes": 199,
+        "sha256": "cb0952f8f3507391d1a3bee7c0a9117fa89c07a2d2a59bb17b2e625551595f01"
+      },
+      "stderr": {
+        "path": "08-merged-scope.stderr.log",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "09-diff-check",
+      "command": [
+        "git.exe",
+        "diff",
+        "--check",
+        "2e07bc9b508f41cc3c90ea706b3c82f9df4d71ac",
+        "--",
+        "openspec/changes/design-campaign-authority-and-sync/proposal.md",
+        "openspec/changes/design-campaign-authority-and-sync/design.md",
+        "openspec/changes/design-campaign-authority-and-sync/tasks.md"
+      ],
+      "cwd": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/campaign-contracts",
+      "startedAt": "2026-09-12T21:49:33.457Z",
+      "finishedAt": "2026-09-12T21:49:33.507Z",
+      "exitCode": 0,
+      "signal": null,
+      "spawnError": null,
+      "stdout": {
+        "path": "09-diff-check.stdout.log",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stderr": {
+        "path": "09-diff-check.stderr.log",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "10-working-diff",
+      "command": [
+        "git.exe",
+        "diff",
+        "--name-only",
+        "--",
+        "openspec/changes/design-campaign-authority-and-sync/proposal.md",
+        "openspec/changes/design-campaign-authority-and-sync/design.md",
+        "openspec/changes/design-campaign-authority-and-sync/tasks.md"
+      ],
+      "cwd": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/campaign-contracts",
+      "startedAt": "2026-09-12T21:49:33.508Z",
+      "finishedAt": "2026-09-12T21:49:33.552Z",
+      "exitCode": 0,
+      "signal": null,
+      "spawnError": null,
+      "stdout": {
+        "path": "10-working-diff.stdout.log",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stderr": {
+        "path": "10-working-diff.stderr.log",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "11-cached-diff",
+      "command": [
+        "git.exe",
+        "diff",
+        "--cached",
+        "--name-only",
+        "--",
+        "openspec/changes/design-campaign-authority-and-sync/proposal.md",
+        "openspec/changes/design-campaign-authority-and-sync/design.md",
+        "openspec/changes/design-campaign-authority-and-sync/tasks.md"
+      ],
+      "cwd": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/campaign-contracts",
+      "startedAt": "2026-09-12T21:49:33.553Z",
+      "finishedAt": "2026-09-12T21:49:33.594Z",
+      "exitCode": 0,
+      "signal": null,
+      "spawnError": null,
+      "stdout": {
+        "path": "11-cached-diff.stdout.log",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stderr": {
+        "path": "11-cached-diff.stderr.log",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "12-openspec-targeted-strict",
+      "command": [
+        "C:/nvm4w/nodejs/node.exe",
+        "C:/Users/wroll/AppData/Roaming/npm/node_modules/@fission-ai/openspec/bin/openspec.js",
+        "validate",
+        "design-campaign-authority-and-sync",
+        "--strict"
+      ],
+      "cwd": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/campaign-contracts",
+      "startedAt": "2026-09-12T21:49:33.594Z",
+      "finishedAt": "2026-09-12T21:49:34.993Z",
+      "exitCode": 0,
+      "signal": null,
+      "spawnError": null,
+      "stdout": {
+        "path": "12-openspec-targeted-strict.stdout.log",
+        "bytes": 53,
+        "sha256": "96dbe86c53dde147f419cc23e062ad0fb400e9f7d0a146f204162c5944e56876"
+      },
+      "stderr": {
+        "path": "12-openspec-targeted-strict.stderr.log",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "13-openspec-all-strict",
+      "command": [
+        "C:/nvm4w/nodejs/node.exe",
+        "C:/Users/wroll/AppData/Roaming/npm/node_modules/@fission-ai/openspec/bin/openspec.js",
+        "validate",
+        "--all",
+        "--strict"
+      ],
+      "cwd": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/campaign-contracts",
+      "startedAt": "2026-09-12T21:49:34.994Z",
+      "finishedAt": "2026-09-12T21:49:36.171Z",
+      "exitCode": 0,
+      "signal": null,
+      "spawnError": null,
+      "stdout": {
+        "path": "13-openspec-all-strict.stdout.log",
+        "bytes": 6919,
+        "sha256": "16c5c323579e9f348bc2adb0830ebd7bb199a73726ab1098c72331305dcca967"
+      },
+      "stderr": {
+        "path": "13-openspec-all-strict.stderr.log",
+        "bytes": 16,
+        "sha256": "5bc31df123a2e521acdd2c0d9477b367feec506471a91065d0a6b32c09089ed5"
+      }
+    },
+    {
+      "id": "14-purpose-strict",
+      "command": [
+        "C:/nvm4w/nodejs/node.exe",
+        "C:/nvm4w/nodejs/node_modules/npm/bin/npm-cli.js",
+        "run",
+        "spec:purpose:validate:strict"
+      ],
+      "cwd": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/campaign-contracts",
+      "startedAt": "2026-09-12T21:49:36.173Z",
+      "finishedAt": "2026-09-12T21:49:38.010Z",
+      "exitCode": 0,
+      "signal": null,
+      "spawnError": null,
+      "stdout": {
+        "path": "14-purpose-strict.stdout.log",
+        "bytes": 306,
+        "sha256": "10c8840a149879f766cb98639dbb45a69b11e8b85bfb5f2807c98417359cbfe9"
+      },
+      "stderr": {
+        "path": "14-purpose-strict.stderr.log",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "id": "15-terminology-strict",
+      "command": [
+        "C:/nvm4w/nodejs/node.exe",
+        "C:/nvm4w/nodejs/node_modules/npm/bin/npm-cli.js",
+        "run",
+        "terminology:validate:strict"
+      ],
+      "cwd": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/campaign-contracts",
+      "startedAt": "2026-09-12T21:49:38.011Z",
+      "finishedAt": "2026-09-12T21:49:52.423Z",
+      "exitCode": 0,
+      "signal": null,
+      "spawnError": null,
+      "stdout": {
+        "path": "15-terminology-strict.stdout.log",
+        "bytes": 311,
+        "sha256": "f900b2f139d48a4fce3da66f12105cdd633a1cfe6dc8102211bcf03cc6a1cce7"
+      },
+      "stderr": {
+        "path": "15-terminology-strict.stderr.log",
+        "bytes": 576,
+        "sha256": "f320de1adc92d5154b38c6af66909318bcd1ccfc0b57abcb05000d81592c5bdd"
+      }
+    },
+    {
+      "id": "16-candidate-ci-qc",
+      "command": [
+        "C:/nvm4w/nodejs/node.exe",
+        "C:/nvm4w/nodejs/node_modules/npm/bin/npm-cli.js",
+        "run",
+        "qc:openspec-ci:validate"
+      ],
+      "cwd": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/campaign-contracts",
+      "startedAt": "2026-09-12T21:49:52.424Z",
+      "finishedAt": "2026-09-12T21:49:53.256Z",
+      "exitCode": 0,
+      "signal": null,
+      "spawnError": null,
+      "stdout": {
+        "path": "16-candidate-ci-qc.stdout.log",
+        "bytes": 268,
+        "sha256": "f01feb11318234aab4764fe76151b78c06905527212a8f8723626fcf616b71d6"
+      },
+      "stderr": {
+        "path": "16-candidate-ci-qc.stderr.log",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    }
+  ],
+  "formatter": {
+    "status": "qualified-excluded",
+    "reason": "OpenSpec prose is excluded by .oxfmtignore and .prettierignore; git diff --check ran on the three merged-main paths.",
+    "files": [
+      ".oxfmtignore",
+      ".prettierignore"
+    ],
+    "hashes": {
+      ".oxfmtignore": "8c67fa605e2dc35426137dd31d04ea7b93ac15d16989600cce86e821988568a8",
+      ".prettierignore": "55d5bfa75983a7b783334fabdf6c74a89deb69f73439d57a3a7729db53e14cca"
+    }
+  },
+  "assertions": {
+    "preDetachIdentity": true,
+    "handoffSourceMatchesReviewed": true,
+    "detachedToMergedMain": true,
+    "mergedMainClean": true,
+    "scopeThreeDocsSixLines": true,
+    "mergedSourceMatchesReviewed": true,
+    "sourceHashFields64": true,
+    "noWorkingOrCachedDiff": true,
+    "diffCheckPassed": true,
+    "allRequiredChecksPassed": true,
+    "historicalAuthorityLimitsPreserved": true,
+    "formatterQualified": true
+  },
+  "limits": [
+    "Merged-main documentation proof only; no runtime or production authority claim.",
+    "No source/root/ledger edits, cleanup, build, install, server, or publication was performed."
+  ]
+}

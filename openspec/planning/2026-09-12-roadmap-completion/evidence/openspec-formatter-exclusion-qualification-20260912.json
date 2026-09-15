@@ -1,0 +1,212 @@
+{
+  "schemaVersion": 1,
+  "evidenceId": "openspec-formatter-exclusion-qualification-20260912",
+  "capturedAt": "2026-09-12",
+  "status": "superseding qualification",
+  "scope": [
+    "customizer-five-specs / PR #1641",
+    "data-services / PR #1645",
+    "prerequisite-contracts / PR #1648",
+    "source-anchors",
+    "vault-contracts"
+  ],
+  "policy": {
+    "repository": "E:/Projects/MekStation",
+    "ignoreFile": ".prettierignore",
+    "sha256": "55d5bfa75983a7b783334fabdf6c74a89deb69f73439d57a3a7729db53e14cca",
+    "bytes": 549,
+    "openspecEntry": { "pattern": "openspec/", "line": 12 },
+    "exactMain": {
+      "commit": "e58642acede495c45b3b4d4e606dffaa52ccab18",
+      "blob": "4efab48bfa27b0d10f85fcf0a3fc5e1893a9e4fc",
+      "sha256": "55d5bfa75983a7b783334fabdf6c74a89deb69f73439d57a3a7729db53e14cca",
+      "bytes": 549,
+      "openspecEntryLine": 12
+    },
+    "candidateResolution": "Named nested worktrees either carry the same .prettierignore bytes or resolve the repository ancestor policy; no ignore-file edit was made."
+  },
+  "fileInfoProof": {
+    "candidate": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/prerequisite-contracts",
+    "cwd": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/prerequisite-contracts",
+    "argv": [
+      "C:/nvm4w/nodejs/node.exe",
+      "C:/nvm4w/nodejs/node_modules/npm/bin/npm-cli.js",
+      "exec",
+      "--no",
+      "--",
+      "prettier",
+      "--file-info",
+      "openspec/changes/add-authoritative-history-branches/proposal.md"
+    ],
+    "exitCode": 0,
+    "stdout": { "ignored": true, "inferredParser": null },
+    "meaning": "The owned OpenSpec Markdown target is intentionally ignored by Prettier. The prior --check exit 0 therefore proves no formatting violation only after zero-target classification; it does not prove content formatting.",
+    "readOnly": true,
+    "forceFormatRun": false
+  },
+  "affectedReceipts": [
+    {
+      "kind": "evidence",
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/customizer-five-spec-isolated-verification-20260912.json",
+      "sha256": "4907bd2a7dca8237bdbddf254ac03dd14ff0050e3683cc6b4e5d20dceb88cea3",
+      "fields": [
+        { "jsonPath": "$.rawEvidence[4].exitCode", "recorded": 0, "commandResult": "ignored target; zero-target formatter outcome" },
+        { "jsonPath": "$.rawEvidence[4].result", "recorded": "All five canonical Markdown specs use Prettier code style", "qualification": "content-format claim is unsupported by ignored target" },
+        { "jsonPath": "$.limits[1]", "qualification": "must state ignored targets are excluded from content-format proof" }
+      ]
+    },
+    {
+      "kind": "evidence",
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/customizer-five-spec-parent-acceptance-20260912.json",
+      "sha256": "3beae33966e6dff890727f54c66c29ca3960dad44e20955745e64b262fc9fb5a",
+      "fields": [ { "jsonPath": "$.limits[1]", "qualification": "Markdown formatting proof statement is superseded by the exclusion qualification" } ]
+    },
+    {
+      "kind": "evidence",
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/customizer-specs-main-verification-20260912.json",
+      "sha256": "6d9874393b3cdda5f9144c485bef376fbc0a761c91586c15009540bf7bfe4da5",
+      "fields": [
+        { "jsonPath": "$.checks[4].exitCode", "recorded": 0 },
+        { "jsonPath": "$.checks[4].status", "recorded": "passed", "qualification": "zero-target only" },
+        { "jsonPath": "$.checks[4].result", "recorded": "Checking formatting; All matched files use Prettier code style", "qualification": "content-format claim is unsupported by ignored target" },
+        { "jsonPath": "$.checks[4].rawLogSha256", "recorded": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20" }
+      ]
+    },
+    {
+      "kind": "raw-status",
+      "path": ".sisyphus/roadmap-completion-20260912/customizer-specs-checks/customizer-five-spec-status.json",
+      "sha256": "ad9cb180261de607d2b024f27df3dcb7af746a23c17ef1dd7ed482b09cb2b0c4",
+      "fields": [
+        { "jsonPath": "$.checks[4].exitCode", "recorded": 0 },
+        { "jsonPath": "$.checks[4].rawLogSha256", "recorded": "f6f7b742931c96b89898c99eac13f668b722f47085dbedbb969ec64e7bb28cfb" },
+        { "jsonPath": "$.limits[1]", "qualification": "the five targets are within openspec/ and therefore ignored" }
+      ]
+    },
+    {
+      "kind": "evidence",
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/spec-data-services-final-review-20260912.json",
+      "sha256": "74a4656701cd1f315d564097f3f72dd277a0263b92fb19dbaf7b0599e32acea2",
+      "fields": [ { "jsonPath": "$.finalCandidateGates.commands[4].result", "recorded": "All matched files use the correct format; 3 files", "qualification": "exit 0 is retained as command fact; content-format interpretation is superseded" } ]
+    },
+    {
+      "kind": "evidence",
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/spec-data-services-independent-review-20260912.json",
+      "sha256": "461070ff16a0b57c1033153407f8891c7244ab42a977f60cb82e7adc4af455cc",
+      "fields": [ { "jsonPath": "$.gates[0]", "qualification": "scoped format command exited 0 but its OpenSpec targets are covered by the repository exclusion; retain command fact, withdraw content-format claim" } ]
+    },
+    {
+      "kind": "evidence",
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/spec-data-services-main-verification-20260912.json",
+      "sha256": "7dc487626ba0d43594efce0c356da7265e882b514623d47e82a433b0bde67b00",
+      "fields": [
+        { "jsonPath": "$.commands[4].exitCode", "recorded": 0 },
+        { "jsonPath": "$.commands[4].stdoutSha256", "recorded": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20" },
+        { "jsonPath": "$.commands[4]", "qualification": "the markdown command is zero-target under the candidate policy" }
+      ]
+    },
+    {
+      "kind": "evidence",
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/spec-data-services-delivery-preflight-20260912.json",
+      "sha256": "f43b02a8bd6aec4359582af94bbe46eb525de170a8b5cd2049318f8f91617772",
+      "fields": [
+        { "jsonPath": "$.checks[4].exitCode", "recorded": 0 },
+        { "jsonPath": "$.checks[4].result", "recorded": "All matched files use the correct format; 3 files", "qualification": "content-format interpretation superseded" },
+        { "jsonPath": "$.checks[5].exitCode", "recorded": 0 },
+        { "jsonPath": "$.checks[5].result", "recorded": "All matched files use Prettier code style", "qualification": "zero-target under openspec/ exclusion" }
+      ]
+    },
+    {
+      "kind": "body",
+      "path": ".sisyphus/roadmap-completion-20260912/spec-data-services-delivery/pr-body.md",
+      "sha256": "16e604bc2b35c467c3e1a0be75a57540567c12a96851d3a7c68f76e7afe2bfca",
+      "fields": [ { "line": 12, "qualification": "scoped oxfmt/cached Prettier pass language is superseded for OpenSpec content formatting" } ]
+    },
+    {
+      "kind": "body",
+      "path": ".sisyphus/roadmap-completion-20260912/spec-data-services-delivery/pr-body-pre-parent.md",
+      "sha256": "d0227295c34069f67eb313a6b60cf7c912e14b20fb3fe3c63b75b23b5af34c3a",
+      "fields": [ { "line": 12, "qualification": "scoped oxfmt/cached Prettier pass language is superseded for OpenSpec content formatting" } ]
+    },
+    {
+      "kind": "evidence",
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/prerequisite-contracts-final-review-20260912.json",
+      "sha256": "cbc623e325ec0e9c676d4d903e9e03acb579005bf235f5cf76431274047f585e",
+      "fields": [ { "jsonPath": "$.checks.markdownFormat", "recorded": 0, "qualification": "zero-target; no OpenSpec content-format verification" } ]
+    },
+    {
+      "kind": "evidence",
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/prerequisite-contracts-delivery-preflight-20260912.json",
+      "sha256": "aae9d44809b94062931024c293d9d9e14a69c9be43cfc7d4ec508e8a3e1a5f5b",
+      "fields": [ { "jsonPath": "$.validation.markdownExit", "recorded": 0, "qualification": "zero-target; no OpenSpec content-format verification" } ]
+    },
+    {
+      "kind": "evidence",
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/source-anchors-delivery-preflight-20260912.json",
+      "sha256": "073aa0c097c6001f703ea0bb042e575f9d9ddbb12d645ce4ce33199cad6feb32",
+      "fields": [
+        { "jsonPath": "$.preflight.checks[8].exitCode", "recorded": 0, "qualification": "zero-target OpenSpec Markdown formatter command" },
+        { "jsonPath": "$.preflight.checks[9]", "qualification": "formatter-version proof is not content-format proof" }
+      ]
+    },
+    {
+      "kind": "body",
+      "path": ".sisyphus/roadmap-completion-20260912/source-anchors-delivery/pr-body.md",
+      "sha256": "73b277e4a4f4bd42ef9541b8c86532048743ab9aafa2f9fc4e7ea3b151f46c37",
+      "fields": [ { "line": 7, "qualification": "Prettier 3.9.6 pass language is superseded for OpenSpec content formatting" } ]
+    },
+    {
+      "kind": "evidence",
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/anchor-spec-final-review-20260912.json",
+      "sha256": "e1651c81bba1bc6013c138318afeacc43a93e14f89af721123c1d04be55e10c1",
+      "fields": [ { "jsonPath": "$.gates.markdownPrettier", "recorded": "pass", "qualification": "pass means command exit only; target is ignored" } ]
+    },
+    {
+      "kind": "evidence",
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/anchor-spec-finish-review-20260912.json",
+      "sha256": "bd0d8ed7a7d7a7473fb78ed1e04d9a592dd709140a35782ea21165935f89f24f",
+      "fields": [
+        { "jsonPath": "$.checks[5].exitCode", "recorded": 0 },
+        { "jsonPath": "$.checks[5].status", "recorded": "passed", "qualification": "zero-target" },
+        { "jsonPath": "$.checks[5].result", "recorded": "Checking formatting; All matched files use Prettier code style", "qualification": "content-format claim is unsupported by ignored target" }
+      ]
+    },
+    {
+      "kind": "evidence",
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/vault-contracts-final-review-20260912.json",
+      "sha256": "9d0d25af51d1494681b0c9e6251333dbb951ad6af25324d33eac19f2fbae83c9",
+      "fields": [ { "jsonPath": "$.checks[4].result", "recorded": "All three retained files use Prettier style", "qualification": "zero-target; content-format claim withdrawn" } ]
+    },
+    {
+      "kind": "evidence",
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/vault-contracts-independent-review-20260912.json",
+      "sha256": "a9edc682361f3fdd6dd6476e2281fb5d83e73641d79bbc02d59993ccddcd0902",
+      "fields": [ { "jsonPath": "$.checks[4].result", "recorded": "All matched files use Prettier code style", "qualification": "zero-target; content-format claim withdrawn" } ]
+    },
+    {
+      "kind": "body",
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-final-review-20260912/review.md",
+      "sha256": "52162a0b3b0713cc731bb33588308089ed46b422630e7a833c133db82b9e0811",
+      "fields": [ { "line": 78, "qualification": "all-three-files-formatted language is superseded" } ]
+    },
+    {
+      "kind": "body",
+      "path": ".sisyphus/roadmap-completion-20260912/vault-contracts-independent-review/review.md",
+      "sha256": "267dc502724af3f6db17c1568263b53a68aeff4dda8921c6f66765edcd867002",
+      "fields": [ { "line": 101, "qualification": "all-matched-files-formatted language is superseded" } ]
+    }
+  ],
+  "unchangedProof": [
+    "OpenSpec strict validation",
+    "purpose validation",
+    "terminology validation",
+    "CI quality checks",
+    "git diff whitespace checks",
+    "source hashes, task state, and diff counts"
+  ],
+  "limits": [
+    "Original receipts and bodies are preserved byte-for-byte; this JSON is the superseding interpretation.",
+    "No formatter was forced and no OpenSpec, purpose, terminology, CIQC, or diff gate was rerun for this qualification.",
+    "The qualification changes only the meaning of content-format claims for OpenSpec targets; command exit codes remain recorded facts.",
+    "This evidence does not qualify formatting outside openspec/ or change any runtime, source, approval, or ledger claim."
+  ]
+}

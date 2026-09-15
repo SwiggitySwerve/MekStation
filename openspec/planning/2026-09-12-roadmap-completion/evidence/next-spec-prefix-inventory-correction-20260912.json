@@ -1,0 +1,1462 @@
+{
+  "schemaVersion": 1,
+  "evidenceId": "next-spec-prefix-inventory-correction-20260912",
+  "corrects": "next-spec-prefix-inventory-20260912.json",
+  "correction": {
+    "reason": "The original receipt labeled 40-hex Git blob object IDs as baseSha256.",
+    "requestedComparisonBase": "d3540bfea33a2ba8eb86d28759743590615f7c53",
+    "baseBytesCommand": "git show d3540bfea33a2ba8eb86d28759743590615f7c53:<path>",
+    "preservedOriginalReceiptSha256": "3a22ba17e36b05bb89819fc5f7628c50aaf43fb09a64112df12f56d6788e015a",
+    "baseSha256Meaning": "SHA-256 of the exact bytes fetched from the literal comparison base; baseBlobOid retains the original 40-hex Git object ID."
+  },
+  "baseline": {
+    "requestedOriginMain": "d3540bfea33a2ba8eb86d28759743590615f7c53",
+    "actualOriginMain": "da524f7f501b0485e3d8e67e973fce075670922c",
+    "rootHead": "be7f85b867aa3e8576e5e3d27e309276203bc24b",
+    "comparison": "git diff d3540bfea33a2ba8eb86d28759743590615f7c53 -- openspec/specs/**/spec.md",
+    "originNowAtFinalCapture": "da524f7f501b0485e3d8e67e973fce075670922c",
+    "originRefDriftedAfterRequestedFetch": true
+  },
+  "actualDiff": {
+    "pathCount": 34,
+    "addedLines": 839,
+    "deletedLines": 535,
+    "changedLines": 1374,
+    "rows": [
+      {
+        "path": "openspec/specs/armor-diagram-variants/spec.md",
+        "added": 21,
+        "deleted": 49,
+        "changedLines": 70,
+        "baseSha256": "70ee16a60959070c0933c1a402a6f5c62c038864d8a276f46f9b5974c8ff3bfa",
+        "proposalSha256": "9f9c0c7f2338e12b6cc2b200e3e0a07af7d2676f41a93269fd62b263a47479ab",
+        "classification": "newFactualGap",
+        "receipt": null,
+        "independentReviewNeeded": true,
+        "note": "No accepted finite40 receipt matches this exact path; independent review needed.",
+        "baseBlobOid": "b0b1599456b758cd7893e142598b8d8152667a56"
+      },
+      {
+        "path": "openspec/specs/auto-save-persistence/spec.md",
+        "added": 1,
+        "deleted": 1,
+        "changedLines": 2,
+        "baseSha256": "3038161895af9592d2ac2547fcb11f01f7777c244abd83cf05340e4d7103f5a7",
+        "proposalSha256": "c20a361aaffd95dca647a0cc5bdf767bec5b9c3ab4a835ddc2333a35923e5c5e",
+        "classification": "excludedActiveSourceAnchor",
+        "receipt": null,
+        "independentReviewNeeded": false,
+        "note": "Five-file source-anchor owner is active.",
+        "baseBlobOid": "cd530d4dba016935cfb6da22efc0b672a9f48b4f"
+      },
+      {
+        "path": "openspec/specs/battle-armor-unit-system/spec.md",
+        "added": 12,
+        "deleted": 12,
+        "changedLines": 24,
+        "baseSha256": "e25ac8b4bdefe4196d07ba557d6ea177abd707a7e18b2b460e85fd0d5d2725d5",
+        "proposalSha256": "3223fcc7ca638ba7b832bf94154a423a13ca7269b05653a846b8f7982b0cdd14",
+        "classification": "excludedActiveSourceAnchor",
+        "receipt": null,
+        "independentReviewNeeded": false,
+        "note": "Five-file source-anchor owner is active.",
+        "baseBlobOid": "2d4498f67dd04f08cb5b3d3ee21ea58ff160e2e5"
+      },
+      {
+        "path": "openspec/specs/bv-validation-tooling/spec.md",
+        "added": 4,
+        "deleted": 4,
+        "changedLines": 8,
+        "baseSha256": "ec9b21444dd4e64c3a7eeabac65d608b337c9da8fa74f609786abd42081b6cc4",
+        "proposalSha256": "07c82adf18d0f7082fbc2018cfe04f87e86708047efe229b588be473ac99d8ac",
+        "classification": "acceptedFiniteDisposition",
+        "receipt": "openspec/planning/2026-09-12-roadmap-completion/evidence/triage-armor-bv-disposition.json",
+        "receiptSha256": "73e01fa6efcc772fa47b9a58ce7ca13a1ace3e35890f3fe4baba6f70aa3afcfa",
+        "independentReviewNeeded": true,
+        "note": "Finite triage receipt maps this path; whole-capability closure is not claimed.",
+        "baseBlobOid": "dbeb514853b57f7d9d5b9a80dc6b15fba4056891"
+      },
+      {
+        "path": "openspec/specs/c3-network-targeting/spec.md",
+        "added": 6,
+        "deleted": 6,
+        "changedLines": 12,
+        "baseSha256": "6465af60d7a10c141fac53f1a9a5d59f1c386ec9d34138b258fe6eba62834b6f",
+        "proposalSha256": "c34fe3348ee43cf57474204d423b23dbd44d32fbca1245fe2e7202de12ed14c9",
+        "classification": "acceptedFiniteDisposition",
+        "receipt": "openspec/planning/2026-09-12-roadmap-completion/evidence/triage-c3-reference-correction.json",
+        "receiptSha256": "4b1b3e0a5d111c15936fbaaa06a84bd907fb0eb4d37a01b7d47c072c3d37625d",
+        "independentReviewNeeded": false,
+        "note": "Finite triage receipt maps this path; whole-capability closure is not claimed.",
+        "baseBlobOid": "f69655d4aa2a7d54e31fdb128063bbc3d0adb765"
+      },
+      {
+        "path": "openspec/specs/campaign-combat-loop/spec.md",
+        "added": 8,
+        "deleted": 5,
+        "changedLines": 13,
+        "baseSha256": "34ef062a83695b3edef73949f4bacf91e94b792cf1c195143555d2ebfc3fcd46",
+        "proposalSha256": "c03ac3ebfb07e8c4eae7a35c9b313a932926d108f19f085c362116b8707b30f5",
+        "classification": "newFactualGap",
+        "receipt": null,
+        "independentReviewNeeded": true,
+        "note": "No accepted finite40 receipt matches this exact path; independent review needed.",
+        "baseBlobOid": "9281f7dfa30ff5d37ac9d1ad3227c38d265c645f"
+      },
+      {
+        "path": "openspec/specs/campaign-personnel-architecture/spec.md",
+        "added": 15,
+        "deleted": 13,
+        "changedLines": 28,
+        "baseSha256": "2ae40d406d8e980d0e77c8436635cb6964ccc85531cfd3ea403da9b69abe76bb",
+        "proposalSha256": "0e86bfc6fdf0089b340e0db49b396b9001936ada3ede08acac054fc5c2e8ec55",
+        "classification": "acceptedFiniteDisposition",
+        "receipt": "openspec/planning/2026-09-12-roadmap-completion/evidence/triage-personnel-disposition.json",
+        "receiptSha256": "c9a40dbbe4ec633488d3cc1de2af5991d538554c95b58830dc213bf59ec5b04a",
+        "independentReviewNeeded": false,
+        "note": "Finite triage receipt maps this path; whole-capability closure is not claimed.",
+        "baseBlobOid": "fffb1647b1226c2162e26458281cbc0fc8a7021c"
+      },
+      {
+        "path": "openspec/specs/campaign-unit-combat-state/spec.md",
+        "added": 7,
+        "deleted": 7,
+        "changedLines": 14,
+        "baseSha256": "d5c1a3fc09aeb76de796cc5fc1280304a72ce3528115dac643246164e46b372e",
+        "proposalSha256": "1f1a01edd4ab3297c1fa2db096b21ea0f5edf6eb9c3e0f39967d2480a960e860",
+        "classification": "acceptedFiniteDisposition",
+        "receipt": "openspec/planning/2026-09-12-roadmap-completion/evidence/triage-preserved-campaign-parent-acceptance.json",
+        "receiptSha256": "0fdee522a903de7b150bc29234b9ec0486c011f26ec671ad2f3d25c77c39c4e5",
+        "independentReviewNeeded": false,
+        "note": "Finite triage receipt maps this path; whole-capability closure is not claimed.",
+        "baseBlobOid": "39e43b39d8f177df02ced1afd65433e993761ecf"
+      },
+      {
+        "path": "openspec/specs/combat-analytics/spec.md",
+        "added": 3,
+        "deleted": 3,
+        "changedLines": 6,
+        "baseSha256": "de197501a76468351157f5ab5cf0d509fb21d12ed0b950b6edf1f7e72c2030a7",
+        "proposalSha256": "a6b36a2d1599acad7539d434ca8963a09437307b08eb4221dfd4d099e0bca43d",
+        "classification": "acceptedFiniteDisposition",
+        "receipt": "openspec/planning/2026-09-12-roadmap-completion/evidence/triage-campaign-parent-acceptance.json",
+        "receiptSha256": "0883d950b6716c28ef3063dbedf7801300604b2f34fb35f08254f18f13411347",
+        "independentReviewNeeded": false,
+        "note": "Finite triage receipt maps this path; whole-capability closure is not claimed.",
+        "baseBlobOid": "7753b9d22e820fb44b326137c780702769ce0c7d"
+      },
+      {
+        "path": "openspec/specs/compendium-browser/spec.md",
+        "added": 24,
+        "deleted": 3,
+        "changedLines": 27,
+        "baseSha256": "84a4110cfbf6f35a4890b218df1716a98af13e6e06ba023035726a7589b6aaa6",
+        "proposalSha256": "547228e009cddcc14cfe8348e7f3626395e5d3dbd04ccc78fffb52a39ea4a0d3",
+        "classification": "newFactualGap",
+        "receipt": null,
+        "independentReviewNeeded": true,
+        "note": "No accepted finite40 receipt matches this exact path; independent review needed.",
+        "baseBlobOid": "bde7413f7c07a550f9a971217e048d0aecb1cdd3"
+      },
+      {
+        "path": "openspec/specs/customizer-responsive-layout/spec.md",
+        "added": 34,
+        "deleted": 47,
+        "changedLines": 81,
+        "baseSha256": "8c260d41559c4098df25e058d8da70a0aecb0d089571eeca7c32c91fbffd714c",
+        "proposalSha256": "84e8df2101a8d15bb6a7c0bb7056798b332e1abb26df931e770294848b8161e9",
+        "classification": "newFactualGap",
+        "receipt": null,
+        "independentReviewNeeded": true,
+        "note": "No accepted finite40 receipt matches this exact path; independent review needed.",
+        "baseBlobOid": "100acca35ba976df593e9f4eaf45fe4e240ef991"
+      },
+      {
+        "path": "openspec/specs/customizer-tabs/spec.md",
+        "added": 13,
+        "deleted": 8,
+        "changedLines": 21,
+        "baseSha256": "23acfe7825ea5afc1a800b4ff8c11239a986a60a31fe2f023e25933cd8ad2d76",
+        "proposalSha256": "629be4cd39cbd9abf71f89d79bf2c39f3a948877b6fbd799fbe33889f470ea85",
+        "classification": "localAcceptedProposal",
+        "receipt": "openspec/planning/2026-09-12-roadmap-completion/evidence/routing-local-verification.json",
+        "receiptSha256": "f9f67a67115dcc48112a90628e8e74a417c098ef1b4b0073e0ad560059041473",
+        "independentReviewNeeded": false,
+        "note": "Published routing proposal is already on origin; local delta is proposal-state only.",
+        "baseBlobOid": "4f7c1424c4d7d86461533204bdaa05b521680e6a"
+      },
+      {
+        "path": "openspec/specs/database-schema/spec.md",
+        "added": 17,
+        "deleted": 30,
+        "changedLines": 47,
+        "baseSha256": "9697149b557cf5242319a789461f5a36b20260b9b1a87021ba02095032ba4941",
+        "proposalSha256": "070f03971f4892c76f193c0133f460927cfedda8be46ee1d6ffe2af876cfed5c",
+        "classification": "newFactualGap",
+        "receipt": null,
+        "independentReviewNeeded": true,
+        "note": "No accepted finite40 receipt matches this exact path; independent review needed.",
+        "baseBlobOid": "0ba6aa805fd10f9baa36d7a37c812b3a7997e51c"
+      },
+      {
+        "path": "openspec/specs/e2e-testing/spec.md",
+        "added": 118,
+        "deleted": 0,
+        "changedLines": 118,
+        "baseSha256": "c477b5fcb3b48ebf855b5d1f5d00adb6b9aabd80d57485b4f124408deb8239d7",
+        "proposalSha256": "8343333453231871fe46b838584c6d95bbd74015f62cf31a703af2b18e189cdb",
+        "classification": "activeParentCiOwner",
+        "receipt": "openspec/planning/2026-09-12-roadmap-completion/evidence/ci-four-prefix-readiness-max-20260912.json",
+        "receiptSha256": "a53effe23bfbee3a8e7c6759918d1fdabac7536fec61961aac855b1907f843c7",
+        "independentReviewNeeded": true,
+        "note": "Parent CI/prerequisite delivery owns this path; excluded from selected spec prefix.",
+        "baseBlobOid": "881b0ad23faa6695bdaab668587f73ef7cd2d929"
+      },
+      {
+        "path": "openspec/specs/equipment-browser/spec.md",
+        "added": 155,
+        "deleted": 77,
+        "changedLines": 232,
+        "baseSha256": "62821d00b93155e0e42fe0815adc25aadf8f139005fd62d96e875a1799b402aa",
+        "proposalSha256": "6afa047791ac2c2c3afd90c6b51ac99602ca284f97ef5391f8578ceec82888dd",
+        "classification": "newFactualGap",
+        "receipt": null,
+        "independentReviewNeeded": true,
+        "note": "No accepted finite40 receipt matches this exact path; independent review needed.",
+        "baseBlobOid": "9c8774f8334e91f866f228060622f34b9fb67a23"
+      },
+      {
+        "path": "openspec/specs/firing-arc-calculation/spec.md",
+        "added": 1,
+        "deleted": 1,
+        "changedLines": 2,
+        "baseSha256": "d171f2352691927165c710c88f3c8f85ee5add730a9105a4b3784a2fc6866535",
+        "proposalSha256": "c91bfbc8a745aa68891ebfbd53815a228bafa1b429816c617b02a26bb712ec8a",
+        "classification": "acceptedFiniteDisposition",
+        "receipt": "openspec/planning/2026-09-12-roadmap-completion/evidence/triage-gameplay-parent-acceptance.json",
+        "receiptSha256": "80a14d11d4d786ebcd3caa4eba1687032e96f68ea76db3ca940c314be0b29e7a",
+        "independentReviewNeeded": false,
+        "note": "Finite triage receipt maps this path; whole-capability closure is not claimed.",
+        "baseBlobOid": "5c645a15bc737e6d332084186060a9389b481181"
+      },
+      {
+        "path": "openspec/specs/force-management/spec.md",
+        "added": 31,
+        "deleted": 31,
+        "changedLines": 62,
+        "baseSha256": "ba072db00dcc6b7f471997a3a1fe66c4ded2426642e8a927d5ad5b58e302dffc",
+        "proposalSha256": "1e119db35f60fb9e9418176862afe3d23b59130dee7b050914842b990944c757",
+        "classification": "acceptedFiniteDisposition",
+        "receipt": "openspec/planning/2026-09-12-roadmap-completion/evidence/triage-campaign-parent-acceptance.json",
+        "receiptSha256": "0883d950b6716c28ef3063dbedf7801300604b2f34fb35f08254f18f13411347",
+        "independentReviewNeeded": false,
+        "note": "Finite triage receipt maps this path; whole-capability closure is not claimed.",
+        "baseBlobOid": "697b99606b62674ffcbdaa97f1cf9e07b6db6a0a"
+      },
+      {
+        "path": "openspec/specs/game-session-management/spec.md",
+        "added": 16,
+        "deleted": 16,
+        "changedLines": 32,
+        "baseSha256": "8d1cf3011d49716d543acdc9f9ed52b307d5b6e53fc6e2b84d5ee52b3cb7a610",
+        "proposalSha256": "52843d4febc0354f597c6f0f6685b23145168a44c008cf253e02e2f3c4d802d6",
+        "classification": "acceptedFiniteDisposition",
+        "receipt": "openspec/planning/2026-09-12-roadmap-completion/evidence/triage-campaign-parent-acceptance.json",
+        "receiptSha256": "0883d950b6716c28ef3063dbedf7801300604b2f34fb35f08254f18f13411347",
+        "independentReviewNeeded": false,
+        "note": "Finite triage receipt maps this path; whole-capability closure is not claimed.",
+        "baseBlobOid": "f659a8faca2ed427d4b61868c0e92ddc94d3b7e7"
+      },
+      {
+        "path": "openspec/specs/hull-down-position/spec.md",
+        "added": 3,
+        "deleted": 3,
+        "changedLines": 6,
+        "baseSha256": "0714d98d04b485696b6ba01e1bbd8ba212e924bf4b21535ef77485d23d86d792",
+        "proposalSha256": "2d1a1356028efc404f95bcdcc1a51d847ce1541b30dd1f8537e06e2f561987ae",
+        "classification": "acceptedFiniteDisposition",
+        "receipt": "openspec/planning/2026-09-12-roadmap-completion/evidence/triage-gameplay-parent-acceptance.json",
+        "receiptSha256": "80a14d11d4d786ebcd3caa4eba1687032e96f68ea76db3ca940c314be0b29e7a",
+        "independentReviewNeeded": false,
+        "note": "Finite triage receipt maps this path; whole-capability closure is not claimed.",
+        "baseBlobOid": "d069e6e24fc01f4ec3fb4a344218345d260e94af"
+      },
+      {
+        "path": "openspec/specs/mission-contracts/spec.md",
+        "added": 39,
+        "deleted": 30,
+        "changedLines": 69,
+        "baseSha256": "7e6f65eb5f5075d0d5ee75243274af67da3047c514f622356ba6f31a49f364d7",
+        "proposalSha256": "8c5fc183460634fffbd55d4ec9a933ce5a3fad328ed1880df00594d44bfd6b85",
+        "classification": "newFactualGap",
+        "receipt": null,
+        "independentReviewNeeded": true,
+        "note": "No accepted finite40 receipt matches this exact path; independent review needed.",
+        "baseBlobOid": "c201f421ccf210a61d330994f5266a1716e3ee3d"
+      },
+      {
+        "path": "openspec/specs/overview-basic-info/spec.md",
+        "added": 8,
+        "deleted": 2,
+        "changedLines": 10,
+        "baseSha256": "1f291c622ab751ac0ff28564e8aa9a92774e03ef85052146b4d570e689e1074b",
+        "proposalSha256": "c703cb1c943cffe3b013ee7b8ca161101cea608ad8515024313fb7899c9a25e9",
+        "classification": "acceptedFiniteDisposition",
+        "receipt": "openspec/planning/2026-09-12-roadmap-completion/evidence/triage-equipment-boundaries.json",
+        "receiptSha256": "553ac2e55f328c4f6822194a1bf9c9d078f8e261d41075d552fe3b005a5f211a",
+        "independentReviewNeeded": false,
+        "note": "Finite triage receipt maps this path; whole-capability closure is not claimed.",
+        "baseBlobOid": "a42461316765eefe2cbee98eb5d6dd357857803f"
+      },
+      {
+        "path": "openspec/specs/persistence-services/spec.md",
+        "added": 2,
+        "deleted": 2,
+        "changedLines": 4,
+        "baseSha256": "da27767de32a2ad63f6d85f896ad2d621ac47ffe5466c31d790c9c1a9659490c",
+        "proposalSha256": "e9e398be3a93d2e7af12cdaac8814ab2de4f40a3fe7c30c5847f179858333420",
+        "classification": "newFactualGap",
+        "receipt": null,
+        "independentReviewNeeded": true,
+        "note": "No accepted finite40 receipt matches this exact path; independent review needed.",
+        "baseBlobOid": "99fe82f39915cbfe7b027b7b18a13e3b392eb7ad"
+      },
+      {
+        "path": "openspec/specs/personnel-management/spec.md",
+        "added": 14,
+        "deleted": 14,
+        "changedLines": 28,
+        "baseSha256": "bbe6c2fbd7cb6e397fe80113df9ff808f756e831f9215e624344dd0f507221e3",
+        "proposalSha256": "631325c73e3332b68cfb59410c80e649187e060e3340b8eebc9fcb39972dea21",
+        "classification": "acceptedFiniteDisposition",
+        "receipt": "openspec/planning/2026-09-12-roadmap-completion/evidence/triage-campaign-parent-acceptance.json",
+        "receiptSha256": "0883d950b6716c28ef3063dbedf7801300604b2f34fb35f08254f18f13411347",
+        "independentReviewNeeded": false,
+        "note": "Finite triage receipt maps this path; whole-capability closure is not claimed.",
+        "baseBlobOid": "04dfcdd2e5492d67697811472d388b33ccb5a284"
+      },
+      {
+        "path": "openspec/specs/piloting-skill-rolls/spec.md",
+        "added": 14,
+        "deleted": 8,
+        "changedLines": 22,
+        "baseSha256": "19764484f963e06e0f1b0e52321120cd76a5f9170f28113ecb73de2af62b7e65",
+        "proposalSha256": "788df39be79bc2833681927a844b77860b2acef9e2f666f60cd92694e543a8c6",
+        "classification": "acceptedFiniteDisposition",
+        "receipt": "openspec/planning/2026-09-12-roadmap-completion/evidence/triage-gameplay-parent-acceptance.json",
+        "receiptSha256": "80a14d11d4d786ebcd3caa4eba1687032e96f68ea76db3ca940c314be0b29e7a",
+        "independentReviewNeeded": false,
+        "note": "Finite triage receipt maps this path; whole-capability closure is not claimed.",
+        "baseBlobOid": "e543fe9d42e48ed44f341eb3b5cc3506bf1afec9"
+      },
+      {
+        "path": "openspec/specs/record-sheet-export/spec.md",
+        "added": 164,
+        "deleted": 84,
+        "changedLines": 248,
+        "baseSha256": "b018fc70dba3dc2a9b0e084e99e75ee819830a4fc3d248ca24c30611fb35d2f3",
+        "proposalSha256": "bce78f3d4efe4e1d88fadd54e973b0c40ba57acfa8a47f69789a0c075f0d713c",
+        "classification": "newFactualGap",
+        "receipt": null,
+        "independentReviewNeeded": true,
+        "note": "No accepted finite40 receipt matches this exact path; independent review needed.",
+        "baseBlobOid": "f815c066142912cd6b8809154f44e0998dae4a86"
+      },
+      {
+        "path": "openspec/specs/release-build-system/spec.md",
+        "added": 1,
+        "deleted": 1,
+        "changedLines": 2,
+        "baseSha256": "22e8f7b16d286c9ebba16440e372b68b868fb4a0fa90b3e9004acfa10b5a3473",
+        "proposalSha256": "841d5da7ed35f33cc5034984bd33103cddfed0d2008f54702e7e5efeca1dc75b",
+        "classification": "excludedAcceptedReleaseHydration",
+        "receipt": null,
+        "independentReviewNeeded": false,
+        "note": "Hydration clause accepted; separate record-sheet delta preserved.",
+        "baseBlobOid": "38d99f2ca5443434b060382cdf8fbb3de7903a35"
+      },
+      {
+        "path": "openspec/specs/repair/spec.md",
+        "added": 22,
+        "deleted": 22,
+        "changedLines": 44,
+        "baseSha256": "9d6dac73d57d0cb159a13a90c5bca59dbf5d6fca7edaf9da3c7703ad3d693d75",
+        "proposalSha256": "4f51961216066a37180bd05d3cdebbcfa510f60e5fea9459a7c51f443ac8cce7",
+        "classification": "acceptedFiniteDisposition",
+        "receipt": "openspec/planning/2026-09-12-roadmap-completion/evidence/triage-campaign-parent-acceptance.json",
+        "receiptSha256": "0883d950b6716c28ef3063dbedf7801300604b2f34fb35f08254f18f13411347",
+        "independentReviewNeeded": false,
+        "note": "Finite triage receipt maps this path; whole-capability closure is not claimed.",
+        "baseBlobOid": "a9c1b6fa8f1b3edf77b87b3386eb50bfc055949c"
+      },
+      {
+        "path": "openspec/specs/toast-notifications/spec.md",
+        "added": 12,
+        "deleted": 12,
+        "changedLines": 24,
+        "baseSha256": "30b18323d6efd2eac8417b4c9d2a310a5121b5202ae7eb04ac370d869a465b8c",
+        "proposalSha256": "66384b927915371d4e616bbad30c2a384c76730f7fefc68938c449adf526830d",
+        "classification": "excludedActiveSourceAnchor",
+        "receipt": null,
+        "independentReviewNeeded": false,
+        "note": "Five-file source-anchor owner is active.",
+        "baseBlobOid": "2bd5470dcaacf15dd12d771ea49e073083a4b4c9"
+      },
+      {
+        "path": "openspec/specs/unit-comparison/spec.md",
+        "added": 7,
+        "deleted": 2,
+        "changedLines": 9,
+        "baseSha256": "8529ef050a7c118da00ab4f2dafc2b9d22e6369ffc4975dee21109788bba03d4",
+        "proposalSha256": "a57e0a86135ee6c5dcd2604d5f7d679ddd9d4a145edc39ad0fdb8cf44768306e",
+        "classification": "acceptedFiniteDisposition",
+        "receipt": "openspec/planning/2026-09-12-roadmap-completion/evidence/triage-vault-parent-acceptance.json",
+        "receiptSha256": "c053b07dd33d12d0ddb1ce1021efbb0b997a52cc6c4334350b3a51bab8e87c2a",
+        "independentReviewNeeded": false,
+        "note": "Finite triage receipt maps this path; whole-capability closure is not claimed.",
+        "baseBlobOid": "f29b385c9aa8ad57799c4a499404b4d5a333d761"
+      },
+      {
+        "path": "openspec/specs/unit-services/spec.md",
+        "added": 25,
+        "deleted": 1,
+        "changedLines": 26,
+        "baseSha256": "3e2ec20add9dc761e501229fc1c4e12abdcac1c44b0be6482de82d731c56b84e",
+        "proposalSha256": "98762341ef8c07e171452c8da69c9f7893f20f245fb03964d9deb60a3bc0204b",
+        "classification": "newFactualGap",
+        "receipt": null,
+        "independentReviewNeeded": true,
+        "note": "No accepted finite40 receipt matches this exact path; independent review needed.",
+        "baseBlobOid": "05f8539eb7e2694a5cccc2cad0c5bd5130135fd8"
+      },
+      {
+        "path": "openspec/specs/user-identity/spec.md",
+        "added": 1,
+        "deleted": 1,
+        "changedLines": 2,
+        "baseSha256": "1035a4467c449c960626c71d39a820c7a3f02e07d30bf7e23cc1e49aef1c7d75",
+        "proposalSha256": "1f96a710250a2c37dd93bd5d769e73b37988b5944ce8f6bd04fff3dec62a2d61",
+        "classification": "acceptedFiniteDisposition",
+        "receipt": "openspec/planning/2026-09-12-roadmap-completion/evidence/triage-vault-parent-acceptance.json",
+        "receiptSha256": "c053b07dd33d12d0ddb1ce1021efbb0b997a52cc6c4334350b3a51bab8e87c2a",
+        "independentReviewNeeded": false,
+        "note": "Finite triage receipt maps this path; whole-capability closure is not claimed.",
+        "baseBlobOid": "bdc8f3e6b8e5abda439f1f2aa81f3902c8f1bb6d"
+      },
+      {
+        "path": "openspec/specs/utility-patterns/spec.md",
+        "added": 7,
+        "deleted": 7,
+        "changedLines": 14,
+        "baseSha256": "ec021caae2a8e9ea87b28589b1afd64b19181dee58fc7ae0b10be01b736f81e7",
+        "proposalSha256": "e76d729a60a426b218a29fb5b9bcd4ac4f933b8028ccf453446922982f51b985",
+        "classification": "excludedActiveSourceAnchor",
+        "receipt": null,
+        "independentReviewNeeded": false,
+        "note": "Five-file source-anchor owner is active.",
+        "baseBlobOid": "4401db3bdcfd4b572f8126a36def5e6484a40e07"
+      },
+      {
+        "path": "openspec/specs/vault-sync/spec.md",
+        "added": 17,
+        "deleted": 17,
+        "changedLines": 34,
+        "baseSha256": "3642fd57fc8b3ea003350339916a54b3b82c2c3b80ce4daab03e7febdfb96295",
+        "proposalSha256": "7d47f56e0886a44ca611f0f6d2b2432d8f10744275880224ee7c55998dd65b69",
+        "classification": "acceptedFiniteDisposition",
+        "receipt": "openspec/planning/2026-09-12-roadmap-completion/evidence/triage-vault-parent-acceptance.json",
+        "receiptSha256": "c053b07dd33d12d0ddb1ce1021efbb0b997a52cc6c4334350b3a51bab8e87c2a",
+        "independentReviewNeeded": false,
+        "note": "Finite triage receipt maps this path; whole-capability closure is not claimed.",
+        "baseBlobOid": "884006320a7ffef6ab9f323ac2f9bbd90a5e1a76"
+      },
+      {
+        "path": "openspec/specs/vehicle-unit-system/spec.md",
+        "added": 17,
+        "deleted": 16,
+        "changedLines": 33,
+        "baseSha256": "fd2f3c0972ebcc97e3e162dfc9ca1e87570196a2a3b99d0780e2562f94d7557a",
+        "proposalSha256": "aa39890beaccd57bfdee25d93a5c58c88421ff8205c8609ec539cff6fe4e6246",
+        "classification": "excludedActiveSourceAnchor",
+        "receipt": null,
+        "independentReviewNeeded": false,
+        "note": "Five-file source-anchor owner is active.",
+        "baseBlobOid": "35775da02762dfab22109f6d898e8a433577a165"
+      }
+    ],
+    "rawNumstat": "next-spec-prefix-inventory/origin-to-proposal-specs.numstat.txt",
+    "rawNameStatus": "next-spec-prefix-inventory/origin-to-proposal-specs.name-status.txt",
+    "rawPatch": "next-spec-prefix-inventory/origin-to-proposal-specs.patch"
+  },
+  "explicitExclusions": {
+    "acceptedPublishedCustomizerFive": [
+      {
+        "path": "openspec/specs/aerospace-unit-system/spec.md",
+        "presentInActualDiff": false,
+        "classification": "excludedAcceptedPublishedCustomizer",
+        "receipt": "openspec/planning/2026-09-12-roadmap-completion/evidence/customizer-five-spec-final-xhigh-review-20260912.json",
+        "receiptSha256": "adffefbb61411053aed9e5b0391bc02482b6f64c398ab8170e130dbe197f22f1",
+        "baseSha256": "c664246362054e9bc183381d99c60f106eb349e0d186cdc467534170fbaad0b3",
+        "proposalSha256": "c664246362054e9bc183381d99c60f106eb349e0d186cdc467534170fbaad0b3",
+        "baseBlobOid": "729ab9f86714efed6d9cf85b45dce0df50c49ce5"
+      },
+      {
+        "path": "openspec/specs/app-settings/spec.md",
+        "presentInActualDiff": false,
+        "classification": "excludedAcceptedPublishedCustomizer",
+        "receipt": "openspec/planning/2026-09-12-roadmap-completion/evidence/customizer-five-spec-final-xhigh-review-20260912.json",
+        "receiptSha256": "adffefbb61411053aed9e5b0391bc02482b6f64c398ab8170e130dbe197f22f1",
+        "baseSha256": "65dc02ac16a000a0322c71b173f88a59ca8e9f56f37ee40a74bf6d18f290d5a6",
+        "proposalSha256": "65dc02ac16a000a0322c71b173f88a59ca8e9f56f37ee40a74bf6d18f290d5a6",
+        "baseBlobOid": "64c84f43d6e94580268e7808061463c70e7988f7"
+      },
+      {
+        "path": "openspec/specs/critical-slots-display/spec.md",
+        "presentInActualDiff": false,
+        "classification": "excludedAcceptedPublishedCustomizer",
+        "receipt": "openspec/planning/2026-09-12-roadmap-completion/evidence/customizer-five-spec-final-xhigh-review-20260912.json",
+        "receiptSha256": "adffefbb61411053aed9e5b0391bc02482b6f64c398ab8170e130dbe197f22f1",
+        "baseSha256": "08abd446de493fc1191e9b911368b5f8a66d7311da27694d04a7297cca5b0e4e",
+        "proposalSha256": "08abd446de493fc1191e9b911368b5f8a66d7311da27694d04a7297cca5b0e4e",
+        "baseBlobOid": "e62e09eafe76ed1269871916c09f35cff8a34d31"
+      },
+      {
+        "path": "openspec/specs/equipment-tray/spec.md",
+        "presentInActualDiff": false,
+        "classification": "excludedAcceptedPublishedCustomizer",
+        "receipt": "openspec/planning/2026-09-12-roadmap-completion/evidence/customizer-five-spec-final-xhigh-review-20260912.json",
+        "receiptSha256": "adffefbb61411053aed9e5b0391bc02482b6f64c398ab8170e130dbe197f22f1",
+        "baseSha256": "cebacfa9f94c801f2e8e137c1342793d8db73290e9795f2ad23010b2d3a8fdc5",
+        "proposalSha256": "cebacfa9f94c801f2e8e137c1342793d8db73290e9795f2ad23010b2d3a8fdc5",
+        "baseBlobOid": "2d90826b63e73672bd259f4cf0e4bdc28ccc7efc"
+      },
+      {
+        "path": "openspec/specs/protomech-unit-system/spec.md",
+        "presentInActualDiff": false,
+        "classification": "excludedAcceptedPublishedCustomizer",
+        "receipt": "openspec/planning/2026-09-12-roadmap-completion/evidence/customizer-five-spec-final-xhigh-review-20260912.json",
+        "receiptSha256": "adffefbb61411053aed9e5b0391bc02482b6f64c398ab8170e130dbe197f22f1",
+        "baseSha256": "191c5b3536c66d26dadac03da3f6de172574171ce1359ee3441120d308e1d8e8",
+        "proposalSha256": "191c5b3536c66d26dadac03da3f6de172574171ce1359ee3441120d308e1d8e8",
+        "baseBlobOid": "2b9b4fa9ead90593d17df879286ea458ca542b6d"
+      }
+    ],
+    "acceptedPublishedDataServices": [
+      {
+        "path": "openspec/specs/construction-rules-core/spec.md",
+        "presentInActualDiff": false,
+        "classification": "excludedAcceptedPublishedDataService",
+        "receipt": "openspec/planning/2026-09-12-roadmap-completion/evidence/spec-data-services-main-verification-20260912.json",
+        "receiptSha256": "7dc487626ba0d43594efce0c356da7265e882b514623d47e82a433b0bde67b00",
+        "baseSha256": "85fefb6f310e6132e4bd99ec4f5f92cb2612731c1505d1e0637cf4c9db6e9aa1",
+        "proposalSha256": "85fefb6f310e6132e4bd99ec4f5f92cb2612731c1505d1e0637cf4c9db6e9aa1",
+        "baseBlobOid": "423868cbdd36ad27583f85c2dfabe024fb231c18"
+      },
+      {
+        "path": "openspec/specs/data-loading-architecture/spec.md",
+        "presentInActualDiff": false,
+        "classification": "excludedAcceptedPublishedDataService",
+        "receipt": "openspec/planning/2026-09-12-roadmap-completion/evidence/spec-data-services-main-verification-20260912.json",
+        "receiptSha256": "7dc487626ba0d43594efce0c356da7265e882b514623d47e82a433b0bde67b00",
+        "baseSha256": "cfa90d423f395ae2dddc0aa28697929c451ff9788cb58466ef838b2b97b2a66f",
+        "proposalSha256": "cfa90d423f395ae2dddc0aa28697929c451ff9788cb58466ef838b2b97b2a66f",
+        "baseBlobOid": "a7f2948143090f673f17578f7659477b2476b749"
+      },
+      {
+        "path": "openspec/specs/equipment-services/spec.md",
+        "presentInActualDiff": false,
+        "classification": "excludedAcceptedPublishedDataService",
+        "receipt": "openspec/planning/2026-09-12-roadmap-completion/evidence/spec-data-services-main-verification-20260912.json",
+        "receiptSha256": "7dc487626ba0d43594efce0c356da7265e882b514623d47e82a433b0bde67b00",
+        "baseSha256": "32d8197b35e45c65842701076d7a5cfd9043838dc6486a0605237caaf4da77f8",
+        "proposalSha256": "32d8197b35e45c65842701076d7a5cfd9043838dc6486a0605237caaf4da77f8",
+        "baseBlobOid": "ff65db1b69672b4af6255dfc8c02ad151f49599e"
+      }
+    ],
+    "activeSourceAnchorFive": [
+      {
+        "path": "openspec/specs/auto-save-persistence/spec.md",
+        "added": 1,
+        "deleted": 1,
+        "changedLines": 2,
+        "baseSha256": "3038161895af9592d2ac2547fcb11f01f7777c244abd83cf05340e4d7103f5a7",
+        "proposalSha256": "c20a361aaffd95dca647a0cc5bdf767bec5b9c3ab4a835ddc2333a35923e5c5e",
+        "classification": "excludedActiveSourceAnchor",
+        "receipt": null,
+        "independentReviewNeeded": false,
+        "note": "Five-file source-anchor owner is active.",
+        "baseBlobOid": "cd530d4dba016935cfb6da22efc0b672a9f48b4f"
+      },
+      {
+        "path": "openspec/specs/battle-armor-unit-system/spec.md",
+        "added": 12,
+        "deleted": 12,
+        "changedLines": 24,
+        "baseSha256": "e25ac8b4bdefe4196d07ba557d6ea177abd707a7e18b2b460e85fd0d5d2725d5",
+        "proposalSha256": "3223fcc7ca638ba7b832bf94154a423a13ca7269b05653a846b8f7982b0cdd14",
+        "classification": "excludedActiveSourceAnchor",
+        "receipt": null,
+        "independentReviewNeeded": false,
+        "note": "Five-file source-anchor owner is active.",
+        "baseBlobOid": "2d4498f67dd04f08cb5b3d3ee21ea58ff160e2e5"
+      },
+      {
+        "path": "openspec/specs/toast-notifications/spec.md",
+        "added": 12,
+        "deleted": 12,
+        "changedLines": 24,
+        "baseSha256": "30b18323d6efd2eac8417b4c9d2a310a5121b5202ae7eb04ac370d869a465b8c",
+        "proposalSha256": "66384b927915371d4e616bbad30c2a384c76730f7fefc68938c449adf526830d",
+        "classification": "excludedActiveSourceAnchor",
+        "receipt": null,
+        "independentReviewNeeded": false,
+        "note": "Five-file source-anchor owner is active.",
+        "baseBlobOid": "2bd5470dcaacf15dd12d771ea49e073083a4b4c9"
+      },
+      {
+        "path": "openspec/specs/utility-patterns/spec.md",
+        "added": 7,
+        "deleted": 7,
+        "changedLines": 14,
+        "baseSha256": "ec021caae2a8e9ea87b28589b1afd64b19181dee58fc7ae0b10be01b736f81e7",
+        "proposalSha256": "e76d729a60a426b218a29fb5b9bcd4ac4f933b8028ccf453446922982f51b985",
+        "classification": "excludedActiveSourceAnchor",
+        "receipt": null,
+        "independentReviewNeeded": false,
+        "note": "Five-file source-anchor owner is active.",
+        "baseBlobOid": "4401db3bdcfd4b572f8126a36def5e6484a40e07"
+      },
+      {
+        "path": "openspec/specs/vehicle-unit-system/spec.md",
+        "added": 17,
+        "deleted": 16,
+        "changedLines": 33,
+        "baseSha256": "fd2f3c0972ebcc97e3e162dfc9ca1e87570196a2a3b99d0780e2562f94d7557a",
+        "proposalSha256": "aa39890beaccd57bfdee25d93a5c58c88421ff8205c8609ec539cff6fe4e6246",
+        "classification": "excludedActiveSourceAnchor",
+        "receipt": null,
+        "independentReviewNeeded": false,
+        "note": "Five-file source-anchor owner is active.",
+        "baseBlobOid": "35775da02762dfab22109f6d898e8a433577a165"
+      }
+    ],
+    "acceptedReleaseHydration": {
+      "path": "openspec/specs/release-build-system/spec.md",
+      "added": 1,
+      "deleted": 1,
+      "changedLines": 2,
+      "baseSha256": "22e8f7b16d286c9ebba16440e372b68b868fb4a0fa90b3e9004acfa10b5a3473",
+      "proposalSha256": "841d5da7ed35f33cc5034984bd33103cddfed0d2008f54702e7e5efeca1dc75b",
+      "classification": "excludedAcceptedReleaseHydration",
+      "receipt": null,
+      "independentReviewNeeded": false,
+      "note": "Hydration clause accepted; separate record-sheet delta preserved.",
+      "baseBlobOid": "38d99f2ca5443434b060382cdf8fbb3de7903a35"
+    }
+  },
+  "nextPrefix": {
+    "id": "r1-prefix-campaign-catalog-admission",
+    "paths": [
+      "openspec/specs/campaign-combat-loop/spec.md",
+      "openspec/specs/mission-contracts/spec.md"
+    ],
+    "files": 2,
+    "addedLines": 47,
+    "deletedLines": 35,
+    "changedLines": 82,
+    "independentReviewNeeded": true,
+    "boundary": "Canonical campaign catalog admission/materialization wording only; preserve R2/CAMP-01H terminal combat/post-battle proof.",
+    "prerequisites": [
+      "Reconcile canonicalCatalogAdmission.ts and materializeCampaignMissionEncounter.ts with the server custom combat catalog and untracked custom-unit-combat contract.",
+      "Confirm rejection-before-mutation and browser-only custom admission versus canonical-only fast-forward."
+    ],
+    "whyNext": "Smallest coherent remaining factual-gap prefix in the reviewed order: two related campaign specs and 82 changed lines, within the five-file/350-line cap."
+  },
+  "acceptedFiniteMapping": {
+    "receipts": [
+      "triage-c3-reference-correction.json",
+      "triage-campaign-parent-acceptance.json",
+      "triage-gameplay-parent-acceptance.json",
+      "triage-vault-parent-acceptance.json",
+      "triage-preserved-campaign-parent-acceptance.json",
+      "triage-personnel-disposition.json",
+      "triage-equipment-boundaries.json",
+      "triage-armor-bv-disposition.json"
+    ],
+    "limits": [
+      "Finite triage receipts do not close whole capabilities or main publication.",
+      "Deferred obligations remain explicit, including BV cache/fixture proof, campaign max-state damage-bar/production authority, gameplay comment/runtime limits, and vault roadmap work.",
+      "No claim is made that all 220 capabilities are behaviorally tested."
+    ]
+  },
+  "artifacts": [
+    {
+      "path": "origin-to-proposal-specs.name-status.txt",
+      "bytes": 1548,
+      "sha256": "59ec448dcda626ae546fa10039f6dd84729383f0f05b56a155f500f7aab1dbfd"
+    },
+    {
+      "path": "origin-to-proposal-specs.numstat.txt",
+      "bytes": 1654,
+      "sha256": "72eb5a3cc4729f2ca9970bf91892bb9444fd3024bbeacdff3f231af1634cced2"
+    },
+    {
+      "path": "origin-to-proposal-specs.patch",
+      "bytes": 179850,
+      "sha256": "9aad9cd55c82f9a094bfade5a03449f69675f8e6e13f4b761d656a6c515e9356"
+    },
+    {
+      "path": "root-dirty-spec-status.txt",
+      "bytes": 2264,
+      "sha256": "5ffea8b7f26c6c555b2ebb0bd589add3f37dbb180c135c8513bda3de4b049713"
+    }
+  ],
+  "verification": {
+    "sourceGitMutations": false,
+    "testsBuildsInstallsServers": false,
+    "rootProposalPathsMapped": true,
+    "candidateWithinCap": true,
+    "originHashMatchesRequested": false,
+    "rawNumstatMatchesLive": true,
+    "rawNumstatSha256": "72eb5a3cc4729f2ca9970bf91892bb9444fd3024bbeacdff3f231af1634cced2",
+    "rawNameStatusSha256": "59ec448dcda626ae546fa10039f6dd84729383f0f05b56a155f500f7aab1dbfd",
+    "rawPatchSha256": "9aad9cd55c82f9a094bfade5a03449f69675f8e6e13f4b761d656a6c515e9356",
+    "allSha256Fields64Hex": true,
+    "allSha256FieldsMatchActualBytes": true,
+    "validatedSha256FieldChecks": 129,
+    "baseBlobOidsPreserved": true,
+    "acceptedFiniteDispositionMeaning": "Triage coverage only; it does not waive independent review of any publication PR."
+  },
+  "hashChecks": [
+    {
+      "label": "actualDiff.rows[0]:base",
+      "actualSha256": "70ee16a60959070c0933c1a402a6f5c62c038864d8a276f46f9b5974c8ff3bfa",
+      "matchesExpected": true
+    },
+    {
+      "label": "actualDiff.rows[0]:proposal",
+      "actualSha256": "9f9c0c7f2338e12b6cc2b200e3e0a07af7d2676f41a93269fd62b263a47479ab",
+      "matchesExpected": true,
+      "expectedSha256": "9f9c0c7f2338e12b6cc2b200e3e0a07af7d2676f41a93269fd62b263a47479ab"
+    },
+    {
+      "label": "actualDiff.rows[1]:base",
+      "actualSha256": "3038161895af9592d2ac2547fcb11f01f7777c244abd83cf05340e4d7103f5a7",
+      "matchesExpected": true
+    },
+    {
+      "label": "actualDiff.rows[1]:proposal",
+      "actualSha256": "c20a361aaffd95dca647a0cc5bdf767bec5b9c3ab4a835ddc2333a35923e5c5e",
+      "matchesExpected": true,
+      "expectedSha256": "c20a361aaffd95dca647a0cc5bdf767bec5b9c3ab4a835ddc2333a35923e5c5e"
+    },
+    {
+      "label": "actualDiff.rows[2]:base",
+      "actualSha256": "e25ac8b4bdefe4196d07ba557d6ea177abd707a7e18b2b460e85fd0d5d2725d5",
+      "matchesExpected": true
+    },
+    {
+      "label": "actualDiff.rows[2]:proposal",
+      "actualSha256": "3223fcc7ca638ba7b832bf94154a423a13ca7269b05653a846b8f7982b0cdd14",
+      "matchesExpected": true,
+      "expectedSha256": "3223fcc7ca638ba7b832bf94154a423a13ca7269b05653a846b8f7982b0cdd14"
+    },
+    {
+      "label": "actualDiff.rows[3]:base",
+      "actualSha256": "ec9b21444dd4e64c3a7eeabac65d608b337c9da8fa74f609786abd42081b6cc4",
+      "matchesExpected": true
+    },
+    {
+      "label": "actualDiff.rows[3]:proposal",
+      "actualSha256": "07c82adf18d0f7082fbc2018cfe04f87e86708047efe229b588be473ac99d8ac",
+      "matchesExpected": true,
+      "expectedSha256": "07c82adf18d0f7082fbc2018cfe04f87e86708047efe229b588be473ac99d8ac"
+    },
+    {
+      "label": "actualDiff.rows[3]:receipt",
+      "actualSha256": "73e01fa6efcc772fa47b9a58ce7ca13a1ace3e35890f3fe4baba6f70aa3afcfa",
+      "matchesExpected": true,
+      "expectedSha256": "73e01fa6efcc772fa47b9a58ce7ca13a1ace3e35890f3fe4baba6f70aa3afcfa"
+    },
+    {
+      "label": "actualDiff.rows[4]:base",
+      "actualSha256": "6465af60d7a10c141fac53f1a9a5d59f1c386ec9d34138b258fe6eba62834b6f",
+      "matchesExpected": true
+    },
+    {
+      "label": "actualDiff.rows[4]:proposal",
+      "actualSha256": "c34fe3348ee43cf57474204d423b23dbd44d32fbca1245fe2e7202de12ed14c9",
+      "matchesExpected": true,
+      "expectedSha256": "c34fe3348ee43cf57474204d423b23dbd44d32fbca1245fe2e7202de12ed14c9"
+    },
+    {
+      "label": "actualDiff.rows[4]:receipt",
+      "actualSha256": "4b1b3e0a5d111c15936fbaaa06a84bd907fb0eb4d37a01b7d47c072c3d37625d",
+      "matchesExpected": true,
+      "expectedSha256": "4b1b3e0a5d111c15936fbaaa06a84bd907fb0eb4d37a01b7d47c072c3d37625d"
+    },
+    {
+      "label": "actualDiff.rows[5]:base",
+      "actualSha256": "34ef062a83695b3edef73949f4bacf91e94b792cf1c195143555d2ebfc3fcd46",
+      "matchesExpected": true
+    },
+    {
+      "label": "actualDiff.rows[5]:proposal",
+      "actualSha256": "c03ac3ebfb07e8c4eae7a35c9b313a932926d108f19f085c362116b8707b30f5",
+      "matchesExpected": true,
+      "expectedSha256": "c03ac3ebfb07e8c4eae7a35c9b313a932926d108f19f085c362116b8707b30f5"
+    },
+    {
+      "label": "actualDiff.rows[6]:base",
+      "actualSha256": "2ae40d406d8e980d0e77c8436635cb6964ccc85531cfd3ea403da9b69abe76bb",
+      "matchesExpected": true
+    },
+    {
+      "label": "actualDiff.rows[6]:proposal",
+      "actualSha256": "0e86bfc6fdf0089b340e0db49b396b9001936ada3ede08acac054fc5c2e8ec55",
+      "matchesExpected": true,
+      "expectedSha256": "0e86bfc6fdf0089b340e0db49b396b9001936ada3ede08acac054fc5c2e8ec55"
+    },
+    {
+      "label": "actualDiff.rows[6]:receipt",
+      "actualSha256": "c9a40dbbe4ec633488d3cc1de2af5991d538554c95b58830dc213bf59ec5b04a",
+      "matchesExpected": true,
+      "expectedSha256": "c9a40dbbe4ec633488d3cc1de2af5991d538554c95b58830dc213bf59ec5b04a"
+    },
+    {
+      "label": "actualDiff.rows[7]:base",
+      "actualSha256": "d5c1a3fc09aeb76de796cc5fc1280304a72ce3528115dac643246164e46b372e",
+      "matchesExpected": true
+    },
+    {
+      "label": "actualDiff.rows[7]:proposal",
+      "actualSha256": "1f1a01edd4ab3297c1fa2db096b21ea0f5edf6eb9c3e0f39967d2480a960e860",
+      "matchesExpected": true,
+      "expectedSha256": "1f1a01edd4ab3297c1fa2db096b21ea0f5edf6eb9c3e0f39967d2480a960e860"
+    },
+    {
+      "label": "actualDiff.rows[7]:receipt",
+      "actualSha256": "0fdee522a903de7b150bc29234b9ec0486c011f26ec671ad2f3d25c77c39c4e5",
+      "matchesExpected": true,
+      "expectedSha256": "0fdee522a903de7b150bc29234b9ec0486c011f26ec671ad2f3d25c77c39c4e5"
+    },
+    {
+      "label": "actualDiff.rows[8]:base",
+      "actualSha256": "de197501a76468351157f5ab5cf0d509fb21d12ed0b950b6edf1f7e72c2030a7",
+      "matchesExpected": true
+    },
+    {
+      "label": "actualDiff.rows[8]:proposal",
+      "actualSha256": "a6b36a2d1599acad7539d434ca8963a09437307b08eb4221dfd4d099e0bca43d",
+      "matchesExpected": true,
+      "expectedSha256": "a6b36a2d1599acad7539d434ca8963a09437307b08eb4221dfd4d099e0bca43d"
+    },
+    {
+      "label": "actualDiff.rows[8]:receipt",
+      "actualSha256": "0883d950b6716c28ef3063dbedf7801300604b2f34fb35f08254f18f13411347",
+      "matchesExpected": true,
+      "expectedSha256": "0883d950b6716c28ef3063dbedf7801300604b2f34fb35f08254f18f13411347"
+    },
+    {
+      "label": "actualDiff.rows[9]:base",
+      "actualSha256": "84a4110cfbf6f35a4890b218df1716a98af13e6e06ba023035726a7589b6aaa6",
+      "matchesExpected": true
+    },
+    {
+      "label": "actualDiff.rows[9]:proposal",
+      "actualSha256": "547228e009cddcc14cfe8348e7f3626395e5d3dbd04ccc78fffb52a39ea4a0d3",
+      "matchesExpected": true,
+      "expectedSha256": "547228e009cddcc14cfe8348e7f3626395e5d3dbd04ccc78fffb52a39ea4a0d3"
+    },
+    {
+      "label": "actualDiff.rows[10]:base",
+      "actualSha256": "8c260d41559c4098df25e058d8da70a0aecb0d089571eeca7c32c91fbffd714c",
+      "matchesExpected": true
+    },
+    {
+      "label": "actualDiff.rows[10]:proposal",
+      "actualSha256": "84e8df2101a8d15bb6a7c0bb7056798b332e1abb26df931e770294848b8161e9",
+      "matchesExpected": true,
+      "expectedSha256": "84e8df2101a8d15bb6a7c0bb7056798b332e1abb26df931e770294848b8161e9"
+    },
+    {
+      "label": "actualDiff.rows[11]:base",
+      "actualSha256": "23acfe7825ea5afc1a800b4ff8c11239a986a60a31fe2f023e25933cd8ad2d76",
+      "matchesExpected": true
+    },
+    {
+      "label": "actualDiff.rows[11]:proposal",
+      "actualSha256": "629be4cd39cbd9abf71f89d79bf2c39f3a948877b6fbd799fbe33889f470ea85",
+      "matchesExpected": true,
+      "expectedSha256": "629be4cd39cbd9abf71f89d79bf2c39f3a948877b6fbd799fbe33889f470ea85"
+    },
+    {
+      "label": "actualDiff.rows[11]:receipt",
+      "actualSha256": "f9f67a67115dcc48112a90628e8e74a417c098ef1b4b0073e0ad560059041473",
+      "matchesExpected": true,
+      "expectedSha256": "f9f67a67115dcc48112a90628e8e74a417c098ef1b4b0073e0ad560059041473"
+    },
+    {
+      "label": "actualDiff.rows[12]:base",
+      "actualSha256": "9697149b557cf5242319a789461f5a36b20260b9b1a87021ba02095032ba4941",
+      "matchesExpected": true
+    },
+    {
+      "label": "actualDiff.rows[12]:proposal",
+      "actualSha256": "070f03971f4892c76f193c0133f460927cfedda8be46ee1d6ffe2af876cfed5c",
+      "matchesExpected": true,
+      "expectedSha256": "070f03971f4892c76f193c0133f460927cfedda8be46ee1d6ffe2af876cfed5c"
+    },
+    {
+      "label": "actualDiff.rows[13]:base",
+      "actualSha256": "c477b5fcb3b48ebf855b5d1f5d00adb6b9aabd80d57485b4f124408deb8239d7",
+      "matchesExpected": true
+    },
+    {
+      "label": "actualDiff.rows[13]:proposal",
+      "actualSha256": "8343333453231871fe46b838584c6d95bbd74015f62cf31a703af2b18e189cdb",
+      "matchesExpected": true,
+      "expectedSha256": "8343333453231871fe46b838584c6d95bbd74015f62cf31a703af2b18e189cdb"
+    },
+    {
+      "label": "actualDiff.rows[13]:receipt",
+      "actualSha256": "a53effe23bfbee3a8e7c6759918d1fdabac7536fec61961aac855b1907f843c7",
+      "matchesExpected": true,
+      "expectedSha256": "a53effe23bfbee3a8e7c6759918d1fdabac7536fec61961aac855b1907f843c7"
+    },
+    {
+      "label": "actualDiff.rows[14]:base",
+      "actualSha256": "62821d00b93155e0e42fe0815adc25aadf8f139005fd62d96e875a1799b402aa",
+      "matchesExpected": true
+    },
+    {
+      "label": "actualDiff.rows[14]:proposal",
+      "actualSha256": "6afa047791ac2c2c3afd90c6b51ac99602ca284f97ef5391f8578ceec82888dd",
+      "matchesExpected": true,
+      "expectedSha256": "6afa047791ac2c2c3afd90c6b51ac99602ca284f97ef5391f8578ceec82888dd"
+    },
+    {
+      "label": "actualDiff.rows[15]:base",
+      "actualSha256": "d171f2352691927165c710c88f3c8f85ee5add730a9105a4b3784a2fc6866535",
+      "matchesExpected": true
+    },
+    {
+      "label": "actualDiff.rows[15]:proposal",
+      "actualSha256": "c91bfbc8a745aa68891ebfbd53815a228bafa1b429816c617b02a26bb712ec8a",
+      "matchesExpected": true,
+      "expectedSha256": "c91bfbc8a745aa68891ebfbd53815a228bafa1b429816c617b02a26bb712ec8a"
+    },
+    {
+      "label": "actualDiff.rows[15]:receipt",
+      "actualSha256": "80a14d11d4d786ebcd3caa4eba1687032e96f68ea76db3ca940c314be0b29e7a",
+      "matchesExpected": true,
+      "expectedSha256": "80a14d11d4d786ebcd3caa4eba1687032e96f68ea76db3ca940c314be0b29e7a"
+    },
+    {
+      "label": "actualDiff.rows[16]:base",
+      "actualSha256": "ba072db00dcc6b7f471997a3a1fe66c4ded2426642e8a927d5ad5b58e302dffc",
+      "matchesExpected": true
+    },
+    {
+      "label": "actualDiff.rows[16]:proposal",
+      "actualSha256": "1e119db35f60fb9e9418176862afe3d23b59130dee7b050914842b990944c757",
+      "matchesExpected": true,
+      "expectedSha256": "1e119db35f60fb9e9418176862afe3d23b59130dee7b050914842b990944c757"
+    },
+    {
+      "label": "actualDiff.rows[16]:receipt",
+      "actualSha256": "0883d950b6716c28ef3063dbedf7801300604b2f34fb35f08254f18f13411347",
+      "matchesExpected": true,
+      "expectedSha256": "0883d950b6716c28ef3063dbedf7801300604b2f34fb35f08254f18f13411347"
+    },
+    {
+      "label": "actualDiff.rows[17]:base",
+      "actualSha256": "8d1cf3011d49716d543acdc9f9ed52b307d5b6e53fc6e2b84d5ee52b3cb7a610",
+      "matchesExpected": true
+    },
+    {
+      "label": "actualDiff.rows[17]:proposal",
+      "actualSha256": "52843d4febc0354f597c6f0f6685b23145168a44c008cf253e02e2f3c4d802d6",
+      "matchesExpected": true,
+      "expectedSha256": "52843d4febc0354f597c6f0f6685b23145168a44c008cf253e02e2f3c4d802d6"
+    },
+    {
+      "label": "actualDiff.rows[17]:receipt",
+      "actualSha256": "0883d950b6716c28ef3063dbedf7801300604b2f34fb35f08254f18f13411347",
+      "matchesExpected": true,
+      "expectedSha256": "0883d950b6716c28ef3063dbedf7801300604b2f34fb35f08254f18f13411347"
+    },
+    {
+      "label": "actualDiff.rows[18]:base",
+      "actualSha256": "0714d98d04b485696b6ba01e1bbd8ba212e924bf4b21535ef77485d23d86d792",
+      "matchesExpected": true
+    },
+    {
+      "label": "actualDiff.rows[18]:proposal",
+      "actualSha256": "2d1a1356028efc404f95bcdcc1a51d847ce1541b30dd1f8537e06e2f561987ae",
+      "matchesExpected": true,
+      "expectedSha256": "2d1a1356028efc404f95bcdcc1a51d847ce1541b30dd1f8537e06e2f561987ae"
+    },
+    {
+      "label": "actualDiff.rows[18]:receipt",
+      "actualSha256": "80a14d11d4d786ebcd3caa4eba1687032e96f68ea76db3ca940c314be0b29e7a",
+      "matchesExpected": true,
+      "expectedSha256": "80a14d11d4d786ebcd3caa4eba1687032e96f68ea76db3ca940c314be0b29e7a"
+    },
+    {
+      "label": "actualDiff.rows[19]:base",
+      "actualSha256": "7e6f65eb5f5075d0d5ee75243274af67da3047c514f622356ba6f31a49f364d7",
+      "matchesExpected": true
+    },
+    {
+      "label": "actualDiff.rows[19]:proposal",
+      "actualSha256": "8c5fc183460634fffbd55d4ec9a933ce5a3fad328ed1880df00594d44bfd6b85",
+      "matchesExpected": true,
+      "expectedSha256": "8c5fc183460634fffbd55d4ec9a933ce5a3fad328ed1880df00594d44bfd6b85"
+    },
+    {
+      "label": "actualDiff.rows[20]:base",
+      "actualSha256": "1f291c622ab751ac0ff28564e8aa9a92774e03ef85052146b4d570e689e1074b",
+      "matchesExpected": true
+    },
+    {
+      "label": "actualDiff.rows[20]:proposal",
+      "actualSha256": "c703cb1c943cffe3b013ee7b8ca161101cea608ad8515024313fb7899c9a25e9",
+      "matchesExpected": true,
+      "expectedSha256": "c703cb1c943cffe3b013ee7b8ca161101cea608ad8515024313fb7899c9a25e9"
+    },
+    {
+      "label": "actualDiff.rows[20]:receipt",
+      "actualSha256": "553ac2e55f328c4f6822194a1bf9c9d078f8e261d41075d552fe3b005a5f211a",
+      "matchesExpected": true,
+      "expectedSha256": "553ac2e55f328c4f6822194a1bf9c9d078f8e261d41075d552fe3b005a5f211a"
+    },
+    {
+      "label": "actualDiff.rows[21]:base",
+      "actualSha256": "da27767de32a2ad63f6d85f896ad2d621ac47ffe5466c31d790c9c1a9659490c",
+      "matchesExpected": true
+    },
+    {
+      "label": "actualDiff.rows[21]:proposal",
+      "actualSha256": "e9e398be3a93d2e7af12cdaac8814ab2de4f40a3fe7c30c5847f179858333420",
+      "matchesExpected": true,
+      "expectedSha256": "e9e398be3a93d2e7af12cdaac8814ab2de4f40a3fe7c30c5847f179858333420"
+    },
+    {
+      "label": "actualDiff.rows[22]:base",
+      "actualSha256": "bbe6c2fbd7cb6e397fe80113df9ff808f756e831f9215e624344dd0f507221e3",
+      "matchesExpected": true
+    },
+    {
+      "label": "actualDiff.rows[22]:proposal",
+      "actualSha256": "631325c73e3332b68cfb59410c80e649187e060e3340b8eebc9fcb39972dea21",
+      "matchesExpected": true,
+      "expectedSha256": "631325c73e3332b68cfb59410c80e649187e060e3340b8eebc9fcb39972dea21"
+    },
+    {
+      "label": "actualDiff.rows[22]:receipt",
+      "actualSha256": "0883d950b6716c28ef3063dbedf7801300604b2f34fb35f08254f18f13411347",
+      "matchesExpected": true,
+      "expectedSha256": "0883d950b6716c28ef3063dbedf7801300604b2f34fb35f08254f18f13411347"
+    },
+    {
+      "label": "actualDiff.rows[23]:base",
+      "actualSha256": "19764484f963e06e0f1b0e52321120cd76a5f9170f28113ecb73de2af62b7e65",
+      "matchesExpected": true
+    },
+    {
+      "label": "actualDiff.rows[23]:proposal",
+      "actualSha256": "788df39be79bc2833681927a844b77860b2acef9e2f666f60cd92694e543a8c6",
+      "matchesExpected": true,
+      "expectedSha256": "788df39be79bc2833681927a844b77860b2acef9e2f666f60cd92694e543a8c6"
+    },
+    {
+      "label": "actualDiff.rows[23]:receipt",
+      "actualSha256": "80a14d11d4d786ebcd3caa4eba1687032e96f68ea76db3ca940c314be0b29e7a",
+      "matchesExpected": true,
+      "expectedSha256": "80a14d11d4d786ebcd3caa4eba1687032e96f68ea76db3ca940c314be0b29e7a"
+    },
+    {
+      "label": "actualDiff.rows[24]:base",
+      "actualSha256": "b018fc70dba3dc2a9b0e084e99e75ee819830a4fc3d248ca24c30611fb35d2f3",
+      "matchesExpected": true
+    },
+    {
+      "label": "actualDiff.rows[24]:proposal",
+      "actualSha256": "bce78f3d4efe4e1d88fadd54e973b0c40ba57acfa8a47f69789a0c075f0d713c",
+      "matchesExpected": true,
+      "expectedSha256": "bce78f3d4efe4e1d88fadd54e973b0c40ba57acfa8a47f69789a0c075f0d713c"
+    },
+    {
+      "label": "actualDiff.rows[25]:base",
+      "actualSha256": "22e8f7b16d286c9ebba16440e372b68b868fb4a0fa90b3e9004acfa10b5a3473",
+      "matchesExpected": true
+    },
+    {
+      "label": "actualDiff.rows[25]:proposal",
+      "actualSha256": "841d5da7ed35f33cc5034984bd33103cddfed0d2008f54702e7e5efeca1dc75b",
+      "matchesExpected": true,
+      "expectedSha256": "841d5da7ed35f33cc5034984bd33103cddfed0d2008f54702e7e5efeca1dc75b"
+    },
+    {
+      "label": "actualDiff.rows[26]:base",
+      "actualSha256": "9d6dac73d57d0cb159a13a90c5bca59dbf5d6fca7edaf9da3c7703ad3d693d75",
+      "matchesExpected": true
+    },
+    {
+      "label": "actualDiff.rows[26]:proposal",
+      "actualSha256": "4f51961216066a37180bd05d3cdebbcfa510f60e5fea9459a7c51f443ac8cce7",
+      "matchesExpected": true,
+      "expectedSha256": "4f51961216066a37180bd05d3cdebbcfa510f60e5fea9459a7c51f443ac8cce7"
+    },
+    {
+      "label": "actualDiff.rows[26]:receipt",
+      "actualSha256": "0883d950b6716c28ef3063dbedf7801300604b2f34fb35f08254f18f13411347",
+      "matchesExpected": true,
+      "expectedSha256": "0883d950b6716c28ef3063dbedf7801300604b2f34fb35f08254f18f13411347"
+    },
+    {
+      "label": "actualDiff.rows[27]:base",
+      "actualSha256": "30b18323d6efd2eac8417b4c9d2a310a5121b5202ae7eb04ac370d869a465b8c",
+      "matchesExpected": true
+    },
+    {
+      "label": "actualDiff.rows[27]:proposal",
+      "actualSha256": "66384b927915371d4e616bbad30c2a384c76730f7fefc68938c449adf526830d",
+      "matchesExpected": true,
+      "expectedSha256": "66384b927915371d4e616bbad30c2a384c76730f7fefc68938c449adf526830d"
+    },
+    {
+      "label": "actualDiff.rows[28]:base",
+      "actualSha256": "8529ef050a7c118da00ab4f2dafc2b9d22e6369ffc4975dee21109788bba03d4",
+      "matchesExpected": true
+    },
+    {
+      "label": "actualDiff.rows[28]:proposal",
+      "actualSha256": "a57e0a86135ee6c5dcd2604d5f7d679ddd9d4a145edc39ad0fdb8cf44768306e",
+      "matchesExpected": true,
+      "expectedSha256": "a57e0a86135ee6c5dcd2604d5f7d679ddd9d4a145edc39ad0fdb8cf44768306e"
+    },
+    {
+      "label": "actualDiff.rows[28]:receipt",
+      "actualSha256": "c053b07dd33d12d0ddb1ce1021efbb0b997a52cc6c4334350b3a51bab8e87c2a",
+      "matchesExpected": true,
+      "expectedSha256": "c053b07dd33d12d0ddb1ce1021efbb0b997a52cc6c4334350b3a51bab8e87c2a"
+    },
+    {
+      "label": "actualDiff.rows[29]:base",
+      "actualSha256": "3e2ec20add9dc761e501229fc1c4e12abdcac1c44b0be6482de82d731c56b84e",
+      "matchesExpected": true
+    },
+    {
+      "label": "actualDiff.rows[29]:proposal",
+      "actualSha256": "98762341ef8c07e171452c8da69c9f7893f20f245fb03964d9deb60a3bc0204b",
+      "matchesExpected": true,
+      "expectedSha256": "98762341ef8c07e171452c8da69c9f7893f20f245fb03964d9deb60a3bc0204b"
+    },
+    {
+      "label": "actualDiff.rows[30]:base",
+      "actualSha256": "1035a4467c449c960626c71d39a820c7a3f02e07d30bf7e23cc1e49aef1c7d75",
+      "matchesExpected": true
+    },
+    {
+      "label": "actualDiff.rows[30]:proposal",
+      "actualSha256": "1f96a710250a2c37dd93bd5d769e73b37988b5944ce8f6bd04fff3dec62a2d61",
+      "matchesExpected": true,
+      "expectedSha256": "1f96a710250a2c37dd93bd5d769e73b37988b5944ce8f6bd04fff3dec62a2d61"
+    },
+    {
+      "label": "actualDiff.rows[30]:receipt",
+      "actualSha256": "c053b07dd33d12d0ddb1ce1021efbb0b997a52cc6c4334350b3a51bab8e87c2a",
+      "matchesExpected": true,
+      "expectedSha256": "c053b07dd33d12d0ddb1ce1021efbb0b997a52cc6c4334350b3a51bab8e87c2a"
+    },
+    {
+      "label": "actualDiff.rows[31]:base",
+      "actualSha256": "ec021caae2a8e9ea87b28589b1afd64b19181dee58fc7ae0b10be01b736f81e7",
+      "matchesExpected": true
+    },
+    {
+      "label": "actualDiff.rows[31]:proposal",
+      "actualSha256": "e76d729a60a426b218a29fb5b9bcd4ac4f933b8028ccf453446922982f51b985",
+      "matchesExpected": true,
+      "expectedSha256": "e76d729a60a426b218a29fb5b9bcd4ac4f933b8028ccf453446922982f51b985"
+    },
+    {
+      "label": "actualDiff.rows[32]:base",
+      "actualSha256": "3642fd57fc8b3ea003350339916a54b3b82c2c3b80ce4daab03e7febdfb96295",
+      "matchesExpected": true
+    },
+    {
+      "label": "actualDiff.rows[32]:proposal",
+      "actualSha256": "7d47f56e0886a44ca611f0f6d2b2432d8f10744275880224ee7c55998dd65b69",
+      "matchesExpected": true,
+      "expectedSha256": "7d47f56e0886a44ca611f0f6d2b2432d8f10744275880224ee7c55998dd65b69"
+    },
+    {
+      "label": "actualDiff.rows[32]:receipt",
+      "actualSha256": "c053b07dd33d12d0ddb1ce1021efbb0b997a52cc6c4334350b3a51bab8e87c2a",
+      "matchesExpected": true,
+      "expectedSha256": "c053b07dd33d12d0ddb1ce1021efbb0b997a52cc6c4334350b3a51bab8e87c2a"
+    },
+    {
+      "label": "actualDiff.rows[33]:base",
+      "actualSha256": "fd2f3c0972ebcc97e3e162dfc9ca1e87570196a2a3b99d0780e2562f94d7557a",
+      "matchesExpected": true
+    },
+    {
+      "label": "actualDiff.rows[33]:proposal",
+      "actualSha256": "aa39890beaccd57bfdee25d93a5c58c88421ff8205c8609ec539cff6fe4e6246",
+      "matchesExpected": true,
+      "expectedSha256": "aa39890beaccd57bfdee25d93a5c58c88421ff8205c8609ec539cff6fe4e6246"
+    },
+    {
+      "label": "explicitExclusions.acceptedPublishedCustomizerFive[0]:base",
+      "actualSha256": "c664246362054e9bc183381d99c60f106eb349e0d186cdc467534170fbaad0b3",
+      "matchesExpected": true
+    },
+    {
+      "label": "explicitExclusions.acceptedPublishedCustomizerFive[0]:proposal",
+      "actualSha256": "c664246362054e9bc183381d99c60f106eb349e0d186cdc467534170fbaad0b3",
+      "matchesExpected": true,
+      "expectedSha256": "c664246362054e9bc183381d99c60f106eb349e0d186cdc467534170fbaad0b3"
+    },
+    {
+      "label": "explicitExclusions.acceptedPublishedCustomizerFive[0]:receipt",
+      "actualSha256": "adffefbb61411053aed9e5b0391bc02482b6f64c398ab8170e130dbe197f22f1",
+      "matchesExpected": true,
+      "expectedSha256": "adffefbb61411053aed9e5b0391bc02482b6f64c398ab8170e130dbe197f22f1"
+    },
+    {
+      "label": "explicitExclusions.acceptedPublishedCustomizerFive[1]:base",
+      "actualSha256": "65dc02ac16a000a0322c71b173f88a59ca8e9f56f37ee40a74bf6d18f290d5a6",
+      "matchesExpected": true
+    },
+    {
+      "label": "explicitExclusions.acceptedPublishedCustomizerFive[1]:proposal",
+      "actualSha256": "65dc02ac16a000a0322c71b173f88a59ca8e9f56f37ee40a74bf6d18f290d5a6",
+      "matchesExpected": true,
+      "expectedSha256": "65dc02ac16a000a0322c71b173f88a59ca8e9f56f37ee40a74bf6d18f290d5a6"
+    },
+    {
+      "label": "explicitExclusions.acceptedPublishedCustomizerFive[1]:receipt",
+      "actualSha256": "adffefbb61411053aed9e5b0391bc02482b6f64c398ab8170e130dbe197f22f1",
+      "matchesExpected": true,
+      "expectedSha256": "adffefbb61411053aed9e5b0391bc02482b6f64c398ab8170e130dbe197f22f1"
+    },
+    {
+      "label": "explicitExclusions.acceptedPublishedCustomizerFive[2]:base",
+      "actualSha256": "08abd446de493fc1191e9b911368b5f8a66d7311da27694d04a7297cca5b0e4e",
+      "matchesExpected": true
+    },
+    {
+      "label": "explicitExclusions.acceptedPublishedCustomizerFive[2]:proposal",
+      "actualSha256": "08abd446de493fc1191e9b911368b5f8a66d7311da27694d04a7297cca5b0e4e",
+      "matchesExpected": true,
+      "expectedSha256": "08abd446de493fc1191e9b911368b5f8a66d7311da27694d04a7297cca5b0e4e"
+    },
+    {
+      "label": "explicitExclusions.acceptedPublishedCustomizerFive[2]:receipt",
+      "actualSha256": "adffefbb61411053aed9e5b0391bc02482b6f64c398ab8170e130dbe197f22f1",
+      "matchesExpected": true,
+      "expectedSha256": "adffefbb61411053aed9e5b0391bc02482b6f64c398ab8170e130dbe197f22f1"
+    },
+    {
+      "label": "explicitExclusions.acceptedPublishedCustomizerFive[3]:base",
+      "actualSha256": "cebacfa9f94c801f2e8e137c1342793d8db73290e9795f2ad23010b2d3a8fdc5",
+      "matchesExpected": true
+    },
+    {
+      "label": "explicitExclusions.acceptedPublishedCustomizerFive[3]:proposal",
+      "actualSha256": "cebacfa9f94c801f2e8e137c1342793d8db73290e9795f2ad23010b2d3a8fdc5",
+      "matchesExpected": true,
+      "expectedSha256": "cebacfa9f94c801f2e8e137c1342793d8db73290e9795f2ad23010b2d3a8fdc5"
+    },
+    {
+      "label": "explicitExclusions.acceptedPublishedCustomizerFive[3]:receipt",
+      "actualSha256": "adffefbb61411053aed9e5b0391bc02482b6f64c398ab8170e130dbe197f22f1",
+      "matchesExpected": true,
+      "expectedSha256": "adffefbb61411053aed9e5b0391bc02482b6f64c398ab8170e130dbe197f22f1"
+    },
+    {
+      "label": "explicitExclusions.acceptedPublishedCustomizerFive[4]:base",
+      "actualSha256": "191c5b3536c66d26dadac03da3f6de172574171ce1359ee3441120d308e1d8e8",
+      "matchesExpected": true
+    },
+    {
+      "label": "explicitExclusions.acceptedPublishedCustomizerFive[4]:proposal",
+      "actualSha256": "191c5b3536c66d26dadac03da3f6de172574171ce1359ee3441120d308e1d8e8",
+      "matchesExpected": true,
+      "expectedSha256": "191c5b3536c66d26dadac03da3f6de172574171ce1359ee3441120d308e1d8e8"
+    },
+    {
+      "label": "explicitExclusions.acceptedPublishedCustomizerFive[4]:receipt",
+      "actualSha256": "adffefbb61411053aed9e5b0391bc02482b6f64c398ab8170e130dbe197f22f1",
+      "matchesExpected": true,
+      "expectedSha256": "adffefbb61411053aed9e5b0391bc02482b6f64c398ab8170e130dbe197f22f1"
+    },
+    {
+      "label": "explicitExclusions.acceptedPublishedDataServices[0]:base",
+      "actualSha256": "85fefb6f310e6132e4bd99ec4f5f92cb2612731c1505d1e0637cf4c9db6e9aa1",
+      "matchesExpected": true
+    },
+    {
+      "label": "explicitExclusions.acceptedPublishedDataServices[0]:proposal",
+      "actualSha256": "85fefb6f310e6132e4bd99ec4f5f92cb2612731c1505d1e0637cf4c9db6e9aa1",
+      "matchesExpected": true,
+      "expectedSha256": "85fefb6f310e6132e4bd99ec4f5f92cb2612731c1505d1e0637cf4c9db6e9aa1"
+    },
+    {
+      "label": "explicitExclusions.acceptedPublishedDataServices[0]:receipt",
+      "actualSha256": "7dc487626ba0d43594efce0c356da7265e882b514623d47e82a433b0bde67b00",
+      "matchesExpected": true,
+      "expectedSha256": "7dc487626ba0d43594efce0c356da7265e882b514623d47e82a433b0bde67b00"
+    },
+    {
+      "label": "explicitExclusions.acceptedPublishedDataServices[1]:base",
+      "actualSha256": "cfa90d423f395ae2dddc0aa28697929c451ff9788cb58466ef838b2b97b2a66f",
+      "matchesExpected": true
+    },
+    {
+      "label": "explicitExclusions.acceptedPublishedDataServices[1]:proposal",
+      "actualSha256": "cfa90d423f395ae2dddc0aa28697929c451ff9788cb58466ef838b2b97b2a66f",
+      "matchesExpected": true,
+      "expectedSha256": "cfa90d423f395ae2dddc0aa28697929c451ff9788cb58466ef838b2b97b2a66f"
+    },
+    {
+      "label": "explicitExclusions.acceptedPublishedDataServices[1]:receipt",
+      "actualSha256": "7dc487626ba0d43594efce0c356da7265e882b514623d47e82a433b0bde67b00",
+      "matchesExpected": true,
+      "expectedSha256": "7dc487626ba0d43594efce0c356da7265e882b514623d47e82a433b0bde67b00"
+    },
+    {
+      "label": "explicitExclusions.acceptedPublishedDataServices[2]:base",
+      "actualSha256": "32d8197b35e45c65842701076d7a5cfd9043838dc6486a0605237caaf4da77f8",
+      "matchesExpected": true
+    },
+    {
+      "label": "explicitExclusions.acceptedPublishedDataServices[2]:proposal",
+      "actualSha256": "32d8197b35e45c65842701076d7a5cfd9043838dc6486a0605237caaf4da77f8",
+      "matchesExpected": true,
+      "expectedSha256": "32d8197b35e45c65842701076d7a5cfd9043838dc6486a0605237caaf4da77f8"
+    },
+    {
+      "label": "explicitExclusions.acceptedPublishedDataServices[2]:receipt",
+      "actualSha256": "7dc487626ba0d43594efce0c356da7265e882b514623d47e82a433b0bde67b00",
+      "matchesExpected": true,
+      "expectedSha256": "7dc487626ba0d43594efce0c356da7265e882b514623d47e82a433b0bde67b00"
+    },
+    {
+      "label": "explicitExclusions.activeSourceAnchorFive[0]:base",
+      "actualSha256": "3038161895af9592d2ac2547fcb11f01f7777c244abd83cf05340e4d7103f5a7",
+      "matchesExpected": true
+    },
+    {
+      "label": "explicitExclusions.activeSourceAnchorFive[0]:proposal",
+      "actualSha256": "c20a361aaffd95dca647a0cc5bdf767bec5b9c3ab4a835ddc2333a35923e5c5e",
+      "matchesExpected": true,
+      "expectedSha256": "c20a361aaffd95dca647a0cc5bdf767bec5b9c3ab4a835ddc2333a35923e5c5e"
+    },
+    {
+      "label": "explicitExclusions.activeSourceAnchorFive[1]:base",
+      "actualSha256": "e25ac8b4bdefe4196d07ba557d6ea177abd707a7e18b2b460e85fd0d5d2725d5",
+      "matchesExpected": true
+    },
+    {
+      "label": "explicitExclusions.activeSourceAnchorFive[1]:proposal",
+      "actualSha256": "3223fcc7ca638ba7b832bf94154a423a13ca7269b05653a846b8f7982b0cdd14",
+      "matchesExpected": true,
+      "expectedSha256": "3223fcc7ca638ba7b832bf94154a423a13ca7269b05653a846b8f7982b0cdd14"
+    },
+    {
+      "label": "explicitExclusions.activeSourceAnchorFive[2]:base",
+      "actualSha256": "30b18323d6efd2eac8417b4c9d2a310a5121b5202ae7eb04ac370d869a465b8c",
+      "matchesExpected": true
+    },
+    {
+      "label": "explicitExclusions.activeSourceAnchorFive[2]:proposal",
+      "actualSha256": "66384b927915371d4e616bbad30c2a384c76730f7fefc68938c449adf526830d",
+      "matchesExpected": true,
+      "expectedSha256": "66384b927915371d4e616bbad30c2a384c76730f7fefc68938c449adf526830d"
+    },
+    {
+      "label": "explicitExclusions.activeSourceAnchorFive[3]:base",
+      "actualSha256": "ec021caae2a8e9ea87b28589b1afd64b19181dee58fc7ae0b10be01b736f81e7",
+      "matchesExpected": true
+    },
+    {
+      "label": "explicitExclusions.activeSourceAnchorFive[3]:proposal",
+      "actualSha256": "e76d729a60a426b218a29fb5b9bcd4ac4f933b8028ccf453446922982f51b985",
+      "matchesExpected": true,
+      "expectedSha256": "e76d729a60a426b218a29fb5b9bcd4ac4f933b8028ccf453446922982f51b985"
+    },
+    {
+      "label": "explicitExclusions.activeSourceAnchorFive[4]:base",
+      "actualSha256": "fd2f3c0972ebcc97e3e162dfc9ca1e87570196a2a3b99d0780e2562f94d7557a",
+      "matchesExpected": true
+    },
+    {
+      "label": "explicitExclusions.activeSourceAnchorFive[4]:proposal",
+      "actualSha256": "aa39890beaccd57bfdee25d93a5c58c88421ff8205c8609ec539cff6fe4e6246",
+      "matchesExpected": true,
+      "expectedSha256": "aa39890beaccd57bfdee25d93a5c58c88421ff8205c8609ec539cff6fe4e6246"
+    },
+    {
+      "label": "explicitExclusions.acceptedReleaseHydration:base",
+      "actualSha256": "22e8f7b16d286c9ebba16440e372b68b868fb4a0fa90b3e9004acfa10b5a3473",
+      "matchesExpected": true
+    },
+    {
+      "label": "explicitExclusions.acceptedReleaseHydration:proposal",
+      "actualSha256": "841d5da7ed35f33cc5034984bd33103cddfed0d2008f54702e7e5efeca1dc75b",
+      "matchesExpected": true,
+      "expectedSha256": "841d5da7ed35f33cc5034984bd33103cddfed0d2008f54702e7e5efeca1dc75b"
+    },
+    {
+      "label": "artifact:origin-to-proposal-specs.name-status.txt",
+      "actualSha256": "59ec448dcda626ae546fa10039f6dd84729383f0f05b56a155f500f7aab1dbfd",
+      "expectedSha256": "59ec448dcda626ae546fa10039f6dd84729383f0f05b56a155f500f7aab1dbfd",
+      "matchesExpected": true,
+      "bytes": 1548
+    },
+    {
+      "label": "artifact:origin-to-proposal-specs.numstat.txt",
+      "actualSha256": "72eb5a3cc4729f2ca9970bf91892bb9444fd3024bbeacdff3f231af1634cced2",
+      "expectedSha256": "72eb5a3cc4729f2ca9970bf91892bb9444fd3024bbeacdff3f231af1634cced2",
+      "matchesExpected": true,
+      "bytes": 1654
+    },
+    {
+      "label": "artifact:origin-to-proposal-specs.patch",
+      "actualSha256": "9aad9cd55c82f9a094bfade5a03449f69675f8e6e13f4b761d656a6c515e9356",
+      "expectedSha256": "9aad9cd55c82f9a094bfade5a03449f69675f8e6e13f4b761d656a6c515e9356",
+      "matchesExpected": true,
+      "bytes": 179850
+    },
+    {
+      "label": "artifact:root-dirty-spec-status.txt",
+      "actualSha256": "5ffea8b7f26c6c555b2ebb0bd589add3f37dbb180c135c8513bda3de4b049713",
+      "expectedSha256": "5ffea8b7f26c6c555b2ebb0bd589add3f37dbb180c135c8513bda3de4b049713",
+      "matchesExpected": true,
+      "bytes": 2264
+    },
+    {
+      "label": "rawNumstat",
+      "actualSha256": "72eb5a3cc4729f2ca9970bf91892bb9444fd3024bbeacdff3f231af1634cced2",
+      "matchesExpected": true,
+      "expectedSha256": "72eb5a3cc4729f2ca9970bf91892bb9444fd3024bbeacdff3f231af1634cced2"
+    },
+    {
+      "label": "rawNameStatus",
+      "actualSha256": "59ec448dcda626ae546fa10039f6dd84729383f0f05b56a155f500f7aab1dbfd",
+      "matchesExpected": true,
+      "expectedSha256": "59ec448dcda626ae546fa10039f6dd84729383f0f05b56a155f500f7aab1dbfd"
+    },
+    {
+      "label": "rawPatch",
+      "actualSha256": "9aad9cd55c82f9a094bfade5a03449f69675f8e6e13f4b761d656a6c515e9356",
+      "matchesExpected": true,
+      "expectedSha256": "9aad9cd55c82f9a094bfade5a03449f69675f8e6e13f4b761d656a6c515e9356"
+    }
+  ]
+}
