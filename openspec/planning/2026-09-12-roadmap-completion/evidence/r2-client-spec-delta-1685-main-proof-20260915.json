@@ -1,0 +1,26 @@
+{
+  "evidenceKind": "exact-main-proof",
+  "prReference": 1685,
+  "mergeCommit": "318f4ecc1c0a01fe5de45b904a1581503cbef8b9",
+  "validatorsRunAt": "823bdf3acbaaa8a5d7ddccfff0f0f1a30e2688ee",
+  "reviewedCommit": "41fa76989",
+  "blobEquality": [
+    "openspec/changes/design-campaign-authority-and-sync/design.md 1685-at-318f4ecc e3a917f32eb80774a741078f1c0f3900078ec23f reviewed e3a917f32eb80774a741078f1c0f3900078ec23f SAME",
+    "openspec/changes/design-campaign-authority-and-sync/tasks.md 1685-at-318f4ecc edbcc5ff0308eed6c20252d02c338c56f5898c9c reviewed edbcc5ff0308eed6c20252d02c338c56f5898c9c SAME",
+    "openspec/changes/design-campaign-authority-and-sync/specs/campaign-authority/spec.md 1685-at-318f4ecc 2cbbdf992ee27721da89bac6ce93348b8a898463 reviewed 2cbbdf992ee27721da89bac6ce93348b8a898463 SAME"
+  ],
+  "validators": [
+    "openspec exit 0",
+    "purpose exit 0",
+    "terminology exit 0",
+    "qcci exit 0"
+  ],
+  "logSha256": [
+    "a6f1b01bad6ef535f7ae511fd2b0e725e382bcb462449ef4386723e0ec97eff3 */e/Projects/MekStation/.sisyphus/roadmap-completion-20260912/main-proof-docs-1685-1692-20260915/openspec.log",
+    "629026f25215446af06f7491ea5757f56e6f66d00cb70d6d432438cb6cb9adf7 */e/Projects/MekStation/.sisyphus/roadmap-completion-20260912/main-proof-docs-1685-1692-20260915/purpose.log",
+    "8c41df6c33246420ed1806218780c2df69b5ad4e7c594b993b07594ee959ccb2 */e/Projects/MekStation/.sisyphus/roadmap-completion-20260912/main-proof-docs-1685-1692-20260915/qcci.log",
+    "7c072db78ad95151475b0dfdd11f49a92b3fada938b4d75e93b797f4ae87cc47 */e/Projects/MekStation/.sisyphus/roadmap-completion-20260912/main-proof-docs-1685-1692-20260915/terminology.log"
+  ],
+  "timestampUtc": "2026-09-15T09:33:17.621Z",
+  "parentAcceptance": "parent Astra ran and accepted"
+}

@@ -1,0 +1,54 @@
+{
+  "slice": "R2.authority-live rows part 3: revoked seat refused across processes; GM rationale redacted; 403 stranger path",
+  "pr": 1755,
+  "prHead": "4f72440f2c680017f001ff6eab49f4a176a663b0",
+  "mergeCommit": "2c1b4584de076ae497533d093618dac5bcc97f03",
+  "verifiedAtUtc": "2026-09-15T21:06:44.085Z",
+  "worktree": "archive-original-main-proof (detached at merge commit, Node v22.22.0)",
+  "blobEquality": {
+    "files": [
+      "e2e/campaign-journal-two-process-privacy.spec.ts"
+    ],
+    "command": "git diff --stat <prHead> <merge> -- <files>",
+    "result": "empty (0 bytes)"
+  },
+  "runtime": {
+    "build": "NEXT_PUBLIC_E2E_MODE=true NEXT_PUBLIC_E2E_TEST=true npm run build at the merge commit, exit 0",
+    "buildId": "1789506177343",
+    "e2eBundleCheck": "window.__E2E_MODE__=!0 in _app-b4f3e371ee8b87c1.js",
+    "playwright": "MEKSTATION_E2E_SERVER_COMMAND=node .next/standalone/server.js HOSTNAME=127.0.0.1 MEKSTATION_E2E_PORT=3639 run-playwright test e2e/campaign-journal-two-process-privacy.spec.ts --project=chromium --retries=0 --workers=1: exit 0, 1 passed (37.5s)",
+    "portsListenAfter": 0
+  },
+  "gates": {
+    "tsc": {
+      "exit": 0,
+      "outputBytes": 0
+    },
+    "openspecStrict": {
+      "exit": 0
+    }
+  },
+  "logs": {
+    "build": {
+      "path": ".sisyphus/roadmap-completion-20260912/main-proof-1755-20260915/build.log",
+      "sha256": "91cbcd510c3340d19aa99d08dfbf0e198fb7adc51c4475d8ba3a58594d388fda"
+    },
+    "playwright": {
+      "path": ".sisyphus/roadmap-completion-20260912/main-proof-1755-20260915/playwright.log",
+      "sha256": "d5f6865c43c1f5cf8e929c6d484ad8611b285a3e787747fcf717183815a863e0"
+    },
+    "openspec": {
+      "path": ".sisyphus/roadmap-completion-20260912/main-proof-1755-20260915/openspec.log",
+      "sha256": "a6f1b01bad6ef535f7ae511fd2b0e725e382bcb462449ef4386723e0ec97eff3"
+    },
+    "tsc": {
+      "path": ".sisyphus/roadmap-completion-20260912/main-proof-1755-20260915/tsc.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "limits": [
+    "the spec on this commit pins F-LIVE-1 as production behaviour (a revoked seat still receives facts on an already-open socket); the product fix inverts that pin in a separate PR",
+    "F-LIVE-2 RemoveParticipant via /commands 422 host-only recorded as an open question",
+    "flag hardcoded false; co-op-hosted topology only; CI wiring separate"
+  ]
+}

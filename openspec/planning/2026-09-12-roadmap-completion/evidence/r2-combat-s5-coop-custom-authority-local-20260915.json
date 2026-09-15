@@ -1,0 +1,419 @@
+{
+  "evidenceKind": "local-slice-receipt",
+  "date": "2026-09-15",
+  "sliceId": "R2.combat.S5-line7-catalog-admission-and-coop-probe",
+  "roadmapNode": "R2.combat",
+  "changePackage": "enable-saved-custom-unit-combat",
+  "coversTaskKeys": [
+    "enable-saved-custom-unit-combat#line-7@7"
+  ],
+  "admissionBrief": "openspec/planning/2026-09-12-roadmap-completion/evidence/r2-combat-admission-brief-20260915.json (tasks[line-7], orderedSlicePlan[5])",
+  "verdict": "VERIFICATION-ONLY -- no product change was required. Every new row passes against unchanged product code.",
+  "worktree": {
+    "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/archive-edit-recovery-20260915",
+    "reusedFrom": "archive-edit-recovery-20260915 (its PR #1683 is merged)",
+    "statusBeforeBranch": "git status --porcelain empty",
+    "nodeModules": "ABSENT on arrival -- `npm ci` was run under Node v22.22.0 (exit 0); `node -e \"require('better-sqlite3')\"` printed 'better-sqlite3 OK'",
+    "nodeVersion": "v22.22.0"
+  },
+  "git": {
+    "baseRef": "origin/main",
+    "baseSha": "818e654e0ac7c98b8a4b53c2f35be9e4b7643152",
+    "branch": "codex/roadmap-r2-combat-s5-coop-custom-authority-20260915",
+    "commit": "33d1975fd3d69bd5edc5cc0d7c8da7e81dba9386",
+    "commitSubject": "test(campaign): prove co-op launch revalidates custom-source authority before composition",
+    "author": "Wes Rollings <wrollings@gmail.com>",
+    "aiAttribution": "none",
+    "hooks": "enabled (pre-commit ran the full next build; it completed and the standalone hydration JSON reported ok:true)",
+    "pushed": false,
+    "prOpened": false,
+    "workingTreeAfterCommit": "git status --porcelain empty"
+  },
+  "files": [
+    "src/__tests__/pages/gameplay/campaigns/mission-launch.coop.test.tsx",
+    "src/services/encounter/__tests__/EncounterService.test-helpers.ts"
+  ],
+  "shortstat": "2 files changed, 380 insertions(+), 1 deletion(-)",
+  "caps": {
+    "filesCap": 15,
+    "filesUsed": 2,
+    "linesCap": 500,
+    "linesUsed": 381,
+    "withinCaps": true,
+    "split": false
+  },
+  "specCitations": [
+    {
+      "file": "openspec/changes/enable-saved-custom-unit-combat/specs/mission-contracts/spec.md",
+      "requirement": "Campaign launch requires an authoritative canonical source (MODIFIED)",
+      "line": 41,
+      "text": "Mission launch, Mech Bay readiness, fast-forward, campaign dashboard readiness, co-op launch, and materializer callers SHALL share the same admission guard. A consumer without an authoritative custom snapshot SHALL continue to block custom units rather than infer membership. Server materialization SHALL re-resolve selected saved construction before recording combat."
+    },
+    {
+      "file": "openspec/changes/enable-saved-custom-unit-combat/specs/mission-contracts/spec.md",
+      "scenario": "Co-op launch revalidates authority",
+      "lines": "59-63",
+      "text": "WHEN co-op receives a missing, foreign, stale, or revision-mismatched campaign snapshot THEN launch SHALL reject before composition or encounter launch AND the client SHALL NOT synthesize source identity, force membership, construction authority, or a stock fallback"
+    }
+  ],
+  "productCodeRead": [
+    "src/lib/campaign/readiness/canonicalCatalogAdmission.ts (admitCanonicalExactReference:69-117, admitCampaignLaunch:181-213, fetchCanonicalCatalogSnapshot:155-179)",
+    "src/lib/campaign/coop/launchCoopMission.ts:97-155 -- admitCampaignLaunch runs at line 109, BEFORE composeCoopEncounter at line 125 and before launchCampaignEncounter at line 138",
+    "src/pages-modules/gameplay/campaigns/missionLaunchPage.launch.ts:202-283 -- launchCoopMissionFromPage builds the admission payload (snapshot + expected + per-unit unitRef/unitSource from the co-op runtime roster)",
+    "src/services/encounter/EncounterService.ts:419-441 -- attachRecordedCustomCombatSnapshots at materialization, inside a try/catch that turns a refusal into a failed launch",
+    "src/engine/InteractiveSession.recovery.ts:102-148 -- attachRecordedCustomCombatSnapshot: missing snapshot + null live read throws; identity is checked against unitRef"
+  ],
+  "redFirstRuns": [
+    {
+      "surface": "server-side materialization",
+      "file": "src/services/encounter/__tests__/EncounterService.test-helpers.ts (Launch describe, run via src/services/encounter/__tests__/EncounterService.test.ts)",
+      "command": "node node_modules/jest/bin/jest.js --maxWorkers=2 --coverage=false src/services/encounter/__tests__/EncounterService.test.ts -t \"co-op launch\"",
+      "firstRunResult": "GREEN on the first run -- 3 passed, 50 skipped, 0 failed. No product change was made before this run.",
+      "log": ".sisyphus/roadmap-completion-20260912/r2-combat-s5-20260915/server-rows-first-run.log",
+      "sha256": "d29cc5b59fe21b1d2df62b928b8b5887764c0e2ce8006e81b00b7b8f9ccfa2ef",
+      "rows": [
+        "rejects a co-op launch whose custom-source reference no longer resolves at materialization time",
+        "rejects a co-op launch whose custom-source reference resolves to a foreign identity",
+        "materializes a co-op launch whose custom-source reference still resolves exactly"
+      ]
+    },
+    {
+      "surface": "browser-side launch page",
+      "file": "src/__tests__/pages/gameplay/campaigns/mission-launch.coop.test.tsx",
+      "command": "node node_modules/jest/bin/jest.js --maxWorkers=2 --coverage=false src/__tests__/pages/gameplay/campaigns/mission-launch.coop.test.tsx",
+      "firstRunResult": "3 failed, 9 passed. HONEST CAUSE: the three failures were a WRONG TEST SELECTOR in the newly authored test, not a product gap. The page renders its launch error under data-testid 'coop-launch-error'; the new rows queried 'mission-launch-error' (the single-player id). The failure dumps in the log show the correct typed denials already rendered -- 'Saved Atlas is a saved custom design and cannot launch yet.' and 'Saved Atlas has a custom catalog reference under a canonical source and cannot launch.' The fourth (admit) row passed unchanged.",
+      "log": ".sisyphus/roadmap-completion-20260912/r2-combat-s5-20260915/browser-rows-first-run.log",
+      "sha256": "acffb778d9445de6820d33d6b239639cd0595e437e3a8c533065a92926763518",
+      "fixApplied": "test-only: swapped findByTestId/queryByTestId('mission-launch-error') to 'coop-launch-error' in the four new rows. NO product file was edited.",
+      "greenRunLog": ".sisyphus/roadmap-completion-20260912/r2-combat-s5-20260915/browser-rows-green.log",
+      "greenRunSha256": "66bb825c12d1c64c4dd3dbe401222572cab6b00debe77307e635be5cbc804b13",
+      "greenRunResult": "12 passed, 12 total",
+      "rows": [
+        "rejects a co-op launch whose custom-source reference is missing from the custom combat catalog",
+        "rejects a co-op launch whose custom-source reference is foreign to this campaign catalog",
+        "rejects a co-op launch whose custom catalog reference is labelled a canonical source",
+        "admits a co-op launch whose custom-source reference has exact custom catalog membership"
+      ]
+    }
+  ],
+  "testDesign": {
+    "browser": "The new describe routes the launch page's dynamic import of launchCoopMission through the REAL implementation (jest.requireActual, lazily, inside the delegating mock) with a spy ICampaignEncounterLauncherService substituted for the singleton. A denied launch therefore has to leave spy.created and spy.launched empty, which is the literal 'before composition or encounter launch' clause. The custom combat catalog refs and the co-op runtime roster projection are the two injected fixtures; the pre-existing suites keep the original light mock and were re-verified green.",
+    "server": "A force whose single assignment carries a custom-* unitId makes buildGameUnitsFromEncounter stamp unitRef='custom-coop-atlas' (src/services/encounter/encounterToGameSession.ts:199), which is what puts EncounterService.launchEncounter on the saved-construction branch. options.readCustom is the injected authority: null for the stale case, a snapshot minted for a different id for the foreign case, and an exact-id snapshot (parseCustomCombatDefinition over the Atlas AS7-D catalog JSON) for the admitted case."
+  },
+  "gates": [
+    {
+      "name": "jest -- touched suites + src/lib/campaign/readiness + src/services/encounter",
+      "command": "node node_modules/jest/bin/jest.js --maxWorkers=2 --coverage=false src/__tests__/pages/gameplay/campaigns/mission-launch.coop.test.tsx src/lib/campaign/readiness src/services/encounter",
+      "result": "PASS -- 15 suites, 255 tests",
+      "log": ".sisyphus/roadmap-completion-20260912/r2-combat-s5-20260915/gate-jest.log",
+      "sha256": "b764252b99cd458200fc6700a72369f06e77cb1698f19b29251576aee754e187"
+    },
+    {
+      "name": "jest re-run AFTER oxfmt rewrote the two files (quote-flip guard)",
+      "command": "same as above",
+      "result": "PASS -- 15 suites, 255 tests, exit 0",
+      "log": ".sisyphus/roadmap-completion-20260912/r2-combat-s5-20260915/gate-jest-postfmt.log",
+      "sha256": "0e0bd0d82c1989255df2101b9d1f19a7db12801d18d67993887be81d9b818cfc"
+    },
+    {
+      "name": "tsc",
+      "command": "npx tsc --noEmit -p tsconfig.json",
+      "result": "PASS -- exit 0, empty output",
+      "log": ".sisyphus/roadmap-completion-20260912/r2-combat-s5-20260915/gate-tsc.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "oxfmt",
+      "command": "npx oxfmt <the two changed files>, then npx oxfmt --check .",
+      "result": "PASS -- 'All matched files use the correct format.' over 7955 files, exit 0. oxfmt did rewrite both changed files, which is why the jest gate was re-run after it.",
+      "log": ".sisyphus/roadmap-completion-20260912/r2-combat-s5-20260915/gate-oxfmt.log",
+      "sha256": "eb3f856dd5975033d79f07ebbc7e76268313c2d5a9bece8d90fbc7a894fbe0eb"
+    },
+    {
+      "name": "oxlint",
+      "command": "npx oxlint (the repo's `lint` script; passing the two paths explicitly matched 0 files, so the repo-wide form is what is receipted)",
+      "result": "PASS -- exit 0. 84 warnings and 0 errors over 3801 files; grep confirms NONE of the 84 name mission-launch.coop.test.tsx or EncounterService.test-helpers.ts, so no new warning was introduced.",
+      "log": ".sisyphus/roadmap-completion-20260912/r2-combat-s5-20260915/gate-oxlint.log",
+      "sha256": "15a7f93d6f1e0036e3aed387d3642414ff3edc2df542c8abe8dd219611f642c3"
+    },
+    {
+      "name": "openspec validate --all --strict",
+      "command": "npx openspec validate --all --strict",
+      "result": "PASS -- exit 0, Totals: 232 passed, 0 failed (232 items)",
+      "log": ".sisyphus/roadmap-completion-20260912/r2-combat-s5-20260915/gate-openspec.log",
+      "sha256": "a6f1b01bad6ef535f7ae511fd2b0e725e382bcb462449ef4386723e0ec97eff3"
+    },
+    {
+      "name": "next build",
+      "command": "not started directly; the pre-commit hook ran one",
+      "result": "PASS -- the hook's build completed and printed the standalone hydration JSON with ok:true. A concurrent `next build` was running in the history-runtime-integrity worktree at commit time; this slice WAITED until that process exited (checked via Get-CimInstance Win32_Process command lines) before committing, so two builds never overlapped."
+    }
+  ],
+  "findingsNotClosuresButWorthRecording": [
+    "CORRECTED per review RE-1. The co-op launch page derives BOTH snapshot.{campaignId,matchId,revision} AND expected.{campaignId,matchId,revision} from the same in-page sources (campaign.id, matchId, and one readCampaignLaunchHead result), so the 'snapshot_foreign' and 'snapshot_stale' denials in admitCampaignLaunch are structurally unreachable from THAT call site. The original wording then claimed those branches were 'already covered at the unit level in launchCoopMission.test.ts and canonicalCatalogAdmission.test.ts'. That was FALSE for canonicalCatalogAdmission.test.ts: both of its admitCampaignLaunch call sites (:194 and :220) pass a snapshot whose campaignId equals expected.campaignId with no matchId and no revision, so neither branch is ever entered there. TRUE STATE at the time of commit 33d1975fd: snapshot_foreign and snapshot_stale had coverage in exactly ONE place, src/lib/campaign/coop/__tests__/launchCoopMission.test.ts:259-268, as two bare admitCampaignLaunch(...) helper calls whose booleans are folded into the CAMP-01D wave-artifact assertion bundle at :292-294 -- not named rows, not run through launchCoopMission, and a regression there reports as a wave-assertion failure rather than as a named scenario failure. The missing-snapshot branch (canonicalCatalogAdmission.ts:187-190) had NO coverage anywhere in src/. Commit 83c691741 closes all three with named rows; see reviewResponse below.",
+    "launchCoopMission's per-unit fallback for a deploying unit id absent from the admission's selectedUnits is `{ unitId, unitName: unitId }` with no unitRef, which admitCanonicalExactReference denies as 'unit_ref_unresolved'. That fallback is fail-closed, which is why the real-implementation delegation in the browser rows required seeding the co-op runtime roster rather than leaving it undefined."
+  ],
+  "nonClaims": [
+    "ADJECTIVE COVERAGE OF COMMIT 33d1975fd: 0 of the 4 campaign-snapshot adjectives the spec scenario names ('missing, foreign, stale, or revision-mismatched campaign snapshot') are covered by that commit. Its four browser rows all exercise PER-UNIT branches of admitCanonicalExactReference (roster_source_custom, source_ref_mismatch), not the snapshot-level branches of admitCampaignLaunch. At that commit: foreign + stale had only the indirect bundled assertion at launchCoopMission.test.ts:259-268, and missing-snapshot had no coverage repo-wide. Follow-up commit 83c691741 closes this -- see reviewResponse.",
+    "Does NOT add a live two-browser co-op custom-unit proof. That remains R2.authority-live / R2.combat-browser territory.",
+    "Does NOT run the four repo-wide static gates as the R2.combat line-8 consolidated receipt. tsc, oxlint, oxfmt and one next build did all pass here, but this receipt is scoped to slice S5's files; line-8's own slice still owns the change-scoped full matrix (including e2e/saved-custom-combat.spec.ts, which was NOT run here).",
+    "Does NOT check any tasks.md checkbox. Line 7 is still '[ ] (unchecked)' on this branch; flipping it is the owner's explicit separate action.",
+    "Does NOT edit any spec, proposal, design or delta file.",
+    "Does NOT push the branch or open a PR.",
+    "No Playwright/e2e run was performed in this slice.",
+    "The 'stale' condition is proven only at SERVER materialization time (readCustom returning null for a previously admitted reference). A browser-side stale row is not separately claimed: at readiness time a deleted design is indistinguishable from a missing one and lands on the same roster_source_custom denial, which the 'missing' row already pins."
+  ],
+  "incidentDuringSlice": {
+    "what": "While tidying the run logs out of the worktree, an `rm -rf .sisyphus` inside the worktree deleted ~230 TRACKED files under .sisyphus/ (drafts, evidence, notepads).",
+    "impactOnCommit": "NONE -- the deletions happened AFTER the commit and were never staged; commit 33d1975fd contains exactly the two test files.",
+    "recovery": "`git checkout -- .sisyphus` in the worktree restored every deleted tracked file; `git status --porcelain` is empty again. No `git clean`, `reset --hard` or `stash` was used.",
+    "logsRelocation": "The run logs now live at the canonical root path .sisyphus/roadmap-completion-20260912/r2-combat-s5-20260915/, alongside the other roadmap slice log dirs."
+  },
+  "taskLine7StatusAsRecordedByThisSlice": {
+    "provenForCoop": "PARTIAL at 33d1975fd; UPGRADED at 83c691741. After both commits the scenario's four snapshot adjectives are covered by named, mutation-proved rows, and the per-unit / server-materialization clauses are covered as originally receipted. The checkbox is still NOT flipped by this slice.",
+    "checkboxOnBranch": "unchanged -- '- [ ] Wire shared catalog admission and campaign consumers; reject malformed, unsupported, missing, or mismatched references before materialization.'"
+  },
+  "reviewResponse": {
+    "reviewFile": "openspec/planning/2026-09-12-roadmap-completion/evidence/r2-combat-s5-review-20260915.json",
+    "reviewVerdict": "APPROVE-WITH-REQUIRED-EDITS",
+    "respondedOn": "2026-09-15",
+    "branch": "codex/roadmap-r2-combat-s5-coop-custom-authority-20260915",
+    "commits": [
+      {
+        "sha": "33d1975fd3d69bd5edc5cc0d7c8da7e81dba9386",
+        "subject": "test(campaign): prove co-op launch revalidates custom-source authority before composition",
+        "shortstat": "2 files changed, 380 insertions(+), 1 deletion(-)",
+        "unchangedByThisResponse": true
+      },
+      {
+        "sha": "83c691741",
+        "shaFull": "83c691741b70572e27a6b743731f2f535924b9a5",
+        "subject": "test(campaign): name the four co-op campaign-snapshot denials",
+        "shortstat": "2 files changed, 155 insertions(+), 1 deletion(-)",
+        "testOnly": true,
+        "capsLinesUsed": 156,
+        "capsLinesCap": 500,
+        "withinCaps": true,
+        "files": [
+          "src/lib/campaign/coop/__tests__/launchCoopMission.test.ts",
+          "src/__tests__/pages/gameplay/campaigns/mission-launch.coop.test.tsx"
+        ]
+      }
+    ],
+    "editsApplied": [
+      {
+        "id": "RE-1",
+        "status": "APPLIED (evidence only)",
+        "what": "findingsNotClosuresButWorthRecording[0] rewritten: the claim now names ONLY launchCoopMission.test.ts:259-268 and describes that coverage honestly as booleans bundled into the CAMP-01D wave-artifact assertion, not named rows. The false canonicalCatalogAdmission.test.ts claim is retracted in place and the missing-snapshot no-coverage fact is stated."
+      },
+      {
+        "id": "RE-2",
+        "status": "APPLIED (evidence only)",
+        "what": "nonClaims[0] added: commit 33d1975fd covers 0 of the 4 snapshot adjectives, with the per-adjective state at that commit spelled out. taskLine7StatusAsRecordedByThisSlice added."
+      },
+      {
+        "id": "OE-1",
+        "status": "APPLIED (code, in 83c691741)",
+        "what": "Browser row 2 renamed from 'rejects a co-op launch whose custom-source reference is foreign to this campaign catalog' to 'rejects a co-op launch whose custom-source reference is not a member of a populated custom combat catalog', with a comment stating it is the same roster_source_custom branch as row 1 (discriminator: a POPULATED catalog that does not list the ref) and that the spec's 'foreign' means a mismatched campaign SNAPSHOT, pinned elsewhere. The row's assertions are unchanged, so its discrimination under review probes A/D/E is unchanged."
+      },
+      {
+        "id": "OE-2",
+        "status": "APPLIED (code, in 83c691741) for the new rows",
+        "what": "The four new snapshot rows assert composeCoopEncounter was never invoked, closing OE-2 for them. Implemented with a delegating jest.mock of '../composeCoopEncounter' that records the call and then forwards to jest.requireActual, so the four pre-existing rows in that file still compose for real. MEASURED OBSTACLE: jest.spyOn on the module namespace fails with 'TypeError: Cannot redefine property: composeCoopEncounter' -- the transpiled ESM export is non-configurable; the first attempt is recorded in the run log history. OE-2 remains OPEN for the three browser reject rows in mission-launch.coop.test.tsx, which still prove 'before composition' structurally only."
+      }
+    ],
+    "newRows": {
+      "file": "src/lib/campaign/coop/__tests__/launchCoopMission.test.ts",
+      "describe": "launchCoopMission - rejects a non-authoritative campaign snapshot",
+      "perRowAssertions": "result.ok === false; result.error equals the exact typed blocker message; result.compositionRejection === undefined (the refusal came from the guard, not the composer); mockComposeCoopEncounter not called; fakeService().launched === [].",
+      "branchHonesty": "admitCampaignLaunch folds a campaignId mismatch and a matchId mismatch into ONE snapshot_foreign denial, and folds stale and revision-mismatched into ONE snapshot_stale denial. Four adjectives, three denial codes. The rows are named for the four INPUTS so a regression in any one is reported by name; row 4 carries both the STALE and REVISION-MISMATCHED adjectives because the product does not separate them.",
+      "rows": [
+        {
+          "name": "rejects a MISSING campaign snapshot before composition or encounter launch",
+          "adjective": "missing",
+          "input": "admission.snapshot === undefined",
+          "deniedWith": "catalog_unavailable -- 'Canonical catalog is unavailable; retry launch after it reloads.'",
+          "productBranch": "canonicalCatalogAdmission.ts:187-190",
+          "priorCoverage": "NONE repo-wide"
+        },
+        {
+          "name": "rejects a FOREIGN campaign snapshot (campaignId mismatch) before composition or encounter launch",
+          "adjective": "foreign",
+          "input": "snapshot.campaignId 'campaign-someone-else' vs expected 'campaign-1'",
+          "deniedWith": "snapshot_foreign -- 'Campaign catalog snapshot does not match this campaign.'",
+          "productBranch": "canonicalCatalogAdmission.ts:191-197 (first OR clause)",
+          "priorCoverage": "indirect only -- launchCoopMission.test.ts:259-263 bundled into the CAMP-01D assertion"
+        },
+        {
+          "name": "rejects a FOREIGN campaign snapshot (matchId mismatch) before composition or encounter launch",
+          "adjective": "foreign (session identity)",
+          "input": "snapshot.matchId 'match-someone-else' vs expected 'match-1'",
+          "deniedWith": "snapshot_foreign -- 'Campaign catalog snapshot does not match this campaign.'",
+          "productBranch": "canonicalCatalogAdmission.ts:191-197 (second OR clause)",
+          "priorCoverage": "NONE -- proved by probe M3, which this row kills while the CAMP-01D bundled assertion survives"
+        },
+        {
+          "name": "rejects a STALE / REVISION-MISMATCHED campaign snapshot before composition or encounter launch",
+          "adjective": "stale AND revision-mismatched (one product branch)",
+          "input": "snapshot.revision 0 vs expected.revision 1",
+          "deniedWith": "snapshot_stale -- 'Campaign catalog snapshot revision is stale or mismatched.'",
+          "productBranch": "canonicalCatalogAdmission.ts:198-204",
+          "priorCoverage": "indirect only -- launchCoopMission.test.ts:264-268 bundled into the CAMP-01D assertion"
+        }
+      ]
+    },
+    "redFirstResult": {
+      "honestOutcome": "ALL FOUR ROWS WERE GREEN ON THE FIRST VALID RUN. The product already implements every branch; nothing was fixed. Per the coordinator instruction, each row was therefore proved discriminating by a one-line product mutation that was applied, measured, and restored.",
+      "firstRunCommand": "node node_modules/jest/bin/jest.js --maxWorkers=2 --coverage=false src/lib/campaign/coop/__tests__/launchCoopMission.test.ts",
+      "firstRunResult": "8 passed, 8 total (4 pre-existing + 4 new), exit 0",
+      "firstRunLog": ".sisyphus/roadmap-completion-20260912/r2-combat-s5-20260915/snapshot-rows-first-run.log",
+      "firstRunSha256": "cf49d6dd1b631254705ec475ab9a7ca625b5d23fb669da777077c41775c9b776",
+      "priorFailedAttemptDisclosed": "An earlier run of this same file failed 4/4 with 'TypeError: Cannot redefine property: composeCoopEncounter'. That was a TEST-HARNESS failure in the first draft (jest.spyOn on a non-configurable ESM export), NOT a product signal, and it is not counted as a red-first result. The log was overwritten by the valid first run; the obstacle is recorded under editsApplied OE-2."
+    },
+    "mutationProbes": {
+      "method": "Each probe was a single-line edit to src/lib/campaign/readiness/canonicalCatalogAdmission.ts, followed by `git --no-pager diff --unified=0` into a .diff artefact, one jest run of launchCoopMission.test.ts, then `git checkout -- <file>` with the restore verified by `git status --porcelain` on that path. No commit, no stash, no reset, no clean. Node v22.22.0.",
+      "probes": [
+        {
+          "id": "M1",
+          "target": "canonicalCatalogAdmission.ts:187",
+          "diff": "-  if (!snapshot) {   /   +  if (snapshot === null) {",
+          "intent": "regress the missing-snapshot guard to a null-only check so an undefined snapshot slips past",
+          "result": "1 failed, 7 passed of 8",
+          "killed": [
+            "rejects a MISSING campaign snapshot ..."
+          ],
+          "survived": [
+            "the other three new rows",
+            "the CAMP-01D bundled assertion"
+          ],
+          "discriminates": true,
+          "note": "The row dies because admitCampaignLaunch then dereferences snapshot.campaignId on undefined. That is the honest shape of this regression: the guard is the only thing that makes a missing snapshot survivable at all.",
+          "diffArtefact": ".sisyphus/roadmap-completion-20260912/r2-combat-s5-20260915/mutation-M1.diff",
+          "diffSha256": "cc873feb606641cfb4c7b5a29aca88c2be752a5421493036e0acae6464a09b29",
+          "log": ".sisyphus/roadmap-completion-20260912/r2-combat-s5-20260915/mutation-M1.log",
+          "logSha256": "86185ec55cea2af1d62e6482e642dc7ba6fe972b0f4d8ad5cfb8e1a21987887c",
+          "restored": true
+        },
+        {
+          "id": "M2",
+          "target": "canonicalCatalogAdmission.ts:192",
+          "diff": "-    snapshot.campaignId !== expected.campaignId ||   /   +    false ||",
+          "intent": "drop the campaignId clause of the snapshot_foreign guard",
+          "result": "2 failed, 6 passed of 8",
+          "killed": [
+            "rejects a FOREIGN campaign snapshot (campaignId mismatch) ...",
+            "publishes CAMP-01D wave-result.json when the controller artifact dir is set (the pre-existing bundled assertion)"
+          ],
+          "survived": [
+            "the matchId row",
+            "the stale row",
+            "the missing row"
+          ],
+          "discriminates": true,
+          "note": "The CAMP-01D row dying alongside is exactly the review RE-1 point made visible: that branch DID have coverage, but it reports as a wave-assertion failure rather than by scenario name.",
+          "diffArtefact": ".sisyphus/roadmap-completion-20260912/r2-combat-s5-20260915/mutation-M2.diff",
+          "diffSha256": "9f0099aa590b1c80ede5eb69f448555f4b6791395b32ef768a53c2850d330fb5",
+          "log": ".sisyphus/roadmap-completion-20260912/r2-combat-s5-20260915/mutation-M2.log",
+          "logSha256": "21aed5afd32f59c620e4eb4a5bee315026dd2ac826e087e83ca98207ab8c9225",
+          "restored": true
+        },
+        {
+          "id": "M3",
+          "target": "canonicalCatalogAdmission.ts:193",
+          "diff": "-    (expected.matchId !== undefined && snapshot.matchId !== expected.matchId)   /   +    false",
+          "intent": "drop the matchId clause of the snapshot_foreign guard",
+          "result": "1 failed, 7 passed of 8",
+          "killed": [
+            "rejects a FOREIGN campaign snapshot (matchId mismatch) ..."
+          ],
+          "survived": [
+            "the campaignId row",
+            "the stale row",
+            "the missing row",
+            "the CAMP-01D bundled assertion"
+          ],
+          "discriminates": true,
+          "note": "STRONGEST result of the four. The CAMP-01D bundle SURVIVES this probe, so the matchId clause of the snapshot_foreign guard had NO coverage anywhere before this row. A real regression there would have shipped silently.",
+          "diffArtefact": ".sisyphus/roadmap-completion-20260912/r2-combat-s5-20260915/mutation-M3.diff",
+          "diffSha256": "d3195a4b20c103fe6fee45ca2facca05f578d65536894da3814790c630e5a9df",
+          "log": ".sisyphus/roadmap-completion-20260912/r2-combat-s5-20260915/mutation-M3.log",
+          "logSha256": "229f7321bb60313033abac531a646ba1585b1995d789061ad5af5ceae7d41e94",
+          "restored": true
+        },
+        {
+          "id": "M4",
+          "target": "canonicalCatalogAdmission.ts:199",
+          "diff": "-    expected.revision !== undefined &&   /   +    false &&",
+          "intent": "drop the revision clause of the snapshot_stale guard",
+          "result": "2 failed, 6 passed of 8",
+          "killed": [
+            "rejects a STALE / REVISION-MISMATCHED campaign snapshot ...",
+            "publishes CAMP-01D wave-result.json ... (the pre-existing bundled assertion)"
+          ],
+          "survived": [
+            "the missing row",
+            "both foreign rows"
+          ],
+          "discriminates": true,
+          "diffArtefact": ".sisyphus/roadmap-completion-20260912/r2-combat-s5-20260915/mutation-M4.diff",
+          "diffSha256": "87e3e1ff2ebf683c28e19923aa7f4c72880d5e2f7c30a3a749643afb68df7333",
+          "log": ".sisyphus/roadmap-completion-20260912/r2-combat-s5-20260915/mutation-M4.log",
+          "logSha256": "2968391554f949253a4545d0269e848148a218e2b5a8d44fdc76daec629e353f",
+          "restored": true
+        }
+      ],
+      "rowsThatCouldNotBeMadeRed": [],
+      "allMutationsRestored": "yes -- `git status --porcelain` after the probe loop showed only the intended test-file modification; the product file was clean."
+    },
+    "gates": [
+      {
+        "name": "jest -- touched suites + readiness + coop + encounter",
+        "command": "node node_modules/jest/bin/jest.js --maxWorkers=2 --coverage=false src/__tests__/pages/gameplay/campaigns/mission-launch.coop.test.tsx src/lib/campaign/readiness src/lib/campaign/coop src/services/encounter",
+        "result": "PASS -- 22 suites, 297 tests, exit 0 (run AFTER oxfmt)",
+        "log": ".sisyphus/roadmap-completion-20260912/r2-combat-s5-20260915/gate2-jest.log",
+        "sha256": "4bf37fad4dd67416b4ee4685ffbd160111df7a604b434918d64807f9f5d72b88"
+      },
+      {
+        "name": "tsc",
+        "command": "npx tsc --noEmit -p tsconfig.json",
+        "result": "PASS -- exit 0, empty output",
+        "log": ".sisyphus/roadmap-completion-20260912/r2-combat-s5-20260915/gate2-tsc.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "name": "oxfmt",
+        "command": "npx oxfmt <changed files> then npx oxfmt --check .",
+        "result": "PASS -- exit 0, all matched files correctly formatted",
+        "log": ".sisyphus/roadmap-completion-20260912/r2-combat-s5-20260915/gate2-oxfmt.log",
+        "sha256": "cec710744a488a2b26554927d2ddc0be9dde34a1787096dd95e9f70d6319ec01"
+      },
+      {
+        "name": "oxlint",
+        "command": "npx oxlint",
+        "result": "PASS -- exit 0; grep for launchCoopMission.test.ts / mission-launch.coop.test.tsx in the output returns 0 hits, so no new warning",
+        "log": ".sisyphus/roadmap-completion-20260912/r2-combat-s5-20260915/gate2-oxlint.log",
+        "sha256": "3c69644d40e688f5bb788334229a154449f85274778ca786d33641a2ef2bcdf1"
+      },
+      {
+        "name": "openspec validate --all --strict",
+        "command": "npx openspec validate --all --strict",
+        "result": "PASS -- exit 0, Totals: 232 passed, 0 failed (232 items)",
+        "log": ".sisyphus/roadmap-completion-20260912/r2-combat-s5-20260915/gate2-openspec.log",
+        "sha256": "a6f1b01bad6ef535f7ae511fd2b0e725e382bcb462449ef4386723e0ec97eff3"
+      },
+      {
+        "name": "next build",
+        "command": "not started directly; the pre-commit hook ran one",
+        "result": "PASS -- hook build completed, standalone hydration JSON ok:true. The build slot was checked clear (0 matching node.exe command lines) before committing."
+      }
+    ],
+    "residualAfterThisResponse": [
+      "OE-2 is still OPEN for the THREE browser reject rows in mission-launch.coop.test.tsx: they prove 'before encounter launch' directly (spy.created === [] and spy.launched === []) but prove 'before composition' only structurally, because composeCoopEncounter runs as the real implementation there and is not recorded. It is side-effect free today (a local array push at composeCoopEncounter.ts:208), so nothing observable leaks. The new unit rows DO record it, so the spec clause is now asserted literally somewhere.",
+      "Browser rows 1 and 2 remain BRANCH DUPLICATES (both land on roster_source_custom; review probe E killed them together). OE-1 was answered by renaming rather than by repointing row 2 at snapshot_foreign, because that branch is unreachable from the page call site by construction; the snapshot_foreign coverage now lives at the unit level where it can actually be built. Row 2 is retained as a fixture discriminator (populated-but-non-member catalog vs empty catalog), not as a second branch.",
+      "The four adjectives map onto THREE product denial codes. 'revision-mismatched' is not separately reachable from 'stale' -- canonicalCatalogAdmission.ts:198-204 is one branch. No row can be written that kills one without the other; this is a product shape, not a test gap.",
+      "No live two-browser co-op proof, no Playwright/e2e run, and no change-scoped full static matrix for task line 8. Those remain with their own slices.",
+      "tasks.md line 7 checkbox is still unchecked on this branch. Flipping it remains the owner's explicit separate action.",
+      "Neither commit is pushed and no PR is open."
+    ]
+  }
+}

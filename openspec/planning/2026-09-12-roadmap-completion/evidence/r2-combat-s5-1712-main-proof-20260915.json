@@ -1,0 +1,46 @@
+{
+  "node": "R2.combat",
+  "artefact": "r2-combat-s5-1712-main-proof-20260915",
+  "capturedAtUtc": "2026-09-15T13:59:48.899Z",
+  "pr": 1712,
+  "slice": "R2.combat S5: co-op launch revalidates custom-source authority before composition (test-only; mutation-proven)",
+  "reviewedHead": "e01a52033d7eebed202afd296182b626b1482162",
+  "mergeCommit": "3323b6995051fe660794f854dd1174ac55805321",
+  "worktree": ".sisyphus/roadmap-completion-20260912/worktrees/archive-original-main-proof (detached at the merge commit)",
+  "runtime": {
+    "node": "v22.22.0"
+  },
+  "files": [
+    "src/__tests__/pages/gameplay/campaigns/mission-launch.coop.test.tsx",
+    "src/services/encounter/__tests__/EncounterService.test-helpers.ts"
+  ],
+  "blobEquality": {
+    "diffLines": 0,
+    "identical": true
+  },
+  "gates": {
+    "jest": {
+      "scope": "mission-launch.coop + src/services/encounter + src/lib/campaign/readiness",
+      "result": "15 suites / 255 tests passed",
+      "exit": 0,
+      "sha256": "c20783937919bc35af467f4bddb6c5b47daf70c500cbfe9e2e75b1e46a23cb09"
+    },
+    "tsc": {
+      "exit": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "openspecStrict": {
+      "exit": 0,
+      "sha256": "a6f1b01bad6ef535f7ae511fd2b0e725e382bcb462449ef4386723e0ec97eff3"
+    },
+    "qcOpenspecCi": {
+      "exit": 0,
+      "sha256": "1d2b3ffbba3922d328cc2b02fa1de7ccedad6b3382227fa903deccf9a0d5900c"
+    }
+  },
+  "acceptance": "exact-main accepted",
+  "nonClaims": [
+    "#1713 (snapshot rows) pending",
+    "line-8 consolidated receipt (S6) pending"
+  ]
+}

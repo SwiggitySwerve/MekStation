@@ -1,0 +1,365 @@
+{
+  "node": "R2.authority-client",
+  "artefact": "r2-client-spec-delta-20260915",
+  "capturedAtUtc": "2026-09-15T00:00:00Z",
+  "status": "spec-delta-committed-not-pushed; review APPROVE-WITH-REQUIRED-EDITS applied as a second commit (RE-1..RE-4 + the bfcache softening)",
+  "scope": {
+    "rootMutations": false,
+    "productMutations": false,
+    "pushed": false,
+    "prOpened": false,
+    "tasksChecked": 0,
+    "tasksRemoved": 0,
+    "deferralsRemoved": 0,
+    "documentationOnly": true
+  },
+  "baseRef": "origin/main",
+  "baseSha": "2d410f3ca4d7153497c94ee2944618ee735e99af",
+  "commitSha": "41fa769895c8ace5608dda1a3f4118cb30c7242f",
+  "branch": "codex/roadmap-r2-client-spec-delta-20260915",
+  "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/r2-client-spec-delta-20260915",
+  "admissionBriefConsumed": "openspec/planning/2026-09-12-roadmap-completion/evidence/r2-authority-client-admission-brief-20260915.json",
+  "d12BriefConsumed": "openspec/planning/2026-09-12-roadmap-completion/evidence/r2-projection-prereq-20260915.json",
+  "files": [
+    {
+      "path": "openspec/changes/design-campaign-authority-and-sync/design.md",
+      "added": 17,
+      "removed": 0
+    },
+    {
+      "path": "openspec/changes/design-campaign-authority-and-sync/specs/campaign-authority/spec.md",
+      "added": 56,
+      "removed": 0
+    },
+    {
+      "path": "openspec/changes/design-campaign-authority-and-sync/tasks.md",
+      "added": 6,
+      "removed": 3
+    }
+  ],
+  "capCheck": {
+    "fileCap": 15,
+    "filesChanged": 3,
+    "lineCap": 500,
+    "addedVsBase": 79,
+    "removedVsBase": 3,
+    "changedVsBase": 82,
+    "withinCap": true,
+    "removedLinesNote": "Still 3 removed lines, and still the SAME three long lines rewritten in place (the 2026-08-21 residual note, the Group 6 preamble, task 6.2). The correction commit edits task 1.6 and task 6.2 again, but each is one long line, so the rewritten-line count did not grow; the one added line is new task 6.4. Checkbox census 29 -> 31: the only additions are '- [ ] 1.6' and '- [ ] 6.4'. Nothing checked, nothing removed."
+  },
+  "briefCitationsIndependentlyVerifiedInSession": [
+    "useCampaignPersistenceStore.ts:42 AUTO_SAVE_DEBOUNCE_MS = 2000; :818 the only use -- CONFIRMED",
+    "grep for beforeunload|pagehide|visibilitychange|sendBeacon|keepalive across useCampaignPersistenceStore.ts and campaignPersistenceWiring.ts returns ZERO hits -- CONFIRMED (the only repo-wide keepalive/heartbeat hits are the multiplayer WS client, not a fetch option)",
+    "campaignPersistenceWiring.ts:39-73 install/uninstall pair, subscribe at :48-61, markDirty at :59 -- CONFIRMED by full file read",
+    "markDirtyAction at :797-820 only arms setTimeout and returns early for isCoopCampaign (:268) -- CONFIRMED",
+    "putLiveCampaign :456 PUTs { envelope, baseVersion } to /api/campaigns/:id -- CONFIRMED",
+    "CampaignPersistenceService.saveCampaign :103-158 with the baseVersion CAS at :126 -- CONFIRMED",
+    "src/pages/api/campaigns/[id].ts:125-300 switches on GET/PUT/DELETE and 405s everything else -- CONFIRMED (this is why sendBeacon, POST-only, cannot reach the route)",
+    "campaignCommandActions.ts:454-493 acceptContractOffer writes missions via acceptContractEngine and rewrites contractMarket, synchronously, no network -- CONFIRMED",
+    "applyCampaignEvent.ts:91-97 ContractAccepted writes only state.contracts -- CONFIRMED",
+    "CampaignSync.ts:66-73 ICampaignAcceptedContract is contractId/name/employerFactionId; :85-111 ICampaignAuthoritativeState has no market field -- CONFIRMED",
+    "contract-market.tsx:45-53 generates offers in an effect and writes them via store.getState().updateCampaign({ contractMarket }); handleAccept at :69-77 calls acceptContractOffer synchronously -- CONFIRMED",
+    "NEW FINDING not in the admission brief: serializeCampaign.ts:194 writes contractMarket into the SerializedCampaign body and :264 rehydrates it, so the market ALREADY reaches the server durably -- via the generic whole-envelope PUT. This is what makes D13's source-side-materialization-only option minimal; the brief's gap (3) is a freshness gap, not a storage gap.",
+    "design.md already carries D1-D12 at origin/main (D12 heading at :108), so D13 is the next free id -- CONFIRMED",
+    "the existing test files named in the briefs exist: campaignCommandAutoSave.test.ts, useCampaignPersistenceStore.test.ts, campaignPersistenceWiring.test.ts, campaignCommandActions.test.ts -- CONFIRMED by directory listing"
+  ],
+  "decisions": [
+    {
+      "id": "task 1.6 (P-A)",
+      "where": "tasks.md Group 1, new unchecked task; spec.md requirement 'Pending client mutations are flushed before the document is discarded'",
+      "summary": "The debounced-save crash window gets an owning task. Flush the pending envelope at document discard with ONE fetch(..., { method: 'PUT', keepalive: true }) on the existing route and the existing { envelope, baseVersion } body.",
+      "triggers": "pagehide, and visibilitychange when document.visibilityState === 'hidden'. beforeunload deliberately EXCLUDED -- it fires nowhere pagehide does not and registering it disqualifies the page from the back/forward cache, a regression in a fix whose purpose is not losing state.",
+      "mechanismRationale": "navigator.sendBeacon is POST-only and the route 405s anything but GET/PUT/DELETE, so a beacon would require a new POST surface for no gain; keepalive fetch preserves the route, the body shape, and the baseVersion CAS.",
+      "boundedness": "clear the armed timer first, fire one request, no retry, no queued follow-up, response never read.",
+      "neverLosesAnAcknowledgedRevision": "The flush is explicitly NOT an acknowledgement: it does not clear dirty, does not advance baseVersion, does not call applySavedRecord. A losing flush is rejected by the server CAS rather than overwriting the winner, and the next load re-validates the cache against the head per task 1.3. This is why an unread response cannot corrupt the client's notion of the acknowledged revision.",
+      "skipConditions": "not dirty; and isCoopCampaign true -- the same exemption markDirtyAction already applies, because a second writer there is the recorded co-op dual-writer 409 residual, not a rescued mutation.",
+      "residualNoteCorrected": "The 2026-08-21 residual note's pointer ('belongs to the cutover-era client rewiring (5.7 scope)') is corrected in place to name task 1.6, recording honestly that 5.7 landed 2026-08-23 without claiming this fix, so the window had no owning task between those dates."
+    },
+    {
+      "id": "D13",
+      "title": "Contract-market offers are already source-record facts; 6.2's 'stored offer' is that persisted market promoted into the 6.1 private baseline",
+      "chosen": "source-side materialization only",
+      "summary": "Offers become source-owned by promoting the contractMarket that already lives in the persisted SerializedCampaign body into task 6.1's private baseline (which captures exactly that body under the P0a prepared transaction). 6.2's offer read is a contractId lookup in that captured baseline's contractMarket.offers. No new table, no persistence endpoint, no market event, no new field on any wire type.",
+      "consistencyWithD12": "The market gains no audience it did not already have as a row in the campaigns table; it is never named by a wire-bearing type, which is exactly D12's source-only rule.",
+      "freshnessObligationCreated": "Because the market reaches the source only through the debounced PUT, a command submitted inside that window names an offer the captured baseline does not hold. 6.2a therefore requires (server) a typed refusal distinct from every rules refusal when the contractId is absent from the baseline market, with NO fallback to a caller-supplied contract body, and (client) an acknowledged save before submitting, using the store's existing saveCampaign action. Task 1.6 is explicitly NOT a substitute: it fires at discard, not at market generation.",
+      "alternativeRejected": "Carry offers on the journal or the wire -- either a ContractOffered event carrying the offer, or a compact offer-id fact with detail elsewhere.",
+      "rejectionGrounds": [
+        "The event form is a direct D12 violation: full IContract inside a campaignEvent payload is by construction a restricted-guest-visible fact.",
+        "The compact-id form buys nothing: an id with no name and no employerId still leaves 6.2's server-derived name/employer with nothing to read, so the source-record lookup happens anyway and the wire fact is pure overhead.",
+        "Either form is a new campaign event type: reducer, D3 scope stamp at every emission site, and the change's QC pin ripple, for a fact with no guest audience and no consumer outside the source (the same simplest-solution ground on which D12 rejected the redactor).",
+        "It creates a SECOND durable home for the market beside the SerializedCampaign row that already holds it; single-source is cheaper than perpetual reconciliation."
+      ]
+    },
+    {
+      "id": "reducer/projection mismatch",
+      "questionPosed": "explicit accepted transitional state with the reconciliation obligation assigned to a named task, OR a SHALL",
+      "chosen": "SHALL -- spec.md requirement 'An accepted contract is written exactly once, by exactly one writer', with task 6.2b named as its owner in tasks.md and in D13",
+      "justification": "A tolerated dual write is precisely the divergence the requirement forbids, and its failure mode is silent: once 6.2 commits an event AND the client keeps applying locally, the source record and the compact ledger disagree with nothing detecting it. The SHALL is also satisfiable INSIDE the admitted prefix rather than deferred -- 6.1's contract-only replay fold already produces the updated source record from the committed acceptance, so ICampaign.missions/contractMarket and the compact contracts come from ONE commit; and the refusal path (campaign-not-on-journal-authority, the common case while the flag is false) keeps the property trivially with today's single client-side write. A transitional tolerance would have licensed the parallel disconnected write path the admission brief flags as the gap.",
+      "minimality": "Stated as one requirement with three scenarios (committed path, refused path, offer-not-durable refusal) rather than as a second requirement plus a transitional note; the offer-durability obligation rides the third scenario instead of a separate requirement."
+    }
+  ],
+  "specDeltaAdded": {
+    "file": "openspec/changes/design-campaign-authority-and-sync/specs/campaign-authority/spec.md",
+    "requirements": [
+      {
+        "name": "Pending client mutations are flushed before the document is discarded",
+        "scenarios": [
+          "A mutation inside the debounce window survives a hard reload",
+          "An unread flush never claims a revision it did not earn",
+          "Nothing pending, or another writer owns the campaign, means no flush",
+          "An envelope past the keepalive body cap is skipped with a diagnostic, never fired silently"
+        ]
+      },
+      {
+        "name": "An accepted contract is written exactly once, by exactly one writer",
+        "scenarios": [
+          "A committed acceptance produces both projections from one commit",
+          "A refused acceptance leaves exactly one client write",
+          "An offer the source record does not hold is refused, never trusted from the caller",
+          "The first acceptance on a campaign reads its market without a prior private payload"
+        ]
+      }
+    ]
+  },
+  "implementationBriefs": {
+    "P-A": {
+      "task": "1.6",
+      "gate": "none -- independent of 6.1/6.2, the journal, and the command pipeline; buildable today",
+      "filesToTouch": [
+        "src/stores/campaign/useCampaignPersistenceStore.ts (discard-time flush beside putLiveCampaign :456 / clearAutoSaveTimer :209 / isCoopCampaign :268 / markDirtyAction :797-820)",
+        "src/stores/campaign/campaignPersistenceWiring.ts (install/uninstall the pagehide + visibilitychange listeners beside the existing subscription pair :39-73)",
+        "src/stores/campaign/__tests__/campaignPersistenceCrashWindow.test.ts (NEW)"
+      ],
+      "regressionCover": [
+        "src/stores/campaign/__tests__/campaignCommandAutoSave.test.ts",
+        "src/stores/campaign/__tests__/useCampaignPersistenceStore.test.ts",
+        "src/stores/campaign/__tests__/campaignPersistenceWiring.test.ts"
+      ],
+      "firstFailingTest": "In the new campaignPersistenceCrashWindow.test.ts: mark dirty, dispatch `pagehide` in jsdom WITHOUT advancing timers, assert exactly one keepalive PUT carrying the CURRENT in-memory envelope and the current baseVersion. Red today because no such listener exists (zero grep hits for pagehide in either file).",
+      "siblingRows": [
+        "the visibilitychange-hidden trigger fires the same flush",
+        "at-most-once across a pagehide immediately followed by visibilitychange",
+        "no request when not dirty",
+        "no request for a co-op campaign",
+        "the armed debounce timer does not also fire afterwards",
+        "dirty and baseVersion are unchanged by the flush"
+      ],
+      "acceptanceCommands": [
+        "npm run typecheck",
+        "npm run lint",
+        "npx jest src/stores/campaign/__tests__/campaignPersistenceCrashWindow.test.ts src/stores/campaign/__tests__/campaignCommandAutoSave.test.ts src/stores/campaign/__tests__/useCampaignPersistenceStore.test.ts src/stores/campaign/__tests__/campaignPersistenceWiring.test.ts",
+        "npx openspec validate --all --strict"
+      ],
+      "nonClaims": [
+        "no journal, no command pipeline, no flag flip, no change to the PUT route or its CAS",
+        "best-effort only: a browser that discards the document without firing either event still loses the window, and a keepalive request whose response is never read is not evidence it committed",
+        "residual (2), the co-op dual-writer PUT 409 storm, is untouched",
+        "does NOT satisfy 6.2a's pre-command durability step"
+      ]
+    },
+    "6.2a": {
+      "title": "market durability before the command names the offer",
+      "gate": "after 6.1 merges (needs the captured private baseline to look the offer up in)",
+      "filesToTouch": [
+        "src/lib/campaign/authority/campaignCommandPipeline.ts (baseline market lookup by contractId; typed not-durable refusal distinct from insufficient-standing / already-accepted; no fallback to a caller-supplied contract body)",
+        "src/pages/gameplay/campaigns/[id]/contract-market.tsx (handleAccept :69-77 obtains an acknowledged save before submitting; the market is generated in the effect at :45-53)",
+        "src/stores/campaign/useCampaignPersistenceStore.ts (read-only reference: the existing saveCampaign action at :549 already clears the armed timer and performs the write)",
+        "src/lib/campaign/authority/__tests__/campaignCommandPipeline.test.ts (tests)"
+      ],
+      "firstFailingTest": "In campaignCommandPipeline.test.ts: submit an AcceptContract naming a contractId absent from the baseline market and assert the typed not-durable refusal AND that no event was appended. Red today because the pipeline has no baseline market to consult at all."
+    },
+    "6.2b": {
+      "title": "exactly one acceptance writer",
+      "gate": "after 6.1 and 6.2a",
+      "filesToTouch": [
+        "src/stores/campaign/campaignCommandActions.ts (acceptContractOffer :454-493 -- on the committed path the client SHALL NOT also apply locally; on the refused path today's single local write stands)",
+        "src/lib/campaign/authority/campaignCommandPipeline.ts (the committed acceptance yields the compact ledger entry and, via 6.1's contract-only replay fold, the source record's mission and reduced market from the SAME commit)",
+        "src/lib/campaign/sync/applyCampaignEvent.ts (read-only reference: ContractAccepted :91-97 stays compact-only)",
+        "src/stores/campaign/__tests__/campaignCommandActions.test.ts (tests)",
+        "src/lib/campaign/authority/__tests__/campaignCommandPipeline.test.ts (tests)"
+      ],
+      "firstFailingTest": "Two rows. (1) campaignCommandPipeline.test.ts: a committed acceptance yields the compact ledger entry AND the source record's mission and reduced remaining market from one commit. (2) campaignCommandActions.test.ts: the client does not also apply the acceptance on the committed path, and still applies exactly once on the refusal path (campaign-not-on-journal-authority). Both red today -- the client is the only writer and it writes a state tree the reducer never touches."
+    }
+  },
+  "validators": [
+    {
+      "validator": "openspec validate --all --strict",
+      "command": "npx openspec validate --all --strict",
+      "exit": 0,
+      "log": ".sisyphus/roadmap-completion-20260912/r2-client-spec-delta-20260915/openspec-strict.log",
+      "logSha256": "ddd3fbaaa4a38bbe121eb042e653ba240ed0a65a4693d87d12a75c98f50e815a",
+      "baselineLog": ".sisyphus/roadmap-completion-20260912/r2-client-spec-delta-20260915/baseline/openspec-strict.log",
+      "baselineExit": 0,
+      "baselineLogSha256": "ddd3fbaaa4a38bbe121eb042e653ba240ed0a65a4693d87d12a75c98f50e815a",
+      "note": "byte-identical baseline vs delta; 232 passed / 0 failed; change/design-campaign-authority-and-sync green at openspec-strict.log:81"
+    },
+    {
+      "validator": "spec:purpose:validate:strict",
+      "command": "npm run spec:purpose:validate:strict",
+      "exit": 0,
+      "log": ".sisyphus/roadmap-completion-20260912/r2-client-spec-delta-20260915/spec-purpose.log",
+      "logSha256": "cef465f11f198ebea84a667a80ffaad1d6f71924b7d57fb5e784ddd52e8173d7",
+      "baselineLog": ".sisyphus/roadmap-completion-20260912/r2-client-spec-delta-20260915/baseline/spec-purpose.log",
+      "baselineExit": 0,
+      "baselineLogSha256": "cef465f11f198ebea84a667a80ffaad1d6f71924b7d57fb5e784ddd52e8173d7",
+      "note": "byte-identical; 220 files scanned, 0 errors, 0 tracked debt. This linter scans openspec/specs only, so a changes/ delta cannot move it either way."
+    },
+    {
+      "validator": "terminology:validate:strict",
+      "command": "npm run terminology:validate:strict",
+      "exit": 0,
+      "log": ".sisyphus/roadmap-completion-20260912/r2-client-spec-delta-20260915/terminology.log",
+      "logSha256": "9edcc290b09b9f46c9126e33ad6ce451cbb3ba4e95b23fa524ac599517fadd38",
+      "baselineLog": ".sisyphus/roadmap-completion-20260912/r2-client-spec-delta-20260915/baseline/terminology.log",
+      "baselineExit": 0,
+      "baselineLogSha256": "5cee44fd2923913d4b8270329945b1ffae2ae0dd8d5d6ebc3dcf250e4aa3be4d",
+      "note": "hashes differ by ONE character: the node PID inside a MODULE_TYPELESS_PACKAGE_JSON warning line (diffed in session -- 'node:48672' baseline vs 'node:50052' delta, line 14, sole difference). Both runs print 'No terminology violations found!'."
+    },
+    {
+      "validator": "qc:openspec-ci:validate",
+      "command": "npm run qc:openspec-ci:validate",
+      "exit": 0,
+      "log": ".sisyphus/roadmap-completion-20260912/r2-client-spec-delta-20260915/qc-openspec-ci.log",
+      "logSha256": "9cda2c34baa8512270c6e2fa703b7cb21a1526b81b4670b91f7c8ba799d12471",
+      "baselineLog": ".sisyphus/roadmap-completion-20260912/r2-client-spec-delta-20260915/baseline/qc-openspec-ci.log",
+      "baselineExit": 0,
+      "baselineLogSha256": "9cda2c34baa8512270c6e2fa703b7cb21a1526b81b4670b91f7c8ba799d12471",
+      "note": "byte-identical; workflowContracts=8/8 aggregatorNeeds=18/18 protectedContexts=4 packageScripts=3/3 activeOpenSpecChanges=12 accountedActiveOpenSpecChanges=12 errors=0"
+    }
+  ],
+  "validatorNote": "All four validators were run FIRST on the UNTOUCHED base (origin/main 2d410f3ca, detached) and then on the delta commit f0a635876, both times in the pre-existing worktree .sisyphus/roadmap-completion-20260912/worktrees/r3-storage-review, which held node_modules. That worktree's git status --porcelain was empty and its HEAD was the recorded 44b94adbb before any checkout; it was restored to 44b94adbb and re-verified clean (porcelain empty) at the end of the session. package.json between 44b94adbb and 2d410f3ca differs only in one qc:camp01 jest test-path list -- no dependency change -- so the installed node_modules is valid for both. Every baseline exit is 0: there is no pre-existing failure to record and none is masked.",
+  "taskIntegrity": {
+    "checkboxCensusBase": 29,
+    "checkboxCensusDelta": 31,
+    "diff": "two additions only: '- [ ] 1.6' and '- [ ] 6.4'",
+    "tasksChecked": 0,
+    "tasksRemoved": 0,
+    "receiptsRemoved": 0,
+    "nonClaimsRemoved": 0,
+    "deferralsRemoved": 0,
+    "method": "grep -oE '^- \\[[ x]\\] [0-9]+\\.[0-9]+' on the base blob vs the working tree, sorted and diffed, re-run after the correction commit."
+  },
+  "couldNotVerify": [
+    "No product test, build, typecheck, lint, runtime exercise, CAMP witness, approval or cutover was run or claimed. The change is documentation-only.",
+    "The implementation briefs are PLANS derived from verified current source shapes, not measured diffs; no changed-line count for 1.6 / 6.2a / 6.2b has been measured.",
+    "The claim that a keepalive PUT actually completes during a real browser discard is a browser-behavior EXPECTATION, not measured here; 1.6's own non-claims record the flush as best-effort and name the case (no pagehide fired) where the window still loses data.",
+    "6.1's private-envelope shape is still inferred from D12 / tasks prose -- campaignSourcePrivateEnvelope.ts does not exist at 2d410f3ca (re-confirmed by the admission brief, not re-grepped in this session).",
+    "RESOLVED BY RE-4, no longer a bare session-artefact note: the admission brief's P-C item (the SerializedCampaign row version vs journal revision CAS bridge) is now recorded in task 6.2's own text and owned by new task 6.4. It remains UNSIZED and UNSOLVED -- only its ownership changed.",
+    "The 64 KiB keepalive body cap is a Fetch Standard / browser limit taken as given; it was NOT exercised against a real browser in this session. What WAS measured here is the input side: nine persisted campaign bodies in the local dev DB.",
+    "af7130e3c (task 6.1 / P0b) is an in-flight commit on branch codex/roadmap-r2-p0b-private-envelope-20260915, NOT on origin/main. Every RE-3 fact was read from that commit's blobs in this session; its behavior was not executed."
+  ],
+  "notClaimed": [
+    "not pushed, no PR opened, no root checkout tracked file modified",
+    "CAMPAIGN_JOURNAL_AUTHORITY_ENABLED remains false",
+    "no producer, no flag flip, no cutover, no market-persistence endpoint, no market event type, no private HTTP readback, no widening of the /commands response, guest hydration, or the co-op mirror",
+    "the 409 retry-noise residual and the co-op dual-writer residual recorded in the tasks preamble are not retired"
+  ],
+  "priorCommitSha": "f0a6358764c2c9881db9fb96d2a62fe286e6744d",
+  "correction": {
+    "appliedAtUtc": "2026-09-15T00:00:00Z",
+    "trigger": "openspec/planning/2026-09-12-roadmap-completion/evidence/r2-client-spec-delta-review-20260915.json -- verdict APPROVE-WITH-REQUIRED-EDITS",
+    "correctionCommitSha": "41fa769895c8ace5608dda1a3f4118cb30c7242f",
+    "priorCommitSha": "f0a6358764c2c9881db9fb96d2a62fe286e6744d",
+    "amended": false,
+    "note": "A NEW commit on the same branch and worktree; f0a635876 is preserved in history, not rewritten. Still not pushed. No decision is reversed -- every edit is text-level plus one added task.",
+    "decisionChanged": false,
+    "reviewerFactsIndependentlyVerifiedInSession": [
+      "useCampaignPersistenceStore.ts:549 is `function performSave(` and clears no timer; `saveCampaignAction` at :787 calls clearAutoSaveTimer() then performSave -- CONFIRMED by reading both regions. The reviewer is right and my original :549 anchor was wrong.",
+      "af7130e3c ICampaignSourceBaseline has exactly four fields (sourceRecordBody, sourceRowVersion, sourceBodyDigest, rootPublicRevision) and NO contractMarket -- CONFIRMED by git show of the commit's campaignSourcePrivateEnvelope.ts.",
+      "replayCampaignSourceContracts throws CampaignSourcePrivateReplayError('no-private-payload') when no row carries a private payload, and derives baselineMarket by JSON.parse(first.baseline.sourceRecordBody) + rehydrateContractMarket -- CONFIRMED at the same commit. So (a) a stored-private-baseline reading deadlocks every first acceptance, and (b) 6.2a needs no private-payload shape change.",
+      "Envelope sizes RE-MEASURED independently this session against data/mekstation.db (readonly better-sqlite3, SELECT length(payload) FROM campaigns): 9 rows, min 3310 / median 8213 / max 20819 bytes; largest = 31.8% of the 64 KiB keepalive budget; its top body field is recentlyAppliedOutcomes at 12392 bytes (60%), then unitCombatStates 2408 (12%), options 2245 (11%), unitPrestige 1424 (7%), salvageAllocations 440, dailyBattleAudit 332, forces 253, salvageReports 252. Matches the reviewer's figures exactly."
+    ],
+    "resolutions": [
+      {
+        "id": "RE-1",
+        "severity": "required",
+        "resolution": "applied",
+        "choice": "BOTH options the reviewer offered, not either/or: the task states the cap AND names the growth-driven fields AND mandates a measured, typed skip AND carries a required over-cap test row. The reviewer allowed a recorded residual INSTEAD of a test row; a residual alone was rejected here because the failure mode being guarded is silence, and an untested silent-skip path is the same defect one level down.",
+        "behaviourAdded": "Serialize the { envelope, baseVersion } body and measure it before firing. Over the cap: issue NO request and record a TYPED skip diagnostic on the store -- not a cleared flag, not a swallowed error. The mechanism is unchanged, as the reviewer required.",
+        "where": "tasks.md task 1.6 (mechanism clause gains the cap paragraph with the re-measured numbers; sibling-rows clause gains the required over-cap row); spec.md new scenario 'An envelope past the keepalive body cap is skipped with a diagnostic, never fired silently'"
+      },
+      {
+        "id": "RE-2",
+        "severity": "required",
+        "resolution": "applied",
+        "where": "design.md D13 freshness paragraph and tasks.md 6.2a client half; both now cite ':787 saveCampaignAction, which clears the armed timer and delegates to performSave, :549' -- the form the reviewer suggested, keeping the true performSave anchor visible rather than silently swapping numbers."
+      },
+      {
+        "id": "RE-3",
+        "severity": "required",
+        "resolution": "applied",
+        "where": "all three places the reviewer named -- design.md D13 'The decision' paragraph, tasks.md 6.2a, and the spec scenario 'An offer the source record does not hold is refused, never trusted from the caller' -- now say the offer read is of the persisted SerializedCampaign body read under the command's OWN prepared transaction (the read 6.1 records as ICampaignSourceBaseline.sourceRecordBody), with the market named as the parsed-and-rehydrated baselineMarket rather than as a contractMarket field on the baseline.",
+        "firstAcceptanceDeadlockClosed": "tasks.md 6.2a states that a campaign with no prior accepted contract has no private row at all and that replayCampaignSourceContracts refuses with no-private-payload there, so the stored-baseline reading would deadlock every first acceptance; a sibling test row pins the first acceptance succeeding; and spec.md gains the scenario 'The first acceptance on a campaign reads its market without a prior private payload'.",
+        "shapeChangeNote": "tasks.md 6.2a records explicitly that no private-payload shape change is needed -- the P0b envelope already parses sourceRecordBody and rehydrates the market."
+      },
+      {
+        "id": "RE-4",
+        "severity": "required",
+        "resolution": "applied, and taken one step further than the reviewer asked",
+        "choice": "The reviewer asked only that the dependency stop living solely in a session artefact, explicitly NOT asking for a new task. The coordinator asked for a named owner. Both are satisfied: task 6.2 gains the recording sentence AND new unchecked task 6.4 owns the bridge. A recording with no owner would have reproduced, one level down, exactly the orphaning this commit's residual-pointer correction exists to prevent -- the same argument the reviewer used to raise the finding.",
+        "where": "tasks.md task 6.2, after 'Acknowledgement returns the original receipt revision plus the current public head.', plus new task 6.4 at the end of Group 6",
+        "task64Scope": "Define the mapping between the SerializedCampaign row version/baseVersion and the journal stream revision after a committed acceptance, and the post-acknowledgement refresh, stating which of the two numbers task 1.3's (instanceId, revision) cache key names. NON-CLAIMS carried on the task: not sized, no flag flip, and a refetch of the source record is an admissible answer -- widening the /commands response is not assumed to be the fix."
+      },
+      {
+        "id": "coordinator-bfcache",
+        "severity": "should-fix",
+        "resolution": "applied",
+        "where": "tasks.md task 1.6: 'disqualifies the page from the back/forward cache' -> 'disables bfcache in some engines'. The beforeunload exclusion itself is unchanged; only the strength of the claim is."
+      }
+    ],
+    "validators": [
+      {
+        "validator": "openspec validate --all --strict",
+        "command": "npx openspec validate --all --strict",
+        "exit": 0,
+        "log": ".sisyphus/roadmap-completion-20260912/r2-client-spec-delta-20260915/correction-20260915/openspec-strict.log",
+        "logSha256": "ddd3fbaaa4a38bbe121eb042e653ba240ed0a65a4693d87d12a75c98f50e815a",
+        "baselineLog": ".sisyphus/roadmap-completion-20260912/r2-client-spec-delta-20260915/correction-20260915/baseline/openspec-strict.log",
+        "baselineExit": 0,
+        "baselineLogSha256": "ddd3fbaaa4a38bbe121eb042e653ba240ed0a65a4693d87d12a75c98f50e815a",
+        "note": "byte-identical baseline vs delta; 232 passed / 0 failed; change/design-campaign-authority-and-sync green at openspec-strict.log:81"
+      },
+      {
+        "validator": "spec:purpose:validate:strict",
+        "command": "npm run spec:purpose:validate:strict",
+        "exit": 0,
+        "log": ".sisyphus/roadmap-completion-20260912/r2-client-spec-delta-20260915/correction-20260915/spec-purpose.log",
+        "logSha256": "cef465f11f198ebea84a667a80ffaad1d6f71924b7d57fb5e784ddd52e8173d7",
+        "baselineLog": ".sisyphus/roadmap-completion-20260912/r2-client-spec-delta-20260915/correction-20260915/baseline/spec-purpose.log",
+        "baselineExit": 0,
+        "baselineLogSha256": "cef465f11f198ebea84a667a80ffaad1d6f71924b7d57fb5e784ddd52e8173d7",
+        "note": "byte-identical; 220 files scanned, 0 errors. Scans openspec/specs only, so a changes/ delta cannot move it either way."
+      },
+      {
+        "validator": "terminology:validate:strict",
+        "command": "npm run terminology:validate:strict",
+        "exit": 0,
+        "log": ".sisyphus/roadmap-completion-20260912/r2-client-spec-delta-20260915/correction-20260915/terminology.log",
+        "logSha256": "66cbddb909fb1035e1734bc6b9364d5ae6482514da80ae683ec5a0baa133bfb4",
+        "baselineLog": ".sisyphus/roadmap-completion-20260912/r2-client-spec-delta-20260915/correction-20260915/baseline/terminology.log",
+        "baselineExit": 0,
+        "baselineLogSha256": "d2f985972266191a181e0cdb1cea97e580abdcf2412df4a2605ab48292b9054e",
+        "note": "Diffed in session: the two logs differ on exactly ONE line (line 14), by the node PID inside a MODULE_TYPELESS_PACKAGE_JSON warning -- 'node:64388' baseline vs 'node:55792' delta. Both print 'No terminology violations found!'. The same PID noise explains why these hashes also differ from the pre-correction run's."
+      },
+      {
+        "validator": "qc:openspec-ci:validate",
+        "command": "npm run qc:openspec-ci:validate",
+        "exit": 0,
+        "log": ".sisyphus/roadmap-completion-20260912/r2-client-spec-delta-20260915/correction-20260915/qc-openspec-ci.log",
+        "logSha256": "9cda2c34baa8512270c6e2fa703b7cb21a1526b81b4670b91f7c8ba799d12471",
+        "baselineLog": ".sisyphus/roadmap-completion-20260912/r2-client-spec-delta-20260915/correction-20260915/baseline/qc-openspec-ci.log",
+        "baselineExit": 0,
+        "baselineLogSha256": "9cda2c34baa8512270c6e2fa703b7cb21a1526b81b4670b91f7c8ba799d12471",
+        "note": "byte-identical; activeOpenSpecChanges=12 accountedActiveOpenSpecChanges=12 errors=0"
+      }
+    ],
+    "validatorNote": "Baseline re-run for this correction used a FRESH detach of the validator worktree (worktrees/r3-storage-review) at the recorded base 2d410f3ca, not the earlier logs; the delta run then used the correction commit 41fa76989. All eight runs exit 0, so no failure is pre-existing and none is masked. The worktree was restored to 44b94adbb and re-verified clean (porcelain empty) afterwards.",
+    "baseDriftNote": "origin/main ADVANCED during this session, from the recorded base 2d410f3ca to 1f84beef2 (two history-branch fixes, #1674 and #1681, both product source). This delta is unaffected and was NOT rebased: git merge-base HEAD 2d410f3ca == 2d410f3ca, and git diff --numstat 2d410f3ca HEAD is exactly the three openspec files. Both validator runs used 2d410f3ca as the baseline, so the recorded exits are internally consistent. A diff against the CURRENT origin/main would show the two newer commits' files as apparent reversals; that is base drift, not content in this branch.",
+    "stillNotClaimed": [
+      "no product test, build, typecheck, lint, runtime exercise, CAMP witness, approval or cutover was run or claimed; the change remains documentation-only",
+      "not pushed, no PR opened; the only root-checkout file touched is this untracked evidence artefact",
+      "CAMPAIGN_JOURNAL_AUTHORITY_ENABLED remains false",
+      "task 6.4 is recorded and owned, not solved or sized"
+    ]
+  }
+}

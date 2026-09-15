@@ -1,0 +1,580 @@
+{
+  "node": "R2.authority-live",
+  "artefact": "r2-authority-live-admission-brief-20260915",
+  "capturedAtUtc": "2026-09-15T21:00:00.000Z",
+  "role": "read-only discovery producing one evidence JSON; no edits, no commits, no builds, no jest/Playwright runs, no sub-agents",
+  "primaryCheckout": "E:/Projects/MekStation",
+  "verifiedFactsThisSession": [
+    "origin/main HEAD is 91b66b04c6f79a365e40b94e25c93e8c00ffa8a3 (#1741), verified via `git fetch origin main` + `git log --oneline origin/main -15`.",
+    "The primary checkout's local HEAD is be7f85b867aa3e8576e5e3d27e309276203bc24b (#1636), 102 commits behind origin/main, verified via `git log --oneline HEAD..origin/main | wc -l`.",
+    "R2.authority-cutover's CO0 (#1739) and CO1/CO2 (#1740) PRs, which the CO3 admission brief (captured 2026-09-15T18:40:00Z) reported as unmerged, ARE NOW MERGED to origin/main (commits 3d9ade77d, 566b60d02), verified via `git log --all --oneline | grep -E '1739|1740'` and cross-checked against roadmap.json's mergeManagerReport20260915.merged list this session. This supersedes that brief's dependency finding.",
+    "The CO3 spec (`e2e/campaign-journal-two-process-convergence.spec.ts`, 502 lines) and its helper (`e2e/helpers/campaignJournalTwoProcess.ts`, 349 lines) already exist, untracked, in worktree `.sisyphus/roadmap-completion-20260912/worktrees/proof02-rerun` (git branch `codex/roadmap-r2-authority-cutover-co3-20260915`, itself stale at #1739). Read in full this session. No evidence/receipt file exists for a run of this spec.",
+    "The CLI script the CO3 helper depends on, `scripts/e2e/campaign-journal-authority.ts` (217 lines), also exists untracked in the same worktree and is currently blocked from being committed by `.gitignore:38`'s `scripts/**` pattern (only `scripts/e2e/relaunching-server.mjs` is individually allowlisted within `scripts/e2e/`).",
+    "e2e/ contains no spec exercising campaign-grant revocation or redaction at the live-process level (grep this session for revok*/redact* under e2e/ matched only unrelated multiplayer-membership and combat/intel-tier specs)."
+  ],
+  "taskReconciliation": [
+    {
+      "taskKey": "design-campaign-authority-and-sync#1.1@11",
+      "sourceId": "1.1",
+      "originMainLine": 13,
+      "originMainCitation": "openspec/changes/design-campaign-authority-and-sync/tasks.md:13 (origin/main 91b66b04c, via `git show origin/main:openspec/changes/design-campaign-authority-and-sync/tasks.md`)",
+      "checkboxStateOriginMain": "checked [x]",
+      "roadmapReconciliationState": "checkedAtAdmission=true, mainState=checked-on-main, state=unreconciled, receipt=null (roadmap.json tasks[] entry for this key)",
+      "literalText": "Bind campaign creation to the server store: creation writes the source instance record (authority metadata per D2) and the genesis event to the journal (`streamType: 'campaign'`) before acknowledgement; deep links resolve via the server; remove the browser-only creation path.",
+      "recordedNonClaims": [
+        "1.1 receipt (2026-08-23, D2 identity remainder): 'replica RECORDS are not yet produced by any flow ... and the genesis ack-ordering activation remains 5.7 cutover scope -- so task 1.1's box closes on the D2 identity work only, with those two explicitly deferred.'",
+        "Replica-record production was later closed by task 2.2's redeem flow (tasks.md receipt for 2.2: 'REDEEM IS THE FLOW THAT FINALLY PRODUCES A role:'replica' RECORD').",
+        "Genesis ack-ordering activation remains owned by 5.7/cutover and is still not activated in production (flag false)."
+      ],
+      "runtimeEvidenceToday": "Unit-level only: D2 identity suite (10/10), FULL unit suite runs cited in the receipt. No live two-process or restart proof specific to 1.1's genesis-write-before-ack ordering.",
+      "whatLiveNodeOwes": "R2.authority-live must state plainly that 1.1's genesis-write-before-ack path has never been exercised across two live processes; CO3 (in progress) exercises the ADJACENT case of a co-op-host-seeded stream reaching journal authority via direct marker construction, which is a different entry path than 1.1's own create-time genesis hook (that hook stays flag-gated and unfired in CO3's drive by design -- CO3 asserts no marker is written by create)."
+    },
+    {
+      "taskKey": "design-campaign-authority-and-sync#1.2@14",
+      "sourceId": "1.2",
+      "originMainLine": 16,
+      "originMainCitation": "openspec/changes/design-campaign-authority-and-sync/tasks.md:16 (origin/main 91b66b04c, via `git show origin/main:openspec/changes/design-campaign-authority-and-sync/tasks.md`)",
+      "checkboxStateOriginMain": "checked [x]",
+      "roadmapReconciliationState": "checkedAtAdmission=true, mainState=checked-on-main, state=unreconciled, receipt=null (roadmap.json tasks[] entry for this key)",
+      "literalText": "Route every campaign mutation through the command → validate → append (fsync) → acknowledge → project pipeline on the source; reproject campaign state from the stream; type and surface command rejections.",
+      "recordedNonClaims": [
+        "PROMINENT NON-CLAIM in the 1.2 receipt (2026-08-23): 'the client is NOT rewired. Single-player mutations still apply through the client Zustand store; this ships the SOURCE side of the pipeline and the endpoint that reaches it.'",
+        "'no fan-out or broadcast from this pipeline (the co-op host keeps its own, and unifying them is post-cutover work); the divergence branch has no test that forces a real reducer disagreement.'",
+        "Preparation remainder (2026-09-12, design-only): P0a is a writer-level seam only; does not add a campaign producer; P1 toolbar source command remains downstream of P0b and 'is not implementation-ready.'"
+      ],
+      "runtimeEvidenceToday": "The SERVER-side pipeline (validate/append/acknowledge/project, typed rejections, POST /api/campaigns/[id]/commands) is real and unit/integration-tested against real SQLite (pipeline 7/7, route 7/7 at receipt time; CO3's own drive posts real AdvanceDay commands through this exact route across two OS processes sharing one database file and gets typed 'blocked'/'committed' responses -- this is the first CROSS-PROCESS exercise of 1.2's pipeline, though CO3 is not yet run to a green receipt).",
+      "whatLiveNodeOwes": "The user-requested reconciliation is: 1.2's own non-claim ('client is NOT rewired') is still true today -- confirmed unresolved by grepping `src/stores/campaign/campaignCommandActions.ts` state in this session's reads (acceptContractOffer at :454-493 still mutates the browser store directly per the 6.2/6.2b task text and the r2-authority-residual-brief). Client-side routing is explicitly deferred to task 6.2b, which is BLOCKED-OWNER-DECISION (single-player identity/seat). R2.authority-live cannot claim 1.2 is fully discharged in the sense of 'every campaign mutation' -- only SOURCE-issued commands (co-op host callers with a bound seat) are proven to route through the pipeline; single-player client mutations still bypass it entirely, by 1.2's own admission and unchanged since."
+    },
+    {
+      "taskKey": "design-campaign-authority-and-sync#1.3@18",
+      "sourceId": "1.3",
+      "originMainLine": 21,
+      "originMainCitation": "openspec/changes/design-campaign-authority-and-sync/tasks.md:21 (origin/main 91b66b04c, via `git show origin/main:openspec/changes/design-campaign-authority-and-sync/tasks.md`)",
+      "checkboxStateOriginMain": "checked [x]",
+      "roadmapReconciliationState": "checkedAtAdmission=true, mainState=checked-on-main, state=unreconciled, receipt=null (roadmap.json tasks[] entry for this key)",
+      "literalText": "Demote client Zustand persistence to a cache keyed by `(instanceId, revision)` with head validation on load (replace-not-merge on divergence).",
+      "recordedNonClaims": [
+        "1.3 receipt (2026-08-24) NON-CLAIMS: 'the client still MUTATES through the Zustand store -- demoting it to a cache is about how a copy is trusted on load, not about where writes go, and the write path is 1.2 plus the reviewed flag flip; no UI surfaces the replace reason.'",
+        "The cache key is explicitly `(instanceId, revision)` where `revision` is the `SerializedCampaign` row version/baseVersion -- NOT the journal stream revision. Task 6.4 (unchecked, see below) is the task that must state 'which of the two numbers the client cache is keyed by' once a committed command can also move the row version out from under the client."
+      ],
+      "runtimeEvidenceToday": "Load-time head validation is unit-tested (cache identity 8/8, load path 4/4) against real store logic, not against a live two-process journal-authority campaign. CO3 does not exercise 1.3's cache-key bridge at all (its drive reads `/head` directly via the API, not through the Zustand persistence store).",
+      "whatLiveNodeOwes": "The user's flagged item -- 'stream-keyed cache' -- is NOT yet true: the cache is row-version-keyed, not journal-stream-revision-keyed, and the task-6.4 bridge between the two CAS counters (row version vs. journal `expectedRevision`) is unchecked and unstarted (no branch, no evidence file exists for 6.4 anywhere under evidence/, per the residual brief q5). R2.authority-live's acceptance line naming '1.2/1.3 ... nonclaims' is best read as: 1.3's cache-key scheme has not been extended to journal authority at all yet, and until 6.4 lands, a client that has SOURCE-committed a command (via a future 6.2b client route) has no defined refresh path and can spuriously 409 or hit `sourceReplayFence` on its next auto-save. This is a real, currently-unowned gap between 1.2/1.3 and 6.2a/6.2b, not merely a wording issue."
+    },
+    {
+      "taskKey": "design-campaign-authority-and-sync#1.4@21",
+      "sourceId": "1.4",
+      "originMainLine": 24,
+      "originMainCitation": "openspec/changes/design-campaign-authority-and-sync/tasks.md:24 (origin/main 91b66b04c, via `git show origin/main:openspec/changes/design-campaign-authority-and-sync/tasks.md`)",
+      "checkboxStateOriginMain": "checked [x]",
+      "roadmapReconciliationState": "checkedAtAdmission=true, mainState=checked-on-main, state=unreconciled, receipt=null (roadmap.json tasks[] entry for this key)",
+      "literalText": "Legacy adoption flow (D8): offer, import, genesis-with-digest, demote browser copy; label unadopted copies legacy/unshareable.",
+      "recordedNonClaims": [
+        "Receipt NON-CLAIMS: 'the journal import is inert while CAMPAIGN_JOURNAL_AUTHORITY_ENABLED is false ... the auto-save guard is client-side, so a non-browser caller can still create a legacy id straight through PUT; shadow parity itself is not run here (5.7); and no two-device drive of adoption is claimed (that is 4.5).'"
+      ],
+      "runtimeEvidenceToday": "Unit-tested (adoption module 9/9, adopt route 6/6, store 6/6, index offer 3/3, share panel 6/6). No live/two-process adoption drive exists; 4.5's two-device drive explicitly does not exercise adoption (it PUT-creates a fresh campaign directly).",
+      "whatLiveNodeOwes": "Not in R2.authority-live's explicit 1.2/1.3/4.3/4.5/5.7 reconciliation list; no additional owed work identified beyond what its own non-claims already state (shadow-parity + two-device adoption drive remain out of scope for any admitted node so far)."
+    },
+    {
+      "taskKey": "design-campaign-authority-and-sync#1.5@24",
+      "sourceId": "1.5",
+      "originMainLine": 27,
+      "originMainCitation": "openspec/changes/design-campaign-authority-and-sync/tasks.md:27 (origin/main 91b66b04c, via `git show origin/main:openspec/changes/design-campaign-authority-and-sync/tasks.md`)",
+      "checkboxStateOriginMain": "checked [x]",
+      "roadmapReconciliationState": "checkedAtAdmission=true, mainState=checked-on-main, state=unreconciled, receipt=null (roadmap.json tasks[] entry for this key)",
+      "literalText": "Fix the campaigns API silent-failure modes surfaced by the 2026-08-06/07 audits (silent 500 on list; not-found vs unowned distinctions per the campaign-authority deep-link scenario).",
+      "recordedNonClaims": [
+        "Receipt NON-CLAIM: 'no UI consumes the omissions header yet -- the header is the honest server-side surface, and showing it is a UI task.'"
+      ],
+      "runtimeEvidenceToday": "Unit-tested (new failure-mode suite 6/6 plus existing campaigns API suite, 24 tests together).",
+      "whatLiveNodeOwes": "Not in the explicit reconciliation list; no additional runtime gap identified for the live node."
+    },
+    {
+      "taskKey": "design-campaign-authority-and-sync#2.1@29",
+      "sourceId": "2.1",
+      "originMainLine": 35,
+      "originMainCitation": "openspec/changes/design-campaign-authority-and-sync/tasks.md:35 (origin/main 91b66b04c, via `git show origin/main:openspec/changes/design-campaign-authority-and-sync/tasks.md`)",
+      "checkboxStateOriginMain": "checked [x]",
+      "roadmapReconciliationState": "checkedAtAdmission=true, mainState=checked-on-main, state=unreconciled, receipt=null (roadmap.json tasks[] entry for this key)",
+      "literalText": "Grant model at the source: issue/list/revoke grants `{grantId, campaignId, participantIdentity, scopes, issuedAt, revokedAt?}`; persist in the server store; sign grant tokens with the existing vault-identity machinery.",
+      "recordedNonClaims": [
+        "Receipt NON-CLAIMS: 'no share UI (2.2), no replica store (2.3), no transport wiring (3.3).'"
+      ],
+      "runtimeEvidenceToday": "Unit-tested (grant suites 40/40) including a real cryptographic trust-anchor test (issuer-key pinning, scope-widening attack refused). No e2e spec anywhere under `e2e/` drives grant issue/revoke through a live server (grep this session for `revokeGrant`/campaign-grant e2e coverage returned zero hits -- see runtimeMatrix).",
+      "whatLiveNodeOwes": "Grant REVOCATION specifically (the runtime-matrix 'revocation' cell) has NO e2e/live-process coverage today -- only the in-process unit suite and task 4.3's already-connected-socket revocation row (also in-process, single Node process, real SQLite). This is the single largest gap the runtime-matrix section below documents."
+    },
+    {
+      "taskKey": "design-campaign-authority-and-sync#2.2@31",
+      "sourceId": "2.2",
+      "originMainLine": 37,
+      "originMainCitation": "openspec/changes/design-campaign-authority-and-sync/tasks.md:37 (origin/main 91b66b04c, via `git show origin/main:openspec/changes/design-campaign-authority-and-sync/tasks.md`)",
+      "checkboxStateOriginMain": "checked [x]",
+      "roadmapReconciliationState": "checkedAtAdmission=true, mainState=checked-on-main, state=unreconciled, receipt=null (roadmap.json tasks[] entry for this key)",
+      "literalText": "Share surface on the campaign dashboard: issue a grant, show active grants and their scopes, revoke; replica-side redeem flow that instantiates the durable replica with full provenance (D2) and surfaces replica identity on every campaign-identity surface.",
+      "recordedNonClaims": [
+        "Receipt NON-CLAIMS: 'there is no paste-a-share REDEEM UI ... and the ISSUE control is not on the panel either, because issuing requires signing with the unlocked vault identity, which belongs with the vault UI rather than a dashboard card.'"
+      ],
+      "runtimeEvidenceToday": "Unit-tested (share+redeem 11/11, grants-route 4/4, redeem-route 4/4, panel 4/4). `e2e/campaign-two-device-drive.spec.ts` DOES drive redeem end-to-end across two real server processes with separate database files (task 4.5's own acceptance gate) -- this is genuine cross-process evidence for the REDEEM half of 2.2, though not for the UI issue/revoke half.",
+      "whatLiveNodeOwes": "No additional owed work identified for the live node beyond what 2.2's own non-claims (UI gaps) already state; the redeem half already has cross-process live evidence via 4.5."
+    },
+    {
+      "taskKey": "design-campaign-authority-and-sync#2.3@33",
+      "sourceId": "2.3",
+      "originMainLine": 39,
+      "originMainCitation": "openspec/changes/design-campaign-authority-and-sync/tasks.md:39 (origin/main 91b66b04c, via `git show origin/main:openspec/changes/design-campaign-authority-and-sync/tasks.md`)",
+      "checkboxStateOriginMain": "checked [x]",
+      "roadmapReconciliationState": "checkedAtAdmission=true, mainState=checked-on-main, state=unreconciled, receipt=null (roadmap.json tasks[] entry for this key)",
+      "literalText": "Replica durable store: received scoped events into the consuming device's local journal (`campaign-replica` streams, D6); offline read-only load with disconnected status; restart survival.",
+      "recordedNonClaims": [
+        "Receipt NON-CLAIMS: 'no UI (3.6), no transport change (3.3 already shipped the channel), no guest-path migration (3.5, which per the task-3.4 finding MUST route restricted grants through snapshot-plus-tail).'"
+      ],
+      "runtimeEvidenceToday": "Unit-tested (replica suites 8 suites/23 tests) including a real close-and-reopen SQLite restart proof (byte-for-byte state equality) -- this IS a genuine restart proof, but single-process (open/close the same file in one Node process, not two OS processes).",
+      "whatLiveNodeOwes": "4.5's two-device drive DOES exercise 2.3's offline read-only load across two real processes/separate files (source refuses sync-from, replica serves its own copy while the dialer is stopped, replica still refuses local mutation 403) -- this cell is well covered for the SEPARATE-file replica case. It is NOT covered for the SAME-file journal-authority case CO3 is building (2.3's replica store is a distinct code path from the journal-authority marker/command flow CO3 exercises)."
+    },
+    {
+      "taskKey": "design-campaign-authority-and-sync#3.1@38",
+      "sourceId": "3.1",
+      "originMainLine": 44,
+      "originMainCitation": "openspec/changes/design-campaign-authority-and-sync/tasks.md:44 (origin/main 91b66b04c, via `git show origin/main:openspec/changes/design-campaign-authority-and-sync/tasks.md`)",
+      "checkboxStateOriginMain": "checked [x]",
+      "roadmapReconciliationState": "checkedAtAdmission=true, mainState=checked-on-main, state=unreconciled, receipt=null (roadmap.json tasks[] entry for this key)",
+      "literalText": "Scope stamping at emission (D3): closed vocabulary in the campaign event envelope inside canonical bytes; enumerate every campaign event constructor and assign its scope; QC sweep asserting no unstamped emission site.",
+      "recordedNonClaims": [
+        "No explicit NON-CLAIMS paragraph in the receipt; it is characterized as a completed enumeration+QC-sweep task with a hard compile-time exhaustiveness check (`satisfies Record<CampaignEventType, ...>`)."
+      ],
+      "runtimeEvidenceToday": "Unit + QC sweep (`verify:qc:campaign-event-scope`, 7/7 sites), plus a live two-browser co-op journey (1/1) proving the tightened wire schema does not break real traffic. Single-process only.",
+      "whatLiveNodeOwes": "No additional owed work identified for the live node."
+    },
+    {
+      "taskKey": "design-campaign-authority-and-sync#3.2@40",
+      "sourceId": "3.2",
+      "originMainLine": 46,
+      "originMainCitation": "openspec/changes/design-campaign-authority-and-sync/tasks.md:46 (origin/main 91b66b04c, via `git show origin/main:openspec/changes/design-campaign-authority-and-sync/tasks.md`)",
+      "checkboxStateOriginMain": "checked [x]",
+      "roadmapReconciliationState": "checkedAtAdmission=true, mainState=checked-on-main, state=unreconciled, receipt=null (roadmap.json tasks[] entry for this key)",
+      "literalText": "Per-grant projection at the source (D4 as rewritten): filter by scope set, contiguous per-grant sequencing carried by the privacy-owned `(deliveryEpochId, deliverySequence)` mapping (no campaign-minted allocator or digest chain); GM all-scopes grant receives the raw stream.",
+      "recordedNonClaims": [
+        "Receipt NON-CLAIMS: 'no transport (3.3), no snapshots (3.4), no guest-path upgrade (3.5), no scoped UI (3.6).'"
+      ],
+      "runtimeEvidenceToday": "Unit-tested (campaign+delivery+grant battery 284 suites/4566 tests) with a real non-inference proof (byte-identical delivered payloads regardless of withheld-event count). Single-process; real SQLite, not live two-process.",
+      "whatLiveNodeOwes": "This is the machinery a 'redaction' runtime-matrix row would exercise (out-of-scope material never reaching a restricted grant's projection) -- it is proven at the unit/in-process level but has never been driven through a live two-process (or even live single-process browser) journey with an adversarial scope check. See runtimeMatrix."
+    },
+    {
+      "taskKey": "design-campaign-authority-and-sync#3.3@42",
+      "sourceId": "3.3",
+      "originMainLine": 48,
+      "originMainCitation": "openspec/changes/design-campaign-authority-and-sync/tasks.md:48 (origin/main 91b66b04c, via `git show origin/main:openspec/changes/design-campaign-authority-and-sync/tasks.md`)",
+      "checkboxStateOriginMain": "checked [x]",
+      "roadmapReconciliationState": "checkedAtAdmission=true, mainState=checked-on-main, state=unreconciled, receipt=null (roadmap.json tasks[] entry for this key)",
+      "literalText": "Campaign sync channel on the existing WS path (D5): grant-token auth, cursor-resumable backfill from the per-grant delivery sequence, live fan-out after durable append (D7); idempotent replica apply; delivery-identity failure (foreign epoch, gap, collision) → fail closed and re-request from the last verified cursor; this change owns the delivery-cursor privacy/leak proofs (D4 as rewritten).",
+      "recordedNonClaims": [
+        "Receipt NON-CLAIMS: 'no snapshots (3.4), no guest-path migration (3.5), no scoped UI (3.6).'"
+      ],
+      "runtimeEvidenceToday": "Unit-tested on real SQLite (channel suites 9/9 plus apply suite) including two-socket leak scans and idempotent-apply fault handling (duplicate/gap/collision/foreign-epoch), all in one Node process with two in-process socket connections -- not two OS processes.",
+      "whatLiveNodeOwes": "The channel's own fail-closed catch-up/re-request behavior (the 'catch-up' runtime-matrix cell) is proven only in-process; no live two-process drive of a replica reconnecting to a source across a real network/socket boundary exists."
+    },
+    {
+      "taskKey": "design-campaign-authority-and-sync#3.4@44",
+      "sourceId": "3.4",
+      "originMainLine": 50,
+      "originMainCitation": "openspec/changes/design-campaign-authority-and-sync/tasks.md:50 (origin/main 91b66b04c, via `git show origin/main:openspec/changes/design-campaign-authority-and-sync/tasks.md`)",
+      "checkboxStateOriginMain": "checked [x]",
+      "roadmapReconciliationState": "checkedAtAdmission=true, mainState=checked-on-main, state=unreconciled, receipt=null (roadmap.json tasks[] entry for this key)",
+      "literalText": "Scope-filtered snapshots: `CampaignSnapshotPublished` derived by the shared projection function; late-join backfill = snapshot + stream tail; equivalence verification between snapshot hydration and full scoped replay.",
+      "recordedNonClaims": [
+        "RESIDUAL RECORDED, deliberately not patched (receipt): an in-scope `FundsChanged` carries an absolute `balance`, so GM-only spending can leak via a delta-vs-balance mismatch inference. 'Equivalence still holds; the fix belongs at EMISSION ... exactly what task 4.3's withheld-count non-inference proofs must cover.'",
+        "'Production still defaults to full-stream; snapshot-plus-tail is an explicit tested policy, not a silent switch.'"
+      ],
+      "runtimeEvidenceToday": "Unit-tested exhaustively at every snapshot cut point 0..head, for both GM and restricted grants, plus a live two-browser co-op journey (1/1) and multiplayer-reliability gate.",
+      "whatLiveNodeOwes": "No additional owed work for the live node beyond the already-recorded balance-inference residual (still open, owned by 4.3's non-inference proofs, itself already closed at the unit level -- see 4.3 below)."
+    },
+    {
+      "taskKey": "design-campaign-authority-and-sync#3.5@46",
+      "sourceId": "3.5",
+      "originMainLine": 52,
+      "originMainCitation": "openspec/changes/design-campaign-authority-and-sync/tasks.md:52 (origin/main 91b66b04c, via `git show origin/main:openspec/changes/design-campaign-authority-and-sync/tasks.md`)",
+      "checkboxStateOriginMain": "checked [x]",
+      "roadmapReconciliationState": "checkedAtAdmission=true, mainState=checked-on-main, state=unreconciled, receipt=null (roadmap.json tasks[] entry for this key)",
+      "literalText": "Upgrade the co-op guest path in place (coop-campaign-sync delta): mirror backed by the durable replica; hydration scope-filtered; rejoin resumes from per-grant cursor; existing intent/veto/arbitration flows unchanged on top.",
+      "recordedNonClaims": [
+        "Receipt NON-CLAIMS: 'no share UI (2.2), no scoped-perspective UI (3.6); the co-op HOST view-staleness residual is untouched and still owned by its recorded entry.'"
+      ],
+      "runtimeEvidenceToday": "Unit-tested (guest-path suites 4/15) plus the live two-browser co-op journey (1/1) and multiplayer-reliability gate (17 passed/3 skipped/0 failed).",
+      "whatLiveNodeOwes": "The 'co-op HOST view-staleness residual' this row explicitly disclaims is the exact defect R2.authority-host (#1733) later fixed -- see stalenessAndDebounce section. No further owed work for 3.5 itself."
+    },
+    {
+      "taskKey": "design-campaign-authority-and-sync#3.6@48",
+      "sourceId": "3.6",
+      "originMainLine": 54,
+      "originMainCitation": "openspec/changes/design-campaign-authority-and-sync/tasks.md:54 (origin/main 91b66b04c, via `git show origin/main:openspec/changes/design-campaign-authority-and-sync/tasks.md`)",
+      "checkboxStateOriginMain": "checked [x]",
+      "roadmapReconciliationState": "checkedAtAdmission=true, mainState=checked-on-main, state=unreconciled, receipt=null (roadmap.json tasks[] entry for this key)",
+      "literalText": "Scoped-perspective UI: replica surfaces (dashboard, activity log, missions, starmap) render only in-scope events and label the scoped perspective; GM surfaces render the full stream with per-event scope visible for audit.",
+      "recordedNonClaims": [
+        "Receipt NON-CLAIMS: 'activity-log/missions/starmap surfaces are not individually re-plumbed -- they render from the replica projection that tasks 3.2-3.5 already scope, so they are in-scope by construction rather than by a new per-surface filter; no share UI (2.2).'"
+      ],
+      "runtimeEvidenceToday": "Unit-tested (scoped-perspective suite 4/4, all co-op suites 19/102) plus `playtest-coop-route-smoke` extended and the live two-browser co-op journey as acceptance gate.",
+      "whatLiveNodeOwes": "No additional owed work identified for the live node."
+    },
+    {
+      "taskKey": "design-campaign-authority-and-sync#4.1@53",
+      "sourceId": "4.1",
+      "originMainLine": 59,
+      "originMainCitation": "openspec/changes/design-campaign-authority-and-sync/tasks.md:59 (origin/main 91b66b04c, via `git show origin/main:openspec/changes/design-campaign-authority-and-sync/tasks.md`)",
+      "checkboxStateOriginMain": "checked [x]",
+      "roadmapReconciliationState": "checkedAtAdmission=true, mainState=checked-on-main, state=unreconciled, receipt=null (roadmap.json tasks[] entry for this key)",
+      "literalText": "Journal-level: campaign stream append/chain/recovery reuse tests; adoption genesis digest binding; replica-stream chain verification incl. tamper and reorder cases.",
+      "recordedNonClaims": [
+        "No explicit NON-CLAIMS paragraph; receipt states two of three clauses were already proven elsewhere and the GAP it filled was source-stream tamper/reorder detection (now proven)."
+      ],
+      "runtimeEvidenceToday": "Unit-tested on real SQLite, single process, including a genuine tamper-and-reorder-detection proof.",
+      "whatLiveNodeOwes": "No additional owed work identified for the live node."
+    },
+    {
+      "taskKey": "design-campaign-authority-and-sync#4.2@55",
+      "sourceId": "4.2",
+      "originMainLine": 61,
+      "originMainCitation": "openspec/changes/design-campaign-authority-and-sync/tasks.md:61 (origin/main 91b66b04c, via `git show origin/main:openspec/changes/design-campaign-authority-and-sync/tasks.md`)",
+      "checkboxStateOriginMain": "checked [x]",
+      "roadmapReconciliationState": "checkedAtAdmission=true, mainState=checked-on-main, state=unreconciled, receipt=null (roadmap.json tasks[] entry for this key)",
+      "literalText": "Authority: replica hard-guard (local mutation rejected + typed), command-at-source-only, durable-before-acknowledge crash test, downstream-failure isolation of the source.",
+      "recordedNonClaims": [
+        "No explicit NON-CLAIMS paragraph; receipt frames most of the box as already covered elsewhere and fills one genuine gap (a real defect: a socket send failure inside the error-close handler could escape and crash the source process; now swallowed)."
+      ],
+      "runtimeEvidenceToday": "Unit-tested, single process, with a hostile-consumer-socket fault-injection proof.",
+      "whatLiveNodeOwes": "No additional owed work identified for the live node."
+    },
+    {
+      "taskKey": "design-campaign-authority-and-sync#4.3@57",
+      "sourceId": "4.3",
+      "originMainLine": 63,
+      "originMainCitation": "openspec/changes/design-campaign-authority-and-sync/tasks.md:63 (origin/main 91b66b04c, via `git show origin/main:openspec/changes/design-campaign-authority-and-sync/tasks.md`)",
+      "checkboxStateOriginMain": "checked [x]",
+      "roadmapReconciliationState": "checkedAtAdmission=true, mainState=checked-on-main, state=unreconciled, receipt=null (roadmap.json tasks[] entry for this key)",
+      "literalText": "Projection leak tests: transport-level assertion that a player-scope connection never carries `gm` material in any frame (positive control: GM connection carries it); withheld-count non-inference (contiguous per-grant sequencing across a burst of out-of-scope events); revocation stops delivery at the boundary.",
+      "recordedNonClaims": [
+        "No explicit NON-CLAIMS paragraph. The receipt is itself an honest scoping note: 'revocation ALREADY held mid-connection, so this is a gap in COVERAGE rather than in behaviour' -- i.e. 4.3 closed a TEST gap (revocation-of-an-already-connected-socket had no row before), not a behavior gap."
+      ],
+      "runtimeEvidenceToday": "Proven at the unit/integration level on a single Node process with two in-process WebSocket-like connections and real SQLite: leak-scanning of actual frames, non-inference across a 6-event burst, and revocation-mid-connection with a vacuity control. This is the ONLY existing revocation coverage anywhere in the codebase for campaign grants (grep of e2e/ for revocation/grant-revoke returned no hits outside unrelated multiplayer-membership specs).",
+      "whatLiveNodeOwes": "USER-FLAGGED FOR SPECIAL ATTENTION. Revocation is real, tested, and correctly proven at the code level -- but ENTIRELY IN-PROCESS. There is no live two-process drive (source process + a genuinely separate replica/socket-holding process) where a grant is revoked mid-connection and delivery is observed to stop across a real OS-process boundary. This is the runtime-matrix's clearest uncovered cell (see runtimeMatrix.revocation) and CO3's own spec/helper files (read this session) do not attempt it -- CO3's scope is append/restart/same-file-convergence only."
+    },
+    {
+      "taskKey": "design-campaign-authority-and-sync#4.4@59",
+      "sourceId": "4.4",
+      "originMainLine": 65,
+      "originMainCitation": "openspec/changes/design-campaign-authority-and-sync/tasks.md:65 (origin/main 91b66b04c, via `git show origin/main:openspec/changes/design-campaign-authority-and-sync/tasks.md`)",
+      "checkboxStateOriginMain": "checked [x]",
+      "roadmapReconciliationState": "checkedAtAdmission=true, mainState=checked-on-main, state=unreconciled, receipt=null (roadmap.json tasks[] entry for this key)",
+      "literalText": "Late-join and resume: day-40 join backfills scoped day-1 history; reconnect exactly-once by sequence; snapshot-vs-replay equivalence.",
+      "recordedNonClaims": [
+        "No explicit NON-CLAIMS paragraph; receipt notes snapshot-vs-replay equivalence was already proven in 3.4 and is not restated."
+      ],
+      "runtimeEvidenceToday": "Unit-tested on the real grant channel, single process, over a synthetic 40+40 event history (late-join backfill, exactly-once resume, duplicate-suppression).",
+      "whatLiveNodeOwes": "This is the closest existing analogue to a 'catch-up' proof, but it is single-process. No live two-process reconnect/catch-up drive exists."
+    },
+    {
+      "taskKey": "design-campaign-authority-and-sync#4.5@61",
+      "sourceId": "4.5",
+      "originMainLine": 67,
+      "originMainCitation": "openspec/changes/design-campaign-authority-and-sync/tasks.md:67 (origin/main 91b66b04c, via `git show origin/main:openspec/changes/design-campaign-authority-and-sync/tasks.md`)",
+      "checkboxStateOriginMain": "checked [x]",
+      "roadmapReconciliationState": "checkedAtAdmission=true, mainState=checked-on-main, state=unreconciled, receipt=null (roadmap.json tasks[] entry for this key)",
+      "literalText": "Live two-device drive: source on one server process, replica on a second (own port + own journal file), share → redeem → mutate → verify scoped convergence and offline replica read; extend the e2e journey set.",
+      "recordedNonClaims": [
+        "PROMINENT NON-CLAIM (quoted verbatim from the receipt, and restated in the spec file's own footer as of this session's read of `e2e/campaign-two-device-drive.spec.ts:440-461`): 'SOURCE-TO-REPLICA EVENT CONVERGENCE IS NOT DRIVEN, and not because it was hard to reach ... the only production writer of campaign events (the co-op match host) gets the IN-MEMORY store while CAMPAIGN_JOURNAL_AUTHORITY_ENABLED is false, so nothing a live server does puts a campaign event where the delivery path looks ... Convergence is therefore gated on the reviewed cutover rather than on more test scaffolding.'",
+        "The spec explicitly separates its own DATABASE_PATH per process (device A vs device B) because 'two servers sharing one file would satisfy every assertion while proving nothing' -- this is the deliberate INVERSE of what CO3's same-file drive needs to prove, and the two specs are complementary, not overlapping."
+      ],
+      "runtimeEvidenceToday": "Live, two real OS processes, two real ports, two real SQLite files: share/redeem/dial/offline-read/replica-mutation-refusal are all driven and green (per the receipt's stated verification). Event CONVERGENCE (a committed campaign event actually reaching a replica) is explicitly NOT driven and cannot be, given the flag-false state, without CO3's flag-free marker-construction technique.",
+      "whatLiveNodeOwes": "USER-FLAGGED FOR SPECIAL ATTENTION. 4.5's checked box is honest about what it does NOT claim (event convergence). CO3, once landed, closes exactly this gap for the SAME-file/single-database case (a co-op-hosted campaign cut over via direct marker write, converging across two processes sharing one file) -- but CO3 does not and is not designed to prove SEPARATE-file replica convergence (that would require the grant/replica dialer, `CampaignReplicaSyncClient`, to actually run against a journal-authority source, which no admitted node currently schedules). R2.authority-live should record 4.5 as PARTIALLY closed by CO3 (same-file case only) once CO3 lands, and record separate-file event convergence as a still-open gap outside CO3's scope."
+    },
+    {
+      "taskKey": "design-campaign-authority-and-sync#5.1@69",
+      "sourceId": "5.1",
+      "originMainLine": 75,
+      "originMainCitation": "openspec/changes/design-campaign-authority-and-sync/tasks.md:75 (origin/main 91b66b04c, via `git show origin/main:openspec/changes/design-campaign-authority-and-sync/tasks.md`)",
+      "checkboxStateOriginMain": "checked [x]",
+      "roadmapReconciliationState": "checkedAtAdmission=true, mainState=checked-on-main, state=unreconciled, receipt=null (roadmap.json tasks[] entry for this key)",
+      "literalText": "Durable campaign batch adapter (was adopt PR 1): failing tests for atomic multi-event commands, expected revision, retry identity, no gaps, restart; replace the production in-memory campaign event adapter with the shared journal adapter behind a disabled cutover flag; atomic batch + expected post-state digest commit with verify-after-apply and no partial fan-out (D10).",
+      "recordedNonClaims": [
+        "Receipt: 'Non-claim CLOSED 2026-08-21 by the task-1.2 host pipeline: the verify-after-apply call is wired ... No production path uses the journal store while the flag is false.'",
+        "Preparation remainder (2026-09-12, design-only) lists P0a's own narrow scope; does not reopen 5.1."
+      ],
+      "runtimeEvidenceToday": "Unit-tested on real SQLite including a real-restart row (batch, digest envelope, chain linkage, revision guard recovered across a close/reopen) -- single process.",
+      "whatLiveNodeOwes": "No additional owed work for the live node beyond what P0a/P0b (design.md D11, task 6.1) already track separately."
+    },
+    {
+      "taskKey": "design-campaign-authority-and-sync#5.2@71",
+      "sourceId": "5.2",
+      "originMainLine": 78,
+      "originMainCitation": "openspec/changes/design-campaign-authority-and-sync/tasks.md:78 (origin/main 91b66b04c, via `git show origin/main:openspec/changes/design-campaign-authority-and-sync/tasks.md`)",
+      "checkboxStateOriginMain": "checked [x]",
+      "roadmapReconciliationState": "checkedAtAdmission=true, mainState=checked-on-main, state=unreconciled, receipt=null (roadmap.json tasks[] entry for this key)",
+      "literalText": "Migration states and honest baseline (was adopt PR 2): durable `legacy`/`shadowing`/`journal`/`blocked` states plus the D10 cutover marker; import snapshot-only campaigns as explicit baseline events with no fabricated history; fingerprint-bound materialized snapshots; shadow-projection equality gate blocking cutover on mismatch; rollback laws proven (D8+D10 as one adoption surface).",
+      "recordedNonClaims": [
+        "Receipt NON-CLAIMS: 'the shadow-parity RUNNER ... and the marker's wiring into host command admission are owned by 5.7 cutover; the browser-copy adoption UI/API entry ... is owned by Group 1.4; no production path reads or writes markers yet.'",
+        "Both deferred items were later closed: the shadow-parity runner and marker-wiring by 5.7's own receipt (below); the adoption UI/API by 1.4 (above)."
+      ],
+      "runtimeEvidenceToday": "Unit-tested (8/8 + 4/4 over real migrated SQLite, 4-mutant matrix). CO3's own drive (this session's read) directly exercises this task's marker machinery: `writeCampaignMigrationMarker(createJournalNativeMarker(id))` against a real shared SQLite file across two OS processes, confirming the marker + `journal` state transition survives being read from a second process and an OS-level restart.",
+      "whatLiveNodeOwes": "This is the task CO3 most directly re-proves under the live-node's two-process constraint; once CO3's spec runs green, 5.2's marker durability claim gets its first cross-process witness."
+    },
+    {
+      "taskKey": "design-campaign-authority-and-sync#5.3@73",
+      "sourceId": "5.3",
+      "originMainLine": 81,
+      "originMainCitation": "openspec/changes/design-campaign-authority-and-sync/tasks.md:81 (origin/main 91b66b04c, via `git show origin/main:openspec/changes/design-campaign-authority-and-sync/tasks.md`)",
+      "checkboxStateOriginMain": "checked [x]",
+      "roadmapReconciliationState": "checkedAtAdmission=true, mainState=checked-on-main, state=unreconciled, receipt=null (roadmap.json tasks[] entry for this key)",
+      "literalText": "Journal-level entity lineage (was adopt PR 3, journal lineage only): durable entity links for customized unit, canonical source, campaign instance, force, pilot, mission, encounter, and session identities; identity-chain resolution proofs at the journal/store level, citing the recorded CAMP-01G receipt for UI resolution instead of re-proving it.",
+      "recordedNonClaims": [
+        "Receipt NON-CLAIMS: 'mission and encounter entity types are RESERVED with no carrying event ... force identity rides campaign state (forceUnits), not an event payload ... no production path appends while the cutover flag is off.'"
+      ],
+      "runtimeEvidenceToday": "Unit-tested (3-mutant matrix) on real SQLite, single process.",
+      "whatLiveNodeOwes": "No additional owed work for the live node."
+    },
+    {
+      "taskKey": "design-campaign-authority-and-sync#5.4@75",
+      "sourceId": "5.4",
+      "originMainLine": 83,
+      "originMainCitation": "openspec/changes/design-campaign-authority-and-sync/tasks.md:83 (origin/main 91b66b04c, via `git show origin/main:openspec/changes/design-campaign-authority-and-sync/tasks.md`)",
+      "checkboxStateOriginMain": "checked [x]",
+      "roadmapReconciliationState": "checkedAtAdmission=true, mainState=checked-on-main, state=unreconciled, receipt=null (roadmap.json tasks[] entry for this key)",
+      "literalText": "Replay/live handshake (was adopt PR 4, merges with 3.3): buffered-subscription-before-high-water boundary, replay through the mark, bounded contiguous drain with overlap dedup; server contract tests for boundary/catch-up/overlap/duplicate/resync cases.",
+      "recordedNonClaims": [
+        "Receipt NON-CLAIMS: 'durable participant cursors are 5.5 ... sync UX is 5.6, and no browser journey is claimed here.'"
+      ],
+      "runtimeEvidenceToday": "Unit-tested on real SQLite (handshake suite 5/5, campaign+multiplayer battery 223 suites/3058 tests), including two REAL defects found and fixed (duplicate-delivery-at-handover race; unbounded-drain storm) via a deterministic `GatedJournal` proxy -- strong evidence quality, but single Node process throughout.",
+      "whatLiveNodeOwes": "This is the primary existing evidence for the runtime-matrix 'catch-up' cell (boundary/catch-up/overlap/resync contract rows), but entirely in-process. No live two-process catch-up/resync drive exists."
+    },
+    {
+      "taskKey": "design-campaign-authority-and-sync#5.5@78",
+      "sourceId": "5.5",
+      "originMainLine": 86,
+      "originMainCitation": "openspec/changes/design-campaign-authority-and-sync/tasks.md:86 (origin/main 91b66b04c, via `git show origin/main:openspec/changes/design-campaign-authority-and-sync/tasks.md`)",
+      "checkboxStateOriginMain": "checked [x]",
+      "roadmapReconciliationState": "checkedAtAdmission=true, mainState=checked-on-main, state=unreconciled, receipt=null (roadmap.json tasks[] entry for this key)",
+      "literalText": "Durable participant cursors (was adopt PR 5, merges with 3.2/3.5): persist each authorized participant's highest contiguous applied acknowledgement through the privacy-owned `(deliveryEpochId, deliverySequence)` mapping; reject gaps, identity collisions, and hidden-authority leakage; restart/slow-client/revoked-membership/resume tests.",
+      "recordedNonClaims": [
+        "Receipt NON-CLAIMS: 'sync UX is 5.6; no browser journey; the cursor is per (campaign, grant, participant) so a device holding two grants on one campaign keeps two independent marks by construction, which is intended and untested at the UI level.'"
+      ],
+      "runtimeEvidenceToday": "Unit-tested on real SQLite with a genuine close-and-reopen restart proof (cursor module 9/9, socket wiring 3/3, delivery battery 49). Revoked-membership handling is explicitly noted as NOT independently observable at this layer (the resolver already refuses a revoked grant upstream) -- the receipt is honest that this specific row does not add new revocation coverage beyond 4.3's.",
+      "whatLiveNodeOwes": "Reinforces the runtime-matrix finding that 'revocation' coverage repo-wide is real but concentrated entirely at the in-process resolver/membership layer, never demonstrated across a live process boundary."
+    },
+    {
+      "taskKey": "design-campaign-authority-and-sync#5.6@81",
+      "sourceId": "5.6",
+      "originMainLine": 89,
+      "originMainCitation": "openspec/changes/design-campaign-authority-and-sync/tasks.md:89 (origin/main 91b66b04c, via `git show origin/main:openspec/changes/design-campaign-authority-and-sync/tasks.md`)",
+      "checkboxStateOriginMain": "checked [x]",
+      "roadmapReconciliationState": "checkedAtAdmission=true, mainState=checked-on-main, state=unreconciled, receipt=null (roadmap.json tasks[] entry for this key)",
+      "literalText": "Synchronization UX and browser proof (was adopt PR 6, merges with 3.6): persistent catching-up/retrying/behind/resyncing/blocked states without enabling commands before authorized convergence; one two-player browser journey pairing UI state with journal rows and delivery cursors.",
+      "recordedNonClaims": [
+        "Receipt NON-CLAIMS: '`behind` is unreachable from the guest-mirror bridge ... `resyncing` likewise has no client producer yet -- a rebaseline frame reaches the D6 dialer, not the co-op mirror; no host-side surface change.'"
+      ],
+      "runtimeEvidenceToday": "Unit-tested (posture 14/14, gate 6/6) plus a real live two-browser browser proof (1 passed in 19.6s on a real build) pairing UI state with journal rows -- genuine browser-level evidence, single process/single server.",
+      "whatLiveNodeOwes": "No additional owed work for the live node beyond the already-recorded `behind`/`resyncing` client-producer gaps (which belong to the co-op mirror bridge, not to R2.authority-live)."
+    },
+    {
+      "taskKey": "design-campaign-authority-and-sync#5.7@84",
+      "sourceId": "5.7",
+      "originMainLine": 92,
+      "originMainCitation": "openspec/changes/design-campaign-authority-and-sync/tasks.md:92 (origin/main 91b66b04c, via `git show origin/main:openspec/changes/design-campaign-authority-and-sync/tasks.md`)",
+      "checkboxStateOriginMain": "checked [x]",
+      "roadmapReconciliationState": "checkedAtAdmission=true, mainState=checked-on-main, state=unreconciled, receipt=null (roadmap.json tasks[] entry for this key)",
+      "literalText": "Per-campaign cutover (was adopt PR 7): journal authority for new campaigns behind the reviewed flag after shadow parity and sync gates pass; per-campaign migration eligibility with truthful `blocked` state; restart-never-creates-fresh-log and no-silent-fallback proofs; this task is the campaign-side predecessor `add-cross-stream-effect-receipts` task 0.1 verifies.",
+      "recordedNonClaims": [
+        "PROMINENT NON-CLAIM (receipt, verbatim): 'THE FLAG IS STILL FALSE, AND DELIBERATELY SO. CAMPAIGN_JOURNAL_AUTHORITY_ENABLED remains false, so no campaign is journal-native in production yet ... task 1.2 still applies single-player campaign mutations through the client Zustand store rather than the source command pipeline, so flipping the flag now would put NEW campaigns on journal authority while a whole class of mutations bypasses that journal entirely -- the exact dual-authority condition D10 forbids.'",
+        "'no scheduler invokes the parity runner (it is a function a cutover operator or 1.2's pipeline calls, not a cron); the sync gates input is represented by the caller supplying the snapshot projection it considers current rather than by a probe this module invents.'",
+        "Preparation remainder (2026-09-12): 'P0a does not flip the flag, does not migrate campaigns, and does not write source materialization.'"
+      ],
+      "runtimeEvidenceToday": "Unit-tested on real SQLite and through the real PUT route (authority mode 8/8, parity runner 4/4, route 4/4), with the no-stream/no-fresh-log and blocked-vs-409-conflated-with-stale-write distinctions both falsified 1:1. All single-process. CO3's drive (this session's read) is the first attempt anywhere to exercise 5.7's 'restart-never-creates-fresh-log' property across TWO real OS processes sharing one database file, plus a genuine kill-and-respawn OS-level restart of the source.",
+      "whatLiveNodeOwes": "USER-FLAGGED FOR SPECIAL ATTENTION. 5.7's own non-claim (flag stays false; dual-authority risk from 1.2's unrewired client) is UNCHANGED as of this session -- confirmed live via `git show origin/main:.../JournalCampaignEventStore.ts` context inside the CO3 admission brief's own citations (CAMPAIGN_JOURNAL_AUTHORITY_ENABLED is still a hardcoded `false` constant) and via this session's own reasoning about task 1.2/6.2b's unresolved client-routing gap. R2.authority-live cannot claim 5.7 is 'production-ready' in the sense of being safe to flip; it can only claim (once CO3 lands) that the CUTOVER MACHINERY converges and survives a restart for a campaign moved onto journal authority by a flag-free, production-reachable code path (direct marker construction via the same call `campaignAuthorityBlocked.test.ts` already makes). The flip itself remains owner-gated on the single-player identity/seat decision (ownerDecisions, 2026-09-15T09:56:02.105Z) closing 1.2/6.2b's client-routing gap first."
+    }
+  ],
+  "runtimeMatrix": {
+    "acceptanceLine": "R2.authority-live acceptance[1] (roadmap.json): 'Real isolated source and replica processes, append/restart/catch-up/revocation/redaction; reviewed migration states/parity/rollback before enabling journal authority.'",
+    "cells": {
+      "append": {
+        "co3Coverage": "YES (in progress, unrun). `e2e/campaign-journal-two-process-convergence.spec.ts` (502 lines, untracked in worktree `.sisyphus/roadmap-completion-20260912/worktrees/proof02-rerun`, read in full this session) posts two real `AdvanceDay` commands (`postCommand`) to the source process's `/api/campaigns/[id]/commands` route under journal authority (cutover via flag-free marker construction), asserts `committed`/day-advance state, and asserts the replica-reading process's `/head` reflects each commit (`seededRevision + 1`, then `+2`).",
+        "existingSpecCoverage": "In-process only: `campaignCommandPipeline.test.ts` family (task 1.2/5.1/6.2a-3) proves append/validate/acknowledge/project on real SQLite inside one Node process. `e2e/campaign-two-device-drive.spec.ts` proves cross-process PUT-based mutation and 403-refusal on a replica, but explicitly does NOT drive a journal-authority command append (task 4.5's own non-claim).",
+        "verdict": "COVERED once CO3 lands and is run green; currently UNPROVEN (spec exists on disk, untracked, never executed -- no evidence/receipt file exists for it)."
+      },
+      "restart": {
+        "co3Coverage": "YES (in progress, unrun). `restartSourceServer()` in the CO3 helper kills the source child process, waits for exit (WAL-safe on Windows), backs off 750ms (mirroring `scripts/e2e/relaunching-server.mjs`), respawns on the same port against the SAME database file, and asserts (a) the OS pid changed, (b) the head and cutover marker are byte-identical to pre-restart, and (c) a THIRD command post-restart advances `day` to 2 rather than re-deriving day 1 from an empty stream (the 'restart-never-creates-fresh-log' property task 5.7 names).",
+        "existingSpecCoverage": "`e2e/gm-two-player-authority-recovery.pack.spec.ts` (E2E-01/E2E-02) and `e2e/gm-two-player-restart.pack.spec.ts` DO restart a real server process and verify campaign/genesis-branch/membership/force-ownership recovery -- but the authority-recovery pack's own header states it runs 'with MEKSTATION_E2E_CAMPAIGN_JOURNAL_AUTHORITY=1 while NEXT_PUBLIC_E2E_MODE=true', i.e. through the E2E-only arm the acceptance line explicitly forbids as production proof ('Finding #48 still holds in production -- CAMPAIGN_JOURNAL_AUTHORITY_ENABLED stays false'). This existing restart coverage is real and valuable but DISQUALIFIED from standing in for the live node's restart proof by the acceptance line's own wording.",
+        "verdict": "COVERED, flag-free, once CO3 lands and is run green; the E2E-only-armed alternative already exists but does not satisfy this node's specific 'no E2E-only flag used as production proof' clause."
+      },
+      "catchUp": {
+        "co3Coverage": "PARTIAL. CO3 proves a form of catch-up implicitly -- the replica-reading process (Playwright's own webServer) never restarts and simply re-reads `/head` after each source event, which is closer to 'always-current polling' than a genuine reconnect-after-gap backfill. CO3 does not simulate the replica process itself going down and reconnecting, and does not exercise a cursor-based backfill.",
+        "existingSpecCoverage": "In-process only: task 5.4's contract tests (boundary/catch-up/overlap/duplicate/resync, with two REAL race-condition defects found and fixed) and task 4.4's late-join/exactly-once-resume tests, both against the real grant-delivery channel inside one Node process. No e2e spec anywhere drives a live two-process catch-up/resync (grep this session for `catch.?up|resync` under `e2e/` returned only combat/match-flow specs unrelated to campaign-authority delivery).",
+        "verdict": "UNCOVERED at the live two-process level. Proposed minimal addition below (runtimeMatrix.proposedAdditions.catchUpRow)."
+      },
+      "revocation": {
+        "co3Coverage": "NO. CO3's spec and helper (read in full this session) never call `revokeGrant`, never touch `src/lib/campaign/grants/`, and the CO3 admission brief's own `proofShape.sequencing` (9 steps) does not mention revocation at all.",
+        "existingSpecCoverage": "In-process only: task 2.1's grant-store suite (issue/list/revoke, trust-anchor attack tests) and task 4.3's mid-connection revocation row (an in-scope event committed AFTER `revokeGrant` never reaches an already-bound live socket, with a vacuity control) -- both real-SQLite, single Node process, no live cross-process boundary. `grep -rliE revok e2e/` this session matched only `gm-two-player-authority-recovery.pack.spec.ts`, `gm-two-player-membership.smoke.spec.ts`, and `authorityRecoveryEvidence.ts`, none of which touch campaign grants (they cover multiplayer match/session membership revocation, a different subsystem).",
+        "verdict": "UNCOVERED at the live process level, and not attempted by CO3. This is the largest gap the acceptance line names. Proposed minimal addition below (runtimeMatrix.proposedAdditions.revocationRow)."
+      },
+      "redaction": {
+        "co3Coverage": "NO. CO3's campaign envelope carries no contract/market data and its command is a plain `AdvanceDay`; nothing in the spec exercises scope filtering or the P0b private envelope.",
+        "existingSpecCoverage": "In-process only: task 3.2/3.4's non-inference proofs (byte-identical delivered payloads regardless of withheld-event count; scope-filtered snapshot equivalence) and task 6.1's P0b private-envelope replay-refusal rows (`unsupported-schema`/`source-identity-mismatch`/`no-private-payload`), all real-SQLite, single Node process. Task 6.3's own room-code-hydration leak row is explicitly OPEN/missing (residual brief q4: 'roomCodeGuestHydration.test.ts contains zero references to campaignSourcePrivateEnvelope ... tasks.md 6.3 assigns that row and it was out of the dispatched scope'), so even the IN-PROCESS redaction proof set has a known hole today. No e2e spec anywhere drives a live scope-filtered/redacted delivery across two processes (grep this session for `redact` under `e2e/` matched only unrelated combat/replay/intel-tier specs).",
+        "verdict": "UNCOVERED at the live process level (and the in-process proof set is itself incomplete pending the 6.3 room-code row). Proposed minimal addition below (runtimeMatrix.proposedAdditions.redactionRow)."
+      }
+    },
+    "proposedAdditions": {
+      "principle": "Add rows to the SAME CO3 spec file (or one small sibling file reusing its helper) rather than a new topology, since the seat/token/database-sharing machinery CO3 already built (co-op host match creation binds the GM seat; direct marker construction is flag-free; both processes share one DATABASE_PATH) is exactly what a revocation or redaction row also needs. Combined, CO3 plus these two additions stays within the node's 15-file/500-non-generated-line cap if kept to two additional grant/scope-bearing commands and their assertions (~120-200 lines each is realistic given the existing unit rows' shape).",
+      "revocationRow": {
+        "topology": "Reuse CO3's exact setup (co-op-hosted campaign, host seat, journal authority via direct marker) through the point where the first command commits. Additionally: (1) issue a `campaign`-scope grant to a second identity (a 'guest' vault keypair, minted the same way `hostIdentity()` is, or a grant issued via `campaignShareService` directly against the shared database) via the source process; (2) open a live WS connection AS that grant from a THIRD entity -- either the replica-reading process (Playwright's webServer) acting as the socket client, or a minimal script-driven `ws` client in the spec itself, since the existing task-4.3 in-process test already shows the exact assertion shape (an in-scope event delivered AFTER `revokeGrant` never reaches an already-bound socket); (3) revoke the grant via `POST /api/campaigns/[id]/grants/[grantId]` (DELETE) on the source process WHILE the socket stays connected; (4) commit one more `AdvanceDay` on the source; (5) assert the connected socket receives NOTHING further (a settle-based wait, per task 4.3's own pattern, not a growth-based one) while a POSITIVE control (a fresh join with a NEW, unrevoked grant) does receive it.",
+        "assertions": [
+          "The revoke call succeeds (200/204) against the real grant store on the shared file.",
+          "No frame arrives on the revoked socket after the revoke, verified by a settle-based wait plus a vacuity control (an otherwise-identical run without the revoke DOES deliver the event, proving the silence is caused by the revocation and not a pipeline that only ever delivers once).",
+          "The revocation is visible to a SECOND OS process: a fresh grant-verification call from the replica-reading process against the same grant id reads `revoked`."
+        ],
+        "estimatedSize": "~120-180 new lines (one new test in the existing `describe` block plus 1-2 small helper additions for grant issue/revoke HTTP calls, which do not require any new production code since `campaignShareService` and the grants route already exist)."
+      },
+      "redactionRow": {
+        "topology": "Reuse CO3's setup through the co-op-hosted, journal-authority campaign. Additionally: (1) issue a `campaign`-scope (non-GM) grant; (2) commit a command that would normally carry `gm`-scope material -- since CO3's own `AdvanceDay` intent is scope-agnostic, the smallest addition is a second intent kind already proven to carry a scope split (per task 3.1's classification table, all seven current CampaignEventType variants default to `campaign` scope; a `gm`-scope test event would need either a real GM-authored intent already wired to the command pipeline, or -- more in keeping with 'minimal' -- reuse of the EXISTING in-process leak-scan assertion shape against a request made through the SAME two live processes CO3 boots, reading the delivered projection via the grant's HTTP/WS surface rather than fabricating a new event kind); (3) read back the SAME committed state through BOTH the GM-equivalent all-scopes path (direct `/head`/journal read, as CO3 already does) and the restricted grant's scoped delivery/projection endpoint from the OTHER process; (4) deep-scan the restricted response for absence of any GM-only field/marker, mirroring task 3.2/4.3's existing non-inference scan.",
+        "assertions": [
+          "The restricted grant's delivered/projected view, read from the process that did NOT commit the command, contains no GM-scope material and no withheld-count marker.",
+          "The all-scopes (GM-equivalent) read from either process is byte-identical to the source's own head, establishing the redaction is scope-driven rather than a blanket omission."
+        ],
+        "estimatedSize": "~150-220 new lines, the largest of the two additions because it needs either a second intent kind wired through the pipeline or a careful reuse of the existing delivery/projection HTTP surface across the two live processes; sizing should be confirmed by whoever picks up this row before committing to the cap.",
+        "openQuestion": "Whether a `gm`-scope-carrying command already exists on the reachable command surface (the CO3 admission brief's own `postCommand` only names `AdvanceDay`); if not, this row may need a small, separately-reviewed addition to the command intent vocabulary reachable via `/commands`, which would push it toward its own capped PR rather than living inside CO3's spec file."
+      }
+    }
+  },
+  "stalenessAndDebounce": {
+    "hostViewStaleness": {
+      "closedBy": "PR #1733 (`feat(campaign): fold live authoritative updates on the host through the shared mirror fold`), merge commit be71efec0, main-verified per roadmap.json R2.authority-host.stack.prs.stack.",
+      "level": "jsdom component-level only (roadmap.json R2.authority-host.stack.limits: 'jsdom component-level only; live browser witness remains with R2.authority-live').",
+      "disclosedResidual": "F-R1 (roadmap.json R2.authority-host.stack.review.findings.FR1, also residuals[0]): 'in-mount effect re-run (roomCode/matchId change) keeps the ref fold at cursor > 0 and rejects the server sequence -1 hydration baseline, dropping gap commits; not a regression, low probability, fix touches shared guest semantics; disclosed.'",
+      "whatALiveWitnessWouldNeed": [
+        "A real two-browser (or two-process) co-op session where the HOST approves a guest proposal and the host's OWN dashboard/finance/roster surfaces update WITHOUT a manual reload -- the exact defect tasks.md's 2026-08-22 preamble root-caused ('the GM/host browser does not see an approved co-op proposal in its OWN campaign surfaces until a reload').",
+        "The existing live two-browser co-op journey (`coop-campaign-two-browser-journey.spec.ts` and the one embedded as task 3.5/3.6/5.6's acceptance gate) exercises the GUEST mirror updating live; none of the read receipts in this session's discovery show that journey asserting on the HOST's own dashboard figures post-approval -- that specific host-side assertion is what R2.authority-live would need to add or confirm exists.",
+        "A reconnect/remount case exercising F-R1 directly (kill and rejoin the host's own connection mid-session) to confirm the disclosed low-probability gap either does not fire in practice or is bounded."
+      ]
+    },
+    "clientDebounceLoss": {
+      "reproduction": "YES, reproduced and cited. `evidence/r2-client-discard-flush-diagnosis-20260915.json` (read this session via roadmap.json's `discardFlushDiagnosis` block on R2.authority-client): measured on Chromium 143, a `pagehide`-issued keepalive fetch is ABORTED before dispatch on an `about:blank` navigation-discard (0/15 headless+headed, a product-independent 17-byte probe reproduced 0/3), lands 1/2 on a same-origin navigation (nondeterministic), and lands 11/11 on close-shaped discards (tab close, window close, in-app routing).",
+      "classification": "'BROWSER SEMANTICS; test-mechanism defect for case (a) (about:blank navigation)' per the diagnosis; 'spec.md:157-158 obliges a best-effort issue, not a landing; product conformant on every tested path.' The residual is real but narrower than a general debounce-loss defect: 'a user who NAVIGATES away (external URL / full page load) still loses up to 2s of mutations; tab close, window close and in-app routing are covered.'",
+      "odFlushMechanismGate": "YES. `OD-flush-mechanism` (roadmap.json ownerDecisions, id `OD-flush-mechanism`, at 2026-09-15T11:27:35.708Z): 'task 1.6 chose fetch keepalive on pagehide and explicitly rejected navigator.sendBeacon ... Closing the navigation window needs either a POST surface for sendBeacon or fetchLater() (Chromium-only API). Both change the admitted task text and add an API surface.' Status: 'owner decision required; NOT implemented; residual recorded.'",
+      "verdict": "The client debounce-loss item R2.authority-live's acceptance line names IS reproduced (not hypothetical) and IS gated on an explicit, still-open owner decision (OD-flush-mechanism). The live node cannot close this residual itself -- it can only re-confirm the reproduction still holds (or re-run the case-(a) close-discard patch at `evidence/r2-client-crash-window-case-a-close-discard-20260915.json`, already main-verified per roadmap.json R2.authority-client.caseAPatch/stack) and state plainly that the navigation-away sub-case remains open pending OD-flush-mechanism."
+    }
+  },
+  "ownerGatedParts": {
+    "productionFlagFlip": {
+      "what": "`CAMPAIGN_JOURNAL_AUTHORITY_ENABLED` in `src/lib/campaign/sync/JournalCampaignEventStore.ts:83` is a hardcoded `false` constant (verified this session via the CO3 admission brief's `flagSemantics` block, itself citing the exact file/line, and independently corroborated by tasks.md 5.7's own 'THE FLAG IS STILL FALSE, AND DELIBERATELY SO' non-claim).",
+      "whyGated": "Flipping it now would put newly-created campaigns on journal authority while task 1.2's own non-claim (single-player client mutations still bypass the pipeline) remains true -- the exact dual-authority condition D10 forbids. The flip is explicitly deferred by 5.7's own receipt to 'after 1.2 and 1.3' rewire the command path, which in turn depends on 6.2b (client routing), which is blocked on the single-player identity/seat owner decision.",
+      "whatIsReachableWithoutIt": "Everything CO3 (and the proposed revocation/redaction additions) exercise: a campaign can be moved onto `journal` authority per-campaign via a flag-free, production-reachable code path (direct marker construction, the same call `campaignAuthorityBlocked.test.ts` already makes) for a CO-OP-HOSTED campaign specifically, and every downstream behavior (command routing, restart survival, revocation, scope filtering) is then exercised through the ordinary production code path with the global flag verifiably still false throughout the run.",
+      "terminalState": "R2.authority-live's terminal state for this axis is 'main-verified-except-owner-gate': the cutover MACHINERY (marker durability, command routing, restart survival) can be main-verified end-to-end for a co-op-hosted campaign without ever touching the flag; the FLAG ITSELF (and therefore single-player campaigns ever reaching journal authority) stays owner-gated indefinitely until the identity/seat decision lands."
+    },
+    "singlePlayerIdentitySeat": {
+      "what": "ownerDecisions entry at 2026-09-15T09:56:02.105Z ('single-player identity/seat for campaign commands (6.2b + OB-2)'): 'no single-player identity or seat exists; /commands requires a co-op token + active seat; routing single-player acceptance through the pipeline needs an identity model decision.'",
+      "whyGated": "`isActiveCampaignSeat` (`CampaignSessionParticipantStore.ts:255-269`) gates `/commands` for ANY campaign regardless of migration state; no owner column exists on the `campaigns` table; a token-based guard would authenticate without authorizing (OB-2's own finding).",
+      "whatIsReachableWithoutIt": "Every co-op-hosted scenario (CO3's entire drive, and the proposed revocation/redaction additions) is UNAFFECTED by this gap -- a co-op host match binds a real, already-implemented seat via `commitCoopCampaignAuthority`. What remains unreachable is proving ANY of append/restart/catch-up/revocation/redaction for a plain SINGLE-PLAYER campaign under journal authority, because such a campaign can never clear the seat gate to reach `/commands` at all today.",
+      "terminalState": "R2.authority-live's claims are scoped, honestly, to co-op-hosted campaigns only. A single-player-scoped version of the same two-process proof is not merely unrun -- it is currently IMPOSSIBLE to construct without either the identity decision or an explicit scope-narrowing ruling (6.2b applies to co-op hosts only, single-player stays client-side until cutover), per the same owner decision's own phrasing of the two options."
+    },
+    "sixTwoBAndClientRouting": {
+      "what": "Task 6.2b (unchecked on origin/main, tasks.md:103) is 'blocked-owner-decision' per roadmap.json R2.authority.p1.p62b -- it is the task that would route the CLIENT's `acceptContractOffer` toolbar path through the source command pipeline, closing 1.2's own non-claim.",
+      "whatIsReachableWithoutIt": "The server-side B1 (typed offer-not-durable refusal surface) and B2 (same-commit campaigns-row update) halves of 6.2b are explicitly identified (residual brief q3) as implementable WITHOUT the identity decision, entirely server/pipeline-side, with the flag staying false throughout -- but as of this session neither has a branch, evidence file, or main-verified receipt.",
+      "terminalState": "Not part of R2.authority-live's own 26 taskKeys, but material context: 1.2/5.7's dual-authority risk cannot be retired until 6.2b's CLIENT half lands, which is owner-gated on the same single-player identity decision as above."
+    }
+  },
+  "slices": [
+    {
+      "id": "L0",
+      "title": "Land CO3 as-is (append + restart + same-file convergence)",
+      "description": "Commit the existing, already-written, untracked CO3 spec (`e2e/campaign-journal-two-process-convergence.spec.ts`, 502 lines) and helper (`e2e/helpers/campaignJournalTwoProcess.ts`, 349 lines) plus the CLI script it depends on (`scripts/e2e/campaign-journal-authority.ts`, 217 lines, currently untracked and BLOCKED by `.gitignore:38` `scripts/**` -- only `scripts/e2e/relaunching-server.mjs` is individually allowlisted inside `scripts/e2e/`, so this file needs its own `!scripts/e2e/campaign-journal-authority.ts` line, the same pattern CO1/2's `scripts/campaign-authority-cutover.ts` needed).",
+      "caps": "3 files, ~1070 non-generated lines total (502+349+217+1 .gitignore line) -- OVER the node's 500-line cap as a single PR; split required (see below).",
+      "redFirstApproach": "The spec is already written top-down as a single 'converges and survives a restart' scenario with explicit control rows (before-cutover command refused 409; head equality after cutover marker write with no fabricated history; pid-changed assertion after restart; day-2 not day-1 after restart proving no fresh log). It should be run RED first against current main (expected: the spec itself is new so there is no 'red' baseline other than 'does it even boot' -- the real red-first discipline here is confirming each control assertion fails when its guard is neutralized, e.g. commenting out the `expect(source.pid).not.toBe(priorPid)` check should not itself be the red row; the genuine red-first candidates are: (a) run the drive BEFORE #1739/#1740 existed, expecting the marker-provenance assertion to fail since CO0's wiring was what makes `firstJournalAuthorityCommandId` durable -- now moot since #1739/#1740 are merged; (b) a mutation pass neutralizing the restart backoff/respawn to prove the pid-change and day-2 assertions actually discriminate).",
+      "mutationApproach": "Reuse the mutation discipline already applied to CO0-2 (roadmap.json: 'mutants: CO0 4/4; CO1/2 5/5'): at minimum, mutate `restartSourceServer` to reuse the same process (no kill) and confirm the pid-equality assertion catches it; mutate the cutover call to also append a genesis event and confirm the 'appends nothing, head unchanged' assertion catches it.",
+      "gates": "npm run typecheck; npm run lint; npm run format:check; npm run build; the new spec itself (via whatever npm script runs single-topology e2e specs, per this repo's existing pattern -- CONFIRM the exact script name before running, since no CI lane references this spec shape yet per the CO3 brief's own runnability finding); full unit suite as a regression check on the two new source files (none expected to touch existing production code, since the plan is test+script only).",
+      "dependencies": [
+        "#1739 (CO0) and #1740 (CO1/CO2) -- VERIFIED MERGED to origin/main this session (git log origin/main includes 3d9ade77d and 566b60d02; roadmap.json mergeManagerReport20260915 also lists both as merged), superseding the CO3 admission brief's 'unmerged as of this session' finding, which was accurate only as of its own earlier capture time (2026-09-15T18:40:00Z) and is now stale.",
+        "R2.authority-host (#1733) -- already merged, satisfied."
+      ],
+      "nonClaims": [
+        "Does not flip CAMPAIGN_JOURNAL_AUTHORITY_ENABLED; verified false throughout via the spec's own env-object assertions.",
+        "Does not address single-player identity/seat.",
+        "Does not exercise revocation or redaction (see L1/L2 below).",
+        "Does not exercise the CO1/2 rollback-refused row (deferred by the spec's own footer to a follow-on now that #1739/#1740 have landed).",
+        "Does not exercise separate-file (cross-database) event convergence -- that remains 4.5's own stated gap, orthogonal to this slice."
+      ]
+    },
+    {
+      "id": "L1",
+      "title": "Split L0 to fit the cap, then add the CO1/2 rollback-refused row",
+      "description": "Split the 502-line spec + 349-line helper into at least two capped PRs (e.g. helper+setup/append/restart in one, the rollback-refused row as a small follow-on now that #1739/#1740 are confirmed merged) rather than landing 1070+ lines in one PR against the node's 500-line cap.",
+      "caps": "Each split PR ≤500 non-generated lines, ≤15 files.",
+      "redFirstApproach": "The rollback-refused row is new: red-first means asserting `scripts/campaign-authority-cutover.ts`'s rollback verb is REFUSED (per CO2's D10 guard) against the campaign this spec already cut over and committed a command against, and confirming it fails RED if the guard is stubbed to allow rollback.",
+      "mutationApproach": "Reuse CO1/2's own mutant matrix result (N1 survived first, killed by an added discriminating row) as the template for a two-process analogue: mutate the rollback guard's journal-head-vs-baseline comparison and confirm the new row catches it.",
+      "gates": "Same as L0.",
+      "dependencies": [
+        "L0 landed",
+        "#1739/#1740 (confirmed merged)"
+      ],
+      "nonClaims": [
+        "Same as L0, minus the rollback-refused gap which this slice closes."
+      ]
+    },
+    {
+      "id": "L2",
+      "title": "Revocation row (runtimeMatrix.proposedAdditions.revocationRow)",
+      "description": "Add the grant-issue/connect/revoke/silence row described above, reusing CO3's co-op-hosted, journal-authority topology.",
+      "caps": "~120-180 lines, 1 file (extends the CO3 spec or a small sibling using its helper) -- fits comfortably within the remaining cap after L0/L1.",
+      "redFirstApproach": "Red-first: assert the connected socket receives the post-revoke event BEFORE the revoke call is wired into the test, confirming the row would fail without the revoke; then add the revoke call and confirm green plus the vacuity control (identical run minus the revoke still delivers).",
+      "mutationApproach": "Mutate the revoke HTTP call to a no-op (never actually calling DELETE) and confirm the 'no frame arrives' assertion turns red (the event WOULD arrive), proving the row discriminates rather than passing vacuously on a channel that never delivers live events at all.",
+      "gates": "Same as L0, plus this row specifically must show BOTH the revoked-silence assertion and its vacuity control passing.",
+      "dependencies": [
+        "L0 landed (reuses its helper and topology)"
+      ],
+      "nonClaims": [
+        "Does not address revocation for a SINGLE-PLAYER campaign (owner-gated, see ownerGatedParts).",
+        "Does not address a grant revoked before the socket ever connects (already covered in-process by task 2.1's own suite; this row is specifically the ALREADY-CONNECTED case CO3's topology can add live-process value to)."
+      ]
+    },
+    {
+      "id": "L3",
+      "title": "Redaction row (runtimeMatrix.proposedAdditions.redactionRow)",
+      "description": "Add the scope-filtered delivery/projection row described above. Flagged as the least certain in size (150-220 lines) pending a decision on whether a GM-scope-carrying command already exists on the reachable `/commands` surface.",
+      "caps": "~150-220 lines if an existing command/intent can carry a GM-scope event; larger and possibly its own capped PR if a new intent kind must be added to the command vocabulary.",
+      "redFirstApproach": "Red-first: assert the restricted grant's read is byte-identical to the all-scopes read (i.e., no filtering) BEFORE the scope-check is wired into the two-process read path, confirming the row would fail without real filtering; this may already be a no-op if 3.2's existing filtering is what the read path calls (in which case the 'red' state is more likely a missing plumbing/wiring gap in this row's own test harness, not in production code).",
+      "mutationApproach": "Reuse task 3.2/4.3's own leak-scan mutation pattern: mutate `grantAllowsScope` to admit everything and confirm the restricted read then (wrongly) shows GM material, proving the assertion discriminates.",
+      "gates": "Same as L0.",
+      "dependencies": [
+        "L0 landed",
+        "openQuestion in runtimeMatrix.proposedAdditions.redactionRow resolved (whether a GM-scope command exists on the reachable surface)"
+      ],
+      "nonClaims": [
+        "Does not close the still-OPEN task 6.3 room-code-hydration leak row (a separate, already-identified, single-file test-only gap per the residual brief's q4 -- recommended as its own smallest next slice independent of R2.authority-live).",
+        "Does not address redaction for a single-player campaign (owner-gated)."
+      ]
+    },
+    {
+      "id": "L4",
+      "title": "Task reconciliation write-back (not a code slice)",
+      "description": "Once L0-L3 land with receipts, update the roadmap.json task-reconciliation entries for the 26 taskKeys (currently all `state: unreconciled`) to reflect the runtime evidence gathered, and update tasks.md's 1.2/1.3/4.3/4.5/5.7 rows' own prose only if a future session is authorized to edit tasks.md (this brief is read-only discovery and does not itself propose editing openspec/ files).",
+      "caps": "N/A (documentation-only; not a code PR).",
+      "redFirstApproach": "N/A.",
+      "mutationApproach": "N/A.",
+      "gates": "openspec validate --all --strict if tasks.md prose changes.",
+      "dependencies": [
+        "L0-L3 receipts"
+      ],
+      "nonClaims": [
+        "This brief does not perform this write-back itself."
+      ]
+    }
+  ],
+  "openQuestions": [
+    "PRIMARY-CHECKOUT DRIFT (verified this session, must be resolved before any implementation session touches this node): the primary checkout at E:/Projects/MekStation has local HEAD be7f85b86, which is 102 commits BEHIND origin/main (91b66b04c, verified via `git log --oneline HEAD..origin/main | wc -l` this session). The local working copy of openspec/changes/design-campaign-authority-and-sync/tasks.md is MISSING GROUP 6 (tasks 6.1-6.4) ENTIRELY -- confirmed by grepping the local file (no '## 6.' header, no '6.1' string) versus `git show origin/main:...` (Group 6 present at lines 97-107, with 6.1 checked and 6.2/6.3/6.4 unchecked). Every citation in this brief to tasks.md content is sourced from `git show origin/main:...`, NOT from the local working tree file, for exactly this reason. Anyone continuing this work must `git pull`/rebase the primary checkout before editing tasks.md or relying on local reads of it.",
+    "Whether CO3's untracked spec/helper pair (found this session in the `.sisyphus/roadmap-completion-20260912/worktrees/proof02-rerun` worktree, on local branch `codex/roadmap-r2-authority-cutover-co3-20260915`, whose own HEAD is only at 3d9ade77d (#1739) and has NOT been rebased onto #1740 or later main) has ever been RUN. No `evidence/r2-authority-cutover-co3-local-20260915.json` exists (confirmed absent both by direct `ls` and by the task instructions' own framing), and no test-run log was found anywhere under `.sisyphus/roadmap-completion-20260912/` for this spec. Whoever picks this up next should run it BEFORE editing it further, to get a real red/green baseline rather than assuming the as-written assertions are correct.",
+    "The dependent CLI script `scripts/e2e/campaign-journal-authority.ts` (217 lines, referenced by the CO3 helper's `runAuthorityCli`) exists on disk in the same worktree but is currently un-gitignorable under `.gitignore:38` (`scripts/**` with only `scripts/e2e/relaunching-server.mjs` individually allowlisted) -- it will need its own allowlist line before it can be committed, mirroring the precedent CO1/2's `scripts/campaign-authority-cutover.ts` set.",
+    "Whether the redaction row (L3) needs a new command/intent kind wired through `/commands`, or can reuse an existing one -- unresolved in this brief (see runtimeMatrix.proposedAdditions.redactionRow.openQuestion); resolving it changes L3's size estimate materially.",
+    "CI wiring for CO3 (and, per the CO3 brief's own finding, for the pre-existing `campaign-two-device-drive.spec.ts` too) is undecided -- no tag, no nightly-subsystem entry, no dedicated lane found in `.github/workflows/*.yml`. Not a blocker to landing L0-L3 locally, but a separate follow-on decision this brief does not resolve.",
+    "Multi-process SQLite-WAL safety for a THIRD handle (the marker-construction step, run from the Playwright test process itself, opens its own `better-sqlite3` handle against the same file two live server processes hold open) is REASONED as safe from `SQLiteService.ts`'s WAL configuration but has not been independently verified by a throwaway probe in this session or, as far as this brief's reads show, in any prior session either."
+  ],
+  "nonClaims": [
+    "This brief does not implement any slice, does not write or run any spec, and does not modify roadmap.json, tasks.md, design.md, or any source file.",
+    "This brief does not claim CO3's spec (as written) is correct or will pass -- it has never been run, per verifiedFactsThisSession.",
+    "This brief does not re-litigate whether the design-campaign-authority-and-sync change's checkboxes should flip; that is explicitly the reconciliation batch's job (roadmap.json taskReconciliationSnapshot), running in parallel per that snapshot's own note.",
+    "This brief does not verify the multi-process SQLite-WAL safety claim by running a probe; it is reported as reasoned-but-unverified, matching the CO3 admission brief's own posture."
+  ]
+}

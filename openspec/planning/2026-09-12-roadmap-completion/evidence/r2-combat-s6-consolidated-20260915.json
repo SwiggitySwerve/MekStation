@@ -1,0 +1,406 @@
+{
+  "evidenceKind": "r2-combat-s6-line8-consolidated-receipt",
+  "date": "2026-09-15",
+  "roadmapNode": "R2.combat",
+  "changePackage": "enable-saved-custom-unit-combat",
+  "slice": "R2.combat.S6-line8-consolidated-receipt (orderedSlicePlan[5] of evidence/r2-combat-admission-brief-20260915.json)",
+  "statementOfNature": "CONSOLIDATED VERIFICATION AT AN EXACT ORIGIN/MAIN SHA, executed in an isolated detached worktree. No source edits, no commits, no pushes, no sub-agents, no tasks.md checkbox changes were made by this slice. `git status --porcelain --untracked-files=no` was empty before and after the run at the same HEAD. This document records what was RUN and what it PROVES; it does not itself flip roadmap.json's R2.combat.receipt and does not authorize archival of the change -- those are owner actions, see checkboxProposals.",
+
+  "mainSha": "4d7d17c3def5aa1989bd4819654f3eeec1fcc400",
+  "mainShaVerification": {
+    "checkoutMode": "git checkout --detach 4d7d17c3def5aa1989bd4819654f3eeec1fcc400",
+    "headAfterAllRuns": "4d7d17c3def5aa1989bd4819654f3eeec1fcc400",
+    "originMainAtRunTime": "4d7d17c3def5aa1989bd4819654f3eeec1fcc400",
+    "drift": "NONE. origin/main was fetched at slice start and resolved to exactly the charter-pinned SHA -- the pinned SHA and the live tip are the same commit, so no 'ran behind tip' caveat applies to this receipt.",
+    "commitSubject": "test(campaign): pin the co-op snapshot denials at the unit level (#1713)",
+    "containsS5": "Yes -- 4d7d17c3d IS the merge commit of PR #1713, and 3323b6995 (#1712) is its ancestor. Both S5 main-proofs are therefore in-tree at this SHA."
+  },
+
+  "worktree": {
+    "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/browser",
+    "cleanBefore": true,
+    "cleanAfter": true,
+    "cleanlinessScope": "tracked files only (`git status --porcelain --untracked-files=no` empty both times); untracked build output (.next/) and gate logs are expected and were not committed"
+  },
+  "runtime": {
+    "node": "v22.22.0",
+    "nodePath": "/c/Users/wroll/AppData/Local/nvm/v22.22.0",
+    "prodEvidenceFlag": "NOT USED -- no --prod-evidence anywhere in this slice",
+    "port": "3639 only; verified FREE before the browser run and FREE after it; no process was killed at any point",
+    "twoCoreBudget": "Before the production build, PowerShell enumeration of node.exe command lines found 2 competing heavy lanes (a `run-next.mjs build --webpack` in worktrees/proof02-rerun and a jest run in worktrees/history-runtime-integrity). This slice WAITED, polling at 60s intervals, and started the build only after the heavy-lane count reached 0 (free at poll 1, ~1 minute). The browser run was likewise gated: 0 heavy lanes and port 3639 FREE immediately before launch. The jest matrix is not under the charter's build/browser gate and was run during the wait."
+  },
+
+  "consumedPriorEvidence": [
+    {
+      "artefact": "evidence/r2-combat-s1-s4-verification-20260915.json",
+      "covers": "task lines 3-6 (slices S1-S4)",
+      "atSha": "818e654e0ac7c98b8a4b53c2f35be9e4b7643152",
+      "result": "12 suites / 59 tests green across 4 slice runs (9 distinct files); tsc, oxlint (0 errors / 84 pre-existing max-lines warnings), oxfmt, openspec strict all exit 0",
+      "nature": "local verification at a main SHA, explicitly NOT a merged-change receipt (its own statementOfNature)",
+      "relationToThisSha": "818e654e0 is an ancestor of 4d7d17c3d. This S6 receipt independently re-ran a superset of that matrix at the newer SHA, so nothing here depends on the older run remaining valid."
+    },
+    {
+      "artefact": "evidence/r2-combat-s5-1712-main-proof-20260915.json",
+      "covers": "task line 7 -- co-op launch revalidates custom-source authority before composition (test-only, mutation-proven)",
+      "pr": 1712,
+      "mergeCommit": "3323b6995051fe660794f854dd1174ac55805321",
+      "result": "exact-main accepted; blobEquality identical (0 diff lines); 15 suites / 255 tests, tsc/openspec/qc all exit 0",
+      "openNonClaimsAtThatTime": ["#1713 (snapshot rows) pending", "line-8 consolidated receipt (S6) pending"]
+    },
+    {
+      "artefact": "evidence/r2-combat-s5-rows-1713-main-proof-20260915.json",
+      "covers": "task line 7 follow-up -- co-op snapshot denials pinned at the unit level + row rename",
+      "pr": 1713,
+      "mergeCommit": "4d7d17c3def5aa1989bd4819654f3eeec1fcc400",
+      "result": "exact-main accepted; blobEquality identical (0 diff lines); jest/tsc/openspec/qc all exit 0",
+      "note": "This merge commit IS the SHA this S6 receipt ran at."
+    }
+  ],
+  "priorNonClaimsNowDischarged": [
+    "#1712's non-claim '#1713 (snapshot rows) pending' -- discharged: #1713 merged as 4d7d17c3d and is this receipt's SHA.",
+    "#1712's and #1713's shared non-claim 'line-8 consolidated receipt (S6) pending' -- discharged by THIS document."
+  ],
+
+  "gates": [
+    {
+      "acceptanceLine": "npm.cmd run typecheck",
+      "commandRun": "npm run typecheck",
+      "resolvedScript": "tsc --noEmit --skipLibCheck",
+      "scriptPresentInPackageJson": true,
+      "exit": 0,
+      "output": "clean -- no diagnostics emitted",
+      "logFile": ".sisyphus/roadmap-completion-20260912/r2-combat-s6-20260915/gate-typecheck.log",
+      "sha256": "d140a6ce62dda0946fe30dd882dbb8209f05be72c8fa8850e5634755a399e50f",
+      "bytes": 65
+    },
+    {
+      "acceptanceLine": "npm.cmd run lint",
+      "commandRun": "npm run lint",
+      "resolvedScript": "oxlint",
+      "scriptPresentInPackageJson": true,
+      "exit": 0,
+      "output": "Found 84 warnings and 0 errors. Finished in 981ms on 3802 files using 16 threads.",
+      "warningsNote": "The 84 warnings are repo-wide pre-existing `max-lines` file-size warnings (maximum allowed 400), not errors, and oxlint exits 0. The same count (84) was recorded by the S1-S4 receipt at 818e654e0, so this slice introduced and inherited no new lint signal.",
+      "logFile": ".sisyphus/roadmap-completion-20260912/r2-combat-s6-20260915/gate-lint.log",
+      "sha256": "032cd5251fc96063e38bf8babcc731ed090494ed2234e40a73286e1d36cdd19d",
+      "bytes": 38888
+    },
+    {
+      "acceptanceLine": "npm.cmd run format:check",
+      "commandRun": "npm run format:check",
+      "resolvedScript": "oxfmt --check .",
+      "scriptPresentInPackageJson": true,
+      "exit": 0,
+      "output": "All matched files use the correct format. Finished in 18224ms on 7963 files using 16 threads.",
+      "logFile": ".sisyphus/roadmap-completion-20260912/r2-combat-s6-20260915/gate-format-check.log",
+      "sha256": "75b4aa1e55d9fabb2ec71cb1122542e38a45eb25f0fd4d02795739a74ceb7dc0",
+      "bytes": 174
+    },
+    {
+      "acceptanceLine": "npm.cmd run build",
+      "commandRun": "NEXT_PUBLIC_E2E_MODE=true NEXT_PUBLIC_E2E_TEST=true npm run build",
+      "resolvedScript": "npm run sync:mm-data-config && node scripts/next/run-next.mjs build --webpack && node scripts/hydrate-next-standalone-multiplayer-server.mjs",
+      "scriptPresentInPackageJson": true,
+      "exit": 0,
+      "buildId": "1789482231591",
+      "standaloneServer": ".next/standalone/server.js (hydrated; runtimeLoaders tsx, esbuild, ws, @esbuild; public assets, BV cache, next static assets and source tree all copied -- hydrate step reported {\"ok\": true})",
+      "doublesAsAcceptanceLine": "YES -- per the S6 charter this single run satisfies the roadmap node's `npm.cmd run build` acceptance line AND produces the standalone artefact consumed by the browser proof below. It was deliberately run once, not twice.",
+      "envCaveat": "HONEST CAVEAT: this build carried NEXT_PUBLIC_E2E_MODE=true and NEXT_PUBLIC_E2E_TEST=true so the same artefact could feed the Playwright proof. It is the same full production webpack build of the same sources at the same SHA and it compiled clean (exit 0), but the emitted bundle has the E2E public flags baked in. A vanilla `npm run build` with neither flag set was NOT separately run by this slice. If the owner requires a flag-free production build as the literal acceptance artefact, that is a one-command follow-up, not a re-verification of anything else in this receipt.",
+      "logFile": ".sisyphus/roadmap-completion-20260912/r2-combat-s6-20260915/gate-build.log",
+      "sha256": "747d25eda8af7bdddcee53d13ad3fd295e59ef11a3fb84d451af8394ebda7109",
+      "bytes": 3457550
+    },
+    {
+      "acceptanceLine": "spec checks (task line 8's 'required static/build/spec checks' clause; NOT one of the roadmap node's five literal acceptance lines)",
+      "commandRun": "npx openspec validate --all --strict",
+      "exit": 0,
+      "output": "Totals: 232 passed, 0 failed (232 items)",
+      "logFile": ".sisyphus/roadmap-completion-20260912/r2-combat-s6-20260915/gate-openspec-strict.log",
+      "sha256": "a6f1b01bad6ef535f7ae511fd2b0e725e382bcb462449ef4386723e0ec97eff3",
+      "bytes": 6954,
+      "note": "Byte-identical sha256 to the openspecStrict gate recorded in both S5 main-proof receipts, independently corroborating the same validation surface."
+    }
+  ],
+
+  "jestMatrix": {
+    "commandRun": "node node_modules/jest/bin/jest.js --runTestsByPath --maxWorkers=2 --coverage=false <13 paths>",
+    "invocationNote": "--runTestsByPath was used instead of bare path arguments so each file is matched literally rather than as a regex, guaranteeing the intended 13 files and no incidental extras. Single jest invocation as charter-required.",
+    "exit": 0,
+    "suites": { "passed": 13, "total": 13 },
+    "tests": { "passed": 69, "total": 69 },
+    "snapshots": 0,
+    "wallClock": "20.979 s",
+    "logFile": ".sisyphus/roadmap-completion-20260912/r2-combat-s6-20260915/gate-jest-matrix.log",
+    "sha256": "ab25fc7845338e2d92dd32f50e22de22356be772bbfc1fd0c6ffd8beacb2995f",
+    "bytes": 4150,
+    "fileSelection": {
+      "rule": "Union of (a) every test file the admission brief lists under sourceFilesInventory.tests for lines 3-7 (12 src files; the 13th brief entry is the e2e spec, run separately below), (b) the two charter-named files, and (c) every file under src/ whose name contains customCombat / CustomCombat / savedDesign / combat-catalog.",
+      "namePatternSweep": "find src -type f -name '*customCombat*' -o '*CustomCombat*' -o '*savedDesign*' -o '*SavedDesign*' -o '*combat-catalog*' returned 10 paths; 5 are test files (all already in the brief's list) and 5 are production sources (customCombatDefinition.ts, serverCustomCombatDefinition.ts, listCampaignSavedDesigns.ts, combat-catalog.ts, CustomCombatSnapshot.ts). The sweep therefore added no test file the brief had missed.",
+      "chartersTwoNamedFiles": "src/lib/multiplayer/server/__tests__/customCombatRecovery.durableAuthority.test.ts and src/engine/__tests__/customCombatRecovery.recordedSnapshot.test.ts -- both were already in the brief's list; included and confirmed green.",
+      "additionBeyondBrief": "src/lib/campaign/coop/__tests__/launchCoopMission.test.ts was ADDED by this slice and is NOT in the brief's inventory. Reason: the brief was written at be7f85b86, before PR #1713 created this file; it is the unit-level half of the S5 line-7 proof (per evidence/r2-combat-s5-rows-1713-main-proof-20260915.json) and belongs in a consolidated line-7 receipt. This is a deliberate, declared superset of the brief's list, not a substitution.",
+      "filesRun": [
+        "src/engine/adapters/__tests__/customCombatDefinition.test.ts",
+        "src/engine/__tests__/customCombatRecovery.recordedSnapshot.test.ts",
+        "src/engine/__tests__/InteractiveSession.recovery.test.ts",
+        "src/lib/multiplayer/server/__tests__/customCombatRecovery.durableAuthority.test.ts",
+        "src/lib/multiplayer/server/__tests__/customConstructionTransport.test.ts",
+        "src/lib/multiplayer/server/__tests__/customConstructionVisibility.test.ts",
+        "src/lib/events/replay/__tests__/CustomConstructionReplay.test.ts",
+        "src/lib/campaign/readiness/__tests__/canonicalCatalogAdmission.test.ts",
+        "src/lib/campaign/readiness/__tests__/useCombatCatalog.test.tsx",
+        "src/services/units/__tests__/listCampaignSavedDesigns.test.ts",
+        "src/__tests__/integration/customCombatDefinition.integration.test.ts",
+        "src/__tests__/pages/gameplay/campaigns/mission-launch.coop.test.tsx",
+        "src/lib/campaign/coop/__tests__/launchCoopMission.test.ts"
+      ],
+      "allThirteenReportedPASS": true
+    },
+    "countReconciliationVsS1S4": "S1-S4 reported 12 suites / 59 tests, but that was the SUM of four separate slice runs over 9 DISTINCT files with deliberate re-runs for regression attribution. This S6 run is one invocation over 13 distinct files and reports 13 suites / 69 tests -- the numbers are not comparable line-for-line and neither supersedes the other; S6's is the change-scoped distinct-file count."
+  },
+
+  "browserProof": {
+    "spec": "e2e/saved-custom-combat.spec.ts",
+    "commandRun": "MEKSTATION_E2E_SERVER_COMMAND='node .next/standalone/server.js' HOSTNAME=127.0.0.1 MEKSTATION_E2E_PORT=3639 node scripts/playwright/run-playwright.mjs test e2e/saved-custom-combat.spec.ts --project=chromium --retries=0 --workers=1",
+    "invocationProvenance": "The admission brief names only a generic `npx playwright test e2e/saved-custom-combat.spec.ts` (brief, line-8 boundedSliceCharter.redFirstTestNames). That bare form starts no server and would not run here. The charter-supplied harness invocation above was used instead: it drives scripts/playwright/run-playwright.mjs, which boots the hydrated standalone production server on 127.0.0.1:3639 and warms it before the spec. SAYING SO EXPLICITLY as charter-required -- the invocation actually run differs from the brief's generic text and is the repo-correct one.",
+    "exit": 0,
+    "result": "1 passed (57.4s)",
+    "passedFirstRun": true,
+    "retriesUsed": 0,
+    "rerunNeeded": false,
+    "testTitle": "server-saved construction reaches campaign persistence with distinct identities @customizer @campaign (3.9s)",
+    "serverReadiness": "MEKSTATION_LISTENER_READY {\"schema\":\"mekstation-packaged-listener-ready/v1\",\"configuredHostname\":\"127.0.0.1\",\"boundAddress\":\"127.0.0.1\",\"family\":\"IPv4\",\"port\":3639}; warm-up probes answered 200 in 48ms and 26ms",
+    "logFile": ".sisyphus/roadmap-completion-20260912/r2-combat-s6-20260915/gate-e2e-saved-custom-combat.log",
+    "sha256": "3cc554acebad69379efa1bd3468d8b03ff6f961184dd965759bb1333c38bf553",
+    "bytes": 778,
+    "whatItActuallyProves": [
+      "POST /api/units/custom creates a server-persisted custom Atlas variant (201, id matches /^custom-/)",
+      "GET /api/units/custom/combat-catalog returns customCombatRefs containing that id -- the catalog endpoint is live and admits the saved design",
+      "The campaign-create wizard's saved-design picker lists and adds it; the rendered roster node carries data-unit-source=\"custom\" and data-unit-ref=<customId>",
+      "The roster-instance id is DISTINCT from the source customId (the immutable-identity separation assertion, in the browser)",
+      "PUT /api/campaigns/:id persists it; GET /api/campaigns/:id reads back rosterProjection.units containing {unitId: rosterId, unitRef: customId, unitSource: 'custom'} and the root force contains rosterId; body.unitConfigurations is undefined (no configuration leak)",
+      "Mech-bay renders the unit, and after page.reload() (COLD RELOAD) it still renders and the server readback rosterProjection is byte-equal to the pre-reload readback",
+      "Viewport is dropped to 390x844 mid-flow and the selected unit stays visible (mobile layout does not lose the custom roster entry)",
+      "Cleanup: DELETE campaign and DELETE custom unit both return ok"
+    ],
+    "whatItDoesNotProve": "It does NOT launch an encounter, materialize a combat session, or exercise the terminal/post-battle flow. There is no combat launch anywhere in this spec. Production combat launch for a custom unit is R2.combat-browser's acceptance, not R2.combat's -- the admission brief states this explicitly in acceptanceLineAnalysis[4].route and in line-8's gap text."
+  },
+
+  "perTaskLineTable": {
+    "taskFile": "openspec/changes/enable-saved-custom-unit-combat/tasks.md @ 4d7d17c3d",
+    "allSixBoxesStillUnchecked": true,
+    "rows": [
+      {
+        "line": 3,
+        "taskKey": "enable-saved-custom-unit-combat#line-3@3",
+        "taskTextVerbatim": "Define strict supported-construction projection, server reader, custom combat catalog endpoint, and saved-design picker merge.",
+        "checkboxOnOriginMain": "[ ] (unchecked)",
+        "provenBy": [
+          "S6 jest matrix @4d7d17c3d: src/engine/adapters/__tests__/customCombatDefinition.test.ts (strict projection + exact identity, rejects unknown nested construction keys), src/services/units/__tests__/listCampaignSavedDesigns.test.ts (picker merge: server metadata preferred for same exact id; server records available without IndexedDB), src/__tests__/integration/customCombatDefinition.integration.test.ts (no eligibility from missing construction / unsupported chassis topology; malformed-or-offline API does not lose canonical entries)",
+          "S6 browser proof @4d7d17c3d: live GET /api/units/custom/combat-catalog returns the saved design's ref, and the wizard's saved-design picker adds it -- the endpoint and the picker merge proven end-to-end against the production server, not only in jest",
+          "S1-S4 receipt (S1 slice) at ancestor 818e654e0: 3 suites / 12 tests green"
+        ],
+        "verdict": "PROVEN",
+        "residual": null,
+        "ownerNote": "Non-blocking, carried verbatim from the admission brief's line-3 entry: src/pages/api/units/custom/combat-catalog.ts's own header says 'No auth is added here'. The delta spec does not require auth, so this is NOT a gap against this task's text -- it is an owner-visible design note only."
+      },
+      {
+        "line": 4,
+        "taskKey": "enable-saved-custom-unit-combat#line-4@4",
+        "taskTextVerbatim": "Adapt exact custom references and carry their immutable snapshot through seeded setup and GameCreated.",
+        "checkboxOnOriginMain": "[ ] (unchecked)",
+        "provenBy": [
+          "S6 jest matrix @4d7d17c3d: src/engine/__tests__/customCombatRecovery.recordedSnapshot.test.ts (7 cases incl. 'copies a detached snapshot onto GameCreated units and keeps instance id distinct from unitRef' and 'refuses a construction snapshot attached to a canonical unit reference')",
+          "S6 jest matrix @4d7d17c3d: src/__tests__/integration/customCombatDefinition.integration.test.ts ('reads server construction, seeds the exact runtime unit, recovers it, remains stable after library editing and deletion')",
+          "S6 jest matrix @4d7d17c3d: src/engine/adapters/__tests__/customCombatDefinition.test.ts (throw-not-substitute behavior)",
+          "S6 browser proof @4d7d17c3d: roster-instance id distinct from source customId, asserted in the live production page and again in the server readback",
+          "S1-S4 receipt (S2 slice) at ancestor 818e654e0: 3 suites / 18 tests green"
+        ],
+        "verdict": "PROVEN-WITH-RESIDUAL",
+        "residual": "CO-OP HAPPY-PATH SNAPSHOT CARRIAGE IS STRUCTURAL, NOT ASSERTED. The brief's line-4 gap and the S1-S4 receipt's S2 contingent gap both flag that co-op's inheritance of snapshot-carrying seeding rests on EncounterService.ts being the single materializer, which has not been independently re-confirmed by a named assertion since c8780618e. S5 (#1712/#1713) does NOT close this: S5 proves co-op REJECTS malformed/foreign/stale/missing custom-source references (a line-7 denial concern), and its own review notes the co-op page 'derives snapshot and expected from the same sources', which is a statement about denial reachability -- not a positive assertion that a valid co-op seed carries the immutable snapshot onto GameCreated. No test in the 13-file matrix asserts that positive co-op case.",
+        "residualSeverity": "low -- single-materializer argument is sound and the single-player path is directly asserted; this is an unproven inheritance, not observed misbehavior"
+      },
+      {
+        "line": 5,
+        "taskKey": "enable-saved-custom-unit-combat#line-5@5",
+        "taskTextVerbatim": "Recover and rewind from validated recorded construction; wire server readers and preserve canonical behavior.",
+        "checkboxOnOriginMain": "[ ] (unchecked)",
+        "provenBy": [
+          "S6 jest matrix @4d7d17c3d: src/lib/multiplayer/server/__tests__/customCombatRecovery.durableAuthority.test.ts -- 2 cases, REAL SQLite via DurableMatchStore: 'recovers original construction after store reopen and library edit/delete' and 'refuses recovery of a present invalid recorded snapshot'. This is the single closest artefact to the node's 5th acceptance line.",
+          "S6 jest matrix @4d7d17c3d: src/engine/__tests__/customCombatRecovery.recordedSnapshot.test.ts ('recovers from the recorded snapshot and does not consult live authority', 'refuses a present invalid snapshot without live lookup fallback', 'refuses a present snapshot whose identity is not the source unitRef', 'never silently skips a custom unit missing both snapshot and definition')",
+          "S6 jest matrix @4d7d17c3d: src/engine/__tests__/InteractiveSession.recovery.test.ts (canonical recovery behavior preserved)",
+          "S6 jest matrix @4d7d17c3d: src/__tests__/integration/customCombatDefinition.integration.test.ts:59 (server reader wiring + stability after library edit/delete)",
+          "S1-S4 receipt (S3 slice) at ancestor 818e654e0: 3 suites / 12 tests green"
+        ],
+        "verdict": "PROVEN-WITH-RESIDUAL",
+        "residual": "THE 'REWIND' CLAUSE HAS NO NAMED ASSERTION. Verified directly in this session at 4d7d17c3d: grep -i rewind across customCombatRecovery.recordedSnapshot.test.ts, customCombatRecovery.durableAuthority.test.ts, InteractiveSession.recovery.test.ts and CustomConstructionReplay.test.ts returns ZERO hits, and cross-referencing every src test file containing 'rewind' against every file containing 'customConstruction|recordedConstruction|CustomCombatSnapshot' yields an EMPTY intersection. src/lib/multiplayer/server/ServerMatchHostRewindRebuild.ts is in the change's own production inventory but no test binds rewind to recorded custom construction. 'Recover' is thoroughly proven; 'rewind' is not separately proven for this construction path.",
+        "residualSeverity": "moderate -- this is a clause of the task's literal text with zero coverage, not an inference gap. It is newly surfaced by this slice (neither the brief nor the S1-S4 receipt named it)."
+      },
+      {
+        "line": 6,
+        "taskKey": "enable-saved-custom-unit-combat#line-6@6",
+        "taskTextVerbatim": "Extend replay gating and verify private construction redaction for owners, opponents, spectators, and recovery streams.",
+        "checkboxOnOriginMain": "[ ] (unchecked)",
+        "provenBy": [
+          "S6 jest matrix @4d7d17c3d: src/lib/multiplayer/server/__tests__/customConstructionVisibility.test.ts -- 'redacts both snapshots for spectator and unknown audiences', 'preserves the existing full-visibility contract when fog is off'",
+          "S6 jest matrix @4d7d17c3d: src/lib/multiplayer/server/__tests__/customConstructionTransport.test.ts -- 'keeps custom construction private through live, replay, and reconnect publication'",
+          "S6 jest matrix @4d7d17c3d: src/lib/events/replay/__tests__/CustomConstructionReplay.test.ts -- 'accepts recorded construction and preserves the distinct game identity', 'keeps canonical history readable while invalidating its older parser fingerprint'",
+          "S1-S4 receipt (S4 slice) at ancestor 818e654e0: 3 suites / 17 tests green"
+        ],
+        "verdict": "PROVEN-WITH-RESIDUAL",
+        "residual": "'RECOVERY STREAMS' SPECIFICALLY IS STILL UNPROVEN, and this slice re-confirmed it at 4d7d17c3d rather than inheriting the claim. The task text names four audiences/streams: owners, opponents, spectators, and RECOVERY STREAMS. grep for 'MatchRecovery|recoveryStream|recovery' across customConstructionVisibility.test.ts and customConstructionTransport.test.ts returns ZERO hits -- the transport test's third channel is 'reconnect', not recovery. Independently, grep for 'fogOfWar|redact|detach' in src/lib/multiplayer/server/MatchRecovery.ts also returns ZERO hits, so MatchRecovery.ts makes no direct call into the redaction machinery. Coverage for the recovery stream is therefore INFERRED via matchUnitBootstrap.ts's shared detach call, exactly as the S1-S4 receipt's S4 contingent gap stated; it remains inferred, not proven.",
+        "residualSeverity": "moderate -- a named clause of the task text resting on transitive reasoning through a shared helper, with no direct code reference from MatchRecovery.ts to the redaction path"
+      },
+      {
+        "line": 7,
+        "taskKey": "enable-saved-custom-unit-combat#line-7@7",
+        "taskTextVerbatim": "Wire shared catalog admission and campaign consumers; reject malformed, unsupported, missing, or mismatched references before materialization.",
+        "checkboxOnOriginMain": "[ ] (unchecked)",
+        "provenBy": [
+          "S5 exact-main proof #1712 (merge 3323b6995, ancestor of this SHA) -- evidence/r2-combat-s5-1712-main-proof-20260915.json: blob-identical, 15 suites / 255 tests, co-op launch revalidates custom-source authority before composition; mutation-proven",
+          "S5 exact-main proof #1713 (merge 4d7d17c3d = THIS SHA) -- evidence/r2-combat-s5-rows-1713-main-proof-20260915.json: blob-identical, co-op snapshot denials pinned at the unit level; follow-up review verdict 'APPROVE for 83c691741, no required edits', 11 mutations across both reviews with none surviving, M3 revealing the matchId clause had zero prior coverage",
+          "S6 jest matrix @4d7d17c3d re-ran both S5 artefacts in one invocation: src/__tests__/pages/gameplay/campaigns/mission-launch.coop.test.tsx and src/lib/campaign/coop/__tests__/launchCoopMission.test.ts, both PASS",
+          "S6 jest matrix @4d7d17c3d: src/lib/campaign/readiness/__tests__/canonicalCatalogAdmission.test.ts (3 admission-guard cases), src/lib/campaign/readiness/__tests__/useCombatCatalog.test.tsx (2 hook cases), src/services/units/__tests__/listCampaignSavedDesigns.test.ts (picker-merge half)",
+          "S6 browser proof @4d7d17c3d: the campaign-create roster step consumer admits the catalog-eligible design and persists it through PUT/GET"
+        ],
+        "verdict": "PROVEN-WITH-RESIDUAL",
+        "residual": "Three residuals, all carried from the S5 reviews (roadmap.json R2.combat.s5.reviewResponse.residual and .followUpReview) and none re-opened or worsened by this slice: (1) PRODUCT SHAPE -- 'stale' and 'revision-mismatched' share one product branch and therefore one denial code, so the task text's four adjectives map to three codes; (2) BROWSER ROWS 1 AND 2 remain branch duplicates (renamed by OE-1, not repointed to distinct branches); (3) OE-2 -- the browser rows prove rejection 'before encounter launch' directly and 'before composition' only structurally; the unit-level rows added by #1713 are what assert 'before composition' literally. The S5 follow-up review's own verdict is 'taskLine7 PROVEN for co-op'.",
+        "residualSeverity": "low -- all three are documented, reviewed, and accepted in the S5 receipts; (1) is a product shape rather than a coverage hole"
+      },
+      {
+        "line": 8,
+        "taskKey": "enable-saved-custom-unit-combat#line-8@8",
+        "taskTextVerbatim": "Verify focused tests, persisted SQLite reopen/recovery after library mutation, browser handoff with server readback, and required static/build/spec checks.",
+        "checkboxOnOriginMain": "[ ] (unchecked)",
+        "provenBy": [
+          "'focused tests' -- THIS receipt's jest matrix: 13 suites / 69 tests, exit 0, one invocation at 4d7d17c3d (sha256 ab25fc78...)",
+          "'persisted SQLite reopen/recovery after library mutation' -- THIS receipt's run of customCombatRecovery.durableAuthority.test.ts, real SQLite via DurableMatchStore, 'recovers original construction after store reopen and library edit/delete' PASS",
+          "'browser handoff with server readback' -- THIS receipt's Playwright run: 1 passed, retries 0, first attempt, against the hydrated standalone production server on 127.0.0.1:3639; GET /api/campaigns/:id readback asserted before AND after a cold reload and found byte-equal (sha256 3cc554ac...)",
+          "'required static checks' -- typecheck exit 0 (sha256 d140a6ce...), lint exit 0 / 0 errors (sha256 032cd525...), format:check exit 0 (sha256 75b4aa1e...)",
+          "'required build checks' -- npm run build exit 0, BUILD_ID 1789482231591, standalone server hydrated (sha256 747d25ed...)",
+          "'required spec checks' -- npx openspec validate --all --strict exit 0, 232 passed / 0 failed (sha256 a6f1b01b...)"
+        ],
+        "verdict": "PROVEN-WITH-RESIDUAL",
+        "residual": "Two, both boundaries rather than failures: (1) BROWSER SCOPE -- e2e/saved-custom-combat.spec.ts proves persistence, catalog admission, picker, identity separation, mech-bay and cold reload with server readback; it does NOT prove a production COMBAT LAUNCH or terminal/post-battle flow. The admission brief states this is R2.combat-browser's acceptance, not R2.combat's, so it is a boundary, not a missing proof for this node. (2) BUILD ENV -- the acceptance build carried NEXT_PUBLIC_E2E_MODE/NEXT_PUBLIC_E2E_TEST so one build could serve both the acceptance line and the browser artefact; a flag-free vanilla build was not separately run (see gates[3].envCaveat).",
+        "reportMdNote": "As the brief directed, REPORT.md's self-reported 21-scenario / 88-assertion aggregate figures were NOT re-litigated and are NOT cited anywhere in this receipt as this node's evidence. Every count here (13/69, 232/0, 1 passed) comes from a log produced in this session with a recorded sha256."
+      }
+    ]
+  },
+
+  "acceptanceVerdict": {
+    "node": "R2.combat",
+    "summary": "ALL FIVE of the roadmap node's literal acceptance lines are satisfied at 4d7d17c3d, with one declared caveat on the build line's environment. All six taskKeys are PROVEN or PROVEN-WITH-RESIDUAL; none is OPEN.",
+    "lineByLine": [
+      { "acceptanceLine": "npm.cmd run typecheck", "satisfied": true, "evidence": "gate-typecheck.log exit 0, sha256 d140a6ce62dda0946fe30dd882dbb8209f05be72c8fa8850e5634755a399e50f" },
+      { "acceptanceLine": "npm.cmd run lint", "satisfied": true, "evidence": "gate-lint.log exit 0, 0 errors / 84 pre-existing max-lines warnings, sha256 032cd5251fc96063e38bf8babcc731ed090494ed2234e40a73286e1d36cdd19d" },
+      { "acceptanceLine": "npm.cmd run format:check", "satisfied": true, "evidence": "gate-format-check.log exit 0, sha256 75b4aa1e55d9fabb2ec71cb1122542e38a45eb25f0fd4d02795739a74ceb7dc0" },
+      { "acceptanceLine": "npm.cmd run build", "satisfied": true, "caveat": "run with NEXT_PUBLIC_E2E_MODE/NEXT_PUBLIC_E2E_TEST set; see gates[3].envCaveat", "evidence": "gate-build.log exit 0, BUILD_ID 1789482231591, sha256 747d25eda8af7bdddcee53d13ad3fd295e59ef11a3fb84d451af8394ebda7109" },
+      {
+        "acceptanceLine": "Actual SQLite saved construction, immutable GameCreated snapshot, setup/replay/cold reopen and edit/delete/no-substitution proof",
+        "satisfied": true,
+        "clauseMapping": {
+          "Actual SQLite saved construction": "customCombatRecovery.durableAuthority.test.ts, real DurableMatchStore -- PASS",
+          "immutable GameCreated snapshot": "customCombatRecovery.recordedSnapshot.test.ts 'copies a detached snapshot onto GameCreated units and keeps instance id distinct from unitRef' -- PASS; corroborated in the browser by the distinct roster-instance id",
+          "setup": "InteractiveSession.setup path via recordedSnapshot + integration tests -- PASS",
+          "replay": "CustomConstructionReplay.test.ts + customConstructionTransport.test.ts -- PASS",
+          "cold reopen": "durableAuthority 'recovers original construction after store reopen' (store-level) AND the browser proof's page.reload() with byte-equal server readback (page-level) -- both PASS",
+          "edit/delete": "durableAuthority mutates AND deletes the library row before recovering -- PASS",
+          "no-substitution": "customCombatDefinition.test.ts 'uses the saved construction and exact custom identity instead of a stock fallback' (throw-not-substitute) plus recordedSnapshot's 'refuses a present invalid snapshot without live lookup fallback' and 'never silently skips a custom unit missing both snapshot and definition' -- PASS"
+        },
+        "evidence": "gate-jest-matrix.log 13/13 suites, 69/69 tests, exit 0, sha256 ab25fc7845338e2d92dd32f50e22de22356be772bbfc1fd0c6ffd8beacb2995f; gate-e2e-saved-custom-combat.log 1 passed, sha256 3cc554acebad69379efa1bd3468d8b03ff6f961184dd965759bb1333c38bf553"
+      }
+    ],
+    "owedToR2CombatBrowser": [
+      "A production browser proof that a server-saved supported custom unit actually LAUNCHES into combat -- encounter materialization, terminal flow, and durable post-battle state -- alongside a canonical comparison. R2.combat's acceptance does NOT require this; the admission brief (acceptanceLineAnalysis[4].route and line-8 gap) assigns it to R2.combat-browser, whose own acceptance names it verbatim.",
+      "Preservation proofs for the local-only/unsupported fail-closed boundary and the canonical-only fast-forward boundary (R2.combat-browser acceptance line 2).",
+      "NOTE: R2.combat-browser dependsOn ['R2.combat','R2.camp-7'], so nothing here blocks it once R2.combat closes; R2.camp-7 is outside this slice's scope and was not assessed."
+    ],
+    "newlySurfacedByThisSlice": [
+      "Line-5's 'rewind' clause has zero named test coverage bound to recorded custom construction (grep-verified at this SHA). Neither the admission brief nor the S1-S4 receipt named this; it is this slice's own finding.",
+      "MatchRecovery.ts contains no direct reference to fogOfWar / redact / detach, which strengthens (rather than resolves) the S1-S4 S4 contingent gap on line-6's 'recovery streams' clause."
+    ]
+  },
+
+  "explicitNonClaims": [
+    "This document does NOT check any of the six tasks.md checkboxes. All six remain '[ ]' at 4d7d17c3d, matching the change's own stated policy that 'these checkboxes remain unchanged until explicitly requested'.",
+    "This document does NOT itself set roadmap.json's R2.combat.receipt; it supplies the artefact an owner action would point that field at.",
+    "This document does NOT authorize archival of enable-saved-custom-unit-combat.",
+    "NO source file, test file, or tracked file was edited, and no commit, push, branch, or PR was created. The worktree was tracked-file-clean before and after at the same HEAD.",
+    "NO sub-agents were spawned.",
+    "--prod-evidence was NOT used anywhere.",
+    "No process was killed to free a port or a core; the slice waited for the two-core budget and port 3639 was FREE before and after the browser run.",
+    "This slice did NOT run the full repo test suite -- only the 13-file change-scoped matrix. Repo-wide test health is NOT claimed.",
+    "This slice did NOT re-verify R1.remote (its closure receipt is cited as a satisfied dependency, not re-proven).",
+    "This slice did NOT assess R2.camp-7, R2.combat-browser's other dependency.",
+    "REPORT.md's 21-scenario / 88-assertion figures are NOT cited as this node's evidence, per the brief's instruction.",
+    "The lint gate's 84 warnings are pre-existing repo-wide max-lines warnings; this slice does NOT claim they were investigated or that the repo is warning-free.",
+    "The line-4, line-5, line-6 and line-7 residuals recorded above are NOT claimed to be resolved. They are open, attributed, and severity-rated.",
+    "The build was run once with E2E public flags set; a flag-free production build is NOT claimed."
+  ],
+
+  "checkboxProposals": {
+    "intent": "Proposals for the reconciliation PR. Each is bound to receipts produced or cited by this slice. Presented for owner decision -- this slice makes no edit to tasks.md.",
+    "openOwnerDecision": "The admission brief's line-8 deferralOrOwnerDecision asks whether the six boxes should be checked and the change routed toward archive now, or held open until R2.combat-browser lands. This receipt's position: the node's OWN acceptance is met and does not require the browser combat launch, so holding R2.combat open for R2.combat-browser would conflate two nodes -- but that call is the owner's.",
+    "proposedRows": [
+      {
+        "line": 3,
+        "proposal": "CHECK",
+        "boundTo": ["evidence/r2-combat-s6-consolidated-20260915.json (jest matrix sha256 ab25fc78..., browser proof sha256 3cc554ac...)", "evidence/r2-combat-s1-s4-verification-20260915.json (S1 slice)"],
+        "confidence": "high -- no residual"
+      },
+      {
+        "line": 4,
+        "proposal": "CHECK-WITH-NOTE",
+        "note": "Record in the PR body that co-op happy-path snapshot carriage is inherited structurally via EncounterService as the single materializer and is not independently asserted.",
+        "boundTo": ["evidence/r2-combat-s6-consolidated-20260915.json (perTaskLineTable.rows[1])", "evidence/r2-combat-s1-s4-verification-20260915.json (S2 contingent gap)"],
+        "confidence": "medium-high -- low-severity unproven inheritance"
+      },
+      {
+        "line": 5,
+        "proposal": "CHECK-WITH-NOTE",
+        "note": "Record that 'recover' is proven against real SQLite with reopen and library edit/delete, but the task text's 'rewind' clause has no named assertion bound to recorded custom construction (grep-verified at 4d7d17c3d). If the owner reads 'rewind' as a hard requirement rather than shorthand, this line should be HELD rather than checked, and a capped follow-up slice should add one assertion binding ServerMatchHostRewindRebuild to a recorded custom snapshot.",
+        "boundTo": ["evidence/r2-combat-s6-consolidated-20260915.json (perTaskLineTable.rows[2], acceptanceVerdict.newlySurfacedByThisSlice[0])"],
+        "confidence": "medium -- hinges on an owner reading of 'rewind'"
+      },
+      {
+        "line": 6,
+        "proposal": "CHECK-WITH-NOTE",
+        "note": "Record that owners/opponents/spectators and live/replay/reconnect are directly asserted, while the 'recovery streams' clause is covered only transitively through matchUnitBootstrap's shared detach -- MatchRecovery.ts has no direct fogOfWar/redact/detach reference. A one-assertion follow-up would close it.",
+        "boundTo": ["evidence/r2-combat-s6-consolidated-20260915.json (perTaskLineTable.rows[3], acceptanceVerdict.newlySurfacedByThisSlice[1])", "evidence/r2-combat-s1-s4-verification-20260915.json (S4 contingent gap)"],
+        "confidence": "medium -- transitive coverage of a named clause"
+      },
+      {
+        "line": 7,
+        "proposal": "CHECK",
+        "note": "Carry forward the three accepted S5 residuals (stale/revision-mismatched share one denial code; browser rows 1-2 are branch duplicates; OE-2 structural vs literal 'before composition'). The S5 follow-up review's verdict is 'taskLine7 PROVEN for co-op' with 11 mutations and no survivors.",
+        "boundTo": ["evidence/r2-combat-s5-1712-main-proof-20260915.json (PR #1712, merge 3323b6995)", "evidence/r2-combat-s5-rows-1713-main-proof-20260915.json (PR #1713, merge 4d7d17c3d)", "evidence/r2-combat-s5-review-20260915.json", "evidence/r2-combat-s6-consolidated-20260915.json (perTaskLineTable.rows[4])"],
+        "confidence": "high -- reviewed, mutation-proven, exact-main accepted"
+      },
+      {
+        "line": 8,
+        "proposal": "CHECK",
+        "note": "Record that the browser half proves persistence/catalog/picker/identity/mech-bay/cold-reload with server readback, and that production combat launch is explicitly R2.combat-browser's acceptance, not this line's. Also record the build-env caveat.",
+        "boundTo": ["evidence/r2-combat-s6-consolidated-20260915.json (all seven gate logs with sha256, perTaskLineTable.rows[5])"],
+        "confidence": "high -- this receipt IS the line-8 artefact"
+      }
+    ],
+    "proposedRoadmapEdits": [
+      {
+        "field": "nodes[R2.combat].receipt",
+        "from": null,
+        "to": "evidence/r2-combat-s6-consolidated-20260915.json",
+        "rationale": "S6 is the slice the brief designated as the one that flips this field (orderedSlicePlan[5].rationale)."
+      },
+      {
+        "field": "nodes[R2.combat].state",
+        "from": "implementing",
+        "to": "main-verified (owner may prefer 'done' -- this slice does not presume the vocabulary)",
+        "rationale": "All five acceptance lines satisfied at an exact origin/main SHA with recorded exit codes and log hashes."
+      },
+      {
+        "field": "nodes[R2.combat].s6",
+        "to": "{ at, evidence: 'evidence/r2-combat-s6-consolidated-20260915.json', mainSha: '4d7d17c3def5aa1989bd4819654f3eeec1fcc400', results: '13 suites / 69 tests; typecheck, lint, format:check, build, openspec strict all exit 0; e2e saved-custom-combat 1 passed first run', residuals: ['line-5 rewind clause unasserted', 'line-6 recovery-stream redaction transitive only', 'line-4 co-op happy-path snapshot carriage structural only'], owed: 'production combat-launch browser proof -> R2.combat-browser' }",
+        "rationale": "Mirrors the existing s1s4Verification / s5 sub-object convention already present on this node."
+      }
+    ]
+  }
+}

@@ -1,0 +1,316 @@
+{
+  "node": "R2.authority-client",
+  "artefact": "REVIEW of prefix P-A -- task 1.6 of openspec/changes/design-campaign-authority-and-sync (discard-time flush of pending client mutations)",
+  "reviewer": "independent reviewer (persistence/authority scope, read-only; not the author)",
+  "reviewedAtUtc": "2026-09-15T00:00:00Z",
+  "verdict": "APPROVE-WITH-REQUIRED-EDITS",
+  "verdictSummary": "Spec conformance on the flush's own contract is exact -- same route, method, headers, body shape, baseVersion source, envelope construction and never-acknowledged semantics as putLiveCampaign; measurement is byte-accurate; the typed skip reason matches the pin; the wiring pair is idempotent, SSR-guarded and uninstalled on teardown; beforeunload is correctly absent; the 14 rows are real, non-tautological and the red logs are genuine. Two BLOCKING defects arise from the hidden-transition trigger, which fires on ordinary tab switches where the document SURVIVES -- a case the spec's scenarios (all phrased around a discard) never cover: (RE-1) the unconditional clearAutoSaveTimer() cancels the armed ordinary save even on the over-cap branch that then issues nothing, opening a data-loss window that did not exist before this change; (RE-2) a surviving document is left dirty with no scheduled save and, if the keepalive write landed, a stale baseVersion that turns the next ordinary save into a self-caused 409 whose only offered resolution discards post-return edits.",
+  "subject": {
+    "baseSha": "41fa769895c8ace5608dda1a3f4118cb30c7242f",
+    "commitA": "395c9fcc260727436d886f926766762dc6200e9e",
+    "commitB": "c87cab785549f051a431842598923c166153c3f2",
+    "referenceCommit": "bad964e7257d330e5469064237748bff9543f24b",
+    "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/history-sql-integrity",
+    "worktreeHeadVerified": "c87cab785549f051a431842598923c166153c3f2",
+    "worktreeCleanVerified": "git status --porcelain empty"
+  },
+  "section1_specConformance": {
+    "verdict": "conformant on every pinned clause; two behavioural gaps sit OUTSIDE the pinned clauses (see requiredEdits)",
+    "checks": [
+      {
+        "clause": "flush only when dirty and not co-op",
+        "result": "PASS",
+        "evidence": "useCampaignPersistenceStore.ts:893 `if (!state.dirty || pendingFlushIssued || state.legacyUnadopted) { return; }` and :904 `if (isCoopCampaign(campaign)) { return; }` -- mirrors the markDirty co-op exemption at :952. Rows: test:217-227 (clean), test:229-239 (co-op)."
+      },
+      {
+        "clause": "clears the armed debounce",
+        "result": "PASS for the firing branch, DEFECT for the over-cap branch",
+        "evidence": "useCampaignPersistenceStore.ts:907-908 `// First, so the discard path and the armed timer cannot both write.` + `clearAutoSaveTimer();`. Row test:189-196 advances 2x AUTO_SAVE_DEBOUNCE_MS and still sees exactly one request. See RE-1 for the over-cap branch."
+      },
+      {
+        "clause": "serializes the same { envelope, baseVersion } body performSave/putLiveCampaign sends",
+        "result": "PASS -- byte-identical construction",
+        "evidence": "putLiveCampaign :512-523 builds `buildSerializedCampaign(campaign, getDeviceId(), baseVersion + 1, readLiveRosterSnapshot(campaign.id))` and `body: JSON.stringify({ envelope, baseVersion })` at `/api/campaigns/${encodeURIComponent(campaignId)}` with `headers: { 'Content-Type': 'application/json' }`, method PUT. The flush at :911-917 repeats exactly that construction, same route/method/headers at :857-864. NO divergence in envelope shape, headers, route or envelope version (baseVersion + 1). baseVersion source: runSave reads `baseVersionOverride ?? get().baseVersion` (:632), the flush reads `const { baseVersion } = state` from the same store (:910) -- same value.",
+        "minorDivergence": "runSave awaits `inFlightLoad` before reading baseVersion (:615-618) because a load is about to replace it; the flush does NOT. A discard during an in-flight load therefore writes a baseVersion the load is about to supersede. NOT blocking -- the server CAS refuses it (CampaignPersistenceService.ts:126-128) and the flush never claims an acknowledgement -- but it is the one construction-path asymmetry and is worth a sentence in the task receipt."
+      },
+      {
+        "clause": "measures bytes with TextEncoder",
+        "result": "PASS",
+        "evidence": "useCampaignPersistenceStore.ts:849-851 `function measureRequestBodyBytes(body: string): number { return new TextEncoder().encode(body).length; }` with the stated rationale that a `.length` character count under-measures non-ASCII."
+      },
+      {
+        "clause": "<= 64 KiB -> exactly one fetch PUT keepalive:true to the same route",
+        "result": "PASS",
+        "evidence": "KEEPALIVE_FLUSH_BODY_CAP_BYTES = 64 * 1024 (:51); fireKeepaliveFlush :857-864 issues one `fetch(..., { method: 'PUT', headers, body, keepalive: true })`. Row test:170-187 asserts url, method, keepalive, baseVersion === 7, envelope.version === 8, and envelope.body.name === the CURRENT in-memory name."
+      },
+      {
+        "clause": "response never read; dirty stays true; baseVersion unchanged; applySavedRecord never called",
+        "result": "PASS -- and pinned by a mutation-resistant row",
+        "evidence": "fireKeepaliveFlush attaches only `void Promise.resolve(pending).then(() => undefined, () => undefined)` (:865-868) -- no .json(), no set(). Row test:289-303 stubs a 200 carrying version 99 (test:96-109) and then asserts dirty true, baseVersion 7, metadata.version 0, saveState not 'saved', and switchCampaign never called -- i.e. applySavedRecord demonstrably did not run. This is the strongest row in the file: it would fail if the response were ever adopted."
+      },
+      {
+        "clause": "over cap -> no request + typed diagnostic 'envelope-over-keepalive-cap'",
+        "result": "PASS",
+        "evidence": "useCampaignPersistenceStore.ts:919-932 sets `flushSkip: { reason: 'envelope-over-keepalive-cap', campaignId, byteLength, capBytes }` and returns without firing. Row test:262-287 asserts 0 requests plus reason, capBytes, byteLength > cap and campaignId positively. Matches the spec pin added in commit B (spec.md scenario 'An envelope past the keepalive body cap...', added bullet: \"that diagnostic SHALL name the reason `envelope-over-keepalive-cap`\")."
+      },
+      {
+        "clause": "legacyUnadopted -> silent no-op; is silence justified per D8?",
+        "result": "PASS -- silence is JUSTIFIED; recommendation is to KEEP it as-is",
+        "recommendation": "Keep the silent no-op. Do NOT add a distinct skip reason.",
+        "rationale": "Three reasons, all code-cited. (1) The adoption gate is already the loudest state in the app: `legacyUnadopted` is rendered as a persistent adoption offer at CampaignSharePanel.tsx:112 (`if (legacyUnadopted)`) and as a per-campaign badge at src/pages/gameplay/campaigns/index.tsx:66 (`{campaign.legacyUnadopted && (`). The condition the user must act on is already on screen; a second, flush-scoped diagnostic would be a duplicate signal for the same fact. (2) The skip is NOT a degraded flush: runSave already returns `{ status: 'skipped' }` for the same copy (:580-582), so no PUT reaches the server on this path today with or without the flush -- nothing was measured and then abandoned, which is the exact distinction the over-cap reason exists to report. (3) The D8 gate is about the server not ACQUIRING an unadopted copy by accident; a flush without this guard would be the FIRST write to make the server hold that record. The guard is therefore load-bearing, not cosmetic -- and the author proved it load-bearing rather than asserting it (see section 4, mutation proof).",
+        "note": "The guard is a THIRD skip condition the task text did not enumerate (task 1.6 names only not-dirty and co-op). It is correctly disclosed as DN-2 in the author evidence and is accepted here."
+      },
+      {
+        "clause": "at-most-once per pending set; flag cannot suppress a legitimate second flush; not shared across campaigns/instances incorrectly",
+        "result": "PASS",
+        "evidence": "`let pendingFlushIssued = false;` at module scope (:220), set at :933, cleared by markDirty at :945 (`// Genuinely new pending work: a later discard may flush again.`) and by reset at :1027. Row test:207-215 proves a new markDirty re-enables the flush (2 requests); row test:198-205 proves repeated calls on the SAME pending set produce 1.",
+        "moduleVsStoreScope": "The flag is module-level while the store is a module-level zustand singleton (:1033), so the scopes coincide -- there is no per-instance divergence to get wrong. Cross-campaign leakage was checked and does not occur: runLoad sets `dirty: false` and `baseVersion: migrated.version` on load (:763-766), and the flush's first guard is `!state.dirty`, so a stale true flag from campaign A cannot suppress anything for campaign B before B is mutated -- and the first mutation of B clears it.",
+        "onlyResidual": "A second discard with NO intervening mutation is suppressed. This is stricter than the spec's 'at most one such write SHALL be issued per discard' and is harmless (the body would be byte-identical). Accepted."
+      }
+    ]
+  },
+  "section2_wiring": {
+    "verdict": "conformant; the hidden-transition rate/idempotency question surfaces RE-2",
+    "checks": [
+      {
+        "item": "pagehide + visibilitychange(hidden) registered in the existing install/uninstall pair",
+        "result": "PASS",
+        "evidence": "campaignPersistenceWiring.ts:63-64 registers both inside installDiscardFlushListeners, called from installCampaignPersistenceWiring:90; :72-73 removes both from uninstallDiscardFlushListeners, called from uninstallCampaignPersistenceWiring:119."
+      },
+      {
+        "item": "idempotent; no duplicate registration on hot reload",
+        "result": "PASS",
+        "evidence": ":40-41 `let discardListenersInstalled = false;` guards install (:60) and uninstall (:69). Handlers are module-level named functions (handlePageHide :44, handleVisibilityChange :52), so removeEventListener matches the exact reference -- an anonymous closure here would have leaked a listener per install. Deliberately installed BEFORE the `unsubscribe !== null` idempotency return and before the `getCampaignStoreForRoster()` null return (:87-97), so the flush works even where the campaign-store accessor is unregistered; both helpers are independently idempotent, so that ordering cannot double-register."
+      },
+      {
+        "item": "SSR-guarded",
+        "result": "PASS",
+        "evidence": ":60 `if (discardListenersInstalled || typeof window === 'undefined') { return; }`. handleVisibilityChange touches `document` unguarded (:53) but is only reachable once registration succeeded behind that window check."
+      },
+      {
+        "item": "uninstalled on teardown",
+        "result": "PASS -- pinned by a row",
+        "evidence": "Row test:372-379 uninstalls then fires BOTH events and asserts 0 requests."
+      },
+      {
+        "item": "beforeunload deliberately absent",
+        "result": "PASS",
+        "evidence": "Documented at campaignPersistenceWiring.ts:18-21 with the bfcache rationale. Verified by grep across src/ (excluding __tests__): the only beforeunload registrations are GameSessionPage.lifecycle.ts:94, useGameStatePersistence.helpers.ts:143 and pages/compare/index.tsx:38 -- none in the campaign persistence path."
+      },
+      {
+        "item": "is firing a keepalive PUT on every hidden transition acceptable (rate/idempotency)?",
+        "result": "RATE: acceptable. SURVIVING-DOCUMENT CONSEQUENCES: not acceptable as shipped -- see RE-2.",
+        "rate": "Bounded correctly. pendingFlushIssued caps it at one write per pending set, so a burst of tab switches produces at most one PUT; the not-dirty guard means a settled campaign produces none. Row test:365-370 pins pagehide-then-hidden at one request.",
+        "hiddenVisibleMutateHidden": "Yes, it flushes again -- and that is CORRECT and proven: markDirty clears the flag (:945) and row test:207-215 pins exactly that sequence (flush, markDirty, flush -> 2 requests). The defect is not that it flushes again; it is what the client is left holding between the two (RE-2)."
+      }
+    ]
+  },
+  "section3_headValidationAnd409": {
+    "verdict": "\"never loses an acknowledged revision\" IS preserved. No write is duplicated or reordered at the server. But a NEW client-side loss path is introduced on the surviving-document trigger.",
+    "serverTrace": "src/services/campaignPersistence/CampaignPersistenceService.ts:126-128 -- `if (baseVersion !== currentVersion) { return conflictFromStoredRow(row, prepared.record, hostInstanceId); }`; on match it writes `nextVersion = baseVersion + 1` inside `db.transaction`. The CAS is a strict equality on the campaigns-table write counter and the write is transactional, so two PUTs carrying the same baseVersion cannot both commit: exactly one wins, the other 409s. No duplication, no reordering, and a flush that loses the CAS cannot overwrite the acknowledged revision that won it -- the spec scenario 'An unread flush never claims a revision it did not earn' holds as written.",
+    "clientTraceAfterAnAcceptedKeepalivePut": [
+      "The flush does not advance baseVersion (pinned by test:297-299) and does not clear dirty.",
+      "The armed debounce was cleared at :908, and NOTHING re-arms it: the only re-arm site is markDirty:955, and the only baseVersion resync sites are runLoad:766 and resolveConflictTakeServer:985. There is no visible-transition or focus reconciliation anywhere in src/ (verified by grep: campaignPersistenceWiring.ts is the only campaign-path visibilitychange listener).",
+      "So the next ordinary save reads the OLD baseVersion at runSave:632 and 409s against the server's incremented counter.",
+      "runSave takes the single-attempt branch (:653-657): `set({ saveState: 'conflict', conflictServerRecord, saveConflict })`. Auto-save then self-disables -- the debounce callback early-returns while saveState === 'conflict' (:957-959).",
+      "The only resolution offered is take-server: CampaignSaveStatusCard.tsx:171 `data-testid=\"campaign-conflict-take-server-btn\"` -> resolveConflictTakeServer:976-991 calls writeLiveCampaign(serverCampaign) and sets dirty:false. There is no keep-local path."
+    ],
+    "acknowledgedRevisionSafety": "PRESERVED. Nothing here can lose a revision the server acknowledged -- the loss is of UN-acknowledged local work made after the tab returned, discarded by the only conflict resolution the UI offers.",
+    "duplicationOrReordering": "NONE at the server (transactional CAS). Client-side, the flush is not sequenced through `saveChain` (:597-607) or awaited against `inFlightLoad` (:615-618), so it can race an in-flight ordinary save; the CAS still admits exactly one, and the loser surfaces as a 409 conflict card rather than a silent overwrite. Acceptable, but it belongs in the receipt."
+  },
+  "section4_tests": {
+    "verdict": "PASS -- the strongest part of this prefix",
+    "redLogsOpened": [
+      {
+        "log": ".sisyphus/roadmap-completion-20260912/r2-crash-window-20260915/red-jest.log",
+        "sha256Verified": "6f79a9ad70d51acab32642bf85e9f3047320cfe22f42cf92d8b5b08c8ae55d2b (matches author evidence)",
+        "content": "REAL. `Tests: 5 failed, 5 passed, 10 total`; first failure is `expect(received).toHaveLength(expected) / Expected length: 1 / Received length: 0 / Received array: []` -- red because nothing fired, not an import or setup error. The 5 passing rows are the negative rows passing vacuously, which the author states rather than hides."
+      },
+      {
+        "log": ".../B-red-jest.log",
+        "sha256Verified": "7f738c17c2f637b6f9499fbc5538a0c0eb48e8cd6ae256373dc783401219e5e1 (matches)",
+        "content": "REAL. `Tests: 3 failed, 11 passed, 14 total` -- the three positive DOM rows fail with the wiring file at base content; the 9 store-action rows pass because commit A already landed. Correct per-commit red."
+      },
+      {
+        "log": ".../red-legacy-guard-mutant.log",
+        "sha256Verified": "23a3d999eb606194c6cc96f67ed11639404dd4891fa95fb79934a3fd1992893e (matches)",
+        "content": "REAL mutation proof. With `state.legacyUnadopted` removed from the guard: `Tests: 1 failed, 8 passed, 9 total`, failing row = 'issues no write for an unadopted legacy copy, and records no diagnostic', `Expected length: 0 / Received length: 1` with the captured envelope body inline. The mutant killed EXACTLY the new row -- the guard is load-bearing and no other row silently depended on it. The author correctly labels this mutation-proven rather than red-first."
+      }
+    ],
+    "nonTautological": "Confirmed. The over-cap row asserts positively (reason, capBytes, byteLength > cap, campaignId) rather than by absence alone (test:278-287). The never-acknowledged row is adversarial: the stub returns version 99 so an accidental applySavedRecord would move baseVersion and be caught (test:96-109 + 289-303). The first row pins envelope.body.name === 'Pending Rename' to prove the CURRENT in-memory campaign was serialized, not the last-persisted one (test:186).",
+    "fetchMockedAtBoundaryOnly": "Confirmed -- `jest.spyOn(globalThis, 'fetch')` at test:112-117 is the only mock besides the Toast module stub (test:42-44). The store, the wiring, buildSerializedCampaign and TextEncoder all run for real.",
+    "timersDeterministic": "Confirmed -- jest.useFakeTimers() in both beforeEach (test:155, 328), useRealTimers in both afterEach (166, 342); no wall-clock waits.",
+    "domRowsDispatchRealEvents": "Confirmed -- `window.dispatchEvent(new Event('pagehide'))` (test:316) and `document.dispatchEvent(new Event('visibilitychange'))` after redefining document.visibilityState (test:308-322). Real listeners, real events, no handler invoked directly.",
+    "gatesRunByReviewer": [
+      {
+        "gate": "the reviewed test file",
+        "argv": "node node_modules/jest/bin/jest.js --maxWorkers=2 --coverage=false src/stores/campaign/__tests__/campaignPersistenceCrashWindow.test.ts",
+        "exit": 0,
+        "result": "14 passed, 14 total (9 store-action + 5 DOM) -- exactly the 9+5 expected"
+      },
+      {
+        "gate": "focused campaign suites",
+        "argv": "node node_modules/jest/bin/jest.js --maxWorkers=2 --coverage=false src/stores/campaign src/lib/campaign",
+        "exit": 0,
+        "result": "220 suites passed, 3220 tests passed -- matches the author's claimed 220/3220 exactly"
+      },
+      {
+        "gate": "typecheck",
+        "argv": "npx tsc --noEmit -p tsconfig.json",
+        "exit": 0,
+        "result": "empty output"
+      },
+      {
+        "gate": "oxlint (changed source files)",
+        "argv": "npx oxlint src/stores/campaign/useCampaignPersistenceStore.ts src/stores/campaign/campaignPersistenceWiring.ts",
+        "exit": 0,
+        "result": "1 warning, 0 errors -- eslint(max-lines) on the store, pre-existing at base as the author states"
+      }
+    ]
+  },
+  "section5_hygiene": {
+    "verdict": "PASS on every item",
+    "perCommitCaps": "git diff --shortstat 41fa76989 395c9fcc2 = `2 files changed, 444 insertions(+)`; 395c9fcc2..c87cab785 = `4 files changed, 139 insertions(+), 5 deletions(-)` = 144. Both under 500. Matches the author's claim.",
+    "conventionalCommits": "`feat(campaign): add the discard-time flush action for pending client mutations` and `feat(campaign): fire the discard flush from pagehide and hidden visibility transitions` -- both conventional, both accurately scoped to what the commit contains.",
+    "author": "Wes Rollings <wrollings@gmail.com> on BOTH author and committer for both commits.",
+    "aiAttribution": "NONE -- both commit bodies are empty (`git log --format='%b'` returns nothing for either).",
+    "checkbox": "NOT flipped -- tasks.md task 1.6 remains `- [ ]` after commit B.",
+    "specPin": "spec.md +1 line (one AND bullet appended to the existing over-cap scenario); tasks.md 1 line rewritten (+1/-1) adding the literal in two places inside existing prose. 3 changed lines total, within the <= 4 allowance. No new requirement, no moved decision.",
+    "hooks": "Honored -- B-commit.log (1530 lines) contains the full pre-commit next build with `✓ Compiled successfully in 27.6s` and `✓ Generating static pages using 15 workers (71/71)`. A-commit.log likewise present.",
+    "unrelatedChanges": "NONE -- git diff --name-only 41fa76989..c87cab785 lists exactly the 5 expected files (store, wiring, new test, spec.md, tasks.md).",
+    "referenceBranchPreserved": "YES -- branch codex/roadmap-r2-client-crash-window-20260915-reference exists at bad964e72. `git diff c87cab785 bad964e72` over the two SOURCE files is EMPTY, confirming the two-commit re-lay preserved the reference's production behaviour byte-for-byte; the only deltas are test rows (+the legacyUnadopted row, +DOM describe scaffolding) and the spec pin."
+  },
+  "requiredEdits": [
+    {
+      "id": "RE-1",
+      "severity": "BLOCKING",
+      "title": "The over-cap branch cancels the armed ordinary save and then issues nothing -- a data-loss window this change INTRODUCES",
+      "finding": "useCampaignPersistenceStore.ts:907-908 runs `clearAutoSaveTimer()` unconditionally, BEFORE the body is built and before the cap test at :919. On the over-cap branch (:919-932) the action then sets flushSkip and returns having fired nothing. The armed ordinary save it just killed has NO 64 KiB cap -- putLiveCampaign (:517-525) is a plain fetch with no keepalive flag -- so the debounced save that was about to succeed is destroyed and replaced with nothing. Sequence: mutate at t=0 (timer armed for t=2s); tab switch at t=1s -> visibilitychange hidden -> over-cap skip -> timer cleared, no request; user never mutates again and later closes. Pre-change that mutation was saved at t=2s. Post-change it is lost. Strictly worse than the baseline, and it fires precisely for the large campaigns the task says are the growth risk.",
+      "contrastWithinTheSameChange": "The legacyUnadopted guard returns at :893, BEFORE :908, so it correctly leaves the armed timer intact -- and the author pinned that in test:255-259 (`// Still dirty, and the armed timer is left alone`). The same reasoning was not applied to the over-cap branch.",
+      "specPosition": "Moving the clear is spec-conformant. The `AND the armed debounce timer SHALL be cleared, so the discard path and the timer cannot both write` bullet lives in the scenario where a write IS issued (spec.md, 'A mutation inside the debounce window survives a hard reload'). The over-cap scenario requires only that no request be issued and a typed diagnostic be recorded; it says nothing about the timer, and clearing it there serves no invariant because there is no second writer to collide with.",
+      "exactEdit": "In flushPendingMutationsAction: DELETE the `clearAutoSaveTimer();` call and its comment at useCampaignPersistenceStore.ts:907-908, and INSERT `clearAutoSaveTimer();` immediately before `pendingFlushIssued = true;` at :933 (i.e. on the branch that actually fires, still before fireKeepaliveFlush, preserving 'the discard path and the armed timer cannot both write').",
+      "requiredTestRow": "Add to the store-action describe block: an over-cap campaign flushes, asserts 0 captured requests and flushSkip.reason === 'envelope-over-keepalive-cap' (as today), then advances AUTO_SAVE_DEBOUNCE_MS and settles promises, and asserts exactly ONE captured request whose init.keepalive is undefined -- i.e. the ordinary uncapped PUT still ran. Red-first against the current code (it captures 0)."
+    },
+    {
+      "id": "RE-2",
+      "severity": "BLOCKING",
+      "title": "A hidden transition the document SURVIVES leaves the client dirty with nothing scheduled and a stale baseVersion -- a self-caused 409 whose only resolution discards post-return edits",
+      "finding": "visibilitychange->hidden fires on every ordinary tab switch, minimise and app switch; the document is NOT discarded. The implementation treats that case identically to a discard. After it fires: (a) the armed debounce is gone (:908) and nothing re-arms it -- the only re-arm site is markDirty:955 -- so `dirty` stays true with NO scheduled save, which renders a permanent 'Unsaved changes' badge at CampaignSaveStatusCard.tsx:111-113; (b) if the keepalive write landed, the server counter is now baseVersion+1 (CampaignPersistenceService.ts:129-134) while the client still holds the old value (pinned by test:297-299), so the user's NEXT mutation debounces into runSave:632 with a stale baseVersion, the CAS at :126-128 refuses it, and runSave:653-657 sets saveState 'conflict' -- after which auto-save self-disables (:957-959); (c) the only resolution the UI offers is take-server (CampaignSaveStatusCard.tsx:171 -> resolveConflictTakeServer:976-991), which overwrites the live campaign with the server record and sets dirty:false, DISCARDING every edit made after the tab returned. There is no keep-local path. Verified by grep: no visible-transition, focus or head re-validation exists anywhere in the campaign path to resync baseVersion.",
+      "whyNotCoveredBySpecToday": "All four scenarios of the requirement are phrased around `the document is discarded or becomes hidden` with the discard as the model case; none describes the state the client is left in when the document survives the hidden transition. This is a genuine gap in the delta, not merely an implementation slip -- which is why the fix needs a spec scenario, not just code.",
+      "exactEdit": "Preferred (keeps the pinned 'cannot both write' invariant intact, because the timer is only re-armed on a document PROVEN to have survived): (1) In useCampaignPersistenceStore.ts add an action `reconcileAfterDiscardFlush: () => void` that, when `pendingFlushIssued && get().dirty && !isCoopCampaign(readLiveCampaign()) && !get().legacyUnadopted && get().saveState !== 'conflict'`, re-arms the same debounce markDirty arms (:955-961) -- the document survived, so an acknowledged save is still owed and the flush was never an acknowledgement. (2) In campaignPersistenceWiring.ts handleVisibilityChange (:52-56) add the else branch: on `document.visibilityState === 'visible'`, call `useCampaignPersistenceStore.getState().reconcileAfterDiscardFlush()`. (3) Add ONE spec scenario under the same requirement, e.g. '#### Scenario: A hidden transition the document survives still reaches an acknowledged save' -- GIVEN a flush was issued on a hidden transition and the document was not discarded / WHEN the document becomes visible again / THEN the client SHALL schedule an ordinary acknowledged save, because an unread flush is not an acknowledgement and the client SHALL NOT be left dirty with no pending write. (4) Test rows: hidden-then-visible re-arms and the ordinary (non-keepalive) PUT fires on advancing AUTO_SAVE_DEBOUNCE_MS; and hidden-then-visible-then-mutate does not double-arm.",
+      "acceptableAlternative": "If the parent judges the reconciliation out of prefix scope, the alternative is to PIN the accepted consequence rather than leave it undocumented: add the spec scenario stating that a surviving hidden transition may leave the client dirty until the next mutation and that the resulting 409 is expected, AND add a test row that pins the stale-baseVersion 409 so the behaviour is owned rather than discovered later. What is NOT acceptable is shipping the trigger with neither the fix nor the pin -- the 'Unsaved changes' badge with nothing scheduled, and the take-server-only conflict, are user-visible and lossy.",
+      "notAnOption": "Dropping the hidden trigger. Task 1.6 mandates it, and mobile browsers deliver hidden where they never deliver pagehide."
+    }
+  ],
+  "nonBlockingObservations": [
+    {
+      "id": "NB-1",
+      "note": "flushSkip has ZERO consumers -- grep over src/ finds it only in the store and the new test. The spec says 'record a typed skip diagnostic' and the task says 'record a TYPED diagnostic on the store', so this is conformant as written, and there is in-repo precedent for the shape (task 1.5's receipt closes with the same honest NON-CLAIM about the campaign-list omissions header having no UI consumer yet). Worth carrying forward as an explicit NON-CLAIM in the 1.6 receipt: the condition is recorded but nothing yet shows it to anyone."
+    },
+    {
+      "id": "NB-2",
+      "note": "The flush is not sequenced through saveChain (:597-607) and does not await inFlightLoad (:615-618), unlike runSave. Both races are refused safely by the server CAS and neither can produce a silent overwrite, but the asymmetry with the ordinary save path should be named in the receipt."
+    },
+    {
+      "id": "NB-3",
+      "note": "__resetCampaignPersistenceCoordinationForTests (:249-252) does not clear pendingFlushIssued; the tests get away with it because they also call reset() (test:159, 332), which does (:1027). Harmless today; a future suite that calls only the coordination reset would inherit a stale flag. One line, at the author's discretion."
+    }
+  ],
+  "verdictConditions": "APPROVE once RE-1 and RE-2 land with their test rows (and, for RE-2, its spec scenario). Everything else in this prefix -- the envelope parity with putLiveCampaign, the never-acknowledged semantics, the byte-accurate cap measurement, the typed reason and its pin, the idempotent SSR-guarded listener pair, the absent beforeunload, the legacyUnadopted guard and its mutation proof, the red logs, the per-commit hygiene and the preserved reference branch -- is accepted as-is and should not be re-cut.",
+  "reviewerGatesSummary": {
+    "crashWindowSuite": "14/14 passed",
+    "focusedCampaign": "220 suites / 3220 tests passed",
+    "typecheck": "exit 0, empty",
+    "oxlint": "1 pre-existing max-lines warning, 0 errors"
+  },
+  "notClaimedByThisReview": [
+    "NO browser / cold-reload proof was run -- the keepalive semantics, the 64 KiB browser cap and the real hidden-transition behaviour are asserted from source and spec text, not from a live browser.",
+    "RE-2's consequence chain is traced from code (flush does not advance baseVersion -> server CAS strict equality -> runSave reads get().baseVersion -> conflict branch -> take-server-only UI), each link file-cited and individually verified in this session; it was NOT reproduced end-to-end in a runtime probe, because this review is read-only and adding a probe spec would have meant writing into the repo.",
+    "NO edits, commits, pushes, sub-agents or builds were performed. The worktree was left at c87cab785, clean.",
+    "The only file written by this review is this evidence JSON."
+  ],
+  "recheck": {
+    "requestedBy": "coordinator re-check (read-only, same rules)",
+    "recheckedAtUtc": "2026-09-15T00:00:00Z",
+    "subject": {
+      "commitC": "658af51ea7ceb9cbfb42e1cc5968ef6e6a29b9ab",
+      "commitD": "eaa63b7dbaff0f514d74fa10d865df7ceff9a898",
+      "worktreeHeadVerified": "eaa63b7db, branch codex/roadmap-r2-client-crash-window-20260915, git status --porcelain empty",
+      "method": "NEW commits on the same branch; A, B and the reference branch bad964e72 untouched (verified: git log shows C and D on top of c87cab785, nothing rebased or amended)"
+    },
+    "verdict": "APPROVE",
+    "verdictSummary": "RE-1 and RE-2 are both applied exactly as specified, each red-first with a genuine log, each pinned by a row that fails without the fix. NB-3 was taken as a bonus. The reconcile gate can neither double-fire nor corrupt an in-flight save. The stated residual (re-arms a save but does not re-validate the head or resync baseVersion) is honestly pinned by a test row and by an explicit non-claim, and is acceptable for task 1.6 because head re-validation is task 1.3 machinery the 1.6 NON-CLAIMS already exclude -- and because commit D narrows the exposure from unbounded to a ~2s race. No further required edits.",
+    "re1": {
+      "status": "APPLIED EXACTLY AS SPECIFIED",
+      "diffVerified": "useCampaignPersistenceStore.ts -- the `clearAutoSaveTimer();` call and its comment are DELETED from before the body build (the old :907-908) and re-inserted immediately before `pendingFlushIssued = true;` on the write branch only, still before fireKeepaliveFlush (now :959 in the commit-D file, alongside a comment naming the exact failure mode: \"Clearing it earlier would also cancel the ordinary save on the over-cap branch above - and that save has no keepalive cap\").",
+      "overCapBranchNowLeavesTimerArmed": "Confirmed: the cap branch returns at the old :919-932 site without reaching :959, so the armed ordinary uncapped PUT survives.",
+      "testRow": "\"leaves the ordinary debounced save armed when it skips an over-cap envelope\" -- asserts 0 captured requests + flushSkip.reason, then advances AUTO_SAVE_DEBOUNCE_MS, drains microtasks, and asserts EXACTLY ONE request with `init.keepalive` toBeUndefined() -- i.e. the ordinary PUT, not a second keepalive attempt. Non-tautological: without the fix the timer is gone and the count is 0.",
+      "redLogVerified": ".sisyphus/roadmap-completion-20260912/r2-crash-window-20260915/C-red-jest.log, sha256 64107bcad0e579d08d122feb5aebf2f192b6aebe8a80ecaf6acb62ee3f97e19a (matches the author claim), `Tests: 1 failed, 14 passed, 15 total` -- red for the right reason (Expected length: 1 / Received length: 0).",
+      "bonus": "The over-cap fixture was extracted into makeOversizedCampaign() so both over-cap rows share one definition -- a test-only DRY move, no behaviour touched."
+    },
+    "re2": {
+      "status": "APPLIED VIA THE REVIEWER-PREFERRED OPTION (reconcile), not the weaker pin-only alternative",
+      "diffVerified": [
+        "useCampaignPersistenceStore.ts:978-1002 -- reconcileAfterDiscardFlushAction gated on `!pendingFlushIssued || !state.dirty || state.legacyUnadopted || state.saveState === 'conflict'` (:989-996) plus `isCoopCampaign(readLiveCampaign())` (:997-999), then armAutoSaveTimer(set, get) (:1000).",
+        "useCampaignPersistenceStore.ts:884-898 -- armAutoSaveTimer extracted as the single definition of \"an acknowledged write is pending\", now shared by markDirty (:1021) and the reconciliation (:1000).",
+        "campaignPersistenceWiring.ts:52-60 -- handleVisibilityChange reads the store once, flushes and returns on hidden, calls reconcileAfterDiscardFlush() otherwise. The hidden branch is behaviourally unchanged.",
+        "spec.md -- one new scenario \"A hidden transition the document survives still reaches an acknowledged save\" (5 lines), inserted under the same requirement between the no-flush scenario and the over-cap scenario."
+      ],
+      "markDirtyRefactorIsBehaviourPreserving": "Verified line by line: markDirty still sets dirty/campaignId/saveState, still clears the flag at its top, still calls clearAutoSaveTimer() and still returns for co-op BEFORE arming (:1017-1021). armAutoSaveTimer re-clears internally, which is redundant on that path but not a semantic change.",
+      "doubleFireCheck": {
+        "question": "can reconcileAfterDiscardFlush double-fire?",
+        "answer": "NO",
+        "proof": "armAutoSaveTimer opens with clearAutoSaveTimer() (:890) and autoSaveTimer is a single module-level variable (:227 region, cleared at :264-269), so N visible transitions leave at most ONE pending timeout -- each call replaces the previous rather than stacking. The reconcile itself issues no request, which the pre-existing row \"does not flush when the document becomes visible\" still proves (0 captures without advancing timers). The gate is also self-terminating: once the re-armed save succeeds, applySavedRecord sets dirty:false (:555) and every later visible transition short-circuits on `!state.dirty`."
+      },
+      "inFlightSaveCheck": {
+        "question": "can it re-arm during an in-flight save, and does that race or reorder anything?",
+        "answer": "It CAN re-arm while saveState is 'saving' -- and that is safe. No race, no reorder, no lost write.",
+        "proof": "performSave serializes every write through saveChain (:604-614, comment: \"Serializing is what makes `baseVersion` a usable compare-and-swap token\"), so a reconcile-armed save is queued BEHIND the in-flight one and runSave reads get().baseVersion (:640 region) only after the earlier save applied its record. The server CAS (CampaignPersistenceService.ts:126-128) is the backstop either way.",
+        "residualShapeIsPreExisting": "The one observable side effect is a possible redundant PUT of unchanged state: applySavedRecord does NOT clear the timer (:546-562 -- no clearAutoSaveTimer among the seven call sites at :587, :847, :890, :959, :1017, :1085), and runSave does not gate on dirty, so a timer armed before a concurrently-completing save still fires. That shape ALREADY exists on the markDirty path (markDirty arms a timer that survives a save completing underneath it) and predates this prefix -- the reconcile inherits it rather than introducing it. Version churn only; no data loss, no reordering. Not a required edit.",
+        "conflictExclusionIsCorrect": "Excluding saveState === 'conflict' is right, not a gap: the debounce callback already early-returns on conflict (:893-895), so re-arming there would arm a timer that can only no-op, and auto-save is deliberately disabled until the player resolves."
+      },
+      "bfcacheBonus": "Unintended but welcome: a document that fires pagehide, enters bfcache and is later restored also becomes visible again, so the reconciliation re-arms the owed save on bfcache restore -- the exact case the deliberate absence of beforeunload was protecting.",
+      "testRows": [
+        "\"re-arms the ordinary save when a document the flush assumed lost becomes visible again\" -- hidden gives 1 keepalive request; visible + advancing the debounce gives a SECOND request with `keepalive` undefined. Non-tautological: without the reconcile the flush had cleared the timer, so advancing produces nothing.",
+        "\"reaches the existing conflict flow when the flush landed and the re-armed save is stale\" -- re-stubs fetch to the typed 409 a landed keepalive write causes, then asserts saveState 'conflict', saveConflict.reason 'base-state-unavailable', recoveryAction 'resync-to-active-head', conflictServerRecord.version === BASE_VERSION + 1 and dirty still true. Pins the residual rather than papering over it; invents no UI and adds no resolution path."
+      ],
+      "redLogVerified": ".../D-red-jest.log, sha256 fbb992456060edd1c7e978df452134fb959a8bf65c335e4b0a22a79fcd8f3878 (matches), `Tests: 2 failed, 15 passed, 17 total` at commit C with both rows present and no reconciliation in source.",
+      "harnessNote": "The 409 row needed a 12-tick drainMicrotasks() helper because the conflict path awaits response.json() before writing state. Verified as a harness fix, not a behaviour crutch: the row was red first with the same helper in place."
+    },
+    "nb3": {
+      "status": "APPLIED (bonus, one line)",
+      "detail": "__resetCampaignPersistenceCoordinationForTests now also sets pendingFlushIssued = false, so a suite calling only the coordination reset cannot inherit a stale flag."
+    },
+    "residualAssessment": {
+      "residualAsStatedByAuthor": "The reconciliation re-arms a SAVE; it does not re-validate the cache against the stream head and does not resync baseVersion. A landed keepalive write therefore still routes the next save into the existing 409 conflict flow, whose only resolution remains take-server.",
+      "honestlyPinned": "YES",
+      "howPinned": "Three surfaces, not one: (1) a passing test row that drives the exact 409 and asserts the resulting store state; (2) an explicit entry in correction2.nonClaimsAddedOnReviewerRequest naming what eliminating it would require (\"head re-validation on return, which is not in this prefix and not in task 1.6\"); (3) the spec scenario says only that an acknowledged save SHALL be SCHEDULED -- it does not claim the conflict is avoided, so the spec and the code agree.",
+      "acceptableForTask16": "YES",
+      "why": [
+        "Scope: task 1.6 NON-CLAIMS already exclude head machinery (\"no change to the PUT route or its CAS\"), and the task text itself defers re-validation to task 1.3 (\"the next load re-validates the cache against the head per task 1.3\"). Adding head re-validation here would be scope growth into another task.",
+        "Harm is materially reduced, not merely relabelled. Before commit D the 409 was the DEFAULT outcome and arrived arbitrarily late -- whenever the user next mutated, after arbitrarily much new work, with take-server discarding all of it. After commit D the reconcile save fires ~AUTO_SAVE_DEBOUNCE_MS after the tab returns, at which point local content is still identical to the flushed body, so take-server adopts an equivalent record and resyncs baseVersion losslessly. The lossy case narrows to the race where the user edits within the debounce window of returning.",
+        "It is now owned in state, not hidden: the conflict carries the server's typed reason and record through the flow the store already models, and the client never claims an acknowledgement it did not earn -- the invariant the requirement actually asserts."
+      ],
+      "followUpRecommendation": "NON-BLOCKING, and a PARENT action rather than an author edit: when the parent flips the 1.6 checkbox, carry this residual (and NB-1, the unconsumed flushSkip) into the task receipt in tasks.md, so it lives on an SSOT surface instead of only in the planning evidence JSON. Head re-validation on return-to-visible is the natural task 1.3 follow-up."
+    },
+    "reviewerGates": {
+      "crashWindowSuite": "17 passed, 17 total (10 store-action + 7 DOM) -- matches the expected 17/17",
+      "focusedCampaign": "node node_modules/jest/bin/jest.js --maxWorkers=2 --coverage=false src/stores/campaign src/lib/campaign -- exit 0, 220 suites passed, 3223 tests passed (3220 + the 3 new rows)",
+      "typecheck": "npx tsc --noEmit -p tsconfig.json -- exit 0, empty output",
+      "oxlint": "npx oxlint on both changed source files -- 1 warning, 0 errors; the same pre-existing eslint(max-lines) on the store",
+      "openspecStrict": "npx openspec validate --all --strict -- Totals: 232 passed, 0 failed (232 items)"
+    },
+    "hygieneRecheck": {
+      "perCommitCaps": "git diff --shortstat c87cab785 658af51ea = \"2 files changed, 49 insertions(+), 14 deletions(-)\" = 63; 658af51ea..eaa63b7db = \"4 files changed, 157 insertions(+), 11 deletions(-)\" = 168. Both match the coordinator figures and both are far under 500.",
+      "files": "git diff --name-only c87cab785 eaa63b7db lists exactly 4 files: spec.md, the test file, the wiring, the store. No unrelated changes; tasks.md untouched by C and D.",
+      "conventionalCommits": "Both are fix(campaign): with subjects that name the defect they close. Correct type -- these repair behaviour introduced earlier on the same branch.",
+      "author": "Wes Rollings <wrollings@gmail.com> as author and committer on both.",
+      "aiAttribution": "NONE -- both commit bodies empty.",
+      "checkbox": "STILL `- [ ] 1.6` at eaa63b7db -- not flipped.",
+      "specDelta": "One new scenario, 6 added lines, inserted in the requirement it belongs to. It adds an obligation the code now satisfies and pins nothing the code does not do.",
+      "referenceBranchAndEarlierCommits": "A (395c9fcc2), B (c87cab785) and the reference (bad964e72) all unchanged."
+    },
+    "requiredEditsRemaining": [],
+    "finalVerdict": "APPROVE"
+  }
+}

@@ -1,0 +1,154 @@
+{
+  "artefact": "r2-ob2-campaign-route-auth-20260915",
+  "task": "OB-2 — route guards on GET/PUT/DELETE /api/campaigns/[id] and POST /api/campaigns/[id]/adopt",
+  "date": "2026-09-15",
+  "agent": "general-purpose (GP-JUSTIFIED: security-relevant bounded implementation with caller analysis and red-first tests)",
+  "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/camp-receipt-verification",
+  "branch": "codex/roadmap-campaign-route-auth-20260915",
+  "baseSha": "bce2049d74ce6e48b5d0813fb506ada701257e47",
+  "baseRef": "origin/main (fetched 2026-09-15)",
+  "decision": {
+    "verdict": "BLOCKED-ON-CLIENT-CHANGE — guard NOT implemented",
+    "gateFromTask": "step 1 instructed: if ANY production caller does not authenticate today, do not implement; write the brief and stop",
+    "summary": "Every production caller of GET/PUT/DELETE /api/campaigns/[id] and POST /api/campaigns/[id]/adopt sends NO credential today. No subset of methods is safely guardable: all four verbs have an unauthenticated production caller. Adding authenticateRequest would break single-player campaign save, load, delete and legacy adoption outright.",
+    "codeCommitted": false,
+    "specAmended": false,
+    "worktreeState": "clean — `git status --porcelain` empty; no files created or modified under the repo tree"
+  },
+  "callerTable": [
+    {
+      "id": "C1",
+      "route": "PUT /api/campaigns/[id]",
+      "caller": "src/stores/campaign/useCampaignPersistenceStore.ts:456-490 (putLiveCampaign, reached from performSave:549 / saveCampaignAction:793 / autosave:817)",
+      "kind": "production client",
+      "credentialsSent": "NONE",
+      "quote": "const response = await fetch(`/api/campaigns/${encodeURIComponent(campaignId)}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ envelope, baseVersion }) });",
+      "breaksUnderGuard": true,
+      "impact": "Every campaign save (manual + autosave), single-player and co-op host, returns 401."
+    },
+    {
+      "id": "C2",
+      "route": "GET /api/campaigns/[id]",
+      "caller": "src/stores/campaign/useCampaignPersistenceStore.ts:659-661 (runLoad, reached from loadCampaign:642)",
+      "kind": "production client",
+      "credentialsSent": "NONE",
+      "quote": "const response = await fetch(`/api/campaigns/${encodeURIComponent(id)}`, { cache: 'no-store' });",
+      "breaksUnderGuard": true,
+      "impact": "Every campaign load returns 401; the 404 branch that drives the legacy-adoption offer is never reached, so adoption is unreachable too."
+    },
+    {
+      "id": "C3",
+      "route": "POST /api/campaigns/[id]/adopt",
+      "caller": "src/stores/campaign/useCampaignPersistenceStore.ts:764-772 (legacy-copy adoption)",
+      "kind": "production client",
+      "credentialsSent": "NONE",
+      "quote": "const response = await fetch(`/api/campaigns/${encodeURIComponent(campaignId)}/adopt`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ envelope }) });",
+      "breaksUnderGuard": true,
+      "impact": "Legacy browser copies can never be adopted; a pre-server-authority campaign is permanently stranded."
+    },
+    {
+      "id": "C4",
+      "route": "DELETE /api/campaigns/[id]",
+      "caller": "src/components/gameplay/pages/campaigns/dashboard/CampaignDashboardPage.tsx:284-288 (handleDeleteCampaign)",
+      "kind": "production client",
+      "credentialsSent": "NONE",
+      "quote": "const response = await fetch(`/api/campaigns/${encodeURIComponent(campaign.id)}`, { method: 'DELETE' });",
+      "breaksUnderGuard": true,
+      "impact": "Dashboard delete surfaces 'Campaign could not be deleted: server responded 401'."
+    },
+    {
+      "id": "C5",
+      "route": "GET /api/campaigns/[id] (reference: what an AUTHENTICATED caller looks like)",
+      "caller": "src/components/campaign/share/CampaignSharePanelConnected.tsx:55-70, 121 (grants list + revoke)",
+      "kind": "production client — the pattern the task asked to copy",
+      "credentialsSent": "Authorization: Bearer <wireToken>",
+      "quote": "function shareAuthHeaders(matchId) { const stored = readCoopCampaignToken(matchId); return stored ? { Authorization: `Bearer ${stored.wireToken}` } : {}; }",
+      "breaksUnderGuard": false,
+      "note": "This is the ONLY campaign-route client that attaches a bearer token, and it reads it by CO-OP MATCH ID, not by campaign id."
+    },
+    {
+      "id": "C6",
+      "route": "GET /api/campaigns/[id]",
+      "caller": "src/__tests__/integration/coopMutationPersistence.test.ts:162-165 (fetchServerRecord)",
+      "kind": "integration test",
+      "credentialsSent": "NONE",
+      "breaksUnderGuard": true
+    },
+    {
+      "id": "C7",
+      "route": "GET/PUT/DELETE /api/campaigns/[id]",
+      "caller": "16 e2e call sites — e2e/helpers/seamCampaign.ts:371, e2e/helpers/scenarioPackLoading.ts:114 & 388, e2e/helpers/authorityRecoveryEvidence.ts:208, e2e/fixtures/campaign.ts:388, e2e/saved-custom-combat.spec.ts:74/99/117, e2e/campaign-flow.spec.ts:651/902/1031, e2e/campaign-subroute-recovery.spec.ts:392/417, e2e/campaign-customizer-handoff.spec.ts:170, e2e/campaign-starmap-logistics.spec.ts:146, e2e/gm-campaign-ledger-control-plane.spec.ts:125/196, e2e/gm-two-player-proposals.pack.spec.ts:513, e2e/campaign-two-device-drive.spec.ts:300/326/367/420/433, e2e/scenario-pack-minting.spec.ts:176, e2e/scenario-packs/maintenance-repairbay.parity.spec.ts:108/141, e2e/seam-roster-materialization-handoff.spec.ts:219, e2e/coop-campaign-two-browser-journey.spec.ts:234/421, e2e/authority-privacy-three-context.spec.ts:564",
+      "kind": "e2e harness",
+      "credentialsSent": "NONE (authorityRecoveryEvidence.ts:209 sends only RUN_ID_HEADER, a run-correlation header, not a credential)",
+      "breaksUnderGuard": true,
+      "note": "Full list in the e2e-callers log artefact."
+    }
+  ],
+  "whyNoTransitionalModeIsAvailable": {
+    "finding1_noTokenExistsInSinglePlayer": {
+      "claim": "A single-player campaign client holds no token it could attach, so 'wire the header' is not a small client change — there is nothing to wire.",
+      "evidence": [
+        "src/lib/campaign/coop/coopCampaignAuthTokenStore.ts:8-12, 25-33 — the only campaign bearer token lives in sessionStorage under key `mekstation.coopCampaign.token.<matchId>`; readCoopCampaignToken returns null when matchId is null/absent.",
+        "src/pages/api/multiplayer/auth/token.ts:1-20 — minting an IPlayerToken requires an unlocked VAULT IDENTITY plus its PASSWORD ('Body: {password, displayName?, ttlMs?}'). Single-player campaign creation and play never perform that unlock.",
+        "grep over src/ for client-side `Authorization: Bearer` returns exactly 3 senders (CampaignSharePanelConnected.tsx:59, MatchBrowser.tsx:110, commitGmCombatRewind.ts:53) — all multiplayer/co-op surfaces."
+      ]
+    },
+    "finding2_guardWouldNotActuallyAuthorize": {
+      "claim": "Even with a token wired, `authenticateRequest` alone on these routes would be authentication without authorization — it would gate on 'holds ANY valid player token', not 'owns THIS campaign'.",
+      "evidence": [
+        "src/lib/campaign/authority/campaignSessionScope.ts:22-31 — expectedScopeForCampaign returns undefined when the campaign has no coopSession.matchId, i.e. for every single-player campaign.",
+        "src/lib/multiplayer/server/auth.ts:234-246 — an UNSCOPED token is accepted unconditionally ('A token with no scope is still accepted when expectedScope was passed — transition residual'). Scope binding only fires when token.scope is present.",
+        "src/services/persistence/SQLiteService.migrations.ts:332-344 — the `campaigns` table has NO owner column (only origin_device_id); there is no stored identity a verified playerId could be compared against.",
+        "src/pages/api/campaigns/[id]/commands.ts:114-119 — commands.ts gets real authorization from a SECOND gate, isActiveCampaignSeat, which its own header comment (lines 28-33) records as refusing EVERY caller on a campaign with no co-op session (finding #29). Applying that same gate to [id].ts would refuse 100% of single-player traffic by design."
+      ]
+    },
+    "finding3_correctFixIsUpstream": {
+      "claim": "The stated confidentiality concern (GET at [id].ts:126-155 returns the full SerializedCampaign including contractMarket) is already owned by an in-flight spec requirement that removes the value from the wire entirely, which is the architecturally correct fix rather than a route guard.",
+      "evidence": [
+        "openspec/changes/design-campaign-authority-and-sync/specs/campaign-authority/spec.md @ 41fa76989 — 'Full contract and remaining market are source-only, narrowed at the stored-envelope boundary': the full IContract and remaining ICampaignContractMarket SHALL NOT appear 'on any HTTP response'; the audience is the source instance's own server process and its persisted SerializedCampaign record.",
+        "Same spec, readback gate: 'Full private HTTP readback SHALL remain blocked until a source-only audience contract that NAMES THE READBACK AUDIENCE, its concrete caller, and its authentication story exists'. OB-2 has no named audience/caller/authentication story for the single-player persistence route, so a guard added now would not satisfy that gate either."
+      ]
+    }
+  },
+  "recommendedClientChangeIfPursued": {
+    "note": "UNVERIFIED estimates — no implementation was attempted; these are sizing judgements, not measured line counts.",
+    "prerequisiteDecisions": [
+      "Decide what identity a single-player campaign has. Today: none. Options are (a) require a vault identity for campaign play (product decision, changes onboarding), (b) introduce a device-scoped credential distinct from the Ed25519 player token, or (c) accept that localhost single-player needs no gate and close OB-2 as not-a-defect for these verbs.",
+      "Add an owner column (or an owner field on the stored envelope) to the campaigns table — without it, a verified playerId has nothing to be checked against, and the guard authenticates without authorizing.",
+      "Decide the e2e credential story: 16 e2e call sites plus e2e/fixtures/campaign.ts and e2e/helpers/seamCampaign.ts cleanup paths would each need a token, or a test-only bypass — and a test-only bypass on an auth gate is itself a security surface."
+    ],
+    "estimatedScopeIfAllPrerequisitesResolved": "UNVERIFIED: ~4 client call sites + 1 token-plumbing helper + 1 SQLite migration + ~16 e2e call sites + 6 existing route test files. Well beyond the '≤15 files / ≤500 lines' cap this task carried.",
+    "transitionalModes": {
+      "acceptButWarn": "POSSIBLE but low value — logging an unauthenticated campaign read changes no behaviour and does not close the leak the brief names; the leak is closed by the source-only narrowing above, not by a log line.",
+      "guardDeleteAndAdoptOnly": "NOT SAFE. DELETE has an unauthenticated production caller (C4, CampaignDashboardPage.tsx:284-288) and adopt has one (C3, useCampaignPersistenceStore.ts:764-772). Neither verb is caller-free."
+    }
+  },
+  "gates": {
+    "run": "NONE — no source file was created or modified, so there is nothing to build, lint, type-check or test. Running the suites would produce a green result attributable to the base commit, not to this task, and is not claimed as evidence of anything.",
+    "worktreeVerification": "git status --porcelain returned empty in the worktree after analysis (recorded in caller-analysis log run)",
+    "jest": "not run — no code change",
+    "tsc": "not run — no code change",
+    "oxlint_oxfmt": "not run — no changed files",
+    "openspecValidate": "not run — no spec change made (an amendment naming these routes as 'authenticated readback surfaces' would assert something false of the code as it stands)"
+  },
+  "artifacts": [
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/ob2-route-auth-20260915/caller-analysis-20260915.txt",
+      "sha256": "3681ce06e7b080ba6f2d544d5790aea01338d5f3334ed98fafc0bb8874672e69",
+      "contents": "Verbatim source excerpts for every claim in callerTable and whyNoTransitionalModeIsAvailable — the 4 unauthenticated production call sites, the authenticated grants reference pattern, the token store, expectedScopeForCampaign, the unscoped-token acceptance in verifyPlayerToken, the campaigns table DDL, and the complete list of client-side bearer senders."
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/ob2-route-auth-20260915/e2e-callers-20260915.txt",
+      "sha256": "9eebe3bb73d311ea9cf19db43a799feab7101c347d076e7789e01713b1f89dec",
+      "contents": "All e2e call sites of the four routes with their credential state."
+    }
+  ],
+  "nonClaims": [
+    "NOT CLAIMED: that these routes are safe to leave unauthenticated in a hosted/multi-tenant deployment. The finding in the R2 P1 admission brief stands — GET returns the whole SerializedCampaign to any caller who knows the id. What is claimed is only that a route guard cannot be added today without breaking single-player play, and that the guard as scoped would not have authorized anything.",
+    "NOT CLAIMED: that the threat model was assessed. Whether MekStation's deployment surface (localhost desktop/Electron vs hosted) makes an unauthenticated campaign route a real exposure was not investigated and is the decision this brief hands back.",
+    "NOT CLAIMED: any measurement of how many e2e specs would fail. The 16 call sites were enumerated by grep; no run was performed.",
+    "NOT CLAIMED: that the source-only narrowing requirement is implemented. It is spec text on an unmerged change (design-campaign-authority-and-sync); CAMPAIGN_JOURNAL_AUTHORITY_ENABLED remains false per the same spec.",
+    "NOT CLAIMED: that GET at src/pages/api/campaigns/[id].ts:126-155 was re-verified against PR #1685's head. The route body quoted here is from origin/main at bce2049d74ce6e48b5d0813fb506ada701257e47; the spec text was read from 41fa76989 via git show.",
+    "NOT CLAIMED: that index.ts (GET /api/campaigns list) or redeem.ts were analysed. Only the four routes named in the task were in scope."
+  ]
+}

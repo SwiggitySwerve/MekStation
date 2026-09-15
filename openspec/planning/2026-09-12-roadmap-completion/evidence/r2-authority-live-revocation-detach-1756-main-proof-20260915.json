@@ -1,0 +1,67 @@
+{
+  "slice": "R2.authority-live F-LIVE-1 fix: stop delivering campaign facts to a revoked seat live socket",
+  "pr": 1756,
+  "prHead": "c19047b20da2f0c5c5f9023aed8272f479fb0d49",
+  "mergeCommit": "88290bd7e2833758f0282ba6ea9a01d182f9aaea",
+  "verifiedAtUtc": "2026-09-15T21:29:21.168Z",
+  "worktree": "archive-original-main-proof (detached at merge commit, Node v22.22.0)",
+  "blobEquality": {
+    "files": [
+      "e2e/campaign-journal-two-process-privacy.spec.ts",
+      "src/lib/multiplayer/server/CampaignSyncSession.ts",
+      "src/lib/multiplayer/server/__tests__/CampaignSyncSession.test.ts"
+    ],
+    "command": "git diff --stat <prHead> <merge> -- <files>",
+    "result": "empty (0 bytes)"
+  },
+  "gates": {
+    "jest": {
+      "scope": "src/lib/multiplayer/server src/lib/campaign/sync src/lib/campaign/coop",
+      "exit": 0,
+      "suites": 177,
+      "tests": 1281
+    },
+    "tsc": {
+      "exit": 0,
+      "outputBytes": 0
+    },
+    "openspecStrict": {
+      "exit": 0
+    }
+  },
+  "runtime": {
+    "build": "NEXT_PUBLIC_E2E_MODE=true NEXT_PUBLIC_E2E_TEST=true npm run build at the merge commit, exit 0",
+    "buildId": "1789507485807",
+    "e2eBundleCheck": "window.__E2E_MODE__=!0 in _app-b4f3e371ee8b87c1.js; liveByParticipant present in .next/standalone/.next/server/pages/api/multiplayer/matches.js",
+    "playwright": "e2e/campaign-journal-two-process-privacy.spec.ts on port 3639: exit 0, 1 passed (27.0s) with the inverted pin (revoked seat receives nothing)",
+    "portsListenAfter": 0
+  },
+  "logs": {
+    "build": {
+      "path": ".sisyphus/roadmap-completion-20260912/main-proof-1756-20260915/build.log",
+      "sha256": "a3fe24b6a4b3be88183938514ffc9def8f1b51fac4d07bc51d75a0966226aab4"
+    },
+    "jest": {
+      "path": ".sisyphus/roadmap-completion-20260912/main-proof-1756-20260915/jest.log",
+      "sha256": "a9825d8face53ab1492e97ad3af21dd979b71d06eea9177cbf6e29c2b57ad21e"
+    },
+    "playwright": {
+      "path": ".sisyphus/roadmap-completion-20260912/main-proof-1756-20260915/playwright.log",
+      "sha256": "59264d54b2b262b86c1dc0886f11eb14ffb4753f892a6901706e93c60fe156dd"
+    },
+    "openspec": {
+      "path": ".sisyphus/roadmap-completion-20260912/main-proof-1756-20260915/openspec.log",
+      "sha256": "a6f1b01bad6ef535f7ae511fd2b0e725e382bcb462449ef4386723e0ec97eff3"
+    },
+    "tsc": {
+      "path": ".sisyphus/roadmap-completion-20260912/main-proof-1756-20260915/tsc.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "limits": [
+    "revoked socket silenced, not closed (typed close is client feedback, Q1)",
+    "F-LIVE-2 RemoveParticipant via /commands 422 host-only untouched",
+    "grant delivery channel (task 4.3) out of scope",
+    "flag hardcoded false"
+  ]
+}

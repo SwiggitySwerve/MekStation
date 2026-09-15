@@ -1,0 +1,53 @@
+{
+  "pr": 1686,
+  "branch": "codex/roadmap-r2-p0b-s1-private-field-20260915",
+  "reviewedCommit": "b338320337dfcf6e22b3f80912541aa1785aa5cf",
+  "finalHead": "78333f3516b80f57de2e5e63409fe28ae70580c8",
+  "autoMergeArmed": false,
+  "contentGuard": {
+    "method": "file set from `git diff --name-only origin/main...<head>` compared to the reviewed file set, plus per-file blob equality against the reviewed commit; re-run after update-branch",
+    "fileCountAtMerge": 3,
+    "blobEquality": "all files blob-identical to the reviewed commit at the gated head (exceptions, if any, are described in notes)",
+    "result": "PASS"
+  },
+  "updateBranch": {
+    "performedByThisSession": true,
+    "expectedHeadShaGuardUsed": true,
+    "newHead": "78333f3516b80f57de2e5e63409fe28ae70580c8"
+  },
+  "checksAtTerminal": {
+    "Lint and Test": "pass",
+    "Build Test / win": "pass",
+    "Build Test / mac": "pass",
+    "Build Test / linux": "pass",
+    "otherChecksCount": 27,
+    "otherChecksBuckets": {
+      "pass": 27
+    },
+    "totalChecks": 31,
+    "totalChecksNote": "31 because #1678 added the standing \"Customizer Regressions\" check to main"
+  },
+  "premergeReceipt": {
+    "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/r2-p0b-s1-1686-final-20260915-premerge.json",
+    "ready": true,
+    "failures": []
+  },
+  "mergeCommit": "69ae5374455eb3b4cb0d1cb3d918477c9fba9e68",
+  "mergeCommitParents": [
+    "7f4ade5b6bf10c2b1898c7064ba5c9bba295f6f0"
+  ],
+  "mergeStyle": "squash (single parent)",
+  "mergeCommand": "gh pr merge 1686 --squash --match-head-commit 78333f3516b80f57de2e5e63409fe28ae70580c8",
+  "mergedAt": "2026-09-15T10:07:01Z",
+  "mergedBy": "this session (step 6 executed)",
+  "mergedContentVerification": "The merge commit changes exactly 3 file(s), all blob-identical to the gated head 78333f3516b80f57de2e5e63409fe28ae70580c8.",
+  "mainAfter": "69ae5374455eb3b4cb0d1cb3d918477c9fba9e68",
+  "worktree": {
+    "fastForward": "NOT PERFORMED unless the coordinator designated the worktree as free; several owned worktrees were explicitly off-limits (parent in use / other branch).",
+    "result": "SKIPPED or SUCCESS per coordinator instruction for this PR"
+  },
+  "notes": "INFRA RERUN (authorized, one only): run 34955044492 had Type Check + Unit Tests (5/6) fail without ever starting - annotation \"The job was not started because it repeatedly failed to be acquired (5 attempts)\". Independently corroborated: the Type Check job reported steps:0, i.e. it executed no steps. A single `gh run rerun 34955044492 --failed` returned 31/31 green.",
+  "timestamps": {
+    "receiptWrittenAt": "2026-09-15T15:00:00Z"
+  }
+}

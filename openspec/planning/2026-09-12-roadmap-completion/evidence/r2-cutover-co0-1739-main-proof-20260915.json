@@ -1,0 +1,73 @@
+{
+  "slice": "R2.authority-cutover CO0: committed journal-authority command reports to the cutover marker",
+  "pr": 1739,
+  "prHead": "980a45f14ffc37cc815bb7e206476a0dc37c3807",
+  "mergeCommit": "3d9ade77dcad0ede42777f33a88d4fe96ac19e06",
+  "verifiedAtUtc": "2026-09-15T17:52:48.477Z",
+  "worktree": "archive-original-main-proof (detached at merge commit, Node v22.22.0)",
+  "blobEquality": {
+    "files": [
+      "src/lib/campaign/authority/__tests__/campaignCommandPipelineCutoverMarker.test.ts",
+      "src/lib/campaign/authority/campaignCommandPipeline.ts",
+      "src/lib/campaign/authority/campaignCutoverMarkerIo.ts"
+    ],
+    "command": "git diff --stat <prHead> <merge> -- <files>",
+    "result": "empty (0 bytes)"
+  },
+  "gates": {
+    "jest": {
+      "scope": "src/lib/campaign/authority src/services/campaignPersistence src/lib/campaign/sync",
+      "exit": 0,
+      "suites": 38,
+      "tests": 265
+    },
+    "tsc": {
+      "exit": 0,
+      "outputBytes": 0
+    },
+    "openspecStrict": {
+      "exit": 0
+    },
+    "specPurposeStrict": {
+      "exit": 0
+    },
+    "terminologyStrict": {
+      "exit": 0
+    },
+    "qcOpenspecCi": {
+      "exit": 0
+    }
+  },
+  "logs": {
+    "jest": {
+      "path": ".sisyphus/roadmap-completion-20260912/main-proof-1739-20260915/jest.log",
+      "sha256": "20072b6752d73125888d4a55728d5c7274f482fc5f53013bfde0d93883a0f88d"
+    },
+    "openspec": {
+      "path": ".sisyphus/roadmap-completion-20260912/main-proof-1739-20260915/openspec.log",
+      "sha256": "a6f1b01bad6ef535f7ae511fd2b0e725e382bcb462449ef4386723e0ec97eff3"
+    },
+    "purpose": {
+      "path": ".sisyphus/roadmap-completion-20260912/main-proof-1739-20260915/purpose.log",
+      "sha256": "629026f25215446af06f7491ea5757f56e6f66d00cb70d6d432438cb6cb9adf7"
+    },
+    "qcOpenspecCi": {
+      "path": ".sisyphus/roadmap-completion-20260912/main-proof-1739-20260915/qc-openspec-ci.log",
+      "sha256": "8c41df6c33246420ed1806218780c2df69b5ad4e7c594b993b07594ee959ccb2"
+    },
+    "terminology": {
+      "path": ".sisyphus/roadmap-completion-20260912/main-proof-1739-20260915/terminology.log",
+      "sha256": "3364eba8d875bfd0d4c95766d37d4dce8ce7034426feaae6939f8d243503bd3b"
+    },
+    "tsc": {
+      "path": ".sisyphus/roadmap-completion-20260912/main-proof-1739-20260915/tsc.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "limits": [
+    "scoped jest only",
+    "marker write shares the append handle, not its transaction (crash window fail-safe under the second D10 guard; mutant-executed, not process-killed)",
+    "review F-1: marker-io throw after a committed command becomes an error response; unreachable while the flag is false",
+    "CO3 runtime proof pending"
+  ]
+}

@@ -1,0 +1,437 @@
+{
+  "node": "R2.authority-live",
+  "slice": "rows R (revocation) and D (redaction)",
+  "artefact": "r2-authority-live-rows-local-20260915",
+  "capturedAtUtc": "2026-09-15T21:05:00.000Z",
+  "acceptanceLineUnderTest": "R2.authority-live acceptance[1] (roadmap.json): 'Real isolated source and replica processes, append/restart/catch-up/revocation/redaction; reviewed migration states/parity/rollback before enabling journal authority.' This slice answers the REVOCATION and REDACTION cells only; append and restart were closed by R2.authority-cutover CO3 on the same topology.",
+  "briefSlicesImplemented": [
+    "L2 (runtimeMatrix.proposedAdditions.revocationRow) - delivered as row R, with one measured deviation from the brief's proposed shape, recorded under findings.F-LIVE-1.",
+    "L3 (runtimeMatrix.proposedAdditions.redactionRow) - delivered as row D, and the brief's own openQuestion on it is RESOLVED: no new intent kind was needed (see openQuestionsResolved[0])."
+  ],
+  "base": {
+    "branch": "codex/roadmap-r2-authority-live-rows-20260915",
+    "baseSha": "c6be02fd6370576e3a1f5034c2395aaef19ba46f",
+    "baseRef": "codex/roadmap-r2-authority-cutover-co3-20260915",
+    "baseSubject": "test(campaign): two processes converge on one journal and survive a restart",
+    "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/proof02-rerun",
+    "verifiedBy": "git fetch origin; git status --short (clean); git checkout -b codex/roadmap-r2-authority-live-rows-20260915; git log --oneline -1",
+    "whyNotBasedOnMain": "The task instruction allows basing on origin/main if it already carries the CO3 spec. It does not. Measured at capture time by `git fetch origin` then `git cat-file -e origin/main:<path>` for each CO3 file: `e2e/campaign-journal-two-process-convergence.spec.ts`, `e2e/helpers/campaignJournalTwoProcess.ts` and `e2e/helpers/campaignJournalDrive.ts` are all ABSENT from origin/main (376f5aa92); only `scripts/e2e/campaign-journal-authority.ts` is present, via #1747. So this branch is stacked on the CO3 branch as instructed.",
+    "stackDependency": {
+      "dependsOn": "The CO3 stack #1747-#1750, all now MERGED.",
+      "statusAtPublish": "Corrected per review RE-1 and re-measured at publish time. The receipt originally recorded origin/main as 376f5aa92 (#1747) with #1748-#1750 unmerged; the review measured 288fe678a (#1748 merged, #1749/#1750 open). At publish time `git fetch origin; git rev-parse origin/main` gives 1fcd9b6485421d64d4303693a368676fc4df4d51 - '#1750 test(e2e): prove two-process scoped convergence and durable restart under journal authority'. All four CO3 files are now present on origin/main, verified with `git cat-file -e origin/main:<path>`.",
+      "mergeOrder": "The CO3 ordering dependency is DISCHARGED - #1747 -> #1748 -> #1749 -> #1750 are all merged. The remaining order is internal to this slice: PR 1 (#1753) -> PR 2 (#1754) -> PR 3 (#1755).",
+      "conflictCharacterisation": "RE-1 is right that the original 'cannot be rebased onto main' over-stated the dependency, and the publish-time measurement sharpened it further. The review recorded `git merge-tree --write-tree origin/main 1f1db65d3` CLEAN (tree bcca4776) against main at 288fe678a. Re-run at publish time against main at 1fcd9b648 it was NOT clean: exit 1, add/add conflict on e2e/helpers/campaignJournalDrive.ts. Diagnosed rather than forced - the CO3 PRs were REBASED on merge, so c6be02fd6 is not an ancestor of origin/main (`git merge-base --is-ancestor` fails; the merge base is 3d9ade77d, #1739). The conflict was therefore an artefact of disjoint history and not a content difference: `git diff origin/main:e2e/helpers/campaignJournalDrive.ts c6be02fd6:e2e/helpers/campaignJournalDrive.ts` is EMPTY. Resolved by rebasing onto origin/main; git recognised all four CO3 commits as already applied ('skipped previously applied commit') and replayed only this slice's three. Post-rebase `git merge-tree --write-tree origin/main HEAD` is clean at tree bcca4776 - the SAME tree hash the review recorded, which is independent corroboration that the rebase changed no content."
+    }
+  },
+  "commits": [
+    {
+      "sha": "7b4e66b86b123fd9b52eefb350d9aa3ef39f4721",
+      "subject": "test(campaign): a Node-side campaign socket the two-process drive can hold open",
+      "files": [
+        "e2e/helpers/campaignJournalSocket.ts",
+        "e2e/helpers/campaignJournalDrive.ts"
+      ],
+      "nonGeneratedLines": 360,
+      "note": "257 new lines in the socket helper; +103/-22 in the CO3 drive helper. The drive-helper edit is the ONLY change to a file CO3 already committed, and is additive in behaviour: `hostIdentity()` now delegates to a parameterised `campaignIdentity()`, `readActivity()` now delegates to a new `requestActivity()` that returns the status instead of expecting 200, `postCommand()` now delegates to a new `postIntentCommand()`, and `ActivityBody.entries` is narrowed from `readonly unknown[]` to a typed row. CO3's own spec was re-run green on this branch's helper (see the \"CO3 regression\" gate)."
+    },
+    {
+      "sha": "f2e8d9ad2f4501eece65025095b11fe771308ca4",
+      "subject": "test(campaign): the world the privacy rows argue about, built once",
+      "files": [
+        "e2e/helpers/campaignJournalPrivacyFixture.ts"
+      ],
+      "nonGeneratedLines": 246
+    },
+    {
+      "sha": "1f1db65d3a440bba4fc49a6b835fa929811890f8",
+      "subject": "test(campaign): a revoked seat is refused by the other process, and a GM rationale is not",
+      "files": [
+        "e2e/campaign-journal-two-process-privacy.spec.ts"
+      ],
+      "nonGeneratedLines": 476
+    }
+  ],
+  "commitDiscipline": {
+    "author": "Wes Rollings <wrollings@gmail.com> on all three (verified: git log -3 --format='%an <%ae>')",
+    "aiAttribution": "none (verified: `git log -3 --format='%B' | grep -ciE 'claude|co-authored|generated with'` returned 0)",
+    "caps": "3 commits, 1-2 files each, max 476 non-generated lines. The deliverable spec was 592 lines as first written, which is over the node's 500-line cap AND over the task's own <=500-line instruction for this file; it was SPLIT (the topology setup moved into `campaignJournalPrivacyFixture.ts`) rather than trimmed, per instruction, bringing the spec to 476.",
+    "hooks": "on. Pre-commit ran lint-staged (oxlint --fix, oxfmt --write, tsc --noEmit) plus a full `npm run build` for each of the three commits (TS files staged each time). Before each commit the node-process poll for `next.*build|playwright` was confirmed at 0.",
+    "committedBytesMatchGreenBytes": "VERIFIED. sha256 of `e2e/campaign-journal-two-process-privacy.spec.ts` after all three commits is e5e537dc44790ea16c8fcc9b360b8971b3790bb3f0fc99357007e77e3e347103, identical to the copy the two greens were measured against. The hooks changed no bytes because oxfmt had already been run to fixpoint beforehand.",
+    "pushed": false,
+    "prOpened": false,
+    "specCheckboxesFlipped": "none",
+    "dependenciesAdded": "none. `ws` is already a production dependency (src/pages/api/campaigns/[id]/replica-sync.ts:46).",
+    "migrationsAdded": "none",
+    "productionFilesTouched": "none. All four touched paths are under e2e/."
+  },
+  "topology": {
+    "shape": "CO3's, unchanged. Two OS processes of the SAME packaged production server (.next/standalone/server.js) against ONE campaign database file, plus the Playwright test process as a third handle.",
+    "replicaReader": {
+      "who": "Playwright's own webServer",
+      "port": 3639,
+      "does": "creates the campaign (PUT), then only ever answers the read-only GET /activity. Every row-R and row-D read is taken here - the process that committed none of it."
+    },
+    "source": {
+      "who": "spawned by the spec",
+      "port": 3617,
+      "does": "binds the GM seat via co-op host match creation, carries all three campaign WebSockets, takes the removal and the control spend, and is the process killed and respawned."
+    },
+    "newInThisSlice": "Three campaign-sync WebSockets, opened from the TEST process with `ws` against the source. CO3 opened none ('No WebSocket is opened' was one of its non-claims); the seat-binding and removal paths this node needs are only reachable over that socket, so this slice adds a Node-side client and nothing else.",
+    "whyTheSocketIsAvailableAtAll": "`.next/standalone/server.js` is the repo's CUSTOM server, not Next's generated one - the build hydrates it (`hydratedStandaloneServer: .next\\standalone\\server.js` in the build log) and it wires `createCampaignSessionMembershipPort()` at server.js:478. So the campaign channel, the seat store and the removal path all run in the packaged binary both processes are.",
+    "fourPrincipals": "A GM (co-op host, `gm` seat), guest A and guest B (both `player` seats bound by the production room-code join, which is what `handleRoomCodeGuestJoin.ts:129-134` binds), and a stranger holding a valid self-issued token and NO seat. All four tokens are unscoped, for the reason CO3's `hostIdentity` already records.",
+    "whyFlagFree": "Identical to CO3: the campaign is moved onto journal authority by writing the durable marker directly (`path: 'marker'`, appending nothing). `CAMPAIGN_JOURNAL_AUTHORITY_ENABLED` and the effective OR are both read false out of a real Node process at the start AND the end of the drive; `MEKSTATION_E2E_CAMPAIGN_JOURNAL_AUTHORITY` is asserted undefined in the runner env and absent from the env object handed to `spawn`. Additionally measured this session: that key appears in NO .env file in the repo (`grep -rn MEKSTATION_E2E_CAMPAIGN_JOURNAL_AUTHORITY .env*` found nothing)."
+  },
+  "rows": [
+    {
+      "id": "R",
+      "title": "Revocation across processes",
+      "assertions": [
+        {
+          "id": "R-pre-1",
+          "what": "Three seats are bound by the server, read back through the REPLICA: gm / player / player",
+          "how": "GET /activity on 3639 for each principal; `viewerSeat` is the durable row's answer, not the caller's claim",
+          "result": "PASS"
+        },
+        {
+          "id": "R-pre-2",
+          "what": "A stranger with a valid token and no seat is 403, not a reduced feed",
+          "how": "GET /activity on 3639; body is exactly {error: 'not a participant in this session'}",
+          "result": "PASS",
+          "note": "This is the second half of CO3 review finding F3."
+        },
+        {
+          "id": "R-pre-3",
+          "what": "CONTROL: `RemoveParticipant` through the HTTP command route is refused 422 `host-only` for EVERY caller, the GM included, and appends nothing",
+          "how": "POST /commands on 3617 with the GM's bearer token; status 422, body matches {kind:'rejected', reason:'host-only'}; journal head unchanged afterwards",
+          "result": "PASS",
+          "why": "Measured rather than assumed, so the drive's use of the socket path is a demonstrated necessity rather than an arbitrary choice. Root cause: `campaignCommandPipeline.ts:503-508` calls `validateCampaignIntent` with four arguments, leaving the fifth (`hostPlayerId`) undefined, and `CampaignMatchHostIntent.ts:222` rejects the removal whenever `authorPlayerId !== hostPlayerId`. The socket path `applyHostIntentLocked` (`CampaignMatchHost.doors.ts:151-166`) passes the host id twice and is therefore the shipped removal route."
+        },
+        {
+          "id": "R1",
+          "what": "The removed guest's next scoped read THROUGH THE OTHER PROCESS is refused",
+          "how": "GM sends CampaignHostIntent RemoveParticipant over the socket on 3617; the committed ParticipantRemoved is awaited and the journal head confirmed at seeded+1; then GET /activity on 3639 for guest A",
+          "result": "PASS - 403, body exactly {error: 'not a participant in this session'}",
+          "mechanism": "`applyCommittedParticipantRemovals` (bindCampaignSyncConnection.ts:881-896) calls `membership.revoke`, which stamps `revoked_at`; `activeCampaignSessionMembership` filters on `revoked_at IS NULL`, so `readCampaignActivityForViewer` answers `not-a-participant` and the route maps that to 403."
+        },
+        {
+          "id": "R2",
+          "what": "The remaining guest is NOT refused - the revocation is targeted, not a session-wide shutdown",
+          "how": "GET /activity on 3639 for guest B",
+          "result": "PASS - 200"
+        },
+        {
+          "id": "R3",
+          "what": "The revoked member's ALREADY-BOUND live socket keeps receiving committed facts",
+          "how": "Both guest sockets drained; GM commits one more fact (SpendFunds); guest B's FundsChanged frame awaited; a 2s settle; both sockets drained again",
+          "result": "MEASURED GAP - guest B received ['FundsChanged'] (the positive control, proving the span delivers) and guest A ALSO received ['FundsChanged']",
+          "expectedGoingIn": "silence on guest A, mirroring task 4.3's in-process row",
+          "recordedAs": "findings.F-LIVE-1",
+          "assertedDirection": "The spec asserts what production actually does, so the row is a pin on the real boundary rather than a claim revocation is total. If the detach is ever implemented the row goes red and whoever closed the gap updates it deliberately."
+        },
+        {
+          "id": "R4",
+          "what": "DURABLE: an OS-level restart of the source changes neither answer",
+          "how": "All sockets closed; `restartSourceServer` kills, waits for exit, backs off 750ms, respawns on the same port against the same file; pid asserted different; then GET /activity for guest A on BOTH processes",
+          "result": "PASS - 403 on the replica (3639) and 403 on the restarted source (3617), which rebuilt from the file rather than inheriting any in-memory state"
+        },
+        {
+          "id": "R5",
+          "what": "A rejoin attempt by the revoked member is refused BY NAME",
+          "how": "New campaign socket on the restarted source, same identity, same live room code",
+          "result": "PASS - terminal 'refusal' with an Error frame carrying reason 'membership-revoked'",
+          "mechanism": "`bindCampaignSyncConnection.ts:934-938` checks `isRevoked` before the room code is consulted, so a revoked member holding a live invite is still out."
+        }
+      ]
+    },
+    {
+      "id": "D",
+      "title": "Redaction across processes",
+      "privateDetailCarrier": "The same committed `ParticipantRemoved` fact row R produced. `campaignActivityProjection.ts:186-193` appends the GM's audited rationale to the row's message only when `seesGmPrivateDetail`, which `campaignActivityRead.ts:96,109` sets from the durable seat. So one journal fact, read through one route on one process, must render two different strings.",
+      "whyNoNewIntentWasNeeded": "The brief's own openQuestion on this row - whether a GM-scope-carrying command exists on the reachable surface - is resolved NO NEW INTENT NEEDED. `ParticipantRemoved` is campaign-SCOPED (campaignEventScope.ts:38), so both viewers are admitted to the fact; what differs is the GM-private rationale inside it. That is the `seesGmPrivateDetail` branch CO3's review named, and it is reachable today.",
+      "assertions": [
+        {
+          "id": "D1",
+          "what": "BYTE COMPARISON, both directions, against the literals the projection builds",
+          "how": "Both feeds read through the REPLICA (3639), which committed none of this and holds no session state",
+          "result": "PASS",
+          "playerLiteral": "Removed participant <guestA.playerId>",
+          "gmLiteral": "Removed participant <guestA.playerId> \\u2014 Repeatedly stalled the turn timer",
+          "why": "Compared whole rather than scanned: `not.toContain(reason)` also passes for a feed that dropped the row entirely."
+        },
+        {
+          "id": "D2",
+          "what": "The two renderings differ, and the rationale is nowhere in the player's WHOLE feed",
+          "how": "`JSON.stringify(playerFeed)` does not contain the reason; `JSON.stringify(gmFeed)` does",
+          "result": "PASS"
+        },
+        {
+          "id": "D3",
+          "what": "Redaction is not concealment of the FACT - ordinal, actor, day, category and timestamp are identical between the two viewers",
+          "how": "field-by-field equality on the removal row",
+          "result": "PASS",
+          "why": "Establishes that exactly the GM-private rationale differs and nothing else, which is what makes 'scope-driven redaction' distinguishable from 'a blanket omission'."
+        },
+        {
+          "id": "D4",
+          "what": "The stranger is still 403 after everything above",
+          "how": "GET /activity on 3639 at the end of the drive",
+          "result": "PASS",
+          "why": "The refusal is a property of having no seat, not of the moment it was first asked."
+        }
+      ]
+    }
+  ],
+  "mutations": [
+    {
+      "id": "a",
+      "name": "remove the revocation call",
+      "change": "replaced the `gmSocket.sendHostIntent('RemoveParticipant', ...)` block, its awaited ParticipantRemoved frame and its head assertion with `void GM_PRIVATE_REASON;`",
+      "expected": "the refusal assertion fails - with no removal, guest A is still seated",
+      "observed": "FAILED at spec line 239: `expect(revokedRead.status).toBe(403)` received 200",
+      "log": "mutation-a-no-revocation.log",
+      "restored": true,
+      "restorationVerified": "sha256 of the spec after restore equals the green-run sha256"
+    },
+    {
+      "id": "b",
+      "name": "swap the guest seat for the GM seat in row D",
+      "change": "read `playerFeed` with `gm.playerId` instead of `guestB.playerId`, and relaxed the `viewerSeat` guard from toBe('player') to toBeTruthy() so the BYTE COMPARISON is what has to catch it rather than the seat precondition",
+      "expected": "the redaction assertion fails - the GM's rendering carries the rationale",
+      "observed": "FAILED at spec line 409: expected 'Removed participant pid_3G1s...' received 'Removed participant pid_3G1s... \\u2014 Repeatedly stalled the turn timer'",
+      "log": "mutation-b-gm-seat-for-guest.log",
+      "restored": true,
+      "restorationVerified": "sha256 of the spec after restore equals the green-run sha256",
+      "note": "The seat guard was relaxed deliberately. Without relaxing it the mutation is caught one line earlier by `expect(playerFeed.viewerSeat).toBe('player')`, which would have proved only that the precondition discriminates. Both variants were run; the recorded one is the strict one that puts the redaction byte-compare on the hook."
+    }
+  ],
+  "gates": [
+    {
+      "gate": "E2E standalone build",
+      "command": "NEXT_PUBLIC_E2E_MODE=true NEXT_PUBLIC_E2E_TEST=true npm run build",
+      "result": "PASS (exit 0)",
+      "log": "build-e2e-standalone.log"
+    },
+    {
+      "gate": "E2E bundle marker",
+      "command": "grep -c 'window.__E2E_MODE__=!0' .next/static/chunks/pages/_app-*.js",
+      "result": "PASS (1 hit in _app-b4f3e371ee8b87c1.js, the bundle every measured run was served from)",
+      "log": "e2e-bundle-marker.txt"
+    },
+    {
+      "gate": "Playwright green 1",
+      "command": "MEKSTATION_E2E_SERVER_COMMAND='node .next/standalone/server.js' HOSTNAME=127.0.0.1 MEKSTATION_E2E_PORT=3639 node scripts/playwright/run-playwright.mjs test e2e/campaign-journal-two-process-privacy.spec.ts --project=chromium --retries=0 --workers=1",
+      "result": "PASS (1 passed, 13.0s test / 16.7s wall, exit 0)",
+      "log": "green-1.log"
+    },
+    {
+      "gate": "Playwright green 2 (consecutive)",
+      "command": "same",
+      "result": "PASS (1 passed, 13.0s test / 16.6s wall, exit 0)",
+      "log": "green-2.log"
+    },
+    {
+      "gate": "tsc",
+      "command": "npx tsc --noEmit --skipLibCheck",
+      "result": "PASS (no output, exit 0)"
+    },
+    {
+      "gate": "oxfmt",
+      "command": "npx oxfmt --check <the 4 files>",
+      "result": "PASS (all matched files use the correct format)"
+    },
+    {
+      "gate": "oxlint",
+      "command": "npx oxlint <the 4 files>",
+      "result": "VACUOUS BY CONFIGURATION, stated rather than claimed as a pass. `.oxlintrc.json` ignorePatterns contains 'e2e/**' and '**/*.spec.ts', so invoking oxlint on these four paths reports 'Found 0 warnings and 0 errors. Finished in 26ms on 0 FILES'. Zero files were analysed. Real lint coverage for this slice is tsc + oxfmt + the pre-commit lint-staged chain. This restates CO3 review finding F4 for the same reason it was raised there."
+    },
+    {
+      "gate": "openspec strict",
+      "command": "npx openspec validate --strict --all",
+      "result": "PASS (232 passed, 0 failed, exit 0)",
+      "log": "openspec-strict.log"
+    },
+    {
+      "gate": "CO3 regression (this branch's refactored drive helper)",
+      "command": "NEXT_PUBLIC_E2E_MODE=true NEXT_PUBLIC_E2E_TEST=true npm run build; then run-playwright.mjs test e2e/campaign-journal-two-process-convergence.spec.ts --project=chromium --retries=0 --workers=1",
+      "result": "PASS (1 passed, 13.7s test / 29.4s wall, exit 0)",
+      "log": "co3-regression.log",
+      "why": "Commit 1 edits a file CO3 already committed (campaignJournalDrive.ts), so CO3's own spec was re-run on this branch to prove the delegation refactor changed no behaviour it depends on. The rebuild it ran against is build-e2e-standalone-rerun.log, taken after the pre-commit hook's own bare build replaced the bundle."
+    }
+  ],
+  "iterationsBeforeGreen": [
+    {
+      "log": "run0.log",
+      "finding": "The drive reached row R3 on its first execution - every preceding row (three seats bound, stranger 403, HTTP 422 host-only control, socket removal committed at seeded+1, revoked read 403, survivor read 200) passed first time. R3 failed: the revoked member's already-bound socket received the post-revocation FundsChanged frame. Investigated rather than worked around; root cause recorded as findings.F-LIVE-1 and the row rewritten to assert the measured behaviour."
+    }
+  ],
+  "findings": [
+    {
+      "id": "F-LIVE-1",
+      "severity": "medium",
+      "type": "product gap - live-delivery half of seat revocation is absent",
+      "title": "Seat revocation closes every durable door and does not detach an already-bound live socket",
+      "files": [
+        "src/lib/multiplayer/server/CampaignSyncSession.ts:641-645 (applyCommittedParticipantRemoval - deletes from `this.retained` only)",
+        "src/lib/multiplayer/server/CampaignSyncSession.ts:362-376 (attachLiveParticipant - returns the unsubscribe that is never called on removal)",
+        "src/lib/multiplayer/server/bindCampaignSyncConnection.ts:881-896 (applyCommittedParticipantRemovals - calls membership.revoke and syncSession.applyCommittedParticipantRemoval, and nothing else)"
+      ],
+      "detail": "`applyCommittedParticipantRemoval` removes the participant from `this.retained`, which is the CONVERGENCE set the scenario-launch gate reads. The live delivery subscription is a separate thing: the unsubscribe returned by `attachLiveParticipant`, stored in the socket's own `cleanupFns` and invoked on DISCONNECT. No committed removal reaches it. Measured consequence: after the GM's removal committed and the durable seat was stamped revoked, the removed guest's still-open socket received the next committed campaign fact, on the same span in which the still-seated guest received it.",
+      "whatIsNotContradicted": "Task 4.3's in-process row is about GRANT revocation and the grant delivery channel. This is SEAT revocation, which is what /activity and the rejoin gate read. Two different subsystems; the seat one has no live-detach half. Task 2.1's grant-store suite is likewise untouched by this.",
+      "blastRadius": "A removed participant who does not close their socket keeps receiving campaign-scoped facts for as long as the connection lives. Every durable door is shut immediately and across processes (R1, R4, R5), so the exposure ends at the next disconnect and cannot be re-established.",
+      "notFixedHere": "Deliberately. This slice is test-only by its charter (no production files, no migrations, capped diff). The fix is a production change in CampaignSyncSession/bindCampaignSyncConnection and wants its own reviewed slice.",
+      "minimalFix": "A participant->unsubscribe map (`liveByParticipant`) in CampaignSyncSession.ts, registered in attachLiveParticipant (:362-376) and drained in applyCommittedParticipantRemoval (:641-645), with the field declared alongside `retained` (:185). This STOPS DELIVERY, which is the privacy-relevant half, and lands entirely inside one file in roughly 10-14 lines. Per review RE-2.",
+      "followOnOwnerDecision": "Emitting closeTyped(AUTH_REJECTED, 'membership-revoked') to the revoked socket - so the close frame matches what a rejoin already receives - CANNOT be done from the session at all: CampaignSyncSession holds SINKS, not sockets, and the only socket registry (`socketsByMatch` in bindCampaignSyncConnection.ts:261-263 and :1411-1413) is keyed by matchId, not by participant. It would need a participant-keyed socket index. A separate, larger decision than the delivery-stop, and not part of the minimal fix. Per review RE-2.",
+      "pinnedAt": "e2e/campaign-journal-two-process-privacy.spec.ts:310-313 - the row asserts ['FundsChanged'] reaches the revoked socket, with guest B's identical frame on the same span as the positive control. The product fix inverts this pin, and does so deliberately rather than silently.",
+      "fixInFlight": "Observed at publish time: another agent is implementing this fix in the shared worktree, red-first (CampaignSyncSession.test.ts extended, the e2e row inverted to expect [], liveByParticipant not yet in the production file). It lands as its own product PR."
+    },
+    {
+      "id": "F-LIVE-2",
+      "severity": "low-medium",
+      "type": "reachability - stated so the route choice is not mistaken for an arbitrary one",
+      "title": "RemoveParticipant is unreachable through the HTTP command route for every caller including the GM",
+      "files": [
+        "src/lib/campaign/authority/campaignCommandPipeline.ts:503-508 (validateCampaignIntent called with four arguments; the fifth, hostPlayerId, is left undefined)",
+        "src/lib/multiplayer/server/CampaignMatchHostIntent.ts:222-223 (case 'RemoveParticipant': if (authorPlayerId !== hostPlayerId) return reject('host-only'))",
+        "src/lib/multiplayer/server/CampaignMatchHost.doors.ts:151-166 (applyHostIntentLocked, which passes host.hostPlayerId twice - the shipped path)"
+      ],
+      "detail": "Because the pipeline never supplies hostPlayerId, the comparison can never hold and POST /commands answers 422 {kind:'rejected', reason:'host-only'} for any caller. Asserted as a control row in the spec so the drive's use of the socket is a demonstrated necessity.",
+      "isItABug": "UNDETERMINED, and deliberately not called one here. It may be intentional - the GM's administration verbs living on the GM's own socket rather than on a bearer-token HTTP route is a defensible design, and it is the route's own header that says the seat gate admits 'every participant' because commanding is what participants do. But nothing in tasks.md or design.md read this session states the intent either way, and a caller reading the intent vocabulary would reasonably expect the route to accept a verb the type union offers it. Worth an owner sentence."
+    },
+    {
+      "id": "F-LIVE-3",
+      "severity": "informational",
+      "type": "confirmation, no action",
+      "title": "The packaged standalone server is the repo's custom server, so the campaign socket is reachable in this topology",
+      "files": [
+        "server.js:451,473 (campaignSocketModule + createCampaignSessionMembershipPort wiring)",
+        ".next/standalone/server.js (same file, hydrated by the build - see build-e2e-standalone.log's `hydratedStandaloneServer`)"
+      ],
+      "detail": "CO3's non-claim 'No WebSocket is opened' was a scope choice, not a limitation of the topology. Both processes run the custom server with the campaign channel, the durable membership port and the removal path wired, which is what made these rows drivable without changing the harness shape."
+    }
+  ],
+  "openQuestionsResolved": [
+    "The live-admission brief's L3 openQuestion - 'whether a gm-scope-carrying command already exists on the reachable surface; if not, this row may need a small, separately-reviewed addition to the command intent vocabulary' - is RESOLVED: no addition is needed. The GM-private material this branch of the projection gates is not a gm-SCOPE event but the audited rationale carried INSIDE a campaign-scope `ParticipantRemoved` fact (campaignEventScope.ts:38 + campaignActivityProjection.ts:186-193). Both viewers are admitted to the fact; only the rationale differs. Row D therefore fits inside the cap with no new intent kind and no production change.",
+    "The brief's L2 topology sketch proposed issuing a share GRANT to a second identity and revoking it via DELETE /api/campaigns/[id]/grants. That is not the revocation the scoped read resolves: /activity gates on the durable `campaign_session_participant` SEAT (campaignActivityRoute.ts:80 -> activeCampaignSessionMembership), while a share grant gates the replica-sync dial. Row R therefore revokes the seat, which is the revocation the acceptance line's scoped-read surface actually reads. Grant revocation remains uncovered at the live process level and is named in nonClaims."
+  ],
+  "openQuestions": [
+    "F-LIVE-1's fix is not scheduled anywhere this session could find. It is a production change to the campaign sync session and wants an owner decision on whether the detach should also CLOSE the socket (consistent with the rejoin refusal) or merely stop delivering.",
+    "F-LIVE-2: whether RemoveParticipant being unreachable through /commands is intentional. Nothing read this session states it either way.",
+    "GRANT revocation across two live processes is still undriven - the surface exists (DELETE /api/campaigns/[id]/grants) but its consumer is the replica-sync dial, which is the SEPARATE-file source/replica topology of campaign-two-device-drive.spec.ts rather than this one-file topology. Closing it is a different drive, not a row on this spec.",
+    "CI wiring is still undecided for this spec, exactly as it is for CO3 and campaign-two-device-drive.spec.ts. The spec carries @campaign @multiplayer @two-process @authority @privacy tags and no lane selects it. Both specs spawn a second server on a fixed port, which is the real constraint under a parallel CI matrix.",
+    "CO3 review finding F2 still stands and this slice does not change it: the 'replica' here is a same-file second process, not design.md's grant/socket replica. What is proven is per-request derivation from the durable record by a second OS process."
+  ],
+  "ports": {
+    "primary": 3639,
+    "second": 3617,
+    "secondSource": "the CO3 harness default MEKSTATION_E2E_SECOND_PORT; no new port-derivation code",
+    "prodEvidenceFlag": "never passed",
+    "freeBefore": "confirmed - `netstat -ano | grep -E ':3639|:3617'` showed no LISTENING socket before the first run",
+    "freeAfter": "confirmed - no LISTENING socket on either port after the greens, after both mutations, and at capture time (only transient TIME_WAIT client entries against 3639, which hold no listener)"
+  },
+  "nonClaims": [
+    "The production cutover flag is NOT flipped. CAMPAIGN_JOURNAL_AUTHORITY_ENABLED remains hardcoded false; no file under src/ was touched by this slice at all.",
+    "The E2E-only arm was NOT used as the proof mechanism. MEKSTATION_E2E_CAMPAIGN_JOURNAL_AUTHORITY is never set - asserted in the runner env and in the spawn env, and additionally measured absent from every .env file in the repo.",
+    "No single-player path is addressed. /commands and the seat gate both refuse a campaign with no co-op session (finding #29); every principal here holds a real seat bound by a shipped route on a genuinely co-op-hosted campaign.",
+    "Revocation is NOT proven total. The live-socket detach does not exist (F-LIVE-1); what is proven is that every DURABLE door closes immediately, across processes, and across an OS-level restart.",
+    "GRANT revocation is not exercised. This row revokes a SEAT.",
+    "Redaction of a WITHHELD event is not exercised. Both viewers here are admitted to the removal fact and differ only in its GM-private rationale; a fact concealed from a player entirely (the `admits` half of the same projection) stays with the in-process scope tests.",
+    "The catch-up cell of the acceptance line is NOT closed by this slice and remains as the brief left it: PARTIAL, with no live two-process reconnect-after-gap backfill anywhere.",
+    "CI wiring is NOT done and is a separate item. No .github/workflows file was touched.",
+    "No spec checkbox was flipped, no dependency added, no migration added, no production flag flipped, no push, no PR.",
+    "The pre-commit hook's own `npm run build` rebuilt the bundle after the last commit (new chunk _app-93205adbcf91910b.js). Every measured run pre-dates that; a re-run should rebuild with NEXT_PUBLIC_E2E_MODE=true first, as CO3's receipt also records."
+  ],
+  "logs": {
+    "dir": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/r2-authority-live-rows-20260915/",
+    "sha256File": "SHA256SUMS.txt",
+    "sha256": {
+      "build-e2e-standalone.log": "c37a2ab6128f1d067ddbb04fe298d4016cc7a9f745ba2437e36e95d346595689",
+      "e2e-bundle-marker.txt": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865",
+      "green-1.log": "ff998bfac78789dfd110c61b9e8414ee5c909eff0b445199eb9ad7fee786894f",
+      "green-2.log": "5aaae70fd31df7c2a66f5d195399c02d7ea138e9d91c91aeb77a0470a32763ec",
+      "mutation-a-no-revocation.log": "9b27c29a82af1e6b36140080350ee94b122e8539bf905187ea14cf35b113edc8",
+      "mutation-b-gm-seat-for-guest.log": "85cbefaea4c534f05df7e265da44549192a05ee60ce5391b7fd2f166653ac130",
+      "openspec-strict.log": "a6f1b01bad6ef535f7ae511fd2b0e725e382bcb462449ef4386723e0ec97eff3",
+      "run0.log": "32e14bb3b4d2df79ed8c31c20e91fea0b4da3de039d5d8b761d7f691039b2afa",
+      "co3-regression.log": "4df4f3a4033e5cbf1ab425c8275f1c4458b3b7e8ed20ae8cd7bdf5f3881dad6f",
+      "build-e2e-standalone-rerun.log": "90156ddd6574b190fd6d3d7eab9644d1876098c7a4b44969cb18e154f56f80bb"
+    }
+  },
+  "publish": {
+    "publishedAtUtc": "2026-09-15T21:45:00.000Z",
+    "rebasedOnto": "origin/main 1fcd9b6485421d64d4303693a368676fc4df4d51",
+    "rebaseIntegrity": "`git diff --stat backup/pre-rebase-live-rows HEAD -- e2e/` shows no change to any of this slice's four files, and the spec's sha256 after the rebase is still e5e537dc44790ea16c8fcc9b360b8971b3790bb3f0fc99357007e77e3e347103 - the exact bytes both greens, both mutations and the reviewer's reproduction were measured against. `git diff --stat origin/main..HEAD` is 4 files, +1082/-22.",
+    "commitShaRemap": [
+      {
+        "preRebase": "7b4e66b86b123fd9b52eefb350d9aa3ef39f4721",
+        "published": "dbb3fafbea6989f050aa154e0281ec7b5ce47c31"
+      },
+      {
+        "preRebase": "f2e8d9ad2f4501eece65025095b11fe771308ca4",
+        "published": "fff510d9bdf6e1387fcb5dc1b5f731a75ecc80ed"
+      },
+      {
+        "preRebase": "1f1db65d3a440bba4fc49a6b835fa929811890f8",
+        "published": "aef5c30eb5b748c407876fc455617b1f641ffb42"
+      }
+    ],
+    "prs": [
+      {
+        "number": 1753,
+        "head": "dbb3fafbea6989f050aa154e0281ec7b5ce47c31",
+        "branch": "codex/roadmap-r2-authority-live-1-socket-20260915",
+        "base": "main",
+        "title": "test(e2e): Node-side campaign socket the two-process drive can hold open"
+      },
+      {
+        "number": 1754,
+        "head": "fff510d9bdf6e1387fcb5dc1b5f731a75ecc80ed",
+        "branch": "codex/roadmap-r2-authority-live-2-fixture-20260915",
+        "base": "main",
+        "title": "test(e2e): the privacy world the two-process rows argue about"
+      },
+      {
+        "number": 1755,
+        "head": "aef5c30eb5b748c407876fc455617b1f641ffb42",
+        "branch": "codex/roadmap-r2-authority-live-rows-20260915",
+        "base": "main",
+        "title": "test(e2e): a revoked seat is refused by the other process and a GM rationale is redacted"
+      }
+    ],
+    "mergeOrder": "1753 -> 1754 -> 1755. 1753 and 1754 are inert until 1755 lands.",
+    "aiAttribution": "none in any of the three PR bodies (verified by grep for claude|co-authored|generated with|anthropic: 0 hits each)",
+    "postRebaseGreenNotMeasured": "STATED RATHER THAN CLAIMED. A post-rebase green against current main was attempted and could not be cleanly measured: another agent is concurrently editing the shared worktree, which carries uncommitted changes to this spec (row R3 inverted to expect []) and to src/lib/multiplayer/server/__tests__/CampaignSyncSession.test.ts - the F-LIVE-1 fix, written red-first, with liveByParticipant not yet in CampaignSyncSession.ts. The run therefore exercised their in-flight assertion rather than these committed bytes and reported 1 failed at spec:316. This is NOT a failure of the published commits: `git show HEAD:<spec>` still carries the pinned `.toEqual(['FundsChanged'])` row, and the working-tree file's sha256 (f7a0a049...) differs from the committed one (e5e537dc...). The tree was left untouched rather than contended for. What stands: two greens plus two mutation kills on these exact bytes, the reviewer's independent green (exit 0, 13.2s) and mutation-(a) reproduction (spec:239, received 200), and proof the rebase changed none of the four files. What is NOT claimed: a green re-measured against main's post-#1739 commits."
+  },
+  "reviewEdits": {
+    "source": "openspec/planning/2026-09-12-roadmap-completion/evidence/r2-authority-live-rows-review-20260915.json",
+    "verdict": "APPROVE",
+    "appliedAtUtc": "2026-09-15T21:45:00.000Z",
+    "edits": [
+      {
+        "id": "RE-1",
+        "severity": "low",
+        "type": "receipt accuracy - staleness",
+        "target": "base.stackDependency.statusAtCapture and mergeOrder",
+        "status": "APPLIED - base.stackDependency rewritten in place",
+        "whatChanged": "The stale '#1748-#1750 were still unmerged' text is gone. The dependency is now recorded as DISCHARGED (all four CO3 PRs merged; origin/main 1fcd9b648 at publish), and the over-stated 'cannot be rebased onto main' is replaced with the measured characterisation under base.stackDependency.conflictCharacterisation.",
+        "wentFurtherThanTheEdit": "The review's own clean merge-tree was measured against main at 288fe678a. Re-run at publish against 1fcd9b648 it was NOT clean - add/add on campaignJournalDrive.ts - because the CO3 PRs were rebased on merge. The receipt now records both the artefact and its resolution by rebase, and notes that the post-rebase merge-tree lands on the SAME tree hash (bcca4776) the review recorded."
+      },
+      {
+        "id": "RE-2",
+        "severity": "low",
+        "type": "fix-proposal precision",
+        "target": "findings.F-LIVE-1.suggestedShape",
+        "status": "APPLIED - suggestedShape split into two fields",
+        "whatChanged": "The single conflated sentence is replaced by minimalFix (the delivery-stop, entirely inside CampaignSyncSession.ts) and followOnOwnerDecision (the typed close, which the session cannot do because it holds sinks, not sockets)."
+      },
+      {
+        "id": "RE-3",
+        "severity": "informational",
+        "type": "helper robustness, introduced by commit 7b4e66b86 (published dbb3fafbe)",
+        "target": "e2e/helpers/campaignJournalDrive.ts requestActivity",
+        "status": "RECORDED, NOT CHANGED - per the coordinator's instruction that the review edits are receipt text with no code change",
+        "detail": "requestActivity calls `await response.json()` unconditionally, whereas the pre-refactor readActivity called .json() only after asserting 200 and used `await response.text()` in its failure message. Every status this slice drives (200, 403) returns JSON, so nothing is wrong today. But a non-JSON error body - a 500 HTML page from a half-started source process, exactly the failure a two-process drive can hit - would now surface as a JSON parse exception instead of the readable 'activity read failed on <origin>: <body>' assertion. A try/catch falling back to the raw text restores the diagnostic in one line.",
+        "disposition": "Carried as a known diagnostic-quality residual on the published helper. It is a one-line change but it would alter a file already under review and force a re-run for no behavioural gain, which the reviewer explicitly called not blocking and not worth a re-run. Whoever next touches this helper should fold it in."
+      }
+    ]
+  }
+}

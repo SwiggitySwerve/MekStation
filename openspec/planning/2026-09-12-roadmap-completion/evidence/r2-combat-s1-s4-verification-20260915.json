@@ -1,0 +1,230 @@
+{
+  "evidenceKind": "r2-combat-s1-s4-verification",
+  "date": "2026-09-15",
+  "roadmapNode": "R2.combat",
+  "changePackage": "enable-saved-custom-unit-combat",
+  "scope": "Slices S1-S4 only (task lines 3-6). S5 (line-7, coop custom-source authority probe -- new test) and S6 (line-8, consolidated receipt incl. build + full jest matrix + Playwright e2e) are explicitly OUT OF SCOPE for this receipt and remain open (see gaps).",
+  "statementOfNature": "THIS IS LOCAL VERIFICATION AT A MAIN SHA, NOT A MERGED-CHANGE RECEIPT. All test runs and static gates below were executed in an isolated read-only worktree detached at origin/main. No commits, pushes, source edits, or new tests were made. No tasks.md checkboxes were changed. This document does not close R2.combat, does not authorize archival, and does not itself flip roadmapNode.receipt from null -- that is S6's job.",
+  "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/archive-original-main-proof",
+  "mainSha": "818e654e0ac7c98b8a4b53c2f35be9e4b7643152",
+  "mainShaVerification": "git status --porcelain: empty. git fetch origin: no new refs. git rev-parse HEAD == git rev-parse origin/main == 818e654e0ac7c98b8a4b53c2f35be9e4b7643152 (worktree was already at this commit; no checkout needed).",
+  "briefCitedTip": "be7f85b867aa3e8576e5e3d27e309276203bc24b",
+  "tipDrift": "origin/main has advanced 61 commits past the brief's cited tip (be7f85b86 -> 818e654e0). Verified via `git merge-base --is-ancestor` that be7f85b86 IS an ancestor of the current tip (linear history, no rebase). None of the 61 intervening commits touch any file in this brief's sourceFilesInventory (confirmed by per-file `git diff be7f85b86..818e654e0 -- <path>` returning empty for every cited production file, and by byte-identical sha256 for InteractiveSession.setup.ts specifically as a spot-check). No functional drift found between the brief's cited tip and the SHA this verification actually ran against.",
+  "tasksMdConfirmed": {
+    "path": "openspec/changes/enable-saved-custom-unit-combat/tasks.md",
+    "checkedAtSha": "818e654e0ac7c98b8a4b53c2f35be9e4b7643152",
+    "allSixBoxesUnchecked": true,
+    "line3": "- [ ] Define strict supported-construction projection, server reader, custom combat catalog endpoint, and saved-design picker merge.",
+    "line4": "- [ ] Adapt exact custom references and carry their immutable snapshot through seeded setup and GameCreated.",
+    "line5": "- [ ] Recover and rewind from validated recorded construction; wire server readers and preserve canonical behavior.",
+    "line6": "- [ ] Extend replay gating and verify private construction redaction for owners, opponents, spectators, and recovery streams.",
+    "verbatimMatchToBrief": true
+  },
+  "slices": [
+    {
+      "sliceId": "S1",
+      "taskKey": "enable-saved-custom-unit-combat#line-3@3",
+      "taskLineText": "Define strict supported-construction projection, server reader, custom combat catalog endpoint, and saved-design picker merge.",
+      "testFilesRun": [
+        "src/engine/adapters/__tests__/customCombatDefinition.test.ts",
+        "src/services/units/__tests__/listCampaignSavedDesigns.test.ts",
+        "src/__tests__/integration/customCombatDefinition.integration.test.ts"
+      ],
+      "jestCommand": "node node_modules/jest/bin/jest.js --maxWorkers=2 --coverage=false <the 3 files above>",
+      "result": { "suites": "3 passed / 3 total", "tests": "12 passed / 12 total", "exit": 0 },
+      "logFile": ".sisyphus/roadmap-completion-20260912/r2-combat-verify-20260915/s1-line3.log",
+      "citationDrift": [
+        {
+          "citation": "src/types/contracts/CustomCombatSnapshot.ts:1-16",
+          "status": "CONFIRMED verbatim (header comment content matches exactly)"
+        },
+        {
+          "citation": "src/services/units/customCombatDefinition.ts:19-34 (parseCustomCombatDefinition)",
+          "status": "CONFIRMED (exact line range and body match)"
+        },
+        {
+          "citation": "src/services/units/serverCustomCombatDefinition.ts:22-45 (readServerCustomCombatDefinition)",
+          "status": "CONFIRMED"
+        },
+        {
+          "citation": "src/services/units/serverCustomCombatDefinition.ts:47-55 (listServerCustomCombatRefs)",
+          "status": "CONFIRMED"
+        },
+        {
+          "citation": "src/pages/api/units/custom/combat-catalog.ts:1-38",
+          "status": "CONFIRMED (route handler body matches exactly, including 'No auth is added here' comment)"
+        },
+        {
+          "citation": "src/services/units/listCampaignSavedDesigns.ts:19-45",
+          "status": "CONFIRMED"
+        }
+      ],
+      "contingentProbeStatus": "None for this task line (line-3 has no PROPOSED/contingent probe in the brief).",
+      "gap": "No code or coverage gap found. Existing tests green at current tip."
+    },
+    {
+      "sliceId": "S2",
+      "taskKey": "enable-saved-custom-unit-combat#line-4@4",
+      "taskLineText": "Adapt exact custom references and carry their immutable snapshot through seeded setup and GameCreated.",
+      "testFilesRun": [
+        "src/engine/__tests__/customCombatRecovery.recordedSnapshot.test.ts",
+        "src/__tests__/integration/customCombatDefinition.integration.test.ts",
+        "src/__tests__/pages/gameplay/campaigns/mission-launch.coop.test.tsx"
+      ],
+      "jestCommand": "node node_modules/jest/bin/jest.js --maxWorkers=2 --coverage=false <the 3 files above>",
+      "result": { "suites": "3 passed / 3 total", "tests": "18 passed / 18 total", "exit": 0 },
+      "logFile": ".sisyphus/roadmap-completion-20260912/r2-combat-verify-20260915/s2-line4.log",
+      "citationDrift": [
+        {
+          "citation": "src/engine/adapters/CompendiumAdapter.ts custom-'* branch (throw-not-substitute, 'Saved custom unit ...')",
+          "status": "CONFIRMED (grep matched: line 172 startsWith('custom-'), line 177 'Saved custom unit ' message)"
+        },
+        {
+          "citation": "src/engine/InteractiveSession.setup.ts:48-58 (appendRecordedCustomCombatSnapshot)",
+          "status": "DRIFT -- stale/incorrect line numbers in the brief. The actual function `appendRecordedCustomCombatSnapshot` is defined at line 142, not 48-58 (48-58 is a different, unrelated function `buildInteractiveSessionUnitMaps`'s doc comment). File content is byte-identical to the brief's cited tip (be7f85b86) -- confirmed via sha256 -- so this is a citation-authoring error, not drift caused by main advancing. Semantic description of the function's behavior (calls recordedCustomCombatSnapshotPatch, copies customUnitDefinition onto the patch) is otherwise accurate."
+        },
+        {
+          "citation": "src/engine/InteractiveSession.setup.ts:31,137,143 (gameUnitsWithAdaptedCombatSeeds/adaptedCombatSeedPatch call sites)",
+          "status": "PARTIAL DRIFT -- line 137 is correct (the call site `appendRecordedCustomCombatSnapshot(patch, unit, adapted);`). Line 31 does not correspond to gameUnitsWithAdaptedCombatSeeds/adaptedCombatSeedPatch (actual definitions are at lines 101 and 119 respectively); line 143 is off-by-one from the actual function definition at line 142. Same root cause as above (stale citation, not code drift)."
+        },
+        {
+          "citation": "src/engine/InteractiveSession.recovery.ts:82-95 (recordedCustomCombatSnapshotPatch)",
+          "status": "CONFIRMED (exact match)"
+        },
+        {
+          "citation": "src/services/encounter/EncounterService.ts:419-439 (materialization / no-substitution comment block)",
+          "status": "CONFIRMED (comment starts exactly at line 419)"
+        }
+      ],
+      "contingentProbeStatus": "PROPOSED probe named in the brief (\"confirms co-op still routes through the same EncounterService seeding path; no dedicated custom-unit assertion currently exists here\") -- CONFIRMED AS A REAL GAP by direct grep: `grep -n \"custom-|customUnitDefinition|CustomCombat\" src/__tests__/pages/gameplay/campaigns/mission-launch.coop.test.tsx` returned zero matches across all 462 lines. The file passes (it exercises the coop launch path generically) but contains no assertion specific to a custom-source unit. This is NOT covered by any existing test and remains an open gap; per task instructions no new test was authored here (that is S5's / line-7's territory, and structurally the closest match).",
+      "gap": "Co-op custom-unit seeding path (EncounterService inheritance claim) has no direct test coverage; unconfirmed either way by this review, consistent with the brief's own framing."
+    },
+    {
+      "sliceId": "S3",
+      "taskKey": "enable-saved-custom-unit-combat#line-5@5",
+      "taskLineText": "Recover and rewind from validated recorded construction; wire server readers and preserve canonical behavior.",
+      "testFilesRun": [
+        "src/lib/multiplayer/server/__tests__/customCombatRecovery.durableAuthority.test.ts",
+        "src/engine/__tests__/customCombatRecovery.recordedSnapshot.test.ts",
+        "src/__tests__/integration/customCombatDefinition.integration.test.ts"
+      ],
+      "jestCommand": "node node_modules/jest/bin/jest.js --coverage=false --runInBand <the 3 files above>",
+      "commandNote": "Brief's gates line combined --runInBand with an implicit default worker count; this session's standing --maxWorkers=2 convention conflicts with --runInBand (jest refuses both flags together), so this run used --runInBand alone per the brief's own literal gates array.",
+      "result": { "suites": "3 passed / 3 total", "tests": "12 passed / 12 total", "exit": 0 },
+      "logFile": ".sisyphus/roadmap-completion-20260912/r2-combat-verify-20260915/s3-line5.log",
+      "notableLogOutput": "A single expected console.warn ('[MatchRecovery] failed to rebuild match invalid-snapshot-match ...') appears in the durableAuthority suite -- this is the test's own intentional negative-case log (an invalid-snapshot recovery attempt correctly failing closed), not a test failure or regression signal.",
+      "citationDrift": [
+        {
+          "citation": "src/engine/InteractiveSession.recovery.ts:102-148 (attachRecordedCustomCombatSnapshots/attachRecordedCustomCombatSnapshot)",
+          "status": "CONFIRMED (exact match, both exported and private function bodies)"
+        },
+        {
+          "citation": "src/engine/InteractiveSession.recovery.ts:165-220 (deriveAdaptedUnitsFromSession/adaptRecoveredGameUnit)",
+          "status": "CONFIRMED (exact match, including the canonical-unit fallthrough at line 203 and the snapshot-only-reader branch)"
+        },
+        {
+          "citation": "src/lib/multiplayer/server/matchUnitBootstrap.ts:9,113-136",
+          "status": "CONFIRMED (line 9 is the readServerCustomCombatDefinition import; 113-136 covers the detach-before-persist and adaptBootstrapUnit wiring)"
+        },
+        {
+          "citation": "src/lib/multiplayer/server/MatchRecovery.ts (rebuildSessionFromEvents/recoverActiveMatches wiring)",
+          "status": "CONFIRMED (readServerCustomCombatDefinition referenced at import line 41 and used at lines 121, 170, 290; rebuildSessionFromEvents at 114, recoverActiveMatches at 132)"
+        }
+      ],
+      "contingentProbeStatus": "None for this task line (line-5 has no PROPOSED/contingent probe; brief calls this 'the strongest candidate for a pure verification-only slice among the six').",
+      "gap": "No code gap found. This is the most heavily and most directly tested of the four in-scope task lines; existing coverage (durableAuthority.test.ts + recordedSnapshot.test.ts, 12 tests total across the 3 files run here) fully re-confirms the brief's claims at current tip."
+    },
+    {
+      "sliceId": "S4",
+      "taskKey": "enable-saved-custom-unit-combat#line-6@6",
+      "taskLineText": "Extend replay gating and verify private construction redaction for owners, opponents, spectators, and recovery streams.",
+      "testFilesRun": [
+        "src/lib/multiplayer/server/__tests__/customConstructionVisibility.test.ts",
+        "src/lib/multiplayer/server/__tests__/customConstructionTransport.test.ts",
+        "src/lib/events/replay/__tests__/CustomConstructionReplay.test.ts"
+      ],
+      "jestCommand": "node node_modules/jest/bin/jest.js --maxWorkers=2 --coverage=false <the 3 files above>",
+      "result": { "suites": "3 passed / 3 total", "tests": "17 passed / 17 total", "exit": 0 },
+      "logFile": ".sisyphus/roadmap-completion-20260912/r2-combat-verify-20260915/s4-line6.log",
+      "citationDrift": [
+        {
+          "citation": "src/lib/events/replay/CombatLifecycleSharedSchemas.ts:548-641 (gameUnitSchema, .strict(), .refine())",
+          "status": "MOSTLY CONFIRMED, minor off-by-one: customUnitDefinition field is exactly at line 554 (matches). `.strict()` is at line 642, not 641 (off by one). `.refine()` block spans 643-653, brief said 642-653 (off by one at the start). Not material -- same construct, same behavior, one-line offset."
+        },
+        {
+          "citation": "src/lib/multiplayer/server/fogOfWar.ts:125,132",
+          "status": "CONFIRMED (exact match: line 125 is the customUnitDefinition-present check, line 132 is the destructure-and-omit redaction)"
+        },
+        {
+          "citation": "customConstructionVisibility.test.ts:79,92",
+          "status": "CONFIRMED (exact match for both named cases)"
+        },
+        {
+          "citation": "customConstructionTransport.test.ts:42",
+          "status": "CONFIRMED (exact match)"
+        },
+        {
+          "citation": "CustomConstructionReplay.test.ts:29,68",
+          "status": "CONFIRMED (exact match for both named cases)"
+        }
+      ],
+      "contingentProbeStatus": "PROPOSED probe named in the brief (recovery-stream redaction via a rebuilt-from-events stream for a non-owner viewer) -- REMAINS AN UNPROVEN GAP. `grep -n \"customUnitDefinition|fogOfWar|detachCustomCombatSnapshot\" src/lib/multiplayer/server/MatchRecovery.ts` returned zero matches, meaning MatchRecovery.ts itself does not directly reference the fog/redaction machinery. This does not disprove the brief's 'believed not to bypass, via matchUnitBootstrap.ts wiring' hypothesis (matchUnitBootstrap.ts does call detachCustomCombatSnapshot per S3's citation check), but it means the specific 'recovery stream redaction' scenario has no direct test and no direct code reference confirming or refuting it from MatchRecovery.ts alone. No new test was authored (out of scope per task instructions / brief's own S5-and-later routing). This is a genuine, currently-unverified gap.",
+      "gap": "Recovery-stream-specific redaction is untested. Live/replay/reconnect are directly tested (customConstructionTransport.test.ts); recovery-stream is inferred-covered via shared machinery but not independently proven."
+    }
+  ],
+  "staticGates": [
+    {
+      "gate": "npx tsc --noEmit -p tsconfig.json",
+      "exit": 0,
+      "output": "clean (no diagnostics)",
+      "logFile": ".sisyphus/roadmap-completion-20260912/r2-combat-verify-20260915/gate-tsc.log",
+      "sha256": "194ff5bca66278888f0f00be5c7ca523d15098ece958b14952533811089f6106"
+    },
+    {
+      "gate": "npx oxlint",
+      "exit": 0,
+      "output": "Found 84 warnings and 0 errors (repo-wide pre-existing max-lines file-size warnings, unrelated to this change's files). Finished in 996ms on 3801 files.",
+      "logFile": ".sisyphus/roadmap-completion-20260912/r2-combat-verify-20260915/gate-oxlint.log",
+      "sha256": "1008f658e1d538828a37069f93c851f16998a8eed8d61221f025fb7db7ca25cf"
+    },
+    {
+      "gate": "npx oxfmt --check .",
+      "exit": 0,
+      "output": "All matched files use the correct format. Finished in 17358ms on 7955 files.",
+      "logFile": ".sisyphus/roadmap-completion-20260912/r2-combat-verify-20260915/gate-oxfmt.log",
+      "sha256": "b0bde742759a1299367db47f6a83e5a4d6316074848d6a76bdea80c9784415b1"
+    },
+    {
+      "gate": "npx openspec validate --all --strict",
+      "exit": 0,
+      "output": "Totals: 232 passed, 0 failed (232 items)",
+      "logFile": ".sisyphus/roadmap-completion-20260912/r2-combat-verify-20260915/gate-openspec.log",
+      "sha256": "412c532684b15b12f2d4e54b30941912f029b38648af0474b6855e54f4612f00"
+    }
+  ],
+  "sliceLogSha256": {
+    "s1-line3.log": "f5fb81eaa09332cf15cf119a37f559fa2d316d08c03e2dacaa3c005e68684655",
+    "s2-line4.log": "17e91c7bc094096c7915f814127fec86ff0f771cfbf75527608fea60034ce46c",
+    "s3-line5.log": "a0bfecfc496f3868374b8d40c52004da3ddc25fa9dd787074e6ab2533bc5da9e",
+    "s4-line6.log": "b0269fa26dccd08947ac556e6a22a2614e77e986b3459115677c0d4dfe7cd34a"
+  },
+  "shaVerificationNote": "All sha256 hashes above were computed via `sha256sum *.log` inside the log directory; the full SHA256SUMS.txt manifest is co-located at .sisyphus/roadmap-completion-20260912/r2-combat-verify-20260915/SHA256SUMS.txt in the worktree.",
+  "totalsAcrossS1toS4": {
+    "testSuitesRun": 12,
+    "testSuitesPassed": 12,
+    "testsRun": 59,
+    "testsPassed": 59,
+    "distinctFiles": 9,
+    "note": "12 suites / 59 tests counts sum the 4 slice runs as executed (some files, e.g. customCombatDefinition.integration.test.ts, were intentionally re-run across multiple slices per the brief's own overlapping redFirstTestNames lists -- this is not double-counting distinct files, it is the brief's designed redundancy for isolating which task line a regression would implicate)."
+  },
+  "explicitStatement": "This document is LOCAL VERIFICATION AT A MAIN SHA (818e654e0), performed in an isolated worktree, NOT a merged-change receipt. It does not flip openspec/planning/2026-09-12-roadmap-completion/roadmap.json's R2.combat.receipt from null, does not check any tasks.md boxes, and does not authorize archival of enable-saved-custom-unit-combat. No source files were edited and no new tests were written in this session.",
+  "gaps": {
+    "forS5": "line-7 (task line 7, 'Wire shared catalog admission and campaign consumers; reject malformed, unsupported, missing, or mismatched references before materialization') is NOT covered by this receipt. The brief's own recommendation stands: author ONE new red-first test in src/__tests__/pages/gameplay/campaigns/mission-launch.coop.test.tsx asserting co-op rejects a missing/foreign/stale custom-source roster reference before composition/launch. This review's S2 grep independently corroborates the same underlying observation (zero custom-unit assertions currently exist in that file), reinforcing that this is the one line of the six with a concrete, addressable test-authorship gap.",
+    "forS6": "line-8 (task line 8, consolidated receipt) is NOT covered by this document. Remaining for S6: `npm.cmd run build` (production build, not run here per this task's explicit no-build constraint), `npx playwright test e2e/saved-custom-combat.spec.ts` (not run here per this task's explicit no-browser-runs constraint), and a repo-wide re-count of REPORT.md's self-reported 21-scenario/88-assertion figures (flagged by the brief as unverified/likely aggregated across the whole PR #1635 batch, not this change alone).",
+    "otherOpenItems": [
+      "S2's contingent gap (co-op custom-unit seeding through EncounterService, line-4) remains open -- no test proves or disproves it.",
+      "S4's contingent gap (recovery-stream-specific redaction, line-6) remains open -- no test and no direct MatchRecovery.ts code reference to fog/redaction machinery was found; coverage is inferred via matchUnitBootstrap.ts's shared detach call, not independently proven.",
+      "Process anomaly flagged by the brief (canonical specs custom-unit-combat/spec.md and mission-contracts/spec.md were updated by a separate docs PR #1653 ahead of this change's own archival) is unrelated to S1-S4 execution and is reiterated here only as a pass-through owner flag, not something this verification slice addresses or resolves."
+    ]
+  }
+}

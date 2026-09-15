@@ -1,0 +1,348 @@
+{
+  "schema": "r2-camp-2-admission-brief/v1",
+  "at": "2026-09-15T00:00:00.000Z",
+  "role": "read-only discovery; no product/spec/tasks/contract edits made; single evidence artifact only; no builds/tests executed this session",
+  "sourceSnapshot": {
+    "originMainAtFetch": "e048a43cd251b7515af7ff23371148b904817ad2",
+    "worktreeUsedForSourceReading": "git show origin/main:<path> for every cited file (exact-ref reads); .sisyphus/roadmap-completion-20260912/worktrees/proof02-rerun exists at HEAD 16ade21b373c88b69b07d85a8002cfe756f28af9 but was NOT used for source content -- it is on a branch merged from an older main and would not reflect this session's fresh fetch",
+    "driftNote": "origin/main moved between prior sibling briefs and this one: the R2.camp-1 brief and camp00-receipt-run-main receipt both pinned 819ff6fd86696f88b7a9f23540b5caa2ca0a5ace; this session's `git fetch origin` landed on e048a43cd251b7515af7ff23371148b904817ad2, several merges later (other lanes in this shared multi-agent session are still landing PRs). All source-file claims below are re-verified against e048a43cd25, not carried forward from the stale SHA.",
+    "roadmapJsonLocation": "openspec/planning/2026-09-12-roadmap-completion/roadmap.json is UNTRACKED locally (git status --porcelain shows '?? openspec/planning/2026-09-12-roadmap-completion/') and does not exist on origin/main at all (`git show origin/main:<path>` -> fatal: path does not exist). The roadmapNode below was read from the local working copy, which is the only copy that exists."
+  },
+  "roadmapNode": {
+    "id": "R2.camp-2",
+    "wave": 2,
+    "title": "Revision-bound co-op roster snapshots",
+    "kind": "verification",
+    "state": "planned",
+    "dependsOn": [
+      "R2.camp-1"
+    ],
+    "ownershipPaths": [
+      "openspec/changes/add-saved-custom-unit-campaign-roster",
+      "scripts/qc",
+      "src",
+      "e2e"
+    ],
+    "acceptance": [
+      "Use immutable camp-01b contract row; preserve its strict PR cap, reporters, authority facts and real approval requirements",
+      "Audit shipped code before any repair; exact-main receipt required"
+    ],
+    "owner": "parent; assign bounded Luna high worker on admission",
+    "maxFiles": 15,
+    "maxNonGeneratedLines": 500,
+    "taskKeys": [
+      "add-saved-custom-unit-campaign-roster#2.1@20",
+      "add-saved-custom-unit-campaign-roster#2.2@21"
+    ],
+    "receipt": null,
+    "githubReviewGate": {
+      "authority": "add-saved-custom-unit-campaign-roster P.2 and scripts/qc/camp01-github-provenance.mjs",
+      "state": "APPROVED",
+      "nonDismissed": true,
+      "exactHead": true,
+      "nonAuthor": true,
+      "permissions": [
+        "WRITE",
+        "MAINTAIN",
+        "ADMIN"
+      ],
+      "soloException": false
+    }
+  },
+  "predecessorClosures": {
+    "r2camp1": {
+      "source": "openspec/planning/2026-09-12-roadmap-completion/evidence/r2-camp-1-admission-brief-20260915.json",
+      "verdict": "Tasks 1.1-1.4 (CAMP-01A) fully shipped and tested, gap NONE FOUND. Task 1.5 (immutable receipt run) NOT done: no camp-01a receipt directory (reviewed-head, exact-main, or cleanup) exists anywhere in the repo or the durable evidence tree. Recommended and unblocked deliverable was SLICE-1: a command-level, zero-product-file exact-main jest reproduction -- controller-registered and PR-provenanced receipt tiers remain blocked on (a) camp-00's own predecessor receipt not being controller-registered and (b) the structurally unsatisfiable single-collaborator githubReviewGate.",
+      "closedOnlyAt": "command-level receipt tier (recommended, not confirmed executed by that brief itself -- it only planned SLICE-1); controller-registered and PR-provenanced tiers are owner-blocked."
+    },
+    "r2camp0": {
+      "source": "openspec/planning/2026-09-12-roadmap-completion/evidence/camp00-receipt-run-main-819ff6f-20260915.json",
+      "verdict": "EXACT-MAIN RECEIPT PRODUCED (command-level only): the frozen camp-00 command array ran green at exact-main 819ff6fd8 and all 17 frozen assertions converted true. The PR-provenanced camp01-authority-receipt DIRECTORY that roadmap task 0.4 also names was explicitly NOT produced (qc:camp01-authority-receipt:write/:validate were never invoked) and is owner-blocked on the same githubReviewGate.",
+      "closedOnlyAt": "command-level receipt tier; controller-registered and PR-provenanced tiers explicitly disclaimed as not produced (see that receipt's own nonClaims list) and owner-blocked on githubReviewGate (soloException=false; only collaborator on the repo is the author, permission=admin)."
+    },
+    "whatThisMeansForCampTwo": "R2.camp-2 (camp-01b) inherits the identical two-tier ceiling both predecessors hit: a command-level exact-main receipt is achievable in a read-only-adjacent session; a controller-registered receipt is NOT achievable because camp-01b's own frozen predecessors list is ['camp-01a'] and no camp-01a controller-registered receipt exists yet (confirmed this session: `find .sisyphus/evidence/playtest -iname '*camp01a*'` and `-iname '*camp00*'` both return zero matches; the only entry under .sisyphus/evidence/playtest/ is the unrelated 2026-07-07-live-playtest/ directory). A PR-provenanced closure of roadmap task 2.2 is blocked on the same structurally unsatisfiable githubReviewGate as both predecessors."
+  },
+  "criticalContextFinding": {
+    "title": "The archived child change's tasks.md makes a completion claim citing a nonexistent council-review document, but -- unlike the camp-1 finding -- the cited product PRs ARE real, merged, and present on origin/main; the actual defect is that the review-gate requirement was never met, not that the PRs are fictional",
+    "archivedChild": "openspec/changes/archive/2026-08-20-add-authoritative-campaign-coop-snapshot/ (proposal.md + tasks.md)",
+    "claimText": "openspec/changes/archive/2026-08-20-add-authoritative-campaign-coop-snapshot/tasks.md line 1: 'Completed 2026-08-20 (reconciliation): implemented and delivered by the CAMP-01B wave (product PR #1231 (merge commit #1233)); attested by the durable reviewed-head + exact-main + cleanup receipts (full durable index readmitted 23/23 through validator plus all four anchors after CAMP-R1, 2026-08-12) and the council review at `openspec/council-decisions/2026-08-12-camp01-wave-execution-review.md`.' All of tasks 1.1, 1.2, 2.1, 2.2, 3.1, 3.2, 3.3 in that file are marked [x].",
+    "verification": [
+      "`git cat-file -e origin/main:openspec/council-decisions/2026-08-12-camp01-wave-execution-review.md` -> fatal: path does not exist in origin/main. The cited council-review document is absent from origin/main, identical to the R2.camp-1 brief's finding for the same document cited by camp-01a's archived child.",
+      "`gh pr view 1231 --repo SwiggitySwerve/MekStation --json number,title,state,mergedAt,mergeCommit` -> MERGED, mergedAt 2026-08-13T14:26:01Z, mergeCommit ef56e4eab582a080e1731acf3871d292d5ca26c7, title 'fix(campaign): bind co-op snapshots to roster source and force membership'. This PR IS real and IS merged -- different from the camp-01a case where no product PR existed at all for some cited artefacts.",
+      "`gh pr view 1233 --repo SwiggitySwerve/MekStation --json number,title,state,mergedAt,mergeCommit` -> MERGED, same mergeCommit ef56e4eab582a080e1731acf3871d292d5ca26c7, title 'chore: land CAMP-01B merge commit for required main checks' -- a second, distinct PR that landed the identical merge commit onto main (a common pattern in this repo's history for getting a merge commit past required status checks).",
+      "`git merge-base --is-ancestor ef56e4eab582a080e1731acf3871d292d5ca26c7 origin/main` -> exit 0 (IS an ancestor). `git log origin/main --oneline` shows 'ef56e4eab Merge pull request #1231 from SwiggitySwerve/codex/camp-01b' directly in the origin/main history, with child commits 'f3ea7075c fix(campaign): bind co-op snapshots to roster source and force membership' and 'baf69619d fix(campaign): admit legacy co-op snapshots without roster unitRef'. The product code genuinely shipped to main.",
+      "`gh pr view 1231 --repo SwiggitySwerve/MekStation --json author,mergedBy,reviews` -> author=SwiggitySwerve, mergedBy=SwiggitySwerve, reviews=[] (empty array). `gh pr view 1233 ... --json reviews` -> also reviews=[]. Both PRs were self-authored and self-merged with ZERO recorded GitHub reviews.",
+      "`find .sisyphus/evidence/playtest -iname '*camp01b*'` and `git ls-files | grep -i camp01b` both return zero matches -- no camp01-authority-receipt controller-registered directory of any kind exists for camp-01b in the repository or the durable evidence tree, despite the archived tasks.md's claim of 'durable reviewed-head + exact-main + cleanup receipts'."
+    ],
+    "conclusion": "This is a DIFFERENT flavor of the same failure pattern the R2.camp-0 and R2.camp-1 briefs found: rather than an outright-nonexistent PR, camp-01b's product code genuinely shipped via two real, merged PRs that are real ancestors of origin/main today. The false part of the claim is narrower but still load-bearing: (a) the cited council-review document does not exist anywhere on origin/main, and (b) neither PR carries the non-dismissed, non-author, WRITE/MAINTAIN/ADMIN APPROVED review the roadmap's githubReviewGate and the P.2 provenance pin require -- both were authored and merged by the single existing collaborator. No camp01-authority-receipt controller directory was ever produced. A worker admitted onto R2.camp-2 MUST NOT cite PR #1231, #1233, the '23/23 readmitted' figure, or the 2026-08-12 council review as satisfying task 2.2's receipt clause -- the underlying CODE can be trusted (it is real, on main, and independently re-verified below by direct source/test reads), but the RECEIPT and REVIEW-GATE claims cannot."
+  },
+  "frozenContractRow": {
+    "source": "scripts/qc/camp01-authority-receipt.contract.mjs -> WAVE_CONTRACTS['camp-01b']",
+    "sourceFileVerifiedOnOriginMain": "e048a43cd25",
+    "wave": "camp-01b",
+    "commandId": "camp-01b",
+    "childChange": "add-authoritative-campaign-coop-snapshot",
+    "runRootTemplate": ".sisyphus/evidence/playtest/camp01b-snapshot-<sha>",
+    "commandSequence": [
+      [
+        "@npm",
+        "test",
+        "--",
+        "--watchAll=false",
+        "--runTestsByPath",
+        "src/types/campaign/__tests__/CampaignSync.test.ts",
+        "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx",
+        "src/lib/multiplayer/server/__tests__/CampaignHostRegistry.test.ts",
+        "src/lib/campaign/sync/__tests__/sharedCampaignState.integration.test.ts",
+        "--runInBand"
+      ],
+      [
+        "@npm",
+        "run",
+        "verify:qc:coop-campaign-journey"
+      ]
+    ],
+    "canonicalArgvDigest": "8ace8ae2a924103218b629d757de23f771cbf0da4f60bae4390ca284580d9bcd",
+    "artifacts": [
+      "command-result.json",
+      "receipt-manifest.json",
+      "wave-result.json"
+    ],
+    "assertions": [
+      "campaignIdMatched===true",
+      "matchIdMatched===true",
+      "revisionMatched===true",
+      "forceMembershipMatched===true",
+      "sourceIdentityMatched===true",
+      "guestMirrorHydrated===true"
+    ],
+    "predecessors": [
+      "camp-01a"
+    ],
+    "capSubject": "product-pr",
+    "maxFiles": 14,
+    "maxChangedLines": 480,
+    "reporterContracts": [],
+    "criticalDifferenceFromCampO1aRow": "camp-01b's commandSequence has TWO argv arrays, not one: the frozen jest run PLUS `npm run verify:qc:coop-campaign-journey`. That second script is itself a compound command defined in package.json:199 -- it runs 9 more jest suites (Protocol.test.ts, CampaignHostRegistry.test.ts again, bindCampaignSyncConnection.test.ts, campaignSyncTransport.test.ts, coopRuntimeSession.test.ts, GuestProposalSurface.test.tsx, index.coop.test.tsx, mission-launch.coop.test.tsx, coopCampaignPlay.test.ts) AND THEN `node scripts/playwright/run-playwright.mjs test --project=chromium e2e/coop-campaign-two-browser-journey.spec.ts e2e/coop-campaign-ui-audit.spec.ts --workers=1`. This means a full command-level camp-01b receipt reproduction requires a real Playwright browser run, unlike camp-01a's pure-jest row. Both e2e spec files were confirmed present on origin/main via `git cat-file -e`."
+  },
+  "taskKeys": [
+    {
+      "key": "add-saved-custom-unit-campaign-roster#2.1@20",
+      "sourceId": "2.1",
+      "literalText": "2.1 Extend `CampaignSync` with revision-bound source-bearing roster records and authoritative `forceId -> unitIds`; build them from real roster/forces in `CampaignCoopEntryPanel`, preserve them through match registration and `CampaignHostRegistry`, and hydrate the guest mirror.",
+      "checkboxStateOnOriginMain": "[ ] unchecked (roster umbrella tasks.md, line 20); the underlying archived child's own tasks.md (archive/2026-08-20-add-authoritative-campaign-coop-snapshot, tasks 1.1/1.2/2.1) shows [x]",
+      "verifiedAgainstOriginMain": "tasks.md re-read via `git show origin/main:openspec/changes/add-saved-custom-unit-campaign-roster/tasks.md` at e048a43cd25 this session",
+      "whatSourceAlreadyDoes": [
+        "src/types/campaign/CampaignSync.ts:38-51 -- `ICampaignRosterUnit` carries `unitRef?`, `unitSource?: 'canonical'|'custom'`, and `sourceVersion?: number` alongside `unitId/designation/status`; the interface doc comment at line 47 calls it 'Parsed roster source identity preserved through co-op.'",
+        "src/types/campaign/CampaignSync.ts:85-104 -- `ICampaignAuthoritativeState` adds `forceUnits?: Readonly<Record<string, readonly string[]>>` documented at line 94 as 'Deterministic forceId -> unitIds membership.', alongside the existing campaignId/day/balance/rosterUnits/pilots/contracts.",
+        "src/lib/campaign/coop/campaignAuthoritativeState.ts:19-32 -- `buildCampaignAuthoritativeState(campaign, rosterUnits)` is the real builder invoked by `CampaignCoopEntryPanel.tsx:217-220` at co-op entry; it calls `projectRosterUnits` (lines 34-64) and `projectForceUnits` (lines 66-87).",
+        "src/lib/campaign/coop/campaignAuthoritativeState.ts:44-49 -- `projectRosterUnits` throws 'has an invalid roster source' when `parseRosterUnitSource(unit.unitSource)` returns `kind:'invalid'`, and throws 'is missing a catalog reference' when `unit.unitRef` is absent -- both BEFORE the unit is added to the projection.",
+        "src/lib/campaign/coop/campaignAuthoritativeState.ts:73-85 -- `projectForceUnits` throws 'references absent roster unit' when a force's unitId is not in the roster projection, and throws 'is in more than one force' when a unitId is claimed by two forces -- both checks run before `forceUnits` is returned.",
+        "src/lib/multiplayer/server/CampaignHostRegistry.ts:263-278 -- `parseCampaignCoopSnapshot` validates the incoming snapshot and the registry throws 'Campaign snapshot revision is stale' when `parsed.snapshot.revision < existing.revision`, binding campaignId/hostPlayerId/state through match registration without local reconstruction.",
+        "src/pages-modules/gameplay/campaigns/CampaignCoopEntryPanel.tsx:335-350 -- `waitForInitialCampaignSnapshot` + `mirrorStore.applySnapshot(snapshot, 0)` hydrates the guest mirror from the host's published `CampaignSnapshotPublished` event."
+      ],
+      "deltaShallsMapped": [
+        "add-authoritative-campaign-coop-snapshot proposal.md 'What Changes': 'Extend the authoritative campaign snapshot with source-bearing roster records and an explicit forceId -> unitIds projection... Build the snapshot from the host's persisted campaign roster and force tree at co-op entry, then preserve it through match registration and CampaignHostRegistry hydration... Require guest bootstrap and replay to hydrate the same immutable projection at the advertised revision... Reject malformed, stale, foreign-campaign, wrong-match, or internally inconsistent snapshots instead of synthesizing membership or source identity.'"
+      ],
+      "existingTests": [
+        "src/types/campaign/__tests__/CampaignSync.test.ts:358-383 'rejects unknown source, missing refs, duplicates, and stale revisions' -- directly exercises unitSource='stock' rejection and duplicate-forceUnits-membership rejection at the CampaignSync boundary.",
+        "src/types/campaign/__tests__/CampaignSync.test.ts:384-437 'publishes CAMP-01B wave-result.json when the controller artifact dir is set' -- an end-to-end host->guest run that computes and writes all 6 of the frozen camp-01b assertions (campaignIdMatched, matchIdMatched, revisionMatched, forceMembershipMatched, sourceIdentityMatched, guestMirrorHydrated) in the exact camp01-wave-result/v1 shape the contract expects, gated on CAMP01_ARTIFACT_DIR/CAMP01_RUN_ID -- the same self-writing pattern camp-01a's RosterUnitSource.test.ts uses.",
+        "src/lib/multiplayer/server/__tests__/CampaignHostRegistry.test.ts:79-99 'registers a server-resident campaign host by match id' -- asserts entry.revision, rosterUnits[...].unitSource, and forceUnits equality after registration.",
+        "src/lib/multiplayer/server/__tests__/CampaignHostRegistry.test.ts:100-121 'rejects a roster unit without a catalog reference before advertising' -- direct coverage of the missing-unitRef rejection at the registry boundary.",
+        "src/lib/multiplayer/server/__tests__/CampaignHostRegistry.test.ts:311-401 durable-revision describe block -- covers revision persistence/recovery/advancement across process restarts."
+      ],
+      "gap": "PARTIAL, one concrete hole found: `src/lib/campaign/coop/campaignAuthoritativeState.ts`'s own `buildCampaignAuthoritativeState` / `projectRosterUnits` / `projectForceUnits` -- the function CampaignCoopEntryPanel.tsx:217-220 actually calls to build the snapshot from 'real roster/forces' per task 2.1's literal text -- has NO dedicated unit test anywhere in the repo (`git cat-file -e origin/main:src/lib/campaign/coop/__tests__/campaignAuthoritativeState.test.ts` -> does not exist). Worse, the ONE test file that imports the module, `CampaignCoopEntryPanel.test.tsx:56-58`, replaces it with `jest.mock('@/lib/campaign/coop/campaignAuthoritativeState', () => ({ buildCampaignAuthoritativeState: jest.fn(() => ({})) }))` -- i.e. the frozen camp-01b test file that is supposed to cover 'build them from real roster/forces in CampaignCoopEntryPanel' actively STUBS OUT the real roster/force-building logic and returns `{}`. The throw branches in projectRosterUnits/projectForceUnits (invalid source, missing unitRef, absent-roster-unit reference, duplicate force membership) are therefore exercised NOWHERE -- not directly, and not indirectly through the panel test. CampaignSync.test.ts's rejection tests (358-383) exercise the SAME kind of rejection but at the `CampaignSync`/registry boundary using hand-built fixture objects, not through `buildCampaignAuthoritativeState` itself, so they do not close this hole.",
+      "productionBrowserRunRequired": false
+    },
+    {
+      "key": "add-saved-custom-unit-campaign-roster#2.2@21",
+      "sourceId": "2.2",
+      "literalText": "2.2 Test host/guest canonical success, source/membership, bootstrap/registration, malformed projection, and stale/mismatched rejection. The immutable `camp-01b` row SHALL pin separate ordered command arrays for `npm.cmd test -- --watchAll=false --runTestsByPath src/types/campaign/__tests__/CampaignSync.test.ts src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx src/lib/multiplayer/server/__tests__/CampaignHostRegistry.test.ts src/lib/campaign/sync/__tests__/sharedCampaignState.integration.test.ts --runInBand` and `npm.cmd run verify:qc:coop-campaign-journey`. Run the authority writer with `--wave=camp-01b`, its run root/SHA/command id, and exact spec/product tuples but no caller command text, then matching reviewed-head validation; after merge rerun both under a new exact-main run root with the exact product merge tuple and exact-main SHA/mode; review, publish within 14 files/480 lines, merge, audit, and prune before CAMP-01C.",
+      "checkboxStateOnOriginMain": "[ ] unchecked (roster umbrella tasks.md, line 21); the archived child's own tasks.md (tasks 2.2, 3.1, 3.2, 3.3) shows [x], citing PR #1231/#1233 and the absent council-review document per criticalContextFinding above",
+      "verifiedAgainstOriginMain": "tasks.md re-read via `git show origin/main:openspec/changes/add-saved-custom-unit-campaign-roster/tasks.md` at e048a43cd25 this session",
+      "whatSourceAlreadyDoes": [
+        "The 'Test host/guest canonical success, source/membership, bootstrap/registration, malformed projection, and stale/mismatched rejection' half of this task is well covered by the four frozen jest files -- see existingTests below.",
+        "The 'immutable camp-01b row SHALL pin...' half (the receipt-writer invocation) is NOT done: no camp01b-snapshot-<sha> directory exists anywhere (`find .sisyphus/evidence/playtest -iname '*camp01b*'` -> zero matches; `git ls-files | grep -i camp01b` -> zero matches)."
+      ],
+      "deltaShallsMapped": [
+        "add-authoritative-campaign-coop-snapshot tasks.md task 2.2 (archived child numbering): 'Validate the registry's atomic event-sequence high-water/state baseline before guest mirror creation; test exact initial equality, strictly greater contiguous replacement, subscription-before-snapshot race buffering, replay strictly after the baseline, guest cursor advancement, gap/regression rejection, stale-before-current rejection, byte-identical duplicate acceptance, and different same-revision rejection.'"
+      ],
+      "existingTests": [
+        "src/types/campaign/__tests__/CampaignSync.test.ts:358-383 -- canonical/source/membership/stale-revision rejection, as cited under task 2.1 above.",
+        "src/types/campaign/__tests__/CampaignSync.test.ts:384-437 -- the full host->guest wave-result-writing integration path, proving guestMirrorHydrated and all 6 frozen assertions with real data (not mocks).",
+        "src/lib/multiplayer/server/__tests__/CampaignHostRegistry.test.ts -- 289-300 'labels a database-free host EPHEMERAL rather than letting it pass for durable' and 301-401 durable-revision describe block cover bootstrap/registration edge cases (idempotent registration, lazy boot, PAUSED/UNPAUSED rebuild, revision persistence across restart).",
+        "src/lib/campaign/sync/__tests__/sharedCampaignState.integration.test.ts:1-19 header -- documents 4 CO1-era host/guest convergence scenarios (day-advance mirror, in-balance/over-balance SpendFunds, disconnect/reconnect resync); these predate camp-01b (header cites '@spec .../add-shared-campaign-state/...') and are reused as regression coverage rather than camp-01b-authored scenarios, but they DO exercise real host/guest event-replay convergence end-to-end.",
+        "CampaignCoopEntryPanel.test.tsx (305 lines) exists and passes, but per the gap noted under task 2.1, it mocks `buildCampaignAuthoritativeState` entirely and contains zero roster/force/source-related assertions -- it verifies panel wiring/UI behavior, not the snapshot-building or rejection logic the task's literal text names it for."
+      ],
+      "gap": "The test-coverage half of 2.2 is SUBSTANTIALLY covered (canonical success, source/membership rejection, stale-revision rejection, bootstrap/registration, and guest-mirror hydration are all directly and repeatedly tested against real code paths) MINUS the same CampaignCoopEntryPanel-mock hole noted under 2.1. The receipt-writer half of 2.2 (the immutable row invocation, review, merge, audit, prune sequence) is NOT done and cannot be closed past the command-level tier for the same two structural reasons every sibling node hits: (a) predecessor camp-01a has no controller-registered receipt yet, and (b) the githubReviewGate is unsatisfiable with a single repository collaborator.",
+      "productionBrowserRunRequired": true
+    }
+  ],
+  "sourceFilesInventory": {
+    "method": "Direct `git show origin/main:<path>` / `git cat-file -e origin/main:<path>` reads at e048a43cd25 this session (not carried forward from any prior brief's SHA)",
+    "files": [
+      {
+        "path": "src/types/campaign/CampaignSync.ts",
+        "lines": 663,
+        "note": "ICampaignRosterUnit / ICampaignAuthoritativeState / forceUnits read in full context (lines 1-150)"
+      },
+      {
+        "path": "src/lib/campaign/coop/campaignAuthoritativeState.ts",
+        "lines": 132,
+        "note": "full file read -- buildCampaignAuthoritativeState, projectRosterUnits, projectForceUnits"
+      },
+      {
+        "path": "src/pages-modules/gameplay/campaigns/CampaignCoopEntryPanel.tsx",
+        "note": "grepped + read lines 190-235 (snapshot-building call site)"
+      },
+      {
+        "path": "src/lib/multiplayer/server/CampaignHostRegistry.ts",
+        "note": "grepped for forceId/unitIds/revision/roster/snapshot symbols, read lines 260-320"
+      },
+      {
+        "path": "src/types/campaign/__tests__/CampaignSync.test.ts",
+        "note": "grepped for describe/it blocks and the wave-result assertion keys; read lines 358-437"
+      },
+      {
+        "path": "src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx",
+        "lines": 305,
+        "note": "full-file grep for roster/force/source/revision -- zero matches beyond generic 'empty roster' UI text; confirmed jest.mock of campaignAuthoritativeState at lines 56-58"
+      },
+      {
+        "path": "src/lib/multiplayer/server/__tests__/CampaignHostRegistry.test.ts",
+        "note": "grepped for forceUnits/rosterUnits/unitSource/revision/describe/it; ~40 matching lines reviewed"
+      },
+      {
+        "path": "src/lib/campaign/sync/__tests__/sharedCampaignState.integration.test.ts",
+        "note": "read header (lines 1-19) and confirmed it predates camp-01b (CO1 task 7 spec citation)"
+      },
+      {
+        "path": "scripts/qc/camp01-authority-receipt.contract.mjs",
+        "note": "grepped for the camp-01a/b/c/d/e/f/g/h WAVE_CONTRACTS rows; camp-01b row extracted verbatim"
+      },
+      {
+        "path": "package.json",
+        "note": "grepped verify:qc:coop-campaign-journey script definition at line 199"
+      },
+      {
+        "path": "e2e/coop-campaign-two-browser-journey.spec.ts",
+        "note": "existence confirmed via git cat-file -e"
+      },
+      {
+        "path": "e2e/coop-campaign-ui-audit.spec.ts",
+        "note": "existence confirmed via git cat-file -e"
+      },
+      {
+        "path": "openspec/changes/archive/2026-08-20-add-authoritative-campaign-coop-snapshot/proposal.md",
+        "note": "full file read"
+      },
+      {
+        "path": "openspec/changes/archive/2026-08-20-add-authoritative-campaign-coop-snapshot/tasks.md",
+        "note": "full file read"
+      },
+      {
+        "path": "src/lib/campaign/authority/campaignSourceGenesis.ts",
+        "note": "grepped only -- comment at line 11 cites 'the camp-01b-attested client wire builder's output' as the parity-pin source for the server-side genesis projection; NOT read in full this session, flagged for the next node that touches campaign authority"
+      },
+      {
+        "path": "src/lib/campaign/encounter/requestLaunchAuthority.ts",
+        "note": "grepped only -- confirms a downstream POST /api/campaigns/:id/launch-authority consumer exists; see crossNodeCoordinationRisk"
+      },
+      {
+        "path": "src/__tests__/api/campaigns/campaignReplicaSyncRoute.test.ts",
+        "note": "grepped only -- confirms a /api/campaigns/[id]/replica-sync route exists (design D6) as a downstream consumer of campaign authority state; not camp-01b's own scope"
+      }
+    ]
+  },
+  "controllerPredecessorGate": {
+    "source": "scripts/qc/camp01-durable-facts.mjs resolvePreflightFacts() (mechanism as documented in the R2.camp-1 brief; not re-read line-by-line this session, but the resulting fact -- no durable index entry exists for camp-01a or camp-00 -- was independently re-verified below)",
+    "verifiedThisSession": "`find .sisyphus/evidence/playtest -iname '*camp01a*'` and `-iname '*camp00*'` both return zero matches. `ls .sisyphus/evidence/playtest/` shows exactly one directory, `2026-07-07-live-playtest/`, unrelated to any camp-0x wave. No wave-cleanup.json of any kind exists in that tree.",
+    "consequence": "camp-01b's own controller run (qc:camp01-authority-receipt:write --wave=camp-01b ...) would fail camp-01a's predecessor check today, independent of anything this brief's slice does -- an exact copy of the situation the R2.camp-1 brief documented for camp-01a depending on camp-00. This is layered on top of camp-01b's own githubReviewGate."
+  },
+  "githubReviewGateG1": {
+    "name": "Eligible non-author GitHub APPROVED review on the exact head",
+    "citedFrom": "roadmap.json R2.camp-2.githubReviewGate; scripts/qc/camp01-github-provenance.mjs (same module cited by camp-1's G1)",
+    "liveFactsAsOf20260915": "Both real, merged camp-01b PRs (#1231, #1233) were authored AND merged by the single repository collaborator (SwiggitySwerve, permission=admin) with reviews=[] on both -- confirmed via `gh pr view --json author,mergedBy,reviews` this session. No second collaborator exists on the repository.",
+    "soloException": false,
+    "satisfiability": "STRUCTURALLY UNSATISFIABLE today, identically to R2.camp-0 and R2.camp-1: soloException is explicitly false. Any future product PR touching camp-01b's scope needs a real second-collaborator APPROVED review that cannot be produced by an agent session and does not exist today.",
+    "impactOnThisNode": "Even a perfect audit-only or coverage-only PR that touches zero camp-01b-owned behavior would still be unable to close task 2.2's receipt clause, because the controller's exact-main mode requires a merged, approved PR, and merging requires this gate. This also retroactively means PR #1231/#1233 never actually satisfied the gate the archived child's tasks.md implies they did -- they shipped code, not a governed receipt."
+  },
+  "crossNodeCoordinationRisk": {
+    "sharedConcept": "camp-01b's ICampaignAuthoritativeState.rosterUnits/forceUnits shape is the parity-pin source for later campaign-authority work, not merely an isolated co-op feature",
+    "finding": "src/lib/campaign/authority/campaignSourceGenesis.ts:11 and its test file src/lib/campaign/authority/__tests__/campaignSourceGenesis.test.ts:5 both state the server-side authoritative genesis projection is PARITY-PINNED to 'the camp-01b-attested client wire builder's output' -- i.e. buildCampaignAuthoritativeState from this exact node's scope. Separately, src/lib/campaign/encounter/requestLaunchAuthority.ts and src/pages-modules/api/campaignLaunchAuthorityRoute.ts implement a POST /api/campaigns/:id/launch-authority contract that R2.combat's S5 slice (evidence/r2-combat-s5-coop-custom-authority-local-20260915.json) independently documents as revalidating co-op source/force authority before composition -- consuming the same rosterUnits/unitSource/forceUnits shape camp-01b defines. A third consumer, src/__tests__/api/campaigns/campaignReplicaSyncRoute.test.ts, exercises a /api/campaigns/[id]/replica-sync route (design D6) built on the same authoritative-state shape.",
+    "implication": "camp-01b's ICampaignAuthoritativeState/buildCampaignAuthoritativeState shape is a load-bearing dependency for at least two other in-flight roadmap nodes (R2.combat's launch-authority boundary and the campaign-authority-and-sync journal work). Any repair slice under R2.camp-2's ownership that changes the SHAPE of rosterUnits/forceUnits (as opposed to adding tests around the existing shape) risks breaking campaignSourceGenesis's parity pin and the launch-authority/replica-sync consumers. Since the gap found in taskKeys above (buildCampaignAuthoritativeState untested) requires only NEW test files, not a shape change, this risk is currently theoretical for the recommended slice, but any future slice that touches campaignAuthoritativeState.ts's actual projection logic should re-check campaignSourceGenesis.ts's parity assumptions first."
+  },
+  "productionBrowserRunRequiredSummary": {
+    "answer": true,
+    "reasoning": "Unlike camp-01a's WAVE_CONTRACTS row (pure jest, single command), camp-01b's row has a second commandSequence entry, `npm run verify:qc:coop-campaign-journey`, which package.json:199 defines as 9 more jest suites FOLLOWED BY `node scripts/playwright/run-playwright.mjs test --project=chromium e2e/coop-campaign-two-browser-journey.spec.ts e2e/coop-campaign-ui-audit.spec.ts --workers=1`. A full command-level camp-01b receipt reproduction -- the achievable SLICE-1 below -- therefore requires an actual Playwright browser run (multiplayer two-browser journey + a UI audit spec), not just jest. This matches R2.camp-0's camp-00 answer (real-process, browser-adjacent) more than R2.camp-1's camp-01a answer (pure jest, no browser)."
+  },
+  "orderedSlicePlan": [
+    {
+      "id": "SLICE-1",
+      "priority": 1,
+      "title": "Command-level camp-01b receipt run at exact-main (audit evidence, zero product files, includes the browser leg)",
+      "behaviour": "Reproduce the R2.camp-0/camp00-receipt-run-main and the R2.camp-1/SLICE-1 pattern for camp-01b: on a freshly fetched, detached-HEAD worktree at verified origin/main, export CAMP01_ARTIFACT_DIR (a fresh evidence directory) and CAMP01_RUN_ID (a crypto-random `camp01-<32hex>` id matching the adapter/contract regex), then run BOTH frozen commands in order -- `npm test -- --watchAll=false --runTestsByPath src/types/campaign/__tests__/CampaignSync.test.ts src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx src/lib/multiplayer/server/__tests__/CampaignHostRegistry.test.ts src/lib/campaign/sync/__tests__/sharedCampaignState.integration.test.ts --runInBand` and then `npm run verify:qc:coop-campaign-journey` (which itself runs 9 more jest suites and 2 Playwright specs). Record exit codes, the produced wave-result.json (schema camp01-wave-result/v1), and all 6 frozen assertion values verbatim.",
+      "filesChanged": 0,
+      "filesTouchedList": [],
+      "redFirstTestNames": "NONE -- pure reproduction run of already-passing, already-shipped code (per source verification above, tasks 2.1/2.2's core behavior is implemented and covered except the one narrow CampaignCoopEntryPanel-mock hole, which this slice does not touch). No red-then-green cycle; the only new artifact is the evidence JSON this slice writes.",
+      "linesEstimate": "0 product/spec lines; 1 new evidence JSON file (unbounded, evidence-only)",
+      "gates": {
+        "frozenCommands": [
+          "npm test -- --watchAll=false --runTestsByPath src/types/campaign/__tests__/CampaignSync.test.ts src/pages-modules/gameplay/campaigns/__tests__/CampaignCoopEntryPanel.test.tsx src/lib/multiplayer/server/__tests__/CampaignHostRegistry.test.ts src/lib/campaign/sync/__tests__/sharedCampaignState.integration.test.ts --runInBand",
+          "npm run verify:qc:coop-campaign-journey"
+        ],
+        "canonicalArgvDigestMustMatch": "8ace8ae2a924103218b629d757de23f771cbf0da4f60bae4390ca284580d9bcd",
+        "envRequired": [
+          "CAMP01_ARTIFACT_DIR=<fresh dir>",
+          "CAMP01_RUN_ID=camp01-<32 lowercase hex chars>"
+        ],
+        "expectedExit": 0,
+        "expectedAssertions": "all 6 camp-01b assertions true (see frozenContractRow.assertions)",
+        "browserLegNote": "verify:qc:coop-campaign-journey's Playwright leg needs a built/served app (per this program's established pattern for browser-adjacent camp waves) -- budget accordingly; this is heavier than camp-01a's pure-jest SLICE-1."
+      },
+      "nonClaims": [
+        "Does NOT close roadmap task 2.2's receipt clause -- the controller write/validate invocations the task text names are not run.",
+        "Does NOT produce a controller-recognized durable receipt directory under .sisyphus/evidence/playtest/camp01b-snapshot-<sha>/.",
+        "Does NOT satisfy or attempt to satisfy githubReviewGateG1.",
+        "Does NOT modify CampaignSync.ts, campaignAuthoritativeState.ts, CampaignCoopEntryPanel.tsx, or CampaignHostRegistry.ts.",
+        "Does NOT close the CampaignCoopEntryPanel-mock coverage gap identified in taskKeys[0].gap -- that gap is orthogonal to reproducing the frozen receipt and is left to SLICE-2."
+      ],
+      "fileDisjointParallelizableWith": [
+        "none in this node -- zero product-file footprint; safe to run in parallel with any other roadmap node's slice, though it does contend for the same local build/Playwright resources other camp-0x receipt runs use, so avoid running concurrently with another camp-0x or R2.combat browser-leg receipt run on the same machine"
+      ]
+    },
+    {
+      "id": "SLICE-2",
+      "priority": 2,
+      "title": "Direct unit-test coverage for buildCampaignAuthoritativeState's guard-throw branches (discretionary, verification-only -- no known defect)",
+      "behaviour": "Add a new test file, src/lib/campaign/coop/__tests__/campaignAuthoritativeState.test.ts, that imports the REAL (unmocked) buildCampaignAuthoritativeState/projectRosterUnits/projectForceUnits and directly asserts: (a) an invalid unitSource throws 'has an invalid roster source'; (b) a roster unit missing unitRef throws 'is missing a catalog reference'; (c) a force referencing an absent roster unit throws 'references absent roster unit'; (d) a roster unit claimed by two forces throws 'is in more than one force'; (e) canonical-success path produces the exact rosterUnits/forceUnits shape CampaignHostRegistry.test.ts already expects on the receiving end.",
+      "filesChanged": 1,
+      "filesTouchedList": [
+        "src/lib/campaign/coop/__tests__/campaignAuthoritativeState.test.ts"
+      ],
+      "redFirstTestNames": "NOT a red-first repair in the bug-fix sense -- per source verification above, buildCampaignAuthoritativeState/projectRosterUnits/projectForceUnits ALREADY implement all five behaviors correctly (no defect found). This is a verification-only coverage addition (same category as R2.combat's S5 slice, evidence/r2-combat-s5-coop-custom-authority-local-20260915.json, which labeled itself 'VERIFICATION-ONLY -- no product change was required'); the new tests are expected to pass immediately against unchanged product code. Proposed test names: 'projectRosterUnits rejects an invalid unitSource before adding the unit', 'projectRosterUnits rejects a unit missing its catalog reference', 'projectForceUnits rejects a force that references an absent roster unit', 'projectForceUnits rejects a roster unit claimed by two forces', 'buildCampaignAuthoritativeState produces the shape CampaignHostRegistry expects on canonical input'.",
+      "linesEstimate": "~120-180 lines, one new test file, well inside the 15-file/500-line roadmap node cap and the frozen row's own 14-file/480-line product-PR cap (though this slice does not touch the frozen row itself, since campaignAuthoritativeState.test.ts is not one of the 4 pinned files -- adding it does not require renegotiating WAVE_CONTRACTS)",
+      "gates": {
+        "notPartOfFrozenRow": "This new test file is NOT one of the 4 files scripts/qc/camp01-authority-receipt.contract.mjs pins for camp-01b's commandSequence, so adding it does not require a WAVE_CONTRACTS edit or a canonicalArgvDigest change; it would run under the ordinary `npm test` gate, not the frozen receipt gate.",
+        "expectedExit": 0
+      },
+      "nonClaims": [
+        "Does NOT fix a proven defect -- the underlying throw behavior is already correct; this is coverage-only.",
+        "Does NOT close roadmap task 2.1 or 2.2 by itself -- it narrows the gap noted in taskKeys[0].gap but does not touch the receipt/review-gate blockers.",
+        "Does NOT modify CampaignCoopEntryPanel.test.tsx's existing mock -- that mock stays in place for panel-wiring tests; this slice adds coverage at the module boundary instead of removing the mock, to avoid destabilizing an already-passing frozen test file."
+      ],
+      "fileDisjointParallelizableWith": [
+        "SLICE-1 (zero file overlap)",
+        "any other roadmap node except one that also edits src/lib/campaign/coop/campaignAuthoritativeState.ts or adds the same test file path"
+      ]
+    }
+  ],
+  "dependencySummary": {
+    "onR2camp1": "R2.camp-2 depends on R2.camp-1 twice over: (a) the roadmap edge dependsOn:[R2.camp-1], and (b) the frozen camp-01b WAVE_CONTRACTS row's own predecessors:[camp-01a], enforced by the controller's durable-index predecessor check. R2.camp-1's own brief recommends but does not confirm execution of its SLICE-1 (a camp-01a command-level receipt); no camp-01a durable receipt exists yet. R2.camp-2 inherits the same state: it can reach the same command-level evidence tier (SLICE-1) but cannot reach the controller-registered tier until camp-01a reaches it first, and cannot reach exact-main PR closure until BOTH camp-00's, camp-01a's, and camp-01b's own githubReviewGate are satisfied.",
+    "whatCampTwoCanDeliverUnderTheOwnerGate": "A command-level, evidence-only receipt (SLICE-1) proving the already-shipped camp-01b code (real, merged, on origin/main via PR #1231/#1233) still passes its frozen jest suites AND its Playwright browser leg at exact-main, with the same 6/6 assertion tally the wave contract requires. This is achievable today and mirrors what camp00-receipt-run-main did for camp-00. Optionally, SLICE-2 closes a genuine (if narrow) coverage gap -- buildCampaignAuthoritativeState's guard-throw branches are currently exercised nowhere -- without touching the frozen contract row, though this is discretionary since no defect was found and the roadmap acceptance text's 'audit before any repair' clause does not mandate new test authorship absent a proven defect.",
+    "whatStaysBlocked": "Everything past command-level evidence: the controller-registered receipt (needs camp-01a's own controller receipt first, which itself needs camp-00's), and any real PR closure of roadmap task 2.2 (needs a second GitHub collaborator's non-author APPROVED review, soloException=false, structurally absent today -- exactly as for camp-00 and camp-01a, and now also demonstrated retroactively unsatisfied by PR #1231/#1233's own zero-review history)."
+  },
+  "productionBrowserRunRequired": true,
+  "recommendedFirstSlice": "SLICE-1",
+  "summary": "Task 2.1 (CampaignSync/CampaignAuthoritativeState roster+force extension, CampaignCoopEntryPanel wiring, CampaignHostRegistry preservation, guest-mirror hydration) is REAL and SHIPPED: it landed via genuinely merged PR #1231 (merge commit ef56e4eab5, confirmed an ancestor of origin/main) and is well covered by CampaignSync.test.ts and CampaignHostRegistry.test.ts, including the exact wave-result-writing test that computes all 6 frozen camp-01b assertions end-to-end. The one concrete gap: the actual roster/force-projection function CampaignCoopEntryPanel.tsx calls, buildCampaignAuthoritativeState (in campaignAuthoritativeState.ts), is mocked out entirely in the frozen CampaignCoopEntryPanel.test.tsx and has no dedicated test of its own anywhere -- its four guard-throw branches (invalid source, missing catalog ref, absent-roster-unit force reference, duplicate force membership) are untested, though independently re-verified by this session's source read to be correctly implemented. Task 2.2's test-coverage half is likewise substantially real; its receipt-writer half is NOT done (no camp01b-snapshot-<sha> directory exists anywhere) and is blocked identically to its siblings on two structural gates: camp-01a's own controller-registered receipt does not exist yet (predecessor chain), and the single-collaborator githubReviewGate (soloException=false) is unsatisfiable in an agent session -- a fact now doubly confirmed by PR #1231/#1233 themselves having shipped with zero reviews, self-authored and self-merged, meaning the archived child's completion claim of 'durable reviewed-head + exact-main + cleanup receipts' and its citation of a council-review document that does not exist on origin/main were never true even at the time they were written. The achievable next step is SLICE-1: a command-level exact-main receipt run reproducing BOTH frozen commandSequence entries -- the 4-file jest suite AND `verify:qc:coop-campaign-journey` (which itself chains 9 more jest suites plus a 2-spec Playwright browser leg) -- mirroring camp00-receipt-run-main's pattern but heavier, since camp-01b's contract is the first in this chain to require an actual browser run. SLICE-2 (discretionary, unordered ahead of any owner-gate resolution) would close the CampaignCoopEntryPanel-mock coverage gap with a new, narrowly-scoped test file that does not touch the frozen contract row."
+}

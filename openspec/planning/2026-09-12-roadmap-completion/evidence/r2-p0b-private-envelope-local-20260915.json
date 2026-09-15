@@ -1,0 +1,778 @@
+{
+  "node": "R2.authority",
+  "artefact": "r2-p0b-private-envelope-local-20260915",
+  "capturedAtUtc": "2026-09-15T08:32:00.000Z",
+  "task": "openspec/changes/design-campaign-authority-and-sync/tasks.md 6.1 (P0b), partial 6.3 falsification",
+  "status": "split-corrected-for-review-RQ1-and-OB1-each-prefix-green-and-capped-not-pushed",
+  "headline": "Implemented, green, falsified and split into three stacked prefixes; then corrected for the independent review (S1 APPROVE, S2 APPROVE-WITH-REQUIRED-EDITS, S3 APPROVE). RQ-1 is discharged by three new refusal rows on S2 and OB-1 by a comment-only commit on S3. S3 was rebased onto the new S2 head. af7130e3 remains intact as the reference commit; the corrected S3 tree now differs from it by exactly those two additions. Still not pushed and no PR opened.",
+  "runtime": {
+    "node": "v24.15.0",
+    "nodeSource": "ambient nvm4w in the pre-existing worktree",
+    "betterSqlite3": "the worktree's node_modules better-sqlite3 was already rebuilt for Node 24; it was NOT rebuilt in this session",
+    "jestInvocation": "node node_modules/jest/bin/jest.js --maxWorkers=2 --coverage=false <paths>"
+  },
+  "base": {
+    "ref": "origin/main at fetch time",
+    "sha": "b7d650997a1f1e7ed90ed8f806daefd199637150",
+    "note": "This is the exact SHA the dispatch predicted. origin/main advanced to 2d410f3ca4d7153497c94ee2944618ee735e99af during the session (another session fetched in the shared repo); every cap number below is measured against the recorded base b7d650997, not the moved ref."
+  },
+  "branch": "codex/roadmap-r2-p0b-private-envelope-20260915",
+  "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/r2-prepared-journal-api",
+  "commit": "af7130e3cacac031e42c26d2a61776e873f21644",
+  "pushed": false,
+  "prOpened": false,
+  "files": [
+    {
+      "path": "src/lib/campaign/authority/campaignSourcePrivateEnvelope.ts",
+      "change": "added",
+      "changedLines": 243
+    },
+    {
+      "path": "src/lib/campaign/sync/JournalCampaignEventStore.ts",
+      "change": "modified",
+      "changedLines": 36
+    },
+    {
+      "path": "src/lib/campaign/delivery/projectCampaignStreamForGrant.ts",
+      "change": "modified",
+      "changedLines": 11
+    },
+    {
+      "path": "src/lib/campaign/sync/__tests__/JournalCampaignEventStore.test.ts",
+      "change": "modified",
+      "changedLines": 238
+    },
+    {
+      "path": "src/lib/campaign/delivery/__tests__/projectCampaignStreamForGrant.test.ts",
+      "change": "modified",
+      "changedLines": 181
+    }
+  ],
+  "shortstat": {
+    "command": "git diff --cached --shortstat b7d650997a1f1e7ed90ed8f806daefd199637150",
+    "raw": "5 files changed, 701 insertions(+), 8 deletions(-)",
+    "filesChanged": 5,
+    "insertions": 701,
+    "deletions": 8,
+    "changedLines": 709
+  },
+  "capCheck": {
+    "fileCap": 15,
+    "filesChanged": 5,
+    "filesWithinCap": true,
+    "lineCap": 500,
+    "changedLines": 709,
+    "linesWithinCap": false,
+    "overBy": 209,
+    "testLines": 419,
+    "sourceLines": 290,
+    "decision": "STOP-AND-REPORT-A-SPLIT was the initial verdict; the coordinator then directed execution of the proposed split. See the `split` section for the delivered stack. No test was trimmed at any point and no production comment was stripped to buy lines.",
+    "proposedSplit": [
+      {
+        "id": "S1",
+        "approxChangedLines": 306,
+        "content": "Optional journal-private field on ICampaignJournalEnvelope + conditional-absence construction (JournalCampaignEventStore.ts, 36) + the private type / digest helper / conditional builder / rehydrating reader half of campaignSourcePrivateEnvelope.ts (~160) + the legacy byte-identity and compact-narrowing rows (~110).",
+        "provesOnItsOwn": "Legacy canonical bytes, event digest and campaign state digest unchanged; the field is absent rather than {} or enumerable undefined."
+      },
+      {
+        "id": "S2",
+        "approxChangedLines": 211,
+        "content": "replayCampaignSourceContracts + ICampaignSourceContractProjection + CampaignSourcePrivateReplayError reasons (~83) + the cold-reopen recovery row (~128).",
+        "provesOnItsOwn": "The source recovers the full IContract and remaining market after a cold SQLite reopen, replaying from the persisted source record body rather than the compact genesis."
+      },
+      {
+        "id": "S3",
+        "approxChangedLines": 192,
+        "content": "RE-2 routing of projectCampaignStreamForGrant.ts through envelopeOf (11) + the restricted-guest / GM-control leak rows and the identity-commitment row (181).",
+        "provesOnItsOwn": "envelopeOf is the sole narrowing in fact; deleting it turns the leak rows red. Depends on S1 for the field to exist."
+      }
+    ],
+    "splitOrderNote": "S1 -> S2 -> S3. S3's falsification is only non-vacuous once S1 has landed the field.",
+    "splitExecuted": true
+  },
+  "evidenceRoot": ".sisyphus/roadmap-completion-20260912/r2-p0b-20260915/",
+  "logs": [
+    {
+      "phase": "red",
+      "label": "pre-implementation: the private field and its module do not exist, so the recovery assertion has nothing to read",
+      "path": ".sisyphus/roadmap-completion-20260912/r2-p0b-20260915/red.log",
+      "sha256": "021f3c023e199184f38d4a8276addb0c0dd1215545cde8450cf463d340c2fdc9",
+      "exit": 1,
+      "result": "2 suites failed to run (module not found: ../../authority/campaignSourcePrivateEnvelope)"
+    },
+    {
+      "phase": "red",
+      "label": "assertion-level red: module and envelope field present, but the private payload is NOT written to the stored envelope",
+      "path": ".sisyphus/roadmap-completion-20260912/r2-p0b-20260915/red2-no-private-write.log",
+      "sha256": "56d8d707bfd9154c453b66587f5ea3d48c477f9ff717a1cb718a63a8e1811f7b",
+      "exit": 1,
+      "result": "2 failed, 20 passed, 22 total -- the cold-reopen recovery row and the identity-commitment row go red; the mutation was reverted immediately after"
+    },
+    {
+      "phase": "green",
+      "label": "targeted: the two suites carrying the new rows, after oxfmt",
+      "path": ".sisyphus/roadmap-completion-20260912/r2-p0b-20260915/green-targeted.log",
+      "sha256": "e6b8c5e6d0a60ccea9279240de66b0b5d913727407de7a80aa7c4a8e982af8a0",
+      "exit": 0,
+      "result": "2 suites passed, 22 tests passed"
+    },
+    {
+      "phase": "green",
+      "label": "focused: whole src/lib/campaign directory plus src/lib/events/journal",
+      "path": ".sisyphus/roadmap-completion-20260912/r2-p0b-20260915/green-focused.log",
+      "sha256": "9995526e8ae005d45b73ef6bf62aeaa22e4e7696b593b603fa4d475adf890799",
+      "exit": 0,
+      "result": "217 suites passed, 3142 tests passed, 0 failed"
+    },
+    {
+      "phase": "falsification",
+      "label": "F1 -- envelopeOf's narrowing deleted (siblings ride along) WITH the RE-2 routing in place",
+      "path": ".sisyphus/roadmap-completion-20260912/r2-p0b-20260915/falsify-1-envelopeOf-narrowing-deleted.log",
+      "sha256": "6ffd0505d059c39e9a7419d05b49d023bc0739e3855c7d9e0b32952323b75a09",
+      "exit": 1,
+      "result": "6 failed, 16 passed. BOTH leak rows go red -- 'withholds the private contract and market from a restricted campaign-scope guest' AND '... from a GM all-scopes grant' -- plus the compact-narrowing assertion in the cold-reopen row. The falsification is genuinely 1:1.",
+      "mutationReverted": true
+    },
+    {
+      "phase": "falsification",
+      "label": "F2 -- the same envelopeOf mutation, but projectCampaignStreamForGrant reverted to the PRE-RE-2 inline narrowing",
+      "path": ".sisyphus/roadmap-completion-20260912/r2-p0b-20260915/falsify-2-vacuous-without-RE2-routing.log",
+      "sha256": "5d415000c716bede7ae094c3b2ac37c53c61acc9ea20e7da34d08442aa608345",
+      "exit": 0,
+      "result": "Both leak rows PASS. This is the measured proof that the reviewer's RE-2 finding was correct: without routing :252 through envelopeOf, deleting the narrowing leaves the grant leak rows green and the proof is vacuous.",
+      "mutationReverted": true
+    }
+  ],
+  "gates": [
+    {
+      "gate": "jest (targeted)",
+      "argv": "node node_modules/jest/bin/jest.js --maxWorkers=2 --coverage=false src/lib/campaign/sync/__tests__/JournalCampaignEventStore.test.ts src/lib/campaign/delivery/__tests__/projectCampaignStreamForGrant.test.ts",
+      "exit": 0,
+      "suites": 2,
+      "tests": 22,
+      "failed": 0
+    },
+    {
+      "gate": "jest (focused dirs)",
+      "argv": "node node_modules/jest/bin/jest.js --maxWorkers=2 --coverage=false src/lib/campaign src/lib/events/journal",
+      "exit": 0,
+      "suites": 217,
+      "tests": 3142,
+      "failed": 0
+    },
+    {
+      "gate": "typecheck",
+      "argv": "npx tsc --noEmit",
+      "exit": 0,
+      "log": ".sisyphus/roadmap-completion-20260912/r2-p0b-20260915/typecheck.log",
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "note": "empty log; whole-project typecheck, not scoped to the touched files"
+    },
+    {
+      "gate": "lint",
+      "argv": "npx oxlint <5 touched files>",
+      "exit": 0,
+      "log": ".sisyphus/roadmap-completion-20260912/r2-p0b-20260915/oxlint.log",
+      "logSha256": "067895b6ec344298f1749e2a76d096557cefaccc88298e7453a529193b6529e4",
+      "result": "0 warnings and 0 errors",
+      "caveat": "oxlint reported 'Finished ... on 3 files' for a 5-file argv -- the two __tests__ files appear to be excluded by the project's oxlint ignore configuration. Recorded rather than worked around; `npm run lint` was NOT run separately."
+    },
+    {
+      "gate": "format",
+      "argv": "npx oxfmt --check <5 touched files>",
+      "exit": 0,
+      "log": ".sisyphus/roadmap-completion-20260912/r2-p0b-20260915/oxfmt.log",
+      "logSha256": "f51d47d7546715fdc266a19c062c9274fa165660414716ee3e9d56b3b28063c2",
+      "note": "The first --check run failed on 3 files; `npx oxfmt` was applied and the targeted jest suites were re-run green AFTER formatting, per the known quote-flip formatter/validator race."
+    }
+  ],
+  "design": {
+    "decision": "D12 source-only, as admitted by PR #1675",
+    "notes": [
+      "The private payload is an OPTIONAL field `sourcePrivate` on ICampaignJournalEnvelope, a sibling of `campaignEvent`. Optional was mandatory: src/lib/campaign/sync/hostCampaignEventJournal.ts:150-153 constructs the envelope with all three fields explicit, and a required field would have stopped that co-op host path compiling. That file was NOT edited and did not need to be.",
+      "Conditional absence is implemented in toAppendEvent: the payload object literal is built WITHOUT the key and the key is spread on only when a private payload exists. Never `{}`, never an enumerable `undefined`. Pinned by a byte-exact canonical-payload assertion plus a pinned event digest and a pinned campaign state digest, all three captured from the base commit before any source edit.",
+      "The private payload rides the TERMINAL event of a command batch, exactly like expectedPostStateDigest, so it commits atomically with the batch and is covered by the journal digest chain.",
+      "The private field STAYS inside the digest material. EventJournalCanonicalizer was not touched. The accepted RE-4 residual -- the delivered projectedEventIdentity is a one-way commitment over bytes including the private field -- is pinned as EXPECTED by a row that reads delivery_event_mapping.projected_event_identity and asserts it equals the stored eventDigest.",
+      "Money is a class and cannot be canonicalized (the canonicalizer rejects non-plain prototypes), so the private payload is stored in the same JSON-safe form serializeCampaign already persists (Money.toJSON collapses to a C-bill number) and read back through the existing rehydrateCampaignMission / rehydrateContractMarket path. No new serialization convention was invented.",
+      "campaignSourcePrivateOf takes a minimal structural carrier type rather than IStoredEvent<ICampaignJournalEnvelope>, so the new authority module has no import edge back into sync/JournalCampaignEventStore and no cycle exists in either direction.",
+      "replayCampaignSourceContracts starts from the EARLIEST private row's captured sourceRecordBody, parses its contractMarket as the baseline market, and folds forward. It never reads the compact genesis snapshot. Baseline self-consistency (body bytes vs captured digest) and schema version are checked, and both refuse with a typed CampaignSourcePrivateReplayError rather than falling back to the compact projection.",
+      "RE-2 discharged: projectCampaignStreamForGrant.ts no longer narrows inline; `const event = envelopeOf(stored);` with envelopeOf added to the value import the file already took from JournalCampaignEventStore. envelopeOf's own body and return shape are unchanged."
+    ]
+  },
+  "nonClaims": [
+    "No P1 producer. src/stores/campaign/campaignCommandActions.ts, src/lib/campaign/authority/campaignCommandPipeline.ts and src/pages/api/campaigns/[id]/commands.ts were NOT touched; nothing in production constructs a private envelope today. The carriage exists; no caller fills it.",
+    "No flag flip. CAMPAIGN_JOURNAL_AUTHORITY_ENABLED remains false and was not read or written by this change.",
+    "No cutover, no migration-state change, no CAMP witness, no runtime exercise of a live stack.",
+    "The borrowed-handle campaign write with CAS plus a durable sourceReplayFence in src/services/campaignPersistence/CampaignPersistenceService.ts -- named in tasks.md 6.1 -- is NOT implemented here. Task 6.1 is therefore only PARTIALLY discharged by this commit; its tasks.md checkbox was deliberately left unchecked.",
+    "The baseline capture is carried as a typed field of the private envelope and pinned by tests, but nothing in this change captures it under the P0a prepared transaction (SQLiteEventJournalWriter.appendPreparedWithExtension). That wiring belongs with the producer.",
+    "roomCodeGuestHydration.ts and the client snapshot schema were NOT touched, and no leak row was added for the room-code hydration surface -- tasks.md 6.3 assigns that row and it was out of the dispatched scope.",
+    "No tasks.md checkbox was checked; no spec, design or proposal file was edited. No SHALL in specs/campaign-authority/spec.md was found to be contradicted by the implementation.",
+    "Not pushed; no PR opened; the root checkout was not touched (every source edit is inside the worktree; only the evidence directory and this JSON were written under the root).",
+    "`npm run lint` and `npm run build` were not run. `npm run build` is explicitly excluded by the dispatch; the lint gate was satisfied via direct oxlint on the touched files.",
+    "None of the four branches (the af7130e3 reference plus S1/S2/S3) was pushed; no PR was opened; no tasks.md checkbox was checked and no spec, design or proposal file was edited during the split."
+  ],
+  "unverified": [
+    "UNVERIFIED: whether the project's oxlint configuration intentionally excludes __tests__ files. The observed fact is that a 5-file argv reported 3 files linted; the cause was not investigated.",
+    "UNVERIFIED: no E2E, integration, or full-suite run was performed. Evidence of non-regression is limited to the 217 suites under src/lib/campaign and src/lib/events/journal.",
+    "INFERENCE: the proposed split's per-part line counts are estimates derived from the measured per-file counts, not from an executed split.",
+    "UNVERIFIED: each prefix was gated with typecheck, oxlint, oxfmt --check, the two target suites and the src/lib/campaign + src/lib/events/journal focused run. No full-suite, E2E or build run was performed at any stack level.",
+    "UNVERIFIED: OB-3, OB-4 and OB-5 were not directed by the coordinator and were not addressed; they are recorded verbatim in correction2.notAddressed so they are not lost."
+  ],
+  "referenceCommit": {
+    "sha": "af7130e3cacac031e42c26d2a61776e873f21644",
+    "branch": "codex/roadmap-r2-p0b-private-envelope-20260915",
+    "role": "reference only -- kept intact, never amended or deleted; superseded for review purposes by the S1/S2/S3 stack",
+    "shortstatVsBase": "5 files changed, 701 insertions(+), 8 deletions(-) => 709 changed lines",
+    "capVerdict": "over the 500-line ceiling by 209"
+  },
+  "split": {
+    "directive": "coordinator decision 2026-09-15: execute the proposed split as three stacked branches from base b7d650997",
+    "base": "b7d650997a1f1e7ed90ed8f806daefd199637150",
+    "evidenceRoot": ".sisyphus/roadmap-completion-20260912/r2-p0b-20260915/split/",
+    "treeIdentity": {
+      "check": "git diff af7130e3c 10a60ae56094f72a2dbf447d0561cac3c910d5f8",
+      "result": "EMPTY -- trees are byte-identical",
+      "differencesExplained": "none; there are no differences to explain",
+      "reVerifiedAfterFalsification": true
+    },
+    "orderingNote": "S1 -> S2 -> S3 is a hard order. S3 introduces no capability the earlier prefixes lack, but its falsification is only non-vacuous once S1 has landed the private field, and its leak fixtures call the S1 builder.",
+    "restructuringNote": "One deliberate intra-file evolution keeps the final tree identical while giving each prefix a proof it can stand on: at S1 the cold-reopen row reads the private facts through the direct reader (campaignSourcePrivateOf) and is titled \"reads the full contract and market off the private field while envelopeOf stays compact\"; S2 promotes that same row to fold the whole stream through replayCampaignSourceContracts, renames it to \"recovers ...\", and adds the baseline-market assertion. S2 therefore shows 9 deletions -- they are that rewrite, not removed coverage. Targeted test counts run 19 / 19 / 22 across the stack; no assertion was dropped.",
+    "prefixes": [
+      {
+        "id": "S1",
+        "branch": "codex/roadmap-r2-p0b-s1-private-field-20260915",
+        "commit": "b338320337dfcf6e22b3f80912541aa1785aa5cf",
+        "parent": "b7d650997a1f1e7ed90ed8f806daefd199637150",
+        "content": "Optional sourcePrivate field on ICampaignJournalEnvelope plus conditional-absence construction on the terminal event; campaignSourcePrivateEnvelope private type, source baseline, digest helper, conditional builder and rehydrating reader; legacy byte-identity row and the compact-narrowing assertions.",
+        "files": [
+          {
+            "path": "src/lib/campaign/authority/campaignSourcePrivateEnvelope.ts",
+            "change": "added",
+            "changedLines": 185
+          },
+          {
+            "path": "src/lib/campaign/sync/JournalCampaignEventStore.ts",
+            "change": "modified",
+            "changedLines": 36
+          },
+          {
+            "path": "src/lib/campaign/sync/__tests__/JournalCampaignEventStore.test.ts",
+            "change": "modified",
+            "changedLines": 232
+          }
+        ],
+        "shortstat": {
+          "command": "git diff --shortstat b7d650997a1f1e7ed90ed8f806daefd199637150",
+          "raw": "3 files changed, 447 insertions(+), 6 deletions(-)",
+          "filesChanged": 3,
+          "insertions": 447,
+          "deletions": 6,
+          "changedLines": 453
+        },
+        "capCheck": {
+          "fileCap": 15,
+          "filesWithinCap": true,
+          "lineCap": 500,
+          "linesWithinCap": true,
+          "headroom": 47
+        },
+        "gates": [
+          {
+            "gate": "typecheck",
+            "argv": "npx tsc --noEmit",
+            "exit": 0,
+            "log": "split/s1-typecheck.log",
+            "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          {
+            "gate": "lint",
+            "argv": "npx oxlint <3 changed files>",
+            "exit": 0,
+            "log": "split/s1-oxlint.log",
+            "logSha256": "f33d4993d7723e8c608664e3b165fac0f79f10a30b039738d93bfa08ace14fbc"
+          },
+          {
+            "gate": "format",
+            "argv": "npx oxfmt --check <3 changed files>",
+            "exit": 0,
+            "result": "All matched files use the correct format"
+          },
+          {
+            "gate": "jest (targeted)",
+            "argv": "node node_modules/jest/bin/jest.js --maxWorkers=2 --coverage=false src/lib/campaign/sync/__tests__/JournalCampaignEventStore.test.ts src/lib/campaign/delivery/__tests__/projectCampaignStreamForGrant.test.ts",
+            "exit": 0,
+            "suites": 2,
+            "tests": 19,
+            "failed": 0,
+            "log": "split/s1-jest-targeted.log",
+            "logSha256": "8ede2a3988328c239337cd22abf9996d522d65524090c59a72e0191aa66a367a"
+          },
+          {
+            "gate": "jest (focused dirs)",
+            "argv": "node node_modules/jest/bin/jest.js --maxWorkers=2 --coverage=false src/lib/campaign src/lib/events/journal",
+            "exit": 0,
+            "suites": 217,
+            "tests": 3139,
+            "failed": 0,
+            "log": "split/s1-jest-focused.log",
+            "logSha256": "d656370d48d55deccc8c6e092eaf607ec60ef1277d9487b85039a569941d4279"
+          }
+        ]
+      },
+      {
+        "id": "S2",
+        "branch": "codex/roadmap-r2-p0b-s2-source-replay-20260915",
+        "commit": "6dfddf79870465ae68545bc038b40626f22284fd",
+        "parent": "b338320337dfcf6e22b3f80912541aa1785aa5cf",
+        "content": "replayCampaignSourceContracts plus ICampaignSourceContractProjection and the no-private-payload refusal reason; the cold-reopen row promoted from the direct reader to the whole-stream fold, pinning that replay starts from the persisted source record body rather than the compact genesis.",
+        "files": [
+          {
+            "path": "src/lib/campaign/authority/campaignSourcePrivateEnvelope.ts",
+            "change": "modified",
+            "changedLines": 60
+          },
+          {
+            "path": "src/lib/campaign/sync/__tests__/JournalCampaignEventStore.test.ts",
+            "change": "modified",
+            "changedLines": 22
+          }
+        ],
+        "shortstat": {
+          "command": "git diff --shortstat b338320337dfcf6e22b3f80912541aa1785aa5cf",
+          "raw": "2 files changed, 73 insertions(+), 9 deletions(-)",
+          "filesChanged": 2,
+          "insertions": 73,
+          "deletions": 9,
+          "changedLines": 82
+        },
+        "capCheck": {
+          "fileCap": 15,
+          "filesWithinCap": true,
+          "lineCap": 500,
+          "linesWithinCap": true,
+          "headroom": 418
+        },
+        "gates": [
+          {
+            "gate": "typecheck",
+            "argv": "npx tsc --noEmit",
+            "exit": 0,
+            "log": "split/s2-typecheck.log",
+            "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          {
+            "gate": "lint",
+            "argv": "npx oxlint <2 changed files>",
+            "exit": 0,
+            "log": "split/s2-oxlint.log",
+            "logSha256": "c496ae371aca7d60a1770dbaa81a128cc1a63b850f924cd881aea9ed96d4a86e"
+          },
+          {
+            "gate": "format",
+            "argv": "npx oxfmt --check <2 changed files>",
+            "exit": 0,
+            "result": "All matched files use the correct format"
+          },
+          {
+            "gate": "jest (targeted)",
+            "argv": "node node_modules/jest/bin/jest.js --maxWorkers=2 --coverage=false src/lib/campaign/sync/__tests__/JournalCampaignEventStore.test.ts src/lib/campaign/delivery/__tests__/projectCampaignStreamForGrant.test.ts",
+            "exit": 0,
+            "suites": 2,
+            "tests": 19,
+            "failed": 0,
+            "log": "split/s2-jest-targeted.log",
+            "logSha256": "65b9a502c013c0e790f47ae8ebec405b687fa05496415ba7048f7d148bf84127"
+          },
+          {
+            "gate": "jest (focused dirs)",
+            "argv": "node node_modules/jest/bin/jest.js --maxWorkers=2 --coverage=false src/lib/campaign src/lib/events/journal",
+            "exit": 0,
+            "suites": 217,
+            "tests": 3139,
+            "failed": 0,
+            "log": "split/s2-jest-focused.log",
+            "logSha256": "55b2ad4a7a43bdedad34f8855d431cd01d0a420d151cd8072ed777c0fbe7f091"
+          }
+        ]
+      },
+      {
+        "id": "S3",
+        "branch": "codex/roadmap-r2-p0b-s3-envelopeof-routing-20260915",
+        "commit": "10a60ae56094f72a2dbf447d0561cac3c910d5f8",
+        "parent": "6dfddf79870465ae68545bc038b40626f22284fd",
+        "content": "RE-2: projectCampaignStreamForGrant no longer narrows inline and now obtains its wire event through envelopeOf (added to the existing value import); the restricted-guest and GM same-shape-control leak rows plus the identity-commitment row.",
+        "files": [
+          {
+            "path": "src/lib/campaign/delivery/projectCampaignStreamForGrant.ts",
+            "change": "modified",
+            "changedLines": 11
+          },
+          {
+            "path": "src/lib/campaign/delivery/__tests__/projectCampaignStreamForGrant.test.ts",
+            "change": "modified",
+            "changedLines": 181
+          }
+        ],
+        "shortstat": {
+          "command": "git diff --shortstat 6dfddf79870465ae68545bc038b40626f22284fd",
+          "raw": "2 files changed, 190 insertions(+), 2 deletions(-)",
+          "filesChanged": 2,
+          "insertions": 190,
+          "deletions": 2,
+          "changedLines": 192
+        },
+        "capCheck": {
+          "fileCap": 15,
+          "filesWithinCap": true,
+          "lineCap": 500,
+          "linesWithinCap": true,
+          "headroom": 308
+        },
+        "gates": [
+          {
+            "gate": "typecheck",
+            "argv": "npx tsc --noEmit",
+            "exit": 0,
+            "log": "split/s3-typecheck.log",
+            "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          {
+            "gate": "lint",
+            "argv": "npx oxlint <2 changed files>",
+            "exit": 0,
+            "log": "split/s3-oxlint.log",
+            "logSha256": "6d3e04af4ea7ae3a2ab66d7c2aad32bf9f4855fe2e0e9e42f7f7813d7c5a8720"
+          },
+          {
+            "gate": "format",
+            "argv": "npx oxfmt --check <2 changed files>",
+            "exit": 0,
+            "log": "split/s3-oxfmt.log",
+            "logSha256": "e34cd652ac8a622be02d6ea8d63864f8fbd69d34d25b65088ac0d6d86d97b8bf"
+          },
+          {
+            "gate": "jest (targeted)",
+            "argv": "node node_modules/jest/bin/jest.js --maxWorkers=2 --coverage=false src/lib/campaign/sync/__tests__/JournalCampaignEventStore.test.ts src/lib/campaign/delivery/__tests__/projectCampaignStreamForGrant.test.ts",
+            "exit": 0,
+            "suites": 2,
+            "tests": 22,
+            "failed": 0,
+            "log": "split/s3-jest-targeted.log",
+            "logSha256": "3fcf074ff782dcac78b726fba35c964278b331be13314c3893770ce748db1800"
+          },
+          {
+            "gate": "jest (focused dirs)",
+            "argv": "node node_modules/jest/bin/jest.js --maxWorkers=2 --coverage=false src/lib/campaign src/lib/events/journal",
+            "exit": 0,
+            "suites": 217,
+            "tests": 3142,
+            "failed": 0,
+            "log": "split/s3-jest-focused.log",
+            "logSha256": "9781cd835727b52b3035a5ad1f0ed8744cda2a01ed07cb0a2c5a1a2a42ea4817"
+          }
+        ],
+        "falsification": [
+          {
+            "id": "F1",
+            "label": "envelopeOf narrowing deleted, RE-2 routing in place",
+            "exit": 1,
+            "result": "6 failed, 16 passed, 22 total -- identical to the pre-split run; both leak rows red (restricted campaign-scope guest AND GM all-scopes control) plus the compact-narrowing assertion in the cold-reopen row",
+            "log": "split/s3-falsify-1.log",
+            "logSha256": "64a18e4b4a4a7c5473870940454835c5d6eba7180db6631c01be1820affe7dba",
+            "mutationReverted": true
+          },
+          {
+            "id": "F2",
+            "label": "same mutation, grant projection reverted to the pre-RE-2 inline narrowing",
+            "exit": 0,
+            "result": "both leak rows PASS -- identical to the pre-split run; confirms the proof is vacuous without the S3 routing",
+            "log": "split/s3-falsify-2.log",
+            "logSha256": "1d244b4a8a7e0018eb1c34fb8277b393d35645b23c6059f8227402d54cd77ce6",
+            "mutationReverted": true
+          }
+        ]
+      }
+    ]
+  },
+  "correction2": {
+    "appliedAtUtc": "2026-09-15T09:40:00.000Z",
+    "trigger": "independent review openspec/planning/2026-09-12-roadmap-completion/evidence/r2-p0b-private-envelope-review-20260915.json -- verdicts S1 APPROVE, S2 APPROVE-WITH-REQUIRED-EDITS, S3 APPROVE; coordinator directed RQ-1 plus the OB-1 comment, nothing else.",
+    "evidenceRoot": ".sisyphus/roadmap-completion-20260912/r2-p0b-20260915/correction2/",
+    "amended": false,
+    "rewriteNote": "No commit was amended. 8f7f79d8 is a NEW commit stacked on 6dfddf79. S3 was moved with `git rebase --onto 8f7f79d8 6dfddf79 codex/roadmap-r2-p0b-s3-envelopeof-routing-20260915`, so the old S3 SHA 10a60ae5 is superseded by 160276ef with identical content; ac3481b3 is the new comment-only commit on top. b338320337 (S1) and 6dfddf798 (S2 original) and af7130e3c (reference) are untouched.",
+    "resolutions": [
+      {
+        "id": "RQ-1",
+        "severity": "required",
+        "prefix": "S2",
+        "resolution": "applied",
+        "commit": "8f7f79d850cd526fa0eb6b52e389ecd59caa8a8b",
+        "branch": "codex/roadmap-r2-p0b-s2-source-replay-20260915",
+        "where": "src/lib/campaign/sync/__tests__/JournalCampaignEventStore.test.ts, inside the existing describe block",
+        "shortstat": {
+          "command": "git diff --shortstat 6dfddf79870465ae68545bc038b40626f22284fd 8f7f79d850cd526fa0eb6b52e389ecd59caa8a8b",
+          "raw": "1 file changed, 146 insertions(+)",
+          "filesChanged": 1,
+          "insertions": 146,
+          "deletions": 0,
+          "changedLines": 146
+        },
+        "rows": [
+          {
+            "reason": "unsupported-schema",
+            "title": "refuses an unsupported private schema version rather than falling back",
+            "how": "commits a private payload whose schemaVersion is one past the supported version through the real SQLite boundary, then asserts campaignSourcePrivateOf throws"
+          },
+          {
+            "reason": "source-identity-mismatch",
+            "title": "refuses a captured baseline whose digest does not match its own body",
+            "how": "overwrites baseline.sourceBodyDigest with 'f'.repeat(64) on an otherwise well-formed payload"
+          },
+          {
+            "reason": "no-private-payload",
+            "title": "refuses to replay a stream that carries no private payload",
+            "how": "commits a two-event legacy batch with no sourcePrivate, then asserts replayCampaignSourceContracts throws"
+          }
+        ],
+        "assertionShape": "Each row asserts BOTH `expect(() => read()).toThrow(CampaignSourcePrivateReplayError)` AND pins `.reason` through a `refusalReasonOf` helper that rethrows any non-CampaignSourcePrivateReplayError and throws outright when the read RETURNS. A bare toThrow would pass on a TypeError and would not distinguish a refusal from a crash, nor catch a silent compact fallback.",
+        "falsification": {
+          "mutation": "all three refusals replaced with a silent compact fallback (two `return null`, one empty projection)",
+          "exit": 1,
+          "result": "Tests: 3 failed, 14 passed, 17 total -- EXACTLY the three new rows went red and nothing else",
+          "log": "correction2/s2-falsify-refusals.log",
+          "logSha256": "e57e0b4297cb930a19cf89cd52b29072a43d6037da62dba653560f99045fd5c6",
+          "mutationReverted": true
+        },
+        "specLink": "specs/campaign-authority/spec.md:106 -- \"Private/public identity mismatch or unsupported replay schema SHALL block or rebuild with no silent compact fallback.\" Previously implemented but unproven."
+      },
+      {
+        "id": "OB-1",
+        "severity": "future-risk",
+        "prefix": "S3",
+        "resolution": "applied as a comment-only commit; no behavior change",
+        "commit": "ac3481b3fde3f065f0a4c4300234fcec591de1b7",
+        "where": "src/lib/multiplayer/server/projection/ViewerProjectionService.ts, immediately above the isVisibleToViewer / projectPayload pair inside projectAllWithIdentitiesOrThrow",
+        "pathCorrection": "The coordinator message named src/lib/campaign/delivery/ViewerProjectionService.ts, which does not exist. The file is at src/lib/multiplayer/server/projection/ViewerProjectionService.ts, which is the path the review itself cites. The real path was used.",
+        "shortstat": {
+          "command": "git diff --shortstat 160276ef62238f426d5f221ee48adea6aeba06cd ac3481b3fde3f065f0a4c4300234fcec591de1b7",
+          "raw": "1 file changed, 5 insertions(+)",
+          "filesChanged": 1,
+          "insertions": 5,
+          "deletions": 0,
+          "changedLines": 5
+        },
+        "commentText": "Five lines stating that the whole stored payload is handed to the registered projector, that no `campaign` projector is registered today, that registering one here would route stored campaign envelopes -- sourcePrivate included -- past envelopeOf, and that any such registration must narrow through envelopeOf first."
+      }
+    ],
+    "notAddressed": [
+      {
+        "id": "OB-2",
+        "reason": "Explicitly out of scope per the coordinator: do NOT touch pages/api/campaigns/[id].ts. Recorded for P1 admission by the program owner."
+      },
+      {
+        "id": "OB-3",
+        "reason": "Not directed. The reviewer's point stands and is recorded here: the 'source-identity-mismatch' reason checks only the captured baseline's own self-consistency, NOT private-envelope-versus-public-journal identity. baseline.rootPublicRevision is captured and never compared against anything in this stack; that comparison is a producer obligation and remains an explicit non-claim."
+      },
+      {
+        "id": "OB-4",
+        "reason": "Not directed. Pre-existing rehydrateCampaignMission behaviour: a non-contract mission is returned unchanged and cast as IContract, so a corrupt stored row would yield Money-as-a-number rather than a typed refusal. Reachable only through a corrupt row."
+      },
+      {
+        "id": "OB-5",
+        "reason": "Not directed; informational and accepted. The computeCampaignStateDigest pin guards campaign STATE canonicalization, which the private field never enters. The load-bearing conditional-absence pins are the canonical-payload byte string and the event digest, both of which do cover the payload."
+      }
+    ],
+    "correctedStack": [
+      {
+        "id": "S1",
+        "branch": "codex/roadmap-r2-p0b-s1-private-field-20260915",
+        "commit": "b338320337dfcf6e22b3f80912541aa1785aa5cf",
+        "changed": false,
+        "note": "Untouched by the correction; re-confirmed green.",
+        "shortstatVsParent": "3 files changed, 447 insertions(+), 6 deletions(-) => 453 changed lines",
+        "capWithinLimits": true,
+        "gates": [
+          {
+            "gate": "jest (targeted)",
+            "argv": "node node_modules/jest/bin/jest.js --maxWorkers=2 --coverage=false src/lib/campaign/sync/__tests__/JournalCampaignEventStore.test.ts src/lib/campaign/delivery/__tests__/projectCampaignStreamForGrant.test.ts",
+            "exit": 0,
+            "suites": 2,
+            "tests": 19,
+            "failed": 0,
+            "log": "correction2/s1-jest-targeted.log",
+            "logSha256": "8e8db37f3d08a039cec1960ccdf692a006a61560db6ea5e9bad86b8a96e145dd"
+          }
+        ]
+      },
+      {
+        "id": "S2",
+        "branch": "codex/roadmap-r2-p0b-s2-source-replay-20260915",
+        "head": "8f7f79d850cd526fa0eb6b52e389ecd59caa8a8b",
+        "commits": [
+          "6dfddf79870465ae68545bc038b40626f22284fd",
+          "8f7f79d850cd526fa0eb6b52e389ecd59caa8a8b"
+        ],
+        "shortstatVsS1": {
+          "command": "git diff --shortstat b338320337dfcf6e22b3f80912541aa1785aa5cf 8f7f79d850cd526fa0eb6b52e389ecd59caa8a8b",
+          "raw": "2 files changed, 219 insertions(+), 9 deletions(-)",
+          "filesChanged": 2,
+          "changedLines": 228
+        },
+        "capCheck": {
+          "fileCap": 15,
+          "filesWithinCap": true,
+          "lineCap": 500,
+          "linesWithinCap": true,
+          "headroom": 272
+        },
+        "gates": [
+          {
+            "gate": "typecheck",
+            "argv": "npx tsc --noEmit",
+            "exit": 0,
+            "log": "correction2/s2-typecheck.log",
+            "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          {
+            "gate": "lint",
+            "argv": "npx oxlint <changed file>",
+            "exit": 0,
+            "log": "correction2/s2-oxlint.log",
+            "logSha256": "7be76dc1307b1762bec6288a63311c08a19fdfe9812ff01cf1921b4d9f93ba4b"
+          },
+          {
+            "gate": "format",
+            "argv": "npx oxfmt --check <changed file>",
+            "exit": 0,
+            "log": "correction2/s2-oxfmt.log",
+            "logSha256": "505406f0163edd223dcc3fb72f6c68b22945210222b429c0ef876c7773d6a2bd"
+          },
+          {
+            "gate": "jest (targeted)",
+            "argv": "node node_modules/jest/bin/jest.js --maxWorkers=2 --coverage=false src/lib/campaign/sync/__tests__/JournalCampaignEventStore.test.ts src/lib/campaign/delivery/__tests__/projectCampaignStreamForGrant.test.ts",
+            "exit": 0,
+            "suites": 2,
+            "tests": 22,
+            "failed": 0,
+            "log": "correction2/s2-jest-targeted.log",
+            "logSha256": "3e4777244405b6f29b3297a970cef51e0f9cdc0d64bc9ab008c8f5955c181c7a"
+          },
+          {
+            "gate": "jest (focused dirs)",
+            "argv": "node node_modules/jest/bin/jest.js --maxWorkers=2 --coverage=false src/lib/campaign src/lib/events/journal",
+            "exit": 0,
+            "suites": 217,
+            "tests": 3142,
+            "failed": 0,
+            "log": "correction2/s2-jest-focused.log",
+            "logSha256": "ff79f735f29bbd007505bff37bba05b61b09fd712932ae3bd7073b397c2f4287"
+          }
+        ]
+      },
+      {
+        "id": "S3",
+        "branch": "codex/roadmap-r2-p0b-s3-envelopeof-routing-20260915",
+        "head": "ac3481b3fde3f065f0a4c4300234fcec591de1b7",
+        "commits": [
+          "160276ef62238f426d5f221ee48adea6aeba06cd",
+          "ac3481b3fde3f065f0a4c4300234fcec591de1b7"
+        ],
+        "supersededSha": "10a60ae56094f72a2dbf447d0561cac3c910d5f8",
+        "rebase": "git rebase --onto 8f7f79d850cd526fa0eb6b52e389ecd59caa8a8b 6dfddf79870465ae68545bc038b40626f22284fd codex/roadmap-r2-p0b-s3-envelopeof-routing-20260915 -- clean, no conflicts",
+        "shortstatVsS2": {
+          "command": "git diff --shortstat 8f7f79d850cd526fa0eb6b52e389ecd59caa8a8b ac3481b3fde3f065f0a4c4300234fcec591de1b7",
+          "raw": "3 files changed, 195 insertions(+), 2 deletions(-)",
+          "filesChanged": 3,
+          "changedLines": 197
+        },
+        "capCheck": {
+          "fileCap": 15,
+          "filesWithinCap": true,
+          "lineCap": 500,
+          "linesWithinCap": true,
+          "headroom": 303
+        },
+        "gates": [
+          {
+            "gate": "typecheck",
+            "argv": "npx tsc --noEmit",
+            "exit": 0,
+            "log": "correction2/s3-typecheck.log",
+            "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          {
+            "gate": "lint",
+            "argv": "npx oxlint <3 changed files>",
+            "exit": 0,
+            "log": "correction2/s3-oxlint.log",
+            "logSha256": "0c1874896bb21abab9b02b5c53fc8b3a55128b4210e070f57a7ba3ce51c63fad"
+          },
+          {
+            "gate": "format",
+            "argv": "npx oxfmt --check <3 changed files>",
+            "exit": 0,
+            "log": "correction2/s3-oxfmt.log",
+            "logSha256": "39dab6abb7cda993c44012ee20f2daf6d0f2a60f47de81573b85d4022fb51e11"
+          },
+          {
+            "gate": "jest (targeted)",
+            "argv": "node node_modules/jest/bin/jest.js --maxWorkers=2 --coverage=false src/lib/campaign/sync/__tests__/JournalCampaignEventStore.test.ts src/lib/campaign/delivery/__tests__/projectCampaignStreamForGrant.test.ts",
+            "exit": 0,
+            "suites": 2,
+            "tests": 25,
+            "failed": 0,
+            "log": "correction2/s3-jest-targeted.log",
+            "logSha256": "1fd695758fdebf457b9f713897ef1fbbdb4d0e7d346afbb504d6e80f06d141b8"
+          },
+          {
+            "gate": "jest (focused dirs + projection)",
+            "argv": "node node_modules/jest/bin/jest.js --maxWorkers=2 --coverage=false src/lib/campaign src/lib/events/journal src/lib/multiplayer/server/projection",
+            "exit": 0,
+            "suites": 223,
+            "tests": 3184,
+            "failed": 0,
+            "log": "correction2/s3-jest-focused.log",
+            "logSha256": "7c411af5d5a8b2de892d9349e3c468f24f4a72b8cc786d02ddbf0c4fa7381de2",
+            "note": "src/lib/multiplayer/server/projection was added to the focused run because OB-1 touches a file there"
+          }
+        ],
+        "falsification": [
+          {
+            "id": "F1",
+            "label": "envelopeOf narrowing deleted at the corrected S3 head",
+            "exit": 1,
+            "result": "6 failed, 19 passed, 25 total -- the same six rows as before the correction; both leak rows red",
+            "log": "correction2/s3-falsify-1.log",
+            "logSha256": "d55db48dbde0ecbf1138f4b00da8d5beb7c30c2cca1d61874d23a78d6d51866a",
+            "mutationReverted": true
+          },
+          {
+            "id": "F2",
+            "label": "vacuity check without the RE-2 routing",
+            "rerun": false,
+            "note": "Not re-run: the routing line and the leak rows are byte-identical to the pre-correction S3, where F2 was measured (both leak rows vacuously passed)."
+          }
+        ]
+      }
+    ],
+    "treeIdentity": {
+      "afterRebaseBeforeOB1": {
+        "check": "git diff af7130e3c 160276ef62238f426d5f221ee48adea6aeba06cd --stat",
+        "result": "src/lib/campaign/sync/__tests__/JournalCampaignEventStore.test.ts | 146 +++++, 1 file changed, 146 insertions(+)",
+        "verdict": "exactly the three added refusal rows in the S2 test file, and nothing else -- as required"
+      },
+      "finalHead": {
+        "check": "git diff af7130e3c ac3481b3fde3f065f0a4c4300234fcec591de1b7 --stat",
+        "result": "2 files changed, 151 insertions(+) -- the S2 test file (+146) and ViewerProjectionService.ts (+5)",
+        "verdict": "The second file is the directed OB-1 comment-only commit. The coordinator asked both that the diff show only the S2 test file AND that the OB-1 comment land in the S3 commit range; both cannot hold at the same head, so both measurements are recorded: the S2-test-only condition holds exactly at 160276ef, and the final head adds only the 5 comment lines."
+      }
+    },
+    "stillNotClaimed": [
+      "No branch was pushed and no PR was opened.",
+      "No tasks.md checkbox was checked; no spec, design or proposal file was edited.",
+      "src/pages/api/campaigns/[id].ts was not touched (OB-2 stays with the program owner).",
+      "CAMPAIGN_JOURNAL_AUTHORITY_ENABLED remains false; still no producer, no cutover, no CAMP witness.",
+      "The borrowed-handle CAS plus sourceReplayFence half of task 6.1 remains unimplemented."
+    ]
+  }
+}

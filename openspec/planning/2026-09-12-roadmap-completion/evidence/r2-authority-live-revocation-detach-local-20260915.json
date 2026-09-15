@@ -1,0 +1,434 @@
+{
+  "node": "R2.authority-live",
+  "slice": "F-LIVE-1 production fix - a committed seat removal detaches the removed participant's already-bound live sink",
+  "artefact": "r2-authority-live-revocation-detach-local-20260915",
+  "capturedAtUtc": "2026-09-15T22:05:00.000Z",
+  "role": "implementation lane; red-first pin, minimal production fix, mutation matrix, gates, live runs",
+  "acceptanceLineUnderTest": "R2.authority-live cell 'revocation' - a revoked seat stops SEEING campaign facts, not merely stops being able to ask for them",
+
+  "base": {
+    "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/proof02-rerun",
+    "branch": "codex/roadmap-r2-authority-live-revocation-detach-20260915",
+    "baseSha": "aef5c30eb5b748c407876fc455617b1f641ffb42",
+    "baseShaSubject": "test(campaign): a revoked seat is refused by the other process, and a GM rationale is not",
+    "briefedBaseSha": "1f1db65d3a440bba4fc49a6b835fa929811890f8",
+    "briefedBaseShaDeviation": {
+      "what": "The brief pinned 1f1db65d3. By the time this lane fetched, the publishing lane had REBASED codex/roadmap-r2-authority-live-rows-20260915 onto the merged CO3 base (1fcd9b648, PR #1750), so 1f1db65d3 is no longer an ancestor of the branch tip.",
+      "verifiedBy": "git merge-base --is-ancestor 1f1db65d3 HEAD -> exit 1 (NO); git log --oneline -8 shows the same three privacy commits at dbb3fafbe / fff510d9b / aef5c30eb",
+      "equivalenceProof": "git show <sha>:<file> | sha256sum for the four load-bearing files is IDENTICAL across 1f1db65d3 and aef5c30eb: e2e/campaign-journal-two-process-privacy.spec.ts e5e537dc44790ea16c8fcc9b360b8971b3790bb3f0fc99357007e77e3e347103 (the same value the independent review declared as the green bytes), e2e/helpers/campaignJournalPrivacyFixture.ts 21d8d6c1baae4b0e53f471680f32f19e33fdc7490fe09de7d8fc4995b23d6cc9, src/lib/multiplayer/server/CampaignSyncSession.ts c09549fd51cfc124cf758962e308c52844a0cdcd8b45c619a35ec3c30acdfaf5, src/lib/multiplayer/server/__tests__/CampaignSyncSession.test.ts def6959e89a7008326b178812ac709509c562d2de9285b0ff0abdd6775a59b6d",
+      "decision": "Branched from aef5c30eb - the live tip of the stack dependency, byte-identical on every file this slice touches. Branching from the orphaned sha would have produced a PR whose base no longer exists on the stack."
+    },
+    "stackDependency": {
+      "dependsOn": "the live-rows stack's PR 3 (branch codex/roadmap-r2-authority-live-rows-20260915, tip aef5c30eb - the commit carrying e2e/campaign-journal-two-process-privacy.spec.ts)",
+      "why": "This slice INVERTS the R3 assertion that PR 3 introduces. Merged before it, the file it edits does not exist.",
+      "mergeOrder": "live-rows PR 1 -> PR 2 -> PR 3 -> this PR"
+    },
+    "gitStatusAtStart": "clean (empty `git status --short`) after `git fetch origin`",
+    "gitStatusAtCapture": "clean (empty)"
+  },
+
+  "commits": [
+    {
+      "sha": "34838b3dc764f6858c34ad055a14ec5e9c69bb82",
+      "kind": "red",
+      "subject": "test(campaign): pin that a committed seat removal detaches the live socket",
+      "author": "Wes Rollings <wrollings@gmail.com>",
+      "files": [
+        "e2e/campaign-journal-two-process-privacy.spec.ts",
+        "src/lib/multiplayer/server/__tests__/CampaignSyncSession.test.ts"
+      ],
+      "fileCount": 2,
+      "lines": "+170 / -30 (git show --stat)",
+      "withinCaps": "YES - roadmap R2.authority-live caps are maxFiles 15, maxNonGeneratedLines 500",
+      "aiAttributionTokens": "none"
+    },
+    {
+      "sha": "e59d8f16aa4203ebbead6a0cd594e975d103e24b",
+      "kind": "product",
+      "subject": "fix(campaign): a committed seat removal detaches the participant's live sink",
+      "author": "Wes Rollings <wrollings@gmail.com>",
+      "files": ["src/lib/multiplayer/server/CampaignSyncSession.ts"],
+      "fileCount": 1,
+      "lines": "+64 / -3 (git show --stat)",
+      "withinCaps": "YES",
+      "aiAttributionTokens": "none"
+    }
+  ],
+
+  "cumulativeDiff": {
+    "command": "git diff --name-only aef5c30eb..HEAD",
+    "files": [
+      "e2e/campaign-journal-two-process-privacy.spec.ts",
+      "src/lib/multiplayer/server/CampaignSyncSession.ts",
+      "src/lib/multiplayer/server/__tests__/CampaignSyncSession.test.ts"
+    ],
+    "productionFilesTouched": 1,
+    "migrations": "none",
+    "newDependencies": "none",
+    "specCheckboxFlips": "none - no openspec tasks.md or spec.md file is in the diff"
+  },
+
+  "mechanism": {
+    "statement": "Seat revocation closed every DURABLE door and left the live sink attached, so a removed participant who did not disconnect kept receiving campaign-scoped committed facts.",
+    "beforeTheFix": [
+      "src/lib/multiplayer/server/CampaignSyncSession.ts:641-645 (pre-fix numbering) - applyCommittedParticipantRemoval's entire body was `this.retained.delete(event.payload.participantId);`.",
+      "src/lib/multiplayer/server/CampaignSyncSession.ts:362-376 (pre-fix numbering) - attachLiveParticipant returned this.host.subscribe(...)'s unsubscribe directly; the session held no participant-keyed index of live attachments, so the removal path structurally COULD NOT detach.",
+      "src/lib/multiplayer/server/bindCampaignSyncConnection.ts:881-896 - applyCommittedParticipantRemovals calls membership?.revoke(...) then entry.syncSession.applyCommittedParticipantRemoval(event), and nothing else. The unsubscribe lives in that socket's own cleanupFns and runs on DISCONNECT only.",
+      "Why deleting from `retained` stopped nothing: the launch gate that reads `retained` is documented at CampaignSyncSession.ts (evaluateScenarioLaunch header) as 'deliberately not consulted anywhere on the delivery path'. `retained` is convergence bookkeeping; it never was the delivery gate."
+    ],
+    "everyLiveAttachIsIdentified": {
+      "claim": "every production attach passes a proven participantId, so a participant-keyed index covers all of them",
+      "verifiedBy": "grep -n 'joinMember(|joinGuest(|resyncGuest(|attachLiveParticipant(' src/lib/multiplayer/server/bindCampaignSyncConnection.ts src/lib/multiplayer/server/handleRoomCodeGuestJoin.ts",
+      "callSites": [
+        "bindCampaignSyncConnection.ts:1001 gm arm - joinMember(sink, verifiedPlayerId)",
+        "bindCampaignSyncConnection.ts:1028 durable-member rejoin arm - joinMember(sink, verifiedPlayerId)",
+        "bindCampaignSyncConnection.ts:1108 resync arm - resyncGuest(lastSeq, sink, verifiedPlayerId)",
+        "bindCampaignSyncConnection.ts:1162 room-code newcomer arm - joinGuest(roomCode, sink, verifiedPlayerId)",
+        "handleRoomCodeGuestJoin.ts:208 grant arm - attachLiveParticipant(sink, deps.verifiedPlayerId)"
+      ]
+    },
+    "otherCommittedRemovalPaths": {
+      "asked": "grep for every caller of applyCommittedParticipantRemoval",
+      "found": "exactly one, bindCampaignSyncConnection.ts:894, reached from two places: the live command path (:834, applied from the committed batch in hand) and healCommittedParticipantRemovals (:878, which re-walks EVERY committed removal before admission on later frames). Both go through the same drain, and the heal pass is why the method's idempotence is load-bearing.",
+      "consequence": "no second drain site was needed"
+    }
+  },
+
+  "fix": {
+    "shape": "a participant-keyed index of live detaches on the session, drained by the committed removal",
+    "file": "src/lib/multiplayer/server/CampaignSyncSession.ts",
+    "postFixLines": [
+      ":208 - `private readonly liveByParticipant = new Map<string, Set<() => void>>();`, declared beside `retained` with the comment stating why they are different things.",
+      ":385-416 - attachLiveParticipant now names the host.subscribe unsubscribe, returns it unchanged for an UNIDENTIFIED sink (nothing could ever name it, so a row for it could never be drained), and for an identified one registers a `detach` wrapper that deregisters itself (:408-412) before unsubscribing, then returns the wrapper.",
+      ":694-706 - applyCommittedParticipantRemoval keeps `this.retained.delete(participantId)` and then drains `liveByParticipant.get(participantId)` via `for (const detach of Array.from(attached)) detach();` (:704) before deleting the key (:705). Array.from rather than a spread because tsconfig target is es5 and the spread trips TS2802 - measured, see gates.tsc.firstRun."
+    ],
+    "setNotSingleFunction": "the same participant can legitimately hold more than one live attachment at a time (second tab, or a reconnect landing before the old socket's close is processed - the case `gmConnections` already counts for the GM); keeping only the newest would leave the older one delivering.",
+    "wrapperRationale": "without self-deregistration the socket's own cleanupFns would leave a dead entry for every closed connection, so the map would grow across reconnects. Behaviourally harmless (see mutant c) - kept for leak control.",
+    "idempotence": "draining a missing key returns early, preserving the documented contract that a recovery pass can re-apply the same removal.",
+    "deliberatelyNotDone": "sending the revoked socket a typed close. CampaignSyncSession holds SINKS, not sockets, so it can stop delivering and cannot emit closeTyped(AUTH_REJECTED,'membership-revoked'). That needs a participant-keyed socket index in bindCampaignSyncConnection (socketsByMatch is keyed by matchId only) and an owner decision on whether a removed member is disconnected or merely goes quiet. The removed member's connection goes quiet and is refused by name on its next authenticated frame."
+  },
+
+  "redFirstEvidence": {
+    "order": "red commit 34838b3dc landed BEFORE any production edit; both red measurements were taken on that commit's bytes",
+    "unit": {
+      "what": "three new rows in src/lib/multiplayer/server/__tests__/CampaignSyncSession.test.ts:817-951, built on a COMMITTED RemoveParticipant (host.applyHostIntent) so they cannot pass against an event the production path would never produce",
+      "rows": [
+        ":881 'stops delivering committed facts to the removed participant' - RED before the fix",
+        ":904 'survives the removed socket disconnecting after the removal' - PASSED before the fix (it is a control on the detach staying idempotent, not a red row)",
+        ":928 'is idempotent when a recovery pass replays the same removal' - RED before the fix"
+      ],
+      "command": "npx jest --watchAll=false --runTestsByPath src/lib/multiplayer/server/__tests__/CampaignSyncSession.test.ts --runInBand",
+      "exit": 1,
+      "result": "2 failed, 32 passed, 34 total",
+      "failureShape": "expect(removedSaw).toEqual([]) received the full CampaignDayAdvanced event (sequence 2, scope campaign) on the removed participant's already-bound sink",
+      "log": "red-unit-CampaignSyncSession.log",
+      "sha256": "a1ec8443f0f502e6f278b04d5157b3dc0d4a3220a0c1862c9515c8a88a22a5c6",
+      "priorCoverage": "NONE. The reviewer measured, and this lane did not contradict, that no existing unit test asserted live delivery after a committed removal."
+    },
+    "e2e": {
+      "what": "the pre-existing pin at e2e/campaign-journal-two-process-privacy.spec.ts R3 inverted from .toEqual(['FundsChanged']) to .toEqual([]); guest B's positive control at :311 and the settle above it untouched",
+      "buildUnderTest": "the UNFIXED production tree (the red commit touches no src/ runtime file)",
+      "buildCommand": "NEXT_PUBLIC_E2E_MODE=true NEXT_PUBLIC_E2E_TEST=true npm run build",
+      "buildExit": 0,
+      "buildLog": "red-build-e2e.log",
+      "buildLogSha256": "68a21c23b760e7926741af01b4b58eb4f401905d270dca0915c2ac8a5ab16dd7",
+      "e2eMarker": "1 hit of window.__E2E_MODE__=!0 in .next/static/chunks/pages/_app-b4f3e371ee8b87c1.js",
+      "command": "MEKSTATION_E2E_SERVER_COMMAND='node .next/standalone/server.js' HOSTNAME=127.0.0.1 MEKSTATION_E2E_PORT=3639 node scripts/playwright/run-playwright.mjs test e2e/campaign-journal-two-process-privacy.spec.ts --project=chromium --retries=0 --workers=1",
+      "exit": 1,
+      "result": "1 failed (9.0s)",
+      "failedAt": "e2e/campaign-journal-two-process-privacy.spec.ts:316:7",
+      "assertion": "expect(eventTypes(guestASocket), 'seat revocation detaches an already-bound live socket').toEqual([])",
+      "expected": "[]",
+      "received": "[\"FundsChanged\"]",
+      "log": "red-e2e-privacy.log",
+      "sha256": "248c4758aaeb41b333fc9657f4b909fa47edce698524d47091e4290096846e75",
+      "whatItProves": "the revoked guest received the post-revocation committed fact ACROSS TWO OS PROCESSES on the same span the still-seated guest received it - the behavioural reproduction of F-LIVE-1 on this machine, on this build"
+    }
+  },
+
+  "mutants": {
+    "method": "each mutation applied in place to the COMMITTED bytes of CampaignSyncSession.ts (sha256 60643923ae5f1c5e15b7c30a03b63cd51b9ed3d040306e079cd69715683d60f8), the named suites run, then the file restored from a byte-verified backup. The driver asserts the restored sha equals the backup sha after every mutant; final restored sha256 re-printed and equal.",
+    "table": [
+      {
+        "id": "a",
+        "mutation": "skip the drain - `if (attached.size >= 0) return;` inserted after the lookup in applyCommittedParticipantRemoval, i.e. the pre-fix behaviour with the map still present",
+        "suites": ["CampaignSyncSession.test.ts"],
+        "exit": 1,
+        "result": "2 failed, 32 passed",
+        "killedBy": [
+          "'stops delivering committed facts to the removed participant'",
+          "'is idempotent when a recovery pass replays the same removal'"
+        ],
+        "verdict": "KILLED",
+        "log": "mutant-a-skip-drain.log",
+        "sha256": "76ef4187bee4c95967660757c82ef205a3dd6012bafd93f0e6253baf05ce2978"
+      },
+      {
+        "id": "b",
+        "mutation": "drain the WRONG participant - `[...this.liveByParticipant.values()].at(-1)` instead of `.get(participantId)`, i.e. the last-registered participant is detached",
+        "suites": ["CampaignSyncSession.test.ts"],
+        "exit": 1,
+        "result": "3 failed, 31 passed",
+        "killedBy": [
+          "all three new rows - the seated participant's positive control loses delivery AND the removed participant keeps it, so the mutation cannot hide behind a one-sided assertion"
+        ],
+        "verdict": "KILLED",
+        "log": "mutant-b-wrong-participant.log",
+        "sha256": "8031a98401eae47b33ebb24aa208d705b7d6442cf6a35c22b801136eafb64a31"
+      },
+      {
+        "id": "c",
+        "mutation": "forget deregistration on disconnect - detach becomes `() => unsubscribe()`, so a closed socket's entry stays in the set and a later removal drains it a second time",
+        "suites": ["CampaignSyncSession.test.ts", "campaignSurfaceParity.test.ts"],
+        "exit": 0,
+        "result": "54 passed, 54 total",
+        "verdict": "SURVIVES - and the brief anticipated this ('must be harmless or pinned'). It is HARMLESS at the behavioural surface, for a reason read at source this session: CampaignMatchHost.subscribe (CampaignMatchHost.ts:262-267) returns `() => { this.subscribers.delete(subscriber); }`, a Set delete, so calling it twice is a no-op. A stale entry drained a second time therefore changes nothing for any viewer. What the deregistration actually buys is LEAK CONTROL - without it `liveByParticipant` accumulates one dead entry per closed connection for the life of the session - and that is memory, not behaviour, so it is not assertable without exposing session internals. Stated rather than pinned; see openQuestions.",
+        "log": "mutant-c-no-deregistration.log",
+        "sha256": "5d7026912a2413a4db70f5e57200555d64b3dedefcf27685ab014d591917d39b"
+      },
+      {
+        "id": "d",
+        "mutation": "REGRESSION mutant - keep the new drain but drop the pre-existing `this.retained.delete(participantId)`",
+        "suites": ["CampaignSyncSession.test.ts", "bindCampaignSyncConnection.test.ts"],
+        "exit": 1,
+        "result": "2 failed, 82 passed",
+        "killedBy": [
+          "bindCampaignSyncConnection 'revokes the durable seat, detaches the live player, and unblocks the next launch'",
+          "bindCampaignSyncConnection 'heals a committed removal on the next authenticated join after its durable revoke crashes'"
+        ],
+        "verdict": "KILLED - the convergence half of the method is still load-bearing and this slice did not replace it with the new half",
+        "log": "mutant-d-drop-retained-delete.log",
+        "sha256": "b91f293b9af7037f8986e95ad9d6c4b4f47a854ea3ca794c93cadba0083923ab"
+      }
+    ],
+    "restoredSha256": "60643923ae5f1c5e15b7c30a03b63cd51b9ed3d040306e079cd69715683d60f8"
+  },
+
+  "gates": [
+    {
+      "gate": "jest - session suite",
+      "command": "npx jest --watchAll=false --runTestsByPath src/lib/multiplayer/server/__tests__/CampaignSyncSession.test.ts --runInBand",
+      "exit": 0,
+      "result": "34 passed, 34 total",
+      "log": "green-unit-CampaignSyncSession.log",
+      "sha256": "7dc5b0b7b52ce5405dd0a4a3baa8a37ad2bd91e94cbb9eac8cf5abfc20e9f170"
+    },
+    {
+      "gate": "jest - scoped",
+      "command": "npx jest --watchAll=false src/lib/campaign/sync src/lib/campaign/coop src/lib/multiplayer/server/__tests__/CampaignSyncSession.test.ts src/lib/multiplayer/server/__tests__/bindCampaignSyncConnection src/lib/multiplayer/server/__tests__/campaignSurfaceParity --runInBand",
+      "exit": 0,
+      "result": "26 suites passed, 246 tests passed",
+      "note": "the two session consumer suites (bindCampaignSyncConnection, campaignSurfaceParity) were added to the brief's scope because they are the only other callers of the two methods this slice edits",
+      "log": "gate-jest-scoped.log",
+      "sha256": "6812d521fbd03a806af794a8f2ceae1743494fe0dbfcf699198fe11408544b1b"
+    },
+    {
+      "gate": "tsc",
+      "command": "npx tsc --noEmit --skipLibCheck",
+      "exit": 0,
+      "result": "PASS - empty output (gate-tsc.log sha256 e3b0c442...b855, the sha256 of an empty file)",
+      "firstRun": "FAILED first, honestly recorded: `CampaignSyncSession.ts(704,30): error TS2802: Type 'Set<() => void>' can only be iterated through when using the '--downlevelIteration' flag or with a '--target' of 'es2015' or higher` - tsconfig target is es5. Fixed by using Array.from(attached), which is the house pattern (CampaignGmArbiter.ts:258 uses the same shape). Every mutant was then RE-RUN against the corrected bytes so no row in the table was measured against a variant that never shipped.",
+      "log": "gate-tsc.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "gate": "oxfmt",
+      "command": "npx oxfmt --check src/lib/multiplayer/server/CampaignSyncSession.ts src/lib/multiplayer/server/__tests__/CampaignSyncSession.test.ts e2e/campaign-journal-two-process-privacy.spec.ts",
+      "exit": 0,
+      "result": "PASS - 'All matched files use the correct format', 3 files actually analysed",
+      "log": "gate-oxfmt.log",
+      "sha256": "ebd9d4c1dd6bfac9fd81fe71f51d9ebf9378c29ad72c6b0398592fc91d7b162c"
+    },
+    {
+      "gate": "oxlint",
+      "command": "npx oxlint <the 3 changed files>",
+      "exit": 0,
+      "result": "'Found 0 warnings and 0 errors. Finished in 15ms on 1 file' - ONE file, not three: .oxlintrc.json ignorePatterns contains both 'e2e/**' and '**/*.spec.ts', so only CampaignSyncSession.ts was analysed. PARTIALLY VACUOUS BY CONFIGURATION - the production file IS covered (unlike the test-only slices before it), the two spec files are not. Stated, not claimed as full coverage.",
+      "log": "gate-oxlint.log",
+      "sha256": "d03201e8e1ec51c1d79be76b7fb3034e49904714f93305f0c653a4b5ade31b53"
+    },
+    {
+      "gate": "openspec strict",
+      "command": "npx openspec validate --strict --all",
+      "exit": 0,
+      "result": "232 passed, 0 failed (232 items)",
+      "log": "gate-openspec.log",
+      "sha256": "a6f1b01bad6ef535f7ae511fd2b0e725e382bcb462449ef4386723e0ec97eff3",
+      "note": "byte-identical to the sha the independent review recorded for the same gate on the base, which is the expected result for a slice that touches no openspec file"
+    }
+  ],
+
+  "liveRuns": {
+    "preconditions": {
+      "buildWaitGate": "powershell poll of node processes matching 'next.*build|playwright' returned 0 before each build and each run. ONE false positive was investigated and dismissed rather than waited on: pid 17204 is a cursor-agent worker whose PROMPT text contains the word 'playwright'; its full command line was read to confirm it runs no build and no Playwright.",
+      "portsBefore": "no LISTENING socket on 3639 or 3617 before the build or the runs",
+      "prodEvidenceFlag": "never passed",
+      "ports": "3639 (replica webServer) and the drive's own source process only"
+    },
+    "build": {
+      "command": "NEXT_PUBLIC_E2E_MODE=true NEXT_PUBLIC_E2E_TEST=true npm run build",
+      "exit": 0,
+      "log": "green-build-e2e.log",
+      "sha256": "f95977209eb3e45d9377db25e49e753c1fb6be13113064fa976c887c61b2b0d9",
+      "e2eMarker": "1 hit of window.__E2E_MODE__=!0 in .next/static/chunks/pages/_app-b4f3e371ee8b87c1.js",
+      "hydratedStandaloneServer": ".next\\standalone\\server.js (the build's own ok:true block)",
+      "bundleCarriesTheFix": "grep -c liveByParticipant .next/standalone/src/lib/multiplayer/server/CampaignSyncSession.ts -> 6. The tree the two processes actually run contains the fix; this is the check that stops a green from being read off a stale bundle."
+    },
+    "runs": [
+      {
+        "spec": "e2e/campaign-journal-two-process-privacy.spec.ts",
+        "purpose": "the inverted R3 row, green run 1 of 2",
+        "exit": 0,
+        "result": "1 passed (27.4s)",
+        "log": "green-e2e-privacy-1.log",
+        "sha256": "99592cdf9c21c545b1c2552d47684904b5829fea1bfa577bde1cfb577b5ffb95"
+      },
+      {
+        "spec": "e2e/campaign-journal-two-process-privacy.spec.ts",
+        "purpose": "green run 2 of 2 - repeated to show the detach is not a timing accident",
+        "exit": 0,
+        "result": "1 passed (21.6s)",
+        "log": "green-e2e-privacy-2.log",
+        "sha256": "1e8eaf67168b3d9a71d594981ea4cc537a66991c2990f20a38feca86e8771bd7"
+      },
+      {
+        "spec": "e2e/campaign-journal-two-process-convergence.spec.ts",
+        "purpose": "CO3 regression - the other two-process drive over the same session and delivery path",
+        "exit": 0,
+        "result": "1 passed (23.3s)",
+        "log": "green-e2e-co3-convergence.log",
+        "sha256": "e8c39bf0ae9f05067e26e533db289dce1e9c46c11432beee8f7a0ac659400d53"
+      }
+    ],
+    "invocation": "MEKSTATION_E2E_SERVER_COMMAND='node .next/standalone/server.js' HOSTNAME=127.0.0.1 MEKSTATION_E2E_PORT=3639 node scripts/playwright/run-playwright.mjs test <spec> --project=chromium --retries=0 --workers=1",
+    "portsAfter": "no LISTENING socket on 3639 or 3617 after the three runs"
+  },
+
+  "changedFileHashes": {
+    "src/lib/multiplayer/server/CampaignSyncSession.ts": "60643923ae5f1c5e15b7c30a03b63cd51b9ed3d040306e079cd69715683d60f8",
+    "src/lib/multiplayer/server/__tests__/CampaignSyncSession.test.ts": "85bad0834ebd1bf2ced0cb539bba9fb1435f2159547f5a4c79d997cb34bebfac",
+    "e2e/campaign-journal-two-process-privacy.spec.ts": "f7a0a049a0557eee57d9f981a7fdaa72556a5e49162376e959f7a81cf047027c"
+  },
+
+  "nonClaims": [
+    "F-LIVE-2 IS UNTOUCHED. RemoveParticipant is still unreachable through POST /commands for every caller including the GM (campaignCommandPipeline.ts:276-281 and :503-508 both omit hostPlayerId). This slice changed no pipeline call site and takes no position on whether that refusal is intended. The spec's control row at :196-217 still asserts the 422 and still passes.",
+    "THE JOURNAL AUTHORITY FLAG IS STILL FALSE. src/lib/campaign/sync/JournalCampaignEventStore.ts:84 reads `export const CAMPAIGN_JOURNAL_AUTHORITY_ENABLED = false;` and is not in this slice's diff; the spec re-reads it out of a real Node process at the end of the drive and both flag rows passed in every green run. No flag was flipped.",
+    "THE REVOKED SOCKET IS NOT CLOSED, only silenced. No typed AUTH_REJECTED/'membership-revoked' close frame is sent to an already-bound socket - see fix.deliberatelyNotDone. A removed member's connection stays open and mute until they disconnect or send their next authenticated frame, which is refused by name (bindCampaignSyncConnection.ts:934-939).",
+    "GRANT revocation (task 4.3) is a different subsystem and was neither changed nor re-measured here. This slice is about SEAT revocation, which is what /activity and the rejoin gate read.",
+    "No openspec tasks.md checkbox, spec.md requirement, or roadmap cell was edited. Marking R2.authority-live's 'revocation' cell accepted is the parent's call, not this lane's.",
+    "Nothing was pushed and no PR was opened. The parent lane publishes.",
+    "The leak half of mutant c is argued, not measured: no row asserts that `liveByParticipant` is empty after a clean disconnect, because that needs session internals exposed.",
+    "The two-attachments-per-participant case that motivates the Set is argued from the existing gmConnections precedent and is NOT covered by a row: every new unit row attaches each participant once."
+  ],
+
+  "openQuestions": [
+    {
+      "id": "Q1",
+      "question": "Should a removed member's socket be CLOSED with AUTH_REJECTED/'membership-revoked' rather than merely going quiet?",
+      "whyItMatters": "A silent socket looks identical to an idle campaign from the client's side, so a removed player sees a frozen screen rather than a reason. The rejoin path already has the typed refusal, so the vocabulary exists.",
+      "whyNotDoneHere": "CampaignSyncSession holds sinks, not sockets; the close needs a participant-keyed socket index in bindCampaignSyncConnection (socketsByMatch is keyed by matchId only). That is a strictly larger change and an owner decision, not a minimal fix.",
+      "owner": "R2.authority-live parent"
+    },
+    {
+      "id": "Q2",
+      "question": "Is a growing `liveByParticipant` worth an assertable surface (e.g. a test-only size accessor), or is the argument enough?",
+      "context": "mutant c survives because a double drain is harmless; the only thing the self-deregistration protects is map growth across reconnects, which no row can see today.",
+      "owner": "R2.authority-live parent"
+    },
+    {
+      "id": "Q3",
+      "question": "The brief's base sha 1f1db65d3 was orphaned by the publishing lane's rebase mid-slice. Should stacked briefs pin a branch name plus a content hash rather than a sha?",
+      "context": "The four load-bearing files were byte-identical across the rebase, which is the only reason this was a note rather than a halt.",
+      "owner": "roadmap orchestration"
+    }
+  ],
+
+  "rebasedForMain": {
+    "why": "#1755 merged the live-rows stack into main (origin/main 2c1b4584de076ae497533d093618dac5bcc97f03), so the two commits were rebuilt onto main by CHERRY-PICK - never a merge, never a force.",
+    "branch": "codex/roadmap-r2-authority-live-revocation-detach-main-20260915",
+    "createdFrom": "origin/main @ 2c1b4584de076ae497533d093618dac5bcc97f03",
+    "preconditionVerifiedThisSession": {
+      "claim": "the three touched files are byte-identical between origin/main and the old base aef5c30eb, so the picks apply clean",
+      "command": "git show origin/main:<f> | sha256sum vs git show aef5c30eb:<f> | sha256sum",
+      "results": [
+        "e2e/campaign-journal-two-process-privacy.spec.ts - e5e537dc44790ea16c8fcc9b360b8971b3790bb3f0fc99357007e77e3e347103 on both",
+        "src/lib/multiplayer/server/CampaignSyncSession.ts - c09549fd51cfc124cf758962e308c52844a0cdcd8b45c619a35ec3c30acdfaf5 on both",
+        "src/lib/multiplayer/server/__tests__/CampaignSyncSession.test.ts - def6959e89a7008326b178812ac709509c562d2de9285b0ff0abdd6775a59b6d on both"
+      ]
+    },
+    "cherryPicks": [
+      { "from": "34838b3dc764f6858c34ad055a14ec5e9c69bb82", "to": "9cfac0d5c011c5c5108b15fedc9ccb209f3fa0c1", "conflicts": "none", "stat": "2 files changed, 170 insertions(+), 30 deletions(-)" },
+      { "from": "e59d8f16aa4203ebbead6a0cd594e975d103e24b", "to": "c19047b20da2f0c5c5f9023aed8272f479fb0d49", "conflicts": "none", "stat": "1 file changed, 64 insertions(+), 3 deletions(-)" }
+    ],
+    "perFileDiffOldToNew": {
+      "command": "git diff e59d8f16a HEAD -- <each of the three files> | wc -l",
+      "result": "0 lines for all three files - the picked tree reproduces the reviewed bytes exactly",
+      "sha256Unchanged": {
+        "src/lib/multiplayer/server/CampaignSyncSession.ts": "60643923ae5f1c5e15b7c30a03b63cd51b9ed3d040306e079cd69715683d60f8",
+        "src/lib/multiplayer/server/__tests__/CampaignSyncSession.test.ts": "85bad0834ebd1bf2ced0cb539bba9fb1435f2159547f5a4c79d997cb34bebfac",
+        "e2e/campaign-journal-two-process-privacy.spec.ts": "f7a0a049a0557eee57d9f981a7fdaa72556a5e49162376e959f7a81cf047027c"
+      },
+      "note": "git diff e59d8f16a HEAD over the WHOLE tree is non-empty (6 files) - that is main's own drift since aef5c30eb, not an artefact of the picks. None of those files is touched by this slice."
+    },
+    "gatesOnTheMainBasedBranch": [
+      { "gate": "jest - session suite", "exit": 0, "result": "34 passed, 34 total", "log": "main-unit-CampaignSyncSession.log", "sha256": "399dd6fed5966eed2d6f72b9efd9555bf9028f0624dcd3c4561dfe440899d27f" },
+      { "gate": "tsc", "exit": 0, "result": "PASS - empty output", "log": "main-tsc.log", "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855" }
+    ],
+    "authors": "both picked commits carry Wes Rollings <wrollings@gmail.com>; no AI-attribution token in either message or in the PR body (grep -ci over the PR body returned 0)",
+    "push": "git push -u origin codex/roadmap-r2-authority-live-revocation-detach-main-20260915 - new branch, no force",
+    "pullRequest": {
+      "number": 1756,
+      "url": "https://github.com/SwiggitySwerve/MekStation/pull/1756",
+      "title": "fix(campaign): stop delivering campaign facts to a revoked seat's live socket",
+      "base": "main",
+      "head": "codex/roadmap-r2-authority-live-revocation-detach-main-20260915",
+      "headSha": "c19047b20da2f0c5c5f9023aed8272f479fb0d49",
+      "state": "OPEN",
+      "mergeable": "MERGEABLE"
+    }
+  },
+
+  "reviewVerdict": {
+    "verdict": "APPROVE",
+    "requiredEdits": "none",
+    "artefact": "openspec/planning/2026-09-12-roadmap-completion/evidence/r2-authority-live-revocation-detach-review-20260915.json",
+    "cellJudgement": "the R2.authority-live 'revocation' cell is judged satisfied for the campaign-scoped live surface",
+    "independentlyReproduced": [
+      "mutant (a) skip the drain - red",
+      "mutant (b) drain the wrong participant - red",
+      "the privacy spec green on the fixed bundle (28.8s)",
+      "a wider jest sweep: 176 suites / 1273 tests, exit 0"
+    ],
+    "advisoryF1": {
+      "observation": "the drain evicts by participantId without re-checking identity",
+      "reachability": "UNREACHABLE today - applyCommittedParticipantRemoval takes the committed ParticipantRemoved event as its only authority, and callers cannot name a participant directly",
+      "disposition": "recorded, not applied. The optional one-line hardening was deliberately left out to keep the production diff minimal; it is advisory and blocks nothing.",
+      "reportedInPr": true
+    }
+  },
+
+  "logs": {
+    "directory": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/r2-authority-live-revocation-detach-20260915/",
+    "files": [
+      { "name": "red-unit-CampaignSyncSession.log", "sha256": "a1ec8443f0f502e6f278b04d5157b3dc0d4a3220a0c1862c9515c8a88a22a5c6" },
+      { "name": "red-build-e2e.log", "sha256": "68a21c23b760e7926741af01b4b58eb4f401905d270dca0915c2ac8a5ab16dd7" },
+      { "name": "red-e2e-privacy.log", "sha256": "248c4758aaeb41b333fc9657f4b909fa47edce698524d47091e4290096846e75" },
+      { "name": "green-unit-CampaignSyncSession.log", "sha256": "7dc5b0b7b52ce5405dd0a4a3baa8a37ad2bd91e94cbb9eac8cf5abfc20e9f170" },
+      { "name": "mutant-a-skip-drain.log", "sha256": "76ef4187bee4c95967660757c82ef205a3dd6012bafd93f0e6253baf05ce2978" },
+      { "name": "mutant-b-wrong-participant.log", "sha256": "8031a98401eae47b33ebb24aa208d705b7d6442cf6a35c22b801136eafb64a31" },
+      { "name": "mutant-c-no-deregistration.log", "sha256": "5d7026912a2413a4db70f5e57200555d64b3dedefcf27685ab014d591917d39b" },
+      { "name": "mutant-d-drop-retained-delete.log", "sha256": "b91f293b9af7037f8986e95ad9d6c4b4f47a854ea3ca794c93cadba0083923ab" },
+      { "name": "gate-jest-scoped.log", "sha256": "6812d521fbd03a806af794a8f2ceae1743494fe0dbfcf699198fe11408544b1b" },
+      { "name": "gate-tsc.log", "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855" },
+      { "name": "gate-oxfmt.log", "sha256": "ebd9d4c1dd6bfac9fd81fe71f51d9ebf9378c29ad72c6b0398592fc91d7b162c" },
+      { "name": "gate-oxlint.log", "sha256": "d03201e8e1ec51c1d79be76b7fb3034e49904714f93305f0c653a4b5ade31b53" },
+      { "name": "gate-openspec.log", "sha256": "a6f1b01bad6ef535f7ae511fd2b0e725e382bcb462449ef4386723e0ec97eff3" },
+      { "name": "green-build-e2e.log", "sha256": "f95977209eb3e45d9377db25e49e753c1fb6be13113064fa976c887c61b2b0d9" },
+      { "name": "green-e2e-privacy-1.log", "sha256": "99592cdf9c21c545b1c2552d47684904b5829fea1bfa577bde1cfb577b5ffb95" },
+      { "name": "green-e2e-privacy-2.log", "sha256": "1e8eaf67168b3d9a71d594981ea4cc537a66991c2990f20a38feca86e8771bd7" },
+      { "name": "green-e2e-co3-convergence.log", "sha256": "e8c39bf0ae9f05067e26e533db289dce1e9c46c11432beee8f7a0ac659400d53" },
+      { "name": "main-unit-CampaignSyncSession.log", "sha256": "399dd6fed5966eed2d6f72b9efd9555bf9028f0624dcd3c4561dfe440899d27f" },
+      { "name": "main-tsc.log", "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855" }
+    ]
+  }
+}

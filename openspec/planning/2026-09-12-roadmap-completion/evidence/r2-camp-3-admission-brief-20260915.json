@@ -1,0 +1,271 @@
+{
+  "schema": "r2-camp-3-admission-brief/v1",
+  "at": "2026-09-15T14:30:00.000Z",
+  "role": "read-only discovery; no product/spec/tasks/contract edits made; single evidence artifact only; no builds/tests executed this session",
+  "sourceSnapshot": {
+    "originMainAtFetch": "2b98ce5b049e7b63a38161057961d0185bb42a31",
+    "worktreeUsedForSourceReading": ".sisyphus/roadmap-completion-20260912/worktrees/archive-edit-recovery-20260915",
+    "worktreeHeadSha": "c674a5dfc76c868cd83c2ae6665d5157f2bfe989",
+    "worktreeMatchesOriginMainAtFetch": false,
+    "note": "The worktree HEAD (c674a5dfc76) is one commit ahead of origin/main at this session's fetch (2b98ce5b049): 'test(campaign): pin the authoritative-state roster guards the co-op panel relies on', 2026-09-15 06:46:53 -0600, on a branch off main. Two independent `git fetch origin` calls this session (start and end) both landed on the identical 2b98ce5b0 SHA -- no drift observed between them, unlike the R2.camp-2 brief's experience. All literal task text and checkbox states below are read via `git show origin/main:<path>` at 2b98ce5b0, not the worktree; the worktree was used only for full-file source/test reads (grep + Read), each cross-checked against the origin/main tasks.md diff to confirm no drift on the cited lines.",
+    "workingTreeDivergesFromOriginMain": "Local working tree has uncommitted cosmetic wording edits to tasks.md ('custom' -> 'unsupported custom' / 'supported-custom', same terminology-alignment pattern the R2.camp-1 and R2.camp-2 briefs already noted). `git diff origin/main -- openspec/changes/add-saved-custom-unit-campaign-roster/tasks.md` confirms the edited lines are 13-16 (section 1, CAMP-01A task 1.4), 28-31 (section 4, CAMP-01D task 4.2), and 43-54 (sections 7-9, CAMP-01G/H/completion). Section 3 (CAMP-01C, lines 25-26, this node's two taskKeys) has ZERO diff -- byte-identical between the local working tree and origin/main. Per the task charter this brief reads origin/main via `git show`, not the local working tree."
+  },
+  "roadmapNode": {
+    "id": "R2.camp-3",
+    "title": "Actor-derived participation",
+    "wave": 2,
+    "kind": "verification",
+    "state": "planned",
+    "dependsOn": ["R2.camp-2"],
+    "ownershipPaths": [
+      "openspec/changes/add-saved-custom-unit-campaign-roster",
+      "scripts/qc",
+      "src",
+      "e2e"
+    ],
+    "acceptance": [
+      "Use immutable camp-01c contract row; preserve its strict PR cap, reporters, authority facts and real approval requirements",
+      "Audit shipped code before any repair; exact-main receipt required"
+    ],
+    "owner": "parent; assign bounded Luna high worker on admission",
+    "maxFiles": 15,
+    "maxNonGeneratedLines": 500,
+    "taskKeys": [
+      "add-saved-custom-unit-campaign-roster#3.1@25",
+      "add-saved-custom-unit-campaign-roster#3.2@26"
+    ],
+    "receipt": null,
+    "decomposition": "Navigation paths only. Before assignment, select one behavior, exact files and original task IDs; split until original/default caps fit. Each child PR needs its own reviewed-head and exact-main receipt.",
+    "githubReviewGate": {
+      "authority": "add-saved-custom-unit-campaign-roster P.2 and scripts/qc/camp01-github-provenance.mjs",
+      "state": "APPROVED",
+      "nonDismissed": true,
+      "exactHead": true,
+      "nonAuthor": true,
+      "permissions": ["WRITE", "MAINTAIN", "ADMIN"],
+      "soloException": false
+    }
+  },
+  "predecessorClosures": {
+    "r2camp2": {
+      "source": "openspec/planning/2026-09-12-roadmap-completion/evidence/r2-camp-2-admission-brief-20260915.json",
+      "verdict": "Task 2.1 (CampaignSync/CampaignAuthoritativeState roster+force extension) is real and shipped via genuinely merged PR #1231/#1233 (both self-authored, self-merged, zero reviews). One concrete gap found: buildCampaignAuthoritativeState's four guard-throw branches are untested (CampaignCoopEntryPanel.test.tsx mocks the module entirely). Task 2.2's test-coverage half is substantially real; its receipt-writer half is NOT done -- no camp01b-snapshot-<sha> directory exists anywhere.",
+      "closedOnlyAt": "command-level receipt tier (recommended as SLICE-1, not confirmed executed by that brief itself); controller-registered and PR-provenanced tiers remain owner-blocked on the identical structurally-unsatisfiable single-collaborator githubReviewGate and on camp-01a's own missing controller receipt."
+    },
+    "r2camp1": {
+      "source": "openspec/planning/2026-09-12-roadmap-completion/evidence/r2-camp-1-admission-brief-20260915.json",
+      "verdict": "Tasks 1.1-1.4 (CAMP-01A) fully shipped and tested, gap NONE FOUND. Task 1.5 (receipt run) NOT done at any controller-registered or PR-provenanced tier.",
+      "closedOnlyAt": "command-level receipt tier (recommended, not confirmed executed)."
+    },
+    "r2camp0": {
+      "source": "openspec/planning/2026-09-12-roadmap-completion/evidence/camp00-receipt-run-main-819ff6f-20260915.json",
+      "verdict": "Command-level exact-main receipt produced (17/17 frozen assertions true at 819ff6fd8); PR-provenanced camp01-authority-receipt directory explicitly NOT produced.",
+      "closedOnlyAt": "command-level receipt tier only."
+    },
+    "whatThisMeansForCampThree": "R2.camp-3 (camp-01c) inherits the identical three-tier ceiling every predecessor in this chain has hit: (1) a command-level exact-main receipt is achievable today, (2) a controller-registered receipt is NOT achievable because camp-01c's own frozen predecessors list is ['camp-01b'] and no camp-01a OR camp-01b controller-registered receipt exists yet (independently re-verified this session: `find .sisyphus/evidence/playtest -iname '*camp01a*' -o -iname '*camp01b*' -o -iname '*camp01c*'` returns zero matches; the only directory under .sisyphus/evidence/playtest/ is the unrelated 2026-07-07-live-playtest/), and (3) a PR-provenanced closure of roadmap tasks 3.1/3.2 is blocked on the same structurally unsatisfiable single-collaborator githubReviewGate every predecessor hit."
+  },
+  "criticalContextFinding": {
+    "title": "The archived child change's tasks.md again claims a receipt and a council-review document that cannot be verified on origin/main, but the underlying product PR is real, merged, self-approved, and untouched by any second reviewer -- the third occurrence of this exact pattern in the CAMP-01 chain",
+    "archivedChild": "openspec/changes/archive/2026-08-20-authorize-campaign-coop-participation/ (proposal.md + tasks.md)",
+    "claimText": "openspec/changes/archive/2026-08-20-authorize-campaign-coop-participation/tasks.md line 1: 'Completed 2026-08-20 (reconciliation): implemented and delivered by the CAMP-01C wave (product PR #1235); attested by the durable reviewed-head + exact-main + cleanup receipts (full durable index readmitted 23/23 through validator plus all four anchors after CAMP-R1, 2026-08-12) and the council review at `openspec/council-decisions/2026-08-12-camp01-wave-execution-review.md`.' All of tasks 1.1, 1.2, 2.1, 2.2, 3.1, 3.2 in that file are marked [x].",
+    "verification": [
+      "`git cat-file -e origin/main:openspec/council-decisions/2026-08-12-camp01-wave-execution-review.md` -> fatal: path does not exist in origin/main. Identical finding to the camp-01a and camp-01b archived children's citation of the same nonexistent document.",
+      "`gh pr view 1235 --repo SwiggitySwerve/MekStation --json number,title,state,mergedAt,mergeCommit,author,mergedBy,reviews` -> MERGED, mergedAt 2026-08-13T16:04:10Z, mergeCommit 5251231dbbf391e2ddf450f64cfd03b350b06e0a, title 'feat(campaign): authorize co-op participation from server identity', author=SwiggitySwerve, mergedBy=SwiggitySwerve, reviews=[] (empty). The PR is REAL and MERGED, but self-authored, self-merged, with zero recorded GitHub reviews -- same shape as camp-01b's PR #1231/#1233, worse than camp-01a's (which had no camp-01a-specific product PR reference verifiable at all).",
+      "`find .sisyphus/evidence/playtest -iname '*camp01c*'` and `git ls-files | grep -i camp01c` both return zero matches -- no camp01-authority-receipt controller-registered directory exists for camp-01c anywhere in the repository or the durable evidence tree, despite the archived tasks.md's claim of 'durable reviewed-head + exact-main + cleanup receipts'.",
+      "`gh api repos/SwiggitySwerve/MekStation/collaborators` this session -> exactly one collaborator, SwiggitySwerve, permission admin. No second collaborator exists to have produced the non-author APPROVED review the claim implies."
+    ],
+    "conclusion": "This is the THIRD consecutive CAMP-01 sub-wave (after camp-01a, camp-01b) whose archived child tasks.md asserts a governed receipt and cites the same nonexistent 2026-08-12 council-review document. The product code for camp-01c genuinely shipped (PR #1235, real ancestor of origin/main, independently re-verified below by direct source/test reads) but the RECEIPT and REVIEW-GATE claims are false in the same narrow way camp-01b's were: self-authored, self-merged, zero reviews, no controller-registered receipt directory. A worker admitted onto R2.camp-3 MUST NOT cite PR #1235, the '23/23 readmitted' figure, or the 2026-08-12 council review as satisfying task 3.2's receipt clause."
+  },
+  "frozenContractRow": {
+    "source": "scripts/qc/camp01-authority-receipt.contract.mjs -> WAVE_CONTRACTS['camp-01c']",
+    "sourceFileVerifiedOnOriginMain": "2b98ce5b049",
+    "wave": "camp-01c",
+    "commandId": "camp-01c",
+    "childChange": "authorize-campaign-coop-participation",
+    "runRootTemplate": ".sisyphus/evidence/playtest/camp01c-participation-<sha>",
+    "commandSequence": [
+      [
+        "@npm", "test", "--", "--watchAll=false", "--runTestsByPath",
+        "src/types/multiplayer/__tests__/Protocol.test.ts",
+        "src/lib/multiplayer/server/__tests__/bindCampaignSyncConnection.test.ts",
+        "src/lib/campaign/coop/__tests__/coopRuntimeSession.test.ts",
+        "--runInBand"
+      ],
+      ["@npm", "run", "verify:qc:coop-campaign-journey"]
+    ],
+    "canonicalArgvDigest": "4ebd9923861982f9f37151156a072e40c6f4bf58238d09a7d8fd96b0349885d1",
+    "artifacts": ["command-result.json", "receipt-manifest.json", "wave-result.json"],
+    "assertions": [
+      "serverPlayerDerived===true",
+      "serverRoleDerived===true",
+      "authorizedChoiceAccepted===true",
+      "fullForceRejected===true",
+      "forgedIdentityRejected===true",
+      "foreignForceRejected===true",
+      "staleRevisionRejected===true"
+    ],
+    "predecessors": ["camp-01b"],
+    "capSubject": "product-pr",
+    "maxFiles": 12,
+    "maxChangedLines": 450,
+    "reporterContracts": [],
+    "criticalDifferenceFromCampO1aRow": "Like camp-01b, camp-01c's commandSequence has TWO argv arrays: the frozen 3-file jest run PLUS `npm run verify:qc:coop-campaign-journey` (package.json:199), which chains 9 more jest suites and then `node scripts/playwright/run-playwright.mjs test --project=chromium e2e/coop-campaign-two-browser-journey.spec.ts e2e/coop-campaign-ui-audit.spec.ts --workers=1`. A full command-level camp-01c receipt reproduction therefore requires the same real Playwright two-browser run camp-01b's reproduction needed -- this is not a pure-jest row like camp-01a's."
+  },
+  "taskKeys": [
+    {
+      "key": "add-saved-custom-unit-campaign-roster#3.1@25",
+      "sourceId": "3.1",
+      "literalText": "3.1 Replace protocol/local-runtime participation with `{ missionId, forceId, choice }`; derive match/player/role in the binder from verified connection/registry state and reject full `IForce`, client-authored identity, foreign/missing force, and stale revision.",
+      "checkboxStateOnOriginMain": "[ ] unchecked (roster umbrella tasks.md, line 25); the underlying archived child's own tasks.md (archive/2026-08-20-authorize-campaign-coop-participation, tasks 1.1/1.2/2.1/2.2) shows [x]",
+      "verifiedAgainstOriginMain": "tasks.md line 25 re-read via `git show origin/main:openspec/changes/add-saved-custom-unit-campaign-roster/tasks.md` at 2b98ce5b0 this session; local working tree diff confirmed to leave section 3 untouched",
+      "whatSourceAlreadyDoes": [
+        "src/types/multiplayer/Protocol.ts:522-528 -- `CampaignParticipationPayloadSchema = z.object({ missionId: z.string().min(1), forceId: z.string().min(1), choice: CampaignParticipationChoiceSchema }).strict()`. The `.strict()` modifier is the mechanism that rejects a client-supplied full `IForce`, `playerId`, or `role` field on the payload -- any extra key fails schema validation rather than being silently accepted or merged.",
+        "src/types/multiplayer/Protocol.ts:533-542 -- the outer `CampaignParticipationSchema`/`ICampaignParticipation` frame carries its own top-level `playerId` (the wire-authenticated sender), separate from and never merged into `participation` -- there is structurally no field on the wire frame through which a client can assert a different acting identity or role for the participation itself.",
+        "src/lib/multiplayer/server/bindCampaignSyncConnection.ts:393 -- `if (envelope.playerId !== verifiedPlayerId)` rejects any frame (including CampaignParticipation) whose self-declared `playerId` does not match the connection's server-verified identity, before dispatch to `handleCampaignParticipation` at line 609-610.",
+        "src/lib/multiplayer/server/bindCampaignSyncConnection.ts:1323-1382 `handleCampaignParticipation()` -- receives `verifiedPlayerId` as a parameter from the connection binder (never read off the client payload) and passes it straight to `admitBoundCampaignParticipation`; the accepted broadcast frame at line 1367-1376 sets `playerId`/`role` from `admitted.record` (server-derived), never from `envelope.participation`.",
+        "src/lib/multiplayer/server/authorizeCampaignParticipation.ts:38-61 `admitBoundCampaignParticipation()` -- looks up a per-socket `ICampaignParticipationBaseline` (captured earlier at connection-bind time via `captureCampaignConnectionBaseline`, called at bindCampaignSyncConnection.ts:950) and rejects with `AUTH_REJECTED`/`rebind-required` if the socket has no baseline or the baseline's `playerId` does not match `verifiedPlayerId` -- this is the 'derive ... from verified connection/registry state' half of task 3.1.",
+        "src/lib/multiplayer/server/authorizeCampaignParticipation.ts:63-125 `admitCampaignParticipation()` -- the pure admission function: `acknowledgedRevision !== currentRevision` -> `stale-revision` (line 79-81); `forceUnits[payload.forceId]` absent -> `foreign-force` (line 82-85, 'missing force'); a force claimed by a DIFFERENT verified player in this mission's existing records -> `foreign-force` (line 100-107, the ownership-by-claim half, hardened later -- see crossNodeCoordinationRisk); role is computed server-side at line 141 (`role: verifiedPlayerId === hostPlayerId ? 'host' : 'guest'`), never read from the payload.",
+        "src/lib/multiplayer/server/authorizeCampaignParticipation.ts:132-148 `projectedRecord()` -- constructs the participation's `IForce` record itself, server-side, from `unitIds` looked up in the host's own `forceUnits` snapshot -- the client payload contributes only `forceId` (a string key), never a force object; this is the concrete mechanism behind 'reject full IForce'."
+      ],
+      "deltaShallsMapped": [
+        "authorize-campaign-coop-participation proposal.md 'What Changes': 'Derive player, role, campaign, match, and revision from the verified connection and CAMP-01B registry snapshot. Accept only one player-scoped { missionId, forceId, choice } participation payload and validate it against current authority.'",
+        "add-saved-custom-unit-campaign-roster design.md and mission-contracts/journey-qc spec deltas were not separately grepped this session for a camp-01c-specific SHALL beyond the archived child's own proposal.md (the umbrella roster change's specs/ trees focus on catalog/readiness/co-op-snapshot scope per the R2.camp-1/camp-2 briefs' own inventories; not re-confirmed here as absent, flagged as a citation gap for the audit)."
+      ],
+      "existingTests": [
+        "src/types/multiplayer/__tests__/Protocol.test.ts:441-458 -- asserts `CampaignParticipationSchema.safeParse({...participation: { missionId, forceId, choice, playerId: 'forged', role: 'host', force: { id: 'force-guest' } }}).success === false`, i.e. a client attempt to smuggle `playerId`/`role`/`force` fields into the participation payload fails schema validation -- directly proves the `.strict()` full-IForce/client-identity rejection at the wire-parsing layer.",
+        "src/lib/multiplayer/server/__tests__/bindCampaignSyncConnection.test.ts:1820-1930 (single combined test, 'broadcasts participation choices and records them in the registry') -- exercises the ENTIRE task 3.1 matrix end-to-end over a real bound connection: authorized accept, a forged-identity/full-force payload (rejected as BAD_ENVELOPE before admission), a foreign-force payload, and a stale-revision payload (via `registry.get(...).advanceRevision(1)`), then self-checks all 7 frozen wave assertions and writes wave-result.json when CAMP01_ARTIFACT_DIR/CAMP01_RUN_ID are set -- the same self-recording pattern camp-01a/b's frozen tests use.",
+        "src/lib/multiplayer/server/__tests__/bindCampaignSyncConnection.test.ts:1750-1815 (separate test using a mocked durable `forceClaims` port) -- proves a DIFFERENT layer: a durable cross-restart force claim ('held-by-other') is honored even when the in-memory records check would pass, and that a refused claim is never broadcast/published."
+      ],
+      "gap": "NONE FOUND for the literal text of task 3.1. Protocol/binder/admission code fully implements: {missionId, forceId, choice} payload replacing raw local-runtime participation; server-derived match/player/role from verified connection state (never client payload); rejection of a full IForce, client-authored identity/role, a foreign or missing force, and a stale revision. All claims independently re-verified by direct source reads against origin/main at 2b98ce5b0 via the pinned worktree.",
+      "productionBrowserRunRequired": false
+    },
+    {
+      "key": "add-saved-custom-unit-campaign-roster#3.2@26",
+      "sourceId": "3.2",
+      "literalText": "3.2 Test forged identity/role, full force, foreign/missing force, stale snapshot, and authorized choice. The immutable `camp-01c` row SHALL pin separate ordered command arrays for `npm.cmd test -- --watchAll=false --runTestsByPath src/types/multiplayer/__tests__/Protocol.test.ts src/lib/multiplayer/server/__tests__/bindCampaignSyncConnection.test.ts src/lib/campaign/coop/__tests__/coopRuntimeSession.test.ts --runInBand` and `npm.cmd run verify:qc:coop-campaign-journey`. Run the authority writer with `--wave=camp-01c`, its run root/SHA/command id, and exact spec/product tuples but no caller command text, then matching reviewed-head validation; after merge rerun both under a new exact-main run root with the exact product merge tuple and exact-main SHA/mode; review, publish within 12 files/450 lines, merge, audit, and prune before CAMP-01D.",
+      "checkboxStateOnOriginMain": "[ ] unchecked (roster umbrella tasks.md, line 26); the archived child's own tasks.md (tasks 2.2, 3.1, 3.2) shows [x], citing PR #1235 and the absent council-review document per criticalContextFinding above",
+      "verifiedAgainstOriginMain": "tasks.md line 26 re-read via `git show origin/main:...tasks.md` at 2b98ce5b0; byte-identical local vs origin/main",
+      "whatSourceAlreadyDoes": [
+        "The 'Test forged identity/role, full force, foreign/missing force, stale snapshot, and authorized choice' half is fully covered by the single combined test cited under task 3.1 (bindCampaignSyncConnection.test.ts:1820-1930), which computes and writes all 7 frozen camp-01c assertions in the exact camp01-wave-result/v1 shape the contract expects, gated on `CAMP01_ARTIFACT_DIR`/`CAMP01_RUN_ID` (same self-writing pattern as camp-01a's RosterUnitSource.test.ts and camp-01b's CampaignSync.test.ts).",
+        "The 'immutable camp-01c row SHALL pin ... authority writer ...' half (receipt-writer invocation, review, merge, audit, prune sequence) is NOT done: no camp01c-participation-<sha> directory exists anywhere (`find .sisyphus/evidence/playtest -iname '*camp01c*'` -> zero matches; `git ls-files | grep -i camp01c` -> zero matches)."
+      ],
+      "deltaShallsMapped": [
+        "authorize-campaign-coop-participation tasks.md (archived child numbering) task 2.2: 'Reject forged identity, foreign force, stale revision, conflicting repeat, and full-force payload before mutation.' -- matches the frozen row's assertion set exactly (forgedIdentityRejected, foreignForceRejected, staleRevisionRejected, fullForceRejected) plus the additional authorizedChoiceAccepted/serverPlayerDerived/serverRoleDerived positive-path assertions."
+      ],
+      "existingTests": [
+        "src/types/multiplayer/__tests__/Protocol.test.ts:441-458 -- forged-identity/full-force schema rejection at the wire layer (cited under 3.1).",
+        "src/lib/multiplayer/server/__tests__/bindCampaignSyncConnection.test.ts:1820-1930 -- the full 7-assertion wave-result-writing integration test (cited under 3.1); this is the SAME test that satisfies both 3.1 and 3.2's behavioral requirements, since 3.2's literal text is a direct restatement of 3.1's guard list as test obligations.",
+        "src/lib/multiplayer/server/__tests__/bindCampaignSyncConnection.test.ts:1750-1815 -- durable forceClaims 'held-by-other' rejection, a related but distinct (persistence-layer) foreign-force path not itself one of the 7 frozen assertions but exercised by the same frozen test file.",
+        "src/lib/campaign/coop/__tests__/coopRuntimeSession.test.ts -- part of the frozen commandSequence; this session confirmed via grep that coopRuntimeSession.ts itself carries no participation-authorization logic of its own (it is a pure publish/subscribe broadcast bucket keyed by matchId+missionId, consuming already-admitted `ICoopParticipationRecord`s) -- its role in the frozen row is regression coverage for the broadcast/subscription plumbing the accepted participation flows through, not a second admission-guard implementation. Full file read confirmed no `admitCampaignParticipation`/`authorizeCampaignParticipation` import in coopRuntimeSession.ts."
+      ],
+      "gap": "The test-coverage half of 3.2 is FULLY covered by the frozen 3-file commandSequence -- every named input class (forged identity/role, full force, foreign force, missing force, stale snapshot, authorized choice) is exercised, with the exact 7 frozen assertions computed and self-validated inside the pinned test file. The receipt-writer half of 3.2 (the immutable row invocation, review, merge, audit, prune sequence) is NOT done and cannot be closed past the command-level tier for the same two structural reasons every sibling node hits: (a) predecessor camp-01b has no controller-registered receipt yet (which itself needs camp-01a's, which needs camp-00's), and (b) the githubReviewGate is unsatisfiable with a single repository collaborator (re-verified live this session: `gh api repos/SwiggitySwerve/MekStation/collaborators` returns exactly one entry, SwiggitySwerve, admin).",
+      "productionBrowserRunRequired": true
+    }
+  ],
+  "sourceFilesInventory": {
+    "method": "Direct Read of the pinned worktree (.sisyphus/roadmap-completion-20260912/worktrees/archive-edit-recovery-20260915, HEAD c674a5dfc76, one commit ahead of origin/main 2b98ce5b0 on an unrelated file) plus `git show origin/main:<path>` for tasks.md/proposal.md/contract-row text; the worktree's own diff vs origin/main touches only src/lib/campaign/authority/__tests__ per its commit message, not any file cited below",
+    "files": [
+      { "path": "src/types/multiplayer/Protocol.ts", "note": "grepped for CampaignParticipation*/IForce/choice symbols; read lines 440-545 in full (schema definitions)" },
+      { "path": "src/types/multiplayer/__tests__/Protocol.test.ts", "note": "read lines 430-470 (forged-identity/full-force rejection assertion)" },
+      { "path": "src/lib/multiplayer/server/bindCampaignSyncConnection.ts", "lines": 1593, "note": "grepped for participation/verifiedPlayerId/baseline symbols; read lines 1300-1400 (handleCampaignParticipation) and spot-checked lines 380-400 (envelope.playerId===verifiedPlayerId guard) and ~950 (captureCampaignConnectionBaseline call site)" },
+      { "path": "src/lib/multiplayer/server/__tests__/bindCampaignSyncConnection.test.ts", "note": "grepped for participation/forged/foreign/stale test names; read lines 1750-1935 in full (both participation-related test bodies, including the 7-assertion wave-result writer)" },
+      { "path": "src/lib/multiplayer/server/authorizeCampaignParticipation.ts", "lines": 149, "note": "full file read -- captureCampaignConnectionBaseline, admitBoundCampaignParticipation, admitCampaignParticipation, projectedRecord" },
+      { "path": "src/lib/multiplayer/server/__tests__/campaignParticipationForceOwnership.test.ts", "note": "full file read -- NOT part of the frozen camp-01c commandSequence; see crossNodeCoordinationRisk" },
+      { "path": "src/lib/campaign/coop/coopRuntimeSession.ts", "lines": 319, "note": "grepped for participation/choice/forceId symbols across the full file -- confirmed pure publish/subscribe broadcast bucket, no admission logic" },
+      { "path": "scripts/qc/camp01-authority-receipt.contract.mjs", "note": "grepped for the camp-01a through camp-01h WAVE_CONTRACTS rows; camp-01c row extracted verbatim (line 30)" },
+      { "path": "openspec/changes/archive/2026-08-20-authorize-campaign-coop-participation/proposal.md", "note": "full file read" },
+      { "path": "openspec/changes/archive/2026-08-20-authorize-campaign-coop-participation/tasks.md", "note": "full file read" },
+      { "path": "openspec/changes/add-saved-custom-unit-campaign-roster/tasks.md", "note": "full 'P.' through '9.' section read via git show origin/main at 2b98ce5b0; local-vs-origin diff checked to confirm section 3 (lines 25-26) is untouched" },
+      { "path": "openspec/planning/2026-09-12-roadmap-completion/roadmap.json", "note": "R2.camp-3 node extracted; ownerDecisions entries for OB-2 and '6.2b + OB-2' single-player identity/seat topic read; grepped for seat//commands/6.2a/6.2b context around lines 2287-2400, 2534-2540 region" },
+      { "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/r2-camp-1-admission-brief-20260915.json", "note": "full read -- house style, predecessor-chain facts reused" },
+      { "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/r2-camp-2-admission-brief-20260915.json", "note": "full read -- direct predecessor's closure state, coverage-gap pattern, and crossNodeCoordinationRisk template reused" }
+    ]
+  },
+  "controllerPredecessorGate": {
+    "source": "scripts/qc/camp01-durable-facts.mjs resolvePreflightFacts() (mechanism documented in the R2.camp-1 brief; not re-read line-by-line this session)",
+    "verifiedThisSession": "`find .sisyphus/evidence/playtest -iname '*camp01a*' -o -iname '*camp01b*' -o -iname '*camp01c*'` returns zero matches. `ls .sisyphus/evidence/playtest/` shows exactly one directory, 2026-07-07-live-playtest/, unrelated to any camp-0x wave.",
+    "consequence": "camp-01c's own controller run (qc:camp01-authority-receipt:write --wave=camp-01c ...) would fail camp-01b's predecessor check today -- an exact continuation of the chain the R2.camp-1 and R2.camp-2 briefs documented for camp-01a depending on camp-00, and camp-01b depending on camp-01a. This is layered on top of camp-01c's own githubReviewGate."
+  },
+  "githubReviewGateG1": {
+    "name": "Eligible non-author GitHub APPROVED review on the exact head",
+    "citedFrom": "roadmap.json R2.camp-3.githubReviewGate; scripts/qc/camp01-github-provenance.mjs (same module cited by every camp-1/camp-2 G1)",
+    "liveFactsAsOf20260915": "Re-verified this session: `gh api repos/SwiggitySwerve/MekStation/collaborators` returns exactly one entry (SwiggitySwerve, admin/maintain/push/pull/triage all true). camp-01c's real merged PR #1235 was authored AND merged by that same single collaborator with reviews=[] -- confirmed via `gh pr view 1235 --json author,mergedBy,reviews` this session.",
+    "soloException": false,
+    "satisfiability": "STRUCTURALLY UNSATISFIABLE today, identically to R2.camp-0, R2.camp-1, and R2.camp-2: soloException is explicitly false. Any future product PR touching camp-01c's scope needs a real second-collaborator APPROVED review that cannot be produced by an agent session and does not exist today.",
+    "impactOnThisNode": "Even a perfect audit-only PR that touches zero camp-01c-owned behavior would still be unable to close task 3.2's receipt clause, because the controller's exact-main mode requires a merged, approved PR, and merging requires this gate. This also retroactively confirms PR #1235 never satisfied the gate the archived child's tasks.md implies it did."
+  },
+  "crossNodeCoordinationRisk": [
+    {
+      "sharedFile": "src/lib/multiplayer/server/authorizeCampaignParticipation.ts",
+      "finding": "This file was modified AFTER camp-01c shipped by a separate, later change: PR #1389 'fix(campaign): a player could claim their teammate's force' (merged 2026-08-27, self-authored/self-merged, reviews=[]), tracked under `openspec/changes/harden-gm-two-player-campaign-sessions/tasks.md` (+1 line diff per `gh pr view 1389 --json files`), NOT under add-saved-custom-unit-campaign-roster. The fix hardened the `foreign-force` refusal from 'unknown force' to genuine per-mission ownership-by-first-claim (authorizeCampaignParticipation.ts:88-107, `claimedByOther` check against existing `records`), and added a new, dedicated unit-test file, src/lib/multiplayer/server/__tests__/campaignParticipationForceOwnership.test.ts (93 lines, 3 tests: 'refuses a force another participant already claimed', 'admits a force nobody else has claimed', 'lets a participant re-send their own claim').",
+      "implication": "campaignParticipationForceOwnership.test.ts is NOT one of the 3 files scripts/qc/camp01-authority-receipt.contract.mjs pins for camp-01c's commandSequence, and cannot be added to it (the canonicalArgvDigest is byte-frozen). This is real, tested, already-shipped hardening of the exact function task 3.1/3.2 name (admitCampaignParticipation's foreign-force guard) that sits OUTSIDE the frozen receipt's own file set -- the same 'coverage-shape, evolved-after-freeze' pattern the R2.camp-2 brief found for buildCampaignAuthoritativeState, except here the evolution is a genuine bug fix (not merely an untested branch) and it already has its own passing regression test under a different OpenSpec change. Any worker admitted onto R2.camp-3 should NOT re-litigate or duplicate this fix -- it is out of camp-01c's literal task scope and already covered by its own change/tests -- but should be aware the frozen row's `foreignForceRejected` assertion is now proven by a STRONGER guard than the one camp-01c originally shipped, which is a strictly positive fact for the audit, not a defect."
+    },
+    {
+      "sharedConcept": "server-derived actor identity for campaign mutations -- camp-01c (WebSocket co-op participation) vs. the 6.2b/OB-2 owner decision (HTTP /api/campaigns/:id/commands pipeline)",
+      "finding": "roadmap.json's ownerDecisions record an open decision at 2026-09-15T09:56:02 titled 'single-player identity/seat for campaign commands (6.2b + OB-2)': 'no single-player identity or seat exists; /commands requires a co-op token + active seat; routing single-player acceptance through the pipeline needs an identity model decision.' A second, earlier ownerDecision (2026-09-15T08:34:53, 'OB-2 unauthenticated campaign record routes') separately notes GET/PUT/DELETE /api/campaigns/[id] and adopt.ts have no auth while commands/grants/replica-sync/rewind-preview gate on authenticateRequest (Ed25519 player tokens). Neither decision references camp-01c, bindCampaignSyncConnection.ts, or authorizeCampaignParticipation.ts by name; both are scoped to a DIFFERENT subsystem -- the HTTP `campaignCommandPipeline`/`executeCampaignCommand`/`POST /api/campaigns/[id]/commands` route family (commands.ts:105-119 named specifically), which requires a co-op token keyed by matchId and a seat = sessionId = co-op matchId, versus camp-01c's WebSocket `CampaignParticipation` frame authorized via a per-socket `verifiedPlayerId` baseline captured at connection-bind time.",
+      "implication": "These are architecturally distinct actor-identity mechanisms (WebSocket socket-bound identity vs. HTTP co-op-token-scoped seat) solving a structurally similar problem (deriving a trusted actor for a campaign-mutating action) in two different subsystems. There is no code-level file overlap (authorizeCampaignParticipation.ts / bindCampaignSyncConnection.ts vs. campaignCommandPipeline / pages/api/campaigns/[id]/commands.ts) and camp-01c's own frozen contract row and ownership paths do not touch the commands.ts route family. This is flagged as a conceptual coordination note only: a future identity-model decision resolving 6.2b's single-player seat gap should NOT be assumed to also resolve or require touching camp-01c's socket-bound participation guard, and conversely a worker admitted onto R2.camp-3 should not scope-creep into the 6.2b command-pipeline identity question -- they are genuinely separate ownership paths and separate roadmap nodes (R2.camp-3's ownershipPaths list openspec/changes/add-saved-custom-unit-campaign-roster, scripts/qc, src, e2e generically, but the frozen row and task text narrow this to the three named co-op-sync files)."
+    }
+  ],
+  "productionBrowserRunRequiredSummary": {
+    "answer": true,
+    "reasoning": "Identical shape to camp-01b's row, not camp-01a's: camp-01c's WAVE_CONTRACTS commandSequence has a second entry, `npm run verify:qc:coop-campaign-journey`, which package.json:199 defines as 9 jest suites followed by a 2-spec Playwright chromium run (`e2e/coop-campaign-two-browser-journey.spec.ts`, `e2e/coop-campaign-ui-audit.spec.ts`). A full command-level camp-01c receipt reproduction (SLICE-1 below) therefore requires an actual Playwright two-browser journey run, not just the 3-file jest suite. Both e2e spec files' existence on origin/main was not independently re-confirmed this session (already confirmed present by the R2.camp-2 brief for the same shared `verify:qc:coop-campaign-journey` script), but the script definition itself was not re-read this session either -- inherited from the R2.camp-2 brief's own citation of package.json:199, flagged as a citation carried forward rather than independently re-verified this pass."
+  },
+  "orderedSlicePlan": [
+    {
+      "id": "SLICE-1",
+      "priority": 1,
+      "title": "Command-level camp-01c receipt run at exact-main (audit evidence, zero product files, includes the browser leg)",
+      "behaviour": "Reproduce the established camp-00/camp-01a/camp-01b command-level pattern for camp-01c: on a freshly fetched, detached-HEAD worktree at verified origin/main, export CAMP01_ARTIFACT_DIR (a fresh evidence directory) and CAMP01_RUN_ID (a crypto-random `camp01-<32hex>` id), then run BOTH frozen commands in order -- the 3-file jest suite (`Protocol.test.ts`, `bindCampaignSyncConnection.test.ts`, `coopRuntimeSession.test.ts`, `--runInBand`) and then `npm run verify:qc:coop-campaign-journey`. Record exit codes, the produced wave-result.json (schema camp01-wave-result/v1), and all 7 frozen assertion values verbatim.",
+      "filesChanged": 0,
+      "filesTouchedList": [],
+      "redFirstTestNames": "NONE -- pure reproduction run of already-passing, already-shipped code. Per source verification above, tasks 3.1 and 3.2's core behavior is fully implemented and covered; no repair is needed. The only new artifact is the evidence JSON this slice writes.",
+      "linesEstimate": "0 product/spec lines; 1 new evidence JSON file (unbounded, evidence-only, same category as the predecessor camp-0x receipt-run artifacts)",
+      "gates": {
+        "frozenCommands": [
+          "npm test -- --watchAll=false --runTestsByPath src/types/multiplayer/__tests__/Protocol.test.ts src/lib/multiplayer/server/__tests__/bindCampaignSyncConnection.test.ts src/lib/campaign/coop/__tests__/coopRuntimeSession.test.ts --runInBand",
+          "npm run verify:qc:coop-campaign-journey"
+        ],
+        "canonicalArgvDigestMustMatch": "4ebd9923861982f9f37151156a072e40c6f4bf58238d09a7d8fd96b0349885d1",
+        "envRequired": ["CAMP01_ARTIFACT_DIR=<fresh dir>", "CAMP01_RUN_ID=camp01-<32 lowercase hex chars>"],
+        "expectedExit": 0,
+        "expectedAssertions": "all 7 camp-01c assertions true (see frozenContractRow.assertions)",
+        "browserLegNote": "verify:qc:coop-campaign-journey's Playwright leg needs a built/served app, same as camp-01b's reproduction -- budget accordingly; heavier than camp-01a's pure-jest SLICE-1."
+      },
+      "nonClaims": [
+        "Does NOT close roadmap task 3.2's receipt clause -- the controller write/validate invocations the task text names are not run.",
+        "Does NOT produce a controller-recognized durable receipt directory under .sisyphus/evidence/playtest/camp01c-participation-<sha>/.",
+        "Does NOT satisfy or attempt to satisfy githubReviewGateG1.",
+        "Does NOT modify Protocol.ts, bindCampaignSyncConnection.ts, authorizeCampaignParticipation.ts, coopRuntimeSession.ts, or campaignParticipationForceOwnership.test.ts.",
+        "Does NOT re-litigate or extend the teammate-force-ownership hardening from PR #1389 -- that work belongs to a different OpenSpec change and is already shipped/tested."
+      ],
+      "fileDisjointParallelizableWith": [
+        "none in this node -- zero product-file footprint; safe to run in parallel with any other roadmap node's slice, though it contends for local build/Playwright resources with any concurrent camp-0x or R2.combat browser-leg receipt run -- avoid running those concurrently on the same machine"
+      ]
+    },
+    {
+      "id": "SLICE-2",
+      "priority": 2,
+      "title": "(Blocked, do not start) camp-01c controller-registered reviewed-head receipt",
+      "behaviour": "Run `npm run qc:camp01-authority-receipt:write -- --wave=camp-01c ...` and `:validate ... --mode=reviewed-head` for real, registering a durable receipt the controller's own readIndex() recognizes.",
+      "filesChanged": 0,
+      "blocker": "controllerPredecessorGate: camp-01b (and transitively camp-01a, camp-00) has no controller-recognized exact-main receipt + cleanup record yet. This slice cannot proceed until the predecessor chain closes through the controller, which is itself owner-blocked on githubReviewGateG1 all the way down. Do not attempt SLICE-2 before that predecessor chain exists, or the controller will fail fast with 'predecessor receipt missing: camp-01b'.",
+      "fileDisjointParallelizableWith": []
+    },
+    {
+      "id": "SLICE-3",
+      "priority": 3,
+      "title": "(Blocked, external) camp-01c exact-main PR-provenanced receipt and roadmap task 3.2 closure",
+      "behaviour": "After a real product/spec PR pair exists for the (already-shipped) camp-01c code and passes the controller's reviewed-head mode, merge with a real non-author APPROVED review, then rerun the controller in exact-main mode.",
+      "blocker": "githubReviewGateG1 -- structurally unsatisfiable with one repository collaborator (re-verified live this session). No agent session can produce a second collaborator's approval.",
+      "fileDisjointParallelizableWith": []
+    }
+  ],
+  "dependencySummary": {
+    "onR2camp2": "R2.camp-3 depends on R2.camp-2 twice over: (a) the roadmap edge dependsOn:[R2.camp-2], and (b) the frozen camp-01c WAVE_CONTRACTS row's own predecessors:[camp-01b], enforced by the controller's durable-index predecessor check. R2.camp-2's own brief recommends but does not confirm execution of its SLICE-1; no camp-01b durable receipt exists yet. R2.camp-3 inherits the same state: it can reach the same command-level evidence tier (SLICE-1) but cannot reach the controller-registered tier until camp-01a and camp-01b both reach it first, and cannot reach exact-main PR closure until camp-00's, camp-01a's, camp-01b's, and camp-01c's own githubReviewGate are ALL satisfied.",
+    "whatCampThreeCanDeliverUnderTheOwnerGate": "A command-level, evidence-only receipt (SLICE-1) proving the already-shipped camp-01c code (real, merged, on origin/main via PR #1235) still passes its frozen 3-file jest suite AND its Playwright browser leg at exact-main, with the same 7/7 assertion tally the wave contract requires. This mirrors what camp00-receipt-run-main and the recommended R2.camp-1/R2.camp-2 SLICE-1s already established as the pattern for this entire chain.",
+    "whatStaysBlocked": "Everything past command-level evidence: the controller-registered receipt (needs camp-01a's and camp-01b's own controller receipts first, transitively needing camp-00's), and any real PR closure of roadmap task 3.2 (needs a second GitHub collaborator's non-author APPROVED review, soloException=false, structurally absent today -- now demonstrated unsatisfied for the third consecutive sub-wave by PR #1235's own zero-review history)."
+  },
+  "productionBrowserRunRequired": true,
+  "recommendedFirstSlice": "SLICE-1",
+  "summary": "Both taskKeys of R2.camp-3 (CAMP-01C: replacing local-runtime participation with a strict-schema {missionId, forceId, choice} payload, deriving player/role/match entirely from verified connection and CampaignHostRegistry state, and rejecting a full IForce, client-authored identity, foreign/missing force, and stale revision) are ALREADY IMPLEMENTED and already covered by the exact three jest files the frozen camp-01c contract row names, verified by direct source and test-file reads against origin/main at 2b98ce5b0. No red-first work, no repair PR, and no code changes are needed for tasks 3.1-3.2's literal text -- gap NONE FOUND. This is the third consecutive CAMP-01 sub-wave (after camp-00, camp-01a, camp-01b) whose archived child change (2026-08-20-authorize-campaign-coop-participation) makes an affirmative but unverifiable completion claim citing a council-review document (2026-08-12) that does not exist on origin/main; unlike camp-01a's case, camp-01c's product PR #1235 is real and merged, but -- like camp-01b's #1231/#1233 -- it was self-authored, self-merged, with zero recorded GitHub reviews, so the claimed 'durable reviewed-head + exact-main + cleanup receipts' were never produced (independently confirmed: zero camp01a/b/c directories exist anywhere in the durable evidence tree). A genuinely separate, later change (PR #1389, tracked under harden-gm-two-player-campaign-sessions) hardened the foreign-force guard from 'unknown force' to true per-mission ownership-by-claim and added its own passing regression test outside the frozen row's file set -- flagged as a positive coverage note, not a gap or scope item for this node. The achievable next step is SLICE-1: a command-level exact-main receipt run reproducing both frozen commandSequence entries (the 3-file jest suite and verify:qc:coop-campaign-journey, which itself needs a real two-browser Playwright leg), mirroring the pattern already established for camp-00/camp-01a/camp-01b. Task 3.2's controller-registered and PR-provenanced receipt tiers remain blocked on the identical two structural gates every predecessor in this chain hits: the predecessor chain (camp-01b, and transitively camp-01a/camp-00) has no controller-recognized receipt yet, and the single-collaborator githubReviewGate (soloException=false, re-verified live this session via `gh api .../collaborators`) is structurally unsatisfiable in an agent session."
+}

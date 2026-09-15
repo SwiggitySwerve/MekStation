@@ -1,0 +1,45 @@
+{
+  "node": "R2.authority-client",
+  "artefact": "r2-client-crash-window-close-1711-main-proof-20260915",
+  "capturedAtUtc": "2026-09-15T13:26:40.469Z",
+  "pr": 1711,
+  "slice": "crash-window stack C3: discard through tab close so the keepalive flush proof matches Chromium semantics (e2e only) — completes the stack on main",
+  "reviewedHead": "d28288b1ebfd4bc4333c712bd11f38ff4c19e4c3",
+  "mergeCommit": "1e43090c505f0b3d97fb71f099a9060e1936438c",
+  "worktree": ".sisyphus/roadmap-completion-20260912/worktrees/archive-original-main-proof (detached at the merge commit)",
+  "runtime": {
+    "node": "v22.22.0"
+  },
+  "files": [
+    "e2e/campaign-crash-window-flush.spec.ts"
+  ],
+  "blobEquality": {
+    "diffLines": 0,
+    "identical": true
+  },
+  "gates": {
+    "tsc": {
+      "exit": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "oxfmt": {
+      "exit": 0,
+      "sha256": "9d03bf9125f508ac49aab688fb4b235fc92965d81e5b1f879c06cad73f71595d"
+    },
+    "openspecStrict": {
+      "exit": 0,
+      "sha256": "a6f1b01bad6ef535f7ae511fd2b0e725e382bcb462449ef4386723e0ec97eff3"
+    },
+    "qcOpenspecCi": {
+      "exit": 0,
+      "sha256": "1d2b3ffbba3922d328cc2b02fa1de7ccedad6b3382227fa903deccf9a0d5900c"
+    },
+    "jest": "n/a (e2e-only)"
+  },
+  "browserProof": "8/8 (4 cases x2) at the reviewed tree (evidence/r2-client-crash-window-case-a-close-discard-20260915.json); not re-run on main here",
+  "acceptance": "exact-main accepted; the whole crash-window stack (#1709 spec, #1710 F1 fix, #1711 close-discard) is on main",
+  "nonClaims": [
+    "navigation-discard loss residual (OD-flush-mechanism) preserved",
+    "a fresh browser run of the spec on this main is owed only if the parent chooses to require it before flipping 1.6; the stack was green as a whole at the reviewed tree"
+  ]
+}
