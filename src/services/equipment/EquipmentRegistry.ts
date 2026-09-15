@@ -56,6 +56,16 @@ export type EquipmentCategoryType =
   | EquipmentType;
 
 /**
+ * How an initialize() attempt ended.
+ *
+ * `interrupted` means the document was unloading and the load was cancelled
+ * part-way through: nothing failed, nothing is ready, and the attempt is worth
+ * repeating. Callers MUST NOT treat a resolved initialize() as proof of
+ * readiness - only the `ready` outcome (or isReady()) says that.
+ */
+export type EquipmentRegistryInitOutcome = 'ready' | 'interrupted';
+
+/**
  * Equipment registry statistics
  */
 export interface IRegistryStats {
@@ -100,9 +110,9 @@ export class EquipmentRegistry {
   /**
    * Initialize the registry with loaded equipment
    */
-  initialize = async (): Promise<void> => {
+  initialize = async (): Promise<EquipmentRegistryInitOutcome> => {
     if (this.isInitialized) {
-      return;
+      return 'ready';
     }
 
     // Ensure equipment is loaded. A hard navigation cancels the fetches this
@@ -115,11 +125,12 @@ export class EquipmentRegistry {
           undefined,
           abort.signal,
         );
-        // An interrupted load leaves the corpus partial. Stay unready so a
-        // surviving document (bfcache restore, cancelled navigation) reloads
-        // it instead of serving half a catalog forever.
+        // An interrupted load leaves the corpus partial. Stay unready rather
+        // than caching half a catalog; recovery depends on the next
+        // initialize() caller (useEquipmentRegistry re-arms its attempt).
+        // No pageshow / bfcache re-init is wired.
         if (result.interrupted) {
-          return;
+          return 'interrupted';
         }
       } finally {
         abort.dispose();
@@ -130,6 +141,7 @@ export class EquipmentRegistry {
     this.buildNameMappings();
 
     this.isInitialized = true;
+    return 'ready';
   };
 
   /**
