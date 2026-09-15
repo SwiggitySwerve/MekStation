@@ -39,6 +39,7 @@ import { Money } from '@/types/campaign/Money';
 import { sha256Sync, toCanonicalJson } from '@/utils/events/hashUtils';
 
 import { getCampaignStoreForRoster } from './campaignStoreAccessor';
+import { ensureCampaignUnitMaxStates } from './campaignUnitMaxStates';
 import { useCampaignRosterStore } from './useCampaignRosterStore';
 
 export const AUTO_SAVE_DEBOUNCE_MS = 2000;
@@ -940,6 +941,11 @@ async function runLoad(set: PersistenceSet, id: string): Promise<boolean> {
       if (!cacheStands) {
         writeLiveCampaign(loadedCampaign);
         restoreRosterProjection(id, migrated.body.rosterProjection);
+        // An existing campaign saved before construction maxima were
+        // populated carries roster units with no `unitMaxStates` entry.
+        // Resolve the missing ones now that the roster is restored; the
+        // call is idempotent and resolves nothing once they are filled.
+        await ensureCampaignUnitMaxStates();
       }
       writeCachedCampaignKey(migrated);
       set({
