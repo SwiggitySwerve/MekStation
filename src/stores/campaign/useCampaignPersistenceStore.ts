@@ -753,8 +753,16 @@ async function runLoad(set: PersistenceSet, id: string): Promise<boolean> {
         campaignCacheKeyOf(migrated),
       );
       const liveCampaign = readLiveCampaign();
+      // ...with one carve-out: a guest's copy is a REPLICA, not a source.
+      // It is mutated by host broadcast and local session state rather
+      // than by its own PUTs, so equal (instance, revision) does not imply
+      // equal content the way it does for a client that writes its own
+      // record. Letting such a copy stand would silently undo the forced
+      // guest refresh the page shell asks for (guestNeedsServerRefresh).
       const cacheStands =
-        verdict.kind === 'usable' && liveCampaign?.id === migrated.campaignId;
+        verdict.kind === 'usable' &&
+        liveCampaign?.id === migrated.campaignId &&
+        liveCampaign.coopSession?.mode !== 'guest';
       const loadedCampaign = cacheStands
         ? liveCampaign
         : preserveGuestCoopSession(
