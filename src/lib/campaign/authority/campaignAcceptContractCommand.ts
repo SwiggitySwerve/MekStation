@@ -28,6 +28,8 @@ import { rehydrateContractMarket } from '@/lib/campaign/persistence/missionSeria
 import { EXPECTED_HEAD_RESYNC_ACTION } from '@/lib/events/journal/EventHistoryExpectedHead';
 import { ROOT_EVENT_BRANCH_ID } from '@/lib/events/journal/EventJournalContract';
 import { validateCampaignIntent } from '@/lib/multiplayer/server/CampaignMatchHostIntent';
+import { MissionStatus } from '@/types/campaign/enums/MissionStatus';
+import { isContract } from '@/types/campaign/Mission';
 
 import type {
   CampaignCommandResult,
@@ -41,6 +43,8 @@ import {
   toJournalBatch,
   type ICampaignJournalEnvelope,
 } from '../sync/JournalCampaignEventStore';
+import { isSourceInstance, parseCampaignAuthority } from './campaignAuthority';
+import { buildCampaignSourcePrivateEnvelope } from './campaignSourcePrivateEnvelope';
 
 /**
  * The branch a campaign command commits to.
@@ -64,9 +68,16 @@ export function campaignCommandBranchId(): string {
  * journal with no transaction-scoped source read at all.
  */
 export type CampaignOfferDurabilityReason =
-  /** The `campaigns` row, or its market, does not exist. */
+  /**
+   * The `campaigns` row does not exist, cannot be read, or is not a record
+   * this command may write - a replica, per D2's source-mutation gate.
+   */
   | 'source-record-absent'
-  /** The market exists and does not hold this `contractId`. */
+  /**
+   * The market reads fine and holds no USABLE contract under this
+   * `contractId` - absent, or present as something that is not a faithfully
+   * serialized offer.
+   */
   | 'offer-absent'
   /** This journal exposes no prepared transaction to read the source in. */
   | 'source-read-unavailable';
@@ -98,18 +109,125 @@ export function lostRaceConflict(
   };
 }
 
+/** One `[missionId, mission]` pair as the serialized body stores them. */
+type StoredMissionEntry = readonly unknown[];
+/** A stored offer, still in its JSON form - never rehydrated. */
+type StoredOffer = Readonly<Record<string, unknown>>;
+
 /**
  * The persisted source record, as one command's prepare step sees it.
  *
  * `sourceRecordBody` is the `SerializedCampaign` body re-serialized from the
  * stored payload - the exact string the private baseline records and the one
  * its digest is taken over, so the baseline stays self-consistent.
+ *
+ * `market` is REHYDRATED (its `Money` fields are objects) because that is
+ * what validation and the private envelope consume. The `stored*` fields are
+ * the raw JSON the row holds, and they are what the row write puts back, so
+ * an untouched field round-trips byte-identically instead of being
+ * re-serialized through a rehydration this command never needed.
  */
 interface ICampaignSourceMarketRead {
   readonly sourceRecordBody: string;
   /** The `campaigns` row `version` the body was read at (the CAS token). */
   readonly sourceRowVersion: number;
   readonly market: ICampaignContractMarket;
+  /** The stored envelope, parsed - everything outside `body` rides along. */
+  readonly storedRecord: Readonly<Record<string, unknown>>;
+  readonly storedBody: Readonly<Record<string, unknown>>;
+  readonly storedMarket: Readonly<Record<string, unknown>>;
+  readonly storedOffers: readonly StoredOffer[];
+  readonly storedMissions: readonly StoredMissionEntry[];
+}
+
+function asRecord(value: unknown): Readonly<Record<string, unknown>> | null {
+  return typeof value === 'object' && value !== null && !Array.isArray(value)
+    ? (value as Readonly<Record<string, unknown>>)
+    : null;
+}
+
+/**
+ * The stored `missions` map, or `null` when the body does not hold one.
+ *
+ * Absent is tolerated (`rehydrateMissionMap` already treats it as empty),
+ * but a `missions` that is not an array of pair arrays is NOT: the row write
+ * below indexes every entry's key, and a body that cannot answer "which
+ * mission is this" is a body this command must refuse rather than rewrite.
+ */
+function storedMissionsOf(
+  body: Readonly<Record<string, unknown>>,
+): readonly StoredMissionEntry[] | null {
+  const missions = body.missions;
+  if (missions === undefined) return [];
+  if (!Array.isArray(missions)) return null;
+  return missions.every((entry) => Array.isArray(entry))
+    ? (missions as readonly StoredMissionEntry[])
+    : null;
+}
+
+/**
+ * True when the stored record's authority PARSES as something other than
+ * source - the one state this command must not write into.
+ *
+ * Deliberately `parsed-and-not-source`, never `not-parsed-as-source`: a
+ * record predating D2 carries no `authority` at all, `parseCampaignAuthority`
+ * answers `failed` for it, and refusing those would refuse every legacy row.
+ * `saveCampaign` can afford the stricter reading because it re-stamps the
+ * authority it writes; this command only reads, so it declines to invent a
+ * verdict about a record that never claimed one.
+ */
+function storedRecordIsNotSource(
+  storedRecord: Readonly<Record<string, unknown>>,
+): boolean {
+  const parsed = parseCampaignAuthority(storedRecord.authority);
+  return parsed.kind === 'ok' && !isSourceInstance(parsed.authority);
+}
+
+/**
+ * A stored payment amount `rehydrateMoney` reads as an AMOUNT rather than
+ * silently defaulting to zero. Mirrors that function's accepted shapes
+ * (`missionSerialization.ts:19-27`) instead of narrowing to the `number`
+ * `Money.toJSON` emits, so a legacy row it can already read stays readable.
+ */
+function isStoredMoney(value: unknown): boolean {
+  if (typeof value === 'number') return true;
+  const record = asRecord(value);
+  return (
+    record !== null &&
+    (typeof record.amount === 'number' || typeof record.centsValue === 'number')
+  );
+}
+
+/** Every field `IPaymentTerms` declares as an amount. */
+const STORED_PAYMENT_AMOUNT_FIELDS = [
+  'basePayment',
+  'successPayment',
+  'partialPayment',
+  'failurePayment',
+  'transportPayment',
+  'supportPayment',
+] as const;
+
+/**
+ * True when the RAW stored offer is a faithfully serialized contract.
+ *
+ * `isContract` alone is not enough here, and the reason is specific to this
+ * command: the raw offer is copied VERBATIM into the source record, so
+ * whatever it omits becomes a mission the campaign claims to have accepted.
+ * `isContract` accepts any non-null `paymentTerms` object, so `{}` passes it
+ * - and rehydration then turns every missing amount into `Money.ZERO`, which
+ * is a contract worth nothing presented as one the campaign signed. A field
+ * that would be silently invented is exactly the "must be refused rather
+ * than rewritten" case the source read already takes on.
+ */
+function isStoredContractOffer(offer: StoredOffer): boolean {
+  if (!isContract(offer)) return false;
+  const terms = asRecord(offer.paymentTerms);
+  if (terms === null) return false;
+  return (
+    typeof terms.salvagePercent === 'number' &&
+    STORED_PAYMENT_AMOUNT_FIELDS.every((field) => isStoredMoney(terms[field]))
+  );
 }
 
 /**
@@ -133,6 +251,13 @@ interface ICampaignSourceMarketRead {
  * `no-private-payload` when a stream holds no prior private row, which is
  * the state of every campaign before its FIRST acceptance - so a
  * stored-baseline read would deadlock exactly the case that must work.
+ *
+ * TOTAL by construction: an unparseable payload, a body that is not an
+ * object, a market whose `offers` is not an array of objects, and a
+ * `missions` that is not the serialized map all return `null` and become the
+ * typed `source-record-absent` refusal. They used to throw out of the
+ * prepared transaction as an untyped 500, which told a caller nothing and
+ * looked like a server fault rather than an unusable source record.
  */
 function readCampaignSourceMarket(
   db: Database.Database,
@@ -144,17 +269,90 @@ function readCampaignSourceMarket(
     | { readonly version: number; readonly payload: string }
     | undefined;
   if (row === undefined) return null;
-  const parsed = JSON.parse(row.payload) as {
-    readonly body?: { readonly contractMarket?: ICampaignContractMarket };
-  };
-  const body = parsed.body;
-  if (body === undefined) return null;
-  const market = rehydrateContractMarket(body.contractMarket);
+  let parsedJson: unknown;
+  try {
+    parsedJson = JSON.parse(row.payload);
+  } catch {
+    return null;
+  }
+  const storedRecord = asRecord(parsedJson);
+  const storedBody = storedRecord === null ? null : asRecord(storedRecord.body);
+  if (storedRecord === null || storedBody === null) return null;
+  // D2's source-mutation gate, honored here because the acceptance's row
+  // write is a writer of `campaigns` like any other. `saveCampaign` runs it
+  // through `prepareCampaignWrite` and `storeRedeemedReplica` runs its own
+  // would-overwrite-source refusal; this command must not be the one door
+  // into that table that skips it.
+  if (storedRecordIsNotSource(storedRecord)) return null;
+  const storedMarket = asRecord(storedBody.contractMarket);
+  if (storedMarket === null) return null;
+  const rawOffers = storedMarket.offers;
+  if (!Array.isArray(rawOffers)) return null;
+  const storedOffers = rawOffers.map((one) => asRecord(one));
+  if (storedOffers.some((one) => one === null)) return null;
+  const storedMissions = storedMissionsOf(storedBody);
+  if (storedMissions === null) return null;
+  const market = rehydrateContractMarket(
+    storedBody.contractMarket as ICampaignContractMarket,
+  );
   if (market === undefined) return null;
   return {
-    sourceRecordBody: JSON.stringify(body),
+    sourceRecordBody: JSON.stringify(storedBody),
     sourceRowVersion: row.version,
     market,
+    storedRecord,
+    storedBody,
+    storedMarket,
+    storedOffers: storedOffers as readonly StoredOffer[],
+    storedMissions,
+  };
+}
+
+/**
+ * The `campaigns` row the source record becomes once the acceptance commits.
+ *
+ * Built from the RAW stored offer rather than the rehydrated one, so the
+ * mission the row gains is byte-for-byte the offer it already held with the
+ * one field acceptance changes - `status: ACTIVE`, exactly what the client's
+ * `acceptContractOffer` writes through `acceptContract`. The market loses
+ * that offer and keeps everything else, including `declinedOfferIds`.
+ *
+ * Any prior entry under this id is dropped before the accepted one is
+ * appended: the serialized `missions` is a Map's entries, so two entries
+ * under one key is a shape no reader expects, and a body that somehow
+ * carried one must not be turned into two by this write.
+ *
+ * `version` advances because that column IS the whole-envelope PUT's
+ * compare-and-swap token, and it lives in two places a client can see - the
+ * row and the envelope GET returns - which must agree. A client still
+ * holding the pre-acceptance version therefore loses the CAS and takes the
+ * existing 409 path. Closing that window is task 6.4's bridge, not this
+ * write's job; this write is what makes the window honest.
+ */
+function nextSourceRecordAfterAccept(
+  source: ICampaignSourceMarketRead,
+  contractId: string,
+  acceptedOffer: StoredOffer,
+): { readonly version: number; readonly payload: string } {
+  const version = source.sourceRowVersion + 1;
+  const nextBody = {
+    ...source.storedBody,
+    missions: [
+      ...source.storedMissions.filter((entry) => entry[0] !== contractId),
+      [contractId, { ...acceptedOffer, status: MissionStatus.ACTIVE }],
+    ],
+    contractMarket: {
+      ...source.storedMarket,
+      offers: source.storedOffers.filter((one) => one.id !== contractId),
+    },
+  };
+  return {
+    version,
+    payload: JSON.stringify({
+      ...source.storedRecord,
+      version,
+      body: nextBody,
+    }),
   };
 }
 
@@ -179,6 +377,17 @@ function preparedJournalOf(
   return typeof candidate.appendPreparedWithExtension === 'function'
     ? (journal as PreparedCampaignJournal)
     : null;
+}
+
+/** What `prepare` carries to `extend` across the one transaction. */
+interface IPreparedAcceptContext {
+  readonly events: readonly ICampaignEvent[];
+  readonly digest: string;
+  /** The row the source record becomes, applied only after the append. */
+  readonly sourceRecord: {
+    readonly version: number;
+    readonly payload: string;
+  };
 }
 
 /** What the prepared accept path hands back to the shared acknowledgement. */
@@ -226,7 +435,7 @@ export async function appendDurableAcceptContract(
   if (prepared === null) return notDurable('source-read-unavailable');
 
   return prepared.appendPreparedWithExtension<
-    { readonly events: readonly ICampaignEvent[]; readonly digest: string },
+    IPreparedAcceptContext,
     PreparedAcceptOutcome
   >(
     (db) => {
@@ -236,16 +445,38 @@ export async function appendDurableAcceptContract(
       }
       const offer =
         source.market.offers.find((one) => one.id === contractId) ?? null;
-      if (offer === null) {
+      const storedOffer =
+        source.storedOffers.find((one) => one.id === contractId) ?? null;
+      // `offer-absent` rather than `source-record-absent` for an entry that
+      // is present but unusable, and the choice is deliberate: the record
+      // and its market READ FINE - rows (c)/(c2)/(c3) own the case where
+      // they do not - and only this one entry fails to be an offer. Telling
+      // the caller the source record is absent would send an operator to
+      // investigate a record that is perfectly readable, while
+      // `offer-absent` names what is true and points at the recovery that
+      // can actually work: get a usable offer to the source, then retry.
+      if (
+        offer === null ||
+        storedOffer === null ||
+        !isStoredContractOffer(storedOffer)
+      ) {
         return { kind: 'refused', result: notDurable('offer-absent') };
       }
 
-      // This prefix establishes only that the offer IS durable. Deriving
-      // the committed compact fact from it, and writing the full contract
-      // to the journal-private envelope, is the next prefix - so the fact
-      // committed here is still the caller's, exactly as before.
+      // Validation runs against the SERVER-DERIVED compact fact, so the
+      // faction-standing gate judges the employer the source stored rather
+      // than the one the caller typed.
       const validation = validateCampaignIntent(
-        intent,
+        {
+          ...intent,
+          payload: {
+            contract: {
+              contractId: offer.id,
+              name: offer.name,
+              employerFactionId: offer.employerId,
+            },
+          },
+        },
         priorState,
         request.authorPlayerId,
         request.ts,
@@ -280,16 +511,41 @@ export async function appendDurableAcceptContract(
       );
       return {
         kind: 'ready',
-        context: { events: sequenced, digest },
+        context: {
+          events: sequenced,
+          digest,
+          // Computed here, where the source read is in hand, and APPLIED
+          // below only once the append has committed - `prepare` stays
+          // read-only, and the row never moves for a command that did not.
+          sourceRecord: nextSourceRecordAfterAccept(
+            source,
+            contractId,
+            storedOffer,
+          ),
+        },
         raw: toJournalBatch({
           campaignId: request.campaignId,
           commandId: request.commandId,
           events: sequenced,
           expectedPostStateDigest: digest,
+          sourcePrivate: buildCampaignSourcePrivateEnvelope({
+            baseline: {
+              sourceRecordBody: source.sourceRecordBody,
+              sourceRowVersion: source.sourceRowVersion,
+              rootPublicRevision: priorEvents.length,
+            },
+            acceptedContract: offer,
+            remainingMarket: {
+              ...source.market,
+              offers: source.market.offers.filter(
+                (one) => one.id !== contractId,
+              ),
+            },
+          }),
         }),
       };
     },
-    (_db, context, append) => {
+    (db, context, append) => {
       const appended = append();
       if (appended.kind === 'revision-conflict') {
         return refuseAccept(
@@ -308,6 +564,18 @@ export async function appendDurableAcceptContract(
           reason: 'journal-rejected-batch',
         });
       }
+      // The source record follows the commit, on the SAME handle and inside
+      // the SAME transaction: the compact ledger entry and the row's mission
+      // plus reduced market are one write, so the state the spec calls
+      // unreachable - a ledger holding an acceptance the source record does
+      // not - has no window to exist in.
+      db.prepare(
+        'UPDATE campaigns SET payload = ?, version = ? WHERE id = ?',
+      ).run(
+        context.sourceRecord.payload,
+        context.sourceRecord.version,
+        request.campaignId,
+      );
       return {
         kind: 'appended',
         events: context.events,

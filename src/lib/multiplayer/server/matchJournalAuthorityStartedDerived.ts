@@ -48,12 +48,50 @@ import {
 import { MATCH_STREAM_TYPE } from './MatchStreamJournalMirror';
 
 /**
- * True when the match's stream has an effective head installed by the
- * mirror.
+ * The four head fields any consumer of "started" actually reads.
  *
- * A store with no branch port, or one whose capability database is not
- * open, answers false: it cannot have mirrored anything, so "not
- * started" is the honest answer rather than a refusal.
+ * `revision` and `digest` are deliberately absent: both recovery seeds
+ * overwrite them from the command receipt and the refold
+ * (`ServerMatchHost.journalHeadFromReceipt` / `refoldedJournalHead`),
+ * so carrying them here would mean inventing two values nothing reads.
+ * What survives from the started head into both seeds is exactly this
+ * identity.
+ */
+export interface IMatchJournalAuthorityStartedHead {
+  readonly streamType: typeof MATCH_STREAM_TYPE;
+  readonly streamId: string;
+  readonly branchId: string;
+  readonly effectiveGeneration: number;
+}
+
+/**
+ * Three answers, because two of them are not the same fact.
+ *
+ * `not-started` is a positive statement about the stream. `unavailable`
+ * says the store COULD have journalled this match and cannot answer
+ * right now — collapsing that into `not-started` is what would let a
+ * started match be routed back to the legacy reader, across the one-way
+ * boundary `matchRollbackReaderSelection` states at its `started == null`
+ * branch.
+ */
+export type MatchJournalAuthorityStartedOutcome =
+  | {
+      readonly kind: 'started';
+      readonly head: IMatchJournalAuthorityStartedHead;
+    }
+  | { readonly kind: 'not-started' }
+  | { readonly kind: 'unavailable' };
+
+/**
+ * Derive "has journal authority started, and on which head" from the
+ * mirrored effective head.
+ *
+ * A store with NO branch port answers `not-started`, and that is a
+ * statement rather than a dodge: such a store has no journal at all, so
+ * it cannot have mirrored anything, and every match on it is legacy by
+ * construction. A store that HAS the port but whose capability database
+ * is not open answers `unavailable` — it can journal, it may already
+ * have started this match, and it simply cannot say.
  *
  * A persisted head naming a NON-EFFECTIVE branch throws
  * `EventHistoryBranchError('branch-integrity')` out of
@@ -63,16 +101,42 @@ import { MATCH_STREAM_TYPE } from './MatchStreamJournalMirror';
  * path already refuses that shape `MATCH_QUARANTINED` (History B,
  * PR #1674).
  */
+export function deriveMatchJournalAuthorityStartedHead(
+  store: object,
+  matchId: string,
+): MatchJournalAuthorityStartedOutcome {
+  if (!hasHistoryBranchStore(store)) return { kind: 'not-started' };
+  if (!isHistoryBranchStoreReady(store)) return { kind: 'unavailable' };
+  const head = store.readEffectiveHead({
+    streamType: MATCH_STREAM_TYPE,
+    streamId: matchId,
+  });
+  if (head == null) return { kind: 'not-started' };
+  return {
+    kind: 'started',
+    head: {
+      streamType: MATCH_STREAM_TYPE,
+      streamId: head.streamId,
+      branchId: head.branchId,
+      effectiveGeneration: head.effectiveGeneration,
+    },
+  };
+}
+
+/**
+ * True when the match's stream has an effective head installed by the
+ * mirror.
+ *
+ * A thin projection of the outcome above so the two answers cannot
+ * drift. An `unavailable` store answers false here: callers that only
+ * want a boolean are not deciding the one-way legacy/journal boundary,
+ * and the recovery site that IS deciding it reads the outcome instead.
+ */
 export function isMatchJournalAuthorityStartedDerived(
   store: object,
   matchId: string,
 ): boolean {
-  if (!hasHistoryBranchStore(store)) return false;
-  if (!isHistoryBranchStoreReady(store)) return false;
   return (
-    store.readEffectiveHead({
-      streamType: MATCH_STREAM_TYPE,
-      streamId: matchId,
-    }) !== null
+    deriveMatchJournalAuthorityStartedHead(store, matchId).kind === 'started'
   );
 }
