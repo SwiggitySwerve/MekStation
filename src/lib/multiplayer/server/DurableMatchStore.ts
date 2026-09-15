@@ -973,12 +973,11 @@ export class DurableMatchStore
 
   /**
    * Mirror a committed batch into the journal (S1 of the combat
-   * cutover). Deliberately AFTER `tx()` and outside it: the journal
-   * lives in the campaign file and cannot join this transaction, and
-   * the command is already durable by the time we get here. A mirror
-   * failure therefore never fails the command — it is recorded through
-   * the shadow tripwire, the counter S6 consults, so a journal that
-   * silently fell behind cannot be promoted to authority.
+   * cutover). Deliberately AFTER `tx()`: the journal lives in the
+   * campaign file and cannot join this transaction, and the command is
+   * already durable here. A mirror failure therefore never fails the
+   * command — it is recorded on the shadow tripwire S6 consults, so a
+   * journal that fell behind cannot be promoted to authority.
    */
   private mirrorCommittedBatch = async (
     matchId: string,

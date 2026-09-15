@@ -1,15 +1,12 @@
 /**
  * S1 of `adopt-combat-journal-cutover-and-gm-rewind` (task 1.1): a
- * committed combat batch reaches `event_journal_events`, installs its
- * `event_journal_stream_heads` row, and gives the match stream a
- * genesis branch plus an `event_history_effective_heads` row.
+ * committed combat batch reaches `event_journal_events`, its stream
+ * head, and the match's genesis / effective-head rows.
  *
  * Real boundary only: two temp-file SQLite databases opened the way
- * production opens them, because the whole question here is whether
- * rows LAND and an in-memory double would answer it about itself. The
- * cold reopen is not ceremony either — the effective head is what
- * `GmCombatRewindCommit` consults before it answers anything, and a
- * head living only in an open handle would pass in-process and refuse
+ * production opens them, read back over a SEPARATE connection, because
+ * the question is whether rows LAND. Nor is the cold reopen ceremony —
+ * a head living only in an open handle would pass in-process and refuse
  * `no-authoritative-history` after a restart.
  *
  * @spec openspec/changes/adopt-combat-journal-cutover-and-gm-rewind/design.md (S1)
@@ -34,7 +31,11 @@ import type { IMatchCommandBatch } from '../matchCommandBatch';
 
 import { DurableMatchStore } from '../DurableMatchStore';
 import { type IMatchMeta } from '../IMatchStore';
-import { _setCombatJournalAuthorityModeForTests } from '../matchJournalAuthority';
+import {
+  _resetProcessShadowStatsForTests,
+  _setCombatJournalAuthorityModeForTests,
+  getProcessShadowMismatchCount,
+} from '../matchJournalAuthority';
 import { mirrorMatchBatchToJournal } from '../MatchStreamJournalMirror';
 
 const MATCH_ID = 'match-journal-mirror';
@@ -46,10 +47,7 @@ function meta(): IMatchMeta {
     matchId: MATCH_ID,
     hostPlayerId: 'p1',
     playerIds: ['p1', 'p2'],
-    sideAssignments: [
-      { playerId: 'p1', side: 'player' },
-      { playerId: 'p2', side: 'opponent' },
-    ],
+    sideAssignments: [],
     status: 'lobby',
     createdAt: now,
     updatedAt: now,
@@ -60,32 +58,38 @@ function meta(): IMatchMeta {
 function event(sequence: number, id = `evt-${sequence}`): IGameEvent {
   return {
     id,
-    gameId: MATCH_ID,
     sequence,
     type: GameEventType.PhaseChanged,
     timestamp: '2026-09-15T00:00:00.000Z',
-    turn: 1,
     phase: GamePhase.Movement,
     payload: { sequence },
   } as unknown as IGameEvent;
 }
 
-function batch(
-  overrides: Partial<IMatchCommandBatch> = {},
-): IMatchCommandBatch {
+function batch(): IMatchCommandBatch {
   return {
     commandId: 'cmd-1',
     actorId: 'p1',
     expectedRevision: 0,
     events: [event(0), event(1)],
     expectedPostStateDigest: 'digest-1',
-    ...overrides,
   };
 }
 
 let sqliteDir = '';
 let matchDbPath = '';
 let store: DurableMatchStore | undefined;
+
+/** Call the mirror directly, outside the match store's commit path. */
+function mirrorDirect(commandId: string, expectedRevision: number) {
+  return mirrorMatchBatchToJournal(getSQLiteService().getDatabase(), {
+    matchId: MATCH_ID,
+    commandId,
+    actorId: 'p1',
+    expectedRevision,
+    events: [event(2)],
+  });
+}
 
 function openStore(): DurableMatchStore {
   return new DurableMatchStore({
@@ -129,13 +133,13 @@ function streamHeadRevision(): number | undefined {
   )[0]?.revision;
 }
 
-function effectiveHeadRow():
-  | { readonly branchId: string; readonly generation: number }
-  | undefined {
-  return queryCampaign<{
-    readonly branchId: string;
-    readonly generation: number;
-  }>(
+interface IHeadRow {
+  readonly branchId: string;
+  readonly generation: number;
+}
+
+function effectiveHeadRow(): IHeadRow | undefined {
+  return queryCampaign<IHeadRow>(
     `SELECT branch_id AS branchId, effective_generation AS generation
        FROM event_history_effective_heads
       WHERE stream_type = ? AND stream_id = ?`,
@@ -218,20 +222,9 @@ describe('committed combat batches reach the journal', () => {
     await store!.appendCommandBatch!(MATCH_ID, batch());
     const before = journalRows().length;
 
-    // Aimed one revision below the journal head. Nothing may land:
-    // a partially applied mirror would leave the head naming an event
-    // the stream never committed.
-    const refused = await mirrorMatchBatchToJournal(
-      getSQLiteService().getDatabase(),
-      {
-        matchId: MATCH_ID,
-        commandId: 'cmd-stale',
-        actorId: 'p1',
-        expectedRevision: 1,
-        events: [event(2)],
-        expectedPostStateDigest: 'digest-stale',
-      },
-    );
+    // Aimed one revision below the head. Nothing may land: a partly
+    // applied mirror would leave the head naming an uncommitted event.
+    const refused = await mirrorDirect('cmd-stale', 1);
 
     expect(refused).toEqual({
       kind: 'revision-conflict',
@@ -240,6 +233,25 @@ describe('committed combat batches reach the journal', () => {
     });
     expect(journalRows()).toHaveLength(before);
     expect(streamHeadRevision()).toBe(2);
+  });
+
+  it('records a failed mirror on the tripwire admission consults', async () => {
+    // The honesty case for the non-atomic cross-file pair is that a
+    // lagging mirror becomes VISIBLE, so prove the counter moves.
+    await store!.appendCommandBatch!(MATCH_ID, batch());
+    // Push the head out of band so the next mirror aims below it.
+    await mirrorDirect('cmd-out-of-band', 2);
+    _resetProcessShadowStatsForTests();
+
+    const result = await store!.appendCommandBatch!(MATCH_ID, {
+      ...batch(),
+      commandId: 'cmd-2',
+      expectedRevision: 2,
+      events: [event(2)],
+    });
+
+    expect(result.kind).toBe('committed');
+    expect(getProcessShadowMismatchCount()).toBe(1);
   });
 
   it('writes no journal rows while the cutover mode is off', async () => {
