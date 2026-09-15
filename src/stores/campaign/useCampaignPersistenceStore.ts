@@ -14,6 +14,7 @@ import { create, type StateCreator } from 'zustand';
 import type { ICampaign } from '@/types/campaign/Campaign';
 import type {
   ICampaignSaveMetadata,
+  ICampaignSourceReplayFence,
   SerializedCampaign,
   SerializedCampaignRosterEntry,
   SerializedCampaignRosterMissionRecord,
@@ -112,6 +113,32 @@ export interface ICampaignSaveConflict {
   readonly currentVersion: number;
 }
 
+/**
+ * The committed body `/api/campaigns/[id]/commands` answers a source
+ * command with (`kind: 'committed'`).
+ *
+ * Structurally the wire shape, not a re-modelling of it: the route sends
+ * `{ kind, events, state }`, and 6.2b adds the original receipt revision
+ * and the current public head. Only the fields this bridge reads are
+ * declared, and the two revisions are declared OPTIONAL because they are
+ * not on the route yet.
+ *
+ * THE REVISIONS HERE ARE JOURNAL NUMBERS AND NOTHING ELSE. They are not
+ * the `SerializedCampaign` row `version`, they cannot be converted into
+ * it, and nothing in this store may assign one to `baseVersion` or to a
+ * cache key. They are carried so a caller can log or correlate the
+ * acknowledgement, never so a client can guess a row version from it.
+ */
+export interface ICampaignCommittedCommandAck {
+  readonly kind: 'committed';
+  /** Projected after the commit; its `campaignId` names the campaign. */
+  readonly state: { readonly campaignId: string };
+  /** Journal revision of the original command receipt (6.2b). */
+  readonly receiptRevision?: number;
+  /** Current public stream head at acknowledgement (6.2b). */
+  readonly publicHead?: number;
+}
+
 export type CampaignPersistenceSaveResult =
   | {
       readonly status: 'saved';
@@ -154,6 +181,16 @@ interface CampaignPersistenceState {
    * skipped flush is a condition someone has to see, not a transient.
    */
   flushSkip: ICampaignFlushSkip | null;
+  /**
+   * The source-materialization watermark the last record this client READ
+   * carried, or `null` for a row the source has never materialized.
+   *
+   * Held so the next whole-envelope write can echo it. A client never
+   * mints or advances this - echoing the stored value is how a PUT proves
+   * it has seen the materialization that produced the row it is writing
+   * over, and a PUT that cannot is refused ahead of the compare-and-swap.
+   */
+  sourceReplayFence: ICampaignSourceReplayFence | null;
 }
 
 interface CampaignPersistenceActions {
@@ -176,6 +213,25 @@ interface CampaignPersistenceActions {
    * revision it earned instead of a token the server has moved past.
    */
   reconcileAfterDiscardFlush: () => void;
+  /**
+   * Re-read the source record after the command route acknowledged a
+   * committed command that wrote it (task 6.4).
+   *
+   * THE BRIDGE IS A REFETCH, NOT AN ARITHMETIC MAPPING. The two
+   * optimistic-concurrency counters are the `SerializedCampaign` row
+   * `version` (this store's `baseVersion`, and the revision half of task
+   * 1.3's `(instanceId, revision)` cache key) and the journal stream
+   * revision the command route compares. Nothing converts one into the
+   * other, so the only honest way to learn the row version a source-side
+   * write produced is to read the row - which is what this does, through
+   * the one existing load path.
+   *
+   * Resolves `true` when a record was read and adopted, `false` when the
+   * acknowledgement was not this campaign's or the read did not answer.
+   */
+  refreshAfterCommittedCommand: (
+    ack: ICampaignCommittedCommandAck,
+  ) => Promise<boolean>;
   /**
    * Adopt the server's record and continue from there.
    *
@@ -222,6 +278,7 @@ const INITIAL_STATE: CampaignPersistenceState = {
   lastPersistedCampaign: null,
   legacyUnadopted: false,
   flushSkip: null,
+  sourceReplayFence: null,
 };
 
 let autoSaveTimer: ReturnType<typeof setTimeout> | null = null;
@@ -489,6 +546,32 @@ function restoreRosterProjection(
   });
 }
 
+/**
+ * The materialization watermark a record carries, as a value this store
+ * can hold. Normalized to `null` rather than left `undefined` so "never
+ * materialized" is a fact the store states, not an absence it infers.
+ */
+function fenceOf(
+  record: SerializedCampaign,
+): ICampaignSourceReplayFence | null {
+  return record.sourceReplayFence ?? null;
+}
+
+/**
+ * Attach the stored fence to an outgoing envelope.
+ *
+ * Conditional, never an enumerable `undefined`: a client that has seen no
+ * materialization must send exactly the envelope it sent before this
+ * field existed, or every unfenced row would start carrying a key the
+ * server strips anyway.
+ */
+function withSourceReplayFence(
+  envelope: SerializedCampaign,
+  fence: ICampaignSourceReplayFence | null,
+): SerializedCampaign {
+  return fence === null ? envelope : { ...envelope, sourceReplayFence: fence };
+}
+
 function metadataFrom(record: SerializedCampaign): ICampaignSaveMetadata {
   return {
     lastSavedAt: record.savedAt,
@@ -571,16 +654,20 @@ function readConflictBody(body: unknown): {
 async function putLiveCampaign(
   campaignId: string,
   baseVersion: number,
+  fence: ICampaignSourceReplayFence | null,
 ): Promise<SaveAttemptResult> {
   const campaign = readLiveCampaign();
   if (!campaign) {
     throw new Error('no live campaign to save');
   }
-  const envelope = buildSerializedCampaign(
-    campaign,
-    getDeviceId(),
-    baseVersion + 1,
-    readLiveRosterSnapshot(campaign.id),
+  const envelope = withSourceReplayFence(
+    buildSerializedCampaign(
+      campaign,
+      getDeviceId(),
+      baseVersion + 1,
+      readLiveRosterSnapshot(campaign.id),
+    ),
+    fence,
   );
   const response = await fetch(
     `/api/campaigns/${encodeURIComponent(campaignId)}`,
@@ -635,6 +722,7 @@ function applySavedRecord(
     errorMessage: null,
     metadata: metadataFrom(record),
     lastPersistedCampaign: persistedCampaign,
+    sourceReplayFence: fenceOf(record),
   });
 }
 
@@ -659,6 +747,7 @@ function rollbackCoopCampaign(
       baseVersion: migrated.version,
       metadata: metadataFrom(migrated),
       lastPersistedCampaign: rollbackCampaign,
+      sourceReplayFence: fenceOf(migrated),
     });
   }
   clearAutoSaveTimer();
@@ -717,7 +806,11 @@ async function runSave(
   set({ saveState: 'saving', errorMessage: null });
 
   try {
-    const attempt = await putLiveCampaign(campaignId, baseVersion);
+    const attempt = await putLiveCampaign(
+      campaignId,
+      baseVersion,
+      get().sourceReplayFence,
+    );
     if (attempt.status === 'saved') {
       applySavedRecord(set, attempt.record);
       return { status: 'saved', record: attempt.record };
@@ -859,6 +952,7 @@ async function runLoad(set: PersistenceSet, id: string): Promise<boolean> {
         metadata: metadataFrom(migrated),
         lastPersistedCampaign: loadedCampaign,
         legacyUnadopted: false,
+        sourceReplayFence: fenceOf(migrated),
       });
       return true;
     } catch (error) {
@@ -1011,11 +1105,18 @@ function flushPendingMutationsAction(
       return;
     }
     const { baseVersion } = state;
-    const envelope = buildSerializedCampaign(
-      campaign,
-      getDeviceId(),
-      baseVersion + 1,
-      readLiveRosterSnapshot(campaign.id),
+    // Echoed here for the same reason the ordinary save echoes it: a
+    // discard-time write that omitted the stored fence would be refused
+    // by the fence guard, which is the one failure this path can never
+    // see, because it never reads its response.
+    const envelope = withSourceReplayFence(
+      buildSerializedCampaign(
+        campaign,
+        getDeviceId(),
+        baseVersion + 1,
+        readLiveRosterSnapshot(campaign.id),
+      ),
+      state.sourceReplayFence,
     );
     const body = JSON.stringify({ envelope, baseVersion });
     const byteLength = measureRequestBodyBytes(body);
@@ -1167,6 +1268,97 @@ function reconcileAfterDiscardFlushAction(
   };
 }
 
+/**
+ * Re-read the source record after a committed command acknowledgement
+ * (task 6.4 - the admission brief's P-C).
+ *
+ * WHY A REFETCH AND NOT A MAPPING. Two optimistic-concurrency counters
+ * exist and always will: the `SerializedCampaign` row `version` that the
+ * whole-envelope PUT compares (held here as `baseVersion`, and stamped as
+ * the `revision` half of task 1.3's `(instanceId, revision)` cache key by
+ * `campaignCacheKeyOf`), and the journal stream revision the command
+ * route compares. They count different things, so neither can be
+ * computed from the other, and the acknowledgement carries only the
+ * journal ones. The row version a source-side write produced is knowable
+ * only by READING the row. So this bridge reads it.
+ *
+ * It reads through `runLoad` deliberately, rather than through a second
+ * read path: that is where the cache verdict, the whole-record
+ * replacement, the roster projection restore and the cache-key stamp
+ * already live. The refreshed record is what makes the accepted mission
+ * render without a reload, and the fence it carries is what the next PUT
+ * echoes.
+ *
+ * WHAT IT DOES NOT DO. It never writes, never adopts a version it did not
+ * read, and never treats either journal number as a row version. A read
+ * that does not answer leaves `baseVersion` exactly where it was, so the
+ * next save carries the pre-command token into the server's judgement and
+ * takes today's conflict path - the same "nothing is adopted that was not
+ * proven" rule the post-flush reconciliation follows.
+ *
+ * WHAT IT DOES DO THAT NO OTHER CALL SITE DOES, SAID PLAINLY. This is a
+ * refetch-replace call site WITHOUT task 1.3's dirty-state exemption. The
+ * other one has it - the page shell validates the cache only when the
+ * client is clean (`campaignPageShell.tsx`, `!dirty`), deferring dirty
+ * state to the save path's conflict handling. Here there is no such
+ * guard, and this function has just cancelled the armed save, so an
+ * acknowledgement arriving while the client is dirty DISCARDS those
+ * unsaved local mutations: `runLoad` replaces the campaign whole on a
+ * diverged cache key and clears `dirty`. That is a loss of local work, not
+ * a silent overwrite of the server - nothing of this client's is written
+ * over the authority's record. It is tolerable only because the design
+ * intends the window not to exist: task 6.2a's client half obtains an
+ * ACKNOWLEDGED save before submitting the command, so a correctly routed
+ * acceptance reaches this point clean. Adding a `!dirty` guard here is
+ * deliberately NOT done - skipping the refresh while dirty would trade the
+ * lost edit for an unexplained 409 on the next save, and choosing between
+ * those is task 6.2b's call, not this bridge's.
+ */
+function refreshAfterCommittedCommandAction(
+  set: PersistenceSet,
+  get: PersistenceGet,
+): CampaignPersistenceStore['refreshAfterCommittedCommand'] {
+  return (ack) => {
+    const campaignId = get().campaignId;
+    // An acknowledgement for another campaign is not evidence about this
+    // one. Ignored rather than tolerated: refreshing on it would refetch
+    // a record no command touched.
+    if (
+      ack.kind !== 'committed' ||
+      campaignId === null ||
+      ack.state.campaignId !== campaignId
+    ) {
+      return Promise.resolve(false);
+    }
+    // An armed save holds the PRE-command token and would be refused by
+    // the row the command just moved. This refresh owns the next write.
+    clearAutoSaveTimer();
+    const refresh = runLoad(set, campaignId).then((adopted) => {
+      // ...and owning it means handing it back when the read fails. A
+      // refetch that did not answer leaves `dirty` exactly as it was with
+      // the armed save already cancelled, so without this the campaign
+      // sits dirty with NO pending write until the player's next
+      // mutation, which may never come - verbatim the failure the
+      // post-flush reconciliation above exists to close, and it arms on
+      // every path for the same reason. Guarded rather than
+      // unconditional only because the ADOPTING path clears `dirty`, so
+      // arming there would fire a write with nothing to say.
+      if (!adopted && get().dirty) {
+        armAutoSaveTimer(set, get);
+      }
+      return adopted;
+    });
+    // Published the way a load is: a write that starts meanwhile waits
+    // for the version this read establishes instead of racing it.
+    inFlightLoad = refresh;
+    return refresh.finally(() => {
+      if (inFlightLoad === refresh) {
+        inFlightLoad = null;
+      }
+    });
+  };
+}
+
 function markDirtyAction(
   set: PersistenceSet,
   get: PersistenceGet,
@@ -1214,6 +1406,7 @@ function resolveConflictTakeServerAction(
       errorMessage: null,
       metadata: metadataFrom(migrated),
       lastPersistedCampaign: serverCampaign,
+      sourceReplayFence: fenceOf(migrated),
     });
     return true;
   };
@@ -1229,6 +1422,11 @@ function createPersistenceActions(
     markDirty: markDirtyAction(set, get),
     flushPendingMutations: flushPendingMutationsAction(set, get),
     reconcileAfterDiscardFlush: reconcileAfterDiscardFlushAction(set, get),
+    // No production caller yet, by design: the client routing that
+    // submits the acceptance command is task 6.2b, which is owner-blocked
+    // and not on main. The bridge lands with its behaviour proven so
+    // 6.2b's routing has something to call instead of inventing one.
+    refreshAfterCommittedCommand: refreshAfterCommittedCommandAction(set, get),
     adoptLegacyCampaign: () => runAdoptLegacyCampaign(set, get),
     resolveConflictTakeServer: resolveConflictTakeServerAction(set, get),
     clearError: () => {
