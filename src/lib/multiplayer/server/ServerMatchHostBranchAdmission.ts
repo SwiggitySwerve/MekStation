@@ -43,7 +43,6 @@ import type { IIntent, IServerMessage } from '@/types/multiplayer/Protocol';
 
 import { EventHistoryBranchError } from '@/lib/events/journal/EventHistoryBranchContract';
 import { EXPECTED_HEAD_RESYNC_ACTION } from '@/lib/events/journal/EventHistoryExpectedHead';
-import { ROOT_EVENT_BRANCH_ID } from '@/lib/events/journal/EventJournalContract';
 import {
   hasHistoryBranchStore,
   isHistoryBranchStoreReady,
@@ -53,19 +52,8 @@ import { nowIso } from '@/types/multiplayer/Protocol';
 import type { IMatchStore } from './IMatchStore';
 
 import { hasMatchStreamRebuildReader } from './IMatchStore';
-import { MATCH_BASELINE_BRANCH_ID } from './matchAuthorityBaseline';
+import { isLivePathBranchId } from './matchAuthorityBaseline';
 import { errorMessage } from './ServerMatchHostPublication';
-
-/**
- * Live intents name no branch; their identity is the branch the host
- * serves. These two ids are that identity when servedBranchId is null
- * (root / baseline). A rebuilt host adds the activated candidate via
- * servedBranchId — do not treat every non-root head as stale.
- */
-const LIVE_PATH_BRANCH_IDS: ReadonlySet<string> = new Set([
-  MATCH_BASELINE_BRANCH_ID,
-  ROOT_EVENT_BRANCH_ID,
-]);
 
 /**
  * What a client refused over persisted history corruption is told. Not
@@ -184,8 +172,7 @@ export async function refuseLiveBranchAdmission(
   // A host still serving root while the store activated a candidate
   // stays STALE_BRANCH (14.2 unrebuilt row).
   const onLivePath =
-    LIVE_PATH_BRANCH_IDS.has(head.branchId) ||
-    head.branchId === ctx.servedBranchId;
+    isLivePathBranchId(head.branchId) || head.branchId === ctx.servedBranchId;
   if (!onLivePath) {
     return refuseStale(ctx, envelope, head, revision);
   }
