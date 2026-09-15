@@ -41,6 +41,31 @@ import { useCampaignRosterStore } from './useCampaignRosterStore';
 
 export const AUTO_SAVE_DEBOUNCE_MS = 2000;
 
+/**
+ * The body budget a browser allows a `keepalive` request to carry (64 KiB,
+ * summed across in-flight keepalive bytes). A body over it fails as a
+ * network error - and since the discard-time flush never reads its
+ * response, that failure would be silent. So the flush measures first and
+ * refuses to fire a request it knows will be rejected.
+ */
+export const KEEPALIVE_FLUSH_BODY_CAP_BYTES = 64 * 1024;
+
+/**
+ * Why a discard-time flush declined to write. Named rather than boolean
+ * because the whole point is that an over-cap discard is observable: the
+ * mechanism cannot distinguish a rejected request from a write that landed.
+ */
+export type CampaignFlushSkipReason = 'envelope-over-keepalive-cap';
+
+/** The typed record of a declined discard-time flush. */
+export interface ICampaignFlushSkip {
+  readonly reason: CampaignFlushSkipReason;
+  readonly campaignId: string;
+  /** Serialized request body size, in bytes. */
+  readonly byteLength: number;
+  readonly capBytes: number;
+}
+
 export type CampaignSaveState =
   | 'idle'
   | 'saving'
@@ -122,6 +147,12 @@ interface CampaignPersistenceState {
    * NOT auto-save: see the guard in `runSave`.
    */
   legacyUnadopted: boolean;
+  /**
+   * The last discard-time flush that declined to write, or `null`. Set
+   * only by `flushPendingMutations`; never cleared by a save, because a
+   * skipped flush is a condition someone has to see, not a transient.
+   */
+  flushSkip: ICampaignFlushSkip | null;
 }
 
 interface CampaignPersistenceActions {
@@ -129,6 +160,13 @@ interface CampaignPersistenceActions {
   adoptLegacyCampaign: () => Promise<boolean>;
   saveCampaign: () => Promise<CampaignPersistenceSaveResult>;
   markDirty: () => void;
+  /**
+   * Best-effort durable write of the pending envelope, for a document
+   * that is about to be discarded. Exposed as an action so the behaviour
+   * is exercisable without a DOM event; the listeners that call it live
+   * in `campaignPersistenceWiring`.
+   */
+  flushPendingMutations: () => void;
   /**
    * Adopt the server's record and continue from there.
    *
@@ -174,9 +212,19 @@ const INITIAL_STATE: CampaignPersistenceState = {
   launchConflict: null,
   lastPersistedCampaign: null,
   legacyUnadopted: false,
+  flushSkip: null,
 };
 
 let autoSaveTimer: ReturnType<typeof setTimeout> | null = null;
+
+/**
+ * True once a discard-time flush has fired for the current pending set.
+ * `dirty` deliberately stays true across a flush (the response is never
+ * read, so nothing was acknowledged), which would otherwise let a
+ * `pagehide` immediately followed by a hidden transition write twice. A
+ * new mutation clears it: that is genuinely new pending work.
+ */
+let pendingFlushIssued = false;
 
 /**
  * The load currently in flight, if any. `baseVersion` is the compare-and-swap
@@ -794,12 +842,107 @@ function saveCampaignAction(
   };
 }
 
+/**
+ * The serialized body's size in bytes. The cap is a byte budget, so a
+ * `.length` character count would under-measure any non-ASCII campaign
+ * name or note and fire a request the browser rejects.
+ */
+function measureRequestBodyBytes(body: string): number {
+  return new TextEncoder().encode(body).length;
+}
+
+/**
+ * Fire and forget. The response is deliberately never read: this write is
+ * not an acknowledgement, so nothing downstream may treat it as one. The
+ * rejection handler exists only to keep a failed request from surfacing as
+ * an unhandled rejection while the document is going away.
+ */
+function fireKeepaliveFlush(campaignId: string, body: string): void {
+  try {
+    const pending = fetch(`/api/campaigns/${encodeURIComponent(campaignId)}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body,
+      keepalive: true,
+    });
+    void Promise.resolve(pending).then(
+      () => undefined,
+      () => undefined,
+    );
+  } catch {
+    // A discard path has no recovery to offer and no retry to make.
+  }
+}
+
+/**
+ * One bounded, best-effort write of the pending envelope before the
+ * document is discarded (task 1.6). Deliberately NOT an acknowledgement:
+ * it does not clear `dirty`, does not advance `baseVersion`, and does not
+ * call `applySavedRecord`. The server's compare-and-swap decides the
+ * outcome and the next load re-validates the cache against the head.
+ */
+function flushPendingMutationsAction(
+  set: PersistenceSet,
+  get: PersistenceGet,
+): CampaignPersistenceStore['flushPendingMutations'] {
+  return () => {
+    const state = get();
+    // Nothing pending, already flushed for this pending set, or a copy the
+    // server has never seen and must not acquire by accident (the same
+    // guard `runSave` applies to an unadopted legacy campaign).
+    if (!state.dirty || pendingFlushIssued || state.legacyUnadopted) {
+      return;
+    }
+    const campaign = readLiveCampaign();
+    const campaignId = state.campaignId ?? campaign?.id ?? null;
+    if (!campaign || !campaignId) {
+      return;
+    }
+    // A co-op campaign's writer is the session, not this PUT path; a
+    // second writer there is the recorded 409 conflict noise, not a
+    // rescued mutation. Same exemption `markDirty` already applies.
+    if (isCoopCampaign(campaign)) {
+      return;
+    }
+    // First, so the discard path and the armed timer cannot both write.
+    clearAutoSaveTimer();
+
+    const { baseVersion } = state;
+    const envelope = buildSerializedCampaign(
+      campaign,
+      getDeviceId(),
+      baseVersion + 1,
+      readLiveRosterSnapshot(campaign.id),
+    );
+    const body = JSON.stringify({ envelope, baseVersion });
+    const byteLength = measureRequestBodyBytes(body);
+    if (byteLength > KEEPALIVE_FLUSH_BODY_CAP_BYTES) {
+      // Measured, not attempted: an over-cap keepalive request fails as a
+      // network error, and this path never reads a response, so firing it
+      // would be a silent failure inside the fix for a silent failure.
+      set({
+        flushSkip: {
+          reason: 'envelope-over-keepalive-cap',
+          campaignId,
+          byteLength,
+          capBytes: KEEPALIVE_FLUSH_BODY_CAP_BYTES,
+        },
+      });
+      return;
+    }
+    pendingFlushIssued = true;
+    fireKeepaliveFlush(campaignId, body);
+  };
+}
+
 function markDirtyAction(
   set: PersistenceSet,
   get: PersistenceGet,
 ): CampaignPersistenceStore['markDirty'] {
   return () => {
     const liveId = readLiveCampaign()?.id ?? null;
+    // Genuinely new pending work: a later discard may flush again.
+    pendingFlushIssued = false;
     set((state) => ({
       dirty: true,
       campaignId: state.campaignId ?? liveId,
@@ -858,6 +1001,7 @@ function createPersistenceActions(
     loadCampaign: loadCampaignAction(set),
     saveCampaign: saveCampaignAction(set, get),
     markDirty: markDirtyAction(set, get),
+    flushPendingMutations: flushPendingMutationsAction(set, get),
     adoptLegacyCampaign: () => runAdoptLegacyCampaign(set, get),
     resolveConflictTakeServer: resolveConflictTakeServerAction(set, get),
     clearError: () => {
@@ -880,6 +1024,7 @@ function createPersistenceActions(
       clearAutoSaveTimer();
       inFlightLoad = null;
       saveChain = Promise.resolve();
+      pendingFlushIssued = false;
       set({ ...INITIAL_STATE });
     },
   };
