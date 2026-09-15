@@ -120,3 +120,32 @@ P0a SHALL NOT admit private envelope replay or the toolbar source command. P0b S
 - **THEN** authorization SHALL remain the existing active-seat gate
 - **AND** that HTTP response and guest/room-code data SHALL NOT include private full contract, remaining market, or source materialization metadata
 - **AND** full private HTTP readback SHALL still require a separate verified source-only audience contract
+
+### Requirement: Full contract and remaining market are source-only, narrowed at the stored-envelope boundary
+The full accepted `IContract` and the remaining `ICampaignContractMarket` SHALL be source-only facts. They SHALL be carried on a journal-private field of the stored campaign journal envelope, a sibling of `campaignEvent`, and SHALL NOT appear on `ICampaignAuthoritativeState`, on any `campaignEvent` payload, on a grant-projected delivery item, on a room-code guest hydration snapshot, on the co-op mirror, or on any HTTP response. No grant scope -- `campaign`, `team:`, `player:`, or the GM all-scopes grant -- SHALL entitle a recipient to those facts over the wire; the audience is the source instance's own server process and its persisted `SerializedCampaign` record.
+
+The narrowing from a stored journal row to a wire campaign event SHALL remain the single `envelopeOf` projection that returns the stored `campaignEvent` and nothing else, and every wire read path SHALL obtain campaign events through it. A field-redacting projector over campaign-scope payloads SHALL NOT be introduced as the enforcing boundary. A guest-visible contract detail, if a future product requirement demands one, SHALL be introduced as a new event type stamped with its own scope carrying exactly that fact, not by widening a campaign-scope payload.
+
+The journal-private field SHALL be conditionally constructed and absent when no admitted private payload exists. The implementation SHALL NOT write it as an empty object or as an enumerable `undefined` property, because the journal canonicalizer rejects `undefined` and hashes exactly the enumerable own keys, and the campaign state digest hashes the canonical state; either shape would change the digest of unchanged history.
+
+This requirement admits an audience contract only. It SHALL NOT be read as admitting a producer implementation, a full private HTTP readback, a widened `/commands` response, or a production cutover; `CAMPAIGN_JOURNAL_AUTHORITY_ENABLED` SHALL remain false.
+
+#### Scenario: Campaign-scope guest or observer never receives full contract or market
+- **GIVEN** a campaign whose source has committed an accepted contract carrying full `IContract` detail and a remaining contract market on the journal-private envelope field
+- **WHEN** a campaign-scope grant is projected for delivery, or a room-code guest hydration snapshot is composed and republished, or the co-op guest mirror applies the delivered events
+- **THEN** the delivered events, the composed hydration snapshot, and the resulting `ICampaignAuthoritativeState` SHALL contain only the existing compact accepted-contract representation
+- **AND** they SHALL NOT contain employer, target, payment terms, salvage rights, morale level, AtB contract type, or any market offer
+- **AND** the absence SHALL follow from `envelopeOf` narrowing the stored row to `campaignEvent`, not from a field-redacting projector applied after the fact
+
+#### Scenario: Host and source retain the full private fact
+- **GIVEN** the same committed accepted contract on the source instance
+- **WHEN** the source replays its own campaign stream from the journal, or reopens its SQLite journal after restart
+- **THEN** the source SHALL recover the full `IContract` and the remaining market from the journal-private envelope field together with its persisted source record baseline
+- **AND** the recovered private facts SHALL NOT be re-emitted onto any `campaignEvent`, delivery item, hydration snapshot, or HTTP response as a consequence of that replay
+- **AND** the GM all-scopes grant SHALL receive exactly the same compact wire facts as any other campaign-scope recipient, because grant scope does not govern this boundary
+
+#### Scenario: Legacy envelope without a private payload stays byte-identical
+- **GIVEN** a legacy stored campaign journal envelope or authoritative state written before any private payload existed
+- **WHEN** it is replayed, canonicalized, or digested
+- **THEN** the journal-private field SHALL be absent rather than an empty object or an enumerable `undefined` property
+- **AND** the canonical bytes and the resulting state digest SHALL be unchanged from their pre-existing values
