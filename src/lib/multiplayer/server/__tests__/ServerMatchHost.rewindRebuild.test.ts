@@ -51,6 +51,7 @@ import { commitGmCombatRewind } from '../history/GmCombatRewindCommit';
 import { matchStreamRef } from '../history/GmCombatRewindPreview';
 import {
   matchStoreBranchSegmentReader,
+  nextMatchSequenceAfter,
   revisionForMatchSequence,
 } from '../history/matchStoreBranchSegmentReader';
 import { recoverActiveMatches } from '../MatchRecovery';
@@ -350,6 +351,12 @@ describe('ServerMatchHost rewind rebuild', () => {
       throw new Error('play log is empty');
     }
     const headRevision = revisionForMatchSequence(last.sequence);
+    // The offset, pinned where this suite depends on it: the revision
+    // the seeded head names is the store's next sequence, the number
+    // the commit-time check derives (S5, task 1.5). Seeding one and
+    // rewinding against the other is how a rewind targets the wrong
+    // event.
+    expect(headRevision).toBe(nextMatchSequenceAfter(last.sequence));
     const chained = await matchStoreBranchSegmentReader(store).read(STREAM, {
       kind: 'prefix',
       branchId: 'root',
