@@ -330,6 +330,101 @@ describe('OpenSpec CI quality QC validator', () => {
 
     it.each([
       [
+        'NEXT_PUBLIC_E2E_TEST env',
+        (block: string) =>
+          block.replace(
+            "          NEXT_PUBLIC_E2E_TEST: 'true'",
+            "          NEXT_PUBLIC_E2E_TEST: 'false'",
+          ),
+        'workflow-job-condition-invalid',
+      ],
+      [
+        '20-minute timeout',
+        (block: string) =>
+          block.replace('    timeout-minutes: 20', '    timeout-minutes: 19'),
+        'workflow-job-condition-invalid',
+      ],
+      [
+        'job name',
+        (block: string) =>
+          block.replace(
+            '    name: Customizer Regressions',
+            '    name: Customizer Regression Gate',
+          ),
+        'workflow-job-token-missing',
+      ],
+      [
+        'required needs',
+        (block: string) =>
+          block.replace(
+            '    needs: [detect-changes, install-deps]',
+            '    needs: [detect-changes]',
+          ),
+        'workflow-job-token-missing',
+      ],
+      [
+        'skip condition',
+        (block: string) =>
+          block.replace(
+            "        if: needs.detect-changes.outputs.code != 'true' && needs.detect-changes.outputs.e2e != 'true'",
+            '        if: false',
+          ),
+        'workflow-job-condition-invalid',
+      ],
+      [
+        'upload failure condition',
+        (block: string) =>
+          block.replace(
+            "        if: failure() && (needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true')",
+            '        if: failure()',
+          ),
+        'workflow-job-condition-invalid',
+      ],
+      [
+        'setup action identity',
+        (block: string) =>
+          block.replace(
+            '        uses: ./.github/actions/setup-node-and-install',
+            '        uses: actions/setup-node@v6',
+          ),
+        'workflow-job-token-missing',
+      ],
+      [
+        'cache condition',
+        (block: string) =>
+          block.replace(
+            "      - name: Cache Playwright chromium browser\n        if: needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true'",
+            '      - name: Cache Playwright chromium browser\n        if: always()',
+          ),
+        'workflow-job-condition-invalid',
+      ],
+      [
+        'required in-job step order',
+        (block: string) =>
+          block.replace(
+            /(\n      - name: Validate record-sheet assets[\s\S]*?\n        run: npm run validate:assets:strict\n)(\n      - name: Build production app[\s\S]*?\n        run: npm run build\n)/,
+            '$2$1',
+          ),
+        'workflow-job-condition-invalid',
+      ],
+    ] as const)(
+      'rejects the individually weakened %s contract',
+      (_label, mutate, expectedCode) => {
+        const manifest = runWithWorkflow(
+          mutateCustomizerJob(readWorkflow(), mutate),
+        );
+        expect(manifest.status).toBe('fail');
+        expect(manifest.errors).toContainEqual(
+          expect.objectContaining({
+            code: expectedCode,
+            jobId: 'customizer-regressions',
+          }),
+        );
+      },
+    );
+
+    it.each([
+      [
         'disabled job',
         (block: string) =>
           block.replace(
