@@ -352,6 +352,8 @@ test('Print writes one current sheet into the reserved window at the selected pa
     expect((await popup).isClosed()).toBe(false);
     expect(await printCount(page)).toBe(0);
     await loadLocustBesideAtlas(page);
+    await waitForBacking(page, LETTER);
+    await expectSheetType(page, 'Locust LCT-1V');
   } finally {
     releasePips();
   }
