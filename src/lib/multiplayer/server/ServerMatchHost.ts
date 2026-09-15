@@ -1429,39 +1429,33 @@ export async function selectRecoveredMatchRollbackReader(
     const derived = deriveMatchJournalAuthorityStartedHead(store, matchId);
     const events = session.getSession().events;
 
-    // TRANSITION RULE (S3-b). The mirrored head WINS wherever it
-    // exists - that is the repoint, and a marker disagreeing with a
-    // present head is an old-path artifact the decision ignores. Where
-    // no head exists the marker is still honoured, because at the
-    // shipped mode (`off`) nothing mirrors and the marker is the only
-    // record such a stream has. The marker arm dies with the cutover
-    // (task 1.7), not here.
+    // ONE SOURCE OF "STARTED" (task 1.3, sub-prefix 3). The mirrored
+    // effective head is it. S3-b's transition rule kept the
+    // `mp_journal_authority_started` marker as a fallback wherever no
+    // head could be read; that arm is gone here, and with it the second
+    // fact that could disagree with the first. A marker row left behind
+    // by the older, still-off task-2.3/2.4 path is now inert: it is not
+    // read, and nothing writes one any more.
     //
-    // AN UNREADABLE HEAD IS TREATED AS NO HEAD, AND THAT IS TEMPORARY.
-    // A store that could journal but has no open capability database
-    // cannot say whether a head exists, so in principle a match the old
-    // path marked as started is unverifiable and should refuse rather
-    // than resolve backwards across the one-way boundary. It does not
-    // refuse today because the two records AGREE BY CONSTRUCTION: the
-    // marker writes MATCH_BASELINE_BRANCH_ID / MATCH_BASELINE_FIRST_
-    // GENERATION and the mirror's genesis backfill installs the same
-    // branch and generation, so no writer can currently produce a head
-    // that disagrees with the marker it would be substituting for.
-    //
-    // THIS STOPS BEING TRUE AT THE CUTOVER (task 1.7), which introduces
-    // writers that can move the effective head off the marker's values.
-    // From that point `unavailable` with a marker present MUST refuse
-    // (`blocked` / 'recovery-fact-read-failed') instead of honouring the
-    // marker. The row named "honours the marker over an unreadable head"
-    // in matchRecoveryStartedFromJournalHead.sqlite.test.ts pins today's
-    // behaviour precisely so that 1.7 turns it red on purpose.
-    const marker =
-      derived.kind === 'started' || store.getJournalAuthorityStarted == null
-        ? null
-        : await store.getJournalAuthorityStarted(matchId);
-
+    // AN UNREADABLE HEAD STILL READS AS NO HEAD, AND THAT IS STILL
+    // TEMPORARY - BUT IT IS NOW S7-d's TO CLOSE, NOT THIS SLICE'S. A
+    // store that could journal but has no open capability database
+    // cannot say whether a head exists, and there is no
+    // capability-db-independent record of whether this stream was ever
+    // MIRRORED to discriminate on. `mp_journal_authority_baseline` is
+    // not that record: it says the match was ADMITTED, and admission
+    // and mirroring diverge in exactly this process state, because
+    // `DurableMatchStore.mirrorCommittedBatch` returns early when the
+    // capability database is closed. Refusing on the admission record
+    // would block a match that is legitimately legacy-readable, which
+    // task 1.7's own text protects. The durable per-match migration
+    // state S7-d owes is the record that makes the refusal decidable;
+    // the row "still selects the legacy reader for an admitted match
+    // whose head is unreadable" in
+    // matchMarkerRetirementRecovery.sqlite.test.ts pins today's answer
+    // so that slice turns it red on purpose.
     const startedHead: IMatchJournalAuthorityStartedHead | null =
-      derived.kind === 'started' ? derived.head : (marker?.head ?? null);
+      derived.kind === 'started' ? derived.head : null;
 
     if (startedHead == null) {
       const legacyHead = headFromLegacyEvents(
