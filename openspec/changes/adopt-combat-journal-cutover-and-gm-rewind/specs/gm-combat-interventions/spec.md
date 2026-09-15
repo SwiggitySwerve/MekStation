@@ -6,6 +6,11 @@ Moved VERBATIM from `harden-gm-two-player-campaign-sessions` on 2026-09-04 (owne
 the umbrella's delta; the two under MODIFIED were split, with the umbrella keeping the clauses the
 shipped code discharges. The MODIFIED entries carry the FULL final text so that archiving this
 change replaces the reduced headers the umbrella's archive installs.
+
+AMENDED SINCE THE MOVE: `Superseded Combat Commands Are Rejected` is no longer verbatim - its SHALL
+was split into a staleness arm and a persisted-corruption arm, and one scenario added, on 2026-09-15
+(S2 / task 1.2, commit `fce4f47d9`), per History B's repair (PR #1674). The other two ADDED
+requirements remain verbatim.
 -->
 
 ### Requirement: Combat Intervention Has Distinct Preview and Commit Phases
@@ -24,11 +29,26 @@ Combat intervention preview SHALL be non-mutating and GM-private. Finalization S
 - **THEN** finalization SHALL return a typed stale-preview conflict and SHALL append nothing
 
 ### Requirement: Superseded Combat Commands Are Rejected
-Commands SHALL name their expected combat branch and revision.
+Commands SHALL name their expected combat branch and revision. Staleness and persisted corruption SHALL be answered differently: a command refused because the stream has moved on SHALL carry the active branch and a resync action, while a command on a stream whose stored effective head does not name an effective branch SHALL be refused with a typed history-integrity block that names no head.
+
+<!--
+The second clause is not a new decision: `add-authoritative-history-branches`'s event-store delta
+lands supersession and the replacement head in ONE transaction ("Branch Activation Is Verified,
+Compare-and-Swap, and Atomic"), so a head naming a superseded branch is state no activation can
+produce, and that delta already answers persisted corruption with a typed integrity refusal
+("Branch Resolution Preserves Contiguous Order and Integrity"; "a typed truthful blocked state").
+Naming an active branch under corruption would invite a resync onto the corrupt row.
+Grounding and the removal of the second `STALE_BRANCH` arm: PR #1674, evidence
+`r3-history-b-repair-20260915.json`.
+-->
 
 #### Scenario: Old branch command arrives
 - **WHEN** a client sends a command for a superseded branch
 - **THEN** the authority SHALL return `STALE_BRANCH` with the active branch and resync action and SHALL append nothing
+
+#### Scenario: Persisted effective head does not name an effective branch
+- **WHEN** a command arrives on a stream whose stored effective head names a branch that is not effective
+- **THEN** the authority SHALL refuse with a typed history-integrity block, SHALL NOT name a conflicting head or a resync action, and SHALL append nothing
 
 ### Requirement: Combat Rewind Preserves Viewer-Specific Hidden State
 Rebuild SHALL restore fog-of-war, sealed choices, private GM records, owned-unit visibility, and public facts as of the selected checkpoint for each viewer.
