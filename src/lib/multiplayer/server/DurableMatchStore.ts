@@ -120,6 +120,7 @@ import {
   matchCommandFingerprint,
   matchesCommandFingerprint,
 } from './matchCommandBatch';
+import { resolveMatchCommitExpectedRevision } from './matchCommitJournalHead';
 import {
   getCombatJournalAuthorityMode,
   recordProcessShadowComparison,
@@ -995,20 +996,25 @@ export class DurableMatchStore
     if (!this.isCapabilityDbAvailable()) return;
     let reason: string;
     try {
-      const mirrored = await mirrorMatchBatchToJournal(
-        this.capabilityDatabase(),
-        {
-          matchId,
-          commandId: batch.commandId,
-          actorId: batch.actorId,
-          // The batch's `expectedRevision` IS the match's next
-          // sequence; the mirror names the translation and refuses
-          // when the stream is no longer on the live path.
-          nextMatchSequence: batch.expectedRevision,
-          events: batch.events,
-          expectedPostStateDigest: batch.expectedPostStateDigest,
-        },
+      const db = this.capabilityDatabase();
+      // The batch's `expectedRevision` IS the match's next sequence.
+      // Task 1.6: at mode 'enabled' the consult answers from the
+      // journal head instead, and it runs HERE - outside the mirror's
+      // transaction - so the view this writer holds is one another
+      // writer can invalidate before the append re-reads it.
+      const expected = resolveMatchCommitExpectedRevision(
+        db,
+        matchId,
+        batch.expectedRevision,
       );
+      const mirrored = await mirrorMatchBatchToJournal(db, {
+        matchId,
+        commandId: batch.commandId,
+        actorId: batch.actorId,
+        expected,
+        events: batch.events,
+        expectedPostStateDigest: batch.expectedPostStateDigest,
+      });
       if (mirrored.kind === 'mirrored') return;
       reason = mirrored.kind;
     } catch (error) {
