@@ -124,7 +124,7 @@ describe('CampaignSharePanelConnected grants request', () => {
     render(
       <CampaignSharePanelConnected
         campaignId={CAMPAIGN_ID}
-        coopMode="guest"
+        coopMode="host"
         matchId="match-1"
       />,
     );
