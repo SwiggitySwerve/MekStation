@@ -73,8 +73,10 @@ import {
   campaignCommandBranchId,
   lostRaceConflict,
 } from './campaignAcceptContractCommand';
+import { recordFirstJournalAuthorityCommand } from './campaignAuthorityMigration';
 import { diffCampaignFields } from './campaignCommandFieldSet';
 import { decideCampaignConflict } from './campaignConflictDecision';
+import { durableCampaignMarkerIo } from './campaignCutoverMarkerIo';
 import { campaignStreamRef } from './campaignLaunchHead';
 
 /**
@@ -310,15 +312,62 @@ function resolveCommandBase(
 }
 
 /**
+ * Report a committed command to the campaign's cutover marker (D10).
+ *
+ * The rollback law has two guards, and the first one - "no journal-authority
+ * command has committed" - reads a field only this call writes. Without it a
+ * rollback falls through to the second guard (journal head vs imported
+ * baseline), which is a real check but a DIFFERENT one: it cannot tell a
+ * campaign that merely replayed its baseline apart from one whose owner has
+ * been issuing commands against the journal.
+ *
+ * Only the FIRST command is recorded. The field is provenance, not a cursor:
+ * overwriting it on every commit would make a campaign look freshly cut over
+ * forever, and the pure transition refuses a second distinct id anyway.
+ *
+ * A marker that is absent, unreadable, or not in `journal` state is left
+ * alone rather than repaired here. An absent marker means the campaign never
+ * began migrating, and the durable io reads a corrupt row as absent because
+ * the authority resolver has already refused such a campaign before any
+ * command could reach this point.
+ */
+function recordFirstCommandOnMarker(
+  campaignId: string,
+  commandId: string,
+): void {
+  const marker = durableCampaignMarkerIo.read(campaignId);
+  if (marker === null || marker.firstJournalAuthorityCommandId !== null) {
+    return;
+  }
+  const recorded = recordFirstJournalAuthorityCommand(marker, commandId);
+  if (recorded.kind !== 'ok') return;
+  durableCampaignMarkerIo.write(recorded.marker);
+}
+
+/**
  * Acknowledge from the stream, not from the intent. Replaying is what makes
  * a projector bug visible instead of self-confirming.
+ *
+ * The cutover marker is reported here rather than at either append site
+ * because this is the one place BOTH commit paths - the ordinary batch and
+ * the durable AcceptContract - arrive at once the journal has taken the
+ * batch. Recording at the append sites would have been two calls to keep in
+ * step, and a third commit path would silently join without one.
  */
 async function acknowledgeCommit(
   store: JournalCampaignEventStore,
   campaignId: string,
+  commandId: string,
   events: readonly ICampaignEvent[],
   expectedDigest: string,
 ): Promise<CampaignCommandResult> {
+  // After the commit, deliberately: a command the journal refused is not a
+  // journal-authority command, and a marker that recorded one would close
+  // off a rollback on the strength of something that never happened. A
+  // divergent replay below does NOT undo it - the batch is committed and
+  // D10 never deletes it.
+  recordFirstCommandOnMarker(campaignId, commandId);
+
   const committedEvents = await store.getEvents(campaignId, 0);
   const projected = replayCampaignEvents(campaignId, committedEvents);
   const actualDigest = computeCampaignStateDigest(projected);
@@ -445,6 +494,7 @@ export async function executeCampaignCommand(
       : acknowledgeCommit(
           store,
           request.campaignId,
+          request.commandId,
           outcome.events,
           outcome.expectedDigest,
         );
@@ -500,6 +550,7 @@ export async function executeCampaignCommand(
   return acknowledgeCommit(
     store,
     request.campaignId,
+    request.commandId,
     sequenced,
     expectedDigest,
   );
