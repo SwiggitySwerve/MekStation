@@ -6,6 +6,7 @@ import React, {
   useState,
 } from 'react';
 
+import type { ICampaignAuthoritativeFold } from '@/lib/campaign/coop/campaignAuthoritativeFold';
 import type { IPendingProposal } from '@/lib/multiplayer/server/CampaignGmArbiter';
 import type { ICampaign } from '@/types/campaign/Campaign';
 import type { ICampaignEvent } from '@/types/campaign/CampaignSync';
@@ -15,7 +16,11 @@ import type {
   IGuestProposal,
 } from '@/types/campaign/CoopCampaign';
 
-import { applyAuthoritativeStateToGuestCampaign } from '@/lib/campaign/coop/campaignMirrorProjection';
+import {
+  EMPTY_CAMPAIGN_AUTHORITATIVE_FOLD,
+  foldCampaignFrame,
+} from '@/lib/campaign/coop/campaignAuthoritativeFold';
+import { projectAuthoritativeStateOntoCampaign } from '@/lib/campaign/coop/campaignMirrorProjection';
 import {
   campaignEventFromMessage,
   connectStoredCampaignSyncTransport,
@@ -38,6 +43,7 @@ import {
   CampaignCoopRouteSurface,
   type CampaignCoopRouteId,
 } from './CampaignCoopRouteSurface';
+import { pendingProposalFromWire } from './pendingProposalFromWire';
 
 export interface CampaignCoopRouteSurfaceConnectedProps {
   readonly campaign: ICampaign | null;
@@ -76,6 +82,15 @@ export function CampaignCoopRouteSurfaceConnected({
   const [runtimeReady, setRuntimeReady] = useState(false);
   const latestCampaignRef = useRef<ICampaign | null>(campaign);
   latestCampaignRef.current = campaign;
+  // The GM's own fold of the stream it publishes. Held here rather than
+  // in a module-scoped store on purpose: the campaign server hydrates
+  // every host connection with a fresh baseline, so a surface that comes
+  // back holding nothing catches up completely, while one that came back
+  // quoting a cursor past that baseline's own `sequence: -1` would
+  // REJECT its own hydration frame and backfill nothing.
+  const hostFold = useRef<ICampaignAuthoritativeFold>(
+    EMPTY_CAMPAIGN_AUTHORITATIVE_FOLD,
+  );
 
   useEffect(() => {
     let cancelled = false;
@@ -114,15 +129,34 @@ export function CampaignCoopRouteSurfaceConnected({
   }, [matchId, runtimeReady]);
 
   useEffect(() => {
-    if (coopMode !== 'host' || !matchId || !roomCode) {
+    if (coopMode !== 'host' || !matchId || !roomCode || !campaignId) {
       return () => undefined;
     }
     const transport = connectStoredCampaignSyncTransport({
       matchId,
       role: 'host',
       roomCode,
+      // Quote the cursor this surface holds, exactly as the guest does
+      // below. The campaign server's host arm hydrates a GM with a full
+      // baseline regardless, so this changes nothing for a GM who IS the
+      // registered host; it matters for the D9 case - a GM connecting
+      // from ANOTHER device is not the registered host and is routed
+      // down the same cursor-resumable replica path a guest takes.
+      lastSeq: hostFold.current.lastSequence,
     });
     if (!transport) return () => undefined;
+
+    // The host's own view of the campaign is a grant property, not a
+    // hosting property (design D9), so it is projected by the SAME pure
+    // function every other viewer uses - no host-specific path.
+    const projectHostFoldToCampaign = (): void => {
+      const projected = projectAuthoritativeStateOntoCampaign(
+        store.getState().campaign,
+        campaignId,
+        hostFold.current.state,
+      );
+      if (projected) store.setState({ campaign: projected });
+    };
 
     return transport.onFrame((message) => {
       // Umbrella 19.2: the server's refusal is the ONLY authority on
@@ -150,6 +184,19 @@ export function CampaignCoopRouteSurfaceConnected({
       const auditable = campaignEventFromMessage(message);
       if (auditable) {
         setAuditEvents((current) => [...current, auditable]);
+        // ...and fold it into the state the REST of the GM's dashboard
+        // reads. Without this the host saw its own committed events
+        // only in the audit panel: the campaign object stayed at
+        // whatever the page loaded with until a reload, which is the
+        // host-view staleness the tasks.md preamble recorded on
+        // 2026-08-22. `foldCampaignFrame` returns the fold unchanged
+        // (by reference) for a stale or unparseable frame, so a
+        // rejected frame re-projects nothing.
+        const folded = foldCampaignFrame(hostFold.current, auditable);
+        if (folded !== hostFold.current) {
+          hostFold.current = folded;
+          projectHostFoldToCampaign();
+        }
       }
       if (message.kind === 'CampaignProposal') {
         const currentCampaign = latestCampaignRef.current;
@@ -176,7 +223,7 @@ export function CampaignCoopRouteSurfaceConnected({
         );
       }
     });
-  }, [coopMode, matchId, roomCode]);
+  }, [campaignId, coopMode, matchId, roomCode, store]);
 
   useEffect(() => {
     if (coopMode !== 'guest' || !matchId || !roomCode || !campaignId) {
@@ -194,15 +241,12 @@ export function CampaignCoopRouteSurfaceConnected({
     if (!transport) return () => undefined;
 
     const projectMirrorToCampaign = (): void => {
-      const authoritative = useCampaignMirrorStore.getState().campaign;
-      const current = store.getState().campaign;
-      if (!authoritative || !current || current.id !== campaignId) return;
-      store.setState({
-        campaign: applyAuthoritativeStateToGuestCampaign(
-          current,
-          authoritative,
-        ),
-      });
+      const projected = projectAuthoritativeStateOntoCampaign(
+        store.getState().campaign,
+        campaignId,
+        useCampaignMirrorStore.getState().campaign,
+      );
+      if (projected) store.setState({ campaign: projected });
     };
 
     projectMirrorToCampaign();
@@ -370,93 +414,4 @@ function isPendingProposalResult(value: unknown): boolean {
     value !== null &&
     (value as { status?: unknown }).status === 'pending'
   );
-}
-
-function pendingProposalFromWire(
-  value: unknown,
-  campaign: ICampaign,
-): IPendingProposal | null {
-  if (isPendingProposal(value)) {
-    return value;
-  }
-  if (!isGuestProposal(value)) {
-    return null;
-  }
-  return {
-    proposal: value,
-    balanceAtSubmit: readCampaignBalance(campaign),
-    relevantStanding: readRelevantStanding(value, campaign),
-    effectSummary: describeProposalEffect(value),
-  };
-}
-
-function isPendingProposal(value: unknown): value is IPendingProposal {
-  if (typeof value !== 'object' || value === null) return false;
-  const candidate = value as Partial<IPendingProposal>;
-  return (
-    isGuestProposal(candidate.proposal) &&
-    typeof candidate.balanceAtSubmit === 'number' &&
-    'relevantStanding' in candidate &&
-    typeof candidate.effectSummary === 'string'
-  );
-}
-
-function isGuestProposal(value: unknown): value is IGuestProposal {
-  if (typeof value !== 'object' || value === null) return false;
-  const candidate = value as Partial<IGuestProposal>;
-  return (
-    typeof candidate.proposalId === 'string' &&
-    typeof candidate.campaignId === 'string' &&
-    typeof candidate.proposingPlayerId === 'string' &&
-    typeof candidate.ts === 'string' &&
-    typeof candidate.intent === 'object' &&
-    candidate.intent !== null
-  );
-}
-
-function readCampaignBalance(campaign: ICampaign): number {
-  const balance = campaign.finances.balance as unknown;
-  if (
-    typeof balance === 'object' &&
-    balance !== null &&
-    'amount' in balance &&
-    typeof (balance as { amount: unknown }).amount === 'number'
-  ) {
-    return (balance as { amount: number }).amount;
-  }
-  return 0;
-}
-
-function readRelevantStanding(
-  proposal: IGuestProposal,
-  campaign: ICampaign,
-): number | null {
-  if (proposal.intent.kind !== 'AcceptContract') return null;
-  const employer = proposal.intent.payload.contract.employerFactionId;
-  return campaign.factionStandings[employer]?.regard ?? 0;
-}
-
-function describeProposalEffect(proposal: IGuestProposal): string {
-  const intent = proposal.intent;
-  switch (intent.kind) {
-    case 'SpendFunds':
-      return `Spend ${intent.payload.amount.toLocaleString()} C-bills - ${intent.payload.reason}`;
-    case 'HirePilot':
-      return `Hire pilot ${intent.payload.pilot.name}`;
-    case 'AcceptContract':
-      return `Accept contract ${intent.payload.contract.name}`;
-    case 'AllocateSalvage':
-      return `Allocate ${intent.payload.value.toLocaleString()} C-bills of salvage`;
-    case 'AdvanceDay':
-      return `Advance ${intent.payload.days ?? 1} day`;
-    case 'RemoveParticipant':
-      // Host-only; a guest proposal never carries it, but the union is
-      // exhaustive and the label must exist for the compiler's sake.
-      return `Remove participant ${intent.payload.participantId}`;
-    default: {
-      const exhaustive: never = intent;
-      void exhaustive;
-      return 'Guest proposal';
-    }
-  }
 }
