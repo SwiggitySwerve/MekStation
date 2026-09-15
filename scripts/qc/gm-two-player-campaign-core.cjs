@@ -35,7 +35,10 @@ function deriveFixturePort(runId) {
     .createHash('sha256')
     .update(validateRunId(runId))
     .digest();
-  return 37000 + (bytes.readUInt32BE(0) % 10000);
+  // 20000-29999 stays below the OS ephemeral/local port range (Linux
+  // default 32768-60999) so a concurrently-running process can't have
+  // this "reserved" port auto-assigned out from under a fixture bind.
+  return 20000 + (bytes.readUInt32BE(0) % 10000);
 }
 function buildRunPlan({ group, runId, repoRoot }) {
   const owner = REGISTERED_GROUPS[group];
