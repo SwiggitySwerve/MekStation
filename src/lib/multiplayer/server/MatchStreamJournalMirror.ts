@@ -14,17 +14,23 @@
  * cross-file pair is deliberately NOT atomic at S1 (see the wiring
  * sites in `DurableMatchStore` and `durableCapabilityPorts`).
  *
- * REVISION OFFSET. A match event carries a 0-based `sequence` and the
- * journal numbers revisions from 1, so the match store's "next
- * sequence" already equals the journal head's revision — which is why
- * `expectedRevision` passes through untranslated. TRUE ONLY ON A
- * STREAM NEVER REWOUND: the store reads `MAX(sequence) + 1` over LIVE
- * rows and a rewind MOVES the discarded tail into
- * `mp_match_events_superseded`, while the journal head is append-only.
- * The mirror must not be enabled on a rewound match until S5-b (task
- * 1.6) sources the expected revision from the journal head.
+ * REVISION OFFSET, AND ITS GUARD (S5, task 1.5). A match event carries
+ * a 0-based `sequence` and the journal numbers revisions from 1, so the
+ * match store's "next sequence" already equals the journal head's
+ * revision — `journalHeadRevisionForNextMatchSequence` is that step,
+ * named rather than an untranslated field. TRUE ONLY ON A STREAM NEVER
+ * REWOUND: the store reads `MAX(sequence)` over LIVE rows and derives
+ * the next sequence via `nextMatchSequenceAfter`, while a rewind MOVES
+ * the discarded tail into `mp_match_events_superseded` and the journal
+ * head is append-only. S1 stated that in this comment and enforced
+ * nothing; `isLivePathBranchId` over the effective head now refuses
+ * `rewound-stream` before anything is appended, so a rewound match
+ * cannot have a sequence mirrored onto an activated branch as though
+ * it were a revision. Sourcing the expected revision
+ * FROM the journal head — which is what would let a rewound stream
+ * mirror again — is still S5-b (task 1.6).
  *
- * @spec openspec/changes/adopt-combat-journal-cutover-and-gm-rewind/design.md (S1)
+ * @spec openspec/changes/adopt-combat-journal-cutover-and-gm-rewind/design.md (S1, S5)
  */
 
 import type Database from 'better-sqlite3';
@@ -35,7 +41,11 @@ import type { IGameEvent } from '@/types/gameplay/GameSessionInterfaces';
 import { SQLiteEventHistoryBranchStore } from '@/lib/events/journal/SQLiteEventHistoryBranchStore';
 import { SQLiteEventJournalWriter } from '@/lib/events/journal/SQLiteEventJournalWriter';
 
-import { MATCH_BASELINE_BRANCH_ID } from './matchAuthorityBaseline';
+import { journalHeadRevisionForNextMatchSequence } from './history/matchStoreBranchSegmentReader';
+import {
+  isLivePathBranchId,
+  MATCH_BASELINE_BRANCH_ID,
+} from './matchAuthorityBaseline';
 
 /** The stream type every match stream is keyed by. */
 export const MATCH_STREAM_TYPE = 'match';
@@ -52,14 +62,30 @@ export interface IMirrorMatchBatchInput {
   readonly matchId: string;
   readonly commandId: string;
   readonly actorId: string;
-  /** The journal revision to land on (= the match's next sequence). */
-  readonly expectedRevision: number;
+  /**
+   * The match store's next SEQUENCE, not a journal revision. Named for
+   * what the caller actually holds; the translation to a revision is
+   * `journalHeadRevisionForNextMatchSequence`, and the guard below is
+   * what makes that translation legal.
+   */
+  readonly nextMatchSequence: number;
   readonly events: readonly IGameEvent[];
   readonly expectedPostStateDigest?: string | null;
 }
 
 export type MatchJournalMirrorResult =
   | { readonly kind: 'mirrored' }
+  | {
+      /**
+       * The stream's effective head has left the live path, so its
+       * store sequence and its journal revision no longer describe the
+       * same history. Refused rather than mirrored: appending here
+       * would put a live-path batch onto an activated branch at a
+       * revision derived from a number that no longer means it.
+       */
+      readonly kind: 'rewound-stream';
+      readonly branchId: string;
+    }
   | {
       readonly kind: 'revision-conflict';
       readonly expectedRevision: number;
@@ -84,7 +110,9 @@ function toMatchJournalBatch(
     streamType: MATCH_STREAM_TYPE,
     streamId: input.matchId,
     expectedBranchId: branchId,
-    expectedRevision: input.expectedRevision,
+    expectedRevision: journalHeadRevisionForNextMatchSequence(
+      input.nextMatchSequence,
+    ),
     commandId: input.commandId,
     events: input.events.map((matchEvent, index) => ({
       eventId: `${input.commandId}:${index}`,
@@ -135,6 +163,16 @@ export async function mirrorMatchBatchToJournal(
       // move the effective branch between the read and the append.
       const effective = branches.readEffectiveHead(stream);
       const branchId = effective?.branchId ?? MATCH_BASELINE_BRANCH_ID;
+      if (!isLivePathBranchId(branchId)) {
+        // Refused INSIDE the transaction and before the append, so
+        // nothing lands and nothing is skipped in silence: the caller
+        // records this on the same shadow tripwire every other mirror
+        // refusal reaches.
+        return {
+          kind: 'refused',
+          result: { kind: 'rewound-stream', branchId },
+        };
+      }
       return {
         kind: 'ready',
         context: null,
