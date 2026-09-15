@@ -8,18 +8,26 @@
  * the server, which is the entire point of `keepalive`. This spec proves it
  * against a production build and the real SQLite route: it reads the server
  * record back, then reloads with `localStorage` cleared at document start,
- * so only the server can supply the rendered date.
+ * so only the server can supply the rendered date. The discard it uses is
+ * a closed tab, for the measured reason recorded above that test.
  *
  * LIMIT: `keepalive` is not directly observable from Playwright — the flag
  * lives on the `RequestInit`, never on the wire, and `request.headers()`
- * does not carry it. The discriminating evidence is the PUT count, the
- * timing against the 2 s debounce, and the red arm below, which drops the
- * two registrations the fix makes and shows the mutation is then lost.
+ * does not carry it. The discriminating evidence is that nothing has been
+ * PUT when the discard happens, the revision the server lands on, and the
+ * red arm below, which drops the two registrations the fix makes, discards
+ * the same way, and shows the mutation is then lost.
  *
  * @tags @campaign @strict
  */
 
-import { expect, test, type Page, type TestInfo } from '@playwright/test';
+import {
+  expect,
+  test,
+  type APIRequestContext,
+  type Page,
+  type TestInfo,
+} from '@playwright/test';
 
 import {
   formatBrowserDiagnosticEvents,
@@ -34,14 +42,18 @@ import {
 test.describe.configure({ timeout: 150_000 });
 
 /**
- * Status of the reconciliation PUT after a flush the document survived. The
- * flush does not advance `baseVersion`, so the server row sits one ahead of
- * the client's compare-and-swap token and the reconciled save is REFUSED.
- * Pinned rather than accepted loosely: the spec scenario claims an
- * "ordinary acknowledged save", and this measures how far that holds in a
- * real browser — the scheduling half only.
+ * Status of the reconciliation PUT after a flush the document survived.
+ *
+ * The flush still does not advance `baseVersion` — it never reads its
+ * response, so it cannot. The returning document EARNS the revision
+ * instead, by reading the record back and checking it is the one this
+ * client wrote; only then is the ordinary save armed, and it carries the
+ * earned token. Pinned rather than accepted loosely: the spec scenario
+ * claims an "ordinary acknowledged save", and 200 is the whole of that
+ * claim holding in a real browser. This measured 409 before the
+ * reconciliation read existed.
  */
-const RECONCILE_PUT_STATUS = 409;
+const RECONCILE_PUT_STATUS = 200;
 
 interface CampaignRecord {
   readonly version: number;
@@ -130,12 +142,16 @@ function recordCampaignPuts(page: Page, campaignId: string): number[] {
   return issuedAt;
 }
 
-/** The unauthenticated server-authority read for one campaign. */
+/**
+ * The unauthenticated server-authority read for one campaign. Takes a
+ * request context rather than a page because the discard case reads the
+ * record after its page is gone.
+ */
 async function serverRecord(
-  page: Page,
+  api: APIRequestContext,
   campaignId: string,
 ): Promise<CampaignRecord> {
-  const response = await page.request.get(`/api/campaigns/${campaignId}`);
+  const response = await api.get(`/api/campaigns/${campaignId}`);
   expect(response.status()).toBe(200);
   return (await response.json()) as CampaignRecord;
 }
@@ -234,33 +250,66 @@ async function advanceDayInUi(page: Page): Promise<string> {
   return campaignDateText(page);
 }
 
+/**
+ * The discard is a CLOSED PAGE, not a navigation, and the difference is
+ * measured rather than stylistic. Chromium 143 aborts a `keepalive` request
+ * issued from `pagehide` when the document is leaving because of a
+ * NAVIGATION -- the renderer cancels it before the network service
+ * dispatches it -- but hands it to the browser process and completes it
+ * when the TAB CLOSES. Measured on 2026-09-15 over the standalone
+ * production server (see the diagnosis receipt for the full tally):
+ * `page.goto('about:blank')` landed 0/15 (headless and headed alike),
+ * a same-origin navigation landed 1/2 -- nondeterministic, which is the
+ * only account of an earlier green run -- close-shaped discards landed
+ * 11/11, and a bare 17-byte keepalive PUT from a hand-written `pagehide`
+ * listener -- no product code in the path at all -- reproduced the same
+ * split 0/3 against 3/3. A tab close is also the discard this task names
+ * ("hard reload or close"), so this is the mechanism whose guarantee the
+ * browser actually offers.
+ *
+ * Consequence for the assertions: a request issued as the page closes is
+ * not reported to Playwright at all (measured: zero `request` events, at
+ * page AND context level), so "exactly one PUT" cannot be counted here. It
+ * is owned by the jsdom suite, which counts requests against a mocked
+ * fetch. What this spec still pins is stronger than a count: the record
+ * moves to EXACTLY `before.version + 1`, which no second accepted write
+ * could produce, and the red arm below shows zero movement without the
+ * listeners.
+ */
 test('a discarded document flushes its pending mutation and the cold reload reads it back @campaign', async ({
   page,
+  request,
 }, testInfo) => {
   const campaignId = await seedSavedCampaign(page, 'Crash Window Flush');
+  const context = page.context();
+  let mutatedDate = '';
   await withGate(page, testInfo, true, async () => {
-    const before = await serverRecord(page, campaignId);
+    const before = await serverRecord(request, campaignId);
     const puts = recordCampaignPuts(page, campaignId);
-    const mutatedDate = await advanceDayInUi(page);
+    mutatedDate = await advanceDayInUi(page);
     // Inside the 2 s debounce: nothing has been PUT, so the only write that
     // can reach the server is the one the discard path issues.
     expect(puts).toHaveLength(0);
-    // `about:blank` discards the document without loading more app code.
-    await page.goto('about:blank');
+    // The discard. `runBeforeUnload` so the page's own unload handlers run.
+    await page.close({ runBeforeUnload: true });
     await expect
-      .poll(async () => (await serverRecord(page, campaignId)).version, {
+      .poll(async () => (await serverRecord(request, campaignId)).version, {
         timeout: 20_000,
       })
       .toBe(before.version + 1);
-    expect((await serverRecord(page, campaignId)).body.currentDate).not.toBe(
+    expect((await serverRecord(request, campaignId)).body.currentDate).not.toBe(
       before.body.currentDate,
     );
-    expect(puts).toHaveLength(1);
-    // Cold reload with the client cache dropped at document start: the
-    // rendered date can only come from the record the flush wrote.
-    await page.addInitScript(() => localStorage.clear());
-    await openDashboard(page, campaignId);
-    expect(await campaignDateText(page)).toBe(mutatedDate);
+  });
+  // Cold reload in a NEW document with the client cache dropped at document
+  // start: the rendered date can only come from the record the flush wrote.
+  // Gated in its own right, so closing the first page does not buy the
+  // reopened one an unwatched console.
+  await context.addInitScript(() => localStorage.clear());
+  const reopened = await context.newPage();
+  await withGate(reopened, testInfo, false, async () => {
+    await openDashboard(reopened, campaignId);
+    expect(await campaignDateText(reopened)).toBe(mutatedDate);
   });
 });
 
@@ -269,7 +318,7 @@ test('a surviving document takes the ordinary debounced save, exactly once @camp
 }, testInfo) => {
   const campaignId = await seedSavedCampaign(page, 'Crash Window Control');
   await withGate(page, testInfo, false, async () => {
-    const before = await serverRecord(page, campaignId);
+    const before = await serverRecord(page.request, campaignId);
     const puts = recordCampaignPuts(page, campaignId);
     const mutatedAt = Date.now();
     await advanceDayInUi(page);
@@ -278,7 +327,7 @@ test('a surviving document takes the ordinary debounced save, exactly once @camp
     // Arrived on the debounce, not on a discard: no document went away here.
     expect(Date.now() - mutatedAt).toBeGreaterThan(1_000);
     expect(puts).toHaveLength(1);
-    const after = await serverRecord(page, campaignId);
+    const after = await serverRecord(page.request, campaignId);
     expect(after.version).toBe(before.version + 1);
     expect(after.body.currentDate).not.toBe(before.body.currentDate);
     // The ordinary save IS an acknowledgement; the flush deliberately is not.
@@ -291,15 +340,18 @@ test('a hidden transition flushes without acknowledging, and returning re-arms a
 }, testInfo) => {
   const campaignId = await seedSavedCampaign(page, 'Crash Window Hidden');
   await withGate(page, testInfo, false, async () => {
-    const before = await serverRecord(page, campaignId);
+    const before = await serverRecord(page.request, campaignId);
     const puts = recordCampaignPuts(page, campaignId);
     await advanceDayInUi(page);
     await setDocumentVisibility(page, 'hidden');
     await expect.poll(() => puts.length, { timeout: 10_000 }).toBe(1);
     await expect
-      .poll(async () => (await serverRecord(page, campaignId)).version, {
-        timeout: 20_000,
-      })
+      .poll(
+        async () => (await serverRecord(page.request, campaignId)).version,
+        {
+          timeout: 20_000,
+        },
+      )
       .toBe(before.version + 1);
     // Its response is never read, so it never cleared the pending mutations.
     await expect(page.getByText('Unsaved changes')).toBeVisible();
@@ -311,11 +363,16 @@ test('a hidden transition flushes without acknowledging, and returning re-arms a
       description: String(reconciled.status()),
     });
     expect(reconciled.status()).toBe(RECONCILE_PUT_STATUS);
+    // The acknowledgement the spec scenario demands: an accepted save, not
+    // a conflict banner produced by the flush's own successful write.
+    await expect(page.getByText('Unsaved changes')).toBeHidden();
+    await expect(page.getByText('Save refused')).toBeHidden();
   });
 });
 
 test('RED ARM: without the discard listeners the same mutation never reaches the server @campaign', async ({
   page,
+  request,
 }, testInfo) => {
   const campaignId = await seedSavedCampaign(page, 'Crash Window Red Arm');
   // Drop exactly the two registrations `campaignPersistenceWiring` makes for
@@ -335,13 +392,16 @@ test('RED ARM: without the discard listeners the same mutation never reaches the
   });
   await openDashboard(page, campaignId);
   await withGate(page, testInfo, false, async () => {
-    const before = await serverRecord(page, campaignId);
+    const before = await serverRecord(request, campaignId);
     const puts = recordCampaignPuts(page, campaignId);
     await advanceDayInUi(page);
-    await page.goto('about:blank');
+    // The SAME discard the positive case uses. A red arm that discarded a
+    // different way would only prove that other way loses the mutation, and
+    // the pair would stop discriminating.
+    await page.close({ runBeforeUnload: true });
     // Proving absence needs the 2 s debounce window to have closed.
-    await page.waitForTimeout(4_000);
-    const after = await serverRecord(page, campaignId);
+    await new Promise((resolve) => setTimeout(resolve, 4_000));
+    const after = await serverRecord(request, campaignId);
     expect(after.version).toBe(before.version);
     expect(after.body.currentDate).toBe(before.body.currentDate);
     expect(puts).toHaveLength(0);
