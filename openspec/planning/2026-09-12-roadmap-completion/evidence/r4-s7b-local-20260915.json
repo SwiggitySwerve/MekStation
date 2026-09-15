@@ -1,0 +1,635 @@
+{
+  "artefact": "r4-s7b-local",
+  "date": "2026-09-15",
+  "roadmapNode": "R4.S7",
+  "subSlice": "S7-b (marker retirement; adopt-combat-journal-cutover-and-gm-rewind task 1.3 sub-prefix 3)",
+  "task": "task 1.3 sub-prefix 3, landing under task 1.7's cutover umbrella. No SHALL is discharged by this slice and no checkbox was ticked.",
+  "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/reconcile-1",
+  "branch": "codex/roadmap-r4-s7b-marker-retirement-20260915",
+  "logsDirectory": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/r4-s7b-20260915/",
+  "runtime": {
+    "node": "v22.22.0",
+    "jest": "--maxWorkers=2 --coverage=false, one process at a time"
+  },
+  "commitAuthor": "Wes Rollings <wrollings@gmail.com> (per -c user.name/-c user.email on every commit; verified by `git log --format='%h|%an <%ae>|%b'` — no AI attribution trailer and no trailer of any kind on any of the six commits)",
+  "base": {
+    "sha": "b9ab4a668d34ae9d7d2e7c9710484d13c751ba0d",
+    "ref": "origin/codex/roadmap-r4-s7a-seeding-jcs-20260915 (S7-a2 head, PR #1738)",
+    "originMainAtFetch": "cd416634a3d783131e4564050bd388a923f11cdb",
+    "worktreeCleanBeforeCheckout": "git status --short returned empty before `git checkout -q -B codex/roadmap-r4-s7b-marker-retirement-20260915 origin/codex/roadmap-r4-s7a-seeding-jcs-20260915`, and again after",
+    "mainIsNotAnAncestor": "git merge-base --is-ancestor cd416634a b9ab4a668 -> non-zero. S7-a branched from 423381ff0 and main has moved since; the roadmap node records `mergeTree: clean vs cd416634a` for the S7-a pair."
+  },
+  "stackDependency": {
+    "dependsOn": "#1738 (S7-a2, head b9ab4a668) and transitively #1737 (S7-a1, head 5f7b10799)",
+    "required": true,
+    "whyMeasuredNotAssumed": [
+      "S7-a2's `seedJournalFromInitialEvents` is called directly by the new suite's `createAndSeed()` helper and is the only way to reach the post-create, pre-command journal head that three of the new rows turn on. The symbol does not exist on origin/main.",
+      "S7-a2's seeding is ALSO what made the slice-2 durable row green-before-and-after rather than red: with a create-path seed the derived head already answers 'started' on the first command, so the one-time marker write was already being skipped for capability-backed matches. Measured in s7b2-red.log (row 1 passes, rows 2 and 3 fail). Without #1738 that row would have been red and the slice's claim about the marker's remaining reach would have been wrong.",
+      "S7-a1's undefined-stripping mirror is what lets the new suite mirror the host's own opening events verbatim; the pre-S7-a suites had to JSON round-trip them (see the retained comment in matchRecoveryStartedFromJournalHead.sqlite.test.ts's openingEvents before this slice)."
+    ],
+    "publishingNote": "SUPERSEDED 2026-09-15 after review. #1738 (S7-a2) is now on main as a8ec5105d, and the reviewer measured every file this slice touches to be byte-identical between b9ab4a668 and origin/main. The work was therefore REBASED onto origin/main by cherry-pick (never merge, never force) into three stacked branches rather than published against the S7-a branch. See the `rebasedStack` section for the branches, picked shas and the per-file byte-identity verification. The original statement — that the branch had to be stacked on #1738 because `seedJournalFromInitialEvents` did not exist on main — was true when written and is no longer.",
+    "stillTrue": "The DEPENDENCY itself is unchanged and real: these commits do not compile or pass without S7-a1 and S7-a2. What changed is only that both are now on main, so the dependency is satisfied by the base rather than by a stack."
+  },
+  "commits": [
+    {
+      "order": 1,
+      "slice": "S7-b1",
+      "phase": "red",
+      "sha": "adf4af47b",
+      "subject": "test(journal): pin that recovery has one source of started",
+      "files": [
+        "src/lib/multiplayer/server/__tests__/matchMarkerRetirementRecovery.sqlite.test.ts (new)"
+      ],
+      "numstat": "1 file, +402 -0",
+      "capArithmetic": "files 1 of 15 (14 headroom); non-generated lines 402 of 500 (98 headroom). Within cap; no split needed, nothing trimmed."
+    },
+    {
+      "order": 2,
+      "slice": "S7-b1",
+      "phase": "product",
+      "sha": "fb8648125",
+      "subject": "feat(journal): retire the started marker as a source of recovery truth",
+      "files": [
+        "src/lib/multiplayer/server/ServerMatchHost.ts (+8 -48 net; the marker read removed from selectRecoveredMatchRollbackReader)",
+        "src/lib/multiplayer/server/__tests__/journalAuthorityRecovery.test.ts (4 assertions migrated onto a capability-backed fixture)",
+        "src/lib/multiplayer/server/__tests__/journalAuthorityRollbackProof.test.ts (4 assertions migrated onto a capability-backed fixture)",
+        "src/lib/multiplayer/server/__tests__/matchRecoveryStartedFromJournalHead.sqlite.test.ts (the two S3-b tripwire rows flipped)"
+      ],
+      "numstat": "4 files, +302 -108",
+      "capArithmetic": "files 4 of 15 (11 headroom); non-generated lines 410 of 500 (90 headroom). Within cap. This was the slice most at risk of overflow — the 10 failing assertions were measured first (s7b1-scoped-after-product.log) so the migration could be sized before it was written."
+    },
+    {
+      "order": 3,
+      "slice": "S7-b2",
+      "phase": "red",
+      "sha": "89ae25352",
+      "subject": "test(journal): pin that no command writes a started marker",
+      "files": [
+        "src/lib/multiplayer/server/__tests__/matchMarkerWriteRetired.test.ts (new)"
+      ],
+      "numstat": "1 file, +250 -0",
+      "capArithmetic": "files 1 of 15; non-generated lines 250 of 500. Within cap."
+    },
+    {
+      "order": 4,
+      "slice": "S7-b2",
+      "phase": "product",
+      "sha": "fd76b3dc1",
+      "subject": "feat(journal): stop writing the started marker on the command path",
+      "files": [
+        "src/lib/multiplayer/server/ServerMatchHostJournalAuthority.ts (the started fact, the alreadyStarted read and four now-unused imports removed)",
+        "src/lib/multiplayer/server/__tests__/journalAuthorityAdmission.test.ts (HAPPY ADMISSION's trailing marker assertion)",
+        "src/lib/multiplayer/server/__tests__/journalAuthorityPath.test.ts (the STARTED FACT row rewritten around receipts)"
+      ],
+      "numstat": "3 files, +27 -57",
+      "capArithmetic": "files 3 of 15; non-generated lines 84 of 500. Within cap."
+    },
+    {
+      "order": 5,
+      "slice": "S7-b3",
+      "phase": "red",
+      "sha": "e4a66c5ec",
+      "subject": "test(journal): pin one derivation of started on the module surface",
+      "files": [
+        "src/lib/multiplayer/server/__tests__/journalAuthorityStartedDerived.sqlite.test.ts"
+      ],
+      "numstat": "1 file, +15 -0",
+      "capArithmetic": "files 1 of 15; non-generated lines 15 of 500. Within cap."
+    },
+    {
+      "order": 6,
+      "slice": "S7-b3",
+      "phase": "product",
+      "sha": "dd6c5e7bf",
+      "subject": "refactor(journal): retire the dangling started-derived projection",
+      "files": [
+        "src/lib/multiplayer/server/matchJournalAuthorityStartedDerived.ts (isMatchJournalAuthorityStartedDerived removed)",
+        "src/lib/multiplayer/server/__tests__/journalAuthorityStartedDerived.sqlite.test.ts (its `derived()` helper projects at the call site)"
+      ],
+      "numstat": "2 files, +11 -20",
+      "capArithmetic": "files 2 of 15; non-generated lines 31 of 500. Within cap."
+    }
+  ],
+  "capsComplianceSummary": "Six commits, every one inside the node's maxFiles 15 / maxNonGeneratedLines 500. Largest: fb8648125 at 4 files / 410 lines. Whole slice vs base: 11 distinct files, +1007 -185 (git diff --shortstat b9ab4a668 HEAD). No trimming was done; the work was split into three red/product pairs so nothing had to be cut.",
+  "design": {
+    "whatTaskOneThreeAsksFor": "Literal text, openspec/changes/adopt-combat-journal-cutover-and-gm-rewind/tasks.md line 16, read in full: \"S3: retire the `mp_journal_authority_started` marker write; one source of 'started'.\" Sub-prefixes 1 (derived signal, PR #1693) and 2 (repoint both call sites, PRs #1702/#1703) are on main and main-verified; roadmap.json R4.S3 state is `sub-prefix-2-main-verified` and both main-proof receipts close with \"task 1.3 stays open until sub-prefix 3\" / \"task 1.3 sub-prefix 3 (marker retirement) belongs to 1.7 cutover\".",
+    "decision1_recoveryReadsOnlyTheHead": {
+      "what": "selectRecoveredMatchRollbackReader (ServerMatchHost.ts) no longer calls store.getJournalAuthorityStarted. `startedHead` is `derived.kind === 'started' ? derived.head : null`.",
+      "citations": {
+        "whatWasThere": "ServerMatchHost.ts (pre-slice) computed `marker = derived.kind === 'started' || store.getJournalAuthorityStarted == null ? null : await store.getJournalAuthorityStarted(matchId)` and then `startedHead = derived.kind === 'started' ? derived.head : (marker?.head ?? null)` — S3-b's stated TRANSITION RULE, whose own comment says \"The marker arm dies with the cutover (task 1.7), not here.\"",
+        "whatDesignSaysRetiresIt": "roadmap.json R4.S3.subPrefix2.parentRulings[1]: \"design.md removes the marker path once S1 is the writer = cutover (task 1.7); S3b transition semantics = derived head wins when present, marker honored when no head exists\".",
+        "theOneWayBoundary": "src/lib/multiplayer/server/matchRollbackReaderSelection.ts:82-84 — `if (facts.started == null)` is the branch that can answer legacy-compatible, and the function's own doc comment reads \"A started fact is a one-way boundary: it can never choose legacy again.\""
+      }
+    },
+    "decision2_theRefusalS3bPromisedIsNOTDelivered": {
+      "whatS3bPromised": "matchRecoveryStartedFromJournalHead.sqlite.test.ts row 1 (\"honours the marker over an unreadable head, which task 1.7 must flip to a refusal\") and the matching ServerMatchHost comment: \"From that point `unavailable` with a marker present MUST refuse (`blocked` / 'recovery-fact-read-failed') instead of honouring the marker.\" The S5-S7 admission brief repeats it as S7-b's redFirstTest.",
+      "whatWasBuiltFirst": "The first red suite committed in this session DID assert `{kind:'blocked', reason:'recovery-fact-read-failed'}` for an admitted, create-path-seeded match whose capability database is closed, discriminated on the presence of `mp_journal_authority_baseline` (a write-once MATCH-database row, therefore readable exactly when the effective head is not).",
+      "whyItWasWithdrawn": "MEASURED, not argued. `DurableMatchStore.mirrorCommittedBatch` opens with `if (!this.isCapabilityDbAvailable()) return;` (DurableMatchStore.ts:1003), so a match can be ADMITTED at mode 'enabled' (journalAuthorityAdmission.ts `resolveJournalAuthorityForNewMatch` inserts the baseline) and never mirror a single row. Admission and mirroring therefore diverge in exactly the process state that makes the head unreadable, and the admission baseline cannot discriminate them. Mutant M2 of slice 1 is the direct measurement: implementing the baseline-keyed refusal kills `journal-authority rollback proof > proves baseline-only rollback compares every persisted baseline tuple field to the durable head`, a row whose whole subject is that such a match still serves legacy and still commits. Refusing there would contradict task 1.7's own text, \"legacy completed matches keep their reads\". Log: s7b1-mutant-M2.log.",
+      "whatWasShippedInstead": "`unavailable` continues to read as no head, and that answer is now PINNED by a row named for the fact that S7-d must turn it red: `still selects the legacy reader for an admitted match whose head is unreadable` in matchMarkerRetirementRecovery.sqlite.test.ts. The S3-b tripwire row was rewritten to assert the legacy answer with a comment saying the refusal was not decidable here and why.",
+      "whatWouldMakeItDecidable": "A durable, capability-db-independent per-match record of whether the stream was ever MIRRORED. That is S7-d's migration state (the combat analog of CampaignAuthorityMigrationState). Building it here was out of scope by charter (no migrations, S7-d untouched) and would have collided with S7-d's own ownership.",
+      "ownerVisibility": "Carried as open question OQ-1 below. This is the one place where what shipped is narrower than the S5-S7 brief's literal S7-b redFirstTest."
+    },
+    "decision3_theWriteGoesWithTheReads": {
+      "what": "commitJournalAuthorityCommand no longer builds an IMatchJournalAuthorityStarted nor sets `journalAuthorityStarted` on the batch, and the `alreadyStarted` read that existed only to keep that write to once is gone with it.",
+      "whyNotJustLeaveIt": "A durable write-once row on the match database that looks exactly like an answer to \"has this stream started\" is the second source task 1.3 exists to remove; leaving the writer would keep minting new ones. `commitJournalAuthorityCommand` throws unless `journal.enabled`, and admission requires mode 'enabled' (journalAuthorityAdmission.ts `admitJournalAuthority`: `if (input.mode !== 'enabled' || !input.requested) return {kind:'inert'}`), so the write is unreachable at the shipped mode and its removal cannot change production behaviour today.",
+      "measuredReach": "After S7-a2's create-path seeding the write was ALREADY skipped for every capability-backed match (the derived head answers 'started' on the first command). Its remaining reach was exactly the stores with no journal behind them — InMemoryMatchStore, and DurableMatchStore with no capability database — which is where a marker asserting 'started' is least defensible. s7b2-red.log measures this: the durable row passed before the change; only the two in-memory rows were red.",
+      "behaviouralNarrowingAtNonOffModes_F2": "NAMED AFTER REVIEW (finding F2), and re-verified independently in this session. Removing the `alreadyStarted` read also removed its try/catch, which typed a thrown EventHistoryBranchError('branch-integrity') from a corrupt persisted head into a fail-closed `persistenceFailure(..., 'started read failed')` on the COMMAND path (b9ab4a668:src/lib/multiplayer/server/ServerMatchHostJournalAuthority.ts lines 199-210, removed at HEAD; `git grep 'started read failed' dd6c5e7bf -- src/` now returns nothing). At HEAD the command path never touches the head, so at mode 'enabled' a match with a corrupt persisted head COMMITS its command and the mirror's own catch records a `journal-mirror:<reason>` shadow mismatch (DurableMatchStore.mirrorCommittedBatch) instead of refusing typed. INERT AT THE SHIPPED MODE: at mode 'off' nothing mirrors and the head is never consulted on the command path at all, so there is no behaviour to narrow. UNPINNED AT BASE: no test fell when the catch went, which is why the blast-radius measurement did not surface it — the only 'corrupt head' rows are derivation and recovery rows (journalAuthorityStartedDerived.sqlite.test.ts, matchRecoveryStartedFromJournalHead.sqlite.test.ts), and recovery's typed refusal plus S4's divergence refusal still catch the shape at boot. This corrects decision3's earlier wording, which said only that the removal 'cannot change production behaviour today' — true for mode 'off', but not the whole story. Carried as S7b-Q6."
+    },
+    "decision4_theDanglingProjection": {
+      "what": "`isMatchJournalAuthorityStartedDerived` removed; the module exports one function.",
+      "citation": "roadmap.json R4.S3.subPrefix2.review.notes[0]: \"isMatchJournalAuthorityStartedDerived has zero production consumers after the repoint; retire with the marker path at 1.7\". Re-verified in this session: grep for the symbol across src/ returned only its definition and one test helper.",
+      "howItIsPinned": "By the module surface, not by a behaviour: `Object.keys(await import('../matchJournalAuthorityStartedDerived'))` must equal exactly `['deriveMatchJournalAuthorityStartedHead']`. Mutant M1 of slice 3 re-adds an equivalent boolean under a DIFFERENT name and is killed, so the pin is about there being one derivation rather than about one particular identifier."
+    },
+    "decision5_whatWasDeliberatelyNOTRemoved": {
+      "surfaceStillPresent": [
+        "src/lib/multiplayer/server/DurableMatchStore.ts:209 CREATE TABLE IF NOT EXISTS mp_journal_authority_started",
+        "src/lib/multiplayer/server/DurableMatchStore.ts:904-921 the store-level INSERT (now reachable only from a test that hands the field in explicitly)",
+        "src/lib/multiplayer/server/DurableMatchStore.ts:1131 and InMemoryMatchStore.ts:315 getJournalAuthorityStarted",
+        "src/lib/multiplayer/server/IMatchStore.ts:568 the optional read port",
+        "src/lib/multiplayer/server/matchCommandBatch.ts:63 the optional journalAuthorityStarted batch field",
+        "src/lib/multiplayer/server/matchJournalAuthority.ts:137 IMatchJournalAuthorityStarted"
+      ],
+      "why": "The S5-S7 admission brief names the wording amendment (table + read dropped outright, or read kept as a compatibility shim) as an OWNER RULING that \"the owner should confirm before the slice starts\", and recommends DROP BOTH as a recommendation, explicitly \"not a unilateral decision\". No such ruling was in hand for this session. The literal task text names the WRITE. Dropping the table is also a schema-surface change this charter excluded (no migrations). Doing it would additionally have required rewriting, in the same PR stack, the two suites added two commits earlier — churn on an unruled decision.",
+      "whatIsAlreadyTrueWithoutIt": "No production code writes or reads the marker. `git grep` over src/ excluding __tests__ shows the remaining references are the store mechanism and the type only; every live reference is a test constructing a pre-cutover fixture.",
+      "readyToExecute": "Carried as OQ-2 with an exact file list and a recommendation, so the owner's ruling is one commit pair away."
+    }
+  },
+  "redFirstEvidence": {
+    "discipline": "Each slice's failing test was committed BEFORE the product change, and each red log was captured against a tree containing no product change at all. Slice 1's red test was committed once, then withdrawn with `git reset --soft HEAD~1` and recommitted after the baseline-refusal row was measured to be unsound (see decision2); only the corrected red commit adf4af47b is in history.",
+    "S7-b1": {
+      "redLog": "s7b1-red.log",
+      "redLogSha256": "8c77c2c0b6daf4e6b4e098100c6a0e5114a65cb102168aabac4c328dcea63005",
+      "result": "Tests: 2 failed, 3 passed, 5 total",
+      "redRows": [
+        "ignores the marker when the head is unreadable, rather than starting from it — today returns journal-compatible on branch 'stale', from the marker",
+        "ignores the marker when no head exists, because the marker is not a source of started — today returns journal-compatible on branch 'main' at revision 1, from the marker"
+      ],
+      "greenAtRedTime": [
+        "still selects the legacy reader for an admitted match whose head is unreadable — the bound of this slice, pinned before the change so it cannot drift",
+        "still selects the journal reader from the mirrored head it can read — the guard that the retirement is not 'legacy everywhere'",
+        "refuses a seeded match that has committed no command, rather than serving it — blocked/'missing-journal-head', a pre-existing answer recorded because S7-a2 made the shape reachable"
+      ],
+      "blastRadiusMeasuredBeforeMigrating": {
+        "log": "s7b1-scoped-after-product.log",
+        "sha256": "91f56685b7d3d21d53f1069e1ce8566a358888102efa1d32b5324b06674d94bb",
+        "result": "Test Suites: 3 failed, 173 passed; Tests: 10 failed, 1350 passed",
+        "note": "The S5-S7 brief estimated \"the 8 assertions in journalAuthorityRecovery.test.ts and journalAuthorityRollbackProof.test.ts\". The measurement is 4 + 4 in exactly those two files, plus the 2 tripwire rows in matchRecoveryStartedFromJournalHead.sqlite.test.ts that S3-b wrote to go red here on purpose. The brief's 8 was right."
+      },
+      "greenLog": "s7b1-green-scoped.log",
+      "greenLogSha256": "06f0c3d75eb99c00129a882821db266584f5dfaf6840529911917057c8b78cb5",
+      "greenResult": "Test Suites: 176 passed, 176 total; Tests: 1360 passed, 1360 total"
+    },
+    "S7-b2": {
+      "redLog": "s7b2-red.log",
+      "redLogSha256": "a054601ca9d590421256dafcddc5b37e4bb769840882500b95bd3dcf0bbd92bd",
+      "result": "Tests: 2 failed, 1 passed, 3 total",
+      "redRows": [
+        "records no started fact on an in-memory store either — today returns the marker record for command-1 at revisions 2..4",
+        "offers the store a batch with no started fact on it at all — today `'journalAuthorityStarted' in batch` is true for the first batch"
+      ],
+      "greenAtRedTime": [
+        "leaves the marker table empty after a real journalled command — measured green BEFORE the change and documented in the row's own comment: S7-a2's create-path seed already made the derived head answer 'started', so the one-time write was already skipped for capability-backed matches. Kept as the guard that removing the write did not disturb the case that was already correct."
+      ],
+      "fixtureGuards": "Every row asserts `host.isJournalAuthorityEnabled()` is true before driving a command, added after the first run passed row 1 for a reason that had not yet been established. A refused host never reaches the write and would pass the row vacuously.",
+      "greenLog": "s7b2-green-scoped.log",
+      "greenLogSha256": "00104d124364444ec013e6dc55ff44a6432cc8b132d6b4c373c287eeedc81192",
+      "greenResult": "Test Suites: 177 passed, 177 total; Tests: 1363 passed, 1363 total"
+    },
+    "S7-b3": {
+      "redLog": "s7b3-red.log",
+      "redLogSha256": "cf67d67719d9215edc64e1495cbb805344472679e1452a527742882ba9b7d8b7",
+      "result": "Tests: 1 failed, 7 passed, 8 total",
+      "redRows": [
+        "offers exactly one derivation of started, not two — today the module's export keys include 'isMatchJournalAuthorityStartedDerived'"
+      ],
+      "greenLog": "s7b3-green-scoped.log",
+      "greenLogSha256": "7c6525d10c79ddce9c5dddfb1e8d395a16819f243601ce80f43b393985ba0ec1",
+      "greenResult": "Test Suites: 177 passed, 177 total; Tests: 1364 passed, 1364 total"
+    }
+  },
+  "assertionMigration": {
+    "why": "Sub-prefix 2's first attempt regressed 11 pre-existing tests because \"recovery/rollback suites commit batches on stores without a capability DB so the marker is their only started record\" (roadmap.json R4.S3.subPrefix2.firstAttempt). The S5-S7 brief's prescription for S7-b is to migrate those assertions onto capability-backed fixtures that get a REAL mirrored head via S7-a's seeding. That is what was done.",
+    "journalAuthorityRecovery.test.ts": {
+      "rowsMigrated": 4,
+      "how": "A new `makeJournalledHost` fixture opens a temp campaign database through getSQLiteService and wires it as the store's capabilityDb, at mode 'enabled' so the create path seeds. Every other row in the file keeps its InMemoryMatchStore, because they are about the command path and the three faults rather than about started. The fixture asserts `deriveMatchJournalAuthorityStartedHead(...).kind === 'started'` so a fixture that silently stops mirroring fails as a fixture.",
+      "strengthChange": "The `ROLLBACK: %s mode cannot override a started fact` sweep is now STRONGER: the stream is mirrored while the mode is on and recovered at each of off/shadow/enabled, so it proves started is a property of the stream's persisted rows. Marker-backed, it only proved a row on the match database is mode-independent.",
+      "deadHelperRemoved": "`dumpRollbackFacts` (the InMemory rollback-facts dump) lost its last caller and was deleted; `dumpJournalledRollbackFacts` replaces it and reports the derived outcome instead of the marker."
+    },
+    "journalAuthorityRollbackProof.test.ts": {
+      "rowsMigrated": 4,
+      "how": "`openJournalStore(file)` wires a temp campaign database beside the match file for the four rows that need a started stream. The two pre-cutover rows (`legacy-reopen`, `baseline-only`) keep their plain stores ON PURPOSE — a match admitted with no capability database really has no journal, and proving it still reads legacy is the point of those rows, and is the same property decision2 rests on.",
+      "corruptionMatrixRepointed": "The `unsupported effective generation` row corrupted `UPDATE mp_journal_authority_started SET effective_generation = 2`. It now corrupts `UPDATE event_history_effective_heads SET effective_generation = 2 WHERE stream_type='match' AND stream_id = ?` in the capability database — the row an operator would actually have to corrupt once the head is the only source of an effective generation. Its falsification power is confirmed by slice 3's mutant M4, which hard-codes `effectiveGeneration: 1` in the derivation and is killed by exactly this row."
+    },
+    "matchRecoveryStartedFromJournalHead.sqlite.test.ts": {
+      "rowsFlipped": 2,
+      "how": "Rows 1 and 6 — the two arms that honoured the marker — now assert `{kind:'legacy-compatible'}`, each with a comment recording what S3-b expected and what actually happened. The file header was rewritten to say which half of the transition rule survived (head wins where it exists, rows 4 and 5) and which was retired.",
+      "note": "Row 1's S3-b comment predicted a refusal. The rewrite says plainly that the answer is the legacy reader, not the refusal S3-b guessed at, and points at the new suite for why."
+    },
+    "journalAuthorityAdmission.test.ts / journalAuthorityPath.test.ts": {
+      "rowsChanged": 2,
+      "how": "HAPPY ADMISSION's trailing `getJournalAuthorityStarted(...)` is now `toBeNull()` — the admission baseline it already asserts is the pre-command record that row is named for. `STARTED FACT` was rewritten from 'written once and later commands leave it' to 'no command writes one; the receipts are what commit', keeping the contiguity property (each command's receipt starts one past the previous one's last revision) that always mattered."
+    }
+  },
+  "mutantMatrices": {
+    "method": "Each mutant is a single-anchor source edit applied to the product file, run against the named suites, then restored from a pre-mutant copy; `cmp -s` confirmed byte-identical restoration and `git status --short` was verified after each matrix. No mutant is in any commit. For slices 1 and 2 the mutated tree is byte-identical to the content of the product commit that followed (the matrices were run immediately before committing, on the same working tree, with the product file restored and the slice re-run green before `git add`); for slice 3 the matrix ran on the working tree that became dd6c5e7bf.",
+    "S7-b1": {
+      "target": "src/lib/multiplayer/server/ServerMatchHost.ts (selectRecoveredMatchRollbackReader)",
+      "suites": "matchMarkerRetirementRecovery + matchRecoveryStartedFromJournalHead + journalAuthorityRecovery + journalAuthorityRollbackProof (30 rows)",
+      "count": 4,
+      "rows": [
+        {
+          "id": "M1",
+          "mutation": "restore S3-b's marker fallback verbatim (`marker?.head ?? null`)",
+          "outcome": "KILLED — 4 failed, 26 passed. Exactly the four retirement rows across the two recovery suites; nothing else moved, so the slice's blast radius is the marker arm and only the marker arm.",
+          "log": "s7b1-mutant-M1.log",
+          "sha256": "3d700325bb67ce3f2b2a9c0a729ed8c0bea8675e4b24e536cad4cab7a568887d"
+        },
+        {
+          "id": "M2",
+          "mutation": "substitute the admission baseline as a started head when `derived.kind === 'unavailable'` (the rejected baseline-keyed design)",
+          "outcome": "KILLED — 2 failed. `still selects the legacy reader for an admitted match whose head is unreadable` AND `proves baseline-only rollback compares every persisted baseline tuple field to the durable head`. THIS IS THE DECISIVE MEASUREMENT behind decision2: the refusal S3-b promised, implemented on the only capability-db-independent signal available, breaks a shipped pre-cutover legacy read.",
+          "log": "s7b1-mutant-M2.log",
+          "sha256": "1fd616f7434ae6976bd3eacdf08165be2438b2ca4d06b99390b9acd2fbdc3578"
+        },
+        {
+          "id": "M3",
+          "mutation": "keep the marker, but only when `derived.kind === 'unavailable'` (the narrower half of S3-b's arm)",
+          "outcome": "KILLED — 2 failed, and a DIFFERENT pair from M1: only the two unreadable-head rows. The suites discriminate 'never consults the marker' from 'consults it only when the head is unreadable'.",
+          "log": "s7b1-mutant-M3.log",
+          "sha256": "98be0b559105f6759e109b2cb2f6b2d165d0c8255fba6c53cf309159b248a05e"
+        },
+        {
+          "id": "M4",
+          "mutation": "`startedHead` is always null (nothing is ever started)",
+          "outcome": "KILLED — 12 failed, including all four migrated recovery rows and all four migrated rollback-proof rows. The migration carried its falsification power across.",
+          "log": "s7b1-mutant-M4.log",
+          "sha256": "2094d852e3391469b8a024266456b54f54502bd781f8d7a9e441ee13873934cd"
+        }
+      ]
+    },
+    "S7-b2": {
+      "target": "src/lib/multiplayer/server/ServerMatchHostJournalAuthority.ts",
+      "suites": "matchMarkerWriteRetired + journalAuthorityPath + journalAuthorityAdmission + journalAuthorityShadow (27 rows)",
+      "count": 4,
+      "rows": [
+        {
+          "id": "M1",
+          "mutation": "restore the marker write unconditionally",
+          "outcome": "KILLED — 7 failed, including the durable guard row (which the original conditional write left green). Confirms the guard row is not inert.",
+          "log": "s7b2-mutant-M1.log",
+          "sha256": "153e5655f1425b9e8e7a874f1885740972dcfd779bc44dacb669cbbe6d6835d8"
+        },
+        {
+          "id": "M2",
+          "mutation": "`journalAuthorityStarted: undefined` — the key present with no value",
+          "outcome": "KILLED — 1 failed, and ONLY `offers the store a batch with no started fact on it at all`. The sharp discriminator: a store read-back cannot see this mutant, only key presence can, which is why that row exists.",
+          "log": "s7b2-mutant-M2.log",
+          "sha256": "eeb66dcf86ccff2f51aff3d07bb6fcbc55e769209e4771721c2f4a1bcf25d694"
+        },
+        {
+          "id": "M3",
+          "mutation": "restore the write in its original conditional form (skipped when the derived head already says started)",
+          "outcome": "KILLED — 6 failed. The faithful undo; it spares the durable guard row exactly as the pre-slice code did, which is the measurement behind the claim that the write's remaining reach was the journal-less stores.",
+          "log": "s7b2-mutant-M3.log",
+          "sha256": "71b30d48642246bf06798b0d2d848b1d46ce51e5d4c9d2d315792793d6a32ff0"
+        },
+        {
+          "id": "M4",
+          "mutation": "`journal.setLastBroadcastSeq(events[0].sequence)` instead of the batch's last event",
+          "outcome": "SURVIVED — 27 passed in scope, and 1130 passed across the whole of src/lib/multiplayer/server (s7b2-mutant-M4-wide.log). A PRE-EXISTING coverage gap, not one this slice created. Disclosed as OQ-3. The slice's response was to stop touching the line at all: `const last = events[events.length - 1];` was restored as a standalone statement so the expression the call site passes is byte-identical to the pre-slice code.",
+          "log": "s7b2-mutant-M4.log",
+          "sha256": "a998f409369446896aa8e193e1ef88fcede413fef2290ede8f0e3076fbf95456",
+          "wideLog": "s7b2-mutant-M4-wide.log",
+          "wideSha256": "eaebcf29d53f7bd31b20f32dd5ad31eb026c5b2e238c37b8592f1d6ebf7d5e7a"
+        }
+      ]
+    },
+    "S7-b3": {
+      "target": "src/lib/multiplayer/server/matchJournalAuthorityStartedDerived.ts",
+      "count": 4,
+      "rows": [
+        {
+          "id": "M1",
+          "mutation": "re-add an equivalent boolean projection under a different name (`isMatchJournalAuthorityStarted`)",
+          "outcome": "KILLED — 1 failed, the module-surface row. The pin is about one derivation, not one identifier.",
+          "log": "s7b3-mutant-M1.log",
+          "sha256": "7bd085926573d34e242b0abe7759897b2937131336c544397a651749b99db020"
+        },
+        {
+          "id": "M2",
+          "mutation": "collapse the `unavailable` outcome into `not-started`",
+          "outcome": "SURVIVED — 1364 passed across the full scoped set (src/lib/events/journal + src/lib/multiplayer/server). This is a real and important finding, not a gap to paper over: after this slice removed the marker arm, `unavailable` and `not-started` both route to the legacy reader, so the tri-state carries no observable difference anywhere today. It is carried for S7-d's sake. Disclosed as OQ-4.",
+          "log": "s7b3-mutant-M2.log",
+          "wideLog": "s7b3-mutant-M2-wide.log",
+          "wideSha256": "2dcd20b73eadcdc0784175667133d9ed73e7e4d0671fe8f617ae1c873bce7087"
+        },
+        {
+          "id": "M3",
+          "mutation": "a missing head answers `unavailable` instead of `not-started`",
+          "outcome": "KILLED at full scope — 2 failed, both in S7-a2's own suite (`seeds nothing at all while the cutover mode is off`, `reports a match created before this change rather than seeding it`). Survived the 3-suite narrow scope, which is why it was re-run wide. Log: s7b3-mutant-M3-wide.log.",
+          "log": "s7b3-mutant-M3.log",
+          "wideSha256": "4e6010dcd5275b93ff3711c7e26016c4fcaef100e0e3658b54f38a69cc0a8d1e"
+        },
+        {
+          "id": "M4",
+          "mutation": "hard-code `effectiveGeneration: 1` on the derived head",
+          "outcome": "KILLED — 1 failed, `proves post-command incompatible rollback blocks unsupported effective generation`. That is the migrated corruption row from slice 1, so this mutant is also the proof that repointing the corruption from the marker table to the effective-head table preserved the row's falsification power.",
+          "log": "s7b3-mutant-M4.log",
+          "sha256": "1c73d8f2fe935aed85e8a38daf4fec4ea103caa4ff7e3b402e993a668df3165a"
+        }
+      ]
+    }
+  },
+  "gateTables": {
+    "note": "Per-slice gates were run before each product commit; the table below is the FINAL sweep on the delivered tree (HEAD = dd6c5e7bf). Per-slice logs are in the same directory under the s7b1-/s7b2-/s7b3- prefixes and are listed in redFirstEvidence.",
+    "final": [
+      {
+        "gate": "scoped jest `src/lib/events/journal src/lib/multiplayer/server` --maxWorkers=2",
+        "command": "node node_modules/jest/bin/jest.js --maxWorkers=2 --coverage=false src/lib/events/journal src/lib/multiplayer/server",
+        "exit": 0,
+        "result": "Test Suites: 177 passed, 177 total; Tests: 1364 passed, 1364 total",
+        "log": "final-scoped-jest.log",
+        "sha256": "f673f5669edd239a1b1e2ce5ef1fb1db461b2f765ecc4c456eb26480ca9cfda8"
+      },
+      {
+        "gate": "npx tsc --noEmit -p tsconfig.json",
+        "exit": 0,
+        "result": "no output",
+        "log": "final-tsc.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "gate": "npx oxfmt --check (11 changed files)",
+        "exit": 0,
+        "result": "All matched files use the correct format.",
+        "log": "final-oxfmt.log",
+        "sha256": "e4bda476bd0bbd1ceca5690dffa94cd506569bbc5db364f632a510e44587ce2c"
+      },
+      {
+        "gate": "npx oxlint (11 changed files)",
+        "exit": 0,
+        "result": "Found 1 warning and 0 errors. The warning is eslint(max-lines) on ServerMatchHost.ts (938 lines, max 400) — PRE-EXISTING. CORRECTED AFTER REVIEW (finding F6): this slice made that file 6 lines shorter by wc -l (1555 at b9ab4a668 -> 1549 at dd6c5e7bf, both measured via `git show <sha>:<path> | wc -l` in this session) and 4 shorter by oxlint's own counter (942 -> 938). The receipt previously said 40, which was wrong — it conflated the hunk's +8/-48 line counts with the file length.",
+        "log": "final-oxlint.log",
+        "sha256": "c000f1b5dcb4206c20a3d478f23274fb90eecd2bb2e09268d8f645187f5a4229"
+      },
+      {
+        "gate": "npx openspec validate --all --strict",
+        "exit": 0,
+        "result": "Totals: 232 passed, 0 failed (232 items)",
+        "log": "final-openspec.log",
+        "sha256": "a6f1b01bad6ef535f7ae511fd2b0e725e382bcb462449ef4386723e0ec97eff3"
+      },
+      {
+        "gate": "pre-commit full `next build`",
+        "exit": 0,
+        "result": "ran on all six commits (every commit staged .ts files, so the hook's TypeScript branch fired each time); each commit was issued only after the node next-build process count polled to zero",
+        "log": "the hook's own output; s7b1-red-commit.log is the retained sample"
+      }
+    ]
+  },
+  "nonClaims": [
+    "NO MODE FLIP. COMBAT_JOURNAL_AUTHORITY_MODE is still the hardcoded `'off' as CombatJournalAuthorityMode` at matchJournalAuthority.ts:18-19 — re-read at HEAD, not remembered. Every new fixture reaches a non-off mode only through `_setCombatJournalAuthorityModeForTests`, and every suite restores `null` in afterEach.",
+    "NO SHALL IS DISCHARGED and no checkbox was ticked. Nothing under openspec/** was edited — not tasks.md, not design.md, not the notepad (this package's rule is that workers never edit openspec/**; the only file written under openspec/ is this untracked planning receipt).",
+    "S7-c UNTOUCHED. MatchRecovery.ts and MatchRecoveryJournalHead.ts have zero changes on this branch (git diff --name-only b9ab4a668 HEAD lists neither). The S4-R4 checkpoint-port routing is not started.",
+    "S7-d UNTOUCHED. No per-match migration state, no state machine, no rollback-law encoding, no busy_timeout pragma, no schema change of any kind. Owner decision OD-journal-writer-authority is not touched or pre-empted; decision2 above deliberately leaves the refusal to S7-d rather than guessing at it.",
+    "NO MIGRATION AND NO NEW DEPENDENCY. No table created, altered or dropped; package.json untouched.",
+    "THE MARKER SURFACE STILL EXISTS. The table, the store-level write, both stores' read methods, the IMatchStore port and the batch field are all still present (exact locations in design.decision5). What is gone is every PRODUCTION write and read of it. Anyone reading 'marker retirement' as 'the table is gone' should read OQ-2 first.",
+    "NOT PUSHED, NO PR. The parent publishes. `git status --short` is empty at HEAD; the branch exists only locally in the reconcile-1 worktree.",
+    "NO E2E, NO LIVE PROOF. Everything here is jest against real SQLite boundaries plus the pre-commit production build. No browser run, no pm2 restart, no live smoke."
+  ],
+  "openQuestions": [
+    {
+      "id": "OQ-1",
+      "severity": "medium",
+      "title": "The `unavailable` refusal S3-b promised is deferred to S7-d, not delivered here",
+      "detail": "S3-b's row 1 and the S5-S7 brief both name 'unavailable + marker -> blocked' as S7-b's headline. It is not deliverable without a durable, capability-db-independent record that a stream was MIRRORED; the admission baseline records ADMISSION, and mutant M2 measures that refusing on it breaks the shipped `baseline-only` legacy read. Today's answer (legacy reader) is pinned by the row `still selects the legacy reader for an admitted match whose head is unreadable`, written so S7-d turns it red deliberately.",
+      "askOfTheOwner": "Confirm that the refusal moves to S7-d's per-match migration state, and that S7-b's receipt narrowing the brief's redFirstTest is accepted."
+    },
+    {
+      "id": "OQ-2",
+      "severity": "medium",
+      "title": "The wording-amendment ruling is still owed: does the table, the read port and the batch field go?",
+      "detail": "The S5-S7 brief flags this as an owner ruling and recommends dropping the write, the read AND the table. This session delivered the production write and both production reads; the mechanism remains. Recommendation unchanged: drop all three, since the derived head is now the only thing production consults and a shim would recreate the two-sources drift task 1.3 exists to remove. The table can be retired non-destructively by removing its `CREATE TABLE IF NOT EXISTS` (new databases stop carrying it; existing rows are never erased, which matches the rollback law's 'no row erased').",
+      "readyToExecute": {
+        "production": [
+          "matchCommandBatch.ts:63 (field)",
+          "IMatchStore.ts:568 (port)",
+          "DurableMatchStore.ts:209 (DDL), :904-921 (INSERT), :1131 (read) and its row type/mapper",
+          "InMemoryMatchStore.ts:206,245-247 (write + guard), :315 (read), the `started` record field",
+          "matchJournalAuthority.ts:137 (IMatchJournalAuthorityStarted)"
+        ],
+        "tests": [
+          "journalAuthorityStarted.sqlite.test.ts (166 lines; delete — it tests only the marker write/read)",
+          "journalAuthorityStartedDerived.sqlite.test.ts",
+          "matchRecoveryStartedFromJournalHead.sqlite.test.ts",
+          "matchMarkerRetirementRecovery.sqlite.test.ts",
+          "matchMarkerWriteRetired.test.ts",
+          "matchRollbackReaderSelection.test.ts",
+          "journalAuthorityAdmission.test.ts",
+          "journalAuthorityShadow.test.ts",
+          "journalAuthorityPath.test.ts",
+          "journalAuthorityRollbackProof.test.ts (its dump())"
+        ],
+        "sizing": "~14 files; the deletion alone is 166 lines. Expect one test-only commit (migrate every suite off the marker, delete the marker-only suite) followed by one production commit (delete the surface), rather than one commit — measured against the 15-file / 500-line caps.",
+        "sideEffect": "Several rows added in THIS stack ('ignores the marker when...') become vacuous once a marker cannot be constructed, and would be deleted in that pair. That is the intended end state — the property becomes unrepresentable rather than tested — but it is churn a reviewer should expect."
+      },
+      "askOfTheOwner": "Rule: drop the table + read + field, or keep the read as a compatibility shim."
+    },
+    {
+      "id": "OQ-3",
+      "severity": "low",
+      "title": "`setLastBroadcastSeq` on the journal-authority commit path is unpinned",
+      "detail": "Mutant M4 of slice 2 (pass the FIRST event's sequence instead of the last) survives all 1130 tests in src/lib/multiplayer/server. Pre-existing, not introduced here: the slice restored `const last = events[events.length - 1];` so the argument is byte-identical to the pre-slice code, and the mutant would have survived before this slice too. Not filed as a pending task under the file-decision rubric — it is an observability/coverage gap, which the rubric folds inline — but it needs a row somewhere it belongs, and that is not this slice.",
+      "askOfTheOwner": "None. Recorded so a later journal-path slice can fold in the row."
+    },
+    {
+      "id": "OQ-4",
+      "severity": "low",
+      "title": "The `unavailable` outcome now has no observable behaviour",
+      "detail": "Mutant M2 of slice 3 collapses `unavailable` into `not-started` and survives the full scoped set (1364 passed). Before this slice the distinction was load-bearing through the marker arm; with that arm gone both route to the legacy reader. The tri-state is retained because S7-d's migration state is what gives `unavailable` a distinct answer again (OQ-1). Until then it is carried, documented, and unpinned.",
+      "askOfTheOwner": "Confirm the tri-state stays. If S7-d's shape changes such that `unavailable` will never be distinguished, it should collapse rather than linger."
+    },
+    {
+      "id": "OQ-5",
+      "severity": "low",
+      "title": "A create-path-seeded match with no committed command recovers as blocked/'missing-journal-head'",
+      "detail": "Measured while writing slice 1's suite, not previously recorded: after S7-a2, a match seeded on create has an effective head but no command receipt, so `journalHeadFromReceipt` returns null and `selectMatchRollbackReader` blocks with 'missing-journal-head'. Fail-closed and NOT a legacy fallback, which is the right direction, but it means a freshly created match at a non-off mode is not recoverable until its first command commits. Pinned by the row `refuses a seeded match that has committed no command, rather than serving it` so the answer cannot drift silently. Unchanged by this slice — it is S7-a's shape, surfaced here.",
+      "askOfTheOwner": "Whether S7-d (or S7-c's checkpoint-port routing) should make a seeded-but-uncommanded match servable, or whether blocking until the first command is the intended cutover behaviour."
+    },
+    {
+      "id": "S7b-Q6",
+      "severity": "low-medium",
+      "title": "Should the journal-authority COMMAND path consult persisted head integrity, now that nothing does?",
+      "detail": "See the F2 section for the mechanism, file:line and the inert-at-mode-off statement. In one line: at mode 'enabled' a corrupt persisted head no longer refuses a command typed; it commits and records a shadow mismatch. Inert at the shipped mode, unpinned at base, disclosed on the PR.",
+      "askOfTheOwner": "Decide in S7-d whether a corrupt head should fail the command closed (restoring an integrity consult on the command path, reading the migration state rather than the marker), or whether recovery-time and divergence-time refusal is the intended boundary and the command path should stay integrity-blind. Either way it wants a pinning row; there is none today.",
+      "source": "Review finding F2, reproduced in this session."
+    }
+  ],
+  "summaryForParent": {
+    "commits": [
+      "adf4af47b",
+      "fb8648125",
+      "89ae25352",
+      "fd76b3dc1",
+      "e4a66c5ec",
+      "dd6c5e7bf"
+    ],
+    "head": "dd6c5e7bf",
+    "stackDependsOn1738": "satisfied by the base: #1738 is on main as a8ec5105d",
+    "delivered": "Task 1.3's 'one source of started' is true in production: recovery reads only the mirrored effective head, the command path writes no marker, and the duplicate derived projection is gone. 10 pre-existing assertions were migrated onto capability-backed fixtures with real mirrored heads rather than weakened.",
+    "notDelivered": "The `unavailable` refusal (OQ-1, measured unsound here, belongs to S7-d) and the table/port/field removal (OQ-2, owner-gated wording amendment).",
+    "rebasedStack": "Rebuilt onto origin/main 9624b38f9 as three stacked PRs: #1744 (02422b84c) -> #1745 (5e37201b9) -> #1746 (6131c359f). The original single-branch commits adf4af47b..72e385c2b remain on codex/roadmap-r4-s7b-marker-retirement-20260915."
+  },
+  "reviewEdits": {
+    "reviewArtefact": "openspec/planning/2026-09-12-roadmap-completion/evidence/r4-s7b-review-20260915.json",
+    "verdict": "APPROVE, 0 blocking, 6 non-blocking (F1-F6). No finding blocked publication.",
+    "commit": "72e385c2b on the original branch; cherry-picked as 6131c359f onto the rebased stack (PR #1746)",
+    "subject": "docs(journal): apply S7-b review edits to the started-derivation comments",
+    "appliedVerbatim": [
+      {
+        "id": "E1",
+        "addresses": "F1",
+        "file": "src/lib/multiplayer/server/__tests__/matchRecoveryStartedFromJournalHead.sqlite.test.ts",
+        "what": "migrated row 1's stale in-body comment still said the decision falls back to the marker, eleven lines above an assertion that it does not; replaced with the retirement's actual rule."
+      },
+      {
+        "id": "E2",
+        "addresses": "F5",
+        "file": "src/lib/multiplayer/server/matchJournalAuthorityStartedDerived.ts",
+        "what": "the tri-state doc claimed collapsing unavailable into not-started would let a started match be routed back to the legacy reader; measured false at HEAD (slice-3 mutant M2 survives all 1364 scoped tests). Replaced with the reviewer's text stating the distinction carries no observable behaviour today and is retained for S7-d."
+      },
+      {
+        "id": "E3",
+        "addresses": "F3",
+        "file": "src/lib/multiplayer/server/__tests__/matchMarkerRetirementRecovery.sqlite.test.ts",
+        "what": "OQ-1's deferred-refusal row retitled to end 'which S7-d must flip to a refusal', restoring the tripwire naming convention S3-b used, which is what made THIS slice find and honour its predecessor. A test title, not a comment."
+      },
+      {
+        "id": "E4",
+        "addresses": "F4",
+        "file": "src/lib/multiplayer/server/__tests__/matchRecoveryStartedFromJournalHead.sqlite.test.ts",
+        "what": "migrated row 1 asserted legacy-compatible without first proving a marker was present, so it would have passed vacuously if startedMarker() ever stopped producing one. Added the same anti-vacuity guard its pair (row 6) and both equivalent rows in the new suite already carry. An added assertion, not a comment."
+      }
+    ],
+    "appliedBeyondRequiredEdits": [
+      {
+        "id": "E2b",
+        "addresses": "the second clause of F5",
+        "file": "src/lib/multiplayer/server/matchJournalAuthorityStartedDerived.ts",
+        "what": "F5's location names line 68-78 AND the header at 5-13, and says the header's phrase 'Two facts currently claim to answer that question' is untrue after this slice. requiredEdits supplied no old/new text for the header, so this wording is MINE, not the reviewer's: the header now reads 'Two facts USED TO claim' and states that task 1.3's sub-prefix 3 finished the repointing so no production code reads the marker. Flagged explicitly because it is the one edit in the commit the reviewer did not author; revert or reword freely.",
+        "risk": "comment-only; no assertion, no behaviour."
+      }
+    ],
+    "notCodeChanges": "E5 is receipt-only and was applied to this file: (a) F2 named in design.decision3, (b) the oxlint line-count arithmetic corrected in gateTables.final, (c) stackDependency.publishingNote marked superseded.",
+    "commitContents": "5 edits across 3 files. Two are comments (E1, E2 plus E2b), one is a test title (E3), one adds an assertion (E4). Described as documentation rather than strictly comment-only because E3 and E4 touch non-comment lines; git diff -U0 filtered to non-comment lines shows exactly those two and nothing else.",
+    "gates": {
+      "oxfmt --check (3 files)": "exit 0, all files correctly formatted",
+      "oxlint (3 files)": "Found 0 warnings and 0 errors",
+      "tsc --noEmit": "exit 0",
+      "jest (the 3 suites the edits touch)": "exit 0, Tests: 20 passed, 20 total",
+      "pre-commit next build": "exit 0"
+    }
+  },
+  "F2": {
+    "title": "Removing the alreadyStarted read also removed the command path's fail-closed catch for a corrupt persisted head",
+    "source": "Review finding F2 (severity low-medium, non-blocking). Reproduced independently in this session rather than taken on the reviewer's word.",
+    "mechanism": "At base, commitJournalAuthorityCommand wrapped the alreadyStarted read in a try/catch whose sole purpose, per its own comment, was: a corrupt head throws here, between this function's two try blocks, so it is caught and typed into the same fail-closed STORE_FAILURE shape the store's own append failures take, rather than escaping the command path uncaught. deriveMatchJournalAuthorityStartedHead deliberately does NOT catch EventHistoryBranchError branch-integrity: a head naming a non-effective branch is persisted corruption and the derivation lets it throw. Removing the read removed the catch with it, so the command path no longer consults head integrity at all.",
+    "fileLine": "src/lib/multiplayer/server/ServerMatchHostJournalAuthority.ts, b9ab4a668 lines 199-210 (the let alreadyStarted / try / catch block returning persistenceFailure with reason 'started read failed'). Removed by fd76b3dc1. Verified absent at HEAD: git grep 'started read failed' dd6c5e7bf -- src/ returns nothing.",
+    "behaviourAtModeEnabled": "A match whose persisted effective head names a non-effective branch used to have its next command refused typed. It now COMMITS that command, and the corruption surfaces only as a journal-mirror shadow mismatch recorded by DurableMatchStore.mirrorCommittedBatch's own catch: a counter, not a refusal.",
+    "inertAtModeOff": "STATED EXPLICITLY: at the shipped mode COMBAT_JOURNAL_AUTHORITY_MODE = 'off' (matchJournalAuthority.ts:18-19, re-read at HEAD) this path is unreachable twice over. commitJournalAuthorityCommand throws unless journal.enabled, and admission requires mode 'enabled' (admitJournalAuthority returns inert unless mode is 'enabled' and the match requested it). There is no production behaviour to narrow.",
+    "unpinnedAtBase": "No test fell when the catch was removed. The 10 failures the blast-radius run measured were all marker-arm rows. The only corrupt-head rows in the tree are a derivation row (journalAuthorityStartedDerived.sqlite.test.ts) and a recovery row (matchRecoveryStartedFromJournalHead.sqlite.test.ts); neither drives the command path. That is why the measurement did not surface it, and it is the honest reason this was found by review rather than by the slice.",
+    "whyItIsStillDefensible": "The guard existed only for a read that no longer happens; keeping it would have meant keeping the read, which is the thing task 1.3 retires. Recovery's typed refusal and S4's divergence refusal still catch the corrupt-head shape at boot, so a corrupt stream is still refused before it is served, just not mid-command.",
+    "correctsTheReceipt": "design.decision3 previously said only that the removal cannot change production behaviour today. True at mode 'off', but not the whole story, and the unqualified phrasing understated a real narrowing at mode 'enabled'.",
+    "carriedAs": "S7b-Q6 (see openQuestions), a question for S7-d: should the command path consult head integrity at all, or is boot-time refusal the intended boundary?"
+  },
+  "rebasedStack": {
+    "why": "#1738 (S7-a2) landed on main as a8ec5105d, so the stack dependency is satisfied by the base and the work no longer needs to be published against the S7-a branch. Rebuilt onto origin/main by cherry-pick only: no merge, no force-push, no rebase -i.",
+    "originMain": "9624b38f9ac7dfcc946e5eea4a68d7189691e48b (after git fetch origin; matches the coordinator's stated main)",
+    "s7a2OnMain": "a8ec5105d verified an ancestor of origin/main via `git merge-base --is-ancestor a8ec5105d origin/main` (exit 0)",
+    "originalBranch": "codex/roadmap-r4-s7b-marker-retirement-20260915 @ 72e385c2b (base b9ab4a668). Left in place, not deleted, not force-pushed.",
+    "preconditionVerifiedIndependently": {
+      "claim": "The reviewer measured every file this slice touches as byte-identical between b9ab4a668 and origin/main. Re-measured here rather than trusted.",
+      "method": "For each of the 11 touched paths, compare `git rev-parse b9ab4a668:<path>` with `git rev-parse origin/main:<path>` (blob sha, not a textual diff). Two paths are NEW files and are absent on both sides, which is the correct precondition for a pick that creates them.",
+      "result": "11 of 11 IDENTICAL. No conflicts arose in any of the seven picks."
+    },
+    "branches": [
+      {
+        "order": 1,
+        "name": "codex/roadmap-r4-s7b-1-recovery-source-20260915",
+        "branchedFrom": "origin/main 9624b38f9",
+        "picked": [
+          "adf4af47b -> c98ada42a (red)",
+          "fb8648125 -> 02422b84c (product)"
+        ],
+        "head": "02422b84c1b345f4158a38e69cff4b0437904228",
+        "pr": 1744,
+        "title": "feat(journal): recovery reads only the mirrored effective head"
+      },
+      {
+        "order": 2,
+        "name": "codex/roadmap-r4-s7b-2-command-path-20260915",
+        "branchedFrom": "codex/roadmap-r4-s7b-1-recovery-source-20260915",
+        "picked": [
+          "89ae25352 -> 3a2abe8e4 (red)",
+          "fd76b3dc1 -> 5e37201b9 (product)"
+        ],
+        "head": "5e37201b9969799ede068826cc2fa7c57c0051b5",
+        "pr": 1745,
+        "title": "feat(journal): the command path writes no started marker"
+      },
+      {
+        "order": 3,
+        "name": "codex/roadmap-r4-s7b-3-derivation-20260915",
+        "branchedFrom": "codex/roadmap-r4-s7b-2-command-path-20260915",
+        "picked": [
+          "e4a66c5ec -> 85c47bbb7 (red)",
+          "dd6c5e7bf -> 839f24fa3 (product)",
+          "72e385c2b -> 6131c359f (review edits)"
+        ],
+        "head": "6131c359fdbeca520f795647ba29420036c34d7b",
+        "pr": 1746,
+        "title": "refactor(journal): retire the dangling started-derivation surface"
+      }
+    ],
+    "mergeOrder": "#1744 -> #1745 -> #1746. Each PR targets main and contains only its own pair; 2 and 3 read as their own diff only once their predecessor merges.",
+    "treeIdentityAfterRebase": {
+      "method": "Per-file blob sha comparison between 72e385c2b (the reviewed head) and 6131c359f (the rebased head) for all 11 touched paths, plus `git diff 72e385c2b 6131c359f -- <the 11 paths> --stat`.",
+      "perFile": "11 of 11 IDENTICAL",
+      "diffOldToNew": "EMPTY. The rebase carried the reviewed content across unchanged; nothing was re-resolved, re-formatted or re-authored."
+    },
+    "hygiene": {
+      "authors": "All seven commits on the rebased stack are `Wes Rollings <wrollings@gmail.com>` (cherry-pick preserves the original author). Verified with `git log 9624b38f9..6131c359f --format='%h|%an <%ae>|body=[%b]'`.",
+      "trailers": "Every commit body is EMPTY — no AI attribution, no Co-Authored-By, no trailer of any kind. Same for the three PR bodies.",
+      "worktree": "git status --short empty at every step.",
+      "noForce": "Three fresh branches, each pushed once with `git push -u origin <branch>`. Nothing force-pushed; the original branch is untouched."
+    },
+    "gatesOnTopBranch": {
+      "ranOn": "codex/roadmap-r4-s7b-3-derivation-20260915 @ 6131c359f (the top of the stack, so it exercises all three pairs together on current main)",
+      "twoNamedSuites": "node node_modules/jest/bin/jest.js --maxWorkers=2 --coverage=false matchMarkerRetirementRecovery.sqlite.test.ts matchMarkerWriteRetired.test.ts -> exit 0, Test Suites: 2 passed, Tests: 8 passed. Log: rebased-two-suites.log",
+      "focusedScope": "node node_modules/jest/bin/jest.js --maxWorkers=2 --coverage=false src/lib/events/journal src/lib/multiplayer/server -> exit 0, Test Suites: 177 passed / 177, Tests: 1367 passed / 1367. Log: rebased-scoped-jest.log. (1364 on the old base; the extra 3 come from main's own movement between b9ab4a668 and 9624b38f9.)",
+      "tsc": "npx tsc --noEmit -p tsconfig.json -> exit 0, no output. Log: rebased-tsc.log",
+      "oxfmt": "npx oxfmt --check over all 11 touched files -> exit 0, all correctly formatted. Log: rebased-oxfmt.log",
+      "notRerun": "oxlint and openspec validate were not re-run on the rebased stack: the tree is byte-identical to the reviewed one for every touched path, and neither gate reads anything outside it. Their HEAD results are in gateTables.final."
+    },
+    "prs": [
+      {
+        "number": 1744,
+        "head": "02422b84c",
+        "title": "feat(journal): recovery reads only the mirrored effective head",
+        "url": "https://github.com/SwiggitySwerve/MekStation/pull/1744"
+      },
+      {
+        "number": 1745,
+        "head": "5e37201b9",
+        "title": "feat(journal): the command path writes no started marker",
+        "url": "https://github.com/SwiggitySwerve/MekStation/pull/1745"
+      },
+      {
+        "number": 1746,
+        "head": "6131c359f",
+        "title": "refactor(journal): retire the dangling started-derivation surface",
+        "url": "https://github.com/SwiggitySwerve/MekStation/pull/1746"
+      }
+    ]
+  }
+}

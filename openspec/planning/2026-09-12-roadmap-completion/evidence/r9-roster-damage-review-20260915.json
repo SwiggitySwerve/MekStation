@@ -1,0 +1,166 @@
+{
+  "evidenceKind": "r9-roster-damage-independent-review",
+  "date": "2026-09-15",
+  "node": "R9.roster-damage",
+  "reviewer": "independent reviewer (fresh session, no shared context with the preparer)",
+  "worktreeVerified": {
+    "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/browser",
+    "branch": "codex/roadmap-r9-roster-damage-20260915",
+    "gitLogOneline5": [
+      "f5d3db42f feat(campaign): populate unit construction maxima from the source authority",
+      "2e0e62fe9 test(campaign): characterize construction-maxima population for roster units",
+      "b325ae191 fix(campaign): derive roster damage bar from construction maxima",
+      "608e2f1b3 test(campaign): characterize roster damage bar against construction maxima",
+      "231c7848a feat(campaign): refresh the client record after a committed acceptance is acknowledged (#1724)"
+    ],
+    "gitStatusShort": "clean (verified via `git status --short`)",
+    "note": "All 4 commits confirmed present in exact order; no unaccounted commits."
+  },
+  "verdict": "APPROVE",
+  "packagingRecommendation": "PR-S1 (608e2f1b3 + b325ae191, 3 distinct files, 364 changed lines) then PR-S2 (2e0e62fe9 + f5d3db42f, 5 distinct files, 498 changed lines) as the preparer proposed. Both PRs individually satisfy the roadmap node's maxFiles:5 / maxNonGeneratedLines:500 caps -- confirmed by `git diff --stat 231c7848a b325ae191` (3 files, 340 insertions + 24 deletions = 364) and `git diff --stat b325ae191 f5d3db42f` (5 files, 498 insertions + 0 deletions = 498). The whole-branch 8-file count the preparer flagged as exceeding the cap is only a concern if packaged as a single PR; splitting at the S1/S2 boundary the preparer already used resolves it with no further split needed. PR-S2 lands at 498/500 lines -- 2 lines of headroom, worth a note to the parent that any further S2 addition (e.g. fixing the IUnitMaxState doc-comment open question) will need its own follow-up PR rather than being folded in.",
+  "perClauseTable": [
+    {
+      "clause": "1a - characterize armor-damaged-but-not-destroyed unit at the real roster-card boundary",
+      "verdict": "SATISFIED",
+      "evidence": "S1 red commit 608e2f1b3, file src/components/campaign/__tests__/RosterStateCards.test.tsx, row (a) 'derives the damage figure from current armor/structure against construction maxima when nothing is destroyed'. Reproduced red-first: ran `npx jest src/components/campaign/__tests__/RosterStateCards.test.tsx --maxWorkers=2` against the log file s1-red-jest.log (sha256 matches, see redFirstVerification) showing 4 failed/1 passed at that commit's state. Row (c) additionally proves the OLD destroyed-count heuristic rendered a Damage block for a unit with zero armor/structure loss -- the false-positive half of the same clause."
+    },
+    {
+      "clause": "1b - resolve maxima through canonical/custom source authority; missing maxima explicitly unavailable, no stock substitution/fabricated percentage",
+      "verdict": "SATISFIED",
+      "evidence": "src/lib/campaign/maxState/unitMaxStateResolver.ts:67-88 (`resolveUnitMaxState`) calls `adaptUnit(unitRef, {}, readCustom)` from `src/engine/adapters/CompendiumAdapter.ts:167`. Confirmed via `grep -n \"adaptUnit(\" src/engine/combatSeedDerivation.ts` that combat launch calls the SAME function at combatSeedDerivation.ts:56 -- one authority, not a parallel one. The render branch is RosterStateCards.tsx:270-296 (b325ae191 diff): `damageBar.damagePercent !== null && damagePercent > 0` renders the percentage; `damageBar.maximaUnavailable` (true exactly when `damagePercent === null`) renders 'Maxima unavailable' with no percentage and no stock fallback. Confirmed no stock-substitution code path exists by reading the full resolver file and by mutant S2-M1 (reproduced independently, see mutantTable) which proves the test suite catches a fabricated-maxima regression on the catch branch."
+    },
+    {
+      "clause": "1c - display damage from current armor+structure vs matching maxima; readiness stays a separate untouched projection; reactive updates proven",
+      "verdict": "SATISFIED",
+      "evidence": "computeDamagePercent (RosterStateCards.tsx:130-153) sums both maxArmorPerLocation and maxStructurePerLocation loops against currentArmorPerLocation/currentStructurePerLocation. Readiness: confirmed via `git diff 231c7848a f5d3db42f -- src/components/campaign/RosterStateCards.tsx | grep -n readiness` that no functional readiness code (getReadinessStyles, unit.readiness, Needs Repair block) was touched -- only a doc comment mentions the word. Test row (e) ('leaves the readiness badge and Needs Repair block untouched') is a pre-existing-pass regression guard, correctly reported by the preparer as NOT a red row rather than being miscounted as red-first evidence. Reactive update: test row (d) at RosterStateCards.test.tsx:177 uses `act(() => store.setState(...))` (grep-verified at test file lines 194/228) mutating a real Zustand store instance, matching the CampaignDashboardPage.reactivity.test.tsx precedent cited in the brief."
+    },
+    {
+      "clause": "1d - persistence of unitMaxStates round-trips through the existing save path with no unrequested migration",
+      "verdict": "SATISFIED",
+      "evidence": "`ICampaign.unitMaxStates` was already optional and already serialized/deserialized before this branch (this is pre-existing code, not part of this diff) -- the preparer's citations (serializeCampaign.ts:166/236, useCampaignStore.persistence.ts:288/381) describe existing code the branch does not modify. Confirmed via `git diff --stat 231c7848a f5d3db42f -- package.json package-lock.json` producing no output -- no new dependency, and no migration file was added (verified no new files under any migrations directory in the branch's file list)."
+    }
+  ],
+  "redFirstAssessment": {
+    "s1": {
+      "verdict": "GENUINE RED-FIRST",
+      "verification": "Recomputed sha256 of all 13 referenced log files in the log directory; every hash matched the receipt exactly (s1-red-jest.log, s1-green-jest.log, s1-mutant-1/2/3.log, s2-red-jest.log, s2-red-jest-noop-stub.log, s2-green-jest.log, s2-mutant-1/2/3/4/5.log -- 13/13 match). s1-red-jest.log independently confirmed to read 'Tests: 4 failed, 1 passed, 5 total' with the exact failure reasons claimed (missing damage-percent testid, missing unavailable testid, stale Damage block rendering, live-update testid missing)."
+    },
+    "s2": {
+      "verdict": "ACCEPTABLE HARNESS ACCOMMODATION",
+      "seamJudgment": "The 16-line no-op seam in 2e0e62fe9 (src/stores/campaign/campaignUnitMaxStates.ts) is declared (its own doc comment says 'Seam for R9.roster-damage slice S2. Declared here with no behaviour...'), is genuinely inert (`ensureCampaignUnitMaxStates` returns `Promise.resolve()` with no side effect, confirmed by reading the commit diff), and is fully replaced by the product commit f5d3db42f -- the diff for that commit rewrites the entire function body, leaving no trace of the no-op. The husky pre-commit tsc gate refusing a tests-only commit that imports a nonexistent module is a real, reproducible constraint (not a convenient excuse) -- `npx tsc --noEmit --skipLibCheck` on any commit importing an unresolvable relative module fails with TS2307 by construction. s2-red-jest-noop-stub.log independently confirmed: 'Tests: 5 failed, 5 total' with the five reasons claimed (undefined maxState, custom source never consulted, sibling unit poisoned, load-path no backfill, render throws before assertion)."
+    }
+  },
+  "mutantTable": [
+    {
+      "id": "S1-M1",
+      "reproducedIndependently": true,
+      "method": "Backed up RosterStateCards.tsx, replaced both `max - current` occurrences in computeDamagePercent with `current - max` via sed, ran `npx jest src/components/campaign/__tests__/RosterStateCards.test.tsx --maxWorkers=2`, restored via `git checkout --` and confirmed `diff -q` against the pristine backup was silent (RESTORES_CLEAN).",
+      "result": "Tests: 2 failed, 3 passed, 5 total -- matches the receipt's claimed result exactly (rows a and d)."
+    },
+    {
+      "id": "S1-M3",
+      "reproducedIndependently": true,
+      "method": "Changed the ternary `maxState ? computeDamagePercent(...) : null` to `: 0` via perl multi-line replace, ran the S1 focused suite, restored and confirmed RESTORES_CLEAN.",
+      "result": "Tests: 1 failed, 4 passed, 5 total -- matches the receipt's claimed result exactly (row b, the maxima-unavailable affordance)."
+    },
+    {
+      "id": "S2-M1",
+      "reproducedIndependently": true,
+      "method": "Backed up unitMaxStateResolver.ts, replaced the catch branch's `return null;` with a fabricated stock IUnitMaxState object, ran `npx jest src/stores/campaign/__tests__/campaignUnitMaxStates.test.tsx --maxWorkers=2`, restored and confirmed RESTORES_CLEAN.",
+      "result": "Tests: 1 failed, 5 passed, 6 total -- matches the receipt's claimed result exactly ('leaves the entry absent when the custom design is deleted' failed with the fabricated maxima visible in the assertion diff)."
+    },
+    {
+      "id": "S2-M4",
+      "reproducedIndependently": true,
+      "method": "Backed up useCampaignPersistenceStore.ts, commented out the `await ensureCampaignUnitMaxStates();` call inside runLoad's cacheStands-false branch, ran the S2 focused suite, restored and confirmed RESTORES_CLEAN.",
+      "result": "Tests: 1 failed, 5 passed, 6 total -- matches the receipt's claimed result exactly ('backfills a missing entry when an existing campaign is loaded' failed)."
+    },
+    {
+      "note": "4 of 6 mutants reproduced independently as instructed (2 per slice, chosen to cover both the read-side sign/fallback logic and the write-side authority/wiring logic). The remaining 2 (S1-M2 drop-structure-term, S2-M2/M3/M5 resolver routing variants) were not re-run but their logs' sha256 hashes were verified to match the receipt bit-for-bit, which is strong secondary evidence they were captured honestly rather than fabricated after the fact."
+    }
+  ],
+  "gateTable": [
+    {
+      "gate": "S1 focused jest",
+      "command": "npx jest src/components/campaign/__tests__/RosterStateCards.test.tsx --maxWorkers=2",
+      "exitCode": 0,
+      "counts": "not independently re-run standalone (covered by the scoped run below); s1-green-jest.log hash verified: c1b804bd... matches receipt"
+    },
+    {
+      "gate": "scoped jest (src/components/campaign src/stores/campaign src/lib/campaign)",
+      "command": "npx jest src/components/campaign src/stores/campaign src/lib/campaign --maxWorkers=2",
+      "exitCode": 0,
+      "counts": "261 suites passed / 261; 3559 tests passed / 3559 -- matches receipt's S2 scoped-gate counts exactly (this run reflects the final HEAD state, i.e. both S1 and S2 applied)"
+    },
+    {
+      "gate": "typecheck",
+      "command": "npx tsc --noEmit -p tsconfig.json",
+      "exitCode": 0,
+      "counts": "0 errors, empty output"
+    },
+    {
+      "gate": "format (all 7 non-spec changed files)",
+      "command": "npx oxfmt --check <7 changed .ts/.tsx files>",
+      "exitCode": 0,
+      "counts": "All matched files use the correct format, 7 files checked"
+    },
+    {
+      "gate": "lint (all 7 non-spec changed files, split by slice as receipt did)",
+      "command": "npx oxlint <changed files>",
+      "exitCode": 0,
+      "counts": "1 warning (eslint max-lines on useCampaignPersistenceStore.ts, 925/400), 0 errors -- log content byte-for-byte matches s2-gate-oxlint.log"
+    },
+    {
+      "gate": "pre-existing max-lines warning verification",
+      "command": "git show origin/main:src/stores/campaign/useCampaignPersistenceStore.ts | wc -l",
+      "exitCode": 0,
+      "counts": "1464 lines on origin/main before this branch's +6-line change (1470 after). 1464 already vastly exceeds the 400-line oxlint threshold, so the warning necessarily pre-existed; direct oxlint re-run on the isolated origin/main copy was attempted but the tool panicked on a path outside the repo root (rust ignore-crate gitignore resolution failure) -- the line-count arithmetic is treated as sufficient proof since 1464 >> 400 by a wide margin and the diff adds only 6 lines, none of which could plausibly cross a threshold already exceeded by 1064 lines."
+    },
+    {
+      "gate": "openspec strict",
+      "command": "npx openspec validate --all --strict",
+      "exitCode": 0,
+      "counts": "232 passed, 0 failed (232 items)"
+    },
+    {
+      "gate": "spec purpose strict",
+      "command": "npm run spec:purpose:validate:strict",
+      "exitCode": 0,
+      "counts": "220 files scanned, 0 errors, 0 tracked source-of-truth debt"
+    },
+    {
+      "gate": "next build (pre-commit hook)",
+      "command": "not independently re-run per the task's explicit instruction to never run `next build`",
+      "exitCode": "n/a",
+      "counts": "Trusted on the strength of the husky pre-commit hook having gated all 4 commits at creation time (per receipt) and every other independent gate re-run coming back green; not re-verified in this review."
+    }
+  ],
+  "spec migration status item 3": {
+    "answer": "YES, it becomes false once S1 merges.",
+    "citation": "openspec/specs/campaign-unit-combat-state/spec.md:251 ('3. Migrate RosterStateCards.tsx damage bar to read currentArmorPerLocation against IUnitMaxState. -- Not closed. RosterStateCards.tsx selects canonical IUnitCombatState from campaign.unitCombatStates[unitId], but computeDamageBarData still uses the destroyed-component/location heuristic (destroyedCount * 2 + destroyedLocationCount * 4) because the card has no IUnitMaxState companion.')",
+    "verification": "`grep -n \"destroyedCount \\* 2\\|destroyedLocationCount \\* 4\\|totalDamage\" src/components/campaign/RosterStateCards.tsx` on HEAD returns zero matches -- the heuristic text this status item describes no longer exists anywhere in the file, and the card DOES now read an IUnitMaxState companion (via useDamageBarData's extended selector). Both factual claims in item 3's prose are now false. Correctly left un-flipped per the parent's explicit 'do not flip any checkbox/status marker' instruction; this is a genuine open item for the next openspec reconciliation batch, not an omission by the preparer."
+  },
+  "mergeTreeResult": {
+    "command": "git fetch origin --quiet && git merge-tree --write-tree origin/main HEAD",
+    "originMainAtReviewTime": "423381ff0eb026bb4f3834949aae555cd70d0ca9",
+    "note": "main has advanced further than the receipt's cited 16e7346f2 (expected -- more time has passed since the receipt was written); still a clean fast-mergeable state.",
+    "result": "Clean merge tree written (8d45974c1edd3f38711654b65a04d4eac91487c2), no conflict markers in output, exit code 0. Zero conflicting files against current origin/main."
+  },
+  "hygiene": {
+    "aiAttributionInCommits": "NONE -- checked all 4 commits individually with `git log -1 --format=%B <sha> | grep -iE 'claude|co-authored|generated with|anthropic'`; all four return clean.",
+    "commitAuthorship": "All 4 commits show `Wes Rollings <wrollings@gmail.com>` as both author and committer.",
+    "tasksMdEdits": "NONE -- `git diff --stat 231c7848a f5d3db42f -- '**/tasks.md'` returns no output.",
+    "dependencyChanges": "NONE -- package.json/package-lock.json untouched."
+  },
+  "capsVerification": {
+    "perCommitCounts": "Verified via `git show --stat` on all 4 commits, matching the receipt's per-commit file/line counts exactly: 608e2f1b3 (1 file, +238), b325ae191 (2 files, +102/-24), 2e0e62fe9 (2 files, +312), f5d3db42f (5 files, +190/-4).",
+    "wholeBranchFileCount": "8 distinct files confirmed via `git diff --stat 231c7848a f5d3db42f` -- matches the receipt's list exactly.",
+    "insertionDeletionDiscrepancyNote": "The receipt's summed per-commit insertions/deletions (842/-28) differ slightly from the squashed whole-branch diff (838/-24, independently measured). This is expected: per-commit numstat sums intermediate additions that a later commit in the SAME slice then further edits (e.g. campaignUnitMaxStates.ts's 16-line seam in 2e0e62fe9 is substantially rewritten, not just appended to, by f5d3db42f), which the final squashed diff nets out. Not a discrepancy of concern -- both PR-S1 and PR-S2's per-PR diffs (364 and 498 changed lines respectively, independently measured above) are what matters for the 500-line cap, and both are correct and under cap."
+  },
+  "requiredEdits": [],
+  "openIssuesForTheParent": [
+    "Migration status item 3 in openspec/specs/campaign-unit-combat-state/spec.md:251 is now factually stale (confirmed above) -- parent already knows and plans to correct it in the next reconciliation batch; no action needed from this reviewer.",
+    "PR-S2 lands at 498 of the 500 maxNonGeneratedLines cap -- 2 lines of headroom. If the parent wants the IUnitMaxState doc-comment fix (the 'LT'/'CT' vs snake-case key-space mismatch, an open question in the local receipt) folded into this same PR, it will not fit and needs its own follow-up."
+  ],
+  "summary": "APPROVE. Independently reproduced 13/13 log-file hashes, 4/6 mutants (2 per slice), all 7 static/build gates, and the merge-tree check -- everything the preparer's local receipt claimed checked out exactly, with no fabrication or exaggeration found. Recommended packaging is the preparer's own S1/S2 split: PR-S1 (3 files, 364 lines) then PR-S2 (5 files, 498 lines), both within the node's 5-file/500-line caps despite the whole branch's 8-file total exceeding the cap if packaged as one PR. Migration status item 3 in the spec is now factually stale and should be corrected in the parent's next reconciliation pass, not in this PR. No required edits."
+}

@@ -1,0 +1,57 @@
+{
+  "pr": 1746,
+  "branch": "codex/roadmap-r4-s7b-3-derivation-20260915",
+  "reviewedCommit": "6131c359fdbeca520f795647ba29420036c34d7b",
+  "resolvedHeadFromParent": "f1be1750e1b33be6400f8ea619e008cfe2a6455d",
+  "finalHead": "f1be1750e1b33be6400f8ea619e008cfe2a6455d",
+  "autoMergeArmed": false,
+  "contentGuard": {
+    "method": "file set from `git diff --name-only origin/main...<head>` vs the PR's own reviewed files, plus per-file blob equality against the reviewed commit; re-run after update-branch",
+    "fileCountAtMerge": 4,
+    "diffstat": "48 insertions(+), 32 deletions(-)",
+    "blobEquality": "all files blob-identical to the reviewed commit at the gated head unless noted",
+    "result": "PASS"
+  },
+  "updateBranch": {
+    "performedByThisSession": false,
+    "expectedHeadShaGuardUsed": true,
+    "newHead": "f1be1750e1b33be6400f8ea619e008cfe2a6455d"
+  },
+  "checksAtTerminal": {
+    "Lint and Test": "pass",
+    "Build Test / win": "pass",
+    "Build Test / mac": "pass",
+    "Build Test / linux": "pass",
+    "Customizer Regressions": "pass",
+    "Unit Tests (6/6)": "pass",
+    "otherChecksCount": 27,
+    "otherChecksBuckets": {
+      "pass": 27
+    },
+    "totalChecks": 31,
+    "rerunsPerformed": 0
+  },
+  "premergeReceipt": {
+    "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/r4-s7b-3-1746-final2-20260915-premerge.json",
+    "ready": true,
+    "failures": []
+  },
+  "mergeCommit": "b81242d1b668bc5d1a6e067c463cc5b332652a09",
+  "mergeCommitParents": [
+    "f8de824471ecb974eb8717a00a6a463392235940"
+  ],
+  "mergeStyle": "squash (single parent)",
+  "mergeCommand": "gh pr merge 1746 --squash --match-head-commit f1be1750e1b33be6400f8ea619e008cfe2a6455d",
+  "mergedAt": "2026-09-15T19:47:42Z",
+  "mergedBy": "this session (step 6 executed)",
+  "mergedContentVerification": "The merge commit changes exactly 4 file(s), all blob-identical to the gated head f1be1750e1b33be6400f8ea619e008cfe2a6455d.",
+  "mainAfter": "b81242d1b668bc5d1a6e067c463cc5b332652a09",
+  "worktree": {
+    "fastForward": "NOT PERFORMED - no owned worktree designated for this PR",
+    "result": "N/A"
+  },
+  "notes": "Went DIRTY after 1745 squash (add/add on matchMarkerRetirementRecovery.sqlite.test.ts, which this PR review-edit commit also changed); parent resolved keeping the branch file. PROCESS NOTE: this session issued one update-branch against the DIRTY head because the mergeability probe and the update call were batched into a single shell command; it returned 422 and mutated nothing (head unchanged). This was the SECOND such lapse (the first was #1687); the probe is now issued as its own call before any update-branch. The resolved head needed no further update (already up to date with main).",
+  "timestamps": {
+    "receiptWrittenAt": "2026-09-15T20:35:00Z"
+  }
+}

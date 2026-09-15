@@ -1,0 +1,72 @@
+{
+  "slice": "R9.roster-damage S1: maxima-derived roster damage bar with explicit unavailable state",
+  "pr": 1734,
+  "prHead": "6759b3066c9f66c3670c70c2556675a5d410f62b",
+  "mergeCommit": "efd8a136d523adfa81fda303adb608e3563575ee",
+  "verifiedAtUtc": "2026-09-15T16:53:05.987Z",
+  "worktree": "archive-original-main-proof (detached at merge commit, Node v22.22.0)",
+  "blobEquality": {
+    "files": [
+      "openspec/specs/campaign-unit-combat-state/spec.md",
+      "src/components/campaign/RosterStateCards.tsx",
+      "src/components/campaign/__tests__/RosterStateCards.test.tsx"
+    ],
+    "command": "git diff --stat <prHead> <merge> -- <files>",
+    "result": "empty (0 bytes)"
+  },
+  "gates": {
+    "jest": {
+      "scope": "src/components/campaign src/stores/campaign",
+      "exit": 0,
+      "suites": 62,
+      "tests": 619
+    },
+    "tsc": {
+      "exit": 0,
+      "outputBytes": 0
+    },
+    "openspecStrict": {
+      "exit": 0
+    },
+    "specPurposeStrict": {
+      "exit": 0
+    },
+    "terminologyStrict": {
+      "exit": 0
+    },
+    "qcOpenspecCi": {
+      "exit": 0
+    }
+  },
+  "logs": {
+    "jest": {
+      "path": ".sisyphus/roadmap-completion-20260912/main-proof-1734-20260915/jest.log",
+      "sha256": "208db92bbd96a09429b7ceb0adc6917645213e4f50fd70a012d48211421c2e4c"
+    },
+    "openspec": {
+      "path": ".sisyphus/roadmap-completion-20260912/main-proof-1734-20260915/openspec.log",
+      "sha256": "a6f1b01bad6ef535f7ae511fd2b0e725e382bcb462449ef4386723e0ec97eff3"
+    },
+    "purpose": {
+      "path": ".sisyphus/roadmap-completion-20260912/main-proof-1734-20260915/purpose.log",
+      "sha256": "629026f25215446af06f7491ea5757f56e6f66d00cb70d6d432438cb6cb9adf7"
+    },
+    "qcOpenspecCi": {
+      "path": ".sisyphus/roadmap-completion-20260912/main-proof-1734-20260915/qc-openspec-ci.log",
+      "sha256": "8c41df6c33246420ed1806218780c2df69b5ad4e7c594b993b07594ee959ccb2"
+    },
+    "terminology": {
+      "path": ".sisyphus/roadmap-completion-20260912/main-proof-1734-20260915/terminology.log",
+      "sha256": "d418891b007dfcd6f6611e97f325da43096ae9f4418f32ff6d5de33c67d6499c"
+    },
+    "tsc": {
+      "path": ".sisyphus/roadmap-completion-20260912/main-proof-1734-20260915/tsc.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "limits": [
+    "scoped jest only; no browser proof of the card",
+    "until S2 (#1735) lands, campaigns show the unavailable row rather than a percentage",
+    "spec migration status item 3 still stale; corrected in reconciliation batch 3 item 5"
+  ]
+}

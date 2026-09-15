@@ -1,0 +1,163 @@
+{
+  "artefact": "r4-s7c-review",
+  "date": "2026-09-15",
+  "reviewer": "independent reviewer (journal/authority scope, not the author)",
+  "mode": "read-only - no edits to repo files (mutants applied and reverted via git checkout --, verified clean after each), no commits, no pushes, no PRs, no sub-agents, no builds (next build never run). Only artefact written is this file.",
+  "roadmapNode": "R4.S7-c",
+  "task": "adopt-combat-journal-cutover-and-gm-rewind task 1.7 PREPARATION (S4-R4 closure). No SHALL discharged, no checkbox ticked, per the author's own receipt.",
+  "subject": {
+    "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/history-runtime-integrity",
+    "branch": "codex/roadmap-r4-s7c-checkpoint-door-20260915",
+    "base": "9624b38f9ac7dfcc946e5eea4a68d7189691e48b",
+    "commitA_red": "c298713af670196db19dafc63ba149baab70fd9c - test(recovery): pin the journal arm to the checkpoint door's four properties (2 files, 404 insertions)",
+    "commitB_fix": "fe25f9220374fe80b4c847e2f6c228744bd49610 - fix(recovery): route the journal arm through the checkpoint door (1 file, 28 insertions / 11 deletions)",
+    "node": "v22.22.0 (measured: `node --version` -> v22.22.0)",
+    "gitLogVerified": "`git log --oneline -3` = fe25f9220, c298713af, 9624b38f9 (base). `git status --short` empty before and after every step. `git diff --name-only HEAD~2..HEAD` = exactly src/lib/multiplayer/server/MatchRecovery.ts, src/lib/multiplayer/server/__tests__/matchRecoveryCheckpointDoor.test.ts, src/lib/multiplayer/server/__tests__/matchRecoveryJournalArmDoor.sqlite.test.ts."
+  },
+  "verdict": {
+    "commitA_red": "APPROVE",
+    "commitB_fix": "APPROVE",
+    "overall": "APPROVE",
+    "requiredEdits": [],
+    "summary": "Every checkable claim in the author's receipt (r4-s7c-local-20260915.json) reproduced exactly: all 14 evidence-log sha256 hashes match byte-for-byte, every logged pass/fail count (red-01 4/3/7, red-02 6/7/13, green 13/13, scoped 176/1366, M1 6/7/13, M2 3/10/13, M3 1/12/13, M4 2/11/13, M5 13/13) matches what I independently reproduced for M1/M3/M5 and what the logs show for M2/M4, and every code citation (MatchRecoveryJournalHead.ts lines, AuthorityQuarantine.ts lines, AuthorityRecoveryPort.ts behavior) is accurate to the byte. The routing is real: the journal arm now falls through into the same checkpointRecoveryPort call the legacy arm uses, with the journal head as headRevision and as a ceiling on one shared store read. All four S4-R4 properties are reached on the journal arm exactly as the receipt claims. Hygiene, gates, and cross-lane merge safety all pass clean."
+  },
+  "perPropertyTable": [
+    {
+      "property": "1. empty-history refusal",
+      "verdict": "CONFIRMED ROUTED",
+      "evidence": "Code: MatchRecovery.ts's emptyHistory: 'corrupt' literal (unchanged) is now reached unconditionally by both arms because the early return at the old lines 240-248 is deleted (git show fe25f9220 diff). Test: matchRecoveryJournalArmDoor.sqlite.test.ts 'refuses an active journal-path match that holds no events' builds the exact shape S4-R4 named (an event_journal_stream_heads row inserted then deleted after backfillGenesisBranches, giving head revision 0 over a 0-event log) and asserts hosts.size 0 / failed [MATCH_ID] / blocked empty-history. Reproduced green at HEAD."
+    },
+    {
+      "property": "2. event-identity-uniqueness integrity check",
+      "verdict": "CONFIRMED ROUTED, with one nuance the receipt does not spell out but which does not weaken the claim",
+      "evidence": "AuthorityRecoveryPort.ts's checkpointRecoveryPort only runs detectAuthorityCorruption (hence findDuplicateReceipt) on the FIRST recovery when cache.offer returns null and it falls back to referenceRecoveryPort (read lines 200-260); once a checkpoint IS admitted, the accelerated path only checks evaluateReplayTailContinuity on the tail, not integrityOf. This is pre-existing behavior of the shared port, identical on the legacy arm today - not something S7-c introduces or worsens, and not scoped to this slice to fix. The new duplicate-identity test (matchRecoveryJournalArmDoor.sqlite.test.ts) correctly exercises this on a fresh store with no prior checkpoint, so it genuinely proves the property is reached on the journal arm under the same conditions the legacy arm is proven under."
+    },
+    {
+      "property": "3. quarantine eligibility",
+      "verdict": "CONFIRMED ROUTED, re-justification citations verified byte-exact",
+      "evidence": "MatchRecoveryJournalHead.ts:104 `const events = await store.getEvents(matchId, 0);` and :127-129 (head filter) confirmed - the consult validates match-store rows, not journal bytes. AuthorityQuarantine.ts:92-95 `if (!events.some((event) => event.digest !== null)) return null;` confirmed verbatim - digest/lineage checks are skipped for any authority (legacy or journal arm alike) that declares digest: null. AuthorityQuarantine.ts:157-162 (QUARANTINABLE), :164-169 (isCorruptionReason), :181-194 (quarantineAuthorityCorruption) all confirmed verbatim at the cited line numbers. The receipt's argument that quarantine vocabulary means the same thing on both arms because both read the same table is a verified code fact, not an assertion."
+    },
+    {
+      "property": "4. checkpoint cache refresh",
+      "verdict": "CONFIRMED ROUTED",
+      "evidence": "headRevision = journal.headRevision on the journal arm (MatchRecovery.ts diff) feeds the same cache.record(...) call the legacy arm reaches - line unchanged, now shared. New test 'refreshes the checkpoint cache at the journal head' and the extended matchRecoveryCheckpointDoor.test.ts 'records a fresh checkpoint at the live head after recovery' (nested under 'and the stream is on the journal arm') both green at HEAD; the second one runs in a context where a prior checkpoint at BASE_REVISION=4 already exists (via the outer describe's recordBase call), proving the accelerated tail-read path is also shared correctly (spy assertion: only one non-zero-fromSeq call, at revision 4, byte-identical to the legacy row directly above it in the same file)."
+    }
+  ],
+  "mutantTable": [
+    {
+      "id": "M1",
+      "mutation": "Restored the pre-change early return (bypass the door for the journal arm).",
+      "reproducedIndependently": true,
+      "result": "6 failed, 7 passed, 13 total - EXACT MATCH to receipt and to mutant-M1.log.",
+      "revertedClean": true
+    },
+    {
+      "id": "M2",
+      "mutation": "Wrong headRevision (hardcode 0) on the journal arm.",
+      "reproducedIndependently": false,
+      "verifiedVia": "mutant-M2.log content: 'Tests: 3 failed, 10 passed, 13 total' - matches receipt claim exactly. Not independently re-run (log inspection only, per time budget); hash of the log matches the receipt's evidenceHashes entry (19f4b5ca19ce0a74d0746555e38f6ce77ae0ec3439f04f8acc179971f4f8b2d4)."
+    },
+    {
+      "id": "M3",
+      "mutation": "emptyHistory: 'empty-state' instead of 'corrupt'.",
+      "reproducedIndependently": true,
+      "result": "1 failed, 12 passed, 13 total - EXACT MATCH to receipt and to mutant-M3.log.",
+      "revertedClean": true
+    },
+    {
+      "id": "M4",
+      "mutation": "Drop the integrityOf property from the recovery source.",
+      "reproducedIndependently": false,
+      "verifiedVia": "mutant-M4.log content: 'Tests: 2 failed, 11 passed, 13 total' - matches receipt claim exactly. Not independently re-run; log hash matches evidenceHashes entry (eeb0f5e143d898840649009ef6ca834cc53a60a85f52e75f4e95ad95fa4bed5d)."
+    },
+    {
+      "id": "M5",
+      "mutation": "Drop the journal head ceiling inside read() (unconditional `return tail;`).",
+      "reproducedIndependently": true,
+      "result": "13 passed, 13 total - SURVIVED, EXACT MATCH to receipt and to mutant-M5.log.",
+      "revertedClean": true,
+      "equivalenceJudgment": "HOLDS, with one caveat noted for completeness. Verified independently: MatchRecoveryJournalHead.ts:111 refuses `diverged` unless `logRevision === head.revision && events.length === head.revision`, computed from a full store.getEvents(matchId, 0) read at consult time. Given that invariant, the store log the consult saw IS exactly the head's set, so the ceiling filter in MatchRecovery.ts's read() cannot remove anything from a SUBSEQUENT read of the same table, and no test built by seeding the store and then recovering can ever construct a log that runs past the head without first loosening the consult's own equality check. This is a correct 'no test in this codebase's construction pattern can kill it' argument, matching the receipt's framing (OQ-3) precisely. The one caveat: the consult's full-log read and the later port's tail read are two SEPARATE async calls against the same store, so the equivalence relies on nothing appending to mp_match_events between them during a recovery sweep - true today because recovery runs before any host is registered for that match and nothing else writes to it in that window, but this is a runtime invariant rather than a type-level guarantee. Not a defect; noted for completeness only, consistent with the equivalence still holding under the current architecture."
+    }
+  ],
+  "gateTable": [
+    {
+      "gate": "changed suites",
+      "command": "node node_modules/jest/bin/jest.js --maxWorkers=2 --coverage=false src/lib/multiplayer/server/__tests__/matchRecoveryJournalArmDoor.sqlite.test.ts src/lib/multiplayer/server/__tests__/matchRecoveryCheckpointDoor.test.ts",
+      "reproducedResult": "PASS - Test Suites: 2 passed, 2 total; Tests: 13 passed, 13 total; exit 0",
+      "matchesReceipt": true
+    },
+    {
+      "gate": "scoped jest",
+      "command": "node node_modules/jest/bin/jest.js --maxWorkers=2 --coverage=false src/lib/events/journal src/lib/multiplayer/server",
+      "reproducedResult": "PASS - Test Suites: 176 passed, 176 total; Tests: 1366 passed, 1366 total; exit 0",
+      "matchesReceipt": true
+    },
+    {
+      "gate": "typecheck",
+      "command": "node node_modules/typescript/bin/tsc --noEmit -p tsconfig.json",
+      "reproducedResult": "PASS - exit 0, zero diagnostics",
+      "matchesReceipt": true
+    },
+    {
+      "gate": "format",
+      "command": "npx oxfmt --check src/lib/multiplayer/server/MatchRecovery.ts src/lib/multiplayer/server/__tests__/matchRecoveryCheckpointDoor.test.ts src/lib/multiplayer/server/__tests__/matchRecoveryJournalArmDoor.sqlite.test.ts",
+      "reproducedResult": "PASS - 'All matched files use the correct format', 3 files, exit 0",
+      "matchesReceipt": true
+    },
+    {
+      "gate": "openspec strict",
+      "command": "npx openspec validate --all --strict",
+      "reproducedResult": "PASS - 'Totals: 232 passed, 0 failed (232 items)', exit 0",
+      "matchesReceipt": true
+    },
+    {
+      "gate": "lint (oxlint)",
+      "reproducedResult": "NOT independently re-run (not in the reviewer's required gate list; receipt's gate-oxlint.log hash was not re-verified against a fresh run, only inspected). Receipt's claim that test files are excluded via .oxlintrc.json's own ignorePatterns was not directly re-checked but is consistent with the project convention observed elsewhere.",
+      "matchesReceipt": "not independently verified"
+    },
+    {
+      "gate": "evidence log hash audit",
+      "command": "sha256sum over all 14 files in E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/r4-s7c-20260915/",
+      "reproducedResult": "ALL 14 hashes match the receipt's evidenceHashes map byte-for-byte (commit-01/02, gate-jest-scoped, gate-openspec, gate-oxfmt, gate-tsc, green-01, mutant-M1..M5, red-01, red-02).",
+      "matchesReceipt": true
+    }
+  ],
+  "mergeTreeCheck": {
+    "fetchOrigin": "`git fetch origin` completed; origin/main is now ca884fcc666cb7f3d7206f9cf8e5d2381d92133f (moved past the 9624b38f9 base and past bff63c183 noted in the author's receipt).",
+    "recentMainCommits": "ca884fcc6 feat(journal): recovery reads only the mirrored effective head (#1744) -> bff63c183 spec(openspec) ledger batch 4 (#1743) -> 9624b38f9 (this slice's base, #1742).",
+    "commit1744Scope": "Verified via `git show --stat ca884fcc6`: touches ONLY src/lib/multiplayer/server/ServerMatchHost.ts and four test files (journalAuthorityRecovery.test.ts, journalAuthorityRollbackProof.test.ts, matchMarkerRetirementRecovery.sqlite.test.ts, matchRecoveryStartedFromJournalHead.sqlite.test.ts). Does NOT touch MatchRecovery.ts or MatchRecoveryJournalHead.ts. This is the S7-b marker-retirement work the task brief predicted; #1745/#1746 are not yet on origin/main as of this fetch.",
+    "mergeTreeCommand": "git merge-tree --write-tree origin/main HEAD",
+    "result": "Single tree object printed (51c40d807afaf6d8b50a34eab587585bf5edb914), exit 0, no CONFLICT lines. NO CONFLICTS between this branch and current origin/main, including against #1744's ServerMatchHost.ts changes.",
+    "s7bFilesUntouchedByS7c": "Confirmed via `git diff --name-only HEAD~2..HEAD` against the seven S7-b-owned paths (matchJournalAuthorityStartedDerived.ts, ServerMatchHostJournalAuthority.ts, DurableMatchStore.ts, matchCommandBatch.ts, IMatchStore.ts, ServerMatchHost.ts, MatchStreamJournalMirror.ts): empty result, none touched."
+  },
+  "openQuestionAssessments": [
+    {
+      "id": "OQ-1",
+      "topic": "diverged verdict left unquarantined",
+      "codeCommentsRead": [
+        "MatchRecovery.ts, inside the `diverged` arm: 'Not quarantined on purpose: a mirror that fell behind is a desynchronized copy, not authority data that is wrong, and quarantineAuthorityCorruption draws that same line.'",
+        "MatchRecoveryJournalHead.ts:31-40 (module header): 'DISAGREEMENT IS A REFUSAL, NEVER A PREFERENCE ... It is NOT quarantined: a mirror that fell behind is a desynchronized copy, not authority data that is wrong, and quarantineAuthorityCorruption draws that same line.'"
+      ],
+      "judgment": "The equivalence argument holds. This behavior is UNCHANGED from S4 (the `diverged` arm was not touched by this slice's diff), stated independently in two places using near-identical language, and is architecturally coherent: quarantine exists to flag DATA that is wrong, and a mirror lagging its authority is a synchronization state, not a corruption of the match log itself. Correctly left as an owner question (OQ-1) rather than decided unilaterally, since reversing it would require revisiting a line the design already draws twice."
+    },
+    {
+      "id": "OQ-4 / S4-N1",
+      "topic": "the consult resolves its DB handle via getSQLiteService() while the started decision goes through the store's branch port",
+      "verified": "MatchRecoveryJournalHead.ts:93 `const sqlite = getSQLiteService();` is independent of the `store` parameter passed to `deriveMatchJournalAuthorityStartedHead(store, matchId)` one line earlier (:91). Confirmed the test fixtures pass the same handle both ways: matchRecoveryJournalArmDoor.sqlite.test.ts:170 `capabilityDb: primary` where `primary()` (line 137-139) returns `getSQLiteService().getDatabase()` - identical to what the consult resolves independently. Production also defaults capabilityDb to the same getSQLiteService()-backed thunk (per the S4 review's own note on durableCapabilityPorts.ts:54-56), so both today's production configuration and this slice's fixtures are structurally unable to witness the divergence S4-N1 describes.",
+      "judgment": "Not a live defect to schedule urgently - it is unreachable under every configuration currently shipped (production's default capabilityDb and every test's constructed capabilityDb both resolve to the same handle as getSQLiteService()). It is, however, a real code-cleanliness gap now that S7-a has made heads real (the trigger the S4 reviewer named). Correctly scoped OUT of this slice: fixing it means touching MatchRecoveryJournalHead.ts, which the S7-c brief only listed as a conditional file ('if the journal arm's return shape needs to carry more information') and which this slice correctly determined it did not need to touch. RECOMMENDATION: file as its own small residual (route the consult's read through `store.capabilityDatabase()` instead of a fresh `getSQLiteService()` call) rather than folding into the larger S7-d migration-state-machine slice, since it is a one-line, single-file, no-schema-change fix independent of S7-d's much larger scope - but this is a scheduling preference, not a blocker for S7-c."
+    }
+  ],
+  "hygieneAxis": {
+    "caps": "Commit A (red): 2 files, 404 insertions, 0 deletions (`git show --shortstat c298713af`). Commit B (fix): 1 file, 28 insertions, 11 deletions (`git show --shortstat fe25f9220`). Both within maxFiles 15 / maxNonGeneratedLines 500 by a wide margin.",
+    "aiAttribution": "NONE. `git log 9624b38f9..HEAD --format=%B | grep -icE 'claude|anthropic|co-authored|generated with'` returns 0.",
+    "commitAuthor": "Wes Rollings <wrollings@gmail.com> as both author and committer on both commits (`git log --format='%an <%ae> / %cn <%ce>'`).",
+    "openspecPaths": "UNTOUCHED. `git diff --name-only 9624b38f9 HEAD -- openspec/` returns 0 files.",
+    "s7bFilesUntouched": "CONFIRMED - see mergeTreeCheck.s7bFilesUntouchedByS7c above.",
+    "modeStillOff": "CONFIRMED. matchJournalAuthority.ts:18-19 - `export const COMBAT_JOURNAL_AUTHORITY_MODE = 'off' as CombatJournalAuthorityMode;`. Not present in this slice's diff (untouched file)."
+  },
+  "packaging": {
+    "assessment": "One PR expected: two commits on codex/roadmap-r4-s7c-checkpoint-door-20260915 (red c298713af then fix fe25f9220), no push/PR/merge performed by the author per their own non-claims and confirmed here (worktree has no remote-tracking divergence artifacts beyond the fetch performed for this review). Structure is correct for a single-PR red-then-fix package."
+  },
+  "requiredEdits": [],
+  "summary": "APPROVE. R4.S7-c does exactly what it claims: it routes the journal recovery arm through checkpointRecoveryPort with the journal head as headRevision and as a read ceiling, recovering all four properties S4-R4 flagged as lost (empty-history refusal, event-identity-uniqueness integrity check, quarantine eligibility, checkpoint cache refresh). Every evidence-log hash, every test count, and every code citation in the author's receipt reproduced exactly under independent verification, including three independently re-run mutants (M1 killed 6/7/13, M3 killed 1/12/13, M5 survived-and-correctly-declared-equivalent 13/13) and log-based confirmation of the other two (M2, M4). Hygiene is clean (no AI attribution, caps respected, mode still off, no openspec paths touched, S7-b's files untouched), gates all pass (176/1366 scoped jest, tsc clean, oxfmt clean, openspec 232/0), and a merge-tree check against the current origin/main tip (which has moved to include the merged S7-b PR #1744) shows zero conflicts. Two informational, non-blocking notes are recorded above: property 2's integrity check is only exercised via the shared port's non-accelerated path (pre-existing behavior, not a regression), and S4-N1/OQ-4 remains correctly deferred as its own small residual rather than folded into this slice or into S7-d."
+}

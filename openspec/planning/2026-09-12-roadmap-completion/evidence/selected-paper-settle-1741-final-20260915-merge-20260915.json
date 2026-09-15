@@ -1,0 +1,56 @@
+{
+  "pr": 1741,
+  "branch": "codex/roadmap-selected-paper-settle-20260915",
+  "reviewedCommit": "bfce65b3f60b75b829ea8301b8c7407abfd07b3d",
+  "finalHead": "e363b2fe65d55d31626bad1c60bd1c9877d7a934",
+  "autoMergeArmed": false,
+  "contentGuard": {
+    "method": "file set from `git diff --name-only origin/main...<head>` vs the reviewed file set, plus per-file blob equality against the reviewed commit; re-run after update-branch",
+    "fileCountAtMerge": 1,
+    "diffstat": "2 insertions(+)",
+    "blobEquality": "all files blob-identical to the reviewed commit at the gated head",
+    "result": "PASS"
+  },
+  "updateBranch": {
+    "performedByThisSession": true,
+    "expectedHeadShaGuardUsed": true,
+    "oldHead": "bfce65b3f60b75b829ea8301b8c7407abfd07b3d",
+    "newHead": "e363b2fe65d55d31626bad1c60bd1c9877d7a934",
+    "reason": "branch was BEHIND"
+  },
+  "checksAtTerminal": {
+    "Lint and Test": "pass",
+    "Build Test / win": "pass",
+    "Build Test / mac": "pass",
+    "Build Test / linux": "pass",
+    "Customizer Regressions": "pass",
+    "otherChecksCount": 27,
+    "otherChecksBuckets": {
+      "pass": 27
+    },
+    "totalChecks": 31
+  },
+  "premergeReceipt": {
+    "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/selected-paper-settle-1741-final-20260915-premerge.json",
+    "ready": true,
+    "failures": []
+  },
+  "mergeCommit": "91b66b04c6f79a365e40b94e25c93e8c00ffa8a3",
+  "mergeCommitParents": [
+    "566b60d02ee1a7aaf430d48b2c1b374b37e6029a"
+  ],
+  "mergeStyle": "squash (single parent)",
+  "mergeCommand": "gh pr merge 1741 --squash --match-head-commit e363b2fe65d55d31626bad1c60bd1c9877d7a934",
+  "mergedAt": "2026-09-15T18:09:17Z",
+  "mergedBy": "this session (step 6 executed)",
+  "mergedContentVerification": "The merge commit changes exactly 1 file(s), all blob-identical to the gated head e363b2fe65d55d31626bad1c60bd1c9877d7a934.",
+  "mainAfter": "91b66b04c6f79a365e40b94e25c93e8c00ffa8a3",
+  "worktree": {
+    "fastForward": "NOT PERFORMED - no owned worktree designated for this PR",
+    "result": "N/A"
+  },
+  "notes": "THE FIX FOR THE ESCALATED FLAKE. Adds two awaits to e2e/customizer-record-sheet-rendering.spec.ts: `await waitForBacking(page, LETTER)` and `await expectSheetType(page, \"Locust LCT-1V\")` - i.e. it settles the backing and sheet before asserting. That matches the evidence gathered across the three earlier blocks (#1705 read a stale \"Atlas AS7-D\" instead of \"Locust LCT-1V\"; #1722 and #1730 read count 0 instead of 1; all three timed out on the same 10s predicate). CRITICAL RESULT: on this PR own run the Customizer Regressions check PASSED, so the selected-paper test did not fail and the coordinator stop-and-report condition was never triggered. A SEPARATE, already-characterised flake did fire: Unit Tests (6/6) failed scripts/__tests__/gm-two-player-campaign-qc.test.ts \"refuses and preserves a ready foreign server on the fixture port\" - the port-contention flake previously seen on #1720. Two inserted awaits in a Playwright spec cannot affect port binding, so the standard diff-uncorrelation reasoning applied and one targeted rerun returned 31/31.",
+  "timestamps": {
+    "receiptWrittenAt": "2026-09-15T18:10:00Z"
+  }
+}

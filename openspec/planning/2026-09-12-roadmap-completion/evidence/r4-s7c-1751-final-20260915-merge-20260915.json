@@ -1,0 +1,56 @@
+{
+  "pr": 1751,
+  "branch": "codex/roadmap-r4-s7c-checkpoint-door-20260915",
+  "reviewedCommit": "fe25f9220374fe80b4c847e2f6c228744bd49610",
+  "finalHead": "b0d50cf53262e8b6d5f2d03b916e2bf893f1e6ac",
+  "autoMergeArmed": false,
+  "contentGuard": {
+    "method": "file set from `git diff --name-only origin/main...<head>` vs the PR's own reviewed files, plus per-file blob equality against the reviewed commit; re-run after update-branch",
+    "fileCountAtMerge": 3,
+    "diffstat": "432 insertions(+), 11 deletions(-)",
+    "blobEquality": "all files blob-identical to the reviewed commit at the gated head unless noted",
+    "result": "PASS"
+  },
+  "updateBranch": {
+    "performedByThisSession": true,
+    "expectedHeadShaGuardUsed": true,
+    "newHead": "b0d50cf53262e8b6d5f2d03b916e2bf893f1e6ac"
+  },
+  "checksAtTerminal": {
+    "Lint and Test": "pass",
+    "Build Test / win": "pass",
+    "Build Test / mac": "pass",
+    "Build Test / linux": "pass",
+    "Customizer Regressions": "pass",
+    "Unit Tests (6/6)": "pass",
+    "otherChecksCount": 27,
+    "otherChecksBuckets": {
+      "pass": 27
+    },
+    "totalChecks": 31,
+    "rerunsPerformed": 0
+  },
+  "premergeReceipt": {
+    "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/r4-s7c-1751-final-20260915-premerge.json",
+    "ready": true,
+    "failures": []
+  },
+  "mergeCommit": "a265a544a2256c7098afdc10a968492c2454cd77",
+  "mergeCommitParents": [
+    "1fcd9b6485421d64d4303693a368676fc4df4d51"
+  ],
+  "mergeStyle": "squash (single parent)",
+  "mergeCommand": "gh pr merge 1751 --squash --match-head-commit b0d50cf53262e8b6d5f2d03b916e2bf893f1e6ac",
+  "mergedAt": "2026-09-15T20:27:38Z",
+  "mergedBy": "this session (step 6 executed)",
+  "mergedContentVerification": "The merge commit changes exactly 3 file(s), all blob-identical to the gated head b0d50cf53262e8b6d5f2d03b916e2bf893f1e6ac.",
+  "mainAfter": "a265a544a2256c7098afdc10a968492c2454cd77",
+  "worktree": {
+    "fastForward": "NOT PERFORMED - no owned worktree designated for this PR",
+    "result": "N/A"
+  },
+  "notes": "Merge-tree was predicted clean vs main with #1744 and proved so: no conflict, plain update-branch.",
+  "timestamps": {
+    "receiptWrittenAt": "2026-09-15T20:35:00Z"
+  }
+}
