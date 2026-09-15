@@ -621,7 +621,12 @@ describe('CoopMissionLaunchPage - custom-source authority revalidation', () => {
     expect(mockRouterPush).not.toHaveBeenCalled();
   });
 
-  it('rejects a co-op launch whose custom-source reference is foreign to this campaign catalog', async () => {
+  // Same membership branch as the row above (roster_source_custom); the
+  // discriminator is a POPULATED catalog that simply does not list this
+  // ref. Deliberately not called "foreign": in the spec, foreign names a
+  // mismatched campaign SNAPSHOT (snapshot_foreign), which is pinned in
+  // src/lib/campaign/coop/__tests__/launchCoopMission.test.ts, not here.
+  it('rejects a co-op launch whose custom-source reference is not a member of a populated custom combat catalog', async () => {
     const spy = spyLauncherService();
     useRealCoopLaunch(spy.service);
     mockCustomCombatRefs = ['custom-other-owner'];
