@@ -158,6 +158,7 @@ const camp01TestFiles = [
   'scripts/__tests__/camp01-authority-receipt-validator.test.ts',
   'scripts/__tests__/camp01-authority-receipt-writer.test.ts',
   'scripts/__tests__/camp01-camp00-listener-adapter.test.ts',
+  'scripts/__tests__/camp01-capture-policy-aggregation.test.ts',
   'scripts/__tests__/camp01-capture-reopen-adversarial.test.ts',
   'scripts/__tests__/camp01-capture-transaction.test.ts',
   'scripts/__tests__/camp01-cleanup-authority.test.ts',
@@ -170,6 +171,9 @@ const camp01TestFiles = [
   'scripts/__tests__/camp01-git-trust.test.ts',
   'scripts/__tests__/camp01-h-composition.test.ts',
   'scripts/__tests__/camp01-h-report-normalizer.test.ts',
+  'scripts/__tests__/camp01-live-browser-adversarial.test.ts',
+  'scripts/__tests__/camp01-live-signal.test.ts',
+  'scripts/__tests__/camp01-live-status-report.test.ts',
   'scripts/__tests__/camp01-playwright-normalizer.test.ts',
   'scripts/__tests__/camp01-proof-environment.test.ts',
   'scripts/__tests__/camp01-repository-lifecycle-adversarial.test.ts',
@@ -392,5 +396,18 @@ catch (error) {
     expect(scripts['verify:qc:viewport-sweep']).toBe(
       'node scripts/qc/run-viewport-sweep.mjs',
     );
+  });
+
+  it('pins every tracked camp01-*.test.ts suite into the umbrella, not just the literal string', () => {
+    const testDir = path.join(repoRoot, 'scripts/__tests__');
+    const trackedCamp01Suites = fs
+      .readdirSync(testDir)
+      .filter((name) => /^camp01-.*\.test\.ts$/.test(name))
+      .sort();
+    const pinnedCamp01Suites = camp01TestFiles
+      .map((entry) => path.basename(entry))
+      .filter((name) => /^camp01-.*\.test\.ts$/.test(name))
+      .sort();
+    expect(pinnedCamp01Suites).toEqual(trackedCamp01Suites);
   });
 });

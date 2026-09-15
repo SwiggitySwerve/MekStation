@@ -1331,11 +1331,11 @@
       ],
       "specRefs": [
         "openspec/specs/multiplayer-server/spec.md",
-        "openspec/changes/prove-live-coop-campaign-journey/specs/coop-campaign-sync/spec.md",
-        "openspec/changes/prove-live-coop-campaign-journey/specs/e2e-testing/spec.md",
-        "openspec/changes/prove-live-coop-campaign-journey/specs/multiplayer-server/spec.md"
+        "openspec/specs/coop-campaign-sync/spec.md",
+        "openspec/specs/e2e-testing/spec.md",
+        "openspec/specs/multiplayer-server/spec.md"
       ],
-      "activeChangeRefs": ["prove-live-coop-campaign-journey"],
+      "activeChangeRefs": [],
       "tests": [
         "e2e/p2p-sync.spec.ts",
         "e2e/playtest-mp-smoke.spec.ts",

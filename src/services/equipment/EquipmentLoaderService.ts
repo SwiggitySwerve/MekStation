@@ -67,16 +67,24 @@ export class EquipmentLoaderService {
   /**
    * Load all official equipment from JSON files
    * Works in both server-side (Node.js) and client-side (browser) environments
+   *
+   * `signal` lets the caller cancel a load the document is about to abandon;
+   * a cancelled load comes back flagged `interrupted` rather than failed.
    */
   loadOfficialEquipment = async (
     basePath = '/data/equipment/official',
+    signal?: AbortSignal,
   ): Promise<IEquipmentLoadResult> => {
-    const result = await loadOfficialEquipmentSource(basePath, {
-      weapons: this.weapons,
-      ammunition: this.ammunition,
-      electronics: this.electronics,
-      miscEquipment: this.miscEquipment,
-    });
+    const result = await loadOfficialEquipmentSource(
+      basePath,
+      {
+        weapons: this.weapons,
+        ammunition: this.ammunition,
+        electronics: this.electronics,
+        miscEquipment: this.miscEquipment,
+      },
+      signal,
+    );
     this.loadErrors = result.errors;
     this.isLoaded = result.success;
 
