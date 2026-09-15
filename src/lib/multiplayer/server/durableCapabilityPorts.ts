@@ -26,9 +26,21 @@ import { bindSqliteSessionPorts } from '@/lib/campaign/sync/journalCapabilityPor
 import { SQLiteEventHistoryBranchStore } from '@/lib/events/journal/SQLiteEventHistoryBranchStore';
 import { getSQLiteService } from '@/services/persistence/SQLiteService';
 
+/**
+ * The campaign handle itself, for writers needing more than the branch
+ * port's six questions — the S1 journal mirror appends events, a head
+ * and a genesis branch in ONE transaction, which no narrow port can
+ * express. Bound here rather than resolved by the store so "the
+ * journal lives in the other file" stays one module's knowledge.
+ */
+export interface ICapabilityDatabaseHandle {
+  capabilityDatabase(): Database.Database;
+}
+
 type CapabilityTarget = Partial<
   IEventHistoryBranchPort &
     IHistoryBranchStoreReadiness &
+    ICapabilityDatabaseHandle &
     ICampaignSessionParticipantPort &
     IParticipantDeliveryCursorPort
 >;
@@ -56,6 +68,7 @@ export function bindDurableCapabilityPorts(
   };
   Object.assign(store, {
     isCapabilityDbAvailable,
+    capabilityDatabase: getCapabilityDb,
     readBranch: (stream: IEventHistoryStreamRef, branchId: string) =>
       branchStore().readBranch(stream, branchId),
     requireBranch: (stream: IEventHistoryStreamRef, branchId: string) =>
