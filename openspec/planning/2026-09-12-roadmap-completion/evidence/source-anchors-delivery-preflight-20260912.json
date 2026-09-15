@@ -1,0 +1,124 @@
+{
+  "schemaVersion": 1,
+  "receiptId": "source-anchors-delivery-preflight-20260912",
+  "status": "ready_for_parent_acceptance",
+  "candidate": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/spec-source-anchors",
+  "branch": "codex/roadmap-spec-source-anchors-20260912",
+  "baseBeforeFastForward": "ca0687d25264033376862347e494ddf15cd92bec",
+  "headAfterFastForward": "e58642acede495c45b3b4d4e606dffaa52ccab18",
+  "targetCommit": {
+    "sha": "e58642acede495c45b3b4d4e606dffaa52ccab18",
+    "parent": "7a537a1c4ea621b397f4b5216859f0548773fd61",
+    "subject": "docs(spec): clarify data-service contracts (#1645)",
+    "authorDate": "2026-09-12T14:34:51-06:00"
+  },
+  "fastForward": {
+    "command": "git merge --ff-only e58642acede495c45b3b4d4e606dffaa52ccab18",
+    "result": "fast-forward",
+    "ancestorExitCode": 0,
+    "postFfHeadExitCode": 0,
+    "postFfAncestryStdoutLog": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/source-anchors-delivery/post-ff-ancestry.stdout.log",
+    "postFfAncestryStdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "conflict": false,
+    "fetchResetStashUsed": false
+  },
+  "scope": {
+    "files": [
+      "openspec/specs/auto-save-persistence/spec.md",
+      "openspec/specs/battle-armor-unit-system/spec.md",
+      "openspec/specs/toast-notifications/spec.md",
+      "openspec/specs/utility-patterns/spec.md",
+      "openspec/specs/vehicle-unit-system/spec.md"
+    ],
+    "stagedExactFive": true,
+    "unstagedCandidateChanges": false,
+    "productSourceEdited": false,
+    "changedLines": 229,
+    "insertions": 122,
+    "deletions": 107,
+    "exactDiffCap": 350,
+    "withinExactDiffCap": true,
+    "stagedDiffCheckExitCode": 0
+  },
+  "acceptedFiveHashes": [
+    {
+      "file": "openspec/specs/auto-save-persistence/spec.md",
+      "beforeProposalSha256": "c20a361aaffd95dca647a0cc5bdf767bec5b9c3ab4a835ddc2333a35923e5c5e",
+      "afterSha256": "67340c792bb73b99ad94bc1452d85f7624aa49785b64a92ed5e736f4c9e664cc",
+      "bytes": 29862
+    },
+    {
+      "file": "openspec/specs/battle-armor-unit-system/spec.md",
+      "beforeProposalSha256": "3223fcc7ca638ba7b832bf94154a423a13ca7269b05653a846b8f7982b0cdd14",
+      "afterSha256": "3223fcc7ca638ba7b832bf94154a423a13ca7269b05653a846b8f7982b0cdd14",
+      "bytes": 27071
+    },
+    {
+      "file": "openspec/specs/toast-notifications/spec.md",
+      "beforeProposalSha256": "66384b927915371d4e616bbad30c2a384c76730f7fefc68938c449adf526830d",
+      "afterSha256": "5cd76fa006d8f107cc0fafcffe102168b66843785e02ca30bfd365ba09437d21",
+      "bytes": 14687
+    },
+    {
+      "file": "openspec/specs/utility-patterns/spec.md",
+      "beforeProposalSha256": "e76d729a60a426b218a29fb5b9bcd4ac4f933b8028ccf453446922982f51b985",
+      "afterSha256": "e76d729a60a426b218a29fb5b9bcd4ac4f933b8028ccf453446922982f51b985",
+      "bytes": 24484
+    },
+    {
+      "file": "openspec/specs/vehicle-unit-system/spec.md",
+      "beforeProposalSha256": "aa39890beaccd57bfdee25d93a5c58c88421ff8205c8609ec539cff6fe4e6246",
+      "afterSha256": "213363c794edaa1ffa9eb00df8c759cfd5e8c06bf78f7e61a48b8617bbc32b8d",
+      "bytes": 39077
+    }
+  ],
+  "prepare": {
+    "command": "npm.cmd run prepare",
+    "exitCode": 0,
+    "stdoutLog": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/source-anchors-delivery/prepare.stdout.log",
+    "stderrLog": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/source-anchors-delivery/prepare.stderr.log",
+    "stdoutSha256": "f1068f667ba7f790eefbc1252209bedaa86471fa0145c71cfcfbd21d052bd839",
+    "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "preflight": {
+    "cwd": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/spec-source-anchors",
+    "allExitCodesZero": true,
+    "prettierVersion": "3.9.6",
+    "resultsRecord": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/source-anchors-delivery/preflight-results.json",
+    "resultsRecordSha256": "607fd16c01fe64807eb51e488cbe587568bf084e37819300ad540459137f3655",
+    "checks": [
+      {"name":"strict-auto-save-persistence","exitCode":0,"stdoutSha256":"fc632f645577e2a4007d5efd99d17e9dcc1c29d5c0161c37448a77522dc84762","stderrSha256":"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"},
+      {"name":"strict-battle-armor-unit-system","exitCode":0,"stdoutSha256":"a1dc5c197406b364c97c0694296edc8b7f3186800ddbf6eabc921711201714be","stderrSha256":"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"},
+      {"name":"strict-toast-notifications","exitCode":0,"stdoutSha256":"00729ed42a00252b15c773ef75dd7d7ed6429ea0757d857982295fd4e5be0e1e","stderrSha256":"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"},
+      {"name":"strict-utility-patterns","exitCode":0,"stdoutSha256":"6eba667a61fdaebf85903b9a6e84d3182707f87519ba28e903c34c0825975613","stderrSha256":"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"},
+      {"name":"strict-vehicle-unit-system","exitCode":0,"stdoutSha256":"bb924aa49f5ed03e150731086ee5d250225f743f5b0cad00275a3ee1c55eb636","stderrSha256":"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"},
+      {"name":"purpose-strict","exitCode":0,"stdoutSha256":"767b5ef37930162c3af6132d2fb8fd65cbb5d19ce36de26e4d269e396b33c1a6","stderrSha256":"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"},
+      {"name":"terminology-strict","exitCode":0,"stdoutSha256":"f900b2f139d48a4fce3da66f12105cdd633a1cfe6dc8102211bcf03cc6a1cce7","stderrSha256":"ede79e01ea450f88af578e747660c586130dc866466537e99f94ceaafe4dbac7"},
+      {"name":"ci-qc","exitCode":0,"stdoutSha256":"f01feb11318234aab4764fe76151b78c06905527212a8f8723626fcf616b71d6","stderrSha256":"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"},
+      {"name":"markdown-prettier","exitCode":0,"stdoutSha256":"17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20","stderrSha256":"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"},
+      {"name":"markdown-prettier-version","exitCode":0,"stdoutSha256":"05566dceb1394c0ba52e28e74b18cfc0efb325b12d58183db953af94e4a9e27d","stderrSha256":"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"},
+      {"name":"diff-check","exitCode":0,"stdoutSha256":"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855","stderrSha256":"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"}
+    ]
+  },
+  "staging": {
+    "statusLog": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/source-anchors-delivery/post-ff-status.stdout.log",
+    "statusLogSha256": "96dbb31b31cb4c529f271a8f6ef78e76d69d8c7b6ea4ea4583a40ea0e95190e3",
+    "nameStatusLogSha256": "8ef2de5644f110ca6c9a436a27a5702befc91034bde446eb3bed56f21f0a22cd",
+    "numstatLogSha256": "a9d849cd34f176e6fe7b548487b931624c60abf9aa8634fc67a353772bfb662c",
+    "shortstatLogSha256": "b5f7e5853b5d9176ba1d8d9f19036cdda9037599d6c387411419871730fcbaba",
+    "diffCheckLogSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "exactStagedPaths": true
+  },
+  "debts": {
+    "battleArmor": "Separate follow-up: the spec still says two tabs at spec.md:730 while the live registry has nine entries at tabRegistry.tsx:339-379.",
+    "autoSave": "Separate follow-up: spec.md:627 says cleanup unsubscribes from stores; verify against useGameStatePersistence.helpers.ts:93-147.",
+    "broadened": false
+  },
+  "priorReview": {
+    "evidence": "E:/Projects/MekStation/openspec/planning/2026-09-12-roadmap-completion/evidence/anchor-spec-final-review-20260912.json",
+    "sha256": "e1651c81bba1bc6013c138318afeacc43a93e14f89af721123c1d04be55e10c1",
+    "preserved": true
+  },
+  "rawDir": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/source-anchors-delivery",
+  "prBody": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/source-anchors-delivery/pr-body.md"
+}

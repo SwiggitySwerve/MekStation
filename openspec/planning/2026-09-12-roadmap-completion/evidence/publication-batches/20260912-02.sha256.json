@@ -1,0 +1,303 @@
+{
+  "batch": "20260912-02",
+  "generatedAt": "2026-09-15T22:45:54.000Z",
+  "sourceBase": "1f67f814e3f04e8a38488de70ecd8396f9269ca6",
+  "files": [
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/prerequisite-contracts-delivery-preflight-20260912.json",
+      "bytes": 2005,
+      "sha256": "aae9d44809b94062931024c293d9d9e14a69c9be43cfc7d4ec508e8a3e1a5f5b",
+      "sourceSha256": "aae9d44809b94062931024c293d9d9e14a69c9be43cfc7d4ec508e8a3e1a5f5b"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/prerequisite-contracts-final-review-20260912.json",
+      "bytes": 3440,
+      "sha256": "cbc623e325ec0e9c676d4d903e9e03acb579005bf235f5cf76431274047f585e",
+      "sourceSha256": "cbc623e325ec0e9c676d4d903e9e03acb579005bf235f5cf76431274047f585e"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/prerequisite-contracts-main-parent-acceptance-20260912.json",
+      "bytes": 7128,
+      "sha256": "3ce5fc80273a07774c88afb17d2fa32c89a590c8c336248068497fecc83c304e",
+      "sourceSha256": "3ce5fc80273a07774c88afb17d2fa32c89a590c8c336248068497fecc83c304e"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/prerequisite-contracts-main-verification-20260912.json",
+      "bytes": 13790,
+      "sha256": "a06d05904b6b8e5eea120e8757261ba424c77b6e1a25682f742aac1e382bd696",
+      "sourceSha256": "e467e8c0086606e9cc208a6ab69697d78ef2c16f5a80be1e90e9259158fc572b",
+      "lineEndings": "CRLF source normalized to LF by .gitattributes"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/prerequisite-contracts-preparation-20260912.json",
+      "bytes": 3404,
+      "sha256": "397a2994aa1ef6107179cfde092b050ba9fd8a72dbae90a9ac8e0b41cc67987d",
+      "sourceSha256": "397a2994aa1ef6107179cfde092b050ba9fd8a72dbae90a9ac8e0b41cc67987d"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/r0-contracts-completion-20260912.json",
+      "bytes": 4268,
+      "sha256": "9549ca24ca2dc006eef27ec3dd0605c9d08d3c5319d7550094e59f39684db784",
+      "sourceSha256": "9549ca24ca2dc006eef27ec3dd0605c9d08d3c5319d7550094e59f39684db784"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/r0-contracts-ledger-shape-correction-20260912.json",
+      "bytes": 648,
+      "sha256": "9d35d19a15a9a37c99eb752cedf36bbed07467fb4147710cfac10c739a190097",
+      "sourceSha256": "9d35d19a15a9a37c99eb752cedf36bbed07467fb4147710cfac10c739a190097"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/r1-remaining-spec-prefixes-20260912.json",
+      "bytes": 12901,
+      "sha256": "b97df7498bde7f1bbf644472441702abca090830846d9dc2559404ec8d849a00",
+      "sourceSha256": "b97df7498bde7f1bbf644472441702abca090830846d9dc2559404ec8d849a00"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/roadmap-publication-review-20260912.json",
+      "bytes": 9476,
+      "sha256": "11f9ad9cdd2f74e754ed536a48fd46cd8251a8096821294b4cdbaa3b7ff545b5",
+      "sourceSha256": "11f9ad9cdd2f74e754ed536a48fd46cd8251a8096821294b4cdbaa3b7ff545b5"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/shared-tsx-restoration-20260912.json",
+      "bytes": 9257,
+      "sha256": "ab863e6685e087cbd4fb159e5a577cae033cfad82029ab8cc440e2491277706f",
+      "sourceSha256": "ab863e6685e087cbd4fb159e5a577cae033cfad82029ab8cc440e2491277706f"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/source-anchors-cleanup-20260912.json",
+      "bytes": 61171,
+      "sha256": "dd67fb0bfd3b9732607e213a5853c720a7f72d723ac9b08a626a80e26a4293ba",
+      "sourceSha256": "dd67fb0bfd3b9732607e213a5853c720a7f72d723ac9b08a626a80e26a4293ba"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/source-anchors-cleanup-parent-acceptance-20260912.json",
+      "bytes": 460,
+      "sha256": "4bc5cb0c1216b8a4ba84b8cd2fbf46cd4d2ccd30942412f6fcd34460ebdd2ea7",
+      "sourceSha256": "4bc5cb0c1216b8a4ba84b8cd2fbf46cd4d2ccd30942412f6fcd34460ebdd2ea7"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/source-anchors-delivery-preflight-20260912.json",
+      "bytes": 7971,
+      "sha256": "073aa0c097c6001f703ea0bb042e575f9d9ddbb12d645ce4ce33199cad6feb32",
+      "sourceSha256": "073aa0c097c6001f703ea0bb042e575f9d9ddbb12d645ce4ce33199cad6feb32"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/source-anchors-main-parent-acceptance-20260912.json",
+      "bytes": 10645,
+      "sha256": "0c7394ae0d9d7c7608f145466a9d588010195dc074dcf5f76d54e902194ec22e",
+      "sourceSha256": "0c7394ae0d9d7c7608f145466a9d588010195dc074dcf5f76d54e902194ec22e"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/source-anchors-main-verification-20260912.json",
+      "bytes": 7358,
+      "sha256": "60d154e045abdb9534f71fe562d642a60278c6c629294d2ac9719e17d6e8eca8",
+      "sourceSha256": "60d154e045abdb9534f71fe562d642a60278c6c629294d2ac9719e17d6e8eca8"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/source-anchors-root-reconciliation-20260912.json",
+      "bytes": 2379,
+      "sha256": "693d64ff47a08e41679591cf13422b9a5c19b667acecfefe4d5fe9e6d1d1e30b",
+      "sourceSha256": "693d64ff47a08e41679591cf13422b9a5c19b667acecfefe4d5fe9e6d1d1e30b"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/spec-data-services-cleanup-20260912.json",
+      "bytes": 17886,
+      "sha256": "2f30a350ede7fd1960e4134a9334673e1c4d4c0dfa1766435721e750f6b55584",
+      "sourceSha256": "8f86ee0f97b7fd1e35cc4b501bf9aeb5c2d04871ca2fa2868a1155626a52fe79",
+      "lineEndings": "CRLF source normalized to LF by .gitattributes"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/spec-data-services-delivery-preflight-20260912.json",
+      "bytes": 9275,
+      "sha256": "f43b02a8bd6aec4359582af94bbe46eb525de170a8b5cd2049318f8f91617772",
+      "sourceSha256": "f43b02a8bd6aec4359582af94bbe46eb525de170a8b5cd2049318f8f91617772"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/spec-data-services-final-review-20260912.json",
+      "bytes": 6607,
+      "sha256": "74a4656701cd1f315d564097f3f72dd277a0263b92fb19dbaf7b0599e32acea2",
+      "sourceSha256": "74a4656701cd1f315d564097f3f72dd277a0263b92fb19dbaf7b0599e32acea2"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/spec-data-services-gate-provenance-correction-20260912.json",
+      "bytes": 5681,
+      "sha256": "6b7b8871496d3f683a7287a2bcfb768c49d1d8bd5ba0c3cbffce343d47728d02",
+      "sourceSha256": "6b7b8871496d3f683a7287a2bcfb768c49d1d8bd5ba0c3cbffce343d47728d02"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/spec-data-services-independent-review-20260912.json",
+      "bytes": 7792,
+      "sha256": "461070ff16a0b57c1033153407f8891c7244ab42a977f60cb82e7adc4af455cc",
+      "sourceSha256": "461070ff16a0b57c1033153407f8891c7244ab42a977f60cb82e7adc4af455cc"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/spec-data-services-main-verification-20260912.json",
+      "bytes": 7227,
+      "sha256": "7dc487626ba0d43594efce0c356da7265e882b514623d47e82a433b0bde67b00",
+      "sourceSha256": "7dc487626ba0d43594efce0c356da7265e882b514623d47e82a433b0bde67b00"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/spec-data-services-root-reconciliation-20260912.json",
+      "bytes": 1408,
+      "sha256": "6c0e9c8e6fb703e55fd478e3e6fa0041f12d2259cf5fadc84c2384a5a0c32c0b",
+      "sourceSha256": "6c0e9c8e6fb703e55fd478e3e6fa0041f12d2259cf5fadc84c2384a5a0c32c0b"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/triage-allocation-tab-requirement-map-20260912.json",
+      "bytes": 8757,
+      "sha256": "25a15752449ff1dc13e14db140162cd36279e75e82b92ec4da3b4405d781087c",
+      "sourceSha256": "25a15752449ff1dc13e14db140162cd36279e75e82b92ec4da3b4405d781087c"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/triage-allocation-tab-superseding-20260912-continuation.json",
+      "bytes": 11729,
+      "sha256": "073626db5a62ab5c52f02831bcf3d50c5281f1593c0d2f1264bff84a2aeeecce",
+      "sourceSha256": "073626db5a62ab5c52f02831bcf3d50c5281f1593c0d2f1264bff84a2aeeecce"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/triage-customizer-doc-independent-xhigh-review-20260912.json",
+      "bytes": 6645,
+      "sha256": "6333d2dcdfe8b813502be5e33c2938fc60b4f487931b2baa3bec95d8d99029a6",
+      "sourceSha256": "6333d2dcdfe8b813502be5e33c2938fc60b4f487931b2baa3bec95d8d99029a6"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/triage-customizer-doc-repair-20260912-continuation.json",
+      "bytes": 11570,
+      "sha256": "e41ce114f2aad188244f2f5822329dac03f91875a559441c1469c891d06dff59",
+      "sourceSha256": "e41ce114f2aad188244f2f5822329dac03f91875a559441c1469c891d06dff59"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/triage-customizer-doc-review-followups-20260912.json",
+      "bytes": 11138,
+      "sha256": "34ec8aac00c50f2ae00ff0eaa3f944a7ab915f34b20ec9c75b2b63c0183a98e1",
+      "sourceSha256": "34ec8aac00c50f2ae00ff0eaa3f944a7ab915f34b20ec9c75b2b63c0183a98e1"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/triage-four-row-parent-acceptance-20260912.json",
+      "bytes": 2451,
+      "sha256": "b08c9adc9f430989b073009dfd85fd80e6419c90c41f90ba25eb5df7fb78f3ef",
+      "sourceSha256": "b08c9adc9f430989b073009dfd85fd80e6419c90c41f90ba25eb5df7fb78f3ef"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/triage-manifest-trace-20260912-continuation.json",
+      "bytes": 2499,
+      "sha256": "e0235b0f0d090b8a1b779ecd8ec8134c143998dba5bb760afef5c9483304e062",
+      "sourceSha256": "e0235b0f0d090b8a1b779ecd8ec8134c143998dba5bb760afef5c9483304e062"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/triage-placement-infantry-20260912-continuation.json",
+      "bytes": 4670,
+      "sha256": "212d556828398807ddf903320ee13ead4e7da7b3f72fb1b220656e69ff2ef82a",
+      "sourceSha256": "212d556828398807ddf903320ee13ead4e7da7b3f72fb1b220656e69ff2ef82a"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/validation-extension-anchor-xhigh-20260912.json",
+      "bytes": 5025,
+      "sha256": "76cb5b5668a752434527f1029a96da3dc751fd7ccc4b75c5f05a4ca317708056",
+      "sourceSha256": "76cb5b5668a752434527f1029a96da3dc751fd7ccc4b75c5f05a4ca317708056"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/validation-isolated-admission-20260912.json",
+      "bytes": 1569,
+      "sha256": "dc281bb8e2c525e06312afc3cbf4ac2bf55693756dcf7b546fc5945142a29bc1",
+      "sourceSha256": "dc281bb8e2c525e06312afc3cbf4ac2bf55693756dcf7b546fc5945142a29bc1"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/validation-order-cleanup-20260912.json",
+      "bytes": 975,
+      "sha256": "9c4b0cd88661995f047f78234808cae4cee34b816df437173200f673ad585e1b",
+      "sourceSha256": "9c4b0cd88661995f047f78234808cae4cee34b816df437173200f673ad585e1b"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/validation-order-final-independent-review-20260912.json",
+      "bytes": 1758,
+      "sha256": "6ab0ade461b29d00d8016686dd67e38091cc90281aecd2297a2876b3804b0c38",
+      "sourceSha256": "6ab0ade461b29d00d8016686dd67e38091cc90281aecd2297a2876b3804b0c38"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/validation-order-hooked-commit-20260912.json",
+      "bytes": 1195,
+      "sha256": "2914404a9d21646b0cf81c37f8d9cf56a817e13a90fe57a20f8507923f1cc902",
+      "sourceSha256": "2914404a9d21646b0cf81c37f8d9cf56a817e13a90fe57a20f8507923f1cc902"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/validation-order-independent-review-20260912-continuation.json",
+      "bytes": 2591,
+      "sha256": "98baf386a5bdfa50172d88229ae332e7e23a3f934a8effaf8112af76d686021e",
+      "sourceSha256": "98baf386a5bdfa50172d88229ae332e7e23a3f934a8effaf8112af76d686021e"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/validation-order-local-verification-20260912.json",
+      "bytes": 1945,
+      "sha256": "9dbba1a8f78a79690acbe981364d33cbca04252516b822609a68ab113e6ccb31",
+      "sourceSha256": "9dbba1a8f78a79690acbe981364d33cbca04252516b822609a68ab113e6ccb31"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/validation-order-main-verification-20260912.json",
+      "bytes": 8673,
+      "sha256": "ec40f7a5a34d1c6e1758bb07e91e59a335ed7e250a9431ca262f64dcfe7602cb",
+      "sourceSha256": "ec40f7a5a34d1c6e1758bb07e91e59a335ed7e250a9431ca262f64dcfe7602cb"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/validation-order-merge-20260912.json",
+      "bytes": 559,
+      "sha256": "9d7f76f248479b411d2465db2c8300bfaff9d8986611e8ead46e7a17cea8b19d",
+      "sourceSha256": "9d7f76f248479b411d2465db2c8300bfaff9d8986611e8ead46e7a17cea8b19d"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/validation-order-xhigh-correction-20260912.json",
+      "bytes": 4131,
+      "sha256": "18393afc51b8ad0cf71f214256d6fd98bbafb52998b10f4cfc271edabaa86ba8",
+      "sourceSha256": "18393afc51b8ad0cf71f214256d6fd98bbafb52998b10f4cfc271edabaa86ba8"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/vault-contracts-cleanup-20260912.json",
+      "bytes": 160000,
+      "sha256": "335ea7fa3ecf2cf7da93c6e0ffe79378a599a95bad29b9c54a7a5bc9c703117c",
+      "sourceSha256": "335ea7fa3ecf2cf7da93c6e0ffe79378a599a95bad29b9c54a7a5bc9c703117c"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/vault-contracts-cleanup-parent-acceptance-20260912.json",
+      "bytes": 123681,
+      "sha256": "0cf7772a64bd54c1ad41e6b6bb6efe22e2cb12ba2a9669d0825c854747895748",
+      "sourceSha256": "0cf7772a64bd54c1ad41e6b6bb6efe22e2cb12ba2a9669d0825c854747895748"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/vault-contracts-delivery-preflight-20260912.json",
+      "bytes": 33413,
+      "sha256": "fb09b27b08485bd7471924915a45ee2320a306ffd24d23687eb4f8916f2aee70",
+      "sourceSha256": "fb09b27b08485bd7471924915a45ee2320a306ffd24d23687eb4f8916f2aee70"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/vault-contracts-final-review-20260912.json",
+      "bytes": 14346,
+      "sha256": "9d0d25af51d1494681b0c9e6251333dbb951ad6af25324d33eac19f2fbae83c9",
+      "sourceSha256": "9d0d25af51d1494681b0c9e6251333dbb951ad6af25324d33eac19f2fbae83c9"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/vault-contracts-independent-review-20260912.json",
+      "bytes": 18049,
+      "sha256": "a9edc682361f3fdd6dd6476e2281fb5d83e73641d79bbc02d59993ccddcd0902",
+      "sourceSha256": "a9edc682361f3fdd6dd6476e2281fb5d83e73641d79bbc02d59993ccddcd0902"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/vault-contracts-main-parent-acceptance-20260912.json",
+      "bytes": 30428,
+      "sha256": "a44d5525dc121b7be7ce3f666fb170e0772e868633f8238d1c84f1abe93723e9",
+      "sourceSha256": "a44d5525dc121b7be7ce3f666fb170e0772e868633f8238d1c84f1abe93723e9"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/vault-contracts-main-verification-20260912.json",
+      "bytes": 59469,
+      "sha256": "865e2107ed75dac63d68b4a5f2505eb266c44930ffcc67b7540696461b796544",
+      "sourceSha256": "865e2107ed75dac63d68b4a5f2505eb266c44930ffcc67b7540696461b796544"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/vault-contracts-review-count-correction-20260912.json",
+      "bytes": 971,
+      "sha256": "830dbe25f333d71c8d2fe4fb8cc5465258dd80d24111c7dfb8f6dd303e4804c9",
+      "sourceSha256": "830dbe25f333d71c8d2fe4fb8cc5465258dd80d24111c7dfb8f6dd303e4804c9"
+    }
+  ]
+}

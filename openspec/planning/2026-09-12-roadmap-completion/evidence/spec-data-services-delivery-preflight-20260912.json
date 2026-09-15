@@ -1,0 +1,173 @@
+{
+  "schemaVersion": 1,
+  "evidenceId": "spec-data-services-delivery-preflight-20260912",
+  "capturedAt": "2026-09-12T20:20:58.0298973Z",
+  "node": "R1.specs",
+  "status": "passed",
+  "testedHead": "c44bf05720591efc5e40186c1a9f49b4afebe44a",
+  "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/spec-data-services",
+  "scope": [
+    "openspec/specs/equipment-services/spec.md",
+    "openspec/specs/data-loading-architecture/spec.md",
+    "openspec/specs/construction-rules-core/spec.md"
+  ],
+  "acceptedHashes": {
+    "openspec/specs/equipment-services/spec.md": "32d8197b35e45c65842701076d7a5cfd9043838dc6486a0605237caaf4da77f8",
+    "openspec/specs/data-loading-architecture/spec.md": "cfa90d423f395ae2dddc0aa28697929c451ff9788cb58466ef838b2b97b2a66f",
+    "openspec/specs/construction-rules-core/spec.md": "85fefb6f310e6132e4bd99ec4f5f92cb2612731c1505d1e0637cf4c9db6e9aa1"
+  },
+  "beforeAfter": {
+    "before": {
+      "head": "a538a2d3b2b05252e1c80cc60395c72953f4c979",
+      "status": "three unstaged spec modifications",
+      "hashes": {
+        "openspec/specs/equipment-services/spec.md": "32d8197b35e45c65842701076d7a5cfd9043838dc6486a0605237caaf4da77f8",
+        "openspec/specs/data-loading-architecture/spec.md": "cfa90d423f395ae2dddc0aa28697929c451ff9788cb58466ef838b2b97b2a66f",
+        "openspec/specs/construction-rules-core/spec.md": "85fefb6f310e6132e4bd99ec4f5f92cb2612731c1505d1e0637cf4c9db6e9aa1"
+      }
+    },
+    "originMain": {
+      "ref": "origin/main",
+      "sha": "c44bf05720591efc5e40186c1a9f49b4afebe44a",
+      "incomingChangedPaths": [
+        "openspec/specs/aerospace-unit-system/spec.md",
+        "openspec/specs/app-settings/spec.md",
+        "openspec/specs/critical-slots-display/spec.md",
+        "openspec/specs/equipment-tray/spec.md",
+        "openspec/specs/mm-data-asset-integration/spec.md",
+        "openspec/specs/protomech-unit-system/spec.md",
+        "openspec/specs/unit-validation-framework/spec.md",
+        "package.json",
+        "scripts/__tests__/mm-data-browser-config.test.ts",
+        "scripts/mm-data/sync-browser-config.mjs",
+        "src/__tests__/service/validation/UnitValidationHierarchyOrder.test.ts",
+        "src/services/validation/UnitValidationRegistry.ts",
+        "src/services/validation/__tests__/initializeUnitValidation.test.ts"
+      ],
+      "overlapWithOwnedScope": []
+    },
+    "fastForward": {
+      "command": "git merge --ff-only origin/main",
+      "exitCode": 0,
+      "afterHead": "c44bf05720591efc5e40186c1a9f49b4afebe44a",
+      "ownedHashesPreserved": true
+    },
+    "after": {
+      "head": "c44bf05720591efc5e40186c1a9f49b4afebe44a",
+      "status": "three staged spec modifications",
+      "hashes": {
+        "openspec/specs/equipment-services/spec.md": "32d8197b35e45c65842701076d7a5cfd9043838dc6486a0605237caaf4da77f8",
+        "openspec/specs/data-loading-architecture/spec.md": "cfa90d423f395ae2dddc0aa28697929c451ff9788cb58466ef838b2b97b2a66f",
+        "openspec/specs/construction-rules-core/spec.md": "85fefb6f310e6132e4bd99ec4f5f92cb2612731c1505d1e0637cf4c9db6e9aa1"
+      },
+      "stagedPaths": [
+        "openspec/specs/construction-rules-core/spec.md",
+        "openspec/specs/data-loading-architecture/spec.md",
+        "openspec/specs/equipment-services/spec.md"
+      ],
+      "numstat": "7\t5\topenspec/specs/construction-rules-core/spec.md\n60\t24\topenspec/specs/data-loading-architecture/spec.md\n105\t25\topenspec/specs/equipment-services/spec.md"
+    }
+  },
+  "receipts": {
+    "finalReview": {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/spec-data-services-final-review-20260912.json",
+      "sha256": "74a4656701cd1f315d564097f3f72dd277a0263b92fb19dbaf7b0599e32acea2"
+    },
+    "provenanceCorrection": {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/spec-data-services-gate-provenance-correction-20260912.json",
+      "sha256": "6b7b8871496d3f683a7287a2bcfb768c49d1d8bd5ba0c3cbffce343d47728d02"
+    }
+  },
+  "prepare": {
+    "command": "PATH=/e/Projects/MekStation/node_modules/.bin:$PATH /c/nvm4w/nodejs/node.exe /c/nvm4w/nodejs/node_modules/npm/bin/npm-cli.js run prepare",
+    "exitCode": 0,
+    "result": "npm prepare ran the husky script; no install command was run.",
+    "worktreeNodeModulesPresent": false,
+    "rootNodeModulesPresent": true,
+    "rootPrettierBinaryPresent": false,
+    "rootOxfmtBinaryPresent": true,
+    "rootLintStagedBinaryPresent": true
+  },
+  "checks": [
+    {
+      "name": "openspec-all-strict",
+      "command": "C:/nvm4w/nodejs/node.exe C:/Users/wroll/AppData/Roaming/npm/node_modules/@fission-ai/openspec/bin/openspec.js validate --all --strict",
+      "exitCode": 0,
+      "status": "passed",
+      "rawLog": ".sisyphus/roadmap-completion-20260912/spec-data-services-delivery/checks/openspec-all-strict.raw.log",
+      "rawLogSha256": "e21ee5a93b949a4d54b08178b22d10d3ab304c1b55e46a00f05c1cfc9b56c76e",
+      "result": "Totals: 231 passed, 0 failed (231 items)"
+    },
+    {
+      "name": "spec-purpose",
+      "command": "C:/nvm4w/nodejs/node.exe E:/Projects/MekStation/node_modules/tsx/dist/cli.mjs openspec/scripts/spec-purpose-lint.ts",
+      "exitCode": 0,
+      "status": "passed",
+      "rawLog": ".sisyphus/roadmap-completion-20260912/spec-data-services-delivery/checks/spec-purpose.raw.log",
+      "rawLogSha256": "1562da622ae402e01e0514d2799abdd0d7497b6e50daefa3fdee68b22ad39229",
+      "result": "Files scanned: 217; Errors: 0; Tracked source-of-truth debt: 0"
+    },
+    {
+      "name": "terminology",
+      "command": "C:/nvm4w/nodejs/node.exe E:/Projects/MekStation/node_modules/ts-node/dist/bin.js openspec/scripts/terminology-tool.ts validate --strict",
+      "exitCode": 0,
+      "status": "passed",
+      "rawLog": ".sisyphus/roadmap-completion-20260912/spec-data-services-delivery/checks/terminology.raw.log",
+      "rawLogSha256": "52032f9b1be5aa5c8af394138031d510372b4eed2793ff921edbe29632f945fb",
+      "result": "All 319 file(s) are compliant with TERMINOLOGY_GLOSSARY.md",
+      "stderrQualification": "Existing MODULE_TYPELESS_PACKAGE_JSON warning only"
+    },
+    {
+      "name": "ci-qc",
+      "command": "C:/nvm4w/nodejs/node.exe scripts/qc/validate-openspec-ci-quality.mjs",
+      "exitCode": 0,
+      "status": "passed",
+      "rawLog": ".sisyphus/roadmap-completion-20260912/spec-data-services-delivery/checks/ci-qc.raw.log",
+      "rawLogSha256": "c0cb54085851dc9acb986613616f6992117a3fd0bd09d508938c634750b7cbb2",
+      "result": "workflowContracts=8/8 aggregatorNeeds=18/18 protectedContexts=4 packageScripts=3/3 activeOpenSpecChanges=14 accountedActiveOpenSpecChanges=14 errors=0"
+    },
+    {
+      "name": "format-check",
+      "command": "C:/nvm4w/nodejs/node.exe E:/Projects/MekStation/node_modules/oxfmt/bin/oxfmt --check --ignore-path=.gitignore openspec/specs/equipment-services/spec.md openspec/specs/data-loading-architecture/spec.md openspec/specs/construction-rules-core/spec.md",
+      "exitCode": 0,
+      "status": "passed",
+      "rawLog": ".sisyphus/roadmap-completion-20260912/spec-data-services-delivery/checks/format-check.raw.log",
+      "rawLogSha256": "e7818dd3793f11d206dc154dc3bd282810a8978450ac5dc6021a2daf26cfed57",
+      "result": "All matched files use the correct format; 3 files"
+    },
+    {
+      "name": "prettier-cached",
+      "command": "npm.cmd exec --no -- prettier --check openspec/specs/equipment-services/spec.md openspec/specs/data-loading-architecture/spec.md openspec/specs/construction-rules-core/spec.md",
+      "exitCode": 0,
+      "status": "passed",
+      "rawLog": ".sisyphus/roadmap-completion-20260912/spec-data-services-delivery/checks/prettier-cached.raw.log",
+      "rawLogSha256": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20",
+      "result": "All matched files use Prettier code style",
+      "scope": "Explicit three-file target list; no zero-target claim"
+    },
+    {
+      "name": "diff-check",
+      "command": "git diff --cached --check -- openspec/specs/equipment-services/spec.md openspec/specs/data-loading-architecture/spec.md openspec/specs/construction-rules-core/spec.md",
+      "exitCode": 0,
+      "status": "passed",
+      "rawLog": ".sisyphus/roadmap-completion-20260912/spec-data-services-delivery/checks/diff-check.raw.log",
+      "rawLogSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "result": "No whitespace errors"
+    }
+  ],
+  "gitState": {
+    "status": "three accepted docs staged; no unstaged or unrelated paths",
+    "gitMutation": "authorized fast-forward integration and exact-path staging only",
+    "commitExecuted": false,
+    "pushExecuted": false,
+    "buildExecuted": false,
+    "serverExecuted": false,
+    "installExecuted": false
+  },
+  "limits": [
+    "This receipt covers documentation gates and preparation only; it does not claim product behavior, build, server, runtime, or test proof.",
+    "The carried-forward focused loader and schema-bridge tests remain recorded in the independent review receipt and were not rerun here.",
+    "The retained strict schema-bridge diagnostic failure remains outside the acceptance gates.",
+    "Parent owns final review, normal-hook commit, PR publication, and exact-main post-merge proof."
+  ]
+}

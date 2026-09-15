@@ -1,0 +1,33 @@
+{
+  "recordedAt": "2026-09-12T17:28:15.532Z",
+  "node": "R9.validation-order",
+  "commit": "1f97ac0e7e52da2fcd57ec022d5be6c4ddd709a8",
+  "files": [
+    {
+      "path": "src/services/validation/UnitValidationRegistry.ts",
+      "sha256": "3939111303debbcee9cc5152d0df5c8f2b800a6cb83f652aaae0129253025246"
+    },
+    {
+      "path": "src/__tests__/service/validation/UnitValidationHierarchyOrder.test.ts",
+      "sha256": "1e7a2f12de7ac4392d4b9fcbf9e2c9bdb684fe39ecb9c8d6c11134b9b7135e4d"
+    },
+    {
+      "path": "src/services/validation/__tests__/initializeUnitValidation.test.ts",
+      "sha256": "7737565b431f2b9248b0d2c43862614a11a2a7789f08b886f18c494f8898138a"
+    },
+    {
+      "path": "openspec/specs/unit-validation-framework/spec.md",
+      "sha256": "7bfc2f9d64234b09661c682fb19a6f0918b5414fabd77483f44cb049663acf2d"
+    }
+  ],
+  "localVerification": "validation-order-local-verification-20260912.json",
+  "hookStatus": "validation-order-commit-status.json",
+  "hookLogSha256": "1e4fbb6a9a54011d4462f7409a56e778ec090694cff017a1bdce2f1fe2af6870",
+  "hookExit": 0,
+  "clean": true,
+  "changedLines": 372,
+  "fileCount": 4,
+  "limits": [
+    "Remote and exact-main proof pending"
+  ]
+}

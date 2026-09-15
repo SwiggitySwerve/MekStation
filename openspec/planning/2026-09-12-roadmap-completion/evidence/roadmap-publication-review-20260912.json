@@ -1,0 +1,200 @@
+{
+  "kind": "r0-publish-bounded-prefix-review",
+  "reviewDate": "2026-09-12",
+  "reviewer": "codex:/root/data_spec_review",
+  "repository": "E:/Projects/MekStation",
+  "requestedComparisonTarget": "c44bf05720591efc5e40186c1a9f49b4afebe44a",
+  "checkoutHeadAtReview": "be7f85b867aa3e8576e5e3d27e309276203bc24b",
+  "checkoutHeadIsAncestorOfTarget": true,
+  "mutableOriginRefNote": "origin/main advanced during review; all target comparisons use literal c44bf05720591efc5e40186c1a9f49b4afebe44a",
+  "verdict": {
+    "nextIndependentPrefix": "P1-inventory-json",
+    "status": "ready_for_parent_admission_review",
+    "scope": "One audit-data file only; no product/source/Git/ledger edits",
+    "rationale": "The file has no Markdown links, passes internal parse/count/hash acceptance, and is the first buildable item in PUBLICATION.md. Its 4,781 lines are permitted by the explicitly named inventory allowance."
+  },
+  "prefixManifest": [
+    {
+      "prefix": "P1-inventory-json",
+      "files": [
+        {
+          "path": "docs/audits/2026-09-12-customizer-spec-reconciliation/inventory.json",
+          "originStatusAtTarget": "absent",
+          "addition": {
+            "files": 1,
+            "lines": 4781,
+            "bytes": 229674
+          },
+          "sha256": "fe9d25951ee79c34c74f0b8f64aee51dbd94265b30a057ae735ca83301376822",
+          "classification": "human-authored audit data under PUBLICATION.md named allowance",
+          "linkDependency": "No Markdown links"
+        }
+      ],
+      "nonGeneratedChangedLines": 4781,
+      "capDisposition": "Named inventory allowance; default 500-line target does not apply to this file, while the 15-file limit remains satisfied"
+    }
+  ],
+  "inventoryAcceptance": {
+    "command": "/c/nvm4w/nodejs/node.exe -e \"const j=require('./docs/audits/2026-09-12-customizer-spec-reconciliation/inventory.json'); if (!(j.schemaVersion===1 && j.baselineHead==='be7f85b867aa3e8576e5e3d27e309276203bc24b' && j.canonicalSpecifications.length===220 && j.activeChanges.length===13 && j.archivedChanges.length===3 && j.coverage.currentCanonical===220 && j.coverage.currentActive===13 && j.coverage.baselineCanonical===217 && j.coverage.baselineActive===14 && j.coverage.initialCanonicalStatuses['needs-proof']===22 && j.coverage.initialCanonicalStatuses['preserve-planned']===18)) process.exit(1); console.log('inventory-acceptance-pass')\"",
+    "exitCode": 0,
+    "timedOut": false,
+    "checks": {
+      "schemaVersion": 1,
+      "baselineHead": "be7f85b867aa3e8576e5e3d27e309276203bc24b",
+      "canonicalSpecifications": 220,
+      "activeChanges": 13,
+      "archivedChanges": 3,
+      "currentCanonical": 220,
+      "currentActive": 13,
+      "baselineCanonical": 217,
+      "baselineActive": 14,
+      "needsProof": 22,
+      "preservePlanned": 18
+    },
+    "commandEvidence": "raw-publication-review-20260912.json"
+  },
+  "admissionDependency": {
+    "node": "R0.plan",
+    "state": "local-verified",
+    "sufficientForP1": true,
+    "evidence": [
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/plan-review.md",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/inventory-39-accounting-20260912.json"
+    ],
+    "accounting": {
+      "dispositioned": 39,
+      "total": 40,
+      "finalExit": 0,
+      "rawLogSha256": "b185e5f101786a05e7aa9bd0cde15778607fa047fbdbec8a15158c89753c23fc",
+      "rawLogPublication": "Ignored local evidence only; not claimed as a Git-published file"
+    }
+  },
+  "preservedProgramScope": {
+    "packages": 13,
+    "taskOccurrences": 376,
+    "triageRows": 40,
+    "statement": "P1 publishes the inventory snapshot only and does not close, rewrite, or reduce the 13/376/40 roadmap scope."
+  },
+  "proposedPrefixOrder": [
+    {
+      "order": 1,
+      "prefix": "P1-inventory-json",
+      "status": "ready",
+      "files": ["docs/audits/2026-09-12-customizer-spec-reconciliation/inventory.json"]
+    },
+    {
+      "order": 2,
+      "prefix": "audit-link-foundation",
+      "status": "blocked_until_dependencies_are_admitted",
+      "candidateFiles": [
+        "docs/audits/2026-09-12-customizer-spec-reconciliation/inventory.md",
+        "docs/audits/2026-09-12-customizer-spec-reconciliation/README.md"
+      ],
+      "measuredLines": 295,
+      "reason": "Both companion files have local-only links; the overview and its source/package/archive foundations must be resolved before navigation is published."
+    },
+    {
+      "order": 3,
+      "prefix": "inventory-overview",
+      "status": "blocked_until_links_resolve",
+      "files": ["docs/audits/2026-09-12-customizer-spec-reconciliation/inventory-overview.md"],
+      "measuredLines": 365,
+      "linkAudit": {
+        "target": "c44bf05720591efc5e40186c1a9f49b4afebe44a",
+        "uniqueLinks": 252,
+        "missingLinks": 13
+      }
+    },
+    {
+      "order": 4,
+      "prefix": "planning-contracts",
+      "status": "after-overview",
+      "files": [
+        "openspec/planning/2026-09-12-roadmap-completion/DISCOVERY.md",
+        "openspec/planning/2026-09-12-roadmap-completion/DELIVERY.md",
+        "openspec/planning/2026-09-12-roadmap-completion/PR-SLICES.md",
+        "openspec/planning/2026-09-12-roadmap-completion/WORKERS.md"
+      ],
+      "measuredLines": 282,
+      "publicationDocumentCountWasStale": "PUBLICATION.md states 263 lines; current measured total is 282"
+    },
+    {
+      "order": 5,
+      "prefix": "validated-ledger-and-receipts",
+      "status": "not_yet_self_contained",
+      "candidateFiles": [
+        "openspec/planning/2026-09-12-roadmap-completion/README.md",
+        "openspec/planning/2026-09-12-roadmap-completion/PROGRESS.md",
+        "openspec/planning/2026-09-12-roadmap-completion/roadmap.json",
+        "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+        "openspec/planning/2026-09-12-roadmap-completion/evidence/admission-snapshot.json"
+      ],
+      "measuredLines": {
+        "README.md": 42,
+        "PROGRESS.md": 29,
+        "roadmap.json": 9321,
+        "validate-roadmap.mjs": 209,
+        "evidence/admission-snapshot.json": 3758
+      },
+      "uniqueEvidenceReferencesInCoreLedgerDocs": 87,
+      "reason": "The ledger cannot claim self-contained links within the 15-file cap until its receipt batches and live ownership paths are published."
+    }
+  ],
+  "classification": {
+    "humanAuthored": [
+      "docs/audits/2026-09-12-customizer-spec-reconciliation/inventory.json",
+      "openspec/planning/2026-09-12-roadmap-completion/roadmap.json",
+      "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs",
+      "openspec/planning/2026-09-12-roadmap-completion/README.md",
+      "openspec/planning/2026-09-12-roadmap-completion/PROGRESS.md"
+    ],
+    "immutableGeneratedProjection": [
+      {
+        "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/admission-snapshot.json",
+        "lines": 3758,
+        "sha256": "dd2b997e6e2e3adf85130d3196ee9f2838fc900019ff36f8bd3495f3caf58b68",
+        "scope": "Captured source task groups, paths, hashes, and 376 admitted task rows"
+      }
+    ],
+    "receipts": [
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/plan-review.md",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/spec-repair-accounting.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/inventory-39-accounting-20260912.json"
+    ]
+  },
+  "verifiedOverviewBlockers": {
+    "localOnly": [
+      "docs/audits/2026-09-12-customizer-spec-reconciliation/inventory.json",
+      "docs/audits/2026-09-12-customizer-spec-reconciliation/inventory.md",
+      "docs/audits/2026-09-12-customizer-spec-reconciliation/README.md",
+      "openspec/changes/add-customizer-pr-regression-gate/proposal.md",
+      "openspec/changes/add-customizer-pr-regression-gate/tasks.md",
+      "openspec/changes/archive/2026-09-12-add-customizer-edit-recovery/tasks.md",
+      "openspec/changes/archive/2026-09-12-establish-battlemech-chassis-index/tasks.md",
+      "openspec/changes/archive/2026-09-12-repair-equipment-catalog/tasks.md",
+      "openspec/specs/battlemech-chassis-index/spec.md",
+      "openspec/specs/custom-unit-combat/spec.md",
+      "openspec/specs/customizer-edit-recovery/spec.md"
+    ],
+    "absentLocallyAndAtTarget": [
+      "openspec/changes/fix-customizer-explicit-tab-precedence/proposal.md",
+      "openspec/changes/fix-customizer-explicit-tab-precedence/tasks.md"
+    ],
+    "requiredRepair": "When overview publication is prepared, point the two stale fix-customizer links at openspec/changes/archive/2026-09-12-fix-customizer-explicit-tab-precedence/."
+  },
+  "limitations": [
+    "The current planning README retains a historical current-main claim at line 42; refresh dynamic claims before staging later ledger prefixes.",
+    "No source, spec, package, Git, ledger, install, build, server, or network mutation was performed.",
+    "Ignored .sisyphus raw logs are local evidence only and are not claimed as published Git files."
+  ],
+  "artifacts": {
+    "rawCapture": {
+      "path": ".sisyphus/roadmap-completion-20260912/roadmap-publication-review/raw-publication-review-20260912.json",
+      "sha256": "d22c25aee82a8bae08a5900d33766cafac30be7b56df6e5222a16ecc3aed9f53"
+    },
+    "reviewMarkdown": {
+      "path": ".sisyphus/roadmap-completion-20260912/roadmap-publication-review/publication-review-20260912.md",
+      "sha256": "22eba18a0fadf9b83c36b243ebc9c04fc693c071f4ecfacbe0a27cd3a39aa2f1"
+    }
+  }
+}

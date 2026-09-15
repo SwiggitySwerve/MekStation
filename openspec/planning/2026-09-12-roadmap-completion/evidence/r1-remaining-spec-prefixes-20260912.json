@@ -1,0 +1,236 @@
+{
+  "schemaVersion": 1,
+  "evidenceId": "r1-remaining-spec-prefixes-20260912",
+  "capturedAt": "2026-09-12",
+  "worktree": "E:/Projects/MekStation",
+  "baseline": {
+    "rootHead": "be7f85b867aa3e8576e5e3d27e309276203bc24b",
+    "originMain": "a538a2d3b2b05252e1c80cc60395c72953f4c979",
+    "comparison": "git diff origin/main -- openspec/specs/*.md"
+  },
+  "scope": "Read-only inventory of remaining R1 canonical-spec content deltas against fetched origin/main. No product/spec/roadmap implementation was performed.",
+  "artifacts": {
+    "rawReport": {
+      "path": ".sisyphus/roadmap-completion-20260912/r1-spec-prefixes/r1-remaining-spec-prefixes.raw.md",
+      "sha256": "6f5353988f7051fb19d055c5366024ea1496de65ca3f203d8dfedbba4e2b5e49"
+    },
+    "workersUpdate": {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/WORKERS.md",
+      "sha256": "0e26a0564e40f10256ea68979f9189912abd851a94c5a888b320025184acc642",
+      "scope": "Dated routing section appended per latest user instruction; prior history preserved."
+    }
+  },
+  "inventory": {
+    "trackedCanonicalSpecDeltasAgainstOriginMain": 39,
+    "explicitlyExcluded": 11,
+    "excludedContentDeltas": 6,
+    "remainingInventoried": 33,
+    "remainingAddedLines": 838,
+    "remainingDeletedLines": 534,
+    "remainingChangedLines": 1372,
+    "untrackedCanonicalDirectoriesOutsideDiff": [
+      "openspec/specs/battlemech-chassis-index/",
+      "openspec/specs/custom-unit-combat/",
+      "openspec/specs/customizer-edit-recovery/"
+    ],
+    "contentDeltaOmission": "customizer-routing is dirty relative to the root checkout baseline but current working-tree bytes equal origin/main, so it has no content delta in this comparison."
+  },
+  "exclusions": [
+    "openspec/specs/aerospace-unit-system/spec.md",
+    "openspec/specs/app-settings/spec.md",
+    "openspec/specs/critical-slots-display/spec.md",
+    "openspec/specs/equipment-tray/spec.md",
+    "openspec/specs/protomech-unit-system/spec.md",
+    "openspec/specs/unit-validation-framework/spec.md",
+    "openspec/specs/mm-data-asset-integration/spec.md",
+    "openspec/specs/release-build-system/spec.md hydration clause",
+    "openspec/specs/equipment-services/spec.md",
+    "openspec/specs/data-loading-architecture/spec.md",
+    "openspec/specs/construction-rules-core/spec.md"
+  ],
+  "acceptedFiniteReferenceRepairs": [
+    {
+      "paths": ["openspec/specs/c3-network-targeting/spec.md"],
+      "receipt": "openspec/planning/2026-09-12-roadmap-completion/evidence/triage-c3-reference-correction.json",
+      "status": "bounded source/path correction; no whole-capability claim"
+    },
+    {
+      "paths": [
+        "openspec/specs/combat-analytics/spec.md",
+        "openspec/specs/force-management/spec.md",
+        "openspec/specs/game-session-management/spec.md",
+        "openspec/specs/personnel-management/spec.md",
+        "openspec/specs/repair/spec.md"
+      ],
+      "receipt": "openspec/planning/2026-09-12-roadmap-completion/evidence/triage-campaign-parent-acceptance.json",
+      "underlyingReceipt": "openspec/planning/2026-09-12-roadmap-completion/evidence/triage-campaign-references.json",
+      "underlyingReceiptSha256": "e7f9e83224e223b0a3fb174e2306d71976224a13200296f98a54781509483ce3",
+      "status": "parent-accepted finite source/reference repairs; no new runtime execution"
+    },
+    {
+      "paths": [
+        "openspec/specs/firing-arc-calculation/spec.md",
+        "openspec/specs/hull-down-position/spec.md",
+        "openspec/specs/piloting-skill-rolls/spec.md"
+      ],
+      "receipt": "openspec/planning/2026-09-12-roadmap-completion/evidence/triage-gameplay-parent-acceptance.json",
+      "underlyingReceipt": "openspec/planning/2026-09-12-roadmap-completion/evidence/triage-gameplay-references.json",
+      "status": "parent-accepted finite reference corrections; focused runtime tests were not run in that receipt"
+    },
+    {
+      "paths": [
+        "openspec/specs/unit-comparison/spec.md",
+        "openspec/specs/user-identity/spec.md",
+        "openspec/specs/vault-sync/spec.md"
+      ],
+      "receipt": "openspec/planning/2026-09-12-roadmap-completion/evidence/triage-vault-parent-acceptance.json",
+      "underlyingReceipt": "openspec/planning/2026-09-12-roadmap-completion/evidence/triage-vault-references.json",
+      "underlyingReceiptSha256": "ac761487b83c983ae4ee67026500c29cfdbd771a8cca4b1e61485e47bd349ac4",
+      "status": "parent-accepted finite reference dispositions; runtime/browser proof and planned vault expansion remain open"
+    },
+    {
+      "paths": ["openspec/specs/campaign-unit-combat-state/spec.md"],
+      "receipt": "openspec/planning/2026-09-12-roadmap-completion/evidence/triage-preserved-campaign-parent-acceptance.json",
+      "underlyingReceipt": "openspec/planning/2026-09-12-roadmap-completion/evidence/triage-preserved-campaign.json",
+      "underlyingReceiptSha256": "790fe20a2adc0a57d38948d2f21015d7d755e2a9afd7e0500cf7f1f06112c256",
+      "status": "finite migration-status wording accepted; max-state comparison and integration/order proof remain open"
+    }
+  ],
+  "reviewRequiredPaths": [
+    "openspec/specs/armor-diagram-variants/spec.md",
+    "openspec/specs/auto-save-persistence/spec.md",
+    "openspec/specs/battle-armor-unit-system/spec.md",
+    "openspec/specs/bv-validation-tooling/spec.md",
+    "openspec/specs/campaign-combat-loop/spec.md",
+    "openspec/specs/campaign-personnel-architecture/spec.md",
+    "openspec/specs/compendium-browser/spec.md",
+    "openspec/specs/customizer-responsive-layout/spec.md",
+    "openspec/specs/customizer-tabs/spec.md",
+    "openspec/specs/database-schema/spec.md",
+    "openspec/specs/e2e-testing/spec.md",
+    "openspec/specs/equipment-browser/spec.md",
+    "openspec/specs/mission-contracts/spec.md",
+    "openspec/specs/overview-basic-info/spec.md",
+    "openspec/specs/persistence-services/spec.md",
+    "openspec/specs/record-sheet-export/spec.md",
+    "openspec/specs/toast-notifications/spec.md",
+    "openspec/specs/unit-services/spec.md",
+    "openspec/specs/utility-patterns/spec.md",
+    "openspec/specs/vehicle-unit-system/spec.md"
+  ],
+  "recommendedPrefixes": [
+    {
+      "id": "r1-prefix-source-anchor-tables",
+      "paths": [
+        "openspec/specs/auto-save-persistence/spec.md",
+        "openspec/specs/battle-armor-unit-system/spec.md",
+        "openspec/specs/toast-notifications/spec.md",
+        "openspec/specs/utility-patterns/spec.md",
+        "openspec/specs/vehicle-unit-system/spec.md"
+      ],
+      "files": 5,
+      "addedLines": 49,
+      "deletedLines": 48,
+      "changedLines": 97,
+      "prerequisites": [
+        "Verify named symbols/modules against current files, including VehicleArmorDiagram compatibility/primary modules and split notification/vault types.",
+        "Confirm the edited tables contain no stale line-count claims."
+      ],
+      "boundary": "Documentation source anchors/tables only; no runtime behavior claim or equipment worker scope."
+    },
+    {
+      "id": "r1-prefix-campaign-catalog-admission",
+      "paths": [
+        "openspec/specs/campaign-combat-loop/spec.md",
+        "openspec/specs/mission-contracts/spec.md"
+      ],
+      "files": 2,
+      "addedLines": 47,
+      "deletedLines": 35,
+      "changedLines": 82,
+      "prerequisites": [
+        "Reconcile canonicalCatalogAdmission.ts and materializeCampaignMissionEncounter.ts with the server custom combat catalog and untracked custom-unit-combat contract.",
+        "Confirm rejection-before-mutation and browser-only custom admission versus canonical-only fast-forward."
+      ],
+      "boundary": "Preserve R2/CAMP-01H terminal combat/post-battle proof; no whole campaign completion claim."
+    },
+    {
+      "id": "r1-prefix-custom-unit-persistence-authority",
+      "paths": [
+        "openspec/specs/database-schema/spec.md",
+        "openspec/specs/persistence-services/spec.md",
+        "openspec/specs/unit-services/spec.md"
+      ],
+      "files": 3,
+      "addedLines": 44,
+      "deletedLines": 33,
+      "changedLines": 77,
+      "prerequisites": [
+        "Inspect CustomUnitApiService, UnitRepository, the custom-unit API routes, server DB initialization, draft recovery, and untracked customizer-edit-recovery.",
+        "Confirm server receipt/version semantics while retaining legacy IndexedDB boundaries."
+      ],
+      "boundary": "Contract authority documentation only; no live server, migration, or persistence round-trip claim."
+    },
+    {
+      "id": "r1-prefix-armor-styles-tabs",
+      "paths": [
+        "openspec/specs/armor-diagram-variants/spec.md",
+        "openspec/specs/customizer-tabs/spec.md"
+      ],
+      "files": 2,
+      "addedLines": 34,
+      "deletedLines": 57,
+      "changedLines": 91,
+      "prerequisites": [
+        "Verify useCustomizerSettingsStore, ArmorDiagram, CustomizerWithRouter, and the per-type tab registry.",
+        "Confirm legacy megamek hydration before accepting the four-style normative claim."
+      ],
+      "boundary": "Outside the five PR1641 paths, but preserve that exclusion and do not infer browser switching/persistence proof."
+    },
+    {
+      "id": "r1-prefix-compendium-equipment-catalog",
+      "paths": [
+        "openspec/specs/compendium-browser/spec.md",
+        "openspec/specs/equipment-browser/spec.md"
+      ],
+      "files": 2,
+      "addedLines": 179,
+      "deletedLines": 80,
+      "changedLines": 259,
+      "prerequisites": [
+        "Verify the chassis page/browser/index and the equipment catalog/browser/filter paths.",
+        "Admit/track the referenced untracked battlemech-chassis-index contract before publishing the compendium link.",
+        "Keep equipment loader semantics with the excluded equipment-services/data-loading owners."
+      ],
+      "boundary": "Identity/catalog UI wording only; no model assets, loader semantics, or runtime browser proof claim."
+    }
+  ],
+  "sourceAnchors": [
+    {"path": "src/lib/campaign/readiness/canonicalCatalogAdmission.ts", "sha256": "d4f6556799b5318a02dd4c7b0e26072c120c09b72caf37017d6deca067d96636"},
+    {"path": "src/lib/campaign/encounter/materializeCampaignMissionEncounter.ts", "sha256": "aa41451c3684dec9a2a267d992a39350c8139649cb4a802cb61e7b8c717c5584"},
+    {"path": "src/services/units/CustomUnitApiService.ts", "sha256": "430f215730f40e08e294aaba0dcb10fe24ccdc4dd510730a1fc107f6c867691f"},
+    {"path": "src/services/units/UnitRepository.ts", "sha256": "d9a7f0439b2ebe8b23154dbdfae7716faef4b6b8f32c7b51bea37d50c93d9dae"},
+    {"path": "src/pages/api/units/custom/index.ts", "sha256": "735cdd7ad945e6f2481a951fff952c53e3a8c8c8d2dedba8f1337c2293e0541c"},
+    {"path": "src/stores/useCustomizerSettingsStore.ts", "sha256": "4a8d1c8b61d974fef6ab493d3bd852c1222bf6a0dfbe495fa19f7e9154c43f29"},
+    {"path": "src/components/customizer/armor/ArmorDiagram.tsx", "sha256": "72bd245a3a17e36d32ebe3cad7b5298d1141ca1308b1ce9584c74ee71725e2a5"},
+    {"path": "src/components/customizer/CustomizerWithRouter.tsx", "sha256": "b8d35e3c956db68551c2d670e60b85ad748865269fe36c0dd7de12daabe9dd66"},
+    {"path": "src/pages/compendium/chassis.tsx", "sha256": "bad191538167b3d39657423f61bb712150f2ef454b274af9f49825e160ccd78a"},
+    {"path": "src/components/compendium/chassis/ChassisBrowser.tsx", "sha256": "c6b808beaf08f11b826c80564c85c982343e675951a0db04c991fbe0d4604f66"},
+    {"path": "src/services/units/chassis/chassisIndex.ts", "sha256": "a584c4a66f541879edfd750facba3cb4f4d9ba6b3e7a3e629cb5032380de2d44"},
+    {"path": "src/components/equipment/EquipmentCatalog.tsx", "sha256": "f845c1705c612968109a374dcf43f400bfb2a57cdaff0f83825505be4e053841"},
+    {"path": "src/components/customizer/equipment/EquipmentBrowser.tsx", "sha256": "8cb9db439d8ebf579d95acac5e1a0aa9702d3a1c148433fb359877c6d17f3834"}
+  ],
+  "commands": [
+    {"command": "git rev-parse HEAD", "exitCode": 0, "stdout": "be7f85b867aa3e8576e5e3d27e309276203bc24b"},
+    {"command": "git rev-parse origin/main", "exitCode": 0, "stdout": "a538a2d3b2b05252e1c80cc60395c72953f4c979"},
+    {"command": "git diff --name-only origin/main -- openspec/specs/*.md", "exitCode": 0, "result": "39 tracked canonical spec content deltas before exclusions; 6 excluded content deltas; 33 after exclusions"},
+    {"command": "git diff --numstat origin/main -- <remaining paths>", "exitCode": 0, "result": "838 added, 534 deleted, 1,372 changed lines"},
+    {"command": "Get-FileHash -Algorithm SHA256 <source anchors>", "exitCode": 0, "result": "Hashes recorded in sourceAnchors"}
+  ],
+  "limits": [
+    "Recommendations await parent admission and are not implementation authorization.",
+    "Source references and hashes establish capture-time anchors only; they do not prove runtime behavior.",
+    "No tests, builds, installs, servers, Git mutations, spec/code/roadmap edits, or nested agents were used for the inventory.",
+    "Explicit deferrals and excluded owners remain unchanged."
+  ]
+}

@@ -1,0 +1,37 @@
+{
+  "status": "staged_preflight_ready",
+  "candidate": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\prerequisite-contracts",
+  "branch": "codex/roadmap-prerequisite-contracts-20260912",
+  "base": "e58642acede495c45b3b4d4e606dffaa52ccab18",
+  "ownedPaths": [
+    "openspec/changes/add-authoritative-history-branches/proposal.md",
+    "openspec/changes/add-authoritative-history-branches/tasks.md",
+    "openspec/changes/add-cross-stream-effect-receipts/tasks.md"
+  ],
+  "sourceHashes": {
+    "proposal.md": "e17cad35a5123cc188135aa85f6cf7f780f24601fbecfeb181ece96bd3f94ede",
+    "authoritative-history-tasks.md": "64a58459e1423372ac04bb5282c06853fa05955ae163e583d91574ffa07c970a",
+    "cross-stream-tasks.md": "62e4e238fd9ec9551aee5231583113301b16cf7d4af1b96e99a24de8a33048ff"
+  },
+  "diff": { "files": 3, "additions": 5, "deletions": 4, "changedLines": 9, "cap": 200, "withinCap": true, "checkboxStatesPreserved": true },
+  "validation": {
+    "npmRunPrepareExit": 0,
+    "targetedOpenSpecExit": 0,
+    "allOpenSpecExit": 0,
+    "allOpenSpecPassed": 231,
+    "allOpenSpecFailed": 0,
+    "purposeExit": 0,
+    "terminologyExit": 0,
+    "ciqcExit": 0,
+    "markdownExit": 0,
+    "gitDiffCheckExit": 0
+  },
+  "deliveryArtifacts": {
+    "reportSha256": "e0f63d01dfd607360c27e8b7c0a3f3a26146f21ad03103afc06890250c87a46d",
+    "prBodySha256": "c7f642a86ed04e81dbd59662666b272d08f7219659b45a64482b5e3a71d1e59f"
+  },
+  "reviewDisposition": "The parent accepted the reviewed wording. PR1–3 keeps its own exact-main, independent-review, and package-specific approval/behavior proof while using the exception only for the cross-stream predecessor receipt. Fresh current exact-main combat and campaign successor receipts remain required, and the active campaign successor path is preserved.",
+  "gateDisposition": "No current receipt, review, approval, CAMP witness, archive/prune, or live-authority gate is closed by this documentation repair.",
+  "commit": null,
+  "push": null
+}

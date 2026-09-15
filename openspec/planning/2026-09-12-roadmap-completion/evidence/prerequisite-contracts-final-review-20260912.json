@@ -1,0 +1,91 @@
+{
+  "receipt": "prerequisite-contracts-final-review-20260912",
+  "status": "bounded_source_review_pass",
+  "workerCompletionClaim": false,
+  "candidate": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\prerequisite-contracts",
+  "branch": "codex/roadmap-prerequisite-contracts-20260912",
+  "baseAndHead": "c44bf05720591efc5e40186c1a9f49b4afebe44a",
+  "ownedPaths": [
+    "openspec/changes/add-authoritative-history-branches/proposal.md",
+    "openspec/changes/add-authoritative-history-branches/tasks.md",
+    "openspec/changes/add-cross-stream-effect-receipts/tasks.md"
+  ],
+  "diff": {
+    "files": 3,
+    "insertions": 5,
+    "deletions": 4,
+    "changedLines": 9,
+    "cap": 200,
+    "withinCap": true
+  },
+  "sourceHashes": {
+    "openspec/changes/add-authoritative-history-branches/proposal.md": "e17cad35a5123cc188135aa85f6cf7f780f24601fbecfeb181ece96bd3f94ede",
+    "openspec/changes/add-authoritative-history-branches/tasks.md": "64a58459e1423372ac04bb5282c06853fa05955ae163e583d91574ffa07c970a",
+    "openspec/changes/add-cross-stream-effect-receipts/tasks.md": "62e4e238fd9ec9551aee5231583113301b16cf7d4af1b96e99a24de8a33048ff"
+  },
+  "reviewFindings": {
+    "PR1ToPR3CrossStreamOnly": "pass",
+    "ArchivedPredecessorAbsenceAndActiveCampaignSuccessor": "pass",
+    "FreshCurrentExactMainCombatAndCampaignReceipts": "pass_as_requirement_preserved",
+    "CAMPGatesAndCheckboxes": "preserved",
+    "InventedS7": "absent",
+    "remainingGate": "Current receipts, independent review, eligible approval, CAMP three-witness, archive/prune, and live authority remain open and were not consumed."
+  },
+  "workerStatus": {
+    "path": ".sisyphus/roadmap-completion-20260912/grok-prerequisite-contracts-1/status.json",
+    "sha256": "4dad3154ad718a89a601e0c26f0e95b3c149c9afe1d2ddd9f29d37fde00c953d",
+    "running": false,
+    "stopReason": "10-minute owned lane budget",
+    "code": null,
+    "driverPid": 73552,
+    "pid": 15384,
+    "pidsPresentAtReview": {
+      "73552": false,
+      "15384": false
+    }
+  },
+  "verification": {
+    "directory": ".sisyphus/roadmap-completion-20260912/prerequisite-contracts-final-review",
+    "commandsReceipt": {
+      "path": ".sisyphus/roadmap-completion-20260912/prerequisite-contracts-final-review/commands.json",
+      "sha256": "10ea495a98cf21c484c5c27a79d6668f9eeddbdddc2ab1a24eb040373f78f490",
+      "allCommandsPassed": true
+    },
+    "driver": {
+      "path": ".sisyphus/roadmap-completion-20260912/prerequisite-contracts-final-review/review-driver.cjs",
+      "sha256": "2ffac42f1acc8493520f05886b3880016f6f059b675497ddbc229f957d0b2e34",
+      "nodeCheckExit": 0
+    },
+    "strictOpenSpecTargeted": {
+      "add-authoritative-history-branches": 0,
+      "add-cross-stream-effect-receipts": 0
+    },
+    "strictOpenSpecAll": {
+      "items": 231,
+      "passed": 231,
+      "failed": 0,
+      "exit": 0
+    },
+    "purpose": {
+      "exit": 0,
+      "errors": 0,
+      "trackedDebt": 0
+    },
+    "terminology": {
+      "exit": 0,
+      "violations": 0,
+      "stderrWarning": "MODULE_TYPELESS_PACKAGE_JSON"
+    },
+    "candidateCIQC": {
+      "exit": 0,
+      "status": "pass",
+      "errors": 0
+    },
+    "markdownFormat": 0,
+    "gitDiffCheck": 0
+  },
+  "report": {
+    "path": ".sisyphus/roadmap-completion-20260912/prerequisite-contracts-final-review/report.md",
+    "sha256": "c1a87f82a3b54d2b367903139bc52d9bc85c4ba98db8cfe94c7e2c8be7afec22"
+  }
+}

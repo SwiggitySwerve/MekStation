@@ -1,0 +1,146 @@
+{
+  "at": "2026-09-12T21:37:39.228Z",
+  "status": "accepted",
+  "reviewer": "parent",
+  "receipt": {
+    "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/prerequisite-contracts-main-verification-20260912.json",
+    "sha256": "e467e8c0086606e9cc208a6ab69697d78ef2c16f5a80be1e90e9259158fc572b"
+  },
+  "main": "b39c04304e9e46ebbb5056fa947a145a7bf194d4",
+  "reviewedHead": "fb8343f072bc54ac91620bf7e7f73d254e1aece5",
+  "sourceFiles": 3,
+  "sourceHashesValidated": true,
+  "workingNormalization": "CRLF to LF only; committed blob hashes match",
+  "rawArtifacts": [
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/prerequisite-contracts-main-verification/raw/01-openspec-target-authoritative-history.stdout.log",
+      "sha256": "0ec28bbce0db74cf04cafff5595a30dd75ebda8518aa072764d7f3e910f5562e",
+      "bytes": 553
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/prerequisite-contracts-main-verification/raw/01-openspec-target-authoritative-history.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/prerequisite-contracts-main-verification/raw/02-openspec-target-cross-stream-effects.stdout.log",
+      "sha256": "bd56a989b5e19208d437fd324cead10bc56f5963f239043166ac84db7c8cb286",
+      "bytes": 551
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/prerequisite-contracts-main-verification/raw/02-openspec-target-cross-stream-effects.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/prerequisite-contracts-main-verification/raw/03-openspec-all-strict.stdout.log",
+      "sha256": "6069bc853f47df069571e79e233d147041b0742b7f57c35719f8375ac202b17d",
+      "bytes": 61947
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/prerequisite-contracts-main-verification/raw/03-openspec-all-strict.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/prerequisite-contracts-main-verification/raw/04-purpose-strict.stdout.log",
+      "sha256": "67617ca8eccf949d88155788059fcac3bd16454142000c66fc8d2237a09d3082",
+      "bytes": 208
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/prerequisite-contracts-main-verification/raw/04-purpose-strict.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/prerequisite-contracts-main-verification/raw/05-terminology-strict.stdout.log",
+      "sha256": "06c7961b0d4709a1010aba1f38caf9ab57eb82ce2c48ceb2422ed9d4b234db23",
+      "bytes": 189
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/prerequisite-contracts-main-verification/raw/05-terminology-strict.stderr.log",
+      "sha256": "e231c41f61c3960b0e9ab09bc8ac9c2306c04229c482e5bc26945e538962e41e",
+      "bytes": 584
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/prerequisite-contracts-main-verification/raw/06-candidate-ciqc.stdout.log",
+      "sha256": "e73d2bc631637ff8806d9adbf1a31052b575044d797a04f184aec21f5b8e6985",
+      "bytes": 10199
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/prerequisite-contracts-main-verification/raw/06-candidate-ciqc.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/prerequisite-contracts-main-verification/raw/07-reviewed-tree-equality.stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/prerequisite-contracts-main-verification/raw/07-reviewed-tree-equality.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/prerequisite-contracts-main-verification/raw/08-main-scoped-name-only.stdout.log",
+      "sha256": "5c8a64afe405dbd5c53a0ddf6acca9e916ad517848091a5917311803441f33c4",
+      "bytes": 184
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/prerequisite-contracts-main-verification/raw/08-main-scoped-name-only.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/prerequisite-contracts-main-verification/raw/09-main-scoped-diff-check.stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/prerequisite-contracts-main-verification/raw/09-main-scoped-diff-check.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/prerequisite-contracts-main-verification/raw/10-working-tree-status.stdout.log",
+      "sha256": "ba051334ebc33f3162a4fd5be48615e03c8dac8ec7977e7c2752dbc1cf981841",
+      "bytes": 20
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/prerequisite-contracts-main-verification/raw/10-working-tree-status.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/prerequisite-contracts-main-verification/raw/11-working-tree-diff-check.stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/prerequisite-contracts-main-verification/raw/11-working-tree-diff-check.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/prerequisite-contracts-main-verification/raw/12-main-scoped-numstat.stdout.log",
+      "sha256": "523b60acb134465c80dd89a067138bfe7bc762dcedf2cb717f39192e24f487d3",
+      "bytes": 196
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/prerequisite-contracts-main-verification/raw/12-main-scoped-numstat.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/prerequisite-contracts-main-verification/commands.json",
+      "sha256": "e44659f2428aad064636d697a5c39b7ee1f4ddcda88f4f925da6c8007fd5f0db",
+      "bytes": 11217
+    }
+  ],
+  "commandCount": 12,
+  "allExitsZero": true,
+  "formatting": "OpenSpec excluded; no content formatting claim",
+  "cleanup": "authorized after export and ownership checks",
+  "limits": "Documentation only; CAMP behavioral approvals and three-witness gates remain open."
+}

@@ -1,0 +1,13 @@
+{
+  "at": "2026-09-12T22:03:42.443Z",
+  "accepted": true,
+  "receipt": {
+    "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/source-anchors-cleanup-20260912.json",
+    "sha256": "dd67fb0bfd3b9732607e213a5853c720a7f72d723ac9b08a626a80e26a4293ba"
+  },
+  "artifactsRehashed": 123,
+  "sourceExportsVerified": 5,
+  "worktreeAndThreeRefsAbsent": true,
+  "preservedInitialExportFailure": true,
+  "main": "583b3e9bf954506a3b5fbac0359165e9407cf264"
+}

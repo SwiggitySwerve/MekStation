@@ -1,0 +1,117 @@
+{
+  "recordedAt": "2026-09-12T16:51:59.882Z",
+  "reviewer": "/root/placement_infantry_trace",
+  "model": "gpt-5.6-luna",
+  "effort": "high",
+  "scope": "Parent transcribed read-only source review and recomputed finite hashes; no fresh tests in worker or parent for this receipt",
+  "files": [
+    {
+      "path": "openspec/specs/equipment-placement/spec.md",
+      "sha256": "c977475fc8af05e88c60435e14cb8e3fda2ac48246e8a078f585e25561d99dae"
+    },
+    {
+      "path": "openspec/specs/infantry-unit-system/spec.md",
+      "sha256": "d72c801906534e28d7620088843a82cd43d2a77a37533cef48913575a210f83b"
+    },
+    {
+      "path": "src/components/customizer/equipment/GlobalLoadoutTrayEquipmentItem.helpers.tsx",
+      "sha256": "a3748ab7b681c68d1b18faeffbf6fcef36f0e226c9489187b31d8d111d979539"
+    },
+    {
+      "path": "src/components/customizer/critical-slots/SlotRow.tsx",
+      "sha256": "29416ac4595915cfb4af506fced9e518db320803b909d3360b55a5dd399d816a"
+    },
+    {
+      "path": "src/stores/unit/useUnitEquipmentStore.ts",
+      "sha256": "4e1b6f98f67fd77714e7f270142b7fad3839aebda9c124a2f569f8085790fed1"
+    },
+    {
+      "path": "src/stores/unit/useUnitStructureStore.ts",
+      "sha256": "4795ed02eab9c9cbeca1b44e0392e23692167eb28d925cbb91c623e7dc5f738c"
+    },
+    {
+      "path": "src/stores/unit/__tests__/useUnitStore.omniEquipment.test.ts",
+      "sha256": "829c6428161e47ad8de27719cff31d8a9c85e648a5528e0b03b4dbd5653dd5ba"
+    },
+    {
+      "path": "src/stores/unit/__tests__/catalogEquipmentPlacement.test.ts",
+      "sha256": "38d8008338bc9033068ae696025eb860f38ca951dbb360ae7079fade96943657"
+    },
+    {
+      "path": "src/components/customizer/shared/tabRegistry.tsx",
+      "sha256": "064386c991c71ed9e5188eb15630f12fe380d1035ec02178630a28fa9b1ab07d"
+    },
+    {
+      "path": "src/services/units/handlers/InfantryUnitHandler.ts",
+      "sha256": "30fc7593f1fa69f4eb5989b0e86adcab005d94be6b817a0c4758bc6a9c39a95f"
+    },
+    {
+      "path": "src/stores/useInfantryStore.ts",
+      "sha256": "921638f4663988e77d4dd06017a358233d08db5dbac559a1e7a7147896f41e64"
+    }
+  ],
+  "ancestryChecks": [
+    {
+      "ref": "HEAD",
+      "exit": 1,
+      "stderr": ""
+    },
+    {
+      "ref": "origin/main",
+      "exit": 0,
+      "stderr": ""
+    }
+  ],
+  "correction": "Reviewer terminal summary incorrectly called Infantry merge an ancestor of dirty root HEAD and abbreviated the hash. Exact live git ancestry exits here supersede that assertion.",
+  "rows": [
+    {
+      "id": "equipment-placement",
+      "recommendedDisposition": "existing",
+      "verifiedScope": "Source has fixed/pod labels, drag/removal guards, opacity and OmniMech reset preserving fixed mounts. Existing targeted tests cover store mutation and placement.",
+      "retainedProofLimits": [
+        "Browser drag/drop and cross-configuration end-to-end placement remain later proof; screenshot appearance alone does not prove persistence"
+      ]
+    },
+    {
+      "id": "infantry-unit-system",
+      "recommendedDisposition": "existing",
+      "verifiedScope": "Current registry/build/preview, handler and utilities supply motive/anti-mech/field-gun/validation/state seams. PR1638 exact-main proof is shared-preview only.",
+      "retainedPlanned": [
+        "Primary Weapon, Secondary Weapons and Specialization standalone tabs",
+        "Infantry deserialization",
+        "Explicit transport proof and whole-family runtime proof"
+      ],
+      "limits": [
+        "Do not infer all Infantry features are delivered from preview proof",
+        "Combined build controls can exist while dedicated tabs remain placeholders"
+      ]
+    }
+  ],
+  "parentReceipts": [
+    {
+      "path": "evidence/infantry-main-verification.json",
+      "sha256": "b4f39b2f0edba1214ca2a8f4095387c26defe998cae4c81ff1ab2d9c45599b87"
+    },
+    {
+      "path": "evidence/infantry-local-verification.json",
+      "sha256": "66fa57d7e1fd701d2c32e992e15329ee88ec1247f69d58102a8a0f349c8dc951"
+    },
+    {
+      "path": "evidence/infantry-merge.json",
+      "sha256": "44a989d6cf859f33d13a0d124c32b06c802ce96304949a3f32f49a21b23a5396"
+    },
+    {
+      "path": "evidence/routing-main-verification.json",
+      "sha256": "5223ab68e0b9a444a062213096fdd26a27029b6babe27e387103a4fcf4822377"
+    },
+    {
+      "path": "evidence/browser-local-verification.json",
+      "sha256": "c76d6d400ea0802b5a4006cae0c96e6c22c7ec73398a326c2cdc630cea758604"
+    },
+    {
+      "path": "evidence/browser-commit.json",
+      "sha256": "959227b995bba3ecc6b1c5f0534f0aac8a17949aa2b0e11f6cddea6b6ecaa80d"
+    }
+  ],
+  "acceptance": "Pending parent final inventory pass; no roadmap disposition update from this transcription"
+}
