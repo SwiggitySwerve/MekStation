@@ -41,6 +41,7 @@ import type { IMatchMeta } from '../IMatchStore';
 
 import {
   matchEventChainDigest,
+  nextMatchSequenceAfter,
   revisionForMatchSequence,
   type IMatchEventSource,
 } from '../history/matchStoreBranchSegmentReader';
@@ -140,6 +141,18 @@ function projectable(events: readonly IGameEvent[]): IProjectableBranchEvent[] {
 }
 
 describe('match checkpoint equivalence', () => {
+  /**
+   * The head revision this fixture pins IS the store's next sequence -
+   * the number `DurableMatchStore`'s commit-time check derives. S5
+   * (task 1.5) named that derivation; this row fails if the two sides
+   * of the offset are ever moved apart.
+   */
+  it('pins the head revision as the named next match sequence', () => {
+    expect(HEAD_REVISION).toBe(
+      nextMatchSequenceAfter(EVENTS[EVENTS.length - 1]!.sequence),
+    );
+  });
+
   let dir: string;
 
   beforeEach(async () => {
