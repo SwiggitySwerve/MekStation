@@ -559,6 +559,24 @@ describe('GM and two-player campaign QC runner', () => {
       ),
     ).toThrow(/FOREIGN_PATH/);
   });
+  it('derives fixture ports outside the OS ephemeral port range', () => {
+    // CI flake (43692 EADDRINUSE, PRs #1720/#1741): the fixed 37000-46999
+    // band sits inside Linux's default ephemeral range (32768-60999), so
+    // the kernel can transiently claim the "reserved" port out from under
+    // this test's own bind. Every derived port must stay clear of that
+    // range for the runIds this file actually pins, plus a couple of
+    // synthetic ones to keep the contract from narrowing to a stale list.
+    const runIds = [
+      'task-26-membership-smoke',
+      'task-21-authority-recovery',
+      'task-26-foreign-listener',
+      'task-26-fixture-smoke',
+      'synthetic-port-range-check-a',
+    ];
+    for (const runId of runIds) {
+      expect(core.deriveFixturePort(runId)).toBeLessThan(32768);
+    }
+  });
   it('refuses and preserves a ready foreign server on the fixture port', async () => {
     const runId = 'task-26-foreign-listener';
     const port = core.deriveFixturePort(runId);

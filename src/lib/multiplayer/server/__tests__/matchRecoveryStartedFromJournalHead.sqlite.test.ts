@@ -3,20 +3,22 @@
  * sub-prefix): recovery selects its rollback reader from S1's mirrored
  * journal head instead of the `mp_journal_authority_started` marker.
  *
- * THE TRANSITION RULE THESE ROWS PIN. The head WINS wherever it exists,
- * even against a marker that disagrees. Where no head exists the marker
- * is still honoured: at the shipped mode (`off`) nothing mirrors, so the
- * marker is the only record such a stream has, and design.md retires the
- * marker path "once S1 is the writer" — the cutover (task 1.7), not
- * here. Rows 4 and 6 are the pair that pins exactly that: same two
- * signals, opposite winner depending on whether a head exists.
+ * THE TRANSITION RULE THESE ROWS PINNED, AND WHAT BECAME OF IT. The
+ * head WINS wherever it exists, even against a marker that disagrees —
+ * that half still holds and rows 4 and 5 still pin it. The other half,
+ * "where no head exists the marker is still honoured", was the
+ * transition arm design.md retires "once S1 is the writer", and S7-b
+ * (task 1.3, sub-prefix 3) retired it: the marker is no longer a source
+ * of "started" at all. Rows 1 and 6 were the two arms that honoured it
+ * and are rewritten here to assert the opposite winner, which is what
+ * their own S3-b comments said the cutover would do.
  *
- * AND ONE ROW THAT IS SUPPOSED TO GO RED LATER. An unreadable head
- * is treated as no head, so a marked-started match whose capability
- * database is closed follows its marker (row 1). That is only sound
- * while the marker and the mirrored head agree by construction, which
- * the cutover (task 1.7) ends; row 1 exists so that change turns it red
- * deliberately rather than silently.
+ * WHERE THE POST-RETIREMENT RULES LIVE.
+ * `matchMarkerRetirementRecovery.sqlite.test.ts` owns them, including
+ * the one concession S7-b could not close (an unreadable head still
+ * reads as no head, because nothing capability-db-independent records
+ * that a stream was ever mirrored — S7-d's durable per-match migration
+ * state is what makes that decidable).
  *
  * Real boundary only: two temp-file SQLite databases opened the way
  * production opens them (match db + campaign capability db), because
@@ -250,18 +252,22 @@ afterEach(async () => {
 });
 
 describe('recovered rollback reader selected from the mirrored journal head', () => {
-  it('honours the marker over an unreadable head, which task 1.7 must flip to a refusal', async () => {
+  it('ignores the marker over an unreadable head, which task 1.7 flipped', async () => {
     _setCombatJournalAuthorityModeForTests('enabled');
     await commitFirstBatch(startedMarker(1, 'stale-marker-branch'));
     const session = await recoverySession();
     // Reopen the match database the way production does when the
     // campaign singleton was never initialized: same rows, same ports,
     // no capability database behind them. A head EXISTS here and cannot
-    // be read, so the decision falls back to the marker.
+    // be read, and after the retirement an unreadable head reads as no
+    // head - the marker beside it is no longer consulted.
     store.close();
     resetSQLiteService();
     store = new DurableMatchStore({ path: matchDbPath });
     expect(store.isCapabilityDbAvailable()).toBe(false);
+    expect(
+      (await store.getJournalAuthorityStarted(MATCH_ID))?.head.branchId,
+    ).toBe('stale-marker-branch');
 
     const decision = await selectRecoveredMatchRollbackReader(
       MATCH_ID,
@@ -269,17 +275,14 @@ describe('recovered rollback reader selected from the mirrored journal head', ()
       session,
     );
 
-    // Sound ONLY because the marker and the mirrored head agree by
-    // construction today. The cutover introduces writers that can move
-    // the head off the marker's branch and generation; at that point
-    // this must become blocked/'recovery-fact-read-failed' and this row
-    // must be rewritten to assert the refusal.
-    expect(decision).toEqual(
-      expect.objectContaining({
-        kind: 'journal-compatible',
-        head: expect.objectContaining({ branchId: 'stale-marker-branch' }),
-      }),
-    );
+    // S3-b honoured the marker here and said the cutover would have to
+    // stop. S7-b did: a marker naming a branch the mirror never
+    // installed can no longer become the served head just because the
+    // capability database is closed. It is the legacy reader now, not
+    // the refusal S3-b guessed at — see
+    // matchMarkerRetirementRecovery.sqlite.test.ts for why the refusal
+    // is not decidable until S7-d's per-match migration state exists.
+    expect(decision).toEqual({ kind: 'legacy-compatible' });
   });
 
   it('still selects the legacy reader when the head is unreadable and nothing claims the match started', async () => {
@@ -369,12 +372,16 @@ describe('recovered rollback reader selected from the mirrored journal head', ()
     );
   });
 
-  it('honours the marker while no head exists, because nothing mirrors at mode off', async () => {
-    // The pair to the row above: same two signals, opposite winner.
-    // This arm is what keeps every pre-cutover journal-authority stream
-    // recoverable, and it is what task 1.7 removes.
+  it('ignores the marker while no head exists, because task 1.7 removed that arm', async () => {
+    // The pair to the row above: same two signals, same winner now.
+    // This arm used to keep every pre-cutover journal-authority stream
+    // recoverable through its marker; task 1.7 removed it, and nothing
+    // writes a marker any more for it to have kept.
     await commitFirstBatch(startedMarker(1, 'marker-only-branch'));
     const session = await recoverySession();
+    expect(
+      (await store.getJournalAuthorityStarted(MATCH_ID))?.head.branchId,
+    ).toBe('marker-only-branch');
 
     const decision = await selectRecoveredMatchRollbackReader(
       MATCH_ID,
@@ -382,12 +389,7 @@ describe('recovered rollback reader selected from the mirrored journal head', ()
       session,
     );
 
-    expect(decision).toEqual(
-      expect.objectContaining({
-        kind: 'journal-compatible',
-        head: expect.objectContaining({ branchId: 'marker-only-branch' }),
-      }),
-    );
+    expect(decision).toEqual({ kind: 'legacy-compatible' });
   });
 
   it('refuses typed on a corrupt head instead of falling back to legacy', async () => {

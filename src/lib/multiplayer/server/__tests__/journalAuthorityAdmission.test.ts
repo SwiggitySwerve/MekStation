@@ -215,9 +215,11 @@ describe('journal authority admission', () => {
     expect(getJournalAuthorityAdmissionRefusal('match-admit-happy')).toBeNull();
 
     await host.handleIntent(intent('lock-1', host.matchId));
-    expect(
-      await store.getJournalAuthorityStarted!(host.matchId),
-    ).not.toBeNull();
+    // Task 1.3, sub-prefix 3: the first command no longer writes a
+    // started marker. The admission baseline asserted above is the
+    // pre-command record this row is named for; "started" is the
+    // mirrored journal head, which an in-memory store does not have.
+    expect(await store.getJournalAuthorityStarted!(host.matchId)).toBeNull();
   });
 
   it('ZERO COMPARISONS is not a blocker: equality evidence is the mode flip', async () => {
