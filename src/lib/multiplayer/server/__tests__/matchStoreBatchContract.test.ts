@@ -30,6 +30,7 @@ import { JournalCampaignEventStore } from '@/lib/campaign/sync/JournalCampaignEv
 import { bindJournalCapabilityPorts } from '@/lib/campaign/sync/journalCapabilityPorts';
 import {
   _branchCreationSeamForTests,
+  EVENT_HISTORY_GENESIS_DIGEST,
   EventHistoryBranchError,
 } from '@/lib/events/journal/EventHistoryBranchContract';
 import { InMemoryEventJournal } from '@/lib/events/journal/InMemoryEventJournal';
@@ -280,10 +281,10 @@ function sampleBranch(): IEventHistoryBranch {
     ancestorDepth: 0,
     baseRevision: 0,
     baseEventId: null,
-    // CHECK requires 64 lowercase hex chars. The disabled-seam row
-    // never inserts; the durable isolation seed goes through the
-    // test seam and must satisfy the column.
-    baseDigest: 'a'.repeat(64),
+    // A parentless root must carry the defined genesis digest; the
+    // disabled-seam row never inserts, and the durable isolation seed
+    // goes through the test seam and must satisfy the root contract.
+    baseDigest: EVENT_HISTORY_GENESIS_DIGEST,
     status: 'building',
     createdBy: 'contract',
     reason: 'prefix-port-contract',
