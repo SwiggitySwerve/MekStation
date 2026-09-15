@@ -90,10 +90,12 @@ export async function persistInitialEvents(ctx: {
   readonly events: readonly IGameEvent[];
   readonly setLastBroadcastSeq: (sequence: number) => void;
 }): Promise<void> {
+  let persisted = 0;
   for (const evt of ctx.events) {
     try {
       await ctx.store.appendEvent(ctx.matchId, evt);
       ctx.setLastBroadcastSeq(evt.sequence);
+      persisted += 1;
     } catch (e) {
       // eslint-disable-next-line no-console
       console.warn(
@@ -101,6 +103,19 @@ export async function persistInitialEvents(ctx: {
         e,
       );
     }
+  }
+  // Seed the journal from the SAME opening log the store just took
+  // (task 1.7 preparation, S7-a). Only when every event landed: a head
+  // installed over a partial log would claim events the store does not
+  // hold, which is the one thing worse than having no head at all.
+  // A store with no journal does not offer the capability, and the
+  // store's own mode gate decides whether a seed is mirrored, so this
+  // call is inert at the shipped cutover mode.
+  if (
+    persisted === ctx.events.length &&
+    ctx.store.seedJournalFromInitialEvents
+  ) {
+    await ctx.store.seedJournalFromInitialEvents(ctx.matchId, ctx.events);
   }
 }
 
