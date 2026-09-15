@@ -27,6 +27,18 @@ function integrity(message: string): never {
   throw new Error(`SQLite event journal integrity error: ${message}`);
 }
 
+function rejectPreparedThenable(value: unknown): void {
+  if (
+    (typeof value === 'object' || typeof value === 'function') &&
+    value !== null &&
+    typeof (value as { readonly then?: unknown }).then === 'function'
+  ) {
+    throw new Error(
+      'Prepared journal callbacks must complete synchronously; thenable results are rejected before commit',
+    );
+  }
+}
+
 export class SQLiteEventJournalWriter<TPayload = unknown> {
   public constructor(
     protected readonly db: Database.Database,
@@ -65,6 +77,62 @@ export class SQLiteEventJournalWriter<TPayload = unknown> {
           this.appendInTransaction(identity.command, identity.digest),
         ),
       )
+      .immediate();
+  }
+
+  /**
+   * Prepare a journal batch inside one immediate SQLite transaction, then
+   * extend on the same handle. Kept off generic `IEventJournal`.
+   *
+   * `prepare` is contractually read-only (source/head reads only). Trusted
+   * internal callbacks; this method does not add a SQL parser, read-only
+   * proxy, or runtime async sandbox. `prepare` and `extend` MUST finish
+   * synchronously during the transaction: no await, returned thenables,
+   * timers, microtasks, deferred work, external I/O, or retaining
+   * `db`/`context`/`append` for later use. Nested `saveCampaign` is
+   * forbidden. The thenable guard inspects the direct `prepare` return
+   * before its discriminator, a refused `result`, and the direct `extend`
+   * return; it is defensive only and cannot roll back arbitrary scheduled
+   * or external side effects. Thrown failures propagate unchanged.
+   */
+  public async appendPreparedWithExtension<TContext, TResult>(
+    prepare: (db: Database.Database) =>
+      | {
+          readonly kind: 'ready';
+          readonly context: TContext;
+          readonly raw: Journal.IAppendEventBatch<TPayload>;
+        }
+      | { readonly kind: 'refused'; readonly result: TResult },
+    extend: (
+      db: Database.Database,
+      context: TContext,
+      append: () => Journal.EventJournalAppendResult<TPayload>,
+    ) => TResult,
+  ): Promise<TResult> {
+    return this.db
+      .transaction(() => {
+        const prepared = prepare(this.db);
+        rejectPreparedThenable(prepared);
+        if (prepared.kind === 'refused') {
+          rejectPreparedThenable(prepared.result);
+          return prepared.result;
+        }
+        const parsed = Schemas.AppendEventBatchSchema.parse(
+          prepared.raw,
+        ) as typeof prepared.raw;
+        const identity = canonicalizeCommandIdentityV1(parsed);
+        const eventIds = new Set(
+          identity.command.events.map(({ eventId }) => eventId),
+        );
+        if (eventIds.size !== identity.command.events.length) {
+          throw new Error('Duplicate eventId');
+        }
+        const result = extend(this.db, prepared.context, () =>
+          this.appendInTransaction(identity.command, identity.digest),
+        );
+        rejectPreparedThenable(result);
+        return result;
+      })
       .immediate();
   }
 
