@@ -108,6 +108,10 @@ import {
   type ShadowComparisonRecord,
 } from './matchJournalAuthority';
 import {
+  deriveMatchJournalAuthorityStartedHead,
+  type IMatchJournalAuthorityStartedHead,
+} from './matchJournalAuthorityStartedDerived';
+import {
   MATCH_ROLLBACK_PRESERVED_FACTS,
   selectMatchRollbackReader,
   type MatchRollbackBlockedReason,
@@ -1407,7 +1411,13 @@ export class ServerMatchHost {
   }
 }
 
-async function selectRecoveredMatchRollbackReader(
+/**
+ * Recovery's rollback-reader decision, exported so the fail-closed
+ * boundary it now owns is assertable directly: `isJournalAuthorityEnabled()`
+ * collapses `legacy-compatible` and `blocked` into the same `false`, and
+ * those two are exactly the outcomes this function must not confuse.
+ */
+export async function selectRecoveredMatchRollbackReader(
   matchId: string,
   store: IMatchStore,
   session: InteractiveSession,
@@ -1416,12 +1426,44 @@ async function selectRecoveredMatchRollbackReader(
     const baseline = isJournalAuthorityBaselineStore(store)
       ? store.getJournalAuthorityBaseline(matchId)
       : null;
-    const started = store.getJournalAuthorityStarted
-      ? await store.getJournalAuthorityStarted(matchId)
-      : null;
+    const derived = deriveMatchJournalAuthorityStartedHead(store, matchId);
     const events = session.getSession().events;
 
-    if (started == null) {
+    // TRANSITION RULE (S3-b). The mirrored head WINS wherever it
+    // exists - that is the repoint, and a marker disagreeing with a
+    // present head is an old-path artifact the decision ignores. Where
+    // no head exists the marker is still honoured, because at the
+    // shipped mode (`off`) nothing mirrors and the marker is the only
+    // record such a stream has. The marker arm dies with the cutover
+    // (task 1.7), not here.
+    //
+    // AN UNREADABLE HEAD IS TREATED AS NO HEAD, AND THAT IS TEMPORARY.
+    // A store that could journal but has no open capability database
+    // cannot say whether a head exists, so in principle a match the old
+    // path marked as started is unverifiable and should refuse rather
+    // than resolve backwards across the one-way boundary. It does not
+    // refuse today because the two records AGREE BY CONSTRUCTION: the
+    // marker writes MATCH_BASELINE_BRANCH_ID / MATCH_BASELINE_FIRST_
+    // GENERATION and the mirror's genesis backfill installs the same
+    // branch and generation, so no writer can currently produce a head
+    // that disagrees with the marker it would be substituting for.
+    //
+    // THIS STOPS BEING TRUE AT THE CUTOVER (task 1.7), which introduces
+    // writers that can move the effective head off the marker's values.
+    // From that point `unavailable` with a marker present MUST refuse
+    // (`blocked` / 'recovery-fact-read-failed') instead of honouring the
+    // marker. The row named "honours the marker over an unreadable head"
+    // in matchRecoveryStartedFromJournalHead.sqlite.test.ts pins today's
+    // behaviour precisely so that 1.7 turns it red on purpose.
+    const marker =
+      derived.kind === 'started' || store.getJournalAuthorityStarted == null
+        ? null
+        : await store.getJournalAuthorityStarted(matchId);
+
+    const startedHead: IMatchJournalAuthorityStartedHead | null =
+      derived.kind === 'started' ? derived.head : (marker?.head ?? null);
+
+    if (startedHead == null) {
       const legacyHead = headFromLegacyEvents(
         matchId,
         events,
@@ -1429,7 +1471,7 @@ async function selectRecoveredMatchRollbackReader(
       );
       return selectMatchRollbackReader({
         baseline,
-        started,
+        started: null,
         recordedHead: legacyHead,
         refoldedHead: legacyHead,
         supportedEffectiveGeneration: MATCH_BASELINE_FIRST_GENERATION,
@@ -1439,15 +1481,15 @@ async function selectRecoveredMatchRollbackReader(
     const receipt = store.getLastCommandReceipt
       ? await store.getLastCommandReceipt(matchId)
       : null;
-    const recordedHead = journalHeadFromReceipt(started.head, receipt);
+    const recordedHead = journalHeadFromReceipt(startedHead, receipt);
     const refoldedHead = refoldedJournalHead(
-      started.head,
+      startedHead,
       receipt?.lastRevision ?? null,
       session,
     );
     return selectMatchRollbackReader({
       baseline,
-      started,
+      started: startedHead,
       recordedHead,
       refoldedHead,
       supportedEffectiveGeneration: MATCH_BASELINE_FIRST_GENERATION,
@@ -1478,7 +1520,7 @@ function headFromLegacyEvents(
 }
 
 function journalHeadFromReceipt(
-  startedHead: IMatchJournalAuthorityHead,
+  startedHead: IMatchJournalAuthorityStartedHead,
   receipt: Awaited<
     ReturnType<NonNullable<IMatchStore['getLastCommandReceipt']>>
   >,
@@ -1492,7 +1534,7 @@ function journalHeadFromReceipt(
 }
 
 function refoldedJournalHead(
-  startedHead: IMatchJournalAuthorityHead,
+  startedHead: IMatchJournalAuthorityStartedHead,
   expectedRevision: number | null,
   session: InteractiveSession,
 ): IMatchJournalAuthorityHead | null {
