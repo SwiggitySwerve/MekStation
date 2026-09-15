@@ -26,9 +26,17 @@
  * nothing; `isLivePathBranchId` over the effective head now refuses
  * `rewound-stream` before anything is appended, so a rewound match
  * cannot have a sequence mirrored onto an activated branch as though
- * it were a revision. Sourcing the expected revision
- * FROM the journal head — which is what would let a rewound stream
- * mirror again — is still S5-b (task 1.6).
+ * it were a revision.
+ *
+ * WHERE THE EXPECTED REVISION COMES FROM (S5-b, task 1.6). The caller
+ * now hands this module a resolved `MatchCommitExpectedRevision` rather
+ * than a raw sequence, and the arm it carries decides whether the
+ * paragraph above still applies: a `store` expectation is the
+ * translated next sequence and keeps the rewound refusal, while a
+ * `journal` expectation was read from the head itself and needs no such
+ * guard — a head naming an activated branch is answering ABOUT that
+ * branch. Resolving it is `matchCommitJournalHead`'s job, deliberately
+ * outside this transaction so two writers can race for it.
  *
  * @spec openspec/changes/adopt-combat-journal-cutover-and-gm-rewind/design.md (S1, S5)
  */
@@ -41,7 +49,8 @@ import type { IGameEvent } from '@/types/gameplay/GameSessionInterfaces';
 import { SQLiteEventHistoryBranchStore } from '@/lib/events/journal/SQLiteEventHistoryBranchStore';
 import { SQLiteEventJournalWriter } from '@/lib/events/journal/SQLiteEventJournalWriter';
 
-import { journalHeadRevisionForNextMatchSequence } from './history/matchStoreBranchSegmentReader';
+import type { MatchCommitExpectedRevision } from './matchCommitJournalHead';
+
 import {
   isLivePathBranchId,
   MATCH_BASELINE_BRANCH_ID,
@@ -63,12 +72,12 @@ export interface IMirrorMatchBatchInput {
   readonly commandId: string;
   readonly actorId: string;
   /**
-   * The match store's next SEQUENCE, not a journal revision. Named for
-   * what the caller actually holds; the translation to a revision is
-   * `journalHeadRevisionForNextMatchSequence`, and the guard below is
-   * what makes that translation legal.
+   * The revision this batch is appended at, and the source it came
+   * from (task 1.6). Resolved by the caller through
+   * `resolveMatchCommitExpectedRevision` BEFORE this call, so the view
+   * a writer holds is older than the head its append re-reads.
    */
-  readonly nextMatchSequence: number;
+  readonly expected: MatchCommitExpectedRevision;
   readonly events: readonly IGameEvent[];
   readonly expectedPostStateDigest?: string | null;
 }
@@ -110,9 +119,7 @@ function toMatchJournalBatch(
     streamType: MATCH_STREAM_TYPE,
     streamId: input.matchId,
     expectedBranchId: branchId,
-    expectedRevision: journalHeadRevisionForNextMatchSequence(
-      input.nextMatchSequence,
-    ),
+    expectedRevision: input.expected.expectedRevision,
     commandId: input.commandId,
     events: input.events.map((matchEvent, index) => ({
       eventId: `${input.commandId}:${index}`,
@@ -163,11 +170,19 @@ export async function mirrorMatchBatchToJournal(
       // move the effective branch between the read and the append.
       const effective = branches.readEffectiveHead(stream);
       const branchId = effective?.branchId ?? MATCH_BASELINE_BRANCH_ID;
-      if (!isLivePathBranchId(branchId)) {
+      if (input.expected.kind === 'store' && !isLivePathBranchId(branchId)) {
         // Refused INSIDE the transaction and before the append, so
         // nothing lands and nothing is skipped in silence: the caller
         // records this on the same shadow tripwire every other mirror
         // refusal reaches.
+        //
+        // Only a STORE expectation is refused here (task 1.6). The
+        // number it carries is the match log's next sequence, and a
+        // rewind has just made that stop meaning a journal revision. A
+        // JOURNAL expectation was read from the effective head itself,
+        // so it already describes the activated branch - refusing it
+        // would refuse a rewound stream for being rewound, which is
+        // what S5 could only do and what this task undoes.
         return {
           kind: 'refused',
           result: { kind: 'rewound-stream', branchId },

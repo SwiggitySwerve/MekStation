@@ -44,6 +44,7 @@ import { DurableMatchStore } from '../DurableMatchStore';
 import { nextMatchSequenceAfter } from '../history/matchStoreBranchSegmentReader';
 import { type IMatchMeta } from '../IMatchStore';
 import { MATCH_BASELINE_BRANCH_ID } from '../matchAuthorityBaseline';
+import { storeExpectedRevision } from '../matchCommitJournalHead';
 import {
   _resetProcessShadowStatsForTests,
   _setCombatJournalAuthorityModeForTests,
@@ -96,13 +97,18 @@ let sqliteDir = '';
 let matchDbPath = '';
 let store: DurableMatchStore | undefined;
 
-/** Call the mirror directly, outside the match store's commit path. */
+/**
+ * Call the mirror directly, outside the match store's commit path, on
+ * the STORE-derived expectation this seam has always used - task 1.6's
+ * journal-sourced arm is exercised by `matchCommitJournalHead`'s own
+ * suite, and these rows must keep pinning the legacy translation.
+ */
 function mirrorDirect(commandId: string, nextMatchSequence: number) {
   return mirrorMatchBatchToJournal(getSQLiteService().getDatabase(), {
     matchId: MATCH_ID,
     commandId,
     actorId: 'p1',
-    nextMatchSequence,
+    expected: storeExpectedRevision(nextMatchSequence),
     events: [event(2)],
   });
 }

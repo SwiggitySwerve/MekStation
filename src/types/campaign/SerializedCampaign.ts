@@ -323,8 +323,33 @@ export interface SerializedCampaign {
   readonly instanceId: string;
   /** Stored source/replica fact. Absent on pre-D2 rows until migration. */
   readonly authority: CampaignAuthority;
+  /**
+   * The journal revision this row was last MATERIALIZED from by the source
+   * (task 6.1 / P0b). Absent on every row the source has never materialized,
+   * which is every row before its first accepted contract — so no migration
+   * and no new column is required to introduce it.
+   */
+  readonly sourceReplayFence?: ICampaignSourceReplayFence;
   /** The JSON-safe campaign body. */
   readonly body: SerializedCampaignBody;
+}
+
+/**
+ * The durable watermark a source materialization leaves on the `campaigns`
+ * row (design D12; `campaign-authority/spec.md`: "Borrowed-handle campaign
+ * writes SHALL use CAS and a `sourceReplayFence` that rejects later generic
+ * whole-envelope overwrites").
+ *
+ * One number, because one number is all the two duties need: a replay
+ * standing AT it has already been applied, and a replay standing BEHIND it
+ * would regress the row. It is deliberately NOT the row `version` (that is
+ * the whole-envelope PUT's compare-and-swap token) and NOT the private
+ * envelope's `baseline.rootPublicRevision` (that is the PRE-append capture
+ * point). Those three numbers stay distinct.
+ */
+export interface ICampaignSourceReplayFence {
+  /** Journal revision the row was materialized THROUGH, inclusive. */
+  readonly rootPublicRevision: number;
 }
 
 // =============================================================================
