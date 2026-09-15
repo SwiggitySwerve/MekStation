@@ -1,0 +1,16 @@
+{
+  "at": "2026-09-12T20:23:05.037Z",
+  "task": "R1.ci contract-modules prefix only",
+  "review": "evidence/ci-module-independent-review-20260912.json",
+  "reviewSha256": "1e1aa7cfcff975a2d3885b5298dd48ca00080c2676a75376554a580c85ef34eb",
+  "rawStatusSha256": "2b9e2a0871e0893152c6569ca49b581a0b9b41b3a549c9e6752ee9df1e270982",
+  "checksReopened": 6,
+  "logsRehashed": 12,
+  "parentSourceReview": "Reviewed both full module sources; exact run strings, order, change conditions, failure propagation, assets, artifact retention and safe-shell restrictions match the bounded future customizer job contract.",
+  "scopeLimits": [
+    "Unused prefix does not activate a workflow or prove full CI gate",
+    "Later test/wiring prefix retains browser publication predecessor",
+    "New shell negatives are in retained raw harness; tracked regression prefix still pending"
+  ],
+  "accepted": true
+}

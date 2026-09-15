@@ -1,0 +1,170 @@
+{
+  "kind": "r0-publish-inventory-preflight",
+  "reviewDate": "2026-09-12",
+  "reviewer": "codex:/root/data_spec_review",
+  "candidate": {
+    "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/inventory-publication",
+    "branch": "codex/roadmap-inventory-publication-20260912",
+    "baseHead": "e58642acede495c45b3b4d4e606dffaa52ccab18",
+    "baseSource": "already-fetched origin/main commit supplied by parent",
+    "stagedManifest": [
+      {
+        "path": "docs/audits/2026-09-12-customizer-spec-reconciliation/inventory.json",
+        "status": "A",
+        "linesAdded": 4781,
+        "linesDeleted": 0,
+        "sha256": "fe9d25951ee79c34c74f0b8f64aee51dbd94265b30a057ae735ca83301376822"
+      }
+    ],
+    "stagedFileCount": 1,
+    "unstagedDiff": false,
+    "diffCheckExit": 0
+  },
+  "snapshotBoundary": {
+    "classification": "human-authored dated inventory snapshot under the explicit PUBLICATION.md named allowance",
+    "baselineHeadInFile": "be7f85b867aa3e8576e5e3d27e309276203bc24b",
+    "generatedAt": "2026-09-12T09:32:03.439Z",
+    "refreshedAt": "2026-09-12T10:31:17.533Z",
+    "canonicalSpecifications": 220,
+    "canonicalIdsUnique": true,
+    "activeChanges": 13,
+    "activeIdsUnique": true,
+    "archivedChanges": 3,
+    "archivedIdsUnique": true,
+    "coverageCurrentCanonical": 220,
+    "coverageCurrentActive": 13,
+    "historicalNeedsProof": 22,
+    "historicalPreservePlanned": 18,
+    "evidenceBoundaryIncludesRuntimeNonclaim": true,
+    "statement": "This dated snapshot is separate from current-main proof and later 40-row triage dispositions. Its path references are navigation and historical evidence pointers; they do not establish runtime behavior or completion."
+  },
+  "gates": [
+    {
+      "name": "inventory_parse_unique_ids_and_snapshot_boundary",
+      "command": "/c/nvm4w/nodejs/node.exe -e <inventory assertion>",
+      "exitCode": 0,
+      "timedOut": false,
+      "result": "valid; canonical=220; active=13; archived=3; baseline/generated/refreshed metadata and runtime nonclaim matched",
+      "raw": {
+        "stdout": ".sisyphus/roadmap-completion-20260912/inventory-publication-delivery/inventory-assertion.stdout.txt",
+        "stdoutSha256": "b53294a69a5f0607e47b53c71c17a44ef9e82ef5a91dd3adb43f7a31b7483039",
+        "stderr": ".sisyphus/roadmap-completion-20260912/inventory-publication-delivery/inventory-assertion.stderr.txt",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exitFileSha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+      }
+    },
+    {
+      "name": "openspec_validate_all_strict",
+      "command": "/c/nvm4w/nodejs/node.exe /c/Users/wroll/AppData/Roaming/npm/node_modules/@fission-ai/openspec/bin/openspec.js validate --all --strict",
+      "exitCode": 0,
+      "timedOut": false,
+      "result": "231 passed, 0 failed",
+      "raw": {
+        "stdout": ".sisyphus/roadmap-completion-20260912/inventory-publication-delivery/openspec-strict.stdout.txt",
+        "stdoutSha256": "16c5c323579e9f348bc2adb0830ebd7bb199a73726ab1098c72331305dcca967",
+        "stderr": ".sisyphus/roadmap-completion-20260912/inventory-publication-delivery/openspec-strict.stderr.txt",
+        "stderrSha256": "5bc31df123a2e521acdd2c0d9477b367feec506471a91065d0a6b32c09089ed5",
+        "exitFileSha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+      }
+    },
+    {
+      "name": "purpose_validate_candidate",
+      "command": "/c/nvm4w/nodejs/node.exe /e/Projects/MekStation/node_modules/tsx/dist/cli.mjs openspec/scripts/spec-purpose-lint.ts",
+      "exitCode": 0,
+      "timedOut": false,
+      "result": "217 files scanned, 0 errors, tracked source-of-truth debt 0",
+      "raw": {
+        "stdout": ".sisyphus/roadmap-completion-20260912/inventory-publication-delivery/purpose.stdout.txt",
+        "stdoutSha256": "2a44db9ff44442e1ef454b1c7c2355b3506037b0788fd146610c8f2444cf6aa1",
+        "stderr": ".sisyphus/roadmap-completion-20260912/inventory-publication-delivery/purpose.stderr.txt",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exitFileSha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+      }
+    },
+    {
+      "name": "terminology_validate_candidate",
+      "command": "/c/nvm4w/nodejs/node.exe /e/Projects/MekStation/node_modules/ts-node/dist/bin.js openspec/scripts/terminology-tool.ts validate --strict",
+      "exitCode": 0,
+      "timedOut": false,
+      "result": "319 files scanned, no terminology violations",
+      "stderrQualification": "MODULE_TYPELESS_PACKAGE_JSON warning only",
+      "raw": {
+        "stdout": ".sisyphus/roadmap-completion-20260912/inventory-publication-delivery/terminology.stdout.txt",
+        "stdoutSha256": "06c7961b0d4709a1010aba1f38caf9ab57eb82ce2c48ceb2422ed9d4b234db23",
+        "stderr": ".sisyphus/roadmap-completion-20260912/inventory-publication-delivery/terminology.stderr.txt",
+        "stderrSha256": "5c8b3ba5ef0c1c105f11b41ad9bad290ea4351110733cfad99678689029b5ba9",
+        "exitFileSha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+      }
+    },
+    {
+      "name": "openspec_ci_quality_candidate",
+      "command": "/c/nvm4w/nodejs/node.exe scripts/qc/validate-openspec-ci-quality.mjs",
+      "exitCode": 0,
+      "timedOut": false,
+      "result": "workflowContracts=8/8 aggregatorNeeds=18/18 protectedContexts=4 packageScripts=3/3 activeOpenSpecChanges=14 accountedActiveOpenSpecChanges=14 errors=0",
+      "raw": {
+        "stdout": ".sisyphus/roadmap-completion-20260912/inventory-publication-delivery/qc.stdout.txt",
+        "stdoutSha256": "c0cb54085851dc9acb986613616f6992117a3fd0bd09d508938c634750b7cbb2",
+        "stderr": ".sisyphus/roadmap-completion-20260912/inventory-publication-delivery/qc.stderr.txt",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exitFileSha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+      }
+    },
+    {
+      "name": "scoped_json_format",
+      "command": "/c/nvm4w/nodejs/node.exe /e/Projects/MekStation/node_modules/oxfmt/bin/oxfmt --check --ignore-path=.gitignore docs/audits/2026-09-12-customizer-spec-reconciliation/inventory.json",
+      "exitCode": 0,
+      "timedOut": false,
+      "result": "All matched files use the correct format; 1 file",
+      "raw": {
+        "stdout": ".sisyphus/roadmap-completion-20260912/inventory-publication-delivery/format-json.stdout.txt",
+        "stdoutSha256": "a874e66f46f376bad669d60432e8102d582b102420353619f6367b5c7aa7b813",
+        "stderr": ".sisyphus/roadmap-completion-20260912/inventory-publication-delivery/format-json.stderr.txt",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exitFileSha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+      }
+    },
+    {
+      "name": "staged_diff_check",
+      "command": "git diff --cached --check",
+      "exitCode": 0,
+      "timedOut": false,
+      "result": "No whitespace errors",
+      "raw": {
+        "stdout": ".sisyphus/roadmap-completion-20260912/inventory-publication-delivery/diff-check.stdout.txt",
+        "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr": ".sisyphus/roadmap-completion-20260912/inventory-publication-delivery/diff-check.stderr.txt",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exitFileSha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+      }
+    },
+    {
+      "name": "normal_npm_prepare",
+      "command": "npm.cmd run prepare",
+      "exitCode": 0,
+      "timedOut": false,
+      "result": "husky",
+      "raw": {
+        "stdout": ".sisyphus/roadmap-completion-20260912/inventory-publication-delivery/prepare.stdout.txt",
+        "stdoutSha256": "f1068f667ba7f790eefbc1252209bedaa86471fa0145c71cfcfbd21d052bd839",
+        "stderr": ".sisyphus/roadmap-completion-20260912/inventory-publication-delivery/prepare.stderr.txt",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "exitFileSha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+      }
+    }
+  ],
+  "delivery": {
+    "prBodyPath": ".sisyphus/roadmap-completion-20260912/inventory-publication-delivery/pr-body.md",
+    "prBodySha256": "f1eb28cfda3f6ac3a948ae1f7ad5c46da26fd5b54c7c387feb41be9bb06fc179",
+    "rawEvidenceDirectory": ".sisyphus/roadmap-completion-20260912/inventory-publication-delivery",
+    "rawEvidenceIsIgnoredLocalOnly": true,
+    "commit": null,
+    "push": null,
+    "pullRequest": null
+  },
+  "limitations": [
+    "This is a documentation-only preflight; no runtime tests, build, server, install, commit, push, or PR creation was performed.",
+    "The inventory preserves its historical be7f85b8 baseline metadata and must not be presented as current-main proof or as the current 40-row delivery state.",
+    "The 4,781-line inventory uses only the explicitly named PUBLICATION.md allowance; no 500-line exemption is applied elsewhere."
+  ]
+}

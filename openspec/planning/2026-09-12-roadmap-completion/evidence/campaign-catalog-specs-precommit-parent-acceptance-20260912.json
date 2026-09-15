@@ -1,0 +1,394 @@
+{
+  "capturedAt": "2026-09-12T22:30:35.686Z",
+  "status": "accepted-for-normal-hook-commit",
+  "receipt": {
+    "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/campaign-catalog-specs-delivery-20260912.json",
+    "sha256": "81ce903c8ba822a9f5c9d34d1b9862dfaa00f91a4e8bcd12d2f34de60be0bf48"
+  },
+  "artifacts": [
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/campaign-catalog-specs-delivery/generate-delivery-evidence.cjs",
+      "sha256": "b5969fb2b9fdb4347323d05f80d06a5c097fc6e5584ddb852358684e12bef3ce"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/campaign-catalog-specs-delivery/preflight.json",
+      "sha256": "d262995f8f21b000c25538958399b30be8ec1d27351cff0923929873c4224d66"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/campaign-catalog-specs-delivery/prepare-delivery-attempt-1.exit.txt",
+      "sha256": "6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/campaign-catalog-specs-delivery/prepare-delivery-attempt-1.stderr.log",
+      "sha256": "cbefc567e3048870a802802259016295f96c25f67b150b67429337771a5f3f0c"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/campaign-catalog-specs-delivery/prepare-delivery-attempt-1.stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/campaign-catalog-specs-delivery/prepare-delivery-attempt-2.exit.txt",
+      "sha256": "6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/campaign-catalog-specs-delivery/prepare-delivery-attempt-2.stderr.log",
+      "sha256": "cbefc567e3048870a802802259016295f96c25f67b150b67429337771a5f3f0c"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/campaign-catalog-specs-delivery/prepare-delivery-attempt-2.stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/campaign-catalog-specs-delivery/prepare-delivery-attempt-3.exit.txt",
+      "sha256": "6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/campaign-catalog-specs-delivery/prepare-delivery-attempt-3.stderr.log",
+      "sha256": "46879205291ae0b00a0f9d5e329f91a217052c14200d068a8c29e6124c625838"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/campaign-catalog-specs-delivery/prepare-delivery-attempt-3.stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/campaign-catalog-specs-delivery/prepare-delivery.cjs",
+      "sha256": "7588358cc17e5bd0b9d7b797ac291f5ee5fddf8a7809d10b8495f4ae66bfbd61"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/campaign-catalog-specs-delivery/prepare-delivery.exit.txt",
+      "sha256": "5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/campaign-catalog-specs-delivery/prepare-delivery.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/campaign-catalog-specs-delivery/prepare-delivery.stdout.log",
+      "sha256": "d262995f8f21b000c25538958399b30be8ec1d27351cff0923929873c4224d66"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/campaign-catalog-specs-delivery/raw/attempt-1/candidate-ci-qc.status.json",
+      "sha256": "6404a2b6be5bf8cc999caf76b833f8318b05175b41379ba9bb668ffa7e260ad3"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/campaign-catalog-specs-delivery/raw/attempt-1/candidate-ci-qc.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/campaign-catalog-specs-delivery/raw/attempt-1/candidate-ci-qc.stdout.log",
+      "sha256": "55063921346c21e25951c491ec289fc1c19f00436e6f813ebfb33bc041703846"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/campaign-catalog-specs-delivery/raw/attempt-1/openspec-all-strict.status.json",
+      "sha256": "77c8090e79a56a54ce6db58ae439172ca1bc58d86e62d12b60532c3d04818bff"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/campaign-catalog-specs-delivery/raw/attempt-1/openspec-all-strict.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/campaign-catalog-specs-delivery/raw/attempt-1/openspec-all-strict.stdout.log",
+      "sha256": "2754dbee9c7f3c73dafb72bec4284c7de4a886d9f795955954f8d77c5768a12d"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/campaign-catalog-specs-delivery/raw/attempt-1/purpose-strict.status.json",
+      "sha256": "ab947593f2722d23306cec5381f0ac969e116ebd7f2c38d35efcdbf716b836ba"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/campaign-catalog-specs-delivery/raw/attempt-1/purpose-strict.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/campaign-catalog-specs-delivery/raw/attempt-1/purpose-strict.stdout.log",
+      "sha256": "0e660f271e246515d20c8a8fe32c611c879bdb680f9a9b7874fa0467fc735ce0"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/campaign-catalog-specs-delivery/raw/attempt-1/terminology-strict.status.json",
+      "sha256": "86e7f2c63fe5e30ebebb384f35414c01baecfd220aa08ea8381d30eb9bf283a1"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/campaign-catalog-specs-delivery/raw/attempt-1/terminology-strict.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/campaign-catalog-specs-delivery/raw/attempt-1/terminology-strict.stdout.log",
+      "sha256": "5138b3c6391de6d904456a1fbf873b824f52a452c9528ce89139c72152c65f41"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/campaign-catalog-specs-delivery/raw/candidate-ci-qc.status.json",
+      "sha256": "9a36ad685db1c80aff5b034fe6c0224aa4ce2e83756bee32e67a334cfdcf6958"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/campaign-catalog-specs-delivery/raw/candidate-ci-qc.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/campaign-catalog-specs-delivery/raw/candidate-ci-qc.stdout.log",
+      "sha256": "c0cb54085851dc9acb986613616f6992117a3fd0bd09d508938c634750b7cbb2"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/campaign-catalog-specs-delivery/raw/openspec-all-strict.status.json",
+      "sha256": "b51ff089bc55581a7c7df0117091ce9bfc6918bac4c44782b6482379b696e331"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/campaign-catalog-specs-delivery/raw/openspec-all-strict.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/campaign-catalog-specs-delivery/raw/openspec-all-strict.stdout.log",
+      "sha256": "2754dbee9c7f3c73dafb72bec4284c7de4a886d9f795955954f8d77c5768a12d"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/campaign-catalog-specs-delivery/raw/purpose-strict.status.json",
+      "sha256": "ec20ba9201f0be6022aeab4f40e9233c689796261af41823c86a74eff22e982b"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/campaign-catalog-specs-delivery/raw/purpose-strict.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/campaign-catalog-specs-delivery/raw/purpose-strict.stdout.log",
+      "sha256": "0e660f271e246515d20c8a8fe32c611c879bdb680f9a9b7874fa0467fc735ce0"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/campaign-catalog-specs-delivery/raw/scoped-diff-whitespace.status.json",
+      "sha256": "0b2c1f196b337e7e8ed9a5f949d49419d579a91fc465ecff3a1f8989ca2ab715"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/campaign-catalog-specs-delivery/raw/scoped-diff-whitespace.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/campaign-catalog-specs-delivery/raw/scoped-diff-whitespace.stdout.log",
+      "sha256": "923959762711563ea6b80e28396c9d1461b293d0aabadf7a12e1bae64728f3ce"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/campaign-catalog-specs-delivery/raw/terminology-strict.status.json",
+      "sha256": "fcd94455a75af7c428d385e458dc3b9286cdbec6c21545a903af23e49d85b710"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/campaign-catalog-specs-delivery/raw/terminology-strict.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/campaign-catalog-specs-delivery/raw/terminology-strict.stdout.log",
+      "sha256": "5138b3c6391de6d904456a1fbf873b824f52a452c9528ce89139c72152c65f41"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/campaign-catalog-specs-delivery/run-static-gates.cjs",
+      "sha256": "f21a86efc6b378018eea0615ab22ca797c31d53147bb43b269929fd58c9e263e"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/campaign-catalog-specs-delivery/scoped-diff-whitespace.cjs",
+      "sha256": "8251d4ffe2b3a91d98bd581a04ac7375f12d74783d7cb18d22b0bd9c6574f857"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/campaign-catalog-specs-delivery/static-gates-attempt-1.exit.txt",
+      "sha256": "6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/campaign-catalog-specs-delivery/static-gates-attempt-1.json",
+      "sha256": "957c47c76b2b8d9a6ed7e3ef540501a09a11c93427ca63a65325a311cece685c"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/campaign-catalog-specs-delivery/static-gates-attempt-1.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/campaign-catalog-specs-delivery/static-gates-attempt-1.stdout.log",
+      "sha256": "957c47c76b2b8d9a6ed7e3ef540501a09a11c93427ca63a65325a311cece685c"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/campaign-catalog-specs-delivery/static-gates.exit.txt",
+      "sha256": "5feceb66ffc86f38d952786c6d696c79c2dbc239dd4e91b46729d73a27fb57e9"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/campaign-catalog-specs-delivery/static-gates.json",
+      "sha256": "30e019703d89870975b0d29f3e5e3609fd263c91e9602b0f374141c273d91dab"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/campaign-catalog-specs-delivery/static-gates.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/campaign-catalog-specs-delivery/static-gates.stdout.log",
+      "sha256": "30e019703d89870975b0d29f3e5e3609fd263c91e9602b0f374141c273d91dab"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/worktrees/campaign-catalog-specs/openspec/specs/campaign-combat-loop/spec.md",
+      "sha256": "c862ad4277355d53b9f0cc1344c7de28ad5eaa45df253c3f6f9ba4f21280b6ba"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/worktrees/campaign-catalog-specs/openspec/specs/mission-contracts/spec.md",
+      "sha256": "e7c8285915e24c049e85563f0871b122e123e0aa75fbe8f93f19fa126e4e3959"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/worktrees/campaign-catalog-specs/openspec/specs/custom-unit-combat/spec.md",
+      "sha256": "803ac906accad431daa8e84cef924c00733b0896b5c511e28fbc5da29bdfaba5"
+    },
+    {
+      "path": "src/lib/campaign/readiness/canonicalCatalogAdmission.ts",
+      "sha256": "d4f6556799b5318a02dd4c7b0e26072c120c09b72caf37017d6deca067d96636"
+    },
+    {
+      "path": "src/lib/campaign/readiness/missionReadinessProjection.ts",
+      "sha256": "6843b76bee91673b4395e480ae68b77be5a9e44afa837d5a1c1a60d3bd2e3384"
+    },
+    {
+      "path": "src/lib/campaign/encounter/materializeCampaignMissionEncounter.ts",
+      "sha256": "aa41451c3684dec9a2a267d992a39350c8139649cb4a802cb61e7b8c717c5584"
+    },
+    {
+      "path": "src/lib/campaign/encounter/materializeCampaignMissionEncounter.forceUnits.ts",
+      "sha256": "7a581a0093b061fad065c6c11678f2e95adc579815056748cafc5ba756a6ad6d"
+    },
+    {
+      "path": "src/lib/campaign/encounter/materializeCampaignMissionEncounter.rest.ts",
+      "sha256": "057cf70532616ed56ddfb526989a002e012907c3364eadf6309c3e0551c1d6ba"
+    },
+    {
+      "path": "src/lib/campaign/fastForward/fastForwardCombatRunner.ts",
+      "sha256": "119107ed5dd4acc172ff389cb137e0d68c5205e3e547c161f66d72d455b122fe"
+    },
+    {
+      "path": "src/lib/campaign/coop/launchCoopMission.ts",
+      "sha256": "7d9880a671cb243c8be4e07c067c13d4ae7e4e520b3de0e1bd399a7641bc8ce7"
+    },
+    {
+      "path": "src/components/gameplay/pages/campaigns/dashboard/CampaignDashboardPage.tsx",
+      "sha256": "1dc09a43c1ba74e3d693b58f2953ebe84e58f33e935407935e46149636e8bdf9"
+    },
+    {
+      "path": "src/pages-modules/gameplay/campaigns/missionLaunchPage.launch.ts",
+      "sha256": "1c0d96db60cec206b2eb05405f7887fdd8226dbf624d834bee7c1ab9e129c7fc"
+    },
+    {
+      "path": "src/lib/campaign/encounter/buildEncounterFromScenario.ts",
+      "sha256": "5b657b9e429b900d9e058af79a590f81a5e23378f94587990de4bdaab28bebc3"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/campaign-catalog-specs-delivery/hash-index.json",
+      "sha256": "db08eab343cfd039cab215adf89843b62cccd9481ae2f284f07ae8af993f57fd",
+      "count": 65
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/campaign-catalog-specs-review-20260912.json",
+      "sha256": "4bc3e15b5538843bf41325109bcf873f54a6b117f85faa70ef938af47dacd1a2"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/campaign-catalog-specs-review-parent-acceptance-20260912.json",
+      "sha256": "b23127d96b64be1b0bc353e5aa9167c6a048959693850add8377b0b2577750d9"
+    }
+  ],
+  "files": {
+    "openspec/specs/campaign-combat-loop/spec.md": {
+      "path": "openspec/specs/campaign-combat-loop/spec.md",
+      "bytes": 13371,
+      "sha256": "c862ad4277355d53b9f0cc1344c7de28ad5eaa45df253c3f6f9ba4f21280b6ba",
+      "gitBlobObjectId": "9fef807256d0cbd1867aca22302132221a3dfad6",
+      "normalizedLines": 204
+    },
+    "openspec/specs/mission-contracts/spec.md": {
+      "path": "openspec/specs/mission-contracts/spec.md",
+      "bytes": 18394,
+      "sha256": "e7c8285915e24c049e85563f0871b122e123e0aa75fbe8f93f19fa126e4e3959",
+      "gitBlobObjectId": "4e9f95f24aeb4b7543df1bd828247483e8ae972b",
+      "normalizedLines": 422
+    },
+    "openspec/specs/custom-unit-combat/spec.md": {
+      "path": "openspec/specs/custom-unit-combat/spec.md",
+      "bytes": 5554,
+      "sha256": "803ac906accad431daa8e84cef924c00733b0896b5c511e28fbc5da29bdfaba5",
+      "gitBlobObjectId": "fc5139af9fa77a517de69dee392af0e5aa7ec330",
+      "normalizedLines": 84
+    }
+  },
+  "sourceAnchors": [
+    {
+      "path": "src/lib/campaign/readiness/canonicalCatalogAdmission.ts",
+      "bytes": 8541,
+      "sha256": "d4f6556799b5318a02dd4c7b0e26072c120c09b72caf37017d6deca067d96636",
+      "acceptedSha256": "d4f6556799b5318a02dd4c7b0e26072c120c09b72caf37017d6deca067d96636",
+      "matchesAccepted": true,
+      "gitBlobObjectId": "992280cd082fa2ea260aa4f7b8842e9e594dec22"
+    },
+    {
+      "path": "src/lib/campaign/readiness/missionReadinessProjection.ts",
+      "bytes": 11746,
+      "sha256": "6843b76bee91673b4395e480ae68b77be5a9e44afa837d5a1c1a60d3bd2e3384",
+      "acceptedSha256": "6843b76bee91673b4395e480ae68b77be5a9e44afa837d5a1c1a60d3bd2e3384",
+      "matchesAccepted": true,
+      "gitBlobObjectId": "4f74012282eb36906e39e27c342921622dd621f8"
+    },
+    {
+      "path": "src/lib/campaign/encounter/materializeCampaignMissionEncounter.ts",
+      "bytes": 9885,
+      "sha256": "aa41451c3684dec9a2a267d992a39350c8139649cb4a802cb61e7b8c717c5584",
+      "acceptedSha256": "aa41451c3684dec9a2a267d992a39350c8139649cb4a802cb61e7b8c717c5584",
+      "matchesAccepted": true,
+      "gitBlobObjectId": "0c84c0490083b0ee923061487c89e09351646a5d"
+    },
+    {
+      "path": "src/lib/campaign/encounter/materializeCampaignMissionEncounter.forceUnits.ts",
+      "bytes": 1642,
+      "sha256": "7a581a0093b061fad065c6c11678f2e95adc579815056748cafc5ba756a6ad6d",
+      "acceptedSha256": "7a581a0093b061fad065c6c11678f2e95adc579815056748cafc5ba756a6ad6d",
+      "matchesAccepted": true,
+      "gitBlobObjectId": "f2c611bbea24c4519a00ccbed3c3014518365f2d"
+    },
+    {
+      "path": "src/lib/campaign/encounter/materializeCampaignMissionEncounter.rest.ts",
+      "bytes": 5779,
+      "sha256": "057cf70532616ed56ddfb526989a002e012907c3364eadf6309c3e0551c1d6ba",
+      "acceptedSha256": "057cf70532616ed56ddfb526989a002e012907c3364eadf6309c3e0551c1d6ba",
+      "matchesAccepted": true,
+      "gitBlobObjectId": "4db81e8f4a87a19483a79844a9f1b49ca45787d1"
+    },
+    {
+      "path": "src/lib/campaign/fastForward/fastForwardCombatRunner.ts",
+      "bytes": 19750,
+      "sha256": "119107ed5dd4acc172ff389cb137e0d68c5205e3e547c161f66d72d455b122fe",
+      "acceptedSha256": "119107ed5dd4acc172ff389cb137e0d68c5205e3e547c161f66d72d455b122fe",
+      "matchesAccepted": true,
+      "gitBlobObjectId": "1a85bd3f794018b53479486a5744cd50a9d69076"
+    },
+    {
+      "path": "src/lib/campaign/coop/launchCoopMission.ts",
+      "bytes": 6963,
+      "sha256": "7d9880a671cb243c8be4e07c067c13d4ae7e4e520b3de0e1bd399a7641bc8ce7",
+      "acceptedSha256": "7d9880a671cb243c8be4e07c067c13d4ae7e4e520b3de0e1bd399a7641bc8ce7",
+      "matchesAccepted": true,
+      "gitBlobObjectId": "94d3d5ffa0f8c2d7045fb23b6a07444a7cf22752"
+    },
+    {
+      "path": "src/components/gameplay/pages/campaigns/dashboard/CampaignDashboardPage.tsx",
+      "bytes": 14718,
+      "sha256": "1dc09a43c1ba74e3d693b58f2953ebe84e58f33e935407935e46149636e8bdf9",
+      "acceptedSha256": "1dc09a43c1ba74e3d693b58f2953ebe84e58f33e935407935e46149636e8bdf9",
+      "matchesAccepted": true,
+      "gitBlobObjectId": "db552e51796e51f7966df8cd6d51bff93e0cc44e"
+    },
+    {
+      "path": "src/pages-modules/gameplay/campaigns/missionLaunchPage.launch.ts",
+      "bytes": 11825,
+      "sha256": "1c0d96db60cec206b2eb05405f7887fdd8226dbf624d834bee7c1ab9e129c7fc",
+      "acceptedSha256": "1c0d96db60cec206b2eb05405f7887fdd8226dbf624d834bee7c1ab9e129c7fc",
+      "matchesAccepted": true,
+      "gitBlobObjectId": "b3a58cdc086c55ee419927dcd29c8bff8b190806"
+    },
+    {
+      "path": "src/lib/campaign/encounter/buildEncounterFromScenario.ts",
+      "bytes": 9217,
+      "sha256": "5b657b9e429b900d9e058af79a590f81a5e23378f94587990de4bdaab28bebc3",
+      "acceptedSha256": "5b657b9e429b900d9e058af79a590f81a5e23378f94587990de4bdaab28bebc3",
+      "matchesAccepted": true,
+      "gitBlobObjectId": "5acb4a2360790a014015388b8640001edb86d1e8"
+    }
+  ],
+  "requiredGateCount": 5,
+  "changedLines": 176,
+  "limits": [
+    "No commit, push, build, server, install, or source/spec wording changes were performed.",
+    "Parent owns the normal-hook commit and final delivery."
+  ]
+}

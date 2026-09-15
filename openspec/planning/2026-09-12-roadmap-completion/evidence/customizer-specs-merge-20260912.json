@@ -1,0 +1,13 @@
+{
+  "at": "2026-09-12T19:37:01.981Z",
+  "node": "R1.specs",
+  "prefix": "customizer-five-specs",
+  "pr": {
+    "number": 1641,
+    "url": "https://github.com/SwiggitySwerve/MekStation/pull/1641",
+    "head": "eece56d47e394d2b7d46e44d66d9166664b7f606",
+    "merge": "1ecc1c300df7e53ba5e8d434e4d033a01ed96f73"
+  },
+  "premerge": "evidence/customizer-specs-attempt-2-premerge.json",
+  "status": "merged; exact-main documentation checks running, cleanup pending"
+}

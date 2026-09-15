@@ -1,0 +1,18 @@
+{
+  "at": "2026-09-12T19:59:13.918Z",
+  "node": "R1.specs",
+  "prefix": "customizer-five-specs",
+  "mainSha": "1ecc1c300df7e53ba5e8d434e4d033a01ed96f73",
+  "proof": "openspec/planning/2026-09-12-roadmap-completion/evidence/customizer-specs-main-verification-20260912.json",
+  "proofSha256": "6d9874393b3cdda5f9144c485bef376fbc0a761c91586c15009540bf7bfe4da5",
+  "cleanupPlan": ".sisyphus\\roadmap-completion-20260912\\customizer-specs-cleanup\\plan.json",
+  "cleanupPlanSha256": "4575a3e464ddfafdeb065adedc9cdef3388559a748339d575cd1be688681b82e",
+  "cleanupStatus": ".sisyphus\\roadmap-completion-20260912\\customizer-specs-cleanup\\status.json",
+  "cleanupStatusSha256": "ddf4448dacad53929b15036ab86b3113d0a2d01ce5b4ee0f5202cb816cbb1d5c",
+  "targetRemoved": true,
+  "ownedBranchRemoved": true,
+  "remoteBranchAbsent": true,
+  "trackingRefRemoved": true,
+  "rawLogsReopened": 17,
+  "limits": "Only program-owned checkout and refs removed; root edits and external audit/research worktrees preserved."
+}

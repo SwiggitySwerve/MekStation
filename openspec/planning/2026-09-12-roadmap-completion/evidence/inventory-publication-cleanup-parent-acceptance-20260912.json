@@ -1,0 +1,139 @@
+{
+  "at": "2026-09-12T21:21:30.437Z",
+  "cleanupReceipt": "evidence/inventory-publication-cleanup-20260912.json",
+  "cleanupSha256": "eff95ec703c60a66b504029e033e9261df866444406a00bb3a4f0e80a9d9c69b",
+  "main": "d3540bfea33a2ba8eb86d28759743590615f7c53",
+  "verifiedUniqueStreams": 28,
+  "exitFiles": 14,
+  "streamHashes": [
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/inventory-publication-main-verification-20260912-raw/inventory-assertion.stdout.txt",
+      "sha256": "2f5a36966acaa203270939220d9e1c430e4cf710cab1a3f0ba04251b51906cb7"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/inventory-publication-main-verification-20260912-raw/inventory-assertion.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/inventory-publication-main-verification-20260912-raw/file-info.stdout.txt",
+      "sha256": "98585c69d6ccb286ad7279daaf8d74f1b52eee129585596490f44ba73a12cfed"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/inventory-publication-main-verification-20260912-raw/file-info.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/inventory-publication-main-verification-20260912-raw/format-json.stdout.txt",
+      "sha256": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/inventory-publication-main-verification-20260912-raw/format-json.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/inventory-publication-main-verification-20260912-raw/openspec-strict.stdout.txt",
+      "sha256": "16c5c323579e9f348bc2adb0830ebd7bb199a73726ab1098c72331305dcca967"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/inventory-publication-main-verification-20260912-raw/openspec-strict.stderr.txt",
+      "sha256": "5bc31df123a2e521acdd2c0d9477b367feec506471a91065d0a6b32c09089ed5"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/inventory-publication-main-verification-20260912-raw/purpose-strict.stdout.txt",
+      "sha256": "2a44db9ff44442e1ef454b1c7c2355b3506037b0788fd146610c8f2444cf6aa1"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/inventory-publication-main-verification-20260912-raw/purpose-strict.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/inventory-publication-main-verification-20260912-raw/terminology-strict.stdout.txt",
+      "sha256": "06c7961b0d4709a1010aba1f38caf9ab57eb82ce2c48ceb2422ed9d4b234db23"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/inventory-publication-main-verification-20260912-raw/terminology-strict.stderr.txt",
+      "sha256": "3f83937ac2e9643f6e2ac10f220cb4a80f05c83aa12731f7cbb63f82315275fe"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/inventory-publication-main-verification-20260912-raw/candidate-qc.stdout.txt",
+      "sha256": "c0cb54085851dc9acb986613616f6992117a3fd0bd09d508938c634750b7cbb2"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/inventory-publication-main-verification-20260912-raw/candidate-qc.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/inventory-publication-main-verification-20260912-raw/merged-diff-check.stdout.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/inventory-publication-main-verification-20260912-raw/merged-diff-check.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/inventory-publication-main-verification-20260912-raw/worktree-diff-check.stdout.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/inventory-publication-main-verification-20260912-raw/worktree-diff-check.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/inventory-publication-main-verification-20260912-raw/tree-clean.stdout.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/inventory-publication-main-verification-20260912-raw/tree-clean.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/inventory-publication-main-verification-20260912-raw/status-head.stdout.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/inventory-publication-main-verification-20260912-raw/status-head.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/inventory-publication-main-verification-20260912-raw/head.stdout.txt",
+      "sha256": "943c92b6419b1a6694bbf6a8d5ef916aae1249492f4bee49fdc81938b74500c5"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/inventory-publication-main-verification-20260912-raw/head.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/inventory-publication-main-verification-20260912-raw/tree.stdout.txt",
+      "sha256": "dbd8b1a25638402909e5cf045f484ea02452b53cc3415043816144cb6bbbf92b"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/inventory-publication-main-verification-20260912-raw/tree.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/inventory-publication-main-verification-20260912-raw/candidate-tree-guard.stdout.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/inventory-publication-main-verification-20260912-raw/candidate-tree-guard.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "parentAcceptanceFileSha256": "2d812b8b50aeb9eafb1417a6be870213d8a5dceea25a72c63931b9de992cdf99",
+  "parentReferencedMainReceiptSha256": "a7e9dd3610624b080865fac62e6eb0f1ac09f151e0a420d9f4bbf3ab75eb6e2c",
+  "postCleanupSourceExport": {
+    "path": ".sisyphus/roadmap-completion-20260912/inventory-publication-cleanup-parent-export/inventory.json",
+    "sha256": "fe9d25951ee79c34c74f0b8f64aee51dbd94265b30a057ae735ca83301376822",
+    "fromExactMain": true,
+    "timing": "Additional parent export after cleanup; original source remains in merged Git and the preserved root snapshot."
+  },
+  "candidateIdentityExport": {
+    "path": ".sisyphus/roadmap-completion-20260912/inventory-publication-cleanup-parent-export/candidate-commit.txt",
+    "sha256": "368bfe519056f2f4aedbb1da4e443dc7567c87f6fcc93cc1ee194317c747d6e1"
+  },
+  "qualifications": [
+    "Worker parentReceiptSha256 denotes the main-receipt hash referenced by parent acceptance, not the parent-acceptance file hash.",
+    "Worker rawStreamCheckCount70 counts validation comparisons; parent verifies28unique stdout/stderr streams and14exit files."
+  ],
+  "accepted": true
+}

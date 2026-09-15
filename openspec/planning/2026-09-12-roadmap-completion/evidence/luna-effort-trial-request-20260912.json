@@ -1,0 +1,46 @@
+{
+  "recordedAt": "2026-09-12T16:42:43.943Z",
+  "userRequest": "Please also try using some Luna workers on extra high or Max because they are cheap",
+  "requestedRoutes": [
+    "gpt-5.6-luna/xhigh",
+    "gpt-5.6-luna/max"
+  ],
+  "leaderUnchanged": true,
+  "globalConfigurationUnchanged": true,
+  "workerCap": 6,
+  "initialWorkers": [
+    {
+      "name": "validation_review",
+      "model": "gpt-5.6-luna",
+      "effort": "high"
+    },
+    {
+      "name": "loader_review",
+      "model": "gpt-5.6-luna",
+      "effort": "high"
+    },
+    {
+      "name": "spec_contradictions",
+      "model": "gpt-5.6-luna",
+      "effort": "high"
+    },
+    {
+      "name": "manifest_trace",
+      "model": "gpt-5.6-luna",
+      "effort": "high"
+    },
+    {
+      "name": "allocation_tab_trace",
+      "model": "gpt-5.6-luna",
+      "effort": "high"
+    },
+    {
+      "name": "placement_infantry_trace",
+      "model": "gpt-5.6-luna",
+      "effort": "high"
+    }
+  ],
+  "trialStatus": "Requested xhigh/max followup trials pending current worker completion; no performance or cost advantage claimed",
+  "contractPath": "openspec/planning/2026-09-12-roadmap-completion/WORKERS.md",
+  "contractSha256": "584fd69d4c796d6b14de6ba98c2cd00fe848a6bb9ed3294487b0cb24894a2fa9"
+}

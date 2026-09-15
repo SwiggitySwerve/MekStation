@@ -1,0 +1,36 @@
+{
+  "recordedAt": "2026-09-12T17:20:17.356Z",
+  "node": "R9.equipment-loader",
+  "commit": "b909a164ef78fef53f87818405ab7643974dd551",
+  "baseline": "6c4eac5c7b7a2aece3aab0443ce606943db6cf0b",
+  "branch": "codex/roadmap-equipment-loader-20260912",
+  "files": [
+    {
+      "path": "src/services/equipment/EquipmentOfficialLoader.ts",
+      "sha256": "92b520e154648bae97219f3d92c3fb7521a99e9f9fc51e2a1b1c4c039c4d73fb"
+    },
+    {
+      "path": "src/services/equipment/EquipmentLoaderService.ts",
+      "sha256": "5bbdcbb90898beee29a4dd4677de9498efb890235e410cc175391711fbb47b9c"
+    },
+    {
+      "path": "src/services/equipment/__tests__/EquipmentOfficialLoader.failure.test.ts",
+      "sha256": "b4a6dd8c09d9ba15519e48964a5860f5884c9ca3d35541d26a98cad75823586f"
+    }
+  ],
+  "fileCount": 3,
+  "changedLines": 198,
+  "hookStatus": ".sisyphus/roadmap-completion-20260912/equipment-loader-hooked-commit-status.json",
+  "hookLogSha256": "768819a84b1ff09594a0138c07b93e7aadb72d1fb0de06deda24ef3f0289f44a",
+  "hookExit": 0,
+  "localVerification": "equipment-loader-local-verification-20260912-continuation.json",
+  "independentReview": "equipment-loader-independent-review-20260912-continuation.json",
+  "previousUnhookedDraft": {
+    "commit": "eb0a2a3b8fe6d8dc5cd0189c6eb8c0bec742c113",
+    "preservedRef": "refs/codex/roadmap-evidence/equipment-loader-unhooked-20260912",
+    "accepted": false
+  },
+  "limits": [
+    "Local committed proof only; remote publication/main proof pending"
+  ]
+}

@@ -1,0 +1,126 @@
+{
+  "schemaVersion": 1,
+  "evidenceId": "ci-contract-modules-local-build-20260912",
+  "capturedAt": "2026-09-12T20:49:07Z",
+  "status": "verified-local-build-with-limits",
+  "scope": "Fresh current-base local terminology gate and serial production build for the accepted CI contract modules candidate.",
+  "candidate": {
+    "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/ci-contract-modules",
+    "head": "6573e98e65a631963c5b0a980f3a724ba7d37989",
+    "originMainAtStart": "e58642acede495c45b3b4d4e606dffaa52ccab18",
+    "integrationRecord": ".sisyphus/roadmap-completion-20260912/ci-contract-modules-delivery/current-main-integration.json",
+    "integrationRecordSha256": "6eb7d1dbd398bda2e7664854f098459587695ea0194caeaf5ec5170a07cbc067",
+    "cleanBeforeAndAfter": true
+  },
+  "runtime": {
+    "node": "C:/nvm4w/nodejs/node.exe",
+    "npmCli": "C:/nvm4w/nodejs/node_modules/npm/bin/npm-cli.js",
+    "nodeModulesPhysical": true,
+    "candidateRuntime": {
+      "packages": ["tsx", "esbuild", "ws", "@esbuild"],
+      "fileCount": 92,
+      "beforeSha256": "97e80b8b40b4b0dc4eced549d4c29bd047b45c2695b7127de944ad400f5547af",
+      "afterSha256": "97e80b8b40b4b0dc4eced549d4c29bd047b45c2695b7127de944ad400f5547af",
+      "unchanged": true
+    },
+    "rootSharedRuntime": {
+      "packages": ["tsx", "esbuild", "ws", "@esbuild"],
+      "fileCount": 92,
+      "beforeSha256": "97e80b8b40b4b0dc4eced549d4c29bd047b45c2695b7127de944ad400f5547af",
+      "afterSha256": "97e80b8b40b4b0dc4eced549d4c29bd047b45c2695b7127de944ad400f5547af",
+      "unchanged": true
+    },
+    "inventoryDetail": {
+      "before": ".sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/local-1/before.json",
+      "after": ".sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/local-1/after.json"
+    }
+  },
+  "sourceHashes": {
+    "scripts/qc/openspec-ci-contracts.mjs": {
+      "before": "ae81b758ae37fe0a796cd77c5e5a17a5fac0bd6d1a8b488b4d5955fca1234a99",
+      "after": "ae81b758ae37fe0a796cd77c5e5a17a5fac0bd6d1a8b488b4d5955fca1234a99"
+    },
+    "scripts/qc/openspec-workflow-contracts.mjs": {
+      "before": "4ae969ae69ad71af0cfc761c0b133bbc0862202e71138d38198231062f92f696",
+      "after": "4ae969ae69ad71af0cfc761c0b133bbc0862202e71138d38198231062f92f696"
+    },
+    "package.json": {
+      "before": "eeebcb46214017104ed9cad6feab8f4a7e941816552585fb8230731d6931ad17",
+      "after": "eeebcb46214017104ed9cad6feab8f4a7e941816552585fb8230731d6931ad17"
+    },
+    "package-lock.json": {
+      "before": "f923ca53a2d9fc69d56cd59b9f86d26fd4b3756ac488c138b64163f787bd7d36",
+      "after": "f923ca53a2d9fc69d56cd59b9f86d26fd4b3756ac488c138b64163f787bd7d36"
+    }
+  },
+  "dependencyMetadata": {
+    "yamlDeclaration": "^2.9.0",
+    "yamlResolution": {
+      "version": "2.9.0",
+      "resolved": "https://registry.npmjs.org/yaml/-/yaml-2.9.0.tgz",
+      "integrity": "sha512-2AvhNX3mb8zd6Zy7INTtSpl1F15HW6Wnqj0srWlkKLcpYl/gMIMJiyuGq2KeI2YFxUPjdlB+3Lc10seMLtL4cA=="
+    },
+    "unchanged": true
+  },
+  "terminology": {
+    "command": ["C:/nvm4w/nodejs/node.exe", "C:/nvm4w/nodejs/node_modules/npm/bin/npm-cli.js", "run", "terminology:validate:strict"],
+    "pid": 66460,
+    "exitCode": 0,
+    "signal": null,
+    "timedOut": false,
+    "stdout": {
+      "path": ".sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/local-1/terminology-strict.stdout.log",
+      "sha256": "f900b2f139d48a4fce3da66f12105cdd633a1cfe6dc8102211bcf03cc6a1cce7"
+    },
+    "stderr": {
+      "path": ".sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/local-1/terminology-strict.stderr.log",
+      "sha256": "cf1290ff3b910eb706451725a74250bb9bb8fee481afaaee5a074358900092e1"
+    },
+    "result": "Found 319 files; no terminology violations; process exited 0."
+  },
+  "productionBuild": {
+    "command": ["C:/nvm4w/nodejs/node.exe", "C:/nvm4w/nodejs/node_modules/npm/bin/npm-cli.js", "run", "build"],
+    "pid": 35192,
+    "startedAt": "2026-09-12T20:45:38.144Z",
+    "finishedAt": "2026-09-12T20:48:35.426Z",
+    "exitCode": 0,
+    "signal": null,
+    "timedOut": false,
+    "stdout": {
+      "path": ".sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/local-1/production-build.stdout.log",
+      "sha256": "83898d0b5428c333f65835401cf2d65c91d98ee7c5275a19965a98b5ec779ee6"
+    },
+    "stderr": {
+      "path": ".sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/local-1/production-build.stderr.log",
+      "sha256": "5b0e0796f07fc62d9d6cebf3282bd356c5c673a168e26cbed25b1a2ae787b89d"
+    },
+    "result": "npm run build completed successfully with the normal production script; no E2E flag, server, install, or asset acquisition was used."
+  },
+  "assertions": {
+    "sourceHashesUnchanged": true,
+    "yamlUnchanged": true,
+    "candidateRuntimeUnchanged": true,
+    "rootRuntimeUnchanged": true,
+    "candidateGitStatusUnchanged": true,
+    "rootGitStatusUnchanged": true,
+    "noE2eEnvironmentFlags": true,
+    "noBuildProcessesAfter": true
+  },
+  "rawReceipt": {
+    "directory": ".sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/local-1",
+    "driver": "build-driver.cjs",
+    "driverSha256": "7121741d501ffcba0e74832f0a54e85b061482ef0b1de34a8db3b37c3c7af5d",
+    "driverStdoutSha256": "81ea1acedff2f6932cdf128994987a004d298fbc2e4e92e43e2b70c5f96ee2cb",
+    "driverStderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "result": "local-build-result.json",
+    "resultSha256": "91aa390239155925df1d921129e0a3cfc7e2a3ab8e90e402e49bb04b760df96a",
+    "beforeSha256": "89f6cf5201855edf139c0eb498f669b609b010006d6f221a71cd3f168b887e93",
+    "afterSha256": "64e8562c885ce44b9ff07d7ba8d14eed0a901dc10be22cb508e6a901a065de35",
+    "buildStatusSha256": "461cab7e6d72cb5eb9e92048b6f75906b9a48391800248d45caf87a7027e1603",
+    "terminologyStatusSha256": "d403445c577a8a4317f82580bfb769e003dd18702f422ceaf8a2ba0548e585a6"
+  },
+  "limits": [
+    "This is candidate-local proof on the current integrated base.",
+    "Remote CI and independent main-branch production proof remain pending parent acceptance and publication."
+  ]
+}

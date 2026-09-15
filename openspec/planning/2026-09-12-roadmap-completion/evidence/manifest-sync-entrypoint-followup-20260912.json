@@ -1,0 +1,94 @@
+{
+  "schemaVersion": 1,
+  "evidenceId": "manifest-sync-entrypoint-followup-20260912",
+  "recordedAt": "2026-09-12",
+  "node": "R9.manifest-sync",
+  "baseline": "6c4eac5c7b7a2aece3aab0443ce606943db6cf0b",
+  "testedHead": "be7f85b867aa3e8576e5e3d27e309276203bc24b",
+  "scope": "Independent followup tightening entrypoint ordering and coverage. No development server, production build, hydration, or external browser state was started or changed.",
+  "changedFiles": [
+    {
+      "path": "package.json",
+      "sha256": "0cbe570cc8b2ffdabcf1c273a75b739bf6693965239a913f524661291e6c2e32"
+    },
+    {
+      "path": "scripts/__tests__/mm-data-browser-config.test.ts",
+      "sha256": "20534720de14d2e2c94cfa17763d8cd75c82b7ae7a9deb6d9ec095a33fa9dce4"
+    },
+    {
+      "path": "openspec/specs/mm-data-asset-integration/spec.md",
+      "sha256": "5beabebfe54b2a2e3e9aadd0ab87e480062eed0de257507571681b69c2a74dd7"
+    }
+  ],
+  "entrypointContract": {
+    "syncCommand": "npm run sync:mm-data-config",
+    "entrypoints": [
+      {
+        "name": "dev",
+        "preservedBefore": "npx kill-port 3600 --silent",
+        "syncBefore": "node server.js"
+      },
+      {
+        "name": "dev:e2e",
+        "preservedBefore": "npx kill-port 3600 --silent",
+        "syncBefore": "next dev --webpack --port 3600"
+      },
+      {
+        "name": "build",
+        "syncBefore": [
+          "node scripts/next/run-next.mjs build --webpack",
+          "node scripts/hydrate-next-standalone-multiplayer-server.mjs"
+        ]
+      },
+      {
+        "name": "build:analyze",
+        "preservedAfterSync": "ANALYZE=true",
+        "syncBefore": "next build --webpack"
+      },
+      {
+        "name": "build:profile",
+        "syncBefore": "next build --webpack --profile"
+      },
+      {
+        "name": "build:debug",
+        "syncBefore": "next build --webpack --debug"
+      }
+    ],
+    "orderingAssertion": "The regression locates the sync command and separately asserts each preserved prerequisite precedes it and each server/Next/hydration command follows it; it does not snapshot whole script strings."
+  },
+  "checks": [
+    {
+      "command": "npm.cmd test -- --runInBand scripts/__tests__/mm-data-browser-config.test.ts",
+      "exit": 0,
+      "tests": 4,
+      "passed": 4,
+      "rawLog": ".sisyphus/roadmap-completion-20260912/manifest-sync/followup-jest-green.log",
+      "sha256": "f379c1cde4ec26ea8bb19806a92c1dbc6c923c3704177629a6e78704c88d7313"
+    },
+    {
+      "command": "npx.cmd oxfmt --check scripts/mm-data/sync-browser-config.mjs scripts/__tests__/mm-data-browser-config.test.ts",
+      "exit": 0,
+      "rawLog": ".sisyphus/roadmap-completion-20260912/manifest-sync/followup-format-check.log",
+      "sha256": "c0d25fe93fdc44350f43f014fd57afc39c47f761692e5fa19566f22170fb5c20"
+    },
+    {
+      "command": "npx.cmd oxlint scripts/mm-data/sync-browser-config.mjs scripts/__tests__/mm-data-browser-config.test.ts",
+      "exit": 0,
+      "diagnostics": "0 warnings and 0 errors",
+      "rawLog": ".sisyphus/roadmap-completion-20260912/manifest-sync/followup-oxlint.log",
+      "sha256": "43c8d5cd030c056e15bc40a1b7a070ed5b0f50160c9ae39b842b7cd6232c07e8"
+    },
+    {
+      "command": "C:/nvm4w/nodejs/node.exe scripts/mm-data/sync-browser-config.mjs --check",
+      "exit": 0,
+      "sourceSha256": "6746a36beab5ce9a9beff240afe0f7609caace9010509ecf7d8c58c6dd8af8e6",
+      "targetSha256": "6746a36beab5ce9a9beff240afe0f7609caace9010509ecf7d8c58c6dd8af8e6",
+      "rawLog": ".sisyphus/roadmap-completion-20260912/manifest-sync/check-root.log",
+      "rawLogSha256": "9cfe1bfced7b6d23b89450f46b4b19d262b22ae4ec60b98efd89ba9f659dcefb"
+    }
+  ],
+  "limits": [
+    "The entrypoint contract was checked statically and through the focused package regression; no dev/build/server command was executed.",
+    "Parent owns final independent delta review and delivery."
+  ]
+}

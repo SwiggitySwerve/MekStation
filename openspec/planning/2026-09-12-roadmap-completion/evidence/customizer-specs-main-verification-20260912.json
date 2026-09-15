@@ -1,0 +1,156 @@
+{
+  "schemaVersion": 1,
+  "evidenceId": "customizer-specs-main-verification-20260912",
+  "capturedAt": "2026-09-12T19:48:50.2317887Z",
+  "node": "R1.specs",
+  "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/customizer-specs",
+  "testedSHA": "1ecc1c300df7e53ba5e8d434e4d033a01ed96f73",
+  "testedCommit": {
+    "firstParent": "a538a2d3b2b05252e1c80cc60395c72953f4c979",
+    "subject": "docs(customizer): reconcile active surfaces and planned limitations (#1641)"
+  },
+  "scope": [
+    "openspec/specs/aerospace-unit-system/spec.md",
+    "openspec/specs/app-settings/spec.md",
+    "openspec/specs/critical-slots-display/spec.md",
+    "openspec/specs/equipment-tray/spec.md",
+    "openspec/specs/protomech-unit-system/spec.md"
+  ],
+  "parentAcceptance": {
+    "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/customizer-five-spec-parent-acceptance-20260912.json",
+    "sha256": "3beae33966e6dff890727f54c66c29ca3960dad44e20955745e64b262fc9fb5a"
+  },
+  "scopeProof": {
+    "mergeDiffPaths": [
+      "openspec/specs/aerospace-unit-system/spec.md",
+      "openspec/specs/app-settings/spec.md",
+      "openspec/specs/critical-slots-display/spec.md",
+      "openspec/specs/equipment-tray/spec.md",
+      "openspec/specs/protomech-unit-system/spec.md"
+    ],
+    "exactFive": true,
+    "hashesMatchParentAcceptance": true,
+    "files": [
+      {
+        "path": "openspec/specs/aerospace-unit-system/spec.md",
+        "expectedSha256": "c664246362054e9bc183381d99c60f106eb349e0d186cdc467534170fbaad0b3",
+        "testedSha256": "c664246362054e9bc183381d99c60f106eb349e0d186cdc467534170fbaad0b3"
+      },
+      {
+        "path": "openspec/specs/app-settings/spec.md",
+        "expectedSha256": "65dc02ac16a000a0322c71b173f88a59ca8e9f56f37ee40a74bf6d18f290d5a6",
+        "testedSha256": "65dc02ac16a000a0322c71b173f88a59ca8e9f56f37ee40a74bf6d18f290d5a6"
+      },
+      {
+        "path": "openspec/specs/critical-slots-display/spec.md",
+        "expectedSha256": "08abd446de493fc1191e9b911368b5f8a66d7311da27694d04a7297cca5b0e4e",
+        "testedSha256": "08abd446de493fc1191e9b911368b5f8a66d7311da27694d04a7297cca5b0e4e"
+      },
+      {
+        "path": "openspec/specs/equipment-tray/spec.md",
+        "expectedSha256": "cebacfa9f94c801f2e8e137c1342793d8db73290e9795f2ad23010b2d3a8fdc5",
+        "testedSha256": "cebacfa9f94c801f2e8e137c1342793d8db73290e9795f2ad23010b2d3a8fdc5"
+      },
+      {
+        "path": "openspec/specs/protomech-unit-system/spec.md",
+        "expectedSha256": "191c5b3536c66d26dadac03da3f6de172574171ce1359ee3441120d308e1d8e8",
+        "testedSha256": "191c5b3536c66d26dadac03da3f6de172574171ce1359ee3441120d308e1d8e8"
+      }
+    ]
+  },
+  "dependencyBoundary": {
+    "node": "C:/nvm4w/nodejs/node.exe",
+    "nodeVersion": "v22.22.0",
+    "openspec": "C:/Users/wroll/AppData/Roaming/npm/node_modules/@fission-ai/openspec/bin/openspec.js",
+    "ancestorNodeModules": "E:/Projects/MekStation/node_modules",
+    "worktreeNodeModulesPresent": false,
+    "installOrJunctionCreated": false
+  },
+  "checks": [
+    {
+      "name": "strict-all-openspec",
+      "command": "C:/nvm4w/nodejs/node.exe C:/Users/wroll/AppData/Roaming/npm/node_modules/@fission-ai/openspec/bin/openspec.js validate --all --strict",
+      "exitCode": 0,
+      "status": "passed",
+      "rawLog": ".sisyphus/roadmap-completion-20260912/customizer-specs-checks/main-1/strict-all-openspec.raw.log",
+      "rawLogSha256": "e21ee5a93b949a4d54b08178b22d10d3ab304c1b55e46a00f05c1cfc9b56c76e",
+      "result": "Totals: 231 passed, 0 failed (231 items)"
+    },
+    {
+      "name": "purpose-strict",
+      "command": "npm.cmd run spec:purpose:validate:strict",
+      "exitCode": 0,
+      "status": "passed",
+      "rawLog": ".sisyphus/roadmap-completion-20260912/customizer-specs-checks/main-1/purpose-strict.raw.log",
+      "rawLogSha256": "6212a8f6b474900c3c80c3e2edb186317996afe7bdfab96cf3f23fdd36acf2fd",
+      "result": "Files scanned: 217; Errors: 0; Tracked source-of-truth debt: 0"
+    },
+    {
+      "name": "terminology-strict",
+      "command": "npm.cmd run terminology:validate:strict",
+      "exitCode": 0,
+      "status": "passed",
+      "rawLog": ".sisyphus/roadmap-completion-20260912/customizer-specs-checks/main-1/terminology-strict.raw.log",
+      "rawLogSha256": "2fa2d007a5c07ac8f721dec6b36ebf1753500d883025759525e41199e8f115f8",
+      "result": "All 319 file(s) are compliant with TERMINOLOGY_GLOSSARY.md"
+    },
+    {
+      "name": "ci-qc",
+      "command": "npm.cmd run qc:openspec-ci:validate",
+      "exitCode": 0,
+      "status": "passed",
+      "rawLog": ".sisyphus/roadmap-completion-20260912/customizer-specs-checks/main-1/ci-qc.raw.log",
+      "rawLogSha256": "f01feb11318234aab4764fe76151b78c06905527212a8f8723626fcf616b71d6",
+      "result": "workflowContracts=8/8; aggregatorNeeds=18/18; protectedContexts=4; packageScripts=3/3; activeOpenSpecChanges=14; accountedActiveOpenSpecChanges=14; errors=0"
+    },
+    {
+      "name": "markdown-format",
+      "command": "npm.cmd exec --no -- prettier --check openspec/specs/aerospace-unit-system/spec.md openspec/specs/app-settings/spec.md openspec/specs/critical-slots-display/spec.md openspec/specs/equipment-tray/spec.md openspec/specs/protomech-unit-system/spec.md",
+      "exitCode": 0,
+      "status": "passed",
+      "rawLog": ".sisyphus/roadmap-completion-20260912/customizer-specs-checks/main-1/markdown-prettier.raw.log",
+      "rawLogSha256": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20",
+      "result": "Checking formatting; All matched files use Prettier code style",
+      "formatterVersionCommand": "npm.cmd exec --no -- prettier --version",
+      "formatterVersion": "3.9.6",
+      "formatterVersionRawLog": ".sisyphus/roadmap-completion-20260912/customizer-specs-checks/main-1/formatter-version.raw.log",
+      "formatterVersionRawLogSha256": "05566dceb1394c0ba52e28e74b18cfc0efb325b12d58183db953af94e4a9e27d"
+    },
+    {
+      "name": "diff-check",
+      "command": "git diff --check -- openspec/specs/aerospace-unit-system/spec.md openspec/specs/app-settings/spec.md openspec/specs/critical-slots-display/spec.md openspec/specs/equipment-tray/spec.md openspec/specs/protomech-unit-system/spec.md",
+      "exitCode": 0,
+      "status": "passed",
+      "rawLog": ".sisyphus/roadmap-completion-20260912/customizer-specs-checks/main-1/diff-check.raw.log",
+      "rawLogSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "result": "No whitespace errors"
+    }
+  ],
+  "preservedFailedProbes": [
+    {
+      "name": "direct-oxfmt-markdown-probe",
+      "command": "C:/nvm4w/nodejs/node.exe E:/Projects/MekStation/node_modules/oxfmt/bin/oxfmt --check openspec/specs/aerospace-unit-system/spec.md openspec/specs/app-settings/spec.md openspec/specs/critical-slots-display/spec.md openspec/specs/equipment-tray/spec.md openspec/specs/protomech-unit-system/spec.md",
+      "exitCode": 2,
+      "status": "unsupported-target-probe",
+      "rawLog": ".sisyphus/roadmap-completion-20260912/customizer-specs-checks/main-1/markdown-oxfmt.raw.log",
+      "rawLogSha256": "d5bd27a64dfada6a95d3602cb5bf5f9d2303ca6e7ee7fa2b3502c07cc85ddcbb",
+      "result": "Expected at least one target file",
+      "note": "The package oxfmt CLI does not accept these Markdown targets under the checkout's default ignore rules. The passing scoped Markdown formatter check uses the available npm-resolved Prettier CLI; no formatter or source configuration was changed."
+    }
+  ],
+  "gitState": {
+    "status": "clean detached HEAD",
+    "porcelain": "## HEAD (no branch)",
+    "sourceOrProductChanges": false,
+    "gitMutation": false,
+    "serverOrBuildStarted": false
+  },
+  "status": "passed",
+  "limits": [
+    "This is documentation/spec proof only; no product build, server, browser, unit test, or runtime proof was run.",
+    "The formatter check covers exactly the five canonical Markdown specs; ignored and unrelated files are outside scope.",
+    "The terminology command emitted the existing Node MODULE_TYPELESS_PACKAGE_JSON warning while exiting 0; no warning remediation was attempted.",
+    "The direct oxfmt Markdown probe was preserved as a failed unsupported-target probe; it is not counted as the passing scoped Markdown check.",
+    "Parent owns roadmap acceptance, ledger updates, cleanup, and any Git delivery decisions."
+  ]
+}

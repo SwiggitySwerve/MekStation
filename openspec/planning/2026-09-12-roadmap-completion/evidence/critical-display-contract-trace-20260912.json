@@ -1,0 +1,52 @@
+{
+  "schemaVersion": 1,
+  "evidenceId": "critical-display-contract-trace-20260912",
+  "capturedAt": "2026-09-12",
+  "scope": "Read-only history/design trace for critical-slots-display Unallocated Equipment Display and VerticalSlotChip requirements; no UI/spec/test/build/server changes.",
+  "baseline": "be7f85b867aa3e8576e5e3d27e309276203bc24b",
+  "fetchedOriginMain": "6c4eac5c7b7a2aece3aab0443ce606943db6cf0b",
+  "decision": "stale-contract-after-accepted-workbench-design",
+  "decisionBasis": "The VerticalSlotChip contract was introduced on 2026-01-13, then the accepted 2026-09-09 customizer workbench baseline removed its CriticalSlotsTab import/use and routed production loadout through ResponsiveLoadoutTray. The canonical critical-slots-display text was not superseded after that baseline. Current production therefore does not omit a required active-workbench chip; the chip scenario describes an obsolete standalone/inline layout.",
+  "gitTrace": [
+    {"commit":"96a1aa15e9a54c71167d1c3196dbdc05fcb0bf9d","date":"2026-01-13T22:38:22-0700","subject":"feat(customizer): mobile-responsive layout improvements (#63)","effect":"added VerticalSlotChip, imported it in CriticalSlotsTab, and added the inline horizontal chip scenario to the display spec"},
+    {"commit":"1dc8c29a0063754c36d7555de1c926af3bced034","date":"2026-01-14T14:40:14-0700","subject":"feat: enhance mobile loadout tray with quick actions and category filter (#66)","effect":"adopted canonical mobile loadout contract: Unassigned/Allocated collapsible sections, category filtering, quick assignment"},
+    {"commit":"45a94017a449519491726c52083abc1c7bd1e7e3","date":"2026-09-09T20:30:25-0600","subject":"Establish customizer and application UI baseline (#1634)","effect":"introduced accepted workbench shell; CriticalSlotsTab changed from VerticalSlotChip to Button for its fallback inline path; production mounts workbench=true and ResponsiveLoadoutTray"}
+  ],
+  "activePath": {
+    "entry": "src/components/customizer/UnitEditorWithRouting.tsx:261-290",
+    "facts": [
+      "UnitEditorWithRouting always passes workbench=true to UnitEditorWithRoutingTabContent.",
+      "UnitEditorWithRoutingTabContent passes hideLoadoutTray={!workbench}, so production CriticalSlotsTab receives false.",
+      "CriticalSlotsTab inline section is guarded by hideLoadoutTray && !workbench at lines 226-239; it is unreachable from the production workbench path.",
+      "ResponsiveLoadoutTray mounts GlobalLoadoutTray for desktop and drawer paths; mobile uses its loadout list.",
+      "GlobalLoadoutTray uses allocation sections/category groups; MobileLoadoutList has explicit Unassigned/Allocated collapsible sections and quick assignment."
+    ],
+    "conclusion": "The current Button/span fallback at CriticalSlotsTab.tsx:95-111 is not the active production loadout authority. It is a standalone fallback path retained for non-workbench callers/tests."
+  },
+  "contractConflict": {
+    "oldCanonical": "openspec/specs/critical-slots-display/spec.md:203-298 requires inline vertical chip bars and VerticalSlotChip when Critical Slots is active; those lines trace to 96a1aa15 and remain at current spec hash.",
+    "acceptedCurrent": "openspec/specs/mobile-loadout-tray/spec.md:70-214 requires tray sections/actions; openspec/specs/customizer-responsive-layout/spec.md:34-120 describes sidebar/drawer/full-screen list in the current worktree. The 45a baseline source and its E2E suite exercise that workbench design.",
+    "interpretation": "This is documentation drift requiring canonical-spec cleanup/supersession, not an unfinished VerticalSlotChip integration. Do not restore the old chip layout unless a new design decision re-adopts it."
+  },
+  "sourceHashes": {
+    "openspec/specs/critical-slots-display/spec.md":"3befc509d6a013d03043eddfa1098d009bfe4da3dd6adcf7617d92b838a3fbd5",
+    "openspec/specs/mobile-loadout-tray/spec.md":"3031708b018e4f1b09726e16184d79da8a1604b65734a68ef69445aa328394e4",
+    "openspec/specs/customizer-responsive-layout/spec.md":"84e8df2101a8d15bb6a7c0bb7056798b332e1abb26df931e770294848b8161e9",
+    "src/components/customizer/UnitEditorWithRouting.tsx":"9445c9882b8110b2e1bdc0e25f7bab90fadd9e6ec7af2ca1e2e05dbef2ed0d83",
+    "src/components/customizer/UnitEditorWithRoutingTabContent.tsx":"4a0685ef8e327dced5041c339941482aee1a44cf1b9f1aac9959c0bb153768fb",
+    "src/components/customizer/tabs/CriticalSlotsTab.tsx":"28fd7f3a62ff56aa8800625a6eee9257da772e17cf05dc10677994ef3331465d",
+    "src/components/customizer/equipment/ResponsiveLoadoutTray.tsx":"4a0be6a8cacefa4864d2d466a718c560b88f4757f239a0f81521334eedb473a5",
+    "src/components/customizer/equipment/GlobalLoadoutTray.tsx":"73a38ffc7a33eaf42bddfebdddad8a9f9a0ba3736715e47392bde48f736aab92",
+    "src/components/customizer/mobile/MobileLoadoutList.tsx":"917799e4d1b66eef65e3d06174ffb0ced93c18461173537d1bace0a78fcd8c07",
+    "src/components/customizer/critical-slots/VerticalSlotChip.tsx":"af94e9e3a8832f8370b4b2575fbaecd2082cd6edf3c150ca9e5b6d82ce292ddc",
+    "e2e/customizer-loadout-menu.spec.ts":"764c0bc61cc14b6c577864a6b63338fdde68d7862d120a35848e0abb64b9baee",
+    "e2e/customizer-mobile-loadout.spec.ts":"54a07627ced49f4cd8723e5152dbdf01c37cf66ed08b94eaf22462ad07e5311d",
+    "e2e/customizer-equipment-workbench.spec.ts":"493317113f9f096f90c2eab082140a0b28389bdf70e133be127321d1cbdd3222"
+  },
+  "checks": [
+    "git log, git show, git blame, source caller trace, and design/spec searches only",
+    "No new tests, build, typecheck, lint, server, browser, or product/spec/checklist mutation",
+    "Existing accepted-baseline E2E source names loadout menu, mobile loadout, equipment workbench, and critical-slot readability; no VerticalSlotChip assertion appears in that active workbench suite"
+  ],
+  "recommendedParentDisposition": "Downgrade the prior display mismatch to documentation mismatch/stale requirement. Preserve VerticalSlotChip and its unit tests as historical standalone component evidence; remove or supersede its active-route requirement only through the normal canonical-spec cleanup process."
+}

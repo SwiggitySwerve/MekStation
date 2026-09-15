@@ -1,0 +1,32 @@
+{
+  "at": "2026-09-12T20:36:37.335Z",
+  "scope": "R9.manifest-sync",
+  "main": "c44bf05720591efc5e40186c1a9f49b4afebe44a",
+  "proof": "openspec/planning/2026-09-12-roadmap-completion/evidence/manifest-sync-main-verification-20260912.json",
+  "proofSha256": "9d989bd1cb77dd27c67b8513630bf8e1fc04b3411cb43ebd2c46bff8f31ecae6",
+  "target": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\manifest-sync",
+  "cleanupStatus": {
+    "startedAt": "2026-09-12T20:32:26.752Z",
+    "driverPid": 79640,
+    "running": false,
+    "planHash": "a73102a11056fded86454bc8dc3ac1f6dc434d3b9fbed5175da52efc54e6b1af",
+    "target": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\manifest-sync",
+    "main": "c44bf05720591efc5e40186c1a9f49b4afebe44a",
+    "branch": "codex/roadmap-manifest-sync-20260912",
+    "head": "30134ab05178af9372aa1088cdca8df736546bcf",
+    "remoteBranch": "already absent after repository automatic deletion",
+    "args": [
+      "worktree",
+      "remove",
+      "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\manifest-sync"
+    ],
+    "childPid": 49304,
+    "exit": 0,
+    "finishedAt": "2026-09-12T20:34:12.283Z",
+    "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "localBranchDeleted": true,
+    "trackingRefDeleted": true
+  },
+  "evidenceFilesReopened": 107,
+  "preserved": "All raw attempts, exported manifest copies, runtime inventory and proof receipts remain outside removed owned checkout"
+}

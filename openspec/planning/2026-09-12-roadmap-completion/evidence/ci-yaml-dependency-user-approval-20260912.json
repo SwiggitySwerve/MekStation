@@ -1,0 +1,8 @@
+{
+  "recordedAt": "2026-09-12T17:50:33.846Z",
+  "approval": "User approved this exact dependency declaration",
+  "proposal": "ci-yaml-dependency-proposal-max-20260912.json",
+  "patch": ".sisyphus/roadmap-completion-20260912/ci-prefix-max/yaml-dev-dependency-origin-main.patch",
+  "scope": "yaml:^2.9.0 in package.json and root package-lock devDependencies metadata only; existing locked2.9.0 unchanged; no install or version resolution",
+  "supersedes": "No-new-dependency constraint only for this exact declaration"
+}

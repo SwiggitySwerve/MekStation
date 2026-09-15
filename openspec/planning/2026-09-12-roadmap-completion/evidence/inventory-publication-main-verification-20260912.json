@@ -1,0 +1,301 @@
+{
+  "schemaVersion": 1,
+  "evidenceId": "inventory-publication-main-verification-20260912",
+  "capturedAt": "2026-09-12T21:11:32.899Z",
+  "candidateWorktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/inventory-publication",
+  "testedMerge": "d3540bfea33a2ba8eb86d28759743590615f7c53",
+  "priorCandidateHead": "1a8a1e6c1ffdd338292b1924860f72c5ef2eed00",
+  "priorCandidateGuard": {
+    "capturedBeforeDetach": true,
+    "head": "1a8a1e6c1ffdd338292b1924860f72c5ef2eed00",
+    "clean": true,
+    "treeId": "be2d5dd2d5a86de05320a6d897fcc82ea6da9a46",
+    "mergedTreeId": "be2d5dd2d5a86de05320a6d897fcc82ea6da9a46",
+    "rawObservation": "HEAD=1a8a1e6c1ffdd338292b1924860f72c5ef2eed00; branch=codex/roadmap-inventory-publication-20260912; status clean; prior and merged tree IDs equal."
+  },
+  "sourceInventory": {
+    "path": "docs/audits/2026-09-12-customizer-spec-reconciliation/inventory.json",
+    "sha256": "fe9d25951ee79c34c74f0b8f64aee51dbd94265b30a057ae735ca83301376822",
+    "bytes": 229674,
+    "lines": 4781,
+    "mimeType": "application/json",
+    "fileDescription": "JSON text data"
+  },
+  "gates": [
+    {
+      "id": "inventory-assertion",
+      "executable": "C:/nvm4w/nodejs/node.exe",
+      "args": [
+        "inline programmatic JSON/hash/boundary assertion"
+      ],
+      "exitCode": 0,
+      "signal": null,
+      "timedOut": false,
+      "stdoutPath": ".sisyphus/roadmap-completion-20260912/inventory-publication-main-verification-20260912-raw/inventory-assertion.stdout.txt",
+      "stderrPath": ".sisyphus/roadmap-completion-20260912/inventory-publication-main-verification-20260912-raw/inventory-assertion.stderr.txt",
+      "exitPath": ".sisyphus/roadmap-completion-20260912/inventory-publication-main-verification-20260912-raw/inventory-assertion.exit.txt",
+      "stdoutSha256": "2f5a36966acaa203270939220d9e1c430e4cf710cab1a3f0ba04251b51906cb7",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout": "{\"valid\":true,\"sha256\":\"fe9d25951ee79c34c74f0b8f64aee51dbd94265b30a057ae735ca83301376822\",\"bytes\":229674,\"lines\":4781,\"canonical\":220,\"active\":13,\"archived\":3,\"generatedAt\":\"2026-09-12T09:32:03.439Z\",\"refreshedAt\":\"2026-09-12T10:31:17.533Z\",\"baselineHead\":\"be7f85b867aa3e8576e5e3d27e309276203bc24b\",\"uniqueIds\":true,\"datedSnapshotBoundary\":true,\"evidenceBoundaryExplicit\":true,\"errors\":[]}\n",
+      "stderr": ""
+    },
+    {
+      "id": "file-info",
+      "executable": "C:/Program Files/Git/usr/bin/file.exe",
+      "args": [
+        "--brief",
+        "--mime-type",
+        "docs/audits/2026-09-12-customizer-spec-reconciliation/inventory.json"
+      ],
+      "exitCode": 0,
+      "signal": null,
+      "timedOut": false,
+      "stdoutPath": ".sisyphus/roadmap-completion-20260912/inventory-publication-main-verification-20260912-raw/file-info.stdout.txt",
+      "stderrPath": ".sisyphus/roadmap-completion-20260912/inventory-publication-main-verification-20260912-raw/file-info.stderr.txt",
+      "exitPath": ".sisyphus/roadmap-completion-20260912/inventory-publication-main-verification-20260912-raw/file-info.exit.txt",
+      "stdoutSha256": "98585c69d6ccb286ad7279daaf8d74f1b52eee129585596490f44ba73a12cfed",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout": "application/json\n",
+      "stderr": ""
+    },
+    {
+      "id": "format-json",
+      "executable": "C:/nvm4w/nodejs/node.exe",
+      "args": [
+        "C:/nvm4w/nodejs/node_modules/npm/bin/npx-cli.js",
+        "--no-install",
+        "prettier",
+        "--check",
+        "docs/audits/2026-09-12-customizer-spec-reconciliation/inventory.json"
+      ],
+      "exitCode": 0,
+      "signal": null,
+      "timedOut": false,
+      "stdoutPath": ".sisyphus/roadmap-completion-20260912/inventory-publication-main-verification-20260912-raw/format-json.stdout.txt",
+      "stderrPath": ".sisyphus/roadmap-completion-20260912/inventory-publication-main-verification-20260912-raw/format-json.stderr.txt",
+      "exitPath": ".sisyphus/roadmap-completion-20260912/inventory-publication-main-verification-20260912-raw/format-json.exit.txt",
+      "stdoutSha256": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout": "Checking formatting...\nAll matched files use Prettier code style!\n",
+      "stderr": ""
+    },
+    {
+      "id": "openspec-strict",
+      "executable": "C:/nvm4w/nodejs/node.exe",
+      "args": [
+        "C:/Users/wroll/AppData/Roaming/npm/node_modules/@fission-ai/openspec/bin/openspec.js",
+        "validate",
+        "--all",
+        "--strict"
+      ],
+      "exitCode": 0,
+      "signal": null,
+      "timedOut": false,
+      "stdoutPath": ".sisyphus/roadmap-completion-20260912/inventory-publication-main-verification-20260912-raw/openspec-strict.stdout.txt",
+      "stderrPath": ".sisyphus/roadmap-completion-20260912/inventory-publication-main-verification-20260912-raw/openspec-strict.stderr.txt",
+      "exitPath": ".sisyphus/roadmap-completion-20260912/inventory-publication-main-verification-20260912-raw/openspec-strict.exit.txt",
+      "stdoutSha256": "16c5c323579e9f348bc2adb0830ebd7bb199a73726ab1098c72331305dcca967",
+      "stderrSha256": "5bc31df123a2e521acdd2c0d9477b367feec506471a91065d0a6b32c09089ed5",
+      "stdout": "✓ spec/accessibility-system\n✓ spec/acquisition-supply-chain\n✓ change/add-authoritative-history-branches\n✓ change/add-camp01-authority-receipts\n✓ change/add-cross-stream-effect-receipts\n✓ change/add-customizer-edit-recovery\n✓ change/add-saved-custom-unit-campaign-roster\n✓ change/adopt-combat-journal-cutover-and-gm-rewind\n✓ spec/aerospace-deployment\n✓ spec/aerospace-unit-system\n✓ spec/after-combat-report\n✓ spec/ammo-explosion-system\n✓ spec/ammo-tracking\n✓ spec/ammunition-system\n✓ spec/api-layer\n✓ spec/app-navigation\n✓ spec/app-settings\n✓ spec/armor-diagram\n✓ spec/armor-diagram-variants\n✓ spec/armor-system\n✓ spec/attack-effects-system\n✓ spec/audit-timeline\n✓ spec/auto-save-persistence\n✓ spec/awards\n✓ spec/balanced-grid\n✓ spec/battle-armor-combat\n✓ spec/battle-armor-unit-system\n✓ spec/battle-value-system\n✓ spec/bv-validation-tooling\n✓ spec/c3-network-targeting\n✓ spec/camera-controls\n✓ spec/campaign-bay-ui\n✓ spec/campaign-combat-loop\n✓ spec/campaign-command-ui\n✓ spec/campaign-fast-forward-api\n✓ spec/campaign-finances\n✓ spec/campaign-hud\n✓ spec/campaign-instances\n✓ spec/campaign-management\n✓ spec/campaign-persistence\n✓ spec/campaign-personnel-architecture\n✓ spec/campaign-presets\n✓ spec/campaign-refit-and-prestige\n✓ spec/campaign-system\n✓ spec/campaign-ui\n✓ spec/campaign-unit-combat-state\n✓ spec/cockpit-system\n✓ spec/code-formatting-standards\n✓ spec/color-system\n✓ spec/combat-analytics\n✓ spec/combat-catalog-rules-parity\n✓ spec/combat-morale-and-withdrawal\n✓ spec/combat-resolution\n✓ spec/compendium-browser\n✓ spec/component-configuration\n✓ spec/confirmation-dialogs\n✓ spec/construction-rules-core\n✓ spec/construction-services\n✓ spec/contacts-system\n✓ spec/contract-types\n✓ spec/coop-campaign-sync\n✓ spec/core-entity-types\n✓ spec/core-enumerations\n✓ spec/critical-hit-resolution\n✓ spec/critical-hit-system\n✓ spec/critical-slot-allocation\n✓ spec/critical-slots-display\n✓ spec/customizer-responsive-layout\n✓ spec/customizer-routing\n✓ spec/customizer-tabs\n✓ spec/customizer-toolbar\n✓ spec/damage-system\n✓ spec/data-integrity-validation\n✓ spec/data-loading-architecture\n✓ spec/database-schema\n✓ spec/day-progression\n✓ change/design-campaign-authority-and-sync\n✓ change/design-vault-campaign-separation-and-maps\n✓ spec/desktop-experience\n✓ spec/desktop-local-services\n✓ spec/dice-system\n✓ spec/display-formatting\n✓ spec/drag-and-drop-system\n✓ spec/e2e-testing\n✓ spec/ecm-electronic-warfare\n✓ spec/electronics-system\n✓ change/enable-saved-custom-unit-combat\n✓ spec/encounter-system\n✓ spec/engine-system\n✓ spec/environmental-combat-modifiers\n✓ spec/equipment-browser\n✓ spec/equipment-database\n✓ spec/equipment-placement\n✓ spec/equipment-services\n✓ spec/equipment-tray\n✓ spec/era-temporal-system\n✓ change/establish-battlemech-chassis-index\n✓ spec/event-store\n✓ spec/faction-standing\n✓ spec/fall-mechanics\n✓ spec/ferro-lamellor-armor-combat\n✓ spec/financial-management\n✓ spec/firing-arc-calculation\n✓ spec/flow-audit-routines\n✓ spec/fog-of-war\n✓ spec/force-generator\n✓ spec/force-hierarchy\n✓ spec/force-management\n✓ spec/formula-registry\n✓ spec/game-engine-orchestration\n✓ spec/game-event-system\n✓ spec/game-session-management\n✓ spec/game-state-management\n✓ spec/gameplay-roadmap\n✓ spec/gm-authority-redaction\n✓ spec/gm-campaign-intervention-boundaries\n✓ spec/gm-cascade-preview\n✓ spec/gm-combat-interventions\n✓ spec/gm-tactical-command-surface\n✓ spec/gm-unit-reload-reconciliation\n✓ spec/gyro-system\n✓ change/harden-gm-two-player-campaign-sessions\n✓ spec/hardened-armor-combat\n✓ spec/hardpoint-system\n✓ spec/heat-management-system\n✓ spec/heat-overflow-effects\n✓ spec/heat-sink-system\n✓ spec/hex-coordinate-system\n✓ spec/hull-down-position\n✓ spec/indirect-fire-system\n✓ spec/infantry-unit-system\n✓ spec/internal-structure-system\n✓ spec/intervention-ledger-abstraction\n✓ spec/journey-qc\n✓ spec/line-of-sight-visualization\n✓ spec/logging-system\n✓ spec/maintenance-code-health\n✓ spec/markets-system\n✓ spec/mech-configuration-system\n✓ spec/medical-system\n✓ spec/megamek-board-parser\n✓ spec/mission-contracts\n✓ spec/mm-data-asset-integration\n✓ spec/mobile-interaction-patterns\n✓ spec/mobile-loadout-tray\n✓ spec/movement-system\n✓ spec/mtf-parity-validation\n✓ spec/multi-unit-tabs\n✓ spec/multiplayer-game-surface\n✓ spec/multiplayer-matchmaking\n✓ spec/multiplayer-server\n✓ spec/multiplayer-sync\n✓ spec/omnimech-system\n✓ spec/overview-basic-info\n✓ spec/p2p-sync-system\n✓ spec/persistence-services\n✓ spec/personnel-management\n✓ spec/personnel-progression\n✓ spec/personnel-status-roles\n✓ spec/physical-attack-system\n✓ spec/physical-properties-system\n✓ spec/physical-weapons-system\n✓ spec/pilot-system\n✓ spec/piloting-skill-rolls\n✓ spec/playable-command-screens\n✓ spec/player-identity\n✓ spec/protomech-unit-system\n✓ change/prove-saved-custom-unit-campaign-journey\n✓ spec/pwa-offline-system\n✓ spec/quick-game-ui\n✓ spec/quick-session\n✓ spec/quirk-combat-integration\n✓ spec/random-events\n✓ spec/record-sheet-export\n✓ spec/release-build-system\n✓ spec/repair\n✓ change/repair-equipment-catalog\n✓ spec/repair-maintenance\n✓ change/repair-record-sheet-rendering\n✓ spec/replay-library\n✓ spec/rules-level-system\n✓ spec/scenario-generation\n✓ spec/scenario-objectives\n✓ spec/scenario-packs\n✓ spec/secondary-target-tracking\n✓ spec/serialization-formats\n✓ spec/shutdown-startup-system\n✓ spec/simulation-detectors\n✓ spec/simulation-system\n✓ spec/skills-system\n✓ spec/spa-combat-integration\n✓ spec/spa-ui\n✓ spec/spatial-combat-system\n✓ spec/starmap-interface\n✓ spec/storybook-component-library\n✓ spec/superheavy-mech-system\n✓ spec/tab-management\n✓ spec/tactical-attack-intent\n✓ spec/tactical-map-interface\n✓ spec/tactical-movement-intent\n✓ spec/tech-base-integration\n✓ spec/tech-base-rules-matrix\n✓ spec/tech-base-variants-reference\n✓ spec/tech-rating-system\n✓ spec/terrain-generation\n✓ spec/terrain-rendering\n✓ spec/terrain-system\n✓ spec/theming-appearance\n✓ spec/time-cascade-system\n✓ spec/to-hit-resolution\n✓ spec/toast-notifications\n✓ spec/turnover-retention\n✓ spec/ui-flow-shell\n✓ spec/unit-comparison\n✓ spec/unit-entity-model\n✓ spec/unit-info-banner\n✓ spec/unit-services\n✓ spec/unit-sharing\n✓ spec/unit-sprite-system\n✓ spec/unit-store-architecture\n✓ spec/unit-validation-framework\n✓ spec/unit-versioning\n✓ spec/user-identity\n✓ spec/utility-patterns\n✓ spec/validation-patterns\n✓ spec/validation-rules-master\n✓ spec/vault-sync\n✓ spec/vehicle-unit-system\n✓ spec/weapon-resolution-system\n✓ spec/weapon-system\n✓ spec/weight-class-system\nTotals: 231 passed, 0 failed (231 items)\n",
+      "stderr": "- Validating...\n"
+    },
+    {
+      "id": "purpose-strict",
+      "executable": "C:/nvm4w/nodejs/node.exe",
+      "args": [
+        "E:/Projects/MekStation/node_modules/tsx/dist/cli.mjs",
+        "openspec/scripts/spec-purpose-lint.ts"
+      ],
+      "exitCode": 0,
+      "signal": null,
+      "timedOut": false,
+      "stdoutPath": ".sisyphus/roadmap-completion-20260912/inventory-publication-main-verification-20260912-raw/purpose-strict.stdout.txt",
+      "stderrPath": ".sisyphus/roadmap-completion-20260912/inventory-publication-main-verification-20260912-raw/purpose-strict.stderr.txt",
+      "exitPath": ".sisyphus/roadmap-completion-20260912/inventory-publication-main-verification-20260912-raw/purpose-strict.exit.txt",
+      "stdoutSha256": "2a44db9ff44442e1ef454b1c7c2355b3506037b0788fd146610c8f2444cf6aa1",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout": "OpenSpec spec-purpose lint\nSpec root: E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/inventory-publication/openspec/specs\nFiles scanned: 217\nErrors: 0\nTracked source-of-truth debt: 0\n",
+      "stderr": ""
+    },
+    {
+      "id": "terminology-strict",
+      "executable": "C:/nvm4w/nodejs/node.exe",
+      "args": [
+        "E:/Projects/MekStation/node_modules/ts-node/dist/bin.js",
+        "openspec/scripts/terminology-tool.ts",
+        "validate",
+        "--strict"
+      ],
+      "exitCode": 0,
+      "signal": null,
+      "timedOut": false,
+      "stdoutPath": ".sisyphus/roadmap-completion-20260912/inventory-publication-main-verification-20260912-raw/terminology-strict.stdout.txt",
+      "stderrPath": ".sisyphus/roadmap-completion-20260912/inventory-publication-main-verification-20260912-raw/terminology-strict.stderr.txt",
+      "exitPath": ".sisyphus/roadmap-completion-20260912/inventory-publication-main-verification-20260912-raw/terminology-strict.exit.txt",
+      "stdoutSha256": "06c7961b0d4709a1010aba1f38caf9ab57eb82ce2c48ceb2422ed9d4b234db23",
+      "stderrSha256": "3f83937ac2e9643f6e2ac10f220cb4a80f05c83aa12731f7cbb63f82315275fe",
+      "stdout": "\u001b[1m\n🔍 OpenSpec Terminology Tool v2.0\n\u001b[0m\nFound \u001b[34m319\u001b[0m file(s) to scan\n\n\u001b[32m✓ No terminology violations found!\n\u001b[0m\nAll 319 file(s) are compliant with TERMINOLOGY_GLOSSARY.md\n\n",
+      "stderr": "(node:80888) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/inventory-publication/openspec/scripts/terminology-tool.ts is not specified and it doesn't parse as CommonJS.\nReparsing as ES module because module syntax was detected. This incurs a performance overhead.\nTo eliminate this warning, add \"type\": \"module\" to E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\inventory-publication\\package.json.\n(Use `node --trace-warnings ...` to show where the warning was created)\n"
+    },
+    {
+      "id": "candidate-qc",
+      "executable": "C:/nvm4w/nodejs/node.exe",
+      "args": [
+        "scripts/qc/validate-openspec-ci-quality.mjs"
+      ],
+      "exitCode": 0,
+      "signal": null,
+      "timedOut": false,
+      "stdoutPath": ".sisyphus/roadmap-completion-20260912/inventory-publication-main-verification-20260912-raw/candidate-qc.stdout.txt",
+      "stderrPath": ".sisyphus/roadmap-completion-20260912/inventory-publication-main-verification-20260912-raw/candidate-qc.stderr.txt",
+      "exitPath": ".sisyphus/roadmap-completion-20260912/inventory-publication-main-verification-20260912-raw/candidate-qc.exit.txt",
+      "stdoutSha256": "c0cb54085851dc9acb986613616f6992117a3fd0bd09d508938c634750b7cbb2",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout": "[qc:openspec-ci] workflowContracts=8/8 aggregatorNeeds=18/18 protectedContexts=4 packageScripts=3/3 activeOpenSpecChanges=14 accountedActiveOpenSpecChanges=14 errors=0\n",
+      "stderr": ""
+    },
+    {
+      "id": "merged-diff-check",
+      "executable": "git",
+      "args": [
+        "diff",
+        "--check",
+        "d3540bfea33a2ba8eb86d28759743590615f7c53^",
+        "d3540bfea33a2ba8eb86d28759743590615f7c53",
+        "--",
+        "docs/audits/2026-09-12-customizer-spec-reconciliation/inventory.json"
+      ],
+      "exitCode": 0,
+      "signal": null,
+      "timedOut": false,
+      "stdoutPath": ".sisyphus/roadmap-completion-20260912/inventory-publication-main-verification-20260912-raw/merged-diff-check.stdout.txt",
+      "stderrPath": ".sisyphus/roadmap-completion-20260912/inventory-publication-main-verification-20260912-raw/merged-diff-check.stderr.txt",
+      "exitPath": ".sisyphus/roadmap-completion-20260912/inventory-publication-main-verification-20260912-raw/merged-diff-check.exit.txt",
+      "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "id": "worktree-diff-check",
+      "executable": "git",
+      "args": [
+        "diff",
+        "--check"
+      ],
+      "exitCode": 0,
+      "signal": null,
+      "timedOut": false,
+      "stdoutPath": ".sisyphus/roadmap-completion-20260912/inventory-publication-main-verification-20260912-raw/worktree-diff-check.stdout.txt",
+      "stderrPath": ".sisyphus/roadmap-completion-20260912/inventory-publication-main-verification-20260912-raw/worktree-diff-check.stderr.txt",
+      "exitPath": ".sisyphus/roadmap-completion-20260912/inventory-publication-main-verification-20260912-raw/worktree-diff-check.exit.txt",
+      "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "id": "tree-clean",
+      "executable": "git",
+      "args": [
+        "diff",
+        "--exit-code",
+        "--quiet",
+        "d3540bfea33a2ba8eb86d28759743590615f7c53"
+      ],
+      "exitCode": 0,
+      "signal": null,
+      "timedOut": false,
+      "stdoutPath": ".sisyphus/roadmap-completion-20260912/inventory-publication-main-verification-20260912-raw/tree-clean.stdout.txt",
+      "stderrPath": ".sisyphus/roadmap-completion-20260912/inventory-publication-main-verification-20260912-raw/tree-clean.stderr.txt",
+      "exitPath": ".sisyphus/roadmap-completion-20260912/inventory-publication-main-verification-20260912-raw/tree-clean.exit.txt",
+      "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "id": "status-head",
+      "executable": "git",
+      "args": [
+        "status",
+        "--porcelain=v1",
+        "--untracked-files=all"
+      ],
+      "exitCode": 0,
+      "signal": null,
+      "timedOut": false,
+      "stdoutPath": ".sisyphus/roadmap-completion-20260912/inventory-publication-main-verification-20260912-raw/status-head.stdout.txt",
+      "stderrPath": ".sisyphus/roadmap-completion-20260912/inventory-publication-main-verification-20260912-raw/status-head.stderr.txt",
+      "exitPath": ".sisyphus/roadmap-completion-20260912/inventory-publication-main-verification-20260912-raw/status-head.exit.txt",
+      "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "id": "head",
+      "executable": "git",
+      "args": [
+        "rev-parse",
+        "HEAD"
+      ],
+      "exitCode": 0,
+      "signal": null,
+      "timedOut": false,
+      "stdoutPath": ".sisyphus/roadmap-completion-20260912/inventory-publication-main-verification-20260912-raw/head.stdout.txt",
+      "stderrPath": ".sisyphus/roadmap-completion-20260912/inventory-publication-main-verification-20260912-raw/head.stderr.txt",
+      "exitPath": ".sisyphus/roadmap-completion-20260912/inventory-publication-main-verification-20260912-raw/head.exit.txt",
+      "stdoutSha256": "943c92b6419b1a6694bbf6a8d5ef916aae1249492f4bee49fdc81938b74500c5",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout": "d3540bfea33a2ba8eb86d28759743590615f7c53\n",
+      "stderr": ""
+    },
+    {
+      "id": "tree",
+      "executable": "git",
+      "args": [
+        "rev-parse",
+        "HEAD^{tree}"
+      ],
+      "exitCode": 0,
+      "signal": null,
+      "timedOut": false,
+      "stdoutPath": ".sisyphus/roadmap-completion-20260912/inventory-publication-main-verification-20260912-raw/tree.stdout.txt",
+      "stderrPath": ".sisyphus/roadmap-completion-20260912/inventory-publication-main-verification-20260912-raw/tree.stderr.txt",
+      "exitPath": ".sisyphus/roadmap-completion-20260912/inventory-publication-main-verification-20260912-raw/tree.exit.txt",
+      "stdoutSha256": "dbd8b1a25638402909e5cf045f484ea02452b53cc3415043816144cb6bbbf92b",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout": "be2d5dd2d5a86de05320a6d897fcc82ea6da9a46\n",
+      "stderr": ""
+    },
+    {
+      "id": "candidate-tree-guard",
+      "executable": "git",
+      "args": [
+        "diff",
+        "--exit-code",
+        "--stat",
+        "1a8a1e6c1ffdd338292b1924860f72c5ef2eed00^{tree}",
+        "d3540bfea33a2ba8eb86d28759743590615f7c53^{tree}"
+      ],
+      "exitCode": 0,
+      "signal": null,
+      "timedOut": false,
+      "stdoutPath": ".sisyphus/roadmap-completion-20260912/inventory-publication-main-verification-20260912-raw/candidate-tree-guard.stdout.txt",
+      "stderrPath": ".sisyphus/roadmap-completion-20260912/inventory-publication-main-verification-20260912-raw/candidate-tree-guard.stderr.txt",
+      "exitPath": ".sisyphus/roadmap-completion-20260912/inventory-publication-main-verification-20260912-raw/candidate-tree-guard.exit.txt",
+      "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout": "",
+      "stderr": ""
+    }
+  ],
+  "result": "pass",
+  "failedGates": [],
+  "limitations": [
+    "This receipt verifies a dated documentation snapshot and its structural/schema gates; path presence and OpenSpec validation do not prove runtime behavior.",
+    "The snapshot remains historical evidence with generatedAt 2026-09-12T09:32:03.439Z and refreshedAt 2026-09-12T10:31:17.533Z; it is separate from current 40-row triage dispositions.",
+    "No install, build, test suite, server, network, source edit, spec edit, ledger edit, staging, commit, or push was performed."
+  ]
+}

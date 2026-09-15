@@ -1,0 +1,923 @@
+{
+  "schemaVersion": 1,
+  "evidenceId": "campaign-catalog-specs-review-20260912",
+  "status": "accepted-with-limits",
+  "admissionEvidence": {
+    "path": ".sisyphus/roadmap-completion-20260912/campaign-catalog-specs/admission.json",
+    "sha256": "01824a9789e5295e752c2c084b72f92b0a624b62197501830c7a819177679b5a"
+  },
+  "reviewFindings": [
+    {
+      "id": "admission-candidate-drift",
+      "severity": "info",
+      "finding": "The current candidate files do not match the preparation receipt hashes: the candidate was amended after preparation while retaining the same base and three-file scope.",
+      "disposition": "Review and static gates bind the current candidate bytes; the preparation hashes remain retained for provenance."
+    },
+    {
+      "id": "scope-accounting",
+      "severity": "info",
+      "finding": "The admission receipt reports 131 additions, 35 deletions, and 166 changed lines; the candidate bytes at the admitted base are 138 additions, 38 deletions, and 176 changed lines across the same three files.",
+      "disposition": "Within the 350-line cap; preserve the corrected accounting for independent review."
+    },
+    {
+      "id": "contract-coherence",
+      "severity": "accepted",
+      "finding": "The three specs align with the traced catalog admission, materializer, fast-forward, dashboard, mission-launch, co-op, and readiness contracts. The new custom-unit contract mirrors the existing saved-custom change contract without closing its tasks.",
+      "disposition": "Accepted with the explicit runtime and task limits below."
+    },
+    {
+      "id": "runtime-boundary",
+      "severity": "limit",
+      "finding": "This review used source traces and static gates only; no focused runtime tests, build, server, browser, or asset proof was run.",
+      "disposition": "Parent retains runtime acceptance."
+    }
+  ],
+  "candidate": {
+    "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/campaign-catalog-specs",
+    "branch": "codex/roadmap-campaign-catalog-specs-20260912",
+    "baseCommit": "b39c04304e9e46ebbb5056fa947a145a7bf194d4",
+    "head": "b39c04304e9e46ebbb5056fa947a145a7bf194d4",
+    "originMainObserved": "92d04fc6bcc2e49fd40d63d6f0cfd2a9c72eb14c",
+    "status": "## codex/roadmap-campaign-catalog-specs-20260912...origin/main [behind 3]\n M openspec/specs/campaign-combat-loop/spec.md\n M openspec/specs/mission-contracts/spec.md\n?? openspec/specs/custom-unit-combat/",
+    "exactOwnedFiles": [
+      {
+        "path": "openspec/specs/campaign-combat-loop/spec.md",
+        "bytes": 13371,
+        "sha256": "c862ad4277355d53b9f0cc1344c7de28ad5eaa45df253c3f6f9ba4f21280b6ba",
+        "lines": 204,
+        "admissionSha256": "c03ac3ebfb07e8c4eae7a35c9b313a932926d108f19f085c362116b8707b30f5",
+        "matchesAdmission": false,
+        "baseline": {
+          "path": "openspec/specs/campaign-combat-loop/spec.md",
+          "exists": true,
+          "bytes": 11987,
+          "sha256": "34ef062a83695b3edef73949f4bacf91e94b792cf1c195143555d2ebfc3fcd46"
+        }
+      },
+      {
+        "path": "openspec/specs/mission-contracts/spec.md",
+        "bytes": 18394,
+        "sha256": "e7c8285915e24c049e85563f0871b122e123e0aa75fbe8f93f19fa126e4e3959",
+        "lines": 422,
+        "admissionSha256": "8c5fc183460634fffbd55d4ec9a933ce5a3fad328ed1880df00594d44bfd6b85",
+        "matchesAdmission": false,
+        "baseline": {
+          "path": "openspec/specs/mission-contracts/spec.md",
+          "exists": true,
+          "bytes": 16923,
+          "sha256": "7e6f65eb5f5075d0d5ee75243274af67da3047c514f622356ba6f31a49f364d7"
+        }
+      },
+      {
+        "path": "openspec/specs/custom-unit-combat/spec.md",
+        "bytes": 5554,
+        "sha256": "803ac906accad431daa8e84cef924c00733b0896b5c511e28fbc5da29bdfaba5",
+        "lines": 84,
+        "admissionSha256": "df766a26eee41c0af3a47c5099850e4ba7bb227b9d2ea1f2eea2a9f27218eb20",
+        "matchesAdmission": false,
+        "baseline": {
+          "path": "openspec/specs/custom-unit-combat/spec.md",
+          "exists": false,
+          "bytes": null,
+          "sha256": null
+        }
+      }
+    ],
+    "scope": {
+      "files": 3,
+      "trackedNumstat": [
+        {
+          "path": "openspec/specs/campaign-combat-loop/spec.md",
+          "additions": 15,
+          "deletions": 8
+        },
+        {
+          "path": "openspec/specs/mission-contracts/spec.md",
+          "additions": 39,
+          "deletions": 30
+        }
+      ],
+      "additions": 138,
+      "deletions": 38,
+      "changedLines": 176,
+      "cap": 350,
+      "withinCap": true,
+      "admissionReported": {
+        "additions": 131,
+        "deletions": 35,
+        "changedLines": 166
+      },
+      "admissionAccountingWasStale": true
+    }
+  },
+  "staticVerification": {
+    "fullOpenSpec": {
+      "command": "C:/nvm4w/nodejs/node.exe C:/Users/wroll/AppData/Roaming/npm/node_modules/@fission-ai/openspec/bin/openspec.js validate --all --strict --no-interactive",
+      "exit": 0
+    },
+    "purpose": {
+      "exit": 0
+    },
+    "terminology": {
+      "exit": 0
+    },
+    "candidateCiQc": {
+      "exit": 0
+    },
+    "gitDiffCheck": {
+      "exit": 0
+    },
+    "ownedWhitespace": {
+      "exit": 0
+    },
+    "scopeInitialRed": {
+      "exit": 1,
+      "reason": "Initial helper parsed the untracked custom-spec directory marker as a path."
+    },
+    "scopeCorrected": {
+      "exit": 0,
+      "scope": {
+        "statusFiles": [
+          "openspec/specs/campaign-combat-loop/spec.md",
+          "openspec/specs/custom-unit-combat/spec.md",
+          "openspec/specs/mission-contracts/spec.md"
+        ],
+        "expectedFiles": [
+          "openspec/specs/campaign-combat-loop/spec.md",
+          "openspec/specs/custom-unit-combat/spec.md",
+          "openspec/specs/mission-contracts/spec.md"
+        ],
+        "statusMatches": true,
+        "trackedNumstat": [
+          [
+            "15",
+            "8",
+            "openspec/specs/campaign-combat-loop/spec.md"
+          ],
+          [
+            "39",
+            "30",
+            "openspec/specs/mission-contracts/spec.md"
+          ]
+        ],
+        "trackedAdded": 54,
+        "trackedDeleted": 38,
+        "customUnitCombatLines": 84,
+        "additions": 138,
+        "deletions": 38,
+        "changedLines": 176,
+        "withinThreeFile350LineCap": true
+      }
+    },
+    "exitRecords": [
+      {
+        "id": "openspec-strict",
+        "executable": "C:/nvm4w/nodejs/node.exe",
+        "args": [
+          "C:/Users/wroll/AppData/Roaming/npm/node_modules/@fission-ai/openspec/bin/openspec.js",
+          "validate",
+          "--all",
+          "--strict",
+          "--no-interactive"
+        ],
+        "cwd": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/campaign-catalog-specs",
+        "startedAt": "2026-09-12T21:57:46.637Z",
+        "finishedAt": "2026-09-12T21:57:56.309Z",
+        "code": 0,
+        "signal": null,
+        "error": null,
+        "stdoutPath": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\campaign-catalog-specs-review\\openspec-strict.stdout.log",
+        "stderrPath": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\campaign-catalog-specs-review\\openspec-strict.stderr.log",
+        "stdoutSha256": "2754dbee9c7f3c73dafb72bec4284c7de4a886d9f795955954f8d77c5768a12d",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "id": "purpose-strict",
+        "executable": "C:/nvm4w/nodejs/node.exe",
+        "args": [
+          "E:/Projects/MekStation/node_modules/tsx/dist/cli.mjs",
+          "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\campaign-catalog-specs\\openspec\\scripts\\spec-purpose-lint.ts"
+        ],
+        "cwd": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/campaign-catalog-specs",
+        "startedAt": "2026-09-12T21:57:56.318Z",
+        "finishedAt": "2026-09-12T21:57:57.035Z",
+        "code": 0,
+        "signal": null,
+        "error": null,
+        "stdoutPath": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\campaign-catalog-specs-review\\purpose-strict.stdout.log",
+        "stderrPath": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\campaign-catalog-specs-review\\purpose-strict.stderr.log",
+        "stdoutSha256": "0e660f271e246515d20c8a8fe32c611c879bdb680f9a9b7874fa0467fc735ce0",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "id": "terminology-strict",
+        "executable": "C:/nvm4w/nodejs/node.exe",
+        "args": [
+          "E:/Projects/MekStation/node_modules/ts-node/dist/bin.js",
+          "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\campaign-catalog-specs\\openspec\\scripts\\terminology-tool.ts",
+          "validate",
+          "--strict"
+        ],
+        "cwd": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/campaign-catalog-specs",
+        "startedAt": "2026-09-12T21:57:57.042Z",
+        "finishedAt": "2026-09-12T21:58:29.684Z",
+        "code": 0,
+        "signal": null,
+        "error": null,
+        "stdoutPath": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\campaign-catalog-specs-review\\terminology-strict.stdout.log",
+        "stderrPath": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\campaign-catalog-specs-review\\terminology-strict.stderr.log",
+        "stdoutSha256": "5138b3c6391de6d904456a1fbf873b824f52a452c9528ce89139c72152c65f41",
+        "stderrSha256": "4aa8da5cfb6144100e821cf1676b9e5c4cd2ef6803940bb10984db2bea7e1f3d"
+      },
+      {
+        "id": "candidate-ci-qc",
+        "executable": "C:/nvm4w/nodejs/node.exe",
+        "args": [
+          "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\campaign-catalog-specs\\scripts\\qc\\validate-openspec-ci-quality.mjs",
+          "--json"
+        ],
+        "cwd": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/campaign-catalog-specs",
+        "startedAt": "2026-09-12T21:58:29.702Z",
+        "finishedAt": "2026-09-12T21:58:30.267Z",
+        "code": 0,
+        "signal": null,
+        "error": null,
+        "stdoutPath": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\campaign-catalog-specs-review\\candidate-ci-qc.stdout.log",
+        "stderrPath": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\campaign-catalog-specs-review\\candidate-ci-qc.stderr.log",
+        "stdoutSha256": "e73d2bc631637ff8806d9adbf1a31052b575044d797a04f184aec21f5b8e6985",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "id": "git-diff-check",
+        "executable": "git.exe",
+        "args": [
+          "diff",
+          "--check",
+          "--",
+          "openspec/specs/campaign-combat-loop/spec.md",
+          "openspec/specs/mission-contracts/spec.md",
+          "openspec/specs/custom-unit-combat/spec.md"
+        ],
+        "cwd": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/campaign-catalog-specs",
+        "startedAt": "2026-09-12T21:58:30.274Z",
+        "finishedAt": "2026-09-12T21:58:30.749Z",
+        "code": 0,
+        "signal": null,
+        "error": null,
+        "stdoutPath": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\campaign-catalog-specs-review\\git-diff-check.stdout.log",
+        "stderrPath": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\campaign-catalog-specs-review\\git-diff-check.stderr.log",
+        "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "id": "owned-spec-whitespace-check",
+        "executable": "C:/nvm4w/nodejs/node.exe",
+        "args": [
+          "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\campaign-catalog-specs-review\\owned-spec-whitespace-check.cjs"
+        ],
+        "cwd": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/campaign-catalog-specs",
+        "startedAt": "2026-09-12T21:58:30.750Z",
+        "finishedAt": "2026-09-12T21:58:30.968Z",
+        "code": 0,
+        "signal": null,
+        "error": null,
+        "stdoutPath": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\campaign-catalog-specs-review\\owned-spec-whitespace-check.stdout.log",
+        "stderrPath": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\campaign-catalog-specs-review\\owned-spec-whitespace-check.stderr.log",
+        "stdoutSha256": "7d1ae950b2689aa22979c4df2e147a4c5164eb3205aaa58643052d672d75e0af",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "id": "scope-check",
+        "executable": "C:/nvm4w/nodejs/node.exe",
+        "args": [
+          "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\campaign-catalog-specs-review\\scope-check.cjs"
+        ],
+        "cwd": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/campaign-catalog-specs",
+        "startedAt": "2026-09-12T21:58:30.974Z",
+        "finishedAt": "2026-09-12T21:58:32.073Z",
+        "code": 1,
+        "signal": null,
+        "error": null,
+        "stdoutPath": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\campaign-catalog-specs-review\\scope-check.stdout.log",
+        "stderrPath": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\campaign-catalog-specs-review\\scope-check.stderr.log",
+        "stdoutSha256": "da70129613228bccbee7be7618df1b8808e466779c17b0698cc1113ce39171ba",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "id": "scope-check-corrected-v3",
+        "executable": "C:/nvm4w/nodejs/node.exe",
+        "args": [
+          "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\campaign-catalog-specs-review\\scope-check-corrected-v3.cjs"
+        ],
+        "cwd": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/campaign-catalog-specs",
+        "startedAt": "2026-09-12T22:03:01.920Z",
+        "finishedAt": "2026-09-12T22:03:01.920Z",
+        "code": 0,
+        "signal": null,
+        "error": null,
+        "stdoutPath": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\campaign-catalog-specs-review\\scope-check-corrected-v3.stdout.log",
+        "stderrPath": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\campaign-catalog-specs-review\\scope-check-corrected-v3.stderr.log",
+        "stdoutSha256": "63e5e9a0d5a35db4f41bab006030e94b8393eeb041e85500c83782e87efa1591",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "correctedScope": true
+      }
+    ]
+  },
+  "sourceFacts": [
+    {
+      "id": "optional-materializer-catalog",
+      "claim": "Materializer catalog remains optional; admission precedes diagnostics and mutation; canonical direct callers may pass with a nonempty ref when catalog is omitted.",
+      "sources": [
+        {
+          "path": "src/lib/campaign/encounter/materializeCampaignMissionEncounter.ts",
+          "anchors": [
+            {
+              "term": "readonly catalog?:",
+              "line": 49,
+              "text": "  readonly catalog?: CanonicalCombatCatalogSnapshot;"
+            },
+            {
+              "term": "assertSourceCatalogAdmission(rosterUnits, catalog)",
+              "line": 149,
+              "text": "    assertSourceCatalogAdmission(rosterUnits, catalog);"
+            },
+            {
+              "term": "logLaunchRosterPreflightDiagnostics",
+              "line": 6,
+              "text": "  logLaunchRosterPreflightDiagnostics,"
+            }
+          ]
+        },
+        {
+          "path": "src/lib/campaign/readiness/canonicalCatalogAdmission.ts",
+          "anchors": [
+            {
+              "term": "if (parsed.source === 'custom')",
+              "line": 79,
+              "text": "  if (parsed.source === 'custom') {"
+            },
+            {
+              "term": "if (!unitRef) return deny",
+              "line": 111,
+              "text": "  if (!unitRef) return deny(unitId, 'unit_ref_unresolved', `${unitName} has no canonical record; recreate the campaign or edit the unit in Mech Bay before launch.`);"
+            },
+            {
+              "term": "if (catalog?.status === 'ready'",
+              "line": 112,
+              "text": "  if (catalog?.status === 'ready' && !catalog.unitRefs.has(unitRef)) {"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "production-catalog-callers",
+      "claim": "Browser dashboard and mission launch fetch snapshots; fast-forward defaults to bundled canonical index; co-op receives snapshot through mission launch page; readiness uses the lower-level guard.",
+      "sources": [
+        {
+          "path": "src/components/gameplay/pages/campaigns/dashboard/CampaignDashboardPage.tsx",
+          "anchors": [
+            {
+              "term": "fetchCanonicalCatalogSnapshot",
+              "line": 19,
+              "text": "  fetchCanonicalCatalogSnapshot,"
+            },
+            {
+              "term": "admitCampaignLaunch",
+              "line": 18,
+              "text": "  admitCampaignLaunch,"
+            },
+            {
+              "term": "catalog,",
+              "line": 114,
+              "text": "  const [catalog, setCatalog] = useState<CanonicalCombatCatalogSnapshot>({"
+            }
+          ]
+        },
+        {
+          "path": "src/pages-modules/gameplay/campaigns/missionLaunchPage.launch.ts",
+          "anchors": [
+            {
+              "term": "fetchCanonicalCatalogSnapshot",
+              "line": 24,
+              "text": "import { fetchCanonicalCatalogSnapshot } from '@/lib/campaign/readiness/canonicalCatalogAdmission';"
+            },
+            {
+              "term": "catalog,",
+              "line": 252,
+              "text": "          catalog,"
+            }
+          ]
+        },
+        {
+          "path": "src/lib/campaign/fastForward/fastForwardCombatRunner.ts",
+          "anchors": [
+            {
+              "term": "snapshotFromNodeCatalogIndex",
+              "line": 64,
+              "text": "  snapshotFromNodeCatalogIndex,"
+            },
+            {
+              "term": "admitCampaignLaunch",
+              "line": 63,
+              "text": "  admitCampaignLaunch,"
+            },
+            {
+              "term": "catalog,",
+              "line": 381,
+              "text": "    catalog,"
+            }
+          ]
+        },
+        {
+          "path": "src/lib/campaign/coop/launchCoopMission.ts",
+          "anchors": [
+            {
+              "term": "admitCampaignLaunch",
+              "line": 35,
+              "text": "  admitCampaignLaunch,"
+            },
+            {
+              "term": "admission?.snapshot",
+              "line": 110,
+              "text": "    snapshot: admission?.snapshot,"
+            }
+          ]
+        },
+        {
+          "path": "src/lib/campaign/readiness/missionReadinessProjection.ts",
+          "anchors": [
+            {
+              "term": "admitCanonicalExactReference",
+              "line": 9,
+              "text": "  admitCanonicalExactReference,"
+            },
+            {
+              "term": "catalog,",
+              "line": 119,
+              "text": "  catalog,"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "bridge-versus-materializer-config",
+      "claim": "Scenario bridge derives OpFor/victory/map from scenario; materializer REST patches fixed radius 8, clear terrain, north/south, destroy-all.",
+      "sources": [
+        {
+          "path": "src/lib/campaign/encounter/buildEncounterFromScenario.ts",
+          "anchors": [
+            {
+              "term": "const opForConfig",
+              "line": 205,
+              "text": "  const opForConfig = deriveOpForConfig(payload.opForBV);"
+            },
+            {
+              "term": "const victoryConditions",
+              "line": 206,
+              "text": "  const victoryConditions = deriveVictoryConditions(payload.scenarioType);"
+            },
+            {
+              "term": "const mapConfig",
+              "line": 207,
+              "text": "  const mapConfig = deriveMapConfiguration(payload.conditions, payload.opForBV);"
+            }
+          ]
+        },
+        {
+          "path": "src/lib/campaign/encounter/materializeCampaignMissionEncounter.rest.ts",
+          "anchors": [
+            {
+              "term": "radius: 8",
+              "line": 154,
+              "text": "          radius: 8,"
+            },
+            {
+              "term": "terrain: TerrainPreset.Clear",
+              "line": 155,
+              "text": "          terrain: TerrainPreset.Clear,"
+            },
+            {
+              "term": "VictoryConditionType.DestroyAll",
+              "line": 159,
+              "text": "        victoryConditions: [{ type: VictoryConditionType.DestroyAll }],"
+            }
+          ]
+        },
+        {
+          "path": "src/lib/campaign/fastForward/fastForwardCombatRunner.ts",
+          "anchors": [
+            {
+              "term": "NOT the bridge's BV-matched",
+              "line": 20,
+              "text": " * NOT the bridge's BV-matched `opForConfig` or scenario-derived"
+            },
+            {
+              "term": "campaign-linkage-faithful",
+              "line": 21,
+              "text": " * conditions — so fast-forwarded battles are campaign-linkage-faithful"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "opponent-sizing-and-seed",
+      "claim": "Opponent count follows actually fielded units and representative selection is seeded by campaign id and mission id before encounter creation.",
+      "sources": [
+        {
+          "path": "src/lib/campaign/encounter/materializeCampaignMissionEncounter.ts",
+          "anchors": [
+            {
+              "term": "count: playerUnits.length",
+              "line": 227,
+              "text": "        count: playerUnits.length,"
+            },
+            {
+              "term": "seed: `${campaign.id}:${missionId}`",
+              "line": 228,
+              "text": "        seed: `${campaign.id}:${missionId}`,"
+            }
+          ]
+        },
+        {
+          "path": "src/lib/campaign/encounter/materializeCampaignMissionEncounter.forceUnits.ts",
+          "anchors": [
+            {
+              "term": "stableStringHash(seed)",
+              "line": 47,
+              "text": "  const offset = stableStringHash(seed) % representativeUnitCount;"
+            },
+            {
+              "term": "selectOpponentUnits",
+              "line": 35,
+              "text": "export function selectOpponentUnits({"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "acceptance-limits",
+      "claim": "Custom catalog admission does not itself close construction/recovery/privacy/picker acceptance; CAMP terminal/post-battle obligations remain in the campaign spec and saved-custom tasks remain open.",
+      "sources": [
+        {
+          "path": "openspec/specs/custom-unit-combat/spec.md",
+          "anchors": [
+            {
+              "term": "catalog membership",
+              "line": 77,
+              "text": "- **AND** launch readiness SHALL use authoritative combat-catalog membership"
+            },
+            {
+              "term": "GameCreated SHALL",
+              "line": 29,
+              "text": "GameCreated SHALL contain a detached validated construction snapshot for each launched custom unit. Recovery and rewind SHALL prefer the recorded snapshot over the mutable library. A present invalid or mismatched snapshot SHALL refuse recovery rather than consult another source. Legacy canonical histories SHALL remain supported."
+            },
+            {
+              "term": "visibility",
+              "line": 57,
+              "text": "### Requirement: Construction follows server visibility rules"
+            },
+            {
+              "term": "picker",
+              "line": 68,
+              "text": "### Requirement: Campaign picker preserves durable saved identities"
+            }
+          ]
+        },
+        {
+          "path": "openspec/specs/campaign-combat-loop/spec.md",
+          "anchors": [
+            {
+              "term": "Automatic Outcome Enqueue",
+              "line": 112,
+              "text": "### Requirement: Automatic Outcome Enqueue"
+            },
+            {
+              "term": "Post-Battle Inventory Projection",
+              "line": 136,
+              "text": "### Requirement: Post-Battle Inventory Projection"
+            },
+            {
+              "term": "Launched Campaign Sessions Start Battle-Ready",
+              "line": 164,
+              "text": "### Requirement: Launched Campaign Sessions Start Battle-Ready"
+            }
+          ]
+        },
+        {
+          "path": "openspec/changes/enable-saved-custom-unit-combat/tasks.md",
+          "anchors": [
+            {
+              "term": "- [ ]",
+              "line": 3,
+              "text": "- [ ] Define strict supported-construction projection, server reader, custom combat catalog endpoint, and saved-design picker merge."
+            }
+          ]
+        },
+        {
+          "path": "openspec/changes/prove-saved-custom-unit-campaign-journey/tasks.md",
+          "anchors": [
+            {
+              "term": "- [ ] 1.3",
+              "line": 5,
+              "text": "- [ ] 1.3 Prove canonical launch, visible and accepted combat command, navigation/reload, terminal result, campaign return, accepted post-battle consequence, and cold-reloaded consequence."
+            },
+            {
+              "term": "- [ ] 3.1",
+              "line": 15,
+              "text": "- [ ] 3.1 Run all six immutable CAMP-01H commands; publish only a complete attributable observation or complete final receipt."
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "acceptanceLimits": {
+    "savedCustomUncheckedTasks": [
+      {
+        "path": "openspec/changes/enable-saved-custom-unit-combat/specs/custom-unit-combat/spec.md",
+        "sha256": "e0214badce4302999df37a5654c9dfdaa90244149ba22e1e8aae55d70dffd61f",
+        "lines": 78,
+        "uncheckedTaskCount": 0
+      },
+      {
+        "path": "openspec/changes/enable-saved-custom-unit-combat/tasks.md",
+        "sha256": "1ffcd1dd95dbc0bf741418424f34f4a96518514e3c9609e41785d35c288eef20",
+        "lines": 10,
+        "uncheckedTaskCount": 6
+      },
+      {
+        "path": "openspec/changes/prove-saved-custom-unit-campaign-journey/tasks.md",
+        "sha256": "64f29f1cccc9b5c1c50d1b856d405ba4ad023161b8d7376cbaa0104efef37df6",
+        "lines": 17,
+        "uncheckedTaskCount": 9
+      }
+    ],
+    "campTerminalAndPostBattlePreserved": true,
+    "focusedSourceTestsRun": false,
+    "focusedSourceTestsReason": "Direct source traces were sufficient; no disputed runtime fact required execution."
+  },
+  "artifacts": [
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/worktrees/campaign-catalog-specs/openspec/specs/campaign-combat-loop/spec.md",
+      "sha256": "c862ad4277355d53b9f0cc1344c7de28ad5eaa45df253c3f6f9ba4f21280b6ba"
+    },
+    {
+      "path": "git:b39c04304e9e46ebbb5056fa947a145a7bf194d4:openspec/specs/campaign-combat-loop/spec.md",
+      "sha256": "34ef062a83695b3edef73949f4bacf91e94b792cf1c195143555d2ebfc3fcd46"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/worktrees/campaign-catalog-specs/openspec/specs/mission-contracts/spec.md",
+      "sha256": "e7c8285915e24c049e85563f0871b122e123e0aa75fbe8f93f19fa126e4e3959"
+    },
+    {
+      "path": "git:b39c04304e9e46ebbb5056fa947a145a7bf194d4:openspec/specs/mission-contracts/spec.md",
+      "sha256": "7e6f65eb5f5075d0d5ee75243274af67da3047c514f622356ba6f31a49f364d7"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/worktrees/campaign-catalog-specs/openspec/specs/custom-unit-combat/spec.md",
+      "sha256": "803ac906accad431daa8e84cef924c00733b0896b5c511e28fbc5da29bdfaba5"
+    },
+    {
+      "path": "src/lib/campaign/readiness/canonicalCatalogAdmission.ts",
+      "sha256": "d4f6556799b5318a02dd4c7b0e26072c120c09b72caf37017d6deca067d96636"
+    },
+    {
+      "path": "src/lib/campaign/readiness/missionReadinessProjection.ts",
+      "sha256": "6843b76bee91673b4395e480ae68b77be5a9e44afa837d5a1c1a60d3bd2e3384"
+    },
+    {
+      "path": "src/lib/campaign/encounter/materializeCampaignMissionEncounter.ts",
+      "sha256": "aa41451c3684dec9a2a267d992a39350c8139649cb4a802cb61e7b8c717c5584"
+    },
+    {
+      "path": "src/lib/campaign/encounter/materializeCampaignMissionEncounter.forceUnits.ts",
+      "sha256": "7a581a0093b061fad065c6c11678f2e95adc579815056748cafc5ba756a6ad6d"
+    },
+    {
+      "path": "src/lib/campaign/encounter/materializeCampaignMissionEncounter.rest.ts",
+      "sha256": "057cf70532616ed56ddfb526989a002e012907c3364eadf6309c3e0551c1d6ba"
+    },
+    {
+      "path": "src/lib/campaign/fastForward/fastForwardCombatRunner.ts",
+      "sha256": "119107ed5dd4acc172ff389cb137e0d68c5205e3e547c161f66d72d455b122fe"
+    },
+    {
+      "path": "src/lib/campaign/coop/launchCoopMission.ts",
+      "sha256": "7d9880a671cb243c8be4e07c067c13d4ae7e4e520b3de0e1bd399a7641bc8ce7"
+    },
+    {
+      "path": "src/components/gameplay/pages/campaigns/dashboard/CampaignDashboardPage.tsx",
+      "sha256": "1dc09a43c1ba74e3d693b58f2953ebe84e58f33e935407935e46149636e8bdf9"
+    },
+    {
+      "path": "src/pages-modules/gameplay/campaigns/missionLaunchPage.launch.ts",
+      "sha256": "1c0d96db60cec206b2eb05405f7887fdd8226dbf624d834bee7c1ab9e129c7fc"
+    },
+    {
+      "path": "src/lib/campaign/encounter/buildEncounterFromScenario.ts",
+      "sha256": "5b657b9e429b900d9e058af79a590f81a5e23378f94587990de4bdaab28bebc3"
+    },
+    {
+      "path": "openspec/changes/enable-saved-custom-unit-combat/specs/custom-unit-combat/spec.md",
+      "sha256": "e0214badce4302999df37a5654c9dfdaa90244149ba22e1e8aae55d70dffd61f"
+    },
+    {
+      "path": "openspec/changes/enable-saved-custom-unit-combat/tasks.md",
+      "sha256": "1ffcd1dd95dbc0bf741418424f34f4a96518514e3c9609e41785d35c288eef20"
+    },
+    {
+      "path": "openspec/changes/prove-saved-custom-unit-campaign-journey/tasks.md",
+      "sha256": "64f29f1cccc9b5c1c50d1b856d405ba4ad023161b8d7376cbaa0104efef37df6"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/campaign-catalog-specs-review/candidate-ci-qc.status.json",
+      "sha256": "7852390177db62fe95798b917fb19e93231c574c1aeb9beaed8f10ca94cec643"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/campaign-catalog-specs-review/candidate-ci-qc.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/campaign-catalog-specs-review/candidate-ci-qc.stdout.log",
+      "sha256": "e73d2bc631637ff8806d9adbf1a31052b575044d797a04f184aec21f5b8e6985"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/campaign-catalog-specs-review/candidate-custom-unit-combat-spec.raw",
+      "sha256": "803ac906accad431daa8e84cef924c00733b0896b5c511e28fbc5da29bdfaba5"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/campaign-catalog-specs-review/candidate-status.txt",
+      "sha256": "ed0db71815c06e4eceeab510523cb53a3176d67415aa7232c2bbb60c9d524b7b"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/campaign-catalog-specs-review/candidate-tracked-diff.patch",
+      "sha256": "72060e7970e6b2c95d06de691d487d1c345adea76b89079307ca26c913a9e774"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/campaign-catalog-specs-review/candidate-tracked-numstat.txt",
+      "sha256": "45b2824688cb9cf58957704a842cd18190ac942818ad6c679d2a6d9ff0eab33b"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/campaign-catalog-specs-review/checks.json",
+      "sha256": "2a97c7b07d4442369ea66964217d3a4c4199d18ab2a91ccde75a09c409dadc7c"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/campaign-catalog-specs-review/generate-evidence.cjs",
+      "sha256": "2d217dc88ff5c1d814b10ffc5397d386cd1cde122b1ab087edcfdf43cabbd611"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/campaign-catalog-specs-review/git-diff-check.status.json",
+      "sha256": "e1fab72c694315129aa354855d4c2002628bc5a253ef256a4633db5f7d9a5a73"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/campaign-catalog-specs-review/git-diff-check.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/campaign-catalog-specs-review/git-diff-check.stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/campaign-catalog-specs-review/openspec-strict.status.json",
+      "sha256": "ac7a50a45a4567c95b874bd6a58efe90c3caed99c9f2f05277e2f640f1333789"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/campaign-catalog-specs-review/openspec-strict.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/campaign-catalog-specs-review/openspec-strict.stdout.log",
+      "sha256": "2754dbee9c7f3c73dafb72bec4284c7de4a886d9f795955954f8d77c5768a12d"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/campaign-catalog-specs-review/owned-spec-whitespace-check.cjs",
+      "sha256": "5646bb279f0fa779bca4ba6168ec37f66320d94ebda122f13502e89986c2b100"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/campaign-catalog-specs-review/owned-spec-whitespace-check.status.json",
+      "sha256": "835751ead104d22f5c34cc8fd5e0eea96336a2373c596d721dbcc47096f45d72"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/campaign-catalog-specs-review/owned-spec-whitespace-check.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/campaign-catalog-specs-review/owned-spec-whitespace-check.stdout.log",
+      "sha256": "7d1ae950b2689aa22979c4df2e147a4c5164eb3205aaa58643052d672d75e0af"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/campaign-catalog-specs-review/purpose-strict.status.json",
+      "sha256": "8c145066dbb64e812a413124ae479e55655dcd3cf43dbfb991d660bd38c89031"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/campaign-catalog-specs-review/purpose-strict.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/campaign-catalog-specs-review/purpose-strict.stdout.log",
+      "sha256": "0e660f271e246515d20c8a8fe32c611c879bdb680f9a9b7874fa0467fc735ce0"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/campaign-catalog-specs-review/review-driver.cjs",
+      "sha256": "b159e6c899a1773d651056275558c2fcae4ef05859367de6315775ba72b8ff50"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/campaign-catalog-specs-review/run-corrected-scope-v2.cjs",
+      "sha256": "346d210e460cb3edad3dca932626af2b4b91a8fe4812eecdf7711cbdff849be7"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/campaign-catalog-specs-review/run-corrected-scope-v3.cjs",
+      "sha256": "7486a80a66c0fc4982e440aefa028293332415285dd2326735502270ee69ac34"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/campaign-catalog-specs-review/run-corrected-scope.cjs",
+      "sha256": "16cd52498761cc387d5f158dc2c1c2ca0602650e086d68eb9b94835b94400022"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/campaign-catalog-specs-review/scope-check-corrected-v2.cjs",
+      "sha256": "7dca76b79f1f25378fabae1c03acabdc449d388df958c51320d6e331a368e90b"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/campaign-catalog-specs-review/scope-check-corrected-v2.status.json",
+      "sha256": "cdcae942fc75e70da3bf6bc0e5c57a95cf7521c3f9edf3fc8133f1595bfd4d46"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/campaign-catalog-specs-review/scope-check-corrected-v2.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/campaign-catalog-specs-review/scope-check-corrected-v2.stdout.log",
+      "sha256": "c21d81080dfd05ce19849b97c697b3d7619bf3c408a35ce52033fe590f11b075"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/campaign-catalog-specs-review/scope-check-corrected-v3.cjs",
+      "sha256": "a81c50dc100c69f1831dafc4570fff399da53b5ce9272e5023ab55098ef86a54"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/campaign-catalog-specs-review/scope-check-corrected-v3.status.json",
+      "sha256": "79241290af369eac3b302a71cbc7d69c01e67cad68f18286ae60de67ec5da674"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/campaign-catalog-specs-review/scope-check-corrected-v3.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/campaign-catalog-specs-review/scope-check-corrected-v3.stdout.log",
+      "sha256": "63e5e9a0d5a35db4f41bab006030e94b8393eeb041e85500c83782e87efa1591"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/campaign-catalog-specs-review/scope-check-corrected.cjs",
+      "sha256": "7701a851f225794380e85363cc2d672831e5e62e9e15592bfa94727c2b21f953"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/campaign-catalog-specs-review/scope-check-corrected.status.json",
+      "sha256": "d6746b2a49d9150ab53bea22461e077051d2d2da29ecbf6b5055c1fd4726a592"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/campaign-catalog-specs-review/scope-check-corrected.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/campaign-catalog-specs-review/scope-check-corrected.stdout.log",
+      "sha256": "9ca9ca6ae217a9e65de4090f357a837d0e354b043a2742d994f38e0f510ffbf3"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/campaign-catalog-specs-review/scope-check.cjs",
+      "sha256": "6cdbde6ef5d1ea96ff21a54809d005784ed56f1c5dabd998a0e633b7980aef69"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/campaign-catalog-specs-review/scope-check.status.json",
+      "sha256": "0fe0bf2d1ba6b4813b93a47e52e0dfad6fe301c094964f245ae6987ed1adf612"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/campaign-catalog-specs-review/scope-check.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/campaign-catalog-specs-review/scope-check.stdout.log",
+      "sha256": "da70129613228bccbee7be7618df1b8808e466779c17b0698cc1113ce39171ba"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/campaign-catalog-specs-review/terminology-strict.status.json",
+      "sha256": "9a7a45e2aadc57a8158897fd7e314c060ac416f47661b3bafaed01b8866fe1a1"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/campaign-catalog-specs-review/terminology-strict.stderr.log",
+      "sha256": "4aa8da5cfb6144100e821cf1676b9e5c4cd2ef6803940bb10984db2bea7e1f3d"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/campaign-catalog-specs-review/terminology-strict.stdout.log",
+      "sha256": "5138b3c6391de6d904456a1fbf873b824f52a452c9528ce89139c72152c65f41"
+    }
+  ],
+  "hashIndex": {
+    "path": ".sisyphus/roadmap-completion-20260912/campaign-catalog-specs-review/hash-index.json",
+    "sha256": "e44e73ab5a65f556bdc0d712211feda5d2538b14883818523dbb3b94fa9cf74c",
+    "count": 63
+  },
+  "rawReviewFolder": ".sisyphus/roadmap-completion-20260912/campaign-catalog-specs-review"
+}

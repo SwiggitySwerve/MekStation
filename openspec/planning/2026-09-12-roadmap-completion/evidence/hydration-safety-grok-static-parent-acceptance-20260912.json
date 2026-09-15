@@ -1,0 +1,180 @@
+{
+  "recordedAt": "2026-09-12T17:56:59.818Z",
+  "node": "R9.hydration-safety",
+  "route": "grok-4.6/high",
+  "session": "01a096bc-2a04-7340-bea1-13ef32c357fa",
+  "turns": 11,
+  "recordedCliCostUSD": 0.20524236,
+  "verifiedStatusSha256": "d8f037b6f0a96c3224d5ce7af0c9c87f35ef806d7ff791cc23da8aa01b2aec11",
+  "driverSha256": "e7a9cec778c4324a813dde5fbcff9b980b1f73645e08935eaee5381f8d1b9401",
+  "files": [
+    {
+      "path": "scripts/hydrate-next-standalone-multiplayer-server.mjs",
+      "sha256": "9e8866647d092ad42f51d191f8c6af175a9a98b3779cfa0682d590713898af60"
+    },
+    {
+      "path": "scripts/__tests__/standalone-hydration-path-safety.test.ts",
+      "sha256": "ee5afed78035cf09a82d6ed7749493a4e8ac06b65f8a013f585fc2f308cb17ee"
+    },
+    {
+      "path": "openspec/specs/release-build-system/spec.md",
+      "sha256": "22e8f7b16d286c9ebba16440e372b68b868fb4a0fa90b3e9004acfa10b5a3473"
+    }
+  ],
+  "steps": [
+    {
+      "name": "focused-jest",
+      "executable": "C:/nvm4w/nodejs/node.exe",
+      "args": [
+        "node_modules/jest/bin/jest.js",
+        "--runInBand",
+        "--selectProjects",
+        "unit",
+        "--runTestsByPath",
+        "scripts/__tests__/hydrate-next-standalone-multiplayer-server.test.ts",
+        "scripts/__tests__/standalone-hydration-path-safety.test.ts"
+      ],
+      "startedAt": "2026-09-12T17:51:22.615Z",
+      "log": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\grok-hydration-static-1\\gates\\focused-jest.log",
+      "running": false,
+      "pid": 69492,
+      "code": 0,
+      "finishedAt": "2026-09-12T17:51:24.942Z",
+      "logSha256": "e7ad35c23a30d2a5937e9d29b620dd7bf289ed30e046a6bf843d6431ff221905"
+    },
+    {
+      "name": "node-check",
+      "executable": "C:/nvm4w/nodejs/node.exe",
+      "args": [
+        "--check",
+        "scripts/hydrate-next-standalone-multiplayer-server.mjs"
+      ],
+      "startedAt": "2026-09-12T17:51:24.947Z",
+      "log": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\grok-hydration-static-1\\gates\\node-check.log",
+      "running": false,
+      "pid": 27612,
+      "code": 0,
+      "finishedAt": "2026-09-12T17:51:24.986Z",
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "typecheck",
+      "executable": "C:/nvm4w/nodejs/node.exe",
+      "args": [
+        "C:/nvm4w/nodejs/node_modules/npm/bin/npm-cli.js",
+        "run",
+        "typecheck"
+      ],
+      "startedAt": "2026-09-12T17:51:24.987Z",
+      "log": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\grok-hydration-static-1\\gates\\typecheck.log",
+      "running": false,
+      "pid": 18672,
+      "code": 0,
+      "finishedAt": "2026-09-12T17:51:34.960Z",
+      "logSha256": "d140a6ce62dda0946fe30dd882dbb8209f05be72c8fa8850e5634755a399e50f"
+    },
+    {
+      "name": "lint",
+      "executable": "C:/nvm4w/nodejs/node.exe",
+      "args": [
+        "C:/nvm4w/nodejs/node_modules/npm/bin/npm-cli.js",
+        "run",
+        "lint"
+      ],
+      "startedAt": "2026-09-12T17:51:34.964Z",
+      "log": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\grok-hydration-static-1\\gates\\lint.log",
+      "running": false,
+      "pid": 53604,
+      "code": 0,
+      "finishedAt": "2026-09-12T17:51:35.562Z",
+      "logSha256": "d878b4e8223d4ff46020155bc7ed086a528347e95fb0a1478aca0a587ce8e63f"
+    },
+    {
+      "name": "format-check",
+      "executable": "C:/nvm4w/nodejs/node.exe",
+      "args": [
+        "C:/nvm4w/nodejs/node_modules/npm/bin/npm-cli.js",
+        "run",
+        "format:check"
+      ],
+      "startedAt": "2026-09-12T17:51:35.567Z",
+      "log": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\grok-hydration-static-1\\gates\\format-check.log",
+      "running": false,
+      "pid": 46060,
+      "code": 0,
+      "finishedAt": "2026-09-12T17:51:47.538Z",
+      "logSha256": "56a5550fe1bed2c1cf03e4b0150295e3f382b5642a33fd0dcbac745fc49d9cae"
+    },
+    {
+      "name": "openspec-strict",
+      "executable": "C:/nvm4w/nodejs/node.exe",
+      "args": [
+        "C:/Users/wroll/AppData/Roaming/npm/node_modules/@fission-ai/openspec/bin/openspec.js",
+        "validate",
+        "--all",
+        "--strict"
+      ],
+      "startedAt": "2026-09-12T17:51:47.542Z",
+      "log": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\grok-hydration-static-1\\gates\\openspec-strict.log",
+      "running": false,
+      "pid": 66536,
+      "code": 0,
+      "finishedAt": "2026-09-12T17:51:48.124Z",
+      "logSha256": "e21ee5a93b949a4d54b08178b22d10d3ab304c1b55e46a00f05c1cfc9b56c76e"
+    },
+    {
+      "name": "spec-purpose",
+      "executable": "C:/nvm4w/nodejs/node.exe",
+      "args": [
+        "C:/nvm4w/nodejs/node_modules/npm/bin/npm-cli.js",
+        "run",
+        "spec:purpose:validate:strict"
+      ],
+      "startedAt": "2026-09-12T17:51:48.131Z",
+      "log": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\grok-hydration-static-1\\gates\\spec-purpose.log",
+      "running": false,
+      "pid": 36172,
+      "code": 0,
+      "finishedAt": "2026-09-12T17:51:49.533Z",
+      "logSha256": "3db815e6a799b623c9a272e7e654cfebb5781820dfb1e8e2ddc7d7614cd24345"
+    },
+    {
+      "name": "terminology",
+      "executable": "C:/nvm4w/nodejs/node.exe",
+      "args": [
+        "C:/nvm4w/nodejs/node_modules/npm/bin/npm-cli.js",
+        "run",
+        "terminology:validate:strict"
+      ],
+      "startedAt": "2026-09-12T17:51:49.537Z",
+      "log": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\grok-hydration-static-1\\gates\\terminology.log",
+      "running": false,
+      "pid": 33452,
+      "code": 0,
+      "finishedAt": "2026-09-12T17:51:57.779Z",
+      "logSha256": "1bf88d6ddada11c7bf23bae7c3ede83d5f15d2ce377636bfaffccd76017122b5"
+    },
+    {
+      "name": "ci-qc",
+      "executable": "C:/nvm4w/nodejs/node.exe",
+      "args": [
+        "C:/nvm4w/nodejs/node_modules/npm/bin/npm-cli.js",
+        "run",
+        "qc:openspec-ci:validate"
+      ],
+      "startedAt": "2026-09-12T17:51:57.785Z",
+      "log": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\grok-hydration-static-1\\gates\\ci-qc.log",
+      "running": false,
+      "pid": 53080,
+      "code": 0,
+      "finishedAt": "2026-09-12T17:51:58.046Z",
+      "logSha256": "f01feb11318234aab4764fe76151b78c06905527212a8f8723626fcf616b71d6"
+    }
+  ],
+  "parentReview": "Sequential spawn driver uses wx raw output files; all nine exits and source/log hashes verified; genuine end_turn received.",
+  "supersedesLimits": "Earlier Max static logs remain preserved as summary artifacts and are not used as raw proof; malformed fingerprint was not accepted.",
+  "limits": [
+    "Static proof only; real production build, commit, remote and exact-main proof remain pending",
+    "CLI cost is for this run only; no cross-model cost/performance comparison"
+  ]
+}

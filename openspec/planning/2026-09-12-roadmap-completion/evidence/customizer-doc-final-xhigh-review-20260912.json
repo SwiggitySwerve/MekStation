@@ -1,0 +1,93 @@
+{
+  "schemaVersion": 1,
+  "evidenceId": "customizer-doc-final-xhigh-review-20260912",
+  "capturedAt": "2026-09-12",
+  "route": "Luna/xhigh trial; final independent delta review",
+  "worktree": "E:/Projects/MekStation",
+  "baseline": "be7f85b867aa3e8576e5e3d27e309276203bc24b",
+  "fetchedOriginMain": "6c4eac5c7b7a2aece3aab0443ce606943db6cf0b",
+  "predecessor": {
+    "followUpReceipt": "openspec/planning/2026-09-12-roadmap-completion/evidence/triage-customizer-doc-review-followups-20260912.json",
+    "followUpReceiptSha256": "34ec8aac00c50f2ae00ff0eaa3f944a7ab915f34b20ec9c75b2b63c0183a98e1",
+    "priorIndependentReceiptSha256": "6333d2dcdfe8b813502be5e33c2938fc60b4f487931b2baa3bec95d8d99029a6"
+  },
+  "scope": "Final source-to-spec delta review of only aerospace-unit-system, app-settings, equipment-tray, and protomech-unit-system. No product/spec edits, tests, builds, servers, browsers, generated data, or Git mutations.",
+  "effort": {
+    "level": "high",
+    "elapsed": "approximately 15 minutes active wall-clock review; stopwatch not used",
+    "performanceOrCostClaim": false
+  },
+  "currentDiff": {
+    "paths": [
+      "openspec/specs/aerospace-unit-system/spec.md",
+      "openspec/specs/app-settings/spec.md",
+      "openspec/specs/equipment-tray/spec.md",
+      "openspec/specs/protomech-unit-system/spec.md"
+    ],
+    "equipmentTrayFollowUpChange": "none",
+    "summary": "The current diff remains bounded to the same four canonical specs."
+  },
+  "specHashes": [
+    { "path": "openspec/specs/aerospace-unit-system/spec.md", "sha256": "c664246362054e9bc183381d99c60f106eb349e0d186cdc467534170fbaad0b3" },
+    { "path": "openspec/specs/app-settings/spec.md", "sha256": "65dc02ac16a000a0322c71b173f88a59ca8e9f56f37ee40a74bf6d18f290d5a6" },
+    { "path": "openspec/specs/equipment-tray/spec.md", "sha256": "7f8a1b314cc583c355ff51e7eb7640724ee8a40abe2af9bc5900a63487304e4b" },
+    { "path": "openspec/specs/protomech-unit-system/spec.md", "sha256": "191c5b3536c66d26dadac03da3f6de172574171ce1359ee3441120d308e1d8e8" }
+  ],
+  "sourceAnchorHashes": {
+    "useAppearanceStore.ts": "ee9fbec4cc113a42dbd3d702e43b1b7693116541110dcf653ca281b1347de86d",
+    "useAccessibilityStore.ts": "3c5504344588a32fea36eb7b3ca20151f004047b51418f8a7a17e0930cde7219",
+    "useCustomizerSettingsStore.ts": "4a8d1c8b61d974fef6ab493d3bd852c1222bf6a0dfbe495fa19f7e9154c43f29",
+    "useUIBehaviorStore.ts": "328a66a44b81a7ee9f9d7d6c78926072ead84fdcb20db679f52a6bb039d74ea8",
+    "settingsStores.test-helpers.ts": "4bf5a9a1868317dd8c892bd4fc49859c3278b58b9ab6c331e14a51069ff137d9",
+    "ArmorDiagramPreview.tsx": "b7626e8078de3d0dd42877cc401ef43971ea1776b9889c74300ce5c51e3031ef",
+    "AerospaceCustomizer.tsx": "a86ad73036c168001d1c4830848a040fc9958e14d428316467ddf7f44944a4f8",
+    "tabRegistry.tsx": "064386c991c71ed9e5188eb15630f12fe380d1035ec02178630a28fa9b1ab07d",
+    "ProtoMechEquipmentTab.tsx": "c45a0da9ccf8a9f025948fb6a8c8919c20bc09a47f25e70ce4b1042b630aab07",
+    "ProtoMechPreviewTab.tsx": "c8069af09f2ebcca02cd910db67e461fb522beb1d8b12dede16651277d37e14b",
+    "ProtoMechCustomizer.tsx": "9e56f548cdf05d3da116a50608ce54547ef4b17ee187b015b75a985c5189d10e",
+    "GlobalLoadoutTray.tsx": "73a38ffc7a33eaf42bddfebdddad8a9f9a0ba3736715e47392bde48f736aab92",
+    "GlobalLoadoutTrayContextMenu.tsx": "51758855b8f68ff44e738a219858b220840a3fcb3de6399036dd2694a64d255d",
+    "UnitEditorWithRoutingLoadout.ts": "e6ce6ff2817ab6b0a3532bcdcff6e20d25690b573442e183d6b50ca9409cb97c",
+    "equipmentMutationPolicy.ts": "82c830c9208e69fc108f52abf2ccb01b54e9116c67acdaef9b54fee546c7cc7a"
+  },
+  "deltaFindings": [
+    {
+      "id": "fixed-structural-context-menu-mutation",
+      "severity": "P2",
+      "status": "remaining-follow-up",
+      "spec": "openspec/specs/equipment-tray/spec.md",
+      "specLines": "214-228,292-296",
+      "finding": "The repaired partition correctly puts non-removable entries in Fixed systems and hides them from Unassigned/Mounted groups, but fixed rows still receive context-menu Quick Assign and Unassign callbacks. The spec says Endo Steel/Ferro-Fibrous are managed through Structure/Armor tabs and the tray syncs automatically.",
+      "sourceEvidence": [
+        "GlobalLoadoutTray.tsx:140-158,330-340 passes every fixed row to the context menu and forwards assignment/unassignment.",
+        "GlobalLoadoutTrayContextMenu.tsx:69-109 renders Unassign and Quick Assign without an isRemovable guard.",
+        "UnitEditorWithRoutingLoadout.ts:153-158 and :201-225 mutate locations without an isRemovable guard.",
+        "equipmentMutationPolicy.ts:11-16 blocks only fixed Omni mounts; ordinary non-removable structural entries can reach the mutation path."
+      ],
+      "impact": "A fixed structural item can be offered a tray location mutation despite the Structure/Armor-only management wording; no runtime execution was performed.",
+      "recommendedFollowUp": "Either suppress assignment/unassignment actions for fixed structural entries or narrow the specification to permit the intended fixed-row context-menu behavior.",
+      "blocker": false,
+      "introducedByFollowUp": false
+    }
+  ],
+  "deltaDisposition": {
+    "appSettings": "Accepted: exact four store scopes and keys match source; UI theme and armor variant independence is supported by source documentation and cross-slice test cases inspected at settingsStores.test-helpers.ts:561-607.",
+    "aerospace": "Accepted: brittle file count removed; live aerospace directory mapping and deserialization deferral remain intact.",
+    "protomech": "Accepted: Equipment and Preview paths are present with correct placeholder/preview purposes; approximate line counts removed; equipment construction and Ultraheavy limitations remain explicit.",
+    "infantryPreservation": "Accepted: no Infantry canonical spec changed and the existing deserialization deferral remains outside this four-spec delta.",
+    "overall": "No blocker found in the follow-up repairs; one pre-existing equipment-tray contract gap remains for parent disposition."
+  },
+  "verification": {
+    "followUpReceiptHashMatchesCurrent": true,
+    "specHashClaimsMatchCurrent": true,
+    "sourceAnchorHashClaimsMatchCurrent": true,
+    "jsonReceiptValidation": "performed with C:/nvm4w/nodejs/node.exe",
+    "testsBuildServersBrowsers": false,
+    "gitMutation": false
+  },
+  "limits": [
+    "No tests, builds, servers, browser runs, formatter checks, generated data, or runtime changes were performed in this review.",
+    "Cross-slice independence tests and source documentation were inspected and hash-checked, not executed here.",
+    "The equipment finding is static source evidence and needs the parent’s product-owner disposition before implementation work."
+  ]
+}

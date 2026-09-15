@@ -1,0 +1,54 @@
+{
+  "schemaVersion": 1,
+  "evidenceId": "customizer-five-spec-isolated-verification-20260912",
+  "capturedAt": "2026-09-12",
+  "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/customizer-specs",
+  "baseline": "6c4eac5c7b7a2aece3aab0443ce606943db6cf0b",
+  "branch": "codex/roadmap-customizer-specs-20260912",
+  "scope": "Read-only verification of exactly the five canonical specification changes identified by the final xhigh review. No specification, product code, generated data, node_modules, server, build, test, browser, or Git changes were made.",
+  "expectedReviewReceipt": {
+    "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/customizer-five-spec-final-xhigh-review-20260912.json",
+    "sha256": "adffefbb61411053aed9e5b0391bc02482b6f64c398ab8170e130dbe197f22f1"
+  },
+  "statusArtifact": {
+    "path": ".sisyphus/roadmap-completion-20260912/customizer-specs-checks/customizer-five-spec-status.json",
+    "sha256": "ad9cb180261de607d2b024f27df3dcb7af746a23c17ef1dd7ed482b09cb2b0c4"
+  },
+  "exactFive": {
+    "diffPaths": [
+      "openspec/specs/aerospace-unit-system/spec.md",
+      "openspec/specs/app-settings/spec.md",
+      "openspec/specs/critical-slots-display/spec.md",
+      "openspec/specs/equipment-tray/spec.md",
+      "openspec/specs/protomech-unit-system/spec.md"
+    ],
+    "hashesMatchExpectedReceipt": true,
+    "specHashes": [
+      {"path":"openspec/specs/aerospace-unit-system/spec.md","expectedSha256":"c664246362054e9bc183381d99c60f106eb349e0d186cdc467534170fbaad0b3","actualSha256":"c664246362054e9bc183381d99c60f106eb349e0d186cdc467534170fbaad0b3"},
+      {"path":"openspec/specs/app-settings/spec.md","expectedSha256":"65dc02ac16a000a0322c71b173f88a59ca8e9f56f37ee40a74bf6d18f290d5a6","actualSha256":"65dc02ac16a000a0322c71b173f88a59ca8e9f56f37ee40a74bf6d18f290d5a6"},
+      {"path":"openspec/specs/critical-slots-display/spec.md","expectedSha256":"08abd446de493fc1191e9b911368b5f8a66d7311da27694d04a7297cca5b0e4e","actualSha256":"08abd446de493fc1191e9b911368b5f8a66d7311da27694d04a7297cca5b0e4e"},
+      {"path":"openspec/specs/equipment-tray/spec.md","expectedSha256":"cebacfa9f94c801f2e8e137c1342793d8db73290e9795f2ad23010b2d3a8fdc5","actualSha256":"cebacfa9f94c801f2e8e137c1342793d8db73290e9795f2ad23010b2d3a8fdc5"},
+      {"path":"openspec/specs/protomech-unit-system/spec.md","expectedSha256":"191c5b3536c66d26dadac03da3f6de172574171ce1359ee3441120d308e1d8e8","actualSha256":"191c5b3536c66d26dadac03da3f6de172574171ce1359ee3441120d308e1d8e8"}
+    ]
+  },
+  "dependencyBoundary": {
+    "worktreeNodeModules": false,
+    "ancestorNodeModulesUsed": true,
+    "installOrJunctionCreated": false
+  },
+  "rawEvidence": [
+    {"path":".sisyphus/roadmap-completion-20260912/customizer-specs-checks/strict-all-openspec.raw.log","sha256":"ed2fc72fe0abe2480c131f93e83819445b3cc119c1647e6042972b61222e4716","exitCode":0,"result":"231 passed, 0 failed (231 items)"},
+    {"path":".sisyphus/roadmap-completion-20260912/customizer-specs-checks/purpose-strict.raw.log","sha256":"560ead81bfd2d0846102e64372eb630cf83f7732efd7dab50c28c0efd2e51098","exitCode":0,"result":"217 files scanned; Errors: 0; Tracked source-of-truth debt: 0"},
+    {"path":".sisyphus/roadmap-completion-20260912/customizer-specs-checks/terminology-strict.raw.log","sha256":"d43d25ad0e00a096a6f61a6b28e9370213cd2a0ed60ed450e25005c5b9f27772","exitCode":0,"result":"319 files compliant; no terminology violations"},
+    {"path":".sisyphus/roadmap-completion-20260912/customizer-specs-checks/ci-qc.raw.log","sha256":"9d956771bc176063885c2fbc30abb08c935d1afdecfd4c49762d9c3e71814c59","exitCode":0,"result":"workflowContracts=8/8; aggregatorNeeds=18/18; protectedContexts=4; packageScripts=3/3; active changes=14/14; errors=0"},
+    {"path":".sisyphus/roadmap-completion-20260912/customizer-specs-checks/markdown-prettier.raw.log","sha256":"f6f7b742931c96b89898c99eac13f668b722f47085dbedbb969ec64e7bb28cfb","exitCode":0,"result":"All five canonical Markdown specs use Prettier code style"},
+    {"path":".sisyphus/roadmap-completion-20260912/customizer-specs-checks/diff-check.raw.log","sha256":"7107381647883530f59f88c7f2bae937fc2da81b8297cba30bbe86226cf40628","exitCode":0,"result":"No whitespace errors"}
+  ],
+  "limits": [
+    "No product build, server, browser, test, or runtime proof was run.",
+    "Markdown formatting proof covers exactly the five canonical specs; ignored and unrelated files are outside scope.",
+    "The terminology command emitted the existing Node MODULE_TYPELESS_PACKAGE_JSON warning while exiting 0; no warning remediation was attempted.",
+    "Parent owns commit, integration, and final acceptance decisions."
+  ],
+  "status": "passed"
+}

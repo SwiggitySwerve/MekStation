@@ -1,0 +1,33 @@
+{
+  "at": "2026-09-12T19:58:16.709Z",
+  "node": "R9.manifest-sync",
+  "commit": "30134ab05178af9372aa1088cdca8df736546bcf",
+  "base": "ca0687d25264033376862347e494ddf15cd92bec",
+  "sourceHashes": {
+    "openspec/specs/mm-data-asset-integration/spec.md": {
+      "expectedHash": "5beabebfe54b2a2e3e9aadd0ab87e480062eed0de257507571681b69c2a74dd7",
+      "workingTreeHash": "5beabebfe54b2a2e3e9aadd0ab87e480062eed0de257507571681b69c2a74dd7",
+      "stagedHash": "5beabebfe54b2a2e3e9aadd0ab87e480062eed0de257507571681b69c2a74dd7"
+    },
+    "package.json": {
+      "expectedHash": "0cbe570cc8b2ffdabcf1c273a75b739bf6693965239a913f524661291e6c2e32",
+      "workingTreeHash": "0cbe570cc8b2ffdabcf1c273a75b739bf6693965239a913f524661291e6c2e32",
+      "stagedHash": "0cbe570cc8b2ffdabcf1c273a75b739bf6693965239a913f524661291e6c2e32"
+    },
+    "scripts/__tests__/mm-data-browser-config.test.ts": {
+      "expectedHash": "20534720de14d2e2c94cfa17763d8cd75c82b7ae7a9deb6d9ec095a33fa9dce4",
+      "workingTreeHash": "20534720de14d2e2c94cfa17763d8cd75c82b7ae7a9deb6d9ec095a33fa9dce4",
+      "stagedHash": "20534720de14d2e2c94cfa17763d8cd75c82b7ae7a9deb6d9ec095a33fa9dce4"
+    },
+    "scripts/mm-data/sync-browser-config.mjs": {
+      "expectedHash": "d47ca5eaa81a7a8488c25b828cc6b04a8e30f93311952dc002c718c60d6820dc",
+      "workingTreeHash": "d47ca5eaa81a7a8488c25b828cc6b04a8e30f93311952dc002c718c60d6820dc",
+      "stagedHash": "d47ca5eaa81a7a8488c25b828cc6b04a8e30f93311952dc002c718c60d6820dc"
+    }
+  },
+  "hookStatusPath": ".sisyphus\\roadmap-completion-20260912\\manifest-sync-delivery\\commit-status.json",
+  "hookStatusSha256": "c0865f79dc10f895c39f972fd8a14e6826e1bf9b65e0da1b3f54bfb1cf91256c",
+  "log": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\manifest-sync-delivery\\commit.log",
+  "logSha256": "bb8a654511c65aabbeb9d57e999ab3cf06554d5e4977994742283cce5375613a",
+  "limits": "Local hook proof; remoteCI, exact-main runtime and cleanup remain"
+}

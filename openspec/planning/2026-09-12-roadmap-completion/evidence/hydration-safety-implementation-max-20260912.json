@@ -1,0 +1,54 @@
+{
+  "schemaVersion": 1,
+  "recordedAt": "2026-09-12T17:00:04.701Z",
+  "reviewer": "/root/hydration_path_max",
+  "model": "gpt-5.6-luna",
+  "effort": "max",
+  "elapsed": "~11m48s from the prior diagnosis receipt at 16:48:16.811Z to this implementation capture; no performance or price inference",
+  "scope": "Root E:\\Projects\\MekStation only. No build, server, dev, install, Git mutation, loader-worktree change, or real dependency mutation.",
+  "baseline": {
+    "head": "6c4eac5c7b7a2aece3aab0443ce606943db6cf0b",
+    "hydratorBeforeSha256": "1b02ad84794697ba2b47f4c51042ad0dc24392a8e9c0dbebcebff581646403b9",
+    "allowedChangedFiles": [
+      "scripts/hydrate-next-standalone-multiplayer-server.mjs",
+      "scripts/__tests__/standalone-hydration-path-safety.test.ts"
+    ]
+  },
+  "redCharacterization": {
+    "fixture": "Temporary physical node_modules/tsx with sentinel.txt, plus .next/standalone/node_modules junction to that source",
+    "oldBehavior": "exit 1; sourceSentinelExistsAfter=false; sourcePackageExistsAfter=false",
+    "error": "ENOENT lstat of the temporary node_modules/tsx source after target removal",
+    "rawLog": ".sisyphus/roadmap-completion-20260912/hydration-safety-max/red-before-fix.log",
+    "rawLogSha256": "164f51ffd06cde940f32801f86b2ebda2f4fa82fd99db3e2285917c2520fbcab"
+  },
+  "implementation": {
+    "hydratorSha256": "9e8866647d092ad42f51d191f8c6af175a9a98b3779cfa0682d590713898af60",
+    "testSha256": "ee5afed78035cf09a82d6ed7749493a4e8ac06b65f8a013f585fc2f308cb17ee",
+    "diff": "133 additions, 3 deletions in the hydrator; one new focused test file",
+    "behavior": [
+      "Preflight checks every config, server, source, runtime, public, BV-cache, and static destination before any hydration write/removal.",
+      "Lexical containment and lstat traversal reject escaped paths and symlink/junction output components.",
+      "Existing source/target realpath equality is rejected; copyDir repeats destination and distinct-realpath checks at the destructive boundary.",
+      "Physical standalone output remains supported."
+    ]
+  },
+  "greenVerification": {
+    "junctionFixture": "exit 1 by design with Unsafe hydration destination; source sentinel and pre-existing config both preserved; junction retained",
+    "physicalFixture": "exit 0, stdout.ok=true, source and target sentinels preserved, standalone node_modules is physical",
+    "fixtureRawLog": ".sisyphus/roadmap-completion-20260912/hydration-safety-max/green-after-fix.log",
+    "fixtureRawLogSha256": "e35928ab643d98069bceabe57284ae0d8a82cc4d7ddc49b51cd636dd2dc78d7a",
+    "focusedCommand": "node node_modules/jest/bin/jest.js --runInBand --selectProjects unit --runTestsByPath scripts/__tests__/hydrate-next-standalone-multiplayer-server.test.ts scripts/__tests__/standalone-hydration-path-safety.test.ts",
+    "focusedExit": 0,
+    "focusedResult": "2 suites passed, 4 tests passed",
+    "focusedRawLog": ".sisyphus/roadmap-completion-20260912/hydration-safety-max/focused-jest.log",
+    "focusedRawLogSha256": "9fbda76f9a21f6590eeb1a332fe693dedcf9c6e491f8b92e2a139a7b39bbd922",
+    "staticChecks": "node --check, oxfmt --check, and oxlint all exited 0",
+    "staticRawLog": ".sisyphus/roadmap-completion-20260912/hydration-safety-max/focused-static-checks.log",
+    "staticRawLogSha256": "d6185959323692a9788ae7945468a421c1811e1e458370c621d42e4c1ab63927"
+  },
+  "limits": [
+    "Parent owns the isolated physical-dependency build/typecheck proof; this worker did not run or claim it.",
+    "The real shared junction was never touched; the red/green destructive boundary used only temporary fixtures."
+  ],
+  "nextAction": "Independent reviewer checks the small guard/test diff; parent then runs the isolated equipment-loader build after physical dependency topology is verified."
+}

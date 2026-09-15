@@ -1,0 +1,434 @@
+{
+  "schemaVersion": 1,
+  "evidenceId": "hydration-safety-cleanup-20260912",
+  "recordedAt": "2026-09-12T21:00:45.0637281Z",
+  "canonicalTarget": {
+    "expectedPath": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\hydration-safety",
+    "actualPath": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\hydration-safety",
+    "worktreeExists": false,
+    "gitRegistration": false,
+    "expectedHead": "7a537a1c4ea621b397f4b5216859f0548773fd61",
+    "expectedReviewedTree": "ef940c470519f718e46a262e470d84633d6ef197",
+    "removed": true
+  },
+  "export": {
+    "root": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\hydration-safety-cleanup-export-20260912",
+    "manifest": "export-manifest.json",
+    "manifestSha256": "3b855e346e5d83a08e87712c05e55e9f4ea29ee805229ad03e9bc93e4bd3c746",
+    "manifestDigest": "2b187205a171edbc63558648b363bb6ddad23a8244389fded8534f73003ce5f9",
+    "fileCount": 59,
+    "rawFileCount": 45,
+    "sourceFileCount": 3,
+    "artifactFileCount": 5,
+    "runtimeFileCount": 1,
+    "refFileCount": 3
+  },
+  "sourceExports": [
+    {
+      "path": "sources/scripts/hydrate-next-standalone-multiplayer-server.mjs",
+      "bytes": 9991,
+      "sha256": "9e8866647d092ad42f51d191f8c6af175a9a98b3779cfa0682d590713898af60"
+    },
+    {
+      "path": "sources/scripts/__tests__/standalone-hydration-path-safety.test.ts",
+      "bytes": 4198,
+      "sha256": "ee5afed78035cf09a82d6ed7749493a4e8ac06b65f8a013f585fc2f308cb17ee"
+    },
+    {
+      "path": "sources/openspec/specs/release-build-system/spec.md",
+      "bytes": 7788,
+      "sha256": "22e8f7b16d286c9ebba16440e372b68b868fb4a0fa90b3e9004acfa10b5a3473"
+    }
+  ],
+  "artifactExports": [
+    {
+      "path": "artifacts/source-mm-data-assets.json",
+      "bytes": 2687,
+      "sha256": "6746a36beab5ce9a9beff240afe0f7609caace9010509ecf7d8c58c6dd8af8e6"
+    },
+    {
+      "path": "artifacts/public-mm-data-assets.json",
+      "bytes": 2687,
+      "sha256": "6746a36beab5ce9a9beff240afe0f7609caace9010509ecf7d8c58c6dd8af8e6"
+    },
+    {
+      "path": "artifacts/standalone-mm-data-assets.json",
+      "bytes": 2687,
+      "sha256": "6746a36beab5ce9a9beff240afe0f7609caace9010509ecf7d8c58c6dd8af8e6"
+    },
+    {
+      "path": "artifacts/hydrated-server.js",
+      "bytes": 32625,
+      "sha256": "e4f973d2cfa7f4c25775e4ce9315b7398655a6a17cfc799793545de84a59ecf6"
+    },
+    {
+      "path": "artifacts/hydrated-server.next-config.json",
+      "bytes": 8503,
+      "sha256": "45e3802de65535418edb0f89db88cde9c0698ad7191ec0f8bb1ede1cefa3fab0"
+    }
+  ],
+  "runtimeInventory": {
+    "path": "runtime/parent-runtime-inventory.json",
+    "fileSha256": "9458bc34b01bbfb65351cf7c401a5941c69da07ad1688159e4c34922cf7fb89e",
+    "count": 92,
+    "inventorySha256": "2498f00fc3495f64d3317fd77adbba41d1055d52ac0d4fa66ccfe1a85c86e38a",
+    "expectedInventorySha256": "2498f00fc3495f64d3317fd77adbba41d1055d52ac0d4fa66ccfe1a85c86e38a"
+  },
+  "proof": {
+    "staticSummaryPath": "raw/hydration-safety-checks/main-1/static-summary.json",
+    "staticSummarySha256": "3d4e1edbcfb8f350237793bfcba486ec7be33d00f2e73ee1db368f8932047057",
+    "staticSuccess": true,
+    "staticCommandExits": [
+      {
+        "id": "focused-jest",
+        "exitCode": 0
+      },
+      {
+        "id": "node-check",
+        "exitCode": 0
+      },
+      {
+        "id": "typecheck",
+        "exitCode": 0
+      },
+      {
+        "id": "lint",
+        "exitCode": 0
+      },
+      {
+        "id": "format-check",
+        "exitCode": 0
+      },
+      {
+        "id": "openspec-strict",
+        "exitCode": 0
+      },
+      {
+        "id": "spec-purpose",
+        "exitCode": 0
+      },
+      {
+        "id": "terminology",
+        "exitCode": 0
+      },
+      {
+        "id": "ci-qc",
+        "exitCode": 0
+      }
+    ],
+    "buildStatusPath": "raw/hydration-safety-checks/main-1-build-status.json",
+    "buildStatusSha256": "3556f0e4c3b7942bb711d75a66a7bada20fbb76fc4a5bf946b5feb4b4e829b38",
+    "buildLogPath": "raw/hydration-safety-checks/main-1-build.log",
+    "buildLogSha256": "912e7c96b1979d2fbf87036a7070b2911bbf243546adbdaa281b4979620c5b3f",
+    "buildExit": 0,
+    "buildSuccess": true,
+    "manifestEquality": true,
+    "sourceBefore": [
+      {
+        "path": "scripts/hydrate-next-standalone-multiplayer-server.mjs",
+        "sha256": "9e8866647d092ad42f51d191f8c6af175a9a98b3779cfa0682d590713898af60"
+      },
+      {
+        "path": "scripts/__tests__/standalone-hydration-path-safety.test.ts",
+        "sha256": "ee5afed78035cf09a82d6ed7749493a4e8ac06b65f8a013f585fc2f308cb17ee"
+      },
+      {
+        "path": "openspec/specs/release-build-system/spec.md",
+        "sha256": "22e8f7b16d286c9ebba16440e372b68b868fb4a0fa90b3e9004acfa10b5a3473"
+      }
+    ],
+    "sourceAfter": [
+      {
+        "path": "scripts/hydrate-next-standalone-multiplayer-server.mjs",
+        "sha256": "9e8866647d092ad42f51d191f8c6af175a9a98b3779cfa0682d590713898af60"
+      },
+      {
+        "path": "scripts/__tests__/standalone-hydration-path-safety.test.ts",
+        "sha256": "ee5afed78035cf09a82d6ed7749493a4e8ac06b65f8a013f585fc2f308cb17ee"
+      },
+      {
+        "path": "openspec/specs/release-build-system/spec.md",
+        "sha256": "22e8f7b16d286c9ebba16440e372b68b868fb4a0fa90b3e9004acfa10b5a3473"
+      }
+    ],
+    "packageLockBefore": "813adb8c95fd2d13a05214e504756ee72378769f7c33af242f8120ee2750b48a",
+    "packageLockAfter": "813adb8c95fd2d13a05214e504756ee72378769f7c33af242f8120ee2750b48a",
+    "runtimeBefore": {
+      "count": 92,
+      "sha256": "2498f00fc3495f64d3317fd77adbba41d1055d52ac0d4fa66ccfe1a85c86e38a"
+    },
+    "runtimeAfter": {
+      "count": 92,
+      "sha256": "2498f00fc3495f64d3317fd77adbba41d1055d52ac0d4fa66ccfe1a85c86e38a"
+    },
+    "rawFiles": [
+      {
+        "path": "raw/hydration-safety-checks/ci-qc.log",
+        "bytes": 479,
+        "sha256": "4ad458ce35bc91a68e25b0910e9c05919e3b991a02e9a3b3c2ba34c15c672480"
+      },
+      {
+        "path": "raw/hydration-safety-checks/focused-jest.log",
+        "bytes": 740,
+        "sha256": "0b5ba38bea7d1405b2c2190d36e2a0a9a23419ce0684bbf67be6da7ae63a3053"
+      },
+      {
+        "path": "raw/hydration-safety-checks/format-check.log",
+        "bytes": 375,
+        "sha256": "d2f01b380200eba94d087375e94b0eb78594aa7a9be0fbe3250a4f9dbb6f4e8a"
+      },
+      {
+        "path": "raw/hydration-safety-checks/lint.log",
+        "bytes": 506,
+        "sha256": "94c79ab88c090a0f1b6e15e10b99d791bdb098099b7d823a70c161fc7a48d8d4"
+      },
+      {
+        "path": "raw/hydration-safety-checks/main-1-build-status.json",
+        "bytes": 3143,
+        "sha256": "3556f0e4c3b7942bb711d75a66a7bada20fbb76fc4a5bf946b5feb4b4e829b38"
+      },
+      {
+        "path": "raw/hydration-safety-checks/main-1-build.log",
+        "bytes": 125176,
+        "sha256": "912e7c96b1979d2fbf87036a7070b2911bbf243546adbdaa281b4979620c5b3f"
+      },
+      {
+        "path": "raw/hydration-safety-checks/main-1/00-hash-status.json",
+        "bytes": 1246,
+        "sha256": "47258d4fc46e95bf9aef0d9afad9e855ace3568a6f25179a8e39b4a0b51261a6"
+      },
+      {
+        "path": "raw/hydration-safety-checks/main-1/01-focused-jest.status.json",
+        "bytes": 919,
+        "sha256": "5f354ec69d13dc0e7b7620d312a3fd3be376f9da6823aedde3609e6eecf27588"
+      },
+      {
+        "path": "raw/hydration-safety-checks/main-1/01-focused-jest.stderr.log",
+        "bytes": 421,
+        "sha256": "ab08211c7045283c3740206ceb7d58c31aac7aea118d508dbc86f141a2c26f8c"
+      },
+      {
+        "path": "raw/hydration-safety-checks/main-1/01-focused-jest.stdout.log",
+        "bytes": 26,
+        "sha256": "ad5041414338223be9b2b2b5af0d92856a0f6b2740cbfcdf972e95777907fbc6"
+      },
+      {
+        "path": "raw/hydration-safety-checks/main-1/02-node-check.status.json",
+        "bytes": 586,
+        "sha256": "757a145e853bd8501439de1731ad3713f567e5e39900caea8ec9c96db491a0d7"
+      },
+      {
+        "path": "raw/hydration-safety-checks/main-1/02-node-check.stderr.log",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": "raw/hydration-safety-checks/main-1/02-node-check.stdout.log",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": "raw/hydration-safety-checks/main-1/03-typecheck.status.json",
+        "bytes": 588,
+        "sha256": "47d8c1a56b08060ee0b0892bf4608c367c57893b7d2b577246e92df748c7cc17"
+      },
+      {
+        "path": "raw/hydration-safety-checks/main-1/03-typecheck.stderr.log",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": "raw/hydration-safety-checks/main-1/03-typecheck.stdout.log",
+        "bytes": 65,
+        "sha256": "d140a6ce62dda0946fe30dd882dbb8209f05be72c8fa8850e5634755a399e50f"
+      },
+      {
+        "path": "raw/hydration-safety-checks/main-1/04-lint.status.json",
+        "bytes": 563,
+        "sha256": "9c2d83ef66a2639b382273eb1096aee282e93c54194e822f89dd58e8e8bf518a"
+      },
+      {
+        "path": "raw/hydration-safety-checks/main-1/04-lint.stderr.log",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": "raw/hydration-safety-checks/main-1/04-lint.stdout.log",
+        "bytes": 68602,
+        "sha256": "62e38e5b66938d6ca247921f27fe6ec5b7f96282b8ab1ddb1c5dba02cde4588f"
+      },
+      {
+        "path": "raw/hydration-safety-checks/main-1/05-format-check.status.json",
+        "bytes": 603,
+        "sha256": "2dc2e10fae272d1ae220e5933217d44947c286b612e72d253d0132eae52ec504"
+      },
+      {
+        "path": "raw/hydration-safety-checks/main-1/05-format-check.stderr.log",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": "raw/hydration-safety-checks/main-1/05-format-check.stdout.log",
+        "bytes": 174,
+        "sha256": "efcdd5c3eeeef4779a95d52c815b0b575b9d7923379b55012d0eb0e0c66a160f"
+      },
+      {
+        "path": "raw/hydration-safety-checks/main-1/06-openspec-strict.status.json",
+        "bytes": 707,
+        "sha256": "6b2f0f030e9616fcaea38e61cb8cfa9bd79d620e21f25256dde7e0698ed183b6"
+      },
+      {
+        "path": "raw/hydration-safety-checks/main-1/06-openspec-strict.stderr.log",
+        "bytes": 16,
+        "sha256": "5bc31df123a2e521acdd2c0d9477b367feec506471a91065d0a6b32c09089ed5"
+      },
+      {
+        "path": "raw/hydration-safety-checks/main-1/06-openspec-strict.stdout.log",
+        "bytes": 6919,
+        "sha256": "16c5c323579e9f348bc2adb0830ebd7bb199a73726ab1098c72331305dcca967"
+      },
+      {
+        "path": "raw/hydration-safety-checks/main-1/07-spec-purpose.status.json",
+        "bytes": 635,
+        "sha256": "57bc3f6e2d12e734a58d40727dbcf79ba8b05cf9d285c09b6d8920295ef66b34"
+      },
+      {
+        "path": "raw/hydration-safety-checks/main-1/07-spec-purpose.stderr.log",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": "raw/hydration-safety-checks/main-1/07-spec-purpose.stdout.log",
+        "bytes": 304,
+        "sha256": "3db815e6a799b623c9a272e7e654cfebb5781820dfb1e8e2ddc7d7614cd24345"
+      },
+      {
+        "path": "raw/hydration-safety-checks/main-1/08-terminology.status.json",
+        "bytes": 630,
+        "sha256": "96aa77fce2e0fabc5e009a094610660c2cbb7b37f33aaf1950bb029b178e865b"
+      },
+      {
+        "path": "raw/hydration-safety-checks/main-1/08-terminology.stderr.log",
+        "bytes": 572,
+        "sha256": "566e8ccbce9fef91c00e4eb16a77f6e69e98b0d8c4406827b52cd3b7935ac21e"
+      },
+      {
+        "path": "raw/hydration-safety-checks/main-1/08-terminology.stdout.log",
+        "bytes": 311,
+        "sha256": "f900b2f139d48a4fce3da66f12105cdd633a1cfe6dc8102211bcf03cc6a1cce7"
+      },
+      {
+        "path": "raw/hydration-safety-checks/main-1/09-ci-qc.status.json",
+        "bytes": 604,
+        "sha256": "70db60562259084389297d1c48d2add6e88abd8add89b0ef6c9a08e36dcd85ca"
+      },
+      {
+        "path": "raw/hydration-safety-checks/main-1/09-ci-qc.stderr.log",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": "raw/hydration-safety-checks/main-1/09-ci-qc.stdout.log",
+        "bytes": 268,
+        "sha256": "f01feb11318234aab4764fe76151b78c06905527212a8f8723626fcf616b71d6"
+      },
+      {
+        "path": "raw/hydration-safety-checks/main-1/09-final-worktree-status.json",
+        "bytes": 95,
+        "sha256": "7c9a50266cdbc88ca82ea4cea3c359c1b8a25554da0e1f09570f856b4cd8f4ed"
+      },
+      {
+        "path": "raw/hydration-safety-checks/main-1/build-driver.cjs",
+        "bytes": 6282,
+        "sha256": "20a669c5da88a7b67cfb92d73f76bc570e8759feff7b0737ae4e35ca656628f2"
+      },
+      {
+        "path": "raw/hydration-safety-checks/main-1/runtime-inventory-parent.json",
+        "bytes": 10445,
+        "sha256": "3a7ab76574e8447c7ef9e7921ca9244490f2a7d45b7eb6f5b97cd3510cc5177a"
+      },
+      {
+        "path": "raw/hydration-safety-checks/main-1/static-driver.cjs",
+        "bytes": 8358,
+        "sha256": "cd99c7f275060103e6dd6dfd1b067312da1a23d5d6d6877d7815665a33556bbd"
+      },
+      {
+        "path": "raw/hydration-safety-checks/main-1/static-summary.json",
+        "bytes": 9679,
+        "sha256": "3d4e1edbcfb8f350237793bfcba486ec7be33d00f2e73ee1db368f8932047057"
+      },
+      {
+        "path": "raw/hydration-safety-checks/node-check.log",
+        "bytes": 162,
+        "sha256": "5499ad5b82baff446ce9392a5863f664c153459a773f95dec2e981f29fc36650"
+      },
+      {
+        "path": "raw/hydration-safety-checks/openspec-strict.log",
+        "bytes": 290,
+        "sha256": "b02dbb09a7fdffa0fbd6e948de636294b1271dba10c6ae28923105e5b5ab0133"
+      },
+      {
+        "path": "raw/hydration-safety-checks/spec-purpose.log",
+        "bytes": 520,
+        "sha256": "49d0f93137431f29a4e6a4d813e65681faf0feb7518d71d02c506e65a9ed3a40"
+      },
+      {
+        "path": "raw/hydration-safety-checks/status.json",
+        "bytes": 3696,
+        "sha256": "c1116c6399ddfd9fe28498d86c548fb50b8648ee8f42af3c56af6b5eb192edab"
+      },
+      {
+        "path": "raw/hydration-safety-checks/terminology.log",
+        "bytes": 569,
+        "sha256": "e904636a14c68e6ff161964962a9b907e90513ee3d75dc4c8d4ce20899bfe125"
+      },
+      {
+        "path": "raw/hydration-safety-checks/typecheck.log",
+        "bytes": 261,
+        "sha256": "1865e593898e809f7d8f17fd2d7aae526205b72fbced256df5cf4ce6def33fb8"
+      }
+    ]
+  },
+  "receipts": {
+    "mainVerification": {
+      "path": "receipts/hydration-safety-main-verification-20260912.json",
+      "sha256": "495a9ca59be4d6adc1419d86ee12f660d78f23b38802ceb637849944e357a0a0"
+    },
+    "parentAcceptance": {
+      "path": "receipts/hydration-safety-main-parent-acceptance-20260912.json",
+      "sha256": "f79349a2033aafeb135a339d96c7db47885760b12476c60d2ec40cbb781cff25",
+      "acceptedMainCommit": "7a537a1c4ea621b397f4b5216859f0548773fd61",
+      "acceptedProofSha256": "495a9ca59be4d6adc1419d86ee12f660d78f23b38802ceb637849944e357a0a0"
+    }
+  },
+  "refs": {
+    "exportPath": "refs/hydration-ref-export.json",
+    "exportSha256": "dee6ba31bba6d0ea04c51739ecb3a20f7b9bbce0b8a9e34914f391f9edd3d2da",
+    "patchPath": "refs/hydration-pre-manifest.patch",
+    "patchSha256": "fc0ec8c6a9b9222e2cc62c5d918b11ccb8ba761d16e8092f94de1c926a54f165",
+    "commitMetadataPath": "refs/hydration-pre-manifest-commit.txt",
+    "localBranchExpected": "ef940c470519f718e46a262e470d84633d6ef197",
+    "trackingExpected": "ef940c470519f718e46a262e470d84633d6ef197",
+    "backupExpected": "52548461e43598b907e0969b1515aab8574ed939",
+    "postDeleteActual": {
+      "local": "",
+      "tracking": "",
+      "backup": ""
+    }
+  },
+  "processTermination": {
+    "buildDriverPid": 29288,
+    "buildChildPid": 82992,
+    "verifiedAbsentPids": [
+      29288,
+      82992
+    ],
+    "listenersAtProof": [],
+    "terminal": true
+  },
+  "limits": [
+    "Export and cleanup changed only evidence/export artifacts and the explicitly authorized hydration worktree/ref cleanup.",
+    "No product/source/package/spec edits, installs, builds, servers, browser sessions, asset acquisition, or shared process termination were performed during cleanup.",
+    "The proof remains Windows production-build and fixture evidence; it does not claim Linux-native proof."
+  ]
+}

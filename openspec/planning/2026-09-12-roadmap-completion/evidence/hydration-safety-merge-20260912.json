@@ -1,0 +1,19 @@
+{
+  "at": "2026-09-12T20:28:58.156Z",
+  "pr": {
+    "baseRefName": "main",
+    "headRefOid": "ef940c470519f718e46a262e470d84633d6ef197",
+    "mergeCommit": {
+      "oid": "7a537a1c4ea621b397f4b5216859f0548773fd61"
+    },
+    "mergedAt": "2026-09-12T20:26:55Z",
+    "number": 1644,
+    "state": "MERGED",
+    "url": "https://github.com/SwiggitySwerve/MekStation/pull/1644"
+  },
+  "premerge": "evidence/hydration-safety-attempt-1-premerge.json",
+  "limits": [
+    "Exact-main proof and owned cleanup pending"
+  ],
+  "raw": "hydration-safety-delivery/merged-pr.json"
+}

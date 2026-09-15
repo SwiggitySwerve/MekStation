@@ -1,0 +1,996 @@
+{
+  "schemaVersion": 1,
+  "capturedAt": "2026-09-12T22:20:04.371Z",
+  "status": "accepted-with-export-qualification",
+  "artifacts": [
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/ci-contract-modules-cleanup-20260912.json",
+      "sha256": "bf7ef84ab04040fe8ad5e48ecb245f5465eb644cb22e3db24f38bcfa9173b2d4",
+      "bytes": 5746
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/ci-contract-modules-cleanup-export-qualification-20260912.json",
+      "sha256": "12af4cce835979baf7518eca45d1cd1945078ea540f6dfc1194363034634e0e9",
+      "bytes": 3879
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-contract-modules-cleanup/export-manifest.json",
+      "sha256": "dccc232a21304637b6bbebf1e7a06dc46a141aac1df0779c99a01f8b0118ee2a",
+      "bytes": 176669
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-contract-modules-post-cleanup-source-export/export-manifest.json",
+      "sha256": "9f2b113a5e6789bd1c2b6be7972a0e3f7639d5b4a35dc3233b9fba25f81350dd",
+      "bytes": 3477
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/local-1/after.json",
+      "sha256": "64e8562c885ce44b9ff07d7ba8d14eed0a901dc10be22cb508e6a901a065de35",
+      "bytes": 44106
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/local-1/before.json",
+      "sha256": "89f6cf5201855edf139c0eb498f669b609b010006d6f221a71cd3f168b887e93",
+      "bytes": 44249
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/local-1/build-driver.cjs",
+      "sha256": "7121741d501ffcba0e74832f0a54e85b061482ef0b1de34a8db3b37c3c7af5d9",
+      "bytes": 8668
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/local-1/build-status.json",
+      "sha256": "461cab7e6d72cb5eb9e92048b6f75906b9a48391800248d45caf87a7027e1603",
+      "bytes": 788
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/local-1/driver.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/local-1/driver.stdout.log",
+      "sha256": "81ea1acedff2f6932cdf128994987a004d298fbc2e4e92e43e2b70c5f96ee2cb",
+      "bytes": 147
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/local-1/local-build-result.json",
+      "sha256": "91aa390239155925df1d921129e0a3cfc7e2a3ab8e90e402e49bb04b760df96a",
+      "bytes": 94601
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/local-1/production-build.stderr.log",
+      "sha256": "5b0e0796f07fc62d9d6cebf3282bd356c5c673a168e26cbed25b1a2ae787b89d",
+      "bytes": 3699585
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/local-1/production-build.stdout.log",
+      "sha256": "83898d0b5428c333f65835401cf2d65c91d98ee7c5275a19965a98b5ec779ee6",
+      "bytes": 7010
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/local-1/terminology-status.json",
+      "sha256": "d403445c577a8a4317f82580bfb769e003dd18702f422ceaf8a2ba0548e585a6",
+      "bytes": 816
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/local-1/terminology-strict.stderr.log",
+      "sha256": "cf1290ff3b910eb706451725a74250bb9bb8fee481afaaee5a074358900092e1",
+      "bytes": 578
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/local-1/terminology-strict.stdout.log",
+      "sha256": "f900b2f139d48a4fce3da66f12105cdd633a1cfe6dc8102211bcf03cc6a1cce7",
+      "bytes": 311
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/main-1/before.json",
+      "sha256": "0977fc4ba88730b19ef6eaad178e9eaacf541651b28a38a27889753dd84f4dd7",
+      "bytes": 44378
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/main-1/candidate-ci-qc.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/main-1/candidate-ci-qc.stdout.log",
+      "sha256": "e73d2bc631637ff8806d9adbf1a31052b575044d797a04f184aec21f5b8e6985",
+      "bytes": 10199
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/main-1/driver-failure.json",
+      "sha256": "32d7db151177e70b7b097a2e01b714e6458af4ff618859d84458a1815f90b933",
+      "bytes": 949
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/main-1/dynamic-import-contract-modules.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/main-1/dynamic-import-contract-modules.stdout.log",
+      "sha256": "0f83adc6354725ba28ac4f1a62a1996c39d4ff6d9f95e90c065a086fe7bc454b",
+      "bytes": 249
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/main-1/exact-yaml-metadata.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/main-1/exact-yaml-metadata.stdout.log",
+      "sha256": "254b5557e045cc48dc29a3f0f61222b51d863924af177982d5e5dde701dcd8ae",
+      "bytes": 2854
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/main-1/exit-evidence-repair/exit-evidence-driver.cjs",
+      "sha256": "6298423d992f0c4d24dbbb6731d07f4a7c5654f560c594cc1cc1319ee505aca4",
+      "bytes": 8519
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/main-1/exit-evidence-repair/run-1/after.json",
+      "sha256": "a6f63cd031537668ec4a03f00aadb544765b216c24a27acd523e54a321dbf9ff",
+      "bytes": 589
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/main-1/exit-evidence-repair/run-1/before.json",
+      "sha256": "fdca58c74c33930ab31375e33d3c1b4eca2c4d158d5091ee8d3fa3fcddaf49b8",
+      "bytes": 589
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/main-1/exit-evidence-repair/run-1/candidate-ci-qc.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/main-1/exit-evidence-repair/run-1/candidate-ci-qc.stdout.log",
+      "sha256": "e73d2bc631637ff8806d9adbf1a31052b575044d797a04f184aec21f5b8e6985",
+      "bytes": 10199
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/main-1/exit-evidence-repair/run-1/dynamic-import-contract-modules.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/main-1/exit-evidence-repair/run-1/dynamic-import-contract-modules.stdout.log",
+      "sha256": "0f83adc6354725ba28ac4f1a62a1996c39d4ff6d9f95e90c065a086fe7bc454b",
+      "bytes": 249
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/main-1/exit-evidence-repair/run-1/exit-evidence-repair.json",
+      "sha256": "bd356d5fea4bd644054d420f072a532b2c804a89b8013da8fc7cc770aa8b55e1",
+      "bytes": 17183
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/main-1/exit-evidence-repair/run-1/focused-jest-five-tests.stderr.log",
+      "sha256": "ba001e3c9f8fdbd705e91850e61a65893112dca9abb63eb2819c5dc483be1be9",
+      "bytes": 698
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/main-1/exit-evidence-repair/run-1/focused-jest-five-tests.stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/main-1/exit-evidence-repair/run-1/format-check.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/main-1/exit-evidence-repair/run-1/format-check.stdout.log",
+      "sha256": "7ea44bd2e84bbdc5f5caf6c401845fbee89d158c52a26288f0f6abca5ac71a2e",
+      "bytes": 174
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/main-1/exit-evidence-repair/run-1/lint.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/main-1/exit-evidence-repair/run-1/lint.stdout.log",
+      "sha256": "486d6343d3802528d79430cafddf0e8a719574243f533d15344911328fd9df6d",
+      "bytes": 38687
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/main-1/exit-evidence-repair/run-1/node-check-ci-module.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/main-1/exit-evidence-repair/run-1/node-check-ci-module.stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/main-1/exit-evidence-repair/run-1/node-check-workflow-module.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/main-1/exit-evidence-repair/run-1/node-check-workflow-module.stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/main-1/exit-evidence-repair/run-1/openspec-validate-strict.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/main-1/exit-evidence-repair/run-1/openspec-validate-strict.stdout.log",
+      "sha256": "16c5c323579e9f348bc2adb0830ebd7bb199a73726ab1098c72331305dcca967",
+      "bytes": 6919
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/main-1/exit-evidence-repair/run-1/purpose-strict.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/main-1/exit-evidence-repair/run-1/purpose-strict.stdout.log",
+      "sha256": "901c3cbcfa24be0f7b562b01015ca5232c1976e1362788ebbf1caeec5b96ea4b",
+      "bytes": 205
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/main-1/exit-evidence-repair/run-1/shell-override-negative-harness.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/main-1/exit-evidence-repair/run-1/shell-override-negative-harness.stdout.log",
+      "sha256": "86d00062e3a450c5c794f352fcc7030390725cb6e386eef17215528f2887caeb",
+      "bytes": 3888
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/main-1/exit-evidence-repair/run-1/terminology-strict.stderr.log",
+      "sha256": "207bcbba8f375cb003f41f1cb339da350fdc5a77a304afa2d4c910f50b3df737",
+      "bytes": 578
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/main-1/exit-evidence-repair/run-1/terminology-strict.stdout.log",
+      "sha256": "06c7961b0d4709a1010aba1f38caf9ab57eb82ce2c48ceb2422ed9d4b234db23",
+      "bytes": 189
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/main-1/exit-evidence-repair/run-1/typecheck.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/main-1/exit-evidence-repair/run-1/typecheck.stdout.log",
+      "sha256": "d140a6ce62dda0946fe30dd882dbb8209f05be72c8fa8850e5634755a399e50f",
+      "bytes": 65
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/main-1/focused-jest-five-tests.stderr.log",
+      "sha256": "27242f0446fd3cd5194b342f5e13160011a64abbd72c77fc2fb706221b25946f",
+      "bytes": 697
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/main-1/focused-jest-five-tests.stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/main-1/format-check.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/main-1/format-check.stdout.log",
+      "sha256": "e061787ef26cca1d423e15e1670e9dc4eeb26ed88af0b78021267fb2fe75040e",
+      "bytes": 174
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/main-1/initial-harness-fixture-failure/before.json",
+      "sha256": "7e70ccc098921005aa8266fcecb04183b2151e0fe27a962e2c3eb019c0c9ee78",
+      "bytes": 44378
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/main-1/initial-harness-fixture-failure/driver-failure.json",
+      "sha256": "0a1367f2ecaff6b82d8d5af32494e3de45ec8321c43881944a2bb6d0693819e7",
+      "bytes": 1593
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/main-1/initial-harness-fixture-failure/dynamic-import-contract-modules.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/main-1/initial-harness-fixture-failure/dynamic-import-contract-modules.stdout.log",
+      "sha256": "0f83adc6354725ba28ac4f1a62a1996c39d4ff6d9f95e90c065a086fe7bc454b",
+      "bytes": 249
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/main-1/initial-harness-fixture-failure/focused-jest-five-tests.stderr.log",
+      "sha256": "4d90cba0bb22bef552c6d753f11af75373b9902a72358d50f705d2c308fa0e6d",
+      "bytes": 713
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/main-1/initial-harness-fixture-failure/focused-jest-five-tests.stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/main-1/initial-harness-fixture-failure/main-driver.cjs",
+      "sha256": "276b34483eeaab45fd5e0ff82adbd9ebf6ff8e6ba756bb3e67549b54d9f28f3d",
+      "bytes": 10589
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/main-1/initial-harness-fixture-failure/node-check-ci-module.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/main-1/initial-harness-fixture-failure/node-check-ci-module.stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/main-1/initial-harness-fixture-failure/node-check-workflow-module.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/main-1/initial-harness-fixture-failure/node-check-workflow-module.stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/main-1/initial-harness-fixture-failure/shell-override-negative-harness.stderr.log",
+      "sha256": "c8c908ef87a84d66b0abd0d762c7fa5770217d4a575cef0f8f5490dbc795fadd",
+      "bytes": 491
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/main-1/initial-harness-fixture-failure/shell-override-negative-harness.stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/main-1/initial-metadata-test-mismatch/driver-failure.json",
+      "sha256": "219bfc1a7e2caf377e0cba58e7865c0ad5f03d91844bb1af2c00aecf75a445c5",
+      "bytes": 1398
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/main-1/initial-metadata-test-mismatch/exact-yaml-metadata.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/main-1/initial-metadata-test-mismatch/exact-yaml-metadata.stdout.log",
+      "sha256": "254b5557e045cc48dc29a3f0f61222b51d863924af177982d5e5dde701dcd8ae",
+      "bytes": 2854
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/main-1/initial-metadata-test-mismatch/main-driver.cjs",
+      "sha256": "97cee08b34ff1acabbf348d0a83464e4c5659934b2d97e00e4d05bb378473068",
+      "bytes": 10584
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/main-1/lint.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/main-1/lint.stdout.log",
+      "sha256": "66078f7ef5aaff887eb4732318ba5c44d7c96da686a31a5249afd03b06c1bf6a",
+      "bytes": 38687
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/main-1/main-driver.cjs",
+      "sha256": "b44ad895108ce108becfc35c5c3863dbc75a797df51aa9624647401e48965a1c",
+      "bytes": 10590
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/main-1/metadata-main.cjs",
+      "sha256": "8dd585652786390d145c9ace86070cdda94d7ee158e180fe42a9090491eba6a2",
+      "bytes": 4140
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/main-1/node-check-ci-module.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/main-1/node-check-ci-module.stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/main-1/node-check-workflow-module.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/main-1/node-check-workflow-module.stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/main-1/openspec-validate-strict.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/main-1/openspec-validate-strict.stdout.log",
+      "sha256": "16c5c323579e9f348bc2adb0830ebd7bb199a73726ab1098c72331305dcca967",
+      "bytes": 6919
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/main-1/purpose-strict.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/main-1/purpose-strict.stdout.log",
+      "sha256": "901c3cbcfa24be0f7b562b01015ca5232c1976e1362788ebbf1caeec5b96ea4b",
+      "bytes": 205
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/main-1/recovery-1/after.json",
+      "sha256": "5f643686a955159be4b29874a6077e929b16af2db4964dd0d929b3460aaf323c",
+      "bytes": 44175
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/main-1/recovery-1/before.json",
+      "sha256": "206f8fe25b1ac00f05c3c7b7b3bc261ceb5b72bdb506ea6380cd3a4f3c4ffe55",
+      "bytes": 44175
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/main-1/recovery-1/corrected-exact-yaml-metadata.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/main-1/recovery-1/corrected-exact-yaml-metadata.stdout.log",
+      "sha256": "ae58ec21755bd333eb4120238b4ff2155641ae1369daf1fe6b3601aa10510ec4",
+      "bytes": 2847
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/main-1/recovery-1/pid-absence.txt",
+      "sha256": "2c5d88cc1d234f9f2a33ae314bea2ee1b6b4fb4669490105047787102e650b58",
+      "bytes": 26
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/main-1/recovery-1/production-build.stderr.log",
+      "sha256": "85d93299a7d4c188400ccb7668aeba003808d04cc0c626eef34b4c46a5fa6090",
+      "bytes": 128260
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/main-1/recovery-1/production-build.stdout.log",
+      "sha256": "b081d570f10280b957d065c3af7be1b2b98366e5ad37c40e610d427f8bc33251",
+      "bytes": 7014
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/main-1/recovery-1/recovery-verification.json",
+      "sha256": "0fdcc066f89cc22d449cf5e3353ff212c33895ad80be78649645440813764469",
+      "bytes": 96172
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/main-1/recovery-driver.cjs",
+      "sha256": "a17714aa7edc390714effa9b9d69e3c3187a5cc0ac8d17745128225a12a5bdf2",
+      "bytes": 7683
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/main-1/shell-override-negative-harness.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/main-1/shell-override-negative-harness.stdout.log",
+      "sha256": "86d00062e3a450c5c794f352fcc7030390725cb6e386eef17215528f2887caeb",
+      "bytes": 3888
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/main-1/terminology-strict.stderr.log",
+      "sha256": "802da0b0c99563087ac4c18c88d9a5736a4c49ad08ba7d3c2837537c207585b5",
+      "bytes": 578
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/main-1/terminology-strict.stdout.log",
+      "sha256": "06c7961b0d4709a1010aba1f38caf9ab57eb82ce2c48ceb2422ed9d4b234db23",
+      "bytes": 189
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/main-1/typecheck.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/main-1/typecheck.stdout.log",
+      "sha256": "d140a6ce62dda0946fe30dd882dbb8209f05be72c8fa8850e5634755a399e50f",
+      "bytes": 65
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/grok-ci-contracts-1/admission.json",
+      "sha256": "2180abaaf510ca46c0b2b75c8ad2cb724e4c4d0562741fcc997fd8bf94ffec62",
+      "bytes": 639
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/grok-ci-contracts-1/checks/dynamic-import-modules.raw.log",
+      "sha256": "5fc9fd4ecfe37b357467108647dbf5f45f98ca5d92d14b88d59ab7bc7d363921",
+      "bytes": 2458
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/grok-ci-contracts-1/checks/dynamic-import.mjs",
+      "sha256": "5577589bd5791ac99ccc6687f3f87d4ef853f57e831d6f821c32e71ec0f2f8be",
+      "bytes": 1347
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/grok-ci-contracts-1/checks/existing-ciqc.raw.log",
+      "sha256": "14103aace365c5ee85c3a986795fb96a10891cfb4b72820f6291714aed3443bb",
+      "bytes": 389
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/grok-ci-contracts-1/checks/git-apply.raw.log",
+      "sha256": "8e414bbf468512eea79d554a16a59c3a6d262459fb725f20579858556db24752",
+      "bytes": 233
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/grok-ci-contracts-1/checks/git-diff-cached.raw.log",
+      "sha256": "225e3cf2f062d2d6a729ffe2f9bb971208458c9a721253d4d57b2bd21b156354",
+      "bytes": 121
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/grok-ci-contracts-1/checks/git-diff-check-tracked.raw.log",
+      "sha256": "c97bcd457afbbccb06132525a504af40097ac3295eb9ebfede06ad48b9c1b4a3",
+      "bytes": 121
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/grok-ci-contracts-1/checks/git-diff-numstat.raw.log",
+      "sha256": "883c80f41fc068688ee439cf06239215c0bfd7ba0366a9c9a20358e53b3f74fb",
+      "bytes": 160
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/grok-ci-contracts-1/checks/git-diff-stat.raw.log",
+      "sha256": "99e7a7fb8167da0f2ce37017321ae95fff88206fe4f9e082022dfb2f56731418",
+      "bytes": 225
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/grok-ci-contracts-1/checks/git-lock-yaml-resolved-diff.raw.log",
+      "sha256": "b145ee01cb4187ce5d4fd0b85377478b0c0017ec76e32f9cce69f035ec797f7f",
+      "bytes": 546
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/grok-ci-contracts-1/checks/git-name-only.raw.log",
+      "sha256": "c2bc1723a5cc7d057dc9e64f12e726198b1cd1a0a56b86047d39cf5ec90ef0a7",
+      "bytes": 244
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/grok-ci-contracts-1/checks/git-pkg-diff.raw.log",
+      "sha256": "1176e5599d7c43f73890da5e38a132c82a5329051a6614d58bdd1500ea23ef52",
+      "bytes": 502
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/grok-ci-contracts-1/checks/git-status-porcelain.raw.log",
+      "sha256": "93fdcfdc9c7c75a6976558517042e58e37f870737e07bf5c60312d346819b283",
+      "bytes": 244
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/grok-ci-contracts-1/checks/hashes-after-copy-apply.json",
+      "sha256": "708c1a661143b87aa355a59f0b432b7637411def633ac2e22a2fc7a58b566397",
+      "bytes": 1202
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/grok-ci-contracts-1/checks/hashes-after.json",
+      "sha256": "c79aa7492211918143efb2aabb8a8f971f2604f67d924f7b66c2be1eca43dacb",
+      "bytes": 983
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/grok-ci-contracts-1/checks/hashes-before.json",
+      "sha256": "3720c704c7b3d939d99c8fc050f3fee73541ecf667a8f61d40cd265c43ece132",
+      "bytes": 2012
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/grok-ci-contracts-1/checks/node-check-ci-contracts.raw.log",
+      "sha256": "a70eb3c98726378e2a4e87a42d294658d862a42326d6ef1eea71ec5f1ee7f434",
+      "bytes": 121
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/grok-ci-contracts-1/checks/node-check-workflow-contracts.raw.log",
+      "sha256": "3bec7e407f2e11b1094bdd544606b980ddf085837a9bd29a63a2cd1e890e4ade",
+      "bytes": 121
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/grok-ci-contracts-1/checks/oxfmt-check-modules.raw.log",
+      "sha256": "a5b1f5237709b6dec1dfef267065f857a3cbfc46831d33346b1078683aa4516e",
+      "bytes": 233
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/grok-ci-contracts-1/checks/status.json",
+      "sha256": "c3e678928d03c7cf6cbbf66d9d0254c9a32513e021b00755048d510264e46a7a",
+      "bytes": 12768
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/grok-ci-contracts-1/checks/yaml-lock-verify.json",
+      "sha256": "2bdfbc886be43c9c64c171aea93318626d458773abc4e383c89c501195219272",
+      "bytes": 474
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/grok-ci-contracts-1/driver.cjs",
+      "sha256": "5580add8cf80f1cb460d1fad50a52f96cd14770b7ac8198659106da377ea9b35",
+      "bytes": 1543
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/grok-ci-contracts-1/events.ndjson",
+      "sha256": "486054d9be039dddba45e4d8bf0b70fac17e2424a64e36f7aaa334a2eeea5f62",
+      "bytes": 854193
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/grok-ci-contracts-1/launcher.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/grok-ci-contracts-1/prompt.md",
+      "sha256": "43a0e1e327eb4ad83c7d4fcb65a44c22864b143e42530b6124282d632f545df4",
+      "bytes": 2555
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/grok-ci-contracts-1/report.md",
+      "sha256": "8398ad0176746d606a50ba0d517c18e74aad1843cd721d0c79e0be8f7d0154b2",
+      "bytes": 2685
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/grok-ci-contracts-1/resume-1-checks/dynamic-import-retry.meta.json",
+      "sha256": "fd3353c79045c90f98d0353967964104b608e597e31f7d7f215f08279c0398f5",
+      "bytes": 1235
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/grok-ci-contracts-1/resume-1-checks/dynamic-import-retry.mjs",
+      "sha256": "db0785aa2b825c190ef4645eb8d326a4abdebaaf13cefef99b26952004586ed4",
+      "bytes": 1636
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/grok-ci-contracts-1/resume-1-checks/dynamic-import-retry.stderr.log",
+      "sha256": "594fe5907d23939a70d424a84f4ea8c930430824ce25bab4b5c9fc7342b01ea9",
+      "bytes": 610
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/grok-ci-contracts-1/resume-1-checks/dynamic-import-retry.stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/grok-ci-contracts-1/resume-1-checks/dynamic-import.mjs",
+      "sha256": "a3841bf3774a953922c4bcbe507e726cca5cad4e5ae6ec4610b7cd0c9f1c857b",
+      "bytes": 1636
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/grok-ci-contracts-1/resume-1-checks/dynamic-import.stderr.log",
+      "sha256": "1907b0e808770c07f4c21ebf1ba3ef345912a9841f770a7f7d5939c2939b3941",
+      "bytes": 1515
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/grok-ci-contracts-1/resume-1-checks/dynamic-import.stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/grok-ci-contracts-1/resume-1-checks/spawn-import-retry.cjs",
+      "sha256": "e2464acc17e984b63a73434a78763c81599c899f6116939c59fa0b772e3964d5",
+      "bytes": 3027
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/grok-ci-contracts-1/resume-1-checks/spawn-import-retry.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/grok-ci-contracts-1/resume-1-checks/spawn-import-retry.stdout.log",
+      "sha256": "7cf69b65f06336f6c0a10c326ef14b2bf6ba27894f572ba352a7fcbc1b801340",
+      "bytes": 180
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/grok-ci-contracts-1/resume-1-checks/status.json",
+      "sha256": "e16fb89d36a8ed370b5b157f914dab560a708b2997d7f4e4b13c0a6e27823495",
+      "bytes": 11256
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/grok-ci-contracts-1/resume-1-checks/verification.json",
+      "sha256": "985c6b81c93659e9725f7f6d615181c49e52f71d546ea7afbfc39ed43de6f3ce",
+      "bytes": 4643
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/grok-ci-contracts-1/resume-1-checks/verify.cjs",
+      "sha256": "eefcc1c75d45d38978a128b8e63ee8c87b01c2181599d69347ac11b1962f73af",
+      "bytes": 10261
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/grok-ci-contracts-1/resume-1-checks/verify.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/grok-ci-contracts-1/resume-1-checks/verify.stdout.log",
+      "sha256": "a50a907d438cc78c92118431eba942f838427fd5262853cf1ae53670e8f4b8e7",
+      "bytes": 854
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/grok-ci-contracts-1/resume-1-driver.cjs",
+      "sha256": "5e42fa131cd2daf18d8e105f5b84cbb5c9c848290aafd8ba826a1b93ccdb0e82",
+      "bytes": 1628
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/grok-ci-contracts-1/resume-1-events.ndjson",
+      "sha256": "5fafeb35a4a1c60dcb7ec1d05180efdf52d797564fc2af90e3586ab998d748bc",
+      "bytes": 379410
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/grok-ci-contracts-1/resume-1-launcher.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/grok-ci-contracts-1/resume-1-prompt.md",
+      "sha256": "741f604e5dddd1ccc23b22473e1abb0ef772fff5ea0e93e9a14e6acfb1dd7a73",
+      "bytes": 1410
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/grok-ci-contracts-1/resume-1-status.json",
+      "sha256": "aead90e1c6af76fc63a182f9d9bb5c96da7be2adf9a01a639803bb39f6131889",
+      "bytes": 1247
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/grok-ci-contracts-1/resume-1-stderr.log",
+      "sha256": "b3e62995cdc9d267dd575413b26c5eb3c56eb3f54d816fc4ace8f7b91c7d1b1f",
+      "bytes": 25
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/grok-ci-contracts-1/resume-2-checks/driver.cjs",
+      "sha256": "0811e12a42ecdc326ddb0e07f181f9562b40f56d0000e4adcd678c5926e0fdec",
+      "bytes": 7933
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/grok-ci-contracts-1/resume-2-checks/driver.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/grok-ci-contracts-1/resume-2-checks/driver.stdout.log",
+      "sha256": "e5d16536cfa7057a4334947328699ad9f66675786b31a77533f36be95a993bec",
+      "bytes": 814
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/grok-ci-contracts-1/resume-2-checks/dynamic-import.mjs",
+      "sha256": "ad107aa3fa4abe15905af564d1828a229aa52d3d420813f5652ad97ff5f97a01",
+      "bytes": 1359
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/grok-ci-contracts-1/resume-2-checks/dynamic-import.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/grok-ci-contracts-1/resume-2-checks/dynamic-import.stdout.log",
+      "sha256": "2bdf04766a61952549e9ee49c9f2cfbb6bed8952ad21cdba2a24411e54874c3c",
+      "bytes": 734
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/grok-ci-contracts-1/resume-2-checks/existing-ciqc.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/grok-ci-contracts-1/resume-2-checks/existing-ciqc.stdout.log",
+      "sha256": "f01feb11318234aab4764fe76151b78c06905527212a8f8723626fcf616b71d6",
+      "bytes": 268
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/grok-ci-contracts-1/resume-2-checks/format-fix.cjs",
+      "sha256": "1a383055511e61eca2d421f98e0afd48e5103d95bd27ed30349e1e85f5df38a7",
+      "bytes": 4781
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/grok-ci-contracts-1/resume-2-checks/git-diff-check-tracked.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/grok-ci-contracts-1/resume-2-checks/git-diff-check-tracked.stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/grok-ci-contracts-1/resume-2-checks/negative-harness.mjs",
+      "sha256": "bb89b5cf5483094b2e21a1491940e602fc410b58857ca62b933eb5e9e273eaf9",
+      "bytes": 3300
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/grok-ci-contracts-1/resume-2-checks/negative-harness.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/grok-ci-contracts-1/resume-2-checks/negative-harness.stdout.log",
+      "sha256": "86d00062e3a450c5c794f352fcc7030390725cb6e386eef17215528f2887caeb",
+      "bytes": 3888
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/grok-ci-contracts-1/resume-2-checks/node-check-ci-contracts.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/grok-ci-contracts-1/resume-2-checks/node-check-ci-contracts.stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/grok-ci-contracts-1/resume-2-checks/node-check-workflow-contracts.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/grok-ci-contracts-1/resume-2-checks/node-check-workflow-contracts.stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/grok-ci-contracts-1/resume-2-checks/oxfmt-check-modules.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/grok-ci-contracts-1/resume-2-checks/oxfmt-check-modules.stdout.log",
+      "sha256": "5080effda545dd54aaefbc3097c4f66858c6cc6465e225450aed451be4d1869a",
+      "bytes": 188
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/grok-ci-contracts-1/resume-2-checks/status.json",
+      "sha256": "d6c46f4c24ba8fdab6de8847d3087d8fbc0dc351fc71a6cf58dca1bfc48d80b2",
+      "bytes": 15915
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/grok-ci-contracts-1/resume-2-driver.cjs",
+      "sha256": "2c4c487e74523390098ccfac2b0ff28995f8a42ff457ba17a6fbb9f56636e99e",
+      "bytes": 1629
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/grok-ci-contracts-1/resume-2-events.ndjson",
+      "sha256": "b430d2327e59aa844e216e83d708713e8d9abfe4c45c81d1fd3fdd7d42c4ee86",
+      "bytes": 493250
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/grok-ci-contracts-1/resume-2-launcher.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/grok-ci-contracts-1/resume-2-prompt.md",
+      "sha256": "5fa5386bc25a5cba4a84350600437c28099b576f7b40dd34fb4451858e090eae",
+      "bytes": 2064
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/grok-ci-contracts-1/resume-2-status.json",
+      "sha256": "d6fe43050e14e9cf5f66a9993cc98b4a5551165299b52c771c0cf2b2b71fb50a",
+      "bytes": 1248
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/grok-ci-contracts-1/resume-2-stderr.log",
+      "sha256": "b3e62995cdc9d267dd575413b26c5eb3c56eb3f54d816fc4ace8f7b91c7d1b1f",
+      "bytes": 25
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/grok-ci-contracts-1/status.json",
+      "sha256": "1fd10614d8af8f5f2877e868c9dcc78a568824f747a21a29ba24688d69be9a50",
+      "bytes": 1161
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/grok-ci-contracts-1/stderr.log",
+      "sha256": "b3e62995cdc9d267dd575413b26c5eb3c56eb3f54d816fc4ace8f7b91c7d1b1f",
+      "bytes": 25
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-shell-override-repro/red-result.json",
+      "sha256": "63e2e3b77a85fa48bfedb21b3ae2e118aecb0ffdcaf25497db0c392a01a90a88",
+      "bytes": 409
+    },
+    {
+      "path": "E:/Projects/MekStation/openspec/planning/2026-09-12-roadmap-completion/evidence/ci-contract-modules-main-parent-acceptance-20260912.json",
+      "sha256": "7d049e2cd4451014862af6b203bb9c0771d3c090114a128e897a5a95ab868d50",
+      "bytes": 62362
+    },
+    {
+      "path": "E:/Projects/MekStation/openspec/planning/2026-09-12-roadmap-completion/evidence/ci-contract-modules-main-verification-20260912.json",
+      "sha256": "3797f6acc55c4d9b38613bc1aaa52587f753d6f1f68d5adf5db8678fe242cd4c",
+      "bytes": 10739
+    },
+    {
+      "path": "E:/Projects/MekStation/openspec/planning/2026-09-12-roadmap-completion/evidence/ci-contract-modules-exit-evidence-repair-20260912.json",
+      "sha256": "b6c6749e9958566ae872375f79e0574286764105ec9255a5cc2da39c3839dcd2",
+      "bytes": 16065
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-main-independent-audit/audit.json",
+      "sha256": "935f83f8f985e7f49dc8affdd37e9897e144a7b313f0ac5c635d97aee3080c69",
+      "bytes": 15669
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/main-1/recovery-1/recovery-verification.json",
+      "sha256": "0fdcc066f89cc22d449cf5e3353ff212c33895ad80be78649645440813764469",
+      "bytes": 96172
+    },
+    {
+      "path": "E:/Projects/MekStation/scripts/qc/openspec-ci-contracts.mjs",
+      "sha256": "ae81b758ae37fe0a796cd77c5e5a17a5fac0bd6d1a8b488b4d5955fca1234a99",
+      "bytes": 5219
+    },
+    {
+      "path": "E:/Projects/MekStation/scripts/qc/openspec-workflow-contracts.mjs",
+      "sha256": "de70258c69eb27100f52954d2aced6f415321d4dbd73e952bdb6533934308062",
+      "bytes": 6521
+    },
+    {
+      "path": "E:/Projects/MekStation/package.json",
+      "sha256": "0cbe570cc8b2ffdabcf1c273a75b739bf6693965239a913f524661291e6c2e32",
+      "bytes": 34992
+    },
+    {
+      "path": "E:/Projects/MekStation/package-lock.json",
+      "sha256": "813adb8c95fd2d13a05214e504756ee72378769f7c33af242f8120ee2750b48a",
+      "bytes": 649504
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-contract-modules-post-cleanup-source-export/openspec-ci-contracts.mjs",
+      "sha256": "ae81b758ae37fe0a796cd77c5e5a17a5fac0bd6d1a8b488b4d5955fca1234a99",
+      "bytes": 5219
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-contract-modules-post-cleanup-source-export/openspec-workflow-contracts.mjs",
+      "sha256": "4ae969ae69ad71af0cfc761c0b133bbc0862202e71138d38198231062f92f696",
+      "bytes": 7882
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-contract-modules-post-cleanup-source-export/package.json",
+      "sha256": "eeebcb46214017104ed9cad6feab8f4a7e941816552585fb8230731d6931ad17",
+      "bytes": 35014
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-contract-modules-post-cleanup-source-export/package-lock.json",
+      "sha256": "f923ca53a2d9fc69d56cd59b9f86d26fd4b3756ac488c138b64163f787bd7d36",
+      "bytes": 649530
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-contract-modules-cleanup/post-verify.json",
+      "sha256": "e343abf51c5c89ffcfc98f6e64272cb7e6f8b57ec0b6ee6bee9e5d508d6b6b1f",
+      "bytes": 42671
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-contract-modules-cleanup/post-verify.cjs",
+      "sha256": "b6ba99fe3f046cc8d5c83b46345b61d822b146fc80d717c5a9e42346eff5644a",
+      "bytes": 7067
+    },
+    {
+      "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-contract-modules-cleanup/export-and-verify.cjs",
+      "sha256": "8c9fd5f1e06906e5f9ecd2b110d7204fb7a4b1873321d3e0f97c8dd2f18ed539",
+      "bytes": 10375
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/ci-contract-modules-cleanup/worktree-remove.txt",
+      "sha256": "22637340e473d7fdc5aa412edfea30930bf66e8b0fff4566bfd083fc81d0bd66",
+      "bytes": 158
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/ci-contract-modules-cleanup/local-branch-delete.txt",
+      "sha256": "0a6e1d461f2b05c12b0ffb23e95630c904ee165c5d23b3dce9c88484ef54e10b",
+      "bytes": 457
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/ci-contract-modules-cleanup/remote-tracking-delete.txt",
+      "sha256": "5c01301a195c9671c68012fc4e87c0788039aada5153c2fbe25646cfad7c32c4",
+      "bytes": 290
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/ci-contract-modules-cleanup/backup-ref-delete.txt",
+      "sha256": "89ea2b733113ab0b8c8381a054404ec75c6b22cf7f598240f1bb376b621c11b5",
+      "bytes": 217
+    }
+  ],
+  "rawProofRehashed": 173,
+  "sourceExportsRehashed": 4,
+  "ownedWorktreeAndRefsAbsent": true,
+  "qualification": "Four actual source-byte exports were reconstructed from accepted retained Git blobs after removal. Original 266 reference reopening occurred before cleanup; removed candidate runtime paths are not represented as currently retained. No proof extension or root reconciliation claimed."
+}

@@ -1,0 +1,78 @@
+{
+  "schemaVersion": 1,
+  "evidenceId": "ci-contract-modules-delivery-preflight4-20260912",
+  "capturedAt": "2026-09-12T20:34:00Z",
+  "status": "preflight-ready-no-commit",
+  "scope": "Raw delivery-driver guard repair and bounded preflight only; no product edits, commit, build, push, install, or full gate rerun.",
+  "candidate": {
+    "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/ci-contract-modules",
+    "head": "c44bf05720591efc5e40186c1a9f49b4afebe44a",
+    "originMainObserved": "e58642acede495c45b3b4d4e606dffaa52ccab18",
+    "candidateIsAncestorOfOrigin": true,
+    "stagedPaths": [
+      "package-lock.json",
+      "package.json",
+      "scripts/qc/openspec-ci-contracts.mjs",
+      "scripts/qc/openspec-workflow-contracts.mjs"
+    ],
+    "stagedChangedLines": 423,
+    "changedLineCap": 500,
+    "statusExactlyFourPaths": true,
+    "workingAndStagedHashesEqual": true,
+    "hashes": {
+      "scripts/qc/openspec-ci-contracts.mjs": "ae81b758ae37fe0a796cd77c5e5a17a5fac0bd6d1a8b488b4d5955fca1234a99",
+      "scripts/qc/openspec-workflow-contracts.mjs": "4ae969ae69ad71af0cfc761c0b133bbc0862202e71138d38198231062f92f696",
+      "package.json": "eeebcb46214017104ed9cad6feab8f4a7e941816552585fb8230731d6931ad17",
+      "package-lock.json": "f923ca53a2d9fc69d56cd59b9f86d26fd4b3756ac488c138b64163f787bd7d36"
+    }
+  },
+  "guardRepair": {
+    "driverPath": ".sisyphus/roadmap-completion-20260912/ci-contract-modules-delivery/commit-driver.cjs",
+    "driverSha256": "fd55f12860f664c80086a266599b340941886d71a36bb56771d53628c2e6476b",
+    "priorDriverPath": ".sisyphus/roadmap-completion-20260912/ci-contract-modules-delivery/driver-before-parent-guard-review.cjs",
+    "priorDriverSha256": "cfe3630023b7413a0b0ec3144a0c2ac1f04e70f88270d5ee48809d9fd91648e5",
+    "guardedChanges": [
+      "package.json exact reviewed SHA is required for both working tree and index",
+      "all four working-tree and staged hashes are required to match",
+      "parsed package.json must equal origin/main package.json plus only devDependencies.yaml ^2.9.0",
+      "parsed package-lock.json must equal origin/main package-lock.json plus only packages[''].devDependencies.yaml ^2.9.0",
+      "staged paths are exactly four and changed lines are capped at 500",
+      "generated .husky/_/pre-commit launcher is required and checked for the documented h loader",
+      "normal commit terminal state records driverPid, logSha256, headAfter, and statusAfter; spawn errors are terminal"
+    ],
+    "deepParsedEquality": true,
+    "lockResolutionUnchanged": true,
+    "generatedPreCommitSha256": "34fe496008be71d8fdd446b2cce81e4bb0406109c130eafc583fbd9fe33244e2"
+  },
+  "preflight": {
+    "command": [
+      "C:/nvm4w/nodejs/node.exe",
+      ".sisyphus/roadmap-completion-20260912/ci-contract-modules-delivery/commit-driver.cjs",
+      "--preflight-only"
+    ],
+    "stdoutPath": ".sisyphus/roadmap-completion-20260912/ci-contract-modules-delivery/commit-driver-preflight-4.stdout.log",
+    "stdoutSha256": "be24f95ec1fc4a013feb1cb6a6252eae4f9bf787fdb986d83c762235fffee205",
+    "stderrPath": ".sisyphus/roadmap-completion-20260912/ci-contract-modules-delivery/commit-driver-preflight-4.stderr.log",
+    "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "exitCode": 0,
+    "status": "ok",
+    "candidateBaseKeptAtC44": true,
+    "fullGatesRerun": false
+  },
+  "preservedEvidence": {
+    "existingPreflightReceipt": ".sisyphus/roadmap-completion-20260912/ci-contract-modules-delivery/attempt-2/preflight-status.json",
+    "existingPreflightReceiptSha256": "879202b6c7926254536666faf6550b41991dd4eb1758bdaef021b0dea1ff4b9f",
+    "acceptedReviewReceipt": "openspec/planning/2026-09-12-roadmap-completion/evidence/ci-module-independent-review-20260912.json",
+    "recovered675LineTestSha256": "37cc951ad23379e647b2217750932f18c1843c247ee1f4a3e7e36da79b97b026"
+  },
+  "commit": {
+    "notRun": true,
+    "productionBuildNotRun": true,
+    "pushNotRun": true,
+    "normalHookDriverCommitMessage": "ci: add OpenSpec contract modules"
+  },
+  "limits": [
+    "This receipt validates the tightened raw driver and unchanged c44 candidate only.",
+    "Parent will rebase or otherwise integrate after the production build slot is available and retains final commit/delivery authority."
+  ]
+}

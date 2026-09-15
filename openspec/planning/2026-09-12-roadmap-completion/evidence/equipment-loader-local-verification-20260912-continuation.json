@@ -1,0 +1,148 @@
+{
+  "recordedAt": "2026-09-12T17:06:17.466Z",
+  "node": "R9.equipment-loader",
+  "baseline": "6c4eac5c7b7a2aece3aab0443ce606943db6cf0b",
+  "files": [
+    {
+      "path": "src/services/equipment/EquipmentOfficialLoader.ts",
+      "sha256": "92b520e154648bae97219f3d92c3fb7521a99e9f9fc51e2a1b1c4c039c4d73fb"
+    },
+    {
+      "path": "src/services/equipment/EquipmentLoaderService.ts",
+      "sha256": "5bbdcbb90898beee29a4dd4677de9498efb890235e410cc175391711fbb47b9c"
+    },
+    {
+      "path": "src/services/equipment/__tests__/EquipmentOfficialLoader.failure.test.ts",
+      "sha256": "b4a6dd8c09d9ba15519e48964a5860f5884c9ca3d35541d26a98cad75823586f"
+    }
+  ],
+  "gateStatusPath": ".sisyphus\\roadmap-completion-20260912\\equipment-loader-checks\\attempt-3-status.json",
+  "gateStatusSha256": "3c83077c262b47fe8aabb63ccff4575e0129dbe30cc63ddcb34bf6c18366df48",
+  "focused": "3 suites109 tests passed on final fixture bytes",
+  "steps": [
+    {
+      "name": "focused",
+      "executable": "C:\\nvm4w\\nodejs\\node.exe",
+      "args": [
+        "node_modules/jest/bin/jest.js",
+        "--runInBand",
+        "--selectProjects",
+        "unit",
+        "--runTestsByPath",
+        "src/services/equipment/__tests__/EquipmentOfficialLoader.failure.test.ts",
+        "src/__tests__/service/equipment/EquipmentLoaderService.test.ts",
+        "src/services/equipment/__tests__/EquipmentLoaderService.schemaBridge.test.ts"
+      ],
+      "code": 0,
+      "log": ".sisyphus\\roadmap-completion-20260912\\equipment-loader-checks\\attempt-3-focused.log",
+      "logSha256": "9c8bba2f53b55487c55e8f49db6b54ad7fbbef165517e3e920c63e535829af82"
+    },
+    {
+      "name": "typecheck",
+      "executable": "C:\\nvm4w\\nodejs\\node.exe",
+      "args": [
+        "C:/nvm4w/nodejs/node_modules/npm/bin/npm-cli.js",
+        "run",
+        "typecheck"
+      ],
+      "code": 0,
+      "log": ".sisyphus\\roadmap-completion-20260912\\equipment-loader-checks\\attempt-3-typecheck.log",
+      "logSha256": "d140a6ce62dda0946fe30dd882dbb8209f05be72c8fa8850e5634755a399e50f"
+    },
+    {
+      "name": "lint",
+      "executable": "C:\\nvm4w\\nodejs\\node.exe",
+      "args": [
+        "C:/nvm4w/nodejs/node_modules/npm/bin/npm-cli.js",
+        "run",
+        "lint"
+      ],
+      "code": 0,
+      "log": ".sisyphus\\roadmap-completion-20260912\\equipment-loader-checks\\attempt-3-lint.log",
+      "logSha256": "2d58a095d2b409ea03f4d727bcf420d0cc455cde5a7cc9b8aff99d2c62bec640"
+    },
+    {
+      "name": "format",
+      "executable": "C:\\nvm4w\\nodejs\\node.exe",
+      "args": [
+        "C:/nvm4w/nodejs/node_modules/npm/bin/npm-cli.js",
+        "run",
+        "format:check"
+      ],
+      "code": 0,
+      "log": ".sisyphus\\roadmap-completion-20260912\\equipment-loader-checks\\attempt-3-format.log",
+      "logSha256": "fe426407aac2f905b08d8b13e125c07d740507b34f1075a53320bcbecc92f988"
+    },
+    {
+      "name": "specs",
+      "executable": "C:\\nvm4w\\nodejs\\node.exe",
+      "args": [
+        "C:/Users/wroll/AppData/Roaming/npm/node_modules/@fission-ai/openspec/bin/openspec.js",
+        "validate",
+        "--all",
+        "--strict"
+      ],
+      "code": 0,
+      "log": ".sisyphus\\roadmap-completion-20260912\\equipment-loader-checks\\attempt-3-specs.log",
+      "logSha256": "e21ee5a93b949a4d54b08178b22d10d3ab304c1b55e46a00f05c1cfc9b56c76e"
+    },
+    {
+      "name": "purpose",
+      "executable": "C:\\nvm4w\\nodejs\\node.exe",
+      "args": [
+        "C:/nvm4w/nodejs/node_modules/npm/bin/npm-cli.js",
+        "run",
+        "spec:purpose:validate:strict"
+      ],
+      "code": 0,
+      "log": ".sisyphus\\roadmap-completion-20260912\\equipment-loader-checks\\attempt-3-purpose.log",
+      "logSha256": "8820e4f93b604d425ca370d68ccd79b089ba5ec1d72ce47be48013f58726b888"
+    },
+    {
+      "name": "terminology",
+      "executable": "C:\\nvm4w\\nodejs\\node.exe",
+      "args": [
+        "C:/nvm4w/nodejs/node_modules/npm/bin/npm-cli.js",
+        "run",
+        "terminology:validate:strict"
+      ],
+      "code": 0,
+      "log": ".sisyphus\\roadmap-completion-20260912\\equipment-loader-checks\\attempt-3-terminology.log",
+      "logSha256": "52d4044575e00b0fb4b37ca22171df34e28e683e1d61ab17602e0414b718715b"
+    },
+    {
+      "name": "ci-qc",
+      "executable": "C:\\nvm4w\\nodejs\\node.exe",
+      "args": [
+        "C:/nvm4w/nodejs/node_modules/npm/bin/npm-cli.js",
+        "run",
+        "qc:openspec-ci:validate"
+      ],
+      "code": 0,
+      "log": ".sisyphus\\roadmap-completion-20260912\\equipment-loader-checks\\attempt-3-ci-qc.log",
+      "logSha256": "f01feb11318234aab4764fe76151b78c06905527212a8f8723626fcf616b71d6"
+    },
+    {
+      "name": "build",
+      "executable": "C:\\nvm4w\\nodejs\\node.exe",
+      "args": [
+        "C:/nvm4w/nodejs/node_modules/npm/bin/npm-cli.js",
+        "run",
+        "build"
+      ],
+      "code": 0,
+      "log": ".sisyphus\\roadmap-completion-20260912\\equipment-loader-checks\\attempt-3-build.log",
+      "logSha256": "8ae362898f4603cd21ca22a87e772b33b2d4e9d3af4c3d5733ffae7ae15e0f22"
+    }
+  ],
+  "review": "evidence/equipment-loader-independent-review-20260912-continuation.json",
+  "dependencyIsolation": "Verified physical39,148-file copy; source and target inventory SHA5fb920288a3506d159f17a01efdd4acb62515d571608801b1e7ad7145a9f0b76",
+  "failedAttempts": [
+    "attempt1: TS2352 fixture cast",
+    "attempt2: standalone junction hydration removed shared tsx; exact source restored, separate R9.hydration-safety admitted"
+  ],
+  "limits": [
+    "No browser proof required for admitted loader boundary; no full catalog/concurrency behavior claim",
+    "No commit/publication/merge/exact-main/cleanup acceptance in this local gate receipt"
+  ]
+}

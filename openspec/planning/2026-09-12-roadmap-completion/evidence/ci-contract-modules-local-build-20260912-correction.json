@@ -1,0 +1,238 @@
+{
+  "schemaVersion": 1,
+  "evidenceId": "ci-contract-modules-local-build-20260912-correction",
+  "supersedes": {
+    "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/ci-contract-modules-local-build-20260912.json",
+    "currentSha256": "136cc19b29ebfce3a9f7c4f17e0730401254994e26939dee1e6005908b37886d",
+    "priorPublishedSha256": "59a302acec8750d5e3a7e793d9f743d80f26a048c0ee78ffd6db2ae814469307",
+    "historicalDriverHashDeclared": "7121741d501ffcba0e74832f0a54e85b061482ef0b1de34a8db3b37c3c7af5d",
+    "historicalDriverHashTranscription": "7121741d501ffcba0e74832f0a54e85b061482ef0b1de34a8db3b37c3c7af5d",
+    "historicalDriverHashTranscriptionLength": 63,
+    "historicalDriverHashWasInvalid": true,
+    "historicalPublishedReferenceCheck": {
+      "build-driver.cjs": {
+        "declared": "7121741d501ffcba0e74832f0a54e85b061482ef0b1de34a8db3b37c3c7af5d",
+        "actual": "7121741d501ffcba0e74832f0a54e85b061482ef0b1de34a8db3b37c3c7af5d9",
+        "declaredIs64": false,
+        "matches": false
+      },
+      "driver.stdout.log": {
+        "declared": "81ea1acedff2f6932cdf128994987a004d298fbc2e4e92e43e2b70c5f96ee2cb",
+        "actual": "81ea1acedff2f6932cdf128994987a004d298fbc2e4e92e43e2b70c5f96ee2cb",
+        "declaredIs64": true,
+        "matches": true
+      },
+      "driver.stderr.log": {
+        "declared": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "actual": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "declaredIs64": true,
+        "matches": true
+      },
+      "local-build-result.json": {
+        "declared": "91aa390239155925df1d921129e0a3cfc7e2a3ab8e90e402e49bb04b760df96a",
+        "actual": "91aa390239155925df1d921129e0a3cfc7e2a3ab8e90e402e49bb04b760df96a",
+        "declaredIs64": true,
+        "matches": true
+      },
+      "before.json": {
+        "declared": "89f6cf5201855edf139c0eb498f669b609b010006d6f221a71cd3f168b887e93",
+        "actual": "89f6cf5201855edf139c0eb498f669b609b010006d6f221a71cd3f168b887e93",
+        "declaredIs64": true,
+        "matches": true
+      },
+      "after.json": {
+        "declared": "64e8562c885ce44b9ff07d7ba8d14eed0a901dc10be22cb508e6a901a065de35",
+        "actual": "64e8562c885ce44b9ff07d7ba8d14eed0a901dc10be22cb508e6a901a065de35",
+        "declaredIs64": true,
+        "matches": true
+      },
+      "build-status.json": {
+        "declared": "461cab7e6d72cb5eb9e92048b6f75906b9a48391800248d45caf87a7027e1603",
+        "actual": "461cab7e6d72cb5eb9e92048b6f75906b9a48391800248d45caf87a7027e1603",
+        "declaredIs64": true,
+        "matches": true
+      },
+      "terminology-status.json": {
+        "declared": "d403445c577a8a4317f82580bfb769e003dd18702f422ceaf8a2ba0548e585a6",
+        "actual": "d403445c577a8a4317f82580bfb769e003dd18702f422ceaf8a2ba0548e585a6",
+        "declaredIs64": true,
+        "matches": true
+      },
+      "production-build.stdout.log": {
+        "declared": "83898d0b5428c333f65835401cf2d65c91d98ee7c5275a19965a98b5ec779ee6",
+        "actual": "83898d0b5428c333f65835401cf2d65c91d98ee7c5275a19965a98b5ec779ee6",
+        "declaredIs64": true,
+        "matches": true
+      },
+      "production-build.stderr.log": {
+        "declared": "5b0e0796f07fc62d9d6cebf3282bd356c5c673a168e26cbed25b1a2ae787b89d",
+        "actual": "5b0e0796f07fc62d9d6cebf3282bd356c5c673a168e26cbed25b1a2ae787b89d",
+        "declaredIs64": true,
+        "matches": true
+      },
+      "terminology-strict.stdout.log": {
+        "declared": "f900b2f139d48a4fce3da66f12105cdd633a1cfe6dc8102211bcf03cc6a1cce7",
+        "actual": "f900b2f139d48a4fce3da66f12105cdd633a1cfe6dc8102211bcf03cc6a1cce7",
+        "declaredIs64": true,
+        "matches": true
+      },
+      "terminology-strict.stderr.log": {
+        "declared": "cf1290ff3b910eb706451725a74250bb9bb8fee481afaaee5a074358900092e1",
+        "actual": "cf1290ff3b910eb706451725a74250bb9bb8fee481afaaee5a074358900092e1",
+        "declaredIs64": true,
+        "matches": true
+      }
+    },
+    "historicalPublishedReferenceMismatches": [
+      {
+        "name": "build-driver.cjs",
+        "declared": "7121741d501ffcba0e74832f0a54e85b061482ef0b1de34a8db3b37c3c7af5d",
+        "actual": "7121741d501ffcba0e74832f0a54e85b061482ef0b1de34a8db3b37c3c7af5d9",
+        "declaredIs64": false,
+        "matches": false
+      }
+    ],
+    "historicalPublishedReferencesAllMatched": false
+  },
+  "candidate": {
+    "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\ci-contract-modules",
+    "head": "6573e98e65a631963c5b0a980f3a724ba7d37989",
+    "originMainAtStart": "e58642acede495c45b3b4d4e606dffaa52ccab18"
+  },
+  "rawReceipt": {
+    "directory": ".sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/local-1",
+    "files": {
+      "build-driver.cjs": {
+        "path": ".sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/local-1/build-driver.cjs",
+        "bytes": 8668,
+        "sha256": "7121741d501ffcba0e74832f0a54e85b061482ef0b1de34a8db3b37c3c7af5d9"
+      },
+      "driver.stdout.log": {
+        "path": ".sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/local-1/driver.stdout.log",
+        "bytes": 147,
+        "sha256": "81ea1acedff2f6932cdf128994987a004d298fbc2e4e92e43e2b70c5f96ee2cb"
+      },
+      "driver.stderr.log": {
+        "path": ".sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/local-1/driver.stderr.log",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "local-build-result.json": {
+        "path": ".sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/local-1/local-build-result.json",
+        "bytes": 94601,
+        "sha256": "91aa390239155925df1d921129e0a3cfc7e2a3ab8e90e402e49bb04b760df96a"
+      },
+      "before.json": {
+        "path": ".sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/local-1/before.json",
+        "bytes": 44249,
+        "sha256": "89f6cf5201855edf139c0eb498f669b609b010006d6f221a71cd3f168b887e93"
+      },
+      "after.json": {
+        "path": ".sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/local-1/after.json",
+        "bytes": 44106,
+        "sha256": "64e8562c885ce44b9ff07d7ba8d14eed0a901dc10be22cb508e6a901a065de35"
+      },
+      "build-status.json": {
+        "path": ".sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/local-1/build-status.json",
+        "bytes": 788,
+        "sha256": "461cab7e6d72cb5eb9e92048b6f75906b9a48391800248d45caf87a7027e1603"
+      },
+      "terminology-status.json": {
+        "path": ".sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/local-1/terminology-status.json",
+        "bytes": 816,
+        "sha256": "d403445c577a8a4317f82580bfb769e003dd18702f422ceaf8a2ba0548e585a6"
+      },
+      "production-build.stdout.log": {
+        "path": ".sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/local-1/production-build.stdout.log",
+        "bytes": 7010,
+        "sha256": "83898d0b5428c333f65835401cf2d65c91d98ee7c5275a19965a98b5ec779ee6"
+      },
+      "production-build.stderr.log": {
+        "path": ".sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/local-1/production-build.stderr.log",
+        "bytes": 3699585,
+        "sha256": "5b0e0796f07fc62d9d6cebf3282bd356c5c673a168e26cbed25b1a2ae787b89d"
+      },
+      "terminology-strict.stdout.log": {
+        "path": ".sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/local-1/terminology-strict.stdout.log",
+        "bytes": 311,
+        "sha256": "f900b2f139d48a4fce3da66f12105cdd633a1cfe6dc8102211bcf03cc6a1cce7"
+      },
+      "terminology-strict.stderr.log": {
+        "path": ".sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/local-1/terminology-strict.stderr.log",
+        "bytes": 578,
+        "sha256": "cf1290ff3b910eb706451725a74250bb9bb8fee481afaaee5a074358900092e1"
+      }
+    },
+    "allRawReferenceHashesValid": true
+  },
+  "runtimeVerification": {
+    "candidate": {
+      "before": {
+        "declaredCount": 92,
+        "declaredSha256": "97e80b8b40b4b0dc4eced549d4c29bd047b45c2695b7127de944ad400f5547af",
+        "checkedCount": 92,
+        "actualSha256": "97e80b8b40b4b0dc4eced549d4c29bd047b45c2695b7127de944ad400f5547af",
+        "mismatches": [],
+        "allDeclaredHashesValid": true,
+        "allMatch": true
+      },
+      "after": {
+        "declaredCount": 92,
+        "declaredSha256": "97e80b8b40b4b0dc4eced549d4c29bd047b45c2695b7127de944ad400f5547af",
+        "checkedCount": 92,
+        "actualSha256": "97e80b8b40b4b0dc4eced549d4c29bd047b45c2695b7127de944ad400f5547af",
+        "mismatches": [],
+        "allDeclaredHashesValid": true,
+        "allMatch": true
+      }
+    },
+    "root": {
+      "before": {
+        "declaredCount": 92,
+        "declaredSha256": "97e80b8b40b4b0dc4eced549d4c29bd047b45c2695b7127de944ad400f5547af",
+        "checkedCount": 92,
+        "actualSha256": "97e80b8b40b4b0dc4eced549d4c29bd047b45c2695b7127de944ad400f5547af",
+        "mismatches": [],
+        "allDeclaredHashesValid": true,
+        "allMatch": true
+      },
+      "after": {
+        "declaredCount": 92,
+        "declaredSha256": "97e80b8b40b4b0dc4eced549d4c29bd047b45c2695b7127de944ad400f5547af",
+        "checkedCount": 92,
+        "actualSha256": "97e80b8b40b4b0dc4eced549d4c29bd047b45c2695b7127de944ad400f5547af",
+        "mismatches": [],
+        "allDeclaredHashesValid": true,
+        "allMatch": true
+      }
+    }
+  },
+  "assertions": {
+    "everyRawHashIs64Hex": true,
+    "everyDeclaredRuntimeHashIs64Hex": true,
+    "candidateBeforeMatchesActual": true,
+    "candidateAfterMatchesActual": true,
+    "rootBeforeMatchesActual": true,
+    "rootAfterMatchesActual": true,
+    "beforeAfterRuntimeInventoriesEqual": true,
+    "correctedDriverHashIs64Hex": true
+  },
+  "correctedHashes": {
+    "driver": "7121741d501ffcba0e74832f0a54e85b061482ef0b1de34a8db3b37c3c7af5d9",
+    "localBuildResult": "91aa390239155925df1d921129e0a3cfc7e2a3ab8e90e402e49bb04b760df96a",
+    "before": "89f6cf5201855edf139c0eb498f669b609b010006d6f221a71cd3f168b887e93",
+    "after": "64e8562c885ce44b9ff07d7ba8d14eed0a901dc10be22cb508e6a901a065de35",
+    "buildStatus": "461cab7e6d72cb5eb9e92048b6f75906b9a48391800248d45caf87a7027e1603",
+    "terminologyStatus": "d403445c577a8a4317f82580bfb769e003dd18702f422ceaf8a2ba0548e585a6",
+    "driverStdout": "81ea1acedff2f6932cdf128994987a004d298fbc2e4e92e43e2b70c5f96ee2cb",
+    "driverStderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "productionBuildStdout": "83898d0b5428c333f65835401cf2d65c91d98ee7c5275a19965a98b5ec779ee6",
+    "productionBuildStderr": "5b0e0796f07fc62d9d6cebf3282bd356c5c673a168e26cbed25b1a2ae787b89d",
+    "terminologyStdout": "f900b2f139d48a4fce3da66f12105cdd633a1cfe6dc8102211bcf03cc6a1cce7",
+    "terminologyStderr": "cf1290ff3b910eb706451725a74250bb9bb8fee481afaaee5a074358900092e1"
+  },
+  "limits": [
+    "Correction receipt only; no source, Git, ledger, dependency, or build changes were made.",
+    "Remote CI and independent main-branch proof remain pending parent acceptance/publication."
+  ]
+}
