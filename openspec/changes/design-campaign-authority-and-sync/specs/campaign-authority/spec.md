@@ -180,11 +180,18 @@ The client persistence layer SHALL make exactly one bounded, best-effort durable
 - **WHEN** the discard or hidden transition occurs
 - **THEN** no durable write SHALL be issued
 
+#### Scenario: A hidden transition the document survives still reaches an acknowledged save
+- **GIVEN** a flush was issued on a hidden transition and the document was not discarded
+- **WHEN** the document becomes visible again
+- **THEN** the client SHALL schedule an ordinary acknowledged save carrying the reconciled state, because an unread flush is not an acknowledgement
+- **AND** the client SHALL NOT be left holding pending mutations with no write scheduled
+
 #### Scenario: An envelope past the keepalive body cap is skipped with a diagnostic, never fired silently
 - **GIVEN** a pending envelope whose serialized request body exceeds the 64 KiB a browser allows a keepalive request to carry
 - **WHEN** the document is discarded or becomes hidden
 - **THEN** the client SHALL measure the serialized body before issuing the request and SHALL NOT issue a request it knows the browser will reject
 - **AND** it SHALL record a typed skip diagnostic, because a flush that never reads its response cannot otherwise distinguish an over-cap rejection from a write that landed
+- **AND** that diagnostic SHALL name the reason `envelope-over-keepalive-cap`, so a skipped discard is identifiable by the condition that caused it rather than merely present
 
 ### Requirement: An accepted contract is written exactly once, by exactly one writer
 Accepting a contract SHALL produce exactly one acceptance write. When the source commits an accept-contract command, the source's own campaign record -- its missions and its reduced remaining contract market -- and the compact accepted-contract ledger SHALL both follow from that single committed acceptance, and the client SHALL NOT additionally apply the acceptance to its local campaign. When the source refuses the command, including the refusal a campaign that is not on journal authority receives, no event SHALL be committed and the existing client-side acceptance remains the single write. A state in which both writes occur, or in which the compact ledger records an acceptance the source record does not, SHALL NOT be reachable. This is stated as an obligation rather than as a tolerated transitional divergence because a dual write is silent: nothing detects the two trees disagreeing.
