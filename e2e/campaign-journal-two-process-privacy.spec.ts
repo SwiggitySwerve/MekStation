@@ -41,15 +41,15 @@
  * processes, and a rejoin attempt is answered `membership-revoked` by
  * name.
  *
- * ROW R ALSO FOUND A GAP, and states it rather than routing around it.
- * An ALREADY-BOUND live socket is NOT detached by the removal: the
- * revoked guest goes on receiving committed campaign facts for as long
- * as it stays connected. This drive measured it (the row's own comment
- * carries the file:line reasoning) and asserts it in the direction
- * production actually behaves, so the row is a pin on the real boundary
- * rather than a claim that revocation is total. What revocation closes
- * today is every DURABLE door - the scoped read and the rejoin - and
- * what it does not close is the socket already in the room.
+ * ROW R FOUND A GAP FIRST AND NOW PINS ITS CLOSURE. As first landed,
+ * an ALREADY-BOUND live socket was NOT detached by the removal: the
+ * revoked guest went on receiving committed campaign facts for as long
+ * as it stayed connected, and the row asserted that so the boundary was
+ * stated rather than routed around. `CampaignSyncSession` now drains the
+ * removed participant's live detaches on the committed removal, so the
+ * row asserts the closed shape: revocation shuts every DURABLE door -
+ * the scoped read and the rejoin - AND the socket already in the room,
+ * while the still-seated guest keeps receiving on the same span.
  *
  * ROW D - REDACTION ACROSS PROCESSES. The same committed
  * `ParticipantRemoved` fact carries the GM's audited rationale.
@@ -263,28 +263,31 @@ test.describe('campaign journal authority: revocation and redaction across two p
     );
     expect(survivorRead.status).toBe(200);
 
-    // (R3) THE LIVE SOCKET IS NOT DETACHED. Measured, not assumed, and
-    // recorded here as the boundary of what seat revocation does.
+    // (R3) THE LIVE SOCKET IS DETACHED. Revocation reaches the socket
+    // already in the room, not only the durable doors a later request
+    // would knock on.
     //
-    // The expectation going in was that an already-bound socket goes
-    // quiet, mirroring task 4.3's in-process row. It does not, and the
-    // reason is structural: `applyCommittedParticipantRemoval`
-    // (`CampaignSyncSession.ts:641-645`) deletes the participant from
+    // This row was first landed as a PIN in the opposite direction: the
+    // drive measured that an already-bound socket kept receiving
+    // campaign-scoped facts after the removal committed, and asserted
+    // that so the gap could not be mistaken for a claim that revocation
+    // was total. The gap was structural.
+    // `applyCommittedParticipantRemoval` deleted the participant from
     // `this.retained` - the CONVERGENCE set the launch gate reads - and
-    // nothing else. The live sink is the unsubscribe returned by
-    // `attachLiveParticipant` (`CampaignSyncSession.ts:362-376`), which
-    // lives in the socket's own `cleanupFns` and runs on DISCONNECT. No
-    // committed removal reaches it, so a removed player who simply does
-    // not close their socket keeps receiving campaign-scoped facts.
+    // nothing else, while the live sink was the unsubscribe returned by
+    // `attachLiveParticipant`, which lived only in the socket's own
+    // `cleanupFns` and ran on DISCONNECT.
     //
-    // Task 4.3's row is not contradicted: it revokes a GRANT and asserts
-    // about the grant delivery channel. This revokes a SEAT, which is
-    // what `/activity` and the rejoin gate read. The two revocations are
-    // different subsystems, and the seat one has no live-detach half.
+    // `CampaignSyncSession` now holds `liveByParticipant`, a per
+    // participant set of live detaches that `attachLiveParticipant`
+    // registers and the committed removal DRAINS
+    // (`CampaignSyncSession.ts` - see the field beside `retained`), so
+    // the two halves of revocation - the durable seat and the live
+    // socket - close together.
     //
-    // Asserted in the direction production actually behaves so this is a
-    // pin rather than a wish: if the detach is ever implemented, this row
-    // goes red and whoever closed the gap updates it deliberately.
+    // Task 4.3's row is still a different subsystem: it revokes a GRANT
+    // and asserts about the grant delivery channel. This revokes a SEAT,
+    // which is what `/activity` and the rejoin gate read.
     guestASocket.drain();
     guestBSocket.drain();
     gmSocket.sendHostIntent(
@@ -306,11 +309,11 @@ test.describe('campaign journal authority: revocation and redaction across two p
     // The seated guest receives it - the channel is live, so silence on
     // the other socket would have meant something.
     expect(eventTypes(guestBSocket)).toEqual(['FundsChanged']);
-    // ...and so does the REVOKED guest. This is the gap.
+    // ...and the REVOKED guest receives nothing on the same span.
     expect(
       eventTypes(guestASocket),
-      'seat revocation does not detach an already-bound live socket',
-    ).toEqual(['FundsChanged']);
+      'seat revocation detaches an already-bound live socket',
+    ).toEqual([]);
 
     // (R4) DURABLE: an OS-level restart of the source changes nothing.
     // The seat table is the record, not the process's memory of it.
