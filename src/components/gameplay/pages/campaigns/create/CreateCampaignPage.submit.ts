@@ -10,6 +10,7 @@ import {
   isLibraryBackedEnrollment,
   pinSourceVersion,
 } from '@/lib/kernelPlugin/mekstation/mapRosterInstanceProvenance';
+import { ensureCampaignUnitMaxStates } from '@/stores/campaign/campaignUnitMaxStates';
 import { useCampaignPersistenceStore } from '@/stores/campaign/useCampaignPersistenceStore';
 import { useCampaignRosterStore } from '@/stores/campaign/useCampaignRosterStore';
 import { usePilotStore } from '@/stores/usePilotStore';
@@ -278,6 +279,11 @@ export async function submitCampaignCreation({
           unit,
         });
       }
+
+      // The units have joined the roster, so their construction maxima can
+      // be resolved and pinned before the campaign is first saved. A unit
+      // whose design cannot be resolved simply gets no entry.
+      await ensureCampaignUnitMaxStates();
 
       for (const pilot of registeredPilots) {
         addSelectedPilotToRoster({

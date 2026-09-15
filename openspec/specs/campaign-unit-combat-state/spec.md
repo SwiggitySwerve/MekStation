@@ -191,9 +191,16 @@ This spec is the source-of-truth for `IUnitCombatState` and `ICampaign.unitComba
 #### Scenario: Damage bar rendering
 
 - **WHEN** `RosterStateCards.tsx` renders a damage bar
-- **THEN** it reads `currentArmorPerLocation` from `IUnitCombatState`
-- **AND** computes the bar percentage against `IUnitMaxState.maxArmorPerLocation`
+- **THEN** it reads `currentArmorPerLocation` and `currentStructurePerLocation` from `IUnitCombatState`
+- **AND** computes the bar percentage against `IUnitMaxState.maxArmorPerLocation` and `IUnitMaxState.maxStructurePerLocation`, skipping locations the max-state does not name
+- **AND** does not derive the percentage from destroyed-component or destroyed-location counts
 - **AND** does not read `armorDamage` from a roster projection (deleted field).
+
+#### Scenario: Absent max-state entry at the damage bar
+
+- **WHEN** `RosterStateCards.tsx` renders a unit that has canonical `IUnitCombatState` but no `campaign.unitMaxStates[unitId]` entry
+- **THEN** it renders an explicit "maxima unavailable" affordance
+- **AND** it renders no percentage, no stock-substituted maximum, and no `0%` placeholder.
 
 #### Scenario: Projection name does not collide
 
@@ -241,7 +248,7 @@ This spec replaces the implicit conventions previously held by `useCampaignRoste
 
 1. **Promote `unitCombatStates` to `ICampaign` (1 type file + 3 test cast-removals). — Completed as a type boundary.** `ICampaign.unitCombatStates` in `src/types/campaign/Campaign.ts` is the canonical post-deploy map. No remaining work is a missing type field.
 2. **Replace `useCampaignRosterStore`'s `units: ICampaignUnitState[]` with the projection type (rename to avoid `IUnitDamageState` collision). — Completed as a type boundary.** Store `units` is `IRosterUnitProjection[]` (`src/types/campaign/RosterUnitProjection.ts`). Current damage remains on `ICampaign.unitCombatStates[unitId]`. No live `ICampaignUnitState` declaration or reference remains. A separate carry-forward payload in `campaignRosterStore.types.ts` still uses the colliding name `IUnitDamageState`; that is not the roster `units` array.
-3. **Migrate `RosterStateCards.tsx` damage bar to read `currentArmorPerLocation` against `IUnitMaxState`. — Not closed.** `RosterStateCards.tsx` selects canonical `IUnitCombatState` from `campaign.unitCombatStates[unitId]`, but `computeDamageBarData` still uses the destroyed-component/location heuristic (`destroyedCount * 2 + destroyedLocationCount * 4`) because the card has no `IUnitMaxState` companion. The desired max-state percentage in the damage-bar scenario is unchanged. This remaining heuristic is `R9.roster-damage` after `R2.camp-7`.
+3. **Migrate `RosterStateCards.tsx` damage bar to read `currentArmorPerLocation` against `IUnitMaxState`. — Closed by PR #1734 `efd8a136d523adfa81fda303adb608e3563575ee` (2026-09-15, `R9.roster-damage` S1).** `computeDamageBarData` now diffs current armor and structure per location against `campaign.unitMaxStates[unitId]`, skipping locations the max-state does not name; the destroyed-component/location heuristic (`destroyedCount * 2 + destroyedLocationCount * 4`) is deleted, so the bar is no longer derived from destroyed counts. When no `IUnitMaxState` entry exists for a unit, the card renders an explicit "maxima unavailable" affordance rather than a stock-substituted maximum or a fabricated percentage - see the "Absent max-state entry at the damage bar" scenario above. Exact-main proof `openspec/planning/2026-09-12-roadmap-completion/evidence/r9-roster-damage-s1-1734-main-proof-20260915.json`: blob-identical to the reviewed head `6759b3066`, jest 62 suites/619 tests exit 0, tsc/openspec-strict/purpose/terminology/qc-openspec-ci all exit 0; independent review APPROVE (`evidence/r9-roster-damage-review-20260915.json`). NOT closed by this PR: population of `campaign.unitMaxStates` itself through the canonical/custom source authority is a separate, still-queued PR #1735 (`feat(campaign): populate roster construction maxima through the canonical/custom source authority`, OPEN, not merged as of 2026-09-15) - until it lands, campaigns without maxima show the "maxima unavailable" row rather than a percentage, and this item's closure covers the read-side rendering rule only, not the data-population boundary.
 4. **Delete `ICampaignUnitState` from `CampaignInterfaces.types.ts` and `CampaignInterfaces.runtime.ts`. — Completed as a type boundary.** The legacy roster-unit state is deleted; those modules document the independent `IRosterUnitProjection[]` store and campaign-level `unitCombatStates` map.
 5. **Remove local `ICampaignInput` interfaces in `postBattleProcessor` and `repairQueueBuilderProcessor` — accept `ICampaign` directly. — Completed for the named legacy interfaces.** Neither processor has a local `ICampaignInput`; both use `ICampaign` with typed extensions (`ICampaignWithBattleState`, `IPostBattleCampaignExtensions`). Integration/order proof for those processors is still required.
 
