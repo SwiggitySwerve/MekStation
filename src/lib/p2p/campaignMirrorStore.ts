@@ -31,8 +31,10 @@ import type {
   ICampaignEvent,
 } from '@/types/campaign/CampaignSync';
 
-import { applyCampaignEvent } from '@/lib/campaign/sync/applyCampaignEvent';
-import { parseCampaignCoopSnapshot } from '@/types/campaign/campaignCoopSnapshot';
+import {
+  foldCampaignEvent,
+  foldCampaignSnapshot,
+} from '@/lib/campaign/coop/campaignAuthoritativeFold';
 
 // =============================================================================
 // Mirror peer identity
@@ -231,34 +233,21 @@ export const useCampaignMirrorStore = create<CampaignMirrorStore>()((set) => ({
   },
 
   applySnapshot: (snapshot: ICampaignEvent, resumeSequence?: number): void => {
-    if (snapshot.type !== 'CampaignSnapshotPublished') {
-      return;
-    }
-    const parsed = parseCampaignCoopSnapshot({
-      campaignId: snapshot.campaignId,
-      matchId: snapshot.payload.matchId ?? snapshot.campaignId,
-      revision: snapshot.payload.revision ?? 0,
-      state: snapshot.payload.state,
-    });
-    if (!parsed.ok) {
-      return;
-    }
     set((state) => {
-      const adopted =
-        resumeSequence ?? snapshot.payload.revision ?? snapshot.sequence;
-      if (state.campaign !== null && adopted < state.lastSequence) {
-        return {};
-      }
-      if (
-        state.campaign !== null &&
-        adopted === state.lastSequence &&
-        JSON.stringify(state.campaign) !== JSON.stringify(parsed.snapshot.state)
-      ) {
+      // The adoption rules live in `campaignAuthoritativeFold` so the
+      // GM/host surface folds its own stream through the SAME reducer
+      // (design D9), not a second copy that can drift from this one.
+      const next = foldCampaignSnapshot(
+        { state: state.campaign, lastSequence: state.lastSequence },
+        snapshot,
+        resumeSequence,
+      );
+      if (!next) {
         return {};
       }
       return {
-        campaign: parsed.snapshot.state,
-        lastSequence: adopted,
+        campaign: next.state,
+        lastSequence: next.lastSequence,
         paused: false,
       };
     });
@@ -267,29 +256,16 @@ export const useCampaignMirrorStore = create<CampaignMirrorStore>()((set) => ({
   applyEvent: (event: ICampaignEvent): void => {
     set((state) => {
       // Out-of-order / duplicate guard — a replayed event the guest
-      // also saw live during a reconnect race is dropped.
-      if (event.sequence <= state.lastSequence) {
+      // also saw live during a reconnect race is dropped. Same shared
+      // fold as `applySnapshot`.
+      const next = foldCampaignEvent(
+        { state: state.campaign, lastSequence: state.lastSequence },
+        event,
+      );
+      if (!next) {
         return {};
       }
-      const base =
-        event.type === 'CampaignSnapshotPublished' || state.campaign === null
-          ? // A snapshot (or the very first event) seeds the mirror.
-            applyCampaignEvent(
-              {
-                campaignId: event.campaignId,
-                day: 0,
-                balance: 0,
-                rosterUnits: {},
-                forceUnits: {},
-                pilots: {},
-                contracts: {},
-                factionStanding: {},
-                salvagePool: 0,
-              },
-              event,
-            )
-          : applyCampaignEvent(state.campaign, event);
-      return { campaign: base, lastSequence: event.sequence };
+      return { campaign: next.state, lastSequence: next.lastSequence };
     });
   },
 

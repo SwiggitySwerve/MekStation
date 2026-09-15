@@ -284,6 +284,18 @@ function refresh(campaignId: string): Promise<boolean> {
     .refreshAfterCommittedCommand(committedAck(campaignId));
 }
 
+/**
+ * A client sitting on the CURRENT row version while holding no fence -
+ * the shape a pre-fence copy has after the source materialized the row.
+ * Its next write is refused by the watermark, not by the version.
+ */
+function seedAtMaterializedRowWithoutFence(): void {
+  useCampaignPersistenceStore.setState({
+    baseVersion: BASE_VERSION + 1,
+    sourceReplayFence: null,
+  });
+}
+
 /** Let the queued read, its `json()` and the state write it drives run. */
 async function drainMicrotasks(): Promise<void> {
   for (let tick = 0; tick < 12; tick += 1) {
@@ -383,6 +395,51 @@ describe('the client record is refreshed after a committed command is acknowledg
     expect(useCampaignPersistenceStore.getState().dirty).toBe(true);
   });
 
+  it('does not retry a fence refusal that names the very token the client sent', async () => {
+    // The pure fence case: the row never moved, so `currentVersion` comes
+    // back EQUAL to the compare-and-swap token this client sent. Any
+    // "the versions match, so try again" heuristic would loop forever on
+    // it, because the missing thing is the watermark, not the version.
+    seedAtMaterializedRowWithoutFence();
+
+    useCampaignPersistenceStore.getState().markDirty();
+    jest.advanceTimersByTime(AUTO_SAVE_DEBOUNCE_MS);
+    await drainMicrotasks();
+
+    const puts = putRequests();
+    expect(puts).toHaveLength(1);
+    expect(putEnvelope(puts[0]).sourceReplayFence).toBeUndefined();
+    const state = useCampaignPersistenceStore.getState();
+    expect(state.saveState).toBe('conflict');
+    expect(state.saveConflict?.currentVersion).toBe(BASE_VERSION + 1);
+    expect(putBaseVersion(puts[0])).toBe(BASE_VERSION + 1);
+  });
+
+  it('restores a saveable client when the server record is taken after a fence refusal', async () => {
+    seedAtMaterializedRowWithoutFence();
+    useCampaignPersistenceStore.getState().markDirty();
+    jest.advanceTimersByTime(AUTO_SAVE_DEBOUNCE_MS);
+    await drainMicrotasks();
+    expect(useCampaignPersistenceStore.getState().saveState).toBe('conflict');
+
+    // The refusal carried the stored record, fence and all, so taking it
+    // is what lets the next write prove it has seen the materialization.
+    // `metadataFrom` drops the fence, which is exactly why it is held as
+    // its own store field rather than inside the metadata projection.
+    await useCampaignPersistenceStore.getState().resolveConflictTakeServer();
+    await drainMicrotasks();
+
+    useCampaignPersistenceStore.getState().markDirty();
+    jest.advanceTimersByTime(AUTO_SAVE_DEBOUNCE_MS);
+    await drainMicrotasks();
+
+    const puts = putRequests();
+    expect(puts).toHaveLength(2);
+    expect(putEnvelope(puts[1]).sourceReplayFence).toEqual(STAMPED_FENCE);
+    expect(putBaseVersion(puts[1])).toBe(BASE_VERSION + 1);
+    expect(useCampaignPersistenceStore.getState().saveState).toBe('saved');
+  });
+
   it('renders the accepted mission from the refreshed record without a reload', async () => {
     expect(liveCampaign()?.missions.has(ACCEPTED_CONTRACT_ID)).toBe(false);
 
@@ -394,5 +451,62 @@ describe('the client record is refreshed after a committed command is acknowledg
     expect(refreshed?.missions.get(ACCEPTED_CONTRACT_ID)?.name).toBe(
       'Garrison Duty on Galatea',
     );
+  });
+
+  it('leaves the pre-command token and the conflict path intact when the refetch fails', async () => {
+    server.getStatus = 500;
+    server.putStatus = 409;
+
+    const adopted = await refresh(campaign.id);
+    await drainMicrotasks();
+
+    // Nothing is adopted and nothing is overwritten: a read that did not
+    // answer is not evidence about the row.
+    expect(adopted).toBe(false);
+    expect(useCampaignPersistenceStore.getState().baseVersion).toBe(
+      BASE_VERSION,
+    );
+    expect(putRequests()).toHaveLength(0);
+
+    useCampaignPersistenceStore.getState().markDirty();
+    jest.advanceTimersByTime(AUTO_SAVE_DEBOUNCE_MS);
+    await drainMicrotasks();
+
+    const puts = putRequests();
+    expect(puts).toHaveLength(1);
+    expect(putBaseVersion(puts[0])).toBe(BASE_VERSION);
+    expect(useCampaignPersistenceStore.getState().saveState).toBe('conflict');
+  });
+
+  it('ignores an acknowledgement for a different campaign', async () => {
+    const held = liveCampaign();
+
+    const adopted = await refresh('some-other-campaign');
+    await drainMicrotasks();
+
+    expect(adopted).toBe(false);
+    expect(captured).toHaveLength(0);
+    expect(useCampaignPersistenceStore.getState().baseVersion).toBe(
+      BASE_VERSION,
+    );
+    expect(liveCampaign()).toBe(held);
+  });
+
+  it('keys the refreshed cache by the row version, not by either journal number', async () => {
+    await refresh(campaign.id);
+    await drainMicrotasks();
+
+    const key = campaignStore.getState().cachedCampaignKey;
+    expect(key).toEqual({
+      instanceId: HOST_INSTANCE_ID,
+      revision: BASE_VERSION + 1,
+    });
+    // The same number the compare-and-swap uses, and neither of the two
+    // the acknowledgement carried.
+    expect(key?.revision).toBe(
+      useCampaignPersistenceStore.getState().baseVersion,
+    );
+    expect(key?.revision).not.toBe(RECEIPT_REVISION);
+    expect(key?.revision).not.toBe(PUBLIC_HEAD);
   });
 });
