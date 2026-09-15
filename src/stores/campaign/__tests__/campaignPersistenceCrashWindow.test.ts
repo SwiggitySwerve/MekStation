@@ -23,7 +23,9 @@ import type { StoreApi } from 'zustand';
 import { createStore } from 'zustand/vanilla';
 
 import type { ICampaign } from '@/types/campaign/Campaign';
+import type { SerializedCampaign } from '@/types/campaign/SerializedCampaign';
 
+import { sourceCampaignAuthority } from '@/lib/campaign/authority/campaignAuthority';
 import { buildPopulatedCampaign } from '@/lib/campaign/persistence/__tests__/campaignFixture';
 import { createHostCoopSession } from '@/types/campaign/CoopSession';
 
@@ -136,6 +138,21 @@ function conflictResponse(): Response {
       },
     }),
   } as Response;
+}
+
+/** Captured requests by HTTP verb - the reconciliation also READS. */
+function requestsWithMethod(method: string): CapturedRequest[] {
+  return captured.filter(
+    (request) => String(request.init.method ?? 'GET').toUpperCase() === method,
+  );
+}
+
+function putRequests(): CapturedRequest[] {
+  return requestsWithMethod('PUT');
+}
+
+function getRequests(): CapturedRequest[] {
+  return requestsWithMethod('GET');
 }
 
 function stubFetch(): void {
@@ -449,22 +466,28 @@ describe('the document-discard events that drive the flush', () => {
     // so an acknowledged save is still owed - and nothing else re-arms the
     // debounce until the next mutation, which may never come.
     fireVisibilityChange('hidden');
-    expect(captured).toHaveLength(1);
+    expect(putRequests()).toHaveLength(1);
 
     fireVisibilityChange('visible');
+    // The reconciliation reads the record back before it arms anything,
+    // so the read has to settle before the debounce can be advanced.
+    await drainMicrotasks();
     jest.advanceTimersByTime(AUTO_SAVE_DEBOUNCE_MS);
-    await Promise.resolve();
-    await Promise.resolve();
+    await drainMicrotasks();
 
-    expect(captured).toHaveLength(2);
+    const puts = putRequests();
+    expect(puts).toHaveLength(2);
     // The ordinary acknowledged PUT, not a second best-effort flush.
-    expect(captured[1].init.keepalive).toBeUndefined();
+    expect(puts[1].init.keepalive).toBeUndefined();
   });
 
-  it('reaches the existing conflict flow when the flush landed and the re-armed save is stale', async () => {
+  it('reaches the existing conflict flow when the record cannot be read back and the re-armed save is stale', async () => {
     fireVisibilityChange('hidden');
     // The keepalive write landed: the server counter moved, and the client
     // - which never read that response - still holds the old baseVersion.
+    // Here the reconciliation's read gives no usable answer either, so
+    // nothing is adopted and the save goes out on the old token: the
+    // pre-existing path, pinned.
     jest
       .spyOn(globalThis, 'fetch')
       .mockImplementation((input: RequestInfo | URL, init?: RequestInit) => {
@@ -473,6 +496,7 @@ describe('the document-discard events that drive the flush', () => {
       });
 
     fireVisibilityChange('visible');
+    await drainMicrotasks();
     jest.advanceTimersByTime(AUTO_SAVE_DEBOUNCE_MS);
     await drainMicrotasks();
 
@@ -485,5 +509,245 @@ describe('the document-discard events that drive the flush', () => {
     expect(state.saveConflict?.recoveryAction).toBe('resync-to-active-head');
     expect(state.conflictServerRecord?.version).toBe(BASE_VERSION + 1);
     expect(state.dirty).toBe(true);
+  });
+});
+// --- Reconciling a flush the document survived ---
+
+/** Stands in for the host singleton the server pins on every write. */
+const HOST_INSTANCE_ID = 'host-instance';
+
+/** Everything the fake server answers, in one mutable place. */
+interface FakeServer {
+  /** Status for `GET /api/campaigns/<id>`. */
+  getStatus: number;
+  /** The record that GET answers with. */
+  record: SerializedCampaign | null;
+  /** Status for the reconciled `PUT`. */
+  putStatus: number;
+}
+
+interface CampaignPutBody {
+  envelope: SerializedCampaign;
+  baseVersion: number;
+}
+
+function parsePutBody(request: CapturedRequest): CampaignPutBody {
+  return JSON.parse(String(request.init.body)) as CampaignPutBody;
+}
+
+/**
+ * The row the server holds once a flush PUT has landed: the envelope
+ * VERBATIM at `baseVersion + 1`, with the host's own instance and
+ * authority pinned over the client's proposal - exactly the record
+ * `prepareCampaignWrite` builds and `saveCampaign` stores.
+ */
+function storedFromFlush(request: CapturedRequest): SerializedCampaign {
+  const { envelope, baseVersion } = parsePutBody(request);
+  return {
+    ...envelope,
+    version: baseVersion + 1,
+    instanceId: HOST_INSTANCE_ID,
+    authority: sourceCampaignAuthority(),
+  };
+}
+
+function stubServer(server: FakeServer): void {
+  jest
+    .spyOn(globalThis, 'fetch')
+    .mockImplementation((input: RequestInfo | URL, init?: RequestInit) => {
+      const request: CapturedRequest = {
+        url: String(input),
+        init: init ?? {},
+      };
+      captured.push(request);
+      const method = String(request.init.method ?? 'GET').toUpperCase();
+      if (method === 'GET') {
+        return Promise.resolve({
+          ok: server.getStatus >= 200 && server.getStatus < 300,
+          status: server.getStatus,
+          json: async () => server.record,
+        } as Response);
+      }
+      if (server.putStatus === 409) {
+        return Promise.resolve(conflictResponse());
+      }
+      // An accepted write lands one past whatever token it carried.
+      const body = parsePutBody(request);
+      return Promise.resolve({
+        ok: true,
+        status: 200,
+        json: async () => ({
+          ...body.envelope,
+          version: body.baseVersion + 1,
+          instanceId: HOST_INSTANCE_ID,
+          authority: sourceCampaignAuthority(),
+        }),
+      } as Response);
+    });
+}
+
+/** The compare-and-swap token a captured PUT carried. */
+function putBaseVersion(request: CapturedRequest): number {
+  return parsePutBody(request).baseVersion;
+}
+
+function reconcile(): void {
+  useCampaignPersistenceStore.getState().reconcileAfterDiscardFlush();
+}
+
+describe('a flush the document survives is acknowledged by reading the record it wrote', () => {
+  let campaign: ICampaign;
+  let server: FakeServer;
+
+  beforeEach(() => {
+    jest.useFakeTimers();
+    captured.length = 0;
+    switchCampaignSpy.mockClear();
+    __resetCampaignPersistenceCoordinationForTests();
+    useCampaignPersistenceStore.getState().reset();
+    server = { getStatus: 200, record: null, putStatus: 200 };
+    stubServer(server);
+    campaign = { ...buildPopulatedCampaign(), name: 'Pending Rename' };
+  });
+
+  afterEach(() => {
+    useCampaignPersistenceStore.getState().reset();
+    jest.useRealTimers();
+    jest.restoreAllMocks();
+  });
+
+  it('adopts the revision the flush provably earned, so the reconciled save is acknowledged', async () => {
+    seedDirtyCampaign(campaign);
+    flush();
+    server.record = storedFromFlush(putRequests()[0]);
+
+    reconcile();
+    await drainMicrotasks();
+
+    // Earned by READING, never by assuming: the record the server answers
+    // with is the envelope this client sent, at the revision its own write
+    // would have produced.
+    expect(getRequests()).toHaveLength(1);
+    expect(useCampaignPersistenceStore.getState().baseVersion).toBe(
+      BASE_VERSION + 1,
+    );
+    // The token is adopted; the ACKNOWLEDGEMENT is not. An ordinary save
+    // is still owed, and is still pending.
+    expect(useCampaignPersistenceStore.getState().dirty).toBe(true);
+
+    jest.advanceTimersByTime(AUTO_SAVE_DEBOUNCE_MS);
+    await drainMicrotasks();
+
+    const puts = putRequests();
+    expect(puts).toHaveLength(2);
+    expect(puts[1].init.keepalive).toBeUndefined();
+    // The whole point: N + 1, so the compare-and-swap accepts it.
+    expect(putBaseVersion(puts[1])).toBe(BASE_VERSION + 1);
+    const state = useCampaignPersistenceStore.getState();
+    expect(state.saveState).toBe('saved');
+    expect(state.saveConflict).toBeNull();
+    expect(state.conflictServerRecord).toBeNull();
+    expect(state.dirty).toBe(false);
+  });
+
+  it('refuses to adopt a revision another writer produced, and the conflict flow still runs', async () => {
+    seedDirtyCampaign(campaign);
+    flush();
+    // Same revision, different content: another device won the race. The
+    // version alone would have been enough to fool a version-only check,
+    // which is precisely why the envelope is digested too.
+    const landed = storedFromFlush(putRequests()[0]);
+    server.record = {
+      ...landed,
+      body: { ...landed.body, name: 'Written Elsewhere' },
+    };
+    server.putStatus = 409;
+
+    reconcile();
+    await drainMicrotasks();
+    jest.advanceTimersByTime(AUTO_SAVE_DEBOUNCE_MS);
+    await drainMicrotasks();
+
+    // The read happened, and was REJECTED as evidence.
+    expect(getRequests()).toHaveLength(1);
+    const puts = putRequests();
+    expect(puts).toHaveLength(2);
+    expect(putBaseVersion(puts[1])).toBe(BASE_VERSION);
+    const state = useCampaignPersistenceStore.getState();
+    expect(state.saveState).toBe('conflict');
+    expect(state.saveConflict?.reason).toBe('base-state-unavailable');
+    expect(state.conflictServerRecord?.version).toBe(BASE_VERSION + 1);
+    expect(state.dirty).toBe(true);
+  });
+
+  it('adopts the earned revision even when a mutation arrived after the flush', async () => {
+    seedDirtyCampaign(campaign);
+    flush();
+    server.record = storedFromFlush(putRequests()[0]);
+    // A further edit before the tab came back. It clears the
+    // already-flushed flag and arms its own save on the STALE token -
+    // which is the save the reconciliation has to take over.
+    useCampaignPersistenceStore.getState().markDirty();
+
+    reconcile();
+    await drainMicrotasks();
+    jest.advanceTimersByTime(AUTO_SAVE_DEBOUNCE_MS);
+    await drainMicrotasks();
+
+    const puts = putRequests();
+    // Exactly one save, not the mutation's stale one AND a reconciled one.
+    expect(puts).toHaveLength(2);
+    expect(putBaseVersion(puts[1])).toBe(BASE_VERSION + 1);
+    const state = useCampaignPersistenceStore.getState();
+    expect(state.saveState).toBe('saved');
+    expect(state.saveConflict).toBeNull();
+  });
+
+  it('adopts nothing when the record still sits at the version the flush wrote against', async () => {
+    seedDirtyCampaign(campaign);
+    flush();
+    // The flush never landed. Today's behaviour is the right one here:
+    // send the old token and let the server judge it.
+    const landed = storedFromFlush(putRequests()[0]);
+    server.record = { ...landed, version: BASE_VERSION };
+
+    reconcile();
+    await drainMicrotasks();
+    jest.advanceTimersByTime(AUTO_SAVE_DEBOUNCE_MS);
+    await drainMicrotasks();
+
+    const puts = putRequests();
+    expect(puts).toHaveLength(2);
+    expect(putBaseVersion(puts[1])).toBe(BASE_VERSION);
+  });
+
+  it('adopts nothing when the record cannot be read back at all', async () => {
+    seedDirtyCampaign(campaign);
+    flush();
+    server.getStatus = 500;
+    server.record = null;
+
+    reconcile();
+    await drainMicrotasks();
+    jest.advanceTimersByTime(AUTO_SAVE_DEBOUNCE_MS);
+    await drainMicrotasks();
+
+    const puts = putRequests();
+    expect(puts).toHaveLength(2);
+    expect(putBaseVersion(puts[1])).toBe(BASE_VERSION);
+    // A failed read is not an error the player is shown: the save that
+    // follows is what decides the outcome.
+    expect(useCampaignPersistenceStore.getState().saveState).toBe('saved');
+  });
+
+  it('reads nothing when no flush was ever issued', async () => {
+    seedDirtyCampaign(campaign);
+
+    reconcile();
+    await drainMicrotasks();
+    jest.advanceTimersByTime(AUTO_SAVE_DEBOUNCE_MS * 2);
+    await drainMicrotasks();
+
+    expect(getRequests()).toHaveLength(0);
   });
 });
