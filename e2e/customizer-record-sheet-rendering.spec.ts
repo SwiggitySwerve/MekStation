@@ -366,6 +366,10 @@ test('Print writes one current sheet into the reserved window at the selected pa
   await expectSheetType(page, 'Locust LCT-1V');
   expect(await paperRatio(page)).toBeCloseTo(LETTER_RATIO, 2);
   await page.getByRole('tab', { name: 'Atlas AS7-D', exact: true }).click();
+  await expectSheetType(page, 'Atlas AS7-D');
+  await expect(page.getByRole('combobox', { name: 'Paper Size' })).toHaveValue(
+    'letter',
+  );
 
   await page.getByRole('combobox', { name: 'Paper Size' }).selectOption('a4');
   await waitForBacking(page, A4);
@@ -382,6 +386,10 @@ test('Print writes one current sheet into the reserved window at the selected pa
     .selectOption('letter');
   await waitForBacking(page, LETTER);
   await page.getByRole('tab', { name: 'Locust LCT-1V', exact: true }).click();
+  await expectSheetType(page, 'Locust LCT-1V');
+  await expect(page.getByRole('combobox', { name: 'Paper Size' })).toHaveValue(
+    'letter',
+  );
   await waitForBacking(page, LETTER);
   const locustPrint = await printOnce(page);
   expect(locustPrint.typeName).toBe('Locust LCT-1V');
