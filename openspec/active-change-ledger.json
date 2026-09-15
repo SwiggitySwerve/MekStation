@@ -61,12 +61,6 @@
       "lastReviewed": "2026-09-09"
     },
     {
-      "name": "add-customizer-edit-recovery",
-      "status": "in-progress",
-      "reason": "User-requested next customizer improvements: visible draft/library state, saved history and per-unit editing recovery. Excludes model and combat work.",
-      "lastReviewed": "2026-09-10"
-    },
-    {
       "name": "repair-record-sheet-rendering",
       "status": "in-progress",
       "reason": "User-requested record-sheet preview/PDF/print repair: shared SVG construction, bounded 4x PNG instead of 20x JPEG, correct Letter/A4 geometry and aspect, durable 20-300% manual zoom, Fit Width tracking until manual, last requested unit/paper render, URL cleanup, print popup reserved before the first await, recoverable async busy/errors, and readable critical tables within template bounds. Canonical specs are not edited in this change.",
