@@ -175,6 +175,12 @@ The client persistence layer SHALL make exactly one bounded, best-effort durable
 - **WHEN** the discard or hidden transition occurs
 - **THEN** no durable write SHALL be issued
 
+#### Scenario: An envelope past the keepalive body cap is skipped with a diagnostic, never fired silently
+- **GIVEN** a pending envelope whose serialized request body exceeds the 64 KiB a browser allows a keepalive request to carry
+- **WHEN** the document is discarded or becomes hidden
+- **THEN** the client SHALL measure the serialized body before issuing the request and SHALL NOT issue a request it knows the browser will reject
+- **AND** it SHALL record a typed skip diagnostic, because a flush that never reads its response cannot otherwise distinguish an over-cap rejection from a write that landed
+
 ### Requirement: An accepted contract is written exactly once, by exactly one writer
 Accepting a contract SHALL produce exactly one acceptance write. When the source commits an accept-contract command, the source's own campaign record -- its missions and its reduced remaining contract market -- and the compact accepted-contract ledger SHALL both follow from that single committed acceptance, and the client SHALL NOT additionally apply the acceptance to its local campaign. When the source refuses the command, including the refusal a campaign that is not on journal authority receives, no event SHALL be committed and the existing client-side acceptance remains the single write. A state in which both writes occur, or in which the compact ledger records an acceptance the source record does not, SHALL NOT be reachable. This is stated as an obligation rather than as a tolerated transitional divergence because a dual write is silent: nothing detects the two trees disagreeing.
 
@@ -192,7 +198,13 @@ Accepting a contract SHALL produce exactly one acceptance write. When the source
 - **AND** the acceptance SHALL be applied once, client-side, exactly as it is applied today
 
 #### Scenario: An offer the source record does not hold is refused, never trusted from the caller
-- **GIVEN** an accept-contract command naming a `contractId` that is absent from the contract market in the baseline captured from the persisted source record
+- **GIVEN** an accept-contract command naming a `contractId` that is absent from the contract market held by the persisted source record body the command reads under its own prepared transaction
 - **WHEN** the source processes that command
 - **THEN** it SHALL refuse with a typed reason distinct from every rules refusal, so an offer that has not reached the source is distinguishable from an offer the rules reject
 - **AND** it SHALL NOT derive the compact name or employer faction from a contract body supplied by the caller
+
+#### Scenario: The first acceptance on a campaign reads its market without a prior private payload
+- **GIVEN** a campaign that has never accepted a contract, so its stream carries no journal-private source payload at all
+- **WHEN** an accept-contract command names an offer the persisted source record body holds
+- **THEN** the source SHALL read that market from the source record body under the command's own prepared transaction and SHALL accept
+- **AND** the absence of a prior private payload SHALL NOT be treated as an absent offer, because a replay of private rows has none to replay on a first acceptance
