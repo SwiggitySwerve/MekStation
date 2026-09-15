@@ -1,0 +1,28 @@
+{
+  "checkedAt": "2026-09-12T10:37:35.316Z",
+  "canonical": 220,
+  "active": 13,
+  "archivedPackages": 3,
+  "archivedFilesWithMatchingHashes": 15,
+  "guideCanonicalLinks": 220,
+  "documentLinksResolved": 514,
+  "inventorySetEquality": true,
+  "productFiles": [
+    {
+      "file": "src/hooks/useCustomizerRouter.ts",
+      "sha256": "1a1cf81bb6570b7e73cae79f2c82a9172106c854991da7cd9199f4053491b77a"
+    },
+    {
+      "file": "src/components/customizer/CustomizerWithRouter.tsx",
+      "sha256": "b8d35e3c956db68551c2d670e60b85ad748865269fe36c0dd7de12daabe9dd66"
+    },
+    {
+      "file": "src/components/customizer/infantry/InfantryPreviewTab.tsx",
+      "sha256": "4f36e0194dfe25bcd36bcc7dfdbd32a0b3e4d84df4e83c65a49564452297225c"
+    },
+    {
+      "file": "src/components/customizer/infantry/InfantryRecordSheetPreview.tsx",
+      "sha256": "48c7d7b38bf3b05f9bdd8a901b3dd5ba4f463495480405d7efbf18b59663d555"
+    }
+  ]
+}

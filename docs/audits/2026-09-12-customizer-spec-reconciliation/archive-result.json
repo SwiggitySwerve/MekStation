@@ -1,0 +1,25 @@
+{
+  "authorizedBy": "User: yes, continue the archive and then move onto remaining items",
+  "completedAt": "2026-09-12T09:42:09.681Z",
+  "packages": [
+    {
+      "name": "repair-equipment-catalog",
+      "destination": "openspec/changes/archive/2026-09-12-repair-equipment-catalog",
+      "files": 5,
+      "sha256Verified": true
+    },
+    {
+      "name": "establish-battlemech-chassis-index",
+      "destination": "openspec/changes/archive/2026-09-12-establish-battlemech-chassis-index",
+      "files": 5,
+      "sha256Verified": true
+    },
+    {
+      "name": "add-customizer-edit-recovery",
+      "destination": "openspec/changes/archive/2026-09-12-add-customizer-edit-recovery",
+      "files": 5,
+      "sha256Verified": true
+    }
+  ],
+  "activeChangesRemaining": 12
+}

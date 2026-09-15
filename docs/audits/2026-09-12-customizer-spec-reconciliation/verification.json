@@ -1,0 +1,273 @@
+{
+  "baselineHead": "be7f85b867aa3e8576e5e3d27e309276203bc24b",
+  "recordedAt": "2026-09-12T09:13:51.891Z",
+  "checks": [
+    {
+      "name": "printing-baseline",
+      "args": [
+        "node_modules/jest/bin/jest.js",
+        "--selectProjects",
+        "unit",
+        "--runInBand",
+        "--testPathPattern",
+        "src/services/printing|src/components/customizer/preview/__tests__|src/components/customizer/tabs/__tests__/PreviewTab"
+      ],
+      "startedAt": "2026-09-12T08:34:04.813Z",
+      "driverPid": 50088,
+      "running": false,
+      "pid": 62244,
+      "code": 0,
+      "finishedAt": "2026-09-12T08:34:29.284Z",
+      "log": "evidence/printing-baseline.log",
+      "sha256": "c2b64d567f05c5973a88a56314a840941ca597be404f20c22d1005b8629a9f5f"
+    },
+    {
+      "name": "editor-baseline",
+      "args": [
+        "node_modules/jest/bin/jest.js",
+        "--selectProjects",
+        "unit",
+        "--runInBand",
+        "--runTestsByPath",
+        "src/hooks/__tests__/useEquipmentBrowser.catalog.test.tsx",
+        "src/stores/unit/__tests__/unitEditHistory.test.ts",
+        "src/components/customizer/tabs/__tests__/useSavedHistoryDialog.test.tsx",
+        "src/components/customizer/tabs/__tests__/restoreLibraryVersionToDraft.test.ts",
+        "src/components/customizer/shared/__tests__/BrowserDraftStatus.test.tsx",
+        "src/__tests__/api/chassis.test.ts",
+        "src/services/units/chassis/__tests__/chassisIndex.test.ts"
+      ],
+      "startedAt": "2026-09-12T08:35:29.711Z",
+      "driverPid": 21648,
+      "running": false,
+      "pid": 65456,
+      "code": 0,
+      "finishedAt": "2026-09-12T08:35:33.669Z",
+      "log": "evidence/editor-baseline.log",
+      "sha256": "5c1611b42129e7cef0de81ec708ca9fc66aabdba8dc7e8e1bdf46322945f2a2e"
+    },
+    {
+      "name": "combat-contracts",
+      "args": [
+        "node_modules/jest/bin/jest.js",
+        "--selectProjects",
+        "unit",
+        "--runInBand",
+        "--runTestsByPath",
+        "src/__tests__/integration/customCombatDefinition.integration.test.ts",
+        "src/engine/__tests__/customCombatRecovery.recordedSnapshot.test.ts",
+        "src/engine/adapters/__tests__/customCombatDefinition.test.ts",
+        "src/lib/multiplayer/server/__tests__/customCombatRecovery.durableAuthority.test.ts",
+        "src/lib/campaign/readiness/__tests__/canonicalCatalogAdmission.test.ts"
+      ],
+      "startedAt": "2026-09-12T08:43:44.207Z",
+      "driverPid": 23124,
+      "running": false,
+      "pid": 44600,
+      "code": 0,
+      "finishedAt": "2026-09-12T08:43:53.375Z",
+      "log": "evidence/combat-contracts.log",
+      "sha256": "415a4c67fe59bba9c8279fe75a4a404a75c736f478e413986ea1c512577119ac"
+    },
+    {
+      "name": "typecheck",
+      "args": ["node_modules/typescript/bin/tsc", "--noEmit"],
+      "startedAt": "2026-09-12T08:52:28.497Z",
+      "driverPid": 41696,
+      "running": false,
+      "pid": 28476,
+      "code": 0,
+      "finishedAt": "2026-09-12T08:52:37.012Z",
+      "log": "evidence/typecheck.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "lint",
+      "args": ["node_modules/oxlint/bin/oxlint"],
+      "startedAt": "2026-09-12T08:52:28.547Z",
+      "driverPid": 62516,
+      "running": false,
+      "pid": 16336,
+      "code": 0,
+      "finishedAt": "2026-09-12T08:52:28.933Z",
+      "log": "evidence/lint.log",
+      "sha256": "f003c16b9a9eb88894b1e634d66629adca8798b09fd336e84a1295b0625be275"
+    },
+    {
+      "name": "assets",
+      "args": [
+        "node_modules/tsx/dist/cli.mjs",
+        "scripts/mm-data/validate-assets.ts",
+        "--strict"
+      ],
+      "startedAt": "2026-09-12T08:51:53.651Z",
+      "driverPid": 25368,
+      "running": false,
+      "pid": 25376,
+      "code": 0,
+      "finishedAt": "2026-09-12T08:51:54.080Z",
+      "log": "evidence/assets.log",
+      "sha256": "75c2c99edba75eccaac574639d0b076917280f01bd514c38d4de7d2d91af3890"
+    },
+    {
+      "name": "build-webpack",
+      "args": ["scripts/next/run-next.mjs", "build", "--webpack"],
+      "startedAt": "2026-09-12T08:58:11.600Z",
+      "driverPid": 38500,
+      "running": false,
+      "pid": 51716,
+      "code": 0,
+      "finishedAt": "2026-09-12T09:01:07.568Z",
+      "log": "evidence/build-webpack.log",
+      "sha256": "ed5579fb5be84c410b5896e5baab4728af0354971500e88e87d0b4681a105c96"
+    },
+    {
+      "name": "browser-production-ip",
+      "args": [
+        "scripts/playwright/run-playwright.mjs",
+        "test",
+        "e2e/customizer-equipment-catalog.spec.ts",
+        "e2e/customizer-record-sheet-rendering.spec.ts",
+        "e2e/customizer-edit-recovery.spec.ts",
+        "--project=chromium",
+        "--retries=0",
+        "--workers=1",
+        "--trace=retain-on-failure",
+        "--reporter=line",
+        "--output=.sisyphus/spec-reconciliation-20260912/browser-production-ip-results"
+      ],
+      "startedAt": "2026-09-12T09:06:49.100Z",
+      "driverPid": 7624,
+      "running": false,
+      "pid": 50852,
+      "code": 0,
+      "finishedAt": "2026-09-12T09:07:57.724Z",
+      "log": "evidence/browser-production-ip.log",
+      "sha256": "6635377489fe9485da8a880fb038d68c39e635bede23563d6184b4a0450a54e9"
+    },
+    {
+      "name": "purpose-final",
+      "args": [
+        "node_modules/tsx/dist/cli.mjs",
+        "openspec/scripts/spec-purpose-lint.ts"
+      ],
+      "startedAt": "2026-09-12T09:08:58.475Z",
+      "driverPid": 16464,
+      "running": false,
+      "pid": 65408,
+      "code": 0,
+      "finishedAt": "2026-09-12T09:08:58.879Z",
+      "log": "evidence/purpose-final.log",
+      "sha256": "a3911de992bc85c66b8d98144e41d0b6996542141b72fe535eaacd88dfc48f84"
+    },
+    {
+      "name": "terminology-final",
+      "args": [
+        "node_modules/ts-node/dist/bin.js",
+        "openspec/scripts/terminology-tool.ts",
+        "validate",
+        "--strict"
+      ],
+      "startedAt": "2026-09-12T09:08:58.348Z",
+      "driverPid": 33684,
+      "running": false,
+      "pid": 38596,
+      "code": 0,
+      "finishedAt": "2026-09-12T09:09:12.400Z",
+      "log": "evidence/terminology-final.log",
+      "sha256": "0bf89ae248952447a825aedb56db3207ac2ecd9ba0204e0812f747ccb04fca37"
+    },
+    {
+      "name": "typecheck-final",
+      "args": ["node_modules/typescript/bin/tsc", "--noEmit"],
+      "startedAt": "2026-09-12T09:24:05.697Z",
+      "driverPid": 41508,
+      "running": false,
+      "pid": 22684,
+      "code": 0,
+      "finishedAt": "2026-09-12T09:24:15.430Z",
+      "log": "evidence/typecheck-final.log"
+    },
+    {
+      "name": "lint-final",
+      "args": ["node_modules/oxlint/bin/oxlint", "."],
+      "startedAt": "2026-09-12T09:24:05.807Z",
+      "driverPid": 80524,
+      "running": false,
+      "pid": 49712,
+      "code": 0,
+      "finishedAt": "2026-09-12T09:24:06.193Z",
+      "log": "evidence/lint-final.log"
+    },
+    {
+      "name": "ci-contracts-complete",
+      "args": [
+        "node_modules/jest/bin/jest.js",
+        "--selectProjects",
+        "unit",
+        "--runInBand",
+        "--runTestsByPath",
+        "scripts/__tests__/openspec-ci-quality-qc.test.ts"
+      ],
+      "startedAt": "2026-09-12T09:24:05.754Z",
+      "driverPid": 43520,
+      "running": false,
+      "pid": 45112,
+      "code": 0,
+      "finishedAt": "2026-09-12T09:24:10.863Z",
+      "log": "evidence/ci-contracts-complete.log"
+    }
+  ],
+  "scope": "Focused local evidence, not full-repository or remote CI acceptance.",
+  "productionBuild": "Canonical npm build webpack stage plus successful standalone hydration; E2E compile flags enabled.",
+  "browserArtifacts": ".sisyphus/spec-reconciliation-20260912/browser-production-ip-results",
+  "earlierAttempts": [
+    {
+      "name": "browser-customizer",
+      "result": "Invalid inherited development listener hostname; no tests ran."
+    },
+    {
+      "name": "browser-customizer-loopback",
+      "result": "9 passed/1 failed: expected blocked-popup logger error opened Next development overlay and intercepted Retry."
+    },
+    {
+      "name": "browser-production",
+      "result": "Standalone runtime rejected HOSTNAME=localhost; no tests ran. Corrected to127.0.0.1."
+    },
+    {
+      "name": "build",
+      "result": "Initial invocation omitted canonical --webpack and was stopped using its recorded owned PID; replaced by successful canonical webpack stage."
+    }
+  ],
+  "remaining": "Remote GitHub execution, full nightly browser suite and broader capability acceptance are not claimed.",
+  "currentTotals": {
+    "printing": 352,
+    "editorCatalogChassis": 37,
+    "customCombat": 22,
+    "ciContracts": 28,
+    "focusedTests": 439,
+    "browserCases": 10
+  },
+  "finalChecks": {
+    "openSpec": {
+      "passed": 235,
+      "failed": 0,
+      "log": "evidence/openspec-all.log"
+    },
+    "ciValidator": {
+      "status": "pass",
+      "manifest": "evidence/ci-manifest.json"
+    },
+    "format": {
+      "ownedChanges": "pass",
+      "wholeRepository": "Fails only on six unchanged pre-existing printable-model research files.",
+      "log": "evidence/format-whole.log"
+    },
+    "sourceSyntax": {
+      "checkedSourceFiles": 32,
+      "nonCommentSyntaxChanges": [],
+      "method": "Parsed TypeScript printer without comments, HEAD versus final working tree"
+    },
+    "ciDeltaExactlySynced": true
+  }
+}
