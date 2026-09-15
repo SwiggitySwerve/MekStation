@@ -94,6 +94,7 @@ import {
   selectViewerDeliveryAcknowledgement,
   upsertViewerDeliveryAcknowledgement,
 } from './DurableMatchStore.viewerDelivery';
+import { nextMatchSequenceAfter } from './history/matchStoreBranchSegmentReader';
 import {
   MatchNotFoundError,
   MatchStoreSequenceCollisionError,
@@ -790,19 +791,24 @@ export class DurableMatchStore
       }
 
       // Live head only. The superseded tail lives in the sibling
-      // table, so MAX here is the prefix (or the new extension).
+      // table, so MAX here is the prefix (or the new extension). The
+      // "+ 1" that used to live in this SQL is the SAME off-by-one the
+      // journal side carries (revision = sequence + 1), so it is read
+      // as a raw MAX here and named by `nextMatchSequenceAfter` - a
+      // reader of this file alone used to have no way to learn that.
       const head = this.db
         .prepare(
-          `SELECT COALESCE(MAX(sequence) + 1, 0) AS next
+          `SELECT MAX(sequence) AS lastLiveSequence
            FROM mp_match_events
            WHERE match_id = ?`,
         )
-        .get(matchId) as { next: number };
-      if (head.next !== batch.expectedRevision) {
+        .get(matchId) as { lastLiveSequence: number | null };
+      const next = nextMatchSequenceAfter(head.lastLiveSequence);
+      if (next !== batch.expectedRevision) {
         return {
           kind: 'revision-conflict',
           expectedRevision: batch.expectedRevision,
-          actualRevision: head.next,
+          actualRevision: next,
         };
       }
 
@@ -995,7 +1001,10 @@ export class DurableMatchStore
           matchId,
           commandId: batch.commandId,
           actorId: batch.actorId,
-          expectedRevision: batch.expectedRevision,
+          // The batch's `expectedRevision` IS the match's next
+          // sequence; the mirror names the translation and refuses
+          // when the stream is no longer on the live path.
+          nextMatchSequence: batch.expectedRevision,
           events: batch.events,
           expectedPostStateDigest: batch.expectedPostStateDigest,
         },

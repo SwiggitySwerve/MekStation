@@ -14,8 +14,9 @@
  *
  * THE REVISION CONTRACT, and it is not an identity:
  *
- * - `mp_match_events` sequences start at **0**
- *   (`DurableMatchStore`: `SELECT COALESCE(MAX(sequence) + 1, 0)`).
+ * - `mp_match_events` sequences start at **0** (`DurableMatchStore`
+ *   reads `SELECT MAX(sequence)` over the LIVE rows and derives the
+ *   next sequence through `nextMatchSequenceAfter`, below).
  * - Branch revision **0 means "nothing has happened yet"**: it is the
  *   root branch's `baseRevision`, and what a stream with no head row
  *   reads as.
@@ -45,9 +46,47 @@ import { canonicalizeJsonV1 } from '@/lib/events/journal/EventJournalCanonicaliz
 import { ROOT_EVENT_BRANCH_ID } from '@/lib/events/journal/EventJournalContract';
 import { sha256Sync } from '@/utils/events/hashUtils';
 
+/** The sequence a match's first event occupies. */
+const MATCH_FIRST_SEQUENCE = 0;
+
 /** The revision a match event at this sequence occupies. */
 export function revisionForMatchSequence(sequence: number): number {
   return sequence + 1;
+}
+
+/**
+ * The sequence the next match event takes, given the highest LIVE
+ * sequence the store holds (`null` when it holds none).
+ *
+ * This is the same off-by-one read from the other end, and naming it
+ * here is the point: `DurableMatchStore`'s commit-time check and
+ * `InMemoryMatchStore`'s head both computed it inline, so an editor
+ * who moved the offset at one site got no signal that the others
+ * carry it too.
+ */
+export function nextMatchSequenceAfter(
+  lastLiveSequence: number | null,
+): number {
+  return lastLiveSequence === null
+    ? MATCH_FIRST_SEQUENCE
+    : revisionForMatchSequence(lastLiveSequence);
+}
+
+/**
+ * The journal revision a batch aimed at `nextSequence` must land on.
+ *
+ * Numerically an identity, and deliberately given a name anyway: the
+ * store's next sequence counts the LIVE rows while the journal head
+ * counts every revision ever committed, and those two are the same
+ * number only while the stream has never been rewound. Callers pass
+ * through this function so the assumption has a findable home rather
+ * than living in a comment beside an untranslated field.
+ * `isLivePathBranchId` is what enforces it at the mirror boundary.
+ */
+export function journalHeadRevisionForNextMatchSequence(
+  nextSequence: number,
+): number {
+  return nextSequence;
 }
 
 /** The narrow read this reader needs - `IMatchStore` satisfies it. */
