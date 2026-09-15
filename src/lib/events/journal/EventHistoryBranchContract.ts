@@ -253,9 +253,12 @@ export function assertValidBranchRecord(branch: IEventHistoryBranch): void {
   if (isRoot) {
     if (
       branch.baseEventId !== null ||
-      branch.baseRevision !== EVENT_HISTORY_GENESIS_REVISION
+      branch.baseRevision !== EVENT_HISTORY_GENESIS_REVISION ||
+      branch.baseDigest !== EVENT_HISTORY_GENESIS_DIGEST
     ) {
-      fail('A root branch has no base event and is anchored at revision 0');
+      fail(
+        'A root branch has no base event, is anchored at revision 0, and uses the defined genesis digest',
+      );
     }
     return;
   }

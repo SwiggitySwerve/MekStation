@@ -572,6 +572,81 @@ jobs:
             test-results
           retention-days: 7
 
+  # Production customizer coverage: catalog (3), record sheets (6), edit recovery (3).
+  # Assets belong to this checkout. Zero retries retain failure traces.
+  # Step gating lets documentation-only PRs satisfy the required aggregator.
+  customizer-regressions:
+    name: Customizer Regressions
+    needs: [detect-changes, install-deps]
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Skip (no code or e2e changes)
+        if: needs.detect-changes.outputs.code != 'true' && needs.detect-changes.outputs.e2e != 'true'
+        run: echo "No code or e2e changes — skipping customizer regressions."
+
+      - name: Checkout code
+        if: needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true'
+        uses: actions/checkout@v6
+
+      - name: Setup Node + caches + install deps
+        if: needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true'
+        uses: ./.github/actions/setup-node-and-install
+        with:
+          node-version: '22'
+          fetch-assets: 'true'
+
+      - name: Validate record-sheet assets
+        if: needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true'
+        run: npm run validate:assets:strict
+
+      - name: Build production app
+        if: needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true'
+        env:
+          NEXT_PUBLIC_E2E_MODE: 'true'
+          NEXT_PUBLIC_E2E_TEST: 'true'
+        run: npm run build
+
+      - name: Resolve Playwright version for browser cache key
+        if: needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true'
+        id: playwright-version
+        shell: bash
+        run: echo "version=$(node -e "console.log(require('@playwright/test/package.json').version)")" >> "$GITHUB_OUTPUT"
+
+      - name: Cache Playwright chromium browser
+        if: needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true'
+        id: playwright-cache
+        uses: actions/cache@v5
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ steps.playwright-version.outputs.version }}
+
+      - name: Install Playwright chromium browser
+        if: (needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true') && steps.playwright-cache.outputs.cache-hit != 'true'
+        run: npx playwright install --with-deps chromium
+
+      - name: Install Playwright system dependencies (browser cached)
+        if: (needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true') && steps.playwright-cache.outputs.cache-hit == 'true'
+        run: npx playwright install-deps chromium
+
+      - name: Run customizer browser regressions
+        if: needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true'
+        env:
+          MEKSTATION_E2E_SERVER_COMMAND: 'node .next/standalone/server.js'
+          HOSTNAME: '127.0.0.1'
+        run: node scripts/playwright/run-playwright.mjs test e2e/customizer-equipment-catalog.spec.ts e2e/customizer-record-sheet-rendering.spec.ts e2e/customizer-edit-recovery.spec.ts --project=chromium --retries=0 --trace=retain-on-failure
+
+      - name: Upload Playwright report
+        if: failure() && (needs.detect-changes.outputs.code == 'true' || needs.detect-changes.outputs.e2e == 'true')
+        uses: actions/upload-artifact@v7
+        with:
+          name: customizer-regressions-report
+          path: |
+            playwright-report
+            test-results
+          retention-days: 7
+
   desktop-typecheck:
     name: Desktop Type Check
     needs: install-deps
@@ -640,6 +715,7 @@ jobs:
         determinism-audit,
         e2e-smoke,
         seam-anchors,
+        customizer-regressions,
         desktop-typecheck,
         desktop-tests,
       ]
