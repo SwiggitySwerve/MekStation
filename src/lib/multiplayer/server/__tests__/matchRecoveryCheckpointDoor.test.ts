@@ -47,7 +47,9 @@ import {
 } from '../history/matchStoreBranchSegmentReader';
 import { InMemoryMatchStore } from '../InMemoryMatchStore';
 import { matchStoreHistoryReader } from '../MatchCheckpointHistory';
+import { _setCombatJournalAuthorityModeForTests } from '../matchJournalAuthority';
 import { recoverActiveMatches } from '../MatchRecovery';
+import { consultMatchRecoveryJournalHead } from '../MatchRecoveryJournalHead';
 import {
   createMatchSessionProjector,
   foldMatchSession,
@@ -224,6 +226,71 @@ describe('match recovery checkpoint door', () => {
 
       expect(offer).not.toBeNull();
       expect(offer!.metadata.revision).toBe(HEAD_REVISION);
+    });
+
+    /**
+     * S7-c: the SAME door, entered from the journal arm.
+     *
+     * S4 gave the arm its own tail - `registerRecoveredHost` straight
+     * off the consult - which jumped the whole checkpoint block, so the
+     * two rows above described only half the function (S4-R4). Seeding
+     * the stream through S7-a's create-path seed is what makes a real
+     * journal-path match constructible here; the assertions are then
+     * the legacy arm's own, unchanged, because the door is the same.
+     */
+    describe('and the stream is on the journal arm', () => {
+      beforeEach(async () => {
+        _setCombatJournalAuthorityModeForTests('shadow');
+        await store.seedJournalFromInitialEvents!(MATCH_ID, EVENTS);
+        // The head is persisted state; recovery must not need the flag.
+        _setCombatJournalAuthorityModeForTests('off');
+        expect(
+          await consultMatchRecoveryJournalHead(store, MATCH_ID),
+        ).toMatchObject({ kind: 'journal', headRevision: HEAD_REVISION });
+      });
+
+      afterEach(() => {
+        _setCombatJournalAuthorityModeForTests(null);
+      });
+
+      it('recovers through the checkpoint door and reads only the tail', async () => {
+        const spy = jest.spyOn(store, 'getEvents');
+
+        const result = await recoverActiveMatches(store);
+        const host = result.hosts.get(MATCH_ID);
+
+        expect(result.failed).toStrictEqual([]);
+        expect(
+          digestReplayCheckpointState(host!.getSessionForTests()),
+        ).toStrictEqual(FULL_DIGEST);
+        // Byte-identical to the legacy row's bound. The journal head is
+        // the ceiling the arm folds to, not a second offset convention:
+        // a tail read at 4 is what a base covering revision 4 asks for
+        // on EITHER arm, and the consult's own full read is the fromSeq
+        // 0 call this filter drops.
+        expect(
+          spy.mock.calls.filter(([, fromSeq]) => fromSeq !== 0),
+        ).toStrictEqual([[MATCH_ID, 4]]);
+      });
+
+      it('records a fresh checkpoint at the live head after recovery', async () => {
+        const result = await recoverActiveMatches(store);
+        expect(result.hosts.has(MATCH_ID)).toBe(true);
+
+        const offer = await new BranchCheckpointCache(
+          getSQLiteService().getDatabase(),
+        ).offer(
+          matchAuthoritativePipeline(
+            MATCH_ID,
+            createMatchSessionProjector(MATCH_ID),
+          ),
+          HEAD_REVISION,
+          matchStoreHistoryReader(store, MATCH_ID),
+        );
+
+        expect(offer).not.toBeNull();
+        expect(offer!.metadata.revision).toBe(HEAD_REVISION);
+      });
     });
   });
 
