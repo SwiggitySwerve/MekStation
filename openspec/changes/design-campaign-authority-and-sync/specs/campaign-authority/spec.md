@@ -152,3 +152,47 @@ This requirement admits an ENVELOPE-CARRIAGE audience contract only -- where the
 - **WHEN** it is replayed, canonicalized, or digested
 - **THEN** the journal-private field SHALL be absent rather than an empty object or an enumerable `undefined` property
 - **AND** the canonical bytes and the resulting state digest SHALL be unchanged from their pre-existing values
+
+
+### Requirement: Pending client mutations are flushed before the document is discarded
+The client persistence layer SHALL make exactly one bounded, best-effort durable write of the pending campaign envelope when the document is discarded or becomes hidden while unsaved mutations are pending, rather than leaving those mutations to a debounce timer the document will not survive. The flush SHALL reuse the existing whole-envelope `PUT` and its `baseVersion` compare-and-swap; it SHALL NOT retry, SHALL NOT schedule follow-up work, and SHALL NOT be treated as an acknowledged write -- its response is not read, so the client SHALL NOT advance its cached base version or clear its dirty state on the strength of having fired it. An acknowledged revision SHALL NOT be lost or overwritten because a flush was issued: the compare-and-swap decides the outcome, and the next load re-validates the cache against the stream head exactly as "Client storage is a cache, never a source" already requires. The flush SHALL NOT fire for a campaign whose writer is the co-op session rather than this PUT path, because a second writer there is the recorded conflict noise, not a rescued mutation.
+
+#### Scenario: A mutation inside the debounce window survives a hard reload
+- **GIVEN** a campaign mutation that has marked the client dirty and armed the auto-save debounce, with no save yet performed
+- **WHEN** the document is discarded or becomes hidden before the debounce elapses
+- **THEN** the client SHALL issue one durable write carrying the CURRENT in-memory campaign envelope and the current compare-and-swap base version
+- **AND** the armed debounce timer SHALL be cleared, so the discard path and the timer cannot both write
+- **AND** at most one such write SHALL be issued per discard, with no retry and no queued follow-up work
+
+#### Scenario: An unread flush never claims a revision it did not earn
+- **GIVEN** a flush was issued while the document was being discarded and its response was never read
+- **WHEN** the campaign is loaded again
+- **THEN** the server record SHALL be authoritative and the client SHALL NOT have recorded the flush's revision as acknowledged
+- **AND** a flush that lost the compare-and-swap SHALL NOT overwrite the acknowledged revision that won it
+
+#### Scenario: Nothing pending, or another writer owns the campaign, means no flush
+- **GIVEN** a document discard or hidden transition while the client is not dirty, or while the campaign's writer is the co-op session rather than the whole-envelope PUT path
+- **WHEN** the discard or hidden transition occurs
+- **THEN** no durable write SHALL be issued
+
+### Requirement: An accepted contract is written exactly once, by exactly one writer
+Accepting a contract SHALL produce exactly one acceptance write. When the source commits an accept-contract command, the source's own campaign record -- its missions and its reduced remaining contract market -- and the compact accepted-contract ledger SHALL both follow from that single committed acceptance, and the client SHALL NOT additionally apply the acceptance to its local campaign. When the source refuses the command, including the refusal a campaign that is not on journal authority receives, no event SHALL be committed and the existing client-side acceptance remains the single write. A state in which both writes occur, or in which the compact ledger records an acceptance the source record does not, SHALL NOT be reachable. This is stated as an obligation rather than as a tolerated transitional divergence because a dual write is silent: nothing detects the two trees disagreeing.
+
+#### Scenario: A committed acceptance produces both projections from one commit
+- **GIVEN** a campaign whose source accepts an accept-contract command naming an offer the persisted source record holds
+- **WHEN** the command commits
+- **THEN** the compact accepted-contract ledger entry and the source record's mission and reduced remaining market SHALL both follow from that one commit
+- **AND** the client SHALL NOT also apply the acceptance locally
+- **AND** the compact ledger SHALL NOT hold an accepted contract the source record does not
+
+#### Scenario: A refused acceptance leaves exactly one client write
+- **GIVEN** a campaign the source refuses to command, including a campaign that is not on journal authority
+- **WHEN** a contract acceptance is attempted
+- **THEN** no acceptance event SHALL be committed
+- **AND** the acceptance SHALL be applied once, client-side, exactly as it is applied today
+
+#### Scenario: An offer the source record does not hold is refused, never trusted from the caller
+- **GIVEN** an accept-contract command naming a `contractId` that is absent from the contract market in the baseline captured from the persisted source record
+- **WHEN** the source processes that command
+- **THEN** it SHALL refuse with a typed reason distinct from every rules refusal, so an offer that has not reached the source is distinguishable from an offer the rules reject
+- **AND** it SHALL NOT derive the compact name or employer faction from a contract body supplied by the caller
