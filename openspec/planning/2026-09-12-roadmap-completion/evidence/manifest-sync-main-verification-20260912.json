@@ -1,0 +1,477 @@
+{
+  "schemaVersion": 1,
+  "evidenceId": "manifest-sync-main-verification-20260912",
+  "recordedAt": "2026-09-12T20:28:54.3085368Z",
+  "node": "R9.manifest-sync",
+  "worktree": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\manifest-sync",
+  "head": "c44bf05720591efc5e40186c1a9f49b4afebe44a",
+  "reviewedTree": "30134ab05178af9372aa1088cdca8df736546bcf",
+  "treeIdentity": {
+    "diffExit": 0,
+    "worktreePorcelain": "",
+    "clean": true
+  },
+  "drivers": {
+    ".sisyphus/roadmap-completion-20260912/manifest-sync-checks/main-1/static-driver.cjs": "8a75d0747891c58ef644bca895a35b41d6556e40d27d7745e469e3b62f9857b1",
+    ".sisyphus/roadmap-completion-20260912/manifest-sync-checks/main-1/build-driver.cjs": "6c968f36c819052d07e265aee6def0247a149571779d3bda7eac94554bd4a003",
+    ".sisyphus/roadmap-completion-20260912/prove-manifest-http.cjs": "d08d478da50b9c95e97c4856a1a1bc4232693689872a1ed89e1c0495afcb9683"
+  },
+  "staticVerification": {
+    "initialAttempt": {
+      "status": ".sisyphus/roadmap-completion-20260912/manifest-sync-checks/main-1/05-openspec-all-strict.status.json",
+      "statusSha256": "3a750e0278f7956be3a1567f268e2e6aba763e8a335715d2b4682b04bb780988",
+      "exitCode": 1,
+      "stderr": ".sisyphus/roadmap-completion-20260912/manifest-sync-checks/main-1/05-openspec-all-strict.stderr.log",
+      "stderrSha256": "82e71f136abf8241c13b6af89a6fcf4c143744bfa7c6e92faca9027e552b4a4e",
+      "failureText": "'\\\"C:/Users/wroll/AppData/Roaming/npm/openspec.cmd\\\"' is not recognized as an internal or external command,\r\noperable program or batch file.\r\n"
+    },
+    "correctedAttempt": {
+      "summary": ".sisyphus/roadmap-completion-20260912/manifest-sync-checks/main-1-retry/static-summary.json",
+      "summarySha256": "19ec0fca91b0504403ff941a05fcc0347e40d544f0c9ea03c7959bcc983cdec6",
+      "head": "c44bf05720591efc5e40186c1a9f49b4afebe44a",
+      "sourceBefore": [
+        {
+          "path": "scripts/mm-data/sync-browser-config.mjs",
+          "sha256": "d47ca5eaa81a7a8488c25b828cc6b04a8e30f93311952dc002c718c60d6820dc"
+        },
+        {
+          "path": "scripts/__tests__/mm-data-browser-config.test.ts",
+          "sha256": "20534720de14d2e2c94cfa17763d8cd75c82b7ae7a9deb6d9ec095a33fa9dce4"
+        },
+        {
+          "path": "package.json",
+          "sha256": "0cbe570cc8b2ffdabcf1c273a75b739bf6693965239a913f524661291e6c2e32"
+        },
+        {
+          "path": "openspec/specs/mm-data-asset-integration/spec.md",
+          "sha256": "5beabebfe54b2a2e3e9aadd0ab87e480062eed0de257507571681b69c2a74dd7"
+        }
+      ],
+      "sourceAfter": [
+        {
+          "path": "scripts/mm-data/sync-browser-config.mjs",
+          "sha256": "d47ca5eaa81a7a8488c25b828cc6b04a8e30f93311952dc002c718c60d6820dc"
+        },
+        {
+          "path": "scripts/__tests__/mm-data-browser-config.test.ts",
+          "sha256": "20534720de14d2e2c94cfa17763d8cd75c82b7ae7a9deb6d9ec095a33fa9dce4"
+        },
+        {
+          "path": "package.json",
+          "sha256": "0cbe570cc8b2ffdabcf1c273a75b739bf6693965239a913f524661291e6c2e32"
+        },
+        {
+          "path": "openspec/specs/mm-data-asset-integration/spec.md",
+          "sha256": "5beabebfe54b2a2e3e9aadd0ab87e480062eed0de257507571681b69c2a74dd7"
+        }
+      ],
+      "runtimePackagesBefore": [
+        {
+          "name": "tsx",
+          "packageJsonSha256": "b0d63b124b9b85b53d09cff256fa7832cb6a774f8b90ae1353e63df5275824b2"
+        },
+        {
+          "name": "esbuild",
+          "packageJsonSha256": "cb7d5b1fe478f8cbaae566a86031b6fdf5f7d444354f35d1cb3cba9adf6d2935"
+        },
+        {
+          "name": "ws",
+          "packageJsonSha256": "5d9fcf3bb6aaa7c789b4a020b79e208e76fbc32b1989caf2c275db8cb04329de"
+        },
+        {
+          "name": "yaml",
+          "packageJsonSha256": "20b8b197cbd10dad245d45e463dfe58e4c8c25a47e24bc4256ad9ab58bf35683"
+        }
+      ],
+      "runtimePackagesAfter": [
+        {
+          "name": "tsx",
+          "packageJsonSha256": "b0d63b124b9b85b53d09cff256fa7832cb6a774f8b90ae1353e63df5275824b2"
+        },
+        {
+          "name": "esbuild",
+          "packageJsonSha256": "cb7d5b1fe478f8cbaae566a86031b6fdf5f7d444354f35d1cb3cba9adf6d2935"
+        },
+        {
+          "name": "ws",
+          "packageJsonSha256": "5d9fcf3bb6aaa7c789b4a020b79e208e76fbc32b1989caf2c275db8cb04329de"
+        },
+        {
+          "name": "yaml",
+          "packageJsonSha256": "20b8b197cbd10dad245d45e463dfe58e4c8c25a47e24bc4256ad9ab58bf35683"
+        }
+      ],
+      "commands": [
+        {
+          "id": "focused-jest",
+          "command": "C:/nvm4w/nodejs/node.exe C:/nvm4w/nodejs/node_modules/npm/bin/npm-cli.js test -- --runInBand scripts/__tests__/mm-data-browser-config.test.ts",
+          "executable": "C:/nvm4w/nodejs/node.exe",
+          "args": [
+            "C:/nvm4w/nodejs/node_modules/npm/bin/npm-cli.js",
+            "test",
+            "--",
+            "--runInBand",
+            "scripts/__tests__/mm-data-browser-config.test.ts"
+          ],
+          "exitCode": 0,
+          "signal": null,
+          "error": null,
+          "stdout": "main-1-retry\\01-focused-jest.stdout.log",
+          "stdoutSha256": "4dfaf40308b0bddaef459eeffe74ded3655ff8346fc3c3f74725a672c220ff32",
+          "stderr": "main-1-retry\\01-focused-jest.stderr.log",
+          "stderrSha256": "edb7fd85c78fb168b6f3b4c1d9774158455cbfccd417248b1ef346c6dae02ff4",
+          "status": "main-1-retry\\01-focused-jest.status.json",
+          "statusSha256": "991f57ed2ccff84ea8a71929a0c3ae689beaf575b10fca14f672ce34e57af41f"
+        },
+        {
+          "id": "typecheck",
+          "command": "C:/nvm4w/nodejs/node.exe C:/nvm4w/nodejs/node_modules/npm/bin/npm-cli.js run typecheck",
+          "executable": "C:/nvm4w/nodejs/node.exe",
+          "args": [
+            "C:/nvm4w/nodejs/node_modules/npm/bin/npm-cli.js",
+            "run",
+            "typecheck"
+          ],
+          "exitCode": 0,
+          "signal": null,
+          "error": null,
+          "stdout": "main-1-retry\\02-typecheck.stdout.log",
+          "stdoutSha256": "d140a6ce62dda0946fe30dd882dbb8209f05be72c8fa8850e5634755a399e50f",
+          "stderr": "main-1-retry\\02-typecheck.stderr.log",
+          "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "status": "main-1-retry\\02-typecheck.status.json",
+          "statusSha256": "ae496daf98012a8bdc0063cfdc59350427f7aca033a356b3c1b070c0199299b6"
+        },
+        {
+          "id": "lint",
+          "command": "C:/nvm4w/nodejs/node.exe C:/nvm4w/nodejs/node_modules/npm/bin/npm-cli.js run lint",
+          "executable": "C:/nvm4w/nodejs/node.exe",
+          "args": [
+            "C:/nvm4w/nodejs/node_modules/npm/bin/npm-cli.js",
+            "run",
+            "lint"
+          ],
+          "exitCode": 0,
+          "signal": null,
+          "error": null,
+          "stdout": "main-1-retry\\03-lint.stdout.log",
+          "stdoutSha256": "9a257eddeb0ece0c05ef6fa6e0b5ca722677ad97d8dc45bb58b6a3fe0cf30ce0",
+          "stderr": "main-1-retry\\03-lint.stderr.log",
+          "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "status": "main-1-retry\\03-lint.status.json",
+          "statusSha256": "1de56fe43ebd748c2ee597d277714db1095447138cfa8e1e6189bf042225ee45"
+        },
+        {
+          "id": "format-check",
+          "command": "C:/nvm4w/nodejs/node.exe C:/nvm4w/nodejs/node_modules/npm/bin/npm-cli.js run format:check",
+          "executable": "C:/nvm4w/nodejs/node.exe",
+          "args": [
+            "C:/nvm4w/nodejs/node_modules/npm/bin/npm-cli.js",
+            "run",
+            "format:check"
+          ],
+          "exitCode": 0,
+          "signal": null,
+          "error": null,
+          "stdout": "main-1-retry\\04-format-check.stdout.log",
+          "stdoutSha256": "d0eb965e4212572c98aec91f2f625869441657ede8b400233a0eadbca864cfbd",
+          "stderr": "main-1-retry\\04-format-check.stderr.log",
+          "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "status": "main-1-retry\\04-format-check.status.json",
+          "statusSha256": "0f53ed52a87b68c017b22690e8afc7c9c839205d7c15e82433b4c94335d473bd"
+        },
+        {
+          "id": "openspec-all-strict",
+          "command": "C:/Users/wroll/AppData/Roaming/npm/openspec.cmd validate --all --strict",
+          "executable": "cmd.exe",
+          "args": [
+            "/d",
+            "/c",
+            "C:/Users/wroll/AppData/Roaming/npm/openspec.cmd",
+            "validate",
+            "--all",
+            "--strict"
+          ],
+          "exitCode": 0,
+          "signal": null,
+          "error": null,
+          "stdout": "main-1-retry\\05-openspec-all-strict.stdout.log",
+          "stdoutSha256": "16c5c323579e9f348bc2adb0830ebd7bb199a73726ab1098c72331305dcca967",
+          "stderr": "main-1-retry\\05-openspec-all-strict.stderr.log",
+          "stderrSha256": "5bc31df123a2e521acdd2c0d9477b367feec506471a91065d0a6b32c09089ed5",
+          "status": "main-1-retry\\05-openspec-all-strict.status.json",
+          "statusSha256": "27e68eece8a0185680ea17983b8919bc422db075a31b05e26f2e3e0cad0f423f"
+        },
+        {
+          "id": "spec-purpose-strict",
+          "command": "C:/nvm4w/nodejs/node.exe C:/nvm4w/nodejs/node_modules/npm/bin/npm-cli.js run spec:purpose:validate:strict",
+          "executable": "C:/nvm4w/nodejs/node.exe",
+          "args": [
+            "C:/nvm4w/nodejs/node_modules/npm/bin/npm-cli.js",
+            "run",
+            "spec:purpose:validate:strict"
+          ],
+          "exitCode": 0,
+          "signal": null,
+          "error": null,
+          "stdout": "main-1-retry\\06-spec-purpose-strict.stdout.log",
+          "stdoutSha256": "3c997b85b5091b1232d3c31b59a7495a44f136b3611f09839970f413a310ae10",
+          "stderr": "main-1-retry\\06-spec-purpose-strict.stderr.log",
+          "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "status": "main-1-retry\\06-spec-purpose-strict.status.json",
+          "statusSha256": "7db9535a2fde34e2c0ddf425b38f0acc3ce583b7a3a87182b1285b662c3847b4"
+        },
+        {
+          "id": "terminology-strict",
+          "command": "C:/nvm4w/nodejs/node.exe C:/nvm4w/nodejs/node_modules/npm/bin/npm-cli.js run terminology:validate:strict",
+          "executable": "C:/nvm4w/nodejs/node.exe",
+          "args": [
+            "C:/nvm4w/nodejs/node_modules/npm/bin/npm-cli.js",
+            "run",
+            "terminology:validate:strict"
+          ],
+          "exitCode": 0,
+          "signal": null,
+          "error": null,
+          "stdout": "main-1-retry\\07-terminology-strict.stdout.log",
+          "stdoutSha256": "f900b2f139d48a4fce3da66f12105cdd633a1cfe6dc8102211bcf03cc6a1cce7",
+          "stderr": "main-1-retry\\07-terminology-strict.stderr.log",
+          "stderrSha256": "f3f23f4d4d4628bff278f61d56d85672f5e90590bf9b1442eb93e22f02fbe583",
+          "status": "main-1-retry\\07-terminology-strict.status.json",
+          "statusSha256": "36ba36cc7a00e2446caa368c7deedbf05031df3c4049331f1806cd220b9e8407"
+        },
+        {
+          "id": "ci-qc",
+          "command": "C:/nvm4w/nodejs/node.exe C:/nvm4w/nodejs/node_modules/npm/bin/npm-cli.js run qc:openspec-ci:validate",
+          "executable": "C:/nvm4w/nodejs/node.exe",
+          "args": [
+            "C:/nvm4w/nodejs/node_modules/npm/bin/npm-cli.js",
+            "run",
+            "qc:openspec-ci:validate"
+          ],
+          "exitCode": 0,
+          "signal": null,
+          "error": null,
+          "stdout": "main-1-retry\\08-ci-qc.stdout.log",
+          "stdoutSha256": "f01feb11318234aab4764fe76151b78c06905527212a8f8723626fcf616b71d6",
+          "stderr": "main-1-retry\\08-ci-qc.stderr.log",
+          "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "status": "main-1-retry\\08-ci-qc.status.json",
+          "statusSha256": "89b7e0a8ee1a1b5c72dc932420752c52ba47f6bca5e4810f67c4e33df2f85901"
+        }
+      ],
+      "finalPorcelain": "",
+      "success": true
+    }
+  },
+  "productionBuild": {
+    "status": ".sisyphus/roadmap-completion-20260912/manifest-sync-checks/main-1-build-status.json",
+    "statusSha256": "0489a2f7e8d56ef89dfdfa1267ac29ea50ec045afd2a0c10658f94ffccc23332",
+    "log": ".sisyphus/roadmap-completion-20260912/manifest-sync-checks/main-1-build.log",
+    "logSha256": "bd5b5bb7969d99d88c144e6d36efee672f7b35e7493642a1bd167a1dde36dafc",
+    "state": {
+      "schemaVersion": 1,
+      "name": "manifest-sync",
+      "attempt": "main-1",
+      "cwd": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\manifest-sync",
+      "driverPid": 56808,
+      "startedAt": "2026-09-12T20:21:26.516Z",
+      "sourceBefore": [
+        {
+          "path": "scripts/mm-data/sync-browser-config.mjs",
+          "sha256": "d47ca5eaa81a7a8488c25b828cc6b04a8e30f93311952dc002c718c60d6820dc"
+        },
+        {
+          "path": "scripts/__tests__/mm-data-browser-config.test.ts",
+          "sha256": "20534720de14d2e2c94cfa17763d8cd75c82b7ae7a9deb6d9ec095a33fa9dce4"
+        },
+        {
+          "path": "package.json",
+          "sha256": "0cbe570cc8b2ffdabcf1c273a75b739bf6693965239a913f524661291e6c2e32"
+        },
+        {
+          "path": "openspec/specs/mm-data-asset-integration/spec.md",
+          "sha256": "5beabebfe54b2a2e3e9aadd0ab87e480062eed0de257507571681b69c2a74dd7"
+        }
+      ],
+      "packageLockSha256Before": "813adb8c95fd2d13a05214e504756ee72378769f7c33af242f8120ee2750b48a",
+      "runtimeSourceBefore": {
+        "count": 325,
+        "sha256": "0fb65c797c3dda290475aae151e89d665f693fdf910c534667e2f8bc59621d8e"
+      },
+      "args": [
+        "C:/nvm4w/nodejs/node_modules/npm/bin/npm-cli.js",
+        "run",
+        "build"
+      ],
+      "log": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\manifest-sync-checks\\main-1-build.log",
+      "running": false,
+      "childPid": 17356,
+      "exit": 0,
+      "signal": null,
+      "finishedAt": "2026-09-12T20:26:36.581Z",
+      "logSha256": "bd5b5bb7969d99d88c144e6d36efee672f7b35e7493642a1bd167a1dde36dafc",
+      "sourceAfter": [
+        {
+          "path": "scripts/mm-data/sync-browser-config.mjs",
+          "sha256": "d47ca5eaa81a7a8488c25b828cc6b04a8e30f93311952dc002c718c60d6820dc"
+        },
+        {
+          "path": "scripts/__tests__/mm-data-browser-config.test.ts",
+          "sha256": "20534720de14d2e2c94cfa17763d8cd75c82b7ae7a9deb6d9ec095a33fa9dce4"
+        },
+        {
+          "path": "package.json",
+          "sha256": "0cbe570cc8b2ffdabcf1c273a75b739bf6693965239a913f524661291e6c2e32"
+        },
+        {
+          "path": "openspec/specs/mm-data-asset-integration/spec.md",
+          "sha256": "5beabebfe54b2a2e3e9aadd0ab87e480062eed0de257507571681b69c2a74dd7"
+        }
+      ],
+      "packageLockSha256After": "813adb8c95fd2d13a05214e504756ee72378769f7c33af242f8120ee2750b48a",
+      "runtimeSourceAfter": {
+        "count": 325,
+        "sha256": "0fb65c797c3dda290475aae151e89d665f693fdf910c534667e2f8bc59621d8e"
+      },
+      "manifests": [
+        {
+          "path": "config/mm-data-assets.json",
+          "sha256": "6746a36beab5ce9a9beff240afe0f7609caace9010509ecf7d8c58c6dd8af8e6"
+        },
+        {
+          "path": "public/config/mm-data-assets.json",
+          "sha256": "6746a36beab5ce9a9beff240afe0f7609caace9010509ecf7d8c58c6dd8af8e6"
+        },
+        {
+          "path": ".next/standalone/public/config/mm-data-assets.json",
+          "sha256": "6746a36beab5ce9a9beff240afe0f7609caace9010509ecf7d8c58c6dd8af8e6"
+        }
+      ],
+      "manifestEquality": true,
+      "success": true
+    }
+  },
+  "httpProof": {
+    "status": ".sisyphus/roadmap-completion-20260912/manifest-sync-checks/main-1-http-status.json",
+    "statusSha256": "c6125fbdfb67b54cafc6579b87a40f503eec42dd372c7c2e8f47c34b3839e3ef",
+    "serverLog": ".sisyphus/roadmap-completion-20260912/manifest-sync-checks/main-1-server.log",
+    "serverLogSha256": "d3e485ca84672ea1850102b0e4da2ea64baa904906ce815995142651c8262570",
+    "state": {
+      "attempt": "main-1",
+      "startedAt": "2026-09-12T20:26:57.312Z",
+      "running": false,
+      "driverPid": 6696,
+      "cwd": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\manifest-sync\\.next\\standalone",
+      "port": 3651,
+      "endpoint": "http://127.0.0.1:3651/config/mm-data-assets.json",
+      "portVerifiedFree": true,
+      "database": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\manifest-sync-checks\\main-1-data\\mekstation.db",
+      "args": [
+        "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\manifest-sync\\.next\\standalone\\server.js"
+      ],
+      "serverPid": 60116,
+      "verifiedListener": [
+        "TCP",
+        "127.0.0.1:3651",
+        "0.0.0.0:0",
+        "LISTENING",
+        "60116"
+      ],
+      "browserVersion": "143.0.7499.4",
+      "response": {
+        "url": "http://127.0.0.1:3651/config/mm-data-assets.json",
+        "status": 200,
+        "contentType": "application/json; charset=UTF-8",
+        "bytes": 2687,
+        "sha256": "6746a36beab5ce9a9beff240afe0f7609caace9010509ecf7d8c58c6dd8af8e6",
+        "expectedSha256": "6746a36beab5ce9a9beff240afe0f7609caace9010509ecf7d8c58c6dd8af8e6",
+        "nonMechEntries": [
+          "vehicle_turret_standard.svg",
+          "fighter_aerospace_default.svg",
+          "protomek_biped.svg",
+          "conventional_infantry_default.svg",
+          "battle_armor_default.svg"
+        ],
+        "bodyPath": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\manifest-sync-checks\\main-1-browser-response.json"
+      },
+      "success": true,
+      "ownedServerStopRequested": true,
+      "serverExit": {
+        "code": null,
+        "signal": "SIGTERM"
+      },
+      "serverLogSha256": "d3e485ca84672ea1850102b0e4da2ea64baa904906ce815995142651c8262570",
+      "finishedAt": "2026-09-12T20:27:42.878Z"
+    },
+    "port": 3651,
+    "ownedServerTermination": {
+      "code": null,
+      "signal": "SIGTERM"
+    }
+  },
+  "sourceAndArtifacts": {
+    "source": [
+      {
+        "path": "scripts/mm-data/sync-browser-config.mjs",
+        "sha256": "d47ca5eaa81a7a8488c25b828cc6b04a8e30f93311952dc002c718c60d6820dc"
+      },
+      {
+        "path": "scripts/__tests__/mm-data-browser-config.test.ts",
+        "sha256": "20534720de14d2e2c94cfa17763d8cd75c82b7ae7a9deb6d9ec095a33fa9dce4"
+      },
+      {
+        "path": "package.json",
+        "sha256": "0cbe570cc8b2ffdabcf1c273a75b739bf6693965239a913f524661291e6c2e32"
+      },
+      {
+        "path": "openspec/specs/mm-data-asset-integration/spec.md",
+        "sha256": "5beabebfe54b2a2e3e9aadd0ab87e480062eed0de257507571681b69c2a74dd7"
+      }
+    ],
+    "packageLockSha256Before": "813adb8c95fd2d13a05214e504756ee72378769f7c33af242f8120ee2750b48a",
+    "packageLockSha256After": "813adb8c95fd2d13a05214e504756ee72378769f7c33af242f8120ee2750b48a",
+    "runtimeSourceBefore": {
+      "count": 325,
+      "sha256": "0fb65c797c3dda290475aae151e89d665f693fdf910c534667e2f8bc59621d8e"
+    },
+    "runtimeSourceAfter": {
+      "count": 325,
+      "sha256": "0fb65c797c3dda290475aae151e89d665f693fdf910c534667e2f8bc59621d8e"
+    },
+    "manifests": [
+      {
+        "path": "config/mm-data-assets.json",
+        "sha256": "6746a36beab5ce9a9beff240afe0f7609caace9010509ecf7d8c58c6dd8af8e6"
+      },
+      {
+        "path": "public/config/mm-data-assets.json",
+        "sha256": "6746a36beab5ce9a9beff240afe0f7609caace9010509ecf7d8c58c6dd8af8e6"
+      },
+      {
+        "path": ".next/standalone/public/config/mm-data-assets.json",
+        "sha256": "6746a36beab5ce9a9beff240afe0f7609caace9010509ecf7d8c58c6dd8af8e6"
+      }
+    ],
+    "httpResponse": {
+      "url": "http://127.0.0.1:3651/config/mm-data-assets.json",
+      "status": 200,
+      "contentType": "application/json; charset=UTF-8",
+      "bytes": 2687,
+      "sha256": "6746a36beab5ce9a9beff240afe0f7609caace9010509ecf7d8c58c6dd8af8e6",
+      "expectedSha256": "6746a36beab5ce9a9beff240afe0f7609caace9010509ecf7d8c58c6dd8af8e6",
+      "nonMechEntries": [
+        "vehicle_turret_standard.svg",
+        "fighter_aerospace_default.svg",
+        "protomek_biped.svg",
+        "conventional_infantry_default.svg",
+        "battle_armor_default.svg"
+      ],
+      "bodyPath": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\manifest-sync-checks\\main-1-browser-response.json"
+    }
+  },
+  "limits": [
+    "Initial static attempt is retained as failed because the OpenSpec launcher was invoked with an invalid quoted cmd.exe form; corrected retry passed all eight gates.",
+    "No product source, Git index, merge, asset acquisition, or user port 3600 activity was performed by this verification lane."
+  ]
+}

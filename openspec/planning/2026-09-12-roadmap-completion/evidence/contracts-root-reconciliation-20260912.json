@@ -1,0 +1,669 @@
+{
+  "schemaVersion": 1,
+  "capturedAt": "2026-09-12T22:35:00.380Z",
+  "status": "accepted-root-proposals-reconciled",
+  "rootHead": "be7f85b867aa3e8576e5e3d27e309276203bc24b",
+  "sourceMain": "92d04fc6bcc2e49fd40d63d6f0cfd2a9c72eb14c",
+  "preflight": {
+    "path": ".sisyphus/roadmap-completion-20260912/contracts-root-reconciliation-preflight/guarded-reconciliation-manifest-correction.json",
+    "sha256": "4c83d829e1c38178806e013918a6240754f4aa3c26912b1f3a60f3b5dc108fb8"
+  },
+  "files": [
+    {
+      "lane": "prerequisite",
+      "path": "openspec/changes/add-authoritative-history-branches/proposal.md",
+      "admissionSha256": "3958b718e76dd00611187a1e36fd7c692e7b4d9240d7d8b96bb7690023fd7089",
+      "currentSha256": "3958b718e76dd00611187a1e36fd7c692e7b4d9240d7d8b96bb7690023fd7089",
+      "mergedSha256": "3f7e4f4805593a0b0fc142616274488dd65dba72dee63aa575fddb7951f0006a",
+      "currentLfSha256": "1f24dcfc1e206710e96457ab58451a000b23077252bac02cce070db7f454d00c",
+      "mergedLfSha256": "3f7e4f4805593a0b0fc142616274488dd65dba72dee63aa575fddb7951f0006a",
+      "currentGitBlobId": "3791da36ed163ec4c6f85a666d7749be6889796d",
+      "mergedGitBlobId": "00c4bc8a94099a34940448e83eea5b04c7c2ac7e",
+      "currentMatchesAdmissionRaw": true,
+      "currentMatchesMergedRaw": false,
+      "currentMatchesMergedLf": false,
+      "differenceOnlyCRLF": false,
+      "backupPath": ".sisyphus\\roadmap-completion-20260912\\contracts-root-reconciliation-accepted\\before\\openspec\\changes\\add-authoritative-history-branches\\proposal.md"
+    },
+    {
+      "lane": "prerequisite",
+      "path": "openspec/changes/add-authoritative-history-branches/tasks.md",
+      "admissionSha256": "b68c9186a2c5dcdeb03411f1f5f9cb91bd365d7d4437e3faf7f0822e0f4f9040",
+      "currentSha256": "b68c9186a2c5dcdeb03411f1f5f9cb91bd365d7d4437e3faf7f0822e0f4f9040",
+      "mergedSha256": "64a58459e1423372ac04bb5282c06853fa05955ae163e583d91574ffa07c970a",
+      "currentLfSha256": "b68c9186a2c5dcdeb03411f1f5f9cb91bd365d7d4437e3faf7f0822e0f4f9040",
+      "mergedLfSha256": "64a58459e1423372ac04bb5282c06853fa05955ae163e583d91574ffa07c970a",
+      "currentGitBlobId": "f3c4484ab48203b150078980b957f170076f90bb",
+      "mergedGitBlobId": "662f92946921867e3f8e81a83a720c284f32e337",
+      "currentMatchesAdmissionRaw": true,
+      "currentMatchesMergedRaw": false,
+      "currentMatchesMergedLf": false,
+      "differenceOnlyCRLF": false,
+      "backupPath": ".sisyphus\\roadmap-completion-20260912\\contracts-root-reconciliation-accepted\\before\\openspec\\changes\\add-authoritative-history-branches\\tasks.md"
+    },
+    {
+      "lane": "prerequisite",
+      "path": "openspec/changes/add-cross-stream-effect-receipts/tasks.md",
+      "admissionSha256": "df8269c0f5342f2fb74079fc25c67c1a05dd1d07261644ceba7a480dcce94184",
+      "currentSha256": "df8269c0f5342f2fb74079fc25c67c1a05dd1d07261644ceba7a480dcce94184",
+      "mergedSha256": "a77ec8f49e9c6860ded8c57f50c378b702ab775a4925bfccf7a57dce09a7fbf4",
+      "currentLfSha256": "3536a31fb2e3567ff38b3bc45b7f8acb30b48a7b4855ddf13b25d497c9727bb4",
+      "mergedLfSha256": "a77ec8f49e9c6860ded8c57f50c378b702ab775a4925bfccf7a57dce09a7fbf4",
+      "currentGitBlobId": "e231d5066864a165561b5ece39f1d0cb1fb36103",
+      "mergedGitBlobId": "1bf8a29cb973642372fb4a6ac9f0cb498d11dfb6",
+      "currentMatchesAdmissionRaw": true,
+      "currentMatchesMergedRaw": false,
+      "currentMatchesMergedLf": false,
+      "differenceOnlyCRLF": false,
+      "backupPath": ".sisyphus\\roadmap-completion-20260912\\contracts-root-reconciliation-accepted\\before\\openspec\\changes\\add-cross-stream-effect-receipts\\tasks.md"
+    },
+    {
+      "lane": "campaign",
+      "path": "openspec/changes/design-campaign-authority-and-sync/proposal.md",
+      "admissionSha256": "b40d388e8e2c915162bcfedf04e38fa73d19ec20c1323ef5c6f6a0c00df9ecb7",
+      "currentSha256": "b40d388e8e2c915162bcfedf04e38fa73d19ec20c1323ef5c6f6a0c00df9ecb7",
+      "mergedSha256": "fada46aab39743c6a1ab375693abf8fe8710dfb00c4024d24dea38666c12da92",
+      "currentLfSha256": "b40d388e8e2c915162bcfedf04e38fa73d19ec20c1323ef5c6f6a0c00df9ecb7",
+      "mergedLfSha256": "fada46aab39743c6a1ab375693abf8fe8710dfb00c4024d24dea38666c12da92",
+      "currentGitBlobId": "68363f66f3dda75d38a9388038f66d9a916faee5",
+      "mergedGitBlobId": "bf78d96e701ae3e60eee2356d21edb3f57a3f0f2",
+      "currentMatchesAdmissionRaw": true,
+      "currentMatchesMergedRaw": false,
+      "currentMatchesMergedLf": false,
+      "differenceOnlyCRLF": false,
+      "backupPath": ".sisyphus\\roadmap-completion-20260912\\contracts-root-reconciliation-accepted\\before\\openspec\\changes\\design-campaign-authority-and-sync\\proposal.md"
+    },
+    {
+      "lane": "campaign",
+      "path": "openspec/changes/design-campaign-authority-and-sync/design.md",
+      "admissionSha256": "284b13bb6f91dc03905ad6cba3c66def264f855090814a45f1cc426df3e9a12a",
+      "currentSha256": "284b13bb6f91dc03905ad6cba3c66def264f855090814a45f1cc426df3e9a12a",
+      "mergedSha256": "c47040115b4bfd21b011230c9101be4e273f1667c0e33d7692b5fc59abb45064",
+      "currentLfSha256": "284b13bb6f91dc03905ad6cba3c66def264f855090814a45f1cc426df3e9a12a",
+      "mergedLfSha256": "c47040115b4bfd21b011230c9101be4e273f1667c0e33d7692b5fc59abb45064",
+      "currentGitBlobId": "7ead4aa33cc68bd496c8e604f9572f3f47895d26",
+      "mergedGitBlobId": "107628891a74c1b1bbde1ed4a4851fbc79f79f04",
+      "currentMatchesAdmissionRaw": true,
+      "currentMatchesMergedRaw": false,
+      "currentMatchesMergedLf": false,
+      "differenceOnlyCRLF": false,
+      "backupPath": ".sisyphus\\roadmap-completion-20260912\\contracts-root-reconciliation-accepted\\before\\openspec\\changes\\design-campaign-authority-and-sync\\design.md"
+    },
+    {
+      "lane": "campaign",
+      "path": "openspec/changes/design-campaign-authority-and-sync/tasks.md",
+      "admissionSha256": "f543041f1973fbf63db8616fad0968ad29328ebcbeedcfe4edc609191ec8f643",
+      "currentSha256": "f543041f1973fbf63db8616fad0968ad29328ebcbeedcfe4edc609191ec8f643",
+      "mergedSha256": "9eefb5fa17acddd89253e91f182f4349553cfe5b66d08ba1fe61ccaa9c9223ea",
+      "currentLfSha256": "f543041f1973fbf63db8616fad0968ad29328ebcbeedcfe4edc609191ec8f643",
+      "mergedLfSha256": "9eefb5fa17acddd89253e91f182f4349553cfe5b66d08ba1fe61ccaa9c9223ea",
+      "currentGitBlobId": "e6123364f2e8d1e5bac2da0676964d51aa15d074",
+      "mergedGitBlobId": "8656ea89d9854190b0db4395ebe91c35d1ef13f5",
+      "currentMatchesAdmissionRaw": true,
+      "currentMatchesMergedRaw": false,
+      "currentMatchesMergedLf": false,
+      "differenceOnlyCRLF": false,
+      "backupPath": ".sisyphus\\roadmap-completion-20260912\\contracts-root-reconciliation-accepted\\before\\openspec\\changes\\design-campaign-authority-and-sync\\tasks.md"
+    },
+    {
+      "lane": "vault",
+      "path": "openspec/changes/design-vault-campaign-separation-and-maps/proposal.md",
+      "admissionSha256": "141b816e98644ed12f706c54ea896acd6484a72277a972d2c0a6bc55e93c2099",
+      "currentSha256": "141b816e98644ed12f706c54ea896acd6484a72277a972d2c0a6bc55e93c2099",
+      "mergedSha256": "0ae412ba1ed21917129cb29c46d546ca1cb5f27cfbfa6508d3b545083272fc17",
+      "currentLfSha256": "c886a2139c2553c54edae2a8732760e5869ff70bec6364c5015feb8fde884fcb",
+      "mergedLfSha256": "0ae412ba1ed21917129cb29c46d546ca1cb5f27cfbfa6508d3b545083272fc17",
+      "currentGitBlobId": "7d6d0a87fbc242d890da99dc44caab3af307b473",
+      "mergedGitBlobId": "50f56ca7da19fc4d6c83717032664a5490780724",
+      "currentMatchesAdmissionRaw": true,
+      "currentMatchesMergedRaw": false,
+      "currentMatchesMergedLf": false,
+      "differenceOnlyCRLF": false,
+      "backupPath": ".sisyphus\\roadmap-completion-20260912\\contracts-root-reconciliation-accepted\\before\\openspec\\changes\\design-vault-campaign-separation-and-maps\\proposal.md"
+    },
+    {
+      "lane": "vault",
+      "path": "openspec/changes/design-vault-campaign-separation-and-maps/design.md",
+      "admissionSha256": "9921309636df9bf8a1bbf67cfc3011d70176170fc202d15a94a33ce4f48ac0fa",
+      "currentSha256": "9921309636df9bf8a1bbf67cfc3011d70176170fc202d15a94a33ce4f48ac0fa",
+      "mergedSha256": "1e07e9fd3262f02c425d4e5c034d73d8816f331f437db0b69b926da417747b71",
+      "currentLfSha256": "d7103fe1751c594e7956db214c55df6040da230e5a47d33b57cf169bb6080a6f",
+      "mergedLfSha256": "1e07e9fd3262f02c425d4e5c034d73d8816f331f437db0b69b926da417747b71",
+      "currentGitBlobId": "249e008a1f6f48f7836dd5cff7d6079426b83dfb",
+      "mergedGitBlobId": "2b21aa011b2876d974b1f540b16e3e2d99f7a528",
+      "currentMatchesAdmissionRaw": true,
+      "currentMatchesMergedRaw": false,
+      "currentMatchesMergedLf": false,
+      "differenceOnlyCRLF": false,
+      "backupPath": ".sisyphus\\roadmap-completion-20260912\\contracts-root-reconciliation-accepted\\before\\openspec\\changes\\design-vault-campaign-separation-and-maps\\design.md"
+    },
+    {
+      "lane": "vault",
+      "path": "openspec/changes/design-vault-campaign-separation-and-maps/tasks.md",
+      "admissionSha256": "6d2e4ec703b9abf22521d85c5dd4ad2dea070bba94790b2d7d1b5c3396541531",
+      "currentSha256": "6d2e4ec703b9abf22521d85c5dd4ad2dea070bba94790b2d7d1b5c3396541531",
+      "mergedSha256": "59e5714457431118bd26fefcf1f969ee156a4c4675a8796eb0a4b8e27641d359",
+      "currentLfSha256": "9d08484e3c808fd4c260bb4e7d51a71dc8cad9dbec889b823b6a056c1100529e",
+      "mergedLfSha256": "59e5714457431118bd26fefcf1f969ee156a4c4675a8796eb0a4b8e27641d359",
+      "currentGitBlobId": "2e338dd017eb1399c462279d241b3bad3bb080d3",
+      "mergedGitBlobId": "74f377c4411dc52e6d5b37c936c6ee10fa52cb98",
+      "currentMatchesAdmissionRaw": true,
+      "currentMatchesMergedRaw": false,
+      "currentMatchesMergedLf": false,
+      "differenceOnlyCRLF": false,
+      "backupPath": ".sisyphus\\roadmap-completion-20260912\\contracts-root-reconciliation-accepted\\before\\openspec\\changes\\design-vault-campaign-separation-and-maps\\tasks.md"
+    }
+  ],
+  "unownedTrackedDirtyFilesVerified": [
+    {
+      "path": ".github/workflows/nightly-validation.yml",
+      "sha256": "4ee25555fa14b3c23ee5d43ca08093d3166d96216b7eec3a6fab90e19acbcfb8"
+    },
+    {
+      "path": ".github/workflows/pr-checks.yml",
+      "sha256": "7b2664d3594939d2f6ecd089b036c233dd92c3da380e290070f28476da45cf42"
+    },
+    {
+      "path": "e2e/customizer-edit-recovery.spec.ts",
+      "sha256": "6a52c53e932a97e5b17ddda42bf306bf0cf99522016ed8711b1152dd2ec2a81a"
+    },
+    {
+      "path": "e2e/customizer-record-sheet-rendering.spec.ts",
+      "sha256": "575545d4993fcc4b39011affc683bcedf9cac8503a2c66e6c770b0c24978cf7b"
+    },
+    {
+      "path": "openspec/active-change-ledger.json",
+      "sha256": "0626968fc8aa28dd2c761d20c323456efa653dce8358b8bb05e306dbddb88afb"
+    },
+    {
+      "path": "openspec/changes/add-customizer-edit-recovery/.openspec.yaml",
+      "sha256": null
+    },
+    {
+      "path": "openspec/changes/add-customizer-edit-recovery/design.md",
+      "sha256": null
+    },
+    {
+      "path": "openspec/changes/add-customizer-edit-recovery/proposal.md",
+      "sha256": null
+    },
+    {
+      "path": "openspec/changes/add-customizer-edit-recovery/specs/customizer-edit-recovery/spec.md",
+      "sha256": null
+    },
+    {
+      "path": "openspec/changes/add-customizer-edit-recovery/tasks.md",
+      "sha256": null
+    },
+    {
+      "path": "openspec/changes/add-saved-custom-unit-campaign-roster/design.md",
+      "sha256": "868d8f2c2bc289d5580de374122024d246a44da60cea2c5aa927bcb4eb0bfe9f"
+    },
+    {
+      "path": "openspec/changes/add-saved-custom-unit-campaign-roster/proposal.md",
+      "sha256": "fb1631d50fb52724dbecd3587d8218fcf5ae3f0918882c1b97ab0d8e2186a9bd"
+    },
+    {
+      "path": "openspec/changes/add-saved-custom-unit-campaign-roster/specs/journey-qc/spec.md",
+      "sha256": "92a958e00158bcb82b58f5c435949e74fa8fa7e252236d51833d02c662e1d62c"
+    },
+    {
+      "path": "openspec/changes/add-saved-custom-unit-campaign-roster/specs/mission-contracts/spec.md",
+      "sha256": "8df21c8cd4500580cac7685c1e54206edc4363a763fc00b80b90e179cfadf0a0"
+    },
+    {
+      "path": "openspec/changes/add-saved-custom-unit-campaign-roster/tasks.md",
+      "sha256": "2e92fc27bc55c6ce75f183dbccfc6836962c8bff40fabad5296cbbbfcf8d7d71"
+    },
+    {
+      "path": "openspec/changes/adopt-combat-journal-cutover-and-gm-rewind/proposal.md",
+      "sha256": "37a25c602f62b9f3b6828e59730bf45b401b11ffeb9caac2c7fdbfae7b1d5934"
+    },
+    {
+      "path": "openspec/changes/enable-saved-custom-unit-combat/proposal.md",
+      "sha256": "9ab01248d40ea0e39e0432ff99c47fc22ef7c34caaba15513ebfa3a1709b0ab1"
+    },
+    {
+      "path": "openspec/changes/establish-battlemech-chassis-index/.openspec.yaml",
+      "sha256": null
+    },
+    {
+      "path": "openspec/changes/establish-battlemech-chassis-index/design.md",
+      "sha256": null
+    },
+    {
+      "path": "openspec/changes/establish-battlemech-chassis-index/proposal.md",
+      "sha256": null
+    },
+    {
+      "path": "openspec/changes/establish-battlemech-chassis-index/specs/battlemech-chassis-index/spec.md",
+      "sha256": null
+    },
+    {
+      "path": "openspec/changes/establish-battlemech-chassis-index/tasks.md",
+      "sha256": null
+    },
+    {
+      "path": "openspec/changes/harden-gm-two-player-campaign-sessions/tasks.md",
+      "sha256": "0d7497efe3f1eb70a5351a4f027d4cbde92191a9f3ef392cd813bb8b8ac31cb4"
+    },
+    {
+      "path": "openspec/changes/repair-equipment-catalog/.openspec.yaml",
+      "sha256": null
+    },
+    {
+      "path": "openspec/changes/repair-equipment-catalog/design.md",
+      "sha256": null
+    },
+    {
+      "path": "openspec/changes/repair-equipment-catalog/proposal.md",
+      "sha256": null
+    },
+    {
+      "path": "openspec/changes/repair-equipment-catalog/specs/equipment-browser/spec.md",
+      "sha256": null
+    },
+    {
+      "path": "openspec/changes/repair-equipment-catalog/tasks.md",
+      "sha256": null
+    },
+    {
+      "path": "openspec/changes/repair-record-sheet-rendering/specs/record-sheet-export/spec.md",
+      "sha256": "1bcd5a301b4ae7d9171df01c04a052ea788c1b3cd1d48f612c635d5648069ed3"
+    },
+    {
+      "path": "openspec/changes/repair-record-sheet-rendering/tasks.md",
+      "sha256": "87fbc9e49f9e1f2c6ae9f40999dde4d4ae484d5314546ededd7dbb34c6cb2604"
+    },
+    {
+      "path": "openspec/planning/ACTIVE-CHANGES-ROADMAP.md",
+      "sha256": "c3aef5ec3221fa62c3e04050d001bf7ca0416263d0e51fa1512068678a73bd73"
+    },
+    {
+      "path": "openspec/specs/aerospace-unit-system/spec.md",
+      "sha256": "c664246362054e9bc183381d99c60f106eb349e0d186cdc467534170fbaad0b3"
+    },
+    {
+      "path": "openspec/specs/app-settings/spec.md",
+      "sha256": "65dc02ac16a000a0322c71b173f88a59ca8e9f56f37ee40a74bf6d18f290d5a6"
+    },
+    {
+      "path": "openspec/specs/armor-diagram-variants/spec.md",
+      "sha256": "9f9c0c7f2338e12b6cc2b200e3e0a07af7d2676f41a93269fd62b263a47479ab"
+    },
+    {
+      "path": "openspec/specs/auto-save-persistence/spec.md",
+      "sha256": "a2688cf3b5f710d2ecf6e21780e80e33728dcc46817df121cd661b626519da69"
+    },
+    {
+      "path": "openspec/specs/battle-armor-unit-system/spec.md",
+      "sha256": "3223fcc7ca638ba7b832bf94154a423a13ca7269b05653a846b8f7982b0cdd14"
+    },
+    {
+      "path": "openspec/specs/bv-validation-tooling/spec.md",
+      "sha256": "07c82adf18d0f7082fbc2018cfe04f87e86708047efe229b588be473ac99d8ac"
+    },
+    {
+      "path": "openspec/specs/c3-network-targeting/spec.md",
+      "sha256": "c34fe3348ee43cf57474204d423b23dbd44d32fbca1245fe2e7202de12ed14c9"
+    },
+    {
+      "path": "openspec/specs/campaign-combat-loop/spec.md",
+      "sha256": "c03ac3ebfb07e8c4eae7a35c9b313a932926d108f19f085c362116b8707b30f5"
+    },
+    {
+      "path": "openspec/specs/campaign-personnel-architecture/spec.md",
+      "sha256": "0e86bfc6fdf0089b340e0db49b396b9001936ada3ede08acac054fc5c2e8ec55"
+    },
+    {
+      "path": "openspec/specs/campaign-unit-combat-state/spec.md",
+      "sha256": "1f1a01edd4ab3297c1fa2db096b21ea0f5edf6eb9c3e0f39967d2480a960e860"
+    },
+    {
+      "path": "openspec/specs/combat-analytics/spec.md",
+      "sha256": "a6b36a2d1599acad7539d434ca8963a09437307b08eb4221dfd4d099e0bca43d"
+    },
+    {
+      "path": "openspec/specs/compendium-browser/spec.md",
+      "sha256": "547228e009cddcc14cfe8348e7f3626395e5d3dbd04ccc78fffb52a39ea4a0d3"
+    },
+    {
+      "path": "openspec/specs/construction-rules-core/spec.md",
+      "sha256": "85fefb6f310e6132e4bd99ec4f5f92cb2612731c1505d1e0637cf4c9db6e9aa1"
+    },
+    {
+      "path": "openspec/specs/critical-slots-display/spec.md",
+      "sha256": "08abd446de493fc1191e9b911368b5f8a66d7311da27694d04a7297cca5b0e4e"
+    },
+    {
+      "path": "openspec/specs/customizer-responsive-layout/spec.md",
+      "sha256": "84e8df2101a8d15bb6a7c0bb7056798b332e1abb26df931e770294848b8161e9"
+    },
+    {
+      "path": "openspec/specs/customizer-routing/spec.md",
+      "sha256": "0a73eaad02a565b1da64c7ed5277aedf84f367eba609d120c805acc43defb0c9"
+    },
+    {
+      "path": "openspec/specs/customizer-tabs/spec.md",
+      "sha256": "629be4cd39cbd9abf71f89d79bf2c39f3a948877b6fbd799fbe33889f470ea85"
+    },
+    {
+      "path": "openspec/specs/data-loading-architecture/spec.md",
+      "sha256": "cfa90d423f395ae2dddc0aa28697929c451ff9788cb58466ef838b2b97b2a66f"
+    },
+    {
+      "path": "openspec/specs/database-schema/spec.md",
+      "sha256": "070f03971f4892c76f193c0133f460927cfedda8be46ee1d6ffe2af876cfed5c"
+    },
+    {
+      "path": "openspec/specs/e2e-testing/spec.md",
+      "sha256": "8343333453231871fe46b838584c6d95bbd74015f62cf31a703af2b18e189cdb"
+    },
+    {
+      "path": "openspec/specs/equipment-browser/spec.md",
+      "sha256": "6afa047791ac2c2c3afd90c6b51ac99602ca284f97ef5391f8578ceec82888dd"
+    },
+    {
+      "path": "openspec/specs/equipment-services/spec.md",
+      "sha256": "32d8197b35e45c65842701076d7a5cfd9043838dc6486a0605237caaf4da77f8"
+    },
+    {
+      "path": "openspec/specs/equipment-tray/spec.md",
+      "sha256": "cebacfa9f94c801f2e8e137c1342793d8db73290e9795f2ad23010b2d3a8fdc5"
+    },
+    {
+      "path": "openspec/specs/firing-arc-calculation/spec.md",
+      "sha256": "c91bfbc8a745aa68891ebfbd53815a228bafa1b429816c617b02a26bb712ec8a"
+    },
+    {
+      "path": "openspec/specs/force-management/spec.md",
+      "sha256": "1e119db35f60fb9e9418176862afe3d23b59130dee7b050914842b990944c757"
+    },
+    {
+      "path": "openspec/specs/game-session-management/spec.md",
+      "sha256": "52843d4febc0354f597c6f0f6685b23145168a44c008cf253e02e2f3c4d802d6"
+    },
+    {
+      "path": "openspec/specs/hull-down-position/spec.md",
+      "sha256": "2d1a1356028efc404f95bcdcc1a51d847ce1541b30dd1f8537e06e2f561987ae"
+    },
+    {
+      "path": "openspec/specs/mission-contracts/spec.md",
+      "sha256": "8c5fc183460634fffbd55d4ec9a933ce5a3fad328ed1880df00594d44bfd6b85"
+    },
+    {
+      "path": "openspec/specs/mm-data-asset-integration/spec.md",
+      "sha256": "5beabebfe54b2a2e3e9aadd0ab87e480062eed0de257507571681b69c2a74dd7"
+    },
+    {
+      "path": "openspec/specs/overview-basic-info/spec.md",
+      "sha256": "c703cb1c943cffe3b013ee7b8ca161101cea608ad8515024313fb7899c9a25e9"
+    },
+    {
+      "path": "openspec/specs/persistence-services/spec.md",
+      "sha256": "e9e398be3a93d2e7af12cdaac8814ab2de4f40a3fe7c30c5847f179858333420"
+    },
+    {
+      "path": "openspec/specs/personnel-management/spec.md",
+      "sha256": "631325c73e3332b68cfb59410c80e649187e060e3340b8eebc9fcb39972dea21"
+    },
+    {
+      "path": "openspec/specs/piloting-skill-rolls/spec.md",
+      "sha256": "788df39be79bc2833681927a844b77860b2acef9e2f666f60cd92694e543a8c6"
+    },
+    {
+      "path": "openspec/specs/protomech-unit-system/spec.md",
+      "sha256": "191c5b3536c66d26dadac03da3f6de172574171ce1359ee3441120d308e1d8e8"
+    },
+    {
+      "path": "openspec/specs/record-sheet-export/spec.md",
+      "sha256": "bce78f3d4efe4e1d88fadd54e973b0c40ba57acfa8a47f69789a0c075f0d713c"
+    },
+    {
+      "path": "openspec/specs/release-build-system/spec.md",
+      "sha256": "841d5da7ed35f33cc5034984bd33103cddfed0d2008f54702e7e5efeca1dc75b"
+    },
+    {
+      "path": "openspec/specs/repair/spec.md",
+      "sha256": "4f51961216066a37180bd05d3cdebbcfa510f60e5fea9459a7c51f443ac8cce7"
+    },
+    {
+      "path": "openspec/specs/toast-notifications/spec.md",
+      "sha256": "5cd76fa006d8f107cc0fafcffe102168b66843785e02ca30bfd365ba09437d21"
+    },
+    {
+      "path": "openspec/specs/unit-comparison/spec.md",
+      "sha256": "a57e0a86135ee6c5dcd2604d5f7d679ddd9d4a145edc39ad0fdb8cf44768306e"
+    },
+    {
+      "path": "openspec/specs/unit-services/spec.md",
+      "sha256": "98762341ef8c07e171452c8da69c9f7893f20f245fb03964d9deb60a3bc0204b"
+    },
+    {
+      "path": "openspec/specs/unit-validation-framework/spec.md",
+      "sha256": "7bfc2f9d64234b09661c682fb19a6f0918b5414fabd77483f44cb049663acf2d"
+    },
+    {
+      "path": "openspec/specs/user-identity/spec.md",
+      "sha256": "1f96a710250a2c37dd93bd5d769e73b37988b5944ce8f6bd04fff3dec62a2d61"
+    },
+    {
+      "path": "openspec/specs/utility-patterns/spec.md",
+      "sha256": "e76d729a60a426b218a29fb5b9bcd4ac4f933b8028ccf453446922982f51b985"
+    },
+    {
+      "path": "openspec/specs/vault-sync/spec.md",
+      "sha256": "7d47f56e0886a44ca611f0f6d2b2432d8f10744275880224ee7c55998dd65b69"
+    },
+    {
+      "path": "openspec/specs/vehicle-unit-system/spec.md",
+      "sha256": "213363c794edaa1ffa9eb00df8c759cfd5e8c06bf78f7e61a48b8617bbc32b8d"
+    },
+    {
+      "path": "package.json",
+      "sha256": "0cbe570cc8b2ffdabcf1c273a75b739bf6693965239a913f524661291e6c2e32"
+    },
+    {
+      "path": "scripts/__tests__/openspec-ci-quality-qc.test.ts",
+      "sha256": "37cc951ad23379e647b2217750932f18c1843c247ee1f4a3e7e36da79b97b026"
+    },
+    {
+      "path": "scripts/hydrate-next-standalone-multiplayer-server.mjs",
+      "sha256": "9e8866647d092ad42f51d191f8c6af175a9a98b3779cfa0682d590713898af60"
+    },
+    {
+      "path": "scripts/qc/validate-openspec-ci-quality.mjs",
+      "sha256": "c034c606e510348fbfc32f0ef87c0e27536c1ceec8e31d5de7da27808dc2ef86"
+    },
+    {
+      "path": "src/__tests__/stores/equipmentCatalogFilters.test.ts",
+      "sha256": "31f1fa2ec091944e461b587ebbe8064c52e041d46be5a3799b76e3c7264785fa"
+    },
+    {
+      "path": "src/components/customizer/CustomizerWithRouter.tsx",
+      "sha256": "b8d35e3c956db68551c2d670e60b85ad748865269fe36c0dd7de12daabe9dd66"
+    },
+    {
+      "path": "src/components/customizer/aerospace/AerospaceBombTab.tsx",
+      "sha256": "8869a8abd8eae84458a4cbf7c9c861f728c0b3b36346b0f551136d4ebb1a5297"
+    },
+    {
+      "path": "src/components/customizer/aerospace/AerospaceCustomizer.tsx",
+      "sha256": "a86ad73036c168001d1c4830848a040fc9958e14d428316467ddf7f44944a4f8"
+    },
+    {
+      "path": "src/components/customizer/aerospace/AerospaceVelocityTab.tsx",
+      "sha256": "e1367c021170e4d4107ee5388819dfc302808d6cc3ff07acec804267422419e6"
+    },
+    {
+      "path": "src/components/customizer/battlearmor/BattleArmorAPWeaponsTab.tsx",
+      "sha256": "e0b9ff3bef94f9425f633bfd23c3b9daba6ecb755f56888b7e6a57ad5d2256c9"
+    },
+    {
+      "path": "src/components/customizer/battlearmor/BattleArmorChassisTab.tsx",
+      "sha256": "b990cb26f33ca513e497fe3b60ed19ee77eccafef17c5bcf0e935bf211362c7f"
+    },
+    {
+      "path": "src/components/customizer/battlearmor/BattleArmorCustomizer.tsx",
+      "sha256": "47dc271871aa95c4a85086ca17ea98f5388cfe05b794d3f96b49ba10c5a9b4a6"
+    },
+    {
+      "path": "src/components/customizer/battlearmor/BattleArmorJumpUMUTab.tsx",
+      "sha256": "18b61139ac156506aff5ae213bfad4ba9957c0a3faeb84d1be2d8a45b8835af4"
+    },
+    {
+      "path": "src/components/customizer/battlearmor/BattleArmorManipulatorsTab.tsx",
+      "sha256": "2caaf9567c300c570b1d5e59ced86937a29b00fe4c4eb73d0d540d860f583ad5"
+    },
+    {
+      "path": "src/components/customizer/battlearmor/BattleArmorModularWeaponsTab.tsx",
+      "sha256": "03ac2f7374ffa5a13d0dbcb6a1cf01c45562eb6e8e1ad62ba3a0154477cdcfb4"
+    },
+    {
+      "path": "src/components/customizer/equipment/CatalogPlacementDialog.tsx",
+      "sha256": "81a7e6e0ada3e13d2047143009b05df6e8c47e67eb90c8a471d14ce115394ff3"
+    },
+    {
+      "path": "src/components/customizer/infantry/InfantryCustomizer.tsx",
+      "sha256": "22fc80694747724574dd7ce5bbe294aa1c0d29d9438b3d398b71ac0ba7dcc3b2"
+    },
+    {
+      "path": "src/components/customizer/infantry/InfantryPlatoonTab.tsx",
+      "sha256": "96105143fec6d73393a7309bba92f2c50e00e71ac137976f10c5cc616ee491fd"
+    },
+    {
+      "path": "src/components/customizer/infantry/InfantryPreviewTab.tsx",
+      "sha256": "4f36e0194dfe25bcd36bcc7dfdbd32a0b3e4d84df4e83c65a49564452297225c"
+    },
+    {
+      "path": "src/components/customizer/infantry/InfantryPrimaryWeaponTab.tsx",
+      "sha256": "52752c352efa3b327654764ec3ccb2bf332876c018959ebb0dab86c4f96316a4"
+    },
+    {
+      "path": "src/components/customizer/infantry/InfantryRecordSheetPreview.tsx",
+      "sha256": "48c7d7b38bf3b05f9bdd8a901b3dd5ba4f463495480405d7efbf18b59663d555"
+    },
+    {
+      "path": "src/components/customizer/infantry/InfantrySecondaryWeaponsTab.tsx",
+      "sha256": "b06aac17c34b19baa12dc3a7178b6418847572bb491437ad8c63a1acdefc2f40"
+    },
+    {
+      "path": "src/components/customizer/infantry/InfantrySpecializationTab.tsx",
+      "sha256": "824fdabb6b96c98679f8b85ea72bbe756e8baa83dba7619b0b05ccd392c7bf5e"
+    },
+    {
+      "path": "src/components/customizer/infantry/__tests__/InfantryPreviewTab.test.tsx",
+      "sha256": "806f08894e841ca9df0aba4057076b1c9a9f183f6ccf3c841e25036da47b903e"
+    },
+    {
+      "path": "src/components/customizer/protomech/ProtoMechArmorTab.tsx",
+      "sha256": "df3cd1619e9629593c76c9eb08a072aa047c6fed0de5901d90a01de88ba81097"
+    },
+    {
+      "path": "src/components/customizer/protomech/ProtoMechCustomizer.tsx",
+      "sha256": "9e56f548cdf05d3da116a50608ce54547ef4b17ee187b015b75a985c5189d10e"
+    },
+    {
+      "path": "src/components/customizer/protomech/ProtoMechEquipmentTab.tsx",
+      "sha256": "c45a0da9ccf8a9f025948fb6a8c8919c20bc09a47f25e70ce4b1042b630aab07"
+    },
+    {
+      "path": "src/components/customizer/protomech/ProtoMechGliderTab.tsx",
+      "sha256": "9cfa85b34278e8e54c2b1c7f74996d2e1f5b1fb777ccf18ec213a5929495de17"
+    },
+    {
+      "path": "src/components/customizer/protomech/ProtoMechMainGunTab.tsx",
+      "sha256": "848a1b01659734cab4f9f139f9e7b5538c6ffb195310a4c229b7fb2023c28f82"
+    },
+    {
+      "path": "src/components/customizer/shared/TabSpec.ts",
+      "sha256": "852fe460bd54202ddb02da6ab6cd81d80d8b55fa64137bb85435989eeec7adb3"
+    },
+    {
+      "path": "src/components/customizer/shared/__tests__/tabRegistry.canonical.test.ts",
+      "sha256": "5a05c33999764fff54a13b17a76c0f023a7ea9d6cac5b1d38f387412cea161dc"
+    },
+    {
+      "path": "src/components/customizer/shared/tabRegistry.tsx",
+      "sha256": "064386c991c71ed9e5188eb15630f12fe380d1035ec02178630a28fa9b1ab07d"
+    },
+    {
+      "path": "src/components/customizer/tabs/__tests__/CustomizerTabs.markers.test.tsx",
+      "sha256": "295e7d269a0bb3eef436dd703b8c774e9af8df276e74b391ec93706faa288fc8"
+    },
+    {
+      "path": "src/components/customizer/vehicle/VehicleCustomizer.tsx",
+      "sha256": "61c5c8ed80f61d031f7294e64798b20ae14cbca3ce24497768d67513100a5038"
+    },
+    {
+      "path": "src/hooks/__tests__/useCustomizerRouter.recovery.test.tsx",
+      "sha256": "48bbe23eea5dd26c366e310353889b2f6774b1f276609a541ef26556f0725ea9"
+    },
+    {
+      "path": "src/hooks/__tests__/useCustomizerTabs.navConfirm.test.ts",
+      "sha256": "f35f1c1a574a4f8dfc487687c3ac5978a1fb8c8052a031b3bf504872c420d6ee"
+    },
+    {
+      "path": "src/hooks/__tests__/useEquipmentBrowser.catalog.test.tsx",
+      "sha256": "190dc9cfae1dc59de8530480836acc9f98e9119a0e377766231a4555dea86242"
+    },
+    {
+      "path": "src/hooks/useCustomizerRouter.ts",
+      "sha256": "1a1cf81bb6570b7e73cae79f2c82a9172106c854991da7cd9199f4053491b77a"
+    },
+    {
+      "path": "src/hooks/useCustomizerTabs.ts",
+      "sha256": "f3035753b4092056453fcfd589e71aa1c320a726e75943e18f1115daa11ef3a2"
+    },
+    {
+      "path": "src/lib/campaign/hooks/useCampaignDashboardSummary.ts",
+      "sha256": "f07cbff05ce9e732c659e51f8e5a7ef696b6554388aac5291f51fa20e10d191b"
+    },
+    {
+      "path": "src/lib/campaign/processors/__tests__/autoAwardsProcessor.test.ts",
+      "sha256": "34465a246a2386d1ddb90e03837fdb1d015c62c77472292de832f35f74ba4e34"
+    },
+    {
+      "path": "src/lib/campaign/utils/pilotLookup.ts",
+      "sha256": "26779deec25050979bb99900fbcc66c3e354f37515ec06bb580799411508fef3"
+    },
+    {
+      "path": "src/services/equipment/EquipmentLoaderService.ts",
+      "sha256": "5bbdcbb90898beee29a4dd4677de9498efb890235e410cc175391711fbb47b9c"
+    },
+    {
+      "path": "src/services/equipment/EquipmentOfficialLoader.ts",
+      "sha256": "92b520e154648bae97219f3d92c3fb7521a99e9f9fc51e2a1b1c4c039c4d73fb"
+    },
+    {
+      "path": "src/services/units/chassis/chassisIndex.ts",
+      "sha256": "a584c4a66f541879edfd750facba3cb4f4d9ba6b3e7a3e629cb5032380de2d44"
+    },
+    {
+      "path": "src/services/validation/UnitValidationRegistry.ts",
+      "sha256": "3939111303debbcee9cc5152d0df5c8f2b800a6cb83f652aaae0129253025246"
+    },
+    {
+      "path": "src/services/validation/__tests__/initializeUnitValidation.test.ts",
+      "sha256": "7737565b431f2b9248b0d2c43862614a11a2a7789f08b886f18c494f8898138a"
+    },
+    {
+      "path": "src/stores/unit/__tests__/catalogEquipmentPlacement.test.ts",
+      "sha256": "38d8008338bc9033068ae696025eb860f38ca951dbb360ae7079fade96943657"
+    },
+    {
+      "path": "src/types/campaign/CampaignRosterEntry.ts",
+      "sha256": "f42f487151b449ae5e4cc7c48dcad0469e7d46d855bc23e25d2ead2de4d9b667"
+    },
+    {
+      "path": "src/types/campaign/UnitCombatState.ts",
+      "sha256": "d347985ceaf08e0e3908dc42fc48bb63ed714eadcf52d598c5eb584852cbce8f"
+    },
+    {
+      "path": "src/utils/gameplay/pilotingSkillRolls/types.ts",
+      "sha256": "754bfbd679763144963effd97cf7833c68ab5a243c18d1d384f2005b79b9e8fd"
+    }
+  ],
+  "indexHashBeforeAfter": "a65b683940b6449651a074132f39d8b8da156ef5620af6aa1b62eb7c8698b953",
+  "limits": "Only nine owned contract drafts replaced by accepted merged bytes; no staging, runtime or CAMP acceptance."
+}

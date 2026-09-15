@@ -1,0 +1,147 @@
+{
+  "schemaVersion": 1,
+  "reviewId": "prerequisite-contract-review-20260912",
+  "node": "R0.contracts",
+  "admission": "blocked_pending_wording_repair",
+  "mode": "read-only",
+  "baseline": {
+    "worktreeHead": "be7f85b867aa3e8576e5e3d27e309276203bc24b",
+    "originMain": "ca0687d25264033376862347e494ddf15cd92bec",
+    "status": "main...origin/main [behind 6]"
+  },
+  "scope": [
+    "openspec/changes/add-authoritative-history-branches/proposal.md",
+    "openspec/changes/add-authoritative-history-branches/tasks.md",
+    "openspec/changes/add-cross-stream-effect-receipts/tasks.md"
+  ],
+  "sourceHashes": {
+    "workingTreeSha256": {
+      "openspec/changes/add-authoritative-history-branches/proposal.md": "3958b718e76dd00611187a1e36fd7c692e7b4d9240d7d8b96bb7690023fd7089",
+      "openspec/changes/add-authoritative-history-branches/tasks.md": "b68c9186a2c5dcdeb03411f1f5f9cb91bd365d7d4437e3faf7f0822e0f4f9040",
+      "openspec/changes/add-cross-stream-effect-receipts/tasks.md": "df8269c0f5342f2fb74079fc25c67c1a05dd1d07261644ceba7a480dcce94184",
+      "openspec/changes/design-campaign-authority-and-sync/tasks.md": "f543041f1973fbf63db8616fad0968ad29328ebcbeedcfe4edc609191ec8f643"
+    },
+    "originMainSha256": {
+      "openspec/changes/add-authoritative-history-branches/proposal.md": "8a7444f179498f8d7bfb14779907be6bab365e0a28fd426068344f818c29c339",
+      "openspec/changes/add-authoritative-history-branches/tasks.md": "a6ee805e801f45abe5f1b0452a876102b351255eb2921f2e166b1b9107366601",
+      "openspec/changes/add-cross-stream-effect-receipts/tasks.md": "891045aa23499659076f7327dd9ce7b2e93b329297cfae3a2e4093ed53cb411c",
+      "openspec/changes/design-campaign-authority-and-sync/tasks.md": "f543041f1973fbf63db8616fad0968ad29328ebcbeedcfe4edc609191ec8f643"
+    }
+  },
+  "findings": [
+    {
+      "id": "F1",
+      "severity": "pass_with_clarification",
+      "subject": "branch_pr1_pr3_exemption",
+      "evidence": [
+        "openspec/changes/add-authoritative-history-branches/proposal.md:24-26",
+        "openspec/changes/add-authoritative-history-branches/tasks.md:3,7-11",
+        "openspec/changes/add-authoritative-history-branches/tasks.md:65-71"
+      ],
+      "finding": "The dirty proposal moves the cross-stream predecessor gate to receipt-consuming PR4+ and routes Branch PR3 through combat cutover S1-S4. The exemption must be named cross-stream-only so own exact-main, independent-review, and package-specific receipts remain binding."
+    },
+    {
+      "id": "F2",
+      "severity": "blocker",
+      "subject": "cross_stream_active_successor_path",
+      "evidence": [
+        "openspec/changes/add-cross-stream-effect-receipts/tasks.md:7",
+        "openspec/active-change-ledger.json:46-55",
+        "openspec/changes/archive/2026-08-21-adopt-campaign-event-journal-authority",
+        "openspec/changes/design-campaign-authority-and-sync"
+      ],
+      "finding": "The plural predicate `predecessor active ledger entries/directories are absent` can require removal of the active design-campaign-authority-and-sync successor that supplies task 5.7. Scope absence to archived predecessor cleanup and retain the current successor path while its receipt is consumed."
+    },
+    {
+      "id": "F3",
+      "severity": "gate_preserved_not_proven",
+      "subject": "current_receipts_and_live_authority",
+      "evidence": [
+        "openspec/planning/2026-09-12-roadmap-completion/roadmap.json:154-183",
+        "openspec/planning/2026-09-12-roadmap-completion/roadmap.json:4688-4698",
+        "openspec/planning/2026-09-12-roadmap-completion/roadmap.json:6123-6135",
+        "openspec/planning/2026-09-12-roadmap-completion/HANDOFF.md:64-72"
+      ],
+      "finding": "R0.contracts, cross-stream 10.4, and current campaign task 5.7 have null roadmap receipts. Historical archive receipts do not establish current exact-main acceptance or live authority. Eligible exact-head non-author approval and CAMP three-witness gates remain binding."
+    },
+    {
+      "id": "F4",
+      "severity": "source_clarification",
+      "subject": "combat_cutover_labels",
+      "evidence": [
+        "openspec/changes/adopt-combat-journal-cutover-and-gm-rewind/design.md:5-14",
+        "openspec/changes/adopt-combat-journal-cutover-and-gm-rewind/tasks.md:12-20"
+      ],
+      "finding": "The current combat source names S1-S6; task rows are S1, S2, S3, S4, S5-a, S5-b, and S6. The branch S1-S4 reference is narrow and does not discharge S5-a, S5-b, S6, review, or exact-main proof."
+    }
+  ],
+  "archiveAndLedgerState": {
+    "archivedCombatPredecessorPath": "exists",
+    "archivedCampaignPredecessorPath": "exists",
+    "activeCampaignSuccessorPath": "exists",
+    "activeCampaignSuccessorLedgerEntry": "present",
+    "activeArchivedPredecessorPaths": "absent",
+    "currentSuccessorStatuses": {
+      "design-campaign-authority-and-sync": "proposed",
+      "adopt-combat-journal-cutover-and-gm-rewind": "proposed",
+      "add-cross-stream-effect-receipts": "proposed",
+      "add-authoritative-history-branches": "proposed"
+    }
+  },
+  "exactChangedLines": [
+    {
+      "path": "openspec/changes/add-authoritative-history-branches/proposal.md",
+      "line": 24,
+      "originMain": "Depends on target-scoped effect receipts as a whole-package prerequisite.",
+      "workingTree": "Allows corresponding seams and exempts PR1-3 while retaining the PR4+ gate."
+    },
+    {
+      "path": "openspec/changes/add-authoritative-history-branches/proposal.md",
+      "line": 26,
+      "originMain": "No line.",
+      "workingTree": "Routes Branch PR3 rewind acceptance through combat cutover S1-S4 and its correctness/cutover gates."
+    },
+    {
+      "path": "openspec/changes/add-authoritative-history-branches/tasks.md",
+      "line": 3,
+      "originMain": "Whole change follows cross-stream effect receipts.",
+      "workingTree": "Only receipt-consuming PR4+ follows that path; PR1-3 use the amendment and PR3 follows combat cutover S1-S4."
+    },
+    {
+      "path": "openspec/changes/add-authoritative-history-branches/tasks.md",
+      "line": 7,
+      "originMain": "Cross-stream archive required before PR1.",
+      "workingTree": "Cross-stream archive required before receipt-consuming PR4+; PR1-3 exemption named."
+    },
+    {
+      "path": "openspec/changes/add-cross-stream-effect-receipts/tasks.md",
+      "line": 7,
+      "originMain": "Archived combat predecessor plus current campaign successor task 5.7; only combat active path absence is named.",
+      "workingTree": "Adds explicit archive paths, plural predecessor active-path absence, and a current successor-receipt sentence."
+    }
+  ],
+  "proposedRepair": {
+    "fileCount": 3,
+    "files": [
+      "openspec/changes/add-authoritative-history-branches/proposal.md",
+      "openspec/changes/add-authoritative-history-branches/tasks.md",
+      "openspec/changes/add-cross-stream-effect-receipts/tasks.md"
+    ],
+    "changes": [
+      "Name the September 2 exception as cross-stream predecessor-receipt-only and retain each PR's own exact-main, independent-review, and package-specific approval/behavior receipts.",
+      "Scope active-ledger/path absence to archived predecessor cleanup; retain active design-campaign-authority-and-sync while its task 5.7 receipt is consumed.",
+      "Require current exact-main receipts from adopt-combat-journal-cutover-and-gm-rewind and design-campaign-authority-and-sync; keep archive receipts historical and fail closed on missing current receipts."
+    ],
+    "prohibited": [
+      "No code, canonical specs, archive moves, active-ledger edits, task checkbox changes, branch/worktree operations, tests, builds, servers, installs, or external messages."
+    ]
+  },
+  "gateDisposition": {
+    "exactMain": "retained; current receipts still absent",
+    "independentReview": "retained; not manufactured by this review",
+    "eligibleApproval": "retained where the applicable package requires it",
+    "campThreeWitness": "retained; not consumed or waived",
+    "liveAuthority": "not claimed"
+  },
+  "rawReviewPath": ".sisyphus/roadmap-completion-20260912/prerequisite-contract-review/prerequisite-contract-review-20260912.md"
+}

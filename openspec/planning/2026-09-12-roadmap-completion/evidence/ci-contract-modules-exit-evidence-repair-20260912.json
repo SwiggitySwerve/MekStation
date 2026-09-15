@@ -1,0 +1,259 @@
+{
+  "schemaVersion": 1,
+  "evidenceId": "ci-contract-modules-exit-evidence-repair-20260912",
+  "generatedAt": "2026-09-12T21:47:08.569Z",
+  "candidate": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/ci-contract-modules",
+  "pinnedHead": "da524f7f501b0485e3d8e67e973fce075670922c",
+  "rawReceipt": {
+    "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/main-1/exit-evidence-repair/run-1/exit-evidence-repair.json",
+    "sha256": "bd356d5fea4bd644054d420f072a532b2c804a89b8013da8fc7cc770aa8b55e1",
+    "driver": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/main-1/exit-evidence-repair/exit-evidence-driver.cjs",
+    "driverSha256": "6298423d992f0c4d24dbbb6731d07f4a7c5654f560c594cc1cc1319ee505aca4"
+  },
+  "beforeAfter": {
+    "before": {
+      "capturedAt": "2026-09-12T21:46:19.836Z",
+      "head": "da524f7f501b0485e3d8e67e973fce075670922c",
+      "status": "## HEAD (no branch)",
+      "sourceHashes": {
+        "scripts/qc/openspec-ci-contracts.mjs": "ae81b758ae37fe0a796cd77c5e5a17a5fac0bd6d1a8b488b4d5955fca1234a99",
+        "scripts/qc/openspec-workflow-contracts.mjs": "4ae969ae69ad71af0cfc761c0b133bbc0862202e71138d38198231062f92f696",
+        "package.json": "eeebcb46214017104ed9cad6feab8f4a7e941816552585fb8230731d6931ad17",
+        "package-lock.json": "f923ca53a2d9fc69d56cd59b9f86d26fd4b3756ac488c138b64163f787bd7d36"
+      }
+    },
+    "after": {
+      "capturedAt": "2026-09-12T21:47:08.569Z",
+      "head": "da524f7f501b0485e3d8e67e973fce075670922c",
+      "status": "## HEAD (no branch)",
+      "sourceHashesUnchanged": true
+    }
+  },
+  "individualSteps": [
+    {
+      "id": "node-check-ci-module",
+      "executable": "C:/nvm4w/nodejs/node.exe",
+      "args": ["--check", "scripts/qc/openspec-ci-contracts.mjs"],
+      "cwd": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/ci-contract-modules",
+      "pid": 50408,
+      "startedAt": "2026-09-12T21:46:19.963Z",
+      "finishedAt": "2026-09-12T21:46:20.027Z",
+      "exit": 0,
+      "signal": null,
+      "timedOut": false,
+      "stdout": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/main-1/exit-evidence-repair/run-1/node-check-ci-module.stdout.log",
+      "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/main-1/exit-evidence-repair/run-1/node-check-ci-module.stderr.log",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "node-check-workflow-module",
+      "executable": "C:/nvm4w/nodejs/node.exe",
+      "args": ["--check", "scripts/qc/openspec-workflow-contracts.mjs"],
+      "cwd": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/ci-contract-modules",
+      "pid": 37796,
+      "startedAt": "2026-09-12T21:46:20.028Z",
+      "finishedAt": "2026-09-12T21:46:20.091Z",
+      "exit": 0,
+      "signal": null,
+      "timedOut": false,
+      "stdout": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/main-1/exit-evidence-repair/run-1/node-check-workflow-module.stdout.log",
+      "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/main-1/exit-evidence-repair/run-1/node-check-workflow-module.stderr.log",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "dynamic-import-contract-modules",
+      "executable": "C:/nvm4w/nodejs/node.exe",
+      "args": ["-e", "const wf = await import('./scripts/qc/openspec-workflow-contracts.mjs'); const ci = await import('./scripts/qc/openspec-ci-contracts.mjs'); console.log(JSON.stringify({workflowExports:Object.keys(wf).sort(),ciExports:Object.keys(ci).sort(),aggregatorNeeds:ci.requiredAggregatorNeeds.length,jobContracts:ci.requiredWorkflowJobContracts.length}));"],
+      "cwd": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/ci-contract-modules",
+      "pid": 37248,
+      "startedAt": "2026-09-12T21:46:20.091Z",
+      "finishedAt": "2026-09-12T21:46:20.209Z",
+      "exit": 0,
+      "signal": null,
+      "timedOut": false,
+      "stdout": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/main-1/exit-evidence-repair/run-1/dynamic-import-contract-modules.stdout.log",
+      "stdoutSha256": "0f83adc6354725ba28ac4f1a62a1996c39d4ff6d9f95e90c065a086fe7bc454b",
+      "stderr": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/main-1/exit-evidence-repair/run-1/dynamic-import-contract-modules.stderr.log",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "focused-jest-five-tests",
+      "executable": "C:/nvm4w/nodejs/node.exe",
+      "args": ["node_modules/jest/bin/jest.js", "--runInBand", "--runTestsByPath", "scripts/__tests__/openspec-ci-quality-qc.test.ts"],
+      "cwd": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/ci-contract-modules",
+      "pid": 73336,
+      "startedAt": "2026-09-12T21:46:20.213Z",
+      "finishedAt": "2026-09-12T21:46:23.090Z",
+      "exit": 0,
+      "signal": null,
+      "timedOut": false,
+      "stdout": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/main-1/exit-evidence-repair/run-1/focused-jest-five-tests.stdout.log",
+      "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/main-1/exit-evidence-repair/run-1/focused-jest-five-tests.stderr.log",
+      "stderrSha256": "ba001e3c9f8fdbd705e91850e61a65893112dca9abb63eb2819c5dc483be1be9"
+    },
+    {
+      "id": "shell-override-negative-harness",
+      "executable": "C:/nvm4w/nodejs/node.exe",
+      "args": ["E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/grok-ci-contracts-1/resume-2-checks/negative-harness.mjs", "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/ci-contract-modules", "E:/Projects/MekStation/.github/workflows/pr-checks.yml"],
+      "cwd": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/ci-contract-modules",
+      "pid": 80720,
+      "startedAt": "2026-09-12T21:46:23.090Z",
+      "finishedAt": "2026-09-12T21:46:23.236Z",
+      "exit": 0,
+      "signal": null,
+      "timedOut": false,
+      "stdout": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/main-1/exit-evidence-repair/run-1/shell-override-negative-harness.stdout.log",
+      "stdoutSha256": "86d00062e3a450c5c794f352fcc7030390725cb6e386eef17215528f2887caeb",
+      "stderr": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/main-1/exit-evidence-repair/run-1/shell-override-negative-harness.stderr.log",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "fixtureQualification": "Root proposed workflow was intentionally used because the detached candidate workflow predates the customizer-regressions baseline; the harness only parses and mutates YAML and reports executedMutatedShell=false."
+    },
+    {
+      "id": "typecheck",
+      "executable": "C:/nvm4w/nodejs/node.exe",
+      "args": ["C:/nvm4w/nodejs/node_modules/npm/bin/npm-cli.js", "run", "typecheck"],
+      "cwd": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/ci-contract-modules",
+      "pid": 63624,
+      "startedAt": "2026-09-12T21:46:23.241Z",
+      "finishedAt": "2026-09-12T21:46:34.456Z",
+      "exit": 0,
+      "signal": null,
+      "timedOut": false,
+      "stdout": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/main-1/exit-evidence-repair/run-1/typecheck.stdout.log",
+      "stdoutSha256": "d140a6ce62dda0946fe30dd882dbb8209f05be72c8fa8850e5634755a399e50f",
+      "stderr": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/main-1/exit-evidence-repair/run-1/typecheck.stderr.log",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "lint",
+      "executable": "C:/nvm4w/nodejs/node.exe",
+      "args": ["C:/nvm4w/nodejs/node_modules/npm/bin/npm-cli.js", "run", "lint"],
+      "cwd": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/ci-contract-modules",
+      "pid": 21156,
+      "startedAt": "2026-09-12T21:46:34.459Z",
+      "finishedAt": "2026-09-12T21:46:35.156Z",
+      "exit": 0,
+      "signal": null,
+      "timedOut": false,
+      "stdout": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/main-1/exit-evidence-repair/run-1/lint.stdout.log",
+      "stdoutSha256": "486d6343d3802528d79430cafddf0e8a719574243f533d15344911328fd9df6d",
+      "stderr": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/main-1/exit-evidence-repair/run-1/lint.stderr.log",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "format-check",
+      "executable": "C:/nvm4w/nodejs/node.exe",
+      "args": ["C:/nvm4w/nodejs/node_modules/npm/bin/npm-cli.js", "run", "format:check"],
+      "cwd": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/ci-contract-modules",
+      "pid": 58284,
+      "startedAt": "2026-09-12T21:46:35.161Z",
+      "finishedAt": "2026-09-12T21:46:57.276Z",
+      "exit": 0,
+      "signal": null,
+      "timedOut": false,
+      "stdout": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/main-1/exit-evidence-repair/run-1/format-check.stdout.log",
+      "stdoutSha256": "7ea44bd2e84bbdc5f5caf6c401845fbee89d158c52a26288f0f6abca5ac71a2e",
+      "stderr": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/main-1/exit-evidence-repair/run-1/format-check.stderr.log",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "openspec-validate-strict",
+      "executable": "C:/nvm4w/nodejs/node.exe",
+      "args": ["C:/Users/wroll/AppData/Roaming/npm/node_modules/@fission-ai/openspec/bin/openspec.js", "validate", "--all", "--strict", "--no-interactive"],
+      "cwd": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/ci-contract-modules",
+      "pid": 49060,
+      "startedAt": "2026-09-12T21:46:57.279Z",
+      "finishedAt": "2026-09-12T21:46:58.619Z",
+      "exit": 0,
+      "signal": null,
+      "timedOut": false,
+      "stdout": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/main-1/exit-evidence-repair/run-1/openspec-validate-strict.stdout.log",
+      "stdoutSha256": "16c5c323579e9f348bc2adb0830ebd7bb199a73726ab1098c72331305dcca967",
+      "stderr": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/main-1/exit-evidence-repair/run-1/openspec-validate-strict.stderr.log",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "purpose-strict",
+      "executable": "C:/nvm4w/nodejs/node.exe",
+      "args": ["E:/Projects/MekStation/node_modules/tsx/dist/cli.mjs", "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/ci-contract-modules/openspec/scripts/spec-purpose-lint.ts"],
+      "cwd": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/ci-contract-modules",
+      "pid": 50636,
+      "startedAt": "2026-09-12T21:46:58.622Z",
+      "finishedAt": "2026-09-12T21:46:59.000Z",
+      "exit": 0,
+      "signal": null,
+      "timedOut": false,
+      "stdout": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/main-1/exit-evidence-repair/run-1/purpose-strict.stdout.log",
+      "stdoutSha256": "901c3cbcfa24be0f7b562b01015ca5232c1976e1362788ebbf1caeec5b96ea4b",
+      "stderr": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/main-1/exit-evidence-repair/run-1/purpose-strict.stderr.log",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "id": "terminology-strict",
+      "executable": "C:/nvm4w/nodejs/node.exe",
+      "args": ["E:/Projects/MekStation/node_modules/ts-node/dist/bin.js", "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/ci-contract-modules/openspec/scripts/terminology-tool.ts", "validate", "--strict"],
+      "cwd": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/ci-contract-modules",
+      "pid": 40584,
+      "startedAt": "2026-09-12T21:46:59.003Z",
+      "finishedAt": "2026-09-12T21:47:08.495Z",
+      "exit": 0,
+      "signal": null,
+      "timedOut": false,
+      "stdout": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/main-1/exit-evidence-repair/run-1/terminology-strict.stdout.log",
+      "stdoutSha256": "06c7961b0d4709a1010aba1f38caf9ab57eb82ce2c48ceb2422ed9d4b234db23",
+      "stderr": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/main-1/exit-evidence-repair/run-1/terminology-strict.stderr.log",
+      "stderrSha256": "207bcbba8f375cb003f41f1cb339da350fdc5a77a304afa2d4c910f50b3df737"
+    },
+    {
+      "id": "candidate-ci-qc",
+      "executable": "C:/nvm4w/nodejs/node.exe",
+      "args": ["E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/ci-contract-modules/scripts/qc/validate-openspec-ci-quality.mjs", "--json"],
+      "cwd": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/ci-contract-modules",
+      "pid": 17596,
+      "startedAt": "2026-09-12T21:47:08.501Z",
+      "finishedAt": "2026-09-12T21:47:08.564Z",
+      "exit": 0,
+      "signal": null,
+      "timedOut": false,
+      "stdout": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/main-1/exit-evidence-repair/run-1/candidate-ci-qc.stdout.log",
+      "stdoutSha256": "e73d2bc631637ff8806d9adbf1a31052b575044d797a04f184aec21f5b8e6985",
+      "stderr": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/main-1/exit-evidence-repair/run-1/candidate-ci-qc.stderr.log",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "carriedForward": {
+    "originalMainEvidence": {
+      "path": "E:/Projects/MekStation/openspec/planning/2026-09-12-roadmap-completion/evidence/ci-contract-modules-main-verification-20260912.json",
+      "sha256": "3797f6acc55c4d9b38613bc1aaa52587f753d6f1f68d5adf5db8678fe242cd4c"
+    },
+    "productionBuild": {
+      "exit": 0,
+      "stdoutSha256": "b081d570f10280b957d065c3af7be1b2b98366e5ad37c40e610d427f8bc33251",
+      "stderrSha256": "85d93299a7d4c188400ccb7668aeba003808d04cc0c626eef34b4c46a5fa6090"
+    },
+    "runtimeInventory": {
+      "candidateCount": 92,
+      "rootCount": 92,
+      "candidateSha256": "97e80b8b40b4b0dc4eced549d4c29bd047b45c2695b7127de944ad400f5547af",
+      "rootSha256": "97e80b8b40b4b0dc4eced549d4c29bd047b45c2695b7127de944ad400f5547af"
+    },
+    "metadataRoot675": {
+      "exit": 0,
+      "receipt": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/main-1/recovery-1/corrected-exact-yaml-metadata.stdout.log"
+    }
+  },
+  "terminalProcessCheck": "NO_NODE_EXIT_EVIDENCE_PROCESS",
+  "scope": {
+    "productionBuildRerun": false,
+    "productSourceChanged": false,
+    "packageBytesChanged": false,
+    "rootChanged": false,
+    "serverStarted": false,
+    "installPerformed": false,
+    "cleanupPerformed": false
+  },
+  "ok": true
+}

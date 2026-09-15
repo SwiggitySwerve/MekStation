@@ -1,0 +1,40 @@
+{
+  "recordedAt": "2026-09-12T17:12:56.306Z",
+  "node": "R1.specs",
+  "slice": "customizer-five-source-contracts",
+  "baseline": "6c4eac5c7b7a2aece3aab0443ce606943db6cf0b",
+  "branch": "codex/roadmap-customizer-specs-20260912",
+  "canonicalWorktreePath": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\customizer-specs",
+  "gitDirectory": "E:/Projects/MekStation/.git/worktrees/customizer-specs",
+  "files": [
+    {
+      "path": "openspec/specs/aerospace-unit-system/spec.md",
+      "sha256": "c664246362054e9bc183381d99c60f106eb349e0d186cdc467534170fbaad0b3"
+    },
+    {
+      "path": "openspec/specs/app-settings/spec.md",
+      "sha256": "65dc02ac16a000a0322c71b173f88a59ca8e9f56f37ee40a74bf6d18f290d5a6"
+    },
+    {
+      "path": "openspec/specs/critical-slots-display/spec.md",
+      "sha256": "08abd446de493fc1191e9b911368b5f8a66d7311da27694d04a7297cca5b0e4e"
+    },
+    {
+      "path": "openspec/specs/equipment-tray/spec.md",
+      "sha256": "cebacfa9f94c801f2e8e137c1342793d8db73290e9795f2ad23010b2d3a8fdc5"
+    },
+    {
+      "path": "openspec/specs/protomech-unit-system/spec.md",
+      "sha256": "191c5b3536c66d26dadac03da3f6de172574171ce1359ee3441120d308e1d8e8"
+    }
+  ],
+  "status": " M openspec/specs/aerospace-unit-system/spec.md\n M openspec/specs/app-settings/spec.md\n M openspec/specs/critical-slots-display/spec.md\n M openspec/specs/equipment-tray/spec.md\n M openspec/specs/protomech-unit-system/spec.md\n",
+  "diffStat": "4\t2\topenspec/specs/aerospace-unit-system/spec.md\n22\t7\topenspec/specs/app-settings/spec.md\n19\t60\topenspec/specs/critical-slots-display/spec.md\n17\t6\topenspec/specs/equipment-tray/spec.md\n27\t15\topenspec/specs/protomech-unit-system/spec.md\n",
+  "hookPreparation": {
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "configurationUnchanged": true
+  },
+  "acceptance": "Final independent five-spec review and isolated strict/spec-quality/format gates before commit. No product build required for this documentation-only slice."
+}

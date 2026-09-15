@@ -1,0 +1,12 @@
+{
+  "at": "2026-09-12T22:02:09.095Z",
+  "accepted": true,
+  "receipt": {
+    "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/campaign-contracts-cleanup-20260912.json",
+    "sha256": "7b8c6868f1045f7ce9a2dd3609b788dee9c932f184df1878a6a966836c04ff5f"
+  },
+  "sourceAndRawFilesRehashed": 40,
+  "worktreeAndRefsAbsent": true,
+  "qualification": "Initial absence checks exited128 for missing refs; preserved correction uses quiet absence exit1. Removal and compare-delete commands exited0.",
+  "main": "2e07bc9b508f41cc3c90ea706b3c82f9df4d71ac"
+}

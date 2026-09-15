@@ -1,0 +1,39 @@
+{
+  "recordedAt": "2026-09-12T17:55:33.476Z",
+  "localCleanup": {
+    "startedAt": "2026-09-12T17:53:40.675Z",
+    "driverPid": 24280,
+    "target": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\equipment-loader",
+    "expectedHead": "a538a2d3b2b05252e1c80cc60395c72953f4c979",
+    "branch": "refs/heads/codex/roadmap-equipment-loader-20260912",
+    "candidate": "b909a164ef78fef53f87818405ab7643974dd551",
+    "draftRef": "refs/codex/roadmap-evidence/equipment-loader-unhooked-20260912",
+    "draft": "eb0a2a3b8fe6d8dc5cd0189c6eb8c0bec742c113",
+    "ignored": [
+      "!! .husky/_/",
+      "!! .next/",
+      "!! node_modules/",
+      "!! tsconfig.tsbuildinfo"
+    ],
+    "running": false,
+    "args": [
+      "worktree",
+      "remove",
+      "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\equipment-loader"
+    ],
+    "proofSha256": "87802c2b4b3f62eae7a0e8545bb47f422a3435cc671b1ce2c90dc4e24e3f9032",
+    "pid": 54652,
+    "worktreeRemovalExit": 0,
+    "localRefsDeleted": true,
+    "remainingWorktrees": "worktree E:/Projects/MekStation\nHEAD be7f85b867aa3e8576e5e3d27e309276203bc24b\nbranch refs/heads/main\n\nworktree C:/tmp/MekStation-gameplay-audit-a72208b0-2\nHEAD a72208b08de5f8a1bef49f61db3ddc46a54012e8\ndetached\n\nworktree C:/tmp/MekStation-gm2p-spec-886508048\nHEAD 5b546a39ec29dd2e79c845946dc84b3619ee25ee\nbranch refs/heads/codex/continue-gm-two-player-campaign\n\nworktree C:/Users/wroll/.codex/worktrees/af7e/MekStation\nHEAD 327f10787d529a95328bef05e3732ebb02efbee7\ndetached\n\nworktree C:/Users/wroll/.codex/worktrees/combat-event-durability/MekStation\nHEAD 85e7138feaea0333c2dafbd2f974ef5977450af1\ndetached\n\nworktree C:/Users/wroll/.codex/worktrees/combat-turn-rail/MekStation\nHEAD 67805c8302f78c5205921cafbee9d4544783fb96\ndetached\n\nworktree E:/CodexWorktrees/MekStation-maintain\nHEAD 2c775907ae285e27dd7103c8c29e061fcc6d91e4\nbranch refs/heads/maintain/modularity-hard-guardrail-wave1\n\nworktree E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/browser\nHEAD 77d9a9480a3a47b1849f166db01278f93f3d8094\nbranch refs/heads/codex/roadmap-customizer-browser-20260912\n\nworktree E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/customizer-specs\nHEAD eece56d47e394d2b7d46e44d66d9166664b7f606\nbranch refs/heads/codex/roadmap-customizer-specs-20260912\n\nworktree E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/hydration-safety\nHEAD 6c4eac5c7b7a2aece3aab0443ce606943db6cf0b\nbranch refs/heads/codex/roadmap-hydration-safety-20260912\n\nworktree E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/manifest-sync\nHEAD 6c4eac5c7b7a2aece3aab0443ce606943db6cf0b\nbranch refs/heads/codex/roadmap-manifest-sync-20260912\n\nworktree E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/spec-data-services\nHEAD a538a2d3b2b05252e1c80cc60395c72953f4c979\nbranch refs/heads/codex/roadmap-spec-data-services-20260912\n\nworktree E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/validation-order\nHEAD 1f97ac0e7e52da2fcd57ec022d5be6c4ddd709a8\nbranch refs/heads/codex/roadmap-validation-order-20260912\n\nworktree E:/Projects/mekstation-l66\nHEAD 74bd093a65c483ed8d25e4d91adddf3677368090\ndetached\n\nworktree E:/Projects/mekstation-l83\nHEAD 7f821e7795db67ba60010b44c15aeb5f86d2838e\ndetached\n\nworktree E:/Projects/mekstation-l89\nHEAD 439af6bca6c54cf60472e8d7e9c191a962ee93ab\ndetached",
+    "success": true,
+    "finishedAt": "2026-09-12T17:53:56.671Z",
+    "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "remoteBranchAbsent": true,
+  "repositoryDeleteBranchOnMerge": true,
+  "remoteDeletionPerformedByParent": false,
+  "priorGuard": "Expected branch-head comparison refused absent remote before mutation; subsequent live check confirmed automatic branch deletion was enabled.",
+  "proofReopened": "equipment-loader-main-verification-20260912.json",
+  "result": "Owned worktree and local refs absent; remote branch already removed by GitHub; raw/failed evidence and draft commit export retained."
+}

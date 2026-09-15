@@ -1,0 +1,28 @@
+{
+  "acceptedAt": "2026-09-12T20:52:26.325Z",
+  "mainCommit": "7a537a1c4ea621b397f4b5216859f0548773fd61",
+  "receipt": "hydration-safety-main-verification-20260912.json",
+  "receiptSha256": "495a9ca59be4d6adc1419d86ee12f660d78f23b38802ceb637849944e357a0a0",
+  "rehashedArtifacts": 40,
+  "runtimeSource": {
+    "count": 92,
+    "sha256": "2498f00fc3495f64d3317fd77adbba41d1055d52ac0d4fa66ccfe1a85c86e38a"
+  },
+  "correction": {
+    "priorParentAudit": "Failed Runtime mismatch before acceptance or cleanup writes",
+    "cause": "Parent erroneously added yaml runtime root from manifest audit; hydration driver declares only tsx, esbuild, ws, @esbuild",
+    "resolved": "Exact declared92file inventory matches original before/after. No source edits or build rerun.",
+    "intermediateProbeFailure": "Get-Process missing IDs returned exit1 with empty streams; changed to successful empty CIM query."
+  },
+  "verifiedAbsentPids": [
+    29288,
+    82992
+  ],
+  "state": "main-verified",
+  "limits": [
+    "No source, package, spec, Git, install, or asset acquisition changes were made during this proof.",
+    "The physical dependency inventory was used as-is.",
+    "This receipt proves Windows production build and fixture coverage; it does not claim Linux-native proof.",
+    "No browser or external HTTP proof was required for this hydration safety task."
+  ]
+}

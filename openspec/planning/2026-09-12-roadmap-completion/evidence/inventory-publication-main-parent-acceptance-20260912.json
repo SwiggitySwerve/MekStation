@@ -1,0 +1,35 @@
+{
+  "at": "2026-09-12T21:13:21.322Z",
+  "main": "d3540bfea33a2ba8eb86d28759743590615f7c53",
+  "receipt": "openspec/planning/2026-09-12-roadmap-completion/evidence/inventory-publication-main-verification-20260912.json",
+  "receiptSha256": "a7e9dd3610624b080865fac62e6eb0f1ac09f151e0a420d9f4bbf3ab75eb6e2c",
+  "rehashedStreams": 28,
+  "sourceInventory": {
+    "path": "docs/audits/2026-09-12-customizer-spec-reconciliation/inventory.json",
+    "sha256": "fe9d25951ee79c34c74f0b8f64aee51dbd94265b30a057ae735ca83301376822",
+    "bytes": 229674,
+    "lines": 4781,
+    "mimeType": "application/json",
+    "fileDescription": "JSON text data"
+  },
+  "formatterTarget": {
+    "command": [
+      "node",
+      "npm-cli.js",
+      "exec",
+      "--no",
+      "--",
+      "prettier",
+      "--file-info",
+      "docs/audits/2026-09-12-customizer-spec-reconciliation/inventory.json"
+    ],
+    "cwd": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/inventory-publication",
+    "result": {
+      "exitCode": 0,
+      "stdout": "{ \"ignored\": false, \"inferredParser\": \"json\" }\n",
+      "stderr": "",
+      "timedOut": false
+    }
+  },
+  "limits": "Dated inventory and exact-main documentation proof only; rawignoredstreams are retained locally, not claimed as Git-published."
+}

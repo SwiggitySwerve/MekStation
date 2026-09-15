@@ -1,0 +1,99 @@
+{
+  "schemaVersion": 1,
+  "evidenceId": "ci-contract-modules-main-verification-20260912",
+  "generatedAt": "2026-09-12T21:33:32.2577325Z",
+  "candidate": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/ci-contract-modules",
+  "root": "E:/Projects/MekStation",
+  "pinnedMain": "da524f7f501b0485e3d8e67e973fce075670922c",
+  "reviewedTree": "bc3a35a2a7c18708359734aa98bda21815e060d1",
+  "candidateState": {
+    "head": "da524f7f501b0485e3d8e67e973fce075670922c",
+    "statusBeforeAfter": ["## HEAD (no branch)", "## HEAD (no branch)"],
+    "acceptedSourceHashes": {
+      "scripts/qc/openspec-ci-contracts.mjs": "ae81b758ae37fe0a796cd77c5e5a17a5fac0bd6d1a8b488b4d5955fca1234a99",
+      "scripts/qc/openspec-workflow-contracts.mjs": "4ae969ae69ad71af0cfc761c0b133bbc0862202e71138d38198231062f92f696",
+      "package.json": "eeebcb46214017104ed9cad6feab8f4a7e941816552585fb8230731d6931ad17",
+      "package-lock.json": "f923ca53a2d9fc69d56cd59b9f86d26fd4b3756ac488c138b64163f787bd7d36"
+    },
+    "reviewedTreeMatchesPinnedMain": true,
+    "changedFilesFromParent": ["package-lock.json", "package.json", "scripts/qc/openspec-ci-contracts.mjs", "scripts/qc/openspec-workflow-contracts.mjs"],
+    "workflowParentUnchanged": true,
+    "yamlMetadataAnd675LineTest": {
+      "metadataReceipt": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/main-1/recovery-1/corrected-exact-yaml-metadata.stdout.log",
+      "metadataExit": 0,
+      "testSha256": "37cc951ad23379e647b2217750932f18c1843c247ee1f4a3e7e36da79b97b026",
+      "testLines": 675
+    }
+  },
+  "carriedForwardPrebuildGates": {
+    "attempt": "main-1 corrected-root-workflow attempt",
+    "replayed": false,
+    "note": "These gates completed before the metadata assertion stopped that attempt; their raw streams remain preserved and are referenced here.",
+    "allExits": 0,
+    "steps": [
+      {"id":"node-check-ci-module","command":"C:/nvm4w/nodejs/node.exe --check scripts/qc/openspec-ci-contracts.mjs","stdout":".sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/main-1/node-check-ci-module.stdout.log","stdoutSha256":"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855","stderrSha256":"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"},
+      {"id":"node-check-workflow-module","command":"C:/nvm4w/nodejs/node.exe --check scripts/qc/openspec-workflow-contracts.mjs","stdout":".sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/main-1/node-check-workflow-module.stdout.log","stdoutSha256":"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855","stderrSha256":"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"},
+      {"id":"dynamic-import-contract-modules","command":"C:/nvm4w/nodejs/node.exe -e import both contract modules","stdout":".sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/main-1/dynamic-import-contract-modules.stdout.log","stdoutSha256":"0f83adc6354725ba28ac4f1a62a1996c39d4ff6d9f95e90c065a086fe7bc454b","stderrSha256":"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"},
+      {"id":"focused-jest-five-tests","command":"C:/nvm4w/nodejs/node.exe node_modules/jest/bin/jest.js --runInBand --runTestsByPath scripts/__tests__/openspec-ci-quality-qc.test.ts","stdout":".sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/main-1/focused-jest-five-tests.stdout.log","stdoutSha256":"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855","stderrSha256":"27242f0446fd3cd5194b342f5e13160011a64abbd72c77fc2fb706221b25946f"},
+      {"id":"shell-override-negative-harness","command":"C:/nvm4w/nodejs/node.exe grok-ci-contracts-1/resume-2-checks/negative-harness.mjs root candidate-workflow","stdout":".sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/main-1/shell-override-negative-harness.stdout.log","stdoutSha256":"86d00062e3a450c5c794f352fcc7030390725cb6e386eef17215528f2887caeb","stderrSha256":"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855","assertion":"baseline valid; step/job/workflow echo {0} rejected; executedMutatedShell false"},
+      {"id":"typecheck","command":"C:/nvm4w/nodejs/node.exe C:/nvm4w/nodejs/node_modules/npm/bin/npm-cli.js run typecheck","stdout":".sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/main-1/typecheck.stdout.log","stdoutSha256":"d140a6ce62dda0946fe30dd882dbb8209f05be72c8fa8850e5634755a399e50f","stderrSha256":"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"},
+      {"id":"lint","command":"C:/nvm4w/nodejs/node.exe C:/nvm4w/nodejs/node_modules/npm/bin/npm-cli.js run lint","stdout":".sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/main-1/lint.stdout.log","stdoutSha256":"66078f7ef5aaff887eb4732318ba5c44d7c96da686a31a5249afd03b06c1bf6a","stderrSha256":"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"},
+      {"id":"format-check","command":"C:/nvm4w/nodejs/node.exe C:/nvm4w/nodejs/node_modules/npm/bin/npm-cli.js run format:check","stdout":".sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/main-1/format-check.stdout.log","stdoutSha256":"e061787ef26cca1d423e15e1670e9dc4eeb26ed88af0b78021267fb2fe75040e","stderrSha256":"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"},
+      {"id":"openspec-validate-strict","command":"C:/Users/wroll/AppData/Roaming/npm/node_modules/@fission-ai/openspec/bin/openspec.js validate --all --strict --no-interactive","stdout":".sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/main-1/openspec-validate-strict.stdout.log","stdoutSha256":"16c5c323579e9f348bc2adb0830ebd7bb199a73726ab1098c72331305dcca967","stderrSha256":"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"},
+      {"id":"purpose-strict","command":"root/node_modules/tsx/dist/cli.mjs candidate/openspec/scripts/spec-purpose-lint.ts","stdout":".sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/main-1/purpose-strict.stdout.log","stdoutSha256":"901c3cbcfa24be0f7b562b01015ca5232c1976e1362788ebbf1caeec5b96ea4b","stderrSha256":"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"},
+      {"id":"terminology-strict","command":"root/node_modules/ts-node/dist/bin.js candidate/openspec/scripts/terminology-tool.ts validate --strict","stdout":".sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/main-1/terminology-strict.stdout.log","stdoutSha256":"06c7961b0d4709a1010aba1f38caf9ab57eb82ce2c48ceb2422ed9d4b234db23","stderrSha256":"802da0b0c99563087ac4c18c88d9a5736a4c49ad08ba7d3c2837537c207585b5"},
+      {"id":"candidate-ci-qc","command":"candidate/scripts/qc/validate-openspec-ci-quality.mjs --json","stdout":".sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/main-1/candidate-ci-qc.stdout.log","stdoutSha256":"e73d2bc631637ff8806d9adbf1a31052b575044d797a04f184aec21f5b8e6985","stderrSha256":"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"}
+    ]
+  },
+  "recovery": {
+    "driver": ".sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/main-1/recovery-driver.cjs",
+    "driverSha256": "a17714aa7edc390714effa9b9d69e3c3187a5cc0ac8d17745128225a12a5bdf2",
+    "metadataDriver": ".sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/main-1/metadata-main.cjs",
+    "metadataDriverSha256": "8dd585652786390d145c9ace86070cdda94d7ee158e180fe42a9090491eba6a2",
+    "metadataExit": 0,
+    "metadataStdoutSha256": "ae58ec21755bd333eb4120238b4ff2155641ae1369daf1fe6b3601aa10510ec4",
+    "metadataStderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "build": {
+      "command": "C:/nvm4w/nodejs/node.exe C:/nvm4w/nodejs/node_modules/npm/bin/npm-cli.js run build",
+      "cwd": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/ci-contract-modules",
+      "pid": 68036,
+      "exit": 0,
+      "stdout": ".sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/main-1/recovery-1/production-build.stdout.log",
+      "stdoutSha256": "b081d570f10280b957d065c3af7be1b2b98366e5ad37c40e610d427f8bc33251",
+      "stderr": ".sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/main-1/recovery-1/production-build.stderr.log",
+      "stderrSha256": "85d93299a7d4c188400ccb7668aeba003808d04cc0c626eef34b4c46a5fa6090"
+    },
+    "receipt": ".sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/main-1/recovery-1/recovery-verification.json",
+    "driverExit": 0,
+    "ok": true,
+    "terminalPidCheck": {
+      "path": ".sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/main-1/recovery-1/pid-absence.txt",
+      "sha256": "2c5d88cc1d234f9f2a33ae314bea2ee1b6b4fb4669490105047787102e650b58",
+      "result": "NO_NODE_MAIN1_CI_PROCESS"
+    }
+  },
+  "runtimePreservation": {
+    "candidateBefore": {"count": 92, "sha256": "97e80b8b40b4b0dc4eced549d4c29bd047b45c2695b7127de944ad400f5547af"},
+    "candidateAfter": {"count": 92, "sha256": "97e80b8b40b4b0dc4eced549d4c29bd047b45c2695b7127de944ad400f5547af"},
+    "rootBefore": {"count": 92, "sha256": "97e80b8b40b4b0dc4eced549d4c29bd047b45c2695b7127de944ad400f5547af"},
+    "rootAfter": {"count": 92, "sha256": "97e80b8b40b4b0dc4eced549d4c29bd047b45c2695b7127de944ad400f5547af"},
+    "sourceHashesUnchanged": true,
+    "candidateStatusUnchanged": true,
+    "rootStatusUnchanged": true
+  },
+  "preservedFailures": [
+    {"path":".sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/main-1/initial-harness-fixture-failure","driverSha256":"276b34483eeaab45fd5e0ff82adbd9ebf6ff8e6ba756bb3e67549b54d9f28f3d","reason":"candidate workflow fixture lacked the merged customizer-regressions job; shell negative harness correctly stopped before build"},
+    {"path":".sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/main-1/initial-metadata-test-mismatch","driverSha256":"97cee08b34ff1acabbf348d0a83464e4c5659934b2d97e00e4d05bb378473068","reason":"metadata assertion inspected candidate's 166-line test instead of the preserved root 675-line approved test; corrected assertion now passes"},
+    {"path":".sisyphus/roadmap-completion-20260912/ci-contract-modules-checks/main-1/driver-failure.json","reason":"stale origin/main guard saw b39c04304e9e46ebbb5056fa947a145a7bf194d4 while proof remained pinned to da524f7"}
+  ],
+  "scope": {
+    "productSourceChanged": false,
+    "packageBytesChanged": false,
+    "workflowChanged": false,
+    "ledgerChanged": false,
+    "installOrServerStarted": false,
+    "candidateCleanup": false,
+    "note": "All pre-build gates were carried from actual exit-0 streams; only the corrected metadata assertion and the serial production build were rerun after the two bounded guard fixes."
+  },
+  "ok": true
+}

@@ -1,0 +1,13 @@
+{
+  "recordedAt": "2026-09-12T17:11:35.758Z",
+  "path": "openspec/specs/equipment-tray/spec.md",
+  "beforeSha256": "7f8a1b314cc583c355ff51e7eb7640724ee8a40abe2af9bc5900a63487304e4b",
+  "afterSha256": "cebacfa9f94c801f2e8e137c1342793d8db73290e9795f2ad23010b2d3a8fdc5",
+  "basis": [
+    "critical-slot-allocation/spec.md:61-76 already requires free distribution of individual structural slots",
+    "equipment-tray Configuration via tabs scenario concerns changing structure/armor type, not slot placement",
+    "Context-menu assignment implements this existing allocation contract; no product behavior repair inferred"
+  ],
+  "change": "Clarify type selection versus location assignment and preserve non-removal and fixed Omni restrictions",
+  "acceptance": "Pending independent final delta review; previous P2 interpretation is challenged by existing canonical contract"
+}

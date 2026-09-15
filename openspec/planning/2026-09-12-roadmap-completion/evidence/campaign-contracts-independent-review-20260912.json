@@ -1,0 +1,269 @@
+{
+  "schemaVersion": 1,
+  "evidenceId": "campaign-contracts-independent-review-20260912",
+  "status": "accepted-with-limits",
+  "candidate": {
+    "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/campaign-contracts",
+    "base": "d3540bfea33a2ba8eb86d28759743590615f7c53",
+    "head": "d3540bfea33a2ba8eb86d28759743590615f7c53"
+  },
+  "worker": {
+    "rawDirectory": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/campaign-contracts-independent-review-20260912",
+    "driverPid": 17152,
+    "childPid": 17312,
+    "stopReason": "5-minute owned lane budget",
+    "workerExitCode": null,
+    "eventsSha256": "6188d84c3cc869aa459c29ea5139e851f9fa476e58765c347fdc92f03132d7e1",
+    "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "checks": [
+    {
+      "name": "openspec-strict",
+      "command": [
+        "C:/nvm4w/nodejs/node.exe",
+        "C:/Users/wroll/AppData/Roaming/npm/node_modules/@fission-ai/openspec/bin/openspec.js",
+        "validate",
+        "design-campaign-authority-and-sync",
+        "--strict"
+      ],
+      "cwd": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/campaign-contracts",
+      "exitCode": 0,
+      "signal": null,
+      "spawnError": null,
+      "stdout": {
+        "path": "openspec-strict.stdout.log",
+        "bytes": 53,
+        "sha256": "96dbe86c53dde147f419cc23e062ad0fb400e9f7d0a146f204162c5944e56876"
+      },
+      "stderr": {
+        "path": "openspec-strict.stderr.log",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "purpose-strict",
+      "command": [
+        "C:/nvm4w/nodejs/node.exe",
+        "C:/nvm4w/nodejs/node_modules/npm/bin/npm-cli.js",
+        "run",
+        "spec:purpose:validate:strict"
+      ],
+      "cwd": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/campaign-contracts",
+      "exitCode": 0,
+      "signal": null,
+      "spawnError": null,
+      "stdout": {
+        "path": "purpose-strict.stdout.log",
+        "bytes": 306,
+        "sha256": "10c8840a149879f766cb98639dbb45a69b11e8b85bfb5f2807c98417359cbfe9"
+      },
+      "stderr": {
+        "path": "purpose-strict.stderr.log",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "terminology-strict",
+      "command": [
+        "C:/nvm4w/nodejs/node.exe",
+        "C:/nvm4w/nodejs/node_modules/npm/bin/npm-cli.js",
+        "run",
+        "terminology:validate:strict"
+      ],
+      "cwd": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/campaign-contracts",
+      "exitCode": 0,
+      "signal": null,
+      "spawnError": null,
+      "stdout": {
+        "path": "terminology-strict.stdout.log",
+        "bytes": 311,
+        "sha256": "f900b2f139d48a4fce3da66f12105cdd633a1cfe6dc8102211bcf03cc6a1cce7"
+      },
+      "stderr": {
+        "path": "terminology-strict.stderr.log",
+        "bytes": 576,
+        "sha256": "0d40b592c9abe1f9d119fc15c83cfc88be6b1b7b41f9290f55cbdb388fe8e55e"
+      }
+    },
+    {
+      "name": "candidate-qc",
+      "command": [
+        "C:/nvm4w/nodejs/node.exe",
+        "C:/nvm4w/nodejs/node_modules/npm/bin/npm-cli.js",
+        "run",
+        "qc:openspec-ci:validate"
+      ],
+      "cwd": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/campaign-contracts",
+      "exitCode": 0,
+      "signal": null,
+      "spawnError": null,
+      "stdout": {
+        "path": "candidate-qc.stdout.log",
+        "bytes": 268,
+        "sha256": "f01feb11318234aab4764fe76151b78c06905527212a8f8723626fcf616b71d6"
+      },
+      "stderr": {
+        "path": "candidate-qc.stderr.log",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "name": "diff-check",
+      "command": [
+        "git.exe",
+        "diff",
+        "--check",
+        "--",
+        "openspec/changes/design-campaign-authority-and-sync/proposal.md",
+        "openspec/changes/design-campaign-authority-and-sync/design.md",
+        "openspec/changes/design-campaign-authority-and-sync/tasks.md"
+      ],
+      "cwd": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/campaign-contracts",
+      "exitCode": 0,
+      "signal": null,
+      "spawnError": null,
+      "stdout": {
+        "path": "diff-check.stdout.log",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stderr": {
+        "path": "diff-check.stderr.log",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    }
+  ],
+  "formatter": {
+    "status": "qualified-excluded",
+    "reason": "OpenSpec prose is explicitly excluded by both .oxfmtignore and .prettierignore; diff --check was run on all three owned files.",
+    "files": [
+      ".oxfmtignore",
+      ".prettierignore"
+    ],
+    "fileSha256": {
+      ".oxfmtignore": "8c67fa605e2dc35426137dd31d04ea7b93ac15d16989600cce86e821988568a8",
+      ".prettierignore": "55d5bfa75983a7b783334fabdf6c74a89deb69f73439d57a3a7729db53e14cca"
+    }
+  },
+  "pidChecks": [
+    {
+      "pid": 17152,
+      "command": [
+        "tasklist.exe",
+        "/FI",
+        "PID eq 17152",
+        "/FO",
+        "CSV",
+        "/NH"
+      ],
+      "exitCode": 0,
+      "absent": true,
+      "stdout": {
+        "path": "pid-17152.stdout.log",
+        "bytes": 64,
+        "sha256": "943b315e065238b7073b033f534ef954b6b6461fb3f03a3f5b8555b11bc4c0a2"
+      },
+      "stderr": {
+        "path": "pid-17152.stderr.log",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "pid": 17312,
+      "command": [
+        "tasklist.exe",
+        "/FI",
+        "PID eq 17312",
+        "/FO",
+        "CSV",
+        "/NH"
+      ],
+      "exitCode": 0,
+      "absent": true,
+      "stdout": {
+        "path": "pid-17312.stdout.log",
+        "bytes": 64,
+        "sha256": "943b315e065238b7073b033f534ef954b6b6461fb3f03a3f5b8555b11bc4c0a2"
+      },
+      "stderr": {
+        "path": "pid-17312.stderr.log",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    }
+  ],
+  "diff": {
+    "status": {
+      "path": "candidate-status.log",
+      "bytes": 196,
+      "sha256": "e8c743c3bbd8e6ec191590a6ff165e692bfb9b0be55ffb1f6c6459d4badfb0e8"
+    },
+    "numstat": {
+      "path": "candidate-numstat.log",
+      "bytes": 199,
+      "sha256": "cb0952f8f3507391d1a3bee7c0a9117fa89c07a2d2a59bb17b2e625551595f01"
+    },
+    "rawDiff": {
+      "path": "candidate.diff",
+      "bytes": 15648,
+      "sha256": "a0bd8f3ae94bf5d3ea2253077017b2f026b396d07f0ec82e319a31226d703276"
+    },
+    "totals": {
+      "insertions": 4,
+      "deletions": 2,
+      "paths": [
+        "openspec/changes/design-campaign-authority-and-sync/design.md",
+        "openspec/changes/design-campaign-authority-and-sync/proposal.md",
+        "openspec/changes/design-campaign-authority-and-sync/tasks.md"
+      ]
+    }
+  },
+  "fileHashes": {
+    "openspec/changes/design-campaign-authority-and-sync/proposal.md": {
+      "currentSha256": "fada46aab39743c6a1ab375693abf8fe8710dfb00c4024d24dea38666c12da92",
+      "baseSha256": "b40d388e8e2c915162bcfedf04e38fa73d19ec20c1323ef5c6f6a0c00df9ecb7",
+      "bytes": 6376
+    },
+    "openspec/changes/design-campaign-authority-and-sync/design.md": {
+      "currentSha256": "c47040115b4bfd21b011230c9101be4e273f1667c0e33d7692b5fc59abb45064",
+      "baseSha256": "284b13bb6f91dc03905ad6cba3c66def264f855090814a45f1cc426df3e9a12a",
+      "bytes": 15082
+    },
+    "openspec/changes/design-campaign-authority-and-sync/tasks.md": {
+      "currentSha256": "9eefb5fa17acddd89253e91f182f4349553cfe5b66d08ba1fe61ccaa9c9223ea",
+      "baseSha256": "f543041f1973fbf63db8616fad0968ad29328ebcbeedcfe4edc609191ec8f643",
+      "bytes": 97659
+    }
+  },
+  "assertions": {
+    "onlyOwnedFilesChanged": true,
+    "changedLineCap": true,
+    "expectedPaths": true,
+    "historicalFghPreserved": true,
+    "currentBoundaryPresent": true,
+    "serverBackedCurrentState": true,
+    "journalAuthorityDisabledPreserved": true,
+    "storageBoundaryPreserved": true,
+    "noHistoricalRetractionClaim": true,
+    "noCheckboxChanges": true,
+    "noSourceEditsObserved": true,
+    "workerProcessesAbsent": true,
+    "gatesPassed": true
+  },
+  "limits": [
+    "Read-only independent review; no source, Git, ledger, build, install, server, or test mutation.",
+    "Accepts wording repair only; current exact-main, eligible approval, CAMP three-witness, journal cutover, and live two-process proof remain open."
+  ],
+  "hashIntegrity": {
+    "checkedHashFields": 25,
+    "allHashFields64Hex": true,
+    "checkedReferences": 24,
+    "allReferenceHashesMatch": true,
+    "mismatches": []
+  }
+}

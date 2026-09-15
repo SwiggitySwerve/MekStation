@@ -1,0 +1,315 @@
+{
+  "schemaVersion": 1,
+  "capturedAt": "2026-09-12T21:02:54.2474238Z",
+  "scope": "R0.contracts campaign package inventory",
+  "baseline": {
+    "rootHead": "be7f85b867aa3e8576e5e3d27e309276203bc24b",
+    "base": "e58642acede495c45b3b4d4e606dffaa52ccab18",
+    "originMain": "e58642acede495c45b3b4d4e606dffaa52ccab18",
+    "packageStatus": "clean for owned package",
+    "packageDiffFromBase": "empty",
+    "packageFiles": [
+      {
+        "path": "openspec/changes/design-campaign-authority-and-sync/proposal.md",
+        "currentSha256": "b40d388e8e2c915162bcfedf04e38fa73d19ec20c1323ef5c6f6a0c00df9ecb7",
+        "baseSha256": "b40d388e8e2c915162bcfedf04e38fa73d19ec20c1323ef5c6f6a0c00df9ecb7",
+        "sameAsBase": true,
+        "lines": "5,13-17,25"
+      },
+      {
+        "path": "openspec/changes/design-campaign-authority-and-sync/design.md",
+        "currentSha256": "284b13bb6f91dc03905ad6cba3c66def264f855090814a45f1cc426df3e9a12a",
+        "baseSha256": "284b13bb6f91dc03905ad6cba3c66def264f855090814a45f1cc426df3e9a12a",
+        "sameAsBase": true,
+        "lines": "7,28,34,39-43,53,66-67"
+      },
+      {
+        "path": "openspec/changes/design-campaign-authority-and-sync/tasks.md",
+        "currentSha256": "f543041f1973fbf63db8616fad0968ad29328ebcbeedcfe4edc609191ec8f643",
+        "baseSha256": "f543041f1973fbf63db8616fad0968ad29328ebcbeedcfe4edc609191ec8f643",
+        "sameAsBase": true,
+        "lines": "3,5,7,11-13,85"
+      },
+      {
+        "path": "openspec/changes/design-campaign-authority-and-sync/specs/campaign-access-projection/spec.md",
+        "currentSha256": "2e9434b9c9097ee940eed96c0a418cb9f677b0c61c9d9be17f1d6d28eb796d08",
+        "baseSha256": "2e9434b9c9097ee940eed96c0a418cb9f677b0c61c9d9be17f1d6d28eb796d08",
+        "sameAsBase": true,
+        "lines": "all"
+      },
+      {
+        "path": "openspec/changes/design-campaign-authority-and-sync/specs/campaign-authority/spec.md",
+        "currentSha256": "a4a4a80418f7da6df147fd5c88ea7b41bb736e204498d29c7ad1a5f72150b811",
+        "baseSha256": "a4a4a80418f7da6df147fd5c88ea7b41bb736e204498d29c7ad1a5f72150b811",
+        "sameAsBase": true,
+        "lines": "all"
+      },
+      {
+        "path": "openspec/changes/design-campaign-authority-and-sync/specs/campaign-persistence/spec.md",
+        "currentSha256": "198e39c7956d9f2c42fcc5997397105c284b27eef04f22cc79d2e872b375ecfc",
+        "baseSha256": "198e39c7956d9f2c42fcc5997397105c284b27eef04f22cc79d2e872b375ecfc",
+        "sameAsBase": true,
+        "lines": "all"
+      },
+      {
+        "path": "openspec/changes/design-campaign-authority-and-sync/specs/campaign-replication/spec.md",
+        "currentSha256": "82c529a70d12e5a8328e59c87cf4e9ad510f75412c681855d81f5dfdb7cd1c9d",
+        "baseSha256": "82c529a70d12e5a8328e59c87cf4e9ad510f75412c681855d81f5dfdb7cd1c9d",
+        "sameAsBase": true,
+        "lines": "all"
+      },
+      {
+        "path": "openspec/changes/design-campaign-authority-and-sync/specs/coop-campaign-sync/spec.md",
+        "currentSha256": "ea19e7dda5057aea6b7bf8f6b87aa785774d65085c97dbcbbbc75c52b45a12b8",
+        "baseSha256": "ea19e7dda5057aea6b7bf8f6b87aa785774d65085c97dbcbbbc75c52b45a12b8",
+        "sameAsBase": true,
+        "lines": "all"
+      },
+      {
+        "path": "openspec/changes/design-campaign-authority-and-sync/specs/event-store/spec.md",
+        "currentSha256": "279b06de6c9497ec79762964ea335fb740f08014afca0616d519144b1692bc9b",
+        "baseSha256": "279b06de6c9497ec79762964ea335fb740f08014afca0616d519144b1692bc9b",
+        "sameAsBase": true,
+        "lines": "all"
+      },
+      {
+        "path": "openspec/changes/design-campaign-authority-and-sync/specs/multiplayer-sync/spec.md",
+        "currentSha256": "5e6d4ecef4ba75cfad55ec68caed615755f09aa3cb55ea47038f945ee00972c0",
+        "baseSha256": "5e6d4ecef4ba75cfad55ec68caed615755f09aa3cb55ea47038f945ee00972c0",
+        "sameAsBase": true,
+        "lines": "all"
+      }
+    ],
+    "originMainAtFinalCheck": "d3540bfea33a2ba8eb86d28759743590615f7c53",
+    "originMovedAfterCapture": true,
+    "originPackageDiffFromRequiredBase": "empty"
+  },
+  "commands": [
+    {
+      "id": "root-head",
+      "command": "git rev-parse HEAD",
+      "exitCode": 0,
+      "stdout": "be7f85b867aa3e8576e5e3d27e309276203bc24b",
+      "stderr": ""
+    },
+    {
+      "id": "base-head",
+      "command": "git rev-parse e58642acede495c45b3b4d4e606dffaa52ccab18",
+      "exitCode": 0,
+      "stdout": "e58642acede495c45b3b4d4e606dffaa52ccab18",
+      "stderr": ""
+    },
+    {
+      "id": "origin-main",
+      "command": "git rev-parse origin/main",
+      "exitCode": 0,
+      "stdout": "e58642acede495c45b3b4d4e606dffaa52ccab18",
+      "stderr": ""
+    },
+    {
+      "id": "package-status",
+      "command": "git status --short -- openspec/changes/design-campaign-authority-and-sync",
+      "exitCode": 0,
+      "stdout": "",
+      "stderr": "",
+      "rawLog": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\campaign-contract-inventory\\checks\\package-status.raw.log",
+      "rawLogSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "stdoutSummary": "empty"
+    },
+    {
+      "id": "package-diff-base",
+      "command": "git diff --name-status e58642acede495c45b3b4d4e606dffaa52ccab18 -- openspec/changes/design-campaign-authority-and-sync",
+      "exitCode": 0,
+      "stdout": "",
+      "stderr": "",
+      "rawLog": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\campaign-contract-inventory\\checks\\package-diff-base.raw.log",
+      "rawLogSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "stdoutSummary": "empty"
+    },
+    {
+      "id": "hash-inventory",
+      "command": "C:/nvm4w/nodejs/node.exe - (current/base byte hash comparison)",
+      "exitCode": 0,
+      "stdout": "17 package/source files compared; every current byte sequence equals the e586 base",
+      "stderr": ""
+    },
+    {
+      "id": "source-search",
+      "command": "rg -n -i 'currently|optional|disabled|browser|deep link|authority|dependency|gate' openspec/changes/design-campaign-authority-and-sync",
+      "exitCode": 0,
+      "stdout": "",
+      "stderr": "",
+      "rawLog": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\campaign-contract-inventory\\checks\\source-search.raw.log",
+      "rawLogSha256": "c9ee9a18afc608cdccb413c5097ad981d56d7fa6a8edb89abc5134e7be959537",
+      "bytes": 106194,
+      "stdoutSummary": "Actual raw capture contains 91 matching output lines across the 10 package files."
+    }
+  ],
+  "findings": [
+    {
+      "id": "F1",
+      "severity": "repair-wording",
+      "paths": [
+        "openspec/changes/design-campaign-authority-and-sync/proposal.md",
+        "openspec/changes/design-campaign-authority-and-sync/design.md"
+      ],
+      "lines": [
+        "proposal.md:5",
+        "design.md:7"
+      ],
+      "claim": "The dated 2026-08-07 browser-local/deep-link failure and optional server-save description reads as current state.",
+      "groundTruth": [
+        "src/pages/api/campaigns/[id].ts:126-154",
+        "src/services/campaignPersistence/CampaignPersistenceService.ts:82-106",
+        "src/stores/campaign/useCampaignPersistenceStore.ts:639-718,735-778",
+        "src/pages-modules/gameplay/campaigns/campaignPageShell.tsx:119-166",
+        "tasks.md:5"
+      ],
+      "disposition": "Keep dated audit motivation; qualify it as historical and add current server-backed save/load/route state plus the separate disabled journal-authority boundary."
+    },
+    {
+      "id": "F2",
+      "severity": "repair-wording",
+      "paths": [
+        "openspec/changes/design-campaign-authority-and-sync/tasks.md"
+      ],
+      "lines": [
+        "tasks.md:5"
+      ],
+      "claim": "The local implementation-opening and delivery-unblocked wording can be read as current R0/CAMP exact-main and production-authority acceptance.",
+      "groundTruth": [
+        "roadmap.json:154-183",
+        "roadmap.json:716-742",
+        "prerequisite-contract-review-20260912.json:56-65",
+        "src/lib/campaign/sync/campaignJournalAuthorityEnabled.ts:4-8,31-37",
+        "src/lib/campaign/sync/JournalCampaignEventStore.ts:21-24,447-469",
+        "e2e/campaign-two-device-drive.spec.ts:441-460"
+      ],
+      "disposition": "Retain dated implementation history but explicitly state that current receipts, production cutover, and CAMP authority witnesses remain open."
+    }
+  ],
+  "alreadyCorrect": [
+    {
+      "path": "openspec/changes/design-campaign-authority-and-sync/proposal.md",
+      "lines": "13-17,25",
+      "reason": "Normative capability list and implementation sequencing remain aligned; no current-state repair beyond F1."
+    },
+    {
+      "path": "openspec/changes/design-campaign-authority-and-sync/design.md",
+      "lines": "28,34,39-43,53,66-67",
+      "reason": "Narrow delivery-epoch dependency and future migration/offline/cross-server limits are explicit design scope."
+    },
+    {
+      "path": "openspec/changes/design-campaign-authority-and-sync/tasks.md",
+      "lines": "3,7,11-13,85",
+      "reason": "Gate language, dated progress, and explicit false-flag/non-claim are retained; task 5.7 does not claim production cutover."
+    },
+    {
+      "path": "openspec/changes/design-campaign-authority-and-sync/specs",
+      "lines": "all seven spec files",
+      "reason": "Normative requirements/scenarios; no additional stale current-state prose identified."
+    }
+  ],
+  "sourceAnchors": [
+    {
+      "path": "src/pages/api/campaigns/[id].ts",
+      "sha256": "a0144a7cd574719a51328d49318d46fb82c5bc57fed4b707ccf2eacc603b946a",
+      "lines": "126-154",
+      "claim": "GET reads the server record; only a missing row is 404; readable replica rows are 200"
+    },
+    {
+      "path": "src/services/campaignPersistence/CampaignPersistenceService.ts",
+      "sha256": "8af424a1bafbaca814e27bd9aeb8cd9e9c4511465b5d1522c023cbc7fb5a1f30",
+      "lines": "82-106,240-268",
+      "claim": "server read/save/delete persistence and source-only write gate"
+    },
+    {
+      "path": "src/stores/campaign/useCampaignPersistenceStore.ts",
+      "sha256": "2dfc3710956db8f4e11e2fb8fae58372611dcf104074b4db6a6827626a87a51a",
+      "lines": "639-718,735-778",
+      "claim": "route load fetches /api/campaigns/:id and adoption moves legacy browser copy to server"
+    },
+    {
+      "path": "src/pages-modules/gameplay/campaigns/campaignPageShell.tsx",
+      "sha256": "81d2532c1b6e49d91354ee6df8d0405404996f7ba33131f7ed10d8ba3e96f383",
+      "lines": "119-166",
+      "claim": "campaign route loader invokes server-backed persistence load"
+    },
+    {
+      "path": "src/lib/campaign/sync/campaignJournalAuthorityEnabled.ts",
+      "sha256": "392fd63f42a7d3bc13f29d74557264674483dcdb6dedc1046161130e6588940e",
+      "lines": "4-8,31-37",
+      "claim": "production journal flag is hardcoded false; only explicit e2e opt-in can arm fixture path"
+    },
+    {
+      "path": "src/lib/campaign/sync/JournalCampaignEventStore.ts",
+      "sha256": "0b352cd89fe64ee7d8c817fdae5855cce5e1198d097eb3bea772d71f0686ebf0",
+      "lines": "21-24,447-469",
+      "claim": "production factory remains in-memory while flag is false"
+    },
+    {
+      "path": "e2e/campaign-two-device-drive.spec.ts",
+      "sha256": "e3301cf540668c6fa5225c8f90ca5ec146d448f45a21acd4f74d7e32716de449",
+      "lines": "441-460",
+      "claim": "supported live source-to-replica convergence is explicitly not driven while flag is false"
+    }
+  ],
+  "existingReceipts": [
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/roadmap.json",
+      "sha256": "d508c0dc874ce7795f0d476f082c69f938c9f4bdfc3b19deb420217ae7b7a388",
+      "lines": "154-183,716-742"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/prerequisite-contract-review-20260912.json",
+      "sha256": "39430ca2d5f07da6f35979f3511fa8a9236f832633fd33ebe489f97de0cfc2c4",
+      "lines": "45-65"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/triage-preserved-campaign.json",
+      "sha256": "790fe20a2adc0a57d38948d2f21015d7d755e2a9afd7e0500cf7f1f06112c256",
+      "lines": "41-46,190-199,456-560"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/triage-campaign-parent-acceptance.json",
+      "sha256": "0883d950b6716c28ef3063dbedf7801300604b2f34fb35f08254f18f13411347",
+      "lines": "1-20"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/triage-campaign-references.json",
+      "sha256": "e7f9e83224e223b0a3fb174e2306d71976224a13200296f98a54781509483ce3",
+      "lines": "1-20"
+    }
+  ],
+  "editBrief": {
+    "owner": "Grok worker if parent elects wording repair",
+    "maxFiles": 3,
+    "maxLines": 200,
+    "files": [
+      "openspec/changes/design-campaign-authority-and-sync/proposal.md:5",
+      "openspec/changes/design-campaign-authority-and-sync/design.md:7",
+      "openspec/changes/design-campaign-authority-and-sync/tasks.md:5"
+    ],
+    "action": "Historical/current qualification only; preserve explicit disabled authority and CAMP gates."
+  },
+  "limits": [
+    "Read-only source/spec/receipt inventory; no source, spec, roadmap, ledger, Git, build, install, server, or test mutation.",
+    "Does not reopen the 220 capabilities or explicit deferrals.",
+    "Does not close CAMP, R0, R2 authority, or production journal-authority gates.",
+    "No runtime or production cutover proof is claimed.",
+    "origin/main advanced from e58642acede495c45b3b4d4e606dffaa52ccab18 to d3540bfea33a2ba8eb86d28759743590615f7c53 during the inventory; the owned package remained byte-identical to the required e586 base and had no origin-package diff."
+  ],
+  "rawChecks": [
+    "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\campaign-contract-inventory\\checks\\package-status.raw.log",
+    "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\campaign-contract-inventory\\checks\\package-diff-base.raw.log",
+    "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\campaign-contract-inventory\\checks\\source-search.raw.log"
+  ],
+  "finalRefCheck": {
+    "command": "git rev-parse origin/main; git diff --name-status e58642acede495c45b3b4d4e606dffaa52ccab18..origin/main -- openspec/changes/design-campaign-authority-and-sync",
+    "exitCode": 0,
+    "originMain": "d3540bfea33a2ba8eb86d28759743590615f7c53",
+    "packageDiff": "empty"
+  }
+}

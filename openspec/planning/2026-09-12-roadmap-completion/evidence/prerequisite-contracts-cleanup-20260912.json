@@ -1,0 +1,1775 @@
+{
+  "schema": "prerequisite-contracts-cleanup-v1",
+  "createdAt": "2026-09-12T21:47:42.9846063Z",
+  "repository": "E:\\Projects\\MekStation",
+  "worktree": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\prerequisite-contracts",
+  "acceptedMain": "b39c04304e9e46ebbb5056fa947a145a7bf194d4",
+  "reviewedHead": "fb8343f072bc54ac91620bf7e7f73d254e1aece5",
+  "preflight": {
+    "canonicalPath": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\prerequisite-contracts",
+    "resolvedPath": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\prerequisite-contracts",
+    "isReparsePoint": false,
+    "registeredBeforeRemoval": true,
+    "head": "b39c04304e9e46ebbb5056fa947a145a7bf194d4",
+    "branchBeforeRemoval": "(detached)",
+    "cleanStatusBeforeRemoval": true,
+    "ignoredBeforeRemoval": [
+      "!! .husky/_/"
+    ],
+    "diffCheckExit": 0,
+    "ownedFailedReplProcessMatchesBefore": 0
+  },
+  "export": {
+    "manifestPath": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-cleanup\\export\\export-manifest.json",
+    "manifestSha256": "fdcc5c67e62627c1eee2375e118b845abad919dfcc7b780fbdf308137240f810",
+    "manifestHashFile": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-cleanup\\export\\export-manifest.sha256",
+    "manifestHashFileSha256": "ac12628a7553b4f9922e5c72445821da782e516b68bc393782896d1500509054",
+    "sourceFiles": [
+      {
+        "source": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\prerequisite-contracts\\openspec\\changes\\add-authoritative-history-branches\\proposal.md",
+        "export": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-cleanup\\export\\source\\openspec\\changes\\add-authoritative-history-branches\\proposal.md",
+        "sourceInfo": {
+          "bytes": 3798,
+          "sha256": "e17cad35a5123cc188135aa85f6cf7f780f24601fbecfeb181ece96bd3f94ede",
+          "crlfCount": 46,
+          "lfCount": 46,
+          "crCount": 46,
+          "lfOnlyCount": 0,
+          "normalizedLfSha256": "3f7e4f4805593a0b0fc142616274488dd65dba72dee63aa575fddb7951f0006a"
+        },
+        "exportInfo": {
+          "bytes": 3798,
+          "sha256": "e17cad35a5123cc188135aa85f6cf7f780f24601fbecfeb181ece96bd3f94ede",
+          "crlfCount": 46,
+          "lfCount": 46,
+          "crCount": 46,
+          "lfOnlyCount": 0,
+          "normalizedLfSha256": "3f7e4f4805593a0b0fc142616274488dd65dba72dee63aa575fddb7951f0006a"
+        },
+        "reopenedSha256": "e17cad35a5123cc188135aa85f6cf7f780f24601fbecfeb181ece96bd3f94ede",
+        "byteEqual": true,
+        "expectedCommittedNormalizedSha256": "3f7e4f4805593a0b0fc142616274488dd65dba72dee63aa575fddb7951f0006a",
+        "normalizedSourceMatchesExpected": true,
+        "normalizedExportMatchesExpected": true
+      },
+      {
+        "source": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\prerequisite-contracts\\openspec\\changes\\add-authoritative-history-branches\\tasks.md",
+        "export": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-cleanup\\export\\source\\openspec\\changes\\add-authoritative-history-branches\\tasks.md",
+        "sourceInfo": {
+          "bytes": 36952,
+          "sha256": "64a58459e1423372ac04bb5282c06853fa05955ae163e583d91574ffa07c970a",
+          "crlfCount": 0,
+          "lfCount": 112,
+          "crCount": 0,
+          "lfOnlyCount": 112,
+          "normalizedLfSha256": "64a58459e1423372ac04bb5282c06853fa05955ae163e583d91574ffa07c970a"
+        },
+        "exportInfo": {
+          "bytes": 36952,
+          "sha256": "64a58459e1423372ac04bb5282c06853fa05955ae163e583d91574ffa07c970a",
+          "crlfCount": 0,
+          "lfCount": 112,
+          "crCount": 0,
+          "lfOnlyCount": 112,
+          "normalizedLfSha256": "64a58459e1423372ac04bb5282c06853fa05955ae163e583d91574ffa07c970a"
+        },
+        "reopenedSha256": "64a58459e1423372ac04bb5282c06853fa05955ae163e583d91574ffa07c970a",
+        "byteEqual": true,
+        "expectedCommittedNormalizedSha256": "64a58459e1423372ac04bb5282c06853fa05955ae163e583d91574ffa07c970a",
+        "normalizedSourceMatchesExpected": true,
+        "normalizedExportMatchesExpected": true
+      },
+      {
+        "source": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\prerequisite-contracts\\openspec\\changes\\add-cross-stream-effect-receipts\\tasks.md",
+        "export": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-cleanup\\export\\source\\openspec\\changes\\add-cross-stream-effect-receipts\\tasks.md",
+        "sourceInfo": {
+          "bytes": 10495,
+          "sha256": "62e4e238fd9ec9551aee5231583113301b16cf7d4af1b96e99a24de8a33048ff",
+          "crlfCount": 87,
+          "lfCount": 87,
+          "crCount": 87,
+          "lfOnlyCount": 0,
+          "normalizedLfSha256": "a77ec8f49e9c6860ded8c57f50c378b702ab775a4925bfccf7a57dce09a7fbf4"
+        },
+        "exportInfo": {
+          "bytes": 10495,
+          "sha256": "62e4e238fd9ec9551aee5231583113301b16cf7d4af1b96e99a24de8a33048ff",
+          "crlfCount": 87,
+          "lfCount": 87,
+          "crCount": 87,
+          "lfOnlyCount": 0,
+          "normalizedLfSha256": "a77ec8f49e9c6860ded8c57f50c378b702ab775a4925bfccf7a57dce09a7fbf4"
+        },
+        "reopenedSha256": "62e4e238fd9ec9551aee5231583113301b16cf7d4af1b96e99a24de8a33048ff",
+        "byteEqual": true,
+        "expectedCommittedNormalizedSha256": "a77ec8f49e9c6860ded8c57f50c378b702ab775a4925bfccf7a57dce09a7fbf4",
+        "normalizedSourceMatchesExpected": true,
+        "normalizedExportMatchesExpected": true
+      }
+    ],
+    "proofFiles": [
+      {
+        "source": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-main-verification\\commands.json",
+        "export": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-cleanup\\export\\proof\\commands.json",
+        "sourceInfo": {
+          "bytes": 11217,
+          "sha256": "e44659f2428aad064636d697a5c39b7ee1f4ddcda88f4f925da6c8007fd5f0db",
+          "crlfCount": 216,
+          "lfCount": 216,
+          "crCount": 216,
+          "lfOnlyCount": 0
+        },
+        "exportInfo": {
+          "bytes": 11217,
+          "sha256": "e44659f2428aad064636d697a5c39b7ee1f4ddcda88f4f925da6c8007fd5f0db",
+          "crlfCount": 216,
+          "lfCount": 216,
+          "crCount": 216,
+          "lfOnlyCount": 0
+        },
+        "reopenedSha256": "e44659f2428aad064636d697a5c39b7ee1f4ddcda88f4f925da6c8007fd5f0db",
+        "byteEqual": true
+      },
+      {
+        "source": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-main-verification\\raw\\01-openspec-target-authoritative-history.stderr.launcher-failure.log",
+        "export": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-cleanup\\export\\proof\\raw\\01-openspec-target-authoritative-history.stderr.launcher-failure.log",
+        "sourceInfo": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "crlfCount": 0,
+          "lfCount": 0,
+          "crCount": 0,
+          "lfOnlyCount": 0
+        },
+        "exportInfo": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "crlfCount": 0,
+          "lfCount": 0,
+          "crCount": 0,
+          "lfOnlyCount": 0
+        },
+        "reopenedSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "byteEqual": true
+      },
+      {
+        "source": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-main-verification\\raw\\01-openspec-target-authoritative-history.stderr.log",
+        "export": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-cleanup\\export\\proof\\raw\\01-openspec-target-authoritative-history.stderr.log",
+        "sourceInfo": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "crlfCount": 0,
+          "lfCount": 0,
+          "crCount": 0,
+          "lfOnlyCount": 0
+        },
+        "exportInfo": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "crlfCount": 0,
+          "lfCount": 0,
+          "crCount": 0,
+          "lfOnlyCount": 0
+        },
+        "reopenedSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "byteEqual": true
+      },
+      {
+        "source": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-main-verification\\raw\\01-openspec-target-authoritative-history.stdout.launcher-failure.log",
+        "export": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-cleanup\\export\\proof\\raw\\01-openspec-target-authoritative-history.stdout.launcher-failure.log",
+        "sourceInfo": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "crlfCount": 0,
+          "lfCount": 0,
+          "crCount": 0,
+          "lfOnlyCount": 0
+        },
+        "exportInfo": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "crlfCount": 0,
+          "lfCount": 0,
+          "crCount": 0,
+          "lfOnlyCount": 0
+        },
+        "reopenedSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "byteEqual": true
+      },
+      {
+        "source": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-main-verification\\raw\\01-openspec-target-authoritative-history.stdout.log",
+        "export": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-cleanup\\export\\proof\\raw\\01-openspec-target-authoritative-history.stdout.log",
+        "sourceInfo": {
+          "bytes": 553,
+          "sha256": "0ec28bbce0db74cf04cafff5595a30dd75ebda8518aa072764d7f3e910f5562e",
+          "crlfCount": 0,
+          "lfCount": 30,
+          "crCount": 0,
+          "lfOnlyCount": 30
+        },
+        "exportInfo": {
+          "bytes": 553,
+          "sha256": "0ec28bbce0db74cf04cafff5595a30dd75ebda8518aa072764d7f3e910f5562e",
+          "crlfCount": 0,
+          "lfCount": 30,
+          "crCount": 0,
+          "lfOnlyCount": 30
+        },
+        "reopenedSha256": "0ec28bbce0db74cf04cafff5595a30dd75ebda8518aa072764d7f3e910f5562e",
+        "byteEqual": true
+      },
+      {
+        "source": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-main-verification\\raw\\02-openspec-target-cross-stream-effects.stderr.launcher-failure.log",
+        "export": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-cleanup\\export\\proof\\raw\\02-openspec-target-cross-stream-effects.stderr.launcher-failure.log",
+        "sourceInfo": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "crlfCount": 0,
+          "lfCount": 0,
+          "crCount": 0,
+          "lfOnlyCount": 0
+        },
+        "exportInfo": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "crlfCount": 0,
+          "lfCount": 0,
+          "crCount": 0,
+          "lfOnlyCount": 0
+        },
+        "reopenedSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "byteEqual": true
+      },
+      {
+        "source": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-main-verification\\raw\\02-openspec-target-cross-stream-effects.stderr.log",
+        "export": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-cleanup\\export\\proof\\raw\\02-openspec-target-cross-stream-effects.stderr.log",
+        "sourceInfo": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "crlfCount": 0,
+          "lfCount": 0,
+          "crCount": 0,
+          "lfOnlyCount": 0
+        },
+        "exportInfo": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "crlfCount": 0,
+          "lfCount": 0,
+          "crCount": 0,
+          "lfOnlyCount": 0
+        },
+        "reopenedSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "byteEqual": true
+      },
+      {
+        "source": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-main-verification\\raw\\02-openspec-target-cross-stream-effects.stdout.launcher-failure.log",
+        "export": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-cleanup\\export\\proof\\raw\\02-openspec-target-cross-stream-effects.stdout.launcher-failure.log",
+        "sourceInfo": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "crlfCount": 0,
+          "lfCount": 0,
+          "crCount": 0,
+          "lfOnlyCount": 0
+        },
+        "exportInfo": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "crlfCount": 0,
+          "lfCount": 0,
+          "crCount": 0,
+          "lfOnlyCount": 0
+        },
+        "reopenedSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "byteEqual": true
+      },
+      {
+        "source": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-main-verification\\raw\\02-openspec-target-cross-stream-effects.stdout.log",
+        "export": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-cleanup\\export\\proof\\raw\\02-openspec-target-cross-stream-effects.stdout.log",
+        "sourceInfo": {
+          "bytes": 551,
+          "sha256": "bd56a989b5e19208d437fd324cead10bc56f5963f239043166ac84db7c8cb286",
+          "crlfCount": 0,
+          "lfCount": 30,
+          "crCount": 0,
+          "lfOnlyCount": 30
+        },
+        "exportInfo": {
+          "bytes": 551,
+          "sha256": "bd56a989b5e19208d437fd324cead10bc56f5963f239043166ac84db7c8cb286",
+          "crlfCount": 0,
+          "lfCount": 30,
+          "crCount": 0,
+          "lfOnlyCount": 30
+        },
+        "reopenedSha256": "bd56a989b5e19208d437fd324cead10bc56f5963f239043166ac84db7c8cb286",
+        "byteEqual": true
+      },
+      {
+        "source": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-main-verification\\raw\\03-openspec-all-strict.stderr.launcher-failure.log",
+        "export": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-cleanup\\export\\proof\\raw\\03-openspec-all-strict.stderr.launcher-failure.log",
+        "sourceInfo": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "crlfCount": 0,
+          "lfCount": 0,
+          "crCount": 0,
+          "lfOnlyCount": 0
+        },
+        "exportInfo": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "crlfCount": 0,
+          "lfCount": 0,
+          "crCount": 0,
+          "lfOnlyCount": 0
+        },
+        "reopenedSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "byteEqual": true
+      },
+      {
+        "source": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-main-verification\\raw\\03-openspec-all-strict.stderr.log",
+        "export": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-cleanup\\export\\proof\\raw\\03-openspec-all-strict.stderr.log",
+        "sourceInfo": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "crlfCount": 0,
+          "lfCount": 0,
+          "crCount": 0,
+          "lfOnlyCount": 0
+        },
+        "exportInfo": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "crlfCount": 0,
+          "lfCount": 0,
+          "crCount": 0,
+          "lfOnlyCount": 0
+        },
+        "reopenedSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "byteEqual": true
+      },
+      {
+        "source": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-main-verification\\raw\\03-openspec-all-strict.stdout.launcher-failure.log",
+        "export": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-cleanup\\export\\proof\\raw\\03-openspec-all-strict.stdout.launcher-failure.log",
+        "sourceInfo": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "crlfCount": 0,
+          "lfCount": 0,
+          "crCount": 0,
+          "lfOnlyCount": 0
+        },
+        "exportInfo": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "crlfCount": 0,
+          "lfCount": 0,
+          "crCount": 0,
+          "lfOnlyCount": 0
+        },
+        "reopenedSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "byteEqual": true
+      },
+      {
+        "source": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-main-verification\\raw\\03-openspec-all-strict.stdout.log",
+        "export": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-cleanup\\export\\proof\\raw\\03-openspec-all-strict.stdout.log",
+        "sourceInfo": {
+          "bytes": 61947,
+          "sha256": "6069bc853f47df069571e79e233d147041b0742b7f57c35719f8375ac202b17d",
+          "crlfCount": 0,
+          "lfCount": 2501,
+          "crCount": 0,
+          "lfOnlyCount": 2501
+        },
+        "exportInfo": {
+          "bytes": 61947,
+          "sha256": "6069bc853f47df069571e79e233d147041b0742b7f57c35719f8375ac202b17d",
+          "crlfCount": 0,
+          "lfCount": 2501,
+          "crCount": 0,
+          "lfOnlyCount": 2501
+        },
+        "reopenedSha256": "6069bc853f47df069571e79e233d147041b0742b7f57c35719f8375ac202b17d",
+        "byteEqual": true
+      },
+      {
+        "source": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-main-verification\\raw\\04-purpose-strict.stderr.launcher-failure.log",
+        "export": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-cleanup\\export\\proof\\raw\\04-purpose-strict.stderr.launcher-failure.log",
+        "sourceInfo": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "crlfCount": 0,
+          "lfCount": 0,
+          "crCount": 0,
+          "lfOnlyCount": 0
+        },
+        "exportInfo": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "crlfCount": 0,
+          "lfCount": 0,
+          "crCount": 0,
+          "lfOnlyCount": 0
+        },
+        "reopenedSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "byteEqual": true
+      },
+      {
+        "source": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-main-verification\\raw\\04-purpose-strict.stderr.log",
+        "export": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-cleanup\\export\\proof\\raw\\04-purpose-strict.stderr.log",
+        "sourceInfo": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "crlfCount": 0,
+          "lfCount": 0,
+          "crCount": 0,
+          "lfOnlyCount": 0
+        },
+        "exportInfo": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "crlfCount": 0,
+          "lfCount": 0,
+          "crCount": 0,
+          "lfOnlyCount": 0
+        },
+        "reopenedSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "byteEqual": true
+      },
+      {
+        "source": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-main-verification\\raw\\04-purpose-strict.stdout.launcher-failure.log",
+        "export": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-cleanup\\export\\proof\\raw\\04-purpose-strict.stdout.launcher-failure.log",
+        "sourceInfo": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "crlfCount": 0,
+          "lfCount": 0,
+          "crCount": 0,
+          "lfOnlyCount": 0
+        },
+        "exportInfo": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "crlfCount": 0,
+          "lfCount": 0,
+          "crCount": 0,
+          "lfOnlyCount": 0
+        },
+        "reopenedSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "byteEqual": true
+      },
+      {
+        "source": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-main-verification\\raw\\04-purpose-strict.stdout.log",
+        "export": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-cleanup\\export\\proof\\raw\\04-purpose-strict.stdout.log",
+        "sourceInfo": {
+          "bytes": 208,
+          "sha256": "67617ca8eccf949d88155788059fcac3bd16454142000c66fc8d2237a09d3082",
+          "crlfCount": 0,
+          "lfCount": 5,
+          "crCount": 0,
+          "lfOnlyCount": 5
+        },
+        "exportInfo": {
+          "bytes": 208,
+          "sha256": "67617ca8eccf949d88155788059fcac3bd16454142000c66fc8d2237a09d3082",
+          "crlfCount": 0,
+          "lfCount": 5,
+          "crCount": 0,
+          "lfOnlyCount": 5
+        },
+        "reopenedSha256": "67617ca8eccf949d88155788059fcac3bd16454142000c66fc8d2237a09d3082",
+        "byteEqual": true
+      },
+      {
+        "source": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-main-verification\\raw\\05-terminology-strict.stderr.launcher-failure.log",
+        "export": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-cleanup\\export\\proof\\raw\\05-terminology-strict.stderr.launcher-failure.log",
+        "sourceInfo": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "crlfCount": 0,
+          "lfCount": 0,
+          "crCount": 0,
+          "lfOnlyCount": 0
+        },
+        "exportInfo": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "crlfCount": 0,
+          "lfCount": 0,
+          "crCount": 0,
+          "lfOnlyCount": 0
+        },
+        "reopenedSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "byteEqual": true
+      },
+      {
+        "source": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-main-verification\\raw\\05-terminology-strict.stderr.log",
+        "export": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-cleanup\\export\\proof\\raw\\05-terminology-strict.stderr.log",
+        "sourceInfo": {
+          "bytes": 584,
+          "sha256": "e231c41f61c3960b0e9ab09bc8ac9c2306c04229c482e5bc26945e538962e41e",
+          "crlfCount": 0,
+          "lfCount": 4,
+          "crCount": 0,
+          "lfOnlyCount": 4
+        },
+        "exportInfo": {
+          "bytes": 584,
+          "sha256": "e231c41f61c3960b0e9ab09bc8ac9c2306c04229c482e5bc26945e538962e41e",
+          "crlfCount": 0,
+          "lfCount": 4,
+          "crCount": 0,
+          "lfOnlyCount": 4
+        },
+        "reopenedSha256": "e231c41f61c3960b0e9ab09bc8ac9c2306c04229c482e5bc26945e538962e41e",
+        "byteEqual": true
+      },
+      {
+        "source": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-main-verification\\raw\\05-terminology-strict.stdout.launcher-failure.log",
+        "export": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-cleanup\\export\\proof\\raw\\05-terminology-strict.stdout.launcher-failure.log",
+        "sourceInfo": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "crlfCount": 0,
+          "lfCount": 0,
+          "crCount": 0,
+          "lfOnlyCount": 0
+        },
+        "exportInfo": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "crlfCount": 0,
+          "lfCount": 0,
+          "crCount": 0,
+          "lfOnlyCount": 0
+        },
+        "reopenedSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "byteEqual": true
+      },
+      {
+        "source": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-main-verification\\raw\\05-terminology-strict.stdout.log",
+        "export": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-cleanup\\export\\proof\\raw\\05-terminology-strict.stdout.log",
+        "sourceInfo": {
+          "bytes": 189,
+          "sha256": "06c7961b0d4709a1010aba1f38caf9ab57eb82ce2c48ceb2422ed9d4b234db23",
+          "crlfCount": 0,
+          "lfCount": 9,
+          "crCount": 0,
+          "lfOnlyCount": 9
+        },
+        "exportInfo": {
+          "bytes": 189,
+          "sha256": "06c7961b0d4709a1010aba1f38caf9ab57eb82ce2c48ceb2422ed9d4b234db23",
+          "crlfCount": 0,
+          "lfCount": 9,
+          "crCount": 0,
+          "lfOnlyCount": 9
+        },
+        "reopenedSha256": "06c7961b0d4709a1010aba1f38caf9ab57eb82ce2c48ceb2422ed9d4b234db23",
+        "byteEqual": true
+      },
+      {
+        "source": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-main-verification\\raw\\06-candidate-ciqc.stderr.launcher-failure.log",
+        "export": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-cleanup\\export\\proof\\raw\\06-candidate-ciqc.stderr.launcher-failure.log",
+        "sourceInfo": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "crlfCount": 0,
+          "lfCount": 0,
+          "crCount": 0,
+          "lfOnlyCount": 0
+        },
+        "exportInfo": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "crlfCount": 0,
+          "lfCount": 0,
+          "crCount": 0,
+          "lfOnlyCount": 0
+        },
+        "reopenedSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "byteEqual": true
+      },
+      {
+        "source": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-main-verification\\raw\\06-candidate-ciqc.stderr.log",
+        "export": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-cleanup\\export\\proof\\raw\\06-candidate-ciqc.stderr.log",
+        "sourceInfo": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "crlfCount": 0,
+          "lfCount": 0,
+          "crCount": 0,
+          "lfOnlyCount": 0
+        },
+        "exportInfo": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "crlfCount": 0,
+          "lfCount": 0,
+          "crCount": 0,
+          "lfOnlyCount": 0
+        },
+        "reopenedSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "byteEqual": true
+      },
+      {
+        "source": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-main-verification\\raw\\06-candidate-ciqc.stdout.launcher-failure.log",
+        "export": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-cleanup\\export\\proof\\raw\\06-candidate-ciqc.stdout.launcher-failure.log",
+        "sourceInfo": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "crlfCount": 0,
+          "lfCount": 0,
+          "crCount": 0,
+          "lfOnlyCount": 0
+        },
+        "exportInfo": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "crlfCount": 0,
+          "lfCount": 0,
+          "crCount": 0,
+          "lfOnlyCount": 0
+        },
+        "reopenedSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "byteEqual": true
+      },
+      {
+        "source": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-main-verification\\raw\\06-candidate-ciqc.stdout.log",
+        "export": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-cleanup\\export\\proof\\raw\\06-candidate-ciqc.stdout.log",
+        "sourceInfo": {
+          "bytes": 10199,
+          "sha256": "e73d2bc631637ff8806d9adbf1a31052b575044d797a04f184aec21f5b8e6985",
+          "crlfCount": 0,
+          "lfCount": 206,
+          "crCount": 0,
+          "lfOnlyCount": 206
+        },
+        "exportInfo": {
+          "bytes": 10199,
+          "sha256": "e73d2bc631637ff8806d9adbf1a31052b575044d797a04f184aec21f5b8e6985",
+          "crlfCount": 0,
+          "lfCount": 206,
+          "crCount": 0,
+          "lfOnlyCount": 206
+        },
+        "reopenedSha256": "e73d2bc631637ff8806d9adbf1a31052b575044d797a04f184aec21f5b8e6985",
+        "byteEqual": true
+      },
+      {
+        "source": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-main-verification\\raw\\07-reviewed-tree-equality.stderr.launcher-failure.log",
+        "export": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-cleanup\\export\\proof\\raw\\07-reviewed-tree-equality.stderr.launcher-failure.log",
+        "sourceInfo": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "crlfCount": 0,
+          "lfCount": 0,
+          "crCount": 0,
+          "lfOnlyCount": 0
+        },
+        "exportInfo": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "crlfCount": 0,
+          "lfCount": 0,
+          "crCount": 0,
+          "lfOnlyCount": 0
+        },
+        "reopenedSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "byteEqual": true
+      },
+      {
+        "source": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-main-verification\\raw\\07-reviewed-tree-equality.stderr.log",
+        "export": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-cleanup\\export\\proof\\raw\\07-reviewed-tree-equality.stderr.log",
+        "sourceInfo": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "crlfCount": 0,
+          "lfCount": 0,
+          "crCount": 0,
+          "lfOnlyCount": 0
+        },
+        "exportInfo": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "crlfCount": 0,
+          "lfCount": 0,
+          "crCount": 0,
+          "lfOnlyCount": 0
+        },
+        "reopenedSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "byteEqual": true
+      },
+      {
+        "source": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-main-verification\\raw\\07-reviewed-tree-equality.stdout.launcher-failure.log",
+        "export": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-cleanup\\export\\proof\\raw\\07-reviewed-tree-equality.stdout.launcher-failure.log",
+        "sourceInfo": {
+          "bytes": 2290,
+          "sha256": "a00a9a5871c78d7a842ef1086860f25c6c654d45a4f88f0300aca594aa93402f",
+          "crlfCount": 0,
+          "lfCount": 47,
+          "crCount": 0,
+          "lfOnlyCount": 47
+        },
+        "exportInfo": {
+          "bytes": 2290,
+          "sha256": "a00a9a5871c78d7a842ef1086860f25c6c654d45a4f88f0300aca594aa93402f",
+          "crlfCount": 0,
+          "lfCount": 47,
+          "crCount": 0,
+          "lfOnlyCount": 47
+        },
+        "reopenedSha256": "a00a9a5871c78d7a842ef1086860f25c6c654d45a4f88f0300aca594aa93402f",
+        "byteEqual": true
+      },
+      {
+        "source": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-main-verification\\raw\\07-reviewed-tree-equality.stdout.log",
+        "export": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-cleanup\\export\\proof\\raw\\07-reviewed-tree-equality.stdout.log",
+        "sourceInfo": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "crlfCount": 0,
+          "lfCount": 0,
+          "crCount": 0,
+          "lfOnlyCount": 0
+        },
+        "exportInfo": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "crlfCount": 0,
+          "lfCount": 0,
+          "crCount": 0,
+          "lfOnlyCount": 0
+        },
+        "reopenedSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "byteEqual": true
+      },
+      {
+        "source": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-main-verification\\raw\\08-main-scoped-name-only.stderr.launcher-failure.log",
+        "export": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-cleanup\\export\\proof\\raw\\08-main-scoped-name-only.stderr.launcher-failure.log",
+        "sourceInfo": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "crlfCount": 0,
+          "lfCount": 0,
+          "crCount": 0,
+          "lfOnlyCount": 0
+        },
+        "exportInfo": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "crlfCount": 0,
+          "lfCount": 0,
+          "crCount": 0,
+          "lfOnlyCount": 0
+        },
+        "reopenedSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "byteEqual": true
+      },
+      {
+        "source": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-main-verification\\raw\\08-main-scoped-name-only.stderr.log",
+        "export": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-cleanup\\export\\proof\\raw\\08-main-scoped-name-only.stderr.log",
+        "sourceInfo": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "crlfCount": 0,
+          "lfCount": 0,
+          "crCount": 0,
+          "lfOnlyCount": 0
+        },
+        "exportInfo": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "crlfCount": 0,
+          "lfCount": 0,
+          "crCount": 0,
+          "lfOnlyCount": 0
+        },
+        "reopenedSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "byteEqual": true
+      },
+      {
+        "source": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-main-verification\\raw\\08-main-scoped-name-only.stdout.launcher-failure.log",
+        "export": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-cleanup\\export\\proof\\raw\\08-main-scoped-name-only.stdout.launcher-failure.log",
+        "sourceInfo": {
+          "bytes": 2290,
+          "sha256": "a00a9a5871c78d7a842ef1086860f25c6c654d45a4f88f0300aca594aa93402f",
+          "crlfCount": 0,
+          "lfCount": 47,
+          "crCount": 0,
+          "lfOnlyCount": 47
+        },
+        "exportInfo": {
+          "bytes": 2290,
+          "sha256": "a00a9a5871c78d7a842ef1086860f25c6c654d45a4f88f0300aca594aa93402f",
+          "crlfCount": 0,
+          "lfCount": 47,
+          "crCount": 0,
+          "lfOnlyCount": 47
+        },
+        "reopenedSha256": "a00a9a5871c78d7a842ef1086860f25c6c654d45a4f88f0300aca594aa93402f",
+        "byteEqual": true
+      },
+      {
+        "source": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-main-verification\\raw\\08-main-scoped-name-only.stdout.log",
+        "export": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-cleanup\\export\\proof\\raw\\08-main-scoped-name-only.stdout.log",
+        "sourceInfo": {
+          "bytes": 184,
+          "sha256": "5c8a64afe405dbd5c53a0ddf6acca9e916ad517848091a5917311803441f33c4",
+          "crlfCount": 0,
+          "lfCount": 3,
+          "crCount": 0,
+          "lfOnlyCount": 3
+        },
+        "exportInfo": {
+          "bytes": 184,
+          "sha256": "5c8a64afe405dbd5c53a0ddf6acca9e916ad517848091a5917311803441f33c4",
+          "crlfCount": 0,
+          "lfCount": 3,
+          "crCount": 0,
+          "lfOnlyCount": 3
+        },
+        "reopenedSha256": "5c8a64afe405dbd5c53a0ddf6acca9e916ad517848091a5917311803441f33c4",
+        "byteEqual": true
+      },
+      {
+        "source": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-main-verification\\raw\\09-main-scoped-diff-check.stderr.launcher-failure.log",
+        "export": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-cleanup\\export\\proof\\raw\\09-main-scoped-diff-check.stderr.launcher-failure.log",
+        "sourceInfo": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "crlfCount": 0,
+          "lfCount": 0,
+          "crCount": 0,
+          "lfOnlyCount": 0
+        },
+        "exportInfo": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "crlfCount": 0,
+          "lfCount": 0,
+          "crCount": 0,
+          "lfOnlyCount": 0
+        },
+        "reopenedSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "byteEqual": true
+      },
+      {
+        "source": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-main-verification\\raw\\09-main-scoped-diff-check.stderr.log",
+        "export": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-cleanup\\export\\proof\\raw\\09-main-scoped-diff-check.stderr.log",
+        "sourceInfo": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "crlfCount": 0,
+          "lfCount": 0,
+          "crCount": 0,
+          "lfOnlyCount": 0
+        },
+        "exportInfo": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "crlfCount": 0,
+          "lfCount": 0,
+          "crCount": 0,
+          "lfOnlyCount": 0
+        },
+        "reopenedSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "byteEqual": true
+      },
+      {
+        "source": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-main-verification\\raw\\09-main-scoped-diff-check.stdout.launcher-failure.log",
+        "export": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-cleanup\\export\\proof\\raw\\09-main-scoped-diff-check.stdout.launcher-failure.log",
+        "sourceInfo": {
+          "bytes": 2290,
+          "sha256": "a00a9a5871c78d7a842ef1086860f25c6c654d45a4f88f0300aca594aa93402f",
+          "crlfCount": 0,
+          "lfCount": 47,
+          "crCount": 0,
+          "lfOnlyCount": 47
+        },
+        "exportInfo": {
+          "bytes": 2290,
+          "sha256": "a00a9a5871c78d7a842ef1086860f25c6c654d45a4f88f0300aca594aa93402f",
+          "crlfCount": 0,
+          "lfCount": 47,
+          "crCount": 0,
+          "lfOnlyCount": 47
+        },
+        "reopenedSha256": "a00a9a5871c78d7a842ef1086860f25c6c654d45a4f88f0300aca594aa93402f",
+        "byteEqual": true
+      },
+      {
+        "source": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-main-verification\\raw\\09-main-scoped-diff-check.stdout.log",
+        "export": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-cleanup\\export\\proof\\raw\\09-main-scoped-diff-check.stdout.log",
+        "sourceInfo": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "crlfCount": 0,
+          "lfCount": 0,
+          "crCount": 0,
+          "lfOnlyCount": 0
+        },
+        "exportInfo": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "crlfCount": 0,
+          "lfCount": 0,
+          "crCount": 0,
+          "lfOnlyCount": 0
+        },
+        "reopenedSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "byteEqual": true
+      },
+      {
+        "source": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-main-verification\\raw\\10-working-tree-status.stderr.launcher-failure.log",
+        "export": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-cleanup\\export\\proof\\raw\\10-working-tree-status.stderr.launcher-failure.log",
+        "sourceInfo": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "crlfCount": 0,
+          "lfCount": 0,
+          "crCount": 0,
+          "lfOnlyCount": 0
+        },
+        "exportInfo": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "crlfCount": 0,
+          "lfCount": 0,
+          "crCount": 0,
+          "lfOnlyCount": 0
+        },
+        "reopenedSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "byteEqual": true
+      },
+      {
+        "source": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-main-verification\\raw\\10-working-tree-status.stderr.log",
+        "export": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-cleanup\\export\\proof\\raw\\10-working-tree-status.stderr.log",
+        "sourceInfo": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "crlfCount": 0,
+          "lfCount": 0,
+          "crCount": 0,
+          "lfOnlyCount": 0
+        },
+        "exportInfo": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "crlfCount": 0,
+          "lfCount": 0,
+          "crCount": 0,
+          "lfOnlyCount": 0
+        },
+        "reopenedSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "byteEqual": true
+      },
+      {
+        "source": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-main-verification\\raw\\10-working-tree-status.stdout.launcher-failure.log",
+        "export": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-cleanup\\export\\proof\\raw\\10-working-tree-status.stdout.launcher-failure.log",
+        "sourceInfo": {
+          "bytes": 2290,
+          "sha256": "a00a9a5871c78d7a842ef1086860f25c6c654d45a4f88f0300aca594aa93402f",
+          "crlfCount": 0,
+          "lfCount": 47,
+          "crCount": 0,
+          "lfOnlyCount": 47
+        },
+        "exportInfo": {
+          "bytes": 2290,
+          "sha256": "a00a9a5871c78d7a842ef1086860f25c6c654d45a4f88f0300aca594aa93402f",
+          "crlfCount": 0,
+          "lfCount": 47,
+          "crCount": 0,
+          "lfOnlyCount": 47
+        },
+        "reopenedSha256": "a00a9a5871c78d7a842ef1086860f25c6c654d45a4f88f0300aca594aa93402f",
+        "byteEqual": true
+      },
+      {
+        "source": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-main-verification\\raw\\10-working-tree-status.stdout.log",
+        "export": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-cleanup\\export\\proof\\raw\\10-working-tree-status.stdout.log",
+        "sourceInfo": {
+          "bytes": 20,
+          "sha256": "ba051334ebc33f3162a4fd5be48615e03c8dac8ec7977e7c2752dbc1cf981841",
+          "crlfCount": 0,
+          "lfCount": 1,
+          "crCount": 0,
+          "lfOnlyCount": 1
+        },
+        "exportInfo": {
+          "bytes": 20,
+          "sha256": "ba051334ebc33f3162a4fd5be48615e03c8dac8ec7977e7c2752dbc1cf981841",
+          "crlfCount": 0,
+          "lfCount": 1,
+          "crCount": 0,
+          "lfOnlyCount": 1
+        },
+        "reopenedSha256": "ba051334ebc33f3162a4fd5be48615e03c8dac8ec7977e7c2752dbc1cf981841",
+        "byteEqual": true
+      },
+      {
+        "source": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-main-verification\\raw\\11-working-tree-diff-check.stderr.launcher-failure.log",
+        "export": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-cleanup\\export\\proof\\raw\\11-working-tree-diff-check.stderr.launcher-failure.log",
+        "sourceInfo": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "crlfCount": 0,
+          "lfCount": 0,
+          "crCount": 0,
+          "lfOnlyCount": 0
+        },
+        "exportInfo": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "crlfCount": 0,
+          "lfCount": 0,
+          "crCount": 0,
+          "lfOnlyCount": 0
+        },
+        "reopenedSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "byteEqual": true
+      },
+      {
+        "source": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-main-verification\\raw\\11-working-tree-diff-check.stderr.log",
+        "export": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-cleanup\\export\\proof\\raw\\11-working-tree-diff-check.stderr.log",
+        "sourceInfo": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "crlfCount": 0,
+          "lfCount": 0,
+          "crCount": 0,
+          "lfOnlyCount": 0
+        },
+        "exportInfo": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "crlfCount": 0,
+          "lfCount": 0,
+          "crCount": 0,
+          "lfOnlyCount": 0
+        },
+        "reopenedSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "byteEqual": true
+      },
+      {
+        "source": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-main-verification\\raw\\11-working-tree-diff-check.stdout.launcher-failure.log",
+        "export": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-cleanup\\export\\proof\\raw\\11-working-tree-diff-check.stdout.launcher-failure.log",
+        "sourceInfo": {
+          "bytes": 2290,
+          "sha256": "a00a9a5871c78d7a842ef1086860f25c6c654d45a4f88f0300aca594aa93402f",
+          "crlfCount": 0,
+          "lfCount": 47,
+          "crCount": 0,
+          "lfOnlyCount": 47
+        },
+        "exportInfo": {
+          "bytes": 2290,
+          "sha256": "a00a9a5871c78d7a842ef1086860f25c6c654d45a4f88f0300aca594aa93402f",
+          "crlfCount": 0,
+          "lfCount": 47,
+          "crCount": 0,
+          "lfOnlyCount": 47
+        },
+        "reopenedSha256": "a00a9a5871c78d7a842ef1086860f25c6c654d45a4f88f0300aca594aa93402f",
+        "byteEqual": true
+      },
+      {
+        "source": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-main-verification\\raw\\11-working-tree-diff-check.stdout.log",
+        "export": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-cleanup\\export\\proof\\raw\\11-working-tree-diff-check.stdout.log",
+        "sourceInfo": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "crlfCount": 0,
+          "lfCount": 0,
+          "crCount": 0,
+          "lfOnlyCount": 0
+        },
+        "exportInfo": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "crlfCount": 0,
+          "lfCount": 0,
+          "crCount": 0,
+          "lfOnlyCount": 0
+        },
+        "reopenedSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "byteEqual": true
+      },
+      {
+        "source": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-main-verification\\raw\\12-main-scoped-numstat.stderr.log",
+        "export": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-cleanup\\export\\proof\\raw\\12-main-scoped-numstat.stderr.log",
+        "sourceInfo": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "crlfCount": 0,
+          "lfCount": 0,
+          "crCount": 0,
+          "lfOnlyCount": 0
+        },
+        "exportInfo": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "crlfCount": 0,
+          "lfCount": 0,
+          "crCount": 0,
+          "lfOnlyCount": 0
+        },
+        "reopenedSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "byteEqual": true
+      },
+      {
+        "source": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-main-verification\\raw\\12-main-scoped-numstat.stdout.log",
+        "export": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-cleanup\\export\\proof\\raw\\12-main-scoped-numstat.stdout.log",
+        "sourceInfo": {
+          "bytes": 196,
+          "sha256": "523b60acb134465c80dd89a067138bfe7bc762dcedf2cb717f39192e24f487d3",
+          "crlfCount": 0,
+          "lfCount": 3,
+          "crCount": 0,
+          "lfOnlyCount": 3
+        },
+        "exportInfo": {
+          "bytes": 196,
+          "sha256": "523b60acb134465c80dd89a067138bfe7bc762dcedf2cb717f39192e24f487d3",
+          "crlfCount": 0,
+          "lfCount": 3,
+          "crCount": 0,
+          "lfOnlyCount": 3
+        },
+        "reopenedSha256": "523b60acb134465c80dd89a067138bfe7bc762dcedf2cb717f39192e24f487d3",
+        "byteEqual": true
+      }
+    ],
+    "metadataFiles": [
+      {
+        "source": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-delivery\\updated-head-1.json",
+        "export": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-cleanup\\export\\identity\\updated-head-1.json",
+        "sourceInfo": {
+          "bytes": 770,
+          "sha256": "513bab53d47f78d39fe912999ddcf3f0b42db39bdffdd3ccf801570ef35f183e",
+          "crlfCount": 0,
+          "lfCount": 21,
+          "crCount": 0,
+          "lfOnlyCount": 21
+        },
+        "exportInfo": {
+          "bytes": 770,
+          "sha256": "513bab53d47f78d39fe912999ddcf3f0b42db39bdffdd3ccf801570ef35f183e",
+          "crlfCount": 0,
+          "lfCount": 21,
+          "crCount": 0,
+          "lfOnlyCount": 21
+        },
+        "reopenedSha256": "513bab53d47f78d39fe912999ddcf3f0b42db39bdffdd3ccf801570ef35f183e",
+        "byteEqual": true
+      },
+      {
+        "source": "E:\\Projects\\MekStation\\openspec\\planning\\2026-09-12-roadmap-completion\\evidence\\prerequisite-contracts-main-parent-acceptance-20260912.json",
+        "export": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-cleanup\\export\\identity\\prerequisite-contracts-main-parent-acceptance-20260912.json",
+        "sourceInfo": {
+          "bytes": 7128,
+          "sha256": "3ce5fc80273a07774c88afb17d2fa32c89a590c8c336248068497fecc83c304e",
+          "crlfCount": 0,
+          "lfCount": 146,
+          "crCount": 0,
+          "lfOnlyCount": 146
+        },
+        "exportInfo": {
+          "bytes": 7128,
+          "sha256": "3ce5fc80273a07774c88afb17d2fa32c89a590c8c336248068497fecc83c304e",
+          "crlfCount": 0,
+          "lfCount": 146,
+          "crCount": 0,
+          "lfOnlyCount": 146
+        },
+        "reopenedSha256": "3ce5fc80273a07774c88afb17d2fa32c89a590c8c336248068497fecc83c304e",
+        "byteEqual": true
+      },
+      {
+        "source": "E:\\Projects\\MekStation\\openspec\\planning\\2026-09-12-roadmap-completion\\evidence\\prerequisite-contracts-main-verification-20260912.json",
+        "export": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-cleanup\\export\\identity\\prerequisite-contracts-main-verification-20260912.json",
+        "sourceInfo": {
+          "bytes": 14128,
+          "sha256": "e467e8c0086606e9cc208a6ab69697d78ef2c16f5a80be1e90e9259158fc572b",
+          "crlfCount": 338,
+          "lfCount": 338,
+          "crCount": 338,
+          "lfOnlyCount": 0
+        },
+        "exportInfo": {
+          "bytes": 14128,
+          "sha256": "e467e8c0086606e9cc208a6ab69697d78ef2c16f5a80be1e90e9259158fc572b",
+          "crlfCount": 338,
+          "lfCount": 338,
+          "crCount": 338,
+          "lfOnlyCount": 0
+        },
+        "reopenedSha256": "e467e8c0086606e9cc208a6ab69697d78ef2c16f5a80be1e90e9259158fc572b",
+        "byteEqual": true
+      }
+    ],
+    "identityCommands": [
+      {
+        "name": "01-worktree-list",
+        "exe": "git.exe",
+        "argv": [
+          "-C",
+          "E:\\Projects\\MekStation",
+          "worktree",
+          "list",
+          "--porcelain"
+        ],
+        "cwd": "E:\\Projects\\MekStation",
+        "exitCode": 0,
+        "stdoutFile": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-cleanup\\export\\identity\\01-worktree-list.stdout.log",
+        "stderrFile": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-cleanup\\export\\identity\\01-worktree-list.stderr.log",
+        "stdoutSha256": "d24fb6b50cad268901845c5c156a96b44cde1bb23d454ad38432b2f9558ec0a8",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdoutBytes": 2666,
+        "stderrBytes": 0
+      },
+      {
+        "name": "02-status-short",
+        "exe": "git.exe",
+        "argv": [
+          "-C",
+          "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\prerequisite-contracts",
+          "status",
+          "--short"
+        ],
+        "cwd": "E:\\Projects\\MekStation",
+        "exitCode": 0,
+        "stdoutFile": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-cleanup\\export\\identity\\02-status-short.stdout.log",
+        "stderrFile": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-cleanup\\export\\identity\\02-status-short.stderr.log",
+        "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdoutBytes": 0,
+        "stderrBytes": 0
+      },
+      {
+        "name": "03-status-short-ignored",
+        "exe": "git.exe",
+        "argv": [
+          "-C",
+          "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\prerequisite-contracts",
+          "status",
+          "--short",
+          "--ignored"
+        ],
+        "cwd": "E:\\Projects\\MekStation",
+        "exitCode": 0,
+        "stdoutFile": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-cleanup\\export\\identity\\03-status-short-ignored.stdout.log",
+        "stderrFile": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-cleanup\\export\\identity\\03-status-short-ignored.stderr.log",
+        "stdoutSha256": "aa1f60665f6a131a2a7aa9983b26a87eda831629b5437e9c87b189324ef2ae96",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdoutBytes": 13,
+        "stderrBytes": 0
+      },
+      {
+        "name": "04-rev-parse-head",
+        "exe": "git.exe",
+        "argv": [
+          "-C",
+          "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\prerequisite-contracts",
+          "rev-parse",
+          "HEAD"
+        ],
+        "cwd": "E:\\Projects\\MekStation",
+        "exitCode": 0,
+        "stdoutFile": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-cleanup\\export\\identity\\04-rev-parse-head.stdout.log",
+        "stderrFile": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-cleanup\\export\\identity\\04-rev-parse-head.stderr.log",
+        "stdoutSha256": "7097817e033d960dbe92377b08367bc7476b75afeada43e60b582ce3d9addb66",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdoutBytes": 41,
+        "stderrBytes": 0
+      },
+      {
+        "name": "05-branch-show-current",
+        "exe": "git.exe",
+        "argv": [
+          "-C",
+          "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\prerequisite-contracts",
+          "branch",
+          "--show-current"
+        ],
+        "cwd": "E:\\Projects\\MekStation",
+        "exitCode": 0,
+        "stdoutFile": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-cleanup\\export\\identity\\05-branch-show-current.stdout.log",
+        "stderrFile": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-cleanup\\export\\identity\\05-branch-show-current.stderr.log",
+        "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdoutBytes": 0,
+        "stderrBytes": 0
+      },
+      {
+        "name": "06-for-each-ref",
+        "exe": "git.exe",
+        "argv": [
+          "-C",
+          "E:\\Projects\\MekStation",
+          "for-each-ref",
+          "--format=%(refname) %(objectname)",
+          "refs/heads/codex/roadmap-prerequisite-contracts-20260912",
+          "refs/remotes/origin/codex/roadmap-prerequisite-contracts-20260912"
+        ],
+        "cwd": "E:\\Projects\\MekStation",
+        "exitCode": 0,
+        "stdoutFile": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-cleanup\\export\\identity\\06-for-each-ref.stdout.log",
+        "stderrFile": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-cleanup\\export\\identity\\06-for-each-ref.stderr.log",
+        "stdoutSha256": "7cb8df3bcdb7c091e50f6d623da2e1642bb37eab8bce9494fcf53b1848414dd0",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdoutBytes": 205,
+        "stderrBytes": 0
+      },
+      {
+        "name": "07-ls-remote-prerequisite",
+        "exe": "git.exe",
+        "argv": [
+          "-C",
+          "E:\\Projects\\MekStation",
+          "ls-remote",
+          "--heads",
+          "origin",
+          "*prerequisite*"
+        ],
+        "cwd": "E:\\Projects\\MekStation",
+        "exitCode": 0,
+        "stdoutFile": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-cleanup\\export\\identity\\07-ls-remote-prerequisite.stdout.log",
+        "stderrFile": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-cleanup\\export\\identity\\07-ls-remote-prerequisite.stderr.log",
+        "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdoutBytes": 0,
+        "stderrBytes": 0
+      },
+      {
+        "name": "08-diff-check",
+        "exe": "git.exe",
+        "argv": [
+          "-C",
+          "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\prerequisite-contracts",
+          "diff",
+          "--check"
+        ],
+        "cwd": "E:\\Projects\\MekStation",
+        "exitCode": 0,
+        "stdoutFile": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-cleanup\\export\\identity\\08-diff-check.stdout.log",
+        "stderrFile": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-cleanup\\export\\identity\\08-diff-check.stderr.log",
+        "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdoutBytes": 0,
+        "stderrBytes": 0
+      }
+    ],
+    "failedLauncherDiagnostics": [
+      {
+        "source": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-main-verification\\raw\\01-openspec-target-authoritative-history.stderr.launcher-failure.log",
+        "export": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-cleanup\\export\\proof\\raw\\01-openspec-target-authoritative-history.stderr.launcher-failure.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      },
+      {
+        "source": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-main-verification\\raw\\01-openspec-target-authoritative-history.stdout.launcher-failure.log",
+        "export": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-cleanup\\export\\proof\\raw\\01-openspec-target-authoritative-history.stdout.launcher-failure.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      },
+      {
+        "source": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-main-verification\\raw\\02-openspec-target-cross-stream-effects.stderr.launcher-failure.log",
+        "export": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-cleanup\\export\\proof\\raw\\02-openspec-target-cross-stream-effects.stderr.launcher-failure.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      },
+      {
+        "source": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-main-verification\\raw\\02-openspec-target-cross-stream-effects.stdout.launcher-failure.log",
+        "export": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-cleanup\\export\\proof\\raw\\02-openspec-target-cross-stream-effects.stdout.launcher-failure.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      },
+      {
+        "source": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-main-verification\\raw\\03-openspec-all-strict.stderr.launcher-failure.log",
+        "export": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-cleanup\\export\\proof\\raw\\03-openspec-all-strict.stderr.launcher-failure.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      },
+      {
+        "source": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-main-verification\\raw\\03-openspec-all-strict.stdout.launcher-failure.log",
+        "export": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-cleanup\\export\\proof\\raw\\03-openspec-all-strict.stdout.launcher-failure.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      },
+      {
+        "source": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-main-verification\\raw\\04-purpose-strict.stderr.launcher-failure.log",
+        "export": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-cleanup\\export\\proof\\raw\\04-purpose-strict.stderr.launcher-failure.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      },
+      {
+        "source": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-main-verification\\raw\\04-purpose-strict.stdout.launcher-failure.log",
+        "export": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-cleanup\\export\\proof\\raw\\04-purpose-strict.stdout.launcher-failure.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      },
+      {
+        "source": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-main-verification\\raw\\05-terminology-strict.stderr.launcher-failure.log",
+        "export": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-cleanup\\export\\proof\\raw\\05-terminology-strict.stderr.launcher-failure.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      },
+      {
+        "source": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-main-verification\\raw\\05-terminology-strict.stdout.launcher-failure.log",
+        "export": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-cleanup\\export\\proof\\raw\\05-terminology-strict.stdout.launcher-failure.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      },
+      {
+        "source": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-main-verification\\raw\\06-candidate-ciqc.stderr.launcher-failure.log",
+        "export": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-cleanup\\export\\proof\\raw\\06-candidate-ciqc.stderr.launcher-failure.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      },
+      {
+        "source": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-main-verification\\raw\\06-candidate-ciqc.stdout.launcher-failure.log",
+        "export": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-cleanup\\export\\proof\\raw\\06-candidate-ciqc.stdout.launcher-failure.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      },
+      {
+        "source": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-main-verification\\raw\\07-reviewed-tree-equality.stderr.launcher-failure.log",
+        "export": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-cleanup\\export\\proof\\raw\\07-reviewed-tree-equality.stderr.launcher-failure.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      },
+      {
+        "source": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-main-verification\\raw\\07-reviewed-tree-equality.stdout.launcher-failure.log",
+        "export": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-cleanup\\export\\proof\\raw\\07-reviewed-tree-equality.stdout.launcher-failure.log",
+        "sha256": "a00a9a5871c78d7a842ef1086860f25c6c654d45a4f88f0300aca594aa93402f",
+        "bytes": 2290
+      },
+      {
+        "source": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-main-verification\\raw\\08-main-scoped-name-only.stderr.launcher-failure.log",
+        "export": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-cleanup\\export\\proof\\raw\\08-main-scoped-name-only.stderr.launcher-failure.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      },
+      {
+        "source": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-main-verification\\raw\\08-main-scoped-name-only.stdout.launcher-failure.log",
+        "export": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-cleanup\\export\\proof\\raw\\08-main-scoped-name-only.stdout.launcher-failure.log",
+        "sha256": "a00a9a5871c78d7a842ef1086860f25c6c654d45a4f88f0300aca594aa93402f",
+        "bytes": 2290
+      },
+      {
+        "source": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-main-verification\\raw\\09-main-scoped-diff-check.stderr.launcher-failure.log",
+        "export": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-cleanup\\export\\proof\\raw\\09-main-scoped-diff-check.stderr.launcher-failure.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      },
+      {
+        "source": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-main-verification\\raw\\09-main-scoped-diff-check.stdout.launcher-failure.log",
+        "export": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-cleanup\\export\\proof\\raw\\09-main-scoped-diff-check.stdout.launcher-failure.log",
+        "sha256": "a00a9a5871c78d7a842ef1086860f25c6c654d45a4f88f0300aca594aa93402f",
+        "bytes": 2290
+      },
+      {
+        "source": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-main-verification\\raw\\10-working-tree-status.stderr.launcher-failure.log",
+        "export": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-cleanup\\export\\proof\\raw\\10-working-tree-status.stderr.launcher-failure.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      },
+      {
+        "source": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-main-verification\\raw\\10-working-tree-status.stdout.launcher-failure.log",
+        "export": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-cleanup\\export\\proof\\raw\\10-working-tree-status.stdout.launcher-failure.log",
+        "sha256": "a00a9a5871c78d7a842ef1086860f25c6c654d45a4f88f0300aca594aa93402f",
+        "bytes": 2290
+      },
+      {
+        "source": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-main-verification\\raw\\11-working-tree-diff-check.stderr.launcher-failure.log",
+        "export": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-cleanup\\export\\proof\\raw\\11-working-tree-diff-check.stderr.launcher-failure.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      },
+      {
+        "source": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-main-verification\\raw\\11-working-tree-diff-check.stdout.launcher-failure.log",
+        "export": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-cleanup\\export\\proof\\raw\\11-working-tree-diff-check.stdout.launcher-failure.log",
+        "sha256": "a00a9a5871c78d7a842ef1086860f25c6c654d45a4f88f0300aca594aa93402f",
+        "bytes": 2290
+      }
+    ]
+  },
+  "removal": {
+    "command": {
+      "name": "01-git-worktree-remove",
+      "exe": "git.exe",
+      "argv": [
+        "-C",
+        "E:\\Projects\\MekStation",
+        "worktree",
+        "remove",
+        "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\prerequisite-contracts"
+      ],
+      "exitCode": 0,
+      "stdoutFile": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-cleanup\\terminal\\01-git-worktree-remove.stdout.log",
+      "stderrFile": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-cleanup\\terminal\\01-git-worktree-remove.stderr.log",
+      "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdoutBytes": 0,
+      "stderrBytes": 0
+    },
+    "worktreePathExistsAfter": false,
+    "registryEntryAfter": false,
+    "rawProofPreserved": true
+  },
+  "refs": {
+    "local": {
+      "ref": "refs/heads/codex/roadmap-prerequisite-contracts-20260912",
+      "expected": "a1c0099f3d7473a8b63b255b91e1c2c65f38f379",
+      "guardRead": {
+        "name": "02-local-ref-read",
+        "exe": "git.exe",
+        "argv": [
+          "rev-parse",
+          "--verify",
+          "refs/heads/codex/roadmap-prerequisite-contracts-20260912"
+        ],
+        "exitCode": 0,
+        "stdoutFile": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-cleanup\\terminal\\02-local-ref-read.stdout.log",
+        "stderrFile": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-cleanup\\terminal\\02-local-ref-read.stderr.log",
+        "stdoutSha256": "3b07f4d8b9a10bf580ca4f6a821491182628653d44665faf91a6f6b75ee9a77d",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdoutBytes": 41,
+        "stderrBytes": 0
+      },
+      "compareDelete": {
+        "name": "04-local-ref-compare-delete",
+        "exe": "git.exe",
+        "argv": [
+          "update-ref",
+          "-d",
+          "refs/heads/codex/roadmap-prerequisite-contracts-20260912",
+          "a1c0099f3d7473a8b63b255b91e1c2c65f38f379"
+        ],
+        "exitCode": 0,
+        "stdoutFile": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-cleanup\\terminal\\04-local-ref-compare-delete.stdout.log",
+        "stderrFile": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-cleanup\\terminal\\04-local-ref-compare-delete.stderr.log",
+        "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdoutBytes": 0,
+        "stderrBytes": 0
+      },
+      "presentAfter": false
+    },
+    "tracking": {
+      "ref": "refs/remotes/origin/codex/roadmap-prerequisite-contracts-20260912",
+      "expected": "fb8343f072bc54ac91620bf7e7f73d254e1aece5",
+      "guardRead": {
+        "name": "03-tracking-ref-read",
+        "exe": "git.exe",
+        "argv": [
+          "rev-parse",
+          "--verify",
+          "refs/remotes/origin/codex/roadmap-prerequisite-contracts-20260912"
+        ],
+        "exitCode": 0,
+        "stdoutFile": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-cleanup\\terminal\\03-tracking-ref-read.stdout.log",
+        "stderrFile": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-cleanup\\terminal\\03-tracking-ref-read.stderr.log",
+        "stdoutSha256": "6e5ce8e92a571ba1ce4eecd4273c768cde2ded2f00c0d481eb9cc43f92961551",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdoutBytes": 41,
+        "stderrBytes": 0
+      },
+      "compareDelete": {
+        "name": "05-tracking-ref-compare-delete",
+        "exe": "git.exe",
+        "argv": [
+          "update-ref",
+          "-d",
+          "refs/remotes/origin/codex/roadmap-prerequisite-contracts-20260912",
+          "fb8343f072bc54ac91620bf7e7f73d254e1aece5"
+        ],
+        "exitCode": 0,
+        "stdoutFile": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-cleanup\\terminal\\05-tracking-ref-compare-delete.stdout.log",
+        "stderrFile": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-cleanup\\terminal\\05-tracking-ref-compare-delete.stderr.log",
+        "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdoutBytes": 0,
+        "stderrBytes": 0
+      },
+      "presentAfter": false
+    },
+    "remote": {
+      "inspect": {
+        "name": "09-post-remote-inspect",
+        "exe": "git.exe",
+        "argv": [
+          "ls-remote",
+          "--heads",
+          "origin",
+          "*prerequisite*"
+        ],
+        "exitCode": 0,
+        "stdoutFile": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-cleanup\\terminal\\09-post-remote-inspect.stdout.log",
+        "stderrFile": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-cleanup\\terminal\\09-post-remote-inspect.stderr.log",
+        "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdoutBytes": 0,
+        "stderrBytes": 0
+      },
+      "stdoutEmpty": true,
+      "remoteDeletePerformed": false
+    }
+  },
+  "postVerification": {
+    "worktreePathAbsent": true,
+    "registryEntryAbsent": true,
+    "localRefAbsent": true,
+    "trackingRefAbsent": true,
+    "remotePatternAbsent": true,
+    "ownedFailedReplProcessMatches": true,
+    "postOwnedProcessScan": {
+      "name": "12-post-owned-process-scan",
+      "exe": "Win32_Process query",
+      "argv": [
+        "node.exe command line matches openspec|prerequisite-contracts|main-verification"
+      ],
+      "exitCode": 0,
+      "stdoutFile": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-cleanup\\terminal\\12-post-owned-process-scan.stdout.log",
+      "stderrFile": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-cleanup\\terminal\\12-post-owned-process-scan.stderr.log",
+      "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdoutBytes": 0,
+      "stderrBytes": 0
+    },
+    "rootStatusCaptured": true,
+    "rootStatusSha256": "85e21d25d9926815608becb2b61fc4f2e8f4189d9e19d456a2a5b87d003888d6"
+  },
+  "terminalRawFiles": [
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-cleanup\\terminal\\01-git-worktree-remove.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-cleanup\\terminal\\01-git-worktree-remove.stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-cleanup\\terminal\\02-local-ref-read.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-cleanup\\terminal\\02-local-ref-read.stdout.log",
+      "sha256": "3b07f4d8b9a10bf580ca4f6a821491182628653d44665faf91a6f6b75ee9a77d",
+      "bytes": 41
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-cleanup\\terminal\\03-tracking-ref-read.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-cleanup\\terminal\\03-tracking-ref-read.stdout.log",
+      "sha256": "6e5ce8e92a571ba1ce4eecd4273c768cde2ded2f00c0d481eb9cc43f92961551",
+      "bytes": 41
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-cleanup\\terminal\\04-local-ref-compare-delete.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-cleanup\\terminal\\04-local-ref-compare-delete.stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-cleanup\\terminal\\05-tracking-ref-compare-delete.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-cleanup\\terminal\\05-tracking-ref-compare-delete.stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-cleanup\\terminal\\06-post-worktree-list.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-cleanup\\terminal\\06-post-worktree-list.stdout.log",
+      "sha256": "1644be2c45354b4170b93e78b5934b020df82283bda1e3f96269c2d1e1600eb8",
+      "bytes": 2507
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-cleanup\\terminal\\07-post-local-ref-list.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-cleanup\\terminal\\07-post-local-ref-list.stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-cleanup\\terminal\\08-post-tracking-ref-list.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-cleanup\\terminal\\08-post-tracking-ref-list.stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-cleanup\\terminal\\09-post-remote-inspect.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-cleanup\\terminal\\09-post-remote-inspect.stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-cleanup\\terminal\\10-post-worktree-status.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-cleanup\\terminal\\10-post-worktree-status.stdout.log",
+      "sha256": "85e21d25d9926815608becb2b61fc4f2e8f4189d9e19d456a2a5b87d003888d6",
+      "bytes": 8736
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-cleanup\\terminal\\11-post-worktree-path-check.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-cleanup\\terminal\\11-post-worktree-path-check.stdout.log",
+      "sha256": "e1ac1636fe3dba22113ac6e3f53e14aafe22c149d858610c0f363eb392c8f630",
+      "bytes": 8
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-cleanup\\terminal\\12-post-owned-process-scan.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\prerequisite-contracts-cleanup\\terminal\\12-post-owned-process-scan.stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    }
+  ],
+  "limits": [
+    "No build, install, server start, fetch, push, or remote deletion was performed.",
+    "The root checkout remains dirty with unrelated shared work; its post-removal status was captured and not modified.",
+    "The preserved launcher-failure logs record the earlier empty-argument Node REPL experiment; the owned-process scans before and after cleanup found no matching Node process.",
+    "The export preserves source bytes, normalized source hashes, proof streams, and metadata outside the removed worktree."
+  ]
+}

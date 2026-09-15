@@ -1,0 +1,13 @@
+{
+  "at": "2026-09-12T21:50:14.898Z",
+  "accepted": true,
+  "receipt": {
+    "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/prerequisite-contracts-cleanup-20260912.json",
+    "sha256": "bc586b710c49458e186871067462028f275236cf512e3fc2cf32bf6997a4989f"
+  },
+  "exportFilesRehashed": 50,
+  "terminalStreamsRehashed": 24,
+  "sourceFiles": 3,
+  "worktreeAndRefsAbsent": true,
+  "limits": "Documentation-only closure; CAMP package review and runtime witness requirements remain open."
+}

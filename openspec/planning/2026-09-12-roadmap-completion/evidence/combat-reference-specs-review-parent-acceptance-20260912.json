@@ -1,0 +1,295 @@
+{
+  "at": "2026-09-13T00:10:19.038Z",
+  "status": "accepted-for-bounded-documentation-delivery",
+  "review": {
+    "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/combat-reference-specs-review-20260912.json",
+    "sha256": "3e2737663060c2d1d52e01dfdce62a77cd2875640978322b41a92cbbb8d5ab07"
+  },
+  "artifacts": [
+    {
+      "path": ".sisyphus\\roadmap-completion-20260912\\combat-reference-specs-review\\candidate-qc.exit",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "path": ".sisyphus\\roadmap-completion-20260912\\combat-reference-specs-review\\candidate-qc.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus\\roadmap-completion-20260912\\combat-reference-specs-review\\candidate-qc.stdout.log",
+      "sha256": "f01feb11318234aab4764fe76151b78c06905527212a8f8723626fcf616b71d6"
+    },
+    {
+      "path": ".sisyphus\\roadmap-completion-20260912\\combat-reference-specs-review\\candidate-status.exit",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "path": ".sisyphus\\roadmap-completion-20260912\\combat-reference-specs-review\\candidate-status.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus\\roadmap-completion-20260912\\combat-reference-specs-review\\candidate-status.stdout.log",
+      "sha256": "91fde6b481313715c5152769e0f1e5cd61a4ab0824b6d8924ec7c7591854174b"
+    },
+    {
+      "path": ".sisyphus\\roadmap-completion-20260912\\combat-reference-specs-review\\diff-check.exit",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "path": ".sisyphus\\roadmap-completion-20260912\\combat-reference-specs-review\\diff-check.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus\\roadmap-completion-20260912\\combat-reference-specs-review\\diff-check.stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus\\roadmap-completion-20260912\\combat-reference-specs-review\\diff-name-status.exit",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "path": ".sisyphus\\roadmap-completion-20260912\\combat-reference-specs-review\\diff-name-status.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus\\roadmap-completion-20260912\\combat-reference-specs-review\\diff-name-status.stdout.log",
+      "sha256": "95fa7f160f20062540ffb933c8bde4baa5512a405554596c8fdcfd059c930103"
+    },
+    {
+      "path": ".sisyphus\\roadmap-completion-20260912\\combat-reference-specs-review\\diff-numstat.exit",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "path": ".sisyphus\\roadmap-completion-20260912\\combat-reference-specs-review\\diff-numstat.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus\\roadmap-completion-20260912\\combat-reference-specs-review\\diff-numstat.stdout.log",
+      "sha256": "482aa4fb8996ee729b867d4753cc35e22460993653f3425af83dd80b85065479"
+    },
+    {
+      "path": ".sisyphus\\roadmap-completion-20260912\\combat-reference-specs-review\\diff-stat.exit",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "path": ".sisyphus\\roadmap-completion-20260912\\combat-reference-specs-review\\diff-stat.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus\\roadmap-completion-20260912\\combat-reference-specs-review\\diff-stat.stdout.log",
+      "sha256": "f87fc308ee4401494bd1a9539a35dd2c196b232ea99ce6af81a53418f0c122af"
+    },
+    {
+      "path": ".sisyphus\\roadmap-completion-20260912\\combat-reference-specs-review\\diff.patch",
+      "sha256": "fdf2315bbfe8b4b72d20add12f63ae32455bc7bea684dd8d9a0a657857f0bd87"
+    },
+    {
+      "path": ".sisyphus\\roadmap-completion-20260912\\combat-reference-specs-review\\diff.patch.exit",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "path": ".sisyphus\\roadmap-completion-20260912\\combat-reference-specs-review\\diff.patch.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus\\roadmap-completion-20260912\\combat-reference-specs-review\\event-builder-focused.exit",
+      "sha256": "53c234e5e8472b6ac51c1ae1cab3fe06fad053beb8ebfd8977b010655bfdd3c3"
+    },
+    {
+      "path": ".sisyphus\\roadmap-completion-20260912\\combat-reference-specs-review\\event-builder-focused.stderr.log",
+      "sha256": "b845745318f6944335d9c88093a2a93994292f66cfa7e8c2b1ea5d5610f52b37"
+    },
+    {
+      "path": ".sisyphus\\roadmap-completion-20260912\\combat-reference-specs-review\\event-builder-focused.stdout.log",
+      "sha256": "3ce82901da59343e49145f2af9c9d0a8ad5c5573a69666ca10cca3677c8b8310"
+    },
+    {
+      "path": ".sisyphus\\roadmap-completion-20260912\\combat-reference-specs-review\\luna-correction-receipt-20260912.json",
+      "sha256": "72528f7cd023e7b1ae21a6a617ee87614dbeb930ec7738a420fc1cba179bfba6"
+    },
+    {
+      "path": ".sisyphus\\roadmap-completion-20260912\\combat-reference-specs-review\\openspec-all-strict.exit",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "path": ".sisyphus\\roadmap-completion-20260912\\combat-reference-specs-review\\openspec-all-strict.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus\\roadmap-completion-20260912\\combat-reference-specs-review\\openspec-all-strict.stdout.log",
+      "sha256": "16c5c323579e9f348bc2adb0830ebd7bb199a73726ab1098c72331305dcca967"
+    },
+    {
+      "path": ".sisyphus\\roadmap-completion-20260912\\combat-reference-specs-review\\preparation-correction-20260912.json",
+      "sha256": "e5025cf1dc8cc74b9e9108255c3c4a184ff16b667669bccaec121ef6cb150ea7"
+    },
+    {
+      "path": ".sisyphus\\roadmap-completion-20260912\\combat-reference-specs-review\\psr-call-sites.exit",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "path": ".sisyphus\\roadmap-completion-20260912\\combat-reference-specs-review\\psr-call-sites.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus\\roadmap-completion-20260912\\combat-reference-specs-review\\psr-call-sites.stdout.log",
+      "sha256": "540032014b640943297b9a100b4580157f7f967754674d54560ae25e25c6b8ee"
+    },
+    {
+      "path": ".sisyphus\\roadmap-completion-20260912\\combat-reference-specs-review\\psr-category-source-paths.exit",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "path": ".sisyphus\\roadmap-completion-20260912\\combat-reference-specs-review\\psr-category-source-paths.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus\\roadmap-completion-20260912\\combat-reference-specs-review\\psr-category-source-paths.stdout.log",
+      "sha256": "c391788c3fd33aa4667c4541c4eabfd281e326ff83c2f2403a32b10a2897b777"
+    },
+    {
+      "path": ".sisyphus\\roadmap-completion-20260912\\combat-reference-specs-review\\psr-source-review.exit",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "path": ".sisyphus\\roadmap-completion-20260912\\combat-reference-specs-review\\psr-source-review.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus\\roadmap-completion-20260912\\combat-reference-specs-review\\psr-source-review.stdout.log",
+      "sha256": "aca0e867ac4fea86b7d9fbe2f6e030912da246e81e32ac07e1f07e9b1938a348"
+    },
+    {
+      "path": ".sisyphus\\roadmap-completion-20260912\\combat-reference-specs-review\\psr-structural-check.exit",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "path": ".sisyphus\\roadmap-completion-20260912\\combat-reference-specs-review\\psr-structural-check.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus\\roadmap-completion-20260912\\combat-reference-specs-review\\psr-structural-check.stdout.log",
+      "sha256": "32465a841cb6a50b3decd2bb38325284c44afcb7d32933f041752a8b2e18ecd9"
+    },
+    {
+      "path": ".sisyphus\\roadmap-completion-20260912\\combat-reference-specs-review\\purpose-strict.exit",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "path": ".sisyphus\\roadmap-completion-20260912\\combat-reference-specs-review\\purpose-strict.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus\\roadmap-completion-20260912\\combat-reference-specs-review\\purpose-strict.stdout.log",
+      "sha256": "a254ecbd038a8530447d3fb22f04b19f048a95bbe54a8d8ee610ec3d20d7de87"
+    },
+    {
+      "path": ".sisyphus\\roadmap-completion-20260912\\combat-reference-specs-review\\source-anchor-inventory.exit",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "path": ".sisyphus\\roadmap-completion-20260912\\combat-reference-specs-review\\source-anchor-inventory.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus\\roadmap-completion-20260912\\combat-reference-specs-review\\source-anchor-inventory.stdout.log",
+      "sha256": "e7e4e952123e31e885a7b3b83421d88bbf0bcf76699c3d0876e6e8bce581f65a"
+    },
+    {
+      "path": ".sisyphus\\roadmap-completion-20260912\\combat-reference-specs-review\\source-anchor-symbols.exit",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "path": ".sisyphus\\roadmap-completion-20260912\\combat-reference-specs-review\\source-anchor-symbols.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus\\roadmap-completion-20260912\\combat-reference-specs-review\\source-anchor-symbols.stdout.log",
+      "sha256": "ee9e6b4d2c29cb5722e9651da39ec92b8641dc3aa542cf87f18b16c62ddcf015"
+    },
+    {
+      "path": ".sisyphus\\roadmap-completion-20260912\\combat-reference-specs-review\\source-index-inventory-20260912.json",
+      "sha256": "49cc11964d76570660f5dd979b9c827744a827c5d4eba6f2d7f70f92db9c02fb"
+    },
+    {
+      "path": ".sisyphus\\roadmap-completion-20260912\\combat-reference-specs-review\\source-inventory-generation.exit",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "path": ".sisyphus\\roadmap-completion-20260912\\combat-reference-specs-review\\source-inventory-generation.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus\\roadmap-completion-20260912\\combat-reference-specs-review\\source-inventory-generation.stdout.log",
+      "sha256": "920d2b462cf41c60b6dcb768e2c1e2f00185332ef3bc11386b8cb0932df46237"
+    },
+    {
+      "path": ".sisyphus\\roadmap-completion-20260912\\combat-reference-specs-review\\source-symbols.exit",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "path": ".sisyphus\\roadmap-completion-20260912\\combat-reference-specs-review\\source-symbols.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".sisyphus\\roadmap-completion-20260912\\combat-reference-specs-review\\source-symbols.stdout.log",
+      "sha256": "b00f96162f4891dbd7552580fa07f0825cf900639e5eb3c0ccffad866bacd6cb"
+    },
+    {
+      "path": ".sisyphus\\roadmap-completion-20260912\\combat-reference-specs-review\\terminology-strict.exit",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    },
+    {
+      "path": ".sisyphus\\roadmap-completion-20260912\\combat-reference-specs-review\\terminology-strict.stderr.log",
+      "sha256": "c7e6076582b92f5521ee62f6be01b8e0a6604d308534daf1378d9274c6c81468"
+    },
+    {
+      "path": ".sisyphus\\roadmap-completion-20260912\\combat-reference-specs-review\\terminology-strict.stdout.log",
+      "sha256": "f900b2f139d48a4fce3da66f12105cdd633a1cfe6dc8102211bcf03cc6a1cce7"
+    }
+  ],
+  "sourceFilesRehashed": 37,
+  "specs": [
+    {
+      "path": "openspec/specs/c3-network-targeting/spec.md",
+      "exists": true,
+      "bytes": 8333,
+      "lines": 183,
+      "sha256": "c34fe3348ee43cf57474204d423b23dbd44d32fbca1245fe2e7202de12ed14c9"
+    },
+    {
+      "path": "openspec/specs/combat-analytics/spec.md",
+      "exists": true,
+      "bytes": 51674,
+      "lines": 1062,
+      "sha256": "71d8676759ab0ab3fee34ac2e6fe0cbc99a02b4e63d190b8e0f92eec80c77a01"
+    },
+    {
+      "path": "openspec/specs/firing-arc-calculation/spec.md",
+      "exists": true,
+      "bytes": 16294,
+      "lines": 332,
+      "sha256": "c91bfbc8a745aa68891ebfbd53815a228bafa1b429816c617b02a26bb712ec8a"
+    },
+    {
+      "path": "openspec/specs/hull-down-position/spec.md",
+      "exists": true,
+      "bytes": 16035,
+      "lines": 419,
+      "sha256": "2d1a1356028efc404f95bcdcc1a51d847ce1541b30dd1f8537e06e2f561987ae"
+    },
+    {
+      "path": "openspec/specs/piloting-skill-rolls/spec.md",
+      "exists": true,
+      "bytes": 35765,
+      "lines": 688,
+      "sha256": "2bcf431b95ba2eb190848bdeb4011a778704d314944ac88a14d96709d1459f76"
+    }
+  ],
+  "changedLines": 48,
+  "qualifications": [
+    "Original worker put its published copy under ignored .sisyphus; parent copied identical bytes to canonical evidence path.",
+    "Event-builder source search exited2 because a literal wildcard path was invalid. Parent read the actual statusChecksPsr.ts and verified both event builders carry optional reasonCode; original failed search is retained.",
+    "Only static source/reference proof; no whole-capability or runtime acceptance.",
+    "Initial table already had28 rows despite27 label; six rows bring it to34 matching enum."
+  ]
+}

@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 1,
+  "capturedAt": "2026-09-12T22:26:07.419Z",
+  "status": "grok-route-unavailable",
+  "failure": "HTTP402 Grok Build usage balance exhausted",
+  "lane": ".sisyphus/roadmap-completion-20260912/grok-combat-reference-correction-1/",
+  "model": "grok-4.6",
+  "effort": "high",
+  "startedAt": "2026-09-12T22:24:44.837Z",
+  "finishedAt": "2026-09-12T22:24:58.775Z",
+  "terminalExit": 1,
+  "endTurn": false,
+  "artifacts": [
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/grok-combat-reference-correction-1/status.json",
+      "sha256": "172487e013e02985dab243c99c0059319c273d386339dacd0a5a33976aaeb262"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/grok-combat-reference-correction-1/stderr.log",
+      "sha256": "948b81c84a8ac30244458938d10ad06aa05446679c89bc48e720306e33f1289c"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/grok-combat-reference-correction-1/events.ndjson",
+      "sha256": "b22a020c9851851b3b2ce2460d14c2ff2525dc037ed50e4d2c7b073bcefda0ad"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/grok-combat-reference-correction-1/admission.json",
+      "sha256": "2510f5c69ed05dc673a174f6d9e0b4b1fc07381a3010cf7590cfba849538d69a"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/grok-combat-reference-correction-1/prompt.md",
+      "sha256": "6358a12f0f1f34aef17ff982ffe797632299a4af3ac2b11bd973ed35eb9094bf"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/grok-combat-reference-correction-1/driver.cjs",
+      "sha256": "c275afdd6d601fb80077a57b0cfbed42c411a0147835a984ed5e5eef36861c3f"
+    }
+  ],
+  "nextRoute": "Existing Luna high worker completes only the two bounded documentation corrections, followed by different-owner independent review and parent validation.",
+  "noRetryOrCreditPurchase": true
+}

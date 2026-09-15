@@ -1,0 +1,61 @@
+Critical display canonical spec repair raw command log
+Captured: 2026-09-12
+Worktree: E:/Projects/MekStation
+
+Command: git rev-parse HEAD
+Exit: 0
+stdout: be7f85b867aa3e8576e5e3d27e309276203bc24b
+
+Command: git show -s --format='%H%n%ad%n%s' --date=iso-strict 45a94017a
+Exit: 0
+stdout:
+45a94017a449519491726c52083abc1c7bd1e7e3
+2026-09-09T20:30:25-06:00
+Establish customizer and application UI baseline (#1634)
+
+Command: git show HEAD:openspec/specs/critical-slots-display/spec.md | sha256sum
+Exit: 0
+stdout: 3befc509d6a013d03043eddfa1098d009bfe4da3dd6adcf7617d92b838a3fbd5 *-
+
+Command: git show --stat --oneline --no-renames 45a94017a -- src/components/customizer/UnitEditorWithRouting.tsx src/components/customizer/UnitEditorWithRoutingTabContent.tsx src/components/customizer/tabs/CriticalSlotsTab.tsx
+Exit: 0
+stdout: 45a94017a Establish customizer and application UI baseline (#1634); 3 files changed, 352 insertions(+), 95 deletions(-)
+
+Command: rg -n 'workbench|hideLoadoutTray|ResponsiveLoadoutTray|GlobalLoadoutTray|BottomSheetTray|MobileLoadoutList|VerticalSlotChip' [owned source paths]
+Exit: 0
+stdout: UnitEditorWithRouting passes workbench at line 265 and mounts ResponsiveLoadoutTray at lines 268-290; UnitEditorWithRoutingTabContent passes hideLoadoutTray={!workbench} at line 59; CriticalSlotsTab guards the inline section with hideLoadoutTray && !workbench at line 226; ResponsiveLoadoutTray routes desktop/drawer to GlobalLoadoutTray and mobile to BottomSheetTray; BottomSheetTray mounts MobileLoadoutList at lines 210-224.
+
+Command: /c/nvm4w/nodejs/node.exe node_modules/oxfmt/bin/oxfmt --write openspec/specs/critical-slots-display/spec.md
+Exit: 2
+stderr: Expected at least one target file
+
+Command: /c/nvm4w/nodejs/node.exe node_modules/oxfmt/bin/oxfmt --ignore-path=.gitignore openspec/specs/critical-slots-display/spec.md
+Exit: 0
+stdout: (empty)
+
+Command: /c/nvm4w/nodejs/node.exe node_modules/oxfmt/bin/oxfmt --check --ignore-path=.gitignore openspec/specs/critical-slots-display/spec.md
+Exit: 0
+stdout:
+Checking formatting...
+All matched files use the correct format.
+Finished in 119ms on 1 files using 16 threads.
+
+Command: /c/nvm4w/nodejs/node.exe /c/Users/wroll/AppData/Roaming/npm/node_modules/@fission-ai/openspec/bin/openspec.js validate critical-slots-display --strict
+Exit: 0
+stdout: Specification 'critical-slots-display' is valid
+
+Command: git diff --check -- openspec/specs/critical-slots-display/spec.md
+Exit: 0
+stdout: (empty)
+
+Command: sha256sum openspec/specs/critical-slots-display/spec.md
+Exit: 0
+stdout: 08abd446de493fc1191e9b911368b5f8a66d7311da27694d04a7297cca5b0e4e *openspec/specs/critical-slots-display/spec.md
+
+Command: git diff --numstat -- openspec/specs/critical-slots-display/spec.md
+Exit: 0
+stdout: 19	60	openspec/specs/critical-slots-display/spec.md
+
+Command: /c/nvm4w/nodejs/node.exe -e "JSON.parse(require('fs').readFileSync('openspec/planning/2026-09-12-roadmap-completion/evidence/critical-display-spec-repair-20260912.json','utf8')); console.log('valid JSON')"
+Exit: 0
+stdout: valid JSON

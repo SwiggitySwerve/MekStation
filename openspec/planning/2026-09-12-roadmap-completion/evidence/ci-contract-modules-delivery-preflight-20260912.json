@@ -1,0 +1,151 @@
+{
+  "schemaVersion": 1,
+  "evidenceId": "ci-contract-modules-delivery-preflight-20260912",
+  "capturedAt": "2026-09-12T20:30:58Z",
+  "status": "preflight-ready-no-commit",
+  "candidate": {
+    "path": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/ci-contract-modules",
+    "candidateBase": "c44bf05720591efc5e40186c1a9f49b4afebe44a",
+    "originMainObserved": "7a537a1c4ea621b397f4b5216859f0548773fd61",
+    "candidateIsAncestorOfOrigin": true,
+    "stagedPaths": [
+      "package-lock.json",
+      "package.json",
+      "scripts/qc/openspec-ci-contracts.mjs",
+      "scripts/qc/openspec-workflow-contracts.mjs"
+    ],
+    "statusExactlyFourPaths": true,
+    "hashes": {
+      "scripts/qc/openspec-ci-contracts.mjs": "ae81b758ae37fe0a796cd77c5e5a17a5fac0bd6d1a8b488b4d5955fca1234a99",
+      "scripts/qc/openspec-workflow-contracts.mjs": "4ae969ae69ad71af0cfc761c0b133bbc0862202e71138d38198231062f92f696",
+      "package.json": "eeebcb46214017104ed9cad6feab8f4a7e941816552585fb8230731d6931ad17",
+      "package-lock.json": "f923ca53a2d9fc69d56cd59b9f86d26fd4b3756ac488c138b64163f787bd7d36"
+    }
+  },
+  "integrationGuard": {
+    "preFastForward": {
+      "path": ".sisyphus/roadmap-completion-20260912/ci-contract-modules-delivery/pre-ff-guard.json",
+      "sha256": "082bb610e1a299fd8122259542e2d68fa030dd70b7c3026ad631198948b33810",
+      "head": "ca0687d25264033376862347e494ddf15cd92bec",
+      "originMain": "c44bf05720591efc5e40186c1a9f49b4afebe44a",
+      "fourFileHashesGuarded": true
+    },
+    "postFastForward": {
+      "path": ".sisyphus/roadmap-completion-20260912/ci-contract-modules-delivery/post-ff-guard.json",
+      "sha256": "53504e9c038a26778e3896810a574008610b5d3853abf6c694c3934c94b67991",
+      "head": "c44bf05720591efc5e40186c1a9f49b4afebe44a",
+      "originMainAtIntegration": "c44bf05720591efc5e40186c1a9f49b4afebe44a",
+      "moduleHashesPreserved": true,
+      "lockHashPreserved": true
+    },
+    "yamlOnlyCandidateDiff": {
+      "patchPath": ".sisyphus/roadmap-completion-20260912/ci-contract-modules-delivery/pre-ff-yaml-only.patch",
+      "patchSha256": "d7e3bc7259f9f66f9d1d46ba08cec34b394f13664920696734f496db301c6320",
+      "packageJsonChange": "devDependencies.yaml: ^2.9.0",
+      "packageLockChange": "root devDependencies.yaml: ^2.9.0",
+      "otherManifestEntrypointChangesFromC44Preserved": true
+    }
+  },
+  "preflight": {
+    "driver": {
+      "path": ".sisyphus/roadmap-completion-20260912/ci-contract-modules-delivery/preflight-driver.cjs",
+      "sha256": "6f204126e1a4adda67f1f901fc0baf1f680674681bc8f0046bcc3a7ff74dadb1"
+    },
+    "receipt": {
+      "path": ".sisyphus/roadmap-completion-20260912/ci-contract-modules-delivery/attempt-2/preflight-status.json",
+      "sha256": "879202b6c7926254536666faf6550b41991dd4eb1758bdaef021b0dea1ff4b9f",
+      "completedAllSteps": true,
+      "stepCount": 12,
+      "allExitCodesZero": true,
+      "timeouts": 0,
+      "signals": 0
+    },
+    "checks": {
+      "focusedJest": "1 suite, 5 tests passed",
+      "lint": "passed",
+      "formatCheck": "passed",
+      "typecheck": "passed",
+      "strictPurpose": "passed",
+      "strictOpenSpec": "passed",
+      "candidateCiQc": "passed, reported errorCount 0",
+      "negativeShellHarness": {
+        "baselineErrorCount": 0,
+        "stepShellEchoRejected": true,
+        "jobDefaultShellEchoRejected": true,
+        "workflowDefaultShellEchoRejected": true,
+        "allNegativesRejected": true,
+        "executedMutatedShell": false
+      },
+      "metadata": {
+        "head": "c44bf05720591efc5e40186c1a9f49b4afebe44a",
+        "statusExactlyFour": true,
+        "moduleHashesMatch": true,
+        "lockResolutionUnchanged": true,
+        "nodeModulesPhysical": true,
+        "moduleWiringAbsent": true,
+        "activeValidatorLines": 335,
+        "recoveredTestLines": 675,
+        "recoveredTestSha256": "37cc951ad23379e647b2217750932f18c1843c247ee1f4a3e7e36da79b97b026",
+        "metadataCheckOk": true
+      }
+    }
+  },
+  "approvedLaterMetadata": {
+    "readinessEvidence": "openspec/planning/2026-09-12-roadmap-completion/evidence/ci-four-prefix-readiness-max-20260912.json",
+    "cleanLedgerSixLineTargetSha256": "b9287e4fc86f1d97b23e9d6a52a204dda941d9f86729c8447e2f46d0b9cc8f35",
+    "cleanLedgerChangedLines": 6,
+    "workflowCaseComment": "6 record-sheet and 3 recovery cases",
+    "candidateDoesNotChangeWorkflowValidatorTestOrLedger": true,
+    "lockResolutionUnchanged": true
+  },
+  "commitDriver": {
+    "path": ".sisyphus/roadmap-completion-20260912/ci-contract-modules-delivery/commit-driver.cjs",
+    "sha256": "cfe3630023b7413a0b0ec3144a0c2ac1f04e70f88270d5ee48809d9fd91648e5",
+    "preflightOnlyCommand": [
+      "C:/nvm4w/nodejs/node.exe",
+      ".sisyphus/roadmap-completion-20260912/ci-contract-modules-delivery/commit-driver.cjs",
+      "--preflight-only"
+    ],
+    "preflightOnlyStatus": "ok",
+    "preflightOnlyStdout": ".sisyphus/roadmap-completion-20260912/ci-contract-modules-delivery/commit-driver-preflight-3.stdout.log",
+    "preflightOnlyStdoutSha256": "4441177e3b7e0f9479317dbd9bd17241350888475428dc8c76245113033f37fd",
+    "preflightOnlyStderr": ".sisyphus/roadmap-completion-20260912/ci-contract-modules-delivery/commit-driver-preflight-3.stderr.log",
+    "preflightOnlyStderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "normalHooks": {
+      "coreHooksPath": ".husky/_",
+      "projectPreCommitContainsLintStagedAndBuild": true,
+      "packagePrepare": "husky",
+      "noVerifyBypass": true
+    },
+    "commitMessage": "ci: add OpenSpec contract modules",
+    "commitNotRun": true,
+    "productionBuildNotRunByThisTask": true
+  },
+  "prBody": {
+    "path": ".sisyphus/roadmap-completion-20260912/ci-contract-modules-delivery/pr-body.md",
+    "sha256": "1b1a459409dbf9c8a89b2c4a4751c3e8f0083075e5a75f18ee88f4e8c2435e36",
+    "capped": true
+  },
+  "preservedAttempts": [
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/ci-contract-modules-delivery/driver.stderr.log",
+      "sha256": "d5e57a1fdb9d6e3ca83f499e661da58e8dba9d095c049a46df9aceb85a817284",
+      "result": "initial driver stdio setup failed before candidate checks"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/ci-contract-modules-delivery/commit-driver-preflight.stderr.log",
+      "sha256": "32f48c440acbe99e7f1d2d20e3f4bb20712df248ecaf60bb5ba2d318858eba0e",
+      "result": "preflight correctly rejected stale origin equality after hydration merge"
+    },
+    {
+      "path": ".sisyphus/roadmap-completion-20260912/ci-contract-modules-delivery/commit-driver-preflight-2.stderr.log",
+      "sha256": "c6728b2f46f609facc129977713af742084a23cfd6612e479810906e516b05a2",
+      "result": "preflight driver metadata field path was corrected"
+    }
+  ],
+  "limits": [
+    "The candidate modules remain unused; live workflow and validator wiring is later dependency-gated work.",
+    "No commit, production build, push, install, server, browser run, reset, stash, force, or fetch was performed by this task.",
+    "Parent retains the production build slot, final review, commit, and delivery decisions."
+  ]
+}

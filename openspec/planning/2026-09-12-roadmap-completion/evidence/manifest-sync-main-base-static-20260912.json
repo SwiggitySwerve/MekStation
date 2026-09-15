@@ -1,0 +1,147 @@
+{
+  "schemaVersion": 1,
+  "evidenceId": "manifest-sync-main-base-static-20260912",
+  "recordedAt": "2026-09-12",
+  "node": "R9.manifest-sync",
+  "worktree": "E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\manifest-sync",
+  "branch": "codex/roadmap-manifest-sync-20260912",
+  "head": "1ecc1c300df7e53ba5e8d434e4d033a01ed96f73",
+  "base": "6c4eac5c7b7a2aece3aab0443ce606943db6cf0b",
+  "integrationBase": "Current main at 1ecc1c300df7e53ba5e8d434e4d033a01ed96f73",
+  "sourceReceipt": "openspec/planning/2026-09-12-roadmap-completion/evidence/manifest-sync-local-verification-20260912.json",
+  "hashStatus": {
+    "allMatch": true,
+    "log": ".sisyphus/roadmap-completion-20260912/manifest-sync-checks/main-base-1/00-hash-status.json",
+    "logSha256": "b1e4580af8cf0883beb0ddd7b589e5be006df7a141da5f16e677a12a3ef0a9dd",
+    "files": [
+      {
+        "path": "scripts/mm-data/sync-browser-config.mjs",
+        "expectedSha256": "d47ca5eaa81a7a8488c25b828cc6b04a8e30f93311952dc002c718c60d6820dc",
+        "actualSha256": "d47ca5eaa81a7a8488c25b828cc6b04a8e30f93311952dc002c718c60d6820dc"
+      },
+      {
+        "path": "scripts/__tests__/mm-data-browser-config.test.ts",
+        "expectedSha256": "20534720de14d2e2c94cfa17763d8cd75c82b7ae7a9deb6d9ec095a33fa9dce4",
+        "actualSha256": "20534720de14d2e2c94cfa17763d8cd75c82b7ae7a9deb6d9ec095a33fa9dce4"
+      },
+      {
+        "path": "package.json",
+        "expectedSha256": "0cbe570cc8b2ffdabcf1c273a75b739bf6693965239a913f524661291e6c2e32",
+        "actualSha256": "0cbe570cc8b2ffdabcf1c273a75b739bf6693965239a913f524661291e6c2e32"
+      },
+      {
+        "path": "openspec/specs/mm-data-asset-integration/spec.md",
+        "expectedSha256": "5beabebfe54b2a2e3e9aadd0ab87e480062eed0de257507571681b69c2a74dd7",
+        "actualSha256": "5beabebfe54b2a2e3e9aadd0ab87e480062eed0de257507571681b69c2a74dd7"
+      }
+    ]
+  },
+  "checks": [
+    {
+      "id": "focused-jest",
+      "command": "C:/nvm4w/nodejs/npm.cmd test -- --runInBand scripts/__tests__/mm-data-browser-config.test.ts",
+      "exitCode": 0,
+      "tests": 4,
+      "passed": 4,
+      "stdout": ".sisyphus/roadmap-completion-20260912/manifest-sync-checks/main-base-1/01-focused-jest.stdout.log",
+      "stdoutSha256": "4dfaf40308b0bddaef459eeffe74ded3655ff8346fc3c3f74725a672c220ff32",
+      "stderr": ".sisyphus/roadmap-completion-20260912/manifest-sync-checks/main-base-1/01-focused-jest.stderr.log",
+      "stderrSha256": "67f34332473524aeba5e2d61f538334a6a8c4df13b14e27d118113a54c7698b5",
+      "status": ".sisyphus/roadmap-completion-20260912/manifest-sync-checks/main-base-1/01-focused-jest.status.json",
+      "statusSha256": "214327c0b25aefedac2af4eb576f7e33170008a5a9f2b5c2d0dcf760e46455d4"
+    },
+    {
+      "id": "typecheck",
+      "command": "C:/nvm4w/nodejs/npm.cmd run typecheck",
+      "exitCode": 0,
+      "stdout": ".sisyphus/roadmap-completion-20260912/manifest-sync-checks/main-base-1/02-typecheck.stdout.log",
+      "stdoutSha256": "d140a6ce62dda0946fe30dd882dbb8209f05be72c8fa8850e5634755a399e50f",
+      "stderr": ".sisyphus/roadmap-completion-20260912/manifest-sync-checks/main-base-1/02-typecheck.stderr.log",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "status": ".sisyphus/roadmap-completion-20260912/manifest-sync-checks/main-base-1/02-typecheck.status.json",
+      "statusSha256": "71259d362ebdf9c35253bbada9d4b5f88e04c05582d47b80ff130150b5edb3ca"
+    },
+    {
+      "id": "lint",
+      "command": "C:/nvm4w/nodejs/npm.cmd run lint",
+      "exitCode": 0,
+      "warnings": 83,
+      "errors": 0,
+      "stdout": ".sisyphus/roadmap-completion-20260912/manifest-sync-checks/main-base-1/03-lint.stdout.log",
+      "stdoutSha256": "8394b174d0672cdad2b94630c4f9fae44d798ba8cc673a9b27a4e49daade2061",
+      "stderr": ".sisyphus/roadmap-completion-20260912/manifest-sync-checks/main-base-1/03-lint.stderr.log",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "status": ".sisyphus/roadmap-completion-20260912/manifest-sync-checks/main-base-1/03-lint.status.json",
+      "statusSha256": "502f6dd2820138cb7fc2df4e6d61def9ca2f683ea2f82c28cee725c321dbcd09"
+    },
+    {
+      "id": "format-check",
+      "command": "C:/nvm4w/nodejs/npm.cmd run format:check",
+      "exitCode": 0,
+      "stdout": ".sisyphus/roadmap-completion-20260912/manifest-sync-checks/main-base-1/04-format-check.stdout.log",
+      "stdoutSha256": "948e5e0a389b9420b5c52b28da896ccde36d8bac577deb14c76be1f234c329f1",
+      "stderr": ".sisyphus/roadmap-completion-20260912/manifest-sync-checks/main-base-1/04-format-check.stderr.log",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "status": ".sisyphus/roadmap-completion-20260912/manifest-sync-checks/main-base-1/04-format-check.status.json",
+      "statusSha256": "389d1d466e0912a5422175e02aa683f3a81268bdfaaeeed210040b98d237e4d5"
+    },
+    {
+      "id": "openspec-all-strict",
+      "command": "C:/Users/wroll/AppData/Roaming/npm/openspec.cmd validate --all --strict",
+      "exitCode": 0,
+      "passed": 231,
+      "failed": 0,
+      "stdout": ".sisyphus/roadmap-completion-20260912/manifest-sync-checks/main-base-1/05-openspec-all-strict.stdout.log",
+      "stdoutSha256": "16c5c323579e9f348bc2adb0830ebd7bb199a73726ab1098c72331305dcca967",
+      "stderr": ".sisyphus/roadmap-completion-20260912/manifest-sync-checks/main-base-1/05-openspec-all-strict.stderr.log",
+      "stderrSha256": "5bc31df123a2e521acdd2c0d9477b367feec506471a91065d0a6b32c09089ed5",
+      "status": ".sisyphus/roadmap-completion-20260912/manifest-sync-checks/main-base-1/05-openspec-all-strict.status.json",
+      "statusSha256": "1d69ee22ce9cfff4b38200a7723702fc7e14e04ebeae9359becd50cc877a5c73"
+    },
+    {
+      "id": "spec-purpose-strict",
+      "command": "C:/nvm4w/nodejs/npm.cmd run spec:purpose:validate:strict",
+      "exitCode": 0,
+      "errors": 0,
+      "stdout": ".sisyphus/roadmap-completion-20260912/manifest-sync-checks/main-base-1/06-purpose-strict.stdout.log",
+      "stdoutSha256": "3c997b85b5091b1232d3c31b59a7495a44f136b3611f09839970f413a310ae10",
+      "stderr": ".sisyphus/roadmap-completion-20260912/manifest-sync-checks/main-base-1/06-purpose-strict.stderr.log",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "status": ".sisyphus/roadmap-completion-20260912/manifest-sync-checks/main-base-1/06-purpose-strict.status.json",
+      "statusSha256": "beb5ae878ef6ffe82299c86d1d9c243bccaea40f62ef3a34806b90b0708785f4"
+    },
+    {
+      "id": "terminology-strict",
+      "command": "C:/nvm4w/nodejs/npm.cmd run terminology:validate:strict",
+      "exitCode": 0,
+      "violations": 0,
+      "stdout": ".sisyphus/roadmap-completion-20260912/manifest-sync-checks/main-base-1/07-terminology-strict.stdout.log",
+      "stdoutSha256": "f900b2f139d48a4fce3da66f12105cdd633a1cfe6dc8102211bcf03cc6a1cce7",
+      "stderr": ".sisyphus/roadmap-completion-20260912/manifest-sync-checks/main-base-1/07-terminology-strict.stderr.log",
+      "stderrSha256": "825e64dfd70f2b77db2c0aca51781e251f57e57be04f0f56f4153ddffeeacb98",
+      "status": ".sisyphus/roadmap-completion-20260912/manifest-sync-checks/main-base-1/07-terminology-strict.status.json",
+      "statusSha256": "f067ddc88f1dd021fd9e14ec49c523dcfede0d5e95b1487117041108b679fab8"
+    },
+    {
+      "id": "ci-qc",
+      "command": "C:/nvm4w/nodejs/npm.cmd run qc:openspec-ci:validate",
+      "exitCode": 0,
+      "errors": 0,
+      "stdout": ".sisyphus/roadmap-completion-20260912/manifest-sync-checks/main-base-1/08-ci-qc.stdout.log",
+      "stdoutSha256": "f01feb11318234aab4764fe76151b78c06905527212a8f8723626fcf616b71d6",
+      "stderr": ".sisyphus/roadmap-completion-20260912/manifest-sync-checks/main-base-1/08-ci-qc.stderr.log",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "status": ".sisyphus/roadmap-completion-20260912/manifest-sync-checks/main-base-1/08-ci-qc.status.json",
+      "statusSha256": "bdbfdc45707d2fef47aba7143071f9dd62fac904340c70fc4a3ecb0869df37f4"
+    }
+  ],
+  "finalWorktreeStatus": {
+    "log": ".sisyphus/roadmap-completion-20260912/manifest-sync-checks/main-base-1/09-final-worktree-status.json",
+    "logSha256": "5b51c5f57b14e7f581f9776f5b6e2a40294499de353d24fafdfa1eca1e504d9f",
+    "expectedOwnedPathsOnly": true
+  },
+  "limits": [
+    "Static verification only; parent owns normal hook/build follow-up and any runtime proof.",
+    "No build, dev/server, browser, asset sync/fetch/acquisition, install, commit, or other Git mutation was performed."
+  ]
+}

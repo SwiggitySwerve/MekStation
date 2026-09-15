@@ -1,0 +1,394 @@
+{
+  "schemaVersion": 1,
+  "evidenceId": "campaign-contracts-cleanup-20260912",
+  "status": "cleanup-complete",
+  "capturedAt": "2026-09-12T21:57:09.153Z",
+  "expected": {
+    "candidate": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/campaign-contracts",
+    "mergedMain": "2e07bc9b508f41cc3c90ea706b3c82f9df4d71ac",
+    "reviewed": "8a1310d5bde7d9e32cf6755f0ad3128ccf9ee9da",
+    "localCommit": "00149fffa9fa4d9fd85dd88d13968151de0b3b0a",
+    "branch": "codex/roadmap-campaign-contracts-20260912",
+    "trackingRef": "refs/remotes/origin/codex/roadmap-campaign-contracts-20260912"
+  },
+  "preManifest": {
+    "path": "campaign-contracts-cleanup/pre-cleanup-manifest.json",
+    "sha256": "da6bfa771f3704c2d185c52176007094f4cce2c664114e7af972e6f6189ab093",
+    "sourceExportCount": 3,
+    "rawProofFileCount": 37,
+    "allowedIgnoredCount": 17
+  },
+  "terminal": {
+    "removeWorktree": {
+      "id": "11-worktree-remove-nonforce",
+      "command": [
+        "git.exe",
+        "worktree",
+        "remove",
+        "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/campaign-contracts"
+      ],
+      "cwd": "E:/Projects/MekStation",
+      "startedAt": "2026-09-12T21:56:33.680Z",
+      "finishedAt": "2026-09-12T21:57:04.081Z",
+      "exitCode": 0,
+      "signal": null,
+      "spawnError": null,
+      "stdout": {
+        "path": "logs/11-worktree-remove-nonforce.stdout.log",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stderr": {
+        "path": "logs/11-worktree-remove-nonforce.stderr.log",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stdoutText": "",
+      "stderrText": ""
+    },
+    "deleteLocal": {
+      "id": "12-delete-local-branch-identity-bound",
+      "command": [
+        "git.exe",
+        "update-ref",
+        "-d",
+        "refs/heads/codex/roadmap-campaign-contracts-20260912",
+        "00149fffa9fa4d9fd85dd88d13968151de0b3b0a"
+      ],
+      "cwd": "E:/Projects/MekStation",
+      "startedAt": "2026-09-12T21:57:04.081Z",
+      "finishedAt": "2026-09-12T21:57:04.695Z",
+      "exitCode": 0,
+      "signal": null,
+      "spawnError": null,
+      "stdout": {
+        "path": "logs/12-delete-local-branch-identity-bound.stdout.log",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stderr": {
+        "path": "logs/12-delete-local-branch-identity-bound.stderr.log",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stdoutText": "",
+      "stderrText": ""
+    },
+    "deleteTracking": {
+      "id": "13-delete-tracking-ref-identity-bound",
+      "command": [
+        "git.exe",
+        "update-ref",
+        "-d",
+        "refs/remotes/origin/codex/roadmap-campaign-contracts-20260912",
+        "8a1310d5bde7d9e32cf6755f0ad3128ccf9ee9da"
+      ],
+      "cwd": "E:/Projects/MekStation",
+      "startedAt": "2026-09-12T21:57:04.696Z",
+      "finishedAt": "2026-09-12T21:57:05.180Z",
+      "exitCode": 0,
+      "signal": null,
+      "spawnError": null,
+      "stdout": {
+        "path": "logs/13-delete-tracking-ref-identity-bound.stdout.log",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stderr": {
+        "path": "logs/13-delete-tracking-ref-identity-bound.stderr.log",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stdoutText": "",
+      "stderrText": ""
+    },
+    "worktreesAfter": {
+      "id": "14-worktree-list-after",
+      "command": [
+        "git.exe",
+        "worktree",
+        "list",
+        "--porcelain"
+      ],
+      "cwd": "E:/Projects/MekStation",
+      "startedAt": "2026-09-12T21:57:05.180Z",
+      "finishedAt": "2026-09-12T21:57:05.604Z",
+      "exitCode": 0,
+      "signal": null,
+      "spawnError": null,
+      "stdout": {
+        "path": "logs/14-worktree-list-after.stdout.log",
+        "bytes": 2145,
+        "sha256": "3cfc3870889e2f97e5652ff8f9d746b1971e59803d7b18ae6908c695b214945a"
+      },
+      "stderr": {
+        "path": "logs/14-worktree-list-after.stderr.log",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stdoutText": "worktree E:/Projects/MekStation\nHEAD be7f85b867aa3e8576e5e3d27e309276203bc24b\nbranch refs/heads/main\n\nworktree C:/tmp/MekStation-gameplay-audit-a72208b0-2\nHEAD a72208b08de5f8a1bef49f61db3ddc46a54012e8\ndetached\n\nworktree C:/tmp/MekStation-gm2p-spec-886508048\nHEAD 5b546a39ec29dd2e79c845946dc84b3619ee25ee\nbranch refs/heads/codex/continue-gm-two-player-campaign\n\nworktree C:/Users/wroll/.codex/worktrees/af7e/MekStation\nHEAD 327f10787d529a95328bef05e3732ebb02efbee7\ndetached\n\nworktree C:/Users/wroll/.codex/worktrees/combat-event-durability/MekStation\nHEAD 85e7138feaea0333c2dafbd2f974ef5977450af1\ndetached\n\nworktree C:/Users/wroll/.codex/worktrees/combat-turn-rail/MekStation\nHEAD 67805c8302f78c5205921cafbee9d4544783fb96\ndetached\n\nworktree E:/CodexWorktrees/MekStation-maintain\nHEAD 2c775907ae285e27dd7103c8c29e061fcc6d91e4\nbranch refs/heads/maintain/modularity-hard-guardrail-wave1\n\nworktree E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/battlearmor-autosave-docs\nHEAD 583b3e9bf954506a3b5fbac0359165e9407cf264\nbranch refs/heads/codex/roadmap-battlearmor-autosave-docs-20260912\n\nworktree E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/browser\nHEAD 77d9a9480a3a47b1849f166db01278f93f3d8094\nbranch refs/heads/codex/roadmap-customizer-browser-20260912\n\nworktree E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/campaign-catalog-specs\nHEAD b39c04304e9e46ebbb5056fa947a145a7bf194d4\nbranch refs/heads/codex/roadmap-campaign-catalog-specs-20260912\n\nworktree E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/ci-contract-modules\nHEAD da524f7f501b0485e3d8e67e973fce075670922c\ndetached\n\nworktree E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/vault-contracts\nHEAD 2ac5696549c3f0eb0391066cf1b19067e5a899dc\nbranch refs/heads/codex/roadmap-vault-contracts-20260912\n\nworktree E:/Projects/mekstation-l66\nHEAD 74bd093a65c483ed8d25e4d91adddf3677368090\ndetached\n\nworktree E:/Projects/mekstation-l83\nHEAD 7f821e7795db67ba60010b44c15aeb5f86d2838e\ndetached\n\nworktree E:/Projects/mekstation-l89\nHEAD 439af6bca6c54cf60472e8d7e9c191a962ee93ab\ndetached\n\n",
+      "stderrText": ""
+    },
+    "localAbsent": {
+      "id": "15-local-branch-absent",
+      "command": [
+        "git.exe",
+        "show-ref",
+        "--verify",
+        "refs/heads/codex/roadmap-campaign-contracts-20260912"
+      ],
+      "cwd": "E:/Projects/MekStation",
+      "startedAt": "2026-09-12T21:57:05.847Z",
+      "finishedAt": "2026-09-12T21:57:06.113Z",
+      "exitCode": 128,
+      "signal": null,
+      "spawnError": null,
+      "stdout": {
+        "path": "logs/15-local-branch-absent.stdout.log",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stderr": {
+        "path": "logs/15-local-branch-absent.stderr.log",
+        "bytes": 80,
+        "sha256": "a8947a70c0e0cd4a3bcba61b1a672a3196cf1c85853228f87db60421b94ce5fc"
+      },
+      "stdoutText": "",
+      "stderrText": "fatal: 'refs/heads/codex/roadmap-campaign-contracts-20260912' - not a valid ref\n"
+    },
+    "trackingAbsent": {
+      "id": "16-tracking-ref-absent",
+      "command": [
+        "git.exe",
+        "show-ref",
+        "--verify",
+        "refs/remotes/origin/codex/roadmap-campaign-contracts-20260912"
+      ],
+      "cwd": "E:/Projects/MekStation",
+      "startedAt": "2026-09-12T21:57:06.114Z",
+      "finishedAt": "2026-09-12T21:57:06.234Z",
+      "exitCode": 128,
+      "signal": null,
+      "spawnError": null,
+      "stdout": {
+        "path": "logs/16-tracking-ref-absent.stdout.log",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stderr": {
+        "path": "logs/16-tracking-ref-absent.stderr.log",
+        "bytes": 89,
+        "sha256": "705a2f9cb451c357d2efc289e39792401a0ed025a005e3a0b5e4089789ce6521"
+      },
+      "stdoutText": "",
+      "stderrText": "fatal: 'refs/remotes/origin/codex/roadmap-campaign-contracts-20260912' - not a valid ref\n"
+    },
+    "remoteAfter": {
+      "id": "17-remote-query-after",
+      "command": [
+        "git.exe",
+        "ls-remote",
+        "origin",
+        "refs/heads/codex/roadmap-campaign-contracts-20260912"
+      ],
+      "cwd": "E:/Projects/MekStation",
+      "startedAt": "2026-09-12T21:57:06.235Z",
+      "finishedAt": "2026-09-12T21:57:08.213Z",
+      "exitCode": 0,
+      "signal": null,
+      "spawnError": null,
+      "stdout": {
+        "path": "logs/17-remote-query-after.stdout.log",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stderr": {
+        "path": "logs/17-remote-query-after.stderr.log",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stdoutText": "",
+      "stderrText": ""
+    },
+    "rootStatus": {
+      "id": "18-root-status-after",
+      "command": [
+        "git.exe",
+        "status",
+        "--short",
+        "--branch"
+      ],
+      "cwd": "E:/Projects/MekStation",
+      "startedAt": "2026-09-12T21:57:08.214Z",
+      "finishedAt": "2026-09-12T21:57:09.153Z",
+      "exitCode": 0,
+      "signal": null,
+      "spawnError": null,
+      "stdout": {
+        "path": "logs/18-root-status-after.stdout.log",
+        "bytes": 8770,
+        "sha256": "2ac43e3bb4b499063b1b2fe0f9e09d6594fd8effa492bc8413b18e6aa119fd86"
+      },
+      "stderr": {
+        "path": "logs/18-root-status-after.stderr.log",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stdoutText": "## main...origin/main [behind 15]\n M .github/workflows/nightly-validation.yml\n M .github/workflows/pr-checks.yml\n M e2e/customizer-edit-recovery.spec.ts\n M e2e/customizer-record-sheet-rendering.spec.ts\n M openspec/active-change-ledger.json\n M openspec/changes/add-authoritative-history-branches/proposal.md\n M openspec/changes/add-authoritative-history-branches/tasks.md\n M openspec/changes/add-cross-stream-effect-receipts/tasks.md\n D openspec/changes/add-customizer-edit-recovery/.openspec.yaml\n D openspec/changes/add-customizer-edit-recovery/design.md\n D openspec/changes/add-customizer-edit-recovery/proposal.md\n D openspec/changes/add-customizer-edit-recovery/specs/customizer-edit-recovery/spec.md\n D openspec/changes/add-customizer-edit-recovery/tasks.md\n M openspec/changes/add-saved-custom-unit-campaign-roster/design.md\n M openspec/changes/add-saved-custom-unit-campaign-roster/proposal.md\n M openspec/changes/add-saved-custom-unit-campaign-roster/specs/journey-qc/spec.md\n M openspec/changes/add-saved-custom-unit-campaign-roster/specs/mission-contracts/spec.md\n M openspec/changes/add-saved-custom-unit-campaign-roster/tasks.md\n M openspec/changes/adopt-combat-journal-cutover-and-gm-rewind/proposal.md\n M openspec/changes/design-vault-campaign-separation-and-maps/design.md\n M openspec/changes/design-vault-campaign-separation-and-maps/proposal.md\n M openspec/changes/design-vault-campaign-separation-and-maps/tasks.md\n M openspec/changes/enable-saved-custom-unit-combat/proposal.md\n D openspec/changes/establish-battlemech-chassis-index/.openspec.yaml\n D openspec/changes/establish-battlemech-chassis-index/design.md\n D openspec/changes/establish-battlemech-chassis-index/proposal.md\n D openspec/changes/establish-battlemech-chassis-index/specs/battlemech-chassis-index/spec.md\n D openspec/changes/establish-battlemech-chassis-index/tasks.md\n M openspec/changes/harden-gm-two-player-campaign-sessions/tasks.md\n D openspec/changes/repair-equipment-catalog/.openspec.yaml\n D openspec/changes/repair-equipment-catalog/design.md\n D openspec/changes/repair-equipment-catalog/proposal.md\n D openspec/changes/repair-equipment-catalog/specs/equipment-browser/spec.md\n D openspec/changes/repair-equipment-catalog/tasks.md\n M openspec/changes/repair-record-sheet-rendering/specs/record-sheet-export/spec.md\n M openspec/changes/repair-record-sheet-rendering/tasks.md\n M openspec/planning/ACTIVE-CHANGES-ROADMAP.md\n M openspec/specs/aerospace-unit-system/spec.md\n M openspec/specs/app-settings/spec.md\n M openspec/specs/armor-diagram-variants/spec.md\n M openspec/specs/auto-save-persistence/spec.md\n M openspec/specs/battle-armor-unit-system/spec.md\n M openspec/specs/bv-validation-tooling/spec.md\n M openspec/specs/c3-network-targeting/spec.md\n M openspec/specs/campaign-combat-loop/spec.md\n M openspec/specs/campaign-personnel-architecture/spec.md\n M openspec/specs/campaign-unit-combat-state/spec.md\n M openspec/specs/combat-analytics/spec.md\n M openspec/specs/compendium-browser/spec.md\n M openspec/specs/construction-rules-core/spec.md\n M openspec/specs/critical-slots-display/spec.md\n M openspec/specs/customizer-responsive-layout/spec.md\n M openspec/specs/customizer-routing/spec.md\n M openspec/specs/customizer-tabs/spec.md\n M openspec/specs/data-loading-architecture/spec.md\n M openspec/specs/database-schema/spec.md\n M openspec/specs/e2e-testing/spec.md\n M openspec/specs/equipment-browser/spec.md\n M openspec/specs/equipment-services/spec.md\n M openspec/specs/equipment-tray/spec.md\n M openspec/specs/firing-arc-calculation/spec.md\n M openspec/specs/force-management/spec.md\n M openspec/specs/game-session-management/spec.md\n M openspec/specs/hull-down-position/spec.md\n M openspec/specs/mission-contracts/spec.md\n M openspec/specs/mm-data-asset-integration/spec.md\n M openspec/specs/overview-basic-info/spec.md\n M openspec/specs/persistence-services/spec.md\n M openspec/specs/personnel-management/spec.md\n M openspec/specs/piloting-skill-rolls/spec.md\n M openspec/specs/protomech-unit-system/spec.md\n M openspec/specs/record-sheet-export/spec.md\n M openspec/specs/release-build-system/spec.md\n M openspec/specs/repair/spec.md\n M openspec/specs/toast-notifications/spec.md\n M openspec/specs/unit-comparison/spec.md\n M openspec/specs/unit-services/spec.md\n M openspec/specs/unit-validation-framework/spec.md\n M openspec/specs/user-identity/spec.md\n M openspec/specs/utility-patterns/spec.md\n M openspec/specs/vault-sync/spec.md\n M openspec/specs/vehicle-unit-system/spec.md\n M package.json\n M scripts/__tests__/openspec-ci-quality-qc.test.ts\n M scripts/hydrate-next-standalone-multiplayer-server.mjs\n M scripts/qc/validate-openspec-ci-quality.mjs\n M src/__tests__/stores/equipmentCatalogFilters.test.ts\n M src/components/customizer/CustomizerWithRouter.tsx\n M src/components/customizer/aerospace/AerospaceBombTab.tsx\n M src/components/customizer/aerospace/AerospaceCustomizer.tsx\n M src/components/customizer/aerospace/AerospaceVelocityTab.tsx\n M src/components/customizer/battlearmor/BattleArmorAPWeaponsTab.tsx\n M src/components/customizer/battlearmor/BattleArmorChassisTab.tsx\n M src/components/customizer/battlearmor/BattleArmorCustomizer.tsx\n M src/components/customizer/battlearmor/BattleArmorJumpUMUTab.tsx\n M src/components/customizer/battlearmor/BattleArmorManipulatorsTab.tsx\n M src/components/customizer/battlearmor/BattleArmorModularWeaponsTab.tsx\n M src/components/customizer/equipment/CatalogPlacementDialog.tsx\n M src/components/customizer/infantry/InfantryCustomizer.tsx\n M src/components/customizer/infantry/InfantryPlatoonTab.tsx\n M src/components/customizer/infantry/InfantryPreviewTab.tsx\n M src/components/customizer/infantry/InfantryPrimaryWeaponTab.tsx\n M src/components/customizer/infantry/InfantryRecordSheetPreview.tsx\n M src/components/customizer/infantry/InfantrySecondaryWeaponsTab.tsx\n M src/components/customizer/infantry/InfantrySpecializationTab.tsx\n M src/components/customizer/infantry/__tests__/InfantryPreviewTab.test.tsx\n M src/components/customizer/protomech/ProtoMechArmorTab.tsx\n M src/components/customizer/protomech/ProtoMechCustomizer.tsx\n M src/components/customizer/protomech/ProtoMechEquipmentTab.tsx\n M src/components/customizer/protomech/ProtoMechGliderTab.tsx\n M src/components/customizer/protomech/ProtoMechMainGunTab.tsx\n M src/components/customizer/shared/TabSpec.ts\n M src/components/customizer/shared/__tests__/tabRegistry.canonical.test.ts\n M src/components/customizer/shared/tabRegistry.tsx\n M src/components/customizer/tabs/__tests__/CustomizerTabs.markers.test.tsx\n M src/components/customizer/vehicle/VehicleCustomizer.tsx\n M src/hooks/__tests__/useCustomizerRouter.recovery.test.tsx\n M src/hooks/__tests__/useCustomizerTabs.navConfirm.test.ts\n M src/hooks/__tests__/useEquipmentBrowser.catalog.test.tsx\n M src/hooks/useCustomizerRouter.ts\n M src/hooks/useCustomizerTabs.ts\n M src/lib/campaign/hooks/useCampaignDashboardSummary.ts\n M src/lib/campaign/processors/__tests__/autoAwardsProcessor.test.ts\n M src/lib/campaign/utils/pilotLookup.ts\n M src/services/equipment/EquipmentLoaderService.ts\n M src/services/equipment/EquipmentOfficialLoader.ts\n M src/services/units/chassis/chassisIndex.ts\n M src/services/validation/UnitValidationRegistry.ts\n M src/services/validation/__tests__/initializeUnitValidation.test.ts\n M src/stores/unit/__tests__/catalogEquipmentPlacement.test.ts\n M src/types/campaign/CampaignRosterEntry.ts\n M src/types/campaign/UnitCombatState.ts\n M src/utils/gameplay/pilotingSkillRolls/types.ts\n?? docs/audits/2026-09-09-printable-model-library/\n?? docs/audits/2026-09-12-customizer-context-reconciliation.md\n?? docs/audits/2026-09-12-customizer-routing-acceptance.md\n?? docs/audits/2026-09-12-customizer-spec-reconciliation/\n?? e2e/helpers/recordSheetPrintHarness.ts\n?? openspec/changes/add-customizer-pr-regression-gate/\n?? openspec/changes/archive/2026-09-12-add-customizer-edit-recovery/\n?? openspec/changes/archive/2026-09-12-establish-battlemech-chassis-index/\n?? openspec/changes/archive/2026-09-12-fix-customizer-explicit-tab-precedence/\n?? openspec/changes/archive/2026-09-12-repair-equipment-catalog/\n?? openspec/planning/2026-09-12-roadmap-completion/\n?? openspec/specs/battlemech-chassis-index/\n?? openspec/specs/custom-unit-combat/\n?? openspec/specs/customizer-edit-recovery/\n?? scripts/__tests__/mm-data-browser-config.test.ts\n?? scripts/__tests__/standalone-hydration-path-safety.test.ts\n?? scripts/qc/openspec-ci-contracts.mjs\n?? scripts/qc/openspec-workflow-contracts.mjs\n?? src/__tests__/service/validation/UnitValidationHierarchyOrder.test.ts\n?? src/components/customizer/__tests__/CustomizerWithRouter.routing.test.tsx\n?? src/services/encounter/__tests__/bvCatalogPrewarmer.test.ts\n?? src/services/equipment/__tests__/EquipmentOfficialLoader.failure.test.ts\n",
+      "stderrText": ""
+    },
+    "absenceCorrection": {
+      "local": {
+        "id": "19-local-ref-absence-correction",
+        "command": [
+          "git.exe",
+          "show-ref",
+          "--verify",
+          "--quiet",
+          "refs/heads/codex/roadmap-campaign-contracts-20260912"
+        ],
+        "cwd": "E:/Projects/MekStation",
+        "startedAt": "2026-09-12T21:57:57.537Z",
+        "finishedAt": "2026-09-12T21:57:57.624Z",
+        "exitCode": 1,
+        "signal": null,
+        "stdout": {
+          "path": "logs/19-local-ref-absence-correction.stdout.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stderr": {
+          "path": "logs/19-local-ref-absence-correction.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "tracking": {
+        "id": "20-tracking-ref-absence-correction",
+        "command": [
+          "git.exe",
+          "show-ref",
+          "--verify",
+          "--quiet",
+          "refs/remotes/origin/codex/roadmap-campaign-contracts-20260912"
+        ],
+        "cwd": "E:/Projects/MekStation",
+        "startedAt": "2026-09-12T21:57:57.625Z",
+        "finishedAt": "2026-09-12T21:57:57.825Z",
+        "exitCode": 1,
+        "signal": null,
+        "stdout": {
+          "path": "logs/20-tracking-ref-absence-correction.stdout.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stderr": {
+          "path": "logs/20-tracking-ref-absence-correction.stderr.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    }
+  },
+  "postRemoval": {
+    "worktreeRemoved": true,
+    "localBranchAbsent": true,
+    "trackingRefAbsent": true,
+    "remoteQueryUnchanged": true,
+    "rootStatusSha256": "2ac43e3bb4b499063b1b2fe0f9e09d6594fd8effa492bc8413b18e6aa119fd86"
+  },
+  "assertions": {
+    "preconditions": true,
+    "nonForceWorktreeRemoval": true,
+    "worktreeRemoved": true,
+    "localBranchDeletedOnlyAfterLocalCommitMatch": true,
+    "trackingDeletedOnlyAfterReviewedMatch": true,
+    "remoteUntouched": true,
+    "exactRawProofHashes": true,
+    "sourceExportsReopenedMatch": true,
+    "noRootReconciliation": true,
+    "localBranchAbsentAfterCorrection": true,
+    "trackingRefAbsentAfterCorrection": true,
+    "worktreeAbsentAfterCorrection": true,
+    "initialFailuresPreserved": true
+  },
+  "limits": [
+    "Cleanup only; no source, ledger, build, install, server, or unrelated deletion.",
+    "Remote branch was queried read-only; only local branch and local tracking ref were compare-deleted."
+  ],
+  "postRemovalVerification": {
+    "local": {
+      "id": "19-local-ref-absence-correction",
+      "command": [
+        "git.exe",
+        "show-ref",
+        "--verify",
+        "--quiet",
+        "refs/heads/codex/roadmap-campaign-contracts-20260912"
+      ],
+      "cwd": "E:/Projects/MekStation",
+      "startedAt": "2026-09-12T21:57:57.537Z",
+      "finishedAt": "2026-09-12T21:57:57.624Z",
+      "exitCode": 1,
+      "signal": null,
+      "stdout": {
+        "path": "logs/19-local-ref-absence-correction.stdout.log",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stderr": {
+        "path": "logs/19-local-ref-absence-correction.stderr.log",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    "tracking": {
+      "id": "20-tracking-ref-absence-correction",
+      "command": [
+        "git.exe",
+        "show-ref",
+        "--verify",
+        "--quiet",
+        "refs/remotes/origin/codex/roadmap-campaign-contracts-20260912"
+      ],
+      "cwd": "E:/Projects/MekStation",
+      "startedAt": "2026-09-12T21:57:57.625Z",
+      "finishedAt": "2026-09-12T21:57:57.825Z",
+      "exitCode": 1,
+      "signal": null,
+      "stdout": {
+        "path": "logs/20-tracking-ref-absence-correction.stdout.log",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stderr": {
+        "path": "logs/20-tracking-ref-absence-correction.stderr.log",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    "worktrees": {
+      "command": [
+        "git.exe",
+        "worktree",
+        "list",
+        "--porcelain"
+      ],
+      "cwd": "E:/Projects/MekStation",
+      "exitCode": 0,
+      "containsCandidate": false,
+      "stdoutSha256": "3cfc3870889e2f97e5652ff8f9d746b1971e59803d7b18ae6908c695b214945a",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "correctionHistory": {
+    "initialReceiptPath": "campaign-contracts-cleanup/cleanup-initial-receipt.json",
+    "initialReceiptSha256": "a0ea78f10084cbf2d450282036e5e40503b6c62fa1a4153b5c4255e1876fe7aa",
+    "initialStatus": "cleanup-partial-or-blocked",
+    "initialAbsenceExitCodes": {
+      "local": 128,
+      "tracking": 128
+    },
+    "correctionReason": "show-ref --verify without --quiet returned exit 128 for absent refs; quiet verification returned exit 1, proving absence without retrying deletion"
+  }
+}

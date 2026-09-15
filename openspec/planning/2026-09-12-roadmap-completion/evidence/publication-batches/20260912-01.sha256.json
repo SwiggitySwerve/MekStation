@@ -1,0 +1,607 @@
+{
+  "batch": "20260912-01",
+  "generatedAt": "2026-09-15T22:42:37.000Z",
+  "sourceBase": "1f67f814e3f04e8a38488de70ecd8396f9269ca6",
+  "files": [
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/anchor-spec-final-review-20260912.json",
+      "bytes": 9189,
+      "sha256": "e1651c81bba1bc6013c138318afeacc43a93e14f89af721123c1d04be55e10c1",
+      "sourceSha256": "e1651c81bba1bc6013c138318afeacc43a93e14f89af721123c1d04be55e10c1"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/anchor-spec-finish-review-20260912.json",
+      "bytes": 18234,
+      "sha256": "bd0d8ed7a7d7a7473fb78ed1e04d9a592dd709140a35782ea21165935f89f24f",
+      "sourceSha256": "bd0d8ed7a7d7a7473fb78ed1e04d9a592dd709140a35782ea21165935f89f24f"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/anchor-spec-parent-correction-review-20260912.json",
+      "bytes": 6959,
+      "sha256": "67d1d0dcda66ebad275b11044ea45bdbf139252ac0264633c300e76039c1a331",
+      "sourceSha256": "67d1d0dcda66ebad275b11044ea45bdbf139252ac0264633c300e76039c1a331"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/battlearmor-autosave-debt-20260912.json",
+      "bytes": 10718,
+      "sha256": "8a221f8e3ab59263ce43c0f49f514aef56da2b81c6d4eea9619ddae70c33879e",
+      "sourceSha256": "8a221f8e3ab59263ce43c0f49f514aef56da2b81c6d4eea9619ddae70c33879e"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/battlearmor-autosave-docs-precommit-parent-acceptance-20260912.json",
+      "bytes": 30915,
+      "sha256": "47fb42ac112c8919617c52e421e77a822fe972f4ec4a32c375a1e193196eafd9",
+      "sourceSha256": "47fb42ac112c8919617c52e421e77a822fe972f4ec4a32c375a1e193196eafd9"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/battlearmor-autosave-docs-review-20260912.json",
+      "bytes": 18361,
+      "sha256": "07f303d1bdaa9f9fda7fbc76d7d7adc67ec8a75fcd4dec5e22639e169270c258",
+      "sourceSha256": "07f303d1bdaa9f9fda7fbc76d7d7adc67ec8a75fcd4dec5e22639e169270c258"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/battlearmor-autosave-main-verification-20260912.json",
+      "bytes": 6857,
+      "sha256": "2fec6554fd7b6a5dbea819994f42b48edccb3121dc749cf94ad9788ab651c812",
+      "sourceSha256": "2fec6554fd7b6a5dbea819994f42b48edccb3121dc749cf94ad9788ab651c812"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/campaign-catalog-specs-delivery-20260912.json",
+      "bytes": 37411,
+      "sha256": "81ce903c8ba822a9f5c9d34d1b9862dfaa00f91a4e8bcd12d2f34de60be0bf48",
+      "sourceSha256": "81ce903c8ba822a9f5c9d34d1b9862dfaa00f91a4e8bcd12d2f34de60be0bf48"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/campaign-catalog-specs-precommit-parent-acceptance-20260912.json",
+      "bytes": 19836,
+      "sha256": "6f75037277a971c320daa011126122530c5704f8822ad67b27f3126114e7f311",
+      "sourceSha256": "6f75037277a971c320daa011126122530c5704f8822ad67b27f3126114e7f311"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/campaign-catalog-specs-review-20260912.json",
+      "bytes": 40479,
+      "sha256": "4bc3e15b5538843bf41325109bcf873f54a6b117f85faa70ef938af47dacd1a2",
+      "sourceSha256": "4bc3e15b5538843bf41325109bcf873f54a6b117f85faa70ef938af47dacd1a2"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/campaign-catalog-specs-review-parent-acceptance-20260912.json",
+      "bytes": 16663,
+      "sha256": "b23127d96b64be1b0bc353e5aa9167c6a048959693850add8377b0b2577750d9",
+      "sourceSha256": "b23127d96b64be1b0bc353e5aa9167c6a048959693850add8377b0b2577750d9"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/campaign-contract-inventory-20260912.json",
+      "bytes": 14542,
+      "sha256": "a89e775c84c6bc09ae114b05922352ce4b18c02568f3b470ff56df1c1956ee4b",
+      "sourceSha256": "98b69a3717da9a3aa6f1e8e9884ef422c96080f3be84ca0489209f0654c2044a",
+      "lineEndings": "CRLF source normalized to LF by .gitattributes"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/campaign-contracts-cleanup-20260912.json",
+      "bytes": 24503,
+      "sha256": "7b8c6868f1045f7ce9a2dd3609b788dee9c932f184df1878a6a966836c04ff5f",
+      "sourceSha256": "7b8c6868f1045f7ce9a2dd3609b788dee9c932f184df1878a6a966836c04ff5f"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/campaign-contracts-cleanup-parent-acceptance-20260912.json",
+      "bytes": 560,
+      "sha256": "55275d09764fa0fa5711cd1d7772b1d8b3664eb427c279fbebb95489b7a8a7e7",
+      "sourceSha256": "55275d09764fa0fa5711cd1d7772b1d8b3664eb427c279fbebb95489b7a8a7e7"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/campaign-contracts-delivery-preflight-20260912.json",
+      "bytes": 9637,
+      "sha256": "d6f800a370cae1d6b1162ff2e40f1b463e4afd99baaced672ca384012481f63a",
+      "sourceSha256": "d6f800a370cae1d6b1162ff2e40f1b463e4afd99baaced672ca384012481f63a"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/campaign-contracts-independent-review-20260912.json",
+      "bytes": 8992,
+      "sha256": "e75644cbc238179f6348fb5f843ef90fe648d6de38f2a492e3c5a76c929f92a0",
+      "sourceSha256": "e75644cbc238179f6348fb5f843ef90fe648d6de38f2a492e3c5a76c929f92a0"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/campaign-contracts-main-parent-acceptance-20260912.json",
+      "bytes": 776,
+      "sha256": "79d5bbc37f53b7853486084a8026327078455c842f442572628a8d57c96636ac",
+      "sourceSha256": "79d5bbc37f53b7853486084a8026327078455c842f442572628a8d57c96636ac"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/campaign-contracts-main-verification-20260912.json",
+      "bytes": 20494,
+      "sha256": "dc6f8842c8b0765e675e313e848a009073600aed2f9066a53a4a98dac4116cf3",
+      "sourceSha256": "dc6f8842c8b0765e675e313e848a009073600aed2f9066a53a4a98dac4116cf3"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/campaign-contracts-preflight-hash-qualification-20260912.json",
+      "bytes": 441,
+      "sha256": "78b8cc2ecf78f4c9122db75c9dd7e4e2fbfc6e14755ce9d26667d283b884e0c2",
+      "sourceSha256": "78b8cc2ecf78f4c9122db75c9dd7e4e2fbfc6e14755ce9d26667d283b884e0c2"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/ci-contract-modules-cleanup-20260912.json",
+      "bytes": 5746,
+      "sha256": "bf7ef84ab04040fe8ad5e48ecb245f5465eb644cb22e3db24f38bcfa9173b2d4",
+      "sourceSha256": "bf7ef84ab04040fe8ad5e48ecb245f5465eb644cb22e3db24f38bcfa9173b2d4"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/ci-contract-modules-cleanup-export-qualification-20260912.json",
+      "bytes": 3879,
+      "sha256": "12af4cce835979baf7518eca45d1cd1945078ea540f6dfc1194363034634e0e9",
+      "sourceSha256": "12af4cce835979baf7518eca45d1cd1945078ea540f6dfc1194363034634e0e9"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/ci-contract-modules-cleanup-parent-acceptance-20260912.json",
+      "bytes": 51180,
+      "sha256": "0478802f83c3ec1e3f53c642badd0b2e80f0aa084fb96483cd8596f2f2e571c1",
+      "sourceSha256": "0478802f83c3ec1e3f53c642badd0b2e80f0aa084fb96483cd8596f2f2e571c1"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/ci-contract-modules-delivery-preflight-20260912.json",
+      "bytes": 7142,
+      "sha256": "584fcd7ff5629ad100bae8d693dbead43369b27ff2a22cc05d4f90de41a331a2",
+      "sourceSha256": "584fcd7ff5629ad100bae8d693dbead43369b27ff2a22cc05d4f90de41a331a2"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/ci-contract-modules-delivery-preflight4-20260912.json",
+      "bytes": 4331,
+      "sha256": "6b2abb5220b46e4212136c3ead7d74acc03eea1049108e24b35153f4a590063f",
+      "sourceSha256": "6b2abb5220b46e4212136c3ead7d74acc03eea1049108e24b35153f4a590063f"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/ci-contract-modules-exit-evidence-repair-20260912.json",
+      "bytes": 16065,
+      "sha256": "b6c6749e9958566ae872375f79e0574286764105ec9255a5cc2da39c3839dcd2",
+      "sourceSha256": "b6c6749e9958566ae872375f79e0574286764105ec9255a5cc2da39c3839dcd2"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/ci-contract-modules-local-build-20260912-correction.json",
+      "bytes": 11162,
+      "sha256": "48bc0460845b5e07bafa107d5bc19826d669aa0ebaa5009ab70be98e5c12c90f",
+      "sourceSha256": "48bc0460845b5e07bafa107d5bc19826d669aa0ebaa5009ab70be98e5c12c90f"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/ci-contract-modules-local-build-20260912.json",
+      "bytes": 6131,
+      "sha256": "136cc19b29ebfce3a9f7c4f17e0730401254994e26939dee1e6005908b37886d",
+      "sourceSha256": "136cc19b29ebfce3a9f7c4f17e0730401254994e26939dee1e6005908b37886d"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/ci-contract-modules-local-build-parent-acceptance-20260912.json",
+      "bytes": 956,
+      "sha256": "efff241cde2604a46dd8c4e1485aa10e0a0647eca0aba569eb2b02be0af5df52",
+      "sourceSha256": "efff241cde2604a46dd8c4e1485aa10e0a0647eca0aba569eb2b02be0af5df52"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/ci-contract-modules-main-parent-acceptance-20260912.json",
+      "bytes": 62362,
+      "sha256": "7d049e2cd4451014862af6b203bb9c0771d3c090114a128e897a5a95ab868d50",
+      "sourceSha256": "7d049e2cd4451014862af6b203bb9c0771d3c090114a128e897a5a95ab868d50"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/ci-contract-modules-main-verification-20260912.json",
+      "bytes": 10739,
+      "sha256": "3797f6acc55c4d9b38613bc1aaa52587f753d6f1f68d5adf5db8678fe242cd4c",
+      "sourceSha256": "3797f6acc55c4d9b38613bc1aaa52587f753d6f1f68d5adf5db8678fe242cd4c"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/ci-four-prefix-readiness-max-20260912.json",
+      "bytes": 7162,
+      "sha256": "a53effe23bfbee3a8e7c6759918d1fdabac7536fec61961aac855b1907f843c7",
+      "sourceSha256": "a53effe23bfbee3a8e7c6759918d1fdabac7536fec61961aac855b1907f843c7"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/ci-module-finish-20260912.json",
+      "bytes": 3924,
+      "sha256": "9097e7f89dcf58f41404d5868f0a7623e677fc5a8dc0bd4bb5422edcce88cf90",
+      "sourceSha256": "9097e7f89dcf58f41404d5868f0a7623e677fc5a8dc0bd4bb5422edcce88cf90"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/ci-module-independent-review-20260912.json",
+      "bytes": 10328,
+      "sha256": "1e1aa7cfcff975a2d3885b5298dd48ca00080c2676a75376554a580c85ef34eb",
+      "sourceSha256": "1e1aa7cfcff975a2d3885b5298dd48ca00080c2676a75376554a580c85ef34eb"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/ci-module-parent-acceptance-20260912.json",
+      "bytes": 890,
+      "sha256": "7bdb0bd10907094f278f885110f45fe0310df2fb221ee871af4f11fffdc23ebb",
+      "sourceSha256": "7bdb0bd10907094f278f885110f45fe0310df2fb221ee871af4f11fffdc23ebb"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/ci-root-reconciliation-20260912.json",
+      "bytes": 1786,
+      "sha256": "714fa6c40eab9d6ef34d9d197a11ed3c6a057df7b7026254607d9b7a4d8cec34",
+      "sourceSha256": "714fa6c40eab9d6ef34d9d197a11ed3c6a057df7b7026254607d9b7a4d8cec34"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/ci-root-reconciliation-verification-20260912.json",
+      "bytes": 7052,
+      "sha256": "84ae73e1bc5805071b5f9154b9671bcece52cdafcc79f77d785d71e100f45fae",
+      "sourceSha256": "84ae73e1bc5805071b5f9154b9671bcece52cdafcc79f77d785d71e100f45fae"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/ci-yaml-dependency-proposal-max-20260912.json",
+      "bytes": 9173,
+      "sha256": "f512de3923d8f9d3bd6ead6d18efa9d57d8c93fcccda611c73f5036d5961ebab",
+      "sourceSha256": "f512de3923d8f9d3bd6ead6d18efa9d57d8c93fcccda611c73f5036d5961ebab"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/ci-yaml-dependency-user-approval-20260912.json",
+      "bytes": 519,
+      "sha256": "b34b2cf9630472fde8a65d569b15cf45ab638665573c6632b217c56edd1b17e4",
+      "sourceSha256": "b34b2cf9630472fde8a65d569b15cf45ab638665573c6632b217c56edd1b17e4"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/combat-reference-specs-review-20260912.json",
+      "bytes": 39576,
+      "sha256": "3e2737663060c2d1d52e01dfdce62a77cd2875640978322b41a92cbbb8d5ab07",
+      "sourceSha256": "3e2737663060c2d1d52e01dfdce62a77cd2875640978322b41a92cbbb8d5ab07"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/combat-reference-specs-review-parent-acceptance-20260912.json",
+      "bytes": 14731,
+      "sha256": "09034a1f67908eda25f1364f9b0c1e5afedf78fbbc883d00ded57919a9d0acaf",
+      "sourceSha256": "09034a1f67908eda25f1364f9b0c1e5afedf78fbbc883d00ded57919a9d0acaf"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/continuation-admission-20260912.json",
+      "bytes": 1007,
+      "sha256": "d6d90a18fc498a440091a0277ad325462d6fe9cf073998fdbd9d0b8ca8a2995f",
+      "sourceSha256": "d6d90a18fc498a440091a0277ad325462d6fe9cf073998fdbd9d0b8ca8a2995f"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/contracts-root-reconciliation-20260912.json",
+      "bytes": 30309,
+      "sha256": "4ac5c52e31522b28114044e43fecb56d37fccadaf363777539735183da292a16",
+      "sourceSha256": "4ac5c52e31522b28114044e43fecb56d37fccadaf363777539735183da292a16"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/critical-display-contract-trace-20260912.json",
+      "bytes": 6081,
+      "sha256": "162061e23f9b5d6fca30eb602ecdad630888d44d5e50e52d8a45d4e3c83bb10c",
+      "sourceSha256": "162061e23f9b5d6fca30eb602ecdad630888d44d5e50e52d8a45d4e3c83bb10c"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/critical-display-spec-repair-20260912.json",
+      "bytes": 6707,
+      "sha256": "63825b3e0d5a7e15a88b2906d17348dca0d6aabe336bcaa604f4d6c75fa0d639",
+      "sourceSha256": "63825b3e0d5a7e15a88b2906d17348dca0d6aabe336bcaa604f4d6c75fa0d639"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/critical-display-spec-repair-20260912.raw.txt",
+      "bytes": 3044,
+      "sha256": "7002044ac644f37455e693ea64ac1c6b20b35c09083ed9d43cb5d5904f5ac72d",
+      "sourceSha256": "7002044ac644f37455e693ea64ac1c6b20b35c09083ed9d43cb5d5904f5ac72d"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/customizer-doc-final-xhigh-review-20260912.json",
+      "bytes": 6728,
+      "sha256": "d93ce6448e9d66207e8fd797fca067166105b98d9c9ce78e1647dc3b1531a049",
+      "sourceSha256": "d93ce6448e9d66207e8fd797fca067166105b98d9c9ce78e1647dc3b1531a049"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/customizer-five-spec-final-xhigh-review-20260912.json",
+      "bytes": 9517,
+      "sha256": "adffefbb61411053aed9e5b0391bc02482b6f64c398ab8170e130dbe197f22f1",
+      "sourceSha256": "adffefbb61411053aed9e5b0391bc02482b6f64c398ab8170e130dbe197f22f1"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/customizer-five-spec-isolated-verification-20260912.json",
+      "bytes": 4708,
+      "sha256": "4907bd2a7dca8237bdbddf254ac03dd14ff0050e3683cc6b4e5d20dceb88cea3",
+      "sourceSha256": "4907bd2a7dca8237bdbddf254ac03dd14ff0050e3683cc6b4e5d20dceb88cea3"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/customizer-five-spec-parent-acceptance-20260912.json",
+      "bytes": 2761,
+      "sha256": "3beae33966e6dff890727f54c66c29ca3960dad44e20955745e64b262fc9fb5a",
+      "sourceSha256": "3beae33966e6dff890727f54c66c29ca3960dad44e20955745e64b262fc9fb5a"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/customizer-specs-cleanup-20260912.json",
+      "bytes": 1001,
+      "sha256": "a0ca268e0d27dc34ddc792a5832ce8796981a8a8d76eb0123b8fa5b584061ae8",
+      "sourceSha256": "a0ca268e0d27dc34ddc792a5832ce8796981a8a8d76eb0123b8fa5b584061ae8"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/customizer-specs-isolated-admission-20260912.json",
+      "bytes": 2026,
+      "sha256": "eee1ee6c374d3eead42f021fe3e3e2610b7456f9eaab514db7519c7487a7df52",
+      "sourceSha256": "eee1ee6c374d3eead42f021fe3e3e2610b7456f9eaab514db7519c7487a7df52"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/customizer-specs-main-update-20260912.json",
+      "bytes": 1285,
+      "sha256": "2643a955d4c5126cef2b4456b81886f05c66462cd217256a4ca084e5d89259bc",
+      "sourceSha256": "2643a955d4c5126cef2b4456b81886f05c66462cd217256a4ca084e5d89259bc"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/customizer-specs-main-verification-20260912.json",
+      "bytes": 8392,
+      "sha256": "6d9874393b3cdda5f9144c485bef376fbc0a761c91586c15009540bf7bfe4da5",
+      "sourceSha256": "6d9874393b3cdda5f9144c485bef376fbc0a761c91586c15009540bf7bfe4da5"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/customizer-specs-merge-20260912.json",
+      "bytes": 461,
+      "sha256": "788b2033cb33b675a71c6c8ef7387bbbde8aad811243e0282a837ca3c5e895ac",
+      "sourceSha256": "788b2033cb33b675a71c6c8ef7387bbbde8aad811243e0282a837ca3c5e895ac"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/equipment-loader-cleanup-20260912.json",
+      "bytes": 4150,
+      "sha256": "a7d2a1ff5bb0c545cf03df9f56a24653fcd8cb24acc4df4a89223d1b04ee0ba6",
+      "sourceSha256": "a7d2a1ff5bb0c545cf03df9f56a24653fcd8cb24acc4df4a89223d1b04ee0ba6"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/equipment-loader-hooked-commit-20260912.json",
+      "bytes": 1491,
+      "sha256": "102c9d2b16db841e4581a16328c83faf3d0f5800b3758f82bb306591c22dc40c",
+      "sourceSha256": "102c9d2b16db841e4581a16328c83faf3d0f5800b3758f82bb306591c22dc40c"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/equipment-loader-independent-review-20260912-continuation.json",
+      "bytes": 1671,
+      "sha256": "b0322c1b86613f280d59655168eba6abdf2ca315842aba1e52e6571ac2dbf139",
+      "sourceSha256": "b0322c1b86613f280d59655168eba6abdf2ca315842aba1e52e6571ac2dbf139"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/equipment-loader-local-verification-20260912-continuation.json",
+      "bytes": 5708,
+      "sha256": "77e1c7b6483989e7209d757eb216829799b68766f1bdfdbd46c3fa1e4685fd41",
+      "sourceSha256": "77e1c7b6483989e7209d757eb216829799b68766f1bdfdbd46c3fa1e4685fd41"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/equipment-loader-main-verification-20260912.json",
+      "bytes": 7639,
+      "sha256": "87802c2b4b3f62eae7a0e8545bb47f422a3435cc671b1ce2c90dc4e24e3f9032",
+      "sourceSha256": "87802c2b4b3f62eae7a0e8545bb47f422a3435cc671b1ce2c90dc4e24e3f9032"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/equipment-loader-merge-20260912.json",
+      "bytes": 739,
+      "sha256": "f337e6ab9e76f84315f3854e710221eca1a9370fed4ef44b6c5a6db43633b036",
+      "sourceSha256": "f337e6ab9e76f84315f3854e710221eca1a9370fed4ef44b6c5a6db43633b036"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/equipment-tray-location-clarification-20260912.json",
+      "bytes": 873,
+      "sha256": "4002e48e2bd3f141c28dd447047fc54c0e44a41d7e9fddf8d2f89f1a351263c8",
+      "sourceSha256": "4002e48e2bd3f141c28dd447047fc54c0e44a41d7e9fddf8d2f89f1a351263c8"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/grok-usage-exhaustion-20260912.json",
+      "bytes": 1841,
+      "sha256": "5b7aecbc61cb6afeaafd1cd9f306c1578fd4b7781f5d6c20bfec98575fd88c4f",
+      "sourceSha256": "5b7aecbc61cb6afeaafd1cd9f306c1578fd4b7781f5d6c20bfec98575fd88c4f"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/handoff-20260912-final-checkpoint.json",
+      "bytes": 1761,
+      "sha256": "fa62c90fdce4b478134849d53b297c4caa4bed63d11eb9f79f6c50fc6d2066b6",
+      "sourceSha256": "fa62c90fdce4b478134849d53b297c4caa4bed63d11eb9f79f6c50fc6d2066b6"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/hydration-path-max-review-20260912.json",
+      "bytes": 5601,
+      "sha256": "a28503cecaa4363ded91f7ce0ba2d0e3594b0df6164c1e54b99c5d521369e45d",
+      "sourceSha256": "a28503cecaa4363ded91f7ce0ba2d0e3594b0df6164c1e54b99c5d521369e45d"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/hydration-safety-cleanup-20260912.json",
+      "bytes": 16603,
+      "sha256": "f8957d8ef9237ca5984a7dfb595d5410111b946017c9b65bc76d859b132df47a",
+      "sourceSha256": "49bbd5f80b76cd2709b5b125464b066d3f89fae84bd1b49aee2eb1960c6ae97a",
+      "lineEndings": "CRLF source normalized to LF by .gitattributes"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/hydration-safety-grok-static-parent-acceptance-20260912.json",
+      "bytes": 6924,
+      "sha256": "696f9ddd170d1472d0280c0400279ee68eff022908ea34ab5bdc1d15e819314a",
+      "sourceSha256": "696f9ddd170d1472d0280c0400279ee68eff022908ea34ab5bdc1d15e819314a"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/hydration-safety-hooked-commit-20260912.json",
+      "bytes": 1201,
+      "sha256": "d7b35247970267c3d70e7ddc0507cda0fb7061b5bd3eda8d74cf03efedbd8120",
+      "sourceSha256": "d7b35247970267c3d70e7ddc0507cda0fb7061b5bd3eda8d74cf03efedbd8120"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/hydration-safety-implementation-max-20260912.json",
+      "bytes": 3798,
+      "sha256": "7abf86b24fe7c63d6bcec287174e1b8ae03333b86f359f37dc3cd8eecf567eef",
+      "sourceSha256": "7abf86b24fe7c63d6bcec287174e1b8ae03333b86f359f37dc3cd8eecf567eef"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/hydration-safety-independent-xhigh-review-20260912.json",
+      "bytes": 4359,
+      "sha256": "a58931ca6c7d10e7cde2e408a281a209bec16e87baee43ceadeab7a11bb11a37",
+      "sourceSha256": "a58931ca6c7d10e7cde2e408a281a209bec16e87baee43ceadeab7a11bb11a37"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/hydration-safety-isolated-admission-20260912.json",
+      "bytes": 4231,
+      "sha256": "591101dfad64fe8f9b3ff0b643392a2ae14e2147a343be8b347412fcf4d41d76",
+      "sourceSha256": "591101dfad64fe8f9b3ff0b643392a2ae14e2147a343be8b347412fcf4d41d76"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/hydration-safety-main-parent-acceptance-20260912.json",
+      "bytes": 1361,
+      "sha256": "f79349a2033aafeb135a339d96c7db47885760b12476c60d2ec40cbb781cff25",
+      "sourceSha256": "f79349a2033aafeb135a339d96c7db47885760b12476c60d2ec40cbb781cff25"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/hydration-safety-main-verification-20260912.json",
+      "bytes": 14385,
+      "sha256": "cef9ffc7c222978324a500959219f5598c09eecf7ef2d30ae6a20a3f918a63e1",
+      "sourceSha256": "495a9ca59be4d6adc1419d86ee12f660d78f23b38802ceb637849944e357a0a0",
+      "lineEndings": "CRLF source normalized to LF by .gitattributes"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/hydration-safety-merge-20260912.json",
+      "bytes": 566,
+      "sha256": "f5574eb322b4c7e3ba96589fe8c4fb45d4d28c644966723d2dc9b9e3dc787515",
+      "sourceSha256": "f5574eb322b4c7e3ba96589fe8c4fb45d4d28c644966723d2dc9b9e3dc787515"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/inventory-39-accounting-20260912.json",
+      "bytes": 548,
+      "sha256": "21b0ac7edaf811ee9ead5968cd1b13c9263e8b8a1cbfc7161cb424504c90ef59",
+      "sourceSha256": "21b0ac7edaf811ee9ead5968cd1b13c9263e8b8a1cbfc7161cb424504c90ef59"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/inventory-publication-cleanup-20260912.json",
+      "bytes": 5181,
+      "sha256": "eff95ec703c60a66b504029e033e9261df866444406a00bb3a4f0e80a9d9c69b",
+      "sourceSha256": "eff95ec703c60a66b504029e033e9261df866444406a00bb3a4f0e80a9d9c69b"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/inventory-publication-cleanup-parent-acceptance-20260912.json",
+      "bytes": 7880,
+      "sha256": "e0e551a6efe9e74258f611cf3466674578180007a510962b11f6b40e0cdb3027",
+      "sourceSha256": "e0e551a6efe9e74258f611cf3466674578180007a510962b11f6b40e0cdb3027"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/inventory-publication-main-parent-acceptance-20260912.json",
+      "bytes": 1294,
+      "sha256": "2d812b8b50aeb9eafb1417a6be870213d8a5dceea25a72c63931b9de992cdf99",
+      "sourceSha256": "2d812b8b50aeb9eafb1417a6be870213d8a5dceea25a72c63931b9de992cdf99"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/inventory-publication-main-verification-20260912.json",
+      "bytes": 23501,
+      "sha256": "a7e9dd3610624b080865fac62e6eb0f1ac09f151e0a420d9f4bbf3ab75eb6e2c",
+      "sourceSha256": "a7e9dd3610624b080865fac62e6eb0f1ac09f151e0a420d9f4bbf3ab75eb6e2c"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/inventory-publication-preflight-20260912.json",
+      "bytes": 9233,
+      "sha256": "cdbad0d69e63b1fc227e00ea1a47cf425bd40ccdc0b190f2e172f659b2a3a7f7",
+      "sourceSha256": "cdbad0d69e63b1fc227e00ea1a47cf425bd40ccdc0b190f2e172f659b2a3a7f7"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/luna-effort-trial-request-20260912.json",
+      "bytes": 1256,
+      "sha256": "e125be00584f3835d99652bec93ac6bd18cb3e279f607a3d3b4f0aa1667c4ac0",
+      "sourceSha256": "e125be00584f3835d99652bec93ac6bd18cb3e279f607a3d3b4f0aa1667c4ac0"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/manifest-sync-admission-20260912.json",
+      "bytes": 1403,
+      "sha256": "bcf10a6b6a5ab3cec036b74842252c0d4e1be754ba55202c7399249d7938f497",
+      "sourceSha256": "bcf10a6b6a5ab3cec036b74842252c0d4e1be754ba55202c7399249d7938f497"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/manifest-sync-cleanup-20260912.json",
+      "bytes": 1536,
+      "sha256": "397f5a8743c1471b46fa451dadeb95b3dd39f366900d5bb297bd385fb6c576cd",
+      "sourceSha256": "397f5a8743c1471b46fa451dadeb95b3dd39f366900d5bb297bd385fb6c576cd"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/manifest-sync-entrypoint-followup-20260912.json",
+      "bytes": 3879,
+      "sha256": "4262b9a623b9bb89967c9162383e65cdb6751be96df56ee26610251ed4a3c5a8",
+      "sourceSha256": "4262b9a623b9bb89967c9162383e65cdb6751be96df56ee26610251ed4a3c5a8"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/manifest-sync-final-xhigh-review-20260912.json",
+      "bytes": 6130,
+      "sha256": "452ac1302787228a19316fbe1fa26a2e7b46792428f41d9dbc98a4c9aac450b8",
+      "sourceSha256": "452ac1302787228a19316fbe1fa26a2e7b46792428f41d9dbc98a4c9aac450b8"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/manifest-sync-hooked-commit-20260912.json",
+      "bytes": 1971,
+      "sha256": "104cb812b47acb7c0281c1d319a63d2331a9a6dd572a0adac49b2d7698986c39",
+      "sourceSha256": "104cb812b47acb7c0281c1d319a63d2331a9a6dd572a0adac49b2d7698986c39"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/manifest-sync-implementation-20260912.json",
+      "bytes": 4198,
+      "sha256": "a9f15846ad0433c2425cb17420ba2f00005f09dc085f816178219de6b7c71a59",
+      "sourceSha256": "a9f15846ad0433c2425cb17420ba2f00005f09dc085f816178219de6b7c71a59"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/manifest-sync-independent-xhigh-review-20260912.json",
+      "bytes": 7129,
+      "sha256": "b358f6c685efca5c7644dcad685eaa3d623b57a6334b99afe0d9c27787c3cb01",
+      "sourceSha256": "b358f6c685efca5c7644dcad685eaa3d623b57a6334b99afe0d9c27787c3cb01"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/manifest-sync-isolated-admission-20260912.json",
+      "bytes": 4066,
+      "sha256": "26892064333bcc5779e471fec74be883cc1b6a35034da8cb604dd63a4fd45101",
+      "sourceSha256": "26892064333bcc5779e471fec74be883cc1b6a35034da8cb604dd63a4fd45101"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/manifest-sync-isolated-static-20260912.json",
+      "bytes": 4884,
+      "sha256": "481fa6438037809922ff096928753821d9ab8396bba8b97c1024560a113dda7c",
+      "sourceSha256": "481fa6438037809922ff096928753821d9ab8396bba8b97c1024560a113dda7c"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/manifest-sync-local-verification-20260912.json",
+      "bytes": 3638,
+      "sha256": "8221d263f5b3386ee74cb79a4560d2e6a7082df874e548c38ead93f4609b32c9",
+      "sourceSha256": "8221d263f5b3386ee74cb79a4560d2e6a7082df874e548c38ead93f4609b32c9"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/manifest-sync-main-base-static-20260912.json",
+      "bytes": 8668,
+      "sha256": "4323132e0ccd159b65d3413f878eafd87d7288113d11ae182da295faaf9843cf",
+      "sourceSha256": "4323132e0ccd159b65d3413f878eafd87d7288113d11ae182da295faaf9843cf"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/manifest-sync-main-verification-20260912.json",
+      "bytes": 20900,
+      "sha256": "c2a64bd8e26cbd87f483f87f39ce395518dda4467419bfd3111e9716695f6b67",
+      "sourceSha256": "9d989bd1cb77dd27c67b8513630bf8e1fc04b3411cb43ebd2c46bff8f31ecae6",
+      "lineEndings": "CRLF source normalized to LF by .gitattributes"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/manifest-sync-merge-20260912.json",
+      "bytes": 12297,
+      "sha256": "e35b1d6d18b988e8006bae0bbe65571062d09bf408c285389dbc305d39b7cb35",
+      "sourceSha256": "e35b1d6d18b988e8006bae0bbe65571062d09bf408c285389dbc305d39b7cb35"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/next-spec-prefix-inventory-20260912.json",
+      "bytes": 51821,
+      "sha256": "34f5b53138bb74ea7b54cdeb6d57f30e261817078e55deea5c811a4e4a391e49",
+      "sourceSha256": "3a22ba17e36b05bb89819fc5f7628c50aaf43fb09a64112df12f56d6788e015a",
+      "lineEndings": "CRLF source normalized to LF by .gitattributes"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/next-spec-prefix-inventory-correction-20260912.json",
+      "bytes": 69430,
+      "sha256": "099be49140deb628fa0e39ddb84fe30f716f92bbd866da168d256eae7a453d01",
+      "sourceSha256": "099be49140deb628fa0e39ddb84fe30f716f92bbd866da168d256eae7a453d01"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/openspec-formatter-exclusion-qualification-20260912.json",
+      "bytes": 12358,
+      "sha256": "4172aba318397fd792be676ae4f9ca3ecee4b138b8454d521e559c4a6a924c29",
+      "sourceSha256": "4172aba318397fd792be676ae4f9ca3ecee4b138b8454d521e559c4a6a924c29"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/prerequisite-contract-review-20260912.json",
+      "bytes": 8159,
+      "sha256": "39430ca2d5f07da6f35979f3511fa8a9236f832633fd33ebe489f97de0cfc2c4",
+      "sourceSha256": "39430ca2d5f07da6f35979f3511fa8a9236f832633fd33ebe489f97de0cfc2c4"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/prerequisite-contracts-cleanup-20260912.json",
+      "bytes": 88280,
+      "sha256": "a8420a954e696d2c04c3ee2d4597268df88385fe2555de7dccb0d3d83f6254f5",
+      "sourceSha256": "bc586b710c49458e186871067462028f275236cf512e3fc2cf32bf6997a4989f",
+      "lineEndings": "CRLF source normalized to LF by .gitattributes"
+    },
+    {
+      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/prerequisite-contracts-cleanup-parent-acceptance-20260912.json",
+      "bytes": 501,
+      "sha256": "530b760c1ac8c9feda40ba0a212274f4506828f4c29ac530461da2cf24daf5a6",
+      "sourceSha256": "530b760c1ac8c9feda40ba0a212274f4506828f4c29ac530461da2cf24daf5a6"
+    }
+  ]
+}

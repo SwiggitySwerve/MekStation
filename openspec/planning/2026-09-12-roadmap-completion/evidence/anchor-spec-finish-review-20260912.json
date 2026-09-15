@@ -1,0 +1,344 @@
+{
+  "schemaVersion": 1,
+  "evidenceId": "anchor-spec-finish-review-20260912",
+  "capturedAt": "2026-09-12T20:04:35.615Z",
+  "reviewer": "anchor-spec-finish-review",
+  "reviewType": "independent static source-anchor and maintained-table review",
+  "candidate": {
+    "worktree": "E:/Projects/MekStation/.sisyphus/roadmap-completion-20260912/worktrees/spec-source-anchors",
+    "branch": "codex/roadmap-spec-source-anchors-20260912",
+    "base": "ca0687d25264033376862347e494ddf15cd92bec",
+    "testedSHA": "ca0687d25264033376862347e494ddf15cd92bec",
+    "worktreeGitDir": "E:/Projects/MekStation/.git/worktrees/spec-source-anchors",
+    "status": "exactly five expected owned specs modified; no source, test, ledger, or product paths modified"
+  },
+  "scope": [
+    "openspec/specs/auto-save-persistence/spec.md",
+    "openspec/specs/battle-armor-unit-system/spec.md",
+    "openspec/specs/toast-notifications/spec.md",
+    "openspec/specs/utility-patterns/spec.md",
+    "openspec/specs/vehicle-unit-system/spec.md"
+  ],
+  "proposalProvenance": {
+    "changedFiles": 5,
+    "insertions": 49,
+    "deletions": 48,
+    "changedLines": 97,
+    "maxChangedLines": 200,
+    "gitDiffStat": "5 files changed, 49 insertions(+), 48 deletions(-)",
+    "candidateHashesMatchGrokReceipt": true,
+    "files": [
+      {
+        "path": "openspec/specs/auto-save-persistence/spec.md",
+        "sha256": "c20a361aaffd95dca647a0cc5bdf767bec5b9c3ab4a835ddc2333a35923e5c5e",
+        "bytes": 28877
+      },
+      {
+        "path": "openspec/specs/battle-armor-unit-system/spec.md",
+        "sha256": "3223fcc7ca638ba7b832bf94154a423a13ca7269b05653a846b8f7982b0cdd14",
+        "bytes": 27071
+      },
+      {
+        "path": "openspec/specs/toast-notifications/spec.md",
+        "sha256": "66384b927915371d4e616bbad30c2a384c76730f7fefc68938c449adf526830d",
+        "bytes": 14395
+      },
+      {
+        "path": "openspec/specs/utility-patterns/spec.md",
+        "sha256": "e76d729a60a426b218a29fb5b9bcd4ac4f933b8028ccf453446922982f51b985",
+        "bytes": 24484
+      },
+      {
+        "path": "openspec/specs/vehicle-unit-system/spec.md",
+        "sha256": "aa39890beaccd57bfdee25d93a5c58c88421ff8205c8609ec539cff6fe4e6246",
+        "bytes": 38999
+      }
+    ]
+  },
+  "priorWorker": {
+    "lane": "grok-spec-source-anchors-1",
+    "receipt": ".sisyphus/roadmap-completion-20260912/grok-spec-source-anchors-1/receipt.json",
+    "receiptSha256": "72bdfebd080c40fb16443e662d37ade622ec563bfb37b93c3883616dfc3164a6",
+    "report": ".sisyphus/roadmap-completion-20260912/grok-spec-source-anchors-1/report.md",
+    "reportSha256": "d88eb008a5867936c5639e0a4baedd83772088079eebf7d8c9a038a7a8f37374",
+    "attempts": [
+      {
+        "phase": "initial",
+        "status": "max_turns",
+        "exitCode": 1,
+        "pidObservedGone": true
+      },
+      {
+        "phase": "resume-1",
+        "status": "max_turns",
+        "exitCode": 1,
+        "pidObservedGone": true
+      }
+    ],
+    "reviewMeaning": "The copied proposal and worker checks are provenance only; this evidence is the independent review."
+  },
+  "sourceAnchorVerification": [
+    {
+      "spec": "auto-save-persistence",
+      "changedClaims": [
+        "useGameStatePersistence source anchor resolves to the named exported function at src/hooks/useGameStatePersistence.ts:126."
+      ],
+      "status": "source-anchor-valid; full-spec-publication-needs-bounded-R1-doc-repair",
+      "evidence": [
+        "The old useGameStatePersistence line range was replaced by a stable symbol anchor.",
+        "The unchanged Auto-Save Indicator source range at spec line 51 still points to src/hooks/useAutoSaveIndicator.ts:6-40, while the hook is defined at src/hooks/useAutoSaveIndicator.ts:54-98."
+      ]
+    },
+    {
+      "spec": "battle-armor-unit-system",
+      "changedClaims": [
+        "All ten retained Implementation Files table paths exist in the candidate source tree.",
+        "The retained diff removes volatile line-count claims without changing the module or purpose rows."
+      ],
+      "status": "independently-publishable-for-the-retained-table-delta-with-scoped-existing-debt",
+      "evidence": [
+        "Battle Armor registry source shows Overview, Chassis, Squad, Manipulators, Modular Weapons, AP Weapons, Jump/UMU, Preview, and Fluff at src/components/customizer/shared/tabRegistry.tsx:339-379.",
+        "The canonical spec still says two tabs at openspec/specs/battle-armor-unit-system/spec.md:730; this is a separate pre-existing UI contract follow-up, not a false claim introduced by the retained line-count removal."
+      ]
+    },
+    {
+      "spec": "toast-notifications",
+      "changedClaims": [
+        "useSyncNotifications and all four helper anchors resolve to current exports.",
+        "useSyncToasts and the six notification/data-type definition-site anchors resolve to current exports.",
+        "SyncEvent resolves to its definition in src/lib/p2p/types.ts."
+      ],
+      "status": "source-anchor-valid; full-spec-publication-needs-bounded-R1-doc-repair",
+      "evidence": [
+        "The current SyncEvent union at src/lib/p2p/types.ts:229-242 includes sync-started/itemId, peer-left/peerId, sync-completed/itemId, conflict payloads, and required error.message.",
+        "The spec snippet at openspec/specs/toast-notifications/spec.md:437-444 omits those fields and makes several fields optional or simplified.",
+        "The current ISyncConflict at src/types/vault/VaultSyncTypes.ts:56-68 includes contentType | folder and nine additional required fields; the spec snippet at openspec/specs/toast-notifications/spec.md:398-403 is only a partial shape and narrows contentType."
+      ]
+    },
+    {
+      "spec": "utility-patterns",
+      "changedClaims": [
+        "Debounce, both debounce hooks, eight type guards, three assertions, three enum validators, and four UUID anchors resolve to current exported functions.",
+        "The retained source-anchor changes match the live signatures and no volatile line-count claims remain in the changed requirements."
+      ],
+      "status": "independently-publishable",
+      "evidence": [
+        "Exports resolve in src/utils/debounce.ts:33, src/hooks/useDebounce.ts:40 and :86, src/utils/typeGuards.ts:18-246, and src/utils/uuid.ts:13-35."
+      ]
+    },
+    {
+      "spec": "vehicle-unit-system",
+      "changedClaims": [
+        "All retained Source Files table paths exist.",
+        "VehicleDiagram delegates to VehicleArmorDiagram at src/components/customizer/vehicle/VehicleDiagram.tsx:21-32, and VehicleArmorDiagram is the primary export at :69.",
+        "The tonnage constants and VAL-VEH-001 through VAL-VEH-005 rule IDs resolve in current source."
+      ],
+      "status": "source-anchor-valid; table-purpose-row-needs-bounded-R1-doc-repair",
+      "evidence": [
+        "The retained table still describes VehicleCustomizer.tsx as a 4-tab layout at openspec/specs/vehicle-unit-system/spec.md:951.",
+        "The live registry defines Overview, Structure, Armor, Turret, Equipment, Preview, and Fluff at src/components/customizer/shared/tabRegistry.tsx:243-275."
+      ]
+    }
+  ],
+  "findings": [
+    {
+      "id": "R1-AUTO-SAVE-RECEIPT-CONTRACT",
+      "severity": "P2",
+      "status": "bounded-doc-repair-required",
+      "paths": [
+        "openspec/specs/auto-save-persistence/spec.md",
+        "src/hooks/useAutoSaveIndicator.ts"
+      ],
+      "detail": "The unchanged Auto-Save Indicator requirement and example describe a unit-store lastModifiedAt subscription, a 500ms state-change debounce, and a Saved toast. The live hook takes an AutoSaveIndicatorTarget, subscribes to completed storage write receipts, and emits Draft saved in this browser after its receipt timer; failed receipts emit an error toast.",
+      "sourceRefs": [
+        "openspec/specs/auto-save-persistence/spec.md:47-75",
+        "openspec/specs/auto-save-persistence/spec.md:646-667",
+        "src/hooks/useAutoSaveIndicator.ts:47-98"
+      ],
+      "nextAction": "Create a small R1 documentation repair that retargets the Auto-Save Indicator source anchor to #useAutoSaveIndicator and rewrites only its requirement, scenarios, notes, example, and changelog wording to the receipt-driven target/message/error contract."
+    },
+    {
+      "id": "R1-TOAST-TYPE-SNIPPETS",
+      "severity": "P2",
+      "status": "bounded-doc-repair-required",
+      "paths": [
+        "openspec/specs/toast-notifications/spec.md",
+        "src/lib/p2p/types.ts",
+        "src/types/vault/VaultSyncTypes.ts"
+      ],
+      "detail": "The new definition-site anchors are valid, but the retained code blocks are stale: SyncEvent omits current fields and changes required fields to optional/simplified forms, while ISyncConflict narrows contentType and omits required fields. The hook interface snippets also use readonly modifiers absent from the current definitions.",
+      "sourceRefs": [
+        "openspec/specs/toast-notifications/spec.md:293-445",
+        "src/hooks/useSyncNotifications.ts:36-86",
+        "src/types/vault/VaultSyncTypes.ts:56-92",
+        "src/lib/p2p/types.ts:229-242"
+      ],
+      "nextAction": "Create a bounded R1 data-model snippet repair from the current definition sites; keep toast behavior and runtime proof out of that repair."
+    },
+    {
+      "id": "R1-BATTLE-ARMOR-TAB-SCOPE",
+      "severity": "P2",
+      "status": "scoped-existing-debt",
+      "paths": [
+        "openspec/specs/battle-armor-unit-system/spec.md",
+        "src/components/customizer/shared/tabRegistry.tsx"
+      ],
+      "detail": "The retained implementation table rows are valid paths, but the canonical spec's two-tab narrative predates the current nine-entry registry and the table omits the additional tab modules. This is outside the retained line-count cleanup delta.",
+      "sourceRefs": [
+        "openspec/specs/battle-armor-unit-system/spec.md:726-746",
+        "openspec/specs/battle-armor-unit-system/spec.md:801-814",
+        "src/components/customizer/shared/tabRegistry.tsx:339-379"
+      ],
+      "nextAction": "Track a separate per-type-tab contract repair; do not expand this source-anchor prefix."
+    },
+    {
+      "id": "R1-VEHICLE-TAB-PURPOSE",
+      "severity": "P2",
+      "status": "bounded-doc-repair-required",
+      "paths": [
+        "openspec/specs/vehicle-unit-system/spec.md",
+        "src/components/customizer/shared/tabRegistry.tsx"
+      ],
+      "detail": "The retained Source Files table still says VehicleCustomizer has a 4-tab layout, while the live vehicle registry has seven entries. The source anchors added by the proposal are correct, but this table-purpose statement remains false in the edited table.",
+      "sourceRefs": [
+        "openspec/specs/vehicle-unit-system/spec.md:941-959",
+        "src/components/customizer/shared/tabRegistry.tsx:243-275"
+      ],
+      "nextAction": "Change only the table purpose to registry-driven vehicle tabs or list the seven current entries in a bounded R1 repair."
+    }
+  ],
+  "checks": [
+    {
+      "name": "strict-five-specs",
+      "commandSet": "C:/nvm4w/nodejs/node.exe C:/Users/wroll/AppData/Roaming/npm/node_modules/@fission-ai/openspec/bin/openspec.js validate <five names> --type spec --strict",
+      "exitCodes": [0, 0, 0, 0, 0],
+      "status": "passed",
+      "result": "All five named specifications valid",
+      "rawRun": ".sisyphus/roadmap-completion-20260912/anchor-spec-finish-review/review-run.json",
+      "rawRunSha256": "e56d0fd925ba8aa5706785a868ca372a99894f2411e7ec9d0dc66c56a65a923f"
+    },
+    {
+      "name": "strict-all-openspec",
+      "command": [
+        "C:/nvm4w/nodejs/node.exe",
+        "C:/Users/wroll/AppData/Roaming/npm/node_modules/@fission-ai/openspec/bin/openspec.js",
+        "validate",
+        "--all",
+        "--strict"
+      ],
+      "exitCode": 0,
+      "status": "passed",
+      "result": "Totals: 231 passed, 0 failed (231 items)",
+      "stdoutLog": ".sisyphus/roadmap-completion-20260912/anchor-spec-finish-review/strict-all-openspec.stdout.log",
+      "stdoutSha256": "16c5c323579e9f348bc2adb0830ebd7bb199a73726ab1098c72331305dcca967",
+      "stderrLog": ".sisyphus/roadmap-completion-20260912/anchor-spec-finish-review/strict-all-openspec.stderr.log",
+      "stderrSha256": "5bc31df123a2e521acdd2c0d9477b367feec506471a91065d0a6b32c09089ed5"
+    },
+    {
+      "name": "purpose-strict",
+      "command": ["npm.cmd", "run", "spec:purpose:validate:strict"],
+      "exitCode": 0,
+      "status": "passed",
+      "result": "Files scanned: 217; Errors: 0; Tracked source-of-truth debt: 0",
+      "stdoutLog": ".sisyphus/roadmap-completion-20260912/anchor-spec-finish-review/purpose-strict.stdout.log",
+      "stdoutSha256": "767b5ef37930162c3af6132d2fb8fd65cbb5d19ce36de26e4d269e396b33c1a6",
+      "stderrLog": ".sisyphus/roadmap-completion-20260912/anchor-spec-finish-review/purpose-strict.stderr.log",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "terminology-strict",
+      "command": ["npm.cmd", "run", "terminology:validate:strict"],
+      "exitCode": 0,
+      "status": "passed",
+      "result": "All 319 file(s) are compliant with TERMINOLOGY_GLOSSARY.md",
+      "stdoutLog": ".sisyphus/roadmap-completion-20260912/anchor-spec-finish-review/terminology-strict.stdout.log",
+      "stdoutSha256": "f900b2f139d48a4fce3da66f12105cdd633a1cfe6dc8102211bcf03cc6a1cce7",
+      "stderrLog": ".sisyphus/roadmap-completion-20260912/anchor-spec-finish-review/terminology-strict.stderr.log",
+      "stderrSha256": "d82bb911af3f02778f67a08c11bb294f76a709e9beb205a5bcce85cb49e5ec89",
+      "warning": "Existing MODULE_TYPELESS_PACKAGE_JSON warning; no remediation attempted."
+    },
+    {
+      "name": "ci-qc",
+      "command": ["npm.cmd", "run", "qc:openspec-ci:validate"],
+      "exitCode": 0,
+      "status": "passed",
+      "result": "workflowContracts=8/8; aggregatorNeeds=18/18; protectedContexts=4; packageScripts=3/3; activeOpenSpecChanges=14; accountedActiveOpenSpecChanges=14; errors=0",
+      "stdoutLog": ".sisyphus/roadmap-completion-20260912/anchor-spec-finish-review/ci-qc.stdout.log",
+      "stdoutSha256": "f01feb11318234aab4764fe76151b78c06905527212a8f8723626fcf616b71d6",
+      "stderrLog": ".sisyphus/roadmap-completion-20260912/anchor-spec-finish-review/ci-qc.stderr.log",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "markdown-format",
+      "command": [
+        "npm.cmd",
+        "exec",
+        "--no",
+        "--",
+        "prettier",
+        "--check",
+        "openspec/specs/auto-save-persistence/spec.md",
+        "openspec/specs/battle-armor-unit-system/spec.md",
+        "openspec/specs/toast-notifications/spec.md",
+        "openspec/specs/utility-patterns/spec.md",
+        "openspec/specs/vehicle-unit-system/spec.md"
+      ],
+      "exitCode": 0,
+      "status": "passed",
+      "result": "Checking formatting; All matched files use Prettier code style",
+      "formatterVersion": "3.9.6",
+      "stdoutLog": ".sisyphus/roadmap-completion-20260912/anchor-spec-finish-review/markdown-prettier.stdout.log",
+      "stdoutSha256": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20",
+      "versionLog": ".sisyphus/roadmap-completion-20260912/anchor-spec-finish-review/markdown-prettier-version.stdout.log",
+      "versionLogSha256": "05566dceb1394c0ba52e28e74b18cfc0efb325b12d58183db953af94e4a9e27d",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "diff-check",
+      "command": [
+        "git.exe",
+        "diff",
+        "--check",
+        "--",
+        "openspec/specs/auto-save-persistence/spec.md",
+        "openspec/specs/battle-armor-unit-system/spec.md",
+        "openspec/specs/toast-notifications/spec.md",
+        "openspec/specs/utility-patterns/spec.md",
+        "openspec/specs/vehicle-unit-system/spec.md"
+      ],
+      "exitCode": 0,
+      "status": "passed",
+      "result": "No whitespace errors",
+      "stdoutLog": ".sisyphus/roadmap-completion-20260912/anchor-spec-finish-review/diff-check.stdout.log",
+      "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "publishability": {
+    "changedClaims": "All five retained source-anchor/table deltas are grounded in tracked current source and preserve the 97-line proposal exactly.",
+    "independentlyPublishableNow": [
+      "openspec/specs/utility-patterns/spec.md",
+      "openspec/specs/battle-armor-unit-system/spec.md (source-anchor/table delta only; retain the tab-scope follow-up)"
+    ],
+    "requiresBoundedR1DocRepairBeforeFullSpecPublication": [
+      "openspec/specs/auto-save-persistence/spec.md",
+      "openspec/specs/toast-notifications/spec.md",
+      "openspec/specs/vehicle-unit-system/spec.md"
+    ],
+    "parentDecisionBoundary": "If the parent accepts documentation-only prefixes with explicit adjacent-debt dispositions, all five changed deltas are source-grounded; the three repair-required files must carry the listed follow-up instead of being represented as fully reconciled specs."
+  },
+  "limits": [
+    "Static source/path and specification checks only; no product edits, tests, build, server, browser, install, or Git mutation was performed.",
+    "OpenSpec strict, purpose, terminology, CIQC, Prettier, and diff checks validate structure and formatting, not runtime behavior or whole-capability completion.",
+    "The prior Grok attempts ended with exit code 1 at their turn bounds; their surviving process state was checked and no matching worker/driver PIDs remained.",
+    "Parent final review and any Git delivery decision remain outstanding."
+  ],
+  "raw": {
+    "directory": ".sisyphus/roadmap-completion-20260912/anchor-spec-finish-review",
+    "reviewRun": "review-run.json",
+    "reviewRunSha256": "e56d0fd925ba8aa5706785a868ca372a99894f2411e7ec9d0dc66c56a65a923f",
+    "driver": "run-review.cjs",
+    "driverSha256": "ed39e50662b6a055890c29a1f65c476af62a98401aba31305c22f0540b6861be"
+  },
+  "status": "independent-review-complete-with-bounded-doc-repair-findings"
+}
