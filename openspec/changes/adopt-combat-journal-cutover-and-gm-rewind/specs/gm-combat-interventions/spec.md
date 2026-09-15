@@ -6,6 +6,11 @@ Moved VERBATIM from `harden-gm-two-player-campaign-sessions` on 2026-09-04 (owne
 the umbrella's delta; the two under MODIFIED were split, with the umbrella keeping the clauses the
 shipped code discharges. The MODIFIED entries carry the FULL final text so that archiving this
 change replaces the reduced headers the umbrella's archive installs.
+
+AMENDED SINCE THE MOVE: `Superseded Combat Commands Are Rejected` is no longer verbatim - its SHALL
+was split into a staleness arm and a persisted-corruption arm, and one scenario added, on 2026-09-15
+(S2 / task 1.2, commit `fce4f47d9`), per History B's repair (PR #1674). The other two ADDED
+requirements remain verbatim.
 -->
 
 ### Requirement: Combat Intervention Has Distinct Preview and Commit Phases

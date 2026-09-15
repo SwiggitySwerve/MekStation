@@ -16,9 +16,10 @@
  * (match file + campaign file), and one row restarts both so a head
  * that lived only in an open handle cannot pass.
  *
- * MODE IS THE DISCRIMINATOR. Production stays `off`; only the
- * test-configured override turns the mirror on. The last row pins the
- * honest production behaviour — no head, inert consult — and is what
+ * MODE IS THE DISCRIMINATOR. Only the test-configured override turns
+ * the mirror on; the production constant is never touched. The last
+ * row clears the override and runs on that constant, pinning the
+ * honest shipped behaviour — no head, inert consult — and that is what
  * makes the other rows falsifiable: with the override removed they go
  * red because no head exists to read.
  *
@@ -58,6 +59,8 @@ import { DurableMatchStore } from '../DurableMatchStore';
 import {
   _resetProcessShadowStatsForTests,
   _setCombatJournalAuthorityModeForTests,
+  COMBAT_JOURNAL_AUTHORITY_MODE,
+  getCombatJournalAuthorityMode,
 } from '../matchJournalAuthority';
 import { ServerMatchHost } from '../ServerMatchHost';
 import {
@@ -442,12 +445,23 @@ describe('live branch admission against a mirror-installed journal head', () => 
   });
 });
 
-describe('production default (mode off)', () => {
+describe('the shipped cutover mode', () => {
   it('installs no head, so the consult is inert and every intent commits', async () => {
     // The honest pin of finding #48: this is what ships today. It is
     // also the discriminator — the rows above depend on the mirror
     // being on, and go red without it.
-    _setCombatJournalAuthorityModeForTests('off');
+    //
+    // CLEARING the override rather than naming 'off' is the point: the
+    // row runs on COMBAT_JOURNAL_AUTHORITY_MODE itself. Its VALUE is
+    // then pinned, because that is the only assertion here a cutover
+    // can falsify — measured, the outcome assertions below survive a
+    // flip to 'shadow' on their own, since the mirror's first batch
+    // still loses to `create`'s non-batch initial persist and never
+    // lands. So the day S6 flips the constant, this row reds and has to
+    // be rewritten instead of quietly restating a belief.
+    _setCombatJournalAuthorityModeForTests(null);
+    expect(getCombatJournalAuthorityMode()).toBe('off');
+    expect(COMBAT_JOURNAL_AUTHORITY_MODE).toBe('off');
     const matchId = 'mode-off';
     await store.createMatch(meta(matchId));
     const host = await openHost(matchId);
