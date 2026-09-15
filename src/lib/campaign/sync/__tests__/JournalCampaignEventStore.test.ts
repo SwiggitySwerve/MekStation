@@ -38,6 +38,7 @@ import { AtBMoraleLevel } from '@/types/campaign/scenario/scenarioTypes';
 import {
   buildCampaignSourcePrivateEnvelope,
   campaignSourcePrivateOf,
+  replayCampaignSourceContracts,
 } from '../../authority/campaignSourcePrivateEnvelope';
 import {
   CampaignEventSequenceCollisionError,
@@ -499,7 +500,7 @@ describe('source-only private envelope (real SQLite reopen)', () => {
     return { db, journal: new SQLiteEventJournal(db, () => NOW) };
   }
 
-  it('reads the full contract and market off the private field while envelopeOf stays compact', async () => {
+  it('recovers the full contract and market from the private field while envelopeOf stays compact', async () => {
     const file = path.join(directory, 'private.sqlite');
     const first = new Database(file);
     first.pragma('journal_mode = WAL');
@@ -560,9 +561,9 @@ describe('source-only private envelope (real SQLite reopen)', () => {
     const stored = rows[0];
 
     // (a) The SOURCE recovers the full private detail from the journal.
-    const facts = campaignSourcePrivateOf(stored);
-    if (facts === null) throw new Error('expected a private payload');
-    const recovered = facts.acceptedContract;
+    const replayed = replayCampaignSourceContracts(rows);
+    expect(replayed.acceptedContracts).toHaveLength(1);
+    const recovered = replayed.acceptedContracts[0];
     expect(recovered.employerId).toBe('house-davion');
     expect(recovered.targetId).toBe('house-liao');
     expect(recovered.salvageRights).toBe('Integrated');
@@ -572,13 +573,18 @@ describe('source-only private envelope (real SQLite reopen)', () => {
     expect(recovered.paymentTerms.basePayment).toBeInstanceOf(Money);
     expect(recovered.paymentTerms.basePayment.amount).toBe(1_250_000);
     expect(
-      facts.remainingMarket.offers.map(function (offer) {
+      replayed.remainingMarket.offers.map(function (offer) {
         return offer.id;
       }),
     ).toEqual(['offer-remaining']);
-    // The captured baseline is the persisted source body, not compact genesis.
-    expect(facts.baseline.sourceRecordBody).toBe(sourceRecordBody);
-    expect(facts.baseline.sourceRowVersion).toBe(7);
+    // Replay starts from the persisted source body, never the compact genesis.
+    expect(replayed.baseline.sourceRecordBody).toBe(sourceRecordBody);
+    expect(replayed.baseline.sourceRowVersion).toBe(7);
+    expect(
+      replayed.baselineMarket.offers.map(function (offer) {
+        return offer.id;
+      }),
+    ).toEqual(['offer-remaining', 'offer-taken']);
 
     // (b) The wire narrowing on the SAME row yields only the compact fact.
     const wire = envelopeOf(stored);

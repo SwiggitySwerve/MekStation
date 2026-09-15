@@ -84,7 +84,8 @@ export interface ICampaignSourcePrivateFacts {
 
 export type CampaignSourcePrivateReplayReason =
   | 'unsupported-schema'
-  | 'source-identity-mismatch';
+  | 'source-identity-mismatch'
+  | 'no-private-payload';
 
 /**
  * Replay refusal. Typed rather than a silent compact fallback: a private
@@ -181,5 +182,62 @@ export function campaignSourcePrivateOf(
     remainingMarket:
       rehydrateContractMarket(stamped.remainingMarket) ??
       stamped.remainingMarket,
+  };
+}
+
+/** The contract-only projection a source replay produces. */
+export interface ICampaignSourceContractProjection {
+  /** The baseline the replay started from -- the persisted source record. */
+  readonly baseline: ICampaignSourceBaseline;
+  /** The market as the persisted source body held it, before any fold. */
+  readonly baselineMarket: ICampaignContractMarket;
+  /** Accepted contracts in journal order. */
+  readonly acceptedContracts: readonly IContract[];
+  /** The market after the last folded acceptance. */
+  readonly remainingMarket: ICampaignContractMarket;
+}
+
+const EMPTY_MARKET: ICampaignContractMarket = {
+  offers: [],
+  declinedOfferIds: [],
+};
+
+/**
+ * Folds the private contract facts out of a stored campaign stream.
+ *
+ * The baseline is the EARLIEST private row's captured source body, so replay
+ * begins at the persisted source record rather than at the compact genesis
+ * snapshot (which has empty contracts and no market by construction). Rows
+ * without a private payload are skipped -- they are simply not the events
+ * this projection is about.
+ */
+export function replayCampaignSourceContracts(
+  rows: readonly ICampaignSourcePrivateCarrier[],
+): ICampaignSourceContractProjection {
+  const facts: ICampaignSourcePrivateFacts[] = [];
+  for (const row of rows) {
+    const found = campaignSourcePrivateOf(row);
+    if (found !== null) facts.push(found);
+  }
+  const first = facts[0];
+  if (first === undefined) {
+    throw new CampaignSourcePrivateReplayError(
+      'no-private-payload',
+      'The stream carries no journal-private source payload to replay',
+    );
+  }
+  const parsed = JSON.parse(first.baseline.sourceRecordBody) as {
+    readonly contractMarket?: ICampaignContractMarket;
+  };
+  const baselineMarket =
+    rehydrateContractMarket(parsed.contractMarket) ?? EMPTY_MARKET;
+  const last = facts[facts.length - 1] as ICampaignSourcePrivateFacts;
+  return {
+    baseline: first.baseline,
+    baselineMarket,
+    acceptedContracts: facts.map(function (fact) {
+      return fact.acceptedContract;
+    }),
+    remainingMarket: last.remainingMarket,
   };
 }
