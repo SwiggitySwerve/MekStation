@@ -1,0 +1,109 @@
+{
+  "at": "2026-09-13T09:00:10.704Z",
+  "status": "local-source-disposition-verified-publication-pending",
+  "node": "R6.deferrals",
+  "baseline": "44b94adbbb333a9d4965e057b34290e19fc0e781",
+  "taskKeys": [
+    "add-authoritative-history-branches#8.1@110",
+    "add-authoritative-history-branches#8.2@111",
+    "add-authoritative-history-branches#8.3@112"
+  ],
+  "parent": "/root",
+  "independentSourceReviewer": "Terra/high /root/r3_branch_integrity_repair",
+  "disposition": {
+    "playerAuthoredSimulation": "remains deferred; separate approved UX change required",
+    "promotion": "future-only semantic command revalidation against current target with new target events and provenance",
+    "futureProof": "isolation from side effects, hidden history, authority mutation and validation bypass remains mandatory"
+  },
+  "qualification": "GM-host correction rewind is an existing source route to lease-gated candidate creation and activation. Simulation deferral does not mean all production correction writers are disabled.",
+  "verification": {
+    "sourceHashes": [
+      {
+        "path": "openspec/changes/add-authoritative-history-branches/proposal.md",
+        "sha256": "3f7e4f4805593a0b0fc142616274488dd65dba72dee63aa575fddb7951f0006a",
+        "matched": true
+      },
+      {
+        "path": "openspec/changes/add-authoritative-history-branches/tasks.md",
+        "sha256": "64a58459e1423372ac04bb5282c06853fa05955ae163e583d91574ffa07c970a",
+        "matched": true
+      },
+      {
+        "path": "src/lib/events/journal/EventHistoryBranchContract.ts",
+        "sha256": "f4c01e7a4ac6bcf8d198ad17393fdde442a7cf19fd374a9960fa9188ebe5305c",
+        "matched": true
+      },
+      {
+        "path": "src/lib/events/journal/SQLiteEventHistoryBranchStore.ts",
+        "sha256": "f9023816137493851f378069ee83f672ce03588882a8a1b5a4c38ac942a309e6",
+        "matched": true
+      },
+      {
+        "path": "src/lib/events/journal/EventHistoryCandidateBuild.ts",
+        "sha256": "ccc0af2242cecd404622e39354ae7a7f0ce3e00126bc6dd63ee4a8eadb676131",
+        "matched": true
+      },
+      {
+        "path": "src/lib/interventions/GmInterventionAuthority.ts",
+        "sha256": "f1454b190bf0b7216bb7f739e0b6151763f226f204e9082e2e1fb64d576710b9",
+        "matched": true
+      },
+      {
+        "path": "src/lib/multiplayer/server/history/GmCombatRewindCommit.ts",
+        "sha256": "419b0987c1364a2ec5f3f1108acabadc8e4158f0e9a97a081fae81319dffbfd7",
+        "matched": true
+      },
+      {
+        "path": "src/lib/campaign/rebuild/CampaignRetroactiveCorrectionCommit.ts",
+        "sha256": "452dbe24df8cce3cad3ad7a818a76b4c741e6c203b1b2f87a973444fb01e3b85",
+        "matched": true
+      },
+      {
+        "path": "src/pages/api/matches/[id]/rewind-commit.ts",
+        "sha256": "b25ed30e45ea6f0ab391a9297e7085b66657ae773ab5e591da3f8a056bb1fbee",
+        "matched": true
+      },
+      {
+        "path": "src/pages/api/campaigns/[id]/rewind-preview.ts",
+        "sha256": "7cb3813738f3233a99dc46a0e00d1bf507949659593943c7428b065d29616efb",
+        "matched": true
+      },
+      {
+        "path": "src/pages/e2e/simulation-viewer.tsx",
+        "sha256": "09bc32a2dd109fa2e444641776237a62072c940e14a58a314e600cb9432eb2a6",
+        "matched": true
+      },
+      {
+        "path": "src/pages/api/replay-library/index.ts",
+        "sha256": "4528878b6fea863ee3e4419a249a08ea804dafe894733ff40385c2a311a08a1d",
+        "matched": true
+      },
+      {
+        "path": "src/pages/api/replay-library/[source]/[gameId].ts",
+        "sha256": "01854476ea7c435dbf3948138cd9f7e7b49725433582fcbbc367ac31f2f55826",
+        "matched": true
+      },
+      {
+        "path": "src/pages/api/replay-library/quick.ts",
+        "sha256": "acae8c0b9d406e181ae19e79f9614825a6a85956ced4b5d1d4be9ce73dfd4721",
+        "matched": true
+      },
+      {
+        "path": "src/lib/multiplayer/server/history/CoordinatedOutcomeCorrectionTarget.steps.ts",
+        "sha256": "bf928bb74776bf80065a60676a2fa2be161c7d8ade5e925cb8f188d1629f28c1",
+        "matched": true
+      }
+    ],
+    "reviewReport": {
+      "path": ".sisyphus/roadmap-completion-20260912/r6-deferral-source-review-terra-20260913/report.json",
+      "sha256": "a4db68b5050e210acfb0652054c19f70e77569a864f195b4edcb7730afd6468d"
+    },
+    "parentChecks": "Read original proposal/tasks, default/private branch seams, concrete GM role route, correction modules, mock viewer guard and replay methods on frozen checkout."
+  },
+  "limits": [
+    "Source disposition only: no runtime auth/routing/flag claims",
+    "No new player simulation or promotion feature implemented",
+    "Original task checkboxes unchanged",
+    "Receipt publication and final roadmap reconciliation remain pending"
+  ]
+}
