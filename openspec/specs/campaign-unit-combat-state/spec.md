@@ -191,9 +191,16 @@ This spec is the source-of-truth for `IUnitCombatState` and `ICampaign.unitComba
 #### Scenario: Damage bar rendering
 
 - **WHEN** `RosterStateCards.tsx` renders a damage bar
-- **THEN** it reads `currentArmorPerLocation` from `IUnitCombatState`
-- **AND** computes the bar percentage against `IUnitMaxState.maxArmorPerLocation`
+- **THEN** it reads `currentArmorPerLocation` and `currentStructurePerLocation` from `IUnitCombatState`
+- **AND** computes the bar percentage against `IUnitMaxState.maxArmorPerLocation` and `IUnitMaxState.maxStructurePerLocation`, skipping locations the max-state does not name
+- **AND** does not derive the percentage from destroyed-component or destroyed-location counts
 - **AND** does not read `armorDamage` from a roster projection (deleted field).
+
+#### Scenario: Absent max-state entry at the damage bar
+
+- **WHEN** `RosterStateCards.tsx` renders a unit that has canonical `IUnitCombatState` but no `campaign.unitMaxStates[unitId]` entry
+- **THEN** it renders an explicit "maxima unavailable" affordance
+- **AND** it renders no percentage, no stock-substituted maximum, and no `0%` placeholder.
 
 #### Scenario: Projection name does not collide
 
