@@ -59,8 +59,59 @@ import {
 /** The stream type every match stream is keyed by. */
 export const MATCH_STREAM_TYPE = 'match';
 
-/** The whole `IGameEvent`, unaltered: a stored projection would make
- * S6's parity comparison compare that projection against itself. */
+/**
+ * Drop own-enumerable properties whose value is `undefined`, all the
+ * way down. NOT a projection and NOT a JSON round-trip.
+ *
+ * WHY THIS EXISTS. A real `InteractiveSession` launch log carries
+ * explicitly-undefined optional properties — `game_created.actorId`,
+ * `payload.config.seed`, each unit's `movementMode` /
+ * `initiativeEquipment` / `c3Equipment` — and `Object.keys` includes
+ * such keys, so the canonicalizer's `default:` arm refuses the whole
+ * batch with `JCS cannot represent undefined`. Until this step the
+ * mirror could not represent a single real match launch.
+ *
+ * WHY DROPPING IS THE RIGHT ANSWER RATHER THAN A LOSS. `DurableMatchStore`
+ * persists an event as `JSON.stringify(event)` and reads it back with
+ * `JSON.parse`, so the store's own durable form of the event ALREADY
+ * has these properties dropped. Mirroring the in-memory form was the
+ * anomaly; this makes the mirrored payload — and therefore the digest
+ * taken over it — describe exactly what the store persists. It is also
+ * a fixed point of the journal's own storage: the writer stores
+ * `canonicalizeJsonV1(payload)` and re-canonicalizes the parsed form to
+ * verify the digest on read, and a canonical string can never carry an
+ * undefined back.
+ *
+ * WHY NOT `JSON.parse(JSON.stringify(event))`. That is the same drop
+ * plus several silent coercions: a function or a symbol vanishes, a
+ * `Date` becomes a string, a `BigInt` throws an untyped `TypeError`.
+ * Only `undefined` is dropped here, so every genuinely
+ * non-representable value still reaches the canonicalizer and is
+ * refused as `EventJournalCanonicalizationError('unsupported-value')`.
+ * Values this step does not descend into — anything that is not a
+ * plain object or an array — are handed on untouched for that reason.
+ */
+export function withoutUndefinedProperties<T>(value: T): T {
+  if (Array.isArray(value)) {
+    // `map` preserves holes, so a sparse array is still refused typed.
+    return value.map((item) => withoutUndefinedProperties(item)) as T;
+  }
+  if (value === null || typeof value !== 'object') return value;
+  const prototype = Object.getPrototypeOf(value) as object | null;
+  if (prototype !== Object.prototype && prototype !== null) return value;
+  const kept: Record<string, unknown> = {};
+  for (const key of Object.keys(value)) {
+    const child = (value as Record<string, unknown>)[key];
+    if (child === undefined) continue;
+    kept[key] = withoutUndefinedProperties(child);
+  }
+  return kept as T;
+}
+
+/** The whole `IGameEvent` minus its undefined-valued properties, which
+ * is the form `DurableMatchStore` itself persists: a stored projection
+ * would make S6's parity comparison compare that projection against
+ * itself, and the in-memory form cannot be canonicalized at all. */
 export interface IMatchJournalEnvelope {
   readonly matchEvent: IGameEvent;
   /** Present on the batch's final event only, as the campaign side does. */
@@ -129,7 +180,10 @@ function toMatchJournalBatch(
       causationEventIds: [],
       occurredAt: matchEvent.timestamp,
       payload: {
-        matchEvent,
+        // Stripped HERE rather than at the call site: the raw batch is
+        // canonicalized twice - once for the command identity and once
+        // for each event digest - and both must see one form.
+        matchEvent: withoutUndefinedProperties(matchEvent),
         expectedPostStateDigest:
           index === last ? (input.expectedPostStateDigest ?? null) : null,
       },
