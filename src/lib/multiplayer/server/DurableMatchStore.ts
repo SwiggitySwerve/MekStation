@@ -989,6 +989,13 @@ export class DurableMatchStore
   private mirrorCommittedBatch = async (
     matchId: string,
     batch: IMatchCommandBatch,
+    // A SEED is idempotent by construction (task 1.7 preparation): the
+    // same match always derives the same command id over the same
+    // opening events, so the journal's command-identity check answering
+    // `duplicate-command` means the seed already landed. Counting that
+    // as a mismatch would pin above zero the very tripwire S6 consults
+    // before promoting a journal to authority.
+    duplicateIsSuccess = false,
   ): Promise<void> => {
     if (getCombatJournalAuthorityMode() === 'off') return;
     // Method presence is not an open database: a process that never
@@ -1016,6 +1023,7 @@ export class DurableMatchStore
         expectedPostStateDigest: batch.expectedPostStateDigest,
       });
       if (mirrored.kind === 'mirrored') return;
+      if (duplicateIsSuccess && mirrored.kind === 'duplicate-command') return;
       reason = mirrored.kind;
     } catch (error) {
       reason = error instanceof Error ? error.message : 'mirror failed';
@@ -1029,6 +1037,54 @@ export class DurableMatchStore
       shadowDigest: '',
       reason: `journal-mirror:${reason}`,
     });
+  };
+
+  /**
+   * Seed a freshly created match's journal stream from its opening
+   * events (task 1.7 preparation, S7-a).
+   *
+   * WHY THE CREATE PATH NEEDED ITS OWN CALL. `ServerMatchHost.create`
+   * persists `GameCreated` + `GameStarted` through `appendEvent`, one
+   * at a time, which is not the batch boundary `mirrorCommittedBatch`
+   * hooks. The journal therefore stayed empty until the first COMMAND
+   * batch — and at mode 'enabled' that batch's expected revision comes
+   * from the head, so it would have landed at revision 1 with the
+   * opening prefix silently absent. S6's receipt names this as the
+   * ordering constraint on any cutover: seeding precedes the flip.
+   *
+   * NO NEW EVENT TYPE AND NO INVENTED PREFIX. What is mirrored is the
+   * engine's own opening events, at the revision an empty journal
+   * expects, under one deterministic command id. A match that already
+   * exists is NOT retro-seeded by this or any other call: it has no
+   * journal row, and `deriveMatchJournalAuthorityStartedHead` reports
+   * that rather than inventing the history it never saw.
+   *
+   * Reuses the commit path's mirror wholesale so the mode gate, the
+   * capability check, the expected-revision consult and the shadow
+   * tripwire are one implementation rather than two that can drift.
+   */
+  seedJournalFromInitialEvents = async (
+    matchId: string,
+    events: readonly IGameEvent[],
+  ): Promise<void> => {
+    if (events.length === 0) return;
+    const meta = this.getMatchRow(matchId);
+    if (!meta) return;
+    await this.mirrorCommittedBatch(
+      matchId,
+      {
+        // Derived from the match id alone, so a repeated seed is
+        // recognised as its own retry rather than as a new command.
+        commandId: `create:${matchId}`,
+        actorId: (JSON.parse(meta.meta_json) as IMatchMeta).hostPlayerId,
+        // The opening batch starts an empty log, and an empty journal
+        // expects revision 0 on both arms of the consult.
+        expectedRevision: nextMatchSequenceAfter(null),
+        events,
+        expectedPostStateDigest: null,
+      },
+      true,
+    );
   };
 
   getCommandReceipt = async (
