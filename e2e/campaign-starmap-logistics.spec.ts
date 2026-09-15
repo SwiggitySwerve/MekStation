@@ -210,6 +210,22 @@ test.describe('campaign starmap logistics', () => {
           page.getByTestId('starmap-travel-preview'),
         ).not.toContainText('GM time cascade');
 
+        // Approving travel is a client-side store mutation riding the 2s
+        // debounced auto-save (AUTO_SAVE_DEBOUNCE_MS). Everything between the
+        // click and the reload below is read-only, so the reload lands inside
+        // that debounce window and discards the document while the write is
+        // still pending — the discard-time keepalive flush is then aborted by
+        // Chromium on a navigation and reported (correctly) as an aborted API
+        // write. Settle the ordinary PUT first, as the acquisitions journey
+        // already does, so the post-reload assertions read the server's
+        // record rather than a client cache.
+        const travelSaved = page.waitForResponse(
+          (response) =>
+            response.request().method() === 'PUT' &&
+            response.url().includes(`/api/campaigns/${seeded.campaignId}`) &&
+            response.ok(),
+          { timeout: 30_000 },
+        );
         await page.getByTestId('starmap-travel-btn').click();
         await expect(page.getByTestId('starmap-current-system')).toContainText(
           'Luthien',
@@ -250,6 +266,7 @@ test.describe('campaign starmap logistics', () => {
           expect.arrayContaining(['travel', 'finances']),
         );
 
+        await travelSaved;
         await page.reload({ waitUntil: 'networkidle' });
         await assertNoMekStationLoading(page);
         await waitForCampaignStoresReady(page);
