@@ -42,6 +42,7 @@ import { commitGmCombatRewind } from '../history/GmCombatRewindCommit';
 import { matchStreamRef } from '../history/GmCombatRewindPreview';
 import {
   matchStoreBranchSegmentReader,
+  nextMatchSequenceAfter,
   revisionForMatchSequence,
 } from '../history/matchStoreBranchSegmentReader';
 import { InMemoryMatchStore } from '../InMemoryMatchStore';
@@ -141,6 +142,18 @@ async function recordBase(source: IMatchEventSource): Promise<void> {
 }
 
 describe('match recovery checkpoint door', () => {
+  /**
+   * The head revision this fixture pins IS the store's next sequence -
+   * the number `DurableMatchStore`'s commit-time check derives. S5
+   * (task 1.5) named that derivation; this row fails if the two sides
+   * of the offset are ever moved apart.
+   */
+  it('pins the head revision as the named next match sequence', () => {
+    expect(HEAD_REVISION).toBe(
+      nextMatchSequenceAfter(EVENTS[EVENTS.length - 1]!.sequence),
+    );
+  });
+
   let dir: string;
 
   beforeEach(async () => {
