@@ -351,4 +351,157 @@ describe('accepted contract materializes into the source record', () => {
       events.length,
     );
   });
+
+  it('(c) refuses a malformed stored body as source-record-absent, appending nothing', async () => {
+    seedSourceRecord({
+      missions: [],
+      contractMarket: { offers: [offer(STORED_ID)], declinedOfferIds: [] },
+    });
+    const db = getSQLiteService().getDatabase();
+    corruptStoredPayload('{ this is not json');
+    const before = readRow(db);
+
+    const result = await run(acceptContract(STORED_ID), 'cmd-corrupt');
+
+    // Typed, not a thrown SyntaxError surfacing as an untyped 500
+    // (carry-forward R2): an unreadable source record is the same fact to
+    // the caller as a missing one.
+    expect(result).toStrictEqual({
+      kind: 'offer-not-durable',
+      contractId: STORED_ID,
+      reason: 'source-record-absent',
+    });
+    expect(await journal.getCommandReceipt('cmd-corrupt')).toBeNull();
+    const after = readRow(db);
+    expect(after.payload).toBe(before.payload);
+    expect(after.version).toBe(before.version);
+  });
+
+  it('(f) refuses a stored record whose authority parses as a replica, appending nothing', async () => {
+    seedSourceRecord(
+      {
+        missions: [],
+        contractMarket: { offers: [offer(STORED_ID)], declinedOfferIds: [] },
+      },
+      {
+        instanceId: 'instance-replica',
+        authority: {
+          role: 'replica',
+          sourceInstanceId: 'src-1',
+          grantId: 'grant-1',
+          scopes: ['campaign'],
+        },
+      },
+    );
+    const db = getSQLiteService().getDatabase();
+    const before = readRow(db);
+
+    const result = await run(acceptContract(STORED_ID), 'cmd-replica');
+
+    // RE-1. Every other writer of this table runs the D2 source-mutation
+    // gate first (`saveCampaign` through `prepareCampaignWrite`,
+    // `storeRedeemedReplica` through its would-overwrite-source refusal).
+    // The row write this slice added is a NEW writer, so it honors the same
+    // gate rather than being the one door into `campaigns` that skips it.
+    expect(result).toStrictEqual({
+      kind: 'offer-not-durable',
+      contractId: STORED_ID,
+      reason: 'source-record-absent',
+    });
+    expect(await journal.getCommandReceipt('cmd-replica')).toBeNull();
+    const after = readRow(db);
+    expect(after.payload).toBe(before.payload);
+    expect(after.version).toBe(before.version);
+  });
+
+  it('(d) refuses a SECOND actor accepting the offer the first acceptance consumed', async () => {
+    seedSourceRecord({
+      missions: [],
+      contractMarket: { offers: [offer(STORED_ID)], declinedOfferIds: [] },
+    });
+
+    const first = await run(acceptContract(STORED_ID), 'cmd-first', AUTHOR);
+    expect(first.kind).toBe('committed');
+
+    // Carry-forward R5: command identity is actor-scoped, so a different
+    // actor's retry is NOT a duplicate. The reduced market in the row is
+    // what stops it.
+    const second = await run(
+      acceptContract(STORED_ID),
+      'cmd-second-actor',
+      OTHER_AUTHOR,
+    );
+    expect(second).toStrictEqual({
+      kind: 'offer-not-durable',
+      contractId: STORED_ID,
+      reason: 'offer-absent',
+    });
+    expect(await journal.getCommandReceipt('cmd-second-actor')).toBeNull();
+  });
+
+  it('(g) refuses an offer that is an object but not a contract, appending nothing', async () => {
+    seedSourceRecord({
+      missions: [],
+      // Passes the market's own shape guard - it IS an object with the
+      // right id - and `isContract` is false, so `rehydrateCampaignMission`
+      // hands it back untouched and every field the commit needs is
+      // undefined.
+      contractMarket: { offers: [{ id: STORED_ID }], declinedOfferIds: [] },
+    });
+    const db = getSQLiteService().getDatabase();
+    const before = readRow(db);
+
+    const result = await run(acceptContract(STORED_ID), 'cmd-not-a-contract');
+
+    // RE-2. This reached `computeCampaignStateDigest` and threw
+    // `EventJournalCanonicalizationError: JCS cannot represent undefined`
+    // out of the prepared transaction - untyped, exactly the fault class
+    // rows (c)/(c2)/(c3) exist to remove.
+    expect(result).toStrictEqual({
+      kind: 'offer-not-durable',
+      contractId: STORED_ID,
+      reason: 'offer-absent',
+    });
+    expect(await journal.getCommandReceipt('cmd-not-a-contract')).toBeNull();
+    const after = readRow(db);
+    expect(after.payload).toBe(before.payload);
+    expect(after.version).toBe(before.version);
+  });
+
+  it('(h) refuses a contract-shaped offer whose payment terms are unreadable, appending nothing', async () => {
+    seedSourceRecord({
+      missions: [],
+      contractMarket: {
+        // `isContract` passes: `paymentTerms` is an object and non-null.
+        // Rehydration turns the missing amounts into `Money.ZERO`, so the
+        // command used to COMMIT and write this offer into the row verbatim
+        // - a mission whose payment terms say nothing, presented as a
+        // contract the campaign accepted.
+        offers: [
+          {
+            ...(JSON.parse(JSON.stringify(offer(STORED_ID))) as Record<
+              string,
+              unknown
+            >),
+            paymentTerms: {},
+          },
+        ],
+        declinedOfferIds: [],
+      },
+    });
+    const db = getSQLiteService().getDatabase();
+    const before = readRow(db);
+
+    const result = await run(acceptContract(STORED_ID), 'cmd-empty-terms');
+
+    expect(result).toStrictEqual({
+      kind: 'offer-not-durable',
+      contractId: STORED_ID,
+      reason: 'offer-absent',
+    });
+    expect(await journal.getCommandReceipt('cmd-empty-terms')).toBeNull();
+    const after = readRow(db);
+    expect(after.payload).toBe(before.payload);
+    expect(after.version).toBe(before.version);
+  });
 });
