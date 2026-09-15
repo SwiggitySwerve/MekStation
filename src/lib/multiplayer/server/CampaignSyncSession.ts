@@ -183,6 +183,29 @@ export class CampaignSyncSession {
    * would block launches on ghosts.
    */
   private readonly retained = new Map<string, IRetainedParticipant>();
+  /**
+   * Live detaches currently held, keyed by the participant they deliver
+   * to, so a committed removal can close the socket ALREADY IN THE ROOM
+   * rather than only forgetting the seat.
+   *
+   * Separate from `retained` because the two answer different questions.
+   * `retained` is convergence bookkeeping, and the launch gate that
+   * reads it is deliberately not consulted anywhere on the delivery
+   * path — so deleting from it was never going to stop delivery. This
+   * map IS the delivery path's handle on a participant.
+   *
+   * A SET per participant, not one function: the same participant can
+   * legitimately hold more than one live attachment at a time — a second
+   * tab, or a reconnect that lands before the old socket's close is
+   * processed, the same case `gmConnections` counts for the GM. Keeping
+   * only the newest would leave the older one delivering, which is the
+   * exact failure this map exists to end.
+   *
+   * Only IDENTIFIED attachments are held: an unnamed sink is something
+   * no removal event can name, so registering it would put a row in here
+   * that nothing could ever drain.
+   */
+  private readonly liveByParticipant = new Map<string, Set<() => void>>();
   private readonly progressionReaders: ICampaignProgressionReaders | undefined;
 
   constructor(
@@ -364,7 +387,7 @@ export class CampaignSyncSession {
     participantId?: string,
   ): (() => void) => {
     const sink = this.admitToWire(rawSink, participantId);
-    return this.host.subscribe((event) => {
+    const unsubscribe = this.host.subscribe((event) => {
       sink(event);
       // Delivery is recorded where delivery HAPPENS, and only after the
       // sink took the frame. This is what lets the ack guard refuse a
@@ -373,6 +396,23 @@ export class CampaignSyncSession {
         this.noteDelivered(participantId, event.sequence);
       }
     });
+    if (participantId === undefined) return unsubscribe;
+
+    // Registered under the participant so a committed removal can find
+    // it. The returned detach DEREGISTERS ITSELF as well as
+    // unsubscribing: the caller's own cleanup (the socket's
+    // `cleanupFns`, run on disconnect) is the normal way this ends, and
+    // without the deregistration every reconnect would leave a dead
+    // entry behind for a removal to drain.
+    const attached = this.liveByParticipant.get(participantId) ?? new Set();
+    const detach = (): void => {
+      attached.delete(detach);
+      if (attached.size === 0) this.liveByParticipant.delete(participantId);
+      unsubscribe();
+    };
+    attached.add(detach);
+    this.liveByParticipant.set(participantId, attached);
+    return detach;
   };
 
   /**
@@ -631,17 +671,38 @@ export class CampaignSyncSession {
   };
 
   /**
-   * Apply an already-committed audited removal to the convergence set.
+   * Apply an already-committed audited removal to the convergence set
+   * AND to live delivery.
    *
    * The removal event is the authority: callers cannot name a participant
    * directly, which keeps retained-set mutation coupled to the append-only
    * audit record. Deleting a missing entry is intentionally idempotent so a
    * recovery pass can heal a commit-before-revocation crash window.
+   *
+   * Both halves, because revocation that closed only the durable doors
+   * left the socket already in the room delivering: every later scoped
+   * read and every rejoin was refused, while a removed participant who
+   * simply did not disconnect went on receiving committed campaign
+   * facts. Forgetting the seat is not the same act as detaching the
+   * sink, and `retained` never was the delivery gate.
+   *
+   * This does NOT close the socket — the session holds sinks, not
+   * sockets, so it can stop delivering and cannot send a typed close.
+   * A removed member's connection goes quiet and is refused by name on
+   * its next authenticated frame.
    */
   applyCommittedParticipantRemoval = (
     event: ICampaignEvent<'ParticipantRemoved'>,
   ): void => {
-    this.retained.delete(event.payload.participantId);
+    const { participantId } = event.payload;
+    this.retained.delete(participantId);
+    const attached = this.liveByParticipant.get(participantId);
+    if (attached === undefined) return;
+    // Copied before draining: each detach removes itself from this set,
+    // and mutating it under its own iteration is what makes a
+    // second-tab case skip an attachment.
+    for (const detach of Array.from(attached)) detach();
+    this.liveByParticipant.delete(participantId);
   };
 
   /**
