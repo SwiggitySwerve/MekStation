@@ -11,6 +11,10 @@ import path from 'node:path';
 
 import { createMinimalGrid } from '@/engine/GameEngine.helpers';
 import { digestRetainedMatchHistory } from '@/lib/multiplayer/server/matchAuthorityBaseline';
+import {
+  getSQLiteService,
+  resetSQLiteService,
+} from '@/services/persistence/SQLiteService';
 import { SeededRandom } from '@/simulation/core/SeededRandom';
 import { GameSide, type IGameUnit } from '@/types/gameplay';
 import { type IIntent, nowIso } from '@/types/multiplayer/Protocol';
@@ -19,6 +23,7 @@ import type { IMatchMeta } from '../IMatchStore';
 
 import { DurableMatchStore } from '../DurableMatchStore';
 import * as matchJournalAuthority from '../matchJournalAuthority';
+import { deriveMatchJournalAuthorityStartedHead } from '../matchJournalAuthorityStartedDerived';
 import { recoverActiveMatches } from '../MatchRecovery';
 import { ServerMatchHost, type IMatchSocket } from '../ServerMatchHost';
 import { digestCommandPostState } from '../ServerMatchHostDecision';
@@ -192,6 +197,64 @@ function hostDigest(host: ServerMatchHost): string {
   return digestCommandPostState(host.getSessionForTests());
 }
 
+/**
+ * A store whose match streams are REALLY journalled (task 1.3,
+ * sub-prefix 3).
+ *
+ * The rows below that assert recovery keeps journal authority used to
+ * read the `mp_journal_authority_started` marker, which a match
+ * database records with no journal behind it at all. With the marker
+ * retired, "started" is the mirrored effective head, so those rows need
+ * the campaign capability database the branch port lives in and a mode
+ * at which the mirror runs. The create path seeds the stream (S7-a2),
+ * so the head is installed before the first command.
+ *
+ * The two pre-cutover rows keep their plain stores on purpose: a match
+ * admitted with no capability database really has no journal, and
+ * proving it still reads legacy is the point of those rows.
+ */
+function openJournalStore(file: string): {
+  readonly store: DurableMatchStore;
+  readonly campaignFile: string;
+  readonly close: () => void;
+} {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'mekstation-capability-'));
+  const campaignFile = path.join(dir, 'mekstation.db');
+  resetSQLiteService();
+  getSQLiteService({ path: campaignFile }).initialize();
+  const store = new DurableMatchStore({
+    path: file,
+    capabilityDb: () => getSQLiteService().getDatabase(),
+  });
+  return {
+    store,
+    campaignFile,
+    close: () => {
+      store.close();
+      resetSQLiteService();
+      fs.rmSync(dir, { recursive: true, force: true });
+    },
+  };
+}
+
+/** Assert the fixture really journalled, so a silent stop fails loudly. */
+function expectJournalled(store: DurableMatchStore, matchId: string): void {
+  expect(deriveMatchJournalAuthorityStartedHead(store, matchId).kind).toBe(
+    'started',
+  );
+}
+
+/** The started head's effective generation, from the one source of it. */
+function startedGeneration(
+  store: DurableMatchStore,
+  matchId: string,
+): number | undefined {
+  const derived = deriveMatchJournalAuthorityStartedHead(store, matchId);
+  return derived.kind === 'started'
+    ? derived.head.effectiveGeneration
+    : undefined;
+}
+
 describe('journal-authority rollback proof', () => {
   beforeEach(() => {
     jest.useFakeTimers();
@@ -295,16 +358,16 @@ describe('journal-authority rollback proof', () => {
     // Process stops after the first journal batch commits.
     const matchId = 'crash-first-batch';
     const target = databaseFile('crash-first-batch');
-    const store = new DurableMatchStore({ path: target.file });
+    const opened = openJournalStore(target.file);
+    const store = opened.store;
     try {
       matchJournalAuthority._setCombatJournalAuthorityModeForTests('enabled');
       const host = await createHost(store, matchId, true);
       matchJournalAuthority._setSkipPublishForTests(true);
       await host.handleIntent(advance('command-1', matchId));
       matchJournalAuthority._setSkipPublishForTests(false);
-      const started = await store.getJournalAuthorityStarted(matchId);
       const firstReceipt = await store.getCommandReceipt(matchId, 'command-1');
-      expect(started).not.toBeNull();
+      expectJournalled(store, matchId);
       expect(firstReceipt).not.toBeNull();
 
       const reopened = await recover(store, matchId);
@@ -313,14 +376,14 @@ describe('journal-authority rollback proof', () => {
       await reopened.handleIntent(advance('command-2', matchId));
       const secondReceipt = await store.getCommandReceipt(matchId, 'command-2');
 
-      // Falsification: write started outside the first-batch transaction.
+      // Falsification: mirror the batch outside its own transaction.
       expect(reopened.isJournalAuthorityEnabled()).toBe(true);
       expect(secondReceipt?.firstRevision).toBe((beforeRevision ?? -1) + 1);
       expect(secondReceipt?.lastRevision).toBe(
         (await store.getEvents(matchId)).at(-1)?.sequence,
       );
     } finally {
-      store.close();
+      opened.close();
       removeDatabase(target.dir);
     }
   });
@@ -330,17 +393,18 @@ describe('journal-authority rollback proof', () => {
     // Rollback occurs after a journal command.
     const matchId = 'post-command-compatible';
     const target = databaseFile('post-command-compatible');
-    const store = new DurableMatchStore({ path: target.file });
+    const opened = openJournalStore(target.file);
+    const store = opened.store;
     try {
       matchJournalAuthority._setCombatJournalAuthorityModeForTests('enabled');
       const host = await createHost(store, matchId, true);
       await host.handleIntent(advance('command-1', matchId));
       await host.handleIntent(advance('command-2', matchId));
+      expectJournalled(store, matchId);
       const head = {
         digest: hostDigest(host),
         revision: (await store.getEvents(matchId)).at(-1)?.sequence,
-        generation: (await store.getJournalAuthorityStarted(matchId))?.head
-          .effectiveGeneration,
+        generation: startedGeneration(store, matchId),
       };
 
       const reopened = await recover(store, matchId);
@@ -355,13 +419,12 @@ describe('journal-authority rollback proof', () => {
       expect({
         digest: hostDigest(reopened),
         revision: (await store.getEvents(matchId)).at(-1)?.sequence,
-        generation: (await store.getJournalAuthorityStarted(matchId))?.head
-          .effectiveGeneration,
+        generation: startedGeneration(store, matchId),
       }).not.toEqual(head);
       expect(roundTrip.some((message) => message.kind === 'Event')).toBe(true);
       expect(frames.sent.length).toBeGreaterThan(0);
     } finally {
-      store.close();
+      opened.close();
       removeDatabase(target.dir);
     }
   });
@@ -369,17 +432,24 @@ describe('journal-authority rollback proof', () => {
   it.each([
     {
       name: 'unsupported effective generation',
-      corrupt: (file: string, matchId: string) =>
+      // Corrupts the journal's OWN effective head now, not the retired
+      // marker: after task 1.3's sub-prefix 3 the head is the only
+      // place an effective generation for this stream comes from, so
+      // that is the row an operator would have to corrupt to produce
+      // this block. Written to the capability database, which is where
+      // the branch tables live.
+      corrupt: (_file: string, matchId: string, campaignFile: string) =>
         sql(
-          file,
-          'UPDATE mp_journal_authority_started SET effective_generation = 2 WHERE match_id = ?',
+          campaignFile,
+          `UPDATE event_history_effective_heads SET effective_generation = 2
+           WHERE stream_type = 'match' AND stream_id = ?`,
           matchId,
         ),
       reason: 'unsupported-effective-generation',
     },
     {
       name: 'refold digest mismatch',
-      corrupt: (file: string, matchId: string) =>
+      corrupt: (file: string, matchId: string, _campaignFile: string) =>
         sql(
           file,
           `UPDATE mp_match_events
@@ -396,15 +466,17 @@ describe('journal-authority rollback proof', () => {
       // Rollback occurs after a journal command.
       const matchId = `post-command-blocked-${reason}`;
       const target = databaseFile(`post-command-blocked-${reason}`);
-      const store = new DurableMatchStore({ path: target.file });
+      const opened = openJournalStore(target.file);
+      const store = opened.store;
       try {
         matchJournalAuthority._setCombatJournalAuthorityModeForTests('enabled');
         const host = await createHost(store, matchId, true);
         await host.handleIntent(advance('command-1', matchId));
+        expectJournalled(store, matchId);
         const legacyDigest = digestRetainedMatchHistory(
           await store.getEvents(matchId),
         );
-        corrupt(target.file, matchId);
+        corrupt(target.file, matchId, opened.campaignFile);
         const before = await dump(store, matchId);
         const blocked = await recover(store, matchId);
         const servedDigest = hostDigest(blocked);
@@ -427,7 +499,7 @@ describe('journal-authority rollback proof', () => {
         );
         expect(await dump(store, matchId)).toBe(before);
       } finally {
-        store.close();
+        opened.close();
         removeDatabase(target.dir);
       }
     },

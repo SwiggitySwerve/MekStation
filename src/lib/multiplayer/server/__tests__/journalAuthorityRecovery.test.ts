@@ -4,6 +4,10 @@
  * files; this file owns the typed recovery result and the three faults.
  */
 
+import { mkdtemp, rm } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import path from 'node:path';
+
 import {
   _resetCombatOutcomeBus,
   subscribeToCombatOutcome,
@@ -11,13 +15,19 @@ import {
 } from '@/engine/combatOutcomeBus';
 import { createMinimalGrid } from '@/engine/GameEngine.helpers';
 import { InteractiveSession } from '@/engine/InteractiveSession';
+import {
+  getSQLiteService,
+  resetSQLiteService,
+} from '@/services/persistence/SQLiteService';
 import { SeededRandom } from '@/simulation/core/SeededRandom';
 import { GameSide, type IGameUnit } from '@/types/gameplay';
 import { type IIntent, nowIso } from '@/types/multiplayer/Protocol';
 import { hydrateGameSessionFromEvents } from '@/utils/gameplay/gameSession';
 
+import { DurableMatchStore } from '../DurableMatchStore';
 import { InMemoryMatchStore } from '../InMemoryMatchStore';
 import * as matchJournalAuthority from '../matchJournalAuthority';
+import { deriveMatchJournalAuthorityStartedHead } from '../matchJournalAuthorityStartedDerived';
 import { rebuildSessionFromEvents } from '../MatchRecovery';
 import { selectMatchRollbackReader } from '../matchRollbackReaderSelection';
 import { ServerMatchHost, type IMatchSocket } from '../ServerMatchHost';
@@ -157,8 +167,100 @@ async function rebuildHost(
   return ServerMatchHost.recover(matchId, store, session);
 }
 
-async function dumpRollbackFacts(
-  store: InMemoryMatchStore,
+/**
+ * A host whose stream is REALLY journalled (task 1.3, sub-prefix 3).
+ *
+ * The rows that assert a recovered host keeps journal authority used to
+ * get that from the `mp_journal_authority_started` marker, which an
+ * `InMemoryMatchStore` records happily even though it has no journal.
+ * With the marker retired, "started" is the mirrored effective head and
+ * nothing else, so those rows need a store that can actually mirror: a
+ * real match database plus the campaign capability database the branch
+ * port lives in, at a mode where the mirror runs. The create path seeds
+ * the stream (S7-a2), so the head exists before the first command.
+ *
+ * Every other row in this file keeps its in-memory store: they are
+ * about the command path and the three faults, not about started.
+ */
+async function makeJournalledHost(options: {
+  readonly matchId: string;
+}): Promise<{
+  host: ServerMatchHost;
+  store: DurableMatchStore;
+  cleanup: () => Promise<void>;
+}> {
+  const dir = await mkdtemp(path.join(tmpdir(), 'journal-recovery-'));
+  resetSQLiteService();
+  getSQLiteService({ path: path.join(dir, 'mekstation.db') }).initialize();
+  const store = new DurableMatchStore({
+    path: path.join(dir, 'multiplayer-matches.db'),
+    capabilityDb: () => getSQLiteService().getDatabase(),
+  });
+  matchJournalAuthority._setCombatJournalAuthorityModeForTests('enabled');
+  const now = '2026-06-30T12:00:00.000Z';
+  await store.createMatch({
+    matchId: options.matchId,
+    hostPlayerId: 'host-player',
+    playerIds: ['host-player', 'guest-player'],
+    sideAssignments: [
+      { playerId: 'host-player', side: 'player' },
+      { playerId: 'guest-player', side: 'opponent' },
+    ],
+    status: 'active',
+    createdAt: now,
+    updatedAt: now,
+    config: { mapRadius: 4, turnLimit: 5 },
+  });
+  const host = ServerMatchHost.create(options.matchId, store, {
+    mapRadius: 4,
+    turnLimit: 5,
+    random: new SeededRandom(42),
+    randomSeed: 42,
+    grid: createMinimalGrid(4),
+    playerUnits: [],
+    opponentUnits: [],
+    gameUnits: twoSidedRoster(),
+    diceSeed: 42,
+    journalAuthority: true,
+  });
+  const deadline = Date.now() + 2000;
+  while ((await store.getEvents(options.matchId)).length < 2) {
+    if (Date.now() > deadline) {
+      throw new Error('initial events did not persist');
+    }
+    await Promise.resolve();
+  }
+  // The head the retirement made load-bearing. Asserted here rather
+  // than in each row so a fixture that silently stops mirroring fails
+  // as a fixture, not as a puzzling behaviour change.
+  expect(
+    deriveMatchJournalAuthorityStartedHead(store, options.matchId).kind,
+  ).toBe('started');
+  return {
+    host,
+    store,
+    cleanup: async () => {
+      store.close();
+      resetSQLiteService();
+      await rm(dir, { recursive: true, force: true, maxRetries: 3 });
+    },
+  };
+}
+
+async function rebuildJournalledHost(
+  store: DurableMatchStore,
+  matchId: string,
+): Promise<ServerMatchHost> {
+  const events = await store.getEvents(matchId);
+  const session = InteractiveSession.fromHydratedSession(
+    hydrateGameSessionFromEvents(matchId, [...events]),
+    { random: new SeededRandom(42) },
+  );
+  return ServerMatchHost.recover(matchId, store, session);
+}
+
+async function dumpJournalledRollbackFacts(
+  store: DurableMatchStore,
   matchId: string,
   commandId: string,
 ): Promise<string> {
@@ -166,7 +268,7 @@ async function dumpRollbackFacts(
     events: await store.getEvents(matchId),
     receipt: await store.getCommandReceipt(matchId, commandId),
     baseline: store.getJournalAuthorityBaseline(matchId),
-    started: await store.getJournalAuthorityStarted(matchId),
+    started: deriveMatchJournalAuthorityStartedHead(store, matchId),
     meta: await store.getMatchMeta(matchId),
   });
 }
@@ -284,9 +386,23 @@ describe('combat journal-authority recovery', () => {
   });
 
   it('CRASH: commit then die before publish; retry returns prior receipt and resumes delivery', async () => {
-    const { host, store } = await makeHost({
+    // Journalled fixture: the rebuilt host only resumes the pending
+    // publications if recovery selects the journal reader, and after
+    // the marker retirement that requires a real mirrored head.
+    const { host, store, cleanup } = await makeJournalledHost({
       matchId: 'match-crash-publish',
     });
+    try {
+      await runCrashPublishRow(host, store);
+    } finally {
+      await cleanup();
+    }
+  });
+
+  async function runCrashPublishRow(
+    host: ServerMatchHost,
+    store: DurableMatchStore,
+  ): Promise<void> {
     matchJournalAuthority._setSkipPublishForTests(true);
     await host.handleIntent(intent('lock-1', host.matchId));
     matchJournalAuthority._setSkipPublishForTests(false);
@@ -300,7 +416,7 @@ describe('combat journal-authority recovery', () => {
       expect.arrayContaining(['lock-1']),
     );
 
-    const rebuilt = await rebuildHost(store, host.matchId);
+    const rebuilt = await rebuildJournalledHost(store, host.matchId);
     const socket = makeMockSocket();
     rebuilt.attachSocket(socket, 'host-player');
 
@@ -337,7 +453,7 @@ describe('combat journal-authority recovery', () => {
       (message) => (message as { event: { sequence: number } }).event.sequence,
     );
     expect(new Set(sequences).size).toBe(sequences.length);
-  });
+  }
 
   it('OUTCOME: a verified terminal command publishes its durable row once', async () => {
     const { host, store } = await makeHost({
@@ -430,27 +546,41 @@ describe('combat journal-authority recovery', () => {
   it.each(['off', 'shadow', 'enabled'] as const)(
     'ROLLBACK: %s mode cannot override a started fact or mutate durable facts',
     async (mode) => {
-      const { host, store } = await makeHost({
-        matchId: 'match-rollback-mode-off',
+      // The stream is mirrored while the mode is on and then recovered
+      // at each of the three modes. This is the stronger form of what
+      // the marker used to prove: started is a property of the STREAM's
+      // persisted rows, so a process that reads them at a different
+      // mode gets the same answer. Marker-backed, it only proved that a
+      // row on the match database is mode-independent.
+      const { host, store, cleanup } = await makeJournalledHost({
+        matchId: 'match-rollback-mode',
       });
-      await host.handleIntent(intent('lock-1', host.matchId));
-      const before = await dumpRollbackFacts(store, host.matchId, 'lock-1');
-      const session = await rebuildSessionFromEvents(
-        host.matchId,
-        await store.getEvents(host.matchId),
-      );
+      try {
+        await host.handleIntent(intent('lock-1', host.matchId));
+        const before = await dumpJournalledRollbackFacts(
+          store,
+          host.matchId,
+          'lock-1',
+        );
+        const session = await rebuildSessionFromEvents(
+          host.matchId,
+          await store.getEvents(host.matchId),
+        );
 
-      matchJournalAuthority._setCombatJournalAuthorityModeForTests(mode);
-      const recovered = await ServerMatchHost.recover(
-        host.matchId,
-        store,
-        session,
-      );
+        matchJournalAuthority._setCombatJournalAuthorityModeForTests(mode);
+        const recovered = await ServerMatchHost.recover(
+          host.matchId,
+          store,
+          session,
+        );
 
-      expect(recovered.isJournalAuthorityEnabled()).toBe(true);
-      expect(await dumpRollbackFacts(store, host.matchId, 'lock-1')).toBe(
-        before,
-      );
+        expect(recovered.isJournalAuthorityEnabled()).toBe(true);
+        expect(
+          await dumpJournalledRollbackFacts(store, host.matchId, 'lock-1'),
+        ).toBe(before);
+      } finally {
+        await cleanup();
+      }
     },
   );
 
