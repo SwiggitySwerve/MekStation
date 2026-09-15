@@ -15,6 +15,25 @@ const BASE58_ALPHABET =
 const PLAYER_ID_PREFIX = 'pid_';
 const PLAYER_ID_BYTES = 20;
 
+// Mirror of src/lib/multiplayer/socketCredentialProtocol.ts. This is a
+// bare-node ESM script with no TypeScript loader, so it cannot import
+// the module — the same constraint that forced the server.js mirror,
+// and it gets the same treatment: a duplicate plus
+// scripts/__tests__/packagedSocketValidatorCredentialMirror.test.ts,
+// which refuses to let the copies drift.
+const WS_PROTOCOL_VERSION = 'mekstation.v1';
+const WS_CREDENTIAL_PREFIX = 'mekstation.token.';
+
+/** Rewrite standard base64 text into the subprotocol-safe alphabet. */
+function toBase64Url(base64) {
+  return base64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
+
+/** The subprotocol list a client offers; version marker first. */
+function credentialProtocols(wireToken) {
+  return [WS_PROTOCOL_VERSION, WS_CREDENTIAL_PREFIX + toBase64Url(wireToken)];
+}
+
 function getArg(name) {
   const prefix = `--${name}=`;
   const arg = process.argv.find((value) => value.startsWith(prefix));
@@ -254,10 +273,14 @@ async function createMatch(wireToken, playerId, getOutput, origin = baseUrl) {
 }
 
 async function openAndJoin(wsUrl, wireToken, playerId, matchId, getOutput) {
-  const url = `${wsUrl}&token=${encodeURIComponent(wireToken)}`;
+  // The credential rides Sec-WebSocket-Protocol, never the query string:
+  // server.js refuses a URL-borne token outright (reason=token-in-url).
+  const url = wsUrl;
   const messages = [];
   const clientTrace = [];
-  const ws = new WebSocket(url, { perMessageDeflate: false });
+  const ws = new WebSocket(url, credentialProtocols(wireToken), {
+    perMessageDeflate: false,
+  });
   ws.once('open', () => {
     if (ws._socket) {
       ws._socket.on('end', () => {
@@ -347,6 +370,15 @@ async function openAndJoin(wsUrl, wireToken, playerId, matchId, getOutput) {
         }, 500);
       });
     });
+    // `replayPromise` is not awaited until after SessionJoin is sent, but
+    // its own `ws.once('error')` timer is armed first and so fires first.
+    // Without an inert handler a handshake failure rejects it while
+    // nothing is attached — an unhandled rejection that kills the process
+    // outright, skipping both `finally` blocks (which is how a failed run
+    // left `.next` behind) and replacing the diagnostic with a bare
+    // throw. The real rejection is still observed at `await` below; a
+    // promise may carry any number of handlers.
+    replayPromise.catch(() => {});
 
     await new Promise((resolve, reject) => {
       const timeout = setTimeout(
