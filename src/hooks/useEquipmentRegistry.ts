@@ -40,7 +40,17 @@ export function useEquipmentRegistry(): UseEquipmentRegistryResult {
       setInitAttempted(true);
       registry
         .initialize()
-        .then(() => setIsReady(true))
+        .then((outcome) => {
+          // An interrupted init resolves without building the name maps, so
+          // reporting ready would advertise a registry whose every lookup
+          // resolves nothing. Re-arm the attempt instead of latching it, so a
+          // surviving document gets another go.
+          if (outcome === 'interrupted') {
+            setInitAttempted(false);
+            return;
+          }
+          setIsReady(true);
+        })
         .catch((error) => {
           logger.error('Equipment registry initialization failed', error);
         });

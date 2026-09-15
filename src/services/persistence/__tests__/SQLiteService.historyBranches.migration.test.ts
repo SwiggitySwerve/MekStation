@@ -11,6 +11,7 @@ import {
   EVENT_HISTORY_BRANCHES_MIGRATION,
   EVENT_HISTORY_GENESIS_DIGEST_LITERAL,
 } from '@/services/persistence/SQLiteService.historyBranches.migration';
+import { EVENT_HISTORY_BRANCH_INTEGRITY_MIGRATION } from '@/services/persistence/SQLiteService.historyBranchesIntegrity.migration';
 import { MIGRATIONS } from '@/services/persistence/SQLiteService.migrations';
 
 const DIGEST_A = 'a'.repeat(64);
@@ -253,6 +254,7 @@ describe('event history branches SQLite migration', () => {
         ancestorDepth: 0,
         baseRevision: 0,
         baseEventId: null,
+        baseDigest: EVENT_HISTORY_GENESIS_DIGEST_LITERAL,
         status: 'effective',
       }),
     ).not.toThrow();
@@ -306,6 +308,7 @@ describe('event history branches SQLite migration', () => {
         ancestorDepth: 0,
         baseRevision: 2,
         baseEventId: 'event-2',
+        baseDigest: EVENT_HISTORY_GENESIS_DIGEST_LITERAL,
       }),
     ).toThrow(/CHECK constraint failed/);
     // A child may not claim genesis semantics.
@@ -320,8 +323,21 @@ describe('event history branches SQLite migration', () => {
         branchId: 'depth-lie',
         parentBranchId: null,
         ancestorDepth: 1,
+        baseDigest: EVENT_HISTORY_GENESIS_DIGEST_LITERAL,
       }),
     ).toThrow(/CHECK constraint failed/);
+    // A root's digest is the canonical empty-history digest, not merely a
+    // well-formed hexadecimal value.
+    expect(() =>
+      insertBranch(db, {
+        branchId: 'forged-root',
+        parentBranchId: null,
+        ancestorDepth: 0,
+        baseRevision: 0,
+        baseEventId: null,
+        baseDigest: DIGEST_A,
+      }),
+    ).toThrow(/root base digest must equal the defined genesis digest/);
 
     insertBranch(db);
     const setStatus = (branchId: string, status: string): void => {
@@ -344,6 +360,82 @@ describe('event history branches SQLite migration', () => {
         )
         .get(),
     ).toEqual({ status: 'blocked' });
+  });
+
+  it('requires an installed effective head to name the stream effective branch', () => {
+    const seeded = database();
+    insertStreamHead(seeded, 'stream-1', 4);
+    const db = replayMigration();
+    insertBranch(db);
+
+    expect(() =>
+      db
+        .prepare(
+          `UPDATE event_history_effective_heads SET branch_id = 'candidate-1'
+           WHERE stream_type = 'match' AND stream_id = 'stream-1'`,
+        )
+        .run(),
+    ).toThrow(/must name an effective branch/);
+
+    // The activation transaction first changes branch statuses, then moves
+    // the pointer. The head guard must preserve that legal ordering.
+    expect(() =>
+      db.transaction(() => {
+        db.prepare(
+          `UPDATE event_history_branches SET status = 'superseded'
+           WHERE stream_type = 'match' AND stream_id = 'stream-1'
+             AND branch_id = 'root'`,
+        ).run();
+        db.prepare(
+          `UPDATE event_history_branches SET status = 'effective'
+           WHERE stream_type = 'match' AND stream_id = 'stream-1'
+             AND branch_id = 'candidate-1'`,
+        ).run();
+        db.prepare(
+          `UPDATE event_history_effective_heads SET branch_id = 'candidate-1'
+           WHERE stream_type = 'match' AND stream_id = 'stream-1'`,
+        ).run();
+      })(),
+    ).not.toThrow();
+  });
+
+  it('keeps integrity guards through cold reopen and a lost-record replay', () => {
+    const expectedTriggers = [
+      'event_history_branches_root_genesis_digest_guard',
+      'event_history_effective_heads_branch_must_be_effective_on_insert',
+      'event_history_effective_heads_branch_must_be_effective_on_update',
+    ];
+    const triggerNames = (db: Database.Database): string[] =>
+      (
+        db
+          .prepare(
+            `SELECT name FROM sqlite_master
+             WHERE type = 'trigger' AND name IN (${expectedTriggers
+               .map(() => '?')
+               .join(', ')})
+             ORDER BY name`,
+          )
+          .all(...expectedTriggers) as Array<{ readonly name: string }>
+      ).map(({ name }) => name);
+
+    expect(triggerNames(database())).toEqual([...expectedTriggers].sort());
+    resetSQLiteService();
+    expect(triggerNames(database())).toEqual([...expectedTriggers].sort());
+
+    resetSQLiteService();
+    const raw = new Database(dbPath);
+    raw
+      .prepare('DELETE FROM migrations WHERE version = ?')
+      .run(EVENT_HISTORY_BRANCH_INTEGRITY_MIGRATION.version);
+    raw.close();
+
+    const replayed = database();
+    expect(triggerNames(replayed)).toEqual([...expectedTriggers].sort());
+    expect(
+      replayed
+        .prepare('SELECT version FROM migrations WHERE version = ?')
+        .get(EVENT_HISTORY_BRANCH_INTEGRITY_MIGRATION.version),
+    ).toEqual({ version: EVENT_HISTORY_BRANCH_INTEGRITY_MIGRATION.version });
   });
 
   it('binds supersession to a single generation step and keeps it immutable', () => {

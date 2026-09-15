@@ -21,6 +21,7 @@ import {
   type IRawWeaponData,
 } from './EquipmentConverters';
 import { readJsonFile } from './EquipmentFileReader';
+import { isEquipmentReadAborted } from './equipmentLoadAbort';
 import {
   DEFAULT_AMMUNITION_FILES,
   DEFAULT_ELECTRONICS_FILES,
@@ -53,9 +54,23 @@ function recordFileLoadFailure(
   logger.error(`[EquipmentOfficialLoader] ${message}`);
 }
 
+/**
+ * The document is unloading, so the remaining files would only be cancelled
+ * too. Report what was loaded and flag the load as incomplete without
+ * recording a single failure - nothing actually failed.
+ */
+function interruptedLoadResult(
+  itemsLoaded: number,
+  errors: string[],
+  warnings: string[],
+): IEquipmentLoadResult {
+  return { success: false, itemsLoaded, errors, warnings, interrupted: true };
+}
+
 export async function loadOfficialEquipmentSource(
   basePath: string,
   targets: IEquipmentOfficialLoadTargets,
+  signal?: AbortSignal,
 ): Promise<IEquipmentLoadResult> {
   const errors: string[] = [];
   const warnings: string[] = [];
@@ -66,7 +81,11 @@ export async function loadOfficialEquipmentSource(
     const indexData = await readJsonFile<IEquipmentIndexData>(
       'index.json',
       basePath,
+      signal,
     );
+    if (isEquipmentReadAborted(indexData)) {
+      return interruptedLoadResult(itemsLoaded, errors, warnings);
+    }
 
     // Load weapon files (data-driven from index.json)
     const weaponFiles = indexData?.files?.weapons
@@ -76,7 +95,11 @@ export async function loadOfficialEquipmentSource(
       const weaponData = await readJsonFile<IEquipmentFile<IRawWeaponData>>(
         weaponFile,
         basePath,
+        signal,
       );
+      if (isEquipmentReadAborted(weaponData)) {
+        return interruptedLoadResult(itemsLoaded, errors, warnings);
+      }
       if (weaponData) {
         // Cross-language schema-bridge gate.
         //
@@ -120,7 +143,11 @@ export async function loadOfficialEquipmentSource(
       const ammoData = await readJsonFile<IEquipmentFile<IRawAmmunitionData>>(
         ammoFile,
         basePath,
+        signal,
       );
+      if (isEquipmentReadAborted(ammoData)) {
+        return interruptedLoadResult(itemsLoaded, errors, warnings);
+      }
       if (ammoData) {
         // Schema-bridge gate. Ammunition files in the corpus today don't
         // carry `$schema` headers, so the default validator
@@ -148,7 +175,10 @@ export async function loadOfficialEquipmentSource(
     for (const elecFile of elecFiles) {
       const electronicsData = await readJsonFile<
         IEquipmentFile<IRawElectronicsData>
-      >(elecFile, basePath);
+      >(elecFile, basePath, signal);
+      if (isEquipmentReadAborted(electronicsData)) {
+        return interruptedLoadResult(itemsLoaded, errors, warnings);
+      }
       if (electronicsData) {
         // Schema-bridge gate. Electronics files all carry
         // `$schema: ../../_schema/electronics-schema.json` so the
@@ -177,7 +207,10 @@ export async function loadOfficialEquipmentSource(
     for (const miscFile of miscFiles) {
       const miscData = await readJsonFile<
         IEquipmentFile<IRawMiscEquipmentData>
-      >(miscFile, basePath);
+      >(miscFile, basePath, signal);
+      if (isEquipmentReadAborted(miscData)) {
+        return interruptedLoadResult(itemsLoaded, errors, warnings);
+      }
       if (miscData) {
         // Schema-bridge gate. Misc files all carry
         // `$schema: ../../_schema/misc-equipment-schema.json`.
