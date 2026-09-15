@@ -1,6 +1,6 @@
 {
   "batch": "20260915-02",
-  "generatedAt": "2026-09-15T22:56:08.000Z",
+  "generatedAt": "2026-09-15T23:21:36.000Z",
   "sourceBase": "1f67f814e3f04e8a38488de70ecd8396f9269ca6",
   "files": [
     {
@@ -242,30 +242,6 @@
       "bytes": 9640,
       "sha256": "b462774e7105ce79ae8a7df1441eaba03b735a8648c269170858231b5d5ee0b4",
       "sourceSha256": "b462774e7105ce79ae8a7df1441eaba03b735a8648c269170858231b5d5ee0b4"
-    },
-    {
-      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/r0-evidence-batch-plan-20260915.json",
-      "bytes": 247282,
-      "sha256": "3db1ff9670b94e34ba30bcd57430d3ee69a90b39614f5bdf54f390eaa88d1c7f",
-      "sourceSha256": "3db1ff9670b94e34ba30bcd57430d3ee69a90b39614f5bdf54f390eaa88d1c7f"
-    },
-    {
-      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/r0-local-evidence-hashes-20260915.json",
-      "bytes": 5588,
-      "sha256": "21deb00dbf8805608115b80a2318888244d7b8d702cec4ba7703b2c43f3a2d58",
-      "sourceSha256": "21deb00dbf8805608115b80a2318888244d7b8d702cec4ba7703b2c43f3a2d58"
-    },
-    {
-      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/r0-publication-branches-20260915.json",
-      "bytes": 4776,
-      "sha256": "bd2136d3af65a193151d0ccf82598e3c2b7ce46e3e60af409fda272dd39a173c",
-      "sourceSha256": "bd2136d3af65a193151d0ccf82598e3c2b7ce46e3e60af409fda272dd39a173c"
-    },
-    {
-      "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/r0-publication-plan-20260915.json",
-      "bytes": 110708,
-      "sha256": "e5b8916017058a2b8aa8b26e6d37bdf034e7596b907d9ca71b346c76b03f762a",
-      "sourceSha256": "e5b8916017058a2b8aa8b26e6d37bdf034e7596b907d9ca71b346c76b03f762a"
     },
     {
       "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/r1-ci-package-reconcile-20260915.json",
