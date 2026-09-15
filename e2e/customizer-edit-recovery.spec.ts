@@ -67,7 +67,9 @@ test('undo restores structure, armor and placement with metrics and independent 
   expect((await draft(page)).equipment).toEqual(engine.equipment);
   await undo(page);
   await page.getByRole('tab', { name: 'Armor', exact: true }).click();
-  await page.getByRole('spinbutton').fill('18');
+  await page
+    .getByRole('spinbutton', { name: 'Armor tonnage', exact: true })
+    .fill('18');
   const preAllocation = await draft(page);
   await page.getByRole('button', { name: /^Auto Allocate/ }).click();
   const allocated = await draft(page);
