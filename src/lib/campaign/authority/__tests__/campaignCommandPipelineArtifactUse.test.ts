@@ -199,6 +199,14 @@ describe('campaign command pipeline artifact use', () => {
      * persisted source record holds. These rows are about the artifact-use
      * consult, so the market carries every id they name - otherwise they
      * would stop at the durability gate and stop proving anything.
+     *
+     * Task 6.2a-3 (RE-2): the offer must now be a FAITHFULLY SERIALIZED
+     * contract, because the acceptance copies it into the source record.
+     * These fixtures previously carried `paymentTerms: {}` and no
+     * `createdAt` / `updatedAt`, which no offer a real market wrote ever
+     * looks like (`buildContractRecord` -> `createContract` stamps both, and
+     * `Money.toJSON` emits numbers) - so they are completed here rather than
+     * the guard being loosened to admit a shape production never produces.
      */
     function seedDurableMarket(): void {
       const offers = [CONTRACT_ID, 'contract-never-named'].map((id) => ({
@@ -208,9 +216,19 @@ describe('campaign command pipeline artifact use', () => {
         type: 'contract',
         systemId: 'galatea',
         scenarioIds: [],
+        createdAt: NOW,
+        updatedAt: NOW,
         employerId: 'davion',
         targetId: 'liao',
-        paymentTerms: {},
+        paymentTerms: {
+          basePayment: 1_000_000,
+          successPayment: 250_000,
+          partialPayment: 100_000,
+          failurePayment: 0,
+          salvagePercent: 35,
+          transportPayment: 50_000,
+          supportPayment: 25_000,
+        },
         salvageRights: 'Integrated',
         commandRights: 'Independent',
       }));
