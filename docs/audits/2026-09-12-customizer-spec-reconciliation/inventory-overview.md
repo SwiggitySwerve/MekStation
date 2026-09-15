@@ -77,7 +77,7 @@ These three moves were explicitly authorized and their original hashes were pres
 
 | Archived package                                                                                                               | Current record                                                                                               |
 | ------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------ |
-| [add-customizer-edit-recovery](../../../openspec/changes/archive/2026-09-12-add-customizer-edit-recovery/tasks.md)             | Local authorized archive move; use its own receipt for any main claim.                                       |
+| [add-customizer-edit-recovery](../../../openspec/changes/archive/2026-09-15-add-customizer-edit-recovery/tasks.md)             | Local authorized archive move; use its own receipt for any main claim.                                       |
 | [establish-battlemech-chassis-index](../../../openspec/changes/archive/2026-09-12-establish-battlemech-chassis-index/tasks.md) | Local-verified commit `f6078a2a790129bb7faa53249710b4151b779ab9`; publication and main proof remain pending. |
 | [repair-equipment-catalog](../../../openspec/changes/archive/2026-09-12-repair-equipment-catalog/tasks.md)                     | Local-verified commit `0f26b709f33ecb5513058844e8077d61b5a2a3ed`; publication and main proof remain pending. |
 
