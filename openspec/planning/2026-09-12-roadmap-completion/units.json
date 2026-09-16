@@ -85,10 +85,10 @@
         "maxFiles": 15,
         "maxNonGeneratedLines": 500
       },
-      "state": "local-verified",
+      "state": "complete",
       "baseline": "19e5a061e466dad4d592b2d90f363402f5a0d950",
-      "prHead": null,
-      "mergeSha": null,
+      "prHead": "5692ff99605974686ad9cd47a0d0dabe2b249146",
+      "mergeSha": "6a358383e2531735190dabbdbc23632779a1a5f7",
       "stageReceipts": {
         "admission": {
           "path": "evidence/u1-admission-20260916.json",
@@ -106,10 +106,31 @@
           "at": "2026-09-16T18:25:22.663Z",
           "summary": "row and group green on the E2E standalone build (port 3639, retries 0); tsc, oxlint baseline-equal, oxfmt clean, qc pin suite 10/10, qc:openspec-ci 0, roadmap validator PASSED"
         },
-        "review": null,
-        "merge": null,
-        "mainProof": null,
-        "tick": null
+        "review": {
+          "path": "evidence/u1-review-20260916.json",
+          "head": "5692ff99605974686ad9cd47a0d0dabe2b249146",
+          "reviewedHead": "5692ff99605974686ad9cd47a0d0dabe2b249146",
+          "reviewerModel": "claude-sonnet (Agent model: sonnet)",
+          "implementerModel": "claude-opus (Agent model: opus, omo-hephaestus lane) with claude-fable-5-1 parent",
+          "outputSha256": "02253ad662b04b4733262bfb74282f7f70208dadfc303455fed30f3e09f3e903",
+          "verdict": "APPROVE"
+        },
+        "merge": {
+          "path": "evidence/u1-merge-20260916.json",
+          "pr": 1786,
+          "head": "5692ff99605974686ad9cd47a0d0dabe2b249146",
+          "mergeSha": "6a358383e2531735190dabbdbc23632779a1a5f7"
+        },
+        "mainProof": {
+          "path": "evidence/u1-mainproof-20260916.json",
+          "mergeCommit": "6a358383e2531735190dabbdbc23632779a1a5f7",
+          "verdict": "PASS",
+          "runtime": "  1 passed (30.8s)"
+        },
+        "tick": {
+          "path": "evidence/u1-tick-20260916.json",
+          "taskKeys": []
+        }
       },
       "ownerGate": null,
       "split20260916": {

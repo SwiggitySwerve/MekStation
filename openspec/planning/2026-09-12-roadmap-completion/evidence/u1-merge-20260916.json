@@ -1,0 +1,15 @@
+{
+  "unit": "U1",
+  "stage": "merge",
+  "at": "2026-09-16T18:45:25.602Z",
+  "pr": 1786,
+  "title": "test(e2e): E2E-74 slow-client backpressure stays bounded on the tactical channel",
+  "head": "5692ff99605974686ad9cd47a0d0dabe2b249146",
+  "mergeSha": "6a358383e2531735190dabbdbc23632779a1a5f7",
+  "mergedAt": "2026-09-16T18:39:04Z",
+  "mergedBy": "SwiggitySwerve",
+  "method": "gh pr merge --squash --match-head-commit after all 31 checks passed on the exact head (product class: no administrative bypass)",
+  "checksAtMerge": "31 pass, 0 pending, 0 fail",
+  "parentCount": 1,
+  "blobEqualityDiffLines": 0
+}

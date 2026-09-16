@@ -1,0 +1,49 @@
+{
+  "unit": "U1",
+  "stage": "mainProof",
+  "at": "2026-09-16T18:45:25.603Z",
+  "mergeCommit": "6a358383e2531735190dabbdbc23632779a1a5f7",
+  "checkout": "root checkout fast-forwarded to the merge commit (real node_modules; hydrate step runs)",
+  "runtime": {
+    "build": "NEXT_PUBLIC_E2E_MODE=true NEXT_PUBLIC_E2E_TEST=true npm run build:   \"hydratedStandaloneServer\": \".next\\\\standalone\\\\server.js\",",
+    "e2eBundleMarker": "grep __E2E_MODE__ in _app chunk (see run log)",
+    "playwright": "  1 passed (30.8s)",
+    "tsc": "(no output: clean)"
+  },
+  "commands": {
+    "validator": "ROADMAP VALIDATION PASSED: 73 nodes, 13 packages, 376 tasks, 40 triage rows",
+    "gitAncestry": "ROADMAP VALIDATION PASSED: 73 nodes, 13 packages, 376 tasks, 40 triage rows (--git)",
+    "next": "NONE-ADMISSIBLE: 0 owner-gated, 5 blocked",
+    "openspecStrict": "Totals: 229 passed, 0 failed (229 items)",
+    "qcOpenspecCi": "[qc:openspec-ci] workflowContracts=8/8 workflowJobContracts=1/1 aggregatorNeeds=19/19 protectedContexts=4 packageScripts=3/3 activeOpenSpecChanges=9 accountedActiveOpenSpecChanges=9 errors=0",
+    "qcPin": "Tests:       10 passed, 10 total"
+  },
+  "logs": ".sisyphus/roadmap-completion-20260912/u1-main-proof-20260916/ (local; sha256 below)",
+  "attempts": [
+    {
+      "attempt": 1,
+      "serverCommand": "node .next/standalone/server.js",
+      "result": "1 failed: TypeError Cannot open database because the directory does not exist (helpers/viewerUnackedBoundEvidence.ts:67 reads .sisyphus/e2e-runtime/<runId>/multiplayer-matches.db); the standalone server ran the in-memory player store, so the durable match store file never existed; a proof-command mismatch, not a product failure",
+      "log": "playwright-attempt1-standalone-server.log"
+    },
+    {
+      "attempt": 2,
+      "serverCommand": "node scripts/qc/run-gm-two-player-campaign.mjs --group=backpressure (the pack family's documented runner: repo-root server.js under NODE_ENV=production with the durable store under .sisyphus/e2e-runtime)",
+      "result": "see runtime.playwright",
+      "log": "playwright.log"
+    }
+  ],
+  "logHashes": [
+    "824afe5cb68da2998cb39d0316ffaa9d8107a91d1792d7e7be54ca9c9c221d22 *build.log",
+    "b185e5f101786a05e7aa9bd0cde15778607fa047fbdbec8a15158c89753c23fc *git-check.log",
+    "a5d7edc2ebb69bc03bf5770078f30aaa1eaf73321899d1c6a2d7deddaf09ee88 *next.log",
+    "fed248fc815eeb6f7bcba19c13e61a741afc1b5b5b5033b1c2d22a2195eccb0e *openspec-strict.log",
+    "bb4afaf3eff07335d0db452ccb9cef42a93bf96294eb8862fb93d34d2175084f *playwright-attempt1-standalone-server.log",
+    "b1a4dcb3aa68a221b3b75def983953bc68761fc8cfa9b20359d814a43fee3976 *playwright.log",
+    "4c2dafd093b946290aa4abe001ad8b3d65671b17c7682722c55a510ecc04f91e *qc-openspec-ci.log",
+    "226053296212a372446ecbd52d44fa0b592fcac93ecb67a8d45363e4fd59637c *qc-pin.log",
+    "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855 *tsc.log",
+    "b185e5f101786a05e7aa9bd0cde15778607fa047fbdbec8a15158c89753c23fc *validator.log"
+  ],
+  "verdict": "PASS"
+}
