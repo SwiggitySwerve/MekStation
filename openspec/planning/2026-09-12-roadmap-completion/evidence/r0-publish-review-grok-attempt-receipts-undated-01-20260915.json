@@ -1,0 +1,22 @@
+{
+  "reviewer": "cursor-agent grok-4.6",
+  "planId": "receipts-undated-01",
+  "branch": "codex/roadmap-r0-publish-receipts-undated-01-20260915",
+  "head": "c997056ee2078c5cc2743e6fa1e9f89a2d18cf8f",
+  "verdict": "REJECT",
+  "verifierExitCode": null,
+  "verifierReport": {
+    "id": "receipts-undated-01",
+    "branch": "codex/roadmap-r0-publish-receipts-undated-01-20260915",
+    "error": "verifier not executed: Shell tool rejected every command in this session (including node -e and git rev-parse) with an empty Auto-review reason",
+    "verdict": "NOT_RUN"
+  },
+  "independentChecks": {
+    "fileSetMatches": false,
+    "spotChecks": [],
+    "singleParentOnBase": true,
+    "noAttribution": true
+  },
+  "notes": "REJECT because the verifier never ran and git diff / blob sha256 spot checks could not be executed. Local ref and reflog still show head c997056ee2078c5cc2743e6fa1e9f89a2d18cf8f as one commit whose only parent is 1f67f814e3f04e8a38488de70ecd8396f9269ca6, with a subject matching the plan title and no Co-Authored-By / Generated with / Claude / Anthropic text.",
+  "at": "2026-09-15T23:35:00.000Z"
+}

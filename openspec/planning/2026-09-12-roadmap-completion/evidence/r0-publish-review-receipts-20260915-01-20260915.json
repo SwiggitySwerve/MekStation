@@ -1,0 +1,48 @@
+{
+  "reviewer": "sonnet independent review",
+  "planId": "receipts-20260915-01",
+  "pr": 1764,
+  "branch": "codex/roadmap-r0-publish-receipts-20260915-01-20260915",
+  "head": "e7d08c4cae0a5159b373d681e2ccdebf88c49358",
+  "verdict": "APPROVE",
+  "verifierExitCode": 0,
+  "verifierReport": {
+    "id": "receipts-20260915-01",
+    "branch": "codex/roadmap-r0-publish-receipts-20260915-01-20260915",
+    "checks": [
+      "1 linear commit(s) on top of plan base 1f67f814e3f04e8a38488de70ecd8396f9269ca6",
+      "file set matches plan (100 files)",
+      "CRLF source normalized to LF by .gitattributes: openspec/planning/2026-09-12-roadmap-completion/evidence/cleanup-inventory-20260915.json",
+      "manifest hashes match blobs for 99 files",
+      "no gitignored paths",
+      "commit message has no attribution text"
+    ],
+    "failures": [],
+    "head": "e7d08c4cae0a5159b373d681e2ccdebf88c49358",
+    "base": "1f67f814e3f04e8a38488de70ecd8396f9269ca6",
+    "commitCount": 1,
+    "bytes": 1263244,
+    "title": "docs(roadmap): publish generated receipts batch 20260915-01 (99 files)",
+    "verdict": "PASS"
+  },
+  "independentChecks": {
+    "linearOnBase": true,
+    "fileSetMatches": true,
+    "alreadyOnMainIdentical": [],
+    "spotChecks": [
+      {"path": "openspec/planning/2026-09-12-roadmap-completion/evidence/camp-live-probe-diagnosis-20260915.json", "blobSha256": "97f7ea07a12ec076e61c10495b823db166dd2b519404e63ccee79bddbad0cf66", "manifestSha256": "97f7ea07a12ec076e61c10495b823db166dd2b519404e63ccee79bddbad0cf66", "rootSha256": "97f7ea07a12ec076e61c10495b823db166dd2b519404e63ccee79bddbad0cf66", "match": "exact"},
+      {"path": "openspec/planning/2026-09-12-roadmap-completion/evidence/grants-403-journey-diagnosis-20260915.json", "blobSha256": "94052a5854ee27c7ab3ae41a1b1bbd3e7ad502aff02e7356bc6505358a2075fc", "manifestSha256": "94052a5854ee27c7ab3ae41a1b1bbd3e7ad502aff02e7356bc6505358a2075fc", "rootSha256": "94052a5854ee27c7ab3ae41a1b1bbd3e7ad502aff02e7356bc6505358a2075fc", "match": "exact"},
+      {"path": "openspec/planning/2026-09-12-roadmap-completion/evidence/ledger-reconcile-3-local-20260915.json", "blobSha256": "7d78cfe3ad179d15600817527bd543399f889b3e6735a8c23727a45d79b0b95c", "manifestSha256": "7d78cfe3ad179d15600817527bd543399f889b3e6735a8c23727a45d79b0b95c", "rootSha256": "7d78cfe3ad179d15600817527bd543399f889b3e6735a8c23727a45d79b0b95c", "match": "exact"},
+      {"path": "openspec/planning/2026-09-12-roadmap-completion/evidence/ci-customizer-gate-1678-final-20260915-merge-20260915.json", "blobSha256": "91cb8fc1d4562acb21d8c774202e04d006f787570fc820cb5d4ba8fb3d86273b", "manifestSha256": "91cb8fc1d4562acb21d8c774202e04d006f787570fc820cb5d4ba8fb3d86273b", "rootSha256": "91cb8fc1d4562acb21d8c774202e04d006f787570fc820cb5d4ba8fb3d86273b", "match": "exact"},
+      {"path": "openspec/planning/2026-09-12-roadmap-completion/evidence/ci-customizer-gate-1678-final-20260915-premerge.json", "blobSha256": "f69679734113ab78dc8aa865e4951b169d1c350a586aa2bc67d70382fd5df4b7", "manifestSha256": "f69679734113ab78dc8aa865e4951b169d1c350a586aa2bc67d70382fd5df4b7", "rootSha256": "f69679734113ab78dc8aa865e4951b169d1c350a586aa2bc67d70382fd5df4b7", "match": "exact"}
+    ],
+    "noIgnoredPaths": true,
+    "withinCaps": {"files": 100, "bytes": 1263244},
+    "noAttribution": true,
+    "prBodyAccurate": true,
+    "titleMatchesPlan": true
+  },
+  "requiredEdits": [],
+  "notes": "Single linear commit on plan base. Diff has 100 paths (99 evidence files + manifest), matches plan file list exactly. 1 CRLF-normalized file reconciled via .gitattributes. 5 random spot-checked files all matched manifest and blob hashes exactly. No gitignored paths, bytes (1,263,244) under the 2MB cap, no attribution text. PR #1764 title and body (file count 100, bytes 1,263,244, 1 CRLF file) match plan and independent counts exactly.",
+  "at": "2026-09-15T22:55:00Z"
+}

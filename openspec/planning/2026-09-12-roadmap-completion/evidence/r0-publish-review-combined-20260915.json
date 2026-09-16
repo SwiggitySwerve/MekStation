@@ -1,0 +1,142 @@
+{
+  "reviewer": "sonnet independent review",
+  "planId": "combined",
+  "pr": 1776,
+  "branch": "codex/roadmap-r0-publish-combined-20260915",
+  "head": "7b1ce31d7d3990741d4427d1fd488d667f75d1a3",
+  "base": "cb4058c6f0dbc9d9ca80b64196ffc58f4019401d",
+  "verdict": "APPROVE",
+  "checks": {
+    "1_provenance": {
+      "script": "node scratchpad/verify-combined.js codex/roadmap-r0-publish-combined-20260915 -> verdict PASS, 0 failures, commitCount 1, changedCount 761",
+      "independentSpotChecks": {
+        "audit-overview": {
+          "prHead": "14b510968ba341f1ad020f935e29f3bad7622d01",
+          "files": 3,
+          "identical": 3
+        },
+        "ledger": {
+          "prHead": "67532c397a51fd129c05ea1ee09b22340084a6b7",
+          "files": 4,
+          "identical": 3,
+          "note": "the 1 non-identical file is openspec/planning/2026-09-12-roadmap-completion/roadmap.json, which is the expected overlay refresh, not a provenance failure"
+        },
+        "contracts": {
+          "prHead": "d938477b82cb3ead3c450c7da64643aa95767004",
+          "files": 6,
+          "identical": 6
+        },
+        "active-index": {
+          "prHead": "1199b7d7f654b71fc9242ceaaebfa0470aaaaa71",
+          "files": 2,
+          "identical": 2
+        },
+        "method": "for each file added/modified by the superseded PR (git diff --name-only --diff-filter=ACMR against merge-base with origin/main), compared git rev-parse origin/<branch>:<path> to git rev-parse <head>:<path>"
+      },
+      "overlayFiles": {
+        "roadmap.json": {
+          "shaHeadEqualsRootCheckout": "da5b01fd8ae0dea7efcaba4eace698a31e2130f788ecab61f16a78c03df9f201 (both)",
+          "diffVsLedgerReviewedHead": "8 insertions only: adds workerRouting20260915.grokReviewAttempt20260915; no other top-level key changed",
+          "ownerDecisionsFinding": "VERIFIED FALSE CLAIM: roadmap.json's ownerDecisions array (10 entries) does NOT contain an OD-publication-single-pr entry, and the string 'publication-single-pr' occurs zero times anywhere in roadmap.json at <head>. The checklist's premise that roadmap.json 'gains ownerDecisions[\"OD-publication-single-pr\"]' does not hold -- only the workerRouting addition happened. The decision exists only in the (unshipped) plan file's consolidation20260915 block and in prose in PROGRESS.md and the PR body."
+        },
+        "PROGRESS.md": {
+          "shaHeadEqualsRootCheckout": "3a3a6f7ea6128883373f984343aa2c4f647477fc1d5e292cd096d0d652a165a1 (both)",
+          "diffVsProgressReviewedHead": "exactly one new section inserted at the top ('## 2026-09-15 publication consolidation (parent)', one paragraph, one blank line); nothing else changed",
+          "contentFinding": "the new paragraph asserts '(roadmap.json ownerDecisions OD-publication-single-pr)' -- this is the same false claim as above; it is not actually in roadmap.json"
+        }
+      }
+    },
+    "2_scope": {
+      "pathCount": 761,
+      "allUnderAllowedRoots": true,
+      "outOfScopePaths": [],
+      "commitsOnBranch": 1,
+      "gitignoredPaths": 0,
+      "attributionInCommitMessage": false
+    },
+    "3_links": {
+      "markdownFilesChecked": 18,
+      "totalLinkTargetsClassified": 528,
+      "classification": {
+        "existing-on-main": 526,
+        "http(s)": 2,
+        "existing-in-pr-tree": 0,
+        "DANGLING": 0
+      },
+      "danglingTargets": [],
+      "activeChangesRoadmapAndRoadmapReadme": "checked specifically; all 14 targets across the two files resolve on origin/main or are http(s); none dangling",
+      "note": "existing-in-pr-tree count of 0 is expected: origin/main (cb4058c6f) already contains most of the roadmap-completion directory from earlier merged PRs (#1757/#1758/#1761), so cross-references within the newly published docs resolve against main rather than sibling files unique to this PR"
+    },
+    "4_validators": {
+      "validateRoadmapMjsShaMatchesRootCheckout": true,
+      "sha256": "aed9a9eca29d40109f8474cab81be6fcb5851075260bbfc4cc078e23282af5c6 (both head and root checkout)",
+      "runOutput": "ROADMAP VALIDATION PASSED: 73 nodes, 13 packages, 376 tasks, 40 triage rows",
+      "prBodyQuotesTruthfully": true
+    },
+    "5_prBodyAccuracy": {
+      "titleEqualsPlanCombinedEntryTitle": true,
+      "fileCountClaimed": 761,
+      "fileCountIndependentlyComputed": 761,
+      "byteTotalClaimed": 11194477,
+      "byteTotalIndependentlyComputed": 11194477,
+      "supersededPrListMatchesPlan": true,
+      "supersededList": [
+        1759,
+        1760,
+        1762,
+        1763,
+        1764,
+        1765,
+        1766,
+        1767,
+        1768,
+        1769,
+        1770,
+        1771,
+        1772,
+        1773,
+        1774,
+        1775
+      ],
+      "twoRefreshedFilesNamedCorrectly": true,
+      "capsWaiverStatementPresent": true,
+      "attributionLinesPresent": false,
+      "falseClaimInBody": "PR body states 'consolidated into one PR per the owner decision recorded as OD-publication-single-pr in roadmap.json' -- verified false, see 1_provenance.overlayFiles.roadmap.json.ownerDecisionsFinding",
+      "rawLogHashClaimVerified": "PUBLICATION.md item 6 (shipped in this PR) explicitly directs that ignored raw logs be recorded as LOCAL exported evidence identified by hash and never force-added or claimed to be in Git; evidence/r0-local-evidence-hashes-20260915.json is confirmed untracked/local-only (not on origin/main, not in this PR, not anywhere in git history) which matches that policy -- not a defect. The audit-side claim ('and the audit manifest') is satisfied by docs/audits/2026-09-12-customizer-spec-reconciliation/evidence/publication-manifest-20260915.sha256.json, which is already on origin/main and contains sha256 entries for the audit-data batch."
+    },
+    "6_contentSanity": {
+      "unrelatedContentFound": false,
+      "printableModelLibraryReferences": "all references to docs/audits/2026-09-09-printable-model-library/* are either prose explaining it was deliberately excluded, or manifest entries tagged ownership:'unrelated-preserve' listing files that exist locally but are confirmed NOT present in this PR's diff (grep of the 761-path list returns zero matches)",
+      "rawLogFilesInDiff": 0,
+      "fileExtensionsInDiff": {
+        "md": 18,
+        "json": 742,
+        "mjs": 1
+      },
+      "claimsOfRawLogInGit": "none found",
+      "credentialsOrPersonalDataScan": "no literal secrets, passwords, or third-party personal emails found in a full-text grep of the diff content"
+    }
+  },
+  "requiredEdits": [
+    {
+      "file": "openspec/planning/2026-09-12-roadmap-completion/PROGRESS.md",
+      "old": "the user directed that all remaining documentation PRs go in one single PR (roadmap.json ownerDecisions OD-publication-single-pr).",
+      "new": "the user directed that all remaining documentation PRs go in one single PR (decision OD-publication-single-pr, recorded in the publication plan's consolidation20260915 block; not present in roadmap.json's ownerDecisions ledger).",
+      "reason": "roadmap.json's ownerDecisions array (verified: 10 entries, ids checked individually) contains no OD-publication-single-pr entry and the literal string does not occur anywhere in the file at <head>. The shipped prose asserts the decision is recorded there when it is not, which is a factual-accuracy defect in a documentation-publication PR whose entire premise is provenance accuracy."
+    },
+    {
+      "file": "PR #1776 body (via gh pr edit, not a repo file)",
+      "old": "consolidated into one PR per the owner decision recorded as OD-publication-single-pr in roadmap.json (\"all the documentation PRs can go in one single PR\").",
+      "new": "consolidated into one PR per the owner decision OD-publication-single-pr (recorded in the publication plan's consolidation20260915 block; not present in roadmap.json's ownerDecisions ledger) (\"all the documentation PRs can go in one single PR\").",
+      "reason": "same false claim repeated in the PR description; fix independently of the commit via gh pr edit since it does not require a new commit."
+    }
+  ],
+  "notes": "This is a documentation-accuracy defect, not a provenance defect: every one of the 761 published files is byte-identical to its reviewed, sonnet-APPROVEd source PR head except the two overlay files (roadmap.json, PROGRESS.md), which are correctly refreshed from the root checkout and correctly add the workerRouting20260915.grokReviewAttempt20260915 record. The single problem is that both refreshed files (and the PR body) claim the OD-publication-single-pr owner decision is recorded in roadmap.json's ownerDecisions ledger, and it is not -- it exists only in the unshipped plan JSON and in prose. Two fixes are possible: (a) correct the prose (specified above, exact-text-replacement, safe), or (b) actually append a real ownerDecisions entry to roadmap.json matching the existing OD-* schema (id/at/question/status/evidence) -- the more architecturally complete fix, but the reviewer declines to draft the literal JSON for a new ledger row since guessing timestamps/evidence fields risks introducing a second inaccuracy; the author should choose (b) deliberately if the ledger is meant to be the durable record, otherwise apply (a). All other checklist items (scope, links, validator, PR-body numeric accuracy, single-commit, no attribution, no gitignored/log files, no unrelated content) passed clean with independent re-verification, not just by trusting verify-combined.js.",
+  "at": "2026-09-15T18:30:00-07:00",
+  "requiredEditsApplied": {
+    "by": "parent",
+    "at": "2026-09-16T00:30:08.292Z",
+    "how": "the missing OD-publication-single-pr entry is added to roadmap.json ownerDecisions (array shape) in the accounting PR, which makes the PROGRESS.md sentence true on main; the merged PR #1776 body is edited to say the entry lands in the accounting PR; the accounting PROGRESS note records the correction"
+  },
+  "verdictBeforeEdits": "APPROVE-WITH-REQUIRED-EDITS"
+}

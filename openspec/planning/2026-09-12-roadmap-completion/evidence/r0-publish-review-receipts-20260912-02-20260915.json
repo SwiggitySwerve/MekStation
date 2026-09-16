@@ -1,0 +1,49 @@
+{
+  "reviewer": "sonnet independent review",
+  "planId": "receipts-20260912-02",
+  "pr": 1759,
+  "branch": "codex/roadmap-r0-publish-receipts-20260912-02-20260915",
+  "head": "e7e3b8cf4d42f9ea794efc81364ae25ad53ca426",
+  "verdict": "APPROVE",
+  "verifierExitCode": 0,
+  "verifierReport": {
+    "id": "receipts-20260912-02",
+    "branch": "codex/roadmap-r0-publish-receipts-20260912-02-20260915",
+    "checks": [
+      "1 linear commit(s) on top of plan base 1f67f814e3f04e8a38488de70ecd8396f9269ca6",
+      "file set matches plan (50 files)",
+      "CRLF source normalized to LF by .gitattributes: openspec/planning/2026-09-12-roadmap-completion/evidence/prerequisite-contracts-main-verification-20260912.json",
+      "manifest hashes match blobs for 49 files",
+      "CRLF source normalized to LF by .gitattributes: openspec/planning/2026-09-12-roadmap-completion/evidence/spec-data-services-cleanup-20260912.json",
+      "no gitignored paths",
+      "commit message has no attribution text"
+    ],
+    "failures": [],
+    "head": "e7e3b8cf4d42f9ea794efc81364ae25ad53ca426",
+    "base": "1f67f814e3f04e8a38488de70ecd8396f9269ca6",
+    "commitCount": 1,
+    "bytes": 756911,
+    "title": "docs(roadmap): publish generated receipts batch 20260912-02 (49 files)",
+    "verdict": "PASS"
+  },
+  "independentChecks": {
+    "linearOnBase": true,
+    "fileSetMatches": true,
+    "alreadyOnMainIdentical": [],
+    "spotChecks": [
+      {"path": "openspec/planning/2026-09-12-roadmap-completion/evidence/spec-data-services-cleanup-20260912.json", "blobSha256": "2f30a350ede7fd1960e4134a9334673e1c4d4c0dfa1766435721e750f6b55584", "manifestSha256": "2f30a350ede7fd1960e4134a9334673e1c4d4c0dfa1766435721e750f6b55584", "rootSha256": "8f86ee0f97b7fd1e35cc4b501bf9aeb5c2d04871ca2fa2868a1155626a52fe79", "match": "crlf-normalized"},
+      {"path": "openspec/planning/2026-09-12-roadmap-completion/evidence/validation-order-main-verification-20260912.json", "blobSha256": "ec40f7a5a34d1c6e1758bb07e91e59a335ed7e250a9431ca262f64dcfe7602cb", "manifestSha256": "ec40f7a5a34d1c6e1758bb07e91e59a335ed7e250a9431ca262f64dcfe7602cb", "rootSha256": "ec40f7a5a34d1c6e1758bb07e91e59a335ed7e250a9431ca262f64dcfe7602cb", "match": "exact"},
+      {"path": "openspec/planning/2026-09-12-roadmap-completion/evidence/triage-allocation-tab-superseding-20260912-continuation.json", "blobSha256": "073626db5a62ab5c52f02831bcf3d50c5281f1593c0d2f1264bff84a2aeeecce", "manifestSha256": "073626db5a62ab5c52f02831bcf3d50c5281f1593c0d2f1264bff84a2aeeecce", "rootSha256": "073626db5a62ab5c52f02831bcf3d50c5281f1593c0d2f1264bff84a2aeeecce", "match": "exact"},
+      {"path": "openspec/planning/2026-09-12-roadmap-completion/evidence/prerequisite-contracts-main-parent-acceptance-20260912.json", "blobSha256": "3ce5fc80273a07774c88afb17d2fa32c89a590c8c336248068497fecc83c304e", "manifestSha256": "3ce5fc80273a07774c88afb17d2fa32c89a590c8c336248068497fecc83c304e", "rootSha256": "3ce5fc80273a07774c88afb17d2fa32c89a590c8c336248068497fecc83c304e", "match": "exact"},
+      {"path": "openspec/planning/2026-09-12-roadmap-completion/evidence/vault-contracts-main-parent-acceptance-20260912.json", "blobSha256": "a44d5525dc121b7be7ce3f666fb170e0772e868633f8238d1c84f1abe93723e9", "manifestSha256": "a44d5525dc121b7be7ce3f666fb170e0772e868633f8238d1c84f1abe93723e9", "rootSha256": "a44d5525dc121b7be7ce3f666fb170e0772e868633f8238d1c84f1abe93723e9", "match": "exact"}
+    ],
+    "noIgnoredPaths": true,
+    "withinCaps": {"files": 50, "bytes": 756911},
+    "noAttribution": true,
+    "prBodyAccurate": true,
+    "titleMatchesPlan": true
+  },
+  "requiredEdits": [],
+  "notes": "Single linear commit on plan base. Diff has 50 paths (49 evidence files + manifest), matches plan file list exactly. 2 CRLF-normalized files reconciled via .gitattributes; 5 random spot-checked files all matched (1 via CRLF normalization). No gitignored paths, bytes (756,911) under the 2MB cap, no attribution text. PR #1759 title and body (file count 50, bytes 756,911, 2 CRLF files) match plan and independent counts exactly.",
+  "at": "2026-09-15T22:55:00Z"
+}

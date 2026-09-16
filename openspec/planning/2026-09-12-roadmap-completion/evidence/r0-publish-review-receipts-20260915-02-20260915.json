@@ -1,0 +1,48 @@
+{
+  "reviewer": "sonnet independent review",
+  "planId": "receipts-20260915-02",
+  "pr": 1765,
+  "branch": "codex/roadmap-r0-publish-receipts-20260915-02-20260915",
+  "head": "8087dbeaf1573503cb35f5ee752e5db53bced08c",
+  "verdict": "APPROVE",
+  "verifierExitCode": 0,
+  "verifierReport": {
+    "id": "receipts-20260915-02",
+    "branch": "codex/roadmap-r0-publish-receipts-20260915-02-20260915",
+    "checks": [
+      "2 linear commit(s) on top of plan base 1f67f814e3f04e8a38488de70ecd8396f9269ca6",
+      "file set matches plan (89 files)",
+      "manifest hashes match blobs for 88 files",
+      "CRLF source normalized to LF by .gitattributes: openspec/planning/2026-09-12-roadmap-completion/evidence/r2-authority-host-admission-brief-20260915.json",
+      "no gitignored paths",
+      "commit message has no attribution text"
+    ],
+    "failures": [],
+    "head": "8087dbeaf1573503cb35f5ee752e5db53bced08c",
+    "base": "1f67f814e3f04e8a38488de70ecd8396f9269ca6",
+    "commitCount": 2,
+    "bytes": 1559007,
+    "title": "docs(roadmap): publish generated receipts batch 20260915-02 (88 files)",
+    "verdict": "PASS"
+  },
+  "independentChecks": {
+    "linearOnBase": true,
+    "fileSetMatches": true,
+    "alreadyOnMainIdentical": [],
+    "spotChecks": [
+      {"path": "openspec/planning/2026-09-12-roadmap-completion/evidence/proof02-browser-rerun-main-1290676-20260915.json", "blobSha256": "449fd4802f4c9694b929f7eb1395f7dc7c9f2f724b033e1163e85f385f59c301", "manifestSha256": "449fd4802f4c9694b929f7eb1395f7dc7c9f2f724b033e1163e85f385f59c301", "rootSha256": "449fd4802f4c9694b929f7eb1395f7dc7c9f2f724b033e1163e85f385f59c301", "match": "exact"},
+      {"path": "openspec/planning/2026-09-12-roadmap-completion/evidence/ledger-reconcile-6-review-20260915.json", "blobSha256": "bcb906799138da8ae95da54bc1439441d27b2f43c8f985b6060a8275adc72075", "manifestSha256": "bcb906799138da8ae95da54bc1439441d27b2f43c8f985b6060a8275adc72075", "rootSha256": "bcb906799138da8ae95da54bc1439441d27b2f43c8f985b6060a8275adc72075", "match": "exact"},
+      {"path": "openspec/planning/2026-09-12-roadmap-completion/evidence/ledger-reconcile-6-1757-final-20260915-premerge.json", "blobSha256": "5757cfcb5388df6fb4880e53136ebd5a3ec0b2a7e80953de5cb73aaaf92f865d", "manifestSha256": "5757cfcb5388df6fb4880e53136ebd5a3ec0b2a7e80953de5cb73aaaf92f865d", "rootSha256": "5757cfcb5388df6fb4880e53136ebd5a3ec0b2a7e80953de5cb73aaaf92f865d", "match": "exact"},
+      {"path": "openspec/planning/2026-09-12-roadmap-completion/evidence/proof02-starmap-settle-1714-main-proof-20260915.json", "blobSha256": "c228dbf90ba17be6fa8f23b633ca6393812beb0d49659a29b65581b7f1190aef", "manifestSha256": "c228dbf90ba17be6fa8f23b633ca6393812beb0d49659a29b65581b7f1190aef", "rootSha256": "c228dbf90ba17be6fa8f23b633ca6393812beb0d49659a29b65581b7f1190aef", "match": "exact"},
+      {"path": "openspec/planning/2026-09-12-roadmap-completion/evidence/paper-size-settle-1682-final-20260915-merge-20260915.json", "blobSha256": "94cf2449e7525d7c544b4be476e11a5af8d5e27633cee67a4f7b01c149658ea0", "manifestSha256": "94cf2449e7525d7c544b4be476e11a5af8d5e27633cee67a4f7b01c149658ea0", "rootSha256": "94cf2449e7525d7c544b4be476e11a5af8d5e27633cee67a4f7b01c149658ea0", "match": "exact"}
+    ],
+    "noIgnoredPaths": true,
+    "withinCaps": {"files": 89, "bytes": 1559007},
+    "noAttribution": true,
+    "prBodyAccurate": true,
+    "titleMatchesPlan": true
+  },
+  "requiredEdits": [],
+  "notes": "Two single-parent commits on plan base (095973caf.. then 8087dbeaf..), both linear, ending at the plan base -- matches the task's required head 8087dbeaf1573503cb35f5ee752e5db53bced08c exactly. Diff has 89 paths (88 evidence files + manifest), matches plan file list exactly. The second commit's removal of 4 living parent-run publication artifacts (r0-evidence-batch-plan, r0-local-evidence-hashes, r0-publication-branches, r0-publication-plan) is documented in the PR body and does not affect the final diff or manifest, which the batch was regenerated for. 1 CRLF-normalized file reconciled via .gitattributes. 5 random spot-checked files matched manifest and blob hashes exactly. No gitignored paths, bytes (1,559,007) under the 2MB cap, no attribution text on either commit. PR #1765 title and body (file count 89, bytes 1,559,007, 1 CRLF file, second-commit rationale) match plan and independent counts exactly.",
+  "at": "2026-09-15T22:55:00Z"
+}

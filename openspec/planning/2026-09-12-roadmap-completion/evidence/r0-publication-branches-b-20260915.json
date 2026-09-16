@@ -1,0 +1,180 @@
+{
+  "generatedAt": "2026-09-15T23:15:00.000Z",
+  "base": "1f67f814e3f04e8a38488de70ecd8396f9269ca6",
+  "worktree": ".sisyphus/roadmap-completion-20260912/worktrees/publish-b",
+  "prs": [
+    {
+      "order": 12,
+      "id": "audit-data",
+      "branch": "codex/roadmap-r0-publish-audit-data-20260915",
+      "headSha": "02200e71d334ac1e7fa6bba73ceea4cdaf35aaa9",
+      "prNumber": 1761,
+      "url": "https://github.com/SwiggitySwerve/MekStation/pull/1761",
+      "files": [
+        { "path": "docs/audits/2026-09-12-customizer-spec-reconciliation/archive-result.json", "bytes": 777, "committedSha256": "c295e917f802cd0b587b6a566d070df70f7744e61f241defbdbd7ef15217fa93", "sourceSha256": "c295e917f802cd0b587b6a566d070df70f7744e61f241defbdbd7ef15217fa93" },
+        { "path": "docs/audits/2026-09-12-customizer-spec-reconciliation/proposed-archive.json", "bytes": 4340, "committedSha256": "c8ad2166459dc92d2d235fb4b40a6280180760dc8743aece751d715e075fac3e", "sourceSha256": "c8ad2166459dc92d2d235fb4b40a6280180760dc8743aece751d715e075fac3e" },
+        { "path": "docs/audits/2026-09-12-customizer-spec-reconciliation/followup-verification.json", "bytes": 10428, "committedSha256": "96c66d33fd3cbc488a47a9c6d8498680e5b2d9e6b07ad47d87716c0bcc7cf9c4", "sourceSha256": "96c66d33fd3cbc488a47a9c6d8498680e5b2d9e6b07ad47d87716c0bcc7cf9c4" },
+        { "path": "docs/audits/2026-09-12-customizer-spec-reconciliation/verification.json", "bytes": 9305, "committedSha256": "808f7b991b411bee014c0eafd925636b607042dd2d16ff35023b884ad9b7e4ed", "sourceSha256": "808f7b991b411bee014c0eafd925636b607042dd2d16ff35023b884ad9b7e4ed" },
+        { "path": "docs/audits/2026-09-12-customizer-spec-reconciliation/changed-files.json", "bytes": 18512, "committedSha256": "3b55e395975bbb44e26d8eafe02516c43a4b081596729fbada5229afa561fc37", "sourceSha256": "3b55e395975bbb44e26d8eafe02516c43a4b081596729fbada5229afa561fc37" },
+        { "path": "docs/audits/2026-09-12-customizer-spec-reconciliation/final-inventory-check.json", "bytes": 926, "committedSha256": "ea7c9e8abe9c19b11a633e7c69bc4b9a436c80aaf87f60f723b1e94fc429726d", "sourceSha256": "ea7c9e8abe9c19b11a633e7c69bc4b9a436c80aaf87f60f723b1e94fc429726d" },
+        { "path": "docs/audits/2026-09-12-customizer-spec-reconciliation/evidence/ci-docs-review.md", "bytes": 1865, "committedSha256": "8b21252d20e4a64a94c1b42f1046de75644a5181e82f470cfbf80973074c28f8", "sourceSha256": "8b21252d20e4a64a94c1b42f1046de75644a5181e82f470cfbf80973074c28f8" },
+        { "path": "docs/audits/2026-09-12-customizer-spec-reconciliation/evidence/ci-manifest.json", "bytes": 10840, "committedSha256": "a711b21e1b9d7942b6766db09f9664183823e864a5d937cf97302e6969898c73", "sourceSha256": "a711b21e1b9d7942b6766db09f9664183823e864a5d937cf97302e6969898c73" },
+        { "path": "docs/audits/2026-09-12-customizer-spec-reconciliation/evidence/source-comment-check.json", "bytes": 154, "committedSha256": "e852023f601dbd878e499911f306ef6719c12f068b88f5b14ce4813e649f65ec", "sourceSha256": "e852023f601dbd878e499911f306ef6719c12f068b88f5b14ce4813e649f65ec" },
+        { "path": "docs/audits/2026-09-12-customizer-spec-reconciliation/evidence/spec-review.md", "bytes": 8010, "committedSha256": "ee3480051ea6d3483d0b475f8abc06791af4f53ea9a69a5ecb358bfce40ce3ae", "sourceSha256": "ee3480051ea6d3483d0b475f8abc06791af4f53ea9a69a5ecb358bfce40ce3ae" },
+        { "path": "docs/audits/2026-09-12-customizer-spec-reconciliation/evidence/publication-manifest-20260915.sha256.json", "bytes": 6824, "committedSha256": "a65917546e8ab76b96f78e90dcd9b4ef95485c00b8b8719371ec43f7b21ea47d", "note": "generated in worktree after git add of index blobs; no root source" }
+      ],
+      "totalBytes": 71981,
+      "authoredLineCounts": { "evidence/ci-docs-review.md": 21, "evidence/spec-review.md": 70 },
+      "hookOutcome": "lint-staged pre-commit ran (oxfmt --write on staged json/md); no TypeScript staged so build skipped; no content changes from formatter",
+      "verification": "PASS: all 10 planned files' committed sha256 equal root source sha256; manifest generated post-add from index blobs; git diff --name-only origin/main HEAD lists exactly the 11 committed files; 15 gitignored .log files under evidence/ recorded by hash in the manifest, not force-added"
+    },
+    {
+      "order": 13,
+      "id": "audit-details",
+      "branch": "codex/roadmap-r0-publish-audit-details-20260915",
+      "headSha": "855de32a9544fbf8cd3f2161780ba098448508bd",
+      "prNumber": 1763,
+      "url": "https://github.com/SwiggitySwerve/MekStation/pull/1763",
+      "files": [
+        { "path": "docs/audits/2026-09-12-customizer-spec-reconciliation/ci-change-details.md", "bytes": 4763, "lines": 27, "match": true },
+        { "path": "docs/audits/2026-09-12-customizer-spec-reconciliation/followup-details.md", "bytes": 5875, "lines": 39, "match": true },
+        { "path": "docs/audits/2026-09-12-customizer-spec-reconciliation/reference-and-planning-details.md", "bytes": 20559, "lines": 209, "match": true },
+        { "path": "docs/audits/2026-09-12-customizer-spec-reconciliation/spec-change-details.md", "bytes": 26746, "lines": 144, "match": true }
+      ],
+      "totalBytes": 57943,
+      "totalAuthoredLines": 419,
+      "hookOutcome": "lint-staged pre-commit ran; no content changes",
+      "verification": "PASS: all 4 files byte-identical to root source; no markdown links found; git diff scope exactly matches plan"
+    },
+    {
+      "order": 14,
+      "id": "audit-overview",
+      "branch": "codex/roadmap-r0-publish-audit-overview-20260915",
+      "headSha": "14b510968ba341f1ad020f935e29f3bad7622d01",
+      "prNumber": 1767,
+      "url": "https://github.com/SwiggitySwerve/MekStation/pull/1767",
+      "commits": [
+        { "sha": "b2ac2dd523d17dec2d416e4e30c168bf5b5af348", "message": "docs(audit): publish customizer spec reconciliation overview, inventory and README", "note": "initial publish, single documented edit (routing archive path, inventory.md line 247)" },
+        { "sha": "14b510968ba341f1ad020f935e29f3bad7622d01", "message": "docs(audit): correct the edit-recovery archive path in the overview and inventory", "note": "follow-up correction, coordinator-directed after this lane surfaced a dangling link finding; independently re-verified before applying" }
+      ],
+      "files": [
+        { "path": "docs/audits/2026-09-12-customizer-spec-reconciliation/README.md", "bytes": 6316, "lines": 42, "committedSha256": "e4e08f5f3d3da07fa3928d501e7c6f08763fbc93652e866676e152eef0601ddb", "sourceSha256": "e4e08f5f3d3da07fa3928d501e7c6f08763fbc93652e866676e152eef0601ddb", "match": true },
+        {
+          "path": "docs/audits/2026-09-12-customizer-spec-reconciliation/inventory.md",
+          "bytes": 80179,
+          "lines": 258,
+          "edits": [
+            { "line": 247, "old": "(../../../openspec/changes/fix-customizer-explicit-tab-precedence/tasks.md)", "new": "(../../../openspec/changes/archive/2026-09-12-fix-customizer-explicit-tab-precedence/tasks.md)" },
+            { "line": 256, "old": "(../../../openspec/changes/archive/2026-09-12-add-customizer-edit-recovery/tasks.md)", "new": "(../../../openspec/changes/archive/2026-09-15-add-customizer-edit-recovery/tasks.md)" }
+          ],
+          "hashes": {
+            "rootSourceSha256": "43351e4f5dbf862776ab44738a4eddfdd0ed1b72299d991e3e254d78967c4015",
+            "preHookWorktreeSha256AfterFirstEditOnly": "3fadfb8a7378d4037aa90d26506bd39b8d2bfd63607fff331da7a48c2f05fba9",
+            "commit1HeadSha256AfterOxfmtTableRealign": "2445ed7cdbbddcb688ddec832d0065d160c6b3fb5e0db8cee3fe07858bd1d454",
+            "commit2HeadSha256Final": "0eff1a156d5756933707859171a05382a3df9db8c98531deff3f4b7cb9a65dc1"
+          }
+        },
+        {
+          "path": "docs/audits/2026-09-12-customizer-spec-reconciliation/inventory-overview.md",
+          "bytes": 62888,
+          "lines": 366,
+          "edits": [
+            { "line": 80, "old": "(../../../openspec/changes/archive/2026-09-12-add-customizer-edit-recovery/tasks.md)", "new": "(../../../openspec/changes/archive/2026-09-15-add-customizer-edit-recovery/tasks.md)" }
+          ],
+          "hashes": {
+            "rootSourceSha256BeforeCorrection": "not applicable (root file at time of copy already had the 2026-09-12 stale path; correction applied only in the worktree per coordinator directive)",
+            "commit2HeadSha256Final": "bfe68ea66ac0a4117c33d8a93d92c9f37f587b5401fce200a3df3ec988a1f7f2"
+          }
+        }
+      ],
+      "totalBytes": 149383,
+      "totalAuthoredLines": 666,
+      "harnessFloorArithmetic": "42+258+366=666, overage 166 over the 500-line target",
+      "hookOutcome": "commit 1: oxfmt reformatted inventory.md markdown table column widths (deterministic whitespace-only realignment triggered by the widened line-247 cell; confirmed by running oxfmt against an unmodified root copy, zero diff). commit 2: no table realignment (replacement path same length)",
+      "finding": "Initial publish surfaced a genuine pre-existing dangling link at inventory-overview.md line 80 / inventory.md line 256 (openspec/changes/archive/2026-09-12-add-customizer-edit-recovery/tasks.md did not exist on origin/main; the package was archived under 2026-09-15 instead). Flagged in the PR body rather than fixed unilaterally (outside the plan's single documented edit for this order). Coordinator confirmed the correct path via independent verification and directed the two-line fix, applied here as a second commit, plan file also updated by the coordinator to add these two edits to order 14.",
+      "verification": "PASS: README.md byte-identical to root source; inventory.md and inventory-overview.md changes limited to exactly the 3 documented line edits across 2 commits (grep-verified 0 old / 1 new occurrences each); all resolved archive targets confirmed to exist on origin/main via git cat-file -e; full 263-link sweep re-run after correction shows zero remaining dangling links; git diff --name-only origin/main HEAD lists exactly the 3 planned files"
+    },
+    {
+      "order": 15,
+      "id": "contracts",
+      "branch": "codex/roadmap-r0-publish-contracts-20260915",
+      "headSha": "d938477b82cb3ead3c450c7da64643aa95767004",
+      "prNumber": 1768,
+      "url": "https://github.com/SwiggitySwerve/MekStation/pull/1768",
+      "files": [
+        { "path": "openspec/planning/2026-09-12-roadmap-completion/DISCOVERY.md", "bytes": 6371, "lines": 41, "match": true },
+        { "path": "openspec/planning/2026-09-12-roadmap-completion/DELIVERY.md", "bytes": 8712, "lines": 54, "match": true },
+        { "path": "openspec/planning/2026-09-12-roadmap-completion/PR-SLICES.md", "bytes": 8661, "lines": 134, "match": true },
+        { "path": "openspec/planning/2026-09-12-roadmap-completion/WORKERS.md", "bytes": 15693, "lines": 93, "match": true },
+        { "path": "openspec/planning/2026-09-12-roadmap-completion/PUBLICATION.md", "bytes": 4830, "lines": 31, "match": true },
+        { "path": "openspec/planning/2026-09-12-roadmap-completion/PAUSE-2026-09-13.md", "bytes": 2655, "lines": 13, "match": true }
+      ],
+      "totalBytes": 46922,
+      "totalAuthoredLines": 366,
+      "hookOutcome": "lint-staged pre-commit ran; no content changes",
+      "verification": "PASS: all 6 files byte-identical to root source; no markdown links found; git diff scope exactly matches plan. dependsOn (receipts-20260912-01/02, receipts-20260913-01/02, receipts-20260915-01..05, receipts-undated-01/02) are owned by a separate publish lane (orders 1-11) and not verified here; PR opened per instructions regardless of merge-time dependency state"
+    },
+    {
+      "order": 16,
+      "id": "progress",
+      "branch": "codex/roadmap-r0-publish-progress-20260915",
+      "headSha": "d6b01322380960ac2148acbbda3f7fd578500433",
+      "prNumber": 1770,
+      "url": "https://github.com/SwiggitySwerve/MekStation/pull/1770",
+      "files": [
+        { "path": "openspec/planning/2026-09-12-roadmap-completion/PROGRESS.md", "bytes": 45542, "lines": 314, "match": true }
+      ],
+      "totalBytes": 45542,
+      "totalAuthoredLines": 314,
+      "discrepancyNote": "Plan caps state 315 authored lines; measured value (wc -l, awk NR, and byte-level trailing-newline check) is 314. Recorded as a plan-vs-source measurement discrepancy, not corrected unilaterally.",
+      "hookOutcome": "lint-staged pre-commit ran; no content changes",
+      "verification": "PASS: file byte-identical to root source; no markdown links found; git diff scope exactly matches plan"
+    },
+    {
+      "order": 17,
+      "id": "ledger",
+      "branch": "codex/roadmap-r0-publish-ledger-20260915",
+      "headSha": "67532c397a51fd129c05ea1ee09b22340084a6b7",
+      "prNumber": 1772,
+      "url": "https://github.com/SwiggitySwerve/MekStation/pull/1772",
+      "files": [
+        { "path": "openspec/planning/2026-09-12-roadmap-completion/README.md", "bytes": 10214, "lines": 45, "match": true },
+        { "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/admission-snapshot.json", "bytes": 196809, "match": true, "note": "immutable generated snapshot" },
+        { "path": "openspec/planning/2026-09-12-roadmap-completion/roadmap.json", "bytes": 858273, "lines": 15276, "match": true, "note": "PUBLICATION.md-named line-count allowance" },
+        { "path": "openspec/planning/2026-09-12-roadmap-completion/validate-roadmap.mjs", "bytes": 11838, "lines": 209, "match": true }
+      ],
+      "totalBytes": 1077134,
+      "authoredLineCounts": { "README.md": 45, "validate-roadmap.mjs": 209 },
+      "validatorOutput": {
+        "onBranch": "ROADMAP VALIDATION ERROR: ENOENT: no such file or directory, open 'E:\\Projects\\MekStation\\.sisyphus\\roadmap-completion-20260912\\worktrees\\publish-b\\openspec\\planning\\2026-09-12-roadmap-completion\\DELIVERY.md' (exit 1, expected — DELIVERY.md/WORKERS.md/PROGRESS.md arrive via the contracts and progress PRs)",
+        "fromRootCheckout": "ROADMAP VALIDATION PASSED: 73 nodes, 13 packages, 376 tasks, 40 triage rows (exit 0)"
+      },
+      "hookOutcome": "lint-staged pre-commit ran; no content changes",
+      "verification": "PASS: all 4 files byte-identical to root source; README.md links (PR-SLICES.md, DISCOVERY.md, DELIVERY.md, WORKERS.md, inventory-overview.md) confirmed absent from origin/main as expected; git diff scope exactly matches plan"
+    },
+    {
+      "order": 18,
+      "id": "active-index",
+      "branch": "codex/roadmap-r0-publish-active-index-20260915",
+      "headSha": "1199b7d7f654b71fc9242ceaaebfa0470aaaaa71",
+      "prNumber": 1774,
+      "url": "https://github.com/SwiggitySwerve/MekStation/pull/1774",
+      "files": [
+        { "path": "openspec/planning/ACTIVE-CHANGES-ROADMAP.md", "bytes": 1897, "lines": 11, "diffVsOriginMain": "+6/-52", "match": true },
+        { "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/2026-06-30-roadmap-index.md", "bytes": 2345, "lines": 57, "match": true, "note": "new file, no markdown links" }
+      ],
+      "totalBytes": 4242,
+      "hookOutcome": "lint-staged pre-commit ran; no content changes",
+      "verification": "PASS: both files byte-identical to root source; ACTIVE-CHANGES-ROADMAP.md diff vs origin/main exactly +6/-52; 6 links confirmed absent from origin/main as expected (published by ledger PR #1772 and audit-overview PR #1767); git diff scope exactly matches plan"
+    }
+  ],
+  "failures": [],
+  "notes": [
+    "Preconditions verified at start: git fetch origin; origin/main == 1f67f814e3f04e8a38488de70ecd8396f9269ca6; worktree status clean; gh pr list --limit 1 worked.",
+    "Orders 1-11 (receipts batches) are owned by a separate lane in a different worktree per the operating instructions; this lane never touched those branches and did not verify their existence before opening the contracts PR (#1768), which lists them in dependsOn per the plan.",
+    "Mid-run coordinator message (order 14 correction) was independently verified against origin/main before any edit was applied, consistent with verify-never-infer.",
+    "All commits made with hooks enabled (lint-staged / oxfmt / husky); no --no-verify, no --amend, no force-push, no rebase used anywhere in this run.",
+    "No AI attribution added to any commit message or PR body.",
+    "Root checkout (E:/Projects/MekStation) was only read from, never modified, except for this single deliverable file."
+  ]
+}

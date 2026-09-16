@@ -1,0 +1,21 @@
+{
+  "reviewer": "sonnet independent review",
+  "planId": "contracts",
+  "pr": 1768,
+  "branch": "codex/roadmap-r0-publish-contracts-20260915",
+  "head": "d938477b82cb3ead3c450c7da64643aa95767004",
+  "verdict": "APPROVE",
+  "verifierVerdict": "PASS (node verify-publication-pr.js contracts, exit 0): 1 linear commit on plan base 1f67f814e3f04e8a38488de70ecd8396f9269ca6, file set matches plan (6 files), no gitignored paths, commit message has no attribution text, bytes=46922, title matches plan title exactly.",
+  "checks": {
+    "1_file_set_and_hashes": "git diff --stat origin/main codex/roadmap-r0-publish-contracts-20260915 shows exactly the 6 plan files (no manifest, kind=authored): DISCOVERY.md, DELIVERY.md, PR-SLICES.md, WORKERS.md, PUBLICATION.md, PAUSE-2026-09-13.md. For each, sha256(git show <branch>:<path>) == sha256(root checkout file) exactly (no CRLF normalization needed). No extra/missing files.",
+    "2_caps": "Plan caps: '6 files, 366 authored lines; no markdown links'. Measured via wc -l on committed blobs: DISCOVERY.md=41, DELIVERY.md=54, PR-SLICES.md=134, WORKERS.md=93, PUBLICATION.md=31, PAUSE-2026-09-13.md=13, sum=366 -- matches plan and PR body exactly. Total committed bytes via git cat-file -s = 46,922 (PUBLICATION.md 4,830 + DISCOVERY.md 6,371 + PR-SLICES.md 8,661 + WORKERS.md 15,693 + DELIVERY.md 8,712 + PAUSE-2026-09-13.md 2,655), matches PR body's itemized sum exactly.",
+    "3_links": "grep -noE ']\\([^)]*\\)' over all 6 committed .md files returned zero matches in every file -- confirms 'no markdown links' claim in both the plan caps and PR body. No links to resolve.",
+    "4_prose_evidence_refs": "Not the ledger/progress files this checklist item targets (PROGRESS.md and README.md); still spot-checked WORKERS.md/DELIVERY.md/PR-SLICES.md/DISCOVERY.md for evidence/ prose mentions as a sanity pass -- caps note explicitly states 'prose-cited evidence files are published by the receipt batches that precede this PR', consistent with the dependsOn list (the 11 receipts-batch PRs).",
+    "5_ledger_validator": "Not applicable -- this is not the ledger PR. DELIVERY.md's 'Allowed slice states' line was read directly for cross-check with the ledger PR's roadmap.json stateNormalization20260915 entries (see the ledger receipt): confirmed the DELIVERY.md-defined enum has exactly twelve states (planned, admitted, implementing, local-verified, pr-open, review-required, ci-running, merged, main-verified, archived, complete, blocked).",
+    "6_pr_body_accuracy": "File count (6), total bytes (46,922, itemized per-file and cross-checked), authored line counts (41/54/134/93/31/13=366) all verified exactly against git-derived measurements. 'Merge after: the eleven receipts-batch PRs' matches the plan's dependsOn (11 entries: receipts-20260912-01/02, receipts-20260913-01/02, receipts-20260915-01..05, receipts-undated-01/02) -- count matches; all 11 corresponding branches exist on origin. No AI attribution found in the PR title, PR body, or the single commit message: 'docs(roadmap): publish the roadmap completion planning contracts' with an empty body. Commit author/committer is Wes Rollings <wrollings@gmail.com>.",
+    "7_content_sanity": "All 6 documents (DISCOVERY, DELIVERY, PR-SLICES, WORKERS, PUBLICATION, PAUSE-2026-09-13) are the roadmap-completion planning contracts described in the change context -- consistent scope. One PUBLICATION.md line explicitly instructs 'do not copy the initiating checkout's mixed active-change ledger or unrelated printable-model research into an R0 publication' and one PAUSE/DISCOVERY-adjacent line ('The initiating checkout contains existing reconciliation changes and unrelated printable-model research. Capture and preserve both.') -- both are exclusionary/preservation instructions, not leaked unrelated content. PUBLICATION.md line 21 states the raw-log rule verbatim ('do not force-add ignored logs or claim a raw log is available in Git when only its receipt is published') as pre-existing unmodified content (byte-identical to root source) -- not a new claim being made by this PR."
+  },
+  "requiredEdits": [],
+  "notes": "Clean PASS across every checklist item.",
+  "at": "2026-09-15T23:15:27Z"
+}

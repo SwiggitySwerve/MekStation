@@ -1,0 +1,84 @@
+{
+  "reviewer": "sonnet independent review",
+  "planId": "receipts-20260915-04",
+  "pr": 1769,
+  "branch": "codex/roadmap-r0-publish-receipts-20260915-04-20260915",
+  "head": "194580bc77ff62b78a06f787da36386294a06343",
+  "verdict": "APPROVE",
+  "verifierExitCode": 0,
+  "verifierReport": {
+    "id": "receipts-20260915-04",
+    "branch": "codex/roadmap-r0-publish-receipts-20260915-04-20260915",
+    "checks": [
+      "1 linear commit(s) on top of plan base 1f67f814e3f04e8a38488de70ecd8396f9269ca6",
+      "file set matches plan (100 files)",
+      "manifest hashes match blobs for 99 files",
+      "CRLF source normalized to LF by .gitattributes: openspec/planning/2026-09-12-roadmap-completion/evidence/r2-triage-camp0-admission-brief-20260915.json",
+      "CRLF source normalized to LF by .gitattributes: openspec/planning/2026-09-12-roadmap-completion/evidence/r4-s5-s7-admission-brief-20260915.json",
+      "no gitignored paths",
+      "commit message has no attribution text"
+    ],
+    "failures": [],
+    "head": "194580bc77ff62b78a06f787da36386294a06343",
+    "base": "1f67f814e3f04e8a38488de70ecd8396f9269ca6",
+    "commitCount": 1,
+    "bytes": 1509349,
+    "title": "docs(roadmap): publish generated receipts batch 20260915-04 (99 files)",
+    "verdict": "PASS"
+  },
+  "independentChecks": {
+    "linearOnBase": true,
+    "fileSetMatches": true,
+    "alreadyOnMainIdentical": [],
+    "spotChecks": [
+      {
+        "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/r4-s5-explicit-offsets-local-20260915.json",
+        "blobSha256": "2816f97e64463131dfceef776f72de8f7c541d0b195a5d4f19102be41c5044ba",
+        "manifestSha256": "2816f97e64463131dfceef776f72de8f7c541d0b195a5d4f19102be41c5044ba",
+        "rootSha256": "2816f97e64463131dfceef776f72de8f7c541d0b195a5d4f19102be41c5044ba",
+        "match": "exact"
+      },
+      {
+        "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/r2-p1-62a3-b-1708-final2-20260915-merge-20260915.json",
+        "blobSha256": "adc25dd4982645b34539c3db3afe33f8f05960ce49ffdbcfabc6e77facb64318",
+        "manifestSha256": "adc25dd4982645b34539c3db3afe33f8f05960ce49ffdbcfabc6e77facb64318",
+        "rootSha256": "adc25dd4982645b34539c3db3afe33f8f05960ce49ffdbcfabc6e77facb64318",
+        "match": "exact"
+      },
+      {
+        "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/r4-s4-a-1704-final-20260915-premerge.json",
+        "blobSha256": "fdd03290f39304bd3156483d3c9ec58e669834f8653d23538df6ea08a0e14b73",
+        "manifestSha256": "fdd03290f39304bd3156483d3c9ec58e669834f8653d23538df6ea08a0e14b73",
+        "rootSha256": "fdd03290f39304bd3156483d3c9ec58e669834f8653d23538df6ea08a0e14b73",
+        "match": "exact"
+      },
+      {
+        "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/r4-s3b-b-1703-final2-20260915-premerge.json",
+        "blobSha256": "108d67c61604a7d52b22ddc34503b720d10abac8dd3625aedf3f81800aa86f8e",
+        "manifestSha256": "108d67c61604a7d52b22ddc34503b720d10abac8dd3625aedf3f81800aa86f8e",
+        "rootSha256": "108d67c61604a7d52b22ddc34503b720d10abac8dd3625aedf3f81800aa86f8e",
+        "match": "exact"
+      },
+      {
+        "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/r2-projection-prereq-1675-final-20260915-merge-20260915.json",
+        "blobSha256": "bd541bfc61d882220e8cf3393fd0089c69d7aff582a5985e585187e5435ad37d",
+        "manifestSha256": "bd541bfc61d882220e8cf3393fd0089c69d7aff582a5985e585187e5435ad37d",
+        "rootSha256": "bd541bfc61d882220e8cf3393fd0089c69d7aff582a5985e585187e5435ad37d",
+        "match": "exact"
+      }
+    ],
+    "noIgnoredPaths": true,
+    "withinCaps": {
+      "files": 100,
+      "bytes": 1509349,
+      "filesOk": true,
+      "bytesOk": true
+    },
+    "noAttribution": true,
+    "prBodyAccurate": true,
+    "titleMatchesPlan": true
+  },
+  "requiredEdits": [],
+  "notes": "Independent spot check picked 5 files at random; all matched blob==manifest==root sha256 exactly (no CRLF normalization needed for the sampled files).",
+  "at": "2026-09-15T23:34:32.997Z"
+}

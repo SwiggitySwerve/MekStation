@@ -1,0 +1,85 @@
+{
+  "reviewer": "sonnet independent review",
+  "planId": "receipts-undated-01",
+  "pr": 1773,
+  "branch": "codex/roadmap-r0-publish-receipts-undated-01-20260915",
+  "head": "c997056ee2078c5cc2743e6fa1e9f89a2d18cf8f",
+  "verdict": "APPROVE",
+  "verifierExitCode": 0,
+  "verifierReport": {
+    "id": "receipts-undated-01",
+    "branch": "codex/roadmap-r0-publish-receipts-undated-01-20260915",
+    "checks": [
+      "1 linear commit(s) on top of plan base 1f67f814e3f04e8a38488de70ecd8396f9269ca6",
+      "file set matches plan (100 files)",
+      "manifest hashes match blobs for 99 files",
+      "CRLF source normalized to LF by .gitattributes: openspec/planning/2026-09-12-roadmap-completion/evidence/triage-bv-prewarmer-parent-ready.json",
+      "CRLF source normalized to LF by .gitattributes: openspec/planning/2026-09-12-roadmap-completion/evidence/triage-c3-reference-correction.json",
+      "CRLF source normalized to LF by .gitattributes: openspec/planning/2026-09-12-roadmap-completion/evidence/triage-c3-verification.json",
+      "no gitignored paths",
+      "commit message has no attribution text"
+    ],
+    "failures": [],
+    "head": "c997056ee2078c5cc2743e6fa1e9f89a2d18cf8f",
+    "base": "1f67f814e3f04e8a38488de70ecd8396f9269ca6",
+    "commitCount": 1,
+    "bytes": 1123129,
+    "title": "docs(roadmap): publish generated receipts batch undated-01 (99 files)",
+    "verdict": "PASS"
+  },
+  "independentChecks": {
+    "linearOnBase": true,
+    "fileSetMatches": true,
+    "alreadyOnMainIdentical": [],
+    "spotChecks": [
+      {
+        "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/campaign-contracts-premerge.json",
+        "blobSha256": "b6b5998282f8c1b63c8ed9170dfd3f6c1da5342d3b132775a603ea0b5f0d797b",
+        "manifestSha256": "b6b5998282f8c1b63c8ed9170dfd3f6c1da5342d3b132775a603ea0b5f0d797b",
+        "rootSha256": "b6b5998282f8c1b63c8ed9170dfd3f6c1da5342d3b132775a603ea0b5f0d797b",
+        "match": "exact"
+      },
+      {
+        "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/browser-admission-proposal.json",
+        "blobSha256": "75cadb727cdabca506424d75113b076b7246543ccfc3f1195eb5d7bf932952e7",
+        "manifestSha256": "75cadb727cdabca506424d75113b076b7246543ccfc3f1195eb5d7bf932952e7",
+        "rootSha256": "75cadb727cdabca506424d75113b076b7246543ccfc3f1195eb5d7bf932952e7",
+        "match": "exact"
+      },
+      {
+        "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/ci-admission-proposal.json",
+        "blobSha256": "46086abdee99832b17f1d7e9c39b685c59325acabd49a0e296a4b8de930afbd9",
+        "manifestSha256": "46086abdee99832b17f1d7e9c39b685c59325acabd49a0e296a4b8de930afbd9",
+        "rootSha256": "46086abdee99832b17f1d7e9c39b685c59325acabd49a0e296a4b8de930afbd9",
+        "match": "exact"
+      },
+      {
+        "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/catalog-browser-1657-attempt-1-premerge.json",
+        "blobSha256": "23f544d22ee84f726df932ab47ffebf402f63ddebaaa6b74cbd1563669733c89",
+        "manifestSha256": "23f544d22ee84f726df932ab47ffebf402f63ddebaaa6b74cbd1563669733c89",
+        "rootSha256": "23f544d22ee84f726df932ab47ffebf402f63ddebaaa6b74cbd1563669733c89",
+        "match": "exact"
+      },
+      {
+        "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/first-delivery-cleanup-preflight.json",
+        "blobSha256": "480997e2b40f91bb5b69c7410f71e6172792698ff2e4055782635ccc5b3a3864",
+        "manifestSha256": "480997e2b40f91bb5b69c7410f71e6172792698ff2e4055782635ccc5b3a3864",
+        "rootSha256": "480997e2b40f91bb5b69c7410f71e6172792698ff2e4055782635ccc5b3a3864",
+        "match": "exact"
+      }
+    ],
+    "noIgnoredPaths": true,
+    "withinCaps": {
+      "files": 100,
+      "bytes": 1123129,
+      "filesOk": true,
+      "bytesOk": true
+    },
+    "noAttribution": true,
+    "prBodyAccurate": true,
+    "titleMatchesPlan": true
+  },
+  "requiredEdits": [],
+  "notes": "Independent spot check picked 5 files at random; all matched blob==manifest==root sha256 exactly (no CRLF normalization needed for the sampled files).",
+  "at": "2026-09-15T23:34:32.997Z"
+}

@@ -1,0 +1,51 @@
+{
+  "reviewer": "sonnet independent review",
+  "planId": "receipts-20260913-01",
+  "pr": 1760,
+  "branch": "codex/roadmap-r0-publish-receipts-20260913-01-20260915",
+  "head": "9c0b90647d9dc3b33a0ce4418b47cbb5645cc02e",
+  "verdict": "APPROVE",
+  "verifierExitCode": 0,
+  "verifierReport": {
+    "id": "receipts-20260913-01",
+    "branch": "codex/roadmap-r0-publish-receipts-20260913-01-20260915",
+    "checks": [
+      "1 linear commit(s) on top of plan base 1f67f814e3f04e8a38488de70ecd8396f9269ca6",
+      "already on main with identical content: openspec/planning/2026-09-12-roadmap-completion/evidence/r4-matrix-local-verification-20260913.json",
+      "already on main with identical content: openspec/planning/2026-09-12-roadmap-completion/evidence/r4-matrix-parent-acceptance-20260913.json",
+      "manifest hashes match blobs for 99 files",
+      "no gitignored paths",
+      "commit message has no attribution text"
+    ],
+    "failures": [],
+    "head": "9c0b90647d9dc3b33a0ce4418b47cbb5645cc02e",
+    "base": "1f67f814e3f04e8a38488de70ecd8396f9269ca6",
+    "commitCount": 1,
+    "bytes": 617103,
+    "title": "docs(roadmap): publish generated receipts batch 20260913-01 (99 files)",
+    "verdict": "PASS"
+  },
+  "independentChecks": {
+    "linearOnBase": true,
+    "fileSetMatches": true,
+    "alreadyOnMainIdentical": [
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/r4-matrix-local-verification-20260913.json",
+      "openspec/planning/2026-09-12-roadmap-completion/evidence/r4-matrix-parent-acceptance-20260913.json"
+    ],
+    "spotChecks": [
+      {"path": "openspec/planning/2026-09-12-roadmap-completion/evidence/bv-prewarmer-main-parent-acceptance-20260913.json", "blobSha256": "a3d174efeded32aa6a9c9d182064cc3db0174d64ac990d8433b9e9c8e2f65e1a", "manifestSha256": "a3d174efeded32aa6a9c9d182064cc3db0174d64ac990d8433b9e9c8e2f65e1a", "rootSha256": "a3d174efeded32aa6a9c9d182064cc3db0174d64ac990d8433b9e9c8e2f65e1a", "match": "exact"},
+      {"path": "openspec/planning/2026-09-12-roadmap-completion/evidence/r2-contract-projection-parent-review-20260913.json", "blobSha256": "9b8f97b3d9e7bb65f658627e28317002faf77f67baf6cc5b6aa734dfad89b1ee", "manifestSha256": "9b8f97b3d9e7bb65f658627e28317002faf77f67baf6cc5b6aa734dfad89b1ee", "rootSha256": "9b8f97b3d9e7bb65f658627e28317002faf77f67baf6cc5b6aa734dfad89b1ee", "match": "exact"},
+      {"path": "openspec/planning/2026-09-12-roadmap-completion/evidence/battlearmor-autosave-main-parent-acceptance-20260913.json", "blobSha256": "0126ae4479516a61bf85c3cb3f8fedfa9ba85102a96df1f36bac733aa679caf3", "manifestSha256": "0126ae4479516a61bf85c3cb3f8fedfa9ba85102a96df1f36bac733aa679caf3", "rootSha256": "0126ae4479516a61bf85c3cb3f8fedfa9ba85102a96df1f36bac733aa679caf3", "match": "exact"},
+      {"path": "openspec/planning/2026-09-12-roadmap-completion/evidence/final-canonical-cleanup-parent-acceptance-20260913.json", "blobSha256": "bba9aba3c13eae906b874d14a50630a5e7c284570b4e8dfd6c7f75a31e3d7707", "manifestSha256": "bba9aba3c13eae906b874d14a50630a5e7c284570b4e8dfd6c7f75a31e3d7707", "rootSha256": "bba9aba3c13eae906b874d14a50630a5e7c284570b4e8dfd6c7f75a31e3d7707", "match": "exact"},
+      {"path": "openspec/planning/2026-09-12-roadmap-completion/evidence/r3-storage-integrity-repair-admission-20260913.json", "blobSha256": "cb5829d7f3b61e7d86720150eb93a00e797395385b7070d3e6318d191e7dbe30", "manifestSha256": "cb5829d7f3b61e7d86720150eb93a00e797395385b7070d3e6318d191e7dbe30", "rootSha256": "cb5829d7f3b61e7d86720150eb93a00e797395385b7070d3e6318d191e7dbe30", "match": "exact"}
+    ],
+    "noIgnoredPaths": true,
+    "withinCaps": {"files": 98, "bytes": 617103},
+    "noAttribution": true,
+    "prBodyAccurate": true,
+    "titleMatchesPlan": true
+  },
+  "requiredEdits": [],
+  "notes": "Single linear commit on plan base. 2 planned files (r4-matrix-local-verification, r4-matrix-parent-acceptance) are already on main byte-identical, so the diff has 98 paths (97 evidence files + manifest) for the 99-file plan list, confirmed by rev-parse tree-equality on base and head for both. 5 random spot-checked files matched manifest and blob hashes exactly. No gitignored paths, bytes (617,103) under the 2MB cap, no attribution text. PR #1760 title matches plan; body states 98 files changed vs main + the 2 already-on-main files by name and total bytes 617,103 -- all consistent with independent counts.",
+  "at": "2026-09-15T22:55:00Z"
+}

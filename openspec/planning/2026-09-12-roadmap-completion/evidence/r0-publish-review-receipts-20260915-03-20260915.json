@@ -1,0 +1,87 @@
+{
+  "reviewer": "sonnet independent review",
+  "planId": "receipts-20260915-03",
+  "pr": 1766,
+  "branch": "codex/roadmap-r0-publish-receipts-20260915-03-20260915",
+  "head": "ef70250afce42d641ba0e693e032c72945b6413a",
+  "verdict": "APPROVE",
+  "verifierExitCode": 0,
+  "verifierReport": {
+    "id": "receipts-20260915-03",
+    "branch": "codex/roadmap-r0-publish-receipts-20260915-03-20260915",
+    "checks": [
+      "1 linear commit(s) on top of plan base 1f67f814e3f04e8a38488de70ecd8396f9269ca6",
+      "file set matches plan (100 files)",
+      "manifest hashes match blobs for 99 files",
+      "CRLF source normalized to LF by .gitattributes: openspec/planning/2026-09-12-roadmap-completion/evidence/r2-authority-live-admission-brief-20260915.json",
+      "CRLF source normalized to LF by .gitattributes: openspec/planning/2026-09-12-roadmap-completion/evidence/r2-authority-live-rows-local-20260915.json",
+      "CRLF source normalized to LF by .gitattributes: openspec/planning/2026-09-12-roadmap-completion/evidence/r2-camp-1-admission-brief-20260915.json",
+      "CRLF source normalized to LF by .gitattributes: openspec/planning/2026-09-12-roadmap-completion/evidence/r2-camp-2-admission-brief-20260915.json",
+      "CRLF source normalized to LF by .gitattributes: openspec/planning/2026-09-12-roadmap-completion/evidence/r2-combat-admission-brief-20260915.json",
+      "no gitignored paths",
+      "commit message has no attribution text"
+    ],
+    "failures": [],
+    "head": "ef70250afce42d641ba0e693e032c72945b6413a",
+    "base": "1f67f814e3f04e8a38488de70ecd8396f9269ca6",
+    "commitCount": 1,
+    "bytes": 1825861,
+    "title": "docs(roadmap): publish generated receipts batch 20260915-03 (99 files)",
+    "verdict": "PASS"
+  },
+  "independentChecks": {
+    "linearOnBase": true,
+    "fileSetMatches": true,
+    "alreadyOnMainIdentical": [],
+    "spotChecks": [
+      {
+        "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/r2-combat-residual-rows-local-20260915.json",
+        "blobSha256": "481ae1892e9e242bf0a1b56942f738f2cb6b68b2b716085ecbe1fa69a4a0323f",
+        "manifestSha256": "481ae1892e9e242bf0a1b56942f738f2cb6b68b2b716085ecbe1fa69a4a0323f",
+        "rootSha256": "481ae1892e9e242bf0a1b56942f738f2cb6b68b2b716085ecbe1fa69a4a0323f",
+        "match": "exact"
+      },
+      {
+        "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/r2-client-discard-flush-diagnosis-20260915.json",
+        "blobSha256": "fc651e93dbaa2ee62e15d8927e32f021053a1a0e845bf434659dc03b007bf594",
+        "manifestSha256": "fc651e93dbaa2ee62e15d8927e32f021053a1a0e845bf434659dc03b007bf594",
+        "rootSha256": "fc651e93dbaa2ee62e15d8927e32f021053a1a0e845bf434659dc03b007bf594",
+        "match": "exact"
+      },
+      {
+        "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/r2-cutover-co12-1740-main-proof-20260915.json",
+        "blobSha256": "ac00d3cb3bf46d478fa29fd08f9bf3b3f5f583e822c5dc1e6b8fb316e1a3a431",
+        "manifestSha256": "ac00d3cb3bf46d478fa29fd08f9bf3b3f5f583e822c5dc1e6b8fb316e1a3a431",
+        "rootSha256": "ac00d3cb3bf46d478fa29fd08f9bf3b3f5f583e822c5dc1e6b8fb316e1a3a431",
+        "match": "exact"
+      },
+      {
+        "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/r2-client-crash-window-local-20260915.json",
+        "blobSha256": "6e9647d5da28d1140477f6b68a7038a8a3e4f9a37cf5b0f2c6ff535afb98b960",
+        "manifestSha256": "6e9647d5da28d1140477f6b68a7038a8a3e4f9a37cf5b0f2c6ff535afb98b960",
+        "rootSha256": "6e9647d5da28d1140477f6b68a7038a8a3e4f9a37cf5b0f2c6ff535afb98b960",
+        "match": "exact"
+      },
+      {
+        "path": "openspec/planning/2026-09-12-roadmap-completion/evidence/r2-authority-live-revocation-detach-1756-main-proof-20260915.json",
+        "blobSha256": "ddb6d1f00f4c8064bf60aa053245fa06300fc3db02374d8cad49c0f0e1aa9fb0",
+        "manifestSha256": "ddb6d1f00f4c8064bf60aa053245fa06300fc3db02374d8cad49c0f0e1aa9fb0",
+        "rootSha256": "ddb6d1f00f4c8064bf60aa053245fa06300fc3db02374d8cad49c0f0e1aa9fb0",
+        "match": "exact"
+      }
+    ],
+    "noIgnoredPaths": true,
+    "withinCaps": {
+      "files": 100,
+      "bytes": 1825861,
+      "filesOk": true,
+      "bytesOk": true
+    },
+    "noAttribution": true,
+    "prBodyAccurate": true,
+    "titleMatchesPlan": true
+  },
+  "requiredEdits": [],
+  "notes": "Independent spot check picked 5 files at random; all matched blob==manifest==root sha256 exactly (no CRLF normalization needed for the sampled files).",
+  "at": "2026-09-15T23:34:32.997Z"
+}
